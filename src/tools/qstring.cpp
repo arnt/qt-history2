@@ -3714,16 +3714,17 @@ QString &QString::sprintf( const char* cformat, ... )
 #endif
 
 /*!
-    Returns the string converted to a \c long value to the base \a
+    Returns the string converted to a \c {long long} using base \a
     base, which is 10 by default and must be between 2 and 36 or 0. If
-    \a base is 0, the base is determined automatically. If the string
-    begins with "0x", it is assumed to be hexadecimal. Otherwise,
-    if the string begins with a "0", it is assumed to be octal. Otheriwise
-    it is assumed to be decimal..
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \sa number()
 */
@@ -3742,16 +3743,17 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned long} value to the
-    base \a base, which is 10 by default and must be between 2 and 36 or 0. If
-    \a base is 0, the base is determined automatically. If the string
-    begins with "0x", it is assumed to be hexadecimal. Otherwise,
-    if the string begins with a "0", it is assumed to be octal. Otheriwise
-    it is assumed to be decimal..
+    Returns the string converted to an \c {unsigned long long} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \sa number()
 */
@@ -3770,16 +3772,17 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to a \c long value to the base \a
+    Returns the string converted to a \c long using base \a
     base, which is 10 by default and must be between 2 and 36 or 0. If
-    \a base is 0, the base is determined automatically. If the string
-    begins with "0x", it is assumed to be hexadecimal. Otherwise,
-    if the string begins with a "0", it is assumed to be octal. Otheriwise
-    it is assumed to be decimal..
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \sa number()
 */
@@ -3796,16 +3799,17 @@ long QString::toLong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned long} value to the
-    base \a base, which is 10 by default and must be between 2 and 36 or 0. If
-    \a base is 0, the base is determined automatically. If the string
-    begins with "0x", it is assumed to be hexadecimal. Otherwise,
-    if the string begins with a "0", it is assumed to be octal. Otheriwise
-    it is assumed to be decimal..
+    Returns the string converted to an \c {unsigned long} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \sa number()
 */
@@ -3822,16 +3826,17 @@ ulong QString::toULong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c int value to the base \a
+    Returns the string converted to an \c int using base \a
     base, which is 10 by default and must be between 2 and 36 or 0. If
-    \a base is 0, the base is determined automatically. If the string
-    begins with "0x", it is assumed to be hexadecimal. Otherwise,
-    if the string begins with a "0", it is assumed to be octal. Otheriwise
-    it is assumed to be decimal..
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \code
 	QString str("FF");
@@ -3855,12 +3860,17 @@ int QString::toInt(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c{unsigned int} value to the
-    base \a base, which is 10 by default and must be between 2 and 36.
+    Returns the string converted to an \c {unsigned int} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
 
     \sa number()
 */
@@ -3877,12 +3887,19 @@ uint QString::toUInt(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to a \c short value to the base \a
-    base, which is 10 by default and must be between 2 and 36.
+    Returns the string converted to a \c short using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
 */
 
 short QString::toShort(bool *ok, int base) const
@@ -3897,13 +3914,19 @@ short QString::toShort(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned short} value to
-    the base \a base, which is 10 by default and must be between 2 and
-    36.
+    Returns the string converted to an \c {unsigned short} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
 */
 
 ushort QString::toUShort(bool *ok, int base) const
@@ -3920,7 +3943,8 @@ ushort QString::toUShort(bool *ok, int base) const
 
 /*!
     Returns the string converted to a \c double value.
-    Returns 0 if the conversion fails.
+
+    Returns 0.0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
@@ -3946,7 +3970,8 @@ double QString::toDouble(bool *ok) const
 
 /*!
     Returns the string converted to a \c float value.
-    Returns 0 if the conversion fails.
+
+    Returns 0.0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
     false; otherwise \a *ok is set to true.
