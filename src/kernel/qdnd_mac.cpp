@@ -596,7 +596,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     dragSource = 0;
 
     return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
-	    acceptfmt && !acceptact);
+	    !acceptact);
 }
 
 void QDragManager::updatePixmap()
@@ -708,6 +708,8 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 	return dragNotAcceptedErr;
     QDropEvent de(current_drag_widget->mapFromGlobal(QPoint(mouse.h, mouse.v)));
     de.setAction(current_drag_action);
+    if(global_src)
+	global_src->setTarget(current_drag_widget);
     QApplication::sendEvent(current_drag_widget, &de);
 #ifdef DEBUG_DRAG_EVENTS
     qDebug("Qt: internal: Sending <DragDrop>(%d::%d::%d) event to %s %s", 
