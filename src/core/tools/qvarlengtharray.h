@@ -89,7 +89,7 @@ public:
     inline const T * constData() const { return ptr; }
 
 private:
-    void *operator new(size_t sz);
+    inline void *operator new(size_t sz) {}
     void realloc(int size, int alloc);
 
     int a;
