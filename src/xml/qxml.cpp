@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#96 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#97 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -74,6 +74,7 @@
 #define XMLERR_EXTERNALGENERALENTITYINDTD QT_TRANSLATE_NOOP( "QXml", "external parsed general entity reference not allowed in DTD" )
 #define XMLERR_UNPARSEDENTITYREFERENCE    QT_TRANSLATE_NOOP( "QXml", "unparsed entity reference in wrong context" )
 #define XMLERR_RECURSIVEENTITIES          QT_TRANSLATE_NOOP( "QXml", "recursive entities" )
+#define XMLERR_ERRORINTEXTDECL            QT_TRANSLATE_NOOP( "QXml", "error in the text declaration of an external entity" )
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
@@ -162,6 +163,38 @@ static const signed char charLookupTable[256]={
     cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, // 0xF0 - 0xF7
     cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown, cltUnknown  // 0xF8 - 0xFF
 };
+
+
+//
+// local helper functions
+//
+
+/*
+  This function strips the TextDecl [77] ("<?xml ...?>") from the string \a
+  str. The stripped version is stored in \a str. If this function finds an
+  invalid TextDecl, it returns FALSE, otherwise TRUE.
+
+  This function is used for external entities since those can include an
+  TextDecl that must be stripped before inserting the entity.
+*/
+static bool stripTextDecl( QString& str )
+{
+    QRegExp textDeclStart( "^<\\?xml\\s" );
+    if ( str.contains( textDeclStart ) ) {
+	QRegExp textDecl(
+	    "^<\\?xml\\s+"
+	    "(version\\s*=\\s*((['\"])[-a-zA-Z0-9_.:]+\\3))?"
+	    "\\s*"
+	    "(encoding\\s*=\\s*((['\"])[A-Za-z][-a-zA-Z0-9_.]*\\6))?"
+	    "\\s*\\?>"
+	);
+	QString strTmp = str.replace( textDecl, "" );
+	if ( strTmp.length() != str.length() )
+	    return FALSE; // external entity has wrong TextDecl
+	str = strTmp;
+    }
+    return TRUE;
+}
 
 
 class QXmlAttributesPrivate
@@ -4498,8 +4531,12 @@ bool QXmlSimpleReader::parsePEReference()
 				return FALSE;
 			    }
 			    if ( ret ) {
-				skipIt = FALSE;
 				xmlRefString = ret->data();
+				if ( !stripTextDecl( xmlRefString ) ) {
+				    reportParseError( XMLERR_ERRORINTEXTDECL );
+				    return FALSE;
+				}
+				skipIt = FALSE;
 			    } 
 			}
 		    }
@@ -6742,9 +6779,14 @@ bool QXmlSimpleReader::processReference()
 				    return FALSE;
 				}
 				if ( ret ) {
-				    skipIt = FALSE;
-				    if ( !insertXmlRef( ret->data(), reference, FALSE ) )
+				    QString xmlRefString = ret->data();
+				    if ( !stripTextDecl( xmlRefString ) ) {
+					reportParseError( XMLERR_ERRORINTEXTDECL );
 					return FALSE;
+				    }
+				    if ( !insertXmlRef( xmlRefString, reference, FALSE ) )
+					return FALSE;
+				    skipIt = FALSE;
 				} 
 			    }
 			    if ( skipIt && contentHnd ) {
