@@ -1265,27 +1265,33 @@ void QSqlTable::columnClicked ( int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    //    //qDebug("QSqlTable::paintCell");
     QTable::paintCell(p,row,col,cr,selected);  // empty cell
+
+    if( (row == currentRow()) && (col == currentColumn()) ){
+ 	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
+		     colorGroup().brush( QColorGroup::Highlight ) );
+ 	p->setPen( colorGroup().highlightedText() );
+    } else {
+	p->setPen( colorGroup().text() );
+    }
+
     if ( !d->cursor )
 	return;
     if ( d->mode != QSqlTable::None ) {
 	if ( row == d->editRow && d->editBuffer ) {
-	    //	    qDebug("painting editRow:" + QString::number(row));
-	    //	    qDebug("field name:" + d->editBuffer->field( indexOf( col ) )->name() + " type:" + QString(d->editBuffer->field( indexOf( col ) )->value().typeName()));
-	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr, selected );
+	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr, 
+			selected );
 	} else if ( row > d->editRow && d->mode == QSqlTable::Insert ) {
-	    //	    //qDebug("trying to paint row:" + QString::number(row));
 	    if ( d->cursor->seek( row - 1 ) )
-		paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
+		paintField( p, d->cursor->field( indexOf( col ) ), cr, 
+			    selected );
 	} else {
-	    //	    qDebug("seeking in update mode");
 	    if ( d->cursor->seek( row ) )
-		paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
+		paintField( p, d->cursor->field( indexOf( col ) ), cr, 
+			    selected );
 	}
     }
     else {
-	//	qDebug("paint SEEKing row:" + QString::number(row));
 	if ( d->cursor->seek( row ) )
 	    paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
     }
@@ -1305,10 +1311,11 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
 */
 
-void QSqlTable::paintField( QPainter * p, const QSqlField* field, const QRect & cr,
-			     bool  )
+void QSqlTable::paintField( QPainter * p, const QSqlField* field, 
+			    const QRect & cr, bool )
 {
     // ###
+
     if ( !field )
 	return;
     QString text;
