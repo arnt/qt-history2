@@ -52,7 +52,9 @@ struct QPixmapData { // internal pixmap data
     uint mcp:1;
 #endif
     int ser_no;
+#ifndef Q_WS_X11
     QBitmap *mask;
+#endif
 #if defined(Q_WS_WIN)
     QPixmap *maskpm;
     union {
@@ -78,6 +80,7 @@ struct QPixmapData { // internal pixmap data
 #elif defined(Q_WS_X11)
     bool alpha;
     QX11Info xinfo;
+    Qt::HANDLE x11_mask;
     Qt::HANDLE xft_hd;
     Qt::HANDLE hd2; // sorted in the default display depth
     Qt::HANDLE x11ConvertToDefaultDepth();
@@ -102,7 +105,10 @@ struct QPixmapData { // internal pixmap data
 #if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     Qt::HANDLE hd;
 #endif
-
+#ifdef Q_WS_X11
+    QBitmap mask_to_bitmap() const;
+    static Qt::HANDLE bitmap_to_mask(const QBitmap &, int screen);
+#endif
 
     static int allocCell(const QPixmap *p);
     static void freeCell(QPixmapData *data, bool terminate = false);

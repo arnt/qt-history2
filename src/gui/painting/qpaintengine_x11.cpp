@@ -1296,14 +1296,14 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
     bool include_inferiors = false;
     bool graphics_exposure = false;
     QPixmap *src_pm;
-    QBitmap *mask;
+    Qt::HANDLE mask = 0;
 
     if (ts == QInternal::Pixmap) {
         src_pm = (QPixmap*)src;
         if (src_pm->x11Info().screen() != dst_xf->screen())
             src_pm->x11SetScreen(dst_xf->screen());
         mono_src = src_pm->depth() == 1;
-        mask = ignoreMask ? 0 : src_pm->data->mask;
+        mask = ignoreMask ? 0 : src_pm->data->x11_mask;
     } else {
         src_pm = 0;
         mono_src = false;
@@ -1353,9 +1353,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         }
         if (picmask)
             XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-        XRenderComposite(dpy, !ignoreMask ? PictOpOver : PictOpSrc, src_pict,
-                         (mask && !ignoreMask) ? mask->xftPictureHandle() : 0,
-                         dst_pict, sx, sy, sx, sy, dx, dy, sw, sh);
+        XRenderComposite(dpy, !ignoreMask ? PictOpOver : PictOpSrc, src_pict, 0, dst_pict, sx, sy, sx, sy, dx, dy, sw, sh);
         // restore attributes
         pattr.subwindow_mode = ClipByChildren;
         pattr.graphics_exposures = false;
@@ -1367,12 +1365,9 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 
 
     if (mask && !mono_src) {                        // fast masked blt
-        // Create a new mask GC. If BestOptim, we store the mask GC
-        // with the mask (not at the pixmap). This way, many pixmaps
-        // which have a common mask will be optimized at no extra cost.
         GC gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
         XSetGraphicsExposures(dpy, gc, False);
-        XSetClipMask(dpy, gc, mask->handle());
+        XSetClipMask(dpy, gc, mask);
         XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
         if (include_inferiors) {
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
@@ -1564,13 +1559,8 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture src_pict = pixmap.xftPictureHandle();
         if (X11->use_xrender && X11->has_xft && src_pict && d->picture) {
-            ::Picture msk_pict = ((mode == Qt::ComposePixmap
-                                   && !pixmap.data->alpha
-                                   && pixmap.data->mask)
-                                  ? pixmap.data->mask->xftPictureHandle()
-                                  : 0);
             XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
-                             src_pict, msk_pict, d->picture, sx, sy, sx, sy, x, y, sw, sh);
+                             src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
             if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
                 QPixmap *px = static_cast<QPixmap *>(d->pdev);
                 px->data->alpha = pixmap.data->alpha;

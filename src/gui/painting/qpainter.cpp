@@ -3033,40 +3033,6 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         }
         d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), mode);
     }
-
-    // If we have CopyPixmap we copy the mask (only the mask, not the
-    // alpha channel, which is copied elsewhere) from the source to
-    // the target device if it is a pixmap
-    // ################ PIXMAP
-    // shouldn't all of this go away?
-    if (d->device->devType() == QInternal::Pixmap && !pm.hasAlphaChannel()) {
-        QBitmap pm_mask = pm.mask();
-        if (pm_mask.isNull())
-            return;
-        if (mode == Qt::CopyPixmap) {
-            QPixmap *p = static_cast<QPixmap *>(d->device);
-            QBitmap bitmap(p->width(), p->height());
-            bitmap.fill(Qt::color0);
-            QPainter pt(&bitmap);
-            pt.setPen(Qt::color1);
-            //Q_ASSERT(!mask->mask());
-            pt.drawPixmap(r, pm_mask, sr);
-            pt.end();
-            p->setMask(bitmap);
-        } else if (mode == Qt::ComposePixmap) {
-            QPixmap *p = static_cast<QPixmap *>(d->device);
-            QBitmap bitmap = p->mask();
-            if (!bitmap.isNull()) {
-                QPainter pt(&bitmap);
-                //Q_ASSERT(!pm.mask()->mask());
-                pt.drawPixmap(qRound(x), qRound(y), qRound(w), qRound(h),
-                              pm_mask, qRound(sx), qRound(sy), qRound(sw),
-                              qRound(sh));
-                pt.end();
-                p->setMask(bitmap);
-            }
-        }
-    }
 }
 
 /*!

@@ -52,7 +52,6 @@
 static void qt_XftDrawPrepare(_XftDraw *d);
 #endif
 
-
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.
 
@@ -63,6 +62,32 @@ inline static void qSafeXDestroyImage(XImage *x)
         x->data = 0;
     }
     XDestroyImage(x);
+}
+
+QBitmap QPixmapData::mask_to_bitmap() const
+{
+    if (!x11_mask)
+        return QBitmap();
+    QBitmap bm(w, h);
+    GC gc = XCreateGC(X11->display, bm.data->hd, 0, 0);
+    XCopyArea(X11->display, x11_mask, bm.data->hd, gc, 0, 0, bm.data->w, bm.data->h, 0, 0);
+    XFreeGC(X11->display, gc);
+    return bm;
+}
+
+Qt::HANDLE QPixmapData::bitmap_to_mask(const QBitmap &bitmap, int screen)
+{
+    if (bitmap.isNull())
+        return 0;
+    QBitmap bm = bitmap;
+    bm.x11SetScreen(screen);
+
+    Pixmap mask = XCreatePixmap(X11->display, RootWindow(X11->display, screen),
+                                bm.data->w, bm.data->h, 1);
+    GC gc = XCreateGC(X11->display, mask, 0, 0);
+    XCopyArea(X11->display, bm.data->hd, mask, gc, 0, 0, bm.data->w, bm.data->h, 0, 0);
+    XFreeGC(X11->display, gc);
+    return mask;
 }
 
 
@@ -265,6 +290,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
     data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
     data->xft_hd = 0;
+    data->x11_mask = 0;
 
     if (defaultScreen >= 0 && defaultScreen != data->xinfo.screen()) {
         QX11InfoData* xd = data->xinfo.getX11Data(true);
@@ -316,8 +342,13 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
 
 QPixmapData::~QPixmapData()
 {
-    delete mask;
-    if (qApp && hd) {
+    if (!qApp)
+        return;
+    if (x11_mask) {
+        XFreePixmap(X11->display, x11_mask);
+        x11_mask = 0;
+    }
+    if (hd) {
 
 #ifndef QT_NO_XFT
         if (xft_hd) {
@@ -486,7 +517,16 @@ void setAlphaChannel(const QPixmap &alpha)
 */
 QBitmap QPixmap::mask() const
 {
-    return data->mask ? *data->mask : QBitmap();
+    QBitmap mask(data->w, data->h);
+#ifndef QT_NO_XFT
+    if (X11->use_xrender) {
+        // ##########
+    } else
+#endif
+    {
+        mask = data->mask_to_bitmap();
+    }
+    return mask;
 }
 
 
@@ -524,16 +564,16 @@ void QPixmap::setMask(const QBitmap &newmask)
 
     detach();
 
-    if (newmask.isNull()) {
-        delete data->mask;
-        data->mask = 0;
-        return;
+#ifndef QT_NO_XFT
+    if (X11->use_xrender) {
+        // ##########
+    } else
+#endif
+    {
+        if (data->x11_mask)
+            XFreePixmap(X11->display, data->x11_mask);
+        data->x11_mask = QPixmapData::bitmap_to_mask(newmask, data->xinfo.screen());
     }
-    if (!data->mask)
-        data->mask = new QBitmap();
-
-    *data->mask = newmask;
-    data->mask->x11SetScreen(data->xinfo.screen());
 }
 
 /*!
@@ -645,11 +685,10 @@ QImage QPixmap::toImage() const
     if (image.isNull())                        // could not create image
         return image;
 
-    const QBitmap* msk = data->mask;
     QImage alpha;
-    if (msk) {
+    if (data->x11_mask) {
         image.setAlphaBuffer(true);
-        alpha = msk->toImage();
+        alpha = mask().toImage();
     }
     bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
@@ -693,7 +732,7 @@ QImage QPixmap::toImage() const
             bppc++;
 
         for (int y=0; y<h; y++) {
-            uchar* asrc = msk ? alpha.scanLine(y) : 0;
+            uchar* asrc = data->x11_mask ? alpha.scanLine(y) : 0;
             dst = (QRgb *)image.scanLine(y);
             src = (uchar *)xi->data + xi->bytes_per_line*y;
             for (int x=0; x<w; x++) {
@@ -756,7 +795,7 @@ QImage QPixmap::toImage() const
                 if (blue_bits < 8)
                     b = blue_scale_table[b];
 
-                if (msk) {
+                if (data->x11_mask) {
                     if (ale) {
                         *dst++ = (asrc[x >> 3] & (1 << (x & 7)))
                                  ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
@@ -798,7 +837,7 @@ QImage QPixmap::toImage() const
         memset(pix, 0, 256);
         bpl = image.bytesPerLine();
 
-        if (msk) {                                // which pixels are used?
+        if (data->x11_mask) {                                // which pixels are used?
             for (i=0; i<h; i++) {
                 uchar* asrc = alpha.scanLine(i);
                 p = image.scanLine(i);
@@ -834,7 +873,7 @@ QImage QPixmap::toImage() const
                 p++;
             }
         }
-        if (msk) {
+        if (data->x11_mask) {
             int trans;
             if (ncols < 256) {
                 trans = ncols++;
@@ -867,7 +906,7 @@ QImage QPixmap::toImage() const
         int j = 0;
         for (i=0; i<colors.size(); i++) {                // translate pixels
             if (use[i])
-                image.setColor(j++, (msk ? 0xff000000 : 0) | (colors.at(i).rgb() & 0x00ffffff));
+                image.setColor(j++, (data->x11_mask ? 0xff000000 : 0) | (colors.at(i).rgb() & 0x00ffffff));
         }
     }
 
@@ -1921,8 +1960,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         QPixmap pm(w, h, dptr, QImage::systemBitOrder() != QImage::BigEndian);
         pm.data->bitmap = data->bitmap;
         free(dptr);
-        if (data->mask)
-            pm.setMask(data->mask->transformed(matrix));
+        if (data->x11_mask)
+            pm.setMask(data->mask_to_bitmap().transformed(matrix));
         return pm;
     } else {                                        // color pixmap
         QPixmap pm(w, h);
@@ -1944,8 +1983,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 #endif
         XFreeGC(data->xinfo.display(), gc);
 
-        if (data->mask) // xform mask, too
-            pm.setMask(data->mask->transformed(matrix));
+        if (data->x11_mask) // xform mask, too
+            pm.setMask(data->mask_to_bitmap().transformed(matrix));
 
         return pm;
     }
@@ -2010,7 +2049,7 @@ void QPixmap::x11SetScreen(int screen)
 */
 bool QPixmap::hasAlpha() const
 {
-    return data->alpha || data->mask;
+    return data->alpha || data->x11_mask;
 }
 
 /*!
