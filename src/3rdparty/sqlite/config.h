@@ -16,3 +16,8 @@
 #ifdef UNICODE
 # undef UNICODE
 #endif
+
+#ifdef Q_CC_MSVC
+# pragma warning(disable: 4018)
+# pragma warning(disable: 4761)
+#endif
