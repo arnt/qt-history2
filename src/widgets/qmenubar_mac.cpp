@@ -315,6 +315,16 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(item->custom())
 		attr |= kMenuItemAttrCustomDraw;
 #endif
+	    
+	    //figure out an accelerator
+	    int accel_key = Qt::Key_unknown;
+	    if(accel.isEmpty() && item->key().count() > 1)
+		text += " (****)"; //just to denote a multi stroke accelerator
+	    if(item->key().count() == 1 && (int)item->key() != accel_key)
+		accel_key = (int)item->key();
+	    else if(!accel.isEmpty())
+		accel_key = QAccel::stringToKey(accel);
+
 	    CFStringRef cfref;
 	    no_ampersands(text, &cfref);
 	    InsertMenuItemTextWithCFString(ret, cfref, id,  attr, item->id());
@@ -337,65 +347,60 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
 		if(item->popup()) {
 		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), FALSE));
-		} else {
-		    int k = item->key();
-		    if(k == Qt::Key_unknown && !accel.isEmpty())
-			k = QAccel::stringToKey(accel);
-		    if( k != Qt::Key_unknown ) {
-			char mod = 0;
-			if ( (k & Qt::CTRL) != Qt::CTRL )
-			    mod |= kMenuNoCommandModifier;
-			if ( (k & Qt::META) == Qt::META )
-			    mod |= kMenuControlModifier;
-			if ( (k & Qt::ALT) == Qt::ALT )
-			    mod |= kMenuOptionModifier;
-			if ( (k & Qt::SHIFT) == Qt::SHIFT )
-			    mod |= kMenuShiftModifier;
-			int keycode = (k & ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL));
-			if(keycode) {
-			    SetMenuItemModifiers(ret, id, mod);
-			    bool do_glyph = TRUE;
-			    if(keycode == Qt::Key_Return)
-				keycode = kMenuReturnGlyph;
-			    else if(keycode == Qt::Key_Enter)
-				keycode = kMenuEnterGlyph;
-			    else if(keycode == Qt::Key_Tab)
-				keycode = kMenuTabRightGlyph;
-			    else if(keycode == Qt::Key_Backspace)
-				keycode = kMenuDeleteLeftGlyph;
-			    else if(keycode == Qt::Key_Delete)
-				keycode = kMenuDeleteRightGlyph;
-			    else if(keycode == Qt::Key_Escape)
-				keycode = kMenuEscapeGlyph;
-			    else if(keycode == Qt::Key_PageUp)
-				keycode = kMenuPageUpGlyph;
-			    else if(keycode == Qt::Key_PageDown)
-				keycode = kMenuPageDownGlyph;
-			    else if(keycode == Qt::Key_Up)
-				keycode = kMenuUpArrowGlyph;
-			    else if(keycode == Qt::Key_Down)
-				keycode = kMenuDownArrowGlyph;
-			    else if(keycode == Qt::Key_Left)
-				keycode = kMenuLeftArrowGlyph;
-			    else if(keycode == Qt::Key_Right)
-				keycode = kMenuRightArrowGlyph;
-			    else if(keycode == Qt::Key_CapsLock)
-				keycode = kMenuCapsLockGlyph;
-			    else if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15)
-				keycode = (keycode - Qt::Key_F1) + kMenuF1Glyph;
-			    else {
-				do_glyph = FALSE;
-				if(keycode < 127) { //regular ascii accel
-				    SetItemCmd(ret, id, (CharParameter)keycode );
-				} else { //I guess I missed one, fix above if this happens
-				    QKeySequence key(keycode);
-				    qDebug("QMenuBar: Not sure how to handle accelerator 0x%04x (%s)",
-					   keycode, ((QString)key).latin1());
-				}
+		} else if(accel_key != Qt::Key_unknown) {
+		    char mod = 0;
+		    if ((k & Qt::CTRL) != Qt::CTRL)
+			mod |= kMenuNoCommandModifier;
+		    if ((k & Qt::META) == Qt::META)
+			mod |= kMenuControlModifier;
+		    if ((k & Qt::ALT) == Qt::ALT)
+			mod |= kMenuOptionModifier;
+		    if ((k & Qt::SHIFT) == Qt::SHIFT)
+			mod |= kMenuShiftModifier;
+		    int keycode = (accel_key & ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL));
+		    if(keycode) {
+			SetMenuItemModifiers(ret, id, mod);
+			bool do_glyph = TRUE;
+			if(keycode == Qt::Key_Return)
+			    keycode = kMenuReturnGlyph;
+			else if(keycode == Qt::Key_Enter)
+			    keycode = kMenuEnterGlyph;
+			else if(keycode == Qt::Key_Tab)
+			    keycode = kMenuTabRightGlyph;
+			else if(keycode == Qt::Key_Backspace)
+			    keycode = kMenuDeleteLeftGlyph;
+			else if(keycode == Qt::Key_Delete)
+			    keycode = kMenuDeleteRightGlyph;
+			else if(keycode == Qt::Key_Escape)
+			    keycode = kMenuEscapeGlyph;
+			else if(keycode == Qt::Key_PageUp)
+			    keycode = kMenuPageUpGlyph;
+			else if(keycode == Qt::Key_PageDown)
+			    keycode = kMenuPageDownGlyph;
+			else if(keycode == Qt::Key_Up)
+			    keycode = kMenuUpArrowGlyph;
+			else if(keycode == Qt::Key_Down)
+			    keycode = kMenuDownArrowGlyph;
+			else if(keycode == Qt::Key_Left)
+			    keycode = kMenuLeftArrowGlyph;
+			else if(keycode == Qt::Key_Right)
+			    keycode = kMenuRightArrowGlyph;
+			else if(keycode == Qt::Key_CapsLock)
+			    keycode = kMenuCapsLockGlyph;
+			else if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15)
+			    keycode = (keycode - Qt::Key_F1) + kMenuF1Glyph;
+			else {
+			    do_glyph = FALSE;
+			    if(keycode < 127) { //regular ascii accel
+				SetItemCmd(ret, id, (CharParameter)keycode );
+			    } else { //I guess I missed one, fix above if this happens
+				QKeySequence key(keycode);
+				qDebug("QMenuBar: Not sure how to handle accelerator 0x%04x (%s)",
+				       keycode, ((QString)key).latin1());
 			    }
-			    if(do_glyph) //"special" accelerator..
-				SetMenuItemKeyGlyph(ret, id, (SInt16)keycode);
 			}
+			if(do_glyph) //"special" accelerator..
+			    SetMenuItemKeyGlyph(ret, id, (SInt16)keycode);
 		    }
 		}
 	    }
