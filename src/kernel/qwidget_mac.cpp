@@ -159,21 +159,23 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 {
     if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
 	return;
-
     QPoint point(posInWindow(p));
-    bool r_is_empty = FALSE;
+    r.translate(point.x(), point.y());
+    r &= p->clippedRegion(FALSE); //at least sanity check the bounds
+    if(r.isEmpty())
+	return;
+
+    bool r_is_empty = FALSE; //when we get here r is definetly not empty
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	QObjectListIt it(*childObjects);
 	for(it.toLast(); it.current(); --it) {
 	    if( (*it)->isWidgetType() ) {
 		QWidget *w = (QWidget *)(*it);
-		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
-		    QRegion wr = w->clippedRegion(FALSE);
-		    wr.translate(-point.x(), -point.y());
-		    wr &= r;
+		if ( !w->isTopLevel() && w->isVisible() ) {
+		    QRegion wr = w->clippedRegion(FALSE) & r;
 		    if ( !wr.isEmpty() ) {
 			r -= wr;
-			wr.translate( -w->geometry().x(), -w->geometry().y() );
+			wr.translate( -(point.x() + w->x()), -(point.y() + w->y()) );
 			paint_children(w, wr, ops);
 			if((r_is_empty = r.isEmpty()))
 			    break;
@@ -184,6 +186,7 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
     }
 
     if(!r_is_empty) {
+	r.translate(-point.x(), -point.y());
 	bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
 	if((ops & PC_NoPaint)) {
 	    if(erase)
@@ -208,7 +211,7 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 		}
 	    }
 	}
-    }
+    } 
 }
 
 // Paint event clipping magic
@@ -221,15 +224,7 @@ static void *qt_root_win() {
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
     //GetCWMgrPort(ret);
 #else if defined(Q_WS_MACX)
-#if 0
-    Rect r;
-    GDHandle g = GetMainDevice();
-    if(g) 
-	SetRect(&r, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
-    else 
-	SetRect(&r, 0, 0, 0, 0);
-    CreateNewWindow(kOverlayWindowClass, 0, &r, &ret);
-#endif
+     ret = GetWindowFromPort(CreateNewPort());
 #endif //MACX
     return (void *) ret;
 }
@@ -242,19 +237,24 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 	widget = QWidget::find( (WId)window );
 
     if ( widget ) {
-        QRegion reg(rgn);
-	QRect oldcrect = widget->crect;
+#ifdef Q_WS_MAC9
+	/* this is the right way to do this, and it works very well on mac 9, however macosx is not calling
+	   this with the proper region, as some of the area (usually offscreen) isn't actually processed here
+	   even though it is dirty, so for now this is mac9 only
+	*/
+	QRegion reg(rgn);
         { //lookup the x and y, don't use qwidget because this callback and be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
 	    LocalToGlobal(&px);
 	    reg.translate(-px.h, -px.v);
-	    widget->crect.setRect( px.h, px.v, widget->width(), widget->height() );
-	    widget->fstrut_dirty = TRUE;
-        }
+	}
+#else
+	//this is the solution to weird things on demo example (white areas), need
+	//to examine why this happens FIXME!
+	QRect reg(0, 0, widget->width(), widget->height());
+#endif
 	paint_children(widget, reg, PC_Now | PC_ForceErase );
-	widget->crect = oldcrect; //restore
-	widget->fstrut_dirty = TRUE;
     }
     return 0;
 }
@@ -267,7 +267,7 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
     own_id = 0;
-    HANDLE root_win = qt_root_win(), destroyw = 0;
+    HANDLE destroyw = 0;
     setWState( WState_Created );                        // set created flag
 
     if ( !parentWidget() || parentWidget()->isDesktop() )
@@ -319,7 +319,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	crect.setRect( 0, 0, 100, 30 );
     }
 
-    HANDLE parentw = topLevel ? root_win : parentWidget()->handle();
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
 	    destroyw = hd;
@@ -328,7 +327,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	hd = (void *)id;
 	setWinId(id);
     } else if ( desktop ) {			// desktop widget
-	id = (WId)parentw;			// id = root window
+	hd = (void *)qt_root_win();
+	id = (WId)hd;				// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
 	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
@@ -384,7 +384,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 #if 0
 	CGContextRef ctx = NULL;
 	CreateCGContextForPort(GetWindowPort((WindowPtr)id), &ctx);
-	CGContextSetAlpha(ctx, 16556);
+	CGContextSetAlpha(ctx, 0.7);
 #endif
 
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
@@ -415,7 +415,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     }
 }
 
-void qt_mac_destroy_widget(QWidget *w);
+void qt_mac_destroy_widget(QWidget *w); //qapplication_mac.cpp
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
@@ -471,10 +471,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     WindowPtr old_hd = testWFlags(WType_Desktop) ? NULL : (WindowPtr)hd;
     reparentFocusWidgets( parent );		// fix focus chains
-    if ( old_hd && own_id && isTopLevel() ) { //don't need old window anymore
-	mac_window_count--;
-	DisposeWindow( old_hd );
-    }
 
     setWinId( 0 );
     if ( parentObj ) {				// remove from parent
@@ -490,6 +486,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     bool     dropable = acceptDrops();
     bool     enable = isEnabled();
+    bool     owned = own_id;
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
     QString capt= caption();
@@ -567,6 +564,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     //send the reparent event
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
+    if ( old_hd && owned ) { //don't need old window anymore
+	mac_window_count--;
+	DisposeWindow( old_hd );
+    }
 }
 
 
@@ -1613,7 +1614,7 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp()))
+    if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp())) 
 	return QRegion();
 
     createExtra();
@@ -1633,7 +1634,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
 		    QWidget *cw = (QWidget *)(*it);
-		    if( cw->isVisible() && cw->topLevelWidget() == topLevelWidget() ) {
+		    if( cw->isVisible() && !cw->isTopLevel() ) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
 			if(cw->extra && !cw->extra->mask.isNull()) {
 			    mask = cw->extra->mask;
@@ -1668,8 +1669,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 			QWidget *sw = (QWidget *)(*it);
 			tmp = posInWindow(sw);
 			QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-			if(sw->topLevelWidget() == topLevelWidget() &&
-			   sw->isVisible() && extra->clip_sibs.contains(sr)) {
+			if(!sw->isTopLevel() && sw->isVisible() && extra->clip_sibs.contains(sr)) {
 			    QRegion sibrgn(sr);
 			    if(sw->extra && !sw->extra->mask.isNull()) {
 				mask = sw->extra->mask;
@@ -1684,7 +1684,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	}
 
 	if(isTopLevel()) {
-#if 0
 	    QRegion contents;
 	    RgnHandle r = NewRgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
@@ -1694,7 +1693,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	    DisposeRgn(r);
 	    extra->clip_sibs &= contents;
-#endif
 	}
 	else if(parentWidget()) {
 	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
