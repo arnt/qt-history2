@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#79 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#79 $");
 
 
 /*****************************************************************************
@@ -1681,6 +1681,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	code = translateKeyCode( msg.wParam );
 	if ( code == 0 )
 	    code = ascii = msg.wParam;
+	else if ( code > 0 && code < 255 )
+	    ascii = code;
 	type = msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ?
 	       Event_KeyPress : Event_KeyRelease;
     }
