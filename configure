@@ -2236,7 +2236,7 @@ do
 	    [ "x$VERBOSE" = "xyes" ] && echo "  skipping $a"
 	    continue;
 	fi
-	if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $BASE_SPEC`" ]
+	if [ "$SPEC" != "$XQMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $BASE_SPEC`" ]
 	then
 	    echo "USING $SPEC FOR QMAKE"
 	    QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
