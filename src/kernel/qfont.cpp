@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#7 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#7 $";
 #endif
 
 
@@ -192,7 +192,7 @@ bool QFont::exactMatch() const
 {
     if ( d->req.dirty )
 	loadFont();
-    return d->req.exactMatch;
+    return d->exactMatch;
 }
 
 void QFont::setRawMode( bool b )
@@ -218,11 +218,11 @@ void QFont::init()
     d->req.underline     = FALSE;
     d->req.strikeOut     = FALSE;
     d->req.fixedPitch	 = FALSE;
-    d->req.exactMatch	 = FALSE;
     d->req.hintSetByUser = FALSE;
     d->req.rawMode	 = FALSE;
     d->req.dirty	 = TRUE;
     d->act.dirty	 = TRUE;
+    d->exactMatch	 = FALSE;
 }
 
 int QFont::deciPointSize() const
@@ -230,6 +230,10 @@ int QFont::deciPointSize() const
     return d->req.pointSize;
 }
 
+bool QFont::isDefaultFont()
+{
+    return d->isDefaultFont;
+}
 
 void QFont::updateSubscribers()
 {
@@ -369,7 +373,7 @@ bool QFontInfo::rawMode() const
 bool QFontInfo::exactMatch() const
 {
     UPDATE_DATA
-    return f.d->act.exactMatch;
+    return f.d->exactMatch;
 }
 
 int QFontMetrics::width( char ch ) const

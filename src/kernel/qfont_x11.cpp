@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#16 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#16 $";
 #endif
 
 // #define DEBUG_FONT
@@ -64,7 +64,7 @@ public:
                             bool  *scalable     , bool *polymorphic );
     QString bestMatch( const QString &pattern, int  *score );
     QString bestFamilyMember( const QString &family, int *score );
-    QString findFont();
+    QString findFont( bool *exact );
 };
 
 bool parseXFontName( QString &fontName, char **tokens )
@@ -165,18 +165,24 @@ int computeLineWidth( const char *fontName )
 #include "qdict.h"
 
 struct QXFontData {
-    QXFontData() {}
-    QXFontData( const char *n, XFontStruct *f ) { name=n; font=f; }
     QString      name;
     XFontStruct *font;
 };
 
+struct QXFontName {
+    QString      name;
+    bool         exactMatch;
+};
+
 typedef declare(QDictM,QXFontData) QFontDict;
 typedef declare(QDictIteratorM,QXFontData) QFontDictIt;
+typedef declare(QDictM,QXFontName) QFontNameDict;
+typedef declare(QDictIteratorM,QXFontName) QFontNameDictIt;
 
-static QFontDict *fontDict = 0;                 // dict of loaded fonts
-static QFontDict *fontNameDict = 0;             // dict of matched font names
-static QFont defFont( "helvetica" );            // default font
+static QFontDict     *fontDict     = 0;         // dict of loaded fonts
+static QFontNameDict *fontNameDict = 0;         // dict of matched font names
+QFont QFont::defFont( "helvetica" , 12, QFont::Normal, 
+                      FALSE, TRUE);             // default font
 
 // --------------------------------------------------------------------------
 // QFont member functions
@@ -189,14 +195,15 @@ const QFont &QFont::defaultFont()
 
 void  QFont::setDefaultFont( const QFont &f )
 {
-    defFont = f;
+    defFont = f.copy();
+    defFont.d->isDefaultFont = TRUE;
 }
 
 void QFont::initialize()                        // called when starting up
 {
     fontDict     = new QFontDict( 29 );         // create font dictionary
     CHECK_PTR( fontDict );
-    fontNameDict = new QFontDict( 29 );         // create font name dictionary
+    fontNameDict = new QFontNameDict( 29 );     // create font name dictionary
     CHECK_PTR( fontNameDict );
 }
 
@@ -216,8 +223,9 @@ void QFont::cleanup()                           // called when terminating app
 
 QFont::QFont()
 {
-    d = defFont.d;
-    d->ref();
+    d = new QFontData;
+    CHECK_PTR( d );
+    *this = defFont.copy();
 }
 
 QFont::QFont( const char *family, int pointSize, int weight, bool italic )
@@ -228,14 +236,45 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.weight    = weight;
     d->req.italic    = italic;
     d->xfont         = 0;
+    d->isDefaultFont = FALSE;
+}
+
+QFont::QFont( bool referenceDefaultFont )
+{
+    if ( referenceDefaultFont ) {
+        d = defFont.d;
+        d->ref();
+    } else {
+        d = new QFontData;
+        CHECK_PTR( d );
+        *this = defFont.copy();
+    }
+}
+
+QFont::QFont( QFontData *data )
+{
+    d                = new QFontData;
+    CHECK_PTR( d );
+    *d               = *data;
+    d->isDefaultFont = FALSE;  // a copied font is never a default font
+    d->count         = 1;      // reset the ref count that was copied above
+}
+
+QFont::QFont( const char *family, int pointSize, int weight, bool italic,
+              bool defaultFont )
+{
+    init();
+    d->req.family    = family;
+    d->req.pointSize = pointSize * 10;
+    d->req.weight    = weight;
+    d->req.italic    = italic;
+    d->xfont         = 0;
+    d->isDefaultFont = defaultFont;
 }
 
 QFont QFont::copy() const
 {
-    QFont f;
-    *(f.d) = *d;
-    f.d->ref();
-    return f;
+    return QFont( d );
 
 /*    f.data->family        = data->family;
     f.data->pointSize     = data->pointSize;
@@ -650,18 +689,22 @@ QString QFont_Private::bestFamilyMember( const QString &family, int *score )
     return bestMatch( pattern, score );
 }
 
-QString QFont_Private::findFont()
+QString QFont_Private::findFont( bool *exact )
 {
     QString     familyName;
     QString     bestName;
     int         score;
 
-    if ( family() == 0 || family()[0] == '\0' )
+    if ( family() == 0 || family()[0] == '\0' ) {
         familyName = defaultFamily();
-    else
+        *exact     = FALSE;
+    } else {
         familyName = bestFitFamily( family() );
-
+        *exact     = TRUE;
+    }
     bestName = bestFamilyMember( familyName, &score );
+    if ( *exact && score != exactScore )
+        *exact = FALSE;
 
     if ( score == 0 && familyName != defaultFamily() ) {
         familyName = defaultFamily();   // Try def family for style
@@ -712,9 +755,9 @@ QXFontData *loadXFont( const char *fontName )
 
 void QFont::loadFont() const
 {
-    QString fontName;
     QString instanceID;
     QXFontData	*fd;
+    QXFontName	*fn;
 
     if ( !fontNameDict || !fontDict ) {
 #if defined(CHECK_STATE)
@@ -734,23 +777,36 @@ void QFont::loadFont() const
 #if defined(DEBUG_FONT)
     debug( "instanceID = %s", instanceID.data() );
 #endif
-    fd = fontNameDict->find( instanceID );
-    if ( !fd ) {
+    fn = fontNameDict->find( instanceID );
+    if ( !fn ) {
+        fn = new QXFontName;
 	if ( d->req.rawMode ) {
-	    if ( fontExists( family() ) )
-		fontName = family();
-	    else
-		fontName = PRIV->lastResortFont();
+	    if ( fontExists( family() ) ) {
+		fn->name       = family();
+                fn->exactMatch = TRUE;
+	    } else {
+		fn->name       = PRIV->lastResortFont();
+                fn->exactMatch = FALSE;
+	    }
 	} else {
-	    fontName = PRIV->findFont(); // Returns a loadable font.
+	    fn->name = PRIV->findFont( &fn->exactMatch ); // Returns a 
+                                                          // loadable font.
 	}
+        fontNameDict->insert( instanceID, fn );
 //#if defined(DEBUG_FONT)
-	debug( "=== MATCHED FONT[%s] ", fontName.data() );
+	debug( "=== MATCHED FONT[%s] exact = %i", fn->name.data(),
+                                                  fn->exactMatch );
 //#endif
-        fd = loadXFont( fontName );
-        if ( !fd )
-            fatal( "QFont::loadFont: Internal error" );
+    } else {
+//#if defined(DEBUG_FONT)
+	debug( "=== DICT HIT[%s] exact = %i", fn->name.data(),
+                                                  fn->exactMatch );
+//#endif
     }
+    d->exactMatch = fn->exactMatch;
+    fd = loadXFont( fn->name );
+    if ( !fd )
+        fatal( "QFont::loadFont: Internal error" );
     d->xFontName = fd->name;
     d->lineW     = computeLineWidth(fd->name ); 
     d->xfont	 = fd->font;
@@ -772,7 +828,6 @@ void resetFontDef( QFontDef *def )
     def->strikeOut     = FALSE;
     def->fixedPitch    = FALSE;
     def->hintSetByUser = FALSE;
-    def->exactMatch    = FALSE;
 }
 
 // --------------------------------------------------------------------------
@@ -865,6 +920,7 @@ void QFont::updateFontInfo() const
         debug("{%s}", d->xFontName.data() );
 #endif
         resetFontDef( &d->act );
+        d->exactMatch = FALSE;
         d->act.family  = d->req.family;
         d->act.rawMode = d->req.rawMode;
         d->act.dirty   = FALSE;
@@ -886,8 +942,6 @@ void QFont::updateFontInfo() const
 
     char fixed         = tolower( tokens[Spacing][0] );
     d->act.fixedPitch  = ( fixed == 'm' || fixed == 'c' ) ? TRUE : FALSE;
-
-    d->act.exactMatch  = d->req.exactMatch;
 
     d->act.weight      = getWeight( tokens[Weight_] );
 

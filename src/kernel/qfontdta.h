@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#3 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#4 $
 **
 ** Definition of QFontData struct
 **
@@ -32,14 +32,14 @@ struct QFontDef  {
 	uint	  hintSetByUser : 1;
 	uint	  rawMode	: 1;
 	uint	  dirty		: 1;
-	uint	  exactMatch	: 1;
 };
 
 struct QFontData : QShared {
     QFontDef        req;                // requested
     QFontDef        act;                // actual
+    uint	    exactMatch    : 1;
+    uint            isDefaultFont : 1;
     short           lineW;              // width of underline and strikeOut
-    short           refCount;           // number of QFontInfo and QFontMetrics
                                         // referencing this font.
 #if defined(_WS_WIN_)
 	HANDLE	hfont;
