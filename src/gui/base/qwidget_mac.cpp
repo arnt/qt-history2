@@ -457,7 +457,7 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 	bits = kWindowEdgeBottom;
     else
 	return false;
-    SetDrawerPreferredEdge((WindowRef)w->handle(), bits);
+    SetDrawerPreferredEdge(qt_mac_window_for((HIViewRef)w->winId()), bits);
     return true;
 #else
     return false;
