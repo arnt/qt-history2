@@ -89,7 +89,7 @@ struct QCursorData : public QShared
 	    uint my_cursor:1;
 	    CursPtr   hcurs;
 	} cp;
-	CCrsrc *ci;
+	CursorImageRec *ci;
     } curs;
 };
 
@@ -335,7 +335,7 @@ void QCursor::update() const
 
     if ( d->cshape == BitmapCursor ) {
 	d->type = QCursorData::TYPE_CursorImage;
-	d->curs.ci = (CCrsrc*)malloc(sizeof(CCrsrc));
+	d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
 	d->curs.ci->majorVersion = kCursorImageMajorVersion;
 	d->curs.ci->minorVersion = kCursorImageMinorVersion;
 	d->curs.ci->cursorPixMap = GetGWorldPixMap((GWorldPtr)d->bm->handle());
