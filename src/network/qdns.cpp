@@ -205,10 +205,10 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
-    return QDnsAgent::getHostByName(name);
+    return QDnsAgent::getHostByName(lookup);
 }
 
-/*! 
+/*!
     \internal
     Pops a query off the queries list, performs a blocking call to
     QDnsAgent::getHostByName(), and emits the resultsReady()
