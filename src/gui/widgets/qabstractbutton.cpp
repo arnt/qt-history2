@@ -247,13 +247,15 @@ void QAbstractButtonPrivate::moveFocus(int key)
 
     QAbstractButton * candidate = 0;
     int bestScore = -1;
+    QRect fGeometry = f->geometry();
 
-    QPoint goal(f->mapToGlobal(f->geometry().center()));
+    QPoint goal(f->mapToGlobal(fGeometry.center()));
 
     for (int i = 0; i < buttonList.count(); ++i) {
         QAbstractButton *button = buttonList.at(i);
         if (button != f && button->isEnabled()) {
-            QPoint p(button->mapToGlobal(button->geometry().center()));
+            QRect buttonGeometry = button->geometry();
+            QPoint p(button->mapToGlobal(buttonGeometry.center()));
             int score = (p.y() - goal.y())*(p.y() - goal.y()) +
                         (p.x() - goal.x())*(p.x() - goal.x());
             bool betterScore = score < bestScore || !candidate;
@@ -263,7 +265,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
                         candidate = button;
                         bestScore = score;
-                    } else if (button->x() == f->x()) {
+                    } else if (buttonGeometry.x() == fGeometry.x()) {
                         candidate = button;
                         bestScore = score/2;
                     }
@@ -274,7 +276,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
                         candidate = button;
                         bestScore = score;
-                    } else if (button->x() == f->x()) {
+                    } else if (buttonGeometry.x() == fGeometry.x()) {
                         candidate = button;
                         bestScore = score/2;
                     }
@@ -285,7 +287,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
                         candidate = button;
                         bestScore = score;
-                    } else if (button->y() == f->y()) {
+                    } else if (buttonGeometry.y() == fGeometry.y()) {
                         candidate = button;
                         bestScore = score/2;
                     }
@@ -296,7 +298,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
                         candidate = button;
                         bestScore = score;
-                    } else if (button->y() == f->y()) {
+                    } else if (buttonGeometry.y() == fGeometry.y()) {
                         candidate = button;
                         bestScore = score/2;
                     }
@@ -308,8 +310,8 @@ void QAbstractButtonPrivate::moveFocus(int key)
 
     if (exclusive
         && candidate
-        && fb->isChecked()
-        && candidate->isCheckable())
+        && fb->d->checked
+        && candidate->d->checkable)
         candidate->setChecked(true);
 
     if (candidate) {
@@ -753,31 +755,6 @@ void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-/*! \reimp */
-void QAbstractButton::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    QRect r = rect();
-    p.fillRect(r, d->down ? black : (d->checked ? lightGray : white));
-    p.setPen(d->down ? white : black);
-    p.drawRect(r);
-    p.drawText(r, AlignCenter | ShowPrefix, d->text);
-    if (hasFocus()) {
-        r.addCoords(2, 2, -2, -2);
-        style().drawPrimitive(QStyle::PE_FocusRect, &p, r, palette());
-    }
-}
-
-
-/*!\reimp
- */
-QSize QAbstractButton::sizeHint() const
-{
-    QSize sh(8, 8);
-    if (!d->text.isEmpty())
-        sh += fontMetrics().boundingRect(d->text).size();
-    return sh;
-}
 
 /*! \reimp */
 void QAbstractButton::keyPressEvent(QKeyEvent *e)

@@ -68,8 +68,6 @@ public:
 
     Q4ButtonGroup *group() const;
 
-    QSize sizeHint() const;
-
 public slots:
     void animateClick(int msec = 100);
     void click();
@@ -84,8 +82,9 @@ signals:
 
 protected:
     QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
-    virtual bool hitButton(const QPoint &pos) const;
 
+    virtual void paintEvent(QPaintEvent *) = 0;
+    virtual bool hitButton(const QPoint &pos) const;
     virtual void checkStateSet();
     virtual void nextCheckState();
 
@@ -94,7 +93,6 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
-    void paintEvent(QPaintEvent *);
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
     void changeEvent(QEvent *);
