@@ -77,18 +77,18 @@ public:
     virtual void         remove( int pos );
 
     bool                 isEmpty() const;
-    void                 clear();
-    void                 clearValues( bool nullify = FALSE );
+    virtual void         clear();
+    virtual void         clearValues( bool nullify = FALSE );
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
 
-    void                 setGenerated( const QString& name, bool generated );
+    virtual void         setGenerated( const QString& name, bool generated );
     bool                 isGenerated( const QString& name ) const;
-    void                 setAlignment( const QString& name, int align );
+    virtual void         setAlignment( const QString& name, int align );
     int                  alignment( const QString& name ) const;
-    void                 setDisplayLabel( const QString& name, const QString& label );
+    virtual void         setDisplayLabel( const QString& name, const QString& label );
     QString              displayLabel( const QString& name ) const;
-    void                 setVisible( const QString& name, bool visible );
+    virtual void         setVisible( const QString& name, bool visible );
     bool                 isVisible( const QString& name ) const;
 
 private:
