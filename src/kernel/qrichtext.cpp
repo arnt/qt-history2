@@ -5868,6 +5868,9 @@ static void qrt_createSelectionPixmap( const QColorGroup &cg )
 
 void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
+    if ( is_printer( p ) )
+	 adjustToPainter( p );
+    qDebug("tmpwidth=%d width=%d", tmpwidth, width);
     if ( placement() != PlaceInline ) {
 	x = xpos;
 	y = ypos;
