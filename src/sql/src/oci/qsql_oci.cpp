@@ -927,6 +927,12 @@ QSqlQuery QOCIDriver::createQuery() const
 
 bool QOCIDriver::beginTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIDriver::beginTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     d->transaction = TRUE;
     int r = OCITransStart ( d->svc,
 			    d->err,
@@ -943,6 +949,12 @@ bool QOCIDriver::beginTransaction()
 
 bool QOCIDriver::commitTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIDriver::commitTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     d->transaction = FALSE;
     int r = OCITransCommit ( d->svc,
 			     d->err,
@@ -958,6 +970,12 @@ bool QOCIDriver::commitTransaction()
 
 bool QOCIDriver::rollbackTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIDriver::rollbackTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     d->transaction = FALSE;
     int r = OCITransRollback ( d->svc,
 			       d->err,
@@ -973,9 +991,11 @@ bool QOCIDriver::rollbackTransaction()
 
 QStringList QOCIDriver::tables( const QString& ) const
 {
+    QStringList tl;
+    if ( !isOpen() )
+	return tl;
     QSqlQuery t = createQuery();
     t.exec( "select table_name from user_tables;" );
-    QStringList tl;
     while ( t.next() ) {
 	tl.append( t.value(0).toString() );
     }
@@ -984,12 +1004,14 @@ QStringList QOCIDriver::tables( const QString& ) const
 
 QSqlRecord QOCIDriver::record( const QString& tablename ) const
 {
+    QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     QSqlQuery t = createQuery();
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
     t.exec( stmt.arg( tablename.upper() ) );
-    QSqlRecord fil;
     while ( t.next() ) {
 	QString dt = t.value(1).toString();
 	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
@@ -1002,6 +1024,8 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
 QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     if ( !query.isActive() )
 	return fil;
     if ( query.isActive() && query.driver() == this ) {
@@ -1013,6 +1037,9 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
+    QSqlIndex idx( tablename );
+    if ( !isOpen() )
+	return idx;
     QSqlQuery t = createQuery();
     QString stmt ("select b.column_name, b.data_type, c.index_name "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
@@ -1022,7 +1049,6 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
     t.exec( stmt.arg( tablename.upper() ) );
-    QSqlIndex idx( tablename );
     if ( t.next() ) {
 	// ### This seems a bit fishy - may need the ocilen, ociprec and ociscale params
 	QSqlField f( t.value(0).toString(), qDecodeOCIType(t.value(1).toString(), 0, 0, 0) );
