@@ -95,6 +95,12 @@ public:
 	state = states.back();
     }
 
+    ~QPainterPrivate()
+    {
+	for (int i=0; i<states.size(); ++i)
+	    delete states.at(i);
+    }
+
     void save()
     {
 	Q_ASSERT(states.size()>0);
@@ -110,6 +116,8 @@ public:
 	state = states.back();
 	delete tmp;
     };
+
+
 
     QPoint redirection_offset;
 

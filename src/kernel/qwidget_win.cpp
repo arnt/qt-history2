@@ -437,6 +437,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	}
 	setWinId( 0 );
     }
+
+    delete deviceGC;
 }
 
 
@@ -854,7 +856,9 @@ void QWidget::repaint(const QRegion& r)
 #endif
     qt_set_paintevent_clipping( this, rgn );
 
-    if (!testAttribute(WA_NoBackground)) {
+    if (testAttribute(WA_NoSystemBackground)) {
+	// do nothing...
+    } else if (!testAttribute(WA_NoBackground)) {
 	QPoint offset;
 	QStack<QWidget*> parents;
 	QWidget *w = q;
@@ -977,7 +981,7 @@ void QWidget::setWindowState(uint newstate)
 
 	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
 	    if (isVisible())
-		ShowWindow(winId(), (newstate & WindowMinimized) ? min : 
+		ShowWindow(winId(), (newstate & WindowMinimized) ? min :
 				    (newstate & WindowMaximized) ? max : normal);
 	}
     }

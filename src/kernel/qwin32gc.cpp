@@ -266,6 +266,7 @@ QWin32GC::QWin32GC(const QPaintDevice *target)
 
 QWin32GC::~QWin32GC()
 {
+    delete d;
 }
 
 

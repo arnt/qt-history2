@@ -115,6 +115,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
+#ifdef Q_Q4PAINTER
+	Q_ASSERT(!deviceGC);
+	deviceGC = new QWin32PixmapGC(this);
+#endif
+
     static int serial = 0;
     int dd = defaultDepth();
 
@@ -157,8 +162,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     else					// monocrome bitmap
 	DATA_HBM = CreateBitmap( w, h, 1, 1, 0 );
 #else
-	// WinCE must use DIBSections instead of Compatible Bitmaps
-	// so it's possible to get the colortable at a later point.
+        // WinCE must use DIBSections instead of Compatible Bitmaps
+        // so it's possible to get the colortable at a later point.
 
 	// For 16bpp or 32bpp non-palettized images, the color table
 	// must be three entries long; the entries must specify the
@@ -217,11 +222,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 				     0 );
 	delete [] bmi_data;
 #endif
-#ifdef Q_Q4PAINTER
-	Q_ASSERT(!deviceGC);
-	deviceGC = new QWin32PixmapGC(this);
-#endif
-
     if ( !DATA_HBM ) {
 	data->w = 0;
 	data->h = 0;
@@ -260,6 +260,7 @@ void QPixmap::deref()
 	    hdc = 0;
 	}
 	delete data;
+	delete deviceGC;
     }
 }
 
