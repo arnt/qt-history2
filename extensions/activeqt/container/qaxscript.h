@@ -1,13 +1,13 @@
 #ifndef QAXSCRIPT_H
 #define QAXSCRIPT_H
 
-#include <qobject.h>
+#include <qaxobject.h>
 #include <qvariant.h>
 
 class QAxBase;
-class QAxObject;
 class QAxScriptSite;
 class QAxScriptEngine;
+struct IActiveScript;
 
 class QAxScript : public QObject
 {
@@ -30,11 +30,10 @@ public:
 
     QStringList functions() const;
     QStringList scriptNames() const;
-    QAxObject *scriptEngine(const QString &name) const;
+    QAxScriptEngine *scriptEngine(const QString &name) const;
 
-    QAxObject *load(const QString &code, const QString &language, const QString &name );
-    QAxObject *load(const QString &file, const QString &name = QString());
-    void unload(const QString &name);
+    QAxScriptEngine *load(const QString &code, const QString &name, const QString &language);
+    QAxScriptEngine *load(const QString &file, const QString &name);
 
     QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
 
@@ -56,11 +55,63 @@ private:
     friend class QAxScriptSite;
     friend class QAxScriptEngine;
 
-    void updateScripts();
     void updateScript(QAxScriptEngine*);
     QAxScriptEngine *script(const QString &function) const;
 
     QAxScriptSite *scriptSite;
 };
+
+class QAxScriptEngine : public QAxObject
+{
+public:
+    QAxScriptEngine(const QString &name, QAxScript *manager);
+    ~QAxScriptEngine();
+
+    virtual bool load(const QString &code, const QString &language);
+
+    bool isValid() const;
+    bool hasIntrospection() const;
+
+    QString scriptName() const;
+    QString scriptCode() const;
+    QString scriptLanguage() const;
+
+    QStringList functions() const;
+
+    long queryEngineInterface( const QUuid &, void** ) const;
+
+protected:
+    bool initialize(IUnknown** ptr);
+
+private:
+    friend class QAxScript;
+
+    QAxScript *script_manager;
+    IActiveScript *script;
+
+    QString script_name;
+    QString script_code;
+    QString script_language;
+};
+
+inline bool QAxScriptEngine::isValid() const
+{
+    return script != 0;
+}
+
+inline QString QAxScriptEngine::scriptName() const
+{
+    return script_name;
+}
+
+inline QString QAxScriptEngine::scriptCode() const
+{
+    return script_code;
+}
+
+inline QString QAxScriptEngine::scriptLanguage() const
+{
+    return script_language;
+}
 
 #endif // QAXSCRIPT_H
