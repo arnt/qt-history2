@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#32 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#33 $
 **
 ** Definition of QApplication class
 **
@@ -41,6 +41,7 @@ public:
 
     static QFont   *font();			// get/set application font
     static void	    setFont( const QFont &, bool updateAllWidgets=FALSE );
+    static QFontMetrics fontMetrics();
 
     QWidget	   *mainWidget()  const;
     void	    setMainWidget( QWidget * );

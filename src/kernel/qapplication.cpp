@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#58 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#57 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#58 $";
 #endif
 
 
@@ -325,6 +325,17 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
     }
 }
 
+
+/*----------------------------------------------------------------------------
+  Returns display (screen) font metrics for the application font.
+
+  \sa font(), setFont()
+ ----------------------------------------------------------------------------*/
+
+QFontMetrics QApplication::fontMetrics()
+{
+    return desktop()->fontMetrics();
+}
 
 /*----------------------------------------------------------------------------
   \fn QWidget *QApplication::desktop()
