@@ -138,7 +138,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
     connect( socket, SIGNAL( error( int ) ),
 	    SLOT( socketError( int ) ) );
     opened = FALSE;
-    proc = 0;
+    proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
 }
@@ -177,9 +177,8 @@ QAssistantClient::~QAssistantClient()
 */
 void QAssistantClient::openAssistant()
 {
-    if ( proc )
+    if ( proc->isRunning() )
 	return;
-    proc = new QProcess( this );
     proc->addArgument( assistantCommand );
     proc->addArgument( "-server" );
 
@@ -195,14 +194,13 @@ void QAssistantClient::openAssistant()
     if ( !proc->launch( QString::null ) ) {
 	emit error( tr( "Cannot start Qt Assistant '%1'" )
 		    .arg( proc->arguments().join( " " ) ) );
-	delete proc;
-	proc = 0;
 	return;
     }
     connect( proc, SIGNAL( readyReadStdout() ),
 	     this, SLOT( readPort() ) );
     connect( proc, SIGNAL( readyReadStderr() ),
 	     this, SLOT( readStdError() ) );
+    connect( proc, SIGNAL( processExited() ), this, SLOT( socketConnectionClosed() ) );
 }
 
 void QAssistantClient::readPort()
@@ -271,8 +269,6 @@ void QAssistantClient::socketConnected()
 
 void QAssistantClient::socketConnectionClosed()
 {
-    delete proc;
-    proc = 0;
     opened = FALSE;
     emit assistantClosed();
 }
