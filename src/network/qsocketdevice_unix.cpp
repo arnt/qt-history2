@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#18 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#19 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -141,14 +141,23 @@
 #elif defined(Q_OS_UNIXWARE7)
 #  define SOCKLEN_T size_t
 #elif defined(Q_OS_AIX)
-// aix 4.2 according to a bug report
-// aix 4.3 according to the online documentation
-#  define SOCKLEN_T size_t
+#  ifdef _AIX42
+// AIX 4.2 and better.
+// The AIX 4.3 online documentation says 'size_t' and it worked so far.
+// However this is not at all 64-bit safe and not Unix 98 or even Unix 95
+// compliant. This is only compliant to some bogus POSIX draft. There must
+// be some way to use 'socklen_t' or at least revert to 'int'.
+#    define SOCKLEN_T size_t
+#  else
+// AIX 4.1
+#    define SOCKLEN_T int
+#  endif
 #elif defined(Q_OS_QNX)
 #define SOCKLEN_T size_t
 #else
-// most unixes are Single Unix 1995 by default including at least irix,
-// osf1/tru64, solaris, hp-ux and old linux
+// Most unixes are Single Unix 1995 compliant (at least by default) including
+// irix, osf1/tru64, solaris, hp-ux and old linux. We do not specify Single
+// Unix 1998 even when it is available.
 #  define SOCKLEN_T int
 #endif
 
@@ -942,3 +951,4 @@ void QSocketDevice::fetchConnectionParameters()
     }
 }
 #endif //QT_NO_NETWORK
+
