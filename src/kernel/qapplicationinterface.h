@@ -12,17 +12,23 @@ class QComponentInterface;
 
 class Q_EXPORT QApplicationInterface : public QObject
 {
+    Q_OBJECT
+    
 public:
     QApplicationInterface();
-
+    ~QApplicationInterface() {}
+    
     virtual QComponentInterface* requestInterface( const QCString& request ) = 0;
 };
 
 class Q_EXPORT QComponentInterface : public QApplicationInterface
 {
+    Q_OBJECT
+    
 public:
     QComponentInterface( QObject* o );
-
+    ~QComponentInterface() {}
+    
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );
     virtual bool requestSetProperty( const QCString& p, const QVariant& v );
