@@ -380,10 +380,14 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( cg.light() );
 	    if ( flags & Style_Horizontal ) {
 		p->drawLine( r.x(), r.y(), r.width(), r.y() );
+		p->setPen( cg.dark() );
+		p->drawLine( r.x(), r.bottom()-1, r.width(), r.bottom()-1 );
 		p->setPen( cg.shadow() );
 		p->drawLine( r.x(), r.bottom(), r.width(), r.bottom() );
 	    } else { 
 		p->drawLine( r.x(), r.y(), r.x(), r.height() );
+		p->setPen( cg.dark() );
+		p->drawLine( r.right()-1, r.y(), r.right()-1, r.height() );
 		p->setPen( cg.shadow() );
 		p->drawLine( r.right(), r.y(), r.right(), r.height() );
 	    }
