@@ -2565,15 +2565,23 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, int nUlChars )
 {
-    if ( testf(ExtDev) || txop >= TxScale ) {
-	// ##### doesn't use correct font!
-	// #### do it natively here so underlining works!
-	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
-		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+    bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
+
+    if ( testf(ExtDev) ) {
+	// ### FIXME
 	return;
     }
+
+
     if ( txop == TxTranslate )
 	map( x, y, &x, &y );
+    else {
+	QT_WA( { 
+	    nativeXForm( TRUE );
+	}, {
+	    // #### fixme for rotations on DOS based
+	} );
+    }
 
     QTextEngine *engine = ti.engine;
     QScriptItem &si = engine->items[ti.item];
@@ -2624,6 +2632,8 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
 	SelectObject( hdc, hbrush );
 	DeleteObject( tbrush );
     }
+    if ( nat_xf )
+	nativeXForm( FALSE );
 }
 
 
