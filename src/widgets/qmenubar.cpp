@@ -848,7 +848,6 @@ int QMenuBar::calculateRects( int max_width )
 	    }
 #endif
 
-
 	    if ( ( ( !reverse && x + w + frameWidth() - max_width > 0 ) ||
 		 ( reverse && x - w -frameWidth() < 0 ) )
 		 && nlitems > 0 ) {
@@ -861,7 +860,8 @@ int QMenuBar::calculateRects( int max_width )
 		}
 		if ( reverse )
 		    x = max_width - x;
-		separator = -1;
+		if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
+		    separator = -1;
 	    }
 	    if ( y + h + 2*frameWidth() > max_height )
 		max_height = y + h + 2*frameWidth();

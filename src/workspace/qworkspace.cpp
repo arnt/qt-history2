@@ -749,6 +749,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->widgetResizeHandler->setActive( TRUE );
 	    c->titlebar->setMovable(TRUE);
 	}
+	fake->clearWState( WState_Minimized | WState_Maximized );
 
 	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
