@@ -4,3 +4,4 @@ SOURCES		= prodcons.cpp
 TARGET		= prodcons
 CLEAN_FILES	= prodcons.out
 REQUIRES	= thread
+REQUIRES	= large-config

@@ -11,7 +11,7 @@
 #define QT_NO_ASYNC_IMAGE_IO
 /* #define QT_NO_FREETYPE */
 #define QT_NO_BDF
-#define QT_NO_FONTDATABASE
+//#define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION
 #define QT_NO_DRAGANDDROP
 #define QT_NO_CLIPBOARD

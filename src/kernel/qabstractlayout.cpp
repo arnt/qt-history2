@@ -851,7 +851,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    if ( c->child()->isWidgetType() ) {
 		QWidget *w = (QWidget *)c->child();
 		if ( !w->isTopLevel() ) {
-#ifndef QT_NO_MENUBAR
+#if !defined(QT_NO_MENUBAR) && !defined(QT_NO_TOOLBAR)
 		    if ( qt_cast<QMenuBar*>(w) && !::qt_cast<QToolBar*>(w->parentWidget()) )
 			menubar = (QMenuBar *)w;
 		    else

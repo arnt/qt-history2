@@ -1593,7 +1593,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if ( controls & SC_TitleBarCloseButton ) {
 		ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton ), widget );
 		down = active & SC_TitleBarCloseButton;
-		if ( widget->testWFlags( WStyle_Tool ) || qt_cast<QDockWindow*>(widget) )
+		if ( widget->testWFlags( WStyle_Tool )
+#ifndef QT_NO_MAINWINDOW
+		     || qt_cast<QDockWindow*>(widget)
+#endif
+		    )
 		    pm = stylePixmap(SP_DockWindowCloseButton, widget);
 		else
 		    pm = stylePixmap(SP_TitleBarCloseButton, widget);
@@ -2182,8 +2186,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	if ( widget ) {
 	    if ( widget->testWFlags( WStyle_Tool ) ) {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
+#ifndef QT_NO_MAINWINDOW
 	    } else if ( qt_cast<QDockWindow*>(widget) ) {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 13 );
+#endif
 	    } else {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
 	    }

@@ -472,8 +472,11 @@ void QMenuBar::languageChange()
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object == parent() && object && !qt_cast<QToolBar*>(object) &&
-	 event->type() == QEvent::Resize ) {
+    if ( object == parent() && object
+#ifndef QT_NO_TOOLBAR
+	 && !qt_cast<QToolBar*>(object)
+#endif
+	 && event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	int w = e->size().width();
 	setGeometry( 0, y(), w, heightForWidth(w) );
@@ -1543,9 +1546,11 @@ QSize QMenuBar::sizeHint() const
 
 QSize QMenuBar::minimumSize() const
 {
+#ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(parent());
     if ( tb )
 	return sizeHint();
+#endif
     return QFrame::minimumSize();
 }
 

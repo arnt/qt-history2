@@ -5,3 +5,4 @@ HEADERS += tooltip.h mainwindow.h whatsthis.h
 
 LIBS += -lqassistantclient
 
+REQUIRES=full-config

@@ -16,7 +16,7 @@
 #define QT_NO_ASYNC_IMAGE_IO
 /* #define QT_NO_FREETYPE //done by configure -no-freetype */
 #define QT_NO_BDF
-#define QT_NO_FONTDATABASE
+//#define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION
 #define QT_NO_MIME
 #define QT_NO_SOUND
@@ -38,7 +38,7 @@
 #define QT_NO_TEXTSTREAM
 #define QT_NO_DATASTREAM
 #define QT_NO_QWS_SAVEFONTS
-#define QT_NO_STRINGLIST
+//#define QT_NO_STRINGLIST
 #define QT_NO_SESSIONMANAGER
 
 

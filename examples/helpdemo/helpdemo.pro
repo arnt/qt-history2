@@ -11,3 +11,4 @@ unix {
 }
 
 LIBS   += -lqassistantclient
+REQUIRES=full-config
