@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#15 $
 **
 ** Implementation of movie classes
 **
@@ -722,6 +722,7 @@ void QMovie::disconnectUpdate(QObject* receiver, const char* member)
   are currently:
 
   <ul>
+   <li> \c QMovie::SourceEmpty - signalled if the input cannot be read.
    <li> \c QMovie::UnrecognizedFormat - signalled if the input data is unrecognized.
    <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused(),
 			or by after \link step() stepping \endlink pauses.
@@ -763,7 +764,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.14 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.15 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

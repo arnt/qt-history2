@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#2 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -195,6 +195,9 @@ QIODeviceSource::~QIODeviceSource()
 */
 int QIODeviceSource::readyToSend()
 {
+    if ( iod->status() != IO_Ok || !(iod->state() & IO_Open) )
+	return -1;
+
     int n = QMIN((uint)buf_size, iod->size()-iod->at());
     return n ? n : -1;
 }
