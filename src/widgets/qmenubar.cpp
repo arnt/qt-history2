@@ -619,6 +619,10 @@ void QMenuBar::subHighlighted( int id )
 #ifndef QT_NO_ACCEL
 void QMenuBar::accelActivated( int id )
 {
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if(mac_eaten_menubar)
+	return;
+#endif
     if ( !isEnabled() )				// the menu bar is disabled
 	return;
     setAltMode( TRUE );
