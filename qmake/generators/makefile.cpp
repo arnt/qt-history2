@@ -54,6 +54,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+// Well, Windows doesn't have this, so here's the macro
+#ifndef S_ISDIR
+#define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
+#endif
+
+
+
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(FALSE),
 							init_already(FALSE), moc_aware(FALSE), project(p)
 {
