@@ -2665,7 +2665,7 @@ void QApplication::restoreOverrideCursor()
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// set back to original cursors
-	    qt_x11_enforce_cursor( w, FALSE );
+	    qt_x11_enforce_cursor( w, !w->testWState( WState_OwnCursor ) );
 	    ++it;
 	}
 	XFlush( appDpy );
