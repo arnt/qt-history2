@@ -868,8 +868,11 @@ QString QDateEdit::separator() const
 
 void QDateEdit::updateButtons()
 {
-    bool upEnabled = isEnabled() && date() < maxValue();
-    bool downEnabled = isEnabled() && date() > minValue();
+    if ( !isEnabled() )
+	return;
+
+    bool upEnabled = date() < maxValue();
+    bool downEnabled = date() > minValue();
 
     d->controls->setUpEnabled( upEnabled );
     d->controls->setDownEnabled( downEnabled );
@@ -2144,8 +2147,11 @@ QSize QTimeEdit::minimumSizeHint() const
  */
 void QTimeEdit::updateButtons()
 {
-    bool upEnabled = isEnabled() && time() < maxValue();
-    bool downEnabled = isEnabled() && time() > minValue();
+    if ( !isEnabled() )
+	return;
+
+    bool upEnabled = time() < maxValue();
+    bool downEnabled = time() > minValue();
 
     d->controls->setUpEnabled( upEnabled );
     d->controls->setDownEnabled( downEnabled );
