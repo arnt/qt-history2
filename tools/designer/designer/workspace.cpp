@@ -572,11 +572,11 @@ void Workspace::activeEditorChanged( SourceEditor *se )
 {
     if ( !se->object() )
 	return;
-    if ( se->object()->inherits( "FormWindow" ) ) {
-	activeFormChanged( (FormWindow*)se->object() );
+    if ( se->formWindow() ) {
+	activeFormChanged( se->formWindow() );
 	return;
     }
-    WorkspaceItem *i = findItem( (SourceFile*)se->object() );
+    WorkspaceItem *i = findItem( se->sourceFile() );
     if ( i ) {
 	setCurrentItem( i );
 	setSelected( i, TRUE );

@@ -946,10 +946,10 @@ void HierarchyView::showClassesTimeout()
 	return;
     SourceEditor *se = lastSourceEditor;
     lastSourceEditor = 0;
-    if ( se->object()->inherits( "FormWindow" ) ) {
-	setFormWindow( (FormWindow*)se->object(), ( (FormWindow*)se->object() )->currentWidget() );
-	MainWindow::self->propertyeditor()->setWidget( ( (FormWindow*)se->object() )->currentWidget(),
-						       (FormWindow*)se->object() );
+    if ( se->formWindow() ) {
+	setFormWindow( se->formWindow(), se->formWindow()->currentWidget() );
+	MainWindow::self->propertyeditor()->setWidget( se->formWindow()->currentWidget(),
+						       se->formWindow() );
 	return;
     }
     formwindow = 0;

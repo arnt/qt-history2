@@ -1215,9 +1215,8 @@ bool MainWindow::fileSaveForm()
 	    e->save();
 	    e->setModified( FALSE );
 	}
-	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-	     e == qWorkspace()->activeWindow() )
-	    ( (SourceFile*)e->object() )->save();
+	if ( e->sourceFile() && e == qWorkspace()->activeWindow() )
+	    sourceFile()->save();
 	
     }
 
@@ -1227,10 +1226,10 @@ bool MainWindow::fileSaveForm()
     if ( w ) {
 	if ( w->inherits( "SourceEditor" ) ) {
 	    se = (SourceEditor*)w;
-	    if ( se->object()->inherits( "FormWindow" ) )
-		fw = (FormWindow*)se->object();
-	    else if ( se->object()->inherits( "SourceFile" ) ) {
-		( (SourceFile*)se->object() )->save();
+	    if ( se->formWindow() )
+		fw = se->formWindow();
+	    else if ( se->sourceFile() ) {
+		se->sourceFile()->save();
 		return TRUE;
 	    }
 	}
@@ -1270,10 +1269,9 @@ void MainWindow::fileSaveAll()
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	e->save();
 	e->setModified( FALSE );
-	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-	     e == qWorkspace()->activeWindow() ) {
-	    statusBar()->message( tr( "Save source file %1").arg( ( (SourceFile*)e->object() )->fileName() ) );
-	    ( (SourceFile*)e->object() )->save();
+	if ( e->sourceFile() && e == qWorkspace()->activeWindow() ) {
+	    statusBar()->message( tr( "Save source file %1").arg( e->sourceFile()->fileName() ) );
+	    e->sourceFile()->save();
 	}
     }
 

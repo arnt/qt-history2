@@ -1378,10 +1378,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
     selectionChanged();
 
     if ( w && w->inherits( "SourceEditor" ) ) {
-	if ( ( (SourceEditor*)w )->object() &&
-	     ( (SourceEditor*)w )->object()->inherits( "FormWindow" ) &&
-	     lastActiveFormWindow != (FormWindow*)( (SourceEditor*)w )->object() ) {
-	    activeWindowChanged( (FormWindow*)( (SourceEditor*)w )->object() );
+	if ( ( (SourceEditor*)w )->formWindow() &&
+	     lastActiveFormWindow != ( (SourceEditor*)w )->formWindow() ) {
+	    activeWindowChanged( ( (SourceEditor*)w )->formWindow() );
 	}
 	actionSearchFind->setEnabled( TRUE );
 	actionSearchIncremetal->setEnabled( TRUE );
@@ -2519,46 +2518,6 @@ void MainWindow::projectSelected( QAction *a )
 	wspace->setCurrentProject( currentProject );
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( !currentProject->isDummy() );
-
-#if 0
-    qWorkspace()->blockSignals( TRUE );
-    QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( w->inherits( "SourceEditor" ) ) {
-	    if ( ( (SourceEditor*)w )->project() == currentProject )
-		w->showNormal();
-	    else
-		w->showMinimized();
-	} else if ( w->inherits( "FormWindow" ) ) {
-	    if ( ( (FormWindow*)w )->project() == currentProject )
-		w->showNormal();
-	    else
-		w->showMinimized();
-	}
-    }
-
-    if ( qworkspace->activeWindow() ) {
-	if ( qworkspace->activeWindow()->inherits( "FormWindow" ) ) {
-	    lastActiveFormWindow = (FormWindow*)qworkspace->activeWindow();
-	    setAppropriate( (QDockWindow*)actionEditor->parentWidget(),
-			    lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
-	    if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
-		actionEditor->parentWidget()->show();
-	    else
-		actionEditor->parentWidget()->hide();
-	    actionEditor->setFormWindow( lastActiveFormWindow );
-	} else {
-	    emit formWindowChanged();
-	    emit hasActiveForm( FALSE );
-	    actionEditUndo->setEnabled( FALSE );
-	    actionEditRedo->setEnabled( FALSE );
-	    setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
-	    actionEditor->parentWidget()->hide();
-	    actionEditor->setFormWindow( 0 );
-	}
-    }
-    qWorkspace()->blockSignals( FALSE );
-#endif
 }
 
 void MainWindow::openProject( const QString &fn )
@@ -2968,8 +2927,8 @@ void MainWindow::setModified( bool b, QWidget *window )
 	    ( (FormWindow*)w )->modificationChanged( b );
 	    return;
 	} else if ( w->inherits( "SourceEditor" ) ) {
-	    if ( ( (SourceEditor*)w )->object()->inherits( "FormWindow" ) ) {
-		FormWindow *fw = (FormWindow*)( (SourceEditor*)w )->object();
+	    if ( ( (SourceEditor*)w )->formWindow() ) {
+		FormWindow *fw = ( (SourceEditor*)w )->formWindow();
 		fw->commandHistory()->setModified( b );
 		fw->modificationChanged( b );
 	    } else {
@@ -3076,10 +3035,10 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	    se = (SourceEditor*)w;
 	    if ( !se->object() )
 		continue;
-	    if ( se->object()->inherits( "FormWindow" ) )
-		fw = (FormWindow*)se->object();
+	    if ( se->formWindow() )
+		fw = se->formWindow();
 	    else
-		sf = (SourceFile*)se->object();
+		sf = se->sourceFile();
 	}
 	
 	if ( fw ) {
@@ -3235,8 +3194,8 @@ void MainWindow::breakPointsChanged()
     }
 
     for ( e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
-	    QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
+	if ( e->project() == currentProject && e->sourceFile() ) {
+	    QValueList<int> bps = MetaDataBase::breakPoints( e->sourceFile() );
 	    iiface->setBreakPoints( e->object(), bps );
 	}
     }
@@ -3276,8 +3235,8 @@ SourceFile *MainWindow::sourceFile()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( qworkspace->activeWindow() == e ) {
-	    if ( e->object() && e->object()->inherits( "SourceFile" ) )
-		return (SourceFile*)e->object();
+	    if ( e->sourceFile() )
+		return e->sourceFile();
 	}
     }
     return 0;

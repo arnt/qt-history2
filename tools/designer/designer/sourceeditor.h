@@ -30,6 +30,7 @@ class FormWindow;
 class QCloseEvent;
 struct LanguageInterface;
 class Project;
+class SourceFile;
 
 class SourceEditor : public QVBox
 {
@@ -79,6 +80,8 @@ public:
     void checkTimeStamp();
     void updateTimeStamp();
 
+    SourceFile *sourceFile() const;
+    FormWindow *formWindow() const;
 
 protected:
     void closeEvent( QCloseEvent *e );

@@ -64,17 +64,17 @@ SourceEditor::~SourceEditor()
     lIface->release();
     MainWindow::self->editorClosed( this );
     editor = 0;
-    if ( obj && obj->inherits( "FormWindow" ) )
+    if ( formWindow() )
 	MetaDataBase::setEdited( obj, FALSE );
-    if ( obj && obj->inherits( "SourceFile" ) )
-	( (SourceFile*)(QObject*)obj )->setEditor( 0 );
+    if ( sourceFile() )
+	sourceFile()->setEditor( 0 );
 }
 
 void SourceEditor::setObject( QObject *o, Project *p )
 {
-    if ( obj && obj->inherits( "SourceFile" ) )
-	( (SourceFile*)(QObject*)obj )->setEditor( 0 );
-    if ( obj && obj->inherits( "FormWindow" ) )
+    if ( sourceFile() )
+	sourceFile()->setEditor( 0 );
+    if ( formWindow() )
 	MetaDataBase::setEdited( obj, FALSE );
     if ( o && o->inherits( "FormWindow" ) )
 	MetaDataBase::setEdited( o, TRUE );
@@ -86,18 +86,18 @@ void SourceEditor::setObject( QObject *o, Project *p )
     }
     obj = o;
     pro = p;
-    setCaption( tr( "Edit %1" ).arg( ( obj->inherits( "FormWindow" ) ? QString( obj->name() ) : ( (SourceFile*)o )->fileName() ) ) );
-    if ( obj->inherits( "SourceFile" ) )
-	( (SourceFile*)(QObject*)obj )->setEditor( this );
+    setCaption( tr( "Edit %1" ).arg( formWindow() ? QString( obj->name() ) : QString( sourceFile()->fileName() ) ) );
+    if ( sourceFile() )
+	sourceFile()->setEditor( this );
     iFace->setText( sourceOfObject( obj, lang, iFace, lIface ) );
-    if ( pro && o->inherits( "FormWindow" ) )
-	iFace->setContext( pro->formList(), ( (FormWindow*)o )->mainContainer() );
+    if ( pro && formWindow() )
+	iFace->setContext( pro->formList(), formWindow()->mainContainer() );
     else
 	iFace->setContext( pro->formList(), 0 );
-    if ( changed || o->inherits( "SourceFile" ) ) // #### ?
+    if ( changed || sourceFile() )
 	iFace->setBreakPoints( MetaDataBase::breakPoints( o ) );
     MainWindow::self->objectHierarchy()->showClasses( this );
-    if ( o->inherits( "FormWindow" ) && lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+    if ( formWindow() && lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	QString fn = MetaDataBase::formSourceFile( o );
 	if ( QFile::exists( fn ) )
 	    lastTimeStamp = QFileInfo( fn ).lastModified();
@@ -108,7 +108,7 @@ QString SourceEditor::sourceOfObject( QObject *o, const QString &lang,
 				      EditorInterface *, LanguageInterface *lIface )
 {
     QString txt;
-    if ( o->inherits( "FormWindow" ) ) {
+    if ( o && o->inherits( "FormWindow" ) ) {
 	bool createSource = TRUE;
 	bool setSource = FALSE;
 	if ( lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
@@ -142,7 +142,7 @@ QString SourceEditor::sourceOfObject( QObject *o, const QString &lang,
 	    if ( setSource )
 		MetaDataBase::setFormCode( o, txt );
 	}
-    } else if ( o->inherits( "SourceFile" ) ) {
+    } else if ( o && o->inherits( "SourceFile" ) ) {
 	txt = ( (SourceFile*)o )->text();
     }
     return txt;
@@ -163,13 +163,12 @@ void SourceEditor::closeEvent( QCloseEvent *e )
     e->accept();
     if ( !obj )
 	return;
-    if ( obj->inherits( "FormWindow" ) ) {
+    if ( formWindow() ) {
 	save();
 	MainWindow::self->updateFunctionList();
-	if ( obj && obj->inherits( "FormWindow" ) )
-	    MetaDataBase::setEdited( obj, FALSE );
+	MetaDataBase::setEdited( obj, FALSE );
     } else {
-	if ( !( (SourceFile*)(QObject*)obj )->closeEvent() )
+	if ( !sourceFile()->closeEvent() )
 	    e->ignore();
     }
 }
@@ -178,7 +177,7 @@ void SourceEditor::save()
 {
     if ( !obj )
 	return;
-    if ( obj->inherits( "FormWindow" ) ) {
+    if ( formWindow() ) {
 	QValueList<LanguageInterface::Function> functions;
 	QValueList<MetaDataBase::Slot> newSlots, oldSlots;
 	oldSlots = MetaDataBase::slotList( obj );
@@ -220,8 +219,8 @@ void SourceEditor::save()
 	MetaDataBase::setFunctionBodies( obj, funcs, lang, QString::null );
 	if ( lIface->supports( LanguageInterface::StoreFormCodeSeperate ) )
 	    MetaDataBase::setFormCode( obj, iFace->text() );
-    } else if ( obj->inherits( "SourceFile" ) ) {
-	( (SourceFile*)(QObject*)obj )->setText( iFace->text() );
+    } else if ( sourceFile() ) {
+	sourceFile()->setText( iFace->text() );
     }
 }
 
@@ -284,15 +283,15 @@ void SourceEditor::refresh( bool allowSave )
 
 void SourceEditor::resetContext()
 {
-    if ( pro && obj && obj->inherits( "FormWindow" ) )
-	iFace->setContext( pro->formList(), ( (FormWindow*)(QObject*)obj )->mainContainer() );
-    else
+    if ( pro && formWindow() )
+	iFace->setContext( pro->formList(), formWindow()->mainContainer() );
+    else if ( pro && sourceFile() )
 	iFace->setContext( pro->formList(), 0 );
 }
 
 void SourceEditor::setFocus()
 {
-    if ( obj && obj->inherits( "FormWindow" ) )
+    if ( formWindow() )
 	MetaDataBase::setEdited( obj, TRUE );
     if ( editor )
 	editor->setFocus();
@@ -339,7 +338,7 @@ bool SourceEditor::isModified() const
 
 void SourceEditor::checkTimeStamp()
 {
-    if ( obj && obj->inherits( "FormWindow" ) &&
+    if ( formWindow() &&
 	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	QString fn = MetaDataBase::formSourceFile( obj );
 	if ( QFile::exists( fn ) ) {
@@ -359,14 +358,14 @@ void SourceEditor::checkTimeStamp()
 		}
 	    }
 	}
-    } else if ( obj && obj->inherits( "SourceFile" ) ) {
-	( (SourceFile*)(QObject*)obj )->checkTimeStamp();
+    } else if ( sourceFile() ) {
+	sourceFile()->checkTimeStamp();
     }
 }
 
 void SourceEditor::updateTimeStamp()
 {
-    if ( obj && obj->inherits( "FormWindow" ) &&
+    if ( formWindow() &&
 	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	QString fn = MetaDataBase::formSourceFile( obj );
 	lastTimeStamp = QFileInfo( fn ).lastModified();
@@ -375,10 +374,24 @@ void SourceEditor::updateTimeStamp()
 
 bool SourceEditor::saveAs()
 {
-    if ( obj && obj->inherits( "FormWindow" ) ) {
-	return ( (FormWindow*)(QObject*)obj )->saveAs();
-    } else if ( obj && obj->inherits( "SourceFile" ) ) {
-	return ( (SourceFile*)(QObject*)obj )->saveAs();
+    if ( formWindow() ) {
+	return formWindow()->saveAs();
+    } else if ( sourceFile() ) {
+	return sourceFile()->saveAs();
     }
     return FALSE;
+}
+
+SourceFile *SourceEditor::sourceFile() const
+{
+    if ( !obj || !obj->inherits( "SourceFile" ) )
+	return 0;
+    return (SourceFile*)(QObject*)obj;
+}
+
+FormWindow *SourceEditor::formWindow() const
+{
+    if ( !obj || !obj->inherits( "FormWindow" ) )
+	return 0;
+    return (FormWindow*)(QObject*)obj;
 }
