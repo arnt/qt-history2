@@ -139,7 +139,7 @@ QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 class QMacStyleFocusWidget : public QAquaFocusWidget
 {
 public:
-    QMacStyleFocusWidget() : QAquaFocusWidget(FALSE) { }
+    QMacStyleFocusWidget(QWidget *w) : QAquaFocusWidget(FALSE, w) { }
 
 protected:
     virtual void paintEvent(QPaintEvent *);
@@ -206,8 +206,9 @@ bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 void QMacStylePrivate::doFocus(QWidget *w)
 {
     if(!focusWidget)
-	focusWidget = new QMacStyleFocusWidget();
-    focusWidget->setFocusWidget(w);
+	focusWidget = new QMacStyleFocusWidget(w);
+    else
+	focusWidget->setFocusWidget(w);
 }
 
 #define private public //ugh, what I'll do, guess we have to wait until 4.0

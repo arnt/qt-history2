@@ -56,11 +56,13 @@ QCString p2qstring(const unsigned char *c); //qglobal.cpp
  *****************************************************************************/
 //#define DEBUG_SIZE_CONSTRAINT
 
-QAquaFocusWidget::QAquaFocusWidget(bool noerase)
-    : QWidget(NULL, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : 0)), d(NULL)
+QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
+    : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : 0)), d(NULL)
 {
     if(noerase)
 	setBackgroundMode(NoBackground);
+    if(w)
+	setFocusWidget(w);
 }
 #if 0
 /* It's a real bummer I cannot use this, but you'll notice that sometimes

@@ -53,7 +53,7 @@ class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QAquaFocusWidget(bool noerase=TRUE );
+    QAquaFocusWidget(bool noerase=TRUE, QWidget *w=NULL);
     ~QAquaFocusWidget() {}
     void setFocusWidget( QWidget * widget );
     QWidget* widget() { return d; }

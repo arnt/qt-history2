@@ -97,7 +97,7 @@ QCString p2qstring(const unsigned char *c); //qglobal.cpp
 class QAquaStyleFocusWidget : public QAquaFocusWidget
 {
 public:
-    QAquaStyleFocusWidget() : QAquaFocusWidget(FALSE) { }
+    QAquaStyleFocusWidget(QWidget *w) : QAquaFocusWidget(FALSE, w) { }
 
 protected:
     virtual void paintEvent(QPaintEvent *);
@@ -157,8 +157,9 @@ bool QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 void QAquaStylePrivate::doFocus(QWidget *w)
 {
     if (!focusWidget)
-	focusWidget = new QAquaStyleFocusWidget();
-    focusWidget->setFocusWidget(w);
+	focusWidget = new QAquaStyleFocusWidget(w);
+    else
+	focusWidget->setFocusWidget(w);
 }
 
 
