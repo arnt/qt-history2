@@ -9,6 +9,9 @@ int main( int argc, char** argv )
 {
     Configure app( argc, argv );
 
+    if (!app.isOk())
+        return 3;
+
     app.parseCmdLine();
 #if !defined(EVAL)
     app.validateArgs();

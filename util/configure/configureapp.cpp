@@ -43,6 +43,13 @@ bool writeToFile(const char* text, const QString &filename)
 
 Configure::Configure( int& argc, char** argv )
 {
+    QString qtDir = getenv("QTDIR");
+    if (qtDir.isEmpty()) {
+        cout << "QTDIR environment variable not specified, configuration aborted!" << endl;
+        dictionary[ "DONE" ] = "error";
+        return;
+    }
+
     int i;
 
     /*
@@ -134,6 +141,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_DB2" ]	    = "no";
     dictionary[ "SQL_SQLITE" ]	    = "no";
     dictionary[ "SQL_IBASE" ]	    = "no";
+
+    // Avoid all those problems of people configuring outside of QTDIR
+    QString cwd = QDir::currentPath();
+    if (QFileInfo(cwd) != QFileInfo(qtDir))
+        QDir::setCurrent(qtDir);
 
     dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
