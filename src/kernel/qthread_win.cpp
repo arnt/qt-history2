@@ -5,7 +5,7 @@
 **
 ** Created : 20000913
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -75,14 +75,19 @@ static QCriticalSection *dictSection()
 }
 
 #if defined(Q_C_CALLBACKS)
-extern "C"
+extern "C" {
 #endif
+
 static unsigned int __stdcall start_thread(void* that )
 {
     QThreadPrivate::internalRun( (QThread*)that );
 
     return 0;
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 QThreadPrivate::QThreadPrivate( unsigned int ss )
 {

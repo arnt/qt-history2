@@ -47,6 +47,7 @@
 #include <objbase.h>
 #include <shlobj.h>
 #include <initguid.h>
+#include <ctype.h>
 
 
 #ifndef Q_OS_TEMP
@@ -216,7 +217,7 @@ QString QFileInfo::readLink() const
 
 		    if (SUCCEEDED(hres)) {
 			memcpy( szGotPath, (TCHAR*)fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
-			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
+			hres = psl->GetPath( (char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
 			fileLinked = QString::fromUcs2( (ushort*)szGotPath );
 		    }
 		}
