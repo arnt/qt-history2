@@ -308,7 +308,6 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
 	    cg_hd = 0;
             return FALSE;
 	}
-	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
 	if(fullPage()) {
 	    QSize marg(margins());
 	    QMacSavedPortInfo mp(this);
@@ -319,6 +318,8 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
         state = PST_ACTIVE;
     } else if(c == PdcEnd) {
         if(hd && state != PST_IDLE) {
+	    CGContextRelease((CGContextRef)cg_hd);
+	    cg_hd = 0;
             PMSessionEndPage(psession);
             PMSessionEndDocument(psession);
             hd = NULL;
@@ -404,6 +405,13 @@ QSize QPrinter::margins() const
     uint t, l;
     margins(&t, &l, NULL, NULL);
     return QSize(t, l);
+}
+
+Qt::HANDLE QPrinter::macCGHandle() const
+{
+    if(!cg_hd)
+	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
+    return cg_hd;
 }
 
 void QPrinter::setMargins(uint, uint, uint, uint)

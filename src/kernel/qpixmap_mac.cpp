@@ -509,7 +509,10 @@ void QPixmap::deref()
 #ifdef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
+	    CGContextRelease((CGContextRef)cg_hd);
+	    cg_hd = 0;
 	    DisposeGWorld((GWorldPtr)hd);
+	    hd = 0;
         }
         delete data;
 	data = NULL;
@@ -704,7 +707,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 #ifdef QMAC_ONE_PIXEL_LOCK
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
-	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
 	data->w=w;
 	data->h=h;
     }
@@ -741,6 +743,12 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     return pm;
 }
 
+Qt::HANDLE QPixmap::macCGHandle() const
+{
+    if(!cg_hd)
+	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
+    return cg_hd;
+}
 
 bool QPixmap::hasAlpha() const
 {

@@ -134,6 +134,10 @@ public:
     void setOptionEnabled( PrinterOption, bool enable );
     bool isOptionEnabled( PrinterOption );
 
+#ifdef Q_WS_MAC
+    virtual Qt::HANDLE      macCGHandle() const;
+#endif
+
 protected:
     bool        cmd( int, QPainter *, QPDevCmdParam * );
     int         metric( int ) const;

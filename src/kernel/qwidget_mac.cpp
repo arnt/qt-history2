@@ -71,67 +71,6 @@ void unclippedBitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int,
 		      int, int, Qt::RasterOp, bool, bool); //qpaintdevice_mac.cpp
 
 /*****************************************************************************
-  internally used for CoreGraphics 
- *****************************************************************************/
-class QMacCGExtra {
-    CGContextRef cg_clip;
-    uint cg_clip_serial : 16;
-    CGContextRef cg_sibs;
-    uint cg_sibs_serial : 16;
-public:
-    QMacCGExtra() : cg_clip(0), cg_clip_serial(0), cg_sibs(0), cg_sibs_serial(0) { }
-    ~QMacCGExtra() {
-	if(cg_clip) {
-	    CGContextRelease(cg_clip);
-	    cg_clip = 0;
-	}
-	if(cg_sibs) {
-	    CGContextRelease(cg_sibs);
-	    cg_sibs = 0;
-	}
-    }
-    CGContextRef getCGHandle(bool, QWidget *);
-};
-CGContextRef QMacCGExtra::getCGHandle(bool do_children, QWidget *widg)
-{
-    uint serial = widg->clippedSerial(do_children);
-    CGContextRef *ret = 0;
-    if(do_children) {
-	if(cg_clip) {
-	    if(cg_clip_serial == serial)
-		return cg_clip;
-	    CGContextRelease(cg_clip);
-	}
-	cg_clip_serial = serial;
-	ret = &cg_clip;
-    } else {
-	if(cg_sibs) {
-	    if(cg_sibs_serial == serial)
-		return cg_sibs;
-	    CGContextRelease(cg_sibs);
-	}
-	cg_sibs_serial = serial;
-	ret = &cg_sibs;
-    }
-    if(ret) {
-	if(!(*ret)) 
-	    CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), ret);
-
-	QRegion rgn = widg->clippedRegion(do_children);
-	QRect qr = rgn.boundingRect();
-	if(!rgn.handle()) {
-	    CGContextClipToRect(*ret, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
-	} else {
-	    Rect r;
-	    SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
-	    ClipCGContextToRegion(*ret, &r, rgn.handle());
-	}
-    }
-    return *ret;
-}
-
-
-/*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
 QPoint posInWindow(QWidget *w)
@@ -357,11 +296,9 @@ void qt_clean_root_win() {
 	    warning("%s:%d: %s (%s) had his handle taken away!", __FILE__, __LINE__,
 		     (*it)->name(), (*it)->className());
 #endif
-	    if(QWExtra *extra = w->d->extraData()) {
-		if(extra->macCGExtra) {
-		    delete extra->macCGExtra;
-		    extra->macCGExtra = 0;
-		}
+	    if(w->cg_hd) {
+		CGContextRelease((CGContextRef)w->cg_hd);
+		w->cg_hd = 0;
 	    }
 	    w->hd = 0; //at least now we'll just crash
 	}
@@ -1051,11 +988,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         else if(testWFlags(WType_Popup))
             qApp->closePopup(this);
 	if(destroyWindow) {
-	    if(QWExtra *extra = d->extraData()) {
-		if(extra->macCGExtra) {
-		    delete extra->macCGExtra;
-		    extra->macCGExtra = 0;
-		}
+	    if(cg_hd) {
+		CGContextRelease((CGContextRef)cg_hd);
+		cg_hd = 0;
 	    }
 	    if(isTopLevel() && hd && own_id) {
 		mac_window_count--;
@@ -1136,11 +1071,9 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
 	    QWidget *w = (QWidget *)obj;
 	    if(((WindowPtr)w->hd) == old_hd) {
 		w->hd = hd; //all my children hd's are now mine!
-		if(QWExtra *extra = w->d->extraData()) {
-		    if(extra->macCGExtra) {
-			delete extra->macCGExtra;
-			extra->macCGExtra = 0;
-		    }
+		if(w->cg_hd) {
+		    CGContextRelease((CGContextRef)w->cg_hd);
+		    w->cg_hd = 0;
 		}
 		w->macWidgetChangedWindow();
 	    }
@@ -2102,7 +2035,6 @@ void QWidgetPrivate::createSysExtra()
     extra->child_serial = extra->clip_serial = 1;
     extra->child_dirty = extra->clip_dirty = true;
     extra->macDndExtra = 0;
-    extra->macCGExtra = 0;
 }
 
 void QWidgetPrivate::deleteSysExtra()
@@ -2365,12 +2297,20 @@ uint QWidget::clippedSerial(bool do_children)
 */
 Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
-    QWidget *that = (QWidget*)this;
-    that->d->createExtra();
-    QWExtra *extra = d->extraData();
-    if(!extra->macCGExtra)
-	extra->macCGExtra = new QMacCGExtra;
-    return extra->macCGExtra->getCGHandle(do_children, that);
+    if(!cg_hd) 
+	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
+#if 0
+    QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
+    QRect qr = rgn.boundingRect();
+    if(!rgn.handle()) {
+	CGContextClipToRect((CGContextRef)cg_hd, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
+    } else {
+	Rect r;
+	SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
+	ClipCGContextToRegion((CGContextRef)cg_hd, &r, rgn.handle());
+    }
+#endif
+    return cg_hd;
 }
 
 /*!
