@@ -3805,6 +3805,9 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( !e )
 	return;
 
+    if ((!d->context_menu) && (e->button() == RightButton))
+	return;
+
     d->startEdit = TRUE;
     if ( currentItem() && currentItem()->renameBox ) {
 	d->startEdit = FALSE;
@@ -3891,6 +3894,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     }
 
     d->select = d->selectionMode == Multi ? !i->isSelected() : TRUE;
+    d->select |= d->context_menu;
+    
     {// calculate activatedP
 	activatedByClick = TRUE;
 	QPoint topLeft = itemRect( i ).topLeft(); //### inefficient?
@@ -4014,9 +4019,11 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
 	}
     } else {
-	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	QMouseEvent mpe( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	QMouseEvent mre( QEvent::MouseButtonRelease, e->pos(), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
-	contentsMousePressEventEx( &me );
+	contentsMousePressEventEx( &mpe );
+	contentsMouseReleaseEvent( &mre );
 	d->context_menu = FALSE;
     }
 }
@@ -4025,6 +4032,9 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    if (e && (!d->context_menu) && (e->button() == RightButton))
+	return;
+
     d->startDragItem = 0;
     bool emitClicked = !d->pressedItem || d->buttonDown;
     d->buttonDown = FALSE;
