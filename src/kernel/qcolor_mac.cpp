@@ -118,10 +118,6 @@ void QColor::initialize()
 	return;
 
     color_init = TRUE;
-    if ( QApplication::colorSpec() == QApplication::NormalColor )
-	return;
-
-    int numCols = maxColors();
 }
 
 /*!
@@ -159,8 +155,7 @@ uint QColor::alloc()
 	pix = 0;
     } else {
 	rgbVal &= RGB_MASK;
-	//FIXME: Under what coditions is this correct
-	pix = qRed( rgbVal ) << 16 + qGreen( rgbVal ) << 8 + qBlue( rgbVal );
+	pix = qRed( rgbVal ) << 16 | qGreen( rgbVal ) << 8 | qBlue( rgbVal );
     }
 
     return pix;
