@@ -113,6 +113,7 @@ extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
 static char    *appName = 0;                        // application name
+bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
@@ -1677,6 +1678,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassMouse:
     {
+	Point where;
+	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
+			  sizeof(where), 0, &where);
+	if(ekind == kEventMouseMoved && qt_mac_app_fullscreen && 
+	    QApplication::desktop()->screenNumber(QPoint(where.h, where.v)) == 
+	    QApplication::desktop()->primaryScreen()) {
+	    if(where.v <= 0) 
+		ShowMenuBar();
+	    else if(qt_mac_window_at(where.h, where.v, 0) != inMenuBar)
+		HideMenuBar();
+	}
+
 #if defined(DEBUG_MOUSE_MAPS) || defined(DEBUG_DROPPED_EVENTS)
 	const char *edesc = 0;
 	switch(ekind) {
@@ -1717,9 +1730,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else
 		button = QMouseEvent::MidButton;
 	}
-	Point where;
-	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
-			  sizeof(where), 0, &where);
 
 	switch(ekind) {
 	case kEventMouseDown:
