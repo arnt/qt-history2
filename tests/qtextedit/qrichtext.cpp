@@ -3185,7 +3185,7 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 		space -= s;
 		numSpaces--;
 	    }
-	    string->at( j ).x += toAdd;
+	    string->at( k ).x += toAdd;
 	}
     }	
 
