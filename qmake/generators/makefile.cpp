@@ -226,11 +226,10 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 bool
 MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &f, bool recurse)
 {
-    QString fn = fileFixify(f, QDir::currentDirPath(), Option::output_dir);
-    QStringList &fndeps = findDependencies(fn);
+    QStringList &fndeps = findDependencies(f);
     if(!fndeps.isEmpty()) 
 	return TRUE;
-
+    QString fn = fileFixify(f, QDir::currentDirPath(), Option::output_dir);
     fn = Option::fixPathToLocalOS(fn, FALSE);
     QString fix_env_fn = Option::fixPathToLocalOS(fn);
     int file = open(fix_env_fn.latin1(), O_RDONLY);
@@ -1280,7 +1279,7 @@ MakefileGenerator::write()
 	}
     }
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE &&
-       project->isActiveConfig("link_prl")) //load up prl's
+       project->isActiveConfig("link_prl")) //load up prl's'
 	processPrlFiles();
 
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
