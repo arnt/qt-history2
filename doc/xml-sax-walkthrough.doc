@@ -40,12 +40,12 @@
 \title Walkthrough: How to use the Qt SAX2 classes
 
 For a general discussion of the XML topics in Qt please refer to
-the document "<a href="xml.html">Qt XML Module</a>".
-To learn more about SAX2  see the document 
-"<a href="xml-sax.html">The Qt SAX2 implementation</a>".
+the document \link xml.html Qt XML Module. \endlink
+To learn more about SAX2  see the document describing
+\link xml-sax.html the Qt SAX2 implementation. \endlink
 
 Before reading on you should at least be familiar with 
-the "<a href="xml-sax.html#introSAX2">Introduction to SAX2</a>".
+the \link xml-sax.html#introSAX2 Introduction to SAX2. \endlink
 
 
 <a name="quickStart"></a>
@@ -55,7 +55,7 @@ In this section we will present a small example reader that outputs
 the names of all elements in an XML document on the command line. 
 The element names are indented corresponding to their nesting level.
 
-As mentioned in "<a href="xml.html#introSAX2">Introduction to SAX2</a>" 
+As mentioned in \link xml-sax.html#introSAX2 Introduction to SAX2 \endlink
 we have to implement the functions of the handler classes that we are
 interested in. In our case these are only three:
 \l QXmlContentHandler::startDocument(),
@@ -100,7 +100,8 @@ have to overload \l QXmlContentHandler::startElement().
 This is what the implementation does: The name of the element with
 preceding indentation is printed out followed by a linebreak.
 Strictly speaking \e qName contains the local element name 
-without an eventual prefix denoting the <a href="xml.html#namespaces">namespace</a>.
+without an eventual prefix denoting the \link xml.html#namespaces namespace. 
+\endlink
 
 If another element follows before the current element's end tag
 it should be indented. Therefore we add four spaces to the

@@ -37,7 +37,7 @@
 
 \title The Qt SAX2 implementation
 
-<h2><a name="introSAX2">Introduction to SAX2</h2>
+<h2><a name="introSAX2">Introduction to SAX2</a></h2>
 
 The SAX2 interface is an event-driven mechanism to provide the user with
 document information. "Event" in this context has nothing to do with the
@@ -63,8 +63,8 @@ a suitable event handling routine can be invoked.
 
 Whilst this is a fast and simple approach to read XML documents
 manipulation is difficult because data are not stored, simply handled
-and discarded serially. This is when the <a href="xml-dom.html">DOM interface</a> 
-comes handy.
+and discarded serially. This is when the \link xml-dom.html DOM interface 
+\endlink comes handy.
 
 The Qt XML module provides an
 abstract class, \l QXmlReader, that defines the interface for potential 
@@ -110,7 +110,7 @@ provide the user with useful functionality:
 <li> \l QXmlLocator
      is used to obtain the actual parsing position of an event.
 <li> \l QXmlNamespaceSupport
-     is used to easily implement <a href="xml.html#namespaces">namespace</a> 
+     is used to easily implement \link xml.html#namespaces namespace \endlink
      support for a reader.
      Note that namespaces do not change the parsing 
      behavior. They are only reported through the handler.
@@ -122,7 +122,7 @@ provide the user with useful functionality:
 The behaviour of an XML reader depends on whether it supports certain
 optional features or not. 
 As an example a reader can have the feature 
-"report attributes used for <a href="xml.html#namespaces">namespace</A> declarations
+"report attributes used for \link xml.html#namespaces namespace \endlink declarations
 and prefixes along with the local name of a tag".  
 Like every other feature this has a unique name represented by a URI:
 it is called \e http://xml.org/sax/features/namespace-prefixes.
@@ -160,7 +160,7 @@ and other features.
 
 <h2><a name="namespaces">Namespace support via features</a></h2>
 
-As we have seen in the <a href="#features">previous section</a> 
+As we have seen in the \link #features previous section \endlink
 we can configure the behavior of the reader when it comes to namespace
 processing by setting and unsetting the 
 \e http://xml.org/features/namespaces and
@@ -263,9 +263,9 @@ QXmlReader::hasProperty().
 <h2>Further reading</h2>
 
 For a practical example on how to use the Qt SAX2 classes see the 
-"<a href="xml-sax-walkthrough.html">tagreader walkthrough</a>".
+\link xml-sax-walkthrough.html tagreader walkthrough. \endlink
 
-More information about XML (e.g. <a href="xml.html#namespaces">namespaces</a>)
-can be found in the <a href="xml.html">introduction to the Qt XML module</a>.
+More information about XML (e.g. \link xml.html#namespaces namespaces \endlink)
+can be found in the \link xml.html introduction to the Qt XML module. \endlink
 
 */

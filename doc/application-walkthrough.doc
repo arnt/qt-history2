@@ -464,7 +464,7 @@ close means that the window is going away for good.
 
 If the text hasn't been edited, we just accept the event.  The window
 will be closed, and because we used the \e WDestructiveClose widget
-flag in the <a href="#ApplicationWindow">\e ApplicationWindow() constructor</a>, 
+flag in the \link #ApplicationWindow \e ApplicationWindow() constructor\endlink, 
 the widget will be deleted.
 
 \printline QMessageBox

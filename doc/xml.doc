@@ -48,7 +48,7 @@ will help you make the best use of the Qt XML classes.
 
 We will however not teach XML basics. If you wish to learn 
 more about XML please refer to other sources,
-e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>.
+e.g. \link http://www.w3.org/XML/ http://www.w3.org/XML/ \endlink.
 
 
 <h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
@@ -59,23 +59,23 @@ SAX is an event-based standard interface for XML parsers.
 The Qt interface follows the design of the SAX2 Java implementation.
 Its naming scheme was adapted to fit the Qt naming conventions.
 Details on SAX2 can be found at
-<a href="http://www.megginson.com/SAX/">http://www.megginson.com/SAX/</a>.
+\link http://www.megginson.com/SAX/ http://www.megginson.com/SAX/ \endlink.
 
 Support for SAX2 filters and the reader factory are under development.
 Furthermore the Qt implementation does not include the SAX1 compatibility classes 
 present in the Java interface. 
 
 For an introduction to Qt's SAX2 classes see
-"<a href="xml-sax.html">The Qt SAX2 implementation</a>". 
-A code example is discussed in the "<a href="xml-sax-walkthrough.html">tagreader
-walkthrough</a>".
+"\link xml-sax.html The Qt SAX2 implementation \endlink". 
+A code example is discussed in the "\link xml-sax-walkthrough.html tagreader
+walkthrough \endlink".
 
 DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
 constituents of an XML document to a tree structure. Details and the
 specification of DOM Level 2 can be found at
-<a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
+\link http://www.w3.org/DOM/ http://www.w3.org/DOM/ \endlink.
 More information about the DOM classes in Qt is provided in the
-<a href="xml-dom.html">Qt XML DOM overview</a>.
+\link xml-dom.html Qt XML DOM overview \endlink.
 
 
  
@@ -83,8 +83,8 @@ More information about the DOM classes in Qt is provided in the
  
 Parts of the Qt XML module documentation assume that you are
 familiar with XML namespaces. Here we present a brief introduction;
-skip to <A HREF="#conventions">"Qt XML
-documentation conventions"</A> if you know this material.
+skip to \link #conventions "Qt XML
+documentation conventions" \endlink if you know this material.
  
 Namespaces are a concept introduced into XML to allow a more modular design.
 With their help data processing software can easily
@@ -218,7 +218,7 @@ by the combination of local name and namespace URI.
 
 
 More information on XML namespaces can be found at
-<a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>.
+\link http://www.w3.org/TR/REC-xml-names/ http://www.w3.org/TR/REC-xml-names/ \endlink.
 
 
 <h2><a name="conventions">Conventions used in Qt XML documentation</a></h2>

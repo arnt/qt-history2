@@ -118,5 +118,5 @@ To get started please refer to the \l QDomDocument documentation that
 describes basic usage.
 
 More information about Qt and XML 
-can be found in the <a href="xml.html">introduction to the Qt XML module</a>.   
+can be found in the \link xml.html introduction to the Qt XML module. \endlink   
 */
