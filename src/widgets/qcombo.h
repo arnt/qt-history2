@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#29 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#30 $
 **
 ** Definition of QComboBox class
 **
@@ -98,11 +98,21 @@ class QEditableComboBox: public QComboBox
     Q_OBJECT
 public:
     QEditableComboBox( QWidget *parent=0, const char *name=0 );
+    ~QEditableComboBox();
 
     void	insertItem( const char *text, int index=-1 )
 		{ QComboBox::insertItem( text, index ); }
     void	changeItem( const char *text, int index=-1 )
 		{ QComboBox::changeItem( text, index ); }
+
+    enum	Policy { NoInsertion, AtBeginning,
+			 AtCurrent, AtEnd };
+
+    void	setPolicy( QEditableComboBox::Policy policy ) { p = policy; }
+    QEditableComboBox::Policy policy() const { return p; }
+
+    void	setSizeLimit( int );
+    uint	sizeLimit() const { return maxCount; }
 
 signals:
     void	activated( const char * );
@@ -119,6 +129,9 @@ private slots:
 
 private:
     QLineEdit * ed;  // /bin/ed rules!
+    uint	maxCount;
+    Policy	p;
+    bool	edEmpty;
 
 private:	// Disabled functions
     QEditableComboBox( const QEditableComboBox & ) {}
@@ -127,8 +140,6 @@ private:	// Disabled functions
     void insertItem( const QPixmap &, int =1 ) {}
     const QPixmap *pixmap( int ) const { return 0; }
     void changeItem( const QPixmap &, int ) {}
-
-    bool	edEmpty;
 };
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#55 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -21,8 +21,9 @@
 #include "qtimer.h"
 #include "qapp.h"
 #include "qlined.h"
+#include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#55 $");
 
 
 /*!
@@ -926,6 +927,59 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 }
 
 
+/*! \class QEditableComboBox qcombo.h
+
+  \brief QEditableComboBox provides an editable combo box.
+
+  An editable combo box is one where the user can select from a list
+  of provided strings, and also type in a string.  QEditableComboBox
+  inherits QComboBox and offers an API very like that class.
+
+  The simplest difference is that QEditableComboBox can not contain
+  pixmaps.
+
+  If the user types in a string, that string may be added to the list
+  box.  The \link setPolicy() insertion policy \endlink determines how
+  it is added.  The default policy is to add it after the existing
+  entries.
+
+  By default, the QEditableComboBox will grow without bounds.  Since
+  that may not be appropriate, we have provided setSizeLimit().
+
+  QEditableComboBox looks like shit if you ask for Motif look and
+  feel.  This will be corrected ASAP.
+
+*/
+
+
+/*! \fn void QEditableComboBox::activated( const char * )
+
+  This signal is emitted when a new item has been activated
+  (selected). The argument is the activated string.
+
+  You can also use activated(int) signal provided by QComboBox, but be
+  aware that its argument meaningful only for selected strings, not
+  for typed strings.
+*/
+
+/*! \fn void QEditableComboBox::highlighted( const char * )
+
+  This signal is emitted when a new item has been highlighted. The
+  argument is the highlighted string.
+
+  You can also use highlighted(int) signal provided by QComboBox.
+*/
+
+
+/*!
+  Creates a new editable combo box.
+
+  By default, the box has no size limit and the insertion policy is \c
+  QEditableComboBox::AtEnd.
+
+  \sa setPolicy() setSizeLimit()
+*/
+
 
 QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
     : QComboBox( parent, name )
@@ -934,6 +988,8 @@ QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
     ed = new QLineEdit( this, "this is not /bin/ed" );
     ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
     ed->installEventFilter( this );
+    p = AtEnd;
+    maxCount = UINT_MAX;
     edEmpty = TRUE;
     
     connect( ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
@@ -942,11 +998,29 @@ QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
 }
 
 
+/*!
+  Destroys the QEditableComboBox.  A placeholder at present, really.
+*/
+
+QEditableComboBox::~QEditableComboBox()
+{
+  delete ed;
+}
+
+
+/*!
+  Handles resize events for the editable combo box.
+*/
+
 void QEditableComboBox::resizeEvent( QResizeEvent * )
 {
     ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
 }
 
+
+/*!
+  Internal slot to keep the line editor up to date.
+*/
 
 void QEditableComboBox::translateActivate( int index )
 {
@@ -958,6 +1032,11 @@ void QEditableComboBox::translateActivate( int index )
 }
 
 
+/*!
+  Internal slot to translate QCombo::highlighted() from index to
+  string.
+*/
+
 void QEditableComboBox::translateHighlight( int index )
 {
     const char *t = text( index );
@@ -966,20 +1045,97 @@ void QEditableComboBox::translateHighlight( int index )
 }
 
 
+/*!
+  Internal slot to keep the line editor up to date.
+*/
+
 void QEditableComboBox::returnPressed()
 {
     const char * s = ed->text();
-    if ( s && qstrcmp( s, text( currentItem() ) ) ) {
-	changeItem( s, currentItem() );
-	emit activated( s );
+    if ( s ) {
+	switch ( policy() ) {
+	case AtCurrent:
+	    if ( qstrcmp( s, text( currentItem() ) ) ) {
+		changeItem( s, currentItem() );
+		emit activated( s );
+	    }
+	    break;
+	case AtBeginning:
+	    insertItem( s, 0 );
+	    emit activated( s );
+	    break;
+	case AtEnd:
+	    insertItem( s );
+	    emit activated( s );
+	    break;
+	case NoInsertion:
+	    emit activated( s );
+	    break;
+	}
     }
 }
+
+
+/*! \fn QEditableComboBox::Policy QEditableComboBox::policy() const
+
+  Returns the current insertion policy of the combo box.
+
+  \sa setPolicy()
+*/
+
+
+/*! \fn void QEditableComboBox::setPolicy( QEditableComboBox::Policy policy )
+  Sets the insertion policy of the combo box to \a policy.
+
+  The insertion policy governs where items typed in by the user are
+  inserted in the list.  The possible values are <ul> <li> \c
+  NoInsertion: Strings typed by the user aren't inserted anywhere <li>
+  \c AtBeginning: Strings typed by the user are inserted before the
+  first item in the list <li> AtCurrent: Strings typed by the user
+  replace the last selected item <li> AtEnd: Strings typed by the user
+  are inserted at the end of the list. </ul>
+
+  The default insertion policy is \c AtEnd.
+
+  \sa policy()
+*/
+
+
+/*! \fn uint QEditableComboBox::sizeLimit() const
+
+  Returns the current maximum size of the combo box.  By default,
+  there is no limit, so this function returns UINT_MAX.
+
+  \sa setSizeLimit() count()
+*/
+
+
+/*!
+  Sets the maximum number of items the combo box can hold to \a count.
+
+  If \a count is smaller than the current number of items, the list is
+  truncated at the end.  There is no limit by default.
+
+  \sa sizeLimit() count()
+*/
+
+void QEditableComboBox::setSizeLimit( int count )
+{
+    int l = this->count();
+    while( --l > count )
+	removeItem( l );
+    maxCount = count;
+}
+
 
 
 /*!
   This event filter is used to manipulate the line editor in magic
   ways.  In Qt 2.0 it will all change, until then binary compatibility
   lays down the law.
+
+  \internal 
+  More hacks per line than in any other Qt member funcition, I think.
 */
 
 bool QEditableComboBox::eventFilter( QObject *object, QEvent *event )
