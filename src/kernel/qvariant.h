@@ -279,14 +279,14 @@ private:
     {
     public:
 	Private();
-	Private( Private* );
 	Private( Type );
 	Private( Type, void * );
 	~Private();
 
 	void clear();
 
-	Type type;
+	Type type : 30;
+	uint is_null : 1;
 	union
 	{
 	    uint u;
@@ -297,7 +297,6 @@ private:
 	    double d;
 	    void *ptr;
 	} value;
-	uint is_null : 1; // ## 4.0 merge with typ
     };
 
     Private* d;

@@ -307,128 +307,6 @@ QVariant::Private::Private( Type t, void *v )
     }
 }
 
-QVariant::Private::Private( Private* d )
-{
-    switch( d->type ) {
-    case Invalid:
-	break;
-    case Bitmap:
-	value.ptr = new QBitmap( *((QBitmap*)d->value.ptr) );
-	break;
-    case Region:
-	value.ptr = new QRegion( *((QRegion*)d->value.ptr) );
-	// ## Force a detach
-	// ((QRegion*)value.ptr)->translate( 0, 0 );
-	break;
-    case PointArray:
-	// QPointArray is explicit shared
-	value.ptr = new QPointArray( *((QPointArray*)d->value.ptr) );
-	break;
-    case String:
-	value.ptr = new QString( *((QString*)d->value.ptr) );
-	break;
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-	value.ptr = new QStringList( *((QStringList*)d->value.ptr) );
-	break;
-#endif //QT_NO_STRINGLIST
-    case Font:
-	value.ptr = new QFont( *((QFont*)d->value.ptr) );
-	break;
-    case Pixmap:
-	value.ptr = new QPixmap( *((QPixmap*)d->value.ptr) );
-	break;
-    case Image:
-	// QImage is explicit shared
-	value.ptr = new QImage( *((QImage*)d->value.ptr) );
-	break;
-    case Brush:
-	value.ptr = new QBrush( *((QBrush*)d->value.ptr) );
-	// ## Force a detach
-	// ((QBrush*)value.ptr)->setColor( ((QBrush*)value.ptr)->color() );
-	break;
-    case Point:
-	value.ptr = new QPoint( *((QPoint*)d->value.ptr) );
-	break;
-    case Rect:
-	value.ptr = new QRect( *((QRect*)d->value.ptr) );
-	break;
-    case Size:
-	value.ptr = new QSize( *((QSize*)d->value.ptr) );
-	break;
-    case Color:
-	value.ptr = new QColor( *((QColor*)d->value.ptr) );
-	break;
-#ifndef QT_NO_PALETTE
-    case Palette:
-	value.ptr = new QPalette( *((QPalette*)d->value.ptr) );
-	break;
-    case ColorGroup:
-	value.ptr = new QColorGroup( *((QColorGroup*)d->value.ptr) );
-	break;
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	value.ptr = new QIconSet( *((QIconSet*)d->value.ptr) );
-	break;
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map:
-	value.ptr = new QMap<QString,QVariant>( *((QMap<QString,QVariant>*)d->value.ptr) );
-	break;
-    case List:
-	value.ptr = new QValueList<QVariant>( *((QValueList<QVariant>*)d->value.ptr) );
-	break;
-#endif
-    case Date:
-	value.ptr = new QDate( *((QDate*)d->value.ptr) );
-	break;
-    case Time:
-	value.ptr = new QTime( *((QTime*)d->value.ptr) );
-	break;
-    case DateTime:
-	value.ptr = new QDateTime( *((QDateTime*)d->value.ptr) );
-	break;
-    case ByteArray:
-	value.ptr = new QByteArray( *((QByteArray*)d->value.ptr) );
-	break;
-    case BitArray:
-	value.ptr = new QBitArray( *((QBitArray*)d->value.ptr) );
-	break;
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	value.ptr = new QKeySequence( *((QKeySequence*)d->value.ptr) );
-	break;
-#endif
-    case Pen:
-	value.ptr = new QPen( *((QPen*)d->value.ptr) );
-	break;
-    case Int:
-	value.i = d->value.i;
-	break;
-    case UInt:
-	value.u = d->value.u;
-	break;
-    case Bool:
-	value.b = d->value.b;
-	break;
-    case Double:
-	value.d = d->value.d;
-	break;
-    case SizePolicy:
-	value.ptr = new QSizePolicy( *((QSizePolicy*)d->value.ptr) );
-	break;
-    case Cursor:
-	value.ptr = new QCursor( *((QCursor*)d->value.ptr) );
-	break;
-    default:
-	Q_ASSERT( 0 );
-    }
-
-    type = d->type;
-    is_null = d->is_null;
-}
-
 QVariant::Private::~Private()
 {
     clear();
@@ -1139,7 +1017,9 @@ void QVariant::detach()
 	return;
 
     d->deref();
-    d = new Private( d );
+    Private *x = new Private( d->type, data() );
+    x->is_null = d->is_null;
+
 }
 
 /*!
@@ -3308,7 +3188,8 @@ void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
 	d->value.ptr = ptr;
 	d->is_null = FALSE;
 	if ( deepCopy ) {
-	    QVariant::Private* p = new Private( d );
+	    QVariant::Private* p = new Private( d->type, data() );
+	    p->is_null = d->is_null;
 	    d->type = Invalid;
 	    delete d;
 	    d = p;
@@ -3317,7 +3198,8 @@ void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
 
     if ( !deepCopy )
 	return d->value.ptr;
-    QVariant::Private* p = new Private( d );
+    QVariant::Private* p = new Private( d->type, data() );
+    p->is_null = d->is_null;
     void *ret = (void*)p->value.ptr;
     p->type = Invalid;
     delete p;
