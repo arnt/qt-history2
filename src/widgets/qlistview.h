@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#44 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#45 $
 **
 ** Definition of QListView widget class
 **
@@ -116,7 +116,7 @@ private:
 
     QStrList * columnTexts;
 
-    friend QListView;
+    friend class QListView;
 };
 
 
@@ -231,7 +231,7 @@ private:
 
     QListViewPrivate * d;
 
-    friend QListViewItem;
+    friend class QListViewItem;
 };
 
 

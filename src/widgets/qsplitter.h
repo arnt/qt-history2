@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#7 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#8 $
 **
 ** Defintion of  QSplitter class
 **
@@ -95,7 +95,7 @@ private:
 
     Orientation orient;
     QCOORD bord; //half border
-    friend QInternalSplitter;
+    friend class QInternalSplitter;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#1 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#2 $
 **
 ** Definition of QFocusData class
 **
@@ -27,7 +27,7 @@ public:
     QWidget* prev() { return focusWidgets.prev(); }
 
 private:
-    friend QWidget;
+    friend class QWidget;
     QFocusData()
 	: it(focusWidgets) {}
     QList<QWidget> focusWidgets;
