@@ -347,8 +347,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
 	QString pkginfo = project->first("QMAKE_PKGINFO");
-	t << pkginfo << ": " << "\n\t"
-	  << "rm -f " << pkginfo << "\n\t"
+	QString destdir = project->first("DESTDIR");
+	t << "#Looks strange? Well I don't even know what it means! ###SAM" << endl;
+	t << pkginfo << ": " << "\n\t";
+	if(!destdir.isEmpty())
+	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	t << "rm -f " << pkginfo << "\n\t"
 	  << "echo \"APPL????\" >" << pkginfo << endl;
     }
 
