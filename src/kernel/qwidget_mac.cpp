@@ -62,6 +62,7 @@ void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
+bool qt_event_remove_activate(); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 bool qt_nograb();
@@ -1337,6 +1338,7 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
 	return;
+    qt_event_remove_activate();
     if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool)) {
 	ActivateWindow((WindowPtr)tlw->handle(), true);
     } else {

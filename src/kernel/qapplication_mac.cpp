@@ -606,15 +606,18 @@ void qt_event_request_wakeup()
     ReleaseEvent(request_wakeup_pending);
 }
 static EventRef request_activate_pending = NULL;
-void qt_event_request_activate(QWidget *w)
+bool qt_event_remove_activate()
 {
     if(request_activate_pending) {
-	if(IsEventInQueue(GetMainEventQueue(), request_activate_pending))
-	    return;
-#ifdef DEBUG_DROPPED_EVENTS
-	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
+	if(IsEventInQueue(GetMainEventQueue(), request_activate_pending)) 
+	    RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
+	return TRUE;
     }
+    return FALSE;
+}
+void qt_event_request_activate(QWidget *w)
+{
+    qt_event_remove_activate();
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &request_activate_pending);
