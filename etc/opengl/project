@@ -1,0 +1,3 @@
+HEADERS = glwidget.h nurb.h
+SOURCES = glwidget.cpp nurb.cpp main.cpp
+TARGET  = nurb

@@ -1,0 +1,10 @@
+This example program demonstrates how to use Qt with OpenGL or Mesa.
+
+We've implemented a widget called GLWidget (in glwidget.h) , which is a
+general wrapper for OpenGL. You can subclass this widget to create your
+own OpenGL widget. Study the Nurb widget (in nurb.h) to see how.
+
+The NurbSample widget in main.cpp contains a Nurb widget and some buttons
+to manipulate the Nurb's parameters.
+
+This is free code and Troll Tech has no responsibility for it.
