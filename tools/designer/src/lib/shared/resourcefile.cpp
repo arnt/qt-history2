@@ -361,7 +361,7 @@ int ResourceFile::fileCount(int prefix_idx) const
 
 QString ResourceFile::file(int prefix_idx, int file_idx) const
 {
-    return m_prefix_list.at(prefix_idx).file_list.at(file_idx);
+    return relativePath(m_prefix_list.at(prefix_idx).file_list.at(file_idx));
 }
 
 /******************************************************************************
