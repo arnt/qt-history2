@@ -2781,13 +2781,15 @@ void PropertyList::setupProperties()
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" ) ) 
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" ) 
+	     || MetaDataBase::spacing( editor->widget() ) != -1 ) 
 	    layoutInitValue( item, TRUE ); 
 	else 
 	    layoutInitValue( item );	
 	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" ) ) 
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" )
+	     || MetaDataBase::margin( editor->widget() ) != -1 ) 
 	    layoutInitValue( item, TRUE );
 	else
 	    layoutInitValue( item );
