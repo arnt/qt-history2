@@ -114,6 +114,38 @@ struct QAtomic {
     { atomic = x; }
 };
 
+/*! \internal
+  This is a helper for the assignment operators of implicitely shared classes.
+  Your assignment operator should look like this:
+  { qAtomicAssign(d, other.d); return *this; }
+ */
+template <typename T>
+inline void qAtomicAssign(T *&d, T *x)
+{
+    ++x->ref;
+    x = static_cast<T*>(q_atomic_set_ptr(&d, x));
+    if (!--x->ref)
+        delete x;
+}
+
+/*! \internal
+  This is a helper for the detach function. Your d class needs a copy constructor
+  which copies the members and sets the refcount to 1. After that, your detach
+  function should look like this:
+  { qAtomicDetach(d); }
+ */
+template <typename T>
+inline void qAtomicDetach(T *&d)
+{
+    if (d->ref == 1)
+        return;
+    T *x = new T(*d);
+    x = static_cast<T*>(q_atomic_set_ptr(&d, x));
+    if (!--x->ref)
+        delete x;
+}
+
+
 #define Q_ATOMIC_INIT(a) { (a) }
 
 #endif
