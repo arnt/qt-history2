@@ -326,10 +326,6 @@ public:
     QString string;
     QFontPrivate *fnt;
     const QTextFormatCollection *formats;
-    int lineWidth;
-    int widthUsed;
-    int firstItemInLine;
-    int currentItem;
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
