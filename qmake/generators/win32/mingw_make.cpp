@@ -1,16 +1,37 @@
 /****************************************************************************
+** $Id$
 **
 ** Implementation of MingwMakefileGenerator class.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of qmake.
-** EDITIONS: FREE, ENTERPRISE
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "mingw_make.h"
 #include "option.h"
@@ -142,7 +163,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
 	t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
     else
-	t << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
+	t << project->variables()[ "TARGET" ].value(0) << project->variables()[ "TARGET_EXT" ].value(0);
     t << endl;
     t << endl;
 
@@ -170,11 +191,9 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 	    t << "\n\t" << "$(COPY_FILE) $(TARGET) " << *dlldir;
 	}
     }
-    QString targetfilename = project->variables()["TARGET"].first();
+    QString targetfilename = project->variables()["TARGET"].value(0);
     if(project->isActiveConfig("activeqt")) {
-	QString version;
-	if (!project->variables()["VERSION"].isEmpty())
-	    version = project->variables()["VERSION"].first();
+	QString version = project->variables()["VERSION"].value(0);
 	if ( version.isEmpty() )
 	    version = "1.0";
 
@@ -196,7 +215,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
 	  << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RC_FILE").replace(QRegExp("\\.rc"),".o") << " --include-dir=" << QFileInfo(var("RC_FILE")).dirPath() << endl << endl;
     }
-	project->variables()["RES_FILE"].first().replace(QRegExp("\\.rc"),".o");
+	project->variables()["RES_FILE"].value(0).replace(QRegExp("\\.rc"),".o");
 
     t << "mocables: $(SRCMOC)" << endl << endl;
 
@@ -390,7 +409,7 @@ MingwMakefileGenerator::init()
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
-	    if ( project->isActiveConfig( "activeqt" ) && project->variables()["QMAKE_LIBS"].contains("-lqaxserver") ) { // ordering 
+	    if ( project->isActiveConfig( "activeqt" ) && project->variables()["QMAKE_LIBS"].contains("-lqaxserver") > 0) { // ordering 
 		project->variables()["QMAKE_LIBS"].remove("-lqaxserver");
 		project->variables()["QMAKE_LIBS"].prepend("-lqaxserver");
 	    }
@@ -421,8 +440,8 @@ MingwMakefileGenerator::init()
 	} else {
 	    project->variables()["TARGET_EXT"].append(".a");
 	    project->variables()["QMAKE_LFLAGS"].append("-static");
-	    if(project->variables()["TARGET"].first().left(3) != "lib")
-		project->variables()["TARGET"].first().prepend("lib");
+	    if(project->variables()["TARGET"].value(0).left(3) != "lib")
+		project->variables()["TARGET"].value(0).prepend("lib");
 	}
     }
     if ( project->isActiveConfig("windows") ) {
@@ -498,7 +517,7 @@ MingwMakefileGenerator::init()
 	    exit(666);
 	}
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-	project->variables()["RES_FILE"].first().replace(".rc",".o");
+	project->variables()["RES_FILE"].value(0).replace(".rc",".o");
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty())
