@@ -46,6 +46,7 @@ void HelpWindow::setSource(const QString &name, bool newWin)
 	setSource(name);
 	newWindow = FALSE;
     } else {
+	setText("<body bgcolor=white>");
 	QTextBrowser::setSource(name);
     }
 }
@@ -54,7 +55,7 @@ void HelpWindow::setSource( const QString &name )
 {
     if ( name.isEmpty() )
 	return;
-    
+
     if (newWindow || ((AssistantApplication *)qApp)->isShiftKeyPressed()) {
 	removeSelection();
 	mw->saveSettings();
@@ -155,6 +156,7 @@ void HelpWindow::setSource( const QString &name )
 	sect = name.left( i );
 
     setCharacterEncoding( sect );
+    setText("<body bgcolor=white>");
     QTextBrowser::setSource( name );
 
     if( !documentTitle().isEmpty() )
