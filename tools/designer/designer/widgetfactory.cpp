@@ -795,7 +795,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	QDesignerWidgetStack *ws = new QDesignerWidgetStack( parent, name );
 	if ( init ) {
 	    FormWindow *fw = find_formwindow( parent );
-	    QWidget *w = fw ? new QDesignerWidget( fw, ws, "page" ) : new QWidget( ws, "page" );
+	    QWidget *w = fw ? new QDesignerWidget( fw, ws, "StackPage" ) : new QWidget( ws, "StackPage" );
 	    ws->insertPage( w );
 	    MetaDataBase::addEntry( w );
 	    MetaDataBase::addEntry( ws );
@@ -838,7 +838,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #endif
 	    wiz->reparent( parent, QPoint( 0, 0 ), TRUE );
 	if ( init && parent && parent->inherits( "FormWindow" ) ) {
-	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "page" );
+	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "WizardPage" );
 	    MetaDataBase::addEntry( dw );
 	    wiz->addPage( dw, FormWindow::tr( "Page" ) );
 	    QTimer::singleShot( 0, wiz, SLOT( next() ) );

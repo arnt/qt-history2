@@ -814,7 +814,7 @@ AddTabPageCommand::AddTabPageCommand( const QString &n, FormWindow *fw,
 				      QTabWidget *tw, const QString &label )
     : Command( n, fw ), tabWidget( tw ), tabLabel( label )
 {
-    tabPage = new QDesignerWidget( formWindow(), tabWidget, "tab" );
+    tabPage = new QDesignerWidget( formWindow(), tabWidget, "TabPage" );
     tabPage->hide();
     index = -1;
     MetaDataBase::addEntry( tabPage );
@@ -898,7 +898,7 @@ AddWidgetStackPageCommand::AddWidgetStackPageCommand( const QString &n, FormWind
 						      QDesignerWidgetStack *ws )
     : Command( n, fw ), widgetStack( ws )
 {
-    stackPage = new QDesignerWidget( formWindow(), widgetStack, "page" );
+    stackPage = new QDesignerWidget( formWindow(), widgetStack, "StackPage" );
     stackPage->hide();
     index = -1;
     MetaDataBase::addEntry( stackPage );
@@ -948,7 +948,7 @@ AddWizardPageCommand::AddWizardPageCommand( const QString &n, FormWindow *fw,
 					    QWizard *w, const QString &label, int i, bool s )
     : Command( n, fw ), wizard( w ), pageLabel( label )
 {
-    page = new QDesignerWidget( formWindow(), wizard, "page" );
+    page = new QDesignerWidget( formWindow(), wizard, "WizardPage" );
     page->hide();
     index = i;
     show = s;

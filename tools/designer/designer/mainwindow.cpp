@@ -1830,7 +1830,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	if ( id == commands[ "add" ] ) {
 	    AddWizardPageCommand *cmd =
 		new AddWizardPageCommand( tr( "Add Page to %1" ).arg( wiz->name() ),
-					  formWindow(), wiz, "Page" );
+					  formWindow(), wiz, "WizardPage" );
 	    formWindow()->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	} else if ( id == commands[ "remove" ] ) {
