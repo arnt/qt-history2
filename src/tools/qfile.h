@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#7 $
+** $Id: //depot/qt/main/src/tools/qfile.h#8 $
 **
 ** Definition of QFile class
 **
@@ -19,19 +19,19 @@
 
 class QDir;
 
+
 class QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();
     QFile( const char *name );
-    QFile( const QDir &, const char *fileName );
    ~QFile();
 
-    void        setName( const char *relativeOrAbsoluteFileName );
-    void        setName( const QDir &, const char *fileName );
-    const char *name()  const;
+    const char *name()	const;
+    void	setName( const char *name );
 
     bool	exists()   const;
+    static bool exists( const char *fileName );
 
     bool	open( int );			// open file
     bool	open( int, FILE * );		// open file, using file handle
@@ -51,8 +51,6 @@ public:
     int		putch( int );			// put char
     int		ungetch( int ) ;		// put back char
 
-    static bool exists( const char *fileName );
-
 protected:
     QString	fn;				// file name
     FILE       *fh;				// file handle (buffered)
@@ -61,14 +59,13 @@ protected:
 
 private:
     void	init();
-    long	get_stat( bool=FALSE ) const;
-
-    friend class QFileInfo;
 };
+
 
 inline const char *QFile::name() const
 {
     return fn.data();
 }
+
 
 #endif // QFILE_H
