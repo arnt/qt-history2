@@ -19,6 +19,7 @@
 *****************************************************************************/
 
 #include "qwscommand.h"
+#include "qwsevent.h"
 #include "qws.h"
 
 #include <stdlib.h>
@@ -29,14 +30,10 @@ QWSCommandDict *qwsCommandRegister = 0;
 
 void qwsRegisterCommands()
 {
-    QWSCommand::registerCommand( (int)QWSCommand::NewWindow, 
-				 new QWSCommandFactory< QWSNewWindowCommand > );
-    QWSCommand::registerCommand( (int)QWSCommand::SetProperty, 
-				 new QWSCommandFactory< QWSSetPropertyCommand > );
-    QWSCommand::registerCommand( (int)QWSCommand::AddProperty, 
-				 new QWSCommandFactory< QWSAddPropertyCommand > );
-    QWSCommand::registerCommand( (int)QWSCommand::RemoveProperty, 
-				 new QWSCommandFactory< QWSRemovePropertyCommand > );
+    QWSCommand::registerCommand( QWSCommand::Create, new QWSCommandFactory< QWSCreateCommand > );
+    QWSCommand::registerCommand( QWSCommand::SetProperty, new QWSCommandFactory< QWSSetPropertyCommand > );
+    QWSCommand::registerCommand( QWSCommand::AddProperty, new QWSCommandFactory< QWSAddPropertyCommand > );
+    QWSCommand::registerCommand( QWSCommand::RemoveProperty, new QWSCommandFactory< QWSRemovePropertyCommand > );
 }
 
 /*********************************************************************
@@ -64,7 +61,7 @@ void QWSCommand::execute()
     qFatal( "reimplement QWSCommand::execute!" );
 }
 
-void QWSCommand::registerCommand( int cmd, QWSCommandFactoryBase *commandFactory )
+void QWSCommand::registerCommand( Type cmd, QWSCommandFactoryBase *commandFactory )
 {
     if ( !qwsCommandRegister )
 	qwsCommandRegister = new QWSCommandDict;
@@ -72,7 +69,7 @@ void QWSCommand::registerCommand( int cmd, QWSCommandFactoryBase *commandFactory
     qwsCommandRegister->insert( cmd, commandFactory );
 }
 
-QWSCommand *QWSCommand::getCommand( int cmd, QWSServer *server, QWSClient *client )
+QWSCommand *QWSCommand::getCommand( Type cmd, QWSServer *server, QWSClient *client )
 {
     if ( !qwsCommandRegister )
 	qwsCommandRegister = new QWSCommandDict;
@@ -89,25 +86,34 @@ QWSCommand *QWSCommand::getCommand( int cmd, QWSServer *server, QWSClient *clien
 
 /*********************************************************************
  *
- * Class: QWSNewWindowCommand
+ * Class: QWSCreateCommand
  *
  *********************************************************************/
 
-QWSNewWindowCommand::QWSNewWindowCommand( QWSServer *s, QWSClient *c )
+QWSCreateCommand::QWSCreateCommand( QWSServer *s, QWSClient *c )
     : QWSCommand( s, c )
 {
 }
 
-QWSNewWindowCommand::~QWSNewWindowCommand()
+QWSCreateCommand::~QWSCreateCommand()
 {
 }
 
-void QWSNewWindowCommand::readData()
+void QWSCreateCommand::readData()
 {
-    qFatal( "QWSNewWindowCommand::readData not implemented" );
+    client->readBlock((char*)&command,sizeof(command));
 }
 
-void QWSNewWindowCommand::execute()
+static int get_object_id()
 {
-    qFatal( "QWSNewWindowCommand::execute not implemented" );
+    static int next=1000;
+    return next++;
+}
+
+void QWSCreateCommand::execute()
+{
+    QWSCreationEvent event;
+    event.type = QWSEvent::Creation;
+    event.objectid = get_object_id();
+    client->writeBlock((char*)&event,sizeof(event));
 }

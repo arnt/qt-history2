@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#8 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#9 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -120,7 +120,7 @@ void QWSServer::doClient()
 {
     QWSClient* c = (QWSClient*)sender();
     int command_type = qws_read_uint( c );
-    QWSCommand *command = QWSCommand::getCommand( command_type, this, c );
+    QWSCommand *command = QWSCommand::getCommand( (QWSCommand::Type)command_type, this, c );
     if ( !command ) {
 	qWarning( "Protocol error - got: %d", command_type );
 	return;

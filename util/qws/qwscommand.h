@@ -60,7 +60,8 @@ class QWSCommand
 public:
     enum Type {
 	Unknown = 0,
-	NewWindow,
+	Create, Destroy,
+	Region,
 	SetProperty,
 	AddProperty,
 	RemoveProperty
@@ -74,8 +75,8 @@ public:
     virtual void readData();
     virtual void execute();
 
-    static void registerCommand( int cmd, QWSCommandFactoryBase *commandFactory );
-    static QWSCommand *getCommand( int cmd, QWSServer *server, QWSClient *c );
+    static void registerCommand( Type cmd, QWSCommandFactoryBase *commandFactory );
+    static QWSCommand *getCommand( Type cmd, QWSServer *server, QWSClient *c );
 
 protected:
     QWSServer *server;
@@ -85,25 +86,27 @@ protected:
 
 /*********************************************************************
  *
- * Class: QWSNewWindowCommand
+ * Class: QWSCreateCommand
  *
  *********************************************************************/
 
-class QWSNewWindowCommand : public QWSCommand
+struct QWSCreate {
+    int type;
+};
+
+class QWSCreateCommand : public QWSCommand
 {
 public:
-    QWSNewWindowCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSNewWindowCommand();
+    QWSCreateCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSCreateCommand();
 
-    virtual Type type() { return NewWindow; }
+    virtual Type type() { return Create; }
 
     virtual void readData();
     virtual void execute();
 
 private:
-    ushort x, y, w, h;
-    ushort flags;
-
+    QWSCreate command;
 };
 
 /*********************************************************************
@@ -170,7 +173,6 @@ public:
 
 private:
     int winId, property;
-
 };
 
 #endif

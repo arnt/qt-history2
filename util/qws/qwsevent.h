@@ -55,6 +55,7 @@ union QWSEvent {
     enum Type {
 	NoEvent,
 	Mouse, Focus, Key, Region,
+	Creation,
 	NEvent
     };
 

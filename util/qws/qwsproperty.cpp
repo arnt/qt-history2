@@ -130,6 +130,7 @@ QWSSetPropertyCommand::~QWSSetPropertyCommand()
 
 void QWSSetPropertyCommand::readData()
 {
+#warning "DOCUMENT THIS PROTOCOL IN index.html"
     winId = qws_read_uint( client );
     property = qws_read_uint( client );
     mode = qws_read_uint( client );
