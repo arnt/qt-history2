@@ -887,10 +887,11 @@ bool QSettings::removeEntry(const QString &key)
   </ul>
 
   This function will return a list with \e colors and \e font in the list,
-  excluding the subkey \e recentfiles.  To get a list of subkeys, use
-  QSettings::listSubkeys()
+  excluding the subkey \e recentfiles.
+  
+  \sa subkeyList()
 */
-QStringList QSettings::listEntries(const QString &key)
+QStringList QSettings::entryList(const QString &key) const
 {
 
 #ifdef QT_CHECK_STATE
@@ -966,10 +967,11 @@ QStringList QSettings::listEntries(const QString &key)
   </ul>
 
   this function will return a list with \e recentfiles in the list,
-  excluding the entries \e colors and \e font.  To get a list of entries,
-  QSettings::listEntries()
+  excluding the entries \e colors and \e font.
+
+  \sa entryList()
 */
-QStringList QSettings::listSubkeys(const QString &key)
+QStringList QSettings::subkeyList(const QString &key) const
 {
 
 #ifdef QT_CHECK_STATE

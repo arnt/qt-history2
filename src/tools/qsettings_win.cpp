@@ -529,6 +529,131 @@ bool QSettings::removeEntry( const QString &key )
     return TRUE;
 }
 
+QStringList QSettings::entryList( const QString &key ) const
+{
+    QStringList result;
+    
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key : *it + "/" + key + "/fake";
+	handle = d->openKey( k, FALSE );
+	if ( handle )
+	    break;
+    }
+    if ( !handle )
+	return result;
+
+    DWORD count;
+    DWORD maxlen;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+    else
+#endif
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+
+    if ( qWinVersion() & Qt::WV_NT_based )
+	maxlen++;
+
+    DWORD index = 0;
+
+    TCHAR *vnameT = new TCHAR[ maxlen ];
+    char *vnameA = new char[ maxlen ];
+    QString qname;
+
+    DWORD vnamesz = 0;
+    LONG res = ERROR_SUCCESS;
+
+    while ( res != ERROR_NO_MORE_ITEMS ) {
+	vnamesz = maxlen;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
+	    qname = qt_winQString( vnameT );
+	} else
+#endif
+	{
+	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
+	    qname = vnameA;
+	}
+	if ( res == ERROR_NO_MORE_ITEMS )
+	    break;
+	if ( qname.isEmpty() )
+	    result.append( "Default" );
+	else
+	    result.append( qname );
+	++index;
+    }
+
+    delete [] vnameA;
+    delete [] vnameT;
+
+    RegCloseKey( handle );
+    return result;
+}
+
+QStringList QSettings::subkeyList( const QString &key ) const
+{
+    QStringList result;
+    
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key : *it + "/" + key + "/fake";
+	handle = d->openKey( k, FALSE );
+	if ( handle )
+	    break;
+    }
+    if ( !handle )
+	return result;
+
+    DWORD count;
+    DWORD maxlen;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+    else
+#endif
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+
+    if ( qWinVersion() & Qt::WV_NT_based )
+	maxlen++;
+
+    DWORD index = 0;
+    FILETIME lastWrite;
+
+    TCHAR *vnameT = new TCHAR[ maxlen ];
+    char *vnameA = new char[ maxlen ];
+    QString qname;
+
+    DWORD vnamesz = 0;
+    LONG res = ERROR_SUCCESS;
+
+    while ( res != ERROR_NO_MORE_ITEMS ) {
+	vnamesz = maxlen;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
+	    qname = qt_winQString( vnameT );
+	} else
+#endif
+	{
+	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
+	    qname = vnameA;
+	}
+
+	if ( res == ERROR_NO_MORE_ITEMS )
+	    break;
+	result.append( qname );
+	++index;
+    }
+
+    delete [] vnameA;
+    delete [] vnameT;
+
+    RegCloseKey( handle );
+    return result;
+}
+
 QDateTime QSettings::lastModficationTime(const QString &)
 {
     return QDateTime();

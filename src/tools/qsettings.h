@@ -55,8 +55,8 @@ public:
     bool	writeEntry( const QString &, const QString & );
     bool	writeEntry( const QString &, const QStringList &, const QChar & = ';' );
 
-    QStringList listEntries(const QString &);
-    QStringList listSubkeys(const QString &);
+    QStringList entryList(const QString &) const;
+    QStringList subkeyList(const QString &) const;
 
     QStringList readListEntry( const QString &, const QChar & = ';', bool * = 0 );
     QString	readEntry( const QString &, const QString &def = QString::null, bool * = 0 );

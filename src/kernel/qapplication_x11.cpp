@@ -1049,7 +1049,7 @@ static bool qt_set_desktop_properties()
 	}
 
 	QStringList fontsubs =
-	    QApplication::settings()->listEntries("/qt/fontSubstitutions");
+	    QApplication::settings()->entryList("/qt/fontSubstitutions");
 	if (!fontsubs.isEmpty()) {
 	    QStringList subs;
 	    QString fam, skey;
