@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#28 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#29 $
 **
 ** Definition of QWidget class
 **
@@ -74,7 +74,7 @@ public:
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
-    void	       setPalette( const QPalette & );
+    virtual void       setPalette( const QPalette & );
 
     QFontMetrics fontMetrics()	const { return QFontMetrics(fnt); }
     QFontInfo	 fontInfo()	const { return QFontInfo(fnt); }
