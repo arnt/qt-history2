@@ -203,39 +203,80 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			ret.assign(buffer, flavorsize);
 			return ret;
 		    } else if(info == kDragFlavorTypeHFS) {
-			if(flavorsize != sizeof(HFSFlavor)) {
-			    qDebug("%s:%d Unexpected case in HFS Flavor", __FILE__, __LINE__);
-			    continue;
+			UInt16 cnt_items;
+			CountDragItems(current_dropobj, &cnt_items);
+			for(int i = 1, done = 0; i <= cnt_items; i++) {
+			    if(i > 1) {
+				if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
+				    qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+				    return 0;
+				}
+				if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize)) {
+				    qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
+				    return 0;
+				}
+			    }
+			    if(flavorsize != sizeof(HFSFlavor)) {
+				qDebug("%s:%d Unexpected case in HFS Flavor", __FILE__, __LINE__);
+				continue;
+			    }
+			    FSRef fsref;
+			    HFSFlavor hfs;
+			    GetFlavorData(current_dropobj, ref, info, &hfs, &flavorsize, 0);
+			    FSpMakeFSRef(&hfs.fileSpec, &fsref);
+			    buffer = (char *)malloc(1024);
+			    FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
+			    QCString s = QUriDrag::localFileToUri(QString::fromUtf8(
+				(const char *)buffer));
+			    free(buffer);
+			    buffer = NULL;
+			    //now encode them to be handled by quridrag
+			    int l = qstrlen(s);
+			    ret.resize(ret.size()+(l+2));
+			    memcpy(ret.data()+done,s,l);
+			    memcpy(ret.data()+l+done,"\r\n",2);
+			    done += l + 2;
 			}
-			FSRef fsref;
-			HFSFlavor hfs;
-			GetFlavorData(current_dropobj, ref, info, &hfs, &flavorsize, 0);
-			FSpMakeFSRef(&hfs.fileSpec, &fsref);
-			buffer = (char *)malloc(1024);
-			FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
-			QCString s = QUriDrag::localFileToUri(QString::fromUtf8((const char *)buffer));
-			free(buffer);
-			buffer = NULL;
-			//now encode them to be handled by quridrag
-			int l = qstrlen(s);
-			ret.resize(l+2);
-			memcpy(ret.data(),s,l);
-			memcpy(ret.data()+l,"\r\n",2);
 			return ret;
 		    } else if(info == typeFileURL) {
-			buffer = (char *)malloc(flavorsize);
-			GetFlavorData(current_dropobj, ref, info, buffer, &flavorsize, 0);
-			free(buffer);
-			buffer = NULL;
-			QCString qstr(QString::fromUtf8((const char *)buffer, flavorsize));
-			if(qstr.left(17) == "file://localhost/") //mac encodes a little different
-			    qstr = "file:///" + qstr.mid(17);
-			qstr += "\r\n";
+			qDebug("Got here..");
+			UInt16 cnt_items;
+			CountDragItems(current_dropobj, &cnt_items);
+			QCString qstr;
+			for(int i = 1, done = 0, buffer_size = 0; i <= cnt_items; i++) {
+			    if(i > 1) {
+				if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
+				    qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+				    return 0;
+				}
+				if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize)) {
+				    qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
+				    return 0;
+				}
+			    }
+			    if(buffer_size < flavorsize) {
+				buffer_size = flavorsize;
+				if(buffer)
+				    buffer = (char*)realloc(buffer, buffer_size);
+				else
+				    buffer = (char*)malloc(buffer_size);
+			    }
+			    GetFlavorData(current_dropobj, ref, info, buffer, &flavorsize, 0);
+			    QCString tmp_str(QString::fromUtf8((const char *)buffer, flavorsize));
+			    if(tmp_str.left(17) == "file://localhost/") //mac encodes a differently
+				tmp_str = "file:///" + tmp_str.mid(17);
+			    int l = tmp_str.length();
+			    ret.resize(ret.size()+(l+2));
+			    memcpy(ret.data()+done,tmp_str.data(),l);
+			    memcpy(ret.data()+l+done,"\r\n",2);
+			    done += l + 2;
+			}
+			if(buffer)
+			    free(buffer);
 			return qstr;
 		    }
 		}
 	    }
-	    continue;
 	}
     } else { //Qt style drags
 	for(UInt16 i = 1; i <= cnt; i++) {
@@ -565,6 +606,86 @@ void QDragManager::updatePixmap()
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
+#ifdef DEBUG_MAPPINGS
+    UInt16 cnt_items;
+    CountDragItems(theDrag, &cnt_items);
+    qDebug("---------- Got receive -- full payload follows %d-----------------", cnt_items);
+    for(int i = 1; i <= cnt_items; i++) {
+    ItemReference ref = NULL;
+    if(GetDragItemReferenceNumber(theDrag, i, &ref)) {
+	qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+	return 0;
+    }
+    UInt16 cnt = 0;
+    if(CountDragItemFlavors(theDrag, ref, &cnt) || !cnt) 
+	return 0;
+
+    FlavorType info;
+    Size flavorsize=0;
+    if(GetFlavorDataSize(current_dropobj, ref, kDragQtGeneratedMarker, &flavorsize)) { //Mac style
+	for(UInt16 i = 1; i <= cnt; i++) {
+	    if(GetFlavorType(current_dropobj, ref, i, &info) == noErr) {
+		const char *match = NULL;
+		for(int sm = 0; drag_map[sm].qt_type; sm++) {
+		    if(info == drag_map[sm].mac_type) {
+			match = drag_map[sm].qt_type;
+			break;
+		    }
+		}
+		qDebug("1) %c%c%c%c -- %s", 
+		       char(info >> 24), char((info >> 16) & 255), 
+		       char((info >> 8) & 255), char(info & 255),
+		       match ? match : "----");
+	    }
+	}
+    } else {
+	int buff_size = 0;
+	char *buffer = NULL;
+	Size typesize = 0, realsize = sizeof(typesize);
+	realsize = sizeof(typesize);
+	for(UInt16 i = 1; i <= cnt; i++) {
+	    if(GetFlavorType(current_dropobj, ref, i, &info) == noErr) {
+		if((info >> 16) == ('QTxx' >> 16)) {
+		    if (GetFlavorDataSize(current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
+			qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
+			       (int)flavorsize, (int)info);
+			return 0;
+		    }
+		    GetFlavorData(current_dropobj, ref, info, &typesize, &realsize, 0);
+		    if(!buffer || buff_size < typesize + 1) {
+			buff_size = typesize + 1;
+			if(buffer)
+			    buffer = (char *)realloc(buffer, buff_size);
+			else
+			    buffer = (char *)malloc(buff_size);
+		    }
+		    GetFlavorData(current_dropobj, ref, info, buffer, &typesize, sizeof(typesize));
+		    if (typesize < 0) {
+			qDebug("typesize negative %s:%d", __FILE__, __LINE__);
+			continue;
+		    }
+		    *(buffer + typesize) = '\0';
+		    FlavorType match=0;
+		    for(int sm = 0; drag_map[sm].qt_type; sm++) {
+			if(!qstrncmp(drag_map[sm].qt_type, buffer, typesize)) {
+			    match = drag_map[sm].mac_type;
+			    break;
+			}
+		    }
+		    qDebug("2) %c%c%c%c -- %s", 
+			   match ? char(match >> 24) : '-', match ? char((match >> 16) & 255) : '-',
+			   match ? char((match >> 8) & 255) : '-', match ? char(match  & 255) : '-',
+			   buffer);
+		}
+	    }
+	}
+	if(buffer)
+	    free(buffer);
+    }
+    }
+    qDebug("-------------------------------------------------------");
+#endif
+
     updateDragMode(theDrag);
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     current_dropobj = theDrag;
