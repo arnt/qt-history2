@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#37 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -15,71 +15,502 @@
 #include "qimage.h"
 #include "qdatetm.h"
 
+#include "qstring.h"
+#include "qdict.h"
+#include "qregexp.h"
+
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#37 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
 static char *ps_header =
-"/D {bind def} bind def /ED {exch def} D /LT {lineto} D /MT {moveto} D /S\n"
-"{stroke} D /SW {setlinewidth} D /CP {closepath} D /RL {rlineto} D /NP\n"
-"{newpath} D /CM {currentmatrix} D /SM {setmatrix} D /TR {translate} D\n"
-"/SRGB {setrgbcolor} D /SC {aload pop SRGB} D /GS {gsave} D /GR {grestore}\n"
-"D /BSt 0 def /LWi 1 def /PSt 1 def /Cx 0 def /Cy 0 def /WFi false def /OMo\n"
-"false def /BCol [ 1 1 1 ] def /PCol [ 0 0 0 ] def /BkCol [ 1 1 1 ] def /nS\n"
-"0 def /QS { PSt 0 ne { LWi SW GS PCol SC true GPS 0 setdash S OMo PSt 1 ne\n"
-"and { GR BkCol SC false GPS dup 0 get setdash S } { GR } ifelse } if } D\n"
-"/QF { GS BSt 2 ge BSt 8 le and { BDArr BSt 2 sub get setgray fill } if BSt\n"
-"9 ge BSt 14 le and { BF } if BSt 1 eq { BCol SC WFi { fill } { eofill }\n"
-"ifelse } if GR } D /PF { GS BSt 2 ge BSt 8 le and { BDArr BSt 2 sub get\n"
-"setgray WFi { fill } { eofill } ifelse } if BSt 9 ge BSt 14 le and { BF }\n"
-"if BSt 1 eq { BCol SC WFi { fill } { eofill } ifelse } if GR } D /BDArr[\n"
-"0.94 0.88 0.63 0.50 0.37 0.12 0.6 ] def /ArcDict 6 dict def ArcDict begin\n"
-"/tmp matrix def end /ARC { ArcDict begin /ang2 ED /ang1 ED /h ED /w ED /y\n"
-"ED /x ED tmp CM pop x w 2 div add y h 2 div add TR 1 h w div neg scale\n"
-"ang2 0 ge {0 0 w 2 div ang1 ang1 ang2 add arc } {0 0 w 2 div ang1 ang1\n"
-"ang2 add arcn} ifelse tmp SM end } D /QI { /savedContext save def clippath\n"
-"pathbbox 3 index /PageX ED 0 index /PageY ED 3 2 roll exch sub neg /PageH\n"
-"ED sub neg /PageW ED PageX PageY TR 1 -1 scale /defM matrix CM def /Cx 0\n"
-"def /Cy 0 def 255 255 255 BC /OMo false def 1 0 0 0 0 PE 0 0 0 0 B } D /QP\n"
-"{ savedContext restore showpage } D /P { NP MT 0.5 0.5 rmoveto 0 -1 RL -1\n"
-"0 RL 0 1 RL CP PCol SC fill } D /M { /Cy ED /Cx ED } D /L { NP Cx Cy MT\n"
-"/Cy ED /Cx ED Cx Cy LT QS } D /DL { 4 2 roll NP MT LT QS } D /RDict 4 dict\n"
-"def /R { RDict begin /h ED /w ED /y ED /x ED NP x y MT 0 h RL w 0 RL 0 h\n"
-"neg RL CP QF QS end } D /RRDict 6 dict def /RR { RRDict begin /yr ED /xr\n"
-"ED /h ED /w ED /y ED /x ED xr 0 le yr 0 le or {x y w h R} {xr 100 ge yr\n"
-"100 ge or {x y w h E} { /rx xr w mul 200 div def /ry yr h mul 200 div def\n"
-"/rx2 rx 2 mul def /ry2 ry 2 mul def NP x rx add y MT x w add rx2 sub y rx2\n"
-"ry2 90 -90 ARC x w add rx2 sub y h add ry2 sub rx2 ry2 0 -90 ARC x y h add\n"
-"ry2 sub rx2 ry2 270 -90 ARC x y rx2 ry2 180 -90 ARC CP QF QS } ifelse }\n"
-"ifelse end } D /EDict 5 dict def EDict begin /tmp matrix def end /E {\n"
-"EDict begin /h ED /w ED /y ED /x ED tmp CM pop x w 2 div add y h 2 div add\n"
-"translate 1 h w div scale NP 0 0 w 2 div 0 360 arc tmp SM QF QS end } D /A\n"
-"{ 16 div exch 16 div exch NP ARC QS } D /PieDict 6 dict def /PIE { PieDict\n"
-"begin /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED NP x w 2 div add y h 2 div\n"
-"add MT x y w h ang1 16 div ang2 16 div ARC CP QF QS end } D /CH { 16 div\n"
-"exch 16 div exch NP ARC CP QF QS } D /BZ { curveto QS } D /CRGB { 255 div\n"
-"3 1 roll 255 div 3 1 roll 255 div 3 1 roll } D /SV { BSt LWi PSt Cx Cy WFi\n"
-"OMo BCol PCol BkCol /nS nS 1 add def GS } D /RS { nS 0 gt { GR /BkCol ED\n"
-"/PCol ED /BCol ED /OMo ED /WFi ED /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED\n"
-"/nS nS 1 sub def } if } D /BC { CRGB BkCol astore pop } D /B { CRGB BCol\n"
-"astore pop /BSt ED } D /PE { CRGB PCol astore pop /LWi ED /PSt ED LWi 0 eq\n"
-"{ 0.3 /LWi ED } if } D /ST { defM setmatrix concat } D /T { 3 1 roll MT\n"
-"PCol SC show } D /BFDict 2 dict def /BF { BSt 9 ge BSt 14 le and { BFDict\n"
-"begin GS WFi { clip } { eoclip } ifelse defM SM pathbbox 3 index 3 index\n"
-"translate 4 2 roll 3 2 roll exch sub /h ED sub /w ED OMo { NP 0 0 MT 0 h\n"
-"RL w 0 RL 0 h neg RL CP BkCol SC fill } if BCol SC 0.3 SW BSt 9 eq BSt 11\n"
-"eq or { 0 4 h { NP dup 0 exch MT w exch LT S } for } if BSt 10 eq BSt 11\n"
-"eq or { 0 4 w { NP dup 0 MT h LT S } for } if BSt 12 eq BSt 14 eq or { w h\n"
-"gt { 0 6 w h add { NP dup h MT h sub 0 LT S } for } { 0 6 w h add { NP dup\n"
-"w exch MT w add 0 exch LT S } for } ifelse } if BSt 13 eq BSt 14 eq or { w\n"
-"h gt { 0 6 w h add { NP dup 0 MT h sub h LT S } for } { 0 6 w h add { NP\n"
-"dup 0 exch MT w add w exch LT S } for } ifelse } if GR end } if } D /LArr[\n"
-"[] [] [ 10 3 ] [ 3 10 ] [ 3 3 ] [ 3 3 ] [ 5 3 3 3 ] [ 3 5 3 3 ] [ 5 3 3 3\n"
-"3 3 ] [ 3 5 3 3 3 3 ] ] def /GPS { PSt 1 ge PSt 5 le and { { LArr PSt 1\n"
-"sub 2 mul get } { LArr PSt 2 mul 1 sub get } ifelse } { [] } ifelse } D\n"
+"%\n"
+"% $Id: //depot/qt/main/src/kernel/qpsprn.cpp#37 $\n"
+"%\n"
+"% Postscript routines for QPSPrinter class\n"
+"%\n"
+"% Author  : Eirik Eng\n"
+"% Created : 940920\n"
+"%\n"
+"% Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.\n"
+"%\n"
+"\n"
+"/D  {bind def} bind def\n"
+"/ED {exch def} D\n"
+"/LT {lineto} D\n"
+"/MT {moveto} D\n"
+"/S  {stroke} D\n"
+"/SW {setlinewidth} D\n"
+"/CP {closepath} D\n"
+"/RL {rlineto} D\n"
+"/NP {newpath} D\n"
+"/CM {currentmatrix} D\n"
+"/SM {setmatrix} D\n"
+"/TR {translate} D\n"
+"/SRGB {setrgbcolor} D\n"
+"/SC {aload pop SRGB} D\n"
+"/GS {gsave} D\n"
+"/GR {grestore} D\n"
+"\n"
+"[ % iso 8859-1\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright\n"
+" /parenleft /parenright /asterisk /plus /comma /hyphen /period /slash\n"
+" /zero /one /two /three /four /five /six /seven\n"
+" /eight /nine /colon /semicolon /less /equal /greater /question\n"
+" /at /A /B /C /D /E /F /G\n"
+" /H /I /J /K /L /M /N /O\n"
+" /P /Q /R /S /T /U /V /W\n"
+" /X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore\n"
+" /quoteleft /a /b /c /d /e /f /g\n"
+" /h /i /j /k /l /m /n /o\n"
+" /p /q /r /s /t /u /v /w\n"
+" /x /y /z /braceleft /bar /braceright /asciitilde /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef\n"
+" /space /exclamdown /cent /sterling /currency /yen /brokenbar /section\n"
+" % switch to four per line starting with 0250\n"
+" /dieresis /copyright /ordfeminine /guillemotleft\n"
+" /logicalnot /hyphen /registered /macron\n"
+" /degree /plusminus /twosuperior /threesuperior\n"
+" /acute /mu /paragraph /periodcentered\n"
+" /cedilla /onesuperior /ordmasculine /guillemotright\n"
+" /onequarter /onehalf /threequarters /questiondown\n"
+" % 0300 here\n"
+" /Agrave /Aacute /Acircumflex /Atilde\n"
+" /Adieresis /Aring /AE /Ccedilla\n"
+" /Egrave /Eacute /Ecircumflex /Edieresis\n"
+" /Igrave /Iacute /Icircumflex /Idieresis\n"
+" /Eth /Ntilde /Ograve /Oacute\n"
+" /Ocircumflex /Otilde /Odieresis /multiply\n"
+" /Oslash /Ugrave /Uacute /Ucircumflex\n"
+" /Udieresis /Yacute /Thorn /germandbls\n"
+" % 0340\n"
+" /agrave /aacute /acircumflex /atilde\n"
+" /adieresis /aring /ae /ccedilla\n"
+" /egrave /eacute /ecircumflex /edieresis\n"
+" /igrave /iacute /icircumflex /idieresis\n"
+" /eth /ntilde /ograve /oacute\n"
+" /ocircumflex /otilde /odieresis /divide\n"
+" /oslash /ugrave /uacute /ucircumflex\n"
+" /udieresis /yacute /thorn /ydieresis\n"
+"] /iso88591 exch def\n"
+"\n"
+"/BSt 0 def			% brush style\n"
+"/LWi 1 def			% line width\n"
+"/PSt 1 def			% pen style\n"
+"/Cx  0 def			% current x position\n"
+"/Cy  0 def			% current y position\n"
+"/WFi false def			% winding fill\n"
+"/OMo false def			% opaque mode (not transparent)\n"
+"\n"
+"/BCol  [ 1 1 1 ] def		% brush color\n"
+"/PCol  [ 0 0 0 ] def		% pen color\n"
+"/BkCol [ 1 1 1 ] def		% background color\n"
+"\n"
+"/nS 0 def			% number of saved painter states\n"
+"\n"
+"\n"
+"/QS {				% stroke command\n"
+"    PSt 0 ne			% != NO_PEN\n"
+"    { LWi SW			% set line width\n"
+"      GS\n"
+"      PCol SC			% set pen color\n"
+"      true GPS 0 setdash S	% draw line pattern\n"
+"      OMo PSt 1 ne and		% opaque mode and not solid line?\n"
+"      { GR BkCol SC\n"
+"	false GPS dup 0 get setdash S	% fill in opaque pattern\n"
+"      }\n"
+"      { GR } ifelse\n"
+"    } if\n"
+"} D\n"
+"\n"
+"/QF {				% fill command\n"
+"    GS\n"
+"    BSt 2 ge BSt 8 le and	% dense pattern?\n"
+"    { BDArr BSt 2 sub get setgray fill } if\n"
+"    BSt 9 ge BSt 14 le and	% fill pattern?\n"
+"    { BF } if\n"
+"    BSt 1 eq			% solid brush?\n"
+"    { BCol SC WFi { fill } { eofill } ifelse } if\n"
+"    GR\n"
+"} D\n"
+"\n"
+"/PF {				% polygon fill command\n"
+"    GS\n"
+"    BSt 2 ge BSt 8 le and	% dense pattern?\n"
+"    { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if\n"
+"    BSt 9 ge BSt 14 le and	% fill pattern?\n"
+"    { BF } if\n"
+"    BSt 1 eq			% solid brush?\n"
+"    { BCol SC WFi { fill } { eofill } ifelse } if\n"
+"    GR\n"
+"} D\n"
+"\n"
+"/BDArr[				% Brush dense patterns:\n"
+"    0.94 0.88 0.63 0.50 0.37 0.12 0.6\n"
+"] def\n"
+"\n"
+"/ArcDict 6 dict def\n"
+"ArcDict begin\n"
+"    /tmp matrix def\n"
+"end\n"
+"\n"
+"/ARC {				% Generic ARC function [ X Y W H ang1 ang2 ]\n"
+"    ArcDict begin\n"
+"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED\n"
+"    tmp CM pop\n"
+"    x w 2 div add y h 2 div add TR\n"
+"    1 h w div neg scale\n"
+"    ang2 0 ge\n"
+"    {0 0 w 2 div ang1 ang1 ang2 add arc }\n"
+"    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse\n"
+"    tmp SM\n"
+"    end\n"
+"} D\n"
+"\n"
+"\n"
+"/QI {\n"
+"    /savedContext save def\n"
+"    clippath pathbbox\n"
+"    3 index /PageX ED\n"
+"    0 index /PageY ED\n"
+"    3 2 roll\n"
+"    exch\n"
+"    sub neg /PageH ED\n"
+"    sub neg /PageW ED\n"
+"\n"
+"    PageX PageY TR\n"
+"    1 -1 scale\n"
+"    /defM matrix CM def		% default transformation matrix\n"
+"    /Cx  0 def			% reset current x position\n"
+"    /Cy  0 def			% reset current y position\n"
+"    255 255 255 BC\n"
+"    /OMo false def\n"
+"    1 0 0 0 0 PE\n"
+"    0 0 0 0 B\n"
+"} D\n"
+"\n"
+"/QP {				% show page\n"
+"    savedContext restore\n"
+"    showpage\n"
+"} D\n"
+"\n"
+"\n"
+"/P {				% PDC_DRAWPOINT [x y]\n"
+"    NP\n"
+"    MT\n"
+"    0.5 0.5 rmoveto\n"
+"    0  -1 RL\n"
+"    -1	0 RL\n"
+"    0	1 RL\n"
+"    CP\n"
+"    PCol SC\n"
+"    fill\n"
+"} D\n"
+"\n"
+"/M {				% PDC_MOVETO [x y]\n"
+"    /Cy ED /Cx ED\n"
+"} D\n"
+"\n"
+"/L {				% PDC_LINETO [x y]\n"
+"    NP\n"
+"    Cx Cy MT\n"
+"    /Cy ED /Cx ED\n"
+"    Cx Cy LT\n"
+"    QS\n"
+"} D\n"
+"\n"
+"/DL {				% PDC_DRAWLINE [x0 y0 x1 y1]\n"
+"    4 2 roll\n"
+"    NP\n"
+"    MT\n"
+"    LT\n"
+"    QS\n"
+"} D\n"
+"\n"
+"/RDict 4 dict def\n"
+"/R {				% PDC_DRAWRECT [x y w h]\n"
+"    RDict begin\n"
+"    /h ED /w ED /y ED /x ED\n"
+"    NP\n"
+"    x y MT\n"
+"    0 h RL\n"
+"    w 0 RL\n"
+"    0 h neg RL\n"
+"    CP\n"
+"    QF\n"
+"    QS\n"
+"    end\n"
+"} D\n"
+"\n"
+"/RRDict 6 dict def\n"
+"/RR {				% PDC_DRAWROUNDRECT [x y w h xr yr]\n"
+"    RRDict begin\n"
+"    /yr ED /xr ED /h ED /w ED /y ED /x ED\n"
+"    xr 0 le yr 0 le or\n"
+"    {x y w h R}	     % Do rectangle if one of rounding values is less than 0.\n"
+"    {xr 100 ge yr 100 ge or\n"
+"	{x y w h E}  % Do ellipse if both rounding values are larger than 100\n"
+"	{\n"
+"	 /rx xr w mul 200 div def\n"
+"	 /ry yr h mul 200 div def\n"
+"	 /rx2 rx 2 mul def\n"
+"	 /ry2 ry 2 mul def\n"
+"	 NP\n"
+"	 x rx add y MT\n"
+"	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC\n"
+"	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC\n"
+"	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC\n"
+"	 x		 y		 rx2 ry2 180 -90 ARC\n"
+"	 CP\n"
+"	 QF\n"
+"	 QS\n"
+"	} ifelse\n"
+"    } ifelse\n"
+"    end\n"
+"} D\n"
+"\n"
+"\n"
+"/EDict 5 dict def\n"
+"EDict begin\n"
+"/tmp matrix def\n"
+"end\n"
+"/E {				% PDC_DRAWELLIPSE [x y w h]\n"
+"    EDict begin\n"
+"    /h ED /w ED /y ED /x ED\n"
+"    tmp CM pop\n"
+"    x w 2 div add y h 2 div add translate\n"
+"    1 h w div scale\n"
+"    NP\n"
+"    0 0 w 2 div 0 360 arc\n"
+"    tmp SM\n"
+"    QF\n"
+"    QS\n"
+"    end\n"
+"} D\n"
+"\n"
+"\n"
+"/A {				% PDC_DRAWARC [x y w h ang1 ang2]\n"
+"    16 div exch 16 div exch\n"
+"    NP\n"
+"    ARC\n"
+"    QS\n"
+"} D\n"
+"\n"
+"\n"
+"/PieDict 6 dict def\n"
+"/PIE {				% PDC_DRAWPIE [x y w h ang1 ang2]\n"
+"    PieDict begin\n"
+"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED\n"
+"    NP\n"
+"    x w 2 div add y h 2 div add MT\n"
+"    x y w h ang1 16 div ang2 16 div ARC\n"
+"    CP\n"
+"    QF\n"
+"    QS\n"
+"    end\n"
+"} D\n"
+"\n"
+"/CH {				% PDC_DRAWCHORD [x y w h ang1 ang2]\n"
+"    16 div exch 16 div exch\n"
+"    NP\n"
+"    ARC\n"
+"    CP\n"
+"    QF\n"
+"    QS\n"
+"} D\n"
+"\n"
+"\n"
+"/BZ {				% PDC_DRAWQUADBEZIER [3 points]\n"
+"    curveto\n"
+"    QS\n"
+"} D\n"
+"\n"
+"\n"
+"/CRGB {				% Compute RGB [R G B] => R/255 G/255 B/255\n"
+"    255 div 3 1 roll\n"
+"    255 div 3 1 roll\n"
+"    255 div 3 1 roll\n"
+"} D\n"
+"\n"
+"\n"
+"/SV {				% Save painter state\n"
+"    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol\n"
+"    /nS nS 1 add def\n"
+"    GS\n"
+"} D\n"
+"\n"
+"/RS {				% Restore painter state\n"
+"    nS 0 gt\n"
+"    { GR\n"
+"      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED\n"
+"      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED\n"
+"      /nS nS 1 sub def\n"
+"    } if\n"
+"\n"
+"} D\n"
+"\n"
+"/BC {				% PDC_SETBKCOLOR [R G B]\n"
+"    CRGB\n"
+"    BkCol astore pop\n"
+"} D\n"
+"\n"
+"/B {				% PDC_SETBRUSH [style R G B]\n"
+"    CRGB\n"
+"    BCol astore pop\n"
+"    /BSt ED\n"
+"} D\n"
+"\n"
+"/PE {				% PDC_SETPEN [style width R G B]\n"
+"    CRGB\n"
+"    PCol astore pop\n"
+"    /LWi ED\n"
+"    /PSt ED\n"
+"    LWi 0 eq { 0.3 /LWi ED } if\n"
+"} D\n"
+"\n"
+"/ST {				% SET TRANSFORM [matrix]\n"
+"    defM setmatrix\n"
+"    concat\n"
+"} D\n"
+"\n"
+"\n"
+"% use MF like this make /F114 a 12 point font, preferably Univers, but\n"
+"% Helvetica if Univers is not available and Courier if all else fails:\n"
+"%\n"
+"% /114 [ 12 0 0 -12 0 0 ] [ /Univers /Helvetica ] MF\n"
+"\n"
+"/F /Courier def\n"
+"/MF {				% make font [ newname matrix fontlist ]\n"
+"  /F /Courier def\n"
+"  {\n"
+"    dup FontDirectory exch known\n"
+"    {\n"
+"      /F exch def\n"
+"      exit\n"
+"    } {\n"
+"      pop\n"
+"    } ifelse\n"
+"  } forall\n"
+"  F findfont dup length dict begin {\n"
+"    1 index /FID ne {\n"
+"      def\n"
+"    } {\n"
+"      pop pop\n"
+"    } ifelse\n"
+"  } forall\n"
+"  /Encoding iso88591 def\n"
+"  currentdict\n"
+"  end\n"
+"  2 index exch definefont\n"
+"  exch makefont\n"
+"  definefont pop\n"
+"} D\n"
+"\n"
+"\n"
+"/SF {				% PDC_SETFONT [ fontname ]\n"
+"  findfont setfont\n"
+"} D\n"
+"\n"
+"\n"
+"% isn't this important enough to try to avoid the SC?\n"
+"\n"
+"/T {				% PDC_DRAWTEXT [x y string]\n"
+"    3 1 roll\n"
+"    MT				% !!!! Uff\n"
+"    PCol SC			% set pen/text color\n"
+"    show\n"
+"} D\n"
+"\n"
+"\n"
+"/BFDict 2 dict def\n"
+"/BF {				% brush fill\n"
+"    BSt 9 ge BSt 14 le and	% valid brush pattern?\n"
+"    {\n"
+"     BFDict begin\n"
+"     GS\n"
+"     WFi { clip } { eoclip } ifelse\n"
+"     defM SM\n"
+"     pathbbox			% left upper right lower\n"
+"     3 index 3 index translate\n"
+"     4 2 roll			% right lower left upper\n"
+"     3 2 roll			% right left upper lower\n"
+"     exch			% left right lower upper\n"
+"     sub /h ED\n"
+"     sub /w ED\n"
+"     OMo {\n"
+"	  NP\n"
+"	  0 0 MT\n"
+"	  0 h RL\n"
+"	  w 0 RL\n"
+"	  0 h neg RL\n"
+"	  CP\n"
+"	  BkCol SC\n"
+"	  fill\n"
+"     } if\n"
+"     BCol SC\n"
+"     0.3 SW\n"
+"     BSt 9 eq BSt 11 eq or	% horiz or cross pattern\n"
+"     { 0 4 h			% draw horiz lines !!! alignment\n"
+"       { NP dup 0 exch MT w exch LT S } for\n"
+"     } if\n"
+"     BSt 10 eq BSt 11 eq or	% vert or cross pattern\n"
+"     { 0 4 w			% draw vert lines !!! alignment\n"
+"       { NP dup 0 MT h LT S } for\n"
+"     } if\n"
+"     BSt 12 eq BSt 14 eq or	% F-diag or diag cross\n"
+"     { w h gt\n"
+"       { 0 6 w h add\n"
+"	{ NP dup h MT h sub 0 LT S } for }\n"
+"       { 0 6 w h add\n"
+"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse\n"
+"     } if\n"
+"     BSt 13 eq BSt 14 eq or	% B-diag or diag cross\n"
+"     { w h gt\n"
+"       { 0 6 w h add\n"
+"	 { NP dup 0 MT h sub h LT S } for }\n"
+"       { 0 6 w h add\n"
+"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse\n"
+"     } if\n"
+"     GR\n"
+"     end\n"
+"    } if\n"
+"} D\n"
+"\n"
+"/LArr[					% Pen styles:\n"
+"    []		     []			%   solid line\n"
+"    [ 10 3 ]	     [ 3 10 ]		%   dash line\n"
+"    [ 3 3 ]	     [ 3 3 ]		%   dot line\n"
+"    [ 5 3 3 3 ]	     [ 3 5 3 3 ]	%   dash dot line\n"
+"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]	%   dash dot dot line\n"
+"] def\n"
+"\n"
+"%\n"
+"% Returns the line pattern (from pen style PSt).\n"
+"%\n"
+"% Argument:\n"
+"%   bool pattern\n"
+"%	true : draw pattern\n"
+"%	false: fill pattern\n"
+"%\n"
+"\n"
+"/GPS {\n"
+"  PSt 1 ge PSt 5 le and			% valid pen pattern?\n"
+"    { { LArr PSt 1 sub 2 mul get }	% draw pattern\n"
+"      { LArr PSt 2 mul 1 sub get } ifelse   % opaque pattern\n"
+"    }\n"
+"    { [] } ifelse			% out of range => solid line\n"
+"} D\n"
+"\n"
 "%%EndProlog";
 #endif
 
@@ -91,9 +522,19 @@ QPSPrinter::QPSPrinter( QPrinter *prt )
     device = 0;
 }
 
+// some hacky variables that may be deleted at any time.  used to save
+// on wear and tear in the printer's font loading
+
+static int fontNameNumber = 0;
+static QDict<QString> * fontNames = 0;
+
 QPSPrinter::~QPSPrinter()
 {
+    delete fontNames;
+    fontNames = 0;
+    fontNameNumber = 0;
 }
+
 
 //
 // Sets a new font for PostScript
@@ -117,44 +558,155 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     QString ps;
     int	 weight = f->weight();
     bool italic = f->italic();
-    bool times	= FALSE;
-    bool symbol = FALSE;
+    
     family = family.lower();
     if ( family == "courier" ) {
-	ps = "/Courier";
+	ps = "/Courier ";
+    } else if ( family == "helvetica" ) {
+	ps = "/Helvetica ";
     } else if ( family == "times" ) {
-	ps = "/Times";
-	times = TRUE;
+	ps = "/Times ";
+    } else if ( family == "charter" ) {
+	ps = "/CharterBT /Times ";
+    } else if ( family == "palatino" ) {
+	ps = "/Palatino /Garamond /AGaramond /Times ";
+    } else if ( family == "garamond" ) {
+	ps = "/AGaramond /Garamond /Palatino /Times ";
+    } else if ( family == "baskerville" ) {
+	ps = "/Baskerville /Palatino /Times ";
+    } else if ( family == "new century schoolbook" ) {
+	ps = "/NewCenturySchlbk /Garamond /AGaramond /Times ";
+    } else if ( family == "gillsans" ) {
+	ps = "/GillSans /Univers /Helvetica ";
+    } else if ( family == "univers" ) {
+	ps = "/Univers /GillSans /Helvetica ";
+    } else if ( family == "lucida" ) {
+	ps = "/Lucida /AvantGarde /Helvetica ";
+    } else if ( family == "lucidabright" ) {
+	// ### don't know the name of lucida bright as Type 1 font
+	ps = "/Lucida /Palatino /Times ";
+    } else if ( family == "lucidatypewriter" ) {
+	// ### don't know the name of lucida typewriter as Type 1 font
+	ps = "/Courier ";
+    } else if ( family == "utopia" ) {
+	ps = "/Utopia /Garamond /AGaramond /Times ";
+    } else if ( family == "terminal" ) {
+	ps = "/Courier "; // more?
     } else if ( family == "symbol" ) {
-	ps = "/Symbol";
-	symbol = TRUE;
+	ps = "/Symbol ";
     } else {
-	ps = "/Helvetica";
+	ps = "/Courier ";
     }
-    QString extra;
-    if ( weight >= QFont::Bold && !symbol )
-	extra = "Bold";
-    if ( italic && !symbol ) {
-	if ( times )
-	    extra += "Italic";
-	else
-	    extra += "Oblique";
+
+    // next, modify these shitty irregular names
+    if ( weight >= QFont::Bold && italic ) {
+	ps.replace( QRegExp( "/Times " ), "/Times-BoldItalic " );
+	ps.replace( QRegExp( "/Charter " ), "/CharterBT-BoldItalic " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-BoldItalic " );
+	ps.replace( QRegExp( "/Garamond " ), "/Garamond-BoldItalic " );
+	ps.replace( QRegExp( "/AGaramond " ), "/Garamond-BoldItalic " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-BoldItalic " );
+	ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-BoldItalic " );
+	ps.replace( QRegExp( "/NewCenturySchlbk " ),
+		    "/NewCenturySchlbk-BoldItalic " );
+	ps.replace( QRegExp( "/GillSans " ), "/GillSans-BoldItalic " );
+	ps.replace( QRegExp( "/Univers " ), "/Univers-BoldItalic " );
+	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-BoldOBlique " );
+	ps.replace( QRegExp( "/Lucida " ), "/Lucida-BoldItalic " );
+	ps.replace( QRegExp( "/Utopia " ), "/Utopia-BoldItalic " );
+    } else if ( weight >= QFont::Bold ) {
+	ps.replace( QRegExp( "/Times " ), "/Times-Bold " );
+	ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Bold " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Bold " );
+	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Bold " );
+	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Bold " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Bold " );
+	ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-Bold " );
+	ps.replace( QRegExp( "/NewCenturySchlbk " ),
+		    "/NewCenturySchlbk-Bold " );
+	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Bold " );
+	ps.replace( QRegExp( "/Univers " ), "/Univers-Bold " );
+	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-Bold " );
+	ps.replace( QRegExp( "/Lucida " ), "/Lucida-Bold " );
+	ps.replace( QRegExp( "/Utopia " ), "/Utopia-Bold " );
+    } else if ( weight >= QFont::DemiBold && italic ) {
+	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-SemiBoldItalic " );
+	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-DemiOblique " );
+    } else if ( weight >= QFont::DemiBold ) {
+	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-SemiBold " );
+	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-Demi " );
+    } else if ( italic ) {
+	ps.replace( QRegExp( "/Times " ), "/Times-Italic " );
+	ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Italic " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Italic " );
+	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Italic " );
+	ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Italic " );
+	ps.replace( QRegExp( "/Palatino " ), "/Palatino-Italic " );
+	ps.replace( QRegExp( "/Baskerville " ),
+		    "/Baskerville-Normal-Italic " );
+	ps.replace( QRegExp( "/NewCenturySchlbk " ),
+		    "/NewCenturySchlbk-Italic " );
+	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Italic " );
+	ps.replace( QRegExp( "/Univers " ), "/Univers-Italic " );
+	ps.replace( QRegExp( "/Helvetica " ), "/Helvetica-OBlique " );
+	ps.replace( QRegExp( "/Lucida " ), "/Lucida-Italic " );
+	ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-BookOblique " );
+	ps.replace( QRegExp( "/Utopia " ), "/Utopia-Italic " );
+    } else if ( weight <= QFont::Light && italic ) {
+	ps.replace( QRegExp( "/Garamond " ), "/Garamond-LightItalic " );
+	ps.replace( QRegExp( "/GillSans " ), "/GillSans-LightItalic " );
+	ps.replace( QRegExp( "/Univers " ), "/Univers-LightItalic " );
+    } else if ( weight <= QFont::Light ) {
+	ps.replace( QRegExp( "/Garamond " ), "/Garamond-Light " );
+	ps.replace( QRegExp( "/GillSans " ), "/GillSans-Light " );
+	ps.replace( QRegExp( "/Univers " ), "/Univers-Light " );
     }
-    if ( !extra.isEmpty() ) {
-	ps += '-';
-	ps += extra;
+
+    ps.replace( QRegExp( "/Times " ), "/Times-Roman " );
+    ps.replace( QRegExp( "/CharterBT " ), "/CharterBT-Roman " );
+    ps.replace( QRegExp( "/Palatino " ), "/Palatino-Roman " );
+    ps.replace( QRegExp( "/Garamond " ), "/Garamond-Regular " );
+    ps.replace( QRegExp( "/Garamond " ), "/Garamond-Regular " );
+    ps.replace( QRegExp( "/AGaramond " ), "/AGaramond-Regular " );
+    ps.replace( QRegExp( "/Palatino " ), "/Palatino-Regular " );
+    ps.replace( QRegExp( "/Baskerville " ), "/Baskerville-Normal " );
+    ps.replace( QRegExp( "/NewCenturySchlbk " ),
+		"/NewCenturySchlbk-Roman " );
+    //ps.replace( QRegExp( "/GillSans " ), "/GillSans " );
+    //ps.replace( QRegExp( "/Univers " ), "/Univers " );
+    //ps.replace( QRegExp( "/Helvetica " ), "/Helvetica " );
+    //ps.replace( QRegExp( "/Lucida " ), "/Lucida " );
+    ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-Book " );
+    ps.replace( QRegExp( "/Utopia " ), "/Utopia-Regular " );
+    
+    QString key;
+    key.sprintf( "%p %s %d", s, ps.data(), f->pointSize() );
+    QString fontName;
+    if ( fontNames ) {
+	QString * tmp = fontNames->find( key );
+	if ( tmp )
+	fontName = *tmp;
     } else {
-	if ( times )
-	    ps += "-Roman";
+	fontNames = new QDict<QString>( 31 );
+	fontNames->setAutoDelete( TRUE );
     }
-    QString fontMatrix;
-    fontMatrix.sprintf( "[ %d 0 0 -%d 0 0 ]", f->pointSize(), f->pointSize() );
-    *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
-    ps.remove( 0, 1 );				// removes the '/'
-    ps += ' ';
+
+    if ( fontName.isEmpty() ) {
+	QString fontMatrix;
+	fontMatrix.sprintf( " [ %d 0 0 -%d 0 0 ] [ ",
+			    f->pointSize(), f->pointSize() );
+	fontName.sprintf( "/F%d", ++fontNameNumber );
+	*s << fontName << fontMatrix << ps << "] MF\n";
+	fontNames->insert( key, &(fontName.copy()) );
+    }
+    *s << fontName << " SF\n";
+
+    // change "/Palatino-Roman /Times-Roman " to "Times-Roman "
+    ps.replace( QRegExp( "^.*/" ), "" );
     if ( !fonts->contains(ps) )
 	*fonts += ps;
 }
+
 
 static void hexOut( QTextStream &stream, int i )
 {
@@ -317,9 +869,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
-	if ( dirtyMatrix ) 
+	if ( dirtyMatrix )
 	    matrixSetup( paint );
-	if ( dirtyNewPage ) 
+	if ( dirtyNewPage )
 	    newPageSetup( paint );
     }
 
@@ -604,6 +1156,10 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 	matrixSetup( paint );
 
     dirtyNewPage = FALSE;
+
+    delete fontNames;
+    fontNames = 0;
+    fontNameNumber = 0;
 }
 
 
