@@ -337,9 +337,13 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
 	return;
 
     QRect r( item->textRect( FALSE ) );
+
+    // At this point the rectangle is too small (it is the width of the icon)
+    // since we need it to be bigger than that, extend it here.
+    r.setWidth( view->d->fm->boundingRect( item->itemText ).width() + 4 );
     r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
     QRect r2( item->pixmapRect( FALSE ) );
-    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
+    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );   
     tip( r, r2, item->itemText );
 }
 #endif
@@ -2089,8 +2093,8 @@ void QIconViewItem::calcTmpText()
 
     int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 					   pixmapRect().width() );
-    if ( view->d->fm->width( itemText ) < w ) {
-	tmpText = itemText;
+    if ( view->d->fm->width( itemText ) < w ) {	
+	tmpText = itemText;	
 	return;
     }
 
@@ -2099,7 +2103,7 @@ void QIconViewItem::calcTmpText()
     while ( view->d->fm->width( tmpText + itemText[ i ] ) < w )
 	tmpText += itemText[ i++ ];
     tmpText.remove( 0, 3 );
-    tmpText += "...";
+    tmpText += "...";   
 }
 
 /*! \internal */
