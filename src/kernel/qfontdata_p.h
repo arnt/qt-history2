@@ -99,6 +99,7 @@ struct QFontDef
 	StrikeOut     = 0x0080,
 	FixedPitch    = 0x0100,
 	Stretch       = 0x0200,
+	Complete      = 0x03ff,
 
 	RawMode       = 0x10000000
     };
@@ -144,8 +145,46 @@ struct QFontDef
 		 );
     }
 
-    inline void spew() const
+    inline void merge( const QFontDef &other )
     {
+	if ( ( mask & Complete ) == Complete )
+	    return;
+
+	// merge the unset-bits with the set-bits of the other font def
+	if ( ! ( mask & Family ) && ( other.mask & Family ) )
+	    family = other.family;
+
+	if ( ! ( mask & Size ) && ( other.mask & Size ) ) {
+	    pointSize = other.pointSize;
+	    pixelSize = other.pixelSize;
+	}
+
+	if ( ! ( mask & StyleHint ) && ( other.mask & StyleHint ) )
+	    styleHint = other.styleHint;
+
+	if ( ! ( mask & StyleStrategy ) && ( other.mask & StyleStrategy ) )
+	    styleStrategy = other.styleStrategy;
+
+	if ( ! ( mask & Weight ) && ( other.mask & Weight ) )
+	    weight = other.weight;
+
+	if ( ! ( mask & Italic ) && ( other.mask & Italic ) )
+	    italic = other.italic;
+
+	if ( ! ( mask & Underline ) && ( other.mask & Underline ) )
+	    underline = other.underline;
+
+	if ( ! ( mask & StrikeOut ) && ( other.mask & StrikeOut ) )
+	    strikeOut = other.strikeOut;
+
+	if ( ! ( mask & FixedPitch ) && ( other.mask & FixedPitch ) )
+	    fixedPitch = other.fixedPitch;
+
+	if ( ! ( mask & Stretch ) && ( other.mask & Stretch ) )
+	    stretch = other.stretch;
+
+	// keep the mask updated
+	mask |= ( other.mask & Complete );
     }
 };
 
