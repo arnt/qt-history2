@@ -357,7 +357,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     if(!file->deps)
         file->deps = new SourceDependChildren;
 
-    int line_count = 0;
+    int line_count = 1;
     for(int x = 0; x < buffer_len; x++) {
         bool try_local = true;
         char *inc = 0;
@@ -436,7 +436,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             ++line_count;
         } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
         } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
-            for(; x < buffer_len; ++x) {
+            for(int beginning=1; x < buffer_len; ++x) {
                 if(*(buffer+x) == '/') {
                     ++x;
                     if(buffer_len >= x) {
@@ -456,6 +456,20 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                             }
                         }
                     }
+                } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
+                    ++x;
+                    const char term = *(buffer+x);
+                    while(x < buffer_len) {
+                        if(*(buffer+x) == term)
+                            break;
+                        if(*(buffer+x) == '\\') {
+                            x+=2;
+                        } else {
+                            if(qmake_endOfLine(*(buffer+x)))
+                                ++line_count;
+                            ++x;
+                        }
+                    }
                 }
                 if(qmake_endOfLine(*(buffer+x))) {
                     ++line_count;
@@ -463,8 +477,10 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         ++x;
                         break;
                     }
-                } else if(!x && *(buffer+x) == '#') {
+                } else if(beginning && *(buffer+x) == '#') {
                     break;
+                } else {
+                    beginning = 0;
                 }
             }
             if(x >= buffer_len)
@@ -508,10 +524,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); inc_len++);
                 *(buffer + x + inc_len) = '\0';
                 inc = buffer + x;
-            } else if(buffer_len >= x + 14 && !strncmp(buffer + x,  "qmake_warning ", 14)) {
-                for(x+=14; //skip spaces after keyword
-                    x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
-                    x++);
+            } else if(keyword_len == 13 && !strncmp(keyword, "qmake_warning", keyword_len)) {
                 char term = 0;
                 if(*(buffer + x) == '"')
                     term = '"';
