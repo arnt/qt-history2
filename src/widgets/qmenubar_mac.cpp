@@ -224,7 +224,8 @@ void QMenuBar::macUpdateMenuBar()
 	    updateMenuBar(bar);
 	} else {
 	    first = TRUE;
-	    ClearMenuBar();
+	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) )
+		ClearMenuBar();
 	}
     }
 }
