@@ -868,7 +868,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	d->ftp.close();
 	if ( d->user.isEmpty() )
 	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 "anonymous", "Qt is cool" );
+			 "anonymous", "Qt@cool" );
 	else {
 	    if ( d->pass.isEmpty() )
 		if ( !getPassword() )
