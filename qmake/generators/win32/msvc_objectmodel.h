@@ -709,7 +709,7 @@ public:
     ~VCFilter(){}
     void addMOCstage( QTextStream &strm, QString str );
     void addUICstage( QTextStream &strm, QString str );
-    void addPCHstage( QTextStream &strm, QString str );
+    void modifyPCHstage( QTextStream &strm, QString str );
 
     // Variables
     QString		Name;

@@ -203,16 +203,6 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
     return result;
 }
 
-QString 
-VcprojGenerator::realPrecompH( const QString &sourcePath )
-{
-    QFileInfo srcInfo(sourcePath);
-    return fileFixify(precomph, 
-		      (srcInfo.isDir()?srcInfo.absFilePath():srcInfo.dirPath(TRUE)),
-		      QDir::currentDirPath(),
-		      TRUE);
-}
-
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
     if(project->first("TEMPLATE") == "subdirs") {
@@ -391,17 +381,22 @@ void VcprojGenerator::init()
 	    projectTarget = SharedLib;
     }
 
-    // Figure out the PCH settings
-    if ( project->variables()["PRECOMPCPP"].size() > 1 )
-	warn_msg(WarnLogic, "vcproj generator doesn't support multiple files in PRECOMPCPP, only first one used" );
-    precomph     = Option::fixPathToTargetOS(project->first("PRECOMPH"));
-    precompcpp   = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
-    pch          = QString(precomph).replace(".h", ".pch");
-    usePCH       = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
-    deletePCHcpp = precompcpp.isEmpty();
-    // Change name for generated PCH cpp file
-    if(usePCH && deletePCHcpp)
-	precompcpp = project->first("TARGET") + "_pch.cpp";
+    // Setup PCH variables
+    precompH = project->first("PRECOMPILED_HEADER");
+    usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
+    if (usePCH) {
+	precompHFilename = QFileInfo(precompH).fileName();
+	// Created files
+	QString origTarget = project->first("QMAKE_ORIG_TARGET");
+	precompObj = origTarget + Option::obj_ext;
+	precompPch = origTarget + ".pch";
+	// Add PRECOMPILED_HEADER to HEADERS
+	if (!project->variables()["HEADERS"].contains(precompH))
+	    project->variables()["HEADERS"] += precompH;
+	// Return to variable pool
+	project->variables()["PRECOMPILED_OBJECT"] = precompObj;
+	project->variables()["PRECOMPILED_PCH"]    = precompPch;
+    }
 
     initProject(); // Fills the whole project with proper data
 }
@@ -534,10 +529,10 @@ void VcprojGenerator::initCompilerTool()
     RConf.compiler.ObjectFile = placement ;
     // PCH
     if ( usePCH ) {
-	QFileInfo infoPCH(precomph);
-	RConf.compiler.PrecompiledHeaderFile = pch;
-	RConf.compiler.PrecompiledHeaderThrough = infoPCH.fileName();
-	RConf.compiler.UsePrecompiledHeader = pchUseUsingSpecific;
+	RConf.compiler.UsePrecompiledHeader     = pchUseUsingSpecific;
+	RConf.compiler.PrecompiledHeaderFile    = "$(IntDir)\\" + precompPch;
+	RConf.compiler.PrecompiledHeaderThrough = precompHFilename;
+	RConf.compiler.ForcedIncludeFiles       = precompHFilename;
 	// Minimal build option triggers an Internal Compiler Error
 	// when used in conjunction with /FI and /Yu, so remove it
 	project->variables()["QMAKE_CFLAGS_DEBUG"].remove("-Gm");
@@ -823,8 +818,6 @@ void VcprojGenerator::initSourceFiles()
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
     vcProject.SourceFiles.Files += project->variables()["SOURCES"];
-    if (usePCH && deletePCHcpp) // Generated PCH cpp file
-	vcProject.SourceFiles.Files += precompcpp;
     nonflatDir_BubbleSort( vcProject.SourceFiles.Files,
 			   vcProject.SourceFiles.flat_files );
     vcProject.SourceFiles.Project = this;
@@ -838,6 +831,10 @@ void VcprojGenerator::initHeaderFiles()
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
     vcProject.HeaderFiles.Files += project->variables()["HEADERS"];
+    if (usePCH) { // Generated PCH cpp file
+	if (!vcProject.HeaderFiles.Files.contains(precompH))
+	    vcProject.HeaderFiles.Files += precompH;
+    }
     nonflatDir_BubbleSort( vcProject.HeaderFiles.Files,
 			   vcProject.HeaderFiles.flat_files );
     vcProject.HeaderFiles.Project = this;
