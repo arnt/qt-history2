@@ -840,9 +840,10 @@ void QHeader::setLabel( int section, const QString &s, int size )
     d->labels.insert( section, new QString( s ) );
     if ( size >= 0 )
 	d->sizes[section] = size;
-    if ( isUpdatesEnabled() )
+    if ( isUpdatesEnabled() ) {
 	calculatePositions();
-    update();
+	update();
+    }
 }
 
 
@@ -936,9 +937,10 @@ void QHeader::removeLabel( int section )
 		--d->i2s[i];
     }
 
-    if ( isUpdatesEnabled() )
+    if ( isUpdatesEnabled() ) {
 	calculatePositions();
-    update();
+	update();
+    }
 }
 
 
@@ -996,9 +998,10 @@ int QHeader::addLabel( const QString &s, int size )
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
-    if ( isUpdatesEnabled() )
+    if ( isUpdatesEnabled() ) {
 	calculatePositions();
-    update();
+	update();
+    }
     return index;
 }
 

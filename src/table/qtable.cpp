@@ -3877,6 +3877,7 @@ void QTable::setNumRows( int r )
 {
     if ( r < 0 )
 	return;
+    bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
     int w = leftMargin();
@@ -3913,7 +3914,7 @@ void QTable::setNumRows( int r )
 	    contents.insert( idx, it );
     }
 
-    leftHeader->setUpdatesEnabled( TRUE );
+    leftHeader->setUpdatesEnabled( isUpdatesEnabled );
     QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
@@ -3923,7 +3924,8 @@ void QTable::setNumRows( int r )
     else
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
-    leftHeader->update();
+    if ( isUpdatesEnabled )
+	leftHeader->update();
 
     if ( isRowSelection( selectionMode() ) ) {
 	int r = curRow;
@@ -3941,6 +3943,7 @@ void QTable::setNumCols( int c )
 {
     if ( c < 0 )
 	return;
+    bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
     topHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = c < numCols();
     if ( c > numCols() ) {
@@ -3971,7 +3974,7 @@ void QTable::setNumCols( int c )
 	    contents.insert( idx, it );
     }
 
-    topHeader->setUpdatesEnabled( TRUE );
+    topHeader->setUpdatesEnabled( isUpdatesEnabled );
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
@@ -3981,7 +3984,8 @@ void QTable::setNumCols( int c )
     else
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
-    topHeader->update();
+    if ( isUpdatesEnabled )
+	topHeader->update();
 
     if ( isRowSelection( selectionMode() ) ) {
 	int r = curRow;
