@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#97 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#97 $");
 
 
 /*!
@@ -2767,23 +2767,24 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 )
 	return; // less than four numbers parsed
 
-    if ( ncols > 256 )
+    if ( ncols > 256 || cpp > 15 )
 	return;
 
     image.create( w, h, 8, ncols );
 
     QDict<int> colorMap( 569, TRUE );
     colorMap.setAutoDelete( FALSE );
+    image.setAlphaBuffer( TRUE );
 
-    int currentColour;
-    int transparentColour = -1;
+    int currentColor;
+    int transparentColor = -1;
 
-    for( currentColour=ncols-1; currentColour >= 0; --currentColour ) {
+    for( currentColor=ncols-1; currentColor >= 0; --currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
-	QString index, colour;
+	QString index, color;
 	index = buf.left( cpp );
-	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace();
+	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace().lower();
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
 	    i = buf.find( " c " );
 	    if ( i < 0 )
@@ -2822,22 +2823,22 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		 sscanf( green, "%x", &g ) != 1 ||
 		 sscanf( blue, "%x", &b ) != 1 )
 		return; // uh...
-	    image.setColor( currentColour, qRgb( r, g, b ) );
-	    colorMap.insert( index, (int*)(currentColour+1) );
-	} else if ( stricmp( buf, "none" ) == 0 ) {
-	    transparentColour = currentColour;
-	    image.setColor( transparentColour, qRgb( 255,128,64 ) );
-	    colorMap.insert( index, (int*)(transparentColour+1) );
+	    image.setColor( currentColor, 0xff000000 | qRgb( r, g, b ) );
+	    colorMap.insert( index, (int*)(currentColor+1) );
+	} else if ( buf == "c none" ) {
+	    transparentColor = currentColor;
+	    image.setColor( transparentColor, RGB_MASK & qRgb( 200,200,200 ) );
+	    colorMap.insert( index, (int*)(transparentColor+1) );
 	} else {
-	    // symbolic colour names: die die die
+	    // symbolic color names: die die die
 	    r = " [a-z] ";
 	    i = r.match( buf );
 	    QColor tmp( buf.mid( 2, i > -1 ? i-2 : buf.length() ) );
-	    image.setColor( currentColour, tmp.rgb() );
-	    colorMap.insert( index, (int*)(currentColour+1) );
+	    image.setColor( currentColor, 0xff000000 | tmp.rgb() );
+	    colorMap.insert( index, (int*)(currentColor+1) );
 	}
-	//	debug( "colour %d is %06x - %s",
-	//	       currentColour, image.color( currentColour ),
+	//	debug( "color %d is %06x - %s",
+	//	       currentColor, image.color( currentColor ),
 	//	       (const char *)buf );
     }
 
@@ -2857,8 +2858,6 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		*p++ = (uchar)((int)colorMap[b] - 1);
 	    }
 	} else {
-	    if ( cpp > 15 )
-		return;
 	    char b[16];
 	    b[cpp] = '\0';
 	    for ( x=0; x<w && d<end; x++ ) {
@@ -2883,7 +2882,7 @@ static void read_xpm_image( QImageIO * iio )
 }
 
 
-static char* xpm_colour_name( int cpp, int index )
+static char* xpm_color_name( int cpp, int index )
 {
     static char returnable[3];
     if ( cpp > 1 ) {
@@ -2914,63 +2913,59 @@ static void write_xpm_image( QImageIO * iio )
 	return;
 
     QImage image;
-    if ( iio->image().depth() < 32 )
-	image = iio->image().convertDepth( 32 );
+    if ( iio->image().depth() != 8 )
+	image = iio->image().convertDepth( 8 );
     else
 	image = iio->image();
 
     QIntDict<int> colorMap( 569 );
 
-    int w = image.width(), h = image.height(), colours=0;
+    int w = image.width(), h = image.height(), colors=0;
     int x, y;
 
     // build color table
     for( y=0; y<h; y++ ) {
-	QRgb * yp = (QRgb *)image.scanLine( y );
+	uchar * yp = image.scanLine( y );
 	for( x=0; x<w; x++ ) {
-	    QRgb colour = *(yp + x);
-	    if ( colour != (colour & RGB_MASK) )
-		colour |= ~RGB_MASK;
-	    if ( !colorMap.find( (int)colour ) )
-		colorMap.insert( (int)colour, (int*)(++colours) );
+	    int color = (int)*(yp + x);
+	    if ( !colorMap.find( color ) )
+		colorMap.insert( color, (int*)(++colors) );
 	}
     }
 
-    if ( colours > 4096)
-	return;
-
-    int cpp = colours > 64 ? 2 : 1;
+    int cpp = colors > 64 ? 2 : 1;
     QString line;
 
     // write header
     QTextStream s( iio->ioDevice() );
     s << "/* XPM */" << endl
       << "static char*" << fbname(iio->fileName()) << "[]={" << endl
-      << "\"" << w << " " << h << " " << colours << " " << cpp << "\"";
+      << "\"" << w << " " << h << " " << colors << " " << cpp << "\"";
 
     // write palette
     QIntDictIterator<int> c( colorMap );
     while ( c.current() ) {
-	if ( (c.currentKey() & ~RGB_MASK) != 0 )
+	QRgb color = image.color( c.currentKey() );
+	if ( image.hasAlphaBuffer() && color == (color & RGB_MASK) )
 	    line.sprintf( "\"%s c None\"", 
-			  xpm_colour_name( cpp, (int)c.current() ) );
+			  xpm_color_name( cpp, (int)c.current() ) );
 	else
 	    line.sprintf( "\"%s c #%02x%02x%02x\"", 
-			  xpm_colour_name( cpp, (int)c.current() ),
-			  qRed( c.currentKey() ),
-			  qGreen( c.currentKey() ),
-			  qBlue( c.currentKey() ) );
+			  xpm_color_name( cpp, (int)c.current() ),
+			  qRed( color ),
+			  qGreen( color ),
+			  qBlue( color ) );
 	++c;
 	s << "," << endl << line;
     }
 
     // write pixels
     for( y=0; y<h; y++ ) {
-	QRgb * yp = (QRgb *)image.scanLine( y );
+	uchar * yp = image.scanLine( y );
 	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
-	    QRgb colour = (QRgb)colorMap[ *(yp + x) ];
-	    const char * chars = xpm_colour_name( cpp, (int)colour );
+	    int color = (int)colorMap[ (int)(*(yp + x)) ];
+	    const char * chars = xpm_color_name( cpp, color );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];
