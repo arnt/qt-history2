@@ -50,6 +50,7 @@
 
 #include <qglobal.h>
 #include <qvariant.h>
+#include <qsqlresult.h>
 
 
 class QSqlClientData
@@ -115,6 +116,32 @@ private:
     QSqlClientResultSet& operator=( const QSqlClientResultSet& other );
     class Private;
     Private* d;
+};
+
+
+class QSqlCachedResult: public QSqlResult
+{
+public:
+    virtual ~QSqlCachedResult();
+protected:
+    QSqlCachedResult(const QSqlDriver * db );
+
+    virtual void cleanup();
+    virtual bool cacheNext();
+
+    virtual bool gotoNext() = 0;
+
+    QVariant data( int i );
+    bool     isNull( int field );
+    bool     fetch( int i );
+    bool     fetchNext();
+    bool     fetchPrev();
+    bool     fetchFirst();
+    bool     fetchLast();
+
+    QSqlClientResultSet*    set;
+    QSqlClientResultBuffer* buf;
+
 };
 
 

@@ -392,3 +392,118 @@ int QSqlClientResultSet::at() const
 {
     return d->at();
 }
+
+/////////////
+
+
+QSqlCachedResult::QSqlCachedResult(const QSqlDriver * db ): QSqlResult ( db )
+{
+   set = new QSqlClientResultSet();
+   buf = new QSqlClientResultBuffer();
+}
+
+QSqlCachedResult::~QSqlCachedResult()
+{
+    delete set;
+    delete buf;
+}
+
+bool QSqlCachedResult::fetch( int i )
+{
+    if ( ( !isActive() ) || ( i < 0 ) ) {
+	return FALSE;
+    }
+    if ( at() == i )
+	return TRUE;
+    if ( set->seek( i ) ) {
+	setAt( i );
+	return TRUE;
+    }
+    setAt( set->size() - 1 );
+    while ( at() < i ) {
+	if ( !cacheNext() )
+	    return FALSE;
+	setAt( at() + 1 );
+    }
+    return TRUE;
+}
+
+bool QSqlCachedResult::fetchNext()
+{
+    if ( !isForwardOnly() && set->seek( at() + 1 ) ) {
+	setAt( at() + 1 );
+	return TRUE;
+    }
+    if ( cacheNext() ) {
+	setAt( at() + 1 );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+bool QSqlCachedResult::fetchPrev()
+{
+    return fetch( at() - 1 );
+}
+
+bool QSqlCachedResult::fetchFirst()
+{
+    if ( isForwardOnly() && at() != QSql::BeforeFirst ) {
+	return FALSE;
+    }
+    if ( !isForwardOnly() && set->seek( 0 ) ) {
+	setAt( 0 );
+	return TRUE;
+    }
+    if ( cacheNext() ) {
+	setAt( 0 );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+bool QSqlCachedResult::fetchLast()
+{
+    if ( !isForwardOnly() && at() == QSql::AfterLast && set->size() > 0 ) {
+	setAt( set->size() - 1 );
+	return TRUE;
+    }
+    if ( at() >= QSql::BeforeFirst ) {
+	while ( fetchNext() )
+	    ; /* brute force */
+	if ( isForwardOnly() && at() == QSql::AfterLast ) {
+	    setAt( at() - 1 );
+	    return TRUE;
+	} else
+	    return fetch( set->size() - 1 );
+    }
+    return FALSE;
+}
+
+QVariant QSqlCachedResult::data( int i )
+{
+    return set->buffer()->data( i );
+}
+
+bool QSqlCachedResult::isNull( int field )
+{
+    return set->buffer()->isNull( field );
+}
+
+void QSqlCachedResult::cleanup()
+{
+    setAt( -1 );
+    setActive( FALSE );
+    set->clear();
+    buf->clear();
+}
+
+bool QSqlCachedResult::cacheNext()
+{
+    if ( gotoNext() ) {
+	set->append( *buf );
+	set->seek( set->size() - 1 );
+	return TRUE;
+    }
+    return FALSE;
+}

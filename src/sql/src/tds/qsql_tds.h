@@ -45,7 +45,7 @@
 class QTDSPrivate;
 class QTDSDriver;
 
-class QTDSResult : public QSqlResult
+class QTDSResult : public QSqlCachedResult
 {
     friend class QTDSDriver;
 public:
@@ -53,20 +53,12 @@ public:
     ~QTDSResult();
 protected:
     void		cleanup();
-    bool		fetch( int i );
-    bool		fetchFirst();
-    bool		fetchNext();
-    bool		fetchLast();
-    QVariant    	data( int i );
-    bool		isNull( int field );
     bool		reset ( const QString& query );
-    int                 size();
-    int                 numRowsAffected();
+    int			size();
+    int			numRowsAffected();
+    bool		gotoNext();
 private:
-    QTDSPrivate*	    d;
-    QSqlClientResultSet*    set;
-    QSqlClientResultBuffer* buf;
-    bool		    cacheNext();
+    QTDSPrivate*	d;
 };
 
 class QTDSDriver : public QSqlDriver

@@ -57,7 +57,6 @@
 #endif //Q_OS_WIN32
 
 
-
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
 #define QERRHANDLE DBERRHANDLE_PROC
@@ -103,6 +102,11 @@
 #endif  //DBNTWIN32
 
 #define TDS_CURSOR_SIZE 50
+
+// workaround for FreeTDS
+#ifndef CS_PUBLIC
+#define CS_PUBLIC
+#endif
 
 //#define DEBUG_TDS
 
@@ -289,16 +293,14 @@ QVariant::Type qFieldType( QTDSPrivate* d, int i )
 
 
 QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
-    : QSqlResult( db )
+    : QSqlCachedResult( db )
 {
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::QTDSResult" );
 #endif
-    d =   new QTDSPrivate( *p );
+    d = new QTDSPrivate( *p );
     // insert d in error handler dict
     errs.insert( (void*)d->dbproc, d );
-    set = new QSqlClientResultSet();
-    buf = new QSqlClientResultBuffer();
     QTDSClientData* tcd = new QTDSClientData();
     buf->installDataFormat( tcd );
 }
@@ -311,154 +313,28 @@ QTDSResult::~QTDSResult()
     cleanup();
     dbclose( d->dbproc );
     errs.remove( d->dbproc );
-    delete set;
-    delete buf;
     delete d;
 }
 
 void QTDSResult::cleanup()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::cleanup()" );
-#endif
-    setAt( -1 );
-    setActive( FALSE );
-    set->clear();
-    buf->clear();
     d->clearErrorMsgs();
+    QSqlCachedResult::cleanup();
 }
 
-bool QTDSResult::fetch( int i )
+bool QTDSResult::gotoNext()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::fetch(%i), at: %i", i, at() );
-#endif
-    if ( ( !isActive() ) || ( i < 0 ) ) {
-#ifdef DEBUG_TDS
-	qDebug( "QTDSResult::fetch(%i): not active or < 0", i );
-#endif
-	return FALSE;
-    }
-    if ( at() == i )
-	return TRUE;
-    if ( set->seek( i ) ) {
-	setAt( i );
-	return TRUE;
-    }
-    setAt( set->size() - 1 );
-    while ( at() < i ) {
-	if ( !cacheNext() )
-	    return FALSE;
-	setAt( at() + 1 );
-    }
-    return TRUE;
-}
-
-bool QTDSResult::fetchFirst()
-{
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::fetchFirst()" );
-#endif
-    if ( isForwardOnly() && at() != QSql::BeforeFirst ) {
-	return FALSE;
-    }
-    if ( !isForwardOnly() && set->seek( 0 ) ) {
-	setAt( 0 );
-	return TRUE;
-    }
-    if ( cacheNext() ) {
-	setAt( 0 );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-bool QTDSResult::fetchNext()
-{
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::fetchNext()" );
-#endif
-    if ( !isForwardOnly() && set->seek( at() + 1 ) ) {
-	setAt( at() + 1 );
-	return TRUE;
-    }
-    if ( cacheNext() ) {
-	setAt( at() + 1 );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-
-bool QTDSResult::fetchLast()
-{
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::fetchLast()" );
-#endif
-    if ( !isForwardOnly() && at() == QSql::AfterLast && set->size() > 0 ) {
-	setAt( set->size() - 1 );
-	return TRUE;
-    }
-    if ( at() >= QSql::BeforeFirst ) {
-	while ( fetchNext() )
-	    ; /* brute force */
-	if ( isForwardOnly() && at() == QSql::AfterLast ) {
-	    setAt( at() - 1 );
-	    return TRUE;
-	} else
-	    return fetch( set->size() - 1 );
-    }
-    return FALSE;
-}
-
-QVariant QTDSResult::data( int i )
-{
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::data(%i)", i );
-#endif
-    return set->buffer()->data( i );
-}
-
-bool QTDSResult::cacheNext()
-{
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::cacheNext: filling set at %i", at() );
-#endif
     STATUS stat = dbnextrow( d->dbproc );
     if ( stat == NO_MORE_ROWS ) {
 	setAt( QSql::AfterLast );
-#ifdef DEBUG_TDS
-	qDebug( "QTDSResult::cacheNext: got NO_MORE_ROWS at %i", at() );
-#endif
 	return FALSE;
     }
     if ( ( stat == FAIL ) || ( stat == BUF_FULL ) ) {
-#ifdef DEBUG_TDS
-	qDebug( "QTDSResult::cacheNext: FAIL or BUF_FULL" );
-#endif
 	setLastError( d->lastError );
 	return FALSE;
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::cacheNext: appending row" );
-    QString data;
-    for ( int i = 0; i < buf->count(); ++i ) {
-	data += " \"" + buf->data( i ).toString() + "\"";
-    }
-    qDebug( "QTDSResult::cacheNext:" + data );
-#endif
-    set->append( *buf );
-    set->seek( set->size() - 1 );
 
     return TRUE;
-}
-
-bool QTDSResult::isNull( int field )
-{
-#ifdef DEBUG_TDS
-    qDebug( QString( "QTDSResult::isNull for field %1: %2" ).arg( field ).arg( set->buffer()->isNull( field ) ) );
-#endif
-    return set->buffer()->isNull( field );
 }
 
 bool QTDSResult::reset ( const QString& query )
@@ -576,8 +452,8 @@ QTDSDriver::QTDSDriver( QObject * parent, const char * name )
     : QSqlDriver(parent,name ? name : "QTDS"), inTransaction( FALSE )
 {
     init();
-    dberrhandle( (QERRHANDLE)qTdsErrHandler );
-    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
+//    dberrhandle( (QERRHANDLE)qTdsErrHandler );
+//    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
 }
 
 void QTDSDriver::init()
