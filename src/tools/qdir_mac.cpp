@@ -190,8 +190,8 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 
     OSErr ret;
     FSSpec matches[5000];
-    CInfoPBRec crit1;
-    CInfoPBRec crit2;
+    CInfoPBRec myspec1;
+    CInfoPBRec myspec2;
     short myvrefnum;
     long mydirid;
 
@@ -213,18 +213,18 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     
     HParamBlockRec params;
 
-    params.ioCompletion=0;
-    params.ioNamePtr=0;
-    params.ioVRefNum=myvrefnum;
-    params.ioMatchPtr=(FSSpecArrayPtr)matches;
-    params.ioReqMatchCount=5000;
-    params.ioSearchBits=fsSBDrParID;
-    params.ioSearchInfo1=&myspec1;
-    params.ioSearchInfo2=&myspec2;
-    params.ioSearchTime=0;
-    params.ioCatPosition.initialize=0;
-    params.ioOptBuffer=&mybuffer;
-    params.ioOptBufSize=4000;
+    params.csParam.ioCompletion=0;
+    params.csParam.ioNamePtr=0;
+    params.csParam.ioVRefNum=myvrefnum;
+    params.csParam.ioMatchPtr=(FSSpecArrayPtr)matches;
+    params.csParam.ioReqMatchCount=5000;
+    params.csParam.ioSearchBits=fsSBDrParID;
+    params.csParam.ioSearchInfo1=&myspec1;
+    params.csParam.ioSearchInfo2=&myspec2;
+    params.csParam.ioSearchTime=0;
+    params.csParam.ioCatPosition.initialize=0;
+    params.csParam.ioOptBuffer=&mybuffer;
+    params.csParam.ioOptBufSize=4000;
 
     myspec1.ioNamePtr=myfind;
     myspec1.ioFlAttrib=0;
