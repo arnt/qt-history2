@@ -695,6 +695,8 @@ bool QSqlDatabase::open( const QString& user, const QString& password )
 
 /*!
     Closes the database connection, freeing any resources acquired.
+
+    \sa removeDatabase()
 */
 
 void QSqlDatabase::close()
