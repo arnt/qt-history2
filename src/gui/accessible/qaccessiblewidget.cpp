@@ -222,51 +222,13 @@ class ConnectionObject : public QObject
 {
     Q_DECLARE_PRIVATE(QObject)
 public:
-    bool isSender(const QObject *receiver, const char *signal) const;
-    QList<QObject*> receiverList(const char *signal) const;
-    QList<QObject*> senders() const;
+    inline bool isSender(const QObject *receiver, const char *signal) const
+    { return d_func()->isSender(receiver, signal); }
+    inline QObjectList receiverList(const char *signal) const
+    { return d_func()->receiverList(signal); }
+    inline QObjectList senderList() const
+    { return d_func()->senderList(); }
 };
-
-bool ConnectionObject::isSender(const QObject *receiver, const char *signal) const
-{
-    int sigindex = metaObject()->indexOfSignal(signal);
-    if (sigindex < 0)
-        return false;
-    int i = 0;
-    QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
-    if (connections) do {
-        if (connections->receiver == receiver)
-            return true;
-        connections = d_func()->findConnection(sigindex, i);
-    } while (connections);
-    return false;
-}
-
-QList<QObject*> ConnectionObject::receiverList(const char *signal) const
-{
-    QList<QObject*> receivers;
-
-    int sigindex = metaObject()->indexOfSignal(signal);
-    if (sigindex < 0)
-        return receivers;
-    int i = 0;
-    QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
-    if (connections) do {
-        receivers << connections->receiver;
-        connections = d_func()->findConnection(sigindex, i);
-    } while (connections);
-    return receivers;
-}
-
-QList<QObject*> ConnectionObject::senders() const
-{
-    QList<QObject*> senders;
-    if (!d_func()->senders)
-        return senders;
-    for (int i = 0; i < d_func()->senders->count; ++i)
-        senders << d_func()->senders->senders[i].sender;
-    return senders;
-}
 
 /*!
     Registers \a signal as a controlling signal.
@@ -703,8 +665,8 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
             // check all senders we are connected to,
             // and figure out which one are controllers to us
             ConnectionObject *connectionObject = (ConnectionObject*)object();
-            QList<QObject*> allSenders = connectionObject->senders();
-            QList<QObject*> senders;
+            QObjectList allSenders = connectionObject->senderList();
+            QObjectList senders;
             for (int s = 0; s < allSenders.size(); ++s) {
                 QObject *sender = allSenders.at(s);
                 QAccessibleInterface *candidate = QAccessible::queryAccessibleInterface(sender);
@@ -720,10 +682,10 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
         break;
     case Controlled:
         if (entry > 0) {
-            QList<QObject*> allReceivers;
+            QObjectList allReceivers;
             ConnectionObject *connectionObject = (ConnectionObject*)object();
             for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
-                QList<QObject*> receivers = connectionObject->receiverList(d->primarySignals.at(sig).ascii());
+                QObjectList receivers = connectionObject->receiverList(d->primarySignals.at(sig).ascii());
                 allReceivers += receivers;
             }
             if (entry <= allReceivers.size())

@@ -31,7 +31,6 @@
 #include "qpointer.h"
 #include "qcoreevent.h"
 #include "qlist.h"
-#include "qmutex.h"
 
 
 inline QObjectData::~QObjectData() {}
@@ -49,57 +48,12 @@ public:
     // pointer to the thread that owns the object
     QThread *thread;
 
-    // signal connections
-    struct Connections {
-        QMutex mutex;
-        uint active : 1;
-        uint dirty : 1;
-        uint orphaned : 1;
-        int count;
-        struct Connection {
-            int signal;
-            union {
-                QObject *receiver;
-                QObject **guarded;
-            };
-            int member;
-            int type; // 0 == auto, 1 == direct, 2 == queued
-            int *types;
-        };
-        Connection *connections;
-        Connection stack[1];
-    };
-    Connections *connections;
-    static int *queuedConnectionTypes(const char *signal);
-    void addConnection(int signal, QObject *receiver, int member, int type = 0, int *types = 0);
-    Connections::Connection *findConnection(int signal, int &i) const;
-    void removeReceiver(QObject *receiver);
+    // object currently activating the object
+    QObject *currentSender;
 
-    static void setActive(Connections *connections, bool *was_active);
-    static void resetActive(Connections *connections, bool was_active);
-
-    // slot connections
-    struct Senders
-    {
-        QMutex mutex;
-        uint active : 1;
-        uint orphaned : 1;
-        QObject *current;
-        int count;
-        struct Sender {
-            int ref;
-            QObject * sender;
-        };
-        Sender *senders;
-        Sender stack[1];
-    };
-    Senders *senders;
-    void refSender(QObject *sender);
-    void derefSender(QObject *sender);
-    void removeSender(QObject *sender);
-
-    static QObject *setCurrentSender(Senders *senders, QObject *sender, bool *was_active);
-    static void resetCurrentSender(Senders *senders, QObject *sender, bool was_active);
+    bool isSender(const QObject *receiver, const char *signal) const;
+    QObjectList receiverList(const char *signal) const;
+    QObjectList senderList() const;
 
     QList<QPointer<QObject> > eventFilters;
 
