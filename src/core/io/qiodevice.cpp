@@ -788,11 +788,11 @@ QIODevice::getch()
 {
     if (!isOpen()) {                                // file not open
         qWarning("QIODevice::getch: File not open");
-        return EOF;
+        return -1;
     }
     if (!isReadable()) {                        // reading not permitted
         qWarning("QIODevice::getch: Read operation not permitted");
-        return EOF;
+        return -1;
     }
     uchar ch;
     Q_LLONG got = read((char*)&ch, 1);
@@ -815,11 +815,11 @@ QIODevice::putch(int character)
 {
     if (!isOpen()) {                                // file not open
         qWarning("QIODevice::putch: File not open");
-        return EOF;
+        return -1;
     }
     if (!isWritable()) {                        // write not permitted
         qWarning("QIODevice::putch: Write operation not permitted");
-        return EOF;
+        return -1;
     }
     uchar ch = (char)character;
     Q_LLONG got = write((char*)&ch, 1);
