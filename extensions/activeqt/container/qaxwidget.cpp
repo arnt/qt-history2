@@ -1383,22 +1383,10 @@ QAxWidget::~QAxWidget()
 */
 bool QAxWidget::initialize( IUnknown **ptr )
 {
-    if ( *ptr || control().isEmpty() )
+    if (!QAxBase::initialize(ptr))
 	return FALSE;
 
-    *ptr = 0;
-    HRESULT hres = S_FALSE;
-
-    if (control().contains("/{")) {
-	hres = initializeRemote(ptr);
-	if ( !SUCCEEDED(hres) )
-	    return FALSE;
-    } else {
-	hres = CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
-	if ( !SUCCEEDED(hres) )
-	    return FALSE;
-    }
-
+    HRESULT hres = S_OK; // assume that control is not initialized
     return createHostWindow( hres == S_FALSE );
 }
 

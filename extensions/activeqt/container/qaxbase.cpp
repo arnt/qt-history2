@@ -802,10 +802,24 @@ QAxBase::~QAxBase()
     ctrl->setControl( "Calendar Control 9.0" );
     \endcode
 
-    To initialize the control on a different machine use the following
-    syntax for \a c:
+    If the component's UUID is used the following patterns can be used
+    to initialize the control on a remote machine, or to initialize a
+    licensed control:
+    \list
+    \i To initialize the control on a different machine use the following
+    pattern:
     \code
-    <username>:<password>@server/{8E27C92B-1264-101C-8A2F-040224009C02}
+    <domain/username>:<password>@server/{8E27C92B-1264-101C-8A2F-040224009C02}
+    \endcode
+    \i To initialize a licensed control use the following pattern:
+    \code
+    {8E27C92B-1264-101C-8A2F-040224009C02}:<LicenseKey>
+    \endcode
+    \endlist
+    Both patterns can be combined, e.g. to initialize a licensed control
+    on a remote machine:
+    \code
+    ctrl->setControl("DOMAIN/user:password@server/{8E27C92B-1264-101C-8A2F-040224009C02}:LicenseKey");
     \endcode
 
     The control's read function always returns the control's UUID.
@@ -949,40 +963,104 @@ void QAxBase::clear()
 }
 
 /*!
-    \fn bool QAxBase::initialize( IUnknown **ptr )
+    This virtual function is called by setControl() and creates the
+    requested COM object. \a ptr is set to the object's IUnknown 
+    implementation. The function returns TRUE if the object 
+    initialization succeeded; otherwise the function returns FALSE.
 
-    This virtual function is called by setControl(). Reimplement this
-    function to return the COM object's IUnknown pointer in \a ptr,
-    and return TRUE if the object initialization succeeded; otherwise
-    return FALSE.
+    The default implementation interprets the string returned by
+    control(), and calls initializeRemote() or initializeLicensed()
+    if the string matches the respective patterns. If no pattern is 
+    matched, or if remote or licensed initialization fails,
+    CoCreateInstance is used directly to create the object.
 
-    The interface returned in \a ptr should be referenced exactly once
+    See the \l control property documentation for details about
+    supported patterns.
+
+    The interface returned in \a ptr must be referenced exactly once
     when this function returns. The interface provided by e.g.
     CoCreateInstance is already referenced, and there is no need to
     reference it again.
 */
+bool QAxBase::initialize( IUnknown **ptr )
+{
+    if ( *ptr || control().isEmpty() )
+	return FALSE;
+
+    *ptr = 0;
+
+    bool res = FALSE;
+
+    QString ctrl(control());
+    if (ctrl.contains("/{")) // DCOM request
+	res = initializeRemote(ptr);
+    else if (ctrl.contains("}:")) // licensed control
+	res = initializeLicensed(ptr);
+
+    if (!res) // standard
+	res = S_OK == CoCreateInstance( QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+
+    return *ptr != 0;
+}
 
 /*!
-    \internal
-
-    Creates the instance on a remote server, and returns the IUnknown interface
-    to the object in \a ptr.
-
-    The syntax expected in the control property is:
-
-    <username>:<password>@server/{12345678-1234-1234-1234-123412345678}
-    <username> can be domain/user, or only user
+    Creates an instance of a licensed control, and returns the IUnknown interface
+    to the object in \a ptr. This functions returns TRUE if successful, otherwise
+    returns FALSE.
 */
-int QAxBase::initializeRemote(IUnknown** ptr)
+bool QAxBase::initializeLicensed(IUnknown** ptr)
 {
-    int at = control().findRev('/');
+    int at = control().findRev("}:");
 
-    QString server = control().left(at);
-    QString clsid = control().mid(at+1);
+    QString clsid(control().left(at));
+    QString key(control().mid(at+2));
+
+    IClassFactory *factory = 0;
+    CoGetClassObject(QUuid(clsid), CLSCTX_SERVER, 0, IID_IClassFactory, (void**)&factory);
+    if (!factory)
+	return FALSE;
+    initializeLicensedHelper(factory, key, ptr);
+    factory->Release();
+
+    return *ptr != 0;
+}
+
+/* \internal
+    Called by initializeLicensed and initializedRemote to create an object
+    via IClassFactory2.
+*/
+bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **ptr)
+{
+    IClassFactory *factory = (IClassFactory*)f;
+    IClassFactory2 *factory2 = 0;
+    factory->QueryInterface(IID_IClassFactory2, (void**)&factory2);
+    if (factory2) {
+	BSTR bkey = QStringToBSTR(key);
+	factory2->CreateInstanceLic(0, 0, IID_IUnknown, bkey, (void**)ptr);
+	SysFreeString(bkey);
+        factory2->Release();
+    } else {  // give it a shot without license
+	factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
+    }
+    return *ptr != 0;
+}
+
+/*!
+    Creates the instance on a remote server, and returns the IUnknown interface
+    to the object in \a ptr. This function returns TRUE if successful, otherwise
+    returns FALSE.
+*/
+bool QAxBase::initializeRemote(IUnknown** ptr)
+{
+    int at = control().findRev("/{");
+
+    QString server(control().left(at));
+    QString clsid(control().mid(at+1));
 
     QString user;
     QString domain;
     QString passwd;
+    QString key;
 
     at = server.find('@');
     if (at != -1) {
@@ -1000,6 +1078,13 @@ int QAxBase::initializeRemote(IUnknown** ptr)
 	    user = user.mid(at+1);
 	}
     }
+
+    at = clsid.findRev("}:");
+    if (at != -1) {
+	key = clsid.mid(at+2);
+	clsid = clsid.left(at);
+    }
+
     COAUTHIDENTITY authIdentity;
     authIdentity.User = (ushort*)user.ucs2();
     authIdentity.UserLength = user.length();
@@ -1027,16 +1112,18 @@ int QAxBase::initializeRemote(IUnknown** ptr)
     IClassFactory *factory = 0;
     HRESULT res = CoGetClassObject(QUuid(clsid), CLSCTX_REMOTE_SERVER, &serverInfo, IID_IClassFactory, (void**)&factory);
     if (factory) {
-	factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
+	if (!key.isEmpty())
+	    initializeLicensedHelper(factory, key, ptr);
+	else
+	    factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
 	factory->Release();
     }
 #ifndef QT_NO_DEBUG
-      else {
+    if (res != S_OK)
 	qSystemWarning("initializeRemote Failed", res);
-    }
 #endif
 
-    return res;
+    return res == S_OK;
 }
 
 /*!
@@ -3051,7 +3138,9 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		QVariantToVARIANT( *_v, arg, prop->type() );
 
 		if ( arg.vt == VT_EMPTY ) {
+#ifndef QT_NO_DEBUG
 		    qDebug( "QAxBase::setProperty(): Unhandled property type" );
+#endif
 		    return FALSE;
 		}
 		DISPPARAMS params;

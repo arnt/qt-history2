@@ -102,27 +102,6 @@ const char *QAxObject::className() const
 /*!
     \reimp
 */
-bool QAxObject::initialize( IUnknown **ptr )
-{
-    if ( *ptr || control().isEmpty() )
-	return FALSE;
-
-    *ptr = 0;
-
-    if (control().contains("/{")) {
-	HRESULT hres = initializeRemote(ptr);
-	if ( !SUCCEEDED(hres) )
-	    return FALSE;
-    } else {
-	CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
-    }
-
-    return ptr != 0;
-}
-
-/*!
-    \reimp
-*/
 QMetaObject *QAxObject::metaObject() const
 {
     return QAxBase::metaObject();

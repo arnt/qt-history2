@@ -38,7 +38,6 @@ public:
     ~QAxObject();
 
 private:
-    bool initialize( IUnknown** );
     QMetaObject *parentMetaObject() const;
 };
 

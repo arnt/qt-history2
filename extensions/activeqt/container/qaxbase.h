@@ -96,10 +96,12 @@ public:
     void disableEventSink();
 
 protected:
-    virtual bool initialize( IUnknown** ptr ) = 0;
-    int initializeRemote(IUnknown** ptr);
+    virtual bool initialize( IUnknown** ptr );
+    bool initializeRemote(IUnknown** ptr);
+    bool initializeLicensed(IUnknown** ptr);
 
 private:
+    bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
 
     static QMetaObject *staticMetaObject() { return 0; }
