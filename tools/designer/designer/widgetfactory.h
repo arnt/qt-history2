@@ -41,7 +41,7 @@
 #include <qbuttongroup.h>
 
 #include "metadatabase.h"
-#include "../resource/qwidgetfactory.h"
+#include "../uilib/qwidgetfactory.h"
 
 class QWidget;
 class QLayout;

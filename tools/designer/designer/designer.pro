@@ -102,7 +102,7 @@ SOURCES	= command.cpp \
 		  wizardeditorimpl.cpp
 
 TARGET	= designer
-INCLUDEPATH	+= ../shared ../util ../resource ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../util ../uilib ../../../src/3rdparty/zlib/
 unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqui
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qui.lib
 DEFINES	+= DESIGNER
