@@ -791,6 +791,10 @@ then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
 	PLATFORM=macx-g++
+	#PLATFORM=macx-pbuilder
+	PLATFORM_NOTES="
+	    - Also available for Mac OS X: macx-pbuilder
+	"
 	;;
      AIX*)
 	#PLATFORM=aix-g++
