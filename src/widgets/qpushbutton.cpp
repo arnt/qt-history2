@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#209 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#210 $
 **
 ** Implementation of QPushButton class
 **
@@ -341,8 +341,7 @@ QSize QPushButton::sizeHint() const
 {
     constPolish();
 
-    int h = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) * 2,
-	w = h;
+    int w = 0, h = 0;
 
     // calculate contents size...
     if ( pixmap() ) {

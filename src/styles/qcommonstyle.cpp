@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#37 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#38 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -599,6 +599,10 @@ void QCommonStyle::drawControl( ControlElement element,
 	    flags |= PStyle_Sunken;
 
 	drawPrimitive(PO_ButtonCommand, p, r, cg, flags);
+
+	if (button->hasFocus())
+	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
+			  cg, flags);
 	break; }
 
     case CE_PushButtonLabel: {
@@ -657,7 +661,40 @@ void QCommonStyle::drawControl( ControlElement element,
 */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 {
-    return widget->rect();
+    QRect rect, wrect(widget->rect());
+
+    switch (r) {
+    case SR_PushButtonContents: {
+	QPushButton *button = (QPushButton *) widget;
+	int dx1, dx2;
+
+	dx1 = (pixelMetric(PM_ButtonMargin, widget) / 2) +
+	      pixelMetric(PM_DefaultFrameWidth, widget);
+       	if (button->isDefault() || button->autoDefault())
+	    dx1 += pixelMetric(PM_ButtonDefaultIndicator, widget);
+	dx2 = dx1 * 2;
+
+	rect.setRect(wrect.left()   + dx1,
+		     wrect.top()    + dx1,
+		     wrect.right()  - dx2,
+		     wrect.bottom() - dx2);
+	break; }
+
+    case SR_PushButtonFocusRect: {
+	int dfw1 = pixelMetric(PM_DefaultFrameWidth, widget) * 2,
+	    dfw2 = dfw1 * 2;
+	rect.setRect(wrect.left()   + dfw1,
+		     wrect.top()    + dfw1,
+		     wrect.right()  - dfw2,
+		     wrect.bottom() - dfw2);
+	break; }
+
+    default:
+	rect = QCommonStyle::subRect(r, widget);
+	break;
+    }
+
+    return rect;
 }
 
 
@@ -805,10 +842,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	int w = contentsSize.width(),
 	    h = contentsSize.height(),
 	   bm = pixelMetric(PM_ButtonMargin, widget),
-	   fw = pixelMetric(PM_DefaultFrameWidth, widget);
+	   fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
 
-	w += bm;
-	h += bm;
+	w += bm + fw;
+	h += bm + fw;
 
 	if (button->isDefault() || button->autoDefault()) {
 	    int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#18 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#19 $
 **
 ** Definition of Windows-like style class
 **
@@ -100,8 +100,6 @@ public:
 		      const QColorGroup &cg,
 		      CFlags how = CStyle_Default,
 		      void *data = 0 ) const;
-
-    QRect subRect( SubRect r, const QWidget *widget ) const;
 
     int pixelMetric( PixelMetric metic, const QWidget *widget = 0 ) const;
 

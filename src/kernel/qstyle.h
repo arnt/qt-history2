@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#90 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#91 $
 **
 ** Definition of QStyle class
 **
@@ -106,10 +106,7 @@ public:
 	PO_ArrowUp,
 	PO_ArrowDown,
 	PO_ArrowRight,
-	PO_ArrowLeft,
-
-	PO_SpinSymbolUp,
-	PO_SpinSymbolDown
+	PO_ArrowLeft
 
 	/*
 	  PO_Panel,
@@ -183,7 +180,9 @@ public:
 			      void *data = 0 ) const = 0;
 
     enum SubRect {
-	SR_PushButtonContents
+	SR_PushButtonContents,
+	SR_PushButtonFocusRect
+
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
