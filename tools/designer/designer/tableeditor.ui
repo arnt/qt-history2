@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>562</width>
-            <height>369</height>
+            <width>558</width>
+            <height>371</height>
         </rect>
     </property>
     <property name="caption">
@@ -763,12 +763,17 @@
     <tabstop>table</tabstop>
     <tabstop>TabWidget</tabstop>
     <tabstop>listColumns</tabstop>
-    <tabstop>editColumnText</tabstop>
     <tabstop>buttonNewColumn</tabstop>
     <tabstop>buttonDeleteColumn</tabstop>
     <tabstop>buttonColumnUp</tabstop>
     <tabstop>buttonColumnDown</tabstop>
+    <tabstop>editColumnText</tabstop>
     <tabstop>comboFields</tabstop>
+    <tabstop>buttonDeleteColPixmap</tabstop>
+    <tabstop>buttonChooseColPixmap</tabstop>
+    <tabstop>editRowText</tabstop>
+    <tabstop>buttonDeleteRowPixmap</tabstop>
+    <tabstop>buttonChooseRowPixmap</tabstop>
     <tabstop>listRows</tabstop>
     <tabstop>buttonNewRow</tabstop>
     <tabstop>buttonDeleteRow</tabstop>
