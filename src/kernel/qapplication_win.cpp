@@ -62,7 +62,9 @@
 // Wacom isn't being nice by not providing updated headers for this. so
 // define it here so we can do things correctly according to their
 // software implementation guide, and make it somewhat standard.
-#define CSR_TYPE ( ( UINT ) 20 )
+#if !defined(CSR_TYPE)
+#define CSR_TYPE ( (UINT) 20 )
+#endif
 
 #include <wintab.h>
 #include <pktdef.h>
