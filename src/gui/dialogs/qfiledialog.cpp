@@ -1280,7 +1280,6 @@ void QFileDialogPrivate::setup(const QString &directory,
     QWidget::setTabOrder(cancelButton, lookIn);
 
     // last init
-    q->resize(550, 320);
     fileName->setFocus();
 }
 
@@ -1431,7 +1430,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
     box->addWidget(detailMode);
 
-    grid->addLayout(box, 0, 4);
+    grid->addLayout(box, 0, 4, 1, 2);
 }
 
 void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
@@ -1469,14 +1468,14 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(QString)),
                      q, SLOT(fileNameChanged(QString)));
-    grid->addWidget(fileName, 2, 2, 1, 3);
+    grid->addWidget(fileName, 2, 1, 1, 3);
 
     // filetype
     fileType = new QComboBox(q);
     fileType->setDuplicatesEnabled(false);
     QObject::connect(fileType, SIGNAL(activated(QString)),
                      q, SLOT(useFilter(QString)));
-    grid->addWidget(fileType, 3, 2, 1, 3);
+    grid->addWidget(fileType, 3, 1, 1, 3);
 }
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
