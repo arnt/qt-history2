@@ -33,9 +33,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
-#if !defined(Q_OS_HPUX)
-#include <X11/Xmu/StdCmap.h>
-#endif
 
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
@@ -106,6 +103,12 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
     if (it != hash->constEnd())
         return it.value()->cmap; // found colormap for visual
 
+    if (vi->visualid ==
+        XVisualIDFromVisual((Visual *) QX11Info::appVisual(vi->screen))) {
+        // qDebug("Using x11AppColormap");
+        return QX11Info::appColormap(vi->screen);
+    }
+
     CMapEntry *x = new CMapEntry();
 
     XStandardColormap *c;
@@ -113,17 +116,11 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
 
     // qDebug("Choosing cmap for vID %0x", vi->visualid);
 
-    if (vi->visualid ==
-         XVisualIDFromVisual((Visual *) QX11Info::appVisual(vi->screen))) {
-        // qDebug("Using x11AppColormap");
-        return QX11Info::appColormap(vi->screen);
-    }
-
     if (mesa_gl) {                                // we're using MesaGL
         Atom hp_cmaps = XInternAtom(dpy, "_HP_RGB_SMOOTH_MAP_LIST", true);
         if (hp_cmaps && vi->visual->c_class == TrueColor && vi->depth == 8) {
             if (XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
-                                  hp_cmaps)) {
+                                 hp_cmaps)) {
                 i = 0;
                 while (i < n && x->cmap == 0) {
                     if (c[i].visualid == vi->visual->visualid) {
@@ -138,42 +135,29 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
             }
         }
     }
-#if !defined(Q_OS_SOLARIS)
-    // HP-UX is by default bundled with only the shared version of the
-    // R4 libXmu library, and it doesn't bundle Xmu.h. Installing
-    // official patches provides the R6 version with the .h file. To
-    // avoid compile errors, we resolve the Xmu library in run-time
-    // and fall back to creating our own color map if it fails.
-#if defined(Q_OS_HPUX)
-    typedef Status (*_XmuLookupStandardColormap)(Display *dpy, int screen, VisualID visualid, unsigned int depth,
-                                                 Atom property, Bool replace, Bool retain);
-    _XmuLookupStandardColormap qt_XmuLookupStandardColormap;
-    qt_XmuLookupStandardColormap = _XmuLookupStandardColormap(QLibrary::resolve("Xmu", "XmuLookupStandardColormap"));
-#define XmuLookupStandardColormap qt_XmuLookupStandardColormap
-    if (qt_XmuLookupStandardColormap)
-#endif
     if (!x->cmap) {
-        if (XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
-                                       XA_RGB_DEFAULT_MAP,false,true)) {
-            if (XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
-                                  XA_RGB_DEFAULT_MAP)) {
-                i = 0;
-                while (i < n && x->cmap == 0) {
-                    if (c[i].visualid == vi->visualid) {
-                        x->cmap = c[i].colormap;
-                        x->scmap = c[i];
-                        //qDebug("Using RGB_DEFAULT scmap");
-                    }
-                    i++;
+        if (XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
+                             XA_RGB_DEFAULT_MAP)) {
+            for (int i = 0; i < n && x->cmap == 0; ++i) {
+                if (!c[i].red_max ||
+                    !c[i].green_max ||
+                    !c[i].blue_max ||
+                    !c[i].red_mult ||
+                    !c[i].green_mult ||
+                    !c[i].blue_mult)
+                    continue; // invalid stdcmap
+                if (c[i].visualid == vi->visualid) {
+                    x->cmap = c[i].colormap;
+                    x->scmap = c[i];
+                    //qDebug("Using RGB_DEFAULT scmap");
                 }
-                XFree((char *)c);
             }
+            XFree((char *)c);
         }
     }
-#endif
     if (!x->cmap) {                                // no shared cmap found
         x->cmap = XCreateColormap(dpy, RootWindow(dpy,vi->screen), vi->visual,
-                                   AllocNone);
+                                  AllocNone);
         x->alloc = true;
         // qDebug("Allocating cmap");
     }
