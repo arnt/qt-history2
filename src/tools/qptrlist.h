@@ -113,14 +113,17 @@ public:
     void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
 
 
-    // stl compatibility
-    typedef QPtrListStdIterator<type> iterator;
-    typedef QPtrListStdIterator<type> const_iterator;
-    inline iterator begin() { return QGList::begin(); }
-    inline const_iterator begin() const { return QGList::begin(); }
-    inline iterator end() { return QGList::end(); }
-    inline const_iterator end() const { return QGList::end(); }
-    inline iterator erase( iterator it ) { return QGList::erase( it ); }
+    // standard iterators
+    typedef QPtrListStdIterator<type> Iterator;
+    typedef QPtrListStdIterator<type> ConstIterator;
+    inline Iterator begin() { return QGList::begin(); }
+    inline ConstIterator begin() const { return QGList::begin(); }
+    inline Iterator end() { return QGList::end(); }
+    inline ConstIterator end() const { return QGList::end(); }
+    inline Iterator erase( Iterator it ) { return QGList::erase( it ); }
+    // stl syntax compatibility
+    typedef Iterator iterator;
+    typedef ConstIterator const_iterator;
 
 
 #ifdef Q_QDOC
