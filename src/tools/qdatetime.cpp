@@ -541,6 +541,7 @@ QString QDate::toString( Qt::DateFormat f ) const
     switch ( f ) {
     case Qt::LocalDate:
 	{
+#ifndef Q_WS_WIN
 	    tm tt;
 	    memset( &tt, 0, sizeof( tm ) );
 	    char buf[255];
@@ -551,6 +552,24 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    static const char * egcsWorkaround = "%x";
 	    if ( strftime( buf, sizeof(buf), egcsWorkaround, &tt ) )
 		return QString::fromLocal8Bit( buf );
+#else
+	    SYSTEMTIME st;
+	    st.wYear = year();
+	    st.wMonth = month();
+	    st.wDay = day();
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based ) {
+		TCHAR buf[255];
+		if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, 0, (TCHAR*)&buf, 255 ) )
+		    return qt_winQString( &buf );
+	    } else
+#endif
+	    {
+		char buf[255];
+		if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255 ) )
+		    return QString::fromLocal8Bit( buf );
+	    }
+#endif
 	    return QString::null;
 	}
 #ifdef QT_NO_TEXTDATE
@@ -1101,6 +1120,7 @@ QString QTime::toString( Qt::DateFormat f ) const
     switch ( f ) {
     case Qt::LocalDate:
 	{
+#ifndef Q_WS_WIN
 	    tm tt;
 	    memset( &tt, 0, sizeof( tm ) );
 	    char buf[255];
@@ -1109,6 +1129,24 @@ QString QTime::toString( Qt::DateFormat f ) const
 	    tt.tm_hour = hour();
 	    if ( strftime( buf, sizeof(buf), "%X", &tt ) )
 		return QString::fromLocal8Bit( buf );
+#else
+	    SYSTEMTIME st;
+	    st.wHour = hour();
+	    st.wMinute = minute();
+	    st.wSecond = second();
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based ) {
+		TCHAR buf[255];
+		if ( GetTimeFormat( LOCALE_USER_DEFAULT, 0, &st, 0, (TCHAR*)&buf, 255 ) )
+		    return qt_winQString( &buf );
+	    } else
+#endif
+	    {
+		char buf[255];
+		if ( GetTimeFormatA( LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255 ) )
+		    return QString::fromLocal8Bit( buf );
+	    }
+#endif
 	    return QString::null;
 	}
     default:
