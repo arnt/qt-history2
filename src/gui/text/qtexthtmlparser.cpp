@@ -1039,7 +1039,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     }
 
     if (fontPointSize != oldFontPointSize)
-        hasFontPointSize = false;
+        hasFontPointSize = true;
 }
 
 static bool setIntAttribute(int *destination, const QString &value)
