@@ -730,7 +730,8 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	break;
     }
 
-    QSqlQuery query( stmt.arg( tablename ) );
+    QSqlQuery query = createQuery();
+    query.exec( stmt.arg( tablename ) );
     if ( pro == QPSQLDriver::Version71 ) {
 	while ( query.next() ) {
 	    int len = query.value( 3 ).toInt();
@@ -757,7 +758,8 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	    QString defVal;
 	    QString stmt2 = ( "select pg_attrdef.adsrc from pg_attrdef where "
 				"pg_attrdef.adrelid = %1 and pg_attrdef.adnum = %2 " );
-	    QSqlQuery query2( stmt2.arg( query.value( 5 ).toInt() ).arg( query.value( 6 ).toInt() ) );
+	    QSqlQuery query2 = createQuery();
+	    query2.exec( stmt2.arg( query.value( 5 ).toInt() ).arg( query.value( 6 ).toInt() ) );
 	    if ( query2.isActive() && query2.next() )
 		defVal = query2.value( 0 ).toString();
 	    if ( !defVal.isEmpty() && defVal.startsWith( "'" ) )
