@@ -42,15 +42,15 @@ class QFtpListener : public QServerSocket
 {
     Q_OBJECT
 public:
-    QFtpListener(QObject *parent);
+    QFtpListener(const QHostAddress &address, QObject *parent);
     void newConnection(int);
 
 signals:
     void newConnectionReady(int);
 };
 
-QFtpListener::QFtpListener(QObject *parent)
-    : QServerSocket(0, 1, parent)
+QFtpListener::QFtpListener(const QHostAddress &address, QObject *parent)
+    : QServerSocket(address, 0, 1, parent)
 {
 }
 
@@ -88,7 +88,7 @@ public:
     void clearError();
 
     void connectToHost(const QString & host, Q_UINT16 port);
-    int setupListener();
+    int setupListener(const QHostAddress &address);
 
     QSocket::State socketState() const;
     Q_ULONG bytesAvailable() const;
@@ -161,6 +161,7 @@ public:
         { return currentCmd; }
 
     bool rawCommand;
+    bool transferConnectionExtended;
 
     QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
                  // makes the design simpler this way
@@ -311,10 +312,10 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
     socket->connectToHost(host, port);
 }
 
-int QFtpDTP::setupListener()
+int QFtpDTP::setupListener(const QHostAddress &address)
 {
     if (!listener) {
-        listener = new QFtpListener(this);
+        listener = new QFtpListener(address, this);
         listener->setObjectName("QFtpDTP Active state server socket");
         if (!listener->ok()) {
             delete listener;
@@ -711,6 +712,7 @@ void QFtpDTP::clearData()
 QFtpPI::QFtpPI(QObject *parent) :
     QObject(parent),
     rawCommand(false),
+    transferConnectionExtended(true),
     dtp(this),
     commandSocket(0),
     state(Begin), abortState(None),
@@ -970,6 +972,24 @@ bool QFtpPI::processReply()
             waitForDtpToConnect = true;
             dtp.connectToHost(host, port);
         }
+    } else if (replyCodeInt == 229) {
+        // 229 Extended Passive mode OK (|||10982|)
+        int portPos = replyText.indexOf('(');
+        if (portPos == -1) {
+#if defined(QFTPPI_DEBUG)
+            qDebug("QFtp: bad 229 response -- port information missing");
+#endif
+            // this error should be reported
+        } else {
+            ++portPos;
+            QChar delimiter = replyText.at(portPos);
+            QStringList epsvParameters = replyText.mid(portPos).split(delimiter);
+
+            waitForDtpToConnect = true;
+            dtp.connectToHost(commandSocket.peerAddress().toString(),
+                              epsvParameters.at(3).toInt());
+        }
+
     } else if (replyCodeInt == 230) {
         if (currentCmd.startsWith("USER ") && pendingCommands.count()>0 &&
                 pendingCommands.first().startsWith("PASS ")) {
@@ -1006,7 +1026,17 @@ bool QFtpPI::processReply()
             // do nothing
             break;
         case Failure:
-            emit error(QFtp::UnknownError, replyText);
+            // If the EPSV or EPRT commands fail, replace them with
+            // the old PASV and PORT instead and try again.
+            if (currentCmd.startsWith("EPSV")) {
+                transferConnectionExtended = false;
+                pendingCommands.prepend("PASV\r\n");
+            } else if (currentCmd.startsWith("EPRT")) {
+                transferConnectionExtended = false;
+                pendingCommands.prepend("PORT\r\n");
+            } else {
+                emit error(QFtp::UnknownError, replyText);
+            }
             state = Idle;
             startNextCmd();
             break;
@@ -1043,21 +1073,37 @@ bool QFtpPI::startNextCmd()
     // command has its separate listener, we need to edit this command
     // in place.
     if (currentCmd.startsWith("PORT")) {
-        currentCmd = "PORT ";
+        QHostAddress address = commandSocket.address();
 
-        int port = dtp.setupListener();
-        Q_UINT32 ip = commandSocket.address().toIPv4Address();
+        if (transferConnectionExtended) {
+            int port = dtp.setupListener(address);
+            currentCmd = "EPRT |";
+            currentCmd += address.isIPv4Address() ? "1" : "2";
+            currentCmd += "|" + address.toString() + "|" + QString::number(port);
+            currentCmd += "|";
+        } else if (address.isIPv4Address()) {
+            int port = dtp.setupListener(address);
+            QString portArg;
+            Q_UINT32 ip = address.toIPv4Address();
+            portArg += QString::number((ip & 0xff000000) >> 24);
+            portArg += "," + QString::number((ip & 0xff0000) >> 16);
+            portArg += "," + QString::number((ip & 0xff00) >> 8);
+            portArg += "," + QString::number(ip & 0xff);
+            portArg += "," + QString::number((port & 0xff00) >> 8);
+            portArg += "," + QString::number(port & 0xff);
 
-        QString portArg;
-        portArg += QString::number((ip & 0xff000000) >> 24);
-        portArg += "," + QString::number((ip & 0xff0000) >> 16);
-        portArg += "," + QString::number((ip & 0xff00) >> 8);
-        portArg += "," + QString::number(ip & 0xff);
-        portArg += "," + QString::number((port & 0xff00) >> 8);
-        portArg += "," + QString::number(port & 0xff);
+            currentCmd = "PORT ";
+            currentCmd += portArg;
+        } else {
+            // No IPv6 connection can be set up with the PORT
+            // command.
+            return false;
+        }
 
-        currentCmd += portArg;
         currentCmd += "\r\n";
+    } else if (currentCmd.startsWith("PASV")) {
+        if (transferConnectionExtended)
+            currentCmd = "EPSV\r\n";
     }
 
     pendingCommands.pop_front();
@@ -1555,6 +1601,7 @@ QFtp::QFtp(QObject *parent, const char *name)
 */
 int QFtp::connectToHost(const QString &host, Q_UINT16 port)
 {
+    d->pi.transferConnectionExtended = true;
     QStringList cmds;
     cmds << host;
     cmds << QString::number((uint)port);
@@ -1617,6 +1664,7 @@ int QFtp::close()
 */
 int QFtp::setTransferMode(TransferMode mode)
 {
+    d->pi.transferConnectionExtended = true;
     d->transferMode = mode;
     return d->addCommand(new QFtpCommand(SetTransferMode, QStringList()));
 }
@@ -1656,7 +1704,7 @@ int QFtp::list(const QString &dir)
 {
     QStringList cmds;
     cmds << "TYPE A\r\n";
-    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT 0,0,0,0,0,0\r\n");
+    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     if (dir.isEmpty())
         cmds << "LIST\r\n";
     else
@@ -1725,7 +1773,7 @@ int QFtp::get(const QString &file, QIODevice *dev)
     QStringList cmds;
     cmds << ("SIZE " + file + "\r\n");
     cmds << "TYPE I\r\n";
-    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT 0,0,0,0,0,0\r\n");
+    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     cmds << ("RETR " + file + "\r\n");
     return d->addCommand(new QFtpCommand(Get, cmds, dev));
 }
@@ -1752,7 +1800,7 @@ int QFtp::put(const QByteArray &data, const QString &file)
 {
     QStringList cmds;
     cmds << "TYPE I\r\n";
-    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT 0,0,0,0,0,0\r\n");
+    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     cmds << ("ALLO " + QString::number(data.size()) + "\r\n");
     cmds << ("STOR " + file + "\r\n");
     return d->addCommand(new QFtpCommand(Put, cmds, data));
@@ -1773,7 +1821,7 @@ int QFtp::put(QIODevice *dev, const QString &file)
 {
     QStringList cmds;
     cmds << "TYPE I\r\n";
-    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT 0,0,0,0,0,0\r\n");
+    cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
     if (!dev->isSequentialAccess())
         cmds << ("ALLO " + QString::number(dev->size()) + "\r\n");
     cmds << ("STOR " + file + "\r\n");
