@@ -104,7 +104,6 @@ QRect QMenuBarPrivate::actionRect(QAction *act) const
 void QMenuBarPrivate::setKeyboardMode(bool b)
 {
     Q_Q(QMenuBar);
-    altPressed = false;
     keyboardState = b;
     if(b) {
         QWidget *fw = qApp->focusWidget();
@@ -971,73 +970,43 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
         return false;
     }
 
-    if(!isVisible() || !object->isWidgetType())
-        return false;
+    if (style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this)) {
 
-    if(event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
-        d->altPressed = false;
-        return false;
-    } else if(d->altPressed && event->type() == QEvent::FocusOut) {
-        // some window systems/managers use alt/meta as shortcut keys
-        // for switching between windows/desktops/etc.  If the focus
-        // widget gets unfocused, then we need to stop waiting for alt release
-        d->altPressed = false;
-        QWidget *f = ((QWidget *)object)->focusWidget();
-        if(f && !f->isTopLevel())
-            f->removeEventFilter(this);
-        return false;
-    } else if(!(event->type() == QEvent::ShortcutOverride ||
-                event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) ||
-              !style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this)) {
-        return false;
-    }
-
-    QWidget *widget = (QWidget *)object;
-    QKeyEvent *ke = (QKeyEvent *)event;
-#ifndef QT_NO_SHORTCUT
-    // look for Alt press and Alt-anything press
-    if(event->type() == QEvent::Shortcut || event->type() == QEvent::KeyPress) {
-        QWidget *f = widget->focusWidget();
-        // ### this thinks alt and meta are the same
-        if(ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta) {
-            if(d->altPressed) { //eat first alt
-                d->altPressed = false;
-                if(!widget->isTopLevel())
-                    object->removeEventFilter(this);
-                ke->accept();
-                return true;
-            } else if(hasFocus()) {             // Menu has focus, send focus back
-                d->setKeyboardMode(false);
-                ke->accept();
-                return true;
-            } else if(ke->modifiers() == Qt::AltModifier) {  // Start waiting for Alt release on focus widget
-                d->altPressed = true;
-                if(f && f != object)
-                    f->installEventFilter(this);
+        if (d->altPressed) {
+            switch (event->type()) {
+            case QEvent::KeyPress:
+            case QEvent::KeyRelease:
+            {
+                QKeyEvent *kev = static_cast<QKeyEvent*>(event);
+                if (kev->key() == Qt::Key_Alt || kev->key() == Qt::Key_Meta) {
+                    if (event->type() == QEvent::KeyPress) // Alt-press does not interest us, we have the shortcut-override event
+                        break;
+                    d->setKeyboardMode(!d->keyboardState);
+                }
             }
-        } else if(ke->key() == Qt::Key_Control || ke->key() == Qt::Key_Shift) {        // Other modifiers kills focus on menubar
-            d->setKeyboardMode(false);
-        } else {         // Got other key, no need to wait for Alt release
-            d->altPressed = false;
+            // fall through
+            case QEvent::MouseButtonPress:
+            case QEvent::FocusIn:
+            case QEvent::FocusOut:
+            case QEvent::ActivationChange:
+                d->altPressed = false;
+                qApp->removeEventFilter(this);
+                break;
+            default:
+                break;
+            }
+        } else if (isVisible()) {
+            if (event->type() == QEvent::ShortcutOverride) {
+                QKeyEvent *kev = static_cast<QKeyEvent*>(event);
+                if ((kev->key() == Qt::Key_Alt || kev->key() == Qt::Key_Meta)
+                    && kev->modifiers() == Qt::AltModifier) {
+                    d->altPressed = true;
+                    qApp->installEventFilter(this);
+                }
+            }
         }
-        if (!d->popupState)
-            d->setCurrentAction(0);
-        return false;
     }
-#endif
-    if(((QWidget*)object)->focusWidget() == object || (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
-        if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta || ke->key() == 0)) {    //alt release
-            d->setKeyboardMode(true);
-            if(!widget->isTopLevel())
-                object->removeEventFilter(this);
-            return true;
-        } else if(!hasFocus() && (event->type() == QEvent::ShortcutOverride) &&
-                  !(((QKeyEvent *)event)->key() == Qt::Key_Alt || ((QKeyEvent *)event)->key() == Qt::Key_Meta)) {         // Cancel if next keypress is NOT Alt/Meta,
-            if(!widget->isTopLevel())
-                object->removeEventFilter(this);
-            d->setKeyboardMode(false);
-        }
-    }
+
     return false;
 }
 
