@@ -295,24 +295,9 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
 bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
     QUObject obj;
-    obj.type = &static_QUType_Null;
-
-    if ( !QUType::isEqual( &static_QUType_QVariant, param->type ) ) {
-	if ( param->type->canConvertFrom( &obj, &static_QUType_QVariant ) ) {
-	    param->type->convertFrom( &obj, &static_QUType_QVariant );
-	} else if ( ( var.type() == QVariant::String || var.type() == QVariant::CString ) 
-		    && QUType::isEqual( param->type, &static_QUType_enum ) ) {
-	    int value;
-	    if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
-		static_QUType_enum.set( &obj, value );
-	}
-    }
-
-    if ( obj.type == &static_QUType_Null )
-	static_QUType_QVariant.set( &obj, var );
-
+    QVariantToQUObject( var, obj, param );
     bool ok = QUObjectToVARIANT( &obj, res, param );
-    obj.type->clear( &obj );
+    clearQUObject( &obj, param );
 
     return ok;
 }
@@ -487,7 +472,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     case VT_DATE|VT_BYREF:
 	{
-	    QDateTime *reference = (QDateTime*)static_QUType_ptr.get( obj );
+	    QDateTime *reference = (QDateTime*)static_QUType_varptr.get( obj );
 	    if ( reference )
 		*reference = DATEToQDateTime( *arg.pdate );
 	    else
@@ -503,7 +488,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Font ) {
 		IFont *ifont = 0;
 		QFont qfont;
-		QFont *reference = (QFont*)static_QUType_ptr.get( obj );
+		QFont *reference = (QFont*)static_QUType_varptr.get( obj );
 		if ( disp )
 		    disp->QueryInterface( IID_IFont, (void**)&ifont );
 		if ( ifont ) {
@@ -520,7 +505,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Pixmap ) {
 		IPicture *ipic = 0;
 		QPixmap qpixmap;
-		QPixmap *reference = (QPixmap*)static_QUType_ptr.get( obj );
+		QPixmap *reference = (QPixmap*)static_QUType_varptr.get( obj );
 		if ( disp )
 		    disp->QueryInterface( IID_IPicture, (void**)&ipic );
 		if ( ipic ) {
@@ -533,7 +518,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    *reference = qpixmap;
 		else
 		    reference = new QPixmap( qpixmap );
-		static_QUType_ptr.set( obj, reference );
+		static_QUType_varptr.set( obj, reference );
 	    } else {
 		disp->AddRef();
 		static_QUType_varptr.set( obj, disp );
@@ -547,7 +532,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    // parray and pparrayare a union
 	    SAFEARRAY *array = arg.parray;
 	    QValueList<QVariant> list;
-	    QValueList<QVariant> *reference = (QValueList<QVariant>*)static_QUType_ptr.get( obj );
+	    QValueList<QVariant> *reference = (QValueList<QVariant>*)static_QUType_varptr.get( obj );
 
 	    if ( array && array->cDims == 1 ) {
 		long lBound, uBound;
@@ -932,6 +917,10 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    break;
 	case VT_DATE:
 	    *dest.pdate = src.date;
+	    break;
+	case VT_DISPATCH:
+	    dest.pdispVal->Release();
+	    dest.pdispVal = src.pdispVal;
 	    break;
 	default:
 	    dest = src;
