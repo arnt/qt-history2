@@ -6110,61 +6110,34 @@ void QTableHeader::updateStretches()
 {
     if ( numStretches == 0 )
 	return;
-    if ( orientation() == Horizontal ) {
-	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ==
-	     width() )
-	    return;
-	int i;
-	int pw = width() -
-		 ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) -
-		 1;
-	bool block = signalsBlocked();
-	blockSignals( TRUE );
-	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] ||
-		 ( stretchable[i] && table->d->hiddenCols[ i ] ) )
-		continue;
-	    pw += sectionSize( i );
-	}
-	pw /= numStretches;
-	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] ||
-		( stretchable[i] && table->d->hiddenCols[ i ] ) )
-		continue;
-	    if ( i == (int)stretchable.count() - 1 &&
-		 sectionPos( i ) + pw < width() )
-		pw = width() - sectionPos( i );
-	    resizeSection( i, QMAX( 20, pw ) );
-	}
-	blockSignals( block );
-	table->viewport()->repaint( FALSE );
-	widgetStretchTimer->start( 100, TRUE );
-    } else {
-	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) == height() )
-	    return;
-	int i;
-	int ph = height() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
-	bool block = signalsBlocked();
-	blockSignals( TRUE );
-	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] ||
-		( stretchable[i] && table->d->hiddenRows[i] ) )
-		continue;
-	    ph += sectionSize( i );
-	}
-	ph /= numStretches;
-	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] ||
-		 ( stretchable[i] && table->d->hiddenRows[i] ) )
-		continue;
-	    if ( i == (int)stretchable.count() - 1 && sectionPos( i ) + ph < height() )
-		ph = height() - sectionPos( i );
-	    resizeSection( i, QMAX( 20, ph ) );
-	}
-	blockSignals( block );
-	table->viewport()->repaint( FALSE );
-	widgetStretchTimer->start( 100, TRUE );
+
+    int dim = orientation() == Horizontal ? width() : height();
+    if ( sectionPos(count() - 1) + sectionSize(count() - 1) == dim )
+	return;
+    int i;
+    int pd = dim - ( sectionPos(count() - 1)
+		     + sectionSize(count() - 1) ) - 1;
+    bool block = signalsBlocked();
+    blockSignals( TRUE );
+    for ( i = 0; i < (int)stretchable.count(); ++i ) {
+	if ( !stretchable[i] ||
+	     ( stretchable[i] && table->d->hiddenCols[i] ) )
+	    continue;
+	pd += sectionSize( i );
     }
+    pd /= numStretches;
+    for ( i = 0; i < (int)stretchable.count(); ++i ) {
+	if ( !stretchable[i] ||
+	     ( stretchable[i] && table->d->hiddenCols[i] ) )
+	    continue;
+	if ( i == (int)stretchable.count() - 1 &&
+	     sectionPos( i ) + pd < dim )
+	    pd = dim - sectionPos( i );
+	resizeSection( i, QMAX( 20, pd ) );
+    }
+    blockSignals( block );
+    table->viewport()->repaint( FALSE );
+    widgetStretchTimer->start( 100, TRUE );
 }
 
 void QTableHeader::updateWidgetStretches()
