@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#3 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -30,6 +30,7 @@
 #include "qmultilineedit.h"
 #include "qheader.h"
 #include "qmenubar.h"
+#include "qapplication.h"
 
 
 
