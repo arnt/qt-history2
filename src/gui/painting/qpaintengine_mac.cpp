@@ -41,6 +41,7 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
+//#define QMAC_NATIVE_GRADIENTS
 
 /*****************************************************************************
   External functions
@@ -902,6 +903,7 @@ static void qt_mac_dispose_pattern(void *info)
     delete pat;
 }
 
+#ifdef QMAC_NATIVE_GRADIENTS
 //gradiant callback
 static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
 {
@@ -918,6 +920,7 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
     const float alpha = qt_mac_convert_color_to_cg(c1.alpha());
     out[3] = alpha + in[0] * (qt_mac_convert_color_to_cg(c2.alpha()) - alpha);
 }
+#endif
 
 //clipping handling
 static void qt_mac_clip_cg_reset(CGContextRef hd)
@@ -1026,11 +1029,13 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
         QPaintEngine::CoordTransform|QPaintEngine::PixmapTransform|
         QPaintEngine::PatternTransform|QPaintEngine::PenWidthTransform|
         QPaintEngine::PainterPaths|QPaintEngine::PixmapScale|
-        QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradientFill|
+        QPaintEngine::UsesFontEngine|
+#ifdef QMAC_NATIVE_GRADIENTS
+        QPaintEngine::RadialGradientFill|QPaintEngine::LinearGradientFill|
+#endif
         QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke|
         QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap|
-        QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing
-        );
+        QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing);
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
@@ -1198,8 +1203,10 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
     //pattern
     Qt::BrushStyle bs = brush.style();
     if(bs == Qt::LinearGradientPattern) {
+#ifdef QMAC_NATIVE_GRADIENTS
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
-        CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)), 1, 0, 4, 0, &callbacks);
+        CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)),
+                                                   1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
         const QLinearGradient *linGrad = static_cast<const QLinearGradient*>(brush.gradient());
         const QPointF start = linGrad->start(), stop = linGrad->finalStop();
@@ -1207,6 +1214,11 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
         CGColorSpaceRelease(grad_colorspace);
+#endif
+    } else if(bs == Qt::RadialGradientPattern || bs == Qt::ConicalGradientPattern) {
+#ifdef QMAC_NATIVE_GRADIENTS
+        qWarning("Unhandled gradient! %d", (int)bs);
+#endif
     } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
