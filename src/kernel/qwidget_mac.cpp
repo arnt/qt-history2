@@ -166,14 +166,17 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 
     if ( widget ) {
         QRegion reg(rgn);
-        {
+	QRect oldcrect = widget->crect;
+        { //lookup the x and y, don't use qwidget because this callback and be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
 	    LocalToGlobal(&px);
 	    reg.translate(-px.h, -px.v);
+	    widget->crect.setRect( px.h, px.v, widget->width(), widget->height() );
         }
 	widget->erase(reg);
 	paint_children(widget, reg, TRUE);
+	widget->crect = oldcrect; //restore
     }
     return 0;
 }
@@ -695,7 +698,6 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     repaint(QRegion(r), erase); //general function..
 }
 
-#include <qbuttongroup.h>
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
     if ( !testWState(WState_BlockUpdates) && isVisible() ) {
@@ -715,10 +717,8 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	clean.translate(p.x(), p.y());
 	clean &= clippedRegion();
 	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
-
-#if 0
-	QDFlushPortBuffer(GetWindowPort((WindowPtr)handle()), NULL);
-#endif
+	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
+	   QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
     }
 }
 
@@ -733,7 +733,6 @@ void QWidget::showWindow()
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
 #endif
-
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
 	setActiveWindow();

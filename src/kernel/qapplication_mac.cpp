@@ -861,7 +861,6 @@ bool QApplication::processNextEvent( bool canWait )
 #endif
 
     if(qt_is_gui_used) {
-	sendPostedEvents();
 
 	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
@@ -870,21 +869,27 @@ bool QApplication::processNextEvent( bool canWait )
 	    ReleaseEvent(ev);
 	}
 
+	sendPostedEvents();
+	//try to send null timers..
+	activateNullTimers();
+
+	//propagate now, because later is too late
+	QWidgetList *list   = qApp->topLevelWidgets();
+	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+	    if ( !widget->isHidden() && !widget->isDesktop())
+		 widget->propagateUpdates();
+	}
+
 	EventRef event;
 	OSStatus ret;
-	//canWait = FALSE;
-	do {
 #ifdef Q_WS_MAC9
 #define QMAC_EVENT_NOWAIT 0.01
 #else
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
-	    //try to send null timers..
-	    activateNullTimers();
-
 #ifdef QMAC_CAN_WAIT_FOREVER
-	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT, 
-				    TRUE, &event );
+	do {
+	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
 #else
 	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
 #endif
@@ -900,12 +905,16 @@ bool QApplication::processNextEvent( bool canWait )
 	    nevents++;
 
 	    //send posted events if the event queue is empty
-	    ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
-	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr)
+	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, FALSE, &event );
+	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr) {
+		//try to send null timers..
+		activateNullTimers();
 		sendPostedEvents();
+	    }
 	} while(1);
 	sendPostedEvents();
     }
+#undef QMAC_EVENT_NOWAIT
 
     if( quit_now || app_exit_loop ) {
 #if defined(QT_THREAD_SUPPORT)
