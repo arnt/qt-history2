@@ -185,7 +185,7 @@ public:
     virtual ~QTextString();
 
     static QString toString( const QMemArray<QTextStringChar> &data );
-    QString toString() const { return toString( data ); }
+    QString toString() const;
 
     QTextStringChar &at( int i ) const;
 #if defined(Q_STRICT_INLINING_RULES)
@@ -247,6 +247,11 @@ inline bool QTextString::isRightToLeft() const
     if ( bidiDirty )
 	checkBidi();
     return rightToLeft;
+}
+
+inline QString QTextString::toString() const 
+{ 
+    return toString( data ); 
 }
 
 inline QChar::Direction QTextString::direction() const
