@@ -2918,13 +2918,15 @@ HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, 
     if (!bMetaFile)
         ::LPtoDP(hicTargetDev, (LPPOINT)&rc, 2);
 
-
     if (!qt.widget->isVisible())
         qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
     QPixmap pm = QPixmap::grabWidget(qt.widget);
-    HDC hdc = pm.getDC();
+    HBITMAP hbm = pm.toWinHBITMAP();
+    HDC hdc = CreateCompatibleDC(0);
+    SelectObject(hdc, hbm);
     ::StretchBlt(hdcDraw, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hdc, 0, 0,pm.width(), pm.height(), SRCCOPY);
-    pm.releaseDC(hdc);
+    DeleteDC(hdc);
+    DeleteObject(hbm);
 
     if (bDeleteDC)
 	DeleteDC(hicTargetDev);
