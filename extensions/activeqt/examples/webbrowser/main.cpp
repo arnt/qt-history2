@@ -12,8 +12,6 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <qaxwidget.h>
-#include <qmenudata.h>
 #include <qmessagebox.h>
 #include <qprogressbar.h>
 #include <qstatusbar.h>
@@ -28,13 +26,13 @@ public:
     MainWindow();
 
 public slots:
-    void on_actionGo_triggered();
     void on_WebBrowser_TitleChange(const QString &title);
     void on_WebBrowser_ProgressChange(int a, int b);
     void on_WebBrowser_CommandStateChange(int cmd, bool on);
-    void on_WebBrowser_BeforeNavigate(QString, int, QString, QVariant, QString, bool&);
+    void on_WebBrowser_BeforeNavigate();
     void on_WebBrowser_NavigateComplete(QString);
 
+    void on_actionGo_triggered();
     void on_actionNewWindow_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
@@ -52,15 +50,7 @@ MainWindow::MainWindow()
     pb->hide();
     statusBar()->addWidget( pb, 0, TRUE );
 
-    connect( WebBrowser, SIGNAL(StatusTextChange(const QString&)), statusBar(), SLOT(message(const QString&)) );
-
     WebBrowser->dynamicCall( "GoHome()" );
-}
-
-void MainWindow::on_actionGo_triggered()
-{
-    actionStop->setEnabled( TRUE );
-    WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
 }
 
 void MainWindow::on_WebBrowser_TitleChange( const QString &title )
@@ -92,7 +82,7 @@ void MainWindow::on_WebBrowser_CommandStateChange( int cmd, bool on )
     }
 }
 
-void MainWindow::on_WebBrowser_BeforeNavigate(QString, int, QString, QVariant, QString, bool&)
+void MainWindow::on_WebBrowser_BeforeNavigate()
 {
     actionStop->setEnabled( TRUE );
 }
@@ -103,6 +93,13 @@ void MainWindow::on_WebBrowser_NavigateComplete(QString)
     WebBrowser->setProperty("Offline", true);
     QString str = WebBrowser->property("LocationURL").toString();
 }
+
+void MainWindow::on_actionGo_triggered()
+{
+    actionStop->setEnabled( TRUE );
+    WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
+}
+
 
 void MainWindow::on_actionNewWindow_triggered()
 {
