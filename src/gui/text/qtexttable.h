@@ -67,7 +67,6 @@ private:
 class Q_GUI_EXPORT QTextTable : public QTextFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextTable)
 public:
     QTextTable(QTextDocument *doc);
     ~QTextTable();
@@ -97,7 +96,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QTextTable)
-
+    Q_DECLARE_PRIVATE(QTextTable)
     friend class QTextTableCell;
 };
 

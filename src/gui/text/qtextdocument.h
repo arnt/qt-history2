@@ -66,9 +66,10 @@ class QTextDocumentPrivate;
 class Q_GUI_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextDocument)
+
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
+
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);
@@ -136,14 +137,14 @@ public slots:
     void appendUndoItem(QAbstractUndoItem *);
     void setModified(bool m = true);
 
-public:
-    QTextDocumentPrivate *docHandle() const;
-
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
 
+public:
+    QTextDocumentPrivate *docHandle() const;
 private:
     Q_DISABLE_COPY(QTextDocument)
+    Q_DECLARE_PRIVATE(QTextDocument)
 };
 
 #endif

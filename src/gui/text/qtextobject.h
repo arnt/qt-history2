@@ -27,16 +27,14 @@ class QTextLayout;
 
 class Q_GUI_EXPORT QTextObject : public QObject
 {
-    Q_DECLARE_PRIVATE(QTextObject)
     Q_OBJECT
-    friend class QTextDocumentPrivate;
 
 protected:
     QTextObject(QTextDocument *doc);
     ~QTextObject();
-    QTextObject(QTextObjectPrivate &p, QTextDocument *doc);
 
     void setFormat(const QTextFormat &format);
+
 public:
     int formatType() const;
     QTextFormat format() const;
@@ -46,19 +44,23 @@ public:
     int objectIndex() const;
 
     QTextDocumentPrivate *docHandle() const;
+
+protected:
+    QTextObject(QTextObjectPrivate &p, QTextDocument *doc);
+
+private:
+    Q_DECLARE_PRIVATE(QTextObject)
+    Q_DISABLE_COPY(QTextObject)
+    friend class QTextDocumentPrivate;
 };
 
 class QTextBlockGroupPrivate;
-
 class Q_GUI_EXPORT QTextBlockGroup : public QTextObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextBlockGroup)
-    friend class QTextDocumentPrivate;
 
 protected:
     QTextBlockGroup(QTextDocument *doc);
-    QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
     ~QTextBlockGroup();
 
     virtual void blockInserted(const QTextBlock &block);
@@ -66,6 +68,13 @@ protected:
     virtual void blockFormatChanged(const QTextBlock &block);
 
     QList<QTextBlock> blockList() const;
+
+protected:
+    QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
+private:
+    Q_DECLARE_PRIVATE(QTextBlockGroup)
+    Q_DISABLE_COPY(QTextBlockGroup)
+    friend class QTextDocumentPrivate;
 };
 
 class Q_GUI_EXPORT QTextFrameLayoutData {
@@ -74,12 +83,9 @@ public:
 };
 
 class QTextFramePrivate;
-
 class Q_GUI_EXPORT QTextFrame : public QTextObject
 {
-    Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
-    friend class QTextDocumentPrivate;
 
 public:
     QTextFrame(QTextDocument *doc);
@@ -136,13 +142,15 @@ public:
 
 protected:
     QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
+private:
+    friend class QTextDocumentPrivate;
+    Q_DECLARE_PRIVATE(QTextFrame)
+    Q_DISABLE_COPY(QTextFrame)
 };
+Q_DECLARE_TYPEINFO(QTextFrame::iterator, Q_MOVABLE_TYPE);
 
 class Q_GUI_EXPORT QTextBlock
 {
-    QTextDocumentPrivate *p;
-    int n;
-    friend class QTextDocumentPrivate;
 public:
     inline QTextBlock(QTextDocumentPrivate *priv, int b) : p(priv), n(b) {}
     inline QTextBlock() : p(0), n(0) {}
@@ -200,17 +208,19 @@ public:
     QTextBlock previous() const;
 
     inline QTextDocumentPrivate *docHandle() const { return p; }
+
+private:
+    QTextDocumentPrivate *p;
+    int n;
+    friend class QTextDocumentPrivate;
 };
 
-Q_DECLARE_TYPEINFO(QTextBlock, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QTextBlock, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QTextBlock::iterator, Q_MOVABLE_TYPE);
 
 
 class Q_GUI_EXPORT QTextFragment
 {
-    const QTextDocumentPrivate *p;
-    int n;
-    int ne;
-
 public:
     inline QTextFragment(const QTextDocumentPrivate *priv, int f, int fe) : p(priv), n(f), ne(fe) {}
     inline QTextFragment() : p(0), n(0), ne(0) {}
@@ -229,8 +239,13 @@ public:
 
     QTextCharFormat charFormat() const;
     QString text() const;
+
+private:
+    const QTextDocumentPrivate *p;
+    int n;
+    int ne;
 };
 
-Q_DECLARE_TYPEINFO(QTextFragment, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QTextFragment, Q_MOVABLE_TYPE);
 
 #endif
