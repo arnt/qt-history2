@@ -1310,5 +1310,4 @@ bool QProcess::startDetached(const QString &program)
     return QProcessPrivate::startDetached(prog, args);
 }
 
-#define d d_func()
 #include "moc_qprocess.cpp"

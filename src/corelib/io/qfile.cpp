@@ -28,9 +28,6 @@
 
 #include <errno.h>
 
-#define d d_func()
-#define q q_func()
-
 static const int read_cache_size = 4096;
 
 static QByteArray locale_encode(const QString &f)
@@ -93,14 +90,14 @@ void
 QFilePrivate::setError(QFile::FileError err)
 {
     error = err;
-    d->errorString.clear();
+    errorString.clear();
 }
 
 void
 QFilePrivate::setError(QFile::FileError err, const QString &errStr)
 {
     error = err;
-    d->errorString = errStr;
+    errorString = errStr;
 }
 
 void
@@ -294,6 +291,7 @@ QFile::QFile(QObject *parent)
 QFile::QFile(const QString &name)
     : QIODevice(*new QFilePrivate, 0)
 {
+    Q_D(QFile);
     d->fileName = name;
     unsetError();
 }
@@ -304,6 +302,7 @@ QFile::QFile(const QString &name)
 QFile::QFile(const QString &name, QObject *parent)
     : QIODevice(*new QFilePrivate, parent)
 {
+    Q_D(QFile);
     d->fileName = name;
     unsetError();
 }
@@ -363,6 +362,7 @@ QFile::fileName() const
 void
 QFile::setFileName(const QString &name)
 {
+    Q_D(QFile);
     if (isOpen()) {
         qWarning("QFile::setFileName: file is already opened");
         close();
@@ -532,6 +532,7 @@ QFile::readLink(const QString &fileName)
 bool
 QFile::remove()
 {
+    Q_D(QFile);
     if (d->fileName.isEmpty()) {
         qWarning("QFile::remove: Empty or null file name");
         return false;
@@ -575,6 +576,7 @@ QFile::remove(const QString &fileName)
 bool
 QFile::rename(const QString &newName)
 {
+    Q_D(QFile);
     if (d->fileName.isEmpty()) {
         qWarning("QFile::rename: Empty or null file name");
         return false;
@@ -639,6 +641,7 @@ QFile::rename(const QString &oldName, const QString &newName)
 bool
 QFile::link(const QString &newName)
 {
+    Q_D(QFile);
     if (d->fileName.isEmpty()) {
         qWarning("QFile::link: Empty or null file name");
         return false;
@@ -681,6 +684,7 @@ QFile::link(const QString &oldName, const QString &newName)
 bool
 QFile::copy(const QString &newName)
 {
+    Q_D(QFile);
     if (d->fileName.isEmpty()) {
         qWarning("QFile::copy: Empty or null file name");
         return false;
@@ -756,6 +760,7 @@ QFile::copy(const QString &fileName, const QString &newName)
 */
 bool QFile::isSequential() const
 {
+    Q_D(const QFile);
     return d->fileEngine && d->fileEngine->isSequential();
 }
 
@@ -792,6 +797,7 @@ bool QFile::isSequential() const
 bool
 QFile::open(OpenMode mode, FILE *fh)
 {
+    Q_D(QFile);
     if (isOpen()) {
         qWarning("QFile::open: File already open");
         return false;
@@ -827,6 +833,7 @@ QFile::open(OpenMode mode, FILE *fh)
 bool
 QFile::open(OpenMode mode)
 {
+    Q_D(QFile);
     if (isOpen()) {
         qWarning("QFile::open: File already open");
         return false;
@@ -874,6 +881,7 @@ QFile::open(OpenMode mode)
 bool
 QFile::open(OpenMode mode, int fd)
 {
+    Q_D(QFile);
     if (isOpen()) {
         qWarning("QFile::open: File already open");
         return false;
@@ -940,6 +948,7 @@ QFile::handle() const
 bool
 QFile::resize(qint64 sz)
 {
+    Q_D(QFile);
     if(fileEngine()->setSize(sz)) {
         unsetError();
         return true;
@@ -1003,6 +1012,7 @@ QFile::permissions(const QString &fileName)
 bool
 QFile::setPermissions(Permissions permissions)
 {
+    Q_D(QFile);
     if(fileEngine()->chmod(permissions)) {
         unsetError();
         return true;
@@ -1043,6 +1053,7 @@ QFile::flush()
 void
 QFile::close()
 {
+    Q_D(QFile);
     if(!isOpen())
         return;
     QIODevice::close();
@@ -1070,6 +1081,7 @@ qint64 QFile::size() const
 
 qint64 QFile::pos() const
 {
+    Q_D(const QFile);
     if (!isOpen())
         return 0;
 #ifndef QT_NO_FILE_BUFFER
@@ -1085,6 +1097,7 @@ qint64 QFile::pos() const
 
 bool QFile::atEnd() const
 {
+    Q_D(const QFile);
     if (!isOpen())
         return true;
     if(!d->buffer.isEmpty())
@@ -1098,6 +1111,7 @@ bool QFile::atEnd() const
 
 bool QFile::seek(qint64 off)
 {
+    Q_D(QFile);
     if (!isOpen()) {
         qWarning("QFile::seek: IODevice is not open");
         return false;
@@ -1123,6 +1137,7 @@ bool QFile::seek(qint64 off)
 */
 qint64 QFile::readLineData(char *data, qint64 maxlen)
 {
+    Q_D(QFile);
 #ifndef QT_NO_FILE_BUFFER
     if (openMode() & Unbuffered)
 #endif
@@ -1212,6 +1227,7 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
 
 qint64 QFile::readData(char *data, qint64 len)
 {
+    Q_D(QFile);
     unsetError();
 
    qint64 ret = 0;
@@ -1273,6 +1289,7 @@ qint64 QFile::readData(char *data, qint64 len)
 qint64
 QFile::writeData(const char *data, qint64 len)
 {
+    Q_D(QFile);
     unsetError();
 
 #ifndef QT_NO_FILE_BUFFER
@@ -1296,6 +1313,7 @@ QFile::writeData(const char *data, qint64 len)
 QFileEngine
 *QFile::fileEngine() const
 {
+    Q_D(const QFile);
     if(!d->fileEngine)
         d->fileEngine = QFileEngine::createFileEngine(d->fileName);
     return d->fileEngine;
@@ -1338,6 +1356,7 @@ QFileEngine
 QFile::FileError
 QFile::error() const
 {
+    Q_D(const QFile);
     return d->error;
 }
 
@@ -1349,6 +1368,7 @@ QFile::error() const
 void
 QFile::unsetError()
 {
+    Q_D(QFile);
     d->setError(QFile::NoError);
 }
 

@@ -440,7 +440,5 @@ qint64 QBuffer::writeData(const char *data, qint64 len)
 }
 
 #ifndef QT_NO_QOBJECT
-#  define d d_func()
-#  define q q_func()
-#  include "moc_qbuffer.cpp"
+# include "moc_qbuffer.cpp"
 #endif

@@ -15,8 +15,6 @@
 #include "qiodevice_p.h"
 #include "qfile.h"
 
-#define d d_func()
-#define q q_func()
 #define Q_VOID
 
 #define CHECK_OPEN(function, returnType) \
@@ -268,7 +266,7 @@ QIODevicePrivate::~QIODevicePrivate()
 QIODevice::QIODevice()
     : d_ptr(new QIODevicePrivate)
 {
-    d->q_ptr = this;
+    d_ptr->q_ptr = this;
 }
 
 /*! \internal
@@ -276,7 +274,7 @@ QIODevice::QIODevice()
 QIODevice::QIODevice(QIODevicePrivate &dd)
     : d_ptr(&dd)
 {
-    d->q_ptr = this;
+    d_ptr->q_ptr = this;
 }
 #else
 
@@ -345,7 +343,7 @@ bool QIODevice::isSequential() const
 */
 QIODevice::OpenMode QIODevice::openMode() const
 {
-    return d->openMode;
+    return d_func()->openMode;
 }
 
 /*!
@@ -356,7 +354,7 @@ QIODevice::OpenMode QIODevice::openMode() const
 */
 void QIODevice::setOpenMode(OpenMode openMode)
 {
-    d->openMode = openMode;
+    d_func()->openMode = openMode;
 }
 
 /*!
@@ -368,6 +366,7 @@ void QIODevice::setOpenMode(OpenMode openMode)
  */
 void QIODevice::setTextModeEnabled(bool enabled)
 {
+    Q_D(QIODevice);
     if (enabled)
         d->openMode |= Text;
     else
@@ -381,7 +380,7 @@ void QIODevice::setTextModeEnabled(bool enabled)
 */
 bool QIODevice::isTextModeEnabled() const
 {
-    return d->openMode & Text;
+    return d_func()->openMode & Text;
 }
 
 /*!
@@ -394,7 +393,7 @@ bool QIODevice::isTextModeEnabled() const
 */
 bool QIODevice::isOpen() const
 {
-    return d->openMode != NotOpen;
+    return d_func()->openMode != NotOpen;
 }
 
 /*!
@@ -432,7 +431,7 @@ bool QIODevice::isWritable() const
 */
 bool QIODevice::open(OpenMode mode)
 {
-    d->openMode = mode;
+    d_func()->openMode = mode;
     return true;
 }
 
@@ -444,6 +443,7 @@ bool QIODevice::open(OpenMode mode)
 */
 void QIODevice::close()
 {
+    Q_D(QIODevice);
     if (d->openMode == NotOpen)
         return;
 
@@ -472,6 +472,7 @@ void QIODevice::close()
 */
 bool QIODevice::flush()
 {
+    Q_D(QIODevice);
     qint64 toWrite = bytesToWrite();
     while (bytesToWrite() > 0) {
         if (!waitForBytesWritten(-1))
@@ -522,6 +523,7 @@ qint64 QIODevice::size() const
 */
 bool QIODevice::seek(qint64 pos)
 {
+    Q_D(QIODevice);
     if (pos > 0)
         d->ungetBuffer.chop(pos);
     else
@@ -587,6 +589,7 @@ qint64 QIODevice::bytesToWrite() const
 */
 qint64 QIODevice::read(char *data, qint64 maxlen)
 {
+    Q_D(QIODevice);
     CHECK_OPEN(read, qint64(-1));
     CHECK_READABLE(read, qint64(-1));
     CHECK_MAXLEN(read, qint64(-1));
@@ -744,6 +747,7 @@ QByteArray QIODevice::readAll()
 */
 qint64 QIODevice::readLine(char *data, qint64 maxlen)
 {
+    Q_D(QIODevice);
     if (maxlen < 1) {
         qWarning("QIODevice::readLine() called with maxlen < 1");
         return qint64(-1);
@@ -869,6 +873,7 @@ bool QIODevice::canReadLine() const
 */
 qint64 QIODevice::write(const char *data, qint64 maxlen)
 {
+    Q_D(QIODevice);
     CHECK_OPEN(write, qint64(-1));
     CHECK_WRITABLE(write, qint64(-1));
     CHECK_MAXLEN(write, qint64(-1));
@@ -949,6 +954,7 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
 */
 void QIODevice::ungetChar(char c)
 {
+    Q_D(QIODevice);
     CHECK_OPEN(write, Q_VOID);
     CHECK_READABLE(read, Q_VOID);
     d->ungetBuffer.append(c);
@@ -1020,7 +1026,7 @@ bool QIODevice::waitForBytesWritten(int msecs)
 */
 void QIODevice::setErrorString(const QString &str)
 {
-    d->errorString = str;
+    d_func()->errorString = str;
 }
 
 /*!
@@ -1029,7 +1035,7 @@ void QIODevice::setErrorString(const QString &str)
 */
 QString QIODevice::errorString() const
 {
-    return d->errorString;
+    return d_func()->errorString;
 }
 
 /*!
