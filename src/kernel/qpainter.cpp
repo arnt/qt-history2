@@ -3494,12 +3494,15 @@ bool QPen::operator==( const QPen &p ) const
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
-    // ### width() should not be restricted to 8-bit values
     if ( s.version() < 3 )
-	return s << (Q_UINT8)p.style() << (Q_UINT8)p.width() << p.color();
+	s << (Q_UINT8)p.style();
     else
-	return s << (Q_UINT8)( p.style() | p.capStyle() | p.joinStyle() )
-		 << (Q_UINT8)p.width() << p.color();
+	s << (Q_UINT8)( p.style() | p.capStyle() | p.joinStyle() );
+    if ( s.version() < 6 )
+	s << (Q_UINT8)p.width();
+    else
+	s << (Q_UINT16)p.width();
+    return s << p.color();
 }
 
 /*!
@@ -3513,12 +3516,17 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
-    Q_UINT8 style, width;
+    Q_UINT8 style;
+    Q_UINT8 width8 = 0;
+    Q_UINT16 width = 0;
     QColor color;
     s >> style;
-    s >> width;
+    if ( s.version() < 6 )
+	s >> width8;
+    else
+	s >> width;
     s >> color;
-    p = QPen( color, (uint)width, (Qt::PenStyle)style );	// owl
+    p = QPen( color, width8 | width, (Qt::PenStyle)style );
     return s;
 }
 #endif //QT_NO_DATASTREAM

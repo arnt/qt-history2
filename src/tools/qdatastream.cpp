@@ -193,7 +193,6 @@ static int  systemWordSize = 0;
 static bool systemBigEndian;
 
 static const int DefaultStreamVersion = 6;
-// ### 4.0: QPen::width() should not be restricted to 8-bit values.
 // ### 4.0: when streaming invalid QVariants, just the type should
 // be written, no "data" after it
 // 6 is default in Qt 4.0
