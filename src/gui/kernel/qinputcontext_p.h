@@ -47,6 +47,7 @@ class QString;
 class QWSIMEvent;
 #endif
 
+#ifndef qdoc
 class QInputContext
 {
 public:
@@ -107,5 +108,6 @@ private:
     static void enable(QWidget *w, bool b);
 #endif
 };
+#endif // qdoc
 
 #endif // QINPUTCONTEXT_P_H
