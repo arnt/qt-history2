@@ -20,7 +20,6 @@
 #include <qpixmap.h>
 #include <qptrlist.h>
 #include <qstringlist.h>
-#include <qsettings.h>
 #include <qdir.h>
 #include <qmessagebox.h>
 #include <qguardedptr.h>

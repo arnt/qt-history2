@@ -83,7 +83,9 @@ Config *Config::configuration()
 
 void Config::load()
 {
-    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString verString = QString::number( (QT_VERSION >> 16) & 0xff ) + 
+	"." + QString::number( (QT_VERSION >> 8) & 0xff );
+    const QString key = "/Qt Assistant/" + verString + "/";
     const QString profkey = key + "Profile/" + profil->props["name"] + "/";
 
     QSettings settings;
@@ -125,8 +127,11 @@ void Config::save()
 
 void Config::saveSettings()
 {
-    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString verString = QString::number( (QT_VERSION >> 16) & 0xff ) + 
+	"." + QString::number( (QT_VERSION >> 8) & 0xff );
+    const QString key = "/Qt Assistant/" + verString + "/";
     const QString profkey = key + "Profile/" + profil->props["name"] + "/";
+
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
