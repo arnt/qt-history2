@@ -29,6 +29,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+#if !defined(Q_OS_QNX6)
 
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
@@ -52,7 +53,7 @@
 #include <signal.h>
 
 #include <termios.h>
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_QNX) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
 #include <sys/kd.h>
 #include <sys/vt.h>
 #endif
@@ -927,3 +928,5 @@ const QWSServer::KeyMap *QWSServer::keyMap()
 {
     return keyM;
 }
+
+#endif

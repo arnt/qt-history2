@@ -297,7 +297,7 @@ protected:
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
 	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
-#if !defined(Q_OS_FREEBSD) && !defined(QT_QWS_QNX) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
 	tty.c_line      = 0;
 #endif
 	tty.c_cc[VTIME] = 0;
@@ -512,11 +512,7 @@ void QAutoMouseHandlerPrivate::openDevices()
 {
     nsub=0;
     int fd;
-#if !defined(QT_QWS_QNX)
     fd = open( "/dev/psaux", O_RDWR | O_NDELAY );
-#else
-    fd = open( "/dev/psaux", O_RDWR );
-#endif
     if ( fd >= 0 ) {
 	sub[nsub++] = new QAutoMouseSubHandler_intellimouse(fd);
 	notify(fd);
@@ -525,11 +521,7 @@ void QAutoMouseHandlerPrivate::openDevices()
     char fn[] = "/dev/ttyS?";
     for (int ch='0'; ch<='3'; ch++) {
 	fn[9] = ch;
-#if !defined(QT_QWS_QNX)
 	fd = open( fn, O_RDWR | O_NDELAY );
-#else
-	fd = open( fn, O_RDWR );
-#endif
 	if ( fd >= 0 ) {
 	    //sub[nsub++] = new QAutoMouseSubHandler_intellimouse(fd);
 	    sub[nsub++] = new QAutoMouseSubHandler_mousesystems(fd);
@@ -786,17 +778,9 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
     obstate = -1;
     mouseFD = -1;
-#if !defined(QT_QWS_QNX)
     mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY);
-#else
-    mouseFD = open( mouseDev.local8Bit(), O_RDWR );
-#endif
     if ( mouseFD < 0 ) {
-#if !defined(QT_QWS_QNX)
 	mouseFD = open( mouseDev.local8Bit(), O_RDONLY | O_NDELAY);
-#else
-	mouseFD = open( mouseDev.local8Bit(), O_RDONLY );
-#endif
 	if ( mouseFD < 0 )
 	    qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
 		    strerror(errno));
@@ -834,7 +818,7 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 		tty.c_iflag = IGNBRK | IGNPAR;
 		tty.c_oflag = 0;
 		tty.c_lflag = 0;
-#if !defined(Q_OS_FREEBSD) && !defined(QT_QWS_QNX) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
 		tty.c_line = 0;
 #endif
 		tty.c_cc[VTIME] = 0;
