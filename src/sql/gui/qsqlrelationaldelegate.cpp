@@ -70,4 +70,3 @@
     \reimp
 */
 
-#endif // QSQLRELATIONALDELEGATE_H
