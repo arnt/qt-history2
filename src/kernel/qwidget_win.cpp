@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#206 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -534,6 +534,7 @@ static HBITMAP createIconMask( const QBitmap &bitmap )
     int h = bm.height();
     int bpl = ((w+15)/16)*2;			// bpl, 16 bit alignment
     uchar *bits = new uchar[bpl*h];
+    bm.invertPixels();
     for ( int y=0; y<h; y++ )
 	memcpy( bits+y*bpl, bm.scanLine(y), bpl );
     HBITMAP hbm = CreateBitmap( w, h, 1, 1, bits );
