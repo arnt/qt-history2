@@ -69,7 +69,6 @@ static QPixmap *validConnection = 0;
 
 void ConnectionDialog::init()
 {
-    defaultSender = defaultReceiver = 0;
     connectionsTable->setColumnStretchable( 0, TRUE );
     connectionsTable->setColumnStretchable( 1, TRUE );
     connectionsTable->setColumnStretchable( 2, TRUE );
@@ -91,6 +90,7 @@ void ConnectionDialog::init()
 	updateConnectionState( c );
     }
 
+    defaultSender = defaultReceiver = 0;
     connectionsTable->setCurrentCell( 0, 0 );
 }
 
@@ -195,12 +195,12 @@ void ConnectionDialog::okClicked()
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
 	MetaDataBase::Connection conn;
 	conn.sender = MainWindow::self->formWindow()->child( c->senderItem()->currentText() );	
-	if ( !conn.sender ) 
+	if ( !conn.sender )
 	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );	
 	conn.receiver = MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
 	if ( !conn.receiver )
 	    conn.receiver = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
-	    
+	
 	conn.signal = c->signalItem()->currentText();
 	conn.slot = c->slotItem()->currentText();
 	AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add Signal/Slot "
