@@ -145,7 +145,7 @@ static void construct(QCoreVariant::Private *x, const void *v)
             break;
         case QCoreVariant::Object:
             x->value.ptr = const_cast<void *>(v);
-            QMetaObject::addGuard(&static_cast<QObject*>(x->value.ptr));
+            QMetaObject::addGuard(reinterpret_cast<QObject**>(&x->value.ptr));
             break;
         case QCoreVariant::Invalid:
             break;
@@ -264,7 +264,7 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::Double:
         break;
     case QCoreVariant::Object:
-        QMetaObject::removeGuard(&static_cast<QObject*>(p->value.ptr));
+        QMetaObject::removeGuard(reinterpret_cast<QObject **>(&p->value.ptr));
         break;
     default:
         if (QMetaType::isRegistered(p->type))
