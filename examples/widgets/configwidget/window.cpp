@@ -44,7 +44,7 @@ void Window::createIcons()
 
     contentsWidget->setBackgroundRole(QPalette::Base);
 
-    pixmap.load("Resources/config.png");
+    pixmap.load(":/Images/config.png");
     OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
     configButton->setIcon(QIcon(pixmap));
     configButton->setText(tr("Configuration"));
@@ -53,7 +53,7 @@ void Window::createIcons()
     configButton->setChecked(true);
     configButton->move(0, 0);
 
-    pixmap.load("Resources/update.png");
+    pixmap.load(":/Images/update.png");
     OptionButton *updateButton = new OptionButton(104, 104, 1, contentsWidget);
     updateButton->setIcon(QIcon(pixmap));
     updateButton->setText(tr("Update"));
@@ -61,7 +61,7 @@ void Window::createIcons()
     updateButton->setAutoExclusive(true);
     updateButton->move(0, 104);
 
-    pixmap.load("Resources/query.png");
+    pixmap.load(":/Images/query.png");
     OptionButton *queryButton = new OptionButton(104, 104, 2, contentsWidget);
     queryButton->setIcon(QIcon(pixmap));
     queryButton->setText(tr("Query"));

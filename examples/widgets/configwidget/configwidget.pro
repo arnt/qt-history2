@@ -5,3 +5,4 @@ SOURCES     = main.cpp \
               optionbutton.cpp \
               pages.cpp \
               window.cpp
+RESOURCES   += images.qrc

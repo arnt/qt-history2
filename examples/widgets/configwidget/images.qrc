@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+   <file>Images/config.png</file>
+   <file>Images/query.png</file>
+   <file>Images/update.png</file>
+</qresource>
+</RCC>
