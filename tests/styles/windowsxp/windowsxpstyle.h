@@ -70,6 +70,9 @@ protected:
 
     void updateRegion( QWidget *widget );
 
+protected slots:
+    void tabBarSelectionChanged();
+
 private:
     QWindowsXPStylePrivate *d;
 

@@ -123,12 +123,7 @@ struct XPThemeData
     
     bool isValid()
     {
-	bool ret = use_xp && !!name && handle();
-#ifndef QT_NO_DEBUG
-	if ( !ret && ( use_xp && !!name ) )
-	    qWarning( "XPThemeData::isValid: Invalid theme data" );
-#endif
-	return ret;
+	return use_xp && !!name && handle();
     }
     
     RECT rect()
@@ -212,6 +207,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+	connect( widget, SIGNAL(selected(int)), this, SLOT(tabBarSelectionChanged()) );
     } else if ( widget->inherits( "QHeader" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -335,7 +331,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
     case PE_IndicatorMask:
         break;
-	
+
     case PE_ExclusiveIndicator:
 	name = L"BUTTON";
 	partId = BP_RADIOBUTTON;
@@ -351,14 +347,11 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	if ( flags & Style_On )
 	    stateId += RBS_CHECKEDNORMAL-1;
 	break;
-	
+
     case PE_ExclusiveIndicatorMask:
 	break;
-	
+
     case PE_Panel:
-	name = L"TAB";
-	partId = TABP_PANE;
-	stateId = 1;
 	break;
 
     case PE_PanelPopup:
@@ -451,6 +444,14 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	rect = QRect( r.x(), r.y() + 3, r.width(), r.height() - 5 );
 	break;
 
+    case PE_DockWindowSeparator:
+	name = L"TOOLBAR";
+	if ( flags & Style_Horizontal )
+	    partId = TP_SEPARATOR;
+	else
+	    partId = TP_SEPARATORVERT;
+	break;
+
     default:
 	break;
     }
@@ -478,6 +479,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	return;
     }
     
+    QRect rect(r);
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
@@ -506,29 +508,27 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
     case CE_CheckBox:
 	//    case CE_CheckBoxLabel:
-	{
-	    QCheckBox *cb = (QCheckBox*)widget;
-	    drawPrimitive( PE_Indicator, p, subRect( SR_CheckBoxIndicator, widget ), cg, flags, opt );
-	    return;
-	}
+	drawPrimitive( PE_Indicator, p, subRect( SR_CheckBoxIndicator, widget ), cg, flags, opt );
+	return;
 
     case CE_RadioButton:
 	//    case CE_RadioButtonLabel:
-	{
-	    QRadioButton *rb = (QRadioButton*)widget;
-	    drawPrimitive( PE_ExclusiveIndicator, p, subRect( SR_RadioButtonIndicator, widget ), cg, flags, opt );
-	    return;
-	}
-	
+	drawPrimitive( PE_ExclusiveIndicator, p, subRect( SR_RadioButtonIndicator, widget ), cg, flags, opt );
+	return;
+
     case CE_TabBarTab:
 	//    case CE_TabBarLabel:
 	name = L"TAB";
 	{
 	    QTabBar *bar = (QTabBar*)widget;
 	    QTab *t = opt.tab();
-	    Q_ASSERT(t);
-	    partId = TABP_TABITEM;
-    
+	    if ( bar->indexOf(t->identifier() == 0 ) )
+		partId = TABP_TABITEMLEFTEDGE;
+	    else if ( bar->indexOf(t->identifier() == bar->count() ) )
+		partId = TABP_TABITEMRIGHTEDGE;
+	    else
+		partId = TABP_TABITEM;
+
 	    if ( !(flags & Style_Enabled) )
 		stateId = TIS_DISABLED;
 	    else if ( flags & Style_HasFocus )
@@ -539,6 +539,10 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		stateId = TIS_HOT;
 	    else 
 		stateId = TIS_NORMAL;
+	    if ( !(flags & Style_Selected) || (flags & Style_HasFocus) )
+		rect.addCoords( 0, 2, 0, 0 );
+	    else
+		rect.addCoords( 0, 1, 0, 0 );
 	}
 	break;
 
@@ -547,26 +551,35 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	partId = PP_BAR;
 	stateId = 1;
 	break;
-/*	
-    case CE_MenuBarItem:
-	name = L"MENU";
-	partId = MP_MENUBARITEM;
-	stateId = MS_NORMAL;
-	break;
 
-    case CE_PopupMenuItem:
-	name = L"MENUPOPUP";
-	partId = MP_MENUBARITEM;
-	stateId = MS_NORMAL;
-	break;
-*/
+    case CE_MenuBarItem:
+	{
+	    if (opt.isDefault())
+		break;
+
+	    QMenuItem *mi = opt.menuItem();
+	    if (flags & Style_Active) {
+		p->fillRect(r, cg.brush( QColorGroup::Highlight) );
+		QMenuItem *mi = opt.menuItem();
+		drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
+			 flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+			 &cg.highlightedText());
+	    } else {
+		p->fillRect(r, cg.brush( QColorGroup::Button) );
+		drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
+			 flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+			 &cg.buttonText());
+	    }
+	}
+	return;
+
     default:
 	break;
     }
     
-    XPThemeData theme( widget, p, name, partId, stateId, r );
+    XPThemeData theme( widget, p, name, partId, stateId, rect );
     if ( !theme.isValid() ) {
-	QWindowsStyle::drawControl( element, p, widget, r, cg, flags, opt );
+	QWindowsStyle::drawControl( element, p, widget, rect, cg, flags, opt );
 	return;
     }
     
@@ -1093,7 +1106,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		theme.drawBackground( partId, stateId );
 
-		QRect ir = querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel );
+		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel ), w );
 		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ?
 		    titlebar->palette().active() : titlebar->palette().inactive();
 		p->setPen( cgroup.highlightedText() );
@@ -1101,7 +1114,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
 	    if ( sub & SC_TitleBarSysMenu ) {
-		theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarSysMenu );
+		theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarSysMenu ), w );
 		partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SYSBUTTON : WP_SYSBUTTON;
 		if ( !w->isEnabled() )
 		    stateId = SBS_DISABLED;
@@ -1117,7 +1130,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarMinButton ) {
-		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMinButton );
+		    theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMinButton ), w );
 		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_MINBUTTON : WP_MINBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = MINBS_DISABLED;
@@ -1130,7 +1143,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    theme.drawBackground( partId, stateId );
 		}
 		if ( sub & SC_TitleBarMaxButton ) {
-		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMaxButton );
+		    theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMaxButton ), w );
 		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_MAXBUTTON : WP_MAXBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = MAXBS_DISABLED;
@@ -1143,7 +1156,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    theme.drawBackground( partId, stateId );
 		}
 		if ( sub & SC_TitleBarNormalButton ) {
-		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarNormalButton );
+		    theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarNormalButton ), w );
 		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = RBS_DISABLED;
@@ -1163,7 +1176,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 	    }
 	    if ( sub & SC_TitleBarCloseButton ) {
-		theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton );
+		theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton ), w );
 		partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
 		if ( !w->isEnabled() )
 		    stateId = CBS_DISABLED;
@@ -1303,7 +1316,13 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	    }
 	}
 	break;
-	
+
+    case PM_TabBarTabOverlap:
+    	return -1;
+
+    case PM_TabBarBaseOverlap:
+	return -2;
+
     default:
 	break;	
     }
@@ -1365,9 +1384,8 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		QTabBar* bar = (QTabBar*)o;
 		QTab * t = bar->selectTab( me->pos() );
 		if ( d->hotTab != t ) {
-		    widget->update();
 		    d->hotTab = t;
-		    widget->update();
+		    widget->repaint( FALSE );
 		}
 	    } else if ( o->inherits( "QHeader" ) ) {
 		QHeader *header = (QHeader*)o;
@@ -1389,11 +1407,11 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		QTitleBar *titlebar = (QTitleBar*)o;
 		SubControl sc = querySubControl( CC_TitleBar, titlebar, d->hotSpot );
 		if ( sc != clearHot || clearHot != SC_TitleBarLabel ) {
-		    QRect rect = querySubControlMetrics( CC_TitleBar, titlebar, clearHot );
+		    QRect rect = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, clearHot ), titlebar );
 		    titlebar->repaint( rect, FALSE );
 
 		    clearHot = sc;
-		    rect = querySubControlMetrics( CC_TitleBar, titlebar, sc );
+		    rect = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, sc ), titlebar );
 		    titlebar->repaint( rect, FALSE );
 		}
 	    } else if ( o->inherits( "QSlider" ) ) {
@@ -1418,6 +1436,11 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
         break;
+
+    case QEvent::MouseButtonRelease:
+	if ( widget->inherits( "QTabBar" ) )
+	    widget->repaint( FALSE );
+	break;
 
     case QEvent::Enter:
 	if ( !widget->isActiveWindow() )
@@ -1451,6 +1474,14 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     }
 
     return QWindowsStyle::eventFilter( o, e );
+}
+
+void QWindowsXPStyle::tabBarSelectionChanged()
+{
+    const QObject *o = sender();
+    if ( !o->inherits( "QTabBar" ) )
+	return;
+    ((QWidget*)o)->repaint();
 }
 
 #endif //QT_NO_STYLE_WINDOWSXP

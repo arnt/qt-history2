@@ -1310,7 +1310,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    p->fillRect( titlebar->rect(), left );
 		}
 
-		QRect ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel );
+		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel ), widget );
 
 		p->setPen( cgroup.highlightedText() );
 		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
@@ -1322,7 +1322,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QPixmap pm;
 
 	    if ( controls & SC_TitleBarCloseButton ) {
-		ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton );
+		ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton ), widget );
 		down = active & SC_TitleBarCloseButton;
 		pm = stylePixmap(SP_TitleBarCloseButton, widget);
 		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
@@ -1337,7 +1337,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    if ( titlebar->window() ) {
 		if ( controls & SC_TitleBarMaxButton ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarMaxButton );
+		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarMaxButton ), widget );
 
 		    down = active & SC_TitleBarMaxButton;
 		    pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
@@ -1352,7 +1352,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		}
 
 		if ( controls & SC_TitleBarNormalButton || controls & SC_TitleBarMinButton ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarMinButton );
+		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarMinButton ), widget );
 		    QStyle::SubControl ctrl = (controls & SC_TitleBarNormalButton ?
 					       SC_TitleBarNormalButton :
 					       SC_TitleBarMinButton);
@@ -1372,7 +1372,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		}
 
 		if ( controls & SC_TitleBarShadeButton ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarShadeButton );
+		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarShadeButton ), widget );
 
 		    down = active & SC_TitleBarShadeButton;
 		    pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, widget));
@@ -1386,7 +1386,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		}
 
 		if ( controls & SC_TitleBarUnshadeButton ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarUnshadeButton );
+		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarUnshadeButton ), widget );
 
 		    down = active & SC_TitleBarUnshadeButton;
 		    pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, widget));
@@ -1402,7 +1402,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    if ( controls & SC_TitleBarSysMenu ) {
 		if ( titlebar->icon() ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
+		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu ), widget );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, titlebar->icon(), QString::null );
 		}
 	    }
@@ -1889,7 +1889,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 	    // we can do this because subcontrols were designed to be masks as well...
 	    while (ret == SC_None && ctrl <= SC_TitleBarUnshadeButton) {
-		r = querySubControlMetrics( control, widget, (QStyle::SubControl) ctrl, opt );
+		r = visualRect( querySubControlMetrics( control, widget, (QStyle::SubControl) ctrl, opt ), widget );
 		if (r.isValid() && r.contains(pos))
 		    ret = (QStyle::SubControl) ctrl;
 
