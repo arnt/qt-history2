@@ -147,12 +147,14 @@ public:
 	ScaleMin,
 	ScaleMax
     };
-    QImage scale( int w, int h, ScaleMode mode=ScaleFree ) const;
-    QImage scale( const QSize& s, ScaleMode mode=ScaleFree ) const;
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
     QImage smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const;
     QImage smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const;
 #endif
+    QImage scale( int w, int h, ScaleMode mode=ScaleFree ) const;
+    QImage scale( const QSize& s, ScaleMode mode=ScaleFree ) const;
+    QImage xForm( const QWMatrix &matrix ) const;
+
     QImage	createAlphaMask( int conversion_flags=0 ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 

@@ -349,7 +349,7 @@ QImage::QImage( const QByteArray &array )
 
 /*!
   Constructs a
-  \link shclass.html shallow copy\endlink of \e image.
+  \link shclass.html shallow copy\endlink of \a image.
 */
 
 QImage::QImage( const QImage &image )
@@ -465,7 +465,7 @@ QImage::~QImage()
 /*!
   Assigns a
   \link shclass.html shallow copy\endlink
-  of \e image to this image and returns a reference to this image.
+  of \a image to this image and returns a reference to this image.
 
   \sa copy()
 */
@@ -660,7 +660,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 /*!
   \fn QRgb QImage::color( int i ) const
 
-  Returns the color in the color table at index \e i.
+  Returns the color in the color table at index \a i.
 
   A color value is an RGB triplet. Use the qRed(), qGreen() and qBlue()
   functions (defined in qcolor.h) to get the color value components.
@@ -671,7 +671,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 /*!
   \fn void QImage::setColor( int i, QRgb c )
 
-  Sets a color in the color table at index \e i to \e c.
+  Sets a color in the color table at index \a i to \a c.
 
   A color value is an RGB triplet.  Use the qRgb function (defined in qcolor.h)
   to make RGB triplets.
@@ -682,7 +682,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 /*!
   \fn uchar *QImage::scanLine( int i ) const
 
-  Returns a pointer to the pixel data at the \e i'th scanline.
+  Returns a pointer to the pixel data at the \a i'th scanline.
 
   The scanline data is aligned on a 32-bit boundary.
 
@@ -875,7 +875,7 @@ QImage::Endian QImage::systemBitOrder()
 
 
 /*!
-  Resizes the color table to \e numColors colors.
+  Resizes the color table to \a numColors colors.
 
   If the color table is expanded, then all new colors will be set to black
   (RGB 0,0,0).
@@ -952,9 +952,9 @@ void QImage::setAlphaBuffer( bool enable )
   Returns TRUE if successful, or FALSE if the parameters are incorrect or
   if memory cannot be allocated.
 
-  The \e width and \e height is limited to 32767. \e depth must be 1, 8, or
-  32. If \e depth is 1, \e bitOrder must be set to either
-  QImage::LittleEndian or QImage::BigEndian.  For other depths \e
+  The \a width and \a height is limited to 32767. \a depth must be 1, 8, or
+  32. If \a depth is 1, \a bitOrder must be set to either
+  QImage::LittleEndian or QImage::BigEndian.  For other depths \a
   bitOrder must be QImage::IgnoreEndian.
 
   This function allocates a color table and a buffer for the image data.
@@ -1831,15 +1831,15 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
 #endif
 
 /*!
-  Converts the depth (bpp) of the image to \e depth and returns the
+  Converts the depth (bpp) of the image to \a depth and returns the
   converted image.  The original image is left undisturbed.
 
-  The \e depth argument must be 1, 8, 16 or 32.
+  The \a depth argument must be 1, 8, 16 or 32.
 
   See QPixmap::convertFromImage for a description of the \a
   conversion_flags argument.
 
-  Returns \c *this if \e depth is equal to the image depth, or a null
+  Returns \c *this if \a depth is equal to the image depth, or a null
   image if this image cannot be converted.
 
   \sa depth(), isNull()
@@ -2046,10 +2046,10 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 
 
 /*!
-  Converts the bit order of the image to \e bitOrder and returns the converted
+  Converts the bit order of the image to \a bitOrder and returns the converted
   image.
 
-  Returns \c *this if the \e bitOrder is equal to the image bit order, or a
+  Returns \c *this if the \a bitOrder is equal to the image bit order, or a
   null image if this image cannot be converted.
 
   \sa bitOrder(), systemBitOrder()
@@ -2518,6 +2518,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
     if ( ss == size() )
 	return *this; // nothing to do
 
+#if 0
     // ### change this to something nice
     QPixmap p;
     p.convertFromImage( *this );
@@ -2527,6 +2528,16 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
     if ( p.width() != ss.width() || p.height() != ss.height() )
 	p.resize( ss.width(), ss.height() );
     return p.convertToImage();
+#else
+    QImage img;
+    QWMatrix wm;
+    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
+    img = xForm( wm );
+    // ### I should test and resize the image if it has not the right size
+//    if ( img.width() != ss.width() || img.height() != ss.height() )
+//	img.resize( ss.width(), ss.height() );
+    return img;
+#endif
 }
 
 /*!
@@ -2555,6 +2566,191 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
     if ( useHeight )
 	return QSize( rw, size.height() );
     return QSize( size.width(), (int)(size.width()/ratio) );
+}
+
+QImage QImage::xForm( const QWMatrix &matrix ) const
+{
+    if ( isNull() )
+	return copy();
+
+    // source image data
+    int ws = width();
+    int hs = height();
+    int sbpl = bytesPerLine();
+    int bpp = depth();
+    uchar *sptr = bits();
+
+    // target image data
+    int wd, hd;
+    int dbpl; // bytes per line in destination
+    int dbytes; // bytes total in destination
+
+    int y;
+    bool depth1 = (bpp == 1);
+
+    // compute size of target image
+    QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
+    if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
+	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
+	    return *this;			// identity matrix
+	hd = qRound( mat.m22()*hs );
+	wd = qRound( mat.m11()*ws );
+	hd = QABS( hd );
+	wd = QABS( wd );
+    } else {					// rotation or shearing
+	QPointArray a( QRect(0,0,ws,hs) );
+	a = mat.map( a );
+	QRect r = a.boundingRect().normalize();
+	wd = r.width();
+	hd = r.height();
+    }
+
+    bool invertible;
+    mat = mat.invert( &invertible );		// invert matrix
+    if ( hd == 0 || wd == 0 || !invertible ) {	// error, return null image
+	QImage im;
+	return im;
+    }
+
+    if ( depth1 )
+	dbpl = (wd+7)/8;
+    else
+	dbpl = ((wd*bpp+31)/32)*4;
+    dbytes = dbpl*hd;
+
+    // create target image
+    QImage dImage( wd, hd, bpp, numColors(), bitOrder() );
+    dImage.data->alpha = data->alpha;
+    switch ( bpp ) {
+	// initizialize the data
+	// ### choose nice (i.e. transparent) color for the default
+	case 1:
+	    memset( dImage.bits(), 0, dImage.numBytes() );
+	    break;
+	case 8:
+	    memset( dImage.bits(), Qt::white.pixel(), dImage.numBytes() );
+	    break;
+	case 16:
+	    memset( dImage.bits(), 0xff, dImage.numBytes() );
+	    break;
+	case 32:
+	    memset( dImage.bits(), 0xff, dImage.numBytes() );
+	    break;
+    }
+
+    // compute the transformation
+    int m11 = qRound((double)mat.m11()*65536.0);
+    int m12 = qRound((double)mat.m12()*65536.0);
+    int m21 = qRound((double)mat.m21()*65536.0);
+    int m22 = qRound((double)mat.m22()*65536.0);
+    int dx  = qRound((double)mat.dx() *65536.0);
+    int dy  = qRound((double)mat.dy() *65536.0);
+
+    int	m21ydx = dx;// + (xi->xoffset<<16);
+    int m22ydy = dy;
+    uint trigx;
+    uint trigy;
+    uint maxws = ws<<16;
+    uint maxhs = hs<<16;
+    uchar *p = dImage.bits();
+    int xbpl, p_inc;
+    bool msbfirst = systemByteOrder() == BigEndian; // ### is this right?
+
+    if ( depth1 ) {
+	xbpl  = (wd+7)/8;
+	p_inc = dbpl - xbpl;
+    } else {
+	xbpl  = (wd*bpp)/8;
+	p_inc = dbpl - xbpl;
+    }
+
+    for ( y=0; y<hd; y++ ) {			// for each target scanline
+	trigx = m21ydx;
+	trigy = m22ydy;
+	uchar *maxp = p + xbpl;
+	if ( !depth1 ) {
+	    switch ( bpp ) {
+		case 8:				// 8 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
+		    trigx += m11;
+		    trigy += m12;
+		    p++;
+		}
+		break;
+
+		case 16:			// 16 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
+						     ((trigx>>16)<<1)));
+		    trigx += m11;
+		    trigy += m12;
+		    p++;
+		    p++;
+		}
+		break;
+
+		case 32:			// 32 bpp transform
+		while ( p < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((uint*)p) = *((uint *)(sptr+sbpl*(trigy>>16) +
+						   ((trigx>>16)<<2)));
+		    trigx += m11;
+		    trigy += m12;
+		    p += 4;
+		}
+		break;
+	    }
+	} else if ( msbfirst ) {		// mono bitmap MSB first
+	    while ( p < maxp ) {
+#undef IWX
+#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << (7-((trigx>>16)&7))) )			      \
+			*p |= b;					      \
+		}							      \
+		trigx += m11;						      \
+		trigy += m12;
+	// END OF MACRO
+		IWX(1);
+		IWX(2);
+		IWX(4);
+		IWX(8);
+		IWX(16);
+		IWX(32);
+		IWX(64);
+		IWX(128);
+		p++;
+	    }
+	} else {				// mono bitmap LSB first
+	    while ( p < maxp ) {
+#undef IWX
+#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << ((trigx>>16)&7)) )			      \
+			*p |= b;					      \
+		}							      \
+		trigx += m11;						      \
+		trigy += m12;
+	// END OF MACRO
+		IWX(1);
+		IWX(2);
+		IWX(4);
+		IWX(8);
+		IWX(16);
+		IWX(32);
+		IWX(64);
+		IWX(128);
+		p++;
+	    }
+	}
+	m21ydx += m21;
+	m22ydy += m22;
+	p += p_inc;
+    }
+    return dImage;
 }
 
 /*!
@@ -2861,7 +3057,7 @@ QImage QImage::swapRGB() const
 
 
 /*!
-  Returns a string that specifies the image format of the file \e fileName,
+  Returns a string that specifies the image format of the file \a fileName,
   or null if the file cannot be read or if the format cannot be recognized.
 
   The QImageIO documentation lists the guaranteed supported image
@@ -2939,11 +3135,11 @@ bool QImage::load( const QString &fileName, const char* format )
 }
 
 /*!
-  Loads an image from the binary data in \e buf (\e len bytes).
+  Loads an image from the binary data in \a buf (\a len bytes).
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
-  If \e format is specified, the loader attempts to read the image using the
-  specified format. If \e format is not specified (default),
+  If \a format is specified, the loader attempts to read the image using the
+  specified format. If \a format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   The QImageIO documentation lists the supported image formats and
@@ -2978,8 +3174,8 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
 }
 
 /*!
-  Saves the image to the file \e fileName, using the image file format \e
-  format and a quality factor \e quality.  \e quality must be in the range
+  Saves the image to the file \a fileName, using the image file format \a
+  format and a quality factor \a quality.  \a quality must be in the range
   [0,100] or -1.  Specify 0 to obtain small compressed files, 100 for
   large uncompressed files, and -1 (the default) to use the default
   settings.  Returns TRUE if successful or FALSE if the image could not be
@@ -3470,7 +3666,7 @@ void QImageIO::setFormat( const char *format )
   Setting the IO device allows images to be read/written to any
   block-oriented QIODevice.
 
-  If \e ioDevice is not null, this IO device will override file name
+  If \a ioDevice is not null, this IO device will override file name
   settings.
 
   \sa setFileName()
@@ -3556,7 +3752,7 @@ void QImageIO::setDescription( const QString &description )
 
 
 /*!
-  Returns a string that specifies the image format of the file \e fileName,
+  Returns a string that specifies the image format of the file \a fileName,
   or null if the file cannot not be read or if the format is not recognized.
 */
 
@@ -3572,7 +3768,7 @@ const char* QImageIO::imageFormat( const QString &fileName )
 
 /*!
   Returns a string that specifies the image format of the image read from
-  \e d, or null if the file cannot be read or if the format is not recognized.
+  \a d, or null if the file cannot be read or if the format is not recognized.
 */
 
 const char *QImageIO::imageFormat( QIODevice *d )
