@@ -516,6 +516,14 @@ QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
 */
 
 /*!
+    \enum QTreeWidgetItem::Role
+
+    \value FontRole
+    \value BackgroundColorRole
+    \value TextColorRole
+*/
+
+/*!
     \fn const QTreeWidgetItem *QTreeWidgetItem::parent() const
 
     Returns this tree widget item's parent (which is 0 if this item is
@@ -562,24 +570,6 @@ QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
 
 
 /*!
-    \fn QString QTreeWidgetItem::text(int column) const
-
-    Returns the text from the given \a column.
-
-    \sa setText() icon() columnCount()
-*/
-
-
-/*!
-    \fn QIconSet QTreeWidgetItem::icon(int column) const
-
-    Returns the iconset from the given \a column.
-
-    \sa setIcon() text() columnCount()
-*/
-
-
-/*!
     \fn bool QTreeWidgetItem::isEditable() const
 
     Returns true if this tree widget item is editable; otherwise
@@ -596,24 +586,6 @@ QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
     returns false.
 
     \sa setSelectable()
-*/
-
-
-/*!
-    \fn void QTreeWidgetItem::setText(int column, const QString &text)
-
-    Sets the given \a column to hold the given \a text.
-
-    \sa text() setIcon()
-*/
-
-
-/*!
-    \fn void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
-
-    Sets the given \a column to hold the given \a icon.
-
-    \sa icon() setText()
 */
 
 
@@ -761,64 +733,127 @@ void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 }
 
 
+/*!
+    Returns the status tip text for the specified \a column.
+
+    \sa setStatusTip() whatsThis() toolTip()
+*/
 QString QTreeWidgetItem::statusTip(int column) const
 {
     return retrieve(column, QAbstractItemModel::StatusTipRole).toString();
 }
 
+/*!
+    Sets the status tip text to \a statusTip for the specified \a
+    column.
+
+    \sa statusTip() setWhatsThis() setToolTip()
+*/
 void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
 {
     store(column, QAbstractItemModel::StatusTipRole, statusTip);
 }
 
+/*!
+    Returns the tool tip text for the specified \a column.
+
+    \sa setToolTip() whatsThis() statusTip()
+*/
 QString QTreeWidgetItem::toolTip(int column) const
 {
     return retrieve(column, QAbstractItemModel::ToolTipRole).toString();
 }
 
+/*!
+    Sets the tool tip text to \a toolTip for the specified \a
+    column.
+
+    \sa toolTip() setWhatsThis() setStatusTip()
+*/
 void QTreeWidgetItem::setToolTip(int column, const QString &toolTip)
 {
     store(column, QAbstractItemModel::ToolTipRole, toolTip);
 }
 
+/*!
+    Returns the What's This text for the specified \a column.
+
+    \sa setWhatsThis() toolTip() statusTip()
+*/
 QString QTreeWidgetItem::whatsThis(int column) const
 {
     return retrieve(column, QAbstractItemModel::WhatsThisRole).toString();
 }
 
+/*!
+    Sets the What's This text to \a whatsThis for the specified \a
+    column.
+
+    \sa whatsThis() setToolTip() setStatusTip()
+*/
 void QTreeWidgetItem::setWhatsThis(int column, const QString &whatsThis)
 {
     store(column, QAbstractItemModel::WhatsThisRole, whatsThis);
 }
 
+/*!
+    Returns the text font for the specified \a column.
+
+    \sa setFont() textColor()
+*/
 QFont QTreeWidgetItem::font(int column) const
 {
     QVariant value = retrieve(column, FontRole);
     return value.isValid() ? value.toFont() : QApplication::font();
 }
 
+/*!
+    Sets the \a font for the specified \a column.
+
+    \sa font() setTextColor()
+*/
 void QTreeWidgetItem::setFont(int column, const QFont &font)
 {
     store(column, FontRole, font);
 }
 
+/*!
+    Returns the background color for the specified \a column.
+
+    \sa setBackgroundColor() textColor()
+*/
 QColor QTreeWidgetItem::backgroundColor(int column) const
 {
     QVariant value = retrieve(column, BackgroundColorRole);
     return value.isValid() ? value.toColor() : QColor();
 }
 
+/*!
+    Sets the background \a color for the specified \a column.
+
+    \sa backgroundColor() setTextColor()
+*/
 void QTreeWidgetItem::setBackgroundColor(int column, const QColor &color)
 {
     store(column, BackgroundColorRole, color);
 }
 
+/*!
+    Returns the text color for the specified \a column.
+
+    \sa setTextColor() backgroundColor()
+*/
 QColor QTreeWidgetItem::textColor(int column) const
 {
     QVariant value = retrieve(column, TextColorRole);
     return value.isValid() ? value.toColor() : QColor();
 }
 
+/*!
+    Sets the text \a color for the specified \a column.
+
+    \sa textColor() setBackgroundColor()
+*/
 void QTreeWidgetItem::setTextColor(int column, const QColor &color)
 {
     store(column, TextColorRole, color);
@@ -892,6 +927,12 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     }
 }
 
+/*!
+    Sets the value for the item's \a column and \a role to the given
+    \a value.
+
+    \sa store()
+*/
 void QTreeWidgetItem::store(int column, int role, const QVariant &value)
 {
     if (column >= columns)
@@ -906,6 +947,11 @@ void QTreeWidgetItem::store(int column, int role, const QVariant &value)
     values[column].append(Data(role, value));
 }
 
+/*!
+    Returns the value for the item's \a column and \a role.
+
+    \sa store()
+*/
 QVariant QTreeWidgetItem::retrieve(int column, int role) const
 {
     const QVector<Data> column_values = values.at(column);

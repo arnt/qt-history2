@@ -2704,19 +2704,19 @@ QSize QScrollView::cachedSizeHint() const
 }
 
 /*!
-    \fn void QScrollView::repaintContents(int x, int y, int w, int h, bool)
+    \fn void QScrollView::repaintContents(int x, int y, int w, int h, bool b)
 
     Use the four-argument overload instead.
 */
 
 /*!
-    \fn void QScrollView::repaintContents(const QRect& r, bool)
+    \fn void QScrollView::repaintContents(const QRect& r, bool b)
 
     Use the single-argument overload instead.
 */
 
 /*!
-    \fn void QScrollView::repaintContents(bool)
+    \fn void QScrollView::repaintContents(bool b)
 
     Use the no-arguments overload instead.
 */
