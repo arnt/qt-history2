@@ -81,7 +81,6 @@ iconview:SUBDIRS += fileiconview \
 
 network:SUBDIRS +=  network/clientserver/client \
 		    network/clientserver/server \
-		    network/fetchfiles \
 		    network/ftpclient \
 		    network/httpd \
 		    network/infoprotocol/infoclient \
