@@ -1132,8 +1132,12 @@ Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
 template <> inline void qDelete<void*>(void *&) { }
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
-template <> inline void qDelete<QFunctionPointer>(QFunctionPointer &) { }
-template <> inline void qDelete<QFunctionPointerWithArgs>(QFunctionPointerWithArgs &) { }
+#if defined(Q_CC_BOR)
+template <> inline void qDelete<void()>(QFunctionPointer &) { }
+#else
+template <> inline void qDelete(QFunctionPointer &) { }
+template <> inline void qDelete(QFunctionPointerWithArgs &) { }
+#endif
 
 
 Q_EXPORT void *qMalloc(size_t size);
