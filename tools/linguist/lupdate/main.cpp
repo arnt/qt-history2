@@ -178,12 +178,14 @@ int main( int argc, char **argv )
 			 argv[i] );
 	    }
 	} else {
-	    if ( metTsFlag ) {
+	    if ( metTsFlag && QString(argv[i]).right(3).lower() == ".ts" ) {
 		QFileInfo fi( argv[i] );
-		if ( fi.permission( QFileInfo::WriteUser ) )
+		if ( fi.permission( QFileInfo::WriteUser ) ) {
 		    tsFileNames.append( QString(argv[i]) );
-		else
-		    return -1;
+		} else {
+		    fprintf( stderr, "lupdate warning: For some reason, I cannot save '%s'\n", argv[i] );
+		    return 1;
+		}
 	    } else {
 		if ( QString(argv[i]).right(4).lower() == ".pro" ) {
 		    QMap<QString, QString> tagMap = proFileTagMap( fullText );
