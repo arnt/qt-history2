@@ -696,12 +696,10 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
         d->compatMode = true;
         for (int i = 0; i < d->list.size(); ++i) {
             QSplitterLayoutStruct *s = d->list.at(i);
-            if (s->isHandle)
-                continue;
-            if (s->wid == w)
+            if (s->widget == w)
                 metWidget = true;
-            if (getStretch(s->wid) == 0)
-                setStretch(s->wid, 1);
+            if (getStretch(s->widget) == 0)
+                setStretch(s->widget, 1);
         }
     }
     int sf;
@@ -742,7 +740,7 @@ QSplitterLayoutStruct *QSplitterPrivate::addWidget(QWidget *w, bool prepend)
 
 #ifdef QT_COMPAT
     if (compatMode) {
-        int sf = getStretch(s->wid);
+        int sf = getStretch(s->widget);
         if (sf == 243)
             setStretch(s->widget, 0);
         else if (sf == 0)
@@ -1102,9 +1100,7 @@ int QSplitter::idAfter(QWidget* w) const
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
     bool seen_w = false;
     while (it != d->list.end()) {
-        if ((*it)->isHandle && seen_w)
-            return d->list.indexOf(*it);
-        if (!(*it)->isHandle && (*it)->wid == w)
+        if ((*it)->widget == w)
             seen_w = true;
         ++it;
     }
