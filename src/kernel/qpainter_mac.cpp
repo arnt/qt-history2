@@ -633,8 +633,8 @@ void QPainter::setClipRegion( const QRegion &r )
 	else 
 	    rset &= savedclip;
     }
-    if(testf(ClipOn)) 
-	SetClip((RgnHandle)rset.handle());
+    setf( ClipOn );
+    SetClip((RgnHandle)rset.handle());
 }
 
 /*!
