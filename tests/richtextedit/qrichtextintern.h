@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#6 $
 **
 ** Internal rich text classes
 **
@@ -34,6 +34,7 @@ class QtTextBox;
 class QtTextIterator;
 class QtRichText;
 class QtTextRow;
+class QtTextCustomItem;
 
 
 class QtStyleSheet : public QStyleSheet
@@ -49,34 +50,59 @@ public:
 };
 
 
-class QtTextRichString : public QString
+class QtTextRichString
 {
+    friend class QtTextRow;
+    struct Item {
+	Item() {
+	    format = 0;
+	    width = -1;
+	    custom = 0;
+	};
+	Item( const Item& other) {
+	    c = other.c;
+	    format = other.format;
+	    width = other.width;
+	    custom = 0;
+	};
+	Item& operator=( const Item& other) {
+	    c = other.c;
+	    format = other.format;
+	    width = other.width;
+	    custom = other.custom;
+	    return *this;
+	};
+	int width;
+	QString c;
+	QtTextCharFormat* format;
+	QtTextCustomItem* custom;
+    };
+    Item* items;
+    int store;
+    int len;
 public:
     QtTextRichString( QtTextFormatCollection* fmt );
+    QtTextRichString( const QtTextRichString &other );
+    QtTextRichString& operator=( const QtTextRichString &other );
     ~QtTextRichString();
 
-    int length() const;
+    inline int length() const;
+    inline bool isEmpty() const;
     void remove( int index, int len );
-    void insert( int index, const QChar& c, QtTextCharFormat fmt );
-    inline void append( const QChar& c, QtTextCharFormat fmt )
-    {
-	insert( length(), c, fmt);
-    }
-    void clear() {
-	QString::operator=(QString::null);
-    }
+    void insert( int index, const QString& c, const QtTextCharFormat& fmt );
+    inline void append( const QString& c,const  QtTextCharFormat& fmt );
+    void clear();
 
-    QChar charAt( int index ) const;
-    QtTextCharFormat formatAt( int index ) const;
+    inline QString charAt( int index ) const;
+    inline QtTextCharFormat *formatAt( int index ) const;
+    inline bool haveSameFormat( int index1, int index2 ) const;
 
-    bool haveSameFormat( int index1, int index2 ) const;
+    inline bool isCustomItem( int index ) const;
+    inline QtTextCustomItem* customItemAt( int index ) const;
 
-    bool isCustomItem( int index ) const;
-    QtTextCustomItem* customItemAt( int index ) const;
-
+    QtTextFormatCollection* format; // make private
 private:
-    ushort formatIndexAt( int index ) const;
-    QtTextFormatCollection* format;
+    void setLength( int l );
 };
 
 class QtTextOptions {
@@ -96,9 +122,9 @@ class QtBox
 public:
     QtBox( QtBox* p, QtTextFormatCollection* formatCol,
 	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-    : parent( p ), formats( formatCol ), text( formats ), style ( stl ), attributes_( attr )
+    : parent( p ), formats( formatCol ), text( formatCol ), style ( stl ), attributes_( attr )
     {
-	boxes.setAutoDelete( TRUE );
+	child = next = 0;
 	rows.setAutoDelete( TRUE );
 	width = widthUsed = height = 0;
     };
@@ -107,24 +133,27 @@ public:
 	   const QStyleSheetItem *stl )
     : parent( p ), formats( formatCol ), text( formats ), style ( stl )
     {
-	boxes.setAutoDelete( TRUE );
+	child = next = 0;
 	rows.setAutoDelete( TRUE );
 	width = widthUsed = height = 0;
     };
+
+    ~QtBox();
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion,
 	      const QColorGroup& cg, const QtTextOptions& ,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
+    void setWidth (QPainter* p, QFontMetrics& fm, int newWidth, bool forceResize = FALSE);
 
     QtBox* parent;
     QtTextFormatCollection* formats;
     QtTextRichString text;
     const QStyleSheetItem* style;
     QMap<QString, QString> attributes_;
+    QtBox* child;
+    QtBox* next;
 
-    QList<QtBox> boxes;
     QList<QtTextRow> rows;
 
     inline QMap<QString, QString> attributes()  const
@@ -259,7 +288,7 @@ public:
     QtTextRow( QPainter* p, QFontMetrics &fm,
 	       QtBox* b, int w, int& min, int align);
     QtTextRow( QPainter* p, QFontMetrics &fm,
-	       QtTextRichString* t, int &index, int w, int& min, int align);
+	       const QtTextRichString* t, int &index, int w, int& min, int align);
     ~QtTextRow();
     int x;
     int y;
@@ -279,7 +308,7 @@ public:
     bool dirty;
 
     QtBox* box;
-    QtTextRichString* text;
+    const QtTextRichString* text;
     int first;
     int last;
 };
@@ -432,13 +461,16 @@ public:
 
     bool isValid() const;
 
+    void setWidth (QPainter* p, int newWidth );
+    
     QString context() const;
     void dump();
 
 private:
     void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
-    bool parse (QtBox* current, QtBox* dummy, QtTextCharFormat fmt, const QString& doc, int& pos);
+    bool parse (QtBox* current, const QStyleSheetItem* cursty, QtBox* dummy,
+		QtTextCharFormat fmt, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);
@@ -741,3 +773,41 @@ private:
     void rightInternal(bool select = FALSE);
     void leftInternal(bool select = FALSE);
 };
+
+inline void QtTextRichString::append( const QString& c,const  QtTextCharFormat& fmt )
+{
+	insert( length(), c, fmt);
+}
+
+inline int QtTextRichString::length() const
+{
+    return len;
+}
+
+inline bool QtTextRichString::isEmpty() const
+{
+    return len == 0;
+}
+
+inline QString QtTextRichString::charAt( int index ) const
+{
+    return items[index].c;
+}
+
+inline QtTextCharFormat *QtTextRichString::formatAt( int index ) const
+{
+    return items[index].format;
+}
+
+
+inline QtTextCustomItem* QtTextRichString::customItemAt( int index ) const
+{
+    return items[index].format->customItem();
+}
+
+
+inline bool QtTextRichString::haveSameFormat( int index1, int index2 ) const
+{
+    return items[index1].format == items[index2].format;
+}
+

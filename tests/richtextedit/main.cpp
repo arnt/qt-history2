@@ -12,8 +12,8 @@ int main( int argc, char* argv[]  )
     QStyleSheet::defaultSheet()->item("li")->setSelfNesting( FALSE );
     QtTextView v;
     QBrush paper;
-    paper.setPixmap( QPixmap( "marble.xpm" ) );
-    v.setPaper( paper );
+     paper.setPixmap( QPixmap( "marble.xpm" ) );
+//     v.setPaper( paper );
     a.setMainWidget( &v );
     
     if ( argc > 1 ) {

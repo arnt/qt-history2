@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#4 $
 **
 ** Implementation of the QtTextView class
 **
@@ -516,7 +516,7 @@ void QtTextView::doResize()
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
-    if ( contentsHeight() > 4 * height() ) {
+    if ( FALSE && contentsHeight() > 4 * height() ) {
       // large document, do deferred resize
       d->resizeTimer->start( 200, TRUE );
       QScrollView::resizeEvent( e );

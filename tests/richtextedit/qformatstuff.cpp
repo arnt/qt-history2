@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#12 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#13 $
 **
 ** Definition of the QtTextView class
 **
@@ -29,30 +29,42 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 ), customItem_( 0 ), logicalFontSize( 3 )
+    : ref( 1 ), logicalFontSize( 3 )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
     : font_( format.font_ ), color_( format.color_ ),
-      key( format.key ), ref( 1 ), customItem_( 0 ),
-      logicalFontSize( format.logicalFontSize )
+      key( format.key ), ref( 1 ),
+      logicalFontSize( format.logicalFontSize ),
+      anchor_href( format.anchor_href ),
+      anchor_name( format.anchor_name ),
+      parent(0)
 {
 }
 
-QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci )
-    : font_( f ), color_( c ), ref( 1 ), customItem_( ci ), logicalFontSize( 3 )
+QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
+    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ),parent(0)
 {
     createKey();
 }
 
 
+ 
+QtTextCharFormat::~QtTextCharFormat()
+{
+}
+
+
+
 void QtTextCharFormat::createKey()
 {
-    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
-          arg( color_.red() ).arg( color_.green() ).arg( color_.blue() ).
-          arg( font_.family() ).arg( font_.pointSize() ).arg( font_.weight() ).
-          arg( (int)font_.underline() ).arg( (int)font_.italic() );
+    //TODO speedup avoiding argv
+    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8_%9_%10_%11" ).
+	  arg(anchor_href).arg(anchor_name).
+	  arg( color_.red() ).arg( color_.green() ).arg( color_.blue() ).
+	  arg( font_.family() ).arg( font_.pointSize() ).arg( font_.weight() ).
+	  arg( (int)font_.underline() ).arg( (int)font_.italic()).arg((ulong)custom);
 }
 
 QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
@@ -61,30 +73,15 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     color_ = fmt.color_;
     key = fmt.key;
     ref = 1;
-    customItem_ = fmt.customItem_;
     logicalFontSize = fmt.logicalFontSize;
-
+    anchor_href = fmt.anchor_href;
+    anchor_name = fmt.anchor_name;
     return *this;
 }
 
 bool QtTextCharFormat::operator==( const QtTextCharFormat &format )
 {
     return format.key == key;
-}
-
-QColor QtTextCharFormat::color() const
-{
-    return color_;
-}
-
-QFont QtTextCharFormat::font() const
-{
-    return font_;
-}
-
-QtTextCustomItem *QtTextCharFormat::customItem() const
-{
-    return customItem_;
 }
 
 int QtTextCharFormat::addRef()
@@ -97,94 +94,91 @@ int QtTextCharFormat::removeRef()
     return --ref;
 }
 
-QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
+QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style, 
+						   const QMap<QString,QString>& attr,
+						   QtTextCustomItem*  item )
 {
-    QtTextCharFormat format = *this;
-    if ( item->fontWeight() != QStyleSheetItem::Undefined )
-        format.font_.setWeight( item->fontWeight() );
-    if ( item->fontSize() != QStyleSheetItem::Undefined )
-        format.font_.setPointSize( item->fontSize() );
-    else if ( item->logicalFontSize() != QStyleSheetItem::Undefined )
-        item->styleSheet()->scaleFont( format.font_, item->logicalFontSize() );
-    else if ( item->logicalFontSizeStep() != QStyleSheetItem::Undefined )
-        item->styleSheet()->scaleFont( format.font_,
-                                       logicalFontSize + item->logicalFontSizeStep() );
-    if ( !item->fontFamily().isEmpty() )
-        format.font_.setFamily( item->fontFamily() );
-    if ( item->color().isValid() )
-        format.color_ = item->color();
-    if ( item->definesFontItalic() )
-        format.font_.setItalic( item->fontItalic() );
-    if ( item->definesFontUnderline() )
-        format.font_.setUnderline( item->fontUnderline() );
+    QtTextCharFormat format(*this);
+    format.custom = item;
+    if ( style->isAnchor() ) {
+	format.anchor_href = attr["href"];
+	format.anchor_name = attr["name"];
+    }
+    
+    if ( style->fontWeight() != QStyleSheetItem::Undefined )
+        format.font_.setWeight( style->fontWeight() );
+    if ( style->fontSize() != QStyleSheetItem::Undefined )
+        format.font_.setPointSize( style->fontSize() );
+    else if ( style->logicalFontSize() != QStyleSheetItem::Undefined )
+        style->styleSheet()->scaleFont( format.font_, style->logicalFontSize() );
+    else if ( style->logicalFontSizeStep() != QStyleSheetItem::Undefined )
+        style->styleSheet()->scaleFont( format.font_,
+                                       logicalFontSize + style->logicalFontSizeStep() );
+    if ( !style->fontFamily().isEmpty() )
+        format.font_.setFamily( style->fontFamily() );
+    if ( style->color().isValid() )
+        format.color_ = style->color();
+    if ( style->definesFontItalic() )
+        format.font_.setItalic( style->fontItalic() );
+    if ( style->definesFontUnderline() )
+        format.font_.setUnderline( style->fontUnderline() );
 
     format.createKey();
     return format;
 }
 
 QtTextFormatCollection::QtTextFormatCollection()
-    : lastRegisterFormat( 0 ), lastRegisterIndex( 0 ),
-      lastFormatIndex( 0 ), lastFormatFormat( 0 )
+    : lastRegisterFormat( 0 )
 {
 }
 
-ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
+QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
     if ( lastRegisterFormat ) {
         if ( format.key == lastRegisterFormat->key ) {
-            lastRegisterFormat->addRef();
-            return lastRegisterIndex;
+	    lastRegisterFormat->addRef();
+	    return lastRegisterFormat;
         }
     }
+    
+    if ( format.parent == this ) {
+	QtTextCharFormat* f = ( QtTextCharFormat*) &format;
+	f->addRef();
+	lastRegisterFormat = f;
+	return f;
+    }
 
-    if ( cKey.contains( format.key ) ) {
-        QtTextCharFormat *f = cKey[ format.key ];
-        f->addRef();
-        int i = cKeyIndex[ format.key ];
-        lastRegisterFormat = f;
-        lastRegisterIndex = i;
-        return i;
+    QtTextCharFormat *fc = cKey[ format.key ];
+    if ( fc ) {
+	fc->addRef();
+	lastRegisterFormat = fc;
+	return fc;
     } else {
-        QtTextCharFormat *f = new QtTextCharFormat( format );
-        cKey[ f->key ] = f;
-        int i = cIndex.count();
-        cIndex[ i ] = f;
-        cKeyIndex[ f->key ] = i;
-        lastRegisterFormat = f;
-        lastRegisterIndex = i;
-        return i;
+	QtTextCharFormat *f = new QtTextCharFormat( format );
+	f->parent = this;
+	cKey[ f->key ] = f;
+	lastRegisterFormat = f;
+	return f;
     }
 }
 
-void QtTextFormatCollection::unregisterFormat( ushort index )
+void QtTextFormatCollection::unregisterFormat( const QtTextCharFormat &format )
 {
-    if ( cIndex.contains( index ) ) {
-        QString key = cIndex[ index ]->key;
-        QtTextCharFormat *f = cKey[ key ];
-        int ref = f->removeRef();
-        if ( ref <= 0 ) {
-            delete f;
-            cKey.remove( key );
-            cIndex.remove( index );
-            cKeyIndex.remove( key );
-        }
+    QtTextCharFormat* f  = 0;
+    
+    if ( format.parent == this )
+	f = ( QtTextCharFormat*)&format;
+    else if ( cKey.contains( format.key ) ) 
+	f = cKey[ format.key ];
+
+    if ( f ) {
+	int ref = f->removeRef();
+	if ( ref <= 0 ) {
+	    if ( f == lastRegisterFormat )
+		lastRegisterFormat = 0;
+	    cKey.remove( format.key );
+	    delete f;
+	}
     }
-
-}
-
-QtTextCharFormat QtTextFormatCollection::format( ushort index )
-{
-    if ( lastFormatIndex == index && lastFormatFormat )
-        return *lastFormatFormat;
-
-    if ( !cIndex[index] ) {
-	QtTextCharFormat result;
-	return result;
-    }
-
-    lastFormatFormat = cIndex[ index ];
-    lastFormatIndex = index;
-
-    return *lastFormatFormat;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#9 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#10 $
 **
 ** Definition of the QtTextView class
 **
@@ -33,6 +33,7 @@
 
 class QStyleSheetItem;
 class QtTextCustomItem;
+class QtTextFormatCollection;
 
 class QtTextCharFormat
 {
@@ -41,36 +42,44 @@ class QtTextCharFormat
 public:
     QtTextCharFormat();
     QtTextCharFormat( const QtTextCharFormat &format );
-    QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci = 0 );
+    QtTextCharFormat( const QFont &f, const QColor &c );
     QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt );
     bool operator==( const QtTextCharFormat &format );
+    virtual ~QtTextCharFormat();
 
-    QtTextCharFormat makeTextFormat( const QStyleSheetItem *item );
+    QtTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
+				     QtTextCustomItem* item = 0);
 
-    QColor color() const;
-    QFont font() const;
-
-    bool isCustomItem() { return customItem_ != 0; }
+    inline QColor color() const;
+    inline QFont font() const;
+    inline QString anchorHref() const;
+    inline QString anchorName() const;
 
     int addRef();
     int removeRef();
 
-    QtTextCustomItem *customItem() const;
+    inline QtTextCustomItem *customItem();
 
 protected:
     QFont font_;
     QColor color_;
     QString key;
     int ref;
-    QtTextCustomItem *customItem_;
     int logicalFontSize;
+    QString anchor_href;
+    QString anchor_name;
+    
     void createKey();
+private:
+    QtTextFormatCollection* parent;
+    QtTextCustomItem* custom;
 };
 
-class QtTextCustomItem
+class QtTextCustomItem : public Qt
 {
 public:
     QtTextCustomItem() {}
+    virtual ~QtTextCustomItem() {}
 };
 
 class QtTextFormatCollection
@@ -80,20 +89,40 @@ class QtTextFormatCollection
 public:
     QtTextFormatCollection();
 
-    ushort registerFormat( const QtTextCharFormat &format );
-    void unregisterFormat( ushort index );
-    QtTextCharFormat format( ushort index );
+    QtTextCharFormat*  registerFormat( const QtTextCharFormat &format );
+    void unregisterFormat( const QtTextCharFormat &format  );
 
 protected:
     QMap< QString, QtTextCharFormat* > cKey;
-    QMap< int, QtTextCharFormat* > cIndex;
-    QMap< QString, int > cKeyIndex;
-
-    QtTextCharFormat *lastRegisterFormat;
-    ushort lastRegisterIndex;
-    ushort lastFormatIndex;
-    QtTextCharFormat *lastFormatFormat;
-
+    QtTextCharFormat* lastRegisterFormat;
 };
+
+
+inline QColor QtTextCharFormat::color() const
+{
+    return color_;
+}
+
+inline QFont QtTextCharFormat::font() const
+{
+    return font_;
+}
+
+inline QString QtTextCharFormat::anchorHref() const
+{
+    return anchor_href;
+}
+
+inline QString QtTextCharFormat::anchorName() const
+{
+    return anchor_name;
+}
+
+inline QtTextCustomItem * QtTextCharFormat::customItem()
+{
+    return custom;
+}
+
+
 
 #endif

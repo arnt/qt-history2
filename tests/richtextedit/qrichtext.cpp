@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#6 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -248,7 +248,7 @@ QtTextRow::QtTextRow()
 }
 
 
-QtTextRow::QtTextRow( QPainter* p, QFontMetrics & /*fm */,
+QtTextRow::QtTextRow( QPainter* p, QFontMetrics & fm,
 		      QtBox* b, int w, int& min, int /*align*/)
 {
     x = y = width = height = base = 0;
@@ -258,7 +258,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics & /*fm */,
 
     width = w;
 
-    box->setWidth(p, width );
+    box->setWidth(p, fm, width );
     width = QMAX( box->widthUsed, width );
     height = box->height;
     base = height;
@@ -267,7 +267,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics & /*fm */,
 }
 
 QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
-		    QtTextRichString* t, int &index, int w, int& min, int align)
+		    const QtTextRichString* t, int &index, int w, int& min, int align)
 {
     x = y = width = height = base = 0;
     dirty = TRUE;
@@ -293,11 +293,15 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
     int lastBearing = 0;
     int lastAsc = rasc;
     int lastDesc = rdesc;
-    bool noSpaceFound = TRUE; // TRUE;
+    bool noSpaceFound = TRUE;
 
-    QtTextCharFormat fmt = text->formatAt( index );
+    QtTextCharFormat* fmt = text->formatAt( index );
     int fmt_index = index;
-    p->setFont( fmt.font() );
+    p->setFont( fmt->font() );
+    int minRightBearing = fm.minRightBearing();
+    int space_width = fm.width(' ');
+    int fm_ascent = fm.ascent();
+    int fm_height = fm.height();
 
     while ( index < text->length() ) {
 	int h,a,d;
@@ -306,14 +310,22 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	if ( !text->haveSameFormat( fmt_index, index ) ) {
 	    fmt = text->formatAt( index );
 	    fmt_index = index;
-	    p->setFont( fmt.font() );
+	    p->setFont( fmt->font() );
+	    minRightBearing = fm.minRightBearing();
+	    space_width = fm.width(' ');
+	    fm_ascent = fm.ascent();
+	    fm_height = fm.height();
 	}
+
+	QtTextRichString::Item* item = &text->items[index];
+	QString c = item->c;
+	QChar lastc = c[c.length()-1];
+	if ( item->width < 0 )
+	    item->width = fm.width( c );
+	tx += item->width;
 	
-	QChar c = text->charAt( index );
-	if (!c.isNull())
-	    tx += fm.width( c );
-	h = fm.height();
-	a = fm.ascent();
+	h = fm_height;
+	a = fm_ascent;
 	d = h-a;
 
 	/* custom nodes
@@ -326,30 +338,31 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	    d = 0;
 	*/
 	
-	if (tx > width - fm.width(' ') + fm.minRightBearing() && !noSpaceFound  &&
-	    ( !c.isSpace() || c == QChar(0x00a0U)  ) )
+	if ( tx > width - space_width + minRightBearing && !noSpaceFound )
 	    break;
 
-	rh = QMAX( rh, h );
-	rasc = QMAX( rasc, a );
-	rdesc = QMAX( rdesc, d );
+	if ( h > rh )
+	    rh = h;
+	if ( a > rasc )
+	    rasc = a;
+	if ( d > rdesc )
+	    rdesc = d;
 	
 	++index;
 	
 	// break (a) after a space, (b) before a box, (c) if we have
 	// to or (d) at the end of a box.
-	if ( (c.isSpace() && c != QChar(0x00a0U) ) || c == '\n' ||
-	    index == text->length() || noSpaceFound ){
+	if ( lastc == ' ' || lastc == '\n' || index == text->length() ){
 	    lastSpace = index - 1;
 	    lastHeight = rh;
 	    lastAsc = rasc;
 	    lastDesc = rdesc;
 	    lastWidth = tx;
-	    lastBearing = fm.minRightBearing();
- 	    if (noSpaceFound && ( c.isSpace() && !c != QChar(0x00a0U)  ) )
+	    lastBearing = minRightBearing;
+ 	    if ( lastc == ' ' )
  		noSpaceFound = FALSE;
 	}
-	if ( c == '\n' )
+	if ( lastc == '\n' )
 	    break;
     }
 
@@ -435,17 +448,22 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
     static QString s;
 
     QFontMetrics fm = p->fontMetrics();
-    QChar c;
+    QString c;
     int tw;
     for ( int index = first; index <= last; ++index ) {
-// 	const QtTextContainer* anc = it.parentNode()->anchor();
-// 	s.truncate(0);
-// 	QFont font = it.parentNode()->font();
-// 	if ( anc && to.linkUnderline && anc->attributes()
-// 	     && anc->attributes()->contains("href") )
-// 	    font.setUnderline( TRUE );
-	QtTextCharFormat format ( text->formatAt( index ) );
-	p->setFont( format.font() );
+	QtTextCharFormat *format  = text->formatAt( index );
+	p->setFont( format->font() );
+	p->setPen( format->color() );
+	
+	if ( !format->anchorHref().isEmpty() ) {
+	    p->setPen( to.linkColor );
+	    if ( to.linkUnderline ) {
+		QFont f = format->font();
+		f.setUnderline( TRUE );
+		p->setFont( f );
+	    }
+	}
+	
 	tw = 0;
 	// TODO custom nodes
 	
@@ -464,12 +482,6 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 		tw += fm.width( c );
 	    }
 	}
-	
-	p->setPen( format.color() );
-	
-// 	if ( anc && anc->attributes() && anc->attributes()->contains("href") )
-// 	    p->setPen( to.linkColor );
-		
 	
 // 	// Get rid of garbage at last of line (\n etc. at visible
 // 	// on Windows. ### Matthias: Fix in parser?
@@ -939,7 +951,7 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
     valid = TRUE;
     int pos = 0;
     QtTextCharFormat fmt( font, Qt::black );
-    parse(this, 0, fmt, doc, pos);
+    parse(this, base, 0, fmt, doc, pos);
 }
 
 QtRichText::~QtRichText()
@@ -960,6 +972,13 @@ bool QtRichText::isValid() const
     return valid;
 }
 
+
+void QtRichText::setWidth (QPainter* p, int newWidth )
+{
+    QFontMetrics fm = p->fontMetrics();
+    QtBox::setWidth( p, fm, newWidth );
+}
+
 /*!
   Returns the context of the rich text document. If no context has been specified
   in the constructor, a null string is returned.
@@ -969,11 +988,13 @@ QString QtRichText::context() const
     return contxt;
 }
 
-
-bool QtRichText::parse (QtBox* current, QtBox* dummy, 
+static int qt_link_count = 0;
+bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* dummy,
 			QtTextCharFormat fmt, const QString &doc, int& pos)
 {
     bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
+    if ( !pre )
+	eatSpace(doc, pos); 
     while ( valid && pos < int(doc.length() )) {
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
@@ -986,12 +1007,12 @@ bool QtRichText::parse (QtBox* current, QtBox* dummy,
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
- 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
+ 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
  		pos = beforePos;
  		return FALSE;
  	    }
 
-	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
+	    if ( nstyle && !nstyle->allowedInContext( curstyle ) ) {
 		QString msg;
 		msg.sprintf( "QtText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
@@ -1014,12 +1035,19 @@ bool QtRichText::parse (QtBox* current, QtBox* dummy,
 		    dummy = new QtBox( current, formats, base );
 		    dummy->text = current->text;
 		    current->text.clear();
-		    current->boxes.append( dummy );
+		    current->child = dummy;
 		}
 		QtBox* subbox = new QtBox( current, formats, nstyle, attr );
-		current->boxes.append( subbox );
+		if ( !current->child )
+		    current->child = subbox;
+		else {
+		    QtBox* it = current->child;
+		    while ( it->next )
+			it = it->next;
+		    it->next = subbox;
+		}
 		dummy = 0;
-		if (parse( subbox, 0, fmt.makeTextFormat( nstyle ), doc, pos) ) {
+		if (parse( subbox, nstyle, 0, fmt.makeTextFormat( nstyle, attr ), doc, pos) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -1034,14 +1062,16 @@ bool QtRichText::parse (QtBox* current, QtBox* dummy,
 		    if (!valid)
 			return TRUE;
 		    }
-    
+
 		(void) eatSpace(doc, pos);
 	    }
 	    else { // containers and empty tags
 		// TODO: check empty tags and custom tags in stylesheet
-		
+		if ( nstyle->isAnchor() ) {
+		    qt_link_count++;
+		}
 		// for now: assume container
-		if ( parse( current, dummy, fmt.makeTextFormat( nstyle ), doc, pos ) ) {
+		if ( parse( current, nstyle, dummy, fmt.makeTextFormat( nstyle, attr ), doc, pos ) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -1059,15 +1089,19 @@ bool QtRichText::parse (QtBox* current, QtBox* dummy,
 	    }
 	}
 	else { // plain text
-	    if ( !current->boxes.isEmpty() && !dummy ) {
+	    if ( current->child && !dummy ) {
 		dummy = new QtBox( current, formats, base );
-		current->boxes.append( dummy );
+		    QtBox* it = current->child;
+		    while ( it->next )
+			it = it->next;
+		    it->next = dummy;
 	    }
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
- 		for (int i = 0; i < int(word.length()); i++){
- 		    (dummy?dummy:current)->text.append( word[i], fmt );
-		}
+//  		for (int i = 0; i < int(word.length()); i++){
+//  		    (dummy?dummy:current)->text.append( word[i], fmt );
+// 		}
+		(dummy?dummy:current)->text.append( word, fmt );
 		if (!pre && doc[pos] == '<')
 		    (void) eatSpace(doc, pos);
 	    }
@@ -1200,10 +1234,7 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
     while( pos < int(doc.length()) &&
 	   doc[pos] != '<' ) {
 	if (doc[pos].isSpace() && doc[pos] != QChar(0x00a0U) ){
-	    if ( justOneWord && !s.isEmpty() ) {
-		return s;
-	    }
-	
+	    
 	    if ( pre ) {
 		s += doc[pos];
 	    }
@@ -1344,70 +1375,6 @@ bool QtRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 
 
 
-QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
-    : QString(),format( fmt )
-{
-}
-
-QtTextRichString::~QtTextRichString()
-{
-    // TODO walk over string and unregister all
-}
-
-int QtTextRichString::length() const
-{
-    return QString::length() / 2;
-}
-
-void QtTextRichString::remove( int index, int len )
-{
-    for ( int i = 0; i < len; i++)
-	format->unregisterFormat( formatIndexAt( index + i ) );
-    QString::remove( index * 2, len * 2);
-}
-
-void QtTextRichString::insert( int index, const QChar& c, QtTextCharFormat form )
-{
-    ushort fmt = format->registerFormat( form );
-    QString::insert( (uint) (index*2), c );
-    QChar d ( fmt );
-    QString::insert( (uint) (index*2+1), d );
-}
-
-QChar QtTextRichString::charAt( int index ) const
-{
-    return QString::at( (uint) 2*index );
-}
-
-QtTextCharFormat QtTextRichString::formatAt( int index ) const
-{
-    return format->format( formatIndexAt( index ) );
-}
-
-ushort QtTextRichString::formatIndexAt( int index ) const
-{
-    // TODO do not cast, use row cell (byteorder on windows!!!!)
-    return  (ushort) QString::at( (uint) (2*index + 1) );
-}
-
-
-bool QtTextRichString::isCustomItem( int index ) const
-{
-    return format->format( formatIndexAt( index ) ).isCustomItem();
-}
-
-QtTextCustomItem* QtTextRichString::customItemAt( int index ) const
-{
-    return format->format( formatIndexAt( index ) ).customItem();
-}
-
-
-bool QtTextRichString::haveSameFormat( int index1, int index2 ) const
-{
-    return formatIndexAt( index1 ) == formatIndexAt( index2 );
-}
-
-
 QtStyleSheet::QtStyleSheet( QObject *parent=0, const char *name=0 )
     : QStyleSheet( parent, name )
 {
@@ -1510,7 +1477,7 @@ void QtBox::draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, 
 
 }
 
-void QtBox::setWidth( QPainter* p, int newWidth, bool forceResize )
+void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceResize )
 {
     if (newWidth == width && !forceResize) // no need to resize
 	return;
@@ -1552,14 +1519,12 @@ void QtBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     int marginhorizontal = marginright + marginleft;
     int h = margintop;
 
-    QFontMetrics fm = p->fontMetrics();
-
     // two different kind of boxes, one has subboxes, the other has text
 
-    if ( !boxes.isEmpty() ) {
+    if ( child ) {
 	int min = 0;
-	for ( QtBox* subbox = boxes.first(); subbox; subbox = boxes.next() ) {
-	    row = new QtTextRow( p, fm, subbox,
+	for ( QtBox* it = child; it; it = it->next ) {
+	    row = new QtTextRow( p, fm, it,
 				colwidth-marginhorizontal - label_offset, min,
 				alignment() );
 	    rows.append( row );
@@ -1632,20 +1597,16 @@ void QtBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 	}
     }
 
-    height += marginbottom;
-
-    /* TODO margins
     // collapse the bottom margin
-    if ( isLastSibling && parent && parent->isBox){
+    if ( !next && parent ) {
 	// ignore bottom margin
-    } else if ( !isLastSibling && next && next->isBox ) {
+    } else if ( next  ) {
 	// collapse
-	height += QMAX( ((QtTextContainer*)next)->style->margin( QStyleSheetItem::MarginTop), marginbottom);
+	height += QMAX( next->style->margin( QStyleSheetItem::MarginTop), marginbottom );
     } else {
 	// nothing to collapse
-        height += marginbottom;
+	height += marginbottom;
     }
-    */
 }
 
 
@@ -1672,4 +1633,135 @@ QStyleSheetItem::ListStyle QtBox::listStyle()
 	    return QStyleSheetItem::ListCircle;
     }
     return style->listStyle();
+}
+
+
+QtBox::~QtBox()
+{
+    QtBox* tmp = child;
+    while ( child ) {
+	tmp = child;
+	child = child->next;
+	delete tmp;
+    }
+}
+
+
+
+QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
+    : format( fmt )
+{
+    items = 0;
+    len = 0;
+    store = 0;
+}
+
+QtTextRichString::~QtTextRichString()
+{
+    for (int i = 0; i < len; ++i )
+	format->unregisterFormat( *items[i].format );
+}
+
+
+void QtTextRichString::clear()
+{
+    for (int i = 0; i < len; ++i )
+	format->unregisterFormat( *items[i].format );
+    delete [] items;
+    len = 0;
+    store = 0;
+}
+
+
+void QtTextRichString::remove( int index, int len )
+{
+    for (int i = 0; i < len; ++i )
+	format->unregisterFormat( *formatAt( index + i ) );
+
+    int olen = length();
+    if ( index + len >= olen ) {		// range problems
+	if ( index < olen ) {			// index ok
+	    setLength( index );
+	}
+    } else if ( len != 0 ) {
+// 	memmove( items+index, items+index+len,
+// 		 sizeof(Item)*(olen-index-len) );
+	for (int i = index; i < olen-len; ++i)
+	    items[i] = items[i+len];
+	setLength( olen-len );
+    }
+}
+
+void QtTextRichString::insert( int index, const QString& c, const QtTextCharFormat& form )
+{
+    QtTextCharFormat* f = format->registerFormat( form );
+
+    if ( index >= len ) {			// insert after end
+	setLength( index+1 );
+    } else {					// normal insert
+	int olen = len;
+	int nlen = len + 1;
+	setLength( nlen );
+// 	memmove( items+index+1, items+index,
+// 		 sizeof(Item)*(olen-index) );
+	for (int i = len+1; i > index; --i)
+	    items[i] = items[i-1];
+    }
+    
+    items[index].c = c;
+    items[index].format = f;
+}
+
+void QtTextRichString::setLength( int l )
+{
+    if ( l <= store ) {
+	len = l; // TODO shrinking
+	return;
+    } else {
+	store = l*2;
+	Item* newitems = new Item[store]; // TODO speedup using new char(....)
+// 	if ( items )
+// 	    memcpy( newitems, items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i )
+	    newitems[i] = items[i];
+	delete [] items;
+	items = newitems;
+	len = l;
+    }
+}
+
+QtTextRichString::QtTextRichString( const QtTextRichString &other )
+{
+    format = other.format;
+    len = other.len;
+    items = 0;
+    store = 0;
+    if ( len ) {
+	items = new Item[ len ];
+	store = len;
+// 	memcpy( items, other.items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i ) {
+	    items[i] = other.items[i];
+	    items[i].format->addRef();
+	}
+    }
+}
+
+QtTextRichString& QtTextRichString::operator=( const QtTextRichString &other )
+{
+    clear();
+    format = other.format;
+    len = other.len;
+    items = 0;
+    store = 0;
+    if ( len ) {
+	items = new Item[ len ];
+	store = len;
+// 	memcpy( items, other.items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i ) {
+	    items[i] = other.items[i];
+	    items[i].format->addRef();
+	}
+    }
+    return *this;
 }
