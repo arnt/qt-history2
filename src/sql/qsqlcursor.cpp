@@ -157,7 +157,7 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 	d->priIndx = driver()->primaryIndex( name );
 #ifdef QT_CHECK_RANGE
 	if ( !count() )
-	    qWarning("QSqlCursor::setName: unable to build record, does %s exist?", name.latin1() );
+	    qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
 #endif
     }
 }
