@@ -93,7 +93,7 @@ protected:
     virtual bool updateRowInTable(int row, const QSqlRecord &values);
     virtual bool insertRowIntoTable(const QSqlRecord &values);
     virtual bool deleteRowFromTable(int row);
-    virtual QString orderByStatement() const;
+    virtual QString orderByClause() const;
     virtual QString selectStatement() const;
 
     void setPrimaryKey(const QSqlIndex &key);

@@ -48,7 +48,6 @@ void QSqlQueryModelPrivate::prefetch(int limit)
 
 QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 {
-
 }
 
 #define d d_func()
@@ -63,23 +62,29 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 
     QSqlQueryModel is a high-level interface for executing SQL
     statements and traversing the result set. It is built on top of
-    the lower-level QSqlQuery and can be used to provide data to a
-    view class such as QTableView.
+    the lower-level QSqlQuery and can be used to provide data to
+    view classes such as QTableView. For example:
+
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto QSqlQueryModel_snippets
+    \skipto QSqlQueryModel *model
+    \printuntil show()
+
+    We set the model's query, then we set up the labels displayed in
+    the view header.
 
     QSqlQueryModel can also be used to access a database
     programmatically, without binding it to a view:
 
-    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
-    \skipto QSqlQueryModel_snippets
     \skipto QSqlQueryModel model;
-    \printuntil int age =
+    \printuntil int salary =
 
-    The code snippet above extracts the \c age field from record 4 in
+    The code snippet above extracts the \c salary field from record 4 in
     the result set of the query \c{SELECT * from employee}. Assuming
-    that \c age is column 3, we can rewrite the last line as follows:
+    that \c salary is column 2, we can rewrite the last line as follows:
 
-    \skipto int age =
-    \printline int age =
+    \skipto int salary =
+    \printline int salary =
 
     The model is read-only by default. To make it read-write, you
     must subclass it and reimplement setData() and flags(). Another
@@ -92,7 +97,8 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
     data before showing it to the user, and how to create a
     read-write model based on QSqlQueryModel.
 
-    \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery
+    \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery,
+        {Model/View Programming} 
 */
 
 /*!
@@ -362,7 +368,7 @@ QSqlRecord QSqlQueryModel::record(int row) const
     return rec;
 }
 
-/* \overload
+/*! \overload
 
     Returns an empty record containing information about the fields
     of the current query.
