@@ -468,7 +468,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+//	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
 	    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
@@ -508,16 +508,16 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	confirm.confirmText->setText( "Do you want to set QTDIR to point to the new installation?" );
 	if( confirm.exec() ) {
-	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
-	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
+	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 
 	    path.clear();
-	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ) );
+	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
 	    if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
 		path.prepend( "%QTDIR%\\lib" );
 	    if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
 		path.prepend( "%QTDIR%\\bin" );
-	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::DefaultEnv );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
 	}
 	else {
 	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv );

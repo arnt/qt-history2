@@ -12,8 +12,7 @@ public:
 
     enum {
 	LocalEnv = 1,
-	DefaultEnv = 2,
-	SystemEnv = 4
+	PersistentEnv = 2
     };
 
     enum {

@@ -2,30 +2,56 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <qnamespace.h>
+#include <qmessagebox.h>
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
+    if( envBlock & PersistentEnv ) {
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    HKEY env;
+	    QByteArray buffer;
+	    DWORD size( 0 );
+	    QString value;
 
-    if( envBlock & DefaultEnv ) {
-	HKEY env;
-	QByteArray buffer;
-	DWORD size( 0 );
-	QString value;
-
-	if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
-	    RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, NULL, &size );
-	    buffer.resize( size );
-	    RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, (unsigned char*)buffer.data(), &size );
-	    for( int i = 0; i < buffer.size(); i += 2 ) {
-		QChar c( buffer[ i ], buffer[ i + 1 ] );
-		if( !c.isNull() )
-		    value += c;
+	    if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
+		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, NULL, &size );
+		buffer.resize( size );
+		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, (unsigned char*)buffer.data(), &size );
+		for( int i = 0; i < buffer.size(); i += 2 ) {
+		    QChar c( buffer[ i ], buffer[ i + 1 ] );
+		    if( !c.isNull() )
+			value += c;
+		}
+		RegCloseKey( env );
+		return value;
 	    }
-	    RegCloseKey( env );
-	    return value;
+	    else {
+		return QString::null;
+	    }
 	}
-	else {
-	    return QString::null;
+	else { //  Win 9x
+	    if( int( qWinVersion() ) & int( Qt::WV_Me ) ) {	// Windows Me
+		HKEY env;
+		DWORD size;
+		QByteArray buffer;
+		QString value;
+
+		if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Control\\SessionManager\\Environment", 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
+		    RegQueryValueExA( env, varName.latin1(), 0, NULL, NULL, &size );
+		    buffer.resize( size );
+		    RegQueryValueExA( env, varName.latin1(), 0, NULL, (unsigned char*)buffer.data(), &size );
+		    value = buffer.data();
+		    RegCloseKey( env );
+		    return value;
+		}
+	    }
+	    else {
+		// Windows 95 and 98 does not have the notion of persistent environment.
+		// This is taken care of by the autoexec.bat file at startup, and we do not
+		// have any control over how this file is formatted.
+		// This may be supported later, though...
+		return QString( getenv( varName ) );
+	    }
 	}
     }
     if( envBlock & LocalEnv ) {
@@ -36,27 +62,47 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 
 void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 {
-    if( envBlock & DefaultEnv ) {
-	HKEY env;
-	QByteArray buffer;
+    if( envBlock & PersistentEnv ) {
+	QMessageBox::information( NULL, "Environment", "Setting persistent env." );
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    QMessageBox::information( NULL, "Version", "Setting environment on Windows NT" );
 
-	buffer.resize( varValue.length() * 2 + 2 );
-	const QChar *data = varValue.unicode();
-	for ( int i = 0; i < (int)varValue.length(); ++i ) {
-	    buffer[ 2*i ] = data[ i ].cell();
-	    buffer[ (2*i)+1 ] = data[ i ].row();
-	}
-	buffer[ (2*i) ] = 0;
-	buffer[ (2*i)+1 ] = 0;
+	    HKEY env;
+	    QByteArray buffer;
 
-	if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-	    RegSetValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
-	    RegCloseKey( env );
+	    buffer.resize( varValue.length() * 2 + 2 );
+	    const QChar *data = varValue.unicode();
+	    for ( int i = 0; i < (int)varValue.length(); ++i ) {
+		buffer[ 2*i ] = data[ i ].cell();
+		buffer[ (2*i)+1 ] = data[ i ].row();
+	    }
+	    buffer[ (2*i) ] = 0;
+	    buffer[ (2*i)+1 ] = 0;
+
+	    if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+		RegSetValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+		RegCloseKey( env );
+	    }
 	}
-	else {
+	else { // Win 9x
+	    if( int( qWinVersion() ) & int( Qt::WV_Me ) ) { // Win Me
+		HKEY env;
+
+		QMessageBox::information( NULL, "Version", "Setting environment on Windows Me" );
+
+		if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Control\\SessionManager\\Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+		    RegSetValueExA( env, varName.latin1(), 0, REG_EXPAND_SZ, (const unsigned char*)varValue.latin1(), varValue.length() );
+		    RegCloseKey( env );
+		}
+	    }
+	    else {
+		// Writing to Windows 9X Autoexec.bat file is not implemented yet.
+		QMessageBox::information( NULL, "Version", "Settings environment on Windows 9x" );
+	    }
 	}
     }
     if( envBlock & LocalEnv ) {
+	QMessageBox::information( NULL, "Environment", "Setting local environment" );
 	putenv( varName + QString( "=" ) + varValue );
     }
 }
