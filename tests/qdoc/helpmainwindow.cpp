@@ -303,7 +303,7 @@ void HelpMainWindow::slotGoHome()
 
 void HelpMainWindow::slotHelpAbout()
 {
-    QMessageBox::about( this, "Qt Online Documentation",
+    QMessageBox::about( this, "About Qt Online Documentation",
                         "<p>Interactive documentation browser for the Qt Toolkit. </p>"
                         "<p>Copyright (C) 2000 Troll Tech AS</p>"
         );

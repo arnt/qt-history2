@@ -13,6 +13,7 @@
 #include <qlistview.h>
 #include <qheader.h>
 #include <qapplication.h>
+#include <qtl.h>
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -115,6 +116,23 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     setupContentsView( titleFile );
 }
 
+class MyString : public QString
+{
+public:
+    MyString() {}
+    MyString( const QString& other )
+	:QString( other ){
+	    lower = other.lower();
+    }
+    QString lower;
+};
+bool operator<=( const MyString &s1, const MyString &s2 )
+{ return s1.lower <= s2.lower; }
+bool operator<( const MyString &s1, const MyString &s2 )
+{ return s1.lower < s2.lower; }
+bool operator>( const MyString &s1, const MyString &s2 )
+{ return s1.lower > s2.lower; }
+
 void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &titleFile )
 {
     QFile f( indexFile );
@@ -122,11 +140,12 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	return;
     QTextStream ts( &f );
     HelpNavigationListItem *lastItem = 0;
-    QStringList lst;
+    
+    QValueList<MyString> lst;
     while ( !ts.atEnd() )
-	lst << ts.readLine();
-    lst.sort();
-    QStringList::Iterator it = lst.begin();
+	lst.append(ts.readLine());
+    qHeapSort( lst );
+    QValueList<MyString>::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	QString s( *it );
 	if ( s.find( "::" ) != -1 )
