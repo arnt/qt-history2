@@ -2430,13 +2430,6 @@ void QMultiLineEdit::newMark( int posx, int posy, bool /*copy*/ )
     cursorX    = posx;
     cursorY    = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-#if defined(_WS_X11_)
-    if ( echoMode() == Normal )
-	this->copy();
-#else
-    if ( style() == MotifStyle && echoMode() == Normal )
-	this->copy();
-#endif
 }
 
 bool QMultiLineEdit::beforeMark( int posx, int posy ) const
