@@ -894,6 +894,10 @@ bool QTableItem::isEnabled() const
 
   A combo box item is deleted like ordinary \l{QTableItem}s
   using QTable::clearCell().
+
+  QComboTableItems can be distinguished from QTableItems and
+  \l{QCheckTableItem}s using their Run Time Type Identification number
+  (see rtti()).
 */
 
 /*! Creates a combo box item for the \a table spreadsheet.
@@ -1102,24 +1106,35 @@ bool QComboTableItem::isEditable() const
 /*! \class QCheckTableItem qtable.h
 
   \brief The QCheckTableItem class implements a convenient class to
-  put checkbox items in a QTable.
+  use check boxes in QTables.
 
   \module table
 
-  This class implements a checkbox item for QTable. It has set the
-  edit type WhenCurrent. This means, when this item is not the current
-  one, it paints itself like a checkbox, but without using a real
-  QCheckBox widget. When the item becomes the current one, it shows a
-  real checkbox, so that the user can edit the value.
+  To fill a table cell with a check box instead of the usual
+  text and pixmap one creates a QCheckTableItem 
+  object and uses QTable::setItem() to make it the content of
+  a table cell. This results in an item that paints itself like a check
+  box but is no real QCheckBox when the relevant cell does not have the focus.
+  When the item becomes current, it shows a
+  QCheckBox, so that the user can check or uncheck it.
 
-  This has the advantage, that this item is always visible as a
-  chexkbox without the need of always showing a real QCheckBox widget,
-  which would waste resources.
+  This way the user always perceives the item as a
+  check box without the need of wasting resources by having a real QCheckBox 
+  widget present all the time.
 
+  QCheckTableItems are of the edit type WhenCurrent. 
+  To change the check label string use setText().
+  Check box items may however not include a pixmap.
+
+  QCheckTableItems can be distinguished from \l{QTableItem}s and
+  \l{QComboTableItem}s using their Run Time Type Identification number.
+
+  \sa rtti() EditType
 */
 
-/*! Creates a QCheckTableItem as a child of \a table. The check box
-  text is set to the text \a txt, for example
+/*! Creates a QCheckTableItem of the EditType WhenCurrent
+  as a child of \a table. The check box
+  label is set to the string \a txt, for example
 
   \walkthrough table/small-table-demo/main.cpp
   \skipto QTable
@@ -1129,6 +1144,15 @@ bool QComboTableItem::isEditable() const
 
   (Code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink).
+
+  By default QCheckTableItem objects are unchecked. To set
+  their check marks use setChecked().
+  \a txt can be changed later using setText().
+
+  QTable::setItem() makes check box items the content of a
+  QTable that may or may not be the item's parent. It is
+  however impossible to use one item in more than one table
+  at a time.
 */
 
 QCheckTableItem::QCheckTableItem( QTable *table, const QString &txt )
@@ -1181,7 +1205,11 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
-/*! Sets the item to be checked, of \a b is TRUE. */
+/*! Sets the item's check mark if \a b is TRUE and unchecks the
+  check box if \a b is FALSE. 
+
+  \sa isChecked()
+*/
 
 void QCheckTableItem::setChecked( bool b )
 {
@@ -1189,7 +1217,10 @@ void QCheckTableItem::setChecked( bool b )
     table()->updateCell( row(), col() );
 }
 
-/*! Returns whether the item is checked or not. */
+/*! Returns whether the item is checked or not. 
+
+  \sa setChecked()
+*/
 
 bool QCheckTableItem::isChecked() const
 {
@@ -2282,7 +2313,8 @@ void QTable::clearCell( int row, int col )
   table/euroconversion/converter.cpp \endlink)
 
   Note that the first row/column is the one with \a row respectively
-  \a col being 0.
+  \a col being 0. For \l{QComboTableItem}s this function has
+  no visible effect.
 
   \sa text() setPixmap() setItem() QTableItem::setText()
 */
