@@ -38,8 +38,8 @@ down on the number of repeated images.
 
 Here you see three views seperated by <a href="qsplitter.html">QSplitters</a>. On
 the lef/top you see a <a href="qlistbox.html">QListBox</a>, at the right/top
-you see a <a href="qlistview.html">QListView</a> with a 
-<a href="qheader.html">QHeader</a> and two <a href="qscrollbar.html">QScrollBars</a>. 
+you see a <a href="qlistview.html">QListView</a> with a
+<a href="qheader.html">QHeader</a> and two <a href="qscrollbar.html">QScrollBars</a>.
 And at the bottom there is a <a href="qheader.html">QIconView</a>.
 <p><img src=splitter-views-w.png >&nbsp;Windows<br>
 
@@ -51,7 +51,7 @@ with widgets like <a href="qtoolbutton.html">QToolButtons</a> and
 is a <a href="qworkspace.html">QWorkspace</a> which is used
 for MDI window management and which contains as MDI-Window
 a <a href="qmultilineedit.html">QMultiLineEdit</a> here. At the bottom
-you see a <a href="qstatusbar.html">QStatusBar</a> and at the 
+you see a <a href="qstatusbar.html">QStatusBar</a> and at the
 right/bottom edge a <a href="qsizegrip.html">QSizeGrip</a>
 <p><img src=mainwindow-w.png >&nbsp;Windows<br>
 
@@ -68,7 +68,7 @@ In this screenshot you see a <a href="qfontdialog.html">QFontDialog</a>.
 And in ths picture a <a href="qcolordialog.html">QColorDialog</a> is shown.
 <p><img src=qcolordlg-w.png >&nbsp;Windows<br>
 
-For displaying messages you will use 
+For displaying messages you will use
 the <a href="qmessagebox.html">QMessageBox</a>.
 <p><img src=qmsgbox-w.png >&nbsp;Windows<br>
 
@@ -86,13 +86,13 @@ writeable <a href="qcombobox.html">QComboBox</a>.
 This screenshot shows a <a href="qpopupmenu.html">QPopupMenu</a>.
 <p><img src=qpopmenu-w.png >&nbsp;Windows<br>
 
-In the screenshot below you see a 
+In the screenshot below you see a
 <a href="qbuttongroup.html">QButtonGroup</a> containing
 four <a href="qradiobutton.html">QRadioButtons</a> and
 two <a href="qcheckbox.html">QCheckBoxes</a></h2>.
 <p><img src=buttongroup-w.png >&nbsp;Windows<br>
 
-All views in the first screenshot are widgets derived from 
+All views in the first screenshot are widgets derived from
 a <a href="qscrollview.html">QScrollView</a>. But this
 class can also manage lots of child-widgets, like in
 this screenshot.
@@ -106,11 +106,15 @@ In the visible page you see a <a href="qlabel.html">QLabel</a>,
 the range controls <a href="qslider.html">QSlider</a> and
 <a href="qspinbox.html">QSpinBox</a> and below a
 <a href="qlcdnumber.html">QLCDNumber</a>.
-In the bottom row you can see some 
+In the bottom row you can see some
 <a href="qpushbutton.html">QPushButtons</a>
 <p><img src=qtabdlg-w.png >&nbsp;Windows<br>
 
 The screenshot below shows a <a href="qtableview.html">QTableView</a>.
 <p><img src=qtablevw-m.png >&nbsp;Motif<br>
+
+In this screenshot you see the <a href="qtextbrowser.html">QTextBrowser</a>
+displaying a HTML page. See also <a href="qtextview.html">QTextView</a>!
+<p><img src=qtextbrowser-w.png >&nbsp;Windows<br>
 
 */

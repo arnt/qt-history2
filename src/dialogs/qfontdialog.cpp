@@ -58,6 +58,8 @@
 
   Used for allowing the user to select a font among the available fonts
   on the underlying window system.
+
+  <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
 
 class QFontDialogPrivate

@@ -79,6 +79,8 @@
   Otherwise, the factory will not be able to resolve the document names.
 
   For simpler richt text use, see QLabel, QTextView or QSimpleRichText.
+
+  <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
 */
 
 class QTextBrowserData

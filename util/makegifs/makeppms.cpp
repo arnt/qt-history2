@@ -48,6 +48,7 @@
 #include <qprinter.h>
 #include <qfontdialog.h>
 #include <qcolordialog.h>
+#include <qtextbrowser.h>
 
 #include <life.h>
 
@@ -996,6 +997,17 @@ public:
     }
 };
 
+class EgQTextBrowser : public QTextBrowser
+{
+public:
+    EgQTextBrowser() : QTextBrowser() {
+	QString s( getenv( "QTDIR" ) );
+	s += "/doc/html/index.html";
+	setSource( s );
+	resize( 400, 300 );
+    }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -1061,6 +1073,7 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgComplexButtonGroup, "buttongroup", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
 	DEPICT( EgQIconView, "qiconview", "QIconView" );
+	DEPICT( EgQTextBrowser, "qtextbrowser", "QTextBrowser" );
 	
 	if ( !first ) break;
 

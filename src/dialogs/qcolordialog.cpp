@@ -990,6 +990,8 @@ void QColorDialogPrivate::addCustom()
   colors are shared by all color dialogs, and remembered during the
   execution of the program. Use setCustomColor() to set the
   custom colors, and customColor() to get them.
+
+  <img src=qcolordlg-m.png> <img src=qcolordlg-w.png>
 */
 
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
