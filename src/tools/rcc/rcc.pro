@@ -28,8 +28,7 @@ contains(QT_CONFIG, zlib) {
 }
 
 #qt files (bootstrap
-VPATH_SOURCES += $(QTDIR)/core/io $(QTDIR)/core/tools $(QTDIR)/core/global
-INCLUDEPATH += $(QTDIR)/include/QtCore
+INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore
 SOURCES += \
            #tools
            ../../core/tools/qbytearray.cpp ../../core/tools/qdatetime.cpp \
