@@ -50,7 +50,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
        like prepend() and insert() are usually faster than with
        QVector because of the way QList stores its items in memory,
        and its index-based API is more convenient than QLinkedList's
-       iterator-based API.
+       iterator-based API. It also expands to less code in your
+       executable.
     \i If you need a real linked list, with guarantees of \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.
@@ -134,11 +135,15 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Unlike plain C++ arrays, QVectors can be resized at any time by
     calling resize(). If the new size is larger than the old size,
-    QVector might need to reallocate the whole vector. If you know in
-    advance approximately how many items the QVector will contain, you
-    can call reserve(), asking QVector to allocate a certain amount of
-    memory, but this isn't really necessary. You can also call
-    capacity() to find out how much memory QVector actually allocated.
+    QVector might need to reallocate the whole vector. QVector tries
+    to reduce the number of reallocations by preallocating extra
+    memory up to twice as much memory as needed by the actual data.
+
+    If you know in advance approximately how many items the QVector
+    will contain, you can call reserve(), asking QVector to
+    preallocate a certain amount of memory. You can also call
+    capacity() to find out how much memory QVector actually
+    allocated.
 
     QVector provides these basic functions to add, move, and remove
     items: insert(), replace(), remove(), prepend(), append(). With

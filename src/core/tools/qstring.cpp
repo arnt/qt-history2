@@ -106,7 +106,7 @@ const QString::Null QString::null=QString::Null();
 
 
 /*!
-    \class QCharRef qstring.h
+    \class QCharRef
     \reentrant
     \brief The QCharRef class is a helper class for QString.
 
@@ -126,7 +126,7 @@ const QString::Null QString::null=QString::Null();
 
 
 /*!
-    \class QString qstring.h
+    \class QString
     \reentrant
 
     \brief The QString class provides an abstraction of Unicode text
@@ -196,9 +196,6 @@ const QString::Null QString::null=QString::Null();
     incrementing a reference count. QString (like all Qt's implicitly
     shared classes) operates on a copy-on-write basis, only copying if
     an instance is actually changed.
-
-    If you wish to create a deep copy of a QString without losing any
-    Unicode information then you should use QDeepCopy.
 
     \sa QChar QByteArray
 */
@@ -348,7 +345,7 @@ void QString::free(Data *d)
     string, and sets the length of the string to \a size. Any new
     space allocated contains arbitrary data.
 
-    \sa reserve(), truncate()
+    \sa truncate(), reserve()
 */
 
 void QString::resize(int size)

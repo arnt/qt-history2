@@ -6,7 +6,7 @@
     QList as an array-list combines the easy-of-use of a random
     access interface with fast list operations and the low memory
     management overhead of an array. Accessing elements by index,
-    appending, prepending and removing elements from both the front
+    appending, prepending, and removing elements from both the front
     and the back all happen in constant time O(1). Inserting or
     removing elements at random index positions \ai happens in linear
     time, or more precisly in O(min{i,n-i}) <= O(n/2), with n being
@@ -212,7 +212,7 @@ void **QListData::erase(void **xi)
        index-based API is more convenient than QLinkedList's
        iterator-based API, and it is usually faster than
        QVector because of the way it stores its items in
-       memory.
+       memory. It also expands to less code in your executable.
     \i If you need a real linked list, with guarantees of \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.
@@ -280,6 +280,11 @@ void **QListData::erase(void **xi)
 	    delete list.takeFirst();
     \endcode
 
+    Inserting and removing items at either ends of the list is very
+    fast (\l{constant time} in most cases), because QList
+    preallocates extra space on both sides of its internal buffer to
+    allow for fast growth at both ends of the list.
+
     If you want to find all occurrences of a particular value in a
     list, use indexOf() or lastIndexOf(). The former searches forward
     starting from a given index position, the latter searches
@@ -332,6 +337,11 @@ void **QListData::erase(void **xi)
     copied (copy-on-write), and that takes \l{linear time}.
 
     \sa operator=()
+*/
+
+/*! \fn QList::QList(const QVector<T> &vector)
+
+    Constructs a copy of \a vector.
 */
 
 /*! \fn QList::~QList()
@@ -448,6 +458,11 @@ void **QListData::erase(void **xi)
 
     This is the same as list.insert(size(), \a value).
 
+    This operation is typically very fast (\l{constant time}),
+    because QList preallocates extra space on both sides of its
+    internal buffer to allow for fast growth at both ends of the
+    list.
+
     \sa operator<<(), prepend(), insert()
 */
 
@@ -465,6 +480,10 @@ void **QListData::erase(void **xi)
     \endcode
 
     This is the same as list.insert(0, \a value).
+
+    This operation is usually very fast (\l{constant time}), because
+    QList preallocates extra space on both sides of its internal
+    buffer to allow for fast growth at both ends of the list.
 
     \sa append(), insert()
 */
@@ -548,6 +567,10 @@ void **QListData::erase(void **xi)
 
     This is the same as takeAt(0).
 
+    This operation is very fast (\l{constant time}), because QList
+    preallocates extra space on both sides of its internal buffer to
+    allow for fast growth at both ends of the list.
+
     \sa takeLast(), takeAt(), removeFirst()
 */
 
@@ -556,6 +579,10 @@ void **QListData::erase(void **xi)
     Removes the last item in the list and returns it.
 
     This is the same as takeAt(size() - 1).
+
+    This operation is very fast (\l{constant time}), because QList
+    preallocates extra space on both sides of its internal buffer to
+    allow for fast growth at both ends of the list.
 
     \sa takeFirst(), takeAt(), removeLast()
 */
