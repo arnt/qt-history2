@@ -20,6 +20,7 @@
 #include "qpainter_p.h"
 #include "qpainterpath.h"
 #include "qpicture.h"
+#include "qpixmapcache.h"
 #include "qpolygon.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
@@ -50,6 +51,7 @@ void qt_format_text(const QFont &font,
 
 
 void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
+QPixmap qt_image_linear_gradient(const QRect &r, const QBrush &brush);
 
 QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape)
 {
@@ -114,7 +116,11 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, Qt::Fill
 #endif
     q->save();
     QRect bounds = draw_helper_setclip(data, fillRule, type);
-    qt_fill_linear_gradient(bounds, q, state->brush);
+    QMatrix m = state->worldMatrix;
+    q->resetMatrix();
+    bounds = (QPointArray(bounds) * m).boundingRect();
+    QPixmap image = qt_image_linear_gradient(bounds, state->brush);
+    q->drawPixmap(bounds.x(), bounds.y(), image);
     q->restore();
 }
 
@@ -4378,10 +4384,83 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         delete [] underlinePositions;
 }
 
+QPixmap qt_image_linear_gradient(const QRect &rect, const QBrush &brush)
+{
+    QPointF pt1 = brush.gradientStart() - rect.topLeft();
+    QPointF pt2 = brush.gradientStop() - rect.topLeft();
+    float x1 = pt1.x();
+    float y1 = pt1.y();
+    float x2 = pt2.x();
+    float y2 = pt2.y();
 
+    QString key = QString("%1 %2 %3 %4")
+                  .arg(rect.x())
+                  .arg(rect.y())
+                  .arg(rect.width())
+                  .arg(rect.height())
+                  + QString("%1 %2 %3 %4 %5 %6")
+                  .arg(x1)
+                  .arg(y1)
+                  .arg(brush.color().rgba())
+                  .arg(x2)
+                  .arg(y2)
+                  .arg(brush.gradientColor().rgba());
+    if (QPixmap *pixmap = QPixmapCache::find(key)) {
+        return *pixmap;
+    }
 
-// #define QT_GRAD_NO_POLY
-// #define QT_GRAD_NO_LINE
+    QImage image(rect.width(), rect.height(), 32);
+
+    float gdx = x2 - x1;
+    float gdy = y2 - y1;
+    float glen = sqrt(gdx * gdx + gdy * gdy);
+
+    QColor color1 = brush.color(), color2 = brush.gradientColor();
+    int a1 = color1.alpha(), r1 = color1.red(), g1 = color1.green(), b1 = color1.blue();
+    int a2 = color2.alpha(), r2 = color2.red(), g2 = color2.green(), b2 = color2.blue();
+
+    bool useAlpha = brush.color().alpha() != 255 || brush.gradientColor().alpha() != 255;
+
+    if (glen == 0) {
+        image.fill(brush.color().rgba());
+        image.setAlphaBuffer(useAlpha);
+        return image;
+    }
+
+    image.setAlphaBuffer(useAlpha);
+
+    float t;
+
+    for (int y=0; y<image.height(); ++y) {
+        uchar *scanLine = image.scanLine(y);
+        int oset = 0;
+        for (int x=0; x<image.width(); ++x) {
+            t = (gdx * (x-x1) + gdy * (y-y1)) / glen;
+            if (t < 0) {
+                scanLine[oset++] = b1;
+                scanLine[oset++] = g1;
+                scanLine[oset++] = r1;
+                scanLine[oset++] = a1;
+            } else if (t > glen) {
+                scanLine[oset++] = b2;
+                scanLine[oset++] = g2;
+                scanLine[oset++] = r2;
+                scanLine[oset++] = a2;
+            } else {
+                t = t / glen;
+                scanLine[oset++] = b1 * (1-t) + b2 * t;
+                scanLine[oset++] = g1 * (1-t) + g2 * t;
+                scanLine[oset++] = r1 * (1-t) + r2 * t;
+                scanLine[oset++] = a1 * (1-t) + a2 * t;
+            }
+        }
+    }
+
+    QPixmap pixmap = image;
+    QPixmapCache::insert(key, pixmap);
+
+    return pixmap;
+}
 
 #define qt_gradient_fill_color(c)  QColor(c.red(), c.green(), c.blue())
 
@@ -4544,7 +4623,6 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
     p->translate(-rect.topLeft());
     p->setPen(oldPen);
 }
-
 // Declared in qpaintdevice.h
 
 #ifdef QT_COMPAT
