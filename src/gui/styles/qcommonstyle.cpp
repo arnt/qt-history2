@@ -597,9 +597,9 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_RubberBand: {
 	QPen oldPen = p->pen();
 	if (pe == PE_RubberBandMask)
-	    p->setPen(color1);
+	    p->setPen(QPen(color1, 5));
 	else
-	    p->setPen(pal.foreground());
+	    p->setPen(QPen(pal.foreground(), 5));
 	if(flags & Style_Rectangle)
 	    p->drawRect(r);
 	else
