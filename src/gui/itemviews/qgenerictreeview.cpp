@@ -32,7 +32,7 @@ inline void expand(QVector<T> &vec, int after, size_t n)
 }
 
 template <typename T>
-inline void collaps(QVector<T> &vec, int after, size_t n)
+inline void collapse(QVector<T> &vec, int after, size_t n)
 {
     if (after + 1 + n < (size_t)vec.size()) {
 	T *b = vec.data();
@@ -344,18 +344,15 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
 {
-    resizeContents(contentsWidth(), 0);
     QModelIndex parent = model()->parent(topLeft);
-    int vi = d->viewIndex(parent);
-    d->layout_parent_index = vi;
-    d->layout_from_index = vi;
-    d->layout_count = model()->rowCount(parent);
-    startItemsLayout();
+    int pi = d->viewIndex(parent);
+    d->close(pi);
+    d->open(pi); // force relayout
 }
 
 void QGenericTreeView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    contentsInserted(topLeft, bottomRight); // they do the same thing
+    contentsInserted(topLeft, bottomRight);
 }
 
 void QGenericTreeView::columnCountChanged(int, int)
@@ -370,7 +367,6 @@ void QGenericTreeView::startItemsLayout()
     QModelIndex index = model()->index(0, 0, root());
     d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), options, index).height();
 //    verticalScrollBar()->setLineStep(d->itemHeight);
-    
     doItemsLayout(d->layout_count);
 }
 
@@ -380,7 +376,8 @@ bool QGenericTreeView::doItemsLayout(int num)
     QModelIndex current;
 
     int count = qMin(num, d->layout_count - (d->layout_from_index - d->layout_parent_index));
-	
+
+    // FIXME: problem here!!
     if (d->layout_from_index == -1)
 	d->items.resize(count);
     else
@@ -456,7 +453,7 @@ void QGenericTreeViewPrivate::close(int i)
 	parent = model->parent(parent);
 	idx = viewIndex(parent); // FIXME: slow
     }
-    collaps<QGenericTreeViewItem>(items, i, total);
+    collapse<QGenericTreeViewItem>(items, i, total);
     int height = total * itemHeight;
     q->resizeContents(q->contentsWidth(), q->contentsHeight() - height);
     q->updateContents();
