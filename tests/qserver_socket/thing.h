@@ -9,7 +9,7 @@
 
 class Thing : public QHBox
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     Thing( int fd );
     Thing( QString host, int port );

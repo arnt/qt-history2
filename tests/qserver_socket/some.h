@@ -6,7 +6,7 @@
 
 class Some : public QVBox
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     Some();
     ~Some();
