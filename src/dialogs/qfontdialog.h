@@ -57,8 +57,6 @@
 #include "qfont.h"
 #endif // QT_H
 
-class  QListBox;
-class  QComboBox;
 class QFontDialogPrivate;
 
 class Q_EXPORT QFontDialog: public QDialog
@@ -71,6 +69,9 @@ public:
     static QFont getFont( bool *ok, QWidget* parent=0, const char* name=0);
 
 private:
+    static QFont getFont( bool *ok, const QFont *def,
+			  QWidget* parent=0, const char* name=0);
+
     QFontDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
 		 WFlags f=0 );
     ~QFontDialog();
@@ -78,51 +79,23 @@ private:
     QFont font() const;
     void setFont( const QFont &font );
 
-signals:
-    void fontSelected( const QFont &font );
-    void fontHighlighted( const QFont &font );
-
-protected:
     bool eventFilter( QObject *, QEvent * );
 
-    QListBox * familyListBox() const;
-    virtual void updateFamilies();
-
-    QListBox * styleListBox() const;
-    virtual void updateStyles();
-
-    QListBox * sizeListBox() const;
-    virtual void updateSizes();
-
-    QComboBox * scriptCombo() const;
-    virtual void updateScripts();
-
-#if 0
-    QString family() const;
-    QString script() const;
-    QString style() const;
-    QString size() const;
-#endif
-
-protected slots:
-    void sizeChanged( const QString &);
+    void updateFamilies();
+    void updateStyles();
+    void updateSizes();
 
 private slots:
-    void familyHighlighted( const QString &);
+    void sizeChanged( const QString &);
     void familyHighlighted( int );
-    void scriptHighlighted( const QString &);
     void scriptHighlighted( int );
-    void styleHighlighted( const QString &);
-    void sizeHighlighted( const QString &);
+    void styleHighlighted( int );
+    void sizeHighlighted( const QString & );
     void updateSample();
-    void emitSelectedFont();
 
 private:
-    static QFont getFont( bool *ok, const QFont *def,
-			  QWidget* parent=0, const char* name=0);
-
-    QFontDialogPrivate * d;
     friend class QFontDialogPrivate;
+    QFontDialogPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
