@@ -1281,15 +1281,18 @@ void Configure::displayConfig()
     cout << "Maketool...................." << dictionary[ "MAKE" ] << endl << endl;
 
     cout << "Environment:" << endl;
-    char *cenv = getenv("INCLUDE");
-    QString env = QString::fromLocal8Bit(cenv ? cenv : "");
-    cout << "    INCLUDE=\r\n      " << QStringList::split(QRegExp("[;,]"), env).join("\r\n      ") << endl;
-    cenv = getenv("LIB");
-    env = QString::fromLocal8Bit(cenv ? cenv : "");
-    cout << "    LIB=\r\n      " << QStringList::split(QRegExp("[;,]"),env).join("\r\n      ") << endl;
-    cenv = getenv("PATH");
-    env = QString::fromLocal8Bit(cenv ? cenv : "");
-    cout << "    PATH=\r\n      " << QStringList::split(QRegExp("[;,]"),env).join("\r\n      ") << endl;
+    QString env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("INCLUDE"))).join("\r\n      ");
+    if (env.isEmpty())
+	env = "Unset";
+    cout << "    INCLUDE=\r\n      " << env << endl;
+    env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("LIB"))).join("\r\n      ");
+    if (env.isEmpty())
+	env = "Unset";
+    cout << "    LIB=\r\n      " << env << endl;
+    env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("PATH"))).join("\r\n      ");
+    if (env.isEmpty())
+	env = "Unset";
+    cout << "    PATH=\r\n      " << env << endl;
 
     cout << "Configuration:" << endl;
     cout << "    " << qmakeConfig.join( "\r\n    " ) << endl;
