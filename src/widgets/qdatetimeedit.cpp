@@ -1549,12 +1549,8 @@ bool QDateEdit::setFocusSection( int s )
 
     \list
     \i If the year has four digits it is left unchanged.
-    \i If the year has two digits in the range 70..99, the previous
-    century, i.e. 1900, will be added giving a year in the range
-    1970..1999.
-    \i If the year has two digits in the range 0..69, the current
-    century, i.e. 2000, will be added giving a year in the range
-    2000..2069.
+    \i If the year has two digits, the year will be changed to four
+    digits in the range current year - 70 to current year + 29.
     \i If the year has three digits in the range 100..999, the
     current millennium, i.e. 2000, will be added giving a year
     in the range 2100..2999.
