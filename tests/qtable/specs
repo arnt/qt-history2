@@ -1,0 +1,71 @@
+Specifics on table widget:
+-------------------------------------
+
+1. Editable and non-Editable cell.
+DONE (by reimplementing beginEdit() and doing nothing to disabled editing)
+
+2. Single/Multiple row/column selection.
+DONE
+
+3. Range selection.
+DONE
+
+4. Combobox check button in cell, and some other widgets in cell.
+DONE (needs finalizing of API)
+
+5. Foreground/background color setting for each cell or column/row.
+DONE (by reimplementing)
+
+6. Selection foreground/background color setting.
+DONE (by setPalette())
+
+7. Move column/ row programmatically and Drag/Drop.
+DONE
+
+8. Sorting row by clicking on the column label.
+DONE (connect to QHeader::sectionClicked())
+
+9. Column/row label.
+DONE
+
+10. Text and bitmaps in cell.
+DONE
+
+11. Grid line options e.g. on or off, adjustable...
+DONE (what's adjustable)
+
+12. Initial size of the spreadsheet, and resize policy support, able to
+specify which column or row to resize. Column and row size by pixel and
+char or content size.
+
+
+13. Suspend repaint for update efficiency.
+
+
+14. Programmatically hide row/column.
+
+
+15. Resize column/row by drag the mouse
+DONE
+
+16. Multiline text in cell.
+
+
+17. Cell content alignment.
+DONE
+
+18. Cell join.
+
+
+19. Single click, double click, value change, traversal, focus change,
+selection change, activate (return key)
+DONE
+
+
+
+Bugs:
+-------------
+
+- When reordering columns/rows seelctions don't work anymore - for
+selections and cursor-movement we have to use actual and not logical
+indices.
