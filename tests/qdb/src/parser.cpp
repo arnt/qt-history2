@@ -766,6 +766,7 @@ QVariant Parser::exprType( const QVariant& expr )
 	  Aggregate functions.
 	*/
 	case Node_Avg:
+	    return (int) QVariant::Double;
 	case Node_Max:
 	case Node_Min:
 	case Node_Sum:
