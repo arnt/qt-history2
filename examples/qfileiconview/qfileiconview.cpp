@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#50 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#51 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -864,9 +864,6 @@ void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
 {
     if ( !item )
 	return;
-
-    setCurrentItem( item );
-    item->setSelected( TRUE, TRUE );
 
     QPopupMenu *menu = new QPopupMenu( this );
 
