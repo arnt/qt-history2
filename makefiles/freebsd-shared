@@ -1,0 +1,43 @@
+diff -ur template/Makefile freebsd-shared/Makefile
+--- template/Makefile	Fri May 31 16:32:15 1996
++++ freebsd-shared/Makefile	Thu Jun  6 01:33:32 1996
+@@ -10,11 +10,12 @@
+ CFLAGS = -O2 -fno-strength-reduce -W -Wtemplate-debugging -Wparentheses \
+ 	-Wuninitialized -Wchar-subscripts -Wformat -Wtrigraphs \
+ 	-Wcomment -Wswitch -Wunused -Wreturn-type -Wimplicit \
+-	-Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual
++	-Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual \
++	-I/usr/X11R6/include
+ 
+ # LFLAGS - the flags the linker needs
+ # NOTE: -L.../lib is prepended by ./propagate so everyone can find libqt
+-LFLAGS = -lqt
++LFLAGS = -lqt -L/usr/X11R6/lib
+ 
+ all: variables moc library tutorial examples
+ 
+diff -ur template/library/Makefile freebsd-shared/library/Makefile
+--- template/library/Makefile	Thu May 30 13:41:55 1996
++++ freebsd-shared/library/Makefile	Thu Jun  6 01:37:04 1996
+@@ -80,7 +80,7 @@
+ 	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+-VERSION=0.9.7
++VERSION=0.907
+ 
+ # The main rule - please do not hardcode the version number here,
+ # and please do not change it.  Until 1.0, Qt may not be forwards
+@@ -89,9 +100,10 @@
+ 
+ library: $(OBJECTS) $(METAOBJ)
+ 	-rm -f ../../lib/libqt.so.${VERSION}
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
++	ld -Bshareable \
+ 		-o ../../../lib/libqt.so.${VERSION} \
+-		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
++		`lorder /usr/lib/c++rt0.o $(OBJECTS) $(METAOBJ) | tsort` \
++		-L/usr/X11R6/lib -lX11
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
