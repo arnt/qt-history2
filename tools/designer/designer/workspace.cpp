@@ -703,19 +703,19 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     menu.setCheckable( TRUE );
     switch ( wi->type() ) {
     case WorkspaceItem::SourceFileType:
-	menu.insertItem( tr( "&Open source file..." ), OPEN_SOURCE );
+	menu.insertItem( tr( "&Open source file" ), OPEN_SOURCE );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	break;
     case WorkspaceItem::FormFileType:
-	menu.insertItem( tr( "&Open form..." ), OPEN_FORM );
+	menu.insertItem( tr( "&Open form" ), OPEN_FORM );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::FormSourceType:
-	menu.insertItem( tr( "&Open form source..." ), OPEN_FORM_SOURCE );
+	menu.insertItem( tr( "&Open form source" ), OPEN_FORM_SOURCE );
 	menu.insertSeparator();
 	if ( project->isCpp() )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
@@ -728,7 +728,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	MainWindow::self->popupProjectMenu( pos );
 	return;
     case WorkspaceItem::ObjectType:
-	menu.insertItem( tr( "&Open source..." ), OPEN_OBJECT_SOURCE );
+	menu.insertItem( tr( "&Open source" ), OPEN_OBJECT_SOURCE );
 	break;
     }
 
