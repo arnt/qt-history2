@@ -85,15 +85,30 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 {
     switch (pe) {
     case PE_HeaderSection:
-	// I don't know why, but for some reason the qheader is based
-	// sunken.  So flip the bits, to be consistent with the Bevel Buttons..
-	if ( flags & Style_Sunken )
-	    flags ^= Style_Sunken;
-	// fall through...
-    case PE_ButtonBevel:
+	{
+	    // I don't know why, but for some reason the qheader is passed
+	    // sunken.  So flip the bits, to be consistent with the Bevel
+	    // Buttons..
+	    QColorGroup myCG = cg;
+	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
+	    myCG.setBrush( QColorGroup::Mid, fill );
+	    if ( flags & Style_Sunken )
+		flags ^= Style_Sunken;
+	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
+	    break;
+	}
     case PE_ButtonTool:
 	{
+	    QColorGroup myCG = cg;
+	    QBrush fill;
 	
+	    fill = myCG.brush( QColorGroup::Button );
+	    myCG.setBrush( QColorGroup::Mid, fill );
+	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
+	    break;
+	}
+    case PE_ButtonBevel:
+	{
 	    QPen oldPen = p->pen();
 	    if ( r.width() * r.height() < 1600 ||
 		 QABS(r.width() - r.height()) > 10 ) {
@@ -587,77 +602,82 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarAddPage:
     case PE_ScrollBarSubPage:
 	{
+	    QColorGroup myCG = cg;
+	    //	    QBrush fill;
+	    //	    fill = QBrush( myCG.mid(), Dense4Pattern );
+	    //	    myCG.setBrush( QColorGroup::Mid, fill );
 	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {
-		p->fillRect( r, cg.brush(QColorGroup::Mid) );
-		p->setPen( cg.shadow() );
+		p->fillRect( r, myCG.brush(QColorGroup::Mid) );
+		p->setPen( myCG.shadow() );
 		p->drawRect( r );
 		p->setPen( oldPen );
 	    } else {
 		if ( flags & Style_Horizontal ) {
 		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 2,
-				 r.height() - 4, cg.brush(QColorGroup::Mid) );
-		    // 	// the dark side p->setPen(g.dark().dark());
+				 r.height() - 4, myCG.brush(QColorGroup::Mid) );
+		    // 	// the dark side
+		    p->setPen( myCG.dark().dark() );
 		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
-		    p->setPen( cg.shadow()); p->drawLine( r.x(), r.y(), r.x(),
+		    p->setPen( myCG.shadow()); p->drawLine( r.x(), r.y(), r.x(),
 						          r.y()
 							  + r.height() - 1 );
 
-		    p->setPen( cg.mid().dark());
+		    p->setPen( myCG.mid().dark());
 		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 1,
 				 r.y() + 1 );
 		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + 1,
 				 r.y() + r.height() - 2 );
-		    
+		
 		    // the bright side!
-		    
-		    p->setPen( cg.button());
+		
+		    p->setPen( myCG.button());
 		    p->drawLine( r.x() + 1, r.y() + r.height() - 2,
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 2 );
 		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
 				 r.x() + r.width() - 2,
-				 r.y() + r.height() - 2 );		    
-		    p->setPen( cg.shadow());
-		    p->drawLine( r.x(), r.y() + r.height() - 1,
-				 r.x() + r.width() - 1,
-				 r.y() + r.height() - 1 );
-		    p->drawLine( r.x() + r.width() - 1, r.y(), 
-				 r.x() + r.width() - 1,
-				 r.y() + r.height() - 1 );
-		} else {
-		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, 
-				 r.height() - 2, cg.brush(QColorGroup::Mid) );
-		    
-		    // the dark side
-		    p->setPen( cg.dark().dark() );
-		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
-		    p->setPen( cg.shadow() );
-		    p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
-		    
-		    p->setPen( cg.mid().dark() );
-		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 2,
-				 r.y() + 1 );
-		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + 1,
-				 r.y() + r.height() - 1 );
-		    
-		    // the bright side!		    
-		    p->setPen( cg.button() );
-		    p->drawLine( r.x() + 1, r.y() + r.height() - 2, 
-				 r.x() + r.width() - 2,
-				 r.y() + r.height() - 2 );
-		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
-				 r.x() + r.width() - 2,
-				 r.y() + r.height() - 1 );
-		    
-		    p->setPen( cg.shadow() );
+				 r.y() + r.height() - 2 );		
+		    p->setPen( myCG.shadow());
 		    p->drawLine( r.x(), r.y() + r.height() - 1,
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 1 );
 		    p->drawLine( r.x() + r.width() - 1, r.y(),
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 1 );
-		    
+		} else {
+		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4,
+				 r.height() - 2, myCG.brush(QColorGroup::Mid) );
+		
+		    // the dark side
+		    p->setPen( myCG.dark().dark() );
+		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
+		    p->setPen( myCG.shadow() );
+		    p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
+		
+		    p->setPen( myCG.mid().dark() );
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 2,
+				 r.y() + 1 );
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + 1,
+				 r.y() + r.height() - 1 );
+		
+		    // the bright side!		
+		    p->setPen( myCG.button() );
+		    p->drawLine( r.x() + 1, r.y() + r.height() - 2,
+				 r.x() + r.width() - 2,
+				 r.y() + r.height() - 2 );
+		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
+				 r.x() + r.width() - 2,
+				 r.y() + r.height() - 1 );
+		
+		    p->setPen( myCG.shadow() );
+		    p->drawLine( r.x(), r.y() + r.height() - 1,
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		    p->drawLine( r.x() + r.width() - 1, r.y(),
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		
 		}
 	    }
 	    p->setPen( oldPen );
@@ -673,6 +693,12 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 			 flags & Style_Horizontal );
 	    p->setPen( cg.shadow() );
 	    p->drawRect( r );
+	    if ( flags & Style_HasFocus ) {
+		drawPrimitive( PE_FocusRect, p, QRect(r.x() + 2, r.y() + 2,
+						      r.width() - 5,
+						      r.height() - 5 ),
+			       cg, flags );
+	    }
 	    break;
 	}
     default:
