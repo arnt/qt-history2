@@ -54,7 +54,7 @@ public:
     QValueListNode( const T& t ) : data( t ) { }
     QValueListNode() { }
 #if defined(Q_TEMPLATEDLL)
-    // Workaround MS bug in memory de/allocation in DLL vs. EXE 
+    // Workaround MS bug in memory de/allocation in DLL vs. EXE
     virtual ~QValueListNode() { }
 #endif
 
@@ -199,7 +199,7 @@ public:
     }
 
 #if defined(Q_TEMPLATEDLL)
-    // Workaround MS bug in memory de/allocation in DLL vs. EXE 
+    // Workaround MS bug in memory de/allocation in DLL vs. EXE
     virtual
 #endif
     ~QValueListPrivate() {
@@ -269,15 +269,18 @@ public:
 	return result;
     }
 
-    void remove( const T& x ) {
+    uint remove( const T& x ) {
+	uint result = 0;
 	Iterator first = Iterator( node->next );
 	Iterator last = Iterator( node );
 	while( first != last) {
-	    if ( *first == x )
+	    if ( *first == x ) {
 		first = remove( first );
-	    else
+		++result;
+	    } else
 		++first;
 	}
+	return result;
     }
 
     NodePtr at( uint i ) const {

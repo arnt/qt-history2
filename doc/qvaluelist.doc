@@ -324,8 +324,9 @@
 */
 
 /*!
-  \fn void QValueList::remove( const T& x )
-  Removes all items which have the value \e x.
+  \fn uint QValueList::remove( const T& x )
+  Removes all items which have the value \e x. Returns the number of
+  removed items.
 
   \sa clear()
 */
