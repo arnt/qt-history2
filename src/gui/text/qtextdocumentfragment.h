@@ -20,7 +20,6 @@ class QTextStream;
 class QTextDocument;
 class QTextDocumentFragmentPrivate;
 class QTextCursor;
-class QDataStream;
 
 class Q_GUI_EXPORT QTextDocumentFragment
 {
@@ -43,11 +42,6 @@ public:
 private:
     QTextDocumentFragmentPrivate *d;
     friend class QTextCursor;
-    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
-    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
 };
-
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
 
 #endif // QTEXTDOCUMENTFRAGMENT_H

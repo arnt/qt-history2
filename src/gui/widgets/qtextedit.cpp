@@ -2029,11 +2029,6 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
     const QTextDocumentFragment fragment(d->cursor);
     QMimeData *data = new QMimeData;
 
-    QByteArray binary;
-    QDataStream stream(&binary, QIODevice::WriteOnly);
-    stream << fragment;
-    data->setData("application/x-qt-richtext", binary);
-
     data->setHtml(fragment.toHtml());
 
     QString txt = fragment.toPlainText();
@@ -2054,11 +2049,7 @@ void QTextEdit::insertFromMimeData(const QMimeData *source)
 
     bool hasData = false;
     QTextDocumentFragment fragment;
-    if (source->hasFormat("application/x-qt-richtext")) {
-        QDataStream stream(source->data("application/x-qt-richtext"));
-        stream >> fragment;
-        hasData = true;
-    } else if (source->hasFormat("application/x-qrichtext")) {
+    if (source->hasFormat("application/x-qrichtext")) {
         fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
         hasData = true;
     } else if (source->hasHtml()) {

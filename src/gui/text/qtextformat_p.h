@@ -68,7 +68,4 @@ public:
     QVector<Q_INT32> objFormats;
 };
 
-QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection);
-QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection);
-
 #endif // QTEXTFORMAT_P_H

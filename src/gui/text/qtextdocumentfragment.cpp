@@ -371,50 +371,6 @@ QString QTextDocumentFragment::toHtml() const
 }
 
 /*!
-    \fn QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
-
-    \relates QTextDocumentFragment
-
-    Writes the \a fragment to the \a stream and returns a reference to the
-    stream.
-*/
-QDataStream &operator<<(QDataStream &s, const QTextDocumentFragment &frag)
-{
-    if (!frag.d) {
-        // null marker
-        return s << Q_INT8(false);
-    }
-
-    return s << Q_INT8(true) << *frag.d;
-}
-
-/*!
-    \fn QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
-
-    \relates QTextDocumentFragment
-
-    Reads the \a fragment from the \a stream and returns a reference to the
-    stream.
-*/
-QDataStream &operator>>(QDataStream &s, QTextDocumentFragment &frag)
-{
-    Q_INT8 marker;
-
-    s >> marker;
-
-    if (marker == false) {
-        delete frag.d;
-        frag.d = 0;
-        return s;
-    }
-
-    if (!frag.d)
-        frag.d = new QTextDocumentFragmentPrivate;
-
-    return s >> *frag.d;
-}
-
-/*!
     Returns a document fragment that contains the given \a plainText.
 
     When inserting such a fragment into a QTextDocument the current char format of

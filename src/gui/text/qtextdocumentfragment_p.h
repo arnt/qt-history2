@@ -78,51 +78,6 @@ public:
     uint setMarkerForHtmlExport : 1;
 };
 
-// ###### Versioning!
-
-inline QDataStream &operator<<(QDataStream &stream,
-                               const QTextDocumentFragmentPrivate::TextFragment &fragment)
-{
-    return stream << fragment.position
-                  << fragment.size
-                  << fragment.charFormat
-                  << fragment.blockFormat;
-}
-
-inline QDataStream &operator>>(QDataStream &stream,
-                               QTextDocumentFragmentPrivate::TextFragment &fragment)
-{
-    return stream >> fragment.position
-                  >> fragment.size
-                  >> fragment.charFormat
-                  >> fragment.blockFormat;
-}
-
-inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
-{
-    return stream << priv.formatCollection
-                  << priv.fragments
-                  << priv.localBuffer
-                  << priv.hasTitle
-                  << priv.title
-                  << Q_INT32(priv.containsCompleteDocument);
-}
-
-inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
-{
-    Q_INT32 containsDoc = 0;
-    stream >> priv.formatCollection
-           >> priv.fragments
-           >> priv.localBuffer
-           >> priv.hasTitle
-           >> priv.title
-           >> containsDoc;
-
-    priv.containsCompleteDocument = containsDoc;
-
-    return stream;
-}
-
 class QTextHTMLImporter : public QTextHtmlParser
 {
     struct Table;

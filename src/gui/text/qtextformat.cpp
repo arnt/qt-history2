@@ -828,17 +828,6 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     return *d == *rhs.d;
 }
 
-QDataStream &operator<<(QDataStream &stream, const QTextFormat &format)
-{
-    return stream << format.d->type << format.d->properties();
-}
-
-QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
-{
-    format.d->load(stream);
-    return stream;
-}
-
 /*!
     \class QTextCharFormat qtextformat.h
     \brief The QTextCharFormat class provides formatting information for
@@ -2028,18 +2017,5 @@ QTextFormat QTextFormatCollection::format(int idx) const
         return QTextFormat();
 
     return formats.at(idx);
-}
-
-
-QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection)
-{
-    return stream << collection.formats
-                  << collection.objFormats;
-}
-
-QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection)
-{
-    return stream >> collection.formats
-                  >> collection.objFormats;
 }
 
