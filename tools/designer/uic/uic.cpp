@@ -640,7 +640,6 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 {
     QDomElement n;
     QString objClass, objName;
-    QCString nameProp;
     objClass = e.tagName();
 
     QString qlayout = "QVBoxLayout";
@@ -651,7 +650,6 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 
     bool isGrid = e.tagName() == "grid" ;
     objName = registerObject( getLayoutName( e ) );
-    nameProp = DomTool::readProperty( e, "name", "unnamed" ).toCString();
     layoutObjects += objName;
     int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
     int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
@@ -661,15 +659,13 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	out << indent << parent << "->setColumnLayout(0, Qt::Vertical );" << endl;
 	out << indent << parent << "->layout()->setSpacing( 0 );" << endl;
 	out << indent << parent << "->layout()->setMargin( 0 );" << endl;
-	out << indent << objName << " = new " << qlayout << "( " << parent << "->layout(), -1, \""
-	    << nameProp << "\" );" << endl;
+	out << indent << objName << " = new " << qlayout << "( " << parent << "->layout() );" << endl;
 	out << indent << objName << "->setAlignment( Qt::AlignTop );" << endl;
     } else {
 	if ( layout.isEmpty() )
-	    out << indent << objName << " = new " << qlayout << "( " << parent << ", 0, -1, \""
-		<< nameProp << "\" );" << endl;
+	    out << indent << objName << " = new " << qlayout << "( " << parent << " ); " << endl;
 	else
-	    out << indent << objName << " = new " << qlayout << "( -1, \"" << nameProp << "\" );" << endl;
+	    out << indent << objName << " = new " << qlayout << "; " << endl;
     }
 
     out << indent << objName << "->setSpacing( " << spacing << " );" << endl;
