@@ -216,7 +216,7 @@ static volatile int * lastop=0;
 */
 
 /*!
-  \fn QScreenCursor::QScreenCursor()
+  \internal
 
   Constructs a screen cursor
 */
@@ -226,15 +226,15 @@ QScreenCursor::QScreenCursor()
 }
 
 /*!
-  \fn QScreenCursor::init(SWCursorData *da, bool init)
+  \internal
 
   Initialises a screen cursor - creates a Gfx to draw it with
   and an image to store the part of the screen stored under the cursor.
   Should not be called by hardware cursor descendants. \a da points
   to the location in framebuffer memory where the cursor saves information
-  stored under it, \a init is true if the cursor is being initialised
+  stored under it, \a init is true if the cursor is being initialized
   (i.e. if the program calling this is the Qt/Embedded server), false
-  if another application has already initialised it.
+  if another application has already initialized it.
 */
 
 void QScreenCursor::init(SWCursorData *da, bool init)
@@ -279,7 +279,8 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 }
 
 /*!
-  \fn QScreenCursor::~QScreenCursor()
+  \internal
+
   Destroys a screen cursor, deleting its gfxes, cursor image and
   under-cursor storage
 */
@@ -293,7 +294,7 @@ QScreenCursor::~QScreenCursor()
 }
 
 /*!
-  \fn QScreenCursor::supportsAlphaCursor()
+  \internal
 
   Returns true if an alpha-blended cursor image is supported.
   This affects the type of QImage passed to the cursor - descendants
@@ -312,7 +313,8 @@ bool QScreenCursor::supportsAlphaCursor()
 }
 
 /*!
-  \fn QScreenCursor::hide()
+  \internal
+
   Hide the mouse cursor from the screen.
 */
 
@@ -325,7 +327,8 @@ void QScreenCursor::hide()
 }
 
 /*!
-  \fn QScreenCursor::show()
+  \internal
+
   Show the mouse cursor again after it has been hidden. Note that hides
   and shows are not nested; show() should always re-display the cursor no
   matter how many hide()s preceded it.
@@ -340,7 +343,8 @@ void QScreenCursor::show()
 }
 
 /*!
-  \fn QScreenCursor::set(const QImage &image, int hotx, int hoty)
+  \internal
+
   Sets a mouse cursor to \a image. The QImage is 32 bit, with an alpha
   channel containing either only 255 or 0 (that is, display the pixel
   or not) or a full alpha channel, depending on what
@@ -381,14 +385,15 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 }
 
 /*!
-  \fn void QScreenCursor::move(int x, int y)
+  \internal
+
   Move the mouse cursor to point (\a x, \a y) on the screen. This should be done
   in such a way that the hotspot of the cursor is at (x,y) - e.g. if the
   hotspot is at 5,5 within the image then the top left of the image should
   be at x-5,y-5
 */
 
-void QScreenCursor::move(int x, int y)
+void QScreenCursor::move( int x, int y )
 {
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
@@ -405,7 +410,8 @@ void QScreenCursor::move(int x, int y)
 }
 
 /*!
-  \fn bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
+  \internal
+
   This is relevant only to the software mouse cursor and should be
   reimplemented as a null method in hardware cursor drivers. It redraws
   what was under the mouse cursor when the cursor is moved. \a r
@@ -447,7 +453,7 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	    }
 	} else {
 	    // This is faster than the above - at least until blt is
-	    // better optimised.
+	    // better optimized.
 	    int linestep = gfx->linestep();
 	    int startCol = x < 0 ? QABS(x) : 0;
 	    int startRow = y < 0 ? QABS(y) : 0;
@@ -482,7 +488,8 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 }
 
 /*!
-  \fn QScreenCursor::saveUnder()
+  \internal
+
   This saves the area under the mouse pointer - it should be reimplemented
   as a null method by hardware drivers.
 */
@@ -509,7 +516,7 @@ void QScreenCursor::saveUnder()
 	gfxunder->gfx_swcursor = TRUE;
     } else {
 	// This is faster than the above - at least until blt is
-	// better optimised.
+	// better optimized.
 	int linestep = gfx->linestep();
 	int startRow = y < 0 ? QABS(y) : 0;
 	int startCol = x < 0 ? QABS(x) : 0;
@@ -548,16 +555,19 @@ void QScreenCursor::saveUnder()
 }
 
 /*!
-  \fn QScreenCursor::drawCursor()
+  \internal
+
   This draws the software cursor. It should be reimplemented as a null
   method by hardware drivers
 */
 
-// We could use blt, but since cursor redraw speed is critical
-// it is all handled here.  Whether this is significantly faster is
-// questionable.
 void QScreenCursor::drawCursor()
 {
+    /*
+      We could use blt, but since cursor redraw speed is critical it
+      is all handled here.  Whether this is significantly faster is
+      questionable.
+    */
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
@@ -834,7 +844,7 @@ void QScreenCursor::drawCursor()
   drivers. It handles clipping and a movable origin in order to
   support subwindows. It is available \e only in Qt/Embedded. QWidget
   and QPixmap both return a QGfxRaster via their respective
-  graphicsContext() methods, already initialised with the appropriate
+  graphicsContext() methods, already initialized with the appropriate
   origin, framebuffer and clip region. QGfxRasterBase and its
   template subclasses should effectively be considered as one class;
   a raw QGfxRasterBase is never used, it's simply a handy place to
@@ -842,7 +852,8 @@ void QScreenCursor::drawCursor()
 */
 
 /*!
-  \fn QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h)
+  \internal
+
   This constructed a QGfxRasterBase. \a b is the data buffer pointed to,
   \a w and \a h its width and height in pixels
 */
@@ -908,7 +919,8 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 }
 
 /*!
-  \fn QGfxRasterBase::~QGfxRasterBase()
+  \internal
+
   Destroys a QGfxRaster
 */
 
@@ -940,7 +952,8 @@ void QGfxRasterBase::endTransaction(void* data)
 }
 
 /*!
-  \fn void QGfxRasterBase::sync()
+  \internal
+
   This does very little in a purely-software QGfxRasterBase (simply
   records that the last operation was a software one). Hardware drivers
   should reimplement this to wait for graphics engine idle in order to
@@ -953,9 +966,10 @@ void QGfxRasterBase::sync()
 }
 
 /*!
-  \fn void QGfxRasterBase::setPen( const QPen & p )
+  \internal
+
   This corresponds to QPainter::setPen - it tells QGfxRaster
-  what line colour and style to use, i.e. to use pen \a p.
+  what line color and style to use, i.e. to use pen \a p.
 */
 
 void QGfxRasterBase::setPen( const QPen & p )
@@ -990,9 +1004,10 @@ void QGfxRasterBase::setPen( const QPen & p )
 }
 
 /*!
-\fn void QGfxRasterBase::setFont( const QFont & f)
-This corresponds to QPainter::setFont and sets the font drawText()
-will use to \a f.
+  \internal
+
+  This corresponds to QPainter::setFont and sets the font drawText()
+  will use to \a f.
 */
 
 void QGfxRasterBase::setFont( const QFont & f)
@@ -1004,10 +1019,11 @@ void QGfxRasterBase::setFont( const QFont & f)
 }
 
 /*!
-\fn void QGfxRasterBase::setClipRect( int x,int y,int w,int h )
-This is a simplified case of setClipRegion, setting a clip region consisting
-of one rectangle defined by position \a (x, y), width \a w and height
-\a h.
+  \internal
+
+  This is a simplified case of setClipRegion, setting a clip region consisting
+  of one rectangle defined by position \a (x, y), width \a w and height
+  \a h.
 */
 
 void QGfxRasterBase::setClipRect( int x,int y,int w,int h )
@@ -1016,17 +1032,18 @@ void QGfxRasterBase::setClipRect( int x,int y,int w,int h )
 }
 
 /*!
-\fn void QGfxRasterBase::setClipRegion( const QRegion & r )
-This sets the clipping region for the QGfx to region \a r. All drawing
-outside of the region is not displayed. The clip region is defined
-relative to the QGfx's origin at the time the clip region is set, and
-consists of an array of rectangles stored in the array cliprect. Note
-that changing the origin after the clip region is set will not change
-the position of the clip region within the buffer. Hardware drivers
-should use this to set their clipping scissors when drawing. Note also
-that this is the user clip region as set by QPainter; it is combined
-(via an intersection) with the widget clip region to provide the
-actual clipping region.
+  \internal
+
+  This sets the clipping region for the QGfx to region \a r. All
+  drawing outside of the region is not displayed. The clip region is
+  defined relative to the QGfx's origin at the time the clip region
+  is set, and consists of an array of rectangles stored in the array
+  cliprect. Note that changing the origin after the clip region is
+  set will not change the position of the clip region within the
+  buffer. Hardware drivers should use this to set their clipping
+  scissors when drawing. Note also that this is the user clip region
+  as set by QPainter; it is combined (via an intersection) with the
+  widget clip region to provide the actual clipping region.
 */
 
 void QGfxRasterBase::setClipRegion( const QRegion & r )
@@ -1057,13 +1074,15 @@ void QGfxRasterBase::setClipDeviceRegion( const QRegion & r )
 }
 
 /*!
-\fn void QGfxRasterBase::setClipping(bool b)
-If \a b is TRUE then clipping is switched enabled; otherwise clipping
-is disabled.
-If clipping is not enabled then drawing will access the whole buffer.
-This will be reflected in the cliprect array, which will consist of
-one rectangle of buffer width and height. The variable regionClip
-defines whether to clip or not.
+  \internal
+
+  If \a b is TRUE then clipping is switched enabled; otherwise clipping
+  is disabled.
+
+  If clipping is not enabled then drawing will access the whole buffer.
+  This will be reflected in the cliprect array, which will consist of
+  one rectangle of buffer width and height. The variable regionClip
+  defines whether to clip or not.
 */
 
 void QGfxRasterBase::setClipping(bool b)
@@ -1075,10 +1094,13 @@ void QGfxRasterBase::setClipping(bool b)
 }
 
 /*!
-This defines the (\a x, \a y) origin of the gfx. For instance, if the
-origin is set to 100,100 and a line is then drawn from 0,0 to 10,10
-the line will be (relative to the top left of the buffer) from 100,100
-to 110,110. This is used to support windows within the buffer.
+  \internal
+
+  This defines the (\a x, \a y) origin of the gfx. For instance, if
+  the origin is set to (100, 100) and a line is then drawn from (0,
+  0) to (10, 10) the line will be (relative to the top left of the
+  buffer) from 100,100 to (110, 110). This is used to support windows
+  within the buffer.
 */
 
 void QGfxRasterBase::setOffset( int x, int y )
@@ -1088,10 +1110,11 @@ void QGfxRasterBase::setOffset( int x, int y )
 }
 
 /*!
-\fn void QGfxRasterBase::setWidgetRect( int x,int y,int w,int h )
-This is a special case of setWidgetRegion for widgets which are not shaped
-and not occluded by any other widgets. The rectangle is defined by
-position \a(x, y), width \a w and height \a h.
+  \internal
+
+  This is a special case of setWidgetRegion for widgets which are not
+  shaped and not occluded by any other widgets. The rectangle is
+  defined by position \a(x, y), width \a w and height \a h.
 */
 
 void QGfxRasterBase::setWidgetRect( int x,int y, int w, int h )
@@ -1100,10 +1123,12 @@ void QGfxRasterBase::setWidgetRect( int x,int y, int w, int h )
 }
 
 /*!
-This sets the widget's region clip to \a r, which is combined with the user
-clip to determine the widget's drawable region onscreen. It's a combination
-of the widget's shape (if it's a shaped widget) and the area not obscured
-by windows on top of it.
+  \internal
+
+  This sets the widget's region clip to \a r, which is combined with
+  the user clip to determine the widget's drawable region onscreen.
+  It's a combination of the widget's shape (if it's a shaped widget)
+  and the area not obscured by windows on top of it.
 */
 
 void QGfxRasterBase::setWidgetRegion( const QRegion & r )
@@ -1128,9 +1153,11 @@ void QGfxRasterBase::setGlobalRegionIndex( int idx )
 }
 
 /*!
-If \a d is TRUE then the gfx should draw dashed lines; otherwise it
-should draw solid lines.
-It's called by setPen so there is no need to call it directly.
+  \internal
+
+  If \a d is TRUE then the gfx should draw dashed lines; otherwise it
+  should draw solid lines. It's called by setPen so there is no need
+  to call it directly.
 */
 
 void QGfxRasterBase::setDashedLines(bool d)
@@ -1139,10 +1166,12 @@ void QGfxRasterBase::setDashedLines(bool d)
 }
 
 /*!
-This defines the pattern for dashed lines. It's called by setPen
-so there is no need to call it directly. \a dashList is a 1 bit
-per pixel specification of the dashes in the line, \a n is the
-number of bytes in the dashList.
+  \internal
+
+  This defines the pattern for dashed lines. It's called by setPen
+  so there is no need to call it directly. \a dashList is a 1 bit
+  per pixel specification of the dashes in the line, \a n is the
+  number of bytes in the dashList.
 */
 
 void QGfxRasterBase::setDashes(char *dashList, int n)
@@ -1169,11 +1198,12 @@ struct _XRegion {
 };
 
 /*!
-\fn void QGfxRasterBase::update_clip()
-This combines the currently set widget and user clips
-and caches the result in an array of QRects, cliprect,
-the size of which is stored in ncliprect. It's called whenever
-the widget or user clips are changed.
+  \internal
+
+  This combines the currently set widget and user clips
+  and caches the result in an array of QRects, cliprect,
+  the size of which is stored in ncliprect. It's called whenever
+  the widget or user clips are changed.
 */
 
 void QGfxRasterBase::update_clip()
@@ -1243,8 +1273,10 @@ void QGfxRasterBase::update_clip()
 }
 
 /*!
-This is the counterpart to QPainter::moveTo. It simply stores the
-\a x and \a y values passed to it until a lineTo.
+  \internal
+
+  This is the counterpart to QPainter::moveTo. It simply stores the
+  \a x and \a y values passed to it until a lineTo.
 */
 
 void QGfxRasterBase::moveTo( int x,int y )
@@ -1254,9 +1286,11 @@ void QGfxRasterBase::moveTo( int x,int y )
 }
 
 /*!
-This draws a line from the last values passed to moveTo
-to \a (x, y). It calls drawLine so there
-is no need to reimplement it in an accelerated driver.
+  \internal
+
+  This draws a line from the last values passed to moveTo to (\a x,
+  \a y). It calls drawLine so there is no need to reimplement it in
+  an accelerated driver.
 */
 
 void QGfxRasterBase::lineTo( int x,int y )
@@ -1272,10 +1306,12 @@ QPoint QGfxRasterBase::pos() const
 }
 
 /*!
-This stores the offset from the screen framebuffer of the widget
-from which a blt() is being performed - this is added to the
-source \a x and \a y coordinates from a bitBlt to produce the source screen
-position of the blt
+  \internal
+
+  This stores the offset from the screen framebuffer of the widget
+  from which a blt() is being performed - this is added to the source
+  \a x and \a y coordinates from a bitBlt to produce the source
+  screen position of the blt
 */
 void QGfxRasterBase::setSourceWidgetOffset(int x ,int y)
 {
@@ -1283,6 +1319,8 @@ void QGfxRasterBase::setSourceWidgetOffset(int x ,int y)
 }
 
 /*!
+  \internal
+
 This sets one of several alpha channel types for the next
 blt operation to \a a:
 
@@ -1312,10 +1350,12 @@ void QGfxRasterBase::setAlphaType(AlphaType a)
 }
 
 /*!
-This is used in conjunction with LittleEndianMask, BigEndianMask
-or SeparateAlpha alpha channels. \a b is a pointer to the bytes
-containing the alpha values, \a l is the linestep (length in bytes
-per horizontal line of data)
+  \internal
+
+  This is used in conjunction with LittleEndianMask, BigEndianMask or
+  SeparateAlpha alpha channels. \a b is a pointer to the bytes
+  containing the alpha values, \a l is the linestep (length in bytes
+  per horizontal line of data)
 */
 
 void QGfxRasterBase::setAlphaSource(unsigned char * b,int l)
@@ -1325,16 +1365,18 @@ void QGfxRasterBase::setAlphaSource(unsigned char * b,int l)
 }
 
 /*!
-    \overload
-This is used by the SolidAlpha alpha channel type and sets a single
-alpha value to be used in blending all of the source data. The
-value is between 0 (draw nothing) and 255 (draw solid source data) -
-a value of 128 would draw a 50% blend between the source and destination
-data. Normally called with just one argument, where \a i is the
-alpha value to use. If \a i2, \a i3 and \a i4 are used they
-specify different alpha values for the corners of an alpha-blended
-rectangle; this is only used by some experimental hardware-accelerated
-alpha-blending code.
+  \internal
+  \overload
+
+  This is used by the SolidAlpha alpha channel type and sets a single
+  alpha value to be used in blending all of the source data. The
+  value is between 0 (draw nothing) and 255 (draw solid source data)
+  - a value of 128 would draw a 50% blend between the source and
+  destination data. Normally called with just one argument, where \a
+  i is the alpha value to use. If \a i2, \a i3 and \a i4 are used
+  they specify different alpha values for the corners of an
+  alpha-blended rectangle; this is only used by some experimental
+  hardware-accelerated alpha-blending code.
 */
 
 void QGfxRasterBase::setAlphaSource(int i,int i2,int i3,int i4)
@@ -1353,11 +1395,13 @@ void QGfxRasterBase::setAlphaSource(int i,int i2,int i3,int i4)
 }
 
 /*!
-Draws a line of Unicode text given in \a s at position \a (x, y) using
-the font set by QFont. It performs a series of blt's using a pen
-source in the current pen colour and either an 8-bit alpha channel
-(for anti-aliased text) or a big-endian mask provided by the font
-subsystem.
+  \internal
+
+  Draws a line of Unicode text given in \a s at position \a (x, y)
+  using the font set by QFont. It performs a series of blt's using a
+  pen source in the current pen color and either an 8-bit alpha
+  channel (for anti-aliased text) or a big-endian mask provided by
+  the font subsystem.
 */
 
 void QGfxRasterBase::drawText(int x,int y,const QString & s)
@@ -1418,10 +1462,12 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 }
 
 /*!
-This saves the current brush and pen state to temporary variables.
-This is used internally in QGfxRaster when a temporary pen or brush
-is needed for something. This is not a stack; a save() followed by
-a save() will obliterate the previously saved brush and pen.
+  \internal
+
+  This saves the current brush and pen state to temporary variables.
+  This is used internally in QGfxRaster when a temporary pen or brush
+  is needed for something. This is not a stack; a save() followed by
+  a save() will obliterate the previously saved brush and pen.
 */
 
 void QGfxRasterBase::save()
@@ -1431,7 +1477,9 @@ void QGfxRasterBase::save()
 }
 
 /*!
-Restores the brush and pen from a previous save().
+  \internal
+
+  Restores the brush and pen from a previous save().
 */
 
 void QGfxRasterBase::restore()
@@ -1450,6 +1498,8 @@ inline void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
 }
 
 /*!
+  \internal
+
   Returns whether the point (\a x, \a y) is in the clip region.
 
   If \a cr is not null, \c *\cr is set to a rectangle containing
@@ -1671,8 +1721,10 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 }
 
 /*!
-This corresponds to QPainter::setBrush, and sets the gfx's brush to \a
-b.
+  \internal
+
+  This corresponds to QPainter::setBrush, and sets the gfx's brush to
+  \a b.
 */
 
 void QGfxRasterBase::setBrush( const QBrush & b )
@@ -1695,10 +1747,12 @@ void QGfxRasterBase::setBrush( const QBrush & b )
 }
 
 /*!
-This sets the offset of a pattern when drawing with a patterned brush
-to \a (x, y ). This is needed when clipping means the start position
-for drawing doesn't correspond with the start position requested by
-QPainter, for example.
+  \internal
+
+  This sets the offset of a pattern when drawing with a patterned
+  brush to (\a x, \a y). This is needed when clipping means the start
+  position for drawing doesn't correspond with the start position
+  requested by QPainter, for example.
 */
 
 void QGfxRasterBase::setBrushOffset( int x, int y )
@@ -1707,13 +1761,15 @@ void QGfxRasterBase::setBrushOffset( int x, int y )
 }
 
 /*!
-This tells blt()s that instead of image data a single solid value
-should be used as the source, taken from the current pen color.
-You could reproduce a fillRect() using a pen source and the IgnoreAlpha
-alpha type, but this would be both pointless and slower than fillRect;
-its normal use is for anti-aliased text, where the text colour is
-that of the pen and a separate alpha channel produces the shape of
-the glyphs.
+  \internal
+
+  This tells blt()s that instead of image data a single solid value
+  should be used as the source, taken from the current pen color. You
+  could reproduce a fillRect() using a pen source and the IgnoreAlpha
+  alpha type, but this would be both pointless and slower than
+  fillRect; its normal use is for anti-aliased text, where the text
+  color is that of the pen and a separate alpha channel produces the
+  shape of the glyphs.
 */
 
 void QGfxRasterBase::setSourcePen()
@@ -1732,18 +1788,23 @@ void QGfxRasterBase::setSourcePen()
     setSourceWidgetOffset( 0, 0 );
 }
 
-/*! \fn QGfxRasterBase::get_value_32(int sdepth, unsigned char **srcdata,
-        bool reverse)
-This converts a pixel in an arbitrary source depth (specified by \a sdepth,
-stored at *(*\a srcdata) to a 32 bit value; it's used by blt() where the
-source depth is less than 32 bits and the destination depth is 32 bits.
-*srcdata (the pointer to the data) is auto-incremented by the appropriate
-number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing
-will happen as necessary; the current position within the byte is stored in
-monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
-table are performed.
+/*!
+  \fn QGfxRasterBase::get_value_32( int sdepth, unsigned char **srcdata,
+				    bool reverse )
+
+  \internal
+
+  This converts a pixel in an arbitrary source depth (specified by \a
+  sdepth, stored at *(*\a srcdata) to a 32 bit value; it's used by
+  blt() where the source depth is less than 32 bits and the
+  destination depth is 32 bits. *srcdata (the pointer to the data) is
+  auto-incremented by the appropriate number of bytes, or decremented
+  if \a reverse is true. If the source has a pixel size of less than
+  a byte then auto-incrementing or decrementing will happen as
+  necessary; the current position within the byte is stored in
+  monobitcount (bit within the byte) and monobitval (value of the
+  current byte). In the case of 8-bit source data lookups on the
+  source's color table are performed.
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
@@ -1812,20 +1873,25 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
     return ret;
 }
 
-/*! \fn QGfxRasterBase::get_value_24(int sdepth, unsigned char **srcdata,
-        bool reverse)
-This is similar to get_value_32, but returns packed 24-bit values
+/*!
+  \fn QGfxRasterBase::get_value_24( int sdepth, unsigned char **srcdata,
+				    bool reverse )
 
-This converts a pixel in an arbitrary source depth (specified by \a sdepth,
-stored at *(*\a srcdata) to a 24 bit value; it's used by blt() where the
-source depth is less than 24 bits and the destination depth is 24 bits.
-*srcdata (the pointer to the data) is auto-incremented by the appropriate
-number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing
-will happen as necessary; the current position within the byte is stored in
-monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
-table are performed.
+  \internal
+
+  This converts a pixel in an arbitrary source depth (specified by \a
+  sdepth, stored at *(*\a srcdata) to a 24 bit value; it's used by
+  blt() where the source depth is less than 24 bits and the
+  destination depth is 24 bits. *srcdata (the pointer to the data) is
+  auto-incremented by the appropriate number of bytes, or decremented
+  if \a reverse is true. If the source has a pixel size of less than
+  a byte then auto-incrementing or decrementing will happen as
+  necessary; the current position within the byte is stored in
+  monobitcount (bit within the byte) and monobitval (value of the
+  current byte). In the case of 8-bit source data lookups on the
+  source's color table are performed.
+
+  \sa get_value_32()
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
@@ -1847,18 +1913,22 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
 
 /*! \fn QGfxRasterBase::get_value_16(int sdepth, unsigned char **srcdata,
         bool reverse)
-This is similar to get_value_32, but returns 16-bit values
 
-This converts a pixel in an arbitrary source depth (specified by \a sdepth,
-stored at *(*\a srcdata) to a 16 bit value; it's used by blt() where the
-source depth is less than 16 bits and the destination depth is 16 bits.
-*srcdata (the pointer to the data) is auto-incremented by the appropriate
-number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing
-will happen as necessary; the current position within the byte is stored in
-monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
-table are performed.
+  \internal
+
+  This converts a pixel in an arbitrary source depth (specified by \a
+  sdepth, stored at *(*\a srcdata) to a 16 bit value; it's used by
+  blt() where the source depth is less than 16 bits and the
+  destination depth is 16 bits. *srcdata (the pointer to the data) is
+  auto-incremented by the appropriate number of bytes, or decremented
+  if \a reverse is true. If the source has a pixel size of less than
+  a byte then auto-incrementing or decrementing will happen as
+  necessary; the current position within the byte is stored in
+  monobitcount (bit within the byte) and monobitval (value of the
+  current byte). In the case of 8-bit source data lookups on the
+  source's color table are performed.
+
+  \sa get_value_32()
 */
 
 // reverse can only be true if sdepth == depth
@@ -1921,9 +1991,12 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 
 /*! \fn QGfxRasterBase::get_value_8(
         int sdepth, unsigned char **srcdata, bool reverse)
-This is similar to get_value_32, but returns 8-bit values. Translation
-between different colour palettes and from 32/24/16 bit data to the nearest
-match in the destination's colour palette is performed.
+
+\internal
+
+This is similar to get_value_32(), but returns 8-bit values. Translation
+between different color palettes and from 32/24/16 bit data to the nearest
+match in the destination's color palette is performed.
 
 This converts a pixel in an arbitrary source depth (specified by \a sdepth,
 stored at *(*\a srcdata) to a 8 bit value; it's used by blt() where the
@@ -1933,7 +2006,7 @@ number of bytes, or decremented if \a reverse is true. If the source has
 a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
+byte). In the case of 8-bit source data lookups on the source's color
 table are performed.
 */
 
@@ -2021,6 +2094,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 
 /*!
 \fn unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned char **srcdata, bool reverse)
+
+\internal
+
 This is similar to get_value_8, but returns 4-bit values.
 
 This converts a pixel in an arbitrary source depth (specified by \a sdepth,
@@ -2031,7 +2107,7 @@ number of bytes, or decremented if \a reverse is true. If the source has
 a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
+byte). In the case of 8-bit source data lookups on the source's color
 table are performed.
 */
 
@@ -2105,6 +2181,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
 
 /*!
 \fn unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned char **srcdata, bool reverse)
+
+\internal
+
 This is similar to get_value_8, but returns 1-bit values. The number of depths
 that can be blt'd to a monochrome destination are limited - only monochrome
 or 32-bit sources are permitted.
@@ -2117,7 +2196,7 @@ number of bytes, or decremented if \a reverse is true. If the source has
 a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
-byte). In the case of 8-bit source data lookups on the source's colour
+byte). In the case of 8-bit source data lookups on the source's color
 table are performed.
 */
 
@@ -2211,6 +2290,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 */
 
 /*! \fn QGfxRaster::QGfxRaster(unsigned char * b,int w,int h)
+
+  \internal
+
   Constructs a QGfxRaster for a particular depth with a framebuffer pointed
   to by \a b, with a width and height of \a w and \a h (specified in
   pixels, not bytes)
@@ -2230,6 +2312,9 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
 }
 
 /*! \fn QGfxRaster::~QGfxRaster()
+
+  \internal
+
   Destroys a QGfxRaster.
 */
 
@@ -2243,6 +2328,9 @@ QGfxRaster<depth,type>::~QGfxRaster()
   \fn void QGfxRaster<depth,type>::calcPacking(
 			  void * m,int x1,int x2,
 			  int & frontadd,int & backadd,int & count)
+
+  \internal
+
   This is an internal method used by methods which pack writes to the
   framebuffer for optimisation reasons. It takes longer to write
   80 8-bit values over the PCI or AGP bus to a graphics card than
@@ -2365,7 +2453,10 @@ unpacked:
 
 /*!
 \fn void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
+
+\internal
 \overload
+
 This sets the gfx to use an arbitrary paintdevice \a p as the source for
 future data. It sets up a default alpha-blending value of IgnoreAlpha.
 */
@@ -2418,6 +2509,9 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 
 /*!
 \fn void QGfxRaster<depth,type>::setSource(const QImage * i)
+
+\internal
+
 This sets up future blt's to use a QImage \a i as a source - used by
 QPainter::drawImage()
 */
@@ -2467,10 +2561,12 @@ void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
 /*!
 \fn void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 
+\internal
+
 This is an internal method used to optimise blt's from paletted to paletted
 data, where the palettes are different for each. A lookup table
 indexed by the source value providing the destination value is
-filled in. \a cols is the source data's colour lookup table,
+filled in. \a cols is the source data's color lookup table,
 \a numcols the number of entries in it. If \a cols is 0 some default
 values are put in (this is for 1bpp sources which don't have
 a palette).
@@ -2508,6 +2604,8 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 
 /*!
   \fn void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+
+\internal
 
 This draws a point in the scanline pointed to by \a l, at the position \a x,
 without taking any notice of clipping. It's an internal method called
@@ -2587,6 +2685,9 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 
 /*!
 \fn void QGfxRaster<depth,type>::drawPoint( int x, int y )
+
+\internal
+
 Draw a point at \a x, \a y in the current pen color. As with most
 externally-called dawing methods x and y are relevant to the current gfx
 offset, stored in the variables xoffs and yoffs.
@@ -2612,6 +2713,8 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
 
 /*!
   \fn void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
+
+  \internal
 
   Draw \a npoints points from position \a index in the array of points \a pa.
 */
@@ -2648,6 +2751,9 @@ void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int 
 
 /*!
 \fn void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
+
+\internal
+
 Draw a line in the current pen style from \a x1 \a y1 to \a x2 \a y2
 */
 
@@ -3016,6 +3122,9 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
 
 /*!
 \fn void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
+
+\internal
+
 Draw a line with a thickness greater than one pixel from \a x1, \a y1
 to \a x2, \a y2. Called from drawLine when necessary.
 */
@@ -3032,6 +3141,9 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
 
 /*!
 \fn void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int index, int npoints )
+
+\internal
+
 Draw a series of lines of a thickness greater than one pixel - called
 from drawPolyline as necessary. \a points is the array of points to
 use, \a index is the offset at which to start in that array, \a npoints
@@ -3060,6 +3172,9 @@ void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int in
 
 /*!
 \fn void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
+
+\internal
+
 Draw a line at coordinate \a y from \a x1 to \a x2 - used by the polygon
 drawing code. Performs clipping.
 */
@@ -3111,7 +3226,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 
 /*!
 \fn void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
-Draws a line in the current pen colour from \a x1 to \a x2 on scanline \a l,
+
+\internal
+
+Draws a line in the current pen color from \a x1 to \a x2 on scanline \a l,
 ignoring clipping. Used by anything that draws in solid colors - drawLine,
 fillRect, and drawPolygon.
 */
@@ -3311,6 +3429,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 						    unsigned char *l,
 						    unsigned char *srcdata,
 						    bool reverse)
+
+\internal
+
  \a l points to the start of the destination line's data.
  \a x1 and \a x2 are the start and end pixels.
  \a srcdata points to the source's left pixel start byte if \a reverse is
@@ -3729,6 +3850,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 						    unsigned char* l,
 						    unsigned char * srcdata,
 						    unsigned char * alphas)
+
+\internal
+
 This is similar to hImageLineUnclipped but handles the more complex
 alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
 Blending is a simple averaging between the source and destination r, g and b
@@ -4308,7 +4432,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 /*!
 \fn void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
-Draw a filled rectangle in the current brush colour from \a rx,\a ry to \a w,
+
+\internal
+
+Draw a filled rectangle in the current brush color from \a rx,\a ry to \a w,
 \a h.
 */
 
@@ -4697,6 +4824,9 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 /*!
 \fn void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
+
+\internal
+
 Draw a series of lines specified by \a npoints coordinates from array \a a,
 starting from \a index in the array.
 */
@@ -4733,6 +4863,9 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 
 /*!
 \fn void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
+
+\internal
+
 Draw a filled polygon in the current brush style, with a border in the current
 pen style. The polygon is specified in array \a pa by \a npoints points from
 \a index. \a winding specifies whether to use the winding fill algorithm
@@ -4788,6 +4921,8 @@ void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, i
 
 /*!
 \fn void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+
+\internal
 
 This is used internally by drawPolygon (via scan()) to draw the individual
 scanlines of a polygon by calling hline. \a point is an array of points
@@ -4845,6 +4980,8 @@ static GFX_INLINE
 
 /*!
   \relates QGfxRaster
+
+  \internal
 
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
@@ -4918,6 +5055,9 @@ static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int 
 
 /*!
 \fn void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
+
+\internal
+
 This is intended for hardware optimisation - it handles the common case
 of blting a rectangle a small distance within the same drawing surface
 (for example when scrolling a listbox). \a rx and \a ry are the X and Y
@@ -4957,6 +5097,9 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 
 /*!
 \fn void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
+
+\internal
+
 This corresponds to QPixmap::drawPixmap (into a QPainter with no transformation
 other than a translation) or bitBlt. The source is set up using
 setSource and setSourceWidgetOffset before the blt. \a rx and \a ry are the
@@ -5177,6 +5320,9 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 /*!
 \fn void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )
+
+\internal
+
 This is similar to blt() but allows the source rectangle to be a different
 size to the destination - the source is expanded or shrunk as necessary
 to fit the destination. The source and destination cannot overlap.
@@ -5309,6 +5455,9 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 
 /*!
 \fn void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
+
+\internal
+
 Like scroll(), this is intended as a candidate for hardware acceleration
 - it's a special case of blt where the source can be a different size
 to the destination and is tiled across the destination. \a rx and \a ry
@@ -5426,7 +5575,7 @@ GFX_INLINE void QGfxRaster<depth,type>::usePen()
 
 /*!
 \fn QScreen::initDevice()
-This function is called by the Qt/Embedded server when initialising
+This function is called by the Qt/Embedded server when initializing
 the framebuffer. Accelerated drivers use it to set up the graphics card.
 */
 
@@ -5493,7 +5642,7 @@ Gives the height in pixels of the framebuffer.
 \fn QScreen::depth() const
 Gives the depth in bits per pixel of the framebuffer. This is the number
 of bits each pixel takes up rather than the number of significant bits,
-so 24bpp and 32bpp express the same range of colours (8 bits of
+so 24bpp and 32bpp express the same range of colors (8 bits of
 red, green and blue)
 */
 
@@ -5563,13 +5712,13 @@ screen. Offscreen memory is only used by the accelerated drivers.
 
 /*!
   \fn QScreen::clut()
-  Returns the screen's colour lookup table (colour palette). This is only
+  Returns the screen's color lookup table (color palette). This is only
   valid in paletted modes (8bpp and lower).
 */
 
 /*!
   \fn QScreen::numCols()
-  Returns the number of entries in the colour table returned by clut().
+  Returns the number of entries in the color table returned by clut().
 */
 
 QScreen::QScreen( int display_id )
@@ -5582,7 +5731,6 @@ QScreen::QScreen( int display_id )
 }
 
 /*!
-  \fn QScreen::~QScreen()
   Destroys a QScreen
 */
 
@@ -5591,7 +5739,6 @@ QScreen::~QScreen()
 }
 
 /*!
-  \fn void QScreen::shutdownDevice()
   Called by the Qt/Embedded server on shutdown; never called by
   a Qt/Embedded client. This is intended to support graphics card specific
   shutdown; the unaccelerated implementation simply hides the mouse cursor.
@@ -5608,8 +5755,7 @@ void QScreen::shutdownDevice()
 extern bool qws_accel; //in qapplication_qws.cpp
 
 /*!
-  \fn QGfx * QScreen::screenGfx()
-  Returns a QGfx (normally a QGfxRaster) initialised to point to the screen,
+  Returns a QGfx (normally a QGfxRaster) initialized to point to the screen,
   with an origin at 0,0 and a clip region covering the whole screen.
 */
 
@@ -5629,7 +5775,6 @@ QGfx * QScreen::screenGfx()
  */
 
 /*!
-  \fn int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
   Given an RGB value \a r \a g \a b, return an index which is the closest
   match to it in the screen's palette. Used in paletted modes only.
 */
@@ -5666,23 +5811,25 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
     } else if ( d == 4 ) {
 	ret = qGray( r, g, b ) >> 4;
     } else {
-	qFatal( "cannot alloc %dbpp colour", d );
+	qFatal( "cannot alloc %dbpp color", d );
     }
 
     return ret;
 }
 
 /*!
-\fn int QScreen::initCursor(void* end_of_location, bool init)
-This is used to initialise the software cursor - \a end_of_location
+This is used to initialize the software cursor - \a end_of_location
 points to the address after the area where the cursor image can be stored.
 \a init is true for the first application this method is called from
 (the Qt/Embedded server), false otherwise.
 */
 
-// The end_of_location parameter is unusual: it's the address AFTER the cursor data.
 int QScreen::initCursor(void* end_of_location, bool init)
 {
+    /*
+      The end_of_location parameter is unusual: it's the address
+      after the cursor data.
+    */
 #ifndef QT_NO_QWS_CURSOR
     qt_sw_cursor=TRUE;
     // ### until QLumpManager works Ok with multiple connected clients,
@@ -5697,12 +5844,11 @@ int QScreen::initCursor(void* end_of_location, bool init)
 }
 
 /*!
-\fn void QScreen::save()
-Saves the state of the graphics card - used so that, for instance,
-the palette can be restored when switching between linux virtual consoles.
-Hardware QScreen descendants should save register state here if necessary
-if switching between virtual consoles (for example to/from X) is to be
-permitted.
+  Saves the state of the graphics card - used so that, for instance,
+  the palette can be restored when switching between linux virtual
+  consoles. Hardware QScreen descendants should save register state
+  here if necessary if switching between virtual consoles (for
+  example to/from X) is to be permitted.
 */
 
 void QScreen::save()
@@ -5710,8 +5856,7 @@ void QScreen::save()
 }
 
 /*!
-\fn void QScreen::restore()
-Restore the state of the graphics card from a previous save()
+  Restores the state of the graphics card from a previous save()
 */
 
 void QScreen::restore()
@@ -5723,9 +5868,7 @@ void QScreen::blank(bool)
 }
 
 /*!
-\fn void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
-Set an entry in the colour palette. A noop in this class, implemented
-in QLinuxFbScreen.
+  Sets an entry in the color palette.
 */
 
 void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
