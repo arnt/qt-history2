@@ -109,7 +109,6 @@ QSignal::QSignal( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     isSignal = TRUE;
-    //    d = 0; //### ???
     val = 0;
 }
 
@@ -128,7 +127,7 @@ QSignal::~QSignal()
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
-    QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
+    QRegExp regexp( "*(*int*)", TRUE, TRUE );
     if ( regexp.exactMatch( member ) )
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
@@ -142,7 +141,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
-    QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
+    QRegExp regexp( "*(*int*)", TRUE, TRUE );
     if ( regexp.exactMatch( member ) )
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
@@ -177,9 +176,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-#ifndef QT_NO_COMPAT
     emit intSignal( val.toInt() );
-#endif
     emit signal( val );
 }
 
