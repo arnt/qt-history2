@@ -1519,11 +1519,16 @@ void QWidget::showMaximized()
 	    bounds.right -= tlextra->fright;
 	    bounds.bottom -= tlextra->fbottom;
 	}
+
+	QRect orect(geometry().x(), geometry().y(), width(), height());
+	Rect oldr;
+	SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
+	SetWindowUserState((WindowPtr)hd, &oldr);
+
 	SetWindowStandardState((WindowPtr)hd, &bounds);
 	ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
 	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
-	QRect orect(geometry().x(), geometry().y(), width(), height());
 	crect.setRect(bounds.left, bounds.top, bounds.right - bounds.left,
 		       bounds.bottom - bounds.top);
 
