@@ -641,6 +641,8 @@ void QWhatsThisPrivate::add( QWidget * widget, const QString &text )
 */
 void QWhatsThis::add( QWidget * widget, const QString &text )
 {
+    if ( text.isEmpty() )
+	return; // pointless
     QWhatsThisPrivate::setUpWhatsThis();
     wt->add(widget,text);
 }
@@ -669,7 +671,7 @@ void QWhatsThis::remove( QWidget * widget )
 /*!
   Returns the text for widget \a w, or a null string if there
   is no <i>What's This</i> help for \a widget.
-  
+
   If \a includeParents is TRUE, parent widgets are taken into
   consideration as well.
 
@@ -883,8 +885,8 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 	wt->say( 0, text, pos );
 }
 
-/*!  
-  Display \a text in a help window at the global screen position 
+/*!
+  Display \a text in a help window at the global screen position
   \a  pos.
 */
 void QWhatsThis::display( const QString& text, const QPoint& pos )
