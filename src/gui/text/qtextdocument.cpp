@@ -30,6 +30,11 @@ QString QTextDocument::plainText() const
     return txt;
 }
 
+bool QTextDocument::isEmpty() const
+{
+    return pieceTable->length();
+}
+
 void QTextDocument::undoRedo(bool undo)
 {
     pieceTable->undoRedo(undo);

@@ -41,6 +41,8 @@ public:
 
     QString plainText() const;
 
+    bool isEmpty() const;
+
     void enableUndoRedo(bool enable);
     bool isUndoRedoEnabled() const;
 
