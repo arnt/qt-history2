@@ -338,6 +338,7 @@ static const char* const type_map[][2] =
     { "QValueList<QVariant>", "SAFEARRAY(VARIANT)" },
     { "Q_ULLONG",	"CY" },
     { "Q_LLONG",	"CY" },
+    { "QByteArray",	"SAFEARRAY(BYTE)" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },

@@ -79,6 +79,7 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( QValueList list READ list WRITE setList )
     Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
     Q_PROPERTY( LongLong currency READ currency WRITE setCurrency )
+    Q_PROPERTY( QByteArray bytes READ bytes WRITE setBytes )
     
 public:
     QTestControl( QWidget *parent = 0, const char *name = 0 )
@@ -141,6 +142,9 @@ public:
 
     Q_LLONG currency() const { PROP(currency) }
     void setCurrency( Q_LLONG currency ) { SET_PROP(currency) }
+
+    QByteArray bytes() const { PROP(bytes) }
+    void setBytes( const QByteArray &bytes ) { SET_PROP(bytes) }
 
 public slots:
     QString getUnicodeSlot() const { GET_PROP_SLOT(unicode) }
@@ -218,6 +222,11 @@ public slots:
     Q_LLONG getAndSetCurrencySlot( Q_LLONG& currency ) { GET_AND_SET(currency, Q_LLONG) }
     Q_LLONG emitCurrencyRefSignal() { EMIT_REF(currency, Q_LLONG) }
 
+    QByteArray getBytesSlot() const { GET_PROP_SLOT(bytes) }
+    void setBytesSlot( const QByteArray &bytes ) { SET_PROP_SLOT(bytes) }
+    QByteArray getAndSetBytesSlot( QByteArray &bytes ) { GET_AND_SET(bytes, QByteArray) }
+    QByteArray emitBytesRefSignal() { EMIT_REF(bytes, QByteArray) }
+
     IDispatch *getDispatchSlot() const { GET_PROP_SLOT(disp) }
     IDispatch *getDispatchSlotRef( IDispatch **d ) const { *d = m_disp; return m_disp; }
     void setDispatchSlot( IDispatch *disp ) { SET_PROP_SLOT(disp) }
@@ -237,6 +246,7 @@ public slots:
     void listPointerSlot( QValueList<QVariant> *list) { PROP_POINTER(list) }
     void betaPointerSlot( Alpha *beta ) { PROP_POINTER(beta) }
     void currencyPointerSlot( Q_LLONG *currency ) { PROP_POINTER(currency) }
+    void bytesPointerSlot( QByteArray *bytes ) { PROP_POINTER(bytes) }
 
     QSubType *subType()
     {
@@ -312,6 +322,9 @@ signals:
     void currencyChanged( Q_LLONG );
     void currencyRefSignal( Q_LLONG& );
 
+    void bytesChanged( const QByteArray& );
+    void bytesRefSignal( QByteArray& );
+
 protected:
     void paintEvent( QPaintEvent *e )
     {
@@ -386,6 +399,7 @@ private:
     QValueList<QVariant> m_list;
     Alpha m_beta;
     Q_LLONG m_currency;
+    QByteArray m_bytes;
     IDispatch *m_disp;
 
     QSubType *m_subType;

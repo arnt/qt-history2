@@ -68,6 +68,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QPixmap&";
     else if ( type == "QValueList<QVariant>" )
 	crtype = "const QValueList<QVariant>&";
+    else if ( type == "QByteArray" )
+	crtype = "const QByteArray&";
     else
 	crtype = type;
 
@@ -93,6 +95,7 @@ class QTestContainer : public QObject
     Q_PROPERTY( QValueList list READ list WRITE setList )
     Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
     Q_PROPERTY( LongLong currency READ currency WRITE setCurrency )
+    Q_PROPERTY( QByteArray bytes READ bytes WRITE setBytes )
 
 /*
     Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -132,6 +135,8 @@ public:
 	m_pixmap.fill( red );
 	m_list << 1.5 << 2.6 << 3.7 << 4.8;
 	m_beta = AlphaC;
+	m_bytes = QByteArray(125);
+	memset( m_bytes.data(), 0, 125 );
 /*
 	m_shortnumber = 23;
 	m_longnumber = 12345678;
@@ -372,6 +377,8 @@ public:
 	VERIFY_EQUAL( object->property( "list" ), m_list );
 	emit currencyPointerSlot( m_currency );
 	VERIFY_EQUAL( object->property( "currency" ), m_currency );
+	emit bytesPointerSlot( m_bytes );
+	VERIFY_EQUAL( object->property( "bytes" ), m_bytes );
 
 	IDispatch *disp = 0;
 	emit setDispatchSlot( disp );
@@ -419,6 +426,7 @@ public:
 	TEST_PROP_LOOP(font);
 	TEST_PROP_LOOP(list);
 	TEST_PROP_LOOP(currency);
+	TEST_PROP_LOOP(bytes);
 
 	qDebug( "Performance test of setProperty and property finished after %dms", timer.elapsed() );
     }
@@ -439,6 +447,7 @@ public:
 	TEST_DYNC_LOOP(font);
 	TEST_DYNC_LOOP(list);
 	TEST_DYNC_LOOP(currency);
+	TEST_DYNC_LOOP(bytes);
 
 	qDebug( "Performance test of dynamicCall finished after %dms", timer.elapsed() );
     }
@@ -458,6 +467,7 @@ public:
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setFontSlot(const QFont&)", m_font );
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setListSlot(const QValueList<QVariant>&)", QVariant(m_list) );
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setCurrencySlot(Q_LLONG)", QVariant(m_currency) );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "setBytesSlot(const QByteArray&)", QVariant(m_bytes) );
 
 	qDebug( "Performance test of setSlot calling finished after %dms", timer.elapsed() );
     }
@@ -477,6 +487,7 @@ public:
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getFontSlot()" );
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getListSlot()" );
 	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getCurrencySlot()" );
+	for ( i = 0; i < loopcount; ++i ) object->dynamicCall( "getBytesSlot()" );
 
 	qDebug( "Performance test of getSlot calling finished after %dms", timer.elapsed() );
     }
@@ -496,6 +507,7 @@ public:
 	TEST_EMITPSIG_LOOP(font);
 	TEST_EMITPSIG_LOOP(list);
 	TEST_EMITPSIG_LOOP(currency);
+	TEST_EMITPSIG_LOOP(bytes);
 
 	qDebug( "Performance test of signal emitting finished after %dms", timer.elapsed() );
     }
@@ -558,16 +570,19 @@ public:
     void setFont( QFont font ) { SET_PROP(font) }
 
     QPixmap pixmap() const { PROP(pixmap) }
-    void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
+    void setPixmap( const QPixmap &pixmap ) { SET_PROP(pixmap) }
 
     QValueList<QVariant> list() const { PROP(list) }
-    void setList( QValueList<QVariant> list ) { SET_PROP(list) }
+    void setList( const QValueList<QVariant> &list ) { SET_PROP(list) }
 
     Alpha beta() const { PROP(beta) }
     void setBeta( Alpha beta ) { SET_PROP(beta) }
 
     Q_LLONG currency() const { PROP(currency) }
     void setCurrency( Q_LLONG currency ) { SET_PROP(currency) }
+
+    QByteArray bytes() const { PROP(bytes) }
+    void setBytes( const QByteArray &bytes ) { SET_PROP(bytes) }
 
 /*
     void setShortnumber( short shortnumber ) { m_shortnumber = shortnumber; }
@@ -625,6 +640,9 @@ public slots:
     void currencyChanged( Q_LLONG currency ) { m_currency = currency; }
     void currencyRefSignal( Q_LLONG &currency ) {  currency = m_currency; }
 
+    void bytesChanged( const QByteArray &bytes ) { m_bytes = bytes; }
+    void bytesRefSignal( QByteArray &bytes ) { bytes = m_bytes; }
+
 /*
     void shortnumberChanged( short shortnumber ) { m_shortnumber = shortnumber; }
     void shortnumberRefSignal( short &shortnumber ) { shortnumber = m_shortnumber; }
@@ -661,6 +679,7 @@ signals:
     void listPointerSlot( const QValueList<QVariant> &list );
     void betaPointerSlot( Alpha beta );
     void currencyPointerSlot( Q_LLONG currency );
+    void bytesPointerSlot( const QByteArray &bytes );
 
     void setDispatchSlot( IDispatch *disp );
 
@@ -682,6 +701,7 @@ private:
     QValueList<QVariant> m_list;
     Alpha m_beta;
     Q_LLONG m_currency;
+    QByteArray m_bytes;
 
 /*
     short m_shortnumber;

@@ -292,6 +292,23 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	}
 	break;
 
+    case QVariant::ByteArray:
+	{
+	    arg.vt = VT_ARRAY|VT_UI1;
+	    const QByteArray array = qvar.toByteArray();
+	    uint size = array.size();
+	    char *data = array.data();
+
+	    arg.parray = SafeArrayCreateVector( VT_UI1, 0, size );	    
+	    LONG index = 0;
+	    while ( index < size ) {
+		SafeArrayPutElement( arg.parray, &index, data );
+		++data;
+		++index;
+	    }
+	}
+	break;
+
     case QVariant::LongLong:
 	arg.vt = VT_CY;
 	arg.cyVal.int64 = qvar.toLongLong();
@@ -372,6 +389,7 @@ static inline void makeReference( VARIANT &arg )
 	arg.ppdispVal = new IDispatch*(arg.pdispVal);
 	break;
     case VT_ARRAY|VT_VARIANT:
+    case VT_ARRAY|VT_UI1:
 	arg.pparray = new SAFEARRAY*(arg.parray);
 	break;
     }
@@ -794,6 +812,39 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
 
+    case VT_ARRAY|VT_UI1:
+    case VT_ARRAY|VT_UI1|VT_BYREF:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	     && *(char*)param->typeExtra == QVariant::ByteArray ) {
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+	    QByteArray bytes;
+	    QByteArray *reference = (QByteArray*)static_QUType_varptr.get( obj );
+
+	    if ( array && array->cDims == 1 ) {
+		long lBound, uBound;
+		SafeArrayGetLBound( array, 1, &lBound );
+		SafeArrayGetUBound( array, 1, &uBound );
+
+		if ( uBound != -1 )
+		    bytes.resize( uBound - lBound + 1 );
+		char *data = bytes.data();
+		for ( long i = lBound; i <= uBound; ++i ) {
+		    SafeArrayGetElement( array, &i, data );
+		    ++data;
+		}
+	    }
+	    if ( reference )
+		*reference = bytes;
+	    else
+		reference = new QByteArray( bytes );
+	    static_QUType_varptr.set( obj, reference );
+	}
+	break;
+
     case VT_UNKNOWN:  // IUnknown -> void*
 	static_QUType_ptr.set( obj, arg.punkVal );
 	break;
@@ -994,7 +1045,6 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		array = arg.parray;
 
 	    QValueList<QVariant> list;
-
 	    if ( !array || array->cDims != 1 ) {
 		var = list;
 		break;
@@ -1015,6 +1065,36 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    }
 
 	    var = list;
+	}
+	break;
+    case VT_ARRAY|VT_UI1:
+    case VT_ARRAY|VT_UI1|VT_BYREF:
+	{
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+
+	    QByteArray bytes;
+	    if ( !array || array->cDims != 1 ) {
+		var = bytes;
+		break;
+	    }
+
+	    long lBound, uBound;
+	    SafeArrayGetLBound( array, 1, &lBound );
+	    SafeArrayGetUBound( array, 1, &uBound );
+
+	    if ( uBound != -1 ) // non-empty array
+		bytes.resize( uBound - lBound + 1 );
+	    char *data = bytes.data();
+	    for ( long i = lBound; i <= uBound; ++i ) {
+		SafeArrayGetElement( array, &i, data );
+		++data;
+	    }
+
+	    var = bytes;
 	}
 	break;
     default:
@@ -1087,6 +1167,9 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	break;
     case QVariant::ULongLong:
 	static_QUType_varptr.set( &obj, new Q_LLONG(var.toULongLong() ) );
+	break;
+    case QVariant::ByteArray:
+	static_QUType_varptr.set( &obj, new QByteArray(var.toByteArray()) );
 	break;
     default:
 	return FALSE;
@@ -1163,6 +1246,7 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    *dest.ppdispVal = src.pdispVal;
 	    break;
 	case VT_ARRAY|VT_VARIANT:
+	case VT_ARRAY|VT_UI1:
 	    if ( *dest.pparray ) SafeArrayDestroy( *dest.pparray );
 	    *dest.pparray = src.parray;
 	    break;
@@ -1301,6 +1385,10 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		break;
 	    case QVariant::List:
 		value = *(QValueList<QVariant>*)ptrvalue;
+		break;
+	    case QVariant::ByteArray:
+		value = *(QByteArray*)ptrvalue;
+		break;
 	    default:
 		break;
 	    }
@@ -1393,6 +1481,11 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	case QVariant::List:
 	    delete (QValueList<QVariant>*)ptrvalue;
 	    break;
+	case QVariant::ByteArray:
+	    delete (QByteArray*)ptrvalue;
+	    break;
+	default:
+	    break;
 	}
 	obj->payload.ptr = 0;
     }
@@ -1447,6 +1540,7 @@ void clearVARIANT( VARIANT *var )
 	    delete var->ppdispVal;
 	    break;
 	case VT_ARRAY|VT_VARIANT|VT_BYREF:
+	case VT_ARRAY|VT_UI1|VT_BYREF:
 	    SafeArrayDestroy( *var->pparray );
 	    delete var->pparray;
 	    break;
