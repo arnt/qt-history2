@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#21 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -854,19 +854,22 @@ void QStyleSheet::init()
     style->setFontWeight( QFont::Bold);
     style->setLogicalFontSize(6);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style-> setMargin(QStyleSheetItem::MarginVertical, 12);
+    style-> setMargin(QStyleSheetItem::MarginTop, 12);
+    style-> setMargin(QStyleSheetItem::MarginBottom, 6);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("h2") );
     style->setFontWeight( QFont::Bold);
     style->setLogicalFontSize(5);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style-> setMargin(QStyleSheetItem::MarginVertical, 10);
+    style-> setMargin(QStyleSheetItem::MarginTop, 10);
+    style-> setMargin(QStyleSheetItem::MarginBottom, 5);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("h3") );
     style->setFontWeight( QFont::Bold);
     style->setLogicalFontSize(4);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style-> setMargin(QStyleSheetItem::MarginVertical, 8);
+    style-> setMargin(QStyleSheetItem::MarginTop, 8);
+    style-> setMargin(QStyleSheetItem::MarginBottom, 4);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("p") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
@@ -884,10 +887,12 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ol") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setListStyle( QStyleSheetItem::ListDecimal );
+    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("li") );
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
