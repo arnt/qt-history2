@@ -644,9 +644,9 @@ public:
     Type type() const { return EditDefinitions; }
 
 private:
-    QStringList oldList, newList;
-    QString defName;
     LanguageInterface *lIface;
+    QString defName;
+    QStringList newList, oldList;
 };
 
 class LowerCommand : public Command
