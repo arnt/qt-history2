@@ -386,7 +386,7 @@ void WidgetDatabase::setupDataBase( int id )
     r = new WidgetDatabaseRecord;
     r->iconSet = "textview.xpm";
     r->name = "QTextView";
-    r->group = widgetGroup( "Display" );
+    r->group = widgetGroup( "Temp" );
     r->toolTip = "Text View";
 
     append( r );
