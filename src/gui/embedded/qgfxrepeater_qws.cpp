@@ -72,7 +72,7 @@ public:
     virtual void setFont(const QFont &);
     virtual void setBrush(const QBrush &);
     virtual void setBrushPixmap(const QPixmap *);
-    virtual void setBrushOffset (int, int);
+    virtual void setBrushOrigin (int, int);
     virtual void setClipRect (int, int, int, int);
     virtual void setClipRegion (const QRegion &);
     virtual void setClipping (bool);
@@ -202,10 +202,10 @@ void QRepeaterGfx::setBrushPixmap(const QPixmap * p)
     }
 }
 
-void QRepeaterGfx::setBrushOffset (int x, int y)
+void QRepeaterGfx::setBrushOrigin (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        walker->gfx->setBrushOffset(x,y);
+        walker->gfx->setBrushOrigin(x,y);
     }
 }
 

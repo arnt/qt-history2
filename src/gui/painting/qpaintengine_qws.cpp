@@ -303,7 +303,7 @@ void QWSPaintEngine::updatePen(const QPen &pen)
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 
-void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
+void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
     if (!d->gfx)
         return;
@@ -315,6 +315,7 @@ void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         d->gfx->setBrushPixmap(brush.pixmap());
     }
     d->gfx->setBrush(brush);
+    d->gfx->setBrushOrigin(int(bgOrigin.x()), int(bgOrigin.y()));
 }
 
 void QWSPaintEngine::updateFont(const QFont &font)
@@ -369,10 +370,9 @@ void QWSPaintEngine::drawLine(const QPointF &p1, const QPointF &p2)
     if (state->pen.style() != Qt::NoPen)
         d->gfx->drawLine(int(p1.x()), int(p1.y()), int(p2.x()), int(p2.y()));
 }
+
 void QWSPaintEngine::drawRect(const QRectF &r)
 {
-    //############ gfx->setBrushOffset(x-bro.x(), y-bro.y());
-
     int x1 = int(r.x());
     int y1 = int(r.y());
     int w = int(r.width());
@@ -589,8 +589,12 @@ void QWSPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int
 void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy)
 {
     d->gfx->setSource(&src);
-    d->gfx->setBrushOffset(sx, sy);
+    d->gfx->setBrushOrigin(rx-sx, ry-sy);
     d->gfx->tiledBlt(rx, ry, w, h);
+    if (state)
+        d->gfx->setBrushOrigin(int(state->bgOrigin.x()), int(state->bgOrigin.y()));
+    else
+        d->gfx->setBrushOrigin(0, 0);
 }
 
 //########### This doesn't really belong here; we need qscreen_qws.cpp

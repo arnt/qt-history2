@@ -57,7 +57,7 @@ public:
     virtual void setPen(const QPen &)=0;
     virtual void setBrush(const QBrush &)=0;
     virtual void setBrushPixmap(const QPixmap *)=0;
-    virtual void setBrushOffset(int, int) = 0;
+    virtual void setBrushOrigin(int, int) = 0;
     virtual void setClipRect(int,int,int,int)=0;
     virtual void setClipRegion(const QRegion &)=0;
     virtual void setClipDeviceRegion(const QRegion &)=0;

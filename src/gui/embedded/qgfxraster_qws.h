@@ -155,7 +155,7 @@ public:
 
     virtual void setPen(const QPen &);
     virtual void setBrushPixmap(const QPixmap * p) { cbrushpixmap=p; }
-    virtual void setBrushOffset(int x, int y);
+    virtual void setBrushOrigin(int x, int y);
     virtual void setBrush(const QBrush &);
 
     virtual void setClipRect(int,int,int,int);
@@ -343,7 +343,7 @@ protected:
 
     QPen cpen;
     QBrush cbrush;
-    QPoint brushoffs;
+    QPoint brushorig;
     bool patternedbrush;
     const QPixmap * cbrushpixmap;
     bool dashedLines;

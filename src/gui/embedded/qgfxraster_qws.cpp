@@ -1670,9 +1670,9 @@ void QGfxRasterBase::setBrush(const QBrush & b)
   requested by QPainter, for example.
 */
 
-void QGfxRasterBase::setBrushOffset(int x, int y)
+void QGfxRasterBase::setBrushOrigin(int x, int y)
 {
-    brushoffs = QPoint(x, y);
+    brushorig = QPoint(x, y);
 }
 
 /*!
@@ -5034,8 +5034,8 @@ void QGfxRaster<depth,type>::processSpans(int n, QPoint* point, int* width)
         if (*width > 0) {
             if (patternedbrush && srcwidth != 0 && srcheight != 0) {
                 unsigned char * savealphabits=alphabits;
-                int offx = srcwidgetoffs.x() - brushoffs.x() + point->x();
-                int offy = srcwidgetoffs.y() - brushoffs.y() + point->y();
+                int offx = srcwidgetoffs.x() + point->x() - brushorig.x() ;
+                int offy = srcwidgetoffs.y() + point->y() - brushorig.y();
 
                 // from qpainter_qws.cpp
                 if (offx < 0)
@@ -5555,8 +5555,8 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     useBrush();
     unsigned char * savealphabits=alphabits;
 
-    int offx = srcwidgetoffs.x() + brushoffs.x();
-    int offy = srcwidgetoffs.y() + brushoffs.y();
+    int offx = srcwidgetoffs.x() + rx - brushorig.x();
+    int offy = srcwidgetoffs.y() + ry - brushorig.y();
 
     // from qpainter_qws.cpp
     if (offx < 0)
