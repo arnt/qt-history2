@@ -1765,7 +1765,7 @@ void QTable::setShowGrid( bool b )
 
 /*! \property QTable::showGrid
   \brief whether the table grid shows up
-  
+
   The default is to show the grid.
 */
 
@@ -2662,8 +2662,6 @@ int QTable::currentSelection() const
 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
-    if ( e->button() != LeftButton )
-	return;
     shouldClearSelection = FALSE;
     mousePressed = TRUE;
     if ( isEditing() )
@@ -2677,6 +2675,10 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixCol( tmpCol, e->pos().x() );
     startDragCol = -1;
     startDragRow = -1;
+    if ( e->button() != LeftButton ) {
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	return;
+    }
 
     if ( isSelected( tmpRow, tmpCol ) ) {
 	startDragCol = tmpCol;
