@@ -3330,7 +3330,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	} else {
 	    double gamma = double(dx) / double(-dy);
 	    xtop1 = qRound((ry - gstart.y() + gamma * gstart.x()) / gamma);
-	    xtop2 = qRound((rx - gstop.y() + gamma * gstop.x()) / gamma);
+	    xtop2 = qRound((ry - gstop.y() + gamma * gstop.x()) / gamma);
 	    xbot1 = qRound(((ry+rh) - gstart.y() + gamma*gstart.x()) / gamma);
 	    xbot2 = qRound(((ry+rh) - gstop.y() + gamma*gstop.x()) / gamma);
 	    Q_ASSERT(xtop2 > xtop1);
@@ -3340,23 +3340,23 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 
 	// Fill the area to the left of the gradient
 	QPointArray leftFill;
-	leftFill << QPoint(0, 0) << QPoint(0, rh);
-	if (xbot1 > rx)
-	    leftFill << QPoint(xbot1-rx+1, rh);
-	if (xtop1 > rx)
-	    leftFill << QPoint(xtop1-rx+1, 0);
+	leftFill << QPoint(0, 0)
+		 << QPoint(xtop1-rx+1, 0)
+		 << QPoint(xbot1-rx+1, rh);
+	if (xbot1 > 0)
+	    leftFill << QPoint(0, rh);
 	p.setBrush(gcol1);
 	p.drawPolygon(leftFill);
 
 	// Fill the area to the right of the gradient
 	QPointArray rightFill;
-	rightFill << QPoint(rw, 0) << QPoint(rw, rh);
-	if (xbot2 < rx+rw)
-	    rightFill << QPoint(xbot2-rx-1, rh);
-	if (xtop2 < rx+rw)
-	    rightFill << QPoint(xtop2-rx-1, 0);
+	rightFill << QPoint(rw, rh)
+		  << QPoint(xbot2-rx-1, rh)
+		  << QPoint(xtop2-rx-1, 0);
+	if (xtop2 < rw)
+	    rightFill << QPoint(rw, 0);
 	p.setBrush(gcol2);
-	p.drawPolygon(rightFill);
+ 	p.drawPolygon(rightFill);
 
 	// Fill the gradient.
 	double r = gcol1.red();
@@ -3368,7 +3368,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	double binc = (gcol2.blue()-b) / steps;
 	for (int x=0; x<=steps; ++x) {
 	    p.setPen(QColor(int(r), int(g), int(b)));
-	    p.drawLine(x+xtop1-rx, 0, x+xbot1-rx, rh);
+ 	    p.drawLine(x+xtop1-rx, 0, x+xbot1-rx, rh);
 	    r += rinc;
 	    g += ginc;
 	    b += binc;
@@ -3398,20 +3398,20 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 
 	p.setPen(Qt::NoPen);
 	QPointArray topFill;
-	topFill << QPoint(0, 0) << QPoint(rw, 0);
-	if (yright1 > ry)
-	    topFill << QPoint(rw, yright1-ry);
-	if (yleft1 > ry)
-	    topFill << QPoint(0, yleft1-ry);
+	topFill << QPoint(0, 0)
+		<< QPoint(0, yleft1-rx+1)
+		<< QPoint(rw, yright1-rx+1);
+	if (yright1 > 0)
+	    topFill << QPoint(rw, 0);
 	p.setBrush(gcol1);
 	p.drawPolygon(topFill);
 
 	QPointArray bottomFill;
-	bottomFill << QPoint(0, rh) << QPoint(rw, rh);
-	if (yright2 < ry+rh)
-	    bottomFill << QPoint(rw, yright2-ry-1);
-	if (yleft2 < ry+rh)
-	    bottomFill << QPoint(0, yleft2-ry-1);
+	bottomFill << QPoint(rw, rh)
+		   << QPoint(rw, yright2-ry-1)
+		   << QPoint(0, yleft2-ry-1);
+	if (yleft2 < rh)
+	    bottomFill << QPoint(0, rh);
 	p.setBrush(gcol2);
 	p.drawPolygon(bottomFill);
 
@@ -3424,7 +3424,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	double binc = (gcol2.blue()-b) / steps;
 	for (int y=0; y<=steps; ++y) {
 	    p.setPen(QColor(int(r), int(g), int(b)));
-	    p.drawLine(0, y+yleft1-ry, rw, y+yright1-ry);
+ 	    p.drawLine(0, y+yleft1-ry, rw, y+yright1-ry);
 	    r += rinc;
 	    g += ginc;
 	    b += binc;
