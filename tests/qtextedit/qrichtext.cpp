@@ -2875,8 +2875,24 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     }
 	
     // if we should draw a cursor, draw it now
-    if ( curx != -1 && cursor )
+    if ( curx != -1 && cursor ) {
 	painter.fillRect( QRect( curx, cury, 1, curh ), Qt::black );
+	painter.save();
+	if ( string()->isBidi() ) {
+	    int d = curh / 3;
+	    if ( at( cursor->index() )->rightToLeft ) {
+		painter.setPen( Qt::black );
+		painter.drawLine( curx, cury, curx - d / 2, cury + d / 2 );
+		painter.drawLine( curx, cury + d, curx - d / 2, cury + d / 2 );
+	    } else {
+		painter.setPen( Qt::black );
+		painter.drawLine( curx, cury, curx + d / 2, cury + d / 2 );
+		painter.drawLine( curx, cury + d, curx + d / 2, cury + d / 2 );
+	    }
+	    painter.save();
+	}
+    }
+	    
 }
 
 void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
