@@ -1144,9 +1144,8 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
             d->editors.remove(persistent);
             itemDelegate()->releaseEditor(editor);
         }
+        setFocus();
     }
-
-    setFocus();
 }
 
 /*!
@@ -1169,6 +1168,10 @@ void QAbstractItemView::updateEditorGeometries()
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         option.rect = itemViewportRect(it.key());
+        if (option.rect.isValid())
+            it.value()->show();
+        else
+            it.value()->hide();
         itemDelegate()->updateEditorGeometry(it.value(), option, d->model, it.key());
     }
 }
@@ -1456,9 +1459,12 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 
     \sa rowsRemoved()
 */
-void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
+void QAbstractItemView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    // do nothing
+    QModelIndex index = model()->index(end, 0, parent);
+    QRect rect = itemViewportRect(index);
+    if (d->viewport->rect().contains(rect))
+        model()->fetchMore(parent);
 }
 
 /*!

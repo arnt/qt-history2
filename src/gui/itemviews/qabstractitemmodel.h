@@ -156,6 +156,8 @@ public:
     virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
                                int count = 1);
 
+    virtual void fetchMore(const QModelIndex &parent);
+
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
     virtual bool isDragEnabled(const QModelIndex &index) const;

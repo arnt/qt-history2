@@ -908,6 +908,14 @@ bool QAbstractItemModel::removeColumns(int, const QModelIndex &, int)
 }
 
 /*!
+  Fetches more data, if available.
+*/
+void QAbstractItemModel::fetchMore(const QModelIndex &)
+{
+    // do nothing
+}
+
+/*!
     Returns true if the item at \a index is selectable; otherwise
     returns false.
 
