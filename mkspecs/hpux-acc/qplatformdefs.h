@@ -41,6 +41,7 @@
 // Undeclared - at least on HP-UX 10.20.
 extern "C" int res_init();
 
+#define QT_NO_LIBRARY_UNLOAD
 
 #if !defined(QT_NO_COMPAT)
 #define QT_STATBUF		struct stat
