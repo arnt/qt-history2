@@ -837,8 +837,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    GLfloat c[4];
-    glGetFloatv(GL_CURRENT_COLOR, c);
+    glPushAttrib(GL_CURRENT_BIT);
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -859,7 +858,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    glColor4f(c[0], c[1], c[2], c[3]);
+    glPopAttrib();
 }
 
 void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &,
@@ -874,8 +873,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, cons
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    GLfloat c[4];
-    glGetFloatv(GL_CURRENT_COLOR, c);
+    glPushAttrib(GL_CURRENT_BIT);
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -901,7 +899,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, cons
 
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    glColor4f(c[0], c[1], c[2], c[3]);
+    glPopAttrib();
 }
 
 #ifdef Q_WS_WIN
