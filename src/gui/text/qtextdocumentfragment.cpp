@@ -463,7 +463,10 @@ void QTextHTMLImporter::import()
             listFmt.setStyle(style);
 
             ++indent;
-            listFmt.setIndent(indent);
+            if (node->hasCssListIndent)
+                listFmt.setIndent(node->cssListIndent);
+            else
+                listFmt.setIndent(indent);
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->id == Html_table) {
@@ -521,6 +524,10 @@ void QTextHTMLImporter::import()
             } else if (indent && block.objectIndex() == listReferences.last()) {
                 block.setIndent(indent);
             }
+
+            if (node->hasCssBlockIndent)
+                block.setIndent(node->cssBlockIndent);
+
             block.setAlignment(node->alignment);
 
             charFmt.merge(node->charFormat());

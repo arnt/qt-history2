@@ -154,6 +154,11 @@ struct QTextHtmlParserNode {
     int tableCellSpacing;
     int tableCellPadding;
 
+    int cssBlockIndent;
+    uint hasCssBlockIndent : 1;
+    int cssListIndent;
+    uint hasCssListIndent : 1;
+
     QTextCharFormat charFormat() const;
 
     WhiteSpaceMode wsm;

@@ -443,7 +443,8 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), 
-      tableCellSpacing(2), tableCellPadding(0), wsm(WhiteSpaceModeUndefined)
+      tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), hasCssBlockIndent(false),
+      cssListIndent(0), hasCssListIndent(false), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -1207,7 +1208,18 @@ void QTextHtmlParser::parseAttributes()
                         node->cssFloat = QTextFrameFormat::FloatLeft;
                     else if (s == QLatin1String("right"))
                         node->cssFloat = QTextFrameFormat::FloatRight;
+                } else if (style.startsWith(QLatin1String("-qt-block-indent:"))) {
+                    const QString s = style.mid(17).trimmed();
+                    if (setIntAttribute(&node->cssBlockIndent, s)) {
+                        node->hasCssBlockIndent = true;
+                    }
+                } else if (style.startsWith(QLatin1String("-qt-list-indent:"))) {
+                    const QString s = style.mid(16).trimmed();
+                    if (setIntAttribute(&node->cssListIndent, s)) {
+                        node->hasCssListIndent = true;
+                    }
                 }
+
             }
         } else if (key == QLatin1String("align")) {
             if (value == QLatin1String("left"))
