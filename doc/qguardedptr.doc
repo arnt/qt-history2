@@ -1,0 +1,167 @@
+/****************************************************************************
+** $Id: qguardedptr.doc,v 1.1 1999/09/29 13:50:54 ettrich Exp $
+**
+** QGuardedPtr class documentation
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+
+/*****************************************************************************
+  QGuardedPtr documentation
+ *****************************************************************************/
+
+/*!
+  \class QGuardedPtr qguardedptr.h
+  \brief The QGuardedPtr class is a template class that provides guarded pointers to QObjects
+
+  \ingroup kernel
+
+  Define a template instance QGuardedPtr\<X\> to create a guarded
+  pointer to objects of class X. 
+
+  A guarded pointer behaves almost like a normal pointer X*, but will
+  automatically be set to null when the guarded object is destroyed.
+
+  Guarded pointers are useful whenever you have to keep a pointer to a
+  QObject that is owned by someone else and therefore might be
+  destroyed while you still keep a reference to it. 
+
+  Example:
+  \code
+	  QGuardedPtr<QLabel> label = new QLabel( 0,"label" );
+	  label->setText("I like guarded pointers");
+
+	  delete (QLabel*) label; // emulate somebody destroying the label
+
+	  if ( label)
+	      label->show();
+	  else 
+	      qDebug("The label has been destroyed");
+  \endcode
+
+  The program will output
+  \code
+	The label has been destroyed
+  \endcode
+  rather than dereferencing an invalid address in \c label->show().
+
+  Please note that class X has to inherit QObject.
+*/
+
+/*!
+  \fn QGuardedPtr::QGuardedPtr()
+
+  Constructs a null guarded pointer object.
+
+  \sa isNull()
+*/
+
+/*!
+  \fn QGuardedPtr::QGuardedPtr( T* o)
+
+  Constructs a guarded pointer object for the Object \a o.
+*/
+
+/*!
+  \fn QGuardedPtr::QGuardedPtr(const QGuardedPtr<T> &p)
+
+  Copy constructor.
+*/
+
+/*!
+  \fn QGuardedPtr::~QGuardedPtr()
+
+  Destructor.
+*/
+
+/*!
+  \fn QGuardedPtr<T>& QGuardedPtr::operator=(const QGuardedPtr<T> &p)
+
+  Assignment operator.
+*/
+
+/*!
+  \fn QGuardedPtr<T> & QGuardedPtr::operator=(T* o)
+ 
+ Assignment operator.
+*/
+
+/*!
+  \fn bool QGuardedPtr::operator==( const QGuardedPtr<T> &p ) const 
+
+ Equality operator, implements pointer semantics.
+*/
+
+/*!
+  \fn bool QGuardedPtr::operator!= ( const QGuardedPtr<T>& p ) const 
+
+ Unequality operator, implements pointer semantics.
+*/
+
+/*!
+  \fn bool QGuardedPtr::isNull() const 
+
+  Returns \c TRUE if the guarded object has been destroyed or if there is
+  no guarded object.
+*/
+
+/*!
+  \fn T* QGuardedPtr::operator->()
+
+ Overloaded arrow operator, implements pointer semantics.
+*/
+
+/*!
+  \fn const T* QGuardedPtr::operator->() const
+
+ Overloaded arrow operator, implements pointer semantics.
+*/
+
+/*!
+  \fn T& QGuardedPtr::operator*() 
+
+  Dereference operator, implements pointer semantics.
+*/
+
+/*!
+  \fn const T& QGuardedPtr::operator*() const 
+
+  Dereference operator, implements pointer semantics.
+*/
+
+/*!
+  \fn QGuardedPtr::operator T*() 
+
+  Cast operator, implements pointer semantics.
+*/
+
+/*!
+  \fn QGuardedPtr::operator const T*() const
+
+  Cast operator, implements pointer semantics.
+*/
+
+/*!
+  \fn QGuardedPtr::operator bool() const
+
+  Cast operator to boolean, implements pointer semantics.
+
+  Equivalent to \c !isNull();
+*/
+
