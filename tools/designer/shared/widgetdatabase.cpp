@@ -293,7 +293,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->iconSet = "richtextedit.xpm";
     r->name = "QTextEdit";
     r->group = widgetGroup( "Input" );
-    r->toolTip = "Richtext Editor";
+    r->toolTip = "Rich Text Edit";
 
     append( r );
 
@@ -600,7 +600,7 @@ QString WidgetDatabase::className( int id )
 }
 
 /*!
-  Returns the group to which the widget registered as \a id belongs.
+  Returns the group the widget registered as \a id belongs to.
 */
 
 QString WidgetDatabase::group( int id )
@@ -612,8 +612,8 @@ QString WidgetDatabase::group( int id )
     return r->group;
 }
 
-/*!  Returns the tooltip text of the widget which is registered as \a
-  id.
+/*!
+  Returns the tooltip text of the widget which is registered as \a id.
 */
 
 QString WidgetDatabase::toolTip( int id )
@@ -625,8 +625,8 @@ QString WidgetDatabase::toolTip( int id )
     return r->toolTip;
 }
 
-/*!  Returns the what's this? test of the widget which is registered
-  as \a id.
+/*!
+  Returns the what's this? text of the widget which is registered as \a id.
 */
 
 QString WidgetDatabase::whatsThis( int id )
@@ -653,7 +653,7 @@ QString WidgetDatabase::includeFile( int id )
     return r->includeFile;
 }
 
-/*!  Returns wheather the widget registered as \a id is a form
+/*!  Returns whether the widget registered as \a id is a form.
 */
 bool WidgetDatabase::isForm( int id )
 {
@@ -664,8 +664,7 @@ bool WidgetDatabase::isForm( int id )
     return r->isForm;
 }
 
-/*!  Returns wheather the widget registered as \a id is a container
-  (can have children) or not.
+/*!  Returns whether the widget registered as \a id can have children.
 */
 
 bool WidgetDatabase::isContainer( int id )
