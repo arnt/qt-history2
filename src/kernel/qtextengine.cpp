@@ -830,24 +830,11 @@ void QTextEngine::init(const QString &str)
     if ( !resolvedUsp10 )
 	resolveUsp10();
 #endif
-
-    num_glyphs = qMax( 16, str.length()*3/2 );
-    int space_charAttributes = (sizeof(QCharAttributes)*str.length()+sizeof(void*)-1)/sizeof(void*);
-    int space_logClusters = (sizeof(unsigned short)*str.length()+sizeof(void*)-1)/sizeof(void*);
-    int space_glyphs = (sizeof(QGlyphLayout)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
-
-    allocated = space_charAttributes + space_glyphs + space_logClusters;
-    memory = (void **)::malloc( allocated*sizeof( void * ) );
-    // ##### neeeded?
-    memset(memory, 0, allocated*sizeof(void *));
-
-    void **m = memory;
-    m += space_charAttributes;
-    logClustersPtr = (unsigned short *) m;
-    m += space_logClusters;
-    glyphPtr = (QGlyphLayout *) m;
-
+    memory = 0;
+    allocated = 0;
     used = 0;
+
+    reallocate(qMax( 16, str.length()*3/2 ));
 }
 
 QTextEngine::~QTextEngine()
@@ -860,16 +847,23 @@ QTextEngine::~QTextEngine()
 
 void QTextEngine::reallocate( int totalGlyphs )
 {
-    int new_num_glyphs = totalGlyphs;
     int space_charAttributes = (sizeof(QCharAttributes)*string.length()+sizeof(void*)-1)/sizeof(void*);
     int space_logClusters = (sizeof(unsigned short)*string.length()+sizeof(void*)-1)/sizeof(void*);
-    int space_glyphs = (sizeof(QGlyphLayout)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_glyphs = (sizeof(QGlyphLayout)*totalGlyphs+sizeof(void*)-1)/sizeof(void*);
 
     int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
     memory = (void **)::realloc(memory, newAllocated*sizeof(void *));
 
+    void **m = memory;
+    m += space_charAttributes;
+    logClustersPtr = (unsigned short *) m;
+    m += space_logClusters;
+    glyphPtr = (QGlyphLayout *) m;
+
+    memset(memory + allocated*sizeof(void *), 0, (newAllocated-allocated)*sizeof(void *));
+
     allocated = newAllocated;
-    num_glyphs = new_num_glyphs;
+    num_glyphs = totalGlyphs;
 }
 
 const QCharAttributes *QTextEngine::attributes()
