@@ -995,11 +995,11 @@ void QWidget::showNormal()
 
 #else // Q_OS_TEMP --------------------------------------------------
 # if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
-#  include <aygshell.h>
-# else
 #  define SHFS_SHOWTASKBAR            0x0001
 #  define SHFS_SHOWSIPBUTTON          0x0004
-   extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+   extern "C" BOOL __stdcall SHFullScreen(HWND hwndRequester, DWORD dwState);
+# else
+#  include <aygshell.h>
 # endif
 
 /*

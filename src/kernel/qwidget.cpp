@@ -5062,11 +5062,11 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 
 #ifdef Q_OS_TEMP
 # if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
-#  include <aygshell.h>
-# else
 #  define SHFS_HIDETASKBAR            0x0002
 #  define SHFS_HIDESIPBUTTON          0x0008
-   extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+   extern "C" BOOL __stdcall SHFullScreen(HWND hwndRequester, DWORD dwState);
+# else
+#  include <aygshell.h>
 # endif
 #endif
 
