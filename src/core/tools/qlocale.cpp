@@ -1762,7 +1762,8 @@ static QString winIso639LangName()
     if (!lang_code.isEmpty()) {
         const char *endptr;
         bool ok;
-        int i = qstrtoull(lang_code.toLatin1(), &endptr, 16, &ok);
+	QByteArray latin1_lang_code = lang_code.toLatin1();
+        int i = qstrtoull(latin1_lang_code, &endptr, 16, &ok);
         if (ok && *endptr == '\0') {
             switch (i) {
                 case 0x814:
