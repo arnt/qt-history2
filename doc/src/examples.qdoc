@@ -1,0 +1,100 @@
+/*!
+    \page examples.html
+    \title Qt Examples
+
+    This is the list of examples in Qt's \c examples directory. The
+    examples demonstrate Qt features in small, self-contained
+    programs. They are not very impressive when you run them, but
+    their source code is carefully written to show good Qt
+    programming practices. If you are new to Qt, you should probably
+    start by going through the \l{tutorial.html}{Tutorial} before you
+    have a look at the \l{mainwindows/application}{Application}
+    example.
+
+    In addition to the examples and the tutorial, Qt includes a \c
+    demos directory that contains demo applications, i.e.,
+    applications that deliberately show off Qt's features. You might
+    want to look at these as well.
+
+    Examples marked with an asterisk (\raisedaster) are fully
+    documented. It is our goal to fully document all examples in a
+    future release and to provide more examples.
+
+    \section1 Widget Examples
+
+    \list
+    \o \l{widgets/analogclock}{Analog Clock}\raisedaster
+    \o \l{widgets/charactermap}{Character Map}\raisedaster
+    \o \l{widgets/configwidget}{Config Widget}
+    \o \l{widgets/digitalclock}{Digital Clock}
+    \o \l{widgets/groupbox}{Group Box}\raisedaster
+    \o \l{widgets/lineedits}{Line Edits}
+    \o \l{widgets/sliders}{Sliders}
+    \o \l{widgets/spinboxes}{Spin Boxes}
+    \o \l{widgets/tetrix}{Tetrix}
+    \o \l{widgets/transformations}{Transformations}
+    \o \l{widgets/wiggly}{Wiggly}
+    \endlist
+
+    \section1 Dialog Examples
+
+    \list
+    \o \l{dialogs/complexwizard}{Complex Wizard}
+    \o \l{dialogs/extension}{Extension}
+    \o \l{dialogs/simplewizard}{Simple Wizard}\raisedaster
+    \o \l{dialogs/standarddialogs}{Standard Dialogs}
+    \o \l{dialogs/tabdialog}{Tab Dialog}\raisedaster
+    \endlist
+
+    \section1 Main Window Examples
+
+    \list
+    \o \l{mainwindows/application}{Application}
+    \o \l{mainwindows/menus}{Menus}
+    \o \l{mainwindows/recentfiles}{Recent Files}
+    \o \l{mainwindows/sdi}{SDI}
+    \endlist
+
+    \section1 Layout Examples
+
+    \list
+    \o \l{layouts/basiclayouts}{Basic Layouts}
+    \o \l{layouts/borderlayout}{Border Layout}
+    \o \l{layouts/flowlayout}{Flow Layout}
+    \endlist
+
+    \section1 Item View Examples
+
+    \list
+    \o \l{itemviews/dirview}{Dir View}
+    \o \l{itemviews/pixelator}{Pixelator}
+    \endlist
+
+    \section1 Tool Examples
+
+    \list
+    \o \l{tools/regexp}{Regexp}
+    \endlist
+
+    \section1 Network Examples
+
+    \list
+    \o \l{network/blockingfortuneclient}{Blocking Fortune Client}
+    \o \l{network/broadcastreceiver}{Broadcast Receiver}
+    \o \l{network/broadcastsender}{Broadcast Sender}
+    \o \l{network/fortuneclient}{Fortune Client}
+    \o \l{network/fortuneserver}{Fortune Server}
+    \o \l{network/ftp}{FTP}
+    \o \l{network/http}{HTTP}
+    \o \l{network/loopback}{Loopback}
+    \endlist
+
+    \section1 SQL Examples
+
+    \list
+    \o \l{sql/cachedtable}{Cached Table}
+    \o \l{sql/querymodel}{Query Model}
+    \o \l{sql/relationaltablemodel}{Relational Table Model}
+    \o \l{sql/tablemodel}{Table Model}
+    \endlist
+*/

@@ -1,151 +1,147 @@
-/*! \page emb-fonts.html
+/*!
+    \page emb-fonts.html
+    \title Fonts in Qt/Embedded
 
-\title Fonts in Qt/Embedded
+    \omit ###
 
+    \section1 Supported Formats
 
+    Qt/Embedded supports four font formats:
 
-\omit ###
+    \table
+    \row
+    \i \bold{TrueType (TTF)}
+    \i The scalable font technology now standard on Microsoft Windows
+    Mac OS X, and becoming popular on X11.
+    \row
+    \i \bold{Postscript Type1 (PFA/PFB)}
+    \i Scalable fonts often used by printers, also popular on X11. These
+    are similar in functionality to TTF fonts and are not discussed
+    further in this document.
+    \row
+    \i \bold{Bitmap Distribution Format fonts (BDF)}
+    \i A standard format for non-scalable fonts. A large number of BDF
+    fonts are supplied as part of standard X11 distributions -- most of
+    these can be used with Qt/Embedded. You should \e not use these in a
+    production system: they are very slow to load and take up a \e lot of
+    storage space. Instead, render the BDF to a QPF.
+    \row
+    \i \bold{Qt Prerendered Font (QPF)}
+    \i A light-weight non-scalable font format specific to Qt/Embedded.
+    \endtable
 
+    Support for each of these font formats (except QPF which is always
+    enabled) can be enabled or disabled independently by using the \link
+    emb-features.html Qt/Embedded Feature Definition File\endlink. There is
+    support in Qt/Embedded for writing a QPF font file from any font, so
+    you can initially enable TTF and BDF formats, save QPF files for the
+    fonts and sizes you need, then remove TTF and BDF support.
 
-\section1 Supported Formats
+    See \link makeqpf.html tools/makeqpf\endlink for a tool that helps
+    produce QPF files from the TTF and BDF, or just run your application
+    with the \c -savefonts option.
 
-Qt/Embedded supports four font formats:
+    \section1 Memory Requirements
 
-\table
-\row
-\i \bold{TrueType (TTF)}
-\i The scalable font technology now standard on Microsoft Windows
-Mac OS X, and becoming popular on X11.
-\row
-\i \bold{Postscript Type1 (PFA/PFB)}
-\i Scalable fonts often used by printers, also popular on X11. These
-are similar in functionality to TTF fonts and are not discussed
-further in this document.
-\row
-\i \bold{Bitmap Distribution Format fonts (BDF)}
-\i A standard format for non-scalable fonts. A large number of BDF
-fonts are supplied as part of standard X11 distributions -- most of
-these can be used with Qt/Embedded. You should \e not use these in a
-production system: they are very slow to load and take up a \e lot of
-storage space. Instead, render the BDF to a QPF.
-\row
-\i \bold{Qt Prerendered Font (QPF)}
-\i A light-weight non-scalable font format specific to Qt/Embedded.
-\endtable
+    With TTF fonts, each character in the font at a given point size is
+    only rendered when first used in a drawing or metrics operation. With
+    BDF fonts all characters are rendered when the font is used.
+    With QPF fonts, the characters are stored in the same format that Qt
+    uses for drawing.
 
-Support for each of these font formats (except QPF which is always
-enabled) can be enabled or disabled independently by using the \link
-emb-features.html Qt/Embedded Feature Definition File\endlink. There is
-support in Qt/Embedded for writing a QPF font file from any font, so
-you can initially enable TTF and BDF formats, save QPF files for the
-fonts and sizes you need, then remove TTF and BDF support.
+    For example, a 10-point Times font containing the ASCII characters uses
+    around 1300 bytes when stored in QPF format.
 
-See \link makeqpf.html tools/makeqpf\endlink for a tool that helps
-produce QPF files from the TTF and BDF, or just run your application
-with the \c -savefonts option.
+    Taking advantage of the way the QPF format is structured, Qt/Embedded
+    memory-maps the data rather than reading and parsing it.
+    This reduces RAM consumption even further.
 
-\section1 Memory Requirements
+    Scalable fonts use a larger amount of memory per font, but
+    these fonts provide a memory saving if many different sizes of each
+    font are needed.
 
-With TTF fonts, each character in the font at a given point size is
-only rendered when first used in a drawing or metrics operation. With
-BDF fonts all characters are rendered when the font is used.
-With QPF fonts, the characters are stored in the same format that Qt
-uses for drawing.
+    \section1 Smooth Fonts
 
-For example, a 10-point Times font containing the ASCII characters uses
-around 1300 bytes when stored in QPF format.
+    TTF, PFA, and QPF fonts can be rendered as \e{smooth} anti-aliased
+    fonts to give superior readability, especially on low-resolution
+    devices. The difference between smooth and non-smooth fonts is
+    illustrated below (you may need to change your display to low
+    resolution to see the difference):
 
-Taking advantage of the way the QPF format is structured, Qt/Embedded
-memory-maps the data rather than reading and parsing it.
-This reduces RAM consumption even further.
+    \img unsmooth.png unsmooth
 
-Scalable fonts use a larger amount of memory per font, but
-these fonts provide a memory saving if many different sizes of each
-font are needed.
+    \img smooth.png smooth
 
-\section1 Smooth Fonts
+    In Qt/Embedded 2.2.1, smooth fonts use eight times as much memory as
+    non-smooth fonts. This multiplier will be reduced to a configurable 2
+    or 4 (i.e. 4-level and 16-level shading rather than the default
+    256-level shading).
 
-TTF, PFA, and QPF fonts can be rendered as \e{smooth} anti-aliased
-fonts to give superior readability, especially on low-resolution
-devices. The difference between smooth and non-smooth fonts is
-illustrated below (you may need to change your display to low
-resolution to see the difference):
+    \section1 Unicode
 
-\img unsmooth.png unsmooth
+    All fonts used by Qt/Embedded use the Unicode character encoding.
+    Most fonts available today use this encoding, but they usually don't
+    contain all the Unicode characters. A \e complete 16-point Unicode
+    font uses over 1 MB of memory.
 
-\img smooth.png smooth
+    \section1 Font Definition File
 
-In Qt/Embedded 2.2.1, smooth fonts use eight times as much memory as
-non-smooth fonts. This multiplier will be reduced to a configurable 2
-or 4 (i.e. 4-level and 16-level shading rather than the default
-256-level shading).
+    When Qt/Embedded applications run, they look for a file called
+    \c $QTDIR/lib/fonts/fontdir or
+    \c /usr/local/qt-embedded/lib/fonts/fontdir. This file defines the
+    fonts available to the application. It has the following format:
+    \quote
+       \e name \e file \e renderer \e italic \e weight \e size \e flags
+    \endquote
+    where
 
-\section1 Unicode
+    \table
+    \header \i Field \i Value
+    \row \i \e name \i \c Helvetica, \c Times, etc.
+    \row \i \e file \i \c helvR0810.bdf, \c verdana.ttf, etc.
+    \row \i \e renderer \i \c BDF or \c FT
+    \row \i \e italic \i \c y or \c n
+    \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
+    \row \i \e size \i \c 0 for scalable or point size * 10 (i.e. \c 120
+	    for 12pt)
+    \row \i \e flags \i \list
+		        \i \c s: smooth (anti-aliased)
+		        \i \c u: Unicode range when saving (default is Latin1)
+		        \i \c a: ASCII range when saving (default is Latin1)
+		        \endlist
+    \endtable
 
-All fonts used by Qt/Embedded use the Unicode character encoding.
-Most fonts available today use this encoding, but they usually don't
-contain all the Unicode characters. A \e complete 16-point Unicode
-font uses over 1 MB of memory.
+    The font definition file does not specify QPF fonts; these are loaded 
+    directly from the directory containing the \c fontdir file, and must
+    be called \e {name}_\e {size}_\e {weight}\e {italicflag}.qpf, where
 
-\section1 Font Definition File
+    \table
+    \header \i Field \i Value
+    \row \i \e name \i \c helvetica, \c times, etc. (in lowercase)
+    \row \i \e size \i point size * 10 (i.e. \c 120 for 12pt)
+    \row \i \e italicflag \i \c i for italic, otherwise nothing.
+    \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
+    \endtable
 
-When Qt/Embedded applications run, they look for a file called
-\c $QTDIR/lib/fonts/fontdir or
-\c /usr/local/qt-embedded/lib/fonts/fontdir. This file defines the
-fonts available to the application. It has the following format:
-\quote
-   \e name \e file \e renderer \e italic \e weight \e size \e flags
-\endquote
-where
+    If an application is run with the \c -savefonts command-line option,
+    then whenever a font other than a QPF font is used, a corresponding QPF file
+    is saved. This allows you to easily find the font usage of your applications
+    and to generate QPF files so that you can eventually reduce the memory
+    usage of your applications by disabling TTF and BDF support from Qt/Embedded,
+    or by modifying the initialization of \c qws_savefonts in
+    \c kernel/qapplication_qws.cpp of the Qt/Embedded library source code.
+    In extreme cases of memory-saving, it is possible to save partially-rendered
+    fonts (i.e. only the characters in "Product Name") if you are
+    certain that these are the only characters you will need from the font.
+    See QMemoryManager::savePrerenderedFont() for this functionality.
 
-\table
-\header \i Field \i Value
-\row \i \e name \i \c Helvetica, \c Times, etc.
-\row \i \e file \i \c helvR0810.bdf, \c verdana.ttf, etc.
-\row \i \e renderer \i \c BDF or \c FT
-\row \i \e italic \i \c y or \c n
-\row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
-\row \i \e size \i \c 0 for scalable or point size * 10 (i.e. \c 120
-	for 12pt)
-\row \i \e flags \i \list
-		    \i \c s: smooth (anti-aliased)
-		    \i \c u: Unicode range when saving (default is Latin1)
-		    \i \c a: ASCII range when saving (default is Latin1)
-		    \endlist
-\endtable
+    \section1 Notes
 
-The font definition file does not specify QPF fonts; these are loaded 
-directly from the directory containing the \c fontdir file, and must
-be called \e {name}_\e {size}_\e {weight}\e {italicflag}.qpf, where
+    The font definition file, naming conventions for font files, and the
+    format of QPF files may change in future versions of Qt/Embedded.
 
-\table
-\header \i Field \i Value
-\row \i \e name \i \c helvetica, \c times, etc. (in lowercase)
-\row \i \e size \i point size * 10 (i.e. \c 120 for 12pt)
-\row \i \e italicflag \i \c i for italic, otherwise nothing.
-\row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
-\endtable
+    \endomit
 
-If an application is run with the \c -savefonts command-line option,
-then whenever a font other than a QPF font is used, a corresponding QPF file
-is saved. This allows you to easily find the font usage of your applications
-and to generate QPF files so that you can eventually reduce the memory
-usage of your applications by disabling TTF and BDF support from Qt/Embedded,
-or by modifying the initialization of \c qws_savefonts in
-\c kernel/qapplication_qws.cpp of the Qt/Embedded library source code.
-In extreme cases of memory-saving, it is possible to save partially-rendered
-fonts (i.e. only the characters in "Product Name") if you are
-certain that these are the only characters you will need from the font.
-See QMemoryManager::savePrerenderedFont() for this functionality.
-
-\section1 Notes
-
-The font definition file, naming conventions for font files, and the
-format of QPF files may change in future versions of Qt/Embedded.
-
-\endomit
-
-When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
-TrueType and Type1 support.
-
+    When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
+    TrueType and Type1 support.
 */

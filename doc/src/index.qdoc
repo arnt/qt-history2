@@ -99,28 +99,28 @@ Key Technologies
 <li><a href="annotated.html">Annotated Classes</a></li>
 <li><a href="hierarchy.html">Inheritance Hierarchy</a></li>
 <li><a href="functions.html">All Functions (Long)</a></li>
-<li><a href="overviews.html">All Overviews</a></li>
+<li><a href="overviews.html">All Overviews and HOWTOs</a></li>
 </ul>
 </td>
 <td valign="top">
 <ul>
 <li><a href="signalsandslots.html">Signals and Slots</a></li>
-<li><a href="objectmodel.html">Object Model</a></li>
+<li><a href="object.html">Object Model</a></li>
 <li><a href="layout.html">Layout Management</a></li>
-<li><a href="painting.html">Paint System</a></li>
-<li><a href="draganddrop.html">Drag and Drop</a></li>
+<li><a href="qt4-arthur.html">Paint System</a></li>
+<li><a href="dnd.html">Drag and Drop</a></li>
 <li><a href="containers.html">Tool and Container Classes</a></li>
 <li><a href="i18n.html">Internationalization</a></li>
-<li><a href="plugins.html">Plugin System</a></li>
+<li><a href="plugins-howto.html">Plugin System</a></li>
 </td>
 <td valign="top">
 <ul>
 <li><a href="threads.html">Multithreaded Programming</a></li>
-<li><a href="mainwindows.html">Main Window Architecture</a></li>
+<li><a href="qt4-mainwindow.html">Main Window Architecture</a></li>
 <li><a href="richtext.html">Rich Text Rendering</a></li>
 <li><a href="model-view-programming.html">Model/View Programming</a></li>
 <li><a href="sql.html">SQL Module</a></li>
-<li><a href="network.html">Network Module</a></li>
+<li><a href="networking.html">Network Module</a></li>
 <li><a href="xml.html">XML Module</a></li>
 <li><a href="opengl.html">OpenGL Module</a></li>
 </ul>
@@ -141,7 +141,7 @@ Licenses &amp; Credits
 <td valign="top">
 <ul>
 <li><a href="winsystem.html">Platform-Specific Notes</a></li>
-<li><a href="emb.html">Qt/Embedded</a></li>
+<li><a href="winsystem.html#sec.4">Qt/Embedded</a></li>
 <li><a href="activeqt.html">ActiveQt Framework</a></li>
 <li><a href="motif.html">Qt Motif Extension</a></li>
 </ul>

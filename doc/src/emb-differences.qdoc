@@ -1,31 +1,30 @@
-/*! \page emb-differences.html
+/*!
+    \page emb-differences.html
+    \title Porting Your Applications to Qt/Embedded
 
-\title Porting your Applications to Qt/Embedded
+    Existing Qt applications should require no porting provided there is no
+    platform dependent code. Platform dependent code includes system calls,
+    calls to the underlying window system (Windows or X11), and Qt platform
+    specific methods such as QApplication::x11EventFilter().
 
-Existing Qt applications should require no porting provided there is no
-platform dependent code. Platform dependent code includes system calls,
-calls to the underlying window system (Windows or X11), and Qt platform
-specific methods such as QApplication::x11EventFilter().
+    For cases where it is necessary to use platform dependent code there are
+    macros defined that can be used to enable/disable code for each platform
+    using \c #ifdef directives:
 
-For cases where it is necessary to use platform dependent code there are
-macros defined that can be used to enable/disable code for each platform
-using \c #ifdef directives:
+    \table
+    \header \i Platform \i Macro
+    \row \i Qt/Embedded \i Q_WS_QWS
+    \row \i Qt/Mac \i Q_WS_MAC
+    \row \i Qt/Windows \i Q_WS_WIN
+    \row \i Qt/X11 \i Q_WS_X11
+    \endtable
 
-\table
-\header \i Platform \i Macro
-\row \i Qt/Embedded \i Q_WS_QWS
-\row \i Qt/Mac \i Q_WS_MAC
-\row \i Qt/Windows \i Q_WS_WIN
-\row \i Qt/X11 \i Q_WS_X11
-\endtable
+    Qt/Embedded also requires the following flags to be defined when compiling
+    applications:
+    \code
+    -DQWS -fno-exceptions -fno-rtti
+    \endcode
 
-Qt/Embedded also requires the following flags to be defined when compiling
-applications:
-\code
--DQWS -fno-exceptions -fno-rtti
-\endcode
-
-Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
-overhead in terms of both size and speed.
-
+    Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
+    overhead in terms of both size and speed.
 */

@@ -10,7 +10,8 @@
 **
 ****************************************************************************/
 
-/*! \page winsystem.html
+/*!
+    \page winsystem.html
 
     \title Window System Specific Notes
 
@@ -66,13 +67,20 @@
     (the window system is literally the Qt Window System).
 
     \list
-    \o \link emb-install.html Installation\endlink
-    \o \link emb-performance.html Qt/Embedded performance tuning\endlink
-    \o \link emb-running.html Running Qt/Embedded applications\endlink
-    \o \link emb-differences.html Porting your applications to Qt/Embedded\endlink
-    \o \link emb-fonts.html Font formats and definitions\endlink
-    \o \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
-    \o \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink
-    \o \link emb-features.html Reduce memory use with the feature definition file\endlink
+    \o \l{emb-install.html}{Installing Qt/Embedded}
+    \o \l{emb-classes.html}{The Qt/Embedded-Specific Classes}
+    \o \l{emb-envvars.html}{Qt/Embedded Environment Variables}
+    \o \l{emb-running.html}{Running Qt/Embedded Applications}
+    \o \l{emb-framebuffer-howto.html}{Enabling the Linux Framebuffer}
+    \o \l{emb-qvfb.html}{Qt/Embedded Virtual Framebuffer}
+    \o \l{emb-vnc.html}{Qt/Embedded as a VNC Server}
+    \o \l{emb-performance.html}{Qt/Embedded Performance Tuning}
+    \o \l{emb-features.html}{The Feature Definition File}
+    \o \l{emb-differences.html}{Porting Your Applications to Qt/Embedded}
+    \o \l{emb-fonts.html}{Fonts in Qt/Embedded}
+    \o \l{emb-charinput.html}{Character Input in Qt/Embedded}
+    \o \l{emb-pointer.html}{Qt/Embedded Pointer Handling}
+    \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qt/Embedded}
+    \o \l{emb-porting.html}{Issues to be Aware of when Porting Qt/Embedded}
     \endlist
 */

@@ -1,0 +1,33 @@
+/****************************************************************************
+**
+** Documentation for QPF fonts.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page emb-makeqpf.html
+
+    \title makeqpf
+
+    Saves QPF font files by rendering and saving fonts.
+
+    \section1 Usage
+
+    \code
+    makeqpf [-A] [-f spec-file] [font ...]
+    \endcode
+
+    \list
+    \i -A - Render and save all fonts in fontdir
+    \i -f - File of lines: fontname character-ranges e.g. "smoothtimes 0-ff,20a0-20af"
+    \i font - Font to render and save
+    \endlist
+*/

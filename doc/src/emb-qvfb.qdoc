@@ -12,83 +12,82 @@
  
 /*! \page emb-qvfb.html
 
-\title Qt/Embedded Virtual Framebuffer
+    \title Qt/Embedded Virtual Framebuffer
 
-The virtual framebuffer allows Qt/Embedded programs to be developed on
-a desktop machine, without switching between consoles and X11.
+    The virtual framebuffer allows Qt/Embedded programs to be developed on
+    a desktop machine, without switching between consoles and X11.
 
-The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
+    The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
 
-\section1 Using the Virtual Framebuffer
+    \section1 Using the Virtual Framebuffer
 
-\list 1 
-\i Configure Qt/Embedded with the \c -qvfb argument and compile the library:
-    \code
-    ./configure -qvfb
-    make
-    \endcode
-\i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
-    compile it as a Qt/Embedded application.
-\i Start a Qt/Embedded master application (i.e., construct
-    QApplication with the QApplication::GuiServer flag or use the \c
-    -qws command line parameter). You can tell the server that
-    you want to use the virtual framebuffer driver, e.g.:
-    \code
-    masterapp -qws -display QVFb:0
-    \endcode
-\i Qt/Embedded will autodetect \c qvfb, so you can omit the \c -display
-   command line parameter if you know that \c qvfb is running, and that
-   the Qt/Embedded library supports \c qvfb. (If this is not the case,
-   Qt/Embedded will write to the real framebuffer, and your X11
-   display will be corrupted.)
+    \list 1 
+    \i Configure Qt/Embedded with the \c -qvfb argument and compile the library:
+        \code
+        ./configure -qvfb
+        make
+        \endcode
+    \i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
+        compile it as a Qt/Embedded application.
+    \i Start a Qt/Embedded master application (i.e., construct
+        QApplication with the QApplication::GuiServer flag or use the \c
+        -qws command line parameter). You can tell the server that
+        you want to use the virtual framebuffer driver, e.g.:
+        \code
+        masterapp -qws -display QVFb:0
+        \endcode
+    \i Qt/Embedded will autodetect \c qvfb, so you can omit the \c -display
+       command line parameter if you know that \c qvfb is running, and that
+       the Qt/Embedded library supports \c qvfb. (If this is not the case,
+       Qt/Embedded will write to the real framebuffer, and your X11
+       display will be corrupted.)
 
-\endlist
+    \endlist
 
-\c qvfb supports the following command line options:
- 
-\table
-\header \i Option \i Meaning
-\row
-\i \c -width \e width 
-\i the width of the virtual framebuffer (default: 240).
-\row
-\i \c -height \e height
-\i the height of the virtual framebuffer (default: 320).
-\row
-\i \c -depth \e depth 
-\i the depth of the virtual framebuffer (1, 8 or 32; default: 8).
-\row
-\i \c -nocursor 
-\i do not display the X11 cursor in the framebuffer window.
-\row
-\i \c -qwsdisplay \e :id 
-\i the Qt/Embedded display id to provide (default: :0).
-\endtable
+    \c qvfb supports the following command line options:
 
-\section1 Virtual Framebuffer Design
+    \table
+    \header \i Option \i Meaning
+    \row
+    \i \c -width \e width 
+    \i the width of the virtual framebuffer (default: 240).
+    \row
+    \i \c -height \e height
+    \i the height of the virtual framebuffer (default: 320).
+    \row
+    \i \c -depth \e depth 
+    \i the depth of the virtual framebuffer (1, 8 or 32; default: 8).
+    \row
+    \i \c -nocursor 
+    \i do not display the X11 cursor in the framebuffer window.
+    \row
+    \i \c -qwsdisplay \e :id 
+    \i the Qt/Embedded display id to provide (default: :0).
+    \endtable
 
-The virtual framebuffer emulates a framebuffer using a shared memory region
-(the virtual frame buffer) and a utility to display the framebuffer in a
-window (\c qvfb). The regions of the display that have changed are updated
-periodically, so you will see discrete snapshots of the framebuffer rather
-than each individual drawing operation. For this reason drawing problems
-such as flickering may not be apparent until the program is run using a real
-framebuffer.
+    \section1 Virtual Framebuffer Design
 
-The target refresh rate can be set via the \bold{View|Refresh Rate}
-menu item. This will cause \c qvfb to check for updated regions more
-frequently. The rate is a target only. If little drawing is being
-done, the framebuffer will not show any updates between drawing
-events. If an application is displaying an animation, the updates will
-be frequent, and the application and \c qvfb will compete for
-processor time.
+    The virtual framebuffer emulates a framebuffer using a shared memory region
+    (the virtual frame buffer) and a utility to display the framebuffer in a
+    window (\c qvfb). The regions of the display that have changed are updated
+    periodically, so you will see discrete snapshots of the framebuffer rather
+    than each individual drawing operation. For this reason drawing problems
+    such as flickering may not be apparent until the program is run using a real
+    framebuffer.
 
-Mouse and keyboard events are passed to the Qt/Embedded master process via
-named pipes.
+    The target refresh rate can be set via the \bold{View|Refresh Rate}
+    menu item. This will cause \c qvfb to check for updated regions more
+    frequently. The rate is a target only. If little drawing is being
+    done, the framebuffer will not show any updates between drawing
+    events. If an application is displaying an animation, the updates will
+    be frequent, and the application and \c qvfb will compete for
+    processor time.
 
-\warning The virtual framebuffer is a development tool only. No
-security issues have been considered in the virtual framebuffer
-design. It should be avoided in a production environment; do not
-configure production libraries with \c -qvfb.
+    Mouse and keyboard events are passed to the Qt/Embedded master process via
+    named pipes.
 
+    \warning The virtual framebuffer is a development tool only. No
+    security issues have been considered in the virtual framebuffer
+    design. It should be avoided in a production environment; do not
+    configure production libraries with \c -qvfb.
 */

@@ -1,114 +1,119 @@
-/*! \page emb-running.html
+/*!
+    \page emb-running.html
 
-\title Running Qt/Embedded applications
+    \title Running Qt/Embedded Applications
 
-A Qt/Embedded application requires a master application to be running,
-or to be the master application itself. The master application is
-primarily responsible for managing top-level window regions, and
-pointer and keyboard input.
+    A Qt/Embedded application requires a master application to be running,
+    or to be the master application itself. The master application is
+    primarily responsible for managing top-level window regions, and
+    pointer and keyboard input.
 
-Any Qt/Embedded application can be the master application by
-constructing the QApplication object with the
-\c{QApplication::GuiServer} type, or by being run with the \c{-qws}
-command line option.
+    Any Qt/Embedded application can be the master application by
+    constructing the QApplication object with the
+    \c{QApplication::GuiServer} type, or by being run with the \c{-qws}
+    command line option.
 
-This document assumes you have the Linux framebuffer configured correctly
-and that no master process is running. If you do not have a working Linux
-framebuffer you can use the
-\link emb-qvfb.html Qt/Embedded virtual framebuffer\endlink, or you can
-run Qt/Embedded as a \link emb-vnc.html VNC server\endlink.
+    This document assumes you have the Linux framebuffer configured correctly
+    and that no master process is running. If you do not have a working Linux
+    framebuffer you can use the
+    \link emb-qvfb.html Qt/Embedded virtual framebuffer\endlink, or you can
+    run Qt/Embedded as a \link emb-vnc.html VNC server\endlink.
 
-Change to a Linux console and select an example to run, e.g. \c
-examples/widgets. Make sure \c $QTDIR is set to the directory where you
-installed Qt/Embedded and add the \c $QTDIR/lib directory to
-\c $LD_LIBRARY_PATH, e.g.:
-\code
-export QTDIR=$HOME/qt-VERSION
-export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-\endcode
+    Change to a Linux console and select an example to run, e.g. \c
+    examples/widgets. Make sure \c $QTDIR is set to the directory where you
+    installed Qt/Embedded and add the \c $QTDIR/lib directory to
+    \c $LD_LIBRARY_PATH, e.g.:
 
-Run the application with the \c{-qws} option:
+    \code
+        export QTDIR=$HOME/qt-VERSION
+        export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+    \endcode
 
-\code
-cd $QTDIR/examples/demos/textedit
-./textedit -qws
-\endcode
+    Run the application with the \c{-qws} option:
 
-You should see the \c textedit example appear. If your mouse doesn't
-work correctly you must specify the type of mouse to use. You can
-exit the master application at any time using
-\bold{Ctrl+Alt+Backspace}.
+    \code
+        cd $QTDIR/examples/demos/textedit
+        ./textedit -qws
+    \endcode
 
-If you wish to run additional applications you should run them as clients
-i.e. without the \c{-qws} option.
+    You should see the \c textedit example appear. If your mouse doesn't
+    work correctly you must specify the type of mouse to use. You can
+    exit the master application at any time using
+    \bold{Ctrl+Alt+Backspace}.
 
-\section1 Displays
+    If you wish to run additional applications you should run them as clients
+    i.e. without the \c{-qws} option.
 
-Qt/Embedded allows multiple displays to be used simultaneously by running
-multiple Qt/Embedded master processes. This is achieved using the \c -display
-command line parameter or the \c $QWS_DISPLAY environment variable.
+    \section1 Displays
 
-The \c -display parameter's syntax is:
-\code
-    [gfx driver][:driver specific options][:display number]
-\endcode
-For example, if you want to use the mach64 driver on fb1 as display 2:
-\code
-    $ ./launcher -display Mach64:/dev/fb1:2
-\endcode
+    Qt/Embedded allows multiple displays to be used simultaneously by running
+    multiple Qt/Embedded master processes. This is achieved using the \c -display
+    command line parameter or the \c $QWS_DISPLAY environment variable.
 
-To try this functionality you can do the following:
-\list 1
-\i Change to VC 1 (virtual console one) and run the launcher:
+    The \c -display parameter's syntax is:
 
-\code
-    $ cd examples/launcher
-    $ ./launcher
-\endcode
+    \code
+        [gfx driver][:driver specific options][:display number]
+    \endcode
 
-\i Switch to VC 2 and run another one:
+    For example, if you want to use the mach64 driver on fb1 as display 2:
 
-\code
-    $ cd examples/launcher
-    $ ./launcher -display :1
-\endcode
+    \code
+        $ ./launcher -display Mach64:/dev/fb1:2
+    \endcode
 
-Another launcher will be started. Start an application in this launcher.
+    To try this functionality you can do the following:
+    \list 1
+    \i Change to VC 1 (virtual console one) and run the launcher:
 
-\i Press \bold{Ctrl+Alt+F1} - back to display 0. You can also start
-additional applications on a particular display by specifying the
-display id. Change to VC 3:
+    \code
+        $ cd examples/launcher
+        $ ./launcher
+    \endcode
 
-\code
-    $ cd examples/widgets
-    $ ./widgets -display :1
-\endcode
+    \i Switch to VC 2 and run another one:
 
-will display the widgets example on dislpay :1 (VC 2).
-\endlist
+    \code
+        $ cd examples/launcher
+        $ ./launcher -display :1
+    \endcode
 
-Only the master process needs to specify the driver/device part
-explicitly. The clients get the information they need from the master
-when they connect. So once you have a master server running using a
-particular driver, you can just use \c client \c display \c n to use
-display \c n.
+    Another launcher will be started. Start an application in this launcher.
 
-\section1 Mouse Input
+    \i Press \bold{Ctrl+Alt+F1} - back to display 0. You can also start
+    additional applications on a particular display by specifying the
+    display id. Change to VC 3:
 
-Qt/Embedded attempts to autodetect a mouse by default.  The supported
-protocols are MouseMan, Microsoft, IntelliMouse and
-some other devices specific to certain hardware (e.g. Vr touch panel).
-To specify the mouse to use set the \c $QWS_MOUSE_PROTO environment
-variable, e.g.:
-\code
-export QWS_MOUSE_PROTO=IntelliMouse
-\endcode
+    \code
+        $ cd examples/widgets
+        $ ./widgets -display :1
+    \endcode
 
-The mouse autodetection opens the serial devices and psaux which
-may cause conflicts with other programs using those devices.  If
-this is the case then specify the mouse driver protocol and device
-explicitly.
+    will display the widgets example on dislpay :1 (VC 2).
+    \endlist
 
-\sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
+    Only the master process needs to specify the driver/device part
+    explicitly. The clients get the information they need from the master
+    when they connect. So once you have a master server running using a
+    particular driver, you can just use \c client \c display \c n to use
+    display \c n.
 
+    \section1 Mouse Input
+
+    Qt/Embedded attempts to autodetect a mouse by default.  The supported
+    protocols are MouseMan, Microsoft, IntelliMouse and
+    some other devices specific to certain hardware (e.g. Vr touch panel).
+    To specify the mouse to use set the \c $QWS_MOUSE_PROTO environment
+    variable, for example:
+
+    \code
+        export QWS_MOUSE_PROTO=IntelliMouse
+    \endcode
+
+    The mouse autodetection opens the serial devices and psaux which
+    may cause conflicts with other programs using those devices.  If
+    this is the case then specify the mouse driver protocol and device
+    explicitly.
+
+    \sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
 */

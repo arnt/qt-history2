@@ -16,14 +16,6 @@
 
     \title SQL Module
 
-    \table
-    \row \o QSql \o QSqlDatabase \o QSqlDriver \o QSqlDriverCreator
-    \row \o QSqlDriverCreatorBase \o QSqlDriverPlugin \o QSqlError \o QSqlField
-    \row \o QSqlIndex \o QSqlQuery \o QSqlQueryModel \o QSqlRecord
-    \row \o QSqlRelation \o QSqlRelationalDelegate \o QSqlRelationalTableModel \o QSqlResult
-    \row \o QSqlTableModel \o{3,1} See also: \l{sql-driver.html}{Supported Database Drivers}
-    \endtable
-
     Qt's SQL classes help you provide seamless database integration
     to your Qt applications.
 
@@ -37,8 +29,8 @@
     QSqlTableModel class provides an interface to database browsing
     and editing that does not require a knowledge of SQL, a basic
     understanding of SQL is highly recommended. A standard text
-    covering SQL databases is \e {An Introduction to Database Systems
-    (7th Ed.)} by C. J. Date, ISBN 0201385902.
+    covering SQL databases is \e {An Introduction to Database Systems}
+    (7th Ed.) by C. J. Date, ISBN 0201385902.
 
     \section1 SQL Module Architecture
 

@@ -1,33 +1,33 @@
-/*! \page emb-vnc.html
+/*!
+    \page emb-vnc.html
 
-\title Qt/Embedded as a VNC Server
+    \title Qt/Embedded as a VNC Server
 
-The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol
-allows you to view and interact with the computer's display from
-anywhere on the network.
+    The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol
+    allows you to view and interact with the computer's display from
+    anywhere on the network.
 
-To use Qt/Embedded in this way, \c configure Qt with the \c -qt-gfx-vnc
-option, and ensure that you also enable 16-bit display support. Run
-your application like this:
-\code
-    application -display VNC:0
-\endcode
-then, run a VNC client pointing at the machine that is running your
-application. For example, using the X11 VNC client to view the
-application from the same machine:
-\code
-    vncviewer localhost:0
-\endcode
+    To use Qt/Embedded in this way, \c configure Qt with the \c -qt-gfx-vnc
+    option, and ensure that you also enable 16-bit display support. Run
+    your application like this:
+    \code
+        application -display VNC:0
+    \endcode
+    then, run a VNC client pointing at the machine that is running your
+    application. For example, using the X11 VNC client to view the
+    application from the same machine:
+    \code
+        vncviewer localhost:0
+    \endcode
 
-By default, Qt/Embedded will create a 640 by 480 pixel display. You
-can change this by setting the \c QWS_SIZE environment variable to
-another size, e.g. \c QWS_SIZE=240x320.
+    By default, Qt/Embedded will create a 640 by 480 pixel display. You
+    can change this by setting the \c QWS_SIZE environment variable to
+    another size, e.g. \c QWS_SIZE=240x320.
 
-VNC clients are available for a vast array of display systems: X11,
-Windows, Amiga, DOS, VMS, and dozens of others.
+    VNC clients are available for a vast array of display systems: X11,
+    Windows, Amiga, DOS, VMS, and dozens of others.
 
-The \link emb-qvfb.html Qt Virtual Framebuffer \endlink is an alternative
-technique. It uses shared memory and thus is much faster and smoother, but
-it does not operate over a network.
-
+    The \link emb-qvfb.html Qt Virtual Framebuffer \endlink is an alternative
+    technique. It uses shared memory and thus is much faster and smoother, but
+    it does not operate over a network.
 */

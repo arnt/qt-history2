@@ -1,47 +1,48 @@
-/*! \page emb-pointer.html
-\title Qt/Embedded Pointer Handling
+/*!
+    \page emb-pointer.html
+    \title Qt/Embedded Pointer Handling
 
-Pointer handling in Qt/Embedded works for any mouse or mouse-like
-device such as touch panels and trackballs.
+    Pointer handling in Qt/Embedded works for any mouse or mouse-like
+    device such as touch panels and trackballs.
 
-Usually only one pointer device is supported in an embedded device,
-but for demonstration purposes, Qt/Embedded includes a large number of
-supported devices.
+    Usually only one pointer device is supported in an embedded device,
+    but for demonstration purposes, Qt/Embedded includes a large number of
+    supported devices.
 
-\section1 Mouse Protocols
+    \section1 Mouse Protocols
 
-Mouse drivers can be enabled/disabled via the configure script.  Running
-\c{./configure} \c{-help} lists the available mouse drivers.  Only the
-"pc" mouse driver is enabled in the default configuration.
+    Mouse drivers can be enabled/disabled via the configure script.  Running
+    \c{./configure} \c{-help} lists the available mouse drivers.  Only the
+    "pc" mouse driver is enabled in the default configuration.
 
-Provided the "pc" mouse driver is enabled, Qt/Embedded auto-detects the
-mouse type and device if it is one of
-the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
-serial lines. If multiple mice are detected, all may be used simultaneously.
+    Provided the "pc" mouse driver is enabled, Qt/Embedded auto-detects the
+    mouse type and device if it is one of
+    the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
+    serial lines. If multiple mice are detected, all may be used simultaneously.
 
-Alternatively, you may set the environment variable \c QWS_MOUSE_PROTO
-to determine which mouse to use. This environment variable may be set
-to:
-\quote
-    \e{\<protocol\>}\c{:}\e{\<device\>}
-\endquote
-where \e{\<protocol\>} is one of:
-\list
- \i MouseMan
- \i IntelliMouse
- \i Microsoft
-\endlist
-and \e{\<device\>} is the mouse device, often \c /dev/mouse. If no
-such variable is specified, the built-in default is \c Auto, which
-enables auto-detection of the mouse protocol and device.
+    Alternatively, you may set the environment variable \c QWS_MOUSE_PROTO
+    to determine which mouse to use. This environment variable may be set
+    to:
+    \quote
+        \e{\<protocol\>}\c{:}\e{\<device\>}
+    \endquote
+    where \e{\<protocol\>} is one of:
+    \list
+     \i MouseMan
+     \i IntelliMouse
+     \i Microsoft
+    \endlist
+    and \e{\<device\>} is the mouse device, often \c /dev/mouse. If no
+    such variable is specified, the built-in default is \c Auto, which
+    enables auto-detection of the mouse protocol and device.
 
-To add another protocol, new subclasses of QWSMouseHandler and
-QMouseDriverPlugin can be written and installed as plugins.
+    To add another protocol, new subclasses of QWSMouseHandler and
+    QMouseDriverPlugin can be written and installed as plugins.
 
-\section1 Touch Panels
+    \section1 Touch Panels
 
-Qt/Embedded ships with support for the NEC Vr41XX touch panel and the
-emerging linux touch panel standard used by the iPAQ and Zaurus. These
-are subclasses of QCalibratedMouseHandler which is in turn a subclass
-of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
+    Qt/Embedded ships with support for the NEC Vr41XX touch panel and the
+    emerging linux touch panel standard used by the iPAQ and Zaurus. These
+    are subclasses of QCalibratedMouseHandler which is in turn a subclass
+    of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
 */

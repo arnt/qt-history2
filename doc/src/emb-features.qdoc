@@ -13,240 +13,239 @@
 ****************************************************************************/
 
 /*!
-\page emb-features.html
+    \page emb-features.html
 
-\title The Feature Definition File
+    \title The Feature Definition File
 
-By modifying the configured \c qconfig.h file from \c src/tools, you
-can define a subset of the full Qt functionality that you wish to
-be available in your installation. The \c -qconfig option to
-configure is used to select the configuration.
+    By modifying the configured \c qconfig.h file from \c src/tools, you
+    can define a subset of the full Qt functionality that you wish to
+    be available in your installation. The \c -qconfig option to
+    configure is used to select the configuration.
 
-Note that such modification is only supported on Qt/Embedded
-platforms, where reducing the size of Qt is
-important and the application set is often fixed.
+    Note that such modification is only supported on Qt/Embedded
+    platforms, where reducing the size of Qt is
+    important and the application set is often fixed.
 
-\bold{Note: Qt/Embedded 4.0 Beta 1 does not support the \c -qconfig option.}
+    \bold{Note: Qt/Embedded 4.0 Beta 1 does not support the \c -qconfig option.}
 
+    \omit ### the set of features will change
+    The \c qconfig.h definition file simply defines macros to disable
+    features. Some features are dependent on other features and these
+    dependencies are expressed in \c qfeatures.h.
 
-\omit ### the set of features will change
-The \c qconfig.h definition file simply defines macros to disable
-features. Some features are dependent on other features and these
-dependencies are expressed in \c qfeatures.h.
+    The available options are:
 
-The available options are:
+    \table
+    \header \i Macro \i Disables \i Set automatically by
 
-\table
-\header \i Macro \i Disables \i Set automatically by
+    \header \i31 Images (\l QImageIO)
+    \row \i \c QT_NO_IMAGEIO_BMP
+         \i Microsoft Bitmap image file format.
+         \i
+    \row \i \c QT_NO_IMAGEIO_PPM
+         \i Portable Pixmap image file format.
+         \i
+    \row \i \c QT_NO_IMAGEIO_XBM
+         \i X11 Bitmap image file format.
+         \i
+    \row \i \c QT_NO_IMAGEIO_XPM
+         \i X11 Pixmap image file format.
+         \i
+    \row \i \c QT_NO_IMAGEIO_PNG
+         \i Portable Network Graphics image file format.
+         \i
 
-\header \i31 Images (\l QImageIO)
-\row \i \c QT_NO_IMAGEIO_BMP
-     \i Microsoft Bitmap image file format.
-     \i
-\row \i \c QT_NO_IMAGEIO_PPM
-     \i Portable Pixmap image file format.
-     \i
-\row \i \c QT_NO_IMAGEIO_XBM
-     \i X11 Bitmap image file format.
-     \i
-\row \i \c QT_NO_IMAGEIO_XPM
-     \i X11 Pixmap image file format.
-     \i
-\row \i \c QT_NO_IMAGEIO_PNG
-     \i Portable Network Graphics image file format.
-     \i
+    \header \i31 Animation
+    \row \i \c QT_NO_ASYNC_IMAGE_IO
+         \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
+         \i
+    \row \i \c QT_NO_MOVIE
+         \i Animation support (\l QMovie)
+         \i \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
 
-\header \i31 Animation
-\row \i \c QT_NO_ASYNC_IMAGE_IO
-     \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
-     \i
-\row \i \c QT_NO_MOVIE
-     \i Animation support (\l QMovie)
-     \i \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
+    \header \i31 Fonts
+    \row \i \c QT_NO_TRUETYPE
+         \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
+         \i
+    \row \i \c QT_NO_BDF
+         \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
+         \i
+    \row \i \c QT_NO_FONTDATABASE
+         \i Font database.
+         \i
 
-\header \i31 Fonts
-\row \i \c QT_NO_TRUETYPE
-     \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
-     \i
-\row \i \c QT_NO_BDF
-     \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
-     \i
-\row \i \c QT_NO_FONTDATABASE
-     \i Font database.
-     \i
+    \header \i31 Internationalization
+    \row \i \c QT_NO_I18N
+         \i Conversions between Unicode and 8-bit encodings.
+         \i
+    \row \i \c QT_NO_UNICODETABLES
+         \i Large tables defining such things as upper and lowercase conversions
+	    for all Unicode characters.
+         \i
 
-\header \i31 Internationalization
-\row \i \c QT_NO_I18N
-     \i Conversions between Unicode and 8-bit encodings.
-     \i
-\row \i \c QT_NO_UNICODETABLES
-     \i Large tables defining such things as upper and lowercase conversions
-	for all Unicode characters.
-     \i
+    \header \i31 MIME
+    \row \i \c QT_NO_MIME
+         \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
+	    and tagging typed data (eg. text, images, colors) (\l QMimeSource)
+         \i
+    \row \i \c QT_NO_RICHTEXT
+         \i HTML-like text (\l QStyleSheet, \l QLabel)
+         \i \c QT_NO_MIME
+    \row \i \c QT_NO_DRAGANDDROP
+         \i Drag and drop data between applications (\l QDragObject)
+         \i \c QT_NO_MIME
+    \row \i \c QT_NO_CLIPBOARD
+         \i Cut and paste data between applications (\l QClipboard)
+         \i \c QT_NO_MIME
 
-\header \i31 MIME
-\row \i \c QT_NO_MIME
-     \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
-	and tagging typed data (eg. text, images, colors) (\l QMimeSource)
-     \i
-\row \i \c QT_NO_RICHTEXT
-     \i HTML-like text (\l QStyleSheet, \l QLabel)
-     \i \c QT_NO_MIME
-\row \i \c QT_NO_DRAGANDDROP
-     \i Drag and drop data between applications (\l QDragObject)
-     \i \c QT_NO_MIME
-\row \i \c QT_NO_CLIPBOARD
-     \i Cut and paste data between applications (\l QClipboard)
-     \i \c QT_NO_MIME
+    \header \i31 Sound
+    \row \i \c QT_NO_SOUND
+         \i Playing audio files (\l QSound)
+         \i
 
-\header \i31 Sound
-\row \i \c QT_NO_SOUND
-     \i Playing audio files (\l QSound)
-     \i
+    \header \i31 Scripting
+    \row \i \c QT_NO_PROPERTIES
+         \i Scripting Qt-based applications.
+         \i
 
-\header \i31 Scripting
-\row \i \c QT_NO_PROPERTIES
-     \i Scripting Qt-based applications.
-     \i
+    \header \i31 Qt/Embedded-specific
+    \row \i \c QT_NO_QWS_CURSOR
+         \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
+	    normally need this feature.
+         \i
+    \row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE
+         \i11 8 bits per pixel: 256 levels of gray.
+	    Incompatible with \c QWS_DEPTH_8.
+         \i
+    \row \i \c QT_NO_QWS_DEPTH_8
+         \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
+	    Incompatible with \c QWS_DEPTH_8GRAYSCALE.
+         \i
+    \row \i \c QT_NO_QWS_DEPTH_15
+         \i11 15 bits per pixel: 32 levels for each of red, green and blue.
+         \i
+    \row \i \c QT_NO_QWS_DEPTH_16
+         \i11 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
+         \i
+    \row \i \c QT_NO_QWS_DEPTH_32
+         \i11 32 bits per pixel: 256 levels for each of red, green and blue.
+         \i
+    \row \i \c QT_NO_QWS_MACH64
+         \i Mach64 accelerated driver (demonstration only).
+         \i
+    \row \i \c QT_NO_QWS_VFB
+         \i \link emb-qvfb.html Virtual framebuffer\endlink running on X11.
+         \i
 
-\header \i31 Qt/Embedded-specific
-\row \i \c QT_NO_QWS_CURSOR
-     \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
-	normally need this feature.
-     \i
-\row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE
-     \i11 8 bits per pixel: 256 levels of gray.
-	Incompatible with \c QWS_DEPTH_8.
-     \i
-\row \i \c QT_NO_QWS_DEPTH_8
-     \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
-	Incompatible with \c QWS_DEPTH_8GRAYSCALE.
-     \i
-\row \i \c QT_NO_QWS_DEPTH_15
-     \i11 15 bits per pixel: 32 levels for each of red, green and blue.
-     \i
-\row \i \c QT_NO_QWS_DEPTH_16
-     \i11 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
-     \i
-\row \i \c QT_NO_QWS_DEPTH_32
-     \i11 32 bits per pixel: 256 levels for each of red, green and blue.
-     \i
-\row \i \c QT_NO_QWS_MACH64
-     \i Mach64 accelerated driver (demonstration only).
-     \i
-\row \i \c QT_NO_QWS_VFB
-     \i \link emb-qvfb.html Virtual framebuffer\endlink running on X11.
-     \i
+    \header \i31 Networking
+    \row \i \c QT_NO_NETWORKPROTOCOL
+         \i Abstract multi-protocol data retrieval,
+	    with local file retrieval included (\l QNetworkProtocol)
+         \i
+    \row \i \c QT_NO_NETWORKPROTOCOL_FTP
+         \i FTP-protocol data retrieval.
+         \i \c QT_NO_NETWORKPROTOCOL
+    \row \i \c QT_NO_NETWORKPROTOCOL_HTTP
+         \i HTTP-protocol data retrieval.
+         \i \c QT_NO_NETWORKPROTOCOL
 
-\header \i31 Networking
-\row \i \c QT_NO_NETWORKPROTOCOL
-     \i Abstract multi-protocol data retrieval,
-	with local file retrieval included (\l QNetworkProtocol)
-     \i
-\row \i \c QT_NO_NETWORKPROTOCOL_FTP
-     \i FTP-protocol data retrieval.
-     \i \c QT_NO_NETWORKPROTOCOL
-\row \i \c QT_NO_NETWORKPROTOCOL_HTTP
-     \i HTTP-protocol data retrieval.
-     \i \c QT_NO_NETWORKPROTOCOL
+    \header \i31 Painting/drawing
+    \row \i \c QT_NO_COLORNAMES
+         \i Color names such as "red", used by some \l QColor constructors
+	    and by some HTML documents (\l QColor, \l QStyleSheet)
+         \i
+    \row \i \c QT_NO_TRANSFORMATIONS
+         \i Used by a number of classes in Qt. With this, rotation and
+	    scaling are possible. Without it you can only do coordinate
+	    translation (\l QWMatrix)
+         \i
+    \row \i \c QT_NO_PSPRINTER
+         \i PostScript printer support.
+         \i
+    \row \i \c QT_NO_PRINTER
+         \i Printer support (\l QPrinter)
+         \i \c QT_NO_PSPRINTER (Unix only)
+    \row \i \c QT_NO_PICTURE
+         \i Save Qt drawing commands to a files (\l QPicture)
+         \i
 
-\header \i31 Painting/drawing
-\row \i \c QT_NO_COLORNAMES
-     \i Color names such as "red", used by some \l QColor constructors
-	and by some HTML documents (\l QColor, \l QStyleSheet)
-     \i
-\row \i \c QT_NO_TRANSFORMATIONS
-     \i Used by a number of classes in Qt. With this, rotation and
-	scaling are possible. Without it you can only do coordinate
-	translation (\l QWMatrix)
-     \i
-\row \i \c QT_NO_PSPRINTER
-     \i PostScript printer support.
-     \i
-\row \i \c QT_NO_PRINTER
-     \i Printer support (\l QPrinter)
-     \i \c QT_NO_PSPRINTER (Unix only)
-\row \i \c QT_NO_PICTURE
-     \i Save Qt drawing commands to a files (\l QPicture)
-     \i
+    \header \i31 Widgets
+    \row \i \c QT_NO_WIDGETS
+         \i Disabling this disables all widgets except \l QWidget.
+         \i
+    \row \i \c QT_NO_TEXTVIEW
+         \i HTML document viewing (\l QTextView)
+         \i \c QT_NO_WIDGETS, \c QT_NO_RICHTEXT
+    \row \i \c QT_NO_TEXTBROWSER
+         \i HTML document browsing (\l QTextBrowser)
+         \i \c QT_NO_TEXTVIEW
+    \row \i \c QT_NO_ICONVIEW
+         \i Labelled icons (\l QIconView)
+         \i \c QT_NO_WIDGETS, \c QT_NO_DRAGANDDROP
+    \row \i \c QT_NO_LISTVIEW
+         \i Lists of information (\l QListView)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_CANVAS
+         \i Object canvas (\l QCanvas)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_DIAL
+         \i Value control (\l QDial)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_WORKSPACE
+         \i MDI (Multiple Document Interface) (\l QWorkspace)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_LCDNUMBER
+         \i LCD-like number display (\l QLCDNumber)
+         \i \c QT_NO_WIDGETS
 
-\header \i31 Widgets
-\row \i \c QT_NO_WIDGETS
-     \i Disabling this disables all widgets except \l QWidget.
-     \i
-\row \i \c QT_NO_TEXTVIEW
-     \i HTML document viewing (\l QTextView)
-     \i \c QT_NO_WIDGETS, \c QT_NO_RICHTEXT
-\row \i \c QT_NO_TEXTBROWSER
-     \i HTML document browsing (\l QTextBrowser)
-     \i \c QT_NO_TEXTVIEW
-\row \i \c QT_NO_ICONVIEW
-     \i Labelled icons (\l QIconView)
-     \i \c QT_NO_WIDGETS, \c QT_NO_DRAGANDDROP
-\row \i \c QT_NO_LISTVIEW
-     \i Lists of information (\l QListView)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_CANVAS
-     \i Object canvas (\l QCanvas)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_DIAL
-     \i Value control (\l QDial)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_WORKSPACE
-     \i MDI (Multiple Document Interface) (\l QWorkspace)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_LCDNUMBER
-     \i LCD-like number display (\l QLCDNumber)
-     \i \c QT_NO_WIDGETS
+    \header \i31 GUI Styles
+    \row \i \c QT_NO_STYLE_WINDOWS
+         \i Microsoft Windows style (\l QWindowsStyle)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_STYLE_MOTIF
+         \i OSF Motif style (\l QMotifStyle)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_STYLE_CDE
+         \i Open Group CDE style (\l QCDEStyle)
+         \i \c QT_NO_STYLE_MOTIF
+    \row \i \c QT_NO_STYLE_MAC
+         \i MacOS X style (\l QMacStyle)
+    \row \i \c QT_NO_STYLE_PLATINUM
+         \i MacOS 9 style (\l QPlatinumStyle)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_STYLE_SGI
+         \i SGI style (\l QSGIStyle)
+         \i \c QT_NO_STYLE_MOTIF
 
-\header \i31 GUI Styles
-\row \i \c QT_NO_STYLE_WINDOWS
-     \i Microsoft Windows style (\l QWindowsStyle)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_STYLE_MOTIF
-     \i OSF Motif style (\l QMotifStyle)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_STYLE_CDE
-     \i Open Group CDE style (\l QCDEStyle)
-     \i \c QT_NO_STYLE_MOTIF
-\row \i \c QT_NO_STYLE_MAC
-     \i MacOS X style (\l QMacStyle)
-\row \i \c QT_NO_STYLE_PLATINUM
-     \i MacOS 9 style (\l QPlatinumStyle)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_STYLE_SGI
-     \i SGI style (\l QSGIStyle)
-     \i \c QT_NO_STYLE_MOTIF
-
-\header \i31 Dialogs
-\row \i \c QT_NO_DIALOGS
-     \i Disabling this disables all common dialogs (for example, \l
-     QFileDialog, QFontDialog, and QColorDialog)
-     \i \c QT_NO_WIDGETS
-\row \i \c QT_NO_FILEDIALOG
-     \i The file selection dialog (\l QFileDialog)
-     \i \c QT_NO_DIALOGS, \c QT_NO_NETWORKPROTOCOL, \c QT_NO_LISTVIEW
-\row \i \c QT_NO_FONTDIALOG
-     \i The font selection dialog (\l QFontDialog)
-     \i \c QT_NO_DIALOGS, \c QT_NO_FONTDATABASE
-\row \i \c QT_NO_COLORDIALOG
-     \i The color selection dialog (\l QColorDialog)
-     \i \c QT_NO_DIALOGS
-\row \i \c QT_NO_INPUTDIALOG
-     \i Text input dialog (\l QInputDialog)
-     \i \c QT_NO_DIALOGS
-\row \i \c QT_NO_MESSAGEBOX
-     \i Message/prompting dialog (\l QMessageBox)
-     \i \c QT_NO_DIALOGS
-\row \i \c QT_NO_PROGRESSDIALOG
-     \i Long-computation progress dialog (\l QProgressDialog)
-     \i \c QT_NO_DIALOGS
-\row \i \c QT_NO_TABDIALOG
-     \i Tabbed-pages dialog (\l QTabDialog)
-     \i \c QT_NO_DIALOGS
-\row \i \c QT_NO_WIZARD
-     \i Multi-step dialog (\l QWizard)
-     \i \c QT_NO_DIALOGS
-\endtable
-\endomit
+    \header \i31 Dialogs
+    \row \i \c QT_NO_DIALOGS
+         \i Disabling this disables all common dialogs (for example, \l
+         QFileDialog, QFontDialog, and QColorDialog)
+         \i \c QT_NO_WIDGETS
+    \row \i \c QT_NO_FILEDIALOG
+         \i The file selection dialog (\l QFileDialog)
+         \i \c QT_NO_DIALOGS, \c QT_NO_NETWORKPROTOCOL, \c QT_NO_LISTVIEW
+    \row \i \c QT_NO_FONTDIALOG
+         \i The font selection dialog (\l QFontDialog)
+         \i \c QT_NO_DIALOGS, \c QT_NO_FONTDATABASE
+    \row \i \c QT_NO_COLORDIALOG
+         \i The color selection dialog (\l QColorDialog)
+         \i \c QT_NO_DIALOGS
+    \row \i \c QT_NO_INPUTDIALOG
+         \i Text input dialog (\l QInputDialog)
+         \i \c QT_NO_DIALOGS
+    \row \i \c QT_NO_MESSAGEBOX
+         \i Message/prompting dialog (\l QMessageBox)
+         \i \c QT_NO_DIALOGS
+    \row \i \c QT_NO_PROGRESSDIALOG
+         \i Long-computation progress dialog (\l QProgressDialog)
+         \i \c QT_NO_DIALOGS
+    \row \i \c QT_NO_TABDIALOG
+         \i Tabbed-pages dialog (\l QTabDialog)
+         \i \c QT_NO_DIALOGS
+    \row \i \c QT_NO_WIZARD
+         \i Multi-step dialog (\l QWizard)
+         \i \c QT_NO_DIALOGS
+    \endtable
+    \endomit
 */

@@ -1,0 +1,74 @@
+/*!
+    \page opengl.html
+
+    \title Qt OpenGL Module
+
+    OpenGL is a standard API for rendering 3D graphics.
+
+    OpenGL only deals with 3D rendering and provides little or no
+    support for GUI programming issues. The user interface for an
+    OpenGL application must be created with another toolkit, such as
+    Motif on the X platform, Microsoft Foundation Classes (MFC) under
+    Windows, or Qt on \e both platforms.
+
+    \bold{Note:} OpenGL is a trademark of Silicon Graphics, Inc. in
+    the United States and other countries.
+
+    The Qt OpenGL module makes it easy to use OpenGL in Qt applications.
+    It provides an OpenGL widget class that can be used just like any
+    other Qt widget, except that it opens an OpenGL display buffer where
+    you can use the OpenGL API to render the contents.
+
+    The Qt OpenGL module is implemented as a platform-independent Qt/C++
+    wrapper around the platform-dependent GLX, WGL, or AGL C APIs. The
+    functionality provided is very similar to Mark Kilgard's GLUT library,
+    but with much more non-OpenGL-specific GUI functionality, i.e. the
+    whole Qt API.
+
+    \section1 Installation
+
+    When you install Qt for X11, the configure script will autodetect if
+    OpenGL headers and libraries are installed on your system, and if so,
+    it will include the Qt OpenGL module in the Qt library. (If your
+    OpenGL headers or libraries are placed in a non-standard directory,
+    you may need to change the QMAKE_INCDIR_OPENGL and/or
+    QMAKE_LIBDIR_OPENGL in the config file for your system). Some
+    configurations require threading to be enabled for OpenGL, so if
+    OpenGL is not detected, try \c{configure -thread}.
+
+    When you install Qt for Windows, the Qt OpenGL module is always
+    included.
+
+    The Qt OpenGL module is not licensed for use with the Qt Professional
+    Edition. Consider upgrading to the Qt Enterprise Edition if you
+    require OpenGL support.
+
+    Note about using Mesa on X11: Mesa versions earlier than 3.1 would use
+    the name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
+    "GLU". If you want to use a pre-3.1 version of Mesa, you must change
+    the Makefiles to use these library names instead. The easiest way to
+    do this is to edit the QMAKE_LIBS_OPENGL line in the config file you
+    are using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run
+    "configure" again.
+
+    \section1 The QGL Classes
+
+    The OpenGL support classes in Qt are:
+    \list
+    \i \link QGLWidget QGLWidget\endlink: An easy-to-use Qt
+      widget for rendering OpenGL scenes.
+    \i \link QGLContext QGLContext\endlink: Encapsulates an OpenGL rendering context.
+    \i \link QGLFormat QGLFormat\endlink: Specifies the
+    display format of a rendering context.
+    \i \link QGLColormap QGLColormap\endlink: Handles indexed
+    colormaps in GL-index mode.
+    \endlist
+
+    Many applications only need the high-level QGLWidget class. The other
+    QGL classes provide advanced features. X11 users might like to read
+    the notes on \link opengl-x11-overlays.html overlays\endlink.
+
+    The QGL documentation assumes that you are familiar with OpenGL
+    programming. If you're new to the subject a good starting point is
+    \l{http://www.opengl.org/}.
+*/
