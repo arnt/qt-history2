@@ -2697,15 +2697,21 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
 
     \relates QVariant
 
+    Returns a variant containing a copy of the given \a value
+    with template type \c{T}.
+
     Replacement function for QVariant::fromValue() for compilers
     that do not support template member methods.
 
     \sa QVariant::fromValue()
 */
 
-/*! \fn void qVariantSetValue(QVariant &v, const T &value)
+/*! \fn void qVariantSetValue(QVariant &variant, const T &value)
 
     \relates QVariant
+
+    Sets the contents of the given \a variant to a copy of the
+    \a value with the specified template type \c{T}.
 
     Replacement function for QVariant::setValue() for compilers
     that do not support template member methods.
@@ -2713,9 +2719,11 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::setValue()
 */
 
-/*! \fn T qVariantValue(const QVariant &v)
+/*! \fn T qVariantValue(const QVariant &value)
 
     \relates QVariant
+
+    Returns the given \a value converted to the template type \c{T}.
 
     Replacement function for QVariant::value() for compilers
     that do not support template member methods.
@@ -2723,9 +2731,12 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::value()
 */
 
-/*! \fn bool qVariantCanConvert(const QVariant &v)
+/*! \fn bool qVariantCanConvert(const QVariant &value)
 
     \relates QVariant
+
+    Returns true if the given \a value can be converted to the
+    template type specified; otherwise returns false.
 
     Replacement function for QVariant::canConvert() for compilers
     that do not support template member methods.
