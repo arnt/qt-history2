@@ -28,7 +28,8 @@ contains(QT_CONFIG, zlib) {
 }
 
 #qt files (bootstrap
-INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore
+INCLUDEPATH += $$QT_SOURCE_TREE/src/core/arch/generic \
+               $$QT_SOURCE_TREE/include/QtCore
 SOURCES += \
            #tools
            ../../core/tools/qbytearray.cpp ../../core/tools/qdatetime.cpp \
