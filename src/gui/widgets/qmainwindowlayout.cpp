@@ -475,11 +475,9 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     for (int k = 0; k < tb_layout_info.size(); ++k) {
 	int num_tbs = tb_layout_info.at(k).size();
 	POSITION where = static_cast<POSITION>(tb_layout_info.at(k).at(0).where);
-	QPoint lastPos = tb_rect[k].topLeft();
 
         for (int i = 0; i < num_tbs; ++i) {
             ToolBarLayoutInfo &info = tb_layout_info[k][i];
-
  	    set(where, info.size, pick(where, tb_rect[k].size()));
 
 	    // position
@@ -585,8 +583,13 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    }
 		}
 
+		// Figure out a suitable default pos/size
 		if (pick_perp(where, info.pos) < pick_perp(where, prev.pos) + prev_min) {
-		    set_perp(where, info.pos, pick_perp(where, prev.pos) + prev_min);
+		    int sz = pick_perp(where, prev.item->widget()->sizeHint());
+		    // use min size hint if size hint is smaller
+		    if (sz < prev_min)
+			sz = prev_min;
+		    set_perp(where, info.pos, pick_perp(where, prev.pos) + sz);
 		}
 		info.offset = QPoint();
 	    }
