@@ -444,12 +444,12 @@ void Q4ToolBar::resizeEvent(QResizeEvent *event)
     }
 }
 
-ToolBarArea Q4ToolBar::currentArea() const
+Qt::ToolBarArea Q4ToolBar::currentArea() const
 {
     return d->currentArea;
 }
 
-void Q4ToolBar::setCurrentArea(ToolBarArea area, bool linebreak)
+void Q4ToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 {
     Q_ASSERT(parentWidget() && qt_cast<Q4MainWindowLayout *>(parentWidget()->layout()));
     Q4MainWindowLayout *mainwin_layout = qt_cast<Q4MainWindowLayout *>(parentWidget()->layout());
@@ -457,10 +457,10 @@ void Q4ToolBar::setCurrentArea(ToolBarArea area, bool linebreak)
 
     int pos;
     switch (area) {
-    case ToolBarAreaLeft:   pos = 0; break;
-    case ToolBarAreaRight:  pos = 1; break;
-    case ToolBarAreaTop:    pos = 2; break;
-    case ToolBarAreaBottom: pos = 3; break;
+    case Qt::ToolBarAreaLeft:   pos = 0; break;
+    case Qt::ToolBarAreaRight:  pos = 1; break;
+    case Qt::ToolBarAreaTop:    pos = 2; break;
+    case Qt::ToolBarAreaBottom: pos = 3; break;
     default:
         Q_ASSERT(false);
         break;

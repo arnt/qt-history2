@@ -3,8 +3,6 @@
 
 #include <qframe.h>
 
-#include "enums.h"
-
 class Q4MainWindow;
 class Q4DockWindowPrivate;
 

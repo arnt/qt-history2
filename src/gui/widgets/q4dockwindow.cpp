@@ -409,20 +409,20 @@ class Q4DockWindowPrivate : public QFramePrivate
     public:
     inline Q4DockWindowPrivate(Q4MainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
-          currentArea(DockWindowAreaLeft), allowedAreas(~0u & DockWindowAreaMask),
+          currentArea(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
           grid(0), box(0), title(0)
     { }
 
     void init();
-    void place(DockWindowArea area, Qt::Orientation direction, bool extend);
+    void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
 
     Q4MainWindow *mainWindow;
 
     bool closable;
     bool movable;
     bool floatable;
-    DockWindowArea currentArea;
-    DockWindowAreaFlags allowedAreas;
+    Qt::DockWindowArea currentArea;
+    Qt::DockWindowAreaFlags allowedAreas;
 
     QGridLayout *grid;
     QBoxLayout *box;
@@ -442,7 +442,7 @@ void Q4DockWindowPrivate::init() {
     d->box = new QVBoxLayout(d->grid);
 }
 
-void Q4DockWindowPrivate::place(DockWindowArea area, Qt::Orientation direction, bool extend)
+void Q4DockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
     Q4MainWindowLayout *mwl = qt_cast<Q4MainWindowLayout *>(d->mainWindow->layout());
     Q_ASSERT(mwl != 0);
@@ -469,7 +469,7 @@ Q4DockWindow::Q4DockWindow(Q4MainWindow *parent, WFlags flags)
     d->init();
 }
 
-Q4DockWindow::Q4DockWindow(Q4MainWindow *parent, DockWindowArea area, WFlags flags)
+Q4DockWindow::Q4DockWindow(Q4MainWindow *parent, Qt::DockWindowArea area, WFlags flags)
     : QFrame(*(new Q4DockWindowPrivate(parent)), parent,
              flags | WStyle_Customize | WStyle_NoBorder)
 {
@@ -533,17 +533,17 @@ void Q4DockWindow::setFloated(bool floated, const QPoint &pos)
 bool Q4DockWindow::isFloated() const
 { return isTopLevel(); }
 
-void Q4DockWindow::setAllowedAreas(DockWindowAreaFlags areas)
-{ d->allowedAreas = (areas & DockWindowAreaMask); }
+void Q4DockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
+{ d->allowedAreas = (areas & Qt::DockWindowAreaMask); }
 
-DockWindowAreaFlags Q4DockWindow::allowedAreas() const
+Qt::DockWindowAreaFlags Q4DockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
-DockWindowArea Q4DockWindow::currentArea() const
+Qt::DockWindowArea Q4DockWindow::currentArea() const
 { return d->currentArea; }
 
 // add a window to an area using a hueristic to determine direction
-void Q4DockWindow::setCurrentArea(DockWindowArea area)
+void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
@@ -553,16 +553,16 @@ void Q4DockWindow::setCurrentArea(DockWindowArea area)
     if (qt_mac_is_macdrawer(dockwindow)) {
         Qt::Dock x;
         switch (area) {
-        case DockWindowAreaLeft:
+        case Qt::DockWindowAreaLeft:
             x = DockLeft;
             break;
-        case DockWindowAreaRight:
+        case Qt::DockWindowAreaRight:
             x = DockRight;
             break;
-        case DockWindowAreaTop:
+        case Qt::DockWindowAreaTop:
             x = DockTop;
             break;
-        case DockWindowAreaBottom:
+        case Qt::DockWindowAreaBottom:
             x = DockBottom;
             break;
         default:
@@ -580,12 +580,12 @@ void Q4DockWindow::setCurrentArea(DockWindowArea area)
     if (!isFloated()) {
         Orientation direction;
         switch (area) {
-        case DockWindowAreaLeft:
-        case DockWindowAreaRight:
+        case Qt::DockWindowAreaLeft:
+        case Qt::DockWindowAreaRight:
             direction = Vertical;
             break;
-        case DockWindowAreaTop:
-        case DockWindowAreaBottom:
+        case Qt::DockWindowAreaTop:
+        case Qt::DockWindowAreaBottom:
             direction = Horizontal;
             break;
         default:
@@ -596,7 +596,7 @@ void Q4DockWindow::setCurrentArea(DockWindowArea area)
 }
 
 // add a window to an area, placing done relative to the previous
-void Q4DockWindow::setCurrentArea(DockWindowArea area, Qt::Orientation direction, bool extend)
+void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
@@ -610,7 +610,7 @@ void Q4DockWindow::setCurrentArea(DockWindowArea area, Qt::Orientation direction
 // splits the specified dockwindow
 void Q4DockWindow::setCurrentArea(Q4DockWindow *after, Qt::Orientation direction)
 {
-    DockWindowArea area = after->currentArea();
+    Qt::DockWindowArea area = after->currentArea();
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
 

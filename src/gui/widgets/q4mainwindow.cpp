@@ -104,7 +104,7 @@ void Q4MainWindow::setCorner(Corner corner, DockWindowArea area)
     d->layout->corners[corner] = area;
 }
 
-DockWindowArea Q4MainWindow::corner(Corner corner) const
+Qt::DockWindowArea Q4MainWindow::corner(Corner corner) const
 { return d->layout->corners[corner]; }
 
 void Q4MainWindow::setDockWindowState(const QString &state)

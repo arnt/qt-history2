@@ -2,7 +2,6 @@
 #define QTOOLBAR_H
 
 #include <qframe.h>
-#include "enums.h"
 
 class Q4ToolBarPrivate;
 

@@ -3,8 +3,6 @@
 
 #include <qwidget.h>
 
-#include "enums.h"
-
 class Q4DockWindow;
 class Q4MainWindowPrivate;
 class QMenuBar;

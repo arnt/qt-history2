@@ -47,8 +47,8 @@ class Q4MainWindowLayout : public QLayout
 
     // utility functions
 
-    RelayoutType relayout_type;
-    void relayout(RelayoutType type = RelayoutNormal);
+    QInternal::RelayoutType relayout_type;
+    void relayout(QInternal::RelayoutType type = QInternal::RelayoutNormal);
 
     void saveLayoutInfo();
     void resetLayoutInfo();

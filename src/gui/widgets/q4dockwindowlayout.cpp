@@ -62,12 +62,12 @@ public:
 
 Q4DockWindowLayout::Q4DockWindowLayout(QWidget *widget, Orientation o)
     : QLayout(widget), orientation(o), save_layout_info(0),
-      relayout_type(RelayoutNormal)
+      relayout_type(QInternal::RelayoutNormal)
 { }
 
 Q4DockWindowLayout::Q4DockWindowLayout(QLayout *layout, Orientation o)
     : QLayout(layout), orientation(o), save_layout_info(0),
-      relayout_type(RelayoutNormal)
+      relayout_type(QInternal::RelayoutNormal)
 { }
 
 QLayoutItem *Q4DockWindowLayout::find(QWidget *widget)
@@ -161,7 +161,7 @@ QLayoutItem *Q4DockWindowLayout::takeAt(int index)
 #endif
 
 	    if (layout_info.isEmpty()) {
-                if (relayout_type == RelayoutDropped) {
+                if (relayout_type == QInternal::RelayoutDropped) {
                     // probably splitting...
                 } else if (!save_layout_info) {
                     deleteLater();
@@ -183,7 +183,7 @@ QLayoutItem *Q4DockWindowLayout::takeAt(int index)
 /*! reimp */
 void Q4DockWindowLayout::addItem(QLayoutItem *layoutitem)
 {
-    if (relayout_type == RelayoutDropped && layoutitem->layout()) {
+    if (relayout_type == QInternal::RelayoutDropped && layoutitem->layout()) {
         // dropping a nested layout!
         return;
     }
@@ -199,7 +199,7 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 
     QLayout::setGeometry(rect);
 
-    if (relayout_type == RelayoutNormal) {
+    if (relayout_type == QInternal::RelayoutNormal) {
         bool first = true;
         for (int i = 0; i < layout_info.count(); ++i) {
             const Q4DockWindowLayoutInfo &info = layout_info.at(i);
@@ -246,7 +246,7 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 			    canGrow(orientation, sp);
 
 		if (info.is_dummy || info.is_dropped) {
-		    Q_ASSERT(relayout_type != RelayoutNormal);
+		    Q_ASSERT(relayout_type != QInternal::RelayoutNormal);
 
 		    // layout a dummy item
 		    ls.minimumSize = pick(orientation, info.item->minimumSize());
@@ -309,7 +309,7 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 	}
 
 
-	if (relayout_type == RelayoutDummy && !info.is_dummy) {
+	if (relayout_type == QInternal::RelayoutDragging && !info.is_dummy) {
 	    // we are testing a layout, so don't actually change
 	    // anything... but make sure that we update all the dummy
 	    // items with the correct geometry
@@ -393,7 +393,7 @@ QSize Q4DockWindowLayout::sizeHint() const
 
 void Q4DockWindowLayout::invalidate()
 {
-    if (relayout_type != RelayoutDummy)
+    if (relayout_type != QInternal::RelayoutDragging)
         QLayout::invalidate();
 }
 
@@ -720,9 +720,9 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
     return orientation == Horizontal ? QPoint(delta, 0) : QPoint(0, delta);
 }
 
-void Q4DockWindowLayout::relayout(RelayoutType type)
+void Q4DockWindowLayout::relayout(QInternal::RelayoutType type)
 {
-    RelayoutType save_type = relayout_type;
+    QInternal::RelayoutType save_type = relayout_type;
     relayout_type = type;
     setGeometry(geometry());
     relayout_type = save_type;
@@ -770,7 +770,7 @@ Q4DockWindowLayout::Location Q4DockWindowLayout::locate(const QPoint &mouse) con
 }
 
 static QRect trySplit(Qt::Orientation orientation,
-                      DockWindowArea area,
+                      Qt::DockWindowArea area,
                       const QRect &r,
                       const QSize &sz1,
                       const QSize &sz2)
@@ -779,7 +779,7 @@ static QRect trySplit(Qt::Orientation orientation,
 
     switch (orientation) {
     case Qt::Horizontal:
-        if (area != DockWindowAreaTop && area != DockWindowAreaBottom) {
+        if (area != Qt::DockWindowAreaTop && area != Qt::DockWindowAreaBottom) {
             DEBUG() << "    wrong place" << area <<"to split";
             break;
         }
@@ -792,7 +792,7 @@ static QRect trySplit(Qt::Orientation orientation,
             break;
         }
 
-        if (area == DockWindowAreaTop)
+        if (area == Qt::DockWindowAreaTop)
             ret.setRect(r.x(), r.y(), r.width(), r.height() / 2);
         else
             ret.setRect(r.x(), r.y() + r.height() / 2, r.width(), r.height() / 2);
@@ -800,7 +800,7 @@ static QRect trySplit(Qt::Orientation orientation,
         break;
 
     case Qt::Vertical:
-        if (area != DockWindowAreaLeft && area != DockWindowAreaRight)
+        if (area != Qt::DockWindowAreaLeft && area != Qt::DockWindowAreaRight)
             break;
 
         if (!r.contains(QRect(r.x(),
@@ -809,7 +809,7 @@ static QRect trySplit(Qt::Orientation orientation,
                               qMax(sz1.height(), sz2.height()))))
             break;
 
-        if (area == DockWindowAreaLeft)
+        if (area == Qt::DockWindowAreaLeft)
             ret.setRect(r.x(), r.y(), r.width() / 2, r.height());
         else
             ret.setRect(r.x() + r.width() / 2, r.y(), r.width() / 2, r.height());
@@ -877,10 +877,15 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
                 const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
                 const int pos = pick(orientation, p);
                 const bool horizontal = orientation == Horizontal;
-                if (pos > (info.cur_pos + (info.cur_size / 2) - 1))
-                    location.area = horizontal ? DockWindowAreaRight : DockWindowAreaBottom;
-                else
-                    location.area = horizontal ? DockWindowAreaLeft  : DockWindowAreaTop;
+                if (pos > (info.cur_pos + (info.cur_size / 2) - 1)) {
+                    location.area = horizontal
+                                    ? Qt::DockWindowAreaRight
+                                    : Qt::DockWindowAreaBottom;
+                } else {
+                    location.area = horizontal
+                                    ? Qt::DockWindowAreaLeft
+                                    : Qt::DockWindowAreaTop;
+                }
             }
         }
     }
@@ -910,7 +915,7 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
 
     // add dummy layout item
     int index = location.index / 2; // :)
-    if (location.area == DockWindowAreaRight || location.area == DockWindowAreaBottom)
+    if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
         ++index;
     Q4DockWindowLayoutItem layoutitem(dockwindow, r);
     Q4DockWindowLayoutInfo &info = insert(index, &layoutitem, true);
@@ -918,7 +923,7 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
 
     info.cur_size = pick(orientation, r.size());
 
-    relayout(RelayoutDummy);
+    relayout(QInternal::RelayoutDragging);
 
     const bool forbid = cur.width() < new_min.width() || cur.height() < new_min.height();
 
@@ -992,20 +997,20 @@ void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QP
             const int pos = pick(orientation, p);
             const bool horizontal = orientation == Horizontal;
             if (pos > (info.cur_pos + (info.cur_size / 2) - 1))
-                location.area = horizontal ? DockWindowAreaRight : DockWindowAreaBottom;
+                location.area = horizontal ? Qt::DockWindowAreaRight : Qt::DockWindowAreaBottom;
             else
-                location.area = horizontal ? DockWindowAreaLeft  : DockWindowAreaTop;
+                location.area = horizontal ? Qt::DockWindowAreaLeft  : Qt::DockWindowAreaTop;
         }
     }
 
     int index = location.index / 2; // :)
-    if (location.area == DockWindowAreaRight || location.area == DockWindowAreaBottom)
+    if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
         ++index;
     Q4DockWindowLayoutInfo &info = insert(index, new QWidgetItem(dockwindow));
     info.is_dropped = true;
     info.cur_size = pick(orientation, r.size());
 
-    relayout(RelayoutDropped);
+    relayout(QInternal::RelayoutDropped);
     info.is_dropped = false;
 
     if (dockwindow->isFloated()) {
@@ -1022,8 +1027,8 @@ void Q4DockWindowLayout::extend(Q4DockWindow *dockwindow, Orientation direction)
     if (direction == orientation) {
         addWidget(dockwindow);
     } else {
-        Q_ASSERT(relayout_type == RelayoutNormal);
-        relayout_type = RelayoutDropped;
+        Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
+        relayout_type = QInternal::RelayoutDropped;
 
         Q4DockWindowLayout *nestedLayout = new Q4DockWindowLayout(this, orientation);
         nestedLayout->setObjectName(objectName() + QLatin1String("_nestedCopy"));
@@ -1038,7 +1043,7 @@ void Q4DockWindowLayout::extend(Q4DockWindow *dockwindow, Orientation direction)
             }
         }
 
-        relayout_type = RelayoutNormal;
+        relayout_type = QInternal::RelayoutNormal;
 
         layout_info.clear();
         setOrientation(direction);
@@ -1060,7 +1065,9 @@ void Q4DockWindowLayout::split(Q4DockWindow *dockwindow, Orientation direction)
         } else {
             if (info.item->widget()) {
                 split(qt_cast<Q4DockWindow *>(info.item->widget()), dockwindow,
-                      (direction == Horizontal ? DockWindowAreaRight : DockWindowAreaBottom));
+                      (direction == Horizontal
+                       ? Qt::DockWindowAreaRight
+                       : Qt::DockWindowAreaBottom));
             } else {
                 Q4DockWindowLayout *nestedLayout =
                     qt_cast<Q4DockWindowLayout *>(info.item->layout());
@@ -1072,7 +1079,7 @@ void Q4DockWindowLayout::split(Q4DockWindow *dockwindow, Orientation direction)
     }
 }
 
-void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, DockWindowArea area)
+void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, Qt::DockWindowArea area)
 {
     int which = -1;
     for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
@@ -1084,8 +1091,8 @@ void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, DockW
     Q_ASSERT(which != -1);
     const Q4DockWindowLayoutInfo &info = layout_info.at(which);
 
-    Q_ASSERT(relayout_type == RelayoutNormal);
-    relayout_type = RelayoutDropped;
+    Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
+    relayout_type = QInternal::RelayoutDropped;
 
     int save_size = info.cur_size;
     removeWidget(existing);
@@ -1099,14 +1106,14 @@ void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, DockW
     invalidate();
 
     switch (area) {
-    case DockWindowAreaTop:
-    case DockWindowAreaLeft:
+    case Qt::DockWindowAreaTop:
+    case Qt::DockWindowAreaLeft:
         nestedLayout->addWidget(with);
         nestedLayout->addWidget(existing);
         break;
 
-    case DockWindowAreaBottom:
-    case DockWindowAreaRight:
+    case Qt::DockWindowAreaBottom:
+    case Qt::DockWindowAreaRight:
         nestedLayout->addWidget(existing);
         nestedLayout->addWidget(with);
         break;
@@ -1115,5 +1122,5 @@ void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, DockW
         Q_ASSERT(false);
     }
 
-    relayout_type = RelayoutNormal;
+    relayout_type = QInternal::RelayoutNormal;
 }

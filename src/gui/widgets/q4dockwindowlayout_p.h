@@ -4,8 +4,6 @@
 #include <qlayout.h>
 #include <qlist.h>
 
-#include "enums.h"
-
 class Q4DockWindow;
 class Q4DockWindowSeparator;
 
@@ -51,8 +49,8 @@ class Q4DockWindowLayout : public QLayout
     void invalidate();
     bool isEmpty() const;
 
-    RelayoutType relayout_type;
-    void relayout(RelayoutType type = RelayoutNormal);
+    QInternal::RelayoutType relayout_type;
+    void relayout(QInternal::RelayoutType type = QInternal::RelayoutNormal);
 
     void setOrientation(Qt::Orientation o);
     QLayoutItem *find(QWidget *widget);
