@@ -583,8 +583,8 @@ void QPixmap::resize(int w, int h)
         p.drawPixmap(0, 0, *this, 0, 0, qMin(width(), w), qMin(height(), h));
     }
 #if defined(Q_WS_MAC)
-    if(data->alphapm) {
-        data->alphapm->resize(w, h);
+    if(data->qd_alpha) {
+        data->macQDUpdateAlpha();
     } else
 #endif // Q_WS_X11
         if (data->mask) {                                // resize mask as well
@@ -665,8 +665,7 @@ void QPixmap::setMask(const QBitmap &newmask)
     }
 #if defined(Q_WS_MAC)
     // when setting the mask, we get rid of the alpha channel completely
-    delete data->alphapm;
-    data->alphapm = 0;
+    data->macQDDisposeAlpha();
 #endif
 
     delete data->mask;
@@ -1084,7 +1083,7 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 */
 
 
-#ifndef Q_WS_WIN
+#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
 /*!
     Returns the pixmap's handle to the device context.
 

@@ -19,6 +19,7 @@
 #include "qprinter.h"
 #include <private/qt_mac_p.h>
 #include <private/qprintengine_mac_p.h>
+#include <private/qpixmap_p.h>
 
 /*****************************************************************************
   Internal variables and functions
@@ -58,16 +59,17 @@ int QPaintDevice::metric(PaintDeviceMetric) const
 
 /*! \internal
 
-    Returns the QuickDraw CGrafPtr of the paint device. 0 is returned if it
-    can't be obtained.
+    Returns the QuickDraw CGrafPtr of the paint device. 0 is returned
+    if it can't be obtained. Do not hold the pointer around for long
+    as it can be relocated.
 */
 
-GrafPtr qt_macQDHandle(const QPaintDevice *device)
+GrafPtr qt_mac_qd_context(const QPaintDevice *device)
 {
     if (device->devType() == QInternal::Widget) {
         return static_cast<GrafPtr>(static_cast<const QWidget *>(device)->handle());
     } else if (device->devType() == QInternal::Pixmap) {
-        return static_cast<GrafPtr>(static_cast<const QPixmap *>(device)->handle());
+        return static_cast<GrafPtr>(static_cast<const QPixmap *>(device)->macQDHandle());
     } else if (device->devType() == QInternal::Printer) {
         QPaintEngine *engine = static_cast<const QPrinter *>(device)->paintEngine();
         return static_cast<GrafPtr>(static_cast<const QMacPrintEngine *>(engine)->handle());
@@ -83,11 +85,23 @@ GrafPtr qt_macQDHandle(const QPaintDevice *device)
     it.
 */
 
-CGContextRef qt_macCreateCGHandle(const QPaintDevice *pdev)
+CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
 {
-    if(pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Widget) {
+    if(pdev->devType() == QInternal::Pixmap) {
+        const QPixmap *pm = static_cast<const QPixmap*>(pdev);
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGContextRef ret = CGBitmapContextCreate(pm->data->pixels, pm->data->w, pm->data->h,
+                                                 8, pm->data->nbytes / pm->data->h, colorspace,
+                                                 kCGImageAlphaNoneSkipFirst);
+        CGColorSpaceRelease(colorspace);
+        if(!ret)
+            qWarning("Unable to create context for pixmap (%d/%d/%d)", pm->data->w, pm->data->h, pm->data->nbytes);
+        CGContextTranslateCTM(ret, 0, pm->data->h);
+        CGContextScaleCTM(ret, 1, -1);
+        return ret;
+    } else if(pdev->devType() == QInternal::Widget) {
         CGContextRef ret = 0;
-        GrafPtr port = qt_macQDHandle(pdev);
+        GrafPtr port = qt_mac_qd_context(pdev);
         if(!port)
             return 0;
 

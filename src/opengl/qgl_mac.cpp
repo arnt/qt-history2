@@ -355,7 +355,7 @@ void QGLContext::updatePaintDevice()
         }
     } else if(d->paintDevice->devType() == QInternal::Pixmap) {
         QPixmap *pm = (QPixmap *)d->paintDevice;
-        PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
+        PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->macQDHandle());
         aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
                         GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
         GLint offs[4] = { 0, pm->height(), pm->width(), pm->height() };

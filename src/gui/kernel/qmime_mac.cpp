@@ -608,7 +608,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const QString 
 	GWorldPtr world;
 	GetGWorld(&world, 0);
         ClipRect(&pic_params.srcRect);
-	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()), GetPortBitMapForCopyBits((GWorldPtr)world),
+	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.macQDHandle()), GetPortBitMapForCopyBits((GWorldPtr)world),
                  &pic_params.srcRect, &pic_params.srcRect, srcCopy, 0);
     }
 #else
@@ -618,7 +618,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const QString 
         GWorldPtr world;
         GDHandle handle;
         GetGWorld(&world, &handle);
-        CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()),
+        CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.macQDHandle()),
                  GetPortBitMapForCopyBits((GWorldPtr)world), &r, &r, srcCopy, 0);
     }
 #endif

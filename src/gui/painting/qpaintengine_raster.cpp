@@ -610,10 +610,11 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
 #    warning "unhandled"
 #  else
     extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-    if(CGContextRef hd = qt_macCreateCGHandle(device)) {
+    if(CGContextRef ctx = qt_mac_cg_context(device)) {
         CGRect rect = CGRectMake(d->deviceRect.x(), d->deviceRect.y(),
                                  d->deviceRect.width(), d->deviceRect.height());
-        HIViewDrawCGImage(hd, &rect, d->rasterBuffer->m_data); //top left
+        HIViewDrawCGImage(ctx, &rect, d->rasterBuffer->m_data); //top left
+        CGContextRelease(ctx);
     }
 #endif
 #else

@@ -125,8 +125,11 @@ public:
     virtual int qwsBytesPerLine() const;
     QRgb *clut() const;
     int numCols() const;
-#endif
-#if defined(Q_WS_X11)
+#elif defined(Q_WS_MAC)
+    Qt::HANDLE macQDHandle() const;
+    Qt::HANDLE macQDAlphaHandle() const;
+    Qt::HANDLE macCGHandle() const;
+#elif defined(Q_WS_X11)
     static int x11SetDefaultScreen(int screen);
     void x11SetScreen(int screen);
     const QX11Info &x11Info() const;
@@ -134,7 +137,7 @@ public:
     Qt::HANDLE xftDrawHandle() const;
 #endif
 
-#ifndef Q_WS_WIN
+#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     Qt::HANDLE handle() const;
 #endif
 
@@ -178,15 +181,13 @@ private:
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
 #endif
     static Optimization defOptim;
+    friend CGContextRef qt_mac_cg_context(const QPaintDevice *);
     friend struct QPixmapData;
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
     friend class QGLWidget;
     friend class QX11PaintEngine;
-#if defined(Q_WS_MAC)
-    friend CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode, bool);
-#endif
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
     friend class QWSPaintEngine;

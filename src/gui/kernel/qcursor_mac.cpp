@@ -24,7 +24,7 @@
  *****************************************************************************/
 extern QCursorData *qt_cursorTable[Qt::LastCursor + 1];
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
-extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_mac.cpp
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
@@ -317,8 +317,8 @@ void QCursor::update() const
                 hotspot.h = 0;
             if((hotspot.v = d->hy) < 0)
                 hotspot.v = 0;
-            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_macQDHandle(d->bm)),
-                                                       GetGWorldPixMap(qt_macQDHandle(d->bmm)),
+            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(d->bm)),
+                                                       GetGWorldPixMap(qt_mac_qd_context(d->bmm)),
                                                        hotspot, d->curs.big_cursor_name);
             if(ret == noErr)
                 d->type = QCursorData::TYPE_BigCursor;
@@ -350,8 +350,8 @@ void QCursor::update() const
             d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
             d->curs.ci->majorVersion = kCursorImageMajorVersion;
             d->curs.ci->minorVersion = kCursorImageMinorVersion;
-            d->curs.ci->cursorPixMap = GetGWorldPixMap(qt_macQDHandle(d->bm));
-            d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_macQDHandle(d->bmm));
+            d->curs.ci->cursorPixMap = GetGWorldPixMap(qt_mac_qd_context(d->bm));
+            d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_mac_qd_context(d->bmm));
 #endif
         }
         break; }

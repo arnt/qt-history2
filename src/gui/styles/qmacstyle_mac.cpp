@@ -273,7 +273,7 @@ public slots:
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 extern QRegion qt_mac_convert_mac_region(HIShapeRef); //qregion_mac.cpp
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -1280,7 +1280,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_macCreateCGHandle(&px)),
+        HIThemeDrawBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_mac_cg_context(&px)),
                               kHIThemeOrientationNormal);
     }
 
@@ -1290,7 +1290,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawMenuBackground(&rect, &mtinfo, QCFType<CGContextRef>(qt_macCreateCGHandle(&px)),
+        HIThemeDrawMenuBackground(&rect, &mtinfo, QCFType<CGContextRef>(qt_mac_cg_context(&px)),
                                   kHIThemeOrientationNormal);
         w->setWindowOpacity(0.95);
     }

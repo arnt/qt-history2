@@ -31,7 +31,7 @@
   External functions
  *****************************************************************************/
 extern OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec); //qglobal.cpp
-extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 
 /*****************************************************************************
   Internal variables and functions
@@ -152,7 +152,7 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
         return NULL;
     if(NewMovieFromFile(&aMovie, movieResFile, 0, 0, newMovieActive, 0) != noErr)
         return NULL;
-    SetMovieGWorld(aMovie, qt_macQDHandle(offscreen), 0); //just a temporary offscreen
+    SetMovieGWorld(aMovie, qt_mac_qd_context(offscreen), 0); //just a temporary offscreen
     CloseMovieFile(movieResFile);
     return aMovie;
 }

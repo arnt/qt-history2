@@ -31,12 +31,17 @@
   Externals
  *****************************************************************************/
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
-extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 static int qt_pixmap_serial = 0;
+
+static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
+{
+    free(const_cast<void *>(data));
+}
 
 /*****************************************************************************
   QPixmap member functions
@@ -45,12 +50,11 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(w, h, 1, true, DefaultOptim);
-    Q_ASSERT_X(data->hd, "QPixmap::QPixmap", "No handle");
 
-    int *dptr = (int *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd))), *drow, q;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
+    uint *dptr = data->pixels, *drow, q;
+    const uint bytesPerRow = data->nbytes / h;
     for(int yy=0;yy<h;yy++) {
-        drow = (int *)((char *)dptr + (yy * dbpr));
+        drow = (uint *)((char *)dptr + (yy * bytesPerRow));
         int sy = yy * ((w+7)/8);
         for(int xx=0;xx<w;xx++) {
             char one_bit = *(bits + (sy + (xx / 8)));
@@ -146,14 +150,11 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         // same size etc., use the existing pixmap
         detach();
 
-        if(data->mask) {                     // get rid of the mask
+        if(data->mask) {  // get rid of the mask
             delete data->mask;
             data->mask = 0;
         }
-        if(data->alphapm) {                     // get rid of the alpha
-            delete data->alphapm;
-            data->alphapm = 0;
-        }
+        data->macSetAlpha(false);
     } else {
         // different size or depth, make a new pixmap
         QPixmap pm(w, h, d == 1 ? 1 : -1);
@@ -162,19 +163,17 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         *this = pm;
     }
 
-    Q_ASSERT_X(data->hd, "QPixmap::convertFromImage", "No handle");
-
-    int *dptr = (int *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd))), *drow;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
+    uint *dptr = data->pixels, *drow;
+    const uint dbpr = data->nbytes / h;
 
     QRgb q=0;
     int sdpt = image.depth();
-    unsigned short sbpr = image.bytesPerLine();
+    const unsigned short sbpr = image.bytesPerLine();
     uchar *sptr = image.bits(), *srow;
     QImage::Endian sord = image.bitOrder();
 
     for(int yy=0;yy<h;yy++) {
-        drow = (int *)((char *)dptr + (yy * dbpr));
+        drow = (uint*)((char *)dptr + (yy * dbpr));
         srow = sptr + (yy * sbpr);
         switch(sdpt) {
         case 1:
@@ -215,18 +214,14 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             break;
         }
     }
-
-    data->uninit = false;
-
-    // get rid of alpha pixmap
-    delete data->alphapm;
-    data->alphapm = 0;
-    if(img.hasAlphaBuffer()) {
-        {
+    if(image.hasAlphaBuffer()) {
+        { //setup mask
             QBitmap m;
             m = img.createAlphaMask(flags);
             setMask(m);
         }
+
+        //setup the alpha
         bool alphamap = img.depth() == 32;
         if (img.depth() == 8) {
             const QRgb * const rgb = img.colorTable();
@@ -238,36 +233,10 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                 }
             }
         }
-        if (alphamap) {
-            data->alphapm = new QPixmap(w, h, 32);
-            int *dptr = (int *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd))),
-                 *drow;
-            unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-            if (img.depth() == 32) {
-                unsigned short sbpr = image.bytesPerLine();
-                int *sptr = (int*)image.bits(), *srow;
-                uchar clr;
-                for(int yy=0; yy < h; yy++) {
-                    drow = (int*)((char *)dptr + (yy * dbpr));
-                    srow = (int*)((char *)sptr + (yy * sbpr));
-                    for (int xx=0; xx < w; xx++) {
-                        clr = ~(((*(srow + xx)) >> 24) & 0xFF);
-                        *(drow + xx) = qRgba(clr, clr, clr, 0);
-                    }
-                }
-            } else {
-                const QRgb *const rgb = img.colorTable();
-                for (int y = 0; y < h; ++y) {
-                    const uchar *iptr = image.scanLine(y);
-                    drow = (int*)((char *)dptr + (y * dbpr));
-                    for (int x = 0; x < w; ++x) {
-                        const int alpha = ~qAlpha(rgb[*iptr++]);
-                        *(drow + x) = qRgba(alpha, alpha, alpha, 0);
-                    }
-                }
-            }
-        }
+        if(alphamap)
+            data->macSetAlpha(true);
     }
+    data->uninit = false;
     return true;
 }
 
@@ -285,7 +254,7 @@ int get_index(QImage * qi,QRgb mycol)
 
 QImage QPixmap::toImage() const
 {
-    if(!data->w || !data->h || !data->hd)
+    if(!data->w || !data->h)
         return QImage(); // null image
 
     int w = data->w;
@@ -299,34 +268,21 @@ QImage QPixmap::toImage() const
     }
 
     QImage image(w, h, d, ncols, QImage::BigEndian);
+    image.setAlphaBuffer(data->alpha);
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
         image.setColor(1, qRgba(0, 0, 0, 0));
     }
 
-    Q_ASSERT_X(data->hd, "QPixmap::convertToImage", "No handle");
-
     QRgb q;
-    int *sptr = reinterpret_cast<int*>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))),
-                *srow, r;
-    unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-
-    int *aptr = 0, *arow = 0;
-    unsigned short abpr = 0;
-    if(data->alphapm) {
-        image.setAlphaBuffer(true);
-        aptr = reinterpret_cast<int*>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd))));
-        abpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)));
-    }
-
+    uint *sptr = data->pixels, *srow, r;
+    const uint bytesPerRow = data->nbytes / h;
     for(int yy=0;yy<h;yy++) {
-        srow = (int *)((char *)sptr + (yy * sbpr));
-        if(aptr)
-            arow = (int *)((char *)aptr + (yy * abpr));
+        srow = (uint *)((char *)sptr + (yy * bytesPerRow));
         for(int xx=0;xx<w;xx++) {
             r = *(srow + xx);
-            q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ~(*(arow + xx) & 0xFF) : 0xFF));
+            q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (r >> 24) & 0xFF);
             if(d == 1)
                 image.setPixel(xx, yy, (q & RGB_MASK) ? 0 : 1);
             else if(ncols)
@@ -336,7 +292,7 @@ QImage QPixmap::toImage() const
         }
     }
 
-    if(data->mask && !data->alphapm) {
+    if(data->mask && !data->alpha) {
         QImage alpha = data->mask->toImage();
         image.setAlphaBuffer(true);
         switch(d) {
@@ -372,7 +328,7 @@ QImage QPixmap::toImage() const
                     ib++;
                 }
             }
-        } break;
+            break; }
         case 32: {
             for(int y=0; y<image.height(); y++) {
                 uchar* mb = alpha.scanLine(y);
@@ -390,7 +346,7 @@ QImage QPixmap::toImage() const
                     ib++;
                 }
             }
-        } break;
+            break; }
         }
     }
     return image;
@@ -400,39 +356,20 @@ void QPixmap::fill(const QColor &fillColor)
 {
     if(!width() || !height())
         return;
-    Q_ASSERT_X(data->hd, "QPixmap::fill", "No handle");
 
-    QMacSavedPortInfo saveportstate(this);
-    detach();                                        // detach other references
-    { //we don't know what backend to use, and we cannot paint here
-        uint *dptr = (uint *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-        int dbytes = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))*height();
-        Q_ASSERT_X(dptr && dbytes, "QPixmap::fill", "No dptr or no dbytes");
+    detach();
+    { //we don't know what backend to use so we cannot paint here
+        uint *dptr = data->pixels;
+        Q_ASSERT_X(dptr, "QPixmap::fill", "No dptr");
         QRgb colr = fillColor.rgba();
         if(!colr) {
-            memset(dptr, colr, dbytes);
+            memset(dptr, colr, data->nbytes);
         } else {
-            for(int i = 0; i < (int)(dbytes/sizeof(uint)); i++)
+            for(uint i = 0; i < data->nbytes/sizeof(uint); i++)
                 *(dptr + i) = colr;
         }
     }
-    if(fillColor.alpha() == 255) {
-        delete data->alphapm;
-        data->alphapm = 0;
-    } else {
-        if(!data->alphapm)
-            data->alphapm = new QPixmap(data->w, data->h, 32);
-        uint *aptr = (uint *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)));
-        int abytes = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)))*height();
-        Q_ASSERT_X(aptr && abytes, "QPixmap::fill", "No aptr or no abytes");
-        QRgb colr = qRgba(255-fillColor.alpha(), 255-fillColor.alpha(), 255-fillColor.alpha(), 0);
-        if(!colr) {
-            memset(aptr, colr, abytes);
-        } else {
-            for(int i = 0; i < (int)(abytes/sizeof(uint)); i++)
-                *(aptr + i) = colr;
-        }
-    }
+    data->macSetAlpha(fillColor.alpha() != 255);
 }
 
 void QPixmap::detach()
@@ -440,10 +377,6 @@ void QPixmap::detach()
     if (data->count != 1)
         *this = copy();
     data->uninit = FALSE;
-    if(data->cgimage) {
-        CGImageRelease(data->cgimage);
-        data->cgimage = 0;
-    }
     data->ser_no = ++qt_pixmap_serial;
 }
 
@@ -467,7 +400,7 @@ int QPixmap::metric(PaintDeviceMetric m) const
         case PdmPhysicalDpiX:
         case PdmDpiY:
         case PdmPhysicalDpiY: {
-            if(GDHandle gd = GetGWorldDevice(static_cast<GWorldPtr>(handle()))) {
+            if(GDHandle gd = GetMainDevice()) {
                 if (m == PdmDpiX || m == PdmPhysicalDpiX)
                     val = Fix2Long((**(**gd).gdPMap).hRes);
                 else
@@ -486,92 +419,121 @@ int QPixmap::metric(PaintDeviceMetric m) const
 
 QPixmapData::~QPixmapData()
 {
-    if(mask)
-        delete mask;
-    if(alphapm)
-        delete alphapm;
+    delete mask;
+    macQDDisposeAlpha();
+    if(qd_data) {
+        DisposeGWorld(qd_data);
+        qd_data = 0;
+    }
+    if(cg_data) {
+        CGImageRelease(cg_data);
+        cg_data = 0;
+        pixels = 0; //let the cgimage hang onto the pixels if it wants to
+    }
+}
 
-    if(cgimage)
-        CGImageRelease(cgimage);
+void
+QPixmapData::macSetAlpha(bool b)
+{
+    alpha = b;
+#if 1
+    macQDDisposeAlpha(); //let it get created lazily
+#else
+    macQDUpdateAlpha();
+#endif
+}
 
-    if(hd && qApp) {
-        UnlockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(hd)));
-        DisposeGWorld(static_cast<GWorldPtr>(hd));
+void
+QPixmapData::macQDDisposeAlpha()
+{
+    if(qd_alpha) {
+        DisposeGWorld(qd_alpha);
+        qd_alpha = 0;
+    }
+}
+
+void
+QPixmapData::macQDUpdateAlpha()
+{
+    macQDDisposeAlpha(); // get rid of alpha pixmap
+    if(!alpha)
+        return;
+
+    //setup
+    Rect rect;
+    SetRect(&rect, 0, 0, w, h);
+    const int params = alignPix | stretchPix | newDepth;
+    NewGWorld(&qd_alpha, 32, &rect, 0, 0, params);
+    int *dptr = (int *)GetPixBaseAddr(GetGWorldPixMap(qd_alpha)), *drow;
+    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(qd_alpha));
+    const int *sptr = (int*)pixels, *srow;
+    const uint sbpr = nbytes / h;
+    uchar clr;
+    for(int yy=0; yy < h; yy++) {
+        drow = (int*)((char *)dptr + (yy * dbpr));
+        srow = (int*)((char *)sptr + (yy * sbpr));
+        for (int xx=0; xx < w; xx++) {
+            clr = 255 - (((*(srow + xx)) >> 24) & 0xFF);
+            *(drow + xx) = qRgba(clr, clr, clr, 0);
+        }
     }
 }
 
 QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     if (mode == Qt::SmoothTransformation) {
-        // ###### do this efficiently!
+        // ###### do this efficiently! --Sam
         QImage image = toImage();
         return QPixmap(image.transform(matrix, mode));
     }
-
-    int w, h;                                // size of target pixmap
-    int ws, hs;                                // size of source pixmap
-    uchar *dptr;                                // data in target pixmap
-    int dbpl, dbytes;                        // bytes per line/bytes total
-    uchar *sptr;                                // data in original pixmap
-    int sbpl;                                // bytes per line in original
-    int bpp;                                        // bits per pixel
-
-    if(isNull())                                // this is a null pixmap
+    if(isNull())
         return copy();
 
-    ws = width();
-    hs = height();
+    int w, h;  // size of target pixmap
+    const int ws = width();
+    const int hs = height();
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
-
     if(matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
          matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
-        if(mat.m11() == 1.0F && mat.m22() == 1.0F)
-            return *this;                        // identity matrix
+        if(mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
+            return *this;
         h = qRound(mat.m22()*hs);
         w = qRound(mat.m11()*ws);
         h = qAbs(h);
         w = qAbs(w);
-    } else {                                        // rotation or shearing
+    } else { // rotation or shearing
         QPolygon a(QRect(0,0,ws+1,hs+1));
         a = mat.map(a);
         QRect r = a.boundingRect().normalize();
         w = r.width()-1;
         h = r.height()-1;
     }
-
-    mat = trueMatrix(mat, ws, hs); // true matrix
-
+    mat = trueMatrix(mat, ws, hs);
     bool invertible;
-    mat = mat.inverted(&invertible);                // invert matrix
+    mat = mat.inverted(&invertible);
+    if(!h || !w || !invertible) // error
+        return QPixmap();
 
-    if(h == 0 || w == 0 || !invertible) {        // error, return null pixmap
-        QPixmap pm;
-        pm.data->bitmap = data->bitmap;
-        pm.data->alphapm = data->alphapm;
-        return pm;
-    }
-
-    sptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-    sbpl = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-    ws=width();
-    hs=height();
-
+    //create destination
     QPixmap pm(w, h, depth(), optimization());
     pm.fill(0x00FFFFFF);
-    dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&pm)));
-    dbpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&pm)));
-    bpp = 32;
-    dbytes = dbpl*h;
+    const uchar *sptr = (uchar *)data->pixels;
+    uchar *dptr = (uchar *)pm.data->pixels;
 
-    int        xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
+    const int bpp = 32;
+    const int xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
+
+    //do the transform
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
-                        dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs)){
+                        dptr, xbpl, (pm.data->nbytes / pm.data->h) - xbpl, h, sptr,
+                        (data->nbytes / data->h), ws, hs)){
         qWarning("Qt: QPixmap::transform: display not supported (bpp=%d)",bpp);
         QPixmap pm;
         return pm;
     }
 
+    //update the mask
     if(depth() == 1) {
         if(data->mask) {
             if(data->selfmask)               // pixmap == mask
@@ -582,8 +544,9 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     } else if(data->mask) {
         pm.setMask(data->mask->transform(matrix));
     }
-    if(data->alphapm)
-        pm.data->alphapm = new QPixmap(data->alphapm->transform(matrix));
+
+    //update the alpha
+    pm.data->macSetAlpha(data->alpha);
     return pm;
 }
 
@@ -598,14 +561,12 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
         d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
 
     data = new QPixmapData;
-    data->cgimage = 0;
-    data->hd = 0;
     memset(data, 0, sizeof(QPixmapData));
-    data->count=1;
-    data->uninit=true;
-    data->bitmap=bitmap;
-    data->ser_no=++qt_pixmap_serial;
-    data->optim=optim;
+    data->count = 1;
+    data->uninit = true;
+    data->bitmap = bitmap;
+    data->ser_no = ++qt_pixmap_serial;
+    data->optim = optim;
 
     int dd = 32; //magic number? 32 seems to be default?
     bool make_null = w == 0 || h == 0;                // create null pixmap
@@ -614,7 +575,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     else if(d < 0 || d == dd)                // def depth pixmap
         data->d = dd;
     if(make_null || w < 0 || h < 0 || data->d == 0) {
-        data->hd = 0;
         if(!make_null)
             qWarning("Qt: QPixmap: Invalid pixmap parameters");
         return;
@@ -625,31 +585,24 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->w=w;
     data->h=h;
 
-    Rect rect;
-    SetRect(&rect,0,0,w,h);
-    QDErr e = -1;
-    const int params = alignPix | stretchPix | newDepth;
-#if 1
-    if(optim == BestOptim) //try to get it into distant memory
-        e = NewGWorld(reinterpret_cast<GWorldPtr *>(&data->hd), 32, &rect,
-                      0, 0, useDistantHdwrMem | params);
-    if(e != noErr) //oh well I tried
-#endif
-        e = NewGWorld(reinterpret_cast<GWorldPtr *>(&data->hd), 32, &rect,
-                      0, 0, params);
+    //create the pixels
+    data->nbytes = (w*h*4) + (h*4); // ### testing for alignment --Sam
+    data->pixels = (uint*)malloc(data->nbytes);
 
-    /* error? */
-    if(e != noErr) {
-        data->w = data->h = 0;
-        data->hd = 0; //just to be sure
-        qWarning("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
-    } else {
-        bool locked = LockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-        Q_ASSERT(locked);
-        Q_UNUSED(locked);
-        data->w=w;
-        data->h=h;
-    }
+    //create the cg data
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGDataProviderRef provider = CGDataProviderCreateWithData(0, data->pixels, data->nbytes, qt_mac_cgimage_data_free);
+    data->cg_data = CGImageCreate(w, h, 8, 32, data->nbytes / h, colorspace,
+                                  kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
+    CGColorSpaceRelease(colorspace);
+    CGDataProviderRelease(provider);
+
+    //create the qd data
+    Rect rect;
+    SetRect(&rect, 0, 0, w, h);
+    if(NewGWorldFromPtr(&data->qd_data, k32ARGBPixelFormat, &rect, 0, 0, 0, (char*)data->pixels,
+                        data->nbytes / h) != noErr)
+        qWarning("Qt: internal: QPixmap::init error (%d %d %d %d)", rect.left, rect.top, rect.right, rect.bottom);
 }
 
 int QPixmap::defaultDepth()
@@ -691,7 +644,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         } else {
             windowPort = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(widget)));
         }
-        const BitMap *pixmapPort = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pm.handle()));
+        const BitMap *pixmapPort = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pm.macQDHandle()));
         Rect macSrcRect, macDstRect;
         SetRect(&macSrcRect, x, y, x + w, y + h);
         SetRect(&macDstRect, 0, 0, w, h);
@@ -700,14 +653,34 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     return pm;
 }
 
+Qt::HANDLE QPixmap::macQDHandle() const
+{
+    return data->qd_data;
+}
+
+Qt::HANDLE QPixmap::macQDAlphaHandle() const
+{
+    if(data->alpha) {
+        if(!data->qd_alpha) //lazily created
+            data->macQDUpdateAlpha();
+        return data->qd_alpha;
+    }
+    return 0;
+}
+
+Qt::HANDLE QPixmap::macCGHandle() const
+{
+    return data->cg_data;
+}
+
 bool QPixmap::hasAlpha() const
 {
-    return data->alphapm || data->mask;
+    return data->alpha || data->mask;
 }
 
 bool QPixmap::hasAlphaChannel() const
 {
-    return data->alphapm != 0;
+    return data->alpha;
 }
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
@@ -804,85 +777,6 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
         ret.setMask(bitmap);
     }
     return ret;
-}
-
-static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
-{
-    free(const_cast<void *>(data));
-}
-
-CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode, bool mask)
-{
-    if(px.isNull())
-        return 0;
-    if(CGImageRef cache_img = px.data->cgimage) {
-        CGImageRetain(cache_img); //for the caller
-        return cache_img;
-    }
-
-    const uint bpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&px)));
-    char *addr = GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&px)));
-    CGDataProviderRef provider = 0;
-    CGImageRef image = 0;
-    if(mask) {
-        Q_ASSERT(px.isQBitmap());
-        const int w = px.width(), h = px.height();
-        char *out_addr = (char*)malloc(w*h);
-        provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_cgimage_data_free);
-
-        const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
-        for(int yy = 0; yy < h; yy++) {
-            char *out_row = out_addr + (yy * px.width());
-            uint *in_row = reinterpret_cast<uint*>(reinterpret_cast<char *>(addr) + (yy * bpl));
-            for(int xx = 0; xx < w; xx++)
-                *(out_row+xx) = ((*(in_row+xx) & c0) == c0) ? 255 : 0;
-        }
-        image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
-    } else {
-        char *out_addr = (char*)malloc(px.height()*bpl);
-        memcpy(out_addr, addr, px.height()*bpl);
-        if(mode == Qt::ComposePixmap) {
-            if(const QPixmap *alpha = px.data->alphapm) {
-                char *drow;
-                int *aptr = reinterpret_cast<int*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(alpha)))),
-                     *arow;
-                unsigned short abpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(alpha)));
-                const int h = alpha->height(), w = alpha->width();
-                for(int yy=0; yy<h; yy++) {
-                    arow = reinterpret_cast<int*>(reinterpret_cast<char *>(aptr) + (yy * abpr));
-                    drow = out_addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++)
-                        *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
-                }
-            } else if(const QBitmap *mask = px.mask()) {
-                char *mptr = reinterpret_cast<char*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask))));
-                unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(mask)));
-                const int h = mask->height(), w = mask->width();
-                const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
-                for(int yy=0; yy<h; yy++) {
-                    uint *mrow = reinterpret_cast<uint*>(mptr + (yy * mbpr));
-                    char *drow = out_addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++)
-                        *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
-                }
-            } else {
-                mode = Qt::CopyPixmap; //there isn't really a "mask"
-            }
-        }
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        provider = CGDataProviderCreateWithData(0, out_addr, bpl*px.height(),
-                                                qt_mac_cgimage_data_free);
-        image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,
-                              mode == Qt::ComposePixmap ? kCGImageAlphaFirst : kCGImageAlphaNoneSkipFirst,
-                              provider, 0, 0, kCGRenderingIntentDefault);
-        CGColorSpaceRelease(colorspace);
-    }
-    CGDataProviderRelease(provider);
-    {
-        px.data->cgimage = image;
-        CGImageRetain(px.data->cgimage);
-    }
-    return image;
 }
 
 /*! \internal */

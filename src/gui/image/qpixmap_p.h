@@ -74,21 +74,15 @@ struct QPixmapData { // internal pixmap data
     Qt::HANDLE hd2; // sorted in the default display depth
     Qt::HANDLE x11ConvertToDefaultDepth();
 #elif defined(Q_WS_MAC)
-    CGImageRef cgimage;
-    QPixmap *alphapm;
-#elif defined(Q_WS_QWS)
-    int id;
-    QRgb * clut;
-    int numcols;
-    int rw;
-    int rh;
-    bool hasAlpha;
-#endif
-    QPixmap::Optimization optim;
-    QPaintEngine *paintEngine;
-#ifndef Q_WS_WIN
-    Qt::HANDLE hd;
-#else
+    bool alpha;
+    void macSetAlpha(bool b);
+    void macQDDisposeAlpha();
+    void macQDUpdateAlpha();
+    uint *pixels;
+    uint nbytes;
+    CGImageRef cg_data;
+    GWorldPtr qd_data, qd_alpha;
+#elif defined(Q_WS_WIN)
     struct MemDC {
         MemDC() {
             hdc = 0;
@@ -100,7 +94,20 @@ struct QPixmapData { // internal pixmap data
         HGDIOBJ bm;
     };
     MemDC mem_dc;
+#elif defined(Q_WS_QWS)
+    int id;
+    QRgb *clut;
+    int numcols;
+    int rw;
+    int rh;
+    bool hasAlpha;
 #endif
+    QPixmap::Optimization optim;
+    QPaintEngine *paintEngine;
+#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
+    Qt::HANDLE hd;
+#endif
+
 
     static int allocCell(const QPixmap *p);
     static void freeCell(QPixmapData *data, bool terminate = false);

@@ -48,9 +48,8 @@
  *****************************************************************************/
 extern QPoint posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
-extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode, bool); //qpixmap_mac.cpp
+extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
 extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
@@ -581,33 +580,18 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     f.red = f.green = f.blue = ~0;
     RGBBackColor(&f);
 
+    //the copy mode
+    short copymode = srcCopy;
+
     //get pixmap bits
-    const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pm));
-    const QPixmap *srcmask=0;
+    const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_mac_qd_context(&pm));
+    const BitMap *maskbits = 0;
     if(mode == Qt::ComposePixmap) {
-        if(pm.data->alphapm)
-            srcmask = pm.data->alphapm;
-        else
-            srcmask = pm.mask();
-    } else if(mode == Qt::CopyPixmap) {
-        if(d->pdev->devType() == QInternal::Pixmap) {
-            QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-            if(pm.mask() && !pm.isQBitmap()) {
-                QBitmap bm(dst->size(), true);
-                QPainter p(&bm);
-                if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                    p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-                p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
-                dst->setMask(bm);
-            }
-            if(pm.data->alphapm) {
-                if(!dst->data->alphapm) {
-                    dst->data->alphapm = new QPixmap(dst->size());
-                    dst->data->alphapm->fill(qRgba(255, 255, 255, 0));
-                }
-                QPainter p(dst->data->alphapm);
-                p.drawPixmap(r, *pm.data->alphapm, sr, Qt::CopyPixmap);
-            }
+        if(pm.macQDAlphaHandle()) {
+            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.macQDAlphaHandle());
+            copymode = ditherCopy;
+        } else if(pm.mask()) {
+            maskbits = GetPortBitMapForCopyBits((GWorldPtr)pm.mask()->macQDHandle());
         }
     }
 
@@ -620,14 +604,9 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
         break; }
     case QInternal::Printer:
     case QInternal::Pixmap: {
-        dstbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(d->pdev));
+        dstbitmap = GetPortBitMapForCopyBits(qt_mac_qd_context(d->pdev));
         break; }
     }
-
-    //get copy mode
-    short copymode = srcCopy;
-    if(srcmask && srcmask->depth() > 1)
-        copymode = ditherCopy;
 
     //do the blt
     Rect srcr;
@@ -637,13 +616,12 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     SetRect(&dstr, d->offx + qRound(r.x()), d->offy + qRound(r.y()),
             d->offx + qRound(r.x() + r.width()),
             d->offy + qRound(r.y() + r.height()));
-    if(srcmask) {
-        const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
+    if(maskbits) {
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
             QPixmap tmppix(qRound(r.width()), qRound(r.height()), pm.depth());
             Rect pixr;
             SetRect(&pixr, 0, 0, qRound(r.width()), qRound(r.height()));
-            const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
+            const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.macQDHandle());
             {
                 QMacSavedPortInfo pi(&tmppix);
                 EraseRect(&pixr);
@@ -656,6 +634,21 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
         }
     } else {
         CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
+    }
+
+    //duplicate
+    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
+        QPixmap *dst = static_cast<QPixmap*>(d->pdev);
+        if(pm.mask() && !pm.isQBitmap()) {
+            QBitmap bm(dst->size(), true);
+            QPainter p(&bm);
+            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+            dst->setMask(bm);
+        }
+        if(pm.data->alpha)
+            dst->data->macSetAlpha(pm.data->alpha);
     }
 }
 
@@ -810,7 +803,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
             d->clip.paintable = d->clip.pdev;
         }
 
-        CGrafPtr ptr = qt_macQDHandle(d->pdev);
+        CGrafPtr ptr = qt_mac_qd_context(d->pdev);
         if(RgnHandle rgn = d->clip.paintable.handle()) {
             QDAddRegionToDirtyRegion(ptr, rgn);
         } else {
@@ -866,13 +859,13 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap,
-                                          pat->data.pixmap.isQBitmap());
+            image = (CGImageRef)pat->data.pixmap.macCGHandle();
+            CGImageRetain(image);
         }
         if(pat->opaque && CGImageIsMask(image)) {
             QPixmap tmp(w, h);
             CGRect rect = CGRectMake(0, 0, w, h);
-            CGContextRef ctx = qt_macCreateCGHandle(&tmp);
+            CGContextRef ctx = qt_mac_cg_context(&tmp);
             CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->background.red()),
                                      qt_mac_convert_color_to_cg(pat->background.green()),
                                      qt_mac_convert_color_to_cg(pat->background.blue()),
@@ -883,7 +876,8 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
                                      qt_mac_convert_color_to_cg(pat->foreground.blue()),
                                      qt_mac_convert_color_to_cg(pat->foreground.alpha()));
             HIViewDrawCGImage(ctx, &rect, image);
-            pat->image = qt_mac_create_cgimage(tmp, Qt::CopyPixmap, false);
+            pat->image = (CGImageRef)tmp.macCGHandle();
+            CGImageRetain(pat->image);
             CGImageRelease(image);
         } else {
             pat->image = image;
@@ -1064,7 +1058,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     //initialization
     d->offx = d->offy = 0; // (quickdraw compat!!)
     d->pdev = pdev;
-    d->hd = qt_macCreateCGHandle(pdev);
+    d->hd = qt_mac_cg_context(pdev);
     if(d->hd) {
         d->orig_xform = CGContextGetCTM(d->hd);
         if(d->shading) {
@@ -1510,35 +1504,40 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
-    if(mode == Qt::CopyPixmap) {
-        if(d->pdev->devType() == QInternal::Pixmap) {
-            QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-            if(pm.mask() && !pm.isQBitmap()) {
-                QBitmap bm(dst->size(), true);
-                QPainter p(&bm);
-                if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                    p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-                p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
-                dst->setMask(bm);
-            }
-            if(pm.data->alphapm) {
-                if(!dst->data->alphapm) {
-                    dst->data->alphapm = new QPixmap(dst->size());
-                    dst->data->alphapm->fill(qRgba(255, 255, 255, 0));
-                }
-                QPainter p(dst->data->alphapm);
-                p.drawPixmap(r, *pm.data->alphapm, sr, Qt::CopyPixmap);
-            }
-        }
-    }
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
-    CGImageRef image = qt_mac_create_cgimage(pm, mode, asMask);
+    CGImageRef image = (CGImageRef)pm.macCGHandle();
+    if(d->pdev->devType() == QInternal::Pixmap) {
+        qDebug("PM: %d %d %d %d", qRed(*(pm.data->pixels)), qGreen(*(pm.data->pixels)),
+               qBlue(*(pm.data->pixels)), qAlpha(*(pm.data->pixels)));;
+        QPixmap *dp = static_cast<QPixmap*>(d->pdev);
+        qDebug("BEFORE: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
+               qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
+    }
     HIViewDrawCGImage(d->hd, &rect, image); //top left
-    CGImageRelease(image);
+    if(d->pdev->devType() == QInternal::Pixmap) {
+        QPixmap *dp = static_cast<QPixmap*>(d->pdev);
+        qDebug("AFTER: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
+               qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
+    }
 
     //restore
     CGContextRestoreGState(d->hd);
+
+    //duplicate
+    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
+        QPixmap *dst = static_cast<QPixmap*>(d->pdev);
+        if(pm.mask() && !pm.isQBitmap()) {
+            QBitmap bm(dst->size(), true);
+            QPainter p(&bm);
+            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+            dst->setMask(bm);
+        }
+        if(pm.data->alpha)
+            dst->data->macSetAlpha(pm.data->alpha);
+    }
 }
 
 void
@@ -1574,14 +1573,17 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
+    CGAffineTransform trans = CGContextGetCTM(d->hd);
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
-                                       CGContextGetCTM(d->hd), width, height,
+                                       trans, width, height,
                                        kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);
     CGContextSetFillColorSpace(d->hd, cs);
     float component = 1.0; //just one
     CGContextSetFillPattern(d->hd, pat, &component);
-    CGContextSetPatternPhase(d->hd, CGSizeMake(p.x()-r.x(), p.y()-r.y()));
+    //80x30 works
+    CGSize phase = CGSizeApplyAffineTransform(CGSizeMake(-(p.x()-r.x()), -(p.y()-r.y())), trans);
+    CGContextSetPatternPhase(d->hd, phase);
     //fill the rectangle
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextFillRect(d->hd, mac_rect);

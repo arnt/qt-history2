@@ -578,7 +578,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             pixRegion = QRegion(*pix.mask());
         else
             pixRegion = QRegion(0, 0, pix.width(), pix.height());
-        SetDragImage(dragRef, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
+        SetDragImage(dragRef, GetGWorldPixMap((GWorldPtr)pix.macQDHandle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
     SetDragItemBounds(dragRef, (ItemReference)1 , &boundsRect);

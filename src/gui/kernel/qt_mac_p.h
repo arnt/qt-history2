@@ -109,8 +109,8 @@ public:
     QMacCGContext(QPainter *p); //qpaintengine_mac.cpp
     inline QMacCGContext() { context = 0; }
     inline QMacCGContext(const QPaintDevice *pdev) {
-        extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *);
-        context = qt_macCreateCGHandle(pdev);
+        extern CGContextRef qt_mac_cg_context(const QPaintDevice *);
+        context = qt_mac_cg_context(pdev);
     }
     inline QMacCGContext(CGContextRef cg, bool takeOwnership=false) {
         context = cg;
@@ -118,9 +118,9 @@ public:
             CGContextRetain(context);
     }
     inline QMacCGContext(const QMacCGContext &copy) : context(0) { *this = copy; }
-    inline ~QMacCGContext() { 
+    inline ~QMacCGContext() {
         if(context)
-            CGContextRelease(context); 
+            CGContextRelease(context);
     }
     inline bool isNull() const { return context; }
     inline operator CGContextRef() { return context; }
@@ -225,11 +225,11 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     if(!pd)
         return false;
     bool ret = true;
-    extern GrafPtr qt_macQDHandle(const QPaintDevice *); // qpaintdevice_mac.cpp
+    extern GrafPtr qt_mac_qd_context(const QPaintDevice *); // qpaintdevice_mac.cpp
     if(pd->devType() == QInternal::Widget)
         SetPortWindowPort(qt_mac_window_for(static_cast<QWidget*>(pd)));
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
-        SetGWorld((GrafPtr)qt_macQDHandle(pd), 0); //set the gworld
+        SetGWorld((GrafPtr)qt_mac_qd_context(pd), 0); //set the gworld
     return ret;
 }
 
