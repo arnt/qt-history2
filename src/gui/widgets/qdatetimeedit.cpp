@@ -522,13 +522,11 @@ QDateTimeEdit::Sections QDateTimeEdit::display() const
 
 QDateTimeEdit::Section QDateTimeEdit::currentSection() const
 {
-    qDebug("!1!");
     return d->publicSection(d->currentsection);
 }
 
 void QDateTimeEdit::setCurrentSection(Section section)
 {
-    qDebug("!2!");
     const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
     if (s != QDateTimeEditPrivate::NoSection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
@@ -705,7 +703,6 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Left:
     case Qt::Key_Right:
-        qDebug("!3!");
         if (!(e->modifiers() & Qt::ControlModifier)) {
             const int selsize = d->edit->selectedText().size();
             if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
@@ -716,7 +713,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab: {
         const QDateTimeEditPrivate::SectionNode newSection =
             d->nextPrevSection(d->currentsection,
-                               (e->key() == Qt::Key_Right || 
+                               (e->key() == Qt::Key_Right ||
                                 (e->key() == Qt::Key_Tab && !(e->modifiers() & Qt::ShiftModifier))));
         if (select) {
             d->setSelected(newSection.section);
@@ -903,7 +900,6 @@ QCoreVariant QDateTimeEditPrivate::mapTextToValue(QString *text, QValidator::Sta
 
 void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-qDebug("!4!");
     if (ignorecursorpositionchanged)
         return;
     ignorecursorpositionchanged = true;
