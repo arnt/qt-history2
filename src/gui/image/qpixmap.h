@@ -179,7 +179,13 @@ protected:
     };
 #endif
 
-    struct QPixmapData : public QSharedTemporary {        // internal pixmap data
+    struct QPixmapData {        // internal pixmap data
+        // ### move to QAtomic/implicit sharing
+        QPixmapData() : count(1) { }
+        void ref()                { ++count; }
+        bool deref()        { return !--count; }
+        uint count;
+
         QCOORD        w, h;
         short        d;
         uint        uninit         : 1;

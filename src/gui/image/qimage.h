@@ -28,16 +28,6 @@ class QIODevice;
 class QStringList;
 template <class T> class QList;
 
-// Remove this and perhaps switch to atomic refcounting when changing this.
-struct QSharedTemporary
-{
-    QSharedTemporary() : count(1) { }
-    void ref()                { ++count; }
-    bool deref()        { return !--count; }
-    uint count;
-};
-
-
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
 class Q_GUI_EXPORT QImageTextKeyLang {
@@ -90,9 +80,7 @@ public:
     QImage        copy(int x, int y, int w, int h, int conversion_flags=0) const;
     QImage        copy(const QRect&)        const;
 #ifndef QT_NO_MIME
-#ifndef QT_BUILD_KERNEL_LIB
     static QImage fromMimeSource(const QString& abs_name);
-#endif
 #endif
     bool        isNull()        const        { return data->bits == 0; }
 
@@ -168,9 +156,7 @@ public:
 #endif
     QImage        swapRGB() const;
 
-#ifndef QT_BUILD_KERNEL_LIB
     static Endian systemBitOrder();
-#endif
     static inline Endian systemByteOrder()
         { return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }
 
@@ -215,7 +201,12 @@ private:
     void        reinit();
     void        freeBits();
 
-    struct QImageData : public QSharedTemporary {        // internal image data
+    struct QImageData {        // internal image data
+        // ### move to QAtomic/implicit sharing
+        QImageData() : count(1) { }
+        void ref()                { ++count; }
+        bool deref()        { return !--count; }
+        uint count;
         int        w;                                // image width
         int        h;                                // image height
         int        d;                                // image depth
@@ -411,7 +402,6 @@ inline QPoint QImage::offset() const
     return data->offset;
 }
 
-#ifndef QT_BUILD_KERNEL_LIB
 
 #ifndef QT_NO_MIME
 Q_GUI_EXPORT QImage qFromMimeSource_helper(const QString &abs_name);
@@ -431,8 +421,5 @@ inline QImage::Endian QImage::systemBitOrder()
     return BigEndian;
 #endif
 }
-
-#endif // QT_GUI_LIB
-
 
 #endif // QIMAGE_H
