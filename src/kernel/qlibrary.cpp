@@ -312,19 +312,19 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 }
 
 /*!
-  Deletes the QLibrary object.
+  Deletes the QLibrary object. 
+  The library will be unloaded if the policy is not Manual.
 
-  When the policy is not Manual, the library will be unloaded.
-
-  \sa setPolicy(), unload()
+  \sa unload(), setPolicy()
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol != Manual ) {
-	if (!unload() ) {
-	    entry->release();
-	    entry = 0;
-	}
+    if ( libPol == Manual )
+	return;
+
+    if (!unload() ) {
+	entry->release();
+	entry = 0;
     }
 }
 
@@ -333,11 +333,11 @@ QLibrary::~QLibrary()
   Returns a pointer to the QUnknownInterface provided by the component if the 
   library was loaded successfully, otherwise returns null.
   If the component implements the QLibraryInterface, the init() function will
-  be called and the loading canceled if this function returns FALSE. The system
-  will call the canUnload() function of this interface and try to unload the
-  library in regular intervalls.
+  be called and the loading canceled if this function returns FALSE. 
+  If the policy is not Manual, the system will call the canUnload() function of 
+  this interface and try to unload the library in regular intervalls.
 
-  This function gets called automatically if the policy is not Manual.
+  This function gets called automatically by queryInterface if the policy is not Manual.
   Otherwise you have to make sure that the library has been loaded before usage.
 
   \sa setPolicy(), unload()
@@ -376,7 +376,9 @@ QUnknownInterface* QLibrary::load()
 		    unload();
 		    return 0;
 		}
-		if ( !unloadTimer && libPol != Manual ) {
+
+		delete unloadTimer;
+		if ( libPol != Manual ) {
 		    unloadTimer = new QTimer( this );
 		    connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
 		    unloadTimer->start( 5000, FALSE );
@@ -411,17 +413,17 @@ bool QLibrary::isLoaded() const
 /*!
   Releases the component and unloads the library when successful.
   Returns TRUE if the library could be unloaded, otherwise FALSE.
-  If the component implements the QLibraryInterface, the canUnload()
-  function will be called and the unloading cancelled if this call
-  returns FALSE.
+  If the component implements the QLibraryInterface, the cleanup()
+  function of this interface will be called. The unloading will be
+  cancelled if the subsequent call to canUnload() returns FALSE.
 
   This function gets called automatically in the destructor if 
   the policy is not Manual.
 
   \warning
-  If \a force is set to TRUE, the library gets unloaded
-  at any cost, which is in most cases a segmentation fault,
-  so you should know what you're doing!
+  If \a force is set to TRUE, the library gets unloaded at any cost, 
+  which is in most cases a segmentation fault, so you should know what 
+  you're doing!
 
   \sa load
 */
@@ -541,7 +543,7 @@ QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 */
 void QLibrary::tryUnload()
 {
-    if ( !entry )
+    if ( !entry || libPol == Manual )
 	return;
     QLibraryInterface *lIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
     if ( !lIface )
