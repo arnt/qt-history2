@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#126 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#126 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1236,10 +1236,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	    fc = QApplication::winStyleHighlightColor();
 	else
 	    fc = g.text();
-	//	if ( hasFocus() )
-	    p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
-	    //	else
-	    //	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
+	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
 	p->setPen( style() == WindowsStyle ? white : g.base() );
 	p->setBackgroundColor( fc );
     } else {
@@ -1496,19 +1493,20 @@ void QListBox::resizeEvent( QResizeEvent *e )
 void QListBox::timerEvent( QTimerEvent * )
 {
     if ( scrollDown ) {
-	if ( topItem() != maxRowOffset() ) {
-	    int y = lastRowVisible()+1;
-	    bool a = autoUpdate();
-	    bool u = FALSE;
-	    setAutoUpdate( FALSE );
-	    while ( y < (int)count() &&
-		    y >= lastRowVisible() ) {
-		setTopItem( topItem() + 1 );
-		u = TRUE;
+	if ( currentItem() + 1 < (int)count() ) {
+	    int y = QMAX(currentItem(),lastRowVisible())+1;
+	    if ( y >= (int)count() )
+		y = count() - 1;
+	    int h = viewHeight();
+	    int i = y;
+	    while( i > 0 && h > 0 ) {
+		h -= cellHeight( i );
+		if ( h >= 0 )
+		    i--;
 	    }
-	    setAutoUpdate( a );
-	    if ( u )
-		repaint();
+	    if ( h <= 0 && i < y ) // make sure ALL of y is visible
+		i++;
+	    setTopItem( i );
 	    setCurrentItem( y );
 	}
     } else {
