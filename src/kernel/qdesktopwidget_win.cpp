@@ -286,7 +286,7 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
     return screenGeometry(screen);
-#warning "Implement me so the taskbar is excluded.."
+//#warning "Implement me so the taskbar is excluded.."
 }
 
 /*!
