@@ -23,10 +23,7 @@
 #include "qaxfactory.h"
 
 #include <qt_windows.h>
-
-#ifdef Q_CC_GNU
 #include <olectl.h>
-#endif
 
 #define Q_REQUIRED_RPCNDR_H_VERSION 475
 
@@ -68,20 +65,29 @@ static CRITICAL_SECTION qAxModuleSection;
 
 static int initCount = 0;
 
-void qAxInit()
+QString qAxInit()
 {
     if (initCount++)
-        return;
+        return QString();
     
     InitializeCriticalSection(&qAxModuleSection);
     
     QString libFile(qAxModuleFilename);
     libFile = libFile.toLower();
-    if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) != S_OK) {
-        int lastDot = libFile.lastIndexOf('.');
-        libFile = libFile.left(lastDot) + ".tlb";
-        LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary);
-    }
+    if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
+        return libFile;
+
+    int lastDot = libFile.lastIndexOf('.');
+    libFile = libFile.left(lastDot) + ".tlb";
+    if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
+        return libFile;
+
+    lastDot = libFile.lastIndexOf('.');
+    libFile = libFile.left(lastDot) + ".olb";
+    if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
+        return libFile;
+
+    return QString();
 }
 
 void qAxCleanup()
@@ -145,18 +151,26 @@ HRESULT UpdateRegistry(BOOL bRegister)
     const QString appId = qAxFactory()->appID().toString().toUpper();
     const QString libId = qAxFactory()->typeLibID().toString().toUpper();
     
-    qAxInit();
+    QString libFile = qAxInit();
     QString typeLibVersion;
-    if (qAxTypeLibrary) {
-        TLIBATTR *libAttr = 0;
+
+    TLIBATTR *libAttr = 0;
+    if (qAxTypeLibrary)
         qAxTypeLibrary->GetLibAttr(&libAttr);
-        if (libAttr) {
-            DWORD major = libAttr->wMajorVerNum;
-            DWORD minor = libAttr->wMinorVerNum;
-            typeLibVersion = QString::number(major) + "." + QString::number(minor);
-            qAxTypeLibrary->ReleaseTLibAttr(libAttr);
-        }
-    }
+    if (!libAttr)
+        return SELFREG_E_TYPELIB;
+
+    DWORD major = libAttr->wMajorVerNum;
+    DWORD minor = libAttr->wMinorVerNum;
+    typeLibVersion = QString::number(major) + "." + QString::number(minor);
+
+    if (bRegister)
+        RegisterTypeLib(qAxTypeLibrary, (TCHAR*)libFile.utf16(), 0);
+    else
+        UnRegisterTypeLib(libAttr->guid, libAttr->wMajorVerNum, libAttr->wMinorVerNum, libAttr->lcid, libAttr->syskind);
+
+    qAxTypeLibrary->ReleaseTLibAttr(libAttr);
+
     if (typeLibVersion.isEmpty())
         typeLibVersion = "1.0";
     
@@ -176,22 +190,15 @@ HRESULT UpdateRegistry(BOOL bRegister)
             settings.writeEntry("/AppID/" + appId + "/.", module);
             settings.writeEntry("/AppID/" + module + ".EXE/AppID", appId);
         }
-        
-        settings.writeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/0/win32/.", file);
-        settings.writeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/FLAGS/.", "0");
-        settings.writeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/HELPDIR/.", path);
-        settings.writeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/.", module + " " + typeLibVersion + " Type Library");
-        
+
         QStringList keys = qAxFactory()->featureList();
         for (QStringList::Iterator key = keys.begin(); key != keys.end(); ++key) {
             const QString className = *key;
             QObject *object = qAxFactory()->createObject(className);
-            const QMetaObject *mo = object ? object->metaObject() : qAxFactory()->metaObject(className);
-            
+
+            const QMetaObject *mo = qAxFactory()->metaObject(className);
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
-            const QString eventId = qAxFactory()->eventsID(className).toString().toUpper();
-            const QString ifaceId = qAxFactory()->interfaceID(className).toString().toUpper();
-            
+
             if (object) { // don't register subobject classes
                 QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
                 if (classVersion.isNull())
@@ -240,19 +247,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 
                 delete object;
             }
-            
-            settings.writeEntry("/Interface/" + ifaceId + "/.", "I" + className);
-            settings.writeEntry("/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}");
-            settings.writeEntry("/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}");
-            settings.writeEntry("/Interface/" + ifaceId + "/TypeLib/.", libId);
-            settings.writeEntry("/Interface/" + ifaceId + "/TypeLib/Version", typeLibVersion);
-            
-            settings.writeEntry("/Interface/" + eventId + "/.", "I" + className + "Events");
-            settings.writeEntry("/Interface/" + eventId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}");
-            settings.writeEntry("/Interface/" + eventId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}");
-            settings.writeEntry("/Interface/" + eventId + "/TypeLib/.", libId);
-            settings.writeEntry("/Interface/" + eventId + "/TypeLib/Version", typeLibVersion);
-            
+
             qAxFactory()->registerClass(className, &settings);
         }
     } else {
@@ -260,10 +255,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
         for (QStringList::Iterator key = keys.begin(); key != keys.end(); ++key) {
             const QString className = *key;
             const QMetaObject *mo = qAxFactory()->metaObject(className);
-            
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
-            const QString eventId = qAxFactory()->eventsID(className).toString().toUpper();
-            const QString ifaceId = qAxFactory()->interfaceID(className).toString().toUpper();
             
             QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
             if (classVersion.isNull())
@@ -294,27 +286,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
             settings.removeEntry("/CLSID/" + classId + "/VersionIndependentProgID/.");
             settings.removeEntry("/CLSID/" + classId + "/ProgID/.");
             settings.removeEntry("/CLSID/" + classId + "/.");
-            
-            settings.removeEntry("/Interface/" + ifaceId + "/ProxyStubClsid/.");
-            settings.removeEntry("/Interface/" + ifaceId + "/ProxyStubClsid32/.");
-            settings.removeEntry("/Interface/" + ifaceId + "/TypeLib/Version");
-            settings.removeEntry("/Interface/" + ifaceId + "/TypeLib/.");
-            settings.removeEntry("/Interface/" + ifaceId + "/.");
-            
-            settings.removeEntry("/Interface/" + eventId + "/ProxyStubClsid/.");
-            settings.removeEntry("/Interface/" + eventId + "/ProxyStubClsid32/.");
-            settings.removeEntry("/Interface/" + eventId + "/TypeLib/Version");
-            settings.removeEntry("/Interface/" + eventId + "/TypeLib/.");
-            settings.removeEntry("/Interface/" + eventId + "/.");
         }
-        settings.removeEntry("/AppID/" + module + ".EXE/AppID");
-        settings.removeEntry("/AppID/" + appId + "/.");
-        
-        settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/0/win32/.");
-        settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/0/.");
-        settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/FLAGS/.");
-        settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/HELPDIR/.");
-        settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/.");
     }
     
     if (delete_qApp)

@@ -25,7 +25,7 @@ extern char qAxModuleFilename[MAX_PATH];
 extern bool qAxIsServer;
 extern ITypeLib *qAxTypeLibrary;
 extern unsigned long qAxLockCount();
-extern void qAxInit();
+extern QString qAxInit();
 extern void qAxCleanup();
 extern HANDLE qAxInstance;
 

@@ -36,7 +36,7 @@ extern bool qAxActivity;
 extern HANDLE qAxInstance;
 extern bool qAxIsServer;
 extern char qAxModuleFilename[MAX_PATH];
-extern void qAxInit();
+extern QString qAxInit();
 extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
 extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
