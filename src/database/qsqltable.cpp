@@ -555,7 +555,7 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
     d->resetMode( QSqlPrivate::Rowset );
     QSqlRowset* rset = d->rowset();
     (*rset) = rowset;
-    rset->select( rowset.sort() );
+    rset->select( rowset.sort(), rowset.filter() );
     if ( autoPopulate )
 	addColumns( (*rset) );
     setSize( rset );
@@ -585,7 +585,7 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
     d->resetMode( QSqlPrivate::View );
     QSqlView* vw = d->view();
     (*vw) = view;
-    vw->select( view.sort() );
+    vw->select( view.filter(), view.sort() );
     if ( autoPopulate )
 	addColumns( (*vw) );
     setSize( vw );
@@ -665,7 +665,7 @@ void QSqlTable::takeItem ( QTableItem * )
   table.  Note that QSqlTable takes ownership of this pointer, and
   will delete it when it is no longer needed or when
   setEditorFactory() is called again.
-  
+
 */
 
 void QSqlTable::setEditorFactory( QSqlEditorFactory * f )
