@@ -972,4 +972,11 @@ void QSpinBox::setLineStep( int i )
     setSteps( i, pageStep() );
 }
 
+/*! Selects all the text in the editor of the spinbox */
+
+void QSpinBox::selectAll()
+{
+    editor()->selectAll();
+}
+
 #endif
