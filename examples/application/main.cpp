@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/main.cpp#2 $
+** $Id: //depot/qt/main/examples/application/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,5 +22,7 @@ int main( int argc, char ** argv )
     mw->show();
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
-    return a.exec();
+    int result = a.exec();
+    delete mw;
+    return result;
 }

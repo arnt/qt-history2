@@ -30,7 +30,7 @@ SUBDIRS =	dirview \
 		tooltip \
 		wizard \
 		i18n \
-		linedits \
+		lineedits \
 		listviews \
 		buttons_groups \
 		rangecontrols \
@@ -120,7 +120,7 @@ targets:
 	cd i18n
 	$(MAKE)
 	cd ..
-	cd linedits
+	cd lineedits
 	$(MAKE)
 	cd ..
 	cd listviews
@@ -227,8 +227,8 @@ galore:
 	cd i18n
 	i18n.exe
 	cd ..
-	cd linedits
-	linedits.exe
+	cd lineedits
+	lineedits.exe
 	cd ..
 	cd listviews
 	listviews.exe
@@ -334,8 +334,8 @@ tmake:
 	cd i18n
 	$(TMAKE) i18n.pro -o Makefile
 	cd ..
-	cd linedits
-	$(TMAKE) linedits.pro -o Makefile
+	cd lineedits
+	$(TMAKE) lineedits.pro -o Makefile
 	cd ..
 	cd listviews
 	$(TMAKE) listviews.pro -o Makefile
@@ -441,7 +441,7 @@ clean depend:
 	cd i18n
 	$(MAKE) $*
 	cd ..
-	cd linedits
+	cd lineedits
 	$(MAKE) $*
 	cd ..
 	cd listviews

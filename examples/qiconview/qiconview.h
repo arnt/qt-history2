@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.h#1 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -20,7 +20,7 @@
 #include <qfont.h>
 #include <qlist.h>
 #include <qdragobject.h>
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qstringlist.h>
 
 class QtIconView;

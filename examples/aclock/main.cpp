@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/aclock/main.cpp#2 $
+** $Id: //depot/qt/main/examples/aclock/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,5 +21,7 @@ int main( int argc, char **argv )
     clock->resize( 100, 100 );
     a.setMainWidget( clock );
     clock->show();
-    return a.exec();
+    int result = a.exec();
+    delete clock;
+    return result;
 }

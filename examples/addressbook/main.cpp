@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/addressbook/main.cpp#1 $
+** $Id: //depot/qt/main/examples/addressbook/main.cpp#2 $
 **
 ** Copyright ( C ) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,5 +23,7 @@ int main( int argc, char ** argv )
     mw->show();
 
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-    return a.exec();
+    int result = a.exec();
+    delete mw;
+    return result;
 }
