@@ -2472,45 +2472,61 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
     if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
-
+    
+    // Compress mouse move events
     if ( msg.message == WM_MOUSEMOVE ) {
-	// Process only the most current mouse move event. Otherwise you
-	// end up queueing events in certain situations. Very bad for graphics
-	// applications. Just grabbing the million poly model and moving the
-	// mouse an inch queues redraws for 30+ seconds.
-	//
-	// (Patch submitted by: Steve Williams)
-
-	bool keepLooking = true;
-	bool messageFound = false;
-	MSG mouseMsg1;
-	MSG mouseMsg2;
-
-	while ( winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST,
-			       PM_NOREMOVE) && keepLooking )
-	{
-	    // Check to make sure that the message is a mouse move message
-	    if ( mouseMsg1.message == WM_MOUSEMOVE ) {
-		 mouseMsg2 = mouseMsg1;
-		 messageFound = true;
-
+	MSG mouseMsg;
+	while ( winPeekMessage( &mouseMsg, msg.hwnd, WM_MOUSEFIRST,
+		WM_MOUSELAST, PM_NOREMOVE ) ) {
+	    if ( mouseMsg.message == WM_MOUSEMOVE ) {
+#define PEEKMESSAGE_IS_BROKEN 1
+#ifdef PEEKMESSAGE_IS_BROKEN
+		// Since the Windows PeekMessage() function doesn't
+		// correctly return the wParam for WM_MOUSEMOVE events
+		// if there is a key release event in the queue
+		// _before_ the mouse event, we have to also consider
+		// key release events (kls 2003-05-13):
+		MSG keyMsg;
+		bool done = FALSE;
+		while ( winPeekMessage( &keyMsg, 0, WM_KEYFIRST, WM_KEYLAST,
+			PM_NOREMOVE ) ) {
+		    if ( keyMsg.time < mouseMsg.time ) {
+			if ( (keyMsg.lParam & 0xC0000000) == 0x40000000 ) {
+			    winPeekMessage( &keyMsg, 0, keyMsg.message,
+					    keyMsg.message, PM_REMOVE );
+			} else {
+			    done = TRUE;
+			    break;
+			}
+		    } else {
+			break; // no key event before the WM_MOUSEMOVE event
+		    }
+		}
+		if ( done )
+		    break;
+#else
+		// Actually the following 'if' should work instead of
+		// the above key event checking, but apparently
+		// PeekMessage() is broken :-(
+		if ( mouseMsg.wParam != msg.wParam )
+		    break; // leave the message in the queue because
+			   // the key state has changed
+#endif
+		MSG *msgPtr = (MSG *)(&msg);
+		// Update the passed in MSG structure with the
+		// most recent one.
+		msgPtr->lParam = mouseMsg.lParam;
+		msgPtr->wParam = mouseMsg.wParam;
+		msgPtr->pt = mouseMsg.pt;
 		// Remove the mouse move message
-		winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEMOVE, WM_MOUSEMOVE,
-			       PM_REMOVE );
-	    } else
-		keepLooking = false;
-	}
-
-	if ( messageFound ) {
-	    MSG *msgPtr = (MSG *)(&msg);
-
-	    // Update the passed in MSG structure with the
-	    // most current one.
-	    msgPtr->lParam = mouseMsg2.lParam;
-	    msgPtr->wParam = mouseMsg2.wParam;
-	    msgPtr->pt = mouseMsg2.pt;
+		winPeekMessage( &mouseMsg, msg.hwnd, WM_MOUSEMOVE,
+				WM_MOUSEMOVE, PM_REMOVE );
+	    } else {
+		break; // there was no more WM_MOUSEMOVE event
+	    }
 	}
     }
+
 
     for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
 	;
