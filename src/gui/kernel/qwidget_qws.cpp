@@ -523,7 +523,7 @@ void QWidget::setWindowTitle(const QString &caption)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::setWindowIcon_sys(const QPixmap &unscaledPixmap)
+void QWidgetPrivate::setWindowIcon_sys(const QPixmap &unscaledPixmap)
 {
      QTLWExtra* x = d->topData();
      delete x->icon;
