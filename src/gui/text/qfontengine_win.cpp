@@ -562,22 +562,22 @@ const char *QFontEngineWin::name() const
 bool QFontEngineWin::canRender(const QChar *string,  int len)
 {
     if (symbol) {
-        while(len--) {
-            if (getGlyphIndex(cmap, string->unicode()) == 0) {
-                if(string->unicode() < 0x100) {
-                    if(getGlyphIndex(cmap, string->unicode()+0xf000) == 0)
+        for (int i = 0; i < len; ++i) {
+            unsigned int uc = getChar(string, i, len);
+            if (getGlyphIndex(cmap, uc) == 0) {
+                if (uc < 0x100) {
+                    if (getGlyphIndex(cmap, uc + 0xf000) == 0)
                         return false;
                 } else {
                     return false;
                 }
             }
-            string++;
         }
     } else if (ttf) {
-        while(len--) {
-            if (getGlyphIndex(cmap, string->unicode()) == 0)
+        for (int i = 0; i < len; ++i) {
+            unsigned int uc = getChar(string, i, len);
+            if (getGlyphIndex(cmap, uc) == 0) 
                 return false;
-            string++;
         }
     } else {
         QT_WA({
