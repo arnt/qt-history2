@@ -480,7 +480,6 @@ void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 
 void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
-    //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     int x = int(r.x());
     int y = int(r.y());
@@ -502,7 +501,7 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
         int ls=mymask->bytesPerLine();
         d->gfx->setAlphaType(QGfx::LittleEndianMask);
         d->gfx->setAlphaSource(thebits,ls);
-    } else if (mode == Qt::CopyPixmap) {
+    } else if (mode == Qt::CopyPixmapNoMask || mode == Qt::CopyPixmap) {
         d->gfx->setAlphaType(QGfx::IgnoreAlpha);
     } else if (pixmap.data->hasAlpha){
         d->gfx->setAlphaType(QGfx::InlineAlpha);
