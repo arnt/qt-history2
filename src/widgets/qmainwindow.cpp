@@ -184,6 +184,7 @@ public:
 	QBitmap b( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutBits, TRUE );
 	QBitmap m( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutMask, TRUE );
 	forbiddenCursor = QCursor( b, m );
+	oldCursor = ArrowCursor;
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -257,7 +258,7 @@ public:
 
     QCursor oldCursor;
     QCursor forbiddenCursor;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -2591,6 +2592,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// finally really move the toolbar, if the mouse was moved...
 	if ( d->movedEnough ) {
+	    if ( t->cursor().shape() == d->forbiddenCursor.shape() )
+		t->setCursor( d->oldCursor );
 	    if ( !d->opaque ) {
 		ToolBarDock dock = d->oldDock;
 		if ( dock != Unmanaged && isDockEnabled( dock ) &&
