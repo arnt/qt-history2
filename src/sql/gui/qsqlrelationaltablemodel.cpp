@@ -175,9 +175,9 @@ bool QSqlRelationalTableModel::submitChanges()
     return false;
 }
 
-void QSqlRelationalTableModel::cancelChanges()
+void QSqlRelationalTableModel::revertAll()
 {
-    QSqlTableModel::cancelChanges();
+    QSqlTableModel::revertAll();
     d->clearChanges();
 }
 

@@ -55,7 +55,7 @@ public:
 
 public slots:
     bool submitChanges();
-    void cancelChanges();
+    void revertAll();
 
 protected:
     QString selectStatement() const;

@@ -40,6 +40,7 @@ public:
 
     bool exec(const QString &stmt, bool prepStatement,
               const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
+    void revertCachedRow(int row);
     QSqlDatabase db;
     int editIndex;
     int insertIndex;
@@ -99,6 +100,34 @@ void QSqlTableModelPrivate::clear()
 void QSqlTableModelPrivate::clearEditBuffer()
 {
     editBuffer = d->rec;
+}
+
+void QSqlTableModelPrivate::revertCachedRow(int row)
+{
+    ModifiedRow r = cache.value(row);
+    switch (r.op) {
+    case QSql::None:
+        Q_ASSERT_X(false, "QSqlTableModelPrivate::revertCachedRow()", "Invalid entry in cache map");
+        return;
+    case QSql::Update:
+    case QSql::Delete:
+        cache.remove(row);
+        emit q->dataChanged(q->createIndex(row, 0),
+                            q->createIndex(row, q->columnCount()));
+        break;
+    case QSql::Insert: {
+            QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.find(row);
+            if (it == d->cache.end())
+                return;
+            while (++it != d->cache.end()) {
+                int oldKey = it.key();
+                const QSqlTableModelPrivate::ModifiedRow oldValue = it.value();
+                d->cache.erase(it);
+                it = d->cache.insert(oldKey - 1, oldValue);
+            }
+            emit q->rowsRemoved(QModelIndex::Null, row, row);
+        break; }
+    }
 }
 
 bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
@@ -271,7 +300,7 @@ bool QSqlTableModel::select()
     if (query.isEmpty())
         return false;
 
-    cancelChanges();
+    revertAll();
     QSqlQuery qu(query, d->db);
     setQuery(qu);
     return qu.isActive();
@@ -371,7 +400,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
     Returns true if the value could be set or false on error, for example if \a index is
     out of bounds.
 
-    \sa editStrategy(), data(), submitChanges(), cancelChanges()
+    \sa editStrategy(), data(), submitChanges(), revertRow()
  */
 bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
@@ -567,18 +596,19 @@ bool QSqlTableModel::submitChanges()
     \value OnFieldChange  All changes to the model will be applied immediately to the database.
     \value OnRowChange  Changes will be applied when the current row changes.
     \value OnManualSubmit  All changes will be cached in the model until either submitChanges()
-                           or cancelChanges() is invoked.
+                           or revertAll() is invoked.
 */
 
 
 /*!
     Sets the strategy for editing values in the database to \a strategy.
+    This will revert all pending changes.
 
     \sa EditStrategy, editStrategy()
  */
 void QSqlTableModel::setEditStrategy(EditStrategy strategy)
 {
-    cancelChanges();
+    revertAll();
     d->strategy = strategy;
 }
 
@@ -593,29 +623,51 @@ QSqlTableModel::EditStrategy QSqlTableModel::editStrategy() const
 }
 
 /*!
-    Cancels all pending changes.
+    Revert all pending changes.
  */
-void QSqlTableModel::cancelChanges()
+void QSqlTableModel::revertAll()
 {
     switch (d->strategy) {
     case OnFieldChange:
         break;
     case OnRowChange:
         d->editBuffer.clear();
-        if (d->editIndex >= 0)
-            emit dataChanged(createIndex(d->editIndex, 0), createIndex(d->editIndex, d->rec.count()));
+        if (d->editIndex != -1) {
+            int oldIndex = d->editIndex;
+            d->editIndex = -1;
+            emit dataChanged(createIndex(oldIndex, 0),
+                             createIndex(oldIndex, columnCount()));
+        }
+        if (d->insertIndex != -1) {
+            int oldIndex = d->insertIndex;
+            d->insertIndex = -1;
+            emit rowsRemoved(QModelIndex::Null, oldIndex, oldIndex);
+        }
         break;
     case OnManualSubmit: {
-        QList<int> keys = d->cache.keys();
-        d->cache.clear();
-        for (int i = 0; i < keys.count(); ++i)
-            emit dataChanged(createIndex(keys.at(i), 0), createIndex(keys.at(i), d->rec.count()));
+        QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
+        while (it != d->cache.constEnd()) {
+            d->revertCachedRow(it.key());
+            it = d->cache.constBegin();
+        }
         break; }
     }
-    d->editQuery.clear();
-    d->editBuffer.clear();
-    d->cache.clear();
-    d->editIndex = -1;
+}
+
+/*!
+  Reverts all changes for the current \a row.
+ */
+void QSqlTableModel::revertRow(int row)
+{
+    switch (d->strategy) {
+    case OnFieldChange:
+    case OnRowChange:
+        revertAll();
+        break;
+    case OnManualSubmit:
+        d->revertCachedRow(row);
+        break;
+    }
 }
 
 /*!

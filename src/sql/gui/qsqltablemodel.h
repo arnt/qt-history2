@@ -78,7 +78,8 @@ public:
 
 public slots:
     virtual bool submitChanges();
-    virtual void cancelChanges();
+    virtual void revertRow(int row);
+    void revertAll();
 
 signals:
     void primeInsert(int row, QSqlRecord &record);
