@@ -32,7 +32,7 @@ protected:
     QList<Build *> makefiles;
     static MakefileGenerator *createGenerator(QMakeProject *);
 public:
-    ~MetaMakefileGenerator() { clearBuilds(); }
+    virtual ~MetaMakefileGenerator() { clearBuilds(); }
 
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
     virtual bool write(const QString &);
