@@ -568,8 +568,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	}
 #ifndef QT_NO_STYLE
 	if ( !s.isEmpty() ) {
-	    if ( !setStyle( s ) )
-		qWarning("Invalid -style option");
+	    setStyle( s );
 	}
 #endif
     }
@@ -855,52 +854,6 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     is_app_running = TRUE; // no longer starting up
 
-#ifndef QT_NO_STYLE
-#if defined(Q_WS_X11)
-    if ( qt_is_gui_used )
-	x11_initialize_style(); // run-time search for default style
-#endif
-    if ( qt_is_gui_used ) {
-	if ( !app_style ) {
-	    // Compile-time search for default style
-	    //
-	    QString style;
-#  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
-	    style = "PocketPC";
-#elif defined(Q_WS_WIN)
-	    if ( qWinVersion() == WV_XP )
-		style = "WindowsXP";
-	    else
-		style = "Windows";		// default styles for Windows
-#elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
-	    style = "CDE";			// default style for X11 on Solaris
-#elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-	    style = "SGI";			// default style for X11 on IRIX
-#elif defined(Q_WS_X11)
-	style = "Motif";		// default style for X11
-#elif defined(Q_WS_MAC)
-	style = "Macintosh";		// default style for all Mac's
-#elif defined(Q_WS_QWS)
-	    style = "Compact";		// default style for small devices
-#endif
-	    app_style = QStyleFactory::create( style );
-	    if ( !app_style &&		// platform default style not available, try alternatives
-		!(app_style = QStyleFactory::create( "Windows" ) ) &&
-		!(app_style = QStyleFactory::create( "Platinum" ) ) &&
-		!(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
-		!(app_style = QStyleFactory::create( "Motif" ) ) &&
-		!(app_style = QStyleFactory::create( "CDE" ) ) &&
-		!(app_style = QStyleFactory::create( "Aqua" ) ) &&
-		!(app_style = QStyleFactory::create( "SGI" ) ) &&
-		!(app_style = QStyleFactory::create( "Compact" ) ) &&
-		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
-		qFatal( "No %s style available!", style.latin1() );
-	}
-	app_style->polish( *app_pal );
-	app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
-    }
-#endif
-
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id, session_key );
@@ -1179,14 +1132,66 @@ QApplication::~QApplication()
 
 #ifndef QT_NO_STYLE
 
+static QString *style_override = 0;
+
 /*!
   Returns the style object of the application.
   \sa setStyle(), QStyle
 */
 QStyle& QApplication::style()
 {
-    if ( !app_style )
+#ifndef QT_NO_STYLE
+    if ( qt_is_gui_used ) {
+#if defined(Q_WS_X11)
+	x11_initialize_style(); // run-time search for default style
+#endif
+	if ( !app_style ) {
+	    // Compile-time search for default style
+	    //
+	    QString style;
+	    if ( style_override ) {
+		style = *style_override;
+		delete style_override;
+		style_override = 0;
+	    } else {
+#  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
+		style = "PocketPC";
+#elif defined(Q_WS_WIN)
+		if ( qWinVersion() == WV_XP )
+		    style = "WindowsXP";
+		else
+		    style = "Windows";		// default styles for Windows
+#elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
+		style = "CDE";			// default style for X11 on Solaris
+#elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
+		style = "SGI";			// default style for X11 on IRIX
+#elif defined(Q_WS_X11)
+		style = "Motif";		// default style for X11
+#elif defined(Q_WS_MAC)
+		style = "Macintosh";		// default style for all Mac's
+#elif defined(Q_WS_QWS)
+		style = "Compact";		// default style for small devices
+#endif
+	    }
+	    app_style = QStyleFactory::create( style );
+	    if ( !app_style &&		// platform default style not available, try alternatives
+		!(app_style = QStyleFactory::create( "Windows" ) ) &&
+		!(app_style = QStyleFactory::create( "Platinum" ) ) &&
+		!(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
+		!(app_style = QStyleFactory::create( "Motif" ) ) &&
+		!(app_style = QStyleFactory::create( "CDE" ) ) &&
+		!(app_style = QStyleFactory::create( "Aqua" ) ) &&
+		!(app_style = QStyleFactory::create( "SGI" ) ) &&
+		!(app_style = QStyleFactory::create( "Compact" ) ) &&
+		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
+		qFatal( "No %s style available!", style.latin1() );
+	}
+	app_style->polish( *app_pal );
+	app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
+    } else {
 	qFatal( "No style available in non-gui applications!" );
+    }
+#endif
 
     return *app_style;
 }
@@ -1273,6 +1278,10 @@ void QApplication::setStyle( QStyle *style )
 */
 QStyle* QApplication::setStyle( const QString& style )
 {
+    if ( startingUp() ) {
+	style_override = new QString(style);
+	return 0;
+    }
     QStyle *s = QStyleFactory::create( style );
     if ( !s )
 	return 0;
