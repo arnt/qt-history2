@@ -1644,17 +1644,6 @@ int QWidget::qwsBytesPerLine() const
     return qt_screen->linestep();
 }
 
-void QWidget::resetInputContext()
-{
-    if (!hasFocus())
-        return;
-#ifndef QT_NO_IM
-    QInputContext *qic = inputContext();
-    if( qic )
-	qic->reset();
-#endif
-}
-
 void QWidgetPrivate::updateFrameStrut() const
 {
     QWidget *that = const_cast<QWidget *>(q);
