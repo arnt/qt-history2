@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#47 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#48 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5785,7 +5785,7 @@ QDomNodeList QDomDocument::elementsByTagNameNS( const QString& nsURI, const QStr
   are element IDs, this function returns always a null element. This may change
   in a future version.
 */
-QDomElement QDomDocument::elementById( const QString& /*elemntId*/ )
+QDomElement QDomDocument::elementById( const QString& /*elementId*/ )
 {
     return QDomElement();
 }

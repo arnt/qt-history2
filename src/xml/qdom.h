@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#16 $
+** $Id: //depot/qt/main/src/xml/qdom.h#17 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -305,7 +305,7 @@ public:
     QDomElement createElementNS( const QString& nsURI, const QString& qName );
     QDomAttr createAttributeNS( const QString& nsURI, const QString& qName );
     QDomNodeList elementsByTagNameNS( const QString& nsURI, const QString& localName );
-    QDomElement elementById( const QString& elemntId );
+    QDomElement elementById( const QString& elementId );
 
     // DOM read only attributes
     QDomDocumentType doctype() const;
