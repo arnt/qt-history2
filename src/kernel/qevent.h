@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#12 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#13 $
 **
 ** Definition of event classes
 **
@@ -85,7 +85,7 @@ public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
 	: QEvent(type)		{ p=pos; b=button; st=(ushort)state; }
     QPoint &pos()		{ return p; }	// mouse position
-    int	   button()	const;			// button which caused event
+    int	   button()	const	{ return b; }	// button which caused event
     int	   state()	const	{ return st; }	// button state (OR'ed)
 protected:
     QPoint p;
