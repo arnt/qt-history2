@@ -3252,7 +3252,11 @@ void QCanvasSprite::draw(QPainter& painter)
   \code
     QWMatrix wm;
     wm.scale( 2, 2 );   // Zooms in by 2 times
-    wm.rotate( 90 );    // Rotates 90 degrees clockwise
+    wm.rotate( 90 );    // Rotates 90 degrees counter clockwise
+    			// around the origin.
+    wm.translate( 0, -canvas->height() );  
+    			// moves the canvas down so what was visible
+    			// before is still visible.
     myCanvasView->setWorldMatrix( wm );
   \endcode
 
