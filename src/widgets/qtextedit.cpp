@@ -6402,11 +6402,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    td->setSelectionEnd( QTextDocument::Standard, c2 );
 	}
     }
-
-    // fill the background that is not covered by the document
     td->doLayout( p, contentsWidth() );
-    if ( (contentsX() + clipw) > td->width() )
- 	p->fillRect( td->width(), clipy, clipw, cliph, colorGroup().base() );
 
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
