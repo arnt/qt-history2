@@ -25,6 +25,7 @@
 #include <qlistview.h>
 #include <qtabwidget.h>
 #include <qguardedptr.h>
+#include <private/qcom_p.h>
 
 class FormWindow;
 class QCloseEvent;
@@ -163,6 +164,7 @@ class HierarchyView : public QTabWidget
 
 public:
     HierarchyView( QWidget *parent );
+    ~HierarchyView();
 
     void setFormWindow( FormWindow *fw, QWidget *w );
     FormWindow *formWindow() const;
@@ -202,13 +204,13 @@ private:
 	ClassBrowser( QListView * = 0, ClassBrowserInterface * = 0 );
 	~ClassBrowser();
 	QListView *lv;
-	ClassBrowserInterface *iface;
+	QInterfacePtr<ClassBrowserInterface> iface;
     };
     FormWindow *formwindow;
     HierarchyList *listview;
     FormDefinitionView *fView;
     SourceEditor *editor;
-    QMap<QString, ClassBrowser> classBrowsers;
+    QMap<QString, ClassBrowser> *classBrowsers;
     QGuardedPtr<SourceEditor> lastSourceEditor;
 
 };

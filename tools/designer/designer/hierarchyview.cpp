@@ -917,26 +917,35 @@ HierarchyView::HierarchyView( QWidget *parent )
 	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, QApplication::libraryPaths(), "/designer" );
     }
 
+    classBrowsers = new QMap<QString, ClassBrowser>();
     QStringList langs = MetaDataBase::languages();
     for ( QStringList::Iterator it = langs.begin(); it != langs.end(); ++it ) {
-	ClassBrowserInterface *ciface = 0;
+	QInterfacePtr<ClassBrowserInterface> ciface = 0;
 	classBrowserInterfaceManager->queryInterface( *it, &ciface );
 	if ( ciface ) {
 	    ClassBrowser cb( ciface->createClassBrowser( this ), ciface );
 	    addTab( cb.lv, *it + tr( " Classes" ) );
 	    ciface->onClick( this, SLOT( jumpTo( const QString &, const QString &, int ) ) );
-	    classBrowsers.insert( *it, cb );
-	    ciface->release();
+	    classBrowsers->insert( *it, cb );
 	}
     }
+}
+
+HierarchyView::~HierarchyView()
+{
+    delete classBrowsers;
+    classBrowsers = 0;
+
+    delete classBrowserInterfaceManager;
+    classBrowserInterfaceManager = 0;
 }
 
 void HierarchyView::clear()
 {
     listview->clear();
     fView->clear();
-    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
-	  it != classBrowsers.end(); ++it ) {
+    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
+	  it != classBrowsers->end(); ++it ) {
 	(*it).iface->clear();
     }
 }
@@ -973,8 +982,8 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     else
 	showPage( fView );
 
-    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
-	  it != classBrowsers.end(); ++it )
+    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
+	  it != classBrowsers->end(); ++it )
 	(*it).iface->clear();
     editor = 0;
 }
@@ -1008,8 +1017,8 @@ void HierarchyView::showClassesTimeout()
     MainWindow::self->propertyeditor()->setWidget( 0, 0 );
     editor = se;
 
-    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
-	  it != classBrowsers.end(); ++it ) {
+    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
+	  it != classBrowsers->end(); ++it ) {
 	if ( it.key() == se->project()->language() ) {
 	    (*it).iface->update( se->text() );
 	    showPage( (*it).lv );
@@ -1023,8 +1032,8 @@ void HierarchyView::updateClassBrowsers()
 {
     if ( !editor )
 	return;
-    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
-	  it != classBrowsers.end(); ++it ) {
+    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
+	  it != classBrowsers->end(); ++it ) {
 	if ( it.key() == editor->project()->language() )
 	    (*it).iface->update( editor->text() );
 	else
@@ -1122,12 +1131,8 @@ void HierarchyView::jumpTo( const QString &func, const QString &clss, int type )
 HierarchyView::ClassBrowser::ClassBrowser( QListView *l, ClassBrowserInterface *i )
     : lv( l ), iface( i )
 {
-    if ( iface )
-	iface->addRef();
 }
 
 HierarchyView::ClassBrowser::~ClassBrowser()
 {
-    if ( iface )
-	iface->release();
 }
