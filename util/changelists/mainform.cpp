@@ -52,8 +52,10 @@ void MainForm::startChanges( QString label )
 {
     QStringList args;
 
-    if ( label[0] != '#' )
-	label = "@" + label;
+    if ( !label.isEmpty() ) {
+	if ( label[0] != '#' )
+	    label = "@" + label;
+    }
 
     QString file = path->currentText();
     if ( file[file.length()-1] != '/' )
@@ -65,7 +67,6 @@ void MainForm::startChanges( QString label )
     else
 	args << "p4" << "changes" << file;
 
-    //qDebug( args.join( " " ) );
     process.kill();
     start( args );
 }
@@ -81,7 +82,13 @@ void MainForm::go()
 
     incIntegrates = includeIntegrates->isChecked();
     changeListFrom = new QValueList<int>;
-    startChanges( changesFrom->currentText() );
+    if ( allChanges->isChecked() ) {
+	changeListTo = new QValueList<int>;
+	changeDateTo = new QMap<int,QString>;
+	startChanges( "" );
+    } else {
+	startChanges( changesFrom->currentText() );
+    }
 }
 
 void MainForm::currentChanged( QListViewItem *li )
@@ -94,7 +101,6 @@ void MainForm::currentChanged( QListViewItem *li )
 	}
 	QStringList args;
 	args << "p4" << "describe" << "-du" << li->text(0);
-	//qDebug( args.join( " " ) );
 	start( args );
     }
 }
@@ -233,6 +239,7 @@ void MainForm::processExited()
 
 void MainForm::start( const QStringList& args )
 {
+    qDebug( args.join( " " ) );
     process.setArguments( args );
     if ( !process.start() ) {
 	QMessageBox::critical( this, tr("Error starting process"),
