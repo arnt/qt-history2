@@ -41,7 +41,7 @@ public:
 bool
 QTemporaryFileEngine::open(int flags)
 {
-    if((flags & QIODevice::ReadWrite) != QIODevice::ReadWrite) {
+    if(!(flags & QIODevice::WriteOnly)) {
         qWarning("QTemporaryFileEngine::open: Temporary file must be ReadWrite");
         return false;
     }
