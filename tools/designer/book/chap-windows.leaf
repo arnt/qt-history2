@@ -51,7 +51,7 @@ to invoke the \Dialog{Edit Slots Dialog}. Right click the Public,
 Protected, or Private subdirectories and click 'New' to invoke the
 \Dialog{Edit Slots Dialog}. Right click a slot in the list to invoke a
 menu with additional options for the slot. To add new slots, choose
-'New' from the mneu, which invokes the \Dialog{Edit Slots Dialog}. To
+'New' from the menu, which invokes the \Dialog{Edit Slots Dialog}. To
 change the properties of the selected slot, choose 'Properties' which
 invokes the \Dialog{Edit Slots Dialog}. To open the C++ editor and
 jump to the implementation of the selected slot, choose 'Goto
@@ -120,13 +120,13 @@ unless the property, e.g. name, is not allowed to be empty.
 The property editor fully supports Undo and Redo (Ctrl+Z and Ctrl+Y,
 also available from the Edit menu). 
 
-\img qd-propedwinsigtab.png
+\img qd-propedsigtab.png
 \caption Signal Handlers Tab
 
 \section2 The Signal Handlers Tab
 
 Click the 'Signal Handlers' tab to view or create the connections
-between signals of widgets and slots of the form.
+between signals of widgets and custom slots of the form.
 
 \omit
 

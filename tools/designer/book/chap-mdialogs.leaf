@@ -95,18 +95,18 @@ Click \Bold {New Template} to create a form for designing templates.
 
 \section3 Tab Dialog Form
 
-The \Bold {Tab Dialog} form has a tab widget as its central widget, along with
-Help, OK and Cancel buttons along the bottom.
+The \Bold {Tab Dialog} form has a tab widget as its central widget,
+along with Help, OK and Cancel buttons along the bottom.
 
 \section3 C++ Source File 
 
-Click \Bold {C++ Source File} to create a new empty C++ file. The file will
-automatically be added to the project when it is saved.
+Click \Bold {C++ Source File} to create a new empty C++ file. The file
+will automatically be added to the project when it is saved.
 
 \section3 C++ Header File
 
-Click \Bold {C++ Header File} to create a new empty C++ header file. The file
-will automatically be added to the project when it is saved.
+Click \Bold {C++ Header File} to create a new empty C++ header file.
+The file will automatically be added to the project when it is saved.
 
 \section3 C++ Main File
 
@@ -163,7 +163,7 @@ the dialog without saving the file.
 
 Note: For Windows, the System File Dialogs are used.
 
-\img qd-filecreatetemplate.png
+\img qd-createtemplate.png
 \caption Create Template 
 
 \target dialog-file-create-template
@@ -185,7 +185,7 @@ similar forms, or where you want to 'brand' your forms.
 
 \section1 The Edit Dialogs
 
-\img qd-editslots.png
+\img qd-editslots1.png
 \caption Edit Slots
 
 \target dialog-edit-slots
@@ -210,7 +210,7 @@ button.
 Click \OK to save all changes made to slots. Click \CANCEL to leave
 the dialog without making any changes to slots.   
 
-\img qd-editviewconnections.png
+\img qd-viewconnections.png
 \caption View Connections
 
 \target dialog-view-connections
@@ -244,7 +244,8 @@ layout properties.
 \section3 Settings
 
 In the Settings section, you can change or add the name of the class
-that will be created by typing in the 'Class Name' line edit. You can
+that will be created by typing in the 'Class Name' line edit. Note
+that the default name is the form name, but it can be changed. You can
 also enter text to the 'Comment' and 'Author' line edits or leave them
 blank, since they are not required.
 
@@ -406,7 +407,7 @@ the \Button Close button to leave the dialog.
 
 Click \Menu{Project|Database Connections} to invoke the \Dialog{Edit Database
 Connections Dialog}. Use this dialog to connect your project to a
-database or to edit the current connection.
+database or to edit the current connections.
 
 Click \Button {New Connection} to create a new database connection.
 For applications that use a single database it will probably be most
@@ -450,7 +451,7 @@ about the project.
 \section3 Files Tab
 
 Click the 'Files' tab to enter a name in the 'Database File' line edit.
-Click the \Button {ellipsis...} button to invoke the \Dialog{Save As
+Click the \Button {(ellipsis)} button to invoke the \Dialog{Save As
 Dialog}.
 
 \img qd-projectsettingsc++tabdialog.png
@@ -570,6 +571,9 @@ the dialog.
 
 \img qd-configmainfile.png
 \caption Configure Main-File Dialog
+
+\target dialog-configure-main-file
+\section1 Configure Main-File Dialog
 
 Click \Menu {File|New|C++ Main-File} to invoke the \Dialog{Configure
 Main-File} dialog. Use this dialog to configure the main file and its
@@ -720,8 +724,8 @@ and files in a list with only the names showing. Click the 'Details'
 toolbar button to view the folders and file names along with their
 size, type, date, and attributes. Click the Size, Type, Date, or
 Attributes column headers to sort the folders or files. View a sample
-of the pixmap file you select in the listbox in the right side of the
-dialog.
+of the pixmap file you select in the  preview box located on the right
+side of the dialog.
 
 Click \OK to accept the pixmap file. Click \CANCEL to leave the dialog
 without choosing a pixmap file.
@@ -763,13 +767,13 @@ Definition tab if you are not already there. You should change the
 'Class' name from 'MyCustomWidget' to a unique name by typing in the
 line edit. Type in the 'Headerfile' line edit to change the name or
 type the name of a header file you want to use. To search for a saved
-header file in a directory, click the \Button {ellipsis} button to
+header file in a directory, click the \Button {(ellipsis)} button to
 the right of the Headerfile line edit to invoke the \Dialog {Open
 Dialog}. Click the 'Select Access' combobox to choose how the file
 will be included. Global include files will be included using angle
 brackets (<>). Local files will be included using quotation marks. If
 you have a pixmap that you want to use to identify your widget on the
-toolbar, click the \Button {ellipsis} button to the right of the
+toolbar, click the \Button {(ellipsis)} button to the right of the
 'Pixmap' label. This invokes the \Dialog{Choose a Pixmap Dialog}.
 Click the 'Size Hint' spin boxes to select the recommended size for
 the widget. If you do not want to have a recommended size, enter -1/-1
@@ -1006,9 +1010,9 @@ leave the dialog without making any changes.
 \target dialog-edit-listbox
 \section1 Edit Listbox Dialog
 
-Right click a Listbox on the form and select 'Edit' to invoke the
-\Dialog {Edit Listbox} dialog. Use this dialog to add items to the
-list box and to change the item's properties.
+Right click or double click a Listbox on the form and select 'Edit' to
+invoke the \Dialog {Edit Listbox} dialog. Use this dialog to add items
+to the list box and to change the item's properties.
 
 To add an item to the listbox, click the \Button {New Item}. If you
 want to change the default name of the item, click the 'Text' line
@@ -1028,10 +1032,10 @@ to leave the dialog without saving any changes.
 \target dialog-edit-listview
 \section1 Edit Listview
 
-Right click a listview widget on the form and select 'Edit' to invoke
-the \Dialog {Edit Listview} dialog. Use this dialog to add items to
-the listview. The \Dialog Edit Listview dialog has two tabs, one for
-items and one for columns.
+Right click or double click a listview widget on the form and select
+'Edit' to invoke the \Dialog {Edit Listview} dialog. Use this dialog
+to add items to the listview. The \Dialog Edit Listview dialog has two
+tabs, one for items and one for columns.
 
 \img qd-editlistview.png
 \caption Edit Listview- Items Tab
@@ -1062,7 +1066,7 @@ Click this tab to change the column configuration of the listview. To
 add a column, click the \Button {New Column} button. The new column is
 shown at the top of the listbox. To change the column name, click a
 column in the listbox and then click the 'Text' line edit and type a
-new name. To add a pixmap, click the \Button {ellipsis} button,
+new name. To add a pixmap, click the \Button {(ellipsis)} button,
 which invokes the \Dialog {Choose an Image Dialog}. To remove a
 pixmap, click the \Button {Delete Pixmap} button. Click the
 'Clickable' checkbox if you want the columns to respond to mouse
@@ -1082,15 +1086,15 @@ to leave the dialog without saving any changes.
 \target dialog-edit-iconview
 \section1 Edit Iconview
 
-Right click an iconview widget on the form and select 'Edit' to invoke
-the \Dialog {Edit Iconview} dialog. Use the dialog to add, change, or
-remove items from the iconview. To add an item to the iconview, click
-the \Button {New Item} button. To change the name of the item, click
-the 'Text' line edit and type a new name. To add a pixmap, click the
-\Button {ellipsis...} button, which invokes the \Dialog {Choose an
-Image Dialog}. To remove a pixmap, click the \Button {Delete Pixmap}
-button. To delete an item from the listbox, click the item and then
-click the \Button {Delete Item} button.
+Right click or double click an iconview widget on the form and select
+'Edit' to invoke the \Dialog {Edit Iconview} dialog. Use the dialog to
+add, change, or remove items from the iconview. To add an item to the
+iconview, click the \Button {New Item} button. To change the name of
+the item, click the 'Text' line edit and type a new name. To add a
+pixmap, click the \Button {(ellipsis)} button, which invokes the
+\Dialog {Choose an Image Dialog}. To remove a pixmap, click the
+\Button {Delete Pixmap} button. To delete an item from the iconview,
+click the item and then click the \Button {Delete Item} button.
 
 Click \Button Apply to accept changes to the iconview widget. Click
 \OK to leave the dialog once the changes have been accepted. Click
@@ -1099,9 +1103,9 @@ Click \Button Apply to accept changes to the iconview widget. Click
 \target dialog-edit-table
 \section1 Edit Table
 
-Right click a table widget on the form and select 'Edit' to invoke the
-\Dialog {Edit Table} dialog. Use the dialog to add, change, or remove
-columns or rows from the table. 
+Right click or double click a table widget on the form and select
+'Edit' to invoke the \Dialog {Edit Table} dialog. Use the dialog to
+add, change, or remove columns or rows from the table. 
 
 \img qd-edittablecolumns.png
 \caption Edit Table- Columns Tab
@@ -1109,15 +1113,15 @@ columns or rows from the table.
 \section2 The Column Tab
 
 To add a column to the table, click the \Button {New Column} button.
-To delete a column from the table, click the column in the listbox, or
-click the column number in the smaller listbox and then click the
-\Button {Delete Column} button. To change a column name, click the
-'Label' line edit and type the new text. To add a pixmap, click the
-\Button {ellipsis...} button, which invokes the \Dialog {Choose an
-Image Dialog}. To remove a pixmap from the current column of the
-selected item, click the \Button {Delete Pixmap} button. To move a
-column in the listbox, click the \Button {Move Up} or \Button {Move
-Down} buttons.
+To delete a column from the table, click the column you want to delete
+from the table, or click the column number in the 'Columns' listbox
+and then click the \Button {Delete Column} button. To change a column
+name, click the 'Label' line edit and type the new text. To add a
+pixmap, click the \Button {(ellipsis)} button, which invokes the
+\Dialog {Choose an Image Dialog}. To remove a pixmap from the current
+column of the selected item, click the \Button {Delete Pixmap} button.
+To move a column in the listbox, click the \Button {Move Up} or
+\Button {Move Down} buttons.
 
 \img qd-edittablerows.png
 \caption Edit Table- Rows Tab
@@ -1125,15 +1129,15 @@ Down} buttons.
 \section2 The Rows Tab
 
 To add a row to the table, click the \Button {New Row} button.
-To delete a row from the table, click the row in the listbox, or
-click the row number in the smaller listbox and then click the
-\Button {Delete Column} button. To change a row's name, click the row,
-or the row number, and then click the 'Label' line edit and type the
-new text. To add a pixmap, click the \Button {ellipsis...} button,
-which invokes the \Dialog {Choose an Image Dialog}. To remove a pixmap
-from the current row of the selected item, click the \Button {Delete
-Pixmap} button. To move a row in the listbox, click the \Button {Move
-Up} or \Button {Move Down} buttons.  
+To delete a row from the table, click the row you want to delete from
+the table, or click the row number in the 'Rows' listbox and then
+click the \Button {Delete Column} button. To change a row's name,
+click the row, or the row number, and then click the 'Label' line edit
+and type the new text. To add a pixmap, click the \Button {(ellipsis)}
+button, which invokes the \Dialog {Choose an Image Dialog}. To remove
+a pixmap from the current row of the selected item, click the \Button
+{Delete Pixmap} button. To move a row in the listbox, click the
+\Button {Move Up} or \Button {Move Down} buttons.  
 
 Click \Button Apply to accept changes to the table widget. Click \OK
 to leave the dialog once the changes have been accepted. Click \CANCEL

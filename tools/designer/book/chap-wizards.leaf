@@ -103,7 +103,7 @@ header (which displays the field name).
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page. 
 
-\img qd-datatablewzdpage4.png
+\img qd-datatablewzdsqlpage4.png
 
 \section2 SQL
 
@@ -202,12 +202,12 @@ The navigation buttons, and 'Update' and 'Delete' buttons will work
 without requiring any code. Since most database designs expect new
 records to be created with a unique key the 'Insert' button will not
 work. This can easily be fixed by generating the key in a slot
-connected to the \Func QDataTable::beforeInsert() signal.
+connected to the \Func QDataBrowser::beforeInsert() signal.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
 
-\img qd-databrowserwzdpage4.png
+\img qd-databrowserwzdsqlpage4.png
 
 \section2 SQL
 
@@ -231,7 +231,7 @@ Back if you want to return to the 'Navigation and Editing' wizard page.
 \section2 Layout
 
 The 'Layout' wizard page is used to design the layout of the database
-table. To choose the number of columns the form will use, click the
+browser. To choose the number of columns the form will use, click the
 'Number of Columns' spinbox. To make labels appear to the left of the
 data entry fields, click the 'Labels to left' radio button. To make
 labels appear above the data entry fields, click the 'Labels on top'
@@ -305,8 +305,8 @@ wizard page.
 
 \section2 Layout
 
-The 'Layout' wizard page is used to design the layout of the database
-table. To choose the number of columns the form will use, click the
+The 'Layout' wizard page is used to design the layout of the data
+view. To choose the number of columns the form will use, click the
 'Number of Columns' spinbox. To make labels appear to the left of the
 data entry fields, click the 'Labels to left' radio button. To make
 labels appear above the data entry fields, click the 'Labels on top'

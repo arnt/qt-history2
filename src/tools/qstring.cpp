@@ -15459,7 +15459,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 
   \code
     QString string("ABCDEF");
-    QChar ch = string.ref( 3 );         // ch == 'C'
+    QChar ch = string.ref( 3 );         // ch == 'D'
   \endcode
 
   \sa constref()

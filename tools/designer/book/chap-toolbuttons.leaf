@@ -81,17 +81,18 @@ invoke the \l{Find Text Dialog}.
 \Toolbutton {Find} toolbar button. Type characters into the text box; as
 you type, \QD will highlight the first occurrence of the text that it
 finds in the file. Press the \Key Enter key to go to the next
-occurrence of the text.
+occurrence of the text. Press the \Key Esc key once you have found the
+word you are looking for to place the cursor in the editor.
 
 \endlist
 
 \section1 The Tools Toolbar Buttons
 
 If you want to add the same kind of widget several times to a form,
-for example, several push buttons, \e double click the widget's
+for example, several push buttons, \em {double click} the widget's
 toolbar button. After this, every time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
-this mode.
+this mode. 
 
 \img qd-toolstoolbuttons4.png
 \caption Tools
@@ -102,7 +103,7 @@ this mode.
 \i \Toolbutton Pointer\BR Click this toolbar button (or press \Key F2) to
 de-select any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets if you double clicked a widget toolbar
-button.
+button. Press the \Key Esc key to return to the pointer at any time.
 
 \i \Toolbutton{Connect Signals and Slots}\BR Click this toolbar button (or
 press \Key F3) to connect signals and slots. Then click on a widget and

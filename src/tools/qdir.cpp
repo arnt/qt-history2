@@ -1120,7 +1120,7 @@ bool QDir::match( const QString &filter, const QString &fileName )
 
   Symbolic links are kept.  This function does not return the
   canonical path, but rather the most simplified version of the input.
-  "../local" becomes "local", "local/../bin" becomes "bin"
+  "./local" becomes "local", "local/../bin" becomes "bin"
   and "/local/usr/../bin" becomes "/local/bin".
 
   \sa absPath() canonicalPath()

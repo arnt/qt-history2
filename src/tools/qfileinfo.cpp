@@ -623,9 +623,10 @@ QDateTime QFileInfo::lastRead() const
   Returns the absolute path including the file name.
 
   The absolute path name consists of the full path and the file
-  name. On Unix this will always begin with the root, '/', directory
-  and on Windows this will always begin 'D:/' where D is a drive
-  letter.
+  name. On Unix this will always begin with the root, '/', directory.
+  On Windows this will always begin 'D:/' where D is a drive
+  letter, except for network shares that are not mapped to a drive
+  letter, in which case the path will begin '//sharename/'.
 
   This function returns the same as filePath(), unless isRelative() is
   TRUE.

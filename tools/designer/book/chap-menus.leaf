@@ -39,7 +39,7 @@ For forms that have been saved previously click 'Save'. For new files
 or for files that have been changed, click 'Save'. 
 
 \i \Menu {File|Save As}\BR Click this menu option to save and name the
-project, or file. This option invokes the \l{Save Form As Dialog}.
+current form or file. This option invokes the \l{Save Form As Dialog}.
 
 \i \Menu {File|Save All}\BR Click this menu option to save every open
 file and form in every open project.
@@ -175,7 +175,8 @@ invoke the \l{Find Text Dialog}.
 \Toolbutton Find toolbar button. Type characters into the text box; as
 you type, \QD will highlight the first occurrence of the text that it
 finds in the file. Press the \Key Enter key to go to the next
-occurrence of the text.
+occurrence of the text. Press the \Key Esc key once you have found the
+word you are looking for to place the cursor in the editor.
 
 \i \Menu Search|Replace\BR Click this menu option (or press \Key Ctrl+R)
 to invoke the \l{Replace Text Dialog} to replace specific words or
@@ -201,7 +202,8 @@ options:
 \i \Menu Tools|Pointer\BR Click this menu option (or press \Key F2) to
 de-select any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets on the form if you double clicked a
-widget toolbar button. 
+widget toolbar button. Press the \Key Esc key to return to the
+pointer at any time.
 
 \i \Menu{Tools|Connect Signals and Slots}\BR Click this menu option
 (or press \Key F3) to connect signals and slots. Click on a widget and
@@ -320,7 +322,7 @@ then click the form to place a TextBrowser on the form.
 \i \Menu {Tools|Custom|Edit Custom Widgets}\BR Click this menu option
 to invoke the \l{Edit Custom Widgets Dialog}. 
 
-\i \Menu {Tools|Custom|My Custom Widget}\BR Click this menu option and
+\i \Menu {Tools|Custom|<My Custom Widget>}\BR Click this menu option and
 then click the form to place the Custom Widget on the form. Note that
 this menu option only appears if you have created a widget using
 \Menu{Tools|Custom|Edit Custom Widgets}. 
@@ -347,13 +349,16 @@ side. Use \Key Shift+Click to select each widget or layout, and then
 choose this menu option to group them horizontally. Note that for
 complex widgets it is sometimes easiest to select widgets and layouts
 by clicking them in the Widgets tab of the \l{Object Explorer Window}.
+If only one widget is selected, its child widgets will be laid out
+horizontally.
 
 \i \Menu {Layout|Lay Out Vertically}\BR Click this menu option (or press
 \Key Ctrl+L) to lay out the selected widgets one above the other. Use
 \Key Shift+Click to select each widget or layout, and then choose this
 menu option to group them vertically. Note that for complex widgets it
 is sometimes easiest to select widgets and layouts by clicking them in
-the Widgets tab of the \l{Object Explorer Window}.
+the Widgets tab of the \l{Object Explorer Window}. If only one widget
+is selected, its child widgets will be laid out vertically.
 
 \i \Menu {Layout|Lay Out in a Grid}\BR Click this menu option (or press
 \Key Ctrl+G) to lay out the selected widgets in a grid. If only one
@@ -562,7 +567,9 @@ options:
 
 \i \Menu{Help|Contents}\BR Click this menu option (or press \Key F1)
 to invoke the \l{Qt Assistant} application which provides on-line
-help.
+help. The on-line help is context sensitive, so you can type the item
+you want more information about in the line edit and Qt Assistant will
+automatically find it if it is available.
 
 \i \Menu{Help|Manual}\BR Click this menu option (or press \Key Ctrl+M) to
 invoke the \l{Qt Assistant} application which opens showing this
@@ -577,7 +584,7 @@ dialog which provides information about Qt.
 
 \i \Menu{Help|What's This?}\BR Click this menu option to invoke a small
 question mark that is attached to the mouse pointer. Click on a
-feature which you would like more information about. A message box
+feature which you would like more information about. A popup box
 appears with information about the feature.
 
 \endlist 

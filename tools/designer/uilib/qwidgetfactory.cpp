@@ -134,8 +134,7 @@ QString qwf_currFileName = "";
   able to include qwidgetfactory.h you must add
   \c $(QTDIR)/tools/designer/uilib to your project's include path.
 
-  See the \link designer-manual-5.book#dynamicdialogs Creating Dynamic
-  Dialogs from .ui Files\endlink section of the \link
+  See the Creating Dynamic Dialogs from .ui Files section of the \link
   designer-manual.book Qt Designer manual\endlink for an example.
 */
 
