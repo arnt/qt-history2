@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#474 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#475 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1791,7 +1791,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ), 0 );
-			result = QApplication::sendEvent( fw, &e );
+			result = QApplication::sendSpontaneousEvent( fw, &e );
 		    }
 		}
 		break;
@@ -1801,7 +1801,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			result = QApplication::sendEvent( fw, &e );
+			result = QApplication::sendSpontaneousEvent( fw, &e );
 			imePosition = 0;
 		    }
 		}
@@ -1812,7 +1812,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    qDebug("EndComposition: lparam=%x", lParam);
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
-			result = QApplication::sendEvent( fw, &e );
+			result = QApplication::sendSpontaneousEvent( fw, &e );
 			*imeComposition = QString::null;
 			imePosition = -1;
 		    }
@@ -1841,7 +1841,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			}
 			ImmReleaseContext( fw->winId(), imc );
 			QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition );
-			result = QApplication::sendEvent( fw, &e );
+			result = QApplication::sendSpontaneousEvent( fw, &e );
 		    }
 		}
 		break;
@@ -1851,7 +1851,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_RENDERALLFORMATS:
 		if ( qt_clipboard ) {
 		    QCustomEvent e( QEvent::Clipboard, &msg );
-		    QApplication::sendEvent( qt_clipboard, &e );
+		    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
 		    RETURN(0);
 		}
 		// NOTE: fall-through!
@@ -1863,7 +1863,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( evt_type != QEvent::None ) {		// simple event
 	QEvent e( evt_type );
-	result = QApplication::sendEvent(widget, &e);
+	result = QApplication::sendSpontaneousEvent(widget, &e);
     }
     if ( result )
 	RETURN(FALSE);
@@ -2507,7 +2507,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupButtonFocus->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupButtonFocus, &e );
+	    QApplication::sendSpontaneousEvent( popupButtonFocus, &e );
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
 	    }
@@ -2515,10 +2515,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupChild->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupChild, &e );
+	    QApplication::sendSpontaneousEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
+	    QApplication::sendSpontaneousEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )
@@ -2576,14 +2576,14 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
 	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state );
-	    QApplication::sendEvent( widget, &e );
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
 		QMouseEvent e2( type, pos, QPoint(gpos.x,gpos.y), button, state );
-		QApplication::sendEvent( widget, &e2 );
+		QApplication::sendSpontaneousEvent( widget, &e2 );
 	    }
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( widget, &e );
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	}
 
 	if ( type != QEvent::MouseMove )
@@ -2999,7 +2999,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
-	if ( QApplication::sendEvent( w, &e ) )
+	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
 
@@ -3009,7 +3009,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
-	if ( QApplication::sendEvent( w, &e ) )
+	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
     return FALSE;
@@ -3028,11 +3028,11 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( type == QEvent::KeyPress && !grab ) {	// send accel events
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor );
 	aa.ignore();
-	QApplication::sendEvent( this, &aa );
+	QApplication::sendSpontaneousEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
 	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
 	    a.ignore();
-	    QApplication::sendEvent( topLevelWidget(), &a );
+	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	    if ( a.isAccepted() )
 		return TRUE;
 	}
@@ -3040,7 +3040,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( !isEnabled() )
 	return FALSE;
     QKeyEvent e( type, code, ascii, state, text, autor );
-    QApplication::sendEvent( this, &e );
+    QApplication::sendSpontaneousEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
 	 && type == QEvent::KeyPress && !e.isAccepted() )
@@ -3063,7 +3063,7 @@ bool QETWidget::translatePaintEvent( const MSG & )
 	rgn = QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
 		    QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
     QPaintEvent e(rgn);
-    QApplication::sendEvent( this, (QEvent*) &e );
+    QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
     hdc = 0;
     EndPaint( winId(), &ps );
     clearWState( WState_InPaintEvent );
@@ -3095,8 +3095,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		extra->topextra->iconic = 1;
 		if ( isVisible() ) {
 		    clearWState( WState_Visible );
-		    QHideEvent e( TRUE );
-		    QApplication::sendEvent( this, &e );
+		    QHideEvent e;
+		    QApplication::sendSpontaneousEvent( this, &e );
 		    sendHideEventsToChildren( TRUE );
 		}
 	    } else if ( extra->topextra->iconic ) {
@@ -3106,8 +3106,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    setWState( WState_Visible );
 		    clearWState( WState_ForceHide );
 		    sendShowEventsToChildren( TRUE );
-		    QShowEvent e( TRUE );
-		    QApplication::sendEvent( this, &e );
+		    QShowEvent e;
+		    QApplication::sendSpontaneousEvent( this, &e );
 		}
 	    }
 	    QString txt;
@@ -3126,7 +3126,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( msg.wParam != SIZE_MINIMIZED ) {
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
-		QApplication::sendEvent( this, &e );
+		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );
@@ -3145,7 +3145,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    crect = cr;
 	    if ( isVisible() ) {
 		QMoveEvent e( newCPos, oldPos );  // cpos (client position)
-		QApplication::sendEvent( this, &e );
+		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
 		QMoveEvent * e = new QMoveEvent( newCPos, oldPos );
 		QApplication::postEvent( this, e );

@@ -3459,8 +3459,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case UnmapNotify:			// window hidden
 	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
 	    widget->clearWState( WState_Visible );
-	    QHideEvent e( TRUE );
-	    QApplication::sendEvent( widget, &e );
+	    QHideEvent e;
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	    widget->sendHideEventsToChildren( TRUE );
 	}
 	break;
@@ -3470,8 +3470,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     && !widget->isHidden() ) {
 	    widget->setWState( WState_Visible );
 	    widget->sendShowEventsToChildren( TRUE );
-	    QShowEvent e( TRUE );
-	    QApplication::sendEvent( widget, &e );
+	    QShowEvent e;
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	}
 	break;
 
@@ -3510,7 +3510,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case SelectionNotify:
 	if ( qt_clipboard ) {
 	    QCustomEvent e( QEvent::Clipboard, event );
-	    QApplication::sendEvent( qt_clipboard, &e );
+	    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
 	}
 	break;
 
@@ -4369,14 +4369,14 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    else if(popupChild)
 		popupEvent = popupChild;
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
-	    QApplication::sendEvent( popupEvent, &e );
+	    QApplication::sendSpontaneousEvent( popupEvent, &e );
 	    was_context = e.isAccepted();
 	}
 	if(!was_context) {
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		QApplication::sendEvent( popupButtonFocus, &e );
+		QApplication::sendSpontaneousEvent( popupButtonFocus, &e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
 		    popupOfPopupButtonFocus = 0;
@@ -4384,10 +4384,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		QApplication::sendEvent( popupChild, &e );
+		QApplication::sendSpontaneousEvent( popupChild, &e );
 	    } else {
 		QMouseEvent e( type, pos, globalPos, button, state );
-		QApplication::sendEvent( popup, &e );
+		QApplication::sendSpontaneousEvent( popup, &e );
 	    }
 	}
 
@@ -4436,12 +4436,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	bool was_context = FALSE;
 	if ( type == QEvent::MouseButtonPress && button == RightButton ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
-	    QApplication::sendEvent( widget, &e );
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	    was_context = e.isAccepted();
 	}
 	if(!was_context) {
 	    QMouseEvent e( type, pos, globalPos, button, state );
-	    QApplication::sendEvent( widget, &e );
+	    QApplication::sendSpontaneousEvent( widget, &e );
 	}
     }
     return TRUE;
@@ -4470,7 +4470,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state );
-	if ( QApplication::sendEvent( w, &e ) )
+	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
 
@@ -4481,7 +4481,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state );
-	if ( QApplication::sendEvent( w, &e ) )
+	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
     return FALSE;
@@ -4861,7 +4861,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
 		     QMAX(count, int(text.length())) );
 	a.ignore();
-	QApplication::sendEvent( topLevelWidget(), &a );
+	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	isAccel = a.isAccepted();
     }
 
@@ -4891,7 +4891,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 				 asciiIntern, stateIntern, textIntern, FALSE,
 				 QMAX(countIntern, int(textIntern.length())) );
 		    a.ignore();
-		    QApplication::sendEvent( topLevelWidget(), &a );
+		    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 		    if ( a.isAccepted() ) {
 			XPutBackEvent(dpy, &evRelease);
 			XPutBackEvent(dpy, &evPress);
@@ -4968,7 +4968,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // try the menukey first
     if ( type == QEvent::KeyPress && code == Qt::Key_Menu ) {
 	QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), mapToGlobal( QPoint( 5, 5 ) ), 0 );
-	QApplication::sendEvent( this, &e );
+	QApplication::sendSpontaneousEvent( this, &e );
 	if( e.isAccepted() )
 	    return TRUE;
     }
@@ -4981,12 +4981,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
 		      QMAX(count, int(text.length())) );
 	aa.ignore();
-	QApplication::sendEvent( this, &aa );
+	QApplication::sendSpontaneousEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
 	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
 			 QMAX(count, int(text.length())) );
 	    a.ignore();
-	    QApplication::sendEvent( topLevelWidget(), &a );
+	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	    if ( a.isAccepted() )
 		return TRUE;
 	}
@@ -5005,7 +5005,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 #endif // NO_XIM
 
-    return QApplication::sendEvent( this, &e );
+    return QApplication::sendSpontaneousEvent( this, &e );
 }
 
 
@@ -5151,7 +5151,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     if ( !isTopLevel() && backgroundOrigin() != WidgetOrigin )
 	erase( paintRegion );
     qt_set_paintevent_clipping( this, paintRegion );
-    QApplication::sendEvent( this, &e );
+    QApplication::sendSpontaneousEvent( this, &e );
     qt_clear_paintevent_clipping();
     clearWState( WState_InPaintEvent );
     return TRUE;
@@ -5239,7 +5239,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
-		QApplication::sendEvent( this, &e );
+		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
 		QResizeEvent * e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );
@@ -5252,7 +5252,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    crect = cr;
 	    if ( isVisible() ) {
 		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
-		QApplication::sendEvent( this, &e );
+		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
 		QMoveEvent * e = new QMoveEvent( newCPos, oldPos );
 		QApplication::postEvent( this, e );

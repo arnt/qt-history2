@@ -155,7 +155,7 @@ void QMacInputMethod::endCompose()
     id = 0;
     if(widget) {
 	QIMEvent event(QEvent::IMEnd, QString::null, -1);
-	QApplication::sendEvent(widget, &event);
+	QApplication::sendSpontaneousEvent(widget, &event);
     }
     widget = NULL;
 }
@@ -697,7 +697,7 @@ static int activateNullTimers()
 	return 0;
 
     int ret = 0;
-    for(register TimerInfo *t = timerList->first(); 
+    for(register TimerInfo *t = timerList->first();
 	ret != zero_timer_count && t; t = timerList->next()) {
 	if(t->type == TimerInfo::TIMER_ZERO) {
 	    ret++;
@@ -1032,7 +1032,7 @@ bool QApplication::processNextEvent( bool canWait )
 #ifndef QT_NO_CLIPBOARD
     if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
 	QEvent ev(QEvent::Clipboard);
-	QApplication::sendEvent(qt_clipboard, &ev);
+	QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
     }
 #endif
 
@@ -1600,16 +1600,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
-		QApplication::sendEvent( popupwidget, &cme );
+		QApplication::sendSpontaneousEvent( popupwidget, &cme );
 		was_context = cme.isAccepted();
 	    }
 	    if(!was_context) {
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
-		    QApplication::sendEvent( popupwidget, &qwe);
+		    QApplication::sendSpontaneousEvent( popupwidget, &qwe);
 		} else {
 		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
-		    QApplication::sendEvent( popupwidget, &qme );
+		    QApplication::sendSpontaneousEvent( popupwidget, &qme );
 		}
 		if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
 		   qt_closed_popup)
@@ -1708,7 +1708,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
-		QApplication::sendEvent( widget, &cme );
+		QApplication::sendSpontaneousEvent( widget, &cme );
 		was_context = cme.isAccepted();
 	    }
 	    if(!was_context) {
@@ -1727,7 +1727,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 #endif
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
-		    QApplication::sendEvent( widget, &qwe);
+		    QApplication::sendSpontaneousEvent( widget, &qwe);
 		} else {
 #ifdef QMAC_SPEAK_TO_ME
 		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
@@ -1743,7 +1743,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    }
 #endif
 		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
-		    QApplication::sendEvent( widget, &qme );
+		    QApplication::sendSpontaneousEvent( widget, &qme );
 		}
 	    }
 	}
@@ -1779,12 +1779,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
 			     mystr.length());
 		aa.ignore();
-		QApplication::sendEvent( widget, &aa );
+		QApplication::sendSpontaneousEvent( widget, &aa );
 		if ( !aa.isAccepted() ) {
 		    QKeyEvent a(QEvent::Accel, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
 				mystr.length());
 		    a.ignore();
-		    QApplication::sendEvent( widget->topLevelWidget(), &a );
+		    QApplication::sendSpontaneousEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() )
 			isAccel = TRUE;
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
@@ -1803,7 +1803,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		if((modifiers & Qt::ControlButton) && mychar == ' ') { //eat it
 		    if(etype == QEvent::KeyPress) {
 			QIMEvent event(QEvent::IMStart, QString::null, -1);
-			QApplication::sendEvent(widget, &event);
+			QApplication::sendSpontaneousEvent(widget, &event);
 			if(event.isAccepted())
 			    qt_app_im.startCompose(widget);
 		    }
@@ -1815,7 +1815,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    }
 		    QKeyEvent ke(etype,mychar, chr, modifiers,
 				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		    QApplication::sendEvent(widget,&ke);
+		    QApplication::sendSpontaneousEvent(widget,&ke);
 		}
 	    }
 	}
@@ -1829,9 +1829,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	widget = QWidget::find( (WId)wid );
 
 	if(!widget) {
-	    if(ekind == kEventWindowShown ) 
+	    if(ekind == kEventWindowShown )
 		unhandled_dialogs.insert((void *)wid, (void *)1);
-	    else if(ekind == kEventWindowHidden) 
+	    else if(ekind == kEventWindowHidden)
 		unhandled_dialogs.remove((void *)wid);
 #if 0
 	    else if(!unhandled_dialogs.find((void *)wid))
@@ -1855,7 +1855,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		int nx = nr.left, ny = nr.top;
 		widget->crect.setRect( nx, ny, widget->width(), widget->height() );
 		QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
-		QApplication::sendEvent( widget, &qme );
+		QApplication::sendSpontaneousEvent( widget, &qme );
 	    }
 	    if((flags & kWindowBoundsChangeSizeChanged)) {
 		// nw/nh might not match the actual size if setSizeIncrement is used

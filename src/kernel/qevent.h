@@ -121,16 +121,20 @@ public:
     };
 
 
-    QEvent( Type type ) : t(type), posted(FALSE) {}
+    QEvent( Type type ) : t(type), posted(FALSE), spont(FALSE) {}
     virtual ~QEvent();
     Type  type() const	{ return t; }
+    bool spontaneous() const 	{ return spont; }
 protected:
     Type  t;
 private:
-    bool  posted;
+    uint posted : 1;
+    uint spont : 1;
+
 
     friend class QApplication;
     friend class QBaseApplication;
+    friend class QETWidget;
 };
 
 
@@ -323,22 +327,16 @@ protected:
 class Q_EXPORT QShowEvent : public QEvent
 {
 public:
-    QShowEvent(bool spontaneous)
-	: QEvent(Show), spont(spontaneous) {}
-    bool spontaneous() const { return spont; }
-protected:
-    bool spont;
+    QShowEvent()
+	: QEvent(Show) {}
 };
 
 
 class Q_EXPORT QHideEvent : public QEvent
 {
 public:
-    QHideEvent(bool spontaneous)
-	: QEvent(Hide), spont(spontaneous) {}
-    bool spontaneous() const { return spont; }
-protected:
-    bool spont;
+    QHideEvent()
+	: QEvent(Hide) {}
 };
 
 class Q_EXPORT QContextMenuEvent : public QEvent

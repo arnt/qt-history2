@@ -349,6 +349,7 @@ private:
     void	     openPopup( QWidget *popup );
     void	     setActiveWindow( QWidget* act );
 
+    static bool      sendSpontaneousEvent( QObject *receiver, QEvent *event );
     static void      removePostedEvent( QEvent * );
 
     friend class QWidget;
@@ -430,6 +431,9 @@ inline QSize QApplication::globalStrut()
 
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 { return qApp ? qApp->notify( receiver, event ) : FALSE; }
+
+inline bool QApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event )
+{ if ( event ) event->spont = TRUE; return qApp ? qApp->notify( receiver, event ) : FALSE; }
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions

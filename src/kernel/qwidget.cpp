@@ -3382,7 +3382,7 @@ void QWidget::show()
 	}
     } else {
 
-	QShowEvent e(FALSE);
+	QShowEvent e;
 	QApplication::sendEvent( this, &e );
 
 	if ( testWFlags(WShowModal) ) {
@@ -3455,7 +3455,7 @@ void QWidget::hide()
     if ( qApp && qApp->focusWidget() == this )
 	focusNextPrevChild( TRUE );
 
-    QHideEvent e(FALSE);
+    QHideEvent e;
     QApplication::sendEvent( this, &e );
 
     // post layout hint for non toplevels. The parent widget check is
@@ -3485,8 +3485,11 @@ void QWidget::sendShowEventsToChildren( bool spontaneous )
 		if ( !widget->isTopLevel() && !widget->isVisible() && !widget->isHidden() ) {
 		    widget->setWState( WState_Visible );
 		    widget->sendShowEventsToChildren( spontaneous );
-		    QShowEvent e( spontaneous );
-		    QApplication::sendEvent( widget, &e );
+		    QShowEvent e;
+		    if ( spontaneous )
+			QApplication::sendSpontaneousEvent( widget, &e );
+		    else
+			QApplication::sendEvent( widget, &e );
 		}
 	    }
 	}
@@ -3507,8 +3510,11 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 		if ( !widget->isTopLevel() && widget->isVisible() ) {
 		    widget->clearWState( WState_Visible );
 		    widget->sendHideEventsToChildren( spontaneous );
-		    QHideEvent e( spontaneous );
-		    QApplication::sendEvent( widget, &e );
+		    QHideEvent e;
+		    if ( spontaneous )
+			QApplication::sendSpontaneousEvent( widget, &e );
+		    else
+			QApplication::sendEvent( widget, &e );
 		}
 	    }
 	}

@@ -164,6 +164,13 @@
   Returns the event type.
 */
 
+/*!
+  \fn bool QEvent::spontaneous () const
+
+  Returns TRUE if the event originated outside the application,
+  i.e. it is a system event.
+*/
+
 
 /*!
   \class QTimerEvent qevent.h
@@ -1535,26 +1542,22 @@ QCustomEvent::QCustomEvent( int type )
 
   This event is sent just before QWidget::hide() returns, and also when
   a top-level window has been hidden (iconified) by the user.
+  
+  if spontaneous() is TRUE the event originated outside the
+  application - i.e., the user hid the window via the window manager
+  controls, either by iconifying the window or by switching to another
+  virtual desktop where the window isn't visible. The window will
+  become hidden but not withdrawn.  If the window was iconified,
+  QWidget::isMinimized() is TRUE.
+
 
   \sa QShowEvent
 */
 
 /*!
-  \fn QHideEvent::QHideEvent(bool spontaneous)
+  \fn QHideEvent::QHideEvent
 
-  Constructs a QHideEvent.  \a spontaneous is TRUE if the event
-  originated outside the application - i.e., the user hid the window via the
-  window manager controls.
-*/
-
-/*!
-  \fn bool QHideEvent::spontaneous () const
-
-  Returns TRUE if the event originated outside the application -
-  i.e., the user hid the window via the window manager controls, either
-  by iconifying the window or by switching to another virtual desktop where
-  the window isn't visible. The window will become hidden but not withdrawn.
-  If the window was iconified, QWidget::isMinimized() is TRUE.
+  Constructs a QHideEvent.
 */
 
 /*!
@@ -1572,17 +1575,9 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
-  \fn QShowEvent::QShowEvent(bool spontaneous)
+  \fn QShowEvent::QShowEvent
 
-  Constructs a QShowEvent.  \a spontaneous is TRUE if the event
-  originated outside the application - i.e., the user revealed the window via the
-  window manager controls.
-*/
-
-/*!
-  \fn bool QShowEvent::spontaneous () const
-  Returns TRUE if the event originated outside the application - i.e., the user revealed the window via the
-  window manager controls.
+  Constructs a QShowEvent.
 */
 
 

@@ -2519,12 +2519,12 @@ void QApplication::setActiveWindow( QWidget* act )
     if ( old_active ) {
 	active_window = 0;
 	QEvent e( QEvent::WindowDeactivate );
-	QApplication::sendEvent( old_active, &e );
+	QApplication::sendSpontaneousEvent( old_active, &e );
     }
     active_window = window;
     if ( active_window ) {
 	QEvent e( QEvent::WindowActivate );
-	QApplication::sendEvent( active_window, &e );
+	QApplication::sendSpontaneousEvent( active_window, &e );
     }
 
 #ifndef QT_NO_PALETTE
@@ -2564,7 +2564,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	QFocusEvent out( QEvent::FocusOut );
 	QWidget *tmp = focus_widget;
 	focus_widget = 0;
-	QApplication::sendEvent( tmp, &out );
+	QApplication::sendSpontaneousEvent( tmp, &out );
     } else if ( active_window ) {
 	QWidget *w = active_window->focusWidget();
 	if ( w )

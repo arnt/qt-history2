@@ -2309,7 +2309,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	}
 	if ( *mouseInWidget ) {
 	    QEvent leave( QEvent::Leave );
-	    QApplication::sendEvent( *mouseInWidget, &leave );
+	    QApplication::sendSpontaneousEvent( *mouseInWidget, &leave );
 	    (*mouseInWidget) = 0;
 	}
 	return -1;
@@ -3130,7 +3130,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			       globalPos, button, mouseButtonState );
-		QApplication::sendEvent( popupButtonFocus, & e );
+		QApplication::sendSpontaneousEvent( popupButtonFocus, & e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
 		    popupOfPopupButtonFocus = 0;
@@ -3138,10 +3138,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
 			       globalPos, button, mouseButtonState );
-		QApplication::sendEvent( popupChild, & e );
+		QApplication::sendSpontaneousEvent( popupChild, & e );
 	    } else {
 		QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
-		QApplication::sendEvent( popupChild ? popupChild : popup, & e );
+		QApplication::sendSpontaneousEvent( popupChild ? popupChild : popup, & e );
 	    }
 
 	    if ( releaseAfter )
@@ -3201,23 +3201,23 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber())) ) {
 		if ( (*mouseInWidget) ) {
 		    QEvent leave( QEvent::Leave );
-		    QApplication::sendEvent( *mouseInWidget, &leave );
+		    QApplication::sendSpontaneousEvent( *mouseInWidget, &leave );
 		    (*mouseInWidget) = 0;
 		}
-		QApplication::sendEvent( widget->topData()->qwsManager, &e );
+		QApplication::sendSpontaneousEvent( widget->topData()->qwsManager, &e );
 	    } else
 #endif
 	    {
 		if ( widget != (*mouseInWidget) ) {
 		    if ( *mouseInWidget ) {
 			QEvent leave( QEvent::Leave );
-			QApplication::sendEvent( *mouseInWidget, &leave );
+			QApplication::sendSpontaneousEvent( *mouseInWidget, &leave );
 		    }
 		    QEvent enter( QEvent::Enter );
-		    QApplication::sendEvent( widget, &enter );
+		    QApplication::sendSpontaneousEvent( widget, &enter );
 		    (*mouseInWidget) = widget;
 		}
-		QApplication::sendEvent( widget, &e );
+		QApplication::sendSpontaneousEvent( widget, &e );
 	    }
 	}
 	// }
@@ -3255,7 +3255,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
 		     int(text.length()) );
 	a.ignore();
-	QApplication::sendEvent( topLevelWidget(), &a );
+	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	isAccel = a.isAccepted();
     }
 
@@ -3274,7 +3274,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
 		     int(text.length()) );
 	a.ignore();
-	QApplication::sendEvent( topLevelWidget(), &a );
+	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
 	    return TRUE;
     }
@@ -3283,7 +3283,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     //###### TODO lacks AccelOverride functionality, see qapplication_x11 for details
 
 
-    return QApplication::sendEvent( this, &e );
+    return QApplication::sendSpontaneousEvent( this, &e );
 }
 
 void QETWidget::repaintHierarchy(QRegion r)
