@@ -161,17 +161,15 @@ bool qt_old_transformations = TRUE;
 
     QWMatrix offers two transformation modes. Calculations can either
     be done in terms of points (Points mode, the default), or in
-    terms of areas (Areas mode).
+    terms of dimensions (Dimensions mode).
 
-    In Points mode the transformation is applied to the points, so the
-    position of these points may change. In Areas mode the
-    transformation is applied to the width and height, so the position
-    of the top-left point will not change.
+    In Points mode the transformation is applied to the points that
+    form the bounding line of the shape to be transformed. In Areas
+    mode the transformation is applied in a way, that the area that is
+    contained in the region is correctly transformed under the matrix.
 
-    \value Points maps points in the shape, so its position (top-left
-    point) may change
-    \value Areas maps the width and height of the shape, so its
-    position (top-left point) will not change
+    \value Points maps points in the shape.
+    \value Areas maps the width and height of the shape.
 
     Example:
 
@@ -184,14 +182,16 @@ bool qt_old_transformations = TRUE;
     top-left point at (20,40) and its bottom-right point at (78,118),
     i.e. with a width of 59 and a height of 79.
 
-    In Areas mode, the matrix will double the width and height, so the
-    top-left will remain at (10,20), but the bottom-right will become
-    (69,99), i.e. a width of 60 and a height of 80.
+    In Areas mode, the matrix will transformt the top-left point in
+    the same way as in Points mode to (20/40), and double the width
+    and height, so the bottom-right will become (69,99), i.e. a width
+    of 60 and a height of 80.
 
     Because integer arithmetic is used (for speed), rounding
     differences mean that the modes will produce slightly different
-    results given the same shape and the same transformation. This
-    also means that some operations are not commutative.
+    results given the same shape and the same transformation
+    especially when scaling up. This also means that some operations
+    are not commutative.
 
     Under Points mode, \c{matrix * ( region1 | region2 )} is not equal to
     \c{matrix * region1 | matrix * region2}. Under Area mode, \c{matrix *
