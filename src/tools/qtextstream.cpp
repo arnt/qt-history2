@@ -2516,5 +2516,4 @@ bool QTextStream::atEnd() const
 }
 
 
-
 #endif // QT_NO_TEXTSTREAM
