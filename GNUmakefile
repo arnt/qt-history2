@@ -68,6 +68,7 @@ clean uiclean mocclean:
 	cd src/moc && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd tutorial && $(MAKE) $@
+	cd plugins/src && $(MAKE) $@
 	cd examples && $(MAKE) $@
 
 distclean: clean
