@@ -2024,7 +2024,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                         if (pix == 256) {        // too many colors
                             do_quant = true;
                             // Break right out
-                            x = 0;
+                            x = src->width;
                             y = src->height;
                         } else {
                             // Insert into table at this unused position
@@ -2036,7 +2036,6 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                     }
                 }
                 *b++ = table[hash].pix;                // May occur once incorrectly
-                p++;
             }
             src_data += src->bytes_per_line;
             dest_data += dst->bytes_per_line;
