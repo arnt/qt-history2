@@ -1282,7 +1282,7 @@ public:
 };
 
 template<typename Enum>
-class QFlags
+class Q_EXPORT QFlags
 {
     typedef void *Zero;
     uint u;
