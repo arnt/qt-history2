@@ -648,6 +648,13 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                         break;
                     }
                 }
+#if 0
+                if(role == kAXUnknownRole) {
+                    qDebug("%s is unknown [%d]!!!", req_iface->object() ? 
+                           req_iface->object()->metaObject()->className() : "Unknown!!!", 
+                           req_iface->role(req_child));
+                }
+#endif
                 if(role == kAXUnknownRole && !req_child && req_iface->object() 
                    && req_iface->object()->isWidgetType() 
                    && static_cast<QWidget*>(req_iface->object())->isTopLevel())
