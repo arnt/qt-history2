@@ -1339,7 +1339,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     lsc = column;
     lso = ascending;
 
-    const int nColumns = listView()->columns();
+    const int nColumns = ( listView() ? listView()->columns() : 0 );
 
     // and don't sort if we already have the right sorting order
     if ( column > nColumns || childItem == 0 || childItem->siblingItem == 0 )
@@ -1517,25 +1517,28 @@ void QListViewItem::setOpen( bool o )
 void QListViewItem::setup()
 {
     widthChanged();
-    QListView * v = listView();
+    QListView *lv = listView();
 
     int ph = 0;
-    for ( int i = 0; i < v->d->column.size(); ++i ) {
-	if ( pixmap( i ) )
-	    ph = qMax( ph, pixmap( i )->height() );
-    }
-    int h;
-    if ( mlenabled ) {
-	h = ph;
-	for ( int c = 0; c < v->columns(); ++c ) {
-	    int lines = text( c ).count( QChar('\n') ) + 1;
-	    int tmph = v->d->fontMetricsHeight
-		       + v->fontMetrics().lineSpacing() * ( lines - 1 );
-	    h = qMax( h, tmph );
+    int h = 0;
+    if ( lv ) {
+	for ( int i = 0; i < lv->d->column.size(); ++i ) {
+	    if ( pixmap( i ) )
+		ph = qMax( ph, pixmap( i )->height() );
 	}
-	h += 2*v->itemMargin();
-    } else {
-	h = qMax( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
+
+	if ( mlenabled ) {
+	    h = ph;
+	    for ( int c = 0; c < lv->columns(); ++c ) {
+		int lines = text( c ).count( QChar('\n') ) + 1;
+		int tmph = lv->d->fontMetricsHeight
+			   + lv->fontMetrics().lineSpacing() * ( lines - 1 );
+		h = qMax( h, tmph );
+	    }
+	    h += 2*lv->itemMargin();
+	} else {
+	    h = qMax( lv->d->fontMetricsHeight, ph ) + 2*lv->itemMargin();
+	}
     }
 
     h = qMax( h, QApplication::globalStrut().height());
@@ -1655,17 +1658,15 @@ void QListViewItem::setExpandable( bool enable )
 void QListViewItem::enforceSortOrder() const
 {
     QListView *lv = listView();
-    if ( lv && (lv->d->clearing || lv->d->sortcolumn == Unsorted) )
+    if ( !lv || lv && (lv->d->clearing || lv->d->sortcolumn == Unsorted) )
 	return;
     if ( parentItem &&
 	 (parentItem->lsc != lsc || parentItem->lso != lso) )
 	((QListViewItem *)this)->sortChildItems( (int)parentItem->lsc,
 						 (bool)parentItem->lso );
     else if ( !parentItem &&
-	      ( (int)lsc != listView()->d->sortcolumn ||
-		(bool)lso != listView()->d->ascending ) )
-	((QListViewItem *)this)->sortChildItems( listView()->d->sortcolumn,
-						 listView()->d->ascending );
+	      ( (int)lsc != lv->d->sortcolumn || (bool)lso != lv->d->ascending ) )
+	((QListViewItem *)this)->sortChildItems( lv->d->sortcolumn, lv->d->ascending );
 }
 
 
@@ -1691,7 +1692,8 @@ void QListViewItem::setSelected( bool s )
 {
     bool old = selected;
 
-    if ( listView() && listView()->selectionMode() != QListView::NoSelection) {
+    QListView *lv = listView();
+    if ( lv && lv->selectionMode() != QListView::NoSelection) {
 	if ( s && isSelectable() )
 	    selected = TRUE;
 	else
@@ -1700,8 +1702,8 @@ void QListViewItem::setSelected( bool s )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	if ( old != (bool)selected ) {
 	    int ind = indexOfItem( this );
-	    QAccessible::updateAccessibility( listView()->viewport(), ind, QAccessible::StateChanged );
-	    QAccessible::updateAccessibility( listView()->viewport(), ind, selected ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
+	    QAccessible::updateAccessibility( lv->viewport(), ind, QAccessible::StateChanged );
+	    QAccessible::updateAccessibility( lv->viewport(), ind, selected ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
 	}
 #else
 	Q_UNUSED( old );
@@ -1810,13 +1812,13 @@ void QListViewItem::setText( int column, const QString &text )
     l->text = text;
     if ( column == (int)lsc )
 	lsc = Unsorted;
-    QListView * lv = listView();
 
     if ( mlenabled && oldLc != newLc )
 	setup();
     else
 	widthChanged( column );
 
+    QListView * lv = listView();
     if ( lv ) {
 	lv->triggerUpdate();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -2026,7 +2028,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 	marg -= lv->d->minRightBearing;
 #endif
     if ( isSelected() &&
-	 (column == 0 || listView()->allColumnsShowFocus()) ) {
+	 (column == 0 || lv->allColumnsShowFocus()) ) {
 	p->fillRect( r - marg, 0, width - r + marg, height(),
 		     pal.brush( QPalette::Highlight ) );
 	if ( enabled || !lv )
@@ -2147,11 +2149,13 @@ int QListViewItem::width( const QFontMetrics& fm,
 void QListViewItem::paintFocus( QPainter *p, const QPalette &pal,
 				const QRect & r )
 {
-    listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, pal,
-				       (isSelected() ?
-					QStyle::Style_FocusAtBorder :
-					QStyle::Style_Default),
-				       QStyleOption(isSelected() ? pal.highlight() : pal.base() ));
+    QListView *lv = listView();
+    if ( lv )
+	lv->style().drawPrimitive( QStyle::PE_FocusRect, p, r, pal,
+				   (isSelected() ?
+				    QStyle::Style_FocusAtBorder :
+				    QStyle::Style_Default),
+				   QStyleOption(isSelected() ? pal.highlight() : pal.base() ));
 }
 
 
@@ -2174,20 +2178,19 @@ void QListViewItem::paintFocus( QPainter *p, const QPalette &pal,
 void QListViewItem::paintBranches( QPainter * p, const QPalette & pal,
 				   int w, int y, int h )
 {
-    listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
-    if ( !visible )
-	return;
     QListView *lv = listView();
-    if ( lv ) {
-	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
-					QRect( 0, y, w, h ),
-					pal,
-					lv->isEnabled() ? QStyle::Style_Enabled :
-					QStyle::Style_Default,
-					(QStyle::SC_ListViewBranch |
-					 QStyle::SC_ListViewExpand),
-					QStyle::SC_None, QStyleOption(this));
-    }
+    if ( lv )
+	lv->paintEmptyArea( p, QRect( 0, 0, w, h ) );
+    if ( !visible || !lv )
+	return;
+    lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
+				    QRect( 0, y, w, h ),
+				    pal,
+				    lv->isEnabled() ? QStyle::Style_Enabled :
+				    QStyle::Style_Default,
+				    (QStyle::SC_ListViewBranch |
+				     QStyle::SC_ListViewExpand),
+				    QStyle::SC_None, QStyleOption(this));
 }
 
 
@@ -2234,8 +2237,9 @@ following double click. This state is reset after the next mouse click.
 
 void QListViewItem::ignoreDoubleClick()
 {
-    QListView *lv = (QListView*)listView();
-    lv->d->ignoreDoubleClick = TRUE;
+    QListView *lv = listView();
+    if ( lv )
+	lv->d->ignoreDoubleClick = TRUE;
 }
 
 
@@ -3702,6 +3706,10 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 
 /*!
     Returns a pointer to the list view containing this item.
+
+    Note that this function traverses the items to the root to find the
+    listview. This function will return 0 for taken items - see
+    QListViewItem::takeItem()
 */
 
 QListView * QListViewItem::listView() const
@@ -3888,7 +3896,9 @@ int QListViewItem::height() const
 */
 void QListViewItem::widthChanged( int c ) const
 {
-    listView()->widthChanged( this, c );
+    QListView *lv = listView();
+    if ( lv )
+	lv->widthChanged( this, c );
 }
 
 /*!
@@ -5735,7 +5745,9 @@ QListViewItem* QListView::lastItem() const
 
 void QListViewItem::repaint() const
 {
-    listView()->repaintItem( this );
+    QListView *lv = listView();
+    if ( lv )
+	lv->repaintItem( this );
 }
 
 
@@ -6425,8 +6437,10 @@ void QCheckListItem::setup()
 {
     QListViewItem::setup();
     int h = height();
-    h = qMax( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()),
-	      h );
+    QListView *lv = listView();
+    if ( lv )
+	h = qMax( lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv),
+		  h );
     h = qMax( h, QApplication::globalStrut().height() );
     setHeight( h );
 }
