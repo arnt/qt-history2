@@ -80,8 +80,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
-	inc.replace(QRegExp("\\\\$"), "\\\\");
-	inc.replace("\"", "");
+	if (inc.endsWith("\\"))
+	    inc.truncate(inc.length()-1);
 	t << " -I\"" << inc << "\"";
     }
     t << " -I\"" << specdir() << "\""
@@ -96,8 +96,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	QStringList &libs = project->variables()["QMAKE_LIBS"];
 	for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
 	    QString lib = (*libit);
-	    lib.replace(QRegExp("\\\\$"), "\\\\");
-	    lib.replace(QRegExp("\""), "");
+	    if (lib.endsWith("\\"))
+		lib.truncate(lib.length()-1);
 	    t << " \"" << lib << "\"";
 	}
 	t << endl;
@@ -139,7 +139,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     if(!project->isEmpty("QMAKE_EXTRA_WIN_COMPILERS")) {
 	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
 	extraCompilerDeps += " $(OBJCOMP) ";
-	
+
 	QStringList &comps = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
 	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
 	    QStringList &vars = project->variables()[(*compit) + ".variables"];
@@ -320,7 +320,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	  << cmd;
     }
     t << endl << endl;
-    
+
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
     for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
