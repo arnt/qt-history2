@@ -420,6 +420,7 @@ public:
     int num_glyphs;
     mutable int used;
     Q26Dot6 minWidth;
+    Q26Dot6 maxWidth;
     QRect boundingRect;
     QPoint position;
 

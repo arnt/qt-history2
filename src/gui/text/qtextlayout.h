@@ -167,6 +167,7 @@ public:
     QTextEngine *engine() const { return d; }
 
     int minimumWidth() const;
+    int maximumWidth() const;
 
 private:
     QTextLayout(QTextEngine *e) : d(e) {}

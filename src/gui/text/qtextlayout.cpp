@@ -312,6 +312,11 @@ int QTextLayout::minimumWidth() const
     return d->minWidth.toInt();
 }
 
+int QTextLayout::maximumWidth() const
+{
+    return d->maxWidth.toInt();
+}
+
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
                           const QRect &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {
@@ -566,6 +571,7 @@ void QTextLine::layout(int width)
 //     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
 
     eng->minWidth = qMax(eng->minWidth, minw);
+    eng->maxWidth += line.textWidth + spacew;
     // ##########################
 }
 
