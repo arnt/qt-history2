@@ -136,7 +136,6 @@ bool DatabaseConnection::open( bool suppressDialog )
 					  QApplication::tr( "&Cancel" ), 0, 0, 1 ) ) {
 	    case 0: // OK or Enter
 		continue;
-		break;
 	    case 1: // Cancel or Escape
 		done = TRUE;
 		break;
