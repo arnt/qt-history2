@@ -15,8 +15,8 @@
 
 #ifndef QT_H
 #define QT_H
-#include <qconfig.h>
 #include <qfeatures.h>
+#include <qconfig.h>
 #include <qglobal.h>
 #include "qshared.h"
 #include "qnamespace.h"
