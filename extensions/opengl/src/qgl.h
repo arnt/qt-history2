@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#18 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#19 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -285,37 +285,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
-#if defined(Q_GLX)
-// Internal overlay class for X11
-class QGLOverlayWidget : public QGLWidget
-{
-    Q_OBJECT
-public:
-    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
-		      const char* name=0 );
-    
-protected:
-    void		initializeGL();
-    void		paintGL();
-    void		resizeGL( int w, int h );
-
-    void		mousePressEvent( QMouseEvent* e );
-    void		mouseMoveEvent( QMouseEvent* e );
-    void		mouseReleaseEvent( QMouseEvent* e );
-    void		mouseDoubleClickEvent( QMouseEvent* e );
-
-private:
-    QGLWidget*		realWidget;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGLOverlayWidget( const QGLOverlayWidget& );
-    QGLOverlayWidget&	operator=( const QGLOverlayWidget& );
-#endif
-};
-
-#endif
 
 //
 // QGLFormat inline functions

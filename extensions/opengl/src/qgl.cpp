@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#42 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#43 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1742,6 +1742,135 @@ bool QGLFormat::hasOpenGLOverlays()
 }
 
 
+#if defined(Q_GLX)
+
+/*****************************************************************************
+  QGLOverlayWidget (Internal overlay class for X11)
+ *****************************************************************************/
+
+class QGLOverlayWidget : public QGLWidget
+{
+    Q_OBJECT
+public:
+    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
+		      const char* name=0 );
+    
+protected:
+    void		initializeGL();
+    void		paintGL();
+    void		resizeGL( int w, int h );
+
+    void		mousePressEvent( QMouseEvent* e );
+    void		mouseMoveEvent( QMouseEvent* e );
+    void		mouseReleaseEvent( QMouseEvent* e );
+    void		mouseDoubleClickEvent( QMouseEvent* e );
+
+private:
+    QGLWidget*		realWidget;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QGLOverlayWidget( const QGLOverlayWidget& );
+    QGLOverlayWidget&	operator=( const QGLOverlayWidget& );
+#endif
+};
+
+
+QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
+				    const char* name )
+    : QGLWidget( format, parent, name )
+{
+    realWidget = parent;
+}
+
+
+void QGLOverlayWidget::initializeGL()
+{
+    QColor transparentColor = context()->overlayTransparentColor();
+    if ( transparentColor.isValid() )
+	qglClearColor( transparentColor );
+    else
+	qWarning( "QGLOverlayWidget::initializeGL(): Could not get transparent color" );
+    realWidget->initializeOverlayGL();
+}
+
+
+void QGLOverlayWidget::resizeGL( int w, int h )
+{
+    glViewport( 0, 0, w, h );
+    realWidget->resizeOverlayGL( w, h );
+}
+
+
+void QGLOverlayWidget::paintGL()
+{
+    realWidget->paintOverlayGL();
+}
+
+
+void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+
+/************* QGLOverlayWidget moc code ********************/
+#define Q_MOC_QGLWidget
+#include <qmetaobject.h>
+
+const char *QGLOverlayWidget::className() const
+{
+    return "QGLOverlayWidget";
+}
+
+QMetaObject *QGLOverlayWidget::metaObj = 0;
+
+static QMetaObjectInit init_QGLOverlayWidget(&QGLOverlayWidget::staticMetaObject);
+
+void QGLOverlayWidget::initMetaObject()
+{
+    if ( metaObj )
+	return;
+    if ( strcmp(QGLWidget::className(), "QGLWidget") != 0 )
+	badSuperclassWarning("QGLOverlayWidget","QGLWidget");
+
+    staticMetaObject();
+}
+
+QString QGLOverlayWidget::tr(const char* s)
+{
+    return ((QNonBaseApplication*)qApp)->translate("QGLOverlayWidget",s);
+}
+
+void QGLOverlayWidget::staticMetaObject()
+{
+    if ( metaObj )
+	return;
+    QGLWidget::staticMetaObject();
+
+    metaObj = QMetaObject::new_metaobject(
+	"QGLOverlayWidget", "QGLWidget",
+	0, 0,
+	0, 0 );
+}
+
+#endif
+
 /*****************************************************************************
   QGLWidget implementation
  *****************************************************************************/
@@ -2607,65 +2736,6 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 }
 
 
-#if defined(Q_GLX)
-
-/*****************************************************************************
-  QGLOverlayWidget (Internal overlay class for X11)
- *****************************************************************************/
-
-QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
-				    const char* name )
-    : QGLWidget( format, parent, name )
-{
-    realWidget = parent;
-}
-
-
-void QGLOverlayWidget::initializeGL()
-{
-    QColor transparentColor = context()->overlayTransparentColor();
-    if ( transparentColor.isValid() )
-	qglClearColor( transparentColor );
-    else
-	qWarning( "QGLOverlayWidget::initializeGL(): Could not get transparent color" );
-    realWidget->initializeOverlayGL();
-}
-
-
-void QGLOverlayWidget::resizeGL( int w, int h )
-{
-    glViewport( 0, 0, w, h );
-    realWidget->resizeOverlayGL( w, h );
-}
-
-
-void QGLOverlayWidget::paintGL()
-{
-    realWidget->paintOverlayGL();
-}
-
-
-void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-#endif
 
 /*****************************************************************************
   QGL classes overview documentation.
