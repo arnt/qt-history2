@@ -1450,6 +1450,25 @@ bool QUrl::isValid() const
 }
 
 /*!
+    Returns true if the url has no data otherwise returns
+    false.
+*/
+bool QUrl::isEmpty() const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed))
+        return d->encodedOriginal.isEmpty();
+    else 
+        return d->scheme.isEmpty() 
+        && d->userName.isEmpty()
+        && d->password.isEmpty()
+        && d->host.isEmpty()
+        && d->port == -1
+        && d->path.isEmpty()
+        && d->query.isEmpty()
+        && d->fragment.isEmpty();
+}
+
+/*!
     Resets the content of the QUrl. After calling this function, the
     QUrl is equal to one that has been constructed with the default
     empty constructor.
