@@ -303,16 +303,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
   qDebug("QPixmap::init %dx%d", w, h);
 
-  hd=0;
-  if(w>1024 || h > 1024) {
-    hd=0;
-    return;
-  }
-  if(w<1 || h<1) {
-    hd=0;
-    return;
-  }
-
   static int serial = 0;
     
   data = new QPixmapData;
@@ -327,6 +317,16 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   data->ser_no=++serial;
   data->optim=optim;
     
+  hd=0;
+  if(w>1024 || h > 1024) {
+    hd=0;
+    return;
+  }
+  if(w<1 || h<1) {
+    hd=0;
+    return;
+  }
+
   if(d<1) {
     d=defaultDepth();
   }
