@@ -3788,45 +3788,47 @@ static void cleanup()
 
 void qt_init_image_handlers()		// initialize image handlers
 {
-    if ( !imageHandlers ) {
-	imageHandlers.setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup );
+    static bool done = false;
+    if (done) return;
+    done = true;
+
+    imageHandlers.setAutoDelete( TRUE );
+    qAddPostRoutine( cleanup );
 #ifndef QT_NO_IMAGEIO_BMP
-	QImageIO::defineIOHandler( "BMP", "^BM", 0,
-				   read_bmp_image, write_bmp_image );
+    QImageIO::defineIOHandler( "BMP", "^BM", 0,
+			       read_bmp_image, write_bmp_image );
 #endif
 #ifndef QT_NO_IMAGEIO_PPM
-	QImageIO::defineIOHandler( "PBM", "^P1", "t",
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PBMRAW", "^P4", "O",
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PGM", "^P2", "t",
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PGMRAW", "^P5", "O",
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PPM", "^P3", "t",
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PPMRAW", "^P6", "O",
-				   read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PBM", "^P1", "t",
+			       read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PBMRAW", "^P4", "O",
+			       read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PGM", "^P2", "t",
+			       read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PGMRAW", "^P5", "O",
+			       read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PPM", "^P3", "t",
+			       read_pbm_image, write_pbm_image );
+    QImageIO::defineIOHandler( "PPMRAW", "^P6", "O",
+			       read_pbm_image, write_pbm_image );
 #endif
 #ifndef QT_NO_IMAGEIO_XBM
-	QImageIO::defineIOHandler( "XBM", "^#define", "T",
-				   read_xbm_image, write_xbm_image );
+    QImageIO::defineIOHandler( "XBM", "^#define", "T",
+			       read_xbm_image, write_xbm_image );
 #endif
 #ifndef QT_NO_IMAGEIO_XPM
-	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
-				   read_xpm_image, write_xpm_image );
+    QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
+			       read_xpm_image, write_xpm_image );
 #endif
 #ifndef QT_NO_IMAGEIO_MNG
-	qInitMngIO();
+    qInitMngIO();
 #endif
 #ifndef QT_NO_IMAGEIO_PNG
-	qInitPngIO();
+    qInitPngIO();
 #endif
 #ifndef QT_NO_IMAGEIO_JPEG
-	qInitJpegIO();
+    qInitJpegIO();
 #endif
-    }
 }
 
 static QImageHandler *get_image_handler( const char *format )
