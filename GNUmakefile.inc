@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#14 $
+# $Id: //depot/qt/main/GNUmakefile.inc#15 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -98,7 +98,7 @@ endif
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).profile \
 	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/$(PROJOBJ)profile"
 	perl -pi \
-	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g -pg /; s|-lqt|\$$(QTDIR)/lib/libqt.a \$$(QTDIR)/src/.obj/profile/libfreetype.a|' \
+	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g -pg /; s|-lqt|\$$(QTDIR)/lib/libqt.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libfreetype.a|' \
 		GNUmakefile$(PROJMAK).profile
 
 GNUmakefile$(PROJMAK).gcc-debug: $(PROJECT).pro GNUmakefile
