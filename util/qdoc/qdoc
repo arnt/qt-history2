@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#100 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#101 $
 #
 # this is a massive hack, written very quickly
 #
@@ -181,7 +181,7 @@ sub processcode {
     @egsx;
 
     # look for class names
-    s@((?:(?:^)|(?:[:\n;\{\(]))\s*)([A-Za-z0-9_]+)\b(?!::)@
+    s@((?:(?:^)|(?:[:\n;\{\(])|(?:\bnew))\s*)([A-Za-z0-9_]+)\b(?!::)@
     {
 	if ((defined($anchor{$2})) && ($type{$anchor{$2}} eq "class")) {
 	    sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
@@ -1048,26 +1048,26 @@ sub readc {
 
 	if ($doc =~ m@^\\class\s+(\w+)\s+([\.\w]+)\s+(.*?)\s*$@s) {
 	    # it's a \class
-	    my ($class, $hfile, $doc);
+	    my ($class, $hfile, $rfile, $doc);
 	    my ($url);
 	    $class = $1;
-	    $hfile = $2;
+	    $hfile = $rfile = $2;
 	    $doc = $3;
+	    $hfile =~ s/\.doc/.h/;
 	    die if ( $hfile eq "" );
 	    if (!defined($cfiles{$hfile})) {
-		readh($hfile);
+		readh($rfile);
 	    }
 	    $filename =~ s-^.*/--;
 	    $cfiles{$hfile} .= " " . $filename;
 	    $url = &mangleclass($class);
-	    print $class, " not in ", $hfile, "\n" 
-		unless (defined($members{$url}) || defined($declared{$class}));
+#	    print $class, " not in ", $rfile, "\n" 
+#		unless (defined($members{$url}) || defined($declared{$class}));
 	    # override inheritance after storeclass has done its job
 	    $inheritance{$url} = "public ".$1
 		if ( $doc =~ s/\s*\\inherit\s*(\w+)\s+/\n\n/ );
 	    $doc{$url} = $doc;
 	    $includefile{$url} = $hfile;
-	    $includefile{$url} =~ s/\.doc/.h/;
 	} elsif ($doc =~ m@^\\defgroup\s+([\w\.]+)\s+(.*?)\s*$@s) {
 	    # it's a \defgroup
 	    $pages{$1} = 
