@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#42 $
 **
 ** Definition of QIconView widget class
 **
@@ -390,6 +390,21 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
   As the iconview is designed to use DnD, the iconview has methodes for DnD too.
 
   Subclassing QIconViewItem will provide a big flexibility.
+*/
+
+
+/*! \enum QIconView::ResizeMode
+
+  This enum type decides how QIconView should treat the positions of
+  its icons when the widget is resized.  The currently defined modes
+  are: <ul>
+
+  <li> \c Fixed - the icons' positions are not changed.
+
+  <li> \c Adjust - the icons' positions are adjusted to be within the
+  new geometry, if possible.
+
+  </ul>
 */
 
 /*!
