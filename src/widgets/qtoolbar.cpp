@@ -37,6 +37,11 @@
 #include "qapplication.h"
 
 
+struct QToolBarPrivate
+{
+    bool moving;
+};
+
 // NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
@@ -83,14 +88,20 @@ QToolBar::QToolBar( const QString &label,
 		    bool newLine, const char * name )
     : QWidget( parent, name )
 {
-    d = 0;
+    d = new QToolBarPrivate;
+    d->moving = FALSE;
     b = 0;
     mw = parent;
     sw = 0;
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
-    if ( parent )
+    if ( parent ) {
 	parent->addToolBar( this, label, dock, newLine );
+	connect( parent, SIGNAL( startMovingToolbar( QToolBar * ) ),
+		 this, SLOT( startMoving( QToolBar * ) ) );
+	connect( parent, SIGNAL( endMovingToolbar( QToolBar * ) ),
+		 this, SLOT( endMoving( QToolBar * ) ) );
+    }
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
@@ -114,13 +125,19 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 		    WFlags f )
     : QWidget( parent, name, f )
 {
-    d = 0;
+    d = new QToolBarPrivate;
+    d->moving = FALSE;
     b = 0;
     mw = mainWindow;
     sw = 0;
     o = Horizontal;
-    if ( mainWindow )
+    if ( mainWindow ) {
 	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+	connect( mainWindow, SIGNAL( startMovingToolbar( QToolBar * ) ),
+		 this, SLOT( startMoving( QToolBar * ) ) );
+	connect( mainWindow, SIGNAL( endMovingToolbar( QToolBar * ) ),
+		 this, SLOT( endMoving( QToolBar * ) ) );
+    }
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
@@ -137,13 +154,19 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
     : QWidget( parent, name )
 {
-    d = 0;
+    d = new QToolBarPrivate;
+    d->moving = FALSE;
     b = 0;
     o = Horizontal;
     sw = 0;
     mw = parent;
-    if ( parent )
+    if ( parent ) {
 	parent->addToolBar( this, QString::null, QMainWindow::Top );
+	connect( parent, SIGNAL( startMovingToolbar( QToolBar * ) ),
+		 this, SLOT( startMoving( QToolBar * ) ) );
+	connect( parent, SIGNAL( endMovingToolbar( QToolBar * ) ),
+		 this, SLOT( endMoving( QToolBar * ) ) );
+    }
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
@@ -257,8 +280,10 @@ void QToolBar::setUpGM()
 }
 
 
-/*!  Paint the handle.  The Motif style is rather close to Netscape
-  and even closer to KDE. */
+/*!  
+  Paint the handle.  The Motif style is rather close to Netscape
+  and even closer to KDE. 
+*/
 
 void QToolBar::paintEvent( QPaintEvent * )
 {
@@ -272,6 +297,8 @@ void QToolBar::paintEvent( QPaintEvent * )
 	if ( orientation() == Vertical ) {
 	    int w = width();
 	    if ( w > 6 ) {
+		if ( d->moving )
+		    p.fillRect( 1, 1, w - 2, 9, colorGroup().highlight() ); 
 		QPointArray a( 2 * ((w-6)/3) );
 		
 		int x = 3 + (w%3)/2;
@@ -293,6 +320,8 @@ void QToolBar::paintEvent( QPaintEvent * )
 	} else {
 	    int h = height();
 	    if ( h > 6 ) {
+		if ( d->moving )
+		    p.fillRect( 1, 1, 8, h - 2, colorGroup().highlight() ); 
 		QPointArray a( 2 * ((h-6)/3) );
 		int y = 3 + (h%3)/2;
 		p.setPen( dark );
@@ -315,16 +344,16 @@ void QToolBar::paintEvent( QPaintEvent * )
 	if ( orientation() == Vertical ) {
 	    if ( width() > 4 ) {
 		qDrawShadePanel( &p, 2, 4, width() - 4, 3,
-				 colorGroup(), FALSE, 1, 0 );
+				 colorGroup(), d->moving, 1, 0 );
 		qDrawShadePanel( &p, 2, 7, width() - 4, 3,
-				 colorGroup(), FALSE, 1, 0 );
+				 colorGroup(), d->moving, 1, 0 );
 	    }
 	} else {
 	    if ( height() > 4 ) {
 		qDrawShadePanel( &p, 4, 2, 3, height() - 4,
-				 colorGroup(), FALSE, 1, 0 );
+				 colorGroup(), d->moving, 1, 0 );
 		qDrawShadePanel( &p, 7, 2, 3, height() - 4,
-				 colorGroup(), FALSE, 1, 0 );
+				 colorGroup(), d->moving, 1, 0 );
 	    }
 	}
     }
@@ -415,6 +444,30 @@ void QToolBar::clear()
     for (QObjectListIt it(list); it.current(); ++it) {
 	if ( it.current()->isWidgetType() )
 	    delete it.current();
+    }
+}
+
+/*!
+  \internal
+*/
+
+void QToolBar::startMoving( QToolBar *tb )
+{
+    if ( tb == this ) {
+	d->moving = TRUE;
+	repaint( FALSE );
+    }
+}
+
+/*!
+  \internal
+*/
+
+void QToolBar::endMoving( QToolBar *tb )
+{
+    if ( tb == this && d->moving ) {
+	d->moving = FALSE;
+	repaint( TRUE );
     }
 }
 

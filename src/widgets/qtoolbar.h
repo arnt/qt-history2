@@ -69,6 +69,10 @@ public:
 protected:
     void paintEvent( QPaintEvent * );
 
+protected slots:
+    void startMoving( QToolBar *tb );
+    void endMoving( QToolBar *tb );
+    
 private:
     virtual void setUpGM();
 

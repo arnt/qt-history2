@@ -209,7 +209,7 @@ public:
     QToolBar *oldCovering;
 
     bool movable;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -1336,6 +1336,20 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
   relevant widgets must connect to this signal.
 */
 
+/*!
+  \fn void QMainWindow::startMovingToolbar( QToolBar *toolbar )
+  
+  This signal is emitted when the \a toolbar starts moving because
+  the user started dragging it.
+*/
+
+/*!
+  \fn void QMainWindow::endMovingToolbar( QToolBar *toolbar )
+  
+  This signal is emitted if the \a toolbar has been moved by
+  the user and he/she released the mouse button now, so he/she
+  stopped the moving.
+*/
 
 /*!  Sets this main window to expand its toolbars to fill all
   available space if \a enable is TRUE, and to give the toolbars just
@@ -1625,6 +1639,8 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
+	emit startMovingToolbar( t );
+
 	// don't allow repaints of the central widget as this may be a problem for our rects
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
@@ -1661,7 +1677,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->oldiPos = ipos;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
-
 	// delete the rect painter
 	QApplication::restoreOverrideCursor();
 	if ( d->rectPainter ) {
@@ -1687,6 +1702,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( dock != Unmanaged /*&& dock != d->origDock*/ && isDockEnabled( dock ) &&
 	     isDockEnabled( t, dock ) )
 	    moveToolBar( t, dock, covering, ipos != QMainWindowPrivate::Before );
+
+	emit endMovingToolbar( t );
+	
 	return;
     }
 
@@ -1835,7 +1853,7 @@ QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
 /*!
   If \a enable is TRUE, the user is allowed to drag toolbars between and
   in the toolbar docks. Else this feature is disabled.
-  
+
   \sa setDockEnabled()
 */
 
@@ -1847,7 +1865,7 @@ void QMainWindow::setMovableToolbarsEnabled( bool enable )
 /*!
   Returns TRUE if the user is allowed to drag toolbars between and
   in the toolbar docks, else FALSE.
-  
+
   \sa setMovableToolbarsEnabled()
 */
 
