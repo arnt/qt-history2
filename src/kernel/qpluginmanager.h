@@ -43,6 +43,9 @@ public:
 
     virtual void addPlugInPath( const QString& path, const QString& filter = "*.dll; *.so" )
     {
+	if ( !QDir( path ).exists( ".", TRUE ) )
+	    return;
+
 	QStringList plugins = QDir(path).entryList( filter );
 
 	for ( uint p = 0; p < plugins.count(); p++ ) {
