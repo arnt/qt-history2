@@ -2986,7 +2986,6 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 fi
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\""
 QMAKE_VARS="$QMAKE_VARS \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
-QMAKE_VARS="$QMAKE_VARS \"RCC_DIR=.rcc/$QMAKE_OUTDIR\""
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 fi
@@ -3540,7 +3539,7 @@ CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
 ARCH = $ARCH
-CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
+CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE

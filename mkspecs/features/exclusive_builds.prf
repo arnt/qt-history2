@@ -1,6 +1,26 @@
+# addExclusiveBuilds(1config, 2config)
+# Change all output paths that references 2config to have the string 1config in them
+defineTest(fixExclusiveOutputDirs) {
+    firstBuild = $$1
+    secondBuild = $$2
+
+    isEmpty(QMAKE_DIR_REPLACE):QMAKE_DIR_REPLACE += OBJECTS_DIR MOC_DIR
+    eval($${firstBuild}_and_$${secondBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
+    for(fix, QMAKE_DIR_REPLACE) {
+        isEmpty($$fix) {
+            eval($$fix = $${firstBuild})
+        } else:contains($$list($$first($$fix)), .*$${secondBuild}.*) {
+            eval($$fix ~= s/$${secondBuild}/$${firstBuild}/gi)
+        } else:!contains($$list($$first($$fix)), .*$${firstBuild}.*) {
+            contains($$list($${first($$fix)}), .*/$):eval($$fix = $${first($$fix)}$${firstBuild})
+	    else:eval($$fix = $${first($$fix)}-$${firstBuild})
+        }
+    }
+    return(true)
+}
+
 # addExclusiveBuilds(1config, 1name, 2config, 2name)
 # Adds two BUILDS which are exclusive to each other.
-
 defineTest(addExclusiveBuilds) {
     firstBuild = $$1
     firstBuildName = $$2
@@ -37,16 +57,8 @@ defineTest(addExclusiveBuilds) {
         CONFIG($${firstBuild}, $${firstBuild}|$${secondBuild}): BUILDS = $$first_BUILDS  $$second_BUILDS 
         else: BUILDS = $$second_BUILDS $$first_BUILDS
     } else {
-        isEmpty(QMAKE_DIR_REPLACE):QMAKE_DIR_REPLACE += OBJECTS_DIR MOC_DIR RCC_DIR UI_DIR
-        eval($${firstBuild}_and_$${secondBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
-        for(fix, QMAKE_DIR_REPLACE) {
-            isEmpty($$fix) {
-                eval($${firstBuildName}Build:$$fix = $${firstBuild})
-                eval($${secondBuildName}Build:$$fix = $${secondBuild})
-            } else {
-                eval($${firstBuildName}Build:$$fix ~= s/$${secondBuild}/$${firstBuild}/gi)
-                eval($${secondBuildName}Build:$$fix ~= s/$${firstBuild}/$${secondBuild}/gi)
-            }
-        }
+        eval($${firstBuildName}Build:fixExclusiveOutputDirs($$firstBuild, $$secondBuild))
+        eval($${secondBuildName}Build:fixExclusiveOutputDirs($$secondBuild, $$firstBuild))
     }
+    return(true)
 }

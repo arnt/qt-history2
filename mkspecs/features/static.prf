@@ -1,2 +1,3 @@
 CONFIG -= shared dll
 contains(TEMPLATE, ".*lib"): CONFIG += staticlib 
+!static_and_shared:fix_output_dirs:fixExclusiveOutputDirs(static, shared)
