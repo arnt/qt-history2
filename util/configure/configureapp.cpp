@@ -729,7 +729,7 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 #if !defined(EVAL)
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
-	cout << "                     (qtlibs.pro, qtmain.pro)." << endl << endl;
+	cout << "                     (src directory)." << endl << endl;
 
 	cout << "-D <define>          Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>     Add <includepath> to the include searchpath." << endl;
@@ -1434,8 +1434,9 @@ void Configure::findProjects( const QString& dirName )
 	    const QFileInfo &fi = list.at(i);
 	    if( fi.fileName()[ 0 ] != '.' && fi.fileName() != "qmake.pro" ) {
 		entryName = dirName + "/" + fi.fileName();
-		if( fi.isDir() ) {
-		    findProjects( entryName );
+		if(fi.isDir()) {
+		    if (fi.absFilePath() != QDir(dictionary["QT_SOURCE_TREE"]).filePath("src"))
+			findProjects( entryName );
 		} else {
 		    if( fi.fileName().right( 4 ) == ".pro" ) {
 			qmakeTemplate = projectType( fi.absFilePath() );
