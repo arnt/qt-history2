@@ -309,7 +309,7 @@ void Project::parse()
 	QString currName;
 	for ( i = 0; i < (int)part.length(); ++i ) {
 	    QChar c = part[ i ];
-	    if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' ) &&
+	    if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ) &&
 		 c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
 		if ( !inName )
 		    currName = QString::null;
