@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#89 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#90 $
 **
 ** Definition of QListBox widget class
 **
@@ -161,7 +161,7 @@ public:
     QListBoxItem * itemAt( QPoint ) const;
 
     QRect itemRect( QListBoxItem *item ) const;
-    
+
 public slots:
     virtual void clearSelection();
 
@@ -214,7 +214,8 @@ protected:
 private slots:
     void refreshSlot();
     void doAutoScroll();
-
+    void visibleSlot();
+    
 private:
     void tryGeometry( int, int ) const;
     int currentRow() const;

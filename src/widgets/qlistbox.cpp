@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#263 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#264 $
 **
 ** Implementation of QListBox widget class
 **
@@ -49,7 +49,7 @@ public:
 	currentRow( 0 ), currentColumn( 0 ),
 	mousePressRow( -1 ), mousePressColumn( -1 ),
 	mouseMoveRow( -1 ), mouseMoveColumn( -1 ),
-	scrollTimer( 0 ), updateTimer( 0 ),
+	scrollTimer( 0 ), updateTimer( 0 ), visibleTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	ignoreMoves( FALSE ),
@@ -86,7 +86,8 @@ public:
 
     QTimer * scrollTimer;
     QTimer * updateTimer;
-
+    QTimer * visibleTimer;
+    
     QPoint scrollPos;
 
     QListBox::SelectionMode selectionMode;
@@ -548,8 +549,11 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 {
     d = new QListBoxPrivate;
     d->updateTimer = new QTimer( this, "listbox update timer" );
+    d->visibleTimer = new QTimer( this, "listbox visible timer" );
     connect( d->updateTimer, SIGNAL(timeout()),
              this, SLOT(refreshSlot()) );
+    connect( d->visibleTimer, SIGNAL(timeout()),
+             this, SLOT(visibleSlot()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this ); // ### wrong way around, kind of
@@ -1043,16 +1047,17 @@ void QListBox::setCurrentItem( QListBoxItem * i )
         if ( i )
             setSelected( i, TRUE );
     }
+        if ( o )
+            updateItem( o );
+        if ( i )
+            updateItem( i );
+        //}
 
-    if ( o )
-        updateItem( o );
-    if ( i )
-        updateItem( i );
     int ind = index( i );
-
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
-    ensureCurrentVisible();
+    d->visibleTimer->start( 1, TRUE );
+    
     QString tmp;
     if ( i )
         tmp = i->text();
@@ -2530,6 +2535,10 @@ void QListBox::refreshSlot()
         viewport()->repaint( r, FALSE );
 }
 
+void QListBox::visibleSlot()
+{
+    ensureCurrentVisible();
+}
 
 /*! \reimp */
 
