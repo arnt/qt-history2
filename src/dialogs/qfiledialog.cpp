@@ -4020,7 +4020,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	int rename = m.insertItem( tr( "&Rename" ) );
 	int del = m.insertItem( tr( "&Delete" ) );
 
-	if ( filename.isEmpty() || !QUrlInfo( d->url, "." ).isWritable() ||
+	if ( filename.isEmpty() || !QUrlInfo( d->url, filename ).isWritable() ||
 	     filename == ".." ) {
 	    if ( filename.isEmpty() || !QUrlInfo( d->url, filename ).isReadable() )
 		m.setItemEnabled( ok, FALSE );
@@ -5036,8 +5036,6 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 */
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
-
-
     if ( !o || !e )
 	return TRUE;
 
