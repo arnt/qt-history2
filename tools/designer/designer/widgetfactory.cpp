@@ -800,6 +800,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	Line *l = new Line( parent, name );
 	MetaDataBase::addEntry( l );
 	MetaDataBase::setPropertyChanged( l, "orientation", TRUE );
+	MetaDataBase::setPropertyChanged( l, "frameShadow", TRUE );
+	MetaDataBase::setPropertyChanged( l, "frameShape", TRUE );
 	if ( !r )
 	    return l;
 	if ( !r->isValid() || r->width() < 2 && r->height() < 2 )
