@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#60 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#60 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -659,8 +659,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 		hdc = GetDC( w->winId() );
 	    w->hdc = hdc;
 	}
-    }
-    else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
+    } else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -680,11 +679,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
-    }
-    else if ( dt == PDT_PRINTER ) {		// device is a printer
-	if ( pdev->handle() ) {
+    } else if ( dt == PDT_PRINTER ) {		// device is a printer
+	if ( pdev->handle() )
 	    hdc = pdev->handle();
-	}
 	flags |= (NoCache | RGBColor);
     }
     if ( testf(ExtDev) ) {

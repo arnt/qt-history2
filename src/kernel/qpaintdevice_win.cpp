@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#28 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#28 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -211,8 +211,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	}
-    }
-    else {
+    } else {
 	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     }
     if ( src_tmp ) {
