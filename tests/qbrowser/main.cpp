@@ -1,5 +1,6 @@
 #include <qapplication.h>
 #include <qwindowsstyle.h>
+#include <qml.h>
 #include "lhelp.h"
 #include <stdlib.h>
 
@@ -10,13 +11,20 @@ int main( int argc, char ** argv ) {
     QApplication::setStyle( new QWindowsStyle );
     QApplication a(argc, argv);
 
+    
+    QMLStyleSheet::defaultSheet()->style("p")->setSelfNesting( FALSE );
+    QMLStyleSheet::defaultSheet()->style("li")->setSelfNesting( FALSE );
+    QMLStyle* style = new QMLStyle( QMLStyleSheet::defaultSheet(), "head" );
+    style->setDisplayMode(QMLStyle::DisplayNone);
+    
+    
     QString qt = getenv("QTDIR");
     QString home;
     if (argc > 1)
 	home = argv[1];
     else
 	home = qt + "/doc/html/index.html";
-    
+
     LHelp h(home, "");
 
     a.setMainWidget( &h );
