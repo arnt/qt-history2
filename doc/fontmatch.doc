@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: fontmatch.doc,v 2.2 1997/08/06 15:03:12 hanord Exp $
+** $Id: fontmatch.doc,v 2.3 1998/03/26 22:21:17 aavit Exp $
 **
 ** Explanation of font matching
 **
@@ -10,7 +10,10 @@
 /*! \page fontmatch.html
 
 <title>Qt Font Matching</title></head><body bgcolor="#ffffff">
-<h1 align=center> Qt Font Matching </h1>
+
+\postheader
+
+<h1 align=center> Font Matching </h1>
 
 <p>
 

@@ -152,6 +152,9 @@ Ditto:
 > Note 2. Defining 'Key_Q + ASCII_ACCEL' displays rubbish on a popup.
 
 
+Support WM_CLIENT_LEADER flag. Ref. Jeff Meininger.
+
+
 Bugs:
 -----
     Default plassering av barnewidgets

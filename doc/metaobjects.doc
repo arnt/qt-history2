@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.6 1998/03/19 17:46:57 agulbra Exp $
+** $Id: metaobjects.doc,v 2.7 1998/03/26 22:21:18 aavit Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -12,6 +12,8 @@
 <title>
 Qt toolkit - Meta Object Compiler description
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Signals, Slots and the Meta Object Compiler</h1>
 

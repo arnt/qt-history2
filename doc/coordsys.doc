@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: coordsys.doc,v 2.3 1997/08/06 15:03:11 hanord Exp $
+** $Id: coordsys.doc,v 2.4 1998/03/26 22:21:17 aavit Exp $
 **
 ** Qt Coordinate System Documentation
 **
@@ -13,11 +13,9 @@
 <title>The Coordinate System</title>
 </head><body bgcolor="#ffffff">
 
+\postheader
+
 <h1 align=center>The Coordinate System</h1>
-<hr>
-
-
-<h2>Introduction</h2>
 
 A \link QPaintDevice paint device\endlink in Qt is a drawable 2D
 surface. \link QWidget QWidget\endlink, \link QPixmap QPixmap\endlink,

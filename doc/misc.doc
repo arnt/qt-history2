@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.24 1998/03/19 17:47:16 agulbra Exp $
+** $Id: misc.doc,v 2.25 1998/03/26 22:21:18 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.24 1998/03/19 17:47:16 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.25 1998/03/26 22:21:18 aavit Exp $";
 #endif
 
 
@@ -16,6 +16,10 @@ static char ident[] = "$Id: misc.doc,v 2.24 1998/03/19 17:47:16 agulbra Exp $";
 
 <title>Qt Free Edition License Statement</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>Free Edition License</h1>
+
 <p>
 This is license for Qt Free Edition version 1.32; it mainly
 covers development of free software for the free software community.
@@ -29,7 +33,7 @@ Edition</a> license is much less restrictive than this one.
 <p>
 <hr>
 <p>
-<h1 align=center>QT FREE EDITION LICENSE</h1>
+<h2 align=center>QT FREE EDITION LICENSE</h2>
 <p>
 Copyright &copy; 1992-1998 Troll Tech AS.  All rights reserved.
 <p>
@@ -38,7 +42,7 @@ This is the license for Qt Free Edition version 1.32; it covers
 private use, use of third-party application programs based on Qt, and
 development of free software for the free software community.
 <p>
-<h2 align=center>COPYRIGHT AND RESTRICTIONS</h2>
+<h3 align=center>COPYRIGHT AND RESTRICTIONS</h3>
 <p>
 The Qt toolkit is a product of Troll Tech AS. The Qt Free Edition is limited to
 use with the X Window System.
@@ -104,7 +108,7 @@ free of charge, see [README.QT] for details.
 your components.
 </ul>
 <p>
-<h2 align=center>LIMITATIONS OF LIABILITY</h2>
+<h3 align=center>LIMITATIONS OF LIABILITY</h3>
 <p>
 Troll Tech AS makes no obligation under this license to support or upgrade
 Qt Free Edition, or assist in the use of Qt Free Edition.
@@ -134,104 +138,152 @@ to the license.)
 <title>Troll Tech Contact Information</title>
 </head>
 <body bgcolor="#ffffff">
-<p>
-<h1 align=center>
-<img src="letter.gif" align=right width=48 height=48>
-Contact Troll Tech
-</h1>
-We mostly rely on the Internet for communication.
-<p>
-<h2>E-Mail</h2>
-<p>
-We can be reached via the following e-mail addresses:
-<ul>
-<li>General inquiries: <a href="mailto:info@troll.no">info@troll.no</a>.
-<li>Sales or pricing questions: <a href="mailto:sales@troll.no">sales@troll.no</a>.
-<li>Qt bug reports and other Qt-related mail: <a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
-<li>Comments about our web pages: <a href="mailto:www@troll.no">www@troll.no</a>.
-</ul>
-<p>
+\postheader
+
+<h1 align=center>Contact Information</h1>
+
+<center>
+<img width="168" height="98" src="ttlogo-small.jpg" alt="Troll Tech Logo">
+</center>
+
+
+<h2>World Wide Web</h2>
+
+The Troll Tech web server is located at:<br>
+<center>
+<b><tt>
+<a href=http://www.troll.no/>http://www.troll.no/</a>
+</tt>
+</b>
+</center>
+
+<h2>Email</h2>
+
+Troll Tech can be reached via the following e-mail addresses:
+<dl>
+ <dt><a href="mailto:info@troll.no"><b>info@troll.no</b></a>
+  <dd>General inquiries and questions.
+ <br> 
+ <dt><a href="mailto:sales@troll.no"><b>sales@troll.no</b></a>
+  <dd>Inquires related to purchasing, pricing and availability of
+  Troll Tech products.
+ <br> 
+ <dt><a href="mailto:www@troll.no"><b>www@troll.no</b></a>
+  <dd>Comments about our web pages.
+ <br> 
+ <dt><a href="mailto:qt-bugs@troll.no"><b>qt-bugs@troll.no</b></a>
+  <dd>Use this if you think you have found a bug in Qt. Please provide
+  as much information as possible, including Qt version and your
+  operating system and compiler.
+</dl>
+
+
+<h2>FAX</h2>
+
+Our telefax number is:<br>
+<center>
+<strong>+47 22 64 69 49</strong>
+</center>
+
+
 <h2>Regular Mail</h2>
-<p>
+
+Our postal address is:<br>
+<center>
+<table>
+<tr><td align=left>
 Troll Tech AS<br>
-Postboks 6133 Etterstad<br>
+PO Box 6133 Etterstad<br>
 N-0602 Oslo<br>
-NORWAY<br>
-<p>
-<h2>Fax</h2>
-<p>
-Fax no: +47 22 64 69 49.
-<p>
-<h2>Mailing Lists</h2>
-<p>
-There is a mailing list for Qt users.  Send a message containing the
-single word "subscribe" to <a
+NORWAY<br></td></tr>
+</table>
+</center>
+
+*/
+
+
+/*! \page mailinglists.html
+
+<title>Qt Mailing Lists Information</title></head><body bgcolor="#ffffff">
+\postheader
+<h1 align=center>Mailing Lists</h1>
+
+Troll Tech operates two mailing lists for Qt users:
+<code>qt-announce</code> and <code>qt-interest</code>.
+
+<h2>qt-announce</h2>
+
+The subscribers to this mailing list receives all official Troll Tech
+announcements when new versions of Qt and other Troll Tech products
+are released, and other Troll Tech announcements of general interest.
+
+To subscribe to the <code>qt-announce</code> mailing list, simply press
+the button below.
+
+<center>
+<form enctype="text/plain" action="mailto:qt-announce-request@troll.no">
+<input type=hidden name="magic" value="subscribe">
+<input type=submit value="Subscribe to Qt Announcement Mailing List"></form>
+</center>
+
+<p>You can also subscribe by sending an email containing just the word
+<tt>subscribe</tt> or <tt>subscribe <em>your@email.address</em></tt> to <a
+href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+
+<p>To unsubscribe yourself from the <code>qt-announce</code> mailing
+list, similarly send an email containing just the word
+<tt>unsubscribe</tt> or
+<tt>unsubscribe <em>your@email.address</em></tt> to <a
+href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+
+
+<h2>qt-interest</h2>
+
+This mailing list is a discussion forum for Qt users. Typical traffic
+is 5-10 messages per day.
+
+An archive of the messages from qt-interest is available on the Troll
+Tech web site: <a href="http://www.troll.no/qt-interest/">Qt Mailing
+List Archive</a>.
+
+To subscribe to the <code>qt-interest</code> mailing list, send an
+email containing just the word <tt>subscribe</tt> or <tt>subscribe
+ <em>your@email.address</em></tt> to <a
 href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
-to join the list.  You will receive a receipt from the list server within
-a few minutes.
-<p>
-Send a message containing the word "subscribe" to
-<a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
-if you want to be notified when new versions of Qt are released.  You will receive
-a receipt from the list server within a few minutes.
+
+To unsubscribe yourself from the <code>qt-interest</code> mailing
+list, similarly send an email containing just the word
+<tt>unsubscribe</tt> or
+<tt>unsubscribe <em>your@email.address</em></tt> to <a
+href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
+
+<small>Troll Tech does not sell or in any way redistribute the
+adresses on our mailing lists. We also employ active filtering to
+ensure the mailing lists are virtually free from spam.</small>
 
 */
 
 
-/*! \page qt.html
+/*! \page trademarks.html
 
-<title>Qt toolkit - overview</title>
-</head><body bgcolor="#ffffff">
+<title>Trademarks</title></head><body bgcolor="#ffffff">
+\postheader
+<h1 align=center>Trademarks</h1>
 
-<h1 align=center>The Qt Application Framework</h1>
+The <a href="qtlogo.jpg">Qt logo</a> and <a
+href="ttlogo-small.jpg">Troll Tech logo</a> are copyright © Troll
+Tech AS.
 
-Qt is a high-performance object-oriented framework for developing graphical
-user interface (GUI) applications.
+<tt>Qt</tt> is a trademark of Troll Tech AS.
 
-<p>
+All other trademarks mentioned in this documentation are recognized as
+belonging to their respective owners, including but not limited to
+<tt>AIX, BSD/OS, BSDI, Borland, DEC, Digital UNIX, HP, HP-UX, IBM,
+IRIX, Microsoft, OpenGL, OSF/1, OpenGL, SGI, Solaris, SparcWorks, Sun,
+SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and <tt> Watcom.</tt>
 
-Qt can be downloaded from <a
-href="http://www.troll.no/">http://www.troll.no/</a>, where you find
-on-line documentation and other Qt-related pages, as well.
-
-<p>
-
-It is also ftp'able from <a href="ftp://ftp.troll.no/">ftp.troll.no</a>
-nd other places (e.g
-<a href="ftp://sunsite.unc.edu/pub/Linux/">sunsite.unc.edu.</a>)
-
-<p>
-
-If you find any bugs, send a report to
-<a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>
-
-<p>
-
-If you create a nice Qt program and want us to distribute it as a
-contrib, send us a line at <a href="mailto:info@troll.no">
-info@troll.no</a> or upload it to the /incoming directory of
-ftp.troll.no.
-
-<p>
-
-There is a mailing list for Qt users. Send a message containing the single
-word "subscribe" to <a href="mailto:qt-interest-request@troll.no">
-qt-interest-request@troll.no</a> to join the list.
-You will receive a receipt from the list server within a few minutes.
-
-<p>
-
-Here is some more information about Qt:
-
-<ul>
-<li><a href="http://www.troll.no/qtinfo.html">Introduction to Qt</a>
-<li><a href="http://www.troll.no/changes/">Change log for Qt</a>
-<li><a href="index.html">Documentation Home Page</a>
-<li><a href="annotated.html">Annotated Class List</a>
-<li><a href="tutorial.html">Tutorial</a>
-<li><a href="examples.html">Example Programs</a>
-</ul>
 */
+
 
 /*! \page easteregg.html
 

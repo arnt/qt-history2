@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: design.doc,v 2.2 1997/08/06 15:03:12 hanord Exp $
+** $Id: design.doc,v 2.3 1998/03/26 22:21:17 aavit Exp $
 **
 ** The design of Qt
 **
@@ -9,12 +9,14 @@
 
 /*! \page design.html
 
-<title>Qt Design</title>
+<title>Qt Design Principles</title>
 </head><body bgcolor="#ffffff">
 
-<h1 align=center>The Basic Design of Qt</h1>
+\postheader
 
-Here are the design principles of Qt.  These are guiding principles,
+<h1 align=center>Design Principles</h1>
+
+Here are the design principles behind Qt.  These are guiding principles,
 not rules, but they're <em>good</em> principles, and we've stuck to
 them almost everywhere in the toolkit.
 

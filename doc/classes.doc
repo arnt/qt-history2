@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: classes.doc,v 1.2 1997/08/25 18:29:33 agulbra Exp $
+** $Id: classes.doc,v 1.3 1998/03/26 22:21:17 aavit Exp $
 **
 ** Documentation for class overview
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: classes.doc,v 1.2 1997/08/25 18:29:33 agulbra Exp $";
+static char ident[] = "$Id: classes.doc,v 1.3 1998/03/26 22:21:17 aavit Exp $";
 #endif
 
 
@@ -18,7 +18,9 @@ static char ident[] = "$Id: classes.doc,v 1.2 1997/08/25 18:29:33 agulbra Exp $"
 <title>Qt Documentation</title>
 </head><body bgcolor="#ffffff">
 
-<h1 align=center>Qt Class Index</h1>
+\postheader
+
+<h1 align=center>Class Index</h1>
 
 <multicol cols=3>
   \classlist

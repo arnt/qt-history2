@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.10 1997/09/29 17:02:18 eiriken Exp $
+** $Id: tutorial.doc,v 2.11 1998/03/26 22:21:19 aavit Exp $
 **
 ** Tutorial
 **
@@ -11,13 +11,12 @@
 
 <title>Qt Tutorial</title></head><body bgcolor="#ffffff">
 
-<h1 align=center>
-<img src="tutorial.gif" align=right width=48 height=48>
-Qt Tutorial: The 14 Steps
-</h1>
+\postheader
+
+<h1 align=center>Tutorial: The 14 Steps</h1>
 
 This tutorial gives an introduction to GUI programming using the Qt
-toolkit.  It doesn't cover everything: The emphasis is on teaching the
+toolkit \version . It doesn't cover everything: The emphasis is on teaching the
 programming philosophy of GUI programming, and Qt's features are
 introduced as needed.
 
@@ -54,6 +53,8 @@ Tutorial chapters:
 <title>
 Qt Tutorial - Chapter 1
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 1: Hello, World!</h1>
 
@@ -181,6 +182,8 @@ You may now go on to \link t2.html chapter two. \endlink
 Qt Tutorial - Chapter 2
 </title></head><body bgcolor="#ffffff">
 
+\postheader
+
 <h1 align=center>Chapter 2: Calling it Quits</h1>
 
 <center><img src="t2.gif" alt="Screenshot of tutorial two"></center>
@@ -270,6 +273,8 @@ You may now go on to \link t3.html chapter three. \endlink
 Qt Tutorial - Chapter 3
 </title></head><body bgcolor="#ffffff">
 
+\postheader
+
 <h1 align=center>Chapter 3: Family Values</h1>
 
 <center><img src="t3.gif" alt="Screenshot of tutorial three"></center>
@@ -355,6 +360,8 @@ You may now go on to \link t4.html chapter four. \endlink
 <title>
 Qt Tutorial - Chapter 4
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 4: Let There Be Widgets</h1>
 
@@ -469,6 +476,8 @@ You may now go on to \link t5.html chapter five. \endlink
 <title>
 Qt Tutorial - Chapter 5
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 5: Building Blocks</h1>
 
@@ -624,6 +633,8 @@ You may now go on to \link t6.html chapter six. \endlink
 Qt Tutorial - Chapter 6
 </title></head><body bgcolor="#ffffff">
 
+\postheader
+
 <h1 align=center>Chapter 6: Building Blocks Galore!</h1>
 
 <center><img src="t6.gif" alt="Screenshot of tutorial six"></center>
@@ -720,6 +731,9 @@ You may now go on to \link t7.html chapter seven. \endlink
 <title>
 Qt Tutorial - t7/lcdrange.h
 </title></head><body bgcolor="#ffffff">
+
+\postheader
+
 <h1 align=center>Source code for \link t7.html tutorial 7\endlink: lcdrange.h</h1>
 <hr>
 \include t7/lcdrange.h
@@ -728,6 +742,8 @@ Qt Tutorial - t7/lcdrange.h
 /*! \page t7-lcdrange-cpp.html
 <title>Qt tutorial - t7/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t7.html tutorial 7\endlink: lcdrange.cpp</h1>
 <hr>
 \include t7/lcdrange.cpp
@@ -736,6 +752,8 @@ Qt Tutorial - t7/lcdrange.h
 /*! \page t7-main-cpp.html
 <title>Qt tutorial - t7/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t7.html tutorial 7\endlink: main.cpp</h1>
 <hr>
 \include t7/main.cpp
@@ -744,6 +762,8 @@ Qt Tutorial - t7/lcdrange.h
 /*! \page t7-makefile.html
 <title>Qt tutorial - t7/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t7.html tutorial 7\endlink</h1>
 <hr>
 \include t7/Makefile
@@ -756,6 +776,8 @@ Qt Tutorial - t7/lcdrange.h
 <title>
 Qt Tutorial - Chapter 7
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 7: One Thing Leads to Another</h1>
 
@@ -924,6 +946,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-lcdrange-h.html
 <title>Qt tutorial - t8/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t8.html tutorial 8\endlink: lcdrange.h</h1>
 <hr>
 \include t8/lcdrange.h
@@ -932,6 +956,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-lcdrange-cpp.html
 <title>Qt tutorial - t8/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t8.html tutorial 8\endlink: lcdrange.cpp</h1>
 <hr>
 \include t8/lcdrange.cpp
@@ -940,6 +966,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-cannon-h.html
 <title>Qt tutorial - t8/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t8.html tutorial 8\endlink: cannon.h</h1>
 <hr>
 \include t8/cannon.h
@@ -948,6 +976,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-cannon-cpp.html
 <title>Qt tutorial - t8/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t8.html tutorial 8\endlink: cannon.cpp</h1>
 <hr>
 \include t8/cannon.cpp
@@ -956,6 +986,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-main-cpp.html
 <title>Qt tutorial - t8/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t8.html tutorial 8\endlink: main.cpp</h1>
 <hr>
 \include t8/main.cpp
@@ -964,6 +996,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 /*! \page t8-makefile.html
 <title>Qt tutorial - t8/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t8.html tutorial 8\endlink</h1>
 <hr>
 \include t8/Makefile
@@ -976,6 +1010,8 @@ You may now go on to \link t8.html chapter eight. \endlink
 <title>
 Qt Tutorial - Chapter 8
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 8: Preparing for Battle</h1>
 
@@ -1217,6 +1253,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-lcdrange-h.html
 <title>Qt tutorial - t9/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t9.html tutorial 9\endlink: lcdrange.h</h1>
 <hr>
 \include t9/lcdrange.h
@@ -1225,6 +1263,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-lcdrange-cpp.html
 <title>Qt tutorial - t9/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t9.html tutorial 9\endlink: lcdrange.cpp</h1>
 <hr>
 \include t9/lcdrange.cpp
@@ -1233,6 +1273,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-cannon-h.html
 <title>Qt tutorial - t9/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t9.html tutorial 9\endlink: cannon.h</h1>
 <hr>
 \include t9/cannon.h
@@ -1241,6 +1283,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-cannon-cpp.html
 <title>Qt tutorial - t9/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t9.html tutorial 9\endlink: cannon.cpp</h1>
 <hr>
 \include t9/cannon.cpp
@@ -1249,6 +1293,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-main-cpp.html
 <title>Qt tutorial - t9/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t9.html tutorial 9\endlink: main.cpp</h1>
 <hr>
 \include t9/main.cpp
@@ -1257,6 +1303,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9-makefile.html
 <title>Qt tutorial - t9/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t9.html tutorial 9\endlink</h1>
 <hr>
 \include t9/Makefile
@@ -1269,6 +1317,8 @@ You may now go on to \link t9.html chapter nine. \endlink
 <title>
 Qt Tutorial - Chapter 9
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 9: With Cannon You Can</h1>
 
@@ -1420,6 +1470,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-lcdrange-h.html
 <title>Qt tutorial - t10/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t10.html tutorial 10\endlink: lcdrange.h</h1>
 <hr>
 \include t10/lcdrange.h
@@ -1428,6 +1480,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-lcdrange-cpp.html
 <title>Qt tutorial - t10/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t10.html tutorial 10\endlink: lcdrange.cpp</h1>
 <hr>
 \include t10/lcdrange.cpp
@@ -1436,6 +1490,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-cannon-h.html
 <title>Qt tutorial - t10/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t10.html tutorial 10\endlink: cannon.h</h1>
 <hr>
 \include t10/cannon.h
@@ -1444,6 +1500,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-cannon-cpp.html
 <title>Qt tutorial - t10/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t10.html tutorial 10\endlink: cannon.cpp</h1>
 <hr>
 \include t10/cannon.cpp
@@ -1452,6 +1510,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-main-cpp.html
 <title>Qt tutorial - t10/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t10.html tutorial 10\endlink: main.cpp</h1>
 <hr>
 \include t10/main.cpp
@@ -1460,6 +1520,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10-makefile.html
 <title>Qt tutorial - t10/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t10.html tutorial 10\endlink</h1>
 <hr>
 \include t10/Makefile
@@ -1472,6 +1534,8 @@ You may now go on to \link t10.html chapter ten. \endlink
 <title>
 Qt Tutorial - Chapter 10
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 10: Smooth as Silk</h1>
 
@@ -1681,6 +1745,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-lcdrange-h.html
 <title>Qt tutorial - t11/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t11.html tutorial 11\endlink: lcdrange.h</h1>
 <hr>
 \include t11/lcdrange.h
@@ -1689,6 +1755,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-lcdrange-cpp.html
 <title>Qt tutorial - t11/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t11.html tutorial 11\endlink: lcdrange.cpp</h1>
 <hr>
 \include t11/lcdrange.cpp
@@ -1697,6 +1765,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-cannon-h.html
 <title>Qt tutorial - t11/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t11.html tutorial 11\endlink: cannon.h</h1>
 <hr>
 \include t11/cannon.h
@@ -1705,6 +1775,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-cannon-cpp.html
 <title>Qt tutorial - t11/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t11.html tutorial 11\endlink: cannon.cpp</h1>
 <hr>
 \include t11/cannon.cpp
@@ -1713,6 +1785,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-main-cpp.html
 <title>Qt tutorial - t11/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t11.html tutorial 11\endlink: main.cpp</h1>
 <hr>
 \include t11/main.cpp
@@ -1721,6 +1795,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11-makefile.html
 <title>Qt tutorial - t11/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t11.html tutorial 11\endlink</h1>
 <hr>
 \include t11/Makefile
@@ -1733,6 +1809,8 @@ You may now go on to \link t11.html chapter eleven. \endlink
 <title>
 Qt Tutorial - Chapter 11
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 11: Giving It a Shot</h1>
 
@@ -1960,6 +2038,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-lcdrange-h.html
 <title>Qt tutorial - t12/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t12.html tutorial 12\endlink: lcdrange.h</h1>
 <hr>
 \include t12/lcdrange.h
@@ -1968,6 +2048,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-lcdrange-cpp.html
 <title>Qt tutorial - t12/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t12.html tutorial 12\endlink: lcdrange.cpp</h1>
 <hr>
 \include t12/lcdrange.cpp
@@ -1976,6 +2058,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-cannon-h.html
 <title>Qt tutorial - t12/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t12.html tutorial 12\endlink: cannon.h</h1>
 <hr>
 \include t12/cannon.h
@@ -1984,6 +2068,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-cannon-cpp.html
 <title>Qt tutorial - t12/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t12.html tutorial 12\endlink: cannon.cpp</h1>
 <hr>
 \include t12/cannon.cpp
@@ -1992,6 +2078,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-main-cpp.html
 <title>Qt tutorial - t12/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t12.html tutorial 12\endlink: main.cpp</h1>
 <hr>
 \include t12/main.cpp
@@ -2000,6 +2088,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12-makefile.html
 <title>Qt tutorial - t12/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t12.html tutorial 12\endlink</h1>
 <hr>
 \include t12/Makefile
@@ -2012,6 +2102,8 @@ You may now go on to \link t12.html chapter twelve. \endlink
 <title>
 Qt Tutorial - Chapter 12
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 12: Hanging in the Air the Way Bricks Don't</h1>
 
@@ -2338,6 +2430,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-lcdrange-h.html
 <title>Qt tutorial - t13/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: lcdrange.h</h1>
 <hr>
 \include t13/lcdrange.h
@@ -2346,6 +2440,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-lcdrange-cpp.html
 <title>Qt tutorial - t13/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: lcdrange.cpp</h1>
 <hr>
 \include t13/lcdrange.cpp
@@ -2354,6 +2450,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-cannon-h.html
 <title>Qt tutorial - t13/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: cannon.h</h1>
 <hr>
 \include t13/cannon.h
@@ -2362,6 +2460,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-cannon-cpp.html
 <title>Qt tutorial - t13/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: cannon.cpp</h1>
 <hr>
 \include t13/cannon.cpp
@@ -2370,6 +2470,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-gamebrd-h.html
 <title>Qt tutorial - t13/gamebrd.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: gamebrd.h</h1>
 <hr>
 \include t13/gamebrd.h
@@ -2378,6 +2480,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-gamebrd-cpp.html
 <title>Qt tutorial - t13/gamebrd.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: gamebrd.cpp</h1>
 <hr>
 \include t13/gamebrd.cpp
@@ -2386,6 +2490,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-main-cpp.html
 <title>Qt tutorial - t13/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t13.html tutorial 13\endlink: main.cpp</h1>
 <hr>
 \include t13/main.cpp
@@ -2394,6 +2500,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t13-makefile.html
 <title>Qt tutorial - t13/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t13.html tutorial 13\endlink</h1>
 <hr>
 \include t13/Makefile
@@ -2406,6 +2514,8 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 <title>
 Qt Tutorial - Chapter 13
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 13: Game Over</h1>
 
@@ -2659,6 +2769,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-lcdrange-h.html
 <title>Qt tutorial - t14/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: lcdrange.h</h1>
 <hr>
 \include t14/lcdrange.h
@@ -2667,6 +2779,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-lcdrange-cpp.html
 <title>Qt tutorial - t14/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: lcdrange.cpp</h1>
 <hr>
 \include t14/lcdrange.cpp
@@ -2675,6 +2789,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-cannon-h.html
 <title>Qt tutorial - t14/cannon.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: cannon.h</h1>
 <hr>
 \include t14/cannon.h
@@ -2683,6 +2799,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-cannon-cpp.html
 <title>Qt tutorial - t14/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: cannon.cpp</h1>
 <hr>
 \include t14/cannon.cpp
@@ -2691,6 +2809,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-gamebrd-h.html
 <title>Qt tutorial - t14/gamebrd.h</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: gamebrd.h</h1>
 <hr>
 \include t14/gamebrd.h
@@ -2699,6 +2819,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-gamebrd-cpp.html
 <title>Qt tutorial - t14/gamebrd.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: gamebrd.cpp</h1>
 <hr>
 \include t14/gamebrd.cpp
@@ -2707,6 +2829,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-main-cpp.html
 <title>Qt tutorial - t14/main.cpp</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Source code for \link t14.html tutorial 14\endlink: main.cpp</h1>
 <hr>
 \include t14/main.cpp
@@ -2715,6 +2839,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 /*! \page t14-makefile.html
 <title>Qt tutorial - t14/makefile</title>
 </head><body bgcolor="#ffffff">
+\postheader
+
 <h1 align=center>Unix Makefile for \link t14.html tutorial 14\endlink</h1>
 <hr>
 \include t14/Makefile
@@ -2727,6 +2853,8 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 <title>
 Qt Tutorial - Chapter 14
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Chapter 14: Facing the Wall</h1>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.10 1998/03/19 17:47:33 agulbra Exp $
+** $Id: qlist.doc,v 2.11 1998/03/26 22:21:18 aavit Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -853,7 +853,8 @@
 
   \inherit QList
 
-  \ingroup predefcollection
+  \ingroup collection
+  \ingroup tools
 
   This class is a QList\<char\> instance (a list of char*).
 
@@ -918,7 +919,8 @@
   \brief The QStrIList class provides a doubly linked list of \c char* with
 case insensitive compare.
 
-  \ingroup predefcollection
+  \ingroup collection
+  \ingroup tools
 
   This class is a QList\<char\> instance (a list of char*).
 
@@ -953,7 +955,7 @@ case insensitive compare.
 
   \inherit QListIterator
 
-  \ingroup predefiterators
+  \ingroup tools
 
   This class is a QListIterator\<char\> instance.
   It can traverse the strings in the QStrList and QStrIList classes.

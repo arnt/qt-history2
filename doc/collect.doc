@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.3 1997/08/06 15:03:11 hanord Exp $
+** $Id: collect.doc,v 2.4 1998/03/26 22:21:17 aavit Exp $
 **
 ** Qt collection classes documentation
 **
@@ -12,10 +12,10 @@
 
 <title>Qt Collection Classes</title>
 </head><body bgcolor="#ffffff">
-<h1 align=center>Collection Classes</h1>
-<hr>
 
-<h2>Introduction</h2>
+\postheader
+
+<h1 align=center>Collection Classes</h1>
 
 A collection class is a class that can contain a number of items in a
 certain data structure and perform operations on the contained items;

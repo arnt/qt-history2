@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.8 1998/03/19 17:47:25 agulbra Exp $
+** $Id: moc.doc,v 2.9 1998/03/26 22:21:18 aavit Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -12,6 +12,8 @@
 <title>
 Qt toolkit - Using the Meta Object Compiler
 </title></head><body bgcolor="#ffffff">
+
+\postheader
 
 <h1 align=center>Using the Meta Object Compiler</h1>
 
