@@ -102,7 +102,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlField qMakeField( const QODBCPrivate* p, int i  )
+QSqlResultField qMakeField( const QODBCPrivate* p, int i  )
 {
     SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
@@ -124,7 +124,7 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 	qSystemWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlField( QString((char*)colName), i, type );
+    return QSqlResultField( QString((char*)colName), i, type );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
@@ -243,7 +243,306 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
     return fi;
 }
 
-/////////////////
+////////////////////////////////////////////////////////////////////////////
+
+QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
+: QSqlResult(db)
+{
+    d = new QODBCPrivate();
+    (*d) = (*p);
+}
+
+QODBCResult::~QODBCResult()
+{
+    if ( d->hStmt ) {
+//	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
+//#ifdef CHECK_RANGE
+//	if ( r!= SQL_SUCCESS )
+//	    qSystemWarning( "QODBCDriver: Unable to free statement handle", d );
+//#endif
+    	SQLRETURN r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
+    	if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE
+		qSystemWarning( "QODBCDriver: Unable to close statement", d );
+#endif
+    	}
+    }
+    delete d;
+}
+
+bool QODBCResult::reset ( const QString& query )
+{
+    setActive( FALSE );
+    setAt( BeforeFirst );
+    SQLRETURN r;
+    if ( d->hStmt ) {
+//    	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
+//#ifdef CHECK_RANGE
+//	if ( r!= SQL_SUCCESS )
+//	    qSystemWarning( "Unable to free statement handle", d );
+//#endif
+    	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
+    	if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE
+		qSystemWarning( "QODBCDriver::reset: Unable to close statement", d );
+#endif
+		return FALSE;
+    	}
+    }
+    r  = SQLAllocHandle( SQL_HANDLE_STMT,
+    			d->hDbc,
+			&d->hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE
+	qSystemWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
+#endif
+	return FALSE;
+    }
+    r = SQLSetStmtAttr( d->hStmt,
+                        SQL_ATTR_CURSOR_TYPE,
+                        (SQLPOINTER)SQL_CURSOR_STATIC,
+                        SQL_IS_UINTEGER );
+    if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE
+	qSystemWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
+#endif
+	return FALSE;
+    }
+    r = SQLExecDirect( d->hStmt,
+			(SQLCHAR*)query.local8Bit().data(),
+ 			SQL_NTS );
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    setActive( TRUE) ;
+    return FALSE;
+}
+
+bool QODBCResult::fetch(int i)
+{
+    if ( i == at() )
+        return TRUE;
+    fieldCache.clear();
+    nullCache.clear();
+    int actualIdx = i + 1;
+    if ( actualIdx <= 0 ) {
+	setAt( BeforeFirst );
+	return FALSE;
+    }
+    SQLRETURN r;
+    r = SQLFetchScroll( d->hStmt,
+                       	SQL_FETCH_ABSOLUTE,
+                       	actualIdx );
+    if ( r != SQL_SUCCESS )
+        return FALSE;
+    setAt( i );
+    return TRUE;
+}
+
+bool QODBCResult::fetchFirst()
+{
+    SQLRETURN r;
+    fieldCache.clear();
+    nullCache.clear();
+    r = SQLFetchScroll( d->hStmt,
+                       SQL_FETCH_FIRST,
+                       0 );
+    if ( r != SQL_SUCCESS )
+    	return FALSE;
+    setAt( 0 );
+    return TRUE;
+}
+
+bool QODBCResult::fetchLast()
+{
+    SQLRETURN r;
+    fieldCache.clear();
+    nullCache.clear();
+    r = SQLFetchScroll( d->hStmt,
+                       SQL_FETCH_LAST,
+                       0 );
+    if ( r != SQL_SUCCESS ) {
+    	return FALSE;
+    }
+    SQLINTEGER currRow;
+    r = SQLGetStmtAttr( d->hStmt,
+    			SQL_ROW_NUMBER,
+			&currRow,
+			SQL_IS_INTEGER,
+			0 );
+    if ( r != SQL_SUCCESS )
+    	return FALSE;
+    setAt( currRow-1 );
+    return TRUE;
+}
+
+QVariant QODBCResult::data( int field )
+{
+    if ( fieldCache.contains( field ) )
+	return fieldCache[ field ];
+    SQLRETURN r(0);
+    SQLINTEGER lengthIndicator = 0;
+    bool isNull = FALSE;
+    int current = fieldCache.count();
+    for ( ; current < (field + 1); current++ ) {
+	QSqlResultField info = qMakeField( d, field );
+	switch ( info.type() ) {
+	case QVariant::Int:
+	    isNull = FALSE;
+	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
+	    nullCache[ current ] = isNull;
+	    break;
+	case QVariant::Double:
+	    SQLDOUBLE dblbuf;
+	    isNull = FALSE;
+	    r = SQLGetData( d->hStmt,
+			    current+1,
+			    SQL_C_DOUBLE,
+			    (SQLPOINTER)&dblbuf,
+			    0,
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NULL_DATA )
+		    isNull = TRUE;
+	    }
+	    fieldCache[ current ] = QVariant( dblbuf );
+	    nullCache[ current ] = isNull;
+	    break;
+	case QVariant::Date:
+	    DATE_STRUCT dbuf;
+	    isNull = FALSE;
+	    r = SQLGetData( d->hStmt,
+			    current+1,
+			    SQL_C_TYPE_DATE,
+			    (SQLPOINTER)&dbuf,
+			    0,
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NULL_DATA )
+		    isNull = TRUE;
+	    }
+	    fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
+	    nullCache[ current ] = isNull;
+	    break;
+	case QVariant::Time:
+	    TIME_STRUCT tbuf;
+	    isNull = FALSE;
+	    r = SQLGetData( d->hStmt,
+			    current+1,
+			    SQL_C_TYPE_TIME,
+			    (SQLPOINTER)&tbuf,
+			    0,
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NULL_DATA )
+		    isNull = TRUE;
+	    }
+	    fieldCache[ current ] = QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
+	    nullCache[ current ] = isNull;
+	    break;
+	case QVariant::DateTime:
+	    TIMESTAMP_STRUCT dtbuf;
+	    isNull = FALSE;
+	    r = SQLGetData( d->hStmt,
+			    current+1,
+			    SQL_C_TYPE_TIMESTAMP,
+			    (SQLPOINTER)&dtbuf,
+			    0,
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NULL_DATA )
+		    isNull = TRUE;
+	    }
+	    fieldCache[ current ] = QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
+	    nullCache[ current ] = isNull;
+	    break;
+	default:
+	case QVariant::String:
+	    isNull = FALSE;
+	    QString fieldVal = qGetStringData( d->hStmt, current, lengthIndicator, isNull );
+	    fieldCache[ current ] = QVariant( fieldVal );
+	    nullCache[ current ] = isNull;
+	    break;
+	}
+    }
+    return fieldCache[ --current ];
+}
+
+bool QODBCResult::isNull( int field ) const
+{
+    return nullCache[ field ];
+}
+
+QSqlResultFields QODBCResult::fields()
+{
+    QSqlResultFields fil;
+    SQLRETURN r;
+    SQLSMALLINT count;
+    r = SQLNumResultCols( d->hStmt, &count );
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( "QODBCDriver::fields: Unable to count result columns", d );
+#endif
+    if ( count > 0 && r == SQL_SUCCESS ) {
+	for ( int i = 0; i < count; ++i ) {
+	    QSqlResultField fi = qMakeField( d, i );
+	    if ( isActive() && isValid() )
+		fi.value() = data( i );
+            fil.append( fi );
+        }
+    }
+    return fil;
+}
+
+int QODBCResult::size() const
+{
+    int size(-1);
+    int at(0);
+    SQLINTEGER currRow(0);
+    SQLRETURN r = SQLGetStmtAttr( d->hStmt,
+    			SQL_ROW_NUMBER,
+			&currRow,
+			SQL_IS_INTEGER,
+			0);
+    at = currRow;
+    r = SQLFetchScroll( d->hStmt,
+                        SQL_FETCH_LAST,
+                        0);
+    if ( r == SQL_SUCCESS ) {
+	r = SQLGetStmtAttr( d->hStmt,
+    			SQL_ROW_NUMBER,
+			&currRow,
+			SQL_IS_INTEGER,
+			0);
+	if ( r == SQL_SUCCESS )
+	    size = currRow;
+	r = SQLFetchScroll( d->hStmt,
+                        SQL_FETCH_ABSOLUTE,
+                        currRow);
+	if ( r != SQL_SUCCESS )
+	    qSystemWarning("QODBCDriver::size: Unable to restore position", d );
+    }
+    return size;
+}
+
+int QODBCResult::affectedRows() const
+{
+    SQLINTEGER affectedRowCount(0);
+    SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
+    if ( r == SQL_SUCCESS )
+	return affectedRowCount;
+#ifdef CHECK_RANGE
+    else
+	qSystemWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
+#endif
+    return -1;
+}
+
+
+
+////////////////////////////////////////
+
 
 QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 : QSqlDriver(parent,name ? name : "QODBC")
@@ -557,300 +856,3 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return fil;
 }
-
-////////////////////////////////////////////////////////////////////////////
-
-QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
-: QSqlResult(db)
-{
-    d = new QODBCPrivate();
-    (*d) = (*p);
-}
-
-QODBCResult::~QODBCResult()
-{
-    if ( d->hStmt ) {
-//	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-//#ifdef CHECK_RANGE
-//	if ( r!= SQL_SUCCESS )
-//	    qSystemWarning( "QODBCDriver: Unable to free statement handle", d );
-//#endif
-    	SQLRETURN r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
-    	if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
-		qSystemWarning( "QODBCDriver: Unable to close statement", d );
-#endif
-    	}
-    }
-    delete d;
-}
-
-bool QODBCResult::reset ( const QString& query )
-{
-    setActive( FALSE );
-    setAt( BeforeFirst );
-    SQLRETURN r;
-    if ( d->hStmt ) {
-//    	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-//#ifdef CHECK_RANGE
-//	if ( r!= SQL_SUCCESS )
-//	    qSystemWarning( "Unable to free statement handle", d );
-//#endif
-    	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
-    	if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
-		qSystemWarning( "QODBCDriver::reset: Unable to close statement", d );
-#endif
-		return FALSE;
-    	}
-    }
-    r  = SQLAllocHandle( SQL_HANDLE_STMT,
-    			d->hDbc,
-			&d->hStmt );
-    if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
-#endif
-	return FALSE;
-    }
-    r = SQLSetStmtAttr( d->hStmt,
-                        SQL_ATTR_CURSOR_TYPE,
-                        (SQLPOINTER)SQL_CURSOR_STATIC,
-                        SQL_IS_UINTEGER );
-    if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
-#endif
-	return FALSE;
-    }
-    r = SQLExecDirect( d->hStmt,
-			(SQLCHAR*)query.local8Bit().data(),
- 			SQL_NTS );
-    if ( r != SQL_SUCCESS ) {
-	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	return FALSE;
-    }
-    setActive( TRUE) ;
-    return FALSE;
-}
-
-bool QODBCResult::fetch(int i)
-{
-    if ( i == at() )
-        return TRUE;
-    fieldCache.clear();
-    nullCache.clear();
-    int actualIdx = i + 1;
-    if ( actualIdx <= 0 ) {
-	setAt( BeforeFirst );
-	return FALSE;
-    }
-    SQLRETURN r;
-    r = SQLFetchScroll( d->hStmt,
-                       	SQL_FETCH_ABSOLUTE,
-                       	actualIdx );
-    if ( r != SQL_SUCCESS )
-        return FALSE;
-    setAt( i );
-    return TRUE;
-}
-
-bool QODBCResult::fetchFirst()
-{
-    SQLRETURN r;
-    fieldCache.clear();
-    nullCache.clear();
-    r = SQLFetchScroll( d->hStmt,
-                       SQL_FETCH_FIRST,
-                       0 );
-    if ( r != SQL_SUCCESS )
-    	return FALSE;
-    setAt( 0 );
-    return TRUE;
-}
-
-bool QODBCResult::fetchLast()
-{
-    SQLRETURN r;
-    fieldCache.clear();
-    nullCache.clear();
-    r = SQLFetchScroll( d->hStmt,
-                       SQL_FETCH_LAST,
-                       0 );
-    if ( r != SQL_SUCCESS ) {
-    	return FALSE;
-    }
-    SQLINTEGER currRow;
-    r = SQLGetStmtAttr( d->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0 );
-    if ( r != SQL_SUCCESS )
-    	return FALSE;
-    setAt( currRow-1 );
-    return TRUE;
-}
-
-QVariant QODBCResult::data( int field )
-{
-    if ( fieldCache.contains( field ) )
-	return fieldCache[ field ];
-    SQLRETURN r(0);
-    SQLINTEGER lengthIndicator = 0;
-    bool isNull = FALSE;
-    int current = fieldCache.count();
-    for ( ; current < (field + 1); current++ ) {
-	QSqlField info = qMakeField( d, field );
-	switch ( info.type() ) {
-	case QVariant::Int:
-	    isNull = FALSE;
-	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
-	    nullCache[ current ] = isNull;
-	    break;
-	case QVariant::Double:
-	    SQLDOUBLE dblbuf;
-	    isNull = FALSE;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_DOUBLE,
-			    (SQLPOINTER)&dblbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    fieldCache[ current ] = QVariant( dblbuf );
-	    nullCache[ current ] = isNull;
-	    break;
-	case QVariant::Date:
-	    DATE_STRUCT dbuf;
-	    isNull = FALSE;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_TYPE_DATE,
-			    (SQLPOINTER)&dbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
-	    nullCache[ current ] = isNull;
-	    break;
-	case QVariant::Time:
-	    TIME_STRUCT tbuf;
-	    isNull = FALSE;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_TYPE_TIME,
-			    (SQLPOINTER)&tbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    fieldCache[ current ] = QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
-	    nullCache[ current ] = isNull;
-	    break;
-	case QVariant::DateTime:
-	    TIMESTAMP_STRUCT dtbuf;
-	    isNull = FALSE;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_TYPE_TIMESTAMP,
-			    (SQLPOINTER)&dtbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    fieldCache[ current ] = QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
-	    nullCache[ current ] = isNull;
-	    break;
-	default:
-	case QVariant::String:
-	    isNull = FALSE;
-	    QString fieldVal = qGetStringData( d->hStmt, current, lengthIndicator, isNull );
-	    fieldCache[ current ] = QVariant( fieldVal );
-	    nullCache[ current ] = isNull;
-	    break;
-	}
-    }
-    return fieldCache[ --current ];
-}
-
-bool QODBCResult::isNull( int field ) const
-{
-    return nullCache[ field ];
-}
-
-QSqlFieldList QODBCResult::fields()
-{
-    QSqlFieldList fil;
-    SQLRETURN r;
-    SQLSMALLINT count;
-    r = SQLNumResultCols( d->hStmt, &count );
-#ifdef CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qSystemWarning( "QODBCDriver::fields: Unable to count result columns", d );
-#endif
-    if ( count > 0 && r == SQL_SUCCESS ) {
-	for ( int i = 0; i < count; ++i ) {
-	    QSqlField fi = qMakeField( d, i );
-	    if ( isActive() && isValid() )
-		fi.value() = data( i );
-            fil.append( fi );
-        }
-    }
-    return fil;
-}
-
-int QODBCResult::size() const
-{
-    int size(-1);
-    int at(0);
-    SQLINTEGER currRow(0);
-    SQLRETURN r = SQLGetStmtAttr( d->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-    at = currRow;
-    r = SQLFetchScroll( d->hStmt,
-                        SQL_FETCH_LAST,
-                        0);
-    if ( r == SQL_SUCCESS ) {
-	r = SQLGetStmtAttr( d->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-	if ( r == SQL_SUCCESS )
-	    size = currRow;
-	r = SQLFetchScroll( d->hStmt,
-                        SQL_FETCH_ABSOLUTE,
-                        currRow);
-	if ( r != SQL_SUCCESS )
-	    qSystemWarning("QODBCDriver::size: Unable to restore position", d );
-    }
-    return size;
-}
-
-int QODBCResult::affectedRows() const
-{
-    SQLINTEGER affectedRowCount(0);
-    SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
-    if ( r == SQL_SUCCESS )
-	return affectedRowCount;
-#ifdef CHECK_RANGE
-    else
-	qSystemWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
-#endif
-    return -1;
-}
-

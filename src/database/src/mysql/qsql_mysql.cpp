@@ -65,7 +65,7 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
 
 QSqlField qMakeField( const MYSQL_FIELD* f, int fieldNumber )
 {
-    const char* c = (const char*)f->name;
+    const char* c = (const char*)f->name;    
     return QSqlField( QString(c), fieldNumber, qDecodeMYSQLType(f->type) );
 }
 
@@ -188,16 +188,16 @@ bool QMySQLResult::reset ( const QString& query )
     return TRUE;
 }
 
-QSqlFieldList QMySQLResult::fields()
+QSqlResultFields QMySQLResult::fields()
 {
-    QSqlFieldList fil;
+    QSqlResultFields fil;
     if ( isActive() ) {
 	if ( !mysql_errno( d->mysql ) ) {
 	    int count = 0;
 	    for ( ;; ) {
 		MYSQL_FIELD* f = mysql_fetch_field( d->result );
 		if ( f ) {
-		    QSqlField fi = qMakeField( f , count );
+		    QSqlResultField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
 		    if ( isValid() )
 			fi.value() = data( count );
 		    fil.append( fi  );

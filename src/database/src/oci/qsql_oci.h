@@ -7,7 +7,32 @@
 #include <qstring.h>
 
 class QOCIPrivate;
-class QOCIResult;
+class QOCIResultPrivate;
+class QOCIDriver;
+class QOCIResult : public QSqlResult
+{
+public:
+    QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
+    ~QOCIResult();
+protected:
+    bool	fetchNext();
+    bool 	fetchFirst();
+    bool 	fetchLast();
+    bool 	fetch(int i);
+    bool 	reset ( const QString& query );
+    QVariant 	data( int field );
+    bool	isNull( int field ) const;
+    QSqlResultFields    fields();
+    int                 size() const;
+    int                 affectedRows() const;
+private:
+    typedef QMap< uint, QVariant > RowCache;
+    typedef QMap< uint, RowCache > RowsetCache;
+
+    QOCIPrivate* 	d;
+    QOCIResultPrivate*  cols;
+    RowsetCache     	rowCache;
+};
 
 class QOCIDriver : public QSqlDriver
 {
@@ -32,32 +57,6 @@ private:
     bool 	        endTrans();
     void 	        cleanup();
     QOCIPrivate*        d;
-};
-
-class  QOCIResultPrivate;
-class QOCIResult : public QSqlResult
-{
-public:
-    QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
-    ~QOCIResult();
-protected:
-    bool	fetchNext();
-    bool 	fetchFirst();
-    bool 	fetchLast();
-    bool 	fetch(int i);
-    bool 	reset ( const QString& query );
-    QVariant 	data( int field );
-    bool	isNull( int field ) const;
-    QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
-private:
-    typedef QMap< uint, QVariant > RowCache;
-    typedef QMap< uint, RowCache > RowsetCache;
-    
-    QOCIPrivate* 	d;
-    QOCIResultPrivate*  cols;
-    RowsetCache     	rowCache;
 };
 
 #endif

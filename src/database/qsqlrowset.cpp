@@ -146,7 +146,7 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 	    filter += qMakeFieldValue( field( i.fields().field(j).name() ) );
 	}
     } else { // use all fields
-	for ( int j = 0; j < count(); ++j ) {
+ 	for ( uint j = 0; j < count(); ++j ) {
 	    if ( j > 0 )
 		filter += " " + fieldSep + " " ;
 	    filter += qMakeFieldValue( field( j ) );
@@ -183,8 +183,7 @@ void QSqlRowset::sync()
 {
     if ( lastAt != at() ) {
 	lastAt = at();
-	// ### This one have to be optimized somehow..
-	for ( unsigned int i = 0; i < count(); i++ ){
+	for ( unsigned int i = 0; i < count(); ++i ){
 	    QSqlFieldList::operator[](i) = QSql::operator[](i);
 	}
     }

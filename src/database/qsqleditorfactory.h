@@ -14,7 +14,7 @@ class QSqlEditorFactory
 {
 public:
     static  QSqlEditorFactory * instance();
-    virtual QWidget * createEditor( const QSqlField & field );
+    virtual QWidget * createEditor( QWidget * parent, QSqlField & field );
     
 protected:
     QSqlEditorFactory();

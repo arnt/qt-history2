@@ -3,7 +3,7 @@
 
 #include <qtable.h>
 #include <qstring.h>
-#include <qsqlrowset.h>
+#include <qsqlview.h>
 #include <qpainter.h>
 
 class DataGrid : public QTable
@@ -13,13 +13,17 @@ public:
     DataGrid ( QWidget * parent = 0, const char * name = 0 );
     virtual ~DataGrid();
     void free();
-    void take( const QSqlRowset& r );
+    void take( const QSqlView& r );
 protected:
-    void paintCell ( QPainter * p, int row, int col, const QRect & cr, bool selected );
+    void paintCell ( QPainter * p, int row, int col, const QRect & cr,
+		     bool selected );
+    QWidget * createEditor( int row, int col, bool initFromCell ) const;
+    void      setCellContentFromEditor( int row, int col );
+
 protected slots:
     void columnClicked ( int col );
 private:
-    QSqlRowset* rset;
+    QSqlView* table;
 };
 
 #endif

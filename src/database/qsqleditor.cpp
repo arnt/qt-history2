@@ -1,15 +1,19 @@
 #include "qsqleditor.h"
 
+#include "qlayout.h"
+#include "qlineedit.h"
+#include "qspinbox.h"
+
 #ifndef QT_NO_SQL
 
-/*!  Constructs an empty
+/*!  Constructs an empty SQL editor.
 
 */
 
 QSqlEditor::QSqlEditor( QSqlField& field, QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f ), fld(field)
 {
-    
+
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -51,7 +55,25 @@ void QSqlEditor::syncToField()
 QSqlLineEdit::QSqlLineEdit( QWidget * parent, QSqlField& field, const char * name )
     : QSqlEditor( field, parent, name )
 {
+    grid = new QGridLayout( this );
     ed = new QLineEdit( this, name );
+    setSizePolicy( ed->sizePolicy() );
+    setFocusProxy( ed );
+    grid->addWidget( ed, 0, 0 );
+}
+
+/*!  Constructs a SQL line edit initialized to \a contents.
+
+*/
+
+QSqlLineEdit::QSqlLineEdit( const QString & contents, QWidget * parent, QSqlField& field, const char * name )
+    : QSqlEditor( field, parent, name )
+{
+    grid = new QGridLayout( this );
+    ed = new QLineEdit( contents, this, name );
+    setSizePolicy( ed->sizePolicy() );
+    setFocusProxy( ed );
+    grid->addWidget( ed, 0, 0 );    
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -62,14 +84,15 @@ QSqlLineEdit::~QSqlLineEdit()
 {
 }
 
-/*!  Constructs a SQL line edit
+
+/*!
+  Returns a pointer to the line edit.
 
 */
 
-QSqlLineEdit::QSqlLineEdit( const QString & contents, QWidget * parent, QSqlField& field, const char * name )
-    : QSqlEditor( field, parent, name )
+QLineEdit* QSqlLineEdit::lineEdit()
 {
-    ed = new QLineEdit( contents, this, name );
+    return ed;
 }
 
 /*!
@@ -92,6 +115,73 @@ void QSqlLineEdit::takeValue( QVariant& value )
     ed->setText( value.toString() );
 }
 
+/////////
+
+/*!  Constructs a SQL spin box.
+
+*/
+
+QSqlSpinBox::QSqlSpinBox( QWidget * parent, QSqlField& field, const char * name )
+    : QSqlEditor( field, parent, name )
+{
+    grid = new QGridLayout( this );
+    ed = new QSpinBox( this, name );
+    setSizePolicy( ed->sizePolicy() );
+    setFocusProxy( ed );
+    grid->addWidget( ed, 0, 0 );    
+}
+
+/*!  Constructs a SQL spin box
+
+*/
+
+QSqlSpinBox::QSqlSpinBox( int minValue, int maxValue, int step, QWidget * parent, QSqlField& field, const char * name )
+    : QSqlEditor( field, parent, name )
+{
+    grid = new QGridLayout( this );
+    ed = new QSpinBox( minValue, maxValue, step, this, name );
+    setSizePolicy( ed->sizePolicy() );
+    setFocusProxy( ed );
+    grid->addWidget( ed, 0, 0 );    
+}
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlSpinBox::~QSqlSpinBox()
+{
+    
+}
+
+/*!
+  Returns a pointer to the spin box.
+
+*/
+
+QSpinBox* QSqlSpinBox::spinBox()
+{
+    return ed;
+}
+
+/*!
+  \reimpl
+*/
+
+QVariant QSqlSpinBox::editorValue()
+{
+    return QVariant( ed->cleanText().toInt() );
+}
+
+/*!
+  \reimpl
+
+*/
+
+void QSqlSpinBox::takeValue( QVariant& value )
+{
+    ed->setValue( value.toInt() );
+}
+
+
 #endif
-
-

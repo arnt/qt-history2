@@ -166,166 +166,6 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
     return QSqlField();
 }
 
-QOCIDriver::QOCIDriver( QObject * parent, const char * name )
-: QSqlDriver(parent, (name ? name : "QOCI"))
-{
-    init();
-}
-
-void QOCIDriver::init()
-{
-    d = new QOCIPrivate();
-    int r = OCIEnvCreate( &d->env,
-			    OCI_DEFAULT,
-			    NULL,
-			    NULL,
-			    NULL,
-			    NULL,
-			    NULL,
-			    (void**)NULL);
-#ifdef CHECK_RANGE
-    if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to create environment: " + qOraWarn( d ) );
-#endif
-    r = OCIHandleAlloc( (dvoid *) d->env,
-			(dvoid **) &d->err,
-			OCI_HTYPE_ERROR,
-			(size_t) 0,
-			(dvoid **) 0);
-#ifdef CHECK_RANGE
-    if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to alloc error handle: " + qOraWarn( d ) );
-#endif
-    r = OCIHandleAlloc( (dvoid *) d->env,
-			(dvoid **) &d->svc,
-			OCI_HTYPE_SVCCTX,
-			(size_t) 0,
-			(dvoid **) 0);
-#ifdef CHECK_RANGE
-    if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to alloc service context: " + qOraWarn( d ) );
-#endif
-    if ( r != 0 )
-    	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
-}
-
-QOCIDriver::~QOCIDriver()
-{
-    cleanup();
-    delete d;
-}
-
-bool QOCIDriver::open( const QString & db,
-    			const QString & user,
-			const QString & password,
-			const QString & host)
-{
-    if ( isOpen() )
-	close();
-    int r = OCILogon(	d->env,
-			d->err,
-			&d->svc,
-			(unsigned char*)user.local8Bit().data(),
-			user.length(),
-			(unsigned char*)password.local8Bit().data(),
-			password.length(),
-			(unsigned char*)db.local8Bit().data(),
-			db.length() );
-    if ( r != 0 ) {
-	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
-	return FALSE;
-    }
-    setOpen( TRUE );
-    return TRUE;
-    Q_CONST_UNUSED( host );
-}
-
-void QOCIDriver::close()
-{
-    cleanup();
-    setOpen( FALSE );
-    setOpenError( FALSE );
-}
-
-void QOCIDriver::cleanup()
-{
-    if ( isOpen() ) {
-    	int r(0);
-    	r = OCILogoff( d->svc, d->err );
-    	r = OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
-    	r = OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
-    }
-}
-
-QSql QOCIDriver::createResult() const
-{
-    return QSql( new QOCIResult( this, d ) );
-}
-
-bool QOCIDriver::beginTransaction()
-{
-    return FALSE;
-}
-
-bool QOCIDriver::commitTransaction()
-{
-    return FALSE;
-}
-
-bool QOCIDriver::rollbackTransaction()
-{
-    return FALSE;
-}
-
-bool QOCIDriver::endTrans()
-{
-    return FALSE;
-}
-
-QStringList QOCIDriver::tables( const QString& user ) const
-{
-    QSql t = createResult();
-    t << "select table_name from user_tables;";
-    QStringList tl;
-    while ( t.next() )
-	tl.append( t[0].toString() );
-    return tl;
-    Q_CONST_UNUSED( user );
-}
-
-QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
-{
-    QSql t = createResult();
-    QString stmt ("select column_name, data_type " //, data_length, data_precision  "
-		  "from user_tab_columns "
-		  "where table_name='%1';" );
-    t << stmt.arg( tablename );
-    QSqlFieldList fil;
-    while ( t.next() )
-	fil.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
-    return fil;
-}
-
-QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
-{
-    QSql t = createResult();
-    QString stmt ("select b.column_name, b.data_type " //, b.data_length, b.data_precision "
-		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
-		  "where a.constraint_type='P' "
-		  "and a.table_name='%1' "
-		  "and c.index_name = a.constraint_name "
-		  "and b.column_name = c.column_name "
-		  "and b.table_name = a.table_name;" );
-    t << stmt.arg( tablename );
-    QSqlIndex idx( tablename );
-    if ( t.next() )
-	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
-    return idx;
-    return QSqlIndex();
-}
-
-////////////////////////////////////////////////////////////////////////////
-
 class QOCIResultPrivate
 {
 public:
@@ -615,9 +455,9 @@ bool QOCIResult::isNull( int field ) const
     return cols->isNull( field );
 }
 
-QSqlFieldList QOCIResult::fields()
+QSqlResultFields QOCIResult::fields()
 {
-    QSqlFieldList fil;
+    QSqlResultFields fil;
     ub4 numCols = 0;
     int r  = OCIAttrGet( (dvoid*)d->sql,
     				OCI_HTYPE_STMT,
@@ -631,9 +471,10 @@ QSqlFieldList QOCIResult::fields()
 #endif
     for ( ub4 i = 0; i < numCols; ++i ) {
 	QSqlField fi = qMakeField( d, i );
+	QSqlResultField f ( fi.name(), fi.fieldNumber(), fi.type() );
 	if ( isActive() && isValid() )
-	    fi.value() = data( i );
-	fil.append( fi );
+	    f.value() = data( i );
+	fil.append( f );
     }
     return fil;
 }
@@ -654,4 +495,165 @@ int QOCIResult::affectedRows() const
 		d->err);
     return rowCount;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+QOCIDriver::QOCIDriver( QObject * parent, const char * name )
+: QSqlDriver(parent, (name ? name : "QOCI"))
+{
+    init();
+}
+
+void QOCIDriver::init()
+{
+    d = new QOCIPrivate();
+    int r = OCIEnvCreate( &d->env,
+			    OCI_DEFAULT,
+			    NULL,
+			    NULL,
+			    NULL,
+			    NULL,
+			    NULL,
+			    (void**)NULL);
+#ifdef CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "QOCIDriver: Unable to create environment: " + qOraWarn( d ) );
+#endif
+    r = OCIHandleAlloc( (dvoid *) d->env,
+			(dvoid **) &d->err,
+			OCI_HTYPE_ERROR,
+			(size_t) 0,
+			(dvoid **) 0);
+#ifdef CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "QOCIDriver: Unable to alloc error handle: " + qOraWarn( d ) );
+#endif
+    r = OCIHandleAlloc( (dvoid *) d->env,
+			(dvoid **) &d->svc,
+			OCI_HTYPE_SVCCTX,
+			(size_t) 0,
+			(dvoid **) 0);
+#ifdef CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "QOCIDriver: Unable to alloc service context: " + qOraWarn( d ) );
+#endif
+    if ( r != 0 )
+    	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
+}
+
+QOCIDriver::~QOCIDriver()
+{
+    cleanup();
+    delete d;
+}
+
+bool QOCIDriver::open( const QString & db,
+    			const QString & user,
+			const QString & password,
+			const QString & host)
+{
+    if ( isOpen() )
+	close();
+    int r = OCILogon(	d->env,
+			d->err,
+			&d->svc,
+			(unsigned char*)user.local8Bit().data(),
+			user.length(),
+			(unsigned char*)password.local8Bit().data(),
+			password.length(),
+			(unsigned char*)db.local8Bit().data(),
+			db.length() );
+    if ( r != 0 ) {
+	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
+	return FALSE;
+    }
+    setOpen( TRUE );
+    return TRUE;
+    Q_CONST_UNUSED( host );
+}
+
+void QOCIDriver::close()
+{
+    cleanup();
+    setOpen( FALSE );
+    setOpenError( FALSE );
+}
+
+void QOCIDriver::cleanup()
+{
+    if ( isOpen() ) {
+    	int r(0);
+    	r = OCILogoff( d->svc, d->err );
+    	r = OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
+    	r = OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
+    }
+}
+
+QSql QOCIDriver::createResult() const
+{
+    return QSql( new QOCIResult( this, d ) );
+}
+
+bool QOCIDriver::beginTransaction()
+{
+    return FALSE;
+}
+
+bool QOCIDriver::commitTransaction()
+{
+    return FALSE;
+}
+
+bool QOCIDriver::rollbackTransaction()
+{
+    return FALSE;
+}
+
+bool QOCIDriver::endTrans()
+{
+    return FALSE;
+}
+
+QStringList QOCIDriver::tables( const QString& user ) const
+{
+    QSql t = createResult();
+    t << "select table_name from user_tables;";
+    QStringList tl;
+    while ( t.next() )
+	tl.append( t[0].toString() );
+    return tl;
+    Q_CONST_UNUSED( user );
+}
+
+QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
+{
+    QSql t = createResult();
+    QString stmt ("select column_name, data_type " //, data_length, data_precision  "
+		  "from user_tab_columns "
+		  "where table_name='%1';" );
+    t << stmt.arg( tablename );
+    QSqlFieldList fil;
+    while ( t.next() )
+	fil.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
+    return fil;
+}
+
+QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
+{
+    QSql t = createResult();
+    QString stmt ("select b.column_name, b.data_type " //, b.data_length, b.data_precision "
+		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+		  "where a.constraint_type='P' "
+		  "and a.table_name='%1' "
+		  "and c.index_name = a.constraint_name "
+		  "and b.column_name = c.column_name "
+		  "and b.table_name = a.table_name;" );
+    t << stmt.arg( tablename );
+    QSqlIndex idx( tablename );
+    if ( t.next() )
+	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
+    return idx;
+    return QSqlIndex();
+}
+
 

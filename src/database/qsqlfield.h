@@ -10,61 +10,128 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlField
+class QSqlResultField
 {
 public:
-    QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
-    virtual ~QSqlField();
+    QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
+    virtual ~QSqlResultField();
 
     QVariant&     value();
 
     void          setName( const QString& name ) { nm = name; }
     QString       name() const { return nm; }
-    void          setDisplayLabel( const QString& l ) { label = l; }
-    QString       displayLabel() const { return label; }
     void          setFieldNumber( int fieldNumber ) { num = fieldNumber;}
     int           fieldNumber() const { return num; }
-    void          setReadOnly( bool readOnly ) { ro = readOnly; }
-    bool          isReadOnly() const { return ro; }
-    void          setIsNull( bool n ) { nul = n; }
-    bool          isNull() const { return nul; }
     QVariant::Type type() const { return val.type(); }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QSqlField& ) const { return FALSE; }
+    bool operator==( const QSqlResultField& ) const { return FALSE; }
 #endif
 
 private:
     QVariant      val;
     QString       nm;
     int           num;
+};
+
+class QSqlField : public QSqlResultField
+{
+public:
+    QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
+    virtual ~QSqlField();
+
+    void          setDisplayLabel( const QString& l ) { label = l; }
+    QString       displayLabel() const { return label; }
+    void          setReadOnly( bool readOnly ) { ro = readOnly; }
+    bool          isReadOnly() const { return ro; }
+    void          setIsNull( bool n ) { nul = n; }
+    bool          isNull() const { return nul; }
+    void          setPrimaryIndex( bool primaryIndex ) { pIdx = primaryIndex; }
+    bool          isPrimaryIndex() const { return pIdx; }
+    void          setForeignIndex( bool foreignIndex ) { fIdx = foreignIndex; }
+    bool          isForeignIndex() const { return fIdx; }
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QSqlField& ) const { return FALSE; }
+#endif
+
+private:
     QString       label;
     bool          ro;
     bool          nul;
+    bool          pIdx;
+    bool          fIdx;
 };
 
-class QSqlFieldList
+template< class T >
+class QSqlFields
 {
 public:
-    QSqlFieldList();
-    QSqlFieldList ( const QSqlFieldList& l );
-    virtual ~QSqlFieldList();
-    QVariant& operator[]( int i );
-    QVariant& operator[]( const QString& name );
-    QVariant& value( int i );
-    QVariant& value( const QString& name );
-    QSqlField& field( int i );
-    QSqlField& field( const QString& name );
-    int position( const QString& name );
-    void append( const QSqlField& field );
-    void clear();
-    uint count() const;
-    QString toString() const;
+    QSqlFields() {}
+    QSqlFields ( const QSqlFields<T>& l )
+    {
+	fieldList = l.fieldList;
+	fieldListStr = l.fieldListStr;
+	posMap = l.posMap;
+    }
+    virtual ~QSqlFields() {}
+    QVariant& operator[]( int i ) { return value( i ); }
+    QVariant& operator[]( const QString& name ) { return value( name ); }
+    QVariant& value( int i )
+    {
+#ifdef CHECK_RANGE
+	static QVariant dbg;
+	if( (unsigned int) i > fieldList.count() ){
+	    qWarning( "QSqlFields warning: index out of range" );
+	    return dbg;
+	}
+#endif // CHECK_RANGE
+	return fieldList[ i ].value();
+    }
+    QVariant& value( const QString& name )
+    {
+#ifdef CHECK_RANGE
+	static QVariant dbg;
+	if( (unsigned int) position( name ) > fieldList.count() ){
+	    qWarning( "QSqlFields warning: index out of range" );
+	    return dbg;
+	}
+#endif // CHECK_RANGE
+	return fieldList[ position( name ) ].value();
+    }
+    T& field( int i ) { return fieldList[ i ]; }
+    T& field( const QString& name ) { return fieldList[ position( name ) ]; }
+    int position( const QString& name )
+    {
+	if ( posMap.contains( name ) )
+	    return posMap[ name ];
+	return -1;
+    }
+    void append( const T& field )
+    {
+	if ( fieldListStr.isNull() )
+	    fieldListStr = field.name();
+	else
+	    fieldListStr += ", " + field.name();
+	posMap[ field.name() ] = fieldList.count();
+	fieldList.append( field );
+    }
+    void clear()
+    {
+	fieldListStr = QString::null;
+	fieldList.clear();
+	posMap.clear();
+    }
+    uint count() const { return fieldList.count(); }
+    QString toString() const { return fieldListStr; }
 private:
     QString fieldListStr;
     QMap< QString, int > posMap;
-    QValueList< QSqlField > fieldList;
+    QValueList< T > fieldList;
 };
+
+typedef QSqlFields< QSqlResultField > QSqlResultFields;
+typedef QSqlFields< QSqlField > QSqlFieldList;
 
 #endif	// QT_NO_SQL
 #endif

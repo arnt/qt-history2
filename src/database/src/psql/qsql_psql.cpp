@@ -95,10 +95,10 @@ QVariant::Type qDecodePSQLType( int t )
     return type;
 }
 
-QSqlField qMakeField( QPSQLPrivate* p, int i )
+QVariant::Type qFieldType( QPSQLPrivate* p, int i )
 {
     QVariant::Type type = qDecodePSQLType( PQftype( p->result, i ) );
-    return QSqlField( PQfname( p->result, i ), i, type );
+    return type;
 }
 
 QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
@@ -200,11 +200,11 @@ QTime qTimeFromDouble( double tm )
 
 QVariant QPSQLResult::data( int i )
 {
-    QSqlField info = qMakeField( d, i );
+    QVariant::Type type = qFieldType( d, i );
     if ( binary ) {
 	char* rawdata = PQgetvalue( d->result, at(), i );
 	int rawsize = PQfsize( d->result, i );
-	switch ( info.type() ) {
+	switch ( type ) {
 	case QVariant::String:
     	    return QVariant( QString(rawdata) );
 	case QVariant::Int:
@@ -240,7 +240,7 @@ QVariant QPSQLResult::data( int i )
 		    time += ds;
 		    date -= 1;
 		}
-		uint dt = date + QDate::greg2jul(2000,1,1);
+		uint dt = (uint)date + QDate::greg2jul(2000,1,1);
 		return QVariant( QDateTime( qDateFromUInt( dt ), qTimeFromDouble( time ) ) );
 	    }
 	case QVariant::Point:
@@ -273,7 +273,7 @@ QVariant QPSQLResult::data( int i )
 	}
     } else {
 	QString val( PQgetvalue( d->result, at(), i ) );
-	switch ( info.type() ) {
+	switch ( type ) {
 	case QVariant::String:
 	    return QVariant( val );
 	case QVariant::Int:
@@ -356,15 +356,17 @@ bool QPSQLResult::reset ( const QString& query )
     return FALSE;
 }
 
-QSqlFieldList QPSQLResult::fields()
+QSqlResultFields QPSQLResult::fields()
 {
-    QSqlFieldList fil;
+    QSqlResultFields fil;
     int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
-	QSqlField fi = qMakeField( d, i );
+	QString name = PQfname( d->result, i );
+	QVariant::Type type = qDecodePSQLType( PQftype( d->result, i ) );
+	QSqlResultField rf( name, i, type );
 	if ( isActive() && isValid() )
-	    fi.value() = data( i );
-	fil.append( fi  );
+	    rf.value() = data( i );
+	fil.append( rf );
     }
     return fil;
 }
@@ -518,7 +520,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 {
     QSqlFieldList fil;
-    QString stmt ( "select a.attname, a.atttypid, atttypmod, a.attlen "
+    QString stmt ( "select a.attname "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
 		   "and int4out(u.usesysid) = int4out(c.relowner) "
@@ -527,7 +529,10 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 		   "and (a.attnum > 0)");
     QSql fi = createResult();
     fi << stmt.arg( tablename );
-    while ( fi.next() )
-	fil.append( QSqlField( fi[0].toString(), fi.at(), qDecodePSQLType(fi[1].toInt()) ));
+    while ( fi.next() ) {
+	QSqlField f = qMakeField( this, tablename, fi[0].toString() );
+	f.setFieldNumber( fi.at() );
+	fil.append( f );
+    }
     return fil;
 }

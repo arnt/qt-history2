@@ -9,7 +9,30 @@
 #include <qsqlindex.h>
 
 class QODBCPrivate;
-class QODBCResult;
+class QODBCDriver;
+class QODBCResult : public QSqlResult
+{
+public:
+    QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
+    ~QODBCResult();
+protected:
+    bool 	fetchFirst();
+    bool 	fetchLast();
+    bool 	fetch(int i);
+    bool 	reset ( const QString& query );
+    QVariant 	data( int field );
+    bool	isNull( int field ) const;
+    QSqlResultFields   fields();
+    int                 size() const;
+    int                 affectedRows() const;
+private:
+    QODBCPrivate* 	d;
+    typedef QMap<int,QVariant> FieldCache;
+    FieldCache fieldCache;
+    typedef QMap<int,bool> NullCache;
+    NullCache nullCache;
+};
+
 class QODBCDriver : public QSqlDriver
 {
 public:
@@ -33,29 +56,6 @@ private:
     bool endTrans();
     void cleanup();
     QODBCPrivate* d;
-};
-
-class QODBCResult : public QSqlResult
-{
-public:
-    QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
-    ~QODBCResult();
-protected:
-    bool 	fetchFirst();
-    bool 	fetchLast();
-    bool 	fetch(int i);
-    bool 	reset ( const QString& query );
-    QVariant 	data( int field );
-    bool	isNull( int field ) const;
-    QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
-private:
-    QODBCPrivate* 	d;
-    typedef QMap<int,QVariant> FieldCache;
-    FieldCache fieldCache;
-    typedef QMap<int,bool> NullCache;
-    NullCache nullCache;
 };
 
 #endif

@@ -349,11 +349,21 @@ bool QSql::last()
 }
 
 /*!
-  Returns a list of fields used in the query.
+  Returns a list of fields used in the query.  Note that the fields which are
+  returned may not contain complete QSqlField information.  For example:
+
+  \code
+  QSql q = database->query("select name, salary+bonus from employeee;");
+  ...
+  QSqlFieldList fl = q.fields();
+
+  \endcode
+
+  \sa QSqlField
 
 */
 
-QSqlFieldList QSql::fields() const
+QSqlResultFields QSql::fields() const
 {
     return d->sqlResult->fields();
 }

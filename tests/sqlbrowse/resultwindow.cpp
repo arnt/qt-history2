@@ -10,9 +10,7 @@ ResultWindow::ResultWindow ( QSqlDatabase* database, QWidget * parent=0, const c
       db(database)
 {
     QStringList fil = db->tables();
-    //    for ( uint i = 0; i < fil.count(); ++i )
     tableList->insertStringList( fil );
-    //    execButton->setEnabled( FALSE );
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
 }
 ResultWindow::~ResultWindow()
@@ -21,20 +19,8 @@ ResultWindow::~ResultWindow()
 void ResultWindow::slotExec()
 {
     if ( db->isOpen() ) {
-	QSqlRowset rset( db, tableList->currentText() );
-	rset.select(); // all records
-	dataGrid->take( rset );
+	QSqlView view( db, tableList->currentText() );
+	view.select(); // all records
+	dataGrid->take( view );
     }
-
-// 	if ( db && sqlQuery->text().length() && db->isOpen() ) {
-// 	    QString query( sqlQuery->text().simplifyWhiteSpace() );
-// 	    QSql res =  db->query( query );
-// 	    if ( res.isActive() ) {
-// 		sqlBrowse->take(res);
-// 	    } else {
-// 		QSqlError err = res.lastError();
-// 		QMessageBox::information(0,"SQL Error",err.driverText() + err.databaseText());
-// 	    }
-// 	    sqlQuery->setFocus();
-// 	}
 }

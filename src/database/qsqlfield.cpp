@@ -3,6 +3,69 @@
 #ifndef QT_NO_SQL
 
 /*!
+    \class QSqlResultField qsqlfield.h
+    \brief Base class for manipulating SQL field information.
+
+    \module database
+*/
+
+
+/*!
+  Constructs an empty SQL field using the field name \a fieldName
+  and field number \a fieldNumber. 
+
+*/
+
+QSqlResultField::QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid )
+    : nm(fieldName), num(fieldNumber)
+{
+    val.cast( type );
+}
+
+/*!
+  Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlResultField::~QSqlResultField()
+{
+    
+}
+
+/*!
+  Returns a reference to the internal value of the field. 
+
+*/
+
+QVariant& QSqlResultField::value()
+{
+    return val;
+}
+
+/*! \fn void QSqlResultField::setName( const QString& name )
+  Sets the name of the field to \a name,
+*/
+
+/*! \fn QString QSqlResultField::name() const
+  Returns the name of the field.
+*/
+
+/*! \fn void QSqlResultField::setFieldNumber( int fieldNumber )
+  Sets the field number of the field to \a fieldNumber.
+*/
+
+/*! \fn int QSqlResultField::fieldNumber() const
+  Returns the field number of the field.
+*/
+
+/*! \fn QVariant::Type QSqlResultField::type() const
+  Returns the field type.
+*/
+
+/////////////////////////
+
+
+/*!
     \class QSqlField qsqlfield.h
     \brief Class used for manipulating SQL database fields
 
@@ -20,9 +83,9 @@
 */
 
 QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
-    : nm(fieldName), num(fieldNumber), label(fieldName), ro(FALSE)
+    : QSqlResultField( fieldName, fieldNumber, type ), label(fieldName), ro(FALSE)
 {
-    val.cast( type );
+    
 }
 
 /*!
@@ -34,68 +97,51 @@ QSqlField::~QSqlField()
 {
 }
 
-/*!
-  Returns a reference to the internal value of the field.  To determine if the field
-  is null use isNull().  To determine if the field is read only, use isReadOnly().
 
-  \sa isNull() setIsNull() isReadOnly() setReadOnly()
-
-*/
-
-QVariant& QSqlField::value()
-{
-    return val;
-}
-
-/*! \fn void setName( const QString& name )
-  Sets the name of the field to \a name,
-*/
-
-/*! \fn QString name() const
-  Returns the name of the field.
-*/
-
-/*! \fn void setDisplayLabel( const QString& l )
+/*! \fn void QSqlField::setDisplayLabel( const QString& l )
   Sets the display label text of the field to \a l.
 */
 
-/*! \fn QString displayLabel() const
+/*! \fn QString QSqlField::displayLabel() const
   Returns the display label of the field.
 */
 
-/*! \fn void setFieldNumber( int fieldNumber )
-  Sets the field number of the field to \a fieldNumber.
-*/
-
-/*! \fn int fieldNumber() const
-  Returns the field number of the field.
-*/
-
-/*! \fn void setReadOnly( bool readOnly )
+/*! \fn void QSqlField::setReadOnly( bool readOnly )
   Sets the read only flag of the field to \a readOnly.
 */
 
-/*! \fn bool isReadOnly() const
+/*! \fn bool QSqlField::isReadOnly() const
   Returns TRUE if the field is read only, otherwise FALSE.
 */
 
-/*! \fn void setIsNull( bool n )
+/*! \fn void QSqlField::setIsNull( bool n )
   Sets the null flag of the field to \a null.
 */
 
-/*! \fn bool isNull() const
+/*! \fn bool QSqlField::isNull() const
   Returns TRUE if the field is currently null, otherwise FALSE.
 */
 
-/*! \fn QVariant::Type type() const
-  Returns the field type.
+/*! \fn void QSqlField::setPrimaryIndex( bool primaryIndex )
+  Sets the primary index flag to \a primaryIndex.
+*/
+/*! \fn bool QSqlField::isPrimaryIndex() const
+  Returns TRUE if the field is part of a primary index, otherwise FALSE.
 */
 
-//////////
+/*! \fn void QSqlField::setForeignIndex( bool foreignIndex )
+  Sets the foreign index flag to \a foreignIndex.
+*/
+
+/*! \fn bool QSqlField::isForeignIndex() const
+  Returns TRUE if the field is part of a foregin inder, otherwise FALSE.
+*/
+
+/////////////////
 
 /*!
-    \class QSqlFieldList qsqlfield.h
-    \brief Class used for manipulating a list of SQL database fields
+    \class QSqlFields qsqlfield.h
+    \brief Template class used for manipulating a list of SQL database fields.
 
     \module database
 */
@@ -106,31 +152,19 @@ QVariant& QSqlField::value()
 
 */
 
-QSqlFieldList::QSqlFieldList()
-{
-
-}
 
 /*!  Constructs a copy of \a l.
 
 */
 
-QSqlFieldList::QSqlFieldList( const QSqlFieldList& l )
-{
-    fieldList = l.fieldList;
-    fieldListStr = l.fieldListStr;
-    posMap = l.posMap;
-}
+//template < class T > QSqlFields< T >::QSqlFields< T >( const QSqlFields< T >& l )
 
 /*!
   Destroys the object and frees any allocated resources.
 
 */
 
-QSqlFieldList::~QSqlFieldList()
-{
-
-}
+//template < class T > QSqlFields< T >::~QSqlFields< T >()
 
 /*!
   Returns a reference to the field located at position \a i in the list.
@@ -138,10 +172,7 @@ QSqlFieldList::~QSqlFieldList()
 
 */
 
-QVariant& QSqlFieldList::operator[]( int i )
-{
-    return value( i );
-}
+//template < class T > QVariant& QSqlFields< T >::operator[]( int i )
 
 /*!
   Returns a reference to the field named \a name in the list.
@@ -149,10 +180,7 @@ QVariant& QSqlFieldList::operator[]( int i )
 
 */
 
-QVariant& QSqlFieldList::operator[]( const QString& name )
-{
-    return value( name );
-}
+//template < class T > QVariant& QSqlFields< T >::operator[]( const QString& name )
 
 /*!
   Returns a reference to the field located at position \a i in the list.
@@ -160,18 +188,7 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 
 */
 
-QVariant& QSqlFieldList::value( int i )
-{
-#ifdef CHECK_RANGE
-    static QVariant dbg;
-
-    if( (unsigned int) i > fieldList.count() ){
-	qWarning( "QSqlFieldList warning: index out of range" );
-	return dbg;
-    }
-#endif // CHECK_RANGE
-    return fieldList[ i ].value();
-}
+//template < class T > QVariant& QSqlFields< T >::value( int i )
 
 /*!
   Returns a reference to the field named \a name in the list.
@@ -179,18 +196,7 @@ QVariant& QSqlFieldList::value( int i )
 
 */
 
-QVariant& QSqlFieldList::value( const QString& name )
-{
-#ifdef CHECK_RANGE
-    static QVariant dbg;
-
-    if( (unsigned int) position( name ) > fieldList.count() ){
-	qWarning( "QSqlFieldList warning: index out of range" );
-	return dbg;
-    }
-#endif // CHECK_RANGE
-    return fieldList[ position( name ) ].value();
-}
+//template < class T > QVariant& QSqlFields< T >::value( const QString& name )
 
 /*!
   Returns a reference to the value of the field located at position \a i in the list.
@@ -198,10 +204,7 @@ QVariant& QSqlFieldList::value( const QString& name )
 
 */
 
-QSqlField& QSqlFieldList::field( int i )
-{
-    return fieldList[ i ];
-}
+//template < class T > T& QSqlFields< T >::field( int i )
 
 /*!
   Returns a reference to the value of the field named \a name in the list.
@@ -209,10 +212,7 @@ QSqlField& QSqlFieldList::field( int i )
 
 */
 
-QSqlField& QSqlFieldList::field( const QString& name )
-{
-    return fieldList[ position( name ) ];
-}
+//template < class T > T& QSqlFields< T >::field( const QString& name )
 
 /*!
   Returns the position of the field named \a name within the list,
@@ -220,39 +220,21 @@ QSqlField& QSqlFieldList::field( const QString& name )
 
 */
 
-int QSqlFieldList::position( const QString& name )
-{
-    if ( posMap.contains( name ) )
-	return posMap[ name ];
-    return -1;
-}
+//template < class T > int QSqlFields< T >::position( const QString& name )
 
 /*!
   Appends the field \a field to the end of the list of fields.
 
 */
 
-void QSqlFieldList::append( const QSqlField& field )
-{
-    if ( fieldListStr.isNull() )
-	fieldListStr = field.name();
-    else
-	fieldListStr += ", " + field.name();
-    posMap[ field.name() ] = fieldList.count();
-    fieldList.append( field );
-}
+//template < class T > void QSqlFields< T >::append( const T& field )
 
 /*!
   Removes all fields from the list.
 
 */
 
-void QSqlFieldList::clear()
-{
-    fieldListStr = QString::null;
-    fieldList.clear();
-    posMap.clear();
-}
+//template < class T > void QSqlFields< T >::clear()
 
 /*!
   Returns a comma-separated list of field names as a string.  This
@@ -261,19 +243,13 @@ void QSqlFieldList::clear()
 
 */
 
-QString QSqlFieldList::toString() const
-{
-    return fieldListStr;
-}
+//template < class T > QString QSqlFields< T >::toString() const
 
 /*!
   Returns the number of fields in the list.
 
 */
 
-uint QSqlFieldList::count() const
-{
-    return fieldList.count();
-}
+//template < class T > uint QSqlFields< T >::count() const
 
 #endif
