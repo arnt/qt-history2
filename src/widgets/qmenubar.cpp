@@ -382,20 +382,21 @@ void QMenuBar::performDelayedContentsChanged()
 #endif
     }
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(mac_eaten_menubar)
+    if(mac_eaten_menubar) {
 	macDirtyNativeMenubar();
 
-    bool all_hidden = TRUE;
-    if(irects) {
-	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
-	    all_hidden = irects[i].isEmpty();
-    }
-    if( all_hidden ) {
-	if( !isHidden())
-	    hide();
-    } else {
-	if( !isShown() && !fromFrameChange )
-	    show();
+	bool all_hidden = TRUE;
+	if(irects) {
+	    for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
+		all_hidden = irects[i].isEmpty();
+	}
+	if( all_hidden ) {
+	    if( !isHidden())
+		hide();
+	} else {
+	    if( !isShown() && !fromFrameChange )
+		show();
+	}
     }
 #endif
 }
