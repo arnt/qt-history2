@@ -9,7 +9,7 @@
 class SpaceShip : public QCanvasSprite {
     void initSpeed();
 public:
-    SpaceShip();
+    SpaceShip(QCanvas*);
     void advance(int);
     int rtti() const;
 };

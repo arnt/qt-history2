@@ -43,7 +43,8 @@ void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 
 
 
-SpaceShip::SpaceShip()
+SpaceShip::SpaceShip(QCanvas* canvas) :
+    QCanvasSprite(canvas)
 {
     static QCanvasPixmapArray spaceship("sprites/spaceship%1.png",32);
     setSequence(&spaceship);
@@ -173,7 +174,7 @@ void Main::toggleDoubleBuffer()
 
 void Main::addSprite()
 {
-    QCanvasItem* i = new SpaceShip;
+    QCanvasItem* i = new SpaceShip(&canvas);
     do {
 	i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
     } while (!i->collisions(TRUE).isEmpty());
@@ -181,14 +182,14 @@ void Main::addSprite()
 
 void Main::addCircle()
 {
-    QCanvasPolygonalItem* i = new QCanvasEllipse(50,50);
+    QCanvasPolygonalItem* i = new QCanvasEllipse(50,50,&canvas);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
 }
 
 void Main::addHexagon()
 {
-    QCanvasPolygon* i = new QCanvasPolygon;
+    QCanvasPolygon* i = new QCanvasPolygon(&canvas);
     const int size = 40;
     QPointArray pa(6);
     pa[0] = QPoint(2*size,0);
@@ -204,7 +205,7 @@ void Main::addHexagon()
 
 void Main::addPolygon()
 {
-    QCanvasPolygon* i = new QCanvasPolygon;
+    QCanvasPolygon* i = new QCanvasPolygon(&canvas);
     const int size = 400;
     QPointArray pa(6);
     pa[0] = QPoint(0,0);
@@ -220,7 +221,7 @@ void Main::addPolygon()
 
 void Main::addLine()
 {
-    QCanvasLine* i = new QCanvasLine;
+    QCanvasLine* i = new QCanvasLine(&canvas);
     i->setPoints( lrand48()%canvas.width(), lrand48()%canvas.height(),
                   lrand48()%canvas.width(), lrand48()%canvas.height() );
     i->setPen( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
@@ -229,7 +230,7 @@ void Main::addLine()
 void Main::addRectangle()
 {
     QCanvasPolygonalItem *i = new QCanvasRectangle( lrand48()%canvas.width(),lrand48()%canvas.height(),
-			    200,200);
+			    200,200,&canvas);
     int z = lrand48()%256;
     //i->setBrush( QColor(lrand48()%32*8,z,lrand48()%32*8) );
     i->setBrush( QColor(z,z,z) );
@@ -240,10 +241,12 @@ int main(int argc, char** argv)
 {
     QApplication app(argc,argv);
 
-qDebug("sizeof(QCanvasPolygonalItem)=%d",sizeof(QCanvasPolygonalItem));
-qDebug("sizeof(QCanvasText)=%d",sizeof(QCanvasText));
-qDebug("sizeof(QWidget)=%d",sizeof(QWidget));
-qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
+    /*
+    qDebug("sizeof(QCanvasPolygonalItem)=%d",sizeof(QCanvasPolygonalItem));
+    qDebug("sizeof(QCanvasText)=%d",sizeof(QCanvasText));
+    qDebug("sizeof(QWidget)=%d",sizeof(QWidget));
+    qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
+    */
 
     Main m;
     //m.resize(500,500);
