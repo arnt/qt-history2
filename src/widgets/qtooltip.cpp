@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#41 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#41 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.35 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.36 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -222,6 +222,7 @@ void QTipManager::add( QWidget *w, const QRect &r, const char *s,
     t->group = g;
 
     tips->insert( w, t );
+    connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
     if ( a ) {
 	showTip();
 	tips->take( w );
