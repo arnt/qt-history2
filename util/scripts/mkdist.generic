@@ -91,13 +91,15 @@ else
   echo "Generating documentation" >&2
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
-  make -s -C ${QTDIR}/extensions/imageio/src include
   make -s -C ${QTDIR}/extensions/opengl/src include
+  make -s -C ${QTDIR}/extensions/imageio/src include
   make -s -C ${QTDIR}/extensions/nsplugin/src include
   mkdir -p ${DISTDIR}/qt/extensions/opengl/html
+  mkdir -p ${DISTDIR}/qt/extensions/imageio/html
   mkdir -p ${DISTDIR}/qt/extensions/nsplugin/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/imageio
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
@@ -148,6 +150,7 @@ if [ "${platform}" = "win" ]; then
   mv */q*.h ../include
   cd ${DISTDIR}/qt
   mv extensions/opengl/src/q*.h include
+  mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
   find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
