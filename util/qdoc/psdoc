@@ -121,27 +121,31 @@ sub fixup {
     s-<var>(.*?)</var>-\\fI$1\\fP-gs;
 
     # images
-    s!\s*<img src=\"?(.*?\.gif).*?>\s*!{
+    s!\s*<img src=\"?(.*?\.png).*?>\s*!{
 	$uniq++;
 	my ( $filename ) = "/tmp/".$$."-".$uniq.".ps";
 	my ( $postscript, $width, $height );
-	open(PS, "giftopnm < $1 | ppmtopgm | pnmtops -noturn -nocenter |")
-	    || die;
-	$postscript = <PS>;
-	close PS;
-	if ( $postscript =~
-	    /\n%%BoundingBox:\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+/s ) {
-	    $width = $1;
-	    $height = $2;
-	    open(PS, "> $filename" ) || die;
-	    print PS $postscript;
+        if( -f $1 ) {
+	    open(PS, "pngtopnm < $1 | ppmtopgm | pnmtops -noturn -nocenter |")
+	        || die;
+	    $postscript = <PS>;
 	    close PS;
+	    if ( $postscript =~
+		 /\n%%BoundingBox:\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+/s ) {
+		$width = $1;
+		$height = $2;
+		open(PS, "> $filename" ) || die;
+		print PS $postscript;
+		close PS;
+	    } else {
+		die;
+	    }
+	    $delete{$filename}++;
+	    sprintf( "\n.PSPIC -L %s %2.2fi %2.2fi\n",
+		     $filename, $width/100, $height/100 );
 	} else {
-	    die;
+	    sprintf( "\n.pp\n[Image Omitted]\n.pp\n" );
 	}
-	$delete{$filename}++;
-	sprintf( "\n.PSPIC -L %s %2.2fi %2.2fi\n",
-		$filename, $width/100, $height/100 );
     }!gse;
 
     # undo quoted characters
@@ -313,7 +317,7 @@ sub parsetutfile {
 
 
 undef $/;
-chdir $ENV{"QTDIR"} . "/doc/html" || die;
+#chdir $ENV{"QTDIR"} . "/doc/html" || die;
 
 $roff = "";
 
@@ -348,7 +352,7 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-2,0.me" ) || die;
+open( O, "> /tmp/qtdoc-2.0.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
 print "/tmp/qtdoc-2.0.me\n";
