@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#21 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#21 $");
 
 
 /*!
@@ -167,21 +167,26 @@ public:
     bool    start( int msec, QObject *r, const char *m );
 protected:
     bool    event( QEvent * );
+private:
+    int	    timerId;
 };
+
+int  qStartTimer( int interval, QObject *obj ); // implemented in qapp_xxx.cpp
+bool qKillTimer( int id );
 
 bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
 {
-    int qStartTimer( int, QObject * );		// in qapp_xxx.cpp	
-    bool ok = connect( r, m );
-    if ( ok )
-	ok = qStartTimer(msec, (QObject *)this) != 0;
-    return ok;
+    timerId = 0;
+    if ( connect(r, m) )
+	timerId = qStartTimer( msec, (QObject *)this );
+    return timerId != 0;
 }
 
 bool QSingleShotTimer::event( QEvent * )
 {
-    activate();					// emits the signal
-    delete this;				// and kills itself
+    activate();					// emit the signal
+    qKillTimer( timerId );			// no more timeouts
+    delete this;				// kill itself
     return TRUE;
 }
 
