@@ -241,6 +241,9 @@ private:
 	bool		crWin;
 	QPaintDevice*	paintDevice;
 	QColor		transpColor;
+#ifdef Q_WS_MAC
+	QRect oldR;
+#endif
     };
     Private* d;
     static QGLContext*	currentCtx;

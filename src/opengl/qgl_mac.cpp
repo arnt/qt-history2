@@ -206,6 +206,7 @@ void QGLContext::reset()
     if ( vi )
 	aglDestroyPixelFormat((AGLPixelFormat)vi);
     vi = 0;
+    d->oldR = QRect(1, 1, 1, 1);
     d->crWin = FALSE;
     d->sharing = FALSE;
     d->valid = FALSE;
@@ -238,19 +239,29 @@ void QGLContext::fixBufferRect()
 	if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
 	   aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
 
+	bool update = FALSE;
 	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = w->clippedRegion();
 	if(clp.isNull() || clp.isEmpty()) {
-	    GLint offs[4] = { 0, 0, 0, 0 };
-	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	    if(!d->oldR.isNull()) {
+		update = TRUE;
+		d->oldR = QRect();
+		GLint offs[4] = { 0, 0, 0, 0 };
+		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	    }
 	} else {
 	    QPoint mp(posInWindow(w));
 	    GLint offs[4] = { 
 		mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()), 
 		w->width(), w->height() };
-	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	    if(d->oldR != QRect(offs[0], offs[1], offs[2], offs[3])) {
+		update = TRUE;
+		d->oldR = QRect(offs[0], offs[1], offs[2], offs[3]);
+		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	    }
 	}
-	aglUpdateContext((AGLContext)cx);
+	if(update)
+	    aglUpdateContext((AGLContext)cx);
     } 
 }
 
