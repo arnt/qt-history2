@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#5 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#6 $
 **
 ** Definition of QGArray class
 **
@@ -20,6 +20,11 @@ class QGArray					// generic array
 {
 friend class QBuffer;
 public:
+    struct array_data : QShared {		// shared array
+	array_data()	{ data=0; len=0; }
+	char *data;				// actual array data
+	uint  len;
+    };
     QGArray();
 protected:
     QGArray( int, int );			// dummy; does not alloc
@@ -55,11 +60,6 @@ protected:
     bool	setExpand( uint index, const char *d, uint sz );
 
 protected:
-    struct array_data : QShared {		// shared array
-	array_data()	{ data=0; len=0; }
-	char *data;				// actual array data
-	uint  len;
-    };
     array_data *p;
 
     virtual array_data *newData()		    { return new array_data; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#6 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#7 $
 **
 ** Definition of QBitArray class
 **
@@ -74,7 +74,7 @@ public:
     QBitArray  operator~() const;		// NOT bits
 
 protected:
-    struct bitarr_data : array_data {		// shared bit array
+    struct bitarr_data : QGArray::array_data {	// shared bit array
 	uint   nbits;
     };
     array_data *newData()		    { return new bitarr_data; }
