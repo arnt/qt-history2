@@ -659,7 +659,7 @@ copy_platform_files() {
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
 	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_file" ]; then
 	    sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
-		-e "s/%DISTDIR%/$DISTDIR/g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
+		-e "s,%DISTDIR%,$DISTDIR,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
 		sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$o_dir/$o_file
 	    else
