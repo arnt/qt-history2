@@ -28,7 +28,7 @@
 #ifndef QT_H
 #include "qmutex.h"
 #endif // QT_H
-
+#ifdef QT_THREAD_SUPPORT
 class QMutexPool
 {
 public:
@@ -45,5 +45,5 @@ private:
 };
 
 extern QMutexPool *qt_global_mutexpool;
-
+#endif // QT_THREAD_SUPPORT
 #endif // QMUTEXPOOL_P_H
