@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+// foo
+
 #include "widgetbox.h"
 
 #include <abstractformwindowmanager.h>
@@ -18,6 +20,7 @@
 #include <abstractwidgetfactory.h>
 #include <abstractwidgetdatabase.h>
 #include <qdesigner_formbuilder.h>
+#include <customwidget.h>
 #include <pluginmanager.h>
 #include <ui4.h>
 #include <spacer.h>
@@ -25,10 +28,6 @@
 
 #include <QtGui/QtGui>
 #include <qdebug.h>
-
-#define WIDGET QLatin1String("widget")
-#define WIDGETBOXICON QLatin1String("widgetboxicon")
-#define CATEGORY QLatin1String("category")
 
 /*******************************************************************************
 ** Tools
@@ -54,16 +53,6 @@ private:
     DomUI *m_dom_ui;
     QPoint m_hot_spot;
 };
-
-
-// ###
-static QString userWidgetXmlDir()
-{
-    QDir dir = QDir::home();
-    dir.mkdir(".qt4designer");
-    dir.cd(".qt4designer");
-    return dir.path() + QDir::separator();
-}
 
 static QIcon createIconSet(const QString &name)
 {
@@ -130,14 +119,39 @@ static void _childElementList(QDomNode node, const QString &tag,
         _childElementList(child, tag, attr_name, attr_value, result);
 }
 
-static ElementList childElementList(QDomNode node, const QString &tag,
-                                    const QString &attr_name = QString::null,
-                                    const QString &attr_value = QString::null)
+static QString domToString(const QDomElement &elt)
 {
-    ElementList result;
-    _childElementList(node, tag, attr_name, attr_value, &result);
+    QString result;
+    QTextStream stream(&result, QIODevice::WriteOnly);
+    elt.save(stream, 2);
+    stream.flush();
     return result;
 }
+
+static DomWidget *xmlToUi(QString xml)
+{
+    QDomDocument doc;
+    QString err_msg;
+    int err_line, err_col;
+    if (!doc.setContent(xml, &err_msg, &err_line, &err_col)) {
+        qWarning("xmlToUi: parse failed:\n%s\n:%d:%d: %s",
+                    xml.toLatin1().constData(),
+                    err_line, err_col,
+                    err_msg.toLatin1().constData());
+        return 0;
+    }
+
+    QDomElement dom_elt = doc.firstChildElement();
+    if (dom_elt.nodeName() != QLatin1String("widget")) {
+        qWarning("xmlToUi: invalid root element:\n%s", xml.toLatin1().constData());
+        return 0;
+    }
+
+    DomWidget *widget = new DomWidget;
+    widget->read(dom_elt);
+    return widget;
+}
+
 
 /*******************************************************************************
 ** WidgetBoxResource
@@ -186,7 +200,13 @@ QWidget *WidgetBoxResource::create(DomWidget *ui_widget, QWidget *parent)
 class WidgetCollectionModel : public QAbstractItemModel
 {
 public:
+    typedef AbstractWidgetBox::Widget Widget;
+    typedef AbstractWidgetBox::WidgetList WidgetList;
+    typedef AbstractWidgetBox::Category Category;
+    typedef AbstractWidgetBox::CategoryList CategoryList;
+
     WidgetCollectionModel(AbstractFormEditor *core, QObject *parent = 0);
+    ~WidgetCollectionModel();
 
     // item model methods
     QModelIndex index(int row, int column,
@@ -200,80 +220,184 @@ public:
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     ItemFlags flags(const QModelIndex &index) const;
 
-    // classes in this file use these, which are easier to read
-    QDomElement categoryElt(int cat_idx) const;
-    QDomElement widgetElt(int cat_idx, int wgt_idx) const;
-    QDomElement widgetElt(const QModelIndex &index) const;
-    QDomElement widgetElt(const QString &name) const;
+    int categoryCount() const;
+    Category category(int cat_idx) const;
+    void addCategory(const Category &cat);
+    void removeCategory(int cat_idx);
+    
+    int widgetCount(int cat_idx) const;
+    Widget widget(int cat_idx, int wgt_idx) const;
+    void addWidget(int cat_idx, const Widget &wgt);
+    void removeWidget(int cat_idx, int wgt_idx);
+    
+    Widget widget(const QModelIndex &index) const;
+    Widget widget(const QString &name) const;
     bool widgetIdx(const QString &name, int *cat_idx, int *wgt_idx) const;
     int categoryIdx(const QString &name) const;
-    int widgetCount(int cat_idx) const;
-    int categoryCount() const;
-
-    int addCategory(const QString &name, const QString &icon_file, DomUI *ui);
-    void removeCategory(int cat_idx);
 
 private:
-    QDomDocument m_widget_xml;
+    CategoryList m_model;
 
-    struct ModelItem {
-        ModelItem(QDomElement elt = QDomElement());
-        QString name;
-        QIcon icon;
-        QDomElement xml;
-    };
+    CategoryList xmlToModel(const QDomDocument &doc);
+    Category xmlToCategory(const QDomElement &cat_elt);
+    Category loadCustomCategory();
 
-    struct ModelKey {
-        ModelKey(int cat = -1, int wgt = -1)
-            : cat_idx(cat), wgt_idx(wgt) {}
-        bool operator < (const ModelKey &other) const
-            { return cat_idx == other.cat_idx ? wgt_idx < other.wgt_idx
-                                                : cat_idx < other.cat_idx; }
-        int cat_idx, wgt_idx;
-    };
+    AbstractFormEditor *m_core;
 
-    typedef QMap<ModelKey, ModelItem> Model;
-    Model m_widget_model;
-
-    typedef QMap<QString, ModelKey> Index;
-    Index m_widget_index;
-
-    void loadModelFromXml();
-    void loadCustomClasses(AbstractFormEditor *core);
-    void saveToUserXmlFile();
+    void dumpModel();
 };
-
-WidgetCollectionModel::ModelItem::ModelItem(QDomElement elt)
-{
-    xml = elt;
-    name = elt.attribute("name");
-    icon = createIconSet(xml.attribute(WIDGETBOXICON));
-}
 
 WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    QString name = userWidgetXmlDir() + QLatin1String("widgetbox.xml");
+    m_core = core;
+
+    QString name = QLatin1String(":/trolltech/widgetbox/widgetbox.xml");
     QFile f(name);
     if (!f.open(QIODevice::ReadOnly)) {
-        QString name = QLatin1String(":/trolltech/widgetbox/widgetbox.xml");
-        f.setFileName(name);
-        if (!f.open(QIODevice::ReadOnly)) {
-            qWarning("WidgetBox: failed to open \"%s\"", name.toLatin1().constData());
-            return;
-        }
+        qWarning("WidgetBox: failed to open \"%s\"", name.toLatin1().constData());
+        return;
     }
 
     QString error_msg;
     int line, col;
-    if (!m_widget_xml.setContent(&f, &error_msg, &line, &col)) {
+    QDomDocument doc;
+    if (!doc.setContent(&f, &error_msg, &line, &col)) {
         qWarning("WidgetBox: failed to parse \"%s\": on line %d: %s",
                     name.toLatin1().constData(), line, error_msg.toLatin1().constData());
         return;
     }
 
-    loadCustomClasses(core);
-    loadModelFromXml();
+    m_model = xmlToModel(doc);
+    Category custom = loadCustomCategory();
+    if (custom.widgetCount() > 0)
+        m_model.append(custom);
+
+//    dumpModel();
+}
+    
+void WidgetCollectionModel::dumpModel()
+{
+    qDebug() << "WidgetCollectionModel::dumpModel():";
+
+    for (int i = 0; i < categoryCount(); ++i) {
+        Category cat = category(i);
+        qDebug() << "Category:" << cat.name();
+        for (int j = 0; j < widgetCount(i); ++j) {
+            Widget wgt = cat.widget(j);
+            qDebug() << "Widget:" << wgt.name();
+            qDebug() << wgt.domXml();
+        }
+    }
+}
+
+WidgetCollectionModel::~WidgetCollectionModel()
+{
+}
+
+void WidgetCollectionModel::addCategory(const Category &cat)
+{
+    int cnt = categoryCount();
+    m_model.append(cat);
+    emit rowsInserted(QModelIndex(), cnt, cnt);
+}
+
+void WidgetCollectionModel::removeCategory(int cat_idx)
+{
+    if (category(cat_idx).isNull()) {
+        qWarning("WidgetCollectionModel::removeCategory(): index out of range: %d", cat_idx);
+        return;
+    }
+    emit rowsAboutToBeRemoved(QModelIndex(), cat_idx, cat_idx);
+    m_model.removeAt(cat_idx);
+}
+
+void WidgetCollectionModel::addWidget(int cat_idx, const Widget &wgt)
+{
+    Category cat = category(cat_idx);
+    if (cat.isNull())
+        return;
+    int cnt = cat.widgetCount();
+    cat.addWidget(wgt);
+    emit rowsInserted(index(cat_idx, 0, QModelIndex()), cnt, cnt);
+}
+
+void WidgetCollectionModel::removeWidget(int cat_idx, int wgt_idx)
+{
+    Category cat = category(cat_idx);
+    if (cat.isNull())
+        return;
+    if (cat.widget(wgt_idx).isNull())
+        return;
+    emit rowsAboutToBeRemoved(index(cat_idx, 0, QModelIndex()), wgt_idx, wgt_idx);
+    cat.removeWidget(wgt_idx);
+}
+
+WidgetCollectionModel::CategoryList WidgetCollectionModel::xmlToModel(const QDomDocument &doc)
+{
+    CategoryList result;
+
+    QDomElement root = doc.firstChildElement();
+    if (root.nodeName() != QLatin1String("widgetbox")) {
+        qWarning("WidgetCollectionModel::xmlToModel(): not a widgetbox file");
+        return result;
+    }
+
+    QDomElement cat_elt = root.firstChildElement();
+    for (; !cat_elt.isNull(); cat_elt = cat_elt.nextSiblingElement()) {
+        if (cat_elt.nodeName() != QLatin1String("category")) {
+            qWarning("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toLatin1().constData());
+            continue;
+        }
+
+        result.append(xmlToCategory(cat_elt));
+    }
+
+    return result;
+}
+
+WidgetCollectionModel::Category WidgetCollectionModel::xmlToCategory(const QDomElement &cat_elt)
+{
+    Category result(cat_elt.attribute(QLatin1String("name")));
+    
+    QDomElement widget_elt = cat_elt.firstChildElement();
+    for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {        
+        Widget w(widget_elt.attribute(QLatin1String("name")),
+                    domToString(widget_elt),
+                    createIconSet(widget_elt.attribute(QLatin1String("icon"))));
+        result.addWidget(w);
+    }
+
+    return result;
+}
+
+
+WidgetCollectionModel::Category WidgetCollectionModel::loadCustomCategory()
+{
+    Category result(tr("Custom Widgets"));
+
+    PluginManager *pm = m_core->pluginManager();
+    AbstractWidgetDataBase *db = m_core->widgetDataBase();
+    for (int i = 0; i < db->count(); ++i) {
+        AbstractWidgetDataBaseItem *item = db->item(i);
+        if (!item->isCustom())
+            continue;
+        QString path = item->pluginPath();
+        if (path.isEmpty())
+            continue;
+        QObject *o = pm->instance(path);
+        if (o == 0)
+            continue;
+        ICustomWidget *c = qt_cast<ICustomWidget*>(o);
+        if (c == 0)
+            continue;
+        QString dom_xml = c->domXml();
+        if (dom_xml.isEmpty())
+            continue;
+        result.addWidget(Widget(c->name(), dom_xml, c->icon()));
+    }
+        
+    return result;
 }
 
 QAbstractItemModel::ItemFlags WidgetCollectionModel::flags(const QModelIndex &) const
@@ -281,215 +405,85 @@ QAbstractItemModel::ItemFlags WidgetCollectionModel::flags(const QModelIndex &) 
     return ItemIsEnabled;
 }
 
-void WidgetCollectionModel::loadCustomClasses(AbstractFormEditor *core)
+WidgetCollectionModel::Category WidgetCollectionModel::category(int cat_idx) const
 {
-    AbstractWidgetDataBase *db = core->widgetDataBase();
-    int cnt = db->count();
-
-    QList<DomWidget*> widget_list;
-    for (int i = 0; i < cnt; ++i) {
-        AbstractWidgetDataBaseItem *item = db->item(i);
-        if (!item->isCustom())
-            continue;
-        DomWidget *dom_widget = new DomWidget;
-        dom_widget->setAttributeClass(item->name());
-        dom_widget->setAttributeName(item->name());
-        widget_list.append(dom_widget);
+    if (cat_idx < 0 || cat_idx >= m_model.size()) {
+        qWarning("WidgetCollectionModel::category(): index out of range: %d", cat_idx);
+        return Category();
     }
 
-    if (!widget_list.isEmpty()) {
-        QDomElement cat_elt = m_widget_xml.createElement("category");
-        cat_elt.setAttribute("name", tr("Custom Widgets"));
-        cat_elt.setAttribute("widgetboxicon", "");
-        m_widget_xml.firstChild().appendChild(cat_elt);
-
-        DomUI dom_ui;
-        DomWidget *root = new DomWidget;
-        dom_ui.setElementWidget(root);
-        root->setElementWidget(widget_list);
-
-        QDomElement ui_elt = dom_ui.write(m_widget_xml, QLatin1String("ui"));
-        cat_elt.appendChild(ui_elt);
-
-        ElementList list = childElementList(cat_elt, "widget", "name");
-        foreach (QDomElement elt, list)
-            elt.setAttribute("widgetboxicon", "");
-    }
-}
-
-void WidgetCollectionModel::loadModelFromXml()
-{
-    m_widget_model.clear();
-    m_widget_index.clear();
-    if (m_widget_xml.isNull())
-        return;
-
-    ElementList cat_list = childElementList(m_widget_xml, "category");
-    ElementList::iterator cat_it = cat_list.begin();
-    int cat_idx = 0;
-    for (; cat_it != cat_list.end(); ++cat_it, ++cat_idx) {
-        QDomElement cat_elt = *cat_it;
-        ModelItem cat_item(cat_elt);
-        m_widget_model.insert(ModelKey(cat_idx, -1), cat_item);
-
-//        qDebug() << cat_item.name;
-
-        ElementList wgt_list = childElementList(cat_elt, "widget", WIDGETBOXICON);
-        ElementList::iterator wgt_it = wgt_list.begin();
-        int wgt_idx = 0;
-        for (; wgt_it != wgt_list.end(); ++wgt_it, ++wgt_idx) {
-            ModelItem wgt_item(*wgt_it);
-            ModelKey key(cat_idx, wgt_idx);
-            m_widget_model.insert(key, wgt_item);
-            m_widget_index.insert(wgt_item.name, key);
-//            qDebug() << "`-->" << wgt_item.name;
-        }
-    }
-}
-
-QDomElement WidgetCollectionModel::categoryElt(int cat_idx) const
-{
-    Q_ASSERT(cat_idx >= 0);
-
-    ModelKey k(cat_idx, -1);
-    Model::const_iterator it = m_widget_model.find(k);
-    if (it == m_widget_model.constEnd())
-        return QDomElement();
-    return it.value().xml;
+    return m_model.at(cat_idx);
 }
 
 int WidgetCollectionModel::categoryIdx(const QString &name) const
 {
     for (int i = 0; i < categoryCount(); ++i) {
-        QString cat_name = categoryElt(i).attribute("name");
-        if (cat_name == name)
+        if (category(i).name() == name)
             return i;
     }
     return -1;
 }
 
-QDomElement WidgetCollectionModel::widgetElt(int cat_idx, int wgt_idx) const
+WidgetCollectionModel::Widget WidgetCollectionModel::widget(int cat_idx, int wgt_idx) const
 {
-    Q_ASSERT(cat_idx >= 0);
-    Q_ASSERT(wgt_idx >= 0);
+    Category cat = category(cat_idx);
+    if (cat.isNull())
+        return Widget();
 
-    ModelKey k(cat_idx, wgt_idx);
-    Model::const_iterator it = m_widget_model.find(k);
-    if (it == m_widget_model.constEnd())
-        return QDomElement();
-    return it.value().xml;
+    if (wgt_idx >= cat.widgetCount())
+        return Widget();
+        
+    return cat.widget(wgt_idx);
 }
 
-QDomElement WidgetCollectionModel::widgetElt(const QString &name) const
+WidgetCollectionModel::Widget WidgetCollectionModel::widget(const QString &name) const
 {
-    Index::const_iterator index_it = m_widget_index.find(name);
-    if (index_it == m_widget_index.constEnd())
-        return QDomElement();
-    ModelKey k = index_it.value();
-
-    Model::const_iterator model_it = m_widget_model.find(k);
-    Q_ASSERT(model_it != m_widget_model.end());
-    return model_it.value().xml;
+    int cat_idx, wgt_idx;
+    if (widgetIdx(name, &cat_idx, &wgt_idx))
+        return widget(cat_idx, wgt_idx);
+    return Widget();
 }
 
 bool WidgetCollectionModel::widgetIdx(const QString &name, int *cat_idx, int *wgt_idx) const
 {
-    Index::const_iterator index_it = m_widget_index.find(name);
-    if (index_it == m_widget_index.constEnd())
-        return false;
-    ModelKey k = index_it.value();
-    *cat_idx = k.cat_idx;
-    *wgt_idx = k.wgt_idx;
-    return true;
+    for (int i = 0; i < categoryCount(); ++i) {
+        for (int j = 0; j < widgetCount(i); ++j) {
+            Widget w = widget(i, j);
+            if (w.name() == name) {
+                *cat_idx = i;
+                *wgt_idx = j;
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 int WidgetCollectionModel::categoryCount() const
 {
-    if (m_widget_model.isEmpty())
-        return 0;
-
-    Model::const_iterator it = m_widget_model.end();
-    --it;
-    return it.key().cat_idx + 1;
+    return m_model.size();
 }
 
 int WidgetCollectionModel::widgetCount(int cat_idx) const
 {
-    Q_ASSERT(cat_idx >= 0);
-
-    Model::const_iterator it = m_widget_model.lowerBound(ModelKey(cat_idx + 1, -1));
-    if (it == m_widget_model.begin())
+    Category cat = category(cat_idx);
+    if (cat.isNull())
         return 0;
-    --it;
-    if (it.key().cat_idx != cat_idx)
-        return 0;
-    return it.key().wgt_idx + 1;
+    return cat.widgetCount();
 }
 
-int WidgetCollectionModel::addCategory(const QString &name, const QString &icon_file,
-                                        DomUI *ui)
+WidgetCollectionModel::Widget WidgetCollectionModel::widget(const QModelIndex &index) const
 {
-    QDomElement root_elt = childElement(m_widget_xml, "widgetbox");
-    if (root_elt.isNull()) {
-        qDebug("WidgetCollectionModel::addCategory(): missing <widgetbox> element");
-        return -1;
-    }
-
-    QDomElement cat_elt = m_widget_xml.createElement("category");
-    root_elt.appendChild(cat_elt);
-
-    QDomElement elt = ui->write(m_widget_xml, QLatin1String("ui"));
-    elt.setAttribute("name", name);
-    elt.setAttribute("widgetboxicon", icon_file);
-
-
-    int cat_idx = categoryCount();
-    cat_elt.appendChild(elt);
-
-    saveToUserXmlFile();
-    loadModelFromXml();
-    emit reset();
-    return cat_idx;
-}
-
-void WidgetCollectionModel::removeCategory(int cat_idx)
-{
-    QDomElement root_elt = childElement(m_widget_xml, "widgetbox");
-    if (root_elt.isNull()) {
-        qDebug("WidgetCollectionModel::removeCategory(): missing <widgetbox> element");
-        return;
-    }
-
-    QDomElement cat_elt = categoryElt(cat_idx);
-    if (cat_elt.isNull()) {
-        qWarning("WidgetCollectionModel::removeCategory(): no category idx %d", cat_idx);
-        return;
-    }
-
-    if (cat_elt.parentNode() != root_elt) {
-        qDebug("WidgetCollectionModel::removeCategory(): category idx %d is not child of <widgetbox>", cat_idx);
-        return;
-    }
-
-    root_elt.removeChild(cat_elt);
-    saveToUserXmlFile();
-    loadModelFromXml();
-    emit reset();
-}
-
-QDomElement WidgetCollectionModel::widgetElt(const QModelIndex &index) const
-{
-    QDomElement result;
-
     if (!index.isValid())
-        return QDomElement();
+        return Widget();
 
     int d = reinterpret_cast<long>(index.data());
 
     if (d == -1)
-        return QDomElement();
+        return Widget();
 
-    return widgetElt(d, index.row());
+    return widget(d, index.row());
 }
 
 QModelIndex WidgetCollectionModel::index(int row, int column,
@@ -509,7 +503,8 @@ QModelIndex WidgetCollectionModel::index(int row, int column,
 
     int d = reinterpret_cast<long>(parent.data());
     if (d == -1) {
-        Q_ASSERT(parent.row() < categoryCount());
+        if (parent.row() >= categoryCount())
+            return QModelIndex();
         if (row >= widgetCount(parent.row()))
             return QModelIndex();
         return createIndex(row, 0, reinterpret_cast<void*>(parent.row()));
@@ -569,47 +564,32 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
 
     int d = reinterpret_cast<long>(index.data());
 
-    ModelKey key;
-    if (d == -1) {
-        Q_ASSERT(index.row() < categoryCount());
-        key = ModelKey(index.row(), -1);
-    } else {
-        Q_ASSERT(d < categoryCount());
-        Q_ASSERT(index.row() < widgetCount(d));
-        key = ModelKey(d, index.row());
-    }
-
-    if (!m_widget_model.contains(key))
-        return QVariant();
-
-    const ModelItem &item = m_widget_model.value(key);
-
+    QVariant result;
+    
     switch (role) {
         case DisplayRole:
-            return item.name;
+            if (d == -1) {
+                Category cat = category(index.row());
+                if (!cat.isNull())
+                    result = cat.name();
+            } else {
+                Widget wgt = widget(d, index.row());
+                if (!wgt.isNull())
+                    result = wgt.name();
+            }
+            break;
         case DecorationRole:
-            if (d == -1)
-                return QVariant();
-            return item.icon;
+            if (d != -1) {
+                Widget wgt = widget(d, index.row());
+                if (!wgt.isNull())
+                    result = wgt.icon();
+            }
+            break;
         default:
-            return QVariant();
+            break;
     };
-}
 
-void WidgetCollectionModel::saveToUserXmlFile()
-{
-    if (m_widget_xml.isNull())
-        return;
-
-    QString name = userWidgetXmlDir() + QLatin1String("widgetbox.xml");
-    QFile f(name);
-    if (!f.open(QIODevice::WriteOnly)) {
-        qWarning("WidgetBox: failed to save \"%s\"", name.toLatin1().constData());
-        return;
-    }
-
-    QTextStream stream(&f);
-    m_widget_xml.save(stream, 4);
+    return result;
 }
 
 /*******************************************************************************
@@ -624,7 +604,7 @@ public:
         : QWidget(parent), m_model(model) {}
 
 signals:
-    void pressed(const QDomElement &wgt_elt, const QRect &rect);
+    void pressed(const QString &xml, const QRect &rect);
 
 protected:
     WidgetCollectionModel *model() const { return m_model; }
@@ -700,7 +680,7 @@ WidgetBoxListViewChild::~WidgetBoxListViewChild()
     for (int i = 0; i < m_model->categoryCount(); ++i) {
         QModelIndex idx = m_model->index(i, 0, QModelIndex());
         if (isOpen(idx))
-            open_cat.append(m_model->categoryElt(i).attribute("name"));
+            open_cat.append(m_model->category(i).name());
     }
     settings.setValue("open categories", open_cat);
 
@@ -721,36 +701,42 @@ public:
 
 private slots:
     void handleMousePress(const QModelIndex &index);
+
+private:
+    WidgetBoxListViewChild *m_list;
+    WidgetCollectionModel *m_model;
 };
 
 WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *parent)
     : WidgetBoxContainer(model, parent)
 {
+    m_model = model;
+
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
-    WidgetBoxListViewChild *child = new WidgetBoxListViewChild(model, this);
-    child->setItemDelegate(new SheetDelegate(child, child));
+    m_list = new WidgetBoxListViewChild(model, this);
+    l->addWidget(m_list);
+    m_list->setItemDelegate(new SheetDelegate(m_list, m_list));
 
-    l->addWidget(child);
-    connect(child, SIGNAL(pressed(const QModelIndex&)),
+    connect(m_list, SIGNAL(pressed(const QModelIndex&)),
             this, SLOT(handleMousePress(const QModelIndex&)));
 }
 
 void WidgetBoxListView::handleMousePress(const QModelIndex &index)
 {
-    if (QTreeView *child = qt_cast<QTreeView*>(sender())) {
-        if (!child->model()->parent(index).isValid()) {
-            child->setOpen(index, !child->isOpen(index));
-        }
-    }
-
     if (!index.isValid())
         return;
-    QDomElement elt = model()->widgetElt(index);
-    if (elt.isNull())
+    
+    if (!m_model->parent(index).isValid()) {
+        m_list->setOpen(index, !m_list->isOpen(index));
+        return;
+    }
+    
+    WidgetCollectionModel::Widget wgt = m_model->widget(index);
+    if (wgt.isNull())
         return;
 
-    emit pressed(elt, QRect());
+    emit pressed(wgt.domXml(), QRect());
 }
 
 class CollectionFrame : public QFrame
@@ -886,51 +872,24 @@ QPoint WidgetBoxDnDItem::hotSpot() const
 ** WidgetBox
 */
 
-WidgetBox::WidgetBox(AbstractFormEditor *core, ViewMode mode, QWidget *parent, Qt::WFlags flags)
+WidgetBox::WidgetBox(AbstractFormEditor *core, QWidget *parent, Qt::WFlags flags)
     : AbstractWidgetBox(parent, flags), m_core(core)
 {
     m_core = core;
-    m_mode = mode;
 
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
 
     m_model = new WidgetCollectionModel(core, this);
-    m_view = 0;
+    m_view = new WidgetBoxListView(m_model, this);
+    l->addWidget(m_view);
 
-#if 0 // ### disabled for now
-    m_mode_action_group = new QActionGroup(this);
-    m_mode_action_group->setExclusive(true);
-    m_tree_mode_action = new QAction(tr("Tree View"), m_mode_action_group);
-    m_tree_mode_action->setCheckable(true);
-    m_form_mode_action = new QAction(tr("Form View"), m_mode_action_group);
-    m_form_mode_action->setCheckable(true);
-
-    addAction(m_tree_mode_action);
-    addAction(m_form_mode_action);
-
-    connect(m_mode_action_group, SIGNAL(triggered(QAction*)),
-                this, SLOT(setViewMode(QAction*)));
-#else
-    m_mode_action_group = 0;
-    m_tree_mode_action = 0;
-    m_form_mode_action = 0;
-#endif
-
-    QSettings settings;
-
-#if 0 // ### disabled for now
-    setViewMode(WidgetBox::ViewMode(settings.value("widgetbox/boxmode",
-                                                   WidgetBox::TreeMode).toInt()));
-#else
-    setViewMode(WidgetBox::TreeMode);
-#endif
+    connect(m_view, SIGNAL(pressed(const QString&, const QRect&)),
+            this, SLOT(handleMousePress(const QString&, const QRect&)));
 }
 
 WidgetBox::~WidgetBox()
 {
-    QSettings settings;
-    settings.setValue("widgetbox/boxmode", int(viewMode()));
     // delete view before model
     delete m_view;
 }
@@ -940,46 +899,16 @@ AbstractFormEditor *WidgetBox::core() const
     return m_core;
 }
 
-void WidgetBox::handleMousePress(const QDomElement &wgt_elt, const QRect &geometry)
+void WidgetBox::handleMousePress(const QString &xml, const QRect &geometry)
 {
+    DomWidget *dom_widget = xmlToUi(xml);
+    if (dom_widget == 0)
+        return;
     if (QApplication::mouseButtons() == Qt::LeftButton) {
-        DomWidget *dom_widget = new DomWidget();
-        dom_widget->read(wgt_elt);
         QList<AbstractDnDItem*> item_list;
         item_list.append(new WidgetBoxDnDItem(core(), dom_widget, geometry));
         m_core->formWindowManager()->dragItems(item_list, 0);
     }
-}
-
-void WidgetBox::setViewMode(QAction *action)
-{
-    if (action == m_tree_mode_action)
-        setViewMode(TreeMode);
-    else
-        setViewMode(FormMode);
-}
-
-void WidgetBox::setViewMode(ViewMode mode)
-{
-    delete m_view;
-    m_mode = mode;
-
-    switch (m_mode) {
-        case TreeMode:
-            m_view = new WidgetBoxListView(m_model, this);
-            // ### disabled for now
-            // m_tree_mode_action->setChecked(true);
-            break;
-
-        case FormMode:
-            Q_ASSERT(0); // ### not implemented yet!
-    }
-
-    connect(m_view, SIGNAL(pressed(const QDomElement&, const QRect&)),
-            this, SLOT(handleMousePress(const QDomElement&, const QRect&)));
-
-    layout()->addWidget(m_view);
-    m_view->show();
 }
 
 int WidgetBox::categoryCount() const
@@ -987,12 +916,19 @@ int WidgetBox::categoryCount() const
     return m_model->categoryCount();
 }
 
-DomUI *WidgetBox::category(int cat_idx) const
+AbstractWidgetBox::Category WidgetBox::category(int cat_idx) const
 {
-    QDomElement elt = m_model->categoryElt(cat_idx);
-    DomUI *ui = new DomUI();
-    ui->read(elt);
-    return ui;
+    return m_model->category(cat_idx);
+}
+
+void WidgetBox::addCategory(const Category &cat)
+{
+    m_model->addCategory(cat);
+}
+
+void WidgetBox::removeCategory(int cat_idx)
+{
+    m_model->removeCategory(cat_idx);
 }
 
 int WidgetBox::widgetCount(int cat_idx) const
@@ -1000,22 +936,19 @@ int WidgetBox::widgetCount(int cat_idx) const
     return m_model->widgetCount(cat_idx);
 }
 
-DomUI *WidgetBox::widget(int cat_idx, int wgt_idx) const
+AbstractWidgetBox::Widget WidgetBox::widget(int cat_idx, int wgt_idx) const
 {
-    QDomElement elt = m_model->widgetElt(cat_idx, wgt_idx);
-    DomUI *ui = new DomUI();
-    ui->read(elt);
-    return ui;
+    return m_model->widget(cat_idx, wgt_idx);
 }
 
-int WidgetBox::addCategory(const QString &name, const QString &icon_file, DomUI *ui)
+void WidgetBox::addWidget(int cat_idx, const Widget &wgt)
 {
-    return m_model->addCategory(name, icon_file, ui);
+    m_model->addWidget(cat_idx, wgt);
 }
 
-void WidgetBox::removeCategory(int cat_idx)
+void WidgetBox::removeWidget(int cat_idx, int wgt_idx)
 {
-    m_model->removeCategory(cat_idx);
+    m_model->removeWidget(cat_idx, wgt_idx);
 }
 
 #include "widgetbox.moc"

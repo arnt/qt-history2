@@ -1,7 +1,6 @@
 # Input
 
-INCLUDEPATH += $$PWD \
-                $$PWD/../../shared
+INCLUDEPATH += $$PWD 
 
 HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractpropertyeditor.h \
@@ -12,11 +11,11 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractwidgetfactory.h \
     $$PWD/abstractformwindowcursor.h \
     $$PWD/abstractimagecollection.h \
-    $$PWD/abstractwidgetbox.h \
     $$PWD/abstractobjectinspector.h \
     $$PWD/abstractpixmapcache.h \
     $$PWD/propertysheet.h \
-    $$PWD/taskmenu.h
+    $$PWD/taskmenu.h \
+    $$PWD/abstractwidgetbox.h
 
 SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractpropertyeditor.cpp \
@@ -27,7 +26,7 @@ SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractwidgetfactory.cpp \
     $$PWD/abstractformwindowcursor.cpp \
     $$PWD/abstractimagecollection.cpp \
-    $$PWD/abstractwidgetbox.cpp \
     $$PWD/abstractobjectinspector.cpp \
-    $$PWD/abstractpixmapcache.cpp
+    $$PWD/abstractpixmapcache.cpp \
+    $$PWD/abstractwidgetbox.cpp
 

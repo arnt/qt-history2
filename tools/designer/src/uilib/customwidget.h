@@ -48,7 +48,9 @@ struct ICustomWidget
     { Q_UNUSED(core); }
 
     virtual QString codeTemplate() const
-    { return QString::null; }
+    { return QString(); }
+
+    virtual QString domXml() const { return QString(); }
 };
 
 Q_DECLARE_EXTENSION_INTERFACE(ICustomWidget, "http://trolltech.com/Qt/IDE/CustomWidget")

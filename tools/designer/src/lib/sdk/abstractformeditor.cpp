@@ -24,7 +24,8 @@
 #include <abstractobjectinspector.h>
 #include <qextensionmanager.h>
 #include <abstractpixmapcache.h>
-#include <pluginmanager.h>
+
+class PluginManager;
 
 AbstractFormEditor::AbstractFormEditor(QObject *parent)
     : QObject(parent),

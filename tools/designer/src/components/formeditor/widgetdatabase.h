@@ -59,12 +59,16 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
     bool isCustom() const;
     void setCustom(bool b);
 
+    QString pluginPath() const;
+    void setPluginPath(const QString &path);
+
 private:
     QString m_name;
     QString m_group;
     QString m_toolTip;
     QString m_whatsThis;
     QString m_includeFile;
+    QString m_pluginPath;
     QIcon m_icon;
     uint m_compat: 1;
     uint m_container: 1;

@@ -56,6 +56,9 @@ struct AbstractWidgetDataBaseItem
     
     virtual bool isCustom() const = 0;
     virtual void setCustom(bool custom) = 0;
+
+    virtual QString pluginPath() const = 0;
+    virtual void setPluginPath(const QString &path) = 0;
 };
 
 class QT_SDK_EXPORT AbstractWidgetDataBase: public QObject

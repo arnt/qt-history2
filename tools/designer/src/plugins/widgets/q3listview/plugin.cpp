@@ -73,6 +73,20 @@ public:
     
     virtual QString codeTemplate() const
     { return QString::null; }
+
+    virtual QString domXml() const
+    { return QLatin1String("\
+        <widget class=\"Q3ListView\" name=\"Q3ListView\">\
+            <property name=\"geometry\">\
+                <rect>\
+                    <x>0</x>\
+                    <y>0</y>\
+                    <width>100</width>\
+                    <height>80</height>\
+                </rect>\
+            </property>\
+        </widget>\
+      "); }
     
 private:
     bool m_initialized;

@@ -22,7 +22,7 @@
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
-    WidgetBox *widget = new WidgetBox(workbench->core(), WidgetBox::TreeMode, this);
+    WidgetBox *widget = new WidgetBox(workbench->core(), this);
     workbench->core()->setWidgetBox(widget);
 
     setCentralWidget(widget);

@@ -131,6 +131,16 @@ void WidgetDataBaseItem::setCustom(bool b)
 {
     m_custom = b;
 }
+ 
+QString WidgetDataBaseItem::pluginPath() const
+{
+    return m_pluginPath;
+}
+
+void WidgetDataBaseItem::setPluginPath(const QString &path)
+{
+    m_pluginPath = path;
+}
 
 // ----------------------------------------------------------
 WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
@@ -231,6 +241,7 @@ void WidgetDataBase::loadPlugins()
             item->setName(c->name());
             item->setToolTip(c->toolTip());
             item->setWhatsThis(c->whatsThis());
+            item->setPluginPath(plugin);
             
             append(item);            
         }
