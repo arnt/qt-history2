@@ -2242,7 +2242,7 @@ void pnmscale(const QImage& src, QImage& dst)
 	    for ( col = 0, xP = xelrow, nxP = tempxelrow;
 		  col < cols; ++col, ++xP, ++nxP )
 	    {
-		register long a, r, g, b;
+		register long a=0, r, g, b;
 
 		if ( as ) {
 		    r = rs[col] + fracrowtofill * qRed( *xP ) * qAlpha( *xP ) / 255;
