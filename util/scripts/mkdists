@@ -331,18 +331,12 @@ done
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
-    -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),\1$BRANCH,g" $qglobal >${TMP_FILE}
+    -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),\1$VERSION_STR,g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
 TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+VERSION_STR=${BRANCH}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${BRANCH}${TYPE}, which confuses me terribly";
-fi
-
-# add date/time stamp to snapshot
-if [ "$TYPE" = "-snapshot" ]; then
-    DT=`date`
-    sed -e "s,snapshot,snapshot $DT,g" $qglobal > ${TMP_FILE}
-    mv ${TMP_FILE} $qglobal
 fi
 
 #fix $Id
