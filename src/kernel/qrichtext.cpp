@@ -4324,7 +4324,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
     QString str( s );
     if ( str[ (int)str.length() - 1 ].unicode() == 0xad )
 	str.remove( str.length() - 1, 1 );
-    if ( !plainText )
+    if ( !plainText || doc && lastFormat->color() != doc->formatCollection()->defaultFormat()->color() )
 	painter.setPen( QPen( lastFormat->color() ) );
     else
 	painter.setPen( cg.text() );
