@@ -154,7 +154,7 @@ public:
               bool autorep = false, ushort count = 1);
     ~QKeyEvent();
 
-    int key() const   { return k; }
+    int key() const { return k; }
     Qt::KeyboardModifiers modifiers() const;
     inline QString text() const { return txt; }
     inline bool isAutoRepeat() const { return autor; }
@@ -175,6 +175,7 @@ public:
     inline QT3_SUPPORT Qt::ButtonState state() const { return Qt::ButtonState(QInputEvent::modifiers()); }
     inline QT3_SUPPORT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
 #endif
+
 protected:
     QString txt;
     int k;
@@ -341,9 +342,11 @@ public:
        Language,
        Ruby
     };
-    struct Attribute {
+    class Attribute {
+    public:
         Attribute(AttributeType t, int s, int l, QVariant val) : type(t), start(s), length(l), value(val) {}
         AttributeType type;
+
         int start;
         int length;
         QVariant value;
@@ -352,14 +355,15 @@ public:
     QInputMethodEvent(const QString &preeditText, const QList<Attribute> &attributes);
     void setCommitString(const QString &commitString, int replaceFrom = 0, int replaceLength = 0);
 
-    const QList<Attribute> &attributes() const { return attrs; }
-    const QString &preeditString() const { return preedit; }
+    inline const QList<Attribute> &attributes() const { return attrs; }
+    inline const QString &preeditString() const { return preedit; }
 
-    const QString &commitString() const { return commit; }
-    int replacementFrom() const { return replace_from; }
-    int replacementLength() const { return replace_length; }
+    inline const QString &commitString() const { return commit; }
+    inline int replacementFrom() const { return replace_from; }
+    inline int replacementLength() const { return replace_length; }
 
     QInputMethodEvent(const QInputMethodEvent &other);
+
 private:
     QString preedit;
     QList<Attribute> attrs;

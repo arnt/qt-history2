@@ -34,9 +34,21 @@ QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
     : QEvent(type), modState(modifiers)
 {}
 
+/*
+    \internal
+*/
 QInputEvent::~QInputEvent()
 {
 }
+
+/*!
+    \fn Qt::KeyboardModifiers QInputEvent::modifiers() const
+
+    Returns the keyboard modifier flags that existed immediately
+    before the event occurred.
+
+    \sa QApplication::keyboardModifiers()
+*/
 
 /*!
     \class QMouseEvent
@@ -110,11 +122,20 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
     g = QCursor::pos();
 }
 
+/*!
+    \internal
+*/
 QMouseEvent::~QMouseEvent()
 {
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Use QMouseEvent(\a type, \a pos, \a button, \c mouseButtons, \c
+    keyboardModifiers) instead, where \c mouseButton is \a state &
+    Qt::MouseButtonMask and \c keyboardModifiers is \a state &
+    Qt::KeyButtonMask.
+*/
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state)
     : QInputEvent(type), p(pos), b((Qt::MouseButton)button)
 {
@@ -123,6 +144,12 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, i
     modState = Qt::KeyboardModifiers(state & Qt::KeyButtonMask);
 }
 
+/*!
+    Use QMouseEvent(\a type, \a pos, \a globalPos, \a button,
+    \c mouseButtons, \c keyboardModifiers) instead, where
+    \c mouseButton is \a state & Qt::MouseButtonMask and
+    \c keyboardModifiers is \a state & Qt::KeyButtonMask.
+*/
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                          Qt::ButtonState button, int state)
     : QInputEvent(type), p(pos), g(globalPos), b((Qt::MouseButton)button)
@@ -247,31 +274,26 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 */
 
 
-/*!\obsolete
+/*!
     \fn Qt::ButtonState QMouseEvent::state() const
 
     Returns the button state immediately before the event was
     generated. The button state is a combination of mouse buttons
-    (see Qt::ButtonState) and keyboard modifiers (Qt::Modifier).
+    (see Qt::ButtonState) and keyboard modifiers (Qt::MouseButtons).
 
-    For example, for \c QEvent::MouseButtonPress and
-    \c QEvent::MouseButtonDblClick event types, state() will
-    \e not include the mouse button that's pressed.
-    When the mouse button is released, the
-    \c QEvent::MouseButtonRelease event has a state() that
-    contains the button() that was initially pressed.
-
-    This value is mainly interesting for \c QEvent::MouseMove;
-    for the other cases, button() is more useful.
-
-    The returned value is a selection of the following values,
-    combined using the OR operator:
-    \c Qt::LeftButton, \c Qt::RightButton, \c Qt::MidButton,
-    \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
-
-    \sa button() stateAfter() Qt::ButtonState
+    Use buttons() and/or modifiers() instead. Be aware that buttons()
+    return the state immediately \e after the event was generated.
 */
 
+/*!
+    \fn Qt::ButtonState QMouseEvent::stateAfter() const
+
+    Returns the button state immediately after the event was
+    generated. The button state is a combination of mouse buttons
+    (see Qt::ButtonState) and keyboard modifiers (Qt::MouseButtons).
+
+    Use buttons() and/or modifiers() instead.
+*/
 
 /*!
     \class QWheelEvent
@@ -538,7 +560,9 @@ QKeyEvent::~QKeyEvent()
     Returns the keyboard modifier flags that existed immediately
     after the event occurred.
 
-    \warning This function cannot be trusted.
+    \warning This function cannot always be trusted. The user can
+    confuse it by pressing both \key{Shift} keys pressed
+    simulatenously and releasing one of them, for example.
 
     \sa QApplication::keyboardModifiers()
 */
@@ -576,6 +600,33 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     \sa Qt::WA_KeyCompression
 */
 
+#ifdef QT3_SUPPORT
+/*!
+    \fn QKeyEvent::QKeyEvent(Type type, int key, int ascii,
+                             int modifiers, const QString &text,
+                             bool autorep, ushort count)
+
+    Use one of the other constructors instead.
+*/
+
+/*!
+    \fn int QKeyEvent::ascii() const
+
+    Use text() instead.
+*/
+
+/*!
+    \fn Qt::ButtonState QKeyEvent::state() const
+
+    Use QInputEvent::modifiers() instead.
+*/
+
+/*!
+    \fn Qt::ButtonState QKeyEvent::stateAfter() const
+
+    Use modifiers() instead.
+*/
+#endif
 
 /*!
     \class QFocusEvent
@@ -633,6 +684,22 @@ Qt::FocusReason QFocusEvent::reason()
     returns false.
 */
 
+#ifdef QT3_SUPPORT
+/*!
+    \enum QFocusEventReason
+
+    Use Qt::FocusReason instead.
+
+    \value Mouse  Same as Qt::MouseFocusReason.
+    \value Tab  Same as Qt::TabFocusReason.
+    \value Backtab  Same as Qt::BacktabFocusReason.
+    \value MenuBar  Same as Qt::MenuBarFocusReason.
+    \value ActiveWindow  Same as Qt::ActiveWindowFocusReason
+    \value Other  Same as Qt::OtherFocusReason
+    \value Popup  Same as Qt::PopupFocusReason
+    \value Shortcut  Same as Qt::ShortcutFocusReason
+*/
+#endif
 
 /*!
     \class QPaintEvent
@@ -1091,26 +1158,26 @@ Qt::ButtonState QContextMenuEvent::state() const
     step process:
 
     \list 1
-    \i \bold{Starting to Compose}
+    \o \bold{Starting to Compose}
 
-    When the user presses the first key on a keyboard, an input
-    context is created. This input context will contain a string
-    of the typed characters.
+       When the user presses the first key on a keyboard, an input
+       context is created. This input context will contain a string
+       of the typed characters.
 
-    \i \bold{Composing}
+    \o \bold{Composing}
 
-    With every new key pressed, the input method will try to create a
-    matching string for the text typed so far called preedit
-    string. While the input context is active, the user can only move
-    the cursor inside the string belonging to this input context.
+       With every new key pressed, the input method will try to create a
+       matching string for the text typed so far called preedit
+       string. While the input context is active, the user can only move
+       the cursor inside the string belonging to this input context.
 
-    \i \bold{Completing}
+    \o \bold{Completing}
 
-    At some point, the user will activate a user interface component
-    (perhaps using a particular key) where they can choose from a
-    number of strings matching the text they have typed so far. The
-    user can either confirm their choice cancel the input; in either
-    case the input context will be closed.
+       At some point, the user will activate a user interface component
+       (perhaps using a particular key) where they can choose from a
+       number of strings matching the text they have typed so far. The
+       user can either confirm their choice cancel the input; in either
+       case the input context will be closed.
     \endlist
 
     QInputMethodEvent models these three stages, and transfers the
@@ -1144,92 +1211,181 @@ Qt::ButtonState QContextMenuEvent::state() const
     When receiving an input method event, the text widget has to performs the
     following steps:
 
-    1. If the widget has selected text, the selected text should get
-    removed.
+    \list 1
+    \o If the widget has selected text, the selected text should get
+       removed.
 
-    2. remove the text starting at replacementFrom() with length
-    replacementLength() and replace it by the commitString(). If
-    replacementLength() is 0, replacementFrom() gives the insertion
-    position for the commitString().
+    \o Remove the text starting at replacementFrom() with length
+       replacementLength() and replace it by the commitString(). If
+       replacementLength() is 0, replacementFrom() gives the insertion
+       position for the commitString().
 
-    When doing replacement the area of the preedit
-    string is ignored, thus a replacement starting at -1 with a length
-    of 2 will remove the last character before the preedit string and
-    the first character afterwards, and insert the commit string
-    directly before the preedit string.
+       When doing replacement the area of the preedit
+       string is ignored, thus a replacement starting at -1 with a length
+       of 2 will remove the last character before the preedit string and
+       the first character afterwards, and insert the commit string
+       directly before the preedit string.
 
-    If the widget implements undo/redo, this operation gets added to
-    the undo stack.
+       If the widget implements undo/redo, this operation gets added to
+       the undo stack.
 
-    3. If there is no current preedit string, insert the
-    preeditString() at the current cursor position; otherwise replace
-    the previous preeditString with the one received from this event.
+    \o If there is no current preedit string, insert the
+       preeditString() at the current cursor position; otherwise replace
+       the previous preeditString with the one received from this event.
 
-    If the widget implements undo/redo, the preeditString() should not
-    influence the undo/redo stack in any way.
+       If the widget implements undo/redo, the preeditString() should not
+       influence the undo/redo stack in any way.
 
-    The widget should examine the list of attributes to apply to the
-    preedit string. It has to understand at least the TextFormat and
-    Cursor attributes and render them as specified.
+       The widget should examine the list of attributes to apply to the
+       preedit string. It has to understand at least the TextFormat and
+       Cursor attributes and render them as specified.
+    \endlist
 
 */
 
 /*!
-  \enum QInputMethodEvent::AttributeType
+    \enum QInputMethodEvent::AttributeType
 
-  \value TextFormat
-  A QTextCharFormat for the part of the preedit string specified by
-  start and length. value contains a QVariant of type QTextFormat
-  specifying rendering of this part of the preedit string. There
-  should be at most one format for every part of the preedit
-  string. If several are specified for any character in the string the
-  behaviour is undefined. A conforming implementation has to at least
-  honour the backgroundColor, textColor and fontUnderline properties
-  of the format.
+    \value TextFormat
+    A QTextCharFormat for the part of the preedit string specified by
+    start and length. value contains a QVariant of type QTextFormat
+    specifying rendering of this part of the preedit string. There
+    should be at most one format for every part of the preedit
+    string. If several are specified for any character in the string the
+    behaviour is undefined. A conforming implementation has to at least
+    honour the backgroundColor, textColor and fontUnderline properties
+    of the format.
 
-  \value Cursor
-  If set, a cursor should be shown inside the preedit string at
-  position start. if value is a QVariant of type QColor this color
-  will be used for rendering the cursor, otherwise the color of the
-  surrounding text will be used. There should be at most one Cursor
-  attribute per event. If several are specified the behaviour is undefined.
+    \value Cursor
+    If set, a cursor should be shown inside the preedit string at
+    position start. If value is a QVariant of type QColor this color
+    will be used for rendering the cursor, otherwise the color of the
+    surrounding text will be used. There should be at most one Cursor
+    attribute per event. If several are specified the behaviour is undefined.
 
-  \value Language
-  The variant contains a QLocale object specifying the language of a
-  certain part of the preedit string. There should be at most one
-  language set for every part of the preedit string. If several are
-  specified for any character in the string the behaviour is undefined.
+    \value Language
+    The variant contains a QLocale object specifying the language of a
+    certain part of the preedit string. There should be at most one
+    language set for every part of the preedit string. If several are
+    specified for any character in the string the behaviour is undefined.
 
-  \value Ruby
-  The ruby text for a part of the preedit string. There should be at
-  most one ruby text set for every part of the preedit string. If
-  several are specified for any character in the string the behaviour
-  is undefined.
+    \value Ruby
+    The ruby text for a part of the preedit string. There should be at
+    most one ruby text set for every part of the preedit string. If
+    several are specified for any character in the string the behaviour
+    is undefined.
+
+    \sa Attribute
 */
 
+/*!
+    Constructs an event of type QEvent::InputMethod. The
+    attributes(), preeditString(), commitString(), replacementFrom(),
+    and replacementLength() are initialized to default values.
+
+    \sa setCommitString()
+*/
 QInputMethodEvent::QInputMethodEvent()
     : QEvent(QEvent::InputMethod), replace_from(0), replace_length(0)
 {
 }
 
+/*!
+    Construcs an event of type QEvent::InputMethod. The
+    preedit text is set to \a preeditText, the attributes to
+    \a attributes.
+
+    The commitString(), replacementFrom(), and replacementLength()
+    values can be set using setCommitString().
+
+    \sa preeditText(), attributes()
+*/
 QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes)
     : QEvent(QEvent::InputMethod), preedit(preeditText), attrs(attributes),
       replace_from(0), replace_length(0)
 {
 }
 
+/*!
+    Constructs a copy of \a other.
+*/
 QInputMethodEvent::QInputMethodEvent(const QInputMethodEvent &other)
     : QEvent(QEvent::InputMethod), preedit(other.preedit), attrs(other.attrs),
       commit(other.commit), replace_from(other.replace_from), replace_length(other.replace_length)
 {
 }
 
+/*!
+    Sets the commit string to \a commitString.
+
+    The commit string is the text that should get added to (or
+    replace parts of) the text of the editor widget. It usually is a
+    result of the input operations and has to be inserted to the
+    widgets text directly before the preedit string.
+
+    If the commit string should replace parts of the of the text in
+    the editor, \a replaceLength specifies the number of
+    characters to be replaced. \a replacementFrom specifies the position
+    at which characters are to be replaced relative from the start of
+    the preedit string.
+
+    \sa commitString(), replacementFrom(), replacementLength()
+*/
 void QInputMethodEvent::setCommitString(const QString &commitString, int replaceFrom, int replaceLength)
 {
     commit = commitString;
     replace_from = replaceFrom;
     replace_length = replaceLength;
 }
+
+/*!
+    \fn const QList<Attribute> &QInputMethodEvent::attributes() const
+
+    Returns the list of attributes passed to the QInputMethodEvent
+    constructor. The attributes control the visual appearance of the
+    preedit string (the visual appearance of text outside the preedit
+    string is controlled by the widget only).
+
+    \sa preeditString(), Attribute
+*/
+
+/*!
+    \fn const QString &QInputMethodEvent::preeditString() const
+
+    Returns the preedit text, i.e. the text before the user started
+    editing it.
+
+    \sa commitString(), attributes()
+*/
+
+/*!
+    \fn const QString &QInputMethodEvent::commitString() const
+
+    Returns the text that should get added to (or replace parts of)
+    the text of the editor widget. It usually is a result of the
+    input operations and has to be inserted to the widgets text
+    directly before the preedit string.
+
+    \sa setCommitString(), preeditString(), replacementFrom(), replacementLength()
+*/
+
+/*!
+    \fn int QInputMethodEvent::replacementFrom() const
+
+    Returns the position at which characters are to be replaced relative
+    from the start of the preedit string.
+
+    \sa replacementLength(), setCommitString()
+*/
+
+/*!
+    \fn int QInputMethodEvent::replacementLength() const
+
+    Returns the number of characters to be replaced in the preedit
+    string.
+
+    \sa replacementFrom(), setCommitString()
+*/
 
 /*!
     \class QTabletEvent
@@ -1259,7 +1415,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 
     The event handler QWidget::tabletEvent() receives all three types of
     tablet events. Qt will first send a tabletEvent then, if it is not
-    accepted, it will send a mouse event.  This allows applications that
+    accepted, it will send a mouse event. This allows applications that
     don't utilize tablets to use a tablet like a mouse, while also
     enabling those who want to use both tablets and mouses differently.
 
@@ -1278,20 +1434,28 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 */
 
 /*!
-  Construct a tablet event of the given \a type. The \a position indicates
-  where the event occurred in the widget; \a globalPos is the corresponding
-  position in absolute coordinates. The \a hiResPos contains high resolution \a
-  pressure contains the pressure exerted on the \a device. \a xTilt and \a
-  yTilt contain the device's degree of tilt from the X and Y axes respectively.
-  The \a uId contains the unique id for the current device.
+  Construct a tablet event of the given \a type.
+
+  The \a pos parameter indicates where the event occurred in the
+  widget; \a globalPos is the corresponding position in absolute
+  coordinates. The \a hiResGlobalPos contains high resolution \a
+  pressure contains the pressure exerted on the \a device.
+
+  \a xTilt and \a yTilt contain the device's degree of tilt from the
+  x and y axes respectively.
+
+  \a keyState specifies which keyboard modifiers are pressed (e.g.,
+  \key{Ctrl}).
+
+  The \a unique parameter contains the unique ID for the current device.
 
   \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
 */
 
-QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
+QTabletEvent::QTabletEvent(Type type, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
                            int device, qreal pressure, int xTilt, int yTilt, Qt::KeyboardModifiers keyState,
                            qint64 unique)
-    : QInputEvent(t, keyState),
+    : QInputEvent(type, keyState),
       mPos(pos),
       mGPos(globalPos),
       mHiResGlobalPos(hiResGlobalPos),
@@ -1303,6 +1467,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 {
 }
 
+/*!
+    \internal
+*/
 QTabletEvent::~QTabletEvent()
 {
 }
@@ -1444,10 +1611,10 @@ QTabletEvent::~QTabletEvent()
 
 /*!
     Creates a QDragMoveEvent of the required \a type indicating
-    that the mouse is at the \a point given within a widget.
+    that the mouse is at position \a pos given within a widget.
 
-    \warning Do not create a QDragMoveEvent yourself since these
-    objects rely on Qt's internal state.
+    \warning Do not attempt to create a QDragMoveEvent yourself.
+    These objects rely on Qt's internal state.
 */
 QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type)
     : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
@@ -1663,28 +1830,21 @@ void QDropEvent::setDropAction(Qt::DropAction action)
 */
 
 /*!
-    \fn bool QDropEvent::isAccepted () const
-
-    Returns true if the drop target accepts the event; otherwise
-    returns false.
-*/
-
-/*!
-    \fn void QDropEvent::accept(bool y=true)
+    \fn void QDropEvent::accept(bool accept = true)
 
     Call this function to indicate whether the event provided data
-    that your widget processed. Set \a y to true (the default) if
-    your widget could process the data, otherwise set \a y to false.
+    that your widget processed. Set \a accept to true (the default) if
+    your widget could process the data, otherwise set \a accept to false.
     To get the data, use mimeData().
 
     \sa acceptAction() QMimeData
 */
 
 /*!
-    \fn void QDropEvent::acceptAction(bool y=true)
+    \fn void QDropEvent::acceptAction(bool accept = true)
 
     Call this to indicate that the action described by action() is
-    accepted (i.e. if \a y is true, which is the default), not merely
+    accepted (i.e. if \a accept is true, which is the default), not merely
     the default copy action. If you call acceptAction(true), there is
     no need to also call accept(true).
 */
