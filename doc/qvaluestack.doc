@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluestack.doc,v 1.4 1999/09/25 15:01:43 ettrich Exp $
+** $Id: qvaluestack.doc,v 1.5 1999/09/25 15:14:13 ettrich Exp $
 **
 ** QValueStack class documentation
 **
@@ -112,7 +112,7 @@
 
   This function is equivalent to last().
 
-  \sa pop(), push(), fromLast()
+  \sa pop(), push(), QValueList::fromLast()
 */
 
 
@@ -123,16 +123,15 @@
 
   This function is equivalent to last().
 
-  \sa pop(), push(), fromLast()
+  \sa pop(), push(), QValueList::fromLast()
 */
 
 /*!
   \fn T QValueStack::pop()
 
   Removes the top item from the stack and returns it.
-  \sa top()
 
-  \sa push()
+  \sa top() and push()
 */
 
 
