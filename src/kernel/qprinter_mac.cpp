@@ -191,18 +191,25 @@ void QPrinter::setPrinterName( const QString &name )
     printer_name = name;
 }
 
+extern void qt_init_app_proc_handler();
+extern void qt_release_app_proc_handler();
+
 bool QPrinter::setup( QWidget *  )
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
     if( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) {
         Boolean ret;
-
+	qt_release_app_proc_handler();
         //setup
-        if(!prepare(&psettings))
+        if(!prepare(&psettings)) {
+	    qt_init_app_proc_handler();
             return FALSE;
-        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
+	}
+        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret ) {
+	    qt_init_app_proc_handler();
             return FALSE;
+	}
 
         //get values
         UInt32 from, to;
@@ -222,16 +229,20 @@ bool QPrinter::setup( QWidget *  )
             setColorMode(cm == kPMGray ? GrayScale : Color);
 
         //page format
-        if(!prepare(&pformat))
+        if(!prepare(&pformat)) {
+	    qt_init_app_proc_handler();
             return FALSE;
-        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
+	}
+        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret) {
+	    qt_init_app_proc_handler();
             return FALSE;
+	}
 
         //get values
         PMOrientation o;
         if(PMGetOrientation(pformat, &o) == noErr)
             setOrientation(o == kPMPortrait ? Portrait : Landscape);
-
+	qt_init_app_proc_handler();
         return TRUE;
     } else if ( QPrintDialog::getPrinterSetup( this ) ) {
         if(!prepare(&pformat) || !prepare(&psettings))

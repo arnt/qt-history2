@@ -385,6 +385,21 @@ static EventTypeSpec events[] = {
     { kAppearanceEventClass, kAEAppearanceChanged }
 };
 
+void qt_init_app_proc_handler()
+{
+    InstallEventHandler(GetApplicationEventTarget(), app_proc_handlerUPP,
+			GetEventTypeCount(events), events, (void *)qApp,
+			&app_proc_handler);
+}
+
+void qt_release_app_proc_handler()
+{
+    if(app_proc_handler) {
+	RemoveEventHandler(app_proc_handler);
+	app_proc_handler = NULL;
+    }
+}
+
 /* platform specific implementations */
 void qt_init(int* argcptr, char **argv, QApplication::Type)
 {
@@ -459,9 +474,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 
 	if(!app_proc_handler) {
 	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
-	    InstallEventHandler(GetApplicationEventTarget(), app_proc_handlerUPP,
-				GetEventTypeCount(events), events, (void *)qApp,
-				&app_proc_handler);
+	    qt_init_app_proc_handler();
 	}
 
 	if(QApplication::app_style) {
@@ -478,10 +491,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 
 void qt_cleanup()
 {
-    if(app_proc_handler) {
-	RemoveEventHandler(app_proc_handler);
-	app_proc_handler = NULL;
-    }
+    qt_release_app_proc_handler();
     if(app_proc_handlerUPP) {
 	DisposeEventHandlerUPP(app_proc_handlerUPP);
 	app_proc_handlerUPP = NULL;
