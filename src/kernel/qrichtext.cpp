@@ -3349,8 +3349,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     QString qstr = str->toString();
 
     const int nSels = doc ? doc->numSelections() : 1;
-    int *selectionStarts = new int[ nSels ];
-    int *selectionEnds = new int[ nSels ];
+    QArray<int> selectionStarts( nSels );
+    QArray<int> selectionEnds( nSels );
     if ( drawSelections ) {
 	bool hasASelection = FALSE;
 	for ( i = 0; i < nSels; ++i ) {
@@ -3552,15 +3552,12 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 	painter.restore();
     }
-
-    delete[] selectionStarts;
-    delete[] selectionEnds;
 }
 
 void QTextParag::drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
-				      QTextFormat *lastFormat, int i, int *selectionStarts,
-				      int *selectionEnds, const QColorGroup &cg, bool rightToLeft )
+				      QTextFormat *lastFormat, int i, const QArray<int> &selectionStarts,
+				      const QArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );

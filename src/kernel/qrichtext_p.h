@@ -1184,8 +1184,8 @@ protected:
 private:
     void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 			  int lastY, int baseLine, int bw, int h, bool drawSelections,
-			  QTextFormat *lastFormat, int i, int *selectionStarts,
-			  int *selectionEnds, const QColorGroup &cg, bool rightToLeft  );
+			  QTextFormat *lastFormat, int i, const QArray<int> &selectionStarts,
+			  const QArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
 
