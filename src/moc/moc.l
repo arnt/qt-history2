@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#4 $
+** $Id: //depot/qt/main/src/moc/moc.l#5 $
 **
 ** Lexical analyzer for meta object compiler
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993 by Haavard Nord.  All rights reserved.
+** Copyright (C) 1993,1994 by Haavard Nord.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the lexical analyzer for the meta object compiler (moc)
