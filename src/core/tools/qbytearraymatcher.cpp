@@ -53,6 +53,8 @@ static inline int bm_find(const uchar *cc, int l, int index, const uchar *puc, u
             else
                 skip = 1;
         }
+        if (current > end - skip)
+            break;
         current += skip;
     }
     return -1; // not found

@@ -64,6 +64,8 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
                 else
                     skip = 1;
             }
+            if (current > end - skip)
+                break;
             current += skip;
         }
     } else {
@@ -85,6 +87,8 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
                 else
                     skip = 1;
             }
+            if (current > end - skip)
+                break;
             current += skip;
         }
     }
