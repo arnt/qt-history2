@@ -37,12 +37,15 @@
 #include "qpalette.h"
 #include "qiconset.h"
 #include "qdatastream.h"
+#include "qregion.h"
+#include "qpointarray.h"
+#include "qbitmap.h"
 
 // NOT REVISED
 /*!
   \class QVariant qvariant.h
   \brief Acts like a union for the most common Qt data types.
-  
+
   \ingroup objectmodel
   \ingroup misc
 
@@ -302,9 +305,36 @@ QVariant::QVariant( const QColorGroup& val )
 }
 
 /*!
-  Constructs a new variant with an empty iconset
+  Constructs a new variant with an empty iconset.
 */
 QVariant::QVariant( const QIconSet& val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
+  Constructs a new variant with an empty region.
+*/
+QVariant::QVariant( const QRegion& val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
+  Constructs a new variant with an empty bitmap.
+*/
+QVariant::QVariant( const QBitmap& val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
+  Constructs a new variant with an empty array of points.
+*/
+QVariant::QVariant( const QPointArray& val )
 {
     typ = Invalid;
     setValue( val );
@@ -494,6 +524,23 @@ QVariant& QVariant::operator= ( const QVariantValueBase& v )
     return *this;
 }
 
+QVariant& QVariant::operator= ( const QRegion& v )
+{
+    setValue( v );
+    return *this;
+}
+
+QVariant& QVariant::operator= ( const QBitmap& v )
+{
+    setValue( v );
+    return *this;
+}
+
+QVariant& QVariant::operator= ( const QPointArray& v )
+{
+    setValue( v );
+    return *this;
+}
 
 /*!
   Assigns the value of some \a other variant to this variant.
@@ -511,65 +558,74 @@ QVariant& QVariant::operator= ( const QVariant& other )
 	    custom_type = other.custom_type;
 	    value.ptr = custom_type->copy( value.ptr );
 	    break;
+	case Bitmap:
+	    value.ptr = new QBitmap( other.asBitmap() );
+	    break;
+	case Region:
+	    value.ptr = new QRegion( other.asRegion() );
+	    break;
+	case PointArray:
+	    value.ptr = new QPointArray( other.asPointArray() );
+	    break;
 	case String:
-	    value.ptr = new QString( other.toString() );
+	    value.ptr = new QString( other.asString() );
 	    break;
 	case CString:
-	    value.ptr = new QCString( other.toCString() );
+	    value.ptr = new QCString( other.asCString() );
 	    break;
 	case StringList:
-	    value.ptr = new QStringList( other.toStringList() );
+	    value.ptr = new QStringList( other.asStringList() );
 	    break;
 	case Map:
-	    value.ptr = new QMap<QString,QVariant>( other.toMap() );
+	    value.ptr = new QMap<QString,QVariant>( other.asMap() );
 	    break;
 	case Font:
-	    value.ptr = new QFont( other.toFont() );
+	    value.ptr = new QFont( other.asFont() );
 	    break;
 	case Pixmap:
-	    value.ptr = new QPixmap( other.toPixmap() );
+	    value.ptr = new QPixmap( other.asPixmap() );
 	    break;
 	case Image:
-	    value.ptr = new QImage( other.toImage() );
+	    value.ptr = new QImage( other.asImage() );
 	    break;
 	case Brush:
-	    value.ptr = new QBrush( other.toBrush() );
+	    value.ptr = new QBrush( other.asBrush() );
 	    break;
 	case Point:
-	    value.ptr = new QPoint( other.toPoint() );
+	    value.ptr = new QPoint( other.asPoint() );
 	    break;
 	case Rect:
-	    value.ptr = new QRect( other.toRect() );
+	    value.ptr = new QRect( other.asRect() );
 	    break;
 	case Size:
-	    value.ptr = new QSize( other.toSize() );
+	    value.ptr = new QSize( other.asSize() );
 	    break;
 	case Color:
-	    value.ptr = new QColor( other.toColor() );
+	    value.ptr = new QColor( other.asColor() );
 	    break;
 	case Palette:
-	    value.ptr = new QPalette( other.toPalette() );
+	    value.ptr = new QPalette( other.asPalette() );
 	    break;
 	case ColorGroup:
-	    value.ptr = new QColorGroup( other.toColorGroup() );
+	    value.ptr = new QColorGroup( other.asColorGroup() );
 	    break;
 	case IconSet:
-	    value.ptr = new QIconSet( other.toIconSet() );
+	    value.ptr = new QIconSet( other.asIconSet() );
 	    break;
 	case List:
-	    value.ptr = new QValueList<QVariant>( other.toList() );
+	    value.ptr = new QValueList<QVariant>( other.asList() );
 	    break;
 	case Int:
-	    value.i = other.toInt();
+	    value.i = other.asInt();
 	    break;
 	case UInt:
-	    value.u = other.toUInt();
+	    value.u = other.asUInt();
 	    break;
 	case Bool:
-	    value.b = other.toBool();
+	    value.b = other.asBool();
 	    break;
 	case Double:
-	    value.d = other.toDouble();
+	    value.d = other.asDouble();
 	    break;
 	default:
 	    ASSERT( 0 );
@@ -761,6 +817,36 @@ void QVariant::setValue( const QIconSet& val )
 /*!
   Changes the value of this variant to \a val.
 */
+void QVariant::setValue( const QBitmap& val )
+{
+    clear();
+    typ = Bitmap;
+    value.ptr = new QBitmap( val );
+}
+
+/*!
+  Changes the value of this variant to \a val.
+*/
+void QVariant::setValue( const QRegion& val )
+{
+    clear();
+    typ = Region;
+    value.ptr = new QRegion( val );
+}
+
+/*!
+  Changes the value of this variant to \a val.
+*/
+void QVariant::setValue( const QPointArray& val )
+{
+    clear();
+    typ = PointArray;
+    value.ptr = new QPointArray( val );
+}
+
+/*!
+  Changes the value of this variant to \a val.
+*/
 void QVariant::setValue( int val )
 {
     clear();
@@ -842,6 +928,15 @@ void QVariant::clear()
 	    custom_type->destroy( value.ptr );
 	    custom_type = 0;
 	    break;
+	case Bitmap:
+	    delete (QBitmap*)value.ptr;
+	    break;
+	case Region:
+	    delete (QRegion*)value.ptr;
+	    break;
+	case PointArray:
+	    delete (QPointArray*)value.ptr;
+	    break;
 	case String:
 	    delete (QString*)value.ptr;
 	    break;
@@ -908,7 +1003,7 @@ void QVariant::clear()
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 22;
+static const int ntypes = 25;
 static const char* type_map[ntypes] =
 {
     0,
@@ -932,6 +1027,9 @@ static const char* type_map[ntypes] =
     "bool",
     "double",
     "QCString",
+    "PointArray",
+    "Region",
+    "Bitmap",
     "Custom"
 };
 
@@ -995,6 +1093,15 @@ void QVariant::load( QDataStream& s )
 	    break;
 	case List:
 	    { QValueList<QVariant> x; s >> x; setValue( x ); }
+	    break;
+	case Bitmap:
+	    { QBitmap x; s >> x; setValue( x ); }
+	    break;
+	case Region:
+	    { QRegion x; s >> x; setValue( x ); }
+	    break;
+	case PointArray:
+	    { QPointArray x; s >> x; setValue( x ); }
 	    break;
 	case String:
 	    { QString x; s >> x; setValue( x ); }
@@ -1069,65 +1176,74 @@ void QVariant::save( QDataStream& s ) const
 	    s << custom_type->typeName();
 	    custom_type->save( value.ptr, s );
 	    break;
+	case Bitmap:
+	    s << asBitmap();
+	    break;
+	case PointArray:
+	    s << asPointArray();
+	    break;
+	case Region:
+	    s << asRegion();
+	    break;
 	case List:
-	    s << toList();
+	    s << asList();
 	    break;
 	case Map:
-	    s << toMap();
+	    s << asMap();
 	    break;
 	case String:
-	    s << toString();
+	    s << asString();
 	    break;
 	case CString:
-	    s << toCString();
+	    s << asCString();
 	    break;
 	case StringList:
-	    s << toStringList();
+	    s << asStringList();
 	    break;
 	case Font:
-	    s << toFont();
+	    s << asFont();
 	    break;
 	case Pixmap:
-	    s << toPixmap();
+	    s << asPixmap();
 	    break;
 	case Image:
-	    s << toImage();
+	    s << asImage();
 	    break;
 	case Brush:
-	    s << toBrush();
+	    s << asBrush();
 	    break;
 	case Point:
-	    s << toPoint();
+	    s << asPoint();
 	    break;
 	case Rect:
-	    s << toRect();
+	    s << asRect();
 	    break;
 	case Size:
-	    s << toSize();
+	    s << asSize();
 	    break;
 	case Color:
-	    s << toColor();
+	    s << asColor();
 	    break;
 	case Palette:
-	    s << toPalette();
+	    s << asPalette();
 	    break;
 	case ColorGroup:
-	    s << toColorGroup();
+	    s << asColorGroup();
 	    break;
 	case IconSet:
-	    s << toIconSet().pixmap(); //### add stream operator to iconset #ME
+	    s << asIconSet().pixmap(); //### add stream operator to iconset #ME
 	    break;
 	case Int:
-	    s << toInt();
+	    s << asInt();
 	    break;
 	case UInt:
-	    s << toUInt();
+	    s << asUInt();
 	    break;
 	case Bool:
-	    s << (Q_INT8)toBool();
+	    s << (Q_INT8)asBool();
 	    break;
 	case Double:
-	    s << toDouble();
+	    s << asDouble();
 	    break;
 	case Invalid: // fall through
 	default:
@@ -1417,6 +1533,35 @@ const QIconSet QVariant::toIconSet() const
     return *((QIconSet*)value.ptr);
 }
 
+const QPointArray QVariant::toPointArray() const
+{
+    if ( typ != PointArray )
+	return QPointArray();
+    if ( typ == Custom )
+	return custom_type->castTo( value.ptr, PointArray ).toPointArray();
+
+    return *((QPointArray*)value.ptr);}
+
+const QBitmap QVariant::toBitmap() const
+{
+    if ( typ != Bitmap )
+	return QBitmap();
+    if ( typ == Custom )
+	return custom_type->castTo( value.ptr, Bitmap ).toBitmap();
+
+    return *((QBitmap*)value.ptr);
+}
+
+const QRegion QVariant::toRegion() const
+{
+    if ( typ != Region )
+	return QRegion();
+    if ( typ == Custom )
+	return custom_type->castTo( value.ptr, Region ).toRegion();
+
+    return *((QRegion*)value.ptr);
+}
+
 /*!
   Returns the variant as an int if the variant has type()
   Int, UInt, Double or Bool, or 0 otherwise.
@@ -1679,6 +1824,27 @@ QIconSet& QVariant::asIconSet()
     return *((QIconSet*)value.ptr);
 }
 
+QPointArray QVariant::asPointArray()
+{
+    if ( typ != PointArray )
+	setValue( toPointArray() );
+    return *((QPointArray*)value.ptr);
+}
+
+QBitmap QVariant::asBitmap()
+{
+    if ( typ != Bitmap )
+	setValue( toBitmap() );
+    return *((QBitmap*)value.ptr);
+}
+
+QRegion QVariant::asRegion()
+{
+    if ( typ != Region )
+	setValue( toRegion() );
+    return *((QRegion*)value.ptr);
+}
+
 int& QVariant::asInt()
 {
     if ( typ != Int )
@@ -1772,7 +1938,7 @@ void* QVariant::asCustom( const QVariantTypeBase* type )
 const QStringList& QVariant::asStringList() const
 {
     static QStringList* ptr = 0;
-    
+
     if ( typ != StringList )
     {
 	qDebug("WARNING: in \"const QStringList& QVariant::asStringList() const\"" );
@@ -1780,14 +1946,14 @@ const QStringList& QVariant::asStringList() const
 	if ( !ptr ) ptr = new QStringList;
 	return *ptr;
     }
-    
+
     return *((QStringList*)value.ptr);
 }
 
 const QValueList<QVariant>& QVariant::asList() const
 {
     static QValueList<QVariant>* ptr = 0;
-    
+
     if ( typ != List )
     {
 	qDebug("WARNING: in \"const QValueList<QVariant>& QVariant::asList() const\"" );
@@ -1795,14 +1961,14 @@ const QValueList<QVariant>& QVariant::asList() const
 	if ( !ptr ) ptr = new QValueList<QVariant>;
 	return *ptr;
     }
-    
+
     return *((QValueList<QVariant>*)value.ptr);
 }
 
 const QMap<QString,QVariant>& QVariant::asMap() const
 {
     static QMap<QString,QVariant>* ptr = 0;
-    
+
     if ( typ != List )
     {
 	qDebug("WARNING: in \"const QMap<QString,QVariant>& QVariant::asMap() const\"" );
@@ -1810,7 +1976,7 @@ const QMap<QString,QVariant>& QVariant::asMap() const
 	if ( !ptr ) ptr = new QMap<QString,QVariant>;
 	return *ptr;
     }
-    
+
     return *((QMap<QString,QVariant>*)value.ptr);
 }
 

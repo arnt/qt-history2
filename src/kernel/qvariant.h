@@ -53,6 +53,9 @@ class QPalette;
 class QColorGroup;
 class QIconSet;
 class QDataStream;
+class QPointArray;
+class QRegion;
+class QBitmap;
 // Relevant header files removed from above for GCC 2.7.* compatibility, so...
 class QVariant;
 class QVariantTypeBase;
@@ -93,6 +96,9 @@ public:
 	Bool,
 	Double,
 	CString,
+	PointArray,
+	Region,
+	Bitmap,
 	Custom
     };
 
@@ -116,6 +122,9 @@ public:
     QVariant( const QPalette& );
     QVariant( const QColorGroup& );
     QVariant( const QIconSet& );
+    QVariant( const QPointArray& );
+    QVariant( const QRegion& );
+    QVariant( const QBitmap& );
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
@@ -142,6 +151,9 @@ public:
     QVariant& operator= ( const QPalette& );
     QVariant& operator= ( const QColorGroup& );
     QVariant& operator= ( const QIconSet& );
+    QVariant& operator= ( const QPointArray& );
+    QVariant& operator= ( const QRegion& );
+    QVariant& operator= ( const QBitmap& );
     QVariant& operator= ( const QValueList<QVariant>& );
     QVariant& operator= ( const QMap<QString,QVariant>& );
     QVariant& operator= ( int );
@@ -164,6 +176,9 @@ public:
     void setValue( const QPalette& );
     void setValue( const QColorGroup& );
     void setValue( const QIconSet& );
+    void setValue( const QPointArray& );
+    void setValue( const QRegion& );
+    void setValue( const QBitmap& );
     void setValue( const QValueList<QVariant>& );
     void setValue( const QMap<QString,QVariant>& );
     void setValue( int );
@@ -198,6 +213,9 @@ public:
     const QPalette toPalette() const;
     const QColorGroup toColorGroup() const;
     const QIconSet toIconSet() const;
+    const QPointArray toPointArray() const;
+    const QBitmap toBitmap() const;
+    const QRegion toRegion() const;
     int toInt() const;
     uint toUInt() const;
     bool toBool() const;
@@ -225,6 +243,9 @@ public:
     QPalette& asPalette();
     QColorGroup& asColorGroup();
     QIconSet& asIconSet();
+    QPointArray asPointArray();
+    QBitmap asBitmap();
+    QRegion asRegion();
     int& asInt();
     uint& asUInt();
     bool& asBool();
