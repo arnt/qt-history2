@@ -124,7 +124,7 @@ the most significant changes:
 - Input methods: A selectionLength() function has been added to
   QIMEvent. Japanese compositions are now handled correctly. Support
   for AIMM based input methods (those working on non-Asian versions of
-  Win95/98/ME) has been added.
+  Win95/98/Me) has been added.
 
 - Large File support: Qt's internals have been modified to support
   Large Files (> 2GB). QFileDialog will now correctly display and
