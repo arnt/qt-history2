@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#52 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#53 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -3912,7 +3912,7 @@ QDomNode::NodeType QDomElement::nodeType() const
 }
 
 /*!
-  Sets the tag name of this element.
+  Sets the tag name of this element to \a name.
 
   \sa tagName()
 */
