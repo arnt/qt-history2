@@ -593,9 +593,10 @@ void qt_message_output(QtMsgType msgType, const char *buf)
 void qDebug(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtDebugMsg, buf);
@@ -636,9 +637,10 @@ void qDebug(const char *msg, ...)
 void qWarning(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtWarningMsg, buf);
@@ -677,38 +679,41 @@ void qWarning(const char *msg, ...)
 void qCritical(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtCriticalMsg, buf);
 }
 #ifdef QT_COMPAT
 void qSystemWarning(const char *msg, int code)
-   { qCritical("%s (%s)", msg, qt_error_string(code).toLocal8Bit().data()); }
+   { qCritical("%s (%s)", msg, qt_error_string(code).toLocal8Bit().constData()); }
 #endif // QT_COMPAT
 
 void qErrnoWarning(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
-    qCritical("%s (%s)", buf, qt_error_string(-1).toLocal8Bit().data());
+    qCritical("%s (%s)", buf, qt_error_string(-1).toLocal8Bit().constData());
 }
 
 void qErrnoWarning(int code, const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
-    qCritical("%s (%s)", buf, qt_error_string(code).toLocal8Bit().data());
+    qCritical("%s (%s)", buf, qt_error_string(code).toLocal8Bit().constData());
 }
 
 /*!
@@ -749,9 +754,10 @@ void qErrnoWarning(int code, const char *msg, ...)
 void qFatal(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
+    buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
+    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtFatalMsg, buf);
@@ -778,47 +784,47 @@ char *qgetenv(const char *varName)
 }
 
 #ifdef QT_COMPAT
-#include <qlibraryinfo.h> 
+#include <qlibraryinfo.h>
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
 {
     static QByteArray ret; //yuck
-    ret = QByteArray(QLibraryInfo::location(loc).latin1());
-    return ret.data();
+    ret = QLibraryInfo::location(loc).toLatin1();
+    return ret.constData();
 }
 const char *qInstallPath()
-{ 
+{
     return qInstallLocation(QLibraryInfo::PrefixPath);
 }
 const char *qInstallPathDocs()
-{ 
+{
     return qInstallLocation(QLibraryInfo::DocumentationPath);
 }
 const char *qInstallPathHeaders()
-{ 
-    return qInstallLocation(QLibraryInfo::HeadersPath); 
+{
+    return qInstallLocation(QLibraryInfo::HeadersPath);
 }
 const char *qInstallPathLibs()
-{ 
-    return qInstallLocation(QLibraryInfo::LibrariesPath); 
+{
+    return qInstallLocation(QLibraryInfo::LibrariesPath);
 }
 const char *qInstallPathBins()
-{ 
-    return qInstallLocation(QLibraryInfo::BinariesPath); 
+{
+    return qInstallLocation(QLibraryInfo::BinariesPath);
 }
 const char *qInstallPathPlugins()
-{ 
-    return qInstallLocation(QLibraryInfo::PluginsPath); 
+{
+    return qInstallLocation(QLibraryInfo::PluginsPath);
 }
 const char *qInstallPathData()
-{ 
-    return qInstallLocation(QLibraryInfo::DataPath); 
+{
+    return qInstallLocation(QLibraryInfo::DataPath);
 }
 const char *qInstallPathTranslations()
-{ 
-    return qInstallLocation(QLibraryInfo::TranslationsPath); 
+{
+    return qInstallLocation(QLibraryInfo::TranslationsPath);
 }
 const char *qInstallPathSysconf()
-{ 
-    return qInstallLocation(QLibraryInfo::SettingsPath); 
+{
+    return qInstallLocation(QLibraryInfo::SettingsPath);
 }
 #endif
