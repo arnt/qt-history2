@@ -78,7 +78,7 @@ void MainWindow::logSignal( const QString &signal, int argc, void *argv )
     for ( int a = argc-1; a >= 0; --a ) {
 	if ( a == argc-1 )
 	    paramlist = " - {";
-	QVariant qvar = VARIANTToQVariant( params[a] );
+	QVariant qvar = VARIANTToQVariant( params[a], 0 );
 	paramlist += " " + qvar.toString();
 	if ( a > 0 )
 	    paramlist += ",";
