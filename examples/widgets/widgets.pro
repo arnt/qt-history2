@@ -7,5 +7,6 @@ SUBDIRS       = analogclock \
                 lineedits \
                 sliders \
                 spinboxes \
+		styles \
                 tetrix \
                 wiggly
