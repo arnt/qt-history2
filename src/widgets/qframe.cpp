@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#41 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#41 $");
 
 
 /*!
@@ -138,7 +138,8 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 
   The frame shapes are:
   <ul>
-  <li> \c NoFrame draws nothing.
+  <li> \c NoFrame draws nothing. Naturally, you should not specify a shadow 
+  style if you use this.
   <li> \c Box draws a rectangular box.	The contents appear to be
   level with the surrounding screen, but the border itself may be
   raised or sunken.

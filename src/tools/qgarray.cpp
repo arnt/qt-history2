@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#38 $
 **
 ** Implementation of QGArray class
 **
@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#38 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -429,7 +429,7 @@ void QGArray::store( const char *d, uint len )
   Setting raw data is useful because it set QArray data without allocating
   memory or copying data.
 
-  Example I (intended use):
+  Example of intended use:
   \code
     static uchar bindata[] = { 231, 1, 44, ... };
     QByteArray	a;
@@ -440,7 +440,7 @@ void QGArray::store( const char *d, uint len )
     a.resetRawData( bindata, sizeof(bindata) ); // finished
   \endcode
 
-  Example II (you don't want to do this):
+  Example of misuse (do not do this):
   \code
     static uchar bindata[] = { 231, 1, 44, ... };
     QByteArray	a, b;
