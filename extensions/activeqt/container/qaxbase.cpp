@@ -58,18 +58,65 @@ struct QAxMetaObject : public QMetaObject
     // DISPID -> property name
     QMap< QUuid, QMap<DISPID, QByteArray> > props;
     
-    struct Member
-    {
-        int numParameter;
-    };
     // Prototype -> member info
-    QHash<QByteArray, Member> memberInfo;
+    QHash<QByteArray, QList<QByteArray> > memberInfo;
     
     int numParameter(const QByteArray &prototype);
     QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
-    
-    QMap<QByteArray, QByteArray> realPrototype;
+
+   QMap<QByteArray, QByteArray> realPrototype;
+
+private:
+    void parsePrototype(const QByteArray &prototype);
 };
+
+void QAxMetaObject::parsePrototype(const QByteArray &prototype)
+{
+    QByteArray realProto = realPrototype.value(prototype, prototype);
+    QByteArray parameters = realProto.mid(realProto.indexOf('(') + 1);
+    parameters.truncate(parameters.length() - 1);
+
+    if (parameters.isEmpty()) {
+        memberInfo.insert(prototype, QList<QByteArray>());
+    } else {
+        QList<QByteArray> plist = parameters.split(',');
+        memberInfo.insert(prototype, plist);
+    }
+}
+
+int QAxMetaObject::numParameter(const QByteArray &prototype)
+{
+    if (!memberInfo.contains(prototype))
+        parsePrototype(prototype);
+
+    return memberInfo.value(prototype).count();
+}
+
+QByteArray QAxMetaObject::paramType(const QByteArray &prototype, int index, bool *out)
+{
+    if (!memberInfo.contains(prototype))
+        parsePrototype(prototype);
+
+    if (out)
+        *out = false;
+
+    QList<QByteArray> plist = memberInfo.value(prototype);
+    if (index > plist.count() - 1)
+        return QByteArray();
+    
+    QByteArray param(plist.at(index));
+    if (param.isEmpty())
+        return QByteArray();
+
+    bool byRef = param.endsWith('&') || param.endsWith("**");
+    if (byRef) {
+        param.truncate(param.length() - 1);
+        if (out)
+            *out = true;
+    }
+
+    return param;
+}
 
 static QHash<QString, QAxMetaObject*> mo_cache;
 static int mo_cache_ref = 0;
@@ -418,7 +465,7 @@ public:
         }
     }
     
-    IDispatch *dispatch()
+    inline IDispatch *dispatch() const
     {
         if (disp)
             return disp;
@@ -429,72 +476,20 @@ public:
     }
     
     QHash<QString, QAxEventSink*> eventSink;
-    bool useEventSink	    :1;
-    bool useMetaObject	    :1;
-    bool useClassInfo	    :1;
-    bool cachedMetaObject   :1;
-    bool initialized	    :1;
-    bool tryCache	    :1;
+    uint useEventSink	    :1;
+    uint useMetaObject	    :1;
+    uint useClassInfo	    :1;
+    uint cachedMetaObject   :1;
+    uint initialized	    :1;
+    uint tryCache	    :1;
     
     IUnknown *ptr;
-    IDispatch *disp;
+    mutable IDispatch *disp;
     
     QMap<QByteArray, bool> propWritable;
     QAxMetaObject *metaobj;
     QMetaObject *staticMetaObject;
 };
-
-#ifndef QAXPRIVATE_DECL
-
-int QAxMetaObject::numParameter(const QByteArray &prototype)
-{
-    if (memberInfo.contains(prototype)) {
-        Member member = memberInfo.value(prototype);
-        return member.numParameter;
-    }
-    
-    QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
-    parameters.truncate(parameters.length() - 1);
-    int numParameters = 0;
-    if (!parameters.isEmpty())
-        numParameters = parameters.count(',') + 1;
-    Member member = {numParameters};
-    memberInfo.insert(prototype, member);
-    
-    return numParameters;
-}
-
-QByteArray QAxMetaObject::paramType(const QByteArray &prototype, int index, bool *out)
-{
-    if (out)
-        *out = false;
-   
-    QByteArray realProto = realPrototype.value(prototype, prototype);
-    QByteArray parameters = realProto.mid(realProto.indexOf('(') + 1);
-    parameters.truncate(parameters.length() - 1);
-    
-    QList<QByteArray> plist = parameters.split(',');
-    if (index > plist.count() - 1)
-        return "QVariant";
-    
-    QByteArray param(plist.at(index));
-    if (param.isEmpty())
-        return "QVariant";
-    
-    bool byRef = false;
-    if (param.endsWith("&")) {
-        byRef = true;
-        param.truncate(param.length() - 1);
-    } else if (param.endsWith("**")) {
-        byRef = true;
-        param.truncate(param.length() - 1);
-    }
-    
-    if (out)
-        *out = byRef;
-    
-    return param;
-}
 
 /*!
     \class QAxBase qaxbase.h
@@ -2695,6 +2690,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             } else {
                 if (t == -1) {
                     qvar = *(QVariant*)v[0];
+                    proptype = 0;
                 } else if (t == QVariant::UserType) {
                     qVariantSet(qvar, *(void**)v[0], prop.typeName());
                 } else {
@@ -3518,4 +3514,3 @@ QVariant QAxBase::asVariant() const
     the help file, and the help context ID in brackets, e.g. "filename [id]".
 */
 
-#endif //QAXPRIVATE_DECL
