@@ -10,11 +10,86 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 
-
-static Boolean qt_mac_nav_filter(AEDesc *, void *, 
-				 void *, NavFilterModes)
+// Returns the wildcard part of a filter.
+extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+static QString extractFilter( const QString& rawFilter )
 {
-    return TRUE;
+    QString result;
+    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
+    int index = r.search( rawFilter );
+    if ( index >= 0 )
+	result = rawFilter.mid( index + 1, r.matchedLength() - 2 );
+    else
+	result = rawFilter;
+    return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
+}
+
+// Makes a list of filters from ;;-separated text.
+static QList<QRegExp> makeFiltersList( const QString &filter )
+{
+    QString f( filter );
+
+    if ( f.isEmpty( ) )
+	f = QFileDialog::tr( "All Files (*.*)" );
+
+    if ( f.isEmpty() )
+	return QList<QRegExp>();
+
+    int i = f.find( ";;", 0 );
+    QString sep( ";;" );
+    if ( i == -1 ) {
+	if ( f.find( "\n", 0 ) != -1 ) {
+	    sep = "\n";
+	    i = f.find( sep, 0 );
+	}
+    }
+
+    QList<QRegExp> ret;
+    QStringList filts = QStringList::split( sep, f);
+    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) 
+	ret.append(new QRegExp(extractFilter(*it)));
+    return ret;
+}
+
+static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
+				 void *myd, NavFilterModes)
+{	
+    QList<QRegExp> *filt = (QList<QRegExp> *)myd;
+    if(!filt)
+	return true;
+
+    NavFileOrFolderInfo *theInfo = (NavFileOrFolderInfo *)info;
+    if(theItem->descriptorType == typeFSS ) {
+	if( !theInfo->isFolder ) {
+	    AliasHandle alias;
+	    Str63 str;
+	    QString tmpstr("");
+	    char tmp[sizeof(Str63)+2];
+	    FSSpec      FSSpec;
+	    AliasInfoType x = 0;
+
+	    AEGetDescData( theItem, &FSSpec, sizeof(FSSpec));
+	    tmp[0] = '/';
+
+	    if(NewAlias( NULL, &FSSpec, &alias ) != noErr) 
+		return true;
+	    while(1) {
+		GetAliasInfo(alias, (AliasInfoType)x++, str);
+		if(!str[0])
+		    break;
+		strncpy((char *)tmp+1, (const char *)str+1, str[0]);
+		tmp[str[0]+1] = '\0';
+		tmpstr.prepend((char *)tmp);
+	    }
+
+	    for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
+		if(it.current()->match( tmpstr ))
+		    return true;
+	    }
+	    return false;
+	}
+    }
+    return true;
 }
 
 const unsigned char * p_str(const char *);
@@ -43,7 +118,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     QString tmpstr;
     QStringList retstrl;
     NavDialogOptions options;
-    memset(&options, '\0', sizeof(options));
+    NavGetDefaultDialogOptions( &options );
     options.version = kNavDialogOptionsVersion;
     options.location.h = options.location.v = -1;
     if(parent) 
@@ -72,8 +147,11 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     }
     
     NavReplyRecord ret;
+    QList<QRegExp> filts = makeFiltersList(filter);
     NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL, 
-	       qt_mac_nav_filter, NULL, (void *)&filter);
+	       qt_mac_nav_filter, NULL, (void *) filts.isEmpty() ? NULL : &filts);
+    filts.setAutoDelete(TRUE);
+    filts.clear();
 
     long count;
     err = AECountItems(&(ret.selection), &count);
@@ -128,7 +206,7 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection,
     AliasInfoType x = 0;
     QString retstr;
     NavDialogOptions options;
-    memset(&options, '\0', sizeof(options));
+    NavGetDefaultDialogOptions( &options );
     options.version = kNavDialogOptionsVersion;
     options.location.h = options.location.v = -1;
     if(parent) 
@@ -157,8 +235,11 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection,
     }
     
     NavReplyRecord ret;
+    QList<QRegExp> filts = makeFiltersList(filter);
     NavPutFile(use_initial ? &initial : NULL, &ret, &options, NULL, 
-	       'cute', kNavGenericSignature, (void *)&filter);
+	       'cute', kNavGenericSignature, (void *) filts.isEmpty() ? NULL : &filts);
+    filts.setAutoDelete(TRUE);
+    filts.clear();
 
     long count;
     err = AECountItems(&(ret.selection), &count);
