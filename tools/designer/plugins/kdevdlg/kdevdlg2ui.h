@@ -61,6 +61,9 @@ protected:
     void writeNumber( const QString& name, int value );
     void writeEnum( const QString& name, const QString& value );
     void writeSet( const QString& name, const QString& value );
+    void writeItem( const QString& name, const QString& value );
+    void writeColumn( const QString& name, const QString& value );
+    void writeColor( const QString& name, const QString& value );
     void writeStyles( const QStringList styles, bool isFrame );
     void writeWidgetStart( const QString& qclass );
     void writeWidgetEnd();

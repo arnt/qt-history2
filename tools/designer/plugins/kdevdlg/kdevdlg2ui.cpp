@@ -129,6 +129,38 @@ void KDEVDLG2UI::writeSet( const QString& name, const QString& value )
     wi(); *out << "</property>" << endl;
 }
 
+void KDEVDLG2UI::writeItem( const QString& name, const QString& value )
+{
+    wi(); *out << "<item>" << endl; indent();
+    writeString( name, value ); undent();
+    wi(); *out << "</item>" << endl;
+}
+
+void KDEVDLG2UI::writeColumn( const QString& name, const QString& value )
+{
+    wi(); *out << "<column>" << endl; indent();
+    writeString( name, value ); undent();
+    wi(); *out << "</column>" << endl;
+}
+
+void KDEVDLG2UI::writeColor( const QString& name, const QString& value )
+{
+    int color = value.toInt();
+
+    int r = color & 0x00ff0000 >> 16;
+    int g = color & 0x0000ff00 >> 8;
+    int b = color & 0x000000ff;
+    
+    wi(); *out << "<property>" << endl; indent(); //###FIX
+    wi(); *out << "<name>" << name << "</name>" << endl;
+    wi(); *out << "<color>" << endl; indent();
+    wi(); *out << "<red>" << r << "</red>" << endl;
+    wi(); *out << "<green>" << g << "</green>" << endl;
+    wi(); *out << "<blue>" << b << "</blue>" << endl; undent();
+    wi(); *out << "</color>" << endl;
+    wi(); *out << "</property>" << endl;
+}
+
 void KDEVDLG2UI::writeStyles( const QStringList styles, bool isFrame )
 {
     if ( isFrame ) {
@@ -252,8 +284,6 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 {  
     *out << "<!DOCTYPE UI><UI>" << endl;
     writeClass( name );
-
-    // ###FIX: support 'Entries' and 'Columns'
     
     while ( !in->eof() ) {
 	
@@ -281,30 +311,14 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	    //int weight = font.section("\"", 5, 5 ).toInt();
 	    //bool italic = ( font.section("\"", 7, 7 ) == "TRUE" );
 	    writeFont( family, pointSize ); // weight, italic ?
-	    //} else if ( line.left( 8 ) == "IsHidden" ) {
-	    //bool isHidden =
-	    //	( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
-	    //writeBool( "hidden", isHidden ); // ###FIX: read only
-	    //} else if ( line.left( 10 ) == "isWrapping" ) {
-	    //bool isWrapping =
-	    //	( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
-	    //writeBool( "wrapping", isWrapping ); // ###FIX: read only
 	} else if ( line.left( 9 ) == "IsEnabled" ) {
 	    bool isEnabled =
 		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
 	    writeBool( "enabled", isEnabled );
-	    //} else if ( line.left( 8 ) == "HasFocus" ) {
-	    //bool hasFocus =
-	    //	( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
-	    //writeBool( "focus", hasFocus ); // ###FIX: read only
 	} else if ( line.left( 12 ) == "AcceptsDrops" ) {
 	    bool acceptDrops =
 		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
 	    writeBool( "acceptDrops", acceptDrops );
-	    //} else if ( line.left( 9 ) == "FixedSize" ) {
-	    //bool fixedSize =
-	    //	( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
-	    //	writeBool( "fixedSize", fixedSize ); //###FIX: unknown
 	} else if ( line.left( 12 ) == "isAutoResize" ) {
 	    bool isAutoResize =
 	    	( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
@@ -325,16 +339,47 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	    bool isToggleButton =
 		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
 	    writeBool( "toggleButton", isToggleButton );
-	    //} else if ( line.left( 12 ) == "isMenuButton" ) {
-	    //bool isMenuButton =
-	    //( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
-	    //writeBool( "menuButton", isMenuButton ); // ###FIX: read only (+ obsolete)
+	} else if ( line.left( 11 ) == "isToggledOn" ) {
+	    bool isToggledOn =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "on", isToggledOn );
+	} else if ( line.left( 8 ) == "hasFrame" ) {
+	    bool hasFrame =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "frame", hasFrame );
 	} else if ( line.left( 10 ) == "isReadOnly" ) {
 	    bool isReadOnly =
 		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
 	    writeBool( "readOnly", isReadOnly );
+	} else if ( line.left( 9 ) == "isChecked" ) {
+	    bool isChecked =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "checked", isChecked );
+	} else if ( line.left( 16 ) == "isAutoCompletion" ) {
+	    bool isAutoCompl =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "autoCompletion", isAutoCompl );
+	} else if ( line.left( 8 ) == "EditText" ) {
+	    bool editText =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "editable", editText );
+	} else if ( line.left( 10 ) == "isTracking" ) {
+	    bool isTracking =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "tracking", isTracking );
+	} else if ( line.left( 16 ) == "isMultiSelection" ) {
+	    bool isMultiSel =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "multiSelection", isMultiSel );
+	} else if ( line.left( 21 ) == "isAllColumnsShowFocus" ) {
+	    bool isAllColsShowFocus =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "allColumnsShowFocus", isAllColsShowFocus );
+	} else if ( line.left( 16 ) == "isRootDecorated" ) {
+	    bool isRootDec =
+		( line.section( "//", 0, 0 ).section("\"", 1, 1 ) == "true" );
+	    writeBool( "rootIsDecorated", isRootDec );
 	} else if ( line.left( 1 ) == "X" ) {
-	    // demands that 
 	    int x = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
 	    line = in->readLine().stripWhiteSpace();
 	    int y = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
@@ -359,9 +404,6 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	    QString text = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & text );
 	    writeString( "text", text );
-	    //} else if ( line.left( 7 ) == "VarName" ) {
-	    //	QString name = line.section( "//", 0, 0 ).section("\"", 1, 1 );
-	    //writeString( "name", name ); //ignore VarName
 	} else if ( line.left( 5 ) == "Title" ) {
 	    QString title = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & title );
@@ -387,6 +429,30 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	} else if ( line.left( 8 ) == "MaxValue" ) {
 	    int maxv = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
 	    writeNumber( "maxValue", maxv );
+	} else if ( line.left( 9 ) == "SizeLimit" ) {
+	    int limit = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "sizeLimit", limit );
+	} else if ( line.left( 9 ) == "MaxLength" ) {
+	    int maxl = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "maxLength", maxl );
+	} else if ( line.left( 8 ) == "MaxCount" ) {
+	    int maxc = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "maxCount", maxc );
+	} else if ( line.left( 14 ) == "CursorPosition" ) {
+	    int pos = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "cursorPosition", pos );
+	} else if ( line.left( 9 ) == "NumDigits" ) {
+	    int digits = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "numDigits", digits );
+	} else if ( line.left( 10 ) == "TotalSteps" ) {
+	    int steps = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "totalSteps", steps );
+	} else if ( line.left( 12 ) == "TreeStepSize" ) {
+	    int stepSize = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "treeStepSize", stepSize );
+	} else if ( line.left( 10 ) == "ItemMargin" ) {
+	    int margin = line.section( "//", 0, 0 ).section("\"", 1, 1 ).toInt();
+	    writeNumber( "itemMargin", margin );
 	} else if ( line.left( 7 ) == "ToolTip" ) {
 	    QString text = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    writeString( "toolTip", text );
@@ -397,12 +463,15 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	} else if ( line.left( 15 ) == "InsertionPolicy" ) {
 	    QString policy = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & policy );
-	    writeEnum( "insertionPolicy", policy );
+	    writeEnum( "insertionPolicy", policy ); //###FIX: QComboBox::
 	} else if ( line.left( 11 ) == "Orientation" ) {
 	    QString orientation =
 		line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & orientation );
-	    writeEnum( "orientation", orientation );
+	    if ( orientation == "V" )
+		writeEnum( "orientation", "Qt::Vertical"  );
+	    else if ( orientation == "H" )
+		writeEnum( "orientation", "Qt::Horizontal"  );
 	} else if ( line.left( 14 ) == "vScrollBarMode" ) {
 	    QString mode = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & mode );
@@ -411,6 +480,26 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	    QString mode = line.section( "//", 0, 0 ).section("\"", 1, 1 );
 	    cleanString( & mode );
 	    writeEnum( "hScrollBarMode", mode );
+	} else if ( line.left( 7 ) == "Entries" ) {
+	    QString entries = line.section( "//", 0, 0 ).section("\"", 1, 1 );
+	    cleanString( & entries );
+	    QStringList l = QStringList::split( '\n', entries );
+	    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+		writeItem( "text", *it );
+	} else if ( line.left( 7 ) == "Columns" ) {
+	    QString columns = line.section( "//", 0, 0 ).section("\"", 1, 1 );
+	    cleanString( & columns );
+	    QStringList l = QStringList::split( '\n', columns );
+	    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+		writeColumn( "text", *it );
+	} else if ( line.left( 6 ) == "BgMode" ) {
+	   QString mode = line.section( "//", 0, 0 ).section("\"", 1, 1 );
+	   cleanString( & mode );
+	   writeString( "backgroundMode", mode ); //###FIX: QWidget:::
+	} else if ( line.left( 10 ) == "BgPalColor" ) {
+	   QString color = line.section( "//", 0, 0 ).section("\"", 1, 1 );
+	   cleanString( & color );
+	   writeColor( "paletteBackgroundColor", color );
 	} //else {
 	    //if ( line.length() )
 	    //qDebug( "IGNORED: %s", line.latin1() );
@@ -419,3 +508,4 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
     *out << "</UI>" << endl;
     return TRUE;
 }
+
