@@ -1799,6 +1799,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.palette = palette();
     option.font = font();
     option.state = (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
+    option.state |= (isActiveWindow() ? QStyle::State_Active : QStyle::State_None);
     option.state |= (state() == EditingState ? QStyle::State_Editing : QStyle::State_None);
     if (d->iconSize.isValid()) {
         option.decorationSize = d->iconSize;
