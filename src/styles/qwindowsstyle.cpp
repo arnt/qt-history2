@@ -626,8 +626,15 @@ void QWindowsStyle::drawControl( ControlElement element,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
 		else {
 		    QBrush fill( cg.light(), Dense4Pattern );
+		    // set the brush origin for the hash pattern to the x/y coordinate
+		    // of the menu item's checkmark... this way, the check marks have
+		    // a consistent look
+		    QPoint origin = p->brushOrigin();
+		    p->setBrushOrigin( xvis, y );
 		    qDrawShadePanel( p, xvis, y, checkcol, h, cg, TRUE, 1,
 				     &fill );
+		    // restore the previous brush origin
+		    p->setBrushOrigin( origin );
 		}
 	    } else if (! act)
 		p->fillRect(xvis, y, checkcol , h, cg.brush( QColorGroup::Button ));
