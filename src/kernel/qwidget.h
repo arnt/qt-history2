@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#65 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#66 $
 **
 ** Definition of QWidget class
 **
@@ -134,7 +134,9 @@ public:
     virtual void hide();
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
+#if !defined(OBSOLETE)
     bool	 isActive()	const;
+#endif
     void	 raise();
     void	 lower();
     virtual void move( int x, int y );
@@ -314,9 +316,6 @@ inline void QWidget::erase( const QRect &r )
 
 inline bool QWidget::isVisible() const
 { return testWFlags(WState_Visible); }
-
-inline bool QWidget::isActive() const
-{ return testWFlags(WState_Active); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#98 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#97 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#98 $")
 
 
 /*----------------------------------------------------------------------------
@@ -981,6 +981,20 @@ bool QWidget::close( bool forceKill )
   A widget is considered visible even if it is obscured by other windows on the
   screen.
  ----------------------------------------------------------------------------*/
+
+#if !defined(OBSOLETE)
+
+/*----------------------------------------------------------------------------
+  \fn bool QWidget::isActive() const
+  This function is not used. It will be removed in a future version of Qt.
+ ----------------------------------------------------------------------------*/
+
+bool QWidget::isActive() const
+{
+    warning( "QWidget::isActive: This function is OBSOLETE" );
+}
+
+#endif // OBSOLETE
 
 
 /*----------------------------------------------------------------------------
