@@ -24,7 +24,7 @@
 drop table alltypes;
 
 create table alltypes (
-n1 numeric,
+n1 int primary key,
 n2 numeric( 19, 3 ),
 c1 char( 50 ),
 c2 char( 10 ),
@@ -32,7 +32,6 @@ d1 date,
 c5673 char(2)
 );
 
-create unique index alltypesindex_primary on alltypes ( n1 ); 
 create index alltypesindex_1 on alltypes ( n1, n2 ); 
 create index alltypesindex_2 on alltypes ( c1 ); 
 create index alltypesindex_3 on alltypes ( d1 ); 
@@ -47,7 +46,7 @@ insert into alltypes values( 96, 62, 'xsdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
-insert into alltypes values( NULL, NULL, NULL, NULL, NULL );
+insert into alltypes values( 100, NULL, NULL, NULL, NULL );
 
 update alltypes set c2 = 'updated' where n1 = 1;
 update alltypes set c2 = 'updated1' where n1 = 1;
