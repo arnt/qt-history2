@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#92 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -822,9 +822,17 @@ typedef Q_DECLARE(QDictM,char)	       QFontSubst;
 typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
-static void cleanupFontSubst()			// cleanup substitution dict
+#if (QT_VERSION == 200)
+#error "fixme"
+#endif
+static QFont * staticFont = 0;
+
+static void cleanup()
 {
     delete fontSubst;
+    fontSubst = 0;
+    delete staticFont;
+    staticFont = 0;
 }
 
 static void initFontSubst()			// create substitution dict
@@ -846,7 +854,7 @@ static void initFontSubst()			// create substitution dict
     fontSubst->setAutoDelete( TRUE );
     for ( int i=0; initTbl[i] != 0; i += 2 )
 	fontSubst->insert( initTbl[i],	qstrdup(initTbl[i+1]) );
-    qAddPostRoutine( cleanupFontSubst );
+    qAddPostRoutine( cleanup );
 }
 
 
@@ -1330,8 +1338,10 @@ const QFont &QFontMetrics::font() const
 		 "future version of Qt" );
 #endif
     }
-    static QFont f;
-    return f;
+    // ### uglehack wrt naming
+    if ( !staticFont )
+	initFontSubst();
+    return *staticFont;
 }
 
 
@@ -1747,8 +1757,10 @@ const QFont &QFontInfo::font() const
 		 "future version of Qt" );
 #endif
     }
-    static QFont f;
-    return f;
+    // ### uglehack wrt naming
+    if ( !staticFont )
+	initFontSubst();
+    return *staticFont;
 }
 
 // From qpainter.cpp
