@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#271 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#272 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -28,8 +28,6 @@
 #ifdef QT_NO_CAST_ASCII
 #undef QT_NO_CAST_ASCII
 #endif
-
-#define QT_NO_QCHAR_INIT
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -10320,6 +10318,14 @@ QString QString::visual(int index, int len)
 
 
 
+// These macros are used for efficient allocation of QChar strings.
+// IMPORTANT! If you change these, make sure you also change the 
+// "delete unicode" statement in ~QStringData() in qstring.h correspondingly!
+
+#define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ 2*( N ) ]
+#define QT_DELETE_QCHAR_VEC( P ) delete[] ((char*)( P ))
+
+
 /*!
   This utility function converts the 8-bit string
   \a ba to Unicode, returning the result.
@@ -10333,7 +10339,22 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
     while ( l < (int)ba.size() && ba[l] )
 	l++;
     char* str = ba.data();
-    QChar *uc = new QChar[ l ];
+    QChar *uc = new QChar[ l ];	  // Can't use macro, since function is public
+    QChar *result = uc;
+    if ( len )
+	*len = l;
+    while (l--)
+	*uc++ = *str++;
+    return result;
+}
+
+static QChar* internalAsciiToUnicode( const QByteArray& ba, uint* len )
+{
+    int l = 0;
+    while ( l < (int)ba.size() && ba[l] )
+	l++;
+    char* str = ba.data();
+    QChar *uc = QT_ALLOC_QCHAR_VEC( l );
     QChar *result = uc;
     if ( len )
 	*len = l;
@@ -10350,7 +10371,7 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
   The caller is responsible for deleting the return value with delete[].
 */
 
-QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
+QChar* QString::asciiToUnicode( const char *str, uint* len, uint maxlen )
 {
     QChar* result = 0;
     uint l = 0;
@@ -10362,7 +10383,31 @@ QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 	    // Faster?
 	    l = strlen(str);
 	}
-	QChar *uc = new QChar[ l ];
+	QChar *uc = new QChar[ l ]; // Can't use macro since function is public
+	result = uc;
+	uint i = l;
+	while ( i-- )
+	    *uc++ = *str++;
+    }
+    if ( len )
+	*len = l;
+    return result;
+}
+
+static QChar* internalAsciiToUnicode( const char *str, uint* len,
+				      uint maxlen = (uint)-1 )
+{
+    QChar* result = 0;
+    uint l = 0;
+    if ( str ) {
+	if ( maxlen != (uint)-1 ) {
+	    while (str[l] && l < maxlen)
+		l++;
+	} else {
+	    // Faster?
+	    l = strlen(str);
+	}
+	QChar *uc = QT_ALLOC_QCHAR_VEC( l );
 	result = uc;
 	uint i = l;
 	while ( i-- )
@@ -10487,7 +10532,7 @@ void Q_EXPORT qt_qstring_stats()
 */
 QString::QString( QChar ch )
 {
-    d = new QStringData(new QChar[1],1,1);
+    d = new QStringData( QT_ALLOC_QCHAR_VEC( 1 ), 1, 1 );
     d->unicode[0] = ch;
 }
 
@@ -10517,7 +10562,7 @@ QString::QString( int size, bool /*dummy*/ )
 	Q2HELPER(stat_construct_int++);
 	int l = size;
 	Q2HELPER(stat_construct_int_size+=l);
-	QChar* uc = new QChar[ l ];
+	QChar* uc = QT_ALLOC_QCHAR_VEC( l );
 	d = new QStringData( uc, 0, l );
     } else {
 	Q2HELPER(stat_construct_null++);
@@ -10535,7 +10580,7 @@ QString::QString( const QByteArray& ba )
 {
     Q2HELPER(stat_construct_ba++);
     uint l;
-    QChar *uc = asciiToUnicode(ba,&l);
+    QChar *uc = internalAsciiToUnicode(ba,&l);
     d = new QStringData(uc,l,l);
 }
 
@@ -10548,7 +10593,7 @@ QString::QString( const QByteArray& ba )
 
 QString::QString( const QChar* unicode, uint length )
 {
-    QChar* uc = new QChar[ length ];
+    QChar* uc = QT_ALLOC_QCHAR_VEC( length );
     memcpy(uc, unicode, length*sizeof(QChar));
     d = new QStringData(uc,length,length);
 }
@@ -10574,7 +10619,7 @@ QString::QString( const char *str )
 {
     Q2HELPER(stat_construct_charstar++);
     uint l;
-    QChar *uc = asciiToUnicode(str,&l);
+    QChar *uc = internalAsciiToUnicode(str,&l);
     Q2HELPER(stat_construct_charstar_size+=l);
     d = new QStringData(uc,l,l);
 }
@@ -10731,7 +10776,7 @@ void QString::setLength( uint newLen )
 	uint newMax = 4;
 	while ( newMax < newLen )
 	    newMax *= 2;
-	QChar* nd = new QChar[ newMax ];
+	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
 	uint len = QMIN( d->len, newLen );
 	if ( d->unicode )
 	    memcpy( nd, d->unicode, sizeof(QChar)*len );
@@ -11103,7 +11148,7 @@ void QString::fill( QChar c, int len )
 	*this = "";
     } else {
 	deref();
-	QChar * nd = new QChar[ len ];
+	QChar * nd = QT_ALLOC_QCHAR_VEC( len );
 	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
     }
@@ -11688,10 +11733,10 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     int df = d->unicode - s;
     if ( df >= 0 && (uint)df < d->maxl ) {
 	// Part of me - take a copy.
-	QChar *tmp = new QChar[ len ];
+	QChar *tmp = QT_ALLOC_QCHAR_VEC( len );
 	memcpy(tmp,s,len*sizeof(QChar));
 	insert(index,tmp,len);
-	delete[] tmp;
+	QT_DELETE_QCHAR_VEC( tmp );
 	return *this;
     }
 
@@ -11825,10 +11870,10 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 	int df = d->unicode - s;
 	if ( df >= 0 && (uint)df < d->maxl ) {
 	    // Part of me - take a copy.
-	    QChar *tmp = new QChar[ slen ];
+	    QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
 	    memcpy(tmp,s,slen*sizeof(QChar));
 	    replace(index,len,tmp,slen);
-	    delete[] tmp;
+	    QT_DELETE_QCHAR_VEC( tmp );
 	    return *this;
 	}
 
@@ -12578,9 +12623,9 @@ QString QString::fromLatin1(const char* chars, int len)
     uint l;
     QChar *uc;
     if ( len < 0 ) {
-	uc = asciiToUnicode(chars,&l);
+	uc = internalAsciiToUnicode(chars,&l);
     } else {
-	uc = asciiToUnicode(chars,&l,len);
+	uc = internalAsciiToUnicode(chars,&l,len);
     }
     return QString(new QStringData(uc,l,l), TRUE);
 }
@@ -12765,7 +12810,7 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 	uint newMax = 4;
 	while ( newMax < len )
 	    newMax *= 2;
-	QChar* nd = new QChar[ newMax ];
+	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
 	if ( unicode )
 	    memcpy( nd, unicode, sizeof(QChar)*len );
 	deref();
@@ -12827,7 +12872,7 @@ QString &QString::setLatin1( const char *str, int len )
     if ( len == 0 ) {				// won't make a null string
 	deref();
 	uint l;
-	QChar *uc = asciiToUnicode(str,&l);
+	QChar *uc = internalAsciiToUnicode(str,&l);
 	d = new QStringData(uc,l,l);	
     } else {
 	setUnicode( 0, len );			// resize but not copy
@@ -13182,7 +13227,7 @@ QConstString::QConstString( QChar* unicode, uint length ) :
 QConstString::~QConstString()
 {
     if ( d->count > 1 ) {
-	QChar* cp = new QChar[ d->len ];
+	QChar* cp = QT_ALLOC_QCHAR_VEC( d->len );
 	memcpy( cp, d->unicode, d->len*sizeof(QChar) );
 	d->unicode = cp;
     } else {
