@@ -112,6 +112,9 @@ QSemaphore::QSemaphore(int maxcount)
 
 /*!
     Destroys the semaphore.
+
+    \warning If you destroy a semaphore that has accesses in use the
+    resultant behavior is undefined.
 */
 QSemaphore::~QSemaphore()
 {
