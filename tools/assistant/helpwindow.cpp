@@ -2,7 +2,7 @@
 #include <qurl.h>
 #include <qmessagebox.h>
 
-HelpWindow::HelpWindow( QWidget *parent = 0, const char *name = 0 )
+HelpWindow::HelpWindow( QWidget *parent, const char *name )
     : QTextBrowser( parent, name )
 {
 }
