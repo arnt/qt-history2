@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#33 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#33 $";
 #endif
 
 // #define DEBUG_FONT
@@ -60,7 +60,7 @@ class QFont_Private : public QFont
 {
 public:
     int	    fontMatchScore( char  *fontName,	  QString &buffer,
-			    float *pointSizeDiff, bool	  *weightUnknown,
+			    float *pointSizeDiff, int	  *weightDiff,
 			    bool  *scalable	, bool	  *polymorphic );
     QString bestMatch( const QString &pattern, int *score );
     QString bestFamilyMember( const QString &family, int *score );
