@@ -583,6 +583,8 @@ Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::i
 # define QT_CHECK_INVALID_MAP_ELEMENT_FATAL
 #endif
 
+template <class T> class QDeepCopy;
+
 template<class Key, class T>
 class QMap
 {
@@ -744,7 +746,7 @@ protected:
 private:
     void detachInternal();
 
-    friend class QDeepCopy;
+    friend class QDeepCopy<QMap>;
 };
 
 template<class Key, class T>

@@ -51,6 +51,7 @@
 class QRegExp;
 class QString;
 class QCharRef;
+template <class T> class QDeepCopy;
 
 class Q_EXPORT QChar {
 public:
@@ -633,7 +634,7 @@ private:
 
     // needed for QDeepCopy
     void detach();
-    friend class QDeepCopy;
+    friend class QDeepCopy<QString>;
 };
 
 class Q_EXPORT QCharRef {

@@ -221,6 +221,8 @@ Q_INLINE_TEMPLATES Q_TYPENAME QValueVectorPrivate<T>::pointer QValueVectorPrivat
     return newStart;
 }
 
+template <class T> class QDeepCopy;
+
 template <class T>
 class QValueVector
 {
@@ -465,7 +467,7 @@ protected:
     QValueVectorPrivate<T>* sh;
 
 private:
-    friend class QDeepCopy;
+    friend class QDeepCopy<QValueVector>;
 };
 
 template <class T>

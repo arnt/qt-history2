@@ -389,6 +389,8 @@ Q_INLINE_TEMPLATES void QValueListPrivate<T>::clear()
 # define QT_CHECK_INVALID_LIST_ELEMENT_FATAL
 #endif
 
+template <class T> class QDeepCopy;
+
 template <class T>
 class QValueList
 {
@@ -550,7 +552,7 @@ protected:
 private:
     void detachInternal();
 
-    friend class QDeepCopy;
+    friend class QDeepCopy<QValueList>;
 };
 
 template <class T>
