@@ -188,6 +188,7 @@ void QToolBarButton::actionEvent(QActionEvent *event)
         setChecked(action->isChecked());
         setEnabled(action->isEnabled());
         setShown(action->isVisible());
+        setFont(actions().at(0)->font());
         break;
 
     default:
