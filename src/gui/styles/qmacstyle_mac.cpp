@@ -173,17 +173,6 @@ void QMacStyle::unPolish(QWidget* w)
 }
 
 /*! \reimp */
-void QMacStyle::drawPrimitive(PrimitiveElement pe,
-                               QPainter *p,
-                               const QRect &r,
-                               const QPalette &pal,
-                               SFlags flags,
-                               const QStyleOption& opt) const
-{
-    correctStyle(p)->drawPrimitive(pe, p, r, pal, flags, opt);
-}
-
-/*! \reimp */
 void QMacStyle::drawControl(ControlElement element,
                                  QPainter *p,
                                  const QWidget *widget,

@@ -268,13 +268,6 @@ public:
         PE_CustomBase =                        0xf000000
     };
 
-    virtual void drawPrimitive(PrimitiveElement pe,
-                                QPainter *p, const QRect &r,
-                                const QPalette &pal, SFlags flags = Style_Default,
-                                const QStyleOption& = QStyleOption::Default) const = 0;
-
-
-    // Qt 4...
     virtual void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                                const QWidget *w = 0) const = 0;
     enum ControlElement {
@@ -834,10 +827,6 @@ private:
                    const QPixmap *pixmap,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const;
-
-    void QT_COMPAT drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
-                        const QColorGroup &cg, SFlags flags = Style_Default,
-                        const QStyleOption& = QStyleOption::Default) const;
 
     void QT_COMPAT drawControl(ControlElement element,
                       QPainter *p, const QWidget *widget, const QRect &r,

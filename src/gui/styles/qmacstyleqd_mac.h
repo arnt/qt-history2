@@ -43,9 +43,9 @@ public:
     void polish(QApplication*);
 
     void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
-                               const QWidget *w = 0) const;
+                       const QWidget *w = 0) const;
     void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
-                      const QWidget *w = 0) const;
+                     const QWidget *w = 0) const;
     QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
@@ -55,9 +55,6 @@ public:
                                  const QWidget *w) const;
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
-
-    void drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal,
-                       SFlags flags, const QStyleOption& = QStyleOption::Default) const;
 
     void drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r,
                      const QPalette &pal, SFlags how, const QStyleOption& = QStyleOption::Default) const;

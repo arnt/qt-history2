@@ -342,28 +342,6 @@ void QMacStyleCG::polish(QApplication *app)
     app->setPalette(pal);
 }
 
-void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
-                                const QPalette &pal, SFlags flags, const QStyleOption &opt) const
-{
-    ThemeDrawState tds = d->getDrawState(flags, pal);
-    switch (pe) {
-    case PE_TabBarBase: {
-        HIThemeTabPaneDrawInfo tpdi;
-        tpdi.version = qt_mac_hitheme_version;
-        tpdi.state = tds;
-        tpdi.direction = kThemeTabNorth;
-        if (flags & Style_Bottom)
-            tpdi.direction = kThemeTabSouth;
-        tpdi.size = kHIThemeTabSizeNormal;
-        HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(qt_mac_quartz_handle(p->device())),
-                           kHIThemeOrientationNormal);
-        break; }
-    default:
-        QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
-        break;
-    }
-}
-
 void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget *widget,
                               const QRect &r, const QPalette &pal, SFlags how,
                               const QStyleOption &opt) const
@@ -396,54 +374,6 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             info.animation.time.current = CFAbsoluteTimeGetCurrent();
         }
         HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, cg, kHIThemeOrientationNormal, 0);
-        break; }
-    case CE_PushButtonLabel: {
-        // ### This is wrong, we should probably have another couple of rects,
-        // the arrow shouldn't be part of the label.
-#ifndef QT_NO_PUSHBUTTON
-        const QPushButton *button = static_cast<const QPushButton *>(widget);
-        QRect ir = r;
-        if (button->menu()) {
-            int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
-            QRect ar(ir.right() - mbi, ir.height() - 13, mbi, ir.height() - 4);
-            drawPrimitive(PE_ArrowDown, p, ar, pal, how, opt);
-            ir.setWidth(ir.width() - mbi);
-        }
-        int tf = Qt::AlignVCenter | Qt::ShowPrefix | Qt::NoAccel;
-
-#ifndef QT_NO_ICONSET
-        if (!button->icon().isNull()) {
-            QIconSet::Mode mode = button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
-            if (mode == QIconSet::Normal && button->hasFocus())
-                mode = QIconSet::Active;
-
-            QIconSet::State state = QIconSet::Off;
-            if (button->isCheckable() && button->isChecked())
-                state = QIconSet::On;
-
-            QPixmap pixmap = button->icon().pixmap(QIconSet::Small, mode, state);
-            int pixw = pixmap.width();
-            int pixh = pixmap.height();
-
-            //Center the icon if there is neither text nor pixmap
-            if (button->text().isEmpty())
-                p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
-                              ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-            else
-                p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-
-            ir.moveBy(pixw + 4, 0);
-            ir.setWidth(ir.width() - (pixw + 4));
-            // left-align text if there is
-            if (!button->text().isEmpty())
-                tf |= Qt::AlignLeft;
-        } else
-#endif //QT_NO_ICONSET
-            tf |= Qt::AlignHCenter;
-        drawItem(p, ir, tf, pal,
-                 how & Style_Enabled, QPixmap(), button->text(), -1,
-                 &(pal.buttonText().color()));
-#endif
         break; }
     case CE_ProgressBarContents: {
         const QProgressBar *progressbar = static_cast<const QProgressBar *>(widget);
@@ -580,7 +510,13 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             }
             QRect lineeditRect(r);
             lineeditRect.setWidth(r.width() - comborect.width());
-            drawPrimitive(PE_PanelLineEdit, p, lineeditRect, pal, flags, opt);
+            Q4StyleOptionFrame lineedit(0);
+            lineedit.rect = lineeditRect;
+            lineedit.palette = pal;
+            lineedit.state = flags;
+            lineedit.lineWidth = 0;
+            lineedit.midLineWidth = 0;
+            drawPrimitive(PE_PanelLineEdit, &lineedit, p, w);
         } else {
             bdi.adornment |= kThemeAdornmentArrowLeftArrow;
             bdi.kind = kThemePopupButton;

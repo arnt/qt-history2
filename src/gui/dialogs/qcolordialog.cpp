@@ -175,9 +175,11 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         int n = 2;
         p->drawRect(n, n, w-2*n, h-2*n);
     }
-
-    style().drawPrimitive(QStyle::PE_Panel, p, QRect(b, b, w-2*b, h-2*b), g,
-                          QStyle::Style_Enabled | QStyle::Style_Sunken);
+    Q4StyleOptionFrame opt(0);
+    opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
+    opt.palette = g;
+    opt.state = QStyle::Style_Enabled | QStyle::Style_Sunken;
+    style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
 
     int t = 0;
     if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)

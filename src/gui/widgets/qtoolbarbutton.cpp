@@ -7,6 +7,7 @@
 #include <qpainter.h>
 #include <qpointer.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
 #include <private/qabstractbutton_p.h>
 #define d d_func()
@@ -75,8 +76,11 @@ public:
                             q->palette(), q->isEnabled(), text);
 
         if (d->menu) {
-            q->style().drawPrimitive(QStyle::PE_ArrowDown, p, menuRect,
-                                     q->palette(), QStyle::Style_Enabled);
+            Q4StyleOption opt(0, Q4StyleOption::Default);
+            opt.rect = menuRect;
+            opt.palette = q->palette();
+            opt.state = QStyle::Style_Enabled;
+            q->style().drawPrimitive(QStyle::PE_ArrowDown, &opt, p, q);
         }
     }
 };
