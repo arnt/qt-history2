@@ -77,10 +77,15 @@ CWPLUGIN_ENTRY(CWPlugin_GetDefaultMappingList)(const CWExtMapList** defaultMappi
 #endif
 typedef short CWFileRef;
 
-int do_moc(CWPluginContext, const QCString &, const QCString &, CWFileSpec *, bool);
+static int line_count = 0;
+moc_status do_moc(CWPluginContext, const QCString &, const QCString &, CWFileSpec *, bool);
 
 static CWResult	mocify(CWPluginContext context, const QCString &source)
 {
+    CWDisplayLines(context, line_count++);
+
+    source.stripWhiteSpace();
+
     CWResult err;
 	bool            dotmoc=FALSE;
 	QCString stem = source, ext;
@@ -101,10 +106,29 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
         
     //moc it
     CWFileSpec destSpec;
- 	int mocd = do_moc(context, source, dest, &destSpec, dotmoc);
-
+ 	moc_status mocd = do_moc(context, source, dest, &destSpec, dotmoc);
+   
+#if 1
+    QCString derr = "Weird";
+    switch(mocd) {
+    case moc_success: derr = "Success"; break;
+    case moc_parse_error: derr = "Parser Error"; break;
+    case moc_no_qobject:derr = "No QOBJECT"; break;
+    case moc_not_time: derr = "Not Time"; break;
+    case moc_no_source: derr = "No Source"; break;
+    case moc_general_error: derr = "General Error"; break;
+    }
+   	char	dmsg[200];
+	sprintf(dmsg, "\"%s\" %s", source.data(), derr.data());
+	CWReportMessage(context, NULL, dmsg, NULL, messagetypeError, 0);
+#endif
+		
     //handle project
-	if (mocd == 1 && !dotmoc)
+    if(mocd == moc_no_qobject) {
+    	char	msg[400];
+		sprintf(msg, "\"%s\" No relevant classes found. No output generated.", source.data());
+		CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
+	} else if (mocd == moc_success && !dotmoc)
 	{
     	long			whichFile;
 	    CWNewProjectEntryInfo ei;
@@ -114,8 +138,8 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
 		if (!CWSUCCESS(err))
 		{
 			char	msg[200];
-			sprintf(msg, "\"%#s\" does not exist in the current project", destSpec.name);
-			CWReportMessage(context, NULL, msg, NULL, messagetypeError, 0);
+			sprintf(msg, "\"%s\" not added", dest.data());
+			CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
 		}
 		CWSetModDate(context, &destSpec, NULL, true);
 	}
@@ -141,6 +165,7 @@ pascal short main(CWPluginContext context)
 		
 	case reqCompile:
 	{
+	    line_count = 0;
 	    const char *files = NULL;
 	    long filelen;
 	    CWGetMainFileText(context, &files, &filelen);
