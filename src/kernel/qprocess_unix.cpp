@@ -885,6 +885,11 @@ bool QProcess::start( QStringList *env )
     if ( comms & Stdin ) {
 	::close( sStdin[0] );
 	d->proc->socketStdin = sStdin[1];
+
+	// Select non-blocking mode
+	int originalFlags = fcntl(d->proc->socketStdin, F_GETFL, 0);
+	fcntl(d->proc->socketStdin, F_SETFL, originalFlags | O_NONBLOCK);
+
 	d->notifierStdin = new QSocketNotifier( sStdin[1], QSocketNotifier::Write );
 	connect( d->notifierStdin, SIGNAL(activated(int)),
 		this, SLOT(socketWrite(int)) );
@@ -1211,12 +1216,13 @@ void QProcess::socketWrite( int fd )
 	}
 	ssize_t ret = ::write( fd,
 		d->stdinBuf.head()->data() + d->stdinBufRead,
-		QMIN( 8192, d->stdinBuf.head()->size() - d->stdinBufRead ) );
+		d->stdinBuf.head()->size() - d->stdinBufRead );
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
 #endif
-	if ( ret > 0 )
-	    d->stdinBufRead += ret;
+	if ( ret == -1 )
+	    return;
+	d->stdinBufRead += ret;
 	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
 	    d->stdinBufRead = 0;
 	    delete d->stdinBuf.dequeue();
