@@ -31,6 +31,7 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qapplication.h"
+#include "qmap.h"
 
 #include "qpainter.h"
 
@@ -76,10 +77,10 @@
   bar.  toolTipGroup() provides access to the QToolTipGroup, but there
   is no way to set the tool tip group.
 
-  By default, QMainWindow only allows toolbars above the central
-  widget.  You can use setDockEnabled() to allow toolbars in other
-  docks (a \e dock is a place where toolbars can stay).  Currently,
-  only \c Top, \c Left, \c Right and \c Bottom are meaningful.
+  The QMainWindow allows by default toolbars in all docking areas.
+  You can use setDockEnabled() to enable and disable docking areas
+  for toolbar. Currently, only \c Top, \c Left, \c Right and \c Bottom 
+  are meaningful.
 
   Several functions let you change the appearance of a QMainWindow
   globally: setRightJustification() determines whether QMainWindow
@@ -88,10 +89,8 @@
   classes) should draw small or large pixmaps (see QIconSet for more
   about that).
 
-  The current release of QMainWindow does not provide draggable
-  toolbars.  This feature is planned for inclusion in one of the next
-  releases.
-
+  Toolbars can be dragged by the user into each enabled docking area.
+  
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
 
@@ -135,7 +134,7 @@ public:
     }
 
     ToolBar *findToolbar( QToolBar *t );
-    
+
     ~QMainWindowPrivate()
     {
 	if ( top ) {
@@ -188,6 +187,8 @@ public:
     QRect oldPosRect;
     QRect origPosRect;
     bool oldPosRectValid;
+    
+    QMap< int, bool > dockable;
 };
 
 
@@ -382,6 +383,13 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d->rectPainter = 0;
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(setUpLayout()) );
+    
+    d->dockable[ (int)Left ] = TRUE;
+    d->dockable[ (int)Right ] = TRUE;
+    d->dockable[ (int)Top ] = TRUE;
+    d->dockable[ (int)Bottom ] = TRUE;
+    d->dockable[ (int)Unmanaged ] = TRUE;
+    d->dockable[ (int)TornOff ] = TRUE;
 }
 
 
@@ -570,8 +578,9 @@ void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
 		d->unmanaged = new QMainWindowPrivate::ToolBarDock();
 	    break;
 	}
+	d->dockable[ (int)dock ] = TRUE;
     } else {
-	qWarning( "oops! unimplemented, untested, and not quite thought out." );
+	d->dockable[ (int)dock ] = FALSE;
     }
 }
 
@@ -585,17 +594,17 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 {
     switch ( dock ) {
     case Top:
-	return d->top != 0;
+	return d->top != 0 && d->dockable[ (int)dock ];
     case Left:
-	return d->left != 0;
+	return d->left != 0 && d->dockable[ (int)dock ];
     case Right:
-	return d->right != 0;
+	return d->right != 0 && d->dockable[ (int)dock ];
     case Bottom:
-	return d->bottom != 0;
+	return d->bottom != 0 && d->dockable[ (int)dock ];
     case TornOff:
-	return d->tornOff != 0;
+	return d->tornOff != 0 && d->dockable[ (int)dock ];
     case Unmanaged:
-	return d->unmanaged != 0;
+	return d->unmanaged != 0 && d->dockable[ (int)dock ];
     }
     return FALSE; // for illegal values of dock
 }
@@ -689,13 +698,13 @@ static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
 QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t )
 {
     QMainWindowPrivate::ToolBarDock* docks[] = {
-	left, right, top, bottom 
+	left, right, top, bottom
     };
-    
-    
+
+
     QMainWindowPrivate::ToolBarDock *l = 0;
-    
-    for ( unsigned int i = 0; i < 4; ++i ) { 
+
+    for ( unsigned int i = 0; i < 4; ++i ) {
 	l = docks[ i ];
 	if ( !l )
 	    continue;
@@ -706,7 +715,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t )
 	    }
 	} while( ( ct = l->next() ) != 0 );
     }
-    
+
     return 0;
 }
 
@@ -719,6 +728,8 @@ that window to this and set to \e not start a new line.
 
 void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 {
+    if ( !d->dockable[ (int)edge ] )
+	return;
     if ( !toolBar )
 	return;
     if ( toolBar->mw )
@@ -1177,6 +1188,16 @@ void QMainWindow::triggerLayout()
 }
 
 
+/*!
+  \internal
+  Finds the docking area for the toolbar \a tb. \a pos has to be the position of the mouse
+  inside the QMainWindow. \a rect is set to the docking area into which the toolbar should
+  be moved if the position of the mouse is \a pos. This method returns the identifier of
+  the docking area, which is described by \a rect.
+  
+  If the mouse is not in any docking area, Unmanaged is returned as docking area.
+*/
+  
 QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb )
 {
     // calculate some values for docking areas
@@ -1241,7 +1262,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	rect = bottomArea;
 	return Bottom;
     }
-    
+
     // if the mouse is not in an intersection, it's easy....
     if ( leftArea.contains( pos ) ) {
 	rect = leftArea;
@@ -1316,7 +1337,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
-    if ( dock == Unmanaged )
+    if ( dock == Unmanaged || !d->dockable[ (int)dock ] )
 	r = d->origPosRect;
 
 
