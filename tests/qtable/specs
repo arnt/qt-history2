@@ -69,7 +69,7 @@ Known Bugs:
 - When reordering columns/rows seelctions don't work anymore - for
 selections and cursor-movement we have to use actual and not logical
 indices.
-- Selections do not work correctly with multi-cells
+- Key-Navigation does not work correctly with multi-cells
 
 
 Other todos:

@@ -610,10 +610,15 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    colw = columnWidth( c );
 	    int oldrp = rowp;
 	    int oldrh = rowh;
-	    
+	
 	    QTableItem *item = cellContent( r, c );
-	    if ( item && 
+	    if ( item &&
 		 ( item->colSpan() > 1 || item->rowSpan() > 1 ) ) {
+		bool goon = r == item->row && c == item->col ||
+			r == rowfirst && c == item->col ||
+			r == item->row && c == colfirst;
+		if ( !goon )
+		    continue;
 		rowp = rowPos( item->row );
 		rowh = 0;
 		for ( int i = 0; i < item->rowSpan(); ++i )
@@ -629,7 +634,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->translate( colp, rowp );
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), isSelected( r, c ) );
 	    p->restoreWorldMatrix();
-	    
+	
 	    rowp = oldrp;
 	    rowh = oldrh;
 	}
@@ -1922,13 +1927,12 @@ void QTable::clearSelection()
 
 QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol )
 {
-    int y = rowPos( topRow );
-    int x = columnPos( leftCol );
-    int y1 = rowPos( bottomRow ) + rowHeight( bottomRow );
-    int x1 = columnPos( rightCol ) + columnWidth( rightCol );
-    QRect r;
-    r.setCoords( x, y, x1, y1 );
-    return r;
+    QRect rect;
+    for ( int r = topRow; r <= bottomRow; ++r ) {
+	for ( int c = leftCol; c <= rightCol; ++c )
+	    rect = rect.unite( cellGeometry( r, c ) );
+    }
+    return rect;
 }
 
 /*!  This is called to activate the next cell if in-place editing was
