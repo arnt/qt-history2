@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#26 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#26 $";
 #endif
 
 
@@ -138,8 +138,6 @@ void QMenuBar::subHighlighted( int id )
 void QMenuBar::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
-    debug( "accelActivated( %d )", id );
-    int pos = mitems->at();
     if ( mi && !mi->isDisabled() ) {
 	actItem = indexOf( id );
 	repaint( FALSE );
