@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#37 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#37 $");
 
 
 /*!
@@ -326,17 +326,20 @@ static char *win_filter[] = {
     "" };
 #endif
 
+static QString filedlg_dir;
+
 QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
 {
+    if ( dirName && *dirName ) {
+	filedlg_dir = dirName;
+    } else if ( filedlg_dir.isNull() ) {
+	filedlg_dir = QDir::currentDirPath();
+    }
+
 #if defined(_WS_WIN_)
 
     const int maxstrlen = 256;
-    char *dir = 0;
-    if ( !dirName || !*dirName ) {
-	dir = new char[maxstrlen];
-	GetCurrentDirectory( maxstrlen, dir );
-    }
     char *file = new char[maxstrlen];
     file[0] = '\0';
 
@@ -347,26 +350,29 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     ofn.lpstrFilter	= win_filter[0];
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = dir ? dir : dirName;
+    ofn.lpstrInitialDir = filedlg_dir;
     ofn.lpstrTitle	= "Open";
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
-    if ( GetOpenFileName(&ofn) )
+    if ( GetOpenFileName(&ofn) ) {
 	result = file;
+	filedlg_dir = ofn.lpstrInitialDir;
+    }
 
     delete [] file;
-    delete [] dir;
     return result;
 
 #else
 
-    QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( filedlg_dir, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Open" );
     QString result;
-    if ( dlg->exec() == QDialog::Accepted )
+    if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
+	filedlg_dir = dlg->dirPath();
+    }
     delete dlg;
     return result;
 
@@ -402,14 +408,15 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
 {
+    if ( dirName && *dirName ) {
+	filedlg_dir = dirName;
+    } else if ( filedlg_dir.isNull() ) {
+	filedlg_dir = QDir::currentDirPath();
+    }
+
 #if defined(_WS_WIN_)
 
     const int maxstrlen = 256;
-    char *dir = 0;
-    if ( !dirName || !*dirName ) {
-	dir = new char[maxstrlen];
-	GetCurrentDirectory( maxstrlen, dir );
-    }
     char *file = new char[maxstrlen];
     file[0] = '\0';
 
@@ -420,13 +427,15 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     ofn.lpstrFilter	= win_filter[0];
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = dir ? dir : dirName;
+    ofn.lpstrInitialDir = filedlg_dir;
     ofn.lpstrTitle	= "Save";
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
-    if ( GetSaveFileName(&ofn) )
+    if ( GetSaveFileName(&ofn) ) {
 	result = file;
+	filedlg_dir = ofn.lpstrInitialDir;
+    }
 
     delete [] file;
     delete [] dir;
@@ -434,12 +443,14 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 
 #else
 
-    QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( filedlg_dir, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Save As" );
     QString result;
-    if ( dlg->exec() == QDialog::Accepted )
+    if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
+	filedlg_dir = dlg->dirPath();
+    }
     delete dlg;
     return result;
 
