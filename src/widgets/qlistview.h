@@ -193,9 +193,11 @@ protected:
     virtual void cancelRename( int col );
 
     void ignoreDoubleClick();
+
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
+    void enforceSortOrderBackToRoot();
 
     int ownHeight;
     int maybeTotalHeight;
