@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#79 $
 **
 ** Implementation of event classes
 **
@@ -319,8 +319,21 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 
-  \sa button()
+  \sa button() stateAfter()
 */
+
+/*!
+  Returns the state of buttons after the event.
+  \sa state()
+*/
+Qt::ButtonState QMouseEvent::stateAfter() const
+{
+    if ( type() == QEvent::MouseButtonDblClick ) {
+	return Qt::ButtonState(state()&~button());
+    } else {
+	return Qt::ButtonState(state()^button());
+    }
+}
 
 
 
@@ -494,11 +507,31 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \fn int QKeyEvent::state() const
-  Returns the keyboard modifier flags.
+  Returns the keyboard modifier flags that existed immediately before
+  the event occurred.
 
   The returned value is \c ShiftButton, \c ControlButton and \c AltButton
   OR'ed together.
+
+  \sa stateAfter()
 */
+
+/*!
+  Returns the keyboard modifier flags that existed immediately after
+  the event occurred.
+
+  \sa state()
+*/
+Qt::ButtonState QKeyEvent::stateAfter() const
+{
+    if ( key() == Key_Shift )
+	return Qt::ButtonState(state()^ShiftButton);
+    if ( key() == Key_Control )
+	return Qt::ButtonState(state()^ControlButton);
+    if ( key() == Key_Alt )
+	return Qt::ButtonState(state()^AltButton);
+    return state();
+}
 
 /*!
   \fn bool QKeyEvent::isAccepted() const

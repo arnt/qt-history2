@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#69 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#70 $
 **
 ** Definition of event classes
 **
@@ -113,6 +113,7 @@ public:
     int	   globalY()	const	{ return g.y(); }
     ButtonState button() const	{ return (ButtonState) b; }
     ButtonState state()	const	{ return (ButtonState) s; }
+    ButtonState stateAfter() const;
 protected:
     QPoint p;
     QPoint g;
@@ -132,7 +133,7 @@ public:
     const QPoint &pos() const	{ return p; }
     int	   x()		const	{ return p.x(); }
     int	   y()		const	{ return p.y(); }
-    int	   state()	const	{ return s; }
+    ButtonState state()	const	{ return ButtonState(s); }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
@@ -153,7 +154,8 @@ public:
 	    a((uchar)ascii), accpt(TRUE), autor(autorep) {}
     int	   key()	const	{ return k; }
     int	   ascii()	const	{ return a; }
-    int	   state()	const	{ return s; }
+    ButtonState state()	const	{ return ButtonState(s); }
+    ButtonState stateAfter() const;
     bool   isAccepted() const	{ return accpt; }
     QString text()      const   { return txt; }
     bool   isAutoRepeat() const	{ return autor; }
