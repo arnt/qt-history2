@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
-class QDateTimeEditBase : public QWidget
+class Q_EXPORT QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
