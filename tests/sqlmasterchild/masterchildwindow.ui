@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>589</width>
-            <height>671</height>
+            <width>565</width>
+            <height>659</height>
         </rect>
     </property>
     <property name="caption">
@@ -54,6 +54,17 @@
             </property>
         </widget>
         <widget class="QSqlTable" row="1" column="0">
+            <column>
+                <property name="text">
+                    <string>name</string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="field">
+                    <string>name</string>
+                </property>
+            </column>
             <property name="name">
                 <cstring>masterTable</cstring>
             </property>
@@ -63,11 +74,22 @@
             <property name="database" stdset="0">
                 <stringlist>
                     <string>(default)</string>
-                    <string>master</string>
+                    <string>qsql_master</string>
                 </stringlist>
             </property>
         </widget>
         <widget class="QSqlTable" row="3" column="0">
+            <column>
+                <property name="text">
+                    <string>Name</string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+                <property name="field">
+                    <string>name</string>
+                </property>
+            </column>
             <property name="name">
                 <cstring>childTable</cstring>
             </property>
@@ -77,7 +99,7 @@
             <property name="database" stdset="0">
                 <stringlist>
                     <string>(default)</string>
-                    <string>child</string>
+                    <string>qsql_child</string>
                 </stringlist>
             </property>
         </widget>

@@ -17,11 +17,6 @@ public:
     ~MainWindow();
 protected slots:
     void newMasterSelection( const QSqlRecord* fields );
-protected:
-    void reloadChildTable( int masterIdx );
-private:
-    QSqlCursor master;
-    QSqlCursor child;
 };
 
 #endif
