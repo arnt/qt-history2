@@ -2575,7 +2575,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \overload QPainter::drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto )
+    \fn QPainter::drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto )
+
+    \overload
 
     Draws the given text at position \a x, \a y. If \a len is -1 (the
     default) all the text is drawn, otherwise the first \a len
@@ -2585,9 +2587,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \overload void QPainter::drawText( int x, int y, int w, int h, int flags,
-			    const QString&, int len = -1, QRect *br=0,
-			    QTextParag **internal=0 )
+    \fn void QPainter::drawText( int x, int y, int w, int h, int flags,
+			         const QString&, int len = -1, QRect *br=0,
+			         QTextParag **internal=0 )
+
+    \overload
 
     Draws the given text within the rectangle starting at \a x, \a y,
     with width \a w and height \a h. If \a len is -1 (the default) all
@@ -2599,7 +2603,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \overload void QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+    \fn void QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+
+    \overload
 
     Draws the text at the given point.
 
@@ -2614,7 +2620,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 
 /*!
-    \overload void QPainter::drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
+    \fn void QPainter::drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
+
+    \overload
 
     Draws the text from position \a pos, at point \a (x, y). If \a len is
     -1 the entire string is drawn, otherwise just the first \a len
@@ -2627,6 +2635,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Draws the text from position \a pos, at point \a p. If \a len is
     -1 the entire string is drawn, otherwise just the first \a len
     characters. The text's direction is specified by \a dir.
+
+    Note that the meaning of \e y is not the same for the two
+    drawText() varieties. For overloads that take a simple \e x, \e y
+    pair (or a point), the \e y value is the text's baseline; for
+    overloads that take a rectangle, \e rect.y() is the top of the
+    rectangle and the text is aligned within that rectangle in
+    accordance with the alignment flags.
 
     \sa QPainter::TextDirection
 */
@@ -2669,9 +2684,6 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
     \overload
 
     Draws at most \a len characters from \a str in the rectangle \a r.
-
-    Note that the meaning of \a {r}.y() is not the same for the two
-    drawText() varieties.
 
     This function draws formatted text. The \a tf text format is
     really of type \l Qt::AlignmentFlags and \l Qt::TextFlags OR'd
