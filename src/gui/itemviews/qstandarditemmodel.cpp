@@ -17,6 +17,7 @@
 #include <qvector.h>
 
 #include <private/qstandarditemmodel_p.h>
+#include <qdebug.h>
 #define d d_func()
 #define q q_func()
 
@@ -182,6 +183,48 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
     }
     return false;
 }
+
+/*!
+  \reimp
+*/
+QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    const QStdModelItem *headerItem = 0;
+    const QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
+                                             ? d->horizontalHeader : d->verticalHeader);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    if (header.size() > section)
+        headerItem = header.at(section);
+
+    if (headerItem)
+        return headerItem->value(role);
+
+    return QAbstractItemModel::headerData(section, orientation, role);
+}
+
+/*!
+  \reimp
+*/
+bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
+                                       const QVariant &value, int role)
+{
+    QStdModelItem *headerItem = 0;
+    QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
+                                       ? d->horizontalHeader : d->verticalHeader);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    if (header.size() <= section)
+        header.resize(section + 1);
+    headerItem = header[section];
+    if (!headerItem) {
+        headerItem = new QStdModelItem();
+        header.replace(section, headerItem);
+    }
+
+    headerItem->setValue(role, value);
+    emit  headerDataChanged(orientation, section, section);
+    return true;
+}
+
 
 /*!
 Inserts \a count rows into the model, creating new items as children of

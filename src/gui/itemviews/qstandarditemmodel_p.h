@@ -30,7 +30,7 @@
 class  QStdModelItem {
 public:
     QStdModelItem() {};
-    QVariant value(int role)
+    QVariant value(int role) const
         {
             for (int i=0; i<roles.count(); ++i)
                 if (roles.at(i).first == role)
@@ -82,6 +82,7 @@ public:
     QStdModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
 
     QVector<QStdModelRow*> topLevelRows;
+    QVector<QStdModelItem*> horizontalHeader, verticalHeader;
     int topLevelColumns;
 };
 

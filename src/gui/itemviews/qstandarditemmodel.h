@@ -36,6 +36,10 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
+    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
+                       int role = EditRole);
+
     bool insertRows(int row, int count, const QModelIndex &parent);
     bool insertColumns(int column, int count, const QModelIndex &parent);
     bool removeRows(int row, int count, const QModelIndex &parent);
