@@ -640,40 +640,138 @@ void QTextDocument::setModified(bool m)
     docHandle()->setModified(m);
 }
 
-static void tableToHtml(QString &html, const QTextTable *table)
+class QTextHtmlExporter
 {
+public:
+    QTextHtmlExporter(const QTextDocument *_doc);
+
+    QString toHtml();
+
+private:
+    void exportFrame(const QTextFrame *frame);
+    void exportBlock(const QTextBlock &block);
+    void exportTable(const QTextTable *table);
+    void exportFragment(const QTextFragment &fragment);
+
+    void emitBlockFormatAttributes(const QTextBlockFormat &format);
+    bool emitCharFormatStyle(const QTextCharFormat &format);
+
+    QString html;
+    QFont defaultFont;
+    const QTextDocument *doc;
+};
+
+QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
+    : doc(_doc)
+{
+    defaultFont = doc->documentLayout()->defaultFont();
 }
 
-static void blockToHtml(QString &html, const QTextBlock &block)
+QString QTextHtmlExporter::toHtml()
 {
-    html += QLatin1String("<p>");
+    html = QLatin1String("<html><body>"); // ####
+    exportFrame(doc->rootFrame());
+    html += QLatin1String("</body></html>");
+    return html;
+}
+
+bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
+{
+    bool attributesEmitted = false;
+
+    if (format.hasProperty(QTextFormat::FontFamily)) {
+        html += QLatin1String(" font-family:");
+        html += format.fontFamily();
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    }
+
+    if (format.hasProperty(QTextFormat::FontPointSize)) {
+        html += QLatin1String(" font-size:");
+        html += QString::number(format.fontPointSize());
+        html += QLatin1String("pt;");
+        attributesEmitted = true;
+    }
+
+    return attributesEmitted;
+}
+
+void QTextHtmlExporter::exportFragment(const QTextFragment &fragment)
+{
+    QLatin1String styleTag("<span style=\"");
+    html += styleTag;
+
+    const bool attributesEmitted = emitCharFormatStyle(fragment.charFormat());
+    if (attributesEmitted)
+        html += QLatin1String("\">");
+    else
+        html.truncate(html.size() - qstrlen(styleTag.latin1()));
+
+    html += QText::escape(fragment.text());
+
+    if (attributesEmitted)
+        html += QLatin1String("</span>");
+}
+
+void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format)
+{
+    Qt::Alignment align = format.alignment();
+    if (align == Qt::AlignRight)
+        html += QLatin1String(" align='right'");
+    else if (align == Qt::AlignHCenter)
+        html += QLatin1String(" align='center'");
+    else if (align == Qt::AlignJustify)
+        html += QLatin1String(" align='justify'");
+
+    QTextBlockFormat::Direction dir = format.direction();
+    if (dir == QTextBlockFormat::LeftToRight)
+        html += QLatin1String(" dir='ltr'");
+    else if (dir == QTextBlockFormat::RightToLeft)
+        html += QLatin1String(" dir='rtl'");
+
+    // ### margins
+
+    if (format.hasProperty(QTextFormat::BlockBackgroundColor)) {
+        html += QLatin1String(" bgcolor='");
+        html += format.backgroundColor().name();
+        html += QLatin1String("'");
+    }
+}
+
+void QTextHtmlExporter::exportBlock(const QTextBlock &block)
+{
+    if (block.blockFormat().nonBreakableLines())
+        html += QLatin1String("<pre");
+    else
+        html += QLatin1String("<p");
+    emitBlockFormatAttributes(block.blockFormat());
+    html += QLatin1String(">");
+
     for (QTextBlock::Iterator it = block.begin();
          !it.atEnd(); ++it) {
-        QTextFragment fragment = it.fragment();
-
-        html += fragment.text();
+        exportFragment(it.fragment());
     }
     html += QLatin1String("</p>");
 }
 
-static void frameToHtml(QString &html, const QTextFrame *frame)
+void QTextHtmlExporter::exportTable(const QTextTable *table)
+{
+}
+
+void QTextHtmlExporter::exportFrame(const QTextFrame *frame)
 {
     for (QTextFrame::Iterator it = frame->begin();
          !it.atEnd(); ++it) {
-        if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame())) {
-            tableToHtml(html, table);
-        } else if (it.currentBlock().isValid()) {
-            blockToHtml(html, it.currentBlock());
-        }
+        if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame()))
+            exportTable(table);
+        else if (it.currentBlock().isValid())
+            exportBlock(it.currentBlock());
     }
 }
 
 QString QTextDocument::toHtml() const
 {
-    QString html(QLatin1String("<html><body>")); // ####
-    frameToHtml(html, rootFrame());
-    html += "</body></html>";
-    return html;
+    return QTextHtmlExporter(this).toHtml();
 }
 
 /*!
