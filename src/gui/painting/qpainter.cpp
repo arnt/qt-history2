@@ -623,11 +623,13 @@ void QPainterPrivate::updateInvMatrix()
     take integer coordinates; there are no floating-point versions
     since we want drawing to be as fast as possible.
 
-    The functions that draw curved primitives accept angles measured
+    \table
+    \row \i
+    \inlineimage qpainter-angles.png
+    \i The functions that draw curved primitives accept angles measured
     in 1/16s of a degree. Angles are measured in an counter-clockwise
     direction from the rightmost edge of the primitive being drawn.
-
-    \img qpainter-angles.png
+    \endtable
 
     There are functions to draw pixmaps/images, namely drawPixmap(),
     drawImage() and drawTiledPixmap(). drawPixmap() and drawImage()
