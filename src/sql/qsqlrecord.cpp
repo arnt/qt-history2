@@ -253,9 +253,9 @@ QString QSqlRecord::fieldName( int i ) const
 }
 
 /*!  Returns the position of the field named \a name within the
-  record, or -1 if it cannot be found.  Field names are not
-  case-sensitive.
-
+  record, or -1 if it cannot be found. Field names are not
+  case-sensitive. If more than one field matches, the first one
+  is returned.
 */
 
 int QSqlRecord::position( const QString& name ) const
