@@ -54,6 +54,10 @@ private slots:
     void addPolygon();
     void addLine();
     void addRectangle();
+
+    void enlarge();
+    void shrink();
+
     void toggleDoubleBuffer();
 
 private:

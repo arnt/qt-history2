@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#245 $
+** $Id$
 **
 ** Implementation of QCanvas and associated classes
 **
@@ -551,6 +551,8 @@ void QCanvas::resize(int w, int h)
     }
 
     setAllChanged();
+
+    emit resized();
 }
 
 /*!
@@ -2558,13 +2560,23 @@ QCanvasView::~QCanvasView()
 void QCanvasView::setCanvas(QCanvas* canvas)
 {
     if (viewing) {
+	disconnect(viewing);
 	viewing->removeView(this);
     }
     viewing=canvas;
     if (viewing) {
+	connect(viewing,SIGNAL(resized()), this, SLOT(updateContentsSize()));
 	viewing->addView(this);
-	resizeContents(viewing->width(),viewing->height());
     }
+    updateContentsSize();
+}
+
+void QCanvasView::updateContentsSize()
+{
+    if ( viewing )
+	resizeContents(viewing->width(),viewing->height());
+    else
+	resizeContents(1,1);
 }
 
 
@@ -2920,6 +2932,7 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas)
 {
+    addToChunks();
 }
 
 /*!
@@ -3017,6 +3030,7 @@ QCanvasLine::QCanvasLine(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas)
 {
     x1 = y1 = x2 = y2 = 0;
+    addToChunks();
 }
 
 /*!
@@ -3231,6 +3245,7 @@ QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
     w(width),h(height),
     a1(0),a2(360*16)
 {
+    addToChunks();
 }
 
 /*!
@@ -3244,6 +3259,7 @@ QCanvasEllipse::QCanvasEllipse(int width, int height,
     w(width),h(height),
     a1(startangle),a2(angle)
 {
+    addToChunks();
 }
 
 /*!
@@ -3359,6 +3375,7 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
     text("<text>"), flags(0)
 {
     setRect();
+    addToChunks();
 }
 
 /*!
@@ -3371,6 +3388,7 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
     text(t), flags(0)
 {
     setRect();
+    addToChunks();
 }
 
 /*!
@@ -3384,6 +3402,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
     font(f)
 {
     setRect();
+    addToChunks();
 }
 
 /*!

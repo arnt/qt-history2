@@ -215,6 +215,9 @@ public:
 
     void setDoubleBuffering(bool y);
 
+signals:
+    void resized();
+
 public slots:
     virtual void advance();
     virtual void update();
@@ -277,6 +280,7 @@ private:
 
 private slots:
     void cMoving(int,int);
+    void updateContentsSize();
 };
 
 

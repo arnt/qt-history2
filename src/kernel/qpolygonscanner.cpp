@@ -724,6 +724,9 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
     ScanLineListBlock SLLBlock;     /* header for ScanLineList */
     int fixWAET = 0;
 
+    if (npoints == -1)
+	npoints = pa.size();
+
     if (npoints < 3)
 	return;
 

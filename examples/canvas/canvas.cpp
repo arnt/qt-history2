@@ -149,7 +149,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
     file->insertSeparator();
-    file->insertItem("&Quit", qApp, SLOT(quit()), CTRL+Key_Q);
+    file->insertItem("E&xit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);
 
     QPopupMenu* edit = new QPopupMenu;
@@ -159,6 +159,9 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Line", this, SLOT(addLine()), CTRL+Key_L);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
+    file->insertSeparator();
+    edit->insertItem("&Enlarge", this, SLOT(enlarge()), CTRL+Key_Plus);
+    edit->insertItem("Shr&ink", this, SLOT(shrink()), CTRL+Key_Minus);
     menu->insertItem("&Edit", edit);
 
     options = new QPopupMenu;
@@ -235,6 +238,16 @@ void Main::toggleDoubleBuffer()
     bool s = !options->isItemChecked(dbf_id);
     options->setItemChecked(dbf_id,s);
     canvas.setDoubleBuffering(s);
+}
+
+void Main::enlarge()
+{
+    canvas.resize(canvas.width()*4/3, canvas.height()*4/3);
+}
+
+void Main::shrink()
+{
+    canvas.resize(canvas.width()*3/4, canvas.height()*3/4);
 }
 
 void Main::addSprite()
