@@ -140,6 +140,36 @@ static const char * const tree_branch_closed_xpm[] = {
 "#       #",
 "#########"};
 
+static const char * const tb_extension_arrow_v_xpm[] = {
+    "7 9 3 1",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
+    ".+++++.",
+    "..+++..",
+    "+..+..+",
+    "++...++",
+    ".++.++.",
+    "..+++..",
+    "+..+..+",
+    "++...++",
+    "+++.+++"
+};
+
+static const char * const tb_extension_arrow_h_xpm[] = {
+    "9 7 3 1",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
+    "..++..+++",
+    "+..++..++",
+    "++..++..+",
+    "+++..++..",
+    "++..++..+",
+    "+..++..++",
+    "..++..+++"
+};
+
 /*!
     Draws the primitive element \a pe, with style options \a opt, on
     painter \a p. The \a widget is optional and may contain a widget
@@ -2667,8 +2697,19 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::standardPixmap(StandardPixmap, const QStyleOption *, const QWidget *) const
+QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *,
+                                     const QWidget *) const
 {
+#ifndef QT_NO_IMAGEIO_XPM
+    switch (standardPixmap) {
+    case SP_ToolBarHorizontalExtensionButton:
+        return QPixmap((const char **)tb_extension_arrow_h_xpm);
+    case SP_ToolBarVerticalExtensionButton:
+        return QPixmap((const char **)tb_extension_arrow_v_xpm);
+    default:
+        break;
+    }
+#endif // QT_NO_IMAGEIO_XPM
     return QPixmap();
 }
 

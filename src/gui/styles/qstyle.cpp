@@ -1526,6 +1526,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SP_FileIcon
     \value SP_FileLinkIcon
     \value SP_DockWindowCloseButton  Close button on dock windows (see also QDockWindow)
+    \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars
+    \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars
     \value SP_CustomBase  Base value for custom ControlElements;
     custom values must be greater than this value
 

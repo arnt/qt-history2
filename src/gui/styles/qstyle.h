@@ -700,6 +700,8 @@ public:
         SP_FileLinkIcon,
         SP_ItemChecked,
         SP_ItemUnchecked,
+        SP_ToolBarHorizontalExtensionButton,
+        SP_ToolBarVerticalExtensionButton,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
