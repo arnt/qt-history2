@@ -130,31 +130,31 @@ void QSize::transpose()
 }
 
 /*!
-  \fn void QSize::scale(int w, int h, Qt::ScaleMode mode)
+  \fn void QSize::scale(int w, int h, Qt::AspectRatioMode mode)
 
     Scales the size to a rectangle of width \a w and height \a h according
-    to the Qt::ScaleMode \a mode.
+    to the Qt::AspectRatioMode \a mode.
 
     \list
-    \i If \a mode is \c Qt::ScaleFree, the size is set to (\a w, \a h).
-    \i If \a mode is \c Qt::ScaleMin, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is \c Qt::KeepAspectRatio, the current size is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect ratio.
-    \i If \a mode is \c Qt::ScaleMax, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 
     Example:
     \code
         QSize t1(10, 12);
-        t1.scale(60, 60, QSize::ScaleFree);
+        t1.scale(60, 60, QSize::IgnoreAspectRatio);
         // t1 is (60, 60)
 
         QSize t2(10, 12);
-        t2.scale(60, 60, QSize::ScaleMin);
+        t2.scale(60, 60, QSize::KeepAspectRatio);
         // t2 is (50, 60)
 
         QSize t3(10, 12);
-        t3.scale(60, 60, QSize::ScaleMax);
+        t3.scale(60, 60, QSize::KeepAspectRatioByExpanding);
         // t3 is (60, 72)
     \endcode
 
@@ -166,18 +166,18 @@ void QSize::transpose()
 
     Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
 */
-void QSize::scale(const QSize &s, Qt::ScaleMode mode)
+void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 {
-    if (mode == Qt::ScaleFree) {
+    if (mode == Qt::IgnoreAspectRatio) {
         wd = s.wd;
         ht = s.ht;
     } else {
         bool useHeight;
         QCOORD rw = s.ht * wd / ht;
 
-        if (mode == Qt::ScaleMin) {
+        if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
-        } else { // mode == Qt::ScaleMax
+        } else { // mode == Qt::KeepAspectRatioByExpanding
             useHeight = (rw >= s.wd);
         }
 
@@ -585,31 +585,31 @@ void QSizeF::transpose()
 }
 
 /*!
-  \fn void QSizeF::scale(float w, float h, Qt::ScaleMode mode)
+  \fn void QSizeF::scale(float w, float h, Qt::AspectRatioMode mode)
 
     Scales the size to a rectangle of width \a w and height \a h according
-    to the Qt::ScaleMode \a mode.
+    to the Qt::AspectRatioMode \a mode.
 
     \list
-    \i If \a mode is \c Qt::ScaleFree, the size is set to (\a w, \a h).
-    \i If \a mode is \c Qt::ScaleMin, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is \c Qt::KeepAspectRatio, the current size is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect ratio.
-    \i If \a mode is \c Qt::ScaleMax, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 
     Example:
     \code
         QSizeF t1(10, 12);
-        t1.scale(60, 60, QSizeF::ScaleFree);
+        t1.scale(60, 60, QSizeF::IgnoreAspectRatio);
         // t1 is (60, 60)
 
         QSizeF t2(10, 12);
-        t2.scale(60, 60, QSizeF::ScaleMin);
+        t2.scale(60, 60, QSizeF::KeepAspectRatio);
         // t2 is (50, 60)
 
         QSizeF t3(10, 12);
-        t3.scale(60, 60, QSizeF::ScaleMax);
+        t3.scale(60, 60, QSizeF::KeepAspectRatioByExpanding);
         // t3 is (60, 72)
     \endcode
 
@@ -621,18 +621,18 @@ void QSizeF::transpose()
 
     Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
 */
-void QSizeF::scale(const QSizeF &s, Qt::ScaleMode mode)
+void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 {
-    if (mode == Qt::ScaleFree) {
+    if (mode == Qt::IgnoreAspectRatio) {
         wd = s.wd;
         ht = s.ht;
     } else {
         bool useHeight;
         float rw = s.ht * wd / ht;
 
-        if (mode == Qt::ScaleMin) {
+        if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
-        } else { // mode == Qt::ScaleMax
+        } else { // mode == Qt::KeepAspectRatioByExpanding
             useHeight = (rw >= s.wd);
         }
 

@@ -847,11 +847,19 @@ public:
         LogText
     };
 
-    enum ScaleMode {
-        ScaleFree,
-        ScaleMin,
-        ScaleMax
+    enum AspectRatioMode {
+        IgnoreAspectRatio,
+        KeepAspectRatio,
+        KeepAspectRatioByExpanding
+#ifdef QT_COMPAT
+        , ScaleFree = IgnoreAspectRatio,
+        ScaleMin = KeepAspectRatio,
+        ScaleMax = KeepAspectRatioByExpanding
+#endif
     };
+#ifdef QT_COMPAT
+    typedef AspectRatioMode ScaleMode;
+#endif
 
     // Documented in qtextedit.cpp
     enum AnchorAttribute {
@@ -1009,6 +1017,12 @@ public:
         ComposePixmap,
         CopyPixmap,
         CopyPixmapNoMask // compatibility
+    };
+
+    // Documented in qpixmap.cpp
+    enum TransformationMode {
+        FastTransformation,
+        SmoothTransformation
     };
 
     enum RectangleEdge {

@@ -122,16 +122,15 @@ public:
     QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    inline QImage smoothScale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
-    QImage smoothScale(const QSize& s, Qt::ScaleMode mode = Qt::ScaleFree) const;
+    inline QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
+    QImage smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
 #endif
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-    inline QImage scale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
-    QImage scale(const QSize &s, Qt::ScaleMode mode = Qt::ScaleFree) const;
+    inline QImage scale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
+    QImage scale(const QSize &s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
-    QImage xForm(const QMatrix &matrix) const;
-    QImage smoothXForm(const QMatrix &matrix) const;
+    QImage transform(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &, int w, int h);
 #endif
 
@@ -182,6 +181,7 @@ public:
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QImage(const char * const xpm[]);
+    inline QT_COMPAT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
 #endif
 
 private:
@@ -224,14 +224,14 @@ inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags 
 }
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-inline QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
+inline QImage QImage::smoothScale(int w, int h, Qt::AspectRatioMode mode) const
 {
     return smoothScale(QSize(w, h), mode);
 }
 #endif
 
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-inline QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
+inline QImage QImage::scale(int w, int h, Qt::AspectRatioMode mode) const
 {
     return scale(QSize(w, h), mode);
 }

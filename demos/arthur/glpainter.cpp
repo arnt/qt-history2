@@ -150,7 +150,7 @@ void GLWidget::paintEvent(QPaintEvent *)
     p.translate(-width()/2, -height()/2);
     dw->fillBackground(&p);
     drawShadedCube(dw, &p, 2, 5, step);
-    p.resetXForm();
+    p.resetMatrix();
 
     drawPrimitives(dw, &p, 150, 0.3, step);
     p.setFont(QFont("helvetica", 14, QFont::Bold, true));

@@ -2643,18 +2643,19 @@ void pnmscale(const QImage& src, QImage& dst)
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
-  \fn QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
+  \fn QImage QImage::smoothScale(int w, int h, Qt::AspectRatioMode mode) const
 
     Returns a smoothly scaled copy of the image. The returned image
     has a size of width \a w by height \a h pixels if \a mode is \c
-    Qt::ScaleFree. The modes \c Qt::ScaleMin and \c Qt::ScaleMax may be used to
-    preserve the ratio of the image: if \a mode is \c Qt::ScaleMin, the
-    returned image is guaranteed to fit into the rectangle specified
-    by \a w and \a h (it is as large as possible within the
-    constraints); if \a mode is \c Qt::ScaleMax, the returned image fits
-    at least into the specified rectangle (it is a small as possible
-    within the constraints). Note that the algorithm used favors speed
-    rather than smoothness.
+    Qt::IgnoreAspectRatio. The modes \c Qt::KeepAspectRatio and \c
+    Qt::KeepAspectRatioByExpanding may be used to preserve the ratio
+    of the image: if \a mode is \c Qt::KeepAspectRatio, the returned
+    image is guaranteed to fit into the rectangle specified by \a w
+    and \a h (it is as large as possible within the constraints); if
+    \a mode is \c Qt::KeepAspectRatioByExpanding, the returned image
+    fits at least into the specified rectangle (it is a small as
+    possible within the constraints). Note that the algorithm used
+    favors speed rather than smoothness.
 
     For 32-bpp images and 1-bpp/8-bpp color images the result will be
     32-bpp, whereas \link allGray() all-gray \endlink images
@@ -2685,7 +2686,7 @@ void pnmscale(const QImage& src, QImage& dst)
 
     The requested size of the image is \a s.
 */
-QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
+QImage QImage::smoothScale(const QSize& s, Qt::AspectRatioMode mode) const
 {
     if (isNull()) {
         qWarning("QImage::smoothScale: Image is a null image");
@@ -2713,18 +2714,18 @@ QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
 #endif
 
 /*!
-  \fn QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
+  \fn QImage QImage::scale(int w, int h, Qt::AspectRatioMode mode) const
 
     Returns a copy of the image scaled to a rectangle of width \a w
-    and height \a h according to the Qt::ScaleMode \a mode.
+    and height \a h according to the Qt::AspectRatioMode \a mode.
 
     \list
-    \i If \a mode is \c Qt::ScaleFree, the image is scaled to (\a w,
+    \i If \a mode is \c Qt::IgnoreAspectRatio, the image is scaled to (\a w,
        \a h).
-    \i If \a mode is \c Qt::ScaleMin, the image is scaled to a rectangle
+    \i If \a mode is \c Qt::KeepAspectRatio, the image is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect
        ratio.
-    \i If \a mode is \c Qt::ScaleMax, the image is scaled to a rectangle
+    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the image is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect
        ratio.
     \endlist
@@ -2744,7 +2745,7 @@ QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
     The requested size of the image is \a s.
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(const QSize& s, Qt::ScaleMode mode) const
+QImage QImage::scale(const QSize& s, Qt::AspectRatioMode mode) const
 {
     if (isNull()) {
         qWarning("QImage::scale: Image is a null image");
@@ -2761,7 +2762,7 @@ QImage QImage::scale(const QSize& s, Qt::ScaleMode mode) const
     QImage img;
     QMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
-    img = xForm(wm);
+    img = transform(wm);
     return img;
 }
 #endif
@@ -2789,7 +2790,7 @@ QImage QImage::scaleWidth(int w) const
     QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
-    return xForm(wm);
+    return transform(wm);
 }
 #endif
 
@@ -2816,7 +2817,7 @@ QImage QImage::scaleHeight(int h) const
     QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
-    return xForm(wm);
+    return transform(wm);
 }
 #endif
 
@@ -2878,6 +2879,8 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 }
 #endif // QT_NO_WMATRIX
 
+static QImage smoothXForm(const QImageData *src, const QMatrix &matrix);
+
 /*!
     Returns a copy of the image that is transformed using the
     transformation matrix, \a matrix.
@@ -2886,21 +2889,26 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     for unwanted translation, i.e. xForm() returns the smallest image
     that contains all the transformed points of the original image.
 
-    \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QMatrix
+    \sa scale() QPixmap::transform() QPixmap::trueMatrix() QMatrix
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::xForm(const QMatrix &matrix) const
+QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     // This function uses the same algorithm as (and steals quite some
     // code from) QPixmap::xForm().
 
     if (isNull())
-        return copy();
+        return *this;
 
     if (depth() == 16) {
         // inefficient
-        return convertDepth(32).xForm(matrix);
+        return convertDepth(32).transform(matrix, mode);
     }
+
+    int bpp = depth();
+
+    if (bpp == 32 && mode == Qt::SmoothTransformation)
+        return smoothXForm(this->data, matrix);
 
     // source image data
     int ws = width();
@@ -2912,7 +2920,6 @@ QImage QImage::xForm(const QMatrix &matrix) const
     int wd;
     int hd;
 
-    int bpp = depth();
 
     // compute size of target image
     QMatrix mat = trueMatrix(matrix, ws, hs);
@@ -4343,12 +4350,10 @@ static void shearY(QImage *image, int width, int iheight, double shear)
 }
 
 
-QImage QImage::smoothXForm(const QMatrix &matrix) const
+QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 {
-    if (depth() != 32)
-        return xForm(matrix);
-    if (isNull())
-        return *this;
+    Q_ASSERT(data->d == 32);
+    Q_ASSERT(data->w > 0 && data->h > 0);
 
     // avoid degenerate transformations
     if (QABS(matrix.det()) < 0.001)
@@ -4426,20 +4431,20 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     // #### optimise and don't do a deep copy if !rotate && !mirror.
 
     bool swapAxes = rotate & 0x1;
-    QImage result(swapAxes ? data->h : data->w, swapAxes ? data->w : data->h, depth());
-    result.setAlphaBuffer(hasAlphaBuffer());
+    QImage result(swapAxes ? data->h : data->w, swapAxes ? data->w : data->h, data->d);
+    result.setAlphaBuffer(data->alpha);
 
     QMatrix mat;
     switch(rotate) {
     case 0:
         if (!mirror) {
-            const uchar * const *slines = jumpTable();
+            const uchar * const *slines = data->bits;
             uchar **dlines = result.jumpTable();
             const int bpl = data->nbytes/data->h;
             for (int i = 0; i < data->h; ++i)
                 memcpy(dlines[i], slines[i], bpl);
         } else {
-            const uchar * const *slines = jumpTable() + data->h - 1;
+            const uchar * const *slines = data->bits + data->h - 1;
             uchar **dlines = result.jumpTable();
             const int bpl = data->nbytes/data->h;
             for (int i = data->h; i > 0; --i) {
@@ -4452,7 +4457,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
         break;
     case 1: {
         const uchar * const * slines = data->bits;
-        uchar **dlines = result.data->bits;
+        uchar **dlines = result.jumpTable();
         int dlinesi = 1;
         if (mirror) {
             dlines += data->w - 1;
@@ -4478,9 +4483,11 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
             dy = data->h - 1;
             dyi = -1;
         }
+        Q_UINT32 **rbits = (Q_UINT32 **)result.jumpTable();
+        Q_UINT32 **sbits = (Q_UINT32 **)data->bits;
         for (int sy = 0; sy < data->h; sy++, dy += dyi) {
-            const Q_UINT32* sl = (Q_UINT32*)(data->bits[sy]);
-            Q_UINT32* dl = (Q_UINT32*)(result.data->bits[dy]) + data->w - 1;
+            const Q_UINT32* sl = sbits[sy];
+            Q_UINT32* dl = rbits[dy] + data->w - 1;
             for (int sx = 0; sx < data->w; sx++) {
                 *dl = *sl;
                 ++sl;
@@ -4492,7 +4499,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     }
     case 3: {
         const uchar * const * slines = data->bits;
-        uchar **dlines = result.data->bits;
+        uchar **dlines = result.jumpTable();
         int dlinesi = 1;
         if (!mirror) {
             dlines += data->w - 1;
@@ -4553,6 +4560,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     QImage final(qRound(QABS(v1x*data->w) + QABS(v2x*data->h)),
                  qRound(QABS(v1y*data->w) + QABS(v2y*data->h)), 32);
     final.setAlphaBuffer(true);
+    qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
     int yoff = (result2.height() - final.height())/2;
     for (int y = 0; y < final.height(); ++y)
         memcpy(final.jumpTable()[y], result2.jumpTable()[y+yoff], final.bytesPerLine());

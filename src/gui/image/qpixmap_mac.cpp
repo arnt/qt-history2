@@ -487,7 +487,7 @@ void QPixmap::deref()
     }
 }
 
-QPixmap QPixmap::xForm(const QMatrix &matrix) const
+QPixmap QPixmap::transform(const QMatrix &matrix) const
 {
     int           w, h;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -556,7 +556,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
     int        xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
                         dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs)){
-        qWarning("Qt: QPixmap::xForm: display not supported (bpp=%d)",bpp);
+        qWarning("Qt: QPixmap::transform: display not supported (bpp=%d)",bpp);
         QPixmap pm;
         return pm;
     }

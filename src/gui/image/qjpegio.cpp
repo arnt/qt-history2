@@ -157,13 +157,13 @@ inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
 
 
 static
-void scaleSize(int &reqW, int &reqH, int imgW, int imgH, Qt::ScaleMode mode)
+void scaleSize(int &reqW, int &reqH, int imgW, int imgH, Qt::AspectRatioMode mode)
 {
-    if (mode == Qt::ScaleFree)
+    if (mode == Qt::IgnoreAspectRatio)
         return;
     int t1 = imgW * reqH;
     int t2 = reqW * imgH;
-    if ((mode == Qt::ScaleMin && (t1 > t2)) || (mode == Qt::ScaleMax && (t1 < t2)))
+    if ((mode == Qt::KeepAspectRatio && (t1 > t2)) || (mode == Qt::KeepAspectRatioByExpanding && (t1 < t2)))
         reqH = t2 / imgW;
     else
         reqW = t1 / imgH;
@@ -200,7 +200,7 @@ void read_jpeg_image(QImageIO* iio)
         params.simplified();
         int sWidth = 0, sHeight = 0;
         char sModeStr[1024] = "";
-        Qt::ScaleMode sMode;
+        Qt::AspectRatioMode sMode;
 
         if (params.contains("GetHeaderInformation")) {
 
@@ -219,18 +219,18 @@ void read_jpeg_image(QImageIO* iio)
                    &sWidth, &sHeight, sModeStr);
 
             QString sModeQStr(sModeStr);
-            if (sModeQStr == "ScaleFree") {
-                sMode = Qt::ScaleFree;
-            } else if (sModeQStr == "ScaleMin") {
-                sMode = Qt::ScaleMin;
-            } else if (sModeQStr == "ScaleMax") {
-                sMode = Qt::ScaleMax;
+            if (sModeQStr == "IgnoreAspectRatio") {
+                sMode = Qt::IgnoreAspectRatio;
+            } else if (sModeQStr == "KeepAspectRatio") {
+                sMode = Qt::KeepAspectRatio;
+            } else if (sModeQStr == "KeepAspectRatioByExpanding") {
+                sMode = Qt::KeepAspectRatioByExpanding;
             } else {
-                qDebug("read_jpeg_image: invalid scale mode \"%s\", see QImage::ScaleMode documentation", sModeStr);
-                sMode = Qt::ScaleFree;
+                qDebug("read_jpeg_image: invalid aspect ratio mode \"%s\", see QImage::AspectRatioMode documentation", sModeStr);
+                sMode = Qt::KeepAspectRatio;
             }
 
-//            qDebug("Parameters ask to scale the image to %i x %i ScaleMode: %s", sWidth, sHeight, sModeStr);
+//            qDebug("Parameters ask to scale the image to %i x %i AspectRatioMode: %s", sWidth, sHeight, sModeStr);
             scaleSize(sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode);
 //            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 

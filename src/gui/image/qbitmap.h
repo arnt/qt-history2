@@ -40,7 +40,10 @@ public:
     QBitmap &operator=(const QImage  &);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QBitmap  xForm(const QMatrix &) const;
+    QBitmap transform(const QMatrix &) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QBitmap xForm(const QMatrix &matrix) const { return transform(matrix); }
+#endif
 #endif
 };
 

@@ -889,7 +889,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 }
 
 
-QPixmap QPixmap::xForm(const QMatrix &matrix) const
+QPixmap QPixmap::transform(const QMatrix &matrix) const
 {
     int           w, h;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -1042,7 +1042,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
     }
 
     if (!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_WINDOWSPIXMAP, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs)){
-        qWarning("QPixmap::xForm: display not supported (bpp=%d)",bpp);
+        qWarning("QPixmap::transform: display not supported (bpp=%d)",bpp);
         QPixmap pm;
         delete [] sptr;
         delete [] bmi_data;

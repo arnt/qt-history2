@@ -1616,10 +1616,10 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     QImage, non-trivial computations and a transformation back to a
     QPixmap.
 
-    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::xForm()
+    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transformat()
 */
 
-QPixmap QPixmap::xForm(const QMatrix &matrix) const
+QPixmap QPixmap::transform(const QMatrix &matrix) const
 {
     int           w = 0;
     int           h = 0;                                // size of target pixmap
@@ -1754,7 +1754,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
     }
 
     if (!qt_xForm_helper(mat, xi->xoffset, type, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs)){
-        qWarning("QPixmap::xForm: display not supported (bpp=%d)",bpp);
+        qWarning("QPixmap::transform: display not supported (bpp=%d)",bpp);
         QPixmap pm;
         return pm;
     }
@@ -1774,7 +1774,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
             if (data->selfmask)                // pixmap == mask
                 pm.setMask(*((QBitmap*)(&pm)));
             else
-                pm.setMask(data->mask->xForm(matrix));
+                pm.setMask(data->mask->transform(matrix));
         }
         return pm;
     } else {                                        // color pixmap
@@ -1796,7 +1796,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 #endif
 
         if (data->mask) // xform mask, too
-            pm.setMask(data->mask->xForm(matrix));
+            pm.setMask(data->mask->transform(matrix));
 
 #ifndef QT_NO_XFT
         if (X11->use_xrender && X11->has_xft && data->alphapm) { // xform the alpha channel

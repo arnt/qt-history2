@@ -34,8 +34,8 @@ public:
     void setHeight(int h);
     void transpose();
 
-    void scale(int w, int h, Qt::ScaleMode mode);
-    void scale(const QSize &s, Qt::ScaleMode mode);
+    void scale(int w, int h, Qt::AspectRatioMode mode);
+    void scale(const QSize &s, Qt::AspectRatioMode mode);
 
     QSize expandedTo(const QSize &) const;
     QSize boundedTo(const QSize &) const;
@@ -106,7 +106,7 @@ inline void QSize::setWidth(int w)
 inline void QSize::setHeight(int h)
 { ht = h; }
 
-inline void QSize::scale(int w, int h, Qt::ScaleMode mode)
+inline void QSize::scale(int w, int h, Qt::AspectRatioMode mode)
 { scale(QSize(w, h), mode); }
 
 inline QCOORD &QSize::rwidth()
@@ -209,8 +209,8 @@ public:
     void setHeight(float h);
     void transpose();
 
-    void scale(float w, float h, Qt::ScaleMode mode);
-    void scale(const QSizeF &s, Qt::ScaleMode mode);
+    void scale(float w, float h, Qt::AspectRatioMode mode);
+    void scale(const QSizeF &s, Qt::AspectRatioMode mode);
 
     QSizeF expandedTo(const QSizeF &) const;
     QSizeF boundedTo(const QSizeF &) const;
@@ -288,7 +288,7 @@ inline void QSizeF::setWidth(float w)
 inline void QSizeF::setHeight(float h)
 { ht = h; }
 
-inline void QSizeF::scale(float w, float h, Qt::ScaleMode mode)
+inline void QSizeF::scale(float w, float h, Qt::AspectRatioMode mode)
 { scale(QSizeF(w, h), mode); }
 
 inline float &QSizeF::rwidth()

@@ -193,7 +193,7 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
                           br.right() + w2, br.bottom() + w2);
         }
 #ifndef QT_NO_TRANSFORMATIONS
-        br = painter()->worldMatrix().mapRect(br);
+        br = painter()->matrix().mapRect(br);
 #endif
         if (painter()->hasClipping()) {
             QRect cr = painter()->clipRegion().boundingRect();

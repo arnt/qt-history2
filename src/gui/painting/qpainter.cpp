@@ -834,190 +834,14 @@ void QPainter::setClipRegion(const QRegion &r)
     }
 }
 
-
 /*!
-    Returns true if view transformation is enabled; otherwise returns
-    false.
+    Sets the transformation matrix to \a matrix and enables transformations.
 
-    \sa setViewXForm(), xForm()
-*/
-
-bool QPainter::hasViewXForm() const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    return d->state->VxF;
-#else
-    return d->state->xlatex || d->state->xlatey;
-#endif
-}
-
-/*!
-    Returns true if world transformation is enabled; otherwise returns
-    false.
-
-    \sa setWorldXForm()
-*/
-
-bool QPainter::hasWorldXForm() const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    return d->state->WxF;
-#else
-    return d->state->xlatex || d->state->xlatey;
-#endif
-}
-
-/*!
-    \fn void QPainter::setWindow(const QRect &r)
-
-    \overload
-
-    Sets the painter's window to the rectangle \a r.
-*/
-
-/*!
-    Sets the window rectangle view transformation for the painter and
-    enables view transformation.
-
-    The window rectangle is part of the view transformation. The
-    window specifies the logical coordinate system and is specified by
-    the \a x, \a y, \a w width and \a h height parameters. Its sister,
-    the viewport(), specifies the device coordinate system.
-
-    The default window rectangle is the same as the device's
-    rectangle. See the \link coordsys.html Coordinate System Overview
-    \endlink for an overview of coordinate transformation.
-
-    \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
-    setWorldXForm()
-*/
-
-void QPainter::setWindow(int x, int y, int w, int h)
-{
-    if (!isActive()) {
-        qWarning("QPainter::setWindow(), painter not active");
-        return;
-    }
-
-    // Must update clip before changing matrix.
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
-
-    d->state->wx = x;
-    d->state->wy = y;
-    d->state->ww = w;
-    d->state->wh = h;
-    if (d->state->VxF)
-        updateXForm();
-    else
-        setViewXForm(true);
-}
-
-/*!
-    Returns the window rectangle.
-
-    \sa setWindow(), setViewXForm()
-*/
-
-QRect QPainter::window() const
-{
-    return QRect(d->state->wx, d->state->wy, d->state->ww, d->state->wh);
-}
-
-/*!
-    \fn void QPainter::setViewport(const QRect &r)
-
-    \overload
-
-    Sets the painter's viewport rectangle to \a r.
-*/
-
-/*!
-    Sets the viewport rectangle view transformation for the painter
-    and enables view transformation.
-
-    The viewport rectangle is part of the view transformation. The
-    viewport specifies the device coordinate system and is specified
-    by the \a x, \a y, \a w width and \a h height parameters. Its
-    sister, the window(), specifies the logical coordinate system.
-
-    The default viewport rectangle is the same as the device's
-    rectangle. See the \link coordsys.html Coordinate System Overview
-    \endlink for an overview of coordinate transformation.
-
-    \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-    setWorldXForm(), xForm()
-*/
-
-void QPainter::setViewport(int x, int y, int w, int h)
-{
-    if (!isActive()) {
-        qWarning("QPainter::setViewport(), painter not active");
-        return;
-    }
-
-    // Must update clip before changing matrix.
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
-
-    d->state->vx = x;
-    d->state->vy = y;
-    d->state->vw = w;
-    d->state->vh = h;
-    if (d->state->VxF)
-        updateXForm();
-    else
-        setViewXForm(true);
-}
-
-/*!
-    Returns the viewport rectangle.
-
-    \sa setViewport(), setViewXForm()
-*/
-
-QRect QPainter::viewport() const
-{
-    return QRect(d->state->vx, d->state->vy, d->state->vw, d->state->vh);
-}
-
-/*!
-    Enables view transformations if \a enable is true, or disables
-    view transformations if \a enable is false.
-
-    \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
-    setWorldXForm(), xForm()
-*/
-
-void QPainter::setViewXForm(bool enable)
-{
-    if (!isActive()) {
-        qWarning("QPainter::setViewXForm(), painter not active");
-        return;
-    }
-    if (enable == d->state->VxF)
-        return;
-
-    // Must update clip before changing matrix.
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
-
-    d->state->VxF = enable;
-    updateXForm();
-}
-
-/*!
-    Sets the world transformation matrix to \a wm and enables world
-    transformation.
-
-    If \a combine is true, then \a wm is combined with the current
-    transformation matrix; otherwise \a wm replaces the current
+    If \a combine is true, then \a matrix is combined with the current
+    transformation matrix; otherwise \a matrix replaces the current
     transformation matrix.
 
-    If \a wm is the identity matrix and \a combine is false, this
+    If \a matrix is the identity matrix and \a combine is false, this
     function calls setWorldXForm(false). (The identity matrix is the
     matrix where QMatrix::m11() and QMatrix::m22() are 1.0 and the
     rest are 0.0.)
@@ -1054,11 +878,10 @@ void QPainter::setViewXForm(bool enable)
     For a brief overview of coordinate transformation, see the \link
     coordsys.html Coordinate System Overview. \endlink
 
-    \sa worldMatrix() setWorldXForm() setWindow() setViewport()
-    setViewXForm() xForm() QMatrix
+    \sa matrix(), setMatrixEnabled(), QMatrix
 */
 
-void QPainter::setWorldMatrix(const QMatrix &wm, bool combine)
+void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 {
    if (!isActive()) {
         qWarning("QPainter::setWorldMatrix(), painter not active ");
@@ -1071,15 +894,15 @@ void QPainter::setWorldMatrix(const QMatrix &wm, bool combine)
         d->engine->updateState(d->state);
 
     if (combine)
-        d->state->worldMatrix = wm * d->state->worldMatrix;                        // combines
+        d->state->worldMatrix = matrix * d->state->worldMatrix;                        // combines
     else
-        d->state->worldMatrix = wm;                                // set new matrix
+        d->state->worldMatrix = matrix;                                // set new matrix
 //     bool identity = d->state->worldMatrix.isIdentity();
 //     if (identity && pdev->devType() != QInternal::Picture)
 //         setWorldXForm(false);
 //     else
     if (!d->state->WxF)
-        setWorldXForm(true);
+        setMatrixEnabled(true);
     else
         updateXForm();
 }
@@ -1090,21 +913,45 @@ void QPainter::setWorldMatrix(const QMatrix &wm, bool combine)
     \sa setWorldMatrix()
 */
 
-const QMatrix &QPainter::worldMatrix() const
+const QMatrix &QPainter::matrix() const
 {
     return d->state->worldMatrix;
 }
 
 /*!
-    Enables world transformations if \a enable is true, or disables
+    Resets any transformations that were made using translate(), scale(),
+    shear(), rotate(), setWorldMatrix(), setViewport() and
+    setWindow().
+
+    \sa matrix(), setMatrix()
+*/
+void QPainter::resetMatrix()
+{
+    if (!isActive()) {
+        qWarning("QPainter::resetMatrix(), painter not active");
+        return;
+    }
+
+    d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
+    d->state->ww = d->state->vw = d->device->metric(QPaintDeviceMetrics::PdmWidth);
+    d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
+    d->state->worldMatrix = QMatrix();
+    setMatrixEnabled(false);
+    setViewXForm(false);
+    if (d->engine)
+        d->engine->setDirty(QPaintEngine::DirtyTransform);
+}
+
+
+/*!
+    Enables transformations if \a enable is true, or disables
     world transformations if \a enable is false. The world
     transformation matrix is not changed.
 
-    \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm(),
-    xForm()
+    \sa setMatrix(), matrix()
 */
 
-void QPainter::setWorldXForm(bool enable)
+void QPainter::setMatrixEnabled(bool enable)
 {
     if (!isActive()) {
         qWarning("QPainter::setWorldXForm(), painter not active");
@@ -1122,6 +969,22 @@ void QPainter::setWorldXForm(bool enable)
     updateXForm();
 }
 
+/*!
+    Returns true if world transformation is enabled; otherwise returns
+    false.
+
+    \sa setMatrixEnabled(), setMatrix()
+*/
+
+bool QPainter::matrixEnabled() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return d->state->WxF;
+#else
+    return d->state->xlatex || d->state->xlatey;
+#endif
+}
+
 #ifndef QT_NO_TRANSFORMATIONS
 /*!
     Scales the coordinate system by (\a{sx}, \a{sy}).
@@ -1134,7 +997,7 @@ void QPainter::scale(double sx, double sy)
 {
     QMatrix m;
     m.scale(sx, sy);
-    setWorldMatrix(m, true);
+    setMatrix(m, true);
 }
 
 /*!
@@ -1148,7 +1011,7 @@ void QPainter::shear(double sh, double sv)
 {
     QMatrix m;
     m.shear(sv, sh);
-    setWorldMatrix(m, true);
+    setMatrix(m, true);
 }
 
 /*!
@@ -1162,34 +1025,10 @@ void QPainter::rotate(double a)
 {
     QMatrix m;
     m.rotate(a);
-    setWorldMatrix(m, true);
+    setMatrix(m, true);
 }
 #endif
 
-/*!
-    Resets any transformations that were made using translate(), scale(),
-    shear(), rotate(), setWorldMatrix(), setViewport() and
-    setWindow().
-
-    \sa worldMatrix(), viewport(), window()
-*/
-
-void QPainter::resetXForm()
-{
-    if (!isActive()) {
-        qWarning("QPainter::resetXForm(), painter not active");
-        return;
-    }
-
-    d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
-    d->state->ww = d->state->vw = d->device->metric(QPaintDeviceMetrics::PdmWidth);
-    d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
-    d->state->worldMatrix = QMatrix();
-    setWorldXForm(false);
-    setViewXForm(false);
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyTransform);
-}
 
 /*!
     \fn void QPainter::translate(const QPoint &offset)
@@ -1224,32 +1063,13 @@ void QPainter::translate(double dx, double dy)
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix m;
     m.translate(dx, dy);
-    setWorldMatrix(m, true);
+    setMatrix(m, true);
 #else
     xlatex += (int)dx;
     xlatey += (int)dy;
     d->state->VxF = (bool)xlatex || xlatey;
 #endif
 }
-
-double QPainter::translationX() const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    return d->state->worldMatrix.dx();
-#else
-    return d->state->xlatex;
-#endif
-}
-
-double QPainter::translationY() const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    return d->state->worldMatrix.dy();
-#else
-    return d->state->xlatey;
-#endif
-}
-
 
 /*!
     Sets the clippath for the painter to \a path. If the painter
@@ -1333,7 +1153,7 @@ void QPainter::drawPath(const QPainterPath &path)
     save();
 
     // All path operations are transformed as they are...
-    resetXForm();
+    resetMatrix();
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
@@ -1403,7 +1223,7 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
 
     if ((d->state->WxF || d->state->VxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        d->engine->drawLine(xForm(p1), xForm(p2));
+        d->engine->drawLine(p1 * d->state->matrix, p2 * d->state->matrix);
         return;
     }
 
@@ -1496,7 +1316,7 @@ void QPainter::drawRect(const QRect &r)
 #endif // 0
             return;
         }
-        rect = xForm(rect);
+        rect = d->state->matrix.mapRect(rect);
     }
 
     if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
@@ -1578,7 +1398,7 @@ void QPainter::drawPoint(const QPoint &p)
 
     if ((d->state->VxF || d->state->WxF)
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        d->engine->drawPoint(xForm(p));
+        d->engine->drawPoint(p * d->state->matrix);
         return;
     }
 
@@ -1605,7 +1425,7 @@ void QPainter::drawPoints(const QPointArray &pa)
 
     QPointArray a = pa;
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        a = xForm(a);
+        a = a * d->state->matrix;
 
     d->engine->drawPoints(a);
 }
@@ -2102,7 +1922,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     QPointArray pa = a.mid(index, nlines * 2);
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa = xForm(pa);
+        pa = pa * d->state->matrix;
 
     d->engine->drawLineSegments(pa);
 }
@@ -2136,7 +1956,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     QPointArray pa = a.mid(index, npoints);
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa = xForm(pa);
+        pa = pa * d->state->matrix;
 
     d->engine->drawPolygon(pa, QPaintEngine::UnconnectedMode);
 }
@@ -2370,13 +2190,13 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         double scaley = h / (double)sh;
         mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
         mat = QPixmap::trueMatrix(mat, sw, sh);
-        QPixmap pmx = source.xForm(mat);
+        QPixmap pmx = source.transform(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
         if (!pmx.mask() && d->state->txop == TxRotShear) {
             QBitmap bm_clip(sw, sh, 1);        // make full mask, xform it
             bm_clip.fill(Qt::color1);
-            pmx.setMask(bm_clip.xForm(mat));
+            pmx.setMask(bm_clip.transform(mat));
         }
         map(x, y, &x, &y);        // compute position of pixmap
         int dx, dy;
@@ -2525,15 +2345,6 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     d->engine->updateState(d->state);
     d->engine->drawTextItem(p, ti, textFlags);
 }
-
-/*!
-    \fn void QPainter::map(int x, int y, int *rx, int *ry) const
-
-    \internal
-
-    Sets (\a{rx}, \a{ry}) to the point that results from applying the
-    painter's current transformation on the point (\a{x}, \a{y}).
-*/
 
 /*!
     \fn QRect QPainter::boundingRect(const QRect &r, int flags,
@@ -2859,6 +2670,258 @@ void QPainter::updateInvXForm()
 
 
 /*!
+    Sets the render hints supplied in \a hints. Several render hints
+    can be OR'ed together in \a hints.
+*/
+void QPainter::setRenderHints(RenderHint hints)
+{
+    if (!isActive()) {
+        qWarning("Painter must be active to set rendering hints");
+        return;
+    }
+
+    d->engine->setRenderHints(hints);
+}
+
+/*!
+    Clears the render hints supplied in \a hints. Several render hints
+    can be OR'ed together in \a hints.
+*/
+void QPainter::clearRenderHints(RenderHint hints)
+{
+    if (!isActive()) {
+        qWarning("Painter must be active to clear rendering hints");
+        return;
+    }
+    d->engine->clearRenderHints(hints);
+}
+
+/*!
+    Returns a flag that specifies the rendering hints that this
+    painter supports.
+*/
+QPainter::RenderHints QPainter::supportedRenderHints() const
+{
+    if (!isActive()) {
+        qWarning("Painter must be active to set rendering hints");
+        return 0;
+    }
+    return d->engine->supportedRenderHints();
+}
+
+/*!
+    Returns a flag that specifies the rendering hints that are set for
+    this painter.
+*/
+QPainter::RenderHints QPainter::renderHints() const
+{
+    if (!isActive()) {
+        qWarning("Painter must be active to set rendering hints");
+        return 0;
+    }
+    return d->engine->renderHints();
+}
+
+#ifdef QT_COMPAT
+
+/*!
+    Returns true if view transformation is enabled; otherwise returns
+    false.
+
+    \sa setViewXForm(), xForm()
+*/
+
+bool QPainter::hasViewXForm() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return d->state->VxF;
+#else
+    return d->state->xlatex || d->state->xlatey;
+#endif
+}
+
+/*!
+    \fn void QPainter::setWindow(const QRect &r)
+
+    \overload
+
+    Sets the painter's window to the rectangle \a r.
+*/
+
+/*!
+  \fn void QPainter::setWindow(int x, int y, int w, int h)
+
+    Sets the window rectangle view transformation for the painter and
+    enables view transformation.
+
+    The window rectangle is part of the view transformation. The
+    window specifies the logical coordinate system and is specified by
+    the \a x, \a y, \a w width and \a h height parameters. Its sister,
+    the viewport(), specifies the device coordinate system.
+
+    The default window rectangle is the same as the device's
+    rectangle. See the \link coordsys.html Coordinate System Overview
+    \endlink for an overview of coordinate transformation.
+
+    \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
+    setWorldXForm()
+*/
+
+void QPainter::setWindow_helper(const QRect &r)
+{
+    if (!isActive()) {
+        qWarning("QPainter::setWindow(), painter not active");
+        return;
+    }
+
+    // Must update clip before changing matrix.
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
+
+    d->state->wx = r.x();
+    d->state->wy = r.y();
+    d->state->ww = r.width();
+    d->state->wh = r.height();
+    if (d->state->VxF)
+        updateXForm();
+    else
+        setViewXForm(true);
+}
+
+/*!
+    Returns the window rectangle.
+
+    \sa setWindow(), setViewXForm()
+*/
+
+QRect QPainter::window() const
+{
+    return QRect(d->state->wx, d->state->wy, d->state->ww, d->state->wh);
+}
+
+/*!
+    \fn void QPainter::setViewport(const QRect &r)
+
+    \overload
+
+    Sets the painter's viewport rectangle to \a r.
+*/
+
+/*!
+  \fn void QPainter::setViewport(int x, int y, int w, int h)
+
+    Sets the viewport rectangle view transformation for the painter
+    and enables view transformation.
+
+    The viewport rectangle is part of the view transformation. The
+    viewport specifies the device coordinate system and is specified
+    by the \a x, \a y, \a w width and \a h height parameters. Its
+    sister, the window(), specifies the logical coordinate system.
+
+    The default viewport rectangle is the same as the device's
+    rectangle. See the \link coordsys.html Coordinate System Overview
+    \endlink for an overview of coordinate transformation.
+
+    \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
+    setWorldXForm(), xForm()
+*/
+
+void QPainter::setViewport_helper(const QRect &r)
+{
+    if (!isActive()) {
+        qWarning("QPainter::setViewport(), painter not active");
+        return;
+    }
+
+    // Must update clip before changing matrix.
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
+
+    d->state->vx = r.x();
+    d->state->vy = r.y();
+    d->state->vw = r.width();
+    d->state->vh = r.height();
+    if (d->state->VxF)
+        updateXForm();
+    else
+        setViewXForm(true);
+}
+
+/*!
+    Returns the viewport rectangle.
+
+    \sa setViewport(), setViewXForm()
+*/
+
+QRect QPainter::viewport() const
+{
+    return QRect(d->state->vx, d->state->vy, d->state->vw, d->state->vh);
+}
+
+/*!
+    Enables view transformations if \a enable is true, or disables
+    view transformations if \a enable is false.
+
+    \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
+    setWorldXForm(), xForm()
+*/
+
+void QPainter::setViewXForm(bool enable)
+{
+    if (!isActive()) {
+        qWarning("QPainter::setViewXForm(), painter not active");
+        return;
+    }
+    if (enable == d->state->VxF)
+        return;
+
+    // Must update clip before changing matrix.
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
+
+    d->state->VxF = enable;
+    updateXForm();
+}
+
+
+double QPainter::translationX() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return d->state->worldMatrix.dx();
+#else
+    return d->state->xlatex;
+#endif
+}
+
+double QPainter::translationY() const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    return d->state->worldMatrix.dy();
+#else
+    return d->state->xlatey;
+#endif
+}
+
+/*!
+    \fn void QPainter::map(int x, int y, int *rx, int *ry) const
+
+    \internal
+
+    Sets (\a{rx}, \a{ry}) to the point that results from applying the
+    painter's current transformation on the point (\a{x}, \a{y}).
+*/
+void QPainter::map(int x, int y, int *rx, int *ry) const
+{
+    QPoint p(x, y);
+    p = p * d->state->matrix;
+    *rx = p.x();
+    *ry = p.y();
+}
+
+/*!
     Returns the point \a p transformed from model coordinates to
     device coordinates.
 
@@ -2868,18 +2931,9 @@ void QPainter::updateInvXForm()
 QPoint QPainter::xForm(const QPoint &p) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    switch (d->state->txop) {
-    case TxNone:
+    if (d->state->txop == TxNone)
         return p;
-    case TxTranslate:
-        return QPoint(qRound(p.x() + d->state->matrix.dx()), qRound(p.y() + d->state->matrix.dy()));
-    case TxScale:
-        return QPoint(qRound(d->state->matrix.m11()*p.x() + d->state->matrix.dx()),
-                      qRound(d->state->matrix.m22()*p.y() + d->state->matrix.dy()));
-    default:
-        return QPoint(qRound(d->state->matrix.m11()*p.x() + d->state->matrix.m21()*p.y()+d->state->matrix.dx()),
-                      qRound(d->state->matrix.m12()*p.x() + d->state->matrix.m22()*p.y()+d->state->matrix.dy()));
-    }
+    return p * d->state->matrix;
 #else
     return QPoint(p.x() + d->state->xlatex, p.y() + d->state->xlatey);
 #endif
@@ -2901,23 +2955,9 @@ QPoint QPainter::xForm(const QPoint &p) const
 QRect QPainter::xForm(const QRect &r)        const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    switch (d->state->txop) {
-    case TxNone:
+    if (d->state->txop == TxNone)
         return r;
-    case TxTranslate: {
-        QRect rect(r);
-        rect.moveBy(qRound(d->state->matrix.dx()), qRound(d->state->matrix.dy()));
-        return rect;
-    }
-    case TxScale:
-        return QRect(qRound(d->state->matrix.m11()*r.x() + d->state->matrix.dx()),
-                     qRound(d->state->matrix.m22()*r.y() + d->state->matrix.dy()),
-                     qRound(d->state->matrix.m11()*r.width()),
-                     qRound(d->state->matrix.m22()*r.height()));
-    case TxRotShear:
-        return d->state->matrix.mapRect(r);
-    }
-    return r;
+    return d->state->matrix.mapRect(r);
 #else
     return QRect(r.x()+d->state->xlatex, r.y()+d->state->xlatey, r.width(), r.height());
 #endif
@@ -2999,8 +3039,7 @@ QPoint QPainter::xFormDev(const QPoint &p) const
         QPainter *that = (QPainter*)this;        // mutable
         that->updateInvXForm();
     }
-    return QPoint(qRound(d->invMatrix.m11()*p.x() + d->invMatrix.m21()*p.y() + d->invMatrix.dx()),
-                  qRound(d->invMatrix.m12()*p.x() + d->invMatrix.m22()*p.y() + d->invMatrix.dy()));
+    return p * d->invMatrix;
 #else
     return QPoint(p.x() - xlatex, p.y() - xlatey);
 #endif
@@ -3025,14 +3064,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
         QPainter *that = (QPainter*)this;        // mutable
         that->updateInvXForm();
     }
-    if (d->state->txop == TxRotShear) {                        // rotation/shear
-        return d->invMatrix.mapRect(r);
-    } else {
-        return QRect(qRound(d->invMatrix.m11()*r.x() + d->invMatrix.dx()),
-                     qRound(d->invMatrix.m22()*r.y() + d->invMatrix.dy()),
-                     qRound(d->invMatrix.m11()*r.width()),
-                     qRound(d->invMatrix.m22()*r.height()));
-    }
+    return d->invMatrix.mapRect(r);
 #else
     return QRect(r.x()-d->state->xlatex, r.y()-d->state->xlatey, r.width(), r.height());
 #endif
@@ -3107,60 +3139,6 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
 #endif
 }
 
-/*!
-    Sets the render hints supplied in \a hints. Several render hints
-    can be OR'ed together in \a hints.
-*/
-void QPainter::setRenderHints(RenderHint hints)
-{
-    if (!isActive()) {
-        qWarning("Painter must be active to set rendering hints");
-        return;
-    }
-
-    d->engine->setRenderHints(hints);
-}
-
-/*!
-    Clears the render hints supplied in \a hints. Several render hints
-    can be OR'ed together in \a hints.
-*/
-void QPainter::clearRenderHints(RenderHint hints)
-{
-    if (!isActive()) {
-        qWarning("Painter must be active to clear rendering hints");
-        return;
-    }
-    d->engine->clearRenderHints(hints);
-}
-
-/*!
-    Returns a flag that specifies the rendering hints that this
-    painter supports.
-*/
-QPainter::RenderHints QPainter::supportedRenderHints() const
-{
-    if (!isActive()) {
-        qWarning("Painter must be active to set rendering hints");
-        return 0;
-    }
-    return d->engine->supportedRenderHints();
-}
-
-/*!
-    Returns a flag that specifies the rendering hints that are set for
-    this painter.
-*/
-QPainter::RenderHints QPainter::renderHints() const
-{
-    if (!isActive()) {
-        qWarning("Painter must be active to set rendering hints");
-        return 0;
-    }
-    return d->engine->renderHints();
-}
-
-#ifdef QT_COMPAT
 /*!
   \fn void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 

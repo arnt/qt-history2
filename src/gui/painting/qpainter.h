@@ -98,24 +98,17 @@ class Q_GUI_EXPORT QPainter
     void setClipping(bool enable);
     bool hasClipping() const;
 
-    bool hasViewXForm() const;
-    bool hasWorldXForm() const;
 
     void save();
     void restore();
 
 #ifndef QT_NO_TRANSFORMATIONS
-    void setWorldMatrix(const QMatrix &wm, bool combine=false);
-    const QMatrix &worldMatrix() const;
-    void setWorldXForm(bool enable);
+    void setMatrix(const QMatrix &matrix, bool combine);
+    const QMatrix &matrix() const;
+    void resetMatrix();
 
-    void setViewXForm(bool enable);
-    QRect window() const;
-    void setWindow(const QRect &window);
-    void setWindow(int x, int y, int w, int h);
-    QRect viewport() const;
-    void setViewport(const QRect &viewport);
-    void setViewport(int x, int y, int w, int h);
+    void setMatrixEnabled(bool enabled);
+    bool matrixEnabled() const;
 
     void scale(double sx, double sy);
     void shear(double sh, double sv);
@@ -123,9 +116,6 @@ class Q_GUI_EXPORT QPainter
 #endif
     inline void translate(const QPoint &offset);
     void translate(double dx, double dy);
-    void resetXForm();
-    double translationX() const;
-    double translationY() const;
 
     // drawing functions
     void strokePath(const QPainterPath &path, const QPen &pen);
@@ -203,16 +193,6 @@ class Q_GUI_EXPORT QPainter
     inline void eraseRect(int x, int y, int w, int h);
     void eraseRect(const QRect &);
 
-    void map(int x, int y, int *rx, int *ry) const;
-    QPoint xForm(const QPoint &) const; // map virtual -> deviceb
-    QRect xForm(const QRect &) const;
-    QPointArray xForm(const QPointArray &) const;
-    QPointArray xForm(const QPointArray &, int index, int npoints) const;
-    QPoint xFormDev(const QPoint &) const; // map device -> virtual
-    QRect xFormDev(const QRect &) const;
-    QPointArray xFormDev(const QPointArray &) const;
-    QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
-
     void setRenderHints(RenderHint hints);
     void clearRenderHints(RenderHint hints);
     RenderHints supportedRenderHints() const;
@@ -255,6 +235,37 @@ class Q_GUI_EXPORT QPainter
         { setRedirected(pdev, replacement); }
     static inline QT_COMPAT QPaintDevice *redirect(QPaintDevice *pdev)
         { return const_cast<QPaintDevice*>(redirected(pdev)); }
+
+    inline QT_COMPAT void setWorldMatrix(const QMatrix &wm, bool combine=false) { setMatrix(wm, combine); }
+    inline QT_COMPAT const QMatrix &worldMatrix() const { return matrix(); }
+    inline QT_COMPAT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
+    inline QT_COMPAT bool hasWorldXForm() const { return matrixEnabled(); }
+    inline QT_COMPAT void resetXForm() { resetMatrix(); }
+
+    QT_COMPAT void map(int x, int y, int *rx, int *ry) const;
+    QT_COMPAT QPoint xForm(const QPoint &) const; // map virtual -> deviceb
+    QT_COMPAT QRect xForm(const QRect &) const;
+    QT_COMPAT QPointArray xForm(const QPointArray &) const;
+    QT_COMPAT QPointArray xForm(const QPointArray &, int index, int npoints) const;
+    QT_COMPAT QPoint xFormDev(const QPoint &) const; // map device -> virtual
+    QT_COMPAT QRect xFormDev(const QRect &) const;
+    QT_COMPAT QPointArray xFormDev(const QPointArray &) const;
+    QT_COMPAT QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
+    QT_COMPAT double translationX() const;
+    QT_COMPAT double translationY() const;
+
+    QT_COMPAT void setViewXForm(bool enable);
+    QT_COMPAT bool hasViewXForm() const;
+private:
+    void setWindow_helper(const QRect &r);
+    void setViewport_helper(const QRect &r);
+public:
+    QT_COMPAT QRect window() const;
+    inline QT_COMPAT void setWindow(const QRect &window) { setWindow_helper(window); }
+    inline QT_COMPAT void setWindow(int x, int y, int w, int h) { setWindow_helper(QRect(x, y, w, h)); }
+    QT_COMPAT QRect viewport() const;
+    inline QT_COMPAT void setViewport(const QRect &viewport) { setViewport_helper(viewport); }
+    inline QT_COMPAT void setViewport(int x, int y, int w, int h) { setViewport_helper(QRect(x, y, w, h)); }
 #endif
 
 private:
@@ -340,16 +351,6 @@ inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 inline void QPainter::setClipRect(int x, int y, int w, int h)
 {
     setClipRect(QRect(x, y, w, h));
-}
-
-inline void QPainter::setWindow(const QRect &r)
-{
-    setWindow(r.x(), r.y(), r.width(), r.height());
-}
-
-inline void QPainter::setViewport(const QRect &r)
-{
-    setViewport(r.x(), r.y(), r.width(), r.height());
 }
 
 inline void QPainter::eraseRect(int x, int y, int w, int h)
@@ -440,14 +441,6 @@ inline void QPainter::drawEdges(int x, int y, int w, int h, Qt::RectangleEdges e
 inline void QPainter::translate(const QPoint &offset)
 {
     translate(offset.x(), offset.y());
-}
-
-inline void QPainter::map(int x, int y, int *rx, int *ry) const
-{
-    QPoint p(x, y);
-    p = xForm(p);
-    *rx = p.x();
-    *ry = p.y();
 }
 
 #endif // #ifndef QPAINTER_H

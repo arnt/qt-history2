@@ -404,7 +404,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
         draw( paint.d->engine, 0, qRound(si.ascent/tmp), nsi, textFlags );
         paint.end();
         _scale = tmp;
-        QBitmap wx_bm( bm.xForm(mat2) ); // transform bitmap
+        QBitmap wx_bm( bm.transform(mat2) ); // transform bitmap
         if ( wx_bm.isNull() )
             return;
 

@@ -72,7 +72,7 @@ public:
     static QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QPixmap xForm(const QMatrix &) const;
+    QPixmap transform(const QMatrix &) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
 
@@ -141,6 +141,7 @@ public:
     QT_COMPAT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { return fromImage(img, flags); }
     inline QT_COMPAT operator QImage() const { return toImage(); }
+    inline QT_COMPAT QPixmap xForm(const QMatrix &matrix) const { return transform(matrix); }
 #elif defined (Q_WS_QWS)
     // Keep constructor on Qt/Embedded until we
     // have a better solution to pixmap resources

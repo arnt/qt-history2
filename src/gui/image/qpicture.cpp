@@ -440,7 +440,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QMatrix        matrix;
 #endif
 
-    QMatrix worldMatrix = painter->worldMatrix();
+    QMatrix worldMatrix = painter->matrix();
 
     while (nrecords-- && !s.eof()) {
         s >> c;                                        // read cmd
@@ -633,14 +633,14 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             case PdcSetWXform:
                 s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
-                painter->setWorldXForm(i_8);
+                painter->setMatrixEnabled(i_8);
 #endif
                 break;
             case PdcSetWMatrix:
 #ifndef QT_NO_TRANSFORMATIONS
                 s >> matrix >> i_8;
                 // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
-                painter->setWorldMatrix(worldMatrix * matrix, false);
+                painter->setMatrix(worldMatrix * matrix, false);
 #endif
                 break;
 #ifndef QT_NO_TRANSFORMATIONS
