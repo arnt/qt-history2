@@ -299,6 +299,39 @@ bool QKeySequence::isEmpty() const
 
 
 /*!
+    Returns the shortcut key sequence for the mnemonic in \a text,
+    or an empty key sequence if \a str has no mnemonics.
+
+    For example, mnemonic("E&amp;xit") returns ALT+Key_X,
+    mnemonic("&amp;Quit") returns ALT+Key_Q and mnemonic("Quit")
+    returns an empty QKeySequence. (In code that does not inherit
+    the Qt namespace class, you must write e.g. Qt::ALT+Qt::Key_Q.)
+
+    We provide a \link accelerators.html list of common mnemonics
+    \endlink in English. At the time of writing, Microsoft and Open
+    Group do not appear to have issued equivalent recommendations for
+    other languages.
+*/
+QKeySequence QKeySequence::mnemonic(const QString &text)
+{
+    int p = 0;
+    while (p >= 0) {
+        p = text.indexOf('&', p) + 1;
+        if (p <= 0 || p >= (int)text.length())
+            break;
+        if (text.at(p) != '&') {
+            QChar c = text.at(p);
+            if (c.isPrint()) {
+                c = c.toUpper();
+                return QKeySequence(c.unicode() + ALT);
+            }
+        }
+        p++;
+    }
+    return QKeySequence();
+}
+
+/*!
     Adds the string \a ks to the key sequence. \a ks may
     contain up to four key codes, provided they are seperated by a
     comma, e.g. "Alt+X,Ctrl+S,Z"). The return value is the number of

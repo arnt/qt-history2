@@ -47,6 +47,7 @@ public:
     uint count() const;
     bool isEmpty() const;
     Qt::SequenceMatch matches(const QKeySequence &seq) const;
+    static QKeySequence mnemonic(const QString &text);
 
     operator QString() const;
     operator int() const;

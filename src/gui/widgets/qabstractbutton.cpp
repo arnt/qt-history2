@@ -426,6 +426,11 @@ void QAbstractButton::setText(const QString &text)
     if (d->text == text)
         return;
     d->text = text;
+    QKeySequence newMnemonic = QKeySequence::mnemonic(text);
+    if (!newMnemonic.isEmpty()) {
+        releaseShortcut(d->shortcutId);
+        d->shortcutId = grabShortcut(newMnemonic);
+    }
     if (q->autoMask())
         q->updateMask();
     update();
@@ -469,10 +474,8 @@ void QAbstractButton::setShortcut(const QKeySequence &key)
 {
     if (d->shortcutId != 0)
         releaseShortcut(d->shortcutId);
-    d->shortcutId = 0;
     d->shortcut = key;
-    if (!key.isEmpty())
-        d->shortcutId = grabShortcut(key);
+    d->shortcutId = grabShortcut(key);
 }
 
 QKeySequence QAbstractButton::shortcut() const
