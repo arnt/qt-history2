@@ -16,6 +16,11 @@
 #define PI 3.14159
 #endif
 
+#if defined(Q_CC_MSVC)
+#pragma warning(disable:4305) // init: truncation from const double to float
+#pragma warning(disable:4244) // init: truncation from const double to float
+#endif
+
 GLLandscape::GLLandscape( QWidget * parent, const char * name )
     : QGLWidget( parent, name )
 {
