@@ -6197,6 +6197,8 @@ QString QWidget::whatsThis() const
 int QWidget::grabShortcut(const QKeySequence &key)
 {
     Q_ASSERT(qApp);
+    if (key.isEmpty())
+        return 0;
     setAttribute(WA_GrabbedShortcut);
     return qApp->d->shortcutMap.addShortcut(this, key);
 }
@@ -6207,7 +6209,8 @@ int QWidget::grabShortcut(const QKeySequence &key)
 void QWidget::releaseShortcut(int id)
 {
     Q_ASSERT(qApp);
-    qApp->d->shortcutMap.removeShortcut(this, id);
+    if (id)
+        qApp->d->shortcutMap.removeShortcut(this, id);
 }
 
 /*!
@@ -6216,5 +6219,6 @@ void QWidget::releaseShortcut(int id)
 void QWidget::setShortcutEnabled(int id, bool enable)
 {
     Q_ASSERT(qApp);
-    qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
+    if (id)
+        qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
 }
