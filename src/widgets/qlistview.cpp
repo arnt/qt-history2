@@ -1100,6 +1100,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
     if ( lv && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
+	lv->d->selectAnchor = lv->d->focusItem;
 	lv->repaintItem( lv->d->focusItem );
     }
 }
