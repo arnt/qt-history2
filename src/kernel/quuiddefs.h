@@ -6,6 +6,14 @@
 #include <memory.h>
 #endif // QT_H
 
+#ifndef Q_EXTERN_C
+#ifdef __cplusplus
+#define Q_EXTERN_C    extern "C"
+#else
+#define Q_EXTERN_C    extern
+#endif
+#endif
+
 struct Q_EXPORT QUuid
 {
     unsigned int   data1;
