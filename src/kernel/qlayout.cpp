@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#47 $
 **
 ** Implementation of layout classes
 **
@@ -258,7 +258,7 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
 	spacerCount -= 1; //only spacers between things
     if ( space < sumMin + spacerCount*spacer ) {
 	debug( QTime::currentTime().second() < 50 // ######################
-	       ? "QBasicManager: not enough space to go around" 
+	       ? "QBasicManager: not enough space to go around"
 	       : "QBasicManager: not enough fun left in that joke" );
 	for ( int i = 0; i < count; i++ )
 	    chain[i].size = chain[i].minSize;
@@ -691,10 +691,41 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   Returns the internal object name.
 */
 
+/*! 
+  \fn QMenuBar* QLayout::menuBar () const
+  Returns the menu bar set for this layout, or a null pointer if no
+  menu bar is set.
+ */
+
+
 
 /*!
-  Returns the main widget of this layout, or 0 if this layout is
-  a sub-layout which is not yet inserted.
+  \fn bool QLayout::isTopLevel () const
+  
+ */
+
+/*!
+  \fn const QRect& QLayout::geometry () 
+  
+ */
+
+
+/*!
+  \fn bool QLayout::removeWidget (QWidget *w ) 
+  This function is implemented in subclasses to remove \a w from geometry
+  management.
+ */
+
+
+/*!
+  \fn int QLayout::margin () const
+  returns the border width.
+ */
+
+
+/*!
+  Returns the main widget (parent widget) of this layout, or 0 if this
+  layout is a sub-layout which is not yet inserted.
 */
 
 QWidget * QLayout::mainWidget()
@@ -1154,12 +1185,17 @@ QSize QGridLayout::minSize()
 	s += QSize( 2*margin(), 2*margin() );
     return s;
 }
-
+/*!
+  Removes \a w from geometry management.
+ */
 bool QGridLayout::removeWidget( QWidget *w )
 {
     return array->removeWidget( w );
 }
 
+/*!
+  Resizes child widgets within the rectangle \a s.
+ */
 void QGridLayout::setGeometry( const QRect &s )
 {
     QLayout::setGeometry( s );
@@ -1348,15 +1384,6 @@ void QGridLayout::clearCache()
 }
 #endif
 
-/*!
-  \fn QChain *QGridLayout::mainVerticalChain()
-  This function returns the main vertical chain.
-*/
-
-/*!
-  \fn QChain *QGridLayout::mainHorizontalChain()
-  This function returns the main horizontal chain.
-*/
 
 
 /*!

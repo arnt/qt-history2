@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#284 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#285 $
 **
 ** Implementation of QWidget class
 **
@@ -2744,6 +2744,12 @@ QSize QWidget::sizeHint() const
     return QSize( -1, -1 );
 }
 
+/*!
+  \fn QLayout* QWidget::layout () const
+  Returns a pointer to the layout engine for this widget. (The layout
+  responsible for the geometry of this widget's children.)
+  Returns a null pointer if the widget does not have a layout.
+*/
 
 /*!
   \fn QWidget *QWidget::parentWidget() const
