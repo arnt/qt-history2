@@ -55,14 +55,14 @@
 #ifndef QT_H
 #include "qglobal.h"
 #ifdef QWS
-#include <qptrdict.h>
+#include "qptrdict.h"
 #else
-#include <qintdict.h>
+#include "qintdict.h"
 #endif
 #endif // QT_H
 
-#include <errno.h>
 #include <unistd.h>
+#include <errno.h>
 
 // Thread definitions for UNIX platforms
 
@@ -84,8 +84,7 @@
 #    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #  endif
 #elif defined(Q_OS_OSF)
-// Digital UNIX - 4.0 and later has a POSIX 1003.1c implementation
-//   - should we assume > 4.0?
+// Tru64 4.0 and later - POSIX 1003.1c implementation
 #  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  define Q_USE_PTHREAD_MUTEX_SETKIND
@@ -149,7 +148,13 @@ static QIntDict<QThread> *thrDict = 0;
 #endif
 
 
-extern "C" { static void * start_thread(void * t); }
+extern "C" {
+    static void *start_thread(void *t)
+    {
+	QThreadPrivate::internalRun( (QThread *) t );
+	return 0;
+    }
+}
 
 
 #if defined(Q_OS_SOLARIS)
@@ -160,7 +165,7 @@ extern "C" { static void * start_thread(void * t); }
 // Not really a surprise, usleep() is specified by XPG4v2 and XPG4v2 is only
 // supported by Solaris 2.6 and better.
 // So we are trying to detect Solaris 2.5.1 using macro _XOPEN_UNIX which is
-// defined by <unistd.h> when XPG4v2 is supported.
+// not defined by <unistd.h> when XPG4v2 is not supported.
 #if !defined(_XOPEN_UNIX)
 typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
@@ -1085,15 +1090,6 @@ public:
 
 
 #endif // defined(Q_OS_SOLARIS)
-
-
-extern "C" {
-    static void *start_thread(void *t)
-    {
-	QThreadPrivate::internalRun( (QThread *) t );
-	return 0;
-    }
-}
 
 
 #endif // QTHREAD_P_H
