@@ -40,8 +40,8 @@ public:
     const QString& style() const { return styl; }
     bool isTrue( const QString& condition ) const;
     bool isDef( const QString& symbol ) const;
-    bool processClass( const QString& className ) const;
-    bool serialComma() const { return serial; }
+    bool generateHtmlFile( const QString& fileName ) const;
+    bool serialComma() const { return FALSE; }
     bool isInternal() const { return internal; }
     bool autoHrefs() const { return autoh; }
     bool supervisor() const { return super; }
@@ -81,8 +81,7 @@ private:
     QString styl;
     QRegExp falsesym;
     QRegExp defsym;
-    QRegExp onlysym;
-    bool serial;
+    QRegExp onlyfn;
     bool internal;
     bool autoh;
     bool super;

@@ -808,7 +808,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += getEscape( yyIn, yyPos );
 		} else {
 		    yyOut += ch;
-		    if ( ch == '>' && yyIn.mid(yyPos - 6, 6) == QString("</pre>") )
+		    if ( ch == '>' &&
+			 yyIn.mid(yyPos - 6, 6) == QString("</pre>") )
 			break;
 		}
 	    }

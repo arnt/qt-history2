@@ -155,8 +155,8 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    if ( newX.length() == x.length() ) {
 		if ( localLinks && !mfunctions[c.key()].contains(x) ) {
 		    mfunctions[c.key()].insert( x, funique );
-		    QString aname 
-			= QString( "<a name=\"%1\"></a>" ).arg( funique );
+		    QString aname =
+			    QString( "<a name=\"%1\"></a>" ).arg( funique );
 		    t.insert( k, aname );
 		    funique++;
 		    k += aname.length();

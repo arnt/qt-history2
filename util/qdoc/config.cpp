@@ -93,8 +93,8 @@ Config::Config( int argc, char **argv )
     : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), modshort( "" ),
       modlong( "" ), co( "" ), vers( "" ), verssym( "" ), posth( "" ),
       foot( "" ), addr( "" ), styl( "" ), falsesym( QChar('0') ),
-      serial( FALSE ), internal( FALSE ), autoh( TRUE ), super( FALSE ),
-      dotHtml( ".html" ), membersDotHtml( "-members.html" )
+      internal( FALSE ), autoh( TRUE ), super( FALSE ), dotHtml( ".html" ),
+      membersDotHtml( "-members.html" )
 {
     QString confFilePath( "./qdoc.conf" );
     int i;
@@ -174,13 +174,11 @@ Config::Config( int argc, char **argv )
 	} else if ( key == QString("MODULESHORT") ) {
 	    modshort = val.join( QChar(' ') );
 	} else if ( key == QString("ONLY") ) {
-	    onlysym.setPattern( val.join(QChar('|')) );
+	    onlyfn.setPattern( val.join(QChar('|')) );
 	} else if ( key == QString("OUTPUTDIR") ) {
 	    outputdir = singleton( key, val );
 	} else if ( key == QString("POSTHEADER") ) {
 	    posth = val.join( QChar(' ') );
-	} else if ( key == QString("SERIALCOMMA") ) {
-	    serial = isYes( key, val );
 	} else if ( key == QString("SOURCEDIRS") ) {
 	    sourcedirs = val;
 	} else if ( key == QString("STYLE") ) {
@@ -243,11 +241,9 @@ Config::Config( int argc, char **argv )
 		    maxAll = 0;
 		maxAll += val.toInt();
 	    } else if ( opt == QString("--only") ) {
-		setPattern( &onlysym, val, plus );
+		setPattern( &onlyfn, val, plus );
 	    } else if ( opt == QString("--output-dir") ) {
 		outputdir = val;
-	    } else if ( opt == QString("--serial-comma") ) {
-		serial = isYes( val );
 	    } else if ( opt == QString("--supervisor") ) {
 		super = isYes( val );
 	    } else if ( opt == QString("--warning-level") ) {
@@ -276,7 +272,7 @@ Config::Config( int argc, char **argv )
 	    } else if ( opt.left(2) == QString("-M") ) {
 		maxAll = opt.mid( 2 ).toInt();
 	    } else if ( opt.left(2) == QString("-O") ) {
-		setPattern( &onlysym, opt.mid(2), TRUE );
+		setPattern( &onlyfn, opt.mid(2), TRUE );
 	    } else if ( opt == QString("-s") ) {
 		super = TRUE;
 	    } else if ( opt == QString("-S") ) {
@@ -284,7 +280,7 @@ Config::Config( int argc, char **argv )
 	    } else if ( QRegExp(QString("-W[0-4]")).match(opt) ) {
 		wlevel = opt[2].unicode() - QChar( '0' ).unicode();
 	    } else if ( opt == QString("-Wnone") ) {
-	        wlevel = -1;
+		wlevel = -1;
 	    } else if ( opt == QString("-Wall") ) {
 		wlevel = 4;
 		maxSim = 262144;
@@ -299,8 +295,12 @@ Config::Config( int argc, char **argv )
 	}
     }
 
-    if ( onlysym.pattern().isEmpty() || !onlysym.isValid() )
-	onlysym.setPattern( QString(".*") );
+    if ( onlyfn.pattern().isEmpty() || !onlyfn.isValid() )
+	onlyfn.setPattern( QString(".*") );
+
+    // the .html extension is optional
+    onlyfn.setPattern( QString("(?:") + onlyfn.pattern() +
+		       QString(")(?:\\.html)?") );
 
     setMaxSimilarMessages( maxSim );
     setMaxMessages( maxAll );
@@ -368,9 +368,9 @@ bool Config::isDef( const QString& symbol ) const
     return defsym.match( symbol );
 }
 
-bool Config::processClass( const QString& className ) const
+bool Config::generateHtmlFile( const QString& fileName ) const
 {
-    return onlysym.match( className );
+    return onlyfn.match( fileName );
 }
 
 bool Config::matchLine( QString *key, QStringList *val )
@@ -418,7 +418,7 @@ bool Config::matchLine( QString *key, QStringList *val )
 void Config::showHelp()
 {
     /*
-      We imitate gcc somewhat.
+      We imitate gcc more or less.
     */
     printf( "Usage: qdoc [options] [qdoc.conf]\n"
 	    "Long options:\n"
@@ -431,14 +431,12 @@ void Config::showHelp()
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
 	    "  --max-similar=<num>      Limit number of similar warnings [%d]\n"
 	    "  --max-warnings=<num>     Limit number of warnings [%d]\n"
-	    "  --only=<regexp>          Process only specified classes\n"
+	    "  --only=<regexp>          Generate only matching HTML files\n"
 	    "  --output-dir=<path>      Set output directory\n"
-	    "  --serial-comma=<yes|no>  Use serial comma in enumerations [%s]\n"
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(serial),
-	    toYN(super), wlevel );
+	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }
 
@@ -454,7 +452,7 @@ void Config::showHelpShort()
 	    "  -i vs. -I                Generate internal documentation [%s]\n"
 	    "  -m<num>                  Limit number of similar warnings [%d]\n"
 	    "  -M<num>                  Limit number of warnings [%d]\n"
-	    "  -O<regexp>               Process only specified classes\n"
+	    "  -O<regexp>               Generate only matching HTML files\n"
 	    "  -s vs. -S                Compare with previous run [%s]\n"
 	    "  -v                       Display version of qdoc\n"
 	    "  -W<num>                  Set warning level (0 to 4) [%d]\n"
@@ -467,6 +465,7 @@ void Config::showHelpShort()
 
 void Config::showVersion()
 {
-    printf( "qdoc version 1.93\n" );   // $\lim_{t\rightarrow\infty} V(t) = 2$
+    // $\lim_{t \rightarrow \infty} {\it qdoc\_version}(t) = 2$
+    printf( "qdoc version 1.94\n" );
     exit( EXIT_SUCCESS );
 }

@@ -105,8 +105,7 @@ void Steering::nailDownDocs()
     */
     QValueList<Decl *>::ConstIterator child = root.children().begin();
     while ( child != root.children().end() ) {
-	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 &&
-	     config->processClass((*child)->name()) ) {
+	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 ) {
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 
 	    /*
@@ -181,6 +180,8 @@ void Steering::nailDownDocs()
 
 void Steering::emitHtml() const
 {
+    QString htmlFileName;
+
     HtmlWriter::setStyle( config->style() );
     HtmlWriter::setPostHeader( config->postHeader() );
     HtmlWriter::setAddress( config->address() );
@@ -202,12 +203,14 @@ void Steering::emitHtml() const
     */
     StringSet::ConstIterator s = hlist.begin();
     while ( s != hlist.end() ) {
-	QString headerFilePath = config->findDepth( *s,
-						    config->includeDirList() );
-	if ( headerFilePath.isEmpty() )
-	    warning( 1, "Cannot find header file '%s'", (*s).latin1() );
-	else
-	    emitHtmlHeaderFile( headerFilePath, config->verbatimHref(*s) );
+	if ( config->generateHtmlFile(*s) ) {
+	    QString headerFilePath =
+		    config->findDepth( *s, config->includeDirList() );
+	    if ( headerFilePath.isEmpty() )
+		warning( 1, "Cannot find header file '%s'", (*s).latin1() );
+	    else
+		emitHtmlHeaderFile( headerFilePath, config->verbatimHref(*s) );
+	}
 	++s;
     }
 
@@ -217,13 +220,17 @@ void Steering::emitHtml() const
     */
     QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
     while ( ex != examples.end() ) {
-	HtmlWriter out( config->verbatimHref((*ex)->fileName()) );
-	if ( (*ex)->title().isEmpty() )
-	    out.setTitle( (*ex)->fileName() + QString(" Example File") );
-	else
-	    out.setTitle( (*ex)->title() );
-	out.setHeading( (*ex)->heading() );
-	(*ex)->printHtml( out );
+	htmlFileName = config->verbatimHref( (*ex)->fileName() );
+
+	if ( config->generateHtmlFile(htmlFileName) ) {
+	    HtmlWriter out( htmlFileName );
+	    if ( (*ex)->title().isEmpty() )
+		out.setTitle( (*ex)->fileName() + QString(" Example File") );
+	    else
+		out.setTitle( (*ex)->title() );
+	    out.setHeading( (*ex)->heading() );
+	    (*ex)->printHtml( out );
+	}
 	++ex;
     }
 
@@ -232,21 +239,19 @@ void Steering::emitHtml() const
     */
     QValueList<Decl *>::ConstIterator child = root.children().begin();
     while( child != root.children().end() ) {
-	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 &&
-	     config->processClass((*child)->name()) ) {
+	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 ) {
 	    ClassDecl *classDecl = (ClassDecl *) *child;
+	    htmlFileName = config->classRefHref( classDecl->name() );
 
-	    resolver.setCurrentClass( classDecl );
-	    HtmlWriter out( config->classRefHref(classDecl->name()) );
-	    classDecl->printHtmlLong( out );
+	    if ( config->generateHtmlFile(htmlFileName) ) {
+		resolver.setCurrentClass( classDecl );
+		HtmlWriter out( htmlFileName );
+		classDecl->printHtmlLong( out );
+	    }
 	}
 	++child;
     }
     resolver.setCurrentClass( (ClassDecl *) 0 );
-
-    // process the rest?
-    if ( !config->processClass(QString("")) )
-	return;
 
     QMap<QString, DefgroupDoc *>::ConstIterator def = groupdefs.begin();
     QMap<QString, QMap<QString, ClassDecl *> >::ConstIterator classes =
@@ -281,24 +286,28 @@ void Steering::emitHtml() const
 		  Bingo!  At this point *def is the doc and *classes is a QMap
 		  with class-name keys and ClassDecl * values.
 		*/
-		HtmlWriter out( config->defgroupHref((*def)->groupName()) );
-		out.setTitle( (*def)->title() );
-		out.setHeading( (*def)->heading() );
-		(*def)->printHtml( out );
-		out.enterFooter();
-		out.putsMeta( "<p>Classes:\n<ul>\n" );
+		htmlFileName = config->defgroupHref( (*def)->groupName() );
 
-		c = (*classes).begin();
-		while ( c != (*classes).end() ) {
-		    out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
-				    config->classRefHref((*c)->name()).latin1(),
-				    (*c)->name().latin1() );
-		    if ( !(*c)->whatsThis().isEmpty() )
-			out.printfMeta( "   (%s)\n",
-					(*c)->whatsThis().latin1() );
-		    ++c;
+		if ( config->generateHtmlFile(htmlFileName) ) {
+		    HtmlWriter out( htmlFileName );
+		    out.setTitle( (*def)->title() );
+		    out.setHeading( (*def)->heading() );
+		    (*def)->printHtml( out );
+		    out.enterFooter();
+		    out.putsMeta( "<p>Classes:\n<ul>\n" );
+
+		    c = (*classes).begin();
+		    while ( c != (*classes).end() ) {
+			QString link = config->classRefHref( (*c)->name() );
+			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
+					link.latin1(), (*c)->name().latin1() );
+			if ( !(*c)->whatsThis().isEmpty() )
+			    out.printfMeta( "   (%s)\n",
+					    (*c)->whatsThis().latin1() );
+			++c;
+		    }
+		    out.putsMeta( "</ul>\n" );
 		}
-		out.putsMeta( "</ul>\n" );
 		++def;
 		++classes;
 	    }
@@ -307,10 +316,14 @@ void Steering::emitHtml() const
 
     QValueList<PageDoc *>::ConstIterator pa = pages.begin();
     while ( pa != pages.end() ) {
-	HtmlWriter out( (*pa)->fileName() );
-	out.setTitle( (*pa)->title() );
-	out.setHeading( (*pa)->heading() );
-	(*pa)->printHtml( out );
+	htmlFileName = (*pa)->fileName();
+
+	if ( config->generateHtmlFile(htmlFileName) ) {
+	    HtmlWriter out( htmlFileName );
+	    out.setTitle( (*pa)->title() );
+	    out.setHeading( (*pa)->heading() );
+	    (*pa)->printHtml( out );
+	}
 	++pa;
     }
 

@@ -3399,7 +3399,8 @@ bool QRegExp::match( const QString& str )
 */
 bool QRegExp::match( const QString& str ) const
 {
-   return ( eng->match(str, 0, priv->min, TRUE)[0] == 0 );
+   return eng->match(str, 0, priv->min, TRUE)[0] == 0 &&
+	  eng->matchedLength() == (int) str.length();
 }
 
 /*! \obsolete

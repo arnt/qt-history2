@@ -56,7 +56,7 @@ static QString getBefore( const QString& terminator )
 	yyCh = EOF;
     }
     return t;
-} 
+}
 
 /*
   Skips until the terminator is met.  Parsing will resume after the terminator.

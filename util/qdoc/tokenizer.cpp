@@ -302,7 +302,7 @@ int Tokenizer::getToken()
 	    case '~':
 		yyCh = getChar();
 		return Tok_Tilde;
-	    default:		
+	    default:
 		warning( 2, yyTokLoc, "Hostile character 0%.2o in C++ source",
 			 yyCh );
 		yyCh = getChar();
