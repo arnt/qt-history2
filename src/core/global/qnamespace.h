@@ -306,6 +306,7 @@ public:
         WA_GrabbedShortcut,
         WA_TransparentForMouseEvents,
         WA_PaintUnclipped,
+        WA_SetWindowIcon,
 
         // Add new attributes above this!
         WA_AttributeCount

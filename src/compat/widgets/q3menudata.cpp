@@ -19,6 +19,7 @@
 #include "qapplication.h"
 #include "qpointer.h"
 #include "qsignal.h"
+#include "qpixmap.h"
 
 class Q3MenuItemData {
 public:

@@ -2847,17 +2847,27 @@ QString QWidget::windowTitle() const
     \brief the widget's icon
 
     This property only makes sense for top-level widgets. If no icon
-    has been set, windowIcon() returns a null pixmap.
+    has been set, windowIcon() returns the application icon.
 
     \sa windowIconText, windowTitle
     \link appicon.html Setting the Application Icon\endlink
 */
-QPixmap QWidget::windowIcon() const
+const QPixmap &QWidget::windowIcon() const
 {
     if (d->extra && d->extra->topextra && d->extra->topextra->icon)
         return *d->extra->topextra->icon;
-    return QPixmap();
+    return qApp->windowIcon();
 }
+
+void QWidget::setWindowIcon(const QPixmap &pixmap)
+{
+    bool isNull = pixmap.isNull();
+    setAttribute(Qt::WA_SetWindowIcon, isNull);
+    d->setWindowIcon_sys(isNull ? qApp->windowIcon() : pixmap);
+    QEvent e(QEvent::WindowIconChange);
+    QApplication::sendEvent(this, &e);
+}
+
 
 /*!
     \property QWidget::windowIconText
@@ -2899,6 +2909,7 @@ void QWidget::setWindowRole(const QString &role)
     Q_UNUSED(role)
 #endif
 }
+
 
 /*!
     \property QWidget::mouseTracking
@@ -3684,6 +3695,11 @@ void QWidget::show()
 {
     if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == Qt::WState_ExplicitShowHide)
         return;
+
+    if (isTopLevel()
+        && !testAttribute(Qt::WA_SetWindowIcon)
+        && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
+        d->setWindowIcon_sys(qApp->windowIcon());
 
     // polish if necessary
     ensurePolished();
@@ -4585,6 +4601,11 @@ bool QWidget::event(QEvent *e)
         QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
     }
+        break;
+
+    case QEvent::ApplicationWindowIconChange:
+        if (isTopLevel() && !testAttribute(Qt::WA_SetWindowIcon))
+            d->setWindowIcon_sys(qApp->windowIcon());
         break;
 
     case QEvent::FocusIn: {

@@ -333,6 +333,7 @@ QPalette *QApplication::app_pal               = 0;        // default application
 #endif
 QFont         *QApplication::app_font       = 0;        // default application font
 bool          qt_app_has_font               = false;
+QPixmap *QApplication::app_icon = 0;
 QWidget         *QApplication::main_widget    = 0;        // main application widget
 QWidget         *QApplication::focus_widget   = 0;        // has keyboard input focus
 QWidget         *QApplication::active_window  = 0;        // toplevel with keyboard focus
@@ -926,6 +927,8 @@ QApplication::~QApplication()
     delete app_style;
     app_style = 0;
 #endif
+    delete app_icon;
+    app_icon = 0;
 #ifndef QT_NO_CURSOR
     d->cursor_list.clear();
 #endif
@@ -1577,6 +1580,40 @@ void QApplication::setFont(const QFont &font, const char* className)
     }
 }
 
+/*!
+  Returns the default window icon.
+
+  \sa setWindowIcon()
+ */
+const QPixmap &QApplication::windowIcon()
+{
+    if (!app_icon)
+        app_icon = new QPixmap();
+    return *app_icon;
+}
+
+/*!
+  Sets the default window icon to \a pixmap.
+
+  \sa windowIcon()
+ */
+void QApplication::setWindowIcon(const QPixmap &pixmap)
+{
+    if (!app_icon)
+        app_icon = new QPixmap(pixmap);
+    else
+        *app_icon = pixmap;
+    if (is_app_running && !is_app_closing) {
+        QEvent e(QEvent::ApplicationWindowIconChange);
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+             it != QWidget::mapper->constEnd(); ++it) {
+            register QWidget *w = *it;
+            if (w->isTopLevel())
+                sendEvent(w, &e);
+        }
+    }
+}
+
 
 /*!
   Initialization of the appearance of the widget \a w \e before it is first
@@ -1604,8 +1641,6 @@ void QApplication::polish(QWidget *w)
 /*!
   Returns a list of the top level widgets in the application.
 
-  The list is created using \c new and must be deleted by the caller.
-
   The list is empty (QList::isEmpty()) if there are no top level
   widgets.
 
@@ -1615,21 +1650,13 @@ void QApplication::polish(QWidget *w)
   Example:
   \code
     // Show all hidden top level widgets.
-    QWidgetList         *list = QApplication::topLevelWidgets();
-    QWidgetListIt it(*list);        // iterate over the widgets
-    QWidget * w;
-    while ((w=it.current()) != 0) {        // for each top level widget...
-        ++it;
-        if (!w->isVisible())
+    foreach(QWidget *w, QApplication::topLevelWidgets()) {
+        if (w->isHidden())
             w->show();
     }
-    delete list;                // delete the list, not the widgets
   \endcode
 
-  \warning Delete the list as soon you have finished using it.
-  The widgets in the list may be deleted by someone else at any time.
-
-  \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
+  \sa allWidgets(), QWidget::isTopLevel(), QWidget::isHidden(),
       QList::isEmpty()
 */
 QWidgetList QApplication::topLevelWidgets()
@@ -1649,29 +1676,15 @@ QWidgetList QApplication::topLevelWidgets()
 /*!
   Returns a list of all the widgets in the application.
 
-  The list is created using \c new and must be deleted by the caller.
-
   The list is empty (QList::isEmpty()) if there are no widgets.
 
   Note that some of the widgets may be hidden.
 
   Example that updates all widgets:
   \code
-    QWidgetList         *list = QApplication::allWidgets();
-    QWidgetListIt it(*list);         // iterate over the widgets
-    QWidget * w;
-    while ((w=it.current()) != 0) {  // for each widget...
-        ++it;
+    foreach(QWidget *w, QApplication::allWidgets())
         w->update();
-    }
-    delete list;                      // delete the list, not the widgets
   \endcode
-
-  The QWidgetList class is defined in the \c qwidgetlist.h header
-  file.
-
-  \warning Delete the list as soon as you have finished using it.
-  The widgets in the list may be deleted by someone else at any time.
 
   \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(),
 */

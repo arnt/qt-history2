@@ -523,14 +523,11 @@ void QWidget::setWindowTitle(const QString &caption)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::setWindowIcon(const QPixmap &unscaledPixmap)
+void QWidget::setWindowIcon_sys(const QPixmap &unscaledPixmap)
 {
-    if (d->extra && d->extra->topextra) {
-        delete d->extra->topextra->icon;
-        d->extra->topextra->icon = 0;
-    } else {
-        d->createTLExtra();
-    }
+     QTLWExtra* x = d->topData();
+     delete x->icon;
+     x->icon = 0;
     QBitmap mask;
     if (unscaledPixmap.isNull()) {
     } else {
@@ -541,11 +538,9 @@ void QWidget::setWindowIcon(const QPixmap &unscaledPixmap)
 #else
         pixmap.convertFromImage(unscaledIcon);
 #endif
-        d->extra->topextra->icon = new QPixmap(pixmap);
+        x->icon = new QPixmap(pixmap);
         mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
-    QEvent e(QEvent::WindowIconChange);
-    QApplication::sendEvent(this, &e);
 }
 
 

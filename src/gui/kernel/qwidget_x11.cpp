@@ -1119,7 +1119,7 @@ void QWidget::setWindowTitle(const QString &caption)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::setWindowIcon(const QPixmap &pixmap)
+void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
 {
     if (d->extra && d->extra->topextra) {
         delete d->extra->topextra->icon;
@@ -1138,7 +1138,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
         if (pm->mask())
             mask_pixmap = pm->mask()->handle();
     }
-    XWMHints *h = XGetWMHints(d->xinfo->display(), winId());
+    XWMHints *h = XGetWMHints(d->xinfo->display(), q->winId());
     XWMHints  wm_hints;
     bool got_hints = h != 0;
     if (!got_hints) {
@@ -1148,11 +1148,9 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
     h->icon_pixmap = icon_pixmap;
     h->icon_mask = mask_pixmap;
     h->flags |= IconPixmapHint | IconMaskHint;
-    XSetWMHints(d->xinfo->display(), winId(), h);
+    XSetWMHints(d->xinfo->display(), q->winId(), h);
     if (got_hints)
         XFree((char *)h);
-    QEvent e(QEvent::WindowIconChange);
-    QApplication::sendEvent(this, &e);
 }
 
 void QWidget::setWindowIconText(const QString &iconText)

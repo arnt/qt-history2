@@ -1832,6 +1832,8 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 {
     main_widget = mainWidget;
     if (main_widget) {                        // give WM command line
+        if (windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
+            setWindowIcon(main_widget->windowIcon());
         if (mwTitle) {
             // XXX
         }

@@ -92,6 +92,10 @@ public:
     static void             setFont(const QFont &, const char* className = 0);
     static QFontMetrics fontMetrics();
 
+    static void setWindowIcon(const QPixmap &);
+    static const QPixmap &windowIcon();
+
+
     QWidget            *mainWidget()  const;
     virtual void     setMainWidget(QWidget *);
     virtual void     polish(QWidget *);
@@ -273,6 +277,7 @@ private:
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;
+    static QPixmap    *app_icon;
     static bool             obey_desktop_settings;
     static int             cursor_flash_time;
     static int             mouse_double_click_time;

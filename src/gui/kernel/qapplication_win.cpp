@@ -875,6 +875,8 @@ static void unregWinClasses()
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     main_widget = mainWidget;
+    if (main_widget && windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        setWindowIcon(main_widget->windowIcon());
 }
 
 #ifndef QT_NO_CURSOR

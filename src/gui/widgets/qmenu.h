@@ -23,6 +23,7 @@
 class QMenuPrivate;
 #ifdef QT_COMPAT
 class QMenuItem;
+#include <qpixmap.h>
 #endif
 
 class Q_GUI_EXPORT QMenu : public QWidget

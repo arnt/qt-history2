@@ -1196,7 +1196,7 @@ void QWidget::setWindowTitle(const QString &cap)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::setWindowIcon(const QPixmap &pixmap)
+void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
 {
      QTLWExtra* x = d->topData();
      delete x->icon;
@@ -1204,7 +1204,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
     if(!pixmap.isNull())
         x->icon = new QPixmap(pixmap);
     if(isTopLevel()) {
-        if(qApp && qApp->mainWidget() == this) {
+        if(qApp && qApp->mainWidget() == q) {
             if(pixmap.isNull()) {
                 RestoreApplicationDockTileImage();
             } else {
@@ -1215,12 +1215,10 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
             }
         }
         if(pixmap.isNull())
-            RemoveWindowProxy(qt_mac_window_for(this));
+            RemoveWindowProxy(qt_mac_window_for(q));
         else
-            SetWindowProxyIcon(qt_mac_window_for(this), qt_mac_create_iconref(pixmap));
+            SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(pixmap));
     }
-    QEvent e(QEvent::WindowIconChange);
-    QApplication::sendEvent(this, &e);
 }
 
 void QWidget::setWindowIconText(const QString &iconText)

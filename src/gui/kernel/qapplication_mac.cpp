@@ -972,6 +972,8 @@ extern QWidget * mac_keyboard_grabber;
 
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
+    if (main_widget && windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        setWindowIcon(main_widget->windowIcon());
     main_widget = mainWidget;
 }
 

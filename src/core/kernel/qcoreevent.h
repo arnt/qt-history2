@@ -46,6 +46,7 @@ public:
         Wheel = 31,                             // wheel event
         WindowTitleChange = 33,                 // window title changed
         WindowIconChange = 34,                  // icon changed
+        ApplicationWindowIconChange = 35,             // application icon changed
         ApplicationFontChange = 36,             // application font changed
         ApplicationPaletteChange = 38,          // application palette changed
         PaletteChange = 39,                     // widget palette changed

@@ -20,7 +20,6 @@
 #include "qobject.h"
 #include "qpaintdevice.h"
 #include "qpalette.h"
-#include "qpixmap.h" // ###remove me again when windowIcon returns const QPixmap&
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
@@ -58,6 +57,9 @@ class QDragLeaveEvent;
 class QDropEvent;
 class QShowEvent;
 class QHideEvent;
+#if defined(Q_WS_X11)
+class QX11Info;
+#endif
 
 class QWidgetData
 {
@@ -280,7 +282,7 @@ public:
     void setWindowTitle(const QString &);
     QString windowTitle() const;
     void setWindowIcon(const QPixmap &);
-    QPixmap windowIcon() const; // ### should be const QPixmap&, and QApplication::icon()
+    const QPixmap &windowIcon() const;
     void setWindowIconText(const QString &);
     QString windowIconText() const;
     void setWindowRole(const QString &);
