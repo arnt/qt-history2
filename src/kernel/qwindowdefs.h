@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of general window system dependent functions, types and
 ** constants
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -44,8 +44,6 @@
 #include "qstring.h"
 #include "qnamespace.h"
 #endif // QT_H
-
-#include <limits.h>
 
 // Class forward definitions
 

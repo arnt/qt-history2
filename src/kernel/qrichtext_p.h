@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of internal rich text classes
 **
 ** Created : 990124
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -73,7 +73,6 @@
 #include "qobject.h"
 #include "private/qcomplextext_p.h"
 #include "qapplication.h"
-#include <limits.h>
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
