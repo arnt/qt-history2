@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#279 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#280 $
 **
 ** Implementation of QListView widget class
 **
@@ -2118,13 +2118,13 @@ void QListView::setColumnAlignment( int column, int align )
 int QListView::columnAlignment( int column ) const
 {
     if ( column < 0 || !d->vci )
-	return AlignLeft;
+        return AlignLeft;
     QListViewPrivate::ViewColumnInfo * l = d->vci;
     while( column ) {
-	if ( !l->next )
-	    l->next = new QListViewPrivate::ViewColumnInfo;
-	l = l->next;
-	column--;
+        if ( !l->next )
+            l->next = new QListViewPrivate::ViewColumnInfo;
+        l = l->next;
+        column--;
     }
     return l ? l->align : AlignLeft;
 }
@@ -2188,8 +2188,9 @@ void QListView::updateGeometries()
 void QListView::handleSizeChange( int section, int os, int ns )
 {
     updateGeometries();
-    int left = d->h->cellPos( section ) - contentsX(); //d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
-    if ( columnAlignment( section ) == AlignLeft )
+
+    int left = d->h->cellPos( d->h->mapToActual( section ) ) - contentsX();
+    if ( columnAlignment( d->h->mapToActual( section ) ) == AlignLeft )
         left += QMIN( os, ns ) - 1 - ( ( hasFocus() || viewport()->hasFocus() ) ? 1 : 0 );
 
     viewport()->repaint( left, 0, visibleWidth() - left,
