@@ -229,7 +229,7 @@ void QStyleSheetItem::init()
     d->margin[2] = Undefined;
     d->margin[3] = Undefined;
     d->margin[4] = Undefined;
-    d->list = QStyleSheetItem::ListDisc;
+    d->list = (ListStyle) Undefined;
     d->whitespacemode = QStyleSheetItem::WhiteSpaceNormal;
     d->selfnest = TRUE;
     d->lineSpacing = Undefined;
@@ -1124,17 +1124,19 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+    style->setListStyle( QStyleSheetItem::ListDisc );
     style-> setMargin(QStyleSheetItem::MarginVertical, 8);
+    style->setMargin( QStyleSheetItem::MarginLeft, 40 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ol") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setListStyle( QStyleSheetItem::ListDecimal );
     style-> setMargin(QStyleSheetItem::MarginVertical, 8);
+    style->setMargin( QStyleSheetItem::MarginLeft, 40 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("li") );
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
     style->setSelfNesting( FALSE );
-    style->setContexts(QString::fromLatin1("ol ul"));
 
     style = new QStyleSheetItem( this, QString::fromLatin1("code") );
     style->setFontFamily( QString::fromLatin1("courier") );
@@ -1144,7 +1146,7 @@ void QStyleSheet::init()
 
     new QStyleSheetItem(this, QString::fromLatin1("img"));
     new QStyleSheetItem(this, QString::fromLatin1("hr"));
- 
+
     style = new QStyleSheetItem(this, QString::fromLatin1("sub"));
     style->setVerticalAlignment( QStyleSheetItem::VAlignSub );
     style = new QStyleSheetItem(this, QString::fromLatin1("sup"));

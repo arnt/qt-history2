@@ -1269,7 +1269,6 @@ public:
     virtual int topMargin() const;
     virtual int bottomMargin() const;
     virtual int leftMargin() const;
-    int leftMarginExtra() const; // space for labels in lists
     virtual int firstLineMargin() const;
     virtual int rightMargin() const;
     virtual int lineSpacing() const;

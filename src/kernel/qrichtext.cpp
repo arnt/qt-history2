@@ -1610,35 +1610,6 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     setRichTextInternal( text );
 }
 
-static QStyleSheetItem::ListStyle chooseListStyle( const QStyleSheetItem *nstyle,
-						   const QMap<QString, QString> &attr,
-						   QStyleSheetItem::ListStyle curListStyle )
-{
-    if ( nstyle->name() == "ol" || nstyle->name() == "ul" || nstyle->name() == "li") {
-	if ( nstyle->name() != "li" )
-	    curListStyle = nstyle->listStyle();
-	QString type = attr["type"];
-	if ( !type.isEmpty() ) {
-	    if ( type == "1" ) {
-		curListStyle = QStyleSheetItem::ListDecimal;
-	    } else if ( type == "a" ) {
-		curListStyle =  QStyleSheetItem::ListLowerAlpha;
-	    } else if ( type == "A" ) {
-		curListStyle = QStyleSheetItem::ListUpperAlpha;
-	    } else {
-		type = type.lower();
-		if ( type == "square" )
-		    curListStyle = QStyleSheetItem::ListSquare;
-		else if ( type == "disc" )
-		    curListStyle = QStyleSheetItem::ListDisc;
-		else if ( type == "circle" )
-		    curListStyle = QStyleSheetItem::ListCircle;
-	    }
-	}
-    }
-    return curListStyle;
-}
-
 void QTextDocument::setRichTextInternal( const QString &text )
 {
     QTextParag* curpar = lParag;
@@ -1684,11 +1655,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		
 		    /* special handling for p and li for HTML
-		    compatibility. We do not want to embed blocks p,
-		    and we do not want new blocks inside non-empty
+		    compatibility. We do not want to embed blocks in
+		    p, and we do not want new blocks inside non-empty
 		    lis. Plus we want to merge empty lis sometimes. */
 		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
-			
+
 			while ( curtag.style->name() == "p" ) {
 			    if ( tags.isEmpty() )
 				break;
@@ -1869,11 +1840,34 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
+		    
+		    if ( (int) nstyle->listStyle() != QStyleSheetItem::Undefined )
+			curtag.liststyle = nstyle->listStyle();
 
-		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock 
+		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 			 || nstyle->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			
-			curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
+			if ( nstyle->name() == "ol" || nstyle->name() == "ul" || nstyle->name() == "li") {
+			    QString type = attr["type"];
+			    if ( !type.isEmpty() ) {
+				if ( type == "1" ) {
+				    curtag.liststyle = QStyleSheetItem::ListDecimal;
+				} else if ( type == "a" ) {
+				    curtag.liststyle = QStyleSheetItem::ListLowerAlpha;
+				} else if ( type == "A" ) {
+				    curtag.liststyle = QStyleSheetItem::ListUpperAlpha;
+				} else {
+				    type = type.lower();
+				    if ( type == "square" )
+					curtag.liststyle = QStyleSheetItem::ListSquare;
+				    else if ( type == "disc" )
+					curtag.liststyle = QStyleSheetItem::ListDisc;
+				    else if ( type == "circle" )
+					curtag.liststyle = QStyleSheetItem::ListCircle;
+				}
+			    }
+			}
+			
 			
 			/* Internally we treat ordered and bullet
 			  lists the same for margin calculations. In
@@ -2128,11 +2122,14 @@ static inline bool list_is_ordered( int v ) {
 	   v == QStyleSheetItem::ListUpperAlpha;
 }
 
-static inline bool margin_compare( const QStyleSheetItem* style, const QStyleSheetItem* list, int listFactor,
+static inline int margin_compare( const QStyleSheetItem* style, const QStyleSheetItem* list, int listFactor,
 				   const QStyleSheetItem::Margin m, const  int i ) {
     int sm = style->margin(m);
     int lm = list ? list->margin( m )*listFactor : 0;
-    return i != ((sm<0)?0:sm) + ((lm<0)?0:lm);
+    
+    if ( i != ((sm<0)?0:sm) + ((lm<0)?0:lm) )
+	return i - lm;
+    return 0;
 }
 
 /* ### This function should go away. The engine should handle margins
@@ -2144,15 +2141,15 @@ static QString margin_to_string( QStyleSheetItem* style, QStyleSheetItem* list, 
 {
     if ( !style )
 	return QString::null;
-    QString s;
-    if ( margin_compare(style, list, listDepth, QStyleSheetItem::MarginLeft, p->leftMargin() ) )
-	s += QString(!!s?";":"") + "margin-left:" + QString::number( p->leftMargin() ) + "px";
-    if ( margin_compare(style, list, listDepth, QStyleSheetItem::MarginRight, p->rightMargin() ) )
-	s += QString(!!s?";":"") + "margin-right:" + QString::number( p->rightMargin() ) + "px";
-    if ( margin_compare(style, (listDepth==1&&listDepth>pastListDepth)?list:0, 1, QStyleSheetItem::MarginTop, p->topMargin() ) )
-	s += QString(!!s?";":"") + "margin-top:" + QString::number( p->topMargin() ) + "px";
-    if ( margin_compare(style, (listDepth==1&&listDepth>futureListDepth)?list:0, 1, QStyleSheetItem::MarginBottom, p->bottomMargin() ) )
-	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( p->bottomMargin() ) + "px";
+    QString s; int m;
+    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginLeft, p->leftMargin() ) ) )
+	s += QString(!!s?";":"") + "margin-left:" + QString::number( m ) + "px";
+    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginRight, p->rightMargin() ) ) )
+	s += QString(!!s?";":"") + "margin-right:" + QString::number( m ) + "px";
+    if ( (m = margin_compare(style, (listDepth>0&&pastListDepth==0)?list:0, 1, QStyleSheetItem::MarginTop, p->topMargin() ) ) )
+	s += QString(!!s?";":"") + "margin-top:" + QString::number( m ) + "px";
+    if ( (m = margin_compare(style, (listDepth>0&&futureListDepth==0)?list:0, 1, QStyleSheetItem::MarginBottom, p->bottomMargin() ) ) )
+	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( m ) + "px";
     if ( !!s )
 	return " style=" + s + "";
     return QString::null;
@@ -2169,8 +2166,8 @@ QString QTextDocument::richText( QTextParag *p ) const
     QStyleSheetItem* item_ul = styleSheet()->item("ul");
     QStyleSheetItem* item_ol = styleSheet()->item("ol");
     QStyleSheetItem* item_li = styleSheet()->item("li");
-    if ( !item_p || !item_ol || !item_li ) {
-	qWarning( "QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, ul, ol or li)" );
+    if ( !item_p || !item_ul || !item_ol || !item_li ) {
+	qWarning( "QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, ul, ol, or li)" );
 	return QString::null;
     }
     int pastListDepth = 0;
@@ -2184,8 +2181,8 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    listStyles.resize( QMAX( (int)listStyles.size(), listDepth+1 ) );
 	    QString list_type;
 	    listStyles[listDepth] = p->listStyle();
-	    if ( (list_is_ordered( p->listStyle() ) ? item_ol : item_ul )->listStyle() != p->listStyle() )
-		list_type = " type=\"" + list_style_to_string( p->listStyle() ) + "\"";
+	    if ( !list_is_ordered( p->listStyle() ) || item_ol->listStyle() != p->listStyle() )
+		list_type = " type=" + list_style_to_string( p->listStyle() );
 	    for ( int i = pastListDepth; i < listDepth; i++ ) {
 		s += list_is_ordered( p->listStyle() ) ? "<ol" : "<ul" ;
 		s += list_type + ">";
@@ -2205,9 +2202,10 @@ QString QTextDocument::richText( QTextParag *p ) const
 	if ( p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {//## this should be the question: listitem or not
 	    s += "<li";
 	    if ( p->listStyle() != listStyles[listDepth] )
-		s += " type=\"" + list_style_to_string( p->listStyle() ) + "\"";
+		s += " type=" + list_style_to_string( p->listStyle() );
 	    s +=align_to_string( p->alignment() );
-	    s += margin_to_string( item_li, item_ol, p, pastListDepth, listDepth, futureListDepth );
+	    s += margin_to_string( item_li, list_is_ordered( p->listStyle() ) ? item_ol : item_ul, p, 
+				   pastListDepth, listDepth, futureListDepth );
 	    s +=  list_value_to_string( p->listValue() );
 	    s += direction_to_string( p->direction() );
 	    s +=">";
@@ -5048,8 +5046,10 @@ void QTextParag::decDepth()
 
     if ( !numLists )
 	return;
-    if ( numLists == 1 )
-	return setList( FALSE);
+    if ( numLists == 1 ) {
+	setList( FALSE);
+	return;
+    }
 
     styleSheetItemsVec().remove( lastList );
     for ( i = lastList; i < (int)mStyleSheetItemsVec->size() - 1; ++i )
@@ -5070,8 +5070,8 @@ int QTextParag::listDepth() const
 	return 0;
     int numLists = 0;
     for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
-	QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
-	if ( item->name() == "ol" )
+	if ( (*mStyleSheetItemsVec)[ i ]->displayMode() == QStyleSheetItem::DisplayBlock
+	     && int((*mStyleSheetItemsVec)[ i ]->listStyle()) != QStyleSheetItem::Undefined )
 	    numLists++;
     }
     return numLists;
@@ -5290,13 +5290,6 @@ int QTextParag::leftMargin() const
 
     ( (QTextParag*)this )->lm = -m-2;
     return m;
-}
-
-int QTextParag::leftMarginExtra() const
-{
-    if ( int depth = listDepth() )
-	return depth * defFormat->width( '2' ) * 4;
-    return 0;	
 }
 
 int QTextParag::firstLineMargin() const
@@ -5708,7 +5701,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 {
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
-    int left = doc ? parag->leftMargin() + parag->leftMarginExtra() + doc->leftMargin() : 0;
+    int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int dw = parag->documentVisibleWidth() - ( doc ? doc->rightMargin() : 0 );
     int y = parag->prev() ? parag->topMargin() : 0;
@@ -5842,7 +5835,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
-    int left = doc ? parag->leftMargin() + + parag->leftMarginExtra() +doc->leftMargin() : 0;
+    int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int y = parag->prev() ? parag->topMargin() : 0;
     int h = y;
