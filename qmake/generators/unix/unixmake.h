@@ -54,7 +54,7 @@ class UnixMakefileGenerator : public MakefileGenerator
 
 public:
     UnixMakefileGenerator(QMakeProject *p);
-
+    ~UnixMakefileGenerator() { }
 
 };
 

@@ -348,6 +348,9 @@ UnixMakefileGenerator::init()
 							  project->variables()["TMAKE_LIBDIR_OPENGL"].first());
 	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_OPENGL"];
     }
+    if ( project->isActiveConfig("x11sm") ) {
+	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_X11SM"];
+    }
     if ( project->isActiveConfig("x11inc") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["TMAKE_INCDIR_X11"];
     }

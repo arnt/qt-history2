@@ -50,6 +50,7 @@ class QMakeProject
     bool doProjectTest(QString func, const QStringList &args);
 public:
     QMakeProject();
+    ~QMakeProject() { }
 
     bool read(const char *project);
     QString projectFile() { return pfile; }

@@ -53,7 +53,7 @@ class DspMakefileGenerator : public MakefileGenerator
 
 public:
     DspMakefileGenerator(QMakeProject *p);
-
+    ~DspMakefileGenerator() { }
 
 };
 

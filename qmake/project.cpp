@@ -161,7 +161,7 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 	line_count = 0;
 	while ( !t.eof() ) {
 	    line_count++;
-	    s += t.readLine();
+	    s += t.readLine().stripWhiteSpace();
 	    if(s.right(1) == "\\")
 		s.truncate(s.length() - 1);
 	    else {

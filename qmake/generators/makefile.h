@@ -72,6 +72,7 @@ protected:
 
 public:
     MakefileGenerator(QMakeProject *p);
+    virtual ~MakefileGenerator() { }
 
     bool write();
     QString makeFile() const { return mfile; }

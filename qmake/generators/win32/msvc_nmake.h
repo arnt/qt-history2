@@ -51,7 +51,7 @@ class NmakeMakefileGenerator : public MakefileGenerator
 
 public:
     NmakeMakefileGenerator(QMakeProject *p);
-
+    ~NmakeMakefileGenerator() { }
 
 };
 

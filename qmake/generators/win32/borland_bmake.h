@@ -52,6 +52,7 @@ class BorlandMakefileGenerator : public MakefileGenerator
 
 public:
     BorlandMakefileGenerator(QMakeProject *p);
+    ~BorlandMakefileGenerator() { }
 };
 
 #endif /* __BORLANDMAKE_H__ */
