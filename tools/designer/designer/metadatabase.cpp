@@ -434,12 +434,12 @@ void MetaDataBase::doConnections( QObject *o )
 
 	QStrList signalList = sender->metaObject()->signalNames( TRUE );
 	QStrList slotList = receiver->metaObject()->slotNames( TRUE );
-	
+
 	// avoid warnings
 	if ( signalList.find( conn.signal ) == -1 ||
 	     slotList.find( conn.slot ) == -1 )
 	    continue;
-	
+
 	QObject::connect( sender, s, receiver, s2 );
     }
 }
@@ -735,7 +735,7 @@ MetaDataBase::MetaInfo MetaDataBase::metaInfo( QObject *o )
 
 
 MetaDataBase::CustomWidget::CustomWidget()
-{	
+{
     className = "MyCustomWidget";
     includeFile = "mywidget.h";
     includePolicy = Local;
@@ -789,7 +789,7 @@ bool MetaDataBase::CustomWidget::operator==( const CustomWidget &w ) const
 {
     return className == w.className;
 }
-	
+
 MetaDataBase::CustomWidget &MetaDataBase::CustomWidget::operator=( const CustomWidget &w )
 {
     delete pixmap;
@@ -1006,7 +1006,7 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	    break;
 	}
     }
-		
+
     QString fName = function + "(";
     if ( ed.name != "<none>" ) {
 	for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it ) {
@@ -1050,23 +1050,19 @@ QString MetaDataBase::eventFunction( QObject *o, const QString &event )
     return *r->eventFunctions.find( event );
 }
 
-QString MetaDataBase::eventOfFunction( QObject *o, const QString &func )
+QMap<QString, QString> MetaDataBase::eventFunctions( QObject *o )
 {
     if ( !o )
-	return QString::null;
+	return QMap<QString, QString>();
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return QString::null;
+	return QMap<QString, QString>();
     }
 
-    for ( QMap<QString, QString>::Iterator it = r->eventFunctions.begin(); it != r->eventFunctions.end(); ++it ) {
-	if ( NormalizeObject::normalizeSignalSlot( *it ) == NormalizeObject::normalizeSignalSlot( func ) )
-	    return it.key();
-    }
-    return QString::null;
+    return r->eventFunctions;
 }
 
 void MetaDataBase::setEditor( bool b )

@@ -81,7 +81,7 @@ public:
 	bool hasSignal( const QCString &signal ) const;
 	bool hasSlot( const QCString &slot ) const;
 	bool hasProperty( const QCString &prop ) const;
-	
+
 	enum IncludePolicy { Global, Local };
 	QString className;
 	QString includeFile;
@@ -194,7 +194,7 @@ public:
     static QValueList<EventDescription> events( QObject *o );
     static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function );
     static QString eventFunction( QObject *o, const QString &event );
-    static QString eventOfFunction( QObject *o, const QString &func );
+    static QMap<QString, QString> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies );
     static QMap<QString, QString> functionBodies( QObject *o );
 

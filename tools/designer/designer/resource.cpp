@@ -801,6 +801,14 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "</property>" << endl;
     }
 
+    if ( MetaDataBase::hasEvents() ) {
+	QMap<QString, QString> eventFunctions = MetaDataBase::eventFunctions( w );
+	QMap<QString, QString>::ConstIterator it = eventFunctions.begin();
+	for ( ; it != eventFunctions.end(); ++it ) {
+	    ts << makeIndent( indent ) << "<event name=\"" << it.key() << "\" function=\"" << it.data() << "\" />\n";
+	}
+    }
+
     if ( w->isWidgetType() && MetaDataBase::fakeProperties( w ) ) {
 	QMap<QString, QVariant>* fakeProperties = MetaDataBase::fakeProperties( w );
 	for ( QMap<QString, QVariant>::Iterator fake = fakeProperties->begin();
@@ -994,9 +1002,9 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	uint i = 0;
 	ts << makeIndent( indent ) << "<stringlist>" << endl;
 	indent++;
-	if ( !lst.isEmpty() ) {	
+	if ( !lst.isEmpty() ) {
 	    for ( i = 0; i < lst.count(); ++i )
-		ts << makeIndent( indent ) << "<string>" << entitize( lst[ i ] ) << "</string>" << endl;		
+		ts << makeIndent( indent ) << "<string>" << entitize( lst[ i ] ) << "</string>" << endl;
 	}
 	indent--;
 	ts << makeIndent( indent ) << "</stringlist>" << endl;
@@ -1207,7 +1215,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	    table->setNumRows( table->numRows() + 1 );
 	else
 	    table->setNumCols( table->numCols() + 1 );
-	
+
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	bool hasPixmap = FALSE;
@@ -2105,9 +2113,6 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
     ++indent;
     for ( QMap<QString, QString>::Iterator it = functionBodies.begin(); it != functionBodies.end(); ++it ) {
 	ts << makeIndent( indent ) << "<function name=\"" << entitize( it.key() ) << "\" ";
-	QString event = MetaDataBase::eventOfFunction( formwindow, it.key() );
-	if ( !event.isEmpty() )
-	    ts << "event=\"" << entitize( event ) << "\"";
 	ts << ">" << entitize( *it ) << "</function>" << endl;
     }
     --indent;
