@@ -4024,7 +4024,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	QMouseEvent mre( QEvent::MouseButtonRelease, e->pos(), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
 	contentsMousePressEventEx( &mpe );
-	contentsMouseReleaseEvent( &mre );
+	contentsMouseReleaseEventEx( &mre );
 	d->context_menu = FALSE;
     }
 }
@@ -4032,6 +4032,11 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 /*! Processes the mouse move event \a e on behalf of the viewed widget.
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
+{
+    contentsMouseReleaseEventEx( e );
+}
+
+void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
 {
     if (e && (!d->context_menu) && (e->button() == RightButton))
 	return;

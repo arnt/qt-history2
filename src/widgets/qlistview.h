@@ -430,6 +430,7 @@ private slots:
 
 private:
     void contentsMousePressEventEx( QMouseEvent * e );
+    void contentsMouseReleaseEventEx( QMouseEvent * e );
     void init();
     void updateGeometries();
     void buildDrawableList() const;
