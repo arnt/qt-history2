@@ -927,7 +927,7 @@ void QToolButton::popupTimerDone()
         }
     }
     QPointer<QToolButton> that = this;
-    d->popup->exec(p, -1);
+    d->popup->exec(p);
     if (!that)
         return;
 
