@@ -92,12 +92,14 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root,
             case QVariant::Cursor:
                 p = new CursorProperty(value.toCursor(), pname);
                 break;
+#if 0 // ### disabled for now
             case QVariant::KeySequence:
                 p = new KeySequenceProperty(value.toKeySequence(), pname);
                 break;
             case QVariant::Palette:
                 p = new PaletteProperty(value.toPalette(), pname);
                 break;
+#endif
             default:
                 qWarning("property '%s' with type '%d' not supported yet!", pname.latin1(), value.type());
                 break;

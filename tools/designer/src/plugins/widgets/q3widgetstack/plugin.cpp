@@ -40,7 +40,6 @@ public:
 
     virtual void addWidget(QWidget *widget)
     {
-        qDebug() << "====> addWidget:" << widget;
         m_pages.append(widget);
         m_widget->addWidget(widget);
     }

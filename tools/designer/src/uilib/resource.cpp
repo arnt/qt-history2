@@ -277,12 +277,12 @@ QLayout *Resource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parent
     layoutInfo(ui_layout, parent, &margin, &spacing);
 
     if (margin != INT_MIN) {
-        qDebug() << "setMargin:" << margin;
+        // qDebug() << "setMargin:" << margin;
         lay->setMargin(margin);
     }
 
     if (spacing != INT_MIN) {
-        qDebug() << "setSpacing:" << spacing;
+        // qDebug() << "setSpacing:" << spacing;
         lay->setSpacing(spacing);
     }
 
