@@ -29,7 +29,7 @@
 #include "qvariant.h"
 #endif // QT_H
 
-struct QAccessibleInterface;
+class QAccessibleInterface;
 
 class Q_GUI_EXPORT QAccessible
 {
@@ -255,8 +255,9 @@ private:
     static RootObjectHandler rootObjectHandler;
 };
 
-struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible
+class Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 {
+public:
     // check for valid pointers
     virtual bool isValid() const = 0;
     virtual QObject *object() const = 0;

@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
-struct QAccessibleInterface;
+class QAccessibleInterface;
 
 struct Q_GUI_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFactoryInterface
 {
