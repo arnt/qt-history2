@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#103 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#104 $
 **
 ** Implementation of QMessageBox class
 **
@@ -404,17 +404,6 @@ static const char *mb_texts[] = {
 };
 
 
-/*!
-  This function simply returns the text "OK", translated with tr().
-  It is needed because some compilers do not understand tr("OK") as
-  a default argument.
-*/
-QString QMessageBoxOkText()
-{
-    return QMessageBox::tr(mb_texts[1]);
-}
-
-
 // Internal class - don't touch
 
 class QMessageBoxLabel : public QLabel
@@ -500,7 +489,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   \sa setCaption(), setText(), setIcon()
 */
 
-QMessageBox::QMessageBox( const QString& caption, const QString &text, Icon icon,
+QMessageBox::QMessageBox( const QString& caption,
+			  const QString &text, Icon icon,
 			  int button0, int button1, int button2,
 			  QWidget *parent, const char *name,
 			  bool modal, WFlags f )
@@ -955,7 +945,8 @@ int QMessageBox::message( const QString &caption,
 			  const char * )
 {
     return QMessageBox::information( parent, caption, text,
-	buttonText.isEmpty()?tr("OK"):buttonText ) == 0;
+				     buttonText.isEmpty()
+				     ? tr("OK") : buttonText ) == 0;
 }
 
 
@@ -975,7 +966,9 @@ bool QMessageBox::query( const QString &caption,
 			 QWidget *parent, const char * )
 {
     return QMessageBox::information( parent, caption, text,
-				     yesButtonText.isEmpty()?tr("OK"):yesButtonText, noButtonText ) == 0;
+				     yesButtonText.isEmpty()
+				     ? tr("OK") : yesButtonText,
+				     noButtonText ) == 0;
 }
 
 
@@ -1115,7 +1108,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 		    int escapeButtonNumber )
 {
     int b[3];
-    b[0] = button0Text.isEmpty() ? 0 : 1;
+    b[0] = 1;
     b[1] = button1Text.isEmpty() ? 0 : 2;
     b[2] = button2Text.isEmpty() ? 0 : 3;
 
@@ -1131,7 +1124,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 				       b[0], b[1], b[2],
 				       parent, "information" );
     CHECK_PTR( mb );
-    if ( b[0] )
+    if ( button0Text.isEmpty() )
+	mb->setButtonText( 1, mb_texts[ QMessageBox::Ok ] );
+    else
 	mb->setButtonText( 1, button0Text );
     if ( b[1] )
 	mb->setButtonText( 2, button1Text );
@@ -1309,14 +1304,6 @@ void QMessageBoxLabel::initMetaObject()
 }
 
 
-// My own personal favorite minimalist error message popped up whilst
-// testing Freehand 8 last month.  I took a screen shot.  I believe I
-// was trying to convert a file from one format to another.
-// Apparently, I...
-//
-// http://www.people.cornell.edu/pages/mlj8/cant.png
-
-
 /*!
   \reimp
 */
@@ -1326,3 +1313,11 @@ void QMessageBox::setIcon( const QPixmap &pix )
     //reimplemented to avoid compiler warning.
     QDialog::setIcon( pix );
 }
+
+
+// My own personal favorite minimalist error message popped up whilst
+// testing Freehand 8 last month.  I took a screen shot.  I believe I
+// was trying to convert a file from one format to another.
+// Apparently, I...
+//
+// http://www.people.cornell.edu/pages/mlj8/cant.png

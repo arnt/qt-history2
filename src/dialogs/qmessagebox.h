@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#50 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#51 $
 **
 ** Definition of QMessageBox class
 **
@@ -34,8 +34,6 @@ class  QLabel;
 class  QPushButton;
 struct QMBData;
 
-extern Q_EXPORT QString QMessageBoxOkText();
-
 class Q_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
@@ -58,7 +56,7 @@ public:
 			    int button0, int button1=0, int button2=0 );
     static int information( QWidget *parent, const QString &caption,
 			    const QString& text,
-			    const QString& button0Text = QMessageBoxOkText(),
+			    const QString& button0Text = QString::null,
 			    const QString& button1Text = QString::null,
 			    const QString& button2Text = QString::null,
 			    int defaultButtonNumber = 0,
@@ -69,7 +67,7 @@ public:
 			int button0, int button1, int button2=0 );
     static int warning( QWidget *parent, const QString &caption,
 			const QString& text,
-			const QString& button0Text = QMessageBoxOkText(),
+			const QString& button0Text = QString::null,
 			const QString& button1Text = QString::null,
 			const QString& button2Text = QString::null,
 			int defaultButtonNumber = 0,
@@ -80,7 +78,7 @@ public:
 			 int button0, int button1, int button2=0 );
     static int critical( QWidget *parent, const QString &caption,
 			 const QString& text,
-			 const QString& button0Text = QMessageBoxOkText(),
+			 const QString& button0Text = QString::null,
 			 const QString& button1Text = QString::null,
 			 const QString& button2Text = QString::null,
 			 int defaultButtonNumber = 0,
