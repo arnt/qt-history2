@@ -116,7 +116,7 @@ private:
 class MenuDelegate : public QAbstractItemDelegate
 {
 public:
-    MenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb) {}
+    MenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb), pal(QApplication::palette("QMenu")) {}
 
 protected:
     void paint(QPainter *painter,
@@ -139,8 +139,11 @@ private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
                                         const QModelIndex &index) const {
         QStyleOptionMenuItem menuOption;
-        menuOption.palette = option.palette;
+
+        menuOption.palette = QApplication::palette("QMenu");
         menuOption.state = QStyle::Style_None;
+        if (mCombo->topLevelWidget()->isActiveWindow())
+            menuOption.state = QStyle::Style_Active;
         if (option.state & QStyle::Style_Enabled)
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
@@ -161,6 +164,7 @@ private:
     }
 
     QComboBox *mCombo;
+    QPalette pal;
 };
 
 class QComboBoxPrivate: public QWidgetPrivate
