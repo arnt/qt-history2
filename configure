@@ -2682,6 +2682,13 @@ if [ "$CFG_IPV6" = "auto" ]; then
     fi
 fi
 
+# find if the platform provides getaddrinfo (ipv6 dns lookups)
+if $unixtests/getaddrinfo.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+    CFG_GETADDRINFO=no
+else
+    CFG_GETADDRINFO=yes
+fi
+
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" = "auto" ]; then
     if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
@@ -3349,6 +3356,7 @@ echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"
+echo "getaddrinfo support . $CFG_GETADDRINFO"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
