@@ -58,44 +58,42 @@
 
 /*!
   \class QTextBrowser qtextbrowser.h
-  \brief A rich text  browser with simple navigation.
+  \brief A rich text  browser with hypertext navigation.
   \ingroup advanced
   \ingroup helpsystem
 
-  This class is the same as the QTextView it inherits, with the
-  addition that it provides basic navigation features to follow links
-  in hypertext documents that link to other rich text documents. Although
-  QTextView allows setting its contents only with setText(),
-  QTextBrowser has an additional function, setSource(), which makes it
-  possible to set documents by name. These names are looked up in the
-  text view's mime source factory. If a document name ends with an
-  anchor (for example, "\c #anchor"), the text browser automatically
-  scrolls there (using scrollToAnchor()). When the user clicks on a
-  hyperlink, the browser will call setSource() itself, with the link's \c
-  href value as argument.
+  This class extends QTextView, adding some navigation functionality so
+  that users can follow links in hypertext documents. The contents of
+  QTextView is set with setText(), but QTextBrowser has an additional
+  function, setSource(), which makes it possible to set the text to a
+  named document. The name is looked up in the text view's mime source
+  factory. If a document name ends with an anchor (for example, "\c
+  #anchor"), the text browser automatically scrolls to that position
+  (using scrollToAnchor()). When the user clicks on a hyperlink, the
+  browser will call setSource() itself, with the link's \c href value as
+  argument.
 
-  QTextBrowser doesn't provide actual Back and Forward buttons, but it
-  has backward() and forward() slots that implement the
-  functionality. The home() slots bring it back to the very first
-  document displayed.
+  QTextBrowser provides backward() and forward() slots which you can use
+  to implement Back and Forward buttons. The home() slot sets the text
+  to the very first document displayed.
 
   By using QTextView::setMimeSourceFactory() you can provide your own
   subclass of QMimeSourceFactory. This makes it possible to access
-  data from anywhere, whether it be the network or a
+  data from anywhere, for example from a network or from a
   database. See QMimeSourceFactory::data() for details.
 
-  If you intend to use the mime factory to read the data directly from
+  If you intend using the mime factory to read the data directly from
   the file system, you may have to specify the encoding for the file
   extension you are using. For example:
   \code
   mimeSourceFactory()->setExtensionType("qml", "text/utf8");
   \endcode
-  Otherwise, the factory will not be able to resolve the document names.
+  This is to ensure that the factory is able to resolve the document names.
 
-  For simpler rich text use, see QLabel, QTextView or QSimpleRichText.
-
-  Also see QTextEdit, if you need an editor widget which supports
-  richtext formatting.
+    If you want to provide your users with editable rich text use
+    QTextEdit. If you want a text browser without hypertext navigation use
+    QTextView. If you just need to display a small piece of rich text
+    use QSimpleRichText or QLabel.
 
   <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
 */
@@ -135,22 +133,24 @@ QTextBrowser::~QTextBrowser()
 
 /*!  
   \property QTextBrowser::source
-  \brief the source of the currently displayed document. 
+  \brief the name of the currently displayed document. 
   
   This is a null string if no document is displayed or 
   the source is unknown.
 
-  Setting this property uses the mimeSourceFactory to lookup the provided document. 
-  It also checks for optional anchors and scrolls the document accordingly.
+  Setting this property uses the mimeSourceFactory to lookup the
+  named document. It also checks for optional anchors and scrolls the
+  document accordingly.
 
-  If the first tag in the document is \c &lt;qt \c type=detail&gt;, it is
-  displayed as a popup rather than as new document in the browser
-  window itself. Otherwise, the document is set normally via
-  setText(), with the provided name as new context.
+  If the first tag in the document is \c{<qt type=detail>}, the document
+  is displayed as a popup rather than as new document in the browser
+  window itself. Otherwise, the document is displayed normally in the
+  text browser with the text set to the contents of the named document
+  with setText(). 
 
   If you are using the filesystem access capabilities of the mime
-  source factory, you have to ensure that the factory knows about the
-  encoding of specified text files; otherwise no data will be
+  source factory, you must ensure that the factory knows about the
+  encoding of specified files; otherwise no data will be
   available. The default factory handles a couple of common file
   extensions such as \c *.html and \c *.txt with reasonable defaults. See
   QMimeSourceFactory::data() for details.
@@ -251,14 +251,14 @@ void QTextBrowser::setSource(const QString& name)
 
   This signal is emitted when the availability of the backward()
   changes.  It becomes available when the user navigates forward, and
-  unavailable when the user is at the home().
+  unavailable when the user is at home().
 */
 
 /*!  \fn void QTextBrowser::forwardAvailable(bool available)
 
   This signal is emitted when the availability of the forward() changes.
-  It becomes available after backward() is activated and unavailable when
-  the user navigates or goes forward() to the last navigated document.
+  It becomes available after the user navigates backward() and
+  unavailable when the user navigates or goes forward().
 */
 
 /*!  \fn void QTextBrowser::highlighted (const QString &href)
@@ -268,8 +268,18 @@ void QTextBrowser::setSource(const QString& name)
   link.
 */
 
-/*!  Changes the document displayed to be the previous document in the
-  list of documents build by navigating links.
+/*!
+    \fn void QTextBrowser::linkClicked( const QString& link)
+
+    This signal is emitted when the user clicks a link. The \a link is
+    the value of the \c href i.e. the name of the target document. 
+    
+*/
+
+
+/*!  Changes the document displayed to the previous document in the
+  list of documents built by navigating links. Does nothing if there is
+  no previous document.
 
   \sa forward(), backwardAvailable()
 */
@@ -282,8 +292,9 @@ void QTextBrowser::backward()
     emit forwardAvailable( TRUE );
 }
 
-/*!  Changes the document displayed to be the next document in the list of
-  documents built by navigating links.
+/*!  Changes the document displayed to the next document in the list of
+  documents built by navigating links. Does nothing if there is no next
+  document.
 
   \sa backward(), forwardAvailable()
 */
@@ -305,7 +316,12 @@ void QTextBrowser::home()
 }
 
 /*!
-  Adds backward and forward on Alt-Left and Alt-Right respectively.
+    The event \a e is used to provide the following keyboard shortcuts:
+    <ul>
+    <li><i>Alt+Left Arrow</i> - backward()
+    <li><i>Alt+Right Arrow</i> - forward()
+    <li><i>Alt+Up Arrow</i> - home()
+    </ul>
 */
 void QTextBrowser::keyPressEvent( QKeyEvent * e )
 {
