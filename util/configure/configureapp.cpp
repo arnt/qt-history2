@@ -8,6 +8,10 @@
 #include <iostream.h>
 #include <windows.h>
 
+// Macros to simplify options marking, and WinCE only code
+#define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
+#define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
+
 class MakeItem
 {
 public:
@@ -94,6 +98,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_SGI" ]	    = "yes";
     dictionary[ "STYLE_CDE" ]	    = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "no";
+    dictionary[ "STYLE_POCKETPC" ]  = "no";
 
     dictionary[ "SQL_MYSQL" ]	    = "no";
     dictionary[ "SQL_ODBC" ]	    = "no";
@@ -109,6 +114,27 @@ Configure::Configure( int& argc, char** argv )
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
     qmakeConfig += "nocrosscompiler";
+
+    WCE( {
+	// WinCE has different defaults than the desktop version
+	dictionary[ "QMAKE_INTERNAL" ]	= "no";
+	dictionary[ "BUILD_QMAKE" ]	= "no";
+	dictionary[ "ACCESSIBILITY" ]	= "no"; // < CE 4.0
+	dictionary[ "STL" ]		= "no"; // < CE 4.0
+	dictionary[ "OPENGL" ]		= "no"; // < CE 4.0
+	dictionary[ "STYLE_MOTIF" ]	= "no";
+	dictionary[ "STYLE_MOTIFPLUS" ] = "no";
+	dictionary[ "STYLE_PLATINUM" ]  = "no";
+	dictionary[ "STYLE_SGI" ]	= "no";
+	dictionary[ "STYLE_CDE" ]	= "no";
+	dictionary[ "STYLE_WINDOWSXP" ] = "no";
+	dictionary[ "STYLE_POCKETPC" ]	= "yes";
+
+	// Disabled modules for CE
+	disabledModules += "opengl";		// < CE 4.0
+	disabledModules += "sql";		// For now
+	disabledModules += "table";		// For now
+    } );
 
     readLicense();
 
@@ -131,11 +157,6 @@ void Configure::buildModulesList()
     if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
-    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" ) {
-	disabledModules += "opengl";
-	disabledModules += "sql";
-	disabledModules += "table";
-    }
     while( ( fi = listIter.current() ) ) {
 	if( licensedModules.findIndex( fi->fileName() ) != -1 )
 	    modules += fi->fileName();
@@ -293,6 +314,13 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_WINDOWSXP" ] = "plugin";
 	else if( (*args) == "-no-style-windowsxp" )
 	    dictionary[ "STYLE_WINDOWSXP" ] = "no";
+
+	else if( (*args) == "-qt-style-pocketpc" )
+	    dictionary[ "STYLE_POCKETPC" ] = "yes";
+	else if( (*args) == "-plugin-style-pocketpc" )
+	    dictionary[ "STYLE_POCKETPC" ] = "plugin";
+	else if( (*args) == "-no-style-pocketpc" )
+	    dictionary[ "STYLE_POCKETPC" ] = "no";
 
 	else if( (*args) == "-qt-sql-mysql" )
 	    dictionary[ "SQL_MYSQL" ] = "yes";
@@ -503,11 +531,6 @@ void Configure::parseCmdLine()
 
     }
 
-    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" ) {
-	dictionary[ "QMAKE_INTERNAL" ] = "no";
-	dictionary[ "ACCESSIBILITY" ] = "no";
-    }
-
     if( dictionary[ "QMAKESPEC" ].endsWith( "-msvc" ) ||
 	dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
 	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ) {
@@ -568,14 +591,14 @@ bool Configure::displayHelp()
 	cout << "Command line arguments:  (* indicates default behaviour)" << endl << endl;
 	cout << "-help                Bring up this help text." << endl << endl;
 
-	cout << "-debug               Enable debug information." << endl;
-	cout << "-release           * Disable debug information." << endl << endl;
+	cout << "-debug             " << MARK_OPTION(DEBUG,yes)	    << " Enable debug information." << endl;
+	cout << "-release           " << MARK_OPTION(DEBUG,no)	    << " Disable debug information." << endl << endl;
 
-	cout << "-shared            * Build Qt as a shared library." << endl;
-	cout << "-static              Build Qt as a static library." << endl << endl;
+	cout << "-shared            " << MARK_OPTION(SHARED,yes)    << " Build Qt as a shared library." << endl;
+	cout << "-static            " << MARK_OPTION(SHARED,no)	    << " Build Qt as a static library." << endl << endl;
 
-	cout << "-thread              Configure Qt with thread support." << endl;
-	cout << "-no-thread         * Configure Qt without thread support." << endl << endl;
+	cout << "-thread            " << MARK_OPTION(THREAD,yes)    << " Configure Qt with thread support." << endl;
+	cout << "-no-thread         " << MARK_OPTION(THREAD,no)	    << " Configure Qt without thread support." << endl << endl;
 
 	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig             Specify config, available configs:" << endl;
@@ -583,12 +606,12 @@ bool Configure::displayHelp()
 	    cout << "                         " << (*config).latin1() << endl;
 
 	cout << endl;
-	cout << "-qt-gif              Enable GIF support." << endl;
-	cout << "-no-gif            * Disable GIF support." << endl << endl;
+	cout << "-qt-gif            " << MARK_OPTION(GIF,yes)	    << " Enable GIF support." << endl;
+	cout << "-no-gif            " << MARK_OPTION(GIF,no)	    << " Disable GIF support." << endl << endl;
 
-	cout << "-no-zlib             Disable zlib.  Implies -no-png." << endl;
-	cout << "-qt-zlib           * Compile in zlib." << endl;
-	cout << "-system-zlib         Use existing zlib in system." << endl << endl;
+	cout << "-no-zlib           " << MARK_OPTION(ZLIB,no)	    << " Disable zlib.  Implies -no-png." << endl;
+	cout << "-qt-zlib           " << MARK_OPTION(ZLIB,yes)	    << " Compile in zlib." << endl;
+	cout << "-system-zlib       " << MARK_OPTION(ZLIB,system)   << " Use existing zlib in system." << endl << endl;
 
 	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to" << endl;
 	cout << "                        be linked to at runtime." << endl;
@@ -597,44 +620,45 @@ bool Configure::displayHelp()
 	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg, or mng)" << endl << endl;
 	cout << "                        from Qt." << endl;
 
-	cout << "-qt-png            * Use the libpng bundled with Qt." << endl;
-	cout << "-system-png          Use existing libPNG in system." << endl  << endl;
+	cout << "-qt-png            " << MARK_OPTION(LIBPNG,qt)	    << " Use the libpng bundled with Qt." << endl;
+	cout << "-system-png        " << MARK_OPTION(LIBPNG,system) << " Use existing libPNG in system." << endl  << endl;
 
-	cout << "-qt-mng            * Use the libmng bundled with Qt." << endl;
-	cout << "-system-mng          Use existing libMNG in system." << endl << endl;
+	cout << "-qt-mng            " << MARK_OPTION(LIBMNG,qt)	    << " Use the libmng bundled with Qt." << endl;
+	cout << "-system-mng        " << MARK_OPTION(LIBMNG,system) << " Use existing libMNG in system." << endl << endl;
 
-	cout << "-qt-jpeg           * Use the libjpeg bundled with Qt." << endl;
-	cout << "-system-jpeg         Use existing libJPEG in system" << endl << endl;
+	cout << "-qt-jpeg           " << MARK_OPTION(LIBJPEG,qt)    << " Use the libjpeg bundled with Qt." << endl;
+	cout << "-system-jpeg       " << MARK_OPTION(LIBJPEG,system)<< " Use existing libJPEG in system" << endl << endl;
 
-	cout << "-stl               * Enable STL support." << endl;
-	cout << "-no-stl              Disable STL support." << endl  << endl;
+	cout << "-stl               " << MARK_OPTION(STL,yes)	    << " Enable STL support." << endl;
+	cout << "-no-stl            " << MARK_OPTION(STL,no)	    << " Disable STL support." << endl  << endl;
 
-	cout << "-qwinexport          Enable additional and centralized template exports." << endl;
-	cout << "-no-qwinexport     * Disable additional template exports." << endl  << endl;
+	cout << "-qwinexport        " << MARK_OPTION(QWINEXPORT,yes)<< " Enable additional and centralized template exports." << endl;
+	cout << "-no-qwinexport     " << MARK_OPTION(QWINEXPORT,no) << " Disable additional template exports." << endl  << endl;
 
-	cout << "-exceptions          Enable C++ exception support." << endl;
-	cout << "-no-exceptions     * Disable C++ exception support." << endl  << endl;
+	cout << "-exceptions        " << MARK_OPTION(EXCEPTIONS,yes)<< " Enable C++ exception support." << endl;
+	cout << "-no-exceptions     " << MARK_OPTION(EXCEPTIONS,no) << " Disable C++ exception support." << endl  << endl;
 
-	cout << "-rtti                Enable runtime type information." << endl;
-	cout << "-no-rtti           * Disable runtime type information." << endl  << endl;
+	cout << "-rtti              " << MARK_OPTION(RTTI,yes)	    << " Enable runtime type information." << endl;
+	cout << "-no-rtti           " << MARK_OPTION(RTTI,no)	    << " Disable runtime type information." << endl  << endl;
 
-	cout << "-accessibility     * Enable Windows Active Accessibility." << endl;
-	cout << "-no-accessibility    Disable Windows Active Accessibility." << endl  << endl;
+	cout << "-accessibility     " << MARK_OPTION(ACCESSIBILITY,yes) << " Enable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility  " << MARK_OPTION(ACCESSIBILITY,no)  << " Disable Windows Active Accessibility." << endl  << endl;
 
-	cout << "-tablet              Enable tablet support." << endl;
-	cout << "-no-tablet         * Disable tablet support." << endl  << endl;
+	cout << "-tablet            " << MARK_OPTION(TABLET,yes)    << " Enable tablet support." << endl;
+	cout << "-no-tablet         " << MARK_OPTION(TABLET,no)	    << " Disable tablet support." << endl  << endl;
 
-	cout << "-big-codecs        * Enable the building of big codecs." << endl;
-	cout << "-no-big-codecs       Disable the building of big codecs." << endl << endl;
+	cout << "-big-codecs        " << MARK_OPTION(BIG_CODECS,yes)<< " Enable the building of big codecs." << endl;
+	cout << "-no-big-codecs     " << MARK_OPTION(BIG_CODECS,no) << " Disable the building of big codecs." << endl << endl;
 
-	cout << "-no-dsp              Disable the generation of VC++ .DSP-files." << endl;
-	cout << "-dsp               * Enable the generation of VC++ .DSP-files." << endl << endl;
+	cout << "-no-dsp            " << MARK_OPTION(DSPFILES,yes)  << " Disable the generation of VC++ .DSP-files." << endl;
+	cout << "-dsp               " << MARK_OPTION(DSPFILES,no)   << " Enable the generation of VC++ .DSP-files." << endl << endl;
 
-	cout << "-no-vcp              Disable the generation of eMbedded VC++ .VCP-files." << endl;
-	cout << "-vcp               * Enable the generation of eMbedded VC++ .VCP-files." << endl << endl;
+	// Only show the VCP generation options for CE users for now
+WCE( {	cout << "-no-vcp            " << MARK_OPTION(VCPFILES,yes)  << " Disable the generation of eMbedded VC++ .VCP-files." << endl;
+	cout << "-vcp               " << MARK_OPTION(VCPFILES,no)   << " Enable the generation of eMbedded VC++ .VCP-files." << endl << endl; } );
 
-	cout << "-no-vcproj           Disable the generation of VC++ .VCPROJ-files." << endl;
-	cout << "-vcproj            * Enable the generation of VC++ .VCPROJ-files." << endl << endl;
+	cout << "-no-vcproj         " <<MARK_OPTION(VCPROJFILES,yes)<< " Disable the generation of VC++ .VCPROJ-files." << endl;
+	cout << "-vcproj            " <<MARK_OPTION(VCPROJFILES,no) << " Enable the generation of VC++ .VCPROJ-files." << endl << endl;
 
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
@@ -665,6 +689,8 @@ bool Configure::displayHelp()
 	cout << "-plugin-style-*      Build the specified style into a plugin" << endl;
 	cout << "-no-style-*          Don't build the specified style" << endl;
 	cout << "                     where style is one of" << endl;
+	// Only show the PocketPC style option for CE users
+WCE( {	cout << "                         pocketpc" << endl; } );
 	cout << "                         windows" << endl;
 	cout << "                         windowsxp" << endl;
 	cout << "                         motif" << endl;
@@ -679,7 +705,7 @@ bool Configure::displayHelp()
 	cout << "-plugindir <plugins> Install Qt plugins to <plugins>, default <prefix>/plugins." << endl;
 	cout << "-datadir <data>      Data used by Qt programs will be installed to <data>." << endl;
 	cout << "                     Default <prefix>." << endl;
-	cout << "-libdir <libs>	      Install Qt libraries to <libs>, default <prefix>/lib." << endl;
+	cout << "-libdir <libs>       Install Qt libraries to <libs>, default <prefix>/lib." << endl;
 	cout << "-bindir <bins>       Install Qt binaries to <bins>, default <prefix>/bin." << endl << endl;
 
 	cout << "-redo                Run configure with the same parameters as last time." << endl;
@@ -799,6 +825,11 @@ void Configure::generateOutputVars()
 	qmakeStyles += "sgi";
     else if ( dictionary[ "STYLE_SGI" ] == "plugin" )
 	qmakeStylePlugins += "sgi";
+
+    if ( dictionary[ "STYLE_POCKETPC" ] == "yes" )
+	qmakeStyles += "pocketpc";
+    else if ( dictionary[ "STYLE_POCKETPC" ] == "plugin" )
+	qmakeStylePlugins += "pocketpc";
 
     if ( dictionary[ "STYLE_CDE" ] == "yes" )
 	qmakeStyles += "cde";
@@ -1160,6 +1191,8 @@ void Configure::displayConfig()
     cout << "MotifPlus..................." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
     cout << "CDE........................." << dictionary[ "STYLE_CDE" ] << endl;
     cout << "SGI........................." << dictionary[ "STYLE_SGI" ] << endl << endl;
+    // Only show the PocketPC style option for CE users
+WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] << endl << endl; } );
 
     cout << "Sql Drivers:" << endl;
     cout << "ODBC........................" << dictionary[ "SQL_ODBC" ] << endl;
