@@ -42,13 +42,13 @@
 #endif
 
 #ifndef LLONG_MAX
-#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#define LLONG_MAX qint64_C(9223372036854775807)
 #endif
 #ifndef LLONG_MIN
-#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#define LLONG_MIN (-LLONG_MAX - qint64_C(1))
 #endif
 #ifndef ULLONG_MAX
-#define ULLONG_MAX Q_UINT64_C(18446744073709551615)
+#define ULLONG_MAX quint64_C(18446744073709551615)
 #endif
 
 
@@ -4306,13 +4306,13 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
         switch (*c) {
             case 'd':
             case 'i': {
-                Q_LONGLONG i;
+                qint64 i;
                 switch (length_mod) {
                     case lm_none: i = va_arg(ap, int); break;
                     case lm_hh: i = va_arg(ap, int); break;
                     case lm_h: i = va_arg(ap, int); break;
                     case lm_l: i = va_arg(ap, long int); break;
-                    case lm_ll: i = va_arg(ap, Q_LONGLONG); break;
+                    case lm_ll: i = va_arg(ap, qint64); break;
                     case lm_j: i = va_arg(ap, long int); break;
                     case lm_z: i = va_arg(ap, size_t); break;
                     case lm_t: i = va_arg(ap, int); break;
@@ -4326,13 +4326,13 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
             case 'u':
             case 'x':
             case 'X': {
-                Q_ULONGLONG u;
+                quint64 u;
                 switch (length_mod) {
                     case lm_none: u = va_arg(ap, uint); break;
                     case lm_hh: u = va_arg(ap, uint); break;
                     case lm_h: u = va_arg(ap, uint); break;
                     case lm_l: u = va_arg(ap, ulong); break;
-                    case lm_ll: u = va_arg(ap, Q_ULONGLONG); break;
+                    case lm_ll: u = va_arg(ap, quint64); break;
                     default: u = 0; break;
                 }
 
@@ -4405,12 +4405,7 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
                 break;
             }
             case 'p': {
-                Q_ULONGLONG i;
-#ifdef Q_OS_WIN64
-                i = (Q_ULONGLONG) va_arg(ap, void*);
-#else
-                i = (Q_ULONG) va_arg(ap, void*);
-#endif
+                quint64 i = (quint64) va_arg(ap, void*);
                 flags |= QLocalePrivate::Alternate;
                 subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
                 ++c;
@@ -4434,7 +4429,7 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
                         break;
                     }
                     case lm_ll: {
-                        Q_LONGLONG *n = va_arg(ap, Q_LONGLONG*);
+                        qint64 *n = va_arg(ap, qint64*);
                         volatile uint tmp = result.length(); // egcs-2.91.66 gets internal
                         *n = tmp;                             // compiler error without volatile
                         break;
@@ -4488,14 +4483,14 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
     \code
         QString str = "FF";
         bool ok;
-        Q_LONGLONG hex = str.toLongLong(&ok, 16);      // hex == 255, ok == true
-        Q_LONGLONG dec = str.toLongLong(&ok, 10);      // dec == 0, ok == false
+        qint64 hex = str.toLongLong(&ok, 16);      // hex == 255, ok == true
+        qint64 dec = str.toLongLong(&ok, 10);      // dec == 0, ok == false
     \endcode
 
     \sa number(), toULongLong(), toInt()
 */
 
-Q_LONGLONG QString::toLongLong(bool *ok, int base) const
+qint64 QString::toLongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -4506,7 +4501,7 @@ Q_LONGLONG QString::toLongLong(bool *ok, int base) const
 
     bool my_ok;
     QLocale def_locale;
-    Q_LONGLONG result = def_locale.d->stringToLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
+    qint64 result = def_locale.d->stringToLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
     if (my_ok) {
         if (ok != 0)
             *ok = true;
@@ -4547,14 +4542,14 @@ Q_LONGLONG QString::toLongLong(bool *ok, int base) const
     \code
         QString str = "FF";
         bool ok;
-        Q_ULONGLONG hex = str.toULongLong(&ok, 16);    // hex == 255, ok == true
-        Q_ULONGLONG dec = str.toULongLong(&ok, 10);    // dec == 0, ok == false
+        quint64 hex = str.toULongLong(&ok, 16);    // hex == 255, ok == true
+        quint64 dec = str.toULongLong(&ok, 10);    // dec == 0, ok == false
     \endcode
 
     \sa number(), toLongLong()
 */
 
-Q_ULONGLONG QString::toULongLong(bool *ok, int base) const
+quint64 QString::toULongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -4565,7 +4560,7 @@ Q_ULONGLONG QString::toULongLong(bool *ok, int base) const
 
     bool my_ok;
     QLocale def_locale;
-    Q_ULONGLONG result = def_locale.d->stringToUnsLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
+    quint64 result = def_locale.d->stringToUnsLongLong(*this, base, &my_ok, QLocalePrivate::FailOnGroupSeparators);
     if (my_ok) {
         if (ok != 0)
             *ok = true;
@@ -4584,6 +4579,8 @@ Q_ULONGLONG QString::toULongLong(bool *ok, int base) const
 }
 
 /*!
+  \fn long QString::toLong(bool *ok, int base) const
+
     Returns the string converted to a \c long using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
@@ -4613,18 +4610,9 @@ Q_ULONGLONG QString::toULongLong(bool *ok, int base) const
     \sa number(), toULong(), toInt()
 */
 
-long QString::toLong(bool *ok, int base) const
-{
-    Q_LONGLONG v = toLongLong(ok, base);
-    if (v < LONG_MIN || v > LONG_MAX) {
-        if (ok)
-            *ok = false;
-        v = 0;
-    }
-    return long(v);
-}
-
 /*!
+  \fn ulong QString::toULong(bool *ok, int base) const
+
     Returns the string converted to an \c{unsigned long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
@@ -4652,17 +4640,6 @@ long QString::toLong(bool *ok, int base) const
 
     \sa number()
 */
-
-ulong QString::toULong(bool *ok, int base) const
-{
-    Q_ULONGLONG v = toULongLong(ok, base);
-    if (v > ULONG_MAX) {
-        if (ok)
-            *ok = false;
-        v = 0;
-    }
-    return ulong(v);
-}
 
 /*!
     Returns the string converted to an \c int using base \a
@@ -4695,7 +4672,7 @@ ulong QString::toULong(bool *ok, int base) const
 
 int QString::toInt(bool *ok, int base) const
 {
-    Q_LONGLONG v = toLongLong(ok, base);
+    qint64 v = toLongLong(ok, base);
     if (v < INT_MIN || v > INT_MAX) {
         if (ok)
             *ok = false;
@@ -4735,7 +4712,7 @@ int QString::toInt(bool *ok, int base) const
 
 uint QString::toUInt(bool *ok, int base) const
 {
-    Q_ULONGLONG v = toULongLong(ok, base);
+    quint64 v = toULongLong(ok, base);
     if (v > UINT_MAX) {
         if (ok)
             *ok = false;
@@ -4967,7 +4944,7 @@ float QString::toFloat(bool *ok) const
 /*!
     \overload
 */
-QString &QString::setNum(Q_LONGLONG n, int base)
+QString &QString::setNum(qlonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -4983,7 +4960,7 @@ QString &QString::setNum(Q_LONGLONG n, int base)
 /*!
     \overload
 */
-QString &QString::setNum(Q_ULONGLONG n, int base)
+QString &QString::setNum(qulonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -5063,6 +5040,8 @@ QString &QString::setNum(double n, char f, int prec)
 
 
 /*!
+  \fn QString QString::number(long n, int base)
+
     Returns a string equivalent of the number \a n to base \a base,
     which is 10 by default and must be between 2 and 36.
 
@@ -5074,22 +5053,12 @@ QString &QString::setNum(double n, char f, int prec)
 
     \sa setNum()
 */
-QString QString::number(long n, int base)
-{
-    QString s;
-    s.setNum(n, base);
-    return s;
-}
 
 /*!
+  \fn QString QString::number(ulong n, int base)
+
     \overload
 */
-QString QString::number(ulong n, int base)
-{
-    QString s;
-    s.setNum(n, base);
-    return s;
-}
 
 /*!
     \overload
@@ -5114,7 +5083,7 @@ QString QString::number(uint n, int base)
 /*!
     \overload
 */
-QString QString::number(Q_LONGLONG n, int base)
+QString QString::number(qlonglong n, int base)
 {
     QString s;
     s.setNum(n, base);
@@ -5124,7 +5093,7 @@ QString QString::number(Q_LONGLONG n, int base)
 /*!
     \overload
 */
-QString QString::number(Q_ULONGLONG n, int base)
+QString QString::number(qulonglong n, int base)
 {
     QString s;
     s.setNum(n, base);
@@ -5607,7 +5576,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(Q_LONGLONG a, int fieldWidth, int base, const QChar &fillChar) const
+QString QString::arg(qint64 a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5636,7 +5605,7 @@ QString QString::arg(Q_LONGLONG a, int fieldWidth, int base, const QChar &fillCh
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(Q_ULONGLONG a, int fieldWidth, int base, const QChar &fillChar) const
+QString QString::arg(quint64 a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -6239,7 +6208,7 @@ QDataStream &operator<<(QDataStream &out, const QString &str)
                 delete [] b;
         } else {
             // write null marker
-            out << (Q_UINT32)0xffffffff;
+            out << (quint32)0xffffffff;
         }
     }
     return out;
@@ -6266,7 +6235,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
         in >> l;
         str = QString::fromLatin1(l);
     } else {
-        Q_UINT32 bytes = 0;
+        quint32 bytes = 0;
         in >> bytes;                                  // read size of string
         if (bytes == 0xffffffff) {                    // null string
             str.clear();
@@ -6277,9 +6246,9 @@ QDataStream &operator>>(QDataStream &in, QString &str)
                 return in;
             }
 
-            const Q_UINT32 Step = 1024 * 1024;
-            Q_UINT32 len = bytes / 2;
-            Q_UINT32 allocated = 0;
+            const quint32 Step = 1024 * 1024;
+            quint32 len = bytes / 2;
+            quint32 allocated = 0;
 
             while (allocated < len) {
                 int blockSize = qMin(Step, len - allocated);

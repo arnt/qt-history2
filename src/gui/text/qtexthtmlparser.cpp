@@ -27,7 +27,7 @@
 const int DefaultFontSize = 12;
 
 #define MAX_ENTITY 259
-static const struct QTextHtmlEntity { const char *name; Q_UINT16 code; } entities[MAX_ENTITY]= {
+static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
     { "Aacute", 0x00c1 },
     { "Acirc", 0x00c2 },

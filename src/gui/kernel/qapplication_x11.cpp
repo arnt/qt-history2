@@ -1994,7 +1994,7 @@ bool qt_wstate_iconified(WId winid)
                                  &length, &after, &data);
     bool iconic = false;
     if (r == Success && data && format == 32) {
-        // Q_UINT32 *wstate = (Q_UINT32*)data;
+        // quint32 *wstate = (quint32*)data;
         unsigned long *wstate = (unsigned long *) data;
         iconic = (*wstate == IconicState);
         XFree((char *)data);
@@ -3685,7 +3685,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         curr = QPoint(button->x, button->y);
     }
 
-    Q_LONGLONG uid;
+    qint64 uid;
 #if defined (Q_OS_IRIX)
     s = XQueryDeviceState(X11->display, dev);
     if (s == NULL)
@@ -3755,7 +3755,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     uid = -1;
 #endif
     QTabletEvent e(t, curr, global, hiRes,
-                   deviceType, qReal(pressure / qReal(tablet->maxPressure - tablet->minPressure)),
+                   deviceType, qreal(pressure / qreal(tablet->maxPressure - tablet->minPressure)),
                    xTilt, yTilt, modifiers, uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
@@ -5386,7 +5386,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // generate a new session key
     timeval tv;
     gettimeofday(&tv, 0);
-    smd->sessionKey  = QString::number(tv.tv_sec) + "_" + QString::number(tv.tv_usec);
+    smd->sessionKey  = QString::number(qulonglong(tv.tv_sec)) + "_" + QString::number(qulonglong(tv.tv_usec));
 
     // tell the session manager about our program in best POSIX style
     sm_setProperty(SmProgram, QString(qApp->argv()[0]));

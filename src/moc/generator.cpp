@@ -86,8 +86,8 @@ static const char* const type_map[ntypes] =
     "QBitArray",
     "QKeySequence",
     "QPen",
-    "Q_LONGLONG",
-    "Q_ULONGLONG",
+    "qint64",
+    "quint64",
     "QChar",
     "QUrl",
     "QTextLength",
@@ -104,9 +104,9 @@ int qvariant_nameToType(const char* name)
         if (strcmp(name, "QCString") == 0)
             name = "QByteArray";
         else if (strcmp(name, "Q_LLONG") == 0)
-            name = "Q_LONGLONG";
+            name = "qint64";
         else if (strcmp(name, "Q_ULLONG") == 0)
-            name = "Q_ULONGLONG";
+            name = "quint64";
         else if (strcmp(name, "QIconSet") == 0)
             name = "QIcon";
         else if (strcmp(name, "QCoreVariantMap") == 0)

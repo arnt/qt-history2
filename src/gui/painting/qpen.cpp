@@ -425,11 +425,11 @@ bool QPen::operator==(const QPen &p) const
 QDataStream &operator<<(QDataStream &s, const QPen &p)
 {
     if (s.version() < 3)
-        s << (Q_UINT8)p.style();
+        s << (quint8)p.style();
     else
-        s << (Q_UINT8)(p.style() | p.capStyle() | p.joinStyle());
+        s << (quint8)(p.style() | p.capStyle() | p.joinStyle());
     if (s.version() < 7)
-        s << (Q_UINT8)p.width();
+        s << (quint8)p.width();
     else {
         s << p.widthF();
     }
@@ -447,8 +447,8 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
 
 QDataStream &operator>>(QDataStream &s, QPen &p)
 {
-    Q_UINT8 style;
-    Q_UINT8 width8 = 0;
+    quint8 style;
+    quint8 width8 = 0;
     float width = 0;
     QColor color;
     s >> style;

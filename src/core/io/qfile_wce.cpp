@@ -17,7 +17,7 @@
 #include <limits.h>
 
 #ifndef LLONG_MAX
-#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#define LLONG_MAX qint64_C(9223372036854775807)
 #endif
 
 #define d d_func()
@@ -234,7 +234,7 @@ bool QFile::open(int m, int f)
     return true;
 }
 
-Q_LONGLONG QFile::size() const
+qint64 QFile::size() const
 {
     QT_STATBUF st;
     int ret = -1;

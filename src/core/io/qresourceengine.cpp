@@ -50,7 +50,7 @@ protected:
     Q_DECLARE_PUBLIC(QResourceFileEngine)
 private:
     QString file;
-    Q_LONGLONG offset;
+    qint64 offset;
     mutable QResource *resource;
 protected:
     QResourceFileEnginePrivate() : offset(0), resource(0) { }
@@ -66,7 +66,7 @@ bool QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
     return false;
 }
 
-bool QResourceFileEngine::setSize(Q_LONGLONG)
+bool QResourceFileEngine::setSize(qint64)
 {
     return false;
 }
@@ -161,7 +161,7 @@ void QResourceFileEngine::flush()
 
 }
 
-Q_LONGLONG QResourceFileEngine::read(char *data, Q_LONGLONG len)
+qint64 QResourceFileEngine::read(char *data, qint64 len)
 {
     Q_D(QResourceFileEngine);
     if(len > d->resource->size()-d->offset) {
@@ -174,7 +174,7 @@ Q_LONGLONG QResourceFileEngine::read(char *data, Q_LONGLONG len)
     return len;
 }
 
-Q_LONGLONG QResourceFileEngine::write(const char *, Q_LONGLONG)
+qint64 QResourceFileEngine::write(const char *, qint64)
 {
     return -1;
 }
@@ -204,7 +204,7 @@ bool QResourceFileEngine::link(const QString &)
     return false;
 }
 
-Q_LONGLONG QResourceFileEngine::size() const
+qint64 QResourceFileEngine::size() const
 {
     Q_D(const QResourceFileEngine);
 
@@ -214,7 +214,7 @@ Q_LONGLONG QResourceFileEngine::size() const
     return d->resource->size();
 }
 
-Q_LONGLONG QResourceFileEngine::at() const
+qint64 QResourceFileEngine::at() const
 {
     Q_D(const QResourceFileEngine);
     if(!d->resource)
@@ -232,7 +232,7 @@ bool QResourceFileEngine::atEnd() const
     return d->offset == d->resource->size();
 }
 
-bool QResourceFileEngine::seek(Q_LONGLONG pos)
+bool QResourceFileEngine::seek(qint64 pos)
 {
     Q_D(QResourceFileEngine);
     if(!d->resource)

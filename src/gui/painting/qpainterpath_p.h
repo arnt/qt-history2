@@ -52,7 +52,7 @@ public:
     QRegion containsCache;
 };
 
-void Q_GUI_EXPORT qt_find_ellipse_coords(const QRectF &r, qReal angle, qReal length,
+void Q_GUI_EXPORT qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                                          QPointF* startPoint, QPointF *endPoint);
 
 inline bool QPainterPathPrivate::isClosed() const

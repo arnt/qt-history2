@@ -137,7 +137,7 @@ class QtGpImage { };
 class QtGpBitmap : public QtGpImage { };
 class QtGpFont { };
 
-struct QtGpStartupInput { Q_UINT32 version; void *cb; BOOL b1; BOOL b2; };
+struct QtGpStartupInput { quint32 version; void *cb; BOOL b1; BOOL b2; };
 
 struct QtGpRect
 {

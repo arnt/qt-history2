@@ -1318,8 +1318,8 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 */
 
 QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
-                           int device, qReal pressure, int xTilt, int yTilt, Qt::KeyboardModifiers keyState,
-                           Q_LONGLONG unique)
+                           int device, qreal pressure, int xTilt, int yTilt, Qt::KeyboardModifiers keyState,
+                           qint64 unique)
     : QInputEvent(t, keyState),
       mPos(pos),
       mGPos(globalPos),
@@ -1348,7 +1348,7 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn qReal QTabletEvent::pressure() const
+    \fn qreal QTabletEvent::pressure() const
 
     Returns the pressure for the device. 0.0 indicates that the stylus is not
     on the tablet, 1.0 indicates the maximum amount of pressure for the stylus.
@@ -1439,7 +1439,7 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn Q_LONGLONG QTabletEvent::uniqueId() const
+    \fn qint64 QTabletEvent::uniqueId() const
 
     Returns a unique ID for the current device, making it possible
     to differentiate between multiple devices being used at the same
@@ -1460,13 +1460,13 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn qReal &QTabletEvent::hiResGlobalX() const
+    \fn qreal &QTabletEvent::hiResGlobalX() const
 
     The high precision x position of the tablet device.
 */
 
 /*!
-    \fn qReal &QTabletEvent::hiResGlobalY() const
+    \fn qreal &QTabletEvent::hiResGlobalY() const
 
     The high precision y position of the tablet device.
 */

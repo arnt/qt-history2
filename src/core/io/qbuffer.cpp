@@ -37,10 +37,10 @@ public:
     void emitSignals();
 
     bool signalsEmitted;
-    Q_LONGLONG writtenSinceLastEmit;
+    qint64 writtenSinceLastEmit;
 #endif
 
-    Q_LONGLONG ioIndex;
+    qint64 ioIndex;
     bool isOpen;
     QByteArray *buf;
 
@@ -307,7 +307,7 @@ bool QBuffer::open(OpenMode flags)
     if ((flags & QIODevice::Truncate) == QIODevice::Truncate)
         d->buf->resize(0);
     if ((flags & QIODevice::Append) == QIODevice::Append) // append to end of buffer
-        d->ioIndex = Q_LONGLONG(d->buf->size());
+        d->ioIndex = qint64(d->buf->size());
     else
         d->ioIndex = 0;
 
@@ -323,9 +323,9 @@ void QBuffer::close()
     if(!isOpen())
         return;
     d->isOpen = false;
-    if(d->ioIndex == Q_LONGLONG(-1))
+    if(d->ioIndex == qint64(-1))
         return;
-    d->ioIndex = Q_LONGLONG(-1);
+    d->ioIndex = qint64(-1);
     QIODevice::close();
     return;
 }
@@ -333,7 +333,7 @@ void QBuffer::close()
 /*!
     \reimp
 */
-Q_LONGLONG QBuffer::pos() const
+qint64 QBuffer::pos() const
 {
     Q_D(const QBuffer);
     if (!isOpen())
@@ -344,16 +344,16 @@ Q_LONGLONG QBuffer::pos() const
 /*!
     \reimp
 */
-Q_LONGLONG QBuffer::size() const
+qint64 QBuffer::size() const
 {
     Q_D(const QBuffer);
-    return Q_LONGLONG(d->buf->size());
+    return qint64(d->buf->size());
 }
 
 /*!
     \reimp
 */
-bool QBuffer::seek(Q_LONGLONG pos)
+bool QBuffer::seek(qint64 pos)
 {
     Q_D(QBuffer);
     if (!isOpen()) {
@@ -362,7 +362,7 @@ bool QBuffer::seek(Q_LONGLONG pos)
     }
 
     // #### maybe resize if not readonly?
-    if (pos > Q_LONGLONG(d->buf->size())) {
+    if (pos > qint64(d->buf->size())) {
         qWarning("QBuffer::seek: Index %lld out of range", pos);
         return false;
     }
@@ -381,20 +381,20 @@ bool QBuffer::atEnd() const
     }
 
     QBuffer *that = const_cast<QBuffer *>(this);
-    return that->d_func()->ioIndex == Q_LONGLONG(that->d_func()->buf->size());
+    return that->d_func()->ioIndex == qint64(that->d_func()->buf->size());
 }
 
 /*!
     \reimp
 */
-Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
+qint64 QBuffer::readData(char *data, qint64 len)
 {
     Q_D(QBuffer);
-    if (d->ioIndex + len > Q_LONGLONG(d->buf->size())) {   // overflow
-        if (d->ioIndex >= Q_LONGLONG(d->buf->size())) {
+    if (d->ioIndex + len > qint64(d->buf->size())) {   // overflow
+        if (d->ioIndex >= qint64(d->buf->size())) {
             return 0;
         } else {
-            len = Q_LONGLONG(d->buf->size()) - d->ioIndex;
+            len = qint64(d->buf->size()) - d->ioIndex;
         }
     }
     memcpy(data, d->buf->constData() + int(d->ioIndex), int(len));
@@ -405,12 +405,12 @@ Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 /*!
     \reimp
 */
-Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
+qint64 QBuffer::writeData(const char *data, qint64 len)
 {
     Q_D(QBuffer);
-    if (d->ioIndex + len > Q_LONGLONG(d->buf->size())) { // overflow
+    if (d->ioIndex + len > qint64(d->buf->size())) { // overflow
         d->buf->resize(int(d->ioIndex + len));
-        if (Q_LONGLONG(d->buf->size()) != d->ioIndex + len) { // could not resize
+        if (qint64(d->buf->size()) != d->ioIndex + len) { // could not resize
             qWarning("QBuffer::writeData: Memory allocation error");
             return -1;
         }

@@ -592,7 +592,7 @@ QFile::rename(const QString &newName)
                     bool error = false;
                     char block[1024];
                     while(!atEnd()) {
-                        Q_LONG read = in.read(block, 1024);
+                        long read = in.read(block, 1024);
                         if(read == -1)
                             break;
                         if(read != out.write(block, read)) {
@@ -705,7 +705,7 @@ QFile::copy(const QString &newName)
                 } else {
                     char block[1024];
                     while(!atEnd()) {
-                        Q_LONG in = read(block, 1024);
+                        qint64 in = read(block, 1024);
                         if(in == -1)
                             break;
                         if(in != out.write(block, in)) {
@@ -938,7 +938,7 @@ QFile::handle() const
 */
 
 bool
-QFile::resize(Q_LONGLONG sz)
+QFile::resize(qint64 sz)
 {
     if(fileEngine()->setSize(sz)) {
         unsetError();
@@ -960,7 +960,7 @@ QFile::resize(Q_LONGLONG sz)
 */
 
 bool
-QFile::resize(const QString &fileName, Q_LONGLONG sz)
+QFile::resize(const QString &fileName, qint64 sz)
 {
     return QFile(fileName).resize(sz);
 }
@@ -1059,7 +1059,7 @@ QFile::close()
   \reimp
 */
 
-Q_LONGLONG QFile::size() const
+qint64 QFile::size() const
 {
     return fileEngine()->size();
 }
@@ -1068,7 +1068,7 @@ Q_LONGLONG QFile::size() const
   \reimp
 */
 
-Q_LONGLONG QFile::pos() const
+qint64 QFile::pos() const
 {
     if (!isOpen())
         return 0;
@@ -1083,7 +1083,7 @@ Q_LONGLONG QFile::pos() const
   \reimp
 */
 
-bool QFile::seek(Q_LONGLONG off)
+bool QFile::seek(qint64 off)
 {
     if (!isOpen()) {
         qWarning("QFile::seek: IODevice is not open");
@@ -1107,7 +1107,7 @@ bool QFile::seek(Q_LONGLONG off)
   \reimp
 */
 
-Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
+qint64 QFile::readData(char *data, qint64 len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -1122,12 +1122,12 @@ Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
     }
     unsetError();
 
-    Q_LONGLONG ret = 0;
+    qint64 ret = 0;
 #ifndef QT_NO_FILE_BUFFER
     if ((openMode() & Unbuffered) == 0) {
         //from buffer
         while(ret != len && !d->buffer.isEmpty()) {
-            uint buffered = qMin(len, (Q_LONGLONG)d->buffer.used());
+            uint buffered = qMin(len, (qint64)d->buffer.used());
             char *buffer = d->buffer.take(buffered, &buffered);
             memcpy(data+ret, buffer, buffered);
             d->buffer.free(buffered);
@@ -1136,16 +1136,16 @@ Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
         //from the device
         if(ret < len) {
             if(len > read_cache_size) {
-                Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
+                qint64 read = fileEngine()->read(data+ret, len-ret);
                 if(read != -1)
                     ret += read;
             } else {
                 char *buffer = d->buffer.alloc(read_cache_size);
-                Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
+                qint64 got = fileEngine()->read(buffer, read_cache_size);
                 if(got != -1) {
                     if(got < read_cache_size)
                         d->buffer.truncate(read_cache_size - got);
-                    const Q_LONGLONG need = qMin(len-ret, got);
+                    const qint64 need = qMin(len-ret, got);
                     memcpy(data+ret, buffer, need);
                     d->buffer.free(need);
                     ret += need;
@@ -1158,7 +1158,7 @@ Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
         }
     } else {
 #endif
-        Q_LONGLONG read = fileEngine()->read(data+ret, len-ret);
+        qint64 read = fileEngine()->read(data+ret, len-ret);
         if(read != -1)
             ret += read;
 #ifndef QT_NO_FILE_BUFFER
@@ -1178,8 +1178,8 @@ Q_LONGLONG QFile::readData(char *data, Q_LONGLONG len)
   \reimp
 */
 
-Q_LONGLONG
-QFile::writeData(const char *data, Q_LONGLONG len)
+qint64
+QFile::writeData(const char *data, qint64 len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -1198,7 +1198,7 @@ QFile::writeData(const char *data, Q_LONGLONG len)
     if(!d->buffer.isEmpty())
         seek(pos());
 #endif
-    Q_LONGLONG ret = fileEngine()->write(data, len);
+    qint64 ret = fileEngine()->write(data, len);
     if(ret < 0) {
         QFile::Error err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)

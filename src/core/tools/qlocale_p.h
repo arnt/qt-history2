@@ -42,8 +42,8 @@ public:
     QString infinity() const;
     QString nan() const;
 
-    Q_UINT32 languageId() const { return m_language_id; }
-    Q_UINT32 countryId() const { return m_country_id; }
+    quint32 languageId() const { return m_language_id; }
+    quint32 countryId() const { return m_country_id; }
 
     enum DoubleForm {
         DFExponent = 0,
@@ -73,31 +73,31 @@ public:
                            DoubleForm form = DFSignificantDigits,
                            int width = -1,
                            unsigned flags = NoFlags) const;
-    QString longLongToString(Q_LONGLONG l, int precision = -1,
+    QString longLongToString(qint64 l, int precision = -1,
                              int base = 10,
                              int width = -1,
                              unsigned flags = NoFlags) const;
-    QString unsLongLongToString(Q_ULONGLONG l, int precision = -1,
+    QString unsLongLongToString(quint64 l, int precision = -1,
                                 int base = 10,
                                 int width = -1,
                                 unsigned flags = NoFlags) const;
     double stringToDouble(const QString &num, bool *ok, GroupSeparatorMode group_sep_mode) const;
-    Q_LONGLONG stringToLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
-    Q_ULONGLONG stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    qint64 stringToLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
+    quint64 stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
 
 
     static double bytearrayToDouble(const char *num, bool *ok);
-    static Q_LONGLONG bytearrayToLongLong(const char *num, int base, bool *ok);
-    static Q_ULONGLONG bytearrayToUnsLongLong(const char *num, int base, bool *ok);
+    static qint64 bytearrayToLongLong(const char *num, int base, bool *ok);
+    static quint64 bytearrayToUnsLongLong(const char *num, int base, bool *ok);
 
     typedef QVarLengthArray<char, 256> CharBuff;
     bool numberToCLocale(const QString &num,
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
                           
-    Q_UINT32 m_language_id, m_country_id;
+    quint32 m_language_id, m_country_id;
 
-    Q_UINT16 m_decimal, m_group, m_list, m_percent,
+    quint16 m_decimal, m_group, m_list, m_percent,
         m_zero, m_minus, m_exponential;
 
     static const QString m_infinity;

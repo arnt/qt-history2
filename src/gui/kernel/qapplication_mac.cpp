@@ -95,7 +95,7 @@ static bool qt_mac_use_qt_scroller_lines = false;
 
 // tablet structure
 static QTabletEvent::TabletDevice currTabletDevice = QTabletEvent::NoDevice;
-static Q_LONGLONG tabletUniqueID = 0;
+static qint64 tabletUniqueID = 0;
 
 static int tablet_button_state = 0;
 
@@ -1157,10 +1157,10 @@ static Qt::KeyboardModifiers get_modifiers(int keys, bool from_mouse=false)
     }
     return ret;
 }
-void qt_mac_send_modifiers_changed(Q_UINT32 modifiers, QObject *object)
+void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
 {
-    static Q_UINT32 cachedModifiers = 0;
-    Q_UINT32 lastModifiers = cachedModifiers,
+    static quint32 cachedModifiers = 0;
+    quint32 lastModifiers = cachedModifiers,
           changedModifiers = lastModifiers ^ modifiers;
     cachedModifiers = modifiers;
 
@@ -1996,7 +1996,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QPoint plocal(widget->mapFromGlobal(p));
                 // ### Fix the tilt values.
                 QTabletEvent e(t, plocal, p, hiRes, currTabletDevice,
-                               qReal(tabletPointRec.pressure / qReal(0xffff)), tiltX, tiltY, modifiers,
+                               qreal(tabletPointRec.pressure / qreal(0xffff)), tiltX, tiltY, modifiers,
                                tabletUniqueID);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())

@@ -165,9 +165,9 @@ static bool localizedName(const QString &name)
     ((DWORD)(ch1)) \
     )
 
-static inline Q_UINT16 getUShort(unsigned char *p)
+static inline quint16 getUShort(unsigned char *p)
 {
-    Q_UINT16 val;
+    quint16 val;
     val = *p++ << 8;
     val |= *p;
 
@@ -210,8 +210,8 @@ static QString getEnglishName(const QString &familyName)
     };
 
     // get the name table
-    Q_UINT16 count;
-    Q_UINT16 string_offset;
+    quint16 count;
+    quint16 string_offset;
     unsigned char *table = 0;
     unsigned char *names;
 
@@ -244,10 +244,10 @@ static QString getEnglishName(const QString &familyName)
     for(int i = 0; i < count; ++i) {
         // search for the correct name entry
 
-        Q_UINT16 platform_id = getUShort(names + i*NameRecordSize);
-        Q_UINT16 encoding_id = getUShort(names + 2 + i*NameRecordSize);
-        Q_UINT16 language_id = getUShort(names + 4 + i*NameRecordSize);
-        Q_UINT16 name_id = getUShort(names + 6 + i*NameRecordSize);
+        quint16 platform_id = getUShort(names + i*NameRecordSize);
+        quint16 encoding_id = getUShort(names + 2 + i*NameRecordSize);
+        quint16 language_id = getUShort(names + 4 + i*NameRecordSize);
+        quint16 name_id = getUShort(names + 6 + i*NameRecordSize);
 
         if(name_id != FamilyId)
             continue;
@@ -258,8 +258,8 @@ static QString getEnglishName(const QString &familyName)
             PlatformId_Microsoft = 3
         };
 
-        Q_UINT16 length = getUShort(names + 8 + i*NameRecordSize);
-        Q_UINT16 offset = getUShort(names + 10 + i*NameRecordSize);
+        quint16 length = getUShort(names + 8 + i*NameRecordSize);
+        quint16 offset = getUShort(names + 10 + i*NameRecordSize);
         if(DWORD(string_offset + offset + length) >= bytes)
             continue;
 
@@ -288,8 +288,8 @@ static QString getEnglishName(const QString &familyName)
             unicode = true;
         }
         if(id != -1) {
-            Q_UINT16 length = getUShort(names + 8 + id*NameRecordSize);
-            Q_UINT16 offset = getUShort(names + 10 + id*NameRecordSize);
+            quint16 length = getUShort(names + 8 + id*NameRecordSize);
+            quint16 offset = getUShort(names + 10 + id*NameRecordSize);
             if(unicode) {
                 // utf16
 

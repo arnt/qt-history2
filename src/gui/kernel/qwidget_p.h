@@ -105,8 +105,8 @@ struct QTLWExtra {
 // dear user: you can see this struct, but it is internal. do not touch.
 
 struct QWExtra {
-    Q_INT32  minw, minh;                        // minimum size
-    Q_INT32  maxw, maxh;                        // maximum size
+    qint32  minw, minh;                        // minimum size
+    qint32  maxw, maxh;                        // maximum size
     QPointer<QWidget> focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;

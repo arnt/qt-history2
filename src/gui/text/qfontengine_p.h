@@ -99,29 +99,29 @@ public:
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si) = 0;
 #endif
-    virtual void addOutlineToPath(qReal, qReal, const QGlyphLayout *, int, QPainterPath *);
-    virtual void addBitmapFontToPath(qReal x, qReal y, const QGlyphLayout *, int, QPainterPath *);
+    virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *);
+    virtual void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *);
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
-    virtual qReal ascent() const = 0;
-    virtual qReal descent() const = 0;
-    virtual qReal leading() const = 0;
+    virtual qreal ascent() const = 0;
+    virtual qreal descent() const = 0;
+    virtual qreal leading() const = 0;
 
-    virtual qReal lineThickness() const;
-    virtual qReal underlinePosition() const;
+    virtual qreal lineThickness() const;
+    virtual qreal underlinePosition() const;
 
-    virtual qReal maxCharWidth() const = 0;
-    virtual qReal minLeftBearing() const { return qReal(); }
-    virtual qReal minRightBearing() const { return qReal(); }
+    virtual qreal maxCharWidth() const = 0;
+    virtual qreal minLeftBearing() const { return qreal(); }
+    virtual qreal minRightBearing() const { return qreal(); }
 
     virtual const char *name() const = 0;
 
     virtual bool canRender(const QChar *string,  int len) = 0;
 
-    virtual void setScale(qReal s) { _scale = s; }
-    virtual qReal scale() const { return _scale; }
+    virtual void setScale(qreal s) { _scale = s; }
+    virtual qreal scale() const { return _scale; }
 
     virtual Type type() const = 0;
 
@@ -148,10 +148,10 @@ public:
     int                lw;
     unsigned char *cmap;
     void *script_cache;
-    qReal lbearing;
-    qReal rbearing;
+    qreal lbearing;
+    qreal rbearing;
 #endif // Q_WS_WIN
-    qReal _scale;
+    qreal _scale;
 };
 
 
@@ -178,19 +178,19 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
-    void addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
-    qReal underlinePosition() const;
-    qReal lineThickness() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
+    qreal underlinePosition() const;
+    qreal lineThickness() const;
 
     Type type() const;
 
@@ -222,14 +222,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
-    qReal underlinePosition() const;
-    qReal lineThickness() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
+    qreal underlinePosition() const;
+    qreal lineThickness() const;
 
     Type type() const;
 
@@ -260,12 +260,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const { return 0; }
-    qReal minRightBearing() const { return 0; }
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const { return 0; }
+    qreal minRightBearing() const { return 0; }
 
 #ifdef Q_WS_X11
     int cmap() const;
@@ -293,10 +293,10 @@ class QTextCodec;
 
 struct TransformedFont
 {
-    qReal xx;
-    qReal xy;
-    qReal yx;
-    qReal yy;
+    qreal xx;
+    qreal xy;
+    qreal yx;
+    qreal yy;
     union {
         XftFont *xft_font;
     };
@@ -315,19 +315,19 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    virtual void addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    virtual void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal lineThickness() const;
-    qReal underlinePosition() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal lineThickness() const;
+    qreal underlinePosition() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -350,10 +350,10 @@ private:
     FT_Face _face;
     QOpenType *_openType;
     int _cmap;
-    qReal lbearing;
-    qReal rbearing;
+    qreal lbearing;
+    qreal rbearing;
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable struct { qReal x; qReal y; } widthCache[widthCacheSize];
+    mutable struct { qreal x; qreal y; } widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
 
     TransformedFont *transformed_fonts;
@@ -375,12 +375,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -397,8 +397,8 @@ private:
     QByteArray _name;
     QTextCodec *_codec;
     int _cmap;
-    qReal lbearing;
-    qReal rbearing;
+    qreal lbearing;
+    qreal rbearing;
 
     friend class QFontEngineLatinXLFD;
 };
@@ -416,20 +416,20 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
 
     int cmap() const { return -1; } // ###
     const char *name() const;
 
     bool canRender(const QChar *string,  int len);
 
-    void setScale(qReal scale);
-    qReal scale() const { return _engines[0]->scale(); }
+    void setScale(qreal scale);
+    qreal scale() const { return _engines[0]->scale(); }
     Type type() const { return LatinXLFD; }
 
     Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
@@ -442,9 +442,9 @@ private:
     int _count;
 
     glyph_t   glyphIndices [0x200];
-    qReal glyphAdvances[0x200];
+    qreal glyphAdvances[0x200];
     glyph_t euroIndex;
-    qReal euroAdvance;
+    qreal euroAdvance;
 };
 
 
@@ -470,15 +470,15 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
-    void addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
 
     const char *name() const { return "ATSUI"; }
 
@@ -506,18 +506,18 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal leading() const;
-    qReal maxCharWidth() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
 
     const char *name() const;
 

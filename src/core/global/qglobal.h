@@ -638,12 +638,39 @@ typedef const char *pcchar;
 // Size-dependent types (architechture-dependent byte order)
 //
 
-typedef signed char Q_INT8;         // 8 bit signed
-typedef unsigned char Q_UINT8;      // 8 bit unsigned
-typedef short Q_INT16;              // 16 bit signed
-typedef unsigned short Q_UINT16;    // 16 bit unsigned
-typedef int Q_INT32;                // 32 bit signed
-typedef unsigned int Q_UINT32;      // 32 bit unsigned
+typedef signed char qint8;         // 8 bit signed
+typedef unsigned char quint8;      // 8 bit unsigned
+typedef short qint16;              // 16 bit signed
+typedef unsigned short quint16;    // 16 bit unsigned
+typedef int qint32;                // 32 bit signed
+typedef unsigned int quint32;      // 32 bit unsigned
+#if defined(Q_OS_WIN) && !defined(Q_CC_GNU)
+#  define Q_INT64_C(c) c ## i64    // signed 64 bit constant
+#  define Q_UINT64_C(c) c ## ui64   // unsigned 64 bit constant
+typedef __int64 qint64;            // 64 bit signed
+typedef unsigned __int64 quint64;  // 64 bit unsigned
+#else
+#  define Q_INT64_C(c) static_cast<long long>(c ## LL)            // signed 64 bit constant
+#  define Q_UINT64_C(c) static_cast<unsigned long long>(c ## ULL) // unsigned 64 bit constant
+typedef long long qint64;          // 64 bit signed
+typedef unsigned long long quint64;// 64 bit unsigned
+#endif
+
+typedef qint64 qlonglong;
+typedef quint64 qulonglong;
+
+#ifdef QT_COMPAT
+typedef qint8 Q_INT8;
+typedef quint8 Q_UINT8;
+typedef qint8 Q_INT16;
+typedef quint8 Q_UINT16;
+typedef qint8 Q_INT32;
+typedef quint8 Q_UINT32;
+typedef qint8 Q_INT64;
+typedef quint8 Q_UINT64;
+
+typedef qint64 Q_LLONG;
+typedef quint64 Q_ULLONG;
 #if defined(Q_OS_WIN64)
 typedef __int64 Q_LONG;             // word up to 64 bit signed
 typedef unsigned __int64 Q_ULONG;   // word up to 64 bit unsigned
@@ -651,23 +678,6 @@ typedef unsigned __int64 Q_ULONG;   // word up to 64 bit unsigned
 typedef long Q_LONG;                // word up to 64 bit signed
 typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 #endif
-#if defined(Q_OS_WIN) && !defined(Q_CC_GNU)
-#  define Q_INT64_C(c) c ## i64    // signed 64 bit constant
-#  define Q_UINT64_C(c) c ## ui64  // unsigned 64 bit constant
-typedef __int64 Q_INT64;            // 64 bit signed
-typedef unsigned __int64 Q_UINT64;  // 64 bit unsigned
-#else
-#  define Q_INT64_C(c) static_cast<long long>(c ## LL)            // signed 64 bit constant
-#  define Q_UINT64_C(c) static_cast<unsigned long long>(c ## ULL) // unsigned 64 bit constant
-typedef long long Q_INT64;          // 64 bit signed
-typedef unsigned long long Q_UINT64;// 64 bit unsigned
-#endif
-
-typedef Q_INT64 Q_LONGLONG;            // signed long long
-typedef Q_UINT64 Q_ULONGLONG;          // unsigned long long
-#ifdef QT_COMPAT
-typedef Q_INT64 Q_LLONG;
-typedef Q_UINT64 Q_ULLONG;
 #endif
 
 typedef int QNoImplicitBoolCast;
@@ -682,8 +692,8 @@ inline T qAbs(const T &t) { return t >= 0 ? t : -t; }
 inline int qRound(double d)
 { return d >= 0.0 ? int(d + 0.5) : int(d - int(d-1) + 0.5) + int(d-1); }
 
-inline Q_LONGLONG qRoundLL(double d)
-{ return d >= 0.0 ? Q_LONGLONG(d + 0.5) : Q_LONGLONG(d - Q_LONGLONG(d-1) + 0.5) + Q_LONGLONG(d-1); }
+inline qint64 qRound64(double d)
+{ return d >= 0.0 ? qint64(d + 0.5) : qint64(d - qint64(d-1) + 0.5) + qint64(d-1); }
 
 template <typename T>
 inline const T &qMin(const T &a, const T &b) { if (a < b) return a; return b; }
@@ -696,22 +706,22 @@ inline const T &qMax(const T &a, const T &b) { if (a < b) return b; return a; }
 #  define QMIN(a, b) qMin((a), (b))
 #endif
 
-inline Q_LONGLONG qMin(Q_LONGLONG a, long b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(long a, Q_LONGLONG b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(Q_LONGLONG a, int b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(int a, Q_LONGLONG b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(Q_LONGLONG a, short b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(short a, Q_LONGLONG b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(Q_LONGLONG a, char b) { return (a < b) ? a : b; }
-inline Q_LONGLONG qMin(char a, Q_LONGLONG b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(Q_ULONGLONG a, ulong b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(ulong a, Q_ULONGLONG b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(Q_ULONGLONG a, uint b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(uint a, Q_ULONGLONG b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(Q_ULONGLONG a, ushort b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(ushort a, Q_ULONGLONG b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(Q_ULONGLONG a, uchar b) { return (a < b) ? a : b; }
-inline Q_ULONGLONG qMin(uchar a, Q_ULONGLONG b) { return (a < b) ? a : b; }
+inline qint64 qMin(qint64 a, long b) { return (a < b) ? a : b; }
+inline qint64 qMin(long a, qint64 b) { return (a < b) ? a : b; }
+inline qint64 qMin(qint64 a, int b) { return (a < b) ? a : b; }
+inline qint64 qMin(int a, qint64 b) { return (a < b) ? a : b; }
+inline qint64 qMin(qint64 a, short b) { return (a < b) ? a : b; }
+inline qint64 qMin(short a, qint64 b) { return (a < b) ? a : b; }
+inline qint64 qMin(qint64 a, char b) { return (a < b) ? a : b; }
+inline qint64 qMin(char a, qint64 b) { return (a < b) ? a : b; }
+inline quint64 qMin(quint64 a, ulong b) { return (a < b) ? a : b; }
+inline quint64 qMin(ulong a, quint64 b) { return (a < b) ? a : b; }
+inline quint64 qMin(quint64 a, uint b) { return (a < b) ? a : b; }
+inline quint64 qMin(uint a, quint64 b) { return (a < b) ? a : b; }
+inline quint64 qMin(quint64 a, ushort b) { return (a < b) ? a : b; }
+inline quint64 qMin(ushort a, quint64 b) { return (a < b) ? a : b; }
+inline quint64 qMin(quint64 a, uchar b) { return (a < b) ? a : b; }
+inline quint64 qMin(uchar a, quint64 b) { return (a < b) ? a : b; }
 inline double qMin(double a, int b) { return (a < b) ? a : b; }
 inline double qMin(int a, double b) { return (a < b) ? a : b; }
 inline double qMin(double a, long b) { return (a < b) ? a : b; }
@@ -755,22 +765,22 @@ inline short qMin(char a, short b) { return (a < b) ? a : b; }
 inline ushort qMin(ushort a, uchar b) { return (a < b) ? a : b; }
 inline ushort qMin(uchar a, ushort b) { return (a < b) ? a : b; }
 
-inline Q_LONGLONG qMax(Q_LONGLONG a, long b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(long a, Q_LONGLONG b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(Q_LONGLONG a, int b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(int a, Q_LONGLONG b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(Q_LONGLONG a, short b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(short a, Q_LONGLONG b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(Q_LONGLONG a, char b) { return (b < a) ? a : b; }
-inline Q_LONGLONG qMax(char a, Q_LONGLONG b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(Q_ULONGLONG a, ulong b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(ulong a, Q_ULONGLONG b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(Q_ULONGLONG a, uint b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(uint a, Q_ULONGLONG b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(Q_ULONGLONG a, ushort b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(ushort a, Q_ULONGLONG b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(Q_ULONGLONG a, uchar b) { return (b < a) ? a : b; }
-inline Q_ULONGLONG qMax(uchar a, Q_ULONGLONG b) { return (b < a) ? a : b; }
+inline qint64 qMax(qint64 a, long b) { return (b < a) ? a : b; }
+inline qint64 qMax(long a, qint64 b) { return (b < a) ? a : b; }
+inline qint64 qMax(qint64 a, int b) { return (b < a) ? a : b; }
+inline qint64 qMax(int a, qint64 b) { return (b < a) ? a : b; }
+inline qint64 qMax(qint64 a, short b) { return (b < a) ? a : b; }
+inline qint64 qMax(short a, qint64 b) { return (b < a) ? a : b; }
+inline qint64 qMax(qint64 a, char b) { return (b < a) ? a : b; }
+inline qint64 qMax(char a, qint64 b) { return (b < a) ? a : b; }
+inline quint64 qMax(quint64 a, ulong b) { return (b < a) ? a : b; }
+inline quint64 qMax(ulong a, quint64 b) { return (b < a) ? a : b; }
+inline quint64 qMax(quint64 a, uint b) { return (b < a) ? a : b; }
+inline quint64 qMax(uint a, quint64 b) { return (b < a) ? a : b; }
+inline quint64 qMax(quint64 a, ushort b) { return (b < a) ? a : b; }
+inline quint64 qMax(ushort a, quint64 b) { return (b < a) ? a : b; }
+inline quint64 qMax(quint64 a, uchar b) { return (b < a) ? a : b; }
+inline quint64 qMax(uchar a, quint64 b) { return (b < a) ? a : b; }
 inline double qMax(double a, int b) { return (b < a) ? a : b; }
 inline double qMax(int a, double b) { return (b < a) ? a : b; }
 inline double qMax(double a, short b) { return (b < a) ? a : b; }
@@ -976,7 +986,7 @@ class QString;
 class Q_CORE_EXPORT QSysInfo {
 public:
     enum {
-        WordSize = (sizeof(Q_ULONG)<<3)
+        WordSize = (sizeof(void *)<<3)
     };
 
     enum {
@@ -1424,8 +1434,8 @@ Q_DECLARE_TYPEINFO(int, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(uint, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(long, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(ulong, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(Q_LONGLONG, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(Q_ULONGLONG, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(qint64, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(quint64, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
 #ifndef Q_OS_DARWIN
@@ -1442,8 +1452,8 @@ template <> inline void qInit<int>(int &t) { t = 0; }
 template <> inline void qInit<uint>(uint &t) { t = 0; }
 template <> inline void qInit<long>(long &t) { t = 0; }
 template <> inline void qInit<ulong>(ulong &t) { t = 0; }
-template <> inline void qInit<Q_LONGLONG>(Q_LONGLONG &t) { t = 0; }
-template <> inline void qInit<Q_ULONGLONG>(Q_ULONGLONG &t) { t = 0; }
+template <> inline void qInit<qint64>(qint64 &t) { t = 0; }
+template <> inline void qInit<quint64>(quint64 &t) { t = 0; }
 template <> inline void qInit<float>(float &t) { t = 0.0f; }
 template <> inline void qInit<double>(double &t) { t = 0.0; }
 #ifndef Q_OS_DARWIN
@@ -1767,9 +1777,9 @@ inline int qIntCast(double f) { return int(f); }
 inline int qIntCast(float f) { return int(f); }
 #ifdef QT_USE_FIXED_POINT
 #include <QtCore/qfixedpoint.h>
-typedef QFixedPoint qReal;
+typedef QFixedPoint qreal;
 #else
-typedef float qReal;
+typedef float qreal;
 #endif
 
 //

@@ -66,24 +66,24 @@ public:
     virtual void close();
     virtual bool flush();
 
-    virtual Q_LONGLONG pos() const;
-    virtual Q_LONGLONG size() const;
-    virtual bool seek(Q_LONGLONG pos);
+    virtual qint64 pos() const;
+    virtual qint64 size() const;
+    virtual bool seek(qint64 pos);
     virtual bool atEnd() const;
     virtual bool reset();
 
-    virtual Q_LONGLONG bytesAvailable() const;
-    virtual Q_LONGLONG bytesToWrite() const;
+    virtual qint64 bytesAvailable() const;
+    virtual qint64 bytesToWrite() const;
 
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    QByteArray read(Q_LONGLONG maxlen);
+    qint64 read(char *data, qint64 maxlen);
+    QByteArray read(qint64 maxlen);
     QByteArray readAll();
-    Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
-    QByteArray readLine(Q_LONGLONG maxlen = 0);
+    qint64 readLine(char *data, qint64 maxlen);
+    QByteArray readLine(qint64 maxlen = 0);
     virtual bool canReadLine() const;
 
-    Q_LONGLONG write(const char *data, Q_LONGLONG len);
-    Q_LONGLONG write(const QByteArray &data);
+    qint64 write(const char *data, qint64 len);
+    qint64 write(const QByteArray &data);
 
     virtual bool waitForReadyRead(int msecs);
     virtual bool waitForBytesWritten(int msecs);
@@ -97,7 +97,7 @@ public:
 #ifndef QT_NO_QOBJECT
 signals:
     void readyRead();
-    void bytesWritten(Q_LONGLONG bytes);
+    void bytesWritten(qint64 bytes);
 #endif
 
 protected:
@@ -107,8 +107,8 @@ protected:
     QIODevice(QIODevicePrivate &dd, QObject *parent = 0);
 #endif
 
-    virtual Q_LONGLONG readData(char *data, Q_LONGLONG maxlen) = 0;
-    virtual Q_LONGLONG writeData(const char *data, Q_LONGLONG len) = 0;
+    virtual qint64 readData(char *data, qint64 maxlen) = 0;
+    virtual qint64 writeData(const char *data, qint64 len) = 0;
 
     void setOpenMode(OpenMode openMode);
 
@@ -124,7 +124,7 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    typedef Q_LONGLONG Offset;
+    typedef qint64 Offset;
 
     inline QT_COMPAT int flags() const { return (int) openMode(); }
     inline QT_COMPAT int mode() const { return (int) openMode(); }
@@ -147,9 +147,9 @@ public:
     inline QT_COMPAT Offset at() const { return pos(); }
     inline QT_COMPAT bool at(Offset offset) { return seek(offset); }
 
-    inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen) { return read(data, maxlen); }
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_ULONG len) { return write(data, len); }
-    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data) { return write(data); }
+    inline QT_COMPAT qint64 readBlock(char *data, quint64 maxlen) { return read(data, maxlen); }
+    inline QT_COMPAT qint64 writeBlock(const char *data, quint64 len) { return write(data, len); }
+    inline QT_COMPAT qint64 writeBlock(const QByteArray &data) { return write(data); }
 
     inline QT_COMPAT int getch() { char c; return getChar(&c) ? int(c) : -1; }
     inline QT_COMPAT int putch(int c) { return putChar(c) ? int(c) : -1; }

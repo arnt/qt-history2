@@ -70,25 +70,25 @@ public:
     QAbstractSocket(SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
-    void connectToHost(const QString &hostName, Q_UINT16 port, OpenMode mode = ReadWrite);
-    void connectToHost(const QHostAddress &address, Q_UINT16 port, OpenMode mode = ReadWrite);
+    void connectToHost(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
+    void connectToHost(const QHostAddress &address, quint16 port, OpenMode mode = ReadWrite);
     void disconnectFromHost();
 
     bool isValid() const;
 
-    Q_LONGLONG bytesAvailable() const;
-    Q_LONGLONG bytesToWrite() const;
+    qint64 bytesAvailable() const;
+    qint64 bytesToWrite() const;
 
     bool canReadLine() const;
 
-    Q_UINT16 localPort() const;
+    quint16 localPort() const;
     QHostAddress localAddress() const;
-    Q_UINT16 peerPort() const;
+    quint16 peerPort() const;
     QHostAddress peerAddress() const;
     QString peerName() const;
 
-    Q_LONGLONG readBufferSize() const;
-    void setReadBufferSize(Q_LONGLONG size);
+    qint64 readBufferSize() const;
+    void setReadBufferSize(qint64 size);
 
     void abort();
 
@@ -118,8 +118,8 @@ signals:
     void error(SocketError);
 
 protected:
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
     void setSocketState(SocketState state);
     void setSocketError(SocketError socketError);
@@ -147,11 +147,11 @@ public:
     };
     inline QT_COMPAT int socket() const { return socketDescriptor(); }
     inline QT_COMPAT void setSocket(int socket) { setSocketDescriptor(socket); }
-    inline QT_COMPAT Q_ULONG waitForMore(int msecs, bool *timeout = 0) const
+    inline QT_COMPAT qulonglong waitForMore(int msecs, bool *timeout = 0) const
     {
         QAbstractSocket *that = const_cast<QAbstractSocket *>(this);
         if (that->waitForReadyRead(msecs))
-            return Q_ULONG(bytesAvailable());
+            return qulonglong(bytesAvailable());
         if (error() == SocketTimeoutError && timeout)
             *timeout = true;
         return 0;

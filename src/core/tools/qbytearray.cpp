@@ -281,14 +281,14 @@ static void createCRC16Table()                        // build CRC16 lookup tabl
         SET_BIT(j, 15, v3);
         crc_tbl[i] = j;
     }
-    printf("static const Q_UINT16 crc_tbl[16] = {\n");
+    printf("static const quint16 crc_tbl[16] = {\n");
     for (int i = 0; i < 16; i +=4)
         printf("    0x%04x, 0x%04x, 0x%04x, 0x%04x,\n", crc_tbl[i], crc_tbl[i+1], crc_tbl[i+2], crc_tbl[i+3]);
     printf("};\n");
 }
 #endif
 
-static const Q_UINT16 crc_tbl[16] = {
+static const quint16 crc_tbl[16] = {
     0x0000, 0x1081, 0x2102, 0x3183,
     0x4204, 0x5285, 0x6306, 0x7387,
     0x8408, 0x9489, 0xa50a, 0xb58b,
@@ -302,9 +302,9 @@ static const Q_UINT16 crc_tbl[16] = {
     The checksum is independent of the byte order (endianness).
 */
 
-Q_UINT16 qChecksum(const char *data, uint len)
+quint16 qChecksum(const char *data, uint len)
 {
-    register Q_UINT16 crc = 0xffff;
+    register quint16 crc = 0xffff;
     uchar c;
     const uchar *p = reinterpret_cast<const uchar *>(data);
     while (len--) {
@@ -2422,7 +2422,7 @@ void QByteArray::clear()
 QDataStream &operator<<(QDataStream &out, const QByteArray &ba)
 {
     if (ba.isNull() && out.version() >= 6) {
-        out << (Q_UINT32)0xffffffff;
+        out << (quint32)0xffffffff;
         return out;
     }
     return out.writeBytes(ba, ba.size());
@@ -2439,13 +2439,13 @@ QDataStream &operator<<(QDataStream &out, const QByteArray &ba)
 QDataStream &operator>>(QDataStream &in, QByteArray &ba)
 {
     ba.clear();
-    Q_UINT32 len;
+    quint32 len;
     in >> len;
     if (len == 0xffffffff)
         return in;
 
-    const Q_UINT32 Step = 1024 * 1024;
-    Q_UINT32 allocated = 0;
+    const quint32 Step = 1024 * 1024;
+    quint32 allocated = 0;
 
     do {
         int blockSize = qMin(Step, len - allocated);
@@ -2963,7 +2963,7 @@ bool QByteArray::isNull() const { return d == &shared_null; }
     \sa number()
 */
 
-Q_LONGLONG QByteArray::toLongLong(bool *ok, int base) const
+qlonglong QByteArray::toLongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -2993,7 +2993,7 @@ Q_LONGLONG QByteArray::toLongLong(bool *ok, int base) const
     \sa number()
 */
 
-Q_ULONGLONG QByteArray::toULongLong(bool *ok, int base) const
+qulonglong QByteArray::toULongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
@@ -3005,61 +3005,6 @@ Q_ULONGLONG QByteArray::toULongLong(bool *ok, int base) const
     return QLocalePrivate::bytearrayToUnsLongLong(constData(), base, ok);
 }
 
-/*!
-    Returns the byte array converted to a \c long using base \a
-    base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules: If the byte array begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
-
-    Returns 0 if the conversion fails.
-
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
-
-    \sa number()
-*/
-
-long QByteArray::toLong(bool *ok, int base) const
-{
-    Q_LONGLONG v = toLongLong(ok, base);
-    if (v < LONG_MIN || v > LONG_MAX) {
-        if (ok)
-            *ok = false;
-        v = 0;
-    }
-    return long(v);
-}
-
-/*!
-    Returns the byte array converted to an \c {unsigned long} using base \a
-    base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules: If the byte array begins with "0x", it is assumed to
-    be hexadecimal; if it begins with "0", it is assumed to be octal;
-    otherwise it is assumed to be decimal.
-
-    Returns 0 if the conversion fails.
-
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
-
-    \sa number()
-*/
-
-ulong QByteArray::toULong(bool *ok, int base) const
-{
-    Q_ULONGLONG v = toULongLong(ok, base);
-    if (v > ULONG_MAX) {
-        if (ok)
-            *ok = false;
-        v = 0;
-    }
-    return ulong(v);
-}
 
 /*!
     Returns the byte array converted to an \c int using base \a
@@ -3318,7 +3263,7 @@ QByteArray QByteArray::toBase64() const
     \sa toLongLong()
 */
 
-QByteArray &QByteArray::setNum(Q_LONGLONG n, int base)
+QByteArray &QByteArray::setNum(qint64 n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3337,7 +3282,7 @@ QByteArray &QByteArray::setNum(Q_LONGLONG n, int base)
     \sa toULongLong()
 */
 
-QByteArray &QByteArray::setNum(Q_ULONGLONG n, int base)
+QByteArray &QByteArray::setNum(quint64 n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3452,33 +3397,9 @@ QByteArray QByteArray::number(uint n, int base)
 /*!
     \overload
 
-    \sa toLong()
-*/
-QByteArray QByteArray::number(long n, int base)
-{
-    QByteArray s;
-    s.setNum(n, base);
-    return s;
-}
-
-/*!
-    \overload
-
-    \sa toULong()
-*/
-QByteArray QByteArray::number(ulong n, int base)
-{
-    QByteArray s;
-    s.setNum(n, base);
-    return s;
-}
-
-/*!
-    \overload
-
     \sa toLongLong()
 */
-QByteArray QByteArray::number(Q_LONGLONG n, int base)
+QByteArray QByteArray::number(qint64 n, int base)
 {
     QByteArray s;
     s.setNum(n, base);
@@ -3490,7 +3411,7 @@ QByteArray QByteArray::number(Q_LONGLONG n, int base)
 
     \sa toULongLong()
 */
-QByteArray QByteArray::number(Q_ULONGLONG n, int base)
+QByteArray QByteArray::number(quint64 n, int base)
 {
     QByteArray s;
     s.setNum(n, base);

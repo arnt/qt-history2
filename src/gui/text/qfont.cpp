@@ -1610,10 +1610,10 @@ QStringList QFont::substitutions()
     Internal function. Converts boolean font settings to an unsigned
     8-bit number. Used for serialization etc.
 */
-static Q_UINT8 get_font_bits(const QFontPrivate *f)
+static quint8 get_font_bits(const QFontPrivate *f)
 {
     Q_ASSERT(f != 0);
-    Q_UINT8 bits = 0;
+    quint8 bits = 0;
     if (f->request.style)
         bits |= 0x01;
     if (f->underline)
@@ -1642,7 +1642,7 @@ static Q_UINT8 get_font_bits(const QFontPrivate *f)
     Internal function. Sets boolean font settings from an unsigned
     8-bit number. Used for serialization etc.
 */
-static void set_font_bits(Q_UINT8 bits, QFontPrivate *f)
+static void set_font_bits(quint8 bits, QFontPrivate *f)
 {
     Q_ASSERT(f != 0);
     f->request.style         = (bits & 0x01) != 0 ? QFont::StyleItalic : QFont::StyleNormal;
@@ -1774,25 +1774,25 @@ QDataStream &operator<<(QDataStream &s, const QFont &font)
     }
 
     if (s.version() <= 3) {
-        Q_INT16 pointSize = (Q_INT16) font.d->request.pointSize;
+        qint16 pointSize = (qint16) font.d->request.pointSize;
         if (pointSize == -1) {
 #ifdef Q_WS_X11
-            pointSize = (Q_INT16)(font.d->request.pixelSize*720/QX11Info::appDpiY());
+            pointSize = (qint16)(font.d->request.pixelSize*720/QX11Info::appDpiY());
 #else
-            pointSize = (Q_INT16)QFontInfo(font).pointSize() * 10;
+            pointSize = (qint16)QFontInfo(font).pointSize() * 10;
 #endif
         }
         s << pointSize;
     } else {
-        s << (Q_INT16) font.d->request.pointSize;
-        s << (Q_INT16) font.d->request.pixelSize;
+        s << (qint16) font.d->request.pointSize;
+        s << (qint16) font.d->request.pixelSize;
     }
 
-    s << (Q_UINT8) font.d->request.styleHint;
+    s << (quint8) font.d->request.styleHint;
     if (s.version() >= 5)
-        s << (Q_UINT8) font.d->request.styleStrategy;
-    return s << (Q_UINT8) 0
-             << (Q_UINT8) font.d->request.weight
+        s << (quint8) font.d->request.styleStrategy;
+    return s << (quint8) 0
+             << (quint8) font.d->request.weight
              << get_font_bits(font.d);
 }
 
@@ -1813,8 +1813,8 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     font.d = new QFontPrivate;
     font.resolve_mask = QFontPrivate::Complete;
 
-    Q_INT16 pointSize, pixelSize = -1;
-    Q_UINT8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;
+    qint16 pointSize, pixelSize = -1;
+    quint8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;
 
     if (s.version() == 1) {
         QByteArray fam;

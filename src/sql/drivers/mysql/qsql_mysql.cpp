@@ -557,12 +557,12 @@ QCoreVariant QMYSQLResult::lastInsertId()
 
     if (d->preparedQuerys) {
 #if MYSQL_VERSION_ID >= 40108
-        Q_ULONGLONG id = mysql_stmt_insert_id(d->stmt);
+        quint64 id = mysql_stmt_insert_id(d->stmt);
         if (id)
             return QCoreVariant(id);
 #endif
     } else {
-        Q_ULONGLONG id = mysql_insert_id(d->mysql);
+        quint64 id = mysql_insert_id(d->mysql);
         if (id)
             return QCoreVariant(id);
     }
@@ -740,7 +740,7 @@ bool QMYSQLResult::exec()
                 case QCoreVariant::ULongLong:
                     currBind->buffer_type =  MYSQL_TYPE_LONGLONG;
                     currBind->buffer = data;
-                    currBind->buffer_length = sizeof(Q_LONGLONG);
+                    currBind->buffer_length = sizeof(qint64);
                     currBind->is_unsigned = (val.type() == QCoreVariant::ULongLong);
                     break;
                 case QCoreVariant::String:

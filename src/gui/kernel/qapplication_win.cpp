@@ -3201,10 +3201,10 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             csr_physid;
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type);
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
-        Q_LONGLONG llId = csr_type;
+        qint64 llId = csr_type;
         llId = (llId << 24) | csr_physid;
         QTabletEvent e(t, localPos, globalPos, globalPos, dev,
-                       qReal(prsNew / qReal(tdd.maxPressure - tdd.minPressure)),
+                       qreal(prsNew / qreal(tdd.maxPressure - tdd.minPressure)),
                        tiltX, tiltY, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }

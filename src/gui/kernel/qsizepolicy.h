@@ -115,7 +115,7 @@ public:
 private:
     QSizePolicy(int i) : data(i) { }
 
-    Q_UINT32 data;
+    quint32 data;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSizePolicy::SizeType);

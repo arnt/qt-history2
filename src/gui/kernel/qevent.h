@@ -117,11 +117,11 @@ class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
     QTabletEvent(Type t, const QPoint &pos,  const QPoint &globalPos, const QPointF &hiResGlobalPos,
-                 int device, qReal pressure, int xTilt, int yTilt,
-                 Qt::KeyboardModifiers keyState, Q_LONGLONG uniqueID);
+                 int device, qreal pressure, int xTilt, int yTilt,
+                 Qt::KeyboardModifiers keyState, qint64 uniqueID);
     ~QTabletEvent();
 
-    inline qReal pressure() const { return mPress; }
+    inline qreal pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
     inline const QPoint &pos() const { return mPos; }
@@ -131,17 +131,17 @@ public:
     inline int y() const { return mPos.y(); }
     inline int globalX() const { return mGPos.x(); }
     inline int globalY() const { return mGPos.y(); }
-    inline qReal hiResGlobalX() const { return mHiResGlobalPos.x(); }
-    inline qReal hiResGlobalY() const { return mHiResGlobalPos.y(); }
+    inline qreal hiResGlobalX() const { return mHiResGlobalPos.x(); }
+    inline qreal hiResGlobalY() const { return mHiResGlobalPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
-    inline Q_LONGLONG uniqueId() const { return mUnique; }
+    inline qint64 uniqueId() const { return mUnique; }
 
 protected:
     QPoint mPos, mGPos;
     QPointF mHiResGlobalPos;
     int mDev, mXT, mYT;
-    qReal mPress;
-    Q_LONGLONG mUnique;
+    qreal mPress;
+    qint64 mUnique;
 };
 
 

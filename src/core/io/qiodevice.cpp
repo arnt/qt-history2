@@ -192,7 +192,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \enum QIODevice::Offset
     \obsolete
 
-    Use Q_LONGLONG instead.
+    Use qint64 instead.
 */
 
 /*!
@@ -225,7 +225,7 @@ QIODevicePrivate::~QIODevicePrivate()
     (For example, access to a QBuffer is always unbuffered.)
 */
 
-/*!     \fn QIODevice::bytesWritten(Q_LONGLONG bytes)
+/*!     \fn QIODevice::bytesWritten(qint64 bytes)
 
     This signal is emitted every time a payload of data has been
     written to the device. The \a bytes argument is set to the number
@@ -436,16 +436,16 @@ bool QIODevice::flush()
 
     \sa isSequential(), seek()
 */
-Q_LONGLONG QIODevice::pos() const
+qint64 QIODevice::pos() const
 {
-    return Q_LONGLONG(0);
+    return qint64(0);
 }
 
 /*!
     For random-access devices, this function returns the size of the
     device. For sequential devices, bytesAvailable() is returned.
 */
-Q_LONGLONG QIODevice::size() const
+qint64 QIODevice::size() const
 {
     return bytesAvailable();
 }
@@ -458,7 +458,7 @@ Q_LONGLONG QIODevice::size() const
 
     \sa pos()
 */
-bool QIODevice::seek(Q_LONGLONG pos)
+bool QIODevice::seek(qint64 pos)
 {
     Q_UNUSED(pos);
     return false;
@@ -491,7 +491,7 @@ bool QIODevice::reset()
     function is commonly used with sequential devices to determine the
     number of bytes to allocate in a buffer before reading.
 */
-Q_LONGLONG QIODevice::bytesAvailable() const
+qint64 QIODevice::bytesAvailable() const
 {
     return size() - pos();
 }
@@ -503,9 +503,9 @@ Q_LONGLONG QIODevice::bytesAvailable() const
 
     \sa flush()
 */
-Q_LONGLONG QIODevice::bytesToWrite() const
+qint64 QIODevice::bytesToWrite() const
 {
-    return Q_LONGLONG(0);
+    return qint64(0);
 }
 
 /*!
@@ -518,12 +518,12 @@ Q_LONGLONG QIODevice::bytesToWrite() const
 
     \sa readData() readLine() write()
 */
-Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
+qint64 QIODevice::read(char *data, qint64 maxlen)
 {
-    CHECK_OPEN(read, Q_LONGLONG(-1));
-    CHECK_READABLE(read, Q_LONGLONG(-1));
-    CHECK_MAXLEN(read, Q_LONGLONG(-1));
-    Q_LONGLONG readSoFar = Q_LONGLONG(0);
+    CHECK_OPEN(read, qint64(-1));
+    CHECK_READABLE(read, qint64(-1));
+    CHECK_MAXLEN(read, qint64(-1));
+    qint64 readSoFar = qint64(0);
 
     if (int ungetSize = d->ungetBuffer.size()) {
         do {
@@ -534,7 +534,7 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
         d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
     }
 
-    Q_LONGLONG ret = readData(data + readSoFar, maxlen - readSoFar);
+    qint64 ret = readData(data + readSoFar, maxlen - readSoFar);
     if (ret <= 0)
         return readSoFar ? readSoFar : ret;
 
@@ -563,7 +563,7 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
             if (readPtr == writePtr)
                 break;
 
-            Q_LONGLONG newRet = readData(writePtr, readPtr - writePtr);
+            qint64 newRet = readData(writePtr, readPtr - writePtr);
             if (newRet <= 0)
                 break;
 
@@ -585,16 +585,16 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
     QByteArray() can mean either that no data was currently available
     for reading, or that an error occurred.
 */
-QByteArray QIODevice::read(Q_LONGLONG maxlen)
+QByteArray QIODevice::read(qint64 maxlen)
 {
     CHECK_MAXLEN(read, QByteArray());
     QByteArray tmp;
-    Q_LONGLONG readSoFar = 0;
+    qint64 readSoFar = 0;
     char buffer[4096];
 
     do {
-        Q_LONGLONG bytesToRead = qMin(int(maxlen - readSoFar), int(sizeof(buffer)));
-        Q_LONGLONG readBytes = read(buffer, bytesToRead);
+        qint64 bytesToRead = qMin(int(maxlen - readSoFar), int(sizeof(buffer)));
+        qint64 readBytes = read(buffer, bytesToRead);
         if (readBytes <= 0)
             break;
         tmp += QByteArray(buffer, (int) readBytes);
@@ -643,7 +643,7 @@ QByteArray QIODevice::readAll()
         QFile file("box.txt");
         if (file.open(QFile::ReadOnly)) {
             char buf[1024];
-            Q_LONGLONG lineLength = file.readLine(buf, sizeof(buf));
+            qint64 lineLength = file.readLine(buf, sizeof(buf));
             if (lineLength != -1) {
                 // the line is available in buf
             }
@@ -656,14 +656,14 @@ QByteArray QIODevice::readAll()
 
     \sa getChar(), read(), write()
 */
-Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
+qint64 QIODevice::readLine(char *data, qint64 maxlen)
 {
     if (maxlen < 1) {
         qWarning("QIODevice::readLine() called with maxlen < 1");
-        return Q_LONGLONG(-1);
+        return qint64(-1);
     }
 
-    Q_LONGLONG readSoFar = 0;
+    qint64 readSoFar = 0;
     char c;
     bool lastGetSucceeded = false;
     while (readSoFar + 1 < maxlen && (lastGetSucceeded = getChar(&c))) {
@@ -677,7 +677,7 @@ Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
         *data = '\0';
 
     if (!lastGetSucceeded && readSoFar == 0)
-        return Q_LONGLONG(-1);
+        return qint64(-1);
     return readSoFar;
 }
 
@@ -691,14 +691,14 @@ Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
     QByteArray() can mean either that no data was currently available
     for reading, or that an error occurred.
 */
-QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
+QByteArray QIODevice::readLine(qint64 maxlen)
 {
     CHECK_MAXLEN(readLine, QByteArray());
     QByteArray tmp;
     char buffer[4096];
     Q_UNUSED(buffer);
-    Q_LONGLONG readSoFar = 0;
-    Q_LONGLONG readBytes = 0;
+    qint64 readSoFar = 0;
+    qint64 readBytes = 0;
 
     do {
         if (maxlen != 0)
@@ -755,27 +755,27 @@ bool QIODevice::getChar(char *c)
 
     \sa read() writeData()
 */
-Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
+qint64 QIODevice::write(const char *data, qint64 maxlen)
 {
-    CHECK_OPEN(write, Q_LONGLONG(-1));
-    CHECK_WRITABLE(write, Q_LONGLONG(-1));
-    CHECK_MAXLEN(write, Q_LONGLONG(-1));
+    CHECK_OPEN(write, qint64(-1));
+    CHECK_WRITABLE(write, qint64(-1));
+    CHECK_MAXLEN(write, qint64(-1));
 
 #ifdef Q_OS_WIN
     if (d->openMode & Text) {
         const char *endOfData = data + maxlen;
         const char *startOfBlock = data;
 
-        Q_LONGLONG writtenSoFar = 0;
+        qint64 writtenSoFar = 0;
 
         forever {
             const char *endOfBlock = startOfBlock;
             while (endOfBlock < endOfData && *endOfBlock != '\n')
                 ++endOfBlock;
 
-            Q_LONGLONG blockSize = endOfBlock - startOfBlock;
+            qint64 blockSize = endOfBlock - startOfBlock;
             if (blockSize > 0) {
-                Q_LONGLONG ret = writeData(startOfBlock, blockSize);
+                qint64 ret = writeData(startOfBlock, blockSize);
                 if (ret <= 0)
                     return writtenSoFar ? writtenSoFar : ret;
                 writtenSoFar += ret;
@@ -784,7 +784,7 @@ Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
             if (endOfBlock == endOfData)
                 break;
 
-            Q_LONGLONG ret = writeData("\r\n", 2);
+            qint64 ret = writeData("\r\n", 2);
             if (ret <= 0)
                 return writtenSoFar ? writtenSoFar : ret;
             ++writtenSoFar;
@@ -805,7 +805,7 @@ Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
 
     \sa read() writeData()
 */
-Q_LONGLONG QIODevice::write(const QByteArray &byteArray)
+qint64 QIODevice::write(const QByteArray &byteArray)
 {
     return write(byteArray.constData(), byteArray.size());
 }
@@ -902,7 +902,7 @@ QString QIODevice::errorString() const
 }
 
 /*!
-    \fn Q_LONGLONG QIODevice::readData(char *data, Q_LONGLONG maxlen)
+    \fn qint64 QIODevice::readData(char *data, qint64 maxlen)
 
     Reads up to \a maxlen bytes from the device into \a data, and
     returns the number of bytes read or -1 if an error occurred.
@@ -914,7 +914,7 @@ QString QIODevice::errorString() const
 */
 
 /*!
-    \fn Q_LONGLONG QIODevice::writeData(const char *data, Q_LONGLONG maxlen)
+    \fn qint64 QIODevice::writeData(const char *data, qint64 maxlen)
 
     Writes up to \a maxlen bytes from \a data to the device. Returns
     the number of bytes written, or -1 if an error occurred.

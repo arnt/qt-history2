@@ -984,7 +984,7 @@ QFileInfo::permissions() const
     if the size is 0 or if the size cannot be fetched.
 */
 
-Q_LONGLONG
+qint64
 QFileInfo::size() const
 {
     if(!d->data->fileEngine)

@@ -254,18 +254,18 @@ void QAlphaWidget::alphaBlend()
     switch(front.depth()) {
     case 32:
         {
-            Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
-            Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
-            Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
+            quint32** md = (quint32**)mixed.jumpTable();
+            quint32** bd = (quint32**)back.jumpTable();
+            quint32** fd = (quint32**)front.jumpTable();
 
             for (int sy = 0; sy < sh; sy++) {
-                Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
-                Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
+                quint32* bl = ((quint32*)bd[sy]);
+                quint32* fl = ((quint32*)fd[sy]);
                 for (int sx = 0; sx < sw; sx++) {
-                    Q_UINT32 bp = bl[sx];
-                    Q_UINT32 fp = fl[sx];
+                    quint32 bp = bl[sx];
+                    quint32 fp = fl[sx];
 
-                    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
+                    ((quint32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
                                                     int (qGreen(bp)*ia + qGreen(fp)*alpha),
                                                     int (qBlue(bp)*ia + qBlue(fp)*alpha));
                 }

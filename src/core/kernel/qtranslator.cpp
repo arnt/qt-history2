@@ -505,11 +505,11 @@ bool QTranslatorPrivate::do_load(const uchar *data, int len)
 
     s.device()->seek(MagicLength);
 
-    Q_UINT8 tag = 0;
-    Q_UINT32 blockLen = 0;
+    quint8 tag = 0;
+    quint32 blockLen = 0;
     s >> tag >> blockLen;
     while (tag && blockLen) {
-        if ((Q_UINT32) s.device()->pos() + blockLen > (Q_UINT32) len) {
+        if ((quint32) s.device()->pos() + blockLen > (quint32) len) {
             ok = false;
             break;
         }
@@ -556,23 +556,23 @@ bool QTranslator::save(const QString & filename, SaveMode mode)
 
         QDataStream s(&file);
         s.writeRawData((const char *)magic, MagicLength);
-        Q_UINT8 tag;
+        quint8 tag;
 
         if (!d->offsetArray.isEmpty()) {
-            tag = (Q_UINT8)QTranslatorPrivate::Hashes;
-            Q_UINT32 oas = (Q_UINT32)d->offsetArray.size();
+            tag = (quint8)QTranslatorPrivate::Hashes;
+            quint32 oas = (quint32)d->offsetArray.size();
             s << tag << oas;
             s.writeRawData(d->offsetArray, oas);
         }
         if (!d->messageArray.isEmpty()) {
-            tag = (Q_UINT8)QTranslatorPrivate::Messages;
-            Q_UINT32 mas = (Q_UINT32)d->messageArray.size();
+            tag = (quint8)QTranslatorPrivate::Messages;
+            quint32 mas = (quint32)d->messageArray.size();
             s << tag << mas;
             s.writeRawData(d->messageArray, mas);
         }
         if (!d->contextArray.isEmpty()) {
-            tag = (Q_UINT8)QTranslatorPrivate::Contexts;
-            Q_UINT32 cas = (Q_UINT32)d->contextArray.size();
+            tag = (quint8)QTranslatorPrivate::Contexts;
+            quint32 cas = (quint32)d->contextArray.size();
             s << tag << cas;
             s.writeRawData(d->contextArray, cas);
         }
@@ -661,7 +661,7 @@ void QTranslator::squeeze(SaveMode mode)
     while (offset != offsets.end()) {
         QTranslatorPrivate::Offset k = offset.key();
         ++offset;
-        ds << (Q_UINT32)k.h << (Q_UINT32)k.o;
+        ds << (quint32)k.h << (quint32)k.o;
     }
 
     if (mode == Stripped) {
@@ -669,7 +669,7 @@ void QTranslator::squeeze(SaveMode mode)
         for (it = messages.constBegin(); it != messages.constEnd(); ++it)
             ++contextSet[it.key().context()];
 
-        Q_UINT16 hTableSize;
+        quint16 hTableSize;
         if (contextSet.size() < 200)
             hTableSize = (contextSet.size() < 60) ? 151 : 503;
         else if (contextSet.size() < 2500)
@@ -687,14 +687,14 @@ void QTranslator::squeeze(SaveMode mode)
           table to provide fast lookup. The context array has the
           following format:
 
-              Q_UINT16 hTableSize;
-              Q_UINT16 hTable[hTableSize];
-              Q_UINT8  contextPool[...];
+              quint16 hTableSize;
+              quint16 hTable[hTableSize];
+              quint8  contextPool[...];
 
           The context pool stores the contexts as Pascal strings:
 
-              Q_UINT8  len;
-              Q_UINT8  data[len];
+              quint8  len;
+              quint8  data[len];
 
           Let's consider the look-up of context "FunnyDialog".  A
           hash value between 0 and hTableSize - 1 is computed, say h.
@@ -707,29 +707,29 @@ void QTranslator::squeeze(SaveMode mode)
         d->contextArray.resize(2 + (hTableSize << 1));
         QDataStream t(&d->contextArray, QIODevice::WriteOnly);
 
-        Q_UINT16 *hTable = new Q_UINT16[hTableSize];
-        memset(hTable, 0, hTableSize * sizeof(Q_UINT16));
+        quint16 *hTable = new quint16[hTableSize];
+        memset(hTable, 0, hTableSize * sizeof(quint16));
 
         t << hTableSize;
         t.device()->seek(2 + (hTableSize << 1));
-        t << (Q_UINT16)0; // the entry at offset 0 cannot be used
+        t << (quint16)0; // the entry at offset 0 cannot be used
         uint upto = 2;
 
         QMap<int, const char *>::const_iterator entry = hashMap.constBegin();
         while (entry != hashMap.constEnd()) {
             int i = entry.key();
             const char *con = entry.value();
-            hTable[i] = (Q_UINT16)(upto >> 1);
+            hTable[i] = (quint16)(upto >> 1);
             uint len = (uint)qstrlen(con);
             len = qMin(len, 255u);
-            t << (Q_UINT8)len;
+            t << (quint8)len;
             t.writeRawData(con, len);
             upto += 1 + len;
 
             ++entry;
             if (entry == hashMap.constEnd() || entry.key() != i) {
                 do {
-                    t << (Q_UINT8) 0; // empty string
+                    t << (quint8) 0; // empty string
                     ++upto;
                 } while ((upto & 0x1) != 0); // offsets have to be even
             }
@@ -883,18 +883,18 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
         translators are installed, this step is necessary.
     */
     if (!d->contextArray.isEmpty()) {
-        Q_UINT16 hTableSize = 0;
+        quint16 hTableSize = 0;
         QDataStream t(d->contextArray);
         t >> hTableSize;
         uint g = elfHash(context) % hTableSize;
         t.device()->seek(2 + (g << 1));
-        Q_UINT16 off;
+        quint16 off;
         t >> off;
         if (off == 0)
             return QTranslatorMessage();
         t.device()->seek(2 + (hTableSize << 1) + (off << 1));
 
-        Q_UINT8 len;
+        quint8 len;
         char con[256];
         for (;;) {
             t >> len;
@@ -907,15 +907,15 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
         }
     }
 
-    size_t numItems = d->offsetArray.size() / (2 * sizeof(Q_UINT32));
+    size_t numItems = d->offsetArray.size() / (2 * sizeof(quint32));
     if (!numItems)
         return QTranslatorMessage();
 
     for (;;) {
-        Q_UINT32 h = elfHash(QByteArray(sourceText) + comment);
+        quint32 h = elfHash(QByteArray(sourceText) + comment);
 
         char *r = (char *) bsearch(&h, d->offsetArray, numItems,
-                                   2 * sizeof(Q_UINT32),
+                                   2 * sizeof(quint32),
                                    (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? cmp_uint32_big
                                    : cmp_uint32_little);
         if (r != 0) {
@@ -926,7 +926,7 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
             QDataStream s(d->offsetArray);
             s.device()->seek(r - d->offsetArray.constData());
 
-            Q_UINT32 rh, ro;
+            quint32 rh, ro;
             s >> rh >> ro;
 
             QDataStream ms(d->messageArray);
@@ -1062,7 +1062,7 @@ QTranslatorMessage::QTranslatorMessage(QDataStream & stream)
 {
     QString str16;
     char tag;
-    Q_UINT8 obs1;
+    quint8 obs1;
 
     for (;;) {
         tag = 0;

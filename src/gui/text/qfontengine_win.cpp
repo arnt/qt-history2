@@ -46,7 +46,7 @@ extern fScriptFreeCache ScriptFreeCache;
 #endif
 
 static unsigned char *getCMap(HDC hdc, bool &);
-static Q_UINT16 getGlyphIndex(unsigned char *table, unsigned short unicode);
+static quint16 getGlyphIndex(unsigned char *table, unsigned short unicode);
 
 
 HDC   shared_dc            = 0;                // common dc for all fonts
@@ -73,7 +73,7 @@ QFontEngine::~QFontEngine()
 }
 
 // ##### get these from windows
-qReal QFontEngine::lineThickness() const
+qreal QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -87,7 +87,7 @@ qReal QFontEngine::lineThickness() const
 }
 
 // ##### get these from windows
-qReal QFontEngine::underlinePosition() const
+qreal QFontEngine::underlinePosition() const
 {
     return (lineThickness() * 2 + 3) / 6.0;
 }
@@ -293,22 +293,22 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
     return glyph_metrics_t();
 }
 
-qReal QFontEngineWin::ascent() const
+qreal QFontEngineWin::ascent() const
 {
     return tm.w.tmAscent;
 }
 
-qReal QFontEngineWin::descent() const
+qreal QFontEngineWin::descent() const
 {
     return tm.w.tmDescent;
 }
 
-qReal QFontEngineWin::leading() const
+qreal QFontEngineWin::leading() const
 {
     return tm.w.tmExternalLeading;
 }
 
-qReal QFontEngineWin::maxCharWidth() const
+qreal QFontEngineWin::maxCharWidth() const
 {
     return tm.w.tmMaxCharWidth;
 }
@@ -339,7 +339,7 @@ static const ushort char_table[] = {
 static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
 
 
-qReal QFontEngineWin::minLeftBearing() const
+qreal QFontEngineWin::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
         minRightBearing(); // calculates both
@@ -347,7 +347,7 @@ qReal QFontEngineWin::minLeftBearing() const
     return lbearing;
 }
 
-qReal QFontEngineWin::minRightBearing() const
+qreal QFontEngineWin::minRightBearing() const
 {
 #ifdef Q_OS_TEMP
         return 0;
@@ -488,7 +488,7 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #define GGO_UNHINTED 0x0100
 #endif
 
-void QFontEngineWin::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs,
+void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path)
 {
     QPointF oset(x, y);
@@ -621,9 +621,9 @@ void QFontEngineWin::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyp
     ((DWORD)(ch1)) \
    )
 
-static inline Q_UINT32 getUInt(unsigned char *p)
+static inline quint32 getUInt(unsigned char *p)
 {
-    Q_UINT32 val;
+    quint32 val;
     val = *p++ << 24;
     val |= *p++ << 16;
     val |= *p++ << 8;
@@ -632,16 +632,16 @@ static inline Q_UINT32 getUInt(unsigned char *p)
     return val;
 }
 
-static inline Q_UINT16 getUShort(unsigned char *p)
+static inline quint16 getUShort(unsigned char *p)
 {
-    Q_UINT16 val;
+    quint16 val;
     val = *p++ << 8;
     val |= *p;
 
     return val;
 }
 
-static inline void tag_to_string(char *string, Q_UINT32 tag)
+static inline void tag_to_string(char *string, quint32 tag)
 {
     string[0] = (tag >> 24)&0xff;
     string[1] = (tag >> 16)&0xff;
@@ -650,7 +650,7 @@ static inline void tag_to_string(char *string, Q_UINT32 tag)
     string[4] = 0;
 }
 
-static Q_UINT16 getGlyphIndex(unsigned char *table, unsigned short unicode)
+static quint16 getGlyphIndex(unsigned char *table, unsigned short unicode)
 {
     unsigned short format = getUShort(table);
     if (format == 0) {
@@ -659,26 +659,26 @@ static Q_UINT16 getGlyphIndex(unsigned char *table, unsigned short unicode)
     } else if (format == 2) {
         qWarning("format 2 encoding table for Unicode, not implemented!");
     } else if (format == 4) {
-        Q_UINT16 segCountX2 = getUShort(table + 6);
+        quint16 segCountX2 = getUShort(table + 6);
         unsigned char *ends = table + 14;
-        Q_UINT16 endIndex = 0;
+        quint16 endIndex = 0;
         int i = 0;
         for (; i < segCountX2/2 && (endIndex = getUShort(ends + 2*i)) < unicode; i++);
 
         unsigned char *idx = ends + segCountX2 + 2 + 2*i;
-        Q_UINT16 startIndex = getUShort(idx);
+        quint16 startIndex = getUShort(idx);
 
         if (startIndex > unicode)
             return 0;
 
         idx += segCountX2;
-        Q_INT16 idDelta = (Q_INT16)getUShort(idx);
+        qint16 idDelta = (qint16)getUShort(idx);
         idx += segCountX2;
-        Q_UINT16 idRangeoffset_t = (Q_UINT16)getUShort(idx);
+        quint16 idRangeoffset_t = (quint16)getUShort(idx);
 
-        Q_UINT16 glyphIndex;
+        quint16 glyphIndex;
         if (idRangeoffset_t) {
-            Q_UINT16 id = getUShort(idRangeoffset_t + 2*(unicode - startIndex) + idx);
+            quint16 id = getUShort(idRangeoffset_t + 2*(unicode - startIndex) + idx);
             if (id)
                 glyphIndex = (idDelta + id) % 0x10000;
             else
@@ -725,7 +725,7 @@ static unsigned char *getCMap(HDC hdc, bool &symbol)
     symbol = true;
     unsigned int unicode_table = 0;
     for (int n = 0; n < numTables; n++) {
-        Q_UINT32 version = getUInt(maps + 8*n);
+        quint32 version = getUInt(maps + 8*n);
         // accept both symbol and Unicode encodings. prefer unicode.
         if (version == 0x00030001 || version == 0x00030000) {
             unicode_table = getUInt(maps + 8*n + 4);

@@ -34,7 +34,7 @@ class QAccessiblePluginPrivate;
 class Q_GUI_EXPORT QAccessiblePlugin : public QObject, public QAccessibleFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QAccessibleFactoryInterface:QFactoryInterface)
+    qintERFACES(QAccessibleFactoryInterface:QFactoryInterface)
 public:
     explicit QAccessiblePlugin(QObject *parent = 0);
     ~QAccessiblePlugin();

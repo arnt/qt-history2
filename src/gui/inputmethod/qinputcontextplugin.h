@@ -51,7 +51,7 @@ Q_DECLARE_INTERFACE(QInputContextFactoryInterface, "http://trolltech.com/Qt/QInp
 class Q_GUI_EXPORT QInputContextPlugin : public QObject, public QInputContextFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QInputContextFactoryInterface:QFactoryInterface)
+    qintERFACES(QInputContextFactoryInterface:QFactoryInterface)
 public:
     explicit QInputContextPlugin(QObject *parent = 0);
     ~QInputContextPlugin();

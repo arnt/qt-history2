@@ -39,7 +39,7 @@ Q3Membuf::~Q3Membuf()
 */
 bool Q3Membuf::consumeBytes(Q_ULONG nbytes, char *sink)
 {
-    if (nbytes <= 0 || nbytes > _size)
+    if (nbytes <= 0 || (qint64)nbytes > _size)
         return false;
     _size -= nbytes;
     while (!buf.isEmpty()) {

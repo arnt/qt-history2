@@ -58,8 +58,8 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
 //     qDebug("baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
-    qReal size = f->ascent()/10.;
-    qReal offsetBase = (size - 4) / 4 + qMin(size, 4) + 1;
+    qreal size = f->ascent()/10.;
+    qreal offsetBase = (size - 4) / 4 + qMin(size, 4) + 1;
 //     qDebug("offset = %d", offsetBase);
 
     bool rightToLeft = item->flags & QTextEngine::RightToLeft;
@@ -74,7 +74,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         glyph_metrics_t markInfo = f->boundingBox(mark);
         QRectF markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
 
-        qReal offset = offsetBase;
+        qreal offset = offsetBase;
         unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
 
         // ### maybe the whole position determination should move down to heuristicSetGlyphAttributes. Would save some

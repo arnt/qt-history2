@@ -165,7 +165,7 @@ typedef void * qt_sockaddr_in6 ;
     Extracts the port and address from a sockaddr, and stores them in
     \a port and \a addr if they are non-null.
 */
-static inline void qt_socket_getPortAndAddress(SOCKET socketDescriptor, struct sockaddr *sa, Q_UINT16 *port, QHostAddress *address)
+static inline void qt_socket_getPortAndAddress(SOCKET socketDescriptor, struct sockaddr *sa, quint16 *port, QHostAddress *address)
 {
 #if !defined (QT_NO_IPV6)
     if (sa->sa_family == AF_INET6) {
@@ -200,7 +200,7 @@ static inline void qt_socket_getPortAndAddress(SOCKET socketDescriptor, struct s
     Sets the port and address to a sockaddr. Requires that sa point to the IPv6 struct if the address is IPv6.
 */
 static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr_in * sockAddrIPv4, qt_sockaddr_in6 * sockAddrIPv6,
-                                               Q_UINT16 port, const QHostAddress & address, sockaddr ** sockAddrPtr, QT_SOCKLEN_T *sockAddrSize)
+                                               quint16 port, const QHostAddress & address, sockaddr ** sockAddrPtr, QT_SOCKLEN_T *sockAddrSize)
 {
 #if !defined(QT_NO_IPV6)
     if (address.protocol() == QAbstractSocket::IPv6Protocol) {
@@ -456,7 +456,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 }
 
 
-bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 port)
+bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 port)
 {
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
@@ -523,7 +523,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 po
 }
 
 
-bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
+bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
 {
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
@@ -612,7 +612,7 @@ int QSocketLayerPrivate::nativeAccept()
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativeBytesAvailable() const
+qint64 QSocketLayerPrivate::nativeBytesAvailable() const
 {
     unsigned long  nbytes = 0;
     unsigned long dummy = 0;
@@ -688,9 +688,9 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
+qint64 QSocketLayerPrivate::nativePendingDatagramSize() const
 {
-    Q_LONGLONG ret = -1;
+    qint64 ret = -1;
     int recvResult = 0;
     DWORD flags;
     DWORD bufferCount = 5;
@@ -711,7 +711,7 @@ Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
         recvResult = ::WSARecv(socketDescriptor, buf, bufferCount, &bytesRead, &flags, 0,0);
 
         if (recvResult != SOCKET_ERROR) {
-            ret = Q_LONGLONG(bytesRead);
+            ret = qint64(bytesRead);
             break;
         } else if (recvResult == SOCKET_ERROR && WSAGetLastError() == WSAEMSGSIZE) {
            bufferCount += 5;
@@ -734,10 +734,10 @@ Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG maxLength,
-                                                      QHostAddress *address, Q_UINT16 *port)
+qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
+                                                      QHostAddress *address, quint16 *port)
 {
-    Q_LONGLONG ret = 0;
+    qint64 ret = 0;
 
 #if !defined(QT_NO_IPV6)
     qt_sockaddr_storage aa;
@@ -758,7 +758,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
         setError(QAbstractSocket::NetworkError, "Unable to receive a message");
         ret = -1;
     } else {
-        ret = Q_LONGLONG(bytesRead);
+        ret = qint64(bytesRead);
     }
 
     qt_socket_getPortAndAddress(socketDescriptor, (struct sockaddr *) &aa, port, address);
@@ -774,10 +774,10 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG len,
-                                                   const QHostAddress &address, Q_UINT16 port)
+qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
+                                                   const QHostAddress &address, quint16 port)
 {
-    Q_LONGLONG ret = -1;
+    qint64 ret = -1;
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
     struct sockaddr *sockAddrPtr;
@@ -802,7 +802,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
         }
         ret = -1;
     } else {
-        ret = Q_LONGLONG(bytesSent);
+        ret = qint64(bytesSent);
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
@@ -815,12 +815,12 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
+qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
 {
-    Q_LONGLONG ret = 0;
+    qint64 ret = 0;
     // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
     for (;;) {
-        Q_LONGLONG bytesToSend = qMin(49152, len - ret);
+        qint64 bytesToSend = qMin(49152, len - ret);
         WSABUF buf;
         buf.buf = (char*)data + ret;
         buf.len = bytesToSend;
@@ -829,7 +829,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 
         int socketRet = ::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0);
 
-        ret += Q_LONGLONG(bytesWritten);
+        ret += qint64(bytesWritten);
 
         if (socketRet != SOCKET_ERROR) {
             if (ret == len)
@@ -863,9 +863,9 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 }
 
 
-Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxLength)
+qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
 {
-    Q_LONGLONG ret = -1;
+    qint64 ret = -1;
     WSABUF buf;
     buf.buf = data;
     buf.len = maxLength;
@@ -883,7 +883,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxLength)
         }
 
     } else {
-	ret = Q_LONGLONG(bytesRead);
+	ret = qint64(bytesRead);
     }
 
 #if defined (QSOCKETLAYER_DEBUG)

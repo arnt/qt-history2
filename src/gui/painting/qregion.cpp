@@ -164,7 +164,7 @@ void QRegion::exec(const QByteArray &buffer, int ver)
     int test_cnt = 0;
 #endif
     while (!s.atEnd()) {
-        Q_INT32 id;
+        qint32 id;
         if (s.version() == 1) {
             int id_int;
             s >> id_int;
@@ -213,7 +213,7 @@ void QRegion::exec(const QByteArray &buffer, int ver)
             }
         } else if (id == QRGN_RECTS) {
             // (This is the only form used in Qt 2.0)
-            Q_UINT32 n;
+            quint32 n;
             s >> n;
             QRect r;
             for (int i=0; i<(int)n; i++) {
@@ -243,20 +243,20 @@ QDataStream &operator<<(QDataStream &s, const QRegion &r)
 {
     QVector<QRect> a = r.rects();
     if (a.isEmpty()) {
-        s << (Q_UINT32)0;
+        s << (quint32)0;
     } else {
         if (s.version() == 1) {
             int i;
             for (i = a.size() - 1; i > 0; --i) {
-                s << (Q_UINT32)(12 + i * 24);
+                s << (quint32)(12 + i * 24);
                 s << (int)QRGN_OR;
             }
             for (i = 0; i < a.size(); ++i) {
-                s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
+                s << (quint32)(4+8) << (int)QRGN_SETRECT << a[i];
             }
         } else {
-            s << (Q_UINT32)(4 + 4 + 16 * a.size()); // 16: storage size of QRect
-            s << (Q_INT32)QRGN_RECTS;
+            s << (quint32)(4 + 4 + 16 * a.size()); // 16: storage size of QRect
+            s << (qint32)QRGN_RECTS;
             s << a;
         }
     }

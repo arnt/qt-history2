@@ -104,12 +104,12 @@
 
 QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
 {
-    return stream << Q_INT32(length.lengthType) << length.fixedValueOrPercentage;
+    return stream << qint32(length.lengthType) << length.fixedValueOrPercentage;
 }
 
 QDataStream &operator>>(QDataStream &stream, QTextLength &length)
 {
-    Q_INT32 type;
+    qint32 type;
     stream >> type >> length.fixedValueOrPercentage;
     length.lengthType = QTextLength::Type(type);
     return stream;
@@ -120,10 +120,10 @@ class QTextFormatPrivate : public QSharedData
 public:
     QTextFormatPrivate() : hashDirty(true), hashValue(0) {}
 
-    // keep Q_INT* types here, so we can safely stream to a datastream
-    typedef QMap<Q_INT32, QVariant> PropertyMap;
+    // keep qint* types here, so we can safely stream to a datastream
+    typedef QMap<qint32, QVariant> PropertyMap;
 
-    Q_INT32 type;
+    qint32 type;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
         if (hash() != rhs.hash() || type != rhs.type)
@@ -132,13 +132,13 @@ public:
         return props == rhs.props;
     }
 
-    inline void insertProperty(Q_INT32 key, const QVariant &value)
+    inline void insertProperty(qint32 key, const QVariant &value)
     {
         hashDirty = true;
         props.insert(key, value);
     }
 
-    inline void clearProperty(Q_INT32 key)
+    inline void clearProperty(qint32 key)
     {
         hashDirty = true;
         props.remove(key);

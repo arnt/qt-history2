@@ -1711,18 +1711,18 @@ QDebug operator<<(QDebug dbg, const QColor &c)
 QDataStream &operator<<(QDataStream &stream, const QColor &color)
 {
     if (stream.version() < 7) {
-        Q_UINT32 p = (Q_UINT32)color.rgb();
+        quint32 p = (quint32)color.rgb();
         if (stream.version() == 1) // Swap red and blue
             p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
         return stream << p;
     }
 
-    Q_INT8   s = color.cspec;
-    Q_UINT16 a = color.ct.argb.alpha;
-    Q_UINT16 r = color.ct.argb.red;
-    Q_UINT16 g = color.ct.argb.green;
-    Q_UINT16 b = color.ct.argb.blue;
-    Q_UINT16 p = color.ct.argb.pad;
+    qint8   s = color.cspec;
+    quint16 a = color.ct.argb.alpha;
+    quint16 r = color.ct.argb.red;
+    quint16 g = color.ct.argb.green;
+    quint16 b = color.ct.argb.blue;
+    quint16 p = color.ct.argb.pad;
 
     stream << s;
     stream << a;
@@ -1745,7 +1745,7 @@ QDataStream &operator<<(QDataStream &stream, const QColor &color)
 QDataStream &operator>>(QDataStream &stream, QColor &color)
 {
     if (stream.version() < 7) {
-        Q_UINT32 p;
+        quint32 p;
         stream >> p;
         if (stream.version() == 1) // Swap red and blue
             p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
@@ -1753,8 +1753,8 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
         return stream;
     }
 
-    Q_INT8 s;
-    Q_UINT16 a, r, g, b, p;
+    qint8 s;
+    quint16 a, r, g, b, p;
     stream >> s;
     stream >> a;
     stream >> r;

@@ -427,9 +427,9 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 QDataStream &operator<<(QDataStream &s, const QSize &sz)
 {
     if (s.version() == 1)
-        s << (Q_INT16)sz.width() << (Q_INT16)sz.height();
+        s << (qint16)sz.width() << (qint16)sz.height();
     else
-        s << (Q_INT32)sz.width() << (Q_INT32)sz.height();
+        s << (qint32)sz.width() << (qint32)sz.height();
     return s;
 }
 
@@ -446,12 +446,12 @@ QDataStream &operator<<(QDataStream &s, const QSize &sz)
 QDataStream &operator>>(QDataStream &s, QSize &sz)
 {
     if (s.version() == 1) {
-        Q_INT16 w, h;
+        qint16 w, h;
         s >> w;  sz.rwidth() = w;
         s >> h;  sz.rheight() = h;
     }
     else {
-        Q_INT32 w, h;
+        qint32 w, h;
         s >> w;  sz.rwidth() = w;
         s >> h;  sz.rheight() = h;
     }
@@ -509,7 +509,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn QSizeF::QSizeF(qReal width, qReal height)
+    \fn QSizeF::QSizeF(qreal width, qreal height)
 
     Constructs a size with width \a width and height \a height.
 */
@@ -558,7 +558,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn void QSizeF::setWidth(qReal width)
+    \fn void QSizeF::setWidth(qreal width)
 
     Sets the width to \a width.
 
@@ -566,7 +566,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn void QSizeF::setHeight(qReal height)
+    \fn void QSizeF::setHeight(qreal height)
 
     Sets the height to \a height.
 
@@ -589,13 +589,13 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
 void QSizeF::transpose()
 {
-    qReal tmp = wd;
+    qreal tmp = wd;
     wd = ht;
     ht = tmp;
 }
 
 /*!
-  \fn void QSizeF::scale(qReal w, qReal h, Qt::AspectRatioMode mode)
+  \fn void QSizeF::scale(qreal w, qreal h, Qt::AspectRatioMode mode)
 
     Scales the size to a rectangle of width \a w and height \a h according
     to the Qt::AspectRatioMode \a mode.
@@ -638,7 +638,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
         ht = s.ht;
     } else {
         bool useHeight;
-        qReal rw = s.ht * wd / ht;
+        qreal rw = s.ht * wd / ht;
 
         if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
@@ -724,7 +724,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator*=(qReal c)
+    \fn QSizeF &QSizeF::operator*=(qreal c)
 
     \overload
 
@@ -793,7 +793,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(const QSizeF &s, qReal c)
+    \fn const QSizeF operator*(const QSizeF &s, qreal c)
 
     \overload
     \relates QSizeF
@@ -804,7 +804,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(qReal c, const QSizeF &s)
+    \fn const QSizeF operator*(qreal c, const QSizeF &s)
 
     \overload
     \relates QSizeF
@@ -824,7 +824,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator/=(qReal c)
+    \fn QSizeF &QSizeF::operator/=(qreal c)
 
     \overload
 
@@ -847,7 +847,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator/(const QSizeF &s, qReal c)
+    \fn const QSizeF operator/(const QSizeF &s, qreal c)
 
     \relates QSizeF
     \overload

@@ -32,22 +32,22 @@ class QPolygonF;
 class Q_GUI_EXPORT QBezier
 {
 public:
-    QBezier(qReal p1x, qReal p1y, qReal p2x, qReal p2y,
-                 qReal p3x, qReal p3y, qReal p4x, qReal p4y);
+    QBezier(qreal p1x, qreal p1y, qreal p2x, qreal p2y,
+                 qreal p3x, qreal p3y, qreal p4x, qreal p4y);
     QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 
 #ifdef QT_USE_FIXED_POINT
     inline QPointF pointAt(QFixedPointLong t) const;
 #else
-    inline QPointF pointAt(qReal t) const;
+    inline QPointF pointAt(qreal t) const;
 #endif
     QPolygonF toPolygon() const;
 
 private:
     void init();
 
-    qReal x1, y1, x2, y2, x3, y3, x4, y4;
-    qReal ax, bx, cx, dx, ay, by, cy, dy;
+    qreal x1, y1, x2, y2, x3, y3, x4, y4;
+    qreal ax, bx, cx, dx, ay, by, cy, dy;
 };
 
 #ifdef QT_USE_FIXED_POINT
@@ -63,7 +63,7 @@ inline QPointF QBezier::pointAt(QFixedPointLong _t) const
                    (_ay*_t*_t*_t + _by*_t*_t + _cy*_t).toFixed() + dy);
 }
 #else
-inline QPointF QBezier::pointAt(qReal t) const
+inline QPointF QBezier::pointAt(qreal t) const
 {
     Q_ASSERT(t >= 0);
     Q_ASSERT(t <= 1);

@@ -58,13 +58,13 @@ public:
         data(0) {}
     ~QGlyph() {}
 
-    Q_UINT8 pitch;
-    Q_UINT8 width;
-    Q_UINT8 height;
+    quint8 pitch;
+    quint8 width;
+    quint8 height;
 
-    Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
-    Q_UINT8 advance;       // Difference between pen positions
-    Q_INT8 bearingy;      // Used for putting characters on baseline
+    qint8 bearingx;      // Difference from pen position to glyph's left bbox
+    quint8 advance;       // Difference between pen positions
+    qint8 bearingy;      // Used for putting characters on baseline
 
     bool mono :1;
     uint reserved:15;
@@ -258,7 +258,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
     if (numGlyphs == 0)
         return glyph_metrics_t();
 
-    qReal w = 0;
+    qreal w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
@@ -296,7 +296,7 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
     }
 }
 
-void QFontEngineFT::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
 {
     if (FT_IS_SCALABLE(face)) {
         QPointF point = QPointF(x, y);
@@ -372,46 +372,46 @@ bool QFontEngineFT::canRender(const QChar *string,  int len)
 #define CEIL(x)   (((x)+63) & -64)
 #define TRUNC(x)  ((x) >> 6)
 
-qReal QFontEngineFT::ascent() const
+qreal QFontEngineFT::ascent() const
 {
     return face->size->metrics.ascender/64.;
 }
 
-qReal QFontEngineFT::descent() const
+qreal QFontEngineFT::descent() const
 {
     return -face->size->metrics.descender/64.;
 }
 
-qReal QFontEngineFT::leading() const
+qreal QFontEngineFT::leading() const
 {
     return (face->size->metrics.height
             - face->size->metrics.ascender /*ascent*/
             + face->size->metrics.descender)/64.;
 }
 
-qReal QFontEngineFT::maxCharWidth() const
+qreal QFontEngineFT::maxCharWidth() const
 {
     return face->size->metrics.max_advance/64.;
 }
 
-qReal QFontEngineFT::minLeftBearing() const
+qreal QFontEngineFT::minLeftBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinLeftBearing(handle())*_scale)>>8;
 }
 
-qReal QFontEngineFT::minRightBearing() const
+qreal QFontEngineFT::minRightBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinRightBearing(handle())*_scale)>>8;
 }
 
-qReal QFontEngineFT::underlinePosition() const
+qreal QFontEngineFT::underlinePosition() const
 {
     return FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
 }
 
-qReal QFontEngineFT::lineThickness() const
+qreal QFontEngineFT::lineThickness() const
 {
     return FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
 }
@@ -450,7 +450,7 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
 }
 
 
-qReal QFontEngine::lineThickness() const
+qreal QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -463,7 +463,7 @@ qReal QFontEngine::lineThickness() const
     return lw;
 }
 
-qReal QFontEngine::underlinePosition() const
+qreal QFontEngine::underlinePosition() const
 {
     return ((lineThickness() * 2) + 3) / 6;
 }
@@ -486,16 +486,16 @@ QFontEngine::~QFontEngine()
 class Q_PACKED QPFGlyphMetrics {
 
 public:
-    Q_UINT8 linestep;
-    Q_UINT8 width;
-    Q_UINT8 height;
-    Q_UINT8 flags;
+    quint8 linestep;
+    quint8 width;
+    quint8 height;
+    quint8 flags;
 
-    Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
-    Q_UINT8 advance;       // Difference between pen positions
-    Q_INT8 bearingy;      // Used for putting characters on baseline
+    qint8 bearingx;      // Difference from pen position to glyph's left bbox
+    quint8 advance;       // Difference between pen positions
+    qint8 bearingy;      // Used for putting characters on baseline
 
-    Q_INT8 reserved;      // Do not use
+    qint8 reserved;      // Do not use
 
     // Flags:
     // RendererOwnsData - the renderer is responsible for glyph data
@@ -516,14 +516,14 @@ public:
 };
 
 struct Q_PACKED QPFFontMetrics{
-    Q_INT8 ascent,descent;
-    Q_INT8 leftbearing,rightbearing;
-    Q_UINT8 maxwidth;
-    Q_INT8 leading;
-    Q_UINT8 flags;
-    Q_UINT8 underlinepos;
-    Q_UINT8 underlinewidth;
-    Q_UINT8 reserved3;
+    qint8 ascent,descent;
+    qint8 leftbearing,rightbearing;
+    quint8 maxwidth;
+    qint8 leading;
+    quint8 flags;
+    quint8 underlinepos;
+    quint8 underlinewidth;
+    quint8 reserved3;
 };
 
 
@@ -900,7 +900,7 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
    if (numGlyphs == 0)
         return glyph_metrics_t();
 
-    qReal w = 0;
+    qreal w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
@@ -917,22 +917,22 @@ glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
                             g->metrics->advance, 0);
 }
 
-qReal QFontEngineQPF::ascent() const
+qreal QFontEngineQPF::ascent() const
 {
     return d->fm.ascent;
 }
 
-qReal QFontEngineQPF::descent() const
+qreal QFontEngineQPF::descent() const
 {
     return d->fm.descent;
 }
 
-qReal QFontEngineQPF::leading() const
+qreal QFontEngineQPF::leading() const
 {
     return d->fm.leading;
 }
 
-qReal QFontEngineQPF::maxCharWidth() const
+qreal QFontEngineQPF::maxCharWidth() const
 {
     return d->fm.maxwidth;
 }
@@ -955,22 +955,22 @@ QFontEngine::Type QFontEngineQPF::type() const
     return QPF;
 }
 
-qReal QFontEngineQPF::minLeftBearing() const
+qreal QFontEngineQPF::minLeftBearing() const
 {
     return d->fm.leftbearing;
 }
 
-qReal QFontEngineQPF::minRightBearing() const
+qreal QFontEngineQPF::minRightBearing() const
 {
     return d->fm.rightbearing;
 }
 
-qReal QFontEngineQPF::underlinePosition() const
+qreal QFontEngineQPF::underlinePosition() const
 {
     return d->fm.underlinepos;
 }
 
-qReal QFontEngineQPF::lineThickness() const
+qreal QFontEngineQPF::lineThickness() const
 {
     return d->fm.underlinewidth;
 }

@@ -711,8 +711,8 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    GLfloat tc_w = qToDouble(qReal(r.width())/pm.width());
-    GLfloat tc_h = qToDouble(qReal(r.height())/pm.height());
+    GLfloat tc_w = qToDouble(qreal(r.width())/pm.width());
+    GLfloat tc_h = qToDouble(qreal(r.height())/pm.height());
 
     // Rotate the texture so that it is aligned correctly and the
     // wrapping is done correctly
@@ -753,10 +753,10 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 
     glBegin(GL_QUADS);
     {
-        qReal x1 = sr.x() / tx_width;
-        qReal x2 = x1 + sr.width() / tx_width;
-        qReal y1 = sr.y() / tx_height;
-        qReal y2 = y1 + sr.height() / tx_height;
+        qreal x1 = sr.x() / tx_width;
+        qreal x2 = x1 + sr.width() / tx_width;
+        qreal y1 = sr.y() / tx_height;
+        qreal y2 = y1 + sr.height() / tx_height;
         glTexCoord2f(qToDouble(x1), qToDouble(y2)); glVertex2f(qToDouble(r.x()), qToDouble(r.y()));
         glTexCoord2f(qToDouble(x2), qToDouble(y2)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()));
         glTexCoord2f(qToDouble(x2), qToDouble(y1)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
@@ -803,8 +803,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     int dx = qRound(gstop.x() - gstart.x());
     int dy = qRound(gstop.y() - gstart.y());
 
-    qReal rw = rect.width();
-    qReal rh = rect.height();
+    qreal rw = rect.width();
+    qreal rh = rect.height();
 
     if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
         // Make sure we fill left to right.

@@ -19,12 +19,12 @@
 
 #include <math.h>
 
-void QFontEngine::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
 {
     addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
 }
 
-void QFontEngine::addBitmapFontToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs,
+void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                                  QPainterPath *path)
 {
     glyph_metrics_t metrics = boundingBox(glyphs, numGlyphs);
@@ -131,23 +131,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
 
 
 
-qReal QFontEngineBox::ascent() const
+qreal QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-qReal QFontEngineBox::descent() const
+qreal QFontEngineBox::descent() const
 {
     return 0;
 }
 
-qReal QFontEngineBox::leading() const
+qreal QFontEngineBox::leading() const
 {
-    qReal l = _size * 0.15;
+    qreal l = _size * 0.15;
     return ceil(l);
 }
 
-qReal QFontEngineBox::maxCharWidth() const
+qreal QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }

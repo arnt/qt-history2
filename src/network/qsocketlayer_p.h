@@ -33,36 +33,36 @@ public:
 
     bool isValid() const;
 
-    bool connectToHost(const QHostAddress &address, Q_UINT16 port);
-    bool bind(const QHostAddress &address, Q_UINT16 port);
+    bool connectToHost(const QHostAddress &address, quint16 port);
+    bool bind(const QHostAddress &address, quint16 port);
     bool listen();
     int accept();
     void close();
 
-    Q_LONGLONG bytesAvailable() const;
+    qint64 bytesAvailable() const;
 
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    qint64 read(char *data, qint64 maxlen);
+    qint64 write(const char *data, qint64 len);
 
-    Q_LONGLONG readDatagram(char *data, Q_LONGLONG maxlen, QHostAddress *addr = 0,
-                            Q_UINT16 *port = 0);
-    Q_LONGLONG writeDatagram(const char *data, Q_LONGLONG len, const QHostAddress &addr,
-                             Q_UINT16 port);
+    qint64 readDatagram(char *data, qint64 maxlen, QHostAddress *addr = 0,
+                            quint16 *port = 0);
+    qint64 writeDatagram(const char *data, qint64 len, const QHostAddress &addr,
+                             quint16 port);
     bool hasPendingDatagrams() const;
-    Q_LONGLONG pendingDatagramSize() const;
+    qint64 pendingDatagramSize() const;
 
     QAbstractSocket::SocketState state() const;
 
     QHostAddress localAddress() const;
-    Q_UINT16 localPort() const;
+    quint16 localPort() const;
     QHostAddress peerAddress() const;
-    Q_UINT16 peerPort() const;
+    quint16 peerPort() const;
 
-    Q_LONGLONG receiveBufferSize() const;
-    void setReceiveBufferSize(Q_LONGLONG bufferSize);
+    qint64 receiveBufferSize() const;
+    void setReceiveBufferSize(qint64 bufferSize);
 
-    Q_LONGLONG sendBufferSize() const;
-    void setSendBufferSize(Q_LONGLONG bufferSize);
+    qint64 sendBufferSize() const;
+    void setSendBufferSize(qint64 bufferSize);
 
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
@@ -102,10 +102,10 @@ public:
     mutable QString socketErrorString;
 
     QHostAddress peerAddress;
-    Q_UINT16 peerPort;
+    quint16 peerPort;
 
     QHostAddress localAddress;
-    Q_UINT16 localPort;
+    quint16 localPort;
 
 
 #ifdef Q_OS_WIN
@@ -127,20 +127,20 @@ public:
 
     bool createNewSocket(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol);
 
-    bool nativeConnect(const QHostAddress &address, Q_UINT16 port);
-    bool nativeBind(const QHostAddress &address, Q_UINT16 port);
+    bool nativeConnect(const QHostAddress &address, quint16 port);
+    bool nativeBind(const QHostAddress &address, quint16 port);
     bool nativeListen(int backlog);
     int nativeAccept();
-    Q_LONGLONG nativeBytesAvailable() const;
+    qint64 nativeBytesAvailable() const;
 
     bool nativeHasPendingDatagrams() const;
-    Q_LONGLONG nativePendingDatagramSize() const;
-    Q_LONGLONG nativeReceiveDatagram(char *data, Q_LONGLONG maxLength,
-                                     QHostAddress *address, Q_UINT16 *port);
-    Q_LONGLONG nativeSendDatagram(const char *data, Q_LONGLONG length,
-                                  const QHostAddress &host, Q_UINT16 port);
-    Q_LONGLONG nativeRead(char *data, Q_LONGLONG maxLength);
-    Q_LONGLONG nativeWrite(const char *data, Q_LONGLONG length);
+    qint64 nativePendingDatagramSize() const;
+    qint64 nativeReceiveDatagram(char *data, qint64 maxLength,
+                                     QHostAddress *address, quint16 *port);
+    qint64 nativeSendDatagram(const char *data, qint64 length,
+                                  const QHostAddress &host, quint16 port);
+    qint64 nativeRead(char *data, qint64 maxLength);
+    qint64 nativeWrite(const char *data, qint64 length);
     int nativeSelect(int timeout, bool selectForRead) const;
     int nativeSelect(int timeout, bool checkRead, bool checkWrite, bool *selectForRead) const;
 

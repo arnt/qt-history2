@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_LAYOUT
 
-typedef Q_LONGLONG Fixed;
+typedef qint64 Fixed;
 static inline Fixed toFixed(int i) { return (Fixed)i * 256; }
 static inline int fRound(Fixed i) {
     return (i % 256 < 128) ? i / 256 : 1 + i / 256;

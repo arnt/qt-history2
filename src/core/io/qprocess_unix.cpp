@@ -423,33 +423,33 @@ bool QProcessPrivate::processStarted()
     return i <= 0;
 }
 
-Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
+qint64 QProcessPrivate::bytesAvailableFromStdout() const
 {
     size_t nbytes = 0;
-    Q_LONGLONG available = 0;
+    qint64 available = 0;
     if (::ioctl(standardReadPipe[0], FIONREAD, (char *) &nbytes) >= 0)
-        available = (Q_LONGLONG) *((int *) &nbytes);
+        available = (qint64) *((int *) &nbytes);
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::bytesAvailableFromStdout() == %lld", available);
 #endif
     return available;
 }
 
-Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
+qint64 QProcessPrivate::bytesAvailableFromStderr() const
 {
     size_t nbytes = 0;
-    Q_LONGLONG available = 0;
+    qint64 available = 0;
     if (::ioctl(errorReadPipe[0], FIONREAD, (char *) &nbytes) >= 0)
-        available = (Q_LONGLONG) *((int *) &nbytes);
+        available = (qint64) *((int *) &nbytes);
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::bytesAvailableFromStderr() == %lld", available);
 #endif
     return available;
 }
 
-Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 {
-    Q_LONGLONG bytesRead = Q_LONGLONG(::read(standardReadPipe[0], data, maxlen));
+    qint64 bytesRead = qint64(::read(standardReadPipe[0], data, maxlen));
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStdout(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -457,9 +457,9 @@ Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
     return bytesRead;
 }
 
-Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
 {
-    Q_LONGLONG bytesRead = Q_LONGLONG(::read(errorReadPipe[0], data, maxlen));
+    qint64 bytesRead = qint64(::read(errorReadPipe[0], data, maxlen));
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStderr(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -467,9 +467,9 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
     return bytesRead;
 }
 
-Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
-    Q_LONGLONG written = Q_LONGLONG(::write(writePipe[1], data, maxlen));
+    qint64 written = qint64(::write(writePipe[1], data, maxlen));
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::writeToStdin(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, maxlen, 16).constData(), maxlen, written);

@@ -66,7 +66,7 @@ inline QT_COMPAT int cstrncmp(const char *str1, const char *str2, uint len)
 
 // qChecksum: Internet checksum
 
-Q_CORE_EXPORT Q_UINT16 qChecksum(const char *s, uint len);
+Q_CORE_EXPORT quint16 qChecksum(const char *s, uint len);
 
 class QByteRef;
 class QString;
@@ -204,10 +204,8 @@ public:
     ushort toUShort(bool *ok = 0, int base = 10) const;
     int toInt(bool *ok = 0, int base = 10) const;
     uint toUInt(bool *ok = 0, int base = 10) const;
-    long toLong(bool *ok = 0, int base = 10) const;
-    ulong toULong(bool *ok = 0, int base = 10) const;
-    Q_LONGLONG toLongLong(bool *ok = 0, int base = 10) const;
-    Q_ULONGLONG toULongLong(bool *ok = 0, int base = 10) const;
+    qlonglong toLongLong(bool *ok = 0, int base = 10) const;
+    qulonglong toULongLong(bool *ok = 0, int base = 10) const;
     float toFloat(bool *ok = 0) const;
     double toDouble(bool *ok = 0) const;
     QByteArray toBase64() const;
@@ -216,22 +214,18 @@ public:
     QByteArray &setNum(ushort, int base = 10);
     QByteArray &setNum(int, int base = 10);
     QByteArray &setNum(uint, int base = 10);
-    QByteArray &setNum(long, int base = 10);
-    QByteArray &setNum(ulong, int base = 10);
-    QByteArray &setNum(Q_LONGLONG, int base = 10);
-    QByteArray &setNum(Q_ULONGLONG, int base = 10);
+    QByteArray &setNum(qlonglong, int base = 10);
+    QByteArray &setNum(qulonglong, int base = 10);
     QByteArray &setNum(float, char f = 'g', int prec = 6);
     QByteArray &setNum(double, char f = 'g', int prec = 6);
 #ifdef QT_USE_FIXED_POINT
     inline QByteArray &setNum(QFixedPoint d, char f = 'g', int prec = 6) { return setNum(d.toDouble(), f, prec); }
 #endif
 
-    static QByteArray number(long, int base = 10);
-    static QByteArray number(ulong, int base = 10);
     static QByteArray number(int, int base = 10);
     static QByteArray number(uint, int base = 10);
-    static QByteArray number(Q_LONGLONG, int base = 10);
-    static QByteArray number(Q_ULONGLONG, int base = 10);
+    static QByteArray number(qint64, int base = 10);
+    static QByteArray number(quint64, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
 #ifdef QT_USE_FIXED_POINT
     inline static QByteArray number(QFixedPoint d, char f = 'g', int prec = 6)
@@ -480,17 +474,13 @@ inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { return replace(fromRawData(before, qstrlen(before)), fromRawData(after, qstrlen(after))); }
 
 inline QByteArray &QByteArray::setNum(short n, int base)
-{ return setNum(Q_LONGLONG(n), base); }
+{ return setNum(qlonglong(n), base); }
 inline QByteArray &QByteArray::setNum(ushort n, int base)
-{ return setNum(Q_ULONGLONG(n), base); }
+{ return setNum(qulonglong(n), base); }
 inline QByteArray &QByteArray::setNum(int n, int base)
-{ return setNum(Q_LONGLONG(n), base); }
+{ return setNum(qlonglong(n), base); }
 inline QByteArray &QByteArray::setNum(uint n, int base)
-{ return setNum(Q_ULONGLONG(n), base); }
-inline QByteArray &QByteArray::setNum(long n, int base)
-{ return setNum(Q_LONGLONG(n), base); }
-inline QByteArray &QByteArray::setNum(ulong n, int base)
-{ return setNum(Q_ULONGLONG(n), base); }
+{ return setNum(qulonglong(n), base); }
 inline QByteArray &QByteArray::setNum(float n, char f, int prec)
 { return setNum(double(n),f,prec); }
 

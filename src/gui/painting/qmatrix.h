@@ -28,22 +28,22 @@ class Q_GUI_EXPORT QMatrix // 2D transform matrix
 {
 public:
     QMatrix();
-    QMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
-            qReal dx, qReal dy);
+    QMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
+            qreal dx, qreal dy);
     QMatrix(const QMatrix &matrix);
 
-    void setMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
-                   qReal dx, qReal dy);
+    void setMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
+                   qreal dx, qreal dy);
 
-    qReal m11() const { return _m11; }
-    qReal m12() const { return _m12; }
-    qReal m21() const { return _m21; }
-    qReal m22() const { return _m22; }
-    qReal dx() const { return _dx; }
-    qReal dy() const { return _dy; }
+    qreal m11() const { return _m11; }
+    qreal m12() const { return _m12; }
+    qreal m21() const { return _m21; }
+    qreal m22() const { return _m22; }
+    qreal dx() const { return _dx; }
+    qreal dy() const { return _dy; }
 
     void map(int x, int y, int *tx, int *ty) const;
-    void map(qReal x, qReal y, qReal *tx, qReal *ty) const;
+    void map(qreal x, qreal y, qreal *tx, qreal *ty) const;
     QRect mapRect(const QRect &) const;
     QRectF mapRect(const QRectF &) const;
 
@@ -59,13 +59,13 @@ public:
     void reset();
     inline bool isIdentity() const;
 
-    QMatrix &translate(qReal dx, qReal dy);
-    QMatrix &scale(qReal sx, qReal sy);
-    QMatrix &shear(qReal sh, qReal sv);
-    QMatrix &rotate(qReal a);
+    QMatrix &translate(qreal dx, qreal dy);
+    QMatrix &scale(qreal sx, qreal sy);
+    QMatrix &shear(qreal sh, qreal sv);
+    QMatrix &rotate(qreal a);
 
     bool isInvertible() const { return (_m11*_m22 - _m12*_m21) != 0; }
-    qReal det() const { return _m11*_m22 - _m12*_m21; }
+    qreal det() const { return _m11*_m22 - _m12*_m21; }
 
     QMatrix invert(bool * = 0) const;
 
@@ -83,9 +83,9 @@ public:
 #endif
 
 private:
-    qReal _m11, _m12;
-    qReal _m21, _m22;
-    qReal _dx, _dy;
+    qreal _m11, _m12;
+    qreal _m21, _m22;
+    qreal _dx, _dy;
 };
 Q_DECLARE_TYPEINFO(QMatrix, Q_MOVABLE_TYPE);
 

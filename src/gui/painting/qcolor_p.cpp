@@ -259,9 +259,9 @@ static int rgb_cmp(const void *d1, const void *d2)
 
 bool qt_get_named_rgb(const char *name, QRgb* rgb)
 {
-    Q_LONG len = strlen(name)+1;
+    int len = strlen(name)+1;
     char *name_no_space = (char *)malloc(len);
-    for(Q_LONG o=0,i=0; i < len; i++) {
+    for(int o = 0, i = 0; i < len; i++) {
         if(name[i] != '\t' && name[i] != ' ')
             name_no_space[o++] = name[i];
     }

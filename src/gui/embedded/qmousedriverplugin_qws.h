@@ -32,7 +32,7 @@ Q_DECLARE_INTERFACE(QWSMouseHandlerFactoryInterface, "http://trolltech.com/Qt/QW
 class Q_GUI_EXPORT QMouseDriverPlugin : public QObject, public QWSMouseHandlerFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QWSMouseHandlerFactoryInterface:QFactoryInterface)
+    qintERFACES(QWSMouseHandlerFactoryInterface:QFactoryInterface)
 public:
     explicit QMouseDriverPlugin(QObject *parent = 0);
     ~QMouseDriverPlugin();

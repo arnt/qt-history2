@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-const qReal Q_PI = qReal(3.14159265358979323846);
+const qreal Q_PI = qreal(3.14159265358979323846);
 
 /*!
     \class QPolygon
@@ -520,7 +520,7 @@ void QPolygonF::translate(const QPointF &offset)
 }
 
 /*!
-    \fn void QPolygonF::translate(qReal dx, qReal dy)
+    \fn void QPolygonF::translate(qreal dx, qreal dy)
     \overload
 
     Translates all points in the polygon by (\a{dx}, \a{dy}).
@@ -542,7 +542,7 @@ QRectF QPolygonF::boundingRect() const
     if (isEmpty())
         return QRectF(0, 0, 0, 0);
     register const QPointF *pd = constData();
-    qReal minx, maxx, miny, maxy;
+    qreal minx, maxx, miny, maxy;
     minx = maxx = pd->x();
     miny = maxy = pd->y();
     ++pd;
@@ -588,7 +588,7 @@ QPolygon QPolygonF::toPolygon() const
 
 QDataStream &operator<<(QDataStream &s, const QPolygonF &a)
 {
-    Q_UINT32 len = a.size();
+    quint32 len = a.size();
     uint i;
 
     s << len;
@@ -608,7 +608,7 @@ QDataStream &operator<<(QDataStream &s, const QPolygonF &a)
 
 QDataStream &operator>>(QDataStream &s, QPolygonF &a)
 {
-    Q_UINT32 len;
+    quint32 len;
     uint i;
 
     s >> len;

@@ -58,10 +58,10 @@ public:
         TextFragment()
             : position(0), size(0),
               charFormat(-1), blockFormat(-2) {}
-        Q_INT32 position;
-        Q_UINT32 size;
-        Q_INT32 charFormat;
-        Q_INT32 blockFormat;
+        qint32 position;
+        quint32 size;
+        qint32 charFormat;
+        qint32 blockFormat;
     };
     typedef QVector<TextFragment> FragmentVector;
 
@@ -71,7 +71,7 @@ public:
 
     QTextFormatCollection formatCollection;
 
-    Q_INT8 hasTitle;
+    qint8 hasTitle;
     QString title;
 
     uint containsCompleteDocument : 1;

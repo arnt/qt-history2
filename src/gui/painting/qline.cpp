@@ -86,7 +86,7 @@
 */
 
 /*!
-    \fn QLineF::QLineF(qReal x1, qReal y1, qReal x2, qReal y2)
+    \fn QLineF::QLineF(qreal x1, qreal y1, qreal x2, qreal y2)
 
     Constructs a line object that represents the line between (\a x1, \a y1) and
     (\a x2, \a y2).
@@ -112,43 +112,43 @@
 */
 
 /*!
-    \fn qReal QLineF::startX() const
+    \fn qreal QLineF::startX() const
 
     Returns the x-coordinate of the line's start point.
 */
 
 /*!
-    \fn qReal QLineF::startY() const
+    \fn qreal QLineF::startY() const
 
     Returns the y-coordinate of the line's start point.
 */
 
 /*!
-    \fn qReal QLineF::endX() const
+    \fn qreal QLineF::endX() const
 
     Returns the x-coordinate of the line's end point.
 */
 
 /*!
-    \fn qReal QLineF::endY() const
+    \fn qreal QLineF::endY() const
 
     Returns the y-coordinate of the line's end point.
 */
 
 /*!
-    \fn qReal QLineF::vx() const
+    \fn qreal QLineF::vx() const
 
     Returns the horizontal component of the line's vector.
 */
 
 /*!
-    \fn qReal QLineF::vy() const
+    \fn qreal QLineF::vy() const
 
     Returns the vertical component of the line's vector.
 */
 
 /*!
-    \fn QLineF::setLength(qReal length)
+    \fn QLineF::setLength(qreal length)
 
     Sets the \a length of the line.
 
@@ -180,7 +180,7 @@
 */
 
 /*!
-  \fn qReal QLineF::pointAt(qReal t) const
+  \fn qreal QLineF::pointAt(qreal t) const
 
   Returns the point at the parameterized position \a t, where
   the start and end point are defined to be at positions t=0 and t=1.
@@ -191,10 +191,10 @@
 
     \sa setLength()
 */
-qReal QLineF::length() const
+qreal QLineF::length() const
 {
-    qReal x = p2.x() - p1.x();
-    qReal y = p2.y() - p1.y();
+    qreal x = p2.x() - p1.x();
+    qreal y = p2.y() - p1.y();
     return sqrt(x*x + y*y);
 }
 
@@ -205,22 +205,22 @@ Returns sqrt(x / (1 <<56)) * (1<<56)
 
 */
 
-static Q_INT64 sqrt_64(Q_INT64  x)
+static qint64 sqrt_64(qint64  x)
 {
     if (x <= 0)
         return 0;
 
-    Q_UINT64 root = 0;
+    quint64 root = 0;
 
-    Q_UINT64 rem_hi = 0;
-    Q_UINT64 rem_lo = x;
+    quint64 rem_hi = 0;
+    quint64 rem_lo = x;
     int count  = 60;
     do
     {
         rem_hi   = ( rem_hi << 2 ) | ( rem_lo >> 62 );
         rem_lo <<= 2;
         root   <<= 1;
-        Q_UINT64 test_div = ( root << 1 ) + 1;
+        quint64 test_div = ( root << 1 ) + 1;
 
         if ( rem_hi >= test_div )
         {
@@ -240,22 +240,22 @@ static Q_INT64 sqrt_64(Q_INT64  x)
 */
 QLineF QLineF::unitVector() const
 {
-    qReal x = p2.x() - p1.x();
-    qReal y = p2.y() - p1.y();
+    qreal x = p2.x() - p1.x();
+    qreal y = p2.y() - p1.y();
 #ifndef QT_USE_FIXED_POINT
 
-    qReal len = sqrt(x*x + y*y);
+    qreal len = sqrt(x*x + y*y);
     QLineF f(start(), QPointF(p1.x() + x/len, p1.y() + y/len));
     Q_ASSERT(qAbs(f.length() - 1) < 0.001);
 #else
 
-    Q_INT64 xx = x.value();
-    Q_INT64 yy = y.value();
+    qint64 xx = x.value();
+    qint64 yy = y.value();
 
-    Q_INT64 len = sqrt_64(xx*xx + yy*yy); // in 28.36 fixed point
+    qint64 len = sqrt_64(xx*xx + yy*yy); // in 28.36 fixed point
 
-    qReal dx = QFixedPoint(int((xx<<36)/len), QFixedPoint::FixedPoint);
-    qReal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
+    qreal dx = QFixedPoint(int((xx<<36)/len), QFixedPoint::FixedPoint);
+    qreal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
 
     QLineF f(start(), QPointF(p1.x() + dx, p1.y() + dy));
 
@@ -267,11 +267,11 @@ QLineF QLineF::unitVector() const
 #define SAME_SIGNS(a, b) ((a) * (b) >= 0)
 
 // Line intersection algorithm, copied from Graphics Gems II
-static bool qt_linef_intersect(qReal x1, qReal y1, qReal x2, qReal y2,
-                               qReal x3, qReal y3, qReal x4, qReal y4)
+static bool qt_linef_intersect(qreal x1, qreal y1, qreal x2, qreal y2,
+                               qreal x3, qreal y3, qreal x4, qreal y4)
 {
-    qReal a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
-    qReal r1, r2, r3, r4;         /* 'Sign' values */
+    qreal a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
+    qreal r1, r2, r3, r4;         /* 'Sign' values */
 
     a1 = y2 - y1;
     b1 = x1 - x2;
@@ -321,18 +321,18 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
     if (vx() == 0 && l.vx() == 0) {
         type = NoIntersection;
     } else if (vx() == 0) {
-        qReal la = l.vy() / l.vx();
+        qreal la = l.vy() / l.vx();
         isect = QPointF(p1.x(), la * p1.x() + l.startY() - la*l.startX());
     } else if (l.vx() == 0) {
-        qReal ta = vy() / vx();
+        qreal ta = vy() / vx();
         isect = QPointF(l.startX(), ta * l.startX() + startY() - ta*startX());
     } else {
-        qReal ta = vy()/vx();
-        qReal la = l.vy()/l.vx();
+        qreal ta = vy()/vx();
+        qreal la = l.vy()/l.vx();
         if (ta == la) // no intersection
             return NoIntersection;
 
-        qReal x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
+        qreal x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
         isect = QPointF(x, ta*(x - p1.x()) + p1.y());
     }
     if (intersectionPoint)
@@ -354,17 +354,17 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 */
 
 /*!
-  \fn qReal QLineF::angle(const QLineF &line) const
+  \fn qreal QLineF::angle(const QLineF &line) const
 
   Returns the smallest angle between the given \a line and this line, not
   taking into account whether the lines intersect or not. The angle is
   specified in degrees.
 */
-qReal QLineF::angle(const QLineF &l) const
+qreal QLineF::angle(const QLineF &l) const
 {
     if (isNull() || l.isNull())
         return 0;
-    qReal rad = acos( (vx()*l.vx() + vy()*l.vy()) / (length()*l.length()) );
+    qreal rad = acos( (vx()*l.vx() + vy()*l.vy()) / (length()*l.length()) );
     return rad * 360 / M_2PI;
 }
 

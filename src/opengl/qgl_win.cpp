@@ -34,8 +34,8 @@ public:
 
     int maxSize;
     QVector<uint> colorArray;
-    QVector<Q_UINT8> allocArray;
-    QVector<Q_UINT8> contextArray;
+    QVector<quint8> allocArray;
+    QVector<quint8> contextArray;
     QMap<uint,int> colorMap;
 };
 
@@ -91,9 +91,9 @@ public:
 
     int find(QRgb color) const;
     int findNearest(QRgb color) const;
-    int allocate(QRgb color, uint flags = 0, Q_UINT8 context = 0);
+    int allocate(QRgb color, uint flags = 0, quint8 context = 0);
 
-    void setEntry(int idx, QRgb color, uint flags = 0, Q_UINT8 context = 0);
+    void setEntry(int idx, QRgb color, uint flags = 0, quint8 context = 0);
 
     const QRgb* colors() const;
 
@@ -227,7 +227,7 @@ int QGLCmap::findNearest(QRgb color) const
 
 // Does not always allocate; returns existing c idx if found
 
-int QGLCmap::allocate(QRgb color, uint flags, Q_UINT8 context)
+int QGLCmap::allocate(QRgb color, uint flags, quint8 context)
 {
     int idx = find(color);
     if (idx >= 0)
@@ -262,7 +262,7 @@ int QGLCmap::allocate(QRgb color, uint flags, Q_UINT8 context)
 }
 
 
-void QGLCmap::setEntry(int idx, QRgb color, uint flags, Q_UINT8 context)
+void QGLCmap::setEntry(int idx, QRgb color, uint flags, quint8 context)
 {
     if (idx < 0 || idx >= d->maxSize) {
         qWarning("QGLCmap::set(): Index out of range");

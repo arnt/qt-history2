@@ -86,7 +86,7 @@ public:
     bool permission(QFile::Permissions permissions) const;
     QFile::Permissions permissions() const;
 
-    Q_LONGLONG size() const;
+    qint64 size() const;
 
     QDateTime created() const;
     QDateTime lastModified() const;

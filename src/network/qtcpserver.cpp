@@ -85,7 +85,7 @@ public:
 
     QList<QTcpSocket *> pendingConnections;
 
-    Q_UINT16 port;
+    quint16 port;
     QHostAddress address;
 
     QAbstractSocket::SocketState state;
@@ -183,7 +183,7 @@ QTcpServer::~QTcpServer()
 
     \sa isListening()
 */
-bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
+bool QTcpServer::listen(const QHostAddress &address, quint16 port)
 {
     if (d->state == QAbstractSocket::ListeningState) {
         qWarning("QTcpServer::listen() called when already listening");
@@ -239,7 +239,7 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
     Listens for connections on all network interfaces. Equivalent to
     calling listen(QHostAddress::Any, \a port).
 */
-bool QTcpServer::listen(Q_UINT16 port)
+bool QTcpServer::listen(quint16 port)
 {
     return listen(QHostAddress::Any, port);
 }
@@ -333,7 +333,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 
     \sa serverAddress(), listen()
 */
-Q_UINT16 QTcpServer::serverPort() const
+quint16 QTcpServer::serverPort() const
 {
     return d->socketLayer.localPort();
 }

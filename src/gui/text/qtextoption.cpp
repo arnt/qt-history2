@@ -17,7 +17,7 @@
 
 struct QTextOptionPrivate
 {
-    QList<qReal> tabStops;
+    QList<qreal> tabStops;
 };
 
 QTextOption::QTextOption()
@@ -80,18 +80,18 @@ QTextOption &QTextOption::operator=(const QTextOption &o)
     return *this;
 }
 
-void QTextOption::setTabArray(QList<qReal> tabStops)
+void QTextOption::setTabArray(QList<qreal> tabStops)
 {
     if (!d)
         d = new QTextOptionPrivate;
     d->tabStops = tabStops;
 }
 
-QList<qReal> QTextOption::tabArray() const
+QList<qreal> QTextOption::tabArray() const
 {
     if (d)
         return d->tabStops;
-    return QList<qReal>();
+    return QList<qreal>();
 }
 
 

@@ -1324,8 +1324,8 @@ QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
     }
 
     double diff = (totalDays * percentage);
-    QDate date = minimum.toDate().addDays((Q_LONGLONG)diff); // ### hack. There must be a nicer way
-    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(Q_LONGLONG)diff))));
+    QDate date = minimum.toDate().addDays((qint64)diff); // ### hack. There must be a nicer way
+    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(qint64)diff))));
     return QCoreVariant(QDateTime(date, time));
 }
 

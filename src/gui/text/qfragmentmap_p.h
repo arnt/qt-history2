@@ -32,12 +32,12 @@ template <class T> class QFragmentMap;
 class QFragment
 {
 public:
-    Q_UINT32 size_left;
-    Q_UINT32 parent;
-    Q_UINT32 left;
-    Q_UINT32 right;
-    Q_UINT32 color : 1;
-    Q_UINT32 size : 31;
+    quint32 size_left;
+    quint32 parent;
+    quint32 left;
+    quint32 right;
+    quint32 color : 1;
+    quint32 size : 31;
 };
 
 class QFragmentMapData
@@ -50,14 +50,14 @@ public:
     class Header
     {
     public:
-        Q_UINT32 tag;
-        Q_UINT32 root; // this relies on being at the same position as parent in the fragment struct for now.
-        Q_UINT32 unused1;
-        Q_UINT32 unused2;
-        Q_UINT32 size; // 32*allocated
-        Q_UINT32 freelist;
-        Q_UINT32 node_count;
-        Q_UINT32 allocated;
+        quint32 tag;
+        quint32 root; // this relies on being at the same position as parent in the fragment struct for now.
+        quint32 unused1;
+        quint32 unused2;
+        quint32 size; // 32*allocated
+        quint32 freelist;
+        quint32 node_count;
+        quint32 allocated;
     };
 
 
@@ -183,7 +183,7 @@ public:
     {
     public:
         QFragmentMap *pt;
-        Q_UINT32 n;
+        quint32 n;
 
         Iterator() : pt(0), n(0) {}
         Iterator(QFragmentMap *p, int node) : pt(p), n(node) {}
@@ -220,7 +220,7 @@ public:
     {
     public:
         const QFragmentMap *pt;
-        Q_UINT32 n;
+        quint32 n;
 
         /**
          * Functions

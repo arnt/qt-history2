@@ -28,8 +28,8 @@ public:
     explicit QTcpServer(QObject *parent = 0);
     virtual ~QTcpServer();
 
-    bool listen(const QHostAddress &address, Q_UINT16 port);
-    bool listen(Q_UINT16 port = 0);
+    bool listen(const QHostAddress &address, quint16 port);
+    bool listen(quint16 port = 0);
     void close();
 
     bool isListening() const;
@@ -37,7 +37,7 @@ public:
     void setMaxPendingConnections(int numConnections);
     int maxPendingConnections() const;
 
-    Q_UINT16 serverPort() const;
+    quint16 serverPort() const;
     QHostAddress serverAddress() const;
 
     int socketDescriptor() const;

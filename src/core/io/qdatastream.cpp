@@ -53,7 +53,7 @@
         file.open(QIODevice::WriteOnly);
         QDataStream stream(&file);   // we will serialize the data into the file
         stream << "the answer is";   // serialize a string
-        stream << (Q_INT32)42;       // serialize an integer
+        stream << (qint32)42;       // serialize an integer
     \endcode
 
     Example (read binary data from a stream):
@@ -62,7 +62,7 @@
         file.open(QIODevice::ReadOnly);
         QDataStream stream(&file);   // read the data serialized from the file
         QString str;
-        Q_INT32 a;
+        qint32 a;
         stream >> str >> a;          // extract "the answer is" and 42
     \endcode
 
@@ -116,8 +116,8 @@
         QDataStream stream(&file);
 
         // Write a header with a "magic number" and a version
-        stream << (Q_UINT32)0xA0B0C0D0;
-        stream << (Q_INT32)123;
+        stream << (quint32)0xA0B0C0D0;
+        stream << (qint32)123;
         stream.setVersion(QDataStream::Qt_4_0);
 
         // Write the data
@@ -132,13 +132,13 @@
         QDataStream stream(&file);
 
         // Read and check the header
-        Q_UINT32 magic;
+        quint32 magic;
         stream >> magic;
         if (magic != 0xA0B0C0D0)
             return XXX_BAD_FILE_FORMAT;
 
         // Read the version
-        Q_INT32 version;
+        qint32 version;
         stream >> version;
         if (version < 100)
             return XXX_BAD_FILE_TOO_OLD;
@@ -174,11 +174,11 @@
 
     A similar pair of functions is readBytes() and writeBytes(). These
     differ from their \e raw counterparts as follows: readBytes()
-    reads a Q_UINT32 which is taken to be the length of the data to be
+    reads a quint32 which is taken to be the length of the data to be
     read, then that number of bytes is read into the preallocated
-    char*; writeBytes() writes a Q_UINT32 containing the length of the
+    char*; writeBytes() writes a quint32 containing the length of the
     data, followed by the data. Note that any encoding/decoding of
-    the data (apart from the length Q_UINT32) must be done by you.
+    the data (apart from the length quint32) must be done by you.
 
     \sa QTextStream QVariant
 */
@@ -554,7 +554,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
  *****************************************************************************/
 
 /*!
-    \fn QDataStream &QDataStream::operator>>(Q_UINT8 &i)
+    \fn QDataStream &QDataStream::operator>>(quint8 &i)
     \overload
 
     Reads an unsigned byte from the stream into \a i, and returns a
@@ -566,7 +566,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
     reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>(Q_INT8 &i)
+QDataStream &QDataStream::operator>>(qint8 &i)
 {
     i = 0;
     CHECK_STREAM_PRECOND(*this)
@@ -574,13 +574,13 @@ QDataStream &QDataStream::operator>>(Q_INT8 &i)
     if (!dev->getChar(&c))
         setStatus(ReadPastEnd);
     else
-        i = Q_INT8(c);
+        i = qint8(c);
     return *this;
 }
 
 
 /*!
-    \fn QDataStream &QDataStream::operator>>(Q_UINT16 &i)
+    \fn QDataStream &QDataStream::operator>>(quint16 &i)
     \overload
 
     Reads an unsigned 16-bit integer from the stream into \a i, and
@@ -594,7 +594,7 @@ QDataStream &QDataStream::operator>>(Q_INT8 &i)
     returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>(Q_INT16 &i)
+QDataStream &QDataStream::operator>>(qint16 &i)
 {
     i = 0;
     CHECK_STREAM_PRECOND(*this)
@@ -618,7 +618,7 @@ QDataStream &QDataStream::operator>>(Q_INT16 &i)
 
 
 /*!
-    \fn QDataStream &QDataStream::operator>>(Q_UINT32 &i)
+    \fn QDataStream &QDataStream::operator>>(quint32 &i)
     \overload
 
     Reads an unsigned 32-bit integer from the stream into \a i, and
@@ -632,7 +632,7 @@ QDataStream &QDataStream::operator>>(Q_INT16 &i)
     returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>(Q_INT32 &i)
+QDataStream &QDataStream::operator>>(qint32 &i)
 {
     i = 0;
     CHECK_STREAM_PRECOND(*this)
@@ -657,7 +657,7 @@ QDataStream &QDataStream::operator>>(Q_INT32 &i)
 }
 
 /*!
-    \fn QDataStream &QDataStream::operator>>(Q_UINT64 &i)
+    \fn QDataStream &QDataStream::operator>>(quint64 &i)
     \overload
 
     Reads an unsigned 64-bit integer from the stream, into \a i, and
@@ -671,17 +671,17 @@ QDataStream &QDataStream::operator>>(Q_INT32 &i)
     returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>(Q_INT64 &i)
+QDataStream &QDataStream::operator>>(qint64 &i)
 {
-    i = Q_INT64(0);
+    i = qint64(0);
     CHECK_STREAM_PRECOND(*this)
     if (version() < 6) {
-        Q_UINT32 i1, i2;
+        quint32 i1, i2;
         *this >> i2 >> i1;
-        i = ((Q_UINT64)i1 << 32) + i2;
+        i = ((quint64)i1 << 32) + i2;
     } else if (noswap) {                        // no conversion needed
         if (dev->read((char *)&i, 8) != 8) {
-            i = Q_LONGLONG(0);
+            i = qint64(0);
             setStatus(ReadPastEnd);
         }
     } else {                                        // swap bytes
@@ -801,7 +801,7 @@ QDataStream &QDataStream::operator>>(char *&s)
     string read is empty, \a l is set to 0 and \a s is set to
     a null pointer.
 
-    The serialization format is a Q_UINT32 length specifier first,
+    The serialization format is a quint32 length specifier first,
     then \a l bytes of data.
 
     \sa readRawData(), writeBytes()
@@ -813,13 +813,13 @@ QDataStream &QDataStream::readBytes(char *&s, uint &l)
     l = 0;
     CHECK_STREAM_PRECOND(*this)
 
-    Q_UINT32 len;
+    quint32 len;
     *this >> len;
     if (len == 0)
         return *this;
 
-    const Q_UINT32 Step = 1024 * 1024;
-    Q_UINT32 allocated = 0;
+    const quint32 Step = 1024 * 1024;
+    quint32 allocated = 0;
     char *prevBuf = 0;
     char *curBuf = 0;
 
@@ -867,7 +867,7 @@ int QDataStream::readRawData(char *s, int len)
 
 
 /*!
-    \fn QDataStream &QDataStream::operator<<(Q_UINT8 i)
+    \fn QDataStream &QDataStream::operator<<(quint8 i)
     \overload
 
     Writes an unsigned byte, \a i, to the stream and returns a
@@ -879,7 +879,7 @@ int QDataStream::readRawData(char *s, int len)
     to the stream.
 */
 
-QDataStream &QDataStream::operator<<(Q_INT8 i)
+QDataStream &QDataStream::operator<<(qint8 i)
 {
     CHECK_STREAM_PRECOND(*this)
     dev->putChar(i);
@@ -888,7 +888,7 @@ QDataStream &QDataStream::operator<<(Q_INT8 i)
 
 
 /*!
-    \fn QDataStream &QDataStream::operator<<(Q_UINT16 i)
+    \fn QDataStream &QDataStream::operator<<(quint16 i)
     \overload
 
     Writes an unsigned 16-bit integer, \a i, to the stream and returns
@@ -902,11 +902,11 @@ QDataStream &QDataStream::operator<<(Q_INT8 i)
     reference to the stream.
 */
 
-QDataStream &QDataStream::operator<<(Q_INT16 i)
+QDataStream &QDataStream::operator<<(qint16 i)
 {
     CHECK_STREAM_PRECOND(*this)
     if (noswap) {
-        dev->write((char *)&i, sizeof(Q_INT16));
+        dev->write((char *)&i, sizeof(qint16));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[2];
@@ -924,11 +924,11 @@ QDataStream &QDataStream::operator<<(Q_INT16 i)
     reference to the stream.
 */
 
-QDataStream &QDataStream::operator<<(Q_INT32 i)
+QDataStream &QDataStream::operator<<(qint32 i)
 {
     CHECK_STREAM_PRECOND(*this)
     if (noswap) {
-        dev->write((char *)&i, sizeof(Q_INT32));
+        dev->write((char *)&i, sizeof(qint32));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[4];
@@ -942,7 +942,7 @@ QDataStream &QDataStream::operator<<(Q_INT32 i)
 }
 
 /*!
-    \fn QDataStream &QDataStream::operator<<(Q_UINT64 i)
+    \fn QDataStream &QDataStream::operator<<(quint64 i)
     \overload
 
     Writes an unsigned 64-bit integer, \a i, to the stream and returns a
@@ -956,15 +956,15 @@ QDataStream &QDataStream::operator<<(Q_INT32 i)
     reference to the stream.
 */
 
-QDataStream &QDataStream::operator<<(Q_INT64 i)
+QDataStream &QDataStream::operator<<(qint64 i)
 {
     CHECK_STREAM_PRECOND(*this)
     if (version() < 6) {
-        Q_UINT32 i1, i2;
+        quint32 i1, i2;
         *this >> i2 >> i1;
-        i = ((Q_UINT64)i1 << 32) + i2;
+        i = ((quint64)i1 << 32) + i2;
     } else if (noswap) {                        // no conversion needed
-        dev->write((char *)&i, sizeof(Q_INT64));
+        dev->write((char *)&i, sizeof(qint64));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[8];
@@ -982,11 +982,11 @@ QDataStream &QDataStream::operator<<(Q_INT64 i)
 }
 
 /*!
-    \fn QDataStream &QDataStream::operator<<(Q_UINT32 i)
+    \fn QDataStream &QDataStream::operator<<(quint32 i)
     \overload
 
     Writes an unsigned integer, \a i, to the stream as a 32-bit
-    unsigned integer (Q_UINT32). Returns a reference to the stream.
+    unsigned integer (quint32). Returns a reference to the stream.
 */
 
 /*!
@@ -1056,11 +1056,11 @@ QDataStream &QDataStream::operator<<(double f)
 QDataStream &QDataStream::operator<<(const char *s)
 {
     if (!s) {
-        *this << (Q_UINT32)0;
+        *this << (quint32)0;
         return *this;
     }
     uint len = qstrlen(s) + 1;                        // also write null terminator
-    *this << (Q_UINT32)len;                        // write length specifier
+    *this << (quint32)len;                        // write length specifier
     writeRawData(s, len);
     return *this;
 }
@@ -1070,7 +1070,7 @@ QDataStream &QDataStream::operator<<(const char *s)
     Writes the length specifier \a len and the buffer \a s to the
     stream and returns a reference to the stream.
 
-    The \a len is serialized as a Q_UINT32, followed by \a len bytes
+    The \a len is serialized as a quint32, followed by \a len bytes
     from \a s. Note that the data is \e not encoded.
 
     \sa writeRawData(), readBytes()
@@ -1079,7 +1079,7 @@ QDataStream &QDataStream::operator<<(const char *s)
 QDataStream &QDataStream::writeBytes(const char *s, uint len)
 {
     CHECK_STREAM_PRECOND(*this)
-    *this << (Q_UINT32)len;                        // write length specifier
+    *this << (quint32)len;                        // write length specifier
     if (len)
         writeRawData(s, len);
     return *this;

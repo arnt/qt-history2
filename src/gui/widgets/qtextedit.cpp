@@ -1653,7 +1653,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     }
 
     const QPoint mousePos = d->translateCoordinates(e->pos());
-    const qReal mouseX = qReal(mousePos.x());
+    const qreal mouseX = qreal(mousePos.x());
 
     int newCursorPos = d->doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
     if (newCursorPos == -1)
@@ -1683,7 +1683,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
         if (!line.isValid())
             goto quit;
 
-        const qReal wordStartX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+        const qreal wordStartX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
 
         if (!curs.movePosition(QTextCursor::EndOfWord))
             goto quit;
@@ -1694,7 +1694,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
             || wordEndPos == wordStartPos)
             goto quit;
 
-        const qReal wordEndX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+        const qreal wordEndX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
 
         if (mouseX < wordStartX || mouseX > wordEndX)
             goto quit;
@@ -1706,8 +1706,8 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
         else
             d->cursor.setPosition(d->cursorOnDoubleClick.selectionStart());
 
-        const qReal differenceToStart = mouseX - wordStartX;
-        const qReal differenceToEnd = wordEndX - mouseX;
+        const qreal differenceToStart = mouseX - wordStartX;
+        const qreal differenceToEnd = wordEndX - mouseX;
 
         if (differenceToStart < differenceToEnd)
             newCursorPos = wordStartPos;

@@ -87,14 +87,14 @@ public:
     int version() const;
     void setVersion(int);
 
-    QDataStream &operator>>(Q_INT8 &i);
-    QDataStream &operator>>(Q_UINT8 &i);
-    QDataStream &operator>>(Q_INT16 &i);
-    QDataStream &operator>>(Q_UINT16 &i);
-    QDataStream &operator>>(Q_INT32 &i);
-    QDataStream &operator>>(Q_UINT32 &i);
-    QDataStream &operator>>(Q_INT64 &i);
-    QDataStream &operator>>(Q_UINT64 &i);
+    QDataStream &operator>>(qint8 &i);
+    QDataStream &operator>>(quint8 &i);
+    QDataStream &operator>>(qint16 &i);
+    QDataStream &operator>>(quint16 &i);
+    QDataStream &operator>>(qint32 &i);
+    QDataStream &operator>>(quint32 &i);
+    QDataStream &operator>>(qint64 &i);
+    QDataStream &operator>>(quint64 &i);
 
     QDataStream &operator>>(float &f);
     QDataStream &operator>>(double &f);
@@ -103,14 +103,14 @@ public:
 #endif
     QDataStream &operator>>(char *&str);
 
-    QDataStream &operator<<(Q_INT8 i);
-    QDataStream &operator<<(Q_UINT8 i);
-    QDataStream &operator<<(Q_INT16 i);
-    QDataStream &operator<<(Q_UINT16 i);
-    QDataStream &operator<<(Q_INT32 i);
-    QDataStream &operator<<(Q_UINT32 i);
-    QDataStream &operator<<(Q_INT64 i);
-    QDataStream &operator<<(Q_UINT64 i);
+    QDataStream &operator<<(qint8 i);
+    QDataStream &operator<<(quint8 i);
+    QDataStream &operator<<(qint16 i);
+    QDataStream &operator<<(quint16 i);
+    QDataStream &operator<<(qint32 i);
+    QDataStream &operator<<(quint32 i);
+    QDataStream &operator<<(qint64 i);
+    QDataStream &operator<<(quint64 i);
     QDataStream &operator<<(float f);
     QDataStream &operator<<(double f);
 #ifdef QT_USE_FIXED_POINT
@@ -163,37 +163,37 @@ inline int QDataStream::version() const
 inline void QDataStream::setVersion(int v)
 { ver = v; }
 
-inline QDataStream &QDataStream::operator>>(Q_UINT8 &i)
-{ return *this >> reinterpret_cast<Q_INT8&>(i); }
+inline QDataStream &QDataStream::operator>>(quint8 &i)
+{ return *this >> reinterpret_cast<qint8&>(i); }
 
-inline QDataStream &QDataStream::operator>>(Q_UINT16 &i)
-{ return *this >> reinterpret_cast<Q_INT16&>(i); }
+inline QDataStream &QDataStream::operator>>(quint16 &i)
+{ return *this >> reinterpret_cast<qint16&>(i); }
 
-inline QDataStream &QDataStream::operator>>(Q_UINT32 &i)
-{ return *this >> reinterpret_cast<Q_INT32&>(i); }
+inline QDataStream &QDataStream::operator>>(quint32 &i)
+{ return *this >> reinterpret_cast<qint32&>(i); }
 
-inline QDataStream &QDataStream::operator>>(Q_UINT64 &i)
-{ return *this >> reinterpret_cast<Q_INT64&>(i); }
+inline QDataStream &QDataStream::operator>>(quint64 &i)
+{ return *this >> reinterpret_cast<qint64&>(i); }
 
-inline QDataStream &QDataStream::operator<<(Q_UINT8 i)
-{ return *this << Q_INT8(i); }
+inline QDataStream &QDataStream::operator<<(quint8 i)
+{ return *this << qint8(i); }
 
-inline QDataStream &QDataStream::operator<<(Q_UINT16 i)
-{ return *this << Q_INT16(i); }
+inline QDataStream &QDataStream::operator<<(quint16 i)
+{ return *this << qint16(i); }
 
-inline QDataStream &QDataStream::operator<<(Q_UINT32 i)
-{ return *this << Q_INT32(i); }
+inline QDataStream &QDataStream::operator<<(quint32 i)
+{ return *this << qint32(i); }
 
-inline QDataStream &QDataStream::operator<<(Q_UINT64 i)
-{ return *this << Q_INT64(i); }
+inline QDataStream &QDataStream::operator<<(quint64 i)
+{ return *this << qint64(i); }
 
 template <typename T>
 QDataStream& operator>>(QDataStream& s, QList<T>& l)
 {
     l.clear();
-    Q_UINT32 c;
+    quint32 c;
     s >> c;
-    for(Q_UINT32 i = 0; i < c; ++i)
+    for(quint32 i = 0; i < c; ++i)
     {
         T t;
         s >> t;
@@ -207,7 +207,7 @@ QDataStream& operator>>(QDataStream& s, QList<T>& l)
 template <typename T>
 QDataStream& operator<<(QDataStream& s, const QList<T>& l)
 {
-    s << Q_UINT32(l.size());
+    s << quint32(l.size());
     for (int i = 0; i < l.size(); ++i)
         s << l.at(i);
     return s;
@@ -217,9 +217,9 @@ template <typename T>
 QDataStream& operator>>(QDataStream& s, QLinkedList<T>& l)
 {
     l.clear();
-    Q_UINT32 c;
+    quint32 c;
     s >> c;
-    for(Q_UINT32 i = 0; i < c; ++i)
+    for(quint32 i = 0; i < c; ++i)
     {
         T t;
         s >> t;
@@ -233,7 +233,7 @@ QDataStream& operator>>(QDataStream& s, QLinkedList<T>& l)
 template <typename T>
 QDataStream& operator<<(QDataStream& s, const QLinkedList<T>& l)
 {
-    s << Q_UINT32(l.size());
+    s << quint32(l.size());
     typename QLinkedList<T>::ConstIterator it = l.constBegin();
     for(; it != l.constEnd(); ++it)
         s << *it;
@@ -247,10 +247,10 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &has
     in.resetStatus();
     hash.clear();
 
-    Q_UINT32 n;
+    quint32 n;
     in >> n;
 
-    for (Q_UINT32 i = 0; i < n; ++i) {
+    for (quint32 i = 0; i < n; ++i) {
         if (in.status() != QDataStream::Ok)
             break;
 
@@ -271,10 +271,10 @@ template<typename T>
 QDataStream& operator>>(QDataStream& s, QVector<T>& v)
 {
     v.clear();
-    Q_UINT32 c;
+    quint32 c;
     s >> c;
     v.resize(c);
-    for(Q_UINT32 i = 0; i < c; ++i) {
+    for(quint32 i = 0; i < c; ++i) {
         T t;
         s >> t;
         v[i] = t;
@@ -285,7 +285,7 @@ QDataStream& operator>>(QDataStream& s, QVector<T>& v)
 template<typename T>
 QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
 {
-    s << Q_UINT32(v.size());
+    s << quint32(v.size());
     const T* it = v.begin();
     for(; it != v.end(); ++it)
         s << *it;
@@ -295,7 +295,7 @@ QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
 {
-    out << Q_UINT32(hash.size());
+    out << quint32(hash.size());
     typename QHash<Key, T>::ConstIterator it = hash.begin();
     while (it != hash.end()) {
         out << it.key() << it.value();
@@ -315,14 +315,14 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
     in.resetStatus();
     map.clear();
 
-    Q_UINT32 n;
+    quint32 n;
     in >> n;
 
     map.detach();
 #if !defined(Q_CC_BOR)
     map.d->insertInOrder = true;
 #endif
-    for (Q_UINT32 i = 0; i < n; ++i) {
+    for (quint32 i = 0; i < n; ++i) {
         if (in.status() != QDataStream::Ok)
             break;
 
@@ -344,7 +344,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
 {
-    out << Q_UINT32(map.size());
+    out << quint32(map.size());
     typename QMap<Key, T>::ConstIterator it = map.begin();
     while (it != map.end()) {
         out << it.key() << it.value();

@@ -1231,7 +1231,7 @@ public:
 };
 
 #ifdef QT_COMPAT
-typedef Q_INT32 QCOORD;                                // coordinate type
+typedef qint32 QCOORD;                                // coordinate type
 enum {
     QCOORD_MAX =  2147483647,
     QCOORD_MIN = -QCOORD_MAX - 1

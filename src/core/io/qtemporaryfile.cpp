@@ -325,7 +325,7 @@ QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
             return 0; //local already
         //cache
         bool wasOpen = file.isOpen();
-        Q_LONGLONG old_off = 0;
+        qint64 old_off = 0;
         if(wasOpen)
             old_off = file.pos();
         else
@@ -336,7 +336,7 @@ QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
         file.seek(0);
         char buffer[1024];
         while(true) {
-            Q_LONG len = file.read(buffer, 1024);
+            qint64 len = file.read(buffer, 1024);
             if(len < 1)
                 break;
             ret->write(buffer, len);

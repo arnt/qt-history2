@@ -105,15 +105,15 @@ public:
         KeepCursor = 0,
         MoveCursor = 1
     };
-    Q_UINT16 command;
-    Q_UINT8 block;
-    Q_UINT8 operation;
+    quint16 command;
+    quint8 block;
+    quint8 operation;
     int format;
-    Q_UINT32 strPos;
-    Q_UINT32 pos;
+    quint32 strPos;
+    quint32 pos;
     union {
         int blockFormat;
-        Q_UINT32 length;
+        quint32 length;
         QAbstractUndoItem *custom;
         QTextObject *object;
     };

@@ -794,7 +794,7 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
     \sa QIODevice::read()
 */
 
-QTextStream &QTextStream::readRawBytes(char *s, Q_LONGLONG len)
+QTextStream &QTextStream::readRawBytes(char *s, qint64 len)
 {
     Q_D(QTextStream);
     //just append directly onto the string (optimization)
@@ -818,7 +818,7 @@ QTextStream &QTextStream::readRawBytes(char *s, Q_LONGLONG len)
     \sa QIODevice::write()
 */
 
-QTextStream &QTextStream::writeRawBytes(const char* s, Q_LONGLONG len)
+QTextStream &QTextStream::writeRawBytes(const char* s, qint64 len)
 {
     Q_D(QTextStream);
     //just append directly onto the string (optimization)
@@ -842,7 +842,7 @@ QTextStream &QTextStream::writeRawBytes(const char* s, Q_LONGLONG len)
     \sa QIODevice::seek()
 */
 
-bool QTextStream::seek(Q_LONGLONG offset)
+bool QTextStream::seek(qint64 offset)
 {
     Q_D(QTextStream);
     if(d->dev->seek(offset)) {

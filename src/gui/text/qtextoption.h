@@ -50,14 +50,14 @@ public:
     inline void setFlags(Flags flags) { f = flags; }
     inline Flags flags() const { return Flags(f); }
 
-    inline void setTabStop(qReal tabStop) { tab = tabStop; }
-    inline qReal tabStop() const { return tab; }
+    inline void setTabStop(qreal tabStop) { tab = tabStop; }
+    inline qreal tabStop() const { return tab; }
 
     void useDesignMetrics(bool b) { design = b; }
     bool usesDesignMetrics() const { return design; }
 
-    void setTabArray(QList<qReal> tabStops);
-    QList<qReal> tabArray() const;
+    void setTabArray(QList<qreal> tabStops);
+    QList<qreal> tabArray() const;
 private:
     uint align : 8;
     uint wordWrap : 4;
@@ -65,7 +65,7 @@ private:
     uint design : 1;
     uint unused : 15;
     uint f;
-    qReal tab;
+    qreal tab;
     QTextOptionPrivate *d;
 };
 

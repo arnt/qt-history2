@@ -64,7 +64,7 @@ struct glyph_metrics_t
         : x(100000), y(100000),
           width(0), height(0), xoff(0), yoff(0)
         {}
-    inline glyph_metrics_t(qReal _x, qReal _y, qReal _width, qReal _height, qReal _xoff, qReal _yoff)
+    inline glyph_metrics_t(qreal _x, qreal _y, qreal _width, qreal _height, qreal _xoff, qreal _yoff)
         : x(_x),
           y(_y),
           width(_width),
@@ -72,12 +72,12 @@ struct glyph_metrics_t
           xoff(_xoff),
           yoff(_yoff)
         {}
-    qReal x;
-    qReal y;
-    qReal width;
-    qReal height;
-    qReal xoff;
-    qReal yoff;
+    qreal x;
+    qreal y;
+    qreal width;
+    qreal height;
+    qreal xoff;
+    qreal yoff;
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
@@ -207,11 +207,11 @@ struct QScriptItem
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     int num_glyphs;
-    qReal descent;
-    qReal ascent;
-    qReal width;
+    qreal descent;
+    qreal ascent;
+    qreal width;
     int glyph_data_offset;
-    qReal height() const { return ascent + descent; }
+    qreal height() const { return ascent + descent; }
 };
 
 
@@ -223,17 +223,17 @@ struct QScriptLine
 {
     QScriptLine()
         : descent(0), ascent(0), x(0), y(0), width(0), textWidth(0) {}
-    qReal descent;
-    qReal ascent;
-    qReal x;
-    qReal y;
-    qReal width;
-    qReal textWidth;
+    qreal descent;
+    qreal ascent;
+    qreal x;
+    qreal y;
+    qreal width;
+    qreal textWidth;
     int from;
     uint length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
-    qReal height() const { return ascent + descent + 1.; }
+    qreal height() const { return ascent + descent + 1.; }
     void setDefaultHeight(QTextEngine *eng);
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
@@ -270,7 +270,7 @@ public:
     void validate() const;
     void itemize() const;
 
-    static void bidiReorder(int numRuns, const Q_UINT8 *levels, int *visualOrder);
+    static void bidiReorder(int numRuns, const quint8 *levels, int *visualOrder);
 
     const QCharAttributes *attributes();
 
@@ -278,7 +278,7 @@ public:
 
     void justify(const QScriptLine &si);
 
-    qReal width(int charFrom, int numChars) const;
+    qreal width(int charFrom, int numChars) const;
     glyph_metrics_t boundingBox(int from,  int len) const;
 
     int length(int item) const {
@@ -330,8 +330,8 @@ public:
 
     QPalette *pal;
 
-    qReal minWidth;
-    qReal maxWidth;
+    qreal minWidth;
+    qreal maxWidth;
     QRectF boundingRect;
     QPointF position;
 

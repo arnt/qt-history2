@@ -47,14 +47,14 @@ public:
     bool open(OpenMode openMode);
 
     void close();
-    Q_LONGLONG size() const;
-    Q_LONGLONG pos() const;
-    bool seek(Q_LONGLONG off);
+    qint64 size() const;
+    qint64 pos() const;
+    bool seek(qint64 off);
     bool atEnd() const;
 
 protected:
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private:
     Q_DECLARE_PRIVATE(QBuffer)

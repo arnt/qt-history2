@@ -1509,13 +1509,13 @@ void QHashData::free()
     \overload
 */
 
-/*! \fn uint qHash(Q_ULONGLONG key)
+/*! \fn uint qHash(quint64 key)
     \relates QHash
 
     \overload
 */
 
-/*! \fn uint qHash(Q_LONGLONG key)
+/*! \fn uint qHash(qint64 key)
     \relates QHash
 
     \overload

@@ -1813,7 +1813,7 @@ void QWidgetPrivate::updateFrameStrut() const
     q->data->fstrut_dirty = false;
 }
 
-void QWidget::setWindowOpacity(qReal level)
+void QWidget::setWindowOpacity(qreal level)
 {
     if(!isTopLevel())
         return;
@@ -1843,7 +1843,7 @@ void QWidget::setWindowOpacity(qReal level)
     d->topData()->opacity = (uchar)(level * 255);
 }
 
-qReal QWidget::windowOpacity() const
+qreal QWidget::windowOpacity() const
 {
     return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
 }

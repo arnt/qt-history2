@@ -78,7 +78,7 @@ public:
     void slotConnected();
     void slotError(QTcpSocket::SocketError);
     void slotClosed();
-    void slotBytesWritten(Q_LONGLONG numBytes);
+    void slotBytesWritten(qint64 numBytes);
     void slotDoFinished();
 
     int addRequest(QHttpRequest *);
@@ -99,15 +99,15 @@ public:
     QString errorString;
 
     QString hostName;
-    Q_UINT16 port;
+    quint16 port;
 
     QByteArray buffer;
     QIODevice *toDevice;
     QIODevice *postDevice;
 
-    Q_LONGLONG bytesDone;
-    Q_LONGLONG bytesTotal;
-    Q_LONGLONG chunkedSize;
+    qint64 bytesDone;
+    qint64 bytesTotal;
+    qint64 chunkedSize;
 
     QHttpRequestHeader header;
 
@@ -294,7 +294,7 @@ void QHttpPGHRequest::start(QHttp *http)
 class QHttpSetHostRequest : public QHttpRequest
 {
 public:
-    QHttpSetHostRequest(const QString &h, Q_UINT16 p) :
+    QHttpSetHostRequest(const QString &h, quint16 p) :
         hostName(h), port(p)
     { }
 
@@ -307,7 +307,7 @@ public:
 
 private:
     QString hostName;
-    Q_UINT16 port;
+    quint16 port;
 };
 
 void QHttpSetHostRequest::start(QHttp *http)
@@ -1398,7 +1398,7 @@ QHttp::QHttp(QObject *parent)
 
     \sa setHost()
 */
-QHttp::QHttp(const QString &hostName, Q_UINT16 port, QObject *parent)
+QHttp::QHttp(const QString &hostName, quint16 port, QObject *parent)
     : QObject(*new QHttpPrivate, parent)
 {
     Q_D(QHttp);
@@ -1612,16 +1612,16 @@ void QHttp::abort()
 
     \sa get() post() request() readyRead() read() readAll()
 */
-Q_LONGLONG QHttp::bytesAvailable() const
+qint64 QHttp::bytesAvailable() const
 {
     Q_D(const QHttp);
 #if defined(QHTTP_DEBUG)
     qDebug("QHttp::bytesAvailable(): %d bytes", (int)d->rba.size());
 #endif
-    return Q_LONGLONG(d->rba.size());
+    return qint64(d->rba.size());
 }
 
-/*! \fn Q_LONGLONG QHttp::readBlock(char *data, Q_ULONG maxlen)
+/*! \fn qint64 QHttp::readBlock(char *data, Q_ULONG maxlen)
 
     Use read() instead.
 */
@@ -1632,7 +1632,7 @@ Q_LONGLONG QHttp::bytesAvailable() const
 
     \sa get() post() request() readyRead() bytesAvailable() readAll()
 */
-Q_LONGLONG QHttp::read(char *data, Q_LONGLONG maxlen)
+qint64 QHttp::read(char *data, qint64 maxlen)
 {
     Q_D(QHttp);
     if (data == 0 && maxlen != 0) {
@@ -1664,10 +1664,10 @@ Q_LONGLONG QHttp::read(char *data, Q_LONGLONG maxlen)
 */
 QByteArray QHttp::readAll()
 {
-    Q_LONGLONG avail = bytesAvailable();
+    qint64 avail = bytesAvailable();
     QByteArray tmp;
     tmp.resize(int(avail));
-    Q_LONGLONG got = read(tmp.data(), int(avail));
+    qint64 got = read(tmp.data(), int(avail));
     tmp.resize(got);
     return tmp;
 }
@@ -1786,7 +1786,7 @@ void QHttp::clearPendingRequests()
 
     \sa get() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::setHost(const QString &hostName, Q_UINT16 port)
+int QHttp::setHost(const QString &hostName, quint16 port)
 {
     Q_D(QHttp);
     return d->addRequest(new QHttpSetHostRequest(hostName, port));
@@ -2226,7 +2226,7 @@ void QHttpPrivate::slotError(QTcpSocket::SocketError err)
     closeConn();
 }
 
-void QHttpPrivate::slotBytesWritten(Q_LONGLONG written)
+void QHttpPrivate::slotBytesWritten(qint64 written)
 {
     Q_Q(QHttp);
     bytesDone += written;
@@ -2315,7 +2315,7 @@ void QHttpPrivate::slotReadyRead()
         if (q->currentRequest().method() == "HEAD") {
             everythingRead = true;
         } else {
-            Q_LONGLONG n = socket->bytesAvailable();
+            qint64 n = socket->bytesAvailable();
             QByteArray *arr = 0;
             if (chunkedSize != -1) {
                 // transfer-encoding is chunked
@@ -2363,12 +2363,12 @@ void QHttpPrivate::slotReadyRead()
                     }
 
                     // read data
-                    Q_LONGLONG toRead = qMin(n, chunkedSize);
+                    qint64 toRead = qMin(n, chunkedSize);
                     if (!arr)
                         arr = new QByteArray;
                     uint oldArrSize = arr->size();
                     arr->resize(oldArrSize + toRead);
-                    Q_LONGLONG read = socket->read(arr->data()+oldArrSize, toRead);
+                    qint64 read = socket->read(arr->data()+oldArrSize, toRead);
                     arr->resize(oldArrSize + read);
 
                     chunkedSize -= read;
@@ -2386,11 +2386,11 @@ void QHttpPrivate::slotReadyRead()
                     }
                 }
             } else if (response.hasContentLength()) {
-                n = qMin(Q_LONGLONG(response.contentLength() - bytesDone), n);
+                n = qMin(qint64(response.contentLength() - bytesDone), n);
                 if (n > 0) {
                     arr = new QByteArray;
                     arr->resize(n);
-                    Q_LONGLONG read = socket->read(arr->data(), n);
+                    qint64 read = socket->read(arr->data(), n);
                     arr->resize(read);
                 }
                 if (bytesDone + q->bytesAvailable() + n == response.contentLength())
@@ -2541,8 +2541,8 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(disconnected()), q, SLOT(slotClosed()));
     QObject::connect(socket, SIGNAL(readyRead()), q, SLOT(slotReadyRead()));
     QObject::connect(socket, SIGNAL(error(SocketError)), q, SLOT(slotError(SocketError)));
-    QObject::connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)),
-                     q, SLOT(slotBytesWritten(Q_LONGLONG)));
+    QObject::connect(socket, SIGNAL(bytesWritten(qint64)),
+                     q, SLOT(slotBytesWritten(qint64)));
 }
 
 #define d d_func()

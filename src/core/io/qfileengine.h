@@ -33,17 +33,17 @@ public:
     virtual bool close() = 0;
     virtual void flush() = 0;
 
-    virtual Q_LONGLONG size() const = 0;
-    virtual Q_LONGLONG at() const = 0;
-    virtual bool seek(Q_LONGLONG off) = 0;
+    virtual qint64 size() const = 0;
+    virtual qint64 at() const = 0;
+    virtual bool seek(qint64 off) = 0;
 
     virtual bool isSequential() const = 0;
 
-    virtual uchar *map(Q_LONGLONG off, Q_LONGLONG len);
+    virtual uchar *map(qint64 off, qint64 len);
     virtual void unmap(uchar *data);
 
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen) = 0;
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len) = 0;
+    virtual qint64 read(char *data, qint64 maxlen) = 0;
+    virtual qint64 write(const char *data, qint64 len) = 0;
 
     virtual QFile::Error error() const;
     virtual QString errorString() const;
@@ -65,7 +65,7 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
 
-    virtual bool setSize(Q_LONGLONG size) = 0;
+    virtual bool setSize(qint64 size) = 0;
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const = 0;
 
@@ -148,11 +148,11 @@ public:
     virtual bool open(int flags);
     virtual bool close();
     virtual void flush();
-    virtual Q_LONGLONG size() const;
-    virtual Q_LONGLONG at() const;
-    virtual bool seek(Q_LONGLONG);
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    virtual qint64 size() const;
+    virtual qint64 at() const;
+    virtual bool seek(qint64);
+    virtual qint64 read(char *data, qint64 maxlen);
+    virtual qint64 write(const char *data, qint64 len);
     virtual QFile::Error error() const;
     virtual QString errorString() const;
 
@@ -163,13 +163,13 @@ public:
 
     virtual bool isSequential() const;
 
-    virtual uchar *map(Q_LONGLONG off, Q_LONGLONG len);
+    virtual uchar *map(qint64 off, qint64 len);
     virtual void unmap(uchar *data);
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
-    virtual bool setSize(Q_LONGLONG size);
+    virtual bool setSize(qint64 size);
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
 

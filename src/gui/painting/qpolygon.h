@@ -80,7 +80,7 @@ public:
     QPolygonF(const QRectF &r);
     QPolygonF(const QPolygon &a);
 
-    inline void translate(qReal dx, qReal dy);
+    inline void translate(qreal dx, qreal dy);
     void translate(const QPointF &offset);
 
     QPolygon toPolygon() const;
@@ -102,7 +102,7 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QPolygonF &array
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygonF &array);
 #endif
 
-inline void QPolygonF::translate(qReal dx, qReal dy)
+inline void QPolygonF::translate(qreal dx, qreal dy)
 { translate(QPointF(dx, dy)); }
 
 #endif // QPOLYGON_H

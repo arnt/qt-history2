@@ -113,10 +113,10 @@
 #define IsUDA3(a, b)        (InRange((a), 0xA1, 0xA7) && InRange((b), 0x40, 0xA0) && ((b) != 0x7F))
 
 typedef struct {
-    Q_UINT8        tblBegin;
-    Q_UINT8        tblEnd;
-    Q_UINT16        tblOffset;
-    Q_UINT16        algOffset;
+    quint8        tblBegin;
+    quint8        tblEnd;
+    quint16        tblOffset;
+    quint16        algOffset;
 } indexTbl_t;
 
 static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len);
@@ -951,7 +951,7 @@ static const indexTbl_t ucs_to_gb18030_index[256] = {
   /* 0xFE__ */        {0x30, 0xFF, 0x8F3F, 0x9894},        {0x00, 0xE5, 0x8F3F, 0x98FC},
 };
 
-static Q_UINT16 const ucs_to_gb18030[28839] = {
+static quint16 const ucs_to_gb18030[28839] = {
   /* Contiguous area: U+0080 .. U+0451 */
   /* U+0080 */        0x0000,        0x0001,        0x0002,        0x0003,        0x0004,        0x0005,        0x0006,        0x0007,
   /* U+0088 */        0x0008,        0x0009,        0x0010,        0x0011,        0x0012,        0x0013,        0x0014,        0x0015,
@@ -4581,7 +4581,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+FFE0 */        0xA1E9,        0xA1EA,        0xA956,        0xA3FE,        0xA957,        0xA3A4,
 };
 
-static Q_UINT16 const gb18030_2byte_to_ucs[22046] = {
+static quint16 const gb18030_2byte_to_ucs[22046] = {
         /* GB 0x8140..0x817E */
         0x4E02,        0x4E04,        0x4E05,        0x4E06,        0x4E0F,        0x4E12,        0x4E17,        0x4E1F,
         0x4E20,        0x4E21,        0x4E23,        0x4E26,        0x4E29,        0x4E2E,        0x4E2F,        0x4E31,
@@ -7633,7 +7633,7 @@ static Q_UINT16 const gb18030_2byte_to_ucs[22046] = {
         0xE864,                        /* Skip: GB 0xFEA1..0xFEFE (UDA 2) */
 };
 
-static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
+static quint16 const gb18030_4byte_to_ucs[6793] = {
   /* Contiguous area: GB+81 30 81 30 .. GB+81 30 D2 39 */
   /* GB+81 30 81 30 */        0x0080,        0x0081,        0x0082,        0x0083,        0x0084,
   /* GB+81 30 81 35 */        0x0085,        0x0086,        0x0087,        0x0088,        0x0089,
@@ -9086,8 +9086,8 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
                     /* GB+81308130 - GB+8431A439 */
                     g2u = gb18030_to_ucs_index[gb4lin >> 8];
 
-                    if ((Q_UINT8)(gb4lin & 0xFF) >= g2u.tblBegin &&
-                        (Q_UINT8)(gb4lin & 0xFF) <= g2u.tblEnd) {
+                    if ((quint8)(gb4lin & 0xFF) >= g2u.tblBegin &&
+                        (quint8)(gb4lin & 0xFF) <= g2u.tblEnd) {
 
                         uni = (uint)gb18030_4byte_to_ucs[gb4lin - g2u.tblOffset];
                     }
@@ -9133,7 +9133,7 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
     else if (uni <= 0xD7FF || InRange(uni, 0xE766, 0xFFFF)) {
         u2g = ucs_to_gb18030_index[uni >> 8];
 
-        if ((Q_UINT8)(uni & 0xFF) >= u2g.tblBegin && (Q_UINT8)(uni & 0xFF) <= u2g.tblEnd) {
+        if ((quint8)(uni & 0xFF) >= u2g.tblBegin && (quint8)(uni & 0xFF) <= u2g.tblEnd) {
             // Use mapping table (2-byte or 4-byte GB18030)
             uint tblEntry;
 
@@ -9227,7 +9227,7 @@ int qt_UnicodeToGbk(uint uni, uchar *gbchar) {
     else if (uni <= 0xD7FF || InRange(uni, 0xE766, 0xFFFF)) {
         u2g = ucs_to_gb18030_index[uni >> 8];
 
-        if ((Q_UINT8)(uni & 0xFF) >= u2g.tblBegin && (Q_UINT8)(uni & 0xFF) <= u2g.tblEnd) {
+        if ((quint8)(uni & 0xFF) >= u2g.tblBegin && (quint8)(uni & 0xFF) <= u2g.tblEnd) {
             // Use mapping table (2-byte GBK or 4-byte GB18030)
             uint tblEntry;
 

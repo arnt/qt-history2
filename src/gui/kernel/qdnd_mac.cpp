@@ -46,7 +46,7 @@ static DragReference qt_mac_current_dragRef = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
-extern void qt_mac_send_modifiers_changed(Q_UINT32, QObject *); //qapplication_mac.cpp
+extern void qt_mac_send_modifiers_changed(quint32, QObject *); //qapplication_mac.cpp
 extern bool qt_modal_state(); //qapplication_mac.cpp
 extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 

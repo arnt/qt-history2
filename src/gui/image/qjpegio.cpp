@@ -388,9 +388,9 @@ void qt_term_destination(j_compress_ptr cinfo)
 {
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
     QIODevice* dev = dest->iio->ioDevice();
-    Q_LONG n = max_buf - dest->free_in_buffer;
+    qint64 n = max_buf - dest->free_in_buffer;
 
-    Q_LONGLONG written = dev->write((char*)dest->buffer, n);
+    qint64 written = dev->write((char*)dest->buffer, n);
     if (written == -1)
         (*cinfo->err->error_exit)((j_common_ptr)cinfo);
     dev->flush();

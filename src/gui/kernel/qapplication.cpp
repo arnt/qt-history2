@@ -2579,10 +2579,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                "QApplication::sendEvent",
                QString::fromLatin1("Cannot send events to objects owned by a different thread "
                                    "(%1). Receiver '%2' (of type '%3') was created in thread %4")
-               .arg(QString::number((ulong) QThread::currentThread(), 16))
+               .arg(QString::number((qulonglong) QThread::currentThread(), 16))
                .arg(receiver->objectName())
                .arg(receiver->metaObject()->className())
-               .arg(QString::number((ulong) receiver->thread(), 16))
+               .arg(QString::number((qulonglong) receiver->thread(), 16))
                .toLatin1().constData());
 
 #ifdef QT_COMPAT

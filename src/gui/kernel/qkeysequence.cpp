@@ -717,7 +717,7 @@ bool QKeySequence::isDetached() const
 */
 QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 {
-    QList<Q_UINT32> list;
+    QList<quint32> list;
     list << keysequence.d->key[0];
 
     if (s.version() >= 5 && keysequence.count() > 1) {
@@ -740,7 +740,7 @@ QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 */
 QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 {
-    QList<Q_UINT32> list;
+    QList<quint32> list;
     s >> list;
     for (int i = 0; i < 4; ++i)
         keysequence.d->key[i] = list.value(i);

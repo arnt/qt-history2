@@ -163,7 +163,7 @@
 
 QDataStream &operator<<(QDataStream &s, const QCursor &c)
 {
-    s << (Q_INT16)c.shape();                        // write shape id to stream
+    s << (qint16)c.shape();                        // write shape id to stream
     if (c.shape() == Qt::BitmapCursor) {                // bitmap cursor
 #if !defined(QT_NO_IMAGEIO)
         s << *c.bitmap() << *c.mask();
@@ -186,7 +186,7 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
 
 QDataStream &operator>>(QDataStream &s, QCursor &c)
 {
-    Q_INT16 shape;
+    qint16 shape;
     s >> shape;                                        // read shape id from stream
     if (shape == Qt::BitmapCursor) {                // read bitmap cursor
 #if !defined(QT_NO_IMAGEIO)

@@ -945,10 +945,10 @@ const int BMP_FILEHDR_SIZE = 14;                // size of BMP_FILEHDR data
 
 struct BMP_FILEHDR {                                // BMP file header
     char   bfType[2];                                // "BM"
-    Q_INT32  bfSize;                                // size of file
-    Q_INT16  bfReserved1;
-    Q_INT16  bfReserved2;
-    Q_INT32  bfOffBits;                                // pointer to the pixmap bits
+    qint32  bfSize;                                // size of file
+    qint16  bfReserved1;
+    qint16  bfReserved2;
+    qint32  bfOffBits;                                // pointer to the pixmap bits
 };
 
 QDataStream &operator>>(QDataStream &s, BMP_FILEHDR &bf)
@@ -976,17 +976,17 @@ const int BMP_RLE4 = 2;                                // run-length encoded, 4 
 const int BMP_BITFIELDS = 3;                        // RGB values encoded in data as bit-fields
 
 struct BMP_INFOHDR {                                // BMP information header
-    Q_INT32  biSize;                                // size of this struct
-    Q_INT32  biWidth;                                // pixmap width
-    Q_INT32  biHeight;                                // pixmap height
-    Q_INT16  biPlanes;                                // should be 1
-    Q_INT16  biBitCount;                        // number of bits per pixel
-    Q_INT32  biCompression;                        // compression method
-    Q_INT32  biSizeImage;                                // size of image
-    Q_INT32  biXPelsPerMeter;                        // horizontal resolution
-    Q_INT32  biYPelsPerMeter;                        // vertical resolution
-    Q_INT32  biClrUsed;                                // number of colors used
-    Q_INT32  biClrImportant;                        // number of important colors
+    qint32  biSize;                                // size of this struct
+    qint32  biWidth;                                // pixmap width
+    qint32  biHeight;                                // pixmap height
+    qint16  biPlanes;                                // should be 1
+    qint16  biBitCount;                        // number of bits per pixel
+    qint32  biCompression;                        // compression method
+    qint32  biSizeImage;                                // size of image
+    qint32  biXPelsPerMeter;                        // horizontal resolution
+    qint32  biYPelsPerMeter;                        // vertical resolution
+    qint32  biClrUsed;                                // number of colors used
+    qint32  biClrImportant;                        // number of important colors
 };
 
 
@@ -1000,7 +1000,7 @@ QDataStream &operator>>(QDataStream &s, BMP_INFOHDR &bi)
         s >> bi.biClrUsed >> bi.biClrImportant;
     }
     else {                                        // probably old Windows format
-        Q_INT16 w, h;
+        qint16 w, h;
         s >> w >> h >> bi.biPlanes >> bi.biBitCount;
         bi.biWidth  = w;
         bi.biHeight = h;
@@ -1118,11 +1118,11 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                 return false;
         }
     } else if (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32)) {
-        if ((Q_ULONG)d->read((char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask))
+        if (d->read((char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask))
             return false;
-        if ((Q_ULONG)d->read((char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask))
+        if (d->read((char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask))
             return false;
-        if ((Q_ULONG)d->read((char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask))
+        if (d->read((char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask))
             return false;
         red_shift = calc_shift(red_mask);
         red_scale = 256 / ((red_mask >> red_shift) + 1);
@@ -1142,7 +1142,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         return false;
 
     // offset can be bogus, be careful
-    if (offset>=0 && startpos + offset > (Q_LONG)d->pos())
+    if (offset>=0 && startpos + offset > d->pos())
         d->seek(startpos + offset);                // start of image data
 
     int             bpl = image.bytesPerLine();

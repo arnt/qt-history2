@@ -83,8 +83,8 @@
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
-const Q_UINT16 mfhdr_maj = 6; // major version #
-const Q_UINT16 mfhdr_min = 0; // minor version #
+const quint16 mfhdr_maj = 6; // major version #
+const quint16 mfhdr_min = 0; // minor version #
 
 #define d d_func()
 #define q q_func()
@@ -408,13 +408,13 @@ bool QPicture::play(QPainter *painter)
     s.device()->seek(10);                        // go directly to the data
     s.setVersion(d->formatMajor == 4 ? 3 : d->formatMajor);
 
-    Q_UINT8  c, clen;
-    Q_UINT32 nrecords;
+    quint8  c, clen;
+    quint32 nrecords;
     s >> c >> clen;
     Q_ASSERT(c == QPicturePrivate::PdcBegin);
     // bounding rect was introduced in ver 4. Read in checkFormat().
     if (d->formatMajor >= 4) {
-        Q_INT32 dummy;
+        qint32 dummy;
         s >> dummy >> dummy >> dummy >> dummy;
     }
     s >> nrecords;
@@ -439,12 +439,12 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 #if defined(QT_DEBUG)
     int                strm_pos;
 #endif
-    Q_UINT8     c;                      // command id
-    Q_UINT8     tiny_len;               // 8-bit length descriptor
-    Q_INT32     len;                    // 32-bit length descriptor
-    Q_INT16     i_16, i1_16, i2_16;     // parameters...
-    Q_INT8      i_8;
-    Q_UINT32    ul;
+    quint8     c;                      // command id
+    quint8     tiny_len;               // 8-bit length descriptor
+    qint32     len;                    // 32-bit length descriptor
+    qint16     i_16, i1_16, i2_16;     // parameters...
+    qint8      i_8;
+    quint32    ul;
     QByteArray  str1;
     QString     str;
     QPointF     p, p1, p2;
@@ -698,7 +698,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         }
 #if defined(QT_DEBUG)
         //qDebug("device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len);
-        Q_ASSERT(Q_INT32(s.device()->pos() - strm_pos) == len);
+        Q_ASSERT(qint32(s.device()->pos() - strm_pos) == len);
 #endif
     }
     return false;
@@ -834,13 +834,13 @@ bool QPicturePrivate::checkFormat()
         return false;
     }
 
-    int cs_start = sizeof(Q_UINT32);                // pos of checksum word
-    int data_start = cs_start + sizeof(Q_UINT16);
-    Q_UINT16 cs,ccs;
+    int cs_start = sizeof(quint32);                // pos of checksum word
+    int data_start = cs_start + sizeof(quint16);
+    quint16 cs,ccs;
     QByteArray buf = pictb.buffer();        // pointer to data
 
     s >> cs;                                // read checksum
-    ccs = (Q_UINT16) qChecksum(buf.constData() + data_start, buf.size() - data_start);
+    ccs = (quint16) qChecksum(buf.constData() + data_start, buf.size() - data_start);
     if (ccs != cs) {
         qWarning("QPicturePaintEngine::checkFormat: Invalid checksum %x, %x expected",
                   ccs, cs);
@@ -848,7 +848,7 @@ bool QPicturePrivate::checkFormat()
         return false;
     }
 
-    Q_UINT16 major, minor;
+    quint16 major, minor;
     s >> major >> minor;                        // read version number
     if (major > mfhdr_maj) {                // new, incompatible version
         qWarning("QPicturePaintEngine::checkFormat: Incompatible version %d.%d",
@@ -858,11 +858,11 @@ bool QPicturePrivate::checkFormat()
     }
     s.setVersion(major != 4 ? major : 3);
 
-    Q_UINT8  c, clen;
+    quint8  c, clen;
     s >> c >> clen;
     if (c == QPicturePrivate::PdcBegin) {
         if (!(major >= 1 && major <= 3)) {
-            Q_INT32 l, t, w, h;
+            qint32 l, t, w, h;
             s >> l >> t >> w >> h;
             brect = QRect(l, t, w, h);
         }
@@ -900,7 +900,7 @@ QPaintEngine *QPicture::paintEngine() const
 
 QDataStream &operator<<(QDataStream &s, const QPicture &r)
 {
-    Q_UINT32 size = r.d->pictb.buffer().size();
+    quint32 size = r.d->pictb.buffer().size();
     s << size;
     // null picture ?
     if (size == 0)
@@ -924,7 +924,7 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
     // "init"; this code is similar to the beginning of QPicture::cmd()
     sr.setDevice(&r.d->pictb);
     sr.setVersion(r.d->formatMajor);
-    Q_UINT32 len;
+    quint32 len;
     s >> len;
     QByteArray data;
     if (len > 0) {

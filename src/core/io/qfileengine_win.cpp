@@ -226,7 +226,7 @@ QFSFileEngine::rename(const QString &newName)
     });
 }
 
-Q_LONGLONG
+qint64
 QFSFileEngine::size() const
 {
     QT_STATBUF st;
@@ -602,9 +602,9 @@ QFSFileEngine::drives()
     QFileInfoList ret;
 
 #if defined(Q_OS_WIN32)
-    Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
+    quint32 driveBits = (quint32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(Q_OS_OS2EMX)
-    Q_UINT32 driveBits, cur;
+    quint32 driveBits, cur;
     if(DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
 	exit(1);
     driveBits &= 0x3ffffff;
@@ -1166,7 +1166,7 @@ bool QFSFileEngine::chmod(uint perms)
    return ret;
 }
 
-bool QFSFileEngine::setSize(Q_LONGLONG size)
+bool QFSFileEngine::setSize(qint64 size)
 {
     if (d->fd != -1) {
         // resize open file
@@ -1174,7 +1174,7 @@ bool QFSFileEngine::setSize(Q_LONGLONG size)
         if (fh == INVALID_HANDLE_VALUE)
             return false;
 
-        Q_LONGLONG currentPos = at();
+        qint64 currentPos = at();
         if (seek(size) && SetEndOfFile(fh)) {
             seek(qMin(currentPos, size));
             return true;
@@ -1186,10 +1186,10 @@ bool QFSFileEngine::setSize(Q_LONGLONG size)
         if (file1.open(QFile::ReadOnly)) {
             QTemporaryFile file2;
             if (file2.open()) {
-                Q_LONGLONG newSize = 0;
+                qint64 newSize = 0;
                 char block[1024];
                 while (!file1.atEnd() && newSize < size) {
-                    Q_LONGLONG in = file1.read(block, 1024);
+                    qint64 in = file1.read(block, 1024);
                     if (in == -1)
                         break;
                     in = qMin(size - newSize, in);

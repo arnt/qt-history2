@@ -267,7 +267,7 @@ static const char * const agl =
 "bracerightbt\0ff\0fi\0fl\0ffi\0ffl\0afii57705\0afii57694\0afii57695\0"
 ;
 
-static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
+static const struct { quint16 u; quint16 index; } unicodetoglyph[] = {
     {0x0000, 0}, {0x0020, 8}, {0x0021, 14}, {0x0022, 21},
     {0x0023, 30}, {0x0024, 41}, {0x0025, 48}, {0x0026, 56},
     {0x0027, 66}, {0x0028, 78}, {0x0029, 88}, {0x002A, 99},
@@ -762,7 +762,7 @@ static QString wrapDSC(const QString &str)
     return wrapped + "\n";
 }
 
-static QString toString(const qReal num)
+static QString toString(const qreal num)
 {
     return QString::number( num, 'f', 3 );
 }
@@ -779,7 +779,7 @@ public:
     void orientationSetup();
     void emitHeader(bool finished);
     void setFont(QFontEngine *fe);
-    void drawImage(qReal x, qReal y, qReal w, qReal h, const QImage &img, const QImage &mask);
+    void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
     void flushPage(bool last = false);
 
     QPrinter   *printer;
@@ -1127,8 +1127,8 @@ static const char *toHex(ushort u)
 
 void QPSPrintEngineFont::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
-    qReal x = p.x();
-    qReal y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
     stream << y << " Y";
 
     int len = ti.num_chars;
@@ -1688,13 +1688,13 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
 
 void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
-    qReal x = p.x();
-    qReal y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
     stream << y << " Y";
 
     QByteArray xyarray;
-    qReal xo = 0;
-    qReal yo = 0;
+    qreal xo = 0;
+    qreal yo = 0;
 
     QGlyphLayout *glyphs = ti.glyphs;
 
@@ -1784,8 +1784,8 @@ unsigned short QPSPrintEngineFontFT::glyph_for_unicode(unsigned short unicode)
 #include FT_BBOX_H
 
 struct decompose_data {
-    qReal x;
-    qReal y;
+    qreal x;
+    qreal y;
     QTextStream *s;
 };
 
@@ -3132,15 +3132,15 @@ static const char * psJoin(Qt::PenJoinStyle p) {
 
 
 
-void QPSPrintEnginePrivate::drawImage(qReal x, qReal y, qReal w, qReal h,
+void QPSPrintEnginePrivate::drawImage(qreal x, qreal y, qreal w, qreal h,
                                   const QImage &img, const QImage &mask)
 {
     if (!w || !h || img.isNull()) return;
 
     int width  = img.width();
     int height = img.height();
-    qReal scaleX = width/w;
-    qReal scaleY = height/h;
+    qreal scaleX = width/w;
+    qreal scaleY = height/h;
 
     bool gray = (colorMode == QPrinter::GrayScale) ||
                 img.allGray();
@@ -3804,16 +3804,16 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
                                      Qt::PixmapDrawingMode mode)
 {
     // ### Optimise implementation!
-    qReal yPos = r.y();
-    qReal yOff = p.y();
+    qreal yPos = r.y();
+    qreal yOff = p.y();
     while( yPos < r.y() + r.height() ) {
-        qReal drawH = pixmap.height() - yOff;    // Cropping first row
+        qreal drawH = pixmap.height() - yOff;    // Cropping first row
         if ( yPos + drawH > r.y() + r.height() )        // Cropping last row
             drawH = r.y() + r.height() - yPos;
-        qReal xPos = r.x();
-        qReal xOff = p.x();
+        qreal xPos = r.x();
+        qreal xOff = p.x();
         while( xPos < r.x() + r.width() ) {
-            qReal drawW = pixmap.width() - xOff; // Cropping first column
+            qreal drawW = pixmap.width() - xOff; // Cropping first column
             if ( xPos + drawW > r.x() + r.width() )    // Cropping last column
                 drawW = r.x() + r.width() - xPos;
             // ########

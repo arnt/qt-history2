@@ -608,14 +608,14 @@ public:
     QGlyph **r0Cache;
 
     struct Q_PACKED {
-        Q_INT8 ascent,descent;
-        Q_INT8 leftbearing,rightbearing;
-        Q_UINT8 maxwidth;
-        Q_INT8 leading;
-        Q_UINT8 flags;
-        Q_UINT8 underlinepos;
-        Q_UINT8 underlinewidth;
-        Q_UINT8 reserved3;
+        qint8 ascent,descent;
+        qint8 leftbearing,rightbearing;
+        quint8 maxwidth;
+        qint8 leading;
+        quint8 flags;
+        quint8 underlinepos;
+        quint8 underlinewidth;
+        quint8 reserved3;
     } fm;
 };
 #endif

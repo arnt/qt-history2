@@ -827,7 +827,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                       2.  If the type is 'bool', we return 'false'.
 
                       3.  If the type is 'unsigned long' or
-                          'Q_UINT16' or 'double' or similar, we
+                          'quint16' or 'double' or similar, we
                           return '0'.
 
                       4.  If the type is 'Foo *', we return '0'.

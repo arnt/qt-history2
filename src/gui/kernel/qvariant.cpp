@@ -358,7 +358,7 @@ static void load(QVariant::Private *d, QDataStream &s)
     }
     case QVariant::SizePolicy: {
         int h, v;
-        Q_INT8 hfw;
+        qint8 hfw;
         s >> h >> v >> hfw;
         QSizePolicy *sp = v_cast<QSizePolicy>(d);
         *sp = QSizePolicy(QSizePolicy::SizeType(h), QSizePolicy::SizeType(v));
@@ -442,7 +442,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
         {
             const QSizePolicy *p = v_cast<QSizePolicy>(d);
             s << (int) p->horizontalData() << (int) p->verticalData()
-              << (Q_INT8) p->hasHeightForWidth();
+              << (qint8) p->hasHeightForWidth();
         }
         break;
 #ifndef QT_NO_ACCEL
@@ -784,13 +784,13 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    \fn QVariant::QVariant(Q_LONGLONG val)
+    \fn QVariant::QVariant(qint64 val)
 
     Constructs a new variant with a long integer value of \a val.
 */
 
 /*!
-    \fn QVariant::QVariant(Q_ULONGLONG val)
+    \fn QVariant::QVariant(quint64 val)
 
     Constructs a new variant with an unsigned long integer value of \a val.
 */

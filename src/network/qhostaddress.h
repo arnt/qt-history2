@@ -22,9 +22,9 @@ class QHostAddressPrivate;
 class Q_NETWORK_EXPORT QIPv6Address
 {
 public:
-    inline Q_UINT8 &operator [](int index) { return c[index]; }
-    inline Q_UINT8 operator [](int index) const { return c[index]; }
-    Q_UINT8 c[16];
+    inline quint8 &operator [](int index) { return c[index]; }
+    inline quint8 operator [](int index) const { return c[index]; }
+    quint8 c[16];
 };
 
 typedef QIPv6Address Q_IPV6ADDR;
@@ -42,8 +42,8 @@ public:
     };
 
     QHostAddress();
-    QHostAddress(Q_UINT32 ip4Addr);
-    QHostAddress(Q_UINT8 *ip6Addr);
+    QHostAddress(quint32 ip4Addr);
+    QHostAddress(quint8 *ip6Addr);
     QHostAddress(const Q_IPV6ADDR &ip6Addr);
     explicit QHostAddress(const QString &address);
     QHostAddress(const QHostAddress &copy);
@@ -52,13 +52,13 @@ public:
 
     QHostAddress &operator=(const QHostAddress &);
 
-    void setAddress(Q_UINT32 ip4Addr);
-    void setAddress(Q_UINT8 *ip6Addr);
+    void setAddress(quint32 ip4Addr);
+    void setAddress(quint8 *ip6Addr);
     void setAddress(const Q_IPV6ADDR &ip6Addr);
     bool setAddress(const QString &address);
 
     QAbstractSocket::NetworkLayerProtocol protocol() const;
-    Q_UINT32 toIPv4Address() const;
+    quint32 toIPv4Address() const;
     Q_IPV6ADDR toIPv6Address() const;
 
     QString toString() const;
@@ -69,7 +69,7 @@ public:
     void clear();
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
+    inline QT_COMPAT quint32 ip4Addr() const { return toIPv4Address(); }
     inline QT_COMPAT bool isIPv4Address() const { return protocol() == QAbstractSocket::IPv4Protocol
                                                       || protocol() == QAbstractSocket::UnknownNetworkLayerProtocol; }
     inline QT_COMPAT bool isIp4Addr() const  { return protocol() == QAbstractSocket::IPv4Protocol

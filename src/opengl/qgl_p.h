@@ -85,7 +85,7 @@ public:
     void* vi;
     void* cx;
 #if defined(Q_WS_X11)
-    Q_UINT32 gpm;
+    quint32 gpm;
 #endif
 #endif
     QGLFormat glFormat;

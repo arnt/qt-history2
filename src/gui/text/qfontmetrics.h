@@ -105,32 +105,32 @@ public:
     QFontMetricsF &operator=(const QFontMetricsF &);
     QFontMetricsF &operator=(const QFontMetrics &);
 
-    qReal ascent() const;
-    qReal descent() const;
-    qReal height() const;
-    qReal leading() const;
-    qReal lineSpacing() const;
-    qReal minLeftBearing() const;
-    qReal minRightBearing() const;
-    qReal maxWidth() const;
+    qreal ascent() const;
+    qreal descent() const;
+    qreal height() const;
+    qreal leading() const;
+    qreal lineSpacing() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
+    qreal maxWidth() const;
 
     bool inFont(QChar) const;
 
-    qReal leftBearing(QChar) const;
-    qReal rightBearing(QChar) const;
-    qReal width(const QString &string) const;
+    qreal leftBearing(QChar) const;
+    qreal rightBearing(QChar) const;
+    qreal width(const QString &string) const;
 
-    qReal width(QChar) const;
+    qreal width(QChar) const;
 
     QRectF boundingRect(const QString &string) const;
     QRectF boundingRect(QChar) const;
     QRectF boundingRect(const QRectF &r, int flags, const QString& string, int tabstops=0, int *tabarray=0) const;
     QSizeF size(int flags, const QString& str, int tabstops=0, int *tabarray=0) const;
 
-    qReal underlinePos() const;
-    qReal overlinePos() const;
-    qReal strikeOutPos() const;
-    qReal lineWidth() const;
+    qreal underlinePos() const;
+    qreal overlinePos() const;
+    qreal strikeOutPos() const;
+    qreal lineWidth() const;
 
     bool operator==(const QFontMetricsF &other);
     inline bool operator !=(const QFontMetricsF &other) { return !operator==(other); }

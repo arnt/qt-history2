@@ -40,8 +40,8 @@ public:
 
     class Element {
     public:
-        qReal x;
-        qReal y;
+        qreal x;
+        qreal y;
         ElementType type;
 
         bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }
@@ -57,27 +57,27 @@ public:
     void closeSubpath();
 
     void moveTo(const QPointF &p);
-    inline void moveTo(qReal x, qReal y);
+    inline void moveTo(qreal x, qreal y);
 
     void lineTo(const QPointF &p);
-    inline void lineTo(qReal x, qReal y);
+    inline void lineTo(qreal x, qreal y);
 
-    void arcTo(const QRectF &rect, qReal startAngle, qReal arcLength);
-    inline void arcTo(qReal x, qReal y, qReal w, qReal h, qReal startAngle, qReal arcLength);
+    void arcTo(const QRectF &rect, qreal startAngle, qreal arcLength);
+    inline void arcTo(qreal x, qreal y, qreal w, qreal h, qreal startAngle, qreal arcLength);
 
     void curveTo(const QPointF &ctrlPt1, const QPointF &ctrlPt2, const QPointF &endPt);
-    inline void curveTo(qReal ctrlPt1x, qReal ctrlPt1y, qReal ctrlPt2x, qReal ctrlPt2y,
-                        qReal endPtx, qReal endPty);
+    inline void curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
+                        qreal endPtx, qreal endPty);
 
     QPointF currentPosition() const;
 
     void addRect(const QRectF &rect);
-    inline void addRect(qReal x, qReal y, qReal w, qReal h);
+    inline void addRect(qreal x, qreal y, qreal w, qreal h);
     void addEllipse(const QRectF &rect);
-    inline void addEllipse(qReal x, qReal y, qReal w, qReal h);
+    inline void addEllipse(qreal x, qreal y, qreal w, qreal h);
     void addPolygon(const QPolygonF &polygon);
     void addText(const QPointF &point, const QFont &f, const QString &text);
-    inline void addText(qReal x, qReal y, const QFont &f, const QString &text);
+    inline void addText(qreal x, qreal y, const QFont &f, const QString &text);
     void addPath(const QPainterPath &path);
     void addRegion(const QRegion &region);
 
@@ -134,8 +134,8 @@ public:
     QPainterPathStroker();
     ~QPainterPathStroker();
 
-    void setWidth(qReal width);
-    qReal width() const;
+    void setWidth(qreal width);
+    qreal width() const;
 
     void setStyle(Qt::PenStyle style);
     Qt::PenStyle style() const;
@@ -146,8 +146,8 @@ public:
     void setJoinStyle(Qt::PenJoinStyle style);
     Qt::PenJoinStyle joinStyle() const;
 
-    void setMiterLimit(qReal length);
-    qReal miterLimit() const;
+    void setMiterLimit(qreal length);
+    qreal miterLimit() const;
 
     QPainterPath createStroke(const QPainterPath &path) const;
 
@@ -155,39 +155,39 @@ private:
     QPainterPathStrokerPrivate *d_ptr;
 };
 
-inline void QPainterPath::moveTo(qReal x, qReal y)
+inline void QPainterPath::moveTo(qreal x, qreal y)
 {
     moveTo(QPointF(x, y));
 }
 
-inline void QPainterPath::lineTo(qReal x, qReal y)
+inline void QPainterPath::lineTo(qreal x, qreal y)
 {
     lineTo(QPointF(x, y));
 }
 
-inline void QPainterPath::arcTo(qReal x, qReal y, qReal w, qReal h, qReal startAngle, qReal arcLenght)
+inline void QPainterPath::arcTo(qreal x, qreal y, qreal w, qreal h, qreal startAngle, qreal arcLenght)
 {
     arcTo(QRectF(x, y, w, h), startAngle, arcLenght);
 }
 
-inline void QPainterPath::curveTo(qReal ctrlPt1x, qReal ctrlPt1y, qReal ctrlPt2x, qReal ctrlPt2y,
-                                   qReal endPtx, qReal endPty)
+inline void QPainterPath::curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
+                                   qreal endPtx, qreal endPty)
 {
     curveTo(QPointF(ctrlPt1x, ctrlPt1y), QPointF(ctrlPt2x, ctrlPt2y),
             QPointF(endPtx, endPty));
 }
 
-inline void QPainterPath::addEllipse(qReal x, qReal y, qReal w, qReal h)
+inline void QPainterPath::addEllipse(qreal x, qreal y, qreal w, qreal h)
 {
     addEllipse(QRectF(x, y, w, h));
 }
 
-inline void QPainterPath::addRect(qReal x, qReal y, qReal w, qReal h)
+inline void QPainterPath::addRect(qreal x, qreal y, qreal w, qreal h)
 {
     addRect(QRectF(x, y, w, h));
 }
 
-inline void QPainterPath::addText(qReal x, qReal y, const QFont &f, const QString &text)
+inline void QPainterPath::addText(qreal x, qreal y, const QFont &f, const QString &text)
 {
     addText(QPointF(x, y), f, text);
 }

@@ -134,7 +134,7 @@ class Q_NETWORK_EXPORT QHttp : public QObject
 
 public:
     explicit QHttp(QObject *parent = 0);
-    QHttp(const QString &hostname, Q_UINT16 port = 80, QObject *parent = 0);
+    QHttp(const QString &hostname, quint16 port = 80, QObject *parent = 0);
     virtual ~QHttp();
 
     int supportedOperations() const;
@@ -159,7 +159,7 @@ public:
         Aborted
     };
 
-    int setHost(const QString &hostname, Q_UINT16 port = 80);
+    int setHost(const QString &hostname, quint16 port = 80);
     int setSocket(QTcpSocket *socket);
     int setUser(const QString &username, const QString &password = QString());
 
@@ -177,12 +177,12 @@ public:
     int closeConnection();
     int close();
 
-    Q_LONGLONG bytesAvailable() const;
+    qint64 bytesAvailable() const;
+    qint64 read(char *data, qint64 maxlen);
 #ifdef QT_COMPAT
-    inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
-    { return Q_LONG(read(data, Q_LONGLONG(maxlen))); }
+    inline QT_COMPAT qint64 readBlock(char *data, quint64 maxlen)
+    { return read(data, qint64(maxlen)); }
 #endif
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
 
     int currentId() const;
@@ -220,7 +220,7 @@ private:
     Q_PRIVATE_SLOT(d, void slotConnected())
     Q_PRIVATE_SLOT(d, void slotError(QTcpSocket::SocketError))
     Q_PRIVATE_SLOT(d, void slotClosed())
-    Q_PRIVATE_SLOT(d, void slotBytesWritten(Q_LONGLONG numBytes))
+    Q_PRIVATE_SLOT(d, void slotBytesWritten(qint64 numBytes))
     Q_PRIVATE_SLOT(d, void slotDoFinished());
 
     friend class QHttpNormalRequest;

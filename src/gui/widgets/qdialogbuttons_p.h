@@ -38,11 +38,11 @@ public:
     enum Button { None=0, Accept=0x01, Reject=0x02, Help=0x04, Apply=0x08, All=0x10, Abort=0x20, Retry=0x40, Ignore=0x80 };
 #ifndef QT_NO_DIALOG
     explicit QDialogButtons(QDialog *parent, bool autoConnect = true,
-                            Q_UINT32 buttons = Accept | Reject,
+                            quint32 buttons = Accept | Reject,
                             Qt::Orientation orient = Qt::Horizontal);
 #endif // QT_NO_DIALOG
     explicit QDialogButtons(QWidget *parent,
-                            Q_UINT32 buttons = Accept | Reject,
+                            quint32 buttons = Accept | Reject,
                             Qt::Orientation orient = Qt::Horizontal);
     ~QDialogButtons();
 
@@ -96,7 +96,7 @@ signals:
 
 private:
     QDialogButtonsPrivate *d;
-    void init(Q_UINT32, Qt::Orientation);
+    void init(quint32, Qt::Orientation);
 };
 
 #endif //QT_NO_DIALOGBUTTONS

@@ -60,10 +60,10 @@ public:
     bool	 at( Offset );
     bool	 atEnd() const;
 
-    Q_LONGLONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
+    qint64	 bytesAvailable() const;
     Q_ULONG	 waitForMore( int msecs, bool *timeout  ) const;
     Q_ULONG	 waitForMore( int msecs ) const; // ### Qt 4.0: merge the two overloads
-    Q_LONGLONG	 bytesToWrite() const;
+    qint64	 bytesToWrite() const;
     void	 clearPendingData();
 
     int		 getch();
@@ -96,8 +96,8 @@ protected slots:
     virtual void sn_write();
 
 protected:
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private slots:
     void	tryConnecting();

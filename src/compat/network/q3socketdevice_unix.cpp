@@ -624,7 +624,7 @@ int Q3SocketDevice::accept()
     data on the socket is to read it using readBlock(). QSocket has
     workarounds to deal with this problem.
 */
-Q_LONGLONG Q3SocketDevice::bytesAvailable() const
+qint64 Q3SocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -706,7 +706,7 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
+qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
@@ -797,7 +797,7 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 
     This is used for \c Q3SocketDevice::Stream sockets.
 */
-Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
+qint64 Q3SocketDevice::writeData( const char *data, qint64 len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)

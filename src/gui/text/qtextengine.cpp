@@ -662,7 +662,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
 
 }
 
-void QTextEngine::bidiReorder(int numItems, const Q_UINT8 *levels, int *visualOrder)
+void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrder)
 {
 
     // first find highest and lowest levels
@@ -767,7 +767,7 @@ enum break_action {
 
 // The following line break classes are not treated by the table:
 // SA, BK, CR, LF, SG, CB, SP
-static const Q_UINT8 breakTable[QUnicodeTables::LineBreak_CM+1][QUnicodeTables::LineBreak_CM+1] =
+static const quint8 breakTable[QUnicodeTables::LineBreak_CM+1][QUnicodeTables::LineBreak_CM+1] =
 {
     // OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
     { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
@@ -1016,11 +1016,11 @@ int QTextEngine::findItem(int strPos) const
     return item;
 }
 
-qReal QTextEngine::width(int from, int len) const
+qreal QTextEngine::width(int from, int len) const
 {
     itemize();
 
-    qReal w = 0;
+    qreal w = 0;
 
 //     qDebug("QTextEngine::width(from = %d, len = %d), numItems=%d, strleng=%d", from,  len, items.size(), string.length());
     for (int i = 0; i < layoutData->items.size(); i++) {
@@ -1156,7 +1156,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 
 struct JustificationPoint {
     int type;
-    qReal kashidaWidth;
+    qreal kashidaWidth;
     QGlyphLayout *glyph;
     QFontEngine *fontEngine;
 };
@@ -1222,7 +1222,7 @@ void QTextEngine::justify(const QScriptLine &line)
     QVarLengthArray<JustificationPoint> justificationPoints;
     int nPoints = 0;
 //     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
-    qReal minKashida = 0x100000;
+    qreal minKashida = 0x100000;
 
     // we need to do all shaping before we go into the next loop, as we there
     // store pointers to the glyph data that could get reallocated by the shaping
@@ -1305,7 +1305,7 @@ void QTextEngine::justify(const QScriptLine &line)
     }
 
 
-    qReal need = line.width - line.textWidth;
+    qreal need = line.width - line.textWidth;
     if (need < 0) {
         // line overflows already!
         const_cast<QScriptLine &>(line).justified = true;
@@ -1349,7 +1349,7 @@ void QTextEngine::justify(const QScriptLine &line)
 
         for (int i = 0; i < nPoints; ++i) {
             if (justificationPoints[i].type == type) {
-                qReal add = need/n;
+                qreal add = need/n;
 //                  qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
                 justificationPoints[i].glyph->space_18d6 = qRound(add*64);
                 need -= add;
@@ -1483,7 +1483,7 @@ void QTextEngine::splitItem(int item, int pos) const
         for (int i = 0; i < newItem.num_glyphs; i++)
             logClusters(&newItem)[i] -= breakGlyph;
 
-        qReal w = 0;
+        qreal w = 0;
         const QGlyphLayout *g = glyphs(&oldItem);
         for(int j = 0; j < breakGlyph; ++j)
             w += (g++)->advance.x();

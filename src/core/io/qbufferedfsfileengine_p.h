@@ -42,10 +42,10 @@ public:
     bool open(int flags, FILE *fh);
     bool close();
     void flush();
-    Q_LONGLONG at() const;
-    bool seek(Q_LONGLONG);
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    qint64 at() const;
+    bool seek(qint64);
+    qint64 read(char *data, qint64 maxlen);
+    qint64 write(const char *data, qint64 len);
 };
 
 class QBufferedFSFileEnginePrivate : public QFSFileEnginePrivate

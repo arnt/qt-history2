@@ -54,18 +54,18 @@ public:
     void setData(QByteArray *);
     void setDevice(QIODevice *);
     void writeData();
-    void setBytesTotal(Q_LONGLONG bytes);
+    void setBytesTotal(qint64 bytes);
 
     bool hasError() const;
     QString errorMessage() const;
     void clearError();
 
-    void connectToHost(const QString & host, Q_UINT16 port);
+    void connectToHost(const QString & host, quint16 port);
     int setupListener(const QHostAddress &address);
 
     QTcpSocket::SocketState state() const;
-    Q_LONGLONG bytesAvailable() const;
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    qint64 bytesAvailable() const;
+    qint64 read(char *data, qint64 maxlen);
     QByteArray readAll();
 
     void abortConnection();
@@ -75,7 +75,7 @@ public:
 signals:
     void listInfo(const QUrlInfo&);
     void readyRead();
-    void dataTransferProgress(Q_LONGLONG, Q_LONGLONG);
+    void dataTransferProgress(qint64, qint64);
 
     void connectState(int);
 
@@ -84,7 +84,7 @@ private slots:
     void socketReadyRead();
     void socketError(QTcpSocket::SocketError);
     void socketConnectionClosed();
-    void socketBytesWritten(Q_LONGLONG);
+    void socketBytesWritten(qint64);
     void setupSocket();
 
 private:
@@ -95,8 +95,8 @@ private:
 
     QFtpPI *pi;
     QString err;
-    Q_LONGLONG bytesDone;
-    Q_LONGLONG bytesTotal;
+    qint64 bytesDone;
+    qint64 bytesTotal;
     bool callWriteData;
 
     // If is_ba is true, ba is used; ba is never 0.
@@ -123,7 +123,7 @@ class QFtpPI : public QObject
 public:
     QFtpPI(QObject *parent = 0);
 
-    void connectToHost(const QString &host, Q_UINT16 port);
+    void connectToHost(const QString &host, quint16 port);
 
     bool sendCommands(const QStringList &cmds);
     bool sendCommand(const QString &cmd)
@@ -279,14 +279,14 @@ void QFtpDTP::setDevice(QIODevice *dev)
     data.dev = dev;
 }
 
-void QFtpDTP::setBytesTotal(Q_LONGLONG bytes)
+void QFtpDTP::setBytesTotal(qint64 bytes)
 {
     bytesTotal = bytes;
     bytesDone = 0;
     emit dataTransferProgress(bytesDone, bytesTotal);
 }
 
-void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
+void QFtpDTP::connectToHost(const QString & host, quint16 port)
 {
     bytesFromSocket.clear();
 
@@ -298,7 +298,7 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
-    connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
+    connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
     socket->connectToHost(host, port);
 }
@@ -316,16 +316,16 @@ QTcpSocket::SocketState QFtpDTP::state() const
     return socket ? socket->state() : QTcpSocket::UnconnectedState;
 }
 
-Q_LONGLONG QFtpDTP::bytesAvailable() const
+qint64 QFtpDTP::bytesAvailable() const
 {
     if (!socket || socket->state() != QTcpSocket::ConnectedState)
-        return (Q_LONGLONG) bytesFromSocket.size();
+        return (qint64) bytesFromSocket.size();
     return socket->bytesAvailable();
 }
 
-Q_LONGLONG QFtpDTP::read(char *data, Q_LONGLONG maxlen)
+qint64 QFtpDTP::read(char *data, qint64 maxlen)
 {
-    Q_LONGLONG read;
+    qint64 read;
     if (socket && socket->state() == QTcpSocket::ConnectedState) {
         read = socket->read(data, maxlen);
     } else {
@@ -370,10 +370,10 @@ void QFtpDTP::writeData()
         clearData();
     } else if (data.dev) {
         callWriteData = false;
-        const Q_LONGLONG blockSize = 16*1024;
+        const qint64 blockSize = 16*1024;
         char buf[blockSize];
         while (!data.dev->atEnd() && socket->bytesToWrite() == 0) {
-            Q_LONGLONG read = data.dev->read(buf, blockSize);
+            qint64 read = data.dev->read(buf, blockSize);
 #if defined(QFTPDTP_DEBUG)
             qDebug("QFtpDTP::writeData: write() of size %lli bytes", read);
 #endif
@@ -411,7 +411,7 @@ void QFtpDTP::abortConnection()
 {
 #if defined(QFTPDTP_DEBUG)
     qDebug("QFtpDTP::abortConnection, bytesAvailable == %lli",
-           socket ? socket->bytesAvailable() : (Q_LONGLONG) 0);
+           socket ? socket->bytesAvailable() : (qint64) 0);
 #endif
     callWriteData = false;
     clearData();
@@ -593,7 +593,7 @@ void QFtpDTP::socketReadyRead()
         if (!is_ba && data.dev) {
             QByteArray ba;
             ba.resize(socket->bytesAvailable());
-            Q_LONGLONG bytesRead = socket->read(ba.data(), ba.size());
+            qint64 bytesRead = socket->read(ba.data(), ba.size());
             if (bytesRead < 0) {
                 // a read following a readyRead() signal will
                 // never fail.
@@ -645,7 +645,7 @@ void QFtpDTP::socketConnectionClosed()
     emit connectState(QFtpDTP::CsClosed);
 }
 
-void QFtpDTP::socketBytesWritten(Q_LONGLONG bytes)
+void QFtpDTP::socketBytesWritten(qint64 bytes)
 {
     bytesDone += bytes;
 #if defined(QFTPDTP_DEBUG)
@@ -664,7 +664,7 @@ void QFtpDTP::setupSocket()
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
-    connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
+    connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
     listener.close();
 }
@@ -707,7 +707,7 @@ QFtpPI::QFtpPI(QObject *parent) :
              SLOT(dtpConnectState(int)));
 }
 
-void QFtpPI::connectToHost(const QString &host, Q_UINT16 port)
+void QFtpPI::connectToHost(const QString &host, quint16 port)
 {
     emit connectState(QFtp::HostLookup);
     commandSocket.connectToHost(host, port);
@@ -937,7 +937,7 @@ bool QFtpPI::processReply()
         } else {
             QStringList lst = addrPortPattern.capturedTexts();
             QString host = lst[1] + "." + lst[2] + "." + lst[3] + "." + lst[4];
-            Q_UINT16 port = (lst[5].toUInt() << 8) + lst[6].toUInt();
+            quint16 port = (lst[5].toUInt() << 8) + lst[6].toUInt();
             waitForDtpToConnect = true;
             dtp.connectToHost(host, port);
         }
@@ -1053,7 +1053,7 @@ bool QFtpPI::startNextCmd()
         } else if (address.protocol() == QTcpSocket::IPv4Protocol) {
             int port = dtp.setupListener(address);
             QString portArg;
-            Q_UINT32 ip = address.toIPv4Address();
+            quint32 ip = address.toIPv4Address();
             portArg += QString::number((ip & 0xff000000) >> 24);
             portArg += "," + QString::number((ip & 0xff0000) >> 16);
             portArg += "," + QString::number((ip & 0xff00) >> 8);
@@ -1152,9 +1152,9 @@ public:
     QString errorString;
 
     QString host;
-    Q_UINT16 port;
+    quint16 port;
     QString proxyHost;
-    Q_UINT16 proxyPort;
+    quint16 proxyPort;
 };
 
 int QFtpPrivate::addCommand(QFtpCommand *cmd)
@@ -1336,8 +1336,8 @@ QFtp::QFtp(QObject *parent)
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
-    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
-            SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
+    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(qint64,qint64)),
+            SIGNAL(dataTransferProgress(qint64,qint64)));
     connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
             SIGNAL(listInfo(QUrlInfo)));
 }
@@ -1364,8 +1364,8 @@ QFtp::QFtp(QObject *parent, const char *name)
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
-    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
-            SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
+    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(qint64,qint64)),
+            SIGNAL(dataTransferProgress(qint64,qint64)));
     connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
             SIGNAL(listInfo(QUrlInfo)));
 }
@@ -1534,7 +1534,7 @@ QFtp::QFtp(QObject *parent, const char *name)
 */
 
 /*!
-    \fn void QFtp::dataTransferProgress(Q_LONGLONG done, Q_LONGLONG total)
+    \fn void QFtp::dataTransferProgress(qint64 done, qint64 total)
 
     This signal is emitted in response to a get() or put() request to
     indicate the current progress of the download or upload.
@@ -1581,7 +1581,7 @@ QFtp::QFtp(QObject *parent, const char *name)
 
     \sa stateChanged() commandStarted() commandFinished()
 */
-int QFtp::connectToHost(const QString &host, Q_UINT16 port)
+int QFtp::connectToHost(const QString &host, quint16 port)
 {
     d->pi.transferConnectionExtended = true;
     QStringList cmds;
@@ -1658,7 +1658,7 @@ int QFtp::setTransferMode(TransferMode mode)
     QFtp does not support FTP-over-HTTP proxy servers. Use QHttp for
     this.
 */
-int QFtp::setProxy(const QString &host, Q_UINT16 port)
+int QFtp::setProxy(const QString &host, quint16 port)
 {
     QStringList args;
     args << host << QString::number(port);
@@ -1937,7 +1937,7 @@ int QFtp::rawCommand(const QString &command)
 
     \sa get() readyRead() read() readAll()
 */
-Q_LONGLONG QFtp::bytesAvailable() const
+qint64 QFtp::bytesAvailable() const
 {
     return d->pi.dtp.bytesAvailable();
 }
@@ -1953,7 +1953,7 @@ Q_LONGLONG QFtp::bytesAvailable() const
 
     \sa get() readyRead() bytesAvailable() readAll()
 */
-Q_LONGLONG QFtp::read(char *data, Q_LONGLONG maxlen)
+qint64 QFtp::read(char *data, qint64 maxlen)
 {
     return d->pi.dtp.read(data, maxlen);
 }

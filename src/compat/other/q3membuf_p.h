@@ -44,13 +44,13 @@ public:
 
     int ungetch(int ch);
 
-    Q_LONGLONG size() const;
+    qint64 size() const;
 
 private:
 
     QList<QByteArray *> buf;
-    Q_LONGLONG _size;
-    Q_LONGLONG _index;
+    qint64 _size;
+    qint64 _index;
 };
 
 inline void Q3Membuf::append(QByteArray *ba)
@@ -65,7 +65,7 @@ inline QByteArray Q3Membuf::readAll()
 inline bool Q3Membuf::canReadLine() const
 { return const_cast<Q3Membuf*>(this)->scanNewline(0); }
 
-inline Q_LONGLONG Q3Membuf::size() const
+inline qint64 Q3Membuf::size() const
 { return _size; }
 
 #endif

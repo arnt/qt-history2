@@ -45,13 +45,13 @@ public:
     virtual bool open(int flags) ;
     virtual bool close();
     virtual void flush();
-    virtual Q_LONGLONG size() const;
-    virtual Q_LONGLONG at() const;
+    virtual qint64 size() const;
+    virtual qint64 at() const;
     virtual bool atEnd() const;
-    virtual bool seek(Q_LONGLONG);
+    virtual bool seek(qint64);
     virtual int ungetch(int);
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    virtual qint64 read(char *data, qint64 maxlen);
+    virtual qint64 write(const char *data, qint64 len);
 
     virtual bool remove();
     virtual bool copy(const QString &newName);
@@ -65,7 +65,7 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
-    virtual bool setSize(Q_LONGLONG size);
+    virtual bool setSize(qint64 size);
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
 

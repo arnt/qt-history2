@@ -247,7 +247,7 @@ int QSQLiteResult::numRowsAffected()
 QCoreVariant QSQLiteResult::lastInsertId() const
 {
     if (isActive()) {
-        Q_LONGLONG id = sqlite3_last_insert_rowid(d->access);
+        qint64 id = sqlite3_last_insert_rowid(d->access);
         if (id)
             return id;
     }

@@ -65,7 +65,7 @@ public:
     typedef QVector<QTextFormat> FormatVector;
 
     FormatVector formats;
-    QVector<Q_INT32> objFormats;
+    QVector<qint32> objFormats;
 };
 
 #endif // QTEXTFORMAT_P_H

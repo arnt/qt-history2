@@ -389,7 +389,7 @@ void QProcessPrivate::cleanup()
 bool QProcessPrivate::canReadStandardOutput()
 {
     Q_Q(QProcess);
-    Q_LONGLONG available = bytesAvailableFromStdout();
+    qint64 available = bytesAvailableFromStdout();
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::canReadStandardOutput(), %lld bytes available",
            available);
@@ -399,7 +399,7 @@ bool QProcessPrivate::canReadStandardOutput()
         return false;
 
     char *ptr = outputReadBuffer.reserve(available);
-    Q_LONGLONG readBytes = readFromStdout(ptr, available);
+    qint64 readBytes = readFromStdout(ptr, available);
     if (readBytes == -1) {
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
@@ -430,7 +430,7 @@ bool QProcessPrivate::canReadStandardOutput()
 bool QProcessPrivate::canReadStandardError()
 {
     Q_Q(QProcess);
-    Q_LONGLONG available = bytesAvailableFromStderr();
+    qint64 available = bytesAvailableFromStderr();
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::canReadStandardError(), %lld bytes available",
            available);
@@ -440,7 +440,7 @@ bool QProcessPrivate::canReadStandardError()
         return false;
 
     char *ptr = errorReadBuffer.reserve(available);
-    Q_LONGLONG readBytes = readFromStderr(ptr, available);
+    qint64 readBytes = readFromStderr(ptr, available);
     if (readBytes == -1) {
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
@@ -481,7 +481,7 @@ bool QProcessPrivate::canWrite()
     if (writeBuffer.isEmpty())
         return false;
 
-    Q_LONGLONG written = writeToStdin(writeBuffer.readPointer(),
+    qint64 written = writeToStdin(writeBuffer.readPointer(),
                                       writeBuffer.nextDataBlockSize());
     if (written < 0) {
         processError = QProcess::WriteError;
@@ -776,7 +776,7 @@ bool QProcess::isSequential() const
 
 /*! \reimp
 */
-Q_LONGLONG QProcess::bytesAvailable() const
+qint64 QProcess::bytesAvailable() const
 {
     Q_D(const QProcess);
     const QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
@@ -791,7 +791,7 @@ Q_LONGLONG QProcess::bytesAvailable() const
 
 /*! \reimp
 */
-Q_LONGLONG QProcess::bytesToWrite() const
+qint64 QProcess::bytesToWrite() const
 {
     Q_D(const QProcess);
     return d->writeBuffer.size();
@@ -952,7 +952,7 @@ void QProcess::setProcessState(ProcessState state)
 
 /*! \reimp
 */
-Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
+qint64 QProcess::readData(char *data, qint64 maxlen)
 {
     Q_D(QProcess);
     QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
@@ -976,8 +976,8 @@ Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
         return 1;
     }
 
-    Q_LONGLONG bytesToRead = Q_LONGLONG(qMin(readBuffer->size(), (int)maxlen));
-    Q_LONGLONG readSoFar = 0;
+    qint64 bytesToRead = qint64(qMin(readBuffer->size(), (int)maxlen));
+    qint64 readSoFar = 0;
     while (readSoFar < bytesToRead) {
         char *ptr = readBuffer->readPointer();
         int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar,
@@ -996,7 +996,7 @@ Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
 
 /*! \reimp
 */
-Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
+qint64 QProcess::writeData(const char *data, qint64 len)
 {
     Q_D(QProcess);
 

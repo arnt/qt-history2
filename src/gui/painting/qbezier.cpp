@@ -22,8 +22,8 @@
 /*!
   \internal
 */
-QBezier::QBezier(qReal p1x_, qReal p1y_, qReal p2x_, qReal p2y_,
-                 qReal p3x_, qReal p3y_, qReal p4x_, qReal p4y_)
+QBezier::QBezier(qreal p1x_, qreal p1y_, qreal p2x_, qreal p2y_,
+                 qreal p3x_, qreal p3y_, qreal p4x_, qreal p4y_)
     : x1(p1x_), y1(p1y_), x2(p2x_), y2(p2y_), x3(p3x_), y3(p3y_), x4(p4x_), y4(p4y_)
 {
     init();
@@ -60,9 +60,9 @@ void QBezier::init()
 struct QBezierLineSegment
 {
     QBezierLineSegment() { }
-    QBezierLineSegment(qReal st, qReal en, const QLineF &line) : t_start(st), t_end(en), l(line) { }
-    qReal t_start;
-    qReal t_end;
+    QBezierLineSegment(qreal st, qreal en, const QLineF &line) : t_start(st), t_end(en), l(line) { }
+    qreal t_start;
+    qreal t_end;
     QLineF l;
 };
 
@@ -81,7 +81,7 @@ QPolygonF QBezier::toPolygon() const
 
     polygon << QPointF(x1, y1);
 
-    const qReal distance = 0.5;
+    const qreal distance = 0.5;
 
     QPointF at13 = pointAt(1.f/3.f);
     QPointF at23 = pointAt(2.f/3.f);
@@ -92,7 +92,7 @@ QPolygonF QBezier::toPolygon() const
 
     while (pos > 0) {
         QBezierLineSegment s = lines[--pos]; // pop
-        qReal t_half = (s.t_start + s.t_end) / 2.0f;
+        qreal t_half = (s.t_start + s.t_end) / 2.0f;
         QPointF curvePt = pointAt(t_half);
 #ifdef QT_USE_FIXED_POINT
         QPointF linePt = s.l.pointAt(QFixedPointLong(0.5));

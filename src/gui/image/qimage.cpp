@@ -1084,13 +1084,13 @@ void QImage::invertPixels(InvertMode mode)
     detach();
     int n = numBytes();
     if (depth() != 32) {
-        Q_UINT8 *p = (Q_UINT8*)bits();
-        Q_UINT8 *end = p + n;
+        quint8 *p = (quint8*)bits();
+        quint8 *end = p + n;
         while (p < end)
             *p++ ^= 0xff;
     } else {
-        Q_UINT32 *p = (Q_UINT32*)bits();
-        Q_UINT32 *end = p + n/4;
+        quint32 *p = (quint32*)bits();
+        quint32 *end = p + n/4;
         uint xorbits = 0x00ffffff;
         if (mode == InvertRgba && depth() == 32)
             xorbits = 0xffffffff;
@@ -2501,10 +2501,10 @@ QImage QImage::scaleHeight(int h) const
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
-    const qReal dt = qReal(0.);
-    qReal x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
-    qReal xx = qReal(w);
-    qReal yy = qReal(h);
+    const qreal dt = qreal(0.);
+    qreal x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
+    qreal xx = qreal(w);
+    qreal yy = qreal(h);
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
@@ -2513,20 +2513,20 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     mat.map(xx, yy, &x3, &y3);
     mat.map(dt, yy, &x4, &y4);
 
-    qReal ymin = y1;                                // lowest y value
+    qreal ymin = y1;                                // lowest y value
     if (y2 < ymin) ymin = y2;
     if (y3 < ymin) ymin = y3;
     if (y4 < ymin) ymin = y4;
-    qReal xmin = x1;                                // lowest x value
+    qreal xmin = x1;                                // lowest x value
     if (x2 < xmin) xmin = x2;
     if (x3 < xmin) xmin = x3;
     if (x4 < xmin) xmin = x4;
 
-    qReal ymax = y1;                                // lowest y value
+    qreal ymax = y1;                                // lowest y value
     if (y2 > ymax) ymax = y2;
     if (y3 > ymax) ymax = y3;
     if (y4 > ymax) ymax = y4;
-    qReal xmax = x1;                                // lowest x value
+    qreal xmax = x1;                                // lowest x value
     if (x2 > xmax) xmax = x2;
     if (x3 > xmax) xmax = x3;
     if (x4 > xmax) xmax = x4;
@@ -2832,8 +2832,8 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     // 1 bit, 8 bit
     if (depth() == 1 || depth() == 8) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT8* ssl = (Q_UINT8*)(data->bits[sy]);
-            Q_UINT8* dsl = (Q_UINT8*)(result.data->bits[dy]);
+            quint8* ssl = (quint8*)(data->bits[sy]);
+            quint8* dsl = (quint8*)(result.data->bits[dy]);
             int dx = dxs;
             for (int sx = 0; sx < w; sx++, dx += dxi)
                 dsl[dx] = ssl[sx];
@@ -2844,8 +2844,8 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     // 16 bit
     else if (depth() == 16) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT16* ssl = (Q_UINT16*)(data->bits[sy]);
-            Q_UINT16* dsl = (Q_UINT16*)(result.data->bits[dy]);
+            quint16* ssl = (quint16*)(data->bits[sy]);
+            quint16* dsl = (quint16*)(result.data->bits[dy]);
             int dx = dxs;
             for (int sx = 0; sx < w; sx++, dx += dxi)
                 dsl[dx] = ssl[sx];
@@ -2855,8 +2855,8 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     // 32 bit
     else if (depth() == 32) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT32* ssl = (Q_UINT32*)(data->bits[sy]);
-            Q_UINT32* dsl = (Q_UINT32*)(result.data->bits[dy]);
+            quint32* ssl = (quint32*)(data->bits[sy]);
+            quint32* dsl = (quint32*)(result.data->bits[dy]);
             int dx = dxs;
             for (int sx = 0; sx < w; sx++, dx += dxi)
                 dsl[dx] = ssl[sx];
@@ -2868,9 +2868,9 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     if (horizontal && depth() == 1) {
         int shift = width() % 8;
         for (int y = h-1; y >= 0; y--) {
-            Q_UINT8* a0 = (Q_UINT8*)(result.data->bits[y]);
+            quint8* a0 = (quint8*)(result.data->bits[y]);
             // Swap bytes
-            Q_UINT8* a = a0+dxs;
+            quint8* a = a0+dxs;
             while (a >= a0) {
                 *a = bitflip[*a];
                 a--;
@@ -2878,17 +2878,17 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
             // Shift bits if unaligned
             if (shift != 0) {
                 a = a0+dxs;
-                Q_UINT8 c = 0;
+                quint8 c = 0;
                 if (bitOrder() == QImage::LittleEndian) {
                     while (a >= a0) {
-                        Q_UINT8 nc = *a << shift;
+                        quint8 nc = *a << shift;
                         *a = (*a >> (8-shift)) | c;
                         --a;
                         c = nc;
                     }
                 } else {
                     while (a >= a0) {
-                        Q_UINT8 nc = *a >> shift;
+                        quint8 nc = *a >> shift;
                         *a = (*a << (8-shift)) | c;
                         --a;
                         c = nc;
@@ -3108,10 +3108,10 @@ QDataStream &operator<<(QDataStream &s, const QImage &image)
 {
     if (s.version() >= 5) {
         if (image.isNull()) {
-            s << (Q_INT32) 0; // null image marker
+            s << (qint32) 0; // null image marker
             return s;
         } else {
-            s << (Q_INT32) 1;
+            s << (qint32) 1;
             // continue ...
         }
     }
@@ -3139,7 +3139,7 @@ QDataStream &operator<<(QDataStream &s, const QImage &image)
 QDataStream &operator>>(QDataStream &s, QImage &image)
 {
     if (s.version() >= 5) {
-        Q_INT32 nullMarker;
+        qint32 nullMarker;
         s >> nullMarker;
         if (!nullMarker) {
             image = QImage(); // null image
@@ -3945,7 +3945,7 @@ static void scaleY(QImage *image, int width, int iheight, int oheight)
 }
 
 
-static void shearX(QImage *image, int height, int iwidth, qReal shear)
+static void shearX(QImage *image, int height, int iwidth, qreal shear)
 {
 //     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
     if (qAbs(shear*height) < 0.3)
@@ -3954,11 +3954,11 @@ static void shearX(QImage *image, int height, int iwidth, qReal shear)
     Q_ASSERT(image->width() >= iwidth + qRound(qAbs(shear*(height-1))));
     Q_ASSERT(height <= image->height());
 
-    const qReal skewoffset = shear < 0 ? -shear*(height-1) : 0;
+    const qreal skewoffset = shear < 0 ? -shear*(height-1) : 0;
 
     uchar **bits = image->jumpTable();
     for (int y = 0; y < height; ++y) {
-        const qReal skew = shear*y + skewoffset;
+        const qreal skew = shear*y + skewoffset;
         int skewi = qIntCast(skew*256);
         int fraction = 0xff - skewi & 0xff;
         skewi >>= 8;
@@ -3985,7 +3985,7 @@ static void shearX(QImage *image, int height, int iwidth, qReal shear)
 }
 
 
-static void shearY(QImage *image, int width, int iheight, qReal shear, qReal offset)
+static void shearY(QImage *image, int width, int iheight, qreal shear, qreal offset)
 {
 //     qDebug("shearY: width=%d, iheight=%d, shear=%f", width, iheight, shear);
     if (qAbs(shear*width) < 0.3)
@@ -3996,7 +3996,7 @@ static void shearY(QImage *image, int width, int iheight, qReal shear, qReal off
 
     QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
     for (int x = 0; x < width; ++x) {
-        const qReal skew = shear*(x - offset);
+        const qreal skew = shear*(x - offset);
         int skewi = qIntCast(skew*256);
         int fraction;
         if (skew >= 0) {
@@ -4074,7 +4074,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
        unit vectors.
     */
 
-    qReal v1x = matrix.m11(),
+    qreal v1x = matrix.m11(),
            v1y = matrix.m12(),
            v2x = matrix.m21(),
            v2y = matrix.m22();
@@ -4160,9 +4160,9 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
             dlinesi = -1;
         }
         for (int i = 0; i < data->w; ++i, dlines += dlinesi) {
-            Q_UINT32 *dl = (Q_UINT32 *)(*dlines) + data->h - 1;
+            quint32 *dl = (quint32 *)(*dlines) + data->h - 1;
             for (int j = 0; j < data->h; ++j) {
-                *dl = ((Q_UINT32 *)*(slines+j))[i];
+                *dl = ((quint32 *)*(slines+j))[i];
                 --dl;
             }
         }
@@ -4179,11 +4179,11 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
             dy = data->h - 1;
             dyi = -1;
         }
-        Q_UINT32 **rbits = (Q_UINT32 **)result.jumpTable();
-        Q_UINT32 **sbits = (Q_UINT32 **)data->bits;
+        quint32 **rbits = (quint32 **)result.jumpTable();
+        quint32 **sbits = (quint32 **)data->bits;
         for (int sy = 0; sy < data->h; sy++, dy += dyi) {
-            const Q_UINT32* sl = sbits[sy];
-            Q_UINT32* dl = rbits[dy] + data->w - 1;
+            const quint32* sl = sbits[sy];
+            quint32* dl = rbits[dy] + data->w - 1;
             for (int sx = 0; sx < data->w; sx++) {
                 *dl = *sl;
                 ++sl;
@@ -4202,9 +4202,9 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
             dlinesi = -1;
         }
         for (int i = 0; i < data->w; ++i, dlines += dlinesi) {
-            Q_UINT32 *dl = (Q_UINT32 *)(*dlines);
+            quint32 *dl = (quint32 *)(*dlines);
             for (int j = 0; j < data->h; ++j) {
-                *dl = ((Q_UINT32 *)*(slines+j))[i];
+                *dl = ((quint32 *)*(slines+j))[i];
                 ++dl;
             }
         }
@@ -4225,10 +4225,10 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     Q_ASSERT(mat.det() > 0);
 
 
-    qReal scale_x = mat.m11();
-    qReal scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
-    qReal shear_y = mat.m12()/scale_x;
-    qReal shear_x = mat.m21()/scale_y;
+    qreal scale_x = mat.m11();
+    qreal scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
+    qreal shear_y = mat.m12()/scale_x;
+    qreal shear_x = mat.m21()/scale_y;
 
 //     qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
 
@@ -4253,7 +4253,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     scaleY(&result2, owidth, iheight, oheight);
     shearX(&result2, oheight, owidth, shear_x);
 
-    qReal offset = shear_y < 0
+    qreal offset = shear_y < 0
                     ? (shear_x < 0 ? sheared_width : owidth)
                     : (shear_x < 0 ? -shear_x*oheight : 0);
 //     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);

@@ -111,13 +111,13 @@ public:
     bool open(OpenMode flags, int);
     virtual void close();
 
-    Q_LONGLONG size() const;
-    Q_LONGLONG pos() const;
-    bool seek(Q_LONGLONG offset);
+    qint64 size() const;
+    qint64 pos() const;
+    bool seek(qint64 offset);
     bool flush();
 
-    bool resize(Q_LONGLONG sz);
-    static bool resize(const QString &filename, Q_LONGLONG sz);
+    bool resize(qint64 sz);
+    static bool resize(const QString &filename, qint64 sz);
 
     Permissions permissions() const;
     static Permissions permissions(const QString &filename);
@@ -141,8 +141,8 @@ protected:
     QFile(QFilePrivate &dd, QObject *parent = 0);
 #endif
 
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private:
     Q_DISABLE_COPY(QFile)

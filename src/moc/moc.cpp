@@ -555,7 +555,7 @@ void Moc::parse()
                 case Q_CLASSINFO_TOKEN:
                     parseClassInfo(&def);
                     break;
-                case Q_INTERFACES_TOKEN:
+                case qintERFACES_TOKEN:
                     parseInterfaces(&def);
                     break;
                 case Q_PRIVATE_SLOT_TOKEN:
@@ -746,9 +746,9 @@ void Moc::parseProperty(ClassDef *def, bool override)
     else if (type == "QValueList")
         type = "QValueList<QVariant>";
     else if (type == "LongLong")
-        type = "Q_LONGLONG";
+        type = "qint64";
     else if (type == "ULongLong")
-        type = "Q_ULONGLONG";
+        type = "quint64";
     propDef.type = type;
 
     next();

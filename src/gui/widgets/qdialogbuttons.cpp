@@ -32,14 +32,14 @@ struct QDialogButtonsPrivate
     QMap<int, QString> text;
     QMap<QDialogButtons::Button, QWidget *> buttons;
     QPointer<QWidget> custom;
-    Q_UINT32 enabled, visible;
+    quint32 enabled, visible;
     QDialogButtons::Button def;
     Qt::Orientation orient;
     bool questionMode;
 };
 
 #ifndef QT_NO_DIALOG
-QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 buttons,
+QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, quint32 buttons,
                                Qt::Orientation orient) : QWidget(parent)
 {
     init(buttons, orient);
@@ -50,14 +50,14 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 butto
 }
 #endif // QT_NO_DIALOG
 
-QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons,
+QDialogButtons::QDialogButtons(QWidget *parent, quint32 buttons,
                                Qt::Orientation orient) : QWidget(parent)
 {
     init(buttons, orient);
 }
 
 void
-QDialogButtons::init(Q_UINT32 buttons, Qt::Orientation orient)
+QDialogButtons::init(quint32 buttons, Qt::Orientation orient)
 {
     if(buttons == All) {
         qWarning("QDialogButtons: cannot specify All by itself!");

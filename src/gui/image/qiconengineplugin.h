@@ -29,7 +29,7 @@ Q_DECLARE_INTERFACE(QIconEngineFactoryInterface, "http://trolltech.com/Qt/QIconE
 class Q_GUI_EXPORT QIconEnginePlugin : public QObject, public QIconEngineFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QIconEngineFactoryInterface:QFactoryInterface)
+    qintERFACES(QIconEngineFactoryInterface:QFactoryInterface)
 public:
     QIconEnginePlugin(QObject *parent = 0);
     ~QIconEnginePlugin();

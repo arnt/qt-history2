@@ -674,7 +674,7 @@ void Q3Socket::close()
 
 bool Q3Socket::consumeWriteBuf( Q_ULONG nbytes )
 {
-    if ( nbytes <= 0 || nbytes > d->wsize )
+    if ( nbytes <= 0 || (qint64)nbytes > d->wsize )
 	return false;
 #if defined(Q3SOCKET_DEBUG)
     qDebug( "Q3Socket (%s): skipWriteBuf %d bytes", name(), (int)nbytes );
@@ -682,7 +682,7 @@ bool Q3Socket::consumeWriteBuf( Q_ULONG nbytes )
     d->wsize -= nbytes;
     for ( ;; ) {
 	QByteArray *a = d->wba.first();
-	if ( d->windex + nbytes >= a->size() ) {
+	if ( (qint64)(d->windex + nbytes) >= a->size() ) {
 	    nbytes -= a->size() - d->windex;
 	    d->wba.remove();
 	    d->windex = 0;
@@ -852,7 +852,7 @@ bool Q3Socket::atEnd() const
     \sa bytesToWrite()
 */
 
-Q_LONGLONG Q3Socket::bytesAvailable() const
+qint64 Q3Socket::bytesAvailable() const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -907,7 +907,7 @@ Q_ULONG Q3Socket::waitForMore( int msecs ) const
     \sa bytesAvailable() clearPendingData()
 */
 
-Q_LONGLONG Q3Socket::bytesToWrite() const
+qint64 Q3Socket::bytesToWrite() const
 {
     return d->wsize;
 }
@@ -930,7 +930,7 @@ void Q3Socket::clearPendingData()
     number of bytes read. Returns -1 if an error occurred.
 */
 
-Q_LONGLONG Q3Socket::readData( char *data, Q_LONGLONG maxlen )
+qint64 Q3Socket::readData( char *data, qint64 maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -968,7 +968,7 @@ Q_LONGLONG Q3Socket::readData( char *data, Q_LONGLONG maxlen )
     number of bytes written. Returns -1 if an error occurred.
 */
 
-Q_LONGLONG Q3Socket::writeData( const char *data, Q_LONGLONG len )
+qint64 Q3Socket::writeData( const char *data, qint64 len )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && len != 0 ) {

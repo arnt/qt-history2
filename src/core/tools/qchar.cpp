@@ -736,7 +736,7 @@ QChar QChar::fromAscii(char c)
 
 QDataStream &operator<<(QDataStream &out, const QChar &chr)
 {
-    out << Q_UINT16(chr.unicode());
+    out << quint16(chr.unicode());
     return out;
 }
 
@@ -751,7 +751,7 @@ QDataStream &operator<<(QDataStream &out, const QChar &chr)
 
 QDataStream &operator>>(QDataStream &in, QChar &chr)
 {
-    Q_UINT16 u;
+    quint16 u;
     in >> u;
     chr.unicode() = ushort(u);
     return in;

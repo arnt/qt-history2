@@ -323,7 +323,7 @@ QValidator::State QIntValidator::validate(QString & input, int &) const
     if (input.isEmpty() || (b < 0 && input == "-"))
         return Intermediate;
     bool ok;
-    long entered = input.toLong(&ok);
+    int entered = input.toInt(&ok);
     if (!ok || (entered < 0 && b >= 0)) {
         return Invalid;
     } else if (entered >= b && entered <= t) {

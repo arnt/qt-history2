@@ -29,7 +29,7 @@ Q_DECLARE_INTERFACE(QStyleFactoryInterface, "http://trolltech.com/Qt/QStyleFacto
 class Q_GUI_EXPORT QStylePlugin : public QObject, public QStyleFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QStyleFactoryInterface:QFactoryInterface)
+    qintERFACES(QStyleFactoryInterface:QFactoryInterface)
 public:
     explicit QStylePlugin(QObject *parent = 0);
     ~QStylePlugin();

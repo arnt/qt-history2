@@ -67,14 +67,14 @@ public:
     virtual bool listen( int backlog );
     virtual int	 accept();
 
-    Q_LONGLONG	 bytesAvailable() const;
+    qint64	 bytesAvailable() const;
     Q_LONG	 waitForMore( int msecs, bool *timeout=0 ) const;
     virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
 			    const QHostAddress & host, Q_UINT16 port );
     inline Q_LONG writeBlock(const char *data, Q_ULONG len)
-        { return Q_LONG(write(data, Q_LONGLONG(len))); }
+        { return Q_LONG(write(data, qint64(len))); }
     inline Q_LONG readBlock(char *data, Q_ULONG maxlen)
-        { return Q_LONG(read(data, Q_LONGLONG(maxlen))); }
+        { return Q_LONG(read(data, qint64(maxlen))); }
 
     Q_UINT16	 port() const;
     Q_UINT16	 peerPort() const;
@@ -100,8 +100,8 @@ public:
 
 protected:
     void setError( Error err );
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private:
     int fd;

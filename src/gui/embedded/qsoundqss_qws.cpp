@@ -43,7 +43,7 @@ static int sound_port = 4992;
 
 struct QRiffChunk {
     char id[4];
-    Q_UINT32 size;
+    quint32 size;
     char data[4/*size*/];
 };
 
@@ -205,12 +205,12 @@ private:
         }
     }
     struct {
-        Q_INT16 formatTag;
-        Q_INT16 channels;
-        Q_INT32 samplesPerSec;
-        Q_INT32 avgBytesPerSec;
-        Q_INT16 blockAlign;
-        Q_INT16 wBitsPerSample;
+        qint16 formatTag;
+        qint16 channels;
+        qint32 samplesPerSec;
+        qint32 avgBytesPerSec;
+        qint16 blockAlign;
+        qint16 wBitsPerSample;
     } chunkdata;
     QRiffChunk chunk;
     int wavedata_remaining;

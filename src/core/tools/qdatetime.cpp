@@ -2729,7 +2729,7 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
 
 QDataStream &operator<<(QDataStream &s, const QDate &d)
 {
-    return s << (Q_UINT32)(d.jd);
+    return s << (quint32)(d.jd);
 }
 
 /*!
@@ -2744,7 +2744,7 @@ QDataStream &operator<<(QDataStream &s, const QDate &d)
 
 QDataStream &operator>>(QDataStream &s, QDate &d)
 {
-    Q_UINT32 jd;
+    quint32 jd;
     s >> jd;
     d.jd = jd;
     return s;
@@ -2762,7 +2762,7 @@ QDataStream &operator>>(QDataStream &s, QDate &d)
 
 QDataStream &operator<<(QDataStream &s, const QTime &t)
 {
-    return s << (Q_UINT32)(t.ds);
+    return s << (quint32)(t.ds);
 }
 
 /*!
@@ -2777,7 +2777,7 @@ QDataStream &operator<<(QDataStream &s, const QTime &t)
 
 QDataStream &operator>>(QDataStream &s, QTime &t)
 {
-    Q_UINT32 ds;
+    quint32 ds;
     s >> ds;
     t.ds = ds;
     return s;
@@ -2797,7 +2797,7 @@ QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
 {
     out << dt.d->date << dt.d->time;
     if (out.version() >= 7)
-        out << (Q_INT8)dt.d->spec;
+        out << (qint8)dt.d->spec;
     return out;
 }
 
@@ -2813,7 +2813,7 @@ QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
 
 QDataStream &operator>>(QDataStream &in, QDateTime &dt)
 {
-    Q_INT8 ts = (Q_INT8)QDateTimePrivate::LocalUnknown;
+    qint8 ts = (qint8)QDateTimePrivate::LocalUnknown;
     in >> dt.d->date >> dt.d->time;
     if (in.version() >= 7)
         in >> ts;

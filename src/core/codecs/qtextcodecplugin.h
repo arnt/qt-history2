@@ -32,7 +32,7 @@ Q_DECLARE_INTERFACE(QTextCodecFactoryInterface, "http://trolltech.com/Qt/QTextCo
 class Q_CORE_EXPORT QTextCodecPlugin : public QObject, public QTextCodecFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QTextCodecFactoryInterface:QFactoryInterface)
+    qintERFACES(QTextCodecFactoryInterface:QFactoryInterface)
 public:
     explicit QTextCodecPlugin(QObject *parent = 0);
     ~QTextCodecPlugin();

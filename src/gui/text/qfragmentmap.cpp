@@ -59,7 +59,7 @@ inline void inorder() {}
 inline void check() {}
 #endif
 
-#define TAG(a,b,c,d) (((Q_UINT32)a) << 24) | (((Q_UINT32)b) << 16) | (((Q_UINT32)c) << 8) | d;
+#define TAG(a,b,c,d) (((quint32)a) << 24) | (((quint32)b) << 16) | (((quint32)c) << 8) | d;
 
 QFragmentMapData::QFragmentMapData(uint fs)
 {

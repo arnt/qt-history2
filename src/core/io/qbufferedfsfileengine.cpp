@@ -33,25 +33,25 @@ void QBufferedFSFileEngine::flush()
     fflush(d->fh);
 }
 
-Q_LONGLONG QBufferedFSFileEngine::at() const
+qint64 QBufferedFSFileEngine::at() const
 {
     Q_D(const QBufferedFSFileEngine);
-    return Q_LONGLONG(ftell(d->fh));
+    return qint64(ftell(d->fh));
 }
 
-bool QBufferedFSFileEngine::seek(Q_LONGLONG offset)
+bool QBufferedFSFileEngine::seek(qint64 offset)
 {
     Q_D(QBufferedFSFileEngine);
     return fseek(d->fh, long(offset), SEEK_SET) != -1;
 }
 
-Q_LONGLONG QBufferedFSFileEngine::read(char *data, Q_LONGLONG maxlen)
+qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
     return fread(data, 1, size_t(maxlen), d->fh);
 }
 
-Q_LONGLONG QBufferedFSFileEngine::write(const char *data, Q_LONGLONG len)
+qint64 QBufferedFSFileEngine::write(const char *data, qint64 len)
 {
     Q_D(QBufferedFSFileEngine);
     return fwrite(data, 1, size_t(len), d->fh);

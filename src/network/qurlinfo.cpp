@@ -37,7 +37,7 @@ public:
     int permissions;
     QString owner;
     QString group;
-    Q_LONGLONG size;
+    qint64 size;
 
     QDateTime lastModified;
     QDateTime lastRead;
@@ -128,7 +128,7 @@ QUrlInfo::QUrlInfo(const QUrlInfo &ui)
 */
 
 QUrlInfo::QUrlInfo(const QString &name, int permissions, const QString &owner,
-                    const QString &group, Q_LONGLONG size, const QDateTime &lastModified,
+                    const QString &group, qint64 size, const QDateTime &lastModified,
                     const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
                     bool isWritable, bool isReadable, bool isExecutable)
 {
@@ -162,7 +162,7 @@ QUrlInfo::QUrlInfo(const QString &name, int permissions, const QString &owner,
 */
 
 QUrlInfo::QUrlInfo(const QUrl &url, int permissions, const QString &owner,
-                    const QString &group, Q_LONGLONG size, const QDateTime &lastModified,
+                    const QString &group, qint64 size, const QDateTime &lastModified,
                     const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
                     bool isWritable, bool isReadable, bool isExecutable)
 {
@@ -335,7 +335,7 @@ void QUrlInfo::setGroup(const QString &s)
     \sa isValid()
 */
 
-void QUrlInfo::setSize(Q_LONGLONG size)
+void QUrlInfo::setSize(qint64 size)
 {
     if (!d)
         d = new QUrlInfoPrivate;
@@ -460,7 +460,7 @@ QString QUrlInfo::group() const
     \sa isValid()
 */
 
-Q_LONGLONG QUrlInfo::size() const
+qint64 QUrlInfo::size() const
 {
     if (!d)
         return 0;

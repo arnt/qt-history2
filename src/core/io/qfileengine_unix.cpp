@@ -66,7 +66,7 @@ QFSFileEngine::link(const QString &newName)
     return ::symlink(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
-Q_LONGLONG
+qint64
 QFSFileEngine::size() const
 {
     QT_STATBUF st;
@@ -517,7 +517,7 @@ QFSFileEngine::chmod(uint perms)
 }
 
 bool
-QFSFileEngine::setSize(Q_LONGLONG size)
+QFSFileEngine::setSize(qint64 size)
 {
     if(d->fd != -1)
         return !QT_FTRUNCATE(d->fd, size);

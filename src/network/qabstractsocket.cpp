@@ -574,7 +574,7 @@ bool QAbstractSocketPrivate::flush()
     char *ptr = writeBuffer.readPointer();
 
     // Attempt to write it all in one chunk.
-    Q_LONGLONG written = socketLayer.write(ptr, nextSize);
+    qint64 written = socketLayer.write(ptr, nextSize);
     if (written < 0) {
         socketError = socketLayer.error();
         q->setErrorString(socketLayer.errorString());
@@ -808,7 +808,7 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
 bool QAbstractSocketPrivate::readFromSocket()
 {
     // Find how many bytes we can read from the socket layer.
-    Q_LONGLONG bytesToRead = socketLayer.bytesAvailable();
+    qint64 bytesToRead = socketLayer.bytesAvailable();
     if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
         bytesToRead = readBufferMaxSize - readBuffer.size();
 
@@ -819,7 +819,7 @@ bool QAbstractSocketPrivate::readFromSocket()
 
     // Read from the socket, store data in the read buffer.
     char *ptr = d->readBuffer.reserve(bytesToRead);
-    Q_LONGLONG readBytes = socketLayer.read(ptr, bytesToRead);
+    qint64 readBytes = socketLayer.read(ptr, bytesToRead);
     if (readBytes > 0)
         d->readBuffer.truncate((int) (bytesToRead - readBytes));
 
@@ -918,7 +918,7 @@ bool QAbstractSocket::isValid() const
 
     \sa state(), peerName(), peerAddress(), peerPort(), waitForConnected()
 */
-void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
+void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
                                     OpenMode openMode)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -961,7 +961,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
 
     Attempts to make a connection to \a address on port \a port.
 */
-void QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port,
+void QAbstractSocket::connectToHost(const QHostAddress &address, quint16 port,
                                     OpenMode openMode)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -978,12 +978,12 @@ void QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port,
 
     \sa bytesAvailable(), flush()
 */
-Q_LONGLONG QAbstractSocket::bytesToWrite() const
+qint64 QAbstractSocket::bytesToWrite() const
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::bytesToWrite() == %i", d->writeBuffer.size());
 #endif
-    return (Q_LONGLONG)d->writeBuffer.size();
+    return (qint64)d->writeBuffer.size();
 }
 
 /*!
@@ -991,11 +991,11 @@ Q_LONGLONG QAbstractSocket::bytesToWrite() const
 
     \sa bytesToWrite(), read()
 */
-Q_LONGLONG QAbstractSocket::bytesAvailable() const
+qint64 QAbstractSocket::bytesAvailable() const
 {
-    Q_LONGLONG available = 0;
+    qint64 available = 0;
     if (d->isBuffered)
-        available = (Q_LONGLONG) d->readBuffer.size();
+        available = (qint64) d->readBuffer.size();
     else if (d->socketLayer.isValid())
         available = d->socketLayer.bytesAvailable();
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1010,7 +1010,7 @@ Q_LONGLONG QAbstractSocket::bytesAvailable() const
 
     \sa localAddress(), peerPort()
 */
-Q_UINT16 QAbstractSocket::localPort() const
+quint16 QAbstractSocket::localPort() const
 {
     if (!d->socketLayer.isValid())
         return 0;
@@ -1040,7 +1040,7 @@ QHostAddress QAbstractSocket::localAddress() const
 
     \sa peerAddress(), localPort()
 */
-Q_UINT16 QAbstractSocket::peerPort() const
+quint16 QAbstractSocket::peerPort() const
 {
     if (!d->socketLayer.isValid())
         return 0;
@@ -1406,10 +1406,10 @@ bool QAbstractSocket::isSequential() const
 
 /*! \reimp
 */
-Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
+qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {
     if (!d->isBuffered) {
-        Q_LONGLONG readBytes = d->socketLayer.read(data, maxSize);
+        qint64 readBytes = d->socketLayer.read(data, maxSize);
         if (readBytes < 0) {
             d->socketError = d->socketLayer.error();
             q->setErrorString(d->socketLayer.errorString());
@@ -1423,7 +1423,7 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
     }
 
     if (d->readBuffer.isEmpty())
-        return Q_LONGLONG(0);
+        return qint64(0);
 
     if (d->readSocketNotifier && !d->readSocketNotifier->isEnabled())
         d->readSocketNotifier->setEnabled(true);
@@ -1438,8 +1438,8 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         return 1;
     }
 
-    Q_LONGLONG bytesToRead = qMin(Q_LONGLONG(d->readBuffer.size()), maxSize);
-    Q_LONGLONG readSoFar = 0;
+    qint64 bytesToRead = qMin(qint64(d->readBuffer.size()), maxSize);
+    qint64 readSoFar = 0;
     while (readSoFar < bytesToRead) {
         char *ptr = d->readBuffer.readPointer();
         int bytesToReadFromThisBlock = qMin(int(bytesToRead - readSoFar),
@@ -1459,10 +1459,10 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 
 /*! \reimp
 */
-Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
+qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 {
     if (!d->isBuffered) {
-        Q_LONGLONG written = d->socketLayer.write(data, size);
+        qint64 written = d->socketLayer.write(data, size);
         if (written < 0) {
             d->socketError = d->socketLayer.error();
             q->setErrorString(d->socketLayer.errorString());
@@ -1486,7 +1486,7 @@ Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
     else
         memcpy(ptr, data, size);
 
-    Q_LONGLONG written = size;
+    qint64 written = size;
 
     if (d->writeSocketNotifier && !d->writeBuffer.isEmpty())
         d->writeSocketNotifier->setEnabled(true);
@@ -1612,7 +1612,7 @@ void QAbstractSocket::disconnectFromHost()
 
     \sa setReadBufferSize(), read()
 */
-Q_LONGLONG QAbstractSocket::readBufferSize() const
+qint64 QAbstractSocket::readBufferSize() const
 {
     return d->readBufferMaxSize;
 }
@@ -1633,7 +1633,7 @@ Q_LONGLONG QAbstractSocket::readBufferSize() const
 
     \sa readBufferSize(), read()
 */
-void QAbstractSocket::setReadBufferSize(Q_LONGLONG size)
+void QAbstractSocket::setReadBufferSize(qint64 size)
 {
     d->readBufferMaxSize = size;
 }
@@ -1733,7 +1733,7 @@ void QAbstractSocket::setSocketError(SocketError socketError)
         bool timeout;
         Q_ULONG numBytes = socket->waitForMore(30000, &timeout);
     \newcode
-        Q_LONGLONG numBytes = 0;
+        qint64 numBytes = 0;
         if (socket->waitForReadyRead(msecs))
             numBytes = socket->bytesAvailable();
         bool timeout = (error() == QAbstractSocket::SocketTimeoutError);

@@ -429,10 +429,12 @@ public:
     // DOM functions
     QString attribute(const QString& name, const QString& defValue = QString::null) const;
     void setAttribute(const QString& name, const QString& value);
-    void setAttribute(const QString& name, int value);
-    void setAttribute(const QString& name, uint value);
-    void setAttribute(const QString& name, long value);
-    void setAttribute(const QString& name, ulong value);
+    void setAttribute(const QString& name, qlonglong value);
+    void setAttribute(const QString& name, qulonglong value);
+    inline void setAttribute(const QString& name, int value)
+        { setAttribute(name, qlonglong(value)); }
+    inline void setAttribute(const QString& name, uint value)
+        { setAttribute(name, qulonglong(value)); }
     void setAttribute(const QString& name, double value);
     void removeAttribute(const QString& name);
     QDomAttr attributeNode(const QString& name);
@@ -443,10 +445,12 @@ public:
 
     QString attributeNS(const QString nsURI, const QString& localName, const QString& defValue) const;
     void setAttributeNS(const QString nsURI, const QString& qName, const QString& value);
-    void setAttributeNS(const QString nsURI, const QString& qName, int value);
-    void setAttributeNS(const QString nsURI, const QString& qName, uint value);
-    void setAttributeNS(const QString nsURI, const QString& qName, long value);
-    void setAttributeNS(const QString nsURI, const QString& qName, ulong value);
+    inline void setAttributeNS(const QString nsURI, const QString& qName, int value)
+        { setAttributeNS(nsURI, qName, qlonglong(value)); }
+    inline void setAttributeNS(const QString nsURI, const QString& qName, uint value)
+        { setAttributeNS(nsURI, qName, qulonglong(value)); }
+    void setAttributeNS(const QString nsURI, const QString& qName, qlonglong value);
+    void setAttributeNS(const QString nsURI, const QString& qName, qulonglong value);
     void setAttributeNS(const QString nsURI, const QString& qName, double value);
     void removeAttributeNS(const QString& nsURI, const QString& localName);
     QDomAttr attributeNodeNS(const QString& nsURI, const QString& localName);

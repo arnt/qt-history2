@@ -853,11 +853,11 @@ bool QRect::intersects(const QRect &r) const
 QDataStream &operator<<(QDataStream &s, const QRect &r)
 {
     if (s.version() == 1)
-        s << (Q_INT16)r.left() << (Q_INT16)r.top()
-          << (Q_INT16)r.right() << (Q_INT16)r.bottom();
+        s << (qint16)r.left() << (qint16)r.top()
+          << (qint16)r.right() << (qint16)r.bottom();
     else
-        s << (Q_INT32)r.left() << (Q_INT32)r.top()
-          << (Q_INT32)r.right() << (Q_INT32)r.bottom();
+        s << (qint32)r.left() << (qint32)r.top()
+          << (qint32)r.right() << (qint32)r.bottom();
     return s;
 }
 
@@ -875,12 +875,12 @@ QDataStream &operator<<(QDataStream &s, const QRect &r)
 QDataStream &operator>>(QDataStream &s, QRect &r)
 {
     if (s.version() == 1) {
-        Q_INT16 x1, y1, x2, y2;
+        qint16 x1, y1, x2, y2;
         s >> x1; s >> y1; s >> x2; s >> y2;
         r.setCoords(x1, y1, x2, y2);
     }
     else {
-        Q_INT32 x1, y1, x2, y2;
+        qint32 x1, y1, x2, y2;
         s >> x1; s >> y1; s >> x2; s >> y2;
         r.setCoords(x1, y1, x2, y2);
     }
@@ -966,7 +966,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 */
 
 /*!
-    \fn QRectF::QRectF(qReal x, qReal y, qReal width, qReal height)
+    \fn QRectF::QRectF(qreal x, qreal y, qreal width, qreal height)
 
     Constructs a rectangle with the top-left corner at (\a x, \a y) and
     dimensions specified by the \a width and \a height.
@@ -1052,7 +1052,7 @@ QRectF QRectF::normalize() const
 }
 
 /*!
-    \fn qReal QRectF::x() const
+    \fn qreal QRectF::x() const
 
     Returns the x-coordinate at the left edge of the rectangle.
     Identical to left().
@@ -1061,7 +1061,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn qReal QRectF::y() const
+    \fn qreal QRectF::y() const
 
     Returns the y-coordinate at the top edge of the rectangle.
     Identical to top().
@@ -1079,7 +1079,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::getRect(qReal *x, qReal *y, qReal *w, qReal *h) const
+    \fn void QRectF::getRect(qreal *x, qreal *y, qreal *w, qreal *h) const
 
     Extracts the position of the rectangle's top-left corner to \c{*}\a{x},
     \c{*}\a{y}, its width to \c{*}\a{w}, and its height to \c{*}\a{h}.
@@ -1089,7 +1089,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::getCoords(qReal *xp1, qReal *yp1, qReal *xp2, qReal *yp2) const
+    \fn void QRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
 
     Extracts the rectangle parameters as the top-left point
     \c{*}\a{xp1}, \c{*}\a{yp1} and the bottom-right point
@@ -1099,14 +1099,14 @@ QRectF QRectF::normalize() const
 */
 
 /*
-  \fn void QRectF::rect(qReal *x, qReal *y, qReal *w, qReal *h) const
+  \fn void QRectF::rect(qreal *x, qreal *y, qreal *w, qreal *h) const
 
   Use getRect() instead.
 */
 
 
 /*
-  \fn void QRectF::coords(qReal *xp1, qReal *yp1, qReal *xp2, qReal *yp2) const
+  \fn void QRectF::coords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
 
   Use getCoords() instead.
 
@@ -1114,7 +1114,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-  \fn void QRectF::moveTo(qReal x, qReal y)
+  \fn void QRectF::moveTo(qreal x, qreal y)
 
   Moves the top left corner of the rectangle to \a x and \a y, without
   changing the rectangles size.
@@ -1128,7 +1128,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::translate(qReal dx, qReal dy)
+    \fn void QRectF::translate(qreal dx, qreal dy)
 
     Moves the rectangle \a dx along the x axis and \a dy along the y
     axis, relative to the current position. Positive values move the
@@ -1148,7 +1148,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-  \fn void QRectF::setRect(qReal x, qReal y, qReal width, qReal height)
+  \fn void QRectF::setRect(qreal x, qreal y, qreal width, qreal height)
 
   Sets the position of the rectangle's top-left corner to (\a{x},
   \a{y}), and resizes it to the specified \a width and \a height.
@@ -1158,7 +1158,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::setCoords(qReal xp1, qReal yp1, qReal xp2, qReal yp2)
+    \fn void QRectF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 
     Sets the position of the rectangle's top-left corner to
     (\a{xp1}, \a{yp1}), and the position of its bottom-right corner to
@@ -1169,14 +1169,14 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::addCoords(qReal xp1, qReal yp1, qReal xp2, qReal yp2)
+    \fn void QRectF::addCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 
     Adds (\a xp1, \a yp1) to the existing position of the rectangle's
     top-left corner, and (\a xp2, \a yp2) to the position of its
     bottom-right corner.
 */
 
-/*! \fn QRectF QRectF::adjusted(qReal xp1, qReal yp1, qReal xp2, qReal yp2) const
+/*! \fn QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
 
     Returns a new rectangle with (\a xp1, \a yp1) added to the
     existing position of the rectangle's top-left corner, and (\a xp2,
@@ -1192,7 +1192,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn qReal QRectF::width() const
+    \fn qreal QRectF::width() const
 
     Returns the width of the rectangle. The width includes both the
     left and right edges; i.e. width = right - left + 1.
@@ -1201,7 +1201,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn qReal QRectF::height() const
+    \fn qreal QRectF::height() const
 
     Returns the height of the rectangle. The height includes both the
     top and bottom edges; i.e. height = bottom - top + 1.
@@ -1210,7 +1210,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setWidth(qReal width)
+    \fn void QRectF::setWidth(qreal width)
 
     Sets the \a width of the rectangle. If the width is different to the old
     width, only the rectangle's right edge is moved. The left edge is not moved.
@@ -1220,7 +1220,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::setHeight(qReal height)
+    \fn void QRectF::setHeight(qreal height)
 
     Sets the \a height of the rectangle. The top edge is not moved, but the
     bottom edge may be moved.
@@ -1248,7 +1248,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn bool QRectF::contains(qReal x, qReal y) const
+    \fn bool QRectF::contains(qreal x, qreal y) const
     \overload
 
     Returns true if the point (\a x, \a y) is inside this rectangle;

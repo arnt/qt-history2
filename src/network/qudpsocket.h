@@ -26,14 +26,14 @@ public:
     explicit QUdpSocket(QObject *parent = 0);
     virtual ~QUdpSocket();
 
-    bool bind(const QHostAddress &address, Q_UINT16 port);
-    bool bind(Q_UINT16 port = 0);
+    bool bind(const QHostAddress &address, quint16 port);
+    bool bind(quint16 port = 0);
 
     bool hasPendingDatagrams() const;
-    Q_LONGLONG pendingDatagramSize() const;
-    Q_LONGLONG readDatagram(char *data, Q_LONGLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
-    Q_LONGLONG writeDatagram(const char *data, Q_LONGLONG len, const QHostAddress &host, Q_UINT16 port);
-    inline Q_LONGLONG writeDatagram(const QByteArray &datagram, const QHostAddress &host, Q_UINT16 port)
+    qint64 pendingDatagramSize() const;
+    qint64 readDatagram(char *data, qint64 maxlen, QHostAddress *host = 0, quint16 *port = 0);
+    qint64 writeDatagram(const char *data, qint64 len, const QHostAddress &host, quint16 port);
+    inline qint64 writeDatagram(const QByteArray &datagram, const QHostAddress &host, quint16 port)
         { return writeDatagram(datagram.constData(), datagram.size(), host, port); }
 
 private:

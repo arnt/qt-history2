@@ -30,8 +30,8 @@
 // DB2's sqlsystm.h (included through sqlcli1.h) defines the SQL_BIGINT_TYPE
 // and SQL_BIGUINT_TYPE to wrong the types for Borland; so do the defines to
 // the right type before including the header
-#define SQL_BIGINT_TYPE Q_INT64
-#define SQL_BIGUINT_TYPE Q_UINT64
+#define SQL_BIGINT_TYPE qint64
+#define SQL_BIGUINT_TYPE quint64
 #endif
 
 #include <sqlcli1.h>
@@ -272,7 +272,7 @@ static double qGetDoubleData(SQLHANDLE hStmt, int column, bool& isNull)
 
 static SQLBIGINT qGetBigIntData(SQLHANDLE hStmt, int column, bool& isNull)
 {
-    SQLBIGINT lngbuf = Q_INT64_C(0);
+    SQLBIGINT lngbuf = qint64_C(0);
     isNull = false;
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
@@ -934,7 +934,7 @@ QCoreVariant QDB2Result::data(int field)
     QCoreVariant* v = 0;
     switch (info.type()) {
         case QCoreVariant::LongLong:
-            v = new QCoreVariant((Q_LONGLONG) qGetBigIntData(d->hStmt, field, isNull));
+            v = new QCoreVariant((qint64) qGetBigIntData(d->hStmt, field, isNull));
             break;
         case QCoreVariant::Int:
             v = new QCoreVariant(qGetIntData(d->hStmt, field, isNull));

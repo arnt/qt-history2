@@ -55,7 +55,7 @@ private:
         float width;
         QColor color;
         Qt::PenStyle style;
-        Q_UINT16 linest;
+        quint16 linest;
     };
     struct QPenData *d;
 };

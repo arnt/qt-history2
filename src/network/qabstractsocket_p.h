@@ -46,7 +46,7 @@ public:
     bool closeCalled;
 
     QString hostName;
-    Q_UINT16 port;
+    quint16 port;
     QHostAddress host;
     QList<QHostAddress> addresses;
 
@@ -62,7 +62,7 @@ public:
     void setupSocketNotifiers();
     bool readFromSocket();
 
-    Q_LONGLONG readBufferMaxSize;
+    qint64 readBufferMaxSize;
     QRingBuffer readBuffer;
     QRingBuffer writeBuffer;
 

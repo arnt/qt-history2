@@ -30,7 +30,7 @@ QFontEngine::~QFontEngine()
 {
 }
 
-qReal QFontEngine::lineThickness() const
+qreal QFontEngine::lineThickness() const
 {
   // ad hoc algorithm
   int score = fontDef.pixelSize * fontDef.weight;
@@ -44,7 +44,7 @@ qReal QFontEngine::lineThickness() const
   return lth;
 }
 
-qReal QFontEngine::underlinePosition() const
+qreal QFontEngine::underlinePosition() const
 {
   return ((lineThickness() * 2) + 3) / 6;
 }
@@ -287,14 +287,14 @@ static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, 
     return FixRound(ret);
 }
 
-qReal QFontEngineMac::ascent() const
+qreal QFontEngineMac::ascent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->ascent != -1)
         return st->ascent;
     return st->ascent = qt_mac_get_measurement(st->style, kATSUAscentTag, this);
 }
-qReal QFontEngineMac::descent() const
+qreal QFontEngineMac::descent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->descent != -1)
@@ -302,7 +302,7 @@ qReal QFontEngineMac::descent() const
     return st->descent = qt_mac_get_measurement(st->style, kATSUDescentTag, this);
 }
 
-qReal QFontEngineMac::leading() const
+qreal QFontEngineMac::leading() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->leading != -1)
@@ -310,7 +310,7 @@ qReal QFontEngineMac::leading() const
     return st->leading = qt_mac_get_measurement(st->style, kATSULeadingTag, this);
 }
 
-qReal QFontEngineMac::maxCharWidth() const
+qreal QFontEngineMac::maxCharWidth() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
@@ -640,7 +640,7 @@ OSStatus QMacFontPath::closePath(void *data)
 }
 
 
-void QFontEngineMac::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs,
+void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path)
 {
 

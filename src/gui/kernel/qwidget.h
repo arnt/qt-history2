@@ -288,8 +288,8 @@ public:
     void setWindowRole(const QString &);
     QString windowRole() const;
 
-    void setWindowOpacity(qReal level);
-    qReal windowOpacity() const;
+    void setWindowOpacity(qreal level);
+    qreal windowOpacity() const;
 
     bool isWindowModified() const;
     void setWindowModified(bool);

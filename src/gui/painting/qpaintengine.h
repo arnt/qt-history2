@@ -41,9 +41,9 @@ public:
     };
     Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
     RenderFlags flags;
-    qReal descent;
-    qReal ascent;
-    qReal width;
+    qreal descent;
+    qreal ascent;
+    qreal width;
 
     const QChar *chars;
     int num_chars;

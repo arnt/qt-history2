@@ -92,13 +92,13 @@ public:
     QTextStream &operator<<(const QByteArray &);
     QTextStream &operator<<(const void *);                // any pointer
 
-    QTextStream &readRawBytes(char *, Q_LONGLONG len);
-    QTextStream &writeRawBytes(const char* , Q_LONGLONG len);
+    QTextStream &readRawBytes(char *, qint64 len);
+    QTextStream &writeRawBytes(const char* , qint64 len);
 
     QString readLine();
     QString read();
     void skipWhiteSpace();
-    bool seek(Q_LONGLONG offset);
+    bool seek(qint64 offset);
 
     enum {
         skipws       = 0x0001,                        // skip whitespace on input

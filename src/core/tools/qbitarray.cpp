@@ -680,7 +680,7 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 #ifndef QT_NO_DATASTREAM
 QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
 {
-    Q_UINT32 len = ba.size();
+    quint32 len = ba.size();
     out << len;
     if (len > 0)
         out.writeRawData(ba.d.constData() + 1, ba.d.size() - 1);
@@ -698,11 +698,11 @@ QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
 QDataStream &operator>>(QDataStream &in, QBitArray &ba)
 {
     ba.clear();
-    Q_UINT32 len;
+    quint32 len;
     in >> len;
 
-    const Q_UINT32 Step = 8 * 1024 * 1024;
-    Q_UINT32 allocated = 0;
+    const quint32 Step = 8 * 1024 * 1024;
+    quint32 allocated = 0;
 
     while (allocated < len) {
         int blockSize = qMin(Step, len - allocated);

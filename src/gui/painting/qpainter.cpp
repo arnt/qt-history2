@@ -326,7 +326,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
 
     Q_Q(QPainter);
 
-    qReal width = state->pen.widthF();
+    qreal width = state->pen.widthF();
     int txop = state->txop;
     if (!(state->pen.widthF() > .0f)) {
         if (state->txop != TxNone) {
@@ -535,8 +535,8 @@ void QPainterPrivate::updateMatrix()
 {
     QMatrix m;
     if (state->VxF) {
-        qReal scaleW = qReal(state->vw)/qReal(state->ww);
-        qReal scaleH = qReal(state->vh)/qReal(state->wh);
+        qreal scaleW = qreal(state->vw)/qreal(state->ww);
+        qreal scaleH = qreal(state->vh)/qreal(state->wh);
         m.setMatrix(scaleW, 0, 0, scaleH, state->vx - state->wx*scaleW, state->vy - state->wy*scaleH);
     }
     if (state->WxF) {
@@ -1604,7 +1604,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     They operate on the painter's worldMatrix() and are implemented like this:
 
     \code
-        void QPainter::rotate(qReal a)
+        void QPainter::rotate(qreal a)
         {
             QMatrix m;
             m.rotate(a);
@@ -1761,7 +1761,7 @@ bool QPainter::matrixEnabled() const
     xForm()
 */
 
-void QPainter::scale(qReal sx, qReal sy)
+void QPainter::scale(qreal sx, qreal sy)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -1780,7 +1780,7 @@ void QPainter::scale(qReal sx, qReal sy)
     xForm()
 */
 
-void QPainter::shear(qReal sh, qReal sv)
+void QPainter::shear(qreal sh, qreal sv)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -1798,7 +1798,7 @@ void QPainter::shear(qReal sh, qReal sv)
     xForm()
 */
 
-void QPainter::rotate(qReal a)
+void QPainter::rotate(qreal a)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -1812,7 +1812,7 @@ void QPainter::rotate(qReal a)
 
 
 /*!
-    \fn void QPainter::translate(qReal dx, qReal dy)
+    \fn void QPainter::translate(qreal dx, qreal dy)
 
     \overload
 
@@ -1849,8 +1849,8 @@ void QPainter::rotate(qReal a)
 
 void QPainter::translate(const QPointF &offset)
 {
-    qReal dx = offset.x();
-    qReal dy = offset.y();
+    qreal dx = offset.x();
+    qreal dy = offset.y();
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::translate(), dx=%f, dy=%f\n", dx, dy);
@@ -2679,19 +2679,19 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
 
     QPainterPath path;
 
-    qReal x = rect.x();
-    qReal y = rect.y();
-    qReal w = rect.width();
-    qReal h = rect.height();
-    qReal rxx = w*xRnd/200;
-    qReal ryy = h*yRnd/200;
+    qreal x = rect.x();
+    qreal y = rect.y();
+    qreal w = rect.width();
+    qreal h = rect.height();
+    qreal rxx = w*xRnd/200;
+    qreal ryy = h*yRnd/200;
     // were there overflows?
     if (rxx < 0)
         rxx = w/200*xRnd;
     if (ryy < 0)
         ryy = h/200*yRnd;
-    qReal rxx2 = 2*rxx;
-    qReal ryy2 = 2*ryy;
+    qreal rxx2 = 2*rxx;
+    qreal ryy2 = 2*ryy;
 
     QPointF startPoint;
     qt_find_ellipse_coords(QRectF(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
@@ -3454,14 +3454,14 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         return;
     d->engine->updateState(d->state);
 
-    qReal x = r.x();
-    qReal y = r.y();
-    qReal w = r.width();
-    qReal h = r.height();
-    qReal sx = sr.x();
-    qReal sy = sr.y();
-    qReal sw = sr.width();
-    qReal sh = sr.height();
+    qreal x = r.x();
+    qreal y = r.y();
+    qreal w = r.width();
+    qreal h = r.height();
+    qreal sx = sr.x();
+    qreal sy = sr.y();
+    qreal sw = sr.width();
+    qreal sh = sr.height();
 
     // Sanity-check clipping
     if (sw <= 0 || sw + sx > pm.width())
@@ -3507,8 +3507,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         }
 
         QMatrix mat(d->state->matrix);
-        qReal scalex = w / sw;
-        qReal scaley = h / sh;
+        qreal scalex = w / sw;
+        qreal scaley = h / sh;
         mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
         mat = QPixmap::trueMatrix(mat, qRound(sw), qRound(sh));
         QPixmap pmx = source.transform(mat);
@@ -3523,7 +3523,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
             pmx.setMask(bm_clip.transform(mat));
         }
         d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
-        qReal dx, dy;
+        qreal dx, dy;
         mat.map(0, 0, &dx, &dy);
         d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
                               QRectF(0, 0, pmx.width(), pmx.height()), mode);
@@ -3586,14 +3586,14 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    qReal x = targetRect.x();
-    qReal y = targetRect.y();
-    qReal w = targetRect.width();
-    qReal h = targetRect.height();
-    qReal sx = sourceRect.x();
-    qReal sy = sourceRect.y();
-    qReal sw = sourceRect.width();
-    qReal sh = sourceRect.height();
+    qreal x = targetRect.x();
+    qreal y = targetRect.y();
+    qreal w = targetRect.width();
+    qreal h = targetRect.height();
+    qreal sx = sourceRect.x();
+    qreal sy = sourceRect.y();
+    qreal sw = sourceRect.width();
+    qreal sh = sourceRect.height();
 
     // Sanity-check clipping
     if (sw <= 0 || sw + sx > image.width())
@@ -3983,12 +3983,12 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    qReal sw = pixmap.width();
-    qReal sh = pixmap.height();
+    qreal sw = pixmap.width();
+    qreal sh = pixmap.height();
     if (!sw || !sh)
         return;
-    qReal sx = sp.x();
-    qReal sy = sp.y();
+    qreal sx = sp.x();
+    qreal sy = sp.y();
     if (sx < 0)
         sx = qRound(sw) - qRound(-sx) % qRound(sw);
     else
@@ -4029,8 +4029,8 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         return;
     }
 
-    qReal x = r.x();
-    qReal y = r.y();
+    qreal x = r.x();
+    qreal y = r.y();
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         x += qRound(d->state->matrix.dx());
@@ -4436,7 +4436,7 @@ void QPainter::setViewTransformEnabled(bool enable)
 
 #ifdef QT_COMPAT
 
-qReal QPainter::translationX() const
+qreal QPainter::translationX() const
 {
     Q_D(const QPainter);
 #ifndef QT_NO_TRANSFORMATIONS
@@ -4446,7 +4446,7 @@ qReal QPainter::translationX() const
 #endif
 }
 
-qReal QPainter::translationY() const
+qreal QPainter::translationY() const
 {
     Q_D(const QPainter);
 #ifndef QT_NO_TRANSFORMATIONS
@@ -4912,8 +4912,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         numUnderlines = 0;
 
     underlinePositions[numUnderlines] = -1;
-    qReal height = 0;
-    qReal width = 0;
+    qreal height = 0;
+    qreal width = 0;
 
     QTextLayout textLayout(text, fnt);
     textLayout.engine()->underlinePositions = underlinePositions;
@@ -4923,13 +4923,13 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         width = 0;
         tf |= Qt::TextDontPrint;
     } else {
-        qReal lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
+        qreal lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.setLayoutMode((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
         textLayout.beginLayout();
 
-        qReal leading = fm.leading();
+        qreal leading = fm.leading();
         height = -leading;
 
         while (1) {
@@ -4946,8 +4946,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         textLayout.endLayout();
     }
 
-    qReal yoff = 0;
-    qReal xoff = 0;
+    qreal yoff = 0;
+    qreal xoff = 0;
     if (tf & Qt::AlignBottom)
         yoff = r.height() - height;
     else if (tf & Qt::AlignVCenter)
@@ -4994,10 +4994,10 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
            pt1.x(), pt1.y(), color1.rgba(), pt2.x(), pt2.y(), color2.rgba());
 #endif
 
-    qReal x1 = pt1.x();
-    qReal y1 = pt1.y();
-    qReal x2 = pt2.x();
-    qReal y2 = pt2.y();
+    qreal x1 = pt1.x();
+    qreal y1 = pt1.y();
+    qreal x2 = pt2.x();
+    qreal y2 = pt2.y();
 
     QString key = QString("qt_gradient %1 %2 %3 %4")
                   .arg(rect.x())
@@ -5027,9 +5027,9 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
 
     QImage image(rect.width(), rect.height(), 32);
 
-    qReal gdx = x2 - x1;
-    qReal gdy = y2 - y1;
-    qReal glen = sqrt(gdx * gdx + gdy * gdy);
+    qreal gdx = x2 - x1;
+    qreal gdy = y2 - y1;
+    qreal glen = sqrt(gdx * gdx + gdy * gdy);
 
     int a1 = color1.alpha(), r1 = color1.red(), g1 = color1.green(), b1 = color1.blue();
     int a2 = color2.alpha(), r2 = color2.red(), g2 = color2.green(), b2 = color2.blue();
@@ -5043,7 +5043,7 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
     }
 
     image.setAlphaBuffer(useAlpha);
-    qReal t;
+    qreal t;
 
     for (int y=0; y<image.height(); ++y) {
         QRgb *scanLine = (QRgb*)image.scanLine(y);

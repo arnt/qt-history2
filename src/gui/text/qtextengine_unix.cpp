@@ -72,8 +72,8 @@ void QTextEngine::shapeText(int item) const
                 FT_Vector kerning;
                 FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph,
                                option.usesDesignMetrics() ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
-                g[i].advance.rx() += qReal(kerning.x) / qReal(64);
-                g[i].advance.ry() += qReal(kerning.y) / qReal(64);
+                g[i].advance.rx() += qreal(kerning.x) / qreal(64);
+                g[i].advance.ry() += qreal(kerning.y) / qreal(64);
             }
         }
     }

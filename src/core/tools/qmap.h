@@ -73,14 +73,14 @@ template <class Key> inline bool qMapLessThanKey(const Key &key1, const Key &key
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 template <class Ptr> inline bool qMapLessThanKey(Ptr *key1, Ptr *key2)
 {
-    Q_ASSERT(sizeof(Q_LONG) == sizeof(Ptr *));
-    return reinterpret_cast<Q_ULONG>(key1) < reinterpret_cast<Q_ULONG>(key2);
+    Q_ASSERT(sizeof(ulong) == sizeof(Ptr *));
+    return reinterpret_cast<ulong>(key1) < reinterpret_cast<ulong>(key2);
 }
 
 template <class Ptr> inline bool qMapLessThanKey(const Ptr *key1, const Ptr *key2)
 {
-    Q_ASSERT(sizeof(Q_LONG) == sizeof(const Ptr *));
-    return reinterpret_cast<Q_ULONG>(key1) < reinterpret_cast<Q_ULONG>(key2);
+    Q_ASSERT(sizeof(ulong) == sizeof(const Ptr *));
+    return reinterpret_cast<ulong>(key1) < reinterpret_cast<ulong>(key2);
 }
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 

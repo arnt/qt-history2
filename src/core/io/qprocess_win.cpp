@@ -38,7 +38,7 @@ public:
     ~QWindowsPipeWriter();
 
     bool waitForWrite(int msecs);
-    Q_LONGLONG write(const char *data, Q_LONGLONG maxlen);
+    qint64 write(const char *data, qint64 maxlen);
 
 signals:
     void canWrite();
@@ -83,7 +83,7 @@ bool QWindowsPipeWriter::waitForWrite(int msecs)
     return waitCondition.wait(&lock, msecs);
 }
 
-Q_LONGLONG QWindowsPipeWriter::write(const char *ptr, Q_LONGLONG maxlen)
+qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
 {
     if (!isRunning())
         return -1;
@@ -120,8 +120,8 @@ void QWindowsPipeWriter::run()
         lock.unlock();
 
         const char *ptrData = copy.data();
-        Q_LONGLONG maxlen = copy.size();
-        Q_LONGLONG totalWritten = 0;
+        qint64 maxlen = copy.size();
+        qint64 totalWritten = 0;
         while ((!quitNow) && totalWritten < maxlen) {
             DWORD written = 0;
             if (!WriteFile(writePipe, ptrData + totalWritten, qMin(8192, maxlen - totalWritten), &written, 0)) {
@@ -395,7 +395,7 @@ bool QProcessPrivate::processStarted()
     return processState == QProcess::Running;
 }
 
-Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
+qint64 QProcessPrivate::bytesAvailableFromStdout() const
 {
     DWORD bytesAvail = 0;
     PeekNamedPipe(standardReadPipe[0], 0, 0, 0, &bytesAvail, 0);
@@ -405,7 +405,7 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
     return bytesAvail;
 }
 
-Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
+qint64 QProcessPrivate::bytesAvailableFromStderr() const
 {
     DWORD bytesAvail = 0;
     PeekNamedPipe(errorReadPipe[0], 0, 0, 0, &bytesAvail, 0);
@@ -415,7 +415,7 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
     return bytesAvail;
 }
 
-Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 {
     DWORD read = qMin(maxlen, bytesAvailableFromStdout());
     DWORD bytesRead = 0;
@@ -425,7 +425,7 @@ Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
     return bytesRead;
 }
 
-Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
 {
     DWORD read = qMin(maxlen, bytesAvailableFromStderr());
     DWORD bytesRead = 0;
@@ -618,7 +618,7 @@ void QProcessPrivate::findExitCode()
 }
 
 
-Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
+qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
     Q_Q(QProcess);
 

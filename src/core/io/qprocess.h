@@ -21,7 +21,7 @@
 #include <QtCore/qt_windows.h>
 typedef PROCESS_INFORMATION* Q_PID;
 #else
-typedef Q_LONG Q_PID;
+typedef qint64 Q_PID;
 #endif
 
 class QProcessPrivate;
@@ -91,8 +91,8 @@ public:
     int exitCode() const;
 
     // QIODevice
-    Q_LONGLONG bytesAvailable() const;
-    Q_LONGLONG bytesToWrite() const;
+    qint64 bytesAvailable() const;
+    qint64 bytesToWrite() const;
     bool isSequential() const;
     bool canReadLine() const;
     void close();
@@ -110,8 +110,8 @@ protected:
     void setProcessState(ProcessState state);
 
     // QIODevice
-    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private:
     Q_DECLARE_PRIVATE(QProcess)

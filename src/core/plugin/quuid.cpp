@@ -209,11 +209,11 @@ QString QUuid::toString() const
 */
 QDataStream &operator<<(QDataStream &s, const QUuid &id)
 {
-    s << (Q_UINT32)id.data1;
-    s << (Q_UINT16)id.data2;
-    s << (Q_UINT16)id.data3;
+    s << (quint32)id.data1;
+    s << (quint16)id.data2;
+    s << (quint16)id.data3;
     for (int i = 0; i < 8; i++)
-        s << (Q_UINT8)id.data4[i];
+        s << (quint8)id.data4[i];
     return s;
 }
 
@@ -223,9 +223,9 @@ QDataStream &operator<<(QDataStream &s, const QUuid &id)
 */
 QDataStream &operator>>(QDataStream &s, QUuid &id)
 {
-    Q_UINT32 u32;
-    Q_UINT16 u16;
-    Q_UINT8 u8;
+    quint32 u32;
+    quint16 u16;
+    quint8 u8;
     s >> u32;
     id.data1 = u32;
     s >> u16;

@@ -114,11 +114,11 @@ public:
     bool waitForFinished(int msecs = 30000);
     bool waitForWrite(int msecs = 30000);
 
-    Q_LONGLONG bytesAvailableFromStdout() const;
-    Q_LONGLONG bytesAvailableFromStderr() const;
-    Q_LONGLONG readFromStdout(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG readFromStderr(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG writeToStdin(const char *data, Q_LONGLONG maxlen);
+    qint64 bytesAvailableFromStdout() const;
+    qint64 bytesAvailableFromStderr() const;
+    qint64 readFromStdout(char *data, qint64 maxlen);
+    qint64 readFromStderr(char *data, qint64 maxlen);
+    qint64 writeToStdin(const char *data, qint64 maxlen);
 
     void cleanup();
 

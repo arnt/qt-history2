@@ -71,8 +71,8 @@ public:
         Ascii
     };
 
-    int setProxy(const QString &host, Q_UINT16 port);
-    int connectToHost(const QString &host, Q_UINT16 port=21);
+    int setProxy(const QString &host, quint16 port);
+    int connectToHost(const QString &host, quint16 port=21);
     int login(const QString &user = QString(), const QString &password = QString());
     int close();
     int setTransferMode(TransferMode mode);
@@ -88,12 +88,12 @@ public:
 
     int rawCommand(const QString &command);
 
-    Q_LONGLONG bytesAvailable() const;
+    qint64 bytesAvailable() const;
+    qint64 read(char *data, qint64 maxlen);
 #ifdef QT_COMPAT
-    inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
-    { return Q_LONG(read(data, Q_LONGLONG(maxlen))); }
+    inline QT_COMPAT qint64 readBlock(char *data, quint64 maxlen)
+    { return read(data, qint64(maxlen)); }
 #endif
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
 
     int currentId() const;
@@ -114,7 +114,7 @@ signals:
     void stateChanged(int);
     void listInfo(const QUrlInfo&);
     void readyRead();
-    void dataTransferProgress(Q_LONGLONG, Q_LONGLONG);
+    void dataTransferProgress(qint64, qint64);
     void rawCommandReply(int, const QString&);
 
     void commandStarted(int);

@@ -2810,11 +2810,11 @@ void QWidgetPrivate::unfocusInputContext()
 #endif // QT_NO_IM
 }
 
-void QWidget::setWindowOpacity(qReal)
+void QWidget::setWindowOpacity(qreal)
 {
 }
 
-qReal QWidget::windowOpacity() const
+qreal QWidget::windowOpacity() const
 {
     return 1.0;
 }

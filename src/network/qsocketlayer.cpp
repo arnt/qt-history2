@@ -354,7 +354,7 @@ QHostAddress QSocketLayer::localAddress() const
     returns the local port that the socket is bound to; otherwise 0 is
     returned.
 */
-Q_UINT16 QSocketLayer::localPort() const
+quint16 QSocketLayer::localPort() const
 {
     return d->localPort;
 }
@@ -373,7 +373,7 @@ QHostAddress QSocketLayer::peerAddress() const
     If the socket is in ConnectedState, this function returns the port
     of the connected peer; otherwise 0 is returned.
 */
-Q_UINT16 QSocketLayer::peerPort() const
+quint16 QSocketLayer::peerPort() const
 {
     return d->peerPort;
 }
@@ -409,7 +409,7 @@ Q_UINT16 QSocketLayer::peerPort() const
     Otherwise, error() should be called to determine the cause of the
     error.
 */
-bool QSocketLayer::connectToHost(const QHostAddress &address, Q_UINT16 port)
+bool QSocketLayer::connectToHost(const QHostAddress &address, quint16 port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::connectToHost(), false);
 
@@ -441,7 +441,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, Q_UINT16 port)
     Servers call this function to set up the server's address and
     port. TCP servers must in addition call listen() after bind().
 */
-bool QSocketLayer::bind(const QHostAddress &address, Q_UINT16 port)
+bool QSocketLayer::bind(const QHostAddress &address, quint16 port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bind(), false);
 
@@ -523,7 +523,7 @@ int QSocketLayer::accept()
     pending datagrams, and it is therefore more useful for UDP sockets
     to call hasPendingDatagrams() and pendingDatagramSize().
 */
-Q_LONGLONG QSocketLayer::bytesAvailable() const
+qint64 QSocketLayer::bytesAvailable() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bytesAvailable(), -1);
     Q_CHECK_NOT_STATE(QSocketLayer::bytesAvailable(), QAbstractSocket::UnconnectedState, false);
@@ -551,7 +551,7 @@ bool QSocketLayer::hasPendingDatagrams() const
     called by UDP sockets before receiveMessage(). For TCP sockets,
     call bytesAvailable().
 */
-Q_LONGLONG QSocketLayer::pendingDatagramSize() const
+qint64 QSocketLayer::pendingDatagramSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::pendingDatagramSize(), -1);
     Q_CHECK_TYPE(QSocketLayer::pendingDatagramSize(), QAbstractSocket::UdpSocket, false);
@@ -574,8 +574,8 @@ Q_LONGLONG QSocketLayer::pendingDatagramSize() const
 
     \sa hasPendingDatagrams()
 */
-Q_LONGLONG QSocketLayer::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddress *address,
-                                      Q_UINT16 *port)
+qint64 QSocketLayer::readDatagram(char *data, qint64 maxSize, QHostAddress *address,
+                                      quint16 *port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::readDatagram(), -1);
     Q_CHECK_TYPE(QSocketLayer::readDatagram(), QAbstractSocket::UdpSocket, false);
@@ -601,8 +601,8 @@ Q_LONGLONG QSocketLayer::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddre
 
     \sa readDatagram()
 */
-Q_LONGLONG QSocketLayer::writeDatagram(const char *data, Q_LONGLONG size,
-                                       const QHostAddress &host, Q_UINT16 port)
+qint64 QSocketLayer::writeDatagram(const char *data, qint64 size,
+                                       const QHostAddress &host, quint16 port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::writeDatagram(), -1);
     Q_CHECK_TYPE(QSocketLayer::writeDatagram(), QAbstractSocket::UdpSocket, -1);
@@ -613,7 +613,7 @@ Q_LONGLONG QSocketLayer::writeDatagram(const char *data, Q_LONGLONG size,
     Writes a block of \a size bytes from \a data to the socket.
     Returns the number of bytes written, or -1 if an error occurred.
 */
-Q_LONGLONG QSocketLayer::write(const char *data, Q_LONGLONG size)
+qint64 QSocketLayer::write(const char *data, qint64 size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::write(), -1);
     Q_CHECK_STATE(QSocketLayer::write(), QAbstractSocket::ConnectedState, -1);
@@ -624,12 +624,12 @@ Q_LONGLONG QSocketLayer::write(const char *data, Q_LONGLONG size)
     Reads up to \a maxSize bytes into \a data from the socket.
     Returns the number of bytes read, or -1 if an error occurred.
 */
-Q_LONGLONG QSocketLayer::read(char *data, Q_LONGLONG maxSize)
+qint64 QSocketLayer::read(char *data, qint64 maxSize)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::read(), -1);
     Q_CHECK_STATES(QSocketLayer::read(), QAbstractSocket::ConnectedState, QAbstractSocket::BoundState, -1);
 
-    Q_LONGLONG readBytes = d->nativeRead(data, maxSize);
+    qint64 readBytes = d->nativeRead(data, maxSize);
 
     // Handle remote close
     if (readBytes == 0 && d->socketType == QAbstractSocket::TcpSocket) {
@@ -748,7 +748,7 @@ bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool checkRead, bool ch
     different from what has been set earlier with
     setReceiveBufferSize().
 */
-Q_LONGLONG QSocketLayer::receiveBufferSize() const
+qint64 QSocketLayer::receiveBufferSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::receiveBufferSize(), -1);
     return d->option(QSocketLayerPrivate::ReceiveBufferSocketOption);
@@ -769,7 +769,7 @@ Q_LONGLONG QSocketLayer::receiveBufferSize() const
 
     The default value is operating system-dependent.
 */
-void QSocketLayer::setReceiveBufferSize(Q_LONGLONG size)
+void QSocketLayer::setReceiveBufferSize(qint64 size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setReceiveBufferSize(), Q_VOID);
     d->setOption(QSocketLayerPrivate::ReceiveBufferSocketOption, size);
@@ -780,7 +780,7 @@ void QSocketLayer::setReceiveBufferSize(Q_LONGLONG size)
     the operating system, this size may be different from what has
     been set earlier with setSendBufferSize().
 */
-Q_LONGLONG QSocketLayer::sendBufferSize() const
+qint64 QSocketLayer::sendBufferSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), -1);
     return d->option(QSocketLayerPrivate::SendBufferSocketOption);
@@ -795,7 +795,7 @@ Q_LONGLONG QSocketLayer::sendBufferSize() const
 
     The default value is operating system-dependent.
 */
-void QSocketLayer::setSendBufferSize(Q_LONGLONG size)
+void QSocketLayer::setSendBufferSize(qint64 size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), Q_VOID);
     d->setOption(QSocketLayerPrivate::SendBufferSocketOption, size);

@@ -100,7 +100,7 @@ public:
 
     QString name;
     QDateTime timeStamp;
-    Q_LONGLONG size;
+    qint64 size;
     SettingsKeyMap originalKeys;
     SettingsKeyMap addedKeys;
     SettingsKeyMap removedKeys;

@@ -54,8 +54,8 @@ public:
             val =0x7FFFFFFFL;
         } else {
             bool neg = false;
-            Q_INT64 a = val;
-            Q_INT64 b = o.val;
+            qint64 a = val;
+            qint64 b = o.val;
             if (a < 0) { a = -a; neg = true; }
             if (b < 0) { b = -b; neg = !neg; }
 
@@ -74,8 +74,8 @@ public:
     inline QFixedPoint &operator*=(int i) { val *= i; return *this; }
     inline QFixedPoint &operator*=(const QFixedPoint &o) {
         bool neg = false;
-        Q_INT64 a = val;
-        Q_INT64 b = o.val;
+        qint64 a = val;
+        qint64 b = o.val;
         if (a < 0) { a = -a; neg = true; }
         if (b < 0) { b = -b; neg = !neg; }
 
@@ -199,11 +199,11 @@ public:
         LowBits = 32
     };
     enum fixedpoint_t { FixedPoint };
-    inline QFixedPointLong(Q_INT64 v, fixedpoint_t) { val = v; }
+    inline QFixedPointLong(qint64 v, fixedpoint_t) { val = v; }
     QFixedPointLong() : val(0) {}
     QFixedPointLong(int i) : val(i) { val <<= 32; }
-    QFixedPointLong(Q_INT64 i) : val(i) { val <<= 32; }
-    QFixedPointLong(double d) { val = (Q_LONGLONG)(d*(double(Q_INT64_C(1)<<32))); }
+    QFixedPointLong(qint64 i) : val(i) { val <<= 32; }
+    QFixedPointLong(double d) { val = (qint64)(d*(double(Q_INT64_C(1)<<32))); }
     QFixedPointLong(const QFixedPointLong &other) : val(other.val) {}
     QFixedPointLong(const QFixedPoint &other) { val = other.value(); val <<= 24; }
     QFixedPointLong & operator=(const QFixedPointLong &other) { val = other.val; return *this; }
@@ -234,9 +234,9 @@ public:
     inline QFixedPointLong operator*(double f) const { QFixedPointLong v(f); return (v *= *this); }
     inline QFixedPointLong operator*(const QFixedPointLong &o) const { QFixedPointLong v = *this; return (v *= o); }
 
-    inline Q_INT64 value() const { return val; }
+    inline qint64 value() const { return val; }
 private:
-    Q_INT64 val;
+    qint64 val;
 };
 Q_DECLARE_TYPEINFO(QFixedPointLong, Q_PRIMITIVE_TYPE);
 

@@ -962,8 +962,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             if (haveOffsets || transform) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
-                    qReal xp = x + glyphs->offset.x();
-                    qReal yp = y + glyphs->offset.y();
+                    qreal xp = x + glyphs->offset.x();
+                    qreal yp = y + glyphs->offset.y();
                     if (transform)
                         state->painter->matrix().map(xp, yp, &xp, &yp);
                     ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
@@ -1805,8 +1805,8 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
  *
  ******************************************************************************/
 extern "C" {
-typedef int (WINAPI *PtrGdiplusStartup)(Q_UINT64 **, const QtGpStartupInput *, void *);
-typedef void (WINAPI *PtrGdiplusShutdown)(Q_UINT64 *);
+typedef int (WINAPI *PtrGdiplusStartup)(quint64 **, const QtGpStartupInput *, void *);
+typedef void (WINAPI *PtrGdiplusShutdown)(quint64 *);
 
 typedef int (__stdcall *PtrGdipGetDC)(QtGpGraphics *, HDC *hdc);
 typedef int (__stdcall *PtrGdipReleaseDC)(QtGpGraphics *, HDC *hdc);
@@ -1837,7 +1837,7 @@ typedef int (__stdcall *PtrGdipDrawLine) (QtGpGraphics *, QtGpPen *,
                                           float x1, float y1, float x2, float y2);
 typedef int (__stdcall *PtrGdipDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
 typedef int (__stdcall *PtrGdipDrawPolygon) (QtGpGraphics *, QtGpPen *, const QPointF *, int);
-typedef int (__stdcall *PtrGdipDrawDriverString) (QtGpGraphics *, Q_UINT16 *, int, const QtGpFont *,
+typedef int (__stdcall *PtrGdipDrawDriverString) (QtGpGraphics *, quint16 *, int, const QtGpFont *,
                                                   const QtGpBrush *, const QPointF *, int,
                                                   const QtGpMatrix *);
 
@@ -1849,14 +1849,14 @@ typedef int (__stdcall *PtrGdipDeleteRegion) (QtGpRegion *);
 
 typedef int (__stdcall *PtrGdipDeleteBrush) (QtGpBrush *);
 
-typedef int (__stdcall *PtrGdipCreateSolidFill) (Q_UINT32 argb, QtGpBrush **);
-typedef int (__stdcall *PtrGdipSetSolidFillColor) (QtGpSolidFill *, Q_UINT32 argb);
-typedef int (__stdcall *PtrGdipCreateLineBrush) (QPointF *, QPointF *, Q_UINT32, Q_UINT32, uint, QtGpBrush **);
+typedef int (__stdcall *PtrGdipCreateSolidFill) (quint32 argb, QtGpBrush **);
+typedef int (__stdcall *PtrGdipSetSolidFillColor) (QtGpSolidFill *, quint32 argb);
+typedef int (__stdcall *PtrGdipCreateLineBrush) (QPointF *, QPointF *, quint32, quint32, uint, QtGpBrush **);
 
-typedef int (__stdcall *PtrGdipCreatePen1) (Q_UINT32 argb, float width, int unit, QtGpPen **);
+typedef int (__stdcall *PtrGdipCreatePen1) (quint32 argb, float width, int unit, QtGpPen **);
 typedef int (__stdcall *PtrGdipDeletePen) (QtGpPen *);
 typedef int (__stdcall *PtrGdipSetPenWidth) (QtGpPen *, float width);
-typedef int (__stdcall *PtrGdipSetPenColor) (QtGpPen *, Q_UINT32 argb);
+typedef int (__stdcall *PtrGdipSetPenColor) (QtGpPen *, quint32 argb);
 typedef int (__stdcall *PtrGdipSetPenDashStyle) (QtGpPen *, int dashStyle);
 
 typedef int (__stdcall *PtrGdipCreatePath) (int fillMode, QtGpPath **path);
@@ -2527,7 +2527,7 @@ void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
    doing anything GDI+ related. Called by qt_init() in
    qapplication_win.cpp
 */
-static Q_UINT64 *gdiplusToken = 0;
+static quint64 *gdiplusToken = 0;
 void QGdiplusPaintEngine::initialize()
 {
     QtGpStartupInput input = { 1, 0, false, false };

@@ -68,7 +68,7 @@ public:
     void setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
 
     QTextDocumentPrivate *priv;
-    qReal x;
+    qreal x;
     int position;
     int anchor;
     int adjusted_anchor;

@@ -128,14 +128,14 @@ QFixedPointLong &QFixedPointLong::operator/=(const QFixedPointLong &o) {
         val = Q_INT64_C(0x7FFFFFFFFFFFFFFF);
     } else {
         bool neg = false;
-        Q_INT64 ah = val >> 32;
-        Q_UINT64 al = ((Q_UINT64)val) & Q_UINT64_C(0xffffffff);
+        qint64 ah = val >> 32;
+        quint64 al = ((quint64)val) & Q_UINT64_C(0xffffffff);
 
-        Q_INT64 b = o.val;
+        qint64 b = o.val;
         if (ah < 0) { ah = -ah; neg = true; }
         if (b < 0) { b = -b; neg = !neg; }
 
-        Q_INT64 res = (((ah << LowBits) / b) << 32)
+        qint64 res = (((ah << LowBits) / b) << 32)
                       + (((al << LowBits) + (b >> 1)) / b);
 
         val = (neg ? -res : res);
@@ -145,13 +145,13 @@ QFixedPointLong &QFixedPointLong::operator/=(const QFixedPointLong &o) {
 
 QFixedPointLong &QFixedPointLong::operator*=(const QFixedPointLong &o) {
     bool neg = false;
-    Q_INT64 ah = val >> 32;
-    Q_UINT64 al = ((Q_UINT64)val) & Q_UINT64_C(0xffffffff);
-    Q_INT64 b = o.val;
+    qint64 ah = val >> 32;
+    quint64 al = ((quint64)val) & Q_UINT64_C(0xffffffff);
+    qint64 b = o.val;
     if (ah < 0) { ah = -ah; neg = true; }
     if (b < 0) { b = -b; neg = !neg; }
 
-    Q_INT64 res = (ah * b) + ((al * b + 0x80000000L) >> 32);
+    qint64 res = (ah * b) + ((al * b + 0x80000000L) >> 32);
     val = neg ? -res : res;
     return *this;
 }
@@ -167,15 +167,15 @@ QFixedPointLong sqrt(QFixedPointLong x)
 
     uint root = 0;
 
-    Q_UINT64 rem_hi = 0;
-    Q_UINT64 rem_lo = x.value();
+    quint64 rem_hi = 0;
+    quint64 rem_lo = x.value();
     int count  = QFixedPoint::HighBits/2 + QFixedPoint::LowBits;
     do
     {
         rem_hi   = ( rem_hi << 2 ) | ( rem_lo >> 30 );
         rem_lo <<= 2;
         root   <<= 1;
-        Q_UINT64 test_div = ( root << 1 ) + 1;
+        quint64 test_div = ( root << 1 ) + 1;
 
         if ( rem_hi >= test_div )
         {

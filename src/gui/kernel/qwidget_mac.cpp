@@ -2132,7 +2132,7 @@ void QWidget::resetInputContext()
     qt_mac_unicode_reset_input(this);
 }
 
-void QWidget::setWindowOpacity(qReal level)
+void QWidget::setWindowOpacity(qreal level)
 {
     if(!isTopLevel())
         return;
@@ -2142,7 +2142,7 @@ void QWidget::setWindowOpacity(qReal level)
     d->topData()->opacity = (uchar)(level * 255);
 }
 
-qReal QWidget::windowOpacity() const
+qreal QWidget::windowOpacity() const
 {
     return isTopLevel() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }

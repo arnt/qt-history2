@@ -527,7 +527,7 @@ QImage QPixmap::toImage() const
         bool ale = alpha.bitOrder() == QImage::LittleEndian;
         for (int i=0; i<h; i++) {
             uchar* asrc = alpha.scanLine(i);
-            Q_UINT32 *p = (Q_UINT32 *)image.scanLine(i);
+            quint32 *p = (quint32 *)image.scanLine(i);
             for (int x = 0; x < w; x++) {
                 if (ale) {
                     if (!(asrc[x >> 3] & (1 << (x & 7))))

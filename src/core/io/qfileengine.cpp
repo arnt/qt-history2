@@ -208,19 +208,19 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     Flushes the open file.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::size() const
+/*! \fn qint64 QFileEngine::size() const
 
     Returns the size of the file.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::at() const
+/*! \fn qint64 QFileEngine::at() const
 
     Returns the current file position.
 
     This is the position of the data read/write head of the file.
 */
 
-/*! \fn bool QFileEngine::seek(Q_LONGLONG offset)
+/*! \fn bool QFileEngine::seek(qint64 offset)
 
     Sets the file position to the given \a offset. Returns true if
     the position was successfully set; otherwise returns false.
@@ -240,7 +240,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     sequential devices.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::read(char *data, Q_LONGLONG maxSize)
+/*! \fn qint64 QFileEngine::read(char *data, qint64 maxSize)
 
     Reads a number of characters from the file into \a data. At most
     \a maxSize characters will be read.
@@ -249,7 +249,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     read.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::write(const char *data, Q_LONGLONG size)
+/*! \fn qint64 QFileEngine::write(const char *data, qint64 size)
 
     Writes \a size bytes from \a data to the file. Returns the number
     of characters written on success; otherwise returns -1.
@@ -317,7 +317,7 @@ QString QFileEngine::errorString() const
   \sa unmap()
 */
 
-uchar *QFileEngine::map(Q_LONGLONG /* offset */, Q_LONGLONG /* size */)
+uchar *QFileEngine::map(qint64 /* offset */, qint64 /* size */)
 {
     return 0;
 }
@@ -386,7 +386,7 @@ void QFileEngine::unmap(uchar * /* data */)
  */
 
 /*!
-    \fn bool QFileEngine::setSize(Q_LONGLONG size)
+    \fn bool QFileEngine::setSize(qint64 size)
 
     Requests that the file be set to size \a size. If \a size is larger
     than the current file then it is filled with 0's, if smaller it is
@@ -754,12 +754,12 @@ QFSFileEngine::flush()
     d->ungetchBuffer.clear();
 }
 
-Q_LONGLONG
-QFSFileEngine::read(char *data, Q_LONGLONG len)
+qint64
+QFSFileEngine::read(char *data, qint64 len)
 {
-    Q_LONG ret = 0;
+    qint64 ret = 0;
     if (!d->ungetchBuffer.isEmpty()) {
-        Q_LONG l = d->ungetchBuffer.size();
+        qint64 l = d->ungetchBuffer.size();
         while(ret < l) {
             *data = d->ungetchBuffer.at(l - ret - 1);
             data++;
@@ -782,17 +782,17 @@ QFSFileEngine::read(char *data, Q_LONGLONG len)
     return ret;
 }
 
-Q_LONGLONG
-QFSFileEngine::write(const char *data, Q_LONGLONG len)
+qint64
+QFSFileEngine::write(const char *data, qint64 len)
 {
     d->resetErrors();
-    Q_LONG ret = QT_WRITE(d->fd, data, len);
+    qint64 ret = QT_WRITE(d->fd, data, len);
     if(ret != len)
         d->setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, errno);
     return ret;
 }
 
-Q_LONGLONG
+qint64
 QFSFileEngine::at() const
 {
     return QT_LSEEK(d->fd, 0, SEEK_CUR);
@@ -805,7 +805,7 @@ QFSFileEngine::handle() const
 }
 
 bool
-QFSFileEngine::seek(Q_LONGLONG pos)
+QFSFileEngine::seek(qint64 pos)
 {
     if(QT_LSEEK(d->fd, pos, SEEK_SET) == -1) {
         qWarning("QFile::at: Cannot set file position %lld", pos);
@@ -856,7 +856,7 @@ QFSFileEngine::type() const
 }
 
 uchar
-*QFSFileEngine::map(Q_LONGLONG /*off*/, Q_LONGLONG /*len*/)
+*QFSFileEngine::map(qint64 /*off*/, qint64 /*len*/)
 {
     return 0;
 }

@@ -546,7 +546,7 @@ int PP_Expression::primary_expression()
         test(PP_RPAREN);
     } else {
         next();
-        value = QString(lexem()).toLong(0, 0);
+        value = QString(lexem()).toInt(0, 0);
     }
     return value;
 }

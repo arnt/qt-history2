@@ -56,7 +56,7 @@
                 QByteArray datagram;
                 datagram.resize(udpSocket->pendingDatagramSize());
                 QHostAddress sender;
-                Q_UINT16 senderPort;
+                quint16 senderPort;
 
                 udpSocket->readDatagram(datagram.data(), datagram.size(),
                                         &sender, &senderPort);
@@ -150,7 +150,7 @@ QUdpSocket::~QUdpSocket()
 
     \sa readDatagram()
 */
-bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
+bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
 {
     QT_ENSURE_INITIALIZED(false);
 
@@ -172,7 +172,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
 
     Binds to QHostAddress:Any on port \a port.
 */
-bool QUdpSocket::bind(Q_UINT16 port)
+bool QUdpSocket::bind(quint16 port)
 {
     return bind(QHostAddress::Any, port);
 }
@@ -195,7 +195,7 @@ bool QUdpSocket::hasPendingDatagrams() const
 
     \sa hasPendingDatagrams(), readDatagram()
 */
-Q_LONGLONG QUdpSocket::pendingDatagramSize() const
+qint64 QUdpSocket::pendingDatagramSize() const
 {
     QT_CHECK_BOUND("QUdpSocket::pendingDatagramSize()", -1);
     return d->socketLayer.pendingDatagramSize();
@@ -218,15 +218,15 @@ Q_LONGLONG QUdpSocket::pendingDatagramSize() const
 
     \sa readDatagram()
 */
-Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QHostAddress &address,
-                                  Q_UINT16 port)
+qint64 QUdpSocket::writeDatagram(const char *data, qint64 size, const QHostAddress &address,
+                                  quint16 port)
 {
 #if defined QUDPSOCKET_DEBUG
     qDebug("QUdpSocket::writeDatagram(%p, %llu, \"%s\", %i)", data, size,
            address.toString().latin1(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
-    Q_LONGLONG sent = d->socketLayer.writeDatagram(data, size, address, port);
+    qint64 sent = d->socketLayer.writeDatagram(data, size, address, port);
     if (sent >= 0) {
         emit bytesWritten(sent);
     } else {
@@ -237,8 +237,8 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
     return sent;
 }
 
-/*! \fn Q_LONGLONG QUdpSocket::writeDatagram(const QByteArray &datagram,
-                                             const QHostAddress &host, Q_UINT16 port)
+/*! \fn qint64 QUdpSocket::writeDatagram(const QByteArray &datagram,
+                                             const QHostAddress &host, quint16 port)
     \overload
 
     Sends the datagram \a datagram to the host address \a host and at
@@ -260,14 +260,14 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
 
     \sa writeDatagram(), hasPendingDatagrams(), pendingDatagramSize()
 */
-Q_LONGLONG QUdpSocket::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddress *address,
-                                    Q_UINT16 *port)
+qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *address,
+                                    quint16 *port)
 {
 #if defined QUDPSOCKET_DEBUG
     qDebug("QUdpSocket::readDatagram(%p, %llu, %p, %p)", data, maxSize, address, port);
 #endif
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
-    Q_LONGLONG readBytes = d->socketLayer.readDatagram(data, maxSize, address, port);
+    qint64 readBytes = d->socketLayer.readDatagram(data, maxSize, address, port);
     if (readBytes < 0) {
         d->socketError = d->socketLayer.error();
         setErrorString(d->socketLayer.errorString());

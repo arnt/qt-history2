@@ -32,7 +32,7 @@ Q_DECLARE_INTERFACE(QGfxDriverFactoryInterface, "http://trolltech.com/Qt/QGfxDri
 class Q_GUI_EXPORT QGfxDriverPlugin : public QObject, public QGfxDriverFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QGfxDriverFactoryInterface:QFactoryInterface)
+    qintERFACES(QGfxDriverFactoryInterface:QFactoryInterface)
 public:
     explicit QGfxDriverPlugin(QObject *parent = 0);
     ~QGfxDriverPlugin();

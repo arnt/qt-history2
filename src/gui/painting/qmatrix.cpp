@@ -135,16 +135,16 @@
 // some defines to inline some code
 #define MAPDOUBLE(x, y, nx, ny) \
 { \
-    qReal fx = x; \
-    qReal fy = y; \
+    qreal fx = x; \
+    qreal fy = y; \
     nx = _m11*fx + _m21*fy + _dx; \
     ny = _m12*fx + _m22*fy + _dy; \
 }
 
 #define MAPINT(x, y, nx, ny) \
 { \
-    qReal fx = x; \
-    qReal fy = y; \
+    qreal fx = x; \
+    qreal fy = y; \
     nx = qRound(_m11*fx + _m21*fy + _dx); \
     ny = qRound(_m12*fx + _m22*fy + _dy); \
 }
@@ -169,8 +169,8 @@ QMatrix::QMatrix()
     m22, \a dx and \a dy.
 */
 
-QMatrix::QMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
-                    qReal dx, qReal dy)
+QMatrix::QMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
+                    qreal dx, qreal dy)
 {
     _m11 = m11;         _m12 = m12;
     _m21 = m21;         _m22 = m22;
@@ -190,8 +190,8 @@ QMatrix::QMatrix(const QMatrix &matrix)
     \a m21, \a m22, \a dx and \a dy.
 */
 
-void QMatrix::setMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
-                          qReal dx, qReal dy)
+void QMatrix::setMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
+                          qreal dx, qreal dy)
 {
     _m11 = m11;         _m12 = m12;
     _m21 = m21;         _m22 = m22;
@@ -200,37 +200,37 @@ void QMatrix::setMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
 
 
 /*!
-    \fn qReal QMatrix::m11() const
+    \fn qreal QMatrix::m11() const
 
     Returns the X scaling factor.
 */
 
 /*!
-    \fn qReal QMatrix::m12() const
+    \fn qreal QMatrix::m12() const
 
     Returns the vertical shearing factor.
 */
 
 /*!
-    \fn qReal QMatrix::m21() const
+    \fn qreal QMatrix::m21() const
 
     Returns the horizontal shearing factor.
 */
 
 /*!
-    \fn qReal QMatrix::m22() const
+    \fn qreal QMatrix::m22() const
 
     Returns the Y scaling factor.
 */
 
 /*!
-    \fn qReal QMatrix::dx() const
+    \fn qreal QMatrix::dx() const
 
     Returns the horizontal translation.
 */
 
 /*!
-    \fn qReal QMatrix::dy() const
+    \fn qreal QMatrix::dy() const
 
     Returns the vertical translation.
 */
@@ -246,7 +246,7 @@ void QMatrix::setMatrix(qReal m11, qReal m12, qReal m21, qReal m22,
     \endcode
 */
 
-void QMatrix::map(qReal x, qReal y, qReal *tx, qReal *ty) const
+void QMatrix::map(qreal x, qreal y, qreal *tx, qreal *ty) const
 {
     MAPDOUBLE(x, y, *tx, *ty);
 }
@@ -301,13 +301,13 @@ QRect QMatrix::mapRect(const QRect &rect) const
         result = QRect(x, y, w, h);
     } else {
         // see mapToPolygon for explanations of the algorithm.
-        qReal x0, y0;
-        qReal x, y;
+        qreal x0, y0;
+        qreal x, y;
         MAPDOUBLE(rect.left(), rect.top(), x0, y0);
-        qReal xmin = x0;
-        qReal ymin = y0;
-        qReal xmax = x0;
-        qReal ymax = y0;
+        qreal xmin = x0;
+        qreal ymin = y0;
+        qreal xmax = x0;
+        qreal ymax = y0;
         MAPDOUBLE(rect.right() + 1, rect.top(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
@@ -323,8 +323,8 @@ QRect QMatrix::mapRect(const QRect &rect) const
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);
         ymax = qMax(ymax, y);
-        qReal w = xmax - xmin;
-        qReal h = ymax - ymin;
+        qreal w = xmax - xmin;
+        qreal h = ymax - ymin;
         xmin -= (xmin - x0) / w;
         ymin -= (ymin - y0) / h;
         xmax -= (xmax - x0) / w;
@@ -349,10 +349,10 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
 {
     QRectF result;
     if (_m12 == 0.0F && _m21 == 0.0F) {
-        qReal x = _m11*rect.x() + _dx;
-        qReal y = _m22*rect.y() + _dy;
-        qReal w = _m11*rect.width();
-        qReal h = _m22*rect.height();
+        qreal x = _m11*rect.x() + _dx;
+        qreal y = _m22*rect.y() + _dy;
+        qreal w = _m11*rect.width();
+        qreal h = _m22*rect.height();
         if (w < 0) {
             w = -w;
             x -= w;
@@ -363,13 +363,13 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
         }
         result = QRectF(x, y, w, h);
     } else {
-        qReal x0, y0;
-        qReal x, y;
+        qreal x0, y0;
+        qreal x, y;
         MAPDOUBLE(rect.x(), rect.y(), x0, y0);
-        qReal xmin = x0;
-        qReal ymin = y0;
-        qReal xmax = x0;
-        qReal ymax = y0;
+        qreal xmin = x0;
+        qreal ymin = y0;
+        qreal xmax = x0;
+        qreal ymax = y0;
         MAPDOUBLE(rect.x() + rect.width(), rect.y(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
@@ -411,8 +411,8 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
 */
 QPoint QMatrix::map(const QPoint &p) const
 {
-    qReal fx = p.x();
-    qReal fy = p.y();
+    qreal fx = p.x();
+    qreal fy = p.y();
     return QPoint(qRound(_m11*fx + _m21*fy + _dx),
                    qRound(_m12*fx + _m22*fy + _dy));
 }
@@ -437,8 +437,8 @@ QPoint QMatrix::map(const QPoint &p) const
 */
 QPointF QMatrix::map(const QPointF &point) const
 {
-    qReal fx = point.x();
-    qReal fy = point.y();
+    qreal fx = point.x();
+    qreal fy = point.y();
     return QPointF(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
 }
 
@@ -478,10 +478,10 @@ QPolygon QMatrix::map(const QPolygon &a) const
     const QPoint *da = a.constData();
     QPointF *dp = p.data();
     // ##### divide by 256 for QFixedPoint.
-    qReal xmin = qReal(INT_MAX/256);
-    qReal ymin = xmin;
-    qReal xmax = qReal(INT_MIN/256);
-    qReal ymax = xmax;
+    qreal xmin = qreal(INT_MAX/256);
+    qreal ymin = xmin;
+    qreal xmax = qreal(INT_MIN/256);
+    qreal ymax = xmax;
     int xminp = 0;
     int yminp = 0;
     for(i = 0; i < size; i++) {
@@ -498,8 +498,8 @@ QPolygon QMatrix::map(const QPolygon &a) const
         xmax = qMax(xmax, dp[i].xp);
         ymax = qMax(ymax, dp[i].yp);
     }
-    qReal w = qMax(xmax - xmin, 1.);
-    qReal h = qMax(ymax - ymin, 1.);
+    qreal w = qMax(xmax - xmin, 1.);
+    qreal h = qMax(ymax - ymin, 1.);
     for(i = 0; i < size; i++) {
         dp[i].xp += (dp[i].xp - xmin)/w;
         dp[i].yp += (dp[i].yp - ymin)/h;
@@ -507,9 +507,9 @@ QPolygon QMatrix::map(const QPolygon &a) const
     }
 
     // now apply correction back for transformed values...
-    xmin = qReal(INT_MAX/256);
+    xmin = qreal(INT_MAX/256);
     ymin = xmin;
-    xmax = qReal(INT_MIN/256);
+    xmax = qreal(INT_MIN/256);
     ymax = xmax;
     for(i = 0; i < size; i++) {
         xmin = qMin(xmin, dp[i].xp);
@@ -590,7 +590,7 @@ QPainterPath QMatrix::map(const QPainterPath &path) const
 
     for (int i=0; i<path.elementCount(); ++i) {
         QPainterPath::Element &e = copy.elements[i];
-        qReal fx = e.x, fy = e.y;
+        qreal fx = e.x, fy = e.y;
         e.x = _m11*fx + _m21*fy + _dx;
         e.y =  _m12*fx + _m22*fy + _dy;
     }
@@ -650,12 +650,12 @@ QRegion QMatrix::mapToRegion(const QRect &rect) const
 QPolygon QMatrix::mapToPolygon(const QRect &rect) const
 {
     QPolygon a(4);
-    qReal x[4], y[4];
+    qreal x[4], y[4];
     if (_m12 == 0.0F && _m21 == 0.0F) {
         x[0] = _m11*rect.x() + _dx;
         y[0] = _m22*rect.y() + _dy;
-        qReal w = _m11*rect.width();
-        qReal h = _m22*rect.height();
+        qreal w = _m11*rect.width();
+        qreal h = _m22*rect.height();
         if (w < 0) {
             w = -w;
             x[0] -= w;
@@ -671,8 +671,8 @@ QPolygon QMatrix::mapToPolygon(const QRect &rect) const
         y[2] = y[0]+h;
         y[3] = y[2];
     } else {
-        qReal right = rect.x() + rect.width();
-        qReal bottom = rect.y() + rect.height();
+        qreal right = rect.x() + rect.width();
+        qreal bottom = rect.y() + rect.height();
         MAPDOUBLE(rect.x(), rect.y(), x[0], y[0]);
         MAPDOUBLE(right, rect.y(), x[1], y[1]);
         MAPDOUBLE(right, bottom, x[2], y[2]);
@@ -726,7 +726,7 @@ void QMatrix::reset()
     \sa scale(), shear(), rotate()
 */
 
-QMatrix &QMatrix::translate(qReal dx, qReal dy)
+QMatrix &QMatrix::translate(qreal dx, qreal dy)
 {
     _dx += dx*_m11 + dy*_m21;
     _dy += dy*_m22 + dx*_m12;
@@ -742,7 +742,7 @@ QMatrix &QMatrix::translate(qReal dx, qReal dy)
     \sa translate(), shear(), rotate()
 */
 
-QMatrix &QMatrix::scale(qReal sx, qReal sy)
+QMatrix &QMatrix::scale(qreal sx, qreal sy)
 {
     _m11 *= sx;
     _m12 *= sx;
@@ -760,12 +760,12 @@ QMatrix &QMatrix::scale(qReal sx, qReal sy)
     \sa translate(), scale(), rotate()
 */
 
-QMatrix &QMatrix::shear(qReal sh, qReal sv)
+QMatrix &QMatrix::shear(qreal sh, qreal sv)
 {
-    qReal tm11 = sv*_m21;
-    qReal tm12 = sv*_m22;
-    qReal tm21 = sh*_m11;
-    qReal tm22 = sh*_m12;
+    qreal tm11 = sv*_m21;
+    qreal tm12 = sv*_m22;
+    qreal tm21 = sh*_m11;
+    qreal tm22 = sh*_m12;
     _m11 += tm11;
     _m12 += tm12;
     _m21 += tm21;
@@ -773,7 +773,7 @@ QMatrix &QMatrix::shear(qReal sh, qReal sv)
     return *this;
 }
 
-const qReal deg2rad = qReal(0.017453292519943295769);        // pi/180
+const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 
 /*!
     Rotates the coordinate system \a a degrees counterclockwise.
@@ -783,15 +783,15 @@ const qReal deg2rad = qReal(0.017453292519943295769);        // pi/180
     \sa translate(), scale(), shear()
 */
 
-QMatrix &QMatrix::rotate(qReal a)
+QMatrix &QMatrix::rotate(qreal a)
 {
-    qReal b = deg2rad*a;                        // convert to radians
-    qReal sina = sin(b);                // fast and convenient
-    qReal cosa = cos(b);
-    qReal tm11 = cosa*_m11 + sina*_m21;
-    qReal tm12 = cosa*_m12 + sina*_m22;
-    qReal tm21 = -sina*_m11 + cosa*_m21;
-    qReal tm22 = -sina*_m12 + cosa*_m22;
+    qreal b = deg2rad*a;                        // convert to radians
+    qreal sina = sin(b);                // fast and convenient
+    qreal cosa = cos(b);
+    qreal tm11 = cosa*_m11 + sina*_m21;
+    qreal tm12 = cosa*_m12 + sina*_m22;
+    qreal tm21 = -sina*_m11 + cosa*_m21;
+    qreal tm22 = -sina*_m12 + cosa*_m22;
     _m11 = tm11; _m12 = tm12;
     _m21 = tm21; _m22 = tm22;
     return *this;
@@ -806,7 +806,7 @@ QMatrix &QMatrix::rotate(qReal a)
 */
 
 /*!
-    \fn qReal QMatrix::det() const
+    \fn qreal QMatrix::det() const
 
     Returns the matrix's determinant.
 */
@@ -827,7 +827,7 @@ QMatrix &QMatrix::rotate(qReal a)
 
 QMatrix QMatrix::invert(bool *invertible) const
 {
-    qReal determinant = det();
+    qreal determinant = det();
     if (determinant == 0.0) {
         if (invertible)
             *invertible = false;                // singular matrix
@@ -837,7 +837,7 @@ QMatrix QMatrix::invert(bool *invertible) const
     else {                                        // invertible matrix
         if (invertible)
             *invertible = true;
-        qReal dinv = 1.0/determinant;
+        qreal dinv = 1.0/determinant;
         QMatrix imatrix((_m22*dinv),        (-_m12*dinv),
                           (-_m21*dinv), (_m11*dinv),
                           ((_m21*_dy - _m22*_dx)*dinv),
@@ -881,13 +881,13 @@ bool QMatrix::operator!=(const QMatrix &m) const
 
 QMatrix &QMatrix::operator *=(const QMatrix &m)
 {
-    qReal tm11 = _m11*m._m11 + _m12*m._m21;
-    qReal tm12 = _m11*m._m12 + _m12*m._m22;
-    qReal tm21 = _m21*m._m11 + _m22*m._m21;
-    qReal tm22 = _m21*m._m12 + _m22*m._m22;
+    qreal tm11 = _m11*m._m11 + _m12*m._m21;
+    qreal tm12 = _m11*m._m12 + _m12*m._m22;
+    qreal tm21 = _m21*m._m11 + _m22*m._m21;
+    qreal tm22 = _m21*m._m12 + _m22*m._m22;
 
-    qReal tdx  = _dx*m._m11  + _dy*m._m21 + m._dx;
-    qReal tdy =  _dx*m._m12  + _dy*m._m22 + m._dy;
+    qreal tdx  = _dx*m._m11  + _dy*m._m21 + m._dx;
+    qreal tdy =  _dx*m._m12  + _dy*m._m22 + m._dy;
 
     _m11 = tm11; _m12 = tm12;
     _m21 = tm21; _m22 = tm22;
@@ -979,7 +979,7 @@ QDataStream &operator>>(QDataStream &s, QMatrix &m)
         m.setMatrix(m11, m12, m21, m22, dx, dy);
     }
     else {
-        qReal m11, m12, m21, m22, dx, dy;
+        qreal m11, m12, m21, m22, dx, dy;
         s >> m11;  s >> m12;  s >> m21;  s >> m22;
         s >> dx;   s >> dy;
         m.setMatrix(m11, m12, m21, m22, dx, dy);

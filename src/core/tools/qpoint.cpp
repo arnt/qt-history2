@@ -177,7 +177,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=(qReal c)
+    \fn QPoint &QPoint::operator*=(qreal c)
     \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
@@ -228,7 +228,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(const QPoint &p, qReal c)
+    \fn const QPoint operator*(const QPoint &p, qreal c)
     \overload
 
     \relates QPoint
@@ -241,7 +241,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(qReal c, const QPoint &p)
+    \fn const QPoint operator*(qreal c, const QPoint &p)
     \overload
 
     \relates QPoint
@@ -264,7 +264,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=(qReal c)
+    \fn QPoint &QPoint::operator/=(qreal c)
     \overload
 
     Divides both x and y by \a c, and returns a reference to this
@@ -281,7 +281,7 @@
 */
 
 /*!
-    \fn const QPoint operator/(const QPoint &p, qReal c)
+    \fn const QPoint operator/(const QPoint &p, qreal c)
     \overload
 
     \relates QPoint
@@ -309,9 +309,9 @@
 QDataStream &operator<<(QDataStream &s, const QPoint &p)
 {
     if (s.version() == 1)
-        s << (Q_INT16)p.x() << (Q_INT16)p.y();
+        s << (qint16)p.x() << (qint16)p.y();
     else
-        s << (Q_INT32)p.x() << (Q_INT32)p.y();
+        s << (qint32)p.x() << (qint32)p.y();
     return s;
 }
 
@@ -327,12 +327,12 @@ QDataStream &operator<<(QDataStream &s, const QPoint &p)
 QDataStream &operator>>(QDataStream &s, QPoint &p)
 {
     if (s.version() == 1) {
-        Q_INT16 x, y;
+        qint16 x, y;
         s >> x;  p.rx() = x;
         s >> y;  p.ry() = y;
     }
     else {
-        Q_INT32 x, y;
+        qint32 x, y;
         s >> x;  p.rx() = x;
         s >> y;  p.ry() = y;
     }
@@ -408,7 +408,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF::QPointF(qReal x, qReal y)
+    \fn QPointF::QPointF(qreal x, qreal y)
 
     Constructs a point with coordinates specified by \a x and \a y.
 */
@@ -420,37 +420,37 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn qReal QPointF::x() const
+    \fn qreal QPointF::x() const
 
     Returns the x-coordinate of the point.
 */
 
 /*!
-    \fn qReal QPointF::y() const
+    \fn qreal QPointF::y() const
 
     Returns the y-coordinate of the point.
 */
 
 /*!
-    \fn void QPointF::setX(qReal x)
+    \fn void QPointF::setX(qreal x)
 
     Sets the x-coordinate of the point to the value specified by \a x.
 */
 
 /*!
-    \fn void QPointF::setY(qReal y)
+    \fn void QPointF::setY(qreal y)
 
     Sets the y-coordinate of the point to the value specified by \a y.
 */
 
 /*!
-    \fn qReal& QPointF::rx()
+    \fn qreal& QPointF::rx()
 
     Returns a reference to the x-coordinate of the point.
 */
 
 /*!
-    \fn qReal& QPointF::ry()
+    \fn qreal& QPointF::ry()
 
     Returns a reference to the y-coordinate of the point.
 */
@@ -476,7 +476,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF& QPointF::operator*=(qReal factor)
+    \fn QPointF& QPointF::operator*=(qreal factor)
 
     Multiplies the coordinates of this point by the given scale \a factor, and
     returns a reference to this point with the new coordinates. (Scalar
@@ -486,7 +486,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF& QPointF::operator/=(qReal factor)
+    \fn QPointF& QPointF::operator/=(qreal factor)
 
     Divides the coordinates of this point by the given scale \a factor, and
     returns a references to this point with the new coordinates. (Scalar
@@ -532,7 +532,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn const QPointF operator*(const QPointF &point, qReal factor)
+    \fn const QPointF operator*(const QPointF &point, qreal factor)
 
     \overload
 
@@ -544,7 +544,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn const QPointF operator*(qReal factor, const QPointF &point)
+    \fn const QPointF operator*(qreal factor, const QPointF &point)
 
     \overload
 
@@ -563,7 +563,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn const QPointF operator/(const QPointF &point, qReal factor)
+    \fn const QPointF operator/(const QPointF &point, qreal factor)
 
     Divides the coordinates of the \a point by the given scale \a factor, and
     returns a point with the new coordinates. (Scalar division of a vector.)

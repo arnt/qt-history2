@@ -35,8 +35,8 @@
 class QPaintEngine;
 
 extern const char  *qt_mfhdr_tag;
-extern const Q_UINT16 mfhdr_maj;
-extern const Q_UINT16 mfhdr_min;
+extern const quint16 mfhdr_maj;
+extern const quint16 mfhdr_min;
 
 class Q_GUI_EXPORT QPicturePrivate
 {

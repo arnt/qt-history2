@@ -902,18 +902,18 @@ static QGLTextureCache *qt_tex_cache = 0;
 
 // DDS format structure
 struct DDSFormat {
-    Q_UINT32 dwSize;
-    Q_UINT32 dwFlags;
-    Q_UINT32 dwHeight;
-    Q_UINT32 dwWidth;
-    Q_UINT32 dwLinearSize;
-    Q_UINT32 dummy1;
-    Q_UINT32 dwMipMapCount;
-    Q_UINT32 dummy2[11];
+    quint32 dwSize;
+    quint32 dwFlags;
+    quint32 dwHeight;
+    quint32 dwWidth;
+    quint32 dwLinearSize;
+    quint32 dummy1;
+    quint32 dwMipMapCount;
+    quint32 dummy2[11];
     struct {
-	Q_UINT32 dummy3[2];
-	Q_UINT32 dwFourCC;
-	Q_UINT32 dummy4[5];
+	quint32 dummy3[2];
+	quint32 dwFourCC;
+	quint32 dummy4[5];
     } ddsPixelFormat;
 };
 

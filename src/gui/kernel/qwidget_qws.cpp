@@ -1817,11 +1817,11 @@ void QWidgetPrivate::updateCursor(const QRegion &r) const
 #endif
 
 
-void QWidget::setWindowOpacity(qReal)
+void QWidget::setWindowOpacity(qreal)
 {
 }
 
-qReal QWidget::windowOpacity() const
+qreal QWidget::windowOpacity() const
 {
     return 1.0;
 }

@@ -94,7 +94,7 @@ class QWidget;
 class Q_GUI_EXPORT QWidgetPlugin : public QObject, public QWidgetFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QWidgetFactoryInterface:QFactoryInterface)
+    qintERFACES(QWidgetFactoryInterface:QFactoryInterface)
 public:
     explicit QWidgetPlugin(QObject *parent = 0);
     ~QWidgetPlugin();
@@ -115,7 +115,7 @@ class QWidgetContainerPluginPrivate;
 class Q_GUI_EXPORT QWidgetContainerPlugin : public QWidgetPlugin, public QWidgetContainerInterfacePrivate
 {
     Q_OBJECT
-    Q_INTERFACES(QWidgetContainerInterfacePrivate)
+    qintERFACES(QWidgetContainerInterfacePrivate)
 public:
     explicit QWidgetContainerPlugin(QObject *parent = 0);
     ~QWidgetContainerPlugin();

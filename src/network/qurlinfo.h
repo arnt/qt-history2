@@ -32,11 +32,11 @@ public:
     QUrlInfo();
     QUrlInfo(const QUrlInfo &ui);
     QUrlInfo(const QString &name, int permissions, const QString &owner,
-             const QString &group, Q_LONGLONG size, const QDateTime &lastModified,
+             const QString &group, qint64 size, const QDateTime &lastModified,
              const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
              bool isWritable, bool isReadable, bool isExecutable);
     QUrlInfo(const QUrl &url, int permissions, const QString &owner,
-             const QString &group, Q_LONGLONG size, const QDateTime &lastModified,
+             const QString &group, qint64 size, const QDateTime &lastModified,
              const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
              bool isWritable, bool isReadable, bool isExecutable);
     QUrlInfo &operator=(const QUrlInfo &ui);
@@ -48,7 +48,7 @@ public:
     virtual void setSymLink(bool b);
     virtual void setOwner(const QString &s);
     virtual void setGroup(const QString &s);
-    virtual void setSize(Q_LONGLONG size);
+    virtual void setSize(qint64 size);
     virtual void setWritable(bool b);
     virtual void setReadable(bool b);
     virtual void setPermissions(int p);
@@ -60,7 +60,7 @@ public:
     int permissions() const;
     QString owner() const;
     QString group() const;
-    Q_LONGLONG size() const;
+    qint64 size() const;
     QDateTime lastModified() const;
     QDateTime lastRead() const;
     bool isDir() const;

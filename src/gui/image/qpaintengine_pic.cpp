@@ -104,16 +104,16 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
 
     pic_d->pictb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     d->s.writeRawData(qt_mfhdr_tag, 4);
-    d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
-    d->s << (Q_UINT8) QPicturePrivate::PdcBegin << (Q_UINT8) sizeof(Q_INT32);
+    d->s << (quint16) 0 << (quint16) pic_d->formatMajor << (quint16) pic_d->formatMinor;
+    d->s << (quint8) QPicturePrivate::PdcBegin << (quint8) sizeof(qint32);
     pic_d->brect = QRect();
     if (pic_d->formatMajor >= 4) {
         QRect r = pic_d->brect;
-        d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-             << (Q_INT32) r.height();
+        d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
+             << (qint32) r.height();
     }
     pic_d->trecs = 0;
-    d->s << (Q_UINT32)pic_d->trecs; // total number of records
+    d->s << (quint32)pic_d->trecs; // total number of records
     pic_d->formatOk = false;
     setActive(true);
     return true;
@@ -126,21 +126,21 @@ bool QPicturePaintEngine::end()
 #endif
     d->pdev = 0;
     pic_d->trecs++;
-    d->s << (Q_UINT8) QPicturePrivate::PdcEnd << (Q_UINT8) 0;
-    int cs_start = sizeof(Q_UINT32);                // pos of checksum word
-    int data_start = cs_start + sizeof(Q_UINT16);
-    int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
+    d->s << (quint8) QPicturePrivate::PdcEnd << (quint8) 0;
+    int cs_start = sizeof(quint32);                // pos of checksum word
+    int data_start = cs_start + sizeof(quint16);
+    int brect_start = data_start + 2*sizeof(qint16) + 2*sizeof(quint8);
     int pos = pic_d->pictb.pos();
     pic_d->pictb.seek(brect_start);
     if (pic_d->formatMajor >= 4) { // bounding rectangle
         QRect r = pic_d->brect;
-        d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-             << (Q_INT32) r.height();
+        d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
+             << (qint32) r.height();
     }
-    d->s << (Q_UINT32) pic_d->trecs;                        // write number of records
+    d->s << (quint32) pic_d->trecs;                        // write number of records
     pic_d->pictb.seek(cs_start);
     QByteArray buf = pic_d->pictb.buffer();
-    Q_UINT16 cs = (Q_UINT16) qChecksum(buf.constData() + data_start, pos - data_start);
+    quint16 cs = (quint16) qChecksum(buf.constData() + data_start, pos - data_start);
     d->s << cs;                                // write checksum
     pic_d->pictb.close();
     setActive(false);
@@ -149,8 +149,8 @@ bool QPicturePaintEngine::end()
 
 #define SERIALIZE_CMD(c) \
     pic_d->trecs++; \
-    d->s << (Q_UINT8) c; \
-    d->s << (Q_UINT8) 0; \
+    d->s << (quint8) c; \
+    d->s << (quint8) 0; \
     pos = pic_d->pictb.pos()
 
 void QPicturePaintEngine::updatePen(const QPen &pen)
@@ -202,7 +202,7 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(QPicturePrivate::PdcSetBkMode);
-    d->s << (Q_INT8) bgMode;
+    d->s << (qint8) bgMode;
     writeCmdLength(pos, QRectF(), false);
 }
 
@@ -213,7 +213,7 @@ void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetWMatrix);
-    d->s << matrix << (Q_INT8) false;
+    d->s << matrix << (qint8) false;
     writeCmdLength(pos, QRectF(), false);
 }
 
@@ -226,11 +226,11 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
     Q_UNUSED(op);
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetClipRegion);
-    d->s << region << Q_INT8(0);
+    d->s << region << qint8(0);
     writeCmdLength(pos, QRectF(), false);
 
     SERIALIZE_CMD(QPicturePrivate::PdcSetClip);
-    d->s << (Q_INT8) !region.isEmpty();
+    d->s << (qint8) !region.isEmpty();
     writeCmdLength(pos, QRectF(), false);
 }
 
@@ -242,14 +242,14 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
 
     if (length < 255) {                         // write 8-bit length
         pic_d->pictb.seek(pos - 1);             // position to right index
-        d->s << (Q_UINT8)length;
+        d->s << (quint8)length;
     } else {                                    // write 32-bit length
-        d->s << (Q_UINT32)0;                    // extend the buffer
+        d->s << (quint32)0;                    // extend the buffer
         pic_d->pictb.seek(pos - 1);             // position to right index
-        d->s << (Q_UINT8)255;                   // indicate 32-bit length
+        d->s << (quint8)255;                   // indicate 32-bit length
         char *p = pic_d->pictb.buffer().data();
         memmove(p+pos+4, p+pos, length);        // make room for 4 byte
-        d->s << (Q_UINT32)length;
+        d->s << (quint32)length;
         newpos += 4;
     }
     pic_d->pictb.seek(newpos);                  // set to new position
@@ -334,7 +334,7 @@ void QPicturePaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
         writeCmdLength(pos, p.boundingRect(), true);
     } else {
         SERIALIZE_CMD(QPicturePrivate::PdcDrawPolygon);
-        d->s << p << (Q_INT8) (mode == WindingMode);
+        d->s << p << (qint8) (mode == WindingMode);
         writeCmdLength(pos, p.boundingRect(), true);
     }
 }

@@ -526,12 +526,12 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 Q_DECLARE_TYPEINFO(XTrapezoid, Q_PRIMITIVE_TYPE);
 
 // used by the edge point sort algorithm
-static qReal currentY = 0.f;
+static qreal currentY = 0.f;
 
 struct QEdge {
     QPointF p1, p2;
-    qReal m;
-    qReal b;
+    qreal m;
+    qreal b;
     char winding;
 };
 
@@ -548,7 +548,7 @@ static inline bool isEqual(const QPointF &p1, const QPointF &p2)
 }
 
 struct QIntersectionPoint {
-    qReal x;
+    qreal x;
     const QEdge *edge;
 };
 Q_DECLARE_TYPEINFO(QIntersectionPoint, Q_PRIMITIVE_TYPE);
@@ -558,19 +558,19 @@ static inline bool compareIntersections(const QIntersectionPoint &i1, const QInt
     if (qAbs(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
         return i1.x < i2.x;
     } else {
-        qReal x1 = !qIsFinite(i1.edge->b) ? i1.edge->p1.x() :
+        qreal x1 = !qIsFinite(i1.edge->b) ? i1.edge->p1.x() :
                    (currentY+1.f - i1.edge->b)*i1.edge->m;
-        qReal x2 = !qIsFinite(i2.edge->b) ? i2.edge->p1.x() :
+        qreal x2 = !qIsFinite(i2.edge->b) ? i2.edge->p1.x() :
                    (currentY+1.f - i2.edge->b)*i2.edge->m;
         return x1 < x2;
     }
 }
 
 #ifdef QT_USE_FIXED_POINT
-inline int qRealToXFixed(qReal f)
+inline int qrealToXFixed(qreal f)
 { return f.value() << 8; }
 #else
-#define qRealToXFixed FloatToXFixed
+#define qrealToXFixed FloatToXFixed
 #endif
 
 static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &left, const QEdge &right)
@@ -578,14 +578,14 @@ static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &le
     XTrapezoid trap;
     trap.top = y1;
     trap.bottom = y2;
-    trap.left.p1.y = qRealToXFixed(left.p1.y());
-    trap.left.p2.y = qRealToXFixed(left.p2.y());
-    trap.right.p1.y = qRealToXFixed(right.p1.y());
-    trap.right.p2.y = qRealToXFixed(right.p2.y());
-    trap.left.p1.x = qRealToXFixed(left.p1.x());
-    trap.left.p2.x = qRealToXFixed(left.p2.x());
-    trap.right.p1.x = qRealToXFixed(right.p1.x());
-    trap.right.p2.x = qRealToXFixed(right.p2.x());
+    trap.left.p1.y = qrealToXFixed(left.p1.y());
+    trap.left.p2.y = qrealToXFixed(left.p2.y());
+    trap.right.p1.y = qrealToXFixed(right.p1.y());
+    trap.right.p2.y = qrealToXFixed(right.p2.y());
+    trap.left.p1.x = qrealToXFixed(left.p1.x());
+    trap.left.p2.x = qrealToXFixed(left.p2.x());
+    trap.right.p1.x = qrealToXFixed(right.p1.x());
+    trap.right.p2.x = qrealToXFixed(right.p2.x());
     return trap;
 }
 
@@ -598,10 +598,10 @@ static XTrapezoid QT_FASTCALL toXTrapezoidRound(XFixed y1, XFixed y2, const QEdg
     trap.left.p2.y = IntToXFixed(qRound(left.p2.y()));
     trap.right.p1.y = IntToXFixed(qRound(right.p1.y()));
     trap.right.p2.y = IntToXFixed(qRound(right.p2.y()));
-    trap.left.p1.x = qRealToXFixed(left.p1.x());
-    trap.left.p2.x = qRealToXFixed(left.p2.x());
-    trap.right.p1.x = qRealToXFixed(right.p1.x());
-    trap.right.p2.x = qRealToXFixed(right.p2.x());
+    trap.left.p1.x = qrealToXFixed(left.p1.x());
+    trap.left.p2.x = qrealToXFixed(left.p2.x());
+    trap.right.p1.x = qrealToXFixed(right.p1.x());
+    trap.right.p2.x = qrealToXFixed(right.p2.x());
     return trap;
 }
 
@@ -632,8 +632,8 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 {
     QVector<QEdge> edges;
     edges.reserve(128);
-    qReal ymin(INT_MAX/256);
-    qReal ymax(INT_MIN/256);
+    qreal ymin(INT_MAX/256);
+    qreal ymax(INT_MIN/256);
 
     Q_ASSERT(pg[0] == pg[pgSize-1]);
     // generate edge table
@@ -692,7 +692,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 #endif // QT_DEBUG_TESSELATOR
 
     currentY = ymin; // used by the less than op
-    for (qReal y = ymin; y < ymax;) {
+    for (qreal y = ymin; y < ymax;) {
 	// fill active edge table with edges that intersect the current line
 	for (int i = 0; i < et.size(); ++i) {
             if (et.at(i)->p1.y() > y)
@@ -723,7 +723,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
         }
 
         // calculate the next y where we have to start a new set of trapezoids
-	qReal next_y(INT_MAX/256);
+	qreal next_y(INT_MAX/256);
  	for (int i = 0; i < aet.size(); ++i)
  	    if (aet.at(i)->p2.y() < next_y)
  		next_y = aet.at(i)->p2.y();
@@ -733,10 +733,10 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
 	for (int i = 0; i < aet.size(); ++i) {
 	    for (int k = i+1; k < aet.size(); ++k) {
-		qReal m1 = aet.at(i)->m;
-		qReal b1 = aet.at(i)->b;
-		qReal m2 = aet.at(k)->m;
-		qReal b2 = aet.at(k)->b;
+		qreal m1 = aet.at(i)->m;
+		qreal b1 = aet.at(i)->b;
+		qreal m2 = aet.at(k)->m;
+		qreal b2 = aet.at(k)->b;
 
 		if (qAbs(m1 - m2) < 0.001)
                     continue;
@@ -745,7 +745,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 #ifndef QT_USE_FIXED_POINT
                 volatile
 #endif
-                    qReal intersect;
+                    qreal intersect;
                 if (!qIsFinite(b1))
                     intersect = (1.f / m2) * aet.at(i)->p1.x() + b2;
                 else if (!qIsFinite(b2))
@@ -760,11 +760,11 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
         XFixed yf, next_yf;
         if (do_rounding) {
-            yf = qRealToXFixed(qRound(y));
-            next_yf = qRealToXFixed(qRound(next_y));
+            yf = qrealToXFixed(qRound(y));
+            next_yf = qrealToXFixed(qRound(next_y));
         } else {
-            yf = qRealToXFixed(y);
-            next_yf = qRealToXFixed(next_y);
+            yf = qrealToXFixed(y);
+            next_yf = qrealToXFixed(next_y);
         }
         if (yf == next_yf) {
             y = currentY = next_y;
@@ -2079,8 +2079,8 @@ Qt::HANDLE QX11PaintEngine::handle() const
     return d->hd;
 }
 
-extern void qt_draw_tile(QPaintEngine *, qReal, qReal, qReal, qReal, const QPixmap &,
-                         qReal, qReal, Qt::PixmapDrawingMode mode);
+extern void qt_draw_tile(QPaintEngine *, qreal, qreal, qreal, qreal, const QPixmap &,
+                         qreal, qreal, Qt::PixmapDrawingMode mode);
 
 void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
 				      Qt::PixmapDrawingMode mode)
@@ -2228,15 +2228,15 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
     Qt::HANDLE font_id = xlfd->handle();
-    qReal scale = si.fontEngine->scale();
+    qreal scale = si.fontEngine->scale();
     if ( d->txop > QPainterPrivate::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
         // XServer or font don't support server side transformations, need to do it by hand
         QPaintEngine::drawTextItem(p, si);
         return;
     }
 
-    qReal x = p.x();
-    qReal y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
 
     if (d->txop == QPainterPrivate::TxTranslate) {
         x += state->matrix.dx();
@@ -2272,7 +2272,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
     if (si.flags & QTextItem::RightToLeft) {
         int i = si.num_glyphs;
         while(i--) {
-            x += glyphs[i].advance.x() + qReal(glyphs[i].space_18d6)/qReal(64);
+            x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
             y += glyphs[i].advance.y();
         }
         i = 0;
@@ -2300,7 +2300,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
                         XDrawString16(d->dpy, d->hd, d->gc, xp, yp, chars.data()+i, 1);
                 }
             } else {
-                x -= qReal(glyphs[i].space_18d6)/qReal(64);
+                x -= qreal(glyphs[i].space_18d6)/qreal(64);
             }
             ++i;
         }
@@ -2311,7 +2311,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
             int yp = qRound(y+glyphs[i].offset.y());
             if (xp < SHRT_MAX && xp > SHRT_MIN)
                 XDrawString16(d->dpy, d->hd, d->gc, xp, yp, chars.data()+i, 1);
-            x += glyphs[i].advance.x() + qReal(glyphs[i].space_18d6)/qReal(64);
+            x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
             y += glyphs[i].advance.y();
             i++;
         }
@@ -2343,8 +2343,8 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
     QGlyphLayout *glyphs = si.glyphs;
     int which = glyphs[0].glyph >> 8;
 
-    qReal x = p.x();
-    qReal y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
 
     int start = 0;
     int end, i;
@@ -2396,8 +2396,8 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
 #ifndef QT_NO_XFT
 void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
 {
-    qReal xpos = p.x();
-    qReal ypos = p.y();
+    qreal xpos = p.x();
+    qreal ypos = p.y();
 
     QFontEngineXft *xft = static_cast<QFontEngineXft *>(si.fontEngine);
     XftFont *fnt = d->txop >= QPainterPrivate::TxScale ? xft->transformedFont(state->matrix) : xft->xftFont();
@@ -2452,7 +2452,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
     if (si.flags & QTextItem::RightToLeft) {
         int i = si.num_glyphs;
         while(i--) {
-            pos.rx() += glyphs[i].advance.x() + qReal(glyphs[i].space_18d6)/qReal(64);
+            pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
             pos.ry() += glyphs[i].advance.y();
         }
         i = 0;
@@ -2492,7 +2492,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
                     ++nGlyphs;
                 }
             } else {
-                pos.rx() -= qReal(glyphs[i].space_18d6)/qReal(64);
+                pos.rx() -= qreal(glyphs[i].space_18d6)/qreal(64);
             }
 #ifdef FONTENGINE_DEBUG
             glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
@@ -2524,7 +2524,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
                    glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
 #endif
 
-            pos.rx() += glyphs[i].advance.x() + qReal(glyphs[i].space_18d6)/qReal(64);
+            pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
             pos.ry() += glyphs[i].advance.y();
             ++i;
         }

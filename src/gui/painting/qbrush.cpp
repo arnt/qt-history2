@@ -635,7 +635,7 @@ QDebug operator<<(QDebug dbg, const QBrush &b)
 
 QDataStream &operator<<(QDataStream &s, const QBrush &b)
 {
-    s << (Q_UINT8)b.style() << b.color();
+    s << (quint8)b.style() << b.color();
     if (b.style() == Qt::TexturePattern) {
 #ifndef QT_NO_IMAGEIO
         s << b.texture();
@@ -661,7 +661,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
 
 QDataStream &operator>>(QDataStream &s, QBrush &b)
 {
-    Q_UINT8 style;
+    quint8 style;
     QColor color;
     s >> style;
     s >> color;

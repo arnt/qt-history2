@@ -148,7 +148,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
     case QCoreVariant::LongLong:
     case QCoreVariant::ULongLong:
         {
-            Q_LONGLONG n = value.toLongLong();
+            qint64 n = value.toLongLong();
             result = CFNumberCreate(0, kCFNumberLongLongType, &n);
         }
         break;
@@ -180,7 +180,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
             return d;
         } else {
             int i;
-            Q_LONGLONG ll;
+            qint64 ll;
 
             if (CFNumberGetValue(cfnumber, kCFNumberIntType, &i))
                 return i;

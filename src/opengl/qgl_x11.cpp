@@ -348,7 +348,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 					qt_x11Handle(d->paintDevice),
 					choose_cmap(disp, (XVisualInfo *)d->vi));
 #else
-        d->gpm = (Q_UINT32)glXCreateGLXPixmap(disp, (XVisualInfo *)d->vi,
+        d->gpm = (quint32)glXCreateGLXPixmap(disp, (XVisualInfo *)d->vi,
 					      qt_x11Handle(d->paintDevice));
 #endif
         if (!d->gpm)
@@ -926,7 +926,7 @@ bool QGLWidgetPrivate::renderCxPm(QPixmap* pm)
                                    choose_cmap(pm->X11->display,
                                                 (XVisualInfo*)glcx->vi));
 #else
-    glPm = (Q_UINT32)glXCreateGLXPixmap(X11->display,
+    glPm = (quint32)glXCreateGLXPixmap(X11->display,
                                          (XVisualInfo*)glcx->d->vi,
                                          (Pixmap)pm->handle());
 #endif
