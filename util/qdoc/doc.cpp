@@ -251,6 +251,27 @@ static QString getArgument( const QString& in, int& pos )
     }
 }
 
+static QString getEscape( const QString& in, int& pos )
+{
+    switch ( in[pos].unicode() ) {
+    case '&':
+	pos++;
+	return QString( "&amp;" );
+    case '<':
+	pos++;
+	return QString( "&lt;" );
+    case '>':
+	pos++;
+	return QString( "&gt;" );
+    case '\\':
+	// double backslash is turned into &#92; so that pass 2 leaves it alone
+	pos++;
+	return QString( "&#92;" );
+    default:
+	return QChar( '\\' );
+    }
+}
+
 /*
   The DocParser class is an internal class that implements the first pass of
   doc parsing.  (See Doc::finalHtml() for the second pass.)
@@ -279,8 +300,8 @@ private:
 
     QStringList getStringList();
     bool somethingAhead();
-    void enterPre();
-    void leavePre();
+    void startPreOutput();
+    void stopPreOutput();
 
     Location yyLoc;
     int yyLocPos;
@@ -289,7 +310,7 @@ private:
     int yyPos;
     int yyLen;
     QString yyOut;
-    bool yyWithinPre;
+    bool yyInPreOutput;
 };
 
 Doc *DocParser::parse( const Location& loc, const QString& in )
@@ -310,7 +331,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     yyPos = 0;
     yyLen = yyIn.length();
     yyOut.truncate( 0 );
-    yyWithinPre = FALSE;
+    yyInPreOutput = FALSE;
 
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
@@ -343,8 +364,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		yyPos++;
 	    }
+
 	    if ( yyPos == begin )
-		command = QChar( ' ' );
+		command = QChar( '\0' );
 
 	    /*
 	      We use poor man's hashing to identify the qdoc commands (e.g.,
@@ -367,27 +389,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    bool consumed = FALSE;
 
 	    switch ( h ) {
-	    case hash( ' ', 1 ):
-		consume( " " );
-		if ( ch == '&' ) {
-		    yyOut += QString( "&amp;" );
-		    yyPos++;
-		} else if ( ch == '<' ) {
-		    yyOut += QString( "&lt;" );
-		    yyPos++;
-		} else if ( ch == '>' ) {
-		    yyOut += QString( "&gt;" );
-		    yyPos++;
-		} else if ( ch == '\\' ) {
-		    /*
-		      Double backslashes are turned into &#92 so that the second
-		      pass does not interpret it.
-		    */
-		    yyOut += QString( "&#92" );
-		    yyPos++;
-		} else {
-		    yyOut += QChar( '\\' );
-		}
+	    case hash( '\0', 1 ):
+		consume( "" );
+		yyOut += getEscape( yyIn, yyPos );
 		break;
 	    case hash( 'a', 1 ):
 		consume( "a" );
@@ -418,7 +422,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'b', 3 ):
 		consume( "bug" );
 		if ( numBugs == 0 ) {
-		    leavePre();
+		    stopPreOutput();
 		    yyOut += QString( "<p>Bugs and limitations:\n<ul>\n" );
 		}
 		numBugs++;
@@ -647,7 +651,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    warning( 2, location(),
 			     "Command '%s' is obsolete, use '%s'",
 			     "\\line", "\\printline" );
-		    enterPre();
+		    startPreOutput();
 		    yyOut += QString( "\\printline" );
 		} else {
 		    consume( "link" );
@@ -682,7 +686,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'n', 4 ):
 		consume( "note" );
-		yyOut += QString( "<b>Note:</b>" );
+		yyOut += QString( "Note:" );
 		break;
 	    case hash( 'o', 8 ):
 		if ( command.length() != 8 )
@@ -721,15 +725,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'p', 7 ):
 		check( "printto" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 'p', 9 ):
 		check( "printline" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 'p', 10 ):
 		check( "printuntil" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -762,20 +766,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skip" );
 		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
 			 "\\skip", "\\skipto" );
-		enterPre();
+		startPreOutput();
 		yyOut += QString( "\\skipto" );
 		break;
 	    case hash( 's', 6 ):
 		check( "skipto" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 's', 8 ):
 		check( "skipline" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 's', 9 ):
 		check( "skipuntil" );
-		enterPre();
+		startPreOutput();
 		break;
 	    case hash( 't', 5 ):
 		consume( "title" );
@@ -785,7 +789,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "until" );
 		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
 			 "\\until", "\\printuntil" );
-		enterPre();
+		startPreOutput();
 		yyOut += QString( "\\printuntil" );
 		break;
 	    case hash( 'w', 7 ):
@@ -796,6 +800,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\" );
 		yyOut += command;
 	    }
+	} else if ( ch == '>' && yyOut.right(4) == QString("<pre") ) {
+	    yyOut += '>';
+	    while ( yyPos < yyLen ) {
+		ch = yyIn[yyPos++];
+		if ( ch == '\\' && yyPos < yyLen ) {
+		    yyOut += getEscape( yyIn, yyPos );
+		} else {
+		    yyOut += ch;
+		    if ( ch == '>' && yyIn.mid(yyPos - 6, 6) == QString("</pre>") )
+			break;
+		}
+	    }
+	    metNL = TRUE;
 	} else {
 	    yyOut += ch;
 	}
@@ -804,7 +821,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    while ( yyPos < yyLen && yyIn[yyPos].isSpace() ) {
 		ch = yyIn[yyPos++];
 		if ( metNL && ch == QChar('\n') && !somethingAhead() ) {
-		    leavePre();
+		    stopPreOutput();
 		    if ( briefEnd == INT_MAX )
 			briefEnd = yyOut.length();
 		    yyOut += QString( "<p>" );
@@ -986,19 +1003,19 @@ bool DocParser::somethingAhead()
     return something;
 }
 
-void DocParser::enterPre()
+void DocParser::startPreOutput()
 {
-    if ( !yyWithinPre ) {
+    if ( !yyInPreOutput ) {
 	yyOut += QString( "<pre>" );
-	yyWithinPre = TRUE;
+	yyInPreOutput = TRUE;
     }
 }
 
-void DocParser::leavePre()
+void DocParser::stopPreOutput()
 {
-    if ( yyWithinPre ) {
+    if ( yyInPreOutput ) {
 	yyOut += QString( "</pre>" );
-	yyWithinPre = FALSE;
+	yyInPreOutput = FALSE;
     }
 }
 
