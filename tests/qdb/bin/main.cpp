@@ -215,24 +215,6 @@ int main( int argc, char** argv )
     QDb env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
-
-	QString FILENAME = "test";
-
-	env.program()->append( new Push( "id" ) );
-	env.program()->append( new Push( QVariant::Int ) );
-	env.program()->append( new Push( 10 ) );
-	env.program()->append( new Push( 0 ) );
-	env.program()->append( new PushList( 4 ) );
-	env.program()->append( new Push( "name" ) );
-	env.program()->append( new Push( QVariant::String ) );
-	env.program()->append( new Push( 30 ) );
-	env.program()->append( new Push( 0 ) );
-	env.program()->append( new PushList( 4 ) );
-	env.program()->append( new PushList( 2 ) );
-	env.program()->append( new Create( FILENAME ) );
-
-
-
 	if ( analyse )
 	    outstream << env.program()->listing().join( "\n" ) << endl;
 	else if ( !env.execute( verbose ) )
