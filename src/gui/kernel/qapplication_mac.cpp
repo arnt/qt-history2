@@ -998,11 +998,10 @@ extern QWidget * mac_keyboard_grabber;
 
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
-    if (QApplicationPrivate::main_widget && 
-        windowIcon().isNull() && 
-        QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
-        setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
     QApplicationPrivate::main_widget = mainWidget;
+    if (QApplicationPrivate::main_widget && windowIcon().isNull() 
+	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
 
 #ifndef QT_NO_CURSOR

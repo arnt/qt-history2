@@ -860,9 +860,10 @@ static void unregWinClasses()
 
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
-    main_widget = mainWidget;
-    if (main_widget && windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
-        setWindowIcon(main_widget->windowIcon());
+    QApplicationPrivate::main_widget = mainWidget;
+    if (QApplicationPrivate::main_widget && windowIcon().isNull() 
+	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
 
 #ifndef QT_NO_CURSOR
@@ -1051,12 +1052,13 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
         return;
     if (gotFocus) {
         setActiveWindow(widget);
-        if (active_window && active_window->testWFlags(Qt::WType_Dialog)) {
+        if (QApplicationPrivate::active_window 
+	    && QApplicationPrivate::active_window->testWFlags(Qt::WType_Dialog)) {
             // raise the entire application, not just the dialog
-            QWidget* mw = active_window;
+            QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && mw->testWFlags(Qt::WType_Dialog))
                 mw = mw->parentWidget()->topLevelWidget();
-            if (mw != active_window)
+            if (mw != QApplicationPrivate::active_window)
                 SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
     } else {
@@ -2041,14 +2043,13 @@ static bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
 
 void QApplication::openPopup(QWidget *popup)
 {
-    if (!popupWidgets) {                        // create list
-        popupWidgets = new QWidgetList;
-    }
-    popupWidgets->append(popup);                // add to end of list
+    if (!QApplicationPrivate::popupWidgets)
+        QApplicationPrivate::popupWidgets = new QWidgetList;
+    QApplicationPrivate::popupWidgets->append(popup);
     if (!popup->isEnabled())
         return;
 
-    if (popupWidgets->count() == 1 && !qt_nograb())
+    if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb())
         setAutoCapture(popup->winId());        // grab mouse/keyboard
     // Popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -2063,27 +2064,27 @@ void QApplication::openPopup(QWidget *popup)
 
 void QApplication::closePopup(QWidget *popup)
 {
-    if (!popupWidgets)
+    if (!QApplicationPrivate::popupWidgets)
         return;
-    popupWidgets->removeAll(popup);
+    QApplicationPrivate::popupWidgets->removeAll(popup);
     POINT curPos;
     GetCursorPos(&curPos);
     replayPopupMouseEvent = (!popup->geometry().contains(QPoint(curPos.x, curPos.y))
                              && !popup->testAttribute(Qt::WA_NoMouseReplay));
 
-    if (popupWidgets->count() == 0) {                // this was the last popup
-        delete popupWidgets;
-        popupWidgets = 0;
+    if (QApplicationPrivate::popupWidgets->count() == 0) { // this was the last popup
+        delete QApplicationPrivate::popupWidgets;
+        QApplicationPrivate::popupWidgets = 0;
         if (!popup->isEnabled())
             return;
         if (!qt_nograb())                        // grabbing not disabled
             releaseAutoCapture();
-        if (active_window) {
+        if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (active_window->focusWidget())
-                active_window->focusWidget()->setFocus();
+            if (QApplicationPrivate::active_window->focusWidget())
+                QApplicationPrivate::active_window->focusWidget()->setFocus();
             else
-                active_window->setFocus();
+                QApplicationPrivate::active_window->setFocus();
             QFocusEvent::resetReason();
         }
     } else {
@@ -2092,8 +2093,8 @@ void QApplication::closePopup(QWidget *popup)
         // manually: A popup was closed, so the previous popup gets
         // the focus.
         QFocusEvent::setReason(QFocusEvent::Popup);
-        QWidget* aw = popupWidgets->last();
-        if (popupWidgets->count() == 1)
+        QWidget* aw = QApplicationPrivate::popupWidgets->last();
+        if (QApplicationPrivate::popupWidgets->count() == 1)
             setAutoCapture(aw->winId());
         if (aw->focusWidget())
             aw->focusWidget()->setFocus();
@@ -3311,7 +3312,7 @@ void QETWidget::eraseWindowBackground(HDC hdc)
 void  QApplication::setCursorFlashTime(int msecs)
 {
     SetCaretBlinkTime(msecs / 2);
-    cursor_flash_time = msecs;
+    QApplicationPrivate::cursor_flash_time = msecs;
 }
 
 
@@ -3319,7 +3320,7 @@ int QApplication::cursorFlashTime()
 {
     int blink = (int)GetCaretBlinkTime();
     if (!blink)
-        return cursor_flash_time;
+        return QApplicationPrivate::cursor_flash_time;
     if (blink > 0)
         return 2*blink;
     return 0;
@@ -3330,7 +3331,7 @@ void QApplication::setDoubleClickInterval(int ms)
 #ifndef Q_OS_TEMP
     SetDoubleClickTime(ms);
 #endif
-    mouse_double_click_time = ms;
+    QApplicationPrivate::mouse_double_click_time = ms;
 }
 
 
@@ -3339,7 +3340,7 @@ int QApplication::doubleClickInterval()
     int ms = GetDoubleClickTime();
     if (ms != 0)
         return ms;
-    return mouse_double_click_time;
+    return QApplicationPrivate::mouse_double_click_time;
 }
 
 void QApplication::setWheelScrollLines(int n)
@@ -3353,7 +3354,7 @@ void QApplication::setWheelScrollLines(int n)
         SystemParametersInfoA(SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0);
     });
 #else
-    wheel_scroll_lines = n;
+    QApplicationPrivate::wheel_scroll_lines = n;
 #endif
 }
 
@@ -3370,7 +3371,7 @@ int QApplication::wheelScrollLines()
         i = INT_MAX;
     return i;
 #else
-    return wheel_scroll_lines;
+    return QApplicationPrivate::wheel_scroll_lines;
 #endif
 }
 
@@ -3381,28 +3382,30 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
     effect_override = true;
     switch (effect) {
     case Qt::UI_AnimateMenu:
-        animate_menu = enable;
+        QApplicationPrivate::animate_menu = enable;
         break;
     case Qt::UI_FadeMenu:
-        fade_menu = enable;
+        QApplicationPrivate::fade_menu = enable;
         break;
     case Qt::UI_AnimateCombo:
-        animate_combo = enable;
+        QApplicationPrivate::animate_combo = enable;
         break;
     case Qt::UI_AnimateTooltip:
-        animate_tooltip = enable;
+        QApplicationPrivate::animate_tooltip = enable;
         break;
     case Qt::UI_FadeTooltip:
-        fade_tooltip = enable;
+        QApplicationPrivate::fade_tooltip = enable;
         break;
     case Qt::UI_AnimateToolBox:
-        animate_toolbox = enable;
+        QApplicationPrivate::animate_toolbox = enable;
         break;
     default:
-        animate_ui = enable;
+        QApplicationPrivate::animate_ui = enable;
         break;
     }
-    if (desktopSettingsAware() && !(QSysInfo::WindowsVersion == QSysInfo::WV_95 || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
+    if (desktopSettingsAware() 
+	&& !(QSysInfo::WindowsVersion == QSysInfo::WV_95 
+	     || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
         // we know that they can be used when we are here
         UINT api;
         switch (effect) {
@@ -3483,19 +3486,19 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
     } else {
         switch(effect) {
         case Qt::UI_AnimateMenu:
-            return animate_menu;
+            return QApplicationPrivate::animate_menu;
         case Qt::UI_FadeMenu:
-            return fade_menu;
+            return QApplicationPrivate::fade_menu;
         case Qt::UI_AnimateCombo:
-            return animate_combo;
+            return QApplicationPrivate::animate_combo;
         case Qt::UI_AnimateTooltip:
-            return animate_tooltip;
+            return QApplicationPrivate::animate_tooltip;
         case Qt::UI_FadeTooltip:
-            return fade_tooltip;
+            return QApplicationPrivate::fade_tooltip;
         case Qt::UI_AnimateToolBox:
-            return animate_toolbox;
+            return QApplicationPrivate::animate_toolbox;
         default:
-            return animate_ui;
+            return QApplicationPrivate::animate_ui;
         }
     }
 }

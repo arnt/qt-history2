@@ -322,7 +322,7 @@ public:
     inline QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos)
         : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason) {}
     QContextMenuEvent(Reason reason, const QPoint &pos);
-#ifdef QT_COMPAT_CONSTRUCTOR
+#ifdef QT_COMPAT
     inline QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, 
                                                    const QPoint &globalPos, int)
         : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason) {}
