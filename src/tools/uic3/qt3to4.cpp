@@ -100,7 +100,7 @@ public:
 private:
     QHash<QString, RuleList> m_rules;
 
-    struct
+    struct state
     {
         QString current;
         QString kind;
