@@ -87,14 +87,11 @@ QString ExtraWidgetsInterface::iconSet( const QString& description )
 
 QString ExtraWidgetsInterface::includeFile( const QString& description )
 {
-    return QString::null;
+    return "qcanvas.h";
 }
 
 QString ExtraWidgetsInterface::toolTip( const QString& description )
 {
-    if ( description == "QCanvasView" )
-	return "Canvas";
-
     return QString::null;
 }
 
