@@ -146,7 +146,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())
             return qVariant(*TrWindow::pxDanger);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished && msgItem->danger())
-            return qVariant(*TrWindow::pxObs);
+            return qVariant(*TrWindow::pxWarning);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished)
             return qVariant(*TrWindow::pxOn);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished)

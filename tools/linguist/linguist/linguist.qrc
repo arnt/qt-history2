@@ -4,7 +4,8 @@
     <file>images/splash.png</file>
     <file>images/s_check_danger.png</file>
     <file>images/s_check_empty.png</file>
-    <file>images/s_check_obs.png</file>
+    <file>images/s_check_warning.png</file>
+    <file>images/s_check_obsolete.png</file>
     <file>images/s_check_off.png</file>
     <file>images/s_check_on.png</file>
     <file>images/pagecurl.png</file>

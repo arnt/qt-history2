@@ -93,7 +93,7 @@ QPixmap *TrWindow::pxOn = 0;
 QPixmap *TrWindow::pxOff = 0;
 QPixmap *TrWindow::pxObsolete = 0;
 QPixmap *TrWindow::pxDanger = 0;
-QPixmap *TrWindow::pxObs = 0;
+QPixmap *TrWindow::pxWarning = 0;
 QPixmap *TrWindow::pxEmpty = 0;
 
 enum Ending {End_None, End_FullStop, End_Interrobang, End_Colon,
@@ -170,9 +170,9 @@ TrWindow::TrWindow()
     // Create the application global listview symbols
     pxOn  = new QPixmap(":/images/s_check_on.png");
     pxOff = new QPixmap(":/images/s_check_off.png");
-    pxObsolete = new QPixmap(":/images/d_s_check_obs.png");
+    pxObsolete = new QPixmap(":/images/s_check_obsolete.png");
     pxDanger = new QPixmap(":/images/s_check_danger.png");
-    pxObs = new QPixmap(":/images/s_check_obs.png");
+    pxWarning = new QPixmap(":/images/s_check_warning.png");
     pxEmpty = new QPixmap(":/images/s_check_empty.png");
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);

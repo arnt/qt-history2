@@ -55,7 +55,7 @@ public:
     static QPixmap *pxOff;
     static QPixmap *pxObsolete;
     static QPixmap *pxDanger;
-    static QPixmap *pxObs;
+    static QPixmap *pxWarning;
     static QPixmap *pxEmpty;
     static const QPixmap pageCurl();
 
