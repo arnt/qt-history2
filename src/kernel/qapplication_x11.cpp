@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#504 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#505 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -121,7 +121,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" char *_Xsetlocale(int category, const char *locale);
 char *_Xsetlocale(int category, const char *locale)
 {
-    qDebug("_Xsetlocale(%d,%s),category,locale");
+    //qDebug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
 #endif
@@ -974,20 +974,15 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		     "  See InputMethod documentation.");
 	    close_xim();
 	}
-
-	if ( qt_xim ) {
-	    const char* locale = XLocaleOfIM( qt_xim );
-	    input_mapper = QTextCodec::codecForName( locale );
-	    //qDebug( "Codec for %s (%p) is %s", locale, qt_xim,
-	    //   input_mapper ? input_mapper->name() : "<null>" );
-	}
     }
+#else
+     setlocale( LC_CTYPE, 0 );
 #endif
 
-    if ( !qt_xim ) {
-	const char* locale = setlocale( LC_CTYPE, 0 );
-	input_mapper = QTextCodec::codecForName(locale);
-    }
+    // Always use the locale codec, since we have no examples of non-local
+    // XIMs, and since we cannot get a sensible answer about the encoding
+    // from the XIM.
+    input_mapper = QTextCodec::codecForLocale();
 
     // pick default character set (now that we have done setlocale stuff)
     QFont::locale_init();
