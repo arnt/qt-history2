@@ -1285,13 +1285,19 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 void
 QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
+#if 0
+    QRegion clipRegion(p.toFillPolygon().toPointArray(),
+                       p.fillRule() == Qt::WindingFill);
+    updateClipRegion(clipRegion, op);
+#endif
+
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         clearf(ClipOn);
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(testf(ClipOn))
+        if(!testf(ClipOn))
             op = Qt::ReplaceClip;
         setf(ClipOn);
         QRegion clipRegion(p.toFillPolygon().toPointArray(),
@@ -1307,6 +1313,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
             d->setClip(&d->current.clip);
         } else {
             CGMutablePathRef path = qt_mac_compose_path(p);
+            CGContextBeginPath(d->hd);
             CGContextAddPath(d->hd, path);
             CGContextClip(d->hd);
             CGPathRelease(path);
@@ -1323,6 +1330,8 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
+        if(!testf(ClipOn))
+            op = Qt::ReplaceClip;
         setf(ClipOn);
         if(op == Qt::IntersectClip)
             d->current.clip = d->current.clip.intersect(clipRegion);
@@ -1529,7 +1538,8 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
-    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM(d->hd), width, height,
+    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), 
+                                       CGContextGetCTM(d->hd), width, height,
                                        kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);
     CGContextSetFillColorSpace(d->hd, cs);
@@ -1598,6 +1608,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     if ((ops & (CGFill | CGEOFill))) {
         if (current.brush.style() == Qt::LinearGradientPattern) {
             Q_ASSERT(path);
+            CGContextBeginPath(hd);
             CGContextAddPath(hd, path);
             CGContextSaveGState(hd);
             if (ops & CGFill)
@@ -1629,7 +1640,9 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         mode = kCGPathFill;
     else //nothing to do..
         return;
-    if(path)
+    if(path) {
+        CGContextBeginPath(hd);
         CGContextAddPath(hd, path);
+    }
     CGContextDrawPath(hd, mode);
 }
