@@ -16,3 +16,5 @@
 8) qpshdr.cpp istedet for qtheader.cpp.
 
 9) Legg til void QTableView::setCellSize() og evt. QSize cellSize().
+
+10) QPainter::drawShade... skal ha bool invert-flagg.
