@@ -3518,36 +3518,38 @@ void QFileDialog::okClicked()
 	    accept();
 	    return;
 	}
-    }    
-
-    if ( mode() != ExistingFiles ) {
-	QString fileName;
-	if ( files->isVisible() && files->selectedItem() )
-	    fileName = files->selectedItem()->text( 0 );
-	else if ( d->moreFiles->isVisible() && d->moreFiles->selectedItem() )
-	    fileName = d->moreFiles->selectedItem()->text();
-	else
-	    fileName = fn;
-
-	QFileInfo fileinfo( d->url.path() + fileName );
-
-	if ( fileinfo.isDir() )
-	    fn = fileName;
     }
 
-    if ( mode() == ExistingFiles ) {
-	if ( !fn.isEmpty() ) {
-	    QStringList list = selectedFiles();
-	    QStringList::Iterator it = list.begin();
-	    while( it != list.end() ) {	    
-		if ( !isReadable( *it ) )
-		    return;
-		++it;
-	    }
+    if ( d->url.isLocalFile() ) {
+	if ( mode() != ExistingFiles ) {
+	    QString fileName;
+	    if ( files->isVisible() && files->selectedItem() )
+		fileName = files->selectedItem()->text( 0 );
+	    else if ( d->moreFiles->isVisible() && d->moreFiles->selectedItem() )
+		fileName = d->moreFiles->selectedItem()->text();
+	    else
+		fileName = fn;
+
+	    QFileInfo fileinfo( d->url.path() + fileName );
+
+	    if ( fileinfo.isDir() )
+		fn = fileName;
 	}
-    } else if ( !fn.isEmpty() && !isReadable( d->url.path() + fn ) )
-	return;	
-        
+
+	if ( mode() == ExistingFiles ) {
+	    if ( !fn.isEmpty() ) {
+		QStringList list = selectedFiles();
+		QStringList::Iterator it = list.begin();
+		while( it != list.end() ) {
+		    if ( !isReadable( *it ) )
+			return;
+		    ++it;
+		}
+	    }
+	} else if ( !fn.isEmpty() && !isReadable( d->url.path() + fn ) )
+	    return;
+    }
+
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -3983,18 +3985,20 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     if ( !newItem )
 	return;
 
-    QFileInfo fi( d->url.path() + newItem->text(0) );
+    if ( d->url.isLocalFile() ) {
+	QFileInfo fi( d->url.path() + newItem->text(0) );
 
-    if ( !isReadable( fi.absFilePath() ) )
-	return;
+	if ( !isReadable( fi.absFilePath() ) )
+	    return;
 
 #if defined(Q_WS_WIN)
-    if ( fi.isSymLink() ) {
-	nameEdit->setText( fi.readLink() );
-	okClicked();
-	return;
-    }
+	if ( fi.isSymLink() ) {
+	    nameEdit->setText( fi.readLink() );
+	    okClicked();
+	    return;
+	}
 #endif
+    }
 
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
@@ -6180,10 +6184,6 @@ void QFileDialog::goBack()
     setUrl( d->history.last() );
 }
 
-// a class with wonderfully inflexible flexibility. why doesn't it
-// just subclass QWidget in the first place? 'you have to derive your
-// preview widget from QWidget and from this class' indeed.
-
 bool QFileDialog::isReadable( const QString & filename )
 {
     QFileInfo inf( filename );
@@ -6198,6 +6198,10 @@ bool QFileDialog::isReadable( const QString & filename )
     }
     return TRUE;
 }
+
+// a class with wonderfully inflexible flexibility. why doesn't it
+// just subclass QWidget in the first place? 'you have to derive your
+// preview widget from QWidget and from this class' indeed.
 
 /*!
   \class QFilePreview qfiledialog.h
