@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#44 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#45 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2719,7 +2719,7 @@ bool QXmlSimpleReader::parseElement()
 		    reportParseError( XMLERR_TAGMISMATCH );
 		    return FALSE;
 		}
-		if ( !parseElementEmptyTag() )
+		if ( !processElementEmptyTag() )
 		    return FALSE;
 		// next character
 		next();
@@ -2761,7 +2761,7 @@ bool QXmlSimpleReader::parseElement()
 		    reportParseError( XMLERR_ERRORPARSINGNAME );
 		    return FALSE;
 		}
-		if ( !parseElementETagBegin2() )
+		if ( !processElementETagBegin2() )
 		    return FALSE;
 		break;
 	    case Attribute:
@@ -2769,7 +2769,7 @@ bool QXmlSimpleReader::parseElement()
 		    reportParseError( XMLERR_ERRORPARSINGATTRIBUTE );
 		    return FALSE;
 		}
-		if ( !parseElementAttribute() )
+		if ( !processElementAttribute() )
 		    return FALSE;
 		break;
 	    case Done:
@@ -2792,7 +2792,7 @@ incrementalEnd:
   Helper to break down the size of the code in the case statement.
   Return FALSE on error, otherwise TRUE.
 */
-bool QXmlSimpleReader::parseElementEmptyTag()
+bool QXmlSimpleReader::processElementEmptyTag()
 {
     QString uri, lname;
     // pop the stack and call the handler
@@ -2847,7 +2847,7 @@ bool QXmlSimpleReader::parseElementEmptyTag()
   Helper to break down the size of the code in the case statement.
   Return FALSE on error, otherwise TRUE.
 */
-bool QXmlSimpleReader::parseElementETagBegin2()
+bool QXmlSimpleReader::processElementETagBegin2()
 {
     // pop the stack and compare it with the name
     if ( d->tags.pop() != name() ) {
@@ -2895,7 +2895,7 @@ bool QXmlSimpleReader::parseElementETagBegin2()
   Helper to break down the size of the code in the case statement.
   Return FALSE on error, otherwise TRUE.
 */
-bool QXmlSimpleReader::parseElementAttribute()
+bool QXmlSimpleReader::processElementAttribute()
 {
     QString uri, lname, prefix;
     // add the attribute to the list

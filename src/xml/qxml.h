@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#22 $
+** $Id: //depot/qt/main/src/xml/qxml.h#23 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -325,9 +325,9 @@ private:
 
     bool parseProlog();
     bool parseElement();
-    bool parseElementEmptyTag();
-    bool parseElementETagBegin2();
-    bool parseElementAttribute();
+    bool processElementEmptyTag();
+    bool processElementETagBegin2();
+    bool processElementAttribute();
     bool parseMisc();
     bool parseContent();
 
