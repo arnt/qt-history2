@@ -251,7 +251,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 
 	out << "static DesignerMimeSourceFactory_" << cProject <<"  *designerMimeSourceFactory = 0;" << endl;
 
-	out << "void qInitImages_" << cProject << "()" << endl;
+	out << "static void qInitImages_" << cProject << "()" << endl;
 	out << "{" << endl;
 	out << "    if ( designerMimeSourceFactory )" << endl;
 	out << "	return;" << endl;
@@ -259,7 +259,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
 	out << "}" << endl;
 
-	out << "void qCleanupImages_" << cProject << "()" << endl;
+	out << "static void qCleanupImages_" << cProject << "()" << endl;
 	out << "{" << endl;
 	out << "    delete " << cProject << "image_dict;" << endl;
 	out << "    " << cProject << "image_dict = 0;" << endl;
