@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= canvas
 
 CONFIG		+= qt warn_on release
-QT         += canvas compat
+QT         += compat
 DEPENDPATH	= ../../include
 
 HEADERS		= canvas.h
