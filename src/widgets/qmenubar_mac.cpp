@@ -37,6 +37,8 @@
 #include <qaccel.h>
 #include <qregexp.h>
 #include <qmessagebox.h>
+#include <qdockwindow.h>
+#include <qdockarea.h>
 
 #include <ctype.h>
 
@@ -620,7 +622,14 @@ void QMenuBar::macUpdateMenuBar()
     static bool first = TRUE;
     if(w) {
 	QMenuBar *mb = menubars->find((int)w);
-	while(w && !w->testWFlags(WShowModal) && !mb)
+	if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
+	    if(QWidget *area = ((QDockWindow*)w)->area()) {
+		QWidget *areaTL = area->topLevelWidget();
+		if((mb = menubars->find((int)areaTL))) 
+		    w = areaTL;
+	    }
+	}
+	while(w && !w->testWFlags(WShowModal) && !mb) 
 	    mb = menubars->find((int)(w = w->parentWidget()));
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))

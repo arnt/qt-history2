@@ -983,8 +983,13 @@ void QWorkspace::showEvent( QShowEvent *e )
 	QDesktopWidget *dw = QApplication::desktop();
 	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
 	o->reparent(w, QPoint(0, 0), TRUE);
-	if(o->inherits("QMainWindow")) {
-	    if(QMenuBar *mb = ((QMainWindow *)o)->menuBar()) 
+	{
+	    QMenuBar *mb = NULL;
+	    if(o->inherits("QMainWindow")) 
+		mb = ((QMainWindow *)o)->menuBar();
+	    if(!mb)
+		mb = (QMenuBar*)o->child(NULL, "QMenuBar");
+	    if(mb) 
 		mb->reparent(w, QPoint(0, 0));
 	}
 	reparent(w, QPoint(0,0));

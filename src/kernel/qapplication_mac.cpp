@@ -1709,6 +1709,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		unhandled_dialogs.remove((void *)wid);
 	    handled_event = FALSE;
 	    break;
+	} else if(widget->isDesktop()) {
+	    handled_event = FALSE;
+	    break;
 	}
 
 	if(ekind == kEventWindowUpdate) {
