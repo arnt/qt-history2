@@ -442,7 +442,6 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     k = 0;
     while ( (k = xIsStaticZOfY.search(t, k)) != -1 ) {
 	QString x = xIsStaticZOfY.cap( 1 );
-	QString y = xIsStaticZOfY.cap( 2 );
 	QString z = xIsStaticZOfY.cap( 3 );
 
 	QString newZ = metaRes.href( x + parenParen, z );

@@ -1,4 +1,5 @@
 #include "unpackdlgimpl.h"
+#include "licensedlgimpl.h"
 #include <qdir.h>
 #include <qfiledialog.h>
 #include <qlineedit.h>
@@ -6,8 +7,8 @@
 #include <qpushbutton.h>
 #include <qarchive.h>
 #include <qmessagebox.h>
-#include "keyinfo.h"
 #include <qregexp.h>
+#include "keyinfo.h"
 
 UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WFlags f ) : 
     UnpackDlg( pParent, pName, f )
@@ -24,7 +25,7 @@ UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, 
 		    QStringList components = QStringList::split( '=', buffer );
 		    QStringList::Iterator it = components.begin();
 		    QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
-		    if(key.upper() == "LICENSEID") {
+		    if(key.upper() == "LICENSEKEY") {
 			QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
 			srcKey->setText(value);
 		    }
@@ -60,6 +61,14 @@ void UnpackDlgImpl::clickedUnpack()
 	    QMessageBox::critical( NULL, "Failure", "Failed to open directory " + dest);
 	    return;
 	}
+    }
+    LicenseDialogImpl licenseDialog( this );
+    if((!licenseDialog.showLicense( featuresForKeyOnUnix( srcKey->text() ) & Feature_US )) ||
+       (!licenseDialog.exec())) {
+	updateProgress( "License rejected" );
+	QMessageBox::critical( NULL, "Failure", "License rejected" );
+	unpackButton->setDisabled( false );
+	return;
     }
     if(!archive.readArchive( dest, srcKey->text() )) {
 	QMessageBox::critical( NULL, "Failure", "Failed to unpack " + src);

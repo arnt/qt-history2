@@ -3017,7 +3017,6 @@ void MainWindow::enableAll( bool enable )
 
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
-    QString lang = currentProject->language();
     QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	FormWindow *fw = 0;
