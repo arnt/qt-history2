@@ -561,6 +561,7 @@ bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
 	return TRUE;
 #else
     Q_UNUSED(w);
+    Q_UNUSED(ignore_exclusion);
 #endif
     return FALSE;
 }
