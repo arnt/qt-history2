@@ -577,7 +577,7 @@ void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     QModelIndex old = d->root;
     d->root = index;
-    if (isVisible())
+    if (d->model != 0 && isVisible())
         doItemsLayout();
 }
 
