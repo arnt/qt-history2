@@ -684,8 +684,11 @@ void QLineEdit::paintEvent( QPaintEvent * )
 	fw = style().defaultFrameWidth();
     int xoff = -d->offset + 2 + fw;
     int yoff = (height() - parag->rect().height())/2;
-    if ( yoff  < 0 ) yoff = 0;
-    yoff += fw;
+    if ( yoff < 0 ) 
+	yoff = 0;
+    // Reggie: Strange, if we add fw the text is drawn too much at the
+    // bottom, might be that parag->paint() does some translation
+    // yoff += fw;
     p.translate( xoff, yoff );
     if ( d->mode != NoEcho )
 	parag->paint( p, colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
@@ -955,7 +958,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 }
 
 /*!
-  \obsolete 
+  \obsolete
   For compatibilty with older applications only. Use cursorForward
   instead.
   \sa cursorForward()
@@ -966,7 +969,7 @@ void QLineEdit::cursorRight( bool mark, int steps )
 }
 
 /*!
-  \obsolete 
+  \obsolete
   For compatibilty with older applications only. Use cursorBack
   instead.
   \sa cursorBackward()
@@ -1640,7 +1643,7 @@ void QLineEdit::updateOffset()
     int textWidth = d->parag->rect().width();
     int w = width();
     int fw = 0;
-    if ( frame() ) 
+    if ( frame() )
 	fw = style().defaultFrameWidth();
     w -= 2*fw + 4;
     int cursorPos = d->cursor->x();
