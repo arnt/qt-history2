@@ -250,8 +250,6 @@ public:
     virtual void takeItem( QListViewItem * );
     virtual void removeItem( QListViewItem *item ) { takeItem( item ); } // obsolete, use takeItem instead
 
-    virtual void clear();
-
     QHeader * header() const;
 
     virtual int addColumn( const QString &label, int size = -1);
@@ -327,6 +325,7 @@ public:
     bool showToolTips() const;
 
 public slots:
+    virtual void clear();
     virtual void invertSelection();
     virtual void selectAll( bool select );
     void triggerUpdate();
