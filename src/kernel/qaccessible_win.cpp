@@ -49,9 +49,11 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
     case PopupMenuStart:
 	soundName = "MenuPopup";
 	break;
+
     case MenuCommand:
 	soundName = "MenuCommand";
 	break;
+
     case Alert:
 	if ( o->inherits( "QMessageBox" ) ) {
 	    QMessageBox *mb = (QMessageBox*)o;
@@ -73,41 +75,21 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	    soundName = "SystemAsterisk";
 	}
 	break;
-    case ForegroundChanged:
-    case MenuStart:
-    case MenuEnd:
-    case PopupMenuEnd:
-    case ContextHelpStart:
-    case ContextHelpEnd:
-    case DragDropStart:
-    case DragDropEnd:
-    case DialogStart:
-    case DialogEnd:
-    case ScrollingStart:
-    case ScrollingEnd:
-    case ObjectCreated:
-    case ObjectDestroyed:
-    case ObjectShow:
-    case ObjectHide:
-    case ObjectReorder:
-    case Focus:
-    case Selection:
-    case SelectionAdd:
-    case SelectionRemove:
-    case SelectionWithin:
+
     default:
 	break;
     }
+
     if ( !!soundName ) {
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    PlaySoundW( (TCHAR*)qt_winTchar( soundName, TRUE ), NULL, SND_ALIAS | SND_ASYNC );
+	    PlaySoundW( (TCHAR*)qt_winTchar( soundName, TRUE ), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
 	else
 #endif
-	    PlaySoundA( soundName.local8Bit(), NULL, SND_ALIAS | SND_ASYNC );
+	    PlaySoundA( soundName.local8Bit(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT  );
     }
 
-    if ( reason != MenuCommand )
+    if ( reason != MenuCommand ) // MenuCommand is faked
 	NotifyWinEvent( reason, w->winId(), OBJID_CLIENT, who );
 }
 
