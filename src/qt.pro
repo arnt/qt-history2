@@ -4,8 +4,8 @@ CONFIG		+= qt warn_on release
 unix:CONFIG += x11
 embedded:CONFIG -= x11
 
-CONFIG += newrichtext
-# CONFIG += oldrichtext
+# CONFIG += newrichtext
+CONFIG += oldrichtext
 
 TARGET		= qt
 VERSION		= 3.0.0
@@ -671,14 +671,14 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
 		    $$DATABASE_H/qsqlerror.h \
 		    $$DATABASE_H/qsqlresult.h \
-		    $$DATABASE_H/qsqlresultinfo.h 
+		    $$DATABASE_H/qsqlresultinfo.h
 database:SOURCES += database/qsql.cpp \
 		    database/qsqldatabase.cpp \
 		    database/qsqldriver.cpp \
 		    database/qsqldriverplugin.cpp \
 		    database/qsqlerror.cpp \
 		    database/qsqlresult.cpp \
-		    database/qsqlresultinfo.cpp 
+		    database/qsqlresultinfo.cpp
 
 opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
