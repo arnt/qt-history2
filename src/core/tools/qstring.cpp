@@ -307,7 +307,7 @@ const QString::Null QString::null = QString::Null();
     a string list that contain a particular substring or that match a
     particular QRegExp using QStringList::find().
 
-    \section1 Convertions between 8-bit strings and Unicode strings
+    \section1 Conversions between 8-bit strings and Unicode strings
 
     QString provides the following four functions that return a
     \c{const char *} version of the string: ascii(), latin1(),
@@ -354,19 +354,16 @@ const QString::Null QString::null = QString::Null();
 
     You then need to explicitly call fromAscii(), fromLatin1(),
     fromUtf8(), or fromLocal8Bit() to construct a QString from an
-    8-bit string, for example:
+    8-bit string, or use the lightweight QLatin1String class, for
+    example:
 
     \code
-        QString url = QString::fromLatin1("http://www.unicode.org/");
+        QString url = QLatin1String("http://www.unicode.org/");
     \endcode
 
     Similarly, you must call ascii(), latin1(), utf8(), or
     local8Bit() explicitly to convert the QString to an 8-bit string.
     (Other encodings are supported through QTextCodec.)
-
-    For string comparisons, a light-weight alternative is to
-    construct a QLatin1String. See the \l QLatin1String documentation
-    for details.
 
     \section1 Note for C programmers
 
@@ -1029,10 +1026,6 @@ QString &QString::append(const QLatin1String &str)
 {
     const char *s = str.latin1();
     if (s) {
-#ifndef QT_NO_TEXTCODEC
-        if (codecForCStrings)
-            return append(QString::fromAscii(s));
-#endif
         d->cache = 0;
         int len = strlen(s);
         if (d->ref != 1 || d->size + len > d->alloc)
@@ -1640,7 +1633,7 @@ bool QString::operator<(const QLatin1String &other) const
 
     while (*uc == *c) {
         if (!*uc)
-            return true;
+            return false;
         ++uc;
         ++c;
     }
@@ -3626,7 +3619,7 @@ QString& QString::fill(QChar ch, int size)
     Appends the character \a ch to the string.
 */
 
-/*! \fn QString &QString::operator+=(QChar::SpecialChars c)
+/*! \fn QString &QString::operator+=(QChar::SpecialChar c)
 
     \overload
 
@@ -5808,16 +5801,36 @@ void QString::updateProperties() const
     \class QConstString
     \reentrant
     \ingroup text
-    \brief The QConstString class provides string objects using constant Unicode data.
+    \brief The QConstString class provides a QString object using constant Unicode data.
 
-    In order to minimize copying, highly optimized applications can
-    use QConstString to provide a QString-compatible object from
-    existing Unicode data. It is then the programmer's responsibility
-    to ensure that the Unicode data exists for the entire lifetime of
-    the QConstString object.
+    To minimize copying, highly optimized applications can use
+    QConstString to create a QString-compatible object from existing
+    Unicode character data. It is then the programmer's
+    responsibility to ensure that the character data exists for the
+    entire lifetime of the QConstString object.
 
-    A QConstString is created with the QConstString constructor. The
-    string held by the object can be obtained by calling string().
+    The resulting QConstString object can be used as a const QString.
+    Any attempts to modify copies of the QConstString will cause it
+    to create a deep copy of the data, ensuring that the raw data
+    isn't modified. The QString object itself should never be
+    modified.
+
+    Here's an example of how we can use a QRegExp on raw data in
+    memory without requiring to copy the data into a QString:
+
+    \code
+        static const QChar unicode[] = {
+            0x005A, 0x007F, 0x00A4, 0x0060, 0x1009, 0x0020,
+            ...
+            0x0020
+        };
+
+        QConstString str(unicode, sizeof(unicode) / sizeof(QChar));
+        if (str.contains(QRegExp(pattern)))
+            ...
+    \endcode
+
+    \sa QConstByteArray
 */
 
 /*!
@@ -5841,9 +5854,133 @@ QConstString::QConstString(const QChar *unicode, int length)
     d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 }
 
-/*! \fn QString QConstString::string()
+/*! \class QLatin1String
+    \brief The QLatin1String provides a thin wrapper around a ASCII/Latin-1 encoded string literal.
 
-    \internal
+    \ingroup text
+    \reentrant
+
+    Many of QString's member functions are overloaded to accept
+    \c{const char *} instead of QString. This includes the copy
+    constructor, the assignment operator, the comparison operators,
+    and various other functions such as \link QString::insert()
+    insert() \endlink, \link QString::replace() replace()\endlink,
+    and \link QString::indexOf() indexOf()\endlink. These functions
+    are usually optimized to avoid constructing a QString object for
+    the \c{const char *} data. For example, assuming \c str is a
+    QString,
+
+    \code
+        if (str == "auto" || str == "extern"
+                || str == "static" || str == "register") {
+            ...
+        }
+    \endcode
+
+    is much faster than
+
+    \code
+        if (str == QString("auto") || str == QString("extern")
+                || str == QString("static") || str == QString("register")) {
+            ...
+        }
+    \endcode
+
+    because it doesn't construct four temporary QString objects and
+    make a deep copy of the character data.
+
+    Applications that define \c QT_NO_CAST_FROM_ASCII (as explained
+    in the QString documentation) don't have access to QString's
+    \c{const char *} API. To provide an efficient way of specifying
+    constant Latin-1 strings, Qt provides the QLatin1String, which is
+    just a very thin wrapper around a \c{const char *}. Using
+    QLatin1String, the example code above becomes
+
+    \code
+        if (str == QLatin1String("auto")
+                || str == QLatin1String("extern")
+                || str == QLatin1String("static")
+                || str == QLatin1String("register") {
+            ...
+        }
+    \endcode
+
+    This is a bit longer to type, but it provides exactly the same
+    benefits as the first version of the code, and is faster than
+    converting the Latin-1 strings using QString::fromLatin1().
+
+    Thanks to the QString(const QLatin1String &) constructor,
+    QLatin1String can be used everywhere a QString is expected. For example:
+
+    \code
+        QLabel *label = new QLabel(QLatin1String("MOD"), this);
+    \endcode
+
+    \sa QLatin1Char, QString, QConstString
+*/
+
+/*! \fn QLatin1String::QLatin1String(const char *str)
+
+    Constructs a QLatin1String object that stores \a str.
+
+    The string data is \a not copied. The caller must be able to
+    guarantee that \a str will not be deleted or modified as long as
+    the QLatin1String object exists.
+
+    \sa latin1()
+*/
+
+/*! \fn const char *QLatin1String::latin1() const
+
+    Returns the Latin-1 string stored in this object.
+*/
+
+/*! \fn bool QLatin1String::operator==(const QString &other) const
+
+    Returns true if this string is equal to string \a other;
+    otherwise returns false.
+
+    The comparison is case sensitive.
+*/
+
+/*! \fn bool QLatin1String::operator!=(const QString &other) const
+
+    Returns true if this string is not equal to string \a other;
+    otherwise returns false.
+
+    The comparison is case sensitive.
+*/
+
+/*! \fn bool QLatin1String::operator>(const QString &other) const
+
+    Returns true if this string is lexically greater than string \a
+    other; otherwise returns false.
+
+    The comparison is case sensitive.
+*/
+
+/*! \fn bool QLatin1String::operator<(const QString &other) const
+
+    Returns true if this string is lexically less than string \a
+    other; otherwise returns false.
+
+    The comparison is case sensitive.
+*/
+
+/*! \fn bool QLatin1String::operator>=(const QString &other) const
+
+    Returns true if this string is lexically greater than or equal
+    to string \a other; otherwise returns false.
+
+    The comparison is case sensitive.
+*/
+
+/*! \fn bool QLatin1String::operator<=(const QString &other) const
+
+    Returns true if this string is lexically less than or equal
+    to string \a other; otherwise returns false.
+
+    The comparison is case sensitive.
 */
 
 #ifndef QT_NO_DATASTREAM
