@@ -1596,7 +1596,7 @@ QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment
   Transforms an \a alignment of Qt::AlignLeft or Qt::AlignRight
   without Qt::AlignAbsolute into Qt::AlignLeft or Qt::AlignRight with
   Qt::AlignAbsolute according to the layout \a direction. The other
-  horizontal alignment flags are left untouched.
+  alignment flags are left untouched.
 
   If no horizontal aligment was specified, the function returns the
   default alignment for the layout \a direction.
@@ -1606,7 +1606,7 @@ QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment
 Qt::Alignment QStyle::visualAlignment(Qt::LayoutDirection direction,  Qt::Alignment alignment)
 {
     if (!(alignment & Qt::AlignHorizontal_Mask))
-        alignment = Qt::AlignLeft;
+        alignment |= Qt::AlignLeft;
     if ((alignment & Qt::AlignAbsolute) == 0 && (alignment & (Qt::AlignLeft | Qt::AlignRight))) {
         if (direction == Qt::RightToLeft)
             alignment ^= (Qt::AlignLeft | Qt::AlignRight);
