@@ -328,7 +328,7 @@ QQuickDrawPaintEngine::drawPoint(const QPointF &pt)
             return;
         setupQDPen();
         MoveTo(qRound(pt.x()) + d->offx, qRound(pt.y()) + d->offy);
-        Line(0, 1);
+        Line(0, 0);
     }
 }
 
@@ -345,7 +345,7 @@ QQuickDrawPaintEngine::drawPoints(const QPolygon &p)
         QPointArray pa = p.toPointArray();
         for(int i=0; i < pa.size(); i++) {
             MoveTo(pa[i].x()+d->offx, pa[i].y()+d->offy);
-            Line(0, 1);
+            Line(0, 0);
         }
     }
 }
@@ -1306,7 +1306,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
 
     CGContextBeginPath(d->hd);
     CGContextMoveToPoint(d->hd, p.x(), p.y());
-    CGContextAddLineToPoint(d->hd, p.x(), p.y()+1);
+    CGContextAddLineToPoint(d->hd, p.x(), p.y());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
@@ -1319,7 +1319,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPolygon &pa)
     for(int i=0; i < pa.size(); i++) {
         float x = pa[i].x(), y = pa[i].y();
         CGContextMoveToPoint(d->hd, x, y);
-        CGContextAddLineToPoint(d->hd, x, y+1);
+        CGContextAddLineToPoint(d->hd, x, y);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     }
 }
