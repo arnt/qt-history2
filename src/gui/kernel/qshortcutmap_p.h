@@ -19,7 +19,7 @@ public:
     QShortcutMap();
     ~QShortcutMap();
 
-    int addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutType type);
+    int addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutContext context);
     int removeShortcut(const QWidget *owner, int id, const QKeySequence &key = QKeySequence());
     int setShortcutEnabled(const QWidget *owner, int id, bool enable, const QKeySequence &key = QKeySequence());
 

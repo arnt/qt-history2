@@ -24,18 +24,18 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), type(Qt::WhereActiveWindow), enabled(false), id(0), owner(0)
+        : keyseq(0), context(Qt::OnActiveWindow), enabled(false), id(0), owner(0)
     {}
 
-    QShortcutEntry(const QWidget *w, const QKeySequence &k, Qt::ShortcutType t, int i)
-        : keyseq(k), type(t), enabled(true), id(i), owner(w)
+    QShortcutEntry(const QWidget *w, const QKeySequence &k, Qt::ShortcutContext c, int i)
+        : keyseq(k), context(c), enabled(true), id(i), owner(w)
     {}
 
     bool operator<(const QShortcutEntry &f) const
     { return keyseq < f.keyseq; }
 
     QKeySequence keyseq;
-    Qt::ShortcutType type;
+    Qt::ShortcutContext context;
     bool enabled : 1;
     int id : 31;
     const QWidget *owner;
@@ -102,12 +102,12 @@ QShortcutMap::~QShortcutMap()
     Adds a shortcut to the global map.
     Returns the id of the newly added shortcut.
 */
-int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutType type)
+int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutContext context)
 {
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
 
-    QShortcutEntry newEntry(owner, key, type, --(d->currentId));
+    QShortcutEntry newEntry(owner, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it
         = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
@@ -409,7 +409,7 @@ bool QShortcutMap::correctSubWindow(const QShortcutEntry &item) {
         return false;
 
     // Focus wigdet policy shortcut -------------------------------------------
-    if (item.type == Qt::WhereFocusWidget)
+    if (item.context == Qt::OnFocusWidget)
         return qApp->focusWidget() == item.owner;
     
     // Active window policy shortcut ------------------------------------------

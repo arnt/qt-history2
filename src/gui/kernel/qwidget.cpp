@@ -6232,10 +6232,10 @@ QString QWidget::whatsThis() const
 }
 
 /*!
-  \enum Qt::ShortcutType
-  \value WhereFocusWidget Shortcut triggers only when widget has focus.
-  \value WhereActiveWindow Shortcut triggers if its owner is a logical
-  sub window of the current top-level widget.
+  \enum Qt::ShortcutContext
+  \value OnFocusWidget Shortcut triggers only when widget has focus.
+  \value OnActiveWindow Shortcut triggers when the widget is a logical
+  sub widget of the active top-level window
 */
 
 /*!
@@ -6254,13 +6254,13 @@ QString QWidget::whatsThis() const
 
   \sa QShortcut releaseShortcut setShortcutEnabled
 */
-int QWidget::grabShortcut(const QKeySequence &key, ShortcutType type)
+int QWidget::grabShortcut(const QKeySequence &key, ShortcutContext context)
 {
     Q_ASSERT(qApp);
     if (key.isEmpty())
         return 0;
     setAttribute(WA_GrabbedShortcut);
-    return qApp->d->shortcutMap.addShortcut(this, key, type);
+    return qApp->d->shortcutMap.addShortcut(this, key, context);
 }
 
 /*!

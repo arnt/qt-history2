@@ -330,7 +330,7 @@ public:
     void releaseMouse();
     void grabKeyboard();
     void releaseKeyboard();
-    int grabShortcut(const QKeySequence &key, ShortcutType type = WhereActiveWindow);
+    int grabShortcut(const QKeySequence &key, ShortcutContext context = OnActiveWindow);
     void releaseShortcut(int id);
     void setShortcutEnabled(int id, bool enable = true);
     static QWidget *mouseGrabber();

@@ -30,9 +30,9 @@
 class QShortcutPrivate : public QObjectPrivate
 {
 public:
-    QShortcutPrivate() : sc_type(WhereActiveWindow), sc_enabled(true), sc_id(0) {}
+    QShortcutPrivate() : sc_context(OnActiveWindow), sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
-    ShortcutType sc_type;
+    ShortcutContext sc_context;
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
@@ -61,14 +61,14 @@ QShortcut::QShortcut(QWidget *parent)
 */
 QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      const char *member, const char *ambiguousMember,
-                     Qt::ShortcutType type)
+                     Qt::ShortcutContext contex)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
     parent->installEventFilter(this);
-    d->sc_type = type;
+    d->sc_context = context;
     d->sc_sequence = key;
-    d->sc_id = parent->grabShortcut(key, type);
+    d->sc_id = parent->grabShortcut(key, context);
     if (member)
         connect(this, SIGNAL(activated()), parent, member);
     if (ambiguousMember)
