@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -81,7 +81,7 @@ QMap< QString, QNetworkProtocol* > *qNetworkProtocolRegister = 0;
 */
 
 /*!
-  \fn void QUrl::putSuccessful( const QCString &data )
+  \fn void QNetworkProtocol::putSuccessful( const QCString &data )
 
   This signal is emitted after successfully calling put(). \a data is the data
   which has been put.
