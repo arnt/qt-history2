@@ -36,14 +36,11 @@ public:
     enum ItemType {
 	Unknown = -1,
 	Separator = 0,
-	Action = 1,
-	ActionGroup = 3
+	Action = 1
     };
 
     PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
-    PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-			 bool children = TRUE, QObject * parent = 0, const char * name = 0 );
     PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
     ~PopupMenuEditorItem();
@@ -51,10 +48,7 @@ public:
     void init();
 
     ItemType type() const;
-
     QAction * action() const { return a; }
-    QActionGroup * actionGroup() const { return g; }
-    QAction * anyAction() const { return ( a ? a : ( QAction * ) g ); }
 
     void setVisible( bool enable );
     bool isVisible() const;
@@ -84,7 +78,6 @@ protected:
 
 private:
     QAction * a;
-    QActionGroup * g;
     PopupMenuEditor * s;
     PopupMenuEditor * m;
     uint separator : 1;
@@ -92,6 +85,9 @@ private:
     uint dirty : 1;
 };
 
+class FormWindow;
+class MainWindow;
+class QLineEdit;
 
 class PopupMenuEditor : public QWidget
 {
@@ -110,7 +106,7 @@ public:
 
     void insert( PopupMenuEditorItem * item, int index = -1 );
     void insert( QAction * action, int index = -1 );
-    void insert( QActionGroup * actionGroup, int index = -1, bool children = TRUE );
+    void insert( QActionGroup * actionGroup, int index = -1 );
     int find( const QAction * action );
     int find( PopupMenuEditor * menu );
     int count();

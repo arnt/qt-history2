@@ -80,7 +80,6 @@ bool PopupMenuEditorItemPtrDrag::decode( QDropEvent * e, PopupMenuEditorItem ** 
 PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu, QObject * parent, const char * name )
     : QObject( parent, name ),
       a( 0 ),
-      g( 0 ),
       s( 0 ),
       m( menu ),
       separator( FALSE ),
@@ -97,7 +96,6 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
 					  QObject * parent, const char * name )
     : QObject( parent, name ),
       a( action ),
-      g( 0 ),
       s( 0 ),
       m( menu ),
       separator( FALSE ),
@@ -105,46 +103,16 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
       dirty( TRUE )
 {
     init();
-    QObject::connect( a, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
     if ( /*a->name() == "qt_separator_action" ||*/ a->inherits( "QSeparatorAction" ) )
 	separator = TRUE;
-}
-
-PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-					  bool children, QObject * parent, const char * name )
-    : QObject( parent, name ),
-      a( 0 ),
-      g( actionGroup ),
-      s( 0 ),
-      m( menu ),
-      separator( FALSE ),
-      removable( TRUE ),
-      dirty( TRUE )
-{
-    init();
-    QObject::connect( g, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
-    g->installEventFilter( this );
-    // if the actiongroup uses dropdown, insert the children in the sub menu
-    PopupMenuEditor * pme = ( actionGroup->usesDropDown() ? s : m );
-    if ( !children )
-	return;
-    QObjectList l = g->queryList( "QAction" );
-    for (int i = 0; i < l.size(); ++i) {
-	QObject * o = l.at(i);
- 	if ( o->parent() == g ) {
- 	    if ( qt_cast<QActionGroup *>(o) )
- 		pme->insert( static_cast<QActionGroup *>(o) );
- 	    else
- 		pme->insert( static_cast<QAction *>(o) );
- 	}
-     }
+    if ( a && a->children() )
+ 	a->installEventFilter( this );
 }
 
 PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
 					  QObject * parent, const char * name )
     : QObject( parent, name ),
       a( item->a ),
-      g( item->g ),
       s( 0 ),
       m( menu ),
       separator( item->separator ),
@@ -152,8 +120,8 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuE
       dirty( TRUE )
 {
     init();
-    if ( item->type() == ActionGroup )
-	g->installEventFilter( this );
+    if ( ::qt_cast<QActionGroup*>(a) )
+ 	a->installEventFilter( this );
 }
 
 PopupMenuEditorItem::~PopupMenuEditorItem()
@@ -163,19 +131,16 @@ PopupMenuEditorItem::~PopupMenuEditorItem()
 
 void PopupMenuEditorItem::init()
 {
-    QAction * action = anyAction();
-
-    if ( action && m && !isSeparator() ) {
-	s = new PopupMenuEditor( m->formWindow(), m );
-	QString n = "PopupMenuEditor";
-	m->formWindow()->unify( s, n, TRUE );
-	s->setName( n );
-	MetaDataBase::addEntry( s );
+    if ( a ) {
+	QObject::connect( a, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
+	if ( m && !isSeparator() ) {
+	    s = new PopupMenuEditor( m->formWindow(), m );
+	    QString n = "PopupMenuEditor";
+	    m->formWindow()->unify( s, n, TRUE );
+	    s->setName( n );
+	    MetaDataBase::addEntry( s );
+	}
     }
-
-    QObject * o = anyAction();
-    if ( o )
-	QObject::connect( o, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
 }
 
 PopupMenuEditorItem::ItemType PopupMenuEditorItem::type() const
@@ -184,8 +149,6 @@ PopupMenuEditorItem::ItemType PopupMenuEditorItem::type() const
 	return Separator;
     else if ( a )
 	return Action;
-    else if ( g )
-	return ActionGroup;
     return Unknown;
 }
 
@@ -193,16 +156,15 @@ void PopupMenuEditorItem::setVisible( bool enable )
 {
     if ( a )
 	a->setVisible( enable );
-    else if ( g )
-	g->setVisible( enable );
 }
 
 bool PopupMenuEditorItem::isVisible() const
 {
-    if ( a )
-	return a->isVisible();
-    else if ( g )
+    QActionGroup *g = ::qt_cast<QActionGroup*>(a);
+    if ( g )
 	return ( g->isVisible() && g->usesDropDown() );
+    else if ( a )
+	return a->isVisible();
     return FALSE;
 }
 
@@ -235,58 +197,29 @@ int PopupMenuEditorItem::count() const
 {
     if ( s )
 	return s->count();
-    if ( g )
-	return g->children().size();
+    } else if ( ::qt_cast<QActionGroup*>(a) ) {
+	const QObjectList * l = a->children();
+	if ( l )
+	    return l->count();
+    }
     return 0;
 }
 
 bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 {
+    if ( ! ::qt_cast<QActionGroup*>( o ) )
+	return FALSE;
     if ( event->type() == QEvent::ChildInserted ) {
-
 	QChildEvent * ce = ( QChildEvent * ) event;
 	QObject * c = ce->child();
-	PopupMenuEditorItem * i = 0;
-
-	if ( c->inherits( "QActionGroup" ) ) {
-	    i = new PopupMenuEditorItem( ( QActionGroup * ) c, s );
-	} else if ( c->inherits( "QAction" ) ) {
-	    i = new PopupMenuEditorItem( ( QAction * ) c, s );
-	    if ( c->name() == "qt_separator_action" )
-		i->setSeparator( TRUE );
-	}
-
-	if ( !i )
+	QAction * action = ::qt_cast<QAction*>( c );
+	if ( s->find( action ) != -1 ) // avoid duplicates
 	    return FALSE;
-
-	// The action is performed someplace else, just do it (no undo)
-	if ( ( ( QActionGroup * ) o )->usesDropDown() ) {
-	    AddActionToPopupCommand cmd( "Add Item", m->formWnd, s, i );
-	    cmd.execute();
-	} else {
-	    AddActionToPopupCommand cmd( "Add Item", m->formWnd, m, i );
-	    cmd.execute();
-	}
-
-    } else if ( event->type() == QEvent::ChildRemoved ) {
-
-	QChildEvent * ce = ( QChildEvent * ) event;
-	QObject * c = ce->child();
-
-	// The action is performed someplace else, just do it (no undo)
-	if ( ( ( QActionGroup * ) o )->usesDropDown() ) {
-	    RemoveActionFromPopupCommand cmd( "Remove Item",
-					      m->formWnd,
-					      s,
-					      s->find( ( QAction * ) c ) );
-	    cmd.execute();
-	} else {
-	    RemoveActionFromPopupCommand cmd( "Remove Item",
-					      m->formWnd,
-					      m,
-					      m->find( ( QAction * ) c ) );
-	    cmd.execute();
-	}
+	QActionGroup * actionGroup = ::qt_cast<QActionGroup*>( c );
+	if ( actionGroup )
+	    s->insert( actionGroup );
+ 	else if ( action )
+ 	    s->insert( action );
     }
     return FALSE;
 }
@@ -294,10 +227,10 @@ bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 void PopupMenuEditorItem::selfDestruct()
 {
     hideMenu();
-    int i = m->find( anyAction() );
-    m->remove( i );
-    a = 0; // the selfDestruct call was caused by the deletion of one of these items
-    g = 0;
+    int i = m->find( s );
+    if ( i != -1 && i < m->count() )
+	m->remove( i ); // remove this item
+    a = 0; // the selfDestruct call was caused by the deletion of the action
     delete this;
 }
 
@@ -308,8 +241,7 @@ int PopupMenuEditor::clipboardOperation = 0;
 PopupMenuEditorItem * PopupMenuEditor::clipboardItem = 0;
 
 PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char * name )
-    : QWidget( 0, name,
-	       WStyle_Customize | WStyle_NoBorder | WRepaintNoErase | WResizeNoErase ),
+    : QWidget( 0, name, WStyle_Customize | WStyle_NoBorder | WRepaintNoErase | WResizeNoErase ),
       formWnd( fw ),
       parentMenu( parent ),
       iconWidth( 0 ),
@@ -339,7 +271,6 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu,
       drawAll( 0 )
 {
     init();
-
     PopupMenuEditorItem * i;
     for ( i = menu->itemList.first(); i; i = menu->itemList.next() ) {
 	PopupMenuEditorItem * n = new PopupMenuEditorItem( i, this );
@@ -373,13 +304,12 @@ void PopupMenuEditor::init()
     dropLine->hide();
 
     hide();
-
-    QObject::connect( formWnd->mainWindow()->actioneditor(), SIGNAL( removing( QAction * ) ),
-		      this, SLOT( remove( QAction * ) ) );
 }
 
 void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 {
+    if ( !item )
+	return;
     if ( index == -1 ) {
 	itemList.append( item );
 	if ( isVisible() )
@@ -395,24 +325,45 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 	     ((PopupMenuEditor*)parentMenu)->currentItem()->setDirty( TRUE );
 	parentMenu->update(); // draw arrow in parent menu
     }
-    emit inserted( item->anyAction() );
+    emit inserted( item->action() );
 }
 
 void PopupMenuEditor::insert( QAction * action, int index )
 {
-    insert( new PopupMenuEditorItem( action, this ), index );
+    if ( !action )
+	return;
+    insert( new PopupMenuEditorItem( action, this, 0, action->name() ), index );
 }
 
-void PopupMenuEditor::insert( QActionGroup * actionGroup, int index, bool children )
+void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 {
-    insert( new PopupMenuEditorItem( actionGroup, this, children ), index );
+    if ( !actionGroup )
+	return;
+    bool dropdown = actionGroup->usesDropDown();
+    PopupMenuEditorItem *i = new PopupMenuEditorItem( (QAction *)actionGroup, this,
+						      0, actionGroup->name() );
+    QActionGroup *g = 0;
+    QObjectList *l = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
+    QObjectListIterator it( *l );
+    insert( i, index );
+    for ( ; it.current(); ++it ) {
+	g = ::qt_cast<QActionGroup*>(it.current());
+	if ( g ) {
+	    if ( dropdown )	    
+		i->s->insert( g );
+	    else
+		insert( g );
+	} else {
+	    i->s->insert( (QAction*)it.current() );
+	}
+    }
 }
 
 int PopupMenuEditor::find( const QAction * action )
 {
     PopupMenuEditorItem * i = itemList.first();
     while ( i ) {
-	if ( i->anyAction() == action )
+	if ( i->action() == action )
 	    return itemList.at();
 	i = itemList.next();
     }
@@ -535,7 +486,7 @@ void PopupMenuEditor::choosePixmap( int index )
 
     if ( idx < (int)itemList.count() ) {
 	i = itemList.at( idx );
-	a = i->anyAction();
+	a = i->action();
     } else {
 	createItem();
     }
@@ -558,7 +509,7 @@ void PopupMenuEditor::showLineEdit( int index )
 	i = itemList.at( idx );
 
     // open edit currentField for item name
-    lineEdit->setText( i->anyAction()->menuText() );
+    lineEdit->setText( i->action()->menuText() );
     lineEdit->selectAll();
     lineEdit->setGeometry( borderSize + iconWidth, borderSize + itemPos( i ),
 			   textWidth, itemHeight( i ) );
@@ -591,7 +542,7 @@ void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index 
     int alt = ( state & Qt::AltButton ? Qt::ALT : 0 );
     int meta = ( state & Qt::MetaButton ? Qt::META : 0 );
 
-    QAction * a = i->anyAction();
+    QAction * a = i->action();
     QKeySequence ks = a->accel();
     int keys[4] = { ks[0], ks[1], ks[2], ks[3] };
     int n = 0;
@@ -613,8 +564,6 @@ void PopupMenuEditor::resizeToContents()
     drawAll = 3;
     resize( s );
     // FIXME: the multilevel drawAll is a hack to keep the drawAll flag for two paint events.
-    // It was added because the popup gets two paintEvents after the resize, and is erased
-    // in between the two ( despite the WRepaintNoErase flag ).
 }
 
 void PopupMenuEditor::showSubMenu( int index )
@@ -654,7 +603,7 @@ void PopupMenuEditor::remove( int index )
 	int n = itemList.count() + 1;
 	if ( currentIndex >= n )
 	    currentIndex = itemList.count() + 1;
-	emit removed( i->anyAction() );
+	emit removed( i->action() );
 	resizeToContents();
     }
 }
@@ -663,7 +612,6 @@ PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
 {
     ActionEditor * ae = (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );
     PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : ae->newActionEx(), this );
-    //PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : new QAction( 0 ), this );
     AddActionToPopupCommand * cmd =
 	new AddActionToPopupCommand( "Add Item", formWnd, this, i );
     formWnd->commandHistory()->addCommand( cmd );
@@ -787,7 +735,7 @@ void PopupMenuEditor::mousePressEvent( QMouseEvent * e )
     update();
 }
 
-void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * e )
+void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentItem()->setDirty( TRUE );
     setFocusAt( mousePressPos );
@@ -814,7 +762,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = itemAt( mousePressPos.y() );
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();
-		RenameActionCommand cmd( "Rename Item", formWnd, draggedItem->anyAction(),
+		RenameActionCommand cmd( "Rename Item", formWnd, draggedItem->action(),
 					 this, "Unnamed" );
 		cmd.execute();
                 // FIXME: start rename after drop
@@ -1067,7 +1015,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
 	return;
     }
 
-    const QAction * a = i->anyAction();
+    const QAction * a = i->action();
     if ( a->isToggleAction() && a->isOn() ) {
 	style().drawPrimitive( QStyle::PE_CheckMark, p,
 			       QRect( x , y, iconWidth, h ),
@@ -1131,7 +1079,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
 	    if ( idx == currentIndex )
 		focus = rect;
 	    if ( drawAll || i->isDirty() || dragging ) {
-		if ( i->anyAction()->isEnabled() ) {
+		if ( i->action()->isEnabled() ) {
 		    flags = QStyle::Style_Enabled;
 		    p->setPen( enabled.buttonText() );
 		} else {
@@ -1183,7 +1131,7 @@ QSize PopupMenuEditor::contentsSize()
     while ( i ) {
 	if ( i->isVisible() ) {
 	    if ( !i->isSeparator() ) {
-		a = i->anyAction();
+		a = i->action();
 		w = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal ).rect().width() +
 		    borderSize; // padding
 		iconWidth = QMAX( iconWidth, w );
@@ -1208,7 +1156,7 @@ int PopupMenuEditor::itemHeight( const PopupMenuEditorItem * item ) const
     if ( item->isSeparator() )
 	return 4; // FIXME: hardcoded ( get from styles )r
     int padding =  + borderSize * 6;
-    QAction * a = item->anyAction();
+    QAction * a = item->action();
     int h = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal ).rect().height();
     h = QMAX( h, fontMetrics().boundingRect( a->menuText() ).height() + padding );
     h = QMAX( h, fontMetrics().boundingRect( a->accel() ).height() + padding );
@@ -1317,13 +1265,13 @@ void PopupMenuEditor::clearCurrentField()
 	QIconSet icons( QPixmap(0, 0) );
 	SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
 								 formWnd,
-								 i->anyAction(),
+								 i->action(),
 								 this,
 								 icons );
 	formWnd->commandHistory()->addCommand( cmd );
 	cmd->execute();
     } else if ( currentField == 2 ) {
-	i->anyAction()->setAccel( 0 );
+	i->action()->setAccel( 0 );
     }
     resizeToContents();
     showSubMenu();
@@ -1448,13 +1396,13 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
 	i = createItem( a );
 	// Do not put rename on cmd stack (no undo/redo)
-	RenameActionCommand rename( "Rename Item", formWnd, i->anyAction(), this, lineEdit->text() );
+	RenameActionCommand rename( "Rename Item", formWnd, i->action(), this, lineEdit->text() );
 	rename.execute();
     } else {
 	i = itemList.at( currentIndex );
 	RenameActionCommand * cmd = new RenameActionCommand( "Rename Item",
 							     formWnd,
-							     i->anyAction(),
+							     i->action(),
 							     this,
 							     lineEdit->text() );
 	formWnd->commandHistory()->addCommand( cmd );

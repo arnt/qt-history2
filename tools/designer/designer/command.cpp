@@ -2029,7 +2029,7 @@ void AddActionToPopupCommand::execute()
 void AddActionToPopupCommand::unexecute()
 {
     item->hideMenu();
-    int i = menu->find( item->anyAction() );
+    int i = menu->find( item->action() );
     menu->remove( i );
 }
 
@@ -2102,8 +2102,8 @@ QString RenameActionCommand::mangle( QString name )
 	PopupMenuEditor * p = ( PopupMenuEditor * ) e;
 	int idx = p->find( menu );
 	PopupMenuEditorItem * i = ( idx > -1 ? p->at( idx ) : 0 );
-	s = ( i ? QString( i->anyAction()->name() ).remove( "Action" ) : QString( "" ) );
-    } else if ( qt_cast<MenuBarEditor*>(e) ) {
+	s = ( i ? QString( i->action()->name() ).remove( "Action" ) : QString( "" ) );
+    } else if ( ::qt_cast<MenuBarEditor*>(e) ) {
 	MenuBarEditor * b = ( MenuBarEditor * ) e;
 	int idx = b->findItem( menu );
 	MenuBarEditorItem * i = ( idx > -1 ? b->item( idx ) : 0 );

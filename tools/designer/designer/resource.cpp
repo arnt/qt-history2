@@ -2896,13 +2896,13 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream &ts, int indent )
 {
     for ( PopupMenuEditorItem *i = pm->items()->first(); i; i = pm->items()->next() ) {
-	QAction *a = i->anyAction();
-	if ( a->inherits( "QSeparatorAction" ) )
+	QAction *a = i->action();
+	if ( ::qt_cast<QSeparatorAction*>(a) )
 	    ts <<  makeIndent( indent ) << "<separator/>" << endl;
 	else
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->subMenu();
-	if ( i->actionGroup() )
+	if ( ::qt_cast<QActionGroup*>(a) )
 	    continue;
 	if ( s && s->count() ) {
 	    QString n = a->name();
@@ -2987,7 +2987,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 	    a = formwindow->findAction( n.attribute( "name" ) );
 	    if ( a ) {
 		if ( a->inherits( "QActionGroup" ) )
-		    p->insert( (QActionGroup *) a, -1, FALSE );
+		    p->insert( (QActionGroup *) a );
 		else
  		    p->insert( a );
 	    }
