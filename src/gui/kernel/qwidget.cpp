@@ -3348,23 +3348,23 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
   \sa reparent()
 */
 
-void QWidget::reparentFocusWidgets(QWidget * oldtlw)
+void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
 {
-    if (oldtlw == topLevelWidget())
+    if (oldtlw == q->topLevelWidget())
         return; // nothing to do
 
-    if(d->focus_child)
-        d->focus_child->clearFocus();
+    if(focus_child)
+        focus_child->clearFocus();
 
     // seperate the focus chain
-    QWidget *topLevel = topLevelWidget();
-    QWidget *w = this;
+    QWidget *topLevel = q->topLevelWidget();
+    QWidget *w = q;
     QWidget *firstOld = 0;
     QWidget *firstNew = 0;
     QWidget *o = 0;
     QWidget *n = 0;
     do {
-        if (w == this || isAncestorOf(w)) {
+        if (w == q || q->isAncestorOf(w)) {
             if (!firstNew)
                 firstNew = w;
             if (n)
@@ -3377,21 +3377,21 @@ void QWidget::reparentFocusWidgets(QWidget * oldtlw)
                 o->d->focus_next = w;
             o = w;
         }
-    } while ((w = w->d->focus_next) != this);
+    } while ((w = w->d->focus_next) != q);
     if(o)
         o->d->focus_next = firstOld;
     if(n)
         n->d->focus_next = firstNew;
 
-    if (!isTopLevel()) {
+    if (!q->isTopLevel()) {
         //insert chain
         w = topLevel;
         while (w->d->focus_next != topLevel)
             w = w->d->focus_next;
-        w->d->focus_next = this;
+        w->d->focus_next = q;
         n->d->focus_next = topLevel;
     } else {
-        n->d->focus_next = this;
+        n->d->focus_next = q;
     }
 }
 
@@ -5803,19 +5803,6 @@ void QWidget::updateGeometry()
 
 
 /*!
-    \internal
- */
-void QWidget::setParent_helper(QObject *parent)
-{
-    if (parent && !parent->d->isWidget) {
-        qWarning("QWidget::setParent: Cannot reparent a widget into an object.");
-        return;
-    }
-    setParent((QWidget*)parent, getWFlags() & ~Qt::WType_Mask);
-}
-
-
-/*! \fn void QWidget::setParent(QWidget *parent)
 
     Sets the parent of the widget to \a parent. The widget is moved
     to position (0,0) in its new parent.
@@ -5837,6 +5824,10 @@ void QWidget::setParent_helper(QObject *parent)
     QWizard.
 
 */
+void QWidget::setParent(QWidget *parent)
+{
+    setParent((QWidget*)parent, getWFlags() & ~Qt::WType_Mask);
+}
 
 /*!
     \overload
@@ -5849,7 +5840,9 @@ void QWidget::setParent_helper(QObject *parent)
 void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 {
     bool resized = testAttribute(Qt::WA_Resized);
-    reparent_sys(parent, f, mapToGlobal(QPoint(0, 0)), false);
+    QWidget *oldtlw = q->topLevelWidget();
+    setParent_sys(parent, f);
+    d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     QEvent e(QEvent::Reparent);
     QApplication::sendEvent(this, &e);

@@ -341,7 +341,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 }
 
 
-void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
+void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
@@ -385,7 +385,7 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
     create();
     if (isTopLevel() || (!parent || parent->isVisible()))
         setWState(Qt::WState_Hidden);
-    setGeometry(p.x(), p.y(), s.width(), s.height());
+    setGeometry(0, 0, s.width(), s.height());
     setEnabled(enable);
     setFocusPolicy(fp);
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -394,8 +394,6 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         setWindowTitle(capt);
     }
 #endif
-    if (showIt)
-        show();
     if ((int)old_winid > 0)
         qwsDisplay()->destroyRegion(old_winid);
 #ifndef QT_NO_CURSOR
@@ -403,7 +401,6 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         setCursor(oldcurs);
     }
 #endif
-    reparentFocusWidgets(parent);                // fix focus chains
 }
 
 
@@ -818,7 +815,7 @@ void QWidget::setWindowState(uint newstate)
         if (oldstate == 0) { //normal
             d->topData()->normalGeometry = geometry();
         } else if (oldstate == Qt::WState_FullScreen) {
-            reparent_sys(0, d->topData()->savedFlags, QPoint(0,0),  false);
+            setParent(0, d->topData()->savedFlags);
             needShow = true;
         } else if (oldstate == Qt::WState_Minimized) {
             needShow = true;
@@ -830,11 +827,9 @@ void QWidget::setWindowState(uint newstate)
             needShow = false;
         } else if (state == Qt::WState_FullScreen) {
             d->topData()->savedFlags = getWFlags();
-            reparent_sys(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
+            setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
                          // preserve some widget flags
-                         (getWFlags() & 0xffff0000),
-                         QPoint(0, 0),
-                         false);
+                      (getWFlags() & 0xffff0000));
             const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
             move(screen.topLeft());
             resize(screen.size());

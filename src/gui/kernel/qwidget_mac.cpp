@@ -1009,7 +1009,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     setWinId(0);
 }
 
-void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
+void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     QCursor oldcurs;
     bool setcurs=testAttribute(Qt::WA_SetCursor);
@@ -1025,7 +1025,6 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         old_window_event = d->window_event;
     }
     QWidget* oldtlw = topLevelWidget();
-    reparentFocusWidgets(parent);                // fix focus chains
 
     //recreate and seutp flags
     setWinId(0);
@@ -1055,7 +1054,7 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
     }
 
     //get new hd, now move
-    setGeometry(p.x(), p.y(), s.width(), s.height());
+    setGeometry(0, 0, s.width(), s.height());
 
     //reset flags and show (if neccesary)
     setEnabled(enable);
@@ -1065,11 +1064,8 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         d->topData()->caption = QString::null;
         setWindowTitle(capt);
     }
-    if(showIt)
-        show();
     if(setcurs)
         setCursor(oldcurs);
-    reparentFocusWidgets(oldtlw);
 
     //cleanup
     if(old_window_event)

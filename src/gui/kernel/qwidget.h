@@ -418,7 +418,7 @@ public:
 #endif
     void updateGeometry();
 
-    inline void setParent(QWidget *parent) { setParent_helper(parent); }
+    void setParent(QWidget *parent);
     void setParent(QWidget *parent, Qt::WFlags f);
 
     void scroll(int dx, int dy);
@@ -569,8 +569,7 @@ private:
     void setWinId(WId);
     void showChildren(bool spontaneous);
     void hideChildren(bool spontaneous);
-    void setParent_helper(QObject *parent);
-    void reparent_sys(QWidget *parent, Qt::WFlags, const QPoint &,  bool showIt);
+    void setParent_sys(QWidget *parent, Qt::WFlags);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
     void show_helper();
@@ -578,7 +577,6 @@ private:
     void hide_sys();
     void hide_helper();
     void setEnabled_helper(bool);
-    void reparentFocusWidgets(QWidget *);
     void updateFrameStrut() const;
 
     bool testAttribute_helper(Qt::WidgetAttribute) const;

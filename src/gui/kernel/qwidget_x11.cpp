@@ -780,7 +780,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     }
 }
 
-void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
+void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     extern void qPRCreate(const QWidget *, Window);
 
@@ -862,11 +862,11 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
     if (isTopLevel()) {
         uint save_state = data->widget_state & (Qt::WState_Maximized | Qt::WState_FullScreen);
         const QRect r = d->topData()->normalGeometry;
-        setGeometry(p.x(), p.y(), s.width(), s.height());
+        setGeometry(0, 0, s.width(), s.height());
         data->widget_state |= save_state;
         d->topData()->normalGeometry = r;
     } else {
-        setGeometry(p.x(), p.y(), s.width(), s.height());
+        setGeometry(0, 0, s.width(), s.height());
     }
 
     setEnabled(enable);
@@ -875,14 +875,10 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         d->extra->topextra->caption = QString::null;
         setWindowTitle(capt);
     }
-    if (showIt)
-        show();
     if (old_winid)
         qt_XDestroyWindow(this, d->xinfo->display(), old_winid);
     if (setcurs)
         setCursor(oldcurs);
-
-    reparentFocusWidgets(oldtlw);
 
     // re-register dnd
     if (oldparent)

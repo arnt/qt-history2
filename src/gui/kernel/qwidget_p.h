@@ -194,6 +194,8 @@ public:
     void setWindowRole(const char *role);
 #endif
 
+    void reparentFocusWidgets(QWidget *oldtlw);
+
     QWidgetData data;
 
     QWExtra *extra;

@@ -433,7 +433,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 }
 
 
-void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
+void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = data->winid;
@@ -481,19 +481,15 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
         }
     }
 
-    setGeometry(p.x(), p.y(), s.width(), s.height());
+    setGeometry(0, 0, s.width(), s.height());
     setEnabled(enable);
     setFocusPolicy(fp);
     if (!capt.isNull()) {
         d->extra->topextra->caption = QString::null;
         setWindowTitle(capt);
     }
-    if (showIt)
-        show();
     if (old_winid)
         DestroyWindow(old_winid);
-
-    reparentFocusWidgets(oldtlw);                // fix focus chains
 
     if (accept_drops)
         setAcceptDrops(true);
