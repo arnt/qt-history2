@@ -433,7 +433,7 @@ void QTableView::paintEvent(QPaintEvent *e)
             painter.setPen(old);
         }
     }
-    
+
     int w = d->viewport->width();
     int h = d->viewport->height();
     int x = d->horizontalHeader->length();
@@ -539,8 +539,11 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    QModelIndex tl = itemAt(rect.left(), rect.top());
-    QModelIndex br = itemAt(rect.right(), rect.bottom());
+    QModelIndex tl = itemAt((QApplication::reverseLayout() ? rect.right() : rect.left()),
+                            rect.top());
+    QModelIndex br = itemAt((QApplication::reverseLayout() ? rect.left() : rect.right()),
+                            rect.bottom());
+
     selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
