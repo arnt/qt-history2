@@ -14,6 +14,9 @@
 #include <olectl.h>
 #endif
 
+#define Q_REQUIRED_RPCNDR_H_VERSION 475
+
+
 #ifdef QT_DEBUG
 const DWORD dwTimeOut = 1000;
 const DWORD dwPause = 500;
@@ -433,9 +436,11 @@ static const char* const type_map[][2] =
     { "QByteArray",	"SAFEARRAY(BYTE)" },
     { "QStringList",	"SAFEARRAY(BSTR)" },
     // Userdefined Qt datatypes
+#if __REQUIRED_RPCNDR_H_VERSION__ >= Q_REQUIRED_RPCNDR_H_VERSION
     { "QRect",		"struct QRect" },
     { "QSize",		"struct QSize" },
     { "QPoint",		"struct QPoint" },
+#endif
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
@@ -1019,7 +1024,9 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     STRIPCB(idQPoint);
 
     out << "/****************************************************************************" << endl;
-    out << "** Interface definition generated from '" << qAxModuleFilename << "'" << endl;
+    out << "** Interface definition generated for ActiveQt project" << endl;
+    out << "**" << endl;
+    out << "**     '" << qAxModuleFilename << "'" << endl;
     out << "**" << endl;
     out << "** Created:  " << QDateTime::currentDateTime().toString() << endl;
     out << "**" << endl;
@@ -1046,8 +1053,14 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     QStringList keys = qAxFactory()->featureList();
     QStringList::Iterator key;
 
-    out << "\t/* Declaration of common Qt classes that might be used as parameters */" << endl << endl;
+    out << "\t/************************************************************************" << endl;
+    out << "\t** If this causes a compile error in MIDL you need to upgrade the" << endl;
+    out << "\t** Platform SDK you are using. Download the SDK from msdn.microsoft.com" << endl;
+    out << "\t** and make sure that both the system and the Visual Studio environment" << endl;
+    out << "\t** use the correct files." << endl;
+    out << "\t/************************************************************************/" << endl;
 
+#if __REQUIRED_RPCNDR_H_VERSION__ >= Q_REQUIRED_RPCNDR_H_VERSION
     out << "\t[uuid(" << idQRect << ")]" << endl;
     out << "\tstruct QRect {" << endl;
     out << "\t\tint left;" << endl;
@@ -1067,6 +1080,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     out << "\t\tint x;" << endl;
     out << "\t\tint y;" << endl;
     out << "\t};" << endl << endl;
+#endif
 
     out << "\t/* Forward declaration of classes that might be used as parameters */" << endl << endl;
 
