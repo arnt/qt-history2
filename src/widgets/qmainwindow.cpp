@@ -2583,7 +2583,11 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    d->rectPainter->drawRect( d->oldPosRect );
 	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	     !isDockEnabled( t, dock ) ) {
+#if defined(_WS_WIN32_)
+	    d->rectPainter->setPen( QPen( color0, 1, DashLine ) );
+#else
 	    d->rectPainter->setPen( QPen( color0, 2, DashLine ) );
+#endif
 	} else {
 	    d->rectPainter->setPen( QPen( color0, 2 ) );
 	}
