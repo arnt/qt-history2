@@ -25,6 +25,8 @@
 //#define QNETWORKPROTOCOL_DEBUG
 #define NETWORK_OP_DELAY 1000
 
+typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
+
 extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;

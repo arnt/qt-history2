@@ -48,8 +48,6 @@ public:
 
 };
 
-typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
-
 class Q_EXPORT QNetworkProtocol : public QObject
 {
     Q_OBJECT
