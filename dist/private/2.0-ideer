@@ -38,6 +38,11 @@ ENGLISH THINGS
 --------------
 
 Re-arrange all data members to minimize object size.
+Provide auto-expanding(?):
+    (for LHS)
+    type& QArray::operator[](int) 
+    (for RHS)
+    const type& QArray::operator[](int) const
 
 
 GERMAN THINGS:
