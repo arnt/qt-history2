@@ -359,7 +359,6 @@ DspMakefileGenerator::init()
 		}
 	    }
 	}
-
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
@@ -371,8 +370,16 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
 	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	} else {
-	    project->variables()["MSVCDSP_MTDEFD"].append("-MTd");
-	    project->variables()["MSVCDSP_MTDEF"].append("-MT");
+	    // YES we want to use the DLL even in a static build
+	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
+	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
+	}
+    }
+    
+    if ( project->isActiveConfig("accessibility" ) ) {
+	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	if ( !project->variables()["DEFINES"].contains("QT_DLL") ) {
+	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
 	}
     }
     if ( project->isActiveConfig("dll") ) {

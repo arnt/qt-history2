@@ -223,10 +223,17 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("thread") ) {
         project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
     }
+    if ( project->isActiveConfig("accessibility" ) ) {
+	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	if ( !project->variables()["DEFINES"].contains("QT_DLL") ) {
+	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
+	}
+    }
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
+	    // use the DLL RT even here
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MD_DLLDBG"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MD_DLLDBG"];
         } else {
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
 	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
@@ -234,8 +241,9 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
     } else if ( project->isActiveConfig("release") ) {
 	if ( project->isActiveConfig("thread") ) {
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
+	    // use the DLL RT even here
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MD_DLL"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MD_DLL"];
 	}
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
