@@ -39,6 +39,10 @@ Make mail to send to all customers.
 Make sure the customer list is up to date.
 Distribute to all customers.
 
+Update the version number in internweb/database/action-Invoice-Download
+and internweb/database/action-License-Download
+so new customers get the right version.
+
 Upload free version to ftp.troll.no
 Upload README and INSTALL files to ftp.troll.no in /qt/source
 
