@@ -1107,6 +1107,9 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 #ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ",";
     switch (idx.type()) {
+    case QModelIndex::Null:
+        dbg.nospace() << "Null";
+        break;
     case QModelIndex::View:
         dbg.nospace() << "View";
         break;
