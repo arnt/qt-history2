@@ -144,13 +144,6 @@ public:
 };
 
 
-class Q_EXPORT QRemoteClient : public QObject
-{
-public:
-    virtual bool execCommand(QByteArray *) { return FALSE;};
-};
-
-
 struct Q_EXPORT QRemoteFactoryInterface : public QFeatureListInterface
 {
     virtual QRemoteInterface* create( const QString& type ) = 0;

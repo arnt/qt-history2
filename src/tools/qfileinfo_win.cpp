@@ -564,8 +564,7 @@ bool QFileInfo::isHidden() const
 {
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	return GetFileAttributesW( (TCHAR*)qt_winTchar( inf.name(), TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;    
+	return GetFileAttributesW( (TCHAR*)qt_winTchar( fn, TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;
 #endif
-    return GetFileAttributesA( (TCHAR*)qt_winTchar( inf.name(), TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;
-
+    return GetFileAttributesA( fn ) & FILE_ATTRIBUTE_HIDDEN;
 }
