@@ -3165,9 +3165,25 @@ QSize QWidget::frameSize() const
 
 void QWidget::move( int x, int y )
 {
+    QPoint oldp(pos());
     internalSetGeometry( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
+    if ( isVisible() && oldp != pos() && children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->isHidden() && !widget->isTopLevel() &&
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		    widget->update();
+	    }
+	}
+    }
 }
 
 
@@ -3229,9 +3245,10 @@ void QWidget::resize( int w, int h )
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
+    QPoint oldp(pos());
     internalSetGeometry( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if ( isVisible() && backgroundOrigin() == WindowOrigin && children() ) {
+    if ( isVisible() && oldp != pos() && children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
 	QWidget *widget;
