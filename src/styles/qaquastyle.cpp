@@ -123,21 +123,26 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
     }
     d = NULL;
     if(widget && widget->parentWidget()) {
-	d = widget;
-	reparent( d->parentWidget(), pos() );
-	raise();
-	d->installEventFilter( this );
-	d->parentWidget()->installEventFilter( this );
-	setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
-	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
-	QObject::connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
-	show();
+	QWidget *p = widget->parentWidget();
+	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
+	    p = p->parentWidget();
+	if(widget->width() < p->width() - 30 || widget->height() < p->height() - 40) {
+	    d = widget;
+	    reparent( d->parentWidget(), pos() );
+	    raise();
+	    d->installEventFilter( this );
+	    d->parentWidget()->installEventFilter( this );
+	    setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
+	    setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
+	    QObject::connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
+	    show();
+	}
     }
 }
 
 bool QAquaFocusWidget::handles(QWidget *widget)
 {
-    return (widget && widget->parentWidget() &&
+    return (widget && widget->parentWidget() && 
 	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") ||
 	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
 	     widget->inherits("QListBox") || widget->inherits("QListView")));
