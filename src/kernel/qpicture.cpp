@@ -454,9 +454,14 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcDrawPixmap: {
 		QPixmap pixmap;
-		s >> p >> pixmap;
-		painter->drawPixmap( p, pixmap );
+		if ( d->formatMajor >=1 && d->formatMajor <= 3 ) {
+		    s >> p >> pixmap;
+		    painter->drawPixmap( p, pixmap );
+		} else {
+		    s >> r >> pixmap;
+		    painter->drawPixmap( r, pixmap );
 		}
+	                }
 		break;
 	    case PdcDrawImage: {
 		QImage image;
@@ -730,9 +735,15 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br = *p[0].rect;
 	    break;
 	case PdcDrawPixmap:
-	    s << *p[0].point;
-	    s << *p[1].pixmap;
-	    br = QRect( *p[0].point, p[1].pixmap->size() );
+	    if ( formatMajor >=1 && formatMajor <= 3 ) {
+		s << *p[0].point;
+		s << *p[1].pixmap;
+		br = QRect( *p[0].point, p[1].pixmap->size() );
+	    } else {
+		s << *p[0].rect;
+		s << *p[1].pixmap;
+		br = *p[0].rect;
+	    }
 	    break;
 	case PdcDrawImage:
 	    if ( formatMajor >=1 && formatMajor <= 3 ) {

@@ -2558,11 +2558,10 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
             }
             if ( testf(ExtDev) ) {
                 QPDevCmdParam param[2];
-                QPoint p(x, y);
-                param[0].point  = &p;
+                QRect r(x, y, pixmap.width(), pixmap.height());
+                param[0].rect  = &r;
                 param[1].pixmap = &pixmap;
-                if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap, this, param) ||
-                     !hd )
+                if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap, this, param) || !hd )
                     return;
             }
             if ( txop == TxScale || txop == TxRotShear ) {
