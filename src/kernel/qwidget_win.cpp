@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#209 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -412,6 +412,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
     CreateCaret( winId(), 0, width, height );
     HideCaret( winId() );
     SetCaretPos( x, y );
+    setFontSys();
 
     if ( text ) {
 	// Translate x,y to be relative to the TLW
