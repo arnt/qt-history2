@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#42 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ void QButton::setOn( bool enable )
   Makes the button a toggle button if \e enable is TRUE, or a normal button
   if \e enable is FALSE.
 
-  Note that this function is protected. It is called from sub-classes
+  Note that this function is protected. It is called from subclasses
   to enable the toggle functionality. QCheckBox and QRadioButton are
   toggle buttons. QPushButton is initially not a toggle button, but
   QPushButton::setToggleButton() can be called to create toggle buttons.
