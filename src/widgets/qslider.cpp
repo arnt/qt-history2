@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#47 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#47 $");
 
 
 static const int motifBorder = 2;
@@ -639,20 +639,16 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 {
     resetState();
     sliderStartVal = sliderVal;
-    if ( e->button() == MidButton ) {
-	int pos = goodPart( e->pos() );
-	moveSlider( pos - slideLength() / 2 );
-	return;
-    }
-    if ( e->button() != LeftButton )
-	return;
     QRect r = sliderRect();
-
-    if ( r.contains( e->pos() ) ) {
+    
+    if ( e->button() == RightButton ) {
+	return;
+    } else if ( r.contains( e->pos() ) ) {
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
-    } else if ( funnyWindowsStyle && style() == WindowsStyle) {
+    } else if ( e->button() == MidButton ||
+		(funnyWindowsStyle && style() == WindowsStyle) ) {
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength() / 2 );
 	state = Dragging;
@@ -682,31 +678,24 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( state != Dragging )
+	return;
 
     if ( style() == WindowsStyle ) {
 	QRect r = rect();
 	if ( orientation() == Horizontal )
-	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
+	    r.setRect( r.x() - 20, r.y() - 30,
+		       r.width() + 40, r.height() + 60 );
 	else
-	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
+	    r.setRect( r.x() - 30, r.y() - 20,
+		       r.width() + 60, r.height() + 40 );
 	if ( !r.contains( e->pos() ) ) {
 	    moveSlider( positionFromValue( sliderStartVal) );
 	    return;
 	}
     }
 
-    if ( (e->state() & MidButton) ) { 		// middle button wins
-	int pos = goodPart( e->pos() );
-	moveSlider( pos - slideLength() / 2 );
-	return;	
-    }
-    if ( !(e->state() & LeftButton) )
-	return;					// left mouse button is up
-    if ( state != Dragging )
-	return;
-
     int pos = goodPart( e->pos() );
-
     moveSlider( pos - clickOffset );
 }
 
@@ -715,10 +704,8 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
   Handles mouse release events for the slider.
 */
 
-void QSlider::mouseReleaseEvent( QMouseEvent *e )
+void QSlider::mouseReleaseEvent( QMouseEvent * )
 {
-    if ( !(e->button() & LeftButton) )
-	return;
     resetState();
 }
 
