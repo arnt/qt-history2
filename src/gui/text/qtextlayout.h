@@ -83,10 +83,8 @@ public:
     void setText(const QString& string, const QFont& fnt);
 
     // ######### go away
-    void setFormatCollection(const QTextFormatCollection *formats);
     void setText(const QString& string);
     QString text() const;
-    void setDocumentLayout(QAbstractTextDocumentLayout *layout);
 
     enum LineBreakStrategy {
         AtWordBoundaries,

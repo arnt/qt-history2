@@ -412,14 +412,6 @@ void QTextLayout::setText(const QString& string, const QFont& fnt)
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
-/*!
-  \internal
-*/
-void QTextLayout::setFormatCollection(const QTextFormatCollection *formats)
-{
-    d->setFormatCollection(formats);
-}
-
 // ### DOC: How is it laid out again? Do they call draw() or what?
 // Same as initially, see the code snipplet in the class overview.
 /*!
@@ -441,14 +433,6 @@ void QTextLayout::setText(const QString& string)
 QString QTextLayout::text() const
 {
     return d->string;
-}
-
-/*!
-  \internal
-*/
-void QTextLayout::setDocumentLayout(QAbstractTextDocumentLayout *layout)
-{
-    d->setDocumentLayout(layout);
 }
 
 /*!
