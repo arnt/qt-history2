@@ -26,6 +26,8 @@
 #include "qsettings.h"
 #include "qregexp.h"
 
+#ifndef QT_NO_SETTINGS
+
 /*!
     \overload
     Writes the string list entry \a value into key \a key. The \a key is
@@ -128,5 +130,4 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
     return l;
 }
 
-
-
+#endif
