@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#13 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#13 $";
 #endif
 
 
@@ -161,13 +161,16 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 }
 
 /*!
-  Calls reject().
+  Calls reject() if it is a modal dialog, or accepts the close event
+  if it is a modeless dialog.
 */
 
 void QDialog::closeEvent( QCloseEvent *e )
 {
-    e->ignore();				// do not delete the dialog
-    reject();
+    if ( testWFlags(WType_Modal) ) {
+	e->ignore();				// do not delete the dialog
+	reject();
+    }
 }
 
 
