@@ -11,7 +11,6 @@
 #include <qtextlayout.h>
 #include <private/qtextformat_p.h>
 #include <qtextdocument.h>
-#include <qshareddata.h>
 
 #include "qtextglobal_p.h"
 #include <qtextblockiterator.h>
@@ -97,7 +96,7 @@ public:
 Q_DECLARE_TYPEINFO(UndoCommand, Q_PRIMITIVE_TYPE);
 
 
-class QTextPieceTable : public QObject, public QSharedData
+class QTextPieceTable : public QObject
 {
     Q_OBJECT
 public:

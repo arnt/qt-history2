@@ -8,8 +8,6 @@
 #include <private/qtextformat_p.h>
 #endif // QT_H
 
-#include <qshareddata.h>
-typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
 
 class QTextCursorPrivate : public QSharedData
 {
@@ -41,7 +39,7 @@ public:
     int position;
     int anchor;
     int adjusted_anchor;
-    QTextPieceTablePointer pieceTable;
+    QTextPieceTable *pieceTable;
 };
 
 #endif // QTEXTCURSOR_P_H

@@ -15,7 +15,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     if (!cursor.hasSelection())
         return;
 
-    QTextPieceTablePointer pieceTable = cursor.d->pieceTable;
+    QTextPieceTable *pieceTable = cursor.d->pieceTable;
 
     const int startPos = cursor.selectionStart();
     const int endPos = cursor.selectionEnd();
@@ -57,7 +57,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     QTextFormatCollection *formats = cursor.d->pieceTable->formatCollection();
     QMap<int, int> formatIndexMap = fillFormatCollection(formats);
 
-    QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
+    QTextPieceTable *destPieceTable = cursor.d->pieceTable;
     destPieceTable->beginEditBlock();
 
     int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());

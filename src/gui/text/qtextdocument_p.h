@@ -10,7 +10,7 @@ class QTextDocumentPrivate : public QObjectPrivate
 {
 public:
     Q_DECLARE_PUBLIC(QTextDocument)
-    QTextPieceTablePointer pieceTable;
+    QTextPieceTable *pieceTable;
 };
 
 
