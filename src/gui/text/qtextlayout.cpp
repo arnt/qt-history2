@@ -83,19 +83,6 @@ static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
 */
 
 /*!
-    \fn QTextEngine *QTextInlineObject::engine() const
-
-    Returns the text engine set in the constructor.
-*/
-
-/*!
-    \fn int QTextInlineObject::item() const
-
-    Returns the inline object's position in the text engine as set in
-    the constructor.
-*/
-
-/*!
     Returns the inline object's rectangle.
 
     \sa ascent() descent() width()
@@ -253,14 +240,14 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
             height += leading;
             line.setPosition(QPoint(0, height));
             height += line.height();
-            widthUsed = qMax(widthUsed, line.textWidth());
+            widthUsed = qMax(widthUsed, line.naturalTextWidth());
         }
         textLayout.endLayout();
     \endcode
 
     And here's some pseudo code that presents the painting phase:
     \code
-        for (int i = 0; i < textLayout.numLines(); ++i) {
+        for (int i = 0; i < textLayout.lineCount(); ++i) {
             QTextLine line = textLayout.lineAt(i);
             line.draw(painter, rect.x() + xoffset + line.x(), rect.y() + yoffset);
         }
@@ -268,39 +255,14 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
 
     The text layout's text is set in the constructor or with
     setText(). The layout can be seen as a sequence of QTextLine
-    objects; use lineAt() or findLine() to get a QTextLine,
+    objects; use lineAt() or lineForTextPosition() to get a QTextLine,
     createLine() to create one. For a given position in the text you
-    can find a valid cursor position with validCursorPosition(),
+    can find a valid cursor position with isValidCursorPosition(),
     nextCursorPosition(), and previousCursorPosition(). The layout
     itself can be positioned with setPosition(); it has a
     boundingRect(), and a minimumWidth() and a maximumWidth(). A text
     layout can be drawn on a painter device using draw().
 
-*/
-
-/*!
-    \enum QTextLayout::LineBreakStrategy
-
-    \value AtWordBoundaries
-    \value AtCharBoundaries
-*/
-
-/*!
-    \enum QTextLayout::PaletteFlags
-
-    \internal
-
-    \value None
-    \value UseTextColor
-*/
-
-/*!
-    \enum QTextLayout::LayoutModeFlags
-
-    \internal
-
-    \value NoBidi
-    \value MultiLine
 */
 
 /*!
@@ -311,20 +273,10 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
 */
 
 /*!
-    \enum QTextLayout::SelectionType
-
-    \internal
-
-    \value NoSelection
-    \value Highlight
-    \value ImText
-    \value ImSelection
-*/
-
-/*!
     \fn QTextEngine *QTextLayout::engine() const
-
     \internal
+
+    Returns the text engine used to render the text layout.
 */
 
 /*!
@@ -421,7 +373,8 @@ QString QTextLayout::text() const
 }
 
 /*!
-  Sets the text option structure that controls the layouting process.
+  Sets the text option structure that controls the layout process to the
+  given \a option.
 
   \sa textOption() QTextOption
 */
@@ -431,7 +384,7 @@ void QTextLayout::setTextOption(const QTextOption &option)
 }
 
 /*!
-  returns the QTextOption that is currently used to control layouting.
+  Returns the current text option used to control the layout process.
 
   \sa setTextOption() QTextOption
 */
@@ -501,7 +454,8 @@ void QTextLayout::clearAdditionalFormats()
 }
 
 /*!
-  Enables caching of the complete layout information. Usually
+  Enables caching of the complete layout information if \a enable is
+  true; otherwise disables layout caching. Usually
   QTextLayout throws most of the layouting information away after a
   call to endLayout() to reduce memory consumption. If you however
   want to draw the layouted text directly afterwards enabling caching
@@ -514,8 +468,9 @@ void QTextLayout::setCacheEnabled(bool enable)
     d->cacheGlyphs = enable;
 }
 
-/*
-  returns true if the complete layouting information is cached.
+/*!
+  Returns true if the complete layout information is cached; otherwise
+  returns false.
 
   \sa setCacheEnabled
 */
@@ -564,7 +519,7 @@ void QTextLayout::endLayout()
     Returns the next valid cursor position after \a oldPos that
     respects the given cursor \a mode.
 
-    \sa validCursorPosition() previousCursorPosition()
+    \sa isValidCursorPosition() previousCursorPosition()
 */
 int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 {
@@ -595,7 +550,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
     Returns the first valid cursor position before \a oldPos that
     respects the given cursor \a mode.
 
-    \sa validCursorPosition() nextCursorPosition()
+    \sa isValidCursorPosition() nextCursorPosition()
 */
 int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 {
@@ -698,7 +653,7 @@ int QTextLayout::lineCount() const
 /*!
     Returns the \a{i}-th line of text in this text layout.
 
-    \sa numLines() findLine()
+    \sa lineCount() lineForTextPosition()
 */
 QTextLine QTextLayout::lineAt(int i) const
 {
@@ -706,9 +661,9 @@ QTextLine QTextLayout::lineAt(int i) const
 }
 
 /*!
-    Returns the line that contains the cursor position \a pos.
+    Returns the line that contains the cursor position specified by \a pos.
 
-    \sa validCursorPosition() lineAt()
+    \sa isValidCursorPosition() lineAt()
 */
 QTextLine QTextLayout::lineForTextPosition(int pos) const
 {
@@ -791,10 +746,11 @@ qreal QTextLayout::maximumWidth() const
 }
 
 /*!
-    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QRect &clip) const
+    \fn void QTextLayout::draw(QPainter *painter, const QPointF &position, const QVector &selections, const QRectF &clipRect) const
 
-    Draws the whole layout on the \a painter at point \a pos with the
-    given \a cursorPos.
+    Draws the whole layout on the \a painter at the given \a position.
+    The rendered layout includes the given \a selections and is clipped within
+    the rectangle specified by \a clipRect.
 */
 void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<QTextLayout::FormatRange> &selections, const QRectF &clip) const
 {
@@ -829,8 +785,11 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<QTextLayou
 }
 
 /*!
-  Draws a cursor at the position indicated by cursorPosition using the current pen on the
-  painter.
+  \fn void QTextLayout::drawCursor(QPainter *painter, const QPointF &position, int cursorPosition) const
+
+  Draws a text cursor with the current pen at the given \a position using the
+  \a painter specified.
+  The corresponding position within the text is specified by \a cursorPosition.
 */
 void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const
 {
@@ -875,11 +834,6 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 }
 
 /*!
-    \class QTextLayout::Selection
-    \internal
-*/
-
-/*!
     \class QTextLine
     \brief The QTextLine class represents a line of text inside a QTextLayout.
 
@@ -887,10 +841,10 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 
     A text line is usually created by QTextLayout::createLine().
 
-    After being created, the line() can be filled using the layout()
+    After being created, the line can be filled using the layout()
     function. A line has a number of attributes including the
     rectangle it occupies, rect(), its coordinates, x() and y(), its
-    length(), width() and textWidth(), and its ascent() and decent()
+    textLength(), width() and naturalTextWidth(), and its ascent() and decent()
     relative to the text. The position of the cursor in terms of the
     line is available from cursorToX() and its inverse from
     xToCursor(). A line can be moved with setPosition().
@@ -931,14 +885,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 */
 
 /*!
-    \fn QTextEngine *QTextLine::engine() const
-  \internal
-
-    Returns the text line's text engine.
-*/
-
-/*!
-    \fn int QTextLine::line() const
+    \fn int QTextLine::lineNumber() const
 
     Returns the position of the line in the text engine.
 */
@@ -947,7 +894,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 /*!
     Returns the line's bounding rectangle.
 
-    \sa x() y() length() width()
+    \sa x() y() textLength() width()
 */
 QRect QTextLine::rect() const
 {
@@ -955,7 +902,9 @@ QRect QTextLine::rect() const
     return QRect(qRound(sl.x), qRound(sl.y), qRound(sl.width), qRound(sl.height()));
 }
 
-
+/*!
+    Returns the rectangle covered by the line.
+*/
 QRectF QTextLine::naturalTextRect() const
 {
     const QScriptLine& sl = eng->lines[i];
@@ -967,7 +916,7 @@ QRectF QTextLine::naturalTextRect() const
 /*!
     Returns the line's x position.
 
-    \sa rect() y() length() width()
+    \sa rect() y() textLength() width()
 */
 qreal QTextLine::x() const
 {
@@ -977,7 +926,7 @@ qreal QTextLine::x() const
 /*!
     Returns the line's y position.
 
-    \sa x() rect() length() width()
+    \sa x() rect() textLength() width()
 */
 qreal QTextLine::y() const
 {
@@ -987,7 +936,7 @@ qreal QTextLine::y() const
 /*!
     Returns the line's width as specified by the layout() function.
 
-    \sa textWidth() x() y() length() rect()
+    \sa naturalTextWidth() x() y() textLength() rect()
 */
 qreal QTextLine::width() const
 {
@@ -1238,7 +1187,7 @@ int QTextLine::textStart() const
 /*!
     Returns the length of the text in the line.
 
-    \sa textWidth()
+    \sa naturalTextWidth()
 */
 int QTextLine::textLength() const
 {
@@ -1333,8 +1282,10 @@ static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const Q
 }
 
 /*!
-    Draws a line on painter \a p at position \a xpos, \a ypos. \a
-    selection is reserved for internal use.
+    \fn void QTextLine::draw(QPainter *painter, const QPointF &position, const QTextLayout::FormatRange *selection) const
+
+    Draws a line on the given \a painter at the specified \a position.
+    The \a selection is reserved for internal use.
 */
 void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatRange *selection) const
 {

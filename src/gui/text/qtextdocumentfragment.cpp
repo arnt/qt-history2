@@ -806,8 +806,10 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
 }
 
 /*!
+    \fn QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &text)
+
     Returns a QTextDocumentFragment based on the arbitrary piece of
-    HTML in the string \a html. The formatting is preserved as much as
+    HTML in the given \a text. The formatting is preserved as much as
     possible; for example, "<b>bold</b>" will become a document
     fragment with the text "bold" with a bold character format.
 */
