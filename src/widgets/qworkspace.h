@@ -46,6 +46,8 @@ public:
     QWidget* activeClient() const;
     QWidgetList clientList() const;
 
+    QSizePolicy sizePolicy() const;
+    
 signals:
     void clientActivated( QWidget* w);
 

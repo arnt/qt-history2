@@ -485,6 +485,14 @@ QWorkspace::~QWorkspace()
     delete d;
 }
 
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+QSizePolicy QWorkspace::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}
 
 /*! \reimp */
 
