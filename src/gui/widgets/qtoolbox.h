@@ -81,12 +81,11 @@ public:
     inline QT_COMPAT QWidget *item(int index) const { return widget(index); }
 #endif
 
-private slots:
-    void buttonClicked();
-    void widgetDestroyed(QObject*);
 private:
-    void relayout();
-    QToolBoxPrivate *d;
+    Q_DECLARE_PRIVATE(QToolBox)
+    Q_DISABLE_COPY(QToolBox)
+    Q_PRIVATE_SLOT(d, void buttonClicked());
+    Q_PRIVATE_SLOT(d, void widgetDestroyed(QObject*));
 };
 
 
