@@ -2908,7 +2908,7 @@ QTextStringChar *QTextStringChar::clone() const
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
     : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
-      tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), tc( 0 ),
+      tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), tc( 0 ),
       numCustomItems( 0 ), pFormatter( 0 ),
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
@@ -2958,7 +2958,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	while ( s ) {
 	    s->id = s->p->id + 1;
 	    s->numSubParag = -1;
-	    s->lm = s->rm = s->tm = s->bm = -1;
+	    s->lm = s->rm = s->tm = s->bm = -1, s->flm = -1;
 	    s = s->n;
 	}
     }
@@ -3009,7 +3009,7 @@ void QTextParag::invalidate( int chr )
 	invalid = QMIN( invalid, chr );
     for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() )
 	i->ypos = -1;
-    lm = rm = bm = tm = -1;
+    lm = rm = bm = tm = flm = -1;
 }
 
 void QTextParag::insert( int index, const QString &s )
@@ -3682,7 +3682,7 @@ void QTextParag::setStyleSheetItems( const QVector<QStyleSheetItem> &vec )
 {
     styleSheetItemsVec = vec;
     invalidate( 0 );
-    lm = rm = tm = bm = -1;
+    lm = rm = tm = bm = flm = -1;
     numSubParag = -1;
 }
 
@@ -3726,13 +3726,13 @@ void QTextParag::setList( bool b, int listStyle )
 	}
     }
     invalidate( 0 );
-    lm = rm = tm = bm = -1;
+    lm = rm = tm = bm = flm = -1;
     numSubParag = -1;
     if ( next() ) {
 	QTextParag *s = next();
 	while ( s ) {
 	    s->numSubParag = -1;
-	    s->lm = s->rm = s->tm = s->bm = -1;
+	    s->lm = s->rm = s->tm = s->bm = flm = -1;
 	    s->numSubParag = -1;
 	    s->invalidate( 0 );
 	    s = s->next();
@@ -3754,6 +3754,7 @@ void QTextParag::incDepth()
 			       doc->styleSheet()->item( "ul" ) : doc->styleSheet()->item( "ol" ) );
     invalidate( 0 );
     lm = -1;
+    flm = -1;
 }
 
 void QTextParag::decDepth()
@@ -3785,6 +3786,7 @@ void QTextParag::decDepth()
 	setList( FALSE, -1 );
     invalidate( 0 );
     lm = -1;
+    flm = -1;
 }
 
 int QTextParag::nextTab( int x )
@@ -3981,6 +3983,32 @@ int QTextParag::leftMargin() const
     return lm;
 }
 
+int QTextParag::firstLineMargin() const
+{
+    if ( flm != -1 )
+	return lm;
+    QStyleSheetItem *item = style();
+    if ( !item ) {
+	( (QTextParag*)this )->flm = 0;
+	return 0;
+    }
+    int m = 0;
+    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
+	item = styleSheetItemsVec[ i ];
+	int mar = item->margin( QStyleSheetItem::MarginFirstLine );
+	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+    }
+
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	m = (int)( (double)m * yscale );
+    }
+
+    ( (QTextParag*)this )->flm = m;
+    return flm;
+}
+
 int QTextParag::rightMargin() const
 {
     if ( rm != -1 )
@@ -4094,7 +4122,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
     // now construct the reordered string out of the runs...
 
     int left = parag->document() ? parag->leftMargin() + 4 : 4;
-    int x = left;
+    int x = left + ( parag->document() ? parag->firstLineMargin() : 0 );
     if ( parag->document() )
 	x = parag->document()->flow()->adjustLMargin( parag->rect().y(), left, 4 );
     int numSpaces = 0;
@@ -4264,13 +4292,13 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     int left = doc ? parag->leftMargin() + 4 : 4;
-    int x = left;
+    int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int dw = parag->documentVisibleWidth() - ( doc ? 8 : 0 );
     int y = 0;
     int h = 0;
     int len = parag->length();
     if ( doc )
-	x = doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
+	x = doc->flow()->adjustLMargin( y + parag->rect().y(), x, 4 );
     int rm = parag->rightMargin();
     int w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
     bool fullWidth = TRUE;
@@ -4387,13 +4415,13 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
     int left = doc ? parag->leftMargin() + 4 : 0;
-    int x = left;
+    int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int curLeft = left;
     int y = 0;
     int h = 0;
     int len = parag->length();
     if ( doc )
-	x = doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
+	x = doc->flow()->adjustLMargin( y + parag->rect().y(), x, 4 );
     int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : 8 ) : -4 );
 
     curLeft = x;

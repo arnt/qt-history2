@@ -63,7 +63,7 @@ public:
     QColor col;
     bool anchor;
     int align;
-    int margin[4];
+    int margin[5];
     QStyleSheetItem::ListStyle list;
     QStyleSheetItem::WhiteSpaceMode whitespacemode;
     QString contxt;
@@ -107,6 +107,7 @@ public:
   \value MarginAll  all margins (left, right, top and bottom)
   \value MarginVertical  top and bottom margins
   \value MarginHorizontal  left and right margins
+  \value MarginFirstLine  margin (indentation) of the first line of a paragarph (in addition to the MarginLeft of the paragraph)
 */
 
 /*!
@@ -186,6 +187,7 @@ void QStyleSheetItem::init()
     d->margin[1] = Undefined;
     d->margin[2] = Undefined;
     d->margin[3] = Undefined;
+    d->margin[4] = Undefined;
     d->list = QStyleSheetItem::ListDisc;
     d->whitespacemode = QStyleSheetItem::WhiteSpaceNormal;
     d->selfnest = TRUE;
@@ -571,17 +573,16 @@ void QStyleSheetItem::setMargin(Margin m, int v)
 	d->margin[1] = v;
 	d->margin[2] = v;
 	d->margin[3] = v;
-    }
-    else if (m == MarginVertical ) {
+	d->margin[5] = v;
+    } else if (m == MarginVertical ) {
 	d->margin[MarginTop] = v;
 	d->margin[MarginBottom] = v;
-    }
-    else if (m == MarginHorizontal ) {
+    } else if (m == MarginHorizontal ) {
 	d->margin[MarginLeft] = v;
 	d->margin[MarginRight] = v;
-    }
-    else
+    } else {
 	d->margin[m] = v;
+    }
 }
 
 

@@ -1147,6 +1147,7 @@ public:
     int topMargin() const;
     int bottomMargin() const;
     int leftMargin() const;
+    int firstLineMargin() const;
     int rightMargin() const;
 
     int numberOfSubParagraph() const;
@@ -1221,7 +1222,7 @@ private:
     QVector<QStyleSheetItem> styleSheetItemsVec;
     QStyleSheetItem::ListStyle listS;
     int numSubParag;
-    int tm, bm, lm, rm;
+    int tm, bm, lm, rm, flm;
     QTextFormat *defFormat;
     QList<QTextCustomItem> floatingItems;
     QTextTableCell *tc;

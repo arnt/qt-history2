@@ -121,6 +121,7 @@ public:
 	MarginRight,
 	MarginTop,
 	MarginBottom,
+	MarginFirstLine,
 	MarginAll,
 	MarginVertical,
 	MarginHorizontal
