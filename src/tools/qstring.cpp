@@ -433,6 +433,7 @@ void QString::realloc(int alloc)
 	x->data = x->array;
 	::memcpy(x->data, d->data, QMIN(alloc, d->alloc)*sizeof(QChar));
 	x->c = 0;
+	x->cache = 0;
 	x->ref = 1;
 	x->alloc = alloc;
 	x = qAtomicSetPtr( &d, x );
