@@ -148,7 +148,7 @@ QTextDocumentPrivate *QTextObject::docHandle() const
 
     Text blocks can be inserted into a group with blockInserted(), and removed
     with blockRemoved(). If a block's format is changed, blockFormatChanged()
-    is called. 
+    is called.
 
     The list of blocks in the group is returned by blockList(). Note that the
     blocks in the list are not necessarily adjacent elements in the document;
@@ -920,11 +920,8 @@ QTextLayout *QTextBlock::layout() const
         return 0;
 
     const QTextBlockData *b = p->blockMap().fragment(n);
-    if (!b->layout || b->textDirty) {
-        delete b->layout;
+    if (!b->layout)
         b->layout = new QTextLayout(*this);
-        b->textDirty = false;
-    }
     return b->layout;
 }
 

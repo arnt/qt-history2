@@ -224,7 +224,7 @@ bool QTextInlineObject::isRightToLeft() const
         int leading = fontMetrics.leading();
         int height = 0;
         int widthUsed = 0;
-        textLayout.clearLines();
+        textLayout.beginLayout();
         while (1) {
             QTextLine line = textLayout.createLine();
             if (!line.isValid())
@@ -236,6 +236,7 @@ bool QTextInlineObject::isRightToLeft() const
             height += line.height();
             widthUsed = qMax(widthUsed, line.textWidth());
         }
+        textLayout.endLayout();
     \endcode
 
     And here's some pseudo code that presents the painting phase:
@@ -249,13 +250,12 @@ bool QTextInlineObject::isRightToLeft() const
     The text layout's text is set in the constructor or with
     setText(). The layout can be seen as a sequence of QTextLine
     objects; use lineAt() or findLine() to get a QTextLine,
-    createLine() to create one and clearLines() to remove them. For a
-    given position in the text you can find a valid cursor position
-    with validCursorPosition(), nextCursorPosition(), and
-    previousCursorPosition(). The layout itself can be positioned with
-    setPosition(); it has a boundingRect(), and a minimumWidth() and a
-    maximumWidth(). A text layout can be drawn on a painter device
-    using draw().
+    createLine() to create one. For a given position in the text you
+    can find a valid cursor position with validCursorPosition(),
+    nextCursorPosition(), and previousCursorPosition(). The layout
+    itself can be positioned with setPosition(); it has a
+    boundingRect(), and a minimumWidth() and a maximumWidth(). A text
+    layout can be drawn on a painter device using draw().
 
 */
 
@@ -361,39 +361,6 @@ QTextLayout::QTextLayout(const QTextBlock &block)
     // creates it on-demand if necessary
     d->docLayout = p->document()->documentLayout();
     Q_ASSERT(d->docLayout);
-
-    QString txt = block.text();
-    setText(txt);
-    if (txt.isEmpty())
-        return;
-
-    d->itemize();
-
-    int lastTextPosition = 0;
-    int textLength = 0;
-
-    QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
-    QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
-    int lastFormatIdx = it.value()->format;
-
-    for (; it != end; ++it) {
-        const QTextFragmentData * const frag = it.value();
-
-        const int formatIndex = frag->format;
-        if (formatIndex != lastFormatIdx) {
-            Q_ASSERT(lastFormatIdx != -1);
-            d->setFormat(lastTextPosition, textLength, lastFormatIdx);
-
-            lastFormatIdx = formatIndex;
-            lastTextPosition += textLength;
-            textLength = 0;
-        }
-
-        textLength += frag->size;
-    }
-
-    Q_ASSERT(lastFormatIdx != -1);
-    d->setFormat(lastTextPosition, textLength, lastFormatIdx);
 }
 
 /*!
@@ -404,18 +371,25 @@ QTextLayout::~QTextLayout()
     delete d;
 }
 
-// ####### go away!
 /*!
-  \internal
+    Sets the layout's font to the given \a font. The layout is
+    invalidated and must be laid out again.
+
+    \sa text()
 */
-void QTextLayout::setText(const QString& string, const QFont& fnt)
+void QTextLayout::setFont(const QFont &font)
 {
-    delete d;
-    d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
+    if (d->fnt && !--d->fnt->ref)
+        delete d->fnt;
+    d->fnt = font.d;
+    ++d->fnt->ref;
 }
 
-// ### DOC: How is it laid out again? Do they call draw() or what?
-// Same as initially, see the code snipplet in the class overview.
+QFont QTextLayout::font() const
+{
+    return d->fnt ? QFont(d->fnt) : QFont();
+}
+
 /*!
     Sets the layout's text to the given \a string. The layout is
     invalidated and must be laid out again.
@@ -424,7 +398,8 @@ void QTextLayout::setText(const QString& string, const QFont& fnt)
 */
 void QTextLayout::setText(const QString& string)
 {
-    d->setText(string);
+    d->invalidate();
+    d->string = string;
 }
 
 /*!
@@ -488,8 +463,14 @@ void QTextLayout::setLayoutMode(LayoutMode m)
 
 void QTextLayout::beginLayout()
 {
-    d->items.clear();
-    d->itemize();
+    if (d->docLayout) {
+        const QTextBlockData *b = d->block.p->blockMap().fragment(d->block.n);
+        if (b->textDirty)
+            d->updateTextFromDocument();
+    } else {
+        d->items.clear();
+        d->itemize();
+    }
 }
 
 void QTextLayout::endLayout()
@@ -570,21 +551,6 @@ bool QTextLayout::validCursorPosition(int pos) const
     return attributes[pos].charStop;
 }
 
-
-/*!
-    Clears the layout information stored in the layout, and begins a
-    new layout process.
-*/
-void QTextLayout::clearLines()
-{
-    d->lines.clear();
-    // invalidate bounding rect
-    d->boundingRect = QRect();
-    d->minWidth = 0;
-    d->maxWidth = 0;
-    if(!d->items.size())
-      beginLayout();
-}
 
 // ### DOC: Don't know what this really does.
 // added a bit more description
@@ -692,7 +658,7 @@ QRectF QTextLayout::boundingRect() const
             // ### shouldn't the ascent be used in ymin???
             ymax = qMax(ymax, si.y+si.ascent+si.descent+1);
         }
-        d->boundingRect = QRect(xmin, ymin, xmax-xmin, ymax-ymin);
+        d->boundingRect = QRectF(xmin, ymin, xmax-xmin, ymax-ymin);
     }
     return d->boundingRect;
 }

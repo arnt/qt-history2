@@ -216,6 +216,7 @@ private:
     QTextDocumentPrivate *p;
     int n;
     friend class QTextDocumentPrivate;
+    friend class QTextLayout;
 };
 
 Q_DECLARE_TYPEINFO(QTextBlock, Q_MOVABLE_TYPE);

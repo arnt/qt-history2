@@ -78,9 +78,9 @@ public:
     QTextLayout(const QTextBlock &b);
     ~QTextLayout();
 
-    void setText(const QString& string, const QFont& fnt);
+    void setFont(const QFont &f);
+    QFont font() const;
 
-    // ######### go away
     void setText(const QString& string);
     QString text() const;
 
@@ -112,7 +112,6 @@ public:
     void beginLayout();
     void endLayout();
 
-    void clearLines();
     QTextLine createLine();
 
     int numLines() const;

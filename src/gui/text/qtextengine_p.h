@@ -302,6 +302,8 @@ public:
     void freeMemory();
 
     int findItem(int strPos) const;
+    void updateTextFromDocument();
+    void invalidate();
 
     mutable QScriptItemArray items;
     mutable QScriptLineArray lines;

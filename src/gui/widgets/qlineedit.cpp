@@ -2100,14 +2100,15 @@ void QLineEditPrivate::updateTextLayout()
         if (! uc[i].isPrint())
             uc[i] = QChar(0x0020);
     }
-    textLayout.setText(str, q->font());
+    textLayout.setFont(q->font());
+    textLayout.setText(str);
     textLayout.setDirection((QChar::Direction)direction);
     textLayout.setLayoutMode(QTextLayout::SingleLine);
     textLayout.beginLayout();
-    textLayout.clearLines();
     QTextLine l = textLayout.createLine();
     l.layout(0x100000);
     ascent = qRound(l.ascent());
+    textLayout.endLayout();
 }
 
 int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const

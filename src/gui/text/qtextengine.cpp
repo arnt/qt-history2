@@ -23,6 +23,7 @@
 #include "qfontengine_p.h"
 #include "qstring.h"
 #include <private/qunicodetables_p.h>
+#include "qtextdocument_p.h"
 #include <stdlib.h>
 
 
@@ -205,6 +206,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
                 item.analysis.script = QFont::Latin;
                 item.isObject = true;
                 s = QFont::NoScript;
+#if 0
             } else if ((uc >= 9 && uc <=13) ||
                        (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
                 item.analysis.script = QFont::Latin;
@@ -212,6 +214,14 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
                 item.isTab = (uc == '\t');
                 item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
                 s = QFont::NoScript;
+#else
+            } else if (uc == 9) {
+                item.analysis.script = QFont::Latin;
+                item.isSpace = true;
+                item.isTab = true
+                item.analysis.bidiLevel = control.baseLevel();
+                s = QFont::NoScript;
+#endif
             } else if (s != script && (category != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
                 item.analysis.script = s;
                 item.analysis.bidiLevel = level;
@@ -829,18 +839,27 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 static void init(QTextEngine *e)
 {
     e->formats = 0;
+
+    e->direction = QChar::DirON;
+    e->haveCharAttributes = false;
+    e->widthOnly = false;
+    e->designMetrics = false;
+    e->textColorFromPalette = false;
+    e->itemization_mode = 0;
+    e->textFlags = 0;
+
+    e->pal = 0;
     e->docLayout = 0;
+
     e->allocated = 0;
     e->memory = 0;
     e->num_glyphs = 0;
-    e->cursorPos = -1;
-    e->underlinePositions = 0;
-    e->designMetrics = false;
-    e->itemization_mode = 0;
-    e->textColorFromPalette = false;
-    e->pal = 0;
+    e->used = 0;
     e->minWidth = 0.;
     e->maxWidth = 0.;
+
+    e->cursorPos = -1;
+    e->underlinePositions = 0;
 }
 
 QTextEngine::QTextEngine()
@@ -906,22 +925,6 @@ void QTextEngine::reallocate(int totalGlyphs)
     num_glyphs = totalGlyphs;
 }
 
-void QTextEngine::freeMemory()
-{
-    free(memory);
-    memory = 0;
-    haveCharAttributes = 0;
-    allocated = 0;
-    num_glyphs = 0;
-    used = 0;
-    for (int i = 0; i < items.size(); ++i)
-        items[i].num_glyphs = 0;
-    for (int i = 0; i < lines.size(); ++i) {
-        lines[i].justified = 0;
-        lines[i].gridfitted = 0;
-    }
-//     items.clear();
-}
 
 const QCharAttributes *QTextEngine::attributes()
 {
@@ -1161,7 +1164,7 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 QFont QTextEngine::font(const QScriptItem &si) const
 {
     QFontPrivate *fp = fnt;
-    if (!fp) {
+    if (formats) {
         Q_ASSERT(formats);
         QTextFormat f = formats->format(si.format);
         Q_ASSERT(f.isCharFormat());
@@ -1407,4 +1410,68 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
 
     ascent = e->ascent();
     descent = e->descent();
+}
+
+void QTextEngine::freeMemory()
+{
+    free(memory);
+    memory = 0;
+    haveCharAttributes = 0;
+    allocated = 0;
+    num_glyphs = 0;
+    used = 0;
+    for (int i = 0; i < lines.size(); ++i) {
+        lines[i].justified = 0;
+        lines[i].gridfitted = 0;
+    }
+    for (int i = 0; i < items.size(); ++i)
+        items[i].num_glyphs = 0;
+//     items.clear();
+}
+
+void QTextEngine::invalidate()
+{
+    string = QString();
+    freeMemory();
+    lines.clear();
+    boundingRect = QRect();
+    minWidth = 0;
+    maxWidth = 0;
+}
+
+void QTextEngine::updateTextFromDocument()
+{
+    invalidate();
+
+    string = block.text();
+    if (string.isEmpty())
+        return;
+    itemize();
+
+    int lastTextPosition = 0;
+    int textLength = 0;
+
+    const QTextDocumentPrivate *p = block.docHandle();
+    QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
+    QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
+    int lastFormatIdx = it.value()->format;
+
+    for (; it != end; ++it) {
+        const QTextFragmentData * const frag = it.value();
+
+        const int formatIndex = frag->format;
+        if (formatIndex != lastFormatIdx) {
+            Q_ASSERT(lastFormatIdx != -1);
+            setFormat(lastTextPosition, textLength, lastFormatIdx);
+
+            lastFormatIdx = formatIndex;
+            lastTextPosition += textLength;
+            textLength = 0;
+        }
+
+        textLength += frag->size;
+    }
+
+    Q_ASSERT(lastFormatIdx != -1);
+    setFormat(lastTextPosition, textLength, lastFormatIdx);
 }

@@ -4354,7 +4354,6 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         float leading = fm.leading();
         height = -leading;
 
-        textLayout.clearLines();
         while (1) {
             QTextLine l = textLayout.createLine();
             if (!l.isValid())
@@ -4366,6 +4365,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             height += l.ascent() + l.descent();
             width = qMax(width, l.textWidth());
         }
+        textLayout.endLayout();
     }
 
     float yoff = 0;

@@ -1245,7 +1245,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
 //     tl->setLayoutMode(QTextLayout::NoGlyphCache);
-    tl->clearLines();
+    tl->beginLayout();
 
     layoutStruct->y += blockFormat.topMargin();
     const int cy = layoutStruct->y;
