@@ -165,9 +165,9 @@ struct QTextHtmlParserNode {
         return true;
     }
 
-private:
-    void setAttributesFromId();
+    void initializeProperties(const QTextHtmlParserNode *parent);
 
+private:
     int margin[5];
     friend class QTextHtmlParser;
 };

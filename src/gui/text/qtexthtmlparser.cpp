@@ -426,114 +426,6 @@ static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logica
     return fontPointSize;
 }
 
-void QTextHtmlParserNode::setAttributesFromId()
-{
-    switch (id) {
-        case Html_em:
-        case Html_i:
-            fontItalic = true;
-            break;
-        case Html_big:
-            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, 1 /*step*/);
-            break;
-        case Html_small:
-            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, -1 /*step*/);
-            break;
-        case Html_strong:
-        case Html_b:
-            fontWeight = QFont::Bold;
-            break;
-        case Html_h1:
-            fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
-            margin[QTextHtmlParser::MarginTop] = 18;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_h2:
-            fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
-            margin[QTextHtmlParser::MarginTop] = 16;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_h3:
-            fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
-            margin[QTextHtmlParser::MarginTop] = 14;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_h4:
-            fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_h5:
-            fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 4;
-            break;
-        case Html_p:
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_center:
-            alignment = Qt::AlignCenter;
-            break;
-        case Html_ul:
-            listStyle = QTextListFormat::ListDisc;
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            // no left margin as we use indenting instead
-            break;
-        case Html_ol:
-            listStyle = QTextListFormat::ListDecimal;
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            // no left margin as we use indenting instead
-            break;
-        case Html_code:
-        case Html_tt:
-            fontFamily = QString::fromLatin1("Courier New,courier");
-            break;
-        case Html_br:
-            text = QChar::LineSeparator;
-            break;
-        // ##### sub / sup
-        case Html_pre:
-            fontFamily = QString::fromLatin1("Courier New,courier");
-            wsm = WhiteSpacePre;
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
-            break;
-        case Html_blockquote:
-            margin[QTextHtmlParser::MarginLeft] = 40;
-            margin[QTextHtmlParser::MarginRight] = 40;
-            break;
-        case Html_dl:
-            margin[QTextHtmlParser::MarginTop] = 8;
-            margin[QTextHtmlParser::MarginBottom] = 8;
-            break;
-        case Html_dd:
-            margin[QTextHtmlParser::MarginLeft] = 30;
-            break;
-        case Html_u:
-            fontUnderline = true;
-            break;
-        case Html_s:
-            fontStrikeOut = true;
-            break;
-        case Html_nobr:
-            wsm = WhiteSpaceNoWrap;
-            break;
-        case Html_th:
-            fontWeight = QFont::Bold;
-            alignment = Qt::AlignCenter;
-            break;
-        default: break;
-    }
-}
-
 // quotes newlines as "\\n"
 static QString quoteNewline(const QString &s)
 {
@@ -952,34 +844,142 @@ void QTextHtmlParser::resolveNode()
 {
     QTextHtmlParserNode *node = &nodes.last();
     const QTextHtmlParserNode *parent = &nodes.at(node->parent);
+    node->initializeProperties(parent);
+}
 
+void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent)
+{
     // inherit properties from parent element
-    node->isAnchor = parent->isAnchor;
-    node->fontItalic = parent->fontItalic;
-    node->fontUnderline = parent->fontUnderline;
-    node->fontOverline = parent->fontOverline;
-    node->fontStrikeOut = parent->fontStrikeOut;
-    node->fontFixedPitch = parent->fontFixedPitch;
-    node->fontFamily = parent->fontFamily;
-    node->fontPointSize = parent->fontPointSize;
-    node->fontWeight = parent->fontWeight;
-    node->color = parent->color;
-    node->bgColor = parent->bgColor;
-    node->alignment = parent->alignment;
-    node->listStyle = parent->listStyle;
-    node->anchorHref = parent->anchorHref;
-    node->anchorName = parent->anchorName;
-    node->wsm = parent->wsm;
+    isAnchor = parent->isAnchor;
+    fontItalic = parent->fontItalic;
+    fontUnderline = parent->fontUnderline;
+    fontOverline = parent->fontOverline;
+    fontStrikeOut = parent->fontStrikeOut;
+    fontFixedPitch = parent->fontFixedPitch;
+    fontFamily = parent->fontFamily;
+    fontPointSize = parent->fontPointSize;
+    fontWeight = parent->fontWeight;
+    color = parent->color;
+    bgColor = parent->bgColor;
+    alignment = parent->alignment;
+    listStyle = parent->listStyle;
+    anchorHref = parent->anchorHref;
+    anchorName = parent->anchorName;
+    wsm = parent->wsm;
 
     // initialize remaining properties
-    node->margin[0] = 0;
-    node->margin[1] = 0;
-    node->margin[2] = 0;
-    node->margin[3] = 0;
-    node->margin[4] = 0;
-    node->cssFloat = QTextFrameFormat::InFlow;
+    margin[0] = 0;
+    margin[1] = 0;
+    margin[2] = 0;
+    margin[3] = 0;
+    margin[4] = 0;
+    cssFloat = QTextFrameFormat::InFlow;
 
-    node->setAttributesFromId();
+    // set element specific attributes
+    switch (id) {
+        case Html_em:
+        case Html_i:
+            fontItalic = true;
+            break;
+        case Html_big:
+            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, 1 /*step*/);
+            break;
+        case Html_small:
+            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, -1 /*step*/);
+            break;
+        case Html_strong:
+        case Html_b:
+            fontWeight = QFont::Bold;
+            break;
+        case Html_h1:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
+            margin[QTextHtmlParser::MarginTop] = 18;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_h2:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
+            margin[QTextHtmlParser::MarginTop] = 16;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_h3:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
+            margin[QTextHtmlParser::MarginTop] = 14;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_h4:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_h5:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 4;
+            break;
+        case Html_p:
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_center:
+            alignment = Qt::AlignCenter;
+            break;
+        case Html_ul:
+            listStyle = QTextListFormat::ListDisc;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            // no left margin as we use indenting instead
+            break;
+        case Html_ol:
+            listStyle = QTextListFormat::ListDecimal;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            // no left margin as we use indenting instead
+            break;
+        case Html_code:
+        case Html_tt:
+            fontFamily = QString::fromLatin1("Courier New,courier");
+            break;
+        case Html_br:
+            text = QChar::LineSeparator;
+            break;
+        // ##### sub / sup
+        case Html_pre:
+            fontFamily = QString::fromLatin1("Courier New,courier");
+            wsm = WhiteSpacePre;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
+            break;
+        case Html_blockquote:
+            margin[QTextHtmlParser::MarginLeft] = 40;
+            margin[QTextHtmlParser::MarginRight] = 40;
+            break;
+        case Html_dl:
+            margin[QTextHtmlParser::MarginTop] = 8;
+            margin[QTextHtmlParser::MarginBottom] = 8;
+            break;
+        case Html_dd:
+            margin[QTextHtmlParser::MarginLeft] = 30;
+            break;
+        case Html_u:
+            fontUnderline = true;
+            break;
+        case Html_s:
+            fontStrikeOut = true;
+            break;
+        case Html_nobr:
+            wsm = WhiteSpaceNoWrap;
+            break;
+        case Html_th:
+            fontWeight = QFont::Bold;
+            alignment = Qt::AlignCenter;
+            break;
+        default: break;
+    }
 }
 
 
