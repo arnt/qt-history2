@@ -65,6 +65,8 @@
 #  include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
+#include <stdlib.h>
+
 /*!
   \class QApplication qapplication.h
   \brief The QApplication class manages the GUI application's control
