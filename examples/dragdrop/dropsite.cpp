@@ -33,10 +33,11 @@ DropSite::~DropSite()
 }
 
 
-void DropSite::dragMoveEvent( QDragMoveEvent * /*e*/ )
+void DropSite::dragMoveEvent( QDragMoveEvent *e )
 {
     // Check if you want the drag at e->pos()...
-    // Give the user some feedback...
+    // Give the user some feedback - only copy is possible
+    e->acceptAction( e->action() == QDropEvent::Copy );
 }
 
 
