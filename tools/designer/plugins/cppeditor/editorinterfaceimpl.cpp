@@ -155,6 +155,7 @@ bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forw
 
 bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor )
 {
+    return FALSE;
 }
 
 void EditorInterfaceImpl::gotoLine( int line )
