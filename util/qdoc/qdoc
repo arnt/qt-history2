@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#37 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#38 $
 #
 # this is a massive hack, written very quickly
 #
@@ -368,11 +368,56 @@ sub getfile {
 
 
 
+sub readfiles {
+    local($/, $_, $filename);
+
+    undef $/;
+    foreach $filename ( keys %headerfiles ) {
+	$_ = $filename;
+	open(F, "< $_") || die "can't open $_ for reading";
+	s/\./-/;
+	s/$/.html/;
+	open(H, "> $outputdir/$_") 
+	    || die "can't open $outputdir/$_ for writing";
+	$_ = <F>;
+	close(F);
+	$_ = html($_);
+	s@\b(class\s+)([A-Za-z0-9_]+)\b@
+	    if (defined($anchor{$2})) {
+		sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
+	    } else {
+		sprintf("%s%s", $1, $2);
+	    }
+	@egsx;
+	print H "
+<html><head><title>
+Qt Toolkit - ", $filename, " include file
+</title></head><body>
+<p>This is the verbatim text of the include file.  It is provided for
+documentation only; the copyright remains with Troll Tech.
+<hr>
+<pre>
+", $_, "
+</pre>
+<hr><p>
+This file is part of the <a href=qt.html>Qt toolkit</a>,
+<a href=licence.html>copyright</a> 1995
+<a href=troll.html>Troll Tech</a>, all rights reserved.
+<address>
+Generated at ", $date, " by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>
+</address>
+</body></html>";
+	close H;
+    }
+}
+
+
+
 sub readh {
     local ($filename) = @_;
 
     $h = getfile($filename);
-    print "header file: ", $filename, "\n";# if ($debug);
+    print "header file: ", $filename, "\n" if ($debug);
 #   $h =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
 
 # { is \x7b and } is \x7d
@@ -382,6 +427,9 @@ sub readh {
 	   ) {
 	&storeclass($filename, $1, $2);
     }
+    $headerfiles{$filename} = $filename;
+    $headerfiles{$filename} =~ s/\./-/;
+    $headerfiles{$filename} =~ s/$/.html/;
 }
 
     
@@ -391,7 +439,7 @@ sub readc {
     local ($filename) = @_;
 
     $c = getfile($filename);
-    print "code file: ", $filename, "\n";# if ($debug);
+    print "code file: ", $filename, "\n" if ($debug);
 
     study $c;
 
@@ -538,7 +586,18 @@ sub makenames {
     local($_);
 
     foreach ( sort keys %name ) {
+	if (($type{$_} ne "enum") && !($doc{$_} =~ /\S/s)) {
+	    print "Undocumented: ", $name{$_}, "\n";
+	    undef $name{$_};
+	    undef $type{$_};
+	}
+    }
+
+    foreach ( sort keys %name ) {
 	$anchor{$name{$_}} = $_ unless (defined($anchor{$name{$_}}));
+    }
+    foreach ( keys %headerfiles ) {
+	$anchor{$_} = $headerfiles{$_} unless (defined($anchor{$_}));
     }
 #  foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
 }
@@ -649,7 +708,8 @@ sub printout {
 	    $fnheader = "<h2>Member Function Documentation</h2>\n";
 	    print O $fntail, $tail;
 	    close(O);
-	    open(O, "> $file") || die "can't open $file ($url) for writing";
+	    open(O, "> $outputdir/$file") 
+		|| die "can't open $outputdir/$file ($url) for writing";
 	    print "output html file: ", $file, "\n";
 	    $cfile = $file;
 
@@ -687,7 +747,9 @@ sub printout {
 	}
 	if ($type{$url} eq "class") {
 	    my ($i);
-	    print O "<p>\n<code>#include &lt;", $includefile{$url}, "&gt;</code>\n"
+	    print O "<p>\n<code>#include &lt;<a href=", 
+	            $headerfiles{$includefile{$url}}, 
+ 		    ">", $includefile{$url}, "</a>&gt;</code>\n"
 		if (defined($includefile{$url}));
 	    $i = "";
 	    foreach ( sort split(/\s*\,\s*/, $inheritance{$url}) ) {
@@ -717,7 +779,7 @@ sub printout {
 		my (%m, $mode);
 		if (defined($brief{$url})) {
 		    print O "<p>\n", $brief{$url}, "\n";
-		    print O "(<a href=#details>Details</a>.)\n"
+		    print O "<a href=#details>(details.)</a>\n"
 			if ($doc{$url} ne "");
 		}
 
@@ -802,10 +864,11 @@ sub printout {
 		    }
 		    print O "</ul>\n";
 		}
-		print O "<p><h2>Detailed Description</h2>\n";
-		print O $brief{$url}, "\n<p><a name=details>\n</a>" 
-		    if ($brief{$url} =~ /\S/s);
-		print O $doc{$url}, "\n";
+		if ($brief{$url} =~ /\S/s) {
+		    print O "<p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+		} else {
+		    print O "<p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+		}
 	    }
 	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/s)) {
 	    my ($name);
@@ -822,7 +885,8 @@ sub printout {
     }
     print O $fntail, $tail;
     close(O);
-    open(O, "> index.html") || die "can't open index.html for writing";
+    open(O, "> $outputdir/index.html")
+	|| die "can't open $outputdir/index.html for writing";
     print O <<EOHEAD
 <html>
 <head><title>Qt toolkit, main index page</title></head>
@@ -853,7 +917,7 @@ EOTAIL
 }
 
 
-umask 0x111;
+umask 0111;
 $cfile = "VOLD";
 #$debug = 1;
 $internal = 1;
@@ -864,12 +928,14 @@ foreach $arg ( 0..$#ARGV ) {
 
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 $date = sprintf("%02d:%02d, %d/%d/%d", $hour, $min, $mday, 1+$mon, 1900+$year);
+$outputdir = "/local/qt/doc/html";
 
 &makenames();
+&readfiles();
 &makearglinks();
 &processdocs();
 
-chdir("/local/qt/doc/html") || die "can't cd to /local/qt/doc/html";
+#chdir("/local/qt/doc/html") || die "can't cd to /local/qt/doc/html";
 
 &printout();
 
