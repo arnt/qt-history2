@@ -5831,7 +5831,8 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
                 qFatal("QPSPrintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }
         }
-        d->pageStream << "CP\n";
+        if (sub.isClosed())
+            d->pageStream << "CP\n";
     }
     d->pageStream << "BF QS\n";
 

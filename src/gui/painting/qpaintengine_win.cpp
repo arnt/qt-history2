@@ -1555,7 +1555,8 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
                 qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }
         }
-        CloseFigure(hdc);
+        if (sub.isClosed())
+            CloseFigure(hdc);
     }
 
     if (!EndPath(hdc))
@@ -1605,8 +1606,9 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::PixmapTransform
         | QPaintEngine::PixmapScale
         | QPaintEngine::ClipTransform
+        |
 #endif
-        | QPaintEngine::PainterPaths
+        QPaintEngine::PainterPaths
         | QPaintEngine::UsesFontEngine
         | QPaintEngine::LinearGradients;
 
@@ -2127,17 +2129,27 @@ void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mod
 //                                      winding ? FillModeWinding : FillModeAlternate);
 //         delete [] p;
 //     }
-    if (d->usePen || d->brush) {
-        if (d->brush && mode != UnconnectedMode) {
-            GdipFillPolygonI(d->graphics, d->brush, pa.data(), pa.size(),
-                             mode == WindingMode
-                             ? 1 // FillModeWinding
-                             : 0 // FillModeAlternate
-                             );
-        }
-        if (d->usePen)
-            GdipDrawPolygonI(d->graphics, d->pen, pa.data(), pa.size());
+
+    if (d->usePen && mode == UnconnectedMode) {
+        QtGpPath *path = 0;
+        GdipCreatePath(0, &path);
+        Q_ASSERT(pa.size()>2);
+        for (int i=1; i<pa.size(); ++i)
+            GdipAddPathLine(path, pa.at(i-1).x(), pa.at(i-1).y(), pa.at(i).x(), pa.at(i).y());
+        GdipDrawPath(d->graphics, d->pen, path);
+        GdipDeletePath(path);
+        return;
     }
+
+    if (d->brush) {
+        GdipFillPolygonI(d->graphics, d->brush, pa.data(), pa.size(),
+                         mode == WindingMode
+                         ? 1 // FillModeWinding
+                         : 0 // FillModeAlternate
+                         );
+    }
+    if (d->usePen)
+        GdipDrawPolygonI(d->graphics, d->pen, pa.data(), pa.size());
 }
 
 
@@ -2219,15 +2231,16 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
                 qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }
         }
-        GdipClosePathFigure(path);
+        if (sub.isClosed())
+            GdipClosePathFigure(path);
     }
 
     GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
 
-    if (d->brush)
-        GdipFillPath(d->graphics, d->brush, path);
     if (d->usePen)
         GdipDrawPath(d->graphics, d->pen, path);
+    if (d->brush)
+        GdipFillPath(d->graphics, d->brush, path);
 
     GdipDeletePath(path);
 }
