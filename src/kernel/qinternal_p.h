@@ -151,6 +151,14 @@ private:
 };
 
 template <class T>
+T* qAutoDeleterData( QAutoDeleter<T>* ad )
+{
+    if ( !ad )
+	return 0;
+    return ad->data();
+}
+
+template <class T>
 QAutoDeleter<T>* qAutoDeleter( T* p )
 {
     return new QAutoDeleter<T>( p );
