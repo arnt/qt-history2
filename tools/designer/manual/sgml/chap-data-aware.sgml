@@ -366,7 +366,7 @@ int main( int argc, char *argv[] )
     </sect2>
 
     <sect2 id="relating-two-tables-together">
-    <title>Relating Two Tables Together (Drilldown)</>
+    <title>Relating Two Tables Together (Master-Detail)</>
 
 	<para>
 	Databases often have pairs of tables that are related. For
@@ -377,15 +377,6 @@ int main( int argc, char *argv[] )
 	through the authors and a second &st; to show
 	the books they've written. To achieve this using &qd; we will
 	need to subclass. 
-	<footnote><!-- supposed to go at the bottom of the page -->
-	<para>
-	If you have say, a ListBox showing book titles and a detail table
-	showing all the fields for the select book, you can easily
-	relate the two widgets together with a subclass that only
-	requires a few lines of code. (See <xref
-	linkend="drilldown-within-a-table"> "Drilldown Within a Table".)
-	</para>
-	</footnote>
 	</para>
 
 	<para>
@@ -1300,7 +1291,6 @@ void BookForm::updateBook()
     </sect2>
 
 <note><para>@@@@@ TODO QSqlWidget @@@@@</para></note>
-<note><para>@@@@@ TODO Drilldown Within A Table @@@@@</para></note>
 
 
 </chapter>
