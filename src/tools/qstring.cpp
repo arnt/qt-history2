@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#91 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#92 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#92 $");
 
 
 /*****************************************************************************
@@ -435,6 +435,10 @@ QString::QString( int size ) : QByteArray( size )
 
 /*!
   Constructs a string that is a deep copy of \e str.
+
+  If \a str is 0 a null string is created.
+
+  \sa isNull()
 */
 
 QString::QString( const char *str )
@@ -451,8 +455,12 @@ QString::QString( const char *str )
 
 /*!
   \fn QString &QString::operator=( const char *str )
-  Assigns a deep copy of \e str to this string and returns a reference to
+  Assigns a deep copy of \a str to this string and returns a reference to
   this string.
+
+  If \a str is 0 a null string is created.
+
+  \sa isNull()
 */
 
 /*!
