@@ -179,13 +179,13 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
     if (Qt::mightBeRichText(text)) {
         doc = new QTextDocument();
         doc->setUndoRedoEnabled(false);
+        doc->setDefaultFont(QApplication::font(this));
         doc->setHtml(text);
         QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-        layout->setDefaultFont(QApplication::font(this));
         layout->adjustSize();
         r.setTop(0);
         r.setLeft(0);
-        r.setSize(layout->sizeUsed());
+        r.setSize(layout->documentSize().toSize());
     }
     else
 #endif

@@ -1094,7 +1094,7 @@ void QTextLine::layout_helper(int maxGlyphs)
         if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
             if (eng->block.docHandle())
-                eng->docLayout()->layoutObject(QTextInlineObject(item, eng), format);
+                eng->docLayout()->positionInlineObject(QTextInlineObject(item, eng), format);
             if (line.length && eng->option.wrapMode() != QTextOption::ManualWrap) {
                 if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
@@ -1345,8 +1345,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             p->save();
             if (eng->block.docHandle()) {
                 QTextFormat format = eng->formats()->format(eng->formatIndex(&si));
-                eng->docLayout()->drawObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
-                                             QTextInlineObject(item, eng), format);
+                eng->docLayout()->drawInlineObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
+                                                   QTextInlineObject(item, eng), format);
             }
             p->restore();
 

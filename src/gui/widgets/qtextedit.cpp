@@ -345,10 +345,10 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         }
 
         QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(repaintContents(QRect)));
-        QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
+        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(const QSizeF &)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
-        doc->documentLayout()->setDefaultFont(q->font());
+        doc->setDefaultFont(q->font());
         doc->documentLayout()->setPaintDevice(viewport);
 
         hbar->setSingleStep(20);
@@ -517,7 +517,7 @@ void QTextEditPrivate::adjustScrollbars()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
-    const QSize docSize = layout->sizeUsed();
+    const QSize docSize = layout->documentSize().toSize();
 
     hbar->setRange(0, docSize.width() - viewportSize.width());
     hbar->setPageStep(viewportSize.width());
@@ -1537,10 +1537,10 @@ int QTextEdit::heightForWidth(int width) const
 {
     Q_D(const QTextEdit);
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
-    const int oldWidth = layout->sizeUsed().width();
-    layout->setPageSize(QSize(width, INT_MAX));
-    const int height = layout->sizeUsed().height();
-    layout->setPageSize(QSize(oldWidth, INT_MAX));
+    const int oldWidth = qRound(layout->documentSize().width());
+    d->doc->setPageSize(QSize(width, INT_MAX));
+    const int height = qRound(layout->documentSize().height());
+    d->doc->setPageSize(QSize(oldWidth, INT_MAX));
     return height;
 }
 
@@ -1581,18 +1581,18 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     if (d->wordWrap == FixedPixelWidth)
         width = d->wrapColumnOrWidth;
 
-    const QSize lastUsedSize = layout->sizeUsed();
+    const QSize lastUsedSize = layout->documentSize().toSize();
 
     // ignore calls to adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
     // later on our own anyway (or deliberately not) .
     d->ignoreAutomaticScrollbarAdjustement = true;
 
-    layout->setPageSize(QSize(width, INT_MAX));
+    d->doc->setPageSize(QSize(width, INT_MAX));
 
     d->ignoreAutomaticScrollbarAdjustement = false;
 
-    QSize usedSize = layout->sizeUsed();
+    QSize usedSize = layout->documentSize().toSize();
 
     // this is an obscure situation in the layout that can happen:
     // if a character at the end of a line is the tallest one and therefore
@@ -1937,7 +1937,8 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     }
     layout->setAdditionalFormats(overrides);
     d->cursor.endEditBlock();
-    d->doc->documentLayout()->documentChange(block.position(), block.length(), block.length());
+    // ##############
+//    d->doc->documentLayout()->documentChange(block.position(), block.length(), block.length());
 }
 
 /*!\reimp
@@ -2004,7 +2005,7 @@ void QTextEdit::changeEvent(QEvent *e)
     QAbstractScrollArea::changeEvent(e);
     if (e->type() == QEvent::ApplicationFontChange
         || e->type() == QEvent::FontChange) {
-        d->doc->documentLayout()->setDefaultFont(font());
+        d->doc->setDefaultFont(font());
         // ####
         for (QFragmentMap<QTextBlockData>::ConstIterator it = d->doc->docHandle()->blockMap().begin();
              !it.atEnd(); ++it)
@@ -2113,7 +2114,7 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
 
     QRect r;
 
-    if (line.isValid()) 
+    if (line.isValid())
         r = QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
                   10, qRound(line.ascent() + line.descent()+1.));
     else

@@ -31,9 +31,11 @@ class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractTextDocumentLayout)
-    friend class QTextDocument;
 
 public:
+    explicit QAbstractTextDocumentLayout(QTextDocument *doc);
+    ~QAbstractTextDocumentLayout();
+
     struct PaintContext
     {
         PaintContext()
@@ -45,48 +47,46 @@ public:
         QRect rect;
     };
 
-    explicit QAbstractTextDocumentLayout(QTextDocument *doc);
-
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
     virtual int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const = 0;
-
-    virtual void documentChange(int from, int oldLength, int length) = 0;
-
-    virtual int numPages() const = 0;
-
-    void registerHandler(int objectType, QObject *component);
-    QTextObjectInterface *handlerForObject(int objectType) const;
-
-    virtual void setSize(QTextInlineObject item, const QTextFormat &format);
-    virtual void layoutObject(QTextInlineObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format);
-
-    virtual void setPageSize(const QSize &size) = 0;
-    virtual QSize pageSize() const = 0;
-
-    virtual QSize sizeUsed() const;
-
     QString anchorAt(const QPoint& pos) const;
 
-    virtual QRect frameBoundingRect(QTextFrame *frame) const;
+    virtual int pageCount() const = 0;
+    virtual QSizeF documentSize() const = 0;
 
-    void setDefaultFont(const QFont &font);
-    QFont defaultFont() const;
+    virtual QRect frameBoundingRect(QTextFrame *frame) const;
 
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
 
+    QTextDocument *document() const;
+
+signals:
+    void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
+    void documentSizeChanged(const QSizeF &newSize);
+    void pageCountChanged(int newPages);
+
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
+
+    virtual void documentChange(int from, int oldLength, int length) = 0;
+
+    virtual void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
+    virtual void positionInlineObject(QTextInlineObject item, const QTextFormat &format);
+    virtual void drawInlineObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format);
+
+    void registerHandler(int objectType, QObject *component);
+    QTextObjectInterface *handlerForObject(int objectType) const;
 
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
 
-    QTextDocument *document() const;
-signals:
-    void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
-
 private:
+    friend class QTextDocument;
+    friend class QTextDocumentPrivate;
+    friend class QTextEngine;
+    friend class QTextLayout;
+    friend class QTextLine;
     Q_PRIVATE_SLOT(d, void handlerDestroyed(QObject *obj))
 };
 

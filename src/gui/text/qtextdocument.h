@@ -15,10 +15,11 @@
 #define QTEXTDOCUMENT_H
 
 #include <QtCore/qobject.h>
+#include <QtCore/qsize.h>
+#include <QtGui/qfont.h>
 
 class QTextFormatCollection;
 class QTextListFormat;
-class QSize;
 class QRect;
 class QPainter;
 class QPrinter;
@@ -72,11 +73,15 @@ class Q_GUI_EXPORT QTextDocument : public QObject
 
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
+    Q_PROPERTY(QSizeF pageSize READ pageSize WRITE setPageSize)
+    Q_PROPERTY(QFont defaultFont READ defaultFont WRITE setDefaultFont)
 
 public:
     explicit QTextDocument(QObject *parent = 0);
     explicit QTextDocument(const QString &text, QObject *parent = 0);
     ~QTextDocument();
+
+    QTextDocument *clone(QObject *parent = 0) const;
 
     bool isEmpty() const;
 
@@ -121,6 +126,12 @@ public:
     QTextBlock findBlock(int pos) const;
     QTextBlock begin() const;
     QTextBlock end() const;
+
+    void setPageSize(const QSizeF &size);
+    QSizeF pageSize() const;
+
+    void setDefaultFont(const QFont &font);
+    QFont defaultFont() const;
 
     bool isModified() const;
 

@@ -884,7 +884,7 @@ void QTextEngine::shape(int item) const
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
             // ##### const cast
-            docLayout()->setSize(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
+            docLayout()->resizeInlineObject(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
         }
     } else {
         shapeText(item);
@@ -1059,7 +1059,7 @@ QFont QTextEngine::font(const QScriptItem &si) const
         Q_ASSERT(f.isCharFormat());
         QTextCharFormat chf = f.toCharFormat();
         QFont fnt = chf.font();
-        fnt = fnt.resolve(docLayout()->defaultFont());
+        fnt = fnt.resolve(block.docHandle()->defaultFont);
 
         if (chf.verticalAlignment() != QTextCharFormat::AlignNormal)
             fnt.setPointSize((fnt.pointSize() * 2) / 3);
@@ -1297,7 +1297,7 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
         e = eng->fnt->engineForScript(QUnicodeTables::Common);
     } else {
         f = eng->block.charFormat().font();
-        f = f.resolve(eng->docLayout()->defaultFont());
+        f = f.resolve(eng->block.docHandle()->defaultFont);
         e = f.d->engineForScript(QUnicodeTables::Common);
     }
 

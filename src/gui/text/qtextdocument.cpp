@@ -282,6 +282,18 @@ QTextDocument::~QTextDocument()
 {
 }
 
+
+/*!
+  Creates a new QTextDocument that is a copy of this text document. \a
+  parent is the parent of the returned text document.
+*/
+QTextDocument *QTextDocument::clone(QObject *parent) const
+{
+    QTextDocument *doc = new QTextDocument(parent);
+    QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
+    return doc;
+}
+
 /*!
     Returns true if the document is empty; otherwise returns false.
 */
@@ -706,6 +718,45 @@ QTextBlock QTextDocument::end() const
 }
 
 /*!
+    \property QTextDocument::pageSize
+    \brief the page size that should be used for layouting the document
+
+    \sa modificationChanged()
+*/
+
+void QTextDocument::setPageSize(const QSizeF &size)
+{
+    Q_D(QTextDocument);
+    d->pageSize = size;
+    documentLayout()->documentChange(0, 0, d->length());
+}
+
+QSizeF QTextDocument::pageSize() const
+{
+    Q_D(const QTextDocument);
+    return d->pageSize;
+}
+
+/*!
+    Sets the default \a font to use in the document layout.
+*/
+void QTextDocument::setDefaultFont(const QFont &font)
+{
+    Q_D(QTextDocument);
+    d->defaultFont = font;
+    documentLayout()->documentChange(0, 0, d->length());
+}
+
+/*!
+    Returns the default font to be used in the document layout.
+*/
+QFont QTextDocument::defaultFont() const
+{
+    Q_D(const QTextDocument);
+    return d->defaultFont;
+}
+
+/*!
     \fn QTextDocument::modificationChanged(bool changed)
 
     This signal is emitted whenever the content of the document
@@ -751,15 +802,13 @@ void QTextDocument::print(QPrinter *printer) const
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
     QRect body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
 
-    QTextDocument doc(const_cast<QTextDocument *>(this));
-    QTextCursor(&doc).insertFragment(QTextDocumentFragment(this));
-
-    QAbstractTextDocumentLayout *layout = doc.documentLayout();
-    QFont font(documentLayout()->defaultFont());
+    QTextDocument *doc = clone();
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+    QFont font(doc->defaultFont());
     font.setPointSize(10); // we define 10pt to be a nice base size for printing
-    layout->setDefaultFont(font);
+    doc->setDefaultFont(font);
     layout->setPaintDevice(printer);
-    layout->setPageSize(QSize(body.width(), INT_MAX));
+    doc->setPageSize(QSize(body.width(), INT_MAX));
 
     QRect view(0, 0, body.width(), body.height());
     p.translate(body.left(), body.top());
@@ -780,12 +829,14 @@ void QTextDocument::print(QPrinter *printer) const
         view.translate(0, body.height());
         p.translate(0 , -body.height());
 
-        if (view.top() >= layout->sizeUsed().height())
+        if (view.top() >= layout->documentSize().height())
             break;
 
         printer->newPage();
         page++;
     } while (true);
+
+    delete doc;
 }
 
 /*!
@@ -863,7 +914,7 @@ private:
 QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     : doc(_doc)
 {
-    const QFont defaultFont = doc->documentLayout()->defaultFont();
+    const QFont defaultFont = doc->defaultFont();
     defaultCharFormat.setFont(defaultFont);
 }
 

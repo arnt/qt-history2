@@ -62,17 +62,11 @@
 */
 
 /*!
-    Returns the size used for the document. The default implementation just
-    calls pageSize(). For example, if your layout is similar to HTML then you
-    may want to re-implement this function, and return the size your document
-    actually used, as that will differ from the page size.
+    Returns the total size of the document. This is useful for display widgets,
+    so they can adjust their scrollbars correctly
 
-    \sa setPageSize() pageSize()
+    \sa QTextDocument::pageSize
 */
-QSize QAbstractTextDocumentLayout::sizeUsed() const
-{
-    return pageSize();
-}
 
 /*!
     \fn void QAbstractTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
@@ -141,6 +135,11 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLa
 {
 }
 
+
+QAbstractTextDocumentLayout::~QAbstractTextDocumentLayout()
+{
+}
+
 /*!
     \internal
 
@@ -183,7 +182,7 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
     Sets the size of the inline object \a item in accordance with the
     text \a format.
 */
-void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_D(QAbstractTextDocumentLayout);
 
@@ -205,7 +204,7 @@ void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFor
 
     \sa drawObject()
 */
-void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_UNUSED(item);
     Q_UNUSED(format);
@@ -220,8 +219,8 @@ void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTe
 
     \sa layoutObject()
 */
-void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                             const QTextFormat &format)
+void QAbstractTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
+                                                   const QTextFormat &format)
 {
     Q_D(QAbstractTextDocumentLayout);
 
@@ -328,24 +327,6 @@ QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     Q_UNUSED(frame)
     return QRect();
-}
-
-/*!
-    Sets the default \a font to use in the document layout.
-*/
-void QAbstractTextDocumentLayout::setDefaultFont(const QFont &font)
-{
-    Q_D(QAbstractTextDocumentLayout);
-    d->defaultFont = font;
-}
-
-/*!
-    Returns the default font to be used in the document layout.
-*/
-QFont QAbstractTextDocumentLayout::defaultFont() const
-{
-    Q_D(const QAbstractTextDocumentLayout);
-    return d->defaultFont;
 }
 
 void QAbstractTextDocumentLayout::setPaintDevice(QPaintDevice *device)

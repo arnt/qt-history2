@@ -41,22 +41,13 @@ public:
 
     // from the abstract layout
     void draw(QPainter *painter, const PaintContext &context);
-    void documentChange(int from, int oldLength, int length);
     int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const;
 
-    void setSize(QTextInlineObject item, const QTextFormat &format);
-    void layoutObject(QTextInlineObject item, const QTextFormat &format);
-    void drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                    const QTextFormat &format);
 
-    int numPages() const;
-
-    virtual QSize sizeUsed() const;
+    int pageCount() const;
+    QSizeF documentSize() const;
 
     void adjustSize();
-
-    virtual void setPageSize(const QSize &size);
-    virtual QSize pageSize() const;
 
     // flags passed to QTextLayout objects of blocks
     void setBlockTextFlags(int flags);
@@ -67,8 +58,12 @@ public:
 
     virtual QRect frameBoundingRect(QTextFrame *frame) const;
 
-signals:
-    void usedSizeChanged();
+protected:
+    void documentChange(int from, int oldLength, int length);
+    void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
+    void positionInlineObject(QTextInlineObject item, const QTextFormat &format);
+    void drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
+                          const QTextFormat &format);
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

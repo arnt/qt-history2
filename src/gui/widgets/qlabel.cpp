@@ -331,7 +331,7 @@ void QLabel::setText(const QString &text)
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
-        d->doc->documentLayout()->setDefaultFont(font());
+        d->doc->setDefaultFont(font());
         d->doc->setHtml(text);
     }
 #endif
@@ -612,13 +612,13 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         Q_ASSERT(layout);
         if (d->align & Qt::TextWordWrap) {
             if (w > 0)
-                layout->setPageSize(QSize(w-hextra, INT_MAX));
+                doc->setPageSize(QSize(w-hextra, INT_MAX));
             else
                 layout->adjustSize();
         } else {
-            layout->setPageSize(QSize(0, 100000));
+            doc->setPageSize(QSize(0, 100000));
         }
-        br = QRect(QPoint(0, 0), layout->sizeUsed());
+        br = QRect(QPoint(0, 0), layout->documentSize().toSize());
     }
 #endif
     else {
@@ -782,8 +782,8 @@ void QLabel::paintEvent(QPaintEvent *)
     if (d->doc) {
         QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout());
         Q_ASSERT(layout);
-        layout->setPageSize(QSize(cr.width(), INT_MAX));
-        int rh = layout->sizeUsed().height();
+        d->doc->setPageSize(QSize(cr.width(), INT_MAX));
+        int rh = qRound(layout->documentSize().height());
         int yo = 0;
         if (align & Qt::AlignVCenter)
             yo = (cr.height()-rh)/2;
@@ -1107,7 +1107,7 @@ void QLabel::changeEvent(QEvent *ev)
         if (!d->ltext.isEmpty()) {
 #ifndef QT_NO_RICHTEXT
             if (d->doc)
-                d->doc->documentLayout()->setDefaultFont(font());
+                d->doc->setDefaultFont(font());
 #endif
             d->updateLabel();
         }

@@ -209,7 +209,6 @@ public:
         : fixedColumnWidth(-1)
     { }
 
-    QSize pageSize;
     bool pagedLayout;
 
     int blockTextFlags;
@@ -1111,7 +1110,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     QTextFrame *parent = f->parentFrame();
     const QTextFrameData *pd = parent ? data(parent) : 0;
 
-    const int maximumWidth = pd ? pd->contentsWidth : pageSize.width();
+    const int maximumWidth = pd ? pd->contentsWidth : q_func()->document()->pageSize().width();
 
     const int width = fformat.width().value(maximumWidth);
 
@@ -1471,7 +1470,8 @@ static void markFrames(QTextFrame *current, int from, int oldLength, int length)
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
-    if (d->pageSize.isNull() || !d->pageSize.isValid())
+    QSizeF pageSize = document()->pageSize();
+    if (pageSize.isNull() || !pageSize.isValid())
         return;
 
 
@@ -1480,16 +1480,16 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
     // mark all frames between f_start and f_end as dirty
     markFrames(document()->rootFrame(), from, oldLength, length);
 
-    const QSize oldSize = sizeUsed();
+    const QSizeF oldSize = documentSize();
 
     QTextFrame *root = document()->rootFrame();
     if(data(root)->sizeDirty)
         d->layoutFrame(root, from, from + length);
     data(root)->layoutDirty = false;
 
-    const QSize newSize = sizeUsed();
+    const QSizeF newSize = documentSize();
     if (newSize != oldSize)
-        emit usedSizeChanged();
+        emit documentSizeChanged(newSize);
 
     emit update();
 }
@@ -1512,7 +1512,7 @@ int QTextDocumentLayout::hitTest(const QPoint &point, Qt::HitTestAccuracy accura
     return position;
 }
 
-void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
+void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
@@ -1537,7 +1537,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
     item.setAscent(inlineSize.height());
 }
 
-void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
+void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_D(QTextDocumentLayout);
     if (item.width() != 0)
@@ -1563,8 +1563,8 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     d->positionFloat(frame, line.isValid() ? &line : 0);
 }
 
-void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                     const QTextFormat &format)
+void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
+                                           const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -1578,11 +1578,11 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlin
         }
     }
 //    qDebug() << "drawObject at" << r;
-    QAbstractTextDocumentLayout::drawObject(p, r, item, format);
+    QAbstractTextDocumentLayout::drawInlineObject(p, r, item, format);
 }
 
 
-int QTextDocumentLayout::numPages() const
+int QTextDocumentLayout::pageCount() const
 {
 #if 0
     if (!d->pagedLayout)
@@ -1592,20 +1592,7 @@ int QTextDocumentLayout::numPages() const
     return 1;
 }
 
-void QTextDocumentLayout::setPageSize(const QSize &size)
-{
-    Q_D(QTextDocumentLayout);
-    d->pageSize = size;
-    d->relayoutDocument();
-}
-
-QSize QTextDocumentLayout::pageSize() const
-{
-    Q_D(const QTextDocumentLayout);
-    return d->pageSize;
-}
-
-QSize QTextDocumentLayout::sizeUsed() const
+QSizeF QTextDocumentLayout::documentSize() const
 {
     Q_Q(const QTextDocumentLayout);
     return data(q->document()->rootFrame())->size;
@@ -1614,6 +1601,7 @@ QSize QTextDocumentLayout::sizeUsed() const
 // Pull this private function in from qglobal.cpp
 Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
 
+/* used from QLabel */
 void QTextDocumentLayout::adjustSize()
 {
     // ##### use default doc font
@@ -1621,15 +1609,17 @@ void QTextDocumentLayout::adjustSize()
     QFontMetrics fm(f);
     int mw =  fm.width('x') * 80;
     int w = mw;
-    setPageSize(QSize(w, INT_MAX));
-    QSize size = sizeUsed();
+    QTextDocument *doc = document();
+    doc->setPageSize(QSize(w, INT_MAX));
+    QSizeF size = documentSize();
     if (size.width() != 0) {
-        w = qt_int_sqrt(5 * size.height() * size.width() / 3);
-        setPageSize(QSize(qMin(w, mw), INT_MAX));
+        w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
+        doc->setPageSize(QSize(qMin(w, mw), INT_MAX));
 
+        size = documentSize();
         if (w*3 < 5*size.height()) {
-            w = qt_int_sqrt(2 * size.height() * size.width());
-            setPageSize(QSize(qMin(w, mw), INT_MAX));
+            w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
+            doc->setPageSize(QSize(qMin(w, mw), INT_MAX));
         }
     }
 }

@@ -268,6 +268,9 @@ private:
 
     QTextDocumentConfig docConfig;
 
+public:
+    QSizeF pageSize;
+    QFont defaultFont;
 };
 
 #endif // QTEXTDOCUMENT_P_H
