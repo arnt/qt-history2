@@ -1300,7 +1300,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
             p->save();
             if (selType != QTextLayout::NoSelection) {
                 QRectF rect(x, y - line.ascent, si.width, line.height());
-                p->setClipRect(rect);
                 drawSelection(p, eng->pal, selections[s].type(), rect);
             }
             if (eng->docLayout && eng->formats) {
@@ -1384,12 +1383,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                 float soff = 0;
                 float swidth = 0;
                 if (si.analysis.bidiLevel %2) {
-                    for (int g = si.num_glyphs - 1; g >= end_glyph; --g)
+                    for (int g = ge - 1; g >= end_glyph; --g)
                         soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                     for (int g = end_glyph - 1; g >= start_glyph; --g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                 } else {
-                    for (int g = 0; g < start_glyph; ++g)
+                    for (int g = gs; g < start_glyph; ++g)
                         soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                     for (int g = start_glyph; g < end_glyph; ++g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
