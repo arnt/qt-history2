@@ -10,19 +10,15 @@ $Id$
 #include <qtoolbar.h>
 #include <qaction.h>
 
-#include "red.xpm"
-#include "black.xpm"
-
-
 Editor::Editor() 
     : QMainWindow( 0, "main window")
 {
     QActionGroup * colors = new QActionGroup( this, "colors", TRUE );
 
-    QAction * setBlackFont = new QAction( "black", QPixmap( black_xpm ),
+    QAction * setBlackFont = new QAction( "black", QPixmap( "black.xpm" ),
                                           "Font color: black", ALT+Key_B,
                                           colors, "blackfontcolor", TRUE );
-    setRedFont = new QAction( "red", QPixmap( red_xpm ), "Font color: red",
+    setRedFont = new QAction( "red", QPixmap( "red.xpm" ), "Font color: red",
                               ALT+Key_R, colors, "redfontcolor", TRUE );
 
     QObject::connect( colors, SIGNAL( selected( QAction * ) ),

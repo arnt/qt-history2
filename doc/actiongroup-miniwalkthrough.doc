@@ -63,13 +63,6 @@ It's not that much that we need for our tiny editor: QTextEdit, QMenuBar,
 QToolBar, QPopupMenu and last but not least QAction and QActionGroup from 
 \e qaction.h. 
 
-\printuntil black.xpm
-
-The two buttons -- one to switch to red as font color, one to switch back to
-default black -- need icons to be presented nicely in the tool bar.
-With the above two lines we include two variables that contain the 
-appropriate pixmap definitions: \e red_xpm and \e black_xpm.
-
 \printuntil colors
 
 If one of the buttons is on, the other one must be off. The easiest way to
@@ -87,7 +80,7 @@ Then we create our first action, the one that sets the font color back
 to default black. It is called \e setBlackFont and is equipped with a descriptive 
 QAction::text() reading \e black, a QAction::menuText() reading 
 <em>Font color: black</em>, an QAction::iconSet()
-derived from the \e black_xpm pixmap and \e ALT+B as keyboard accelerator.
+derived from the file \e black.xpm and \e ALT+B as keyboard accelerator.
 Its last argument, \e TRUE, is responsible for making \e setBlackFont  
 a toggle action
 that can be switched on or off. Most importantly \e setBlackFont becomes a member
