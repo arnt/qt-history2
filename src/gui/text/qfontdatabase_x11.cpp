@@ -1442,14 +1442,15 @@ QFontEngine *loadEngine(int script,
 
     xlfd += QByteArray::number(px);
     xlfd += "-";
+
+    QByteArray xlfdPrefix = xlfd;
+
     xlfd += QByteArray::number(encoding->xpoint);
     xlfd += "-";
     xlfd += QByteArray::number(encoding->xres);
     xlfd += "-";
     xlfd += QByteArray::number(encoding->yres);
     xlfd += "-";
-
-    // ### handle cell spaced fonts
     xlfd += encoding->pitch;
     xlfd += "-";
     xlfd += QByteArray::number(encoding->avgwidth);
@@ -1468,6 +1469,30 @@ QFontEngine *loadEngine(int script,
     } else {
         QList<QByteArray> xlfds;
         xlfds.append(xlfd);
+        // append all other encodings for the matched font
+        for (int i = 0; i < style->count; ++i) {
+            QtFontSize *size = style->pixelSizes + i;
+            for (int x = 0; x < size->count; ++x) {
+                QtFontEncoding *e = size->encodings + x;
+                if (e == encoding)
+                    break;
+                QByteArray n = xlfdPrefix;
+                n += QByteArray::number(e->xpoint);
+                n += "-";
+                n += QByteArray::number(e->xres);
+                n += "-";
+                n += QByteArray::number(e->yres);
+                n += "-";
+                n += e->pitch;
+                n += "-";
+                n += QByteArray::number(e->avgwidth);
+                n += "-";
+                n += xlfd_for_id(e->encoding);
+                xlfds.append(n);
+            }
+        }
+        // ### TODO: fill in the missing encodings
+
         fe = new QFontEngineMultiXLFD(xlfds, fp->screen);
     }
     fe->setScale(scale);
