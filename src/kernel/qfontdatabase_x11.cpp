@@ -796,7 +796,11 @@ static void loadXft()
 	XftListFonts(QPaintDevice::x11AppDisplay(),
 		     QPaintDevice::x11AppScreen(),
 		     (const char *)0,
-		     XFT_FAMILY, XFT_WEIGHT, XFT_SLANT, XFT_SPACING, XFT_FILE, XFT_INDEX,
+		     XFT_FAMILY, XFT_WEIGHT, XFT_SLANT,
+		     XFT_SPACING, XFT_FILE, XFT_INDEX,
+#ifdef QT_XFT2
+		     FC_CHARSET,
+#endif // QT_XFT2
 		     (const char *)0);
 
     for (int i = 0; i < fonts->nfont; i++) {
@@ -817,6 +821,26 @@ static void loadXft()
 
 	QtFontFamily *family = db->family( familyName, TRUE );
 	family->hasXft = TRUE;
+
+#ifdef QT_XFT2
+	if (! family->xftScriptCheck) {
+	    FcCharSet *charset = 0;
+	    FcResult res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &charset);
+	    if (res == FcResultMatch) {
+		for (int i = 0; i < QFont::LastPrivateScript; ++i) {
+		    QChar ch = sampleCharacter((QFont::Script) i);
+
+		    if (ch.unicode() != 0 &&
+			FcCharSetHasChar(charset, ch.unicode())) {
+			family->scripts[i] = QtFontFamily::Supported;
+		    } else {
+			family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+		    }
+		}
+		family->xftScriptCheck = TRUE;
+	    }
+	}
+#endif // QT_XFT2
 
 	QCString file = file_value;
 	family->fontFilename = file;
@@ -841,6 +865,8 @@ static void loadXft()
 
     XftFontSetDestroy (fonts);
 }
+
+#ifndef QT_XFT2
 
 #define MAKE_TAG( _x1, _x2, _x3, _x4 ) \
           ( ( (Q_UINT32)_x1 << 24 ) |     \
@@ -918,7 +944,7 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned s
 
     return 0;
 }
-#endif
+#endif // _POSIX_MAPPED_FILES
 
 static inline void checkXftCoverage( QtFontFamily *family )
 {
@@ -1001,7 +1027,8 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 	    for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
-		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
+		if ( ch.unicode() != 0 &&
+		     getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
 		    // qDebug("font can render script %d",  i );
 		    family->scripts[i] = QtFontFamily::Supported;
 		} else {
@@ -1018,7 +1045,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    return;
     }
  xftCheck:
-#endif
+#endif // _POSIX_MAPPED_FILES
 
 #ifdef QFONTDATABASE_DEBUG
     qDebug("using Freetype for checking of '%s'", family->name.latin1() );
@@ -1033,7 +1060,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
     for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
 	QChar ch = sampleCharacter( (QFont::Script)i );
-	if ( FT_Get_Char_Index ( face, ch.unicode() ) ) {
+	if ( ch.unicode() != 0 && FT_Get_Char_Index ( face, ch.unicode() ) ) {
 #ifdef QFONTDATABASE_DEBUG
 	    qDebug("font can render char %04x, %04x script %d '%s'",
 		   ch.unicode(), FT_Get_Char_Index ( face, ch.unicode() ),
@@ -1047,9 +1074,9 @@ static inline void checkXftCoverage( QtFontFamily *family )
     FT_Done_Face( face );
     FT_Done_FreeType( ft_lib );
     family->xftScriptCheck = TRUE;
-
 }
-#endif
+#endif // QT_XFT2
+#endif // QT_NO_XFTFREETYPE
 
 static void load( const QString &family = QString::null, int script = -1 )
 {
@@ -1071,7 +1098,7 @@ static void load( const QString &family = QString::null, int script = -1 )
 	QtFontFamily *f = db->family( family, TRUE );
 	if ( !f->fullyLoaded ) {
 
-#ifndef QT_NO_XFTFREETYPE
+#if !defined(QT_NO_XFTFREETYPE) && !defined(QT_XFT2)
 	    // need to check Xft coverage
 	    if ( f->hasXft && !f->xftScriptCheck ) {
 		checkXftCoverage( f );
@@ -1116,8 +1143,12 @@ static void initializeDb()
 
 #ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
+#ifndef QT_XFT2
 	checkXftCoverage( db->families[i] );
-
+#ifdef QFONTDATABASE_DEBUG
+	qDebug("QFontDatabase: xft coverage check: %d ms",  t.elapsed() );
+#endif
+#endif // QT_XFT2
 
 #ifdef XFT_MATRIX
 	for ( int j = 0; j < db->families[i]->count; ++j ) {	// each foundry
@@ -1163,9 +1194,6 @@ static void initializeDb()
     }
 #endif
 
-#ifdef QFONTDATABASE_DEBUG
-    qDebug("QFontDatabase: xft coverage check: %d ms",  t.elapsed() );
-#endif // QFONTDATABASE_DEBUG
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
