@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#6 $
 **
 ** Implementation of QMenuBar class
 **
@@ -13,9 +13,10 @@
 #define  INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qpainter.h"
+#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#6 $";
 #endif
 
 
@@ -157,8 +158,18 @@ void QMenuBar::openActPopup()			// open active popup menu
 	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( popup ) {
-	QPoint pos = itemRect(actItem).bottomLeft() + QPoint(0,1);
-	popup->popup( mapToGlobal(pos) );
+	QRect  r = itemRect( actItem );
+	QPoint pos = r.bottomLeft() + QPoint(0,1);
+	if ( popup->badSize )
+	    popup->updateSize();
+	pos = mapToGlobal(pos);
+	int sh = QApplication::desktop()->clientSize().height();
+	int ph = popup->clientSize().height();
+	if ( pos.y() + ph > sh ) {
+	    pos = mapToGlobal( r.topLeft() );
+	    pos.ry() -= ph;
+	}
+	popup->popup( pos );
     }
 }
 
