@@ -121,13 +121,14 @@ class QVector
     { append(t); return *this; }
 
     inline bool ensure_constructed()
-    { if (!d) { d = &QVectorData::shared_null; ++d->ref; return false; } return true; }
+    { if (!p) { p = &QVectorData::shared_null; ++p->ref; return false; } return true; }
 
 private:
     void detach_helper();
     void realloc(int size, int alloc);
     struct Data {
-	int ref, alloc, size;
+	QAtomic ref;
+	int alloc, size;
 	T array[1];
     };
     void free(Data *d);
@@ -379,9 +380,9 @@ template <typename T>
 int QVector<T>::lastIndexOf(const T &t, int from) const
 {
     if (from < 0)
-	from += d->size();
-    else if (from >= d->size())
-	from = d->size()-1;
+	from += d->size;
+    else if (from >= d->size)
+	from = d->size-1;
     if (from >= 0) {
 	T* b = d->array;
 	T* n = d->array + from + 1;
