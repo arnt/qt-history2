@@ -143,6 +143,7 @@ static bool	    popupCloseDownMode = FALSE;
   External functions
  *****************************************************************************/
 // Paint event clipping magic - qpainter_mac.cpp
+extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
@@ -1226,6 +1227,16 @@ void qt_enter_modal(QWidget *widget)
 	Q_CHECK_PTR(qt_modal_stack);
     }
     qt_modal_stack->insert(0, widget);
+    if(!app_do_modal) {
+	MenuRef mr = AcquireRootMenu();
+	for(int i = 1; i < CountMenuItems(mr); i++) {
+	    MenuRef mr2;
+	    GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
+	    DisableMenuItem(mr2, 0);
+	}
+	ReleaseMenu(mr);
+	qt_mac_command_set_enabled(kHICommandQuit, FALSE);
+    }
     app_do_modal = TRUE;
 }
 
@@ -1245,7 +1256,17 @@ void qt_leave_modal(QWidget *widget)
 #ifdef DEBUG_MODAL_EVENTS
     else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->name(), widget, qt_modal_stack);
 #endif
-    app_do_modal = qt_modal_stack != 0;
+    app_do_modal = (qt_modal_stack != 0);
+    if(!app_do_modal) {
+	MenuRef mr = AcquireRootMenu();
+	for(int i = 1; i < CountMenuItems(mr); i++) {
+	    MenuRef mr2;
+	    GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
+	    EnableMenuItem(mr2, 0);
+	}
+	ReleaseMenu(mr);
+	qt_mac_command_set_enabled(kHICommandQuit, TRUE);
+    }
 }
 
 QWidget *qt_tryModalHelperMac( QWidget * top ) {

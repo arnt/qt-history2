@@ -70,7 +70,6 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
-void qt_mac_command_set_enabled(UInt32, bool); //qapplication_mac.cpp
 void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
@@ -1413,15 +1412,6 @@ void QWidget::showWindow()
 	    qt_event_request_showsheet(this);
 	else
 	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
-#if 0
-        /*This causes problems with the menubar, this is Apple's bug
-          but I will workaround it for now (see below) */
-	if(testWFlags(WShowModal))
-	    BeginAppModalStateForWindow((WindowRef)hd);
-#else
-	if(testWFlags(WShowModal))
-	    qt_mac_command_set_enabled(kHICommandQuit, FALSE);
-#endif
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
@@ -1434,15 +1424,6 @@ void QWidget::hideWindow()
 
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
-#if 0
-       /*This causes problems with the menubar, this is Apple's bug
-         but I will workaround it for now (see above) */
-	if(testWFlags(WShowModal))
-	    EndAppModalStateForWindow((WindowRef)hd);
-#else
-	if(testWFlags(WShowModal))
-	    qt_mac_command_set_enabled(kHICommandQuit, TRUE);
-#endif
 	if(qt_mac_is_macdrawer(this))
 	    CloseDrawer((WindowPtr)hd, true);
 	else if(qt_mac_is_macsheet(this))
