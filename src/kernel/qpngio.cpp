@@ -502,7 +502,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 		copy_trans[i] = trans[i];
 	    png_set_tRNS(png_ptr, info_ptr, copy_trans, num_trans, 0);
 	}
-	delete trans;
+	delete [] trans;
     }
 
     if ( image.hasAlphaBuffer() ) {
