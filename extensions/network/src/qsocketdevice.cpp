@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#4 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -102,8 +102,8 @@ QSocketAddress::QSocketAddress( int port, uint ip4Addr )
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
-    a.sin_port = ::ntohs( port );
-    a.sin_addr.s_addr = ::ntohl( ip4Addr );
+    a.sin_port = ntohs( port );
+    a.sin_addr.s_addr = ntohl( ip4Addr );
     setData( &a, sizeof(a) );
 }
 
@@ -158,7 +158,7 @@ QSocketAddress & QSocketAddress::operator=( const QSocketAddress &a )
 
 int QSocketAddress::port() const
 {
-    return ::htons(((struct sockaddr_in*)ptr)->sin_port);
+    return htons(((struct sockaddr_in*)ptr)->sin_port);
 }
 
 
@@ -173,7 +173,7 @@ int QSocketAddress::port() const
 
 uint QSocketAddress::ip4Addr() const
 {
-    return ::htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
+    return htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
 }
 
 
