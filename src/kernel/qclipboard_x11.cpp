@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#45 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -347,7 +347,7 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
 	    // ### Should we check that we own the clipboard?
-	    
+	
 	    const char* fmt;
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
@@ -653,6 +653,7 @@ public:
 
 	if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
 				   &buf,0,&type,0,FALSE) ) {
+	    // ### use qt_x11_intern_atoms for faster startup
 	    if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
 		int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
 		buf = qt_xclb_read_incremental_property( dpy, win,
