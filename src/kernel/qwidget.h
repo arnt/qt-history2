@@ -451,7 +451,7 @@ protected:
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent( MSG * );		// Macintosh event
-    QWidget * mytop;                            // This widget's top-level widg
+    uint    own_id : 1; //owns the winid
     int back_type;                              // Type of background
     QPixmap * bg_pix;
     virtual void propagateUpdates(int x,int y,int x2,int y2);

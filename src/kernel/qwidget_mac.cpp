@@ -141,6 +141,7 @@ static WId qt_root_win() {
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
     bg_pix = 0;
+    own_id = 0;
     WId root_win = qt_root_win();
     WId destroyw = 0;
     setWState( WState_Created );                        // set created flag
@@ -224,8 +225,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     unsigned char goaway=true;
 
     if ( window ) {				// override the old window
-	if ( destroyOldWindow )
+	if ( destroyOldWindow && own_id )
 	    destroyw = winid;
+	own_id = 1; //it has become mine!
 	id = window;
 	hd = (void *)id;
 	setWinId(id);
@@ -240,18 +242,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    setWinId( id );
 	}
     } else if( !parentWidget() || (popup || modal) ) {
-	mytop = this;
+	own_id = 1; //I created it, I own it
 	SetRect( &boundsRect, 50, 50, 600, 200 );
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
+	qDebug("Creating %s %d", name(), id);
 	setWinId(id);
     } else {
-	mytop = topLevelWidget( );
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
 	id = serial_id;
-	hd = mytop->hd;
+	hd = topLevelWidget()->hd;
 	setWinId(id);
     }
 
@@ -302,7 +304,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	} else {
-	    if ( destroyWindow && isTopLevel() && hd && mytop == this) 
+	    if ( destroyWindow && isTopLevel() && hd && own_id) 
 	        DisposeWindow( (WindowPtr)hd );
 	}
 
@@ -327,7 +329,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	unsetCursor();
     }
 
-    WId old_winid = winid;
+    WId old_winid = (WId)hd;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
 
@@ -341,7 +343,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
-    if ( old_winid && mytop == this && isTopLevel() ) 
+    if ( old_winid && own_id && isTopLevel() ) 
 	DisposeWindow( (WindowPtr)old_winid );
 
     if ( parent ) {				// insert into new parent
@@ -814,11 +816,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
 
-    if ( isTopLevel() && isMove && mytop == this )
+    if ( isTopLevel() && isMove && own_id )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
 
     bool isResize = (olds != size());
-    if ( isTopLevel() && winid && mytop == this )
+    if ( isTopLevel() && winid && own_id )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if ( isVisible() ) {
