@@ -297,7 +297,7 @@ void QStatusBar::reformat()
 			 item->w->maximumHeight());
 	maxH = QMAX( maxH, itemH );
     }
- 
+
     l->addStretch( 0 );
 
     for (item=0; i<d->items.size(); ++i) {
@@ -500,7 +500,7 @@ bool QStatusBar::event( QEvent *e )
 	    update();
     }
     if ( e->type() == QEvent::ChildRemoved ) {
-	QStatusBarPrivate::SBItem* item = 0;d->items.first();
+	QStatusBarPrivate::SBItem* item = 0;
 	for (int i=0; i<d->items.size(); ++i) {
 	    item = d->items.at(i);
 	    if (!item)
