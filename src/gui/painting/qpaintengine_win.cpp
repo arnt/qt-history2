@@ -372,7 +372,7 @@ bool QWin32PaintEngine::end()
     //     killPStack();
 
     if (d->hpen) {
-        SelectObject(d->hdc, stock_nullPen);
+        SelectObject(d->hdc, stock_blackPen);
         if (d->penRef) {
             release_pen(d->penRef);
             d->penRef = 0;
