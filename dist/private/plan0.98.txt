@@ -10,9 +10,6 @@ toppnivaa autodelete
 3. POT - 1d			21/6
 assign operator og copy constructor i alle klasser
 
-4. HN - 1d			foer 21/6
-size increment (max/min size force)
-
 5. AG - 1t			21/6
 lage en distribusjon checkliste/huskeliste
 
@@ -40,6 +37,9 @@ pakking, testing, sende ut
 
 Gjort:
 ------
+
+4. HN - 1d			foer 21/6
+size increment (max/min size force)
 
 7. HN - 1d
 makesystem for Windows
