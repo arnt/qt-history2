@@ -12,7 +12,7 @@
 IntroScreen::IntroScreen(QWidget *widget)
     : DemoWidget(widget), mouseDown(false)
 {
-    QFile textFile("..\\..\\doc\\html\\painting.html");
+    QFile textFile("text.html");
     if (!textFile.open(IO_ReadOnly))
         text = "Unable to load text file: 'text.html'";
     else
