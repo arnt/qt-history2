@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <locale.h>
 #include <new>
 
 #ifdef Q_OS_WIN
@@ -3331,6 +3332,8 @@ QString &QString::sprintf(const char * cformat, ...)
     int pos;
     int len = 0;
 
+    char *old_locale = setlocale(LC_NUMERIC, "C");
+
     for (;;) {
 	pos = escape.search(format, last);
 	len = escape.matchedLength();
@@ -3466,7 +3469,9 @@ QString &QString::sprintf(const char * cformat, ...)
 	}
 	result += replacement;
     }
-   * this = result;
+    *this = result;
+
+    setlocale(LC_NUMERIC, old_locale);
 
     va_end(ap);
     return *this;
@@ -3935,27 +3940,29 @@ QString &QString::setNum(double n, char f, int prec)
     }
     char format[20];
     char *fs = format; // generate format string: %.<prec>l<f>
-   * fs++ = '%';
+    *fs++ = '%';
     if (prec >= 0) {
 	if (prec > 99) // rather than crash in sprintf()
 	    prec = 99;
 	*fs++ = '.';
 	if (prec >= 10) {
-	   * fs++ = prec / 10 + '0';
-	   * fs++ = prec % 10 + '0';
+	    * fs++ = prec / 10 + '0';
+	    * fs++ = prec % 10 + '0';
 	} else {
-	   * fs++ = prec + '0';
+	    * fs++ = prec + '0';
 	}
     }
-   * fs++ = 'l';
-   * fs++ = f;
-   * fs = '\0';
+    *fs++ = 'l';
+    *fs++ = f;
+    *fs = '\0';
 #ifndef QT_NO_SPRINTF
     sprintf(format, n);
     return *this;
 #else
     char buf[512];
+    char *old_locale = setlocale(LC_NUMERIC, "C");
     ::sprintf(buf, format, n);        // snprintf is unfortunately not portable
+    setlocale(LC_NUMERIC, old_locale);
     return setLatin1(buf);
 #endif
 }

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <locale.h>
 
 /*!
     \class QDataStream qdatastream.h
@@ -1011,7 +1012,9 @@ QDataStream &QDataStream::operator<<( float f )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
+	char *old_locale = setlocale(LC_NUMERIC, "C");
 	sprintf( buf, "%g\n", (double)f );
+	setlocale(LC_NUMERIC, old_locale);
 	dev->writeBlock( buf, strlen(buf) );
     } else {
 	float g = f;				// fixes float-on-stack problem
@@ -1043,7 +1046,9 @@ QDataStream &QDataStream::operator<<( double f )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
+	char *old_locale = setlocale(LC_NUMERIC, "C");
 	sprintf( buf, "%g\n", f );
+	setlocale(LC_NUMERIC, old_locale);
 	dev->writeBlock( buf, strlen(buf) );
     } else if ( noswap ) {			// no conversion needed
 	dev->writeBlock( (char *)&f, sizeof(double) );

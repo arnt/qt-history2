@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #include <qdatetime.h>
 #include <qchar.h>
@@ -1974,7 +1975,9 @@ QTextStream &QTextStream::operator<<( double f )
     *fs++ = 'l';
     *fs++ = f_char;
     *fs = '\0';
+    char *old_locale = setlocale(LC_NUMERIC, "C");
     sprintf( buf, format, f );			// convert to text
+    setlocale(LC_NUMERIC, old_locale);
     if ( fwidth )				// padding
 	*this << (const char*)buf;
     else					// just write it
