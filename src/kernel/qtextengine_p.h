@@ -190,7 +190,7 @@ class QFontEngine;
 struct QScriptItem
 {
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
-			   isObject( FALSE ), ascent( -1 ), descent( -1 ), width( -1 ),
+			   isObject( FALSE ), descent( -1 ), ascent( -1 ), width( -1 ),
 			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
 			   fontEngine( 0 ) { }
     int position;
@@ -199,9 +199,9 @@ struct QScriptItem
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     unsigned short reserved : 13;
-    short ascent;
     short descent;
-    short width;
+    int ascent;
+    int width;
     int x;
     int y;
     int num_glyphs;

@@ -396,10 +396,10 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 		endPos++;
 	    float size = xlfd_transformed.mid( pos, endPos-pos ).toInt();
 	    float mat[4];
-	    mat[0] = p->m11()*size;
-	    mat[1] = p->m21()*size;
-	    mat[2] = p->m12()*size;
-	    mat[3] = p->m22()*size;
+	    mat[0] = p->m11()*size*_scale;
+	    mat[1] = p->m21()*size*_scale;
+	    mat[2] = p->m12()*size*_scale;
+	    mat[3] = p->m22()*size*_scale;
 	    QCString matrix="[";
 	    for ( int i = 0; i < 4; i++ ) {
 		if ( mat[i] < 0 ) {
@@ -917,10 +917,10 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	XftMatrix *mat = 0;
 	XftPatternGetMatrix( pattern, XFT_MATRIX, 0, &mat );
 	XftMatrix m2;
-	m2.xx = p->m11();
-	m2.xy = p->m12();
-	m2.yx = p->m21();
-	m2.yy = p->m22();
+	m2.xx = p->m11()*_scale;
+	m2.xy = p->m12()*_scale;
+	m2.yx = p->m21()*_scale;
+	m2.yy = p->m22()*_scale;
 	if ( mat )
 	    XftMatrixMultiply( &m2, &m2, mat );
 
