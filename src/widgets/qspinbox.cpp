@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#39 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -535,7 +535,7 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 	p.end();
 	up->setPixmap( bm );
     }
-    
+
     if ( down->size() != bs ) {
 	down->resize( bs );
 	QBitmap bm( bms );
@@ -563,6 +563,25 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 	vi->setGeometry( contentsRect() );
 }
 
+/*!
+  Handles wheel events for the spinbox.
+*/
+void QSpinBox::wheelEvent( QWheelEvent * e){
+    static float offset = 0;
+    static QSpinBox* offset_owner = 0;
+    if (offset_owner != this){
+	offset_owner = this;
+	offset = 0;
+    }
+    e->accept();
+    offset += -e->delta()/120;
+    if (QABS(offset)<1)
+	return;
+    int i;
+    for (i=0;i<QABS(int(offset));i++)
+	offset>0?stepDown():stepUp();
+    offset -= int(offset);
+}
 
 
 

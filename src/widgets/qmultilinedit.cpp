@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#100 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -157,8 +157,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setBackgroundMode( PaletteBase );
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
-    ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
-    ((QScrollBar*)horizontalScrollBar())->setCursor( arrowCursor );
+    verticalScrollBar()->setCursor( arrowCursor );
+    horizontalScrollBar()->setCursor( arrowCursor );
     dummy = FALSE;
     insertLine( "", -1 );
     readOnly 	   = FALSE;
@@ -724,6 +724,13 @@ void QMultiLineEdit::append( const char *s )
 {
     insertLine( s, -1 );
     emit textChanged();
+}
+
+/*!
+An override - pass wheel events to the vertical scrollbar
+*/
+void QMultiLineEdit::wheelEvent( QWheelEvent *e ){
+    QApplication::sendEvent( verticalScrollBar(), e);
 }
 
 

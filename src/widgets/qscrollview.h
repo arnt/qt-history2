@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#22 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#23 $
 **
 ** Definition of QScrollView class
 **
@@ -90,6 +90,7 @@ public slots:
 
 protected:
     void	resizeEvent(QResizeEvent*);
+    void 	wheelEvent( QWheelEvent * );
     bool	eventFilter( QObject *, QEvent *e );
 
     virtual void viewportPaintEvent( QPaintEvent* );

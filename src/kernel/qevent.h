@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#55 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#56 $
 **
 ** Definition of event classes
 **
@@ -53,6 +53,7 @@
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
 #define Event_Accel		   30		// accelerator event
+#define Event_Wheel		   31		// wheel event
 #define Event_Clipboard		   40		// internal clipboard event
 #define Event_SockAct		   50		// socket activation
 #define Event_DragEnter		   60		// drag moves into widget
@@ -111,19 +112,49 @@ class QMouseEvent : public QEvent		// mouse event
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
 	: QEvent(type), p(pos), b(button),s((ushort)state) {}
+    QMouseEvent( int type, const QPoint &pos, const QPoint&globalPos, int button, int state )
+	: QEvent(type), p(pos), b(button),s((ushort)state) {g = globalPos;}
+    
     const QPoint &pos() const	{ return p; }
+    const QPoint &globalPos() { return g; }
     int	   x()		const	{ return p.x(); }
     int	   y()		const	{ return p.y(); }
+    int	   globalX()		const	{ return g.x(); }
+    int	   globalY()		const	{ return g.y(); }
     int	   button()	const	{ return b; }
     int	   state()	const	{ return s; }
 protected:
     QPoint p;
+    QPoint g; // ### Qt 1.x: make this static
     int	   b;
     ushort s;
 };
 
 #define Q_MOUSE_EVENT(x)	((QMouseEvent*)x)
 
+
+class QWheelEvent : public QEvent		// wheel event
+{
+public:
+    QWheelEvent( int type, const QPoint &pos, int delta, int state )
+	: QEvent(type), p(pos), d(delta), s((ushort)state),
+	  accpt(TRUE) {}
+    int	   delta()	const	{ return d; }
+    const QPoint &pos() const	{ return p; }
+    int	   x()		const	{ return p.x(); }
+    int	   y()		const	{ return p.y(); }
+    int	   state()	const	{ return s; }
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+protected:
+    QPoint p;
+    int d;
+    ushort s;
+    bool   accpt;
+};
+
+#define Q_WHEEL_EVENT(x)	((QWheelEvent*)x)
 
 class QKeyEvent : public QEvent			// keyboard event
 {
@@ -144,7 +175,6 @@ protected:
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
-
 
 class QFocusEvent : public QEvent		// widget focus event
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#116 $
 **
 ** Implementation of QPushButton class
 **
@@ -27,7 +27,6 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
-#include "qpixmapcache.h"
 #include "qbitmap.h"
 
 /*!

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#149 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1384,6 +1384,17 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	}
     }
 }
+
+
+/*!
+  Pass wheel events to the scroll bar.
+*/
+void QListBox::wheelEvent( QWheelEvent *e ){
+    if (scrollBar())
+	QApplication::sendEvent( verticalScrollBar(), e);
+}
+
+
 
 
 /*!

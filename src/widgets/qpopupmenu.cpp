@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#161 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -509,8 +509,9 @@ void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
     updateAccel( 0 );
+    updateSize(); // ### SLOW, needs some rework 
     if ( isVisible() ) {
-	updateSize();
+	//	updateSize();
 	repaint();
     }
 }
@@ -1597,9 +1598,14 @@ void QPopupMenu::subMenuTimer() {
     for ( int i=0; i<actItem; i++ )
 	p.setY( p.y() + (QCOORD)cellHeight( i ) );
     p = mapToGlobal( p );
-    popupActive = actItem;
     if ( popup->badSize )
 	popup->updateSize();
+    if (p.y() + popup->height() > QApplication::desktop()->height()
+	&& p.y() - popup->height() 
+	+ (QCOORD)(popup->cellHeight( popup->count()-1)) >= 0)
+	p.setY( p.y() - popup->height()
+		+ (QCOORD)(popup->cellHeight( popup->count()-1)));
+    popupActive = actItem;
     bool left = FALSE;
     if ( ( parentMenu && parentMenu->isPopupMenu &&
 	   ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||

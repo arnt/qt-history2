@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#54 $
 **
 ** Implementation of QSlider class
 **
@@ -56,7 +56,7 @@ static int sliderStartVal = 0; //##### class member?
   A slider has a default focusPolicy() of \a TabFocus.
 
   <img src=qslider-m.gif> <img src=qslider-w.gif>
-  
+
   \sa QScrollBar QSpinBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>
 */
@@ -102,11 +102,11 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
 
-QSlider::QSlider( int minValue, int maxValue, int step,
+QSlider::QSlider( int minValue, int maxValue, int pageStep,
 		  int value, Orientation orientation,
 		  QWidget *parent, const char *name )
     : QWidget( parent, name ),
-      QRangeControl( minValue, maxValue, 1, step, value )
+      QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     orient = orientation;
     init();
@@ -708,6 +708,24 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
     int pos = goodPart( e->pos() );
     moveSlider( pos - clickOffset );
+}
+
+/*!
+  Handles wheel events for the slider.
+*/
+void QSlider::wheelEvent( QWheelEvent * e){
+    static float offset = 0;
+    static QSlider* offset_owner = 0;
+    if (offset_owner != this){
+	offset_owner = this;
+	offset = 0;
+    }
+    e->accept();
+    offset += -e->delta()*QMAX(pageStep(),lineStep())/120;
+    if (QABS(offset)<1)
+	return;
+    setValue( value() + int(offset) );
+    offset -= int(offset);
 }
 
 

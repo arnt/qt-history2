@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#96 $
 **
 ** Implementation of QScrollBar class
 **
@@ -391,6 +391,25 @@ void QScrollBar::timerEvent( QTimerEvent * )
     }
     if ( clickedAt )
 	PRIV->action( (ScrollControl) pressedControl );
+}
+
+
+/*!
+  Handles wheel events for the scroll bar.
+*/
+void QScrollBar::wheelEvent( QWheelEvent *e ){
+    static float offset = 0;
+    static QScrollBar* offset_owner = 0;
+    if (offset_owner != this){
+	offset_owner = this;
+	offset = 0;
+    }
+    e->accept();
+    offset += -e->delta()*QMAX(pageStep()/8,2*lineStep())/120;
+    if (QABS(offset)<1)
+	return;
+    setValue( value() + int(offset) );
+    offset -= int(offset);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#33 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#34 $
 **
 ** Definition of QScrollBar class
 **
@@ -64,6 +64,7 @@ signals:
 
 protected:
     void	timerEvent( QTimerEvent * );
+    void 	wheelEvent( QWheelEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );

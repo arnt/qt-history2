@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#53 $
 **
 ** Implementation of QScrollView class
 **
@@ -422,6 +422,15 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 {
     QWidget::resizeEvent( event );
     updateScrollBars();
+}
+
+
+/*!
+An override - pass wheel events to the vertical scrollbar
+*/
+void QScrollView::wheelEvent( QWheelEvent *e ){
+    if (verticalScrollBar())
+	QApplication::sendEvent( verticalScrollBar(), e);
 }
 
 /*!
@@ -1191,7 +1200,7 @@ bool QScrollView::focusNextPrevChild( bool next )
 	if ( w != startingPoint && w->testWFlags( WState_TabToFocus ) &&
 	     w->isEnabledToTLW() &&!w->focusProxy() &&
 	     ( r
-	       ? ( r->wantshown && ( r->child == w || 
+	       ? ( r->wantshown && ( r->child == w ||
 				     w->isVisibleTo( r->child ) ) )
 	       : w->isVisibleToTLW() ) )
 	    candidate = w;

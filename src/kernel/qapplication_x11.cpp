@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#323 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#324 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -39,6 +39,7 @@
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
+#include "qkeycode.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -2736,6 +2737,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     static bool manualGrab = FALSE;
     int	   type;				// event parameters
     QPoint pos;
+    QPoint globalPos;
     int	   button = 0;
     int	   state;
 
@@ -2746,16 +2748,82 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	type = Event_MouseMove;
 	pos.rx() = xevent->xmotion.x;
 	pos.ry() = xevent->xmotion.y;
+	globalPos.rx() = xevent->xmotion.x_root;
+	globalPos.ry() = xevent->xmotion.y_root;
 	state = translateButtonState( xevent->xmotion.state );
 	if ( !qt_button_down )
 	    state &= ~(LeftButton|MidButton|RightButton);
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
+	globalPos.rx() = event->xbutton.x_root;
+	globalPos.ry() = event->xbutton.y_root;
 	switch ( event->xbutton.button ) {
 	    case Button1: button = LeftButton;	break;
 	    case Button2: button = MidButton;	break;
 	    case Button3: button = RightButton; break;
+	    case Button4: case Button5:
+		// the fancy mouse wheel.
+		
+		// take care about grabbing.  We do this here since it
+		// is clear that we return anyway
+		if ( popupWidgets && popupGrabOk )
+		    XAllowEvents( dpy, SyncPointer, CurrentTime );
+		
+		// We are only interested in ButtonPress.
+		if (event->type == ButtonPress ){
+		
+		    // compress wheel events (the X Server will simply
+		    // send a button press for each single notch,
+		    // regardless wether the application can catch up
+		    // or not)
+		    int delta = 1;
+		    XEvent xevent;
+		    while ( XCheckTypedWindowEvent(dpy,winId(),ButtonPress,&xevent) ){
+			if (xevent.xbutton.button != event->xbutton.button){
+			    XPutBackEvent(dpy, &xevent);
+			    break;
+			}
+			delta++;
+		    }
+		
+		    // the delta is defined as multiples of
+		    // WHEEL_DELTA, which is set to 120. Future wheels
+		    // may offer a finer-resolution.  A positive delta
+		    // indicates forward rotation, a negative one
+		    // backward rotation respectively.
+		    delta *= 120*(event->xbutton.button == Button4?1:-1);
+		
+		    QWheelEvent e( Event_Wheel, pos, delta, state );
+		    e.ignore();	
+		
+		    QWidget* w = QApplication::widgetAt(globalPos, TRUE);
+		    if (popupWidgets)
+			w = popupWidgets->last();
+		    if (!w)
+			w = topLevelWidget();
+		    if (w->isActiveWindow()){
+			do {
+			    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+			    QApplication::sendEvent( w, &e );
+			    if ( e.isAccepted() )
+				return TRUE;
+			    w = w->parentWidget();
+			} while (w);
+		    }
+		    // last try: send the event to the widget that has the focus or its ancestors
+		    w = qApp->focus_widget;
+		    if (w){
+			do {
+			    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+			    QApplication::sendEvent( w, &e );
+			    if ( e.isAccepted() )
+				return TRUE;
+			    w = w->parentWidget();
+			} while (w);
+		    }
+		}
+		return TRUE;
 	}
 	state = translateButtonState( event->xbutton.state );
 	if ( event->type == ButtonPress ) {	// mouse button pressed
@@ -2772,6 +2840,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		type = Event_MouseButtonPress;
 		mouseButtonPressTime = event->xbutton.time;
 	    }
+	    mouseButtonPressed = button; 	// save event params for
+	    mouseXPos = pos.x();		// future double click tests
+	    mouseYPos = pos.y();
 	} else {				// mouse button released
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
@@ -2791,11 +2862,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    type = Event_MouseButtonRelease;
 	}
     }
-    mouseActWindow = winId();			// save mouse event params
-    mouseButtonPressed = button;
-    mouseButtonState = state;
-    mouseXPos = pos.x();
-    mouseYPos = pos.y();
+    mouseActWindow = winId();			// save some event params
+    mouseButtonState = state; 			
     if ( type == 0 )				// don't send event
 	return FALSE;
 
@@ -2830,12 +2898,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->
 			   mapFromGlobal(popup->mapToGlobal(pos)),
+			   globalPos,
 			   button, state );
 	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter )
 		popupButtonFocus = 0;
 	} else {
-	    QMouseEvent e( type, pos, button, state );
+	    QMouseEvent e( type, pos, globalPos, button, state );
 	    QApplication::sendEvent( popup, &e );
 	}
 
@@ -2869,7 +2938,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		return TRUE;
 	}
 
-	QMouseEvent e( type, pos, button, state );
+
+	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
     }
     return TRUE;
@@ -2931,6 +3001,9 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_KP_Subtract,	Key_Minus,
     XK_KP_Decimal,	Key_Period,
     XK_KP_Divide,	Key_Slash,
+    XK_Super_L,		Key_Super_L,
+    XK_Super_R,		Key_Super_R,
+    XK_Menu,		Key_Menu,
     0,			0
 };
 
@@ -3313,7 +3386,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
-	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
+ 	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );

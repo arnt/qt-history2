@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#151 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#152 $
 **
 ** Definition of QWidget class
 **
@@ -255,6 +255,7 @@ protected:
     virtual void mouseReleaseEvent( QMouseEvent * );
     virtual void mouseDoubleClickEvent( QMouseEvent * );
     virtual void mouseMoveEvent( QMouseEvent * );
+    virtual void wheelEvent( QWheelEvent * );
     virtual void keyPressEvent( QKeyEvent * );
     virtual void keyReleaseEvent( QKeyEvent * );
     virtual void focusInEvent( QFocusEvent * );
@@ -265,7 +266,17 @@ protected:
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
+    
+    virtual void dragEnterEvent( QDragEnterEvent * );
+    virtual void dragMoveEvent( QDragMoveEvent * );
+    virtual void dragLeaveEvent( QDragLeaveEvent * );
+    virtual void dropEvent( QDropEvent * );
 
+    virtual void childEvent( QChildEvent * );
+    virtual void showEvent( QShowEvent * );
+    virtual void hideEvent( QHideEvent * );
+    virtual void customEvent( QCustomEvent * );
+    
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event
 #elif defined(_WS_WIN_)

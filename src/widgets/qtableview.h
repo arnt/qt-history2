@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#22 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#23 $
 **
 ** Definition of QTableView class
 **
@@ -94,8 +94,8 @@ protected:
     bool	rowIsVisible( int row ) const;
     bool	colIsVisible( int col ) const;
 
-    const QScrollBar *verticalScrollBar() const;
-    const QScrollBar *horizontalScrollBar() const;
+    QScrollBar *verticalScrollBar() const;
+    QScrollBar *horizontalScrollBar() const;
 
 private slots:
     void	horSbValue( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#250 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -987,8 +987,8 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	XClearArea( dpy, winid, 0, 0, 0, 0, TRUE );
+     if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+ 	XClearArea( dpy, winid, 0, 0, 0, 0, TRUE );
 }
 
 /*!
@@ -1013,8 +1013,8 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w != 0 && h != 0 )
-	    XClearArea( dpy, winid, x, y, w, h, TRUE );
+ 	if ( w != 0 && h != 0 )
+ 	    XClearArea( dpy, winid, x, y, w, h, TRUE );
     }
 }
 
@@ -1056,8 +1056,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	QPaintEvent e( QRect(x,y,w,h) );
-	if ( erase && w != 0 && h != 0 )
-	    XClearArea( dpy, winid, x, y, w, h, FALSE );
+ 	if ( erase && w != 0 && h != 0 )
+ 	    XClearArea( dpy, winid, x, y, w, h, FALSE );
 	QApplication::sendEvent( this, &e );
     }
 }
@@ -1528,8 +1528,8 @@ void QWidget::erase( int x, int y, int w, int h )
 	w = crect.width()  - x;
     if ( h < 0 )
 	h = crect.height() - y;
-    if ( w != 0 && h != 0 )
-	XClearArea( dpy, winid, x, y, w, h, FALSE );
+     if ( w != 0 && h != 0 )
+ 	XClearArea( dpy, winid, x, y, w, h, FALSE );
 }
 
 /*!
@@ -1599,17 +1599,17 @@ void QWidget::scroll( int dx, int dy )
 	x1 = x2 == 0 ? w : 0;
 	if ( repaint_immediately )
 	    repaint( x1, 0, crect.width()-w, crect.height(), TRUE );
-	else
-	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(),
-			TRUE);
+ 	else
+ 	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(),
+ 			TRUE);
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
 	if ( repaint_immediately )
 	    repaint( 0, y1, crect.width(), crect.height()-h, TRUE );
-	else
-	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h,
-			TRUE );
+ 	else
+ 	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h,
+ 			TRUE );
     }
 
     qt_insert_sip( this, dx, dy );

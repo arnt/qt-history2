@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#58 $
 **
 ** Implementation of event classes
 **
@@ -23,8 +23,7 @@
 
 #include "qevent.h"
 
-void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
-
+void qRemovePostedEvent( QEvent * );		// defined in qapplication_xxx.cpp
 
 void QEvent::peErrMsg()				// posted event error message
 {
@@ -45,6 +44,9 @@ void QEvent::peErrMsg()				// posted event error message
 	    break;
 	case Event_MouseMove:
 	    n = "MouseMove";
+	    break;
+	case Event_Wheel:
+	    n = "Wheel";
 	    break;
 	case Event_KeyPress:
 	    n = "KeyPress";
@@ -232,6 +234,12 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
+  \fn const QPoint &QMouseEvent::globalPos() const
+  Returns the global position of the mouse pointer at the time of the event
+  \sa globalX(), globalY()
+*/
+
+/*!
   \fn int QMouseEvent::x() const
   Returns the X position of the mouse pointer, relative to the widget that
   received the event.
@@ -243,6 +251,18 @@ void QEvent::peErrMsg()				// posted event error message
   Returns the Y position of the mouse pointer, relative to the widget that
   received the event.
   \sa x(), pos()
+*/
+
+/*!
+  \fn int QMouseEvent::globalX() const
+  Returns the global X position of the mouse pointer at the time of the event
+  \sa globalY(), globalPos()
+*/
+
+/*!
+  \fn int QMouseEvent::globalY() const
+  Returns the global Y position of the mouse pointer at the time of the event
+  \sa globalX(), globalPos()
 */
 
 /*!
@@ -274,6 +294,104 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 
+
+/*!
+  \class QWheelEvent qevent.h
+  \brief The QWheelEvent class contains parameters that describe a wheel event.
+
+  \ingroup event
+
+
+  Wheel events occur when a mouse wheel is turned while the pointer is above the widget.
+
+  A wheel event contains a special accept flag which tells whether the
+  receiver wants the event.  You should call QWheelEvent::accept() if you
+  handle the wheel event, otherwise it will be sent to the parent widget as well.
+
+  The QWidget::setEnable() function can be used to enable or disable mouse
+  and keyboard events for a widget.
+
+  The event handlers QWidget::wheelEvent() receive wheel events.
+
+  \sa QMouseEvent, QWidget::grabMouse()
+*/
+
+/*!
+  \fn int QWheelEvent::delta() const
+
+  Returns the distance that the wheel is rotated, expressed in
+  multiples or divisions of WHEEL_DELTA, which is set at 120
+  currently.A positive value indicates that the whell was rotated
+  forward, away from the user; a negative value indicates that the
+  wheel was rotated backward, toward the user.
+
+  The WHEEL_DELTA constant was set to 120 by the wheel mouse vendors
+  to allow building finer-resolution wheels in the future, including
+  perhaps a freely-rotating wheel with no notches. The expectation is
+  that such a device would send more messages per rotation, but with a
+  smaller value in each message.
+*/
+
+/*!
+  \fn const QPoint &QWheelEvent::pos() const
+  Returns the position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa x(), y()
+*/
+
+/*!
+  \fn int QWheelEvent::x() const
+  Returns the X position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa y(), pos()
+*/
+
+/*!
+  \fn int QWheelEvent::y() const
+  Returns the Y position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa x(), pos()
+*/
+
+/*!
+  \fn int QWheelEvent::state() const
+  Returns the keyboard modifier flags.
+
+  The returned value is \c ShiftButton, \c ControlButton and \c AltButton
+  OR'ed together.
+*/
+
+/*!
+  \fn bool QWheelEvent::isAccepted() const
+  Returns TRUE if the receiver of the event handles the wheel event
+*/
+
+/*!
+  \fn void QWheelEvent::accept()
+  Sets the accept flag of the wheel event object.
+
+  Setting the accept parameter indicates that the receiver of the event wants
+  the wheel event. Unwanted wheel events are sent to the parent widget.
+
+  The accept flag is set by default.
+
+  \sa ignore()
+*/
+
+/*!
+  \fn void QWheelEvent::ignore()
+  Clears the accept flag parameter of the wheel event object.
+
+  Clearing the accept parameter indicates that the event receiver does
+  not want the wheel event. Unwanted wheel events are sent to the parent widget.
+
+  The accept flag is set by default.
+
+  \sa accept()
+*/
+
+
+
 /*!
   \class QKeyEvent qevent.h
   \brief The QKeyEvent class contains parameters that describe a key event.
@@ -288,8 +406,8 @@ void QEvent::peErrMsg()				// posted event error message
   receiver wants the key.  You should call QKeyEvent::ignore() if the
   key press or release event is not handled by your widget.
 
-  The QWidget::disable() function disables mouse and keyboard events for a
-  widget, and QWidget::enable() enables mouse and keyboard events.
+  The QWidget::setEnable() function can be used to enable or disable mouse
+  and keyboard events for a widget.
 
   The event handlers QWidget::keyPressEvent() and QWidget::keyReleaseEvent()
   receive key events.

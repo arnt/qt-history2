@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#5 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -21,39 +21,6 @@
 
 #include "qdropsite.h"
 #include "qwidget.h"
-
-class QDropSitePrivate : public QObject {
-    QDropSite* s;
-
-public:
-    QDropSitePrivate( QWidget* parent, QDropSite* site ) :
-	QObject(parent),
-	s(site)
-    {
-	parent->installEventFilter(this);
-    }
-
-    bool eventFilter( QObject*, QEvent* );
-};
-
-bool QDropSitePrivate::eventFilter( QObject *, QEvent * e )
-{
-    if ( e->type() == Event_Drop ) {
-	s->dropEvent( (QDropEvent *)e );
-	return TRUE;
-    } else if ( e->type() == Event_DragEnter ) {
-	s->dragEnterEvent( (QDragEnterEvent *)e );
-	return TRUE;
-    } else if ( e->type() == Event_DragMove ) {
-	s->dragMoveEvent( (QDragMoveEvent *)e );
-	return TRUE;
-    } else if ( e->type() == Event_DragLeave ) {
-	s->dragLeaveEvent( (QDragLeaveEvent *)e );
-	return TRUE;
-    } else {
-	return FALSE;
-    }
-}
 
 
 /*!
@@ -92,7 +59,6 @@ bool QDropSitePrivate::eventFilter( QObject *, QEvent * e )
 */
 QDropSite::QDropSite( QWidget* self )
 {
-    d = new QDropSitePrivate(self,this);
     self->setAcceptDrops( TRUE );
 }
 
@@ -101,46 +67,5 @@ QDropSite::QDropSite( QWidget* self )
 */
 QDropSite::~QDropSite()
 {
-    delete d; // not really needed
 }
 
-/*!
-  This event handler is called when a drag is in progress and the
-  mouse enters this widget.
-
-  The default implementation does nothing.
-*/
-void QDropSite::dragEnterEvent( QDragEnterEvent * )
-{
-}
-
-/*!
-  This event handler is called when a drag is in progress and the
-  mouse enters this widget, and whenever it moves within
-  the widget.
-
-  The default implementation does nothing.
-*/
-void QDropSite::dragMoveEvent( QDragMoveEvent * )
-{
-}
-
-/*!
-  This event handler is called when a drag is in progress and the
-  mouse leaves this widget.
-
-  The default implementation does nothing.
-*/
-void QDropSite::dragLeaveEvent( QDragLeaveEvent * )
-{
-}
-
-/*!
-  This event handler is called when the drag is dropped on this
-  widget.
-
-  The default implementation does nothing.
-*/
-void QDropSite::dropEvent( QDropEvent * )
-{
-}

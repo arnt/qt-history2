@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#38 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#39 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -60,7 +60,7 @@ public:
 
     bool	autoUpdate()	const;
     void	setAutoUpdate( bool );
-    
+
     void	setFixedVisibleLines( int lines );
 
 public slots:
@@ -86,6 +86,7 @@ protected:
     void	mouseMoveEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseDoubleClickEvent( QMouseEvent * );
+    void 	wheelEvent( QWheelEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
@@ -115,7 +116,7 @@ protected:
     virtual void end( bool mark=FALSE );
 
 
-    bool	getMarkedRegion( int *line1, int *col1, 
+    bool	getMarkedRegion( int *line1, int *col1,
 				 int *line2, int *col2 ) const;
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
@@ -133,7 +134,7 @@ private:
     bool	markIsOn;
     bool	dragScrolling ;
     bool	dragMarking;
-    bool	textDirty;    
+    bool	textDirty;
     bool	wordMark;
     bool	overWrite;
 
@@ -170,8 +171,8 @@ inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }
 
 inline bool QMultiLineEdit::isOverwriteMode() const { return overWrite; }
 
-inline void QMultiLineEdit::setOverwriteMode( bool on ) 
-{ 
+inline void QMultiLineEdit::setOverwriteMode( bool on )
+{
     overWrite = on;
  }
 
@@ -180,15 +181,15 @@ inline int QMultiLineEdit::lineLength( int row ) const
     return contents->at( row )->length();
 }
 
-inline bool QMultiLineEdit::atEnd() const 
-{ 
-    return cursorY == (int)contents->count() - 1 
-	&& cursorX == lineLength( cursorY ) ; 
+inline bool QMultiLineEdit::atEnd() const
+{
+    return cursorY == (int)contents->count() - 1
+	&& cursorX == lineLength( cursorY ) ;
 }
 
-inline bool QMultiLineEdit::atBeginning() const 
-{ 
-    return cursorY == 0 && cursorX == 0; 
+inline bool QMultiLineEdit::atBeginning() const
+{
+    return cursorY == 0 && cursorX == 0;
 }
 
 inline QString *QMultiLineEdit::getString( int row ) const

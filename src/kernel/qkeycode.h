@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#17 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#18 $
 **
 ** Definition of keyboard codes
 **
@@ -101,6 +101,11 @@ const uint ASCII_ACCEL	= 0x10000000;
 #define Key_F33			0x1050
 #define Key_F34			0x1051
 #define Key_F35			0x1052
+
+#define Key_Super_L 		0x1053 		// extra keys
+#define Key_Super_R 		0x1054
+#define Key_Menu 		0x1055
+
 
 #define Key_Space		0x20		// 7 bit printable ASCII
 #define Key_Exclam		0x21

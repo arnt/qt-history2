@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#258 $
 **
 ** Implementation of QWidget class
 **
@@ -193,7 +193,15 @@
 	paintEvent(),
 	moveEvent(),
 	resizeEvent(),
-	closeEvent().
+	closeEvent(),
+	dragEnterEvent(),
+	dragMoveEvent(),
+	dragLeaveEvent(),
+	dropEvent(),
+	childEvent(),
+	showEvent(),
+	hideEvent(),
+	customEvent().
 
   <li> Change handlers:
 	backgroundColorChange(),
@@ -2816,6 +2824,11 @@ bool QWidget::event( QEvent *e )
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
 
+	case Event_Wheel:
+	    wheelEvent( (QWheelEvent*)e );
+	    if ( ! ((QWheelEvent*)e)->isAccepted() )
+		return FALSE;
+	    break;
 	case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
@@ -2883,7 +2896,25 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
-
+	case Event_Drop:
+	    dropEvent( (QDropEvent*) e);
+	    break;	
+	case Event_DragEnter:
+	    dragEnterEvent( (QDragEnterEvent*) e);
+	    break;	
+	case Event_DragMove:
+	    dragMoveEvent( (QDragMoveEvent*) e);
+	    break;	
+	case Event_DragLeave:
+	    dragLeaveEvent( (QDragLeaveEvent*) e);
+	    break;	
+	case Event_ChildInserted: case Event_ChildRemoved:
+	    childEvent( (QChildEvent*) e);
+	    break;
+	case Event_Show:
+	    showEvent( (QShowEvent*) e);
+	case Event_Hide:
+	    hideEvent( (QHideEvent*) e);
 	default:
 	    return FALSE;
     }
@@ -2965,6 +2996,26 @@ void QWidget::mouseReleaseEvent( QMouseEvent * )
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mousePressEvent( e );			// try mouse press event
+}
+
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  wheel events for the widget.
+
+  If you reimplement this handler, it is very important that you \link
+  QWheelEvent ignore()\endlink the event if you do not handle it, so
+  that the widget's parent can interpret it.
+
+  The default implementation ignores the event.
+
+  \sa QWheelEvent::ignore(), QWheelEvent::accept(),
+  event(), QWheelEvent
+*/
+
+void QWidget::wheelEvent( QWheelEvent *e )
+{
+    e->ignore();
 }
 
 
@@ -3169,6 +3220,121 @@ void QWidget::resizeEvent( QResizeEvent * )
 void QWidget::closeEvent( QCloseEvent *e )
 {
     e->accept();
+}
+
+
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse enters this widget.
+
+  The default implementation does nothing.
+
+  \sa QTextDrag, QImageDrag, QDragEnterEvent
+*/
+void QWidget::dragEnterEvent( QDragEnterEvent * )
+{
+}
+
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse enters this widget, and whenever it moves within
+  the widget.
+
+  The default implementation does nothing.
+
+  \sa QTextDrag, QImageDrag, QDragMoveEvent
+*/
+void QWidget::dragMoveEvent( QDragMoveEvent * )
+{
+}
+
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse leaves this widget.
+
+  The default implementation does nothing.
+
+  \sa QTextDrag, QImageDrag, QDragLeaveEvent
+*/
+void QWidget::dragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+/*!
+  This event handler is called when the drag is dropped on this
+  widget.
+
+  The default implementation does nothing.
+
+  \sa QTextDrag, QImageDrag, QDropEvent
+*/
+void QWidget::dropEvent( QDropEvent * )
+{
+}
+
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  child widgets events.
+
+  Child events are sent to widgets when children are inserted or removed.
+
+  The default implementation does nothing.
+
+  \sa event(), QChildEvent
+*/
+
+void QWidget::childEvent( QChildEvent * )
+{
+}
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  widget show events.
+
+  Non-sponaneous show events are sent to widgets right before they are
+  shown. Spontaneous show events of toplevel widgets are delivered
+  afterwards, naturally.
+
+  The default implementation does nothing.
+
+  \sa event(), QShowEvent
+  */
+void QWidget::showEvent( QShowEvent * )
+{
+}
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  widget hide events.
+
+  Hide events are sent to widgets right after they have been hidden.
+
+  The default implementation does nothing.
+
+  \sa event(), QHideEvent
+  */
+void QWidget::hideEvent( QHideEvent * )
+{
+}
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  custom events.
+
+  QCustomEvent is a user-defined event type which contains a \c void*.
+
+  \warning
+  This event class is internally used to implement Qt enhancements.  It is
+  not advisable to use QCustomEvent in normal applications, where other
+  event types and the signal/slot mechanism can do the job.
+
+  The default implementation does nothing.
+
+  \sa event(), QCustomEvent
+*/
+void QWidget::customEvent( QCustomEvent * )
+{
 }
 
 

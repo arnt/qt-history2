@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#84 $
 **
 ** Implementation of QTableView class
 **
@@ -1418,7 +1418,7 @@ void QTableView::updateView()
   values, use findRow() to translate to cell numbers.
 */
 
-const QScrollBar *QTableView::verticalScrollBar() const
+QScrollBar *QTableView::verticalScrollBar() const
 {
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
@@ -1446,7 +1446,7 @@ const QScrollBar *QTableView::verticalScrollBar() const
   values, use findCol() to translate to cell numbers.
 */
 
-const QScrollBar *QTableView::horizontalScrollBar() const
+QScrollBar *QTableView::horizontalScrollBar() const
 {
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
