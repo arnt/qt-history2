@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#113 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#113 $");
 
 
 struct QLineEditPrivate {
@@ -581,7 +581,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 }
 
 /*!
-  Obsolete.
+  Not used.
 */
 
 void QLineEdit::timerEvent( QTimerEvent * e )
@@ -783,6 +783,8 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 	cursorPos -= steps;
 	if ( cursorPos < 0 )
 	    cursorPos = 0;
+	cursorOn = FALSE;
+	blinkSlot();
 	int minP = QMIN( minMark(), cursorPos );
 	maxP = QMAX( maxMark(), cursorPos );
 	if ( mark )
@@ -811,6 +813,8 @@ void QLineEdit::cursorRight( bool mark, int steps )
 	cursorPos += steps;
 	if ( cursorPos > len )
 	    cursorPos = len;
+	cursorOn = FALSE;
+	blinkSlot();
 	int maxP = QMAX( cursorPos, maxMark() );
 	if ( mark )
 	    newMark( cursorPos );
@@ -871,6 +875,8 @@ void QLineEdit::home( bool mark )
     if ( cursorPos != 0 || (!mark && hasMarkedText()) ) {
 	int m = cursorPos;
 	cursorPos = 0;
+	cursorOn = FALSE;
+	blinkSlot();
 	if ( mark ) {
 	    m = QMAX( minMark(), m );
 	    newMark( cursorPos );
@@ -901,21 +907,23 @@ void QLineEdit::end( bool mark )
     if ( cursorPos != tlen || (!mark && hasMarkedText()) ) {
 	int mo = showLastPartOffset( &tbuf[offset], fontMetrics(),
 				     width() - (frame() ? 8 : 4) );
+	int markStart = cursorPos;
 	cursorPos = tlen;
-	int promp; // <- der
+	cursorOn = FALSE;
+	blinkSlot();
 	if ( mark ) {
-	    promp = markDrag;
+	    markStart = QMIN( markStart, markDrag );
 	    newMark( cursorPos );
 	} else {
-	    promp = minMark();
+	    markStart = QMIN( markStart, minMark() );
 	    markAnchor = markDrag = cursorPos;
 	}
+	d->pmDirty = TRUE;
 	if ( mo > 0 ) {
-	    d->pmDirty = TRUE;
 	    offset += mo;
 	    repaint( FALSE );
 	} else {
-	    repaintArea( promp, tlen );
+	    repaintArea( markStart, tlen );
 	}
     }
 }
@@ -1315,6 +1323,8 @@ void QLineEdit::insert( const char * newText )
     }
     test.insert( cp, t );
     cp += t.length();
+    cursorOn = FALSE;
+    blinkSlot();
     validateAndSet( test, cp, cp, cp );
     return;
 }
