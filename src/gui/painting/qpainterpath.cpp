@@ -79,11 +79,25 @@ public:
     QList< QList<QPoint> > closedSets;
     QList< QList<QPoint> > openSets;
 
+#ifndef QT_NO_DEBUG
+    void debug() {
+        printf("QVLineSets, closed=%d, open=%d\n", closedSets.size(), openSets.size());
+        for (int i=0; i<closedSets.size(); ++i) {
+            printf(" - Closed set: %d\n", i);
+            for (int j=0; j<closedSets.at(i).size(); ++j)
+                printf(" --- (%d, %d)\n", closedSets.at(i).at(j).x(), closedSets.at(i).at(j).y());
+        }
+        for (int i=0; i<openSets.size(); ++i) {
+            printf(" - Open set: %d\n", i);
+            for (int j=0; j<openSets.at(i).size(); ++j)
+                printf(" --- (%d, %d)\n", openSets.at(i).at(j).x(), openSets.at(i).at(j).y());
+        }
+    }
+#endif
+
     // Adds the linesets to the specified path.
     void addToPath(QPainterPath *path)
     {
-        Q_ASSERT(openSets.isEmpty());
-
         for (int iset=0; iset<closedSets.size(); ++iset) {
             const QList<QPoint> &set = closedSets.at(iset);
             Q_ASSERT(!set.isEmpty());
@@ -126,7 +140,20 @@ public:
                         openSets[iset].append(QPoint(x1, y1));
                         insert = iset;
                     }
+
+                // Sets of size 1 could be ordered the wrong way, so do extra check,
+                // only need the check on the left since we go left to right.
+                } else if (openSets.at(iset).size() == 2) {
+                    if (openSets.at(iset).at(0) == QPoint(x1, y1)) {
+                        QPoint pt1 = openSets.at(iset).at(0);
+                        QPoint pt2 = openSets.at(iset).at(1);
+                        openSets[iset].clear();
+                        openSets[iset] << pt2 << pt1 << QPoint(x2, y2);
+                        insert = iset;
+                    }
                 }
+
+
             }
         }
 
@@ -138,23 +165,23 @@ public:
                 if (i == insert)
                     continue;
                 if (openSets.at(i).first() == openSets.at(insert).last()) {
+                    // Remove first element to avoid duplication.
                     openSets[i].removeAt(0);
+                    // Add other set to insert.
                     openSets[insert] += openSets[i];
                     openSets.removeAt(i);
                     if (i < insert)
                         --insert;
-                }
-                else if (openSets.at(i).last() == openSets.at(insert).first()) {
+                } else if (openSets.at(i).last() == openSets.at(insert).first()) {
                     openSets[insert].removeAt(0);
                     openSets[i] += openSets[insert];
                     openSets.removeAt(insert);
-                    insert = i;
+                    insert = insert < i ? i - 1 : i;
                 }
             }
             if (openSets.at(insert).first() == openSets.at(insert).last()) {
                 closedSets.append(openSets.at(insert));
                 openSets.removeAt(insert);
-
             }
 
         // Create a new set if no connection was found.
@@ -165,7 +192,6 @@ public:
             openSets << line;
         }
     }
-
 };
 
 
