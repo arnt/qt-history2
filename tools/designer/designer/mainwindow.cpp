@@ -612,8 +612,13 @@ QObjectList *MainWindow::runProject()
 		iiface->setBreakPoints( f, bps );
 	}
 
-	if ( hasForms )
-	    iiface->exec( 0, "main" );
+	// #### to make db connections working (as they are normally
+	// created in main()), main() has to be called _before_ the
+	// forms are created. But this means in main(), the forms
+	// would not be available. So maybe we should have a special
+	// function like dbInit() or so for that
+// 	if ( hasForms )
+// 	    iiface->exec( 0, "main" );
 
 	for ( QPtrListIterator<FormFile> it2 = currentProject->formFiles(); it2.current(); ++it2 ) {
 	    if ( (*it2)->isFake() )
@@ -629,6 +634,9 @@ QObjectList *MainWindow::runProject()
 		w->hide();
 	    }
 	}
+
+	if ( hasForms )
+	    iiface->exec( 0, "main" );
 
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    FormWindow *fw = (FormWindow*)findRealForm( (QWidget*)o );
