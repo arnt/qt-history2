@@ -237,13 +237,13 @@ sub sync_files
 
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
 	if ( $copy > 0 ) {
-	    open(O, "> " . $file) || die "Could not open $file for writing";
+	    open(O, "> " . $file) || die "Could not open $file for writing ($ifile)";
 	    binmode O;
 	    print O $ifilecontents;
 	    close O;
 	    print "$file written\n";
 	} elsif ( $copy < 0 ) {
-	    open(O, "> " . $ifile) || die "Could not open $ifile for writing";
+	    open(O, "> " . $ifile) || die "Could not open $ifile for writing ($file)";
 	    binmode O;
 	    print O $filecontents;
 	    close O;
