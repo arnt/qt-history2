@@ -213,7 +213,7 @@ void TextEdit::load( const QString &f )
     edit->setText( txt );
     tabWidget->showPage( edit );
     edit->viewport()->setFocus();
-    filenames.replace( edit, f );
+    filenames.insert( edit, f );
 }
 
 QTextEdit *TextEdit::currentEditor() const
@@ -273,7 +273,7 @@ void TextEdit::fileSaveAs()
 	return;
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "HTML-Files (*.htm *.html);;All Files (*)" ), this );
     if ( !fn.isEmpty() ) {
-	filenames.replace( currentEditor(), fn );
+	filenames.insert( currentEditor(), fn );
 	fileSave();
 	tabWidget->setTabLabel( currentEditor(), QFileInfo( fn ).fileName() );
     }
