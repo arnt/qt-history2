@@ -1509,7 +1509,7 @@ class parser_reg {
 						// is currently skipping (see addExpressionChar and friends)
     QCString  fileName;				// file name
     QCString  outputFile;				// output file name
-    QCString  includeFile;				// name of #include file
+    QStrList  includeFiles;			// name of #include files
     QCString  includePath;				// #include file path
     QCString  qtPath;				// #include qt file path
     int           gen_count; //number of classes generated
@@ -1569,6 +1569,18 @@ int yyparse();
 
 void replace( char *s, char c1, char c2 );
 
+void setDefaultIncludeFile()
+{
+    if ( g->includeFiles.isEmpty() ) {
+	if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() &&
+	     g->includePath.isEmpty() ) {
+	    g->includeFiles.append( combinePath(g->fileName, g->outputFile) );
+	} else {
+	    g->includeFiles.append( g->fileName );
+	}
+    }
+}
+
 #ifndef MOC_MWERKS_PLUGIN
 int main( int argc, char **argv )
 {
@@ -1584,7 +1596,7 @@ int main( int argc, char **argv )
 	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
-			error = "Missing output-file name";
+			error = "Missing output file name";
 			break;
 		    }
 		    g->outputFile = argv[++n];
@@ -1596,9 +1608,8 @@ int main( int argc, char **argv )
 	    } else if ( opt[0] == 'f' ) {	// produce #include statement
 		g->noInclude   = FALSE;
 		autoInclude = FALSE;
-		if ( opt[1] ) {			// -fsomething.h
-		    g->includeFile = &opt[1];
-		}
+		if ( opt[1] )			// -fsomething.h
+		    g->includeFiles.append( &opt[1] );
 	    } else if ( opt[0] == 'p' ) {	// include file path
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
@@ -1654,17 +1665,8 @@ int main( int argc, char **argv )
 	else
 	    g->noInclude = TRUE;
     }
-    if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() &&
-	 g->includeFile.isEmpty() && g->includePath.isEmpty() ) {
-	g->includeFile = combinePath(g->fileName,g->outputFile);
-    }
-    if ( g->includeFile.isEmpty() )
-	g->includeFile = g->fileName.copy();
-    if ( !g->includePath.isEmpty() ) {
-	if ( g->includePath.right(1) != "/" )
-	    g->includePath += '/';
-	g->includeFile = g->includePath + g->includeFile;
-    }
+    setDefaultIncludeFile();
+
     if ( g->fileName.isNull() && !error ) {
 	g->fileName = "standard input";
 	yyin	 = stdin;
@@ -1744,17 +1746,7 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
     g->fileName = fin;
     g->outputFile = fout;
 
-    if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() &&
-	 g->includeFile.isEmpty() && g->includePath.isEmpty() ) {
-	g->includeFile = combinePath(g->fileName,g->outputFile);
-    }
-    if ( g->includeFile.isEmpty() )
-	g->includeFile = g->fileName.copy();
-    if ( !g->includePath.isEmpty() ) {
-	if ( g->includePath.right(1) != "/" )
-	    g->includePath += '/';
-	g->includeFile = g->includePath + g->includeFile;
-    }
+    setDefaultIncludeFile();
 
     CWFileInfo fi;
     memset(&fi, 0, sizeof(fi));
@@ -2868,18 +2860,34 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
+
 	if ( !g->noInclude ) {
 	    /*
-	      The header file might be a Qt header file with QT_NO_COMPAT
-	      macros around signals, slots or properties. Without the #undef,
-	      we cannot compile Qt itself with QT_NO_COMPAT.
+	      The header file might be a Qt header file with
+	      QT_NO_COMPAT macros around signals, slots or
+	      properties. Without the #undef, we cannot compile the
+	      Qt library with QT_NO_COMPAT defined.
 
 	      Header files of libraries build around Qt can also use
-	      QT_NO_COMPAT, so this #undef might be beneficial to users of Qt,
-	      and not only to developers of Qt.
+	      QT_NO_COMPAT, so this #undef might be beneficial to
+	      users of Qt, and not only to developers of Qt.
 	    */
 	    fprintf( out, "#undef QT_NO_COMPAT\n" );
-	    fprintf( out, "#include \"%s\"\n", (const char*)g->includeFile );
+
+	    if ( !g->includePath.isEmpty() && g->includePath.right(1) != "/" )
+		g->includePath += "/";
+
+	    g->includeFiles.first();
+	    while ( g->includeFiles.current() ) {
+		QCString inc = g->includeFiles.current();
+		if ( inc[0] != '<' && inc[0] != '"' ) {
+		    if ( !g->includePath.isEmpty() )
+			inc.prepend( g->includePath );
+		    inc = "\"" + inc + "\"";
+		}
+		fprintf( out, "#include %s\n", (const char *)inc );
+		g->includeFiles.next();
+	    }
 	}
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
