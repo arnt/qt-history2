@@ -129,7 +129,11 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    return (style().sizeFromContents(QStyle::CT_SizeGrip, this, QSize(13, 13)).
+    Q4StyleOption opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    return (style().sizeFromContents(QStyle::CT_SizeGrip, &opt, QSize(13, 13), fontMetrics(), this).
             expandedTo(QApplication::globalStrut()));
 }
 

@@ -14,17 +14,18 @@
 
 #include "qtabwidget.h"
 #ifndef QT_NO_TABWIDGET
+#include "private/qwidget_p.h"
+#include "qapplication.h"
+#include "qbitmap.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qtabbar.h"
 #include "qlayout.h"
-#include "qapplication.h"
-#include "qstackedbox.h"
-#include "qbitmap.h"
-#include "qstyle.h"
 #include "qpainter.h"
+#include "qstackedbox.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtabbar.h"
 #include "qtoolbutton.h"
-#include "private/qwidget_p.h"
 
 /*!
     \class QTabWidget qtabwidget.h
@@ -621,7 +622,12 @@ QSize QTabWidget::sizeHint() const
         t = t.boundedTo(QApplication::desktop()->size());
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
+    Q4StyleOption opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
+                    .expandedTo(QApplication::globalStrut());
 }
 
 
@@ -647,7 +653,12 @@ QSize QTabWidget::minimumSizeHint() const
 
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
+    Q4StyleOption opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
+                    .expandedTo(QApplication::globalStrut());
 }
 
 /*!

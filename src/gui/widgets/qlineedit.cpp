@@ -444,9 +444,12 @@ QSize QLineEdit::sizeHint() const
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width('x') * 17; // "some"
     int m = d->frame ? 4 : 0;
-    return (style().sizeFromContents(QStyle::CT_LineEdit, this,
-                                     QSize(w + m, h + m).
-                                     expandedTo(QApplication::globalStrut())));
+    Q4StyleOptionFrame opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    return (style().sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
+                                     expandedTo(QApplication::globalStrut()), fontMetrics(), this));
 }
 
 

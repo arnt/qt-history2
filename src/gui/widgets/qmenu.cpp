@@ -963,7 +963,12 @@ QSize QMenu::sizeHint() const
     }
     s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
     s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
-    return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));
+    Q4StyleOption opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    return style().sizeFromContents(QStyle::CT_Menu, &opt,
+                                    s.expandedTo(QApplication::globalStrut()), fontMetrics(), this);
 }
 
 /*!
