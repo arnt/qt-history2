@@ -1812,21 +1812,21 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 		if ( obj->inherits( "QButton" ) && obj->parent()->inherits( "QButtonGroup" ) )
 		    ( (QButtonGroup*)obj->parent() )->insert( (QButton*)obj, value.toInt() );
 #ifndef QT_NO_SQL
+	    } else if ( prop == "database" && !obj->inherits( "QDataView" )
+		 && !obj->inherits( "QDataBrowser" ) ) {
+		const QStringList& lst = value.asStringList();
+		if ( lst.count() > 2 ) {
+		    if ( dbControls )
+			dbControls->insert( obj->name(), lst[ 2 ] );
+		} else if ( lst.count() == 2 ) {
+		    dbTables.insert( obj->name(), lst );
+		}
 	    } else if ( prop == "database" ) {
 		const QStringList& lst = value.asStringList();
-		if ( obj->inherits( "QDataView" ) || obj->inherits( "QDataBrowser" ) ) {
-		    if ( lst.count() > 2 ) {
-			if ( dbControls )
-			    dbControls->insert( obj->name(), lst[ 2 ] );
-		    } else if ( lst.count() == 2 ) {
-			dbTables.insert( obj->name(), lst );
-		    }
-		} else {
-		    if ( lst.count() == 2 ) {
-			SqlWidgetConnection conn( lst[ 0 ], lst[ 1 ] );
-			sqlWidgetConnections.insert( (QWidget*)obj, conn );
-			dbControls = conn.dbControls;
-		    }
+		if ( lst.count() == 2 && obj->inherits( "QWidget" ) ) {
+		    SqlWidgetConnection conn( lst[ 0 ], lst[ 1 ] );
+		    sqlWidgetConnections.insert( (QWidget*)obj, conn );
+		    dbControls = conn.dbControls;
 		}
 #endif
 	    } else if ( prop == "frameworkCode" ) {
