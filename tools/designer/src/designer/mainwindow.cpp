@@ -500,7 +500,7 @@ void MainWindow::editMode(QAction *action)
 {
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         AbstractFormWindow::EditMode newMode;
-        
+
         if (action == m_widgetEditMode)
             newMode = AbstractFormWindow::WidgetEditMode;
         else if (action == m_connectionEditMode)
@@ -509,13 +509,13 @@ void MainWindow::editMode(QAction *action)
             newMode = AbstractFormWindow::TabOrderEditMode;
         else
             Q_ASSERT(0);
-        
+
         if (fw->editMode() != newMode)
             fw->setEditMode(newMode);
-            
+
         if (!action->isChecked())
             action->setChecked(true);
-        
+
         QList<QAction*> editModeActions = m_editModeGrp->actions();
         for (int i = 0; i < editModeActions.size(); ++i) {
             if (editModeActions.at(i) == action) {
@@ -1113,7 +1113,7 @@ void MainWindow::aboutDesigner()
                       " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
                       " PARTICULAR PURPOSE.<br/> ")
                       .arg(tr("Qt Designer")).arg("4.0 beta 1");
-    QMessageBox mb;
+    QMessageBox mb(this);
     mb.setWindowTitle(tr("About Qt Designer"));
     mb.setText(text);
     mb.setIconPixmap(QPixmap(":/images/designer.png"));
