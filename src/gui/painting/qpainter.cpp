@@ -2109,10 +2109,6 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     The default, (-1, -1), means all the way to the bottom right of
     the pixmap.
 
-    If \a imask is true the \a pixmap will not be masked to
-    QPixmap::mask(). Currently when painting on a QPrinter \a imask is
-    always true.
-
     \sa QPixmap::setMask()
 */
 
@@ -2121,22 +2117,21 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
                                   Qt::BlendMode mode)
     \overload
 
-    Draws the rectangle \a sr of pixmap \a pm with its origin at point \a
-    p. If \a imask is true \a pm will not be masked to QPixmap::mask().
+    Draws the rectangle \a sr of pixmap \a pm with its origin at point
+    \a p.
 */
 
 /*!
     \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode)
     \overload
 
-    Draws the pixmap \a pm with its origin at point \a p. If \a imask is
-    true \a pm will not be masked to QPixmap::mask().
+    Draws the pixmap \a pm with its origin at point \a p.
 */
 
 /*!
     Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
-    \a r in the paint device. If \a imask is true \a pm will not be masked
-    to QPixmap::mask().
+    \a r in the paint device. The painting will be \c{AlphaBlend}-ed or
+    \c{SourceCopy}-ed depending on the \a mode.
 */
 void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
 {

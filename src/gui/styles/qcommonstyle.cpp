@@ -1726,7 +1726,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
 
 /*!
     Returns the rectangle occupied by the complex control \a cc, with
-    style options \a opt, and with parent widget \a widget.
+    style options \a opt, sub-control \a sc, and with the given parent
+    \a widget.
 
     \sa querySubControl()
 */

@@ -147,32 +147,37 @@
 */
 
 /*!
-  \enum QPrinter::PrinterMode
+    \enum QPrinter::PrinterState
 
-  This enum describes the mode the printer should work in. It
-  basically presets a certain resolution and working mode.
+    \value Idle
+    \value Active
+    \value Aborted
+    \value Error
+*/
 
-  \value ScreenResolution Sets the resolution of the print device to
-  the screen resolution. This has the big advantage that the results
-  obtained when painting on the printer will match more or less
-  exactly the visible output on the screen. It is the easiest to
-  use, as font metrics on the screen and on the printer are the
-  same. This is the default value. ScreenResolution will produce a
-  lower quality output than HighResolution and should only be used
-  for drafts.
+/*!
+    \enum QPrinter::PrinterMode
 
-  \value PrinterResolution This value is deprecated. Is is
-  equivalent to ScreenResolution on Unix and HighResolution on
-  Windows and Mac. Due do the difference between ScreenResolution
-  and HighResolution, use of this value may lead to non portable
-  printer code.
+    This enum describes the mode the printer should work in. It
+    basically presets a certain resolution and working mode.
 
-  \value HighResolution Use printer resolution on windows, set the
-  resolution of the postscript driver to 600dpi.
+    \value ScreenResolution Sets the resolution of the print device to
+    the screen resolution. This has the big advantage that the results
+    obtained when painting on the printer will match more or less
+    exactly the visible output on the screen. It is the easiest to
+    use, as font metrics on the screen and on the printer are the
+    same. This is the default value. ScreenResolution will produce a
+    lower quality output than HighResolution and should only be used
+    for drafts.
 
-  \value Compatible Almost the same as PrinterResolution, but keeps
-  some peculiarities of the Qt 2.x printer driver. This is useful
-  for applications ported from Qt 2.x to Qt 3.x.
+    \value PrinterResolution This value is deprecated. Is is
+    equivalent to ScreenResolution on Unix and HighResolution on
+    Windows and Mac. Due do the difference between ScreenResolution
+    and HighResolution, use of this value may lead to non-portable
+    printer code.
+
+    \value HighResolution Use printer resolution on Windows, and set
+    the resolution of the Postscript driver to 600dpi.
 */
 
 /*!
@@ -292,7 +297,7 @@
   \value FormSource
 */
 
-/*!
+/*
   \enum QPrinter::PrintRange
 
   This enum is used to specify which print range the application
@@ -305,7 +310,7 @@
   \sa setPrintRange(), printRange()
 */
 
-/*!
+/*
   \enum QPrinter::PrinterOption
 
   This enum describes various printer options that appear in the
@@ -320,6 +325,9 @@
   \sa setOptionEnabled(), isOptionEnabled()
 */
 
+/*!
+    Creates a new printer object with the given \a mode.
+*/
 QPrinter::QPrinter(PrinterMode mode)
     : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice),
       d_ptr(new QPrinterPrivate)
@@ -333,6 +341,11 @@ QPrinter::QPrinter(PrinterMode mode)
 #endif
 }
 
+/*!
+    Destroys the printer object and frees any allocated resources. If
+    the printer is destroyed while a print job is in progress this may
+    or may not affect the print job.
+*/
 QPrinter::~QPrinter()
 {
     delete d;
@@ -350,16 +363,21 @@ QPrinter::~QPrinter()
 //}
 
 /*!
-  Returns the printer name. This value is initially set to the name
-  of the default printer.
+    Returns the printer name. This value is initially set to the name
+    of the default printer.
 
-  \sa setPrinterName()
+    \sa setPrinterName()
 */
 QString QPrinter::printerName() const
 {
     return d->printEngine->printerName();
 }
 
+/*!
+    Sets the printer name to \a name.
+
+    \sa printerName()
+*/
 void QPrinter::setPrinterName(const QString &name)
 {
     d->printEngine->setPrinterName(name);
@@ -587,14 +605,14 @@ void QPrinter::setPageSize(PageSize newPageSize)
 }
 
 /*!
-  Sets the page order to \a newPageOrder.
+    Sets the page order to \a pageOrder.
 
-  The page order can be \c QPrinter::FirstPageFirst or \c
-  QPrinter::LastPageFirst. The application is responsible for
-  reading the page order and printing accordingly.
+    The page order can be \c QPrinter::FirstPageFirst or \c
+    QPrinter::LastPageFirst. The application is responsible for
+    reading the page order and printing accordingly.
 
-  This function is useful mostly for setting a default value that
-  the user can override in the print dialog when you call setup().
+    This function is mostly useful for setting a default value that
+    the user can override in the print dialog when you call setup().
 */
 
 void QPrinter::setPageOrder(PageOrder pageOrder)
@@ -645,7 +663,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 }
 
 
-/*!
+/*
   Returns the from-page setting. The default value is 0.
 
   If fromPage() and toPage() both return 0 this signifies 'print the
@@ -662,7 +680,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 //}
 
 
-/*!
+/*
   Returns the to-page setting. The default value is 0.
 
   If fromPage() and toPage() both return 0 this signifies 'print the
@@ -679,7 +697,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 //}
 
 
-/*!
+/*
   Sets the from-page and to-page settings to \a fromPage and \a
   toPage respectively.
 
@@ -755,7 +773,7 @@ void QPrinter::setCollateCopies(bool collate)
   The printer driver reads this setting and prints the specified
   number of copies.
 
-  \sa numCopies(), setup()
+  \sa numCopies()
 */
 void QPrinter::setNumCopies(int numCopies)
 {
@@ -764,15 +782,17 @@ void QPrinter::setNumCopies(int numCopies)
 
 
 /*!
-  Returns the printer options selection string. This is only useful
-  if the print command has been explicitly set.
+    \fn QString QPrinter::printerSelectionOption() const
 
-  The default value (a null string) implies that the printer should
-  be selected in a system-dependent manner.
+    Returns the printer options selection string. This is only useful
+    if the print command has been explicitly set.
 
-  Any other value implies that the given value should be used.
+    The default is an empty string which signifies that the printer
+    should be selected in a system-dependent manner.
 
-  \sa setPrinterSelectionOption()
+    Any other value implies that the given value should be used.
+
+    \sa setPrinterSelectionOption()
 */
 //QString QPrinter::printerSelectionOption() const
 //{
@@ -781,15 +801,17 @@ void QPrinter::setNumCopies(int numCopies)
 
 
 /*!
-  Sets the printer to use \a option to select the printer. \a option
-  is null by default (which implies that Qt should be smart enough
-  to guess correctly), but it can be set to other values to use a
-  specific printer selection option.
+    \fn void QPrinter::setPrinterSelectionOption(const QString & option)
 
-  If the printer selection option is changed while the printer is
-  active, the current print job may or may not be affected.
+    Sets the printer to use \a option to select the printer. \a option
+    is an empty string by default (which implies that Qt should be
+    smart enough to guess correctly), but it can be set to other
+    values to use a specific printer selection option.
 
-  \sa printerSelectionOption()
+    If the printer selection option is changed while the printer is
+    active, the current print job may or may not be affected.
+
+    \sa printerSelectionOption()
 */
 
 //void QPrinter::setPrinterSelectionOption(const QString & option)
@@ -889,6 +911,10 @@ void QPrinter::setPaperSource(PaperSource source)
     d->printEngine->setPaperSource(source);
 }
 
+/*!
+    Returns the printer's paper source. This is \c Manual or a printer
+    tray or paper cassette.
+*/
 QPrinter::PaperSource QPrinter::paperSource() const
 {
     return d->printEngine->paperSource();
@@ -899,21 +925,60 @@ QPrinter::PaperSource QPrinter::paperSource() const
 //    qWarning("QPrinter::setMargins() not implemented");
 //}
 
+/*!
+    \fn void QPrinter::setPageRect(const QRect &pageRect)
+
+    Sets the page rectangle to \a pageRect. This should normally be
+    smaller than the paperRect() since most printers cannot print
+    right to the edge on every side.
+
+    \sa setPageSize() pageRect()
+*/
+
+/*!
+    Returns the page's rectangle; this is usually smaller than the
+    paperRect() since the page normally has margins between its
+    borders and the paper.
+
+    \sa pageSize() setPageRect()
+*/
 QRect QPrinter::pageRect() const
 {
     return d->printEngine->pageRect();
 }
 
+/*!
+    \fn void QPrinter::setPaperRect(const QRect &paperRect)
+
+    Sets the paper's rectangle to \a paperRect. It is usually best to
+    use setPageSize() to set a standard paper size.
+
+    \sa pageSize() paperRect()
+*/
+
+/*!
+    Returns the paper's rectangle; this is usually larger than the
+    pageRect().
+
+    \sa setPaperRect() setPageSize()
+*/
 QRect QPrinter::paperRect() const
 {
     return d->printEngine->paperRect();
 }
 
+// ### DOC: What are the IDs and what are the metrics?
+/*!
+    Returns the metric for the given \a id.
+*/
 int QPrinter::metric(int id) const
 {
     return d->printEngine->metric(id);
 }
 
+/*!
+    Returns the paint engine used by the printer.
+*/
 QPaintEngine *QPrinter::paintEngine() const
 
 {
@@ -931,11 +996,28 @@ QPaintEngine *QPrinter::paintEngine() const
 
 
 #if defined (Q_WS_WIN)
+/*!
+    Sets the page size to be used by the printer under Windows to \a
+    pageSize.
+
+    \warning This function is not portable so you may prefer to use
+    setPageSize() instead.
+
+    \sa winPageSize()
+*/
 void QPrinter::setWinPageSize(short pageSize)
 {
     static_cast<QWin32PrintEngine *>(d->printEngine)->setWinPageSize(pageSize);
 }
 
+/*!
+    Returns the page size used by the printer under Windows.
+
+    \warning This function is not portable so you may prefer to use
+    pageSize() instead.
+
+    \sa setWinPageSize()
+*/
 short QPrinter::winPageSize() const
 {
    return static_cast<QWin32PrintEngine *>(d->printEngine)->winPageSize();
@@ -943,23 +1025,36 @@ short QPrinter::winPageSize() const
 #endif // Q_WS_WIN
 
 /*!
-  Returns a list of the resolution that the printer reports that
-  it supports.
+    Returns a list of the resolutions (a list of dots-per-inch
+    integers) that the printer says it supports.
 
-  For X11 where all printing is directly to postscript, this function
-  will always return a list containing only the postscript resolution,
-  72 dpi.
+    For X11 where all printing is directly to postscript, this
+    function will always return a one item list containing only the
+    postscript resolution, i.e., 72 (72 dpi -- but see \c PrinterMode).
 */
 QList<int> QPrinter::supportedResolutions() const
 {
     return d->printEngine->supportedResolutions();
 }
 
+/*!
+    Tells the printer to eject the current page and to continue
+    printing on a new page. Returns true if this was successful;
+    otherwise returns false.
+*/
 bool QPrinter::newPage()
 {
     return d->printEngine->newPage();
 }
 
+/*!
+    Aborts the current print run. Returns true if the print run was
+    successfully aborted; otherwise returns false.
+
+    It is not always possible to abort a print job. For example, if
+    all the data has gone to the printer but the printer cannot or
+    will not cancel the job when asked to.
+*/
 bool QPrinter::abort()
 {
     return d->printEngine->abort();
@@ -1051,6 +1146,11 @@ void QPrinter::setMinMax(int minPage, int maxPage)
 
 #endif
 
+/*!
+    Returns the current state of the printer. This may not always be
+    accurate (for example if the printer doesn't have the capability
+    of reporting its state to the operating system).
+*/
 QPrinter::PrinterState QPrinter::printerState() const
 {
     return d->printEngine->printerState();
