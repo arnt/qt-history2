@@ -61,6 +61,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
     Q_PROPERTY( Alignment tabAlignment READ tabAlignment WRITE setTabAlignment )
+    Q_PROPERTY( int count READ count )
 
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
@@ -112,7 +113,9 @@ public:
 
     int tabAlignment() const;
     void setTabAlignment( int );
-    
+
+    int count() const;
+
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );

@@ -145,8 +145,8 @@ protected:
 		flags |= QStyle::PStyle_Top;
 	    if ( t->tabPosition() == QTabWidget::Bottom )
 		flags |= QStyle::PStyle_Bottom;
-	    
-	    style().drawPrimitive( QStyle::PO_TabBarBase, &p, rect(), 
+	
+	    style().drawPrimitive( QStyle::PO_TabBarBase, &p, rect(),
 				   colorGroup(), flags );
         }
     }
@@ -513,7 +513,7 @@ QWidget * QTabWidget::currentPage() const
 }
 
 /*! \property QTabWidget::currentPage
-    \brief the id of the current tab page
+    \brief the index of the current tab page
 
   \sa QTabBar::currentPage()
 */
@@ -625,7 +625,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	stacky = t.height()-lw + (exth - overlap), width();
 	exty = taby + t.height() - overlap;
     }
-    
+
     // do alignment
     if ( d->alignment != AlignLeft && d->tabs->width() < width() ) {
 	if ( d->alignment == AlignHCenter )
@@ -633,7 +633,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	else if ( d->alignment == AlignRight )
 	    tabx += width() - d->tabs->width();
     }
-    
+
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
     d->tabBase->setGeometry( 0, exty, width(), exth );
     if ( exth == 0 )
@@ -817,7 +817,7 @@ QString QTabWidget::label( int index ) const
 
 /*! \property QTabWidget::tabAlignment
     \brief the alignment of the tabs in the tab bar
-    
+
   Possible values are Qt::AlignLeft, Qt::AlignHCenter, Qt::AlignRight.
 */
 int QTabWidget::tabAlignment() const
@@ -831,4 +831,11 @@ void QTabWidget::setTabAlignment( int a )
     setUpLayout();
 }
 
+/* ! \property QTabWidget::count
+     \brief the number of tabs in the tab bar
+*/
+int QTabWidget::count() const
+{
+    return d->tabs->count();
+}
 #endif
