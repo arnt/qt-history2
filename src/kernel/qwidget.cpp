@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#493 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#494 $
 **
 ** Implementation of QWidget class
 **
@@ -507,8 +507,8 @@ static QFont default_font( QWidget *parent )
   <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
   <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is 
-        actually performing  modality when shown. Modality can be switched on/off with 
+  <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is
+        actually performing  modality when shown. Modality can be switched on/off with
         this flag.
   <dt>WState_PaletteSet<dd> The palette has been set.
   <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
@@ -887,6 +887,8 @@ void QWidget::createTLExtra()
 	x->parentWinId = 0;
 	x->wmstate = 0;
 	x->dnd = 0;
+	x->uspos = 0;
+	x->ussize = 0;
 #endif
 	createTLSysExtra();
     }
