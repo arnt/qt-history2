@@ -2353,6 +2353,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
       Trademark.setLatin1(strings+offset,length);
 
   }
+  psname.replace(' ', '-');
 
   //read_cmap(font);
 
