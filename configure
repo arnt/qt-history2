@@ -1723,23 +1723,18 @@ case $Products in
    *) ;;
 esac
 
-if [ "x$DEBUG" = "xyes" ]
-then
+if [ "x$DEBUG" = "xyes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}debug"
     QMAKE_CONFIG="$QMAKE_CONFIG debug"
-fi
-if [ "x$DEBUG" = "xno" ]
-then
+elif [ "x$DEBUG" = "xno" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}release"
     QMAKE_CONFIG="$QMAKE_CONFIG release"
 fi
-if [ "x$THREAD" = "xyes" ]
-then
+if [ "x$THREAD" = "xyes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-if [ "x$EMBEDDED" != "xno" ]
-then
+if [ "x$EMBEDDED" != "xno" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
@@ -1800,39 +1795,33 @@ then
 
     # for some reason, the following libraries are not always build shared,
     # so *every* program/lib (including Qt) has to link against them
-    if [ "x$XINERAMA" = "xyes" ]
-    then
+    if [ "x$XINERAMA" = "xyes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXinerama\""
     fi
-    if [ "x$XRENDER" = "xyes" ]
-    then
+    if [ "x$XRENDER" = "xyes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXrender\""
     fi
-    if [ "x$XFTFREETYPE" = "xyes" ]
-    then
+    if [ "x$XFTFREETYPE" = "xyes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
 	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
 	# up as a dependency if libXft isn't a shared library, so we have to add
 	# libfreetype as well as libXt to the program/lib link command
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
     fi
-    if [ "x$TABLET" = "xyes" ]
-    then
+    if [ "x$TABLET" = "xyes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXi\""
     fi
-    if [ "x$XKB" = "xyes" ]
-    then
+    if [ "x$XKB" = "xyes" ]; then
         QMAKE_CONFIG="$QMAKE_CONFIG xkb"
     fi
 fi
 
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
-if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]
-then
+if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]; then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
 if [ '!' -z "$R_FLAGS" ]; then
@@ -1914,7 +1903,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE ] && rm -f $CACHEFILE
 cat >>$CACHEFILE <<EOF
-CONFIG += $QMAKE_CONFIG dylib
+CONFIG += $QMAKE_CONFIG dylib create_prl link_prl
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
@@ -2060,7 +2049,7 @@ do
 	    continue
 	fi
 	;;
-    *moc*) SPEC=$QMAKESPEC; echo "USING $SPEC FOR MOC" ;;
+    *moc*) SPEC=$QMAKESPEC ;;
     *) SPEC=$XQMAKESPEC ;;
     esac
     file=`basename $a`
@@ -2068,7 +2057,12 @@ do
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
-    PIPE="$outpath/bin/qmake -spec $SPEC $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
+    if [ "$SPEC" != "$QMAKESPEC" ] || ! ls -l mkspecs/default | grep $QMAKESPEC >/dev/null 
+    then
+       echo "USING $SPEC FOR QMAKE" 
+       QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
+    fi
+    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
