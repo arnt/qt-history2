@@ -210,6 +210,7 @@ public:
     // ### TODO: reorganize private/extra/topextra to save memory
     QPointer<QWidget> compositeChildGrab;
     QString toolTip, statusTip, whatsThis;
+    QString accessibleName, accessibleDescription;
 
 #ifndef QT_NO_PALETTE
     QPalette::ColorRole fg_role : 8;

@@ -2888,7 +2888,6 @@ void QWidget::setWindowRole(const QString &role)
 #endif
 }
 
-
 /*!
     \property QWidget::mouseTracking
     \brief whether mouse tracking is enabled for the widget
@@ -6379,6 +6378,43 @@ QString QWidget::whatsThis() const
 {
     return d->whatsThis;
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+/*!
+  \property QWidget::accessibleName
+
+  \brief the widget's name as seen by assistive technologies
+
+  \sa QAccessibleInterface::text
+*/
+QString QWidget::accessibleName() const
+{
+    return d->accessibleName;
+}
+
+void QWidget::setAccessibleName(const QString &name)
+{
+    d->accessibleName = name;
+}
+
+/*!
+  \property QWidget::accessibleDescription
+
+  \brief the widget's description as seen by assistive technologies
+
+  \sa QAccessibleInterface::text
+*/
+QString QWidget::accessibleDescription() const
+{
+    return d->accessibleDescription;
+}
+
+void QWidget::setAccessibleDescription(const QString &description)
+{
+    d->accessibleDescription = description;
+}
+#endif
+
 
 /*!
     \enum Qt::ShortcutContext

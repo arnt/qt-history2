@@ -163,6 +163,10 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
+#ifndef QT_NO_ACCESSIBILITY
+    Q_PROPERTY(QString accessibleName READ accessibleName WRITE setAccessibleName)
+    Q_PROPERTY(QString accessibleDescription READ accessibleDescription WRITE setAccessibleDescription)
+#endif
 
 
 public:
@@ -305,6 +309,13 @@ public:
 
     void setWhatsThis(const QString &);
     QString whatsThis() const;
+
+#ifndef QT_NO_ACCESSIBILITY
+    QString accessibleName() const;
+    void setAccessibleName(const QString &name);
+    QString accessibleDescription() const;
+    void setAccessibleDescription(const QString &description);
+#endif
 
     // Keyboard input focus functions
 
