@@ -1,0 +1,371 @@
+/****************************************************************************
+** $Id: //depot/qt/main/examples/themes/metal.cpp#1 $
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+#include "metal.h"
+#include "qapplication.h"
+#include "qpainter.h"
+#include "qdrawutil.h" // for now
+#include "qpixmap.h" // for now
+#include "qpalette.h" // for now
+#include "qwidget.h"
+#include "qlabel.h"
+#include "qimage.h"
+#include "qpushbutton.h"
+#include "qwidget.h"
+#include "qrangecontrol.h"
+#include "qscrollbar.h"
+#include <limits.h>
+
+
+/////////////////////////////////////////////////////////
+#include "metal.xpm"
+#include "stone1.xpm"
+#include "marble.xpm"
+///////////////////////////////////////////////////////
+
+
+
+MetalStyle::MetalStyle() : QWindowsStyle() { }
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::polish( QApplication *app)
+{
+    oldPalette = app->palette();
+
+    // we simply create a nice QColorGroup with a couple of fancy
+    // pixmaps here and apply to it all widgets
+
+
+
+    //QPixmap button( stone1_xpm );
+    QColor buttonCol( 111, 111, 111 );
+    QPixmap button( 1,1 ); button.fill( buttonCol );
+    QPixmap background(marble_xpm);
+#if 0
+
+    int i;
+    for (i=0; i<img.numColors(); i++) {
+	QRgb rgb = img.color(i);
+	QColor c(rgb);
+	rgb = c.dark().rgb();
+	img.setColor(i,rgb);
+    }
+    QPixmap mid;
+    mid.convertFromImage(img);
+
+    img = orig;
+    for (i=0; i<img.numColors(); i++) {
+	QRgb rgb = img.color(i);
+	QColor c(rgb);
+	rgb = c.light().rgb();
+	img.setColor(i,rgb);
+    }
+    QPixmap light;
+    light.convertFromImage(img);
+
+    img = orig;
+    for (i=0; i<img.numColors(); i++) {
+	QRgb rgb = img.color(i);
+	QColor c(rgb);
+	rgb = c.dark().rgb();
+	img.setColor(i,rgb);
+    }
+    QPixmap dark;
+    dark.convertFromImage(img);
+#else
+    QPixmap dark( 1, 1 ); dark.fill( red.dark() );
+    QPixmap mid( stone1_xpm );
+    QPixmap light( stone1_xpm );//1, 1 ); light.fill( green );
+#endif
+    QPalette op = app->palette();
+
+    QColor backCol( 227,227,227 );
+
+    // QPalette op(white);
+    QColorGroup nor (op.normal().foreground(),
+		     QBrush(op.normal().button(),button),
+		     QBrush(op.normal().light(), light),
+		     QBrush(op.normal().dark(), dark),
+		     QBrush(op.normal().mid(), mid),
+		     op.normal().text(),
+		     Qt::white,
+		     op.normal().base(),//		     QColor(236,182,120),
+		     QBrush(backCol, background)
+		     );
+    nor.setColor( QColorGroup::ButtonText,  Qt::white  );
+    nor.setColor( QColorGroup::Shadow,  Qt::black  );
+    QColorGroup disabled (op.disabled().foreground(),
+		     QBrush(op.disabled().button(),button),
+		     QBrush(op.disabled().light(), light),
+		     op.disabled().dark(),
+		     QBrush(op.disabled().mid(), mid),
+		     op.disabled().text(),
+		     Qt::white,
+		     op.disabled().base(),//		     QColor(236,182,120),
+		     QBrush(backCol, background)
+		     );
+    QColorGroup active (op.active().foreground(),
+		     QBrush(op.active().button(),button),
+		     QBrush(op.active().light(), light),
+		     op.active().dark(),
+		     QBrush(op.active().mid(), mid),
+		     op.active().text(),
+		     Qt::white,
+			op.active().base(),// QColor(236,182,120),
+		     QBrush(backCol, background)
+		     );
+    active.setColor( QColorGroup::ButtonText,  Qt::white  );
+   app->setPalette(QPalette(nor, disabled, active), TRUE );
+
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::unPolish( QApplication *app)
+{
+    app->setPalette(oldPalette, TRUE);
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::polish( QWidget* w)
+{
+
+    // the polish function will set some widgets to transparent mode,
+    // to get the full benefit from the nice pixmaps in the color
+    // group.
+
+    if (w->inherits("QTipLabel")){
+	return;
+    }
+    if (w->inherits("QLCDNumber")){
+	return;
+    }
+
+    if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
+	w->setAutoMask( TRUE );
+	return;
+    }
+
+
+    if ( !w->isTopLevel() ) {
+ 	if (w->inherits("QLabel")
+	    || w->inherits("QGroupBox")
+	    || w->inherits("QSlider")
+	    || w->inherits("QProgressBar")
+	    || w->inherits( "QTabBar" )
+	    || w->inherits( "QTabWidget" )
+	    ){
+	    w->setAutoMask( TRUE );
+ 	}
+    }
+}
+
+void MetalStyle::unPolish( QWidget* w)
+{
+
+    // the polish function will set some widgets to transparent mode,
+    // to get the full benefit from the nice pixmaps in the color
+    // group.
+
+    if (w->inherits("QTipLabel")){
+	return;
+    }
+    if (w->inherits("QLCDNumber")){
+	return;
+    }
+
+    if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
+	w->setAutoMask( FALSE );
+	return;
+    }
+
+
+    if ( !w->isTopLevel() ) {
+ 	if (w->inherits("QLabel")
+	    || w->inherits("QGroupBox")
+	    || w->inherits("QSlider")
+	    || w->inherits("QProgressBar")
+	    || w->inherits( "QTabBar" )
+	    || w->inherits( "QTabWidget" )
+	    ){
+	    w->setAutoMask( FALSE );
+ 	}
+    }
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &, bool sunken, const QBrush*)
+{
+
+    static QImage *img1;
+    if ( !img1 ) {
+	img1 = new QImage(metal_xpm);
+    }
+
+    QImage scaledImage = img1->smoothScale( w, h );
+    QPixmap pix;
+    pix.convertFromImage( scaledImage );
+    p->drawPixmap( x, y, pix );
+    QColorGroup g2;
+    g2.setColor( QColorGroup::Light,  white  );
+    g2.setColor( QColorGroup::Dark,  black  );
+    qDrawShadePanel( p, x, y, w, h, g2, sunken);
+	
+
+//    static QPixmap* darkpixmap = 0;
+//    if (!pixmap) {
+//	  pixmap = new QPixmap;
+//	  pixmap->convertFromImage(img);
+//	  for (int i=0; i<img.numColors(); i++) {
+//	      QRgb rgb = img.color(i);
+//	      QColor c(rgb);
+//	      rgb = c.dark().rgb();
+//	      img.setColor(i,rgb);
+//	  }
+//	  darkpixmap = new QPixmap;
+//	  darkpixmap->convertFromImage(img);
+//    }
+//    if (!pixmap)
+//	  return;
+//    p->drawPixmap( x, y, *pixmap );
+
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    MetalStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::drawPushButton( QPushButton* btn, QPainter *p)
+{
+    QColorGroup g = btn->colorGroup();
+    int x1, y1, x2, y2;
+
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+
+    p->setPen( g.foreground() );
+    p->setBrush( QBrush(g.button(),NoBrush) );
+
+    QBrush fill;
+    if ( btn->isDown() )
+	fill = g.brush( QColorGroup::Mid );
+    else if ( btn->isOn() )
+	fill = QBrush( g.mid(), Dense4Pattern );
+    else
+	fill = g.brush( QColorGroup::Button );	
+
+    if ( btn->isDefault() ) {
+	QPointArray a;
+	a.setPoints( 9,
+		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	p->setPen( Qt::black );
+	p->drawPolyline( a );
+	x1 += 2;
+	y1 += 2;
+	x2 -= 2;
+	y2 -= 2;
+    }
+	
+    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill);
+	
+
+    if ( btn->isMenuButton() ) {
+	int dx = (y1-y2-4)/3;
+	drawArrow( p, DownArrow, FALSE,
+		   x2 - dx, dx, y1, y2 - y1,
+		   g, btn->isEnabled() );
+    }
+
+    if ( p->brush().style() != NoBrush )
+	p->setBrush( NoBrush );
+
+}
+
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+{
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() )
+	dx = (y2-y1) / 3;
+#if 0 //text does not move when button is pushed
+    if ( btn->isOn() || btn->isDown() ) {
+	dx++;
+	dy++;
+    }
+#endif
+    if ( dx || dy )
+	p->translate( dx, dy );
+
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    QColorGroup g = btn->colorGroup();
+    drawItem( p, x, y, w, h,
+	      AlignCenter|ShowPrefix,
+	      g, btn->isEnabled(),
+	      btn->pixmap(), btn->text(), -1,
+	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
+
+    if ( dx || dy )
+	p->translate( -dx, -dy );
+}
+
+
+
+
+
+
+void MetalStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
+			    const QColorGroup &g, bool sunken,
+			    int lineWidth, const QBrush *fill )
+{
+
+    QStyle::drawPanel( p,  x,  y,  w,  h,
+			    g, sunken,
+			    lineWidth, fill );
+}

@@ -1,0 +1,12 @@
+#############################################################################
+# $Id: //depot/qt/main/examples/listbox_combo/GNUmakefile#1 $
+#
+# Unix Makefile, requires GNU make (gmake).
+#
+# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+#
+#############################################################################
+
+PROJECT = listbox_combo
+
+include $(QTDIR)/GNUmakefile.inc

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#2 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -496,8 +496,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
      QTextView *qmlv =  new QTextView( "<h1>QTextView</h1><p>"
  				  "Qt supports rich text in form of an XML subset. You can have "
  				  "<em>emphasized</em> and <b>bold</b> text.<p>"
- 				  "Style sheets are supported."
- 				  , split );
+ 				  "Style sheets are supported.",
+ 				  "", split );
     qmlv->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
 
