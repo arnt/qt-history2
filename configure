@@ -40,7 +40,7 @@ then
     #setup the magic variable
     outpath=`pwd`
 
-    echo "Preparing build tree.."
+    echo "Preparing build tree..."
     mkdir -p $outpath/bin #make build dir
 
     #need a top level makefile, prefer gnu internally
@@ -1175,7 +1175,7 @@ then
     *)    DYLIB_LINK="$LIBDL" ;;
     esac
 
-    echo "Creating qmake. Please wait.."
+    echo "Creating qmake. Please wait..."
     #fix makefiles
     for mkfile in GNUmakefile Makefile
     do
@@ -1467,7 +1467,7 @@ cat >>$relpath/src/tools/qmodules.h.new << EOF
 EOF
 fi
 #because things depend on qmodules.h, I conditionally copy
-#so I don't rebuild them when I configure but change nothing..
+#so I don't rebuild them when I configure but change nothing...
 QMOD_CHANGES=`diff $relpath/src/tools/qmodules.h $relpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
 if [ -f $relpath/src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
 then
@@ -1690,7 +1690,7 @@ else
 fi
 rm -f .sorted.projects
 
-#finally put the executed command to another script..
+#finally put the executed command to another script...
 [ -f $outpath/config.status ] && rm -f $outpath/config.status
 cat >$outpath/config.status << EOF
 #!/bin/sh
