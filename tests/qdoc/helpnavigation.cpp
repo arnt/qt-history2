@@ -291,8 +291,12 @@ void HelpNavigation::loadIndexFile( QProgressBar *bar )
 void HelpNavigation::searchInIndexLine( const QString &s )
 {
     QListBoxItem *i = indexList->firstItem();
+    QString sl = s.lower();
     while ( i ) {
-	if ( i->text().lower().left( s.length() ) == s.lower() ) {
+	QString t = i->text();
+	if ( t.length() >= sl.length() && 
+	     i->text().lower().left( s.length() ) == sl )
+	{
 	    indexList->setCurrentItem( i );
 	    break;
 	}
