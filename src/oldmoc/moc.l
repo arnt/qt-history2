@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#34 $
+** $Id: //depot/qt/main/src/oldmoc/moc.l#1 $
 **
 ** Lexical analyzer for meta object compiler
 **

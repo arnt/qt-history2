@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#123 $
+** $Id: //depot/qt/main/src/oldmoc/moc.y#1 $
 **
 ** Parser and code generator for meta object compiler
 **
