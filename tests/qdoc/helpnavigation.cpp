@@ -54,9 +54,8 @@ QString HelpNavigationContentsItem::link() const
     return theLink;
 }
 
-HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
-				const QString &titleFile, const char *name )
-    : QWidget( parent, name )
+HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
+    : QWidget( parent ), docDir( dd )
 {
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setMargin( 5 );
@@ -102,7 +101,7 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
 	     this, SIGNAL( moveFocusToBrowser() ) );
     connect( indexEdit, SIGNAL( returnPressed() ),
 	     this, SIGNAL( moveFocusToBrowser() ) );
-    
+
     l->setBuddy( indexEdit );
 
     connect( indexEdit, SIGNAL( textChanged( const QString & ) ),
@@ -130,11 +129,6 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
 
     bookmarkList = new QListBox( bookmarkTab );
     bookmarkLayout->addWidget( bookmarkList );
-
-
-
-    loadIndexFile( indexFile, titleFile );
-    setupContentsView( titleFile );
 }
 
 
@@ -157,8 +151,10 @@ bool operator<( const MyString &s1, const MyString &s2 )
 bool operator>( const MyString &s1, const MyString &s2 )
 { return s1.lower > s2.lower; }
 
-void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &titleFile )
+void HelpNavigation::loadIndexFile()
 {
+    QString indexFile = docDir + "/index";
+    QString titleFile = docDir + "/titleindex";
     QFile f( indexFile );
     if ( !f.open( IO_ReadOnly ) )
 	return;
@@ -235,7 +231,7 @@ void HelpNavigation::showTopic( QListBoxItem *i )
     indexEdit->blockSignals( TRUE );
     indexEdit->setText( i->text() );
     indexEdit->blockSignals( FALSE );
-    
+
     HelpNavigationListItem *item = (HelpNavigationListItem*)i;
 
     QStringList links = item->links();
@@ -273,8 +269,9 @@ QString HelpNavigation::titleOfLink( const QString &link )
     return s;
 }
 
-void HelpNavigation::setupContentsView( const QString &titleFile )
+void HelpNavigation::setupContentsView()
 {
+    QString titleFile = docDir + "/titleindex";
     QFile f( titleFile );
     if ( !f.open( IO_ReadOnly ) )
 	return;

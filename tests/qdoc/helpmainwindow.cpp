@@ -13,6 +13,9 @@
 #include <qprinter.h>
 #include <qpaintdevicemetrics.h>
 #include <qsimplerichtext.h>
+#include <qevent.h>
+#include <qlabel.h>
+#include <qlayout.h>
 
 #include <stdlib.h>
 
@@ -142,8 +145,7 @@ HelpMainWindow::HelpMainWindow()
 	return;
     }
 
-    navigation = new HelpNavigation( splitter, docDir + "/index",
-				     docDir + "/titleindex");
+    navigation = new HelpNavigation( splitter, docDir );
     viewer = new HelpView( splitter, docDir );
     splitter->setResizeMode( navigation, QSplitter::KeepSize );
     setCentralWidget( splitter );
@@ -333,3 +335,49 @@ void HelpMainWindow::moveFocusToBrowser()
 {
     viewer->setFocus();
 }
+
+void HelpMainWindow::showEvent( QShowEvent *e )
+{
+    QMainWindow::showEvent( e );
+    QTimer::singleShot( 1, this, SLOT( createDatabase() ) );
+}
+
+class StartDialog : public QDialog
+{
+    Q_OBJECT
+    
+public:
+    StartDialog( QWidget *parent, HelpNavigation *n ) : QDialog( parent, "", TRUE ) {
+	setCaption( tr( "Qt Documentation" ) );
+	navigation = n;
+	QVBoxLayout *lay = new QVBoxLayout( this );
+	lay->setMargin( 5 );
+	QLabel *l = new QLabel( tr( "Creating Index Database..." ), this );
+	lay->addWidget( l );
+    }
+
+protected:
+    void showEvent( QShowEvent *e ) {
+	QTimer::singleShot( 100, this, SLOT( createDatabase() ) );
+	QDialog::showEvent( e );
+    }
+    
+private slots:
+    void createDatabase() {
+	navigation->loadIndexFile();
+	navigation->setupContentsView();
+	accept();
+    }
+    
+private:
+    HelpNavigation *navigation;
+    
+};
+
+void HelpMainWindow::createDatabase()
+{
+    StartDialog dia( this, navigation );
+    dia.exec();
+}
+
+#include "helpmainwindow.moc"

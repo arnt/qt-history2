@@ -51,35 +51,34 @@ public:
 	Bookmarks
     };
 
-    HelpNavigation( QWidget *parent, const QString &indexFile,
-		    const QString &titleFile, const char *name = 0 );
-
+    HelpNavigation( QWidget *parent, const QString &dd );
     void setViewMode( ViewMode m );
     QString titleOfLink( const QString &link );
 
     bool eventFilter( QObject *, QEvent * );
 
+    void loadIndexFile();
+    void setupContentsView();
+
 signals:
     void showLink( const QString &s, const QString& t );
     void moveFocusToBrowser();
-    
+
 private slots:
     void searchInIndexLine( const QString &s );
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
-    
-private:
-    void loadIndexFile( const QString &indexFile, const QString &titleFile );
-    void setupContentsView( const QString &titleFile );
 
+private:
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;
     QListBox *indexList, *bookmarkList;
     QMap<QString, QString> titleMap;
     QListView *contentsView;
     QWidget *contentsTab, *indexTab, *bookmarkTab;
-
+    QString docDir;
+    
 };
 
 #endif
