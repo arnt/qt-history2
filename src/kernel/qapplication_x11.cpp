@@ -2773,7 +2773,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
-    if ( !top || modal == top )				// don't block event
+    if ( !top || modal == top )			// don't block event
 	return TRUE;
 
 #ifdef ALLOW_NON_APPLICATION_MODAL
