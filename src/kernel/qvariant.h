@@ -20,6 +20,8 @@
 #include "qbytearray.h"
 #endif // QT_H
 
+#ifndef QT_NO_VARIANT
+
 #ifndef QT_BUILD_KERNEL_LIB
 #include "qpixmap.h"
 #include "qimage.h"
@@ -38,9 +40,8 @@
 #include "qkeysequence.h"
 #include "qcursor.h"
 #include "qregion.h"
-#endif
+#endif // QT_BUILD_KERNEL_LIB
 
-#ifndef QT_NO_VARIANT
 class QString;
 class QFont;
 class QPixmap;
@@ -164,15 +165,17 @@ class Q_KERNEL_EXPORT QVariant
     inline QVariant(const QPalette &palette);
 #ifndef QT_NO_COMPAT
     inline QVariant(const QColorGroup &cg);
-#endif
-#endif
+#endif // QT_NO_COMPAT
+#endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
     inline QVariant(const QIconSet &iconset);
 #endif
     inline QVariant(const QPointArray &pointarray);
     inline QVariant(const QRegion &region);
     inline QVariant(const QBitmap &bitmap);
+#ifndef QT_NO_CURSOR
     inline QVariant(const QCursor &cursor);
+#endif
 #ifndef QT_NO_ACCEL
     inline QVariant(const QKeySequence &keysequence);
 #endif
@@ -233,7 +236,9 @@ class Q_KERNEL_EXPORT QVariant
     const QPointArray toPointArray() const;
     QBitmap toBitmap() const;
     QRegion toRegion() const;
+#ifndef QT_NO_CURSOR
     QCursor toCursor() const;
+#endif
 #ifndef QT_NO_ACCEL
     QKeySequence toKeySequence() const;
 #endif
@@ -274,19 +279,21 @@ class Q_KERNEL_EXPORT QVariant
     inline QPalette &asPalette();
 #ifndef QT_NO_COMPAT
     inline QColorGroup &asColorGroup();
-#endif
-#endif
+#endif // QT_NO_COMPAT
+#endif // QT_NO_PALETTE
     inline QIconSet &asIconSet();
     inline QPointArray &asPointArray();
     inline QBitmap &asBitmap();
     inline QRegion &asRegion();
+#ifndef QT_NO_CURSOR
     inline QCursor &asCursor();
+#endif
 #ifndef QT_NO_ACCEL
     inline QKeySequence &asKeySequence();
 #endif
     inline QPen &asPen();
     inline QSizePolicy &asSizePolicy();
-#endif //QT_BUILD_GUI_LIB
+#endif //QT_BUILD_KERNEL_LIB
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -487,8 +494,10 @@ inline QVariant::QVariant(const QRegion &val)
 { d = create(Region, &val); }
 inline QVariant::QVariant(const QBitmap& val)
 { d = create(Bitmap, &val); }
+#ifndef QT_NO_CURSOR
 inline QVariant::QVariant(const QCursor &val)
 { d = create(Cursor, &val); }
+#endif
 #ifndef QT_NO_ACCEL
 inline QVariant::QVariant(const QKeySequence &val)
 { d = create(KeySequence, &val); }
@@ -520,8 +529,8 @@ inline QPalette& QVariant::asPalette()
 #ifndef QT_NO_COMPAT
 inline QColorGroup& QVariant::asColorGroup()
 { return *static_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
-#endif
-#endif
+#endif // QT_NO_COMPAT
+#endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 inline QIconSet& QVariant::asIconSet()
 { return *static_cast<QIconSet *>(castOrDetach(IconSet)); }
@@ -532,8 +541,10 @@ inline QBitmap& QVariant::asBitmap()
 { return *static_cast<QBitmap *>(castOrDetach(Bitmap)); }
 inline QRegion& QVariant::asRegion()
 { return *static_cast<QRegion *>(castOrDetach(Region)); }
+#ifndef QT_NO_CURSOR
 inline QCursor& QVariant::asCursor()
 { return *static_cast<QCursor *>(castOrDetach(Cursor)); }
+#endif
 #ifndef QT_NO_ACCEL
 inline QKeySequence& QVariant::asKeySequence()
 { return *static_cast<QKeySequence *>(castOrDetach(KeySequence)); }
@@ -626,15 +637,15 @@ inline QSizePolicy QVariant::toSizePolicy() const
     return QSizePolicy();
 }
 
+#ifndef QT_NO_CURSOR
 inline QCursor QVariant::toCursor() const
 {
-#ifndef QT_NO_CURSOR
     if (d->type != Cursor)
 	return QCursor();
-#endif
 
     return *static_cast<QCursor *>(d->value.ptr);
 }
+#endif
 
 inline QRegion QVariant::toRegion() const
 {
@@ -685,6 +696,7 @@ Q_VARIANT_TO(Font);
 Q_VARIANT_TO(Color);
 #ifndef QT_NO_ACCEL
 Q_VARIANT_TO(KeySequence);
+#endif
 
 #endif // QT_BUILD_KERNEL_LIB
 
@@ -696,5 +708,5 @@ Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 #endif
 
-#endif //QT_NO_VARIANT
+#endif // QT_NO_VARIANT
 #endif // QVARIANT_H
