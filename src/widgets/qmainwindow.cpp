@@ -58,6 +58,9 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
+#ifdef Q_WS_MAC
+#  include "qt_mac.h"
+#endif
 
 /*
  QMainWindowPrivate - private variables of QMainWindow
@@ -837,6 +840,10 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
 {
+#ifdef Q_WS_MAC
+    if(isTopLevel())
+	ChangeWindowAttributes((WindowPtr)handle(), 1L << 6, 0); //hide toolbars thingie
+#endif
     d = new QMainWindowPrivate;
     d->opaque = FALSE;
     installEventFilter( this );

@@ -1269,6 +1269,19 @@ bool QApplication::do_mouse_down( Point *pt )
 	    qWarning("Close for unknown widget");
 	}
 	break;
+    case 13: { //hide toolbars thing
+	QObjectList *l = NULL;
+	if(widget && (l = widget->queryList("QToolBar"))) {
+	    for(QObjectListIt it(*l); it.current(); ++it) {
+		QWidget *t = (QWidget *)(*it);
+		if(t->isVisible())
+		    t->hide();
+		else
+		    t->show();
+	    }
+	    delete l;
+	}
+	break; }
     case inDrag:
     {
 	    DragWindow( wp, *pt, 0 );
