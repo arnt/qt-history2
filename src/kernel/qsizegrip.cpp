@@ -195,6 +195,12 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	w = 1;
     if ( h < 1 )
 	h = 1;
+    QSize ms( tlw->minimumSizeHint() );
+    ms = ms.expandedTo( minimumSize() );
+    if ( w < ms.width() )
+	w = ms.width();
+    if ( h < ms.height() )
+	h = ms.height();
     tlw->resize( w, h );
 #ifdef _WS_WIN_
     MSG msg;

@@ -460,6 +460,8 @@ public:
     void doResize();
     void doMove();
 
+    QSize minimumSizeHint() const;
+
 signals:
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
@@ -1792,6 +1794,24 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     windowSize = cr.size();
     childWidget->setGeometry( cr );
+}
+
+
+QSize QWorkspaceChild::minimumSizeHint() const
+{
+    if ( !childWidget )
+	return QFrame::minimumSizeHint();
+    
+    QSize ms( childWidget->minimumSize() );
+    if ( ms.isEmpty() )
+ 	ms = childWidget->minimumSizeHint();
+    
+    int th = titlebar ? titlebar->sizeHint().height() : 0;
+    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
+    int tb = titlebar ? titlebar->border : 0;
+    QSize s( ms.width() + 2*frameWidth() + 2*tb,
+	     ms.height() + 2*frameWidth() + th + ts +2*tb );
+    return s;
 }
 
 void QWorkspaceChild::activate()
