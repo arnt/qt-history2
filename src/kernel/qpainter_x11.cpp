@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#12 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#12 $";
 #endif
 
 
@@ -1028,6 +1028,7 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
 	pdev->cmd( PDC_SETCLIPRGN, param );
 	return;
     }
+    clearf( ClipOn );				// be sure to update clip rgn
     setClipping( TRUE );
 }
 
