@@ -190,6 +190,10 @@ bool QSvgDevice::play( QPainter *painter )
     painter->setWorldXForm( TRUE );
 
     QDomNamedNodeMap attr = svg.attributes();
+    int x = lenToInt( attr, "x" );
+    int y = lenToInt( attr, "y" );
+    brect.setX( x );
+    brect.setY( y );
     QString wstr = attr.contains( "width" )
 		   ? attr.namedItem( "width" ).nodeValue() : QString( "100%" );
     QString hstr = attr.contains( "height" )
@@ -198,8 +202,7 @@ bool QSvgDevice::play( QPainter *painter )
     double height = parseLen( hstr, 0, FALSE );
     brect.setWidth( int(width) );
     brect.setHeight( int(height) );
-    painter->setClipRect( 0, 0, int(width), int(height),
-			  QPainter::CoordPainter );
+    painter->setClipRect( brect, QPainter::CoordPainter );
 
     if ( attr.contains( "viewBox" ) ) {
 	QRegExp re( "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
