@@ -278,26 +278,11 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
     QFontMetrics fm = fontMetrics();
-    int gs = style().styleHint(QStyle::SH_GUIStyle);
-    int h;
-    if ( gs == WindowsStyle ) {
-	h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
-    } else {
-	h =  style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) +
-	    motifBarVMargin + fm.height() + motifItemVMargin +
-	    2*frameWidth() + 2*motifItemFrame;
-    }
+    int h = 2*motifBarVMargin + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
 
-    move( 0, 0 );
-    resize( width(), h );
+    setGeometry( 0, 0, width(), h );
 
-    switch ( gs ) {
-	case WindowsStyle:
-	    setMouseTracking( TRUE );
-	    break;
-	default:
-	    break;
-    }
+    setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
 }
 
 
@@ -306,19 +291,9 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
 void QMenuBar::styleChange( QStyle& old )
 {
-    switch ( style().styleHint(QStyle::SH_GUIStyle) ) {
-    case WindowsStyle:
-	setMouseTracking( TRUE );
-	break;
-    case MotifStyle:
-	setMouseTracking( FALSE );
-	break;
-    default:
-	break;
-    }
+    setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
     setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
     setLineWidth( style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this ) );
-    updateGeometry();
     QFrame::styleChange( old );
 }
 
@@ -972,7 +947,7 @@ int QMenuBar::calculateRects( int max_width )
 	    rightSide = width()-frameWidth();
 	}
 	if ( max_height != height() )
-	    resize( max_width, max_height );
+	    resize( width(), max_height );
 	for ( i = 0; i < (int)mitems->count(); i++ ) {
 	    irects[i].setHeight( max_item_height  );
 	    QMenuItem *mi = mitems->at(i);
