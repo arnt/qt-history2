@@ -810,6 +810,8 @@ void QFileDialog::reject()
 }
 
 /*!
+    \internal
+
     Navigates to the last directory viewed in the dialog.
 */
 
@@ -822,6 +824,8 @@ void QFileDialog::back()
 }
 
 /*!
+    \internal
+
     Navigates to the parent directory of the currently displayed directory
     in the dialog.
 */
@@ -838,6 +842,8 @@ void QFileDialog::up()
 }
 
 /*!
+    \internal
+
     Creates a new directory, first asking the user for a suitable name.
 */
 
@@ -862,6 +868,8 @@ void QFileDialog::mkdir()
 }
 
 /*!
+    \internal
+
     Displays the contents of the current directory in the form of a list of
     icons and names.
 
@@ -878,6 +886,8 @@ void QFileDialog::showList()
 }
 
 /*!
+    \internal
+
     Displays the contents of the current directory in the form of a list of
     icons and names, alongside which are displayed further details of each
     item.
@@ -894,6 +904,8 @@ void QFileDialog::showDetail()
 }
 
 /*!
+    \internal
+
     This is called when the user double clicks on a file with the corresponding
     model item \a index.
 */
@@ -911,6 +923,8 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
 }
 
 /*!
+    \internal
+
     This is called when the user requests that a file be deleted; the
     corresponding model index is passed in \a index.
 */
@@ -926,6 +940,8 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 /*!
     \fn void QFileDialog::currentChanged(const QModelIndex &index, const QModelIndex &current)
 
+    \internal
+
     This is called when the model index corresponding to the current file is changed
     from \a index to \a current.
 */
@@ -939,6 +955,8 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
 }
 
 /*!
+    \internal
+
     This is called when the filename is changed; the new name is
     passed in \a text.
 */
@@ -968,6 +986,8 @@ void QFileDialog::fileNameChanged(const QString &text)
 }
 
 /*!
+    \internal
+
     This is called when the user changes the text in the "Look in"
     combobox; the new text is passed in \a text. The function updates
     the model and consequently the file dialog accordingly.
@@ -1004,6 +1024,8 @@ void QFileDialog::lookInChanged(const QString &text)
 }
 
 /*!
+    \internal
+
     Adds the given \a filter to the file dialog's name filter.
     (Actually the name filters are held in the underlying model and
     this is what is really updated.)
@@ -1021,6 +1043,8 @@ void QFileDialog::useFilter(const QString &filter)
 }
 
 /*!
+    \internal
+
     Changes the file dialog's current directory to the one specified
     by \a path. This also sets the root of the underlying model to the
     item holding the \a path.
@@ -1034,6 +1058,8 @@ void QFileDialog::setCurrentDir(const QString &path)
 }
 
 /*!
+    \internal
+
     This creates the default context menu for the file list. The
     context menu is passed in \a menu and the index into the
     underlying model-view in \a index.
@@ -1121,6 +1147,9 @@ void QFileDialog::renameCurrent()
 }
 
 /*!
+    \internal
+
+    Deletes the currently selected item in the dialog.
 */
 
 void QFileDialog::deleteCurrent()
@@ -1129,6 +1158,8 @@ void QFileDialog::deleteCurrent()
 }
 
 /*!
+    \internal
+
     Refreshes the display of the current directory in the dialog.
 */
 
@@ -1138,6 +1169,8 @@ void QFileDialog::reload()
 }
 
 /*!
+    \internal
+
     Sorts the items in the dialog by name order.
 */
 
@@ -1147,6 +1180,8 @@ void QFileDialog::sortByName()
 }
 
 /*!
+    \internal
+
     Sorts the items in the dialog by size order.
 */
 
@@ -1156,6 +1191,8 @@ void QFileDialog::sortBySize()
 }
 
 /*!
+    \internal
+
     Sorts the items in the dialog by date order.
 */
 
@@ -1165,6 +1202,8 @@ void QFileDialog::sortByDate()
 }
 
 /*!
+    \internal
+
     Displays the contents of the current directory in an arbitrary order.
 
     \sa sortByDate() sortByName() sortBySize()
@@ -1176,6 +1215,8 @@ void QFileDialog::setUnsorted()
 }
 
 /*!
+   \internal
+
    Includes hidden files and directories in the items displayed in the dialog.
 
 */
