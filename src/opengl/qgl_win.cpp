@@ -891,7 +891,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 void *QGLContext::getProcAddress(const QString &proc) const
 {
-    return wglGetProcAddress(proc.latin1());
+    return (void *)wglGetProcAddress(proc.latin1());
 }
 
 /*****************************************************************************
