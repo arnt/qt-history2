@@ -52,7 +52,7 @@ public:
     bool	queryParent( QAccessibleInterface** ) const;
 
     // navigation
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
 

@@ -271,7 +271,11 @@
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 static QHash<QObject*,QAccessibleInterface*> *qAccessibleInterface = 0;
+static QList<QAccessible::InterfaceFactory> *qAccessibleFactories;
 static bool cleanupAdded = FALSE;
+
+QAccessible::UpdateHandler QAccessible::updateHandler = 0;
+QAccessible::RootObjectHandler QAccessible::rootObjectHandler = 0;
 
 static void qAccessibleCleanup()
 {
@@ -282,6 +286,8 @@ static void qAccessibleCleanup()
     qAccessibleInterface = 0;
     delete qAccessibleManager;
     qAccessibleManager = 0;
+    delete qAccessibleFactories;
+    qAccessibleFactories = 0;
 }
 
 void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
@@ -308,6 +314,46 @@ void qRemoveAccessibleObject(QObject *object)
     }
 }
 
+void QAccessible::installFactory(InterfaceFactory factory)
+{
+    if (!factory)
+	return;
+
+    if (!qAccessibleFactories) {
+	qAccessibleFactories = new QList<InterfaceFactory>();
+	if (!cleanupAdded) {
+	    qAddPostRoutine(qAccessibleCleanup);
+	    cleanupAdded = TRUE;
+	}
+    }
+
+    if (qAccessibleFactories->contains(factory))
+	return;
+    qAccessibleFactories->append(factory);
+}
+
+void QAccessible::removeFactory(InterfaceFactory factory)
+{
+    if (!qAccessibleFactories || !factory)
+	return;
+
+    qAccessibleFactories->remove(factory);
+}
+
+QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handler)
+{
+    UpdateHandler old = updateHandler;
+    updateHandler = handler;
+    return old;
+}
+
+QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectHandler handler)
+{
+    RootObjectHandler old = rootObjectHandler;
+    rootObjectHandler = handler;
+    return old;
+}
+
 #ifdef Q_WS_MAC
 #warning "queryAccessibleObject is obsolete"
 QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
@@ -318,8 +364,8 @@ QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
 
 /*!
     Sets \a iface to point to the implementation of the
-    QAccessibleInterface for \a object, and returns \c QS_OK if
-    successfull, or sets \a iface to 0 and returns \c QE_NOCOMPONENT if
+    QAccessibleInterface for \a object, and returns TRUE if
+    successfull, or sets \a iface to 0, or returns FALSE if
     no accessibility implementation for \a object exists.
 
     The function uses the \link QObject::className() classname
@@ -331,17 +377,32 @@ QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
     request for object information. You should never need to call this
     function yourself.
 */
-QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
+bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
 {
     *iface = 0;
     if ( !object )
-	return QE_INVALIDARG;
+	return FALSE;
 
     if ( qAccessibleInterface ) {
 	*iface = qAccessibleInterface->value( object );
 	if ( *iface ) {
-	    (*iface)->addRef();
-	    return QS_OK;
+	    if ((*iface)->isValid()) {
+		(*iface)->addRef();
+		return TRUE;
+	    } else {
+		(*iface)->release();
+		qRemoveAccessibleObject(object);
+	    }
+	}
+    }
+
+    if (qAccessibleFactories) {
+	for (int i = qAccessibleFactories->count(); i > 0; --i) {
+	    InterfaceFactory factory = qAccessibleFactories->at(i-1);
+	    if (factory(object, iface) && *iface) {
+		qInsertAccessibleObject(object, *iface);
+		return TRUE;
+	    }
 	}
     }
 
@@ -362,17 +423,17 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	mo = mo->superClass();
     }
     if ( factory )
-	return factory->createAccessibleInterface( mo->className(), object, iface );
+	return factory->createAccessibleInterface( mo->className(), object, iface ) == QS_OK;
 
     if (qt_cast<QWidget*>(object))
 	*iface = new QAccessibleWidget(object);
     else if (qt_cast<QApplication*>(object))
 	*iface = new QAccessibleApplication(static_cast<QApplication*>(object));
     else
-	return QE_NOCOMPONENT;
+	return FALSE;
 
     (*iface)->addRef();
-    return QS_OK;
+    return TRUE;
 }
 
 /*!
@@ -478,7 +539,7 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn int QAccessibleInterface::controlAt( int x, int y ) const
+    \fn int QAccessibleInterface::childAt( int x, int y ) const
 
     Returns the ID of the child that contains the screen coordinates
     (\a x, \a y). This function returns 0 if the point is positioned

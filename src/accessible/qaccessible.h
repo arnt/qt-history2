@@ -194,13 +194,26 @@ public:
 	DefaultAction
     };
 
-    static QRESULT queryAccessibleInterface( QObject *, QAccessibleInterface ** );
+    typedef bool(*InterfaceFactory)(QObject*, QAccessibleInterface**);
+    typedef void(*UpdateHandler)(QObject*, int who, Event reason);
+    typedef void(*RootObjectHandler)(QObject*);
+
+    static void installFactory(InterfaceFactory);
+    static void removeFactory(InterfaceFactory);
+    static UpdateHandler installUpdateHandler(UpdateHandler);
+    static RootObjectHandler installRootObjectHandler(RootObjectHandler);
+
+    static bool queryAccessibleInterface( QObject *, QAccessibleInterface ** );
     static void updateAccessibility( QObject *, int who, Event reason );
     static bool isActive();
     static void setRootObject(QObject*);
 
     static void initialize();
     static void cleanup();
+
+private:
+    static UpdateHandler updateHandler;
+    static RootObjectHandler rootObjectHandler;
 };
 
 // {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}
@@ -219,7 +232,7 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     virtual bool	queryParent( QAccessibleInterface** ) const = 0;
 
     // navigation
-    virtual int		controlAt( int x, int y ) const = 0;
+    virtual int		childAt( int x, int y ) const = 0;
     virtual QRect	rect( int control ) const = 0;
     virtual int		navigate( NavDirection direction, int startControl ) const = 0;
 

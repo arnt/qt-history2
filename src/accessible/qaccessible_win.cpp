@@ -45,6 +45,11 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
     Q_ASSERT(o);
 
+    if (updateHandler) {
+	updateHandler(o, who, reason);
+	return;
+    }
+
     QString soundName;
     switch ( reason ) {
     case PopupMenuStart:
@@ -139,8 +144,11 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	ptrNotifyWinEvent( reason, w->winId(), OBJID_CLIENT, who );
 }
 
-void QAccessible::setRootObject(QObject*)
+void QAccessible::setRootObject(QObject *o)
 {
+    if (rootObjectHandler) {
+	rootObjectHandler(o);
+    }
 }
 
 class QWindowsEnumerate : public IEnumVARIANT
@@ -605,7 +613,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest( long xLeft, long yTop,
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    int control = accessible->controlAt( xLeft, yTop );
+    int control = accessible->childAt( xLeft, yTop );
     if ( control == -1 ) {
 	(*pvarID).vt = VT_EMPTY;
 	return S_FALSE;

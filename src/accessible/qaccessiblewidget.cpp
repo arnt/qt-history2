@@ -80,7 +80,7 @@ QWidget *QAccessibleWidget::widget() const
 }
 
 /*! \reimp */
-int QAccessibleWidget::controlAt( int x, int y ) const
+int QAccessibleWidget::childAt( int x, int y ) const
 {
     QWidget *w = widget();
     QPoint gp = w->mapToGlobal( QPoint( 0, 0 ) );

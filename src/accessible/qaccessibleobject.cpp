@@ -172,7 +172,7 @@ bool QAccessibleApplication::queryParent( QAccessibleInterface **iface ) const
 }
 
 // navigation
-int QAccessibleApplication::controlAt( int x, int y ) const
+int QAccessibleApplication::childAt( int x, int y ) const
 {
     const QWidgetList tlw(topLevelWidgets());
     for (int i = 0; i < tlw.count(); ++i) {

@@ -33,7 +33,7 @@ public:
 
     ~QAccessibleWidget();
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
