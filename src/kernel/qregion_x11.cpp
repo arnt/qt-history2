@@ -83,8 +83,8 @@ struct QRegionPrivate {
 };
 
 
-static int UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg);
-static int IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPrivate *newReg);
+static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg);
+static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPrivate *newReg);
 static void miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate *reg2,
 	void (*overlapFunc)(...),
 	void (*nonOverlap1Func)(...),
@@ -150,8 +150,6 @@ SOFTWARE.
 
 #include <limits.h>
 
-#define TRUE 1
-#define FALSE 0
 #ifndef MAX
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif
@@ -297,19 +295,19 @@ typedef void (*voidProcp)(...);
 
 
 static
-int
-UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source, QRegionPrivate *dest)
+void UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source, QRegionPrivate *dest)
 {
     QRegionPrivate region;
 
     if (!rect->width() || !rect->height())
-	return 0;
+	return;
     region.rects.resize(1);
     region.numRects = 1;
     region.rects[0] = *rect;
     region.extents = *rect;
 
-    return UnionRegion(&region, source, dest);
+    UnionRegion(&region, source, dest);
+    return;
 }
 
 /*-
@@ -470,7 +468,7 @@ miIntersectO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 }
 
 static
-int
+void
 IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPrivate *newReg)
 {
    /* check for trivial reject */
@@ -489,7 +487,7 @@ IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, register QRegionPriv
      * due to coalescing, so we have to examine fewer rectangles.
      */
     miSetExtents(newReg);
-    return 1;
+    return;
 }
 
 /*======================================================================
@@ -1037,9 +1035,7 @@ miUnionO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
     return 0;	/* lint */
 }
 
-static
-int
-UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
+static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
 {
     /*  checks all the simple cases */
 
@@ -1049,7 +1045,7 @@ UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
     if ( (reg1 == reg2) || (!(reg1->numRects)) )
     {
 	*newReg = *reg2;
-        return 1;
+	return;
     }
 
     /*
@@ -1058,7 +1054,7 @@ UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
     if (!(reg2->numRects))
     {
         *newReg = *reg1;
-        return 1;
+        return;
     }
 
     /*
@@ -1071,7 +1067,7 @@ UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
 	(reg1->extents.bottom() >= reg2->extents.bottom()))
     {
 	*newReg = *reg1;
-        return 1;
+        return;
     }
 
     /*
@@ -1084,7 +1080,7 @@ UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
 	(reg2->extents.bottom() >= reg1->extents.bottom()))
     {
 	*newReg = *reg2;
-        return 1;
+        return;
     }
 
     miRegionOp (newReg, reg1, reg2, (voidProcp) miUnionO,
@@ -1095,10 +1091,9 @@ UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate *newReg)
 			       QMAX(reg1->extents.right(), reg2->extents.right()),
 			       QMAX(reg1->extents.bottom(), reg2->extents.bottom()) );
 
-    return 1;
+    return;
 }
 
-
 /*======================================================================
  * 	    	  Region Subtraction
  *====================================================================*/
@@ -1278,25 +1273,20 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
  *	Subtract regS from regM and leave the result in regD.
  *	S stands for subtrahend, M for minuend and D for difference.
  *
- * Results:
- *	TRUE.
- *
  * Side Effects:
  *	regD is overwritten.
  *
  *-----------------------------------------------------------------------
  */
 
-static
-int
-SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS, register QRegionPrivate *regD)
+static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS, register QRegionPrivate *regD)
 {
    /* check for trivial reject */
     if ( (!(regM->numRects)) || (!(regS->numRects))  ||
 	(!EXTENTCHECK(&regM->extents, &regS->extents)) )
     {
 	*regD = *regM;
-        return 1;
+	return;
     }
 
     miRegionOp (regD, regM, regS, (voidProcp) miSubtractO,
@@ -1310,27 +1300,21 @@ SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS, register QRegionPriva
      * due to coalescing, so we have to examine fewer rectangles.
      */
     miSetExtents (regD);
-    return 1;
 }
 
-static
-int
-XorRegion( QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate *dr )
+static void XorRegion( QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate *dr )
 {
     QRegionPrivate tra, trb;
 
-    (void) SubtractRegion(sra,srb,&tra);
-    (void) SubtractRegion(srb,sra,&trb);
-    (void) UnionRegion(&tra,&trb,dr);
-    return 0;
+    SubtractRegion(sra,srb,&tra);
+    SubtractRegion(srb,sra,&trb);
+    UnionRegion(&tra,&trb,dr);
 }
 
 /*
  *	Check to see if two regions are equal	
  */
-static
-int
-EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
+static bool EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
 {
     int i;
 
@@ -1355,9 +1339,7 @@ EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
     return TRUE;
 }
 
-static
-int
-PointInRegion( QRegionPrivate *pRegion, int x, int y )
+static bool PointInRegion( QRegionPrivate *pRegion, int x, int y )
 {
     int i;
 
@@ -1373,10 +1355,8 @@ PointInRegion( QRegionPrivate *pRegion, int x, int y )
     return FALSE;
 }
 
-static
-int
-RectInRegion(register QRegionPrivate *region,
-	    int rx, int ry, unsigned int rwidth, unsigned int rheight)
+static bool RectInRegion(register QRegionPrivate *region,
+			 int rx, int ry, unsigned int rwidth, unsigned int rheight)
 {
     register QRect *pbox;
     register QRect *pboxEnd;
@@ -2355,7 +2335,6 @@ QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
 }
 // END OF PolyReg.c extract
 
-
 QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 {
     QImage image = bitmap.convertToImage();
@@ -2497,8 +2476,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	data->rgn = 0;
 	data->xrectangles = 0;
 	if ( t == Rectangle ) {			// rectangular region
-	    data->region = new QRegionPrivate;
-	    UnionRectWithRegion( &r, data->region, data->region );
+	    data->region = new QRegionPrivate( r );
 	} else if ( t == Ellipse ) {		// elliptic region
 	    QPointArray a;
 	    a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
