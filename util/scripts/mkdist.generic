@@ -82,7 +82,7 @@ else
   echo "Exporting the latest tmake" >&2
   cvs -Q export -rHEAD tmake
   TMAKEDIR=$DISTDIR/tmake export TMAKEDIR
-  unset TMAKEPATH
+  TMAKEPATH=$TMAKEDIR/lib/linux-g++ export TMAKEPATH           
 fi
 
 echo "Removing internal files..." >&2
