@@ -18,7 +18,7 @@ public:
     static Shape glyphVariant( const QString &str, int pos);
     static Shape glyphVariantLogical( const QString &str, int pos);
 
-    static const QChar *shapedString( const QString &str, int from, int len, int *lenOut );
+    static QString shapedString( const QString &str, int from = 0, int len = -1);
     static QChar shapedCharacter(const QString &str, int pos);
     static void glyphPositions( QTextString *str );
 

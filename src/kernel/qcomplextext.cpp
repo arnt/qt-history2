@@ -465,33 +465,32 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627         R       Alef
 };
 
-const QChar *QComplexText::shapedString(const QString& uc, int from, int len, int *lenOut )
+QString QComplexText::shapedString(const QString& uc, int from, int len )
 {
     if( len < 0 )
         len = uc.length() - from;
     if( len == 0 ) {
-        *lenOut = 0;
-        return 0;
+        return QString::null;
     }
 
     if( !shapeBuffer || len > shapeBufSize ) {
-//      if( shapeBuffer ) free( (void *) shapeBuffer );
-//      shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
-        delete [] shapeBuffer;
-        shapeBuffer = new QChar[ len + 1];
+      if( shapeBuffer ) free( (void *) shapeBuffer );
+      shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
+//        delete [] shapeBuffer;
+//        shapeBuffer = new QChar[ len + 1];
         shapeBufSize = len;
     }
 
+    int lenOut = 0;
     QChar *data = shapeBuffer;
     const QChar *ch = uc.unicode() + from;
-    *lenOut = 0;
     for ( int i = 0; i < len; i++ ) {
         uchar r = ch->row();
         uchar c = ch->cell();
         if ( r != 0x06 ) {
             *data = *ch;
             data++;
-            (*lenOut)++;
+            lenOut++;
         } else {
             int shape = glyphVariant( uc, i+from );
             //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
@@ -531,12 +530,12 @@ const QChar *QComplexText::shapedString(const QString& uc, int from, int len, in
         next:
             *data = map;
             data++;
-            (*lenOut)++;
+            lenOut++;
         }
     skip:
         ch++;
     }
-    return shapeBuffer;
+    return QConstString( shapeBuffer, lenOut ).string();
 }
 
 QChar QComplexText::shapedCharacter( const QString &str, int pos )

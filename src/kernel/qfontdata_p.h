@@ -58,6 +58,10 @@
 #include <qt_windows.h>
 #endif
 
+#ifdef Q_WS_X11
+#include <qt_x11.h>
+#endif
+
 // font description
 struct QFontDef {
     QFontDef()
@@ -390,6 +394,40 @@ public:
     void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
     void computeLineWidth();
 
+    /* 
+       some replacement functions for Xlib calls. This is needed, because shaping and
+       non spacing marks can change the extents of a string to draw. At the same time 
+       drawing needs to take care to correctly position non spacing marks.
+    */
+    struct TextPaintCache {
+	TextPaintCache() { sub = 0; string = 0; length = 0; }
+	~TextPaintCache() { if ( sub ) delete sub; }
+	struct SubString {
+	    int from;
+	    int len;
+	    int xoff;
+	    int yoff;
+	};
+	void createSubstring() {
+	    if ( sub ) return;
+	    sub = new QArray<SubString>(1);
+	    SubString &str = sub->at(0);
+	    str.xoff = 0;
+	    str.yoff = 0;
+	    str.from = 0;
+	    str.len = 0;
+	}
+	QByteArray mapped;
+	const QChar *string;
+	int length;
+	QArray<SubString> *sub;
+    };
+    
+    int textWidth( Script script, const QString &str, int pos, int len, TextPaintCache *item = 0 );
+    void textExtents( Script script, const QString &str, int pos, int len, XCharStruct *overall );
+    static void drawText( QFontStruct *qfs, Display *dpy, WId hd, GC gc, int x, int y, 
+			  const QFontPrivate::TextPaintCache *cache );
+    
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set
