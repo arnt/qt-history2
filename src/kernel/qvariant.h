@@ -175,7 +175,7 @@ public:
 
     bool isValid() const;
     bool isNull() const;
-    
+
     void clear();
 
     const QString toString() const;
@@ -276,22 +276,22 @@ private:
     class Private : public QShared
     {
     public:
-        Private();
-        Private( Private* );
-        ~Private();
+	Private();
+	Private( Private* );
+	~Private();
 
-        void clear();
+	void clear();
 
-        uint typ : 30;
-	uint is_null : 1;
-        union
-        {
+	Type typ;
+	union
+	{
 	    uint u;
 	    int i;
 	    bool b;
 	    double d;
 	    void *ptr;
-        } value;
+	} value;
+	uint is_null : 1; // ## 4.0 merge with typ
     };
 
     Private* d;
@@ -309,7 +309,7 @@ public:
 
 inline QVariant::Type QVariant::type() const
 {
-    return (Type) d->typ;
+    return d->typ;
 }
 
 inline bool QVariant::isValid() const
