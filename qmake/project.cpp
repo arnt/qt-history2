@@ -1259,6 +1259,25 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement += buff;
 		    }
 		}
+	    } else if(val.lower() == "files") {
+		if(arg_list.count() != 1) {
+		    fprintf(stderr, "%s:%d files(pattern) requires one argument\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    QString dir, regex = arg_list[0];
+		    regex = Option::fixPathToLocalOS(regex);
+		    regex.replace("\"", "");
+		    if(regex.findRev(QDir::separator()) != -1) {
+			dir = regex.left(regex.findRev(QDir::separator()) + 1);
+			regex = regex.right(regex.length() - dir.length());
+		    }
+		    QDir d(dir, regex);
+		    for(int i = 0; i < (int)d.count(); i++) {
+			if(!replacement.isEmpty())
+			    replacement += " ";
+			replacement += dir + d[i];
+		    }
+		}
 	    } else if(val.lower() == "prompt") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d prompt(question) requires one argument\n",
