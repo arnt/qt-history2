@@ -57,14 +57,16 @@
   \ingroup io
   \ingroup misc
 
-  You can write to the started program's standard input, and can read the
-  program's standard output and standard error. You can pass command line
-  arguments to the program either in the constructor or with
-  setArguments() or addArgument(). The program's working directory can
-  be set with setWorkingDirectory(). The processExited() signal is
-  emitted if the program exits. The program's exit status is available
-  from exitStatus(), although you could simply call normalExit() to
-  see if the program terminated normally.
+  You can write to the started program's standard input, and can read
+  the program's standard output and standard error. You can pass
+  command line arguments to the program either in the constructor or
+  with setArguments() or addArgument(). The program's working
+  directory can be set with setWorkingDirectory(). If you need to set
+  up environment variables pass them to the start() or launch()
+  function (see below). The processExited() signal is emitted if the
+  program exits. The program's exit status is available from
+  exitStatus(), although you could simply call normalExit() to see if
+  the program terminated normally.
 
   There are two different ways to start a process. If you just want to
   run a program, optionally passing data to its standard input at the
@@ -73,40 +75,47 @@
   standard error, use the start() function.
 
   If you use start() you can write to the program's standard input
-  using writeToStdin(). Use closeStdin() when you wish to close the
-  program's standard input. You can read from the program's standard
-  output using readStdout() or readLineStdout(). These functions
-  return an empty QByteArray if there is no data to read. The
-  readyReadStdout() signal is emitted when there is data available
-  from standard output. Standard error has a set of functions that
-  correspond to the standard output functions, i.e. readStderr(),
-  readLineStderr() and readyReadStderr().
+  using writeToStdin() and you can close the standard input with
+  closeStdin(). The wroteToStdin() signal is emitted if the data sent
+  to standard input has been written. You can read from the program's
+  standard output using readStdout() or readLineStdout(). These
+  functions return an empty QByteArray if there is no data to read.
+  The readyReadStdout() signal is emitted when there is data available
+  to be read from standard output. Standard error has a set of
+  functions that correspond to the standard output functions, i.e.
+  readStderr(), readLineStderr() and readyReadStderr().
 
   If you use one of the launch() functions the data you pass will be
-  sent to the program's standard input. Once all the data has been
-  writtend the program's standard input will be closed automatically.
-  You should not use writeToStdin() or closeStdin() if you use
-  launch(). If you need to send data to the program's standard input
-  after it has started running use start() instead of launch().
+  sent to the program's standard input which will be closed once all
+  the data has been written. You should \e not use writeToStdin() or
+  closeStdin() if you use launch(). If you need to send data to the
+  program's standard input after it has started running use start()
+  instead of launch().
+
+  Both start() and launch() can accept a string list of strings with
+  the format, key=value, with the keys being the names of environment
+  variables.
 
   You can test to see if a program is running with isRunning(). The
   program's process identifier is available from processIdentifier().
-  If you want to terminate a running program use hangUp(); the program
-  may ignore this. If you \e really want to terminate the program,
-  without it having any chance to clean up, use kill().
+  If you want to terminate a running program use hangUp(), but note
+  that the program may ignore this. If you \e really want to terminate
+  the program, without it having any chance to clean up, you can use
+  kill().
 
-  Example: If you want to start the \c uic command (Qt command line tool used
-  with the Qt Designer) and make some operations on the output (the \c uic
-  outputs the code it generates to standard output by default). Consider the
-  case, that you want to start it with the command line options "-tr i18n" on
-  the file "small_dialog.ui". On the command line you would do that with
+  As an example, suppose we want to start the \c uic command (a Qt
+  command line tool used with \e{Qt Designer}) and perform some
+  operations on the output (the \c uic outputs the code it generates
+  to standard output by default). Suppose further that we want to run
+  the program on the file "small_dialog.ui" with the command line
+  options "-tr i18n". On the command line we would write:
   \code
   uic -tr i18n small_dialog.ui
   \endcode
 
   \walkthrough process/process.cpp
 
-  A code snippet for this with the QProcess class could look like this:
+  A code snippet for this with the QProcess class might look like this:
 
   \skipto UicManager::UicManager()
   \printline UicManager::UicManager()
@@ -122,22 +131,21 @@
   \printline }
 
   \skipto void UicManager::readFromStdout()
-  \printuntil // Keep in mind that the data might be reported in chunks.
+  \printuntil // Bear in mind that the data might be output in chunks.
   \skipto }
   \printline }
 
-  Please note that you need the quotes for the file on the command line, but
-  you must not give the quotes to the QProcess: the command line shell
-  processes the string and splits it into the arguments, but the QProcess class
-  does not do this processing.
+  Although you may need quotes for a file named on the command line
+  (e.g. if it contains spaces) you shouldn't use extra quotes for
+  arguments passed to addArgument() or setArguments().
 
-  The readyReadStdout() signal is emitted when there is new data on standard
-  output. This happens asynchronous: you don't know if more data will arrive
-  later. In the above example you could connect the processExited() signal to
-  the slot UicManager::readFromStdout() instead. If you do so, you are sure
-  that all data is available when the slot is called. On the other hand, you
-  must wait until the process has finished before doing any processing. Which
-  approach is best, depends highly on the requirements of your application.
+  The readyReadStdout() signal is emitted when there is new data on
+  standard output. This happens asynchronously: you don't know if more
+  data will arrive later. In the above example you could connect the
+  processExited() signal to the slot UicManager::readFromStdout()
+  instead. If you do so, you will be certain that all the data is
+  available when the slot is called. On the other hand, you must wait
+  until the process has finished before doing any processing.
 
   \sa QSocket
 */
