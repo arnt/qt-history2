@@ -406,6 +406,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 	mw->setDockEnabled( topDockWnd, Qt::DockBottom, TRUE );
     }
 
+    topDockWnd->setCaption( tr("Source text") );
     topDockWnd->setCloseMode( QDockWindow::Always );
     topDockWnd->setResizeEnabled( TRUE );
     topDockWnd->setFixedExtentHeight( 110 );
@@ -454,6 +455,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 	mw->setDockEnabled( bottomDockWnd, Qt::DockRight, TRUE );
 	mw->setDockEnabled( bottomDockWnd, Qt::DockBottom, TRUE );
     }
+    bottomDockWnd->setCaption( tr("Phrases") );
     bottomDockWnd->setCloseMode( QDockWindow::Always );
     bottomDockWnd->setResizeEnabled( TRUE );
 
