@@ -172,7 +172,7 @@ void TabbedBrowser::init()
     setMimePath(Config::configuration()->mimePaths());
     */
 
-    connect(ui.tab, SIGNAL(currentChanged(QWidget*)),
+    connect(ui.tab, SIGNAL(currentChanged(int)),
              this, SLOT(transferFocus()));
 
     QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
