@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#36 $
 **
 **  Splitter widget
 **
@@ -30,10 +30,10 @@
 class QInternalSplitter : public QWidget
 {
 public:
-    QInternalSplitter( QSplitter::Orientation o,
+    QInternalSplitter( Qt::Orientation o,
 		       QSplitter *parent, QString name=0 );
-    void setOrientation( QSplitter::Orientation o );
-    QSplitter::Orientation orientation() const { return orient; }
+    void setOrientation( Qt::Orientation o );
+    Qt::Orientation orientation() const { return orient; }
 
 protected:
     //    void resizeEvent( QResizeEvent * );
@@ -44,11 +44,11 @@ protected:
 
 
 private:
-    QSplitter::Orientation orient;
+    Qt::Orientation orient;
     QSplitter *s;
 };
 
-QInternalSplitter::QInternalSplitter( QSplitter::Orientation o,
+QInternalSplitter::QInternalSplitter( Qt::Orientation o,
 				      QSplitter *parent, QString name )
     : QWidget( parent, name )
 {
@@ -70,7 +70,7 @@ int QSplitter::hit( QPoint pnt )
 #endif
 
 
-void QInternalSplitter::setOrientation( QSplitter::Orientation o )
+void QInternalSplitter::setOrientation( Qt::Orientation o )
 {
     orient = o;
     if ( o == QSplitter::Horizontal )
@@ -210,7 +210,7 @@ void QSplitter::setOrientation( Orientation o )
 }
 
 /*!
-   \fn QSplitter::Orientation QSplitter::orientation() const
+   \fn Qt::Orientation QSplitter::orientation() const
 
    Returns the orientation (\c Horizontal or \c Vertical) of the splitter.
    \sa setOrientation()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#32 $
 **
 ** Implementation of QToolBar class
 **
@@ -165,7 +165,7 @@ void QToolBar::setOrientation( Orientation newOrientation )
 }
 
 
-/*! \fn QToolBar::Orientation QToolBar::orientation() const
+/*! \fn Qt::Orientation QToolBar::orientation() const
 
   Returns the current orientation of the toolbar.
 
