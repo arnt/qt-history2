@@ -1,116 +1,118 @@
-cd $QTDIR/include
-BOGUS="/extensions/|qmutex\.h|qt\.h"
-HEADERS=$( /bin/ls -l q*.h | egrep -v "$BOGUS" | awk '{ print $9 }' )
-HEADMARK='Q[A-Z][A-Z][A-Z]*_H'
-STARTMARK='#ifndef QT_H'
-ENDMARK='#endif \/\/ QT_H'
-echo "\
-/****************************************************************************
+#!/usr/bin/perl
+
+$BOGUS="/extensions/|qmutex\.h|qt\.h";
+$HEADMARK='Q[A-Z][A-Z][A-Z]*_H';
+$STARTMARK='#ifndef QT_H';
+$ENDMARK='#endif // QT_H';
+$TAIL="#endif // QT_H";
+$DIR="$ENV{QTDIR}/include";
+
+if ( $ARGV[0] eq "--fix" ) {
+    $fix++;
+    shift;
+}
+
+opendir(INC, $DIR)
+    || die "can't opendir $DIR: $!";
+@HEADERS =
+    grep {
+	m/\.h$/ &&
+	!m/^$BOGUS$/ &&
+	! -f "$ENV{QTDIR}/src/compat/$_"
+    } readdir INC;
+
+open QT_H, ">$DIR/qt.h";
+
+print QT_H
+'/****************************************************************************
 **
 ** Qt GUI Toolkit
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : $(date)
+** Generated : '.`date`.'
 **
-** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1999 by Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
 #ifndef QT_H
-#define QT_H"
-TAIL="#endif"
+#define QT_H
+';
 
 
-#grep "#define $HEADMARK" $HEADERS /dev/null |
-# sed 's/\(.*\):#define \(.*\)/\1 \2/'
 
-awk '
-BEGIN { 
-    N=1
-}
-/'"$STARTMARK"'/ {
-    incscan=1
-}
-/'"$ENDMARK"'/ {
-    incscan=0
-    nextfile
-}
-/#include ["<]/ {
-    if (incscan) {
-	inc=substr($2,2,length($2)-2)
-	DEP[FILENAME inc]=1
-	LOCAL[inc]=(substr($2,1,1)=="\"")
-	if (!SEEN[FILENAME]) {
-	    SEEN[FILENAME]=1
-	    FILE[N++]=FILENAME
-	}
-	if (!SEEN[inc]) {
-	    SEEN[inc]=1
-	    FILE[N++]=inc
-	}
-    }
-}
-END {
-    done=0
-    # Bubble sort by name...
-    while (!done) {
-	done=1
-	for (i=2; i<N; i++) {
-	    for (j=1; j<i; j++) {
-		if (FILE[j] > FILE[i]) {
-		    t=FILE[i]
-		    FILE[i]=FILE[j]
-		    FILE[j]=t
-		    done=0
-		}
+$include = '#include\s*(["<])([^\n]*)[">]';
+
+H: for $h ( @HEADERS ) {
+    open HEADER, "$DIR/$h";
+    $content = "" if $fix;
+    while (<HEADER>) {
+	$content .= $_ if $fix;
+	if ( /$STARTMARK/ ) {
+	    $incscan=1;
+	} elsif ( /$ENDMARK/ ) {
+	    $incscan=0;
+	    next H;
+	} elsif ( /$include/ ) {
+	    if ($incscan) {
+		$inc=$2;
+		$DEP{"$h $inc"}=1;
+		$LOCAL{$inc}=($1=='"');
+		$FILE{$h}++;
+		$FILE{$inc}++;
 	    }
 	}
     }
-    done=0
-    # Bubble sort by dependency...
-    while (!done) {
-	done=1
-	for (i=2; i<N; i++) {
-	    for (j=1; j<i; j++) {
-		if (DEP[FILE[j] FILE[i]]) {
-		    # j depends on i, swap
-		    t=FILE[i]
-		    FILE[i]=FILE[j]
-		    FILE[j]=t
-		    done=0
-		}
+    if ( $fix ) {
+	#$include = '#include\s*["<][^\n]*[">]';
+	$content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/gs;
+	open OUT, ">$DIR/$h";
+	print OUT $content;
+    } else {
+	die "No QT_H segment in $h - rerun with --fix to fix ALL headers\n";
+    }
+}
+
+@FILE=sort keys %FILE;
+$N=$#FILE;
+$done=0;
+# Bubble sort by dependency...
+while (!$done) {
+    $done=1;
+    for $i (1..$N) {
+	for $j (0..$i) {
+	    if ($DEP{"$FILE[$j] $FILE[$i]"}) {
+		# j depends on i, swap
+		$t=$FILE[$i];
+		$FILE[$i]=$FILE[$j];
+		$FILE[$j]=$t;
+		$done=0;
 	    }
 	}
     }
-    for (i=1; i<N; i++) {
-	if (LOCAL[FILE[i]])
-	    print "#include \"" FILE[i] "\""
-	else
-	    print "#include <" FILE[i] ">"
+}
+
+for $h ( @FILE ) {
+    if ($LOCAL{$h}) {
+	print QT_H qq{#include "$h"\n};
+    } else {
+	print QT_H qq{#include <$h>\n};
     }
 }
-' $HEADERS
 
-if [ "$1" = -fix ]
-then
-    for i in $HEADERS
-    do
-	if grep -q -v '#ifndef QT_H' $i && grep -q '#include'
-	then
-	    echo "\
-/^#include
-i
-#ifndef QT_H
-.
-/class
-?^#include
-a
-#endif // QT_H
-.
-w
-q" | ed $i
-	fi
-    done
-fi
-echo "$TAIL"
+print QT_H "$TAIL";
