@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#340 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#341 $
 **
 ** Implementation of QListView widget class
 **
@@ -165,7 +165,7 @@ struct QListViewPrivate
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
-    bool autoResort;
+    bool autoSort;
 
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
@@ -1066,13 +1066,13 @@ void QListViewItem::setText( int column, const QString &text )
     widthChanged( column );
     if ( !lv )
 	return;
-    if ( lv && lv->autoResort() && lv->d->sortcolumn != -1 ) {
+    if ( lv && lv->autoSort() && lv->d->sortcolumn != -1 ) {
  	if ( parent() )
 	    parent()->lsc = Unsorted;
 	lv->triggerUpdate();
     } else if ( parent() ) {
 	// if this is part of a sub-tree that's not currently in any
-	// list view, force resort.
+	// list view, force sort.
 	parent()->lsc = Unsorted;
     } else if ( oldW != lv->columnWidth( column ) )
 	listView()->triggerUpdate();
@@ -1657,7 +1657,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->column.setAutoDelete( TRUE );
     d->iterators = 0;
     d->scrollTimer = 0;
-    d->autoResort = FALSE;
+    d->autoSort = FALSE;
     d->sortIndicator = FALSE;
 
     connect( d->timer, SIGNAL(timeout()),
@@ -3685,7 +3685,7 @@ void QListView::changeSortColumn( int column )
 }
 
 /*!
-  Resorts the listview using the last sorting configuration (sort column
+  Sorts the listview using the last sorting configuration (sort column
   and ascending/descending)
 */
 
@@ -3703,32 +3703,32 @@ void QListView::refreshSorting()
   And the next paragraph isn't good, either.
 
   When setting \a b to TRUE, changing the text of an item will
-  resort the listview immediately. But this only works, if the
+  sort the listview immediately. But this only works, if the
   current sortcolumn is valid, this means if you didn't set
   it to -1 before (using QListView::setSorting()).
-  If \a b is FALSE, this listview is never resorted if an item
+  If \a b is FALSE, this listview is never sorted if an item
   text changed.
 
   \sa QListView::setSorting()
 */
 
-void QListView::setAutoResort( bool b )
+void QListView::setAutoSort( bool b )
 {
-    d->autoResort = b;
+    d->autoSort = b;
 }
 
 /*NODOC This feature is completely undocumented.
 
   And the next paragraph isn't good, either.
 
-  Returns the state of autoResorting.
+  Returns the state of autoSorting.
 
-  \sa QListView::setAutoResort()
+  \sa QListView::setAutoSort()
 */
 
-bool QListView::autoResort() const
+bool QListView::autoSort() const
 {
-    return d->autoResort;
+    return d->autoSort;
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.

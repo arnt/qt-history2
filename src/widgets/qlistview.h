@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#110 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#111 $
 **
 ** Definition of QListView widget class
 **
@@ -47,7 +47,7 @@ class Q_EXPORT QListViewItem: public Qt
 #if defined(_CC_MSVC_)
     friend class QListViewItem;
 #endif
-    
+
 public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
@@ -248,8 +248,8 @@ public:
     virtual void setSorting( int column, bool increasing = TRUE );
     void refreshSorting(); // #### make virtual in next major release
 
-    void setAutoResort( bool b );
-    bool autoResort() const;
+    void setAutoSort( bool b );
+    bool autoSort() const;
 
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
