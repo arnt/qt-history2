@@ -2283,13 +2283,13 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QKeyEvent* key = (QKeyEvent*) e;
 	    res = internalNotify( receiver, e );
 
+	    if ( !res && !key->isAccepted() )
+		res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
+
 	    // next lines are for compatibility with Qt <= 3.0.x: old
 	    // QAccel was listening on toplevel widgets
 	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
 		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
-
-	    if ( !res && !key->isAccepted() )
-		res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
 	}
     break;
 #endif //QT_NO_ACCEL
