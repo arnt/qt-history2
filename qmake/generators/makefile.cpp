@@ -1293,7 +1293,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if(tmp_clean.isEmpty()) {
                 tmp_clean = tmp_out;
             } else if(tmp_clean.indexOf("${QMAKE_") == -1) {
-                t << "\n\t" << "$(DEL_FILE) " << tmp_clean;
+                t << "\n\t" << "-$(DEL_FILE) " << tmp_clean;
                 wrote_clean = true;
             }
             if(!wrote_clean_cmds || !wrote_clean) {
@@ -1302,7 +1302,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     const QStringList &tmp = project->variables()[(*it2)];
                     for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
                         if(!wrote_clean)
-                            cleans.append("$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input),
+                            cleans.append("-$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input),
                                           replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
                         if(!wrote_clean_cmds)
                             cleans.append(replaceExtraCompilerVariables(tmp_clean_cmds, (*input),
