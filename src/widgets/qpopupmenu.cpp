@@ -142,9 +142,7 @@ static QMenuItem* whatsThisItem = 0;
   items with insertItem().  An item is either a string, a pixmap or a
   custom item that provides its own drawing function (see
   QCustomMenuItem). In addition, items can have an optional icon drawn
-  on the very left side and an accelerator key such as "Ctrl+X".  The
-  accelerator can also be changed at run-time by holding the left mouse
-  button over an item and pressing the new accelerator.
+  on the very left side and an accelerator key such as "Ctrl+X".
 
   There are three kinds of menu items: separators, menu items that perform
   an action and menu items that show a submenu.  Separators are inserted
