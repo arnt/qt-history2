@@ -28,8 +28,9 @@
 #include <qimage.h>
 
 PixmapCollection::PixmapCollection( Project *pro )
-    : project( pro ), iface( new DesignerPixmapCollectionImpl( this ) )
+    : project( pro )
 {
+    iface = new DesignerPixmapCollectionImpl( this );
     mimeSourceFactory = new QMimeSourceFactory();
 }
 
