@@ -48,6 +48,7 @@ SOURCES += \
 win32:SOURCES += ../../core/io/qfileengine_win.cpp
 else:unix:SOURCES += ../../core/io/qfileengine_unix.cpp
 mac:LIBS += -framework ApplicationServices
+mac:SOURCES += ../../core/kernel/qcore_mac.cpp
 
 #actual stuff in here
 SOURCES += main.cpp
