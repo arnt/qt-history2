@@ -739,7 +739,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	    dirName = mocdir;
 	QString src(dirName + fi.baseName() + Option::cpp_ext );
 
-	QString &hdr = mocablesFromMOC[src];
+	QString hdr = findMocSource(src);
 	t << (*oit) << ": " << src << " "
 	  << hdr << " "
 	  << depends[hdr].join(" \\\n\t\t");
@@ -761,7 +761,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	QString &m = mocablesToMOC[(*it)];
+	QString m = findMocDestination(*it);
 	if ( !m.isEmpty())
 	    t << m << ": $(MOC) " << (*it) << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
