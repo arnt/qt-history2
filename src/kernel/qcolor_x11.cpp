@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#51 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#51 $");
 
 
 /*****************************************************************************
@@ -78,14 +78,14 @@ void qt_reset_color_avail()
 static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 {
     XVisualInfo *vi, rvi;
-    int best, n, i;
+    int best=-1, n, i;
     int scr = DefaultScreen(dpy);
     rvi.c_class = TrueColor;
     rvi.screen  = scr;
     vi = XGetVisualInfo( dpy, VisualClassMask | VisualScreenMask,
 			 &rvi, &n );
     if ( vi ) {
-	for ( i=0, best=-1; i<n; i++ ) {
+	for ( i=0; i<n; i++ ) {
 	    if ( (vi[i].depth == 24) || (vi[i].depth > 24 && best<0) )
 		best = i;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#97 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#97 $");
 
 
 /*****************************************************************************
@@ -462,7 +462,6 @@ QImage QPixmap::convertToImage() const
     int	    h  = height();
     int	    d  = depth();
     bool    mono = d == 1;
-    int	    scr	   = x11Screen();
     Visual *visual = (Visual *)x11Visual();
     bool    trucol = (visual->c_class == TrueColor) && !mono;
     XImage *xi = 0;				// get pixmap data from server
@@ -696,7 +695,6 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     int	 w   = image.width();
     int	 h   = image.height();
     int	 d   = image.depth();
-    int	 scr = x11Screen();
     int	 dd  = x11Depth();
     bool force_mono = (dd == 1 || isQBitmap() || mode == Mono);
 
@@ -1452,10 +1450,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
 	} else {
 #endif
-	    int scr = x11Screen();
-	    int dd  = x11Depth();
-	    xi = XCreateImage( dpy, (Visual *)x11Visual(), dd, ZPixmap, 0,
-			       (char *)dptr, w, h, 32, 0 );
+	    xi = XCreateImage( dpy, (Visual *)x11Visual(), x11Depth(),
+			       ZPixmap, 0, (char *)dptr, w, h, 32, 0 );
 	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	    XDestroyImage( xi );
 #if defined(MITSHM)
