@@ -280,10 +280,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #ifdef Q_OS_TEMP
 
 	const TCHAR *cname = windowClassName.ucs2();
-	if ( exsty )
-	    id = CreateWindowEx( exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0 );
-	else
-	    id = CreateWindow( cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0 );
+
+	id = CreateWindowEx( exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0 );
 #else
 
 	QT_WA( {
@@ -311,10 +309,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {					// create child widget
 	QT_WA( {
 	    const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
-	    id = CreateWindow( cname, ttitle, style, 0, 0, 100, 30,
+	    id = CreateWindowEx( exsty, cname, ttitle, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 	} , {
-	    id = CreateWindowA( windowClassName.latin1(), title95, style, 0, 0, 100, 30,
+	    id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 	} );
 #ifndef QT_NO_DEBUG
