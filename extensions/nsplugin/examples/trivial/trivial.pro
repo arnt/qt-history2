@@ -1,5 +1,10 @@
-TEMPLATE    =	app
-CONFIG      =	qt nsplugin release
-HEADERS	    =   
-SOURCES     =	trivial.cpp
-TARGET      =	trivial.so
+TEMPLATE    	=	app
+CONFIG      	=	qt dll nsplugin release
+HEADERS	    	=   
+SOURCES     	=	trivial.cpp
+unix:TMAKE_LIBS =	-L$(QTDIR)/lib -lqnp -lXt -lm
+win32:LIBS	=	$(QTDIR)/lib/qnp.lib
+DEF_FILE	=	trivial.def
+RC_FILE		=	trivial.rc
+TARGET      	=	trivial
+win32:TARGET	=	nptrivial
