@@ -3200,9 +3200,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
-    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
-	return macGetOpenFileName( initialSelection, filter, workingDirectory,
-				   parent, name, caption );
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) ) {
+	QString f = macGetOpenFileNames(filter, workingDirectory,
+					parent, name, caption, FALSE).first();
+	return f;
+    }
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );

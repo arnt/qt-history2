@@ -75,16 +75,13 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	    char tmp[sizeof(Str63)+2];
 	    FSSpec      FSSpec;
 	    AliasInfoType x = 0;
-
 	    AEGetDescData( theItem, &FSSpec, sizeof(FSSpec));
-
 	    if(NewAlias( NULL, &FSSpec, &alias ) != noErr)
 		return true;
 	    GetAliasInfo(alias, (AliasInfoType)x++, str);
 	    if(str[0]) {
 		strncpy((char *)tmp, (const char *)str+1, str[0]);
 		tmp[str[0]] = '\0';
-
 		for (QPtrListIterator<QRegExp> it(*filt); it.current(); ++it ) {
 		    if(it.current()->exactMatch( tmp ))
 			return true;
@@ -114,18 +111,9 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      const void *fullPath,
 				      FSSpec *spec);
 
-QString QFileDialog::macGetOpenFileName( const QString &/*initialSelection*/,
-					 const QString &filter, QString* initialDirectory,
-					 QWidget *parent, const char* name,
-					 const QString& caption )
-{
-    return macGetOpenFileNames(filter, initialDirectory,
-			       parent, name, caption).first();
-}
-
-QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString*,
+QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 					      QWidget *parent, const char* /*name*/,
-					      const QString& caption )
+					      const QString& caption, bool multi )
 {
     OSErr err;
     QString tmpstr;
@@ -133,17 +121,16 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString*,
     static const int w = 450, h = 350;
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions( &options );
-    options.version = kNavDialogOptionsVersion;
-    options.modality = kWindowModalityAppModal;
+    if(multi) 
+	options.optionFlags |= 	kNavAllowMultipleFiles;
     options.location.h = options.location.v = -1;
-    if(caption.length()) 
+    if(!caption.isEmpty()) 
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
 							   caption.length());
     if(parent) {
 	parent = parent->topLevelWidget();
 	QString s = parent->caption();
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
-	options.parentWindow = (WindowPtr)parent->handle();
 	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
 	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
     } else if(QWidget *p = qApp->mainWidget()) {
@@ -156,25 +143,22 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString*,
 	}
     }
 
-    NavDialogRef dlg;
     QPtrList<QRegExp> filts = makeFiltersList(filter);
-    if(NavCreateGetFileDialog( &options, NULL, NULL, NULL, make_navUPP(),
-			       (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
+    NavDialogRef dlg;
+    if(NavCreateGetFileDialog(&options, NULL, NULL, NULL, make_navUPP(), 
+			      (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
 	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	return retstrl;
     }
-
-    NavDialogRun(dlg); 
-    filts.setAutoDelete(TRUE);
-    filts.clear();
+    NavDialogRun(dlg);
     if(NavDialogGetUserAction(dlg) != kNavUserActionOpen) {
 	NavDialogDispose(dlg);
 	return retstrl;
     }
-
     NavReplyRecord ret;
     NavDialogGetReply(dlg, &ret);
     NavDialogDispose(dlg);
+
     long count;
     err = AECountItems(&(ret.selection), &count);
     if(!ret.validRecord || err != noErr || !count) {
@@ -185,35 +169,47 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString*,
     AEKeyword	keyword;
     DescType    type;
     Size        size;
-    FSSpec      FSSpec;
+    FSRef ref;
+#ifdef Q_WS_MAC9
+    FSSpec      spec;
+#endif
 
     for(long index = 1; index <= count; index++) {
+#ifdef Q_WS_MAC9
 	err = AEGetNthPtr(&(ret.selection), index, typeFSS, &keyword,
-			  &type,&FSSpec, sizeof(FSSpec), &size);
+			  &type,&spec, sizeof(spec), &size);
+
+#else
+	err = AEGetNthPtr(&(ret.selection), index, typeFSRef, &keyword,
+			  &type,&ref, sizeof(ref), &size);
+#endif
 	if(err != noErr)
 	    break;
 
+#ifdef Q_WS_MAC9
 	//we must *try* to create a file, and remove it if successfull
 	//to actually get a path, bogus? I think so.
-	err = FSpCreate(&FSSpec, 'CUTE', 'TEXT', smSystemScript);
-	FSRef ref;
-	FSpMakeFSRef(&FSSpec, &ref);
+	bool delete_file = (FSpCreate(&spec, 'CUTE', 'TEXT', smSystemScript) == noErr);
+	FSpMakeFSRef(&spec, &ref);
+#endif
 	if(!str_buffer) {
 	    qAddPostRoutine( cleanup_str_buffer );
 	    str_buffer = (UInt8 *)malloc(1024);
 	}
 	FSRefMakePath(&ref, str_buffer, 1024);
-	if(err == noErr) 
-	    FSpDelete(&FSSpec);
+#ifdef Q_WS_MAC9
+	if(delete_file) 
+	    FSpDelete(&spec);
+#endif
 	tmpstr = QString::fromUtf8((const char *)str_buffer);
 	retstrl.append(tmpstr);
     }
-
     NavDisposeReply(&ret);
     return retstrl;
 }
 
-QString QFileDialog::macGetSaveFileName( const QString &, const QString &, QString*,
+QString QFileDialog::macGetSaveFileName( const QString &, const QString &, 
+					 QString *,
 					 QWidget *parent, const char* /*name*/,
 					 const QString& caption )
 {
@@ -221,18 +217,18 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &, QStri
     QString retstr;
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions( &options );
-    static const int w = 450, h = 150;
-    options.version = kNavDialogOptionsVersion;
+    static const int w = 450, h = 350;
+    options.optionFlags &= ~kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    if(caption.length())
+    if(!caption.isEmpty())
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
 							   caption.length());
     if(parent) {
+	options.parentWindow = (WindowRef)parent->handle();
 	parent = parent->topLevelWidget();
 	QString s = parent->caption();
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
-	options.parentWindow = (WindowPtr)parent->handle();
 	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
 	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
     } else if(QWidget *p = qApp->mainWidget()) {
@@ -246,50 +242,60 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &, QStri
     }
 
     NavDialogRef dlg;
-    if(NavCreatePutFileDialog( &options, 'CUTE', kNavGenericSignature, NULL, NULL, &dlg)) {
+    if(NavCreatePutFileDialog(&options, 'cute', kNavGenericSignature, NULL, NULL, &dlg)) {
 	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	return retstr;
     }
-    NavDialogRun(dlg); 
+    NavDialogRun(dlg);
     if(NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
 	NavDialogDispose(dlg);
 	return retstr;
     }
-
     NavReplyRecord ret;
     NavDialogGetReply(dlg, &ret);
     NavDialogDispose(dlg);
+
     long count;
     err = AECountItems(&(ret.selection), &count);
-
-    if(!ret.validRecord || err != noErr || !count)
-	goto put_name_out;
+    if(!ret.validRecord || err != noErr || !count) {
+	NavDisposeReply(&ret);
+	return retstr;
+    }
 
     AEKeyword	keyword;
     DescType    type;
     Size        size;
-    FSSpec      FSSpec;
-
-    err = AEGetNthPtr(&(ret.selection), 1, typeFSS, &keyword,
-		      &type,&FSSpec, sizeof(FSSpec), &size);
-    if(err != noErr)
-	goto put_name_out;
-
-    //we must *try* to create a file, and remove it if successfull
-    //to actually get a path, bogus? I think so.
-    err = FSpCreate(&FSSpec, 'CUTE', 'TEXT', smSystemScript);
     FSRef ref;
-    FSpMakeFSRef(&FSSpec, &ref);
-    if(!str_buffer) {
-	qAddPostRoutine( cleanup_str_buffer );
-	str_buffer = (UInt8 *)malloc(1024);
+#ifdef Q_WS_MAC9
+    FSSpec      spec;
+    err = AEGetNthPtr(&(ret.selection), 1, typeFSS, &keyword,
+		      &type, &spec, sizeof(spec), &size);
+#else
+    err = AEGetNthPtr(&(ret.selection), 1, typeFSRef, &keyword,
+		      &type, &ref, sizeof(ref), &size);
+    qDebug("%d", err);
+#endif    
+    if(err == noErr) {
+#ifdef Q_WS_MAC9
+	//we must *try* to create a file, and remove it if successfull
+	//to actually get a path, bogus? I think so.
+	bool delete_file = (FSpCreate(&spec, 'CUTE', 'TEXT', smSystemScript) == noErr);
+	FSpMakeFSRef(&spec, &ref);
+#endif
+	if(!str_buffer) {
+	    qAddPostRoutine( cleanup_str_buffer );
+	    str_buffer = (UInt8 *)malloc(1024);
+	}
+	FSRefMakePath(&ref, str_buffer, 1024);
+#ifdef Q_WS_MAC9
+	if(delete_file) 
+	    FSpDelete(&spec);
+#endif
+	retstr = QString::fromUtf8((const char *)str_buffer);
+	//now filename
+	CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);
+	retstr += "/" + QString::fromUtf8((const char *)str_buffer);
     }
-    FSRefMakePath(&ref, str_buffer, 1024);
-    if(err == noErr) 
-	FSpDelete(&FSSpec);
-    retstr = QString::fromUtf8((const char *)str_buffer);
-
- put_name_out:
     NavDisposeReply(&ret);
     return retstr;
 }
