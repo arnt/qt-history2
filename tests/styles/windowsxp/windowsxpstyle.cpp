@@ -23,6 +23,9 @@
 # include <qt_windows.h>
 # include <uxtheme.h>
 
+static bool repaintByMouseMove          = FALSE;
+static int activeScrollBarElement       = 0;
+
 # define Q_RECT					\
 	RECT r;					\
 	r.left = x;				\
@@ -191,6 +194,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QComboBox" ) ) {
 	widget->installEventFilter( this );
     } else if ( widget->inherits( "QSpinBox" ) ) {
+	widget->installEventFilter( this );
+	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QScrollBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
     }
@@ -418,7 +424,7 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
     r.left = 0;
     r.right = btn->width();
     r.top = 0;
-    r.bottom = 22;
+    r.bottom = btn->height();
 
     int stateId;
     if ( btn->isEnabled() ) {
@@ -433,6 +439,10 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
     } else {
 	stateId = 4;
     }
+
+    RECT extent;
+    GetThemeTextExtent( htheme, p->handle(), BP_PUSHBUTTON, stateId, 
+	(TCHAR*)qt_winTchar( btn->text(), TRUE ), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, NULL, &extent );
 
     DrawThemeText( htheme, p->handle(), BP_PUSHBUTTON, stateId,
 	(TCHAR*)qt_winTchar( btn->text(), TRUE ), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0, &r );
@@ -811,7 +821,30 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 
+    bool isScrollBarUpToDate = FALSE;
+    if ( repaintByMouseMove ) {
+        if ( addB.contains( d->hotSpot ) ) {
+            isScrollBarUpToDate = ( activeScrollBarElement == AddLine );
+            activeScrollBarElement = AddLine;
+        } else if ( subB.contains( d->hotSpot )) {
+            isScrollBarUpToDate = ( activeScrollBarElement == SubLine );
+            activeScrollBarElement = SubLine;
+        } else if ( sliderR.contains( d->hotSpot )) {
+            isScrollBarUpToDate = ( activeScrollBarElement == Slider );
+            activeScrollBarElement = Slider;
+        } else {
+            activeScrollBarElement = 0;
+        }
+    } else {
+        activeScrollBarElement = 0;
+    }
+
     bool maxedOut = (sb->maxValue() == sb->minValue());
+
+    if ( isScrollBarUpToDate ) {
+	CloseThemeData( htheme );
+	return;
+    }
 
     if ( controls & AddLine ) {
 	RECT r;
@@ -922,6 +955,8 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 		int stateId;
 		if ( activeControl == Slider )
 		    stateId = 3;
+		else if ( d->hotWidget == (QWidget*)sb && sliderR.contains( d->hotSpot ) )
+		    stateId = 2;
 		else
 		    stateId = 1;
 
@@ -1419,6 +1454,11 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    QSpinBox *spinbox = (QSpinBox*)o;
 		    QRect rect = spinbox->downRect().unite( spinbox->upRect() );
 		    spinbox->update( rect );
+		}
+		else if ( o->inherits( "QScrollBar" ) ) {
+		    repaintByMouseMove = TRUE;
+		    ((QScrollBar*)o)->repaint( FALSE );
+		    repaintByMouseMove = FALSE;
 		}
 	    }
 	    break;
