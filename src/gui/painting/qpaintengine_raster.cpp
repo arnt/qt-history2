@@ -438,6 +438,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
+    d->compositionMode = QPainter::CompositionMode_SourceOver;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
@@ -846,7 +847,8 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         image.bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blend,
-        d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed
+        d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed,
+        d->compositionMode
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
@@ -906,7 +908,8 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         ((const QImage &)(image)).bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blendTiled,
-        d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled
+        d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled,
+        d->compositionMode
     };
     FillData fillData = { d->rasterBuffer, 0, &textureData };
 
