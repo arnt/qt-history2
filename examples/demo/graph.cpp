@@ -185,13 +185,15 @@ public:
     FigureEditor( GraphWidgetPrivate *g, QWidget* parent=0, const char* name=0, WFlags f=0);
 
     QSize sizeHint() const;
-    
+
 
 protected:
     void contentsMousePressEvent(QMouseEvent*);
     void contentsMouseReleaseEvent(QMouseEvent*);
     void contentsMouseMoveEvent(QMouseEvent*);
 
+
+    void resizeEvent( QResizeEvent* );
     void showEvent( QShowEvent* );
     void hideEvent( QHideEvent* e);
 
@@ -362,7 +364,7 @@ void GraphWidget::setSpeed(int s)
 
 void GraphWidget::shuffle()
 {
-    
+
     for ( NodeItemList::Iterator it = d->nodeItems.begin(); it != d->nodeItems.end(); ++it ) {
 	NodeItem* ni = (*it);
 	ni->move(rand()%(d->canvas->width()-ni->width()),rand()%(d->canvas->height()-ni->height()));
@@ -372,20 +374,25 @@ void GraphWidget::shuffle()
 
 QSize FigureEditor::sizeHint() const
 {
-    return QSize( 800, 600 );
+    return QSize( 600, 400 );
+}
+
+void FigureEditor::resizeEvent( QResizeEvent* e ) 
+{
+    if ( canvas() )
+	canvas()->resize( QMAX( 590, contentsRect().width()), QMAX(390, contentsRect().height() ));
+    QCanvasView::resizeEvent( e );
 }
 
 void FigureEditor::showEvent( QShowEvent* )
 {
     initialize();
-    qDebug("show event ");
     canvas()->setAdvancePeriod( SPEED2ADVANCE(graph->speed) );
 }
 
 void FigureEditor::hideEvent( QHideEvent* )
 {
     initialize();
-    qDebug("hide event ");
     canvas()->setAdvancePeriod( -10 );
 }
 
