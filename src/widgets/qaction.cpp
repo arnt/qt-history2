@@ -845,18 +845,22 @@ void QAction::showStatusText( const QString& text )
 	par = par->parent();
     if ( !par || !par->isWidgetType() )
 	return;
-    QObjectList *l = ( (QWidget*)par )->topLevelWidget()->queryList( "QStatusBar" );
-    if ( !l )
-	return;
-    // #### hopefully the last one is the one of the mainwindow...
-    QStatusBar *bar = (QStatusBar*)l->last();
+    QStatusBar *bar = 0;
+    bar = (QStatusBar*)( (QWidget*)par )->topLevelWidget()->child( 0, "QStatusBar", FALSE );
+    if ( !bar ) {
+	QObjectList *l = ( (QWidget*)par )->topLevelWidget()->queryList( "QStatusBar" );
+	if ( !l )
+	    return;
+	// #### hopefully the last one is the one of the mainwindow...
+	QStatusBar *bar = (QStatusBar*)l->last();
+	delete l;
+    }
     if ( bar ) {
 	if ( text.isEmpty() )
 	    bar->clear();
 	else
 	    bar->message( text );
     }
-    delete l;
 }
 
 /*! Sets the status message to the menuitem's status text, or
