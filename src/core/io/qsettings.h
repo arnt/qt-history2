@@ -61,27 +61,27 @@ public:
         ,
         User = UserScope,
         Global = SystemScope
-#endif    
+#endif
     };
 
 
 #ifndef QT_NO_QOBJECT
     QSettings(const QString &organization, const QString &application = QString(),
               QObject *parent = 0);
-    QSettings(QSettings::Scope scope, const QString &organization,
+    QSettings(Scope scope, const QString &organization,
               const QString &application = QString(), QObject *parent = 0);
-    QSettings(QSettings::Format format, QSettings::Scope scope,
+    QSettings(Format format, Scope scope,
               const QString &organization, const QString &application = QString(),
               QObject *parent = 0);
-    QSettings(const QString &fileName, QSettings::Format format, QObject *parent = 0);
+    QSettings(const QString &fileName, Format format, QObject *parent = 0);
     QSettings(QObject *parent = 0);
 #else
     QSettings(const QString &organization, const QString &application = QString());
-    QSettings(QSettings::Scope scope, const QString &organization,
+    QSettings(Scope scope, const QString &organization,
               const QString &application = QString());
-    QSettings(QSettings::Format format, QSettings::Scope scope,
+    QSettings(Format format, Scope scope,
               const QString &organization, const QString &application = QString());
-    QSettings(const QString &fileName, QSettings::Format format);
+    QSettings(const QString &fileName, Format format);
 #endif
     ~QSettings();
 
