@@ -560,12 +560,14 @@ void QProcess::socketWrite( int fd )
 #if defined(QPROCESS_DEBUG)
     qDebug( "QProcess::socketWrite(): write to stdin (%d)", fd );
 #endif
-    d->stdinBufRead += write( fd,
+    d->stdinBufRead += ::write( fd,
 	    d->stdinBuf.head()->data() + d->stdinBufRead,
 	    d->stdinBuf.head()->size() - d->stdinBufRead );
     if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
 	d->stdinBufRead = 0;
 	delete d->stdinBuf.dequeue();
+	if ( wroteStdinConnected && d->stdinBuf.isEmpty() )
+	    emit wroteStdin();
 	socketWrite( fd );
     }
 }
