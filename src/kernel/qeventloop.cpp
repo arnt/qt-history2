@@ -192,6 +192,15 @@ int QEventLoop::enterLoop()
     // exitloop set so that all other event loops drop out.
     d->exitloop = old_exitloop || d->quitnow;
 
+    if ( d->looplevel <= 1 ) {
+	d->quitnow = FALSE;
+	d->exitloop = FALSE;
+	emit qApp->aboutToQuit();
+
+	// send deferred deletes
+	QApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
+    }
+
     return d->looplevel;
 }
 
@@ -302,10 +311,10 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 */
 
 /*! \fn void QEventLoop::wakeUp()
+    \threadsafe
 
-    Wakes up the event loop. This function is thread safe, and can be
-    called by any running thread. 
-    
+    Wakes up the event loop.
+
     \sa awake()
 */
 
