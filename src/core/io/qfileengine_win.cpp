@@ -494,7 +494,7 @@ QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
     QT_WA({
-        r = ::_wchdir((TCHAR*)path.utf16());
+        r = ::SetCurrentDirectory((WCHAR*)path.utf16());
     } , {
         r = QT_CHDIR(QFSFileEnginePrivate::win95Name(path));
     });
@@ -506,10 +506,10 @@ QFSFileEngine::currentPath(const QString &fileName)
 {
     QString ret;
     //if filename is a drive: then get the pwd of that drive
-    if(fileName.length() >= 2 &&
+    if (fileName.length() >= 2 &&
         fileName.at(0).isLetter() && fileName.at(1) == ':') {
         int drv = fileName.toUpper().at(0).latin1() - 'A' + 1;
-        if(_getdrive() != drv) {
+        if (_getdrive() != drv) {
             QT_WA({
                 TCHAR buf[PATH_MAX];
                 ::_wgetdcwd(drv, buf, PATH_MAX);
@@ -521,21 +521,30 @@ QFSFileEngine::currentPath(const QString &fileName)
             });
         }
     }
-    if(ret.isEmpty()) {
+    if (ret.isEmpty()) {
 	//just the pwd
 	QT_WA({
-	    TCHAR currentName[PATH_MAX];
-	    if(::_wgetcwd(currentName,PATH_MAX) != 0) {
-		ret = QString::fromUtf16((ushort*)currentName);
+            DWORD size = 0;
+	    WCHAR currentName[PATH_MAX];
+            size = ::GetCurrentDirectoryW(PATH_MAX, currentName);
+	    if (size !=0) {
+                if (size > PATH_MAX) {
+                    WCHAR * newCurrentName = new WCHAR[size];
+                    if (::GetCurrentDirectoryW(PATH_MAX, newCurrentName) != 0)
+                        ret = QString::fromUtf16((ushort*)newCurrentName);
+                    delete newCurrentName;
+                } else {
+                    ret = QString::fromUtf16((ushort*)currentName);
+                }
 	    }
 	} , {
 	    char currentName[PATH_MAX];
-	    if(QT_GETCWD(currentName,PATH_MAX) != 0) {
+	    if (QT_GETCWD(currentName,PATH_MAX) != 0) {
 		ret = QString::fromLocal8Bit(currentName);
 	    }
 	});
     }
-    if(ret.length() >= 2 && ret[1] == ':')
+    if (ret.length() >= 2 && ret[1] == ':')
 	ret[0] = ret.at(0).toUpper(); // Force uppercase drive letters.
     return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
