@@ -4,7 +4,7 @@ use strict;
 
 my $EXPORT_OUT = "-";
 my $EXPORT_DIRECTORY = 0;
-my $EXPORT_SYMBOL = "Q.*_[^ ]*_EXPORT(?:_[^ ]*)?";
+my $EXPORT_SYMBOL = "Q[^ ]*(?:_[^ ]*)?_EXPORT(?:_[^ ]*)?";
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
 	shift;
