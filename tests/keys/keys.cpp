@@ -14,7 +14,7 @@ public:
 	log(this)
     {
 	log.setReadOnly(TRUE);
-	log.setFont(QFont("fixed",10));
+	log.setFont(QFont("courier",10));
 	dump(0,0);
     }
 
