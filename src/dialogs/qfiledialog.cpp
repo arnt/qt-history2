@@ -2198,9 +2198,7 @@ extern const char qt_file_dialog_filter_reg_exp[] =
 */
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
-    : QDialog( parent, name, modal, 
-	       (modal ? 
-		(WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : 0) )
+    : QDialog( parent, name, modal )
 {
     init();
     d->mode = ExistingFile;
@@ -2224,9 +2222,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 
 QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 			  QWidget *parent, const char *name, bool modal )
-    : QDialog( parent, name, modal, 
-	       (modal ? 
-		(WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : 0) )
+    : QDialog( parent, name, modal )
 {
     init();
     d->mode = ExistingFile;
@@ -5656,7 +5652,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 			continue;
 		}
 	    } else {
-		if ( inf.name() != ".." && inf.name()[0] == QChar('.') ) 
+		if ( inf.name() != ".." && inf.name()[0] == QChar('.') )
 		    continue;
 	    }
  	}
