@@ -6249,11 +6249,11 @@ QString QWidget::whatsThis() const
     must be entered by the user in a context where the shortcut is
     active. The possible contexts are these:
 
-    \value OnFocusWidget The shortcut is only triggered when its
+    \value ShortcutOnFocusWidget The shortcut is only triggered when its
     parent widget has focus.
-    \value OnActiveWindow The shortcut is triggered when its
+    \value ShortcutOnActiveWindow The shortcut is triggered when its
     parent widget is a logical subwidget of the active top-level window.
-    \value OnApplication The shortcut is triggered when the application is active.
+    \value ShortcutOnApplication The shortcut is triggered when the application is active.
 */
 
 /*!

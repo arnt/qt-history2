@@ -114,30 +114,39 @@ public:
     Q_DECLARE_FLAGS(Alignment, AlignmentFlags);
 
     // documented in qnamespace.doc
-    enum LineBreakMode {
-        NoLineBreak,
-        SmartLineBreak,
-        AtLineBoundary,
-        AtWordBoundary,
-        AtCharacterBoundary
-    };
-
-    // documented in qnamespace.doc
     enum TextFlags {
-        SingleLine        = 0x0080,                // misc. flags
-        DontClip        = 0x0100,
-        ExpandTabs        = 0x0200,
-        ShowPrefix        = 0x0400,
-        WordBreak        = 0x0800,
-        BreakAnywhere = 0x1000,
+
+        TextSingleLine = 0x0080,                // misc. flags
+        TextDontClip = 0x0100,
+        TextExpandTabs = 0x0200,
+        TextShowMnemonic = 0x0400,
+        TextWordBreak = 0x0800,
+        TextBreakAnywhere = 0x1000,
 #ifndef Q_QDOC
-        DontPrint        = 0x2000,
-        Underline = 0x01000000,
-        Overline  = 0x02000000,
-        StrikeOut = 0x04000000,
-        IncludeTrailingSpaces = 0x08000000,
+        TextDontPrint = 0x2000,
+        TextUnderline = 0x01000000,
+        TextOverline  = 0x02000000,
+        TextStrikeOut = 0x04000000,
+        TextIncludeTrailingSpaces = 0x08000000,
 #endif
-        NoAccel = 0x4000
+        TextHideMnemonic = 0x4000
+
+#ifdef QT_COMPAT
+        ,SingleLine = TextSingleLine,
+        DontClip = TextDontClip,
+        ExpandTabs = TextExpandTabs,
+        ShowPrefix = TextShowMnemonic,
+        WordBreak = TextWordBreak,
+        BreakAnywhere = TextBreakAnywhere,
+#ifndef Q_QDOC
+        DontPrint = TextDontPrint,
+        Underline = TextUnderline,
+        Overline  = TextOverline,
+        StrikeOut = TextStrikeOut,
+        IncludeTrailingSpaces = TextIncludeTrailingSpaces,
+#endif
+        NoAccel = TextHideMnemonic
+#endif
     };
 
     // Widget flags; documented in qwidget.cpp

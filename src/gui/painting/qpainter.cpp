@@ -2422,10 +2422,10 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     \row \i \c Qt::AlignBottom \i aligns to the bottom border.
     \row \i \c Qt::AlignVCenter \i aligns vertically centered.
     \row \i \c Qt::AlignCenter \i (== \c Qt::AlignHCenter | \c Qt::AlignVCenter).
-    \row \i \c Qt::SingleLine \i ignores newline characters in the text.
-    \row \i \c Qt::ExpandTabs \i expands tabs.
-    \row \i \c Qt::ShowPrefix \i interprets "&x" as "<u>x</u>".
-    \row \i \c Qt::WordBreak \i breaks the text to fit the rectangle.
+    \row \i \c Qt::TextSingleLine \i ignores newline characters in the text.
+    \row \i \c Qt::TextExpandTabs \i expands tabs.
+    \row \i \c Qt::TextShowMnemonic \i interprets "&x" as "<u>x</u>".
+    \row \i \c Qt::TextWordBreak \i breaks the text to fit the rectangle.
     \endtable
 
     Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
@@ -3118,11 +3118,11 @@ void qt_format_text(const QFont& font, const QRect &_r,
     // we need to copy r here to protect against the case (&r == brect).
     QRect r(_r);
 
-    bool dontclip  = (tf & Qt::DontClip)  == Qt::DontClip;
-    bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
-    bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
-    bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
-    bool noaccel = (tf & Qt::NoAccel) == Qt::NoAccel;
+    bool dontclip  = (tf & Qt::TextDontClip);
+    bool wordbreak  = (tf & Qt::TextWordBreak);
+    bool singleline = (tf & Qt::TextSingleLine);
+    bool showmnemonic = (tf & Qt::TextShowMnemonic);
+    bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
     bool isRightToLeft = str.isRightToLeft();
     if ((tf & Qt::AlignHorizontal_Mask) == Qt::AlignAuto)
@@ -3176,7 +3176,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
         tabstops = fm.width('x')*8;
     }
 
-    if (noaccel || showprefix) {
+    if (hidemnmemonic || showmnemonic) {
         if (maxUnderlines > 32)
             underlinePositions = new int[maxUnderlines];
         QChar *cout = (QChar*)text.unicode();
