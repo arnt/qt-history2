@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.0 1996/09/24 10:15:15 agulbra Exp $
+** $Id: qlist.doc,v 2.1 1996/10/28 10:57:15 paul Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -152,7 +152,8 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QList::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, otherwise FALSE.
+  Returns TRUE if the list is empty, i.e. count() == 0. Returns FALSE
+   otherwise.
   \sa count()
  ----------------------------------------------------------------------------*/
 
@@ -770,7 +771,7 @@
 /*----------------------------------------------------------------------------
   \fn type *QListIterator::toFirst()
   Sets the current iterator item to point to the first list item and returns
-  a pointer to the item.  Sets the current item to null and returns null if
+  a pointer to the item.  Sets the current item to null and returns null
   if the list is empty.
   \sa toLast(), atFirst()
  ----------------------------------------------------------------------------*/
@@ -778,7 +779,7 @@
 /*----------------------------------------------------------------------------
   \fn type *QListIterator::toLast()
   Sets the current iterator item to point to the last list item and returns
-  a pointer to the item.  Sets the current item to null and returns null if
+  a pointer to the item.  Sets the current item to null and returns null
   if the list is empty.
   \sa toFirst(), atLast()
  ----------------------------------------------------------------------------*/
@@ -813,8 +814,11 @@
 
 /*----------------------------------------------------------------------------
   \fn type *QListIterator::operator+=( uint jump )
-  Returns the item \e jump positions after the current item, or null if
-  it is beyond the last item.  Makes this the current item.
+  Sets the current item to the item \e jump positions after the current item,
+  and returns a pointer to that item.
+
+  If that item is beyond the last item or if the dictionary is  empty,
+  it sets the current item to null and  returns null 
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
