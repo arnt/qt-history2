@@ -2401,7 +2401,7 @@ void QTextStream::setEncoding( Encoding e )
 	internalOrder = TRUE;
 	break;
     case UnicodeUTF8:
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForMib( 106 );
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
