@@ -3405,9 +3405,6 @@ void QListView::triggerUpdate()
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
 {
-    if ( !o || !e )
-	return FALSE;
-
     if ( o == d->h &&
 	 e->type() >= QEvent::MouseButtonPress &&
 	 e->type() <= QEvent::MouseMove ) {

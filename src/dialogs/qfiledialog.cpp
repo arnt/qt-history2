@@ -5057,9 +5057,6 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 */
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
-    if ( !o || !e )
-	return TRUE;
-
     if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
 	rereadDir();
 	((QKeyEvent *)e)->accept();

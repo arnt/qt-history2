@@ -2044,9 +2044,6 @@ void QTextEdit::doChangeInterval()
 
 bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e )
-	return TRUE;
-
     if ( o == this || o == viewport() ) {
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );

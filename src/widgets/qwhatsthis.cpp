@@ -491,9 +491,6 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 
 bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 {
-    if ( !o || !e )
-	return FALSE;
-
     switch( state ) {
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {

@@ -3295,9 +3295,6 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 
 bool QTable::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e )
-	return QScrollView::eventFilter( o, e );
-
     QWidget *editorWidget = cellWidget( editRow, editCol );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
@@ -3379,28 +3376,12 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 
 	} break;
     case QEvent::FocusOut:
-	if ( o == this || o == viewport() ) {
-	    updateCell( curRow, curCol );
-	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
-		repaintSelections();
-	    return TRUE;
-	}
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
 	    QTableItem *itm = item( editRow, editCol );
 	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
 		endEdit( editRow, editCol, TRUE, edMode != Editing );
 		return TRUE;
 	    }
-	}
-	break;
-    case QEvent::FocusIn:
-	if ( o == this || o == viewport() ) {
-	    updateCell( curRow, curCol );
-	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
-		repaintSelections();
-	    if ( isEditing() && editorWidget )
-		editorWidget->setFocus();
-	    return TRUE;
 	}
 	break;
 #ifndef QT_NO_WHEELEVENT
@@ -3554,18 +3535,15 @@ void QTable::keyPressEvent( QKeyEvent* e )
 /*! \reimp
 */
 
-void QTable::focusInEvent( QFocusEvent *e )
+void QTable::focusInEvent( QFocusEvent * )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	if ( e->reason() != QFocusEvent::Popup ) {
-	    repaintSelections();
-	} else {
-	    QWidget *widget = qApp->focusWidget();
-	    if ( widget && widget->inherits( "QPopupMenu" ) )
-		widget->installEventFilter( this );
-	}
-    }
+    QWidget *editorWidget = cellWidget( editRow, editCol );
+    updateCell( curRow, curCol );
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
+	repaintSelections();
+    if ( isEditing() && editorWidget )
+	editorWidget->setFocus();
+
     QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
     QTableItem *itm = item( curRow, curCol );
     setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
@@ -3577,7 +3555,7 @@ void QTable::focusInEvent( QFocusEvent *e )
 
 void QTable::focusOutEvent( QFocusEvent *e )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
+    updateCell( curRow, curCol );
     if ( e->reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
 }

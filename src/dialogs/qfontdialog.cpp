@@ -488,10 +488,6 @@ void QFontDialog::sizeChanged( const QString &s )
 
 bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 {
-    if ( !o || !e )
-	return FALSE;
-
-
     if ( e->type() == QEvent::KeyPress ) {
 	QListBox * lb = 0;
 	QLineEdit * le = 0;

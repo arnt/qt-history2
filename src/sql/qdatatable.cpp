@@ -586,9 +586,6 @@ QWidget * QDataTable::createEditor( int , int col, bool initFromCell ) const
 /*! \reimp */
 bool QDataTable::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e )
-	return QTable::eventFilter( o, e );
-
     if ( d->cancelMode )
 	return TRUE;
 

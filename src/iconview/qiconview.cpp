@@ -5256,9 +5256,6 @@ void QIconView::drawBackground( QPainter *p, const QRect &r )
 
 bool QIconView::eventFilter( QObject * o, QEvent * e )
 {
-    if ( !o || !e )
-	return FALSE;
-
     if ( o == viewport() ) {
 	switch( e->type() ) {
 	case QEvent::FocusIn:

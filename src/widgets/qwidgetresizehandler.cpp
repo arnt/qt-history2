@@ -74,7 +74,7 @@ static QWidget *childOf( QWidget *w, QWidget *child )
 
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
-    if ( !o || !ee || !active || !o->isWidgetType() )
+    if ( !active || !o->isWidgetType() )
 	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
