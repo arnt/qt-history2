@@ -1,21 +1,18 @@
 #include <qapplication.h>
 #include <qthread.h>
-#define private protected
 #include <qgl.h>
-#include <GL/glx.h>
+#ifdef Q_WS_X11
+#include <X11/Xlib.h>
+#endif
 
 class GLThread : public QThread
 {
 public:
-    GLThread() : QThread()
+    GLThread( QGLWidget * glw ) 
+	: QThread(), gl( glw )
     {
 	runMe = TRUE;
 	resizeMe = FALSE;
-	gl = 0;
-    }
-    void setTri( QGLContext * tr )
-    {
-	gl = tr;
     }
     void stop()
     {
@@ -26,8 +23,7 @@ public:
 	w = wt;
 	h = ht;
 	resizeMe = TRUE;
-    }
-    
+    }    
     void run()
     {
 	static int angle = 0;
@@ -39,7 +35,7 @@ public:
  	glLoadIdentity();	
  	glOrtho( -5.0, 5.0, -5.0, 5.0, 1.0, 100.0 );
  	glMatrixMode( GL_MODELVIEW );
-	glViewport( 0, 0, 200, 200 );	
+	glViewport( 0, 0, 200, 200 );
 	while ( runMe ) {
 	    if ( resizeMe ) {
 		glViewport( 0, 0, w, h );
@@ -69,28 +65,34 @@ public:
 	    }
 	    glEnd();
    	    gl->swapBuffers();
+ 	    msleep( 40 );
 	}
-	qWarning( "Thread exiting" );
     }
     
 private:
     bool runMe, resizeMe;
     int w, h;
-    QGLContext * gl;
+    QGLWidget * gl;
 };
 
 class Triangles : public QGLWidget
 {
 public:
-    Triangles() : QGLWidget( 0 )
+    Triangles() : QGLWidget( 0 ), glt( this )
     { 
 	setAutoBufferSwap( FALSE );
+	resize( 320, 240 );
     }
     
     void startRendering()
     {
-	glt.setTri( glcx );
 	glt.start();
+    }
+    
+    void stopRendering()
+    {
+	glt.stop();
+	glt.wait();
     }
     
 protected:
@@ -105,28 +107,27 @@ protected:
 	glt.wait();
 	QGLWidget::closeEvent( e );
     }
-
     GLThread glt;
 };
 
 
 int main( int argc, char ** argv )
 {
-    Status threadStat;
-    threadStat = XInitThreads();
-    if (threadStat) {
-	printf("XInitThreads() returned %d (success)\n", (int) threadStat);
-    } else {
-	printf("XInitThreads() returned 0 (failure- this program may fail)\n");
-    }
+#ifdef Q_WS_X11
+    XInitThreads();
+#endif
     QApplication app( argc, argv );
-    Triangles tri, tri2, tri3;
-    app.setMainWidget( &tri );
-    tri.show();
-    tri2.show();
-    tri3.show();
-    tri.startRendering();
-    tri2.startRendering();
-    tri3.startRendering();
-    return app.exec();     
+    Triangles t1, t2, t3;
+    app.setMainWidget( &t1 );
+    t1.show();
+    t2.show();
+    t3.show();
+    t1.startRendering();
+    t2.startRendering();
+    t3.startRendering();
+    int i = app.exec();
+    t1.stopRendering();
+    t2.stopRendering();
+    t3.stopRendering();
+    return i;
 }
