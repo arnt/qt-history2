@@ -432,6 +432,8 @@ QMacBlockingFunction::QMacBlockingFunction()
 QMacBlockingFunction::~QMacBlockingFunction()
 {
     Q_ASSERT(block);
-    if(!block->subRef())
+    if(!block->subRef()) {
 	delete block;
+	block = 0;
+    }
 }
