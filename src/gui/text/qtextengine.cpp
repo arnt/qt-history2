@@ -960,7 +960,7 @@ void QTextEngine::shape(int item) const
         if (docLayout && formats) {
             QTextFormat format = formats->format(items[item].format);
             // ##### const cast
-            docLayout->layoutObject(QTextObject(item, const_cast<QTextEngine *>(this)), format);
+            docLayout->setSize(QTextObject(item, const_cast<QTextEngine *>(this)), format);
         }
     } else {
         shapeText(item);

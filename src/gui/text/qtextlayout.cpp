@@ -138,7 +138,6 @@ void QTextLayout::setFormat(int from, int length, int format)
 void QTextLayout::setTextFlags(int textFlags)
 {
     d->textFlags = textFlags;
-    d->lines.clear();
 }
 
 
@@ -216,140 +215,29 @@ bool QTextLayout::validCursorPosition(int pos) const
     return attributes[pos].charStop;
 }
 
-#define QChar_linesep QChar(0x2028U)
 
-QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
+void QTextLayout::clearLines()
 {
+    d->lines.clear();
     // invalidate bounding rect
     d->boundingRect = QRect();
+}
+
+#define QChar_linesep QChar(0x2028U)
+
+QTextLine QTextLayout::createLine()
+{
+    int l = d->lines.size();
+    int from = l > 0 ? d->lines.at(l-1).from + d->lines.at(l-1).length : 0;
+    if (l && from >= d->string.length())
+        return QTextLine();
 
     QScriptLine line;
-    line.x = x1;
-    line.width = x2-x1;
-    line.y = y;
     line.from = from;
     line.length = 0;
     line.justified = false;
     line.gridfitted = false;
 
-    if (!d->items.size()) {
-        // ##### use block font
-        if (d->fnt) {
-            QFontEngine *e = d->fnt->engineForScript(QFont::Latin);
-            line.ascent = e->ascent();
-            line.descent = e->descent();
-        }
-        d->lines.append(line);
-        return QTextLine(0, d);
-    }
-
-    // ########## Readd tab support.
-    bool breakany = d->textFlags & Qt::BreakAnywhere;
-
-    // add to the line until it's filled up.
-    if (from < 0 || from >= d->string.length())
-        return QTextLine();
-
-    int item;
-    for (item = d->items.size()-1; item > 0; --item) {
-        if (d->items[item].position <= from)
-            break;
-    }
-
-    const QCharAttributes *attributes = d->attributes();
-
-    Q26Dot6 minw, spacew;
-
-//     qDebug("from: %d:   item=%d, total %d width available %d/%d", from, item, d->items.size(), line.width.value(), line.width.toInt());
-
-    while (item < d->items.size()) {
-        d->shape(item);
-        const QScriptItem &current = d->items[item];
-        line.ascent = qMax(line.ascent, current.ascent);
-        line.descent = qMax(line.descent, current.descent);
-
-        if (current.isObject) {
-            if (line.length && !(d->textFlags & Qt::SingleLine)) {
-                if (line.textWidth + current.width > line.width || d->string[current.position] == QChar_linesep)
-                    goto found;
-            }
-
-            line.textWidth += current.width;
-            line.length++;
-
-            ++item;
-            continue;
-        }
-
-        int length = d->length(item);
-
-        const QCharAttributes *itemAttrs = attributes + current.position;
-        QGlyphLayout *glyphs = d->glyphs(&current);
-        unsigned short *logClusters = d->logClusters(&current);
-
-        int pos = qMax(0, from - current.position);
-
-        do {
-            int next = pos;
-
-            Q26Dot6 tmpw;
-            if (!itemAttrs[next].whiteSpace) {
-                tmpw = spacew;
-                spacew = 0;
-                do {
-                    int gp = logClusters[next];
-                    do {
-                        ++next;
-                    } while (next < length && logClusters[next] == gp);
-                    do {
-                        tmpw += glyphs[gp].advance.x;
-                        ++gp;
-                    } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-
-                    Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
-
-                } while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
-                minw = qMax(tmpw, minw);
-            }
-
-            if (itemAttrs[next].softBreak)
-                breakany = false;
-
-            while (next < length && itemAttrs[next].whiteSpace) {
-                int gp = logClusters[next];
-                do {
-                    ++next;
-                } while (next < length && logClusters[next] == gp);
-                do {
-                    spacew += glyphs[gp].advance.x;
-                    ++gp;
-                } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-
-                Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
-
-            }
-
-//             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
-//                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
-
-            if (line.length && tmpw.value() && line.textWidth + tmpw > line.width && !(d->textFlags & Qt::SingleLine))
-                goto found;
-
-            line.textWidth += tmpw;
-            line.length += next - pos;
-
-            pos = next;
-        } while (pos < length);
-        ++item;
-    }
- found:
-//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent.value(),
-//            line.descent.value(), line.textWidth.value());
-//     qDebug("        : '%s'", d->string.mid(line.from, line.length).utf8());
-
-    d->minWidth = qMax(d->minWidth, minw);
-
-    int l = d->lines.size();
     d->lines.append(line);
     return QTextLine(l, d);
 }
@@ -550,9 +438,133 @@ int QTextLine::textWidth() const
     return eng->lines[i].textWidth.toInt();
 }
 
-void QTextLine::adjust(int /*y*/, int /*x1*/, int /*x2*/)
+void QTextLine::layout(int width)
 {
+    QScriptLine &line = eng->lines[i];
+    line.width = width;
+
+    if (!eng->items.size()) {
+        // ##### use block font
+        if (eng->fnt) {
+            QFontEngine *e = eng->fnt->engineForScript(QFont::Latin);
+            line.ascent = e->ascent();
+            line.descent = e->descent();
+        }
+        return;
+    }
+
+    Q_ASSERT(line.from < eng->string.length());
+
+    bool breakany = eng->textFlags & Qt::BreakAnywhere;
+
+    // #### binary search!
+    int item;
+    for (item = eng->items.size()-1; item > 0; --item) {
+        if (eng->items[item].position <= line.from)
+            break;
+    }
+
+    const QCharAttributes *attributes = eng->attributes();
+
+    Q26Dot6 minw, spacew;
+
+//     qDebug("from: %d:   item=%d, total %d width available %d/%d", from, item, eng->items.size(), line.width.value(), line.width.toInt());
+
+    while (item < eng->items.size()) {
+        eng->shape(item);
+        const QScriptItem &current = eng->items[item];
+        line.ascent = qMax(line.ascent, current.ascent);
+        line.descent = qMax(line.descent, current.descent);
+
+        if (current.isObject) {
+            QTextFormat format = eng->formats->format(eng->items[item].format);
+            eng->docLayout->layoutObject(QTextObject(item, eng), format);
+            if (line.length && !(eng->textFlags & Qt::SingleLine)) {
+                if (line.textWidth + current.width > line.width || eng->string[current.position] == QChar_linesep)
+                    goto found;
+            }
+
+            line.textWidth += current.width;
+            line.length++;
+
+            ++item;
+            continue;
+        }
+
+        int length = eng->length(item);
+
+        const QCharAttributes *itemAttrs = attributes + current.position;
+        QGlyphLayout *glyphs = eng->glyphs(&current);
+        unsigned short *logClusters = eng->logClusters(&current);
+
+        int pos = qMax(0, line.from - current.position);
+
+        do {
+            int next = pos;
+
+            Q26Dot6 tmpw;
+            if (!itemAttrs[next].whiteSpace) {
+                tmpw = spacew;
+                spacew = 0;
+                do {
+                    int gp = logClusters[next];
+                    do {
+                        ++next;
+                    } while (next < length && logClusters[next] == gp);
+                    do {
+                        tmpw += glyphs[gp].advance.x;
+                        ++gp;
+                    } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+
+                    Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
+
+                } while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
+                minw = qMax(tmpw, minw);
+            }
+
+            if (itemAttrs[next].softBreak)
+                breakany = false;
+
+            while (next < length && itemAttrs[next].whiteSpace) {
+                int gp = logClusters[next];
+                do {
+                    ++next;
+                } while (next < length && logClusters[next] == gp);
+                do {
+                    spacew += glyphs[gp].advance.x;
+                    ++gp;
+                } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+
+                Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
+
+            }
+
+//             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
+//                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
+
+            if (line.length && tmpw.value() && line.textWidth + tmpw > line.width && !(eng->textFlags & Qt::SingleLine))
+                goto found;
+
+            line.textWidth += tmpw;
+            line.length += next - pos;
+
+            pos = next;
+        } while (pos < length);
+        ++item;
+    }
+ found:
+//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent.value(),
+//            line.descent.value(), line.textWidth.value());
+//     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
+
+    eng->minWidth = qMax(eng->minWidth, minw);
     // ##########################
+}
+
+void QTextLine::setPosition(const QPoint &pos)
+{
+    eng->lines[i].x = pos.x();
+    eng->lines[i].y = pos.y();
 }
 
 int QTextLine::from() const

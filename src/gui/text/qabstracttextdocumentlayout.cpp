@@ -59,7 +59,7 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
     return handler.iface;
 }
 
-void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -71,6 +71,10 @@ void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextForm
     item.setWidth(s.width());
     item.setAscent(s.height());
     item.setDescent(0);
+}
+
+void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
+{
 }
 
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,

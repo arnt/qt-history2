@@ -2189,7 +2189,8 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
             engine->items[i].analysis.bidiLevel = level;
     }
 
-    QTextLine line = layout.createLine(0, 0, 0, 0x01000000);
+    QTextLine line = layout.createLine();
+    line.layout(0x01000000);
     const QScriptLine &sl = engine->lines[0];
 
     int textFlags = 0;
@@ -3148,12 +3149,16 @@ void qt_format_text(const QFont& font, const QRect &_r,
         int leading = fm.leading();
         height = -leading;
 
-        int from = 0;
-        while (from < text.length()) {
+        textLayout.clearLines();
+        while (1) {
+            QTextLine l = textLayout.createLine();
+            if (!l.isValid())
+                break;
+
+            l.layout(lineWidth);
             height += leading;
-            QTextLine l = textLayout.createLine(from, height, 0, lineWidth);
+            l.setPosition(QPoint(0, height));
             height += l.ascent() + l.descent();
-            from += l.length();
             width = qMax(width, l.textWidth());
         }
     }

@@ -41,6 +41,7 @@ public:
     void registerHandler(int objectType, QObject *component);
     QTextObjectInterface *handlerForObject(int objectType) const;
 
+    virtual void setSize(QTextObject item, const QTextFormat &format);
     virtual void layoutObject(QTextObject item, const QTextFormat &format);
     virtual void drawObject(QPainter *painter, const QRect &rect, QTextObject object, const QTextFormat &format,
                             QTextLayout::SelectionType selection);

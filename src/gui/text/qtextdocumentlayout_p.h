@@ -20,6 +20,7 @@ public:
     void documentChange(int from, int oldLength, int length);
     int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
+    void setSize(QTextObject item, const QTextFormat &format);
     void layoutObject(QTextObject item, const QTextFormat &format);
     void drawObject(QPainter *p, const QRect &rect, QTextObject item,
                     const QTextFormat &format, QTextLayout::SelectionType selType);

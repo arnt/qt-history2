@@ -75,9 +75,13 @@ public:
     QTextLayout(const QString& string);
     QTextLayout(const QString& string, QPainter *);
     QTextLayout(const QString& string, const QFont& fnt);
+    // ######### implement me!
+    // QTextLayout(QTextBlockIterator it);
     ~QTextLayout();
 
     void setText(const QString& string, const QFont& fnt);
+
+    // ######### go away
     void setFormatCollection(const QTextFormatCollection *formats);
     void setText(const QString& string);
     QString text() const;
@@ -88,8 +92,10 @@ public:
         AtCharBoundaries
     };
 
-    void setFormat(int from, int length, int format);
     void setTextFlags(int textFlags);
+    // #### remove me
+    void setFormat(int from, int length, int format);
+    // ##### should probably get passed as parameter to draw
     void setPalette(const QPalette &);
 
     void useDesignMetrics(bool);
@@ -101,7 +107,9 @@ public:
         MultiLine
     };
 
-    QTextLine createLine(int from, int y, int x1, int x2);
+    void clearLines();
+    QTextLine createLine();
+
     int numLines() const;
     QTextLine lineAt(int i) const;
     QTextLine findLine(int pos) const;
@@ -196,7 +204,9 @@ public:
     inline int cursorToX(int cPos, Edge edge = Leading) const { return cursorToX(&cPos, edge); }
     int xToCursor(int x, CursorPosition = BetweenCharacters) const;
 
-    void adjust(int y, int x1, int x2);
+    void layout(int width);
+    void setPosition(const QPoint &pos);
+
     int from() const;
     int length() const;
 
