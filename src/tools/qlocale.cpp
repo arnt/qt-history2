@@ -2083,7 +2083,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
-    Constructs a QLocale object with the specified \a unix_locale_name,
+    Constructs a QLocale object with the specified \a unixLocale,
     which has the Unix locale format:
     "language[_country][.codeset][@modifier]" or "C", where:
 
@@ -2108,25 +2108,25 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \sa unixLocaleName()
 */
 
-QLocale::QLocale(const QString &unix_locale_name)
+QLocale::QLocale(const QString &unixLocale)
 {
     Language lang = C;
     Country cntry = DefaultCountry;
     
-    uint l = unix_locale_name.length();
+    uint l = unixLocale.length();
     
     do {
 	if (l < 2)
     	    break;
 	
-	const QChar *uc = unix_locale_name.unicode();
+	const QChar *uc = unixLocale.unicode();
 	if (l > 2 
 	    	&& uc[2] != '_' 
 		&& uc[2] != '.' 
 		&& uc[2] != '@')
 	    break;
     
-    	lang = codeToLanguage(unix_locale_name.mid(0, 2));
+    	lang = codeToLanguage(unixLocale.mid(0, 2));
 	if (lang == C)
 	    break;
 	
@@ -2140,7 +2140,7 @@ QLocale::QLocale(const QString &unix_locale_name)
 	if (l > 5 && uc[5] != '.' && uc[5] != '@')
 	    break;
 	
-	cntry = codeToCountry(unix_locale_name.mid(3, 2));
+	cntry = codeToCountry(unixLocale.mid(3, 2));
     } while (false);
     
     d = findLocale(lang, cntry);
