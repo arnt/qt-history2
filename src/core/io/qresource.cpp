@@ -327,7 +327,8 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
 /*!
   \internal
 
-  Destroys a QMetaResource. 
+  Destroys a QMetaResource. This normally will happen implicitly at
+  the end of your application's existence.
 */
 QMetaResource::~QMetaResource()
 {
