@@ -54,7 +54,7 @@ bool MenuBarEditorItemPtrDrag::decode( QDropEvent * e, MenuBarEditorItem ** i )
     Q_LONG p = 0;
     stream >> p;
     *i = ( MenuBarEditorItem *) p;
-    
+
     return TRUE;
 }
 
@@ -196,7 +196,7 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
 
     addItem.setMenuText( tr("new menu") );
     addSeparator.setMenuText( tr("new separator") );
-    
+
     lineEdit = new QLineEdit( this, "menubar lineedit" );
     lineEdit->hide();
     lineEdit->setFrame( FALSE );
@@ -274,7 +274,7 @@ void MenuBarEditor::insertSeparator( int index )
 {
     if ( hasSeparator )
 	return;
-	
+
     MenuBarEditorItem * i = createItem( index );
     i->setSeparator( TRUE );
     i->setMenuText( "separator" );
@@ -291,7 +291,7 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
     if ( item &&
 	 item->isRemovable() &&
 	 itemList.removeRef( item ) ) {
-	
+
 	if ( item->isSeparator() )
 	    hasSeparator = FALSE;
 
@@ -299,11 +299,11 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 	    hide();
 	else
 	    resizeInternals();
-	
+
 	uint n = count() + 1;
 	if ( currentIndex >=  n )
 	    currentIndex = n;
-	
+
 	if ( isVisible() )
 	    update();
     }
@@ -328,15 +328,15 @@ int MenuBarEditor::findItem( PopupMenuEditor * menu )
 	    return itemList.at();
 	i = itemList.next();
     }
-    
+
     return -1;
 }
 
 int MenuBarEditor::findItem( int id )
 {
     MenuBarEditorItem * i = itemList.first();
-    
-    while ( i ) {	
+
+    while ( i ) {
 	if ( i->id() == id )
 	    return itemList.at();
 	i = itemList.next();
@@ -355,7 +355,7 @@ int MenuBarEditor::findItem( QPoint & pos )
 
     QPainter p( this );
     MenuBarEditorItem * i = itemList.first();
-    
+
     while ( i ) {
 
 	if ( i->isVisible() ) {
@@ -367,12 +367,12 @@ int MenuBarEditor::findItem( QPoint & pos )
 		y += itemHeight;
 		x = borderSize;
 	    }
-	    
+
 	    r = QRect( x, y, s.width(), s.height() );
 
 	    if ( r.contains( pos ) )
 		return itemList.at();
-	    
+
 	    addItemSizeToCoords( p, i, x, y, w );
 	}
 
@@ -389,10 +389,10 @@ int MenuBarEditor::findItem( QPoint & pos )
     }
 
     r = QRect( x, y, s.width(), s.height() );
-    
+
     if ( r.contains( pos ) )
-	return itemList.count(); 
-    
+	return itemList.count();
+
     return itemList.count() + 1;
 }
 
@@ -400,7 +400,7 @@ MenuBarEditorItem * MenuBarEditor::item( int index )
 {
     if ( index == -1 )
 	return itemList.at( currentIndex );
-    
+
     int c = itemList.count();
     if ( index == c )
 	return &addItem;
@@ -424,7 +424,7 @@ void MenuBarEditor::cut( int index )
 {
     if ( clipboardItem && clipboardOperation == Cut )
 	delete clipboardItem;
-    
+
     clipboardOperation = Cut;
     clipboardItem = itemList.at( index );
 
@@ -433,7 +433,7 @@ void MenuBarEditor::cut( int index )
 	clipboardItem = 0;
 	return; // do nothing
     }
-    
+
     RemoveMenuCommand * cmd = new RemoveMenuCommand( "Cut Menu", formWnd, this, index );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
@@ -443,7 +443,7 @@ void MenuBarEditor::copy( int index )
 {
     if ( clipboardItem && clipboardOperation == Cut )
 	delete clipboardItem;
-    
+
     clipboardOperation = Copy;
     clipboardItem = itemList.at( index );
 
@@ -481,16 +481,16 @@ void MenuBarEditor::showLineEdit( int index )
 	index = currentIndex;
 
     MenuBarEditorItem * i = 0;
-    
+
     if ( (uint) index >= itemList.count() )
 	i = &addItem;
     else
 	i = itemList.at( index );
-    
+
     // open edit field for item name
     lineEdit->setText( i->menuText() );
     lineEdit->selectAll();
-    QPoint pos = itemPos( index ); 
+    QPoint pos = itemPos( index );
     lineEdit->move( pos.x() + borderSize, pos.y() ); //FIXME: move
     QPainter p( this );
     lineEdit->resize( itemSize( p, i ) );
@@ -520,7 +520,7 @@ void MenuBarEditor::hideItem( int index )
 {
     if ( index == -1 )
 	index = currentIndex;
-    
+
     if ( (uint)index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->hideCurrentItemMenu();
@@ -532,7 +532,7 @@ void MenuBarEditor::focusItem( int index )
 {
     if ( index == -1 )
 	index = currentIndex;
-    
+
     if ( (uint)index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->setFocus();
@@ -569,7 +569,7 @@ int MenuBarEditor::heightForWidth( int max_width ) const
 
     QPainter p( this );
     that->itemHeight = that->itemSize( p, & that->addItem ).height();
-    
+
     MenuBarEditorItem * i = that->itemList.first();
     while ( i ) {
 	if ( i->isVisible() )
@@ -587,7 +587,7 @@ void MenuBarEditor::show()
 {
     QWidget::show();
     resizeInternals();
-   
+
     QResizeEvent e( parentWidget()->size(), parentWidget()->size() );
     QApplication::sendEvent( parentWidget(), &e );
 }
@@ -639,7 +639,7 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
     currentIndex = findItem( mousePressPos );
     showItem();
     update();
-    if ( e->button() == Qt::RightButton && currentIndex < count() )
+    if ( e->button() == Qt::RightButton && (int)currentIndex < count() )
 	popupMenu->popup( mapToGlobal( mousePressPos ) );
     e->accept();
 }
@@ -665,7 +665,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		draggedItem = createItem();
 		itemCreated = TRUE;
 	    } else if ( draggedItem == &addSeparator && !hasSeparator ) {
-		draggedItem = createItem();		
+		draggedItem = createItem();
 		draggedItem->setSeparator( TRUE );
 		draggedItem->setMenuText( "separator" );
 		hasSeparator = TRUE;
@@ -681,7 +681,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    //  we will have two instances of the same pointer
 	    // in the list.
 	    itemList.find( draggedItem );
-	    QLNode * node = itemList.currentNode();	    
+	    QLNode * node = itemList.currentNode();
 	    d->dragCopy(); // dragevents and stuff happens
 	    if ( draggedItem ) { // item was not dropped
 		if ( itemCreated ) {
@@ -694,7 +694,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		}
 	    } else { // item was dropped
 		hideItem();
-		itemList.takeNode( node )->setVisible( TRUE );		
+		itemList.takeNode( node )->setVisible( TRUE );
 		showItem();
 	    }
 	    update();
@@ -704,7 +704,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 
 void MenuBarEditor::dragEnterEvent( QDragEnterEvent * e )
 {
-    if ( MenuBarEditorItemPtrDrag::canDecode( e ) ) {	
+    if ( MenuBarEditorItemPtrDrag::canDecode( e ) ) {
 	e->accept();
 	dropLine->show();
     }
@@ -717,7 +717,7 @@ void MenuBarEditor::dragLeaveEvent( QDragLeaveEvent * )
 
 void MenuBarEditor::dragMoveEvent( QDragMoveEvent * e )
 {
-    
+
     QPoint pos = e->pos();
     dropLine->move( snapToItem( pos ) );
 
@@ -732,7 +732,7 @@ void MenuBarEditor::dragMoveEvent( QDragMoveEvent * e )
 void MenuBarEditor::dropEvent( QDropEvent * e )
 {
     MenuBarEditorItem * i = 0;
-    
+
     if ( MenuBarEditorItemPtrDrag::decode( e, &i ) ) {
 	draggedItem = 0;
 	hideItem(); //FIXME: remove
@@ -753,17 +753,17 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    deleteItem();
 	    showItem();
 	    break;
-	
+
 	case Qt::Key_Left:
 	    e->accept();
 	    navigateLeft( e->state() & Qt::ControlButton );
 	    return;
-	
+
 	case Qt::Key_Right:
 	    e->accept();
 	    navigateRight( e->state() & Qt::ControlButton );
 	    return; // no update
-	
+
 	case Qt::Key_Down:
 	    e->accept();
 	    focusItem();
@@ -772,7 +772,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_PageUp:
 	    currentIndex = 0;
 	    break;
-	    
+
 	case Qt::Key_PageDown:
 	    currentIndex = itemList.count();
 	    break;
@@ -792,13 +792,13 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    e->ignore();
 	    setFocus(); // FIXME: this is because some other widget get the focus when CTRL is pressed
 	    return; // no update
-	    
+
 	case Qt::Key_C:
 	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
 		copy( currentIndex );
 		break;
 	    }
-	    
+
 	case Qt::Key_X:
 	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
 		hideItem();
@@ -806,7 +806,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 		showItem();
 		break;
 	    }
-	    
+
 	case Qt::Key_V:
 	    if ( e->state() & Qt::ControlButton ) {
 		hideItem();
@@ -826,7 +826,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    return;
 	}
     } else { // In edit mode
-	
+
 	switch ( e->key() ) {
 	case Qt::Key_Control:
 	    e->ignore();
@@ -837,7 +837,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Escape:
 	    lineEdit->hide();
 	    setFocus();
-	    break;	    
+	    break;
 	}
     }
     e->accept();
@@ -864,7 +864,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 {
     QPoint pos( borderSize, 0 );
     uint c = 0;
-    
+
     p.setPen( paletteForegroundColor() );
 
     MenuBarEditorItem * i = itemList.first();
@@ -904,14 +904,14 @@ void MenuBarEditor::drawItem( QPainter & p,
 	//style().drawControl( QStyle::CE_MenuBarItem, &p, i, r );
     }
 
-    if ( hasFocus() && idx == currentIndex && !draggedItem )
+    if ( hasFocus() && idx == (int)currentIndex && !draggedItem )
 	p.drawWinFocusRect( pos.x(), pos.y() + 1, w, itemHeight - 2 );
-    
+
     pos.rx() += w;
 }
 
 void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
-{  
+{
     QColor col( "blue" ); // FIXME: find some portable way to get this color...
     p.save();
     p.setPen( col );
@@ -920,14 +920,14 @@ void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
     int top = pos.y() + 2;
     int right = left + separatorWidth - 1;
     int bottom = pos.y() + itemHeight - 4;
-    
+
     p.drawLine( left, top, left, bottom );
     p.drawLine( right, top, right, bottom );
-    
+
     p.fillRect( left, pos.y() + borderSize * 2,
 		separatorWidth - 1, itemHeight - borderSize * 4,
 		QBrush( col, Qt::Dense5Pattern ) );
-    
+
     p.restore();
 }
 
@@ -936,7 +936,7 @@ QSize MenuBarEditor::itemSize( QPainter & p, MenuBarEditorItem * i )
     if ( i->isSeparator() )
 	return QSize( separatorWidth, itemHeight ); //FIXME: itemHeight may be 0
     QRect r = p.boundingRect( rect(), Qt::ShowPrefix, i->menuText() );
-    return QSize( r.width() + borderSize * 2, r.height() + borderSize * 2 ); 
+    return QSize( r.width() + borderSize * 2, r.height() + borderSize * 2 );
 }
 
 void MenuBarEditor::addItemSizeToCoords( QPainter & p,
@@ -983,7 +983,7 @@ QPoint MenuBarEditor::itemPos( const int index )
 	y += itemHeight;
 	x = borderSize;
     }
-    
+
     return QPoint( x, y );
 }
 
@@ -1042,7 +1042,7 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint & pos )
 	n = itemList.next();
 	idx++;
     }
-    
+
     AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, idx );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();

@@ -57,7 +57,7 @@ bool PopupMenuEditorItemPtrDrag::decode( QDropEvent * e, PopupMenuEditorItem ** 
     Q_LONG p = 0;
     stream >> p;
     *i = ( PopupMenuEditorItem *) p;
-    
+
     return TRUE;
 }
 
@@ -172,15 +172,15 @@ PopupMenuEditorItem::~PopupMenuEditorItem()
 void PopupMenuEditorItem::init()
 {
     QAction * action = anyAction();
-    
+
     if ( action && m && !isSeparator() ) {
 	s = new PopupMenuEditor( m->formWindow(), m );
 	QString n = "PopupMenu";
 	m->formWindow()->unify( s, n, TRUE );
 	s->setName( n );
 	MetaDataBase::addEntry( s );
-    }    
-       
+    }
+
     QObject * o = 0;
     if ( a )
 	o = a;
@@ -345,7 +345,7 @@ bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 	    AddActionToPopupCommand cmd( "Add Item", m->formWnd, m, i );
 	    cmd.execute();
 	}
-	
+
     } else if ( event->type() == QEvent::ChildRemoved ) {
 
 	QChildEvent * ce = ( QChildEvent * ) event;
@@ -421,7 +421,7 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidg
 {
     init();
 
-    PopupMenuEditorItem * i;    
+    PopupMenuEditorItem * i;
     for ( i = menu->itemList.first(); i; i = menu->itemList.next() ) {
 	PopupMenuEditorItem * n = new PopupMenuEditorItem( i, this );
 	itemList.append( n );
@@ -439,7 +439,7 @@ void PopupMenuEditor::init()
 
     addItem.action()->setMenuText( tr("new item") );
     addSeparator.action()->setMenuText( tr("new separator") );
-    
+
     setAcceptDrops( TRUE );
     setFocusPolicy( StrongFocus );
 
@@ -447,7 +447,7 @@ void PopupMenuEditor::init()
     lineEdit->hide();
     lineEdit->setFrame( FALSE );
     lineEdit->setEraseColor( eraseColor() );
-    
+
     dropLine = new QWidget( this, 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
     dropLine->setBackgroundColor( Qt::black );
     dropLine->hide();
@@ -456,7 +456,7 @@ void PopupMenuEditor::init()
 
     QObject::connect( formWnd->mainWindow()->actioneditor(), SIGNAL( removing( QAction * ) ),
 		      this, SLOT( remove( QAction * ) ) );
-    
+
     popupMenu = new QPopupMenu( this, "popupmenu popupmenu" );
     popupMenu->insertItem( tr("&Cut"), this, SLOT(cut()), tr("Ctrl+X") );
     popupMenu->insertItem( tr("&Copy"), this, SLOT(copy()), tr("Ctrl+C") );
@@ -531,16 +531,16 @@ void PopupMenuEditor::cut( int index )
 {
     if ( clipboardItem && clipboardOperation == Cut )
 	delete clipboardItem;
-    
+
     clipboardOperation = Cut;
     clipboardItem = itemList.at( index );
-    
+
     if ( clipboardItem == &addItem || clipboardItem == &addSeparator ) {
 	clipboardOperation = None;
 	clipboardItem = 0;
 	return; // do nothing
     }
-    
+
     RemoveActionFromPopupCommand * cmd =
 	new RemoveActionFromPopupCommand( "Cut Item", formWnd, this, index );
     formWnd->commandHistory()->addCommand( cmd );
@@ -596,7 +596,7 @@ void PopupMenuEditor::choosePixmap( int index )
 
     if ( index == -1 )
 	index = currentIndex;
-    
+
     PopupMenuEditorItem * i = 0;
     QAction * a = 0;
 
@@ -619,12 +619,12 @@ void PopupMenuEditor::showLineEdit( int index )
 	index = currentIndex;
 
     PopupMenuEditorItem * i = 0;
-    
+
     if ( (uint) index >= itemList.count() )
 	i = &addItem;
     else
 	i = itemList.at( index );
-    
+
     // open edit currentField for item name
     lineEdit->setText( i->anyAction()->menuText() );
     lineEdit->selectAll();
@@ -778,7 +778,7 @@ PopupMenuEditorItem * PopupMenuEditor::itemAt( const int y )
     int iy = 0;
 
     while ( i ) {
-	if ( i->isVisible() ) {	    
+	if ( i->isVisible() ) {
 	    if ( i->isSeparator() )
 		iy += separatorHeight;
 	    else
@@ -797,7 +797,7 @@ PopupMenuEditorItem * PopupMenuEditor::itemAt( const int y )
 void PopupMenuEditor::setFocusAt( const QPoint & pos )
 {
     hideCurrentItemMenu();
-    
+
     if ( !lineEdit->isHidden() )
 	lineEdit->hide();
 
@@ -849,7 +849,7 @@ void PopupMenuEditor::mousePressEvent( QMouseEvent * e )
     mousePressPos = e->pos();
     setFocusAt( mousePressPos );
     update();
-    if ( e->button() == Qt::RightButton && currentIndex < count() )
+    if ( e->button() == Qt::RightButton && (int)currentIndex < count() )
 	popupMenu->popup( mapToGlobal( mousePressPos ) );
     e->accept();
 }
@@ -879,7 +879,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 		draggedItem = createItem( new QSeparatorAction( 0 ) );
 		draggedItem->setSeparator( TRUE );
 	    }
-	    
+
 	    PopupMenuEditorItemPtrDrag * d =
 		new PopupMenuEditorItemPtrDrag( draggedItem, this );
 
@@ -893,7 +893,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    // in the list. We use node instead.
 	    itemList.find( draggedItem );
 	    QLNode * node = itemList.currentNode();
-	    
+
 	    d->dragCopy(); // dragevents and stuff happens
 
 	    if ( draggedItem ) { // item was not dropped
@@ -905,7 +905,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    } else { // item was dropped
 		hideCurrentItemMenu();
 		//FIXME: move to centralized node management
-		itemList.takeNode( node )->setVisible( TRUE );		
+		itemList.takeNode( node )->setVisible( TRUE );
 		resizeToContents();
 		showCurrentItemMenu();
 	    }
@@ -933,7 +933,7 @@ void PopupMenuEditor::dragMoveEvent( QDragMoveEvent * e )
 {
     QPoint pos = e->pos();
     dropLine->move( borderSize, snapToItem( pos.y() ) );
-    
+
     if ( currentItem() != itemAt( pos.y() ) ) {
 	hideCurrentItemMenu();
 	setFocusAt( pos );
@@ -952,12 +952,12 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 
     draggedItem = 0;
     hideCurrentItemMenu(); //FIXME: remove
-    
+
     PopupMenuEditorItem * i = 0;
 
     if ( e->provides( "qt/popupmenueditoritemptr" ) ) {
 	PopupMenuEditorItemPtrDrag::decode( e, &i );
-    } else {	
+    } else {
 	if ( e->provides( "application/x-designer-actiongroup" ) ) {
 	    QString s( e->encodedData( "application/x-designer-actiongroup" ) );
 	    QActionGroup * g = (QDesignerActionGroup*)s.toLong();
@@ -991,11 +991,11 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Backspace:
 	    clearCurrentField();
 	    break;
-	
+
 	case Qt::Key_Up:
 	    navigateUp( e->state() & Qt::ControlButton );
 	    break;
-	    
+
 	case Qt::Key_Down:
 	    navigateDown( e->state() & Qt::ControlButton );
 	    break;
@@ -1003,15 +1003,15 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Left:
 	    navigateLeft();
 	    break;
-	    
+
 	case Qt::Key_Right:
 	    navigateRight();
 	    break;
-	    
+
 	case Qt::Key_PageUp:
 	    currentIndex = 0;
 	    break;
-	    
+
 	case Qt::Key_PageDown:
 	    currentIndex = itemList.count();
 	    break;
@@ -1031,14 +1031,14 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	    currentField = 0;
 	    navigateLeft();
 	    break;
-	 
+
 	case Qt::Key_C:
 	    if ( e->state() & Qt::ControlButton &&
 		 currentIndex < itemList.count() ) {
 		copy( currentIndex );
 		break;
 	    }
-	    
+
 	case Qt::Key_X:
 	    if ( e->state() & Qt::ControlButton &&
 		 currentIndex < itemList.count() ) {
@@ -1047,7 +1047,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 		showCurrentItemMenu();
 		break;
 	    }
-	    
+
 	case Qt::Key_V:
 	    if ( e->state() & Qt::ControlButton ) {
 		hideCurrentItemMenu();
@@ -1055,7 +1055,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 		showCurrentItemMenu();
 		break;
 	    }
-	    
+
 	default:
 	    if (  currentItem()->isSeparator() )
 		return;
@@ -1069,9 +1069,9 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 		showCurrentItemMenu();
 	    }
 	    break;
-	    
+
 	}
-	
+
     } else { // In edit mode
 	switch ( e->key() ) {
 	case Qt::Key_Enter:
@@ -1079,8 +1079,8 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Escape:
 	    leaveEditMode( e );
 	    e->accept();
-	    return;	    
-	}	
+	    return;
+	}
     }
     update();
 }
@@ -1100,7 +1100,7 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 	if ( fw && !fw->inherits( "MenuBarEditor" ) )
 	    hide();
     }
-	
+
 }
 
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
@@ -1117,7 +1117,7 @@ int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 	p.lineTo( iconWidth, y + 1 );
 	drawToggle( p, y );
     }
-    
+
     p.drawPixmap( x + ( iconWidth - icon.width() ) / 2,
 		  y + ( iconWidth - icon.height() ) / 2,
 		  icon );
@@ -1174,15 +1174,15 @@ void PopupMenuEditor::drawToggle( QPainter & p, const int y )
 
     QPointArray a; // FIXME: use bitmap
         a.setPoints( 21,
-		 
+
 		     mx - 3, my - 1,
 		     mx - 3, my,
 		     mx - 3, my + 1,
-		     
+
 		     mx - 2, my,
 		     mx - 2, my + 1,
 		     mx - 2, my + 2,
-		 
+
 		     mx - 1, my + 1,
 		     mx - 1, my + 2,
 		     mx - 1, my + 3,
@@ -1202,8 +1202,8 @@ void PopupMenuEditor::drawToggle( QPainter & p, const int y )
 		     mx + 3, my - 3,
 		     mx + 3, my - 2,
 		     mx + 3, my - 1 );
-    
-    p.drawPoints( a );   
+
+    p.drawPoints( a );
 }
 
 void PopupMenuEditor::drawWinFocusRect( QPainter & p, const int y )
@@ -1220,7 +1220,7 @@ void PopupMenuEditor::drawWinFocusRect( QPainter & p, const int y )
     else if ( currentField == 2 )
 	p.drawWinFocusRect( borderSize + iconWidth + textWidth +
 			    borderSize * 2, y + 1, acceleratorWidth, itemHeight - 2 );
-    
+
 }
 
 void PopupMenuEditor::drawItems( QPainter & p )
@@ -1228,9 +1228,9 @@ void PopupMenuEditor::drawItems( QPainter & p )
     int y = borderSize;
     int fy = 0;
     uint c = 0;
-   
+
     p.setPen( paletteForegroundColor() );
-    
+
     PopupMenuEditorItem * i = itemList.first();
     while ( i ) {
 	if ( c == currentIndex )
@@ -1262,7 +1262,7 @@ void PopupMenuEditor::drawItems( QPainter & p )
 
     int sy = y;
     drawAction( p, addSeparator.action(), borderSize, y ); // add is always the last itemList
-    
+
     if ( hasFocus() && !draggedItem ) {
 	if ( fy )
 	    drawWinFocusRect( p, fy );
@@ -1277,7 +1277,7 @@ QSize PopupMenuEditor::contentsSize()
 {
     QPainter p( this );
     int b2 = borderSize * 2;
-    
+
     QRect textRect = p.fontMetrics().boundingRect( addSeparator.action()->menuText() );
     textWidth = textRect.width() + b2;
     itemHeight = textRect.height() + b2 * 4;
@@ -1285,7 +1285,7 @@ QSize PopupMenuEditor::contentsSize()
     iconWidth = itemHeight;
 
     int height = itemHeight * 2; // addItem and addSeparator
-    
+
     PopupMenuEditorItem * i = itemList.first();
     while ( i ) {
 	height += itemSize( p, i );
@@ -1300,7 +1300,7 @@ QSize PopupMenuEditor::contentsSize()
 
 int PopupMenuEditor::itemSize( QPainter & p, PopupMenuEditorItem * i )
 {
-    if ( i->isVisible() ) {	
+    if ( i->isVisible() ) {
 	if ( i->isSeparator() )
 	    return separatorHeight;
 	if ( i->type() == PopupMenuEditorItem::Action )
@@ -1314,7 +1314,7 @@ int PopupMenuEditor::itemSize( QPainter & p, PopupMenuEditorItem * i )
 int PopupMenuEditor::actionSize( QPainter & p, QAction * a )
 {
     int b2 = borderSize * 2;
-    
+
     // get the largest bitmap dimensions
     QPixmap pm = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
     int iw = pm.width() + b2;
@@ -1323,7 +1323,7 @@ int PopupMenuEditor::actionSize( QPainter & p, QAction * a )
     int ih = pm.height() + b2;
     if ( ih > itemHeight )
 	itemHeight = ih;
-		
+
     //  get the widest item text
     int tw = p.boundingRect( rect(), Qt::ShowPrefix, a->menuText() ).width() + b2;
     if ( tw > textWidth )
@@ -1346,9 +1346,9 @@ int PopupMenuEditor::currentItemYCoord()
 {
     uint c = 0;
     int y = 0;
-    
+
     PopupMenuEditorItem * i = itemList.first();
- 
+
     while ( i ) {
 	if ( c == currentIndex )
 	    return y;
@@ -1361,7 +1361,7 @@ int PopupMenuEditor::currentItemYCoord()
 	}
 	i = itemList.next();
     }
-    
+
     return y;
 }
 
@@ -1404,12 +1404,12 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 		dy = itemHeight;
 	    if ( iy + dy / 2 > y )
 		break;
-	    iy += dy;   
+	    iy += dy;
 	}
 	idx++;
 	n = itemList.next();
     }
-    
+
     AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item", formWnd, this, i, idx );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
@@ -1488,7 +1488,7 @@ void PopupMenuEditor::navigateUp( bool ctrl )
 }
 
 void PopupMenuEditor::navigateDown( bool ctrl )
-{	    
+{
     hideCurrentItemMenu();
     if ( ctrl ) {
 	if ( currentIndex < ( itemList.count() - 1 ) ) { // safe index
@@ -1542,7 +1542,7 @@ void PopupMenuEditor::navigateRight()
 void PopupMenuEditor::enterEditMode( QKeyEvent * e )
 {
     PopupMenuEditorItem * i = currentItem();
-    
+
     if ( i == &addSeparator ) {
 	i = createItem( new QSeparatorAction( 0 ) );
 	i->setSeparator( TRUE );
@@ -1567,8 +1567,8 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 
     if ( e->key() == Qt::Key_Escape )
 	return;
-    
-    PopupMenuEditorItem * i = 0;    
+
+    PopupMenuEditorItem * i = 0;
     if ( currentIndex >= itemList.count() ) {
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
 	i = createItem( a );
@@ -1585,9 +1585,9 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 	formWnd->commandHistory()->addCommand( cmd );
 	cmd->execute();
     }
-    
+
     resizeToContents();
-    
+
     if ( i->isSeparator() )
 	hideCurrentItemMenu();
     else
