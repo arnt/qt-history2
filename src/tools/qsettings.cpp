@@ -276,7 +276,7 @@ static HANDLE openlock( const QString &name, int /*type*/ )
     HANDLE fd = 0;
 
     QT_WA( {
-	fd = CreateFileW( name.ucs2(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	fd = CreateFileW( (TCHAR*)name.ucs2(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } , {
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } );
@@ -454,9 +454,9 @@ QSettingsPrivate::QSettingsPrivate()
 	if ( SHGetSpecialFolderPath ) {
 	    TCHAR path[MAX_PATH];
 	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
-	    appSettings  = QString::fromUcs2( path );
+	    appSettings  = QString::fromUcs2( (ushort*)path );
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
-	    defPath = QString::fromUcs2( path );
+	    defPath = QString::fromUcs2( (ushort*)path );
 	}
     } , {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);

@@ -62,7 +62,7 @@ static inline HFONT systemFont()
 
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
-    QString family = QT_WA_INLINE( QString::fromUcs2(lf.lfFaceName),
+    QString family = QT_WA_INLINE( QString::fromUcs2((ushort*)lf.lfFaceName),
 				   QString::fromLocal8Bit((char*)lf.lfFaceName) );
     QFont qf(family);
     if (lf.lfItalic)
@@ -295,7 +295,7 @@ void QFontPrivate::initFontInfo()
     QT_WA( {
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
-	actual.family = QString::fromUcs2(n);
+	actual.family = QString::fromUcs2((ushort*)n);
 	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
 	char an[64];

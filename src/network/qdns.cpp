@@ -2267,12 +2267,12 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
     QT_WA( {
 	char buf[1024];
 	DWORD bsz = sizeof(buf);
-	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
+	int r = RegQueryValueEx( key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
 	if ( r == ERROR_SUCCESS ) {
 	    s = QString::fromUcs2( (unsigned short *)buf );
 	} else if ( r == ERROR_MORE_DATA ) {
 	    char *ptr = new char[bsz+1];
-	    r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
+	    r = RegQueryValueEx( key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
 	    if ( r == ERROR_SUCCESS )
 		s = ptr;
 	    delete [] ptr;
@@ -2301,7 +2301,7 @@ static bool getDnsParamsFromRegistry( const QString &path,
     int r;
     QT_WA( {
 	r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-			  path.ucs2(),
+			  (TCHAR*)path.ucs2(),
 			  0, KEY_READ, &k );
     } , {
 	r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
@@ -2379,12 +2379,12 @@ static void doResInit()
     }
     if ( !gotNetworkParams ) {
 	if ( getDnsParamsFromRegistry(
-	    QString::fromUcs2( L"System\\CurrentControlSet\\Services\\Tcpip\\Parameters" ),
+	    QString( "System\\CurrentControlSet\\Services\\Tcpip\\Parameters" ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for NT
 	    separator = ' ';
 	} else if ( getDnsParamsFromRegistry( 
-	    QString::fromUcs2( L"System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
+	    QString( "System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for 95/98
 	    separator = ',';

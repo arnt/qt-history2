@@ -66,7 +66,7 @@ void QAuServerWindows::play( const QString& filename, int loop )
     if ( loop > 1 || loop < 0 )
 	flags |= SND_LOOP;
     QT_WA( {
-	PlaySoundW( filename.ucs2(), 0, flags );
+	PlaySoundW( (TCHAR*)filename.ucs2(), 0, flags );
     } , {
 	PlaySoundA( QFile::encodeName(filename).data(), 0, flags );
     } );

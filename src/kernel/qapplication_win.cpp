@@ -1004,7 +1004,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
-	wc.lpszClassName= cname.ucs2();
+	wc.lpszClassName= (TCHAR*)cname.ucs2();
 	RegisterClass( &wc );
     } , {
 	WNDCLASSA wc;
@@ -1040,7 +1040,7 @@ static void unregWinClasses()
     const char *k;
     while ( (k = it.currentKey()) ) {
 	QT_WA( {
-	    UnregisterClass( QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
+	    UnregisterClass( (TCHAR*)QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
 	} , {
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
 	} );
@@ -3342,7 +3342,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 	    if ( !!txt ) {
 		QT_WA( {
-		    SetWindowText( winId(), txt.ucs2() );
+		    SetWindowText( winId(), (TCHAR*)txt.ucs2() );
 		} , {
 		    SetWindowTextA( winId(), txt.local8Bit() );
 		} );

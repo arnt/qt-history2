@@ -226,7 +226,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWFlags(WStyle_Title) ) {
 	QT_WA( {
 	    title = QString::fromLocal8Bit( isTopLevel() ? qAppName() : name() );
-	    ttitle = title.ucs2();
+	    ttitle = (TCHAR*)title.ucs2();
 	} , {
 	    title95 = isTopLevel() ? qAppName() : name();
 	} );
@@ -290,7 +290,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #else
 
 	QT_WA( {
-	    const TCHAR *cname = windowClassName.ucs2();
+	    const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
 	    if ( exsty )
 		id = CreateWindowEx( exsty, cname, ttitle, style,
 		    		    CW_USEDEFAULT, CW_USEDEFAULT,
@@ -325,7 +325,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 	QT_WA( {
-	    const TCHAR *cname = windowClassName.ucs2();
+	    const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
 	    id = CreateWindow( cname, ttitle, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 	} , {
@@ -635,7 +635,7 @@ void QWidget::setCaption( const QString &caption )
     QString cap = caption;
 #endif
     QT_WA( {
-	SetWindowText( winId(), cap.ucs2() );
+	SetWindowText( winId(), (TCHAR*)cap.ucs2() );
     } , {
 	SetWindowTextA( winId(), cap.local8Bit() );
     } );

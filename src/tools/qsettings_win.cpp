@@ -211,18 +211,19 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
     // if we write and there is a user specific setting, overwrite that
     if ( write && user ) {
 	QT_WA( {
-	    res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
+	    res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 	} , {
 	    res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	} );
     }
 
+    wchar_t empty_t[] = L""; // workaround for Borland
     if ( res != ERROR_SUCCESS && local ) {
 	QT_WA( {
 	    if ( write && !remove )
-		res = RegCreateKeyExW( local, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( local, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( local, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
+		res = RegOpenKeyExW( local, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
@@ -233,9 +234,9 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
     if ( !handle && user ) {
 	QT_WA( {
 	    if ( write && !remove )
-		res = RegCreateKeyExW( user, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+		res = RegCreateKeyExW( user, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
+		res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
@@ -267,7 +268,7 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
 
     if ( value.size() ) {
 	QT_WA( {
-	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
+	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
 	} , {
 	    res = RegSetValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
 	} );
@@ -289,14 +290,14 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
     HKEY handle;
     LONG res = ERROR_ACCESS_DENIED;
     QT_WA( {
-	res = RegOpenKeyExW( root, folder.ucs2(), 0, KEY_READ, &handle );
+	res = RegOpenKeyExW( root, (TCHAR*)folder.ucs2(), 0, KEY_READ, &handle );
     } , {
 	res = RegOpenKeyExA( root, folder.local8Bit(), 0, KEY_READ, &handle );
     } );
     
     if ( res == ERROR_SUCCESS ) {
 	QT_WA( {
-	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : entry.ucs2(), NULL, NULL, NULL, &size );
+	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : (TCHAR*)entry.ucs2(), NULL, NULL, NULL, &size );
 	} , {
 	    res = RegQueryValueExA( handle, entry.isEmpty() ? (const char*)0 : (const char*)entry.local8Bit(), NULL, NULL, NULL, &size );
 	} );
@@ -368,7 +369,7 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 
     uchar* data = new uchar[ size ];
     QT_WA( {
-	RegQueryValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), NULL, NULL, data, &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, data, &size );
     } , {
 	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, data, &size );
     } );
@@ -583,7 +584,7 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     if ( e == "Default" )
 	e = "";
     QT_WA( {
-	res = RegDeleteValueW( handle, e.ucs2() );
+	res = RegDeleteValueW( handle, (TCHAR*)e.ucs2() );
     } , {
 	res = RegDeleteValueA( handle, e.local8Bit() );
     } );
@@ -654,7 +655,7 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 	QT_WA( {
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
-		qname = QString::fromUcs2( vnameT );
+		qname = QString::fromUcs2( (ushort*)vnameT );
 	} , {
 	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
@@ -716,7 +717,7 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
 	QT_WA( {
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )
-		qname = QString::fromUcs2( vnameT );
+		qname = QString::fromUcs2( (ushort*)vnameT );
 	} , {
 	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )

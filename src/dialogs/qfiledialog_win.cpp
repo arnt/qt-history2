@@ -219,11 +219,11 @@ OPENFILENAME* makeOFN( QWidget* parent,
     ofn->lStructSize	= sizeof(OPENFILENAME);
 #endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
-    ofn->lpstrFilter	= tFilter.ucs2();
+    ofn->lpstrFilter	= (TCHAR*)tFilter.ucs2();
     ofn->lpstrFile	= tInitSel;
     ofn->nMaxFile	= maxLen;
-    ofn->lpstrInitialDir = tInitDir.ucs2();
-    ofn->lpstrTitle	= tTitle.ucs2();
+    ofn->lpstrInitialDir = (TCHAR*)tInitDir.ucs2();
+    ofn->lpstrTitle	= (TCHAR*)tTitle.ucs2();
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||
@@ -284,7 +284,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 				     *initialDirectory, title,
 				     winFilter(filter), ExistingFile );
 	if ( GetOpenFileName( ofn ) ) {
-	    result = QString::fromUcs2( ofn->lpstrFile );
+	    result = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
@@ -351,7 +351,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 				     *initialDirectory, title,
 				     winFilter(filter), AnyFile );
 	if ( GetSaveFileName( ofn ) ) {
-	    result = QString::fromUcs2( ofn->lpstrFile );
+	    result = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
@@ -419,7 +419,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
-	    QString fileOrDir = QString::fromUcs2( ofn->lpstrFile );
+	    QString fileOrDir = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == 0 ) {
@@ -433,7 +433,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 		// Several files selected; first string is path
 		dir.setPath( fileOrDir );
 		QString f;
-		while( !(f = QString::fromUcs2(ofn->lpstrFile+offset)).isEmpty() ) {
+		while( !(f = QString::fromUcs2((ushort*)ofn->lpstrFile+offset)).isEmpty() ) {
 		    fi.setFile( dir, f );
 		    QString res = fi.absFilePath();
 		    if ( !res.isEmpty() )
@@ -504,7 +504,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	QT_WA( {
 	    TCHAR path[MAX_PATH];
 	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
-	    QString tmpStr = QString::fromUcs2(path);
+	    QString tmpStr = QString::fromUcs2((ushort*)path);
 	    if (!tmpStr.isEmpty())
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
 	    else
@@ -553,7 +553,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	BROWSEINFO bi;
 	bi.hwndOwner = (parent ? parent->winId() : 0);
 	bi.pidlRoot = NULL;
-	bi.lpszTitle = tTitle.ucs2();
+	bi.lpszTitle = (TCHAR*)tTitle.ucs2();
 	bi.pszDisplayName = initPath;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
 	bi.lpfn = winGetExistDirCallbackProc;
@@ -567,7 +567,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	    else {
 		pMalloc->Free(pItemIDList);
 		pMalloc->Release();
-		result = QString::fromUcs2(path);
+		result = QString::fromUcs2((ushort*)path);
 	    }
 	} else
 	    result = QString::null;

@@ -115,7 +115,7 @@ static QString currentDirOfDrive( char ch )
     QT_WA( {
 	TCHAR currentName[PATH_MAX];
 	if ( _wgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = QString::fromUcs2( currentName );
+	    result = QString::fromUcs2( (ushort*)currentName );
 	}
     } , {
 	char currentName[PATH_MAX];
@@ -199,9 +199,9 @@ QString QFileInfo::readLink() const
 		    hres = psl->Resolve(0, SLR_ANY_MATCH);
 
 		    if (SUCCEEDED(hres)) {
-			memcpy( szGotPath, fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
+			memcpy( szGotPath, (TCHAR*)fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
 			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
-			fileLinked = QString::fromUcs2( szGotPath );
+			fileLinked = QString::fromUcs2( (ushort*)szGotPath );
 		    }
 		}
 		ppf->Release();
@@ -268,7 +268,7 @@ QString QFileInfo::owner() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = QString::fromUcs2( owner );
+		    name = QString::fromUcs2( (ushort*)owner );
 		}
 		LocalFree( pSD );
 		delete [] owner;
@@ -312,7 +312,7 @@ QString QFileInfo::group() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = QString::fromUcs2( group );
+		    name = QString::fromUcs2( (ushort*)group );
 		}
 		LocalFree( pSD );
 		delete [] group;
@@ -396,7 +396,7 @@ bool QFileInfo::permission( int p ) const
 
     QT_WA( {
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributes( fn.ucs2() );
+	    DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
@@ -423,7 +423,7 @@ void QFileInfo::doStat() const
 
     int r;
     QT_WA( {
-	r = _wstat(fn.ucs2(), (QT_STATBUF4TSTAT*)b);
+	r = _wstat((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
     } , {
 	r = QT_STAT(qt_win95Name(fn), b);
     } );
@@ -522,7 +522,7 @@ QString QFileInfo::fileName() const
 bool QFileInfo::isHidden() const
 {
     QT_WA( {
-	return GetFileAttributesW( fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
+	return GetFileAttributesW( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
     } , {
     return GetFileAttributesA( fn.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
     } );

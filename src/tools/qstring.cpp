@@ -16625,8 +16625,8 @@ int QString::localeAwareCompare( const QString& s ) const
 #if defined(Q_WS_WIN)
     int res;
     QT_WA( {
-	const TCHAR* s1 = ucs2();
-	const TCHAR* s2 = s.ucs2();
+	const TCHAR* s1 = (TCHAR*)ucs2();
+	const TCHAR* s2 = (TCHAR*)s.ucs2();
 	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
     } , {
 	QCString s1 = local8Bit();
@@ -17189,7 +17189,7 @@ void* qt_winTchar_new(const QString& str)
 QString qt_winQString(void* tc)
 {
 #ifdef UNICODE
-    return QString::fromUcs2( (TCHAR *)tc );
+    return QString::fromUcs2( (ushort*)tc );
 #else
     return QString::fromLatin1( (TCHAR *)tc );
 #endif

@@ -463,9 +463,9 @@ void QPrinter::readPdlg( void* pdv )
 	    // order is important here since setPrinterName() calls
 	    // setDefaultPrinter() which modifies the DEVNAMES structure
             TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
-            setPrintProgram( QString::fromUcs2( drName ) );
+            setPrintProgram( QString::fromUcs2( (ushort*)drName ) );
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-            setPrinterName( QString::fromUcs2( prName ) );
+            setPrinterName( QString::fromUcs2( (ushort*)prName ) );
 	    GlobalUnlock( pd->hDevNames );
         }
     }
@@ -1032,7 +1032,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
-            di.lpszDocName = doc_name.ucs2();
+            di.lpszDocName = (TCHAR*)doc_name.ucs2();
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } , {

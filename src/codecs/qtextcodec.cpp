@@ -1678,13 +1678,13 @@ const char* QTextCodec::locale()
 	TCHAR out[256];
 	QString language;
 	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255 ) )
-	    language = QString::fromUcs2( out );
+	    language = QString::fromUcs2( (ushort*)out );
 	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
-	    language = QString::fromUcs2( out );
+	    language = QString::fromUcs2( (ushort*)out );
 	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, out, 255 ) )
-	    language = QString::fromUcs2( out );
+	    language = QString::fromUcs2( (ushort*)out );
 	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, out, 255 ) )
-	    language = QString::fromUcs2( out );
+	    language = QString::fromUcs2( (ushort*)out );
 	lang = language.local8Bit();
     } , {
 	char out[256];

@@ -4842,12 +4842,12 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
     QT_WA( {
 	char buf[1024];
 	DWORD bsz = sizeof(buf);
-	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
+	int r = RegQueryValueEx( key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
 	if ( r == ERROR_SUCCESS ) {
 	    s = QString::fromUcs2( (unsigned short *)buf );
 	} else if ( r == ERROR_MORE_DATA ) {
 	    char *ptr = new char[bsz+1];
-	    r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
+	    r = RegQueryValueEx( key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
 	    if ( r == ERROR_SUCCESS )
 		s = ptr;
 	    delete [] ptr;
@@ -4888,9 +4888,10 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     UINT res;
 
     // ---------- get default folder pixmap
+    const wchar_t iconFolder[] = L"folder\\DefaultIcon"; // workaround for Borland
     QT_WA( {
 	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
-			   L"folder\\DefaultIcon",
+			   iconFolder,
 			   0, KEY_READ, &k );
     } , {
 	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
@@ -4904,7 +4905,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	QStringList lst = QStringList::split( ",", s );
 
 	QT_WA( {
-	    res = ExtractIconExW( lst[ 0 ].simplifyWhiteSpace().ucs2(),
+	    res = ExtractIconExW( (TCHAR*)lst[ 0 ].simplifyWhiteSpace().ucs2(),
 				  lst[ 1 ].simplifyWhiteSpace().toInt(),
 				  0, &si, 1 );
 	} , {
@@ -4996,7 +4997,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	HKEY k, k2;
 	int r;
 	QT_WA( {
-	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, ext.ucs2(),
+	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, (TCHAR*)ext.ucs2(),
 			      0, KEY_READ, &k );
 	} , {
 	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, ext.local8Bit(),
@@ -5013,7 +5014,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	RegCloseKey( k );
 
 	QT_WA( {
-	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).ucs2(),
+	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, (TCHAR*)QString( s + "\\DefaultIcon" ).ucs2(),
 			       0, KEY_READ, &k2 );
 	} , {
 	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).local8Bit() ,
@@ -5042,7 +5043,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 
 	QT_WA( {
-	    res = ExtractIconExW( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+	    res = ExtractIconExW( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
 				  NULL, &si, 1 );
 	} , {
 	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
@@ -5067,7 +5068,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	HICON si;
 	UINT res;
 	QT_WA( {
-	    res = ExtractIconExW( fi.absFilePath().ucs2(), -1,
+	    res = ExtractIconExW( (TCHAR*)fi.absFilePath().ucs2(), -1,
 				  0, 0, 1 );
 	} , {
 	    res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
@@ -5078,7 +5079,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &defaultExe;
 	} else {
 	    QT_WA( {
-		res = ExtractIconExW( fi.absFilePath().ucs2(), res - 1,
+		res = ExtractIconExW( (TCHAR*)fi.absFilePath().ucs2(), res - 1,
 				      0, &si, 1 );
 	    } , {
 		res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
@@ -5693,7 +5694,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    if ( d->url.isLocalFile() ) {
 		QString file = d->url.path() + inf.name();
 		QT_WA( {
-		    if ( GetFileAttributesW( file.ucs2() ) & FILE_ATTRIBUTE_HIDDEN )
+		    if ( GetFileAttributesW( (TCHAR*)file.ucs2() ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
 		} , {
 		    if ( GetFileAttributesA( file.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN )

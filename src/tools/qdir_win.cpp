@@ -104,10 +104,10 @@ QString QDir::canonicalPath() const
     char cur[PATH_MAX];
     QT_GETCWD( cur, PATH_MAX );
     QT_WA( {
-	if ( ::_wchdir( dPath.ucs2() ) >= 0 ) {
+	if ( ::_wchdir( (TCHAR*)dPath.ucs2() ) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
 	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
-		r = QString::fromUcs2( tmp );
+		r = QString::fromUcs2( (ushort*)tmp );
 	}
     } , {
 	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
@@ -136,7 +136,7 @@ QString QDir::canonicalPath() const
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
     QT_WA( {
-	return ::_wmkdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+	return ::_wmkdir( (TCHAR*)filePath(dirName,acceptAbsPath).ucs2() ) == 0;
     }, {
 	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     } );
@@ -159,7 +159,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
     QT_WA( {
-	return ::_wrmdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+	return ::_wrmdir( (TCHAR*)filePath(dirName,acceptAbsPath).ucs2() ) == 0;
     } , {
 	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     } );
@@ -178,7 +178,7 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::isReadable() const
 {
     QT_WA( {
-	return ::_waccess( dPath.ucs2(), R_OK ) == 0;
+	return ::_waccess( (TCHAR*)dPath.ucs2(), R_OK ) == 0;
     } , {
 	return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
     } );
@@ -237,7 +237,7 @@ bool QDir::rename( const QString &oldName, const QString &newName,
     QString fn1 = filePath( oldName, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
     QT_WA( {
-	return ::_wrename( fn1.ucs2(), fn2.ucs2() ) == 0;
+	return ::_wrename( (TCHAR*)fn1.ucs2(), (TCHAR*)fn2.ucs2() ) == 0;
     } , {
 	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
     } );
@@ -254,7 +254,7 @@ bool QDir::setCurrent( const QString &path )
     int r;
 
     QT_WA( {
-	r = ::_wchdir( path.ucs2() );
+	r = ::_wchdir( (TCHAR*)path.ucs2() );
     } , {
 	r = QT_CHDIR(qt_win95Name(path));
     } );
@@ -274,7 +274,7 @@ QString QDir::currentDirPath()
     QT_WA( {
         TCHAR currentName[PATH_MAX];
 	if ( ::_wgetcwd(currentName,PATH_MAX) != 0 ) {
-	    result = QString::fromUcs2( currentName );
+	    result = QString::fromUcs2( (ushort*)currentName );
 	}
     } , {
 	char currentName[PATH_MAX];
@@ -388,7 +388,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     p += QString::fromLatin1("*.*");
 
     QT_WA( {
-	ff = FindFirstFile( p.ucs2(), &finfo );
+	ff = FindFirstFile( (TCHAR*)p.ucs2(), &finfo );
     }, {
 	// Cast is safe, since char is at end of WIN32_FIND_DATA
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
