@@ -967,7 +967,7 @@ unixtests=$relpath/config.tests/unix
 # Auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null
 then
-    SQL_AVAIL=`find $QTDIR/plugins/src/sqldrivers/ -type d -maxdepth 1 -not -name ".*" -printf "%f " 2>/dev/null`
+    SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/ -type d -maxdepth 1 -not -name ".*" -printf "%f " 2>/dev/null`
     MYSQL_REQ="-llibmysqlclient.* mysql.h"
     OCI_REQ="-llibclntsh.* -llibwtc8.* oci.h"
     PSQL_REQ="-llibpq.* postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
