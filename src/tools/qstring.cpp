@@ -15292,8 +15292,7 @@ bool QString::isRightToLeft() const
 }
 
 
-/*!
-  \fn int QString::compare (const QString & s1, const QString & s2)
+/*! \fn int QString::compare( const QString & s1, const QString & s2 )
 
   \code
     int a = QString::compare( "def", "abc" );   // a > 0
@@ -15301,10 +15300,14 @@ bool QString::isRightToLeft() const
     int c = QString::compare(" abc", "abc" );   // c == 0
   \endcode
 
-  Lexically compares \a s1 with \a s2 and returns an integer less than, equal to, or
-  greater than zero if s1 is less than, equal to, or greater than \a s2.
+  Lexically compares \a s1 with \a s2 and returns an integer less
+  than, equal to, or greater than zero if \a s1 is less than, equal
+  to, or greater than \a s2.
 
-  Lexical order is similar to dictionary order, e.g. it is case insensitive.
+  The comparison is based exclusively on the numeric Unicode values
+  of the characters and is very fast, but is not what a human would
+  expect. Consider sorting user-interface strings with
+  QString::localeAwareCompare().
 */
 
 /*! \overload
@@ -15312,11 +15315,36 @@ bool QString::isRightToLeft() const
    Lexically compares this string with \a s and returns an integer less than, equal
    to, or greater than zero if it is less than, equal to, or greater than
    \a s.
-
 */
 int QString::compare( const QString& s ) const
 {
-    return ucstrcmp(*this,s);
+    return ucstrcmp( *this, s );
+}
+
+/*! \fn int QString::localeAwareCompare( const QString & s1,
+					 const QString & s2 )
+
+  Compares \a s1 with \a s2 and returns an integer less than, equal
+  to, or greater than zero if \a s1 is less than, equal to, or
+  greater than \a s2.
+
+  The comparison is performed in a locale- and also
+  platform-dependent manner. Use this function to present sorted
+  lists of strings to the user.
+
+  \bug This function is not really implemented yet. For the moment,
+  it is only a synonym for QString::compare().
+
+  \sa QString::compare() QTextCodec::locale()
+*/
+
+/*! \overload
+
+  Compares this string with \a s.
+*/
+int QString::localeAwareCompare( const QString& s ) const
+{
+    return ucstrcmp( *this, s );
 }
 
 bool operator==( const QString &s1, const QString &s2 )

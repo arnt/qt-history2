@@ -557,7 +557,11 @@ public:
 
     int compare( const QString& s ) const;
     static int compare( const QString& s1, const QString& s2 )
-        { return s1.compare(s2); }
+    { return s1.compare( s2 ); }
+
+    int localeAwareCompare( const QString& s ) const;
+    static int localeAwareCompare( const QString& s1, const QString& s2 )
+    { return s1.localeAwareCompare( s2 ); }
 
 #ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
