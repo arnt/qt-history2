@@ -63,7 +63,7 @@ private:
     QSplitter *s;
 };
 
-
+static int mouseOffset;
 static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit risky
 
 
@@ -102,7 +102,10 @@ void QSplitterHandle::setOrientation( Qt::Orientation o )
 
 void QSplitterHandle::mouseMoveEvent( QMouseEvent *e )
 {
-    QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()));
+    if ( !(e->state()&LeftButton) )
+	return;
+    QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+		 - mouseOffset;
     if ( opaque() ) {
 	s->moveSplitter( pos, id() );
     } else {
@@ -112,14 +115,15 @@ void QSplitterHandle::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-void QSplitterHandle::mousePressEvent( QMouseEvent * )
+void QSplitterHandle::mousePressEvent( QMouseEvent *e )
 {
-    //mouseOffset..
+    if ( e->button() == LeftButton )
+	mouseOffset = s->pick(e->pos());
 }
 
 void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !opaque() ) {
+    if ( !opaque() && e->button() == LeftButton ) {
 	QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()));
 	s->setRubberband( -1 );
 	s->moveSplitter( pos, id() );
@@ -669,7 +673,7 @@ void QSplitter::doResize()
 	else
 	    s->wid->setGeometry( r.left(), a[i].pos, r.width(), a[i].size );
     }
-	
+
 }
 
 
@@ -942,7 +946,7 @@ void QSplitter::storeSizes()
     while ( s ) {
 	if ( !s->isSplitter )
 	    s->sizer = pick( s->wid->size() );
-	s = data->list.next();	
+	s = data->list.next();
     }
 }
 
@@ -965,7 +969,7 @@ void QSplitter::setHidden( QWidget *w, bool hide )
     } else {
 #ifdef CHECK_RANGE
 	qWarning( "QSplitter::setHidden(), unknown widget" );
-#endif	
+#endif
 	return;
     }
     if ( hide )
@@ -989,7 +993,7 @@ bool QSplitter::isHidden( QWidget *w ) const
 #ifdef CHECK_RANGE
     else
 	qWarning( "QSplitter::isHidden(), unknown widget" );
-#endif	
+#endif
     return FALSE;
 }
 #endif
