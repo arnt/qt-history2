@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#172 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1392,6 +1392,13 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	block_event = TRUE;
     }
 
+    if ( top->parentWidget() == 0 && (block_event ||
+       msg->message == WM_ACTIVATE )){
+	top->raise();
+	top->setActiveWindow();
+	block_event = TRUE;
+    }
+    
     return !block_event;
 }
 
