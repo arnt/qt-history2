@@ -31,9 +31,19 @@ public:
 };
 void QMacStyleQDPainter::setport()
 {
-    Q_ASSERT(d->gc->type() == QAbstractGC::QuickDraw);
-    QQuickDrawGC *mgc = (QQuickDrawGC*)d->gc;
-    mgc->setupQDPort(true);
+    QQuickDrawGC *mgc = NULL;
+    if(d->gc && (d->gc->type() == QAbstractGC::QuickDraw || d->gc->type() == QAbstractGC::CoreGraphics))
+	mgc = (QQuickDrawGC*)d->gc;
+    if(mgc) {
+	mgc->updateState(mgc->state);
+#ifdef USE_CORE_GRAPHICS
+	QRegion rgn;
+	mgc->setupQDPort(true, 0, &rgn);
+	QMacSavedPortInfo::setClipRegion(rgn);
+#else
+	mgc->setupQDPort(true);
+#endif
+    }
     NormalizeThemeDrawingState();
 }
 
