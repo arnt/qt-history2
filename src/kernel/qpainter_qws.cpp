@@ -425,7 +425,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     gfx=((QPaintDevice *)pd)->graphicsContext();
 //  if gfx == 0 then we have an invalid pixmap
-    if ( gfx == 0 ) {
+    if ( gfx == 0 && ( !testf(ExtDev) ) ) {
 #if defined(CHECK_NULL)
 	qWarning( "Unable to get graphics context" );
 #endif
@@ -489,7 +489,9 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    updatePen();
 	    updateBrush();
 	    //gfx->setWidgetRegion( w->rect() );
-	    gfx->setWidgetRegion( QRect( 0, 0, qt_screen->width(), qt_screen->height() ) );
+	    if( !testf(ExtDev) )
+		gfx->setWidgetRegion( QRect( 0, 0, qt_screen->width(), 
+					     qt_screen->height() ) );
 	}
 	w->setActivePainter( this );
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
@@ -534,11 +536,13 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     updateBrush();
     updatePen();
 
-    if ( paintEventDevice == device() )
-	gfx->setClipRegion( *paintEventClipRegion );
-    else
-	gfx->setClipping( FALSE );
-
+    if ( !testf(ExtDev) ) {
+	if ( paintEventDevice == device() )
+	    gfx->setClipRegion( *paintEventClipRegion );
+	else
+	    gfx->setClipping( FALSE );
+    }
+    
     return TRUE;
 }
 
