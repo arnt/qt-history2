@@ -68,6 +68,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
 	platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
+    QString mocargs;
+    // defines
+    mocargs = varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","");
+    // includes
+    mocargs += " -I" + specdir();
+    if(!project->isActiveConfig("no_include_pwd")) {
+	QString pwd = fileFixify(QDir::currentDirPath());
+	if(pwd.isEmpty())
+	    pwd = ".";
+	mocargs += " -I" + pwd;
+    }
+    mocargs += varGlue("INCLUDEPATH"," -I", " -I", "");
+
     // Setup PCH variables
     precompH = project->first("PRECOMPILED_HEADER");
     QString namePCH = QFileInfo(precompH).fileName();
@@ -180,19 +193,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if (project->isActiveConfig("moc") && !mocFile.isEmpty()) {
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-
-			QString mocargs;
-			//defines
-			mocargs += varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","");
-			//includes
-			mocargs += " -I" + specdir();
-			if(!project->isActiveConfig("no_include_pwd")) {
-			    QString pwd = fileFixify(QDir::currentDirPath());
-			    if(pwd.isEmpty())
-				pwd = ".";
-			    mocargs += " -I" + pwd;
-			}
-			mocargs += varGlue("INCLUDEPATH"," -I", " -I", "");
 
 			buildCmds += "\t" + mocpath + (*it)  + mocargs + " -o " + mocFile + " \\\n";
 			createMOC  = "\"" + mocFile +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
@@ -328,7 +328,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + mocSource +
 					"...\n" "InputPath=.\\" + mocSource + "\n\n" "\"" + mocTarget + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t" + mocpath + mocSource + " -o " +
+					"\t" + mocpath + mocSource + mocargs + " -o " +
 					mocTarget + "\n\n" "# End Custom Build\n\n";
 
 			t << "USERDEP_" << base << "=\".\\" << mocSource << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
@@ -456,7 +456,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
 				    "\t" + mocpath + " " + uiHeadersDir +
-				    fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
+				    fname + ".h " + mocargs + " -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
 
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 				 "\t$(BuildCmds)\n\n"
@@ -464,6 +464,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				 "\t$(BuildCmds)\n\n"
 				 "\"" + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				 "\t$(BuildCmds)\n\n");
+
 
 		    build.append("# End Custom Build\n\n");
 
