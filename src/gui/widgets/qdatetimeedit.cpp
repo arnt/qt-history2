@@ -101,7 +101,7 @@ public:
     static QString stateName(int s);
 
     QString format;
-    static QString defaultDateFormat, defaultTimeFormat, defaultDateTimeFormat;
+    QString defaultDateFormat, defaultTimeFormat, defaultDateTimeFormat;
     QString escapedFormat;
     QList<SectionNode> sections;
     SectionNode first, last;
@@ -113,10 +113,6 @@ public:
     mutable QCoreVariant cached;
     mutable QString cachedText;
 };
-
-QString QDateTimeEditPrivate::defaultTimeFormat;
-QString QDateTimeEditPrivate::defaultDateFormat;
-QString QDateTimeEditPrivate::defaultDateTimeFormat;
 
 #define d d_func()
 #define q q_func()
@@ -769,6 +765,31 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     \reimp
 */
 
+void QDateTimeEdit::changeEvent(QEvent *e)
+{
+    if (e->type() == QEvent::ActivationChange) {
+        QString *frm = 0;
+        if (d->format == d->defaultTimeFormat) {
+            frm = &d->defaultTimeFormat;
+        } else if (d->format == d->defaultDateFormat) {
+            frm = &d->defaultDateFormat;
+        } else if (d->format == d->defaultDateTimeFormat) {
+            frm = &d->defaultTimeFormat;
+        }
+
+        if (frm) {
+            d->readLocaleSettings();
+            if (d->format != *frm)
+                setFormat(*frm);
+        }
+    }
+    QAbstractSpinBox::changeEvent(e);
+}
+
+/*!
+    \reimp
+*/
+
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
     const QDateTimeEditPrivate::Section s = d->sectionAt(qMax(0, d->edit->cursorPositionAt(e->pos()) - 1));
@@ -784,7 +805,6 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
         break;
     }
 }
-
 /*!
     \reimp
 */
@@ -1037,54 +1057,52 @@ static QString macParseDateLocale(QCoreVariant::Type type)
     macGDate.second = 56.0;
     QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, QCFType<CFTimeZoneRef>(CFTimeZoneCopySystem())));
     switch (type) {
-    case QCoreVariant::Date:
-	{
+    case QCoreVariant::Date: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
-                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
-                                                                                mylocale, kCFDateFormatterShortStyle,
-                                                                                kCFDateFormatterNoStyle);
-                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+            QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+            QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                            mylocale, kCFDateFormatterShortStyle,
+                                                                            kCFDateFormatterNoStyle);
+            return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
 
-            } else
+        } else
 #endif
-            {
-                Handle intlHandle = GetIntlResource(0);
-                LongDateTime oldDate;
-                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
-                                                      &oldDate);
-                Str255 pString;
-                LongDateString(&oldDate, shortDate, pString, intlHandle);
-                return qt_mac_from_pascal_string(pString);
-            }
-	}
-    case QCoreVariant::DateTime:
-	{
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
-                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
-                                                                                mylocale, kCFDateFormatterShortStyle,
-                                                                                kCFDateFormatterMediumStyle);
-                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
-
-            } else
-#endif
-            {
-                Handle intlHandle = GetIntlResource(0);
-                LongDateTime oldDate;
-                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
-                                                      &oldDate);
-                Str255 pString;
-                LongDateString(&oldDate, shortDate, pString, intlHandle);
-		QString final = qt_mac_from_pascal_string(pString);
-		LongTimeString(&oldDate, true, pString, intlHandle);
-                return final + QLatin1Char(' ') + qt_mac_from_pascal_string(pString);
-            }
-	}
+        {
+            Handle intlHandle = GetIntlResource(0);
+            LongDateTime oldDate;
+            UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
+                                                  &oldDate);
+            Str255 pString;
+            LongDateString(&oldDate, shortDate, pString, intlHandle);
+            return qt_mac_from_pascal_string(pString);
+        }
     }
-    return QString();
+    case QCoreVariant::DateTime: {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+            QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+            QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                            mylocale, kCFDateFormatterShortStyle,
+                                                                            kCFDateFormatterMediumStyle);
+            return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+
+        } else
+#endif
+        {
+            Handle intlHandle = GetIntlResource(0);
+            LongDateTime oldDate;
+            UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
+                                                  &oldDate);
+            Str255 pString;
+            LongDateString(&oldDate, shortDate, pString, intlHandle);
+            QString final = qt_mac_from_pascal_string(pString);
+            LongTimeString(&oldDate, true, pString, intlHandle);
+            return final + QLatin1Char(' ') + qt_mac_from_pascal_string(pString);
+        }
+    }
+    default: return QString();
+    }
 }
 #endif
 
@@ -1095,12 +1113,6 @@ static QString macParseDateLocale(QCoreVariant::Type type)
 */
 void QDateTimeEditPrivate::readLocaleSettings()
 {
-    static bool done = false;
-    if (done)
-        return;
-
-    done = true;
-
     // Time
     QString str = QTime(10, 34, 56).toString(Qt::LocalDate);
     int index = str.indexOf(QLatin1String("10"));
@@ -1122,19 +1134,30 @@ void QDateTimeEditPrivate::readLocaleSettings()
     defaultTimeFormat = str;
 
     // Date
-    const QString shortMonthName = QDate::shortMonthName(11);
-    const QString longMonthName = QDate::longMonthName(11);
+
+    const QDate date(1999, 11, 22);
+    const QString shortMonthName = QDate::shortMonthName(date.month());
+    const QString longMonthName = QDate::longMonthName(date.month());
+    const QString shortDayName = QDate::shortDayName(date.dayOfWeek());
+    const QString longDayName = QDate::longDayName(date.dayOfWeek());
 
 #ifdef Q_WS_MAC
     str = macParseDateLocale(QCoreVariant::Date);
 #else
-    str = QDate(1999, 11, 22).toString(Qt::LocalDate);
+    str = date.toString(Qt::LocalDate);
 #endif
 
     index = str.indexOf(QLatin1String("22"));
-    if (index != -1) {
+    if (index != -1)
         str.replace(index, 2, QLatin1String("dd"));
-    }
+
+    index = str.indexOf(shortDayName);
+    if (index != -1)
+        str.remove(index, shortDayName.size());
+
+    index = str.indexOf(longDayName);
+    if (index != -1)
+        str.remove(index, longDayName.size());
 
     index = str.indexOf(QLatin1String("11"));
     if (index != -1) {
@@ -1179,6 +1202,14 @@ void QDateTimeEditPrivate::readLocaleSettings()
     index = str.indexOf(QLatin1String("22"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("dd"));
+
+    index = str.indexOf(shortDayName);
+    if (index != -1)
+        str.remove(index, shortDayName.size());
+
+    index = str.indexOf(longDayName);
+    if (index != -1)
+        str.remove(index, longDayName.size());
 
     index = str.indexOf(QLatin1String("11"));
     if (index != -1) {
