@@ -314,7 +314,11 @@ int main( int argc, char **argv )
     delete perf_list;
     if ( pause ) {
 	qDebug("Press a key to continue...");
+#if defined(_OS_WIN32_)
 	getch();
+#else
+	getc(stdin);
+#endif
     }
     return 0;
 }

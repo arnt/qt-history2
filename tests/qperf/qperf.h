@@ -63,9 +63,14 @@ public:
 /*
   These macros are used to build tables of testing functions.
 */
+#if 0
 #define QPERF_BEGIN(t,d) QPerfEntry perf__##t[] = { #t,(int(*)())t##_init,d,1,
 #define QPERF(f,d)	 #f,f,d,0,
+#define QPERF_END(t)     0,0,0,0};static QPerfTableInit init__##t(perf__##t);
+#else
+#define QPERF_BEGIN(t,d) QPerfEntry perf__##t[] = { {#t,(int(*)())t##_init,d,1},
+#define QPERF(f,d)	 {#f,f,d,0},
 #define QPERF_END(t)     {0,0,0,0}};static QPerfTableInit init__##t(perf__##t);
-
+#endif
 
 #endif // QPERF_H
