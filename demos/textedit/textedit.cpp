@@ -222,6 +222,7 @@ void TextEdit::setupTextActions()
 
 
     tb = new QToolBar(this);
+    tb->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
     tb->setWindowTitle(tr("Format Actions"));
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(tb);
