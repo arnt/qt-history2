@@ -177,7 +177,9 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
 
     QString key = QLatin1String("qt_icon_")
                   + QString::number(pm.serialNumber())
-                  + QLatin1String(mode == QIcon::Normal?"_normal_":"_disabled_")
+                  + QLatin1String(mode == QIcon::Disabled
+                                  ?"_disabled_"
+                                  :((hasCorrectMode && mode == QIcon::Active)?"_active_":"_normal_"))
                   + QString::number(actualSize.width())
                   + QLatin1Char('_')
                   + QString::number(actualSize.height());
