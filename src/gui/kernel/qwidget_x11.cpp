@@ -325,26 +325,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         qt_x11_create_desktop_on_screen >= 0 &&
         qt_x11_create_desktop_on_screen != d->xinfo.screen()) {
         // desktop on a certain screen other than the default requested
-        QX11InfoData *xd = d->xinfo.getX11Data(true);
-        xd->screen = qt_x11_create_desktop_on_screen;
-        xd->depth = QX11Info::appDepth(xd->screen);
-        xd->cells = QX11Info::appCells(xd->screen);
-        xd->colormap = QX11Info::appColormap(xd->screen);
-        xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
-        xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
-        xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
+        QX11InfoData *xd = &X11->screens[qt_x11_create_desktop_on_screen];
         d->xinfo.setX11Data(xd);
     } else if (parentWidget() &&  parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
-        // if we have a parent widget, move to its screen if necessary
-        QX11InfoData* xd = d->xinfo.getX11Data(true);
-        xd->screen = parentWidget()->d->xinfo.screen();
-        xd->depth = QX11Info::appDepth(xd->screen);
-        xd->cells = QX11Info::appCells(xd->screen);
-        xd->colormap = QX11Info::appColormap(xd->screen);
-        xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
-        xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
-        xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
-        d->xinfo.setX11Data(xd);
+        d->xinfo = parentWidget()->d->xinfo;
     }
 
     //get display, screen number, root window and desktop geometry for
