@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3452</Count>
+    <Count>3456</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -9110,6 +9110,18 @@
         <Qt4>Qt::whatsThisCursor</Qt4>
         <Qt3>Qt::whatsThisCursor</Qt3>
     </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>qPixmapFromMimeSource</Qt4>
+        <Qt3>QPixmap::fromMimeSource</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>QImageIO::inputFormats</Qt4>
+        <Qt3>QImage::inputFormats</Qt3>
+    </item>
+    <item Type="RenamedQtSymbol" >
+        <Qt4>QImageIO::outputFormats</Qt4>
+        <Qt3>QImage::outputFormats</Qt3>
+    </item>
     <item Type="RenamedToken" >
         <Qt4>true</Qt4>
         <Qt3>TRUE</Qt3>
@@ -9341,6 +9353,10 @@
     <item Type="NeedHeader" >
         <Class>QImageIO</Class>
         <Header>QImageIO</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>qPixmapFromMimeSource</Class>
+        <Header>q3mimefactory.h</Header>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>qnamespace.h</Qt4>
