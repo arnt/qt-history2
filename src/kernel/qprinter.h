@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#3 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#4 $
 **
 ** Definition of QPrinter class
 **
@@ -53,7 +53,7 @@ protected:
 
 private:
 #if defined(_WS_X11_)
-    QPaintDevice *prn;
+    QPaintDevice *pdrv;
 #endif
     int		state;
     QString	printer_name;
