@@ -209,7 +209,9 @@
     \endlist
 
     If those requirements are not met one ore more of the following 
-    errors are likely to occure:
+    errors are likely to occur:
+
+    \omit ### which errors? \endomit
 
     \section4 The server executable crashes
 

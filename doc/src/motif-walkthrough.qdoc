@@ -960,7 +960,7 @@
     \skipto // C++ doesn't have 'renew'
     \printuntil max = newmax;
 
-    There is also one occurence in \c ReadDB() where we call \c XtMalloc()
+    There is also one occurrence in \c ReadDB() where we call \c XtMalloc()
     with an argument of 2. This was done when a file could not be read.
     Creating an empty string is not necessary, so we remove this code
     instead of using \e new.
@@ -970,13 +970,13 @@
     \printuntil }
 
     The \c SaveDB() function in \c io.cpp also needs these changes. We
-    change one occurence of \c XtFree() to \e delete.
+    change one occurrence of \c XtFree() to \e delete.
 
     \skipto SaveDB(char* filename)
     \skipto Make sure to grab current page
     \printuntil delete [] pages[currentPage] -> page;
 
-    Finally, We need to replace two occurences of \c XtNewString() in the \c
+    Finally, We need to replace two occurrences of \c XtNewString() in the \c
     main() function in \c todo.cpp.
 
     \quotefromfile walkthrough/refactor/todo.cpp
@@ -1473,7 +1473,7 @@
     All functions that use the \c Page and \c Options structs need to be
     updated to use QString properly. Since QString is also an implicitly
     shared class, we no longer have to do any memory management with our
-    strings. We can remove all occurences of the \c qstrdup() function,
+    strings. We can remove all occurrences of the \c qstrdup() function,
     and we never need to use \e new or \e delete when done with a string.
     QString will allocate and delete data when needed.
 
