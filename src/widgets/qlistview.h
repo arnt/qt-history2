@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#39 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#40 $
 **
 ** Definition of QListView widget class
 **
@@ -54,7 +54,7 @@ public:
 
     virtual const char * text( int ) const;
 
-    virtual const char * key( int ) const;
+    virtual const char * key( int, bool ) const;
     virtual void sortChildItems( int, bool );
 
     int children() const { return childCount; }

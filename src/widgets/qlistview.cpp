@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#82 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#82 $");
 
 
 const int Unsorted = 32767;
@@ -346,8 +346,13 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 }
 
 
-/*!  Returns a key that can be used for sorting by column \a column.
-  The default implementation returns text().
+/*!
+  \fn const char * QListViewItem::key( int column, bool ascending ) const
+
+  Returns a key that can be used for sorting by column \a column.
+  The default implementation returns text().  Derived classes may
+  also incorporate the order indicated by \a ascending into this
+  key, although this is not common.
 
   QListViewItem immediately copies the return value of this function,
   so it's safe to return a pointer to a static variable.
@@ -355,7 +360,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
   \sa sortChildItems()
 */
 
-const char * QListViewItem::key( int column ) const
+const char * QListViewItem::key( int column, bool ) const
 {
     return text( column );
 }
@@ -371,9 +376,9 @@ static int cmp( const void *n1, const void *n2 )
 }
 
 
-/*!  Sorts the children of this item by the return values of what
-  key(\a colum ), in ascending order if \a ascending is TRUE and in
-  descending order of \a descending is FALSE.
+/*!  Sorts the children of this item by the return values of
+  key(\a column, \a ascending), in ascending order if \a ascending
+  is TRUE and in descending order of \a descending is FALSE.
 
   Asks some of the children to sort their children.  (QListView and
   QListViewItem ensure that all on-screen objects are properly sorted,
@@ -405,7 +410,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     QListViewItem * s = childItem;
     int i = 0;
     while ( s && i<childCount ) {
-	siblings[i].key = s->key( column );
+	siblings[i].key = s->key( column, ascending );
 	siblings[i].i = s;
 	s = s->siblingItem;
 	i++;
@@ -1426,7 +1431,7 @@ void QListView::clear()
     d->dirtyItems = 0;
     d->dirtyItemTimer->stop();
 
-    d->currentSelected = 0;
+    setSelected( d->currentSelected, FALSE );
     d->focusItem = 0;
     contentsResize( d->h->sizeHint().width(), viewport()->height(), FALSE );
 
@@ -1576,23 +1581,13 @@ void QListView::updateGeometries()
 		       viewport()->width(), h );
 }
 
-void QListView::handleSizeChange( int section, int oldSize, int newSize )
+/*!
+  Updates the display when a section has changed size.
+*/
+void QListView::handleSizeChange( int section, int, int )
 {
     updateGeometries();
-    int left;
-    int asection = d->h->mapToActual( section );
-    if ( newSize < oldSize ) {
-	// Smaller - draw sections after this one
-	if ( asection+1 < d->h->count() ) {
-	    left = d->h->cellPos(asection+1);
-	} else {
-	    left = d->h->cellPos(asection) + d->h->cellSize(asection);
-	}
-    } else {
-	// Bigger - draw new bit and sections after this one
-	left = oldSize + d->h->cellPos(asection);
-    }
-    left -= itemMargin(); // Account for previous column's highlighting.
+    int left = d->h->cellPos(d->h->mapToActual( section ));
     viewport()->repaint( left, 0, viewport()->width()-left,
 			 viewport()->height(), FALSE );
 }
@@ -2078,10 +2073,14 @@ void QListView::focusInEvent( QFocusEvent * )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
-    if ( d->focusItem )
-	repaintItem( d->focusItem );
-    else
+    if ( d->focusItem ) {
+	if ( !isMultiSelection() )
+	    setSelected( d->focusItem, FALSE );
+	else
+	    repaintItem( d->focusItem );
+    } else {
 	triggerUpdate();
+    }
     return;
 }
 
@@ -2194,9 +2193,10 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		const char * keyItemKey;
 		QString prefix;
 		while( keyItem ) {
-		    keyItemKey = keyItem->key( 0 );
-		    if ( !keyItemKey )
-			keyItemKey = keyItem->text( 0 );
+		    // Look for text in column 0, then left-to-right
+		    keyItemKey = keyItem->text(0);
+		    for (int col=0; col < d->h->count() && !keyItemKey; col++ )
+			keyItemKey = keyItem->text( d->h->mapToLogical(col) );
 		    if ( keyItemKey && *keyItemKey ) {
 			prefix = keyItemKey;
 			prefix.truncate( input.length() );
@@ -2341,7 +2341,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
     if ( item->isSelected() != selected ) {
 	item->setSelected( selected );
-	d->currentSelected = item;
+	d->currentSelected = selected ? item : 0;
 	repaintItem( item );
     }
 

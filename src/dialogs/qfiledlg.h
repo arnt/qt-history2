@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#20 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#21 $
 **
 ** Definition of QFileDialog class
 **
@@ -46,6 +46,7 @@ public:
     // non-static function for special needs
 
     QString selectedFile() const;
+    void setSelection( const char* );
 
     const char *dirPath() const;
 
@@ -92,6 +93,8 @@ private slots:
 private:
     void init();
     void updatePathBox( const char * );
+    bool trySetSelection( const QFileInfo&, bool );
+    friend class QNoisyLineEdit;
 
     QDir cwd;
     QString fileName;
