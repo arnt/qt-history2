@@ -5,9 +5,9 @@
 
 #ifdef Q_OS_WIN
 #ifdef QT_FORMEDITOR_LIBRARY
-# define QT_FORMEDITOR_EXPORT __declspec(dllexport)
+# define QT_FORMEDITOR_EXPORT
 #else
-# define QT_FORMEDITOR_EXPORT __declspec(dllimport)
+# define QT_FORMEDITOR_EXPORT
 #endif
 #else
 #define QT_FORMEDITOR_EXPORT

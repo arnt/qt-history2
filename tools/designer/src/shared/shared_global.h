@@ -5,9 +5,9 @@
 
 #ifdef Q_OS_WIN
 #ifdef QT_SHARED_LIBRARY
-# define QT_SHARED_EXPORT __declspec(dllexport)
+# define QT_SHARED_EXPORT
 #else
-# define QT_SHARED_EXPORT __declspec(dllimport)
+# define QT_SHARED_EXPORT
 #endif
 #else
 #define QT_SHARED_EXPORT

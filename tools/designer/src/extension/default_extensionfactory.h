@@ -1,6 +1,7 @@
 #ifndef DEFAULT_EXTENSIONFACTORY_H
 #define DEFAULT_EXTENSIONFACTORY_H
 
+#include "extension_global.h"
 #include "extension.h"
 
 #include <QMap>
@@ -9,7 +10,7 @@
 
 class QExtensionManager;
 
-class DefaultExtensionFactory : public QObject, public ExtensionFactory
+class QT_EXTENSION_EXPORT DefaultExtensionFactory : public QObject, public ExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(ExtensionFactory)

@@ -5,9 +5,9 @@
 
 #ifdef Q_OS_WIN
 #ifdef QT_OBJECTINSPECTOR_LIBRARY
-# define QT_OBJECTINSPECTOR_EXPORT __declspec(dllexport)
+# define QT_OBJECTINSPECTOR_EXPORT
 #else
-# define QT_OBJECTINSPECTOR_EXPORT __declspec(dllimport)
+# define QT_OBJECTINSPECTOR_EXPORT
 #endif
 #else
 #define QT_OBJECTINSPECTOR_EXPORT

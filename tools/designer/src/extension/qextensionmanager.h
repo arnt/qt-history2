@@ -1,10 +1,11 @@
 #ifndef QEXTENSIONMANAGER_H
 #define QEXTENSIONMANAGER_H
 
+#include "extension_global.h"
 #include "extension.h"
 #include <QHash>
 
-class QExtensionManager: public QObject, public ExtensionManager
+class QT_EXTENSION_EXPORT QExtensionManager: public QObject, public ExtensionManager
 {
     Q_OBJECT
     Q_INTERFACES(ExtensionManager)

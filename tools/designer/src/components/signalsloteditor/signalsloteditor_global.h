@@ -5,9 +5,9 @@
 
 #ifdef Q_OS_WIN
 #ifdef QT_SIGNALSLOTEDITOR_LIBRARY
-# define QT_SIGNALSLOTEDITOR_EXPORT __declspec(dllexport)
+# define QT_SIGNALSLOTEDITOR_EXPORT
 #else
-# define QT_SIGNALSLOTEDITOR_EXPORT __declspec(dllimport)
+# define QT_SIGNALSLOTEDITOR_EXPORT
 #endif
 #else
 #define QT_SIGNALSLOTEDITOR_EXPORT

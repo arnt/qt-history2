@@ -20,7 +20,7 @@ unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
     ../../lib/libpropertyeditor.a \
     ../../lib/libsignalsloteditor.a
 
-win32:TARGETDEPS += ../../../../lib/libQtDesigner.dll \
+win32:TARGETDEPS += ../../../../lib/QtDesigner.dll \
     ../../lib/formeditor.lib \
     ../../lib/objectinspector.lib \
     ../../lib/widgetbox.lib \
