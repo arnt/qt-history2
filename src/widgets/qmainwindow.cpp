@@ -571,7 +571,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			if ( dock->at( i )->specialPos != -1 ) {
 			    if ( dock->at( i )->t->orientation() == Qt::Horizontal ) {
 				g.setRect( dock->at( i )->specialPos, g.y(), g.width(), g.height() );
-				if ( g.x() + g.width() > r.width() && 
+				if ( g.x() + g.width() > r.width() &&
 				     g.width() > dock->at( i )->t->sizeHint().width() )
 				    g.setWidth( r.width() - g.x() - 1 );
 				if ( g.x() + g.width() > r.width() )
@@ -1749,7 +1749,8 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 }
 
 static int cursorInEmptyArea( const QPoint &pos, QMainWindowPrivate::ToolBarDock *dock,
-			      QMainWindowPrivate::ToolBar *t, int width )
+			      QMainWindowPrivate::ToolBar *t, int width, int *ipos,
+			      QToolBar *&covering )
 {
     int y;
     QMainWindowPrivate::ToolBar *tb = dock->first();
@@ -1760,10 +1761,10 @@ static int cursorInEmptyArea( const QPoint &pos, QMainWindowPrivate::ToolBarDock
 	}
 	tb = dock->next();
     }
-    
+
     if ( !tb )
 	return -1;
-    
+
     QMainWindowPrivate::ToolBar *before = 0, *after = 0;
     while ( tb ) {
 	if ( tb != t && QRect( tb->t->x(), tb->t->x() + tb->t->height() / 3,
@@ -1776,12 +1777,21 @@ static int cursorInEmptyArea( const QPoint &pos, QMainWindowPrivate::ToolBarDock
 	    after = tb;
 	tb = dock->next();
     }
-    
+
     QRect area;
     area.setLeft( before ? before->t->x() + before->t->width() : 0 );
     area.setTop( y );
     area.setRight( after ? after->t->x() : width );
     area.setHeight( t->t->height() );
+    
+    if ( covering && before && ipos ) {
+	covering = before->t;
+	*ipos = QMainWindowPrivate::TotalAfter;
+    } else if ( covering && after && ipos ) {
+	covering = after->t;
+	*ipos = QMainWindowPrivate::Before;
+    }
+    
     if ( area.contains( pos ) && pos.x() + t->t->sizeHint().width() < area.right() )
 	return pos.x();
     return -1;
@@ -1884,7 +1894,7 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 	    hasRect = TRUE;
 	    r = QRect( tb->pos(), tb->size() );
 	    if ( o == Qt::Horizontal ) {
-		int sp = cursorInEmptyArea( pos, tdock, t, mw->width() );
+		int sp = cursorInEmptyArea( pos, tdock, t, mw->width(), &ipos, covering );
 		if ( sp != -1 ) {
 		    int rw = r.width();
 		    r.setLeft( sp );
@@ -1903,7 +1913,7 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal ) {
 		    r = QRect( t->t->x() - w / 2, t->t->y(), w, h );
-		    int sp = cursorInEmptyArea( pos, tdock, pt, mw->width() );
+		    int sp = cursorInEmptyArea( pos, tdock, pt, mw->width(), 0, covering );
 		    if ( sp != -1 && !QRect( t->t->pos(), t->t->size() ).contains( pos ) ) {
 			int rw = r.width();
 			r.setLeft( sp );
@@ -1924,7 +1934,7 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 	    case QMainWindowPrivate::TotalAfter: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal ) {
-		    if ( pt && pos.x() > t->t->x() + t->t->width() ) 
+		    if ( pt && pos.x() > t->t->x() + t->t->width() )
 			pt->specialPos = pos.x();
 		    r = QRect( QMAX( t->t->x() + t->t->width(), pos.x() ), t->t->y(), w, h );
 		} else
