@@ -42,6 +42,14 @@
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 
+#if defined (QT_WINTAB_SUPPORT)
+#include <wintab.h>
+#include <pktdef.h>
+extern PACKET *localPacketBuf;
+HCTX hTab = NULL;
+extern LOGCONTEXT lcMine;
+#endif
+
 #if defined(QT_NON_COMMERCIAL)
 #include "qmessagebox.h"
 #define IDM_ABOUTQT	1
@@ -394,12 +402,23 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #endif	
 
     setFontSys();
+#if defined (QT_WINTAB_SUPPORT)
+	if ( initializeWindow ) {
+		// open the tablet for this widget
+		hTab = WTOpen( id, &lcMine, TRUE );
+		if ( hTab == NULL )
+			qWarning( "FAILED to open the tablet for %d", id );
+	}
+#endif
 }
 
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
-    deactivateWidgetCleanup();
+#if defined(QT_WINTAB_SUPPORT)
+	WTClose( hTab );
+#endif
+	deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
 	if ( children() ) {

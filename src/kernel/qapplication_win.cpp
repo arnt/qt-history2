@@ -51,6 +51,25 @@
 #include <string.h>
 #include <ctype.h>
 
+#if defined(QT_WINTAB_SUPPORT)
+#define PACKETDATA      (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
+ 						 PK_ORIENTATION | PK_CURSOR )
+#define PACKETMODE		0
+#include <wintab.h>
+#include <pktdef.h>
+#include <math.h>
+
+#define NPACKETQSIZE	32	// minimum size of queue
+
+PACKET localPacketBuf[NPACKETQSIZE];
+LOGCONTEXT lcMine;
+extern HCTX hTab;
+bool tilt_support;
+UINT ScanExts(UINT wTag);
+void prsInit(void);
+UINT prsAdjust(PACKET p);
+#endif
+
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
@@ -67,6 +86,8 @@
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
 #endif
+
+
 
 extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #endif // QT_ACCESSIBILITY_SUPPORT
@@ -247,6 +268,11 @@ public:
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
+#if defined (QT_WINTAB_SUPPORT)
+	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf, 
+		                          int numPackets );
+#endif
+
 };
 
 
@@ -693,6 +719,61 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     else
 #endif
 	WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
+#endif
+
+	// the WinTab API
+#if defined(QT_WINTAB_SUPPORT)
+
+#define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
+#define PI 3.14159265359
+
+ 	int max_pressure;
+	struct tagAXIS tpOri[3];
+	struct tagAXIS pressureAxis;
+	double tpvar,
+ 		   aziFactor = 1,
+ 		   altFactor = 1,
+ 		   altAdjust = 1;
+ 	// make sure we have WinTab
+ 	if (!WTInfo( 0, 0, NULL )) {
+ 		qWarning( "Wintab services not available" );
+ 		return;
+ 	}
+	
+ 	// some tablets don't support tilt, check if its possible,		
+ 	tilt_support = WTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
+
+ 	if ( tilt_support ) {
+ 		// check for azimuth and altitude
+ 		if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
+ 			tpvar = FIX_DOUBLE( tpOri[0].axResolution );
+ 			aziFactor = tpvar/(2 * PI);
+ 			tpvar = FIX_DOUBLE( tpOri[1].axResolution);
+ 			altFactor = tpvar / 1000;
+ 			altAdjust = double(tpOri[1].axMax) / altFactor;
+ 		} else {
+ 			tilt_support = FALSE;
+ 		}
+ 	}
+ 	max_pressure = WTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
+ 	if ( max_pressure ) {
+ 		//get the maximum pressure then
+ 		max_pressure = pressureAxis.axMax;
+ 	} else {
+ 		max_pressure = 0;
+ 	}
+ 	// build our context from the default context
+ 	WTInfo( WTI_DEFSYSCTX, 0, &lcMine );
+	lcMine.lcOptions |= CXO_MESSAGES;
+ 	lcMine.lcPktData = PACKETDATA;
+ 	lcMine.lcPktMode = PACKETMODE;
+ 	lcMine.lcMoveMask = PACKETDATA;
+ 
+ 	// these are done in the syspress example, I don't know if we need them
+ 	lcMine.lcOutOrgX = 0;
+ 	lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
+ 	lcMine.lcOutOrgY = 0;
+ 	lcMine.lcOutExtY = -GetSystemMetrics( SM_CXSCREEN );
 #endif
 }
 
@@ -1661,6 +1742,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget;
 
+#if defined (QT_WINTAB_SUPPORT)
+	// there is no need to process pakcets from tablet unless
+	// it is actually on the tablet, a flag to let us know...
+//	bool processPackets = FALSE;
+	int nPackets;	// the number of packets we get from the queue
+#endif
+
     if ( !qApp )				// unstable app state
 	goto do_default;
 
@@ -1711,7 +1799,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(0);
 
     switch ( message ) {
-
 #ifndef Q_OS_TEMP
     case WM_QUERYENDSESSION: {
 	if ( sm_smActive ) // bogus message from windows
@@ -1815,7 +1902,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    widget->translateMouseEvent( msg );	// mouse event
 	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg );
-	} else {
+	} else {		
 	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event
 	    case WM_KEYUP:
@@ -2131,7 +2218,27 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = FALSE;
 		break;
 #endif
-	    default:
+#if defined (QT_WINTAB_SUPPORT)	
+	case WT_PACKET:
+		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+		}
+		break;
+	case WT_PROXIMITY:
+		// flush the Queue we really don't care about all the older values...
+		WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+		break;
+//	case WM_LBUTTONUP:
+//		processPackets = FALSE;
+//	case WM_LBUTTONDOWN:
+		// remove stale tablet packets
+//		WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+//		qDebug("removing packets");
+		// get ready to process them
+//		processPackets = TRUE;
+#endif
+
+	default:
 		result = FALSE;			// event was not processed
 		break;
 
@@ -3339,6 +3446,173 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     return FALSE;
 }
 
+#if defined(QT_WINTAB_SUPPORT)
+
+// Wintab Scanning for Extentions...
+UINT ScanExts(UINT wTag)
+{
+	UINT i;
+	UINT wScanTag;
+
+	/* scan for wTag's info category. */
+	for (i = 0; WTInfo(WTI_EXTENSIONS + i, EXT_TAG, &wScanTag); i++) {
+		 if (wTag == wScanTag) {
+			/* return category offset from WTI_EXTENSIONS. */
+			return i;
+		}
+	}
+	/* return error code. */
+	return 0xFFFF;
+}
+
+
+
+//
+// Windows Wintab to QTabletEvent translation
+//
+
+// the following is copied from the wintab syspress example (public domain)
+/*------------------------------------------------------------------------------
+The functions PrsInit and PrsAdjust make sure that our pressure out can always
+reach the full 0-255 range we desire, regardless of the button pressed or the
+"pressure button marks" settings.
+------------------------------------------------------------------------------*/
+/* pressure adjuster local state. */
+/* need wOldCsr = -1, so PrsAdjust will call PrsInit first time */
+static UINT wActiveCsr = 0,  wOldCsr = (UINT)-1;
+static BYTE wPrsBtn;
+static UINT prsYesBtnOrg, prsYesBtnExt, prsNoBtnOrg, prsNoBtnExt;
+/* -------------------------------------------------------------------------- */
+void prsInit(void)
+{
+	/* browse WinTab's many info items to discover pressure handling. */
+	AXIS np;
+	LOGCONTEXT lc;
+	BYTE logBtns[32];
+	UINT btnMarks[2];
+	UINT size;
+
+	/* discover the LOGICAL button generated by the pressure channel. */
+	/* get the PHYSICAL button from the cursor category and run it */
+	/* through that cursor's button map (usually the identity map). */
+	wPrsBtn = (BYTE)-1;
+	WTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBUTTON, &wPrsBtn);
+	size = WTInfo(WTI_CURSORS + wActiveCsr, CSR_BUTTONMAP, &logBtns);
+	if ((UINT)wPrsBtn < size)
+		wPrsBtn = logBtns[wPrsBtn];
+
+	/* get the current context for its device variable. */
+	WTGet(hTab, &lc);
+
+	/* get the size of the pressure axis. */
+	WTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
+	prsNoBtnOrg = (UINT)np.axMin;
+	prsNoBtnExt = (UINT)np.axMax - (UINT)np.axMin;
+
+	/* get the button marks (up & down generation thresholds) */
+	/* and calculate what pressure range we get when pressure-button is down. */
+	btnMarks[1] = 0; /* default if info item not present. */
+	WTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBTNMARKS, btnMarks);
+	prsYesBtnOrg = btnMarks[1];
+	prsYesBtnExt = (UINT)np.axMax - btnMarks[1];
+}
+/* -------------------------------------------------------------------------- */
+UINT prsAdjust(PACKET p)
+{
+	UINT wResult;
+
+	wActiveCsr = p.pkCursor;
+	if (wActiveCsr != wOldCsr) {
+
+		/* re-init on cursor change. */
+		prsInit();
+		wOldCsr = wActiveCsr;
+	}
+
+	/* scaling output range is 0-255 */
+
+	if (p.pkButtons & (1 << wPrsBtn)) {
+		/* if pressure-activated button is down, */
+		/* scale pressure output to compensate btn marks */
+		wResult = p.pkNormalPressure - prsYesBtnOrg;
+		wResult = MulDiv(wResult, 255, prsYesBtnExt);
+	}
+	else {
+		/* if pressure-activated button is not down, */
+		/* scale pressure output directly */
+		wResult = p.pkNormalPressure - prsNoBtnOrg;
+		wResult = MulDiv(wResult, 255, prsNoBtnExt);
+	}
+
+	return wResult;
+}
+
+
+bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
+									  int numPackets )
+{
+	
+	static POINT ptOrg, ptOld, ptNew;
+	static DWORD btnOld, btnNew;
+	static UINT prsOld, prsNew;
+	static ORIENTATION ortNew;
+	int i;
+	int dev;
+	int tiltX, tiltY;
+	bool sendEvent;
+	
+	for ( i = 0; i < numPackets; i++ ) {
+		DWORD btnChange;
+		if ( localPacketBuf[i].pkCursor == 2 ) {
+			dev = QTabletEvent::ERASER;
+		} else if ( localPacketBuf[i].pkCursor == 1 ){
+			dev = QTabletEvent::STYLUS;
+		} else {
+			dev = QTabletEvent::NONE;
+		}
+
+		btnOld = btnNew;
+		btnNew = localPacketBuf[i].pkButtons;
+		btnChange = btnOld ^ btnNew;
+//		if ( btnNew & btnChange )
+//			qDebug( "button changed" );
+
+		if ( btnNew ) {
+			ptOld = ptNew;
+			prsOld = prsNew;
+
+			ptNew.x = (UINT)localPacketBuf[i].pkX;
+			ptNew.y = (UINT)localPacketBuf[i].pkY;
+
+			ptNew.x -= ptOrg.x;
+			ptNew.y -= ptOrg.y;
+
+			prsNew = prsAdjust( localPacketBuf[i] );
+		}
+		QPoint globalPos( ptNew.x, ptNew.y );
+		QWidget *w = QApplication::widgetAt( globalPos, TRUE );
+		if ( !tilt_support )
+			tiltX = tiltY = 0;
+		else {
+			ortNew = localPacketBuf[i].pkOrientation;
+			// convert from azimuth and altitude to x tilt and y tilt
+			double radAzim = ortNew.orAzimuth * ( PI / 180 );
+			double radAlt = ortNew.orAltitude * ( PI / 180 );
+			double tmpX = cos(radAzim) * sin(radAlt);
+			double tmpY = cos(radAzim) * cos(radAlt);
+
+			double degX = atan( (tmpX) / sin(radAlt) );
+			double degY = asin( tmpY );
+			tiltX = degX * ( 180 / PI );
+			tiltY = degY * ( 180 / PI );
+		}
+
+		QTabletEvent e( globalPos, globalPos, dev, prsNew, tiltX, tiltY );
+		sendEvent = QApplication::sendSpontaneousEvent( w, &e );
+	}	
+	return sendEvent;
+}
+#endif
 
 static bool isModifierKey(int code)
 {
@@ -3714,3 +3988,4 @@ void QApplication::flush()
 {
     sendPostedEvents();
 }
+
