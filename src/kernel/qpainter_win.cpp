@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#13 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#13 $";
 #endif
 
 
@@ -438,21 +438,15 @@ bool QPainter::end()				// end painting
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
 	QFontInfo::reset( this );	    
-    flags = 0;
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
 
     if ( tm ) {					// delete old text metrics
 	delete tm;
 	tm = 0;
     }
-    if ( !hdc ) {
-	pdev = 0;
-	return TRUE;
-    }
     if ( hpen )
-	DeleteObject( SelectObject(hdc, GetStockObject(BLACK_PEN)) );
+	DeleteObject( SelectObject(hdc,GetStockObject(BLACK_PEN)) );
     if ( hbrush && !stockBrush ) {
-	DeleteObject( SelectObject(hdc, GetStockObject(WHITE_BRUSH)) );
+	DeleteObject( SelectObject(hdc,GetStockObject(WHITE_BRUSH)) );
 	if ( hbrushbm && !pixmapBrush )
 	    DeleteObject( hbrushbm );
     }
@@ -466,8 +460,10 @@ bool QPainter::end()				// end painting
 	if ( pm->optimized() )
 	    pm->allocMemDC();
     }
-    hdc	 = 0;
+    flags = 0;
+    pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
+    hdc	 = 0;
     return TRUE;
 }
 

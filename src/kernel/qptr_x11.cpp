@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#111 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#110 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#111 $";
 #endif
 
 
@@ -748,8 +748,6 @@ bool QPainter::end()				// end painting
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
 	QFontInfo::reset( this );	    
-    flags = 0;
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
 
     if ( gc_brush ) {				// restore brush gc
 	if ( testf(ClipOn) )
@@ -766,8 +764,10 @@ bool QPainter::end()				// end painting
 	    XSetFunction( dpy, gc, GXcopy );
 	free_painter_gc( dpy, gc );
     }
-    gc = gc_brush = 0;
+    flags = 0;
+    pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
+    gc = gc_brush = 0;
     return TRUE;
 }
 
@@ -1181,6 +1181,7 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
     clearf( ClipOn );				// be sure to update clip rgn
     setClipping( TRUE );
 }
+
 
 /*!
   Draws/plots a single point at \e (x,y) using the current pen.
