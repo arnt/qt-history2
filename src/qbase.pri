@@ -52,8 +52,6 @@ aix-g++* {
 
 embedded {
 	EMBEDDED_H	= $$EMBEDDED_CPP
-	PREPROCMOC += HEADERS
-	PREPROCH =  $$QT_SOURCE_TREE/src/core/base/qglobal.h
 }
 
 DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
