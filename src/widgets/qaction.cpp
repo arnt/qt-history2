@@ -82,8 +82,8 @@
   in a text processor are examples that should be represented by toggle actions.
   A toggle action emits a toggled() signal whenever it changes state.
 
-  Whether an action is a command action or a toggle action can be defined via
-  the setToggleAction() function.
+  Whether an action is a command action or a toggle action is defined
+  by the \l toggleAction property.
 
   To insert an action into a menu or a tool bar, use addTo().
   It will appear as either a menu entry or a tool button:
@@ -389,7 +389,8 @@ QAction::~QAction()
     delete d;
 }
 
-/*! Sets the icon set to \a icon, e.g.:
+/*! \property QAction::iconSet
+  \brief  the action's icon
 
   \walkthrough action/toggleaction/toggleaction.cpp
   \skipto labelonoffaction
@@ -399,9 +400,8 @@ QAction::~QAction()
 
   (c.f. the action/toggleaction/toggleaction.cpp example)
 
-  \a icon is used as tool button icon and in the menu entry.
+  The icon is used as tool button icon and in the menu entry.
 
-  \sa iconSet();
 */
 void QAction::setIconSet( const QIconSet& icon )
 {
@@ -411,10 +411,6 @@ void QAction::setIconSet( const QIconSet& icon )
     d->update( QActionPrivate::Icons );
 }
 
-/*! Returns the icon set.
-
-  \sa setIconSet();
-*/
 QIconSet QAction::iconSet() const
 {
     if ( d->iconset )
@@ -422,14 +418,15 @@ QIconSet QAction::iconSet() const
     return QIconSet();
 }
 
-/*! Attaches a descriptive \a text to the action.
+/*! \property QAction::text
+  \brief the action's descriptive text
 
-  If \l QMainWindow::usesTextLabel() is TRUE \a text shows up as
-  label in the relevant tool-button. Furthermore \a text serves
-  as the default text in menus and tips if
-  the relevant properties are not defined otherwise.
+  If \l QMainWindow::usesTextLabel is TRUE, text shows up as label in
+  the relevant tool-button. Furthermore it serves as the default text
+  in menus and tips if the relevant properties are not defined
+  otherwise.
 
-  \sa text(), setMenuText(), setToolTip(), setStatusTip()
+  \sa menuText, toolTip, statusTip
 */
 void QAction::setText( const QString& text )
 {
@@ -437,31 +434,22 @@ void QAction::setText( const QString& text )
     d->update();
 }
 
-/*! Returns the current description text.
-
-  This is used as tool button label provided
-  \l QMainWindow::usesTextLabel() is TRUE.
-  If menuText() or toolTip() and statusTip() are not set,
-  text() in combination with
-  accel() serves as menu text, tool tip and status tip.
-
-  \sa setText(), setMenuText(), setToolTip(), setStatusTip()
-*/
 QString QAction::text() const
 {
     return d->text;
 }
 
 
-/*! Sets a special text \a text for menu entries.
+/*! \property QAction::menuText
+  \brief the action's special text for menu entries
 
-  The entire menu entry will consist of iconSet() (if defined), \a text
-  and accel() (if defined).
+  The entire menu entry will consist of \l iconSet (if defined), \l text
+  and \l accel (if defined).
 
-  Use setMenuText() whenever different wording
-  in menu items, tool tips and button text is appropriate.
+  Use menuText whenever different wording in menu items, tool tips and
+  button text is appropriate.
 
-  \sa menuText(), setText(), text()
+  \sa \l text
 */
 void QAction::setMenuText( const QString& text )
 {
@@ -469,23 +457,22 @@ void QAction::setMenuText( const QString& text )
     d->update();
 }
 
-/*! Returns the text used in menu entries.
-
-  If no menu text has been defined, this is the same as text().
-
-  \sa setMenuText(),  text()
-*/
 QString QAction::menuText() const
 {
     return d->menuText();
 }
 
-/*! Sets the tool tip text to \a tip.
+/*! \property QAction::toolTip
+  \brief the action's tool tip
 
-  As long as statusTip() hasn't been set using setStatusTip()
-  \a tip serves as message in the status bar as well.
+  As long as no \l statusTip has been set, the toolTip serves as
+  message in the status bar as well.
 
-  \sa toolTip(), statusTip()
+  If no toolTip is been defined, the standard descriptive \l text and
+  the accelerator description as returned by QAccel::keyToString() is
+  used as replacement.
+
+  \sa \l statusTip, \l accel
 */
 void QAction::setToolTip( const QString& tip )
 {
@@ -493,28 +480,23 @@ void QAction::setToolTip( const QString& tip )
     d->update();
 }
 
-/*! Returns the current tool tip.
-
-  If no tool tip has been defined yet, it returns text()
-  and the accelerator description as returned by QAccel::keyToString().
-
-  toolTip() serves as statusTip() as long as no
-  separate message for the status bar has been set.
-
-  \sa setToolTip(), setStatusTip(), text(), accel(), QAccel::keyToString()
-*/
 QString QAction::toolTip() const
 {
     return d->toolTip();
 }
 
-/*! Sets the status tip to \a tip. It is displayed on
-  all status bars the toplevel widget parenting this action provides.
+/*! \property QAction::statusTip 
+  \brief the action's status tip
+  
+  The statusTip is displayed on all status bars that the toplevel
+  widget parenting this action provides.
+  
+  If no statusTip is defined, the action uses toolTip as replacement.
 
   Note that QActions that were created with only non-windows as
   ancestors can't display status tips.
 
-  \sa statusTip(), toolTip()
+  \sa statusTip, toolTip
 */
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even action groups should show
@@ -527,21 +509,19 @@ void QAction::setStatusTip( const QString& tip )
     d->update();
 }
 
-/*!  Returns the current status tip.
-
-  If no status tip has been defined yet, this is the same as toolTip().
-
-  \sa setStatusTip(), toolTip()
-*/
 QString QAction::statusTip() const
 {
     return d->statusTip();
 }
 
-/*!
-  Sets What's This help to \a whatsThis.
+/*!\property QAction::whatsThis
+  \brief the action's "What's This ?"-help
 
-  \a whatsThis may contain rich-text elements, e.g.:
+  What's This? help is part of an application's online help system
+  that provides users with information about functionality, usage,
+  background etc. in various levels of detail between tool tips and
+  full text browsing windows.  The text may contain rich-text
+  elements, e.g.:
 
   \walkthrough action/application.cpp
   \skipto filePrintText
@@ -551,7 +531,7 @@ QString QAction::statusTip() const
   \link simple-application-action.html Simple Application Walkthrough
   featuring QAction \endlink.)
 
-  \sa whatsThis(), QStyleSheet, QWhatsThis
+  \sa QStyleSheet, QWhatsThis
 */
 void QAction::setWhatsThis( const QString& whatsThis )
 {
@@ -576,8 +556,11 @@ QString QAction::whatsThis() const
 }
 
 
-/*! Sets the action's accelerator to \a key, e.g.:
+/*! \property QAction::accel
+  \brief the action's accelerator key
 
+ Some actions can be triggered with an accelerator key, e.g.:
+ 
   \walkthrough action/toggleaction/toggleaction.cpp
   \skipto labelonoffaction
   \printline labelonoffaction
@@ -588,8 +571,11 @@ QString QAction::whatsThis() const
 
   For accelerators to work, the action's parent or one of its ancestors
   has to be the application window.
+  
+  The hexadecimal keycodes can be found in \l Qt::Key and \l
+  Qt::Modifier.
 
-  \sa accel()
+
 */
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even QActionGroups should respond to
@@ -624,29 +610,23 @@ void QAction::setAccel( int key )
 }
 
 
-/*! Returns the acceleration key.
-
-  The hexadecimal keycodes can be found in \l Qt::Key and \l Qt::Modifier.
-
-  \sa setAccel()
-*/
 int QAction::accel() const
 {
     return d->key;
 }
 
 
-/*! Makes the action a toggle action if \a enable is TRUE, or a
-  command action if \a enable is FALSE.
+/*! \property QAction::toggleAction
+  \brief whether the action is a toggle action
 
-  You may want to add toggle actions to a QActionGroup for exclusive
-  toggling.
+  An action that is not a toggle action is referred to as command
+  action. A command actions's user command is typically connected to
+  the activated() signal, wheras toggled() is the preferred signal for
+  toggle actions.
+  
+  For exclusive toggling ("one of many choice"), add toggle actions to
+  a QActionGroup with the \l QActionGroup::exclusive property set on.
 
-  Keep in mind that it is advisable to connect a command actions'
-  user command to the activated() signal whereas toggled() is the
-  preferred signal for toggle actions.
-
-  \sa isToggleAction()
 */
 void QAction::setToggleAction( bool enable )
 {
@@ -656,21 +636,18 @@ void QAction::setToggleAction( bool enable )
     d->update();
 }
 
-/*! Returns whether the action is a toggle action or not.
-
-  \sa setToggleAction()
-*/
 bool QAction::isToggleAction() const
 {
     return d->toggleaction;
 }
 
-/*! Switches a toggle action on if \a enable is TRUE or off if \e enable is
-  FALSE.
+/*! 
+  \property QAction::on
+  \brief whether a toggle action is on
 
-  This function has no effect on command actions and QActionGroups.
+  The property has no effect on command actions and QActionGroups.
 
-  \sa isOn(), isToggleAction(), setToggleAction()
+  \sa toggleAction
 */
 void QAction::setOn( bool enable )
 {
@@ -700,16 +677,16 @@ bool QAction::isOn() const
     return d->on;
 }
 
-/*! Enables the action if \a enable is TRUE, otherwise disables it.
-
+/*! \property QAction::enabled 
+  \brief whether the action is enabled
+  
   Disabled actions can't be chosen by the user. They don't
   disappear from the menu/tool bar but are immediately presented
   in a manner indicating their unavailability.
 
   What's this? help on disabled actions is still available
-  provided whatsThis() is set.
+  provided the \l whatsThis property is set.
 
-  \sa isEnabled()
 */
 void QAction::setEnabled( bool enable )
 {
@@ -719,14 +696,6 @@ void QAction::setEnabled( bool enable )
     d->update( QActionPrivate::State );
 }
 
-
-/*! Returns TRUE if the action is enabled, or FALSE if it is disabled.
-
-  Disabled actions appear in a way indicating their unavailability
-  and can't be chosen by the user.
-
-  \sa setEnabled()
-*/
 bool QAction::isEnabled() const
 {
     return d->enabled;
@@ -1247,45 +1216,42 @@ QActionGroup::~QActionGroup()
     delete d;
 }
 
-/*! Makes this action group exclusive if \a enable is TRUE
-  or non-exclusive if \a enable is FALSE.
+/*! \property QActionGroup::exclusive 
+  \brief whether the action group does exclusive toggling ("one of
+  many choice")
 
-  Exclusive groups can't have more than one toggle action set on
-  at a time.
-  Whenever a toggle action member of an exclusive group is toggled on,
-  every other toggle action member changes its isOn() property to FALSE.
-  Command action members are not affected.
+  Exclusive groups can't have more than one toggle action set on at a
+  time.  Whenever a toggle action member of an exclusive group is
+  toggled on, every other toggle action member changes its \l
+  QAction::on property to FALSE.  Command action members are not
+  affected.
 
-  \sa isExclusive(), setToggleAction()
+  \sa QAction::toggleAction
 */
 void QActionGroup::setExclusive( bool enable )
 {
     d->exclusive = enable;
 }
 
-/*! Returns TRUE if the action group is exclusive, otherwise FALSE.
-
-  \sa setExclusive()
-*/
-
 bool QActionGroup::isExclusive() const
 {
     return d->exclusive;
 }
 
-/*! When \a enable is TRUE, the group members are displayed in a
-  logical subwidget of the widget(s) the action group is added to.
-
-  Exclusive action groups added to a tool bar display their members
-  in a combobox with the action's text() and
-  iconSet() properties shown. Non-exclusive groups are represented
-  by a tool button showing their iconSet() and --
-  depending on QMainWindow::usesTextLabel() -- text() property. A
+/*!  \property QActionGroup::usesDropDown 
+  \brief whether the group members are displayed in a logical
+  subwidget of the widget(s) the action group is added to
+  
+  Exclusive action groups added to a tool bar display their members in
+  a combobox with the action's \l QAction::text and \l
+  QAction::iconSet properties shown. Non-exclusive groups are
+  represented by a tool button showing their \l QAction::iconSet and
+  -- depending on \l QMainWindow::usesText -- text() property. A
   submenu popup assists in displaying the member actions.
 
-  In a popup menu the member actions are grouped in a separate submenu.
-  Its menu entry can be adjusted by changing the action group's menuText()
-  and iconSet() properties:
+  In a popup menu the member actions are grouped in a separate
+  submenu.  Its menu entry can be adjusted by changing the action
+  group's \l QAction::menuText and \l QAction::iconSet properties:
 
   \walkthrough action/actiongroup/editor.cpp
   \skipto QActionGroup
@@ -1301,19 +1267,14 @@ bool QActionGroup::isExclusive() const
   (For a detailed explanation of the above code please refer to the
   \link actiongroup.html QActionGroup Walkthrough. \endlink
 
-  Changing setUsesDropDown() effects subsequent calls to addTo() only.
+  Changing usesDropDown effects subsequent calls to addTo() only.
 
-  \sa usesDropDown
 */
 void QActionGroup::setUsesDropDown( bool enable )
 {
     d->dropdown = enable;
 }
 
-/*! Returns whether this group uses a subwidget to represent its member actions.
-
-  \sa setUsesDropDown
-*/
 bool QActionGroup::usesDropDown() const
 {
     return d->dropdown;
