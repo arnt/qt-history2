@@ -801,11 +801,10 @@ QGArray::array_data * QGArray::newData()
 
 
 /*!
-  Deletes the shared array block, \a p.
+  Deletes the shared array block \a p.
 */
 
 void QGArray::deleteData( array_data *p )
 {
     delete p;
-    p = 0;
 }
