@@ -67,7 +67,7 @@ void MainWindow::updateSelection(const QItemSelection &selected,
 void MainWindow::changeCurrent(const QModelIndex &current,
     const QModelIndex &previous)
 {
-    statusBar()->message(
+    statusBar()->showMessage(
         tr("Moved from (%1,%2) to (%3,%4)")
             .arg(previous.row()).arg(previous.column())
             .arg(current.row()).arg(current.column()));
