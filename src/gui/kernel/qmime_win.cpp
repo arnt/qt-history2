@@ -15,7 +15,7 @@
 
 #ifndef QT_NO_MIME
 
-#include "qimage.h"
+#include "qimageio.h"
 #include "qdatastream.h"
 #include "qdragobject.h"
 #include "qbuffer.h"
@@ -574,7 +574,7 @@ int QWindowsMimeImage::cf(int index)
 int QWindowsMimeImage::cfFor(const char* mime)
 {
     if (qstrnicmp(mime,"image/",5)==0) {
-        QList<QByteArray> ofmts = QImage::outputFormats();
+        QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i)
             if (qstricmp(ofmts.at(i),mime+6)==0)
                 return CF_DIB;
@@ -593,7 +593,7 @@ const char* QWindowsMimeImage::mimeFor(int cf)
 bool QWindowsMimeImage::canConvert(const char* mime, int cf)
 {
     if (cf == CF_DIB && qstrnicmp(mime,"image/",5)==0) {
-        QList<QByteArray> ofmts = QImage::outputFormats();
+        QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i)
             if (qstricmp(ofmts.at(i),mime+6)==0)
                 return true;
