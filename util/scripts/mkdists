@@ -633,7 +633,9 @@ if (!$notplatform{win}) {
 	    if ( $build =~ /(.*)-dll(.*)/ ) {
 	        $buildtype .= " -dll";
 		open QC, ">>$qtdir/include/qconfig.h";
+		print QC "#ifndef QT_DLL\n";
 		print QC "#define QT_DLL\n";
+		print QC "#endif\n";
 		close QC;
 	    }
 	    if ( $build =~ /(.*)-mt(.*)/ ) {
