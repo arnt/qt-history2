@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "location.h"
+#include <stdio.h>
 
 QT_STATIC_CONST_IMPL Location Location::null;
 
