@@ -723,7 +723,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                             break;
                         pos = pw->isExplicitlyHidden()
                               ? pos - pw->size().width() - box->spacing()
-                              : pos = pw->pos().x();
+                      : pos = pw->pos().x();
                     }
                     pos = pos - w->size().width() - box->spacing();
                     hide = pos < extension_size + margin;
@@ -755,12 +755,16 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
     if (orientation == Qt::Horizontal) {
         setMinimumSize(d->handle->sizeHint().width() + box->spacing()*2 + extension_size + margin*2
-                       + d->items[0].widget->sizeHint().width(),
+                       + (d->items.isEmpty()
+                          ? d->iconSize.width()
+                          : d->items[0].widget->sizeHint().width()),
                        max_item_extent + margin*2);
     } else {
         setMinimumSize(max_item_extent + margin*2,
-                       d->handle->sizeHint().height() + box->spacing()*2 + extension_size + margin*2
-                       + d->items[0].widget->sizeHint().height());
+                       d->handle->sizeHint().height() + box->spacing()*2 + extension_size
+                       + margin*2 + (d->items.isEmpty()
+                                     ? d->iconSize.height()
+                                     : d->items[0].widget->sizeHint().height()));
     }
 
     if (hidden_count > 0) {
