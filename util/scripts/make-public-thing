@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#17 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#18 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -127,7 +127,7 @@ if ( !$skipdoc ) {
     perl util/qdoc/qdoc
     cd doc/html
     cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
-    for B in *.html
+    for B in *.html *.gif *.jpg
     do
       ci -mnone -t-'' -u \$B $base/cvs/qt/html/\${B},v
     done
