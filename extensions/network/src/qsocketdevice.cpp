@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#13 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#14 $
 **
 ** Implementation of Network Extension Library
 **
@@ -58,7 +58,7 @@ public:
 
 This enum type describes the error states of QSocketDevice.  At
 present these errors are defined: <ul>
-  
+
 <li> \c NoError - all is fine.
 
 <li> \c AlreadyBound - bind() said so.
@@ -104,7 +104,8 @@ Qt developers did not foresee.
 */
 
 QSocketDevice::QSocketDevice( int socket, Type type )
-    : d( new QSocketDevicePrivate )
+    : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
+      d( new QSocketDevicePrivate )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",

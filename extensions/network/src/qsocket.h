@@ -40,25 +40,28 @@ class QSocket : public QObject, public QIODevice
     Q_OBJECT
 public:
     enum Error {
-	ErrConnectionRefused, 
+	ErrConnectionRefused,
 	ErrHostNotFound,
 	ErrSocketRead
     };
-    
+
     QSocket( QObject *parent=0, const char *name=0 );
-    QSocket( int socket, QObject *parent=0, const char *name=0 );
    ~QSocket();
 
-    enum State { Idle, HostLookup, Connecting, Connection, Closing };
+    enum State { Idle, HostLookup, Connecting, Listening, Connection, Closing };
     State	 state() const;
 
     enum Mode { Binary, Ascii };
     Mode	 mode() const;
     void	 setMode( Mode );
 
-    void	 connectToHost( const QString &host, int port );
-    QString	 host() const;
-    int		 port() const;
+    int		socket() const;
+    virtual void setSocket( int );
+
+    virtual void connectToHost( const QString &host, int port );
+    QString	 peerName() const;
+
+    virtual bool listen( const QHostAddress &, int port = 0 );
 
     // Implementation of QIODevice abstract virtual functions
     bool	 open( int mode );
@@ -82,6 +85,11 @@ public:
     bool	 canReadLine() const;
     QString	 readLine();
 
+    uint	 port() const;
+    uint	 peerPort() const;
+    QHostAddress address() const;
+    QHostAddress peerAddress() const;
+
 signals:
     void	 hostFound();
     void	 connected();
@@ -97,10 +105,10 @@ protected slots:
 
 protected:
     QSocketDevice *socketDevice();
-    void	 timerEvent( QTimerEvent * );
+    void	timerEvent( QTimerEvent * );
 
 private slots:
-    void	 tryConnecting();
+    void	tryConnecting();
 
 private:
     QSocketPrivate *d;

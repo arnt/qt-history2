@@ -28,6 +28,8 @@
 #include "qsocketdevice.h"
 #include "qdns.h"
 
+#include <string.h>
+#include <errno.h>
 
 //#define QSOCKET_DEBUG
 
@@ -101,36 +103,6 @@ QSocket::QSocket( QObject *parent, const char *name )
     d = new QSocketPrivate;
     setFlags( IO_Direct );
     setStatus( IO_Ok );
-}
-
-
-/*!
-  Creates a QSocket object for an existing connection using \a socket.
-
-*/
-
-QSocket::QSocket( int socket, QObject *parent, const char *name )
-    : QObject( parent, name )
-{
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): Attach to socket %x", name, socket );
-#endif
-    d = new QSocketPrivate;
-    d->socket = new QSocketDevice( socket, QSocketDevice::Stream );
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
-    d->state = Connection;
-    d->mode = Binary;
-    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read );
-    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write);
-    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    d->rsn->setEnabled( TRUE );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
-    d->wsn->setEnabled( FALSE );
-    // Initialize the IO device flags
-    setFlags( IO_Direct );
-    setStatus( IO_Ok );
-    open( IO_ReadWrite );
 }
 
 
@@ -214,15 +186,14 @@ QSocket::State QSocket::state() const
 
   The default mode is \c QSocket::Binary.
 
-  The documentation of setMode() explains this mode setting.
-
-  \sa setMode()
+  \sa setMode() Mode
 */
 
 QSocket::Mode QSocket::mode() const
 {
     return d->mode;
 }
+
 
 /*!
   \enum QSocket::Mode
@@ -233,6 +204,7 @@ QSocket::Mode QSocket::mode() const
   <li> \c QSocket::Ascii
   </ul>
 */
+
 
 /*!
   Sets the
@@ -284,8 +256,6 @@ void QSocket::setMode( Mode mode )
   \c QSocket::Connecting state.  Finally, when a connection has been
   made, the state becomes \c QSocket::Connection.
 
-  TODO### No real error handling so far. Blocking host lookup.
-
   \sa state()
 */
 
@@ -299,19 +269,20 @@ void QSocket::connectToHost( const QString &host, int port )
 	close();
     // Re-initialize
     delete d;
+
     d = new QSocketPrivate;
-    d->socket = new QSocketDevice( QSocketDevice::Stream );
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
+    setSocket( -1 );
+
+    QObject * p = this;
+    while ( p && p->parent() )
+	p = p->parent();
+    p->QObject::dumpObjectTree();
+
     d->state = HostLookup;
     d->host = host;
     d->port = port;
     d->dns = new QDns( host, QDns::A );
     connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
-    // Initialize the IO device flags
-    setFlags( IO_Sequential );
-    setStatus( IO_Ok );
-    open( IO_ReadWrite );
     // First connection attempt, more to follow
     tryConnecting();
 };
@@ -352,44 +323,8 @@ void QSocket::tryConnecting()
     qDebug( "QSocket (%s)::tryConnecting: Connect to IP address %s",
 	    name(), l[0].toString().ascii() );
 #endif
-
-    // Create and setup read/write socket notifiers
     // The socket write notifier will fire when the connection succeeds
-    if ( !d->rsn ) {
-	d->rsn = new QSocketNotifier( d->socket->socket(),
-				      QSocketNotifier::Read );
-	connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    }
-    d->rsn->setEnabled( TRUE );
-    if ( !d->wsn ) {
-	d->wsn = new QSocketNotifier( d->socket->socket(),
-				      QSocketNotifier::Write );
-	connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
-    }
     d->wsn->setEnabled( TRUE );
-    return;
-}
-
-
-/*!
-  Returns the host name as specified to the connectToHost() function.
-  If none has been set, the returned host name is "".
-*/
-
-QString QSocket::host() const
-{
-    return d->host;
-}
-
-
-/*!
-  Returns the host port as specified to the connectToHost() function.
-  If none has been set, the returned port is 0.
-*/
-
-int QSocket::port() const
-{
-    return d->port;
 }
 
 
@@ -673,7 +608,7 @@ void QSocket::flush()
 {
     if ( d->state >= Connecting && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_write: Write data to the socket", name() );
+	qDebug( "QSocket (%s): flush: Write data to the socket", name() );
 #endif
 	QByteArray *a = d->wba.first();
 	int nwritten;
@@ -696,16 +631,17 @@ void QSocket::flush()
 	    nwritten = d->socket->writeBlock( a->data() + d->windex,
 					      a->size() - d->windex );
 	}
-	consumeWriteBuf( nwritten );
-	if ( nwritten > 0 )
+	if ( nwritten > 0 ) {
+	    consumeWriteBuf( nwritten );
 	    emit bytesWritten( nwritten );
 #if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_write: wrote %d bytes, %d left",
-		name(), nwritten, d->wsize );
+	    qDebug( "QSocket (%s): flush: wrote %d bytes, %d left",
+		    name(), nwritten, d->wsize );
 #endif
+	}
 	if ( d->state == Closing && d->wsize == 0 ) {
 #if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): sn_write: Delayed close done. Terminating.",
+	    qDebug( "QSocket (%s): flush: Delayed close done. Terminating.",
 		    name() );
 #endif
 	    setFlags( IO_Sequential );
@@ -968,13 +904,25 @@ QString QSocket::readLine()
 
 void QSocket::sn_read()
 {
+    if ( state() == Listening ) {
+	int fd = d->socket->accept();
+	if ( fd >= 0 ) {
+	    setSocket( fd );
+	    emit connected();
+	}
+	// if it doesn't work, we will retry later
+	return;
+    } else if ( state() != Connection ) {
+	// nothing to do, nothing to care about
+	return;
+    }
+
     char buf[512];
     int  nbytes = d->socket->bytesAvailable();
     int  nread;
     QByteArray *a = 0;
 
     if ( nbytes <= 0 ) {			// connection closed?
-
 	// On Windows this may happen when the connection is still open.
 	// This happens when the system is heavily loaded and we have
 	// read all the data on the socket before a new WSAsyncSelect
@@ -1008,7 +956,6 @@ void QSocket::sn_read()
 	}
 
     } else {					// data to be read
-
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): sn_read: %d incoming bytes", name(), nbytes );
 #endif
@@ -1047,15 +994,127 @@ void QSocket::sn_write()
     if ( d->state == Connecting ) {		// connection established?
 	if ( d->socket->connect( d->addr, d->port ) ) {
 	    d->state = Connection;
+#if defined(QSOCKET_DEBUG)
+	    qDebug( "QSocket (%s): sn_write: Got connection to %s",
+		    name(), peerName().ascii() );
+#endif
 	    emit connected();
 	} else {
 	    d->state = Idle;
 	    emit error( ErrConnectionRefused );
 	    return;
 	}
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_write: Got connection!", name() );
-#endif
     }
     flush();
+}
+
+
+/*!  Listens for and accepts a single inbound connection on address \a
+  a, port \a p.  \a a must be supplied (although you can use the
+  default constructor for QHostAddress).  \a p defaults to 0, which
+  lets the operating system select a port.
+
+*/
+
+bool QSocket::listen( const QHostAddress &a, int p )
+{
+    setSocket( -1 );
+    d->socket->bind( a, p );
+    d->socket->listen( 1 );
+}
+
+
+/*!
+
+*/
+
+int QSocket::socket() const
+{
+    return d->socket->socket();
+}
+
+
+/*!  Sets the socket to use \a socket and the state() to \c Connected.
+*/
+
+void QSocket::setSocket( int socket )
+{
+    if ( state() != Idle )
+	close();
+    // close may not have actually deleted the thing.  so, we brutally
+    // Act.
+    delete d;
+
+    d = new QSocketPrivate;
+    if ( socket >= 0 )
+	d->socket = new QSocketDevice( socket, QSocketDevice::Stream );
+    else
+	d->socket = new QSocketDevice( QSocketDevice::Stream );
+    d->socket->setBlocking( FALSE );
+    d->socket->setAddressReusable( TRUE );
+    d->state = Connection;
+    d->mode = Binary;
+    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
+				  this, "read" );
+    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
+				  this, "write" );
+    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    d->rsn->setEnabled( TRUE );
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    d->wsn->setEnabled( FALSE );
+    // Initialize the IO device flags
+    setFlags( IO_Direct );
+    setStatus( IO_Ok );
+    open( IO_ReadWrite );
+}
+
+
+/*!  Returns the port
+
+*/
+
+uint QSocket::port() const
+{
+    return d->socket->port();
+}
+
+
+/*!
+
+*/
+
+uint QSocket::peerPort() const
+{
+    return d->socket->peerPort();
+}
+
+
+/*!
+
+*/
+
+QHostAddress QSocket::address() const
+{
+    return d->socket->address();
+}
+
+
+/*!
+  Returns the host port as specified to the connectToHost() function.
+  If none has been set, the returned port is 0.
+*/
+
+QHostAddress QSocket::peerAddress() const
+{
+    return d->socket->peerAddress();
+}
+
+
+/*!
+
+*/
+
+QString QSocket::peerName() const
+{
+    return d->host;
 }

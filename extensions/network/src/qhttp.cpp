@@ -69,10 +69,10 @@ void QHttp::operationGet( QNetworkOperation *op )
 
 bool QHttp::checkConnection( QNetworkOperation *op )
 {
-    if ( !commandSocket->host().isEmpty() && connectionReady )
+    if ( !commandSocket->peerName().isEmpty() && connectionReady )
 	return TRUE;
 
-    if ( !commandSocket->host().isEmpty() )
+    if ( !commandSocket->peerName().isEmpty() )
 	return FALSE;
 
     connectionReady = FALSE;
@@ -94,7 +94,7 @@ bool QHttp::checkConnection( QNetworkOperation *op )
 
 void QHttp::close()
 {
-    if ( !commandSocket->host().isEmpty() ) {
+    if ( !commandSocket->peerName().isEmpty() ) {
  	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
  	commandSocket->close();
     }
