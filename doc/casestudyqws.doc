@@ -120,39 +120,39 @@ or Qt/Windows if we wish.
 <h3>Creating a suitable Qt/Embedded Library</h3>
 
 Since our application is quite simple we can remove some unneeded features
-from Qt/Embedded.  Edit $QTDIR/src/tools/qfeatures.h and disable the
+from Qt/Embedded.  Edit $QTDIR/src/tools/qconfig.h and disable the
 following features:
 <table border=0><tr><td valign=top><ul>
-<li>QT_FEATURE_IMAGEIO_BMP
-<li>QT_FEATURE_IMAGEIO_PPM
-<li>QT_FEATURE_IMAGEIO_XBM
-<li>QT_FEATURE_IMAGEIO_PNG
-<li>QT_FEATURE_ASYNC_IO
-<li>QT_FEATURE_ASYNC_IMAGE_IO
-<li>QT_FEATURE_TRUETYPE
-<li>QT_FEATURE_BDF
-<li>QT_FEATURE_FONTDATABASE
-<li>QT_FEATURE_MIME
-<li>QT_FEATURE_SOUND
-<li>QT_FEATURE_PROPERTIES
-<li>QT_FEATURE_CURSOR
-<li>QT_FEATURE_NETWORKPROTOCOL
-<li>QT_FEATURE_COLORNAMES
+<li>QT_NO_IMAGEIO_BMP
+<li>QT_NO_IMAGEIO_PPM
+<li>QT_NO_IMAGEIO_XBM
+<li>QT_NO_IMAGEIO_PNG
+<li>QT_NO_ASYNC_IO
+<li>QT_NO_ASYNC_IMAGE_IO
+<li>QT_NO_TRUETYPE
+<li>QT_NO_BDF
+<li>QT_NO_FONTDATABASE
+<li>QT_NO_MIME
+<li>QT_NO_SOUND
+<li>QT_NO_PROPERTIES
+<li>QT_NO_CURSOR
+<li>QT_NO_NETWORKPROTOCOL
+<li>QT_NO_COLORNAMES
 </ul></td><td valign=top><ul>
-<li>QT_FEATURE_TRANSFORMATIONS
-<li>QT_FEATURE_PSPRINTER
-<li>QT_FEATURE_PICTURE
-<li>QT_FEATURE_LISTVIEW
-<li>QT_FEATURE_CANVAS
-<li>QT_FEATURE_DIAL
-<li>QT_FEATURE_WORKSPACE
-<li>QT_FEATURE_LCDNUMBER
-<li>QT_FEATURE_STYLE_MOTIF
-<li>QT_FEATURE_STYLE_PLATINUM
-<li>QT_FEATURE_COLORDIALOG
-<li>QT_FEATURE_PROGRESSDIALOG
-<li>QT_FEATURE_TABDIALOG
-<li>QT_FEATURE_WIZARD
+<li>QT_NO_TRANSFORMATIONS
+<li>QT_NO_PSPRINTER
+<li>QT_NO_PICTURE
+<li>QT_NO_LISTVIEW
+<li>QT_NO_CANVAS
+<li>QT_NO_DIAL
+<li>QT_NO_WORKSPACE
+<li>QT_NO_LCDNUMBER
+<li>QT_NO_STYLE_MOTIF
+<li>QT_NO_STYLE_PLATINUM
+<li>QT_NO_COLORDIALOG
+<li>QT_NO_PROGRESSDIALOG
+<li>QT_NO_TABDIALOG
+<li>QT_NO_WIZARD
 </ul></td></tr></table>
 
 See <a href=features.html>Qt Features</a> for a description of the features
