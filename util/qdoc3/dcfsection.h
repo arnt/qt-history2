@@ -12,26 +12,7 @@ struct DcfSection
     QString title;
     QString ref;
     QList<QPair<QString, QString> > keywords;
-    QList<DcfSection> *subsections;
-
-    DcfSection() : subsections( 0 ) { }
-    inline DcfSection( const DcfSection& other ) : subsections( 0 ) { operator=( other ); }
-    ~DcfSection() { delete subsections; }
-
-    inline DcfSection& operator=( const DcfSection& other )
-    {
-	QList<DcfSection> *oldSubsections = subsections;
-	if ( other.subsections == 0 ) {
-	    subsections = 0;
-	} else {
-	    subsections = new QList<DcfSection>( *other.subsections );
-	}
-	delete oldSubsections;
-	title = other.title;
-	ref = other.ref;
-	keywords = other.keywords;
-	return *this;
-    }
+    QList<DcfSection> subsections;
 };
 
 inline bool operator<( const DcfSection& s1, const DcfSection& s2 ) {

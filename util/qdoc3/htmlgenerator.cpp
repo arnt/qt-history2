@@ -59,6 +59,9 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
 void HtmlGenerator::terminateGenerator()
 {
+    dcfRoot.ref = "index.html";
+    dcfRoot.title = "Qt Reference Documentation";
+    qHeapSort(dcfRoot.subsections);
     generateDcfSections(dcfRoot, outputDir() + "/" +
 			project.toLower().replace(QRegExp("[\\s/]"), ".") + ".dcf",
                         project.toLower() + "/reference");
@@ -487,9 +490,9 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     }
     generateThreadSafeness(inner, marker);
 
-    QString link = generateListOfAllMemberFile(inner, marker);
-    if (!link.isEmpty())
-        out() << "<p><a href=\"" << link << "\">" << "List of all members.</a></p>\n";
+    QString membersLink = generateListOfAllMemberFile(inner, marker);
+    if (!membersLink.isEmpty())
+        out() << "<p><a href=\"" << membersLink << "\">" << "List of all members.</a></p>\n";
 
     if (classe)
         sections = marker->classSections(classe, CodeMarker::Summary);
@@ -560,6 +563,13 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 	++s;
     }
     generateFooter( inner );
+
+    if (!membersLink.isEmpty()) {
+        DcfSection membersSection;
+        membersSection.title = "List of all members";
+        membersSection.ref = membersLink;
+        appendDcfSubSection(&classSection, membersSection);
+    }
 
     appendDcfSubSection(&dcfRoot, classSection);
 }

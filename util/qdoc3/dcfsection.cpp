@@ -1,4 +1,5 @@
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qtextstream.h>
 
 #include "dcfsection.h"
@@ -6,29 +7,21 @@
 
 void appendDcfSubSection( DcfSection *dcfSect, const DcfSection& sub )
 {
-    if ( dcfSect->subsections == 0 )
-	dcfSect->subsections = new QList<DcfSection>;
-    dcfSect->subsections->append( sub );
+    dcfSect->subsections.append( sub );
 }
 
-void appendDcfSubSections( DcfSection *dcfSect,
-			   const QList<DcfSection>& subs )
+void appendDcfSubSections( DcfSection *dcfSect, const QList<DcfSection>& subs )
 {
-    if ( dcfSect->subsections == 0 )
-	dcfSect->subsections = new QList<DcfSection>;
-    *dcfSect->subsections += subs;
+    dcfSect->subsections += subs;
 }
 
 void generateDcfSubSections( QString indent, QTextStream& out, const DcfSection& sect )
 {
-    if (!sect.subsections)
-        return;
-
-    QList<DcfSection>::ConstIterator ss = sect.subsections->begin();
-    while ( ss != sect.subsections->end() ) {
+    QList<DcfSection>::const_iterator ss = sect.subsections.constBegin();
+    while ( ss != sect.subsections.constEnd() ) {
 	out << indent << "<section ref=\"" << HtmlGenerator::protect((*ss).ref)
             << "\" title=\"" << HtmlGenerator::protect((*ss).title) << "\"";
-	if ( (*ss).keywords.isEmpty() && (*ss).subsections == 0 ) {
+	if ((*ss).keywords.isEmpty() && (*ss).subsections.isEmpty()) {
 	    out << "/>\n";
 	} else {
 	    out << ">\n";
@@ -56,8 +49,7 @@ void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
 
     QTextStream out(&file);
 
-    QString icon = fileName;
-    icon.replace( ".dcf", ".png" );
+    QString icon = QFileInfo(fileName).baseName() + ".png";
 
     out << "<!DOCTYPE DCF>\n";
     out << "<DCF ref=\"" << HtmlGenerator::protect(rootSect.ref);
