@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#11 $
 **
-** Definition of the QWizard wizard framework
+** Definition of the QWizard class.
 **
 ** Created : 990101
 **
@@ -94,4 +94,4 @@ private:
 };
 
 
-#endif
+#endif // QWIZARD_H

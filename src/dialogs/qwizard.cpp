@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#30 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#31 $
 **
-** Implementation of something useful.
+** Implementation of QWizard class.
 **
 ** Created : 979899
 **
