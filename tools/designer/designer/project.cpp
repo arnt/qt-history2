@@ -196,11 +196,6 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     lang = "C++";
     cfg.insert( "(all)", "qt warn_on release" );
     templ = "app";
-    csList << "CPP_ALWAYS_CREATE_SOURCE";
-    if ( isDummy )
-	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
-    else
-	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
@@ -1003,15 +998,6 @@ void Project::updateCustomSettings()
     if ( !iface )
 	return;
     csList = iface->projectSettings();
-    if ( lang == "C++" ) {
-	if ( csList.find( "CPP_ALWAYS_CREATE_SOURCE" ) == csList.end() )
-	    csList << "CPP_ALWAYS_CREATE_SOURCE";
-	if ( isDummy() )
-	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
-	else
-	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
-    }
-	
     customSettings.clear();
 
 }
