@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#8 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#9 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,10 +12,12 @@
 
 #include "qobject.h"
 #include "qrect.h"
+#include "qtimer.h"
+#include "qintdict.h"
 
 class QWidget;
 class QTipManager;
-
+class QLabel;
 
 class QToolTipGroup: public QObject
 {
@@ -63,5 +65,57 @@ private:
     QWidget * p;
     QToolTipGroup * g;
 };
+
+
+
+// internal class - don't touch
+
+class QTipManager : public QObject
+{
+    Q_OBJECT
+public:
+    QTipManager();
+    ~QTipManager();
+
+    struct Tip
+    {
+	QRect rect;
+	QString text;
+	QString groupText;
+	QToolTipGroup * group;
+	bool autoDelete;
+	QTipManager::Tip * next;
+    };
+
+    bool eventFilter( QObject * o, QEvent * e );
+    void add( QWidget *, const QRect &,
+	      const char *, 
+	      QToolTipGroup *, const char *,
+	      bool );
+    void remove( QWidget *, const QRect & );
+    void remove( QWidget * );
+
+    void removeFromGroup( QToolTipGroup * );
+
+private slots:
+    void someWidgetDestroyed();
+    void showTip();
+    void hideTip();
+
+protected:
+    void maybeTip( const QPoint & = 0 );
+
+private:
+    QTimer wakeUp;
+    QTimer fallAsleep;
+
+    QIntDict<QTipManager::Tip> * tips;
+    QLabel * label;
+    QPoint pos;
+    QWidget * widget;
+    QTipManager::Tip * currentTip;
+    bool shown;
+};
+
 
 #endif
