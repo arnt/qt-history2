@@ -36,7 +36,6 @@
 #ifndef QT_H
 #include "qfont.h"
 #include "qlist.h"
-//#include "qfontdata_p.h"
 #endif // QT_H
 
 // These are stored in the shared memory segment in front of their
