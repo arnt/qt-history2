@@ -726,6 +726,13 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_UNKNOWN|VT_BYREF:
 	static_QUType_ptr.set( obj, *arg.ppunkVal );
 	break;
+    case VT_VARIANT: 
+    case VT_VARIANT|VT_BYREF:
+	if ( arg.pvarVal ) {
+	    QVariant var = VARIANTToQVariant( *arg.pvarVal, 0 );
+	    static_QUType_QVariant.set( obj, var );
+	}
+	break;
     default:
 	return FALSE;
     }
