@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#81 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#80 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#81 $")
 
 
 /*****************************************************************************
@@ -1537,8 +1537,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
-
-  \todo This is voodoo and badly needs an example.
 
   \sa xForm(), QWMatrix
  ----------------------------------------------------------------------------*/
