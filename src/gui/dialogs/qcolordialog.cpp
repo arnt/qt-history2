@@ -792,7 +792,7 @@ QSize QColorPicker::sizeHint() const
 
 void QColorPicker::setCol(int h, int s)
 {
-    int nhue = qMin(qMax(0,h), 360);
+    int nhue = qMin(qMax(0,h), 359);
     int nsat = qMin(qMax(0,s), 255);
     if (nhue == hue && nsat == sat)
         return;
@@ -1017,7 +1017,7 @@ QColorShower::QColorShower(QWidget *parent)
              this, SLOT(setRgb(QRgb)));
 
     hEd = new QColSpinBox(this);
-    hEd->setRange(0, 355);
+    hEd->setRange(0, 359);
     QLabel *l = new QLabel(QColorDialog::tr("Hu&e:"), this);
     l->setBuddy(hEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1025,7 +1025,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(hEd, 0, 2);
 
     sEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Sat:"), this);
     l->setBuddy(sEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1033,7 +1032,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(sEd, 1, 2);
 
     vEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Val:"), this);
     l->setBuddy(vEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1041,7 +1039,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(vEd, 2, 2);
 
     rEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Red:"), this);
     l->setBuddy(rEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1049,7 +1046,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(rEd, 0, 4);
 
     gEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Green:"), this);
     l->setBuddy(gEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1057,7 +1053,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(gEd, 1, 4);
 
     bEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("Bl&ue:"), this);
     l->setBuddy(bEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1065,7 +1060,6 @@ QColorShower::QColorShower(QWidget *parent)
     gl->addWidget(bEd, 2, 4);
 
     alphaEd = new QColSpinBox(this);
-    hEd->setRange(0, 255);
     alphaLab = new QLabel(QColorDialog::tr("A&lpha channel:"), this);
     l->setBuddy(alphaEd);
     alphaLab->setAlignment(Qt::AlignRight|Qt::AlignVCenter);

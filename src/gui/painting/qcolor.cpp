@@ -1113,7 +1113,7 @@ QColor QColor::toHsv() const
     if (!isValid())
         return *this;
 
-    if (cspec != Invalid && cspec != Rgb)
+    if (cspec != Rgb)
         return toRgb().toHsv();
 
     QColor color;
@@ -1134,17 +1134,21 @@ QColor QColor::toHsv() const
         color.ct.ahsv.saturation = 0;
     } else {
         // chromatic case
+        qreal hue;
         color.ct.ahsv.saturation = qRound((delta / max) * USHRT_MAX);
         if (r == max) {
-            color.ct.ahsv.hue = qRound(((g - b) /delta) * 6000);
+            hue = ((g - b) /delta);
         } else if (g == max) {
-            color.ct.ahsv.hue = qRound((2.0 + (b - r) / delta) * 6000);
+            hue = (2.0 + (b - r) / delta);
         } else if (b == max) {
-            color.ct.ahsv.hue = qRound((4.0 + (r - g) / delta) * 6000);
+            hue = (4.0 + (r - g) / delta);
         } else {
             Q_ASSERT_X(false, "QColor::toHsv", "internal error");
         }
-        color.ct.ahsv.hue %= 36000;
+        hue *= 60.0;
+        if (hue < 0.0)
+            hue += 360.0;
+        color.ct.ahsv.hue = qRound(hue * 100);
     }
 
     return color;
@@ -1157,9 +1161,10 @@ QColor QColor::toHsv() const
 */
 QColor QColor::toCmyk() const
 {
-    QColor rgb = toRgb();
-    if (!rgb.isValid())
-        return rgb;
+    if (!isValid())
+        return *this;
+    if (cspec != Rgb)
+        return toRgb().toCmyk();
 
     QColor color;
     color.cspec = Cmyk;
@@ -1701,7 +1706,16 @@ uint QColor::pixel(int screen) const
 QDebug operator<<(QDebug dbg, const QColor &c)
 {
 #ifndef Q_BROKEN_DEBUG_STREAM
-    dbg.nospace() << "QColor(" << c.name() << ')';
+    if (!c.isValid())
+        dbg.nospace() << "QColor(Invalid)";
+    else if (c.spec() == QColor::Rgb)
+        dbg.nospace() << "QColor(ARGB " << c.alphaF() << ", " << c.redF() << ", " << c.greenF() << ", " << c.blueF() << ")";
+    else if (c.spec() == QColor::Hsv)
+        dbg.nospace() << "QColor(AHSV " << c.alphaF() << ", " << c.hueF() << ", " << c.saturationF() << ", " << c.valueF() << ")";
+    else if (c.spec() == QColor::Cmyk)
+        dbg.nospace() << "QColor(ACMYK " << c.alphaF() << ", " << c.cyanF() << ", " << c.magentaF() << ", " << c.yellowF() << ", "
+                      << c.blackF()<< ")";
+
     return dbg.space();
 #else
     qWarning("This compiler doesn't support streaming QColor to QDebug");
