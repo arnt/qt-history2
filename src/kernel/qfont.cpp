@@ -208,76 +208,107 @@
 */
 
 /*! \enum QFont::Script
-  The QFont::Script enum represents a Unicode allocated script.
 
-  Modern European alphabetic scripts:
+  The QFont::Script enum represents \link unicode.html Unicode \endlink
+  allocated scripts. For exhaustive
+  coverage see \link http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t
+  The Unicode Standard Version 3.0 \endlink.
 
-  \value Latin
-  \value Greek
-  \value Cyrillic
-  \value Armenian
-  \value Georgian
-  \value Runic
-  \value Ogham
-  \value SpacingModifiers
-  \value CombiningMarks
+  Modern European alphabetic scripts (left to right):
 
-  Middle Eastern scripts:
+  \value Latin consists of most alphabets based on the original Latin alphabet.
+  \value Greek covers ancient and modern Greek and Coptic.
+  \value Cyrillic covers the Slavic and non-Slavic languages using cyrillic alphabets.
+  \value Armenian contains the Armenian alphabet used with the Armenian language.
+  \value Georgian covers at least the language Georgian.
+  \value Runic covers the known constituents of the Runic alphabets used
+         by the early and medieval societies in the Germanic, Scandinavian, and Anglo-Saxon
+         areas.
+  \value Ogham is an alphabetical script used to write a very early form of Irish.
+  \value SpacingModifiers are small signs indicating modifications of a preceeding letter. 
+  \value CombiningMarks consists of diacritical marks not specific to a particular alphabet,
+         diacritical marks used in combination with mathematical and technical symbols,
+         and glyph encodings applied to multiple letterforms.
 
-  \value Hebrew
-  \value Arabic
-  \value Syriac
-  \value Thaana
+  Middle Eastern scripts (right to left):
 
-  South and Southeast Asian scripts:
+  \value Hebrew is used for writing Hebrew, Yiddish, and some other languages.  
+  \value Arabic covers the Arabic language as well as Persian, Urdu, Kurdish and some
+         others.
+  \value Syriac is used to write the active liturgical languages and dialects of several
+         Middle Eastern and Southeast Indian communities.
+  \value Thaana is used to write the Maledivian Dhivehi language.
 
-  \value Devanagari
-  \value Bengali
-  \value Gurmukhi
-  \value Gujarati
-  \value Oriya
-  \value Tamil
-  \value Telugu
-  \value Kannada
-  \value Malayalam
-  \value Sinhala
-  \value Thai
-  \value Lao
-  \value Tibetan
-  \value Myanmar
-  \value Khmer
+  South and Southeast Asian scripts (left to right with few historical exceptions):
 
-  East Asian scripts:
+  \value Devanagari covers classical Sanskrit and modern Hindi as well as several other
+         languages.
+  \value Bengali is a relative to Devanagari employed to write the Bengali language
+         used in West Bengal/India and Bangladesh as well as several minority languages.
+  \value Gurmukhi is another Devanagari relative used to write Punjabi.
+  \value Gujarati is closely related to Devanagari and used to write the Gujarati
+         language of the Gujarat state in India.
+  \value Oriya is used to write the Oriya language of Orissa state/India.
+  \value Tamil is used to write the Tamil language of Tamil Nadu state/India,
+         Sri Lanka, Singapore and parts of Malaysia as well as some minority languages.
+  \value Telugu is used to write the Telugu language of Andhra Pradesh state/India
+         and some minority languages.
+  \value Kannada is another South Indian script used to write the Kannada language of
+         Karnataka state/India and some minority languages.
+  \value Malayalam is used to write the Malayalam language of Kerala state/India.
+  \value Sinhala is used Sri Lanka's majority language Sinhala and is also employed
+         to write Pali, Sanskrit and Tamil.
+  \value Thai is used to write Thai and other Southeast Asian languages. 
+  \value Lao is a language and script quite similar to Thai.
+  \value Tibetan is the script used to write Tibetan in several countries like Tibet, 
+         the bordering Indian regions, or Nepal. It is also used in the Buddist
+         philosophy and liturgy in the Mongolian cultural area.
+  \value Myanmar is mainly used to write the Burmese language of Myanmar (former Burma).
+  \value Khmer is the official kanguage of Kampuchea.
 
-  \value Han
-  \value Hiragana
-  \value Katakana
-  \value Hangul
-  \value Bopomofo
-  \value Yi
+  East Asian scripts (traditionally top-down, right to left, modern often horizontal
+         left to right):
+
+  \value Han consists of the CJK (Chinese, Japanese, Korean) idiographic characters.
+  \value Hiragana is a cursive syllabary used to indicate phonetics and pronounciation
+         of Japanese words.
+  \value Katakana is a non-cursive syllabic script used to write Japanese words with
+         visual emphasis and non-Japanese words in a phonetical manner.
+  \value Hangul is a Korean script consisting of alphabetic components.
+  \value Bopomofo is a phonetic alphabet for Chinese
+         (mainly Mandarin). 
+  \value Yi (also called Cuan or Wei) is a syllabary used to write the Yi language
+         of Southwestern China, Myanmar, Laos, and Vietnam.  
 
   Additional scripts that do not fit well into the script categories above:
 
-  \value Ethiopic
-  \value Cherokee
-  \value CanadianAboriginal
-  \value Mongolian
+  \value Ethiopic is a syllabary used by several Central East African languages.  
+  \value Cherokee is a left-to-right syllabic script used to write the Cherokee language.
+  \value CanadianAboriginal consists of the syllabics used by some Canadian aboriginal societies.
+  \value Mongolian is the traditional (and recently restored) script used to write Mongolian. 
 
   Symbols:
 
-  \value CurrencySymbols
-  \value LetterlikeSymbols
-  \value NumberForms
-  \value MathematicalOperators
-  \value TechnicalSymbols
-  \value GeometricSymbols
-  \value MiscellaneousSymbols
-  \value EnclosedAndSquare
-  \value Braille
+  \value CurrencySymbols contains currency symbols not encoded in other scripts.
+  \value LetterlikeSymbols consists of symbols derived  from ordinary letters of an
+         alphabetical script.                  
+  \value NumberForms are provided for compatibility with other existing character sets.
+  \value MathematicalOperators consists of encodings for operators,
+         relations and other symbols like arrows used in a mathematical context.
+  \value TechnicalSymbols contains representations for control codes, the space symbol,
+         APL symbols and other symbols mainly used in the context of electronic data 
+         processing.
+  \value GeometricSymbols covers block elements and geometric shapes.
+  \value MiscellaneousSymbols consists of a heterogeneous collection of symbols that
+         do not fit any other Unicode character block, e.g. Dingbats.
+  \value EnclosedAndSquare is provided for compatibility with some East Asian standards.
+  \value Braille is an international writing system used by blind people. This script encodes
+         the 256 eight-dot patterns with the 64 six-dot patterns as a subset.
 
 
   \value Unicode includes all the above scripts.
 
+  The values below are provided for completeness and must not be used in user programs.  
 
   \value HanX11 For internal use only.
   \value LatinBasic For internal use only.
@@ -288,6 +319,10 @@
   \value LatinExtendedA_15 For internal use only.
 
   \value LastPrivateScript For internal use only.
+
+  \value NScripts For internal use only.
+  \value NoScript For internal use only.
+  \value UnknownScript For internal use only.
 */
 
 /*! \internal
