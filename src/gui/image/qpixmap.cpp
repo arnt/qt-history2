@@ -656,9 +656,7 @@ const QBitmap *QPixmap::mask() const
 void QPixmap::setMask(const QBitmap &newmask)
 {
     const QPixmap *tmp = &newmask;                // dec cxx bug
-    if ((data == tmp->data)
-        || (static_cast<const QPixmap &>(newmask).data->hd 
-            && static_cast<const QPixmap &>(newmask).data->hd == data->hd)) {
+    if (data == tmp->data || (tmp->data->hd && tmp->data->hd == data->hd)) {
         QPixmap m = tmp->copy(true);
         setMask(*((QBitmap*)&m));
         data->selfmask = true;                        // mask == pixmap
