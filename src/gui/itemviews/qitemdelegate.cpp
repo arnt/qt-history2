@@ -309,7 +309,8 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
 {
     if (option.state & QStyle::Style_HasFocus) {
         QStyleOptionFocusRect o(0);
-        o.rect = rect;
+        o.rect.setRect(rect.x() - border, rect.y() - border,
+                       rect.width() + border * 2, rect.height() + border * 2);
         o.palette = option.palette;
         o.state = QStyle::Style_Default;
         if (option.state & QStyle::Style_Selected)
