@@ -252,7 +252,7 @@ static const char * const ps_header[] = {
 "      } if",
 "      3 add",
 "      ", // string pos length
-"      exch 11 rB 1 add",
+"      exch 10 rB 1 add",
 "      ", // string length pos dist
 "      {",
 "       dup 3 index lt {",
@@ -5663,18 +5663,20 @@ static void ps_r7( QTextStream& stream, const char * s, int l )
 
 static const int quoteSize = 3; // 1-8 pixels
 static const int maxQuoteLength = 4+16+32+64+128+256; // magic extended quote
-static const int quoteReach = 11; // ... 1-1024 pixels back
-static const int tableSize = 2048; // 2 ** quoteReach;
-static const int numAttempts = 256;
+static const int quoteReach = 10; // ... 1-1024 pixels back
+static const int tableSize = 1024; // 2 ** quoteReach;
+static const int numAttempts = 128;
 
-static const int hashSize = 29;
+static const int hashSize = 71;
 
 static const int None = INT_MAX;
 
 /* puts the lowest numBits of data into the out array starting at postion (byte/bit).
-   Adjusts byte and bit to point ot the next position
+   Adjusts byte and bit to point ot the next position.
+
+   Need to make sure the out array is long enough before calling the method.
 */
-static void emitBits( QByteArray & out, int & byte, int & bit,
+static void emitBits( char *out, int & byte, int & bit,
                       int numBits, uint data )
 {
     int b = 0;
@@ -5690,16 +5692,19 @@ static void emitBits( QByteArray & out, int & byte, int & bit,
         if ( bit > 6 ) {
             bit = 0;
             byte++;
-            if ( byte == (int)out.size() )
-                out.resize( byte*2 );
         }
     }
 }
 
 //#define DEBUG_COMPRESS
+#ifdef DEBUG_COMPRESS
+#include <qdatetime.h>
+#endif
 
 QByteArray compress( const QImage & image, bool gray ) {
 #ifdef DEBUG_COMPRESS
+    QTime t;
+    t.start();
     int sizeUncompressed[11];
     for( int i = 0; i < 11; i++ )
 	sizeUncompressed[i] = 0;
@@ -5792,15 +5797,33 @@ QByteArray compress( const QImage & image, bool gray ) {
        when we find a spot, we'll try a string-compare of all the
        intervening pixels. we only do a maximum of 128 both-ends
        compares or 64 full-string compares. it's more important to be
-       fast than get the ultimate in compression. */
+       fast than get the ultimate in compression. 
+
+       The format of the compressed stream is as follows:
+       // 2 bits step size for search and backreference ( 1 or 3 )
+       1 bit compressed or uncompressed block follows
+
+       uncompressed block:
+       3 bits size of block in bytes
+       size*8 bits data
+
+       compressed block:
+       3 bits compression header
+           0-2 size of block is 1-3 bytes
+           3-7 size of block is bigger, 4-8 additional bits specifying size follow
+       0/4-8 additional size fields
+       10 location of backreference
+    */
 
     for( i=0; i < hashSize; i++ )
         mostRecentPixel[i] = None;
     int index = 0;
     int emittedUntil = 0;
-    QByteArray out( 49 );
+    char *out = (char *)malloc( 256 * sizeof( uchar ) );
+    int outLen = 256;
     int outOffset = 0;
     int outBit = 0;
+
     /* we process pixels serially, emitting as necessary/possible. */
     while( index <= size ) {
         int bestCandidate = None;
@@ -5946,6 +5969,10 @@ QByteArray compress( const QImage & image, bool gray ) {
 		sizeUncompressed[x]++;
 #endif
                 int l = QMIN( 8, index - emittedUntil );
+		if ( outOffset + l + 1 >= outLen ) {
+		    outLen *= 2;
+		    out = (char *) realloc( out, outLen );
+		}
                 emitBits( out, outOffset, outBit,
                           1, 0 );
                 emitBits( out, outOffset, outBit,
@@ -5967,6 +5994,10 @@ QByteArray compress( const QImage & image, bool gray ) {
 	    if ( x > 10 ) x = 10;
 	    sizeCompressed[x]++;
 #endif
+	    if ( outOffset + 3 >= outLen ) {
+		outLen *= 2;
+		out = (char *) realloc( out, outLen );
+	    }
             emitBits( out, outOffset, outBit,
                       1, 1 );
 	    int l = bestLength - 3;
@@ -6009,7 +6040,6 @@ QByteArray compress( const QImage & image, bool gray ) {
        last characters. */
     if ( outBit )
         outOffset++;
-    out.truncate( outOffset );
     i = 0;
     /* we have to make sure the data is encoded in a stylish way :) */
     while( i < outOffset ) {
@@ -6020,10 +6050,14 @@ QByteArray compress( const QImage & image, bool gray ) {
         out[i] = c;
         i++;
     }
+    QByteArray outarr;
+    outarr.duplicate( out, outOffset );
+    free( out );
     delete [] pixel;
 
 #ifdef DEBUG_COMPRESS
     qDebug( "------------- image compression statistics ----------------" );
+    qDebug(" compression time %d", t.elapsed() );
     qDebug( "Size dist of uncompressed blocks:" );
     qDebug( "\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[0], sizeUncompressed[1],
 	    sizeUncompressed[2], sizeUncompressed[3], sizeUncompressed[4], sizeUncompressed[5]);
@@ -6038,7 +6072,7 @@ QByteArray compress( const QImage & image, bool gray ) {
     qDebug( "-----------------------------------------------------------" );
 #endif
     
-    return out;
+    return outarr;
 }
 
 #undef XCOORD
