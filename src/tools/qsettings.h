@@ -47,9 +47,9 @@ public:
     bool	writeEntry( const QString &, int );
     bool	writeEntry( const QString &, const char * );
     bool	writeEntry( const QString &, const QString & );
-    bool	writeEntry( const QString &, const QStringList &, const QChar & );
+    bool	writeEntry( const QString &, const QStringList &, const QChar & = ';' );
 
-    QStringList readListEntry( const QString &, const QChar &, bool * = 0 );
+    QStringList readListEntry( const QString &, const QChar & = ';', bool * = 0 );
     QString	readEntry( const QString &, const QString &def = QString::null, bool * = 0 );
     int		readNumEntry( const QString &, int def = 0, bool * = 0 );
     double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
