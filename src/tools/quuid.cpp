@@ -263,7 +263,8 @@ Qt::UuidVariant QUuid::variant() const
 /*!
     \fn Qt::UuidVersion QUuid::version() const
     
-    Returns the version of the Uuid.
+    Returns the version of the Uuid, if the Uuid is of the 
+    UV_Standard variant; otherwise returns UV_VerUnknown.
 
     \sa variant()
 */
@@ -272,6 +273,7 @@ Qt::UuidVersion QUuid::version() const
     // Check the 4 MSB of data3
     Qt::UuidVersion ver = (Qt::UuidVersion)(data3>>12);
     if ( isNull() 
+	 || (variant() != Qt::UV_Standard)
 	 || ver < Qt::UV_Time 
 	 || ver > Qt::UV_Random )
 	return Qt::UV_VerUnknown;
