@@ -1,5 +1,7 @@
 TEMPLATE	= subdirs
 win32:SUBDIRS	= designer \
-		  assistant
+		  assistant \
+		  linguist
 unix:SUBDIRS	= designer \
-		  assistant
+		  assistant \
+		  linguist
