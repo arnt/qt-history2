@@ -149,7 +149,10 @@ QTextDocumentPrivate *QTextObject::docHandle() const
     with blockRemoved(). If a block's format is changed, blockFormatChanged()
     is called. 
 
-    The list of blocks in the group is returned by blockList().
+    The list of blocks in the group is returned by blockList(). Note that the
+    blocks in the list are not necessarily adjacent elements in the document;
+    for example, the top-level items in a multi-level list will be separated
+    by the items in lower levels of the list.
 
     \sa QTextBlock QTextDocument
 */
@@ -713,6 +716,11 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     within the document. Note that blocks are returned in sequence, so
     adjacent blocks may come from different places in the document structure.
 
+    QTextBlock provides comparison operators two make it easier to work with
+    blocks: operator==() compares two block for equality, operator!=()
+    compares two blocks for inequality, and operator<() determines whether
+    a block precedes another in the same document.
+
     \img qtextblock-sequence.png
 
     \sa QTextBlockFormat QTextCharFormat QTextFragment
@@ -781,7 +789,7 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     An iterator can be constructed and used to access the fragments within
     a text block in the following way:
 
-    \quotefile snippets/textblock-fragments/xmlwriter.cpp
+    \quotefromfile snippets/textblock-fragments/xmlwriter.cpp
     \skipto QTextBlock::iterator
     \printuntil if (fragment.isValid())
     \skipto ...

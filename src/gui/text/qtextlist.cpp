@@ -54,10 +54,17 @@ class QTextListPrivate : public QTextBlockGroupPrivate
     obtained by its index in the list with the item() function. Similarly,
     the index of a given item can be found with itemNumber(). The text of
     each item can be found with the itemText() function.
+
+    Note that the items in the list may not be adjacent elements in the
+    document. For example, the top-level items in a multi-level list will
+    be separated by the items in lower levels of the list.
+
     List items can be deleted by index with the removeItem() function.
     remove() deletes the specified item in the list.
 
-    The list's format is set with setFormat(), and read with format().
+    The list's format is set with setFormat() and read with format().
+    The format describes the decoration of the list itself, and not the
+    individual items.
 
     \sa QTextListFormat QTextCursor
 */
@@ -97,7 +104,7 @@ int QTextList::count() const
 /*!
     Returns the \a{i}-th text block in the list.
 
-    \sa count() item() itemText()
+    \sa count() itemText()
 */
 QTextBlock QTextList::item(int i) const
 {
