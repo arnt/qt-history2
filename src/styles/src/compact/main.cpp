@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qcompactstyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class CompactStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 CompactStyle::CompactStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList CompactStyle::featureList() const
 
 QStyle* CompactStyle::create( const QString& s )
 {
-    if ( s.lower() == "compact" )
-        return style = new QCompactStyle();
+    if ( s.lower() == "compact" ) {
+        QStyle *style = new QCompactStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool CompactStyle::init()
 
 void CompactStyle::cleanup() 
 {
-    delete style;
+    styles.clear();;
 }
 
 bool CompactStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE()
