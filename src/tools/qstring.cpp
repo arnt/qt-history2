@@ -13959,9 +13959,9 @@ int QString::find( QChar c, int index, bool cs ) const
 
 /* an implementation of the Boyle-Moore search algorithm */
 
-/* initializes the skiptable to know haw far ahead we can skip on a wrong match 
+/* initializes the skiptable to know haw far ahead we can skip on a wrong match
 */
-static void bm_init_skiptable( const QString &pattern, uint *skiptable, bool cs ) 
+static void bm_init_skiptable( const QString &pattern, uint *skiptable, bool cs )
 {
     int i = 0;
     register uint *st = skiptable;
@@ -14020,7 +14020,7 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
 		    skip = pl + 1 - skip;
 		else
 		    skip = 1;
-	    } 
+	    }
 	    pos += skip;
 	}
     } else {
@@ -14065,8 +14065,8 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
 
 int QString::find( const QString& str, int index, bool cs ) const
 {
-    int l = length();
-    int sl = str.length();
+    const uint l = length();
+    const uint sl = str.length();
     if ( index < 0 )
 	index += l;
     if ( sl + index > l )
@@ -14074,65 +14074,37 @@ int QString::find( const QString& str, int index, bool cs ) const
     if ( !sl )
 	return index;
 
+    // we use the Boyer-Moore algorithm in cases where the overhead
+    // for the hash table should pay off, otherwise we use a simple
+    // hash function
     if ( l > 200 && sl > 5 ) {
-	// we use the Boyer-Moore algorithm, in this case the overhead for the 
-	// hash table should usually pay off.
 	uint skiptable[0x100];
 	bm_init_skiptable( str, skiptable, cs );
 	return bm_find( *this, index, str, skiptable, cs );
     }
-
-    /*
-      We use some weird hashing for efficiency's sake. Instead of
-      comparing strings, we compare the hash value of str with that of
-      a part of this QString. Only if that matches, we call ucstrncmp
-      or ucstrnicmp.
-
-      The hash value of a string is the sum of the unicode values of its
-      QChars.
-    */
-    int lstr = str.length();
-    int lthis = length() - index;
-    if ( (uint)lthis > length() )
-	return -1;
-    int delta = lthis - lstr;
-    if ( delta < 0 )
-	return -1;
-
-    const QChar *uthis = unicode() + index;
-    const QChar *ustr = str.unicode();
-    uint hthis = 0;
-    uint hstr = 0;
-    int i;
+    const QChar* needle = str.unicode();
+    const QChar* haystick = unicode() + index;
+    const QChar* end = unicode() + (l-sl);
+    uint hashNeedle, hashHaystick,i;
+    for ( hashNeedle = hashHaystick = i = 0; i < sl; ++i ) {
+	hashNeedle = ((hashNeedle<<1) + needle[i].unicode() );
+	hashHaystick = ((hashHaystick<<1) + haystick[i].unicode() );
+    }
+    const uint sl_minus_1 = sl-1;
+#define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
     if ( cs ) {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[i].unicode();
-	    hstr += ustr[i].unicode();
-	}
-	i = 0;
-	for ( ;; ) {
-	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
-		return index + i;
-	    if ( i == delta )
-		break;
-	    hthis += uthis[i + lstr].unicode();
-	    hthis -= uthis[i].unicode();
-	    i++;
+	while ( haystick <= end ) {
+ 	    if ( hashHaystick == hashNeedle  && ucstrncmp( needle, haystick, sl ) == 0 )
+		return haystick-unicode();
+	    hashHaystick = REHASH( haystick->unicode(), (haystick+sl)->unicode(), hashHaystick );
+	    ++haystick;
 	}
     } else {
-	for ( i = 0; i < lstr; i++ ) {
-	     hthis += ::lower( uthis[i] ).unicode();
-	     hstr += ::lower( ustr[i] ).unicode();
-	}
-	i = 0;
-	for ( ;; ) {
-	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
-		return index + i;
-	    if ( i == delta )
-		break;
-	    hthis += ::lower( uthis[i + lstr] ).unicode();
-	    hthis -= ::lower( uthis[i] ).unicode();
-	    i++;
+	while ( haystick <= end ) {
+	    if ( hashHaystick == hashNeedle && ucstrnicmp( needle, haystick, sl ) == 0 )
+		return haystick-unicode();
+	    hashHaystick = REHASH( ::lower( *haystick ).unicode(), ::lower(*(haystick+sl)).unicode(), hashHaystick );
+	    ++haystick;
 	}
     }
     return -1;
@@ -15399,9 +15371,9 @@ QString &QString::replace( const QString & before, const QString & after )
 {
     if ( before == after || isNull() )
 	return *this;
-    
+
     real_detach();
-    
+
     int index = 0;
     uint skiptable[256];
     bm_init_skiptable( before, skiptable, TRUE );
@@ -15446,7 +15418,7 @@ QString &QString::replace( const QString & before, const QString & after )
 	    setLength( d->len - num*(bl-al) );
 	}
     } else {
-	// the most complex case. We don't want to loose performance by doing repeated 
+	// the most complex case. We don't want to loose performance by doing repeated
 	// copies and reallocs of the string.
 	while( index != -1 ) {
 	    uint indices[4096];
@@ -15480,7 +15452,7 @@ QString &QString::replace( const QString & before, const QString & after )
 		moveend = movestart;
 	    }
 	}
-    } 
+    }
     return *this;
 }
 
@@ -15512,7 +15484,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 {
     if ( isNull() )
 	return *this;
-    
+
     QRegExp rx2 = rx;
     QString str2 = str;
     int index = 0;
@@ -16403,7 +16375,7 @@ QString QString::fromUtf8( const char* utf8, int len )
 {
     if ( !utf8 )
 	return QString::null;
-    
+
     if ( len < 0 ) len = qstrlen( utf8 );
     QString result;
     result.setLength( len ); // worst case
