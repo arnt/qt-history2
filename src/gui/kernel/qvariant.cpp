@@ -95,7 +95,7 @@ static void construct(QVariant::Private *x, const void *v)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-        case QVariant::IconSet:
+        case QVariant::Icon:
             x->value.ptr = new QIconSet(*static_cast<const QIconSet *>(v));
             break;
 #endif
@@ -166,7 +166,7 @@ static void construct(QVariant::Private *x, const void *v)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-        case QVariant::IconSet:
+        case QVariant::Icon:
             x->value.ptr = new QIconSet;
             break;
 #endif
@@ -245,7 +245,7 @@ static void clear(QVariant::Private *p)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
+    case QVariant::Icon:
         delete static_cast<QIconSet *>(p->value.ptr);
         break;
 #endif
@@ -294,7 +294,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Size:
         return static_cast<QSize *>(d->value.ptr)->isNull();
 #ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
+    case QVariant::Icon:
         return static_cast<QIconSet *>(d->value.ptr)->isNull();
 #endif
     case QVariant::Cursor:
@@ -377,7 +377,7 @@ static void load(QVariant::Private *d, QDataStream &s)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
+    case QVariant::Icon:
         QPixmap x;
         s >> x;
         *static_cast<QIconSet *>(d->value.ptr) = QIconSet(x);
@@ -462,7 +462,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
+    case QVariant::Icon:
         //### add stream operator to iconset
         s << static_cast<QIconSet *>(d->value.ptr)->pixmap();
         break;
@@ -542,7 +542,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
+    case QVariant::Icon:
         return static_cast<QIconSet *>(a->value.ptr)->pixmap().serialNumber()
             == static_cast<QIconSet *>(b->value.ptr)->pixmap().serialNumber();
 #endif
@@ -964,7 +964,7 @@ QVariant::QVariant(const QColorGroup &val) { d = create(ColorGroup, &val); }
 #endif
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
-QVariant::QVariant(const QIconSet &val) { d = create(IconSet, &val); }
+QVariant::QVariant(const QIconSet &val) { d = create(Icon, &val); }
 #endif //QT_NO_ICONSET
 QVariant::QVariant(const QPointArray &val) { d = create(PointArray, &val); }
 QVariant::QVariant(const QRegion &val) { d = create(Region, &val); }
@@ -1025,10 +1025,10 @@ QVariant::QVariant(const QSizePolicy &val) { d = create(SizePolicy, &val); }
 */
 
 /*!
-    \fn QIconSet QVariant::toIconSet() const
+    \fn QIconSet QVariant::toIcon() const
 
     Returns the variant as a QIconSet if the variant has type()
-    IconSet; otherwise returns a null QIconSet.
+    Icon; otherwise returns a null QIconSet.
 */
 
 /*!
@@ -1223,13 +1223,17 @@ const QPointArray QVariant::toPointArray() const
 }
 
 #ifndef QT_NO_ICONSET
-QIconSet QVariant::toIconSet() const
+QIconSet QVariant::toIcon() const
 {
-    if (d->type != IconSet)
+    if (d->type != Icon)
         return QIconSet();
 
     return *static_cast<QIconSet *>(d->value.ptr);
 }
+#ifdef QT_COMPAT
+QIconSet QVariant::toIconSet() const { return toIcon(); }
+#endif
+
 #endif //QT_NO_ICONSET
 
 

@@ -121,7 +121,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifdef QT_COMPAT
     QT_COMPAT QColorGroup toColorGroup() const;
 #endif
-    QIconSet toIconSet() const;
+    QIconSet toIcon() const;
     const QPointArray toPointArray() const;
     QBitmap toBitmap() const;
     QRegion toRegion() const;
@@ -140,6 +140,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 
 
 #ifdef QT_COMPAT
+    QIconSet toIconSet() const;
     inline QT_COMPAT QFont& asFont() { return *static_cast<QFont *>(castOrDetach(Font)); }
     inline QT_COMPAT QImage& asImage() { return *static_cast<QImage *>(castOrDetach(Image)); }
     inline QT_COMPAT QBrush& asBrush() { return *static_cast<QBrush *>(castOrDetach(Brush)); }
