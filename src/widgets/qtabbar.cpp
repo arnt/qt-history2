@@ -569,6 +569,7 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 */
 void QTabBar::mousePressEvent( QMouseEvent * e )
 {
+    e->accept();
     if ( e->button() != LeftButton )
 	return;
     QTab * t = selectTab( e->pos() );
@@ -581,8 +582,17 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 /*!\reimp
 */
 
-void QTabBar::mouseReleaseEvent( QMouseEvent * )
+void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
+    e->accept();
+}
+
+/*!\reimp
+*/
+
+void QTabBar::mouseReleaseEvent( QMouseEvent *e )
+{
+    e->accept();
 }
 
 

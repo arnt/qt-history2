@@ -137,6 +137,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void mousePressEvent ( QMouseEvent * );
+    void mouseMoveEvent ( QMouseEvent * );
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
