@@ -22,6 +22,7 @@
 #include <qstatusbar.h>
 #include <qevent.h>
 #include <qstyle.h>
+#include <qdebug.h>
 
 #include <private/qwidget_p.h>
 #define d d_func()
@@ -659,30 +660,16 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 bool QMainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolBarChange) {
-        int deltaH = 0;
-        int deltaW = 0;
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+        QSize minimumSize = d->layout->minimumSize();
         for (int i = 0; i < toolbars.size(); ++i) {
             QToolBar *toolbar = toolbars.at(i);
-            Qt::ToolBarArea area = toolBarArea(toolbar);
-            if(toolbar->isVisible()) {
-                if (area == Qt::LeftToolBarArea || area == Qt::RightToolBarArea)
-                    deltaW -= toolbar->width();
-                else
-                    deltaH -= toolbar->height();
-                toolbar->hide();
-            } else {
-                if (area == Qt::LeftToolBarArea || area == Qt::RightToolBarArea)
-                    deltaW += toolbar->width();
-                else
-                    deltaH += toolbar->height();
-                toolbar->show();
-            }
-            if (deltaH || deltaW) {
-                QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
-                resize(width() + deltaW, height() + deltaH);
-            }
+            toolbar->setVisible(!toolbar->isVisible());
         }
+        QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
+        QSize newMinimumSize = d->layout->minimumSize();
+        QSize delta = newMinimumSize - minimumSize;
+        resize(size() + delta);
         return true;
     } else if (event->type() == QEvent::StatusTip) {
         if (QStatusBar *sb = d->layout->statusBar())
