@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#167 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#168 $
 **
 ** Implementation of QListView widget class
 **
@@ -1105,10 +1105,10 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
 /*!  Paints a set of branches from this item to (some of) its children.
 
   \a p is set up with clipping and translation so that you can draw
-  only in the rectangle you need to; \a cg is the color group to use,
-  0,top is the top left corner of the update rectangle, w-1,top is the
-  top right corner, 0,bottom-1 is the bottom left corner and the
-  bottom right corner is left as an exercise for the reader.
+  only in the rectangle you need to; \a cg is the color group to use;
+  the update rectangle is at 0, 0 and has size \a w, \a h.  The top of
+  the rectangle you own is at \a y (which is never greater than 0 but
+  can be outside the window system's allowed coordinate range).
 
   The update rectangle is in an undefined state when this function is
   called; this function must draw on \e all of the pixels.
@@ -1120,11 +1120,10 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 				   int w, int y, int h, GUIStyle s )
 {
     p->fillRect( 0, 0, w, h, cg.base() );
-
     QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
-
-    int dotoffset = y & 1;
+    
+    int dotoffset = (itemPos() + height() - y) %2;
 
     // each branch needs at most two lines, ie. four end points
     QPointArray dotlines( childCount() * 4 );
@@ -1232,12 +1231,11 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		point = dotlines[line].x();
 		other = dotlines[line].y();
 		while( point < end ) {
-		    i = (point | 127)+1;
-		    if ( i > end )
+		    i = 128;
+		    if ( i+point > end )
 			i = end;
-		    i -= point;
 		    p->drawPixmap( point, other, *horizontalLine,
-				   point%128, 0, i, 1 );
+				   0, 0, i, 1 );
 		    point += i;
 		}
 	    } else {
@@ -1247,12 +1245,11 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    point++;
 		other = dotlines[line].x();
 		while( point < end ) {
-		    i = (point | 127)+1;
-		    if ( i > end )
+		    i = 128;
+		    if ( i+point > end )
 			i = end;
-		    i -= point;
 		    p->drawPixmap( other, point, *verticalLine,
-				   0, point%128, 1, i );
+				   0, 0, 1, i );
 		    point += i;
 		}
 	    }
@@ -2723,38 +2720,15 @@ QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
   coordinate system.  This functions is normally much slower than
   itemAt(), but it works for all items, while itemAt() normally works
   only for items on the screen.
+  
+  This is a thin wrapper around QListViewItem::itemPos().
 
   \sa itemAt() itemRect()
 */
 
 int QListView::itemPos( const QListViewItem * item )
 {
-    QStack<QListViewItem> s;
-    QListViewItem * i = (QListViewItem *)item;
-    while( i ) {
-	s.push( i );
-	i = i->parentItem;
-    }
-
-    int a = 0;
-    QListViewItem * p = 0;
-    while( s.count() ) {
-	i = s.pop();
-	if ( p ) {
-	    if ( !p->configured ) {
-		p->configured = TRUE;
-		p->setup(); // ### virtual non-const function called in const
-	    }
-	    a += p->height();
-	    QListViewItem * s = p->firstChild();
-	    while( s && s != i ) {
-		a += s->totalHeight();
-		s = s->nextSibling();
-	    }
-	}
-	p = i;
-    }
-    return a;
+    return item ? item->itemPos() : 0;
 }
 
 
@@ -3651,7 +3625,8 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 {
     if ( !i )
 	return;
-
+    if ( d->r->maybeTotalHeight < 0 )
+	updateGeometries();
     int h = (i->height()+1)/2;
     ensureVisible( contentsX(), itemPos( i )+h, 0, h );
 }
@@ -3871,4 +3846,43 @@ void QListView::showEvent( QShowEvent * )
     d->dirtyItemTimer->stop();
 
     updateGeometries();
+}
+
+
+/*!  Returns the y coordinate of \a item in the list view's
+  coordinate system.  This functions is normally much slower than
+  QListView::itemAt(), but it works for all items, while
+  QListView::itemAt() normally works only for items on the screen.
+
+  \sa QListView::itemAt() QListView::itemRect() QListView::itemPos()
+*/
+
+int QListViewItem::itemPos() const
+{
+    QStack<QListViewItem> s;
+    QListViewItem * i = (QListViewItem *)this;
+    while( i ) {
+	s.push( i );
+	i = i->parentItem;
+    }
+
+    int a = 0;
+    QListViewItem * p = 0;
+    while( s.count() ) {
+	i = s.pop();
+	if ( p ) {
+	    if ( !p->configured ) {
+		p->configured = TRUE;
+		p->setup(); // ### virtual non-const function called in const
+	    }
+	    a += p->height();
+	    QListViewItem * s = p->firstChild();
+	    while( s && s != i ) {
+		a += s->totalHeight();
+		s = s->nextSibling();
+	    }
+	}
+	p = i;
+    }
+    return a;
 }
