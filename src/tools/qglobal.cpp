@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#17 $
 **
 ** Global functions
 **
@@ -15,10 +15,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#17 $")
 
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Returns the Qt version number for the library, typically "1.1".
  ----------------------------------------------------------------------------*/
 
@@ -37,6 +38,7 @@ static int  si_wordSize;
 static bool si_bigEndian;
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Obtains information about the system.
 
   The system's word size in bits (typically 32) is returned in \e *wordSize.
@@ -111,6 +113,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 static msg_handler handler = 0;			// pointer to debug handler
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Prints a debug message, or calls the message handler (if it has been
   installed).
 
@@ -128,7 +131,8 @@ static msg_handler handler = 0;			// pointer to debug handler
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
 
-  \sa warning(), fatal(), qInstallMsgHandler()
+  \sa warning(), fatal(), qInstallMsgHandler(),
+  \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
 
 void debug( const char *msg, ... )
@@ -149,6 +153,7 @@ void debug( const char *msg, ... )
 }
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Prints a warning message, or calls the message handler (if it has been
   installed).
 
@@ -170,7 +175,8 @@ void debug( const char *msg, ... )
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
 
-  \sa debug(), fatal(), qInstallMsgHandler()
+  \sa debug(), fatal(), qInstallMsgHandler(),
+  \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
 
 void warning( const char *msg, ... )
@@ -191,6 +197,7 @@ void warning( const char *msg, ... )
 }
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Prints a fatal error message and exits, or calls the message handler (if it
   has been installed).
 
@@ -213,7 +220,8 @@ void warning( const char *msg, ... )
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
 
-  \sa debug(), warning(), qInstallMsgHandler()
+  \sa debug(), warning(), qInstallMsgHandler(),
+  \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
 
 void fatal( const char *msg, ... )
@@ -239,9 +247,9 @@ void fatal( const char *msg, ... )
 }
 
 
-
 /*----------------------------------------------------------------------------
   \fn void ASSERT( bool test )
+  \relates QApplication
   Prints a warning message containing the source code file name and line number
   if \e test is FALSE.
 
@@ -249,11 +257,41 @@ void fatal( const char *msg, ... )
 
   ASSERT is useful for testing required conditions in your program.
 
-  \sa warning()
+  Example:
+  \code
+    //
+    // File: div.cpp
+    //
+
+    #include <qglobal.h>
+
+    int divide( int a, int b )
+    {
+        ASSERT( b == 0 );			// this is line 9
+	return a/b;
+    }
+  \endcode
+
+  If \c b is zero, the ASSERT statement will output the following message
+  using the warning() function:
+  \code
+    ASSERT: "b == 0" in div.cpp (9)
+  \endcode
+
+  \sa warning(), \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
+
+void ASSERT( bool test )
+{
+    test = FALSE;
+}
+
+#undef ASSERT
+
 
 /*----------------------------------------------------------------------------
   \fn void CHECK_PTR( void *p )
+  \relates QApplication
   If \e p is null, a fatal messages says that the program ran out of memory
   and exits.  If \e p is not null, nothing happens.
 
@@ -266,13 +304,13 @@ void fatal( const char *msg, ... )
   Example:
   \code
     int *a;
-    CHECK_PTR( a = new int[80] );	// DO NOT DO THIS
-      // do this instead
+    CHECK_PTR( a = new int[80] );	// never do this!
+      // do this instead:
     a = new int[80];
     CHECK_PTR( a );			// this is fine
   \endcode
 
-  \sa fatal()
+  \sa fatal(), \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
 
 
@@ -289,6 +327,7 @@ bool chk_pointer( bool c, const char *n, int l )
 
 
 /*----------------------------------------------------------------------------
+  \relates QApplication
   Installs a Qt message handler.  Returns a pointer to the message handler
   previously defined.
 
@@ -337,7 +376,7 @@ bool chk_pointer( bool c, const char *n, int l )
     }
   \endcode
 
-  \sa debug(), warning(), fatal()
+  \sa debug(), warning(), fatal(), \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
 
 msg_handler qInstallMsgHandler( msg_handler h )
