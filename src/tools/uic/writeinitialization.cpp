@@ -334,14 +334,14 @@ void WriteInitialization::accept(DomLayoutItem *node)
 void WriteInitialization::writePropertiesImpl(const QString &objName, const QString &objClass,
                                      const QList<DomProperty*> &lst)
 {
-    QString propertyName;
-    QString propertyValue;
-    bool stdset;
     bool isTopLevel = m_widgetChain.count() == 1;
 
-    QString setFunction;
 
     for (int i=0; i<lst.size(); ++i) {
+        QString setFunction;
+        bool stdset = m_stdsetdef;
+        QString propertyName;
+        QString propertyValue;
         DomProperty *p = lst.at(i);
         propertyName = p->attributeName();
 
@@ -378,7 +378,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                   .arg(c->elementBlue()); }
             break;
         case DomProperty::Cstring:
-            if (propertyName == QLatin1String("buddy") && objClass == "QLabel") {
+            if (propertyName == QLatin1String("buddy") && objClass == QLatin1String("QLabel")) {
                 m_buddies.append(Buddy(objName, p->elementCstring()));
             } else {
                 propertyValue = fixString(p->elementCstring());
