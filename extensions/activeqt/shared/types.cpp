@@ -737,7 +737,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 		disp = *arg.ppdispVal;
 	    else
 		disp = arg.pdispVal;
-	    if (hint == "QFont") {
+	    if (hint == "QFont" || hint == "QFont*") {
 		IFont *ifont = 0;
 		if ( disp )
 		    disp->QueryInterface( IID_IFont, (void**)&ifont );
@@ -747,7 +747,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 		} else {
 		    var = QFont();
 		}
-	    } else if (hint == "QPixmap") {
+	    } else if (hint == "QPixmap" || hint == "QPixmap*") {
 		IPicture *ipic = 0;
 		if ( disp )
 		    disp->QueryInterface( IID_IPicture, (void**)&ipic );
