@@ -676,7 +676,7 @@ public:
 	if ( it != end() )
 	    sh->remove( it );
     }
-    size_type count( const key_type& k )
+    size_type count( const key_type& k ) const
     {
 	iterator it( sh->find( k ).node );
 	if ( it != end() ) {
