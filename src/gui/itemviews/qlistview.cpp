@@ -751,8 +751,7 @@ void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 void QListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement != Static) {
-        QPoint offset = QPoint(horizontalScrollBar()->value(),
-                               verticalScrollBar()->value());
+        QPoint offset(horizontalOffset(), verticalOffset());
         QPoint end = e->pos() + offset;
         QPoint start = d->pressedPosition;
         QPoint delta = (d->movement == Snap ?
@@ -762,7 +761,10 @@ void QListView::dropEvent(QDropEvent *e)
             QModelIndex index = indexes.at(i);
             QRect rect = itemRect(index);
             d->viewport->update(d->mapToViewport(rect));
-            d->moveItem(index.row(), rect.topLeft() + delta);
+            QPoint dest = rect.topLeft() + delta;
+            if (isRightToLeft())
+                dest.setX(d->flipX(dest.x()) - rect.width());
+            d->moveItem(index.row(), dest);
             d->viewport->update(itemViewportRect(index));
         }
         stopAutoScroll();
@@ -980,7 +982,7 @@ QRect QListView::itemRect(const QModelIndex &index) const
     if (!index.isValid() || index.parent() != root() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
-    return d->viewItemRect(item); //item.rect();
+    return d->viewItemRect(item);
 }
 
 /*!
@@ -1534,7 +1536,7 @@ void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &
     QListViewItem item = indexToListViewItem(*it);
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
-        option.rect.setRect(item.x, item.y, item.w, item.h);
+        option.rect = viewItemRect(item);
         delegate->paint(painter, option, *it);
     }
 }
@@ -1546,7 +1548,7 @@ QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
     QRect rect(item.x, item.y, item.w, item.h);
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
-        rect |= QRect(item.x, item.y, item.w, item.h);
+        rect |= viewItemRect(item);
     }
     return rect;
 }
@@ -1648,12 +1650,11 @@ void QListViewPrivate::moveItem(int index, const QPoint &dest)
     // does not impact on the bintree itself or the contents rect
     QListViewItem *item = tree.itemPtr(index);
     QRect rect = item->rect();
-//    d->tree.moveItem(dest, rect, index);    // FIXME: !!!!
+    d->tree.moveItem(dest, rect, index);
 
     // resize the contents area
-    rect = item->rect();
-    int w = item->x + rect.width();
-    int h = item->y + rect.height();
+    int w = rect.x() + rect.width();
+    int h = rect.y() + rect.height();
     w = w > contentsSize.width() ? w : contentsSize.width();
     h = h > contentsSize.height() ? h : contentsSize.height();
     q->resizeContents(w, h);

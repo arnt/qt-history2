@@ -225,6 +225,7 @@ int QBinTree<T>::firstChildIndex(int idx) const
 
 class QListViewItem
 {
+    friend class QBinTree<QListViewItem>;
     friend class QListViewPrivate;
 public:
     inline QListViewItem()
@@ -240,13 +241,10 @@ public:
                 indexHint == other.indexHint); }
     inline bool operator!=(const QListViewItem &other) const
         { return !(*this == other); }
-//     inline QRect rect() const
-//         { return QRect(x, y, w, h); }
     inline bool isValid() const
         { return (x > -1) && (y > -1) && (w > 0) && (h > 0) && (indexHint > -1); }
     inline void invalidate()
         { x = -1; y = -1; w = 0; h = 0; }
-
 private:
     inline QRect rect() const
         { return QRect(x, y, w, h); }
@@ -295,8 +293,7 @@ public:
         { return QRect(flipX(r.x()) - r.width(), r.y(), r.width(), r.height()); }
 
     inline QRect viewItemRect(const QListViewItem &item) const
-        { if (q_func()->isRightToLeft()) return flipX(item.rect());
-          return item.rect(); }
+        { if (q_func()->isRightToLeft()) return flipX(item.rect()); return item.rect(); }
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
