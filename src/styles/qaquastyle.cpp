@@ -105,8 +105,9 @@ private:
 };
 
 QAquaFocusWidget::QAquaFocusWidget( )
-    : QWidget( NULL, "magicFocusWidget" ), d( NULL )
+    : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
 {
+    setBackgroundMode(NoBackground);
 }
 
 void QAquaFocusWidget::setFocusWidget( QWidget * widget )
