@@ -261,6 +261,10 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = 0;
         break;
 
+    case PM_MenuBarItemSpacing:
+        ret = 0;
+        break;
+
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
         {
@@ -2213,7 +2217,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
         break;
     case CT_MenuBarItem:
         if (!sz.isEmpty())
-            sz = QSize(sz.width() + windowsItemHMargin * 2, sz.height() + windowsItemVMargin * 2);
+            sz = QSize(sz.width() + windowsItemHMargin * 5 + 1, sz.height() + windowsItemVMargin * 2);
         break;
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
