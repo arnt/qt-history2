@@ -345,7 +345,11 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 	bool hasBeenHidden = w->isHidden();
 	bool hasSize = w->testWState( WState_Resized );
-	bool hasPos = w->x() != 0 || w->y() != 0;
+	int width = w->width();
+	int height = w->height();
+	int x = w->x();
+	int y = w->y();
+	bool hasPos = x != 0 || y != 0;
 	if ( !hasSize && w->sizeHint().isValid() )
 	    w->adjustSize();
 
@@ -366,11 +370,12 @@ void QWorkspace::childEvent( QChildEvent * e)
 	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
 
-	place( child );
+	if ( !hasPos )
+	    place( child );
 	if ( hasSize )
-	    child->resize( w->width(), w->height() + child->baseSize().height() );
+	    child->resize(width + child->baseSize().width(), height + child->baseSize().height() );
 	if ( hasPos )
-	    child->move( w->x(), w->y() );
+	    child->move( x, y );
 
 	activateWindow( w );
 	updateWorkspace();
@@ -1528,7 +1533,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    return QSize( 2*frameWidth(), 2*frameWidth() + th );
+    return QSize( 2*frameWidth(), 2*frameWidth() + th + 2 );
 }
 
 QSize QWorkspaceChild::minimumSizeHint() const
