@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#32 $
 **
 ** Implementation of QFileInfo class
 **
@@ -28,7 +28,7 @@
 extern "C" int readlink( const char *, void *, uint );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#32 $");
 
 
 #if defined(_OS_FATFS_)
@@ -382,10 +382,11 @@ QString QFileInfo::absFilePath() const
 	tmp.detach();
 	tmp += '/';
 	tmp += fn;
-	return tmp;
+	return QDir::cleanDirPath( tmp );
     } else {
-	return fn.copy();
+	return QDir::cleanDirPath( fn );
     }
+     
 }
 
 /*!

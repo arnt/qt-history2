@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#46 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#46 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -282,9 +282,9 @@ QString QDir::absPath() const
 	if ( tmp.right(1) != "/" )
 	    tmp += '/';
 	tmp += dPath;
-	return cleanDirPath( tmp.data() );
+	return cleanDirPath( tmp );
     } else {
-	return dPath.copy();
+	return cleanDirPath( dPath );
     }
 }
 
