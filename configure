@@ -718,7 +718,7 @@ then
 fi
 
 # Setup qplatformdefs.h
-if [ '!' -f "$XMKSPEC" ]
+if [ '!' -f "$XMKSPEC.h" ]
 then
     echo
     echo
