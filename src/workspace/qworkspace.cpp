@@ -515,6 +515,8 @@ public:
 
     QSize minimumSizeHint() const;
 
+    QSize baseSize() const;
+
 signals:
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
@@ -641,6 +643,9 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
 		    this, SLOT( activatePreviousWindow() ) );
 
+    a->connectItem( a->insertItem( CTRL + Key_F4 ),
+		    this, SLOT( closeActiveWindow() ) );
+
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
     d->topCaption = topLevelWidget()->caption();
@@ -675,7 +680,9 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    return; 	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
-	bool hasGeometry = ( w->x() != 0 ) || ( w->y() != 0 ) || ( w->size() != w->sizeHint() );
+	bool hasSize = w->testWState( WState_Resized );
+	bool hasPos = w->x() != 0 || w->y() != 0;
+
 	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	child->installEventFilter( this );
@@ -687,16 +694,19 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( child->isVisibleTo( this ) )
 	    d->focus.append( child );
 	child->internalRaise();
+
 	if ( hasBeenHidden )
 	    w->hide();
 	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
 
-	if ( hasGeometry )
-	    child->setGeometry( wrect.x(), wrect.y(), 
-		wrect.width() + child->minimumSizeHint().width(), wrect.height() + child->minimumSizeHint().height() );
-	else
-	    place( child );
+	place( child );
+	if ( hasSize ) {
+	    QSize childSize = child->minimumSizeHint() + QSize( 0, child->baseSize().height() );
+	    child->resize( wrect.width() + childSize.width(), wrect.height() + childSize.height() );
+	}
+	if ( hasPos )
+	    child->move( wrect.x(), wrect.y() );
 
 	activateWindow( w );
     } else if (e->removed() ) {
@@ -1469,36 +1479,43 @@ void QWorkspace::cascade()
     const int xoffset = 13;
     const int yoffset = 20;
 
-    int w = width() - d->windows.count() * xoffset;
-    int h = height() - d->windows.count() * yoffset;
+    // make a list of all relevant mdi clients
+    QList<QWorkspaceChild> widgets;
+    for ( QWorkspaceChild* wc = d->focus.first(); wc; wc = d->focus.next() ) {
+	if ( wc->windowWidget()->isVisibleTo( this ) && !wc->windowWidget()->testWFlags( WStyle_Tool ) ) {
+	    widgets.append( wc );
+	}
+    }
+
     int x = 0;
     int y = 0;
 
-    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->isHidden() )
-	    continue;
-	if ( c->windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
-	    QPoint p = c->pos();
-	    if ( p.x()+c->width() < 0 )
-		p.setX( 0 );
-	    if ( p.x() > width() )
-		p.setX( width() - c->width() );
-	    if ( p.y() + 10 < 0 )
-		p.setY( 0 );
-	    if ( p.y() > height() )
-		p.setY( height() - c->height() );
+    setUpdatesEnabled( FALSE );
+    QListIterator<QWorkspaceChild> it( widgets );
+    while ( it.current () ) {
+	QWorkspaceChild *child = it.current();
+	++it;
+	child->setUpdatesEnabled( FALSE );
+	QSize prefSize = child->windowWidget()->sizeHint() + QSize( 0, child->baseSize().height() );
+	if ( !child->windowWidget()->sizeHint().isValid() )
+	    prefSize = QSize( width() - d->windows.count() * xoffset, height() - d->windows.count() * yoffset );
 
+	int w = prefSize.width();
+	int h = prefSize.height();
 
-	    if ( p != c->pos() )
-		c->QFrame::move( p );
-	} else {
-	    c->showNormal();
-	    c->setGeometry( x, y, w, h );
-	    x += xoffset;
-	    y += yoffset;
-	    c->internalRaise();
-	}
+	child->showNormal();
+	qApp->sendPostedEvents( 0, QEvent::ShowNormal );
+	if ( y + h > height() )
+	    y = 0;
+	if ( x + w > width() )
+	    x = 0;
+	child->setGeometry( x, y, w, h );
+	x += xoffset;
+	y += yoffset;	
+	child->internalRaise();
+	child->setUpdatesEnabled( TRUE );
     }
+    setUpdatesEnabled( TRUE );
 }
 
 /*!
@@ -1514,7 +1531,8 @@ void QWorkspace::tile()
     QWorkspaceChild* c;
     for ( c = d->windows.first(); c; c = d->windows.next() ) {
 	if ( !c->windowWidget()->isHidden() &&
-	     !c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
+	     !c->windowWidget()->testWFlags( WStyle_StaysOnTop ) &&
+	     !c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    n++;
     }
 
@@ -1534,7 +1552,7 @@ void QWorkspace::tile()
     int w = width() / cols;
     int h = height() / rows;
     for ( c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->isHidden() )
+	if ( c->windowWidget()->isHidden() || c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
 	if ( c->windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
 	    QPoint p = c->pos();
@@ -1552,6 +1570,7 @@ void QWorkspace::tile()
 		c->QFrame::move( p );
 	} else {
 	    c->showNormal();
+	    qApp->sendPostedEvents( 0, QEvent::ShowNormal );
 	    used[row*cols+col] = TRUE;
 	    if ( add ) {
 		c->setGeometry( col*w, row*h, w, 2*h );
@@ -1882,7 +1901,7 @@ QSize QWorkspaceChildTitleBar::sizeHint() const
 {
     constPolish();
 
-    return QSize( 196, QMAX( titleHeight, fontMetrics().lineSpacing() ) );
+    return QSize( 128, QMAX( titleHeight, fontMetrics().lineSpacing() ) );
 }
 
 
@@ -1998,20 +2017,18 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     childWidget->setGeometry( cr );
 }
 
+QSize QWorkspaceChild::baseSize() const
+{
+    int th = titlebar ? titlebar->sizeHint().height() : 0;
+    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
+    return QSize( 2*frameWidth(), 2*frameWidth() + th + ts);
+}
+
 QSize QWorkspaceChild::minimumSizeHint() const
 {
     if ( !childWidget )
-	return QFrame::minimumSizeHint();
-
-    QSize ms( childWidget->minimumSize() );
-    if ( ms.isEmpty() )
- 	ms = childWidget->minimumSizeHint();
-
-    int th = titlebar ? titlebar->sizeHint().height() : 0;
-    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
-    QSize s( ms.width() + 2*frameWidth(),
-	     ms.height() + 2*frameWidth() + th + ts);
-    return s;
+	return QFrame::minimumSizeHint() + baseSize();
+    return childWidget->minimumSize() + baseSize();
 }
 
 void QWorkspaceChild::activate()
@@ -2112,13 +2129,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::Resize:
 	{
 	    QResizeEvent* re = (QResizeEvent*)e;
-	    if ( re->size() != windowSize && !shademode ) {
-		int th = titlebar ? titlebar->sizeHint().height() : 0;
-		int ts = titlebar ? TITLEBAR_SEPARATION : 0;
-		QSize s( re->size().width() + 2*frameWidth(),
-			 re->size().height() + 2*frameWidth() + th + ts );
-		resize( s );
-	    }
+	    if ( re->size() != windowSize && !shademode )
+		resize( re->size() + baseSize() );
 	}
 	break;
     default:
