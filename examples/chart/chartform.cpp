@@ -393,7 +393,6 @@ bool ChartForm::okToClear()
 	    case 1: // Cancel
 	    default:
 		return FALSE;
-		break;
 	    case 2: // Abandon
 		break;
 	}
