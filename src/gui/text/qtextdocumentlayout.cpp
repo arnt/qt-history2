@@ -15,7 +15,6 @@
 #include "qtextimagehandler_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"
-#include "qtextengine_p.h"
 
 #include <qpainter.h>
 #include <qdebug.h>
@@ -199,7 +198,7 @@ public:
     void relayoutDocument();
 
     void layoutCell(QTextTable *t, const QTextTableCell &cell, LayoutStruct *layoutStruct);
-    void setCellPosition(const QTextTableCell &cell, const QPoint &pos);
+    void setCellPosition(QTextTableData *td, const QTextTableCell &cell, const QPoint &pos);
     void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
     // calls the next one
@@ -632,8 +631,14 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
     layoutFlow(cell.begin(), layoutStruct);
 }
 
-void QTextDocumentLayoutPrivate::setCellPosition(const QTextTableCell &cell, const QPoint &pos)
+void QTextDocumentLayoutPrivate::setCellPosition(QTextTableData *td, const QTextTableCell &cell, const QPoint &pos)
 {
+    foreach (QTextFrame *frame, td->layoutedFrames)
+        if (isFrameInCell(cell, frame)) {
+            QTextFrameData *cd = data(frame);
+            cd->boundingRect.moveBy(pos);
+        }
+
     for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
         if (QTextFrame *c = it.currentFrame()) {
             QTextFrameData *cd = data(c);
@@ -832,7 +837,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     continue;
 
             const int x = td->columnPositions.at(c) + td->padding;
-            setCellPosition(cell, QPoint(x, y));
+            setCellPosition(td, cell, QPoint(x, y));
         }
     }
 
@@ -1082,12 +1087,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 
         floatMargins(layoutStruct, &left, &right);
         left = qMax(left, l);
-        right = qMax(right, r);
+        right = qMin(right, r);
 
         if (d->fixedColumnWidth == -1 && line.textWidth() > right-left) {
             // float has been added in the meantime, redo
             line.layout(right-left);
-//             qDebug() << "    redo: left=" << left << " right=" << right;
+//            qDebug() << "    redo: left=" << left << " right=" << right;
             if (line.textWidth() > right-left) {
                 // lines min width more than what we have
                 findY(layoutStruct, line.textWidth());
@@ -1258,6 +1263,9 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     if (!pd || !pd->currentLayoutStruct)
         return;
 
+    if (pd->layoutedFrames.contains(frame))
+        return;
+
     QTextFrameData *fd = data(frame);
     int left, right;
     d->floatMargins(pd->currentLayoutStruct, &left, &right);
@@ -1265,8 +1273,6 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
         fd->boundingRect.moveTopLeft(QPoint(left, pd->currentLayoutStruct->y));
     else
         fd->boundingRect.moveTopRight(QPoint(right, pd->currentLayoutStruct->y));
-
-    fd->boundingRect.moveBy(-item.engine()->position);
 
     pd->layoutedFrames.append(frame);
 
@@ -1312,10 +1318,8 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
     QRect r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
-        if (fd->position != QTextFrameFormat::InFlow) {
+        if (fd->position != QTextFrameFormat::InFlow)
             r = fd->boundingRect;
-            r.moveBy(item.engine()->position);
-        }
 #if 0
         pos = frame->format().position();
         if (frame != QTextFrameFormat::None) {
