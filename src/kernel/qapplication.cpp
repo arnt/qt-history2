@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#287 $
 **
 ** Implementation of QApplication class
 **
@@ -660,6 +660,8 @@ void QApplication::setStyle( QStyle *style )
 	return;
     }
 
+    
+    // clean up the old style
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -674,7 +676,21 @@ void QApplication::setStyle( QStyle *style )
 	}
 	old->unPolish( qApp );
     }
+    
+    // take care of possible palette requirements of certain gui
+    // styles. Do it before polishing the application since the style
+    // might call QApplication::setStyle() itself
+    if ( !qt_std_pal )
+	qt_create_std_palette();
+    QPalette tmpPal = *qt_std_pal;
+    app_style->polish( tmpPal );
+    if ( tmpPal != *app_pal )
+	setPalette( tmpPal, TRUE );
+    
+    // initialize the application with the new style
     app_style->polish( qApp );
+    
+    // re-polish existing widgets if necessary
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -692,16 +708,6 @@ void QApplication::setStyle( QStyle *style )
 	    }
 	}
     }
-
-    // take care of possible palette requirements of certain gui
-    // styles
-    if ( !qt_std_pal )
-	qt_create_std_palette();
-    QPalette tmpPal = *qt_std_pal;
-    app_style->polish( tmpPal );
-    if ( tmpPal != *app_pal )
-	setPalette( tmpPal, TRUE );
-
 }
 
 
