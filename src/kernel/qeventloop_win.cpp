@@ -40,8 +40,6 @@ Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
 #endif
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
-static void	initTimers();
-static void	cleanupTimers();
 static bool	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
@@ -132,58 +130,9 @@ Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
 }
 
 
-/*****************************************************************************
-  Timer handling; Our routines depend on Windows timer functions, but we
-  need some extra handling to activate objects at timeout.
-
-  Implementation note: There are two types of timer identifiers. Windows
-  timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
-  indexes (+1) into the timerVec vector.
-
-  NOTE: These functions are for internal use. QObject::startTimer() and
-	QObject::killTimer() are for public use.
-	The QTimer class provides a high-level interface which translates
-	timer events into signals.
-
-  qStartTimer( interval, obj )
-	Starts a timer which will run until it is killed with qKillTimer()
-	Arguments:
-	    int interval	timer interval in milliseconds
-	    QObject *obj	where to send the timer event
-	Returns:
-	    int			timer identifier, or zero if not successful
-
-  qKillTimer( timerId )
-	Stops a timer specified by a timer identifier.
-	Arguments:
-	    int timerId		timer identifier
-	Returns:
-	    bool		TRUE if successful
-
-  qKillTimer( obj )
-	Stops all timers that are sent to the specified object.
-	Arguments:
-	    QObject *obj	object receiving timer events
-	Returns:
-	    bool		TRUE if successful
- *****************************************************************************/
-
 //
 // Internal data structure for timers
 //
-
-struct TimerInfo {				// internal timer info
-    uint     ind;				// - Qt timer identifier - 1
-    uint     id;				// - Windows timer identifier
-    bool     zero;				// - zero timing
-    QObject *obj;				// - object to receive events
-};
-typedef QPtrVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
-typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
-
-static TimerVec  *timerVec  = 0;		// timer vector
-static TimerDict *timerDict = 0;		// timer dict
-
 
 void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 {
@@ -240,51 +189,18 @@ static void activateZeroTimers()		// activate full-speed timers
 
 
 //
-// Timer initialization and cleanup routines
-//
-
-static void initTimers()			// initialize timers
-{
-    timerVec = new TimerVec( 128 );
-    timerVec->setAutoDelete( TRUE );
-    timerDict = new TimerDict( 29 );
-}
-
-static void cleanupTimers()			// remove pending timers
-{
-    register TimerInfo *t;
-    if ( !timerVec )				// no timers were used
-	return;
-    for ( uint i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
-	t = timerVec->at( i );
-	if ( t && !t->zero )
-	    KillTimer( 0, t->id );
-    }
-    delete timerDict;
-    timerDict = 0;
-    delete timerVec;
-    timerVec  = 0;
-
-    if ( qt_win_use_simple_timers ) {
-	// Dangerous to leave WM_TIMER events in the queue if they have our
-	// timerproc (eg. Qt-based DLL plugins may be unloaded)
-	MSG msg;
-	while (winPeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
-	    continue;
-    }
-}
-
-
-//
 // Main timer functions for starting and killing timers
 //
 
 
-int qStartTimer( int interval, QObject *obj )
+int QEventLoop::registerTimer( int interval, QObject *obj )
 {
     register TimerInfo *t;
-    if ( !timerVec )				// initialize timer data
-	initTimers();
+    if ( !timerVec ) {				// initialize timer data
+	timerVec = new TimerVec( 128 );
+	timerVec->setAutoDelete( TRUE );
+	timerDict = new TimerDict( 29 );
+    }
     int ind = timerVec->findRef( 0 );		// get free timer
     if ( ind == -1 || !obj ) {
 	ind = timerVec->size();			// increase the size
@@ -308,7 +224,7 @@ int qStartTimer( int interval, QObject *obj )
 	}
     }
     if ( t->id == 0 ) {
-	qSystemWarning( "qStartTimer: Failed to create a timer" );
+	qSystemWarning( "registerTimer: Failed to create a timer" );
 	delete t;				// could not set timer
 	return 0;
     }
@@ -317,7 +233,7 @@ int qStartTimer( int interval, QObject *obj )
     return ind + 1;				// return index in vector
 }
 
-bool qKillTimer( int ind )
+bool QEventLoop::unregisterTimer( int ind )
 {
     if ( !timerVec || ind <= 0 || (uint)ind > timerVec->size() )
 	return FALSE;
@@ -333,7 +249,7 @@ bool qKillTimer( int ind )
     return TRUE;
 }
 
-bool qKillTimer( QObject *obj )
+bool QEventLoop::unregisterTimers( QObject *obj )
 {
     if ( !timerVec )
 	return FALSE;
@@ -418,8 +334,27 @@ void QEventLoop::init()
 
 void QEventLoop::cleanup()
 {
+    if(timerVec) { //cleanup timers
+	register TimerInfo *t;
+	for ( uint i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
+	    t = timerVec->at( i );
+	    if ( t && !t->zero )
+		KillTimer( 0, t->id );
+	}
+	delete timerDict;
+	timerDict = 0;
+	delete timerVec;
+	timerVec  = 0;
+
+	if ( qt_win_use_simple_timers ) {
+	    // Dangerous to leave WM_TIMER events in the queue if they have our
+	    // timerproc (eg. Qt-based DLL plugins may be unloaded)
+	    MSG msg;
+	    while (winPeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
+		continue;
+	}
+    }
     // cleanup the common parts of the event loop
-    cleanupTimers();
     sn_cleanup();
 }
 

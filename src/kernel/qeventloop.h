@@ -21,15 +21,10 @@
 class QEventLoopPrivate;
 class QSocketNotifier;
 class QTimer;
-#ifdef Q_WS_MAC
-struct timeval; //stdc struct
-struct TimerInfo; //internal structure (qeventloop_mac.cpp)
-#endif
 
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
 #endif // QT_THREAD_SUPPORT
-
 
 class Q_EXPORT QEventLoop : public QObject
 {
@@ -64,6 +59,10 @@ public:
     virtual int exec();
     virtual void exit( int retcode = 0 );
 
+    virtual int registerTimer(int, QObject *);
+    virtual bool unregisterTimer(int);
+    virtual bool unregisterTimers(QObject *);
+
     virtual int enterLoop();
     virtual void exitLoop();
     virtual int loopLevel() const;
@@ -79,19 +78,11 @@ protected:
     virtual void appClosingDown();
 
 private:
-#if defined(Q_WS_MAC)
-    friend void qt_mac_internal_select_callbk(int, int, QEventLoop *);
-    friend QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
-    int macHandleSelect(timeval *);
-    void macHandleTimer(TimerInfo *);
-#endif // Q_WS_MAC
-
     // internal initialization/cleanup - implemented in various platform specific files
     void init();
     void cleanup();
 
     Q_DECL_PRIVATE(QEventLoop);
-
     friend class QApplication;
 };
 

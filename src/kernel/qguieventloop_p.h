@@ -27,14 +27,43 @@
 //
 //
 
+#include "qguieventloop.h"
 #include "qeventloop_p.h"
 
 #ifdef Q_WS_X11
 #include "private/qt_x11_p.h"
+#elif defined(Q_WS_MAC)
+
+#include "qt_mac.h"
+
+struct MacTimerInfo {
+    int	     id;
+    int  interval;
+    QObject *obj;
+    bool pending;
+    EventLoopTimerRef mac_timer;
+};
+typedef QPtrList<MacTimerInfo> MacTimerList;	// list of TimerInfo structs
+
+struct MacSocketInfo {
+    union {
+	CFReadStreamRef read_not;
+	CFWriteStreamRef write_not;
+    };
+};    
+
 #endif
 
 class QGuiEventLoopPrivate : public QEventLoopPrivate
 {
+    Q_DECL_PUBLIC(QGuiEventLoop);
+public:
+#ifdef Q_WS_MAC
+    int zero_timer_count;
+    EventLoopTimerRef select_timer;
+    MacTimerList *macTimerList;
+    QHash<QSocketNotifier *, MacSocketInfo *> *macSockets;
+#endif
 };
 
 #endif // QEVENTLOOP_P_H

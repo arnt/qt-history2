@@ -80,3 +80,13 @@ bool QGuiEventLoop::hasPendingEvents() const
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
     return qGlobalPostedEventsCount() || qt_fbdpy->eventPending();
 }
+
+void QGuiEventLoop::init()
+{
+
+}
+
+void QGuiEventLoop::cleanup()
+{
+
+}

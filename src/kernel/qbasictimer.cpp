@@ -13,8 +13,8 @@
 ****************************************************************************/
 
 #include "qbasictimer.h"
-
-bool qKillTimer( int id );
+#include "qapplication.h"
+#include "qeventloop.h"
 
 /*!
     \class QBasicTimer qbasictimer.h
@@ -78,7 +78,7 @@ void QBasicTimer::start(int msec, QObject *obj)
 void QBasicTimer::stop()
 {
     if (id)
-        qKillTimer(id);
+	QApplication::eventLoop()->unregisterTimer(id);
     id = 0;
 }
 

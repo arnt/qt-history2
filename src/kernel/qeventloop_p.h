@@ -36,7 +36,9 @@
 # undef raise
 #endif
 
+#include "qeventloop.h"
 #include "qwindowdefs.h"
+#include "qptrlist.h"
 
 class QSocketNotifier;
 #ifdef Q_OS_MAC
@@ -50,6 +52,7 @@ class QMacSockNotPrivate;
 #include "qobject_p.h"
 
 #if defined(Q_OS_UNIX)
+#include <unistd.h>
 struct QSockNot
 {
     QSocketNotifier *obj;
@@ -71,6 +74,16 @@ public:
     fd_set pending_fds;
 
 };
+
+struct TimerInfo {				// internal timer info
+    int	     id;				// - timer identifier
+    timeval  interval;				// - timer interval
+    timeval  timeout;				// - when to sent event
+    QObject *obj;				// - object to receive event
+};
+typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
+class QBitArray;
+
 #endif // Q_OS_UNIX
 
 #if defined(Q_WS_WIN)
@@ -78,10 +91,21 @@ struct QSockNot {
     QSocketNotifier *obj;
     int fd;
 };
+
+struct TimerInfo {				// internal timer info
+    uint     ind;				// - Qt timer identifier - 1
+    uint     id;				// - Windows timer identifier
+    bool     zero;				// - zero timing
+    QObject *obj;				// - object to receive events
+};
+typedef QPtrVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
+typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
+
 #endif // Q_WS_WIN
 
 class QEventLoopPrivate : public QObjectPrivate
 {
+    Q_DECL_PUBLIC(QEventLoop);
 public:
     QEventLoopPrivate()
 	: QObjectPrivate()
@@ -103,15 +127,12 @@ public:
     unsigned int exitloop : 1;
     unsigned int shortcut : 1;
 
-#if defined(Q_WS_MAC)
-    EventLoopTimerRef select_timer;
-#endif
-
 #if defined(Q_WS_X11)
     int xfd;
 #endif // Q_WS_X11
 
 #if defined(Q_OS_UNIX)
+    int eventloopSelect(uint, timeval *);
     int thread_pipe[2];
 
     // pending socket notifiers list
@@ -120,11 +141,20 @@ public:
     int sn_highest;
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
+
+    QBitArray *timerBitVec;			// timer bit vector
+    TimerList *timerList;	  	        // timer list
+    timeval *timerWait();
+    void     timerInsert(const TimerInfo *);
+    void     timerRepair(const timeval &);
+    
 #endif
 
 #ifdef Q_WS_WIN
     // pending socket notifiers list
     QList<QSockNot *> sn_pending_list;
+    TimerVec  *timerVec  = 0;		// timer vector
+    TimerDict *timerDict = 0;		// timer dict
 #endif // Q_WS_WIN
 
 };

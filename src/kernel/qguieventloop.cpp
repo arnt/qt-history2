@@ -5,8 +5,10 @@
 QGuiEventLoop::QGuiEventLoop( QObject *parent, const char *name )
     : QEventLoop(new QGuiEventLoopPrivate, parent, name)
 {
+    init();
 }
 
 QGuiEventLoop::~QGuiEventLoop()
 {
+    cleanup();
 }

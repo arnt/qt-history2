@@ -24,60 +24,7 @@
 #define q q_func()
 
 
-/*****************************************************************************
-  Timer handling; UNIX has no application timer support so we'll have to
-  make our own from scratch.
-
-  NOTE: These functions are for internal use. QObject::startTimer() and
-	QObject::killTimer() are for public use.
-	The QTimer class provides a high-level interface which translates
-	timer events into signals.
-
-  qStartTimer( interval, obj )
-	Starts a timer which will run until it is killed with qKillTimer()
-	Arguments:
-	    int interval	timer interval in milliseconds
-	    QObject *obj	where to send the timer event
-	Returns:
-	    int			timer identifier, or zero if not successful
-
-  qKillTimer( timerId )
-	Stops a timer specified by a timer identifier.
-	Arguments:
-	    int timerId		timer identifier
-	Returns:
-	    bool		TRUE if successful
-
-  qKillTimer( obj )
-	Stops all timers that are sent to the specified object.
-	Arguments:
-	    QObject *obj	object receiving timer events
-	Returns:
-	    bool		TRUE if successful
- *****************************************************************************/
-
-//
-// Internal data structure for timers
-//
-
-struct TimerInfo {				// internal timer info
-    int	     id;				// - timer identifier
-    timeval  interval;				// - timer interval
-    timeval  timeout;				// - when to sent event
-    QObject *obj;				// - object to receive event
-};
-
-typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
-
-static QBitArray *timerBitVec;			// timer bit vector
-static TimerList *timerList	= 0;		// timer list
-
-static void	initTimers();
-void cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
-timeval		*qt_wait_timer();
-timeval	*qt_wait_timer_max = 0;
-
 bool qt_disable_lowpriority_timers=FALSE;
 
 //
@@ -127,28 +74,29 @@ static inline timeval operator-( const timeval &t1, const timeval &t2 )
     return tmp;
 }
 
+static inline void getTime( timeval &t )	// get time of day
+{
+    gettimeofday( &t, 0 );
+    while ( t.tv_usec >= 1000000 ) {		// NTP-related fix
+	t.tv_usec -= 1000000;
+	t.tv_sec++;
+    }
+    while ( t.tv_usec < 0 ) {
+	if ( t.tv_sec > 0 ) {
+	    t.tv_usec += 1000000;
+	    t.tv_sec--;
+	} else {
+	    t.tv_usec = 0;
+	    break;
+	}
+    }
+}
 
 //
 // Internal functions for manipulating timer data structures.
 // The timerBitVec array is used for keeping track of timer identifiers.
 //
-
-static int allocTimerId()			// find avail timer identifier
-{
-    int i = timerBitVec->size()-1;
-    while ( i >= 0 && (*timerBitVec)[i] )
-	i--;
-    if ( i < 0 ) {
-	i = timerBitVec->size();
-	timerBitVec->resize( 4 * i );
-	for( int j=timerBitVec->size()-1; j > i; j-- )
-	    timerBitVec->clearBit( j );
-    }
-    timerBitVec->setBit( i );
-    return i+1;
-}
-
-static void insertTimer( const TimerInfo *ti )	// insert timer info into list
+void QEventLoopPrivate::timerInsert( const TimerInfo *ti )	// insert timer info into list
 {
     TimerInfo *t = timerList->first();
     int index = 0;
@@ -171,25 +119,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 #endif
 }
 
-static inline void getTime( timeval &t )	// get time of day
-{
-    gettimeofday( &t, 0 );
-    while ( t.tv_usec >= 1000000 ) {		// NTP-related fix
-	t.tv_usec -= 1000000;
-	t.tv_sec++;
-    }
-    while ( t.tv_usec < 0 ) {
-	if ( t.tv_sec > 0 ) {
-	    t.tv_usec += 1000000;
-	    t.tv_sec--;
-	} else {
-	    t.tv_usec = 0;
-	    break;
-	}
-    }
-}
-
-static void repairTimer( const timeval &time )	// repair broken timer
+void QEventLoopPrivate::timerRepair( const timeval &time )	// repair broken timer
 {
     timeval diff = watchtime - time;
     register TimerInfo *t = timerList->first();
@@ -199,79 +129,63 @@ static void repairTimer( const timeval &time )	// repair broken timer
     }
 }
 
-//
-// Timer activation functions (called from the event loop)
-//
-
 /*
   Returns the time to wait for the next timer, or null if no timers are
   waiting.
-
-  The result is bounded to qt_wait_timer_max if this exists.
 */
-
-timeval *qt_wait_timer()
+timeval *QEventLoopPrivate::timerWait() 
 {
-    static timeval tm;
-    bool first = TRUE;
+    if ( !timerList || !timerList->count() )
+	return 0;
+
     timeval currentTime;
-    if ( timerList && timerList->count() ) {	// there are waiting timers
-	getTime( currentTime );
-	if ( first ) {
-	    if ( currentTime < watchtime )	// clock was turned back
-		repairTimer( currentTime );
-	    first = FALSE;
-	    watchtime = currentTime;
-	}
-	TimerInfo *t = timerList->first();	// first waiting timer
-	if ( currentTime < t->timeout ) {	// time to wait
-	    tm = t->timeout - currentTime;
-	} else {
-	    tm.tv_sec  = 0;			// no time to wait
-	    tm.tv_usec = 0;
-	}
-	if ( qt_wait_timer_max && *qt_wait_timer_max < tm )
-	    tm = *qt_wait_timer_max;
-	return &tm;
-    }
-    if ( qt_wait_timer_max ) {
-	tm = *qt_wait_timer_max;
-	return &tm;
-    }
-    return 0;					// no timers
-}
+    getTime( currentTime );
+    if ( currentTime < watchtime )	// clock was turned back
+	timerRepair( currentTime );
+    watchtime = currentTime;
 
-// Timer initialization
-static void initTimers()			// initialize timers
-{
-    timerBitVec = new QBitArray( 128 );
-    int i = timerBitVec->size();
-    while( i-- > 0 )
-	timerBitVec->clearBit( i );
-    timerList = new TimerList;
-    timerList->setAutoDelete( TRUE );
-    gettimeofday( &watchtime, 0 );
-}
-
-// Timer cleanup
-void cleanupTimers()
-{
-    delete timerList;
-    timerList = 0;
-    delete timerBitVec;
-    timerBitVec = 0;
+    static timeval ret;
+    TimerInfo *t = timerList->first();	// first waiting timer
+    if ( currentTime < t->timeout ) {	// time to wait
+	ret = t->timeout - currentTime;
+    } else {
+	ret.tv_sec  = 0;			// no time to wait
+	ret.tv_usec = 0;
+    }
+    return &ret;
 }
 
 // Main timer functions for starting and killing timers
-int qStartTimer( int interval, QObject *obj )
+int QEventLoop::registerTimer( int interval, QObject *obj )
 {
-    if ( !timerList )				// initialize timer data
-	initTimers();
-    int id = allocTimerId();			// get free timer id
+    if ( !d->timerList ) {				// initialize timer data
+	d->timerBitVec = new QBitArray( 128 );
+	int i = d->timerBitVec->size();
+	while( i-- > 0 )
+	    d->timerBitVec->clearBit( i );
+	d->timerList = new TimerList;
+	d->timerList->setAutoDelete( TRUE );
+	gettimeofday( &watchtime, 0 );
+    }
+
+    int id = 0;
+    {
+	int i = d->timerBitVec->size()-1;
+	while ( i >= 0 && (*d->timerBitVec)[i] )
+	    i--;
+	if ( i < 0 ) {
+	    i = d->timerBitVec->size();
+	    d->timerBitVec->resize( 4 * i );
+	    for( int j=d->timerBitVec->size()-1; j > i; j-- )
+		d->timerBitVec->clearBit( j );
+	}
+	d->timerBitVec->setBit( i );
+	id = i+1;
+    }
     if ( id <= 0 ||
-	 id > (int)timerBitVec->size() || !obj )// cannot create timer
+	 id > (int)d->timerBitVec->size() || !obj )// cannot create timer
 	return 0;
-    timerBitVec->setBit( id-1 );		// set timer active
+    d->timerBitVec->setBit( id-1 );		// set timer active
     TimerInfo *t = new TimerInfo;		// create timer
     t->id = id;
     t->interval.tv_sec  = interval/1000;
@@ -280,40 +194,39 @@ int qStartTimer( int interval, QObject *obj )
     getTime( currentTime );
     t->timeout = currentTime + t->interval;
     t->obj = obj;
-    insertTimer( t );				// put timer in list
+    d->timerInsert( t );				// put timer in list
     return id;
 }
 
-bool qKillTimer( int id )
+bool QEventLoop::unregisterTimer( int id )
 {
     register TimerInfo *t;
-    if ( !timerList || id <= 0 ||
-	 id > (int)timerBitVec->size() || !timerBitVec->testBit( id-1 ) )
+    if ( !d->timerList || id <= 0 ||
+	 id > (int)d->timerBitVec->size() || !d->timerBitVec->testBit( id-1 ) )
 	return FALSE;				// not init'd or invalid timer
-    t = timerList->first();
+    t = d->timerList->first();
     while ( t && t->id != id )			// find timer info in list
-	t = timerList->next();
+	t = d->timerList->next();
     if ( t ) {					// id found
-	timerBitVec->clearBit( id-1 );		// set timer inactive
-	return timerList->remove();
+	d->timerBitVec->clearBit( id-1 );		// set timer inactive
+	return d->timerList->remove();
     }
-    else					// id not found
-	return FALSE;
+    return FALSE; // id not found
 }
 
-bool qKillTimer( QObject *obj )
+bool QEventLoop::unregisterTimers( QObject *obj )
 {
     register TimerInfo *t;
-    if ( !timerList )				// not initialized
+    if ( !d->timerList )				// not initialized
 	return FALSE;
-    t = timerList->first();
+    t = d->timerList->first();
     while ( t ) {				// check all timers
 	if ( t->obj == obj ) {			// object found
-	    timerBitVec->clearBit( t->id-1 );
-	    timerList->remove();
-	    t = timerList->current();
+	    d->timerBitVec->clearBit( t->id-1 );
+	    d->timerList->remove();
+	    t = d->timerList->current();
 	} else {
-	    t = timerList->next();
+	    t = d->timerList->next();
 	}
     }
     return TRUE;
@@ -464,7 +377,7 @@ void QEventLoop::wakeUp()
 
 int QEventLoop::timeToWait() const
 {
-    timeval *tm = qt_wait_timer();
+    timeval *tm = ((QEventLoop*)this)->d->timerWait();
     if ( ! tm )	// no active timers
 	return -1;
     return (tm->tv_sec*1000) + (tm->tv_usec/1000);
@@ -472,11 +385,11 @@ int QEventLoop::timeToWait() const
 
 int QEventLoop::activateTimers()
 {
-    if ( qt_disable_lowpriority_timers || !timerList || !timerList->count() )	// no timers
+    if ( qt_disable_lowpriority_timers || !d->timerList || !d->timerList->count() )	// no timers
 	return 0;
     bool first = TRUE;
     timeval currentTime;
-    int n_act = 0, maxCount = timerList->count();
+    int n_act = 0, maxCount = d->timerList->count();
     TimerInfo *begin = 0;
     register TimerInfo *t;
 
@@ -486,11 +399,11 @@ int QEventLoop::activateTimers()
 	getTime( currentTime );			// get current time
 	if ( first ) {
 	    if ( currentTime < watchtime )	// clock was turned back
-		repairTimer( currentTime );
+		d->timerRepair( currentTime );
 	    first = FALSE;
 	    watchtime = currentTime;
 	}
-	t = timerList->first();
+	t = d->timerList->first();
 	if ( !t || currentTime < t->timeout )	// no timer has expired
 	    break;
 	if ( ! begin ) {
@@ -501,18 +414,18 @@ int QEventLoop::activateTimers()
 	} else if ( t->interval <  begin->interval || t->interval == begin->interval ) {
 	    begin = t;
 	}
-	timerList->take();			// unlink from list
+	d->timerList->take();			// unlink from list
 	t->timeout += t->interval;
 	if ( t->timeout < currentTime )
 	    t->timeout = currentTime + t->interval;
-	insertTimer( t );			// relink timer
+	d->timerInsert( t );			// relink timer
 	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
 	    n_act++;
 	else
 	    maxCount--;
 	QTimerEvent e( t->id );
 	QApplication::sendEvent( t->obj, &e );	// send event
-	if ( timerList->findRef( begin ) == -1 )
+	if ( d->timerList->findRef( begin ) == -1 )
 	    begin = 0;
     }
     return n_act;
@@ -538,10 +451,6 @@ int QEventLoop::activateSocketNotifiers()
     return n_act;
 }
 
-
-
-
-
 void QEventLoop::init()
 {
     // initialize the common parts of the event loop
@@ -550,6 +459,8 @@ void QEventLoop::init()
     fcntl(d->thread_pipe[1], F_SETFD, FD_CLOEXEC);
 
     d->sn_highest = -1;
+    d->timerList  = 0;
+    d->timerBitVec = 0;
 }
 
 void QEventLoop::cleanup()
@@ -557,7 +468,73 @@ void QEventLoop::cleanup()
     // cleanup the common parts of the event loop
     close( d->thread_pipe[0] );
     close( d->thread_pipe[1] );
-    cleanupTimers();
+
+    //cleanup timer
+    delete d->timerList;
+    d->timerList = 0;
+    delete d->timerBitVec;
+    d->timerBitVec = 0;
+}
+
+int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
+{
+    // Process timers and socket notifiers - the common UNIX stuff
+    int highest = 0;
+    FD_ZERO( &sn_vec[0].select_fds );
+    FD_ZERO( &sn_vec[1].select_fds );
+    FD_ZERO( &sn_vec[2].select_fds );
+    if ( ! ( flags & QEventLoop::ExcludeSocketNotifiers ) && (sn_highest >= 0) ) {
+	// return the highest fd we can wait for input on
+	if ( !sn_vec[0].list.isEmpty() )
+	    sn_vec[0].select_fds = sn_vec[0].enabled_fds;
+	if ( !sn_vec[1].list.isEmpty() )
+	    sn_vec[1].select_fds = sn_vec[1].enabled_fds;
+	if ( !sn_vec[2].list.isEmpty() )
+	    sn_vec[2].select_fds = sn_vec[2].enabled_fds;
+	highest = sn_highest;
+    }
+
+#ifdef Q_WS_X11
+    if ( xfd != -1 ) {
+	// select for events on the event socket - only on X11
+	FD_SET( xfd, &sn_vec[0].select_fds );
+	highest = QMAX( highest, xfd );
+    }
+#endif
+
+    FD_SET( thread_pipe[0], &sn_vec[0].select_fds );
+    highest = QMAX( highest, thread_pipe[0] );
+    int nsel = select(highest + 1, &sn_vec[0].select_fds, &sn_vec[1].select_fds,
+		      &sn_vec[2].select_fds, t);
+
+    int ret = 0;
+    if ( nsel == -1 ) {
+	if ( errno != EINTR && errno != EAGAIN )
+	    perror( "select" );
+    } else {
+	// some other thread woke us up... consume the data on the thread pipe so that
+	// select doesn't immediately return next time
+	if ( FD_ISSET( thread_pipe[0], &sn_vec[0].select_fds ) ) {
+	    char c;
+	    ::read( thread_pipe[0], &c, 1 );
+	}
+
+	// activate socket notifiers
+	if ( ! ( flags & QEventLoop::ExcludeSocketNotifiers ) && nsel > 0 && sn_highest >= 0 ) {
+	    // if select says data is ready on any socket, then set the socket notifier
+	    // to pending
+	    for (int i=0; i<3; i++ ) {
+		QList<QSockNot *> &list = sn_vec[i].list;
+		for (int j = 0; j < list.size(); ++j) {
+		    QSockNot *sn = list.at(j);
+		    if ( FD_ISSET( sn->fd, &sn_vec[i].select_fds ) ) 
+			q->setSocketNotifierPending( sn->obj );
+		}
+	    }
+	}
+	ret += q->activateSocketNotifiers();
+    }
+    return ret;
 }
 
 bool QEventLoop::processEvents( ProcessEventsFlags flags )
@@ -576,47 +553,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     // don't block if exitLoop() or exit()/quit() has been called.
     bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
 
-    // Process timers and socket notifiers - the common UNIX stuff
-
-    // return the maximum time we can wait for an event.
-    static timeval zerotm;
-    timeval *tm = 0;
-    if ( ! ( flags & 0x08 ) ) {			// 0x08 == ExcludeTimers for X11 only
-	tm = qt_wait_timer();			// wait for timer or X event
-	if ( !canWait ) {
-	    if ( !tm )
-		tm = &zerotm;
-	    tm->tv_sec  = 0;			// no time to wait
-	    tm->tv_usec = 0;
-	}
-    }
-
-    int highest = 0;
-    FD_ZERO( &d->sn_vec[0].select_fds );
-    FD_ZERO( &d->sn_vec[1].select_fds );
-    FD_ZERO( &d->sn_vec[2].select_fds );
-    if ( ! ( flags & ExcludeSocketNotifiers ) && (d->sn_highest >= 0) ) {
-	// return the highest fd we can wait for input on
-	if ( !d->sn_vec[0].list.isEmpty() )
-	    d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
-	if ( !d->sn_vec[1].list.isEmpty() )
-	    d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
-	if ( !d->sn_vec[2].list.isEmpty() )
-	    d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
-	highest = d->sn_highest;
-    }
-
-#ifdef Q_WS_X11
-    if ( d->xfd != -1 ) {
-	// select for events on the event socket - only on X11
-	FD_SET( d->xfd, &d->sn_vec[0].select_fds );
-	highest = QMAX( highest, d->xfd );
-    }
-#endif
-
-    FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
-    highest = QMAX( highest, d->thread_pipe[0] );
-
     if ( canWait )
 	emit aboutToBlock();
 
@@ -626,51 +562,27 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     locker.mutex()->unlock();
 #endif
 
-    int nsel;
-    nsel = select( highest + 1,
-		   &d->sn_vec[0].select_fds,
-		   &d->sn_vec[1].select_fds,
-		   &d->sn_vec[2].select_fds,
-		   tm );
-
     // relock the GUI mutex before processing any pending events
 #if defined(QT_THREAD_SUPPORT)
     locker.mutex()->lock();
 #endif
 
+    // return the maximum time we can wait for an event.
+    static timeval zerotm;
+    timeval *tm = NULL;
+    if ( tm && !(flags & 0x08)) {			// 0x08 == ExcludeTimers for X11 only
+	tm = d->timerWait();			// wait for timer or X event
+	if ( !canWait ) {
+	    if ( !tm )
+		tm = &zerotm;
+	    tm->tv_sec  = 0;			// no time to wait
+	    tm->tv_usec = 0;
+	}
+    }
+    nevents += d->eventloopSelect(flags, tm);
+
     // we are awake, broadcast it
     emit awake();
-
-    if ( nsel == -1 ) {
-	if ( errno != EINTR && errno != EAGAIN )
-	    perror( "select" );
-	return (nevents > 0);
-    }
-
-#undef FDCAST
-
-    // some other thread woke us up... consume the data on the thread pipe so that
-    // select doesn't immediately return next time
-    if ( nsel > 0 && FD_ISSET( d->thread_pipe[0], &d->sn_vec[0].select_fds ) ) {
-	char c;
-	::read( d->thread_pipe[0], &c, 1 );
-    }
-
-    // activate socket notifiers
-    if ( ! ( flags & ExcludeSocketNotifiers ) && nsel > 0 && d->sn_highest >= 0 ) {
-	// if select says data is ready on any socket, then set the socket notifier
-	// to pending
-	for (int i=0; i<3; i++ ) {
-	    QList<QSockNot *> &list = d->sn_vec[i].list;
-	    for (int j = 0; j < list.size(); ++j) {
-		QSockNot *sn = list.at(j);
-		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) )
-		    setSocketNotifierPending( sn->obj );
-	    }
-	}
-
-	nevents += activateSocketNotifiers();
-    }
 
     // activate timers
     if ( ! ( flags & 0x08 ) ) {

@@ -133,3 +133,13 @@ void QGuiEventLoop::appClosingDown()
 {
     d->xfd = -1;
 }
+
+void QGuiEventLoop::init()
+{
+
+}
+
+void QGuiEventLoop::cleanup()
+{
+
+}

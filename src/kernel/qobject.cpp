@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qvariant.h"
+#include "qeventloop.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qregexp.h"
@@ -181,11 +182,6 @@ static inline bool isSpace( char x )
 }
 
 // Event functions, implemented in qapplication_xxx.cpp
-
-int   qStartTimer( int interval, QObject *obj );
-bool  qKillTimer( int id );
-bool  qKillTimer( QObject *obj );
-
 /*!
     \relates QObject
 
@@ -354,8 +350,8 @@ QObject::~QObject()
     if ( objname )
 	delete [] (char*)objname;
     objname = 0;
-    if ( pendTimer )				// might be pending timers
-	qKillTimer( this );
+    if ( QApplication::eventLoop() && pendTimer )				// might be pending timers
+	QApplication::eventLoop()->unregisterTimers(this);
     if ( parentObj )				// remove it from parent object
 	setParent_helper(0);
 
@@ -896,7 +892,7 @@ bool QObject::blockSignals( bool block )
 int QObject::startTimer( int interval )
 {
     pendTimer = TRUE;				// set timer flag
-    return qStartTimer( interval, (QObject *)this );
+    return QApplication::eventLoop()->registerTimer(interval, (QObject *)this);
 }
 
 /*!
@@ -910,7 +906,7 @@ int QObject::startTimer( int interval )
 
 void QObject::killTimer( int id )
 {
-    qKillTimer( id );
+    QApplication::eventLoop()->unregisterTimer(id);
 }
 
 static void objSearch( QObjectList &result,
