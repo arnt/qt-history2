@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#8 $
 **
 ** Implementation of QRegion class
 **
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#8 $")
 
 
 /*----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void QRegion::exec( const QByteArray &buffer )
 #if defined(DEBUG)
     int test_cnt = 0;
 #endif
-    while ( !s.eos() ) {
+    while ( !s.eof() ) {
 	int id;
 	s >> id;
 #if defined(DEBUG)

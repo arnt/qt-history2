@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#35 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#35 $")
 
 
 /*!
@@ -221,7 +221,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
     QRegion	rgn;
     QWMatrix	matrix;
 
-    while ( nrecords-- && !s.eos() ) {
+    while ( nrecords-- && !s.eof() ) {
 	s >> c;					// read cmd
 	s >> tiny_len;				// read param length
 	if ( tiny_len == 255 )			// longer than 254 bytes
