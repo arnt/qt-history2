@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#285 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#286 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12292,10 +12292,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 int QString::find( const QRegExp &rx, int index ) const
 {
-    if ( (uint)index >= length() )
-	return -1;
-    else
-	return rx.match( *this, index );
+    return rx.match( *this, index );
 }
 
 /*!
@@ -12309,6 +12306,8 @@ int QString::find( const QRegExp &rx, int index ) const
 
 int QString::findRev( const QRegExp &rx, int index ) const
 {
+    if ( isEmpty() && index <= 0 )
+	return rx.match( *this );
     if ( index < 0 )				// neg index ==> start from end
 	index = length() - 1;
     else if ( (uint)index >= length() )		// bad index
@@ -12337,7 +12336,7 @@ int QString::findRev( const QRegExp &rx, int index ) const
 int QString::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
-	return 0;
+	return rx.match( *this ) < 0 ? 0 : 1;
     int count = 0;
     int index = -1;
     int len = length();
