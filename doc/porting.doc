@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.63 1999/06/17 19:46:42 paul Exp $
+** $Id: porting.doc,v 1.64 1999/08/03 08:22:12 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -705,6 +705,10 @@ QFont::substitutions()</tt>.
 <p> Calling resize(0,0) or resize(1,1) will no longer work magically.
 Remove all such calls. The default size of toplevel widgets will be their
 \link QWidget::sizeHint() sizeHint()\endlink.
+
+<p> The default implementation of QWidget::sizeHint() will no longer
+return just an invalid size; if the widget has a layout, it will return
+the layout's preferrered size.
 
 <p> The special maximum MaximumHeight/Width is now QWIDGETSIZE_MAX,
 not QCOORD_MAX.
