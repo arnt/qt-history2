@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#249 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#250 $
 **
 ** Implementation of QListBox widget class
 **
@@ -896,7 +896,10 @@ void QListBox::clear()
         i = n;
     }
     triggerUpdate( TRUE );
+    BackgroundMode m = viewport()->backgroundMode();
+    viewport()->setBackgroundMode( PaletteBase );
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+    viewport()->setBackgroundMode( m );
 }
 
 
