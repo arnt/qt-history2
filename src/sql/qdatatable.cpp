@@ -1850,12 +1850,13 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     horizontalHeader()->repaint();
     setSize( cur );
     // keep others aware
-    if ( d->lastAt != currentRow() ) {
+    if ( d->lastAt != -1 && d->lastAt != currentRow() ) {
 	setCurrentSelection( currentRow(), currentColumn() );
     } else {
-	if ( cur->seek( d->lastAt ) ) {
-	    emit currentChanged( cur );
-	}
+	int i = d->lastAt;
+	if ( i == -1 )
+	    i = 0;
+	setCurrentSelection( 0, 0 );
     }
 }
 
