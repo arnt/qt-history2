@@ -82,31 +82,43 @@ QTextStream &operator>>( QTextStream &s, Element &element )
     int errors = 0;
     bool ok;
 
-    double value = data.section( FIELD_SEP, 0, 0 ).toDouble( &ok );
+    QStringList fields = QStringList::split( FIELD_SEP, data );
+    double value = fields[0].toDouble( &ok );
     if ( !ok )
 	errors++;
-    QColor valueColor = QColor( data.section( FIELD_SEP, 1, 1 ) );
+    QColor valueColor = QColor( fields[1] );
     if ( !valueColor.isValid() )
 	errors++;
-    int valuePattern = data.section( FIELD_SEP, 2, 2 ).toInt( &ok );
+    int valuePattern = fields[2].toInt( &ok );
     if ( !ok )
 	errors++;
-    QColor labelColor = QColor( data.section( FIELD_SEP, 3, 3 ) );
+    QColor labelColor = QColor( fields[3] );
     if ( !labelColor.isValid() )
 	errors++;
-    QStringList propoints = QStringList::split(
-			    PROPOINT_SEP, data.section( FIELD_SEP, 4, 4 ) );
-    QString label = data.section( FIELD_SEP, 5 );
+    QStringList propoints = QStringList::split( PROPOINT_SEP, fields[4] );
+    QString label = fields[5];
 
     if ( !errors ) {
 	element.set( value, valueColor, valuePattern, label, labelColor );
 	int i = 0;
-	for ( QStringList::iterator it = propoints.begin();
-	    i < Element::MAX_PROPOINTS && it != propoints.end(); ++i, ++it ) {
-	    element.setProX( i, (*it).section( XY_SEP, 0, 0 ).toDouble() );
-	    element.setProY( i, (*it).section( XY_SEP, 1, 1).toDouble() );
+	for ( QStringList::iterator point = propoints.begin();
+	      i < Element::MAX_PROPOINTS && point != propoints.end();
+	      ++i, ++point ) {
+	    errors = 0;
+	    QStringList xy = QStringList::split( XY_SEP, *point );
+	    double x = xy[0].toDouble( &ok );
+	    if ( !ok || x <= 0.0 || x >= 1.0 )
+		errors++;
+	    double y = xy[1].toDouble( &ok );
+	    if ( !ok || y <= 0.0 || y >= 1.0 )
+		errors++;
+	    if ( errors )
+		x = y = Element::NO_PROPORTION;
+	    element.setProX( i, x );
+	    element.setProY( i, y );
 	}
     }
 
     return s;
 }
+

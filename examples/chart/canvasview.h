@@ -17,9 +17,8 @@ public:
     CanvasView( QCanvas *canvas, ElementVector *elements,
 		QWidget* parent = 0, const char* name = "canvas view",
 		WFlags f = 0 )
-	: QCanvasView( canvas, parent, name, f ) {
-	m_elements = elements;
-    }
+	: QCanvasView( canvas, parent, name, f ),
+	  m_elements( elements) {}
 
 protected:
     void viewportResizeEvent( QResizeEvent *e );

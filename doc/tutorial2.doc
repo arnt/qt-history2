@@ -1,18 +1,18 @@
-/*! \file /home/mark/p4/qt-3.0/examples/chart/chart.pro */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/element.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/element.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/main.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/canvastext.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/canvasview.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/canvasview.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform_canvas.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform_files.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/optionsform.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/optionsform.cpp */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/setdataform.h */
-/*! \file /home/mark/p4/qt-3.0/examples/chart/setdataform.cpp */
+/*! \file examples/chart/chart.pro */
+/*! \file examples/chart/element.h */
+/*! \file examples/chart/element.cpp */
+/*! \file examples/chart/main.cpp */
+/*! \file examples/chart/canvastext.h */
+/*! \file examples/chart/canvasview.h */
+/*! \file examples/chart/canvasview.cpp */
+/*! \file examples/chart/chartform.h */
+/*! \file examples/chart/chartform.cpp */
+/*! \file examples/chart/chartform_canvas.cpp */
+/*! \file examples/chart/chartform_files.cpp */
+/*! \file examples/chart/optionsform.h */
+/*! \file examples/chart/optionsform.cpp */
+/*! \file examples/chart/setdataform.h */
+/*! \file examples/chart/setdataform.cpp */
 
 /*!
 
@@ -32,6 +32,7 @@ How to Learn Qt\endlink if you haven't already done so.
 \i \link tutorial2-01.html Introduction\endlink
 \i \link tutorial2-02.html The 'Big Picture'\endlink
 \i \link tutorial2-03.html Data Elements\endlink
+\i \link tutorial2-04.html Mainly Easy\endlink
 \endlist
 
 <p align=right>
@@ -71,7 +72,8 @@ source for the application is in \c examples/chart.
 The \c chart program allows users to create, save, load and visualise
 simple data sets. Each data element that the user enters can be given
 a color and pattern for the pie segment or bar, some label text and
-the text's position and color. 
+the text's position and color. The \c Element class is used to
+represent data elements.
 
 The program consists of a simple \c main.cpp that loads the chart
 form. The chart form has a menubar and toolbar which provide access to
@@ -107,22 +109,34 @@ We will use a C++ class called \c Element to provide storage and
 access for data elements.
 
 \quotefile chart/element.h
+\skipto private
+\printline
+\skipto m_value
+\printto };
+
+Each element has a value. Each value is displayed graphically with a
+particular color and fill pattern. Values may have a label associated
+with them; the label is drawn using the label color and for each type
+of chart has a (relative) position stored in the \c m_propoints array.
+
+\quotefile chart/element.h
 \skipto #include
 \printto class
 
-The \c Element class is a purely internal data class, yet it
-\c{#include}s four Qt classes. Although Qt is often perceived as a GUI
-toolkit it provides many non-GUI classes to support most aspects of
-application programming. We use \c qcolor.h so that we can hold the
-paint color and text color in the \c Element class. The use of \c
-qnamespace.h is slightly obscure. Most Qt classes are derived from the
-Qt superclass which contains various enumerations. The \c Element
-class does not derive from Qt, so we need to include \c qnamespace.h
-to have access to the Qt enum names. An alternative approach would
-have been to have made \c Element a Qt subclass. We include \c
+Although \c Element class is a purely internal data class, it
+\c{#include}s four Qt classes. Although Qt is often perceived as a
+purely GUI toolkit, it provides many non-GUI classes to support most
+aspects of application programming. We use \c qcolor.h so that we can
+hold the paint color and text color in the \c Element class. The use
+of \c qnamespace.h is slightly obscure. Most Qt classes are derived
+from the \link qt.html Qt\endlink superclass which contains various
+enumerations. The \c Element class does not derive from \link qt.html
+Qt\endlink, so we need to include \c qnamespace.h to have access to
+the Qt enum names. An alternative approach would have been to have
+made \c Element a \link qt.html Qt\endlink subclass. We include \c
 qstring.h to make use of Qt's Unicode strings. As a convenience we
-will \c typedef a vector container for Elements, which is why we pull
-in the \c qvaluevector.h.
+will \c typedef a vector container for \c{Element}s, which is why we
+pull in the \c qvaluevector.h header.
 
 \skipto QValueVector
 \printline
@@ -146,35 +160,141 @@ greater than \c EPSILON to be positive and valid.
 We define three public enums for Elements. \c INVALID is used by the
 isValid() function. It is useful because we are going to use a fixed
 size vector of Elements, and can mark unused Elements by giving them
-\c INVALID values. The \c NO_POSITION enum is used to signify that the
-user has not positioned the Element's label; any positive position
-value is taken to be the position. 
+\c INVALID values. The \c NO_PROPORTION enum is used to signify that
+the user has not positioned the Element's label; any positive
+proportion value is taken to be the text element's position
+proportional to the canvas's size. 
 
-The \c MAX_PROPOINTS enum is problematic. We need to store the (x, y)
-position for the text label for every chart type. And we have chosen
-to store these positions in a fixed-size array. Because of this we
-must specify the maximum number of points needed. This value must be
-changed if we change the number of chart types, which means that the
-\c Element class is strongly coupled to the number of chart types
-provided by the \c ChartForm class. In a realistic example we might
-have used a vector to store these points and dynamically resized it
-depending on how many chart types are available. 
+If we stored each label's actual x and y position, then every time the
+user resized the main window (and therefore the canvas), the text
+would retain its original (now incorrect) position. So instead of
+storing absolute (x, y) positions we store \e proportional positions,
+i.e. x/width and y/height. We can then multiply these positions by
+width and height respectively when we come to draw the text and the
+text will be positioned correctly regardless of any resizing. For
+example, if a label has an x position of 300 and the canvas is 400
+pixels wide, the proportional x value is 300/400 = 0.75.
 
-If we stored the actual points, then every time the user resized the
-main window (and therefore the canvas), the text would retain its
-original (now incorrect) position. So instead of storing absolute (x,
-y) positions we store \e proportional positions, i.e. x/width and
-y/height. We can then multiply these positions by width and height
-respectively when we come to draw the text and the text will be
-positioned correctly regardless of any resizing.
+The \c MAX_PROPOINTS enum is problematic. We need to store the x and y
+proportions for the text label for every chart type. And we have
+chosen to store these proportions in a fixed-size array. Because of
+this we must specify the maximum number of proportion pairs needed.
+This value must be changed if we change the number of chart types,
+which means that the \c Element class is strongly coupled to the
+number of chart types provided by the \c ChartForm class. In a
+larger application we might have used a vector to store these points
+and dynamically resized it depending on how many chart types are
+available. 
 
 \printto Element()
 
+The constructor provides default values for all members of the \c
+Element class. New elements always have label text with no position.
+We use an init() function because we also provide a set() function
+which works like the constructor apart from leaving the proportional
+positions alone.
+
+\skipto isValid()
+\printline
+
+Since we are storing \c{Element}s in a fixed size vector we need to be
+able to check whether a particular element is valid (i.e. should be
+used in calculations and displayed) or not. This is easily achieved
+with the isValid() function.
+
+\quotefile chart/element.cpp
+\skipto Element::proX
+\printuntil }
+
+Getters and setters are provided for all the members of \c Element.
+The proX() and proY() getters and the setProX() and setProY() getters
+take an index which identifies the type of chart the proportional
+position applies to. This means that the user can have labels
+positioned separately for the same data set for a vertical bar chart,
+a horizontal bar chart and for a pie chart. Note also that we use the
+\c Q_ASSERT macro to provide pre-condition tests on the chart type
+index; see \link debug.html Debugging\endlink. 
+
+\section1 Reading and Writing Data Elements
+
+\quotefile chart/element.h
+\skipto QTextStream
+\printline
+\printline
+
+To make our \c Element class more self-contained we provide overloads
+for the \<\< and \>\> operators so that \c{Element}s may be written to
+and read from text streams. We could just as easily have used binary
+streams, but using text makes it possible for users to manipulate
+their data using a text editor and makes it easier to generate and
+filter the data using a scripting language.
+
+\quotefile chart/element.cpp
+\skipto include
+\printto const
+
+The operators require the inclusion of \c qtextstream.h and \c
+qstringlist.h. 
+
+\printto Element
+
+The format we are using to store the data is colon separated fields
+and newline separated records. The proportional points are semi-colon
+separated, with their x, y pairs being comma separated. The field
+order is value, value color, value pattern, label color, label points,
+label text. For example:
+\code
+20:#ff0000:14:#000000:0.767033,0.412946;0,0.75;0,0:Red
+70:#00ffff:2:#ffff00:0.450549,0.198661;0.198516,0.125954;0,0.198473:Cyan
+35:#0000ff:8:#555500:0.10989,0.299107;0.397032,0.562977;0,0.396947:Blue
+55:#ffff00:1:#000080:0.0989011,0.625;0.595547,0.312977;0,0.59542:Yellow
+80:#ff00ff:1:#000000:0.518681,0.694196;0.794063,0;0,0.793893:Magenta
+\endcode
+
+\skipto &operator<<
+\printuntil return
+\printline
+
+Writing elements is straight-forward. Each member is written followed
+by a field separator. The points are written as comma separated (\c
+XY_SEP) x, y pairs, each pair separated by the \c PROPOINT_SEP
+separator. The final field is the label followed by a newline.
+
+\skipto &operator>>
+\printuntil return
+\printline
+
+To read an element we read one record (i.e. one line). We break the
+data into fields using QStringList::split(). This has the small
+disadvantage that labels cannot contain colons (\c FIELD_SEP); an
+alternative implementation using QString::section() would avoid this
+limitation, but would be less efficient. If the value, colors and
+pattern data is valid we use \c Element::set() to write this data into
+the element. We then iterate through the points. If the x and y
+proportions are valid and in range we set them for the element. If
+one or both is invalid they will hold the value zero; this is not
+suitable so we change invalid (and out-of-range) proportional point
+values to \c NO_PROPORTION.
+
+Our \c Element class is now sufficient to store, manipulate, read and
+write element data. We have also created an element vector typedef for
+storing a collection of elements.
+
+We are now ready to create \c main.cpp and the user interface through
+which our users will create, edit and visualise their data sets.
+
+\table
+\row
+\i For more information on Qt's data streaming facilities see \link
+datastreamformat.html QDataStream Operators' Formats\endlink, and see
+the source code for any of the Qt classes mentioned that are similar
+to what you want to store.
+\endtable
 
 <p align=right>
 <a href="tutorial2-02.html">&laquo; The 'Big Picture'</a> |
 <a href="tutorial2.html">Contents</a> |
-<a href="tutorial2-03.html">???? &raquo;</a>
+<a href="tutorial2-04.html">Mainly Easy &raquo;</a>
 </p>
 
 */
