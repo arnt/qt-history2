@@ -691,7 +691,7 @@ enum break_action {
 
 // The folowing line break classes are not treated by the table:
 // SA, BK, CR, LF, SG, CB, SP
-static const break_action breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
+static const Q_UINT8 breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
 {
     //   OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
     { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
