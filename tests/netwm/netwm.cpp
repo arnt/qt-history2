@@ -28,7 +28,7 @@
 #include <stdio.h>
 
 #include <X11/Xlibint.h>
-
+#define DEBUG
 
 // root window properties
 static Atom net_supported            = 0;
@@ -174,7 +174,7 @@ static void create_atoms(Display *d) {
 					 "_NET_KDE_DOCKING_WINDOWS",
 					 "_NET_WM_KDE_DOCKING_WINDOW_FOR",
 					 "WM_STATE" };
-    
+
     Atom atoms[28], *atomsp[28] = {
 	&net_supported,
 	    &net_supporting_wm_check,
@@ -204,11 +204,11 @@ static void create_atoms(Display *d) {
 	    &net_kde_docking_windows,
 	    &net_wm_kde_docking_window_for,
 	    &xa_wm_state };
-    
+
     int i = 28;
     while (i--)
 	atoms[i] = 0;
-    
+
     XInternAtoms(d, (char **) names, 28, False, atoms);
 
     i = 28;
@@ -358,6 +358,8 @@ NETRootInfo::NETRootInfo(Display *d, unsigned long pr, int s) {
     p = new NETRootInfoPrivate;
     p->ref = 1;
 
+    p->name = 0;
+    
     p->display = d;
 
     if (s != -1)
@@ -487,7 +489,7 @@ void NETRootInfo::setNumberOfDesktops(CARD32 num) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     }
 }
 
@@ -511,7 +513,7 @@ void NETRootInfo::setCurrentDesktop(CARD32 desk) {
     e.xclient.data.l[3] = 0l;
     e.xclient.data.l[4] = 0l;
 
-    XSendEvent(p->display, p->root, False, NoEventMask, &e);
+    XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
   }
 }
 
@@ -576,7 +578,7 @@ void NETRootInfo::setDesktopGeometry(const NETSize &sz) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     }
 }
 
@@ -605,7 +607,7 @@ void NETRootInfo::setDesktopViewport(const NETPoint &pt) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     }
 }
 
@@ -739,7 +741,7 @@ void NETRootInfo::setActiveWindow(Window win) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     }
 }
 
@@ -834,7 +836,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	    closeWindow(e->xclient.window);
 	}
     }
-    
+
     if (e->type == PropertyNotify) {
 	XEvent pe = *e;
 
@@ -900,13 +902,13 @@ void NETRootInfo::update(unsigned long dirty) {
 		    Window *wins = (Window *) data_ret;
 
 		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
-		    
+		
 		    if (p->clients) {
 			if (role == Client) {
 			    unsigned long new_index = 0, old_index = 0;
 			    unsigned long new_count = nitems_ret,
 					  old_count = p->clients_count;
-			    
+			
 			    while (old_index < old_count || new_index < new_count) {
 				if (old_index == old_count) {
 				    addClient(wins[new_index++]);
@@ -933,7 +935,7 @@ void NETRootInfo::update(unsigned long dirty) {
 			for (n = 0; n < nitems_ret; n++)
 			    addClient(wins[n]);
 		    }
-		    
+		
 		    p->clients_count = nitems_ret;
 		    p->clients = nwindup(wins, p->clients_count);
 		}
@@ -1318,7 +1320,7 @@ void NETWinInfo::setState(unsigned long st, unsigned long msk) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     } else {
 	p->state = st;
 	XChangeProperty(p->display, p->window, net_wm_state, XA_CARDINAL, 32,
@@ -1349,7 +1351,7 @@ void NETWinInfo::setName(const char *name) {
 
 void NETWinInfo::setVisibleName(const char *vname) {
     if (role != WindowManager) return;
-    
+
     if (p->visible_name) delete [] p->visible_name;
     p->visible_name = nstrdup(vname);
     XChangeProperty(p->display, p->window, net_wm_visible_name, XA_STRING, 8,
@@ -1374,7 +1376,7 @@ void NETWinInfo::setDesktop(CARD32 desk) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
+	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     } else {
 	// otherwise we just set the property directly
 	p->desktop = desk;
@@ -1577,8 +1579,8 @@ void NETWinInfo::update(unsigned long dirty) {
 		}
 
 		XFree(data_ret);
-	    } 
-    
+	    }
+
     if (dirty & WMVisibleName)
 	if (XGetWindowProperty(p->display, p->window, net_wm_visible_name, 0l,
 			       (long) BUFSIZE, False, XA_STRING, &type_ret,
@@ -1593,7 +1595,7 @@ void NETWinInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
-        
+
     if (dirty & WMWindowType)
 	if (XGetWindowProperty(p->display, p->window, net_wm_window_type, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,

@@ -93,7 +93,7 @@ protected:
     // Notify a NETClient that a window has been added/removed.
     virtual void addClient(Window) { }
     virtual void removeClient(Window) { }
-    
+
     // NOT STANDARD - KDE 2.0 EXTENSIONS
     virtual void addDockWin(Window) { }
     virtual void removeDockWin(Window) { }
@@ -103,7 +103,7 @@ protected:
     virtual void changeDesktopGeometry(const NETSize &) { }
     virtual void changeDesktopViewport(const NETPoint &) { }
     virtual void changeCurrentDesktop(CARD32) { }
-    virtual void changeActiveWindow(CARD32) { }
+    virtual void changeActiveWindow(Window) { }
     virtual void closeWindow(Window) { }
     virtual void moveResize(Window, int, int, unsigned long) { }
 
