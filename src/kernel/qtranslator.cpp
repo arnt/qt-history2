@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#28 $
 **
 ** Localization database support.
 **
@@ -507,10 +507,12 @@ void QTranslator::clear()
 #endif
 	d->unmapPointer = 0;
 	d->unmapLength = 0;
-	d->messageArray->resetRawData( d->messageArray->data(),
-				       d->messageArray->size() );
-	d->offsetArray->resetRawData( d->offsetArray->data(),
-				      d->offsetArray->size() );
+	if ( d->messageArray )
+	    d->messageArray->resetRawData( d->messageArray->data(),
+					   d->messageArray->size() );
+	if ( d->offsetArray )
+	    d->offsetArray->resetRawData( d->offsetArray->data(),
+					  d->offsetArray->size() );
     }
     delete d->messageArray;
     d->messageArray = 0;
