@@ -4,7 +4,7 @@
 
     Scribe introduces a set of text layout classes to Qt 4. These classes
     replace the old rich text engine found in Qt 3, and provide new features
-    for processing and laying out both plain text and rich text.
+    for processing and laying out both plain and rich text.
 
     \tableofcontents
 
@@ -24,14 +24,14 @@
     The following sections provide a brief overview of the main concepts
     behind Scribe.
 
-
     \section2 The Document Interface
 
     Text documents are represented by the QTextDocument class, rather
     than by QString objects. Each QTextDocument object contains
     information about the document's internal representation, its
-    structure, and keeps track of modifications to provide undo/redo facilities.
-    This approach allows features such as the layout management to be
+    structure, and keeps track of modifications to provide undo/redo
+    facilities.
+    This approach allows features such as layout management to be
     delegated to specialized classes, but also provides a focus for the
     framework.
 
@@ -39,15 +39,14 @@
     scratch using Qt. The creation process can done by an editor widget,
     such as QTextEdit, or by explicit calls to the Scribe API.
 
-    There are two complementary ways to visualize the contents of a
-    document: as a linear buffer that is used by editors to modify the
-    contents, and as an object hierarchy containing structural information
-    that is useful to layout engines. In the hierarchical model, the
-    objects generally correspond to visual elements such as frames, tables,
-    and lists. At a lower level, these elements describe properties such as
-    the style of text used and its alignment. The linear representation of
-    the document is used for editing and manipulation of the document's
-    contents.
+    Text documents can be accessed in two complementary ways: as a linear
+    buffer for editors to use, and as an object hierarchy that is useful to
+    layout engines. 
+    In the hierarchical document model, objects generally correspond to
+    visual elements such as frames, tables, and lists. At a lower level,
+    these elements describe properties such as the text style and alignment.
+    The linear representation of the document is used for editing and
+    manipulation of the document's contents.
 
     \section2 Document Structure
 
@@ -72,7 +71,7 @@
     flow, alignment, and background color.
 
     The document structure is not manipulated directly. Editing is
-    performed through the cursor-based interface.
+    performed through a cursor-based interface.
 
     \section2 Editing and Content Creation
 
@@ -104,35 +103,6 @@
     behavior is currently implemented in a private class.
 
 
-    \section1 The Current State of Scribe
-
-    The following features are mostly complete:
-
-    \list
-    \i The document structure: \c QTextDocument, \c QTextBlock,
-       \c QTextFragment, \c QTextObject, and derived classes.
-    \i Undo/redo.
-    \i Lists: \c QTextList.
-    \i \c QTextFormat and its related structure is complete and working.
-       We are mainly interested in feedback on the public API of the
-       \c QText group of classes.
-    \i Most editing operations using \c QTextCursor.
-    \endlist
-
-    There are a few known problems with the framework:
-
-    \list
-    \i Support for varied document layouts is still being improved.
-    \i Text layout using design metrics (WYSIWYG) is disabled.
-    \i Memory consumption is still rather high (though lower than in Qt
-       3). The reasons are known to us and will be fixed before the release
-       of Qt 4.
-    \i The API of \c QAbstractTextDocumentLayout is subject to change.
-       The class is not guaranteed to be present in Qt 4.
-    \i HTML export is not yet complete.
-    \endlist
-
-
     \section1 Example Code
 
     Here we present two different ways in which the Scribe classes can be
@@ -149,11 +119,9 @@
     below imports HTML into a document, and displays the document using a
     text edit widget.
 
-    \code
-        QTextEdit *edit = new QTextEdit(parent);
-        edit->setHtml(aStringContainingHTMLtext);
-        edit->show();
-    \endcode
+    \quotefromfile snippets/scribe-overview/main.cpp
+    \skipto QTextEdit *edit
+    \printuntil show()
 
     You can retrieve the document from the text edit using the
     document() function. The document can then be edited programmatically
@@ -163,18 +131,9 @@
     other font properties untouched. The editor will be automatically
     updated to reflect the changes made to the underlying document data.
 
-    \code
-        QTextDocument *document = edit->document(); 
-        QTextCursor cursor(document);
-
-        cursor.movePosition(QTextCursor::Start); 
-        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-
-        QTextCharFormat format;
-        format.setFontWeight(QFont::Bold);
-
-        cursor.mergeCharFormat(format);
-    \endcode
+    \quotefromfile snippets/scribe-overview/main.cpp
+    \skipto QTextDocument *document
+    \printuntil cursor.mergeCharFormat
 
     Note that the cursor was moved from the start of the first line to the
     end, but that it retained an anchor at the start of the line. This
@@ -195,10 +154,8 @@
 
     The above example demonstrates how simple it is to quickly generate new
     rich text documents using a minimum amount of code. Although we have
-    generated crude fixed-pitch calendars to avoid quoting too much code,
+    generated a crude fixed-pitch calendar to avoid quoting too much code,
     Scribe provides much more sophisticated layout and formatting features.
-    These can be seen in the demonstrations and examples that accompany this
-    release.
 
     \section2 Plain Text Layout
 
@@ -214,32 +171,10 @@
     The example below will lay out a paragraph of text, using a single
     font, around the right hand edge of a circle.
 
-    \code
-        QTextLayout textLayout(text, font);
-        int radius = 150;
-        int margin = 10;
-        QFontMetrics fm(font);
-
-        int leading = fm.leading();
-        int lineHeight = fm.height();
-        int y = 0;
-
-        textLayout.clearLines();
-        while (1) {
-            int x1 = int(pow(pow(radius,2) - pow(radius-y,2), 0.5));
-            int x2 = int(pow(pow(radius,2) - pow(radius-(y+lineHeight),2), 0.5));
-            int x = qMax(x1, x2);
-            int lineWidth = 2*radius - x;
-
-            QTextLine line = textLayout.createLine();
-            if (!line.isValid())
-                break;
-
-            line.layout(lineWidth);
-            line.setPosition(QPoint(margin+x, margin+y));
-            y += line.ascent() + line.descent() + leading;
-        }
-    \endcode
+    \quotefromfile snippets/plaintextlayout/window.cpp
+    \skipto paintEvent
+    \skipto QTextLayout
+    \printto /^\}/
 
     We create a text layout, specifying the text string we want to display
     and the font to use. We ensure that the text we supplied is formatted
@@ -247,24 +182,16 @@
     the remaining text using the available space. The lines are positioned
     as we move down the page.
 
-    The formatted text can then be drawn using a standard paint device:
-    \code
-        QPainter painter(paintDevice);
-        textLayout.draw(&painter, QPoint(0, 0));
-    \endcode
-
-    The cursor-based editing features, combined with the structural document
-    model, provide a powerful set of tools for manipulating and displaying
-    rich text documents.
-
+    The formatted text can be drawn onto a paint device; in the above code,
+    the text is drawn directly onto a widget.
 
     \section1 Comparison with Qt 3
 
-    The new Scribe API offers a complete set of APIs to lay out and
-    manipulate both plain text and rich text documents. These provide
-    features that were unavailable in Qt 3's public API. The engine used is
-    a complete rewrite and does not use the rich text engine supplied with
-    Qt 3.
+    The cursor-based editing features, combined with the structural document
+    model, provide a powerful set of tools for manipulating and displaying
+    rich text documents. These provide features that were unavailable in
+    Qt 3's public API. The engine used is a complete rewrite and does not
+    use the rich text engine supplied with Qt 3.
 
     The QTextEdit class in Qt 4 has also been completely rewritten with an
     API that is quite different from its Qt 3 counterpart. Some compatibility
@@ -274,6 +201,20 @@
     it is possible to completely implement a document editor based on the
     QTextCursor editing interface.
 
+    \section1 Known Issues
+
+    There are a few known problems with the framework:
+
+    \list
+    \i Support for varied document layouts is still being improved.
+    \i Text layout using design metrics (WYSIWYG) is disabled.
+    \i Memory consumption is still rather high (though lower than in Qt
+       3). The reasons are known to us and will be fixed before the release
+       of Qt 4.
+    \i The API of \c QAbstractTextDocumentLayout is subject to change.
+       The class is not guaranteed to be present in Qt 4.
+    \i HTML export is not yet complete.
+    \endlist
 
     \section1 Future Work
 
