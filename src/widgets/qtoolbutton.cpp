@@ -579,7 +579,7 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 	    left = TRUE;
     }
 
-    int dbw = style().dropDownButtonWidth();
+    int dbw = style().menuButtonIndicatorWidth( height() );
     d->instantPopup = ( ( e->pos().x() < dbw ) && left  ) || ( ( e->pos().x() > ( width() - dbw ) ) && !left );
 
     if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup ) {
