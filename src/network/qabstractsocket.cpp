@@ -1307,7 +1307,7 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
         if (d->isBlocking)
             d->startConnecting(QDns::getHostByName(hostName));
         else
-            QDns::getHostByName(hostName, this, SLOT(startConnecting(QDnsHostInfo)));
+            QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)

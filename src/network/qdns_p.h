@@ -27,16 +27,27 @@
 #    define QDnsAgentBase QObject
 #endif
 
+class QDnsResult : public QObject
+{
+    Q_OBJECT
+public:
+    inline void emitResultsReady(const QDnsHostInfo &info)
+    {
+        emit resultsReady(info);
+    }
+signals:
+    void resultsReady(const QDnsHostInfo &info);
+};
+
 struct QDnsQuery
 {
-    inline QDnsQuery() : member(0) {}
-
-    inline QDnsQuery(const QString &name, QObject *r, const char *m)
-        : hostName(name), receiver(r), member(m) {}
+    inline QDnsQuery() : object(0) {}
+    inline ~QDnsQuery() { delete object; }
+    inline QDnsQuery(const QString &name, QDnsResult *result)
+        : hostName(name), object(result) {}
 
     QString hostName;
-    QPointer<QObject> receiver;
-    const char *member;
+    QDnsResult *object;
 };
 
 class QDnsAgent : public QDnsAgentBase
@@ -51,11 +62,10 @@ public:
     void run();
     static QDnsHostInfo getHostByName(const QString &hostName);
 
-    inline void addHostName(const QString &name,
-                            QObject *receiver, const char *member)
+    inline void addHostName(const QString &name, QDnsResult *result)
     {
         QMutexLocker locker(&mutex);
-        queries << QDnsQuery(name, receiver, member);
+        queries << new QDnsQuery(name, result);
     }
 
 public slots:
@@ -68,11 +78,8 @@ public slots:
         wait();
     }
 
-signals:
-    void resultsReady(QDnsHostInfo);
-
 private:
-    QList<QDnsQuery> queries;
+    QList<QDnsQuery *> queries;
     QMutex mutex;
 };
 

@@ -155,7 +155,13 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     }
 
     QDnsAgent *agent = ::agent();
-    agent->addHostName(lookup, receiver, member);
+
+    QDnsResult *result = new QDnsResult;
+    QObject::connect(result, SIGNAL(resultsReady(const QDnsHostInfo &)),
+                     receiver, member);
+    QObject::connect(result, SIGNAL(resultsReady(const QDnsHostInfo &)),
+                     result, SLOT(deleteLater()));
+    agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD
     if (!agent->isRunning())
@@ -211,7 +217,7 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
 void QDnsAgent::run()
 {
     for (;;) {
-        QDnsQuery query;
+        QDnsQuery *query = 0;
         {
             // the queries list is shared between threads. lock all
             // access to it.
@@ -221,21 +227,13 @@ void QDnsAgent::run()
             query = queries.takeFirst();
         }
 
-        if (!query.receiver)
-            continue;
-
 #if defined(QDNS_DEBUG)
-        qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, query.hostName.latin1());
+        qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, query->hostName.latin1());
 #endif
 
-        QDnsHostInfo results = getHostByName(query.hostName);
-
-        if (query.receiver) {
-            QByteArray arr(query.member + 1);
-            arr.resize(arr.indexOf('('));
-            qInvokeMetaMember(query.receiver, arr, Qt::QueuedConnection,
-                              QGenericArgument("QDnsHostInfo", &results));
-        }
+        query->object->emitResultsReady(getHostByName(query->hostName));
+        query->object = 0;
+        delete query;
     }
 }
 
