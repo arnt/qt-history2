@@ -1,0 +1,52 @@
+// ActiveQtEXE.idl : IDL source for ActiveQtEXE.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ActiveQtEXE.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+	
+
+	[
+		object,
+		uuid(616F620B-91C5-4410-A74E-6B81C76FFFE0),
+		dual,
+		helpstring("IQActiveX Interface"),
+		pointer_default(unique)
+	]
+	interface IQActiveX : IDispatch
+	{
+	};
+
+[
+	uuid(EC08F8FC-2754-47AB-8EFE-56A54057F34E),
+	version(1.0),
+	helpstring("ActiveQtEXE 1.0 Type Library")
+]
+library ACTIVEQTEXELib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(E1816BBA-BF5D-4A31-9855-D6BA432055FF),
+		helpstring("_IQActiveXEvents Interface")
+	]
+	dispinterface _IQActiveXEvents
+	{
+		properties:
+		methods:
+	};
+
+	[
+		uuid(DF16845C-92CD-4AAB-A982-EB9840E74669),
+		helpstring("QActiveX Class")
+	]
+	coclass QActiveX
+	{
+		[default] interface IQActiveX;
+		[default, source] dispinterface _IQActiveXEvents;
+	};
+};
