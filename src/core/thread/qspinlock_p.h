@@ -30,7 +30,7 @@
 #ifndef QT_NO_THREAD
 
 #include <qglobal.h>
-#include <arch/qatomic.h>
+#include <qatomic.h>
 
 #ifdef Q_OS_UNIX
 #  include <pthread.h>
@@ -96,15 +96,72 @@ private:
     QSpinLockPrivate d;
 };
 
+// QStaticSpinLock allows you to have static-global spinlocks
+class Q_CORE_EXPORT QStaticSpinLock
+{
+public:
+    inline operator QSpinLock *()
+    {
+	static QSpinLock *sx = 0;
+	if (!sx) {
+	    QSpinLock *x = new QSpinLock;
+	    if (!q_atomic_test_and_set_ptr(&sx, 0, x))
+		delete x;
+	}
+	return sx;
+    }
+};
+
+// similar to QMutexLocker, but for spinlocks
+class Q_CORE_EXPORT QSpinLockLocker
+{
+public:
+    inline QSpinLockLocker(QSpinLock *s)
+	: sx(s)
+    { acquire(); }
+    inline ~QSpinLockLocker()
+    { release(); }
+
+    inline void acquire()
+    { if (sx) sx->acquire(); }
+    inline void release()
+    { if (sx) sx->release(); }
+
+    inline QSpinLock *spinLock() const
+    { return sx; }
+
+private:
+    QSpinLock *sx;
+};
+
 #else // QT_NO_THREAD
 
 class Q_CORE_EXPORT QSpinLock
 {
 public:
-    inline QSpinLock() {}
-    inline ~QSpinLock() {}
-    static inline void acquire() {}
-    static inline void release() {}
+    inline QSpinLock() { }
+    inline ~QSpinLock() { }
+    static inline void acquire() { }
+    static inline void release() { }
+};
+
+class Q_CORE_EXPORT QStaticSpinLock
+{
+public:
+    inline operator QSpinLock *()
+    { return 0; }
+};
+
+class Q_CORE_EXPORT QSpinLockLocker
+{
+public:
+    inline QSpinLockLocker(QSpinLock *) { }
+    inline ~QSpinLockLocker() { }
+
+    static inline void release() { }
+    static inline void acquire() { }
+    static inline QSpinLock *spinLock()
+    { return 0; }
 };
 
 #endif //QT_NO_THREAD
