@@ -1,5 +1,7 @@
 #include <designerinterface.h>
 #include <actioninterface.h>
+#include <qtextview.h>
+#include <qlayout.h>
 
 #include "p4.h"
 
@@ -318,6 +320,8 @@ private:
     QAction *actionDelete;
     QAction *actionDiff;
 
+    QGuardedPtr<QWidget> outputPage;
+    QTextView *outputView;
     QGuardedCleanupHandler<QAction> actions;
     DesignerInterface *appInterface;
 
@@ -325,7 +329,7 @@ private:
 };
 
 P4Interface::P4Interface()
-: appInterface( 0 ), ref( 0 )
+: appInterface( 0 ), ref( 0 ), outputPage( 0 ), outputView( 0 )
 {
     aware = TRUE;
 }
@@ -350,6 +354,12 @@ void P4Interface::connectTo( QUnknownInterface *ai )
 	if ( !appInterface )
 	    return;
 
+	outputPage = appInterface->outputDock() ? appInterface->outputDock()->addView( "P4 Source Control" ) : 0;
+	QVBoxLayout *box = new QVBoxLayout( outputPage );
+	outputView = new QTextView( outputPage );
+	box->addWidget( outputView );
+
+	outputView->show();
 	appInterface->onFormChange( this, SLOT( formChanged() ) );
 
 	P4Init* init = new P4Init;
@@ -538,7 +548,7 @@ void P4Interface::p4Diff()
     DesignerFormWindow *fwIface = appInterface->currentForm();
     if ( !fwIface )
 	return;
-	
+
     P4Diff *diff = new P4Diff( fwIface->fileName() );
     connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( diff, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
@@ -700,6 +710,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 void P4Interface::statusMessage( const QString &text )
 {
     appInterface->showStatusMessage( text );
+    outputView->append( text );
 }
 
 QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
@@ -741,11 +752,12 @@ bool P4Interface::init()
 void P4Interface::cleanup() 
 {
     actions.clear();
+    delete outputPage;
 }
 
 bool P4Interface::canUnload() const
 {
-    return actions.isEmpty();
+    return actions.isEmpty() && outputPage.isNull();
 }
 
 Q_EXPORT_INTERFACE()
