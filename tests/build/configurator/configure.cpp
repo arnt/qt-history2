@@ -12,7 +12,7 @@
 ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name, WFlags fl )
     : ConfigureQtDialog(parent,name,fl)
 {
-    QSettings::insertSearchPath( QString( getenv( "QTDIR" ) ) );
+//    QSettings::insertSearchPath( QString( getenv( "QTDIR" ) ) );
     listViewOptions->setSorting( -1 );
     listViewAdvanced->setSorting( -1 );
     QCheckListItem* item;
@@ -190,7 +190,7 @@ void ConfigureQtDialogImpl::execute()
     QStringList::Iterator it;
 
 #ifdef Q_WS_WIN
-    args << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
+    args << QString( getenv( "QTDIR" ) ) + "\\configure.exe";
 #endif
 #ifdef Q_WS_X11
     args << QString( getenv( "QTDIR" ) ) + "/configure";
