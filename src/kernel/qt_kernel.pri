@@ -11,7 +11,6 @@ kernel {
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
-		  $$KERNEL_H/qcleanuphandler.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
@@ -45,6 +44,7 @@ kernel {
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$KERNEL_H/qobject.h \
+ 		  $$KERNEL_H/qobjectcleanuphandler.h \
 		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobjectdict.h \
 		  $$KERNEL_H/qobjectlist.h \
@@ -190,6 +190,7 @@ kernel {
 		  $$KERNEL_CPP/qmovie.cpp \
 		  $$KERNEL_CPP/qnetworkprotocol.cpp \
 		  $$KERNEL_CPP/qobject.cpp \
+		  $$KERNEL_CPP/qobjectcleanuphandler.cpp \
 		  $$KERNEL_CPP/qpainter.cpp \
 		  $$KERNEL_CPP/qpalette.cpp \
 		  $$KERNEL_CPP/qpaintdevicemetrics.cpp \

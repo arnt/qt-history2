@@ -8,6 +8,7 @@ tools {
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
+		  $$TOOLS_H/qcleanuphandler.h \
 		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
