@@ -286,13 +286,13 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString 
 
 	if(!inc.isEmpty()) {
 	    QString fqn;
-	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") &&
-	       !stat(fndir + inc, &fst)) {
+	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && !stat(fndir + inc, &fst)) {
 		fqn = fndir + inc;
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
-		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && inc[0] != '/')) {
+		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && 
+		    inc[0] != '/')) {
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
 			if(QFile::exists(mdd->local_dir + QDir::separator() + inc))
 			    fqn = mdd->real_dir + QDir::separator() + inc;
@@ -307,7 +307,7 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString 
 		if(Option::mkfile::do_dep_heuristics) { //some heuristics..
 		    //is it a file from a .ui?
 		    int extn = inc.findRev('.');
-		    if(extn != -1) {
+		    if(extn != -1 && inc.findRev(Option::dir_sep) < extn) {
 			QString uip = inc.left(extn) + Option::ui_ext + "$";
 			QStringList uil = project->variables()["FORMS"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
