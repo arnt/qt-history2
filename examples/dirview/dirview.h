@@ -30,6 +30,9 @@ public:
 	: QListViewItem( parent, s1, s2 ), pix( 0 ) {}
 
     const QPixmap *pixmap( int i ) const;
+#if !defined(Q_NO_USING_KEYWORD)
+    using QListViewItem::setPixmap;
+#endif
     void setPixmap( QPixmap *p );
 
 private:
@@ -53,6 +56,9 @@ public:
     void setup();
 
     const QPixmap *pixmap( int i ) const;
+#if !defined(Q_NO_USING_KEYWORD)
+    using QListViewItem::setPixmap;
+#endif
     void setPixmap( QPixmap *p );
 
 private:
