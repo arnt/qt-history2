@@ -33,6 +33,15 @@ struct QPair
 	: first( t1 ), second( t2 )
     {}
 
+    QPair<T1, T2>& operator=(const QPair<T1, T2>& other)
+    {
+	if (this != &other) {
+	    first = other.first;
+	    second = other.second;
+	}
+	return *this;
+    }
+
     T1 first;
     T2 second;
 };
