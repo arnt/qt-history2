@@ -62,14 +62,17 @@
 
   /* the client application must replace this with something more
      meaningful if multiple master fonts are to be supported.     */
-
-  static FT_Error  default_mmfunc( FT_Face      face,
-                                   FT_UShort    metric_id,
-                                   FT_Pos*      metric_value,
-                                   void*        data )
-  {
+static FT_Error  default_mmfunc( FT_Face      face,
+				 FT_UShort    metric_id,
+				 FT_Pos*      metric_value,
+				 void*        data )
+{
+    (void)face;
+    (void)metric_id;
+    (void)metric_value;
+    (void)data;
     return TTO_Err_No_MM_Interpreter;
-  }
+}
 
 
 #if 0
@@ -173,9 +176,9 @@
   {
     FT_ULong         cur_offset, new_offset, base_offset;
 
-    FT_UShort        i, num_lookups;
+    /*    FT_UShort        i, num_lookups; */
     TTO_GPOSHeader*  gpos;
-    TTO_Lookup*      lo;
+    /*    TTO_Lookup*      lo; */
     TT_Face          tt_face = (TT_Face)face;
 
     FT_Stream  stream = face->stream;
@@ -294,8 +297,10 @@
 
     return TT_Err_Ok;
 
+#if 0
   Fail1:
     Free_LookupList( &gpos->LookupList, GPOS, memory );
+#endif
 
   Fail2:
     Free_FeatureList( &gpos->FeatureList, memory );
@@ -2328,7 +2333,7 @@
                                        FT_UShort         flags,
                                        FT_UShort         context_length )
   {
-    FT_UShort        i, j, mark_index, base_index, property, class;
+    FT_UShort        i, j, mark_index, base_index, property, klass;
     FT_Pos           x_mark_value, y_mark_value, x_base_value, y_base_value;
     FT_Error         error;
     TTO_GPOSHeader*  gpos = gpi->gpos;
@@ -2398,10 +2403,10 @@
     if ( mark_index >= ma->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    class       = ma->MarkRecord[mark_index].Class;
+    klass       = ma->MarkRecord[mark_index].Class;
     mark_anchor = &ma->MarkRecord[mark_index].MarkAnchor;
 
-    if ( class >= mbp->ClassCount )
+    if ( klass >= mbp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     ba = &mbp->BaseArray;
@@ -2410,7 +2415,7 @@
       return TTO_Err_Invalid_GPOS_SubTable;
 
     br          = &ba->BaseRecord[base_index];
-    base_anchor = &br->BaseAnchor[class];
+    base_anchor = &br->BaseAnchor[klass];
 
     error = Get_Anchor( gpi, mark_anchor, in->string[in->pos],
                         &x_mark_value, &y_mark_value );
@@ -2738,7 +2743,7 @@
                                       FT_UShort         flags,
                                       FT_UShort         context_length )
   {
-    FT_UShort        i, j, mark_index, lig_index, property, class;
+    FT_UShort        i, j, mark_index, lig_index, property, klass;
     FT_UShort        mark_glyph;
     FT_Pos           x_mark_value, y_mark_value, x_lig_value, y_lig_value;
     FT_Error         error;
@@ -2805,10 +2810,10 @@
     if ( mark_index >= ma->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    class       = ma->MarkRecord[mark_index].Class;
+    klass       = ma->MarkRecord[mark_index].Class;
     mark_anchor = &ma->MarkRecord[mark_index].MarkAnchor;
 
-    if ( class >= mlp->ClassCount )
+    if ( klass >= mlp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     la = &mlp->LigatureArray;
@@ -2834,7 +2839,7 @@
       comp_index = lat->ComponentCount - 1;
 
     cr         = &lat->ComponentRecord[comp_index];
-    lig_anchor = &cr->LigatureAnchor[class];
+    lig_anchor = &cr->LigatureAnchor[klass];
 
     error = Get_Anchor( gpi, mark_anchor, in->string[in->pos],
                         &x_mark_value, &y_mark_value );
@@ -3075,7 +3080,7 @@
                                        FT_UShort         flags,
                                        FT_UShort         context_length )
   {
-    FT_UShort        j, mark1_index, mark2_index, property, class;
+    FT_UShort        j, mark1_index, mark2_index, property, klass;
     FT_Pos           x_mark1_value, y_mark1_value,
                      x_mark2_value, y_mark2_value;
     FT_Error         error;
@@ -3138,10 +3143,10 @@
     if ( mark1_index >= ma1->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    class        = ma1->MarkRecord[mark1_index].Class;
+    klass        = ma1->MarkRecord[mark1_index].Class;
     mark1_anchor = &ma1->MarkRecord[mark1_index].MarkAnchor;
 
-    if ( class >= mmp->ClassCount )
+    if ( klass >= mmp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     ma2 = &mmp->Mark2Array;
@@ -3150,7 +3155,7 @@
       return TTO_Err_Invalid_GPOS_SubTable;
 
     m2r          = &ma2->Mark2Record[mark2_index];
-    mark2_anchor = &m2r->Mark2Anchor[class];
+    mark2_anchor = &m2r->Mark2Anchor[klass];
 
     error = Get_Anchor( gpi, mark1_anchor, in->string[in->pos],
                         &x_mark1_value, &y_mark1_value );
@@ -5303,7 +5308,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -5329,7 +5334,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -5492,7 +5497,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -5528,7 +5533,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -5651,7 +5656,7 @@
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < in->length )
+        if ( curr_pos + j < (int)in->length )
           j++;
         else
           return TTO_Err_Not_Covered;
@@ -5676,7 +5681,7 @@
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < in->length )
+        if ( curr_pos + j < (int)in->length )
           j++;
         else
           return TTO_Err_Not_Covered;

@@ -1246,7 +1246,7 @@
 
   static FT_Error  Get_Class1( TTO_ClassDefFormat1*  cdf1,
                                FT_UShort             glyphID,
-                               FT_UShort*            class,
+                               FT_UShort*            klass,
                                FT_UShort*            index )
   {
     FT_UShort*  cva = cdf1->ClassValueArray;
@@ -1257,12 +1257,12 @@
     if ( glyphID >= cdf1->StartGlyph &&
          glyphID <= cdf1->StartGlyph + cdf1->GlyphCount )
     {
-      *class = cva[glyphID - cdf1->StartGlyph];
+      *klass = cva[glyphID - cdf1->StartGlyph];
       return TT_Err_Ok;
     }
     else
     {
-      *class = 0;
+      *klass = 0;
       return TTO_Err_Not_Covered;
     }
   }
@@ -1273,7 +1273,7 @@
 
   static FT_Error  Get_Class2( TTO_ClassDefFormat2*  cdf2,
                                FT_UShort             glyphID,
-                               FT_UShort*            class,
+                               FT_UShort*            klass,
                                FT_UShort*            index )
   {
     FT_Error               error = TT_Err_Ok;
@@ -1299,7 +1299,7 @@
 
       if ( glyphID >= crr[middle].Start && glyphID <= crr[middle].End )
       {
-        *class = crr[middle].Class;
+        *klass = crr[middle].Class;
         error  = TT_Err_Ok;
         break;
       }
@@ -1307,7 +1307,7 @@
       {
         if ( middle == min )
         {
-          *class = 0;
+          *klass = 0;
           error  = TTO_Err_Not_Covered;
           break;
         }
@@ -1317,7 +1317,7 @@
       {
         if ( middle == max )
         {
-          *class = 0;
+          *klass = 0;
           error  = TTO_Err_Not_Covered;
           break;
         }
@@ -1334,16 +1334,16 @@
 
   FT_Error  Get_Class( TTO_ClassDefinition*  cd,
                        FT_UShort             glyphID,
-                       FT_UShort*            class,
+                       FT_UShort*            klass,
                        FT_UShort*            index )
   {
     switch ( cd->ClassFormat )
     {
     case 1:
-      return Get_Class1( &cd->cd.cd1, glyphID, class, index );
+      return Get_Class1( &cd->cd.cd1, glyphID, klass, index );
 
     case 2:
-      return Get_Class2( &cd->cd.cd2, glyphID, class, index );
+      return Get_Class2( &cd->cd.cd2, glyphID, klass, index );
 
     default:
       return TTO_Err_Invalid_SubTable_Format;

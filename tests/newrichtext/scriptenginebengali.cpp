@@ -535,10 +535,10 @@ void QScriptEngineBengali::shape( QShapedItem *result )
 	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
     }
 
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = result->d->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Bengali ) ) {
-	((OpenTypeIface *) openType)->apply( QFont::Bengali, result, featuresToApply );
+	((QOpenType *) openType)->apply( QFont::Bengali, result, featuresToApply );
 	d->isPositioned = TRUE;
     } else {
 	heuristicSetGlyphAttributes( result );

@@ -7,7 +7,7 @@
 
 class QChar;
 class QPainter;
-class OpenTypeIface;
+class QOpenType;
 class Offset;
 
 class QFontEngineIface : public QShared
@@ -29,7 +29,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const = 0;
 
-    virtual OpenTypeIface *openTypeIface() const { return 0; }
+    virtual QOpenType *openTypeIface() const { return 0; }
     virtual int cmap() const = 0;
 
     virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,

@@ -550,7 +550,7 @@ void QScriptEngineArabic::charAttributes( const QString &text, int from, int len
 
 void QScriptEngineArabic::shape( QShapedItem *result )
 {
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = result->d->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
 	openTypeShape( QFont::Arabic, openType, result );
@@ -580,7 +580,7 @@ void QScriptEngineArabic::shape( QShapedItem *result )
     d->isShaped = TRUE;
 }
 
-void QScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openType, QShapedItem *result )
+void QScriptEngineArabic::openTypeShape( int script, const QOpenType *openType, QShapedItem *result )
 {
     QShapedItemPrivate *d = result->d;
     const QString &text = d->string;
@@ -609,7 +609,7 @@ void QScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openTy
     for ( int i = 0; i < d->num_glyphs; i++ )
 	featuresToApply[i] = shapeToOpenTypeBit[glyphVariantLogical( text, from + i )];
 
-    ((OpenTypeIface *) openType)->apply( script, result, featuresToApply );
+    ((QOpenType *) openType)->apply( script, result, featuresToApply );
 
     if ( allocated )
 	free( featuresToApply );

@@ -21,7 +21,9 @@
        sharing as much as possible with extensive use of macros.  This
        is something for a volunteer :-)                                  */
 
+#ifndef EXPORT_FUNC
 #define EXPORT_FUNC
+#endif
 
 #include <freetype/tttags.h>
 
@@ -268,9 +270,9 @@
     FT_ULong         cur_offset, new_offset, base_offset;
     TT_Face          tt_face = (TT_Face)face;
 
-    FT_UShort        i, num_lookups;
+    /*    FT_UShort        i, num_lookups; */
     TTO_GSUBHeader*  gsub;
-    TTO_Lookup*      lo;
+    /*    TTO_Lookup*      lo; */
 
     if ( !retptr )
       return TT_Err_Invalid_Argument;
@@ -379,8 +381,10 @@
 
     return TT_Err_Ok;
 
+#if 0
   Fail1:
     Free_LookupList( &gsub->LookupList, GSUB, memory );
+#endif
 
   Fail2:
     Free_FeatureList( &gsub->FeatureList, memory );
@@ -2946,7 +2950,7 @@
     }
   }
 
-  static FT_Error Load_EmptyOrClassDefinition( TTO_ClassDefinition*  cd,
+  static FT_Error Load_EmptyOrClassDefinitionGSUB( TTO_ClassDefinition*  cd,
                                                FT_UShort             limit,
 					       FT_ULong              class_offset,
 					       FT_ULong              base_offset,
@@ -3016,16 +3020,16 @@
 
     FORGET_Frame();
 
-    if ( ( error = Load_EmptyOrClassDefinition( &ccsf2->BacktrackClassDef, count,
+    if ( ( error = Load_EmptyOrClassDefinitionGSUB( &ccsf2->BacktrackClassDef, count,
                                                 backtrack_offset, base_offset,
 					        stream ) ) != TT_Err_Ok )
         goto Fail5;
 
-    if ( ( error = Load_EmptyOrClassDefinition( &ccsf2->InputClassDef, count,
+    if ( ( error = Load_EmptyOrClassDefinitionGSUB( &ccsf2->InputClassDef, count,
                                                 input_offset, base_offset,
                                                 stream ) ) != TT_Err_Ok )
         goto Fail4;
-    if ( ( error = Load_EmptyOrClassDefinition( &ccsf2->LookaheadClassDef, count,
+    if ( ( error = Load_EmptyOrClassDefinitionGSUB( &ccsf2->LookaheadClassDef, count,
                                                 lookahead_offset, base_offset,
                                                 stream ) ) != TT_Err_Ok )
       goto Fail3;
@@ -3477,7 +3481,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -3503,7 +3507,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -3666,7 +3670,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -3702,7 +3706,7 @@
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < in->length )
+          if ( curr_pos + j < (int)in->length )
             j++;
           else
             break;
@@ -3824,7 +3828,7 @@
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < in->length )
+        if ( curr_pos + j < (int)in->length )
           j++;
         else
           return TTO_Err_Not_Covered;
@@ -3849,7 +3853,7 @@
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < in->length )
+        if ( curr_pos + j < (int)in->length )
           j++;
         else
           return TTO_Err_Not_Covered;

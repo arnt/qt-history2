@@ -509,10 +509,10 @@ void QScriptEngineDevanagari::shape( QShapedItem *result )
 	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
     }
 
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = result->d->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	((OpenTypeIface *) openType)->apply( QFont::Devanagari, result, featuresToApply );
+	((QOpenType *) openType)->apply( QFont::Devanagari, result, featuresToApply );
 	d->isPositioned = TRUE;
     } else {
 	heuristicSetGlyphAttributes( result );

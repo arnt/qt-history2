@@ -258,7 +258,7 @@ bool QFontEngineXft::canRender( const QChar *string,  int len )
 
 }
 
-OpenTypeIface *QFontEngineXft::openTypeIface() const
+QOpenType *QFontEngineXft::openTypeIface() const
 {
 //     qDebug("openTypeIface requested!");
     if ( _openType )
@@ -271,7 +271,7 @@ OpenTypeIface *QFontEngineXft::openTypeIface() const
 
     QFontEngineXft *that = (QFontEngineXft *)this;
 
-    that->_openType = new OpenTypeIface( xftfs->face );
+    that->_openType = new QOpenType( xftfs->face );
     return _openType;
 }
 

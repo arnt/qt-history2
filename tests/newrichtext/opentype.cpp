@@ -1,5 +1,4 @@
 #include "opentype.h"
-#include "opentype/ftxopen.h"
 
 #include <qglobal.h>
 #include "qtextlayout_p.h"
@@ -212,7 +211,7 @@ const SupportedScript supported_scripts [] = {
 };
 
 
-bool OpenTypeIface::loadTables( FT_ULong script)
+bool QOpenType::loadTables( FT_ULong script)
 {
     always_apply = 0;
 
@@ -306,13 +305,13 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 }
 
 
-OpenTypeIface::OpenTypeIface( FT_Face _face )
+QOpenType::QOpenType( FT_Face _face )
     : face( _face ), gdef( 0 ), gsub( 0 ), gpos( 0 ), current_script( 0 )
 {
     hasGDef = hasGSub = hasGPos = TRUE;
 }
 
-bool OpenTypeIface::supportsScript( unsigned int script )
+bool QOpenType::supportsScript( unsigned int script )
 {
     if ( current_script == supported_scripts[script].tag )
 	return TRUE;
@@ -360,7 +359,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     return FALSE;
 }
 
-void OpenTypeIface::apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply )
+void QOpenType::apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply )
 {
     if ( current_script != supported_scripts[script].tag ) {
 	TT_GSUB_Clear_Features( gsub );
@@ -377,7 +376,7 @@ void OpenTypeIface::apply( unsigned int script, QShapedItem *shaped, unsigned sh
 	TT_GSUB_String_Done( string );
 }
 
-TTO_GSUB_String *OpenTypeIface::substitute( QShapedItem *shaped, unsigned short *featuresToApply )
+TTO_GSUB_String *QOpenType::substitute( QShapedItem *shaped, unsigned short *featuresToApply )
 {
     TTO_GSUB_String *in = 0;
     TTO_GSUB_String *out = 0;
@@ -433,7 +432,7 @@ TTO_GSUB_String *OpenTypeIface::substitute( QShapedItem *shaped, unsigned short 
 }
 
 
-void OpenTypeIface::position( QShapedItem *shaped, TTO_GSUB_String *in )
+void QOpenType::position( QShapedItem *shaped, TTO_GSUB_String *in )
 {
     QScriptEngineBasic::calculateAdvances( shaped );
 

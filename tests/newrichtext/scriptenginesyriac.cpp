@@ -4,7 +4,7 @@
 
 void QScriptEngineSyriac::shape( QShapedItem *result )
 {
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+    QOpenType *openType = result->d->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
 	openTypeShape( QFont::Syriac, openType, result );

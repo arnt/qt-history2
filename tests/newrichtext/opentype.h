@@ -6,10 +6,10 @@
 
 class QShapedItem;
 
-class OpenTypeIface
+class QOpenType
 {
 public:
-    OpenTypeIface( FT_Face face );
+    QOpenType( FT_Face face );
 
     bool supportsScript( unsigned int script );
 

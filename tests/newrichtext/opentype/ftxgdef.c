@@ -255,15 +255,15 @@
   }
 
   EXPORT_FUNC
-  FT_Error  TT_Done_GDEF_Table ( TTO_GDEFHeader* gdef ) 
+  FT_Error  TT_Done_GDEF_Table ( TTO_GDEFHeader* gdef )
   {
     FT_Memory memory = gdef->memory;
-    
+
     Free_LigCaretList( &gdef->LigCaretList, memory );
     Free_AttachList( &gdef->AttachList, memory );
     Free_ClassDefinition( &gdef->GlyphClassDef, memory );
     Free_ClassDefinition( &gdef->MarkAttachClassDef, memory );
-    
+
     Free_NewGlyphClasses( gdef, memory );
 
     return TT_Err_Ok;
@@ -714,7 +714,7 @@
   {
     FT_UShort              glyph_index, array_index;
     FT_UShort              byte, bits;
-    
+
     TTO_ClassRangeRecord*  gcrr;
     FT_UShort**            ngc;
 
@@ -751,7 +751,7 @@
                                         FT_UShort        glyphID,
                                         FT_UShort*       property )
   {
-    FT_UShort class, index;
+    FT_UShort klass, index;
 
     FT_Error  error;
 
@@ -763,17 +763,17 @@
 
     if ( gdef->MarkAttachClassDef.loaded )
     {
-      error = Get_Class( &gdef->MarkAttachClassDef, glyphID, &class, &index );
+      error = Get_Class( &gdef->MarkAttachClassDef, glyphID, &klass, &index );
       if ( error && error != TTO_Err_Not_Covered )
         return error;
       if ( !error )
       {
-        *property = class << 8;
+        *property = klass << 8;
         return TT_Err_Ok;
       }
     }
 
-    error = Get_Class( &gdef->GlyphClassDef, glyphID, &class, &index );
+    error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
 
@@ -781,9 +781,9 @@
        values have been assigned                                      */
 
     if ( error == TTO_Err_Not_Covered && gdef->NewGlyphClasses )
-      class = Get_New_Class( gdef, glyphID, index );
+      klass = Get_New_Class( gdef, glyphID, index );
 
-    switch ( class )
+    switch ( klass )
     {
     case UNCLASSIFIED_GLYPH:
       *property = 0;
@@ -813,7 +813,7 @@
   static FT_Error  Make_ClassRange( TTO_ClassDefinition*  cd,
                                     FT_UShort             start,
                                     FT_UShort             end,
-                                    FT_UShort             class,
+                                    FT_UShort             klass,
 				    FT_Memory             memory )
   {
     FT_Error               error;
@@ -838,9 +838,9 @@
 
     crr[index].Start = start;
     crr[index].End   = end;
-    crr[index].Class = class;
+    crr[index].Class = klass;
 
-    cd->Defined[class] = TRUE;
+    cd->Defined[klass] = TRUE;
 
     return TT_Err_Ok;
   }
@@ -1045,7 +1045,7 @@
                                 FT_UShort        property )
   {
     FT_Error               error;
-    FT_UShort              class, new_class, index;
+    FT_UShort              klass, new_class, index;
     FT_UShort              byte, bits, mask;
     FT_UShort              array_index, glyph_index;
 
@@ -1053,7 +1053,7 @@
     FT_UShort**            ngc;
 
 
-    error = Get_Class( &gdef->GlyphClassDef, glyphID, &class, &index );
+    error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
 
@@ -1107,11 +1107,11 @@
 
     byte  = ngc[array_index][glyph_index / 4 + 1];
     bits  = byte >> ( 16 - ( glyph_index % 4 + 1 ) * 4 );
-    class = bits & 0x000F;
+    klass = bits & 0x000F;
 
     /* we don't overwrite existing entries */
 
-    if ( !class )
+    if ( !klass )
     {
       bits = new_class << ( 16 - ( glyph_index % 4 + 1 ) * 4 );
       mask = ~( 0x000F << ( 16 - ( glyph_index % 4 + 1 ) * 4 ) );

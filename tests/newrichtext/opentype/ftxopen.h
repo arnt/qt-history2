@@ -28,8 +28,12 @@
 extern "C" {
 #endif
 
-#define EXPORT_DEF 
+#ifndef EXPORT_DEF
+#define EXPORT_DEF
+#endif
+#ifndef EXPORT_FUNC
 #define EXPORT_FUNC
+#endif
 
 #define TTO_MAX_NESTING_LEVEL  100
 

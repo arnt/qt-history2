@@ -11,7 +11,7 @@ public:
     void shape( QShapedItem *result );
 
 protected:
-    void openTypeShape( int script, const OpenTypeIface*, QShapedItem *result );
+    void openTypeShape( int script, const QOpenType*, QShapedItem *result );
 };
 
 #endif
