@@ -2596,10 +2596,11 @@ if [ $PLATFORM = "hpux-acc" -a "$CFG_STL" != "no" ]; then
 fi
 
 if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-    ENDIAN=Q_BIG_ENDIAN
+    ENDIAN="Q_LITTLE_ENDIAN"
 else
-    ENDIAN=Q_LITTLE_ENDIAN
+    ENDIAN="Q_BIG_ENDIAN"
 fi
+echo "$ENDIAN"
 
 if [ "$CFG_STL" = "auto" ]; then
     if $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
