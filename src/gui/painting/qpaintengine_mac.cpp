@@ -946,7 +946,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-    HIViewDrawCGImage(c, &rect, pat->image); //HIViews render the way we want anyway, so just use the convenience..
+    HIViewDrawCGImage(c, &rect, pat->image); //top left
 }
 static void qt_mac_dispose_pattern(void *info)
 {
@@ -1573,23 +1573,29 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     if(pm.isNull())
         return;
 
+    //save
     CGContextSaveGState(d->hd);
-    if(pm.isQBitmap() || pm.depth() == 1) {
+
+    //setup
+    if(pm.isQBitmap() || pm.depth() == 1) {     //set colour
         const QColor &col = d->current.pen.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                  qt_mac_convert_color_to_cg(col.green()),
                                  qt_mac_convert_color_to_cg(col.blue()),
                                  qt_mac_convert_color_to_cg(col.alpha()));
     }
+    //set clip
     QRegion rgn(r);
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
+    //draw
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = qt_mac_create_cgimage(pm, mode);
-    HIViewDrawCGImage(d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
+    HIViewDrawCGImage(d->hd, &rect, image); //top left
     CGImageRelease(image);
 
+    //restore
     CGContextRestoreGState(d->hd);
 }
 
