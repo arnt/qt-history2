@@ -111,6 +111,7 @@ public:
 	inline int operator-(Iterator j) const { return i - j.i; }
 	friend class QList;
     };
+    friend class QList<T>::Iterator;
 
     class ConstIterator {
     public:
@@ -139,7 +140,7 @@ public:
 	inline int operator-(ConstIterator j) const { return i - j.i; }
 	friend class QList;
     };
-
+    friend class QList<T>::ConstIterator;
 
     // stl style
     inline Iterator begin() { detach(); return (Node*) p.begin(); }
@@ -363,14 +364,14 @@ Q_OUTOFLINE_TEMPLATE bool QList<T>::operator== (const QList<T> &l) const
 
 
 template <typename T>
-Q_OUTOFLINE_TEMPLATE void QList<T>::free(QListData::Data *d)
+Q_OUTOFLINE_TEMPLATE void QList<T>::free(QListData::Data *data)
 {
-    node_destruct((Node*)(d->array + d->begin),
-		  (Node*)(d->array + d->end),
-		  (d->autoDelete == this));
-    d->autoDelete = 0;
-    if (d->ref == 0)
-	qFree(d);
+    node_destruct((Node*)(data->array + data->begin),
+		  (Node*)(data->array + data->end),
+		  (data->autoDelete == this));
+    data->autoDelete = 0;
+    if (data->ref == 0)
+	qFree(data);
 }
 
 
