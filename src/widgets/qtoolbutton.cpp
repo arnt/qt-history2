@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#61 $
 **
 ** Implementation of QToolButton class
 **
@@ -624,9 +624,9 @@ void QToolButton::popupTimerDone()
 	    if ( topLeft )
 		d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
 	    else {
-		QSize s( d->popup->sizeHint() );
+		QSize sz( d->popup->sizeHint() );
 		QPoint p = mapToGlobal( rect().topLeft() );
-		p.ry() -= s.height();
+		p.ry() -= sz.height();
 		d->popup->exec( p );
 	    }
 	}
@@ -634,9 +634,9 @@ void QToolButton::popupTimerDone()
 	    if ( topLeft )
 		d->popup->exec( mapToGlobal( rect().topRight() ) );
 	    else {
-		QSize s( d->popup->sizeHint() );
+		QSize sz( d->popup->sizeHint() );
 		QPoint p = mapToGlobal( rect().topLeft() );
-		p.rx() -= s.width();
+		p.rx() -= sz.width();
 		d->popup->exec( p );
 	    }
 	}
