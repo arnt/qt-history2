@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#136 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#135 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#136 $")
 
 
 // --------------------------------------------------------------------------
@@ -656,7 +656,7 @@ static uchar *pat_tbl[] = {
 
     int bs = cbrush.style();
 
-    bool cacheIt = !testf(ClipOn|MonoDev) &&
+    bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
 		   (bs == NoBrush || bs == SolidPattern) &&
 		   bro.x() == 0 && bro.y() == 0 && rop == CopyROP;
 
