@@ -71,12 +71,39 @@ inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
     return str;
 }
 
+//lookup a QMacMenuAction in a menu
+static short qt_mac_menu_find_action(MenuRef menu, MenuCommand cmd)
+{
+    MenuItemIndex ret_idx;
+    MenuRef ret_menu;
+    if(GetIndMenuItemWithCommandID(menu, cmd, 1, &ret_menu, &ret_idx) == noErr) {
+        if(ret_menu == menu)
+            return (short)ret_idx;
+    }
+    return -1;
+}
+static short qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
+{
+    return qt_mac_menu_find_action(menu, action->command);
+}
+
+//enabling of commands
 void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
 {
 #if 0
     qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF,
            (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
 #endif
+
+    short index = qt_mac_menu_find_action(menu, cmd);
+    if(index != -1) {
+        UInt32 size;
+        if(GetMenuItemPropertySize(menu, index, kMenuCreatorQt, kMenuPropertyQAction, &size) != noErr || size != sizeof(QAction*)) 
+            return;
+    } else {
+        return;
+    }
+
     if(b) {
         EnableMenuCommand(menu, cmd);
         if(MenuRef dock_menu = GetApplicationDockTileMenu())
@@ -88,6 +115,7 @@ void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
     }
 }
 
+//toggling of modal state
 void qt_mac_set_modal_state(MenuRef menu, bool b)
 {
     for(int i = 1; i < CountMenuItems(menu); i++) {
@@ -316,19 +344,6 @@ static inline void qt_mac_create_menu_event_handler()
         qAddPostRoutine(qt_mac_cleanup_menu_event);
     }
 }
-
-//lookup a QMacMenuAction in a menu
-static short qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
-{
-    MenuItemIndex ret_idx;
-    MenuRef ret_menu;
-    if(GetIndMenuItemWithCommandID(menu, action->command, 1, &ret_menu, &ret_idx) == noErr) {
-        if(ret_menu == menu)
-            return (short)ret_idx;
-    }
-    return -1;
-}
-
 
 //creation of the MenuRef
 static MenuRef qt_mac_create_menu(QWidget *w)
