@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>212</width>
-            <height>178</height>
+            <width>199</width>
+            <height>160</height>
         </rect>
     </property>
     <property name="caption">
@@ -20,7 +20,7 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>11</number>
+            <number>0</number>
         </property>
         <property name="spacing">
             <number>6</number>
@@ -154,4 +154,12 @@
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
+<tabstops>
+    <tabstop>editName</tabstop>
+    <tabstop>comboDriver</tabstop>
+    <tabstop>comboDatabase</tabstop>
+    <tabstop>editUsername</tabstop>
+    <tabstop>editPassword</tabstop>
+    <tabstop>editHostname</tabstop>
+</tabstops>
 </UI>
