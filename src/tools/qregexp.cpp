@@ -27,6 +27,7 @@
 
 #include "qarray.h"
 #include "qbitarray.h"
+#include "qcache.h"
 #include "qintdict.h"
 #include "qmap.h"
 #include "qregexp.h"
@@ -2674,6 +2675,7 @@ void QRegExpEngine::parseExpression( Box *box )
 struct QRegExpPrivate
 {
     QString pattern; // regular-expression or wildcard pattern
+    QString rxpattern; // regular-expression pattern
 #ifndef QT_NO_REGEXP_WILDCARD
     bool wc; // wildcard mode?
 #endif
@@ -2686,6 +2688,46 @@ struct QRegExpPrivate
 
     QRegExpPrivate() { captured.fill( -1, 2 ); }
 };
+
+#ifndef QT_NO_REGEXP_OPTIM
+static QCache<QRegExpEngine> *engineCache = 0;
+
+static QString engineKey( const QString& pattern, bool caseSensitive )
+{
+    return pattern + QChar( caseSensitive ? '1' : '0' );
+}
+#endif
+
+static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
+{
+#ifndef QT_NO_REGEXP_OPTIM
+    if ( engineCache != 0 ) {
+	QRegExpEngine *eng =
+		engineCache->take( engineKey(pattern, caseSensitive) );
+	if ( eng != 0 ) {
+	    eng->ref();
+	    return eng;
+	}
+    }
+#endif
+    return new QRegExpEngine( pattern, caseSensitive );
+}
+
+static void derefEngine( QRegExpEngine *eng, const QString& pattern )
+{
+    if ( eng != 0 && eng->deref() ) {
+#ifndef QT_NO_REGEXP_OPTIM
+	if ( engineCache == 0 ) {
+	    engineCache = new QCache<QRegExpEngine>;
+	    engineCache->setAutoDelete( TRUE );
+	}
+	if ( engineCache->insert(engineKey(pattern, eng->caseSensitive()), eng,
+				 1 + pattern.length() / 4) )
+	    return;
+#endif
+	delete eng;
+    }
+}
 
 /*!
   Constructs an invalid regular expression (which never matches).
@@ -2715,7 +2757,7 @@ QRegExp::QRegExp()
 QRegExp::QRegExp( const QString& pattern, bool caseSensitive, bool wildcard,
 		  bool minimal )
 {
-    eng = new QRegExpEngine( TRUE );
+    eng = 0;
     priv = new QRegExpPrivate;
     priv->pattern = pattern;
 #ifndef QT_NO_REGEXP_WILDCARD
@@ -2732,7 +2774,7 @@ QRegExp::QRegExp( const QString& pattern, bool caseSensitive, bool wildcard,
 */
 QRegExp::QRegExp( const QRegExp& rx )
 {
-    eng = new QRegExpEngine( TRUE );
+    eng = 0;
     priv = new QRegExpPrivate;
     operator=( rx );
 }
@@ -2742,8 +2784,7 @@ QRegExp::QRegExp( const QRegExp& rx )
 */
 QRegExp::~QRegExp()
 {
-    if ( eng->deref() )
-	delete eng;
+    derefEngine( eng, priv->rxpattern );
     delete priv;
 }
 
@@ -2755,10 +2796,10 @@ QRegExp::~QRegExp()
 QRegExp& QRegExp::operator=( const QRegExp& rx )
 {
     rx.eng->ref();
-    if ( eng->deref() )
-	delete eng;
+    derefEngine( eng, priv->pattern );
     eng = rx.eng;
     priv->pattern = rx.priv->pattern;
+    priv->rxpattern = rx.priv->rxpattern;
 #ifndef QT_NO_REGEXP_WILDCARD
     priv->wc = rx.priv->wc;
 #endif
@@ -2934,6 +2975,7 @@ bool QRegExp::match( const QString& str )
     if ( priv->captured[0] == 0 ) {
 	return TRUE;
     } else {
+	priv->captured.detach();
 	priv->captured[0] = 0;
 	priv->captured[1] = eng->matchedLength();
 	return FALSE;
@@ -3157,16 +3199,18 @@ QStringList QRegExp::capturedTexts()
 
 void QRegExp::compile( bool caseSensitive )
 {
-    if ( eng->deref() )
-	delete eng;
-    if ( priv->pattern.isNull() )
+    derefEngine( eng, priv->pattern );
+    if ( priv->pattern.isNull() ) {
 	eng = new QRegExpEngine( caseSensitive );
+    } else {
 #ifndef QT_NO_REGEXP_WILDCARD
-    else if ( priv->wc )
-	eng = new QRegExpEngine( wc2rx(priv->pattern), caseSensitive );
+	if ( priv->wc )
+	    priv->rxpattern = wc2rx( priv->pattern );
+	else
 #endif
-    else
-	eng = new QRegExpEngine( priv->pattern, caseSensitive );
+	    priv->rxpattern = priv->pattern;
+	eng = newEngine( priv->rxpattern, caseSensitive );
+    }
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = QString::null;
     priv->capturedCache.clear();
