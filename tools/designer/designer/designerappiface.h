@@ -58,12 +58,18 @@ private:
     {
 	QCString signal, slot;
 	QGuardedPtr<QObject> target;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Connect1& ) const { return FALSE; }
+#endif
     };
     
     struct Connect2
     {
 	QGuardedPtr<QObject> sender;
 	QCString signal, slot;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Connect2& ) const { return FALSE; }
+#endif
     };
     
     QValueList<Connect1> connects1;
