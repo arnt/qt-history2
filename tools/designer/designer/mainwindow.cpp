@@ -148,8 +148,9 @@ MainWindow::MainWindow( bool asClient )
     actionWindowPropertyEditor = 0;
     hierarchyView = 0;
     actionPluginManager = 0;
-    actionEditor = 0,
-
+    actionEditor = 0;
+    currentProject = 0;
+		   
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 
@@ -341,6 +342,13 @@ void MainWindow::setupEditActions()
     connect( actionEditFormSettings, SIGNAL( activated() ), this, SLOT( editFormSettings() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
 
+    actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
+					  tr( "&Project Settings..." ), 0, this, 0 );
+    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
+    actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
+					     "<p>####TODO</p>") );
+    connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
+    
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
 					 tr( "P&references..." ), 0, this, 0 );
     actionEditPreferences->setStatusTip( tr("Opens a dialog to change preferences") );
@@ -391,6 +399,7 @@ void MainWindow::setupEditActions()
     actionEditSlots->addTo( menu );
     actionEditConnections->addTo( menu );
     actionEditFormSettings->addTo( menu );
+    actionEditProjectSettings->addTo( menu );
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
 }
@@ -1585,6 +1594,12 @@ void MainWindow::editFormSettings()
     FormSettings dlg( this, formWindow() );
     dlg.exec();
     statusBar()->clear();
+}
+
+void MainWindow::editProjectSettings()
+{
+    ProjectSettings dia( currentProject, this, 0, TRUE );
+    dia.exec();
 }
 
 void MainWindow::editPreferences()
@@ -3313,6 +3328,7 @@ void MainWindow::createNewTemplate()
 
 void MainWindow::projectSelected( QAction *a )
 {
+    currentProject = *projects.find( a );
 }
 
 void MainWindow::openProject( const QString &fn )

@@ -153,6 +153,7 @@ private slots:
     void editSlots();
     void editConnections();
     void editFormSettings();
+    void editProjectSettings();
     void editPreferences();
 
     void previewForm();
@@ -263,7 +264,7 @@ private:
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
     QAction *actionWindowHierarchyView, *actionWindowFormList, *actionHelpManual, *actionWindowActionEditor;
-    QAction *actionToolsCustomWidget, *actionEditPreferences;
+    QAction *actionToolsCustomWidget, *actionEditPreferences, *actionEditProjectSettings;
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
@@ -280,7 +281,8 @@ private:
     QString templPath;
     QInterfaceManager<ActionInterface>* actionPluginManager;
     ActionEditor *actionEditor;
-
+    Project *currentProject;
+    
 };
 
 #endif
