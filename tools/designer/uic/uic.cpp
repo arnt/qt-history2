@@ -511,7 +511,7 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 		out << trcall( itemText ) << ", " << itemName << " ) );" << endl;
 		trout << indent << parent << "->changeItem( " << parent << "->idAt( " << i << " ), ";
 		trout << trcall( itemText ) << " );" << endl;
-		createPopupMenuImpl( n2, parentClass, itemName );	
+		createPopupMenuImpl( n2, parentClass, itemName );
 		n = n2;
 	    } else {
 		out << indent << n.attribute( "name" ) << "->addTo( " << parent << " );" << endl;
@@ -859,8 +859,8 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 		if ( isLayout( child ) )
 		    o = "Layout";
 		if ( rowspan * colspan != 1 )
-		    out << indent << objName << "->addMultiCell" << o << "( " << child << ", "
-			<< row << ", " << ( row + rowspan - 1 ) << ", " << col << ", " << ( col  + colspan - 1 ) << " );" << endl;
+		    out << indent << objName << "->add" << o << "( " << child << ", "
+			<< row << ", " << col << ", " << rowspan << ", " << colspan << " );" << endl;
 		else
 		    out << indent << objName << "->add" << o << "( " << child << ", "
 			<< row << ", " << col << " );" << endl;

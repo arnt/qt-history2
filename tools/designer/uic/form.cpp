@@ -986,6 +986,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( value.isEmpty() )
 		continue;
 
+	    if (prop == "name")
+		prop = "objectName";
+	    if (prop == "caption")
+		prop = "windowTitle";
 	    if ( prop == "geometry" && n2.tagName() == "rect" ) {
 		QDomElement n3 = n2.firstChild().toElement();
 		while ( !n3.isNull() ) {
