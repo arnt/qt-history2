@@ -2,6 +2,7 @@
 #ifndef QT_NO_SQL
 
 #include "qsqldatabase.h"
+#include "qapplication.h"
 
 /*!  Constructs a SQL connection manager.
 
@@ -13,7 +14,7 @@ QSqlConnection::QSqlConnection( QObject* parent, const char* name )
     dbDict.setAutoDelete( TRUE );
 }
 
-/*! 
+/*!
   Destroys the object and frees any allocated resources.  All open
   databases are closed.
 
@@ -36,8 +37,13 @@ QSqlConnection::~QSqlConnection()
 QSqlConnection* QSqlConnection::instance()
 {
     static QSqlConnection* sqlConnection = 0;
-    if ( !sqlConnection )
-	sqlConnection = new QSqlConnection();
+    if ( !sqlConnection ) {
+#ifdef CHECK_RANGE
+	if ( !qApp )
+	    qWarning("Warning: creating QSqlConnection with no parent.  Use QSqlConnection::free() to clean up resources." );
+#endif	
+	sqlConnection = new QSqlConnection( qApp, "QSqlConnection instance" );
+    }
     return sqlConnection;
 }
 
@@ -45,7 +51,7 @@ QSqlConnection* QSqlConnection::instance()
   Returns a pointer to the database with name \a name.  If the database was not previously
   opened, it is opened now.  If \name does not exist in the list of managed database,
   0 is returned.
-  
+
 */
 
 QSqlDatabase* QSqlConnection::database( const QString& name )
@@ -95,5 +101,17 @@ void QSqlConnection::removeDatabase( const QString& name )
     sqlConnection->dbDict.remove( name );
 }
 
+
+/*!
+  Deletes all open database connections and frees all connection resources.
+
+*/
+
+void QSqlConnection::free()
+{
+    delete instance();
+}
+
 #endif // QT_NO_SQL
+
 
