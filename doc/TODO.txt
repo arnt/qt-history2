@@ -142,8 +142,15 @@ QCursor
   QCursor::QCursor(const QPixmap & pixmap, ...) should do colored cursors on
   systems where color cursors are supported.
 
-QListView
-  Ctrl+NumPlus resizes all listview items to the optimum on windows (see more on info/arc-07/15307)
+Keyboard control of Widgets
+   Reported on sales/arc-10/20644, info/arc-07/15307:
+	Many keyboard shortcuts don't work as they usually do in normal windows
+	applications. Examples:
+	In TabControls user can switch from page to page by pressing "Ctrl+Tab" or
+	"Ctrl+Shift+Tab".
+	In Listviews user can press "Ctrl+NumPlus" to auto
+	resize all columns in a Listview to best fit size.
+	The keys "Home" and "End" are working in ComboBoxes.
 
 QHostAddress (rms)
   (or another network class): it would be nice to have a way to find
