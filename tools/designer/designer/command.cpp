@@ -1126,6 +1126,34 @@ void AddFunctionCommand::unexecute()
 
 // ------------------------------------------------------------
 
+RenameFunctionCommand::RenameFunctionCommand( const QString &name, FormWindow *fw, const QString &on,
+					      const QString& nn, const QString &ort, const QString &nrt )
+    : Command( name, fw ), oldName( on ), newName( nn ), oldReturnType( ort ), newReturnType( nrt )
+{
+}
+
+void RenameFunctionCommand::execute()
+{
+    MetaDataBase::changeFunction( formWindow(), oldName, newName, newReturnType );
+    formWindow()->formFile()->functionNameChanged( oldName, newName );
+    formWindow()->formFile()->functionRetTypeChanged( newName, oldReturnType, newReturnType );
+    formWindow()->mainWindow()->functionsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+void RenameFunctionCommand::unexecute()
+{
+    MetaDataBase::changeFunction( formWindow(), newName, oldName, oldReturnType );
+    formWindow()->formFile()->functionNameChanged( newName, oldName );
+    formWindow()->formFile()->functionRetTypeChanged( oldName, newReturnType, oldReturnType );
+    formWindow()->mainWindow()->functionsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+// ------------------------------------------------------------
+
 RemoveFunctionCommand::RemoveFunctionCommand( const QString &name, FormWindow *fw, const QCString &f,
 						const QString& spec, const QString &a, const QString &t,
 						const QString &l, const QString &rt )

@@ -775,8 +775,8 @@ QValueList<MetaDataBase::Function> MetaDataBase::slotList( QObject *o )
     return slotList;
 }
 
-void MetaDataBase::changeFunction( QObject *o, const QCString &function, const QCString &newName,
-				   const QString &access )
+void MetaDataBase::changeFunction( QObject *o, const QString &function, const QString &newName,
+				   const QString &returnType )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -790,7 +790,8 @@ void MetaDataBase::changeFunction( QObject *o, const QCString &function, const Q
 	Function f = *it;
 	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
 	    (*it).function = newName;
-	    (*it).access = access;
+	    if ( !returnType.isNull() )
+		(*it).returnType = returnType;
 	    return;
 	}
     }

@@ -946,18 +946,18 @@ int Spacer::alignment() const
 
 QSize Spacer::minimumSize() const
 {
-    return QSize( 20, 20 );
-}
-
-QSize Spacer::sizeHint() const
-{
-    QSize s = sh.expandedTo( QSize(0,0) );
+    QSize s = QSize( 20,20 );
     if ( sizeType() == Expanding )
-	if ( orient == Horizontal )
+	if ( orient == Vertical )
 	    s.rheight() = 0;
 	else
 	    s.rwidth() = 0;
     return s;
+}
+
+QSize Spacer::sizeHint() const
+{
+    return sh;
 }
 
 

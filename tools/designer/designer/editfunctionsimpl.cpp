@@ -93,27 +93,34 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 void EditFunctions::okClicked()
 {
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
-    MacroCommand *rmFunc = 0, *addFunc = 0;
     QString n = tr( "Add/Remove functions of '%1'" ).arg( formWindow->name() );
+    QPtrList<Command> commands;
     QValueList<MetaDataBase::Function>::Iterator fit;
     if ( !functionList.isEmpty() ) {
-	QPtrList<Command> commands;
 	for ( fit = functionList.begin(); fit != functionList.end(); ++fit ) {
-	    commands.append( new RemoveFunctionCommand( tr( "Remove function" ),
-							formWindow, (*fit).function, (*fit).specifier,
-							(*fit).access,
-							(*fit).type,
-							formWindow->project()->language(),
-							(*fit).returnType ) );
+	    bool functionFound = FALSE;
+	    QValueList<FunctItem>::Iterator it = functList.begin();
+	    for ( ; it != functList.end(); ++it ) {
+		if ( MetaDataBase::normalizeFunction( (*it).oldName ) ==
+		     MetaDataBase::normalizeFunction( (*fit).function ) ) {
+		    functionFound = TRUE;
+		    break;
+		}
+	    }
+	    if ( !functionFound )
+		commands.append( new RemoveFunctionCommand( tr( "Remove function" ),
+							    formWindow, (*fit).function, (*fit).specifier,
+							    (*fit).access,
+							    (*fit).type,
+							    formWindow->project()->language(),
+							    (*fit).returnType ) );
 	}
-	rmFunc = new MacroCommand( tr( "Remove functions" ), formWindow, commands );
     }
 
     bool invalidFunctions = FALSE;
     QValueList<FunctItem> invalidItems;
 
     if ( !functList.isEmpty() ) {
-	QPtrList<Command> commands;
 	QStrList lst;
 	QValueList<FunctItem>::Iterator it = functList.begin();
 	for ( ; it != functList.end(); ++it ) {
@@ -137,19 +144,28 @@ void EditFunctions::okClicked()
 		invalidItems.append( (*it) );
 		continue;
 	    }
-	    commands.append( new AddFunctionCommand( tr( "Add function" ),
-						     formWindow, function.function, function.specifier,
-						     function.access,
-						     function.type, formWindow->project()->language(),
-						     function.returnType ) );
-	    if ( MetaDataBase::normalizeFunction( (*it).newName ) != MetaDataBase::normalizeFunction( (*it).oldName ) )
-		formWindow->formFile()->functionNameChanged( (*it).oldName, (*it).newName );
-	    if ( (*it).retTyp != (*it).oldRetTyp )
-		formWindow->formFile()->functionRetTypeChanged( MetaDataBase::normalizeFunction( (*it).newName ), (*it).oldRetTyp, (*it).retTyp );
+	    bool functionFound = FALSE;
+	    for ( fit = functionList.begin(); fit != functionList.end(); ++fit ) {
+		if ( MetaDataBase::normalizeFunction( (*fit).function ) ==
+		     MetaDataBase::normalizeFunction( (*it).oldName ) ) {
+		    functionFound = TRUE;
+		    break;
+		}
+	    }
+	    if ( !functionFound )
+		commands.append( new AddFunctionCommand( tr( "Add function" ),
+							formWindow, function.function, function.specifier,
+							function.access,
+							function.type, formWindow->project()->language(),
+							function.returnType ) );
+	    if ( MetaDataBase::normalizeFunction( (*it).newName ) != MetaDataBase::normalizeFunction( (*it).oldName ) ||
+		 (*it).retTyp != (*it).oldRetTyp )
+		commands.append( new RenameFunctionCommand( tr( "Rename function" ),
+							    formWindow, MetaDataBase::normalizeFunction( (*it).oldName ),
+							    MetaDataBase::normalizeFunction( (*it).newName ),
+							    (*it).oldRetTyp, (*it).retTyp ) );
 	    lst.append( function.function );
 	}
-	if ( !commands.isEmpty() )
-	    addFunc = new MacroCommand( tr( "Add functions" ), formWindow, commands );
     }
 
     if ( invalidFunctions ) {
@@ -166,7 +182,8 @@ void EditFunctions::okClicked()
 			found = TRUE;
 			break;
 		    }
-		}			if ( found ) {
+		}
+		if ( found ) {
 		    int delId = (*it).id;
 		    it = functList.remove( it );
 		    QMap<QListViewItem*, int>::Iterator fit = functionIds.begin();
@@ -195,12 +212,7 @@ void EditFunctions::okClicked()
 	return;
     }
 
-    if ( rmFunc || addFunc ) {
-	QPtrList<Command> commands;
-	if ( rmFunc )
-	    commands.append( rmFunc );
-	if ( addFunc )
-	    commands.append( addFunc );
+    if ( !commands.isEmpty() ) {
 	MacroCommand *cmd = new MacroCommand( n, formWindow, commands );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();

@@ -2723,7 +2723,7 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	    QString access = (*fit).access;
 	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
 		MetaDataBase::changeFunction( formwindow, (*fit).name.latin1(), (*fit).name.latin1(),
-					      access );
+					      QString::null );
 	} else {
 	    QString access = (*fit).access;
 	    if ( access.isEmpty() )
