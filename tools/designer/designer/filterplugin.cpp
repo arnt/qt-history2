@@ -13,6 +13,6 @@ FilterPlugInManager::FilterPlugInManager( const QString& path, const QString& fi
 
 QStringList FilterPlugInManager::import( const QString& filter, const QString& filename )
 {
-    FilterInterface* iface = (*this)[filter];
+    FilterInterface* iface = queryInterface( filter );
     return iface ? iface->import( filter, filename ) : 0;
 }

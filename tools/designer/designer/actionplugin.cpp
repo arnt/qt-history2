@@ -8,12 +8,12 @@ ActionPlugInManager::ActionPlugInManager( const QString& path, const QString& fi
 
 QAction* ActionPlugInManager::create( const QString& actionname, QObject* parent )
 {
-    ActionInterface *iface = (*this)[actionname];
+    ActionInterface *iface = queryInterface( actionname );
     return iface ? iface->create( actionname, parent ) : 0;
 }
 
 QString ActionPlugInManager::group( const QString& actionname )
 {
-    ActionInterface *iface = (*this)[actionname];
+    ActionInterface *iface = queryInterface( actionname );
     return iface ? iface->group( actionname ) : QString::null;
 }
