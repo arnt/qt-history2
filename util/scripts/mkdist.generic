@@ -181,7 +181,7 @@ cd ${DISTDIR}
 rm -rf qt/dist qt/util qt/makefiles
 
 
-echo "Finally packing the distribution, see ${DISTDIR}..." >&2
+echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
