@@ -532,10 +532,8 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     widget->removeEventFilter( this );
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
-	if ( (((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized())
-	     || !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
+	if ( !QString::compare( widget->name(), "_workspacechild_icon_" ) )
 	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
-	}
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
     } else if ( widget->inherits( "QWidgetStack" ) &&
@@ -557,20 +555,14 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
     if ( !use_xp )
 	return;
 
-    if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
-	if ( (((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized()) 
-	     || !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
-	    XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
-	    theme.setTransparency();
-	    XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
-	    theme2.setTransparency();
-	} else {
-	    int partId = WP_CAPTION;
-	    if ( widget->inherits( "QDockWindowTitleBar" ) )
-		partId = WP_SMALLCAPTION;
-	    XPThemeData theme( widget, 0, "WINDOW", partId, CS_ACTIVE, widget->rect() );
-	    theme.setTransparency();
-	}
+    if ( widget->inherits( "QDockWindowTitleBar" ) ) {
+	XPThemeData theme( widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect() );
+	theme.setTransparency();
+    } else if ( widget->inherits( "QTitleBar" ) && !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
+	XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
+	theme.setTransparency();
+	XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
+	theme2.setTransparency();
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
