@@ -14,7 +14,6 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qcombobox.h \
 	widgets/qwidgetresizehandler_p.h \
 	widgets/qdial.h \
-	widgets/qdatetimeedit.h \
  	widgets/qdockseparator_p.h \
 	widgets/qdockwindow.h \
 	widgets/qdockwindowlayout_p.h \
@@ -79,7 +78,6 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qcombobox.cpp \
 	widgets/qwidgetresizehandler.cpp \
 	widgets/qdial.cpp \
-	widgets/qdatetimeedit.cpp \
 	widgets/qdockseparator.cpp \
 	widgets/qdockwindow.cpp \
 	widgets/qdockwindowlayout.cpp \
