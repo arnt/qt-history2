@@ -7,6 +7,7 @@
 #include <qbitmap.h>
 #include <qpair.h>
 #include <qevent.h>
+#include <qscrollbar.h>
 #include <private/qobject_p.h>
 
 class QItemViewDragObjectPrivate
@@ -59,7 +60,8 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
     return d->model->decode(src);
 }
 
-#include <private/qabstractitemview_p.h>
+//#include <private/qabstractitemview_p.h>
+#include "qabstractitemview_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -70,9 +72,9 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         layoutLock(false),
         state(QAbstractItemView::NoState),
         startEditActions(QItemDelegate::DoubleClicked|
-                        QItemDelegate::EditKeyPressed|
-                        QItemDelegate::AnyKeyPressed|
-                        QItemDelegate::CurrentChanged)
+			 QItemDelegate::EditKeyPressed|
+			 QItemDelegate::AnyKeyPressed|
+			 QItemDelegate::CurrentChanged)
 {
 }
 
@@ -82,19 +84,19 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 
 void QAbstractItemViewPrivate::init()
 {
-    q->setAttribute(QWidget::WA_NoBackground);
-    q->setAttribute(QWidget::WA_StaticContents);
     q->setSelectionModel(new QItemSelectionModel(model));
 
     QObject::connect(model, SIGNAL(contentsChanged(const QModelIndex &, const QModelIndex &)),
                      q, SLOT(contentsChanged(const QModelIndex &, const QModelIndex &)));
     QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex &)),
                      q, SLOT(contentsInserted(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model,
-        SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
-                     q,
-        SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
+    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
+                     q, SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
 
+    q->setHorizontalFactor(1024);
+    q->setVerticalFactor(1024);
+
+    q->viewport()->installEventFilter(q);
     q->viewport()->setFocusProxy(q);
     q->viewport()->setFocusPolicy(QWidget::WheelFocus);
 
@@ -111,37 +113,12 @@ void QAbstractItemViewPrivate::init()
                             q->metaObject()->indexOfSlot("startItemsLayout()"), q));
 }
 
-
-/*!
-  \class QViewItem qgenericitemview.h
-
-  \brief This is an abstract class which is used by QAbstractItemView and
-  QViewSelection to work on generic items. A view subclass also
-  has to reimplement a QViewItem subclass, which works on the
-  internal datastructure.
-
-  QViewItems are short living and reference counted. To ease
-  dealing with them, only QViewItemPtr objects are used in the
-  API. This class deals with the reference counting.
-*/
-
-/*!
-  \class QViewSelection qgenericitemview.h
-
-  \brief A selection in a view
-
-  This class represents a selection range in a view. It spans from
-  topLeft() to bottomRight(), having the anchor item anchor().
-
-  A QAbstractItemView has a list of QViewSelections.
-*/
-
 /*!
   \class QAbstractItemView qgenericitemview.h
 
   \brief Abstract baseclass for every view working on a QGenericItemModel
 
-  This subclass of QScrollView provides the base functionality needed
+  This subclass of QViewprt provides the base functionality needed
   by every item view which works on a QGenericItemModel. It handles common
   functionality of editing of items, keyboard and mouse handling, etc.
  Current item and  selections are handled by the QItemSelectionModel.
@@ -149,27 +126,18 @@ void QAbstractItemViewPrivate::init()
   A specific view only implements the specific functionality of that
   view, like drawing an item, returning the geometry of an item,
   finding items, etc.
-
-  To work in an abstract way, items are wrapped in QViewItem
-  objects. Every view also has to implement a QViewItem subclass,
-  which points to the internal data structure, and two functions to
-  convert a QViewItem to a QModelIndex and vica versa. a
-  QAbstractItemView does <b>not</b> hold a QViewItem for every displayed
-  item. QViewItems are created on demand to point to a certain
-  item in the view when passed around in the API.
 */
 
 QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent)
-    : QScrollView(*new QAbstractItemViewPrivate, parent)
+    : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
     Q_ASSERT(model)
     d->model = model;
     d->init();
 }
 
-QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QGenericItemModel *model,
-                                     QWidget *parent)
-    : QScrollView(dd, parent)
+QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QGenericItemModel *model, QWidget *parent)
+    : QViewport(dd, parent)
 {
     Q_ASSERT(model)
     d->model = model;
@@ -184,33 +152,29 @@ QGenericItemModel *QAbstractItemView::model() const
 {
     return d->model;
 }
-/*
-void QAbstractItemView::sort(int column, SortOrder order)
+
+void QAbstractItemView::setHorizontalFactor(int factor)
 {
-    // FIXME: this code is not active yet
-    int rows = model()->rowCount(root());
-    d->sorting.resize(rows);
-    d->sortColumn = column;
-    int count = 0;
-    // FIXME N^2 rank sorting
-    QModelIndex a;
-    QModelIndex b;
-    for (int i = 0; i < rows; ++i) {
-	a = model()->index(i, column, root());
-	for (int j = 0; j < rows; ++j) {
-	    b = model()->index(j, column, root());
-	    if (model()->greater(a, b) || model()->equal(a, b))
-		++count;
-	}
-	d->sorting[count] = i;
-    }
+    d->horizontalFactor = factor;
+    horizontalScrollBar()->setSingleStep(factor);
 }
 
-int QAbstractItemView::sorted(int row) const
+int QAbstractItemView::horizontalFactor() const
 {
-    return d->sorting.count() ? d->sorting.at(row) : row;
+    return d->horizontalFactor;
 }
-*/
+
+void QAbstractItemView::setVerticalFactor(int factor)
+{
+    d->verticalFactor = factor;
+    verticalScrollBar()->setSingleStep(factor);
+}
+
+int QAbstractItemView::verticalFactor() const
+{
+    return d->verticalFactor;
+}
+
 void QAbstractItemView::clearSelections()
 {
     selectionModel()->clear();
@@ -218,8 +182,7 @@ void QAbstractItemView::clearSelections()
 
 void QAbstractItemView::setCurrentItem(const QModelIndex &data)
 {
-    selectionModel()->setCurrentItem(data, selectionUpdateMode(NoButton),
-				     selectionBehavior());
+    selectionModel()->setCurrentItem(data, selectionUpdateMode(NoButton), selectionBehavior());
 }
 
 QModelIndex QAbstractItemView::currentItem() const
@@ -247,10 +210,10 @@ int QAbstractItemView::startEditActions() const
     return d->startEditActions;
 }
 
-void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
+void QAbstractItemView::viewportMousePressEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
-    QModelIndex item  = itemAt(pos);
+    QModelIndex item = itemAt(pos);
     if (item.isValid()) {
 	d->pressedItem = item;
 	d->pressedState = e->state();
@@ -263,13 +226,12 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
 	d->dragRect = QRect(pos, pos);
 
     if (item.isValid())
-	setSelection(d->dragRect.normalize(),
-		     selectionUpdateMode(e->state(), item, e->type()));
+	setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
     else
 	clearSelections();
 }
 
-void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
+void QAbstractItemView::viewportMouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->state() & LeftButton))
 	return;
@@ -278,7 +240,7 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
     QRect oldRect = d->dragRect;
     d->dragRect.setBottomRight(pos); // do not normalize
 
-    ensureVisible(pos.x(), pos.y());
+//    ensureVisible(pos.x(), pos.y());
 
     if (state() == Dragging &&
 	(d->dragRect.topLeft() - pos).manhattanLength() > QApplication::startDragDistance()) {
@@ -289,7 +251,7 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
 
     QModelIndex item = itemAt(pos);
     if (currentItem() == item && state() == Selecting) {
-	updateContents(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
+	updateViewport(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 	return;
     }
 
@@ -306,10 +268,10 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
     }
     setState(Selecting);
     setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
-    updateContents(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
+    updateViewport(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 }
 
-void QAbstractItemView::contentsMouseReleaseEvent(QMouseEvent *e)
+void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
@@ -320,11 +282,11 @@ void QAbstractItemView::contentsMouseReleaseEvent(QMouseEvent *e)
 			     selectionBehavior());
     d->pressedItem = QModelIndex();
     d->pressedState = NoButton;
-    updateContents(d->dragRect.normalize());
+    updateViewport(d->dragRect.normalize());
     setState(NoState);
 }
 
-void QAbstractItemView::contentsMouseDoubleClickEvent(QMouseEvent *e)
+void QAbstractItemView::viewportMouseDoubleClickEvent(QMouseEvent *e)
 {
     QModelIndex item = itemAt(e->pos());
     if (!item.isValid())
@@ -332,23 +294,36 @@ void QAbstractItemView::contentsMouseDoubleClickEvent(QMouseEvent *e)
     startEdit(item, QItemDelegate::DoubleClicked, e);
 }
 
-void QAbstractItemView::contentsDragEnterEvent(QDragEnterEvent *e)
+void QAbstractItemView::viewportContextMenuEvent(QContextMenuEvent *e)
+{
+    // do nothing
+}
+
+void QAbstractItemView::viewportDragEnterEvent(QDragEnterEvent *e)
 {
     if (model()->canDecode(e))
 	e->accept();
 }
 
-void QAbstractItemView::contentsDropEvent(QDropEvent *e)
+void QAbstractItemView::viewportDragMoveEvent(QDragMoveEvent *e)
 {
-    if (!model()->decode(e)) {
-	// something went wrong
-	return;
-    }
+    // do nothing
+}
+
+void QAbstractItemView::viewportDragLeaveEvent(QDragLeaveEvent *e)
+{
+    // do nothing
+}
+
+void QAbstractItemView::viewportDropEvent(QDropEvent *e)
+{
+    if (model()->decode(e))
+	e->accept();
 }
 
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
 {
-    QScrollView::focusInEvent(e);
+    QViewport::focusInEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
 	updateItem(item);
@@ -356,7 +331,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
-    QScrollView::focusOutEvent(e);
+    QViewport::focusOutEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
 	updateItem(item);
@@ -401,19 +376,19 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
 	if (newCurrent != current && newCurrent.isValid()) {
 	    if (e->state() & ShiftButton) {
-		d->dragRect.setBottomRight(itemRect(newCurrent).bottomRight());
+		d->dragRect.setBottomRight(itemViewportRect(newCurrent).bottomRight());
 		selectionModel()->setCurrentItem(newCurrent,
 						 QItemSelectionModel::NoUpdate,
 						 selectionBehavior());
 		setSelection(d->dragRect.normalize(),
 			     selectionUpdateMode(e->state(), newCurrent, e->type(), (Key)e->key()));
 	    } else if (e->state() & ControlButton) {
-		d->dragRect = itemRect(newCurrent);
+		d->dragRect = itemViewportRect(newCurrent);
 		selectionModel()->setCurrentItem(newCurrent,
 						 QItemSelectionModel::NoUpdate,
 						 selectionBehavior());
 	    } else {
-		d->dragRect = itemRect(newCurrent);
+		d->dragRect = itemViewportRect(newCurrent);
 		selectionModel()->setCurrentItem(newCurrent,
 						 selectionUpdateMode(e->state(),
 								     newCurrent,
@@ -439,12 +414,9 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 // 		return;
 // 	} else {
     {
-	    selectionModel()->select(currentItem(),
-				     selectionUpdateMode(e->state(),
-							 currentItem(),
-							 e->type(),
-							 (Key)e->key()),
-				     selectionBehavior());
+	QItemSelectionModel::SelectionUpdateMode updateMode =
+	    selectionUpdateMode(e->state(), currentItem(), e->type(), (Key)e->key());
+	    selectionModel()->select(currentItem(), updateMode, selectionBehavior());
 	    return;
 	}
 	break;
@@ -456,20 +428,15 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void QAbstractItemView::keyReleaseEvent(QKeyEvent *e)
-{
-//    startEdit(currentItem(), QItemDelegate::NoAction, e);
-}
-
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
-    QScrollView::resizeEvent(e);
+    QViewport::resizeEvent(e);
     updateGeometries();
 }
 
 void QAbstractItemView::showEvent(QShowEvent *e)
 {
-    QScrollView::showEvent(e);
+    QViewport::showEvent(e);
     updateGeometries();
 }
 
@@ -522,22 +489,61 @@ void QAbstractItemView::updateCurrentEditor()
  	return;
     QItemOptions options;
     getViewOptions(&options);
-    options.itemRect = itemRect(currentItem());
-    options.itemRect.moveTop(options.itemRect.top() - contentsY());
-    options.itemRect.moveLeft(options.itemRect.left() - contentsX());
+    options.itemRect = itemViewportRect(currentItem());
     itemDelegate()->updateEditorGeometry(d->currentEditor, options, item);
 }
 
 void QAbstractItemView::updateGeometries()
 {
-    // do nothing
+    //do nothing
 }
 
-bool QAbstractItemView::eventFilter(QObject *o, QEvent *e)
+bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
-    if (o == d->currentEditor) {
-	if (e->type() == QEvent::KeyPress) {
-	    switch (((QKeyEvent*)e)->key()) {
+    if (object == viewport()) {
+  	switch (event->type()) {
+  	case QEvent::MouseButtonPress:
+	    viewportMousePressEvent((QMouseEvent*)event);
+	    if (((QMouseEvent*)event)->isAccepted())
+		return true;
+	    break;
+  	case QEvent::MouseMove:
+  	    viewportMouseMoveEvent((QMouseEvent*)event);
+	    if (((QMouseEvent*)event)->isAccepted())
+		return true;
+	    break;
+  	case QEvent::MouseButtonRelease:
+ 	    viewportMouseReleaseEvent((QMouseEvent*)event);
+	    if (((QMouseEvent*)event)->isAccepted())
+		return true;
+	    break;
+  	case QEvent::MouseButtonDblClick:
+  	    viewportMouseDoubleClickEvent((QMouseEvent*)event);
+	    if (((QMouseEvent*)event)->isAccepted())
+		return true;
+	case QEvent::ContextMenu:
+	    viewportContextMenuEvent((QContextMenuEvent*)event);
+	    if (((QContextMenuEvent*)event)->isAccepted())
+		return true;
+	    break;
+  	case QEvent::DragEnter:
+  	    viewportDragEnterEvent((QDragEnterEvent*)event);
+	    break;
+	case QEvent::DragMove:
+	    viewportDragMoveEvent((QDragMoveEvent*)event);
+	    break;
+	case QEvent::DragLeave:
+	    viewportDragLeaveEvent((QDragLeaveEvent*)event);
+	    break;
+  	case QEvent::Drop:
+ 	    viewportDropEvent((QDropEvent*)event);
+	    break;
+  	default:
+  	    break;
+ 	}
+    } else if (object == d->currentEditor) {
+	if (event->type() == QEvent::KeyPress) {
+	    switch (((QKeyEvent*)event)->key()) {
 	    case Key_Escape:
 		endEdit(d->editItem, false);
 		return true;
@@ -550,12 +556,22 @@ bool QAbstractItemView::eventFilter(QObject *o, QEvent *e)
 	    }
 	}
     }
-    return QScrollView::eventFilter(o, e);
+    return QViewport::eventFilter(object, event);
 }
 
-bool QAbstractItemView::event(QEvent *e)
+int QAbstractItemView::visibleWidth() const
 {
-    return QScrollView::event(e);
+    return viewport()->width();
+}
+
+int QAbstractItemView::visibleHeight() const
+{
+    return viewport()->height();
+}
+
+QRect QAbstractItemView::visibleRect() const
+{
+    return QRect(contentsX(), contentsY(), viewport()->width(), viewport()->height());
 }
 
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -569,8 +585,7 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
 	return;
     }
 
-    // FIXME: narrow down to the changed items
-    updateContents();
+    update();
     startItemsLayout();
 }
 
@@ -579,7 +594,7 @@ void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex 
     // do nothing
 }
 
-void QAbstractItemView::contentsRemoved(const QModelIndex &parent, const QModelIndex &, const QModelIndex &)
+void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)
 {
     // do nothing
 }
@@ -612,21 +627,16 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     if (!!d->selectionModel) {
 	disconnect(d->selectionModel,
 		   SIGNAL(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)),
-		   this,
-		   SLOT(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)));
-	disconnect(d->selectionModel,
-		   SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-		   this,
-		   SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
+		   this, SLOT(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)));
+	disconnect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+		   this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
     }
 
     d->selectionModel = selectionModel;
 
-    connect(d->selectionModel,
-	    SIGNAL(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)),
+    connect(d->selectionModel, SIGNAL(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)),
 	    this, SLOT(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)));
-    connect(d->selectionModel,
-	    SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+    connect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 	    this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
 }
 
@@ -638,15 +648,8 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 void QAbstractItemView::selectionChanged(const QItemSelectionPointer &deselected,
 					 const QItemSelectionPointer &selected)
 {
-    QRect rect;
-    if (!!deselected) {
- 	rect = selectionRect(deselected);
- 	updateContents(rect);
-    }
-    if (!!selected) {
- 	rect = selectionRect(selected);
- 	updateContents(rect);
-    }
+    if (!!deselected || !!selected)
+	update();
 }
 
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
@@ -694,14 +697,15 @@ bool QAbstractItemView::doItemsLayout(int)
 
 void QAbstractItemView::fetchMore()
 {
-    if (!verticalScrollBar()->isSliderDown() &&
-	verticalScrollBar()->value() == verticalScrollBar()->maximum())
-	model()->fetchMore();
+    // FIXME
+//     if (!verticalScrollBar()->isSliderDown() &&
+// 	verticalScrollBar()->value() == verticalScrollBar()->maximum())
+// 	model()->fetchMore();
 }
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
-    updateContents(itemRect(item));
+    updateViewport(itemViewportRect(item));
 }
 
 void QAbstractItemView::updateRow(const QModelIndex &item)
@@ -711,29 +715,21 @@ void QAbstractItemView::updateRow(const QModelIndex &item)
     int columns = model()->columnCount(parent);
     QModelIndex left = model()->index(row, 0, parent);
     QModelIndex right = model()->index(row, columns - 1, parent);
-    QRect rect = itemRect(left) | itemRect(right);
-    updateContents(rect);
+    QRect rect = itemViewportRect(left) | itemViewportRect(right);
+    updateViewport(rect);
 }
 
-void QAbstractItemView::ensureItemVisible(const QModelIndex &item)
+void QAbstractItemView::updateViewport(const QRect &rect)
 {
-    QRect rect = itemRect(item);
-    if (!rect.isValid())
-	return;
-    int xmargin = rect.width() >> 1;
-    int ymargin = rect.height() >> 1;
-    ensureVisible(rect.x() + xmargin, rect.y() + ymargin, xmargin, ymargin);
+    // will only update if rect is visible
+//     if (viewport()->rect().intersects(rect))
+// 	viewport()->update(rect);
+    viewport()->update(); // FIXME: use rect
 }
 
 void QAbstractItemView::clearArea(QPainter *painter, const QRect &rect) const
 {
     painter->fillRect(rect, palette().brush(QPalette::Base));
-}
-
-void QAbstractItemView::drawSelectionRect(QPainter *painter, const QRect &rect) const
-{
-    style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, palette(),
-			  QStyle::Style_Default, QStyleOption(palette().base()));
 }
 
 bool QAbstractItemView::supportsDragAndDrop() const
@@ -744,9 +740,8 @@ bool QAbstractItemView::supportsDragAndDrop() const
 QDragObject *QAbstractItemView::dragObject()
 {
     QItemViewDragObject *dragObject = new QItemViewDragObject(this);
-    dragObject->setObjectNameConst("DragObject");
     QModelIndexList items = selectionModel()->selectedItems();
-     dragObject->set(items);
+    dragObject->set(items);
     return dragObject;
 }
 
@@ -880,9 +875,7 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
     QItemDelegate *delegate = q->itemDelegate();
     QItemOptions options;
     q->getViewOptions(&options);
-    options.itemRect = q->itemRect(item);
-    options.itemRect.moveTop(options.itemRect.top() - q->contentsY());
-    options.itemRect.moveLeft(options.itemRect.left() - q->contentsX());
+    options.itemRect = q->itemViewportRect(item);
     QWidget *editor = delegate->createEditor(action, q->viewport(), options, item);
     if (!editor)
 	return false;
@@ -903,9 +896,7 @@ bool QAbstractItemViewPrivate::sendItemEvent(const QModelIndex &data, QEvent *ev
 {
     QItemOptions options( q );
     q->getViewOptions( &options );
-    options.itemRect = q->itemRect( q->itemToViewItem( data ) );
-    options.itemRect.moveTop( options.itemRect.top() - q->contentsY() );
-    options.itemRect.moveLeft( options.itemRect.left() - q->contentsX() );
+    options.itemRect = q->itemViewportRect( q->itemToViewItem( data ) );
 
     switch ( event->type() ) {
 	case QEvent::MouseButtonPress:

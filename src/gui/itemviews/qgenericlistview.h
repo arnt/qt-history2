@@ -27,7 +27,13 @@ public:
     void setSpacing(int space);
     void setGridSize(const QSize &size);
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
-
+    
+    int contentsX() const;
+    int contentsY() const;
+    int contentsWidth() const;
+    int contentsHeight() const;
+    void resizeContents(int w, int h);
+    
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -38,16 +44,20 @@ protected:
     bool doItemsLayout(int num);
     void stopItemsLayout();
 
-    void contentsDragMoveEvent(QDragMoveEvent *e);
-    void contentsDropEvent(QDropEvent *e);
+    void viewportDragMoveEvent(QDragMoveEvent *e);
+    void viewportDropEvent(QDropEvent *e);
+
     QDragObject *dragObject();
     void startDrag();
 
     void getViewOptions(QItemOptions *options) const;
-    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+    void paintEvent(QPaintEvent *e);
+    
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
 
     QRect selectionRect(const QItemSelection *selection) const;
 

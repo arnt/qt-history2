@@ -2,10 +2,9 @@
 #define QABSTRACTITEMVIEW_P_H
 
 #include <qpointer.h>
+#include <private/qviewport_p.h>
 
-#include "private/qscrollview_p.h"
-
-class QAbstractItemViewPrivate: public QScrollViewPrivate
+class QAbstractItemViewPrivate : public QViewportPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView);
 public:
@@ -15,10 +14,9 @@ public:
     void init();
 
     inline bool shouldEdit(const QModelIndex &item, QItemDelegate::StartEditAction action)
-    { return q_func()->model()->isEditable(item) && (action & startEditActions); }
+	{ return q_func()->model()->isEditable(item) && (action & startEditActions); }
 
-    bool createEditor(const QModelIndex &item, QItemDelegate::StartEditAction action,
-                      QEvent *event);
+    bool createEditor(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
 //     bool sendItemEvent(const QModelIndex &data, QEvent *event);
 //     QWidget *findPersistentEditor( const QModelIndexPtr &item ) const;
 //     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
@@ -45,6 +43,12 @@ public:
     int startEditActions;
 
     QModelIndex root;
+//     int leftMargin;
+//     int topMargin;
+//     int rightMargin;
+//     int bottomMargin;
+    int horizontalFactor;
+    int verticalFactor;
 };
 
 #endif

@@ -26,7 +26,8 @@ public:
 
     Orientation orientation() const;
     int offset() const;
-    QSize sizeHint() const;
+    int size() const;
+    QSize sizeHint() const;    
     int sectionSizeHint(int section, bool all = true) const;
 
     int sectionAt(int position) const;
@@ -59,6 +60,11 @@ public:
     int sortIndicatorSection() const;
     SortOrder sortIndicatorOrder() const;
 
+    int contentsX() const;
+    int contentsY() const;
+    int contentsWidth() const;
+    int contentsHeight() const;
+
 public slots:
     void setOffset(int offset);
 
@@ -75,15 +81,16 @@ protected slots:
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &parent,
-			 const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void ensureItemVisible(const QModelIndex &index);
     void initializeSections(int start, int end);
 
-    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+    void paintEvent(QPaintEvent *e);
 
     void viewportMousePressEvent(QMouseEvent *e);
     void viewportMouseMoveEvent(QMouseEvent *e);
     void viewportMouseReleaseEvent(QMouseEvent *e);
+    
     void resizeEvent(QResizeEvent *e);
 
     virtual void paintSection(QPainter *painter, QItemDelegate *delegate, QItemOptions *options,
@@ -92,9 +99,8 @@ protected:
     int indexAt(int position) const;
 
     QModelIndex itemAt(int x, int y) const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-			  ButtonState state);
-    QRect itemRect(const QModelIndex &item) const;
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QRect itemViewportRect(const QModelIndex &item) const;
     QModelIndex item(int section) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
     QRect selectionRect(const QItemSelection *selection) const;

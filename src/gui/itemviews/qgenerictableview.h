@@ -1,5 +1,5 @@
-#ifndef QGENERICTABLE_H
-#define QGENERICTABLE_H
+#ifndef QGENERICTABLEVIEW_H
+#define QGENERICTABLEVIEW_H
 
 #ifndef QT_H
 #include <qabstractitemview.h>
@@ -22,18 +22,22 @@ public:
     void setTopHeader(QGenericHeader *header);
     void setLeftHeader(QGenericHeader *header);
 
-    int rowPosition(int row) const;
+    int rowViewportPosition(int row) const;
     int rowHeight(int row) const;
-    int rowAt(int position) const;
-    int columnPosition(int column) const;
+    int rowAt(int y) const;
+    int columnViewportPosition(int column) const;
     int columnWidth(int column) const;
-    int columnAt(int position) const;
+    int columnAt(int x) const;
     bool isRowHidden(int row) const;
     bool isColumnHidden(int column) const;
-
     void setShowGrid(bool show);
     bool showGrid() const;
 
+    int contentsX() const;
+    int contentsY() const;
+    int contentsWidth() const;
+    int contentsHeight() const;
+    
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
     void selectColumn(int column, ButtonState state = Qt::NoButton);
@@ -49,13 +53,17 @@ protected slots:
     void columnWidthChanged(int column, int oldWidth, int newWidth);
     void rowCountChanged(int oldCount, int newCount);
     void columnCountChanged(int oldCount, int newCount);
+    void setHorizontalOffset(int value);
+    void setVerticalOffset(int value);
 
 protected:
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
-    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+    void paintEvent(QPaintEvent *e);
+    
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
-    QRect itemRect(const QModelIndex &item) const;
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
     QRect selectionRect(const QItemSelection *selection) const;

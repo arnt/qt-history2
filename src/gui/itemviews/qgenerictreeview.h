@@ -23,15 +23,25 @@ public:
     int indentation() const;
     void setIndentation(int i);
 
+    int columnViewportPosition(int column) const;
+    int columnWidth(int column) const;
+    int columnAt(int x) const;
+
     bool isColumnHidden(int column) const;
+    
+    int contentsX() const;
+    int contentsY() const;
+    int contentsWidth() const;
+    int contentsHeight() const;
 
 public slots:
     void hideColumn(int column);
 
 protected slots:
-    virtual void columnWidthChanged(int col, int oldSize, int newSize);
-    virtual void columnCountChanged(int oldCount, int newCount);
-    virtual void contentsChanged();
+    void setHorizontalOffset(int value);
+    void columnWidthChanged(int col, int oldSize, int newSize);
+    void columnCountChanged(int oldCount, int newCount);
+    void contentsChanged();
 
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -40,23 +50,23 @@ protected:
     void startItemsLayout();
     bool doItemsLayout(int num);
     
-    void drawContents(QPainter *painter, int cx, int cy, int cw, int ch);    
-    virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
-    virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
-
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
 
-    QRect itemRect(const QModelIndex &item) const;
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
 
     QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
     QRect selectionRect(const QItemSelection *selection) const;
 
-//    void resizeEvent(QResizeEvent *e);
-    void contentsMousePressEvent(QMouseEvent *e);
+    void paintEvent(QPaintEvent *e);
+    virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
+    virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
+
+    void viewportMousePressEvent(QMouseEvent *e);
+    
     void updateGeometries();
 };
 
 #endif
-
