@@ -150,6 +150,7 @@ void Project::parse()
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
 	dbFile = parse_part( part );
+	dbFile = makeAbsolute( dbFile );
     }
 
     i = contents.find( "PROJECTNAME" );
@@ -477,7 +478,7 @@ void Project::saveConnections()
     inSaveConnections = TRUE;
     if ( !QFile::exists( dbFile ) ) {
 	QFileInfo fi( fileName() );
-	setDatabaseDescription( fi.baseName() + ".db" );
+	setDatabaseDescription( makeAbsolute( fi.baseName() + ".db" ) );
     }
 
     Config conf( dbFile );
