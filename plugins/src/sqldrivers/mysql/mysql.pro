@@ -1,24 +1,23 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on release plugin
+CONFIG		+= qt plugin
 HEADERS		= ../../../../src/sql/drivers/mysql/qsql_mysql.h 
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/mysql/qsql_mysql.cpp 
 
-unix:OBJECTS_DIR	= .obj
+unix {
+	OBJECTS_DIR	= .obj
+	isEmpty(LIBS) {
+		LIBS	+= -lmysqlclient
+	}
+}
 win32 {
 	OBJECTS_DIR	= obj
-	LIBS	+= libmysql.lib
+	isEmpty(LIBS) {
+		LIBS	+= libmysql.lib
+	}
 }
 
-!isEmpty(LIBS) {
-	CONFIG += mysql_libs_and_headers
-}
-!isEmpty(INCLUDEPATH) {
-	CONFIG += mysql_libs_and_headers
-}
-
-REQUIRES	= sql mysql_libs_and_headers
-
+REQUIRES	= sql
 
 TARGET		= qsqlmysql
 DESTDIR		= ../../../sqldrivers

@@ -1,27 +1,27 @@
 TEMPLATE	= lib
-CONFIG+= qt warn_on release plugin
+CONFIG+= qt plugin
 
 HEADERS		= ../../../../src/sql/drivers/odbc/qsql_odbc.h 
 
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/odbc/qsql_odbc.cpp
 
-unix:OBJECTS_DIR	= .obj
+unix {
+	OBJECTS_DIR	= .obj
+	isEmpty(LIBS) {
+		LIBS += -lodbc
+	}
+}
 
 win32 {
 	OBJECTS_DIR		= obj
-	!win32-borland:LIBS	+= odbc32.lib
-	win32-borland:LIBS	+= $(BCB)/lib/PSDK/odbc32.lib
+	isEmpty(LIBS) {
+		!win32-borland:LIBS	+= odbc32.lib
+		win32-borland:LIBS	+= $(BCB)/lib/PSDK/odbc32.lib
+	}
 }
 
-!isEmpty(LIBS) {
-	CONFIG += odbc_libs_and_headers
-}
-!isEmpty(INCLUDEPATH) {
-	CONFIG += odbc_libs_and_headers
-}
-
-REQUIRES	= sql odbc_libs_and_headers
+REQUIRES	= sql
 
 TARGET		= qsqlodbc
 DESTDIR		= ../../../sqldrivers

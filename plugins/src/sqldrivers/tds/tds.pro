@@ -8,12 +8,20 @@ SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/tds/qsql_tds.cpp \
 		  ../../../../src/sql/drivers/shared/qsql_result.cpp
 
-unix:OBJECTS_DIR	= .obj
-win32:OBJECTS_DIR	= obj
-
-isEmpty(LIBS) {
-	message( "No TDS libraries specified for linking.  See the Qt SQL Module documentation for information on building SQL driver plugins." )
+unix {
+	OBJECTS_DIR	= .obj
+	isEmpty(LIBS) {
+		LIBS += -lsybdb
+	}
 }
+win32 {
+	OBJECTS_DIR	= obj
+	isEmpty(LIBS) {
+		LIBS += NTWDBLIB.LIB
+	}
+}
+
+REQUIRES	= sql
 
 TARGET		= qsqltds
 DESTDIR		= ../../../sqldrivers

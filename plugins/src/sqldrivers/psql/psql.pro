@@ -1,22 +1,23 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on release plugin
+CONFIG		+= qt plugin
 HEADERS		= ../../../../src/sql/drivers/psql/qsql_psql.h 
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/psql/qsql_psql.cpp 
-unix:OBJECTS_DIR	= .obj
+unix {
+	OBJECTS_DIR	= .obj
+	isEmpty(LIBS) {
+		LIBS    += -lpq
+	}
+}
+
 win32 {
 	OBJECTS_DIR	= obj
-	LIBS	+= libpqdll.lib
+	isEmpty(LIBS) {
+		LIBS	+= libpqdll.lib
+	}
 }
 
-!isEmpty(LIBS) {
-	CONFIG += postgresql_libs_and_headers
-}
-!isEmpty(INCLUDEPATH) {
-	CONFIG += postgresql_libs_and_headers
-}
-
-REQUIRES	= sql postgresql_libs_and_headers
+REQUIRES	= sql
 
 TARGET		= qsqlpsql
 DESTDIR		= ../../../sqldrivers
