@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -51,6 +51,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <errno.h>
 
 
 void QDir::slashify( QString& )
@@ -96,11 +97,16 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     QString name = dirName;
     if (dirName[dirName.length() - 1] == "/")
 	name = dirName.left( dirName.length() - 1 );
-    return ::mkdir( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 )
-	== 0;
+    int status =
+	::mkdir( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 );
 #else
-    return ::mkdir( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 )
-	== 0;
+    int status = 
+	::mkdir( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 );
+#endif
+#if defined(Q_OS_SCO)
+    return status == 0 || errno == EEXIST;
+#else
+    return status == 0;
 #endif
 }
 
