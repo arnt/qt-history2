@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#18 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#19 $
 **
 ** Internal rich text classes
 **
@@ -196,6 +196,13 @@ public:
 	return tm;
     }
 
+    inline int totalLabelMargin() const
+    {
+	int tlm = parent? parent->totalLabelMargin() : 0;
+	tlm += labelMargin();
+	return tlm;
+    }
+
 
     inline QStyleSheetItem::WhiteSpaceMode  whiteSpaceMode() const
     {
@@ -238,10 +245,10 @@ public:
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
 
     virtual void realize( QPainter* ) { width = 0; }
-    
+
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
     virtual Placement placement() { return PlaceInline; }
-    
+
     bool placeInline() { return placement() == PlaceInline; }
 
     virtual bool noErase() const { return FALSE; };
@@ -263,9 +270,9 @@ public:
     QtTextImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory);
     ~QtTextImage();
-    
+
     Placement placement();
-    
+
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
@@ -398,7 +405,7 @@ class QtTextCursor {
 
     void initFlow( QtTextFlow* frm, int w  );
     void initParagraph( QPainter* p, QtTextParagraph* b );
-    bool doLayout( QPainter* p, int ymax = -1, QtTextFlow* backFlow = 0 );
+    bool doLayout( QPainter* p, int ymax = -1 );
 
 
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
@@ -425,11 +432,10 @@ class QtTextCursor {
     int fill;
     int lmargin;
     int rmargin;
-    
+
     int static_lmargin;
     int static_rmargin;
-
-    bool adjustFlowMode;
+    int static_labelmargin;
 
     void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
     QRect caretGeometry() const;
@@ -446,47 +452,35 @@ class QtTextCursor {
     QtTextParagraph* xline_paragraph;
     int xline_current;
 
-    int referenceTop();
-    int referenceBottom();
 };
 
 class QtTextFlow {
 public:
 
-    QtTextFlow( QtTextFlow* parentFlow = 0, int ncolumns  = 1 );
+    QtTextFlow();
     ~QtTextFlow();
 
     void initialize( int w );
 
-    void mapToView( int yp, int& gx, int& gy );
-    int availableWidth( int yp );
     int adjustLMargin( int yp, int margin );
     int adjustRMargin( int yp, int margin );
 
-    
+
     void registerFloatingItem( QtTextCustomItem* item, bool right = FALSE );
 
     void drawFloatingItems(QPainter* p,
 			   int ox, int oy, int cx, int cy, int cw, int ch,
 			   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 
-    void countFlow( int yp, int w, int h, bool pages = TRUE  );
     void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
 
-    int x;
-    int y;
     int width;
     int widthUsed;
     int height;
 
-    int ncols;
-    int colwidth;
-    int colheight;
-    int totalheight;
-    int additional_height;
 
     QtTextFlow* parent;
-    
+
 private:
     QList<QtTextCustomItem> leftItems;
     QList<QtTextCustomItem> rightItems;

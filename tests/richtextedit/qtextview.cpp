@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#18 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#19 $
 **
 ** Implementation of the QtTextView class
 **
@@ -211,7 +211,6 @@ void QtTextView::setText( const QString& text, const QString& context)
 
     if ( isVisible() ) {
 	QtTextFlow* flow = richText().flow();
-	flow->x = 0;
 	delete d->fcresize;
 	d->fcresize = new QtTextCursor( richText() );
 	d->fcresize->initFlow( flow, viewportSize(0,0).width() );
@@ -498,23 +497,19 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QtTextCursor tc( richText() );
     tc.gotoParagraph( p, &richText() );
     QtTextParagraph* b = tc.paragraph;
-    QtTextFlow* flow = 0;
-    
+
     // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
-    while ( b && tc.referenceTop() <= cy + ch ) {
+    while ( b && tc.y() <= cy + ch ) {
 	// this doesn't belong here...
 	if ( b && b->dirty ) {
 	    tc.initParagraph( p, b );
-	    tc.doLayout( p, tc.referenceBottom() );
+	    tc.doLayout( p, cy + ch );
 	}
-
+	
 	tc.gotoParagraph( p, b );
-	if ( tc.flow != flow ) {
-	    flow = tc.flow;
-	    flow->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper()) );
-	}
-	if ( tc.referenceBottom() > cy ) {
+	
+	if ( tc.y() + tc.paragraph->height > cy ) {
 	    do {
 		tc.makeLineLayout( p, fm );
 		QRect geom( tc.lineGeometry() );
@@ -526,8 +521,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	b = b->nextInDocument();
     };
 
-
-
+    richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper()) );
     p->setClipRegion(r);
 
     if ( paper().pixmap() )
@@ -560,7 +554,7 @@ void QtTextView::viewportResizeEvent(QResizeEvent* )
 void QtTextView::doResize()
 {
     QPainter p( viewport() );
-    if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
+    if ( !d->fcresize->doLayout( &p, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
 	d->resizeTimer->start( 0, TRUE );
     QtTextFlow* flow = richText().flow();
     resizeContents( QMAX( flow->widthUsed-1, viewport()->width() ), flow->height );
@@ -587,7 +581,6 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     setUpdatesEnabled( TRUE);
     richText().invalidateLayout();
     QtTextFlow* flow = richText().flow();
-    flow->x = 0;
     delete d->fcresize;
     d->fcresize = new QtTextCursor( richText() );
 
