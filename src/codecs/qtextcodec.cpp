@@ -66,7 +66,7 @@
 #ifndef Q_OS_TEMP
 #include <locale.h>
 #endif
-#ifdef _XOPEN_UNIX
+#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX)
 #include <langinfo.h>
 #endif
 
@@ -715,7 +715,7 @@ QTextCodec* QTextCodec::codecForLocale()
     localeMapper = new QWindowsLocalCodec;
 #else
 
-#ifdef _XOPEN_UNIX
+#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX)
     char *charset = nl_langinfo (CODESET);
     if ( charset )
       localeMapper = codecForName( charset );
