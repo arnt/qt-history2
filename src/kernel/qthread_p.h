@@ -319,7 +319,7 @@ public:
     {
 	dictMutex->lock();
 	if (thread_id)
-	    thrDict->remove((int) thread_id);
+	    thrDict->remove((Qt::HANDLE) thread_id);
 	dictMutex->unlock();
 
 	thread_id = 0;
@@ -348,14 +348,14 @@ public:
     static void internalRun(QThread *that)
     {
 	dictMutex->lock();
-	thrDict->insert((int)QThread::currentThread(), that);
+	thrDict->insert(QThread::currentThread(), that);
 	dictMutex->unlock();
 
 	that->run();
 
 	dictMutex->lock();
 
-	QThread *there = thrDict->find((int)QThread::currentThread());
+	QThread *there = thrDict->find(QThread::currentThread());
 	if (there) {
 	    there->d->running = FALSE;
 	    there->d->finished = TRUE;
@@ -363,7 +363,7 @@ public:
 	    there->d->thread_done.wakeAll();
 	}
 
-	thrDict->remove((int)QThread::currentThread());
+	thrDict->remove(QThread::currentThread());
 	dictMutex->unlock();
     }
 };
