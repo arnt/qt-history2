@@ -139,7 +139,7 @@ static void resolveLibs()
     
     if ( !triedResolve ) {
 	triedResolve = TRUE;
-	if ( qt_winunicode ) {
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    QLibrary lib("shell32");
 	    lib.setAutoUnload( FALSE );
 	    ptrSHGetPathFromIDListW = (PtrSHGetPathFromIDListW) lib.resolve( "SHGetPathFromIDListW" );
@@ -159,7 +159,7 @@ WinShell::WinShell()
     windowsFolderName = QString::null;
 
 #if defined(Q_OS_WIN32)
-    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+    if( ptrSHGetPathFromIDListW && int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	ushort buffer[MAX_PATH];
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( ptrSHGetPathFromIDListW( item, buffer ) ) {
