@@ -292,7 +292,7 @@ bool QSqlTableModel::select()
  */
 QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
 {
-    if (!idx.isValid())
+    if (!idx.isValid() || role & ~(DisplayRole | EditRole))
         return QVariant();
 
     QModelIndex item = dataIndex(idx);
@@ -384,6 +384,9 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
  */
 bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
+    if (role & ~EditRole)
+        return QSqlQueryModel::setData(index, role, value);
+
     QSqlRecord rec = query().record();
     if (index.column() >= rec.count() || index.row() >= rowCount())
         return false;
