@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#266 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#267 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -685,19 +685,19 @@ void QPopupMenu::updateAccel( QWidget *parent )
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
 
-    if ( !parent ) {
+    if ( parent ) {
+	delete autoaccel;
+	autoaccel = 0;
+    } else if ( !autoaccel ) {
 	// we have no parent. Rather than ignoring any accelerators we try to find this popup's main window
-	QWidget *w = (QWidget *)this;
+	QWidget *w = (QWidget *) this;
 	parent = w->parentWidget();
 	while ( (!w->testWFlags(WType_TopLevel) || !w->testWFlags(WType_Popup)) && parent ) {
 	    w = parent;
 	    parent = parent->parentWidget();
 	}
     }
-
-    delete autoaccel;
-    autoaccel = 0;
-
+    
     if ( parent == 0 && autoaccel == 0 )
  	return;
 
