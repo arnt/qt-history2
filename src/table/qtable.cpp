@@ -2955,21 +2955,7 @@ int QTable::addSelection( const QTableSelection &s )
     QTableSelection *sel = new QTableSelection( s );
     selections.append( sel );
 
-    QRect topLeft = cellGeometry( sel->topRow(), sel->leftCol() );
-    QRect bottomRight = cellGeometry( sel->bottomRow(), sel->rightCol() );
-
-    int x1 = topLeft.x();
-    int y1 = topLeft.y();
-    int x2 = bottomRight.x() + bottomRight.width();
-    int y2 = bottomRight.y() + bottomRight.height();
-
-    if ( y2 <= y1 )
-	y2 = contentsY() + contentsHeight();
-    if ( x2 <= x1 )
-	x2 = contentsX() + contentsWidth();
-
-    QRect r( QPoint( x1, y1 ), QPoint( x2, y2 ) );
-    repaintContents( r, FALSE );
+    repaintSelections( 0, sel, TRUE, TRUE );
 
     return selections.count() - 1;
 }
@@ -2983,12 +2969,15 @@ int QTable::addSelection( const QTableSelection &s )
 
 void QTable::removeSelection( const QTableSelection &s )
 {
+    selections.setAutoDelete( FALSE );
     for ( QTableSelection *sel = selections.first(); sel; sel = selections.next() ) {
 	if ( s == *sel ) {
 	    selections.removeRef( sel );
-	    viewport()->repaint( FALSE );
+	    repaintSelections( sel, 0, TRUE, TRUE );
+	    delete sel;
 	}
     }
+    selections.setAutoDelete( TRUE );
 }
 
 /*! \overload
@@ -4419,7 +4408,9 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 				QTableSelection *newSelection,
 				bool updateVertical, bool updateHorizontal )
 {
-    if ( oldSelection && *oldSelection == *newSelection )
+    if ( !oldSelection && !newSelection )
+	return;
+    if ( oldSelection && newSelection && *oldSelection == *newSelection )
 	return;
     if ( oldSelection && !oldSelection->isActive() )
  	oldSelection = 0;
@@ -4437,11 +4428,15 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     else
 	old = QRect( 0, 0, 0, 0 );
 
-    QRect cur = rangeGeometry( newSelection->topRow(),
-			       newSelection->leftCol(),
-			       newSelection->bottomRow(),
-			       newSelection->rightCol(),
-			       optimize2 );
+    QRect cur;
+    if ( newSelection )
+	cur = rangeGeometry( newSelection->topRow(),
+			     newSelection->leftCol(),
+			     newSelection->bottomRow(),
+			     newSelection->rightCol(),
+			     optimize2 );
+    else
+	cur = QRect( 0, 0, 0, 0 );
     int i;
 
     if ( !optimize1 || !optimize2 ||
@@ -4470,10 +4465,14 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     }
 
     int top, left, bottom, right;
-    top = QMIN( oldSelection ? oldSelection->topRow() : newSelection->topRow(), newSelection->topRow() );
-    left = QMIN( oldSelection ? oldSelection->leftCol() : newSelection->leftCol(), newSelection->leftCol() );
-    bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(), newSelection->bottomRow() );
-    right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
+    top = QMIN( oldSelection ? oldSelection->topRow() : newSelection->topRow(),
+		newSelection ? newSelection->topRow() :oldSelection->topRow() );
+    left = QMIN( oldSelection ? oldSelection->leftCol() : newSelection->leftCol(),
+		 newSelection ? newSelection->leftCol() : oldSelection->leftCol() );
+    bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(),
+		   newSelection ? newSelection->bottomRow() : oldSelection->bottomRow() );
+    right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(),
+		  newSelection ? newSelection->rightCol() : oldSelection->rightCol() );
 
     if ( updateHorizontal && numCols() > 0 && left >= 0 && !isRowSelection( selectionMode() ) ) {
 	register int *s = &topHeader->states.data()[left];
