@@ -984,7 +984,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    return FALSE;			    // standard event processing
+    return QObject::eventFilter( o, e );
 
 }
 

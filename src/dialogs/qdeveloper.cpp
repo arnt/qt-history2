@@ -289,7 +289,7 @@ bool QDeveloperObjectItem::eventFilter(QObject* o, QEvent* e)
 	    break;
 	}
     }
-    return FALSE;
+    return QObject::eventFilter( o, e );
 }
 
 void QDeveloperObjectItem::setup()

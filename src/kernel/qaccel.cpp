@@ -443,7 +443,7 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     }
-    return FALSE;
+    return QObject::eventFilter( o, e );
 }
 
 

@@ -840,7 +840,7 @@ struct QFileDialogPrivate {
 		return -1;
 	    if ( !i1->isDir() && i2->isDir() )
 		return 1;
-	
+
 	    if ( i1->name() == ".." )
 		return -1;
 	    if ( i2->name() == ".." )
@@ -1067,7 +1067,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    connect( drag, SIGNAL( destroyed() ),
 		     this, SLOT( dragObjDestroyed() ) );
 	    drag->drag();
-	
+
 	    mousePressed = FALSE;
 	}
     }
@@ -2146,7 +2146,7 @@ void QFileDialog::init()
 
     connect( files, SIGNAL(selectionChanged(QListViewItem *)),
 	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
-    connect( files, SIGNAL( selectionChanged() ),	
+    connect( files, SIGNAL( selectionChanged() ),
 	     this, SLOT( detailViewSelectionChanged() ) );
     connect( files, SIGNAL(currentChanged(QListViewItem *)),
 	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
@@ -2295,7 +2295,7 @@ void QFileDialog::init()
     QHBoxLayout * h;
 
     d->preview = new QWidgetStack( d->splitter );
-	
+
     d->infoPreviewWidget = new QWidget( d->preview );
     d->contentsPreviewWidget = new QWidget( d->preview );
 
@@ -2699,7 +2699,7 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
 	nameEdit->setText( u.fileName() );
-    } else {	
+    } else {
 	trySetSelection( TRUE, d->url, FALSE );
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
@@ -3106,7 +3106,7 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	}
     } else if ( d->mode != Directory ) {
 	okB->setEnabled( FALSE );
-    }	
+    }
 
     if ( d->currentFileName.length() && old != d->currentFileName )
 	emit fileHighlighted( d->currentFileName );
@@ -3203,7 +3203,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	d->previewInfo->hide();
 	d->previewInfo->setFixedSize( QSize( 0, 0 ) );
     }
-	
+
     if ( d->contentsPreview ) {
 	d->previewContents->show();
 	d->previewContents->setFixedSize( r );
@@ -3211,7 +3211,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	d->previewContents->hide();
 	d->previewContents->setFixedSize( QSize( 0, 0 ) );
     }
-	
+
     // open/save, cancel
     r = QSize( 75, 20 );
     t = okB->sizeHint();
@@ -3358,7 +3358,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     } else if ( d->mode == Directory ) {
 	d->currentFileName = d->url;
 	accept();
-    }	
+    }
 }
 
 
@@ -3673,7 +3673,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     QUrlOperator u( dir_ );
     if ( u.isLocalFile() ) {
 	if ( !dir_.isEmpty() ) {
-	    QFileInfo f( u.path() );	
+	    QFileInfo f( u.path() );
 	    if ( f.isDir() ) {
 		dialog->setDir( dir_ );
 		wd = dir_;
@@ -3683,7 +3683,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    if ( f.isDir() ) {
 		dialog->setDir( wd );
 	    }
-	} else {	
+	} else {
 	    QString theDir = dir_;
 	    if ( theDir.isEmpty() ) {
 		theDir = QDir::currentDirPath();
@@ -4125,7 +4125,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
     }
 
-    return FALSE;
+    return QDialog::eventFilter( o, e );
 }
 
 /*!
@@ -4240,7 +4240,7 @@ void QFileDialog::addFilter( const QString &filter )
 	    return;
 	}
     }
-	
+
     d->types->insertItem( filter );
     d->types->setCurrentItem( d->types->count() - 1 );
     setFilter( d->types->text( d->types->count() - 1 ) );
@@ -4367,10 +4367,10 @@ static bool isRoot( const QUrl &u )
 	     u.path().right( 2 ) == ":/" )
 	    return TRUE;
 #endif
-	
+
 	if ( !u.isLocalFile() && u.path() == "/" )
 	    return TRUE;
-	
+
 	return FALSE;
 }
 
@@ -4386,7 +4386,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	d->moreFiles->clear();
 	files->clear();
 	files->setSorting( -1 );
-	
+
 	QString cp( d->url );
 	int i = d->paths->count() - 1;
 	while( i >= 0 && d->paths->text( i ) <= cp )
@@ -4403,7 +4403,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	else
 	    d->cdToParent->setEnabled( TRUE );
     }
-					
+
 }
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
@@ -4481,7 +4481,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	} else
 	    return;
     }
-		
+
     if ( d->progressDia ) {
 	if ( op->operation() == QNetworkProtocol::OpGet ) {
 	    if ( d->progressDia ) {
@@ -4524,12 +4524,12 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 	    i->setSelectable( FALSE );
 	    i2->setSelectable( FALSE );
 	}
-	
+
 	i->i = i2;
     }
 
     d->sortedList.append( new QUrlInfo( inf ) );
-}									
+}
 
 void QFileDialog::removeEntry( QNetworkOperation *op )
 {
@@ -4553,7 +4553,7 @@ void QFileDialog::removeEntry( QNetworkOperation *op )
 	if ( ok1 && ok2 )
 	    break;
     }
-}									
+}
 
 void QFileDialog::itemChanged( QNetworkOperation *op )
 {

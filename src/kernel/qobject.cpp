@@ -1080,7 +1080,7 @@ void QObject::removeChild( QObject *obj )
   should be stopped, or FALSE if the event should be dispatched normally.
 
   If multiple event filters are installed for a single object, the
-  filter that was installed last will be activated first.
+  filter that was installed last is activated first.
 
   Example:
   \code
@@ -1101,18 +1101,18 @@ void QObject::removeChild( QObject *obj )
 	    parent->installEventFilter( this ); // then install filter
     }
 
-    bool MyWidget::eventFilter( QObject *, QEvent *e )
+    bool MyWidget::eventFilter( QObject *o, QEvent *e )
     {
 	if ( e->type() == QEvent::KeyPress ) {	// key press
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    qDebug( "Ate key press %d", k->key() );
 	    return TRUE;			// eat event
 	}
-	return FALSE;				// standard event processing
+	return QWidget::eventFilter( o, e );	// standard event processing
     }
   \endcode
 
-  The QAccel class was implemented using this technique.
+  The QAccel class, for example, uses this technique.
 
   \warning
   If you delete the receiver object in your eventFilter() function, be
@@ -2449,7 +2449,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Font:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoFont m;
@@ -2473,7 +2473,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Pixmap:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoPixmap m;
@@ -2497,7 +2497,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Brush:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBrush m;
@@ -2545,7 +2545,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Size:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoSize m;
@@ -2569,7 +2569,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Color:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColor m;
@@ -2617,7 +2617,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::ColorGroup:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m;
@@ -2689,7 +2689,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Double:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDouble m;
@@ -2713,7 +2713,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	
+
     case QVariant::Bool:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBool m;
@@ -2753,7 +2753,7 @@ QPropertyInfoList QObject::properties() const
 	    QMetaProperty* p = meta->property( names.current(), TRUE );
 	    if ( p )
 		l.append( QPropertyInfo(p) );
-	
+
 	}
     }
     return l;

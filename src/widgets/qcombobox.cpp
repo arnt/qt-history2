@@ -1528,7 +1528,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    // to get the focus indication right
 	    update();
 	} else if ( d->useCompletion && d->completeNow ) {
-	    if ( !d->ed->text().isNull() &&  d->ed->cursorPosition() > d->completeAt &&
+	    if ( !d->ed->text().isNull() &&
+		 d->ed->cursorPosition() > d->completeAt &&
 		 d->ed->cursorPosition() == (int)d->ed->text().length() ) {
 		d->completeNow = FALSE;
 		QString ct( d->ed->text() );
@@ -1555,7 +1556,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	}
-    } else if ( d->usingListBox() && ( object == d->listBox() || object == d->listBox()->viewport() )) {
+    } else if ( d->usingListBox() && ( object == d->listBox() || 
+				       object == d->listBox()->viewport() )) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
 	case QEvent::MouseMove:
@@ -1674,7 +1676,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
 	}
     }
-    return FALSE;
+    return QWidget::eventFilter( object, event );
 }
 
 

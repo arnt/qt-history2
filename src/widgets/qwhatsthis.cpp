@@ -103,7 +103,7 @@ public:
 
 	// reimplemented because of QButton's lack of virtuals
 	void mouseReleaseEvent( QMouseEvent * );
-	
+
 	// reimplemented because, well, because I'm evil.
 	const char *className() const;
     };
@@ -302,7 +302,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
 
     if ( o == whatsThat ) {
-	if (e->type() == QEvent::MouseButtonPress  || e->type() == QEvent::KeyPress ) {
+	if (e->type() == QEvent::MouseButtonPress  ||
+	    e->type() == QEvent::KeyPress ) {
 	    whatsThat->hide();
 	    return TRUE;
 	}
@@ -323,7 +324,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		if ( !i )
 		    w = w->parentWidget();
 	    }
-	
+
 	    leaveWhatsThisMode();
 	    if (!i )
 		return TRUE;
@@ -349,9 +350,10 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    else if ( kev->key() == Key_Menu ||
 		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
 		return FALSE; // ignore these keys, they are used for context menus
-	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta )  // not a modifier key
+	    else if ( kev->state() == kev->stateAfter() && 
+		      kev->key() != Key_Meta )  // not a modifier key
 		leaveWhatsThisMode();
-	
+
 	}
 	break;
     case Inactive:
@@ -364,7 +366,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	    QWhatsThisPrivate::WhatsThisItem *i = w ? dict->find(w) : 0;
  	    if ( i && !i->s.isNull() ) {
 		if ( i->whatsthis )
-		    say( w, i->whatsthis->text( QPoint(0,0) ), w->mapToGlobal( w->rect().center() ));
+		    say( w, i->whatsthis->text( QPoint(0,0) ),
+			 w->mapToGlobal( w->rect().center() ) );
 		else
 		    say( w, i->s, w->mapToGlobal( w->rect().center() ));
 		((QKeyEvent *)e)->accept();

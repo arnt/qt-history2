@@ -506,7 +506,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	else if ( o == d->sizeList )
 	    d->sizeEdit->setFocus();
     }
-    return FALSE;
+    return QDialog::eventFilter( o, e );
 }
 
 
