@@ -52,8 +52,11 @@ public:
     }
     inline QVarLengthArray &operator=(const QVarLengthArray &other)
     {
-        clear();
-        append(other.constData(), other.size());
+        if (this != &other) {
+            clear();
+            append(other.constData(), other.size());
+        }
+        return *this;
     }
 
     inline int size() const { return s; }
