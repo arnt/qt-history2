@@ -1,7 +1,7 @@
 /*!
 \page designer-manual.html
 \startpage index.html Qt Reference Documentation
-\nextpage designer-getting-started.html Getting Started
+\nextpage Getting Started with Qt Designer
 
 \title Qt Designer Manual
 
@@ -18,42 +18,42 @@ that they will look and feel exactly as you intended.
 \section1 Contents
 
 \list
-\i \l{designer-getting-started.html}{Getting Started}
-  \tableofcontents{1 designer-getting-started.html}
-\i \l{designer-designing-a-component.html}{Designing a Component}
- \tableofcontents{1 designer-designing-a-component.html}
-\i \l{designer-using-a-component.html}{Using a Component in Your Application}
- \tableofcontents{1 designer-using-a-component.html}
-\i \l{designer-editing-mode.html}{Form Editing Mode}
- \tableofcontents{1 designer-editing-mode.html}
-\i \l{designer-using-containers.html}{Using Containers}
- \tableofcontents{1 designer-using-containers.html}
-\i \l{designer-connection-mode.html}{Connection Editing Mode}
- \tableofcontents{1 designer-connection-mode.html}
+\i \l{Getting Started with Qt Designer}
+  \tableofcontents{1 Getting Started with Qt Designer}
+\i \l{Designing a Component with Qt Designer}
+ \tableofcontents{1 Designing a Component with Qt Designer}
+\i \l{Using a Component in Your Application}
+ \tableofcontents{1 Using a Component in Your Application}
+\i \l{Qt Designer's Form Editing Mode}
+ \tableofcontents{1 Qt Designer's Form Editing Mode}
+\i \l{Using Containers in Qt Designer}
+ \tableofcontents{1 Using Containers in Qt Designer}
+\i \l{Qt Designer's Connection Editing Mode}
+ \tableofcontents{1 Qt Designer's Connection Editing Mode}
 \endlist
 
 \section1 Figures and Hints
 
 \list
-\i \l{designer-getting-started.html#DesignerMainWindow}{\e{Qt Designer}'s main window}
-\i \l{designer-getting-started.html#DesignerToolbox}{\e{Qt Designer}'s toolbox}
-\i \l{designer-designing-a-component.html#ChoosingAForm}{Choosing a form}
-\i \l{designer-designing-a-component.html#EditingModes}{Editing modes}
-\i \l{designer-designing-a-component.html#AddingWidgetsToAForm}{Adding widgets to a form}
-\i \l{designer-designing-a-component.html#ThePropertyEditor}{The Property Editor}
-\i \l{designer-designing-a-component.html#PlacingWidgetsInLayouts}{Placing widgets in layouts}
-\i \l{designer-designing-a-component.html#ConnectingWidgets}{Connecting widgets}
-\i \l{designer-designing-a-component.html#PreviewingAForm}{Previewing a form}
-\i \l{designer-editing-mode.html#SelectingObjects}{Selecting objects}
-\i \l{designer-editing-mode.html#ShortcutsForEditing}{Shortcuts for editing}
-\i \l{designer-editing-mode.html#DragAndDrop}{Drag and drop}
-\i \l{designer-editing-mode.html#EditingProperties}{Editing properties}
-\i \l{designer-editing-mode.html#InsertingObjectsIntoALayout}{Inserting objects into a layout}
-\i \l{designer-connection-mode.html#HighlightedObjects}{Highlighted objects}
-\i \l{designer-connection-mode.html#MakingAConnection}{Making a connection}
-\i \l{designer-connection-mode.html#ChoosingSignalsAndSlots}{Choosing signals and slots}
-\i \l{designer-connection-mode.html#EditingConnectionPaths}{Editing connection paths}
-\i \l{designer-connection-mode.html#DeletingConnections}{Deleting connections}
+\i \l{Getting Started with Qt Designer#DesignerMainWindow}{\e{Qt Designer}'s main window}
+\i \l{Getting Started with Qt Designer#DesignerToolbox}{\e{Qt Designer}'s toolbox}
+\i \l{Designing a Component with Qt Designer#ChoosingAForm}{Choosing a form}
+\i \l{Designing a Component with Qt Designer#EditingModes}{Editing modes}
+\i \l{Designing a Component with Qt Designer#AddingWidgetsToAForm}{Adding widgets to a form}
+\i \l{Designing a Component with Qt Designer#ThePropertyEditor}{The Property Editor}
+\i \l{Designing a Component with Qt Designer#PlacingWidgetsInLayouts}{Placing widgets in layouts}
+\i \l{Designing a Component with Qt Designer#ConnectingWidgets}{Connecting widgets}
+\i \l{Designing a Component with Qt Designer#PreviewingAForm}{Previewing a form}
+\i \l{Qt Designer's Form Editing Mode#SelectingObjects}{Selecting objects}
+\i \l{Qt Designer's Form Editing Mode#ShortcutsForEditing}{Shortcuts for editing}
+\i \l{Qt Designer's Form Editing Mode#DragAndDrop}{Drag and drop}
+\i \l{Qt Designer's Form Editing Mode#EditingProperties}{Editing properties}
+\i \l{Qt Designer's Form Editing Mode#InsertingObjectsIntoALayout}{Inserting objects into a layout}
+\i \l{Qt Designer's Connection Editing Mode#HighlightedObjects}{Highlighted objects}
+\i \l{Qt Designer's Connection Editing Mode#MakingAConnection}{Making a connection}
+\i \l{Qt Designer's Connection Editing Mode#ChoosingSignalsAndSlots}{Choosing signals and slots}
+\i \l{Qt Designer's Connection Editing Mode#EditingConnectionPaths}{Editing connection paths}
+\i \l{Qt Designer's Connection Editing Mode#DeletingConnections}{Deleting connections}
 \endlist
 
 */
@@ -61,10 +61,10 @@ that they will look and feel exactly as you intended.
 /*!
 \page designer-getting-started.html
 \contentspage designer-manual.html Contents
-\previouspage designer-manual.html Qt Designer
-\nextpage designer-designing-a-component.html Designing a Component
+\previouspage Qt Designer Manual
+\nextpage Designing a Component with Qt Designer
 
-\title Getting Started
+\title Getting Started with Qt Designer
 
 This manual covers the fundamental steps that most users will take when
 creating graphical user interfaces with \QD. We will introduce the
@@ -144,10 +144,10 @@ dropping them in the required locations.
 /*!
 \page designer-designing-a-component.html
 \contentspage designer-manual.html Contents
-\previouspage designer-getting-started.html Getting Started
-\nextpage designer-using-a-component.html Using a Component In Your Application
+\previouspage Getting Started with Qt Designer
+\nextpage Using a Component In Your Application
 
-\title Designing a Component
+\title Designing a Component with Qt Designer
 
 \tableofcontents
 
@@ -424,9 +424,9 @@ the form's design.
 
 /*!
 \page designer-using-a-component.html
-\previouspage designer-designing-a-component.html Designing a Component
+\previouspage Designing a Component with Qt Designer
 \contentspage designer-manual.html Contents
-\nextpage designer-editing-mode.html Form Editing Mode
+\nextpage Qt Designer's Form Editing Mode
 
 \title Using a Component in Your Application
 
@@ -674,11 +674,11 @@ without having to write code themselves.
 
 /*!
 \page designer-editing-mode.html
-\previouspage designer-designing-a-component.html Designing a Component
+\previouspage Designing a Component with Qt Designer
 \contentspage designer-manual.html Contents
-\nextpage designer-using-containers.html Using Containers
+\nextpage Using Containers in Qt Designer
 
-\title Form Editing Mode
+\title Qt Designer's Form Editing Mode
 
 \image designer-editing-mode.png
 
@@ -901,9 +901,9 @@ used in an application.
 /*!
 \page designer-connection-mode.html
 \contentspage designer-manual.html Contents
-\previouspage designer-using-containers.html Using Containers
+\previouspage Using Containers in Qt Designer
 
-\title Connection Editing Mode
+\title Qt Designer's Connection Editing Mode
 
 \image designer-connection-mode.png
 
@@ -1038,10 +1038,10 @@ key, and they will not be set up in the .ui file.
 /*!
 \page designer-using-containers.html
 \contentspage designer-manual.html Contents
-\previouspage designer-editing-mode.html Form Editing Mode
-\nextpage designer-connection-mode.html Connection Editing Mode
+\previouspage Qt Designer's Form Editing Mode
+\nextpage Qt Designer's Connection Editing Mode
 
-\title Using Containers
+\title Using Containers in Qt Designer
 
 Container widgets provide high level control over groups of objects on a form.
 They can be used to perform a variety of functions, such as managing input
