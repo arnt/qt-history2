@@ -55,7 +55,7 @@ bool QFile::open( int m )
 	qWarning( "QFile::open: File already open" );
 	return FALSE;
     }
-    if ( fn.isNull() ) {			// no file name defined
+    if ( fn.isEmpty() ) {			// no file name defined
 	qWarning( "QFile::open: No file name specified" );
 	return FALSE;
     }
