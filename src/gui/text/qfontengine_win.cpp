@@ -319,6 +319,8 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
         }
         HFONT hf = QT_WA_INLINE(CreateFontIndirectW(&lf), CreateFontIndirectA((LOGFONTA*)&lf));
         SelectObject(hdc, hf);
+    } else {
+        SelectObject(hdc, hfont);
     }
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
