@@ -8,7 +8,7 @@ SHELL=/bin/sh
 init: FORCE
 	@$(MAKE) QTDIR=`pwd` all
 
-all: qmake symlinks src-moc sub-src sub-tools sub-tutorial sub-examples
+all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -20,10 +20,10 @@ all: qmake symlinks src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo "Enjoy!   - the Trolltech team"
 	@echo
 
-qmake: symlinks FORCE
+src-qmake: symlinks FORCE
 	cd qmake; $(MAKE)
 
-src-moc: .qmake.cache symlinks  FORCE
+src-moc: src-qmake FORCE
 	cd src/moc; $(MAKE)
 
 sub-tools: sub-src FORCE
@@ -56,6 +56,7 @@ distclean: clean
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
+	@test ! /bin/true
 
 FORCE:
 
