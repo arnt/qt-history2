@@ -65,7 +65,7 @@ protected:
     void append(QTreeWidgetItem *item);
     void remove(QTreeWidgetItem *item);
     void emitRowsInserted(QTreeWidgetItem *item);
-    void emitRowsRemoved(QTreeWidgetItem *item);
+    void emitRowsAboutToBeRemoved(QTreeWidgetItem *item);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -139,7 +139,7 @@ void QTreeModel::setColumnCount(int columns)
     int _c = c;
     c = columns;
     if (c < _c)
-        emit columnsRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
+        emit columnsAboutToBeRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
     header->values.resize(c);
     for (int i = _c; i < c; ++i)
         header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
@@ -383,13 +383,13 @@ bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
     if (parent.isValid()) {
         QTreeWidgetItem *p = item(parent);
         if (p) {
-            emit rowsRemoved(parent, row, row);
+            emit rowsAboutToBeRemoved(parent, row, row);
             p->children.removeAt(row);
             return true;
         }
         return false;
     }
-    emit rowsRemoved(parent, row, row);
+    emit rowsAboutToBeRemoved(parent, row, row);
     tree.removeAt(row);
     return true;
 }
@@ -544,7 +544,7 @@ void QTreeModel::remove(QTreeWidgetItem *item)
     int r = tree.indexOf(item);
     if (r != -1) {
         tree.removeAt(r);
-        emit rowsRemoved(QModelIndex::Null, r, r);
+        emit rowsAboutToBeRemoved(QModelIndex::Null, r, r);
     }
 }
 
@@ -571,11 +571,11 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
   \sa emitRowsInserted()
 */
 
-void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
+void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *item)
 {
     QModelIndex idx = index(item, 0);
     QModelIndex parentIndex = parent(idx);
-    emit rowsRemoved(parentIndex, idx.row(), idx.row());
+    emit rowsAboutToBeRemoved(parentIndex, idx.row(), idx.row());
 }
 
 /*!
@@ -1049,7 +1049,7 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
         if (model)
-            model->emitRowsRemoved(children.at(index));
+            model->emitRowsAboutToBeRemoved(children.at(index));
         return children.takeAt(index);
     }
     return 0;
@@ -1442,7 +1442,7 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
     if (index >= 0 && index < d->model()->tree.count()) {
-        d->model()->emitRowsRemoved(topLevelItem(index));
+        d->model()->emitRowsAboutToBeRemoved(topLevelItem(index));
         return d->model()->tree.takeAt(index);
     }
     return 0;

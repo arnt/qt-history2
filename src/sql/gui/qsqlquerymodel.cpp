@@ -191,9 +191,9 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     bool columnsChanged = (newRec != d->rec);
 
     if (d->bottom.isValid()) {
-        emit rowsRemoved(QModelIndex(), 0, d->bottom.row());
+        emit rowsAboutToBeRemoved(QModelIndex(), 0, d->bottom.row());
         if (columnsChanged)
-            emit columnsRemoved(QModelIndex(), 0, d->bottom.column());
+            emit columnsAboutToBeRemoved(QModelIndex(), 0, d->bottom.column());
     }
 
     if (d->colOffsets.size() != newRec.count() || columnsChanged) {
@@ -389,7 +389,7 @@ bool QSqlQueryModel::removeColumns(int column, const QModelIndex &parent, int co
         d->rec.remove(column);
     for (i = column; i < d->colOffsets.count(); ++i)
         d->colOffsets[i] -= count;
-    emit columnsRemoved(parent, column, column + count - 1);
+    emit columnsAboutToBeRemoved(parent, column, column + count - 1);
     return true;
 }
 

@@ -121,7 +121,7 @@ bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 
 bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 {
-    emit rowsRemoved(QModelIndex::Null, row, row + count - 1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
     int i = tableIndex(row, columnCount() - 1);
     table.remove(qMax(i, 0), count * columnCount());
     vertical.remove(row, count);
@@ -130,7 +130,7 @@ bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 
 bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 {
-    emit columnsRemoved(QModelIndex::Null, column, column + count - 1);
+    emit columnsAboutToBeRemoved(QModelIndex::Null, column, column + count - 1);
     for (int row = rowCount()-1; row >= 0; --row)
         table.remove(tableIndex(row, column), count);
     horizontal.remove(column, count);

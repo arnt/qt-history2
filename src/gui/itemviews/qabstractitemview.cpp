@@ -122,7 +122,7 @@ void QAbstractItemViewPrivate::init()
     setCurrentIndex(), and common signals such as clicked(),
     doubleClicked(), returnPressed(), spacePressed(), and
     deletePressed(). Many protected slots are also provided, including
-    dataChanged(), rowsInserted(), rowsRemoved(),
+    dataChanged(), rowsInserted(), rowsAboutToBeRemoved(),
     columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
 
@@ -430,8 +430,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this, SLOT(rowsInserted(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
@@ -443,8 +443,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(rowsInserted(QModelIndex,int,int)));
-        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
         // will connect in setSelectionModel
     }
@@ -1654,13 +1654,13 @@ void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 }
 
 /*!
-    This slot is called when rows are removed. The deleted rows are
+    This slot is called when rows are about to be removed. The deleted rows are
     those under the given \a parent from \a start to \a end inclusive.
     The base class implementation does nothing.
 
     \sa rowsInserted()
 */
-void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
+void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &, int, int)
 {
     // do nothing
 }

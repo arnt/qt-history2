@@ -113,7 +113,7 @@ protected slots:
     void updateSection(int logicalIndex);
     void resizeSections();
     void sectionsInserted(const QModelIndex &parent, int logicalFirst, int logicalLast);
-    void sectionsRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast);
+    void sectionsAboutToBeRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast);
 
 protected:
     QHeaderView(QHeaderViewPrivate &, Qt::Orientation orientation, QWidget *parent);

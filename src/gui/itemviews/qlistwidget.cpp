@@ -109,7 +109,7 @@ void QListModel::insert(int row, QListWidgetItem *item)
 QListWidgetItem *QListModel::take(int row)
 {
     if (row >= 0 && row < lst.count()) {
-        emit rowsRemoved(QModelIndex::Null, row, row);
+        emit rowsAboutToBeRemoved(QModelIndex::Null, row, row);
         lst.at(row)->model = 0;
         return lst.takeAt(row);
     }
@@ -168,7 +168,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
 bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
     if (row < rowCount()) {
-        emit rowsRemoved(QModelIndex::Null, row, row + count - 1);
+        emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         for (int r = 0; r < count; ++r)
             delete lst.takeAt(row);
         return true;

@@ -214,7 +214,7 @@ public:
         if (parent.isValid() || count < 1 || row < 0 || row+count > rowCount())
             return false;
 
-        emit rowsRemoved(parent, row, row+count-1);
+        emit rowsAboutToBeRemoved(parent, row, row+count-1);
         for (int i=row+count-1; i >= row; --i)
             list.removeAt(i);
         return true;

@@ -675,7 +675,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
     bool success = true;
     QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
@@ -745,7 +745,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
 {
 //    qDebug("setNameFilters:");
     d->savePersistentIndexes(); // FIXME: this will rebuild the entire structure of the qdirmodel
-    emit rowsRemoved(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
     d->nameFilters = filters;
     d->root.children = d->children(0); // clear model
     d->restorePersistentIndexes();
@@ -771,7 +771,7 @@ QStringList QDirModel::nameFilters() const
 void QDirModel::setFilter(QDir::Filters filters)
 {
     d->savePersistentIndexes();
-    emit rowsRemoved(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
     d->filters = filters;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
@@ -801,7 +801,7 @@ void QDirModel::setSorting(QDir::SortFlags sort)
 {
     QModelIndex parent;
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
     d->sort = sort;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
@@ -843,7 +843,7 @@ bool QDirModel::resolveSymlinks() const
 void QDirModel::refresh(const QModelIndex &parent)
 {
     d->savePersistentIndexes();
-    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
+    emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
     d->restorePersistentIndexes();
     emit rowsInserted(parent, 0, rowCount(parent) - 1);
@@ -1089,7 +1089,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         return false;
     }
 
-    emit rowsRemoved(parent(index), index.row(), 1);
+    emit rowsAboutToBeRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
     QDir dir = p->info.dir(); // parent dir
@@ -1136,7 +1136,7 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
 
-    emit rowsRemoved(parent(index), index.row(), 1);
+    emit rowsAboutToBeRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
     QDir dir = p->info.dir(); // parent dir

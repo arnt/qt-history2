@@ -58,7 +58,7 @@ void QSqlTableModelPrivate::revertInsertedRow()
 
     int oldIndex = insertIndex;
     insertIndex = -1;
-    emit q->rowsRemoved(QModelIndex::Null, oldIndex, oldIndex);
+    emit q->rowsAboutToBeRemoved(QModelIndex::Null, oldIndex, oldIndex);
 }
 
 void QSqlTableModelPrivate::clearEditBuffer()
@@ -91,7 +91,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
                 it = cache.insert(oldKey - 1, oldValue);
                 ++it;
             }
-            emit q->rowsRemoved(QModelIndex::Null, row, row);
+            emit q->rowsAboutToBeRemoved(QModelIndex::Null, row, row);
         break; }
     }
 }
