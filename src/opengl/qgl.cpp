@@ -2490,7 +2490,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
     int w = width();
     int h = height();
     if (format().rgba()) {
-        res = QImage(w, h, QImage::Format_ARGB32);
+        res = QImage(w, h, withAlpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
         glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
         if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
             // OpenGL gives RGBA; Qt wants ARGB
@@ -2502,8 +2502,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
                     *p = (*p >> 8) | a;
                     p++;
                 }
-            }
-            else {
+            } else {
                 while (p < end)
                     *p++ >>= 8;
             }
@@ -2512,9 +2511,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
             // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
             res = res.rgbSwapped();
         }
-        res.setAlphaBuffer(withAlpha && format().alpha());
-    }
-    else {
+    } else {
 #if defined (Q_WS_WIN)
         res = QImage(w, h, 8);
         glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, res.bits());
