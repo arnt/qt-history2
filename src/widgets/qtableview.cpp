@@ -167,7 +167,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 */
 
 QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f, FALSE )
+    : QFrame( parent, name, f )
 {
     nRows		 = nCols      = 0;	// zero rows/cols
     xCellOffs		 = yCellOffs  = 0;	// zero offset

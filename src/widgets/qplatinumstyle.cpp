@@ -244,7 +244,8 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp */
 
-QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h){
+QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h) const
+{
     QRect r = QCommonStyle::buttonRect(x,y,w,h);
     r.setTop( r.top()+1);
     r.setLeft( r.left()+1);
@@ -533,7 +534,9 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 /*! \reimp */
 
-void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int& buttonDim )
+void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb,
+				       int &sliderMin, int &sliderMax,
+				       int &sliderLength, int& buttonDim )const
 {
     int maxLength;
     int b = 0;
@@ -1167,7 +1170,8 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp */
 
-QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h){
+QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h) const
+{
     return QRect(x+3, y+3, w-6-16, h-6);
 }
 
@@ -1471,30 +1475,36 @@ void QPlatinumStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
 */
-int QPlatinumStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm )
+int QPlatinumStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
+					     QMenuItem* mi,
+					     const QFontMetrics& fm ) const
 {
     return QWindowsStyle::extraPopupMenuItemWidth( checkable, maxpmw, mi, fm );
 }
 
 /*! \reimp
 */
-int QPlatinumStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+int QPlatinumStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi,
+					 const QFontMetrics& fm ) const
 {
     return QWindowsStyle::popupMenuItemHeight( checkable, mi, fm );
 }
 
 /*! \reimp
 */
-void QPlatinumStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+void QPlatinumStyle::drawPopupMenuItem( QPainter* p, bool checkable,
+					int maxpmw, int tab, QMenuItem* mi,
 					const QPalette& pal,
-					bool act, bool enabled, int x, int y, int w, int h)
+					bool act, bool enabled,
+					int x, int y, int w, int h )
 {
-    QWindowsStyle::drawPopupMenuItem( p, checkable, maxpmw, tab, mi, pal, act, enabled, x, y, w, h);
+    QWindowsStyle::drawPopupMenuItem( p, checkable, maxpmw, tab, mi, pal, act,
+				      enabled, x, y, w, h);
 }
 
 /*!\reimp
  */
-void QPlatinumStyle::getButtonShift( int &x, int &y)
+void QPlatinumStyle::getButtonShift( int &x, int &y) const
 {
     x = 0;
     y = 0;

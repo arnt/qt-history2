@@ -60,6 +60,8 @@
 #include <unistd.h>
 #endif
 
+// http://partners.adobe.com/asn/developer/technotes.html has lots of
+// information relevant to this file.
 
 // Note: this is comment-stripped and word-wrapped later.
 // Note: stripHeader() constrains the postscript used in this prolog.

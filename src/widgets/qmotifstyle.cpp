@@ -518,7 +518,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 
 /*! \reimp */
-void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap) const
 {
     QCommonStyle::tabbarMetrics( t, hframe, vframe, overlap );
 }
@@ -633,7 +633,9 @@ void QMotifStyle::drawTabMask( QPainter* p,  const  QTabBar* tb, QTab* t, bool s
 
 /*! \reimp */
 
-void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int &buttonDim )
+void QMotifStyle::scrollBarMetrics( const QScrollBar* sb,
+				    int &sliderMin, int &sliderMax,
+				    int &sliderLength, int &buttonDim ) const
 {
     int maxLength;
     int b = MOTIF_BORDER;
@@ -912,7 +914,9 @@ void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
 */
-int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /* fm */)
+int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
+					  QMenuItem* mi,
+					  const QFontMetrics&/* fm */) const
 {
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
 
@@ -938,7 +942,8 @@ int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*
 
 /*! \reimp
 */
-int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const QFontMetrics& fm )
+int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
+				      const QFontMetrics& fm ) const
 {
     int h = 0;
     if ( mi->isSeparator() ) {			// separator height
@@ -959,9 +964,11 @@ int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const 
 
 /*! \reimp
 */
-void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
+				     int tab, QMenuItem* mi, 
 				     const QPalette& pal,
-				     bool act, bool enabled, int x, int y, int w, int h)
+				     bool act, bool enabled,
+				     int x, int y, int w, int h)
 {
     const QColorGroup & g = pal.active();
     bool dis	  = !enabled;
@@ -1154,7 +1161,7 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
  */
-QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h)
+QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r = buttonRect( x, y, w, h );
     int ew = get_combo_extra_width( r.height() );
@@ -1163,7 +1170,7 @@ QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h)
 
 /*! \reimp
  */
-QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h)
+QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 {
     int awh, ax, ay, sh, sy, dh, ew;
     get_combo_parameters( buttonRect( x, y, w, h ),

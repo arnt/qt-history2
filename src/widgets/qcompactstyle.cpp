@@ -68,7 +68,7 @@ static const int windowsCheckMarkWidth  = 2;    // checkmarks width on windows
 
 /*! \reimp
 */
-int QCompactStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ )
+int QCompactStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
@@ -103,9 +103,9 @@ int QCompactStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
 
 /*! \reimp
 */
-int QCompactStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
+int QCompactStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     int h = 0;
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
@@ -123,11 +123,13 @@ int QCompactStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
 #endif
 }
 
-void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				       const QPalette& pal,
-				       bool act, bool enabled, int x, int y, int w, int h)
+void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable,
+				       int maxpmw, int tab, QMenuItem* mi,
+				       const QPalette& pal, bool act,
+				       bool enabled,
+				       int x, int y, int w, int h)
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     const QColorGroup & g = pal.active();
     bool dis	  = !enabled;
     QColorGroup itemg = dis ? pal.disabled() : pal.active();

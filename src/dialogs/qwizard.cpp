@@ -483,7 +483,7 @@ void QWizard::setTitle( QWidget *page, const QString &t )
     if ( p )
 	p->t = t;
     if ( page == currentPage() )
-	d->title->setText( t );	
+	d->title->setText( t );
 }
 
 
@@ -640,7 +640,7 @@ void QWizard::layOut()
     layOutTitleRow( l, d->current ? d->current->t : QString::null );
 
     if ( ! d->hbar1 ) {
-	d->hbar1 = new QFrame( this, "<hr>", 0, TRUE );
+	d->hbar1 = new QFrame( this, "<hr>", 0 );
 	d->hbar1->setFrameStyle( QFrame::Sunken + QFrame::HLine );
 	d->hbar1->setFixedHeight( 12 );
     }
@@ -650,7 +650,7 @@ void QWizard::layOut()
     d->v->addWidget( d->ws, 10 );
 
     if ( ! d->hbar2 ) {
-	d->hbar2 = new QFrame( this, "<hr>", 0, TRUE );
+	d->hbar2 = new QFrame( this, "<hr>", 0 );
 	d->hbar2->setFrameStyle( QFrame::Sunken + QFrame::HLine );
 	d->hbar2->setFixedHeight( 12 );
     }

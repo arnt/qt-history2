@@ -49,13 +49,13 @@ class Q_EXPORT QHBox : public QFrame
 {
     Q_OBJECT
 public:
-    QHBox( QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE  );
+    QHBox( QWidget *parent=0, const char *name=0, WFlags f=0 );
     void setSpacing( int );
     bool setStretchFactor( QWidget*, int stretch );
     QSize sizeHint() const;
 
 protected:
-    QHBox( bool horizontal, QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE  );
+    QHBox( bool horizontal, QWidget *parent=0, const char *name=0,WFlags f=0 );
     void frameChanged();
 
 private:

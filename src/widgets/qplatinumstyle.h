@@ -57,15 +57,15 @@ public:
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
-    QRect buttonRect( int x, int y, int w, int h);
+    QRect buttonRect( int x, int y, int w, int h) const;
     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup &g, bool sunken = FALSE,
 			  const QBrush *fill = 0 );
-    void drawPushButton( QPushButton* btn, QPainter *p);
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
-    void getButtonShift( int &x, int &y);
+    void drawPushButton( QPushButton* btn, QPainter *p );
+    void drawPushButtonLabel( QPushButton* btn, QPainter *p );
+    void getButtonShift( int &x, int &y ) const;
 
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
+    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
@@ -83,7 +83,7 @@ public:
 			  bool editable = FALSE,
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h);
+    QRect comboButtonRect( int x, int y, int w, int h) const;
     QRect comboButtonFocusRect( int x, int y, int w, int h);
 
     int sliderLength() const;
@@ -107,8 +107,10 @@ public:
 			     bool act, bool dis );
     void polishPopupMenu( QPopupMenu* );
 
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
+				 const QFontMetrics& fm ) const;
+    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
+			     const QFontMetrics& fm ) const;
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 			    const QPalette& pal, bool act, bool enabled,
 			    int x, int y, int w, int h);

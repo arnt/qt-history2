@@ -489,7 +489,7 @@ flag explicitly.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase), FALSE )
+    QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase) )
 {
     d = new QScrollViewData(this,WResizeNoErase |
 	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
@@ -1732,12 +1732,12 @@ void QScrollView::moveContents(int x, int y)
 }
 
 #if QT_VERSION >= 300
-#error "Should rename contents{X,Y,Width,Height} to viewport{...}"
+#warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 // Because it's the viewport rectangle that is "moving", not the contents.
 #endif
 
 #if QT_VERSION >= 300
-#error "Should rename contents{X,Y,Width,Height} to viewport{...}"
+#warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 // Because it's the viewport rectangle that is "moving", not the contents.
 #endif
 

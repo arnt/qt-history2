@@ -1953,14 +1953,11 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
-#if QT_VERSION >= 300
-#error "Merge QPainter::drawImage()'s by default conversion_flags=0"
-#endif
-
-/*!
-  Draws at (\a x, \a y) the \a sw by \a sh area of pixels
-  from (\a sx, \a sy) in \a image, using \a conversion_flags if
-  the image needs to be converted to a pixmap.
+/*!  Draws at (\a x, \a y) the \a sw by \a sh area of pixels from (\a
+  sx, \a sy) in \a image, using \a conversionFlags if the image needs
+  to be converted to a pixmap.  The default value for \a
+  conversionFlags is 0; see convertFromImage() for information about
+  what other values do.
 
   This function may convert \a image to a pixmap and then draw it, if
   device() is a QPixmap or a QWidget, or else draw it directly, if
@@ -1970,7 +1967,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 */
 void QPainter::drawImage( int x, int y, const QImage & image,
 			  int sx, int sy, int sw, int sh,
-			  int conversion_flags )
+			  int conversionFlags = 0)
 {
 #ifdef _WS_QWS_
     //### Hackish
@@ -2057,18 +2054,8 @@ void QPainter::drawImage( int x, int y, const QImage & image,
     }
 
     QPixmap pm;
-    pm.convertFromImage( subimage, conversion_flags );
+    pm.convertFromImage( subimage, conversionFlags );
     drawPixmap( x, y, pm );
-}
-
-/*!
-  \overload void QPainter::drawImage( int x, int y, const QImage & image,
-			  int sx, int sy, int sw, int sh )
-*/
-void QPainter::drawImage( int x, int y, const QImage & image,
-			  int sx, int sy, int sw, int sh )
-{
-    drawImage(x,y,image,sx,sy,sw,sh,0);
 }
 
 /*!

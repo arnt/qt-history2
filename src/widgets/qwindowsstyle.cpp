@@ -465,7 +465,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!\reimp
  */
-void QWindowsStyle::getButtonShift( int &x, int &y)
+void QWindowsStyle::getButtonShift( int &x, int &y ) const
 {
     x = 1;
     y = 1;
@@ -487,11 +487,11 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     // #### DO SUNKEN!
     if ( sunken )
 	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
-		       g.dark(), g.dark(), g.button(), g.button(), 
+		       g.dark(), g.dark(), g.button(), g.button(),
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
     else
 	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
-		       g.midlight(), g.shadow(), g.light(), g.dark(), 
+		       g.midlight(), g.shadow(), g.light(), g.dark(),
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
 
 
@@ -503,21 +503,23 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*!\reimp
  */
-QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
+QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h ) const
+{
     return QRect(x+2, y+2, w-4-16, h-4);
 }
 
 
 /*!\reimp
  */
-QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
+QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 {
     return QRect(x+3, y+3, w-6-16, h-6);
 }
 
 
 /*! \reimp */
-void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
+				   int& overlap ) const
 {
     QCommonStyle::tabbarMetrics( t, hframe, vframe, overlap );
 }
@@ -624,7 +626,9 @@ void QWindowsStyle::drawTabMask( QPainter* p,  const QTabBar* tb, QTab* t, bool 
 
 /*!\reimp
  */
-void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int&buttonDim )
+void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
+				      int &sliderMin, int &sliderMax,
+				      int &sliderLength, int&buttonDim ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     int maxLength;
@@ -785,7 +789,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 			     const QColorGroup &g,
 			     Orientation orient, bool tickAbove, bool tickBelow )
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     // 4444440
     // 4333310
     // 4322210
@@ -1133,7 +1137,9 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
 */
-int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ )
+int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
+					    QMenuItem* mi,
+					    const QFontMetrics& /*fm*/ ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
@@ -1168,9 +1174,10 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
 
 /*! \reimp
 */
-int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
+int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
+					const QFontMetrics& fm ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     int h = 0;
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
@@ -1190,22 +1197,23 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
 
 /*! \reimp
 */
-void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				       const QPalette& pal,
-				       bool act, bool enabled, int x, int y, int w, int h)
+void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
+				       int tab, QMenuItem* mi, 
+				       const QPalette& pal, bool act,
+				       bool enabled,
+				       int x, int y, int w, int h)
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     const QColorGroup & g = pal.active();
-    bool dis	  = !enabled;
+    bool dis = !enabled;
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable ) {
 #if defined(_WS_WIN32_)
 	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
 	    maxpmw = QMAX( maxpmw, 16);
-	else
 #endif
-	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }
 
     int checkcol	  =     maxpmw;
@@ -1247,7 +1255,8 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	int pixh = pixmap.height();
 	if ( act && !dis ) {
 	    if ( !mi->isChecked() )
-		qDrawShadePanel( p, x, y, checkcol, h, g, FALSE,  1, &g.brush( QColorGroup::Button ) );
+		qDrawShadePanel( p, x, y, checkcol, h, g, FALSE, 1,
+				 &g.brush( QColorGroup::Button ) );
 	}
 	QRect cr( x, y, checkcol, h );
 	QRect pmr( 0, 0, pixw, pixh );

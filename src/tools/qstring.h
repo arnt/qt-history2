@@ -374,10 +374,7 @@ public:
     uint	length()	const;
     void	truncate( uint pos );
 
-#if QT_VERSION >= 300
-#error "fill() Should return *this, or QChar constructor should take count=1"
-#endif
-    void	fill( QChar c, int len = -1 );
+    QString &   fill( QChar c, int len = -1 );
 
     QString	copy()	const;
 

@@ -65,7 +65,7 @@ class Q_EXPORT QLineEdit : public QWidget
     Q_PROPERTY( bool edited READ edited WRITE setEdited )
     Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
     Q_PROPERTY( QString markedText READ markedText )
-	
+
 public:
     QLineEdit( QWidget *parent, const char *name=0 );
     QLineEdit( const QString &, QWidget *parent, const char *name=0 );
@@ -84,10 +84,8 @@ public:
     enum	EchoMode { Normal, NoEcho, Password };
     virtual void setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
-#if QT_VERSION >= 300
-#error "Make setReadOnly virtual"
-#endif
-    void setReadOnly( bool );
+
+    virtual void setReadOnly( bool );
     bool isReadOnly() const;
 
     virtual void setValidator( const QValidator * );

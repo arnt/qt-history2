@@ -5,7 +5,7 @@ unix:CONFIG += x11
 embedded:CONFIG -= x11
 
 TARGET		= qt
-VERSION		= 2.2.0
+VERSION		= 3.0.0
 DESTDIR		= ../lib
 DLLDESTDIR	= ../bin
 

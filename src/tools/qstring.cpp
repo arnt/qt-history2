@@ -12773,13 +12773,20 @@ QString &QString::sprintf( const char* cformat, ... )
     return *this;
 }
 
+
+#if defined(_CC_GNU_)
+#warning "fill() Should return *this, or QChar constructor should take count=1"
+#endif
+
+
 /*!
-  Fills the string with \a len characters of value \a c.
+  Fills the string with \a len characters of value \a c, and returns a
+  reference to the string.
 
   If \a len is negative, the current string length is used.
 */
 
-void QString::fill( QChar c, int len )
+QString& QString::fill( QChar c, int len )
 {
     if ( len < 0 )
 	len = length();
@@ -12791,6 +12798,7 @@ void QString::fill( QChar c, int len )
 	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
     }
+    return *this;
 }
 
 

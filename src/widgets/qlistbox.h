@@ -74,7 +74,7 @@ class Q_EXPORT QListBox : public QScrollView
     Q_PROPERTY( int numRows READ numRows )
     Q_PROPERTY( bool variableWidth READ variableWidth WRITE setVariableWidth )
     Q_PROPERTY( bool variableHeight READ variableHeight WRITE setVariableHeight )
-	
+
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
    ~QListBox();
@@ -185,8 +185,8 @@ public:
     bool autoUpdate() const { return TRUE; }
     void setAutoUpdate( bool ) {}
     void setFixedVisibleLines( int lines ) { setRowMode( lines ); }
-    void inSort( const QListBoxItem * );
-    void inSort( const QString& text );
+    int inSort( const QListBoxItem * );
+    int inSort( const QString& text );
     int cellHeight( int i ) const { return itemHeight(i); }
     int cellHeight() const { return itemHeight(); }
     int cellWidth() const { return maxItemWidth(); }

@@ -59,8 +59,8 @@
 /*!
   Constructs an hbox widget with parent \a parent and name \a name
  */
-QHBox::QHBox( QWidget *parent, const char *name, WFlags f,  bool allowLines  )
-    :QFrame( parent, name, f, allowLines )
+QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
+    :QFrame( parent, name, f )
 {
     lay = new QHBoxLayout( this, frameWidth(), frameWidth(), name );
     lay->setAutoAdd( TRUE );
@@ -75,8 +75,8 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f,  bool allowLines  )
   to use it directly.
 */
 
-QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f, bool allowLines )
-    :QFrame( parent, name, f, allowLines )
+QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
+    :QFrame( parent, name, f )
 {
     lay = new QBoxLayout( this,
 		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,

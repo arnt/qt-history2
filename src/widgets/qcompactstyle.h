@@ -50,8 +50,10 @@ class Q_EXPORT QCompactStyle : public QWindowsStyle
 public:
     QCompactStyle();
     virtual ~QCompactStyle();
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*, const QFontMetrics& );
-    int popupMenuItemHeight( bool checkable, QMenuItem*, const QFontMetrics& );
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*,
+				 const QFontMetrics& ) const;
+    int popupMenuItemHeight( bool checkable, QMenuItem*,
+			     const QFontMetrics& ) const;
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				       const QPalette& pal,
 				       bool act, bool enabled, int x, int y, int w, int h);

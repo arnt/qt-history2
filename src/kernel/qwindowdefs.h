@@ -107,17 +107,8 @@ typedef void * MSG;
 
 #if defined(_WS_X11_)
 
-#if QT_VERSION > 290
-#error "define WId and friends to ulong always"
-#endif
-
-#if defined(_OS_OSF_) && defined(UINT_MAX) && defined(ULONG_MAX) && (ULONG_MAX > UINT_MAX)
 typedef unsigned long  WId;
 typedef unsigned long  HANDLE;
-#else
-typedef unsigned int  WId;
-typedef unsigned int  HANDLE;
-#endif
 
 typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;

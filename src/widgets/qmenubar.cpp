@@ -173,7 +173,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
 */
 
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-    : QFrame( parent, name, 0, FALSE )
+    : QFrame( parent, name, 0 )
 {
     isMenuBar = TRUE;
     autoaccel = 0;

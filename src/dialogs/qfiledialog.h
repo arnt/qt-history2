@@ -154,8 +154,8 @@ public:
 
     QString selectedFile() const;
     QString selectedFilter() const;
-    void setSelectedFilter( const QString& ) const;
-    void setSelectedFilter( int ) const;
+    virtual void setSelectedFilter( const QString& );
+    virtual void setSelectedFilter( int );
 
     void setSelection( const QString &);
 

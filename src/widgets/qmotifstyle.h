@@ -74,8 +74,8 @@ public:
 			  bool editable = FALSE,
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h);
-    QRect comboButtonFocusRect( int x, int y, int w, int h);
+    QRect comboButtonRect( int x, int y, int w, int h) const;
+    QRect comboButtonFocusRect( int x, int y, int w, int h ) const;
 
 
     void drawPushButton( QPushButton* btn, QPainter *p);
@@ -93,12 +93,13 @@ public:
 				 bool on, bool down = FALSE, bool enabled = TRUE );
     void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bool );
 
-    void tabbarMetrics( const QTabBar*, int&, int&, int& );
+    void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*,  const QTabBar*, QTab*, bool selected );
     void drawTabMask( QPainter*,  const QTabBar*, QTab*, bool selected );
 
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
-    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
+    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
+    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
+				uint controls, uint activeControl );
 
     int sliderLength() const;
     void drawSlider( QPainter *p,
@@ -120,11 +121,13 @@ public:
 			     bool act, bool dis );
 
     void polishPopupMenu( QPopupMenu* );
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
-    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-			    const QPalette& pal,
-			    bool act, bool enabled, int x, int y, int w, int h);
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
+				 const QFontMetrics& fm ) const;
+    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
+			     const QFontMetrics& fm ) const;
+    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
+			    QMenuItem* mi, const QPalette& pal, bool act,
+			    bool enabled, int x, int y, int w, int h );
 
 private:
     bool highlightCols;

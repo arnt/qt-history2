@@ -67,34 +67,6 @@ public:
     int slider_thickness;
 };
 
-static QPtrDict<QStylePrivate> *d_ptr = 0;
-static void cleanup_d_ptr()
-{
-    delete d_ptr;
-    d_ptr = 0;
-}
-static QStylePrivate* d( const QStyle* foo )
-{
-    if ( !d_ptr ) {
-	d_ptr = new QPtrDict<QStylePrivate>;
-	d_ptr->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup_d_ptr );
-    }
-    QStylePrivate* ret = d_ptr->find( (void*)foo );
-    if ( ! ret ) {
-	ret = new QStylePrivate;
-	d_ptr->replace( (void*) foo, ret );
-    }
-    return ret;
-}
-static void delete_d( const QStyle* foo )
-{
-    if ( d_ptr )
-	d_ptr->remove( (void*) foo );
-}
-
-
-
 
 // NOT REVISED
 /*!
@@ -158,7 +130,7 @@ QStyle::QStyle() :
 */
 QStyle::~QStyle()
 {
-    delete_d( this );
+    // delete d;
 }
 
 /*!
@@ -242,10 +214,9 @@ void QStyle::polish( QPalette&)
   Returns the appropriate area within a rectangle in which to
   draw text or a pixmap.
 */
-QRect
-QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
-		int flags, bool enabled,
-		const QPixmap *pixmap, const QString& text, int len )
+QRect QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
+			int flags, bool enabled, const QPixmap *pixmap,
+			const QString& text, int len ) const
 {
     return qItemRect( p, gs, x, y, w, h, flags, enabled, pixmap, text, len );
 }
@@ -253,10 +224,10 @@ QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 /*!
   Draw text or a pixmap in an area.
 */
-void
-QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
-		int flags, const QColorGroup &g, bool enabled,
-		const QPixmap *pixmap, const QString& text, int len, const QColor* penColor )
+void QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
+		       int flags, const QColorGroup &g, bool enabled,
+		       const QPixmap *pixmap, const QString& text, int len,
+		       const QColor* penColor )
 {
     qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len, penColor );
 }
@@ -265,10 +236,9 @@ QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 /*!
   Draws a line to separate parts of the visual interface.
 */
-void
-QStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
-		 const QColorGroup &g, bool sunken,
-		 int lineWidth, int midLineWidth )
+void QStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
+			    const QColorGroup &g, bool sunken,
+			    int lineWidth, int midLineWidth )
 {
     qDrawShadeLine( p, x1, y1, x2, y2, g, sunken, lineWidth, midLineWidth );
 }
@@ -276,10 +246,9 @@ QStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
 /*!
   Draws a simple rectangle to separate parts of the visual interface.
 */
-void
-QStyle::drawRect( QPainter *p, int x, int y, int w, int h,
-		const QColor &c, int lineWidth,
-		const QBrush *fill )
+void QStyle::drawRect( QPainter *p, int x, int y, int w, int h,
+		       const QColor &c, int lineWidth,
+		       const QBrush *fill )
 {
     qDrawPlainRect( p, x, y, w, h, c, lineWidth, fill );
 }
@@ -287,11 +256,10 @@ QStyle::drawRect( QPainter *p, int x, int y, int w, int h,
 /*!
   Draws an emphasized rectangle to strongly separate parts of the visual interface.
 */
-void
-QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
-		 const QColorGroup &g, bool sunken,
-		 int lineWidth, int midLineWidth,
-		 const QBrush *fill )
+void QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g, bool sunken,
+			     int lineWidth, int midLineWidth,
+			     const QBrush *fill )
 {
     qDrawShadeRect( p, x, y, w, h, g, sunken, lineWidth, midLineWidth, fill );
 }
@@ -321,7 +289,8 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 
   \sa drawBevelButton()
 */
-QRect QStyle::bevelButtonRect( int x, int y, int w, int h){
+QRect QStyle::bevelButtonRect( int x, int y, int w, int h) const
+{
     int fw = defaultFrameWidth();
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
@@ -334,7 +303,8 @@ QRect QStyle::bevelButtonRect( int x, int y, int w, int h){
   \sa drawBevelButton()
 */
 void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken, const QBrush* fill)
+			     const QColorGroup &g, bool sunken,
+			     const QBrush* fill)
 {
     drawBevelButton(p, x, y, w, h, g, sunken, fill);
 }
@@ -361,7 +331,8 @@ QRect QStyle::toolButtonRect( int x, int y, int w, int h){
 
   \sa drawButton()
 */
-QRect QStyle::buttonRect( int x, int y, int w, int h){
+QRect QStyle::buttonRect( int x, int y, int w, int h) const
+{
     int fw = defaultFrameWidth();
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
@@ -393,14 +364,12 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 */
 
 
-/*! \fn QRect QStyle::comboButtonRect( int x, int y, int w, int h)
-
-  Returns the rectangle available for contents in a combo box
+/*! Returns the rectangle available for contents in a combo box
   button. Usually this is the entire rectangle without the nifty menu
   indicator, but it may also be smaller when you think about rounded
   buttons.
 */
-QRect QStyle::comboButtonRect( int x, int y, int w, int h)
+QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     return buttonRect(x+3, y+3, w-6-21, h-6);
 }
@@ -784,17 +753,14 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
   setScrollBarExtent() to change the extent of scrollbars. In a future
   version of Qt, this function will become virtual.
 */
-QSize QStyle::scrollBarExtent()
+QSize QStyle::scrollBarExtent() const
 {
-    return d(this)->sbextent.expandedTo( QApplication::globalStrut() );
+    return d->sbextent.expandedTo( QApplication::globalStrut() );
 }
 
 /*!
   Returns the extent (height or width depending on the orientation) which a toolbar
   handle has.
-
-  WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
-  it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
 
 int QStyle::toolBarHandleExtent() const
@@ -805,7 +771,9 @@ int QStyle::toolBarHandleExtent() const
 }
 
 /*!\obsolete
- */
+
+  Call toolBarHandleExtent() instead.
+*/
 int QStyle::toolBarHandleExtend() const
 {
     return toolBarHandleExtent();
@@ -815,14 +783,11 @@ int QStyle::toolBarHandleExtend() const
                                         Qt::Orientation orientation,
 				        bool highlight, const QColorGroup &cg,
 					bool drawBorder )
-				
+
   Draws the handle for the toolbar using the painter \a p with the toolbar coordinates
   \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
   \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
   if \a drawBorder is TRUE a border around the handle may be drawn.
-
-  WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
-  it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
 
 
@@ -835,10 +800,11 @@ int QStyle::toolBarHandleExtend() const
   In a future version of the Qt library, this function will be removed
   and subclasses will be able to reimplement scrollBarExtent().
 */
-//### TODO: pick up desktop settings on Windows
+
 void QStyle::setScrollBarExtent( int width, int height )
-{
-    d(this)->sbextent = QSize( width, height ).expandedTo( QApplication::globalStrut() );
+{ //### TODO: pick up desktop settings on Windows
+    d->sbextent
+	= QSize( width, height ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -851,7 +817,7 @@ void QStyle::setScrollBarExtent( int width, int height )
 */
 int QStyle::buttonDefaultIndicatorWidth() const
 {
-    return d(this)->button_default_indicator_width;
+    return d->button_default_indicator_width;
 }
 
 /*!
@@ -860,12 +826,10 @@ int QStyle::buttonDefaultIndicatorWidth() const
   In a future version of the Qt library, this function will be removed
   and subclasses will be able to reimplement buttonDefaultIndicatorWidth()
 */
-//### TODO: pick up desktop settings on Windows
 void QStyle::setButtonDefaultIndicatorWidth( int w )
-{
-    d(this)->button_default_indicator_width = w;
+{ //### TODO: pick up desktop settings on Windows
+    d->button_default_indicator_width = w;
 }
-
 
 
 /*!
@@ -887,7 +851,7 @@ void QStyle::setButtonDefaultIndicatorWidth( int w )
   Returns the width of the menu button indicator for a given button
   height \a h.
  */
-int QStyle::menuButtonIndicatorWidth( int h )
+int QStyle::menuButtonIndicatorWidth( int h ) const
 {
     return QMAX( 12, (h-4)/3 );
 }
@@ -914,7 +878,7 @@ int QStyle::menuButtonIndicatorWidth( int h )
 */
 int QStyle::buttonMargin() const
 {
-    return d(this)->button_margin;
+    return d->button_margin;
 }
 
 /*!
@@ -925,7 +889,7 @@ int QStyle::buttonMargin() const
 */
 void QStyle::setButtonMargin( int m )
 {
-    d(this)->button_margin = m;
+    d->button_margin = m;
 }
 
 /*!
@@ -935,7 +899,7 @@ void QStyle::setButtonMargin( int m )
 */
 int QStyle::sliderThickness() const
 {
-    return d(this)->slider_thickness;
+    return d->slider_thickness;
 }
 
 /*!
@@ -946,7 +910,7 @@ int QStyle::sliderThickness() const
 */
 void QStyle::setSliderThickness(int t)
 {
-    d(this)->slider_thickness = t;
+    d->slider_thickness = t;
 }
 
 #endif // QT_NO_STYLE

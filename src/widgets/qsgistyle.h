@@ -104,12 +104,14 @@ public:
 			  bool editable = FALSE,
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h);
+    QRect comboButtonRect( int x, int y, int w, int h) const;
     QRect comboButtonFocusRect( int x, int y, int w, int h);
 
     // scrollbar
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
-    void drawScrollBarControls( QPainter* p, const QScrollBar*, int sliderStart, uint controls, uint activeControl );
+    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int& ) const;
+    void drawScrollBarControls( QPainter* p, const QScrollBar*,
+				int sliderStart, uint controls,
+				uint activeControl );
 
     // slider
     void drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
@@ -128,9 +130,11 @@ public:
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
                 const QColorGroup& g, Orientation orient );
     // popupmenu
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
-    void drawPopupPanel( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
-                int lineWidth = 2, const QBrush* fill = 0 );
+    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
+			     const QFontMetrics& fm ) const;
+    void drawPopupPanel( QPainter* p, int x, int y, int w, int h,
+			 const QColorGroup& g,
+			 int lineWidth = 2, const QBrush* fill = 0 );
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
                 const QPalette& pal,
                 bool act, bool enabled, int x, int y, int w, int h);

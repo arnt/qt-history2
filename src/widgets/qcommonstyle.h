@@ -62,8 +62,8 @@ public:
 				  bool editable = FALSE,
 				  bool enabled = TRUE,
 				  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h);
-    QRect comboButtonFocusRect( int x, int y, int w, int h);
+    QRect comboButtonRect( int x, int y, int w, int h) const;
+    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
 
     void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
 
@@ -72,13 +72,13 @@ public:
     // push buttons
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
-    void getButtonShift( int &x, int &y);
+    void getButtonShift( int &x, int &y ) const;
 
     // frame
     int defaultFrameWidth() const;
 
     // tabbars
-    void tabbarMetrics( const QTabBar*, int&, int&, int& );
+    void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
     void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
 
@@ -96,7 +96,7 @@ public:
     int maximumSliderDragDistance() const;
 
     // popups
-    int popupSubmenuIndicatorWidth( const QFontMetrics& fm  );
+    int popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const;
 
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,

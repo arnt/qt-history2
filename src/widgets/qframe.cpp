@@ -154,23 +154,15 @@
 */
 
 
-#if (QT_VERSION > 298)
-#error "get rid of allowLines for good"
-#endif
-
 /*!
   Constructs a frame widget with frame style \c NoFrame and a 1 pixel frame
   width.
-
-  The last argument exists for compatibility with Qt 1.x; it
-  no longer has any meaning.
 
   The \e parent, \e name and \e f arguments are passed to the QWidget
   constructor.
 */
 
-QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
-		bool )
+QFrame::QFrame( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     frect  = QRect( 0, 0, 0, 0 );
@@ -278,7 +270,7 @@ void QFrame::setFrameStyle( int style )
 	break;
     default:
 	// only reset if it was hline or vline
-	if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine ) 
+	if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine )
 	    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
     fstyle = (short)style;

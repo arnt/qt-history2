@@ -676,8 +676,7 @@ QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
  */
-QRect
-QSGIStyle::comboButtonRect( int x, int y, int w, int h)
+QRect QSGIStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r = buttonRect( x, y, w, h );
     int ew = get_combo_extra_width( r.height() );
@@ -704,8 +703,9 @@ QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h)
 
 /*!\reimp
  */
-void
-QSGIStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int&buttonDim )
+void QSGIStyle::scrollBarMetrics( const QScrollBar* sb,
+				  int &sliderMin, int &sliderMax,
+				  int &sliderLength, int&buttonDim ) const
 {
     int maxLength;
     int b = SGI_BORDER;
@@ -1059,8 +1059,8 @@ QSGIStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
 */
-int
-QSGIStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const QFontMetrics& fm )
+int QSGIStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
+				    const QFontMetrics& fm ) const
 {
     int h = 0;
     if ( mi->isSeparator() ) {
@@ -1125,10 +1125,10 @@ static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
 
 /*! \reimp
 */
-void
-QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-			      const QPalette& pal,
-			      bool act, bool enabled, int x, int y, int w, int h)
+void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
+				   int tab, QMenuItem* mi, const QPalette& pal,
+				   bool act, bool enabled,
+				   int x, int y, int w, int h )
 {
     const QColorGroup & g = pal.active();
     bool dis = !enabled;
@@ -1255,7 +1255,8 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     \reimp
 */
 void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				QMenuItem* mi, QColorGroup& g, bool enabled, bool active )
+				 QMenuItem* mi, QColorGroup& g,
+				 bool enabled, bool active )
 {
     if ( active ) {
 	p->setPen( QPen( g.shadow(), 1) );

@@ -112,14 +112,14 @@ void QCommonStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*! \reimp
  */
-QRect QCommonStyle::comboButtonRect( int x, int y, int w, int h)
+QRect QCommonStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     return buttonRect(x, y, w-21, h);
 }
 
 /*! \reimp
  */
-QRect QCommonStyle::comboButtonFocusRect( int x, int y, int w, int h)
+QRect QCommonStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 {
     return buttonRect(x+2, y+2, w-4-21, h-4);
 }
@@ -179,7 +179,7 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 /*!\reimp
  */
-void QCommonStyle::getButtonShift( int &x, int &y)
+void QCommonStyle::getButtonShift( int &x, int &y) const
 {
     x = 0;
     y = 0;
@@ -198,7 +198,8 @@ int QCommonStyle::defaultFrameWidth() const
 
 /*!\reimp
  */
-void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
+				  int& overlap) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     overlap = 3;
@@ -323,7 +324,7 @@ static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 
 /*! \reimp
  */
-int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
+int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
 {
     return fm.ascent() + motifArrowHMargin;
 }
@@ -338,8 +339,11 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 #endif
 }
 
-// doesn't really belong here... fix 3.0
-QRect QStyle::pushButtonContentsRect( QPushButton* btn )
+#if defined(_CC_GCC_)
+#warning "doesn't really belong here... fix 3.0"
+#endif
+
+QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     int fw = 0;
@@ -363,13 +367,13 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 	if (inherits("QMotifPlusStyle")) {
 	    QMotifPlusStyle *mp = (QMotifPlusStyle *) this;
 	    unsigned int i;
-	
+
 	    if (orientation == Qt::Vertical) {
 		mp->drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
 			       cg, FALSE, &cg.brush(((highlight) ?
 						     QColorGroup::Highlight :
 						     QColorGroup::Button)));
-		
+
 		if (r.width() > 8) {
 		    QPointArray a( 2 * ((r.width()-8)/3) );
 
@@ -392,10 +396,10 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 			       cg, FALSE, &cg.brush(((highlight) ?
 						     QColorGroup::Highlight :
 						     QColorGroup::Button)));
-		
+
 		if ( r.height() > 8 ) {
 		    QPointArray a( 2 * ((r.height()-8)/3) );
-		
+
 		    int y = 3 + (r.height()%3)/2;
 		    p->setPen( cg.dark() );
 		    for( i=0; 2*i < a.size(); i ++ ) {

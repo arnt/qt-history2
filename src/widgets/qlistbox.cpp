@@ -3434,15 +3434,13 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 }
 
 
-#if QT_VERSION >= 300
-#error "Return c so the user knows where it goes"
-#endif
 /*!
   \obsolete
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
 
-  Inserts \a lbi at its sorted position in the list box.
+  Inserts \a lbi at its sorted position in the list box and returns the
+  position.
 
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
@@ -3450,10 +3448,10 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
   \sa insertItem(), sort()
 */
-void QListBox::inSort( const QListBoxItem * lbi )
+int QListBox::inSort( const QListBoxItem * lbi )
 {
     if ( !lbi )
-	return;
+	return -1;
 
     QListBoxItem * i = d->head;
     int c = 0;
@@ -3463,18 +3461,17 @@ void QListBox::inSort( const QListBoxItem * lbi )
 	c++;
     }
     insertItem( lbi, c );
+    return c;
 }
 
 
-#if QT_VERSION >= 300
-#error "Return result so the user knows where it goes"
-#endif
-/*!
-  \obsolete
+/*! \obsolete
+
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
 
-  Inserts a new item of \a text at its sorted position in the list box.
+  Inserts a new item of \a text at its sorted position in the list box and
+  returns the position.
 
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
@@ -3482,9 +3479,9 @@ void QListBox::inSort( const QListBoxItem * lbi )
 
   \sa insertItem(), sort()
 */
-void QListBox::inSort( const QString& text )
+int QListBox::inSort( const QString& text )
 {
-    inSort( new QListBoxText(text) );
+    return inSort( new QListBoxText(text) );
 }
 
 
@@ -3492,9 +3489,12 @@ void QListBox::inSort( const QString& text )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    d->layoutDirty = (d->layoutDirty || rowMode() == FitToHeight || columnMode() == FitToWidth );
+    d->layoutDirty = ( d->layoutDirty ||
+		       rowMode() == FitToHeight ||
+		       columnMode() == FitToWidth );
 
-    if ( !d->layoutDirty && columnMode() == FixedNumber && d->numColumns == 1) {
+    if ( !d->layoutDirty && columnMode() == FixedNumber &&
+	 d->numColumns == 1) {
 	int w = d->columnPosOne;
 	QSize s( viewportSize( w, contentsHeight() ) );
 	w = QMAX( w, s.width() );

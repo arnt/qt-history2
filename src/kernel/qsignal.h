@@ -43,6 +43,8 @@
 #endif // QT_H
 
 
+class QSignalPrivate;
+
 class Q_EXPORT QSignal : private QObject			// signal class
 {
 public:
@@ -60,11 +62,13 @@ public:
 
     void    activate();
 
-    void     setParameter( int value );
+    void    setParameter( int value );
     int     parameter() const;
 
 private:
     void    dummy(int);
+    QSignalPrivate * d;
+    int val;
 /* tmake ignore Q_OBJECT */
     Q_OBJECT_FAKE
 

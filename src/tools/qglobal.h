@@ -39,8 +39,8 @@
 #define QGLOBAL_H
 
 
-#define QT_VERSION	220
-#define QT_VERSION_STR	"2.2.0"
+#define QT_VERSION	300
+#define QT_VERSION_STR	"3.0.0-snapshot"
 
 
 //
@@ -312,16 +312,12 @@
 #define Q_HAS_BOOL_TYPE
 #endif
 
-#if (QT_VERSION >= 300)
-#error "Use an enum for bool"
-#endif
-
 #if !defined(Q_HAS_BOOL_TYPE)
 #if defined(_CC_MSVC_)
 #define _CC_BOOL_DEF_
 #define bool		int
 #else
-typedef int		bool;
+enum { false, true } bool;
 #endif
 #endif
 

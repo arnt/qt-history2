@@ -68,11 +68,12 @@ public:
 		   const QColorGroup &g, bool,
 		   const QBrush * = 0);
 
-    void drawMenuBarItem(QPainter *p, int x, int y, int w, int h, QMenuItem *mi,
-			 QColorGroup &g, bool enabled, bool activated);
-    void drawPopupMenuItem(QPainter *p, bool checkable, int maxpmw, int tab,
-			   QMenuItem *mi, const QPalette &pl, bool act,
-			   bool enabled, int x, int y, int w, int h);
+    void drawMenuBarItem( QPainter *p, int x, int y, int w, int h,
+			  QMenuItem *mi, QColorGroup &g, bool enabled,
+			  bool activated );
+    void drawPopupMenuItem( QPainter *p, bool checkable, int maxpmw, int tab,
+			    QMenuItem *mi, const QPalette &pl, bool act,
+			    bool enabled, int x, int y, int w, int h );
 
     void drawPushButton(QPushButton *button, QPainter *p);
     void drawButton(QPainter *p, int x, int y, int w, int h,
@@ -81,14 +82,14 @@ public:
     void drawBevelButton(QPainter *p, int x, int y, int w, int h,
 			 const QColorGroup &g, bool sunken = FALSE,
 			 const QBrush *fill = 0);
-    void getButtonShift(int &x, int &y);
+    void getButtonShift(int &x, int &y) const;
 
     void drawComboButton(QPainter *p, int x, int y, int w, int h,
 			 const QColorGroup &g, bool sunken = FALSE,
 			 bool editable = FALSE, bool = TRUE,
 			 const QBrush *fill = 0);
-    QRect comboButtonRect(int x, int y, int w, int h);
-    QRect comboButtonFocusRect(int x, int y, int w, int h);
+    QRect comboButtonRect(int x, int y, int w, int h) const;
+    QRect comboButtonFocusRect(int x, int y, int w, int h) const;
 
     void drawIndicator(QPainter *p, int x, int y ,int w, int h,
 		       const QColorGroup &g, int state,
@@ -104,7 +105,8 @@ public:
 		   const QColorGroup &g, bool sunken = FALSE,
 		   int = 1, const QBrush * = 0);
 
-    void scrollBarMetrics(const QScrollBar *, int &, int &, int &, int &);
+    void scrollBarMetrics( const QScrollBar *,
+			   int &, int &, int &, int & ) const;
     void drawScrollBarControls(QPainter* p, const QScrollBar* sb,
 			       int sliderStart, uint controls,
 			       uint activeControl);

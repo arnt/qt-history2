@@ -180,9 +180,7 @@ private:
     QSignalDict *connections;
     QObjectList *senderObjects;
     QObjectList *eventFilters;
-    // ### 3.0 todo: add d pointer
-
-    QObject	*sigSender;
+    void * d;
 
     friend class QApplication;
     friend class QBaseApplication;
@@ -195,15 +193,10 @@ private:	// Disabled copy constructor and operator=
     QObject( const QObject & );
     QObject &operator=( const QObject & );
 #endif
-
-public:
-    // obsolete
-#ifndef QT_NO_STRINGLIST
-    QStringList  superClasses( bool includeThis = FALSE ) const; // obsolete, remove 3.0
-#endif
 };
 
 #endif
+
 
 inline bool QObject::connect( const QObject *sender, const char *signal,
 			      const char *member ) const
@@ -211,27 +204,24 @@ inline bool QObject::connect( const QObject *sender, const char *signal,
     return connect( sender, signal, this, member );
 }
 
+
 inline bool QObject::disconnect( const char *signal,
 				 const QObject *receiver, const char *member )
 {
     return disconnect( this, signal, receiver, member );
 }
 
+
 inline bool QObject::disconnect( const QObject *receiver, const char *member )
 {
     return disconnect( this, 0, receiver, member );
-}
-
-inline const QObject *QObject::sender()
-{
-    return sigSender;
 }
 
 
 class Q_EXPORT QSenderObject : public QObject		// object for sending signals
 {
 public:
-    void setSender( QObject *s ) { sigSender=s; }
+    void setSender( QObject *s );
 };
 
 #ifdef QT_NO_TRANSLATION

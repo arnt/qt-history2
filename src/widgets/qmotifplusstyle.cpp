@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
+n** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
 **
 ** Implementation of QMotifPlusStyle class
 **
@@ -53,8 +53,9 @@
 #include <qlayout.h>
 
 
-typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
-					      QColorGroup &, bool, bool);
+typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int,
+					      QMenuItem *, QColorGroup &,
+					      bool, bool);
 
 QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl);
 
@@ -74,7 +75,7 @@ struct QMotifPlusStylePrivate
     QPalette *hoverPalette;
 };
 
-static QMotifPlusStylePrivate *d = 0;
+static QMotifPlusStylePrivate * singleton = 0;
 
 
 /*!
@@ -96,11 +97,10 @@ static QMotifPlusStylePrivate *d = 0;
  */
 QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 {
-    if (! d) {
-	d = new QMotifPlusStylePrivate;
-    } else {
-	d->ref++;
-    }
+    if ( !singleton )
+	singleton = new QMotifPlusStylePrivate;
+    else
+	singleton->ref++;
 
     setScrollBarExtent(15, 15);
     setButtonDefaultIndicatorWidth(5);
@@ -115,9 +115,9 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
  */
 QMotifPlusStyle::~QMotifPlusStyle()
 {
-    if (d && d->ref == 0) {
-	delete d;
-	d = 0;
+    if ( singleton && singleton->ref-- <= 0) {
+	delete singleton;
+	singleton = 0;
     }
 }
 
@@ -128,7 +128,7 @@ QMotifPlusStyle::~QMotifPlusStyle()
 
 void QMotifPlusStyle::polish(QPalette &pal)
 {
-    d->oldpalette = pal;
+    singleton->oldpalette = pal;
 
     QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
 
@@ -238,9 +238,9 @@ void QMotifPlusStyle::polish(QPalette &pal)
 				      QColorGroup::Base),       // base
 			    prelight);                          // background
 
-	d->prelight_palette = pal;
-	d->prelight_palette.setActive(active2);
-	d->prelight_palette.setInactive(active2);
+	singleton->prelight_palette = pal;
+	singleton->prelight_palette.setActive(active2);
+	singleton->prelight_palette.setInactive(active2);
     }
 }
 
@@ -255,7 +255,8 @@ void QMotifPlusStyle::polish(QWidget *widget)
 	((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
 
     if (widget->inherits("QMenuBar"))
-	((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+	((QMenuBar *) widget)->setFrameStyle( QFrame::StyledPanel |
+					      QFrame::Raised);
 
     if (widget->inherits("QToolBar"))
 	widget->layout()->setMargin(2);
@@ -300,7 +301,7 @@ void QMotifPlusStyle::polish(QApplication *)
 */
 void QMotifPlusStyle::unPolish(QApplication *app)
 {
-    app->setPalette(d->oldpalette);
+    app->setPalette(singleton->oldpalette);
 
     qt_set_draw_menu_bar_impl(0);
 }
@@ -341,7 +342,8 @@ void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
 	fill = button->colorGroup().brush(QColorGroup::Button);
 
     drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-	       button->colorGroup(), button->isOn() || button->isDown(), &fill);
+	       button->colorGroup(), button->isOn() || button->isDown(),
+	       &fill);
 }
 
 
@@ -349,7 +351,8 @@ void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
   \reimp
 */
 void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &g, bool sunken, const QBrush *fill)
+				 const QColorGroup &g, 
+				 bool sunken, const QBrush *fill)
 {
     QPen oldpen = p->pen();
     QPointArray a(4);
@@ -407,7 +410,8 @@ void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h,
   \reimp
 */
 void QMotifPlusStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h,
-				      const QColorGroup &g, bool sunken, const QBrush *fill)
+				      const QColorGroup &g,
+				      bool sunken, const QBrush *fill)
 {
     drawButton(p, x, y, w, h, g, sunken, fill);
 }
@@ -416,7 +420,7 @@ void QMotifPlusStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h,
 /*!
   \reimp
 */
-void QMotifPlusStyle::getButtonShift(int &x, int &y)
+void QMotifPlusStyle::getButtonShift(int &x, int &y ) const
 {
     x = y = 0;
 }
@@ -426,9 +430,9 @@ void QMotifPlusStyle::getButtonShift(int &x, int &y)
   \reimp
 */
 void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &g, bool sunken,
-				 bool editable, bool,
-				 const QBrush *fill)
+				      const QColorGroup &g, bool sunken,
+				      bool editable, bool,
+				      const QBrush *fill)
 {
     drawButton(p, x, y, w, h, g, sunken, fill);
 
@@ -450,7 +454,7 @@ void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
 /*!
   \reimp
 */
-QRect QMotifPlusStyle::comboButtonRect(int x, int y, int w, int h)
+QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
 {
     QRect r(x + (defaultFrameWidth() * 2), y + (defaultFrameWidth() * 2),
 	    w - (defaultFrameWidth() * 4), h - (defaultFrameWidth() * 4));
@@ -465,7 +469,7 @@ QRect QMotifPlusStyle::comboButtonRect(int x, int y, int w, int h)
 /*!
   \reimp
 */
-QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h)
+QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h ) const
 {
     return comboButtonRect(x, y, w, h);
 }
@@ -475,14 +479,16 @@ QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h)
   \reimp
 */
 void QMotifPlusStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
-			   const QColorGroup &g, bool sunken,
-			   int, const QBrush *)
+				const QColorGroup &g, bool sunken,
+				int, const QBrush *)
 {
     QPen oldpen = p->pen();
     QPointArray a(4);
 
-    if (sunken) p->setPen(g.dark());
-    else p->setPen(g.light());
+    if (sunken)
+	p->setPen(g.dark());
+    else
+	p->setPen(g.light());
 
     a.setPoint(0, x, y + h - 1);
     a.setPoint(1, x, y);
@@ -491,8 +497,10 @@ void QMotifPlusStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
 
     p->drawLineSegments(a);
 
-    if (sunken) p->setPen(black);
-    else p->setPen(g.button());
+    if (sunken)
+	p->setPen(black);
+    else
+	p->setPen(g.button());
 
     a.setPoint(0, x + 1, y + h - 2);
     a.setPoint(1, x + 1, y + 1);
@@ -501,8 +509,10 @@ void QMotifPlusStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
 
     p->drawLineSegments(a);
 
-    if (sunken) p->setPen(g.button());
-    else p->setPen(g.dark());
+    if (sunken)
+	p->setPen(g.button());
+    else
+	p->setPen(g.dark());
 
     a.setPoint(0, x + 2, y + h - 2);
     a.setPoint(1, x + w - 2, y + h - 2);
@@ -511,8 +521,10 @@ void QMotifPlusStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
 
     p->drawLineSegments(a);
 
-    if (sunken) p->setPen(g.light());
-    else p->setPen(black);
+    if (sunken)
+	p->setPen(g.light());
+    else
+	p->setPen(black);
 
     a.setPoint(0, x + 1, y + h - 1);
     a.setPoint(1, x + w - 1, y + h - 1);
@@ -533,8 +545,10 @@ void QMotifPlusStyle::drawIndicator(QPainter *p, int x, int y ,int w, int h,
 			       bool, bool)
 {
     QBrush fill;
-    if (state != QButton::Off) fill = g.brush(QColorGroup::Mid);
-    else fill = g.brush(QColorGroup::Button);
+    if (state != QButton::Off)
+	fill = g.brush(QColorGroup::Mid);
+    else
+	fill = g.brush(QColorGroup::Button);
 
     drawButton(p, x, y, w, h, g, (state != QButton::Off), &fill);
 }
@@ -552,9 +566,10 @@ QSize QMotifPlusStyle::indicatorSize() const
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawExclusiveIndicator(QPainter *p, int x, int y, int w, int h,
-					const QColorGroup &g, bool on,
-					bool, bool)
+void QMotifPlusStyle::drawExclusiveIndicator(QPainter *p, int x, int y,
+					     int w, int h,
+					     const QColorGroup &g, bool on,
+					     bool, bool)
 {
     QPen oldpen =  p->pen();
 
@@ -662,11 +677,12 @@ QSize QMotifPlusStyle::exclusiveIndicatorSize() const
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawMenuBarItem(QPainter *p, int x, int y, int w, int h, QMenuItem *mi,
-			 QColorGroup &g, bool enabled, bool activated)
+void QMotifPlusStyle::drawMenuBarItem(QPainter *p, int x, int y, int w, int h,
+				      QMenuItem *mi, QColorGroup &g,
+				      bool enabled, bool activated)
 {
     if (enabled && activated)
-	drawButton(p, x, y, w, h, d->prelight_palette.active(), FALSE);
+	drawButton(p, x, y, w, h, singleton->prelight_palette.active(), FALSE);
 
     drawItem(p, x, y, w, h, AlignCenter | ShowPrefix | DontClip | SingleLine,
 	     g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText());
@@ -676,11 +692,13 @@ void QMotifPlusStyle::drawMenuBarItem(QPainter *p, int x, int y, int w, int h, Q
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawPopupMenuItem(QPainter *p, bool checkable, int maxpmw, int tab,
-				   QMenuItem *mi, const QPalette &pl, bool act,
-				   bool enabled, int x, int y, int w, int h)
+void QMotifPlusStyle::drawPopupMenuItem(QPainter *p, bool checkable,
+					int maxpmw, int tab, QMenuItem *mi,
+					const QPalette &pl, bool act,
+					bool enabled,
+					int x, int y, int w, int h)
 {
-    QPalette pal = (act && enabled) ? d->prelight_palette : pl;
+    QPalette pal = (act && enabled) ? singleton->prelight_palette : pl;
     const QColorGroup & g = pal.active();
     QColorGroup itemg = (! enabled) ? pal.disabled() : pal.active();
 
@@ -697,8 +715,10 @@ void QMotifPlusStyle::drawPopupMenuItem(QPainter *p, bool checkable, int maxpmw,
 	return;
     }
 
-    if ( act && enabled ) drawButton(p, x, y, w, h, g, FALSE, &g.brush(QColorGroup::Button));
-    else p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
+    if ( act && enabled )
+	drawButton(p, x, y, w, h, g, FALSE, &g.brush(QColorGroup::Button));
+    else
+	p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
 
     if ( !mi )
 	return;
@@ -732,7 +752,7 @@ void QMotifPlusStyle::drawPopupMenuItem(QPainter *p, bool checkable, int maxpmw,
 	p->setPen( itemg.text() );
 	p->drawPixmap( pmr.topLeft(), pixmap );
 
-    } else  if (checkable) {
+    } else if (checkable) {
 	int mw = checkcol;
 	int mh = h - 4;
 
@@ -794,9 +814,8 @@ int QMotifPlusStyle::defaultFrameWidth() const
   \reimp
 */
 void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
-			   int x, int y, int w, int h,
-			   const QColorGroup &g, bool, const QBrush *)
-
+				int x, int y, int w, int h,
+				const QColorGroup &g, bool, const QBrush *)
 {
     QPen oldpen = p->pen();
     QBrush oldbrush = p->brush();
@@ -815,28 +834,40 @@ void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
 
 	    p->drawPolygon(poly);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x, y + h - 1, x + w - 1, y + h - 1);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + w - 2, y + h - 1, x + (w / 2), y + 1);
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x + w - 1, y + h - 1, x + (w / 2), y);
 
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine(x + (w / 2), y + 1, x + 1, y + h - 1);
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x + (w / 2), y, x, y + h - 1);
 
 	    break;
@@ -850,28 +881,40 @@ void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
 
 	    p->drawPolygon(poly);
 
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine(x + w - 2, y + 1, x + 1, y + 1);
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x + w - 1, y, x, y);
 
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine(x + 1, y, x + (w / 2), y + h - 2);
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x, y, x + (w / 2), y + h - 1);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + (w / 2), y + h - 2, x + w - 2, y);
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x + (w / 2), y + h - 1, x + w - 1, y);
 
 	    break;
@@ -885,28 +928,40 @@ void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
 
 	    p->drawPolygon(poly);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + 1, y + (h / 2), x + w - 1, y + h - 1);
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x, y + (h / 2), x + w - 1, y + h - 1);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + w - 2, y + h - 1, x + w - 2, y + 1);
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x + w - 1, y + h - 1, x + w - 1, y);
 
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine(x + w - 1, y + 1, x + 1, y + (h / 2));
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x + w - 1, y, x, y + (h / 2));
 
 	    break;
@@ -919,28 +974,40 @@ void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
 	    poly.setPoint(2, x, y + h - 1);
 
 	    p->drawPolygon(poly);
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine( x + w - 1, y + (h / 2), x + 1, y + 1);
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x + w - 1, y + (h / 2), x, y);
 
-	    if (down) p->setPen(black);
-	    else p->setPen(g.button());
+	    if (down)
+		p->setPen(black);
+	    else
+		p->setPen(g.button());
 	    p->drawLine(x + 1, y + 1, x + 1, y + h - 2);
 
-	    if (down) p->setPen(g.dark());
-	    else p->setPen(g.light());
+	    if (down)
+		p->setPen(g.dark());
+	    else
+		p->setPen(g.light());
 	    p->drawLine(x, y, x, y + h - 1);
 
-	    if (down) p->setPen(g.button());
-	    else p->setPen(g.dark());
+	    if (down)
+		p->setPen(g.button());
+	    else
+		p->setPen(g.dark());
 	    p->drawLine(x + 1, y + h - 2, x + w - 1, y + (h / 2));
 
-	    if (down) p->setPen(g.light());
-	    else p->setPen(black);
+	    if (down)
+		p->setPen(g.light());
+	    else
+		p->setPen(black);
 	    p->drawLine(x, y + h - 1, x + w - 1, y + (h / 2));
 
 	    break;
@@ -956,8 +1023,9 @@ void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
 /*!
   \reimp
 */
-void QMotifPlusStyle::scrollBarMetrics(const QScrollBar *scrollbar, int &sliderMin,
-				  int &sliderMax, int &sliderLength, int &buttonDim)
+void QMotifPlusStyle::scrollBarMetrics(const QScrollBar *scrollbar,
+				       int &sliderMin, int &sliderMax,
+				       int &sliderLength, int &buttonDim) const
 {
     QMotifStyle::scrollBarMetrics(scrollbar, sliderMin, sliderMax,
 				  sliderLength, buttonDim);
@@ -978,13 +1046,13 @@ void QMotifPlusStyle::scrollBarMetrics(const QScrollBar *scrollbar, int &sliderM
   \reimp
 */
 void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-					 int sliderStart, uint controls,
-					 uint activeControl )
+					     int sliderStart, uint controls,
+					     uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
-    QColorGroup pg = d->prelight_palette.active();
+    QColorGroup pg = singleton->prelight_palette.active();
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
@@ -1032,24 +1100,25 @@ void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     }
 
     bool scrollbarUpdate = FALSE;
-    if (d->hovering) {
-	if (addB.contains(d->mousePos)) {
-	    scrollbarUpdate = (d->scrollbarElement == AddLine);
-	    d->scrollbarElement = AddLine;
-	} else if (subB.contains(d->mousePos)) {
-	    scrollbarUpdate = (d->scrollbarElement == SubLine);
-	    d->scrollbarElement = SubLine;
-	} else if (sliderR.contains(d->mousePos)) {
-	    scrollbarUpdate = (d->scrollbarElement == Slider);
-	    d->scrollbarElement = Slider;
+    if (singleton->hovering) {
+	if (addB.contains(singleton->mousePos)) {
+	    scrollbarUpdate = (singleton->scrollbarElement == AddLine);
+	    singleton->scrollbarElement = AddLine;
+	} else if (subB.contains(singleton->mousePos)) {
+	    scrollbarUpdate = (singleton->scrollbarElement == SubLine);
+	    singleton->scrollbarElement = SubLine;
+	} else if (sliderR.contains(singleton->mousePos)) {
+	    scrollbarUpdate = (singleton->scrollbarElement == Slider);
+	    singleton->scrollbarElement = Slider;
 	} else
-	    d->scrollbarElement = 0;
+	    singleton->scrollbarElement = 0;
     } else
-	d->scrollbarElement = 0;
+	singleton->scrollbarElement = 0;
 
     if (scrollbarUpdate) return;
 
-    if ( controls == (AddLine | SubLine | AddPage | SubPage | Slider | First | Last ) )
+    if ( controls == ( AddLine | SubLine | AddPage | SubPage |
+		       Slider | First | Last ) )
 	drawButton(p, sb->rect().x(), sb->rect().y(),
 		   sb->rect().width(), sb->rect().height(), g, TRUE,
 		   &g.brush(QColorGroup::Mid));
@@ -1059,13 +1128,13 @@ void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 		   ADD_LINE_ACTIVE, addB.x(), addB.y(),
 		   addB.width(), addB.height(),
 		   (ADD_LINE_ACTIVE ||
-		    d->scrollbarElement == AddLine) ? pg : g, TRUE );
+		    singleton->scrollbarElement == AddLine) ? pg : g, TRUE );
     if ( controls & SubLine )
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
 		   SUB_LINE_ACTIVE, subB.x(), subB.y(),
 		   subB.width(), subB.height(),
 		   (SUB_LINE_ACTIVE ||
-		    d->scrollbarElement == SubLine) ? pg : g, TRUE );
+		    singleton->scrollbarElement == SubLine) ? pg : g, TRUE );
 
     QBrush fill = g.brush( QColorGroup::Mid );
     if (sb->backgroundPixmap() ){
@@ -1085,10 +1154,10 @@ void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 	    drawBevelButton( p, sliderR.x(), sliderR.y(),
 			     sliderR.width(), sliderR.height(),
 			     (activeControl & Slider ||
-			      d->scrollbarElement == Slider) ? pg : g,
+			      singleton->scrollbarElement == Slider) ? pg : g,
 			     FALSE,
 			     (activeControl & Slider ||
-			      d->scrollbarElement == Slider) ?
+			      singleton->scrollbarElement == Slider) ?
 			     &pg.brush( QColorGroup::Button ) :
 			     &g.brush( QColorGroup::Button ) );
 	}
@@ -1102,7 +1171,8 @@ void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, bool selected)
+void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
+			      bool selected)
 {
     QColorGroup g = tabbar->colorGroup();
 
@@ -1122,7 +1192,8 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, boo
     }
 
     p->fillRect(fr.left() + 1, fr.top() + 1, fr.width() - 2, fr.height() - 2,
-		(selected) ? g.brush(QColorGroup::Button) : g.brush(QColorGroup::Mid));
+		(selected) ? g.brush(QColorGroup::Button) 
+		           : g.brush(QColorGroup::Mid));
 
     if (tabbar->shape() == QTabBar::RoundedAbove ||
 	tabbar->shape() == QTabBar::TriangularAbove) {
@@ -1140,7 +1211,8 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, boo
 	    p->drawLine(fr.left(), fr.bottom(), fr.left(), fr.bottom() + 1);
 
 	p->setPen(g.dark());
-	p->drawLine(fr.right() - 1, fr.top() + 2, fr.right() - 1, fr.bottom() - 1);
+	p->drawLine(fr.right() - 1, fr.top() + 2,
+		    fr.right() - 1, fr.bottom() - 1);
 
 	p->setPen(black);
 	p->drawLine(fr.right(), fr.top() + 1, fr.right(), fr.bottom() - 1);
@@ -1188,21 +1260,26 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, boo
   \reimp
 */
 void QMotifPlusStyle::drawSlider(QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &g, Orientation orientation,
-		    bool, bool)
+				 const QColorGroup &g, Orientation orientation,
+				 bool, bool)
 {
     QRect sliderR(x, y, w, h);
-    QColorGroup cg;
+    QColorGroup cg = g;
 
-    cg = ((d->hovering && sliderR.contains(d->mousePos)) || d->sliderActive) ?
-	 d->prelight_palette.active() : g;
+    if ( (singleton->hovering && sliderR.contains(singleton->mousePos)) ||
+	 singleton->sliderActive )
+	cg = singleton->prelight_palette.active();
 
     if (orientation == Horizontal) {
-	drawButton(p, x, y, w / 2, h, cg, FALSE, &cg.brush(QColorGroup::Button));
-	drawButton(p, x + (w / 2), y, w / 2, h, cg, FALSE, &cg.brush(QColorGroup::Button));
+	drawButton(p, x, y, w / 2, h, cg, FALSE,
+		   &cg.brush(QColorGroup::Button));
+	drawButton(p, x + (w / 2), y, w / 2, h, cg, FALSE,
+		   &cg.brush(QColorGroup::Button));
     } else {
-	drawButton(p, x, y, w, h / 2, cg, FALSE, &cg.brush(QColorGroup::Button));
-	drawButton(p, x, y + (h / 2), w, h / 2, cg, FALSE, &cg.brush(QColorGroup::Button));
+	drawButton(p, x, y, w, h / 2, cg, FALSE,
+		   &cg.brush(QColorGroup::Button));
+	drawButton(p, x, y + (h / 2), w, h / 2, cg, FALSE,
+		   &cg.brush(QColorGroup::Button));
     }
 }
 
@@ -1227,7 +1304,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     case QEvent::MouseButtonPress:
 	{
 	    if (object->inherits("QSlider"))
-		d->sliderActive = TRUE;
+		singleton->sliderActive = TRUE;
 
 	    break;
 	}
@@ -1235,7 +1312,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     case QEvent::MouseButtonRelease:
 	{
 	    if (object->inherits("QSlider")) {
-		d->sliderActive = FALSE;
+		singleton->sliderActive = FALSE;
 		((QWidget *) object)->repaint(FALSE);
 	    }
 
@@ -1245,25 +1322,25 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     case QEvent::Enter:
 	{
 	    if (object->isWidgetType()) {
-		d->hoverWidget = (QWidget *) object;
-		if (d->hoverWidget->isEnabled()) {
+		singleton->hoverWidget = (QWidget *) object;
+		if (singleton->hoverWidget->isEnabled()) {
 		    if (object->inherits("QScrollBar") ||
 			object->inherits("QSlider")) {
-			d->hoverWidget->repaint(FALSE);
+			singleton->hoverWidget->repaint(FALSE);
 		    } else if (object->inherits("QPushButton")) {
-			QPalette pal = d->hoverWidget->palette();
+			QPalette pal = singleton->hoverWidget->palette();
 			
-			if (d->hoverWidget->ownPalette())
-			    d->hoverPalette = new QPalette(pal);
+			if (singleton->hoverWidget->ownPalette())
+			    singleton->hoverPalette = new QPalette(pal);
 			
 			pal.setColor(QPalette::Active, QColorGroup::Button,
-				     d->prelight_palette.color(QPalette::Active,
+				     singleton->prelight_palette.color(QPalette::Active,
 							       QColorGroup::Button));
-			d->hoverWidget->setPalette(pal);
+			singleton->hoverWidget->setPalette(pal);
 		    } else
-			d->hoverWidget->setPalette(d->prelight_palette);
+			singleton->hoverWidget->setPalette(singleton->prelight_palette);
 		} else
-		    d->hoverWidget = 0;
+		    singleton->hoverWidget = 0;
 	    }
 
 	    break;
@@ -1271,16 +1348,16 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
     case QEvent::Leave:
 	{
-	    if (object == d->hoverWidget) {
-		if (d->hoverPalette) {
-		    d->hoverWidget->setPalette(*(d->hoverPalette));
-		    delete d->hoverPalette;
-		    d->hoverPalette = 0;
+	    if (object == singleton->hoverWidget) {
+		if (singleton->hoverPalette) {
+		    singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
+		    delete singleton->hoverPalette;
+		    singleton->hoverPalette = 0;
 		} else {
-		    d->hoverWidget->unsetPalette();
+		    singleton->hoverWidget->unsetPalette();
 		}	
 		
-		d->hoverWidget = 0;
+		singleton->hoverWidget = 0;
 	    }
 
 	    break;
@@ -1289,13 +1366,14 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     case QEvent::MouseMove:
 	{
 	    if (object->isWidgetType() &&
-		object == d->hoverWidget) {
+		object == singleton->hoverWidget) {
 		if (object->inherits("QScrollBar") ||
 		    object->inherits("QSlider")) {
-		    d->mousePos = ((QMouseEvent *) event)->pos();
-		    d->hovering = (((QMouseEvent *) event)->button() == NoButton);
-		    d->hoverWidget->repaint(FALSE);
-		    d->hovering = FALSE;
+		    singleton->mousePos = ((QMouseEvent *) event)->pos();
+		    singleton->hovering 
+			= (((QMouseEvent *) event)->button() == NoButton);
+		    singleton->hoverWidget->repaint(FALSE);
+		    singleton->hovering = FALSE;
 		}
 	    }
 

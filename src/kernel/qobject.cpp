@@ -131,6 +131,8 @@
 */
 
 
+static QObject * sigSender = 0;
+
 /* (no '!' on purpose since this is an internal class)
   \class QSenderObject qobject.h
   \brief Internal object used for sending signals.
@@ -146,11 +148,12 @@
   and slots.  Alternatively, you can use the QSignal class.
 */
 
-/*
-  \fn void QSenderObject::setSender (QObject* s)
+/* \internal */
 
-  Internal function, used in signal-slot connections.
-*/
+void QSenderObject::setSender( QObject *s )
+{
+    sigSender=s;
+}
 
 
 //
@@ -324,13 +327,6 @@ QObject::QObject( QObject *parent, const char *name )
     connections   = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
     eventFilters  = 0;				// no filters installed
-#if QT_VERSION >= 300
-#error "Remove sigSender - it's a massive waste."
-    // there was a comment here saying "change 3.0 incompatibly but
-    // don't give people any warning of the upcoming change" or words
-    // to that effect.
-#endif
-    sigSender     = 0;				// no sender yet
     isSignal   = FALSE;				// assume not a signal object
     isWidget   = FALSE;				// assume not a widget object
     pendTimer  = FALSE;				// no timers yet
@@ -345,6 +341,9 @@ QObject::QObject( QObject *parent, const char *name )
 	insert_tree( this );
 	isTree = TRUE;
     }
+
+    // null out sigSender... this may be wrong.
+    sigSender = 0;
 }
 
 
@@ -507,40 +506,6 @@ bool QObject::inherits( const char *clname ) const
     QMetaObject *meta = queryMetaObject();
     return meta? meta->inherits( clname ) : FALSE;
 }
-
-
-#if QT_VERSION >= 290
-#error "remove superClasses now."
-#endif
-#ifndef QT_NO_STRINGLIST
-/*! \obsolete
-
-  This function is misleadingly named, and cannot be implemented in a
-  way that fulfills its name.  someQWidget->superClasses() should have
-  returned QPaintDevice and QObject, obviously.  And it never can, so
-  let us kill the function. <strong>It will be removed in Qt-3.0</strong>
-
-  Oh, and the return type was wrong, too.  QStringList not QStrList.
-*/
-
-QStringList QObject::superClasses( bool includeThis ) const
-{
-    qObsolete( "QObject", "superClasses" ); // Arnt killed it.  RIP.
-
-    QStringList lst;
-
-    QMetaObject *meta = queryMetaObject();
-    if ( meta ) {
-	if ( !includeThis )
-	    meta = meta->superClass();
-	while ( meta ) {
-	    lst.append( QString::fromLatin1(meta->className()) );
-	    meta = meta->superClass();
-	}
-    }
-    return lst;
-}
-#endif
 
 /*!
   \fn const char *QObject::name() const
@@ -1302,10 +1267,7 @@ static void err_info_about_candidates( int code,
 #endif // CHECK_RANGE
 
 
-/*!
-  \fn const QObject *QObject::sender()
-
-  Returns a pointer to the object that sent the signal, if called in a
+/*! Returns a pointer to the object that sent the signal, if called in a
   slot before any function call or signal emission.  Returns an
   undefined value in all other cases.
 
@@ -1320,6 +1282,12 @@ static void err_info_about_candidates( int code,
   signals are connected to a single slot. The sender is undefined if
   the slot is called as a normal C++ function.
 */
+
+const QObject *QObject::sender()
+{
+    return sigSender;
+}
+
 
 /*!
   \fn void QObject::connectNotify( const char *signal )
@@ -1996,8 +1964,8 @@ void QObject::activate_signal( const char *signal )
     while ( (c=it.current()) ) {
 	++it;
 	object = c->object();
-	object->sigSender = this;
-#ifdef Q_FP_CCAST_BROKEN	
+	::sigSender = this;
+#ifdef Q_FP_CCAST_BROKEN
 	r = reinterpret_cast<RT>(*(c->member()));
 #else	
 	r = (RT)*(c->member());
@@ -2041,7 +2009,7 @@ void QObject::FNAME( const char *signal, TYPE param )			      \
     while ( (c=it.current()) ) {					      \
 	++it;								      \
 	object = c->object();						      \
-	object->sigSender = this;					      \
+	::sigSender = this;					      \
 	if ( c->numArgs() ) {						      \
 	    r1 = (RT1)*(c->member());					      \
 	    (object->*r1)( param );					      \
