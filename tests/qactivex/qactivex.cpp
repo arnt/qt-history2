@@ -782,6 +782,9 @@ QActiveXBase::~QActiveXBase()
 */
 void QActiveXBase::setControl( const QString &c )
 {
+    if ( c == ctrl )
+	return;
+
     clear();
     ctrl = c;
     if ( !!ctrl )
@@ -815,12 +818,14 @@ void QActiveXBase::clear()
 	CoUninitialize();
     }
 
-    ctrl = QString(0);
+    if ( !!ctrl ) {
+	ctrl = QString(0);
 
-    if ( hhook ) {
-	if ( !--hhookref ) {
-	    UnhookWindowsHookEx( hhook );
-	    hhook = 0;
+	if ( hhook ) {
+	    if ( !--hhookref ) {
+		UnhookWindowsHookEx( hhook );
+		hhook = 0;
+	    }
 	}
     }
 }
@@ -842,7 +847,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
 	}
 	reentrant = FALSE;
-    }    
+    }
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
