@@ -2214,8 +2214,8 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		}
 #endif
 #ifndef QT_NO_SLIDER
-	    } else if ( qt_cast<QSlider*>(o) ) {
-		static clearSlider = FALSE;
+	    } else if ( ::qt_cast<QSlider*>(o) ) {
+		static bool clearSlider = FALSE;
 		QSlider *slider = (QSlider*)o;
 		const QRect rect = slider->sliderRect();
 		const bool inSlider = rect.contains( d->hotSpot );
@@ -2224,9 +2224,9 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    slider->repaint( rect, FALSE );
 		}
 #endif
-	    } else if ( qt_cast<QComboBox*>(o) ) {
-		static clearCombo = FALSE;
-		const QRect rect = querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow );
+	    } else if ( ::qt_cast<QComboBox*>(o) ) {
+		static bool clearCombo = FALSE;
+	    	const QRect rect = querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow );
 		const bool inArrow = rect.contains( d->hotSpot );
 		if ( ( inArrow && !clearCombo ) || ( !inArrow && clearCombo ) ) {
 		    clearCombo = inArrow;
