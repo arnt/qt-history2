@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#127 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#128 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1204,7 +1204,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     char *file = new char[maxstrlen];
     file[0] = '\0';
     if ( !initialSelection.isEmpty() )
-	qstrncpy( file, initialSelection, 255 );
+	qstrncpy( file, QDir::convertSeparators(initialSelection), 255 );
 
     const char all_filter[] = "All Files\0*.*\0";
     const int all_len = sizeof(all_filter); // 15
@@ -1339,7 +1339,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     char *file = new char[maxstrlen];
     file[0] = '\0';
     if ( !initialSelection.isEmpty() )
-	qstrncpy( file, initialSelection, 255 );
+	qstrncpy( file, QDir::convertSeparators(initialSelection), 255 );
 
     const char all_filter[] = "All Files\0*.*\0";
     const int all_len = sizeof(all_filter); // 15
