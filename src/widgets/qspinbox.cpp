@@ -42,7 +42,7 @@ struct QSpinBoxPrivate
 };
 
 
-// BEGIN REVISED: warwick
+// REVISED: warwick
 /*!
   \class QSpinBox qspinbox.h
 
@@ -205,7 +205,7 @@ QSpinBox::~QSpinBox()
 
 
 /*!
-  Returns the current text of the spin box.
+  Returns the current text of the spin box, including any prefix() and suffix().
 
   \sa value()
 */
@@ -249,7 +249,7 @@ QString QSpinBox::cleanText() const
   value is equal to minVal().  Typically used for indicating that this
   choice has a special (default) meaning.
 
-  For example, if you use a spin box for letting the user choose
+  For example, if your spin box allows the user to choose the
   margin width in a print dialog, and your application is able to
   automatically choose a good margin width, you can set up the spin
   box like this:
@@ -300,7 +300,11 @@ QString QSpinBox::specialValueText() const
 /*!
   Sets the prefix to \a text.  The prefix is prepended to the start of
   the displayed value.  Typical use is to indicate the unit of
-  measurement to the user.
+  measurement to the user. eg.
+
+  \code
+    sb->setPrefix("$");
+  \endcode
 
   To turn off the prefix display, call this function with an empty
   string as parameter.  The default is no prefix.
@@ -318,7 +322,11 @@ void QSpinBox::setPrefix( const QString &text )
 /*!
   Sets the suffix to \a text.  The suffix is appended to the end of the
   displayed value.  Typical use is to indicate the unit of measurement
-  to the user.
+  to the user. eg.
+
+  \code
+    sb->setSuffix("cm");
+  \endcode
 
   To turn off the suffix display, call this function with an empty
   string as parameter.  The default is no suffix.
@@ -335,7 +343,7 @@ void QSpinBox::setSuffix( const QString &text )
 
 /*!
   Returns the currently set prefix, or a null string if no prefix is
-  currently set.
+  set.
 
   \sa setPrefix(), setSuffix(), suffix()
 */
@@ -351,7 +359,7 @@ QString QSpinBox::prefix() const
 
 /*!
   Returns the currently set suffix, or a null string if no suffix is
-  currently set.
+  set.
 
   \sa setSuffix(), setPrefix(), suffix()
 */
@@ -547,7 +555,7 @@ void QSpinBox::stepDown()
   the cause - by setValue(), by a keyboard accelerator, by mouse
   clicks etc.).
 
-  The string pointed to by \a valueText is the same string that is
+  The \a valueText parameter is the same string that is
   displayed in the edit field of the spin box.
 
   \sa value()
@@ -637,6 +645,9 @@ void QSpinBox::valueChange()
 
 void QSpinBox::rangeChange()
 {
+#if QT_VERSION >= 300
+#error "Use a virtual function."
+#endif
     if ( validate->inherits( "QIntValidator" ) )
 	((QIntValidator*)validate)->setRange( minValue(), maxValue() );
     updateDisplay();
@@ -816,7 +827,7 @@ int QSpinBox::mapTextToValue( bool* ok )
 
 
 /*!
-  Returns the full text of the current value, i.e.  including any
+  Returns the full text calculated from the current value, including any
   prefix, suffix or special-value text.
 */
 
@@ -864,14 +875,14 @@ void QSpinBox::styleChange( QStyle& )
 
 
 /*! \enum QSpinBox::ButtonSymbols
-  This enum type decides what the buttons in a spin box can show.  The
+  This enum type determines what the buttons in a spin box show.  The
   currently defined values are: <ul>
 
   <li> \c UpDownArrows - the buttons show little arrows, in the
   classic style.  This is the default.
 
   <li> \c PlusMinus - the buttons show '+' and '-' symbols.  This is
-  often considered to be more legible than \c UpDownArrows.
+  often considered to be more meaningful than \c UpDownArrows.
 
   </ul>
 */
