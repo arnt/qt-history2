@@ -23,6 +23,10 @@
 #include <qmetaobject.h>
 #include <qcache.h>
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <qt_windows.h>
 #include <ocidl.h>
 #include <ctype.h>
@@ -453,6 +457,11 @@ static int mo_cache_ref = 0;
 
 static QCache<QAxMetaObject> *metaObjectCache()
 {
+#ifdef QT_THREAD_SUPPORT
+    // protect initialization
+    QMutexLocker locker( qt_global_mutexpool ?
+	qt_global_mutexpool->get( &mo_cache ) : 0 );
+#endif
     if ( !mo_cache ) {
 	mo_cache = new QCache<QAxMetaObject>;
 	mo_cache->setMaxCost( 10 );
@@ -473,6 +482,10 @@ public:
 	  cachedMetaObject( FALSE ), initialized( FALSE ), tryCache( FALSE ),
 	  ptr( 0 ), disp( 0 ), propWritable( 0 ), metaobj( 0 )
     {
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool ?
+	    qt_global_mutexpool->get( &mo_cache ) : 0 );
+#endif
 	mo_cache_ref++;
     }
 
@@ -484,6 +497,10 @@ public:
 	delete propWritable;
 	propWritable = 0;
 
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool ?
+	    qt_global_mutexpool->get( &mo_cache ) : 0 );
+#endif
 	if ( !--mo_cache_ref && mo_cache ) {
 	    mo_cache->setAutoDelete( TRUE );
 	    delete mo_cache;
@@ -2585,6 +2602,12 @@ QMetaObject *QAxBase::metaObject() const
 	((QAxBase*)this)->initialize(&d->ptr);
 	d->initialized = TRUE;
     }
+
+#ifdef QT_THREAD_SUPPORT
+    // only one thread at a time can generate meta objects
+    QMutexLocker locker( qt_global_mutexpool ?
+	qt_global_mutexpool->get( &mo_cache ) : 0 );
+#endif
 
     // return the default meta object if not yet initialized
     if ( !d->ptr || !d->useMetaObject ) {
