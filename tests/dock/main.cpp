@@ -14,9 +14,9 @@ class MyMainWindow : public QMainWindow
 {
 public:
     MyMainWindow() : QMainWindow() {
-	QHBox *hbox = new QHBox( this );
+	QHBox *hbox = new QHBox( this, "1" );
 	new QDockArea( Qt::Vertical, hbox );
-	QVBox *vbox = new QVBox( hbox );
+	QVBox *vbox = new QVBox( hbox, "2" );
 	new QDockArea( Qt::Horizontal, vbox );
 	new QMultiLineEdit( vbox );
 	new QDockArea( Qt::Horizontal, vbox );
@@ -47,7 +47,7 @@ int main( int argc, char ** argv )
 
     dw = new QDockWidget( 0 );
     dw->setGeometry( 60, 60, 200, 70 );
-    
+
     QToolBar *b = new QToolBar( "", 0, dw );
     b->setShowHandle( FALSE );
     QToolButton *t = new QToolButton( b );
@@ -65,6 +65,6 @@ int main( int argc, char ** argv )
     dw->setCloseEnabled( FALSE );
     dw->show();
     dw->adjustSize();
-    
+
     return a.exec();
 }

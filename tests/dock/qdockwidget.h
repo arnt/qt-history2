@@ -24,31 +24,37 @@ public:
 
     Place place() const { return curPlace; }
 
-    virtual void setResizeEnabled( bool b );
-    bool isResizeEnabled() const;
+    QDockArea *area() const;
 
     virtual void setCloseEnabled( bool b );
     bool isCloseEnabled() const;
 
-    QDockArea *area() const;
-
-    QSize sizeHint() const;
-    QSize minimumSize() const;
-    QSize minimumSizeHint() const;
-
-    void setSizeHint( const QSize &s );
-    void unsetSizeHint();
+    virtual void setResizeEnabled( bool b );
+    bool isResizeEnabled() const;
 
     void setHorizontalStretchable( bool b );
     void setVerticalStretchable( bool b );
     bool isHorizontalStretchable() const;
     bool isVerticalStretchable() const;
+    bool isStretchable() const;
+    
+    void setOffset( int o );
+    int offset() const;
+    
+    void setFixedExtendWidth( int w );
+    void setFixedExtendHeight( int h );
+    QSize fixedExtend() const;
+    bool hasFixedExtend() const;
+    
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize minimumSizeHint() const;
 
     Qt::Orientation orientation() const;
 
 signals:
     void orientationChanged( Orientation o );
-    
+
 protected:
     void resizeEvent( QResizeEvent *e );
 
@@ -60,7 +66,6 @@ private:
     void startRectDraw( const QPoint &so );
     void endRectDraw();
     void updatePosition( const QPoint &globalPos  );
-    void updateSizePolicy();
 
 private:
     QDockWidgetHandle *handle;
@@ -76,10 +81,10 @@ private:
     QRect startRect;
     QPoint startOffset;
     int addY, addX;
-    bool sizeHintSet;
-    QSize sh;
     bool stretchable[ 2 ];
-
+    int offs;
+    QSize fExtend;
+    
 };
 
 inline QDockArea *QDockWidget::area() const

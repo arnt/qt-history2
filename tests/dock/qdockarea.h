@@ -3,17 +3,11 @@
 
 #include <qwidget.h>
 #include <qlist.h>
+#include "qdockwidget.h"
 
-class QDockWidget;
 class QSplitter;
 class QBoxLayout;
-
-struct QDockWidgetData
-{
-    QDockWidget *dockWidget;
-    int section;
-    int offset;
-};
+class QToolLayout;
 
 class QDockArea : public QWidget
 {
@@ -21,7 +15,8 @@ class QDockArea : public QWidget
 
 public:
     QDockArea( Orientation o, QWidget *parent = 0, const char *name = 0 );
-
+    ~QDockArea();
+    
     void moveDockWidget( QDockWidget *w, const QPoint &globalPos, const QRect &rect, bool swap );
     void removeDockWidget( QDockWidget *w, bool makeFloating, bool swap );
 
@@ -31,15 +26,13 @@ public:
 
 private:
     int findDockWidget( QDockWidget *w );
-    void setupLayout();
+    void updateLayout();
 
 private:
     Orientation orient;
-    QList<QDockWidgetData> dockWidgets;
-    QList<QWidget> insertedSplitters;
-    QBoxLayout *layout;
-    int sections;
-
+    QList<QDockWidget> *dockWidgets;
+    QToolLayout *layout;
+    
 };
 
 #endif

@@ -1,5 +1,4 @@
 #include "qdockarea.h"
-#include "qdockwidget.h"
 
 #include <qsplitter.h>
 #include <qlayout.h>
@@ -7,195 +6,325 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qwidgetlist.h>
+#include <qmap.h>
 
 extern bool toolbarHackFor30Development;
 
-class QDockAreaHandle : public QWidget
+struct DockData 
 {
-public:
-    QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char* name=0 );
-    void setOrientation( Qt::Orientation o );
-    Qt::Orientation orientation() const { return orient; }
-
-    QSize sizeHint() const;
-
-    void append( QWidget *w ) { widgetList.append( w ); }
-
-protected:
-    void paintEvent( QPaintEvent * );
-    void mouseMoveEvent( QMouseEvent * );
-    void mousePressEvent( QMouseEvent * );
-    void mouseReleaseEvent( QMouseEvent * );
-
-private:
-    void startLineDraw();
-    void endLineDraw();
-    void drawLine( const QPoint &globalPos );
-
-private:
-    Qt::Orientation orient;
-    QDockArea *s;
-    QWidgetList widgetList;
-    bool mousePressed;
-    QPainter *unclippedPainter;
-    QPoint lastPos, firstPos;
-
+    DockData() : w( 0 ), rect() {}
+    DockData( QDockWidget *dw, const QRect &r ) : w( dw ), rect( r ) {}
+    QDockWidget *w;
+    QRect rect;
 };
 
-QDockAreaHandle::QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char * name )
-    : QWidget( parent, name ), widgetList( wl ), mousePressed( FALSE ), unclippedPainter( 0 )
+class QToolLayout : public QLayout
 {
-    s = parent;
-    setOrientation( o );
+    Q_OBJECT
+
+public:
+    QToolLayout( QWidget* parent, Qt::Orientation o, QList<QDockWidget> *wl, int space = -1, int margin = -1, const char *name = 0 )
+	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ) { init(); }
+    ~QToolLayout() {}
+
+    void addItem( QLayoutItem * ) {}
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+    int widthForHeight( int ) const;
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QLayoutIterator iterator();
+    QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
+    void invalidate();
+    Qt::Orientation orientation() const { return orient; }
+
+protected:
+    void setGeometry( const QRect& );
+
+private:
+    void init();
+    int layoutItems( const QRect&, bool testonly = FALSE );
+    Qt::Orientation orient;
+    int cached_width, cached_height;
+    int cached_hfw, cached_wfh;
+    QList<QDockWidget> *dockWidgets;
+    
+};
+
+
+QSize QToolLayout::sizeHint() const
+{
+    if ( !dockWidgets || !dockWidgets->first() )
+	return QSize( 0,0 );
+
+    int w = 0;
+    int h = 0;
+    QListIterator<QDockWidget> it( *dockWidgets );
+    QDockWidget *dw = 0;
+    it.toFirst();
+    int y = -1;
+    int x = -1;
+    int ph = 0;
+    int pw = 0;
+    while ( ( dw = it.current() ) != 0 ) {
+	int plush = 0, plusw = 0;
+	++it;
+	if ( hasHeightForWidth() ) {
+	    if ( y != dw->y() )
+		plush = ph;
+	    y = dw->y();
+	    ph = dw->height();
+	} else {
+	    if ( x != dw->x() )
+		plusw = pw;
+	    x = dw->x();
+	    pw = dw->width();
+	}
+	h = QMAX( h, dw->height() + plush );
+	w = QMAX( w, dw->width() + plusw );
+    }
+
+    if ( hasHeightForWidth() )
+	return QSize( 0, h );
+    return QSize( w, 0 );
 }
 
-QSize QDockAreaHandle::sizeHint() const
+bool QToolLayout::hasHeightForWidth() const
 {
-    int sw = style().splitterWidth();
-    return QSize(sw,sw).expandedTo( QApplication::globalStrut() );
+    return orient == Horizontal;
 }
 
-void QDockAreaHandle::setOrientation( Qt::Orientation o )
+void QToolLayout::init()
 {
-    orient = o;
-    if ( o == QDockArea::Horizontal ) {
-	setCursor( splitVCursor );
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    cached_width = 0;
+    cached_height = 0;
+    cached_hfw = -1;
+    cached_wfh = -1;
+}
+
+QSize QToolLayout::minimumSize() const
+{
+    if ( !dockWidgets || !dockWidgets->first() )
+	return QSize( 0, 0 );
+    QSize s;
+
+    QListIterator<QDockWidget> it( *dockWidgets );
+    QDockWidget *dw = 0;
+    while ( ( dw = it.current() ) != 0 ) {
+ 	++it;
+ 	s = s.expandedTo( dw->minimumSizeHint() )
+ 	    .expandedTo( dw->minimumSize());
+    }
+
+    if ( s.width() < 0 )
+	s.setWidth( 0 );
+    if ( s.height() < 0 )
+	s.setHeight( 0 );
+
+    return s;
+}
+
+void QToolLayout::invalidate()
+{
+    cached_width = 0;
+    cached_height = 0;
+}
+
+static int start_pos( const QRect &r, Qt::Orientation o )
+{
+    if ( o == Qt::Horizontal ) {
+	if ( !qApp->reverseLayout() )
+	    return r.x();
+	else
+	    return r.x() + r.width();
     } else {
-	setCursor( splitHCursor );
-	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
+	return r.y();
     }
 }
 
-void QDockAreaHandle::mousePressEvent( QMouseEvent *e )
+static void add_size( int s, int &pos, Qt::Orientation o )
 {
-    mousePressed = TRUE;
-    startLineDraw();
-    lastPos = firstPos = e->globalPos();
-    drawLine( e->globalPos() );
+    if ( o == Qt::Horizontal ) {
+	if ( !qApp->reverseLayout() )
+	    pos += s;
+	else
+	    pos -= s;
+    } else {
+	pos += s;
+    }
 }
 
-void QDockAreaHandle::mouseMoveEvent( QMouseEvent *e )
+static int space_left( const QRect &r, int pos, Qt::Orientation o )
 {
-    if ( !mousePressed )
+    if ( o == Qt::Horizontal ) {
+	if ( !qApp->reverseLayout() )
+	    return ( r.x() + r.width() ) - pos;
+	else
+	    return pos - r.x();
+    } else {
+	return ( r.y() + r.height() ) - pos;
+    }
+}
+
+static int dock_extend( QDockWidget *w, Qt::Orientation o )
+{
+    if ( o == Qt::Horizontal ) {
+	int wid;
+	if ( ( wid = w->fixedExtend().width() ) != -1 )
+	    return wid;
+	return w->sizeHint().width();
+    } else {
+	int hei;
+	if ( ( hei = w->fixedExtend().height() ) != -1 )
+	    return hei;
+	return w->sizeHint().height();
+    }
+}
+
+static int dock_strut( QDockWidget *w, Qt::Orientation o )
+{
+    if ( o != Qt::Horizontal ) {
+	int wid;
+	if ( ( wid = w->fixedExtend().width() ) != -1 )
+	    return wid;
+	return w->sizeHint().width();
+    } else {
+	int hei;
+	if ( ( hei = w->fixedExtend().height() ) != -1 )
+	    return hei;
+	return w->sizeHint().height();
+    }
+}
+
+static void set_geometry( QDockWidget *w, int pos, int sectionpos, int extend, int strut, Qt::Orientation o )
+{
+    if ( o == Qt::Horizontal )
+	w->setGeometry( pos, sectionpos, extend, strut );
+    else
+	w->setGeometry( sectionpos, pos, strut, extend );
+}
+
+static int size_extend( const QSize &s, Qt::Orientation o )
+{
+    if ( o == Qt::Horizontal )
+	return s.width();
+    return s.height();
+}
+
+static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend )
+{
+    QDockWidget *last = 0;
+    QRect lastRect;
+    for ( QValueList<DockData>::ConstIterator it = lastLine.begin(); it != lastLine.end(); ++it ) {
+	if ( !last ) {
+	    last = (*it).w;
+	    lastRect = (*it).rect;
+	    continue;
+	}
+	if ( !last->isStretchable() )
+	    set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
+	else
+	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(), linestrut, o );
+
+	last = (*it).w;
+	lastRect = (*it).rect;
+    }
+    if ( !last )
 	return;
-    drawLine( lastPos );
-    lastPos = e->globalPos();
-    drawLine( e->globalPos() );
+    if ( !last->isStretchable() )
+	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
+    else
+	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(), linestrut, o );
 }
 
-void QDockAreaHandle::mouseReleaseEvent( QMouseEvent *e )
+int QToolLayout::layoutItems( const QRect &r, bool testonly )
 {
-    if ( mousePressed ) {
-	drawLine( lastPos );
-	endLineDraw();
-	if ( orientation() == Horizontal ) {
-	    int dy = e->globalPos().y() - firstPos.y();
-	    if ( s->orientation() == orientation() ) {
-		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
-		    ( (QDockWidget*)w )->unsetSizeHint();
-		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width(), w->height() + dy ) );
-		}
-	    } else {
-		int dy = e->globalPos().y() - firstPos.y();
-		QDockWidget *dw = (QDockWidget*)widgetList.first();
-		dw->unsetSizeHint();
-		dw->setSizeHint( QSize( dw->width(), dw->height() + dy ) );
-		dw = (QDockWidget*)widgetList.next();
-		if ( dw )
-		    dw->setSizeHint( QSize( dw->width(), dw->height() - dy ) );
-	    }
+    if ( !dockWidgets || !dockWidgets->first() )
+	return 0;
+    QListIterator<QDockWidget> it( *dockWidgets );
+    QDockWidget *dw = 0;
+    int start = start_pos( r, orientation() ) + 1;
+    int pos = start;
+    int sectionpos = 0;
+    int linestrut = 0;
+    QValueList<DockData> lastLine;
+    while ( ( dw = it.current() ) != 0 ) {
+ 	++it;
+	if ( lastLine.isEmpty() || 
+	     space_left( r, pos, orientation() ) >= dock_extend( dw, orientation() ) ) {
+	    lastLine.append( DockData( dw, QRect( QMAX( pos, dw->offset() ), sectionpos, 
+						  dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
+	    linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
+	    add_size( dock_extend( dw, orientation() ), pos, orientation() );
 	} else {
-	    int dx = e->globalPos().x() - firstPos.x();
-	    if ( s->orientation() == orientation() ) {
-		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
-		    ( (QDockWidget*)w )->unsetSizeHint();
-		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width() + dx, w->height() ) );
-		}
-	    } else {
-		int dx = e->globalPos().x() - firstPos.x();
-		QDockWidget *dw = (QDockWidget*)widgetList.first();
-		dw->unsetSizeHint();
-		dw->setSizeHint( QSize( dw->width() + dx, dw->height() ) );
-		dw = (QDockWidget*)widgetList.next();
-		if ( dw )
-		    dw->setSizeHint( QSize( dw->width() - dx, dw->height() ) );
-	    }
+	    finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+	    lastLine.clear();
+	    sectionpos += linestrut;
+	    linestrut = 0;
+	    pos = start;
+	    --it;
 	}
     }
-
-    s->QWidget::layout()->invalidate();
-    s->QWidget::layout()->activate();
-
-    mousePressed = FALSE;
+    finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+    return sectionpos + linestrut;
 }
 
-void QDockAreaHandle::paintEvent( QPaintEvent * )
+int QToolLayout::heightForWidth( int w ) const
 {
-    QPainter p( this );
-    style().drawSplitter( &p, 0, 0, width(), height(), colorGroup(), orientation() == Horizontal ? Vertical : Horizontal );
+    if ( cached_width != w ) {
+	QToolLayout * mthis = (QToolLayout*)this;
+	mthis->cached_width = w;
+	int h = mthis->layoutItems( QRect( 0, 0, w, 0 ), TRUE );
+	mthis->cached_hfw = h;
+	return h;
+    }
+    return cached_hfw;
 }
 
-void QDockAreaHandle::startLineDraw()
+int QToolLayout::widthForHeight( int h ) const
 {
-    if ( unclippedPainter )
-	endLineDraw();
-    bool unclipped = QApplication::desktop()->testWFlags( WPaintUnclipped );
-    ( (QDockAreaHandle*)QApplication::desktop() )->setWFlags( WPaintUnclipped );
-    unclippedPainter = new QPainter;
-    unclippedPainter->begin( QApplication::desktop() );
-    if ( !unclipped )
-	( (QDockAreaHandle*)QApplication::desktop() )->clearWFlags( WPaintUnclipped );
-    unclippedPainter->setPen( QPen( gray, orientation() == Horizontal ? height() : width() ) );
-    unclippedPainter->setRasterOp( XorROP );
-}
-
-void QDockAreaHandle::endLineDraw()
-{
-    if ( !unclippedPainter )
-	return;
-    delete unclippedPainter;
-    unclippedPainter = 0;
-}
-
-void QDockAreaHandle::drawLine( const QPoint &globalPos )
-{
-    QPoint start = mapToGlobal( QPoint( 0, 0 ) );
-    if ( orientation() == Horizontal )
-	unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
-    else
-	unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
+    if ( cached_height != h ) {
+	QToolLayout * mthis = (QToolLayout*)this;
+	mthis->cached_height = h;
+	int w = mthis->layoutItems( QRect( 0, 0, 0, h ), TRUE );
+	mthis->cached_wfh = w;
+	return w;
+    }
+    return cached_wfh;
 }
 
 
 
 
 QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
-    : QWidget( parent, name ), orient( o ), layout( 0 ), sections( 0 )
+    : QWidget( parent, name ), orient( o ), layout( 0 )
 {
-    insertedSplitters.setAutoDelete( TRUE );
-    dockWidgets.setAutoDelete( TRUE );
+    dockWidgets = new QList<QDockWidget>;
+    dockWidgets->setAutoDelete( TRUE );
     setMinimumSize( 3, 3 );
+    layout = new QToolLayout( this, o, dockWidgets, -1, -1, "toollayout" ); 
+}
+
+QDockArea::~QDockArea()
+{
+    delete dockWidgets;
 }
 
 void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )
 {
-    QDockWidgetData *dockData = 0;
+    QDockWidget *dockWidget = 0;
     int i = findDockWidget( w );
     if ( i != -1 ) {
-	dockData = dockWidgets.at( i );
+	dockWidget = dockWidgets->at( i );
     } else {
-	dockData = new QDockWidgetData;
-	dockData->section = 0;
-	dockData->dockWidget = w;
-	dockData->dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
+	dockWidget = w;
+	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
 	if ( swap )
-	    dockData->dockWidget->resize( dockData->dockWidget->height(), dockData->dockWidget->width() );
-	dockWidgets.append( dockData );
+	    dockWidget->resize( dockWidget->height(), dockWidget->width() );
+	dockWidgets->append( dockWidget );
 	w->installEventFilter( this );
     }
-    sections = 1;
-    setupLayout();
+    updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
 }
@@ -203,102 +332,29 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, b
 void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
 {
     w->removeEventFilter( this );
-    QDockWidgetData *dockData = 0;
+    QDockWidget *dockWidget = 0;
     int i = findDockWidget( w );
     if ( i == -1 )
 	return;
-    dockData = dockWidgets.at( i );
+    dockWidget = dockWidgets->at( i );
     if ( makeFloating )
-	dockData->dockWidget->reparent( 0, WStyle_Customize | WStyle_NoBorderEx, QPoint( 0, 0 ), FALSE );
+	dockWidget->reparent( 0, WStyle_Customize | WStyle_NoBorderEx, QPoint( 0, 0 ), FALSE );
     if ( swap )
-	dockData->dockWidget->resize( dockData->dockWidget->height(), dockData->dockWidget->width() );
-    dockWidgets.remove( i );
-    sections = 1;
-    setupLayout();
-    if ( dockWidgets.isEmpty() )
+	dockWidget->resize( dockWidget->height(), dockWidget->width() );
+    dockWidgets->remove( i );
+    updateLayout();
+    if ( dockWidgets->isEmpty() )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 }
 
 int QDockArea::findDockWidget( QDockWidget *w )
 {
-    int i = 0;
-    for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
-	if ( d->dockWidget == w )
-	    return i;
-	++i;
-    }
-    return -1;
+    return dockWidgets->findRef( w );
 }
 
-void QDockArea::setupLayout()
+void QDockArea::updateLayout()
 {
-    delete layout;
-    layout = 0;
-    insertedSplitters.clear();
-
-    if ( !sections )
-	return;
-
-    if ( orientation() == Horizontal )
-	layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
-    else
-	layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
-
-    QVector<QBoxLayout> layouts;
-    layouts.resize( sections );
-    QVector<QBoxLayout> splitters;
-    splitters.resize( sections );
-    QArray<bool> resizeable( sections );
-    QVector<QWidgetList> wlv;
-    wlv.setAutoDelete( TRUE );
-    wlv.resize( sections );
-    int i = 0;
-    for ( i = 0; i < sections; ++i ) {
-	if ( orientation() == Horizontal ) {
-	    layouts.insert( i, new QHBoxLayout( layout ) );
-	    splitters.insert( i, new QHBoxLayout( layout ) );
-	} else {
-	    layouts.insert( i, new QVBoxLayout( layout ) );
-	    splitters.insert( i, new QVBoxLayout( layout ) );
-	}
-	resizeable[ i ] = FALSE;
-	wlv.insert( i, new QWidgetList );
-    }
-
-    QDockAreaHandle *lastHandle = 0;
-
-    for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
-	resizeable[ d->section ] = resizeable[ d->section ] || d->dockWidget->isResizeEnabled();
-	if ( d->dockWidget->isResizeEnabled() ) {
-	    if ( lastHandle )
-		lastHandle->append( d->dockWidget );
-	    layouts[ d->section ]->addWidget( d->dockWidget );
-	    QWidgetList wl;
-	    wl.append( d->dockWidget );
-	    lastHandle = new QDockAreaHandle( orientation() == Horizontal ? Vertical : Horizontal, this, wl );
-	    QWidget *w = lastHandle;
-	    w->show();
-	    insertedSplitters.append( w );
-	    layouts[ d->section ]->addWidget( w );
-	    wlv[ d->section ]->append( d->dockWidget );
-	} else {
-	    lastHandle = 0;
-	    layouts[ d->section ]->addWidget( d->dockWidget, 0, AlignLeft | AlignTop );
-	}
-    }
-
-    if ( lastHandle )
-	lastHandle->hide();
-
-    for ( i = 0; i < sections; ++i ) {
-	if ( resizeable[ i ] ) {
-	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
-	    splitters[ i ]->addWidget( w );
-	    w->show();
-	    insertedSplitters.append( w );
-	}
-    }
-
+    layout->invalidate();
     layout->activate();
 }
 
@@ -315,3 +371,5 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
     }
     return FALSE;
 }
+
+#include "qdockarea.moc"
