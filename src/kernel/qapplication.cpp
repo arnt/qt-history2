@@ -603,7 +603,10 @@ void QApplication::construct( int &argc, char **argv, Type type )
 QApplication::QApplication( Display* dpy )
 {
     static int aargc = 1;
-    static char *aargv[] = { "unknown", 0 };
+    // ### a string literal is a cont char*
+    // ### using it as a char* is wrong and could lead to segfaults
+    // ### if aargv is modified someday
+    static char *aargv[] = { (char*)"unknown", 0 };
 
     qt_is_gui_used = TRUE;
     init_precmdline();
