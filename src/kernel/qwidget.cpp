@@ -496,7 +496,9 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     This enum type is used to specify various window-system properties
     for the widget. They are fairly unusual but necessary in a few
     cases. Some of these flags depend on whether the underlying window
-    manager supports them.
+    manager supports them. (See the \link toplevel-example.html
+    toplevel example\endlink for an explanation and example of their
+    use.)
 
     The main types are
 
