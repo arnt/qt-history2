@@ -1608,7 +1608,9 @@ elif [ "x$JPEG" = "xyes" ]; then
 elif [ "x$JPEG" = "xsystem" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 fi
-if [ "x$MNG" = "xyes" ]; then
+if [ "x$MNG" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
+elif [ "x$MNG" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG mng"
 elif [ "x$MNG" = "xsystem" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
