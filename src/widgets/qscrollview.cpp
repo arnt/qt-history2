@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#66 $
 **
 ** Implementation of QScrollView class
 **
@@ -203,9 +203,9 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     d->viewport.installEventFilter( this );
 }
 
-/*!
-Destructs the QScrollView.  Any children added with addChild() will be destructed.
-*/
+/*! Destructs the QScrollView.  Any children added with addChild()
+  will be destructed. */
+
 QScrollView::~QScrollView()
 {
     // Be careful not to get all those useless events...
@@ -648,7 +648,7 @@ int QScrollView::childY(QWidget* child)
 }
 
 /*!
-  \obsoltete
+  \obsolete
 
   Returns TRUE if \a child is visible.  This is equivalent
   to child->isVisible().
@@ -1039,7 +1039,7 @@ void QScrollView::resizeContents( int w, int h )
   Note that the final coordinates you give to QPainter methods must be
   within the range supported by the underlying window systems - about
   +/- 32000 at most, often much less - +/- 4000 or so is all you should
-  rely expect.
+  really expect.
 
   For example:
   \code
