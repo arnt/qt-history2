@@ -23,7 +23,7 @@
 
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
-      m_defaultMargin(0), m_defaultSpacing(0),
+      m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
       refreshOut(&m_delayedInitialization, IO_WriteOnly),
       actionOut(&m_delayedActionInitialization, IO_WriteOnly)
 {
@@ -93,14 +93,14 @@ void WriteInitialization::accept(DomUI *node)
     if (m_delayedActionInitialization.size())
         output << "\n" << m_delayedActionInitialization;
 
-    output << option.indent << "refreshUi(" << varName << ");\n";
+    output << option.indent << "retranslateUi(" << varName << ");\n";
 
     if (option.autoConnection)
         output << "\n" << option.indent << "QMetaObject::connectSlotsByName(" << varName << ");\n";
 
     output << "}\n\n";
 
-    output << "inline void " << className << "::refreshUi(" << widgetClassName << " *" << varName << ")\n"
+    output << "inline void " << className << "::retranslateUi(" << widgetClassName << " *" << varName << ")\n"
            << "{\n"
            << m_delayedInitialization
            << "}\n\n";
@@ -237,15 +237,6 @@ void WriteInitialization::accept(DomLayout *node)
 
     QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());
 
-    int margin = m_defaultMargin;
-    int spacing = m_defaultSpacing;
-
-    if (properties.contains("margin"))
-        margin = properties.value("margin")->elementNumber();
-
-    if (properties.contains("spacing"))
-        spacing = properties.value("spacing")->elementNumber();
-
     bool isGroupBox = false;
     bool isMainWindow = false;
     QString centerWidget;
@@ -260,9 +251,24 @@ void WriteInitialization::accept(DomLayout *node)
             isGroupBox = true;
 
             // special case for group box
+            
+            int margin = m_defaultMargin;
+            int spacing = m_defaultSpacing;
+        
+            if (properties.contains("margin"))
+                margin = properties.value("margin")->elementNumber();
+        
+            if (properties.contains("spacing"))
+                spacing = properties.value("spacing")->elementNumber();
+
             output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
-            output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
-            output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
+            
+            if (spacing != INT_MIN)
+                output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
+                
+            if (margin != INT_MIN)
+                output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
+                
         } else if (uic->customWidgetsInfo()->extends(parentWidget, "QMainWindow") ||
                 uic->customWidgetsInfo()->extends(parentWidget, "Q3MainWindow")) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
@@ -295,13 +301,12 @@ void WriteInitialization::accept(DomLayout *node)
     if (isGroupBox)
         output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
 
-/*
-    if (!properties.contains("margin"))
-        output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
-*/
-
-    if (!properties.contains("spacing"))
+    if (!m_layoutChain.top() && !properties.contains("margin") && m_defaultMargin != INT_MIN)
+            output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
+    
+    if (!properties.contains("spacing") && m_defaultSpacing != INT_MIN)
         output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
+    
 
     writeProperties(varName, className, node->elementProperty());
 
@@ -744,14 +749,15 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
 void WriteInitialization::accept(DomLayoutDefault *node)
 {
-    m_defaultMargin = BOXLAYOUT_DEFAULT_MARGIN;
-    m_defaultSpacing = BOXLAYOUT_DEFAULT_SPACING;
+    m_defaultMargin = INT_MIN;
+    m_defaultSpacing = INT_MIN;
 
     if (!node)
         return;
 
     if (node->hasAttributeMargin())
         m_defaultMargin = node->attributeMargin();
+        
     if (node->hasAttributeSpacing())
         m_defaultSpacing = node->attributeSpacing();
 }

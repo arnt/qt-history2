@@ -383,16 +383,38 @@ QString Ui3Reader::fixClassName(const QString &className) const
     else 
 #endif
 
-    if (className == QLatin1String("QButtonGroup"))
-        return QLatin1String("Q3ButtonGroup");
-    else if (className == QLatin1String("QTextEdit"))
-        return QLatin1String("Q3TextEdit");
-    else if (className == QLatin1String("QListView"))
-        return QLatin1String("Q3ListView");
-    else if (className == QLatin1String("QDateEdit"))
-        return QLatin1String("Q3DateEdit");
+    if (className == QLatin1String("QListViewItem"))
+        return QLatin1String("Q3ListViewItem");
     else if (className == QLatin1String("QTimeEdit"))
         return QLatin1String("Q3TimeEdit");
+    else if (className == QLatin1String("QFileIconProvider"))
+        return QLatin1String("Q3FileIconProvider");
+    else if (className == QLatin1String("QListViewItemIterator"))
+        return QLatin1String("Q3ListViewItemIterator");
+    else if (className == QLatin1String("QToolBar"))
+        return QLatin1String("Q3ToolBar");
+    else if (className == QLatin1String("QButtonGroup"))
+        return QLatin1String("Q3ButtonGroup");
+    else if (className == QLatin1String("QFilePreview"))
+        return QLatin1String("Q3FilePreview");
+    else if (className == QLatin1String("QMainWindow"))
+        return QLatin1String("Q3MainWindow");
+    else if (className == QLatin1String("QDockArea"))
+        return QLatin1String("Q3DockArea");
+    else if (className == QLatin1String("QGroupBox"))
+        return QLatin1String("Q3GroupBox");
+    else if (className == QLatin1String("QDateEdit"))
+        return QLatin1String("Q3DateEdit");
+    else if (className == QLatin1String("QDateTimeEdit"))
+        return QLatin1String("Q3DateTimeEdit");
+    else if (className == QLatin1String("QHeader"))
+        return QLatin1String("Q3Header");
+    else if (className == QLatin1String("QTextEdit"))
+        return QLatin1String("Q3TextEdit");
+    else if (className == QLatin1String("QDockWindow"))
+        return QLatin1String("Q3DockWindow");
+    else if (className == QLatin1String("QListView"))
+        return QLatin1String("Q3ListView");
 
     return className;
 }
@@ -842,4 +864,27 @@ void Ui3Reader::createAttributes(const QDomElement &n, QList<DomProperty*> *prop
             properties->append(prop);
         }
     }
+}
+
+QString Ui3Reader::fixDeclaration(const QString &d) const
+{
+    QString text;
+    
+    int i = 0;
+    while (i < d.size()) {
+        QChar ch = d.at(i);
+        
+        if (ch.isLetter() || ch == QLatin1Char('_')) {
+            int start = i;
+            while (i < d.size() && (d.at(i).isLetterOrNumber() || d.at(i) == QLatin1Char('_')))
+                ++i;
+                
+            text += fixClassName(d.mid(start, i-start));
+        } else {
+            text += ch;
+            ++i;
+        }
+    }
+    
+    return text;
 }

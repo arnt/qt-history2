@@ -50,7 +50,7 @@ void WriteDeclaration::accept(DomUI *node)
 
     output << "\n"
            << option.indent << "inline void setupUi(" << widgetClassName << " *" << varName << ");\n"
-           << option.indent << "inline void refreshUi(" << widgetClassName << " *" << varName << ");\n";
+           << option.indent << "inline void retranslateUi(" << widgetClassName << " *" << varName << ");\n";
 
     if (node->elementImages()) {
         output << "\n"

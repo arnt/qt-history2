@@ -89,6 +89,7 @@ private:
     QString fixActionProperties(QList<DomProperty*> &properties, bool isActionGroup = false);
 
     QString fixClassName(const QString &className) const;
+    QString fixDeclaration(const QString &declaration) const;
 
     QTextStream &out;
     QTextOStream trout;

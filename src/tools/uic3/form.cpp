@@ -470,6 +470,8 @@ void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &
         type.replace(">>", "> >");
         if (!signature.contains("operator"))
             signature.replace(">>", "> >");
+            
+        signature = fixDeclaration(signature);
         out << "    " << specifier << type << " " << signature << pure << ";" << endl;
     }
     out << endl;
@@ -711,9 +713,9 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                     else if (n2.tagName() == QLatin1String("receiver"))
                         receiver = n2.firstChild().toText().data();
                     else if (n2.tagName() == QLatin1String("signal"))
-                        signal = n2.firstChild().toText().data();
+                        signal = fixDeclaration(n2.firstChild().toText().data());
                     else if (n2.tagName() == QLatin1String("slot"))
-                        slot = n2.firstChild().toText().data();
+                        slot = fixDeclaration(n2.firstChild().toText().data());
                 }
                 if (sender.isEmpty() ||
                      receiver.isEmpty() ||
@@ -787,7 +789,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     out << " */" << endl;
     out << "void " << nameOfClass << "::languageChange()" << endl;
     out << "{" << endl;
-    out << "    refreshUi(this);" << endl;
+    out << "    retranslateUi(this);" << endl;
     out << "}" << endl;
     out << endl;
 
@@ -797,11 +799,11 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         QStringList::Iterator it2 = extraFunctTyp.begin();
         QStringList::Iterator it3 = extraFunctSpecifier.begin();
         while (it != extraFuncts.end()) {
-            QString type = *it2;
+            QString type = fixDeclaration(*it2);
             if (type.isEmpty())
                 type = QLatin1String("void");
             type = type.simplified();
-            QString fname = Parser::cleanArgs(*it);
+            QString fname = fixDeclaration(Parser::cleanArgs(*it));
             if (!(*it3).startsWith("pure")) { // "pure virtual" or "pureVirtual"
                 out << type << " " << nameOfClass << "::" << fname << endl;
                 out << "{" << endl;

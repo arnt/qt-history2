@@ -159,12 +159,12 @@ void Ui3Reader::writeFunctionsSubDecl( const QStringList &fuLst, const QStringLi
     QStringList::ConstIterator it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
           it != fuLst.end(); ++it, ++it2, ++it3 ) {
-        QString type = *it2;
+        QString type = fixDeclaration(*it2);
         if ( type.isEmpty() )
             type = QLatin1String("void");
         if ( *it3 == QLatin1String("non virtual") )
             continue;
-        out << "    " << type << " " << (*it) << ";" << endl;
+        out << "    " << type << " " << fixDeclaration(*it) << ";" << endl;
     }
     out << endl;
 }
@@ -312,7 +312,7 @@ void Ui3Reader::writeFunctionsSubImpl( const QStringList &fuLst, const QStringLi
     QStringList::ConstIterator it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
           it != fuLst.end(); ++it, ++it2, ++it3 ) {
-        QString type = *it2;
+        QString type = fixDeclaration(*it2);
         if ( type.isEmpty() )
             type = QLatin1String("void");
         if ( *it3 == QLatin1String("non virtual") )
@@ -320,9 +320,9 @@ void Ui3Reader::writeFunctionsSubImpl( const QStringList &fuLst, const QStringLi
         out << "/*" << endl;
         out << " * " << descr << endl;
         out << " */" << endl;
-        out << type << " " << subClass << "::" << (*it) << endl;
+        out << type << " " << subClass << "::" << fixDeclaration(*it) << endl;
         out << "{" << endl;
-        out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" );" << endl;
+        out << "    qWarning( \"" << subClass << "::" << fixDeclaration(*it) << " not yet implemented!\" );" << endl;
         out << "}" << endl << endl;
     }
     out << endl;
