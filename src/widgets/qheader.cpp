@@ -1803,7 +1803,7 @@ void QHeader::adjustHeaderSize( int diff )
 
     if ( d->fullSize >= 0 ) {
 	int sec = mapToIndex( d->fullSize );
-	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) );
+	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( sec ) + sectionSize( sec ) );
 	int os = sectionSize( sec );
 	if ( ns < 20 )
 	    ns = 20;
