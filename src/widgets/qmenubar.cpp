@@ -158,7 +158,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 	 \i If this entry is not found no About item will appear in
 	    the Application Menu
     \row \i config, options, setup, settings or preferences
-	 \i Application Menu | Settings
+	 \i Application Menu | Preferences
 	 \i If this entry is not found the Settings item will be disabled
     \row \i quit or exit
 	 \i Application Menu | Quit <application name>
