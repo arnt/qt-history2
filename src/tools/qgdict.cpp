@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#10 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#10 $";
 #endif
 
 
@@ -36,8 +36,19 @@ int QGDict::hashKey( const char *key )		// make hash value
 	warning( "QGDict::hash: Invalid NULL key" );
 #endif
     if ( cases ) {				// case sensitive
+#if 0
+	ulong h=0, g;				// ELF hash function
+	while ( *k ) {
+	    h = (h<<4) + *k++;
+	    if ( g = h & 0xf0000000 )
+		h ^= g >> 24;
+	    h &= ~g;
+	}
+	index = h;
+#else
 	while ( *k )
 	    index = index << 1 ^ *k++;
+#endif
     }
     else {					// case insensitive
 	while ( *k ) {
