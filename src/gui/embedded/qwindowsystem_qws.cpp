@@ -2087,7 +2087,7 @@ void QWSServer::invokeSetIMInfo(const QWSSetIMInfoCommand *cmd,
 
 void QWSServer::resetInputMethod()
 {
-    if (current_IM_State == InputMethodEnd)
+    if (current_IM && current_IM_State == InputMethodEnd)
         current_IM_State = IMInternal;
 
     if (current_IM && qwsServer) {
