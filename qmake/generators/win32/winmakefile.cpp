@@ -249,7 +249,7 @@ Win32MakefileGenerator::processPrlFiles()
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString opt = (*it);
 	    if(opt.left(9) == "/LIBPATH:") {
-		QString r = opt.right(opt.length() - 2), l = r;
+		QString r = opt.mid(9), l = r;
 		fixEnvVariables(l);
 		libdirs.append(new MakefileDependDir(r.replace("\"",""),
 						     l.replace("\"","")));
