@@ -856,13 +856,10 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	}
     }
 
-    bool ishidden = w->isHidden();
+    bool ishidden = w->isVisible();
     QSize olds(w->size());
-    if(w->place() == QDockWindow::InDock) {
+    if(w->place() == QDockWindow::InDock) 
 	w->undock();
-	// We set the parent to NULL so that QWidget::close() does not send lastWindowClosed()
-	w->reparent(NULL, w->pos());
-    }
     w->move(wpos);
     w->resize(olds);
     if(!ishidden)
@@ -993,7 +990,15 @@ void QWorkspace::showEvent( QShowEvent *e )
 	}
 	reparent(w, QPoint(0,0));
 	setGeometry(0, 0, w->width(), w->height());
+	/* Hide really isn't acceptable because I need to make the rest of Qt
+	   think it is visible, so instead I set it to an empty mask. I'm not
+	   sure what problems this is going to create, hopefully everything will
+	   be happy (or not even notice since this is mostly intended for Qt/Mac) */
+#if 0
 	w->hide();
+#else
+	w->setMask(QRegion());
+#endif
     }
 
     //done with that nastiness, on with your regularly schedueled programming..
