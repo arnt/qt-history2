@@ -1,14 +1,14 @@
 /************************************************************
  * Some global variables needed throughout the packaging script.
  */
-const qtdir = System.getenv("QTDIR");
-const qmakeCommand = qtdir + "/bin/qmake";
+const qtDir = System.getenv("QTDIR");
+const qmakeCommand = qtDir + "/bin/qmake";
 
-const qdocDir = qtdir + "/util/qdoc";
+const qdocDir = qtDir + "/util/qdoc";
 const qdocCommand = qdocDir + "/qdoc";
 
-const qpkgDir = qtdir + "/util/install/package"
-const qpkgCommand = qtdir + "/bin/package"
+const qpkgDir = qtDir + "/util/install/package"
+const qpkgCommand = qtDir + "/bin/package"
 
 const outputDir = System.getenv("PWD");
 
@@ -37,7 +37,13 @@ System.println("Building qdoc...");
 buildQdoc();
 // System.println("Building qpkg...");
 // buildQpkg();
+System.println("Checkin out from P4...");
 checkout();
+var start = Date().getTime();
+var list = getFileList(distDir);
+var end = Date().getTime();
+System.println("getFileList(%1) took: %2 milliseconds count: %3".arg(qtDir).arg(end-start).arg(list.length));
+// cleanup();
 
 /************************************************************
  * Parses and checks the commandline options and puts them into options[key] = value
@@ -99,7 +105,7 @@ function initialize()
 	    throw "Unable to find tmp directory";
     }
     // creates distDir
-    distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-";// + Date().getTime();
+    distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-" + Date().getTime();
     var dir = new Dir(distDir);
     if (dir.exists)
 	dir.rmdirs();
@@ -113,8 +119,8 @@ function initialize()
     if (!File.exists(p4Command))
 	p4Command = "/usr/local/bin/p4";
 
-    for (var i in options)
-	System.println("options[%1] = %2".arg(i).arg(options[i]));
+//     for (var i in options)
+// 	System.println("options[%1] = %2".arg(i).arg(options[i]));
 }
 
 /************************************************************
@@ -166,16 +172,124 @@ function buildQpkg()
  */
 function checkout()
 {
-    //check that the branch exist
+    // check that the branch exist
     var branchPath = "//depot/qt/" + options["branch"];
     Process.execute([p4Command, "fstat", branchPath + "/configure"]);
     if (Process.stdout.find("depotFile") == -1)
 	throw "Branch: " + branchPath + " does not exist.";
     
-    //check that the label exists
+    // check that the label exists
     var label = "qt/" + options["version"];
     Process.execute([p4Command, "labels", branchPath + "/configure"]);
     if (Process.stdout.find("Label " + label + " ") == -1)
 	throw "Label: " + label + " does not exist, or not in this branch.";
+
+    // generate clientSpec
+    var tmpClient="qt-release-tmp-" + user;
+    Process.execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
+    var clientSpec = Process.stdout.split("\n");
+    for (var i in clientSpec) {
+	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + distDir);
+	clientSpec[i] = clientSpec[i].replace(/X.Y/, options["branch"]);
+	clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
+    }
+    // save it
+    clientSpec = clientSpec.join("\n");
+    Process.execute([p4Command, "client", "-i"], clientSpec);
+
+    // checkout
+    Process.execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
 }
 
+
+/************************************************************
+ * iterates over the fileList and removes any files found in the
+ * remove patterns and keeps any files found in the keep pattern, any
+ * file not found in any of the patterns throws an exception
+ */
+function purgeFiles(fileList, remove, keep)
+{
+    var doRemove = false;
+    var doKeep = false;
+    for (var i in fileList) {
+	// check if the file should be removed
+	for (var r in remove) {
+	    if (fileList[i].find(remove[r]) != -1) {
+		doRemove = true;
+		break;
+	    }
+	}
+
+	// remove file
+	if (doRemove) {
+	    if (File.exists[fileList[i]])
+		File.remove(fileList[i]);
+	    continue;
+	}
+
+	// check if the file should be kept
+	for (var k in keep) {
+	    if (fileList[i].find(keep[k]) != -1) {
+		doKeep = true;
+		break;
+	    }
+	}
+
+	// bail out
+	if (!doKeep)
+	    throw "File: %1 not found in remove nor keep filter, bailing out.";
+    }
+}
+
+/************************************************************
+ * gets a list of all files and subdirectories from the specified directory
+ */
+function getFileList(dir)
+{
+    var dir = new Dir(dir);
+    dir.setCurrent();
+    var result = new Array();
+
+    // add files expanded to absolutepath to result
+    var files = dir.entryList("*", Dir.Files);
+    for (var f in files)
+	result.push(dir.absFilePath(files[f]));
+
+    // expand dirs to absolute path
+    var dirs = new Array();
+    var tempDirs = dir.entryList("*", Dir.Dirs);
+    for (var t in tempDirs) {
+	if (tempDirs[t] != "." && tempDirs[t] != "..")
+	    dirs.push(dir.absFilePath(tempDirs[t]));
+    }
+    
+    for (var i=0; i<dirs.length; ++i) {
+ 	// cd to directory and add directory to result
+ 	dir.cd(dirs[i]);
+ 	result.push(dirs[i]);
+
+	// add files expanded to absolutepath to result
+	var files = dir.entryList("*", Dir.Files);
+	for (var f in files)
+	    result.push(dir.absFilePath(files[f]));
+
+	// adds subDirs to dirs
+	tempDirs = dir.entryList("*", Dir.Dirs);
+	for (var t in tempDirs) {
+	    if (tempDirs[t] != "." && tempDirs[t] != "..")
+		dirs.push(dir.absFilePath(tempDirs[t]));
+	}
+    }
+    return result;
+}
+
+/************************************************************
+ * cleans up temp files
+ */
+function cleanup()
+{
+    // deletes distDir
+    var dir = new Dir(distDir);
+    if (dir.exists)
+	dir.rmdirs();
+}
