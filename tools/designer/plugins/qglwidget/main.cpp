@@ -2,7 +2,8 @@
 
 #include <qapplication.h>
 #include <qcleanuphandler.h>
-#include <qgl.h>
+
+#include "glwidget.h"
 
 class OpenGLWidgetInterface : public WidgetInterface
 {
@@ -63,7 +64,7 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
     QWidget* w = 0;
 
     if ( description == "QGLWidget" )
-	w = new QGLWidget( parent, name );
+	w = new GLWidget( parent, name );
 
     objects.addCleanUp( w );
     return w;
