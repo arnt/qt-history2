@@ -32,6 +32,7 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
 
     QPalette pal( qtgreen, Qt::black );
     pal.setColor( QColorGroup::ButtonText, Qt::black );
+    pal.setColor( QColorGroup::Highlight, pal.color( QPalette::Active, QColorGroup::Dark ) );
     setPalette( pal );
     setFont( QFont( "nimbus sans l", d->height()/40 ) );
 
