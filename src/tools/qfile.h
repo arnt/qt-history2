@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#37 $
+** $Id: //depot/qt/main/src/tools/qfile.h#38 $
 **
 ** Definition of QFile class
 **
@@ -88,6 +88,7 @@ protected:
     int		fd;
     int		length;
     bool	ext_f;
+    void * 	d;
 
 private:
     void	init();
