@@ -149,10 +149,10 @@ public:
     }
 
     enum StyleFlags {
-	Style_Default = 		0x00000000,
-	Style_Enabled = 		0x00000001,
+	Style_Default =			0x00000000,
+	Style_Enabled =			0x00000001,
 	Style_Raised =			0x00000002,
-	Style_Sunken =	 		0x00000004,
+	Style_Sunken =			0x00000004,
 	Style_Off =			0x00000008,
 	Style_NoChange =		0x00000010,
 	Style_On =			0x00000020,
@@ -165,14 +165,14 @@ public:
 	Style_AutoRaise =		0x00001000,
 	Style_MouseOver =		0x00002000,
 	Style_Up =			0x00004000,
-	Style_Selected =	 	0x00008000,
+	Style_Selected =		0x00008000,
 	Style_Active =			0x00010000,
 	Style_ButtonDefault =		0x00020000,
-	
+
 	Style_Open =			0x00100000,
-	Style_Children = 		0x00200000,
-	Style_Item = 			0x00400000,
-	Style_Sibling = 		0x00800000
+	Style_Children =		0x00200000,
+	Style_Item =			0x00400000,
+	Style_Sibling =			0x00800000
     };
     typedef uint SFlags;
 
@@ -385,8 +385,8 @@ public:
 	SC_ComboBoxListBoxPopup =	0x00000008,
 
 	SC_SliderGroove =		0x00000001,
-	SC_SliderHandle = 		0x00000002,
-	SC_SliderTickmarks = 		0x00000004,
+	SC_SliderHandle =		0x00000002,
+	SC_SliderTickmarks =		0x00000004,
 
 	SC_ToolButton =			0x00000001,
 	SC_ToolButtonMenu =		0x00000002,
@@ -449,8 +449,8 @@ public:
 	PM_ScrollBarExtent,
 	PM_ScrollBarSliderMin,
 
-	PM_SliderThickness,	       	// total slider thickness
-	PM_SliderControlThickness,    	// thickness of the business part
+	PM_SliderThickness,		// total slider thickness
+	PM_SliderControlThickness,	// thickness of the business part
 	PM_SliderLength,		// total length of slider
 	PM_SliderTickmarkOffset,	//
 	PM_SliderSpaceAvailable,	// available space for slider to move
@@ -539,7 +539,7 @@ public:
 	// ...
 	// the general hints
 	// ...
-       	// disabled text should be etched, ala Windows
+	// disabled text should be etched, ala Windows
 	SH_EtchDisabledText,
 
 	// the GUI style enum, argh!
@@ -676,6 +676,9 @@ public:
 	// bool - QToolButton - if tool buttons should use a 3D frame
 	// when the mouse is over the button
 	SH_ToolButton_Uses3D,
+
+	// bool - QSpinBox - animate a click when up or down is pressed in a spin box
+	SH_SpinBoxAnimateButton,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
