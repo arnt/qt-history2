@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#63 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -104,6 +104,11 @@ QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 
 bool initialized = FALSE;
 
+/*!
+  Internal function that deinitializes the predefined cursors.
+  This function is called from the QApplication destructor.
+  \sa initialize()
+*/
 void QCursor::cleanup()
 {
     int shape;

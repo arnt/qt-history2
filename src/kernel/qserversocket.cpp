@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#3 $
 **
 ** Implementation of QServerSocket class
 **
@@ -96,6 +96,9 @@ void QServerSocket::newConnection( int socket )
 }
 
 
+/*!
+  Returns the QSocketDevice used by this server.
+*/
 QSocketDevice *QServerSocket::socketDevice()
 {
     return d->socket;

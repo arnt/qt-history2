@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#11 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#12 $
 **
 ** Definition of QSizePolicyclass
 **
@@ -72,7 +72,7 @@ public:
 		
     void setHeightForWidth( bool b ) { data = b ? data & ~( 1 << 2*HSize )
 					      :  data | ( 1 << 2*HSize ); }
-    bool hasHeightForWidth() { return data & ( 1 << 2*HSize ); }
+    bool hasHeightForWidth() const { return data & ( 1 << 2*HSize ); }
 
 private:
     QSizePolicy( int i ): data( i ) {}

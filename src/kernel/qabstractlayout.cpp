@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#15 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -983,6 +983,11 @@ void QLayout::invalidate()
 */
 /*!
     \fn ExpandData QSizePolicy::expanding () const
+
+    \internal
+*/
+/*!
+    \fn vool QSizePolicy::hasHeightForWidth() const
 
     \internal
 */

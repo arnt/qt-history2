@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#135 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -659,6 +659,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     pdev->painters++;				// also tell paint device
+    ASSERT(pdev->painters==1);
     bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode

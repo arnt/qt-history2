@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#41 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -609,6 +609,9 @@ const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
     return directBrush( gr, r );
 }
 
+/*!
+  Sets the color of the brush in \a gr used for color role \a r to \a c.
+*/
 void QPalette::setColor(ColorGroup gr,QColorGroup::ColorRole r,const QColor &c)
 {
     detach();
