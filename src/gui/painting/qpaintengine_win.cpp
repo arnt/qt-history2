@@ -960,68 +960,42 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
 
     const QPainterPathPrivate *pd = p.d;
 
-    if (!BeginPath(d->hdc))
-        qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
-
-    // Drawing the subpaths
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-        const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
-            continue;
-        QPoint firstPoint = sub.firstPoint();
-        MoveToEx(d->hdc, firstPoint.x(), firstPoint.y(), 0);
-        for (int j=0; j<sub.elements.size(); ++j) {
-            const QPainterPathElement &elm = sub.elements.at(j);
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                LineTo(d->hdc, elm.lineData.x2, elm.lineData.y2);
-                break;
-            }
-            case QPainterPathElement::Bezier: {
-                POINT pts[3] = {
-                    { elm.bezierData.x2, elm.bezierData.y2 },
-                    { elm.bezierData.x3, elm.bezierData.y3 },
-                    { elm.bezierData.x4, elm.bezierData.y4 }
-                };
-                PolyBezierTo(d->hdc, pts, 3);
-                break;
-            }
-            case QPainterPathElement::Arc: {
-                // Not supported on Win9x
-                QPointArray array;
-                array.makeArc(elm.arcData.x, elm.arcData.y,
-                              elm.arcData.w, elm.arcData.h,
-                              elm.arcData.start, elm.arcData.length);
-                Q_ASSERT(array.size() > 1);
-                POINT *pts = new POINT[array.size()-1];
-                for (int pt=1; pt<array.size(); ++pt) {
-                    pts[pt-1].x = array.at(pt).x();
-                    pts[pt-1].y = array.at(pt).y();
-                }
-                PolylineTo(d->hdc, pts, array.size()-1);
-                break;
-            }
-            default:
-                qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
-            }
-        }
-        CloseFigure(d->hdc);
-    }
-
-    if (!EndPath(d->hdc))
-        qSystemWarning("QWin32PaintEngine::drawPath(), end path failed");
+    d->composeGdiPath(pd);
 
     if (p.fillMode() == QPainterPath::Winding)
         SetPolyFillMode(d->hdc, WINDING);
 
     bool pen = d->penStyle != Qt::NoPen;
     bool brush = d->brushStyle != Qt::NoBrush;
-    if (pen && brush) {
-        if (!StrokeAndFillPath(d->hdc))
-            qSystemWarning("QWin32PaintEngine::drawPath(), stroking and filling failed");
-    } else if (pen) {
+
+    // Workaround for filling gradients
+    if (d->brushStyle == Qt::LinearGradientPattern
+        || (d->brushStyle == Qt::SolidPattern && d->brushAlphaColor)) {
+        HRGN oldRegion = 0;
+        int gotRegion = GetClipRgn(d->hdc, oldRegion);
+        Q_ASSERT(gotRegion >= 0);
+        SelectClipPath(d->hdc, RGN_AND);
+        if (d->brushStyle == Qt::LinearGradientPattern)
+            d->fillGradient(p.boundingRect());
+        else
+            d->fillAlpha(p.boundingRect());
+        brush = false;
+        if (gotRegion == 0) { // No path originally
+            SelectClipRgn(d->hdc, 0);
+        } else if (gotRegion == 1){ // Reset and release original path
+            Q_ASSERT(oldRegion);
+            SelectClipRgn(d->hdc, oldRegion);
+            DeleteObject(oldRegion);
+        }
+        if (pen)
+            d->composeGdiPath(pd);
+    }
+
+    if (pen && brush)
+        StrokeAndFillPath(d->hdc);
+    else if (pen)
         StrokePath(d->hdc);
-    } else if (brush)
+    else if (brush)
         FillPath(d->hdc);
 
     if (p.fillMode() == QPainterPath::Winding)
@@ -1800,10 +1774,10 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r)
     Q_ASSERT(brush.color().alpha() != 255);
 
     TRIVERTEX polygon[4];
-    polygon[0] = createVertex(r.left(), r.top(), brush.color());
-    polygon[1] = createVertex(r.right(), r.top(), brush.color());
-    polygon[2] = createVertex(r.right(), r.bottom(), brush.color());
-    polygon[3] = createVertex(r.left(), r.bottom(), brush.color());
+    polygon[0] = createVertex(0, 0, brush.color());
+    polygon[1] = createVertex(r.width(), 0, brush.color());
+    polygon[2] = createVertex(r.width(), r.height(), brush.color());
+    polygon[3] = createVertex(0, r.height(), brush.color());
 
     GRADIENT_TRIANGLE gTri[] = { { 0, 1, 2 }, { 2, 3, 0 } };
 
@@ -1819,6 +1793,61 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r)
     DeleteObject(bitmap);
     DeleteDC(memdc);
 }
+
+void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
+{
+    if (!BeginPath(hdc))
+        qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
+
+    // Drawing the subpaths
+    for (int i=0; i<pd->subpaths.size(); ++i) {
+        const QPainterSubpath &sub = pd->subpaths.at(i);
+        if (sub.elements.isEmpty())
+            continue;
+        QPoint firstPoint = sub.firstPoint();
+        MoveToEx(hdc, firstPoint.x(), firstPoint.y(), 0);
+        for (int j=0; j<sub.elements.size(); ++j) {
+            const QPainterPathElement &elm = sub.elements.at(j);
+            switch (elm.type) {
+            case QPainterPathElement::Line: {
+                LineTo(hdc, elm.lineData.x2, elm.lineData.y2);
+                break;
+            }
+            case QPainterPathElement::Bezier: {
+                POINT pts[3] = {
+                    { elm.bezierData.x2, elm.bezierData.y2 },
+                    { elm.bezierData.x3, elm.bezierData.y3 },
+                    { elm.bezierData.x4, elm.bezierData.y4 }
+                };
+                PolyBezierTo(hdc, pts, 3);
+                break;
+            }
+            case QPainterPathElement::Arc: {
+                // Not supported on Win9x
+                QPointArray array;
+                array.makeArc(elm.arcData.x, elm.arcData.y,
+                              elm.arcData.w, elm.arcData.h,
+                              elm.arcData.start, elm.arcData.length);
+                Q_ASSERT(array.size() > 1);
+                POINT *pts = new POINT[array.size()-1];
+                for (int pt=1; pt<array.size(); ++pt) {
+                    pts[pt-1].x = array.at(pt).x();
+                    pts[pt-1].y = array.at(pt).y();
+                }
+                PolylineTo(hdc, pts, array.size()-1);
+                break;
+            }
+            default:
+                qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
+            }
+        }
+        CloseFigure(hdc);
+    }
+
+    if (!EndPath(hdc))
+        qSystemWarning("QWin32PaintEngine::drawPath(), end path failed");
+}
+
 
 void QWin32PaintEnginePrivate::beginGdiplus()
 {

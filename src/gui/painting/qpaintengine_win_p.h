@@ -22,6 +22,8 @@
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
+class QPainterPathPrivate;
+
 // Typedefs for GDI+
 class QtGpGraphics { };
 class QtGpMatrix { };
@@ -189,6 +191,11 @@ public:
       Fill the rect current alpha brush
     */
     void fillAlpha(const QRect &r);
+
+    /*!
+      Composes the path on the current device context
+    */
+    void composeGdiPath(const QPainterPathPrivate *pd);
 
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
