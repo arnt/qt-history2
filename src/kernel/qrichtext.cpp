@@ -2940,12 +2940,12 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 void QTextDocument::setTextFormat( Qt::TextFormat f )
 {
     txtFormat = f;
-    
+
     /*Suboptimal workaround: if the text format is set to richtext, we
      define our paragraph to be a real rich text paragarph so we to
      get the proper margin hints defined in the stylesheet
      */
-    if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1 
+    if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1
 	 && styleSheet()->item("p") ) {
 	QPtrVector<QStyleSheetItem> v = fParag->styleSheetItems();
 	v.resize( v.size() + 1 );
@@ -6579,7 +6579,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		if ( ok )
 		    format.fn.setWeight( n/8 );
 	    } else if ( style.startsWith("font-family:" ) ) {
-		format.fn.setFamily( style.mid(12) );
+		format.fn.setFamily( style.mid(12).section(',',0,0) );
 	    } else if ( style.startsWith("color:" ) ) {
 		format.col.setNamedColor( style.mid(6) );
 		format.linkColor = FALSE;
