@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#77 $
 **
-** Implementation of QWidget and QView classes for X11
+** Implementation of QWidget and QWindow classes for X11
 **
 ** Author  : Haavard Nord
 ** Created : 931031
@@ -10,7 +10,7 @@
 **
 *****************************************************************************/
 
-#include "qview.h"
+#include "qwindow.h"
 #include "qpalette.h"
 #include "qapp.h"
 #include "qpaintdc.h"
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#76 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#77 $";
 #endif
 
 
@@ -76,10 +76,9 @@ bool QWidget::create()				// create widget
     bool   modal   = testWFlags( WType_Modal );
     bool   desktop = testWFlags( WType_Desktop );
     Window parentwin;
-    int	   border = 0;
     WId	   id;
 
-    bg_col = pal.normal().background();		// set default background color
+    bg_col = pal.normal().background();		// default background color
 
     if ( modal ) {				// modal windows overlap
 	overlap = TRUE;
@@ -98,11 +97,8 @@ bool QWidget::create()				// create widget
 
     if ( overlap || popup || desktop )		// overlapping widget
 	parentwin = RootWindow( dpy, screen );
-    else {					// child widget
+    else					// child widget
 	parentwin = parentWidget()->id();
-	if ( testWFlags(WStyle_Border) )	// has a border
-	    border = 1;
-    }
 
     if ( desktop ) {				// desktop widget
 	id = parentwin;				// id = root window
@@ -119,7 +115,7 @@ bool QWidget::create()				// create widget
 	id = XCreateSimpleWindow( dpy, parentwin,
 				  frect.left(), frect.top(),
 				  frect.width(), frect.height(),
-				  border,
+				  0,
 				  black.pixel(),
 				  bg_col.pixel() );
 	set_id( id );				// set widget id/handle + hd
@@ -1022,7 +1018,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 
 void QWidget::drawText( int x, int y, const char *str )
 {
-    if ( testWFlags( WState_Visible ) ) {
+    if ( testWFlags(WState_Visible) ) {
 	QPainter paint;
 	paint.begin( this );
 	paint.drawText( x, y, str );
@@ -1075,34 +1071,36 @@ long QWidget::metric( int m ) const		// return widget metrics
 
 
 // --------------------------------------------------------------------------
-// QView member functions
+// QWindow member functions
 //
 
 /*!
-Sets the window caption (title).
+  Sets the window caption (title).
+  \sa caption()
 */
 
-void QView::setCaption( const char *text )	// set caption text
+void QWindow::setCaption( const char *text )	// set caption text
 {
     ctext = text;
     XStoreName( dpy, id(), (const char *)ctext );
 }
 
 /*!
-Sets the text of the window's icon.
+  Sets the text of the window's icon.
+  \sa iconText()
 */
 
-void QView::setIconText( const char *text )	// set icon text
+void QWindow::setIconText( const char *text )	// set icon text
 {
     itext = text;
     XSetIconName( dpy, id(), (const char *)itext );
 }
 
 /*!
-Sets the window icon pixmap.
+  Sets the window icon pixmap.
 */
 
-void QView::setIcon( QPixmap *pixmap )		// set icon pixmap
+void QWindow::setIcon( QPixmap *pixmap )	// set icon pixmap
 {
     if ( ipm != pixmap ) {
 	delete ipm;
