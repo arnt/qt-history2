@@ -1103,13 +1103,8 @@ bool QApplication::do_mouse_down( Point *pt )
 	break;
 #ifdef QMAC_QMENUBAR_NATIVE
     case inMenuBar:
-    {
-	long msg = MenuSelect(*pt);
-	if(msg) 
-	    QMenuBar::activate(msg);
-    }
+	break;
 #endif
-    break;
     default:
 	qDebug("Unhandled case in mouse_down..");
 	break;
@@ -1498,7 +1493,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			MenuRef menu;
 			MenuItemIndex idx;
 			if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
-			    QMenuBar::activate((((short)menu) << 16) | ((short)idx));
+			    QMenuBar::activate(menu, idx);
 			    isAccel = TRUE;
 			} 
 		    }
@@ -1594,6 +1589,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
 	    if(cmd.commandID == kHICommandQuit) 
 		qApp->closeAllWindows();
+#ifdef QMAC_QMENUBAR_NATIVE //offer it to the menubar..
+	    else 
+		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
+#endif
 	}
 	break;
     }

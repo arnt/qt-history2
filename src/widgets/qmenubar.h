@@ -150,7 +150,7 @@ private:
 #if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
     friend class QApplication;
     uint mac_dirty_menubar : 1;
-    static bool activate(long id);
+    static bool activate(MenuRef, short);
     static void macUpdateMenuBar();
     static void macUpdatePopup(MenuRef);
 #endif

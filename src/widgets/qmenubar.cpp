@@ -174,6 +174,7 @@ static const int motifItemVMargin       = 4;    // menu item ver text margin
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0 )
 {
+#if defined( Q_WS_MAC )
 #if defined(QMAC_QMENUBAR_TOPLEVEL)
     if( parent && parent->isTopLevel() ) {
 	setFixedWidth(qApp->desktop()->width());
@@ -181,8 +182,10 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	reparent( parent, WType_Dialog | WStyle_Customize | WStyle_NoBorder,
 		  QPoint(0, 0) );
     }
+#elif defined(QMAC_QMENUBAR_NATIVE)
+      mac_dirty_menubar = 1;
 #endif
-
+#endif
     isMenuBar = TRUE;
 #ifndef QT_NO_ACCEL
     autoaccel = 0;
@@ -764,10 +767,12 @@ int QMenuBar::calculateRects( int max_width )
                 separator = i; //### only motif?
         }
         if ( !mi->isSeparator() || mi->widget() ) {
+#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
             if ( gs == MotifStyle ) {
                 w += 2*motifItemFrame;
                 h += 2*motifItemFrame;
             }
+#endif
             if ( ( ( !reverse && x + w + style().defaultFrameWidth() - max_width > 0 ) ||
                  ( reverse && x - w -style().defaultFrameWidth() < 0 ) )
                  && nlitems > 0 ) {

@@ -180,20 +180,16 @@ static bool updateMenuBar(QMenuBar *mbar)
 /*!
   Internal function..
 */
-bool QMenuBar::activate(long msg)
+bool QMenuBar::activate(MenuRef menu, short idx)
 {
-#define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
-#define	LoWrd(aLong)	((aLong) & 0xFFFF)
-    short id = HiWrd( msg ),  index = LoWrd( msg );
-
     if(!pdict) {
 	HiliteMenu(0);
 	return FALSE;
     }
 
-    if(MacPopupBinding *mpb = pdict->find((int)id)) {
+    if(MacPopupBinding *mpb = pdict->find((int)menu)) {
 	MenuCommand cmd;
-	GetMenuItemCommandID(mpb->macpopup, index, &cmd);
+	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
 	HiliteMenu(0);
 	return TRUE;
