@@ -153,6 +153,7 @@ struct QTextHtmlParserNode {
     int tableCellRowSpan;
     int tableCellColSpan;
     int tableCellSpacing;
+    int tableCellPadding;
 
     QTextCharFormat charFormat() const;
 

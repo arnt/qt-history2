@@ -681,6 +681,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     QTextTableFormat fmt;
     fmt.setBorder(at(tableNodeIdx).tableBorder);
     fmt.setCellSpacing(at(tableNodeIdx).tableCellSpacing);
+    fmt.setCellPadding(at(tableNodeIdx).tableCellPadding);
     fmt.setAlignment(at(tableNodeIdx).alignment);
     fmt.setBackgroundColor(at(tableNodeIdx).bgColor);
     fmt.setColumns(table->columns);

@@ -1867,6 +1867,20 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
+    \fn int QTextTableFormat::cellPadding() const
+
+    Returns the table's cell padding. This describes the distance between
+    the border of a cell and its contents.
+*/
+
+/*!
+    \fn void QTextTableFormat::setCellPadding(int padding)
+
+    Sets the cell \a padding for the table. This determines the distance
+    between the border of a cell and its contents.
+*/
+
+/*!
     \fn void QTextTableFormat::setAlignment(Qt::Alignment alignment)
 
     Sets the table's \a alignment.

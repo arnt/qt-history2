@@ -103,6 +103,7 @@ public:
         TableColumnConstraints = 0x4200,
         TableColumnConstraintValues = 0x4201,
         TableCellSpacing = 0x4300,
+        TableCellPadding = 0x4301,
         TableBackgroundColor = 0x4400,
 
         // table cell properties
@@ -473,6 +474,11 @@ public:
     { return intProperty(TableCellSpacing, 0); }
     inline void setCellSpacing(int spacing)
     { setProperty(TableCellSpacing, spacing, 0); }
+
+    inline int cellPadding() const
+    { return intProperty(TableCellPadding, 0); }
+    inline void setCellPadding(int padding)
+    { setProperty(TableCellPadding, padding, 0); }
 
     inline void setAlignment(Qt::Alignment alignment)
     { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
