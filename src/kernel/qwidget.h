@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#12 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#13 $
 **
 ** Definition of QWidget class
 **
@@ -79,9 +79,26 @@ public:
     QCursor cursor() const;			// get/set cursor
     void    setCursor( const QCursor & );
 
+  // Keyboard focus functions
+
+    bool    hasFocus() const { return testFlag(WState_FocusA); }
+    void    setFocus();				// set keyboard focus
+    static QWidget *widgetInFocus();		// get widget in focus
+
+  // Grab functions
+
+    void    grabKeyboard();
+    void    releaseKeyboard();
+    void    grabMouse( bool exclusive=TRUE );
+    void    releaseMouse();
+
+  // Update/refresh functions
+
+    void    update();				// update widget
+    void    update( int x, int y, int w, int h);// update part of widget
+
   // Widget management functions
 
-    bool    update();				// update widget
     virtual void show();			// show widget
     void    hide();				// hide widget
     bool    close( bool forceKill=FALSE );	// close widget
@@ -113,6 +130,8 @@ protected:
     virtual void mouseMoveEvent( QMouseEvent * );
     virtual bool keyPressEvent( QKeyEvent * );
     virtual bool keyReleaseEvent( QKeyEvent * );
+    virtual bool focusInEvent( QEvent * );
+    virtual void focusOutEvent( QEvent * );
     virtual void paintEvent( QPaintEvent * );
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
@@ -171,6 +190,7 @@ private:
     static void createMapper();			// create widget mapper
     static void destroyMapper();		// destroy widget mapper
     static QWidgetMapper *mapper;		// maps identifier to widget
+    static QWidget *activeWidget;		// widget in keyboard focus
 };
 
 
