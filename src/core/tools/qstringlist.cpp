@@ -272,10 +272,10 @@
     insensitive.
 
     \code
-    QStringList list;
-    list << "Bill Murray" << "John Doe" << "Bill Clinton";
-    list = list.find("Bill");
-    // list: ["Bill Murray", "Bill Clinton"]
+        QStringList list;
+        list << "Bill Murray" << "John Doe" << "Bill Clinton";
+        list = list.find("Bill");
+        // list: ["Bill Murray", "Bill Clinton"]
     \endcode
 
     \sa QString::contains()
@@ -308,11 +308,21 @@
     text replaced with the \a after text wherever the \a before text
     is found. The \a before text is matched case-sensitively or not
     depending on the \a cs flag.
+
+    Example:
+    \code
+        QStringList list;
+        list << "alpha" << "beta" << "gamma" << "epsilon";
+        list.replace("a", "o");
+        // list == ["olpho", "beto", "gommo", "epsilon"]
+    \endcode
+
+    \sa QString::replace()
 */
 
 #ifndef QT_NO_REGEXP
 /*!
-    \fn QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
+    \fn QStringList &QStringList::replace(const QRegExp &rx, const QString &after)
 
     \overload
 
