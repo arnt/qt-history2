@@ -60,6 +60,8 @@ public:
     virtual int highlightParagraph( const QString &text, int endStateOfLastPara ) = 0;
 
     void setFormat( int start, int len, const QFont &font, const QColor &color );
+    void setFormat( int start, int len, const QColor &color );
+    void setFormat( int start, int len, const QFont &font );
     QTextEdit *textEdit() const { return edit; }
 
 private:

@@ -163,6 +163,32 @@ void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font, const
     f->removeRef();
 }
 
+/*! \overload */
+
+void QSyntaxHighlighter::setFormat( int start, int len, const QColor &color )
+{
+    if ( !para )
+	return;
+    QTextFormat *f = 0;
+    QFont fnt = textEdit()->QWidget::font();
+    f = para->document()->formatCollection()->format( fnt, color );
+    para->setFormat( start, len, f );
+    f->removeRef();
+}
+
+/*! \overload */
+
+void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font )
+{
+    if ( !para )
+	return;
+    QTextFormat *f = 0;
+    QColor c = textEdit()->viewport()->paletteForegroundColor();
+    f = para->document()->formatCollection()->format( font, c );
+    para->setFormat( start, len, f );
+    f->removeRef();
+}
+
 /*! \fn QTextEdit *QSyntaxHighlighter::textEdit() const
   Returns the QTextEdit on which this syntax highlighter is installed
 */
