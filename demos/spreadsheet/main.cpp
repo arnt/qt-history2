@@ -85,17 +85,17 @@ QVariant SpreadSheetItem::display() const
     QPoint one = convertCoords(list.at(1));
     QPoint two = convertCoords(list.at(2));
 
-    const QTableWidgetItem *start = view->item(one.y(), one.x());
-    QTableWidgetItem *end = view->item(two.y(), two.x());
+    const QTableWidgetItem *start = tableWidget()->item(one.y(), one.x());
+    QTableWidgetItem *end = tableWidget()->item(two.y(), two.x());
 
     if (!start || !end)
         return "Error: Item does not exist!";
 
     if (op == "sum") {
         int sum = 0;
-        for (int r = view->row(start); r <= view->row(end); ++r)
-            for (int c = view->column(start); c <= view->column(end); ++c) {
-                const QTableWidgetItem *tableItem = view->item(r, c);
+        for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r)
+            for (int c = tableWidget()->column(start); c <= tableWidget()->column(end); ++c) {
+                const QTableWidgetItem *tableItem = tableWidget()->item(r, c);
                 if (tableItem != this)
                     sum += tableItem->text().toInt();
             }
@@ -125,6 +125,13 @@ QPoint SpreadSheetItem::convertCoords(const QString coords) const
     return QPoint(c, --r);
 }
 
+/*!
+  We subclass QTableWidget for two reasons:
+  1. We want to change the selection behavior to only select with the left mouse button
+  (so we keep the selection when opening the context menu on an item).
+  2. We want the view to use our own SpreadSheetItem when creating new items internally
+  (when the user starts editing in an empty cell).
+*/
 class SpreadSheetTable : public QTableWidget
 {
     Q_OBJECT
