@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#50 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#50 $")
 
 
 /*----------------------------------------------------------------------------
@@ -186,6 +186,7 @@ void QScrollBar::init()
 void QScrollBar::setOrientation( Orientation orientation )
 {
     orient = orientation;
+    positionSliderFromValue();
     update();
 }
 
