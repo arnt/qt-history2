@@ -4102,6 +4102,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
     d->renameTimer->stop();
+    d->startEdit = FALSE;
     if ( !e || e->button() != LeftButton )
 	return;
 
