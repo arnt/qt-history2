@@ -45,6 +45,7 @@
   \ingroup tools
   \ingroup shared
   \mainclass
+  \reentrant
 
   QValueVector is a Qt implementation of an STL-like vector container.  It
   can be used in your application if the standard \c vector is not

@@ -46,6 +46,7 @@
   \ingroup tools
   \ingroup shared
   \mainclass
+  \reentrant
   
   QValueList is a Qt implementation of an STL-like list container.  It
   can be used in your application if the standard \c list is not
@@ -741,6 +742,7 @@ private:
 
   \ingroup qtl
   \ingroup tools
+  \reentrant
 
   An iterator is a class for accessing the items of a container
   classes - a generalization of the index in an array. A pointer into
@@ -920,6 +922,7 @@ private:
 
   \ingroup qtl
   \ingroup tools
+  \reentrant
 
   In contrast to QValueListIterator, this class is used to iterate over a const
   list. It does not allow modification of the values of the list since

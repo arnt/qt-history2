@@ -46,6 +46,7 @@
   \ingroup tools
   \ingroup shared
   \mainclass
+  \reentrant
 
   Define a template instance QValueStack\<X\> to create a stack of
   values that all have the class X. QValueStack is part of the 
