@@ -931,20 +931,20 @@ void QMenuBar::drawContents( QPainter *p )
 
     // ### this shouldn't happen.
     if ( !irects )
-        return;
+	return;
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
-        QMenuItem *mi = mitems->at( i );
-        if ( !mi->text().isNull() || mi->pixmap() ) {
-            QRect r = irects[i];
-            if(r.isEmpty())
-                continue;
-            e = mi->isEnabled();
-            if ( e )
-                g = isEnabled() ? ( isActiveWindow() ? palette().active() :
-                    palette().inactive() ) : palette().disabled();
-            else
-                g = palette().disabled();
+	QMenuItem *mi = mitems->at( i );
+	if ( !mi->text().isNull() || mi->pixmap() ) {
+	    QRect r = irects[i];
+	    if(r.isEmpty())
+		continue;
+	    e = mi->isEnabled();
+	    if ( e )
+		g = isEnabled() ? ( isActiveWindow() ? palette().active() :
+		    palette().inactive() ) : palette().disabled();
+	    else
+		g = palette().disabled();
 	    reg = reg.subtract( r );
 	    QPixmap *db = getDoubleBuffer( r.width(), r.height() );
 	    db->fill( this, r.x(), r.y() );
@@ -952,33 +952,33 @@ void QMenuBar::drawContents( QPainter *p )
 	    pntr.setFont( p->font() );
 	    pntr.setPen( p->pen() );
 	    pntr.setBrush( p->brush() );
-            style().drawMenuBarItem( &pntr, 0, 0, r.width(),
-                                     r.height(), mi, g, (i == actItem),
-                                     actItemDown,
-                                  ( hasFocus() || hasmouse || popupvisible ) );
+	    style().drawMenuBarItem( &pntr, 0, 0, r.width(),
+				     r.height(), mi, g, (i == actItem),
+				     actItemDown,
+				  ( hasFocus() || hasmouse || popupvisible ) );
 	    p->drawPixmap( r.x(), r.y(), *db, 0, 0, r.width(), r.height() );
-        }
+	}
     }
     p->save();
     p->setClipRegion( reg );
-    p->fillRect( rect(), colorGroup().brush( QColorGroup::Background ) );
+    p->fillRect( rect(), colorGroup().brush( QColorGroup::Button ) );
     p->restore();
 
     // Draw the menu bar contents in the current style
     style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-            if ( !mac_eaten_menubar ) {
+	    if ( !mac_eaten_menubar ) {
 #endif
-                GUIStyle gs = style().guiStyle();
-                if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
-                    p->setPen( g.light() );
-                    p->drawLine( 0, height()-1, width()-1, height()-1 );
-                    p->setPen( g.dark() );
-                    p->drawLine( 0, height()-2, width()-1, height()-2 );
-                }
+		GUIStyle gs = style().guiStyle();
+		if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
+		    p->setPen( g.light() );
+		    p->drawLine( 0, height()-1, width()-1, height()-1 );
+		    p->setPen( g.dark() );
+		    p->drawLine( 0, height()-2, width()-1, height()-2 );
+		}
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-            }
+	    }
 #endif
 }
 
