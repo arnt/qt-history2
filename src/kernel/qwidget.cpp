@@ -5327,7 +5327,7 @@ QPoint QWidget::backgroundOffset() const
 	    case WindowOrigin:
 		{
 		    const QWidget *topl = this;
-		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
 			topl = topl->parentWidget(TRUE);
 		    return mapTo((QWidget *)topl, QPoint(0, 0) );
 		}
@@ -5335,7 +5335,7 @@ QPoint QWidget::backgroundOffset() const
 		{
 		    const QWidget *topl = this;
 		    bool ancestorIsWindowOrigin = FALSE;
-		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
 		    {
 			if (!ancestorIsWindowOrigin) {
 			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
