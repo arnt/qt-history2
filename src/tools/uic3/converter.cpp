@@ -163,7 +163,6 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     action->setElementProperty(properties);
 
                     if (actionName.isEmpty()) {
-                        fprintf(stderr, "=========> no actionName??\n");
                         delete action;
                     } else
                         ui_action_list.append(action);
@@ -475,16 +474,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
 
     QDomElement e = w.firstChild().toElement();
 
-    bool needLayoutWidget = false;
-    int layoutWidgetCount = 0;
-    for (QDomElement ee = e; !ee.isNull(); ee = ee.nextSibling().toElement()) {
-        if (ee.tagName() != QLatin1String("widget"))
-            continue;
-
-        if (ee.attribute("class") == QLatin1String("QLayoutWidget"))
-            ++layoutWidgetCount;
-    }
-
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
         if (t == QLatin1String("vbox")
@@ -504,35 +493,26 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomWidget *ui_child = createWidget(e);
             Q_ASSERT(ui_child != 0);
 
-            if (layoutWidgetCount == 1 && ui_child->attributeClass() == QLatin1String("QLayoutWidget")
-                    && ui_child->elementLayout().size() == 1) {
-                QList<DomLayout*> layouts = ui_child->elementLayout();
-
-                ui_child->setElementLayout(QList<DomLayout*>());
-                delete ui_child;
-                ui_layout_list.append(layouts.at(0));
-            } else {
-                if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
+            if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
                     ui_child->setAttributeClass(QLatin1String("QWidget"));
 
-                QList<DomLayout*> layouts = ui_child->elementLayout();
-                for (int i=0; i<layouts.size(); ++i) {
-                    DomLayout *l = layouts.at(i);
+            QList<DomLayout*> layouts = ui_child->elementLayout();
+            for (int i=0; i<layouts.size(); ++i) {
+                DomLayout *l = layouts.at(i);
 
-                    QList<DomProperty*> properties = l->elementProperty();
-                    QHash<QString, DomProperty*> m = propertyMap(properties);
-                    if (m.contains("margin"))
-                        continue;
+                QList<DomProperty*> properties = l->elementProperty();
+                QHash<QString, DomProperty*> m = propertyMap(properties);
+                if (m.contains("margin"))
+                    continue;
 
-                    DomProperty *margin = new DomProperty();
-                    margin->setAttributeName("margin");
-                    margin->setElementNumber(0);
-                    properties.append(margin);
-                    l->setElementProperty(properties);
-                }
-
-                ui_child_list.append(ui_child);
+                DomProperty *margin = new DomProperty();
+                margin->setAttributeName("margin");
+                margin->setElementNumber(0);
+                properties.append(margin);
+                l->setElementProperty(properties);
             }
+
+            ui_child_list.append(ui_child);
         } else if (t == QLatin1String("action")) {
             DomActionRef *a = new DomActionRef();
             a->read(e);
