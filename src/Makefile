@@ -11,10 +11,10 @@ LIBDIR		= $(BASEDIR)/lib
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -O2 -DCHECK_MEMORY
+CFLAGS		= -felide-constructors -O2 -DCHECK_MEMORY
 CDBGFLAGS	= -g -DCHECK_MEMORY
 AOUTCFLAGS	= -b i486-linuxaout
-ELFCFLAGS	= -fPIC
+ELFCFLAGS	= -fPIC -b i486-linux
 CC		= gcc
 
 ####### Targets
