@@ -571,18 +571,23 @@ void QToolBox::removePage( QWidget *page )
     }
 }
 
+static QWidget *real_page( QWidget *pg )
+{
+    QScrollView *sv = (QScrollView*)pg;
+    if ( !sv )
+	return 0;
+    if ( !sv->viewport()->children() )
+	return 0;
+    return (QWidget*)sv->viewport()->children()->getFirst();
+}
+
 /*!
     Returns the toolbox's current page.
 */
 
 QWidget *QToolBox::currentPage() const
 {
-    QScrollView *sv = (QScrollView*)d->currentPage;
-    if ( !sv )
-	return 0;
-    if ( !sv->viewport()->children() )
-	return 0;
-    return (QWidget*)sv->viewport()->children()->getFirst();
+    return real_page( d->currentPage );
 }
 
 /*!
@@ -602,7 +607,12 @@ int QToolBox::currentIndex() const
 QWidget *QToolBox::page( int index ) const
 {
     QToolBoxPrivate::Page *p = d->pageList->at( index );
-    return p ? d->pages.find( p->button ) : 0;
+    if ( !p )
+	return 0;
+    QWidget *pg = d->pages.find( p->button );
+    if ( !pg )
+	return pg;
+    return real_page( pg );
 }
 
 /*!
