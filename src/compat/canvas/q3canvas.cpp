@@ -18,7 +18,7 @@
 #include "qimage.h"
 #include "q3ptrdict.h"
 #include "qpainter.h"
-#include "qpolygonscanner.h"
+#include "q3polygonscanner.h"
 #include "qtimer.h"
 #include "qtl.h"
 
@@ -5293,7 +5293,7 @@ void Q3CanvasSprite::move(double nx, double ny, int nf)
     }
 }
 
-class Q3CanvasPolygonScanner : public QPolygonScanner {
+class Q3CanvasPolygonScanner : public Q3PolygonScanner {
     QPolygonalProcessor& processor;
 public:
     Q3CanvasPolygonScanner(QPolygonalProcessor& p) :
