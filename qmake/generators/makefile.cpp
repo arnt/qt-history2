@@ -1755,11 +1755,16 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
               << cdout << endl;
         }
 
+        //don't need the makefile arg if it isn't changed
+        QString makefilein;
+        if(subtarget->makefile != "$(MAKEFILE)")
+            makefilein = " -f " + subtarget->makefile;
+
         //actually compile
         t << subtarget->target << ": " << mkfile << "\n\t";
         if(have_dir)
             t << "cd " << subtarget->directory << " && ";
-        t << "$(MAKE) -f " << subtarget->makefile << endl;
+        t << "$(MAKE)" << makefilein << endl;
         for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
             QString s = targetSuffixes.at(suffix);
             if(s == "install_subtargets")
@@ -1773,12 +1778,12 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 if(target)
                     t << " " << targets.at(target-1)->target << "-" << targetSuffixes.at(suffix) << "-ordered ";
                 t << cdin
-                  << "$(MAKE) -f " << subtarget->makefile << " " << s
+                  << "$(MAKE)" << makefilein << " " << s
                   << cdout << endl;
             }
             t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile
               << cdin
-              << "$(MAKE) -f " << subtarget->makefile << " " << s
+              << "$(MAKE)" << makefilein << " " << s
               << cdout << endl;
         }
     }
