@@ -36,8 +36,6 @@
 extern QString dragActionsToString(QDrag::DropActions actions);
 #endif
 
-static HCURSOR *cursor = 0;
-
 QDrag::DropActions translateToQDragDropActions(DWORD pdwEffects)
 {
     QDrag::DropActions actions = QDrag::IgnoreAction;
@@ -77,11 +75,10 @@ DWORD translateToWinDragEffects(QDrag::DropActions action)
 class QOleDropSource : public IDropSource
 {
 public:
-    QOleDropSource()
-    {
-        m_refs = 1;
-        currentAction = QDrag::CopyAction;
-    }
+    QOleDropSource();
+    ~QOleDropSource();
+
+    void createCursors();
 
     // IUnknown methods
     STDMETHOD(QueryInterface)(REFIID riid, void ** ppvObj);
@@ -92,8 +89,11 @@ public:
     STDMETHOD(QueryContinueDrag)(BOOL fEscapePressed, DWORD grfKeyState);
     STDMETHOD(GiveFeedback)(DWORD dwEffect);
 
-    QDrag::DropAction currentAction;
 private:
+    QDrag::DropAction currentAction;
+    int numCursors;
+    HCURSOR * cursor;
+
     ULONG m_refs;
 };
 
@@ -139,6 +139,96 @@ STDAPI_(BOOL) OleStdCopyFormatEtc(LPFORMATETC petcDest, LPFORMATETC petcSrc);
 STDAPI_(DVTARGETDEVICE FAR*) OleStdCopyTargetDevice(DVTARGETDEVICE FAR* ptdSrc);
 STDAPI_(LPENUMFORMATETC)
   OleStdEnumFmtEtc_Create(ULONG nCount, LPFORMATETC lpEtc);
+
+
+
+QOleDropSource::QOleDropSource()
+{
+    m_refs = 1;
+    currentAction = QDrag::CopyAction;
+    numCursors = 0;
+    cursor = 0;
+}
+
+QOleDropSource::~QOleDropSource()
+{
+    if (cursor) {
+#ifndef Q_OS_TEMP
+        for (int i=0; i<numCursors; i++) {
+            DestroyCursor(cursor[i]);
+        }
+#endif
+        delete [] cursor;
+        cursor = 0;
+    }
+}
+
+extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
+
+void QOleDropSource::createCursors()
+{
+    QDragManager *manager = QDragManager::self();
+    if (manager && manager->object && !manager->object->pixmap().isNull()) {
+        numCursors = manager->n_cursor;
+        QPixmap pm = manager->object->pixmap();
+        cursor = new HCURSOR[numCursors];
+        QPoint hotSpot = manager->object->hotSpot();
+        for (int cnum=0; cnum<numCursors; cnum++) {
+            QPixmap cpm = manager->pm_cursor[cnum];
+            int x1 = qMin(-hotSpot.x(),0);
+            int x2 = qMax(pm.width()-hotSpot.x(),cpm.width());
+            int y1 = qMin(-hotSpot.y(),0);
+            int y2 = qMax(pm.height()-hotSpot.y(),cpm.height());
+
+            int w = x2-x1+1;
+            int h = y2-y1+1;
+
+#ifndef Q_OS_TEMP
+            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+                // Limited cursor size
+                int reqw = GetSystemMetrics(SM_CXCURSOR);
+                int reqh = GetSystemMetrics(SM_CYCURSOR);
+                if (reqw < w) {
+                    // Not wide enough - move objectpm right
+                    hotSpot.setX(hotSpot.x()-w+reqw);
+                }
+                if (reqh < h) {
+                    // Not tall enough - move objectpm down
+                    hotSpot.setY(hotSpot.y()-h+reqh);
+                }
+                // Always use system cursor size
+                w = reqw;
+                h = reqh;
+            }
+#endif
+
+            QPixmap newCursor(w, h, -1, QPixmap::NormalOptim);
+            QPainter p(&newCursor);
+            p.fillRect(0,0,w,h,Qt::color1);
+            p.drawPixmap(qMax(0,-hotSpot.x()),qMax(0,-hotSpot.y()),pm);
+            p.drawPixmap(qMax(0,hotSpot.x()),qMax(0,hotSpot.y()),cpm);
+            
+            QBitmap cursorMask;
+            if (newCursor.mask()) {
+                cursorMask = *newCursor.mask();
+            } else {
+                cursorMask = QBitmap(w, h, true, QPixmap::NormalOptim);
+                cursorMask.fill(Qt::color1);
+            }
+
+            HBITMAP im = qt_createIconMask(cursorMask);
+            ICONINFO ii;
+            ii.fIcon     = false;
+            ii.xHotspot  = qMax(0,hotSpot.x());
+            ii.yHotspot  = qMax(0,hotSpot.y());
+            ii.hbmMask   = im;
+            ii.hbmColor  = newCursor.hbm();
+            cursor[cnum] = CreateIconIndirect(&ii);
+            DeleteObject(im);
+        }
+    }
+}
+
 
 
 //---------------------------------------------------------------------
@@ -209,12 +299,19 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
         currentAction = action;
         QDragManager::self()->emitActionChanged(currentAction); 
     }
-    //###set the correct cursor
-    //HCURSOR c = dragManager->hCursors[dragManager->cursorIndex(action)];
-//	if (c) {
-//	    SetCursor(c);
-//	    return ResultFromScode(S_OK);
-//	}
+    
+    if (cursor) {
+        if (currentAction == QDrag::MoveAction)
+            SetCursor(cursor[0]);
+        else if (currentAction == QDrag::CopyAction)
+            SetCursor(cursor[1]);
+        else if (currentAction == QDrag::LinkAction)
+            SetCursor(cursor[2]);
+        else 
+            return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
+        return ResultFromScode(S_OK);
+    }
+
     return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
 }
 
@@ -657,6 +754,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
 
     DWORD resultEffect;
     QOleDropSource *src = new QOleDropSource();
+    src->createCursors();
     QOleDataObject *obj = new QOleDataObject(o->mimeData());
     DWORD allowedEffects = translateToWinDragEffects(dragPrivate()->possible_actions);
     
@@ -729,99 +827,9 @@ QOleDropTarget* qt_olednd_register(QWidget* widget)
     return dst;
 }
 
-extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
-
 void QDragManager::updatePixmap()
 {
-    if (object) {
-        if (cursor) {
-#ifndef Q_OS_TEMP
-            for (int i=0; i<n_cursor; i++) {
-                DestroyCursor(cursor[i]);
-            }
-#endif
-            delete [] cursor;
-            cursor = 0;
-        }
-
-        QPixmap pm = object->pixmap();
-        if (pm.isNull()) {
-            // None.
-        } else {
-            cursor = new HCURSOR[n_cursor];
-            QPoint pm_hot = object->hotSpot();
-            for (int cnum=0; cnum<n_cursor; cnum++) {
-                QPixmap cpm = pm_cursor[cnum];
-
-                int x1 = qMin(-pm_hot.x(),0);
-                int x2 = qMax(pm.width()-pm_hot.x(),cpm.width());
-                int y1 = qMin(-pm_hot.y(),0);
-                int y2 = qMax(pm.height()-pm_hot.y(),cpm.height());
-
-                int w = x2-x1+1;
-                int h = y2-y1+1;
-
-#ifndef Q_OS_TEMP
-                if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
-                    // Limited cursor size
-                    int reqw = GetSystemMetrics(SM_CXCURSOR);
-                    int reqh = GetSystemMetrics(SM_CYCURSOR);
-                    if (reqw < w) {
-                        // Not wide enough - move objectpm right
-                        pm_hot.setX(pm_hot.x()-w+reqw);
-                    }
-                    if (reqh < h) {
-                        // Not tall enough - move objectpm down
-                        pm_hot.setY(pm_hot.y()-h+reqh);
-                    }
-                    // Always use system cursor size
-                    w = reqw;
-                    h = reqh;
-                }
-#endif
-
-                QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
-                {
-                    QPainter p(&colorbits);
-                    p.fillRect(0,0,w,h,Qt::color1);
-                    p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),pm);
-                    p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),cpm);
-                }
-
-                QBitmap maskbits(w,h,true,QPixmap::NormalOptim);
-                {
-                    QPainter p(&maskbits);
-                    if (pm.mask()) {
-                        QBitmap m(*pm.mask());
-                        m.setMask(m);
-                        p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),m);
-                    } else {
-                        p.fillRect(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),
-                            pm.width(),pm.height(),Qt::color1);
-                    }
-                    if (cpm.mask()) {
-                        QBitmap m(*cpm.mask());
-                        m.setMask(m);
-                        p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),m);
-                    } else {
-                        p.fillRect(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),
-                            cpm.width(),cpm.height(),
-                            Qt::color1);
-                    }
-                }
-
-                HBITMAP im = qt_createIconMask(maskbits);
-                ICONINFO ii;
-                ii.fIcon     = false;
-                ii.xHotspot  = qMax(0,pm_hot.x());
-                ii.yHotspot  = qMax(0,pm_hot.y());
-                ii.hbmMask   = im;
-                ii.hbmColor  = colorbits.hbm();
-                cursor[cnum] = CreateIconIndirect(&ii);
-                DeleteObject(im);
-            }
-        }
-    }
+    // not used in windows implementation
 }
 
 bool QDragManager::eventFilter(QObject *, QEvent *)
@@ -839,7 +847,6 @@ void QDragManager::move(const QPoint &)
 {
     // not used in windows implementation
 }
-
 
 void QDragManager::drop()
 {
