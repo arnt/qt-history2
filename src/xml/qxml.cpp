@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#58 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#59 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -883,6 +883,7 @@ void QXmlInputSource::init()
     userRawData = 0;
     rawData = 0;
     encStream = 0;
+    encBuffer = 0;
 }
 
 /*!
@@ -2291,7 +2292,7 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 }
 
 /*!  \reimp
-  Sets the state of the feature \a name to \a value: 
+  Sets the state of the feature \a name to \a value:
 
   \walkthrough xml/tagreader-with-features/tagreader.cpp
   \skipto reader
@@ -2618,10 +2619,10 @@ bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
   ad 2: constants for the input (used in the transition table)
   ad 3: the transition table for the state machine
   ad 4: test if we are in a parseContinue() step
-        a) if no, do inititalizations
+	a) if no, do inititalizations
 	b) if yes, restore the state and call parse functions recursively
   ad 5: Do some actions according to the state; from the logical execution
-        order, this code belongs after 8 (see there for an explanation)
+	order, this code belongs after 8 (see there for an explanation)
   ad 6: Check the character that is at the actual "cursor" position:
 	a) If we reached the EOF, report either error or push the state (in the
 	   case of incremental parsing).
