@@ -61,7 +61,7 @@ QCursorData::~QCursorData()
   Global cursors
  *****************************************************************************/
 
-static const int cursors = 14;
+static const int cursors = 15;
 static QCursor cursorTable[cursors];
 
 static const int arrowCursorIdx = 0;
@@ -80,6 +80,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::blankCursor = cursorTable[10];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
+QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
 
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
