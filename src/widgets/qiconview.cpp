@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#67 $
 **
 ** Definition of QIconView widget class
 **
@@ -236,7 +236,7 @@ QIconDragItem::~QIconDragItem()
 /*!
  */
 
-bool QIconDragItem::operator<( const QIconDragItem &icon )
+bool QIconDragItem::operator<( const QIconDragItem &icon ) const
 {
     return key_ < icon.key_;
 }
@@ -244,7 +244,7 @@ bool QIconDragItem::operator<( const QIconDragItem &icon )
 /*!
  */
 
-bool QIconDragItem::operator==( const QIconDragItem &icon )
+bool QIconDragItem::operator==( const QIconDragItem &icon ) const
 {
     return key_ == icon.key_;
 }
