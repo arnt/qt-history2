@@ -653,8 +653,8 @@ void QTabBar::paintEvent( QPaintEvent * e )
     QPainter p(this);
     QTab *t = l->first();
     QTab *n = 0;
-    for (int i=1; i<l->size() && t; ++i) {
-	n = l->at(i);
+    for (int i=1; t; ++i) {
+	n = ( i<l->size() ? l->at(i) : 0 );
 	if (t->r.intersects(e->rect()))
 	    paint(&p, t, n == 0);
 	t = n;
