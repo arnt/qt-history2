@@ -174,13 +174,16 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, SourceFile* sf )
     setPixmap( 0, *filePixmap );
 }
 
-WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, bool )
+WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
     : QListViewItem( parent )
 {
     init();
     object = o;
+    project = p;
     t = ObjectType;
     setPixmap( 0, *objectPixmap );
+    QObject::connect( p->fakeFormFor( o )->formFile(), SIGNAL( somethingChanged(FormFile*) ),
+		      listView(), SLOT( update() ) );
 }
 
 WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
@@ -319,6 +322,7 @@ bool WorkspaceItem::isModified() const
     case SourceFileType:
 	return sourceFile->isModified();
     case ObjectType:
+	return project->fakeFormFor( object )->formFile()->isModified();
 	break;
     }
     return FALSE; // shut up compiler
@@ -453,7 +457,7 @@ void Workspace::setCurrentProject( Project *pro )
     for ( QObjectListIt objs = project->objects();
 	  objs.current(); ++objs ) {
 	QObject* o = objs.current();
-	(void) new WorkspaceItem( projectItem, o, FALSE );
+	(void) new WorkspaceItem( projectItem, o, project );
     }
 
     updateColors();
@@ -490,7 +494,7 @@ void Workspace::formFileRemoved( FormFile* ff )
 
 void Workspace::objectAdded( QObject *o )
 {
-    (void) new WorkspaceItem( projectItem, o, FALSE );
+    (void) new WorkspaceItem( projectItem, o, project );
     updateColors();
 }
 

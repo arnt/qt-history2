@@ -44,7 +44,7 @@ public:
     WorkspaceItem( QListView *parent, Project* p );
     WorkspaceItem( QListViewItem *parent, SourceFile* sf );
     WorkspaceItem( QListViewItem *parent, FormFile* ff, Type t = FormFileType );
-    WorkspaceItem( QListViewItem *parent, QObject *o, bool b );
+    WorkspaceItem( QListViewItem *parent, QObject *o, Project *p );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
 

@@ -1161,7 +1161,6 @@ bool Project::removeFormFile( FormFile *ff )
 void Project::addObject( QObject *o )
 {
     objs.append( o );
-    emit objectAdded( o );
     MetaDataBase::addEntry( o );
     FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
@@ -1173,13 +1172,13 @@ void Project::addObject( QObject *o )
     fakeForms.insert( (void*)o, fw );
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
+    emit objectAdded( o );
 }
 
 void Project::setObjects( const QObjectList &ol )
 {
     objs = ol;
     for ( QObjectListIt it( objs ); it.current(); ++it ) {
-	emit objectAdded( it.current() );
 	MetaDataBase::addEntry( it.current() );
 	FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
 	FormWindow *fw = new FormWindow( ff, MainWindow::self,
@@ -1191,15 +1190,16 @@ void Project::setObjects( const QObjectList &ol )
 	fakeForms.insert( (void*)it.current(), fw );
 	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
+	emit objectAdded( it.current() );
     }
 }
 
 void Project::removeObject( QObject *o )
 {
-    emit objectRemoved( o );
     objs.removeRef( o );
     MetaDataBase::removeEntry( o );
     fakeForms.remove( (void*)o );
+    emit objectRemoved( o );
 }
 
 QObjectList Project::objects() const
