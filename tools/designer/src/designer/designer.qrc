@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/">
+<qresource prefix="/trolltech/designer">
 <file>images/designer.png</file>
+<file>templates/forms/dialog.ui</file>
+<file>templates/forms/widget.ui</file>
+<file>templates/forms/mainwindow.ui</file>
 </qresource>
 </RCC>

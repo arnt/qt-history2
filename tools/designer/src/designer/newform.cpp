@@ -15,6 +15,8 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 
+#include <sheet_delegate.h>
+
 #include <abstractformwindow.h>
 
 NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
@@ -22,6 +24,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
       m_workbench(workbench)
 {
     ui.setupUi(this);
+    ui.treeWidget->setItemDelegate(new SheetDelegate(ui.treeWidget, this));
 }
 
 NewForm::~NewForm()
