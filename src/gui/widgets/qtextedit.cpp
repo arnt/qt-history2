@@ -72,12 +72,12 @@ QByteArray QRichTextDrag::encodedData(const char *mime) const
         QByteArray binary;
         QDataStream stream(&binary, IO_WriteOnly);
         stream << fragment;
-	return binary;
+        return binary;
     }
 
     if (!plainTextSet) {
-	const_cast<QRichTextDrag *>(this)->setText(fragment.toPlainText());
-	plainTextSet = true;
+        const_cast<QRichTextDrag *>(this)->setText(fragment.toPlainText());
+        plainTextSet = true;
     }
 
     return QTextDrag::encodedData(mime);
@@ -88,15 +88,15 @@ bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment
     if (e->provides("application/x-qt-richtext")) {
         QDataStream stream(e->encodedData("application/x-qt-richtext"), IO_ReadOnly);
         stream >> fragment;
-	return true;
+        return true;
     } else if (e->provides("application/x-qrichtext")) {
-	fragment = QTextDocumentFragment::fromHTML(e->encodedData("application/x-qrichtext"));
-	return true;
+        fragment = QTextDocumentFragment::fromHTML(e->encodedData("application/x-qrichtext"));
+        return true;
     }
 
     QString plainText;
     if (!QTextDrag::decode( e, plainText ))
-	return false;
+        return false;
 
     fragment = QTextDocumentFragment::fromPlainText(plainText);
     return true;
@@ -105,8 +105,8 @@ bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment
 bool QRichTextDrag::canDecode(const QMimeSource* e)
 {
     if (e->provides("application/x-qt-richtext")
-	|| e->provides("application/x-qrichtext"))
-	return true;
+        || e->provides("application/x-qrichtext"))
+        return true;
     return QTextDrag::canDecode(e);
 }
 
@@ -139,9 +139,9 @@ public:
     inline void trippleClickTimeout()
     { trippleClickTimerActive = false; }
 
-    void placeCursor(const QPoint &pos);
-
+    void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+
     void update(const QRect &contentsRect);
 
     inline QPoint translateCoordinates(const QPoint &point)
@@ -149,7 +149,7 @@ public:
 
     void selectionChanged();
 
-    // ### helper for compat functions
+    // helper for compat functions
     QTextBlock blockAt(const QPoint &pos, int *documentPosition = 0) const;
 
     inline int contentsX() const { return hbar->value(); }
@@ -196,37 +196,37 @@ public:
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
-				   ? QTextCursor::KeepAnchor
-				   : QTextCursor::MoveAnchor;
+                                   ? QTextCursor::KeepAnchor
+                                   : QTextCursor::MoveAnchor;
 
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
     switch (e->key()) {
-	case Qt::Key_Up:
-	    op = QTextCursor::Up;
-	    break;
-	case Qt::Key_Down:
-	    op = QTextCursor::Down;
-	    break;
-	case Qt::Key_Left:
-	    op = e->state() & Qt::ControlButton
-		 ? QTextCursor::WordLeft
-		 : QTextCursor::Left;
-	    break;
-	case Qt::Key_Right:
-	    op = e->state() & Qt::ControlButton
-		 ? QTextCursor::WordRight
-		 : QTextCursor::Right;
-	    break;
-	case Qt::Key_Home:
-	    op = e->state() & Qt::ControlButton
-		 ? QTextCursor::Start
-		 : QTextCursor::StartOfLine;
-	    break;
-	case Qt::Key_End:
-	    op = e->state() & Qt::ControlButton
-		 ? QTextCursor::End
-		 : QTextCursor::EndOfLine;
-	    break;
+        case Qt::Key_Up:
+            op = QTextCursor::Up;
+            break;
+        case Qt::Key_Down:
+            op = QTextCursor::Down;
+            break;
+        case Qt::Key_Left:
+            op = e->state() & Qt::ControlButton
+                 ? QTextCursor::WordLeft
+                 : QTextCursor::Left;
+            break;
+        case Qt::Key_Right:
+            op = e->state() & Qt::ControlButton
+                 ? QTextCursor::WordRight
+                 : QTextCursor::Right;
+            break;
+        case Qt::Key_Home:
+            op = e->state() & Qt::ControlButton
+                 ? QTextCursor::Start
+                 : QTextCursor::StartOfLine;
+            break;
+        case Qt::Key_End:
+            op = e->state() & Qt::ControlButton
+                 ? QTextCursor::End
+                 : QTextCursor::EndOfLine;
+            break;
         case Qt::Key_Next:
             return pageDown(mode);
         case Qt::Key_Prior:
@@ -262,17 +262,17 @@ void QTextEditPrivate::indent()
 
     QTextList *list = cursor.currentList();
     if (!list) {
-	QTextBlockFormat modifier;
-	modifier.setIndent(blockFmt.indent() + 1);
-	cursor.mergeBlockFormat(modifier);
+        QTextBlockFormat modifier;
+        modifier.setIndent(blockFmt.indent() + 1);
+        cursor.mergeBlockFormat(modifier);
     } else {
-	QTextListFormat format = list->format();
-	format.setIndent(format.indent() + 1);
+        QTextListFormat format = list->format();
+        format.setIndent(format.indent() + 1);
 
-	if (list->itemNumber(cursor.block()) == 1)
-	    list->setFormat(format);
-	else
-	    cursor.createList(format);
+        if (list->itemNumber(cursor.block()) == 1)
+            list->setFormat(format);
+        else
+            cursor.createList(format);
     }
 }
 
@@ -283,13 +283,13 @@ void QTextEditPrivate::outdent()
     QTextList *list = cursor.currentList();
 
     if (!list) {
-	QTextBlockFormat modifier;
-	modifier.setIndent(blockFmt.indent() - 1);
-	cursor.mergeBlockFormat(modifier);
+        QTextBlockFormat modifier;
+        modifier.setIndent(blockFmt.indent() - 1);
+        cursor.mergeBlockFormat(modifier);
     } else {
-	QTextListFormat listFmt = list->format();
-	listFmt.setIndent(listFmt.indent() - 1);
-	list->setFormat(listFmt);
+        QTextListFormat listFmt = list->format();
+        listFmt.setIndent(listFmt.indent() - 1);
+        list->setFormat(listFmt);
     }
 }
 
@@ -383,7 +383,7 @@ void QTextEditPrivate::paste(const QMimeSource *source)
     cursor.insertFragment(fragment);
 }
 
-void QTextEditPrivate::placeCursor(const QPoint &pos)
+void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 {
     const int cursorPos = doc->documentLayout()->hitTest(pos, QText::FuzzyHit);
     if (cursorPos == -1)
@@ -1032,9 +1032,8 @@ process:
     ensureCursorVisible();
 
     if (updateCurrentFormat)
-	d->updateCurrentCharFormat();
+        d->updateCurrentCharFormat();
 
-//    qDebug("cursorPos at %d",  d->cursor.position() );
 }
 
 void QTextEdit::resizeEvent(QResizeEvent *)
@@ -1063,8 +1062,6 @@ void QTextEdit::resizeEvent(QResizeEvent *)
 
     d->vbar->setRange(0, layout->totalHeight() - d->viewport->height());
     d->vbar->setPageStep(d->viewport->height());
-
-//    resizeContents(layout->widthUsed(), layout->totalHeight());
 }
 
 void QTextEdit::paintEvent(QPaintEvent *ev)
@@ -1082,8 +1079,6 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     ctx.showCursor = d->cursorOn && d->viewport->hasFocus();
     ctx.cursor = d->cursor;
     ctx.palette = palette();
-
-//    qDebug() << "selectionStart" << d->selection.start().position() << "selectionEnd" << d->selection.end().position();
 
     d->doc->documentLayout()->draw(&p, ctx);
 }
@@ -1167,7 +1162,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
     } else if (ev->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
-        d->placeCursor(d->translateCoordinates(ev->pos()));
+        d->setCursorPosition(d->translateCoordinates(ev->pos()));
         d->paste(QApplication::clipboard()->data(QClipboard::Selection));
     }
 
@@ -1247,7 +1242,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
     }
     ev->acceptAction();
 
-    d->placeCursor(d->translateCoordinates(ev->pos()));
+    d->setCursorPosition(d->translateCoordinates(ev->pos()));
     d->paste(ev);
 }
 
@@ -1695,7 +1690,6 @@ void QTextEdit::append(const QString &text)
             f = Qt::PlainText;
     }
 
-//    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
     const bool atBottom = d->contentsY() >= d->contentsHeight() - d->viewport->height();
 
     QTextCursor cursor(d->doc);
