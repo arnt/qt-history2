@@ -25,7 +25,7 @@
 
 class QTextBrowserData;
 
-class Q_GUI_EXPORT QTextBrowser : public Q3TextEdit
+class Q_COMPAT_EXPORT QTextBrowser : public Q3TextEdit
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource)

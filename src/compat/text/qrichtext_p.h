@@ -69,7 +69,7 @@ struct QBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextStringChar
+class Q_COMPAT_EXPORT Q3TextStringChar
 {
     friend class Q3TextString;
 
@@ -146,7 +146,7 @@ private:
 
 Q_DECLARE_TYPEINFO(Q3TextStringChar, Q_PRIMITIVE_TYPE);
 
-class Q_GUI_EXPORT Q3TextString
+class Q_COMPAT_EXPORT Q3TextString
 {
 public:
 
@@ -265,7 +265,7 @@ inline bool Q3TextString::validCursorPosition(int idx)
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextCursor
+class Q_COMPAT_EXPORT Q3TextCursor
 {
 public:
     Q3TextCursor(Q3TextDocument * = 0);
@@ -356,7 +356,7 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextCommand
+class Q_COMPAT_EXPORT QTextCommand
 {
 public:
     enum Commands { Invalid, Insert, Delete, Format, Style };
@@ -375,7 +375,7 @@ protected:
 
 };
 
-class Q_GUI_EXPORT QTextCommandHistory
+class Q_COMPAT_EXPORT QTextCommandHistory
 {
 public:
     QTextCommandHistory(int s) : current(-1), steps(s) {  }
@@ -409,7 +409,7 @@ inline QTextCommandHistory::~QTextCommandHistory()
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT Q3TextCustomItem
+class Q_COMPAT_EXPORT Q3TextCustomItem
 {
 public:
     Q3TextCustomItem(Q3TextDocument *p)
@@ -461,7 +461,7 @@ public:
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextImage : public Q3TextCustomItem
+class Q_COMPAT_EXPORT QTextImage : public Q3TextCustomItem
 {
 public:
     QTextImage(Q3TextDocument *p, const QMap<QString, QString> &attr, const QString& context,
@@ -489,7 +489,7 @@ private:
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextHorizontalLine : public Q3TextCustomItem
+class Q_COMPAT_EXPORT QTextHorizontalLine : public Q3TextCustomItem
 {
 public:
     QTextHorizontalLine(Q3TextDocument *p, const QMap<QString, QString> &attr, const QString& context,
@@ -511,7 +511,7 @@ private:
 };
 #endif
 
-class Q_GUI_EXPORT Q3TextFlow
+class Q_COMPAT_EXPORT Q3TextFlow
 {
     friend class Q3TextDocument;
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -560,7 +560,7 @@ inline int Q3TextFlow::width() const { return w; }
 #ifndef QT_NO_TEXTCUSTOMITEM
 class Q3TextTable;
 
-class Q_GUI_EXPORT Q3TextTableCell : public QLayoutItem
+class Q_COMPAT_EXPORT Q3TextTableCell : public QLayoutItem
 {
     friend class Q3TextTable;
 
@@ -626,7 +626,7 @@ private:
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT Q3TextTable: public Q3TextCustomItem
+class Q_COMPAT_EXPORT Q3TextTable: public Q3TextCustomItem
 {
     friend class Q3TextTableCell;
 
@@ -691,14 +691,14 @@ class Q3TextTableCell;
 class Q3TextParagraph;
 #endif
 
-struct Q_GUI_EXPORT Q3TextDocumentSelection
+struct Q_COMPAT_EXPORT Q3TextDocumentSelection
 {
     Q3TextCursor startCursor, endCursor;
     bool swapped;
     Q_DUMMY_COMPARISON_OPERATOR(Q3TextDocumentSelection)
 };
 
-class Q_GUI_EXPORT Q3TextDocument : public QObject
+class Q_COMPAT_EXPORT Q3TextDocument : public QObject
 {
     Q_OBJECT
 
@@ -915,7 +915,7 @@ private:
     void setRichTextMarginsInternal(QList< QVector<QStyleSheetItem *> *>& styles, Q3TextParagraph* stylesPar);
 
 private:
-    struct Q_GUI_EXPORT Focus {
+    struct Q_COMPAT_EXPORT Focus {
         Q3TextParagraph *parag;
         int start, len;
         QString href;
@@ -981,7 +981,7 @@ private:
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class Q_GUI_EXPORT QTextDeleteCommand : public QTextCommand
+class Q_COMPAT_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
     QTextDeleteCommand(Q3TextDocument *dc, int i, int idx, const QVector<Q3TextStringChar> &str,
@@ -1001,7 +1001,7 @@ protected:
 
 };
 
-class Q_GUI_EXPORT QTextInsertCommand : public QTextDeleteCommand
+class Q_COMPAT_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
     QTextInsertCommand(Q3TextDocument *dc, int i, int idx, const QVector<Q3TextStringChar> &str,
@@ -1017,7 +1017,7 @@ public:
 
 };
 
-class Q_GUI_EXPORT Q3TextFormatCommand : public QTextCommand
+class Q_COMPAT_EXPORT Q3TextFormatCommand : public QTextCommand
 {
 public:
     Q3TextFormatCommand(Q3TextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<Q3TextStringChar> &old, Q3TextFormat *f, int fl);
@@ -1035,7 +1035,7 @@ protected:
 
 };
 
-class Q_GUI_EXPORT QTextStyleCommand : public QTextCommand
+class Q_COMPAT_EXPORT QTextStyleCommand : public QTextCommand
 {
 public:
     QTextStyleCommand(Q3TextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange );
@@ -1056,13 +1056,13 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-struct Q_GUI_EXPORT Q3TextParagraphSelection
+struct Q_COMPAT_EXPORT Q3TextParagraphSelection
 {
     int start, end;
     Q_DUMMY_COMPARISON_OPERATOR(Q3TextParagraphSelection)
 };
 
-struct Q_GUI_EXPORT QTextLineStart
+struct Q_COMPAT_EXPORT QTextLineStart
 {
     QTextLineStart() : y(0), baseLine(0), h(0)
     {  }
@@ -1075,7 +1075,7 @@ public:
     int w;
 };
 
-class Q_GUI_EXPORT Q3TextParagraphData
+class Q_COMPAT_EXPORT Q3TextParagraphData
 {
 public:
     Q3TextParagraphData() {}
@@ -1087,7 +1087,7 @@ class Q3TextParagraphPseudoDocument;
 
 class QSyntaxHighlighter;
 
-class Q_GUI_EXPORT Q3TextParagraph
+class Q_COMPAT_EXPORT Q3TextParagraph
 {
     friend class Q3TextDocument;
     friend class Q3TextCursor;
@@ -1311,7 +1311,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextFormatter
+class Q_COMPAT_EXPORT Q3TextFormatter
 {
 public:
     Q3TextFormatter();
@@ -1350,7 +1350,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextFormatterBreakInWords : public Q3TextFormatter
+class Q_COMPAT_EXPORT Q3TextFormatterBreakInWords : public Q3TextFormatter
 {
 public:
     Q3TextFormatterBreakInWords();
@@ -1362,7 +1362,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextFormatterBreakWords : public Q3TextFormatter
+class Q_COMPAT_EXPORT Q3TextFormatterBreakWords : public Q3TextFormatter
 {
 public:
     Q3TextFormatterBreakWords();
@@ -1374,7 +1374,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextIndent
+class Q_COMPAT_EXPORT Q3TextIndent
 {
 public:
     Q3TextIndent();
@@ -1386,7 +1386,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextPreProcessor
+class Q_COMPAT_EXPORT Q3TextPreProcessor
 {
 public:
     enum Ids {
@@ -1403,7 +1403,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextFormat
+class Q_COMPAT_EXPORT Q3TextFormat
 {
     friend class Q3TextFormatCollection;
     friend class Q3TextDocument;
@@ -1511,7 +1511,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT Q3TextFormatCollection
+class Q_COMPAT_EXPORT Q3TextFormatCollection
 {
     friend class Q3TextDocument;
     friend class Q3TextFormat;
@@ -1549,7 +1549,7 @@ private:
     QPaintDevice *paintdevice;
 };
 
-class Q_GUI_EXPORT Q3TextParagraphPseudoDocument
+class Q_COMPAT_EXPORT Q3TextParagraphPseudoDocument
 {
 public:
     Q3TextParagraphPseudoDocument();
