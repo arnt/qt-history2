@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#6 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#7 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -108,7 +108,6 @@ public:
 	QRect g = geometry();
 	QColor bg = backgroundColor();
 	bool mt = hasMouseTracking();
-	bool hascurs = testWFlags( WCursorSet );
 	QCursor curs = cursor();
 	clearWFlags( WState_Created );
 	clearWFlags( WState_Visible );
@@ -116,9 +115,7 @@ public:
 	setGeometry(g);
 	setBackgroundColor( bg );
 	setMouseTracking( mt );
-	if ( hascurs ) {
-	    setCursor( curs );
-	}
+	setCursor( curs );
     }
 };
 
@@ -368,10 +365,13 @@ bool QXtApplication::x11EventFilter(XEvent* ev)
 */
 
 void QXtWidget::init(const char* name, WidgetClass widget_class,
-		    Widget parent, ArgList args, Cardinal num_args,
+		    Widget parent, QWidget* qparent,
+		    ArgList args, Cardinal num_args,
 		    bool managed)
 {
-    if (parent) {
+    need_reroot=FALSE;
+    if (parent ) {
+	ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
 	if (managed)
 	    XtManageChild(xtw);
@@ -381,6 +381,11 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
 	    args, num_args);
+	if ( qparent ) {
+	    XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(),
+		x(), y());
+	    need_reroot=TRUE;
+	}
     }
 
     Arg reqargs[20];
@@ -409,7 +414,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
     QWidget(0, name)
 {
-    init(name, qWidgetClass, parent, 0, 0, managed);
+    init(name, qWidgetClass, parent, 0, 0, 0, managed);
     ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
     Arg reqargs[20];
     Cardinal nargs=0;
@@ -424,19 +429,33 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
   application.  The QXtWidget looks and behaves
   like the Xt class, but can be used like any QWidget.
 
-  Note that the parent must be a QXtWidget (possibly NULL).
-  This is necessary since all Xt widgets must have Xt widgets
-  as ancestors up to the top-level widget.
-  <em>WWA: This restriction may be avoidable by reimplementing
-  the low-level Qt window creation/destruction functions.</em>
+  If the \a managed parameter is TRUE and \a parent in not NULL,
+  XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QXtWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed) :
     QWidget(parent, name)
 {
-    init(name, widget_class, parent ? parent->xtw : 0, args, num_args, managed);
+    init(name, widget_class, parent ? parent->xtw : 0, 0, args, num_args, managed);
     create(XtWindow(xtw), FALSE, FALSE);
+}
+
+/*!
+  Constructs a QXtWidget of the given \a widget_class.
+
+  Use this constructor to utilize Xt or Motif widgets in a Qt
+  application.  The QXtWidget looks and behaves
+  like the Xt class, but can be used like any QWidget.
+
+  The widget is unmanaged (in the Xt sense).
+*/
+QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
+		     QWidget *parent, ArgList args, Cardinal num_args) :
+    QWidget(parent, name)
+{
+    init(name, widget_class, 0, parent, args, num_args, FALSE);
+    create(parent->winId(), FALSE, FALSE);
 }
 
 /*!
@@ -455,6 +474,12 @@ QXtWidget::~QXtWidget()
             ++it;
         }
         delete list;
+    }
+
+    if ( need_reroot ) {
+	hide();
+	XReparentWindow(qt_xdisplay(), winId(), qApp->desktop()->winId(),
+	    x(), y());
     }
 
     XtDestroyWidget(xtw);
