@@ -314,8 +314,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	        static_cast<QWidget*>(obj)->destroy(destroySubWindows,
 						     destroySubWindows);
 	}
-	if ( qt_mouseGrb == this )
-	    releaseMouse();
+	releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
 	if ( testWFlags(WShowModal) )		// just be sure we leave modal
