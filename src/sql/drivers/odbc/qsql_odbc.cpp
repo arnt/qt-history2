@@ -220,7 +220,6 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	}
     }
     delete[] buf;
-
     return fieldVal;
 }
 
