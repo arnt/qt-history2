@@ -1763,8 +1763,8 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QMouseEvent* t, *ev = mouse;
 	    while ( w ) {
 		ev->accept();
-		internalNotify( w, ev );
-		if ( ev->isAccepted() || w->isTopLevel() )
+		res = internalNotify( w, ev );
+		if ( res || w->isTopLevel() )
 		    break;
 		t = ev;
 		ev = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
@@ -1773,18 +1773,17 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		w = w->parentWidget();
 
 		if ( w && w->testWFlags( WNoMousePropagation ) ) {
-		    mouse->accept();
+		    res = true;
 		    break;
 		}
 	    }
 	    if ( ev != e ) {
-		if ( ev->isAccepted() )
+		if ( res )
 		    mouse->accept();
 		else
 		    mouse->ignore();
 		delete ev;
 	    }
-	    res = mouse->isAccepted();
 	}
 	break;
     case QEvent::Wheel:
@@ -1794,8 +1793,8 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QWheelEvent* t, *ev = wheel;
 	    while ( w ) {
 		ev->accept();
-		internalNotify( w, e );
-		if ( ev->isAccepted() || w->isTopLevel() )
+		res = internalNotify( w, e );
+		if ( res || w->isTopLevel() )
 		    break;
 		t = ev;
 		ev = new QWheelEvent( t->pos() + w->pos(), t->globalPos(), t->delta(), t->state() );
@@ -1808,13 +1807,12 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		}
 	    }
 	    if ( e != wheel ) {
-		if ( ev->isAccepted() )
+		if ( res )
 		    wheel->accept();
 		else
 		    wheel->ignore();
 		delete ev;
 	    }
-	    res = wheel->isAccepted();
 	}
 	break;
     case QEvent::ContextMenu:
@@ -1830,10 +1828,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		else
 		    cevent->ignore();
 		delete ce;
-		if ( res || cevent->isAccepted() || w->isTopLevel() || w->testWFlags( WNoMousePropagation ) )
+		if ( res || cevent->isAccepted() )
 		    break;
 
-		w = w->parentWidget();
+		w = w->parentWidget( TRUE );
 	    }
 	}
 	break;
