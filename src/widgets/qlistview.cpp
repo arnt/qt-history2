@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#63 $
 **
 ** Implementation of QListView widget class
 **
@@ -22,11 +22,10 @@
 #include "qdatetm.h"
 #include "qptrdict.h"
 
-#include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#63 $");
 
 
 const int Unsorted = 32767;
@@ -163,7 +162,7 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 
 
 /*!  Creates a new list view item in the QListView \a parent,
-  with a null-terminated series of constant strings as contents.
+  \a parent, with at most 8 constant strings as contents.
 
   \code
      (void)new QListViewItem( lv, "/", "Root directory", 0 );
@@ -171,45 +170,77 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 */
 
 QListViewItem::QListViewItem( QListView * parent,
-			      const char * firstLabel, ... )
+			      const char * label1,
+			      const char * label2,
+			      const char * label3,
+			      const char * label4,
+			      const char * label5,
+			      const char * label6,
+			      const char * label7,
+			      const char * label8 )
 {
     init();
     parent->insertItem( this );
 
     columnTexts = new QStrList();
-    columnTexts->append( firstLabel );
-    va_list ap;
-    const char * nextLabel;
-    va_start( ap, firstLabel );
-    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
-	columnTexts->append( nextLabel );
-    va_end( ap );
+    if ( label1 )
+	columnTexts->append( label1 );
+    if ( label2 )
+	columnTexts->append( label2 );
+    if ( label3 )
+	columnTexts->append( label3 );
+    if ( label4 )
+	columnTexts->append( label4 );
+    if ( label5 )
+	columnTexts->append( label5 );
+    if ( label6 )
+	columnTexts->append( label6 );
+    if ( label7 )
+	columnTexts->append( label7 );
+    if ( label8 )
+	columnTexts->append( label8 );
 }
 
 
 /*!  Creates a new list view item that's a child of the QListViewItem
-  \a parent, with a null-terminated series of constant strings as
-  contents.  Possible example in a news or e-mail reader:
+  \a parent, with at most 8 constant strings as contents.  Possible
+  example in a news or e-mail reader:
 
   \code
-     (void)new QListViewItem( parentMessage, author, subject, 0 );
+     (void)new QListViewItem( parentMessage, author, subject );
   \endcode
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
-			      const char * firstLabel, ... )
+			      const char * label1, 
+			      const char * label2,
+			      const char * label3,
+			      const char * label4,
+			      const char * label5,
+			      const char * label6,
+			      const char * label7,
+			      const char * label8 )
 {
     init();
     parent->insertItem( this );
 
     columnTexts = new QStrList();
-    columnTexts->append( firstLabel );
-    va_list ap;
-    const char * nextLabel;
-    va_start( ap, firstLabel );
-    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
-	columnTexts->append( nextLabel );
-    va_end( ap );
+    if ( label1 )
+	columnTexts->append( label1 );
+    if ( label2 )
+	columnTexts->append( label2 );
+    if ( label3 )
+	columnTexts->append( label3 );
+    if ( label4 )
+	columnTexts->append( label4 );
+    if ( label5 )
+	columnTexts->append( label5 );
+    if ( label6 )
+	columnTexts->append( label6 );
+    if ( label7 )
+	columnTexts->append( label7 );
+    if ( label8 )
+	columnTexts->append( label8 );
 }
 
 /*!  Performs the initializations that's common to the constructors. */
