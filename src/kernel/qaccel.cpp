@@ -203,13 +203,7 @@ void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; 
     Returns true if the accel is in the current subwindow, else false.
 */
 bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
-#if !defined (Q_WS_MAC)
     if (!priv->watch || !priv->watch->isVisible() || !priv->watch->isEnabled())
-#else
-    if (!priv->watch
-	|| (!priv->watch->isVisible() && !priv->watch->inherits("QMenuBar"))
-	|| !priv->watch->isEnabled())
-#endif
 	return false;
     QWidget* tlw = w->topLevelWidget();
     QWidget* wtlw = priv->watch->topLevelWidget();
