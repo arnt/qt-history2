@@ -18,7 +18,7 @@
 #include <qt_windows.h>
 #include "../shared/types.h"
 
-bool qax_ownQApp = FALSE;
+bool qax_ownQApp = false;
 HHOOK qax_hhook = 0;
 
 // in qaxserver.cpp
@@ -31,73 +31,73 @@ extern void qAxCleanup();
 extern HANDLE qAxInstance;
 
 extern HRESULT UpdateRegistry(int bRegister);
-extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
+extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
 
 // in qeventloop_win.cpp
 extern Q_CORE_EXPORT bool qt_win_use_simple_timers;
 
 STDAPI DllRegisterServer()
 {
-    return UpdateRegistry(TRUE);
+    return UpdateRegistry(true);
 }
 
 STDAPI DllUnregisterServer()
 {
-    return UpdateRegistry(FALSE);
+    return UpdateRegistry(false);
 }
 
 STDAPI DllGetClassObject(const GUID &clsid, const GUID &iid, void** ppv)
 {
-    GetClassObject( clsid, iid, ppv );
-    if ( !*ppv )
-	return CLASS_E_CLASSNOTAVAILABLE;
+    GetClassObject(clsid, iid, ppv);
+    if (!*ppv)
+        return CLASS_E_CLASSNOTAVAILABLE;
     return S_OK;
 }
 
 STDAPI DllCanUnloadNow()
 {
-    if ( qAxLockCount() )
-	return S_FALSE;
-    if ( !qax_ownQApp )
-	return S_OK;
-
+    if (qAxLockCount())
+        return S_FALSE;
+    if (!qax_ownQApp)
+        return S_OK;
+    
     // check if qApp still runs widgets (in other DLLs)
     QWidgetList widgets = qApp->allWidgets();
     int count = widgets.count();
     for (int w = 0; w < widgets.count(); ++w) {
-	// remove all Qt generated widgets
-	QWidget *widget = widgets.at(w);
-	if ( widget->testWFlags( Qt::WType_Desktop ) )
-	    count--;
+        // remove all Qt generated widgets
+        QWidget *widget = widgets.at(w);
+        if (widget->testWFlags(Qt::WType_Desktop))
+            count--;
     }
-    if ( count )
-	return S_FALSE;
-
+    if (count)
+        return S_FALSE;
+    
     // no widgets left - destroy qApp
-    if ( qax_hhook )
-	UnhookWindowsHookEx( qax_hhook );
-
+    if (qax_hhook)
+        UnhookWindowsHookEx(qax_hhook);
+    
     delete qApp;
-    qax_ownQApp = FALSE;
-
+    qax_ownQApp = false;
+    
     // never allow unloading - safety net for Internet Explorer
     return S_FALSE;
 }
 
 
-EXTERN_C BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
+EXTERN_C BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved)
 {
-    GetModuleFileNameA( hInstance, qAxModuleFilename, MAX_PATH-1 );
+    GetModuleFileNameA(hInstance, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
-    qAxIsServer = TRUE;
-
-    if ( dwReason == DLL_PROCESS_ATTACH ) {
-	qt_win_use_simple_timers = TRUE;
-	DisableThreadLibraryCalls(hInstance);
-	qAxInit();
-    } else if ( dwReason == DLL_PROCESS_DETACH ) {
-	qAxCleanup();
+    qAxIsServer = true;
+    
+    if (dwReason == DLL_PROCESS_ATTACH) {
+        qt_win_use_simple_timers = true;
+        DisableThreadLibraryCalls(hInstance);
+        qAxInit();
+    } else if (dwReason == DLL_PROCESS_DETACH) {
+        qAxCleanup();
     }
-
-    return TRUE;
+    
+    return true;
 }

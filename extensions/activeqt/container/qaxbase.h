@@ -33,60 +33,57 @@ class QAxBase
 {
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
-    Q_PROPERTY( QString control READ control WRITE setControl )
+    Q_PROPERTY(QString control READ control WRITE setControl)
 #endif
 public:
 #ifndef Q_QDOC
     typedef QMap<QString, QVariant> PropertyBag;
 #endif
-
-    QAxBase( IUnknown *iface = 0 );
+    
+    QAxBase(IUnknown *iface = 0);
     virtual ~QAxBase();
-
+    
     QString control() const;
-
-    long queryInterface( const QUuid &, void** ) const;
-
-    QVariant dynamicCall( const QString &name, const QVariant &v1 = QVariant(), 
-					   const QVariant &v2 = QVariant(),
-					   const QVariant &v3 = QVariant(),
-					   const QVariant &v4 = QVariant(),
-					   const QVariant &v5 = QVariant(),
-					   const QVariant &v6 = QVariant(),
-					   const QVariant &v7 = QVariant(),
-					   const QVariant &v8 = QVariant() );
-    QVariant dynamicCall( const QString &name, QList<QVariant> &vars );
-    QAxObject *querySubObject( const QString &name, const QVariant &v1 = QVariant(),
-					    const QVariant &v2 = QVariant(),
-					    const QVariant &v3 = QVariant(),
-					    const QVariant &v4 = QVariant(),
-					    const QVariant &v5 = QVariant(),
-					    const QVariant &v6 = QVariant(),
-					    const QVariant &v7 = QVariant(),
-					    const QVariant &v8 = QVariant() );
-    QAxObject* querySubObject( const QString &name, QList<QVariant> &vars );
-
+    
+    long queryInterface(const QUuid &, void**) const;
+    
+    QVariant dynamicCall(const QString &name, const QVariant &v1 = QVariant(), 
+                                            const QVariant &v2 = QVariant(),
+                                            const QVariant &v3 = QVariant(),
+                                            const QVariant &v4 = QVariant(),
+                                            const QVariant &v5 = QVariant(),
+                                            const QVariant &v6 = QVariant(),
+                                            const QVariant &v7 = QVariant(),
+                                            const QVariant &v8 = QVariant());
+    QVariant dynamicCall(const QString &name, QList<QVariant> &vars);
+    QAxObject *querySubObject(const QString &name, const QVariant &v1 = QVariant(),
+                                            const QVariant &v2 = QVariant(),
+                                            const QVariant &v3 = QVariant(),
+                                            const QVariant &v4 = QVariant(),
+                                            const QVariant &v5 = QVariant(),
+                                            const QVariant &v6 = QVariant(),
+                                            const QVariant &v7 = QVariant(),
+                                            const QVariant &v8 = QVariant());
+    QAxObject* querySubObject(const QString &name, QList<QVariant> &vars);
+    
     virtual const QMetaObject *metaObject() const;
     virtual int qt_metacall(QMetaObject::Call, int, void **);
-/*
-    virtual bool qt_property( int, int, QVariant* );
-    virtual bool qt_emit( int, QUObject* ) = 0;
-*/
+
     virtual QObject *qObject() const = 0;
     virtual const char *className() const = 0;
-
+    
     PropertyBag propertyBag() const;
-    void setPropertyBag( const PropertyBag& );
-
+    void setPropertyBag(const PropertyBag&);
+    
     QString generateDocumentation();
-
-    virtual bool propertyWritable( const char* ) const;
-    virtual void setPropertyWritable( const char*, bool );
-
+    
+    virtual bool propertyWritable(const char*) const;
+    virtual void setPropertyWritable(const char*, bool);
+    
     bool isNull() const;
-
+    
     QVariant asVariant() const;
-
+    
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
     enum PropertyBag {};
@@ -95,30 +92,30 @@ signals:
     void propertyChanged(const QString&);
     void exception(int,const QString&,const QString&,const QString&);
 #endif
-
+    
 public:
     virtual void clear();
-    bool setControl( const QString& );
-
+    bool setControl(const QString&);
+    
     void disableMetaObject();
     void disableClassInfo();
     void disableEventSink();
-
+    
 protected:
-    virtual bool initialize( IUnknown** ptr );
+    virtual bool initialize(IUnknown** ptr);
     bool initializeRemote(IUnknown** ptr);
     bool initializeLicensed(IUnknown** ptr);
     bool initializeActive(IUnknown** ptr);
-
+    
 private:
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
-
+    
     virtual const QMetaObject *parentMetaObject() const = 0;
     int internalProperty(QMetaObject::Call, int index, void **v);
     int internalInvoke(QMetaObject::Call, int index, void **v);
-    bool dynamicCallHelper( const QString &name, void *out, QList<QVariant> &var, QString &type );
-
+    bool dynamicCallHelper(const QString &name, void *out, QList<QVariant> &var, QString &type);
+    
     QString ctrl;
 };
 
@@ -129,26 +126,26 @@ inline QString QAxBase::generateDocumentation()
 }
 
 #ifndef QT_NO_DATASTREAM
-inline QDataStream &operator >>( QDataStream &s, QAxBase &c )
+inline QDataStream &operator >>(QDataStream &s, QAxBase &c)
 {
     QAxBase::PropertyBag bag;
-    c.qObject()->blockSignals( TRUE );
+    c.qObject()->blockSignals(true);
     QString control;
     s >> control;
-    c.setControl( control );
+    c.setControl(control);
     s >> bag;
-    c.setPropertyBag( bag );
-    c.qObject()->blockSignals( FALSE );
-
+    c.setPropertyBag(bag);
+    c.qObject()->blockSignals(false);
+    
     return s;
 }
 
-inline QDataStream &operator <<( QDataStream &s, const QAxBase &c )
+inline QDataStream &operator <<(QDataStream &s, const QAxBase &c)
 {
     QAxBase::PropertyBag bag = c.propertyBag();
     s << c.control();
     s << bag;
-
+    
     return s;
 }
 #endif // QT_NO_DATASTREAM

@@ -41,14 +41,14 @@
     \code
     class MyActiveX : public QWidget, public QAxBindable
     {
-	Q_OBJECT
-	Q_PROPERTY( int value READ value WRITE setValue )
+        Q_OBJECT
+        Q_PROPERTY(int value READ value WRITE setValue)
     public:
-	MyActiveX( QWidget *parent = 0, const char *name = 0 );
-	...
+        MyActiveX(QWidget *parent = 0, const char *name = 0);
+        ...
 
         int value() const;
-	void setValue( int );
+        void setValue(int);
     };
     \endcode
 
@@ -69,7 +69,7 @@
     Constructs an empty QAxBindable object.
 */
 QAxBindable::QAxBindable()
-    :activex(0)
+:activex(0)
 {
 }
 
@@ -83,32 +83,32 @@ QAxBindable::~QAxBindable()
 /*!
     Call this function to request permission to change the property
     \a property from the client that is hosting this ActiveX control.
-    Returns TRUE if the client allows the change; otherwise returns
-    FALSE.
+    Returns true if the client allows the change; otherwise returns
+    false.
 
     This function is usually called first in the write function for \a
-    property, and writing is abandoned if the function returns FALSE.
+    property, and writing is abandoned if the function returns false.
 
     \code
-    void MyActiveQt::setText( const QString &text )
+    void MyActiveQt::setText(const QString &text)
     {
-	if ( !requestPropertyChange( "text" ) )
-	    return;
+        if (!requestPropertyChange("text"))
+            return;
 
-	// update property
+        // update property
 
-	propertyChanged( "text" );
+        propertyChanged("text");
     }
     \endcode
 
     \sa propertyChanged()
 */
-bool QAxBindable::requestPropertyChange( const char *property )
+bool QAxBindable::requestPropertyChange(const char *property)
 {
-    if ( !activex )
-	return TRUE;
-
-    return activex->emitRequestPropertyChange( property );
+    if (!activex)
+        return true;
+    
+    return activex->emitRequestPropertyChange(property);
 }
 
 /*!
@@ -120,12 +120,12 @@ bool QAxBindable::requestPropertyChange( const char *property )
 
     \sa requestPropertyChange()
 */
-void QAxBindable::propertyChanged( const char *property )
+void QAxBindable::propertyChanged(const char *property)
 {
-    if ( !activex )
-	return;
-
-    activex->emitPropertyChanged( property );
+    if (!activex)
+        return;
+    
+    activex->emitPropertyChanged(property);
 }
 
 /*!
@@ -137,9 +137,9 @@ void QAxBindable::propertyChanged( const char *property )
 */
 IUnknown *QAxBindable::clientSite() const
 {
-    if ( !activex )
-	return 0;
-
+    if (!activex)
+        return 0;
+    
     return activex->clientSite();
 }
 
@@ -157,7 +157,7 @@ QAxAggregated *QAxBindable::createAggregate()
 }
 
 /*!
-    \fn void QAxBindable::reportError( int code, const QString &src, const QString &desc, const QString &context )
+    \fn void QAxBindable::reportError(int code, const QString &src, const QString &desc, const QString &context)
 
     Reports an error to the client application. \a code is a
     control-defined error code. \a desc is a human-readable description
@@ -203,7 +203,7 @@ QAxAggregated::~QAxAggregated()
 }
 
 /*!
-    \fn long QAxAggregated::queryInterface( const QUuid &iid, void **iface )
+    \fn long QAxAggregated::queryInterface(const QUuid &iid, void **iface)
 
     Reimplement this pure virtual function to support additional COM
     interfaces. Set the value of \a iface to point to this object to
@@ -211,16 +211,16 @@ QAxAggregated::~QAxAggregated()
     this pointer to the appropriate superclass.
 
     \code
-    long AxImpl::queryInterface( const QUuid &iid, void **iface )
+    long AxImpl::queryInterface(const QUuid &iid, void **iface)
     {
         *iface = 0;
-	if ( iid == IID_ISomeCOMInterface )
-	    *iface = (ISomeCOMInterface*)this;
-	else
-	    return E_NOINTERFACE;
+        if (iid == IID_ISomeCOMInterface)
+            *iface = (ISomeCOMInterface*)this;
+        else
+            return E_NOINTERFACE;
 
-	AddRef();
-	return S_OK;
+        AddRef();
+        return S_OK;
     }
     \endcode
 
@@ -242,9 +242,9 @@ QAxAggregated::~QAxAggregated()
     provided by this function.
 
     \code
-    HRESULT AxImpl::QueryInterface( REFIID iid, void **iface )
+    HRESULT AxImpl::QueryInterface(REFIID iid, void **iface)
     {
-        return controllingUnknown()->QueryInterface( iid, iface );
+        return controllingUnknown()->QueryInterface(iid, iface);
     }
 
     unsigned long AxImpl::AddRef()

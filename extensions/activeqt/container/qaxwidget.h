@@ -22,37 +22,37 @@ class QAxWidget : public QWidget, public QAxBase
 {
 public:
     const QMetaObject *metaObject() const;
-    void* qt_metacast( const char* ) const;
+    void* qt_metacast(const char*) const;
     int qt_metacall(QMetaObject::Call, int, void **);
     QObject* qObject() const { return (QWidget*)this; }
     const char *className() const;
-
-    QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
-    QAxWidget( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    QAxWidget( IUnknown *iface, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    
+    QAxWidget(QWidget* parent = 0, const char* name = 0, WFlags f = 0);
+    QAxWidget(const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
+    QAxWidget(IUnknown *iface, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
     ~QAxWidget();
-
+    
     void clear();
-
+    
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-
+    
 protected:
-    bool initialize( IUnknown** );
-    virtual bool createHostWindow( bool );
-
-    void enabledChange( bool old );
-    void paletteChange( const QPalette &old );
-    void fontChange( const QFont &old );
-    void windowActivationChange( bool old );
-
-    void resizeEvent( QResizeEvent * );
+    bool initialize(IUnknown**);
+    virtual bool createHostWindow(bool);
+    
+    void enabledChange(bool old);
+    void paletteChange(const QPalette &old);
+    void fontChange(const QFont &old);
+    void windowActivationChange(bool old);
+    
+    void resizeEvent(QResizeEvent *);
     virtual bool translateKeyEvent(int message, int keycode) const;
 private:
     friend class QAxHostWindow;
-
+    
     const QMetaObject *parentMetaObject() const;
-
+    
     QAxHostWindow *container;
 };
 

@@ -20,9 +20,9 @@
 /*!
     \class QAxObject qaxobject.h
     \brief The QAxObject class provides a QObject that wraps a COM object.
-\if defined(commercial)
+    \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
+    \endif
 
     \module QAxContainer
     \extension ActiveQt
@@ -55,8 +55,8 @@
     to the QObject constructor. To initialize the object, call \link
     QAxBase::setControl() setControl \endlink.
 */
-QAxObject::QAxObject( QObject *parent, const char *name )
-: QObject( parent, name )
+QAxObject::QAxObject(QObject *parent, const char *name)
+: QObject(parent, name)
 {
 }
 
@@ -66,10 +66,10 @@ QAxObject::QAxObject( QObject *parent, const char *name )
 
     \sa setControl()
 */
-QAxObject::QAxObject( const QString &c, QObject *parent, const char *name )
-: QObject( parent, name )
+QAxObject::QAxObject(const QString &c, QObject *parent, const char *name)
+: QObject(parent, name)
 {
-    setControl( c );
+    setControl(c);
 }
 
 /*!
@@ -77,8 +77,8 @@ QAxObject::QAxObject( const QString &c, QObject *parent, const char *name )
     iface. \a parent and \a name are propagated to the QObject
     contructor.
 */
-QAxObject::QAxObject( IUnknown *iface, QObject *parent, const char *name )
-: QObject( parent, name ), QAxBase( iface )
+QAxObject::QAxObject(IUnknown *iface, QObject *parent, const char *name)
+: QObject(parent, name), QAxBase(iface)
 {
 }
 
@@ -109,11 +109,11 @@ const QMetaObject *QAxObject::parentMetaObject() const
 /*!
     \reimp
 */
-void *QAxObject::qt_metacast( const char *cname ) const
+void *QAxObject::qt_metacast(const char *cname) const
 {
-    if ( !qstrcmp( cname, "QAxObject" ) ) return (void*)this;
-    if ( !qstrcmp( cname, "QAxBase" ) ) return (QAxBase*)this;
-    return QObject::qt_metacast( cname );
+    if (!qstrcmp(cname, "QAxObject")) return (void*)this;
+    if (!qstrcmp(cname, "QAxBase")) return (QAxBase*)this;
+    return QObject::qt_metacast(cname);
 }
 
 /*!
@@ -131,7 +131,7 @@ int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
     id = QObject::qt_metacall(call, id, v);
     if (id < 0)
-	return id;
+        return id;
     return QAxBase::qt_metacall(call, id, v);
 }
 

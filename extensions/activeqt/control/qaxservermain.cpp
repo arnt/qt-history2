@@ -21,7 +21,7 @@
 
 static DWORD *classRegistration = 0;
 static DWORD dwThreadID;
-static bool qAxActivity = FALSE;
+static bool qAxActivity = false;
 static HANDLE hEventShutdown;
 
 #ifdef QT_DEBUG
@@ -40,13 +40,13 @@ extern char qAxModuleFilename[MAX_PATH];
 extern void qAxInit();
 extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
-extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
+extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
 extern ulong qAxLockCount();
 
 #if defined(Q_CC_BOR)
-extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver );
+extern "C" __stdcall HRESULT DumpIDL(const QString &outfile, const QString &ver);
 #else
-STDAPI DumpIDL( const QString &outfile, const QString &ver );
+STDAPI DumpIDL(const QString &outfile, const QString &ver);
 #endif
 
 // Monitors the shutdown event
@@ -56,17 +56,17 @@ static DWORD WINAPI MonitorProc(void* pv)
         WaitForSingleObject(hEventShutdown, INFINITE);
         DWORD dwWait=0;
         do {
-            qAxActivity = FALSE;
+            qAxActivity = false;
             dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
-        } while ( dwWait == WAIT_OBJECT_0 );
+        } while (dwWait == WAIT_OBJECT_0);
         // timed out
-        if ( !qAxActivity && !qAxLockCount() ) // if no activity let's really bail
+        if (!qAxActivity && !qAxLockCount()) // if no activity let's really bail
             break;
     }
     CloseHandle(hEventShutdown);
     PostThreadMessage(dwThreadID, WM_QUIT, 0, 0);
-    PostQuitMessage( 0 );
-
+    PostQuitMessage(0);
+    
     return 0;
 }
 
@@ -74,19 +74,19 @@ static DWORD WINAPI MonitorProc(void* pv)
 static bool StartMonitor()
 {
     dwThreadID = GetCurrentThreadId();
-    hEventShutdown = CreateEventA( 0, FALSE, FALSE, 0 );
-    if ( hEventShutdown == 0 )
-        return FALSE;
+    hEventShutdown = CreateEventA(0, false, false, 0);
+    if (hEventShutdown == 0)
+        return false;
     DWORD dwThreadID;
-    HANDLE h = CreateThread( 0, 0, MonitorProc, 0, 0, &dwThreadID );
+    HANDLE h = CreateThread(0, 0, MonitorProc, 0, 0, &dwThreadID);
     return (h != NULL);
 }
 
 void qax_shutDown()
 {
-    qAxActivity = TRUE;
-    if ( hEventShutdown )
-	SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
+    qAxActivity = true;
+    if (hEventShutdown)
+        SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
 }
 
 /*
@@ -95,33 +95,33 @@ void qax_shutDown()
 bool qax_startServer(QAxFactory::ServerType type)
 {
     if (qAxIsServer)
-	return TRUE;
-
+        return true;
+    
     const QStringList keys = qAxFactory()->featureList();
-    if ( !keys.count() )
-	return FALSE;
-
-    if ( !qAxFactory()->isService() )
-	StartMonitor();
-
+    if (!keys.count())
+        return false;
+    
+    if (!qAxFactory()->isService())
+        StartMonitor();
+    
     classRegistration = new DWORD[keys.count()];
     int object = 0;
-    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object ) {
-	IUnknown* p = 0;
-	CLSID clsid = qAxFactory()->classID( *key );
-
-	// Create a QClassFactory (implemented in qaxserverbase.cpp)
-	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
-	if ( SUCCEEDED(hRes) )
-	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER,
-					  type == QAxFactory::MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
-					  classRegistration+object );
-	if ( p )
-	    p->Release();
+    for (QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object) {
+        IUnknown* p = 0;
+        CLSID clsid = qAxFactory()->classID(*key);
+        
+        // Create a QClassFactory (implemented in qaxserverbase.cpp)
+        HRESULT hRes = GetClassObject(clsid, IID_IClassFactory, (void**)&p);
+        if (SUCCEEDED(hRes))
+            hRes = CoRegisterClassObject(clsid, p, CLSCTX_LOCAL_SERVER,
+                type == QAxFactory::MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
+                classRegistration+object);
+        if (p)
+            p->Release();
     }
-
-    qAxIsServer = TRUE;
-    return TRUE;
+    
+    qAxIsServer = true;
+    return true;
 }
 
 /*
@@ -130,106 +130,106 @@ bool qax_startServer(QAxFactory::ServerType type)
 bool qax_stopServer()
 {
     if (!qAxIsServer || !classRegistration)
-	return TRUE;
-
-    qAxIsServer = FALSE;
-
+        return true;
+    
+    qAxIsServer = false;
+    
     const QStringList keys = qAxFactory()->featureList();
     int object = 0;
-    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object )
-	CoRevokeClassObject( classRegistration[object] );
-
+    for (QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object)
+        CoRevokeClassObject(classRegistration[object]);
+    
     delete []classRegistration;
     classRegistration = 0;
-
+    
     Sleep(dwPause); //wait for any threads to finish
-
-    return TRUE;
+    
+    return true;
 }
 
 #if defined(NEEDS_QMAIN)
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
-int qMain( int, char ** );
+int qMain(int, char **);
 #else
-#if defined( Q_OS_TEMP )
+#if defined(Q_OS_TEMP)
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
-EXTERN_C int __cdecl main( int, char ** );
+EXTERN_C int __cdecl main(int, char **);
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
-EXTERN_C int main( int, char ** );
+EXTERN_C int main(int, char **);
 #endif
 #endif
 
 EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
-    HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+                            HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    GetModuleFileNameA( 0, qAxModuleFilename, MAX_PATH-1 );
+    GetModuleFileNameA(0, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
-
+    
     lpCmdLine = GetCommandLineA(); //this line necessary for _ATL_MIN_CRT
-    QString cmdLine = QString::fromLatin1( lpCmdLine );
-
+    QString cmdLine = QString::fromLatin1(lpCmdLine);
+    
     QStringList cmds = cmdLine.split(" ");
     int nRet = 0;
-    bool run = TRUE;
-    bool runServer = FALSE;
-    for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
-	QString cmd = (*it).toLower();
-	if ( cmd == "-activex" || cmd == "/activex" ) {
-	    runServer = TRUE;
-	} else if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
- 	    nRet = UpdateRegistry(FALSE);
-            run = FALSE;
-	    break;
-	} else if ( cmd == "-regserver" || cmd == "/regserver" ) {
- 	    nRet = UpdateRegistry(TRUE);
-            run = FALSE;
+    bool run = true;
+    bool runServer = false;
+    for (QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it) {
+        QString cmd = (*it).toLower();
+        if (cmd == "-activex" || cmd == "/activex") {
+            runServer = true;
+        } else if (cmd == "-unregserver" || cmd == "/unregserver") {
+            nRet = UpdateRegistry(false);
+            run = false;
             break;
-	} else if ( cmd == "-dumpidl" || cmd == "/dumpidl" ) {
-	    ++it;
-	    if ( it != cmds.end() ) {
-		QString outfile = *it;
-		++it;
-		QString version;
-		if ( it != cmds.end() && ( *it == "-version" || *it == "/version" ) ) {
-		    ++it;
-		    if ( it != cmds.end() )
-			version = *it;
-		    else
-			version = "1.0";
-		}
-
-		nRet = DumpIDL( outfile, version );
-	    } else {
-		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]" );
-	    }
-	    run = FALSE;
-	    break;
-	}
+        } else if (cmd == "-regserver" || cmd == "/regserver") {
+            nRet = UpdateRegistry(true);
+            run = false;
+            break;
+        } else if (cmd == "-dumpidl" || cmd == "/dumpidl") {
+            ++it;
+            if (it != cmds.end()) {
+                QString outfile = *it;
+                ++it;
+                QString version;
+                if (it != cmds.end() && (*it == "-version" || *it == "/version")) {
+                    ++it;
+                    if (it != cmds.end())
+                        version = *it;
+                    else
+                        version = "1.0";
+                }
+                
+                nRet = DumpIDL(outfile, version);
+            } else {
+                qWarning("Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]");
+            }
+            run = false;
+            break;
+        }
     }
-
+    
     if (run) {
-	int argc;
-	char* cmdp = 0;
-	// Use malloc/free for eval package compability
-	cmdp = (char*) malloc( (cmdLine.length() + 1) * sizeof(char) );
-	qstrcpy( cmdp, cmdLine.latin1() );
-
-	HRESULT hRes = CoInitialize(0);
-
-	QVector<pchar> argv( 8 );
-	qWinMain( hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv );
-	qAxInit();
-	if (runServer)
-	    QAxFactory::startServer();
-	nRet = main( argc, argv.data() );
-	QAxFactory::stopServer();
-	qAxCleanup();
-	CoUninitialize();
-
-	free( cmdp );
+        int argc;
+        char* cmdp = 0;
+        // Use malloc/free for eval package compability
+        cmdp = (char*) malloc((cmdLine.length() + 1) * sizeof(char));
+        qstrcpy(cmdp, cmdLine.latin1());
+        
+        HRESULT hRes = CoInitialize(0);
+        
+        QVector<pchar> argv(8);
+        qWinMain(hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv);
+        qAxInit();
+        if (runServer)
+            QAxFactory::startServer();
+        nRet = main(argc, argv.data());
+        QAxFactory::stopServer();
+        qAxCleanup();
+        CoUninitialize();
+        
+        free(cmdp);
     }
-
+    
     return nRet;
 }
 

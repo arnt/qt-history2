@@ -18,7 +18,6 @@
 #include <qdatetime.h>
 #include <qvariant.h>
 #include <private/qcom_p.h>
-//#include <private/qucomextra_p.h>
 
 struct QUParameter;
 
@@ -32,45 +31,42 @@ struct IAxServerBase : public IUnknown
 };
 
 #define HIMETRIC_PER_INCH   2540
-#define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
-#define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
+#define MAP_PIX_TO_LOGHIM(x,ppli)   ((HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli))
+#define MAP_LOGHIM_TO_PIX(x,ppli)   (((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH)
 #define QAX_NUM_PARAMS 8
 
-
-/*! 
-    Helper functions 
-*/
-static inline QString BSTRToQString( BSTR bstr )
+//Helper functions 
+static inline QString BSTRToQString(BSTR bstr)
 {
     QString str;
-    if ( !bstr )
-	return str;
-
-    int len = wcslen( bstr );
-    str.setUnicode( (QChar*)bstr, len );
+    if (!bstr)
+        return str;
+    
+    int len = wcslen(bstr);
+    str.setUnicode((QChar*)bstr, len);
     return str;
 }
 
-static inline BSTR QStringToBSTR( const QString &str )
+static inline BSTR QStringToBSTR(const QString &str)
 {
-    return SysAllocStringLen( (OLECHAR*)str.unicode(), str.length() );
+    return SysAllocStringLen((OLECHAR*)str.unicode(), str.length());
 }
 
-extern QDateTime DATEToQDateTime( DATE ole );
-extern DATE QDateTimeToDATE( const QDateTime &dt );
+extern QDateTime DATEToQDateTime(DATE ole);
+extern DATE QDateTimeToDATE(const QDateTime &dt);
 
 struct IFont;
 struct IFontDisp;
 
-extern IFontDisp *QFontToIFont( const QFont &font );
-extern QFont IFontToQFont( IFont *f );
+extern IFontDisp *QFontToIFont(const QFont &font);
+extern QFont IFontToQFont(IFont *f);
 
-extern uint QColorToOLEColor( const QColor &col );
-extern QColor OLEColorToQColor( uint col );
+extern uint QColorToOLEColor(const QColor &col);
+extern QColor OLEColorToQColor(uint col);
 
-extern bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type, bool out = false );
-extern QVariant VARIANTToQVariant( const VARIANT &arg, const QString &type );
+extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, bool out = false);
+extern QVariant VARIANTToQVariant(const VARIANT &arg, const QString &type);
 extern bool QVariantToVoidStar(const QVariant &var, void *data);
-extern void clearVARIANT( VARIANT *var );
+extern void clearVARIANT(VARIANT *var);
 
 #endif //TYPES_H

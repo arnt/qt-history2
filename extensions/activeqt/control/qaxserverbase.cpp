@@ -56,7 +56,7 @@ extern bool qax_ownQApp;
 
 struct QAxExceptInfo
 {
-    QAxExceptInfo( int c, const QString &s, const QString &d, const QString &x )
+    QAxExceptInfo(int c, const QString &s, const QString &d, const QString &x)
 	: code(c), src(s), desc(d), context(x)
     {
     }
@@ -68,28 +68,28 @@ struct QAxExceptInfo
 static QAxExceptInfo *qAxException = 0;
 
 // documentation in qaxbindable.cpp
-void QAxBindable::reportError( int code, const QString &src, const QString &desc, const QString &context )
+void QAxBindable::reportError(int code, const QString &src, const QString &desc, const QString &context)
 {
-    if ( qAxException )
+    if (qAxException)
 	delete qAxException;
-    qAxException = new QAxExceptInfo( code, src, desc, context );
+    qAxException = new QAxExceptInfo(code, src, desc, context);
 }
 
 static QHash<HWND, QAxServerBase*> *ax_ServerMapper = 0;
 static QHash<HWND, QAxServerBase*> *axServerMapper()
 {
-    if ( !ax_ServerMapper ) {
+    if (!ax_ServerMapper) {
 	ax_ServerMapper = new QHash<HWND, QAxServerBase*>;
     }
     return ax_ServerMapper;
 }
-static void axTakeServer( HWND hWnd )
+static void axTakeServer(HWND hWnd)
 {
-    if ( !ax_ServerMapper )
+    if (!ax_ServerMapper)
 	return;
 
-    axServerMapper()->take( hWnd );
-    if ( !axServerMapper()->count() ) {
+    axServerMapper()->take(hWnd);
+    if (!axServerMapper()->count()) {
 	delete ax_ServerMapper;
 	ax_ServerMapper = 0;
     }
@@ -133,17 +133,17 @@ public:
     typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
     typedef QMap<QUuid,IConnectionPoint*>::Iterator ConnectionPointsIterator;
 
-    QAxServerBase( const QString &classname, IUnknown *outerUnknown );
-    QAxServerBase( QObject *o );
+    QAxServerBase(const QString &classname, IUnknown *outerUnknown);
+    QAxServerBase(QObject *o);
 
     void init();
 
     ~QAxServerBase();
 
 // Window creation
-    HWND create(HWND hWndParent, RECT& rcPos );
-    HMENU createPopup( QPopupMenu *popup, HMENU oldMenu = 0 );
-    void createMenu( QMenuBar *menuBar );
+    HWND create(HWND hWndParent, RECT& rcPos);
+    HMENU createPopup(QPopupMenu *popup, HMENU oldMenu = 0);
+    void createMenu(QMenuBar *menuBar);
     void removeMenu();
 
     static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -155,32 +155,32 @@ public:
 // IUnknown
     unsigned long WINAPI AddRef()
     {
-	if ( m_outerUnknown )
+	if (m_outerUnknown)
 	    return m_outerUnknown->AddRef();
 
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = ++ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
 	return r;
     }
     unsigned long WINAPI Release()
     {
-    	if ( m_outerUnknown )
+    	if (m_outerUnknown)
 	    return m_outerUnknown->Release();
 
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = --ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
-	if ( !r ) {
+	if (!r) {
 	    delete this;
 	    return 0;
 	}
 	return r;
     }
-    HRESULT WINAPI QueryInterface( REFIID iid, void **iface );
-    HRESULT InternalQueryInterface( REFIID iid, void **iface );
+    HRESULT WINAPI QueryInterface(REFIID iid, void **iface);
+    HRESULT InternalQueryInterface(REFIID iid, void **iface);
 
 // IAxServerBase
     IUnknown *clientSite() const
@@ -212,41 +212,41 @@ public:
     STDMETHOD(GetGUID)(DWORD dwGuidKind, GUID* pGUID);
 
 // IOleObject
-    STDMETHOD(Advise)( IAdviseSink* pAdvSink, DWORD* pdwConnection );
-    STDMETHOD(Close)( DWORD dwSaveOption );
-    STDMETHOD(DoVerb)( LONG iVerb, LPMSG lpmsg, IOleClientSite* pActiveSite, LONG lindex, HWND hwndParent, LPCRECT lprcPosRect );
-    STDMETHOD(EnumAdvise)( IEnumSTATDATA** ppenumAdvise );
-    STDMETHOD(EnumVerbs)( IEnumOLEVERB** ppEnumOleVerb );
-    STDMETHOD(GetClientSite)( IOleClientSite** ppClientSite );
-    STDMETHOD(GetClipboardData)( DWORD dwReserved, IDataObject** ppDataObject );
-    STDMETHOD(GetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
+    STDMETHOD(Advise)(IAdviseSink* pAdvSink, DWORD* pdwConnection);
+    STDMETHOD(Close)(DWORD dwSaveOption);
+    STDMETHOD(DoVerb)(LONG iVerb, LPMSG lpmsg, IOleClientSite* pActiveSite, LONG lindex, HWND hwndParent, LPCRECT lprcPosRect);
+    STDMETHOD(EnumAdvise)(IEnumSTATDATA** ppenumAdvise);
+    STDMETHOD(EnumVerbs)(IEnumOLEVERB** ppEnumOleVerb);
+    STDMETHOD(GetClientSite)(IOleClientSite** ppClientSite);
+    STDMETHOD(GetClipboardData)(DWORD dwReserved, IDataObject** ppDataObject);
+    STDMETHOD(GetExtent)(DWORD dwDrawAspect, SIZEL* psizel);
     STDMETHOD(GetMiscStatus)(DWORD dwAspect, DWORD *pdwStatus);
-    STDMETHOD(GetMoniker)( DWORD dwAssign, DWORD dwWhichMoniker, IMoniker** ppmk );
-    STDMETHOD(GetUserClassID)( CLSID* pClsid );
+    STDMETHOD(GetMoniker)(DWORD dwAssign, DWORD dwWhichMoniker, IMoniker** ppmk);
+    STDMETHOD(GetUserClassID)(CLSID* pClsid);
     STDMETHOD(GetUserType)(DWORD dwFormOfType, LPOLESTR *pszUserType);
-    STDMETHOD(InitFromData)( IDataObject* pDataObject, BOOL fCreation, DWORD dwReserved );
+    STDMETHOD(InitFromData)(IDataObject* pDataObject, BOOL fCreation, DWORD dwReserved);
     STDMETHOD(IsUpToDate)();
-    STDMETHOD(SetClientSite)( IOleClientSite* pClientSite );
-    STDMETHOD(SetColorScheme)( LOGPALETTE* pLogPal );
-    STDMETHOD(SetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
-    STDMETHOD(SetHostNames)( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj );
-    STDMETHOD(SetMoniker)( DWORD dwWhichMoniker, IMoniker* ppmk );
-    STDMETHOD(Unadvise)( DWORD dwConnection );
+    STDMETHOD(SetClientSite)(IOleClientSite* pClientSite);
+    STDMETHOD(SetColorScheme)(LOGPALETTE* pLogPal);
+    STDMETHOD(SetExtent)(DWORD dwDrawAspect, SIZEL* psizel);
+    STDMETHOD(SetHostNames)(LPCOLESTR szContainerApp, LPCOLESTR szContainerObj);
+    STDMETHOD(SetMoniker)(DWORD dwWhichMoniker, IMoniker* ppmk);
+    STDMETHOD(Unadvise)(DWORD dwConnection);
     STDMETHOD(Update)();
 
 // IViewObject
-    STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd,
+    STDMETHOD(Draw)(DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd,
 		    HDC hicTargetDevice, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
-		    BOOL(__stdcall*pfnContinue)(ULONG_PTR), ULONG_PTR dwContinue );
-    STDMETHOD(GetColorSet)( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
-		    HDC hicTargetDev, LOGPALETTE **ppColorSet );
-    STDMETHOD(Freeze)( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze );
-    STDMETHOD(Unfreeze)( DWORD dwFreeze );
-    STDMETHOD(SetAdvise)( DWORD aspects, DWORD advf, IAdviseSink *pAdvSink );
-    STDMETHOD(GetAdvise)( DWORD *aspects, DWORD *advf, IAdviseSink **pAdvSink );
+		    BOOL(__stdcall*pfnContinue)(ULONG_PTR), ULONG_PTR dwContinue);
+    STDMETHOD(GetColorSet)(DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+		    HDC hicTargetDev, LOGPALETTE **ppColorSet);
+    STDMETHOD(Freeze)(DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze);
+    STDMETHOD(Unfreeze)(DWORD dwFreeze);
+    STDMETHOD(SetAdvise)(DWORD aspects, DWORD advf, IAdviseSink *pAdvSink);
+    STDMETHOD(GetAdvise)(DWORD *aspects, DWORD *advf, IAdviseSink **pAdvSink);
 
 // IViewObject2
-    STDMETHOD(GetExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel );
+    STDMETHOD(GetExtent)(DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel);
 
 // IOleControl
     STDMETHOD(FreezeEvents)(BOOL);
@@ -265,12 +265,12 @@ public:
     STDMETHOD(ReactivateAndUndo)();
 
 // IOleInPlaceActiveObject
-    STDMETHOD(TranslateAcceleratorW)( MSG *pMsg );
-    STDMETHOD(TranslateAcceleratorA)( MSG *pMsg );
-    STDMETHOD(OnFrameWindowActivate)( BOOL );
-    STDMETHOD(OnDocWindowActivate)( BOOL fActivate );
-    STDMETHOD(ResizeBorder)( LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow );
-    STDMETHOD(EnableModeless)( BOOL );
+    STDMETHOD(TranslateAcceleratorW)(MSG *pMsg);
+    STDMETHOD(TranslateAcceleratorA)(MSG *pMsg);
+    STDMETHOD(OnFrameWindowActivate)(BOOL);
+    STDMETHOD(OnDocWindowActivate)(BOOL fActivate);
+    STDMETHOD(ResizeBorder)(LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow);
+    STDMETHOD(EnableModeless)(BOOL);
 
 // IConnectionPointContainer
     STDMETHOD(EnumConnectionPoints)(IEnumConnectionPoints**);
@@ -279,7 +279,7 @@ public:
 // IPersist
     STDMETHOD(GetClassID)(GUID*clsid)
     {
-	*clsid = qAxFactory()->classID( class_name );
+	*clsid = qAxFactory()->classID(class_name);
 	return S_OK;
     }
 
@@ -295,10 +295,10 @@ public:
     STDMETHOD(Save)(IPropertyBag *, BOOL, BOOL);
 
 // IPersistStorage
-    STDMETHOD(InitNew)(IStorage *pStg );
-    STDMETHOD(Load)(IStorage *pStg );
-    STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad );
-    STDMETHOD(SaveCompleted)( IStorage *pStgNew );
+    STDMETHOD(InitNew)(IStorage *pStg);
+    STDMETHOD(Load)(IStorage *pStg);
+    STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad);
+    STDMETHOD(SaveCompleted)(IStorage *pStgNew);
     STDMETHOD(HandsOffStorage)();
 
 // IDataObject
@@ -315,7 +315,7 @@ public:
 // QObject
     int qt_metacall(QMetaObject::Call, int index, void **argv);
 
-    bool eventFilter( QObject *o, QEvent *e );
+    bool eventFilter(QObject *o, QEvent *e);
 private:
     void update();
     void updateGeometry();
@@ -387,19 +387,19 @@ private:
 class QAxServerAggregate : public IUnknown
 {
 public:
-    QAxServerAggregate( const QString &className, IUnknown *outerUnknown )
-	: m_outerUnknown( outerUnknown ), ref(0)
+    QAxServerAggregate(const QString &className, IUnknown *outerUnknown)
+	: m_outerUnknown(outerUnknown), ref(0)
     {
-	object = new QAxServerBase( className, outerUnknown );
+	object = new QAxServerBase(className, outerUnknown);
 	object->registerActiveObject(this);
 
-	InitializeCriticalSection( &refCountSection );
-	InitializeCriticalSection( &createWindowSection );
+	InitializeCriticalSection(&refCountSection);
+	InitializeCriticalSection(&createWindowSection);
     }
     ~QAxServerAggregate()
     {
-	DeleteCriticalSection( &refCountSection );
-	DeleteCriticalSection( &createWindowSection );
+	DeleteCriticalSection(&refCountSection);
+	DeleteCriticalSection(&createWindowSection);
 
 	delete object;
     }
@@ -407,35 +407,35 @@ public:
 // IUnknown
     unsigned long WINAPI AddRef()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = ++ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
 	return r;
     }
     unsigned long WINAPI Release()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = --ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
-	if ( !r ) {
+	if (!r) {
 	    delete this;
 	    return 0;
 	}
 	return r;
     }
-    HRESULT WINAPI QueryInterface( REFIID iid, void **iface )
+    HRESULT WINAPI QueryInterface(REFIID iid, void **iface)
     {
 	*iface = 0;
 
 	HRESULT res = E_NOINTERFACE;
-	if ( iid == IID_IUnknown ) {
+	if (iid == IID_IUnknown) {
 	    *iface = (IUnknown*)this;
 	    AddRef();
 	    return S_OK;
 	}
-	return object->InternalQueryInterface( iid, iface );
+	return object->InternalQueryInterface(iid, iface);
     }
 
 private:
@@ -450,13 +450,13 @@ private:
 bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
 {
     *wrapper = 0;
-    QAxServerBase *obj = new QAxServerBase( object );
-    obj->QueryInterface( IID_IDispatch, (void**)wrapper );
+    QAxServerBase *obj = new QAxServerBase(object);
+    obj->QueryInterface(IID_IDispatch, (void**)wrapper);
     if (*wrapper)
-	return TRUE;
+	return true;
 
     delete obj;
-    return FALSE;
+    return false;
 }
 
 
@@ -466,42 +466,42 @@ bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
 class QAxSignalVec : public IEnumConnectionPoints
 {
 public:
-    QAxSignalVec( const QAxServerBase::ConnectionPoints &points )
-	: cpoints( points ), ref(0)
+    QAxSignalVec(const QAxServerBase::ConnectionPoints &points)
+	: cpoints(points), ref(0)
     {
-	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection(&refCountSection);
     }
-    QAxSignalVec( const QAxSignalVec &old )
+    QAxSignalVec(const QAxSignalVec &old)
     {
-	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection(&refCountSection);
 	ref = 0;
 	cpoints = old.cpoints;
-	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	for (QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i)
 	    (*i)->AddRef();
 	it = old.it;
     }
     ~QAxSignalVec()
     {
-	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	for (QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i)
 	    (*i)->Release();
 
-	DeleteCriticalSection( &refCountSection );
+	DeleteCriticalSection(&refCountSection);
     }
 
     unsigned long __stdcall AddRef()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = ++ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 	return ++r;
     }
     unsigned long __stdcall Release()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = --ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
-	if ( !r ) {
+	if (!r) {
 	    delete this;
 	    return 0;
 	}
@@ -510,9 +510,9 @@ public:
     STDMETHOD(QueryInterface)(REFIID iid, void **iface)
     {
 	*iface = 0;
-	if ( iid == IID_IUnknown )
+	if (iid == IID_IUnknown)
 	    *iface = this;
-	else if ( iid == IID_IEnumConnectionPoints )
+	else if (iid == IID_IEnumConnectionPoints)
 	    *iface = this;
 	else
 	    return E_NOINTERFACE;
@@ -520,11 +520,11 @@ public:
 	AddRef();
 	return S_OK;
     }
-    STDMETHOD(Next)( ULONG cConnections, IConnectionPoint **cpoint, ULONG *pcFetched )
+    STDMETHOD(Next)(ULONG cConnections, IConnectionPoint **cpoint, ULONG *pcFetched)
     {
 	unsigned long i;
-	for ( i = 0; i < cConnections; i++ ) {
-	    if ( it == cpoints.end() )
+	for (i = 0; i < cConnections; i++) {
+	    if (it == cpoints.end())
 		break;
 	    IConnectionPoint *cp = *it;
 	    cp->AddRef();
@@ -534,12 +534,12 @@ public:
 	*pcFetched = i;
 	return i == cConnections ? S_OK : S_FALSE;
     }
-    STDMETHOD(Skip)( ULONG cConnections )
+    STDMETHOD(Skip)(ULONG cConnections)
     {
-	while ( cConnections ) {
+	while (cConnections) {
 	    ++it;
 	    --cConnections;
-	    if ( it == cpoints.end() )
+	    if (it == cpoints.end())
 		return S_FALSE;
 	}
 	return S_OK;
@@ -550,9 +550,9 @@ public:
 
 	return S_OK;
     }
-    STDMETHOD(Clone)( IEnumConnectionPoints **ppEnum )
+    STDMETHOD(Clone)(IEnumConnectionPoints **ppEnum)
     {
-	*ppEnum = new QAxSignalVec( *this );
+	*ppEnum = new QAxSignalVec(*this);
 	(*ppEnum)->AddRef();
 
 	return S_OK;
@@ -577,21 +577,21 @@ public:
     typedef QList<CONNECTDATA> Connections;
     typedef QList<CONNECTDATA>::Iterator Iterator;
 
-    QAxConnection( QAxServerBase *parent, const QUuid &uuid )
-	: that(parent), iid( uuid ), ref( 2 )
+    QAxConnection(QAxServerBase *parent, const QUuid &uuid)
+	: that(parent), iid(uuid), ref(2)
     {
-	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection(&refCountSection);
     }
-    QAxConnection( const QAxConnection &old )
+    QAxConnection(const QAxConnection &old)
     {
-	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection(&refCountSection);
 	ref = 0;
 	connections = old.connections;
 	it = old.it;
 	that = old.that;
 	iid = old.iid;
 	QList<CONNECTDATA>::Iterator it = connections.begin();
-	while ( it != connections.end() ) {
+	while (it != connections.end()) {
 	    CONNECTDATA connection = *it;
 	    ++it;
 	    connection.pUnk->AddRef();
@@ -599,23 +599,23 @@ public:
     }
     ~QAxConnection()
     {
-	DeleteCriticalSection( &refCountSection );
+	DeleteCriticalSection(&refCountSection);
     }
 
     unsigned long __stdcall AddRef()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = ++ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 	return r;
     }
     unsigned long __stdcall Release()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = --ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
-	if ( !r ) {
+	if (!r) {
 	    delete this;
 	    return 0;
 	}
@@ -624,11 +624,11 @@ public:
     STDMETHOD(QueryInterface)(REFIID iid, void **iface)
     {
 	*iface = 0;
-	if ( iid == IID_IUnknown )
+	if (iid == IID_IUnknown)
 	    *iface = (IConnectionPoint*)this;
-	else if ( iid == IID_IConnectionPoint )
+	else if (iid == IID_IConnectionPoint)
 	    *iface = this;
-	else if ( iid == IID_IEnumConnections )
+	else if (iid == IID_IEnumConnections)
 	    *iface = this;
 	else
 	    return E_NOINTERFACE;
@@ -643,14 +643,14 @@ public:
     }
     STDMETHOD(GetConnectionPointContainer)(IConnectionPointContainer **ppCPC)
     {
-	return that->QueryInterface(IID_IConnectionPointContainer, (void**)ppCPC );
+	return that->QueryInterface(IID_IConnectionPointContainer, (void**)ppCPC);
     }
     STDMETHOD(Advise)(IUnknown*pUnk, DWORD *pdwCookie)
     {
 	{
 	    IDispatch *checkImpl = 0;
-	    pUnk->QueryInterface( iid, (void**)&checkImpl );
-	    if ( !checkImpl )
+	    pUnk->QueryInterface(iid, (void**)&checkImpl);
+	    if (!checkImpl)
 		return CONNECT_E_CANNOTCONNECT;
 	    checkImpl->Release();
 	}
@@ -667,9 +667,9 @@ public:
     STDMETHOD(Unadvise)(DWORD dwCookie)
     {
 	QList<CONNECTDATA>::Iterator it = connections.begin();
-	while ( it != connections.end() ) {
+	while (it != connections.end()) {
 	    CONNECTDATA cd = *it;
-	    if ( cd.dwCookie == dwCookie ) {
+	    if (cd.dwCookie == dwCookie) {
 		cd.pUnk->Release();
 		connections.erase(it);
 		return S_OK;
@@ -685,11 +685,11 @@ public:
 
 	return S_OK;
     }
-    STDMETHOD(Next)( ULONG cConnections, CONNECTDATA *cd, ULONG *pcFetched )
+    STDMETHOD(Next)(ULONG cConnections, CONNECTDATA *cd, ULONG *pcFetched)
     {
 	unsigned long i;
-	for ( i = 0; i < cConnections; i++ ) {
-	    if ( it == connections.end() )
+	for (i = 0; i < cConnections; i++) {
+	    if (it == connections.end())
 		break;
 	    cd[i] = *it;
 	    cd[i].pUnk->AddRef();
@@ -699,12 +699,12 @@ public:
 	    *pcFetched = i;
 	return i == cConnections ? S_OK : S_FALSE;
     }
-    STDMETHOD(Skip)( ULONG cConnections )
+    STDMETHOD(Skip)(ULONG cConnections)
     {
-	while ( cConnections ) {
+	while (cConnections) {
 	    ++it;
 	    --cConnections;
-	    if ( it == connections.end() )
+	    if (it == connections.end())
 		return S_FALSE;
 	}
 	return S_OK;
@@ -715,9 +715,9 @@ public:
 
 	return S_OK;
     }
-    STDMETHOD(Clone)( IEnumConnections **ppEnum )
+    STDMETHOD(Clone)(IEnumConnections **ppEnum)
     {
-	*ppEnum = new QAxConnection( *this );
+	*ppEnum = new QAxConnection(*this);
 	(*ppEnum)->AddRef();
 
 	return S_OK;
@@ -734,15 +734,15 @@ private:
 };
 
 extern Q_GUI_EXPORT void qWinProcessConfigRequests();
-LRESULT CALLBACK axs_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if ( qApp ) {
+    if (qApp) {
 	qApp->sendPostedEvents();
 	qApp->eventLoop()->activateSocketNotifiers();
 	qWinProcessConfigRequests();
     }
 
-    return CallNextHookEx( qax_hhook, nCode, wParam, lParam );
+    return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
 
 // QApplication subclass that can handle native window messages
@@ -758,21 +758,21 @@ public:
 	    return false;
 
         bool ret = false;
-        QWidget *aqt = QWidget::find( pMsg->hwnd );
+        QWidget *aqt = QWidget::find(pMsg->hwnd);
         if (!aqt)
 	    return ret;
 
-        HWND baseHwnd = ::GetParent( aqt->winId() );
+        HWND baseHwnd = ::GetParent(aqt->winId());
         QAxServerBase *axbase = 0;
-        while ( !axbase && baseHwnd ) {
+        while (!axbase && baseHwnd) {
 	    axbase = (*axServerMapper())[baseHwnd];
-	    baseHwnd = ::GetParent( baseHwnd );
+	    baseHwnd = ::GetParent(baseHwnd);
         }
-        if ( !axbase )
+        if (!axbase)
 	    return ret;
 
-        HRESULT hres = axbase->TranslateAcceleratorW( pMsg );
-        if ( hres == S_OK )
+        HRESULT hres = axbase->TranslateAcceleratorW(pMsg);
+        if (hres == S_OK)
 	    return 1;
         return 0;
     }
@@ -783,30 +783,30 @@ public:
 class QClassFactory : public IClassFactory2
 {
 public:
-    QClassFactory( CLSID clsid )
-	: ref( 0 ), licensed(FALSE)
+    QClassFactory(CLSID clsid)
+	: ref(0), licensed(false)
     {
-	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection(&refCountSection);
 
 	// COM only knows the CLSID, but QAxFactory is class name based...
 	QStringList keys = qAxFactory()->featureList();
-	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
-	    if ( qAxFactory()->classID( *key ) == clsid ) {
+	for (QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key) {
+	    if (qAxFactory()->classID(*key) == clsid) {
 		className = *key;
 		break;
 	    }
 	}
 
     	// Make sure a QApplication instance is present (inprocess case)
-        if ( !qApp ) {
-            qax_ownQApp = TRUE;
+        if (!qApp) {
+            qax_ownQApp = true;
             int argc = 0;
             (void)new QAxApplication(argc);
-            QT_WA( {
-                qax_hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
+            QT_WA({
+                qax_hhook = SetWindowsHookExW(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
             }, {
-                qax_hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
-            } );
+                qax_hhook = SetWindowsHookExA(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
+            });
         }
 
 	const QMetaObject *mo = qAxFactory()->metaObject(className);
@@ -818,37 +818,37 @@ public:
 
     ~QClassFactory()
     {
-	DeleteCriticalSection( &refCountSection );
+	DeleteCriticalSection(&refCountSection);
     }
 
     // IUnknown
     unsigned long WINAPI AddRef()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = ++ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 	return ++r;
     }
     unsigned long WINAPI Release()
     {
-	EnterCriticalSection( &refCountSection );
+	EnterCriticalSection(&refCountSection);
 	unsigned long r = --ref;
-	LeaveCriticalSection( &refCountSection );
+	LeaveCriticalSection(&refCountSection);
 
-	if ( !r ) {
+	if (!r) {
 	    delete this;
 	    return 0;
 	}
 	return r;
     }
-    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
+    HRESULT WINAPI QueryInterface(REFIID iid, LPVOID *iface)
     {
 	*iface = 0;
-	if ( iid == IID_IUnknown )
+	if (iid == IID_IUnknown)
 	    *iface = (IUnknown*)this;
-	else if ( iid == IID_IClassFactory )
+	else if (iid == IID_IClassFactory)
 	    *iface = (IClassFactory*)this;
-	else if ( iid == IID_IClassFactory2 && licensed )
+	else if (iid == IID_IClassFactory2 && licensed)
 	    *iface = (IClassFactory2*)this;
 	else
 	    return E_NOINTERFACE;
@@ -857,9 +857,9 @@ public:
 	return S_OK;
     }
 
-    HRESULT WINAPI CreateInstanceHelper( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    HRESULT WINAPI CreateInstanceHelper(IUnknown *pUnkOuter, REFIID iid, void **ppObject)
     {
-	if ( pUnkOuter ) {
+	if (pUnkOuter) {
 	    if (iid != IID_IUnknown)
 		return CLASS_E_NOAGGREGATION;
 	    const QMetaObject *mo = qAxFactory()->metaObject(className);
@@ -869,14 +869,14 @@ public:
 
 	HRESULT res;
 	// Create the ActiveX wrapper - aggregate if requested
-	if ( pUnkOuter ) {
-	    QAxServerAggregate *aggregate = new QAxServerAggregate( className, pUnkOuter );
-	    res = aggregate->QueryInterface( iid, ppObject );
+	if (pUnkOuter) {
+	    QAxServerAggregate *aggregate = new QAxServerAggregate(className, pUnkOuter);
+	    res = aggregate->QueryInterface(iid, ppObject);
 	    if (FAILED(res))
 		delete aggregate;
 	} else {
-	    QAxServerBase *activeqt = new QAxServerBase( className, pUnkOuter );
-	    res = activeqt->QueryInterface( iid, ppObject );
+	    QAxServerBase *activeqt = new QAxServerBase(className, pUnkOuter);
+	    res = activeqt->QueryInterface(iid, ppObject);
 	    if (FAILED(res))
 		delete activeqt;
 	    else
@@ -886,7 +886,7 @@ public:
     }
 
     // IClassFactory
-    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    HRESULT WINAPI CreateInstance(IUnknown *pUnkOuter, REFIID iid, void **ppObject)
     {
 	// class is licensed
 	if (licensed && !qAxFactory()->validateLicenseKey(className, QString()))
@@ -894,9 +894,9 @@ public:
 
 	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
     }
-    HRESULT WINAPI LockServer( BOOL fLock )
+    HRESULT WINAPI LockServer(BOOL fLock)
     {
-	if ( fLock )
+	if (fLock)
 	    qAxLock();
 	else
 	    qAxUnlock();
@@ -954,17 +954,17 @@ protected:
 };
 
 // Create a QClassFactory object for class \a iid
-HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
+HRESULT GetClassObject(REFIID clsid, REFIID iid, void **ppUnk)
 {
-    QClassFactory *factory = new QClassFactory( clsid );
-    if ( !factory )
+    QClassFactory *factory = new QClassFactory(clsid);
+    if (!factory)
 	return E_OUTOFMEMORY;
-    if ( factory->className.isEmpty() ) {
+    if (factory->className.isEmpty()) {
 	delete factory;
 	return E_NOINTERFACE;
     }
-    HRESULT res = factory->QueryInterface( iid, ppUnk );
-    if ( res != S_OK )
+    HRESULT res = factory->QueryInterface(iid, ppUnk);
+    if (res != S_OK)
 	delete factory;
     return res;
 }
@@ -977,7 +977,7 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
     The constructor is called by the QClassFactory object provided by
     the COM server for the respective CLSID.
 */
-QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
+QAxServerBase::QAxServerBase(const QString &classname, IUnknown *outerUnknown)
 : aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
   m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
@@ -990,17 +990,17 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 /*!
     Constructs a QAxServerBase object wrapping \a o.
 */
-QAxServerBase::QAxServerBase( QObject *o )
-: aggregatedObject(0), ref( 0), ole_ref(0),
-  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
+QAxServerBase::QAxServerBase(QObject *o)
+: aggregatedObject(0), ref(0), ole_ref(0),
+  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
 {
     init();
 
     qt.object = o;
-    if ( o ) {
+    if (o) {
 	theObject = o;
-	isWidget = FALSE;
+	isWidget = false;
 	class_name = o->className();
     }
     internalBind();
@@ -1013,17 +1013,17 @@ QAxServerBase::QAxServerBase( QObject *o )
 void QAxServerBase::init()
 {
     qt.object = 0;
-    isWidget		= FALSE;
-    ownObject		= FALSE;
-    initNewCalled	= FALSE;
-    dirtyflag		= FALSE;
-    hasStockEvents	= FALSE;
-    stayTopLevel	= FALSE;
-    isInPlaceActive	= FALSE;
-    isUIActive		= FALSE;
-    wasUIActive		= FALSE;
-    inDesignMode	= FALSE;
-    canTakeFocus	= FALSE;
+    isWidget		= false;
+    ownObject		= false;
+    initNewCalled	= false;
+    dirtyflag		= false;
+    hasStockEvents	= false;
+    stayTopLevel	= false;
+    isInPlaceActive	= false;
+    isUIActive		= false;
+    wasUIActive		= false;
+    inDesignMode	= false;
+    canTakeFocus	= false;
     freezeEvents = 0;
 
     sizeExtent.cx = 2500;
@@ -1040,12 +1040,12 @@ void QAxServerBase::init()
     m_spTypeInfo = 0;
     m_spStorage = 0;
 
-    InitializeCriticalSection( &refCountSection );
-    InitializeCriticalSection( &createWindowSection );
+    InitializeCriticalSection(&refCountSection);
+    InitializeCriticalSection(&createWindowSection);
 
     qAxLock();
 
-    points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
+    points[IID_IPropertyNotifySink] = new QAxConnection(this, IID_IPropertyNotifySink);
 }
 
 /*!
@@ -1056,40 +1056,40 @@ QAxServerBase::~QAxServerBase()
 {
     revokeActiveObject();
 
-    for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it ) {
-	if ( it.value() )
+    for (QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it) {
+	if (it.value())
 	    (*it)->Release();
     }
     delete aggregatedObject;
     aggregatedObject = 0;
-    if ( theObject ) {
-	axTakeServer( m_hWnd );
-	if ( qt.widget->isWidgetType() )
-	    axTakeServer( qt.widget->winId() );
-	qt.object->disconnect( this );
+    if (theObject) {
+	axTakeServer(m_hWnd);
+	if (qt.widget->isWidgetType())
+	    axTakeServer(qt.widget->winId());
+	qt.object->disconnect(this);
 	QObject *aqt = qt.object;
 	qt.object = 0;
-	if ( ownObject )
+	if (ownObject)
 	    delete aqt;
     }
 
-    if ( m_spAdviseSink ) m_spAdviseSink->Release();
+    if (m_spAdviseSink) m_spAdviseSink->Release();
     m_spAdviseSink = 0;
-    if ( m_spOleAdviseHolder ) m_spOleAdviseHolder->Release();
+    if (m_spOleAdviseHolder) m_spOleAdviseHolder->Release();
     m_spOleAdviseHolder = 0;
-    if ( m_spClientSite ) m_spClientSite->Release();
+    if (m_spClientSite) m_spClientSite->Release();
     m_spClientSite = 0;
-    if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+    if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
     m_spInPlaceFrame = 0;
-    if ( m_spInPlaceSite ) m_spInPlaceSite->Release();
+    if (m_spInPlaceSite) m_spInPlaceSite->Release();
     m_spInPlaceSite = 0;
-    if ( m_spTypeInfo ) m_spTypeInfo->Release();
+    if (m_spTypeInfo) m_spTypeInfo->Release();
     m_spTypeInfo = 0;
-    if ( m_spStorage ) m_spStorage->Release();
+    if (m_spStorage) m_spStorage->Release();
     m_spStorage = 0;
 
-    DeleteCriticalSection( &refCountSection );
-    DeleteCriticalSection( &createWindowSection );
+    DeleteCriticalSection(&refCountSection);
+    DeleteCriticalSection(&createWindowSection);
 
     qAxUnlock();
 }
@@ -1120,71 +1120,71 @@ void QAxServerBase::revokeActiveObject()
 /*
     QueryInterface implementation.
 */
-HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
+HRESULT WINAPI QAxServerBase::QueryInterface(REFIID iid, void **iface)
 {
-    if ( m_outerUnknown )
-	return m_outerUnknown->QueryInterface( iid, iface );
+    if (m_outerUnknown)
+	return m_outerUnknown->QueryInterface(iid, iface);
 
-    return InternalQueryInterface( iid, iface );
+    return InternalQueryInterface(iid, iface);
 }
 
-HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
+HRESULT QAxServerBase::InternalQueryInterface(REFIID iid, void **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_IUnknown) {
+    if (iid == IID_IUnknown) {
 	*iface = (IUnknown*)(IDispatch*)this;
     } else {
 	HRESULT res = S_OK;
-	if ( aggregatedObject )
-	    res = aggregatedObject->queryInterface( iid, iface );
-	if ( *iface )
+	if (aggregatedObject)
+	    res = aggregatedObject->queryInterface(iid, iface);
+	if (*iface)
 	    return res;
     }
 
-    if ( !(*iface) ) {
-	if ( iid == qAxFactory()->interfaceID(class_name) )
+    if (!(*iface)) {
+	if (iid == qAxFactory()->interfaceID(class_name))
 	    *iface = (IDispatch*)this;
-	if ( iid == IID_IDispatch )
+	if (iid == IID_IDispatch)
 	    *iface = (IDispatch*)this;
-	else if ( iid == IID_IAxServerBase)
+	else if (iid == IID_IAxServerBase)
 	    *iface = (IAxServerBase*)this;
-	else if ( iid == IID_IOleObject)
+	else if (iid == IID_IOleObject)
 	    *iface = (IOleObject*)this;
-	else if ( iid == IID_IConnectionPointContainer)
+	else if (iid == IID_IConnectionPointContainer)
 	    *iface = (IConnectionPointContainer*)this;
-	else if ( iid == IID_IProvideClassInfo)
+	else if (iid == IID_IProvideClassInfo)
 	    *iface = (IProvideClassInfo*)this;
-	else if ( iid == IID_IProvideClassInfo2)
+	else if (iid == IID_IProvideClassInfo2)
 	    *iface = (IProvideClassInfo2*)this;
-	else if ( iid == IID_IPersist )
+	else if (iid == IID_IPersist)
 	    *iface = (IPersist*)(IPersistStream*)this;
-	else if ( iid == IID_IPersistStream)
+	else if (iid == IID_IPersistStream)
 	    *iface = (IPersistStream*)this;
-	else if ( iid == IID_IPersistStreamInit )
+	else if (iid == IID_IPersistStreamInit)
 	    *iface = (IPersistStreamInit*)this;
-	else if ( iid == IID_IPersistStorage )
+	else if (iid == IID_IPersistStorage)
 	    *iface = (IPersistStorage*)this;
-	else if ( iid == IID_IPersistPropertyBag)
+	else if (iid == IID_IPersistPropertyBag)
 	    *iface = (IPersistPropertyBag*)this;
-	else if ( iid == IID_IViewObject)
+	else if (iid == IID_IViewObject)
 	    *iface = (IViewObject*)this;
-	else if ( iid == IID_IViewObject2)
+	else if (iid == IID_IViewObject2)
 	    *iface = (IViewObject2*)this;
-	else if ( isWidget ) {
-	    if ( iid == IID_IOleControl)
+	else if (isWidget) {
+	    if (iid == IID_IOleControl)
 		*iface = (IOleControl*)this;
-	    else if ( iid == IID_IOleWindow)
+	    else if (iid == IID_IOleWindow)
 		*iface = (IOleWindow*)(IOleInPlaceObject*)this;
-	    else if ( iid == IID_IOleInPlaceObject)
+	    else if (iid == IID_IOleInPlaceObject)
 		*iface = (IOleInPlaceObject*)this;
-	    else if ( iid == IID_IOleInPlaceActiveObject)
+	    else if (iid == IID_IOleInPlaceActiveObject)
 		*iface = (IOleInPlaceActiveObject*)this;
-	    else if ( iid == IID_IDataObject)
+	    else if (iid == IID_IDataObject)
 		*iface = (IDataObject*)this;
 	}
     }
-    if ( !*iface )
+    if (!*iface)
 	return E_NOINTERFACE;
 
     AddRef();
@@ -1196,13 +1196,13 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
 */
 void QAxServerBase::internalBind()
 {
-    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast( "QAxBindable" );
-    if ( axb ) {
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+    if (axb) {
 	// no addref; this is aggregated
 	axb->activex = this;
 	if (!aggregatedObject)
 	    aggregatedObject = axb->createAggregate();
-	if ( aggregatedObject ) {
+	if (aggregatedObject) {
 	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
 	    aggregatedObject->the_object = qt.object;
 	}
@@ -1215,9 +1215,9 @@ void QAxServerBase::internalBind()
 void QAxServerBase::internalConnect()
 {
     QUuid eventsID = qAxFactory()->eventsID(class_name);
-    if ( !eventsID.isNull() ) {
+    if (!eventsID.isNull()) {
 	if (!points[eventsID])
-	    points[eventsID] = new QAxConnection( this, eventsID );
+	    points[eventsID] = new QAxConnection(this, eventsID);
 
 	// connect the generic slot to all signals of qt.object
 	const QMetaObject *mo = qt.object->metaObject();
@@ -1234,42 +1234,42 @@ void QAxServerBase::internalConnect()
 */
 bool QAxServerBase::internalCreate()
 {
-    if ( qt.object )
-	return TRUE;
+    if (qt.object)
+	return true;
 
-    qt.object = qAxFactory()->createObject( class_name );
+    qt.object = qAxFactory()->createObject(class_name);
     Q_ASSERT(qt.object);
-    if ( !qt.object )
-	return FALSE;
+    if (!qt.object)
+	return false;
 
     theObject = qt.object;
-    ownObject = TRUE;
+    ownObject = true;
     isWidget = qt.object->isWidgetType();
-    hasStockEvents = qAxFactory()->hasStockEvents( class_name );
-    stayTopLevel = qAxFactory()->stayTopLevel( class_name );
+    hasStockEvents = qAxFactory()->hasStockEvents(class_name);
+    stayTopLevel = qAxFactory()->stayTopLevel(class_name);
 
     internalBind();
-    if ( isWidget ) {
-	if ( !stayTopLevel ) {
+    if (isWidget) {
+	if (!stayTopLevel) {
 	    QEvent e(QEvent::EmbeddingControl);
 	    QApplication::sendEvent(qt.widget, &e);
-	    QT_WA( {
-		::SetWindowLongW( qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	    QT_WA({
+		::SetWindowLongW(qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 	    }, {
-		::SetWindowLongA( qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-	    } );
+		::SetWindowLongA(qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+	    });
 	}
 
-	qt.widget->setGeometry( rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top );
+	qt.widget->setGeometry(rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top);
 	updateGeometry();
     }
 
     internalConnect();
     // install an event filter for stock events
-    if ( isWidget )
-	qt.object->installEventFilter( this );
+    if (isWidget)
+	qt.object->installEventFilter(this);
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -1296,38 +1296,38 @@ class HackMenuData : public QMenuData
 */
 LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if ( uMsg == WM_CREATE ) {
+    if (uMsg == WM_CREATE) {
 	QAxServerBase *that;
-	QT_WA( {
+	QT_WA({
 	    CREATESTRUCTW *cs = (CREATESTRUCTW*)lParam;
 	    that = (QAxServerBase*)cs->lpCreateParams;
 	}, {
 	    CREATESTRUCTA *cs = (CREATESTRUCTA*)lParam;
 	    that = (QAxServerBase*)cs->lpCreateParams;
-	} );
+	});
 
-	axServerMapper()->insert( hWnd, that );
+	axServerMapper()->insert(hWnd, that);
 	that->m_hWnd = hWnd;
 
-	QT_WA( {
-	    return ::DefWindowProcW( hWnd, uMsg, wParam, lParam );
+	QT_WA({
+	    return ::DefWindowProcW(hWnd, uMsg, wParam, lParam);
 	}, {
-	    return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
-	} );
+	    return ::DefWindowProcA(hWnd, uMsg, wParam, lParam);
+	});
     }
 
     QAxServerBase *that = (*axServerMapper())[hWnd];
-    if ( that ) switch ( uMsg )
+    if (that) switch (uMsg)
     {
     case WM_NCDESTROY:
 	that->m_hWnd = 0;
-	axTakeServer( hWnd );
+	axTakeServer(hWnd);
 	break;
 
     case WM_QUERYENDSESSION:
     case WM_DESTROY:
-	if ( that->qt.widget && that->ownObject ) {
-	    if ( that->aggregatedObject )
+	if (that->qt.widget && that->ownObject) {
+	    if (that->aggregatedObject)
 		that->aggregatedObject->the_object = 0;
 	    delete that->qt.widget;
 	    that->qt.widget = 0;
@@ -1335,15 +1335,15 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_SHOWWINDOW:
-	if( wParam ) {
+	if(wParam) {
 	    that->internalCreate();
-	    if ( !that->stayTopLevel ) {
-		::SetParent( that->qt.widget->winId(), that->m_hWnd );
+	    if (!that->stayTopLevel) {
+		::SetParent(that->qt.widget->winId(), that->m_hWnd);
 		that->qt.widget->raise();
-		that->qt.widget->move( 0, 0 );
+		that->qt.widget->move(0, 0);
 	    }
 	    that->qt.widget->show();
-	} else if ( that->qt.widget ) {
+	} else if (that->qt.widget) {
 	    that->qt.widget->hide();
 	}
 	break;
@@ -1353,34 +1353,34 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_SIZE:
-	if ( that->qt.widget )
-	    that->qt.widget->resize( LOWORD(lParam), HIWORD(lParam) );
+	if (that->qt.widget)
+	    that->qt.widget->resize(LOWORD(lParam), HIWORD(lParam));
 	break;
 
     case WM_SETFOCUS:
-	if ( that->isInPlaceActive && that->m_spClientSite && !that->inDesignMode && that->canTakeFocus ) {
+	if (that->isInPlaceActive && that->m_spClientSite && !that->inDesignMode && that->canTakeFocus) {
 	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
-	    if ( that->isUIActive ) {
+	    if (that->isUIActive) {
 		IOleControlSite *spSite = 0;
-		that->m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
-		if ( spSite ) {
-		    spSite->OnFocus(TRUE);
+		that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
+		if (spSite) {
+		    spSite->OnFocus(true);
 		    spSite->Release();
 		}
-		if ( that->qt.widget->focusWidget() && !that->inDesignMode )
+		if (that->qt.widget->focusWidget() && !that->inDesignMode)
 		    that->qt.widget->focusWidget()->setFocus();
 		else {
 /* ###
 		    QFocusData *focusData = ((HackWidget*)that->qt.widget)->focusData();
 		    QWidget *candidate = 0;
-		    if ( ::GetKeyState(VK_SHIFT) < 0 )
+		    if (::GetKeyState(VK_SHIFT) < 0)
 			candidate = focusData->last();
 		    else
 			candidate = focusData->first();
-		    if ( candidate->focusPolicy() != QWidget::NoFocus )
+		    if (candidate->focusPolicy() != QWidget::NoFocus)
 			candidate->setFocus();
 		    else
-			((HackWidget*)candidate)->focusNextPrevChild( TRUE );
+			((HackWidget*)candidate)->focusNextPrevChild(true);
 */
 		}
 	    }
@@ -1388,12 +1388,12 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_KILLFOCUS:
-	if ( that->isInPlaceActive && that->isUIActive && that->m_spClientSite ) {
+	if (that->isInPlaceActive && that->isUIActive && that->m_spClientSite) {
 	    IOleControlSite *spSite = 0;
-	    that->m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
-	    if ( spSite ) {
-		if ( !::IsChild(that->m_hWndCD, ::GetFocus()) )
-		    spSite->OnFocus(FALSE);
+	    that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
+	    if (spSite) {
+		if (!::IsChild(that->m_hWndCD, ::GetFocus()))
+		    spSite->OnFocus(false);
 		spSite->Release();
 	    }
 	}
@@ -1404,9 +1404,9 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_INITMENUPOPUP:
-	if ( that->qt.widget ) {
+	if (that->qt.widget) {
 	    that->currentPopup = that->menuMap[(HMENU)wParam];
-	    if ( !that->currentPopup )
+	    if (!that->currentPopup)
 		break;
 	    const QMetaObject *mo = that->currentPopup->metaObject();
 	    int index = mo->indexOfSignal("aboutToShow()");
@@ -1422,35 +1422,35 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     case WM_MENUSELECT:
     case WM_COMMAND:
         /* XXXX
-	if ( that->qt.widget ) {
+	if (that->qt.widget) {
 	    QMenuBar *menuBar = that->menuBar;
-	    if ( !menuBar )
+	    if (!menuBar)
 		break;
 
 	    int qtid = 0;
-	    bool menuClosed = FALSE;
-	    if ( uMsg == WM_COMMAND )
+	    bool menuClosed = false;
+	    if (uMsg == WM_COMMAND)
 		qtid = int(wParam);
-	    else if ( !lParam )
-		menuClosed = TRUE;
+	    else if (!lParam)
+		menuClosed = true;
 	    else
 		qtid = LOWORD(wParam);
 
 	    QMenuData *menu = 0;
-	    QMenuItem *qitem = menuClosed ? 0 : menuBar->findItem( qtid, &menu );
-	    if ( uMsg == WM_MENUSELECT && !qitem && !menuClosed ) {
+	    QMenuItem *qitem = menuClosed ? 0 : menuBar->findItem(qtid, &menu);
+	    if (uMsg == WM_MENUSELECT && !qitem && !menuClosed) {
 		qtid |= 0xffff0000;
-		qitem = menuBar->findItem( qtid, &menu );
+		qitem = menuBar->findItem(qtid, &menu);
 	    }
 	    QObject *menuObject = 0;
-	    if ( menuClosed )
+	    if (menuClosed)
 		menuObject = that->currentPopup;
-	    else if ( ((HackMenuData*)menu)->isMenuBar )
+	    else if (((HackMenuData*)menu)->isMenuBar)
 		menuObject = (QMenuBar*)menu;
-	    else if ( ((HackMenuData*)menu)->isPopupMenu )
+	    else if (((HackMenuData*)menu)->isPopupMenu)
 		menuObject = (QPopupMenu*)menu;
 
-	    if ( menuObject && ( menuClosed || qitem ) ) {
+	    if (menuObject && (menuClosed || qitem)) {
 		const QMetaObject *mo = menuObject->metaObject();
 		int index = -1;
 
@@ -1461,10 +1461,10 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		else
 		    index = mo->indexOfSignal("highlighted(int)");
 
-		if ( index < 0 )
+		if (index < 0)
 		    break;
 
-		if ( menuClosed ) {
+		if (menuClosed) {
 		    menuObject->qt_metacall(QMetaObject::EmitSignal, index, 0);
 		} else {
 		    void *argv[] = {0, &qtid};
@@ -1482,24 +1482,24 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
     }
 
-    QT_WA( {
-	return ::DefWindowProcW( hWnd, uMsg, wParam, lParam );
+    QT_WA({
+	return ::DefWindowProcW(hWnd, uMsg, wParam, lParam);
     }, {
-	return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
-    } );
+	return ::DefWindowProcA(hWnd, uMsg, wParam, lParam);
+    });
 }
 
 /*!
     Creates the window hosting the QWidget.
 */
-HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
+HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 {
      // ##why not create the QWidget here?
     static ATOM atom = 0;
     HINSTANCE hInst = (HINSTANCE)qAxInstance;
-    EnterCriticalSection( &createWindowSection );
-    if ( !atom ) {
-	QT_WA( {
+    EnterCriticalSection(&createWindowSection);
+    if (!atom) {
+	QT_WA({
 	    WNDCLASSW wcTemp;
 	    wcTemp.style = CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
@@ -1512,7 +1512,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.lpszMenuName = 0;
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
-	    atom = RegisterClassW( &wcTemp );
+	    atom = RegisterClassW(&wcTemp);
 	}, {
 	    WNDCLASSA wcTemp;
 	    wcTemp.style = CS_DBLCLKS;
@@ -1526,28 +1526,28 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.lpszMenuName = 0;
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
-	    atom = RegisterClassA( &wcTemp );
-	} );
+	    atom = RegisterClassA(&wcTemp);
+	});
     }
-    LeaveCriticalSection( &createWindowSection );
-    if ( !atom  && GetLastError() != ERROR_CLASS_ALREADY_EXISTS )
+    LeaveCriticalSection(&createWindowSection);
+    if (!atom  && GetLastError() != ERROR_CLASS_ALREADY_EXISTS)
 	return 0;
 
-    Q_ASSERT( !m_hWnd );
+    Q_ASSERT(!m_hWnd);
 
     HWND hWnd = 0;
 
-    QT_WA( {
-	hWnd = ::CreateWindowW( L"QAxControl", 0,
+    QT_WA({
+	hWnd = ::CreateWindowW(L"QAxControl", 0,
 	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
-	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
+	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this);
     }, {
-	hWnd = ::CreateWindowA( "QAxControl", 0,
+	hWnd = ::CreateWindowA("QAxControl", 0,
 	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
-	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
-    } );
+	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this);
+    });
     this->rcPos = rcPos;
 
     Q_ASSERT(m_hWnd == hWnd);
@@ -1561,41 +1561,41 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 /*
     Recoursively creates Win32 submenus.
 */
-HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
+HMENU QAxServerBase::createPopup(QPopupMenu *popup, HMENU oldMenu)
 {
     HMENU popupMenu = oldMenu ? oldMenu : CreatePopupMenu();
     /* ###
     menuMap[popupMenu] = popup;
 
-    if ( oldMenu ) while ( GetMenuItemCount(oldMenu) ) {
-	DeleteMenu( oldMenu, 0, MF_BYPOSITION );
+    if (oldMenu) while (GetMenuItemCount(oldMenu)) {
+	DeleteMenu(oldMenu, 0, MF_BYPOSITION);
     }
 
-    for ( uint i = 0; i < popup->count(); ++i ) {
+    for (uint i = 0; i < popup->count(); ++i) {
 	int qid = popup->idAt(i);
-	QMenuItem *qitem = popup->findItem( qid );
-	if ( !qitem )
+	QMenuItem *qitem = popup->findItem(qid);
+	if (!qitem)
 	    continue;
 
 	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
-	if ( qitem->isSeparator() )
+	if (qitem->isSeparator())
 	    flags |= MF_SEPARATOR;
-	else if ( qitem->popup() )
+	else if (qitem->popup())
 	    flags |= MF_POPUP;
 	else
 	    flags |= MF_STRING;
-	if ( qitem->isChecked() )
+	if (qitem->isChecked())
 	    flags |= MF_CHECKED;
 
-	UINT itemId = qitem->popup() ? (UINT_PTR)createPopup( qitem->popup() ) : qid;
-	QT_WA( {
-	    AppendMenuW( popupMenu, flags, itemId, (TCHAR*)qitem->text().ucs2() );
+	UINT itemId = qitem->popup() ? (UINT_PTR)createPopup(qitem->popup()) : qid;
+	QT_WA({
+	    AppendMenuW(popupMenu, flags, itemId, (TCHAR*)qitem->text().ucs2());
 	}, {
-	    AppendMenuA( popupMenu, flags, itemId, qitem->text().local8Bit() );
-	} );
+	    AppendMenuA(popupMenu, flags, itemId, qitem->text().local8Bit());
+	});
     }
-    if ( oldMenu )
-	DrawMenuBar( hwndMenuOwner );
+    if (oldMenu)
+	DrawMenuBar(hwndMenuOwner);
     */
     return popupMenu;
 }
@@ -1603,7 +1603,7 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 /*!
     Creates a Win32 menubar.
 */
-void QAxServerBase::createMenu( QMenuBar *menuBar )
+void QAxServerBase::createMenu(QMenuBar *menuBar)
 {
     /* ###
     hmenuShared = ::CreateMenu();
@@ -1612,51 +1612,51 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     int object = 0;
     int help = 0;
 
-    for ( uint i = 0; i < menuBar->count(); ++i ) {
-	int qid = menuBar->idAt( i );
-	QMenuItem *qitem = menuBar->findItem( qid );
-	if ( !qitem )
+    for (uint i = 0; i < menuBar->count(); ++i) {
+	int qid = menuBar->idAt(i);
+	QMenuItem *qitem = menuBar->findItem(qid);
+	if (!qitem)
 	    continue;
 
 	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
-	if ( qitem->isSeparator() )
+	if (qitem->isSeparator())
 	    flags |= MF_SEPARATOR;
-	else if ( qitem->popup() )
+	else if (qitem->popup())
 	    flags |= MF_POPUP;
 	else
 	    flags |= MF_STRING;
 
-	if ( qitem->text() == qt.widget->tr("&Edit") )
+	if (qitem->text() == qt.widget->tr("&Edit"))
 	    edit++;
-	else if ( qitem->text() == qt.widget->tr("&Help") )
+	else if (qitem->text() == qt.widget->tr("&Help"))
 	    help++;
 	else
 	    object++;
 
-	UINT itemId = qitem->popup() ? (UINT)createPopup( qitem->popup() ) : qid;
-	QT_WA( {
-	    AppendMenuW( hmenuShared, flags, itemId, (TCHAR*)qitem->text().ucs2() );
+	UINT itemId = qitem->popup() ? (UINT)createPopup(qitem->popup()) : qid;
+	QT_WA({
+	    AppendMenuW(hmenuShared, flags, itemId, (TCHAR*)qitem->text().ucs2());
 	} , {
-	    AppendMenuA( hmenuShared, flags, itemId, qitem->text().local8Bit() );
-	} );
+	    AppendMenuA(hmenuShared, flags, itemId, qitem->text().local8Bit());
+	});
     }
 
     OLEMENUGROUPWIDTHS menuWidths = {0,edit,0,object,0,help};
-    HRESULT hres = m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
-    if ( FAILED(hres) ) {
-	::DestroyMenu( hmenuShared );
+    HRESULT hres = m_spInPlaceFrame->InsertMenus(hmenuShared, &menuWidths);
+    if (FAILED(hres)) {
+	::DestroyMenu(hmenuShared);
 	hmenuShared = 0;
 	return;
     }
 
-    m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
+    m_spInPlaceFrame->GetWindow(&hwndMenuOwner);
 
-    holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
-    hres = m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
-    if ( FAILED(hres) ) {
-	::DestroyMenu( hmenuShared );
+    holemenu = OleCreateMenuDescriptor(hmenuShared, &menuWidths);
+    hres = m_spInPlaceFrame->SetMenu(hmenuShared, holemenu, m_hWnd);
+    if (FAILED(hres)) {
+	::DestroyMenu(hmenuShared);
 	hmenuShared = 0;
-	OleDestroyMenuDescriptor( holemenu );
+	OleDestroyMenuDescriptor(holemenu);
     }
     */
 }
@@ -1666,20 +1666,20 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 */
 void QAxServerBase::removeMenu()
 {
-    if ( hmenuShared )
-	m_spInPlaceFrame->RemoveMenus( hmenuShared );
+    if (hmenuShared)
+	m_spInPlaceFrame->RemoveMenus(hmenuShared);
     holemenu = 0;
-    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
-    if ( hmenuShared ) {
-	DestroyMenu( hmenuShared );
+    m_spInPlaceFrame->SetMenu(0, 0, m_hWnd);
+    if (hmenuShared) {
+	DestroyMenu(hmenuShared);
 	hmenuShared = 0;
 	menuMap.clear();
     }
     hwndMenuOwner = 0;
 }
 
-extern bool ignoreSlots( const char *test );
-extern bool ignoreProps( const char *test );
+extern bool ignoreSlots(const char *test);
+extern bool ignoreProps(const char *test);
 
 /*!
     Creates mappings between DISPIDs and Qt signal/slot/property data.
@@ -1687,7 +1687,7 @@ extern bool ignoreProps( const char *test );
 void QAxServerBase::ensureMetaData()
 {
     if (!m_spTypeInfo) {
-	qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID(class_name), &m_spTypeInfo );
+	qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->interfaceID(class_name), &m_spTypeInfo);
 	m_spTypeInfo->AddRef();
     }
 /*
@@ -1695,71 +1695,71 @@ void QAxServerBase::ensureMetaData()
     int qtSlots = 0;
 
     if (theObject->isWidgetType()) {
-	qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
-	qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+	qtProps = QWidget::staticMetaObject()->numProperties(true);
+	qtSlots = QWidget::staticMetaObject()->numProperties(true);
     }
 
     const QMetaObject *mo = qt.object->metaObject();
-    for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
-	const QMetaData *slot = mo->slot( islot, TRUE );
+    for (int islot = mo->numSlots(true)-1; islot >=0 ; --islot) {
+	const QMetaData *slot = mo->slot(islot, true);
 
-	if (islot <= qtSlots && ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public)
+	if (islot <= qtSlots && ignoreSlots(slot->method->name) || slot->access != QMetaData::Public)
 	    continue;
 
-	BSTR bstrNames = QStringToBSTR( slot->method->name );
+	BSTR bstrNames = QStringToBSTR(slot->method->name);
 	DISPID dispId;
-	GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
-	if ( dispId >= 0 )
-	    slotcache->insert( dispId, slot );
-	SysFreeString( bstrNames );
+	GetIDsOfNames(IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId);
+	if (dispId >= 0)
+	    slotcache->insert(dispId, slot);
+	SysFreeString(bstrNames);
     }
     IConnectionPointContainer *cpoints = 0;
-    QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( cpoints ) {
+    QueryInterface(IID_IConnectionPointContainer, (void**)&cpoints);
+    if (cpoints) {
 	IProvideClassInfo *classinfo = 0;
-	cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-	if ( classinfo ) {
+	cpoints->QueryInterface(IID_IProvideClassInfo, (void**)&classinfo);
+	if (classinfo) {
 	    ITypeInfo *info = 0;
 	    ITypeInfo *eventinfo = 0;
-	    classinfo->GetClassInfo( &info );
-	    if ( info ) {
+	    classinfo->GetClassInfo(&info);
+	    if (info) {
 		TYPEATTR *typeattr = 0;
-		info->GetTypeAttr( &typeattr );
-		if ( typeattr ) {
-		    for ( int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl ) {
+		info->GetTypeAttr(&typeattr);
+		if (typeattr) {
+		    for (int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl) {
 			// get the ITypeInfo for the interface
 			HREFTYPE reftype;
-			info->GetRefTypeOfImplType( impl, &reftype );
+			info->GetRefTypeOfImplType(impl, &reftype);
 			ITypeInfo *eventtype = 0;
-			info->GetRefTypeInfo( reftype, &eventtype );
-			if ( eventtype ) {
+			info->GetRefTypeInfo(reftype, &eventtype);
+			if (eventtype) {
 			    TYPEATTR *eventattr;
-			    eventtype->GetTypeAttr( &eventattr );
+			    eventtype->GetTypeAttr(&eventattr);
 			    // this is it
-			    if ( eventattr && eventattr->guid == qAxFactory()->eventsID( class_name ) )
+			    if (eventattr && eventattr->guid == qAxFactory()->eventsID(class_name))
 				eventinfo = eventtype;
 
-			    eventtype->ReleaseTypeAttr( eventattr );
-			    if ( eventtype != eventinfo )
+			    eventtype->ReleaseTypeAttr(eventattr);
+			    if (eventtype != eventinfo)
 				eventtype->Release();
 			}
 		    }
-		    info->ReleaseTypeAttr( typeattr );
+		    info->ReleaseTypeAttr(typeattr);
 		}
 		info->Release();
 	    }
-	    if ( eventinfo ) {
-		for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal ) {
-		    const QMetaData *signal = mo->signal( isignal, TRUE );
+	    if (eventinfo) {
+		for (int isignal = mo->numSignals(true)-1; isignal >= 0; --isignal) {
+		    const QMetaData *signal = mo->signal(isignal, true);
 
-		    BSTR bstrNames = QStringToBSTR( signal->method->name );
+		    BSTR bstrNames = QStringToBSTR(signal->method->name);
 		    DISPID dispId;
-		    eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, 1, &dispId );
-		    if ( dispId >= 0 )
-			signallist->insert( isignal, dispId );
+		    eventinfo->GetIDsOfNames((BSTR*)&bstrNames, 1, &dispId);
+		    if (dispId >= 0)
+			signallist->insert(isignal, dispId);
 		    else
-			signallist->insert( isignal, -1 );
-		    SysFreeString( bstrNames );
+			signallist->insert(isignal, -1);
+		    SysFreeString(bstrNames);
 		}
 		eventinfo->Release();
 	    }
@@ -1772,15 +1772,15 @@ void QAxServerBase::ensureMetaData()
 
 /*!
     \internal
-    Returns TRUE if the property \a index is exposed to COM and should
+    Returns true if the property \a index is exposed to COM and should
     be saved/loaded.
 */
 bool QAxServerBase::isPropertyExposed(int index)
 {
     if (!theObject)
-	return FALSE;
+	return false;
 
-    bool result = FALSE;
+    bool result = false;
     const QMetaObject *mo = theObject->metaObject();
 
     int qtProps = 0;
@@ -1806,13 +1806,13 @@ bool QAxServerBase::isPropertyExposed(int index)
 */
 void QAxServerBase::update()
 {
-    if ( isInPlaceActive ) {
-	if ( m_hWndCD )
-	    ::InvalidateRect( m_hWndCD, 0, TRUE );
-	else if ( m_spInPlaceSite )
-	    m_spInPlaceSite->InvalidateRect( NULL, TRUE );
+    if (isInPlaceActive) {
+	if (m_hWndCD)
+	    ::InvalidateRect(m_hWndCD, 0, true);
+	else if (m_spInPlaceSite)
+	    m_spInPlaceSite->InvalidateRect(NULL, true);
     } else if (m_spAdviseSink) {
-	m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, -1 );
+	m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
     }
 }
 
@@ -1823,15 +1823,15 @@ void QAxServerBase::update()
 */
 void QAxServerBase::updateGeometry()
 {
-    if ( !isWidget || !qt.widget)
+    if (!isWidget || !qt.widget)
 	return;
 
     QSize sizeHint = qt.widget->sizeHint();
-    if ( sizeHint.isValid() ) {
-	QPaintDeviceMetrics pmetric( qt.widget );
+    if (sizeHint.isValid()) {
+	QPaintDeviceMetrics pmetric(qt.widget);
 
-	sizeExtent.cx = MAP_PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
-	sizeExtent.cy = MAP_PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
+	sizeExtent.cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), pmetric.logicalDpiX());
+	sizeExtent.cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), pmetric.logicalDpiY());
     }
 }
 
@@ -1842,84 +1842,84 @@ void QAxServerBase::updateGeometry()
 */
 void QAxServerBase::updateMask()
 {
-    if ( !isWidget || !qt.widget || !qt.widget->autoMask() )
+    if (!isWidget || !qt.widget || !qt.widget->autoMask())
 	return;
 
     HRGN hrgn = CreateRectRgn(0,0,0,0);
-    int regionType = GetWindowRgn( qt.widget->winId(), hrgn );
-    if ( regionType != ERROR ) {
-	SetWindowRgn( m_hWnd, hrgn, TRUE );
+    int regionType = GetWindowRgn(qt.widget->winId(), hrgn);
+    if (regionType != ERROR) {
+	SetWindowRgn(m_hWnd, hrgn, true);
     } else {
 	DeleteObject(hrgn);
     }
 }
 
-static bool checkHRESULT( HRESULT hres )
+static bool checkHRESULT(HRESULT hres)
 {
     const char *name = 0;
-    switch( hres ) {
+    switch(hres) {
     case S_OK:
-	return TRUE;
+	return true;
     case DISP_E_BADPARAMCOUNT:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Bad parameter count.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_BADVARTYPE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Bad variant type.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_EXCEPTION:
 #if defined(QT_CHECK_STATE)
-	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name );
+	    qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_MEMBERNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Member not found.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Member not found.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_NONAMEDARGS:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: No named arguments.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: No named arguments.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_OVERFLOW:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Overflow.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Overflow.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter not found.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Parameter not found.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_UNKNOWNINTERFACE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown interface.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_UNKNOWNLCID:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name);
 #endif
-	return FALSE;
+	return false;
     case DISP_E_PARAMNOTOPTIONAL:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name);
 #endif
-	return FALSE;
+	return false;
     default:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown error.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown error.", name);
 #endif
-	return FALSE;
+	return false;
     }
 }
 
@@ -1948,17 +1948,17 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 {
     if (index == -1 && sender() && m_spInPlaceSite) {
 	if (qt_cast<QStatusBar*>(sender()) != statusBar)
-	    return TRUE;
+	    return true;
 
 	if (statusBar->isHidden()) {
 	    QString message = *(QString*)argv[1];
 	    m_spInPlaceFrame->SetStatusText(QStringToBSTR(message));
 	}
-	return TRUE;
+	return true;
     }
 
     if (freezeEvents || inDesignMode)
-	return TRUE;
+	return true;
 
     ensureMetaData();
 
@@ -2002,7 +2002,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		ITypeInfo *eventInfo = 0;
 		qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->eventsID(class_name), &eventInfo);
 		if (eventInfo) {
-		    const OLECHAR *olename = name.ucs2();
+		    const OLECHAR *olename = name.utf16();
 		    eventInfo->GetIDsOfNames((OLECHAR**)&olename, 1, &eventId);
 		    eventInfo->Release();
 		}
@@ -2020,10 +2020,10 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     }
     if (pcount && !argv) {
 	qWarning("Internal Error: missing %d arguments in qt_metacall", pcount);
-	return FALSE;
+	return false;
     }
     if (eventId == -1)
-	return FALSE;
+	return false;
 
     // For all connected event sinks...
     IConnectionPoint *cpoint = 0;
@@ -2051,7 +2051,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		int p = 0;
 		for (p = 0; p < pcount; ++p) {
 		    VARIANT *arg = dispParams.rgvarg + (pcount - p - 1);
-		    VariantInit( arg );
+		    VariantInit(arg);
 
 		    bool out;
 		    QString ptype = paramType(ptypes.at(p), &out);
@@ -2106,54 +2106,54 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	cpoint->Release();
     }
 
-    return TRUE;
+    return true;
 }
 
 /*!
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-bool QAxServerBase::emitRequestPropertyChange( const char *property)
+bool QAxServerBase::emitRequestPropertyChange(const char *property)
 {
     long dispId = -1;
 
     IConnectionPoint *cpoint = 0;
-    FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
-    if ( cpoint ) {
+    FindConnectionPoint(IID_IPropertyNotifySink, &cpoint);
+    if (cpoint) {
 	IEnumConnections *clist = 0;
-	cpoint->EnumConnections( &clist );
-	if ( clist ) {
+	cpoint->EnumConnections(&clist);
+	if (clist) {
 	    clist->Reset();
 	    ULONG cc = 1;
 	    CONNECTDATA c[1];
-	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
-	    if ( cc ) {
-		if ( dispId == -1 ) {
+	    clist->Next(cc, (CONNECTDATA*)&c, &cc);
+	    if (cc) {
+		if (dispId == -1) {
 		    BSTR bstr = QStringToBSTR(property);
 		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
 		    SysFreeString(bstr);
 		}
-		if ( dispId != -1 ) while ( cc ) {
-		    if ( c->pUnk ) {
+		if (dispId != -1) while (cc) {
+		    if (c->pUnk) {
 			IPropertyNotifySink *sink = 0;
-			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
-			bool disallows = sink && sink->OnRequestEdit( dispId ) == S_FALSE;
+			c->pUnk->QueryInterface(IID_IPropertyNotifySink, (void**)&sink);
+			bool disallows = sink && sink->OnRequestEdit(dispId) == S_FALSE;
 			sink->Release();
 			c->pUnk->Release();
-			if ( disallows ) { // a client disallows the property to change
+			if (disallows) { // a client disallows the property to change
 			    clist->Release();
 			    cpoint->Release();
-			    return FALSE;
+			    return false;
 			}
 		    }
-		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		    clist->Next(cc, (CONNECTDATA*)&c, &cc);
 		}
 	    }
 	    clist->Release();
 	}
 	cpoint->Release();
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -2165,32 +2165,32 @@ void QAxServerBase::emitPropertyChanged(const char *property)
     long dispId = -1;
 
     IConnectionPoint *cpoint = 0;
-    FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
-    if ( cpoint ) {
+    FindConnectionPoint(IID_IPropertyNotifySink, &cpoint);
+    if (cpoint) {
 	IEnumConnections *clist = 0;
-	cpoint->EnumConnections( &clist );
-	if ( clist ) {
+	cpoint->EnumConnections(&clist);
+	if (clist) {
 	    clist->Reset();
 	    ULONG cc = 1;
 	    CONNECTDATA c[1];
-	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
-	    if ( cc ) {
-		if ( dispId == -1 ) {
+	    clist->Next(cc, (CONNECTDATA*)&c, &cc);
+	    if (cc) {
+		if (dispId == -1) {
 		    BSTR bstr = QStringToBSTR(property);
 		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
 		    SysFreeString(bstr);
 		}
-		if ( dispId != -1 ) while ( cc ) {
-		    if ( c->pUnk ) {
+		if (dispId != -1) while (cc) {
+		    if (c->pUnk) {
 			IPropertyNotifySink *sink = 0;
-			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
-			if ( sink ) {
-			    sink->OnChanged( dispId );
+			c->pUnk->QueryInterface(IID_IPropertyNotifySink, (void**)&sink);
+			if (sink) {
+			    sink->OnChanged(dispId);
 			    sink->Release();
 			}
 			c->pUnk->Release();
 		    }
-		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		    clist->Next(cc, (CONNECTDATA*)&c, &cc);
 		}
 	    }
 	    clist->Release();
@@ -2205,11 +2205,11 @@ void QAxServerBase::emitPropertyChanged(const char *property)
 */
 HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
 {
-    if ( !pptinfo )
+    if (!pptinfo)
 	return E_POINTER;
 
     *pptinfo = 0;
-    if ( !qAxTypeLibrary )
+    if (!qAxTypeLibrary)
 	return DISP_E_BADINDEX;
 
     return qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->classID(class_name), pptinfo);
@@ -2221,10 +2221,10 @@ HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
 */
 HRESULT WINAPI QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
 {
-    if ( !pGUID )
+    if (!pGUID)
 	return E_POINTER;
 
-    if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID ) {
+    if (dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID) {
 	*pGUID = qAxFactory()->eventsID(class_name);
 	return S_OK;
     }
@@ -2250,10 +2250,10 @@ HRESULT WINAPI QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
 */
 HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo** pptinfo)
 {
-    if ( !pptinfo )
+    if (!pptinfo)
 	return E_POINTER;
 
-    if ( !qAxTypeLibrary )
+    if (!qAxTypeLibrary)
 	return DISP_E_BADINDEX;
 
     ensureMetaData();
@@ -2270,29 +2270,29 @@ HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo*
 HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames,
 				     LCID /*lcid*/, DISPID* rgdispid)
 {
-    if ( !rgszNames || !rgdispid )
+    if (!rgszNames || !rgdispid)
 	return E_POINTER;
 
-    if ( !qAxTypeLibrary )
+    if (!qAxTypeLibrary)
 	return DISP_E_UNKNOWNNAME;
 
     ensureMetaData();
-    if ( !m_spTypeInfo )
+    if (!m_spTypeInfo)
 	return DISP_E_UNKNOWNNAME;
 
-    return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
+    return m_spTypeInfo->GetIDsOfNames(rgszNames, cNames, rgdispid);
 }
 
 /*
     Map the COM call to the Qt slot/property for \a dispidMember.
 */
-HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
+HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		  LCID /*lcid*/, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
-		  EXCEPINFO* pexcepinfo, UINT* puArgErr )
+		  EXCEPINFO* pexcepinfo, UINT* puArgErr)
 {
-    if ( riid != IID_NULL )
+    if (riid != IID_NULL)
 	return DISP_E_UNKNOWNINTERFACE;
-    if ( !theObject )
+    if (!theObject)
 	return E_UNEXPECTED;
 
     HRESULT res = DISP_E_MEMBERNOTFOUND;
@@ -2315,10 +2315,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
     const QMetaObject *mo = qt.object->metaObject();
     QSize oldSizeHint;
-    if ( isWidget )
+    if (isWidget)
 	oldSizeHint = qt.widget->sizeHint();
 
-    switch ( wFlags ) {
+    switch (wFlags) {
     case DISPATCH_PROPERTYGET|DISPATCH_METHOD:
     case DISPATCH_PROPERTYGET:
 	{
@@ -2330,10 +2330,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    const QMetaProperty property = mo->property(index);
 	    if (property.isReadable()) {
-		if ( !pvarResult )
+		if (!pvarResult)
 		    return DISP_E_PARAMNOTOPTIONAL;
-		if ( pDispParams->cArgs ||
-		     pDispParams->cNamedArgs )
+		if (pDispParams->cArgs ||
+		     pDispParams->cNamedArgs)
 		    return DISP_E_BADPARAMCOUNT;
 
 		QVariant var = qt.object->property(property.name());
@@ -2345,7 +2345,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		else
 		    res = S_OK;
 		break;
-	    } else if ( wFlags == DISPATCH_PROPERTYGET ) {
+	    } else if (wFlags == DISPATCH_PROPERTYGET) {
 		break;
 	    }
 	}
@@ -2391,7 +2391,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_BADPARAMCOUNT;
 
 	    // setup parameters (pcount + return)
-	    bool ok = TRUE;
+	    bool ok = true;
             void *static_argv[QAX_NUM_PARAMS + 1];
             QVariant static_varp[QAX_NUM_PARAMS + 1];
             void *static_argv_pointer[QAX_NUM_PARAMS + 1];
@@ -2418,7 +2418,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
                 argv_pointer[0] = 0;
             }
 
-	    for ( int p = 0; p < pcount; ++p ) {
+	    for (int p = 0; p < pcount; ++p) {
 		// map the VARIANT to the void*
 		bool out;
 		QString ptype = paramType(ptypes.at(p), &out);
@@ -2438,7 +2438,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		} else {
 		    if (puArgErr)
 			*puArgErr = pcount-p-1;
-		    ok = FALSE;
+		    ok = false;
 		}
 	    }
 
@@ -2459,7 +2459,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    }
 
 	    // call the slot if everthing went fine.
-	    if ( ok ) {
+	    if (ok) {
 		qt.object->qt_metacall(QMetaObject::InvokeSlot, index, argv);
 
 		// update reference parameters and return value
@@ -2468,7 +2468,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    QString ptype = paramType(ptypes.at(p), &out);
 		    if (out) {
 			if (!QVariantToVARIANT(varp[p + 1], pDispParams->rgvarg[pcount - p - 1], ptype, out))
-			    ok = FALSE;
+			    ok = false;
 		    }
 		}
                 if (!type.isEmpty() && pvarResult) {
@@ -2498,11 +2498,11 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    const QMetaProperty property = mo->property(index);
 	    if (!property.isWritable())
 		return DISP_E_MEMBERNOTFOUND;
-	    if ( !pDispParams->cArgs )
+	    if (!pDispParams->cArgs)
 		return DISP_E_PARAMNOTOPTIONAL;
-	    if ( pDispParams->cArgs != 1 ||
+	    if (pDispParams->cArgs != 1 ||
 		 pDispParams->cNamedArgs != 1 ||
-		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
+		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
 		return DISP_E_BADPARAMCOUNT;
 
 	    QString ptype(property.type());
@@ -2532,26 +2532,26 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     if (index != -1)
 	indexCache.insert(dispidMember, index);
 
-    if ( qAxException ) {
-	if ( pexcepinfo ) {
-	    memset( pexcepinfo, 0, sizeof(EXCEPINFO) );
+    if (qAxException) {
+	if (pexcepinfo) {
+	    memset(pexcepinfo, 0, sizeof(EXCEPINFO));
 
 	    pexcepinfo->wCode = qAxException->code;
-	    if ( !qAxException->src.isNull() )
+	    if (!qAxException->src.isNull())
 		pexcepinfo->bstrSource = QStringToBSTR(qAxException->src);
-	    if ( !qAxException->desc.isNull() )
+	    if (!qAxException->desc.isNull())
 		pexcepinfo->bstrDescription = QStringToBSTR(qAxException->desc);
-	    if ( !qAxException->context.isNull() ) {
+	    if (!qAxException->context.isNull()) {
 		QString context = qAxException->context;
 		int contextID = 0;
-		int br = context.indexOf( '[' );
-		if ( br != -1 ) {
-		    context = context.mid( br+1 );
-		    context = context.left( context.length() - 1 );
+		int br = context.indexOf('[');
+		if (br != -1) {
+		    context = context.mid(br+1);
+		    context = context.left(context.length() - 1);
 		    contextID = context.toInt();
 
 		    context = qAxException->context;
-		    context = context.left( br-1 );
+		    context = context.left(br-1);
 		}
 		pexcepinfo->bstrHelpFile = QStringToBSTR(context);
 		pexcepinfo->dwHelpContext = contextID;
@@ -2560,17 +2560,17 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	delete qAxException;
 	qAxException = 0;
 	return DISP_E_EXCEPTION;
-    } else if ( isWidget ) {
+    } else if (isWidget) {
 	QSize sizeHint = qt.widget->sizeHint();
-	if ( oldSizeHint != sizeHint ) {
+	if (oldSizeHint != sizeHint) {
 	    updateGeometry();
-	    if ( m_spInPlaceSite ) {
+	    if (m_spInPlaceSite) {
 		RECT rect;
 		rect.left = rcPos.left;
 		rect.right = rcPos.left + sizeHint.width();
 		rect.top = rcPos.top;
 		rect.bottom = rcPos.top + sizeHint.height();
-		m_spInPlaceSite->OnPosRectChange( &rect );
+		m_spInPlaceSite->OnPosRectChange(&rect);
 	    }
 	}
 	updateMask();
@@ -2583,11 +2583,11 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 /*
     Provide the IEnumConnectionPoints implemented in the QAxSignalVec class.
 */
-HRESULT WINAPI QAxServerBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
+HRESULT WINAPI QAxServerBase::EnumConnectionPoints(IEnumConnectionPoints **epoints)
 {
-    if ( !epoints )
+    if (!epoints)
 	return E_POINTER;
-    *epoints = new QAxSignalVec( points );
+    *epoints = new QAxSignalVec(points);
     (*epoints)->AddRef();
     return S_OK;
 }
@@ -2595,14 +2595,14 @@ HRESULT WINAPI QAxServerBase::EnumConnectionPoints( IEnumConnectionPoints **epoi
 /*
     Provide the IConnectionPoint implemented in the QAxConnection for \a iid.
 */
-HRESULT WINAPI QAxServerBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoint )
+HRESULT WINAPI QAxServerBase::FindConnectionPoint(REFIID iid, IConnectionPoint **cpoint)
 {
-    if ( !cpoint )
+    if (!cpoint)
 	return E_POINTER;
 
     IConnectionPoint *cp = points[iid];
     *cpoint = cp;
-    if ( cp ) {
+    if (cp) {
 	cp->AddRef();
 	return S_OK;
     }
@@ -2620,7 +2620,7 @@ HRESULT WINAPI QAxServerBase::IsDirty()
     return dirtyflag ? S_OK : S_FALSE;
 }
 
-HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
+HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 {
     STATSTG stat;
     HRESULT hres = pStm->Stat(&stat, STATFLAG_NONAME);
@@ -2661,7 +2661,7 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
+HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 {
     QBuffer qtbuffer;
     qtbuffer.open(IO_WriteOnly | IO_Translate);
@@ -2670,7 +2670,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
 
     const QMetaObject *mo = qt.object->metaObject();
 
-    for ( int prop = 0; prop < mo->propertyCount(); ++prop ) {
+    for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	if (!isPropertyExposed(prop))
 	    continue;
 	QString property = mo->property(prop).name();
@@ -2698,7 +2698,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::GetSizeMax( ULARGE_INTEGER *pcbSize )
+HRESULT WINAPI QAxServerBase::GetSizeMax(ULARGE_INTEGER *pcbSize)
 {
     const QMetaObject *mo = qt.object->metaObject();
 
@@ -2711,31 +2711,31 @@ HRESULT WINAPI QAxServerBase::GetSizeMax( ULARGE_INTEGER *pcbSize )
 
 //**** IPersistStorage
 
-HRESULT WINAPI QAxServerBase::InitNew(IStorage *pStg )
+HRESULT WINAPI QAxServerBase::InitNew(IStorage *pStg)
 {
-    if ( initNewCalled )
+    if (initNewCalled)
 	return CO_E_ALREADYINITIALIZED;
 
-    dirtyflag = FALSE;
-    initNewCalled = TRUE;
+    dirtyflag = false;
+    initNewCalled = true;
 
     m_spStorage = pStg;
-    if ( m_spStorage )
+    if (m_spStorage)
 	m_spStorage->AddRef();
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::Load(IStorage *pStg )
+HRESULT WINAPI QAxServerBase::Load(IStorage *pStg)
 {
-    if ( InitNew( pStg ) != S_OK )
+    if (InitNew(pStg) != S_OK)
 	return CO_E_ALREADYINITIALIZED;
 
     IStream *spStream = 0;
-    HRESULT hres = pStg->OpenStream( L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream );
-    if ( !spStream )
+    HRESULT hres = pStg->OpenStream(L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream);
+    if (!spStream)
 	return E_FAIL;
 
-    Load( spStream );
+    Load(spStream);
 
     spStream->Release();
 
@@ -2744,23 +2744,23 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg )
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::Save(IStorage *pStg, BOOL fSameAsLoad )
+HRESULT WINAPI QAxServerBase::Save(IStorage *pStg, BOOL fSameAsLoad)
 {
     IStream *spStream = 0;
-    HRESULT hres = pStg->CreateStream( L"SomeStreamName", STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream );
-    if ( !spStream )
+    HRESULT hres = pStg->CreateStream(L"SomeStreamName", STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream);
+    if (!spStream)
 	return E_FAIL;
 
-    Save( spStream, TRUE );
+    Save(spStream, true);
 
     spStream->Release();
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::SaveCompleted( IStorage *pStgNew )
+HRESULT WINAPI QAxServerBase::SaveCompleted(IStorage *pStgNew)
 {
-    if ( pStgNew ) {
-	if ( m_spStorage )
+    if (pStgNew) {
+	if (m_spStorage)
 	    m_spStorage->Release();
 	m_spStorage = pStgNew;
 	m_spStorage->AddRef();
@@ -2770,7 +2770,7 @@ HRESULT WINAPI QAxServerBase::SaveCompleted( IStorage *pStgNew )
 
 HRESULT WINAPI QAxServerBase::HandsOffStorage()
 {
-    if ( m_spStorage ) m_spStorage->Release();
+    if (m_spStorage) m_spStorage->Release();
     m_spStorage = 0;
 
     return S_OK;
@@ -2782,18 +2782,18 @@ HRESULT WINAPI QAxServerBase::HandsOffStorage()
 */
 HRESULT WINAPI QAxServerBase::InitNew()
 {
-    if ( initNewCalled )
+    if (initNewCalled)
 	return CO_E_ALREADYINITIALIZED;
 
-    dirtyflag = FALSE;
-    initNewCalled = TRUE;
+    dirtyflag = false;
+    initNewCalled = true;
     return S_OK;
 }
 
 /*
     Set the properties of the Qt widget to the values provided in the \a bag.
 */
-HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
+HRESULT WINAPI QAxServerBase::Load(IPropertyBag *bag, IErrorLog * /*log*/)
 {
     if (!bag)
 	return E_POINTER;
@@ -2801,7 +2801,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
     if (InitNew() != S_OK)
 	return E_UNEXPECTED;
 
-    bool error = FALSE;
+    bool error = false;
     const QMetaObject *mo = qt.object->metaObject();
     for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	if (!isPropertyExposed(prop))
@@ -2814,7 +2814,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 	HRESULT res = bag->Read(bstr, &var, 0);
 	if (property.isWritable()) {
 	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.type())))
-		error = TRUE;
+		error = true;
 	}
 	SysFreeString(bstr);
     }
@@ -2827,26 +2827,26 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 /*
     Save the properties of the Qt widget into the \a bag.
 */
-HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*saveAll*/ )
+HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*saveAll*/)
 {
     if (!bag)
 	return E_POINTER;
 
     if (clearDirty)
-	dirtyflag = FALSE;
-    bool error = FALSE;
+	dirtyflag = false;
+    bool error = false;
     const QMetaObject *mo = qt.object->metaObject();
     for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty property = mo->property(prop);
-	BSTR bstr = QStringToBSTR( property.name() );
+	BSTR bstr = QStringToBSTR(property.name());
 	QCoreVariant qvar = qt.object->property(property.name());
 	if (!qvar.isValid())
-	    error = TRUE;
+	    error = true;
 	VARIANT var;
-	QVariantToVARIANT( qvar, var, property.type() );
-	bag->Write( bstr, &var );
+	QVariantToVARIANT(qvar, var, property.type());
+	bag->Write(bstr, &var);
 	SysFreeString(bstr);
     }
     return /*error ? E_FAIL :*/ S_OK;
@@ -2856,9 +2856,9 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*s
 /*
     Draws the widget into the provided device context.
 */
-HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
 		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
-		BOOL(__stdcall* /*pfnContinue*/)(ULONG_PTR), ULONG_PTR /*dwContinue*/ )
+		BOOL(__stdcall* /*pfnContinue*/)(ULONG_PTR), ULONG_PTR /*dwContinue*/)
 {
     if (!lprcBounds)
 	return E_INVALIDARG;
@@ -2879,7 +2879,7 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
     if (!ptd)
 	hicTargetDev = 0;
 
-    bool bDeleteDC = FALSE;
+    bool bDeleteDC = false;
     if (!hicTargetDev) {
 	hicTargetDev = ::CreateDCA("DISPLAY", NULL, NULL, NULL);
 	bDeleteDC = (hicTargetDev != hdcDraw);
@@ -2903,8 +2903,8 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::GetColorSet( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
-		HDC hicTargetDev, LOGPALETTE **ppColorSet )
+HRESULT WINAPI QAxServerBase::GetColorSet(DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+		HDC hicTargetDev, LOGPALETTE **ppColorSet)
 {
     return E_NOTIMPL;
 }
@@ -2912,7 +2912,7 @@ HRESULT WINAPI QAxServerBase::GetColorSet( DWORD dwDrawAspect, LONG lindex, void
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::Freeze( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze )
+HRESULT WINAPI QAxServerBase::Freeze(DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze)
 {
     return E_NOTIMPL;
 }
@@ -2920,7 +2920,7 @@ HRESULT WINAPI QAxServerBase::Freeze( DWORD dwAspect, LONG lindex, void *pvAspec
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::Unfreeze( DWORD dwFreeze )
+HRESULT WINAPI QAxServerBase::Unfreeze(DWORD dwFreeze)
 {
     return E_NOTIMPL;
 }
@@ -2928,25 +2928,25 @@ HRESULT WINAPI QAxServerBase::Unfreeze( DWORD dwFreeze )
 /*
     Stores the provided advise sink.
 */
-HRESULT WINAPI QAxServerBase::SetAdvise( DWORD /*aspects*/, DWORD /*advf*/, IAdviseSink *pAdvSink )
+HRESULT WINAPI QAxServerBase::SetAdvise(DWORD /*aspects*/, DWORD /*advf*/, IAdviseSink *pAdvSink)
 {
-    if ( m_spAdviseSink ) m_spAdviseSink->Release();
+    if (m_spAdviseSink) m_spAdviseSink->Release();
 
     m_spAdviseSink = pAdvSink;
-    if ( m_spAdviseSink ) m_spAdviseSink->AddRef();
+    if (m_spAdviseSink) m_spAdviseSink->AddRef();
     return S_OK;
 }
 
 /*
     Returns the advise sink.
 */
-HRESULT WINAPI QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IAdviseSink **ppAdvSink )
+HRESULT WINAPI QAxServerBase::GetAdvise(DWORD* /*aspects*/, DWORD* /*advf*/, IAdviseSink **ppAdvSink)
 {
-    if ( !ppAdvSink )
+    if (!ppAdvSink)
 	return E_POINTER;
 
     *ppAdvSink = m_spAdviseSink;
-    if ( *ppAdvSink )
+    if (*ppAdvSink)
 	(*ppAdvSink)->AddRef();
     return S_OK;
 }
@@ -2955,7 +2955,7 @@ HRESULT WINAPI QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IA
 /*
     Returns the current size.
 */
-HRESULT WINAPI QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel )
+HRESULT WINAPI QAxServerBase::GetExtent(DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel)
 {
     *lpsizel = sizeExtent;
     return S_OK;
@@ -2965,7 +2965,7 @@ HRESULT WINAPI QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DV
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::GetControlInfo( LPCONTROLINFO )
+HRESULT WINAPI QAxServerBase::GetControlInfo(LPCONTROLINFO)
 {
     return E_NOTIMPL;
 }
@@ -2973,10 +2973,10 @@ HRESULT WINAPI QAxServerBase::GetControlInfo( LPCONTROLINFO )
 /*
     Turns event firing on and off.
 */
-HRESULT WINAPI QAxServerBase::FreezeEvents( BOOL bFreeze )
+HRESULT WINAPI QAxServerBase::FreezeEvents(BOOL bFreeze)
 {
     // member of CComControl
-    if ( bFreeze )
+    if (bFreeze)
 	freezeEvents++;
     else
 	freezeEvents--;
@@ -2987,7 +2987,7 @@ HRESULT WINAPI QAxServerBase::FreezeEvents( BOOL bFreeze )
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::OnMnemonic( LPMSG )
+HRESULT WINAPI QAxServerBase::OnMnemonic(LPMSG)
 {
     return E_NOTIMPL;
 }
@@ -2995,61 +2995,61 @@ HRESULT WINAPI QAxServerBase::OnMnemonic( LPMSG )
 /*
     Update the ambient properties of the Qt widget.
 */
-HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
+HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange(DISPID dispID)
 {
-    if ( !m_spClientSite || !theObject )
+    if (!m_spClientSite || !theObject)
 	return S_OK;
 
     IDispatch *disp = 0;
-    m_spClientSite->QueryInterface( IID_IDispatch, (void**)&disp );
-    if ( !disp )
+    m_spClientSite->QueryInterface(IID_IDispatch, (void**)&disp);
+    if (!disp)
 	return S_OK;
 
     VARIANT var;
-    VariantInit( &var );
+    VariantInit(&var);
     DISPPARAMS params = { 0, 0, 0, 0 };
-    disp->Invoke( dispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var, 0, 0 );
+    disp->Invoke(dispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var, 0, 0);
     disp->Release();
     disp = 0;
 
-    switch( dispID ) {
+    switch(dispID) {
     case DISPID_AMBIENT_APPEARANCE:
 	break;
     case DISPID_AMBIENT_AUTOCLIP:
 	break;
     case DISPID_AMBIENT_BACKCOLOR:
     case DISPID_AMBIENT_FORECOLOR:
-	if ( isWidget ) {
+	if (isWidget) {
 	    long rgb;
-	    if ( var.vt == VT_UI4 )
+	    if (var.vt == VT_UI4)
 		rgb = var.ulVal;
-	    else if ( var.vt == VT_I4 )
+	    else if (var.vt == VT_I4)
 		rgb = var.lVal;
 	    else
 		break;
 	    QPalette pal = qt.widget->palette();
-	    pal.setColor( dispID == DISPID_AMBIENT_BACKCOLOR ? QPalette::Background : QPalette::Foreground,
-		OLEColorToQColor( rgb ) );
-	    qt.widget->setPalette( pal );
+	    pal.setColor(dispID == DISPID_AMBIENT_BACKCOLOR ? QPalette::Background : QPalette::Foreground,
+		OLEColorToQColor(rgb));
+	    qt.widget->setPalette(pal);
 	}
 	break;
     case DISPID_AMBIENT_DISPLAYASDEFAULT:
 	break;
     case DISPID_AMBIENT_DISPLAYNAME:
-	if ( var.vt != VT_BSTR || !isWidget )
+	if (var.vt != VT_BSTR || !isWidget)
 	    break;
-	qt.widget->setWindowTitle( BSTRToQString( var.bstrVal ) );
+	qt.widget->setWindowTitle(BSTRToQString(var.bstrVal));
 	break;
     case DISPID_AMBIENT_FONT:
-	if ( var.vt != VT_DISPATCH || !isWidget )
+	if (var.vt != VT_DISPATCH || !isWidget)
 	    break;
 	{
 	    IDispatch *d = var.pdispVal;
 	    IFont *f = 0;
-	    d->QueryInterface( IID_IFont, (void**)&f );
-	    if ( f ) {
-		QFont qfont = IFontToQFont( f );
-		qt.widget->setFont( qfont );
+	    d->QueryInterface(IID_IFont, (void**)&f);
+	    if (f) {
+		QFont qfont = IFontToQFont(f);
+		qt.widget->setFont(qfont);
 		f->Release();
 	    }
 	}
@@ -3057,12 +3057,12 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
     case DISPID_AMBIENT_LOCALEID:
 	break;
     case DISPID_AMBIENT_MESSAGEREFLECT:
-	if ( var.vt != VT_BOOL )
+	if (var.vt != VT_BOOL)
 	    break;
-	if ( var.boolVal )
-	    qt.widget->installEventFilter( this );
+	if (var.boolVal)
+	    qt.widget->installEventFilter(this);
 	else
-	    qt.widget->removeEventFilter( this );
+	    qt.widget->removeEventFilter(this);
 	break;
     case DISPID_AMBIENT_PALETTE:
 	break;
@@ -3077,19 +3077,19 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
     case DISPID_AMBIENT_TEXTALIGN:
 	break;
     case DISPID_AMBIENT_UIDEAD:
-	if ( var.vt != VT_BOOL || !isWidget )
+	if (var.vt != VT_BOOL || !isWidget)
 	    break;
-	qt.widget->setEnabled( !var.boolVal );
+	qt.widget->setEnabled(!var.boolVal);
 	break;
     case DISPID_AMBIENT_USERMODE:
-	if ( var.vt != VT_BOOL )
+	if (var.vt != VT_BOOL)
 	    break;
 	inDesignMode = !var.boolVal;
 	break;
     case DISPID_AMBIENT_RIGHTTOLEFT:
-	if ( var.vt != VT_BOOL )
+	if (var.vt != VT_BOOL)
 	    break;
-	qApp->setReverseLayout( var.boolVal );
+	qApp->setReverseLayout(var.boolVal);
 	break;
     }
 
@@ -3100,9 +3100,9 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 /*
     Returns the HWND of the control.
 */
-HRESULT WINAPI QAxServerBase::GetWindow( HWND *pHwnd )
+HRESULT WINAPI QAxServerBase::GetWindow(HWND *pHwnd)
 {
-    if ( !pHwnd )
+    if (!pHwnd)
 	return E_POINTER;
     *pHwnd = m_hWnd;
     return S_OK;
@@ -3111,9 +3111,9 @@ HRESULT WINAPI QAxServerBase::GetWindow( HWND *pHwnd )
 /*
     Enters What's This mode.
 */
-HRESULT WINAPI QAxServerBase::ContextSensitiveHelp( BOOL fEnterMode )
+HRESULT WINAPI QAxServerBase::ContextSensitiveHelp(BOOL fEnterMode)
 {
-    if ( fEnterMode )
+    if (fEnterMode)
 	QWhatsThis::enterWhatsThisMode();
     else
 	QWhatsThis::leaveWhatsThisMode();
@@ -3126,11 +3126,11 @@ HRESULT WINAPI QAxServerBase::ContextSensitiveHelp( BOOL fEnterMode )
 */
 HRESULT WINAPI QAxServerBase::InPlaceDeactivate()
 {
-    if ( !isInPlaceActive )
+    if (!isInPlaceActive)
 	return S_OK;
     UIDeactivate();
 
-    isInPlaceActive = FALSE;
+    isInPlaceActive = false;
 
     // if we have a window, tell it to go away.
     if (m_hWndCD) {
@@ -3154,7 +3154,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
     if (!isUIActive)
 	return S_OK;
 
-    isUIActive = FALSE;
+    isUIActive = false;
 
     // notify frame windows, if appropriate, that we're no longer ui-active.
     OLEINPLACEFRAMEINFO frameInfo;
@@ -3163,16 +3163,16 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 
     HWND hwndParent;
     if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
-	if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+	if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
 	m_spInPlaceFrame = 0;
 	IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
 
 	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-	if ( spInPlaceUIWindow ) {
+	if (spInPlaceUIWindow) {
 	    spInPlaceUIWindow->SetActiveObject(0, 0);
 	    spInPlaceUIWindow->Release();
 	}
-	if ( m_spInPlaceFrame ) {
+	if (m_spInPlaceFrame) {
 	    removeMenu();
 	    menuBar = 0;
 	    statusBar = 0;
@@ -3183,7 +3183,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
     }
     // we don't need to explicitly release the focus here since somebody
     // else grabbing the focus is what is likely to cause us to get lose it
-    m_spInPlaceSite->OnUIDeactivate(FALSE);
+    m_spInPlaceSite->OnUIDeactivate(false);
 
     return S_OK;
 }
@@ -3193,7 +3193,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 */
 HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 {
-    if ( prcPos == 0 || prcClip == 0 )
+    if (prcPos == 0 || prcClip == 0)
 	return E_POINTER;
 
     rcPos = *prcPos;
@@ -3207,7 +3207,7 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 	    tempRgn = CreateRectRgnIndirect(&rcIXect);
 	}
 
-	::SetWindowRgn(m_hWndCD, tempRgn, TRUE);
+	::SetWindowRgn(m_hWndCD, tempRgn, true);
 	::SetWindowPos(m_hWndCD, 0, prcPos->left,
 	    prcPos->top, prcPos->right - prcPos->left, prcPos->bottom - prcPos->top,
 	    SWP_NOZORDER | SWP_NOACTIVATE);
@@ -3228,9 +3228,9 @@ HRESULT WINAPI QAxServerBase::ReactivateAndUndo()
 
 Q_GUI_EXPORT int qt_translateKeyCode(int);
 
-HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
+HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 {
-    if ( pMsg->message != WM_KEYDOWN || !isWidget )
+    if (pMsg->message != WM_KEYDOWN || !isWidget)
 	return S_FALSE;
 
     DWORD dwKeyMod = 0;
@@ -3241,29 +3241,29 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
     if (::GetKeyState(VK_MENU) < 0)
 	dwKeyMod |= 4;	// KEYMOD_ALT
 
-    switch ( LOWORD( pMsg->wParam ) ) {
+    switch (LOWORD(pMsg->wParam)) {
     case VK_TAB:
-	if ( isUIActive ) {
+	if (isUIActive) {
 	    bool shift = ::GetKeyState(VK_SHIFT) < 0;
 /* ###
 	    QFocusData *data = ((HackWidget*)qt.widget)->focusData();
-	    bool giveUp = TRUE;
-	    if ( shift ) {
-		if ( qt.widget->focusWidget() != data->first() ) {
-		    giveUp = FALSE;
-		    ((HackWidget*)qt.widget)->focusNextPrevChild( FALSE );
-		    if ( qt.widget->focusWidget() == data->last() )
-			giveUp = TRUE;
+	    bool giveUp = true;
+	    if (shift) {
+		if (qt.widget->focusWidget() != data->first()) {
+		    giveUp = false;
+		    ((HackWidget*)qt.widget)->focusNextPrevChild(false);
+		    if (qt.widget->focusWidget() == data->last())
+			giveUp = true;
 		}
 	    } else {
-		if ( qt.widget->focusWidget() != data->last() ) {
-		    giveUp = FALSE;
-		    ((HackWidget*)qt.widget)->focusNextPrevChild( TRUE );
+		if (qt.widget->focusWidget() != data->last()) {
+		    giveUp = false;
+		    ((HackWidget*)qt.widget)->focusNextPrevChild(true);
 		}
 	    }
-	    if ( giveUp ) {
-		HWND hwnd = ::GetParent( m_hWndCD );
-		::SetFocus( hwnd );
+	    if (giveUp) {
+		HWND hwnd = ::GetParent(m_hWndCD);
+		::SetFocus(hwnd);
 	    } else {
 		return S_OK;
 	    }
@@ -3275,7 +3275,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
     case VK_RIGHT:
     case VK_UP:
     case VK_DOWN:
-	if ( isUIActive )
+	if (isUIActive)
 	    return S_FALSE;
 	break;
 
@@ -3299,12 +3299,12 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
 	break;
     }
 
-    if ( !m_spClientSite )
+    if (!m_spClientSite)
 	return S_FALSE;
 
     IOleControlSite *controlSite = 0;
-    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&controlSite );
-    if ( !controlSite )
+    m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&controlSite);
+    if (!controlSite)
 	return S_FALSE;
 
     HRESULT hres = controlSite->TranslateAcceleratorW(pMsg, dwKeyMod);
@@ -3314,33 +3314,33 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
     return hres;
 }
 
-HRESULT WINAPI QAxServerBase::TranslateAcceleratorA( MSG *pMsg )
+HRESULT WINAPI QAxServerBase::TranslateAcceleratorA(MSG *pMsg)
 {
-    return TranslateAcceleratorW( pMsg );
+    return TranslateAcceleratorW(pMsg);
 }
 
-HRESULT WINAPI QAxServerBase::OnFrameWindowActivate( BOOL fActivate )
+HRESULT WINAPI QAxServerBase::OnFrameWindowActivate(BOOL fActivate)
 {
-    if ( fActivate ) {
-	if ( wasUIActive )
-	    ::SetFocus( m_hWnd );
+    if (fActivate) {
+	if (wasUIActive)
+	    ::SetFocus(m_hWnd);
     } else {
 	wasUIActive = isUIActive;
     }
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::OnDocWindowActivate( BOOL fActivate )
+HRESULT WINAPI QAxServerBase::OnDocWindowActivate(BOOL fActivate)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::ResizeBorder( LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow )
+HRESULT WINAPI QAxServerBase::ResizeBorder(LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxServerBase::EnableModeless( BOOL fEnable )
+HRESULT WINAPI QAxServerBase::EnableModeless(BOOL fEnable)
 {
     if (!isWidget)
 	return S_OK;
@@ -3351,10 +3351,10 @@ HRESULT WINAPI QAxServerBase::EnableModeless( BOOL fEnable )
 
 //**** IOleObject
 
-static inline LPOLESTR QStringToOLESTR( const QString &qstring )
+static inline LPOLESTR QStringToOLESTR(const QString &qstring)
 {
     LPOLESTR olestr = (wchar_t*)CoTaskMemAlloc(qstring.length()*2+2);
-    memcpy( olestr, (ushort*)qstring.unicode(), qstring.length()*2 );
+    memcpy(olestr, (ushort*)qstring.unicode(), qstring.length()*2);
     olestr[qstring.length()] = 0;
     return olestr;
 }
@@ -3366,21 +3366,21 @@ static inline LPOLESTR QStringToOLESTR( const QString &qstring )
 */
 HRESULT WINAPI QAxServerBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
 {
-    if ( !pszUserType )
+    if (!pszUserType)
 	return E_POINTER;
 
-    switch ( dwFormOfType ) {
+    switch (dwFormOfType) {
     case USERCLASSTYPE_FULL:
-	*pszUserType = QStringToOLESTR( class_name );
+	*pszUserType = QStringToOLESTR(class_name);
 	break;
     case USERCLASSTYPE_SHORT:
-	if ( !qt.widget || !isWidget || qt.widget->windowTitle().isEmpty() )
-	    *pszUserType = QStringToOLESTR( class_name );
+	if (!qt.widget || !isWidget || qt.widget->windowTitle().isEmpty())
+	    *pszUserType = QStringToOLESTR(class_name);
 	else
-	    *pszUserType = QStringToOLESTR( qt.widget->windowTitle() );
+	    *pszUserType = QStringToOLESTR(qt.widget->windowTitle());
 	break;
     case USERCLASSTYPE_APPNAME:
-	*pszUserType = QStringToOLESTR( qApp->objectName() );
+	*pszUserType = QStringToOLESTR(qApp->objectName());
 	break;
     }
 
@@ -3392,51 +3392,51 @@ HRESULT WINAPI QAxServerBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserT
 */
 HRESULT WINAPI QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 {
-    return OleRegGetMiscStatus( qAxFactory()->classID( class_name ), dwAspect, pdwStatus);
+    return OleRegGetMiscStatus(qAxFactory()->classID(class_name), dwAspect, pdwStatus);
 }
 
 /*
     Stores the provided advise sink.
 */
-HRESULT WINAPI QAxServerBase::Advise( IAdviseSink* pAdvSink, DWORD* pdwConnection )
+HRESULT WINAPI QAxServerBase::Advise(IAdviseSink* pAdvSink, DWORD* pdwConnection)
 {
     HRESULT hr = S_OK;
-    if ( !m_spOleAdviseHolder )
-	hr = CreateOleAdviseHolder( &m_spOleAdviseHolder );
+    if (!m_spOleAdviseHolder)
+	hr = CreateOleAdviseHolder(&m_spOleAdviseHolder);
     if (SUCCEEDED(hr))
-	hr = m_spOleAdviseHolder->Advise( pAdvSink, pdwConnection );
+	hr = m_spOleAdviseHolder->Advise(pAdvSink, pdwConnection);
     return hr;
 }
 
 /*
     Closes the control.
 */
-HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
+HRESULT WINAPI QAxServerBase::Close(DWORD dwSaveOption)
 {
-    if ( dwSaveOption != OLECLOSE_NOSAVE && m_spClientSite )
+    if (dwSaveOption != OLECLOSE_NOSAVE && m_spClientSite)
 	m_spClientSite->SaveObject();
-    if ( isInPlaceActive ) {
+    if (isInPlaceActive) {
 	HRESULT hr = InPlaceDeactivate();
 	if (FAILED(hr))
 	    return hr;
     }
-    if ( m_hWndCD ) {
-	if ( IsWindow(m_hWndCD) )
+    if (m_hWndCD) {
+	if (IsWindow(m_hWndCD))
 	    DestroyWindow(m_hWndCD);
 	m_hWndCD = 0;
-	if ( m_spClientSite )
-	    m_spClientSite->OnShowWindow( FALSE );
+	if (m_spClientSite)
+	    m_spClientSite->OnShowWindow(false);
     }
 
-    if ( m_spInPlaceSite ) m_spInPlaceSite->Release();
+    if (m_spInPlaceSite) m_spInPlaceSite->Release();
     m_spInPlaceSite = 0;
 
-    if ( m_spAdviseSink )
+    if (m_spAdviseSink)
 	m_spAdviseSink->OnClose();
     return S_OK;
 }
 
-bool qax_disable_inplaceframe = FALSE;
+bool qax_disable_inplaceframe = false;
 
 /*
     Executes the steps to activate the control.
@@ -3445,105 +3445,105 @@ HRESULT QAxServerBase::internalActivate()
 {
     HRESULT hr;
 
-    if ( !m_spClientSite )
+    if (!m_spClientSite)
 	return S_OK;
 
-    if ( !m_spInPlaceSite )
+    if (!m_spInPlaceSite)
 	hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void **)&m_spInPlaceSite);
 
-    if ( !m_spInPlaceSite )
+    if (!m_spInPlaceSite)
 	return E_FAIL;
 
-    if ( !isInPlaceActive ) {
-	BOOL bNoRedraw = FALSE;
+    if (!isInPlaceActive) {
+	BOOL bNoRedraw = false;
 	hr = m_spInPlaceSite->CanInPlaceActivate();
 	if (FAILED(hr)) // CanInPlaceActivate returns anything but S_FALSE or S_OK
 	    return hr;
-	if ( hr != S_OK ) // CanInPlaceActivate returned S_FALSE.
+	if (hr != S_OK) // CanInPlaceActivate returned S_FALSE.
 	    return E_FAIL;
 	m_spInPlaceSite->OnInPlaceActivate();
     }
 
-    isInPlaceActive = TRUE;
+    isInPlaceActive = true;
 
     // get location in the parent window,
     // as well as some information about the parent
     OLEINPLACEFRAMEINFO frameInfo;
     RECT rcPos, rcClip;
-    if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+    if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
     m_spInPlaceFrame = 0;
     IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
     frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
 
-    OnAmbientPropertyChange( DISPID_AMBIENT_USERMODE );
+    OnAmbientPropertyChange(DISPID_AMBIENT_USERMODE);
 
-    if ( isWidget ) {
+    if (isWidget) {
 	HWND hwndParent;
-	if ( m_spInPlaceSite->GetWindow(&hwndParent) == S_OK ) {
+	if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
 	    m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
 
 	    if (m_hWndCD) {
 		::ShowWindow(m_hWndCD, SW_SHOW);
-		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != QWidget::NoFocus )
+		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != QWidget::NoFocus)
 		    ::SetFocus(m_hWndCD);
 	    } else {
 		create(hwndParent, rcPos);
 	    }
 
-	    if ( !qt.widget->testAttribute(QWidget::WA_Resized) )
+	    if (!qt.widget->testAttribute(QWidget::WA_Resized))
 		SetObjectRects(&rcPos, &rcClip);
 	}
 
 	// Gone active by now, take care of UIACTIVATE
 	canTakeFocus = qt.widget->focusPolicy() != QWidget::NoFocus && !inDesignMode;
-	if ( !canTakeFocus && !inDesignMode ) {
+	if (!canTakeFocus && !inDesignMode) {
 	    QList<QWidget*> widgets = qFindChildren<QWidget*>(qt.widget);
 	    for (int w = 0; w < widgets.count(); ++w) {
 		QWidget *widget = widgets[w];
 		canTakeFocus = widget->focusPolicy() != QWidget::NoFocus;
 	    }
 	}
-	if ( !isUIActive && canTakeFocus ) {
-	    isUIActive = TRUE;
+	if (!isUIActive && canTakeFocus) {
+	    isUIActive = true;
 	    hr = m_spInPlaceSite->OnUIActivate();
-	    if ( FAILED(hr) ) {
-		if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+	    if (FAILED(hr)) {
+		if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
 		m_spInPlaceFrame = 0;
-		if ( spInPlaceUIWindow ) spInPlaceUIWindow->Release();
+		if (spInPlaceUIWindow) spInPlaceUIWindow->Release();
 		return hr;
 	    }
 
-	    if ( isInPlaceActive ) {
+	    if (isInPlaceActive) {
 		HWND hwnd = m_hWndCD;
-		if ( !::IsChild( hwnd, ::GetFocus() ) )
-		    ::SetFocus( hwnd );
+		if (!::IsChild(hwnd, ::GetFocus()))
+		    ::SetFocus(hwnd);
 	    }
 
-	    if ( m_spInPlaceFrame ) {
-		hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
-		if ( !FAILED(hr) ) {
-		    menuBar = ( qt.widget && !qax_disable_inplaceframe ) ? qFindChild<QMenuBar*>(qt.widget) : 0;
-		    if ( menuBar && !menuBar->isVisible() ) {
-			createMenu( menuBar );
+	    if (m_spInPlaceFrame) {
+		hr = m_spInPlaceFrame->SetActiveObject(this, QStringToBSTR(class_name));
+		if (!FAILED(hr)) {
+		    menuBar = (qt.widget && !qax_disable_inplaceframe) ? qFindChild<QMenuBar*>(qt.widget) : 0;
+		    if (menuBar && !menuBar->isVisible()) {
+			createMenu(menuBar);
 			menuBar->hide();
-			menuBar->installEventFilter( this );
+			menuBar->installEventFilter(this);
 		    }
 		    statusBar = qt.widget ? qFindChild<QStatusBar*>(qt.widget) : 0;
-		    if ( statusBar && !statusBar->isVisible() ) {
+		    if (statusBar && !statusBar->isVisible()) {
 			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(const QString&)");
 			QMetaObject::connect(statusBar, index, this, QSIGNAL_CODE, -1);
 			statusBar->hide();
-			statusBar->installEventFilter( this );
+			statusBar->installEventFilter(this);
 		    }
 		}
 	    }
-	    if ( spInPlaceUIWindow ) {
-		spInPlaceUIWindow->SetActiveObject( this, QStringToBSTR(class_name) );
+	    if (spInPlaceUIWindow) {
+		spInPlaceUIWindow->SetActiveObject(this, QStringToBSTR(class_name));
 		spInPlaceUIWindow->SetBorderSpace(0);
 		spInPlaceUIWindow->Release();
 	    }
 	}
-	ShowWindow( m_hWnd, SW_NORMAL );
+	ShowWindow(m_hWnd, SW_NORMAL);
     }
 
     m_spClientSite->ShowObject();
@@ -3554,8 +3554,8 @@ HRESULT QAxServerBase::internalActivate()
 /*
     Executes the "verb" \a iVerb.
 */
-HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/,
-			       HWND /*hwndParent*/, LPCRECT /*prcPosRect*/ )
+HRESULT WINAPI QAxServerBase::DoVerb(LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/,
+			       HWND /*hwndParent*/, LPCRECT /*prcPosRect*/)
 {
     HRESULT hr = E_NOTIMPL;
     switch (iVerb)
@@ -3576,7 +3576,7 @@ HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSit
 	break;
 
     case OLEIVERB_UIACTIVATE:
-	if ( !isUIActive ) {
+	if (!isUIActive) {
 	    hr = internalActivate();
 	    if (SUCCEEDED(hr))
 		hr = S_OK;
@@ -3585,8 +3585,8 @@ HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSit
 
     case OLEIVERB_HIDE:
 	UIDeactivate();
-	if ( m_hWnd )
-	    ::ShowWindow( m_hWnd, SW_HIDE );
+	if (m_hWnd)
+	    ::ShowWindow(m_hWnd, SW_HIDE);
 	hr = S_OK;
 	return hr;
 
@@ -3599,10 +3599,10 @@ HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSit
 /*
     Returns the list of advise connections.
 */
-HRESULT WINAPI QAxServerBase::EnumAdvise( IEnumSTATDATA** ppenumAdvise )
+HRESULT WINAPI QAxServerBase::EnumAdvise(IEnumSTATDATA** ppenumAdvise)
 {
     HRESULT hRes = E_FAIL;
-    if ( m_spOleAdviseHolder )
+    if (m_spOleAdviseHolder)
 	hRes = m_spOleAdviseHolder->EnumAdvise(ppenumAdvise);
     return hRes;
 }
@@ -3610,22 +3610,22 @@ HRESULT WINAPI QAxServerBase::EnumAdvise( IEnumSTATDATA** ppenumAdvise )
 /*
     Returns an enumerator for the verbs registered for this class.
 */
-HRESULT WINAPI QAxServerBase::EnumVerbs( IEnumOLEVERB** ppEnumOleVerb )
+HRESULT WINAPI QAxServerBase::EnumVerbs(IEnumOLEVERB** ppEnumOleVerb)
 {
-    if ( !ppEnumOleVerb )
+    if (!ppEnumOleVerb)
 	return E_POINTER;
-    return OleRegEnumVerbs(qAxFactory()->classID( class_name ), ppEnumOleVerb);
+    return OleRegEnumVerbs(qAxFactory()->classID(class_name), ppEnumOleVerb);
 }
 
 /*
     Returns the current client site..
 */
-HRESULT WINAPI QAxServerBase::GetClientSite( IOleClientSite** ppClientSite )
+HRESULT WINAPI QAxServerBase::GetClientSite(IOleClientSite** ppClientSite)
 {
-    if ( !ppClientSite )
+    if (!ppClientSite)
 	return E_POINTER;
     *ppClientSite = m_spClientSite;
-    if ( *ppClientSite )
+    if (*ppClientSite)
 	(*ppClientSite)->AddRef();
     return S_OK;
 }
@@ -3633,7 +3633,7 @@ HRESULT WINAPI QAxServerBase::GetClientSite( IOleClientSite** ppClientSite )
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::GetClipboardData( DWORD, IDataObject** )
+HRESULT WINAPI QAxServerBase::GetClipboardData(DWORD, IDataObject**)
 {
     return E_NOTIMPL;
 }
@@ -3641,20 +3641,20 @@ HRESULT WINAPI QAxServerBase::GetClipboardData( DWORD, IDataObject** )
 /*
     Returns the current size.
 */
-HRESULT WINAPI QAxServerBase::GetExtent( DWORD dwDrawAspect, SIZEL* psizel )
+HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 {
-    if ( dwDrawAspect != DVASPECT_CONTENT )
+    if (dwDrawAspect != DVASPECT_CONTENT)
 	return E_FAIL;
-    if ( !psizel )
+    if (!psizel)
 	return E_POINTER;
 
-    return GetExtent( 0, 0, 0, psizel );
+    return GetExtent(0, 0, 0, psizel);
 }
 
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::GetMoniker( DWORD, DWORD, IMoniker**  )
+HRESULT WINAPI QAxServerBase::GetMoniker(DWORD, DWORD, IMoniker** )
 {
     return E_NOTIMPL;
 }
@@ -3662,18 +3662,18 @@ HRESULT WINAPI QAxServerBase::GetMoniker( DWORD, DWORD, IMoniker**  )
 /*
     Returns the CLSID of this class.
 */
-HRESULT WINAPI QAxServerBase::GetUserClassID( CLSID* pClsid )
+HRESULT WINAPI QAxServerBase::GetUserClassID(CLSID* pClsid)
 {
-    if ( !pClsid )
+    if (!pClsid)
 	return E_POINTER;
-    *pClsid = qAxFactory()->classID( class_name );
+    *pClsid = qAxFactory()->classID(class_name);
     return S_OK;
 }
 
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::InitFromData( IDataObject*, BOOL, DWORD )
+HRESULT WINAPI QAxServerBase::InitFromData(IDataObject*, BOOL, DWORD)
 {
     return E_NOTIMPL;
 }
@@ -3689,19 +3689,19 @@ HRESULT WINAPI QAxServerBase::IsUpToDate()
 /*
     Stores the client site.
 */
-HRESULT WINAPI QAxServerBase::SetClientSite( IOleClientSite* pClientSite )
+HRESULT WINAPI QAxServerBase::SetClientSite(IOleClientSite* pClientSite)
 {
-    if ( m_spClientSite ) m_spClientSite->Release();
+    if (m_spClientSite) m_spClientSite->Release();
 
     m_spClientSite = pClientSite;
-    if ( m_spClientSite ) m_spClientSite->AddRef();
+    if (m_spClientSite) m_spClientSite->AddRef();
     return S_OK;
 }
 
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::SetColorScheme( LOGPALETTE* )
+HRESULT WINAPI QAxServerBase::SetColorScheme(LOGPALETTE*)
 {
     return E_NOTIMPL;
 }
@@ -3709,30 +3709,30 @@ HRESULT WINAPI QAxServerBase::SetColorScheme( LOGPALETTE* )
 /*
     Tries to set the size of the control.
 */
-HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
+HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 {
-    if ( dwDrawAspect != DVASPECT_CONTENT )
+    if (dwDrawAspect != DVASPECT_CONTENT)
 	return DV_E_DVASPECT;
-    if ( !psizel )
+    if (!psizel)
 	return E_POINTER;
-    if ( !isWidget || !qt.widget ) {
+    if (!isWidget || !qt.widget) {
 	sizeExtent = *psizel;
 	return S_OK;
     }
 
     QSize minSizeHint = qt.widget->minimumSizeHint();
-    if ( minSizeHint.isValid() ) {
-	QPaintDeviceMetrics pmetric( qt.widget );
+    if (minSizeHint.isValid()) {
+	QPaintDeviceMetrics pmetric(qt.widget);
 
 	SIZEL minSize;
-	minSize.cx = MAP_PIX_TO_LOGHIM( minSizeHint.width(), pmetric.logicalDpiX() );
-	minSize.cy = MAP_PIX_TO_LOGHIM( minSizeHint.height(), pmetric.logicalDpiY() );
+	minSize.cx = MAP_PIX_TO_LOGHIM(minSizeHint.width(), pmetric.logicalDpiX());
+	minSize.cy = MAP_PIX_TO_LOGHIM(minSizeHint.height(), pmetric.logicalDpiY());
 
-	psizel->cx = qMax( minSize.cx, psizel->cx );
-	psizel->cy = qMax( minSize.cy, psizel->cy );
+	psizel->cx = qMax(minSize.cx, psizel->cx);
+	psizel->cy = qMax(minSize.cy, psizel->cy);
     }
 
-    if ( psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy )
+    if (psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy)
 	sizeExtent = *psizel;
 
     return S_OK;
@@ -3741,7 +3741,7 @@ HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::SetHostNames( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj )
+HRESULT WINAPI QAxServerBase::SetHostNames(LPCOLESTR szContainerApp, LPCOLESTR szContainerObj)
 {
     return S_OK;
 }
@@ -3749,7 +3749,7 @@ HRESULT WINAPI QAxServerBase::SetHostNames( LPCOLESTR szContainerApp, LPCOLESTR 
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::SetMoniker( DWORD, IMoniker* )
+HRESULT WINAPI QAxServerBase::SetMoniker(DWORD, IMoniker*)
 {
     return E_NOTIMPL;
 }
@@ -3757,10 +3757,10 @@ HRESULT WINAPI QAxServerBase::SetMoniker( DWORD, IMoniker* )
 /*
     Disconnects an advise sink.
 */
-HRESULT WINAPI QAxServerBase::Unadvise( DWORD dwConnection )
+HRESULT WINAPI QAxServerBase::Unadvise(DWORD dwConnection)
 {
     HRESULT hRes = E_FAIL;
-    if ( m_spOleAdviseHolder )
+    if (m_spOleAdviseHolder)
 	hRes = m_spOleAdviseHolder->Unadvise(dwConnection);
     return hRes;
 }
@@ -3789,7 +3789,7 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
     if ((pformatetcIn->tymed & TYMED_MFPICT) == 0)
 	return DATA_E_FORMATETC;
 
-    QPaintDeviceMetrics pmetric( qt.widget );
+    QPaintDeviceMetrics pmetric(qt.widget);
     int width = MAP_LOGHIM_TO_PIX(sizeExtent.cx, pmetric.logicalDpiX());
     int height = MAP_LOGHIM_TO_PIX(sizeExtent.cy, pmetric.logicalDpiY());
     RECTL rectl = {0, 0, width, height};
@@ -3893,14 +3893,14 @@ HRESULT WINAPI QAxServerBase::EnumFormatEtc(DWORD /* dwDirection */, IEnumFORMAT
 
 
 
-static int mapModifiers( int state )
+static int mapModifiers(int state)
 {
     int ole = 0;
-    if ( state & Qt::ShiftButton )
+    if (state & Qt::ShiftButton)
 	ole |= 1;
-    if ( state & Qt::ControlButton )
+    if (state & Qt::ControlButton)
 	ole |= 2;
-    if ( state & Qt::AltButton )
+    if (state & Qt::AltButton)
 	ole |= 4;
 
     return ole;
@@ -3909,7 +3909,7 @@ static int mapModifiers( int state )
 /*
     \reimp
 */
-bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
+bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 {
     if (!theObject)
 	return QObject::eventFilter(o, e);
@@ -3993,7 +3993,7 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonRelease:
-	if ( o == qt.object && hasStockEvents ) {
+	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    int button = me->state() & Qt::MouseButtonMask;
 	    int state = mapModifiers(me->state());
@@ -4011,12 +4011,12 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonDblClick:
-	if ( o == qt.object && hasStockEvents ) {
+	if (o == qt.object && hasStockEvents) {
 	    qt_metacall(QMetaObject::EmitSignal, DISPID_DBLCLICK, 0);
 	}
 	break;
     case QEvent::MouseButtonPress:
-	if ( o == qt.widget && hasStockEvents ) {
+	if (o == qt.widget && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    int button = me->state() & Qt::MouseButtonMask;
 	    int state = mapModifiers(me->state());
@@ -4047,5 +4047,5 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    return QObject::eventFilter( o, e );
+    return QObject::eventFilter(o, e);
 }

@@ -56,33 +56,31 @@ public:
 
 #ifndef QT_NO_QAXSCRIPT
 
-class QAxScriptSite : public IActiveScriptSite,
-		      public IActiveScriptSiteWindow
+class QAxScriptSite : public IActiveScriptSite, public IActiveScriptSiteWindow
 {
 public:
     QAxScriptSite(QAxScript *script);
-    ~QAxScriptSite();
-
+    
     ULONG WINAPI AddRef();
     ULONG WINAPI Release();
     HRESULT WINAPI QueryInterface(REFIID iid, void **ppvObject);
-
+    
     HRESULT WINAPI GetLCID(LCID *plcid);
     HRESULT WINAPI GetItemInfo(LPCOLESTR pstrName, DWORD dwReturnMask, IUnknown **ppiunkItem, ITypeInfo **ppti);
     HRESULT WINAPI GetDocVersionString(BSTR *pbstrVersion);
-
+    
     HRESULT WINAPI OnScriptTerminate(const VARIANT *pvarResult, const EXCEPINFO *pexcepinfo);
     HRESULT WINAPI OnStateChange(SCRIPTSTATE ssScriptState);
     HRESULT WINAPI OnScriptError(IActiveScriptError *pscripterror);
     HRESULT WINAPI OnEnterScript();
     HRESULT WINAPI OnLeaveScript();
-
+    
     HRESULT WINAPI GetWindow(HWND *phwnd);
     HRESULT WINAPI EnableModeless(BOOL fEnable);
-
+    
 protected:
     QWidget *topLevelWidget() const;
-
+    
 private:
     QAxScript *script;
     unsigned long ref;
@@ -93,13 +91,6 @@ private:
 */
 QAxScriptSite::QAxScriptSite(QAxScript *s)
 : script(s), ref(1)
-{
-}
-
-/*
-    Debugging help
-*/
-QAxScriptSite::~QAxScriptSite()
 {
 }
 
@@ -117,8 +108,8 @@ ULONG WINAPI QAxScriptSite::AddRef()
 ULONG WINAPI QAxScriptSite::Release()
 {
     if (!--ref) {
-	delete this;
-	return 0;
+        delete this;
+        return 0;
     }
     return ref;
 }
@@ -130,14 +121,14 @@ HRESULT WINAPI QAxScriptSite::QueryInterface(REFIID iid, void **ppvObject)
 {
     *ppvObject = 0;
     if (iid == IID_IUnknown)
-	*ppvObject = (IUnknown*)(IActiveScriptSite*)this;
+        *ppvObject = (IUnknown*)(IActiveScriptSite*)this;
     else if (iid == IID_IActiveScriptSite)
-	*ppvObject = (IActiveScriptSite*)this;
+        *ppvObject = (IActiveScriptSite*)this;
     else if (iid == IID_IActiveScriptSiteWindow)
-	*ppvObject = (IActiveScriptSiteWindow*)this;
+        *ppvObject = (IActiveScriptSiteWindow*)this;
     else
-	return E_NOINTERFACE;
-
+        return E_NOINTERFACE;
+    
     AddRef();
     return S_OK;
 }
@@ -161,28 +152,28 @@ HRESULT WINAPI QAxScriptSite::GetLCID(LCID * /*plcid*/)
 HRESULT WINAPI QAxScriptSite::GetItemInfo(LPCOLESTR pstrName, DWORD mask, IUnknown **item, ITypeInfo **type)
 {
     if (item)
-	*item = 0;
+        *item = 0;
     else if (mask & SCRIPTINFO_IUNKNOWN)
-	return E_POINTER;
-
+        return E_POINTER;
+    
     if (type)
-	*type = 0;
+        *type = 0;
     else if (mask & SCRIPTINFO_ITYPEINFO)
-	return E_POINTER;
-
-    QAxBase *object = script->findObject(QString::fromUcs2((unsigned short *)pstrName));
+        return E_POINTER;
+    
+    QAxBase *object = script->findObject(QString::fromUtf16((unsigned short *)pstrName));
     if (!object)
-	return TYPE_E_ELEMENTNOTFOUND;
-
+        return TYPE_E_ELEMENTNOTFOUND;
+    
     if (mask & SCRIPTINFO_IUNKNOWN)
-	object->queryInterface(IID_IUnknown, (void**)item);
+        object->queryInterface(IID_IUnknown, (void**)item);
     if (mask & SCRIPTINFO_ITYPEINFO) {
-	IProvideClassInfo *classInfo = 0;
-	object->queryInterface(IID_IProvideClassInfo, (void**)&classInfo);
-	if (classInfo) {
-	    classInfo->GetClassInfo(type);
-	    classInfo->Release();
-	}
+        IProvideClassInfo *classInfo = 0;
+        object->queryInterface(IID_IProvideClassInfo, (void**)&classInfo);
+        if (classInfo) {
+            classInfo->GetClassInfo(type);
+            classInfo->Release();
+        }
     }
     return S_OK;
 }
@@ -207,15 +198,15 @@ HRESULT WINAPI QAxScriptSite::GetDocVersionString(BSTR * /*version*/)
 HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXCEPINFO *exception)
 {
     emit script->finished();
-
+    
     if (result && result->vt != VT_EMPTY)
-	emit script->finished(VARIANTToQVariant(*result, 0));
+        emit script->finished(VARIANTToQVariant(*result, 0));
     if (exception)
-	emit script->finished(exception->wCode, 
-			      BSTRToQString(exception->bstrSource),
-			      BSTRToQString(exception->bstrDescription),
-			      BSTRToQString(exception->bstrHelpFile)
-			     );
+        emit script->finished(exception->wCode, 
+        BSTRToQString(exception->bstrSource),
+        BSTRToQString(exception->bstrDescription),
+        BSTRToQString(exception->bstrHelpFile)
+			    );
     return S_OK;
 }
 
@@ -257,16 +248,16 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     LONG charPos;
     BSTR bstrLineText;
     QString lineText;
-
+    
     error->GetExceptionInfo(&exception);
     error->GetSourcePosition(&context, &lineNumber, &charPos);
     HRESULT hres = error->GetSourceLineText(&bstrLineText);
     if (hres == S_OK)
-	lineText = BSTRToQString(bstrLineText);
-
+        lineText = BSTRToQString(bstrLineText);
+    
     emit script->error(exception.wCode, BSTRToQString(exception.bstrDescription),
 				    lineNumber, lineText);
-
+    
     return S_OK;
 }
 
@@ -292,15 +283,15 @@ QWidget *QAxScriptSite::topLevelWidget() const
     QWidget *w = 0;
     QObject *p = script->parent();
     while (!w && p) {
-	w = ::qt_cast<QWidget*>(p);
-	p = p->parent();
+        w = ::qt_cast<QWidget*>(p);
+        p = p->parent();
     }
-
+    
     if (w)
-	w = w->topLevelWidget();
+        w = w->topLevelWidget();
     if (!w && qApp)
-	w = qApp->mainWidget();
-
+        w = qApp->mainWidget();
+    
     return w;
 }
 
@@ -313,13 +304,13 @@ QWidget *QAxScriptSite::topLevelWidget() const
 HRESULT WINAPI QAxScriptSite::GetWindow(HWND *phwnd)
 {
     if (!phwnd)
-	return E_POINTER;
-
+        return E_POINTER;
+    
     *phwnd = 0;
     QWidget *w = topLevelWidget();
     if (!w)
-	return E_FAIL;
-
+        return E_FAIL;
+    
     *phwnd = w->winId();
     return S_OK;
 }
@@ -334,8 +325,8 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 {
     QWidget *w = topLevelWidget();
     if (!w)
-	return E_FAIL;
-
+        return E_FAIL;
+    
     EnableWindow(w->winId(), fEnable);
     return S_OK;
 }
@@ -387,14 +378,14 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 */
 QAxScriptEngine::QAxScriptEngine(const QString &language, QAxScript *script)
 : QAxObject(script, language.latin1()), script_code(script), engine(0), 
-  script_language(language)
+script_language(language)
 {
 #ifdef QT_CHECK_STATE
     if (language.isEmpty())
-	qWarning("QAxScriptEngine without language created!");
-
+        qWarning("QAxScriptEngine without language created!");
+    
     if (!script_code)
-	qWarning("QAxScriptEngine without script created!");
+        qWarning("QAxScriptEngine without script created!");
 #endif
     disableClassInfo();
     disableEventSink();
@@ -408,14 +399,15 @@ QAxScriptEngine::~QAxScriptEngine()
 {
 #ifndef QT_NO_QAXSCRIPT
     if (engine) {
-	engine->SetScriptState( SCRIPTSTATE_DISCONNECTED );
-	engine->Close();
-	engine->Release();
+        engine->SetScriptState(SCRIPTSTATE_DISCONNECTED);
+        engine->Close();
+        engine->Release();
     }
 #endif
 }
 
-/*! \fn QString QAxScriptEngine::scriptLanguage() const
+/*! 
+    \fn QString QAxScriptEngine::scriptLanguage() const
     Returns the scripting language, for example "VBScript",
     or "JScript".
 */
@@ -426,84 +418,84 @@ QAxScriptEngine::~QAxScriptEngine()
 bool QAxScriptEngine::initialize(IUnknown **ptr)
 {
     *ptr = 0;
-
+    
 #ifndef QT_NO_QAXSCRIPT
     if (!script_code || script_language.isEmpty())
-	return FALSE;
-
+        return false;
+    
     CLSID clsid;
-    HRESULT hres = CLSIDFromProgID((WCHAR*)script_language.ucs2(), &clsid );
+    HRESULT hres = CLSIDFromProgID((WCHAR*)script_language.utf16(), &clsid);
     if(FAILED(hres))
-	return FALSE;
-
+        return false;
+    
     CoCreateInstance(clsid, 0, CLSCTX_INPROC_SERVER, IID_IActiveScript, (void**)&engine);
     if (!engine)
-	return FALSE;
-
+        return false;
+    
     IActiveScriptParse *parser = 0;
     engine->QueryInterface(IID_IActiveScriptParse, (void**)&parser);
     if (!parser) {
-	engine->Release();
-	engine = 0;
-	return FALSE;
+        engine->Release();
+        engine = 0;
+        return false;
     }
-
+    
     if (engine->SetScriptSite(script_code->script_site) != S_OK) {
-	engine->Release();
-	engine = 0;
-	return FALSE;
+        engine->Release();
+        engine = 0;
+        return false;
     }
     if (parser->InitNew() != S_OK) {
-	parser->Release();
-	engine->Release();
-	engine = 0;
-	return FALSE;
+        parser->Release();
+        engine->Release();
+        engine = 0;
+        return false;
     }
-
+    
     hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORD(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
-
+    
     parser->Release();
     parser = 0;
-
+    
     script_code->updateObjects();
-
-    if (engine->SetScriptState( SCRIPTSTATE_CONNECTED ) != S_OK) {
-	engine = 0;
-	return FALSE;
+    
+    if (engine->SetScriptState(SCRIPTSTATE_CONNECTED) != S_OK) {
+        engine = 0;
+        return false;
     }
-
+    
     IDispatch *scriptDispatch = 0;
     engine->GetScriptDispatch(0, &scriptDispatch);
     if (scriptDispatch) {
-	scriptDispatch->QueryInterface(IID_IUnknown, (void**)ptr);
-	scriptDispatch->Release();
+        scriptDispatch->QueryInterface(IID_IUnknown, (void**)ptr);
+        scriptDispatch->Release();
     }
 #endif
-
+    
     return *ptr != 0;
 }
 
 /*!
     \fn bool QAxScriptEngine::isValid() const
 
-    Returns TRUE if the script engine has been initialized
-    correctly; otherwise returns FALSE.
+    Returns true if the script engine has been initialized
+    correctly; otherwise returns false.
 */
 
 /*!
-    Returns TRUE if the script engine supports introspection;
-    otherwise returns FALSE.
+    Returns true if the script engine supports introspection;
+    otherwise returns false.
 */
 bool QAxScriptEngine::hasIntrospection() const
 {
     if (!isValid())
-	return FALSE;
-
+        return false;
+    
     IDispatch *scriptDispatch = 0;
     QAxBase::queryInterface(IID_IDispatch, (void**)&scriptDispatch);
     if (!scriptDispatch)
-	return FALSE;
-
+        return false;
+    
     UINT tic = 0;
     HRESULT hres = scriptDispatch->GetTypeInfoCount(&tic);
     scriptDispatch->Release();
@@ -518,12 +510,12 @@ bool QAxScriptEngine::hasIntrospection() const
     Returns the result of the QueryInterface implementation of the COM
     object.
 */
-long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
+long QAxScriptEngine::queryInterface(const QUuid &uuid, void **iface) const
 {
     *iface = 0;
     if (!engine)
-	return E_NOTIMPL;
-
+        return E_NOTIMPL;
+    
 #ifndef QT_NO_QAXSCRIPT
     return engine->QueryInterface(uuid, iface);
 #else
@@ -537,8 +529,8 @@ long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
 QAxScriptEngine::State QAxScriptEngine::state() const
 {
     if (!engine)
-	return Uninitialized;
-
+        return Uninitialized;
+    
 #ifndef QT_NO_QAXSCRIPT
     SCRIPTSTATE state;
     engine->GetScriptState(&state);
@@ -556,8 +548,8 @@ void QAxScriptEngine::setState(State st)
 {
 #ifndef QT_NO_QAXSCRIPT
     if (!engine)
-	return;
-
+        return;
+    
     engine->SetScriptState((SCRIPTSTATE)st);
 #endif
 }
@@ -570,9 +562,9 @@ void QAxScriptEngine::addItem(const QString &name)
 {
 #ifndef QT_NO_QAXSCRIPT
     if (!engine)
-	return;
-
-    engine->AddNamedItem((WCHAR*)name.ucs2(), SCRIPTITEM_ISSOURCE|SCRIPTITEM_ISVISIBLE);
+        return;
+    
+    engine->AddNamedItem((WCHAR*)name.utf16(), SCRIPTITEM_ISSOURCE|SCRIPTITEM_ISVISIBLE);
 #endif
 }
 
@@ -586,7 +578,7 @@ void QAxScriptEngine::addItem(const QString &name)
     scripting code in a particular scripting language. The code is
     loaded into the script engine using load(). Functions declared
     in the code can be called using call(). 
-    
+
     The script provides scriptEngine() provides feedback to the 
     application through signals. The most important signal is the 
     error() signal. Direct access to the QAxScriptEngine is provided
@@ -617,14 +609,14 @@ void QAxScriptEngine::addItem(const QString &name)
 */
 QAxScript::QAxScript(const QString &name, QAxScriptManager *manager)
 : QObject(manager, name.latin1()), script_name(name), script_manager(manager),
-  script_engine(0)
+script_engine(0)
 {
     if (manager) {
-	manager->d->scriptDict.insert(name, this);
-	connect(this, SIGNAL(error(int,const QString&,int,const QString&)), 
-	        manager, SLOT(scriptError(int,const QString&,int,const QString&)));
+        manager->d->scriptDict.insert(name, this);
+        connect(this, SIGNAL(error(int,const QString&,int,const QString&)), 
+            manager, SLOT(scriptError(int,const QString&,int,const QString&)));
     }
-
+    
 #ifndef QT_NO_QAXSCRIPT
     script_site = new QAxScriptSite(this);
 #else
@@ -639,7 +631,7 @@ QAxScript::~QAxScript()
 {
     delete script_engine;
     script_engine = 0;
-
+    
 #ifndef QT_NO_QAXSCRIPT
     script_site->Release();
 #endif
@@ -647,8 +639,8 @@ QAxScript::~QAxScript()
 
 /*!
     Loads the script source \a code written in language \a language
-    into the script engine. Returns TRUE if \a code was successfully
-    entered into the script engine; otherwise returns FALSE.
+    into the script engine. Returns true if \a code was successfully
+    entered into the script engine; otherwise returns false.
 
     If \a language is empty (the default) it will be determined 
     heuristically. If \a code contains the string \c {End Sub} it will 
@@ -662,33 +654,33 @@ QAxScript::~QAxScript()
 bool QAxScript::load(const QString &code, const QString &language)
 {
     if (script_engine || code.isEmpty())
-	return FALSE;
-
+        return false;
+    
     script_code = code;
     QString lang = language;
     if (lang.isEmpty()) {
-	if (code.contains("End Sub", QString::CaseInsensitive))
-	    lang = "VBScript";
-
-	QList<QAxEngineDescriptor>::ConstIterator it;
-	for (it = engines.begin(); it != engines.end(); ++it) {
-	    QAxEngineDescriptor engine = *it;
-	    if (engine.code.isEmpty())
-		continue;
-
-	    if (code.contains(engine.code)) {
-		lang = engine.name;
-		break;
-	    }
-	}
+        if (code.contains("End Sub", QString::CaseInsensitive))
+            lang = "VBScript";
+        
+        QList<QAxEngineDescriptor>::ConstIterator it;
+        for (it = engines.begin(); it != engines.end(); ++it) {
+            QAxEngineDescriptor engine = *it;
+            if (engine.code.isEmpty())
+                continue;
+            
+            if (code.contains(engine.code)) {
+                lang = engine.name;
+                break;
+            }
+        }
     }
     if (lang.isEmpty())
-	lang = "JScript";
-
+        lang = "JScript";
+    
     script_engine = new QAxScriptEngine(lang, this);
     // trigger call to initialize
     script_engine->metaObject();
-
+    
     return script_engine->isValid();
 }
 
@@ -703,25 +695,25 @@ bool QAxScript::load(const QString &code, const QString &language)
 QStringList QAxScript::functions(FunctionFlags flags) const
 {
     QStringList functions;
-
+    
     const QMetaObject *mo = script_engine->metaObject();
     for (int i = 0; i < mo->slotCount(); ++i) {
-	if (i < mo->slotOffset())
-	    continue;
-
-	const QMetaMember slot = mo->slot(i);
-	if (slot.access() != QMetaMember::Public)
-	    continue;
-	QString slotname = QString::fromLatin1(slot.signature());
-	if (slotname.contains('_'))
-	    continue;
-
-	if (flags == FunctionSignatures)
-	    functions << slotname;
-	else
-	    functions << slotname.left(slotname.indexOf('('));
+        if (i < mo->slotOffset())
+            continue;
+        
+        const QMetaMember slot = mo->slot(i);
+        if (slot.access() != QMetaMember::Public)
+            continue;
+        QString slotname = QString::fromLatin1(slot.signature());
+        if (slotname.contains('_'))
+            continue;
+        
+        if (flags == FunctionSignatures)
+            functions << slotname;
+        else
+            functions << slotname.left(slotname.indexOf('('));
     }
-
+    
     return functions;
 }
 
@@ -736,19 +728,19 @@ QStringList QAxScript::functions(FunctionFlags flags) const
     script functions.
 */
 QVariant QAxScript::call(const QString &function, const QVariant &var1,
-						  const QVariant &var2,
-						  const QVariant &var3,
-						  const QVariant &var4,
-						  const QVariant &var5,
-						  const QVariant &var6,
-						  const QVariant &var7,
-						  const QVariant &var8)
+                         const QVariant &var2,
+                         const QVariant &var3,
+                         const QVariant &var4,
+                         const QVariant &var5,
+                         const QVariant &var6,
+                         const QVariant &var7,
+                         const QVariant &var8)
 {
     if (!script_engine)
-	return QVariant();
-
+        return QVariant();
+    
     return script_engine->dynamicCall(function.latin1(), 
-	var1, var2, var3, var4, var5, var6, var7, var8);
+        var1, var2, var3, var4, var5, var6, var7, var8);
 }
 
 /*!
@@ -763,8 +755,8 @@ QVariant QAxScript::call(const QString &function, const QVariant &var1,
 QVariant QAxScript::call(const QString &function, QList<QVariant> &arguments)
 {
     if (!script_engine)
-	return QVariant();
-
+        return QVariant();
+    
     return script_engine->dynamicCall(function.latin1(), arguments);
 }
 
@@ -774,8 +766,8 @@ QVariant QAxScript::call(const QString &function, QList<QVariant> &arguments)
 void QAxScript::updateObjects()
 {
     if (!script_manager)
-	return;
-
+        return;
+    
     script_manager->updateScript(this);
 }
 
@@ -785,8 +777,8 @@ void QAxScript::updateObjects()
 QAxBase *QAxScript::findObject(const QString &name)
 {
     if (!script_manager)
-	return 0;
-
+        return 0;
+    
     return script_manager->d->objectDict[name];
 }
 
@@ -825,7 +817,7 @@ QAxBase *QAxScript::findObject(const QString &name)
 */
 
 /*! \overload void QAxScript::finished(int code, const QString &source,
-				    const QString &description, const QString &help)
+    const QString &description, const QString &help)
 
     \a code, \a source, \a description and \a help contain exception information
     when the script terminated.
@@ -839,7 +831,7 @@ QAxBase *QAxScript::findObject(const QString &name)
 
 /*!
     \fn void QAxScript::error(int code, const QString &description,
-				    int sourcePosition, const QString &sourceText)
+    int sourcePosition, const QString &sourceText)
 
     This signal is emitted when an execution error occurred while
     running a script.
@@ -879,7 +871,7 @@ QAxBase *QAxScript::findObject(const QString &name)
     application.
 */
 QAxScriptManager::QAxScriptManager(QObject *parent, const char *name)
-: QObject( parent, name )
+: QObject(parent, name)
 {
     d = new QAxScriptManagerPrivate;
 }
@@ -902,13 +894,13 @@ QAxScriptManager::~QAxScriptManager()
 QStringList QAxScriptManager::functions(QAxScript::FunctionFlags flags) const
 {
     QStringList functions;
-
+    
     QHash<QString, QAxScript*>::ConstIterator scriptIt;
     for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
-	QAxScript *script = scriptIt.value();
-	functions += script->functions(flags);
+        QAxScript *script = scriptIt.value();
+        functions += script->functions(flags);
     }
-
+    
     return functions;
 }
 
@@ -918,12 +910,12 @@ QStringList QAxScriptManager::functions(QAxScript::FunctionFlags flags) const
 QStringList QAxScriptManager::scriptNames() const
 {
     QStringList scripts;
-
+    
     QHash<QString, QAxScript*>::ConstIterator scriptIt;
     for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
-	scripts << scriptIt.key();
+        scripts << scriptIt.key();
     }
-
+    
     return scripts;
 }
 
@@ -951,8 +943,8 @@ void QAxScriptManager::addObject(QAxBase *object)
     QObject *obj = object->qObject();
     QString name = QString::fromLatin1(obj->objectName());
     if (d->objectDict[name])
-	return;
-
+        return;
+    
     d->objectDict.insert(name, object);
     connect(obj, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
 }
@@ -992,8 +984,8 @@ QAxScript *QAxScriptManager::load(const QString &code, const QString &name, cons
 {
     QAxScript *script = new QAxScript(name, this);
     if (script->load(code, language))
-	return script;
-
+        return script;
+    
     delete script;
     return 0;
 }
@@ -1017,38 +1009,38 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
 {
     QFile f(file);
     if (!f.open(IO_ReadOnly))
-	return 0;
+        return 0;
     QByteArray data = f.readAll();
     QString contents = QString::fromLocal8Bit(data, data.size());
     f.close();
-
+    
     if (contents.isEmpty())
-	return 0;
-
+        return 0;
+    
     QString language;
     if (file.endsWith(".js")) {
-	language = "JScript";
+        language = "JScript";
     } else {
-	QList<QAxEngineDescriptor>::ConstIterator it;
-	for (it = engines.begin(); it != engines.end(); ++it) {
-	    QAxEngineDescriptor engine = *it;
-	    if (engine.extension.isEmpty())
-		continue;
-
-	    if (file.endsWith(engine.extension)) {
-		language = engine.name;
-		break;
-	    }
-	}
+        QList<QAxEngineDescriptor>::ConstIterator it;
+        for (it = engines.begin(); it != engines.end(); ++it) {
+            QAxEngineDescriptor engine = *it;
+            if (engine.extension.isEmpty())
+                continue;
+            
+            if (file.endsWith(engine.extension)) {
+                language = engine.name;
+                break;
+            }
+        }
     }
-
+    
     if (language.isEmpty())
-	language = "VBScript";
-
+        language = "VBScript";
+    
     QAxScript *script = new QAxScript(name, this);
     if (script->load(contents, language))
-	return script;
-
+        return script;
+    
     delete script;
     return 0;
 }
@@ -1071,14 +1063,14 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
     \endcode
     use
     \code
-    QValueList args;
-    args << 5;
-    script->call("setNumber(const QVariant&)", args);
+        QValueList args;
+        args << 5;
+        script->call("setNumber(const QVariant&)", args);
     \endcode
     As with \link QAxBase::dynamicCall() dynamicCall \endlink the 
     parameters can directly be embedded in the function string.
     \code
-    script->call("setNumber(5)");
+        script->call("setNumber(5)");
     \endcode
     However, this is slower.
 
@@ -1091,23 +1083,23 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
     using call() on the respective QAxScript directly.
 */
 QVariant QAxScriptManager::call(const QString &function, const QVariant &var1,
-							 const QVariant &var2,
-							 const QVariant &var3,
-							 const QVariant &var4,
-							 const QVariant &var5,
-							 const QVariant &var6,
-							 const QVariant &var7,
-							 const QVariant &var8)
+                                const QVariant &var2,
+                                const QVariant &var3,
+                                const QVariant &var4,
+                                const QVariant &var5,
+                                const QVariant &var6,
+                                const QVariant &var7,
+                                const QVariant &var8)
 {
     QAxScript *s = script(function);
     if (!s) {
 #ifdef QT_CHECK_STATE
-	qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
-	         "\tis provided through an engine that does not support introspection.", function.latin1());
+        qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
+            "\tis provided through an engine that does not support introspection.", function.latin1());
 #endif
-	return QVariant();
+        return QVariant();
     }
-
+    
     return s->call(function, var1, var2, var3, var4, var5, var6, var7, var8);
 }
 
@@ -1121,19 +1113,19 @@ QVariant QAxScriptManager::call(const QString &function, QList<QVariant> &argume
     QAxScript *s = script(function);
     if (!s) {
 #ifdef QT_CHECK_STATE
-	qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
-	         "\tis provided through an engine that does not support introspection.", function.latin1());
+        qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
+            "\tis provided through an engine that does not support introspection.", function.latin1());
 #endif
-	return QVariant();
+        return QVariant();
     }
-
+    
     QList<QVariant> args(arguments);
     return s->call(function, args);
 }
 
 /*!
-    Registers the script engine called \a name and returns TRUE if the
-    engine was found; otherwise does nothing and returns FALSE.
+    Registers the script engine called \a name and returns true if the
+    engine was found; otherwise does nothing and returns false.
 
     The script engine will be used when loading files with the given
     \a extension, or when loading source code that contains the string
@@ -1142,20 +1134,20 @@ QVariant QAxScriptManager::call(const QString &function, QList<QVariant> &argume
 bool QAxScriptManager::registerEngine(const QString &name, const QString &extension, const QString &code)
 {
     if (name.isEmpty())
-	return FALSE;
-
+        return false;
+    
     CLSID clsid;
-    HRESULT hres = CLSIDFromProgID((WCHAR*)name.ucs2(), &clsid );
+    HRESULT hres = CLSIDFromProgID((WCHAR*)name.utf16(), &clsid);
     if (hres != S_OK)
-	return FALSE;
-
+        return false;
+    
     QAxEngineDescriptor engine;
     engine.name = name;
     engine.extension = extension;
     engine.code = code;
-
+    
     engines.prepend(engine);
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -1166,25 +1158,25 @@ QString QAxScriptManager::scriptFileFilter()
 {
     QString allFiles = "Script Files (*.js *.vbs *.dsm";
     QString specialFiles = ";;VBScript Files (*.vbs *.dsm)"
-			   ";;JavaScript Files (*.js)";
-
+        ";;JavaScript Files (*.js)";
+    
     QList<QAxEngineDescriptor>::ConstIterator it;
     for (it = engines.begin(); it != engines.end(); ++it) {
-	QAxEngineDescriptor engine = *it;
-	if (engine.extension.isEmpty())
-	    continue;
-
-	allFiles += " *" + engine.extension;
-	specialFiles += ";;" + engine.name + " Files (*" + engine.extension + ")";
+        QAxEngineDescriptor engine = *it;
+        if (engine.extension.isEmpty())
+            continue;
+        
+        allFiles += " *" + engine.extension;
+        specialFiles += ";;" + engine.name + " Files (*" + engine.extension + ")";
     }
     allFiles += ")";
-
+    
     return allFiles + specialFiles + ";;All Files (*.*)";
 }
 
 /*!
     \fn void QAxScriptManager::error(QAxScript *script, int code, const QString &description,
-	int sourcePosition, const QString &sourceText)
+    int sourcePosition, const QString &sourceText)
 
     This signal is emitted when an execution error occurred while
     running \a script.
@@ -1203,26 +1195,26 @@ QAxScript *QAxScriptManager::scriptForFunction(const QString &function) const
 {
     // check full prototypes if included
     if (function.contains('(')) {
-	QHash<QString, QAxScript*>::ConstIterator scriptIt;
-	for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
-	    QAxScript *script = scriptIt.value();
-
-	    if (script->functions(QAxScript::FunctionSignatures).contains(function))
-		return script;
-	}
+        QHash<QString, QAxScript*>::ConstIterator scriptIt;
+        for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
+            QAxScript *script = scriptIt.value();
+            
+            if (script->functions(QAxScript::FunctionSignatures).contains(function))
+                return script;
+        }
     }
-
+    
     QString funcName = function;
     funcName = funcName.left(funcName.indexOf('('));
     // second try, checking only names, not prototypes
     QHash<QString, QAxScript*>::ConstIterator scriptIt;
     for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
-	QAxScript *script = scriptIt.value();
-
-	if (script->functions(QAxScript::FunctionNames).contains(funcName))
-	    return script;
+        QAxScript *script = scriptIt.value();
+        
+        if (script->functions(QAxScript::FunctionNames).contains(funcName))
+            return script;
     }
-
+    
     return 0;
 }
 
@@ -1233,11 +1225,11 @@ void QAxScriptManager::updateScript(QAxScript *script)
 {
     QHash<QString, QAxBase*>::ConstIterator objectIt;
     for (objectIt = d->objectDict.constBegin(); objectIt != d->objectDict.constEnd(); ++objectIt) {
-	QString name = objectIt.key();
-
-	QAxScriptEngine *engine = script->scriptEngine();
-	if (engine)
-	    engine->addItem(name);
+        QString name = objectIt.key();
+        
+        QAxScriptEngine *engine = script->scriptEngine();
+        if (engine)
+            engine->addItem(name);
     }
 }
 
