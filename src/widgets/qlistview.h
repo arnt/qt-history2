@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#3 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#4 $
 **
 ** Definition of 
 **
@@ -44,7 +44,7 @@ public:
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
 			    int column, int width ) const;
     virtual void paintTreeBranches( QPainter * p, const QColorGroup & cg,
-				    int w, int top, int bottom ) const;
+				    int w, int y, int h, GUIStyle s ) const;
 
     const QListViewItem * firstChild() const { return childItem; }
     const QListViewItem * nextSibling() const { return siblingItem; }

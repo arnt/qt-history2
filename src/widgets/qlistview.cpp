@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#12 $
 **
 ** Implementation of something useful
 **
@@ -15,9 +15,11 @@
 #include "qpainter.h"
 #include "qscrbar.h"
 #include <stdlib.h>
-#include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#11 $");
+#include <qapp.h>
+#include <unistd.h>
+
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#12 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -299,75 +301,104 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 */
 
 void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
-				       int w, int top, int bottom ) const
+				       int w, int y, int h, GUIStyle s ) const
 {
-
-
-    //    p->fillRect( -1000, -1000, 2000, 2000, red );
-    //    QApplication::flushX();
-    //    sleep( 1 );
-    //    p->fillRect( -1000, -1000, 2000, 2000, yellow );
-    //    QApplication::flushX();
-    //
-    p->fillRect( 0, top, w, bottom - top, cg.base() );
-
+    p->fillRect( 0, 0, w, h, cg.base() );
 
     const QListViewItem * child = firstChild();
-    int y = 0;
-    int linetop = (top > 64) ? ((top-30) & ~31) : 2;
+    int linetop = y%4;
+
     // each branch needs at most two lines, ie. four end points
     QPointArray dotlines( children() * 4 );
     int c = 0;
 
     // skip the stuff above the exposed rectangle
-    while ( child && y + child->totalHeight() <= top ) {
+    while ( child && y + child->height() <= 0 ) {
 	y += child->totalHeight();
 	child = child->nextSibling();
     }
 
     int bx = w / 2;
-    int by;
+    int linebot = linetop;
 
     // paint stuff in the magical area
-    while ( child && y < bottom ) {
-	by = y + child->height()/2;
+    while ( child && y < h ) {
+	linebot = y + child->height()/2;
 	if ( child->children() ) {
 	    // needs a box
 	    p->setPen( cg.dark() );
-	    p->drawRect( bx-4, by-4, 9, 9 );
+	    p->drawRect( bx-4, linebot-4, 9, 9 );
 	    // plus or minus
-	    p->setPen( cg.foreground() ); // ### windows appears to use black
-	    p->drawLine( bx - 2, by, bx + 2, by );
+	    p->setPen( cg.foreground() ); // ### windows uses black
+	    p->drawLine( bx - 2, linebot, bx + 2, linebot );
 	    if ( !child->isOpen() )
-		p->drawLine( bx, by - 2, bx, by + 2 );
+		p->drawLine( bx, linebot - 2, bx, linebot + 2 );
 	    // dotlinery
 	    dotlines[c++] = QPoint( bx, linetop );
-	    dotlines[c++] = QPoint( bx, by - 5 );
-	    dotlines[c++] = QPoint( bx + 6, by );
-	    dotlines[c++] = QPoint( w, by );
-	    by += 6; // oooh! nasty overloading here! see linetop != by below
-	    linetop = by;
+	    dotlines[c++] = QPoint( bx, linebot - 5 );
+	    dotlines[c++] = QPoint( bx + 6, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
+	    linebot += 6;
+	    linetop = linebot;
 	} else {
 	    // just dotlinery
-	    dotlines[c++] = QPoint( bx + ((by - linetop) & 1), by );
-	    dotlines[c++] = QPoint( w, by );
+	    dotlines[c++] = QPoint( bx + ((linebot - linetop) & 1), linebot );
+	    dotlines[c++] = QPoint( w, linebot );
 	}
 
 	y += child->totalHeight();
 	child = child->nextSibling();
     }
 
-    if ( child )
-	by = QMIN( y, bottom ); // more, nastier overloading.
-    
+    if ( child ) // there's a child, so move linebot to edge of rectangle
+	linebot = h;
 
-    if ( linetop != by ) {
+    if ( linetop < linebot ) {
 	dotlines[c++] = QPoint( bx, linetop );
-	dotlines[c++] = QPoint( bx, by );
+	dotlines[c++] = QPoint( bx, linebot );
     }
 
-    p->setPen( QPen( cg.dark(), 0, DotLine ) );
-    p->drawLineSegments( dotlines, 0, c/2 );
+    if ( s == MotifStyle ) {
+	p->setPen( cg.foreground() );
+	p->drawLineSegments( dotlines, 0, c/2 );
+    } else {
+	// this could be done much faster on X11, but not on Windows.
+	// oh well.  do it the hard way.
+	QPointArray dots( (h+4)/2 + (children()*w+3)/4 );
+	// at most one dot for every second y coordinate, plus the
+	// spillover at the top.  at most dot for every second x
+	// coordinate for half of the width for every child.  both
+	// divisions must be rounded up to the nearest integer.
+	int i = 0; // index into dots
+	int line; // index into dotlines
+	int point; // relevant coordinate of current point
+	int end; // same coordinate of the end of the current line
+	int other; // the other coordinate of the current point/line
+	for( line = 0; line < c; line += 2 ) {
+	    // assumptions here: lines are horizontal or vertical.
+	    // lines always start with the numerically lowest
+	    // coordinate.
+	    if ( dotlines[line].y() == dotlines[line+1].y() ) {
+		end = dotlines[line+1].x();
+		point = dotlines[line].x(); 
+		other = dotlines[line].y();
+		while( point < end ) {
+		    dots[i++] = QPoint( point, other );
+		    point += 2;
+		}
+	    } else {
+		end = dotlines[line+1].y();
+		point = dotlines[line].y(); 
+		other = dotlines[line].x();
+		while( point < end ) {
+		    dots[i++] = QPoint( other, point );
+		    point += 2;
+		}
+	    }
+	}
+	p->setPen( cg.dark() );
+	p->drawPoints( dots, 0, i );
+    }
 }
 
 
@@ -558,8 +589,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		
 	    if ( tx < cx + cw &&
 		 tx + head->l * treeStepSize() > cx ) {
-		debug( "tx = %d", tx );
-		p->save();
 		// compute the clip rectangle the safe way
 
 		int rtop = head->y + ih;
@@ -575,17 +604,17 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		r.setRect( crleft+ox, crtop+oy, 
 			   crright-crleft, crbottom-crtop );
 
-		p->setClipRect( r );
+		if ( r.isValid() ) { // ANOTHER test.
+		    p->save();
+		    p->setClipRect( r );
 
-		debug( "QListView painting tree branches %p (%d,%d,%d,%d)",
-		       head->item,r.left(),r.top(),r.width(),r.height());
-
-                p->translate( rleft, rtop );
-		head->item->paintTreeBranches( p, colorGroup(),
-					       treeStepSize(),
-					       r.top() - rtop,
-					       r.bottom() - rtop + 1 );
-		p->restore();
+		    p->translate( rleft+ox, crtop+oy );
+		    head->item->paintTreeBranches( p, colorGroup(),
+						   treeStepSize(), 
+						   rtop - crtop,
+						   r.height(), style() );
+		    p->restore();
+		}
 	    }
 
 	    // also push the children on the stack
