@@ -309,7 +309,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         p.start();
         if (p.err.size())
             fprintf(stderr, "%s\n", p.err.data());
-        else if (p.out.size())
+
+        if (p.out.size())
             out << p.out;
     }
 
