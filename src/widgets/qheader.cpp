@@ -109,6 +109,7 @@ public:
     int lastPos;
     int fullSize;
     int focusIdx;
+    int pressDelta;
 
     int sectionAt( int pos ) {
 	// positions is sorted by index, not by section
@@ -637,7 +638,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
     handleIdx = 0;
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
-    if( reverse() )
+    if ( reverse() )
 	c = d->lastPos - c;
 
     int section = d->sectionAt( c );
@@ -659,7 +660,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    return;
 	}
 	oldHIdxSize = d->sizes[ d->i2s[handleIdx] ];
-	state = d->resize[d->i2s[handleIdx]  ] ? Sliding : Blocked;
+	state = d->resize[ d->i2s[handleIdx]  ] ? Sliding : Blocked;
     } else if ( index >= 0 ) {
 	oldHandleIdx = handleIdx = index;
 	moveToIdx = -1;
@@ -670,6 +671,8 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    repaint( sRect( oldHandleIdx ) );
 	emit pressed( section );
     }
+
+    d->pressDelta = c - ( d->positions[handleIdx] + d->sizes[ d->i2s[handleIdx] ] );
 }
 
 /*!
@@ -694,15 +697,15 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	    handleIdx = oldHandleIdx;
 	}
 	repaint(sRect( handleIdx ), FALSE);
-	if(oldOldHandleIdx != handleIdx)
+	if ( oldOldHandleIdx != handleIdx )
 	    repaint(sRect(oldOldHandleIdx ), FALSE );
 	} break;
     case Sliding: {
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
 	c += offset();
-	if( reverse() )
+	if ( reverse() )
 	    c = d->lastPos - c;
-	handleColumnResize( handleIdx, c, TRUE );
+	handleColumnResize( handleIdx, c - d->pressDelta, TRUE );
     } break;
     case Moving: {
 #ifndef QT_NO_CURSOR
