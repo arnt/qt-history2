@@ -13811,7 +13811,7 @@ QString QString::upper() const
 /*!
   \code
     QString string = "   white space   ";
-    QString s = string.stripWhiteSpace();            // s == "space"
+    QString s = string.stripWhiteSpace();            // s == "white space"
   \endcode
 
   Returns a string that has whitespace removed from the start and the end.
