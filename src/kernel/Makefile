@@ -35,7 +35,8 @@ SOURCES		= qapp.cpp	qapp_x11.cpp	qcol_x11.cpp	qcolor.cpp    \
 		  qsize.cpp	qtimer.cpp	qview.cpp	qwid_x11.cpp  \
 		  qwidget.cpp	qwmatrix.cpp	qevent.cpp
 OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
-		  qconnect.o	qcur_x11.o	qcursor.o	qfnt_x11.o    \
+		  qconnect.o	qcur_x11.o	qcursor.o	qfont.o       \
+                  qfnt_x11.o    \
 		  qpicture.o	qmetaobj.o	qpic_x11.o	qobject.o     \
 		  qpainter.o	qpdevmet.o	qpmp_x11.o      qsignal.o     \
 		  qpntarry.o	qpoint.o	qprinter.o	qprtstrm.o    \
@@ -190,7 +191,8 @@ qfont.o: /home/globoid/home/eiriken/qt/include/qarray.h
 qfont.o: /home/globoid/home/eiriken/qt/include/qgarray.h
 qfont.o: /home/globoid/home/eiriken/qt/include/qshared.h
 qfont.o: /usr/include/string.h /usr/include/features.h
-qfont.o: /usr/include/sys/cdefs.h
+qfont.o: /usr/include/sys/cdefs.h qpainter.h qpaintd.h qrect.h qsize.h
+qfont.o: qpoint.h qcolor.h qfontmet.h qregion.h qpen.h qbrush.h
 qfont.o: /home/globoid/home/eiriken/qt/include/qdstream.h
 qfont.o: /home/globoid/home/eiriken/qt/include/qiodev.h
 qfnt_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
@@ -211,6 +213,7 @@ qfnt_x11.o: /home/globoid/home/eiriken/qt/include/qshared.h qpainter.h
 qfnt_x11.o: qpaintd.h qrect.h qsize.h qpoint.h qcolor.h qfontmet.h qregion.h
 qfnt_x11.o: qpen.h qbrush.h /usr/include/ctype.h /usr/include/stdlib.h
 qfnt_x11.o: /usr/include/errno.h /usr/include/linux/errno.h
+qfnt_x11.o: /usr/include/X11/Xatom.h
 qfnt_x11.o: /home/globoid/home/eiriken/qt/include/qdict.h
 qfnt_x11.o: /home/globoid/home/eiriken/qt/include/qgdict.h
 qfnt_x11.o: /home/globoid/home/eiriken/qt/include/qcollect.h
@@ -494,6 +497,9 @@ qwmatrix.o: /usr/include/math.h /usr/include/features.h
 qwmatrix.o: /usr/include/sys/cdefs.h /usr/include/huge_val.h
 qwmatrix.o: /usr/include/endian.h /usr/include/bytesex.h
 qwmatrix.o: /usr/include/values.h
+qevent.o: qevent.h qwindefs.h qobjdefs.h
+qevent.o: /home/globoid/home/eiriken/qt/include/qglobal.h qrect.h qsize.h
+qevent.o: qpoint.h
 mtimer.o: qmetaobj.h qconnect.h qobject.h qobjdefs.h
 mtimer.o: /home/globoid/home/eiriken/qt/include/qglobal.h
 mtimer.o: /home/globoid/home/eiriken/qt/include/qstring.h
