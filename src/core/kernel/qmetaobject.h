@@ -116,6 +116,6 @@ private:
     uint handle;
     friend struct QMetaObject;
 };
-Q_DECLARE_TYPEINFO(QMetaMember, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QMetaClassInfo, Q_MOVABLE_TYPE);
 
 #endif // QMETAOBJECT_H
