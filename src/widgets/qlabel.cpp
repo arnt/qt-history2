@@ -1192,8 +1192,8 @@ void QLabel::fontChange( const QFont & )
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
-  /property QLabel::scaledContents
-  /brief whether the label will scale its contents to fill all available space.
+  \property QLabel::scaledContents
+  \brief whether the label will scale its contents to fill all available space.
 
   When enabled and the label shows a pixmap, it will scale the pixmap to
   fill available space.
