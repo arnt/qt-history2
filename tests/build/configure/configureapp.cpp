@@ -36,8 +36,13 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
+    dictionary[ "TRG_MKSPEC" ] = QEnvironment::getEnv( "MKSPEC" );
 
-    if( QEnvironment::getEnv( "MKSPEC" ) == QString( "win32-msvc" ) )
+    QString tmp = QEnvironment::getEnv( "MKSPEC" );
+    tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
+    dictionary[ "TRG_MKSPEC" ] = tmp;
+
+    if( dictionary[ "TRG_MKSPEC" ] == QString( "win32-msvc" ) )
 	dictionary[ "MAKE" ] = "nmake";
     else
 	dictionary[ "MAKE" ] = "make";
@@ -254,8 +259,6 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "LIBPNG" ] == "yes" )
 	qmakeConfig += "libpng";
 
-    if( !dictionary[ "TRG_MKSPEC" ].length() )
-	dictionary[ "TRG_MKSPEC" ] = QEnvironment::getEnv( "MKSPEC" );
     if( !dictionary[ "TRG_MKSPEC" ].length() ) {
 	cout << "MKSPEC must either be defined as an environment variable, or specified" << endl;
 	cout << "as an argument with -mkspec" << endl;
