@@ -34,21 +34,21 @@ typedef struct {
       char __ss_pad1[QT_SS_PAD1SIZE];
       __int64 __ss_align;
       char __ss_pad2[QT_SS_PAD2SIZE];
-} QT_SOCKADDR_STORAGE;
+} qt_sockaddr_storage;
 
 // sockaddr_in6 size changed between old and new SDK
 // Only the new version is the correct one, so always
 // use this structure.
-struct alt_in6_addr {
-    u_char alt_s6_addr[16];
+struct qt_in6_addr {
+    u_char qt_s6_addr[16];
 };
-struct alt_sockaddr_in6 {
+typedef struct {
     short   sin6_family;            /* AF_INET6 */
     u_short sin6_port;              /* Transport level port number */
     u_long  sin6_flowinfo;          /* IPv6 flow information */
-    struct alt_in6_addr sin6_addr;  /* IPv6 address */
-    u_long sin6_scope_id;           /* set of interfaces for a scope */
-};
+    struct  qt_in6_addr sin6_addr;  /* IPv6 address */
+    u_long  sin6_scope_id;          /* set of interfaces for a scope */
+} qt_sockaddr_in6;
 #endif
 
 
@@ -114,7 +114,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
 {
 #if !defined (QT_NO_IPV6)
     if (socket != -1) {
-	QT_SOCKADDR_STORAGE ss;
+	qt_sockaddr_storage ss;
 	memset( &ss, 0, sizeof(ss) );
 	SOCKLEN_T sslen = sizeof( ss );
 	if ( !::getsockname(socket, (struct sockaddr *)&ss, &sslen) ) {
@@ -328,14 +328,14 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
     SOCKLEN_T aalen;
 
 #if !defined(QT_NO_IPV6)
-    struct alt_sockaddr_in6 a6;
+    qt_sockaddr_in6 a6;
 
     if ( initialized >= 0x20 && addr.isIPv6Address() ) {
         memset(&a6, 0, sizeof(a6));
 	a6.sin6_family = AF_INET6;
 	a6.sin6_port = htons( port );
 	Q_IPV6ADDR tmp = addr.toIPv6Address();
-	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
+	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
 
 	setProtocol( IPv6 );
 	aalen = sizeof( a6 );
@@ -433,7 +433,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
-    struct alt_sockaddr_in6 a6;
+    qt_sockaddr_in6 a6;
 
     if ( initialized >= 0x20 && address.isIPv6Address() ) {
 	memset( &a6, 0, sizeof(a6) );
@@ -442,10 +442,10 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 
 	Q_IPV6ADDR tmp = address.toIPv6Address();
 
-	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
+	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
 	setProtocol( IPv6 );
 
-	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(QT_SOCKADDR_STORAGE) );
+	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(qt_sockaddr_storage) );
     } else
 #endif
     {
@@ -519,7 +519,7 @@ int QSocketDevice::accept()
     if ( !isValid() )
 	return -1;
 #if !defined(QT_NO_IPV6)
-    QT_SOCKADDR_STORAGE a;
+    qt_sockaddr_storage a;
 #else
     struct sockaddr a;
 #endif
@@ -632,7 +632,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	// With IPv6 support, we must be prepared to receive both IPv4
 	// and IPv6 packets. The generic SOCKADDR_STORAGE (struct
 	// sockaddr_storage on unix) replaces struct sockaddr.
-	QT_SOCKADDR_STORAGE a;
+	qt_sockaddr_storage a;
 #else
 	struct sockaddr_in a;
 #endif
@@ -645,9 +645,9 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	// accordingly.
 	struct sockaddr *ap = (struct sockaddr *)&a;
 	if (ap->sa_family == AF_INET6) {
-	    struct alt_sockaddr_in6 *a6 = (struct alt_sockaddr_in6 *)&a;
+	    qt_sockaddr_in6 *a6 = (qt_sockaddr_in6 *)&a;
 	    Q_IPV6ADDR tmp;
-	    memcpy( &tmp, &a6->sin6_addr.alt_s6_addr, sizeof(tmp) );
+	    memcpy( &tmp, &a6->sin6_addr.qt_s6_addr, sizeof(tmp) );
 
 	    pp = ntohs(a6->sin6_port);
 	    pa = QHostAddress(tmp);
@@ -812,7 +812,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	return -1;
     }
 #if !defined(QT_NO_IPV6)
-    struct alt_sockaddr_in6 a6;
+    qt_sockaddr_in6 a6;
     struct sockaddr_in a4;
     struct sockaddr *aa;
     SOCKLEN_T slen;
@@ -823,7 +823,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	a6.sin6_port = htons( port );
 	Q_IPV6ADDR tmp = host.toIPv6Address();
 	for ( int i = 0; i < 16; ++i )
-	    a6.sin6_addr.alt_s6_addr[i] = tmp.c[i];
+	    a6.sin6_addr.qt_s6_addr[i] = tmp.c[i];
 
 	slen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
@@ -917,7 +917,7 @@ void QSocketDevice::fetchConnectionParameters()
 	return;
     }
 #if !defined (QT_NO_IPV6)
-    QT_SOCKADDR_STORAGE sa;
+    qt_sockaddr_storage sa;
 #else
     struct sockaddr_in sa;
 #endif
@@ -928,11 +928,11 @@ void QSocketDevice::fetchConnectionParameters()
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sap = (struct sockaddr *)&sa;
 	if (sap->sa_family == AF_INET6) {
-	    struct alt_sockaddr_in6 *sa6 = (struct alt_sockaddr_in6 *)&sa;
+	    qt_sockaddr_in6 *sa6 = (qt_sockaddr_in6 *)&sa;
 	    p = ntohs( sa6->sin6_port );
 	    Q_IPV6ADDR tmp;
 	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.alt_s6_addr[i];
+		tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
 
 	    a = QHostAddress(tmp);
 	} else
@@ -953,7 +953,7 @@ void QSocketDevice::fetchPeerConnectionParameters()
     // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
     // there will be problems otherwise if you use MS Proxy server)
 #if !defined (QT_NO_IPV6)
-    QT_SOCKADDR_STORAGE sa;
+    qt_sockaddr_storage sa;
 #else
     struct sockaddr_in sa;
 #endif
@@ -964,11 +964,11 @@ void QSocketDevice::fetchPeerConnectionParameters()
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sa4 = (struct sockaddr *)&sa;
 	if (sa4->sa_family == AF_INET6) {
-	    struct alt_sockaddr_in6 *sa6 = (struct alt_sockaddr_in6 *)&sa;
+	    qt_sockaddr_in6 *sa6 = (qt_sockaddr_in6 *)&sa;
 	    pp = ntohs( sa6->sin6_port );
 	    Q_IPV6ADDR tmp;
 	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.alt_s6_addr[i];
+		tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
 
 	    pa = QHostAddress(tmp);
 	} else
