@@ -4445,7 +4445,7 @@ int QTextEdit::wrapColumnOrWidth() const
 
   Defines where text can be wrapped when word wrap mode is not \c
   NoWrap. The choices are \c AtWordBoundary (the default), \c Anywhere
-  and \c PreferWordBoundary
+  and \c AtWordOrDocumentBoundary
 
   \sa wordWrap
  */
