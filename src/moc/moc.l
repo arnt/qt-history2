@@ -57,9 +57,9 @@ int skipLevel        = 0; /* Depth of MOC_SKIP_BEGINs */
 
 class QString;
 
-extern void addExpressionChar( char );
-extern void addExpressionString( char * );
-extern void moc_warn( char *msg );
+extern void addExpressionChar( const char );
+extern void addExpressionString( const char * );
+extern void moc_warn( const char *msg );
 %}
 
 %start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY

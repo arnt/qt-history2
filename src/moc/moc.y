@@ -40,7 +40,7 @@
 *****************************************************************************/
 
 %{
-void yyerror( char *msg );
+void yyerror( const char *msg );
 
 #include "qlist.h"
 #include "qasciidict.h"
@@ -1508,23 +1508,23 @@ void initExpression()
     tmpExpression = "";
 }
 
-void addExpressionString( char *s )
+void addExpressionString( const char *s )
 {
     tmpExpression += s;
 }
 
-void addExpressionChar( char c )
+void addExpressionChar( const char c )
 {
     tmpExpression += c;
 }
 
-void yyerror( char *msg )			// print yacc error message
+void yyerror( const char *msg )			// print yacc error message
 {
     mocError = TRUE;
     fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg );
 }
 
-void moc_err( char *s )
+void moc_err( const char *s )
 {
     yyerror( s );
     if ( errorControl ) {
@@ -1532,7 +1532,7 @@ void moc_err( char *s )
     }
 }
 
-void moc_err( char *s1, char *s2 )
+void moc_err( const char *s1, const char *s2 )
 {
     static char tmp[1024];
     sprintf( tmp, s1, s2 );
@@ -1542,7 +1542,7 @@ void moc_err( char *s1, char *s2 )
     }
 }
 
-void moc_warn( char *msg )
+void moc_warn( const char *msg )
 {
     if ( displayWarnings )
 	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg);
@@ -1557,7 +1557,7 @@ void moc_warn( char *s1, char *s2 )
 }
 
 static bool suppress_func_warn = FALSE;
-void func_warn( char *msg )
+void func_warn( const char *msg )
 {
     if ( !suppress_func_warn )
 	moc_warn( msg );
