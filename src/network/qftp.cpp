@@ -401,6 +401,16 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     QDate date = QDate::fromString( dateStr );
     info.setLastModified( QDateTime( date, time ) );
 
+    if ( lst[ 7 ].contains( ":" ) ) {
+	if( info.lastModified() > QDateTime::currentDateTime() ) {
+	    QDateTime dt = info.lastModified();
+	    QDate d = dt.date();
+	    d.setYMD(d.year()-1, d.month(), d.day());
+	    dt.setDate(d);
+	    info.setLastModified(dt);
+	}
+    }
+
     // name
     if ( info.isSymLink() )
 	info.setName( lst[ 8 ].stripWhiteSpace() );
