@@ -1285,7 +1285,9 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_A:
         if (e->modifiers() & Qt::ControlModifier) {
-            selectAll();
+            SelectionMode mode = selectionMode();
+            if (mode == MultiSelection || mode == ExtendedSelection)
+                selectAll();
             break;
         }
     default:
