@@ -214,10 +214,12 @@ static QString varMap(const QString &x)
     return ret;
 }
 
-static QStringList split_arg_list(const QString &params)
+static QStringList split_arg_list(QString params)
 {
     QChar quote = 0;
     QStringList args;
+    if(params.length() > 2 && params.at(0) == '"' && params.at(params.length()-1) == params.at(0))
+        params = params.mid(1, params.length()-1);
     for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
         if(x == (int)params.length()) {
             QString mid = params.mid(last, x - last).trimmed();
@@ -1228,10 +1230,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no, func.latin1());
             return false;
         }
-        QString value = args[1];
-        if((value.left(1) == "\"" || value.left(1) == "'") && value.right(1) == value.left(1))
-            value = value.mid(1, value.length()-2);
-        return place[args[0]].join(QString(Option::field_sep)) == value;
+        return place[args[0]].join(QString(Option::field_sep)) == args[1];
     } else if(func == "exists") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: exists(file) requires one argument.\n", parser.file.latin1(),
@@ -1386,7 +1385,6 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         }
         QString file = args.first();
         file = Option::fixPathToLocalOS(file);
-        file.replace("\"", "");
         IncludeStatus stat = doProjectInclude(file, !include_statement, place, seek_var);
         if(stat == IncludeFeatureAlreadyLoaded) {
             warn_msg(WarnParser, "%s:%d: Duplicate of loaded feature %s",
@@ -1407,8 +1405,6 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             return false;
         }
         QString msg = args.first();
-        if((msg.startsWith("\"") || msg.startsWith("'")) && msg.endsWith(msg.left(1)))
-            msg = msg.mid(1, msg.length()-2);
         doVariableReplace(msg, place);
         fixEnvVariables(msg);
         fprintf(stderr, "Project %s: %s\n", func.toUpper().latin1(), msg.latin1());
@@ -1638,7 +1634,6 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 } else {
                     QString file = arg_list[0];
                     file = Option::fixPathToLocalOS(file);
-                    file.replace("\"", "");
 
                     QFile qfile(file);
                     if(qfile.open(IO_ReadOnly)) {
@@ -1655,7 +1650,6 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 } else {
                     QString file = arg_list[0], seek_var = arg_list[1];
                     file = Option::fixPathToLocalOS(file);
-                    file.replace("\"", "");
 
                     QMap<QString, QStringList> tmp;
                     if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess)
@@ -1681,11 +1675,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     fprintf(stderr, "%s:%d: printf(format, ...) requires one argument.\n",
                             parser.file.latin1(), parser.line_no);
                 } else {
-                    replacement = arg_list.first().replace("\"", "");
+                    replacement = arg_list.first();
                     QStringList::Iterator arg_it = arg_list.begin();
                     ++arg_it;
                     for(; arg_it != arg_list.end(); ++arg_it)
-                        replacement = replacement.arg((*arg_it).replace("\"", ""));
+                        replacement = replacement.arg((*arg_it));
                 }
             } else if(val.toLower() == "join") {
                 if(arg_list.count() < 1 || arg_list.count() > 4) {
@@ -1694,11 +1688,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 } else {
                     QString glue, before, after;
                     if(arg_list.count() >= 2)
-                        glue = arg_list[1].replace("\"", "");
+                        glue = arg_list[1];
                     if(arg_list.count() >= 3)
-                        before = arg_list[2].replace("\"", "");
+                        before = arg_list[2];
                     if(arg_list.count() == 4)
-                        after = arg_list[3].replace("\"", "");
+                        after = arg_list[3];
                     const QStringList &var = place[varMap(arg_list.first())];
                     if(!var.isEmpty())
                         replacement = before + var.join(glue) + after;
@@ -1710,7 +1704,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 } else {
                     QString sep = arg_list[1], join = QString(Option::field_sep);
                     if(arg_list.count() == 3)
-                        join = arg_list[2].replace("\"", "");;
+                        join = arg_list[2];
                     QStringList var = place[varMap(arg_list.first())];
                     for(QStringList::Iterator vit = var.begin(); vit != var.end(); ++vit) {
                         QStringList lst = (*vit).split(sep);
@@ -1730,7 +1724,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                                 parser.file.latin1(), parser.line_no);
                     } else {
                         var = arg_list[0];
-                        sep = arg_list[1].replace("\"", "");
+                        sep = arg_list[1];
                         beg = arg_list[2].toInt();
                         if(arg_list.count() == 4)
                             end = arg_list[3].toInt();
@@ -1826,7 +1820,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     if(arg_list.count() == 2)
                         recursive = (arg_list[1].toLower() == "true" || arg_list[1].toInt());
                     QStringList dirs;
-                    QString r = Option::fixPathToLocalOS(arg_list[0]).replace("\"", "");
+                    QString r = Option::fixPathToLocalOS(arg_list[0]);
                     int slash = r.lastIndexOf(QDir::separator());
                     if(slash != -1) {
                         dirs.append(r.left(slash));
@@ -1865,8 +1859,6 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             parser.file.latin1(), parser.line_no);
                 } else {
                     QString msg = arg_list.first();
-                    if((msg.startsWith("\"") || msg.startsWith("'")) && msg.endsWith(msg.left(1)))
-                        msg = msg.mid(1, msg.length()-2);
                     doVariableReplace(msg, place);
                     fixEnvVariables(msg);
                     if(!msg.endsWith("?"))
