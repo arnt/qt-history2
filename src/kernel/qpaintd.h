@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#3 $
 **
 ** Definition of QPaintDevice class
 **
@@ -18,11 +18,19 @@
 
 // Painter device types (is-A)
 
-#define PDT_UNDEF	0
-#define PDT_WIDGET	1
-#define PDT_PIXMAP	2
-#define PDT_PRINTER	3
-#define PDT_METAFILE	4
+#define PDT_UNDEF	0x00
+#define PDT_WIDGET	0x01
+#define PDT_PIXMAP	0x02
+#define PDT_PRINTER	0x03
+#define PDT_METAFILE	0x04
+#define PDT_MASK	0x0f
+
+
+// Painter device flags
+
+#define PDF_EXTDEV	0x10
+#define PDF_PAINTACTIVE	0x20
+
 
 // Painter device commands (for unsupported devices)
 
@@ -74,8 +82,12 @@ public:
     QPaintDevice();
     virtual ~QPaintDevice();
 
+    bool     paintingActive() const { return devFlags & PDF_PAINTACTIVE; }
+
 protected:
-    int	     devType;				// type of device
+    int	     devType()	      const { return devFlags & PDT_MASK; }
+    void     setDevType( uint t )   { devFlags = t; }
+				
 #if defined(_WS_WIN_) || defined(_WS_WIN32_)
     HDC	     hdc;				// device context
 #elif defined(_WS_PM_)
@@ -86,6 +98,7 @@ protected:
 #endif
 
 private:
+    uint     devFlags;				// device flags
 #if defined(_WS_X11_)
     virtual bool cmd( int, QPDevCmdParam * );
 #endif
