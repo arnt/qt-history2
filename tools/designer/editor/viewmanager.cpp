@@ -90,12 +90,8 @@ QWidget *ViewManager::currentView() const
 
 void ViewManager::childEvent( QChildEvent *e )
 {
-    if ( !e->child()->isWidgetType() )
-	return;
-    if ( e->type() == QEvent::ChildInserted ) {
-	if ( e->child()->inherits( "Editor" ) )
-	    addView( (QWidget*)e->child() );
-    }
+    if ( e->type() == QEvent::ChildInserted && ::qt_cast<Editor>(e->child()) )
+	addView( (QWidget*)e->child() );
     QWidget::childEvent( e );
 }
 

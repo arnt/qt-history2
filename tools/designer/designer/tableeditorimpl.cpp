@@ -39,6 +39,7 @@
 #include "command.h"
 #include <qvaluelist.h>
 #include <qtabwidget.h>
+#include <qdatatable.h>
 #include "project.h"
 #include "metadatabase.h"
 #include "mainwindow.h"
@@ -55,14 +56,14 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );
 
-    if ( !editTable->inherits( "QDataTable" ) ) {
+    if ( !::qt_cast<QDataTable>(editTable) ) {
 	labelFields->hide();
 	comboFields->hide();
 	labelTable->hide();
 	labelTableValue->hide();
     }
 #ifndef QT_NO_SQL
-    if ( editTable->inherits( "QDataTable" ) ) {
+    if ( ::qt_cast<QDataTable>(editTable) ) {
 	// ## why does this behave weird?
 	//	TabWidget->removePage( rows_tab );
 	//	rows_tab->hide();
@@ -70,7 +71,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	TabWidget->setTabEnabled( rows_tab, FALSE );
     }
 
-    if ( formWindow->project() && editTable->inherits( "QDataTable" ) ) {
+    if ( formWindow->project() && ::qt_cast<QDataTable>(editTable) ) {
 	QStringList lst = MetaDataBase::fakeProperty( editTable, "database" ).toStringList();
 	if ( lst.count() == 2 && !lst[ 0 ].isEmpty() && !lst[ 1 ].isEmpty() ) {
 	    QStringList fields;
@@ -153,7 +154,7 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
     editColumnText->blockSignals( FALSE );
 
 #ifndef QT_NO_TABLE
-    if ( editTable->inherits( "QDataTable" ) ) {
+    if ( ::qt_cast<QDataTable>(editTable) ) {
 	QString s = *fieldMap.find( listColumns->index( i ) );
 	if ( s.isEmpty() )
 	    comboFields->setCurrentItem( 0 );
@@ -237,7 +238,7 @@ void TableEditor::newColumnClicked()
     QListBoxItem *item = listColumns->item( listColumns->count() - 1 );
     listColumns->setCurrentItem( item );
     listColumns->setSelected( item, TRUE );
-    if ( editTable->inherits( "QDataTable" ) ) {
+    if ( ::qt_cast<QDataTable>(editTable) ) {
 	comboFields->setFocus();
     } else {
 	editColumnText->setFocus();

@@ -52,6 +52,7 @@
 #include "qiconset.h"
 #include "qcleanuphandler.h"
 #include "qpixmapcache.h"
+#include "qpopupmenu.h"
 #include "qtl.h"
 #include "qdragobject.h"
 #include "qlineedit.h"
@@ -2854,8 +2855,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    bool drawActiveSelection = hasFocus() ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-			    ( qApp->focusWidget() && qApp->focusWidget()->isPopup() && qApp->focusWidget()->inherits( "QPopupMenu" ) ) ||
-			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
+			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() ) ||
+			    ::qt_cast<QPopupMenu>(qApp->focusWidget());
 	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
 	    while ( c < lc && d->drawables ) {
@@ -3749,7 +3750,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    // nothing
 	    break;
 	}
-    } else if ( o->inherits( "QLineEdit" ) ) {
+    } else if ( ::qt_cast<QLineEdit>(o) ) {
 	if ( currentItem() && currentItem()->renameBox ) {
 	    if ( e->type() == QEvent::KeyPress ) {
 		QKeyEvent *ke = (QKeyEvent*)e;

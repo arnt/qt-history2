@@ -36,6 +36,7 @@
 #include <qcombobox.h>
 #include <qlistbox.h>
 #include <qaction.h>
+#include <qdatabrowser.h>
 
 static const char* const ignore_slots[] = {
     "destroyed()",
@@ -186,10 +187,10 @@ static void appendChildActions( QAction *action, QStringList &lst )
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
-	if ( !o->inherits( "QAction" ) )
+	if ( !::qt_cast<QAction>(o) )
 	    continue;
 	lst << o->name();
-	if ( o->children() && o->inherits( "QActionGroup" ) )
+	if ( o->children() && ::qt_cast<QActionGroup>(o) )
 	    appendChildActions( (QAction*)o, lst );
     }
 }
@@ -202,7 +203,7 @@ static QStringList flatActions( const QPtrList<QAction> &l )
     while ( it.current() ) {
 	QAction *action = it.current();
 	lst << action->name();
-	if ( action->children() && action->inherits( "QActionGroup" ) )
+	if ( action->children() && ::qt_cast<QActionGroup>(action) )
 	    appendChildActions( action, lst );
 	++it;
     }
@@ -224,9 +225,9 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 	    continue;
 	}
 	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !it.current()->inherits( "QLayoutWidget" ) &&
-	     !it.current()->inherits( "Spacer" ) &&
-	     !it.current()->inherits( "SizeHandle" ) &&
+	     !::qt_cast<QLayoutWidget>(it.current()) &&
+	     !::qt_cast<Spacer>(it.current()) &&
+	     !::qt_cast<SizeHandle>(it.current()) &&
 	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
 	    lst << it.current()->name();
 	}
@@ -281,9 +282,9 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
 	    continue;
 	}
 	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !it.current()->inherits( "QLayoutWidget" ) &&
-	     !it.current()->inherits( "Spacer" ) &&
-	     !it.current()->inherits( "SizeHandle" ) &&
+	     !::qt_cast<QLayoutWidget>(it.current()) &&
+	     !::qt_cast<Spacer>(it.current()) &&
+	     !::qt_cast<SizeHandle>(it.current()) &&
 	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
 	    lst << it.current()->name();
 	}
@@ -345,7 +346,7 @@ void SignalItem::senderChanged( QObject *sender )
 
     QStringList lst = QStringList::fromStrList( sigs );
 
-    if ( sender->inherits( "CustomWidget" ) ) {
+    if ( ::qt_cast<CustomWidget>(sender) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)sender )->customWidget();
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin();
 	      it != w->lstSignals.end(); ++it )
@@ -406,7 +407,7 @@ void SlotItem::signalChanged( const QString &signal )
 bool SlotItem::ignoreSlot( const char* slot ) const
 {
     if ( qstrcmp( slot, "update()" ) == 0 &&
-	 lastReceiver->inherits( "QDataBrowser" ) )
+	 ::qt_cast<QDataBrowser>(lastReceiver) )
 	return FALSE;
 
     for ( int i = 0; ignore_slots[i]; i++ ) {
@@ -475,7 +476,7 @@ void SlotItem::updateSlotList()
 	}
     }
 
-    if ( lastReceiver->inherits( "CustomWidget" ) ) {
+    if ( ::qt_cast<CustomWidget>(lastReceiver) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)lastReceiver )->customWidget();
 	for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin();
 	      it != w->lstSlots.end(); ++it ) {

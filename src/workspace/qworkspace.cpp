@@ -797,7 +797,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
     QRect maxRect = dw->availableGeometry(dw->screenNumber(d->mainwindow));
     QPoint wpos(maxRect.left(), maxRect.top());
     int possible = 0;
-    if(!w->inherits("QToolBar")) {
+    if(!::qt_cast<QToolBar>(w)) {
 	struct place_score { int o, x, y; } score;
 	int left = 1, x = wpos.x(), y = wpos.y();
 	QPtrListIterator<QDockWindow> it( d->dockwindows );
@@ -930,16 +930,15 @@ void QWorkspace::showEvent( QShowEvent *e )
     if(d->wmode == AutoDetect) {
 	d->wmode = MDI;
 	QWidget *o = topLevelWidget();
-	if(o->inherits("QMainWindow")) {
+	if(::qt_cast<QMainWindow>(o)) {
 	    d->wmode = TopLevel;
 	    const QObjectList *c = o->children();
 	    for(QObjectListIterator it(*c); it; ++it) {
 		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
-		   !(*it)->inherits("QHBox") && !(*it)->inherits("QVBox") &&
-		   !(*it)->inherits("QWorkspaceChild") && !(*it)->inherits("QHideDock") &&
-		   !(*it)->inherits("QDockArea") && !(*it)->inherits("QWorkspace") &&
-		   !(*it)->inherits("QMenuBar") &&
-		   !(*it)->inherits("QStatusBar") && !(*it)->inherits("QSizeHandle")) {
+		   !::qt_cast<QHBox>(*it) && !::qt_cast<QVBox>(*it) &&
+		   !::qt_cast<QWorkspaceChild>(*it) && !(*it)->inherits("QHideDock") &&
+		   !::qt_cast<QDockArea>(*it) && !::qt_cast<QWorkspace>(*it) &&
+		   !::qt_cast<QMenuBar>(*it) && !::qt_cast<QStatusBar>(*it)) {
 		    d->wmode = MDI;
 		    break;
 		}
@@ -948,8 +947,7 @@ void QWorkspace::showEvent( QShowEvent *e )
     }
     if(d->wmode == TopLevel) {
 	QWidget *o = topLevelWidget();
-	if(o->inherits("QMainWindow"))
-	    d->mainwindow = (QMainWindow*)o;
+	d->mainwindow = ::qt_cast<QMainWindow>(o);
 	const QObjectList children = *o->children();
 	for(QObjectListIterator it(children); it; ++it) {
 	    if(!(*it)->isWidgetType())
@@ -957,16 +955,16 @@ void QWorkspace::showEvent( QShowEvent *e )
 	    QWidget *w = (QWidget *)(*it);
 	    if(w->isTopLevel())
 		continue;
-	    if(w->inherits("QDockArea")) {
+	    if(::qt_cast<QDockArea>(w)) {
 		const QObjectList *dock_c = w->children();
 		if(dock_c) {
 		    QPtrList<QToolBar> tb_list;
 		    for(QObjectListIterator dock_it(*dock_c); dock_it; ++dock_it) {
 			if(!(*dock_it)->isWidgetType())
 			    continue;
-			if((*dock_it)->inherits("QToolBar")) {
+			if(::qt_cast<QToolBar>(*dock_it)) {
 			    tb_list.append((QToolBar *)(*dock_it));
-			} else if ((*dock_it)->inherits("QDockWindow")) {
+			} else if (::qt_cast<QDockWindow>(*dock_it)) {
 			    QDockWindow *dw = (QDockWindow*)(*dock_it);
 			    dw->move(dw->mapToGlobal(QPoint(0, 0)));
 			    d->newdocks.append(dw);
@@ -1007,13 +1005,13 @@ void QWorkspace::showEvent( QShowEvent *e )
 		    }
 		}
 		w->installEventFilter(this);
-	    } else if(w->inherits("QStatusBar")) {
+	    } else if(::qt_cast<QStatusBar>(w)) {
 		if(activeWindow()) {
 		    QWorkspaceChild *c;
 		    if ( ( c = findChild(activeWindow()) ) )
 			c->setStatusBar((QStatusBar*)w);
 		}
-	    } else if(w->inherits("QWorkspaceChild")) {
+	    } else if(::qt_cast<QWorkspaceChild>(w)) {
 		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
 	    }
 	}
@@ -1027,8 +1025,8 @@ void QWorkspace::showEvent( QShowEvent *e )
 	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
 	o->reparent(w, QPoint(0, 0), TRUE);
 	{
-	    QMenuBar *mb = NULL;
-	    if(o->inherits("QMainWindow"))
+	    QMenuBar *mb = 0;
+	    if(::qt_cast<QMainWindow>(o))
 		mb = ((QMainWindow *)o)->menuBar();
 	    if(!mb)
 		mb = (QMenuBar*)o->child(NULL, "QMenuBar");
@@ -1269,10 +1267,8 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
 	    while (it.current()) {
 		QObject *o = it.current();
 		++it;
-		if (!o->inherits("QWorkspaceChild"))
-		    continue;
-		QWorkspaceChild *c = (QWorkspaceChild*)o;
-		if (c->windowWidget())
+		QWorkspaceChild *c = ::qt_cast<QWorkspaceChild>(o);
+		if (c && c->windowWidget())
 		    windows.append(c->windowWidget());
 	    }
 	}
@@ -1293,15 +1289,15 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
     if(d->wmode == TopLevel && d->mainwindow && o->parent() == d->mainwindow) {
 	if((e->type() == QEvent::ChildInserted || e->type() == QEvent::Reparent) &&
-	   o->inherits("QDockArea") && !((QWidget*)o)->isVisible()) {
+	    ::qt_cast<QDockArea>(o) && !((QWidget*)o)->isVisible()) {
 	    QChildEvent *ce = (QChildEvent*)e;
-	    if(!ce->child()->inherits("QDockWindow")) {
+	    if(!::qt_cast<QDockWindow>(ce->child())) {
 		qDebug("No idea what to do..");
 		return FALSE;
 	    }
 	    QDockWindow *w = (QDockWindow*)ce->child();
 	    if(d->newdocks.find(w) == -1 && d->dockwindows.find(w) == -1) {
-		if(w->inherits("QToolBar"))
+		if(::qt_cast<QToolBar>(w))
 		    d->newdocks.prepend(w);
 		else
 		    d->newdocks.append(w);
@@ -1424,7 +1420,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( c->shademode )
 		    c->showShaded();
 	    }
-	} else if ( o->inherits("QWorkspaceChild") ) {
+	} else if ( ::qt_cast<QWorkspaceChild>(o) ) {
 	    d->popup->hide();
 	}
 	updateWorkspace();
@@ -2107,12 +2103,13 @@ QWorkspaceChild::~QWorkspaceChild()
 {
     if ( iconw )
 	delete iconw->parentWidget();
-    if ( parentWidget() && parentWidget()->inherits( "QWorkspace" ) ) {
-	if ( ((QWorkspace*)parentWidget())->d->active == this )
-	    ((QWorkspace*)parentWidget())->d->active = 0;
-	if ( ((QWorkspace*)parentWidget())->d->maxWindow == this ) {
-	    ((QWorkspace*)parentWidget())->hideMaximizeControls();
-	    ((QWorkspace*)parentWidget())->d->maxWindow = 0;
+    QWorkspace *workspace = ::qt_cast<QWorkspace>(parentWidget());
+    if ( workspace ) {
+	if ( workspace->d->active == this )
+	    workspace->d->active = 0;
+	if ( workspace->d->maxWindow == this ) {
+	    workspace->hideMaximizeControls();
+	    workspace->d->maxWindow = 0;
 	}
     }
 }

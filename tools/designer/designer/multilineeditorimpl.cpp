@@ -222,7 +222,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	textEdit->document()->setUseFormatCollection( FALSE );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 
-	if ( !callStatic && editWidget && editWidget->inherits( "QTextEdit" ) ) {
+	if ( !callStatic && ::qt_cast<QTextEdit>(editWidget) ) {
 	    mlined = (QTextEdit*)editWidget;
 	    mlined->setReadOnly( TRUE );
 
@@ -243,8 +243,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	    textEdit->setText( mlined->text() );
 	    if ( !mlined->text().isEmpty() )
 		textEdit->selectAll();
-	}
-	else {
+	} else {
 	    textEdit->setText( text );
 	    textEdit->selectAll();
 	}

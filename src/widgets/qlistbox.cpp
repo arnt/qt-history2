@@ -53,6 +53,7 @@
 #include "qtimer.h"
 #include "qstringlist.h"
 #include "qstyle.h"
+#include "qpopupmenu.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -4042,8 +4043,8 @@ void QListBox::adjustItems()
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
     bool drawActiveSelection = hasFocus() ||
-	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-	( qApp->focusWidget() && qApp->focusWidget()->isPopup() && qApp->focusWidget()->inherits( "QPopupMenu" ) );
+	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) || 
+	::qt_cast<QPopupMenu>(qApp->focusWidget());
     const QColorGroup &g = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
     int cw = d->columnPos[col+1] - d->columnPos[col];

@@ -410,6 +410,33 @@ private:
     QDateTimeEditorPrivate* d;
 };
 
+class QDateTimeSpinWidget : public QSpinWidget
+{
+public:
+    QDateTimeSpinWidget( QWidget *parent, const char *name )
+	: QSpinWidget( parent, name )
+    {
+    }
+
+protected:
+#ifndef QT_NO_WHEELEVENT
+    void wheelEvent( QWheelEvent *e )
+    {
+	QDateTimeEditor *editor = (QDateTimeEditor*)editWidget()->qt_cast( "QDateTimeEditor" );
+	Q_ASSERT( editor );
+	if ( !editor )
+	    return;
+
+	int section = editor->sectionAt( e->pos() );
+	editor->setFocusSection( section );
+
+	if ( section == -1 )
+	    return;
+	QSpinWidget::wheelEvent( e );
+    }
+#endif
+};
+
 /*!
     Constructs an empty datetime editor with parent \a parent and
     called \a name.
@@ -566,9 +593,9 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		cw->stepDown();
 		return TRUE;
 	    case Key_Backspace:
-		if ( cw->inherits( "QDateEdit" ) )
+		if ( ::qt_cast<QDateEdit>(cw) )
 		    ((QDateEdit*)cw)->removeFirstNumber( d->focusSection() );
-		else if ( cw->inherits( "QTimeEdit" ) )
+		else if ( ::qt_cast<QTimeEdit>(cw) )
 		    ((QTimeEdit*)cw)->removeFirstNumber( d->focusSection() );
 		return TRUE;
 	    case Key_Delete:
@@ -582,15 +609,15 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		QWidget *w = this;
 		bool hadDateEdit = FALSE;
 		while ( w ) {
-		    if ( w->inherits( "QDateTimeSpinWidget" ) && qstrcmp( w->name(), "qt_spin_widget" ) != 0 ||
-			 w->inherits( "QDateTimeEdit" ) )
+		    if ( ::qt_cast<QDateTimeSpinWidget>(w) && qstrcmp( w->name(), "qt_spin_widget" ) != 0 ||
+			 ::qt_cast<QDateTimeEdit>(w) )
 			break;
-		    hadDateEdit = hadDateEdit || w->inherits( "QDateEdit" );
+		    hadDateEdit = hadDateEdit || ::qt_cast<QDateEdit>(w);
 		    w = w->parentWidget();
 		}
 
 		if ( w ) {
-		    if ( !w->inherits( "QDateTimeEdit" ) ) {
+		    if ( !::qt_cast<QDateTimeEdit>(w) ) {
 			w = w->parentWidget();
 		    } else {
 			QDateTimeEdit *ed = (QDateTimeEdit*)w;
@@ -601,15 +628,13 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 			    ed->dateEdit()->setFocus();
 			    return TRUE;
 			} else {
-			    while ( w && !w->inherits( "QDateTimeEdit" ) )
+			    while ( w && !::qt_cast<QDateTimeEdit>(w) )
 				w = w->parentWidget();
 			}
 		    }
 
-		    if ( w ) {
-			qApp->sendEvent( w, e );
-			return TRUE;
-		    }
+		    qApp->sendEvent( w, e );
+		    return TRUE;
 		}
 	    } break;
 	    default:
@@ -621,7 +646,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 			    repaint( rect(), FALSE );
 		    }
 		    return TRUE;
-		} else if ( !txt.isEmpty() && cw->inherits( "QTimeEdit" ) && focusSection() == (int) d->sectionCount()-1 ) {
+		} else if ( !txt.isEmpty() && ::qt_cast<QTimeEdit>(cw) && focusSection() == (int) d->sectionCount()-1 ) {
 		    // the first character of the AM/PM indicator toggles if the section has focus
 		    QTimeEdit *te = (QTimeEdit*)cw;
 		    QTime time = te->time();
@@ -767,33 +792,6 @@ bool QDateTimeEditor::setFocusSection( int sec )
 */
 
 ////////////////
-
-class QDateTimeSpinWidget : public QSpinWidget
-{
-public:
-    QDateTimeSpinWidget( QWidget *parent, const char *name )
-	: QSpinWidget( parent, name )
-    {
-    }
-
-protected:
-#ifndef QT_NO_WHEELEVENT
-    void wheelEvent( QWheelEvent *e )
-    {
-	QDateTimeEditor *editor = (QDateTimeEditor*)editWidget()->qt_cast( "QDateTimeEditor" );
-	Q_ASSERT( editor );
-	if ( !editor )
-	    return;
-
-	int section = editor->sectionAt( e->pos() );
-	editor->setFocusSection( section );
-
-	if ( section == -1 )
-	    return;
-	QSpinWidget::wheelEvent( e );
-    }
-#endif
-};
 
 class QDateEditPrivate
 {

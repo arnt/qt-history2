@@ -46,6 +46,7 @@
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
 #include <qdatabrowser.h>
+#include <qdataview.h>
 #include <qsqleditorfactory.h>
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
@@ -61,18 +62,18 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     setFinishEnabled( finishPage, TRUE );
 
     /* set mode of operation */
-    if ( widget->inherits( "QDataTable" ) ) {
+    if ( ::qt_cast<QDataTable>(widget) ) {
 	setCaption( "Data Table Wizard" );
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
 	setAppropriate( layoutPage, FALSE );
 	checkBoxAutoEdit->setChecked( FALSE );
-    } else if ( widget->inherits( "QDataBrowser" ) ) {
+    } else if ( ::qt_cast<QDataBrowser>(widget) ) {
 	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	mode = Browser;
 	checkBoxAutoEdit->setChecked( TRUE );
-    } else if ( widget->inherits( "QDataView" ) ) {
+    } else if ( ::qt_cast<QDataView>(widget) ) {
 	setCaption( "Data View Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	setAppropriate( navigPage, FALSE );
@@ -442,7 +443,7 @@ void SqlFormWizard::accept()
 		((QLineEdit*)editor)->setAlignment( Qt::AlignRight );
 		formWindow->setPropertyChanged( editor, "alignment", TRUE );
 	    }
-	    if ( editor->inherits( "QSpinBox" ) ) {
+	    if ( ::qt_cast<QSpinBox>(editor) ) {
 		( (QSpinBox*)editor )->setMaxValue( INT_MAX );
 		formWindow->setPropertyChanged( editor, "maxValue", TRUE );
 	    }

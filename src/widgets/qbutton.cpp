@@ -46,6 +46,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
+#include "qradiobutton.h"
 #include "qguardedptr.h"
 #include "../kernel/qinternal_p.h"
 
@@ -697,7 +698,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	if ( !e->isAutoRepeat() ) {
 	    setDown( TRUE );
 #ifndef QT_NO_PUSHBUTTON
-	    if ( inherits("QPushButton") )
+	    if ( ::qt_cast<QPushButton>(this) )
 		emit pressed();
 	    else
 #endif
@@ -968,7 +969,7 @@ bool QButton::isExclusiveToggle() const
 #ifndef QT_NO_BUTTONGROUP
     return group() && ( group()->isExclusive() ||
 			group()->isRadioButtonExclusive() &&
-			inherits( "QRadioButton" ) );
+			::qt_cast<QRadioButton>(this) );
 #else
     return FALSE;
 #endif

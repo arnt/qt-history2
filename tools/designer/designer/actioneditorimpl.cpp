@@ -142,8 +142,7 @@ void ActionEditor::newAction()
 {
     ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
-	if ( !actionParent->actionGroup() ||
-	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
+	if ( !::qt_cast<QActionGroup>(actionParent->actionGroup()) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
 
@@ -176,8 +175,7 @@ void ActionEditor::newActionGroup()
 {
     ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
-	if ( !actionParent->actionGroup() ||
-	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
+	if ( !::qt_cast<QActionGroup>(actionParent->actionGroup()) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
 
@@ -215,19 +213,18 @@ void ActionEditor::setFormWindow( FormWindow *fw )
     listActions->clear();
     formWindow = fw;
     if ( !formWindow ||
-	 !formWindow->mainContainer() ||
-	 !formWindow->mainContainer()->inherits( "QMainWindow" ) ) {
+	 !::qt_cast<QMainWindow>(formWindow->mainContainer()) ) {
 	setEnabled( FALSE );
     } else {
 	setEnabled( TRUE );
 	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) {
 	    ActionItem *i = 0;
-	    if ( a->parent() && a->parent()->inherits( "QAction" ) )
+	    if ( ::qt_cast<QAction>(a->parent()) )
 		continue;
 	    i = new ActionItem( listActions, a );
 	    i->setText( 0, a->name() );
 	    i->setPixmap( 0, a->iconSet().pixmap() );
-	    if ( a->inherits( "QActionGroup" ) ) {
+	    if ( ::qt_cast<QActionGroup>(a) ) {
 		insertChildActions( i );
 	    }
 	}
@@ -246,14 +243,14 @@ void ActionEditor::insertChildActions( ActionItem *i )
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
-	if ( !o->inherits( "QAction" ) )
+	if ( !::qt_cast<QAction>(o) )
 	    continue;
 	QAction *a = (QAction*)o;
 	ActionItem *i2 = new ActionItem( (QListViewItem*)i, a );
 	i->setOpen( TRUE );
 	i2->setText( 0, a->name() );
 	i2->setPixmap( 0, a->iconSet().pixmap() );
-	if ( a->inherits( "QActionGroup" ) )
+	if ( ::qt_cast<QActionGroup>(a) )
 	    insertChildActions( i2 );
     }
 }

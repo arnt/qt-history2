@@ -440,7 +440,6 @@ void QWindowsXPStyle::polish( QWidget *widget )
     QWindowsStyle::polish( widget );
     if ( !use_xp )
 	return;
-
     if ( ::qt_cast<QButton>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setBackgroundOrigin( QWidget::ParentOrigin );

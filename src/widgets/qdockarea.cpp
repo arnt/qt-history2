@@ -232,16 +232,17 @@ static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
 
 static void shrink_extend( QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, Qt::Orientation o )
 {
+    QToolBar *tb = ::qt_cast<QToolBar>(dw);
     if ( o == Qt::Horizontal ) {
 	int mw = 0;
-	if ( !dw->inherits( "QToolBar" ) )
+	if ( !tb )
 	    mw = dw->minimumWidth();
 	else
 	    mw = dw->sizeHint().width();
 	dockExtend = mw;
     } else {
 	int mh = 0;
-	if ( !dw->inherits( "QToolBar" ) )
+	if ( !tb )
 	    mh = dw->minimumHeight();
 	else
 	    mh = dw->sizeHint().height();
@@ -254,7 +255,7 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
     QDockWindow *last = 0;
     QRect lastRect;
     for ( QValueList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it ) {
-	if ( (*it).w->inherits( "QToolBar" ) && tbstrut != -1 )
+	if ( tbstrut != -1 && ::qt_cast<QToolBar>((*it).w) )
 	    (*it).rect.setHeight( tbstrut );
 	if ( !last ) {
 	    last = (*it).w;
@@ -387,7 +388,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	QRect dwRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) );
 	lastLine.append( DockData( dw, dwRect ) );
-	if ( dw->inherits( "QToolBar" ) )
+	if ( ::qt_cast<QToolBar>(dw) )
 	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dockExtend, pos, orientation() );
@@ -921,8 +922,8 @@ void QDockArea::updateLayout()
 
 bool QDockArea::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o->inherits( "QDockWindow" ) ) {
-	if ( e->type() == QEvent::Close ) {
+    if ( e->type() == QEvent::Close ) {
+	if ( ::qt_cast<QDockWindow>(o) ) {
 	    o->removeEventFilter( this );
 	    QApplication::sendEvent( o, e );
 	    if ( ( (QCloseEvent*)e )->isAccepted() )
@@ -1082,9 +1083,10 @@ bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 	return FALSE;
     if ( forbiddenWidgets.findRef( dw ) != -1 )
 	return FALSE;
-    if ( !parentWidget() || !parentWidget()->inherits( "QMainWindow" ) )
+
+    QMainWindow *mw = ::qt_cast<QMainWindow>(parentWidget());
+    if ( !mw )
 	return TRUE;
-    QMainWindow *mw = (QMainWindow*)parentWidget();
     if ( !mw->hasDockWindow( dw ) )
 	return FALSE;
     if ( !mw->isDockEnabled( this ) )
@@ -1131,24 +1133,25 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
 
     QDockWindow *w = 0;
     int i = 0;
-    do
+    do {
 	w = dockWindows->at( index + (++i) );
-    while ( i + 1 < (int)dockWindows->count() && ( !w || w->isHidden() ) );
+    } while ( i + 1 < (int)dockWindows->count() && ( !w || w->isHidden() ) );
     if ( !w || !w->isResizeEnabled() || i >= (int)dockWindows->count() ) {
 	if ( orientation() == Horizontal )
 	    return dw->width();
 	return dw->height();
     }
     int min = 0;
+    QToolBar *tb = ::qt_cast<QToolBar>(w);
     if ( orientation() == Horizontal ) {
 	w->setFixedExtentWidth( -1 );
-	if ( !w->inherits( "QToolBar" ) )
+	if ( !tb )
 	    min = QMAX( w->minimumSize().width(), w->minimumSizeHint().width() );
 	else
 	    min = w->sizeHint().width();
     } else {
 	w->setFixedExtentHeight( -1 );
-	if ( !w->inherits( "QToolBar" ) )
+	if ( !tb )
 	    min = QMAX( w->minimumSize().height(), w->minimumSizeHint().height() );
 	else
 	    min = w->sizeHint().height();

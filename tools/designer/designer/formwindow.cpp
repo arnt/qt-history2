@@ -67,6 +67,7 @@
 #include <qaccel.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
+#include <qsplitter.h>
 
 // FormWindow should be able to work to some limited degree
 // (existance, loading) without a MainWindow. Functions which require
@@ -82,7 +83,7 @@ static void setCursorToAll( const QCursor &c, QWidget *start )
     QObjectList *l = (QObjectList*)start->children();
     if ( l ) {
 	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( o->isWidgetType() && !o->inherits( "SizeHandle" ) )
+	    if ( o->isWidgetType() && !::qt_cast<SizeHandle>(o) )
 		setCursorToAll( c, ( (QWidget*)o ) );
 	}
     }
@@ -97,7 +98,7 @@ static void restoreCursors( QWidget *start, FormWindow *fw )
     QObjectList *l = (QObjectList*)start->children();
     if ( l ) {
 	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( o->isWidgetType() && !o->inherits( "SizeHandle" ) )
+	    if ( o->isWidgetType() && !::qt_cast<SizeHandle>(o) )
 		restoreCursors( ( (QWidget*)o ), fw );
 	}
     }
@@ -533,8 +534,7 @@ void FormWindow::handleContextMenu( QContextMenuEvent *e, QWidget *w )
 		    ( WidgetFactory::layoutType( w->parentWidget()) != WidgetFactory::NoLayout ||
 		      !insertedWidgets.find(w) ) )
 		w = w->parentWidget();
-	    if ( mainContainer()->inherits( "QMainWindow" ) &&
-		 ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget ) {
+	    if ( ::qt_cast<QMainWindow>(mainContainer()) && ((QMainWindow*)mainContainer())->centralWidget() == realWidget ) {
 		e->accept();
 		mainwindow->popupFormWindowMenu( e->globalPos(), this );
 	    } else {
@@ -646,7 +646,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	    break;
 	validForBuddy = FALSE;
 	if ( currTool == BUDDY_TOOL ) {
-	    if ( !w->inherits( "QLabel" ) )
+	    if ( !::qt_cast<QLabel>(w) )
 		break;
 	    clearSelection( FALSE );
 	    validForBuddy = TRUE;
@@ -688,7 +688,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		for (;;) {
 		    int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( wid ) );
 		    if ( ( WidgetDatabase::isContainer( id ) || wid == mainContainer() ) &&
-			 !wid->inherits( "QLayoutWidget" ) && !wid->inherits( "QSplitter" ) ) {
+			 !::qt_cast<QLayoutWidget>(wid) && !::qt_cast<QSplitter>(wid) ) {
 			insertParent = WidgetFactory::containerOfWidget( wid ); // found another parent, store it
 			break;
 		    } else {
@@ -855,8 +855,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	    wid = designerWidget( wid );
 	if ( wid && ( isMainContainer( wid ) || insertedWidgets.find( wid ) ) && wid->isVisibleTo( this ) )
 	    newendWidget = wid;
-	if ( newendWidget &&
-	     ( newendWidget->inherits( "QLayoutWidget" ) || newendWidget->inherits( "Spacer" ) ) )
+	if ( ::qt_cast<QLayoutWidget>(newendWidget) || ::qt_cast<Spacer>(newendWidget) )
 	    newendWidget = (QWidget*)endWidget;
 	drawRecRect = newendWidget != endWidget;
 	if ( newendWidget &&
@@ -882,8 +881,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	    newendWidget = wid;
 	else
 	    newendWidget = 0;
-	if ( newendWidget &&
-	     ( newendWidget->inherits( "QLayoutWidget" ) || newendWidget->inherits( "Spacer" ) ) )
+	if ( ::qt_cast<QLayoutWidget>(newendWidget) || ::qt_cast<Spacer>(newendWidget) )
 	    newendWidget = (QWidget*)endWidget;
 	drawRecRect = newendWidget != endWidget;
 	if ( !newendWidget )
@@ -969,13 +967,12 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 		bool emitSelChanged = FALSE;
 		for ( QMap<ulong, QPoint>::Iterator it = moving.begin(); it != moving.end(); ++it ) {
 		    QWidget *i = (QWidget*)it.key();
-		    if ( !emitSelChanged && i->inherits( "QButton" )  ) {
-			if ( i->parentWidget() && i->parentWidget()->inherits( "QButtonGroup" ) ||
-			     wa->inherits( "QButtonGroup" ) )
+		    if ( !emitSelChanged && ::qt_cast<QButton>(i) ) {
+			if ( ::qt_cast<QButtonGroup>(i->parentWidget()) || ::qt_cast<QButtonGroup>(wa) )
 			    emitSelChanged = TRUE;
-			if ( !wa->inherits( "QButtonGroup" ) ) {
+			if ( !::qt_cast<QButtonGroup>(wa) ) {
 			    MetaDataBase::setPropertyChanged( i, "buttonGroupId", FALSE );
-			    if ( i->parentWidget() && i->parentWidget()->inherits( "QButtonGroup" ) )
+			    if ( ::qt_cast<QButtonGroup>(i->parentWidget()) )
 				( (QButtonGroup*)i->parentWidget() )->remove( (QButton*)i );
 			}
 		    }
@@ -1187,8 +1184,7 @@ void FormWindow::selectWidget( QObject *o, bool select )
 	return;
     }
 
-    if ( mainContainer()->inherits( "QMainWindow" ) &&
-	 w == ( (QMainWindow*)mainContainer() )->centralWidget() ) {
+    if ( ::qt_cast<QMainWindow>(mainContainer()) && w == ( (QMainWindow*)mainContainer() )->centralWidget() ) {
 	QObject *opw = propertyWidget;
 	propertyWidget = mainContainer();
 	if ( opw->isWidgetType() )
@@ -1197,7 +1193,7 @@ void FormWindow::selectWidget( QObject *o, bool select )
 	return;
     }
 
-    if ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerMenuBar" ) )
+    if ( ::qt_cast<QDesignerToolBar>(o) )
 	return;
 
     if ( select ) {
@@ -1912,7 +1908,7 @@ void FormWindow::checkAccels()
 		    find_accel( w->property( "title" ).toString(), accels, w );
 		if ( pageTitle )
 		    find_accel( w->property( "pageTitle" ).toString(), accels, w );
-	    } else if ( o->inherits( "MenuBarEditor" ) ) {
+	    } else if ( ::qt_cast<MenuBarEditor>(o) ) {
 		((MenuBarEditor *)o)->checkAccels( accels );
 	    }
 	}
@@ -2121,7 +2117,7 @@ void FormWindow::breakLayout( QWidget *w )
 	    Command *cmd = breakLayoutCommand( w );
 	    if ( cmd )
 		commands.insert( 0, cmd );
-	    if ( !w->inherits( "QLayoutWidget" ) && !w->inherits( "QSplitter" ) )
+	    if ( !::qt_cast<QLayoutWidget>(w) && !::qt_cast<QSplitter>(w) )
 		break;
 	}
 	w = w->parentWidget();
@@ -2384,23 +2380,9 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		}
 	    }
 	}
-	if ( mainContainer()->inherits( "QMainWindow" ) ) {
+	if ( ::qt_cast<QMainWindow>(mainContainer()) ) {
 	    if ( !found ) {
 		QObjectList *l = mainContainer()->queryList( "QDockWindow", 0, TRUE );
-		for ( QObject *o = l->first(); o; o = l->next() ) {
-		    if ( o != w &&
-			 qstrcmp( o->name(), s.latin1() ) == 0 ) {
-			found = TRUE;
-			if ( !changeIt )
-			    break;
-			s = orig + "_" + QString::number( ++num );
-			o = l->first();
-		    }
-		}
-		delete l;
-	    }
-	    if ( !found ) {
-		QObjectList *l = mainContainer()->queryList( "QDesignerPopupMenu", 0, TRUE );
 		for ( QObject *o = l->first(); o; o = l->next() ) {
 		    if ( o != w &&
 			 qstrcmp( o->name(), s.latin1() ) == 0 ) {
@@ -2522,9 +2504,8 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
     }
 
     for ( ; it.current(); ++it ) {
-	if ( it.current()->inherits( "QLayoutWidget" ) )
-	    continue;
-	if ( it.current()->inherits( "QSplitter" ) )
+	if ( ::qt_cast<QLayoutWidget>(it.current())
+	  || ::qt_cast<QSplitter>(it.current()) )
 	    continue;
 	if ( !it.current()->isVisibleTo( this ) )
 	    continue;
@@ -2681,7 +2662,7 @@ DesignerFormWindow *FormWindow::iFace()
 
 bool FormWindow::isCentralWidget( QObject *w ) const
 {
-    if ( !mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(mainContainer()) )
 	return FALSE;
     return w == ( (QMainWindow*)mainContainer() )->centralWidget();
 }

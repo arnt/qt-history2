@@ -50,6 +50,7 @@
 #include <qtextedit.h>
 #include <qptrstack.h>
 #include <qheader.h>
+#include <qsplitter.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
 #endif
@@ -484,7 +485,7 @@ bool SetPropertyCommand::canMerge( Command *c )
     if ( !p ) {
 	if ( propName == "toolTip" || propName == "whatsThis" )
 	    return TRUE;
-	if ( widget->inherits( "CustomWidget" ) ) {
+	if ( ::qt_cast<CustomWidget>(widget) ) {
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget*)(QObject*)widget)->customWidget();
 	    if ( !cw )
 		return FALSE;
@@ -535,7 +536,7 @@ bool SetPropertyCommand::checkProperty()
 	    return FALSE;
 	}
 
-	if ( widget->parent() && widget->parent()->inherits( "FormWindow" ) )
+	if ( ::qt_cast<FormWindow>(widget->parent()) )
 	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)((QWidget*)(QObject*)widget)->parentWidget() );
     }
     return TRUE;
@@ -584,7 +585,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    MetaDataBase::setResizeMode( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), currentItemText );
 	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" || propName == "frameworkCode" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
-	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
+	} else if ( ::qt_cast<CustomWidget>(editor->widget()) ) {
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget *)(QObject *)widget)->customWidget();
 	    if ( cw ) {
 		MetaDataBase::setFakeProperty( editor->widget(), propName, v );
@@ -632,15 +633,11 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    if ( formWindow()->isMainContainer( widget ) )
 		formWindow()->setName( v.toCString() );
 	}
-	if ( propName == "name" && widget->inherits( "QAction" ) &&
-	     formWindow()->mainContainer() &&
-	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
-	    formWindow()->mainWindow()->actioneditor()->updateActionName( ((QAction*)(QObject *)widget) );
+	if ( propName == "name" && ::qt_cast<QAction>(widget) && ::qt_cast<QMainWindow>(formWindow()->mainContainer()) ) {
+	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)(QObject *)widget );
 	}
-	if ( propName == "iconSet" && widget->inherits( "QAction" ) &&
-	     formWindow()->mainContainer() &&
-	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
-	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( ((QAction*)(QObject *)widget) );
+	if ( propName == "iconSet" && ::qt_cast<QAction>(widget) && ::qt_cast<QMainWindow>(formWindow()->mainContainer()) ) {
+	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( (QAction*)(QObject *)widget );
 	}
 	if ( propName == "caption" ) {
 	    if ( formWindow()->isMainContainer( widget ) )
@@ -786,9 +783,9 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     margin = MetaDataBase::margin( layoutBase );
     layout = 0;
     if ( lay == WidgetFactory::HBox )
-	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, layoutBase->inherits( "QSplitter" ) );
+	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter>(layoutBase) );
     else if ( lay == WidgetFactory::VBox )
-	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, layoutBase->inherits( "QSplitter" ) );
+	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter>(layoutBase) );
     else if ( lay == WidgetFactory::Grid )
 	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( QMAX( 5, fw->grid().x()), QMAX( 5, fw->grid().y()) ), FALSE );
 }
@@ -1774,27 +1771,24 @@ void AddActionToToolBarCommand::execute()
 {
     action->addTo( toolBar );
 
-    if ( action->inherits( "QDesignerAction" ) ) {
+    if ( ::qt_cast<QDesignerAction>(action) ) {
 	QString s = ( (QDesignerAction*)action )->widget()->name();
 	if ( s.startsWith( "qt_dead_widget_" ) ) {
 	    s.remove( 0, QString( "qt_dead_widget_" ).length() );
 	    ( (QDesignerAction*)action )->widget()->setName( s );
 	}
-    }
-
-    if ( action->inherits( "QDesignerAction" ) ) {
 	toolBar->insertAction( ( (QDesignerAction*)action )->widget(), action );
 	( (QDesignerAction*)action )->widget()->installEventFilter( toolBar );
-    } else if ( action->inherits( "QDesignerActionGroup" ) ) {
+    } else if ( ::qt_cast<QDesignerActionGroup>(action) ) {
 	if ( ( (QDesignerActionGroup*)action )->usesDropDown() ) {
 	    toolBar->insertAction( ( (QDesignerActionGroup*)action )->widget(), action );
 	    ( (QDesignerActionGroup*)action )->widget()->installEventFilter( toolBar );
 	}
-    } else if ( action->inherits( "QSeparatorAction" ) ) {
+    } else if ( ::qt_cast<QSeparatorAction>(action) ) {
 	toolBar->insertAction( ( (QSeparatorAction*)action )->widget(), action );
 	( (QSeparatorAction*)action )->widget()->installEventFilter( toolBar );
     }
-    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
+    if ( !::qt_cast<QActionGroup>(action) || ( (QActionGroup*)action )->usesDropDown()) {
 	if ( index == -1 )
 	    toolBar->appendAction( action );
 	else
@@ -1808,10 +1802,10 @@ void AddActionToToolBarCommand::execute()
 	    while ( it.current() ) {
 		QObject *o = it.current();
 		++it;
-		if ( !o->inherits( "QAction" ) )
+		if ( !::qt_cast<QAction>(o) )
 		    continue;
 		// ### fix it for nested actiongroups
-		if ( o->inherits( "QDesignerAction" ) ) {
+		if ( ::qt_cast<QDesignerAction>(o) ) {
 		    QDesignerAction *ac = (QDesignerAction*)o;
 		    toolBar->insertAction( ac->widget(), ac );
 		    ac->widget()->installEventFilter( toolBar );
@@ -1831,7 +1825,7 @@ void AddActionToToolBarCommand::execute()
 
 void AddActionToToolBarCommand::unexecute()
 {
-    if ( action->inherits( "QDesignerAction" ) ) {
+    if ( ::qt_cast<QDesignerAction>(action) ) {
 	QString s = ( (QDesignerAction*)action )->widget()->name();
 	s.prepend( "qt_dead_widget_" );
 	( (QDesignerAction*)action )->widget()->setName( s );
@@ -1840,7 +1834,7 @@ void AddActionToToolBarCommand::unexecute()
     toolBar->removeAction( action );
     action->removeFrom( toolBar );
     QObject::disconnect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
-    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
+    if ( !::qt_cast<QActionGroup>(action) || ( (QActionGroup*)action )->usesDropDown()) {
 	action->removeEventFilter( toolBar );
     } else {
 	if ( action->children() ) {
@@ -1848,9 +1842,9 @@ void AddActionToToolBarCommand::unexecute()
 	    while ( it.current() ) {
 		QObject *o = it.current();
 		++it;
-		if ( !o->inherits( "QAction" ) )
+		if ( !::qt_cast<QAction>(o) )
 		    continue;
-		if ( o->inherits( "QDesignerAction" ) ) {
+		if ( ::qt_cast<QDesignerAction>(o) ) {
 		    o->removeEventFilter( toolBar );
 		    toolBar->removeAction( (QAction*)o );
 		}
@@ -2116,12 +2110,12 @@ QString RenameActionCommand::mangle( QString name )
 {
     QString s;
     QWidget * e = menu->parentEditor();
-    if ( e->inherits( "PopupMenuEditor" ) ) {
+    if ( ::qt_cast<PopupMenuEditor>(e) ) {
 	PopupMenuEditor * p = ( PopupMenuEditor * ) e;
 	int idx = p->find( menu );
 	PopupMenuEditorItem * i = ( idx > -1 ? p->at( idx ) : 0 );
 	s = ( i ? QString( i->anyAction()->name() ).remove( "Action" ) : QString( "" ) );
-    } else if ( e->inherits( "MenuBarEditor" ) ) {
+    } else if ( ::qt_cast<MenuBarEditor>(e) ) {
 	MenuBarEditor * b = ( MenuBarEditor * ) e;
 	int idx = b->findItem( menu );
 	MenuBarEditorItem * i = ( idx > -1 ? b->item( idx ) : 0 );

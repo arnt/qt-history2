@@ -1497,7 +1497,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
         {
 	    singleton->mousePressed = FALSE;
 
-            if (! object->inherits("QSlider"))
+            if (!::qt_cast<QSlider>(object))
 		break;
 
 	    singleton->sliderActive = FALSE;

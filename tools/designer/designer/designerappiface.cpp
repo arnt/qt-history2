@@ -189,9 +189,9 @@ QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
     QPtrListIterator<QObject> it( *forms );
     while ( it.current() ) {
 	QObject *obj = it.current();
-	QWidget *par = 0;
 	++it;
-	if ( !obj->isWidgetType() || !( par = ((QWidget*)obj)->parentWidget() ) || !par->inherits( "FormWindow" ) )
+	QWidget *par = ::qt_cast<FormWindow>(obj->parent());
+	if ( !obj->isWidgetType() || !par )
 	    continue;
 
 	list.append( ((FormWindow*)par)->iFace() );
@@ -956,7 +956,7 @@ void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char
 
 void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
 
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
@@ -975,7 +975,7 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 
 void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     if ( !mw->child( 0, "MenuBarEditor" ) )
@@ -988,7 +988,7 @@ void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
 
 void DesignerFormWindowImpl::addMenuSeparator( const QString &menu )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     if ( !mw->child( 0, "MenuBarEditor" ) )
@@ -1002,7 +1002,7 @@ void DesignerFormWindowImpl::addMenuSeparator( const QString &menu )
 
 void DesignerFormWindowImpl::addToolBar( const QString &text, const QString &name )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     QToolBar *tb = new QDesignerToolBar( mw );
@@ -1014,7 +1014,7 @@ void DesignerFormWindowImpl::addToolBar( const QString &text, const QString &nam
 
 void DesignerFormWindowImpl::addToolBarAction( const QString &tbn, QAction *a )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     QDesignerToolBar *tb = (QDesignerToolBar*)mw->child( tbn, "QDesignerToolBar" );
@@ -1026,7 +1026,7 @@ void DesignerFormWindowImpl::addToolBarAction( const QString &tbn, QAction *a )
 
 void DesignerFormWindowImpl::addToolBarSeparator( const QString &tbn )
 {
-    if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
+    if ( !::qt_cast<QMainWindow>(formWindow->mainContainer()) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     QDesignerToolBar *tb = (QDesignerToolBar*)mw->child( tbn, "QDesignerToolBar" );

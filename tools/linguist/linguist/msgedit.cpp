@@ -40,7 +40,7 @@
 #include <qclipboard.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qmultilineedit.h>
+#include <qtextedit.h>
 #include <qpalette.h>
 #include <qpushbutton.h>
 #include <qstring.h>
@@ -59,13 +59,12 @@
 
 static const int MaxCandidates = 5;
 
-class MED : public QMultiLineEdit
+class MED : public QTextEdit
 {
 public:
     MED( QWidget *parent, const char *name = 0 )
-	: QMultiLineEdit( parent, name ) {}
+	: QTextEdit( parent, name ) {}
 
-    void del() { QMultiLineEdit::del(); }
     int cursorX() const { return textCursor()->x(); }
     int cursorY() const { return textCursor()->paragraph()->rect().y() +
 			         textCursor()->y(); }
@@ -539,56 +538,67 @@ void MessageEditor::toggleFinished()
     emit finished( itemFinished );
 }
 
-bool MessageEditor::eventFilter( QObject * o, QEvent * e )
+bool MessageEditor::eventFilter( QObject *o, QEvent *e )
 {
     static uchar doFocusChange = FALSE;
 
     // Handle keypresses in the message editor - scroll the view if the current
     // line is hidden.
-    if ( o->inherits("QMultiLineEdit") ) {
-	MED * ed = (MED *) o;
-	QKeyEvent * ke;
-	int k;
-	if ( e->type() == QEvent::KeyPress ) {
-	    ke = (QKeyEvent *) e;
-	    k  = ke->key();
-	    // Hardcode the Tab key to do focus changes when pressed
-	    // inside the editor
-	    if ( k == Key_BackTab && doFocusChange ) {
-		emit focusSourceList();
-		doFocusChange = FALSE;
-		return TRUE;
-	    } else if ( k == Key_Tab && doFocusChange ) {
-		emit focusPhraseList();
-		doFocusChange = FALSE;
-		return TRUE;
-	    }
-	} else if ( e->type() == QEvent::KeyRelease ) {
-	    ke = (QKeyEvent *) e;
-	    k  = ke->key();
+    if ( e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease ) {
+	QKeyEvent * ke = (QKeyEvent*)e;
+	const int k = ke->key();
 
-	    if ( (k == Key_Up) && (ed->cursorY() < 10) )
-		sv->verticalScrollBar()->subtractLine();
-	    else if ( (k == Key_Down) && (ed->cursorY() >= ed->height() - 20) )
-		sv->verticalScrollBar()->addLine();
-	    else if ( (k == Key_PageUp) && (ed->cursorY() < 10) )
-		sv->verticalScrollBar()->subtractPage();
-	    else if ( (k == Key_PageDown) && (ed->cursorY() >=
-					      (ed->height() - 50)) )
-		sv->verticalScrollBar()->addPage();
-	    else
-		sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
-				   sw->margin() + ed->y() + ed->cursorY() );
+	if ( ::qt_cast<QTextEdit>(o) ) {
+	    if ( e->type() == QEvent::KeyPress ) {
+		// Hardcode the Tab key to do focus changes when pressed
+		// inside the editor
+		if ( doFocusChange ) {
+		    if ( k == Key_BackTab ) {
+			emit focusSourceList();
+			doFocusChange = FALSE;
+			return TRUE;
+		    } else if ( k == Key_Tab ) {
+			emit focusPhraseList();
+			doFocusChange = FALSE;
+			return TRUE;
+		    }
+		}
+	    } else if ( e->type() == QEvent::KeyRelease ) {
+		MED * ed = (MED *) o;
+		switch( k ) {
+		case Key_Up:
+		    if (ed->cursorY() < 10)
+			sv->verticalScrollBar()->subtractLine();
+		    break;
+
+		case Key_Down:
+		    if (ed->cursorY() >= ed->height() - 20)
+			sv->verticalScrollBar()->addLine();
+		    break;
+
+		case Key_PageUp:
+		    if (ed->cursorY() < 10)
+			sv->verticalScrollBar()->subtractPage();
+		    break;
+
+		case Key_PageDown:
+		    if (ed->cursorY() >= ed->height() - 50)
+			sv->verticalScrollBar()->addPage();
+		    break;
+		default:
+		    sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
+				       sw->margin() + ed->y() + ed->cursorY() );
+		    break;
+		}
+	    }
+	    doFocusChange = TRUE;
+	} else if ( ::qt_cast<QListView>(o) ) {
+	    // handle the ESC key in the list views
+	    if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
+		editorPage->translationMed->setFocus();
 	}
-	doFocusChange = TRUE;
     }
-    if ( o->inherits("QListView") ) {
-	// handle the ESC key in the list views
-	if ( e->type() == QEvent::KeyRelease &&
-	     ((QKeyEvent *) e)->key() == Key_Escape )
-	    editorPage->translationMed->setFocus();
-    }
-    return FALSE;
+    return QWidget::eventFilter( o, e );
 }
 
 void MessageEditor::updatePageHeight( int height )

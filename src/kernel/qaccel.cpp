@@ -46,6 +46,7 @@
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
 #include "qstatusbar.h"
+#include "qdockwindow.h"
 #include "qsignalslotimp.h"
 /*!
     \class QAccel qaccel.h
@@ -219,7 +220,7 @@ bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
-    if ( tlw->isDialog() && tlw->parentWidget() && tlw->inherits( "QDockWindow" ) )
+    if ( tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow>(tlw) )
 	return tlw->parentWidget()->topLevelWidget() == wtlw;
 
     if ( wtlw  != tlw )

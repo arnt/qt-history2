@@ -57,6 +57,7 @@
 #include "qevent.h"
 #include "qlistbox.h"
 #include "qstyle.h"
+#include "qdatatable.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -781,7 +782,6 @@ void QTableItem::setContentFromEditor( QWidget *w )
  */
 void QTableItem::setAlignment( int alignment )
 {
-
 }
 
 /*!
@@ -1317,8 +1317,9 @@ int QComboTableItem::currentItem() const
 QString QComboTableItem::currentText() const
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    if ( w && w->inherits( "QComboBox" ) )
-	return ( (QComboBox*)w )->currentText();
+    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    if ( cb )
+	return cb->currentText();
     return *entries.at( current );
 }
 
@@ -3451,7 +3452,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 void QTable::selectRow( int row )
 {
     row = QMIN(numRows()-1, row);
-    if ( inherits("QDataTable") || selectionMode() == SingleRow ) {
+    if ( ::qt_cast<QDataTable>(this) || selectionMode() == SingleRow ) {
 	setCurrentCell( row, currentColumn() );
     } else {
 	QTableSelection sel( row, 0, row, numCols() - 1 );

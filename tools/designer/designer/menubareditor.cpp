@@ -776,8 +776,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 void MenuBarEditor::focusOutEvent( QFocusEvent * e )
 {
     QWidget * fw = qApp->focusWidget();
-    if ( e->lostFocus() &&
-	 ( !fw || !fw->inherits( "PopupMenuEditor" ) ) )
+    if ( e->lostFocus() && !::qt_cast<PopupMenuEditor>(fw) )
 	hideItem();
     update();
 }

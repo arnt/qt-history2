@@ -41,6 +41,7 @@
 #include "mainwindow.h"
 #include "project.h"
 #include "hierarchyview.h"
+#include "database.h"
 
 #include <qpainter.h>
 #include <qpalette.h>
@@ -2990,14 +2991,11 @@ static QVariant::Type type_to_variant( const QString &s )
 }
 
 #ifndef QT_NO_SQL
-static bool parent_is_data_aware( QObject *o )
+static bool parent_is_data_aware( QWidget *w )
 {
-    if ( !o->inherits( "QWidget" ) )
-	return FALSE;
-    QWidget *w = (QWidget*)o;
-    QWidget *p = w->parentWidget();
+    QWidget *p = w ? w->parentWidget() : 0;
     while ( p && !p->isTopLevel() ) {
-	if ( p->inherits( "QDesignerDataBrowser" ) || p->inherits( "QDesignerDataView" ) )
+	if ( qt_cast<QDesignerDataBrowser>(p) || qt_cast<QDesignerDataView>(p) )
 	    return TRUE;
 	p = p->parentWidget();
     }
@@ -3255,7 +3253,7 @@ void PropertyList::setupProperties()
 
 #ifndef QT_NO_SQL
     if ( !editor->widget()->inherits( "QDataTable" ) && !editor->widget()->inherits( "QDataBrowser" ) &&
-	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( editor->widget() ) ) {
+	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( ::qt_cast<QWidget>(editor->widget()) ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )

@@ -36,6 +36,7 @@
 #include <qbitmap.h>
 #include <qsplitter.h>
 #include <qvaluevector.h>
+#include <qmainwindow.h>
 
 bool operator<( const QGuardedPtr<QWidget> &p1, const QGuardedPtr<QWidget> &p2 )
 {
@@ -166,7 +167,7 @@ bool Layout::prepareLayout( bool &needMove, bool &needReparent )
     for ( QWidget *w = widgets.first(); w; w = widgets.next() )
 	w->raise();
     needMove = !layoutBase;
-    needReparent = needMove || layoutBase->inherits( "QLayoutWidget" ) || layoutBase->inherits( "QSplitter" );
+    needReparent = needMove || ::qt_cast<QLayoutWidget>(layoutBase) || ::qt_cast<QSplitter>(layoutBase);
     if ( !layoutBase ) {
 	if ( !useSplitter )
 	    layoutBase = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLayoutWidget" ),
@@ -215,7 +216,7 @@ void Layout::undoLayout()
     }
     formWindow->selectWidget( layoutBase, FALSE );
     WidgetFactory::deleteLayout( layoutBase );
-    if ( parent != layoutBase && !layoutBase->inherits( "QMainWindow" ) ) {
+    if ( parent != layoutBase && !::qt_cast<QMainWindow>(layoutBase) ) {
 	layoutBase->hide();
 	QString n = layoutBase->name();
 	n.prepend( "qt_dead_widget_" );
@@ -320,13 +321,13 @@ void HorizontalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
-	    if ( w->inherits( "QLayoutWidget" ) )
+	    if ( ::qt_cast<QLayoutWidget>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
 
-    if ( layoutBase->inherits( "QSplitter" ) )
+    if ( ::qt_cast<QSplitter>(layoutBase) )
 	( (QSplitter*)layoutBase )->setOrientation( Qt::Horizontal );
 
     finishLayout( needMove, layout );
@@ -384,13 +385,13 @@ void VerticalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
-	    if ( w->inherits( "QLayoutWidget" ) )
+	    if ( ::qt_cast<QLayoutWidget>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
 
-    if ( layoutBase->inherits( "QSplitter" ) )
+    if ( ::qt_cast<QSplitter>(layoutBase) )
 	( (QSplitter*)layoutBase )->setOrientation( Qt::Vertical );
 
     finishLayout( needMove, layout );
@@ -758,11 +759,11 @@ void GridLayout::doLayout()
 	    if ( needReparent && w->parent() != layoutBase )
 		w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	    if ( rs * cs == 1 ) {
-		layout->addWidget( w, r, c, w->inherits( "Spacer" ) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addWidget( w, r, c, ::qt_cast<Spacer>(w) ? ( (Spacer*)w )->alignment() : 0 );
 	    } else {
-		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, w->inherits( "Spacer" ) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, ::qt_cast<Spacer>(w) ? ( (Spacer*)w )->alignment() : 0 );
 	    }
-	    if ( w->inherits( "QLayoutWidget" ) )
+	    if ( ::qt_cast<QLayoutWidget>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	    w->show();
 	} else {

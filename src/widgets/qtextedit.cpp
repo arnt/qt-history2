@@ -65,6 +65,7 @@
 #include "qpopupmenu.h"
 #include "qptrstack.h"
 #include "qmetaobject.h"
+#include "qtextbrowser.h"
 #include <private/qucom_p.h>
 
 #ifndef QT_NO_ACCEL
@@ -2386,7 +2387,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	    QUrl u( doc->context(), onLink, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
 	}
-	if (inherits("QTextBrowser")) { // change for 4.0
+	if (::qt_cast<QTextBrowser>(this)) { // change for 4.0
 	    QConnectionList *clist = receivers(
 			"anchorClicked(const QString&,const QString&)");
 	    if (!signalsBlocked() && clist) {
@@ -4641,7 +4642,7 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 		emitLinkClicked( u.toString( FALSE, FALSE ) );
 	    }
 	    if (!doc->focusIndicator.name.isEmpty()) {
-		if (inherits("QTextBrowser")) { // change for 4.0
+		if (::qt_cast<QTextBrowser>(this)) { // change for 4.0
 		    QConnectionList *clist = receivers(
 			    "anchorClicked(const QString&,const QString&)");
 		    if (!signalsBlocked() && clist) {
