@@ -313,7 +313,7 @@ private:
 	f_canCast canCast;
     };
     static const Handler *handler;
-    friend QApplicationPrivate;
+    friend class QApplicationPrivate;
 
 
     Private *create(Type t, const void *v);
