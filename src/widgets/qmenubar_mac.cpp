@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QMenuBar class
+** Implementation of QMenuBar class for mac
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
