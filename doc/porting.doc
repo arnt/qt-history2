@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.46 1999/05/03 11:32:14 aavit Exp $
+** $Id: porting.doc,v 1.47 1999/05/05 11:11:28 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -810,6 +810,16 @@ in the handling function instead. You may alternatively pass
 \code QMenuData::count()\endcode
 as identifier when you insert the items.
 
+Furthermore, QPopupMenus can (and should!) be created with a parent
+widget now, for example the main window that is used to display the
+popup. This way, the popup will automatically be destroyed together
+with its main window. Otherwise you'll have to take care of the
+ownership manually.
+
+Last not least QPopupMenus are reusable in 2.0. They may occur on
+different locations within one menubar structure or be used both
+inside a menubar and as context menu. This should make it possible to
+simplify many applications significantely.
 
 <h3><a name=QValidator>QValidator (QLineEdit, QComboBox, QSpinBox) </a></h3>
 
