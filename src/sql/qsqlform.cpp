@@ -1,4 +1,5 @@
 #include "qobjcoll.h"
+#include "qsqldatabase.h"
 #include "qsqlfield.h"
 #include "qsqlform.h"
 #include "qsqlview.h"
