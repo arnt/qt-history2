@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#203 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#204 $
 **
 ** Definition of QWidget class
 **
@@ -360,8 +360,6 @@ protected:
     QWExtra	*extraData();
 
     QFocusData	*focusData();
-
-    void	repaintResizedBorder( QResizeEvent*, int bw );
 
     void	setSizeGrip(bool);
     void	setKeyCompression(bool);

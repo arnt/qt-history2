@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#131 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1000,8 +1000,6 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
 	QRect r( frect.x(), frect.y(), width(), height() );
 	setFrameRect( r );
     }
-
-    repaintResizedBorder( e, frameWidth() );
 
     if ( e->oldSize().height() == height() ) {
 	update( rightSide, 0, width(), height()-frameWidth()*2 );

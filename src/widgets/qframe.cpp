@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#76 $
 **
 ** Implementation of QFrame widget class
 **
@@ -108,7 +108,7 @@
 
 QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 		bool allowLines )
-    : QWidget( parent, name, f|WResizeNoErase )
+    : QWidget( parent, name, f )
 {
     frect  = QRect( 0, 0, 0, 0 );
     fstyle = NoFrame;
@@ -502,12 +502,8 @@ void QFrame::resizeEvent( QResizeEvent *e )
 	setFrameRect( r );
     }
 
-    // Since we use WResizeNoErase, we repaint the relevant parts:
-    repaintResizedBorder( e, frameWidth() );
-
     if ( autoMask())
 	updateMask();
-    repaint( contentsRect() );
 }
 
 

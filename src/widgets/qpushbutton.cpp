@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#132 $
 **
 ** Implementation of QPushButton class
 **
@@ -58,7 +58,7 @@
 */
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name )
 {
     init();
 }
@@ -71,7 +71,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
 			  const char *name )
-	: QButton( parent, name, WResizeNoErase )
+	: QButton( parent, name )
 {
     init();
     setText( text );
@@ -291,8 +291,6 @@ void QPushButton::setGeometry( const QRect &r )
 
 void QPushButton::resizeEvent( QResizeEvent *e )
 {
-    repaintResizedBorder( e, 2 );
-    repaint( 2, 2, width()-4, height()-4 );
     if ( autoMask())
 	updateMask();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#340 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#341 $
 **
 ** Implementation of QWidget class
 **
@@ -3843,33 +3843,6 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 void QWidget::setPalettePropagation( PropagationMode m )
 {
     propagatePalette = (int)m;
-}
-
-
-/*!
-  Repaints (using repaint()) pixels to a width of \a bw around
-  the margin of the widget that the resize event
-  \a e would have damaged.
-  Particularly useful in resizeEvent() when using WResizeNoErase.
-*/
-void QWidget::repaintResizedBorder( QResizeEvent* e, int bw )
-{
-    bool samew = e->oldSize().width() == e->size().width();
-    bool sameh = e->oldSize().height() == e->size().height();
-    {
-	QRect r(QPoint(0,0),e->oldSize());
-	if ( !samew )
-	    repaint( r.width()-bw,0,bw,height() );
-	if ( !sameh )
-	    repaint( 0, r.height()-bw,width(),bw );
-    }
-    {
-	QRect r(QPoint(0,0),e->size());
-	if ( !samew )
-	    repaint( r.width()-bw,0,bw,height() );
-	if ( !sameh )
-	    repaint( 0, r.height()-bw,width(),bw );
-    }
 }
 
 /*!
