@@ -239,10 +239,16 @@ MainWindow::MainWindow( bool asClient )
 
 MainWindow::~MainWindow()
 {
+    delete oWindow;
+    oWindow = 0;
+
     desInterface->release();
-//     delete actionPluginManager;
-//     delete editorPluginManager;
-//     delete templateWizardPluginManager;
+    desInterface = 0;
+
+    delete actionPluginManager;
+    delete programPluginManager;
+    delete templateWizardPluginManager;
+    delete editorPluginManager;
 }
 
 void MainWindow::setupMDI()
