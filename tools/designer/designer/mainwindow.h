@@ -170,8 +170,6 @@ public:
     void popupProjectMenu( const QPoint &pos );
     QObject *findRealObject( QObject *o );
 
-    void addScriptObject( QObject *obj );
-
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -300,7 +298,6 @@ private:
     void setupPreviewActions();
     void setupHelpActions();
     void setupRMBMenus();
-    void setupScriptActions();
 
     void setupPropertyEditor();
     void setupHierarchyView();

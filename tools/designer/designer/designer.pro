@@ -31,7 +31,7 @@ table {
 	FORMS += tableeditor.ui
 	}
 
-FORMS	+= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui scriptmanager.ui
+FORMS	+= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
 INCLUDEPATH	+= ../shared ../uilib ../../../src/3rdparty/zlib/
@@ -57,6 +57,3 @@ isEmpty(templates.path):templates.path=$$QT_PREFIX/tools/designer/templates
 templates.files = ../templates/*
 INSTALLS += templates
 
-#### Uncomment the two lines below to enable application scripting in Qt Designer
-#DEFINES += APP_SCRIPTING
-#LIBS += -lqfa

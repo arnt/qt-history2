@@ -83,9 +83,6 @@
 #include <qaccel.h>
 #include <qtooltip.h>
 #include <stdlib.h>
-#if defined(APP_SCRIPTING)
-#include "../../../../quick/src/qfa/qfa.h"
-#endif
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
@@ -186,7 +183,6 @@ MainWindow::MainWindow( bool asClient )
     setupToolActions();
     setupLayoutActions();
     setupPreviewActions();
-    setupScriptActions();
     setupOutputWindow();
     setupActionManager();
     setupWindowActions();
@@ -3350,16 +3346,5 @@ QString MainWindow::whatsThisFrom( const QString &key )
     start = menuHelpFile.findRev( "<li>", i ) + 4;
     end = menuHelpFile.find( '\n', i ) - 1;
     return menuHelpFile.mid( start, end - start + 1 );
-}
-
-void MainWindow::addScriptObject( QObject *obj )
-{
-#if defined(APP_SCRIPTING)
-    QuickEngine e;
-    e.addObject( obj );
-#else
-    Q_UNUSED( obj )
-#endif
-
 }
 

@@ -767,21 +767,6 @@ void MainWindow::setupPreviewActions()
     }
 }
 
-void MainWindow::setupScriptActions()
-{
-#if defined(APP_SCRIPTING)
-    QAction* a = 0;
-    QPopupMenu *menu = new QPopupMenu( this, "Scripts" );
-    menubar->insertItem( tr( "&Scripts" ), menu );
-
-    a = new QAction( tr( "Manage" ), tr( "&Manage..." ), 0, this, 0 );
-    a->setStatusTip( tr("Manages Application Scripts") );
-    a->setWhatsThis( whatsThisFrom( "Scripts|Manage" ) );
-    connect( a, SIGNAL( activated() ), this, SLOT( scriptsManage() ) );
-    a->addTo( menu );
-#endif
-}
-
 void MainWindow::setupWindowActions()
 {
     static bool windowActionsSetup = FALSE;
