@@ -450,7 +450,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 #endif // Q_WS_QWS
 
 /*!
-  Destructs the image and cleans up.
+  Destroys the image and cleans up.
 */
 
 QImage::~QImage()
@@ -3511,7 +3511,7 @@ void QImageIO::init()
 }
 
 /*!
-  Destructs the object and all related data.
+  Destroys the object and all related data.
 */
 
 QImageIO::~QImageIO()

@@ -130,7 +130,7 @@ QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter( QJpUnicodeConv::
 }
 
 /*!
-  Destructs the codec.
+  Destroys the codec.
 */
 QEucJpCodec::~QEucJpCodec()
 {

@@ -255,7 +255,7 @@ QTextCodec::QTextCodec()
 
 
 /*!
-  Destructs the QTextCodec.  Note that you should not delete
+  Destroys the QTextCodec.  Note that you should not delete
   codecs yourself - once created they become the responsibility
   of Qt to delete.
 */
@@ -956,7 +956,7 @@ bool QTextCodec::canEncode( const QString& s ) const
 */
 
 /*!
-  Destructs the encoder.
+  Destroys the encoder.
 */
 QTextEncoder::~QTextEncoder()
 {
@@ -986,7 +986,7 @@ QTextEncoder::~QTextEncoder()
 
 
 /*!
-  Destructs the decoder.
+  Destroys the decoder.
 */
 QTextDecoder::~QTextDecoder()
 {

@@ -153,7 +153,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
 }
 
 /*!
-  Destructs the QDialog, deleting all its children.
+  Destroys the QDialog, deleting all its children.
 */
 
 QDialog::~QDialog()

@@ -400,7 +400,7 @@ QFont::QFont( const QFont &font )
     d->ref();
 }
 
-/*! Destructs the font object and frees all allocated resources.
+/*! Destroys the font object and frees all allocated resources.
 */
 QFont::~QFont()
 {
@@ -1671,7 +1671,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 }
 
 
-/*! Destructs the font metrics object and frees all allocated resources.
+/*! Destroys the font metrics object and frees all allocated resources.
 */
 QFontMetrics::~QFontMetrics()
 {
@@ -1997,7 +1997,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 }
 
 
-/*! Destructs the font info object.
+/*! Destroys the font info object.
 */
 QFontInfo::~QFontInfo()
 {

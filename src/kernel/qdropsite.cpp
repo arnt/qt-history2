@@ -68,7 +68,7 @@ QDropSite::QDropSite( QWidget* self )
 }
 
 /*!
-  Destructs the drop site.
+  Destroys the drop site.
 */
 QDropSite::~QDropSite()
 {

@@ -1587,7 +1587,7 @@ QCustomEvent::QCustomEvent( int type )
 
 
 /*!
-  Destructs the event.  If it was \link
+  Destroys the event.  If it was \link
   QApplication::postEvent() posted \endlink,
   it will be removed from the list of events to be posted.
 

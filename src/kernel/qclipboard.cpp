@@ -114,7 +114,7 @@ QClipboard::QClipboard( QObject *parent, const char *name )
 }
 
 /*!
-  Destructs the clipboard.
+  Destroys the clipboard.
 
   You should never delete the clipboard. QApplication will do this when
   the application terminates.

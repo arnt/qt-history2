@@ -281,7 +281,7 @@ QIconSet::QIconSet( const QPixmap &smallPix, const QPixmap &largePix )
 }
 
 /*!
-  Destructs the icon set and frees any allocated resources.
+  Destroys the icon set and frees any allocated resources.
 */
 QIconSet::~QIconSet()
 {

@@ -477,10 +477,10 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 */
 
 /*!
-  Destructs the object.
+  Destroys the object.
 
   \internal
-  More importantly, destructs derived classes.
+  More importantly, destroys derived classes.
 */
 QImageFormat::~QImageFormat()
 {
@@ -608,7 +608,7 @@ QGIFFormat::QGIFFormat()
 }
 
 /*!
-  Destructs a QGIFFormat.
+  Destroys a QGIFFormat.
 */
 QGIFFormat::~QGIFFormat()
 {

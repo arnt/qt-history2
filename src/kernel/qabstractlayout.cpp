@@ -161,7 +161,7 @@ void QSpacerItem::changeSize( int w, int h, QSizePolicy::SizeType hData,
 */
 
  /*!
-  Destructs the QLayoutItem.
+  Destroys the QLayoutItem.
 */
 QLayoutItem::~QLayoutItem()
 {
@@ -1136,7 +1136,7 @@ QSize QLayout::totalMaximumSize() const
 
 
 /*!
-  Destructs the layout, deleting all child layouts.
+  Destroys the layout, deleting all child layouts.
   Geometry management stops when a top-level layout is deleted.
   \internal
   The layout classes will probably be fatally confused if you delete

@@ -108,7 +108,7 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 }
 
 /*!
-  Destructs the client's side end of the channel and notifies the server
+  Destroys the client's side end of the channel and notifies the server
   about the closing. The server itself keeps the channel open until the
   last registered client detaches.
 */

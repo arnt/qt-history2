@@ -134,7 +134,7 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
 }
 
 /*!
-  Destructs the direct painter. The mouse cursor is revealed is necessary
+  Destroys the direct painter. The mouse cursor is revealed is necessary
   and the display is unlocked.
 */
 QDirectPainter::~QDirectPainter()

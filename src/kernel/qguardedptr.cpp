@@ -121,7 +121,7 @@
 /*!
   \fn QGuardedPtr::~QGuardedPtr()
 
-  Destructs the guarded pointer.
+  Destroys the guarded pointer.
   Note that the object \e pointed \e to by the pointer
   is \e not destructed, just as is the case with a normal unguarded pointer.
 */

@@ -299,7 +299,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
-/*! Destructs the drag object, canceling any drag-and-drop operation
+/*! Destroys the drag object, canceling any drag-and-drop operation
   in which it is involved, and frees up the storage used. */
 
 QDragObject::~QDragObject()
@@ -592,7 +592,7 @@ QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
 }
 
 
-/*!  Destructs the text drag object and frees up all allocated resources.
+/*!  Destroys the text drag object and frees up all allocated resources.
 */
 QTextDrag::~QTextDrag()
 {
@@ -811,7 +811,7 @@ QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
 }
 
 
-/*!  Destructs the image drag object and frees up all allocated resources.
+/*!  Destroys the image drag object and frees up all allocated resources.
 */
 
 QImageDrag::~QImageDrag()
@@ -999,7 +999,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
 }
 
 /*!
-  Destructs the drag object and frees up all allocated resources.
+  Destroys the drag object and frees up all allocated resources.
 */
 QStoredDrag::~QStoredDrag()
 {
@@ -1085,7 +1085,7 @@ QUriDrag::QUriDrag( QWidget * dragSource, const char * name ) :
 }
 
 /*!
-  Destructs the object.
+  Destroys the object.
 */
 QUriDrag::~QUriDrag()
 {

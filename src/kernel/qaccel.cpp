@@ -230,7 +230,7 @@ QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
 }
 
 /*!
-  Destructs the accelerator object and frees all allocated resources.
+  Destroys the accelerator object and frees all allocated resources.
 */
 
 QAccel::~QAccel()

@@ -265,7 +265,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 
 /*!
   \fn QScreenCursor::~QScreenCursor()
-  Destructs a screen cursor, deleting its gfxes, cursor image and 
+  Destroys a screen cursor, deleting its gfxes, cursor image and 
   under-cursor storage
 */
 
