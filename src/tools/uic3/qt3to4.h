@@ -37,7 +37,7 @@ public:
     QString renameClass(const QString &className) const;
 
 protected:
-    static void readXML(QString fileName = QString(), RuleList *renamedHeaders = 0, RuleList *renamedClasses = 0);
+    static void readXML(RuleList *renamedHeaders = 0, RuleList *renamedClasses = 0);
     static int findRule(const RuleList &rules, const QString &q3);
 
 private:

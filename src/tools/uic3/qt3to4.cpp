@@ -113,48 +113,20 @@ private:
     } m_state;
 };
 
-void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *renamedClasses)
+void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses)
 {
-/*
-    Rules for findng q3porting.xml
-    1. qInstallPathLibs()/qt3to4/
-    2. $QTDIR/tools/porting/src/
-    3. applicationDirPath()../lib/qt3to4/src/
-    4. applicationDirPath()../tools/porting/src/
-*/
-    QString rulesFileName = "q3porting.xml";
-
-    if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/qt3to4/" + fileName);
-        QFile f(fileName);
-        if (!f.exists())
-            fileName=QString();
-    }
+    QString fileName = "q3porting.xml";
+    QString filePath;
+    //check QLibraryInfo::DataPath/filename
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
     
-    if(fileName.isEmpty()) {
-        fileName= QDir::cleanPath(QFile::decodeName(qgetenv("QTDIR")) + "/tools/porting/src/" + rulesFileName);
-        QFile f(fileName);
-        if (!f.exists())
-            fileName=QString();
-    }
+    //check QLibraryInfo::PrefixPath/tools/porting/src/filename
+    if (!QFile::exists(filePath))
+        filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
     
-    QString applicationDirPath = QApplication::instance()->applicationDirPath();
-    if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(applicationDirPath + "/../lib/qt3to4/" + rulesFileName);
-        QFile f(fileName);
-        if (!f.exists())
-            fileName=QString();
-    }
     
-    if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(applicationDirPath + "/../tools/porting/src/" + rulesFileName);
-        QFile f(fileName);
-        if (!f.exists())
-            fileName=QString();
-    }
-    if (fileName.isEmpty()) {
-        std::cout << "Error: Could not find rules file: " << rulesFileName.latin1() << std::endl;
-        std::cout << "Please try setting the QTDIR environment variable" << std::endl;
+    if (!QFile::exists(filePath)) {
+        std::cout << "Error: Could not find rules file: " << fileName.latin1() << std::endl;
         Q_ASSERT(0);
     }
     
@@ -164,7 +136,7 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
 
-    QFile file(fileName);
+    QFile file(filePath);
     file.open(QFile::ReadOnly);
 
     QXmlInputSource source(file);
@@ -180,7 +152,7 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
 
 Porting::Porting()
 {
-    readXML(QString(), &m_renamedHeaders, &m_renamedClasses);
+    readXML(&m_renamedHeaders, &m_renamedClasses);
 }
 
 int Porting::findRule(const RuleList &rules, const QString &q3)
