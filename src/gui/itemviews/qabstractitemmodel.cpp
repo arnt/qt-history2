@@ -1147,8 +1147,8 @@ void QAbstractItemModel::revert()
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == DisplayRole) {
-        if ((orientation == Qt::Horizontal && section < rowCount())
-            || (orientation == Qt::Vertical && section < columnCount()))
+        if ((orientation == Qt::Horizontal && section < columnCount())
+            || (orientation == Qt::Vertical && section < rowCount()))
             return QString::number(section + 1);
     } else if (role == TextAlignmentRole)
         return Qt::AlignVCenter;
