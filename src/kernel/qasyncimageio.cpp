@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#37 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -96,7 +96,9 @@
   \ingroup images
 
   New formats are installed by creating objects of class
-  QImageFormatType.
+  QImageFormatType, and the QMovie class can be used for using
+  all installed incremental image formats; QImageDecoder is only
+  useful for creating new ways of feeding data to an QImageConsumer.
 */
 
 static const int max_header = 32;
