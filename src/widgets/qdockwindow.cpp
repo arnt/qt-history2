@@ -632,7 +632,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     widgetResizeHandler->setMovingEnabled( FALSE );
 
     hbox = new QVBoxLayout( this );
-    hbox->setMargin( 2 );
+    hbox->setMargin( isResizeEnabled() || p == OutsideDock ? 2 : 0 );
     hbox->setSpacing( 1 );
     titleBar = new QDockWindowTitleBar( this );
     horHandle = new QDockWindowHandle( this );
@@ -766,6 +766,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 void QDockWindow::updateGui()
 {
     if ( curPlace == OutsideDock ) {
+	hbox->setMargin( 2 );
  	horHandle->hide();
  	verHandle->hide();
 	if ( moveEnabled )
@@ -781,6 +782,7 @@ void QDockWindow::updateGui()
 	widgetResizeHandler->setActive( isResizeEnabled() );
 	widgetResizeHandler->setExtraHeight( titleBar->height() );
     } else {
+	hbox->setMargin( isResizeEnabled() ? 0 : 2 );
 	titleBar->hide();
 	if ( orientation() == Horizontal ) {
 	    horHandle->hide();
@@ -961,6 +963,7 @@ void QDockWindow::endRectDraw( bool drawRect )
 void QDockWindow::setResizeEnabled( bool b )
 {
     resizeEnabled = b;
+    hbox->setMargin( b ? 0 : 2 );
     updateGui();
 }
 
