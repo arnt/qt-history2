@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#15 $
 **
 ** Implementation of QPicture class
 **
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#15 $";
 #endif
 
 
@@ -37,7 +37,7 @@ bool QPicture::load( const char *fileName )	// read from file
     a.resize( (uint)f.size() );
     f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
-    mfbuf.setBuffer( a );			// set byte array in buffer
+    pictb.setBuffer( a );			// set byte array in buffer
     formatOk = FALSE;				// we'll have to check
     return TRUE;
 }
@@ -47,7 +47,7 @@ bool QPicture::save( const char *fileName )	// write to file
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
 	return FALSE;
-    f.writeBlock( mfbuf.buffer().data(), mfbuf.buffer().size() );
+    f.writeBlock( pictb.buffer().data(), pictb.buffer().size() );
     f.close();
     return TRUE;
 }
@@ -55,12 +55,12 @@ bool QPicture::save( const char *fileName )	// write to file
 
 bool QPicture::play( QPainter *painter )
 {
-    if ( mfbuf.size() == 0 )			// nothing recorded
+    if ( pictb.size() == 0 )			// nothing recorded
 	return FALSE;
 
-    mfbuf.open( IO_ReadOnly );			// open buffer device
+    pictb.open( IO_ReadOnly );			// open buffer device
     QDataStream s;
-    s.setDevice( &mfbuf );			// attach data stream to buffer
+    s.setDevice( &pictb );			// attach data stream to buffer
 
     if ( !formatOk ) {				// first time we read it
 	char mf_id[4];				// picture header tag
@@ -69,14 +69,14 @@ bool QPicture::play( QPainter *painter )
 #if defined(CHECK_RANGE)
 	    warning( "QPicture::play: Incorrect header" );
 #endif
-	    mfbuf.close();
+	    pictb.close();
 	    return FALSE;
 	}
 
 	int cs_start = sizeof(UINT32);		// pos of checksum word
 	int data_start = cs_start + sizeof(UINT16);
 	UINT16 cs,ccs;
-	QByteArray buf = mfbuf.buffer();	// pointer to data
+	QByteArray buf = pictb.buffer();	// pointer to data
 	s >> cs;				// read checksum
 	ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
 	if ( ccs != cs ) {
@@ -85,7 +85,7 @@ bool QPicture::play( QPainter *painter )
 		     ccs, cs );
 #endif
 #if !defined(DEBUG)
-	    mfbuf.close();		// NOTE!!! PASS THROUGH
+	    pictb.close();			// NOTE!!! PASS THROUGH
 	    return FALSE;
 #endif
 	}
@@ -97,7 +97,7 @@ bool QPicture::play( QPainter *painter )
 	    warning( "QPicture::play: Incompatible version %d.%d",
 		     major, minor);
 #endif
-	    mfbuf.close();
+	    pictb.close();
 	    return FALSE;
 	}
 	formatOk = TRUE;			// picture seems to be ok
@@ -117,10 +117,10 @@ bool QPicture::play( QPainter *painter )
 #if defined(CHECK_RANGE)
 	warning( "QPicture::play: Format error" );
 #endif
-	mfbuf.close();
+	pictb.close();
 	return FALSE;
     }    
-    mfbuf.close();
+    pictb.close();
     return TRUE;				// no end-command
 }
 
@@ -130,7 +130,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
     UINT8  c;					// command id
     UINT8  tiny_len;				// 8-bit length descriptor
     INT32  len;					// 32-bit length descriptor
-    INT16  i1_16, i2_16;			// parameters...
+    INT16  i_16, i1_16, i2_16;			// parameters...
     INT8   i_8;
     UINT32 ul;
     long   strm_pos;
@@ -216,7 +216,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		delete str;
 		break;
 	    case PDC_DRAWTEXTFRMT:
-	        debug( "QPicture: DRAWTEXTFRMT not implemented" );
+		s >> r >> i_16 >> str;
+		painter->drawText( r, i_16, str );
+		delete str;
 	        break;
 	    case PDC_DRAWPIXMAP:
 	        debug( "QPicture: DRAWPIXMAP not implemented" );
@@ -264,6 +266,25 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		s >> brush;
 		painter->setBrush( brush );
 		break;
+	    case PDC_SETTABSTOPS:
+		s >> i_16;
+		painter->setTabStops( i_16 );
+		break;
+	    case PDC_SETTABARRAY:
+		s >> i_16;
+		if ( i_16 == 0 )
+		    painter->setTabArray( 0 );
+		else {		    
+		    int *ta = new int[i_16];
+		    CHECK_PTR( ta );
+		    for ( int i=0; i<i_16; i++ ) {
+			s >> i1_16;
+			ta[i] = i1_16;
+		    }
+		    painter->setTabArray( ta );
+		    delete ta;
+		}
+		break;
 	    case PDC_SETVXFORM:
 		s >> i_8;
 		painter->setViewXForm( i_8 );
@@ -310,11 +331,11 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 bool QPicture::cmd( int c, QPDevCmdParam *p )
 {
     QDataStream s;
-    s.setDevice( &mfbuf );
+    s.setDevice( &pictb );
     if ( c ==  PDC_BEGIN ) {			// begin; write header
 	QByteArray empty( 0 );
-	mfbuf.setBuffer( empty );		// reset byte array in buffer
-	mfbuf.open( IO_WriteOnly );
+	pictb.setBuffer( empty );		// reset byte array in buffer
+	pictb.open( IO_WriteOnly );
 	s.writeRawBytes( mfhdr_tag, 4 );
 	s << (UINT16)0 << mfhdr_maj << mfhdr_min;
 	s << (UINT8)c << (UINT8)sizeof(INT32);
@@ -326,23 +347,23 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
     else if ( c == PDC_END ) {			// end; calc checksum and close
 	trecs++;
 	s << (UINT8)c << (UINT8)0;
-	QByteArray buf = mfbuf.buffer();
+	QByteArray buf = pictb.buffer();
 	int cs_start = sizeof(UINT32);		// pos of checksum word
 	int data_start = cs_start + sizeof(UINT16);
 	int nrecs_start = data_start + 2*sizeof(INT16) + 2*sizeof(UINT8);
-	long pos = mfbuf.at();
-	mfbuf.at( nrecs_start );
+	long pos = pictb.at();
+	pictb.at( nrecs_start );
 	s << trecs;				// write number of records
-	mfbuf.at( cs_start );
+	pictb.at( cs_start );
 	UINT16 cs = (UINT16)qchecksum( buf.data()+data_start, pos-data_start );
 	s << cs;				// write checksum
-	mfbuf.close();
+	pictb.close();
 	return TRUE;
     }
     trecs++;
     s << (UINT8)c;				// write cmd to stream
     s << (UINT8)0;				// write dummy length info
-    int pos = (int)mfbuf.at();			// save position
+    int pos = (int)pictb.at();			// save position
     switch ( c ) {
 	case PDC_DRAWPOINT:
 	case PDC_MOVETO:
@@ -374,7 +395,7 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    s << *p[0].point << p[1].str;
 	    break;
 	case PDC_DRAWTEXTFRMT:
-	    debug( "QPicture::cmd: DRAWTEXTFRMT not implemented" );
+	    s << *p[0].rect << (INT16)p[1].ival << p[2].str;
 	    break;
 	case PDC_DRAWPIXMAP:
 	    debug( "QPicture::cmd: DRAWPIXMAP not implemented" );
@@ -398,6 +419,17 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	case PDC_SETBRUSH:
 	    s << *p[0].brush;
 	    break;
+	case PDC_SETTABSTOPS:
+	    s << (INT16)p[0].ival;
+	    break;
+	case PDC_SETTABARRAY:
+	    s << (INT16)p[0].ival;
+	    if ( p[0].ival ) {
+		int *ta = p[1].ivec;
+		for ( int i=0; i<p[0].ival; i++ )
+		    s << (INT16)ta[i];
+	    }
+	    break;
 	case PDC_SETUNIT:
 	case PDC_SETVXFORM:
 	case PDC_SETWXFORM:
@@ -419,14 +451,22 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    warning( "QPicture::cmd: Command %d not recognized", c );
 #endif
     }
-    int newpos = (int)mfbuf.at();		// new position
+    int newpos = (int)pictb.at();		// new position
     int length = newpos - pos;
-    mfbuf.at(pos - 1);				// set back and
-    if ( length < 255 )				// write 8-bit length
+    if ( length < 255 ) {			// write 8-bit length
+	pictb.at(pos - 1);			// position to right index
 	s << (UINT8)length;
-    else					// write 32-bit length
-	s << (UINT8)255 << (UINT32)length;
-    mfbuf.at( newpos );				// set to new position
+    }
+    else {					// write 32-bit length
+	s << (UINT32)0;				// extend the buffer
+	pictb.at(pos - 1);			// position to right index
+	s << (UINT8)255;			// indicate 32-bit length
+	char *p = pictb.buffer().data();
+	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
+	s << (UINT32)length;
+	newpos += 4;
+    }
+    pictb.at( newpos );				// set to new position
     return TRUE;
 }
 
