@@ -1245,8 +1245,8 @@ void* QNPInstance::getJavaPeer() const
 */
 
 /*!
-    Creates a stream. Plugins should not call this, but instead
-    call QNPInstance::newStream() if a stream is required.
+    Creates a stream. Plugins should not call this; they should call
+    QNPInstance::newStream() if they need a stream.
 
     Takes a QNPInstance \a in, MIME type \a mt, a pointer to an
     _NPStream \a st and a seekable flag \a se.
@@ -1288,8 +1288,8 @@ const char* QNPStream::url() const
 }
 
 /*!
-    Returns the length of the stream in bytes. The length returned may be
-    0 for streams of unknown length.
+    Returns the length of the stream in bytes. The function might
+    return 0 for streams of unknown length.
 */
 uint QNPStream::end() const
 {
@@ -1385,7 +1385,7 @@ int QNPStream::write( int len, void* buffer )
 
 /*!
     \class QNPlugin qnp.h
-    \brief The QNPlugin class provides the central factory for plugin objects.
+    \brief The QNPlugin class provides the main factory for plugin objects.
 
     \extension Netscape Plugin
 
