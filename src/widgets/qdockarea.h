@@ -94,6 +94,7 @@ private:
     void init();
     int layoutItems( const QRect&, bool testonly = FALSE );
     Qt::Orientation orient;
+    bool dirty;
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
     QPtrList<QDockWindow> *dockWindows;

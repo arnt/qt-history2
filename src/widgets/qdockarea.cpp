@@ -76,7 +76,12 @@ QLayoutIterator QDockAreaLayout::iterator()
 QSize QDockAreaLayout::sizeHint() const
 {
     if ( !dockWindows || !dockWindows->first() )
-	return QSize( 0,0 );
+	return QSize( 0, 0 );
+
+    if ( dirty ) {
+	QDockAreaLayout *that = (QDockAreaLayout *) this;
+	that->layoutItems( geometry() );
+    }
 
     int w = 0;
     int h = 0;
@@ -119,6 +124,7 @@ bool QDockAreaLayout::hasHeightForWidth() const
 
 void QDockAreaLayout::init()
 {
+    dirty = TRUE;
     cached_width = 0;
     cached_height = 0;
     cached_hfw = -1;
@@ -127,6 +133,7 @@ void QDockAreaLayout::init()
 
 void QDockAreaLayout::invalidate()
 {
+    dirty = TRUE;
     cached_width = 0;
     cached_height = 0;
 }
@@ -265,6 +272,12 @@ QSize QDockAreaLayout::minimumSize() const
 {
     if ( !dockWindows || !dockWindows->first() )
 	return QSize( 0, 0 );
+
+    if ( dirty ) {
+	QDockAreaLayout *that = (QDockAreaLayout *) this;
+	that->layoutItems( geometry() );
+    }
+
     int s = 0;
 
     QPtrListIterator<QDockWindow> it( *dockWindows );
@@ -285,6 +298,8 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
     if ( !dockWindows || !dockWindows->first() )
 	return 0;
+
+    dirty = FALSE;
 
     // some corrections
     QRect r = rect;
