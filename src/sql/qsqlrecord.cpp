@@ -636,12 +636,12 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
     \ingroup database
     \module sql
 
-    This class is a QValueList that holds a set of database field meta
+    This class is a QList that holds a set of database field meta
     data. Use contains() to see if a given field name exists in the
     record, and use find() to get a QSqlFieldInfo record for a named
     field.
 
-    \sa QValueList, QSqlFieldInfo
+    \sa QList, QSqlFieldInfo
 */
 
 
