@@ -162,8 +162,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!((filterSpec & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, 
-                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                QRegExp rx(*sit,
+                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                            QRegExp::Wildcard);
                 if(rx.exactMatch(fn))
                     matched = true;
@@ -372,14 +372,14 @@ QFSFileEngine::fileName(FileName file) const
             // a const char*.
             if(::realpath(QFile::encodeName(d->file).data(), real))
                 ret = QFile::decodeName(QByteArray(real));
+	    if (file == CanonicalPathName)
+		return ret;
             // always make sure we go back to the current dir
             ::chdir(cur);
             //check it
             struct stat st;
             if(::stat(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
-            if (file == CanonicalName)
-                ret += QLatin1Char('/') + fileName(BaseName);
             return ret;
         }
         return fileName(AbsoluteName);
