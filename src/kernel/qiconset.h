@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#2 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#3 $
 **
 ** Definition of QIconSet class
 **
@@ -24,7 +24,7 @@ public:
     enum Size { Automatic, Small, Large };
 
     enum Mode { Normal, Disabled, Active };
-    
+
     QIconSet( const QPixmap &, Size = Automatic );
     QIconSet( const QIconSet & );
     virtual ~QIconSet();
@@ -32,10 +32,11 @@ public:
     void reset( const QPixmap &, Size );
 
     void setPixmap( const QPixmap &, Size, Mode = Normal );
+    void setPixmap( const char *, Size, Mode = Normal );
     QPixmap pixmap( Size, Mode ) const;
     QPixmap pixmap() const;
     bool isGenerated( Size, Mode ) const;
-    
+
     QIconSet &operator=( const QIconSet & );
 
 private:

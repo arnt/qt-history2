@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#5 $
 **
 ** Implementation of QIconSet class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#5 $");
 
 
 struct QIconSetPrivate: public QShared
@@ -137,8 +137,8 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 }
 
 
-/*!
-
+/*!  Sets this icon set to display \a pn in size \a s/mode \a m, and
+  perhaps to use \a pm for deriving some other varieties.
 */
 
 void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
@@ -180,6 +180,20 @@ void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
 	    break;
 	}
     }
+}
+
+
+/*!  Sets this icon set to load \a fileName as a pixmap and display it
+  in size \a s/mode \a m, and perhaps to use \a pm for deriving some
+  other varieties.
+*/
+
+void QIconSet::setPixmap( const char * fileName, Size s, Mode m )
+{
+    QPixmap p;
+    p.load( fileName );
+    if ( !p.isNull() )
+	setPixmap( p, s, m );
 }
 
 

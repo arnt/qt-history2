@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#108 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#108 $");
 
 
 /*!
@@ -66,7 +66,8 @@ QPushButton::QPushButton( const char *text, QWidget *parent,
 
 void QPushButton::init()
 {
-    autoDefButton = defButton = lastDown = lastDef = lastEnabled = FALSE;
+    autoDefButton = defButton = lastDown = lastDef = lastEnabled
+		  = hasMenuArrow = FALSE;
 }
 
 
@@ -312,6 +313,12 @@ void QPushButton::drawButton( QPainter *paint )
 	}
 	if ( clearBackground )
 	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
+	if ( hasMenuArrow ) {
+	    dx = (y2-y1) / 3;
+	    qDrawArrow( p, DownArrow, style(), FALSE,
+			x2 - dx, y1, dx, y2 - y1,
+			g, isEnabled() );
+	}
     } else if ( gs == MotifStyle ) {		// Motif push button
 	QBrush fill;
 	if ( isDown() )
@@ -340,6 +347,18 @@ void QPushButton::drawButton( QPainter *paint )
 	    bx3 = bx2 + (bx2-bx1) + 1;		// left side of stem
 	    bx4 = bx3 + (by5-by3) - 1;		// right side of stem
 	    by1 = by2 - 1;			// end of stem
+	    
+	    if ( hasMenuArrow ) {
+		by1 -= (y2 - y1)/3;
+		by2 -= (y2 - y1)/3;
+		by3 -= (y2 - y1)/3;
+		by4 -= (y2 - y1)/3;
+	    } else {
+		by1++;
+		by2++;
+		by3++;
+		by4++;
+	    }
 
 	    QPointArray a;
 	    p->setPen( g.dark() );
@@ -362,6 +381,16 @@ void QPushButton::drawButton( QPainter *paint )
 	    p->drawPolyline( a );
 
 	    dx = (y1-y2-4)/3;			// translate button label
+
+	    if ( hasMenuArrow )
+		qDrawArrow( p, DownArrow, style(), FALSE,
+			    x2 - dx, dx, by4, y2 - by4,
+			    g, isEnabled() );
+	} else if ( hasMenuArrow ) {
+	    dx = (y1-y2-4)/3;
+	    qDrawArrow( p, DownArrow, style(), FALSE,
+			x2 - dx, dx, y1, y2 - y1,
+			g, isEnabled() );
 	}
     }
 
@@ -426,3 +455,33 @@ void QPushButton::focusInEvent( QFocusEvent *e )
     QButton::focusInEvent( e );
 }
 
+
+
+/*!  Tells this button to draw a menu indication triangle if \a enable
+  is TRUE,  and to not draw one if \a enable is FALSE (the default).
+
+  setIsMenuButton() does not cause the button to do anything other
+  than draw the menu indication.
+  
+  \sa isMenuButton()
+*/
+
+void QPushButton::setIsMenuButton( bool enable )
+{
+    if ( hasMenuArrow == enable )
+	return;
+    hasMenuArrow = enable ? 1 : 0;
+    repaint( FALSE );
+}
+
+
+/*!  Returns TRUE if this button indicates to the user that pressing
+  it will pop up a menu, and FALSE otherwise.  The default is FALSE.
+  
+  \sa setIsMenuButton()
+*/
+
+bool QPushButton::isMenuButton() const
+{
+    return hasMenuArrow;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#32 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#33 $
 **
 ** Definition of QPushButton class
 **
@@ -32,6 +32,9 @@ public:
     bool	isDefault()	const	{ return defButton; }
     void	setDefault( bool def );
 
+    void	setIsMenuButton( bool );
+    bool	isMenuButton() const;
+    
     QSize	sizeHint() const;
 
     void	move( int x, int y );
@@ -58,6 +61,7 @@ private:
     uint	lastDown	: 1;
     uint	lastDef		: 1;
     uint	lastEnabled	: 1;
+    uint	hasMenuArrow	: 1;
 
 private:	// Disabled copy constructor and operator=
     QPushButton( const QPushButton & );

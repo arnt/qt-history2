@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#4 $
 **
 ** Definition of something or other
 **
@@ -34,13 +34,17 @@ public:
 		 const char * grouptext,
 		 QObject * receiver, const char * slot,
 		 QToolBar * parent, const char * name = 0 );
+    QToolButton( QIconSet s, const char * textLabel,
+		 const char * grouptext,
+		 QObject * receiver, const char * slot,
+		 QToolBar * parent, const char * name = 0 );
     ~QToolButton();
 
     QSize sizeHint() const;
 
     void setIconSet( const QIconSet & );
     QIconSet iconSet() const;
-    
+
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
     const char * textLabel() const { return tl; }

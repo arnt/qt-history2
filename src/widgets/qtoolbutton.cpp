@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#19 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#19 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -92,12 +92,38 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     setTextLabel( textLabel );
     setUsesBigPixmap( FALSE );
     connect( this, SIGNAL(clicked()), receiver, slot );
-    /*    connect( parent, SIGNAL(useBigPixmaps(bool)),
-	     this, SLOT(setUsesBigPixmap(bool)) );
-	     */
     if ( grouptext && *grouptext )
 	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
 		 name, grouptext );
+}
+
+
+/*!  Creates a tool button that is a child of \a parent (which must be
+  a QToolBar) and named \a name.
+
+  The tool button will display \a s, with text label or tool tip \a
+  textLabel and status-bar message \a grouptext, connected to \a slot
+  in object \a receiver, and returns the button.
+
+  Note that \a grouptext is not used unless \a parent is managed by a
+  QMainWindow.
+*/
+
+QToolButton::QToolButton( QIconSet s, const char * textLabel,
+			  const char * grouptext,
+			  QObject * receiver, const char * slot,
+			  QToolBar * parent, const char * name )
+    : QButton( parent, name )
+{
+    init();
+    setIconSet( s );
+    setTextLabel( textLabel );
+    setUsesBigPixmap( FALSE );
+    connect( this, SIGNAL(clicked()), receiver, slot );
+    if ( grouptext && *grouptext )
+	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
+		 name, grouptext );
+    
 }
 
 
