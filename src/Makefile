@@ -36,6 +36,18 @@ moc: FORCE
 	$(MAKE) -C moc
 	cp moc/moc ../bin
 
+# undocumented targets for the Lazy Non-Typers.
+
+sd: shareddbg
+
+shd: shareddbg
+
+sh: shared
+
+std: staticdbg
+
+st: static
+
 #
 # Create a library, called from static, staticdbg, shared and shareddbg
 #
