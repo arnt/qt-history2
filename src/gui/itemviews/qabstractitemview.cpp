@@ -2135,13 +2135,9 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
         return false;
     if (state == QAbstractItemView::EditingState)
         return false;
-    if (trigger == QAbstractItemView::AllEditTriggers)
-        return true;
-    if (d->editors.contains(index)) // we already have an editor here
+    if (d->editors.contains(index))
         return false;
-    if (trigger & editTriggers)
-        return true;
-    return false;
+    return (trigger & editTriggers);
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
