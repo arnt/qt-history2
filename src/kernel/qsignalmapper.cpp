@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#3 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -100,7 +100,7 @@ void QSignalMapper::removeMappings( const QObject* sender )
 
 void QSignalMapper::removeMapping()
 {
-    removeMapping(sender());
+    removeMappings(sender());
 }
 
 /*!
