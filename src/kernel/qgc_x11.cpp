@@ -102,7 +102,7 @@ static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QReg
     if (rh)
 	XRenderSetPictureClipRectangles(dpy, rh, 0, 0, rects, num );
 #else
-    Q_UNUSED( 1rh );
+    Q_UNUSED( rh );
 #endif // QT_NO_XRENDER
     XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
 }
