@@ -740,7 +740,9 @@ QApplication::~QApplication()
 
     qApp = 0;
     is_app_running = FALSE;
+#ifdef QT_FEATURE_TRANSLATION
     delete translators;
+#endif
     // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }
