@@ -326,6 +326,7 @@ Atom qt_xdnd_str_to_atom(const char *mimeType)
 
 
 void qt_xdnd_setup() {
+    QCursor::initialize();
     qAddPostRoutine(qt_xdnd_cleanup);
 }
 

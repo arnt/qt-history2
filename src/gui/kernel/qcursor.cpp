@@ -290,6 +290,8 @@ void QCursor::cleanup()
 /*! \internal */
 void QCursor::initialize()
 {
+    if (initialized)
+        return;
 #ifdef Q_WS_MAC
     InitCursor();
 #endif
