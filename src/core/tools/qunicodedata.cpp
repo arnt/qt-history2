@@ -7135,7 +7135,7 @@ enum { UnicodeBlockSize = 128 }; // size of each block
 
 namespace QUnicodeTables {
 
-const unsigned char uc_scripts[] = {
+static const unsigned char uc_scripts[] = {
     Latin, /* U+0000-007f */
     Latin, /* U+0080-00ff */
     Latin, /* U+0100-017f */
