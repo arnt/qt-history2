@@ -74,7 +74,6 @@ private:
 class Q_CORE_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTranslator)
 public:
     QTranslator(QObject *parent = 0);
 #ifdef QT_COMPAT
@@ -89,10 +88,7 @@ public:
                const QString & directory = QString::null,
                const QString & search_delimiters = QString::null,
                const QString & suffix = QString::null);
-    bool load(const uchar *data, int len) {
-        clear();
-        return do_load(data, len);
-    }
+    bool load(const uchar *data, int len);
 
     void clear();
 
@@ -119,17 +115,14 @@ public:
 
     bool isEmpty() const;
 
+#ifdef QT_COMPAT
+    QT_COMPAT QString find(const char *context, const char *sourceText, const char * comment = 0) const
+        { return findMessage(context, sourceText, comment).translation(); }
+#endif
+
 private:
     Q_DISABLE_COPY(QTranslator)
-
-    bool do_load(const uchar *data, int len);
-
-#ifdef QT_COMPAT
-public:
-    QT_COMPAT QString find(const char *context, const char *sourceText, const char * comment = 0) const {
-        return findMessage(context, sourceText, comment).translation();
-    }
-#endif
+    Q_DECLARE_PRIVATE(QTranslator)
 };
 
 #endif // QT_NO_TRANSLATION

@@ -124,6 +124,7 @@ extern bool qt_detectRTLLanguage();
 
 class QTranslatorPrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QTranslator)
 public:
     struct Offset {
         Offset()
@@ -158,6 +159,9 @@ public:
 #ifndef QT_NO_TRANSLATION_BUILDER
     QMap<QTranslatorMessage, void *> messages;
 #endif
+
+    bool do_load(const uchar *data, int len);
+
 };
 
 
@@ -470,7 +474,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
     }
 #endif
 
-    return do_load((const uchar *) d->unmapPointer, d->unmapLength);
+    return d->do_load((const uchar *) d->unmapPointer, d->unmapLength);
 }
 
 /*!
@@ -483,12 +487,18 @@ bool QTranslator::load(const QString & filename, const QString & directory,
   The data is not copied. The caller must be able to guarantee that \a data
   will not be deleted or modified.
 */
-
-bool QTranslator::do_load(const uchar *data, int len)
+bool QTranslator::load(const uchar *data, int len)
 {
     Q_D(QTranslator);
+    clear();
+    return d->do_load(data, len);
+}
+
+bool QTranslatorPrivate::do_load(const uchar *data, int len)
+{
+    Q_Q(QTranslator);
     if (len < MagicLength || memcmp(data, magic, MagicLength) != 0) {
-        clear();
+        q->clear();
         return false;
     }
 
@@ -508,11 +518,11 @@ bool QTranslator::do_load(const uchar *data, int len)
         }
 
         if (tag == QTranslatorPrivate::Contexts) {
-            d->contextArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
+            contextArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         } else if (tag == QTranslatorPrivate::Hashes) {
-            d->offsetArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
+            offsetArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         } else if (tag == QTranslatorPrivate::Messages) {
-            d->messageArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
+            messageArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         }
 
         if (!s.device()->seek(s.device()->pos() + blockLen)) {
