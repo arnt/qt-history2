@@ -328,9 +328,10 @@ class QOCIResultPrivate
 {
 public:
     QOCIResultPrivate( int size, QOCIPrivate* d )
-    : data( size )
+	: data( size ), ind( size )
     {
 	qDebug("QOCIResultPrivate( int size, QOCIPrivate* d )");
+	ind.setAutoDelete( TRUE );
 	ub4		dataSize(0);
 	OCIDefine 	*dfn;
 	int 		r;
@@ -346,7 +347,7 @@ public:
 	 			create(i-1,dataSize),
 	 			dataSize,
          			SQLT_DAT,
-	 			(dvoid *) 0,
+	 			(dvoid *) createInd( i-1 ),
          			(ub2 *) 0,
 	 			(ub2 *) 0,
 	 			OCI_DEFAULT);
@@ -358,7 +359,7 @@ public:
 	 			create(i-1,dataSize),
 	 			dataSize+1,
          			SQLT_STR,
-	 			(dvoid *) 0,
+	 			(dvoid *) createInd( i-1 ),
          			(ub2 *) 0,
 	 			(ub2 *) 0,
 	 			OCI_DEFAULT);
@@ -376,12 +377,6 @@ public:
 	    delete [] c;
 	}
     }
-    char* create( int position, int size )
-    {
-	char* c = new char[ size+1 ];
-	data.insert( position , c );
-	return c;
-    }
     char* at( int i )
     {
 	return data.at( i );
@@ -390,8 +385,26 @@ public:
     {
 	return data.size();
     }
+    bool isNull( int i )
+    {
+	return ( *ind.at( i ) == -1 );
+    }
+    
 private:
+    char* create( int position, int size )
+    {
+	char* c = new char[ size+1 ];
+	data.insert( position , c );
+	return c;
+    }
+    sb2* createInd( int position )
+    {
+	sb2* n = new sb2(0);
+	ind.insert( position, n );
+	return n;
+    }
     QVector<char> data;
+    QVector<sb2> ind;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -626,6 +639,5 @@ QVariant QOCIResult::data( int field )
 
 bool QOCIResult::isNull( int field ) const
 {
-    // ### finish
-    return FALSE;
+    return cols->isNull( field );
 }

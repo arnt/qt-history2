@@ -19,6 +19,8 @@ void TestInsert()
 	int r = database->exec( "insert into qsql_test values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
 	ASSERT( r == 1 );
     }
+    int r = database->exec( "insert into qsql_test values (NULL,NULL,'should have nulls',NULL,NULL);");
+    ASSERT( r == 1);
     if ( database->hasTransactionSupport() )
 	database->commit();
 }
@@ -54,6 +56,8 @@ void TestSelect()
     while( selRecs.next() ) {
 	i++;
 	qDebug("data:" + selRecs[0].toString() + " " + selRecs[1].toString() + " " + selRecs[2].toString() + " " + selRecs[3].toString() + " " + selRecs[4].toString());
+	if ( selRecs.isNull(0) )
+	    qDebug("field1 IS NULL");
     }
     qDebug("records selected:" + QString::number(i));
     qDebug("done with select");
@@ -131,6 +135,10 @@ int main()
 		    "field3 decimal(15,2),"
 		    "field4 date);");
     qDebug("create table result:" + QString::number(count));
+    qDebug("creating list of database tables...");
+    QStringList tables = database->tables();
+    for ( uint i = 0; i < tables.count(); ++i )
+	qDebug( tables[i] );
 
     TestView();
     TestInsert();
