@@ -77,7 +77,10 @@ create the 'multiclip' directory. Double click the 'multiclip'
 directory to make it the current directory. Enter a file name of
 'multiclip.pro', and click the \Button Save button. The 'Project File'
 field of the \Dialog{Project Settings} dialog will have the path and
-name of your new project; click \OK to create the project. 
+name of your new project; click \OK to create the project.
+
+\img qd-chapdialogs-creatingnewprojects.png
+\caption Creating a New Project 
 
 The name of the current project is shown in the \Button Files toolbar
 which is the top left toolbar by default. Once we have a project we
@@ -103,6 +106,9 @@ caption is roughly in the middle of the property editor. Save
 the form: click \Menu File|Save, enter the name
 'multiclip.ui', then click the \Button Save button.
 
+\img qd-chapdialogs-creatingmulticlipform.png
+\caption Creating a New Form
+
 \sidebar Using the Property Editor
 
 \index Using the Property Editor
@@ -117,6 +123,9 @@ Click the \Property sizePolicy property's plus sign; you will
 see four properties appear indented below sizePolicy, hSizeType,
 vSizeType, horizontalStretch and verticalStretch. These properties are
 edited in the same way as any other properties.
+
+\img qd-chapdialogs-propertyeditor.png
+\caption Property Editor
 
 Some properties have simple values, for example, the \Property name property
 has a text value, the \Property width property (within \Property minimumSize
@@ -280,6 +289,9 @@ changed to suit our application's needs. In the next section we will use
 such a way that when the user resizes the form the widgets will scale
 properly.
 
+\img qd-chapdialogs-addingwidgets.png
+\caption Adding Widgets to the Form
+
 \sidebar Value Editors
 
 \index Value Editors
@@ -439,6 +451,9 @@ If we want to insert a widget into a gap between widgets
     exactly the right place; as we progress with the layout \QD will
     size and place them correctly.
 
+    \img qd-chapdialogs-layoutwidgets-stepone-after.png
+    \caption Layout Current Clipping Label and currentLineEdit
+
     \i
 
     Click the Previous Clippings label and \Key Shift+Click the
@@ -461,11 +476,18 @@ We want the remaining widgets to be grouped together vertically. We
     If you missed any \Key Shift+Click them. Now click the
     \Toolbutton {Lay Out Vertically} toolbar button.
 
+    \img qd-chapdialogs-layoutwidgets-stepthree-rubberband.png
+    \caption Selecting a Group of Widgets 
+
     \endlist
 
     We now have three groups of widgets which must be laid out in
     relation to each other and then laid out in relation to the form
     itself.
+
+    \img qd-chapdialogs-layoutwidgets-stepthree-groupedwidgets.png
+    \caption Groups of Layed Out Widgets
+
     \list 1
     \i
 
@@ -481,6 +503,9 @@ We want the remaining widgets to be grouped together vertically. We
     groups should now be selected. Click the
     \Toolbutton {Lay Out Horizontally (in Splitter)} toolbar button.
 
+    \img qd-chapdialogs-layoutwidgets-part2-stepone-twogroups.png
+    \caption Layout Groups of Widgets
+
     \i
 
     We now have two groups, the top one with the Current Clipping label
@@ -489,6 +514,9 @@ We want the remaining widgets to be grouped together vertically. We
     to the form. Click the form and click
     the \Toolbutton {Lay Out Vertically} toolbar button. The widgets will
     be resized to fill the entire form.
+
+    \img qd-chapdialogs-layoutwidgets-part2-steptwo-layoutform.png
+    \caption Lay out Widgets in Relation to the Form
 
     \endlist
 
@@ -514,6 +542,9 @@ Now we'll add the spacer.
     box. A popup menu with two options, Horizontal and Vertical, will
     appear; click Vertical. We choose vertical because we want the spacer
     to consume excess vertical space.
+
+    \img qd-chapdialogs-layoutwidgets-part3-steptwo-addspacer.png
+    \caption Adding a Vertical Spacer
 
     \i
 
@@ -543,6 +574,9 @@ We now have three groups as we had before, only this time with the
     The last step is to lay out the form itself. Click the form and
     click \Toolbutton {Lay Out Vertically}. The form should now
     be laid out correctly.
+
+    \img qd-chapdialogs-layoutwidgets-part3-stepfive-layoutform.png
+    \caption Lay Out the Form 
 
     \endlist
     There are two small deficiencies in the layout that we have
@@ -595,6 +629,9 @@ View the Object Explorer (Widgets and Source) window by clicking
     Editor. It is easy to see and select widgets
     in the Object Explorer which is especially useful for forms that
     have many widgets or which use layouts.
+
+    \img qd-chapdialogs-objectexplorer.png
+    \caption Object Explorer
 
     \index Code Editing
 \index Subclassing
