@@ -35,7 +35,7 @@ msgstr "Isometrica"
 
 #: mywidget.cpp:35
 msgid "MyWidget::Language: English"
-msgstr "Lingua: Inglese"
+msgstr "Lingua: Italiano"
 
 #: mywidget.cpp:43
 msgid "MyWidget::Oblique"
@@ -57,9 +57,7 @@ msgstr "La Finestra Principale"
 msgid "MyWidget::Third"
 msgstr "Terzo"
 
-# #: mywidget.cpp:40
-
 #: mywidget.cpp:40
 msgid "MyWidget::View"
-msgstr ""
+msgstr "Vista"
 
