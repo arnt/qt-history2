@@ -134,14 +134,14 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
-class QExtraWidget : public QWidget
+class QETWidget : public QWidget
 {
 public:
     inline QWExtra* extraData();
     inline QTLWExtra* topData();
 };
-inline QWExtra* QExtraWidget::extraData() { return d->extraData(); }
-inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
+inline QWExtra* QETWidget::extraData() { return d->extraData(); }
+inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 
 /*****************************************************************************
   External functions
@@ -563,7 +563,7 @@ void qt_event_request_updates()
 
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
-    QWExtra *extra = ((QExtraWidget*)w)->extraData();
+    QWExtra *extra = ((QETWidget*)w)->extraData();
     if(subtract) {
 	if(extra->has_dirty_area) {
 	    extra->dirty_area -= r;
@@ -1131,7 +1131,7 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
 		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 		    if(!curwidg->testWFlags(Qt::WMouseNoMask)) {
-			QWExtra *extra = ((QExtraWidget*)curwidg)->extraData();
+			QWExtra *extra = ((QETWidget*)curwidg)->extraData();
 			if(extra && !extra->mask.isEmpty() && !extra->mask.contains(QPoint(x-wx, y-wy)))
 			    continue;
 		    }
@@ -1471,7 +1471,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inGrow: {
 	Rect limits;
 	SetRect(&limits, -2, 0, 0, 0);
-	if(QWExtra *extra = ((QExtraWidget*)widget)->extraData())
+	if(QWExtra *extra = ((QETWidget*)widget)->extraData())
 	    SetRect(&limits, extra->minw, extra->minh,
 		    extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
 		    extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
@@ -1680,7 +1680,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QWidget *widget = QWidget::find((*it));
 		if(!widget)
 		    continue;
-		QWExtra *extra = ((QExtraWidget*)widget)->extraData();
+		QWExtra *extra = ((QETWidget*)widget)->extraData();
 		if(extra && extra->has_dirty_area) {
 		    extra->has_dirty_area = FALSE;
 		    QRegion r = extra->dirty_area;
@@ -1910,7 +1910,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    cursor = qApp->d->cursor_list.first();
 		} else {
 		    for( ; cursor_widget; cursor_widget = cursor_widget->parentWidget()) {
-			QWExtra *extra = ((QExtraWidget*)cursor_widget)->extraData();
+			QWExtra *extra = ((QETWidget*)cursor_widget)->extraData();
 			if(extra && extra->curs) {
 			    cursor = *extra->curs;
 			    break;

@@ -77,14 +77,14 @@ static const char* default_pm[] = {
 };
 
 #include "qwidget_p.h"
-class QExtraWidget : public QWidget
+class QETWidget : public QWidget
 {
 public:
     inline QWExtra* extraData();
     inline QTLWExtra* topData();
 };
-inline QWExtra* QExtraWidget::extraData() { return d->extraData(); }
-inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
+inline QWExtra* QETWidget::extraData() { return d->extraData(); }
+inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 
 //functions
 extern uint qGlobalPostedEventsCount();
@@ -458,7 +458,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     acceptact = FALSE;
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
-    QWExtra *extra = ((QExtraWidget*)widget)->extraData();
+    QWExtra *extra = ((QETWidget*)widget)->extraData();
     if(!extra->macDndExtra) //never too late I suppose..
 	qt_macdnd_register(widget, extra);
     set_drag_mode = mode;
