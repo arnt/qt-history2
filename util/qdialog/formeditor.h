@@ -11,12 +11,15 @@
 #include <qsizepolicy.h>
 #include <qvaluelist.h>
 #include <qstringlist.h>
+#include <qstring.h>
+#include <qproperty.h>
+#include <qmap.h>
 
 #include "widgetsbar.h"
 #include "gridopt.h"
 
-class QXMLTag;
 class QResource;
+class QResourceItem;
 
 class DObjectInfo
 {
@@ -61,6 +64,27 @@ public:
   const QStringList& customSignals() const { return m_customSignals; }
   const QStringList& customSlots() const { return m_customSlots; }
 
+  /**
+   * @retrun the widgets default property settings.
+   */
+  const QProperty& defaultProperty( const QString& name ) const;
+  /**
+   * @return 0 if there is no such custom property set.
+   */
+  QProperty* property( const QString& name );
+  /**
+   * Saves a custom property and updates the widget.
+   */
+  void setProperty( const QString& name, const QProperty& prop ) { m_props.insert( name, prop ); m_widget->setProperty( name, prop ); }
+  /**
+   * Removes a custom property and updates the widget with the default value.
+   */
+  void removeProperty( const QString& name ) { m_props.remove( name ); m_widget->setProperty( name, defaultProperty( name ) ); }
+  /**
+   * @return TRUE if there is a custom property value stored.
+   */
+  bool containsProperty( const QString& name ) { return m_props.contains( name ); }
+
 protected:
   void updateSizeHandles();
 
@@ -79,6 +103,9 @@ private:
    */
   QStringList m_customSignals;
   QStringList m_customSlots;
+
+  QMap<QString,QProperty> m_props;
+  QMap<QString,QProperty> m_defaultProps;
 };
 
 class DSizeHandle : public QWidget
@@ -133,7 +160,7 @@ public:
    * The returned tag is of type "Widget" or "Layout".
    * But if this is a topmost form then it always returns "QWidget"
    */
-  QXMLTag* save();
+  QResourceItem* save();
 
   bool configure( const QResource& _resource );
 
@@ -179,8 +206,6 @@ private:
   QList<QObject> m_selectedChildren;
 
   DFormWidget::Layout m_layout;
-  QVBoxLayout* m_vBoxLayout;
-  QHBoxLayout* m_hBoxLayout;
   DGridLayout* m_gridLayout;
 };
 
@@ -199,7 +224,7 @@ public:
   DObjectInfo* findInfo( QObject* _o ) { return m_widgets.find( _o ); }
   DObjectInfo* info( const QString& _obj_name );
 
-  void save( QXMLTag* _tag );
+  QResourceItem* save();
   bool load( const QResource& _resource );
 
   bool isTopLevelWidget( QWidget* _widget ) { return _widget == m_topLevelWidget; }

@@ -15,7 +15,6 @@
 #include <qpainter.h>
 #include <qresource.h>
 #include <qtextstream.h>
-#include <qxmlparser.h>
 
 // Needed since they require special treatment from the builder
 #include <qgroupbox.h>
@@ -68,16 +67,19 @@ DFormEditor::~DFormEditor()
 {
 }
 
-void DFormEditor::save( QXMLTag* _tag )
+QResourceItem* DFormEditor::save()
 {
   if ( !m_form )
-    return;
+    return 0;
 
   // TODO: Handle QBuilder_MainWindow and QBuilder_Dialog here, too.
   if ( m_form->inherits( "DFormWidget" ) )
-    _tag->insert( ((DFormWidget*)m_form)->save() );
+    return ((DFormWidget*)m_form)->save();
   else
     ASSERT( 0 );
+
+  // never reached
+  return 0;
 }
 
 bool DFormEditor::load( const QResource& _resource )
@@ -450,6 +452,36 @@ DObjectInfo::DObjectInfo( QWidget* _widget )
 {
   m_widget = _widget;
   m_selected = FALSE;
+
+  // TODO: If object is loaded we have to find
+  // another way to get the default properties.
+
+  if ( !_widget->inherits("DFormWidget") )
+  {
+    // Get a list of all properties
+    QMetaObject* m = _widget->metaObject();
+    if ( m )
+    {
+      QStringList props = m->propertyNames();
+  
+      QStringList::Iterator it = props.begin();
+      for( ; it != props.end(); ++it )
+      { 
+	QMetaProperty* p = m->property( *it, TRUE );
+	if ( p && !p->readonly )
+        {
+	  if ( strcmp( p->name, "geometry" ) != 0 )
+	  {
+	    QProperty prop;
+	    _widget->property( p->name, &prop );
+	    m_defaultProps.insert( p->name, prop );
+	  }
+	}
+      }
+    }
+  }
+
+  // Initialize all size handles
   for( int i = 0; i < 8; ++i )
     m_sizeHandles[i] = 0;
 }
@@ -614,6 +646,20 @@ void DObjectInfo::updateSizeHandles()
   m_sizeHandles[7]->move( x - 3, y + m_widget->height() / 2 - 3 );
 }
 
+const QProperty& DObjectInfo::defaultProperty( const QString& name ) const
+{
+  return m_defaultProps[ name ];
+}
+
+QProperty* DObjectInfo::property( const QString& name )
+{
+  QMap<QString,QProperty>::Iterator it = m_props.find( name );
+  if ( it != m_props.end() )
+    return &it.data();
+  
+  return 0;
+}
+
 /**********************************************
  *
  * DSizeHandle
@@ -701,9 +747,9 @@ DFormWidget::DFormWidget( QWidget* parent, const QResource& _resource )
   : QWidget( parent, _resource )
 {
   m_mode = DFormWidget::TopMost;
-  if ( _resource.xmlTree()->hasAttrib( "__mode" ) )
+  if ( _resource.tree()->hasAttrib( "__mode" ) )
   {
-    QString str = _resource.xmlTree()->attrib( "__mode" );
+    QString str = _resource.tree()->attrib( "__mode" );
     if ( str == "Container" )
       m_mode = DFormWidget::Container;
     else if ( str == "TopMost" )
@@ -714,8 +760,6 @@ DFormWidget::DFormWidget( QWidget* parent, const QResource& _resource )
 
   // m_drag = FALSE;
   m_editor = DFormEditor::loadingInstance();
-  m_vBoxLayout = 0;
-  m_hBoxLayout = 0;
   m_gridLayout = 0;
   m_layout = DFormWidget::NoLayout;
 
@@ -730,8 +774,6 @@ DFormWidget::DFormWidget( DFormWidget::Mode _mode, DFormEditor* _editor, QWidget
   // m_drag = FALSE;
   m_editor = _editor;
   m_mode = _mode;
-  m_vBoxLayout = 0;
-  m_hBoxLayout = 0;
   m_gridLayout = 0;
   m_layout = DFormWidget::NoLayout;
 
@@ -747,15 +789,9 @@ DFormWidget::~DFormWidget()
 void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
 {
   if ( !DWidgetDrag::decode( _ev, m_dragInfo ) )
-  {
     return;
-  }
 
-  setBackgroundColor( bgcolor().light( 120 ) );
-  
-  // m_drag = TRUE;
-
-  if ( m_layout == GridLayout )
+  if ( m_layout != NoLayout )
   {
     int r, c;
     DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
@@ -763,6 +799,7 @@ void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
       _ev->ignore();
     else
     {
+      setBackgroundColor( bgcolor().light( 120 ) );
       QRect rect = m_gridLayout->insertRect( ins, r, c );
       drawDragShadow( rect );
       _ev->accept();
@@ -770,6 +807,8 @@ void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
   }
   else
   {    
+    setBackgroundColor( bgcolor().light( 120 ) );
+
     QPoint pos( _ev->pos().x() - m_dragInfo.sizeHint.width() / 2,
 		_ev->pos().y() - m_dragInfo.sizeHint.height() / 2 );
     drawDragShadow( QRect( pos, m_dragInfo.sizeHint ) );
@@ -779,19 +818,20 @@ void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
 
 void DFormWidget::dragMoveEvent( QDragMoveEvent *_ev )
 {
-  /* if ( !m_drag )
-     return; */
-
   clearDragShadow();
 
-  if ( m_layout == GridLayout )
+  if ( m_layout != NoLayout )
   {
     int r, c;
     DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
     if ( ins == DGridLayout::InsertNone )
+    {
+      setBackgroundColor( bgcolor() );
       _ev->ignore();
+    }
     else
     {
+      setBackgroundColor( bgcolor().light( 120 ) );
       QRect rect = m_gridLayout->insertRect( ins, r, c );
       drawDragShadow( rect );
       _ev->accept();
@@ -833,7 +873,8 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
     do_replace = TRUE;
     par = parentWidget();
   }
-  
+
+  // Create the new widget
   QMetaObject* m = QMetaObjectInit::metaObject( m_dragInfo.className );
   ASSERT( m );
   QObjectFactory f = m->factory();
@@ -852,10 +893,11 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
   else if ( w->inherits( "QTabWidget" ) )
   {
     DFormWidget* f = new DFormWidget( DFormWidget::Container, m_editor, w );
-    m_editor->addWidget( w );
+    m_editor->addWidget( f );
     ((QTabWidget*)w)->addTab( f, tr("Tab1") );
   }
 
+  // Make a good inital size
   if ( w->sizeHint().width() < 1 || w->sizeHint().height() < 1 )
     w->resize( 100, 80 );
   else
@@ -871,57 +913,36 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
     return;
   }
 
-  switch( m_layout )
+  if ( m_layout != NoLayout )
   {
-  case DFormWidget::VBoxLayout:
-    {
-      QPoint pos( _ev->pos().x() - m_dragInfo.sizeHint.width() / 2,
-		  _ev->pos().y() );
-      w->move( pos );
-      setLayout( m_layout, TRUE );
-    }
-    break;
-  case DFormWidget::HBoxLayout:
-    {
-      QPoint pos( _ev->pos().x(),
-		  _ev->pos().y() - m_dragInfo.sizeHint.height() / 2 );
-      w->move( pos );
-      setLayout( m_layout, TRUE );
-    }
-    break;
-  case DFormWidget::GridLayout:
-    {
-      int r, c;
-      DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
-      DGridLayout::Matrix matrix( m_gridLayout->matrix() );
-      if ( ins == DGridLayout::InsertCol )
-	matrix.insertColumn( c );
-      else if ( ins == DGridLayout::InsertRow )
-	matrix.insertRow( r );
-      else
-	ASSERT( 0 );
-
-      DGridLayout::Cell cell;
-      cell.w = w;
-      matrix.setCell( r, c, cell );
-
-      delete m_gridLayout;
-      m_gridLayout = new DGridLayout( this, matrix );
-      m_gridLayout->fillWithForms( m_editor );
-      m_gridLayout->activate();
-      m_gridLayout->updateGeometry();
-      update();
-    }
-    break;
-  case DFormWidget::NoLayout:
-    {
-      QPoint pos( _ev->pos().x() - m_dragInfo.sizeHint.width() / 2,
-		  _ev->pos().y() - m_dragInfo.sizeHint.height() / 2 );
-      w->move( pos );
-    }
-    break;
-  default:
-    ASSERT( 0 );
+    int r, c;
+    DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
+    DGridLayout::Matrix matrix( m_gridLayout->matrix() );
+    DGridLayout::Mode m = m_gridLayout->mode();
+    if ( ins == DGridLayout::InsertCol )
+      matrix.insertColumn( c );
+    else if ( ins == DGridLayout::InsertRow )
+      matrix.insertRow( r );
+    else
+      ASSERT( 0 );
+    
+    printf("Inserting at %i %i\n",r,c);
+    DGridLayout::Cell cell;
+    cell.w = w;
+    matrix.setCell( r, c, cell );
+    
+    delete m_gridLayout;
+    m_gridLayout = new DGridLayout( this, m, matrix );
+    m_gridLayout->fillWithForms( m_editor );
+    m_gridLayout->activate();
+    m_gridLayout->updateGeometry();
+    update();
+  }
+  else
+  {
+    QPoint pos( _ev->pos().x() - m_dragInfo.sizeHint.width() / 2,
+		_ev->pos().y() - m_dragInfo.sizeHint.height() / 2 );
+    w->move( pos );
   }
 }
 
@@ -1113,6 +1134,7 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
 
       resize( sizeHint() );
 
+      // TODO: That is a QLayout HACK. Still needed ?
       QWidget* w = parentWidget();
       while( w && ( !w->inherits( "DFormWidget" ) || !((DFormWidget*)w)->isTopMostForm() ) )
       {
@@ -1130,10 +1152,11 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
   case DFormWidget::HBoxLayout:
     {
       if ( _l == DFormWidget::VBoxLayout )
-	m_vBoxLayout = new QVBoxLayout( this, 6, 6 );
+	m_gridLayout = new DGridLayout( this, DGridLayout::Vertical );
       else
-	m_hBoxLayout = new QHBoxLayout( this, 6, 6 );
+	m_gridLayout = new DGridLayout( this, DGridLayout::Horizontal );
 
+      // Sort the widgets by their upper left corner
       QValueList<DWidgetSort> lst;
       const QObjectList *list = children();
       if ( list )
@@ -1148,8 +1171,10 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
       }
       qBubbleSort( lst );
       
+      // Add all widgets to the layout
       QValueList<DWidgetSort>::Iterator it = lst.begin();
-      for( ; it != lst.end(); ++it )
+      int pos = 0;
+      for( ; it != lst.end(); ++it, ++pos )
       {
 	if ( it->w->inherits("DStretch") )
 	  ((DStretch*)it->w)->setOrientation( _l == DFormWidget::VBoxLayout ?
@@ -1160,15 +1185,12 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
 	
 	debug("Adding widget class %s", it->w->className() );
 	if ( _l == DFormWidget::VBoxLayout )
-	  m_vBoxLayout->addWidget( it->w );
+	  m_gridLayout->addWidget2( it->w, pos, 0 );
 	else
-	  m_hBoxLayout->addWidget( it->w );
+	  m_gridLayout->addWidget2( it->w, 0, pos );
       }
 
-      if ( _l == DFormWidget::VBoxLayout )
-	m_vBoxLayout->activate();
-      else
-	m_hBoxLayout->activate();
+      m_gridLayout->activate();
 
       debug("%s has size hint of %i %i", className(), sizeHint().width(), sizeHint().height() );
       resize( sizeHint() );
@@ -1284,7 +1306,7 @@ void DFormWidget::paintEvent( QPaintEvent* _ev )
 
 void DFormWidget::resizeEvent( QResizeEvent* _ev )
 {
-  if ( m_layout == GridLayout )
+  if ( m_layout != NoLayout )
     m_gridLayout->updateGeometry();
 
   QWidget::resizeEvent( _ev );
@@ -1295,6 +1317,7 @@ void DFormWidget::replace( int _row, int _col, QWidget* _w )
   ASSERT( m_layout == GridLayout );
   
   DGridLayout::Matrix matrix( m_gridLayout->matrix() );  
+  DGridLayout::Mode m = m_gridLayout->mode();
   DGridLayout::Cell cell( matrix.cell( _row, _col ) );
   if ( cell.w )
   {    
@@ -1307,7 +1330,7 @@ void DFormWidget::replace( int _row, int _col, QWidget* _w )
   matrix.setCell( _row, _col, cell );
 
   delete m_gridLayout;
-  m_gridLayout = new DGridLayout( this, matrix );
+  m_gridLayout = new DGridLayout( this, m, matrix );
   m_gridLayout->fillWithForms( m_editor );
   m_gridLayout->activate();
   m_gridLayout->updateGeometry();
@@ -1330,23 +1353,23 @@ void DFormWidget::replace( QWidget* _old, QWidget *_new )
   ASSERT( 0 );
 }
 
-QXMLTag* DFormWidget::save()
+QResourceItem* DFormWidget::save()
 {
   debug("Saving Form");
   switch( m_layout )
   {
   case NoLayout:
     {
-      QXMLTag *res = 0;
-      QXMLTag *w = 0;
+      QResourceItem *res = 0;
+      QResourceItem *w = 0;
       if ( !isTopMostForm() )
       {
-	res = new QXMLTag( "Widget" );
-	w = new QXMLTag( "QWidget" );
-	res->insert( w );
+	res = new QResourceItem( "Widget" );
+	w = new QResourceItem( "QWidget" );
+	res->append( w );
       }
       else
-	res = w = new QXMLTag( "QWidget" );
+	res = w = new QResourceItem( "QWidget" );
 
       const QObjectList *list = children();
       if ( list )
@@ -1357,32 +1380,32 @@ QXMLTag* DFormWidget::save()
 	  if ( it.current()->inherits( "DFormWidget" ) )
 	  {
 	    QProperty prop( ((DFormWidget*)it.current())->geometry() );
-	    QXMLTag* f = ((DFormWidget*)it.current())->save();
-	    if ( f->tagName() == "Layout" )
+	    QResourceItem* f = ((DFormWidget*)it.current())->save();
+	    if ( f->type() == "Layout" )
 	    {
-	      QXMLTag *t1 = new QXMLTag( "Widget" );
-	      QXMLTag *t2 = new QXMLTag( "QWidget" );
-	      qPropertyToXML( t2, prop, "geometry" );
-	      w->insert( t1 );
-	      t1->insert( t2 );
-	      t2->insert( f );
+	      QResourceItem *t1 = new QResourceItem( "Widget" );
+	      QResourceItem *t2 = new QResourceItem( "QWidget" );
+	      t2->setProperty( "geometry", prop );
+	      w->append( t1 );
+	      t1->append( t2 );
+	      t2->append( f );
 	    }
-	    else if ( f->tagName() == "Widget" )
-	      qPropertyToXML( &*(f->firstChild()), prop, "geometry" );
-	    w->insert( f );
+	    else if ( f->type() == "Widget" )
+	      f->firstChild()->setProperty( "geometry", prop );
+	    w->append( f );
 	  }
 	  else if ( it.current()->inherits( "DSizeHandle" ) )
 	  {
 	  }
 	  else if ( it.current()->inherits( "QWidget" ) )
 	  {
-	    QXMLTag* t = new QXMLTag( "Widget" );
-	    w->insert( t );
+	    QResourceItem* t = new QResourceItem( "Widget" );
+	    w->append( t );
 	    // FALSE means that we write geometry information, too
-	    // t->insert( qObjectToXML( it.current(), FALSE ) );
+	    // t->append( qObjectToXML( it.current(), FALSE ) );
 	    DObjectInfo* info = m_editor->findInfo( it.current() );
 	    if ( info )
-	      t->insert( qObjectToXML( info, FALSE ) );
+	      t->append( qObjectToXML( info, FALSE ) );
 	  }
 	}
       }
@@ -1392,23 +1415,23 @@ QXMLTag* DFormWidget::save()
   case HBoxLayout:
   case VBoxLayout:
     {
-      QXMLTag *res = 0;
-      QXMLTag *w = 0;
+      QResourceItem *res = 0;
+      QResourceItem *w = 0;
       if ( isTopMostForm() )
       {
-	res = new QXMLTag( "QWidget" );
-	w = new QXMLTag( "Layout" );
-	res->insert( w );
+	res = new QResourceItem( "QWidget" );
+	w = new QResourceItem( "Layout" );
+	res->append( w );
       }
       else
-	res = w = new QXMLTag( "Layout" );
+	res = w = new QResourceItem( "Layout" );
 
-      QXMLTag* l;
+      QResourceItem* l;
       if ( m_layout == HBoxLayout )
-	l = new QXMLTag( "QHBoxLayout" );
+	l = new QResourceItem( "QHBoxLayout" );
       else
-	l = new QXMLTag( "QVBoxLayout" );
-      w->insert( l );
+	l = new QResourceItem( "QVBoxLayout" );
+      w->append( l );
 
       const QObjectList *list = children();
       if ( list )
@@ -1418,18 +1441,18 @@ QXMLTag* DFormWidget::save()
         {
 	  if ( it.current()->inherits( "DFormWidget" ) )
 	  {
-	    l->insert( ((DFormWidget*)it.current())->save() );
+	    l->append( ((DFormWidget*)it.current())->save() );
 	  }
 	  else if ( it.current()->inherits( "DSizeHandle" ) )
 	  {
 	  }
 	  else if ( it.current()->inherits( "QWidget" ) )
 	  {
-	    QXMLTag* t = new QXMLTag( "Widget" );
-	    l->insert( t );
+	    QResourceItem* t = new QResourceItem( "Widget" );
+	    l->append( t );
 	    DObjectInfo* info = m_editor->findInfo( it.current() );
 	    if ( info )
-	      t->insert( qObjectToXML( info, FALSE ) );
+	      t->append( qObjectToXML( info, FALSE ) );
 	  }
 	}
       }
@@ -1438,17 +1461,17 @@ QXMLTag* DFormWidget::save()
     break;
   case GridLayout:
     {
-      QXMLTag* res = 0;
-      QXMLTag* l = 0;
+      QResourceItem* res = 0;
+      QResourceItem* l = 0;
       if ( isTopMostForm() )
       {
-	res = new QXMLTag( "QWidget" );
-	l = new QXMLTag( "Layout" );
-	res->insert( l );
+	res = new QResourceItem( "QWidget" );
+	l = new QResourceItem( "Layout" );
+	res->append( l );
       }
       else
-	res = l = new QXMLTag( "Layout" );
-      l->insert( m_gridLayout->save( m_editor ) );
+	res = l = new QResourceItem( "Layout" );
+      l->append( m_gridLayout->save( m_editor ) );
 
       return res;
     }
@@ -1462,50 +1485,33 @@ QXMLTag* DFormWidget::save()
 }
 
 bool DFormWidget::configure( const QResource& _resource )
-{
-  // Skip QWidget
-  if ( !QObject::configure( _resource ) )
-    return FALSE;
-  
-  QResource r = _resource.firstChild();
-  for( ; r.isValid(); r = r.nextSibling() )
-    if ( r.type() == "Widget" )
+{  
+  const QResourceItem* r = _resource.tree()->firstChild();
+  for( ; r; r = r->nextSibling() )
+    if ( r->type() == "Widget" )
     {
-      QResource c = r.firstChild();
-      if ( !c.isValid() )
-	return FALSE;
-      QWidget* w = c.createWidget( this );
+      QWidget* w = QResource::createWidget( this, r->firstChild() );
       if ( w == 0 )
 	return FALSE;
       m_editor->addWidget( w );
     }
-    else if ( r.type() == "Layout" )
+    else if ( r->type() == "Layout" )
     {
       // try to create the layout with all child widgets
-      QResource c = r.firstChild();
-      if ( !c.isValid() )
-	return FALSE;
-      QLayout* l = c.createLayout( this );
+      const QResourceItem* c = r->firstChild();
+      QLayout* l = QResource::createLayout( this, c );
       if ( l == 0 )
 	return FALSE;
 
+      m_gridLayout = (DGridLayout*)l;
       // What kind of layout did we create ?
-      QString m = c.xmlTree()->attrib( "__mode" );
+      QString m = c->attrib( "__mode" );
       if ( m == "grid" )
-      {
 	m_layout = GridLayout;
-	m_gridLayout = (DGridLayout*)l;
-      }
       else if ( m == "vertical" )
-      {
 	m_layout = VBoxLayout;
-	m_hBoxLayout = (QHBoxLayout*)l;
-      }
       else if ( m == "horizontal" )
-      {
 	m_layout = HBoxLayout;
-	m_vBoxLayout = (QVBoxLayout*)l;
-      }
       else
 	ASSERT( 0 );
 
@@ -1520,6 +1526,12 @@ bool DFormWidget::configure( const QResource& _resource )
       }
     }
 
+  // Skip QWidget
+  if ( !QObject::configure( _resource ) )
+    return FALSE;
+
+  // Do that after the QWidget::configure to enshure that we
+  // overwrite properties in ever case.
   setBackgroundColor( bgcolor() );
   
   return TRUE;

@@ -11,6 +11,7 @@
 
 class QLineEdit;
 class QLabel;
+class QPushButton;
 class DFormEditor;
 class DObjectInfo;
 
@@ -18,29 +19,41 @@ class DPropertyEditor : public QFrame
 {
   Q_OBJECT
 public:
-  DPropertyEditor( QObject* _inspect, const QString& _prop_name,
+  DPropertyEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 		   QWidget* _parent = 0, const char* _name = 0 );
   ~DPropertyEditor();
 
   QString propertyName() const { return prop_name; }
-  QObject* object() const { return obj; }
   QProperty& property() { return prop; }
   
   bool isValid() const { return ( prop.type() != QProperty::Empty ); }
   
+public slots:
+  virtual void slotUpdate();
+  /**
+   * Called if the user switches between default/custom value.
+   */
+  void slotToggled( bool );
+ 
 protected:
   void apply();
   
 private:
   QString prop_name;
-  QObject* obj;
+  DObjectInfo* obj;
   QProperty prop;
+  /**
+   * Pointer to the button which switches between default/custom value.
+   *
+   * @see #slotToggled
+   */
+  QPushButton* toggle;
 };
 
 class DPropEditorFactory
 {
 public: 
-  static DPropertyEditor* create( QObject* _inspect, const QString& _prop_name,
+  static DPropertyEditor* create( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 				  QWidget* _parent = 0, const char* _name = 0 );
 
 protected:
@@ -52,9 +65,12 @@ class DStringPropEditor : public DPropertyEditor
 {
   Q_OBJECT
 public:
-  DStringPropEditor( QObject* _inspect, const QString& _prop_name,
+  DStringPropEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 		   QWidget* _parent = 0, const char* _name = 0 );
   ~DStringPropEditor();
+
+public slots:
+  virtual void slotUpdate();
 
 private slots:
   void returnPressed();
@@ -67,9 +83,12 @@ class DPixmapPropEditor : public DPropertyEditor
 {
   Q_OBJECT
 public:
-  DPixmapPropEditor( QObject* _inspect, const QString& _prop_name,
+  DPixmapPropEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 		   QWidget* _parent = 0, const char* _name = 0 );
   ~DPixmapPropEditor();
+
+public slots:
+  virtual void slotUpdate();
 
 protected:
   virtual void mousePressEvent( QMouseEvent* );

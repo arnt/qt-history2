@@ -4,7 +4,6 @@
 
 #include <qmap.h>
 #include <qtl.h>
-#include <qxmlparser.h>
 #include <qresource.h>
 
 void DRange::setGeometry( int _left, int _width )
@@ -215,7 +214,7 @@ DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets )
 
   debug("#vedges=%i", vedges.count() );
 
-  DGridLayout* grid = new DGridLayout( _parent, vedges.count() - 1, hedges.count() - 1, 6, 6 );
+  DGridLayout* grid = new DGridLayout( _parent, DGridLayout::Grid, vedges.count() - 1, hedges.count() - 1, 6, 6 );
 #ifdef GRID_TEST
   // Hack
   return grid;
@@ -296,14 +295,17 @@ DGridLayout::DGridLayout( QWidget* _parent, const QResource& _resource )
 {
 }
 
-DGridLayout::DGridLayout( QWidget* _parent, int _rows, int _cols, int _outborder, int _innerspace )
+DGridLayout::DGridLayout( QWidget* _parent, DGridLayout::Mode m, int _rows, int _cols, int _outborder, int _innerspace )
   : QGridLayout( _parent, _rows, _cols, _outborder, _innerspace ), m_matrix( _rows, _cols )
 {
+  m_mode = m;
 }
 
-DGridLayout::DGridLayout( QWidget* _parent, const Matrix& _m, int _outborder, int _innerspace )
+DGridLayout::DGridLayout( QWidget* _parent, DGridLayout::Mode m, const Matrix& _m, int _outborder, int _innerspace )
   : QGridLayout( _parent, _m.rows(), _m.cols(), _outborder, _innerspace ), m_matrix( _m )
 {
+  m_mode = m;
+
   uint r, c;
   
   for( r = 0; r < _m.rows(); ++r )
@@ -440,6 +442,8 @@ DGridLayout::Insert DGridLayout::insertTest( const QPoint& _p, int *_row, int *_
 	if ( m_matrix.col( c ).left <= _p.x() &&
 	     m_matrix.col( c ).right >= _p.x() )
 	{
+	  if ( mode() == Horizontal )
+	    return InsertNone;
 	  *_row = r;
 	  *_col = c;
 	  return InsertRow;
@@ -465,6 +469,8 @@ DGridLayout::Insert DGridLayout::insertTest( const QPoint& _p, int *_row, int *_
 	if ( m_matrix.row( r ).top <= _p.y() &&
 	     m_matrix.row( r ).bottom >= _p.y() )
 	{    
+	  if ( mode() == Vertical )
+	    return InsertNone;
 	  *_row = r;
 	  *_col = c;
 	  return InsertCol;
@@ -516,117 +522,170 @@ QRect DGridLayout::insertRect( DGridLayout::Insert ins, uint r, uint c )
   return QRect();
 }
 
-QXMLTag* DGridLayout::save( DFormEditor* _editor ) const
+QResourceItem* DGridLayout::save( DFormEditor* _editor ) const
 {
-  QXMLTag* t = new QXMLTag( "QGridLayout" );
-
-  // TODO borders
-  // TODO stretches rows/columns
-  // Matrix::ConstIterator it = matrix.begin();
-  // for( ; it != matrix.end(); ++it )
-
-  // TODO: handle multicolumn/row
-  for( uint y = 0; y < m_matrix.rows(); ++y )
+  if ( mode() == Vertical )
   {
-    QXMLTag* r = new QXMLTag( "Row" );
-    t->insert( t->end(), r );
+    QResourceItem* t = new QResourceItem( "QVBoxLayout" );
+
+    for( uint y = 0; y < m_matrix.rows(); ++y )
+    {
+	Cell cell = m_matrix.cell( y, 0 );
+	if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+        {
+	  t->append( ((DFormWidget*)cell.w)->save() );
+        }
+	else if ( cell.w )
+        {
+	  QResourceItem* w = new QResourceItem( "Widget" );
+	  t->append( w );
+	  DObjectInfo* info = _editor->findInfo( cell.w );
+	  if ( info )
+	    w->append( qObjectToXML( info, TRUE ) );
+	}
+    }
+    return t;
+  }
+  else if ( mode() == Horizontal )
+  {
+    QResourceItem* t = new QResourceItem( "QVBoxLayout" );
 
     for( uint x = 0; x < m_matrix.cols(); ++x )
     {
-      QXMLTag* c = new QXMLTag( "Cell" );
-      r->insert( r->end(), c );
+	Cell cell = m_matrix.cell( 0, x );
+	if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+        {
+	  t->append( ((DFormWidget*)cell.w)->save() );
+        }
+	else if ( cell.w )
+        {
+	  QResourceItem* w = new QResourceItem( "Widget" );
+	  t->append( w );
+	  DObjectInfo* info = _editor->findInfo( cell.w );
+	  if ( info )
+	    w->append( qObjectToXML( info, TRUE ) );
+	}
+    }
+    return t;
+  }
+  else if ( mode() == Grid )
+  {
+    QResourceItem* t = new QResourceItem( "QGridLayout" );
 
-      Cell cell = m_matrix.cell( y, x );
-      if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+    // TODO borders
+    // TODO stretches rows/columns
+    // Matrix::ConstIterator it = matrix.begin();
+    // for( ; it != matrix.end(); ++it )
+    
+    // TODO: handle multicolumn/row
+    for( uint y = 0; y < m_matrix.rows(); ++y )
+    {
+      QResourceItem* r = new QResourceItem( "Row" );
+      t->append( r );
+      
+      for( uint x = 0; x < m_matrix.cols(); ++x )
       {
-	// Save gridhelper widgets as empty Cell tags
-	if ( ((DFormWidget*)cell.w)->mode() != DFormWidget::GridHelper )
-	  c->insert( ((DFormWidget*)cell.w)->save() );
-      }
-      else if ( cell.w )
-      {
-	QXMLTag* w = new QXMLTag( "Widget" );
-	c->insert( w );
-	DObjectInfo* info = _editor->findInfo( cell.w );
-	if ( info )
-	  w->insert( qObjectToXML( info, TRUE ) );
+	QResourceItem* c = new QResourceItem( "Cell" );
+	r->append( c );
+
+	Cell cell = m_matrix.cell( y, x );
+	if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+        {
+	  // Save gridhelper widgets as empty Cell tags
+	  if ( ((DFormWidget*)cell.w)->mode() != DFormWidget::GridHelper )
+	    c->append( ((DFormWidget*)cell.w)->save() );
+        }
+	else if ( cell.w )
+        {
+	  QResourceItem* w = new QResourceItem( "Widget" );
+	  c->append( w );
+	  DObjectInfo* info = _editor->findInfo( cell.w );
+	  if ( info )
+	    w->append( qObjectToXML( info, TRUE ) );
+	}
       }
     }
+    return t;
   }
   
-  return t;
+  // Never reached
+  return 0;
 }
 
 bool DGridLayout::configure( const QResource& _resource )
 {
-  QResource irow = _resource.firstChild();
+  const QResourceItem* irow = _resource.tree()->firstChild();
   uint r = 0;
 
-  for( ; irow.isValid(); irow = irow.nextSibling() )
-  {
-    if ( irow.type() == "Row" )
-    {
-      QXMLConstIterator t = irow.xmlTree();
-      if ( t->hasAttrib( "size" ) )
-	addRowSpacing( r, t->intAttrib( "size" ) );
-      if ( t->hasAttrib( "stretch" ) )
-	setRowStretch( r, t->intAttrib( "stretch" ) );
+  QString m = _resource.tree()->attrib( "__mode" );
+  if ( m == "__grid" )
+    m_mode = Grid;
+  else if ( m == "__vertical" )
+    m_mode = Vertical;
+  else if ( m == "__horizontal" )
+    m_mode = Horizontal;
+  else
+    ASSERT( 0 );
 
-      QResource icol = irow.firstChild();
+  for( ; irow; irow = irow->nextSibling() )
+  {
+    if ( irow->type() == "Row" )
+    {
+      if ( irow->hasAttrib( "size" ) )
+	addRowSpacing( r, irow->intAttrib( "size" ) );
+      if ( irow->hasAttrib( "stretch" ) )
+	setRowStretch( r, irow->intAttrib( "stretch" ) );
+
+      const QResourceItem* icol = irow->firstChild();
       int c = 0;
-      while( icol.isValid() )
+      while( icol )
       {
-	if ( icol.type() == "Cell" )
+	if ( icol->type() == "Cell" )
 	{
 	  debug("QGridLayout child at %i %i", r, c );
 
-	  QXMLConstIterator t = icol.xmlTree();
-
 	  int multicol = 1;
 	  int multirow = 1;
-	  if ( t->hasAttrib( "multicol" ) )
-	    multicol = t->intAttrib( "multicol" );
+	  if ( icol->hasAttrib( "multicol" ) )
+	    multicol = icol->intAttrib( "multicol" );
 	  if ( multicol < 1 )
 	    return FALSE;
-	  if ( t->hasAttrib( "multirow" ) )
-	    multirow = t->intAttrib( "multirow" );
+	  if ( icol->hasAttrib( "multirow" ) )
+	    multirow = icol->intAttrib( "multirow" );
 	  if ( multirow < 1 )
 	    return FALSE;
 	  int align = 0;
 	  int x,y;
-	  if ( stringToAlign( t->attrib( "valign" ), &y ) )
+	  if ( stringToAlign( icol->attrib( "valign" ), &y ) )
 	  {
 	    if ( y == Qt::AlignCenter )
 	      y = Qt::AlignVCenter;
 	    align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
 	  }
-	  if ( stringToAlign( t->attrib( "halign" ), &x ) )
+	  if ( stringToAlign( icol->attrib( "halign" ), &x ) )
 	  {
 	    if ( x == Qt::AlignCenter )
 	      x = Qt::AlignHCenter;
 	    align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
 	  }
 
-	  QResource cell = icol.firstChild();
+	  const QResourceItem* cell = icol->firstChild();
 	  QWidget *w = 0;
-	  if ( cell.isValid() && cell.type() == "Widget" )
+	  if ( cell && cell->type() == "Widget" )
 	  {
-	    QResource r( cell.firstChild() );
-	    if ( !r.isValid() )
-	      return FALSE;
-	    w = r.createWidget( mainWidget() );
+	    w = QResource::createWidget( mainWidget(), cell->firstChild() );
 	    if ( w == 0 )
 	      return FALSE;
 	    DFormEditor::loadingInstance()->addWidget( w );
 	  }
-	  else if ( cell.isValid() && cell.type() == "Layout" )
+	  else if ( cell && cell->type() == "Layout" )
 	  {
 	    // This should never happen since we replace that construct
 	    // with a "Widget" tag in the parse tree.
 	    ASSERT( 0 );
 	  }
 	  // Unknown tag ?
-	  else if ( cell.isValid() )
+	  else if ( cell )
 	    return FALSE;
 
 	  // #### QGridLayout does not like empty cells
@@ -641,15 +700,15 @@ bool DGridLayout::configure( const QResource& _resource )
 	      addWidget2( w, r, c, align );
 	  }
 
-	  if ( t->hasAttrib( "size" ) )
-	    addColSpacing( c, t->intAttrib( "size" ) );
-	  if ( t->hasAttrib( "stretch" ) )
+	  if ( icol->hasAttrib( "size" ) )
+	    addColSpacing( c, icol->intAttrib( "size" ) );
+	  if ( icol->hasAttrib( "stretch" ) )
 	  {
-	    debug("Setting stretch of col %i to %i",c,t->intAttrib( "stretch" ) );
-	    setColStretch( c, t->intAttrib( "stretch" ) );
+	    debug("Setting stretch of col %i to %i",c,icol->intAttrib( "stretch" ) );
+	    setColStretch( c, icol->intAttrib( "stretch" ) );
 	  }
 	  
-	  icol = icol.nextSibling();
+	  icol = icol->nextSibling();
 	  ++c;
 	}
 	else

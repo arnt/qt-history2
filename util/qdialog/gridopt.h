@@ -12,8 +12,8 @@
 
 // #define GRID_TEST
 
-class QXMLTag;
 class QResource;
+class QResourceItem;
 class DFormEditor;
 
 class DRange
@@ -59,6 +59,8 @@ class DGridLayout : public QGridLayout
   Q_BUILDER( "", "" )
 
 public:
+  enum Mode { Grid, Horizontal, Vertical };
+
   struct Cell
   {
     Cell() { align = 0; w = 0; multicol = 1; multirow = 1; isOverlapped = FALSE; }
@@ -91,9 +93,9 @@ public:
 
   enum Insert { InsertCol, InsertRow, InsertNone };
   
-  DGridLayout( QWidget* _parent, int _rows = 1, int _cols = 1, int _outborder = 6, int _innerspace = 6 );
+  DGridLayout( QWidget* _parent, Mode _mode, int _rows = 1, int _cols = 1, int _outborder = 6, int _innerspace = 6 );
   DGridLayout( QWidget* _parent, const QResource& _resource );
-  DGridLayout( QWidget* _parent, const Matrix& _m, int _outborder = 6, int _innerspace = 6 );
+  DGridLayout( QWidget* _parent, Mode _mode, const Matrix& _m, int _outborder = 6, int _innerspace = 6 );
 
   void addWidget2( QWidget* _widget, int _row, int _col, int _align = 0);
   void addMultiCellWidget2( QWidget* _widget, int _fromrow, int _torow,
@@ -113,12 +115,15 @@ public:
   Insert insertTest( const QPoint& _p, int *_row, int *_col );
   QRect insertRect( Insert _ins, uint _row, uint _col );
 
-  QXMLTag* save( DFormEditor* ) const;
+  QResourceItem* save( DFormEditor* ) const;
 
   bool configure( const QResource& _resource );
  
+  Mode mode() const { return m_mode; }
+
 private:  
   Matrix m_matrix;
+  Mode m_mode;
 };
 
 DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets );

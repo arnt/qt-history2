@@ -54,8 +54,6 @@ public:
 
   void addEditor( const QString& _name, DFormEditor* );
   
-  void save( QXMLTag* );
-
   DFormEditor* currentEditor();
 
 private:

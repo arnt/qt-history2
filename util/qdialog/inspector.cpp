@@ -9,6 +9,7 @@
 #include <qmessagebox.h>
 #include <qscrollbar.h>
 #include <qmetaobject.h>
+#include <qpushbutton.h>
 
 /**************************************************
  *
@@ -78,15 +79,21 @@ void DPropertyInspector::inspect( DFormEditor*, DObjectInfo* _info )
   QStringList::Iterator it = props.begin();
   for( uint i = 0; it != props.end(); ++i, ++it )
   {
-    QLabel* l = new QLabel( *it, viewport() );
-    l->setFrameStyle( QFrame::Sunken | QFrame::Panel );
+    QPushButton* l = new QPushButton( *it, viewport() );
+    l->setToggleButton( TRUE );
+    if ( _info->containsProperty( *it ) )
+      l->setOn( TRUE );
+    else
+      l->setOn( FALSE );
     m_widgets.append( l );
     l->show();
     g->addWidget( l, 2 * i, 0 );
 
-    DPropertyEditor* ed = DPropEditorFactory::create( object, *it, viewport() );
+    DPropertyEditor* ed = DPropEditorFactory::create( m_info, *it, l, viewport() );
     if ( ed )
     {
+      connect( l, SIGNAL( toggled( bool ) ), ed, SLOT( slotToggled( bool ) ) );
+
       ed->show();
       g->addWidget( ed, 2 * i, 1 );
       m_widgets.append( ed );
@@ -118,24 +125,48 @@ void DPropertyInspector::inspect( DFormEditor*, DObjectInfo* _info )
  *
  **************************************************/
 
-DPropertyEditor::DPropertyEditor( QObject* _inspect, const QString& _prop_name,
+DPropertyEditor::DPropertyEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 				  QWidget* _parent, const char* _name )
   : QFrame( _parent, _name )
 {
+  toggle = _toggle;
   prop_name = _prop_name;
   obj = _inspect;
-  
-  obj->property( _prop_name, &prop );
 }
 
 DPropertyEditor::~DPropertyEditor()
 {
 }
 
+void DPropertyEditor::slotUpdate()
+{
+  obj->widget()->property( prop_name, &prop );
+}
+
+void DPropertyEditor::slotToggled( bool toggled )
+{
+  if ( toggled )
+  {
+    // Now there is a property that has to be saved
+    obj->setProperty( prop_name, prop );
+  }
+  else
+  {
+    // Dont save this property since we are told to
+    // use always the default
+    obj->removeProperty( prop_name );
+    // Update the property editor to reflect the default value
+    slotUpdate();
+  }
+}
+
 void DPropertyEditor::apply()
 {
   if ( isValid() )
+  {
     obj->setProperty( prop_name, prop );
+    toggle->setOn( TRUE );
+  }
 }
 
 /**************************************************
@@ -144,24 +175,30 @@ void DPropertyEditor::apply()
  *
  **************************************************/
 
-DStringPropEditor::DStringPropEditor( QObject* _inspect, const QString& _prop_name,
+DStringPropEditor::DStringPropEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 				      QWidget* _parent, const char* _name )
-  : DPropertyEditor( _inspect, _prop_name, _parent, _name )
+  : DPropertyEditor( _inspect, _prop_name, _toggle, _parent, _name )
 {
   lineedit = new QLineEdit( this );
   
   QHBoxLayout *h = new QHBoxLayout( this );
   h->addWidget( lineedit );
-  
-  if ( isValid() )
-    lineedit->setText( property().stringValue() );
 
   connect( lineedit, SIGNAL( returnPressed() ),
 	   this, SLOT( returnPressed() ) );
+
+  slotUpdate();
 }
 
 DStringPropEditor::~DStringPropEditor()
 {
+}
+
+void DStringPropEditor::slotUpdate()
+{
+  DPropertyEditor::slotUpdate();
+  if ( isValid() )
+    lineedit->setText( property().stringValue() );
 }
 
 void DStringPropEditor::returnPressed()
@@ -176,15 +213,28 @@ void DStringPropEditor::returnPressed()
  *
  **************************************************/
 
-DPixmapPropEditor::DPixmapPropEditor( QObject* _inspect, const QString& _prop_name,
+DPixmapPropEditor::DPixmapPropEditor( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 				      QWidget* _parent, const char* _name )
-  : DPropertyEditor( _inspect, _prop_name, _parent, _name )
+  : DPropertyEditor( _inspect, _prop_name, _toggle, _parent, _name )
 {
   label = new QLabel( this );
   
   QHBoxLayout *h = new QHBoxLayout( this );
   h->addWidget( label );
   
+  label->installEventFilter( this );
+
+  slotUpdate();
+}
+
+DPixmapPropEditor::~DPixmapPropEditor()
+{
+}
+
+void DPixmapPropEditor::slotUpdate()
+{
+  DPropertyEditor::slotUpdate();
+
   if ( isValid() )
   {
     QPixmap pix = property().pixmapValue();
@@ -193,12 +243,6 @@ DPixmapPropEditor::DPixmapPropEditor( QObject* _inspect, const QString& _prop_na
     else
       label->setText( "None" );
   }
-
-  label->installEventFilter( this );
-}
-
-DPixmapPropEditor::~DPixmapPropEditor()
-{
 }
 
 bool DPixmapPropEditor::eventFilter( QObject* o, QEvent* e )
@@ -250,18 +294,18 @@ DPropEditorFactory::~DPropEditorFactory()
 {
 }
 
-DPropertyEditor* DPropEditorFactory::create( QObject* _inspect, const QString& _prop_name,
+DPropertyEditor* DPropEditorFactory::create( DObjectInfo* _inspect, const QString& _prop_name, QPushButton* _toggle,
 					     QWidget* _parent, const char* _name )
 {
-  QMetaProperty* prop = _inspect->metaObject()->property( _prop_name, TRUE );
+  QMetaProperty* prop = _inspect->widget()->metaObject()->property( _prop_name, TRUE );
   
   if ( !prop )
     return 0;
   
   if ( strcmp( prop->type, "QString" ) == 0 )
-    return new DStringPropEditor( _inspect, _prop_name, _parent, _name );
+    return new DStringPropEditor( _inspect, _prop_name, _toggle, _parent, _name );
   if ( strcmp( prop->type, "QPixmap" ) == 0 )
-    return new DPixmapPropEditor( _inspect, _prop_name, _parent, _name );
+    return new DPixmapPropEditor( _inspect, _prop_name, _toggle, _parent, _name );
 
   return 0;
 }

@@ -11,10 +11,10 @@
 #include <qapplication.h>
 #include <qfiledialog.h>
 #include <qtextstream.h>
-#include <qxmlparser.h>
+#include <qxml.h>
 #include <qresource.h>
 
-void manipulateXML( QXMLIterator it, bool _root = TRUE );
+void manipulateXML( QResourceItem* item, bool _root = TRUE );
 
 /**********************************************************
  *
@@ -149,40 +149,38 @@ void DMainWindow::slotOpen( const QString& file )
   m_editorContainer = new DEditorContainer( m_splitter );
   
   QResource resource( file );
-  if ( !resource.isValid() )
+  if ( !resource.isEmpty() )
   {
     // TODO: Error message
     ASSERT( 0 );
   }
 
-  // Iterate over all children
-  QResource r = resource.firstChild();
-  for( ; r.isValid(); r = r.nextSibling() )
+  // We have to adjust the XML tree here to insert DFormWidgets at certain places.
+  manipulateXML( resource.tree() );
+
+  DFormEditor* editor = new DFormEditor( m_editorContainer );
+  if ( !editor->load( resource ) )
   {
-    // We have to adjust the XML tree here to insert DFormWidgets at certain places.
-    manipulateXML( r.xmlTree() );
-
-    DFormEditor* editor = new DFormEditor( m_editorContainer );
-    if ( !editor->load( r ) )
-    {
-      // TODO: Error message
-      ASSERT( 0 );
-    }
-
-    QString name = tr("unnamed");
-    if ( r.xmlTree()->hasAttrib( "name" ) )
-      name = r.xmlTree()->attrib( "name" );
-
-    m_editorContainer->addEditor( name, editor );
-    connect( editor, SIGNAL( objectSelected( DFormEditor*, DObjectInfo* ) ),
-	     m_inspector, SLOT( inspect( QFormEditor*, DObjectInfo* ) ) );
+    // TODO: Error message
+    ASSERT( 0 );
   }
+
+  QString name = tr("unnamed");
+  if ( resource.tree()->hasAttrib( "name" ) )
+    name = resource.tree()->attrib( "name" );
+  
+  m_editorContainer->addEditor( name, editor );
+  connect( editor, SIGNAL( objectSelected( DFormEditor*, DObjectInfo* ) ),
+	   m_inspector, SLOT( inspect( QFormEditor*, DObjectInfo* ) ) );
 
   m_editorContainer->show();
 }
 
 void DMainWindow::slotSaveAs()
 {
+  // TODO
+  ASSERT( m_editorContainer->currentEditor() );
+
   QString file = QFileDialog::getSaveFileName();
   if ( file.isEmpty() )
     return;
@@ -198,9 +196,8 @@ void DMainWindow::slotSaveAs()
   {
     QTextStream text( &f );
 
-    QXMLParseTree tree;
-    m_editorContainer->save( tree.rootTag() );
-    text << tree;
+    QResourceItem* tree = m_editorContainer->currentEditor()->save();
+    text << *tree;
   }
   f.close();
 }
@@ -235,21 +232,13 @@ void DMainWindow::slotPreview()
   }
 
   // Write form to XML
-  QXMLParseTree tree;
-  m_editorContainer->currentEditor()->save( tree.rootTag() );
+  QResourceItem* tree = m_editorContainer->currentEditor()->save();
 
   // Create new preview from XML
   {
-    QResource resource( &tree );
-    // We konw that it has only one child at all;
-    QResource r2( resource.firstChild() );
-    if ( !r2.isValid() )
-    {
-      // TODO: Give error message
-      return;
-    }
+    QResource resource( tree );
 
-    QWidget* w = r2.createWidget( 0 );
+    QWidget* w = resource.createWidget( 0 );
     m_dctPreviewWidgets.insert( m_editorContainer->currentEditor(), w );
     w->show();
   }
@@ -259,9 +248,7 @@ void DMainWindow::slotNewResource()
 {
   // ### HACK correct path here
   QResource resource( "wizard.qdl" );
-  // ### HACK search with name of child
-  QResource wizard = resource.firstChild();
-  DCreateWizard dlg( this, wizard );
+  DCreateWizard dlg( this, resource );
   dlg.exec();
 }
 
@@ -289,13 +276,6 @@ void DEditorContainer::addEditor( const QString& _name, DFormEditor* _editor )
   m_lstEditors.append( _editor );
 }
 
-void DEditorContainer::save( QXMLTag* _tag )
-{
-  QListIterator<DFormEditor> it( m_lstEditors );
-  for( ; it.current(); ++it )
-    it.current()->save( _tag );
-}
-
 DFormEditor* DEditorContainer::currentEditor()
 {
   return (DFormEditor*)currentPage();
@@ -307,56 +287,56 @@ DFormEditor* DEditorContainer::currentEditor()
  *
  **********************************************************/
 
-void manipulateXML( QXMLIterator it, bool _root )
+void manipulateXML( QResourceItem* it, bool _root )
 {
   // TODO: If root test wether we support this Widget class as root.
   
-  if ( it->tagName() == "QWidget" )
+  if ( it->type() == "QWidget" )
   {
     debug("-- SUBSTITUE QWidget");
-    it->setTagName( "DFormWidget" );
+    it->setType( "DFormWidget" );
     if ( _root )
       it->insertAttrib( "__mode", "TopMost" );
     else
       it->insertAttrib( "__mode", "Container" );
   }
-  else if ( it->tagName() == "QGridLayout" )
+  else if ( it->type() == "QGridLayout" )
   {
     debug("-- SUBSTITUE QGridLayout");
     // TODO: insert intermediate DFormWidgets
-    it->setTagName( "DGridLayout" );
+    it->setType( "DGridLayout" );
     it->insertAttrib( "__mode", "grid" );
   }
-  else if ( it->tagName() == "QHBoxLayout" )
+  else if ( it->type() == "QHBoxLayout" )
   {
+    it->setType( "DGridLayout" );
     it->insertAttrib( "__mode", "horizontal" );
   }
-  else if ( it->tagName() == "QVBoxLayout" )
+  else if ( it->type() == "QVBoxLayout" )
   {
+    it->setType( "DGridLayout" );
     it->insertAttrib( "__mode", "vertical" );
   }
 
   // Manipulate children
-  QXMLIterator i = it->begin();
-  while( i.isValid() )
+  QResourceItem* i = it->firstChild();
+  for( ; i; i = i->nextSibling() )
   {
-    if ( it->tagName() == "Cell" && i->tagName() == "Layout" )
+    if ( it->type() == "Cell" && i->type() == "Layout" )
     {
-      QXMLTag* t = new QXMLTag( "Widget" );
-      QXMLTag* w = new QXMLTag( "DFormWidget" );
+      QResourceItem* t = new QResourceItem( "Widget" );
+      QResourceItem* w = new QResourceItem( "DFormWidget" );
       w->insertAttrib( "__mode", "Container" );
-      QXMLIterator tmp = i->nextSibling();
-      t->insert( w );
-      w->insert( it->extractAndReplace( i, t ) );
+      QResourceItem* tmp = i->nextSibling();
+      t->append( w );
+      w->append( it->extractAndReplace( i, t ) );
       i = tmp;
     }
-
-    ++i;
   }
 
   // Handle all children
-  i = it->begin();
-  for( ; i != it->end(); ++i )
+  i = it->firstChild();
+  for( ; i; i = i->nextSibling() )
   {
     manipulateXML( i, FALSE );
   }
