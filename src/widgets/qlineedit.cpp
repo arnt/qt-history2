@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#7 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#7 $";
 #endif
 
 
@@ -125,19 +125,19 @@ int QLineEdit::maxLength() const
 }
 
 
-bool QLineEdit::keyPressEvent( QKeyEvent *k )
+void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
-    if ( k->ascii() >= 32 && k->key() != Key_Delete ) {
-	if ( t.length() >= maxLen )
-	    return TRUE;
-	t.insert( cursorPos, k->ascii() );
-	cursorRight();
-	paint();
-	emit textChanged( t.data() );
-	return TRUE;
+    if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+	if ( t.length() < maxLen ) {
+	    t.insert( cursorPos, e->ascii() );
+	    cursorRight();
+	    paint();
+	    emit textChanged( t.data() );
+	}
+	return;
     }
     bool p = FALSE;
-    switch ( k->key() ) {
+    switch ( e->key() ) {
 	case Key_Left:
 		 p = cursorLeft();
 		 break;
@@ -161,46 +161,44 @@ bool QLineEdit::keyPressEvent( QKeyEvent *k )
 		     emit textChanged( t.data() );
 		 break;
 	case Key_A:
-		 if ( k->state() == ControlButton )
+		 if ( e->state() == ControlButton )
 		     p = home();
 		 break;
 	case Key_B:
-		 if ( k->state() == ControlButton )
+		 if ( e->state() == ControlButton )
 		     p = cursorLeft();
 		 break;
 	case Key_D:
-		 if ( k->state() == ControlButton ) {
+		 if ( e->state() == ControlButton ) {
 		     p = remove();
 		     if ( p )
 			 emit textChanged( t.data() );
 		 }
 		 break;
 	case Key_E:
-		 if ( k->state() == ControlButton )
+		 if ( e->state() == ControlButton )
 		     p = end();
 		 break;
 	case Key_F:
-		 if ( k->state() == ControlButton )
+		 if ( e->state() == ControlButton )
 		     p = cursorRight();
 		 break;
 	case Key_H:
-		 if ( k->state() == ControlButton ) {
+		 if ( e->state() == ControlButton ) {
 		     p = backspace();
 		     if ( p )
 			 emit textChanged( t.data() );
 		 }
 	default:
-		 return FALSE;
+		 e->ignore();
 		 break;
     }
-
     if ( p )
 	paint();
-    return TRUE;
 }
 
 
-bool QLineEdit::focusInEvent( QEvent * )
+void QLineEdit::focusInEvent( QFocusEvent * )
 {
     inTextFocus = TRUE;
     debug( "IN focus" );
@@ -209,10 +207,9 @@ bool QLineEdit::focusInEvent( QEvent * )
     startTimer( blinkTime );
     cursorOn = TRUE;
     paint();
-    return TRUE;
 }
 
-void QLineEdit::focusOutEvent( QEvent * )
+void QLineEdit::focusOutEvent( QFocusEvent * )
 {
     inTextFocus = FALSE;
     debug( "OUT focus" );
@@ -239,22 +236,22 @@ void QLineEdit::timerEvent( QTimerEvent * )
 }
 
 
-void QLineEdit::resizeEvent( QResizeEvent *rs )
+void QLineEdit::resizeEvent( QResizeEvent *e )
 {
     if ( inTextFocus ) {
 	delete pm;
-	pm = new QPixMap( rs->size().width(), rs->size().height() );
+	pm = new QPixMap( e->size().width(), e->size().height() );
     }
     paint();
 }
 
 
-void QLineEdit::mousePressEvent( QMouseEvent *m )
+void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     cursorPos = offset +
-		xPosToCursorPos( &t[ offset ], font(),
-			    m->pos().x() - LEFT_MARGIN,
-			    clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN);
+	xPosToCursorPos( &t[ offset ], font(),
+			 e->pos().x() - LEFT_MARGIN,
+			 clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
     if ( inTextFocus )
 	paint();
 }
@@ -270,9 +267,9 @@ void QLineEdit::paint( bool frame )
 	p.begin( this );
 	p.setFont( font() );
 	if ( !frame )
-	    p.eraseRect( QRect( LEFT_MARGIN, TOP_MARGIN,
+	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
 			 clientWidth()	- LEFT_MARGIN - RIGHT_MARGIN,
-			 clientHeight() - TOP_MARGIN  - BOTTOM_MARGIN));
+			 clientHeight() - TOP_MARGIN  - BOTTOM_MARGIN );
 	paintText( &p, clientSize(), frame );
 	p.end();
     }

@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#4 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#5 $
 **
 ** Definition of QLineEdit class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
 **
-** Copyright (c) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 ***********************************************************************/
 
@@ -30,16 +30,16 @@ public:
     int	    maxLength() const;
 
 signals:
-    void    textChanged(char*);
+    void    textChanged( char * );
 
 protected:
-    bool    keyPressEvent( QKeyEvent * );
-    bool    focusInEvent( QEvent * );
-    void    focusOutEvent( QEvent * );
+    void    mousePressEvent( QMouseEvent * );
+    void    keyPressEvent( QKeyEvent * );
+    void    focusInEvent( QFocusEvent * );
+    void    focusOutEvent( QFocusEvent * );
     void    paintEvent( QPaintEvent * );
     void    timerEvent( QTimerEvent * );
     void    resizeEvent( QResizeEvent * );
-    void    mousePressEvent( QMouseEvent * );
 
 private:
     void    init();
