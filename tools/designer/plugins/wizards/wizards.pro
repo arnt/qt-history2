@@ -1,7 +1,9 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 WIN32:CONFIG   += dll
-HEADERS		=
-SOURCES		= main.cpp
-INTERFACES	=
+HEADERS		= sqlformwizardimpl.h
+SOURCES		= main.cpp sqlformwizardimpl.cpp
 DESTDIR		= $(QTDIR)/plugins
+INTERFACES	= sqlformwizard.ui
+DBFILE	= /home/reggie/troll/qt-main/tools/designer/plugins/wizards/database.db
+PROJECTNAME	= Wizards

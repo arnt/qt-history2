@@ -3,6 +3,7 @@
 #include <qcleanuphandler.h>
 #include "../../shared/templatewizardiface.h"
 #include <qwidget.h>
+#include "sqlformwizardimpl.h"
 
 class StandardTemplateWizardInterface : public TemplateWizardInterface
 {
@@ -38,7 +39,13 @@ QStringList StandardTemplateWizardInterface::featureList() const
 
 void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, const QValueList<DatabaseConnection> &dbConnections )
 {
-    qDebug( "setup %p %s", widget, templ.latin1() );
+    if ( templ == "QDesignerSqlWidget" ||
+	 templ == "QDesignerSqlDialog" ||
+	 templ == "QSqlWidget" ||
+	 templ == "QSqlDialog" ) {
+	SqlFormWizard *wizard = new SqlFormWizard( widget, dbConnections, 0, 0, TRUE );
+	wizard->exec();
+    }
 }
 
 QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QGuid& guid )
