@@ -646,7 +646,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    handleIdx = index-1;
 	else
 	    handleIdx = index;
-	if ( d->fullSize != -2 && handleIdx == count() - 1 ) {
+	if ( d->lastPos <= ( orient == Horizontal ? width() : height() ) &&  d->fullSize != -2 && handleIdx == count() - 1 ) {
 	    handleIdx = -1;
 	    return;
 	}
@@ -1826,6 +1826,9 @@ void QHeader::adjustHeaderSize( int diff )
 {
     if ( !count() )
 	return;
+
+    if ( (d->lastPos - d->sizes[count() -1]) > ( orient == Horizontal ? width() : height() ) )
+ 	return;
 
     if ( d->fullSize >= 0 ) {
 	int sec = mapToSection( d->fullSize );
