@@ -695,6 +695,8 @@ void QMakeSourceFileInfo::saveCache(const QString &cf)
         }
         file.close();
     }
+#else
+    Q_UNUSED(cf);
 #endif
 }
 
