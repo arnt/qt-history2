@@ -177,7 +177,7 @@ QTextFrame::iterator QTextTableCell::end() const
     QTextDocumentPrivate *p = table->docHandle();
     int b = p->blockMap().findNode(firstPosition());
     int e = p->blockMap().findNode(lastPosition()+1);
-    return QTextFrame::iterator(const_cast<QTextTable *>(table), b, b, e);
+    return QTextFrame::iterator(const_cast<QTextTable *>(table), e, b, e);
 }
 
 
