@@ -1,5 +1,6 @@
 #!/bin/sh
 
+REL_VERSION=0.0.0
 BRANCH=
 OUT_TREE=`pwd`
 LOCAL_TREE=
@@ -25,13 +26,13 @@ showhelp()
     echo
     echo "Options:"
     echo "-local <directory>"
+    echo "-outdir <directory>"
     echo "-nodoc"
     echo "-nowin"
     echo "-nox11"
     echo "-noqws"
     echo "-nofree"
     echo "-nogzip"
-    echo "-outdir <directory>"
     exit 666
 }
 
@@ -56,11 +57,11 @@ while [ -n "$1" ]; do
         VAL=$1
 	;;
    -no*)
-   	VAR=`echo $1 | sed "s,^-no,,g"`
+   	VAR=`echo $1 | sed "s,^-no-*,,g"`
 	VAL=no
 	;;
    -do*)
-   	VAR=`echo $1 | sed "s,^-do,,g"`
+   	VAR=`echo $1 | sed "s,^-do-*,,g"`
 	VAL=yes
 	;;
    --*=*)
@@ -85,6 +86,7 @@ while [ -n "$1" ]; do
        if ! expr "$VAL" : ".*\.\d*" >/dev/null 2>&1; then
 	  die "Can't figure out version from $VAL"
        fi
+       REL_VERSION=$VAL
        BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
        LABEL="qt/$VAL";;
    local) 
@@ -121,12 +123,12 @@ if [ -z $LOCAL_TREE ]; then
     echo "Exporting the entire Qt depot $checkoutlabel..";
 
     tmpclient="qt-release-tmp-$MYNAME";
-    p4 client -t qt-release -o $tmpclient >/tmp/tmp_file
+    p4 client -t qt-release-3x -o $tmpclient >/tmp/tmp_file
     sed /tmp/tmp_file -e "s,^Root:.*,Root: $DISTDIR," -e "s,/qt/X.Y/,/qt/$BRANCH/,g" \
 	    -e "s,^\(Client: \).*,\1qt-release-tmp-$$," -e "s,\bnomodtime\b,modtime," | \
-      p4 -s client -i 2>&1 >/dev/null
+      p4 -s client -i >/dev/null 2>&1
 
-    p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel}| grep -v '^info:'
+    p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
     echo "Copying Qt depot.."
     cp -ar $LOCAL_TREE $DISTDIR
@@ -137,7 +139,6 @@ myexpr () {
     return
 }
 
-if /bin/false; then
 #Remove non-dist files (tests-dir, util-dir, ... )
 echo "Cleaning up distributions.."
 FILES=`find $DISTDIR/qt/`
@@ -292,7 +293,7 @@ for file in $FILES; do
 
      [ "x$KEEP" = "xno" ] && rm -rf $file
 done
-fi
+
 
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
@@ -364,8 +365,8 @@ if [ "x$DO_DOC" = "xyes" ]; then
     rm -rf $DISTDIR/qt/tools/designer/doc
 
     echo "Running qdoc..";
-    $DISTDIR/qt/util/qdoc/qdoc $DISTDIR/qt >/dev/null 2>&1 || die "could not run qdoc, stopped"
-    $DISTDIR/qt/util/qdoc/man  $DISTDIR/qt >/dev/null 2>&1 || die "could not run qdoc, stopped"
+    $QTDIR/util/qdoc/qdoc $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
+    $DISTDIR/qt/util/qdoc/man  $DISTDIR/qt >/dev/null 2>&1 || die "could not run man, stopped"
 
     find $DISTDIR/qt/gif -exec mv {} $DISTDIR/qt/doc/html/ \; >/dev/null 2>&1
 fi
@@ -426,27 +427,33 @@ rm -f "$DISTDIR/qt/include/qt.h"
 #}
 #closedir( D );
 
-#copy distributions
-[ "x$DO_MAC" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_mac"
-[ "x$DO_WIN" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_win"
-[ "x$DO_X11" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_x11"
-[ "x$DO_QWS" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_qws"
-
 for plat in mac win x11 qws; do
-    PLATDIR="$DISTDIR/qt_${plat}"
-    [ ! -d "$PLATDIR" ] && continue
+    #handle commandline options
+    PLATNAME=qt-${plat}-commercial-${REL_VERSION}
+    PLATDIR=$DISTDIR/$PLATNAME
     free=no
     plat2=
     case $plat in
     mac)
+	[ "x$DO_MAC" = "xyes" ] || continue
         plat2=unix
 	;;
-    x11|qws) 
+    qws) 
+	[ "x$DO_QWS" = "xyes" ] || continue
 	plat2=unix
 	free=$DO_FREE
         ;;
+    x11)
+	[ "x$DO_X11" = "xyes" ] || continue
+	plat2=unix
+	free=$DO_FREE
+        ;;
+    win)
+	[ "x$DO_WIN" = "xyes" ] || continue
+	;;
     esac
     echo "****** Packing for platform: $plat ****"
+    cp -ar $DISTDIR/qt $PLATDIR
     
     #Remove the platform dependent files
     for file in `find $PLATDIR -name '*_[a-z][a-z1][a-z1].cpp' -o \
@@ -488,13 +495,16 @@ for plat in mac win x11 qws; do
 	rm -rf $PLATDIR/doc/html
 	# delete the xt estension
 	rm -rf "$PLATDIR/extensions/xt"
+	rm -f "$PLATDIR/configure"
 
 	# move the files into include
 	[ ! -d "$PLATDIR/include" ] && mkdir -p "$PLATDIR/include"
 	cp "$PLATDIR/src/tools/qconfig-dist.h" "$PLATDIR/xxx"
-	for a in `find $PLATDIR/include -name '*.h'`; do
-	    OFILE=`ls -l $a | cut -d'>' -f2 | sed "s, ,,"`
-	    #mv $OFILE $a
+	includefiles=`$PLATDIR/bin/syncqt -show`
+	for a in $includefiles; do
+	    FILE=$PLATDIR/include/`basename $a`
+	    rm -f $FILE
+	    mv $PLATDIR/$a $FILE >/dev/null 2>&1
 	done
 	mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
     fi
@@ -533,19 +543,26 @@ for plat in mac win x11 qws; do
         done
     done
 
+    echo "Packing..."
     if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
 	cd "$DISTDIR"
-	tar cf $OUT_TREE/qt_${plat}_commercial.tar qt_${plat}
-	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/qt_${plat}_commercial.tar >$OUT_TREE/qt_${plat}_commercial.tar.gz
+	tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
+	[ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
     elif [ "$plat" = "win" ]; then
 	cd "$DISTDIR"
-	find qt_${plat} | zip $OUT_TREE/qt_${plat}_commercial.zip - >/dev/null 2>&1
+	find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
     fi
 
     #Remove database sources
     [ -d "$PLATDIR/src/sql" ] && rm -rf "$PLATDIR/src/sql"
 
     if [ "x$free" = "xyes" ]; then
+	cd "$DISTDIR"
+	OLDPLATDIR=$PLATDIR
+	PLATNAME=`echo $PLATNAME | sed "s,commercial,free,"`
+	PLATDIR=$DISTDIR/$PLATNAME
+	mv "$OLDPLATDIR" "$PLATDIR"
+	
         echo "Doing free.."
         #remove commercial licenses
 	for a in `find $DISTDIR/qt/dist/commercial`; do
@@ -582,11 +599,13 @@ for plat in mac win x11 qws; do
         done
 	
         #zip free editions
+	echo "Packing free..."
 	cd "$DISTDIR"
-	tar cf $OUT_TREE/qt_${plat}_free.tar qt_${plat}
-	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/qt_${plat}_free.tar >$OUT_TREE/qt_${plat}_free.tar.gz
+	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
+	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/${PLATNAME}.tar >$OUT_TREE/${PLATNAME}.tar.gz
     fi
-    echo "******** Done Packaging $plat *********"
     rm -rf $PLATDIR
+    echo "******** Done Packaging $plat *********"
 done
 rm -rf $DISTDIR
+echo "mkdists done"
