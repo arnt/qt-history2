@@ -255,6 +255,16 @@ void QVector<T>::realloc(int size, int alloc)
     T *j, *i, *b;
     union { QVectorData *p; Data *d; } x;
     x.d = d;
+
+    if (QTypeInfo<T>::isComplex && d->ref == 1 && size < d->size) {
+        // call the destructor on all objects that need to be
+        // destroyed when shrinking
+        j = d->array + size;
+        i = d->array + d->size;
+        while (i-- != j)
+            i->~T();
+    }
+
     if (alloc != d->alloc || d->ref != 1) {
         // (re)allocate memory
         if (QTypeInfo<T>::isStatic) {
@@ -262,17 +272,6 @@ void QVector<T>::realloc(int size, int alloc)
         } else if (d->ref != 1) {
             x.p = QVectorData::malloc(sizeof(Data), alloc, sizeof(T), p);
         } else {
-            if (QTypeInfo<T>::isComplex) {
-                // call the destructor on all objects that need to be
-                // destroyed when shrinking
-                if (size < d->size) {
-                    j = d->array + size;
-                    i = d->array + d->size;
-                    while (i-- != j)
-                        i->~T();
-                    i = d->array + size;
-                }
-            }
             x.p = p =
                   static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (alloc - 1) * sizeof(T)));
         }
