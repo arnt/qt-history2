@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#237 $
+** $Id: //depot/qt/main/src/moc/moc.y#238 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2634,7 +2634,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#237 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#238 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2681,7 +2681,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqcom.h>\n", (const char*)g->qtPath );
-	fprintf( out, "#include <%sucom.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%squcom.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
