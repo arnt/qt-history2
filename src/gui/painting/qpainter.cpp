@@ -3806,8 +3806,9 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QPoint gstart = brush.gradientStart();
-    QPoint gstop  = brush.gradientStop();
+    p->translate(rect.topLeft());
+    QPoint gstart = brush.gradientStart() - rect.topLeft();
+    QPoint gstop  = brush.gradientStop() - rect.topLeft();
 
     QPen oldPen = p->pen();
 
