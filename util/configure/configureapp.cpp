@@ -770,8 +770,9 @@ void Configure::generateOutputVars()
     if( !dictionary[ "QT_INSTALL_DATA" ] )
 	dictionary[ "QT_INSTALL_DATA" ] = dictionary[ "QT_INSTALL_PREFIX" ];
 
-    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( ".obj/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( ".moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+
     qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
     qmakeVars += QString( "INCLUDEPATH+=" ) + qmakeIncludes.join( " " );
     qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
