@@ -85,6 +85,7 @@ private:
 class Q_CORE_EXPORT QMutex
 {
 public:
+    enum RecursionMode { NonRecursive, Recursive };
     inline explicit QMutex(RecursionMode mode = NonRecursive) {}
     inline ~QMutex() {}
 
