@@ -346,9 +346,9 @@ QPainter*  QTextFormat::painter()
 void QTextFormat::applyFont( const QFont &f )
 {
     QFontMetrics fm( pntr->fontMetrics() );
-    if (   !pntr_fm 
-	|| pntr_fm->painter != pntr 
-	|| pntr_fm->d != fm.d 
+    if (   !pntr_fm
+	|| pntr_fm->painter != pntr
+	|| pntr_fm->d != fm.d
 	|| !pntr->font().isCopyOf( f ) ) {
 	pntr->setFont( f );
 	delete pntr_fm;
@@ -427,7 +427,7 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
     return k;
 }
 
-QString QTextString::toString( const QMemArray<QTextStringChar> &data )
+QString QTextString::toString( const QMemArray<QTextStringChar> &data, bool fixspaces)
 {
     QString s;
     int l = data.size();
@@ -438,7 +438,7 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
 	*uc = c->c;
 	// ### workaround so that non-breaking whitespaces are drawn
 	// properly, actually this should be fixed in QFont somewhere
-	if ( *uc == (char)0xa0 )
+	if ( fixspaces && *uc == (char)0xa0 )
 	    *uc = 0x20;
 	uc++;
 	c++;
@@ -447,9 +447,9 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
     return s;
 }
 
-QString QTextString::toString() const
+QString QTextString::toString(bool fixspaces) const
 {
-    return toString( data );
+    return toString( data, fixspaces );
 }
 
 void QTextParagraph::setSelection( int id, int start, int end )
