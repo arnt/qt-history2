@@ -139,7 +139,9 @@ int main( int argc, char * argv[] )
 		}
 		if ( !dbpaths )
 		    dbpaths = new QStringList();
-		dbpaths->append( QFile::decodeName( argv[++n] ) );
+		QString fn = QFile::decodeName( argv[++n] );
+		dbpaths->append( fn );
+		QApplication::addLibraryPath( fn );
 	    } else if ( opt == "version" ) {
 		fprintf( stderr,
 			 "User Interface Compiler for Qt version %s\n",
