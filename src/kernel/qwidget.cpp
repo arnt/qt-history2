@@ -3727,7 +3727,7 @@ void QWidget::hide()
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
-    if ( testWFlags(WType_Dialog) && testWFlags(WShowModal) )
+    if ( testWFlags(WShowModal) )
 	qt_leave_modal( this );
 
 #if defined(Q_WS_WIN)
