@@ -108,21 +108,27 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::GroupBoxPanel);
     frame->setFrameShadow(QFrame::Sunken);
-    QGridLayout *frameLayout = new QGridLayout(frame, 1, 1, 11, 6, "frame3Layout");
+    QGridLayout *frameLayout = new QGridLayout(frame);
+    frameLayout->setMargin(11);
+    frameLayout->setSpacing(6);
+    frameLayout->setObjectName("frame3Layout");
 
     QLabel *pageSizeLabel = new QLabel(tr("Page Size"), frame);
-    d->pageSize = new QComboBox(frame, "pageSizeCombo");
+    d->pageSize = new QComboBox(frame);
+    d->pageSize->setObjectName("pageSizeCombo");
     frameLayout->addWidget(pageSizeLabel, 0, 0);
     frameLayout->addWidget(d->pageSize, 0, 1);
 
     QLabel *orientationLabel = new QLabel(tr("Orientation"), frame);
-    d->orientation = new QComboBox(frame, "orientationCombo");
+    d->orientation = new QComboBox(frame);
+    d->orientation->setObjectName("orientationCombo");
     frameLayout->addWidget(orientationLabel, 2, 0);
     frameLayout->addWidget(d->orientation, 2, 1);
 
 #ifdef PSD_ENABLE_PAPERSOURCE
     QLabel *paperSourceLabel = new QLabel(tr("Paper Source"), frame);
-    d->paperSource = new QComboBox(frame, "paperSourceCombo");
+    d->paperSource = new QComboBox(frame);
+    d->paperSource->setObjectName("paperSourceCombo");
     frameLayout->addWidget(paperSourceLabel, 1, 0);
     frameLayout->addWidget(d->paperSource, 1, 1);
 #endif
@@ -132,11 +138,16 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     QSpacerItem* spacer = new QSpacerItem(20, 50, QSizePolicy::Minimum, QSizePolicy::Expanding);
     layout->addItem(spacer);
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout(0, 0, 6, "layout2");
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->setMargin(0);
+    buttonLayout->setSpacing(6);
+    buttonLayout->setObjectName("layout2");
     QSpacerItem *buttonSpacer = new QSpacerItem(71, 20, QSizePolicy::Expanding,
                                                 QSizePolicy::Minimum);
-    QPushButton *okButton = new QPushButton(tr("OK"), this, "okButton");
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"), this, "cancelButton");
+    QPushButton *okButton = new QPushButton(tr("OK"), this);
+    okButton->setObjectName("okButton");
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
+    cancelButton->setObjectName("cancelButton");
 
     buttonLayout->addItem(buttonSpacer);
     buttonLayout->addWidget(okButton);

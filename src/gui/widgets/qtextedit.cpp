@@ -1696,7 +1696,9 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
         ev->ignore();
         return;
     }
-    ev->acceptAction();
+
+    ev->setDropAction(ev->proposedAction());
+    ev->accept();
 }
 
 /*! \reimp
@@ -1716,7 +1718,8 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
     // do this however, unless we introduce either a temporary selection
     // or a temporary second cursor. (Simon)
 
-    ev->acceptAction();
+    ev->setDropAction(ev->proposedAction());
+    ev->accept();
 }
 
 /*! \reimp
@@ -1726,9 +1729,10 @@ void QTextEdit::dropEvent(QDropEvent *ev)
     if (d->readOnly || !dataHasText(ev->mimeData()))
         return;
 
-    ev->acceptAction();
+    ev->setDropAction(ev->proposedAction());
+    ev->accept();
 
-    if (ev->action() == QDropEvent::Move
+    if (ev->dropAction() == QDrag::MoveAction
         && (ev->source() == this || ev->source() == d->viewport))
         d->cursor.removeSelectedText();
 
