@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#222 $
 **
 ** Implementation of QApplication class
 **
@@ -1300,7 +1300,7 @@ void QApplication::setDefaultCodec( QTextCodec* codec )
 QString QApplication::translate( const char * scope, const char * key ) const
 {
     if ( !key )
-	return key;
+	return QString::null;
     // scope can be null, for global stuff
 
     if ( translators ) {
@@ -1318,7 +1318,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
     if ( default_codec ) {
 	return default_codec->toUnicode(key);
     } else {
-	return key;
+	return QString::fromLatin1(key);
     }
 }
 

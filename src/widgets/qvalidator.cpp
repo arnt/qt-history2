@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#29 $
 **
 ** Implementation of validator classes.
 **
@@ -209,7 +209,7 @@ QIntValidator::~QIntValidator()
 
 QValidator::State QIntValidator::validate( QString & input, int & ) const
 {
-    QRegExp empty( "^ *-? *$" );
+    QRegExp empty( QString::fromLatin1("^ *-? *$") );
     if ( empty.match( input ) >= 0 )
 	return QValidator::Valid;
     bool ok;
@@ -322,7 +322,7 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
-    QRegExp empty( "^ *-? *$" );
+    QRegExp empty( QString::fromLatin1("^ *-? *$") );
     if ( empty.match( input ) >= 0 )
 	return QValidator::Valid;
     bool ok = TRUE;

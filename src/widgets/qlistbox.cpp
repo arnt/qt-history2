@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#226 $
 **
 ** Implementation of QListBox widget class
 **
@@ -617,7 +617,8 @@ void QListBox::insertStrList( const QStrList & list, int index )
 	index = count();
     while ( (txt=it.current()) ) {
 	++it;
-	insertItem( new QListBoxText(txt), index++ );
+	insertItem( new QListBoxText(QString::fromLatin1(txt)),
+		    index++ );
     }
 }
 
@@ -653,7 +654,9 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 	index = count();
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
-	insertItem( new QListBoxText(strings[i]), index + i );
+	insertItem( new QListBoxText(
+			    QString::fromLatin1(strings[i])),
+		    index + i );
 	i++;
     }
 }
@@ -2410,7 +2413,7 @@ void QListBox::inSort( const QListBoxItem * lbi )
 }
 
 
-void QListBox::inSort( const char *text )
+void QListBox::inSort( const QString& text )
 {
     inSort( new QListBoxText(text) );
 }

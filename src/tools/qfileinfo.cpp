@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#48 $
 **
 ** Implementation of QFileInfo class
 **
@@ -461,7 +461,7 @@ QString QFileInfo::extension( bool complete ) const
     QString s = fileName();
     int pos = complete ? s.find( '.' ) : s.findRev( '.' );
     if ( pos < 0 )
-	return QString( "" );
+	return QString::fromLatin1( "" );
     else
 	return s.right( s.length() - pos - 1 );
 }
@@ -484,7 +484,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = fn;
     int pos = s.findRev( '/' );
     if ( pos == -1 )
-	return ".";
+	return QString::fromLatin1(".");
     else
 	return s.left( pos );
 }
@@ -624,15 +624,18 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-    char s[PATH_MAX+1];
+    QString r;
+
 #if defined(UNIX) && !defined(_OS_OS2EMX_)
+    char s[PATH_MAX+1];
     if ( !isSymLink() )
 	return QString();
     int len = readlink( fn.local8Bit(), s, PATH_MAX );
-    if ( len < 0 )
-	len = 0;				// error, return empty string
+    if ( len >= 0 )
+	r = QString::fromLocal8Bit(s);
 #endif
-    return s;
+
+    return r;
 }
 
 
@@ -652,10 +655,10 @@ QString QFileInfo::owner() const
 {
 #if defined(UNIX)
     passwd *pw = getpwuid( ownerId() );
-    return pw ? pw->pw_name : 0;
-#else
-    return QString::null;
+    if ( pw )
+	return QString::fromLocal8Bit( pw->pw_name );
 #endif
+    return QString::null;
 }
 
 static const uint nobodyID = (uint) -2;
@@ -695,10 +698,10 @@ QString QFileInfo::group() const
 {
 #if defined(UNIX)
     struct group *gr = getgrgid( groupId() );
-    return gr ? gr->gr_name : 0;
-#else
-    return QString::null;
+    if ( gr )
+	return QString::fromLocal8Bit( gr->gr_name );
 #endif
+    return QString::null;
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#221 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2389,14 +2389,14 @@ static QString fbname( const QString &fileName )	// get file basename (sort of)
 	    s = s.mid(i);
 	if ( (i=s.findRev('\\')) >= 0 )
 	    s = s.mid(i);
-	QRegExp r( "[a-zA-Z][a-zA-Z0-9_]*" );
+	QRegExp r( QString::fromLatin1("[a-zA-Z][a-zA-Z0-9_]*") );
 	int p = r.match( s, 0, &i );
 	if ( p >= 0 )
 	    s = s.mid(p);
 	s.truncate(i);
     }
     if ( s.isEmpty() )
-	s = "dummy";
+	s = QString::fromLatin1("dummy");
     return s;
 }
 
@@ -2530,7 +2530,7 @@ public:
 
 QImageHandler::QImageHandler( const char *f, const char *h, bool t,
 			      image_io_handler r, image_io_handler w )
-    : format(f), header(h)
+    : format(f), header(QString::fromLatin1(h))
 {
     text_mode	= t;
     read_image	= r;
@@ -2827,7 +2827,9 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	buf[rdlen-1] = '\0';
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
-	    if ( p->header.match(buf) != -1 ) { // try match with headers
+	    if ( p->header.match(QString::fromLatin1(buf)) != -1 )
+		// try match with headers
+	    {
 		format = p->format;
 		break;
 	    }
@@ -3642,7 +3644,7 @@ static void write_pbm_image( QImageIO *iio )
     QCString str;
 
     QImage  image  = iio->image();
-    QString format = iio->format();
+    QCString format = iio->format();
     format = format.left(3);			// ignore RAW part
     bool gray = format == "PGM";
 
@@ -3840,13 +3842,16 @@ static void read_xbm_image( QImageIO *iio )
     int		w=-1, h=-1;
     QImage	image;
 
-    r1 = "^#define[\x20\t]+[a-zA-Z0-9_]+[\x20\t]+";
-    r2 = "[0-9]+";
+    r1 = QString::fromLatin1("^#define[\x20\t]+[a-zA-Z0-9_]+[\x20\t]+");
+    r2 = QString::fromLatin1("[0-9]+");
     d->readLine( buf, buflen );			// "#define .._width <num>"
-    if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i )
+    QString sbuf;
+    sbuf = QString::fromLatin1(buf);
+    if ( r1.match(sbuf,0,&i)==0 && r2.match(sbuf,i)==i )
 	w = atoi( &buf[i] );
     d->readLine( buf, buflen );			// "#define .._height <num>"
-    if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i )
+    sbuf = QString::fromLatin1(buf);
+    if ( r1.match(sbuf,0,&i)==0 && r2.match(sbuf,i)==i )
 	h = atoi( &buf[i] );
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 )
 	return;					// format error
@@ -4024,7 +4029,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
 	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
-	QRegExp r ("/\\*.XPM.\\*/" );
+	QRegExp r (QString::fromLatin1("/\\*.XPM.\\*/"));
 	if ( r.match(buf) < 0 )
 	    return;					// bad magic
     } else if ( !source ) {
@@ -4071,6 +4076,10 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    }
 	    buf = buf.mid( i+1, buf.length() );
 	}
+	// Strip any other colorspec
+	int end = buf.find(' ', 2);
+	if ( end>=0 )
+	    buf.truncate(end);
 	if ( buf == "c none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
@@ -4090,7 +4099,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		QRgb rgb = 0xff000000 | c.rgb();
 		colorMap.insert( index, (void*)(rgb+1) );
 	    }
-	}
+	} // else cannot happen
     }
 
     // Read pixels
@@ -4235,8 +4244,8 @@ static void write_xpm_image( QImageIO * iio )
 	QRgb * yp = (QRgb *) image.scanLine( y );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
-	    QString chars = xpm_color_name( cpp,
-						 (int)(long)colorMap.find(color) );
+	    QCString chars = xpm_color_name( cpp,
+				     (int)(long)colorMap.find(color) );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];

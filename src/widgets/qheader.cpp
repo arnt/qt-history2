@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#81 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -687,7 +687,7 @@ QSize QHeader::sizeHint() const
 		      : -1,
 		      fm.lineSpacing() + 6 );
     else {
-        int width = fm.width( " " );
+        int width = fm.width( ' ' );
 	for ( int i=0 ; i<count() ; i++ )
 	    if ( data->labels[i] )
 		width = QMAX( width , fm.width( *data->labels[i] ) );

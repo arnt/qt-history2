@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#45 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#46 $
 **
 ** Definition of QMessageBox class
 **
@@ -48,6 +48,8 @@ public:
 		 WFlags f=WStyle_DialogBorder  );
    ~QMessageBox();
 
+    static QString defaultOk();
+
     enum { Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5, Retry = 6,
 	   Ignore = 7, ButtonMask = 0x07,
 	   Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
@@ -57,7 +59,7 @@ public:
 			    int button0, int button1=0, int button2=0 );
     static int information( QWidget *parent, const QString &caption,
 			    const QString& text,
-			    const QString& button0Text = "OK",
+			    const QString& button0Text = defaultOk(),
 			    const QString& button1Text = QString::null,
 			    const QString& button2Text = QString::null,
 			    int defaultButtonNumber = 0,
@@ -68,7 +70,7 @@ public:
 			int button0, int button1, int button2=0 );
     static int warning( QWidget *parent, const QString &caption,
 			const QString& text,
-			const QString& button0Text = "OK",
+			const QString& button0Text = defaultOk(),
 			const QString& button1Text = QString::null,
 			const QString& button2Text = QString::null,
 			int defaultButtonNumber = 0,
@@ -79,7 +81,7 @@ public:
 			 int button0, int button1, int button2=0 );
     static int critical( QWidget *parent, const QString &caption,
 			 const QString& text,
-			 const QString& button0Text = "OK",
+			 const QString& button0Text = defaultOk(),
 			 const QString& button1Text = QString::null,
 			 const QString& button2Text = QString::null,
 			 int defaultButtonNumber = 0,

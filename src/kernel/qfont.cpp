@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#122 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -892,7 +892,9 @@ static void initFontSubst()			// create substitution dict
     fontSubst = new QFontSubst();
     CHECK_PTR( fontSubst );
     for ( int i=0; initTbl[i] != 0; i += 2 )
-	fontSubst->insert( QString(initTbl[i]), QString(initTbl[i+1]) );
+	fontSubst->insert(
+	    QString::fromLatin1(initTbl[i]),
+	    QString::fromLatin1(initTbl[i+1]) );
     qAddPostRoutine( cleanupFontSubst );
 }
 
@@ -1049,17 +1051,17 @@ QString QFont::key() const
     QString s;
     char t[5];
     hex4( d->req.pointSize, t );
-    s += t;
+    s += QString::fromLatin1(t);
     s += d->req.family.lower();
     hex2( get_font_bits( d->req ), t );
-    s += t;
+    s += QString::fromLatin1(t);
     hex2( d->req.weight, t );
-    s += t;
+    s += QString::fromLatin1(t);
     hex2( d->req.hintSetByUser ? (int)d->req.styleHint : (int)QFont::AnyStyle,
 	  t );
-    s += t;
+    s += QString::fromLatin1(t);
     hex2( d->req.charSet, t );
-    s += t;
+    s += QString::fromLatin1(t);
     return s;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#6 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -110,11 +110,11 @@ QMessageLexer::Token QMessageLexer::getNext( QString &s )
 	    t = BadString;
     } else {
 	s = getWord();
-	if ( s == "msgid" ) {
+	if ( s == QString::fromLatin1("msgid") ) {
 	    t = Msgid;
-	} else if ( s == "msgstr" ) {
+	} else if ( s == QString::fromLatin1("msgstr") ) {
 	    t = Msgstr;
-	} else if ( s.right( 2 ) == "::" ) {
+	} else if ( s.right( 2 ) == QString::fromLatin1("::") ) {
 	    t = Scope;
 	    s = s.left( s.length() - 2 );
 	}
@@ -411,7 +411,7 @@ QTranslatorItem::QTranslatorItem( QListViewItem *parent, QString key, QString tr
 }
 
 QTranslatorItem::QTranslatorItem( QListView *parent, QString scope )
-    :QListViewItem( parent, scope, "----" )
+    :QListViewItem( parent, scope, QString::fromLatin1("----") )
 {
 }
 
@@ -461,7 +461,7 @@ QTranslatorDialog::QTranslatorDialog( QWidget * parent, const char* name )
 
     QMenuBar *mb = new QMenuBar( this );
     QPopupMenu * file = new QPopupMenu();
-    mb->insertItem( "&File", file );
+    mb->insertItem( tr("&File"), file );
 
 
     //    file->insertItem( "New", this, SLOT(newDoc()), CTRL+Key_N );
@@ -474,8 +474,8 @@ QTranslatorDialog::QTranslatorDialog( QWidget * parent, const char* name )
     vbox->setMenuBar( mb );
 
     lv = new QListView( this );
-    lv->addColumn( "Key", 100 );
-    lv->addColumn( "Translation" , 100 );
+    lv->addColumn( tr("Key"), 100 );
+    lv->addColumn( tr("Translation") , 100 );
     lv->setColumnWidthMode( 0, QListView::Maximum );
     lv->setColumnWidthMode( 1, QListView::Maximum );
     vbox->addWidget( lv );
@@ -536,21 +536,22 @@ void QTranslatorDialog::addTranslation( const char* scope, const char* key,
 				       const char* translation  )
 {
     QListViewItem *it = lv->firstChild();
-    while ( it && it->text(0) != scope )
+    while ( it && it->text(0) != QString::fromLatin1(scope) )
 	it = it->nextSibling();
     if ( it == 0 ) {
-	it = new QTranslatorItem( lv, scope );
+	it = new QTranslatorItem( lv, QString::fromLatin1(scope) );
 	it->setOpen(TRUE);
     } else {
 	QListViewItem *t  = it->firstChild();
 	while ( t ) {
-	    if ( t->text(0) == key )
+	    if ( t->text(0) == QString::fromLatin1(key) )
 		return;
 	    t = t->nextSibling();
 	}
 
     }
-    (void) new QTranslatorItem( it, key, translation );
+    (void) new QTranslatorItem( it, QString::fromLatin1(key),
+	QString::fromLatin1(translation) ); // #### huh? why latin1?
 
     if ( !showing )
 	show();
@@ -567,7 +568,7 @@ void QTranslatorDialog::save()
     if ( currentItem )
 	currentItem->setText( 1, ed->text() );     //#### should be a member function or slot or something.
 
-    QString filename = "test.tr";
+    QString filename = QString::fromLatin1("test.tr");
     QTranslator mf( 0 ) ;
 
     QListViewItem *it = lv->firstChild();
@@ -617,7 +618,7 @@ void QTranslatorDialog::currentItemSet( QListViewItem *it )
 	currentItem->setText( 1, ed->text() );
     }
     QString s = it->text(1);
-    if ( s == "----" ) { //#### need a better way of distinguishing keys
+    if ( s == QString::fromLatin1("----") ) { //#### need a better way of distinguishing keys
 	currentItem = 0;
 	ed->hide();
     } else {

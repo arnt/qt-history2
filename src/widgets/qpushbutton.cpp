@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#135 $
 **
 ** Implementation of QPushButton class
 **
@@ -201,7 +201,7 @@ QSize QPushButton::sizeHint() const
     } else {
 	QString s( text() );
 	if ( s.isEmpty() )
-	    s = "XXXX";
+	    s = QString::fromLatin1("XXXX");
 	QFontMetrics fm = fontMetrics();
 	QSize sz = fm.size( ShowPrefix, s );
 	w = sz.width()	+ 6;

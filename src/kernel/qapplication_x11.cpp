@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#464 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#465 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -480,13 +480,15 @@ static void set_local_font()
 	       qstricmp( p, encoding_names[i].name ) )
 	    i++;
 	if ( encoding_names[i].name ) {
-	    QFont::setDefaultFont( QFont( "Helvetica", 12, QFont::Normal,
+	    QFont::setDefaultFont( QFont(
+		QString::fromLatin1("Helvetica"), 12, QFont::Normal,
 					  FALSE, encoding_names[i].cs ) );
 	    return;
 	}
     }
 
-    QFont::setDefaultFont( QFont( "Helvetica", 12,
+    QFont::setDefaultFont( QFont(
+	    QString::fromLatin1("Helvetica"), 12,
 				  QFont::Normal, FALSE, QFont::Latin1 ) );
 }
 

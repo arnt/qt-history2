@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#213 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#214 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -22,6 +22,12 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
+// Don't define it while compiling this module, or USERS of Qt will
+// not be able to link.
+#ifdef QT_NO_CAST_ASCII
+#undef QT_NO_CAST_ASCII
+#endif
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -13444,8 +13450,6 @@ QString::QString( const QChar* unicode, uint length )
     d = new Data(uc,length,length);
 }
 
-#ifndef QT_NO_CAST_ASCII
-
 /*!
   Constructs a string that is a deep copy of \a str, interpreted as a
   classic C string.
@@ -13471,7 +13475,6 @@ QString::QString( const char *str )
     d = new Data(uc,l,l);
 }
 
-#endif
 
 /*!
   \internal
@@ -13554,6 +13557,7 @@ QString &QString::operator=( const QByteArray& ba )
     return *this;
 }
 
+
 /*!
   Assigns a deep copy of \a str, interpretted a classic C string to
   this string and returns a reference to this string.
@@ -13570,6 +13574,7 @@ QString &QString::operator=( const char *str )
     d = new Data(uc,l,l);
     return *this;
 }
+
 
 /*!
   \fn bool QString::isNull() const
@@ -13690,19 +13695,19 @@ void QString::setLength( uint newLen )
 QString QString::arg(const QString& a, int fieldwidth) const
 {
     int pos, len;
-    QString r = copy();
+    QString r = *this;
 
     if ( !findArg(pos,len) ) {
 	warning("Argument missing");
 	// Make sure the text at least appears SOMEWHERE
-	r += " ";
+	r += ' ';
 	pos = r.length();
 	len = 0;
     }
 
     r.replace(pos,len,a);
     if ( fieldwidth < 0 ) {
-	QString s = "";
+	QString s;
 	while ( (uint)-fieldwidth > a.length() ) {
 	    s += ' ';
 	    fieldwidth++;
@@ -13836,7 +13841,9 @@ bool QString::findArg(int& pos, int& len) const
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  This method offers no Unicode support. For typesafe string building,
+  The %s escape sequence expects a
+  \link utf8() UTF-8\endlink encoded string.
+  For typesafe string building,
   with full Unicode support, you can use QTextOStream like this:
 
   \code
@@ -13852,14 +13859,6 @@ bool QString::findArg(int& pos, int& len) const
   replacements to be controlled by the translator, and has Unicode
   support.
 
-  Example:
-  \code
-    QString str;
-    const char* s = ...;
-    int x = ...;
-    str.sprintf( "%s : %d", s, x );
-  \endcode
-
   \sa arg(const QString&,int)
 */
 
@@ -13870,12 +13869,13 @@ QString &QString::sprintf( const char* cformat, ... )
 
     if ( !cformat ) {
 	// Qt 1.x compat
-	*this = "";
+	*this = QString::fromLatin1("");
 	return *this;
     }
-    QString format = cformat;
+    QString format = QString::fromLatin1(cformat);
 
-    static QRegExp escape("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?");
+    static QRegExp escape(
+	QString::fromLatin1("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?"));
 
     QString result;
     uint last=0;
@@ -13928,7 +13928,7 @@ QString &QString::sprintf( const char* cformat, ... )
 //if ( rightjust ) debug("rightjust");
 
 	    if ( wpos < 0 ) {
-		QRegExp num("[0-9]+");
+		QRegExp num(QString::fromLatin1("[0-9]+"));
 		int nlen;
 		int p = num.match(f,0,&nlen);
 		if ( p >= 0 ) {
@@ -13943,13 +13943,8 @@ QString &QString::sprintf( const char* cformat, ... )
 	    }
 
 	    if ( format[pos+len] == 's' ) {
-		QString s = va_arg(ap, char*);
+		QString s = QString::fromUtf8(va_arg(ap, char*));
 		replacement = s;
-	    /*
-	    } else if ( format[pos+len] == 'S' ) {
-		QString *s = va_arg(ap, QString*);
-		replacement = *s;
-	    */
 	    } else {
 		int ch = va_arg(ap, int);
 		replacement = QChar((ushort)ch);
@@ -13961,7 +13956,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	    }
 //debug("rep=%s",replacement.latin1());
 	} else if ( format[pos+len] == '%' ) {
-	    replacement = "%";
+	    replacement = '%';
 	} else if ( format[pos+len] == 'n' ) {
 	    int* n = va_arg(ap, int*);
 	    *n = result.length();
@@ -13997,7 +13992,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	      } break;
 	    }
 //debug("  %s -> %s",in,out);
-	    replacement = out;
+	    replacement = QString::fromLatin1(out);
 	}
 //debug("%s%c -> %s",f.latin1(),(char)format[pos+len],replacement.latin1());
 	result += replacement;
@@ -14275,8 +14270,7 @@ QString QString::left( uint len ) const
     if ( isEmpty() ) {
 	return QString();
     } else if ( len == 0 ) {			// ## just for 1.x compat:
-	QString empty = "";			// not null, but empty###
-	return empty;
+	return QString::fromLatin1("");
     } else if ( len > length() ) {
 	return *this;
     } else {
@@ -15097,7 +15091,7 @@ QString &QString::setNum( long n, int base )
     } while ( n );
     if ( neg )
 	*--p = '-';
-    return *this = p;
+    return *this = QString::fromLatin1(p);
 }
 
 /*!
@@ -15123,7 +15117,7 @@ QString &QString::setNum( ulong n, int base )
 	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
 	n /= base;
     } while ( n );
-    return *this = p;
+    return *this = QString::fromLatin1(p);
 }
 
 /*!
@@ -15571,14 +15565,27 @@ int QString::compare( const QString& s ) const
 bool operator==( const QString &s1, const QString &s2 )
 { return s1.length()==s2.length() && ucstrcmp(s1,s2) == 0; }
 
+bool operator!=( const QString &s1, const QString &s2 )
+{ return !(s1==s2); }
+
+bool operator<( const QString &s1, const QString &s2 )
+{ return ucstrcmp(s1,s2) < 0; }
+
+bool operator<=( const QString &s1, const QString &s2 )
+{ return ucstrcmp(s1,s2) <= 0; }
+
+bool operator>( const QString &s1, const QString &s2 )
+{ return ucstrcmp(s1,s2) > 0; }
+
+bool operator>=( const QString &s1, const QString &s2 )
+{ return ucstrcmp(s1,s2) >= 0; }
+
+
 bool operator==( const QString &s1, const char *s2 )
 { return s1==QString(s2); }
 
 bool operator==( const char *s1, const QString &s2 )
 { return QString(s1)==s2; }
-
-bool operator!=( const QString &s1, const QString &s2 )
-{ return !(s1==s2); }
 
 bool operator!=( const QString &s1, const char *s2 )
 { return !(s1==s2); }
@@ -15586,17 +15593,11 @@ bool operator!=( const QString &s1, const char *s2 )
 bool operator!=( const char *s1, const QString &s2 )
 { return !(s1==s2); }
 
-bool operator<( const QString &s1, const QString &s2 )
-{ return ucstrcmp(s1,s2) < 0; }
-
 bool operator<( const QString &s1, const char *s2 )
 { return ucstrcmp(s1,s2) < 0; }
 
 bool operator<( const char *s1, const QString &s2 )
 { return ucstrcmp(s1,s2) < 0; }
-
-bool operator<=( const QString &s1, const QString &s2 )
-{ return ucstrcmp(s1,s2) <= 0; }
 
 bool operator<=( const QString &s1, const char *s2 )
 { return ucstrcmp(s1,s2) <= 0; }
@@ -15604,23 +15605,18 @@ bool operator<=( const QString &s1, const char *s2 )
 bool operator<=( const char *s1, const QString &s2 )
 { return ucstrcmp(s1,s2) <= 0; }
 
-bool operator>( const QString &s1, const QString &s2 )
-{ return ucstrcmp(s1,s2) > 0; }
-
 bool operator>( const QString &s1, const char *s2 )
 { return ucstrcmp(s1,s2) > 0; }
 
 bool operator>( const char *s1, const QString &s2 )
 { return ucstrcmp(s1,s2) > 0; }
 
-bool operator>=( const QString &s1, const QString &s2 )
-{ return ucstrcmp(s1,s2) >= 0; }
-
 bool operator>=( const QString &s1, const char *s2 )
 { return ucstrcmp(s1,s2) >= 0; }
 
 bool operator>=( const char *s1, const QString &s2 )
 { return ucstrcmp(s1,s2) >= 0; }
+
 
 /*****************************************************************************
   Documentation for related functions

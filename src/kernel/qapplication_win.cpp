@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#276 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#277 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -286,7 +286,7 @@ static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
     QFont qf(
 	qt_winver == Qt::WV_NT
 	    ? qt_winQString(lf.lfFaceName)
-	    : QString((char*)lf.lfFaceName)
+	    : QString::fromLatin1((char*)lf.lfFaceName)
     );
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
@@ -412,7 +412,7 @@ void qt_init( int *argcptr, char **argv )
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QString arg = argv[i];
+	QCString arg = argv[i];
 	if ( arg == "-nograb" )
 	    appNoGrab = !appNoGrab;
 	else
@@ -633,7 +633,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
-	wc.lpszClassName= (TCHAR*)qt_winTchar(QString(cname),TRUE);
+	wc.lpszClassName= (TCHAR*)qt_winTchar(QString::fromLatin1(cname),TRUE);
 	RegisterClass( &wc );
     } else {
 	WNDCLASSA wc;
@@ -662,7 +662,7 @@ static void unregWinClasses()
     const char* k;
     while ( (k = (const char*)(void*)it.currentKeyLong()) ) {
 	if ( qt_winver == Qt::WV_NT ) {
-	    UnregisterClass( (TCHAR*)qt_winTchar(k,TRUE),
+	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
 			     (HINSTANCE)qWinAppInst() );
 	} else {
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );

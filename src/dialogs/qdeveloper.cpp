@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#12 $
 **
 ** Implementation of QDeveloper class
 **
@@ -46,14 +46,14 @@ class QDeveloperClassItem : public QListViewItem {
     QMetaObject* meta;
 public:
     QDeveloperClassItem( QListView * parent, QMetaObject* mo, QDeveloperPrivate* pd ) :
-	QListViewItem( parent, mo->className() )
+	QListViewItem( parent, QString::fromLatin1(mo->className()) )
     {
 	d = pd;
 	meta = mo;
     }
 
     QDeveloperClassItem( QListViewItem * parent, QMetaObject* mo, QDeveloperPrivate* pd ) :
-	QListViewItem( parent, mo->className() )
+	QListViewItem( parent, QString::fromLatin1(mo->className()) )
     {
 	d = pd;
 	meta = mo;
@@ -94,7 +94,7 @@ public:
 class QDeveloperTranslationScope : public QListViewItem {
 public:
     QDeveloperTranslationScope( QListView* parent, const char* scope ) :
-	QListViewItem(parent, scope)
+	QListViewItem(parent, QString::fromLatin1(scope))
     {
     }
    ~QDeveloperTranslationScope() {}
@@ -103,7 +103,7 @@ public:
 
 QDeveloperTranslationKey::QDeveloperTranslationKey( QDeveloperTranslationScope* parent,
 						    const char* key ) :
-	QListViewItem(parent, key)
+	QListViewItem(parent, QString::fromLatin1(key))
     {
     }
 
@@ -137,7 +137,7 @@ public:
         // ##### look at some OTHER translation while trying to
         // ##### translate this one?  ie. use an auxiliary QTranslator
         // ##### for another column.
-	translations->addColumn(getenv("LANG"));
+	translations->addColumn(QString::fromLatin1(getenv("LANG")));
     }
 
     void makeExplorer(QWidget* parent)
@@ -237,7 +237,9 @@ bool find( QObject* o, QListViewItem* cursor )
 }
 
 QDeveloperObjectItem::QDeveloperObjectItem( QListView * parent, QObject* o, QDeveloperPrivate *pd ) :
-    QListViewItem( parent, o->name(), o->className(), adrtext(o) )
+    QListViewItem( parent,
+	QString::fromLatin1(o->name()),
+	QString::fromLatin1(o->className()), adrtext(o) )
 {
     d = pd;
     object = o;
@@ -246,7 +248,8 @@ QDeveloperObjectItem::QDeveloperObjectItem( QListView * parent, QObject* o, QDev
 }
 
 QDeveloperObjectItem::QDeveloperObjectItem( QListViewItem * parent, QObject* o, QDeveloperPrivate *pd ) :
-    QListViewItem( parent, o->name(), o->className(), adrtext(o) )
+    QListViewItem( parent, QString::fromLatin1(o->name()),
+	QString::fromLatin1(o->className()), adrtext(o) )
 {
     d = pd;
     object = o;

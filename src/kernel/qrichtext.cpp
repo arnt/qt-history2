@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#4 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -949,7 +949,7 @@ void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int 
 		    l.setNum( n );
 		    break;
 		}
-		l += ". ";
+		l += QString::fromLatin1(". ");
 		p->setFont( font() );
 		p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
 	    }
@@ -1199,21 +1199,24 @@ QStyleSheetItem::ListStyle QTextBox::listStyle()
     if ( attributes() ) {
 	QString* s =  attributes()->find("type");
 	
-	//#### use a nice and fast dict for that
 	if ( !s )
 	    return style->listStyle();
-	else if ( s->lower() == "square" )
-	    return QStyleSheetItem::ListSquare;
-	else if ( s->lower() == "disc" )
-	    return QStyleSheetItem::ListDisc;
-	else if ( s->lower() == "circle" )
-	    return QStyleSheetItem::ListCircle;
-	else if ( *s == "1" )
-	    return QStyleSheetItem::ListDecimal;
-	else if ( *s == "a" )
-	    return QStyleSheetItem::ListLowerAlpha;
-	else if ( *s == "A" )
-	    return QStyleSheetItem::ListUpperAlpha;
+	else {
+	    QCString sl = s->latin1();
+	    if ( sl == "1" )
+		return QStyleSheetItem::ListDecimal;
+	    else if ( sl == "a" )
+		return QStyleSheetItem::ListLowerAlpha;
+	    else if ( sl == "A" )
+		return QStyleSheetItem::ListUpperAlpha;
+	    sl = sl.lower();
+	    if ( sl == "square" )
+		return QStyleSheetItem::ListSquare;
+	    else if ( sl == "disc" )
+		return QStyleSheetItem::ListDisc;
+	    else if ( sl == "circle" )
+		return QStyleSheetItem::ListCircle;
+	}
     }
     return style->listStyle();
 }
@@ -1765,7 +1768,7 @@ void QTextCursor::end(QPainter* p, bool select)
 
 
 QTextDocument::QTextDocument( const QString &doc, const QWidget* w, int margin,  QMLProvider* provider, const QStyleSheet* sheet  )
-    :QTextBox( (base = new QStyleSheetItem( 0, "")) )
+    :QTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
     provider_ = provider? provider : QMLProvider::defaultProvider(); // for access during parsing only
     sheet_ = sheet? sheet : QStyleSheet::defaultSheet();// for access during parsing only
@@ -1993,7 +1996,7 @@ bool QTextDocument::lookAhead(const QString& doc, int& pos, const QChar& c)
 
 QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
 {
-    QString s;
+    QCString s;
     pos++;
     int recoverpos = pos;
     while ( pos < int(doc.length()) && doc[pos] != ';' && pos < recoverpos + 6) {
@@ -2041,11 +2044,13 @@ QString QTextDocument::parseWord(const QString& doc, int& pos, bool insideTag, b
 	eat(doc, pos, '"');
     }
     else {
+	static QString term = QString::fromLatin1("/>");
 	while( pos < int(doc.length()) &&
-	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, "/>")) )
+	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, term)) )
 	       && doc[pos] != '<'
 	       && doc[pos] != '='
-	       && !doc[pos].isSpace())  {
+	       && !doc[pos].isSpace())
+	{
 	    if ( doc[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
 	    else {
@@ -2118,11 +2123,13 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
     eatSpace(doc, pos);
 
     if (tag[0] == '!') {
-	if (tag.left(3) == "!--") {
+	if (tag.left(3) == QString::fromLatin1("!--")) {
 	    // eat comments
-	    while ( valid && !hasPrefix(doc, pos, "-->" ) && pos < int(doc.length()) )
+	    QString pref = QString::fromLatin1("-->");
+	    while ( valid && !hasPrefix(doc, pos, pref )
+			&& pos < int(doc.length()) )
 		pos++;
-	    if ( valid && hasPrefix(doc, pos, "-->" ) ) {
+	    if ( valid && hasPrefix(doc, pos, pref ) ) {
 		pos += 4;
 		eatSpace(doc, pos);
 	    }
@@ -2144,7 +2151,12 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
 	}
     }
 
-    while (valid && !lookAhead(doc, pos, '>') && ! (emptyTag = hasPrefix(doc, pos, "/>") )) {
+    static QString term = QString::fromLatin1("/>");
+    static QString s_true = QString::fromLatin1("true");
+
+    while (valid && !lookAhead(doc, pos, '>')
+	    && ! (emptyTag = hasPrefix(doc, pos, term) ))
+    {
 	QString key = parseWord(doc, pos, TRUE, TRUE);
 	eatSpace(doc, pos);
 	if ( key.isEmpty()) {
@@ -2160,7 +2172,7 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
 	    value = parseWord(doc, pos, TRUE, FALSE);
 	}
 	else
-	    value = "true";
+	    value = s_true;
 	attr.insert(key, new QString(value) );
 	eatSpace(doc, pos);
     }

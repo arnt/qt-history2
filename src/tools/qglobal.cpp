@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#68 $
 **
 ** Global functions
 **
@@ -359,11 +359,11 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 	     );
 #endif
     }
-    QString s( obj );
+    QCString s( obj );
     s += "::";
     s += oldfunc;
-    if ( obsoleteDict->find(s) == 0 ) {
-	obsoleteDict->insert( s, (int*)1 );	// anything different from 0
+    if ( obsoleteDict->find(s.data()) == 0 ) {
+	obsoleteDict->insert( s.data(), (int*)1 );	// anything different from 0
 	return TRUE;
     }
     return FALSE;

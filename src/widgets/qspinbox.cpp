@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#67 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -364,7 +364,7 @@ QSize QSpinBox::sizeHint() const
     if ( h < 12 ) 	// ensure enough space for the button pixmaps
 	h = 12;
     int w = 35; 	// minimum width for the value
-    int wx = fm.width( "  " );
+    int wx = fm.width( ' ' )*2;
     QString s;
     s.setNum( minValue() );
     s.prepend( prefix() );

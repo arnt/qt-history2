@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#36 $
 **
 ** Implementation of QStatusBar class
 **
@@ -272,7 +272,7 @@ void QStatusBar::clear()
 	delete d->timer;
 	d->timer = 0;
     }
-    d->temporary = "";
+    d->temporary = QString::fromLatin1("");
     hideOrShow();
 }
 

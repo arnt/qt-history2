@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#11 $
 **
 ** Localization database support.
 **
@@ -225,7 +225,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	|| filename[0] == '\\'
 #endif
     )
-	prefix = "";
+	prefix = QString::fromLatin1("");
     else
 	prefix = directory;
 
@@ -237,7 +237,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QString fname = filename;
     QString realname;
     QString delims;
-    delims = search_delimiters.isNull() ? QString("_.") : search_delimiters;
+    delims = search_delimiters.isNull() ?
+	QString::fromLatin1("_.") : search_delimiters;
 
     // COMPLICATED LOOP
     try_with_and_without_suffix:
@@ -249,7 +250,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	if ( fi.isReadable() )
 	    goto found_file; // EXIT LOOP
 
-	realname += suffix.isNull() ? QString(".qm") : suffix;
+	realname += suffix.isNull() ? QString::fromLatin1(".qm") : suffix;
 	fi.setFile(realname);
 	if ( fi.isReadable() )
 	    goto found_file; // EXIT LOOP

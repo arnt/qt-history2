@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#196 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -866,6 +866,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 		 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
 	maxh = QMIN( maxh, QWIDGETSIZE_MAX );	
+    }
     if ( maxw < 0 || maxh < 0 ) {
 	warning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",

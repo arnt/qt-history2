@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#168 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#169 $
 **
 ** Implementation of QFileDialog class
 **
@@ -286,7 +286,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	if ( info.isFile() )
 	    return QString().sprintf( "%d", info.size() );
 	else
-	    return "";
+	    return QString::fromLatin1("");
     case 2:
 	if ( info.isFile() && info.isSymLink() ) {
 	    return d->symLinkToFile;
@@ -311,9 +311,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    // use a static const char here, so that egcs will not see
 	    // the formatting string and give an incorrect warning.
 	    if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-		return a;
+		return QString::fromLatin1(a);
 	    else
-		return "????";
+		return QString::fromLatin1("????");
 	}
     case 4:
 	if ( info.isReadable() )
@@ -322,7 +322,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    return info.isWritable() ? d->wo : d->inaccessible;
     }
 
-    return "<--->";
+    return QString::fromLatin1("<--->");
 }
 
 
@@ -346,8 +346,8 @@ QString QFileDialogPrivate::File::key( int column, bool ascending ) const
 
     char majorkey = ascending == info.isDir() ? '0' : '1';
 
-    if ( info.fileName() == ".." ) {
-        return ascending ? "0" : "a"; // a > 9
+    if ( info.fileName() == QString::fromLatin1("..") ) {
+        return QString::fromLatin1(ascending ? "0" : "a"); // a > 9
     } else if ( column == 1 ) {
 	return QString().sprintf( "%c%08d", majorkey, info.size() );
     } else if ( column == 3 ) {
@@ -725,7 +725,7 @@ void QFileDialog::setSelection( const QString & filename )
     QFileInfo info(filename);
     if ( info.isDir() ) {
 	setDir( filename );
-	nameEdit->setText( "" );
+	nameEdit->setText( QString::fromLatin1("") );
     } else {
 	setDir( info.dir() );
 	nameEdit->setText( info.fileName() );
@@ -762,7 +762,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
 	return;
     QString f = newFilter;
-    QRegExp r( "([a-zA-Z0-9\\.\\*\\?]*)$" );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
@@ -797,7 +797,7 @@ void QFileDialog::setDir( const QString & pathstr )
 	d = d.mid( i, d.length() );
 	pw = ::getpwnam( user );
 	if ( pw )
-	    d.prepend( pw->pw_dir );
+	    d.prepend( QString::fromLocal8Bit(pw->pw_dir) );
     }
 #endif
 
@@ -869,8 +869,9 @@ void QFileDialog::rereadDir()
 	if ( !filist &&
 	     QMessageBox::warning( this, tr("Open File"),
 				   QString( tr("Unable to read directory\n") )
-				   + cwd.absPath() + "\n\n" +
-				   tr("Please make sure that the directory\n"
+				   + cwd.absPath()
+				   + QString::fromLatin1("\n\n")
+				   + tr("Please make sure that the directory\n"
 				      "is readable.\n"),
 				   tr("Use Parent Directory"),
 				   tr("Use Old Contents") ) ) {
@@ -894,8 +895,9 @@ void QFileDialog::rereadDir()
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
 	++it;
-	if ( fi->fileName() != "." &&
-	     ( !cwd.isRoot() || fi->fileName() != ".." ) ) {
+	if ( fi->fileName() != QString::fromLatin1(".") &&
+	     ( !cwd.isRoot() ||
+		    fi->fileName() != QString::fromLatin1("..") ) ) {
 	    QListViewItem * i
 		= new QFileDialogPrivate::File( d, fi, files );
 	    if ( mode() == ExistingFiles && fi->isDir() )
@@ -989,7 +991,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setCaption( "Open" );
+    dlg->setCaption(
+	qApp->translate("QFileDialog","Open")
+    );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
     dlg->setMode( QFileDialog::ExistingFile );
@@ -1062,7 +1066,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setCaption( "Save As" );
+    dlg->setCaption(
+	qApp->translate("QFileDialog","Save As")
+    );
     QString result;
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
@@ -1107,7 +1113,7 @@ void QFileDialog::okClicked()
 	    f = QFileInfo( cwd, nameEdit->text() );
 	if ( f.isDir() ) {
 	    setDir( f.absFilePath() );
-	    QFileInfo f ( cwd, "." );
+	    QFileInfo f ( cwd, QString::fromLatin1(".") );
 	    trySetSelection( f, TRUE );
 	}
     }
@@ -1168,7 +1174,7 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	if ( !d->currentFileName.isNull() || info.isDir() )
 	    nameEdit->setText( info.fileName() );
 	else
-	    nameEdit->setText( "" );
+	    nameEdit->setText( QString::fromLatin1("") );
     }
 
     if ( !d->currentFileName.isNull() || info.isDir() ) {
@@ -1342,7 +1348,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	}
 	setDir( i->info.absFilePath() );
 	if ( mode() == Directory ) {
-	    QFileInfo f ( cwd, "." );
+	    QFileInfo f ( cwd, QString::fromLatin1(".") );
 	    trySetSelection( f, TRUE );
 	}
     } else if ( newItem->isSelectable() && trySetSelection( i->info, TRUE ) ) {
@@ -1476,7 +1482,7 @@ void QFileDialog::setMode( Mode newMode )
 	if ( newMode == Directory ) {
 	    files->setMultiSelection( FALSE );
 	    if ( sel.isNull() )
-		sel = ".";
+		sel = QString::fromLatin1(".");
 	} else if ( newMode == ExistingFiles ) {
 	    files->setMultiSelection( TRUE );
 	} else {
@@ -1557,7 +1563,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 		// maybe change directory
 		QFileInfo i( cwd, nameEdit->text() );
 		if ( i.isDir() ) {
-		    nameEdit->setText( "" );
+		    nameEdit->setText( QString::fromLatin1("") );
 		    setDir( i.filePath() );
 		}
 		ke->accept();
@@ -1720,7 +1726,7 @@ void QFileDialog::setFilters( const char ** types )
 
     d->types->clear();
     while( types && *types ) {
-	d->types->insertItem( *types );
+	d->types->insertItem( QString::fromLatin1(*types) );
 	types++;
     }
     d->types->setCurrentItem( 0 );

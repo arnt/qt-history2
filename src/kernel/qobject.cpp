@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#197 $
 **
 ** Implementation of QObject class
 **
@@ -515,7 +515,7 @@ QStringList QObject::superClasses( bool includeThis ) const
     meta = meta->superClass();
 
   while ( meta ) {
-    lst.append( meta->className() );
+    lst.append( QString::fromLatin1(meta->className()) );
     meta = meta->superClass();
   }
 
@@ -875,7 +875,7 @@ static void objSearch( QObjectList *result,
 	    if ( objName )
 		ok = qstrcmp(objName,obj->name()) == 0;
 	    else if ( rx )
-		ok = rx->match(obj->name()) >= 0;
+		ok = rx->match(QString::fromLatin1(obj->name())) >= 0;
 	}
 	if ( ok )				// match!
 	    result->append( obj );
@@ -962,7 +962,7 @@ QObjectList *QObject::queryList( const char *inheritsClass,
     QObjectList *list = new QObjectList;
     CHECK_PTR( list );
     if ( regexpMatch && objName ) {		// regexp matching
-	QRegExp rx(objName);
+	QRegExp rx(QString::fromLatin1(objName));
 	objSearch( list, (QObjectList *)children(), inheritsClass,
 		   0, &rx, recursiveSearch );
     } else {
@@ -1754,7 +1754,7 @@ QString QObject::tr( const char *text )
     if ( qApp )
 	return qApp->translate( "QObject", text );
     else
-	return text;
+	return QString::fromLatin1(text);
 }
 
 /*!
@@ -1885,7 +1885,7 @@ static void dumpRecursive( int level, QObject *object )
 	QCString buf;
 	buf.fill( '\t', level );
 	const char *name = object->name( "unnamed" );
-	QString flags="";
+	QString flags=QString::fromLatin1("");
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';
 	if ( object->isWidgetType() ) {

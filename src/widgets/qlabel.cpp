@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#118 $
 **
 ** Implementation of QLabel widget class
 **
@@ -155,7 +155,7 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f
 
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ), ltext("")
+    : QFrame( parent, name, f ), ltext(QString::fromLatin1(""))
 {
     init();
     align = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
@@ -267,7 +267,7 @@ void QLabel::setText( const QString &text )
 
 void QLabel::clear()
 {
-    setText( "" );
+    setText( QString::fromLatin1("") );
 }
 
 
@@ -519,7 +519,7 @@ QSize QLabel::sizeForWidth( int w ) const
     int fw = frameWidth();
     if ( m < 0 ) {
 	if ( fw > 0 )
-	    m = p.fontMetrics().width( "x" );
+	    m = p.fontMetrics().width( 'x' );
 	else
 	    m = 0;
     }
@@ -581,7 +581,7 @@ void QLabel::drawContents( QPainter *p )
     int m = margin();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
-	    m = p->fontMetrics().width("x")/2;
+	    m = p->fontMetrics().width('x')/2;
 	else
 	    m = 0;
     }
@@ -638,7 +638,7 @@ void QLabel::drawContentsMask( QPainter *p )
     int m = margin();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
-	    m = p->fontMetrics().width("x")/2;
+	    m = p->fontMetrics().width('x')/2;
 	else
 	    m = 0;
     }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#37 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -203,7 +203,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     verticalScrollBar()->setCursor( arrowCursor );
     horizontalScrollBar()->setCursor( arrowCursor );
     dummy = FALSE;
-    insertLine( "", -1 );
+    insertLine( QString::fromLatin1(""), -1 );
     readOnly 	   = FALSE;
     cursorOn	   = FALSE;
     dummy          = TRUE;
@@ -659,11 +659,11 @@ QString QMultiLineEdit::markedText() const
 	if ( firstS )
 	    tmp += firstS->mid(markBeginX);
 
-	tmp += "\n";
+	tmp += '\n';
 
 	for( i = markBeginY + 1; i < markEndY ; i++ ) {
 	    tmp += *getString(i);
-	    tmp += "\n";
+	    tmp += '\n';
 	}
 
 	if ( lastS ) {
@@ -688,7 +688,7 @@ QString QMultiLineEdit::textLine( int line ) const
     QString *s = getString(line);
     if ( s ) {
 	if ( s->isNull() )
-	    return "";
+	    return QString::fromLatin1("");
 	else
 	    return *s;
     } else
@@ -709,7 +709,7 @@ QString QMultiLineEdit::text() const
     for( int i = 0 ; i < (int)contents->count() ; i++ ) {
 	tmp += *getString(i);
 	if ( i+1 < (int)contents->count() )
-	    tmp += "\n";
+	    tmp += '\n';
     }
     return tmp;
 }
@@ -1151,7 +1151,7 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 	    // Will not fit.  Put it all on the current line.
 	    textLine = oldRow->s;
 	    while ( i ) {
-		textLine += " ";
+		textLine += ' ';
 		textLine += getOneLine( txt, i );
 	    }
 	    textLine += newString;
@@ -1169,7 +1169,7 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 		textLine = getOneLine( txt, i );
 		if ( mlData->maxlines >= 0 && (int)contents->count() == mlData->maxlines ) {
 		    while ( i ) {
-			textLine += " ";
+			textLine += ' ';
 			textLine += getOneLine( txt, i );
 		    }
 		}
@@ -1232,7 +1232,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	if ( mlData->maxlines >= 0 && (int)contents->count() == mlData->maxlines ) {
 	    textLine.prepend(contents->at(line-1)->s);
 	    while ( i ) {
-		textLine += " ";
+		textLine += ' ';
 		textLine += getOneLine( txt, i );
 	    }
 	    if ( mlData->maxllen >= 0 && (int)textLine.length() > mlData->maxllen ) {
@@ -1282,7 +1282,7 @@ void QMultiLineEdit::removeLine( int line )
     contents->remove( line );
     if ( contents->count() == 0 ) {
 	//debug( "remove: last one gone, inserting dummy" );
-	insertLine( "", -1 );
+	insertLine( QString::fromLatin1(""), -1 );
 	dummy = TRUE;
     }
     setNumRows( contents->count() );
@@ -1631,7 +1631,7 @@ void QMultiLineEdit::del()
 		contents->remove( markBeginY + 1 );
 	    markIsOn = FALSE;
 	    if ( contents->isEmpty() )
-		insertLine( "", -1 );
+		insertLine( QString::fromLatin1(""), -1 );
 
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
@@ -2086,7 +2086,7 @@ void QMultiLineEdit::updateCellWidth()
 	}
 	break;
       case NoEcho:
-	maxW = textWidth("");
+	maxW = textWidth(QString::fromLatin1(""));
     }
     setWidth( maxW );
 }
@@ -2146,7 +2146,7 @@ void QMultiLineEdit::clear()
 {
     contents->clear();
     cursorX = cursorY = 0;
-    insertLine( "", -1 );
+    insertLine( QString::fromLatin1(""), -1 );
     dummy = TRUE;
     markIsOn = FALSE;
     setWidth( 1 );
@@ -2501,7 +2501,7 @@ QSize QMultiLineEdit::sizeHint() const
     }
     QFontMetrics fm( font() );
     int h = fm.lineSpacing()*(expected_lines-1)+fm.height() + frameWidth()*2;
-    int w = fm.width( "This should be about 30-40 chars." );
+    int w = fm.width('x')*35;
 
     int maxh = maximumSize().height();
     if ( maxh < QWIDGETSIZE_MAX )
@@ -2521,7 +2521,7 @@ QSize QMultiLineEdit::minimumSizeHint() const
 
      QFontMetrics fm( font() );
     int h = fm.lineSpacing() + frameWidth()*2;
-    int w = fm.width( "M" );
+    int w = fm.maxWidth();
     h += frameWidth();
     w += frameWidth();
     if ( testTableFlags(Tbl_hScrollBar|Tbl_autoHScrollBar) )
@@ -2682,19 +2682,19 @@ QString QMultiLineEdit::stringShown(int row) const
     if ( !s ) return QString::null;
     switch ( mlData->echomode ) {
       case Normal:
-    	if (!*s) return "";
+    	if (!*s) return QString::fromLatin1("");
 	return *s;
       case Password:
 	{
 	    QString r;
 	    r.fill(QChar('*'), (int)s->length());
-	    if ( !r ) r = "";
+	    if ( !r ) r = QString::fromLatin1("");
 	    return r;
 	}
       case NoEcho:
-	return "";
+	return QString::fromLatin1("");
     }
-    return "";
+    return QString::fromLatin1("");
 }
 
 /*!

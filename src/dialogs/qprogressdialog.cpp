@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#43 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -159,7 +159,8 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 				  bool modal, WFlags f )
     : QSemiModal( 0, name, modal, f)
 {
-    init( creator, "", "Cancel", 100 );
+    init( creator, QString::fromLatin1(""),
+	tr("Cancel"), 100 );
 }
 
 /*!

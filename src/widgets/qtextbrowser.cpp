@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#2 $
 **
 ** Implementation of the QTextView class
 **
@@ -120,7 +120,7 @@ void QTextBrowser::setDocument(const QString& name)
 
     QString url = main;
     if (!mark.isEmpty()) {
-	url += "#";
+	url += '#';
 	url += mark;
     }
 
@@ -132,7 +132,12 @@ void QTextBrowser::setDocument(const QString& name)
 	if ( isVisible() ) {
 	    QString firstTag = doc.left( doc.find('>' )+1 );
 	    QTextDocument tmp( firstTag, 0, 0 );
-	    if (tmp.attributes() && tmp.attributes()->find("type") && *tmp.attributes()->find("type") == "detail" ) {
+
+	    static QString s_type = QString::fromLatin1("type");
+	    static QString s_detail = QString::fromLatin1("detail");
+
+	    if (tmp.attributes() && tmp.attributes()->find(s_type)
+		    && *tmp.attributes()->find(s_type) == s_detail ) {
 		popupDetail( doc, d->lastClick );
 		return;
 	    }

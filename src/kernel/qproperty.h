@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.h#5 $
+** $Id: //depot/qt/main/src/kernel/qproperty.h#6 $
 **
 ** Definition of QProperty class
 **
@@ -62,7 +62,6 @@ public:
       IntListType,
       DoubleListType,
       FontType,
-      // MovieType,
       PixmapType,
       BrushType,
       RectType,
@@ -75,6 +74,8 @@ public:
       IntType,
       BoolType,
       DoubleType, 
+      // MovieType,
+      NTypes, 
       CustomType = 0x1000
     };
   
@@ -171,6 +172,9 @@ protected:
       double d;
       void *ptr;
     } val;
+
+private:
+    static void initTypeNameMap();
 };
 
 QDataStream& operator>> ( QDataStream& s, QProperty& p );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#31 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -135,6 +135,7 @@ bool QClipboard::event( QEvent *e )
 QString QClipboard::text() const
 {
     // #### Only ASCII at the moment.  Add Unicode CF format.
+    //        (see DND stuff)
 
     ClipboardFormat f = CFText;
 
@@ -152,7 +153,7 @@ QString QClipboard::text() const
     char *src = (char *)GlobalLock(h);
     char *dst = (char *)GlobalLock(htext);
     strcpy( dst, src );
-    text = dst;
+    text = QString::fromLatin1(dst);
     GlobalUnlock(h);
     GlobalUnlock(htext);
     GlobalFree(htext);
@@ -165,6 +166,7 @@ QString QClipboard::text() const
 void QClipboard::setText( const QString &text )
 {
     // #### Only ASCII at the moment.  Add Unicode CF format.
+    //        (see DND stuff)
 
     ClipboardFormat f = CFText;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#93 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#94 $
 **
 ** Implementation of QMessageBox class
 **
@@ -388,8 +388,22 @@ static const int LastButton = QMessageBox::Ignore;
 */
 
 static const char *mb_texts[] = {
-    0, "OK", "Cancel", "Yes", "No", "Abort", "Retry", "Ignore", 0
+    0,
+    QT_TRANSLATE_NOOP("QMessageBox","OK"),
+    QT_TRANSLATE_NOOP("QMessageBox","Cancel"),
+    QT_TRANSLATE_NOOP("QMessageBox","Yes"),
+    QT_TRANSLATE_NOOP("QMessageBox","No"),
+    QT_TRANSLATE_NOOP("QMessageBox","Abort"),
+    QT_TRANSLATE_NOOP("QMessageBox","Retry"),
+    QT_TRANSLATE_NOOP("QMessageBox","Ignore"),
+    0
 };
+
+
+QString QMessageBox::defaultOk()
+{
+    return tr(mb_texts[1]);
+}
 
 
 // Internal class - don't touch
@@ -572,8 +586,9 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	} else {
 	    QCString buttonName;
 	    buttonName.sprintf( "button%d", i+1 );
-	    mbd->pb[i] = new QPushButton( mb_texts[mbd->button[i]],
-					  this, buttonName );
+	    mbd->pb[i] = new QPushButton(
+		tr(mb_texts[mbd->button[i]]),
+	        this, buttonName );
 	    if ( mbd->defButton == i ) {
 		mbd->pb[i]->setDefault( TRUE );
 		mbd->pb[i]->setFocus();
@@ -923,7 +938,8 @@ int QMessageBox::message( const QString &caption,
 			  QWidget    *parent,
 			  const char * )
 {
-    return QMessageBox::information( parent, caption, text, buttonText.isEmpty()?QString("Ok"):buttonText ) == 0;
+    return QMessageBox::information( parent, caption, text,
+	buttonText.isEmpty()?tr("OK"):buttonText ) == 0;
 }
 
 
@@ -943,7 +959,7 @@ bool QMessageBox::query( const QString &caption,
 			 QWidget *parent, const char * )
 {
     return QMessageBox::information( parent, caption, text,
-				     yesButtonText.isEmpty()?QString("Ok"):yesButtonText, noButtonText ) == 0;
+				     yesButtonText.isEmpty()?tr("OK"):yesButtonText, noButtonText ) == 0;
 }
 
 
@@ -1244,9 +1260,10 @@ static const char *textAboutQt =
 
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
-    information( parent, caption.isNull() ? QString("About Qt") : caption,
+    information( parent, caption.isNull()
+	? QString::fromLatin1("About Qt") : caption,
 		 qApp->translate( "QMessageBox", textAboutQt )
-			.arg(QT_VERSION_STR)
+			.arg(QString::fromLatin1(QT_VERSION_STR))
     );
 }
 
@@ -1274,5 +1291,4 @@ void QMessageBoxLabel::initMetaObject()
 	0, 0,
 	0, 0 );
 }
-
 

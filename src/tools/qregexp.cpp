@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#66 $
 **
 ** Implementation of QRegExp class
 **
@@ -601,7 +601,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 static QString wc2rx( const QString &pattern )
 {
     int patlen = (int)pattern.length();
-    QString wcpattern = "^";
+    QString wcpattern = QString::fromLatin1("^");
 
     QChar c;
     for( int i = 0; i < patlen; i++ ) {

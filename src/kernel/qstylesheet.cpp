@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#3 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -502,7 +502,7 @@ QString QStyleSheetItem::contexts() const
  */
 void QStyleSheetItem::setContexts( const QString& c)
 {
-    d->contxt = QString(" ") + c + " ";
+    d->contxt = QChar(' ') + c + QChar(' ');
 }
 
 /*!
@@ -515,7 +515,7 @@ bool QStyleSheetItem::allowedInContext( const QStyleSheetItem* s) const
 {
     if ( d->contxt.isEmpty() )
 	return TRUE;
-    return d->contxt.find( QString(" ")+s->name()+" ") != -1;
+    return d->contxt.find( QChar(' ')+s->name()+QChar(' ')) != -1;
 }
 
 
@@ -681,99 +681,100 @@ void QStyleSheet::init()
 {
     styles.setAutoDelete( TRUE );
 
-    nullstyle  = new QStyleSheetItem( this, "");
+    nullstyle  = new QStyleSheetItem( this,
+	QString::fromLatin1("") );
 
     QStyleSheetItem*  style;
 
     style = new QStyleSheetItem( this, "qml" ); // compatibility
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );
 
-    style = new QStyleSheetItem( this, "qt" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("qt") );
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );
     //style->setMargin( QStyleSheetItem::MarginAll, 4 );
 
-    style = new QStyleSheetItem( this, "a" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("a") );
     style->setColor( Qt::blue );
     style->setAnchor( TRUE );
 
-    style = new QStyleSheetItem( this, "em" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("em") );
     style->setFontItalic( TRUE );
 
-    style = new QStyleSheetItem( this, "i" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("i") );
     style->setFontItalic( TRUE );
 
-    style = new QStyleSheetItem( this, "large" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("large") );
     style->setFontSizeRelative( 120 );
 
-    style = new QStyleSheetItem( this, "small" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("small") );
     style->setFontSizeRelative( 80 );
 
-    style = new QStyleSheetItem( this, "strong" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("strong") );
     style->setFontWeight( QFont::Bold);
 
-    style = new QStyleSheetItem( this, "b" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("b") );
     style->setFontWeight( QFont::Bold);
 
-    style = new QStyleSheetItem( this, "h1" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("h1") );
     style->setFontWeight( QFont::Bold);
     style->setFontSize(24);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 12);
 
-    style = new QStyleSheetItem( this, "h2" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("h2") );
     style->setFontWeight( QFont::Bold);
     style->setFontSize(16);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 10);
 
-    style = new QStyleSheetItem( this, "h3" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("h3") );
     style->setFontWeight( QFont::Bold);
     style->setFontSize(14);
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 8);
 
-    style = new QStyleSheetItem( this, "p" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("p") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
-    style = new QStyleSheetItem( this, "center" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("center") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setAlignment( AlignCenter );
 
-    style = new QStyleSheetItem( this, "twocolumn" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("twocolumn") );
     style->setNumberOfColumns( 2 );
 
-    style = new QStyleSheetItem( this, "multicol" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("multicol") );
 
-    style = new QStyleSheetItem( this, "ul" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
 
-    style = new QStyleSheetItem( this, "ol" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("ol") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setListStyle( QStyleSheetItem::ListDecimal );
 
-    style = new QStyleSheetItem( this, "li" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("li") );
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
-    style->setContexts("ol ul");
+    style->setContexts(QString::fromLatin1("ol ul"));
     //    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
-    style = new QStyleSheetItem( this, "code" );
-    style->setFontFamily( "courier" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("code") );
+    style->setFontFamily( QString::fromLatin1("courier") );
 
-    style = new QStyleSheetItem( this, "tt" );
-    style->setFontFamily( "courier" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("tt") );
+    style->setFontFamily( QString::fromLatin1("courier") );
 
-    new QStyleSheetItem(this, "img");
-    new QStyleSheetItem(this, "br");
-    new QStyleSheetItem(this, "hr");
+    new QStyleSheetItem(this, QString::fromLatin1("img"));
+    new QStyleSheetItem(this, QString::fromLatin1("br"));
+    new QStyleSheetItem(this, QString::fromLatin1("hr"));
 
-    style = new QStyleSheetItem( this, "table" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("table") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style = new QStyleSheetItem( this, "pre" );
-    style->setFontFamily( "courier" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("pre") );
+    style->setFontFamily( QString::fromLatin1("courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
-    style = new QStyleSheetItem( this, "blockquote" );
+    style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginAll, 8 );
 }
@@ -848,17 +849,22 @@ QTextNode* QStyleSheet::tag( const QString& name,
 	style = nullstyle;
     }
 
+    static QString s_img = QString::fromLatin1("img");
+    static QString s_hr = QString::fromLatin1("hr");
+    static QString s_br = QString::fromLatin1("br");
+    static QString s_multicol = QString::fromLatin1("multicol");
+
     // first some known  tags
-    if (style->name() == "img")
+    if (style->name() == s_img)
 	return new QTextImage(attr, provider);
-    else if (style->name() == "hr")
+    else if (style->name() == s_hr)
 	return new QTextHorizontalLine(attr, provider);
-    else if (style->name() == "br") {
+    else if (style->name() == s_br) {
 	QTextNode* result = new QTextNode;
-	result->c = "\n";
+	result->c = '\n';
 	return result;
     }
-    else if (style->name() == "multicol")
+    else if (style->name() == s_multicol)
 	return new QTextMulticol( style, attr );
 
     // empty tags

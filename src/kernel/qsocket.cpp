@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#22 $
 **
 ** Implementation of QSocket class
 **
@@ -65,7 +65,8 @@ public:
 };
 
 QSocketPrivate::QSocketPrivate()
-    : state(QSocket::Idle), mode(QSocket::Binary), host(""), port(0),
+    : state(QSocket::Idle), mode(QSocket::Binary),
+      host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
       newline(FALSE), ready_read_timer(0)
 {
@@ -82,7 +83,7 @@ QSocketPrivate::~QSocketPrivate()
 
 void QSocketPrivate::reinit()
 {
-    host = "";
+    host = QString::fromLatin1("");
     port = 0;
     if ( rsn ) {
 	delete rsn;
@@ -912,7 +913,7 @@ bool QSocket::canReadLine() const
 QString QSocket::readLine()
 {
     if ( !canReadLine() )
-	return QString("");
+	return QString::fromLatin1("");
     QByteArray a(256);
     scanNewline( &a );
     at( a.size() );				// skips the data read

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#60 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -84,9 +84,9 @@ QPrinter::QPrinter()
     ncopies = 1;
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
-    printer_name = getenv( "PRINTER" );
+    printer_name = QString::fromLatin1(getenv( "PRINTER" ));
     output_file = FALSE;
-    print_prog = "lpr";
+    print_prog = QString::fromLatin1("lpr");
 }
 
 /*!
@@ -183,12 +183,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ACTIVE;
 		}
 	    } else {
-		QString pr = printer_name.copy();
+		QString pr = printer_name;
 		if ( pr.isEmpty() )
-		    pr = getenv( "PRINTER" );
+		    pr = QString::fromLatin1(getenv( "PRINTER" ));
 		if ( pr.isEmpty() )
-		    pr = "lp";
-		pr.insert( 0, "-P" );
+		    pr = QString::fromLatin1("lp");
+		pr.insert( 0, QString::fromLatin1("-P") );
 #if defined(_OS_WIN32_)
 		// Not implemented
 		// lpr needs -Sserver argument
@@ -250,7 +250,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    // if execlp returns EACCES it couldn't find the
 		    // program.  if no special print program has been
 		    // set, let's try a little harder...
-		    if ( print_prog == "lpr" && ( errno == EACCES ||
+		    if ( print_prog == QString::fromLatin1("lpr")
+			    && ( errno == EACCES ||
 						  errno == ENOENT ||
 						  errno == ENOEXEC ) ) {
 			(void)execl( "/bin/lpr", "lpr", pr.ascii(), 0 );

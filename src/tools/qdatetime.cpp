@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#75 $
 **
 ** Implementation of date and time classes
 **
@@ -216,7 +216,8 @@ QString QDate::monthName( int month ) const
 	month = 0;
     }
 #endif
-    return monthNames[month-1];
+    // ### Remove the fromLatin1 during localization
+    return QString::fromLatin1(monthNames[month-1]);
 }
 
 /*!
@@ -233,7 +234,8 @@ QString QDate::dayName( int weekday) const
 	weekday = 0;
     }
 #endif
-    return weekdayNames[weekday-1];
+    // ### Remove the fromLatin1 during localization
+    return QString::fromLatin1(weekdayNames[weekday-1]);
 }
 
 

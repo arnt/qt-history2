@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#2 $
 **
 ** Implementation of the QTextView class
 **
@@ -102,7 +102,7 @@ void QTextView::init()
     d->doc_ = 0;
     d->sheet_ = 0;
     d->provider_ = 0;
-    d->txt = "<p></p>";
+    d->txt = QString::fromLatin1("<p></p>");
 
     viewport()->setBackgroundMode(NoBackground);
     setFocusPolicy( StrongFocus );
@@ -128,7 +128,7 @@ void QTextView::setContents( const QString& doc)
     d->doc_ = 0;
     d->txt = doc;
     if ( d->txt.isEmpty() )
-	d->txt = "<p></p>";
+	d->txt = QString::fromLatin1("<p></p>");
     if ( isVisible() ) {
 	QPainter * p = new QPainter( this );
 	// first try to use the full width of the viewport

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#202 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#203 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -200,7 +200,7 @@ void QLineEdit::init()
     markDrag = 0;
     dragScrolling = FALSE;
     scrollingLeft = FALSE;
-    tbuf = "";
+    tbuf = QString::fromLatin1("");
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
@@ -559,7 +559,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    displayText = tbuf.mid( offset );
 	    break;
 	case NoEcho:
-	    displayText = "";
+	    displayText = QString::fromLatin1("");
 	    break;
 	case Password:
 	    displayText.fill( '*', tbuf.length() - offset );
@@ -1260,7 +1260,7 @@ QSize QLineEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
     int h = fm.height();
-    int w = fm.width( "about 15-20 chars." );
+    int w = fm.width( 'x' ) * 17; // "some"
     if ( frame() ) {
 	h += 8;
 	if ( style() == WindowsStyle && h < 26 )
@@ -1285,7 +1285,7 @@ QSize QLineEdit::minimumSizeHint() const
 {
     QFontMetrics fm( font() );
     int h = fm.height();
-    int w = fm.width( "M" );
+    int w = fm.maxWidth();
     if ( frame() ) {
 	h += 8;
 	if ( style() == WindowsStyle && h < 26 )
@@ -1616,7 +1616,7 @@ void QLineEdit::setFont( const QFont & f )
 
 void QLineEdit::clear()
 {
-    setText( "" );
+    setText( QString::fromLatin1("") );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#100 $
 **
 ** Implementation of QPixmap class
 **
@@ -456,7 +456,7 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
   \sa load(), save()
 */
 
-QString QPixmap::imageFormat( const QString &fileName )
+const char* QPixmap::imageFormat( const QString &fileName )
 {
     return QImageIO::imageFormat(fileName);
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#202 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#203 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -439,6 +439,9 @@ void QComboBox::insertStrList( const QStrList &list, int index )
 
 /*!
   Inserts the list of strings at the index \e index in the combo box.
+
+  This is only for compatibility, as it does not support Unicode
+  strings.  See insertStringList().
 */
 
 void QComboBox::insertStrList( const QStrList *list, int index )
@@ -456,9 +459,9 @@ void QComboBox::insertStrList( const QStrList *list, int index )
     while ( (tmp=it.current()) ) {
 	++it;
 	if ( d->usingListBox )
-	    d->listBox->insertItem( tmp, index );
+	    d->listBox->insertItem( QString::fromLatin1(tmp), index );
 	else
-	    d->popup->insertItem( tmp, index, index );
+	    d->popup->insertItem( QString::fromLatin1(tmp), index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
@@ -525,9 +528,9 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
 	if ( d->usingListBox )
-	    d->listBox->insertItem( strings[i], index );
+	    d->listBox->insertItem( QString::fromLatin1(strings[i]), index );
 	else
-	    d->popup->insertItem( strings[i], index, index );
+	    d->popup->insertItem( QString::fromLatin1(strings[i]), index, index );
 	i++;
 	if ( index++ == d->current && d->current < count()  ) {
 	    if ( d->ed )
@@ -612,7 +615,7 @@ void QComboBox::removeItem( int index )
 	reIndex();
     if ( index == d->current ) {
 	if ( d->ed ) {
-	    QString s = "";
+	    QString s = QString::fromLatin1("");
 	    if (d->current < cnt - 1)
 		s = text( d->current );
 	    d->ed->setText( s );
@@ -643,7 +646,7 @@ void QComboBox::clear()
 	d->popup->clear();
     d->current = 0;
     if ( d->ed )
-	d->ed->setText( "" );
+	d->ed->setText( QString::fromLatin1("") );
     currentChanged();
 }
 

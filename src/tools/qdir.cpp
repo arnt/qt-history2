@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#76 $
 **
 ** Implementation of QDir class
 **
@@ -162,7 +162,7 @@ static void slashify( QString& )
 
 QDir::QDir()
 {
-    dPath = ".";
+    dPath = QString::fromLatin1(".");
     init();
 }
 
@@ -202,10 +202,10 @@ QDir::QDir( const QString &path, const QString &nameFilter,
     init();
     dPath = cleanDirPath( path );
     if ( dPath.isEmpty() )
-	dPath = ".";
+	dPath = QString::fromLatin1(".");
     nameFilt = nameFilter;
     if ( nameFilt.isEmpty() )
-	nameFilt = "*";
+	nameFilt = QString::fromLatin1("*");
     filtS = (FilterSpec)filterSpec;
     sortS = (SortSpec)sortSpec;
 }
@@ -231,7 +231,7 @@ void QDir::init()
 {
     fList     = 0;
     fiList    = 0;
-    nameFilt = "*";
+    nameFilt = QString::fromLatin1("*");
     dirty    = TRUE;
     allDirs  = FALSE;
     filtS    = All;
@@ -274,7 +274,7 @@ void QDir::setPath( const QString &path )
 {
     dPath = cleanDirPath( path );
     if ( dPath.isEmpty() )
-	dPath = ".";
+	dPath = QString::fromLatin1(".");
     dirty = TRUE;
 }
 
@@ -302,7 +302,7 @@ QString QDir::absPath() const
 {
     if ( QDir::isRelativePath(dPath) ) {
 	QString tmp = currentDirPath();
-	if ( tmp.right(1) != "/" )
+	if ( tmp.right(1) != QString::fromLatin1("/") )
 	    tmp += '/';
 	tmp += dPath;
 	return cleanDirPath( tmp );
@@ -501,7 +501,7 @@ QString QDir::convertSeparators( const QString &pathName )
 
 bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 {
-    if ( dirName.isEmpty() || dirName=="." )
+    if ( dirName.isEmpty() || dirName==QString::fromLatin1(".") )
 	return TRUE;
     QString old = dPath;
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
@@ -511,8 +511,8 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 	    dPath += '/';
 	dPath += dirName;
 	if ( dirName.find('/') >= 0
-		|| old == "."
-		|| dirName == ".." )
+		|| old == QString::fromLatin1(".")
+		|| dirName == QString::fromLatin1("..") )
 	    dPath = cleanDirPath( dPath );
     }
     if ( !exists() ) {
@@ -536,7 +536,7 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 
 bool QDir::cdUp()
 {
-    return cd( ".." );
+    return cd( QString::fromLatin1("..") );
 }
 
 /*!
@@ -559,7 +559,7 @@ void QDir::setNameFilter( const QString &nameFilter )
 {
     nameFilt = nameFilter;
     if ( nameFilt.isEmpty() )
-	nameFilt = "*";
+	nameFilt = QString::fromLatin1("*");
     dirty = TRUE;
 }
 
@@ -921,7 +921,7 @@ bool QDir::isRoot() const
     return dPath == "/" || dPath == "//" ||
 	(isalpha(dPath[0]) && dPath.mid(1,dPath.length()) == ":/");
 #else
-    return dPath == "/";
+    return dPath == QString::fromLatin1("/");
 #endif
 }
 
@@ -1014,7 +1014,7 @@ bool QDir::operator==( const QDir &d ) const
 
 bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 {
-    if ( fileName == 0 || fileName[0] == '\0' ) {
+    if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::remove: Empty or null file name" );
 #endif
@@ -1043,7 +1043,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
-    if ( name == 0 || name[0] == '\0' || newName == 0 || newName[0] == '\0' ) {
+    if ( name.isEmpty() || newName.isEmpty() ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::rename: Empty or null file name(s)" );
 #endif
@@ -1079,7 +1079,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 
 bool QDir::exists( const QString &name, bool acceptAbsPath )
 {
-    if ( name == 0 || name[0] == '\0' ) {
+    if ( name.isEmpty() ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::exists: Empty or null file name" );
 #endif
@@ -1175,15 +1175,33 @@ QString QDir::currentDirPath()
     static bool forcecwd = TRUE;
     static ino_t cINode;
     static dev_t cDevice;
-    char currentName[PATH_MAX];
     QString result;
 
     STATBUF st;
 
     if ( STAT( ".", &st ) == 0 ) {
 	if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
-	    if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
-		result = currentName;
+#ifdef _WS_WIN_
+	    if ( qt_winunicode ) {
+		TCHAR currentName[PATH_MAX];
+		if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
+		    result = qt_winQString(currentName);
+		}
+	    } else {
+		char currentName[PATH_MAX];
+		if ( _getcwd(currentName,PATH_MAX) >= 0 ) {
+		    result = QString::fromLatin1(currentName);
+		}
+	    }
+#else
+	    {
+		char currentName[PATH_MAX];
+		if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
+		    result = QString::fromLocal8Bit(currentName);
+		}
+	    }
+#endif
+	    if ( !result.isNull() ) {
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
 		slashify( result );
@@ -1210,7 +1228,7 @@ QString QDir::currentDirPath()
 QString QDir::homeDirPath()
 {
     QString d;
-    d = getenv("HOME");
+    d = QString::fromLocal8Bit(getenv("HOME"));
     slashify( d );
     if ( d.isNull() )
 	d = rootDirPath();
@@ -1232,7 +1250,7 @@ QString QDir::rootDirPath()
     _abspath( dir, "/", _MAX_PATH );
     QString d( dir );
 #elif defined(UNIX)
-    QString d( "/" );
+    QString d = QString::fromLatin1( "/" );
 #else
 # error Not implemented
 #endif
@@ -1291,7 +1309,8 @@ QString QDir::cleanDirPath( const QString &filePath )
 	} else {
 	    if ( len != 0 && (len != 1 || name.at(pos + 1) != '.') ) {
 		if ( !upLevel )
-		    newPath = "/" + name.mid(pos + 1, len) + newPath;
+		    newPath = QString::fromLatin1("/")
+			+ name.mid(pos + 1, len) + newPath;
 		else
 		    upLevel--;
 	    }
@@ -1300,14 +1319,14 @@ QString QDir::cleanDirPath( const QString &filePath )
     }
     if ( addedSeparator ) {
 	while ( upLevel-- )
-	    newPath.insert( 0, "/.." );
+	    newPath.insert( 0, QString::fromLatin1("/..") );
 	if ( !newPath.isEmpty() )
 	    newPath.remove( 0, 1 );
 	else
-	    newPath = ".";
+	    newPath = QString::fromLatin1(".");
     } else {
 	if ( newPath.isEmpty() )
-	    newPath = "/";
+	    newPath = QString::fromLatin1("/");
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 	if ( name[0] == '/' ) {
 	    if ( name[1] == '/' )		// "\\machine\x\ ..."
@@ -1645,7 +1664,8 @@ debug("<QDir::readDirEntries");
 		     (doExecable && !fi.isExecutable()) )
 		    continue;
 	    if ( !doHidden && fn[0] == '.' &&
-		    fn != "." && fn != ".." )
+		    fn != QString::fromLatin1(".")
+		    && fn != QString::fromLatin1("..") )
 		continue;
 	    if ( dirsFirst && fi.isDir() )
 		dirInSort( dList, diList , fn, fi, sortSpec );

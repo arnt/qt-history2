@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#62 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#63 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -101,7 +101,7 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
 
 static void parsePrintcap( QListView * printers )
 {
-    QFile printcap( "/etc/printcap" );
+    QFile printcap( QString::fromLatin1("/etc/printcap") );
     if ( !printcap.open( IO_ReadOnly ) )
 	return;
 
@@ -119,9 +119,9 @@ static void parsePrintcap( QListView * printers )
 	}
 	if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
 	    line[lineLength-2] = '\0';
-	    printerDesc += line;
+	    printerDesc += QString::fromLocal8Bit(line);
 	} else {
-	    printerDesc += line;
+	    printerDesc += QString::fromLocal8Bit(line);
 	    printerDesc = printerDesc.simplifyWhiteSpace();
 	    int i = printerDesc.find( ':' );
 	    QString printerName, printerComment, printerHost;
@@ -150,7 +150,8 @@ static void parsePrintcap( QListView * printers )
 		    printerComment = printerComment.simplifyWhiteSpace();
 		}
 		// look for signs of this being a remote printer
-		i = printerDesc.find( QRegExp( ": *rm *=" ) );
+		i = printerDesc.find(
+			QRegExp( QString::fromLatin1(": *rm *=") ) );
 		if ( i >= 0 ) {
 		    // point k at the end of remote host name
 		    while( printerDesc[i] != '=' )
@@ -179,7 +180,7 @@ static void parsePrintcap( QListView * printers )
 // solaris, not 2.6
 static void parseEtcLpPrinters( QListView * printers )
 {
-    QDir lp( "/etc/lp/printers" );
+    QDir lp( QString::fromLatin1("/etc/lp/printers") );
     const QFileInfoList * dirs = lp.entryInfoList();
     if ( !dirs )
 	return;
@@ -194,23 +195,23 @@ static void parseEtcLpPrinters( QListView * printers )
 			 printer->fileName().ascii() );
 	    QFile configuration( tmp );
 	    char * line = new char[1025];
-	    QRegExp remote( "^Remote:" );
-	    QRegExp contentType( "^Content types:" );
+	    QRegExp remote( QString::fromLatin1("^Remote:") );
+	    QRegExp contentType( QString::fromLatin1("^Content types:") );
 	    QString printerHost;
 	    bool canPrintPostscript = FALSE;
 	    if ( configuration.open( IO_ReadOnly ) ) {
 		while( !configuration.atEnd() &&
 		       configuration.readLine( line, 1024 ) > 0 ) {
-		    if ( remote.match( line ) == 0 ) {
+		    if ( remote.match( QString::fromLatin1(line) ) == 0 ) {
 			const char * p = line;
 			while( *p != ':' )
 			    p++;
 			p++;
 			while( isspace(*p) )
 			    p++;
-			printerHost = p;
+			printerHost = QString::fromLocal8Bit(p);
 			printerHost.simplifyWhiteSpace();
-		    } else if ( contentType.match( line ) == 0 ) {
+		    } else if ( contentType.match( QString::fromLatin1(line) ) == 0 ) {
 			char * p = line;
 			while( *p != ':' )
 			    p++;
@@ -239,7 +240,7 @@ static void parseEtcLpPrinters( QListView * printers )
 		}
 		if ( canPrintPostscript )
 		    perhapsAddPrinter( printers, printer->fileName(),
-				       printerHost, "" );
+				       printerHost, QString::fromLatin1("") );
 	    }
 	    delete[] line;
 	}
@@ -250,7 +251,7 @@ static void parseEtcLpPrinters( QListView * printers )
 // solaris 2.6
 static char * parsePrintersConf( QListView * printers )
 {
-    QFile pc( "/etc/printers.conf" );
+    QFile pc( QString::fromLatin1("/etc/printers.conf") );
     if ( !pc.open( IO_ReadOnly ) )
 	return 0;
 
@@ -270,9 +271,9 @@ static char * parsePrintersConf( QListView * printers )
 	}
 	if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
 	    line[lineLength-2] = '\0';
-	    printerDesc += line;
+	    printerDesc += QString::fromLocal8Bit(line);
 	} else {
-	    printerDesc += line;
+	    printerDesc += QString::fromLocal8Bit(line);
 	    printerDesc = printerDesc.simplifyWhiteSpace();
 	    int i = printerDesc.find( ':' );
 	    QString printerName, printerHost, printerComment;
@@ -282,8 +283,9 @@ static char * parsePrintersConf( QListView * printers )
 		if ( j >= i )
 		    j = -1;
 		printerName = printerDesc.mid( 0, j < 0 ? i : j );
-		if ( printerName == "_default" ) {
-		    i = printerDesc.find( QRegExp( ": *use *=" ) );
+		if ( printerName == QString::fromLatin1("_default") ) {
+		    i = printerDesc.find(
+			QRegExp( QString::fromLatin1(": *use *=") ) );
 		    while( printerDesc[i] != '=' )
 			i++;
 		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
@@ -297,7 +299,7 @@ static char * parsePrintersConf( QListView * printers )
 		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ).ascii() );
 		    printerName = 0;
 		    printerDesc = 0;
-		} else if ( printerName == "_all" ) {
+		} else if ( printerName == QString::fromLatin1("_all") ) {
 		    // skip it.. any other cases we want to skip?
 		    printerName = 0;
 		    printerDesc = 0;
@@ -305,14 +307,16 @@ static char * parsePrintersConf( QListView * printers )
 
 		if ( j > 0 ) {
 		    // try extracting a comment from the aliases...
-		    printerComment = "Aliases: ";
+		    printerComment = qApp->translate( "QPrintDialog",
+						      "Aliases: " );
 		    printerComment += printerDesc.mid( j+1, i-j-1 );
 		    for( j=printerComment.length(); j>-1; j-- )
 			if ( printerComment[j] == '|' )
 			    printerComment[j] = ',';
 		}
 		// look for signs of this being a remote printer
-		i = printerDesc.find( QRegExp( ": *bsdaddr *=" ) );
+		i = printerDesc.find(
+		    QRegExp( QString::fromLatin1(": *bsdaddr *=") ) );
 		if ( i >= 0 ) {
 		    // point k at the end of remote host name
 		    while( printerDesc[i] != '=' )
@@ -337,7 +341,7 @@ static char * parsePrintersConf( QListView * printers )
 			       printerDesc[j] )
 			    j++;
 			if ( printerName != printerDesc.mid( i, j-i ) ) {
-			    printerComment = "Remote name: ";
+			    printerComment = QString::fromLatin1("Remote name: ");
 			    printerComment += printerDesc.mid( i, j-i );
 			}
 		    }
@@ -359,7 +363,7 @@ static char * parsePrintersConf( QListView * printers )
 // HP-UX
 static void parseEtcLpMember( QListView * printers )
 {
-    QDir lp( "/etc/lp/member" );
+    QDir lp( QString::fromLatin1("/etc/lp/member") );
     if ( !lp.exists() )
 	return;
     const QFileInfoList * dirs = lp.entryInfoList();
@@ -378,14 +382,15 @@ static void parseEtcLpMember( QListView * printers )
 	// decent way to locate aliases and remote printers.
 	if ( printer->isFile() )
 	    perhapsAddPrinter( printers, printer->fileName(),
-			       "unknown", "" );
+			       qApp->translate( "QPrintDialog","unknown"),
+				QString::fromLatin1("") );
     }
 }
 
 // IRIX 6.x
 static void parseSpoolInterface( QListView * printers )
 {
-    QDir lp( "/usr/spool/lp/interface" );
+    QDir lp( QString::fromLatin1("/usr/spool/lp/interface") );
     if ( !lp.exists() )
 	return;
     const QFileInfoList * files = lp.entryInfoList();
@@ -410,9 +415,9 @@ static void parseSpoolInterface( QListView * printers )
 	QString hostPrinter;
 	QString printerType;
 
-	QRegExp typeKey("^TYPE=");
-	QRegExp hostKey("^HOSTNAME=");
-	QRegExp hostPrinterKey("^HOSTPRINTER=");
+	QRegExp typeKey(QString::fromLatin1("^TYPE="));
+	QRegExp hostKey(QString::fromLatin1("^HOSTNAME="));
+	QRegExp hostPrinterKey(QString::fromLatin1("^HOSTPRINTER="));
 	int length;
 
 	while( !configFile.atEnd() &&
@@ -440,10 +445,10 @@ static void parseSpoolInterface( QListView * printers )
 	if(hostName.isEmpty() || hostPrinter.isEmpty())
 	{
 	    perhapsAddPrinter( printers, printer->fileName(),
-		"", "");
+		QString::fromLatin1(""), QString::fromLatin1(""));
 	} else
 	{
-	    QString comment("Remote name: ");
+	    QString comment = QString::fromLatin1("Remote name: ");
 	    comment += hostPrinter;
 	    perhapsAddPrinter( printers, printer->fileName(),
 		hostName, comment);
@@ -455,7 +460,7 @@ static void parseSpoolInterface( QListView * printers )
 // Every unix must have its own.  It's a standard.  Here is AIX.
 static void parseQconfig( QListView * printers )
 {
-    QFile qconfig( "/etc/qconfig" );
+    QFile qconfig( QString::fromLatin1("/etc/qconfig") );
     if ( !qconfig.open( IO_ReadOnly ) )
 	return;
 
@@ -485,17 +490,18 @@ static void parseQconfig( QListView * printers )
 	    int i = line.find( '=' );
 	    QString variable = line.left( i ).simplifyWhiteSpace();
 	    QString value=line.mid( i+1, line.length() ).simplifyWhiteSpace();
-	    if ( variable == "device" )
+	    if ( variable == QString::fromLatin1("device") )
 		deviceName = value;
-	    else if ( variable == "host" )
+	    else if ( variable == QString::fromLatin1("host") )
 		remoteHost = value;
-	    else if ( variable == "up" )
-		up = !(value.lower() == "false");
+	    else if ( variable == QString::fromLatin1("up") )
+		up = !(value.lower() == QString::fromLatin1("false"));
 	} else if ( line[0] == '*' ) { // comment
 	    // nothing to do
 	} else if ( ts.atEnd() || // end of file, or beginning of new stanza
 		    ( !indented &&
-		      line.contains( QRegExp( "^[0-z][0-z]*:$" ) ) ) ) {
+		      line.contains(
+			QRegExp( QString::fromLatin1("^[0-z][0-z]*:$") ) ) ) ) {
 	    if ( stanzaName.length() > 0 && stanzaName.length() < 21 ) {
 		if ( remoteHost.length() ) // remote printer
 		    perhapsAddPrinter( printers, stanzaName, remoteHost,
@@ -676,10 +682,10 @@ QGroupBox * QPrintDialog::setupDestination()
     parseQconfig( d->printers );
 
     QFileInfo f;
-    f.setFile( "/etc/lp/printers" );
+    f.setFile( QString::fromLatin1("/etc/lp/printers") );
     if ( f.isDir() ) {
 	parseEtcLpPrinters( d->printers );
-	QFile def( "/etc/lp/default" );
+	QFile def( QString::fromLatin1("/etc/lp/default") );
 	if ( def.open( IO_ReadOnly ) ) {
 	    etcLpDefault = new char[1025];
 	    def.readLine( etcLpDefault, 1024 );
@@ -693,7 +699,7 @@ QGroupBox * QPrintDialog::setupDestination()
 	}
     }
 
-    f.setFile( "/etc/printers.conf" );
+    f.setFile( QString::fromLatin1("/etc/printers.conf") );
     if ( f.isFile() ) {
 	char * def = parsePrintersConf( d->printers );
 	if ( def ) {
@@ -704,36 +710,40 @@ QGroupBox * QPrintDialog::setupDestination()
     }
 
     // all printers hopefully known.  try to find a good default
-    char * dollarPrinter;
-    dollarPrinter = getenv( "PRINTER" );
-    if ( !dollarPrinter || !*dollarPrinter )
-	dollarPrinter = getenv( "LPDEST" );
+    QString dollarPrinter;
+    {
+	char * t;
+	t = getenv( "PRINTER" );
+	if ( !t || !*t )
+	    t = getenv( "LPDEST" );
+	dollarPrinter = QString::fromLatin1(t);
+    }
     int quality = 0;
 
     // bang the best default into the listview
     const QListViewItem * lvi = d->printers->firstChild();
     d->printers->setCurrentItem( (QListViewItem *)lvi );
     while( lvi ) {
-	QRegExp ps1( "[^a-z]ps[^a-z]" );
-	QRegExp ps2( "[^a-z]ps$" );
-	QRegExp lp1( "[^a-z]lp[^a-z]" );
-	QRegExp lp2( "[^a-z]lp$" );
+	QRegExp ps1( QString::fromLatin1("[^a-z]ps[^a-z]") );
+	QRegExp ps2( QString::fromLatin1("[^a-z]ps$") );
+	QRegExp lp1( QString::fromLatin1("[^a-z]lp[^a-z]") );
+	QRegExp lp2( QString::fromLatin1("[^a-z]lp$") );
 	if ( quality < 4 &&
 	     lvi->text( 0 ) == dollarPrinter ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 4;
 	} else if ( quality < 3 && etcLpDefault &&
-		    lvi->text( 0 ) == etcLpDefault ) {
+		    lvi->text( 0 ) == QString::fromLatin1(etcLpDefault) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 3;
 	} else if ( quality < 2 &&
-		    ( lvi->text( 0 ) == "ps" ||
+		    ( lvi->text( 0 ) == QString::fromLatin1("ps") ||
 		      ps1.match( lvi->text( 2 ) ) > -1 ||
 		      ps2.match( lvi->text( 2 ) ) > -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 2;
 	} else if ( quality < 1 &&
-		    ( lvi->text( 0 ) == "lp" ||
+		    ( lvi->text( 0 ) == QString::fromLatin1("lp") ||
 		      lp1.match( lvi->text( 2 ) ) > -1 ||
 		      lp2.match( lvi->text( 2 ) ) > -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
@@ -954,29 +964,29 @@ QGroupBox * QPrintDialog::setupPaper()
     tll->addWidget( divider, 1 );
 
     // paper size
-    rb = new QRadioButton( "A4 (210 x 297 mm)", g, "A4" );
+    rb = new QRadioButton( QString::fromLatin1("A4 (210 x 297 mm)"), g, "A4" );
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 0 );
     rb->setChecked( TRUE );
     d->pageSize = QPrinter::A4;
     tll->addWidget( rb );
 
-    rb = new QRadioButton( "B5", g, "B5" );
+    rb = new QRadioButton( QString::fromLatin1("B5"), g, "B5" );
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 1 );
     tll->addWidget( rb );
 
-    rb = new QRadioButton( "Letter (8½ x 11in)", g, "Letter" );
+    rb = new QRadioButton( QString::fromLatin1("Letter (8½ x 11in)"), g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 2 );
     tll->addWidget( rb );
 
-    rb = new QRadioButton( "Legal", g, "Letter" );
+    rb = new QRadioButton( QString::fromLatin1("Legal"), g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 3 );
     tll->addWidget( rb );
 
-    rb = new QRadioButton( "Executive", g, "Letter" );
+    rb = new QRadioButton( QString::fromLatin1("Executive"), g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 4 );
     tll->addWidget( rb );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#93 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1839,7 +1839,7 @@ static void makeFixedStrings()
     fixed_ps_header = new QString;
     const char** headerLine = ps_header;
     while ( *headerLine ) {
-	fixed_ps_header->append( *headerLine++ );
+	fixed_ps_header->append( QString::fromLatin1(*headerLine++) );
 	fixed_ps_header->append( '\n' );
     }
 
@@ -1862,29 +1862,29 @@ static void makeFixedStrings()
 	    while( unicodetoglyph[l].u < k )
 		l++;
 	    if ( unicodetoglyph[l].u == k )
-		glyphname = unicodetoglyph[l].g;
+		glyphname = QString::fromLatin1(unicodetoglyph[l].g);
 	    else
-		glyphname = "ND";
-	    vector += " /";
+		glyphname = QString::fromLatin1("ND");
+	    vector += QString::fromLatin1(" /");
 	    vector += glyphname;
 	}
 	for( k=0; k<128; k++ ) {
 	    if ( unicodevalues[i].values[k] == 0xFFFD ) {
-		glyphname = "ND";
+		glyphname = QString::fromLatin1("ND");
 	    } else {
 		if ( l && unicodetoglyph[l].u > unicodevalues[i].values[k] )
 		    l = 0;
 		while( unicodetoglyph[l].u < unicodevalues[i].values[k] )
 		    l++;
 		if ( unicodetoglyph[l].u == unicodevalues[i].values[k] )
-		    glyphname = unicodetoglyph[l].g;
+		    glyphname = QString::fromLatin1(unicodetoglyph[l].g);
 		else
-		    glyphname = "ND";
+		    glyphname = QString::fromLatin1("ND");
 	    }
-	    vector += " /";
+	    vector += QString::fromLatin1(" /");
 	    vector += glyphname;
 	}
-	vector += " ] d";
+	vector += QString::fromLatin1(" ] d");
 	vector = wordwrap( vector );
 	font_vectors->insert( (int)(unicodevalues[i].cs),
 			      new QString( vector ) );
@@ -1971,7 +1971,7 @@ static struct {
 void QPSPrinter::setFont( const QFont & f )
 {
     if ( f.rawMode() ) {
-	QFont fnt( "Helvetica", 12 );
+	QFont fnt( QString::fromLatin1("Helvetica"), 12 );
 	setFont( fnt );
 	return;
     }
@@ -2012,10 +2012,10 @@ void QPSPrinter::setFont( const QFont & f )
     // see if the table has a better name
     i = 0;
     while( postscriptFontNames[i].input &&
-	   postscriptFontNames[i].input != family )
+	   QString::fromLatin1(postscriptFontNames[i].input) != family )
 	i++;
     if ( postscriptFontNames[i].roman ) {
-	ps = postscriptFontNames[i].roman;
+	ps = QString::fromLatin1(postscriptFontNames[i].roman);
 	int p = ps.find( '-' );
 	if ( p > -1 )
 	    ps.truncate( p );
@@ -2024,34 +2024,34 @@ void QPSPrinter::setFont( const QFont & f )
     // get the right modification, or build something
     if ( weight >= QFont::Bold && italic ) {
 	if ( postscriptFontNames[i].boldItalic )
-	    ps = postscriptFontNames[i].boldItalic;
+	    ps = QString::fromLatin1(postscriptFontNames[i].boldItalic);
 	else
-	    ps.append( "-BoldItalic" );
+	    ps.append( QString::fromLatin1("-BoldItalic") );
     } else if ( weight >= QFont::Bold ) {
 	if ( postscriptFontNames[i].bold )
-	    ps = postscriptFontNames[i].bold;
+	    ps = QString::fromLatin1(postscriptFontNames[i].bold);
 	else
-	    ps.append( "-Bold" );
+	    ps.append( QString::fromLatin1("-Bold") );
     } else if ( weight >= QFont::DemiBold && italic ) {
 	if ( postscriptFontNames[i].italic )
-	    ps = postscriptFontNames[i].italic;
+	    ps = QString::fromLatin1(postscriptFontNames[i].italic);
 	else
-	    ps.append( "-Italic" );
+	    ps.append( QString::fromLatin1("-Italic") );
     } else if ( weight <= QFont::Light && italic ) {
 	if ( postscriptFontNames[i].lightItalic )
-	    ps = postscriptFontNames[i].lightItalic;
+	    ps = QString::fromLatin1(postscriptFontNames[i].lightItalic);
 	else
-	    ps.append( "-LightItalic" );
+	    ps.append( QString::fromLatin1("-LightItalic") );
     } else if ( weight <= QFont::Light ) {
 	if ( postscriptFontNames[i].light )
-	    ps = postscriptFontNames[i].light;
+	    ps = QString::fromLatin1(postscriptFontNames[i].light);
 	else
-	    ps.append( "-Light" );
+	    ps.append( QString::fromLatin1("-Light") );
     } else {
 	if ( postscriptFontNames[i].roman )
-	    ps = postscriptFontNames[i].roman;
+	    ps = QString::fromLatin1(postscriptFontNames[i].roman);
 	else
-	    ps.append( "-Roman" );
+	    ps.append( QString::fromLatin1("-Roman") );
     }
 
     QString key;
@@ -2132,8 +2132,8 @@ void QPSPrinter::setFont( const QFont & f )
     }
     stream << fontName << " F\n";
 
-    ps.append( " " );
-    ps.prepend( " " );
+    ps.append( ' ' );
+    ps.prepend( ' ' );
     if ( !fontsUsed.contains( ps ) )
 	fontsUsed += ps;
 }
@@ -2268,7 +2268,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	                                        // for the first page.
 	d->firstClipOnPage  = TRUE;
 	d->boundingBox = QRect( 0, 0, -1, -1 );
-	fontsUsed = "";
+	fontsUsed = QString::fromLatin1("");
 	
 	stream << "%%Page: " << pageCount << ' ' << pageCount << endl
 	       << "QI\n";
@@ -2766,7 +2766,7 @@ void QPSPrinter::emitHeader( bool finished )
     QString title   = printer->docName();
     QString creator = printer->creator();
     if ( !creator )				// default creator
-	creator = "Qt " QT_VERSION_STR;
+	creator = QString::fromLatin1("Qt " QT_VERSION_STR);
     d->realDevice = new QFile();
     (void)((QFile *)d->realDevice)->open( IO_WriteOnly, d->fd );
     stream.setDevice( d->realDevice );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#55 $
 **
 ** Implementation of QML classes
 **
@@ -169,7 +169,7 @@ QString QMLProvider::document(const QString &name)
 QString QMLProvider::absoluteFilename( const QString& name) const
 {
     QString file;
-    if ( name.left(6) == "file:/") {
+    if ( name.left(6) == QString::fromLatin1("file:/")) {
 	file = name.right( name.length()-5);
     }
     else if (name[0] == '/')
@@ -190,7 +190,7 @@ QString QMLProvider::absoluteFilename( const QString& name) const
 void QMLProvider::setPath( const QString &path )
 {
     searchPath = path;
-    if ( searchPath.left(6) == "file:/") {
+    if ( searchPath.left(6) == QString::fromLatin1("file:/")) {
 	searchPath = searchPath.right( searchPath.length()-5);
     }
     if (!searchPath.isEmpty() && searchPath[(int)searchPath.length()-1]!='/')

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#113 $
+** $Id: //depot/qt/main/src/tools/qstring.h#114 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -194,7 +194,7 @@ inline int operator<=( const QChar& c1, const QChar& c2 )
 	? FALSE
 	: c1.row < c2.row
 	    ? TRUE
-	    : c1.row <= c2.row;
+	    : c1.cell <= c2.cell;
 }
 
 inline int operator>=( const QChar& c, char ch ) { return ch <= c; }
@@ -223,7 +223,9 @@ public:
     ~QString();
 
     QString    &operator=( const QString & );	// impl-shared copy
+#ifndef QT_NO_CAST_ASCII
     QString    &operator=( const char * );	// deep copy
+#endif
     QString    &operator=( const QByteArray& );	// deep copy
 
     QT_STATIC_CONST QString null;
@@ -256,19 +258,25 @@ public:
 		    { return find(QChar(c), index, cs); }
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
     int		find( const QRegExp &, int index=0 ) const;
+#ifndef QT_NO_CAST_ASCII
     int		find( const char* str, int index=0 ) const
-		    { return find(QString(str), index); }
+		    { return find(QString::fromLatin1(str), index); }
+#endif
     int		findRev( QChar c, int index=-1, bool cs=TRUE) const;
     int		findRev( char c, int index=-1, bool cs=TRUE) const
 		    { return findRev( QChar(c), index, cs ); }
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
+#ifndef QT_NO_CAST_ASCII
     int		findRev( const char* str, int index=-1 ) const
-		    { return findRev(QString(str), index); }
+		    { return findRev(QString::fromLatin1(str), index); }
+#endif
     int		contains( QChar c, bool cs=TRUE ) const;
     int		contains( char c, bool cs=TRUE ) const
 		    { return contains(QChar(c), cs); }
+#ifndef QT_NO_CAST_ASCII
     int		contains( const char* str, bool cs=TRUE ) const;
+#endif
     int		contains( const QString &str, bool cs=TRUE ) const;
     int		contains( const QRegExp & ) const;
 
@@ -483,24 +491,26 @@ inline QString QString::arg(uint a, int fieldwidth, int base) const
   QString non-member operators
  *****************************************************************************/
 
-Q_EXPORT bool operator==( const QString &s1, const QString &s2 );
-Q_EXPORT bool operator==( const QString &s1, const char *s2 );
-Q_EXPORT bool operator==( const char *s1, const QString &s2 );
 Q_EXPORT bool operator!=( const QString &s1, const QString &s2 );
-Q_EXPORT bool operator!=( const QString &s1, const char *s2 );
-Q_EXPORT bool operator!=( const char *s1, const QString &s2 );
 Q_EXPORT bool operator<( const QString &s1, const QString &s2 );
-Q_EXPORT bool operator<( const QString &s1, const char *s2 );
-Q_EXPORT bool operator<( const char *s1, const QString &s2 );
 Q_EXPORT bool operator<=( const QString &s1, const QString &s2 );
-Q_EXPORT bool operator<=( const QString &s1, const char *s2 );
-Q_EXPORT bool operator<=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator==( const QString &s1, const QString &s2 );
 Q_EXPORT bool operator>( const QString &s1, const QString &s2 );
-Q_EXPORT bool operator>( const QString &s1, const char *s2 );
-Q_EXPORT bool operator>( const char *s1, const QString &s2 );
 Q_EXPORT bool operator>=( const QString &s1, const QString &s2 );
+#ifndef QT_NO_CAST_ASCII
+Q_EXPORT bool operator!=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator<( const QString &s1, const char *s2 );
+Q_EXPORT bool operator<=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator==( const QString &s1, const char *s2 );
+Q_EXPORT bool operator>( const QString &s1, const char *s2 );
 Q_EXPORT bool operator>=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator!=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator<( const char *s1, const QString &s2 );
+Q_EXPORT bool operator<=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator==( const char *s1, const QString &s2 );
+Q_EXPORT bool operator>( const char *s1, const QString &s2 );
 Q_EXPORT bool operator>=( const char *s1, const QString &s2 );
+#endif
 
 Q_EXPORT inline QString operator+( const QString &s1, const QString &s2 )
 {
@@ -509,19 +519,21 @@ Q_EXPORT inline QString operator+( const QString &s1, const QString &s2 )
     return tmp;
 }
 
+#ifndef QT_NO_CAST_ASCII
 Q_EXPORT inline QString operator+( const QString &s1, const char *s2 )
 {
     QString tmp( s1 );
-    tmp += s2;
+    tmp += QString::fromLatin1(s2);
     return tmp;
 }
 
 Q_EXPORT inline QString operator+( const char *s1, const QString &s2 )
 {
-    QString tmp( s1 );
+    QString tmp = QString::fromLatin1( s1 );
     tmp += s2;
     return tmp;
 }
+#endif
 
 Q_EXPORT inline QString operator+( const QString &s1, QChar c2 )
 {

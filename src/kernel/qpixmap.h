@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#99 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#100 $
 **
 ** Definition of QPixmap class
 **
@@ -83,7 +83,7 @@ public:
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
     bool	convertFromImage( const QImage &, int conversion_flags );
 
-    static QString imageFormat( const QString &fileName );
+    static const char* imageFormat( const QString &fileName );
     bool	load( const QString& fileName, const char *format=0,
 		      ColorMode mode=Auto );
     bool	load( const QString& fileName, const char *format,

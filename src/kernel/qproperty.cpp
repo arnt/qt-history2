@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qproperty.cpp#6 $
 **
 ** Implementation of QProperty class
 **
@@ -416,57 +416,43 @@ void QProperty::clear()
   typ = Empty;
 }
 
+static QString *typ_to_name = 0;
+
+void QProperty::initTypeNameMap()
+{
+    if ( typ_to_name ) return;
+
+    typ_to_name = new QString[NTypes];
+
+    typ_to_name[(int)Empty] = QString::null;
+    typ_to_name[(int)StringType] = QString::fromLatin1("QString");
+    typ_to_name[(int)StringListType] = QString::fromLatin1("QStringList");
+    typ_to_name[(int)IntListType] = QString::fromLatin1("QValueList<int>");
+    typ_to_name[(int)DoubleListType] = QString::fromLatin1("QValueList<double>");
+    typ_to_name[(int)FontType] = QString::fromLatin1("QFont");
+    typ_to_name[(int)PixmapType] = QString::fromLatin1("QPixmap");
+    typ_to_name[(int)ImageType] = QString::fromLatin1("QImage");
+    typ_to_name[(int)BrushType] = QString::fromLatin1("QBrush");
+    typ_to_name[(int)RectType] = QString::fromLatin1("QRect");
+    typ_to_name[(int)PointType] = QString::fromLatin1("QPoint");
+    typ_to_name[(int)SizeType] = QString::fromLatin1("QSize");
+    typ_to_name[(int)ColorType] = QString::fromLatin1("QColor");
+    typ_to_name[(int)PaletteType] = QString::fromLatin1("QPalette");
+    typ_to_name[(int)ColorGroupType] = QString::fromLatin1("QColorGroup");
+    typ_to_name[(int)IntType] = QString::fromLatin1("int");
+    typ_to_name[(int)BoolType] = QString::fromLatin1("bool");
+    typ_to_name[(int)DoubleType] = QString::fromLatin1("double");
+    //typ_to_name[(int)MovieType] = QString::fromLatin1("QMovie");
+}
+
 /*!
   Converts the enum representation of the storage type to its
   string representation.
 */
 QString QProperty::typeToName( QProperty::Type _typ )
 {
-  switch( _typ )
-    {
-    case Empty:
-      return QString();
-    case StringType:
-      return "QString";
-    case StringListType:
-      return "QStringList";
-    case IntListType:
-      return "QValueList<int>";
-    case DoubleListType:
-      return "QValueList<double>";
-    case FontType:
-      return "QFont";
-      // case MovieType:
-      // return "QMovie";
-    case PixmapType:
-      return "QPixmap";
-    case ImageType:
-      return "QImage";
-    case BrushType:
-      return "QBrush";
-    case RectType:
-      return "QRect";
-    case PointType:
-      return "QPoint";
-    case SizeType:
-      return "QSize";
-    case ColorType:
-      return "QColor";
-    case PaletteType:
-      return "QPalette";
-    case ColorGroupType:
-      return "QColorGroup";
-    case IntType:
-      return "int";
-    case BoolType:
-      return "bool";
-    case DoubleType:
-      return "double";
-    default:
-      ASSERT( 0 );
-    }
-
-  return QString();
+    initTypeNameMap();
+    return typ_to_name[_typ];
 }
 
 /*!
@@ -475,29 +461,10 @@ QString QProperty::typeToName( QProperty::Type _typ )
 */
 QProperty::Type QProperty::nameToType( const QString& _name )
 {
-   if ( _name.isEmpty() )
-     return Empty;
-   
-   if ( _name == "QString" ) return StringType;
-   if ( _name == "QStringList" ) return StringListType;
-   if ( _name == "QValueList<int>" ) return IntListType;
-   if ( _name == "QValueList<double>" ) return DoubleListType;
-   if ( _name == "QFont" ) return FontType;
-   // if ( _name == "QMovie" ) return MovieType;
-   if ( _name == "QPixmap" ) return PixmapType;
-   if ( _name == "QImage" ) return ImageType;
-   if ( _name == "QBrush" ) return BrushType;
-   if ( _name == "QPoint" ) return PointType;
-   if ( _name == "QRect" ) return RectType;
-   if ( _name == "QSize" ) return SizeType;
-   if ( _name == "QColor" ) return ColorType;
-   if ( _name == "QPalette" ) return PaletteType;
-   if ( _name == "QColorGroup" ) return ColorGroupType;
-   if ( _name == "int" ) return IntType;
-   if ( _name == "bool" ) return BoolType;
-   if ( _name == "double" ) return DoubleType;
- 
-   return Empty;
+    int t = (int)NTypes;
+    while ( t > (int)Empty && typ_to_name[(int)--t] != _name )
+	;
+    return Type(t);
 }
 
 /*!

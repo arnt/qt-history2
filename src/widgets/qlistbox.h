@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#83 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#84 $
 **
 ** Definition of QListBox widget class
 **
@@ -148,7 +148,7 @@ public:
     void setAutoUpdate( bool ) {}
     void setFixedVisibleLines( int lines ) { setRowMode( lines ); }
     void inSort( const QListBoxItem * );
-    void inSort( const char *text );
+    void inSort( const QString& text );
     int cellHeight( int i ) const { return itemHeight(i); }
     int cellHeight() const { return itemHeight(); }
     int cellWidth() const { return maxItemWidth(); }

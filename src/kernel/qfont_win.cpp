@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#100 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -252,7 +252,7 @@ void QFont::cacheStatistics()
 QFont::QFont( Internal )
 {
     init();
-    d->req.family    = "MS Sans Serif";		// default font
+    d->req.family    = QString::fromLatin1("MS Sans Serif"); // default font
     d->req.pointSize = 8*10;
     d->req.weight    = QFont::Normal;
 }
@@ -293,28 +293,28 @@ QString QFont::defaultFamily() const
 {
     switch( d->req.styleHint ) {
 	case Times:
-	    return "Times New Roman";
+	    return QString::fromLatin1("Times New Roman");
 	case Courier:
-	    return "Courier New";
+	    return QString::fromLatin1("Courier New");
 	case Decorative:
-	    return "Bookman Old Style";
+	    return QString::fromLatin1("Bookman Old Style");
 	case Helvetica:
-	    return "Arial";
+	    return QString::fromLatin1("Arial");
 	case System:
 	default:
-	    return "MS Sans Serif";
+	    return QString::fromLatin1("MS Sans Serif");
     }
 }
 
 
 QString QFont::lastResortFamily() const
 {
-    return "helvetica";
+    return QString::fromLatin1("helvetica");
 }
 
 QString QFont::lastResortFont() const
 {
-    return "arial";
+    return QString::fromLatin1("arial");
 }
 
 
@@ -332,7 +332,7 @@ void QFont::initFontInfo() const
     } else {
 	char an[64];
 	GetTextFaceA( f->dc(), 64, an );
-	f->s.family = an;
+	f->s.family = QString::fromLatin1(an);
     }
     f->s.dirty = FALSE;
 }

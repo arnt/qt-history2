@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#154 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -31,11 +31,16 @@
 #include "qcache.h"
 #include "qdict.h"
 #include "qtextcodec.h"
+#include "qapplication.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include "qt_x11.h"
+
+/* UNICODE:
+     XLFD's are not in an encoding - Latin1 is assumed throughout.
+*/
 
 
 static const int fontFields = 14;
@@ -60,9 +65,9 @@ enum FontFieldNames {				// X LFD fields
 
 static bool	parseXFontName( QCString &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
-static bool	smoothlyScalable( const QString &fontName );
+static bool	smoothlyScalable( const QCString &fontName );
 static bool	fontExists( const QString &fontName );
-static int	getWeight( const QString &weightString, bool adjustScore=FALSE );
+static int	getWeight( const QCString &weightString, bool adjustScore=FALSE );
 
 
 #undef	IS_ZERO
@@ -322,7 +327,7 @@ void QFont::cacheStatistics()
 QFont::QFont( Internal )
 {
     init();
-    d->req.family    = "6x13";
+    d->req.family    = QString::fromLatin1("6x13");
     d->req.pointSize = 11*10;
     d->req.weight    = QFont::Normal;
     d->req.rawMode   = TRUE;
@@ -369,7 +374,7 @@ QString QFont::rawName() const
 {
     if ( DIRTY_FONT )
 	load();
-    return d->fin->name();
+    return QString::fromLatin1(d->fin->name());
 }
 
 
@@ -393,15 +398,15 @@ QString QFont::defaultFamily() const
 {
     switch( d->req.styleHint ) {
 	case Times:
-	    return "times";
+	    return QString::fromLatin1("times");
 	case Courier:
-	    return "courier";
+	    return QString::fromLatin1("courier");
 	case Decorative:
-	    return "old english";
+	    return QString::fromLatin1("old english");
 	case Helvetica:
 	case System:
 	default:
-	    return "helvetica";
+	    return QString::fromLatin1("helvetica");
     }
 }
 
@@ -414,7 +419,7 @@ QString QFont::defaultFamily() const
 
 QString QFont::lastResortFamily() const
 {
-    return "helvetica";
+    return QString::fromLatin1("helvetica");
 }
 
 static const char *tryFonts[] = {
@@ -448,14 +453,14 @@ static const char *tryFonts[] = {
 
 QString QFont::lastResortFont() const
 {
-    static const char *last = 0;
-    if ( last )					// already found
+    static QString last;
+    if ( !last.isNull() )			// already found
 	return last;
     int i = 0;
-    QCString f;
+    const char* f;
     while ( (f = tryFonts[i]) ) {
-	if ( fontExists(f) ) {
-	    last = f;
+	last = QString::fromLatin1(f);
+	if ( fontExists(last) ) {
 	    return last;
 	}
 	i++;
@@ -524,12 +529,12 @@ void QFont::initFontInfo() const
 
     if ( !validx ) {			    	// not an XLFD name
 	resetFontDef( &f->s );
-	f->s.family   = f->name();
+	f->s.family   = QString::fromLatin1(f->name());
 	f->s.rawMode  = TRUE;
 	d->exactMatch = FALSE;
 	return;
     }
-    f->s.family    = tokens[Family];
+    f->s.family    = QString::fromLatin1(tokens[Family]);
     f->s.pointSize = atoi(tokens[PointSize]);
     f->s.styleHint = QFont::AnyStyle;	// ### any until we match families
 
@@ -1721,7 +1726,7 @@ static char **getXFontNames( const char *pattern, int *count )
 // Returns TRUE if the font can be smoothly scaled
 //
 
-static bool smoothlyScalable ( const QString &/* fontName */  )
+static bool smoothlyScalable ( const QCString &/* fontName */  )
 {
     return TRUE;
 }
@@ -1761,7 +1766,7 @@ void QFontInternal::computeLineWidth()
     if ( strcmp( tokens[ResolutionX], "75") != 0 || // adjust if not 75 dpi
 	 strcmp( tokens[ResolutionY], "75") != 0 )
 	pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75 ) / ( 75 * 2 );
-    QString tmp = tokens[ResolutionX];
+    QCString tmp = tokens[ResolutionX];
     bool ok;
     xres = tmp.toInt( &ok );
     if ( !ok || xres == 0 )
@@ -1779,7 +1784,7 @@ void QFontInternal::computeLineWidth()
 // Converts a weight string to a value
 //
 
-static int getWeight( const QString &weightString, bool adjustScore )
+static int getWeight( const QCString &weightString, bool adjustScore )
 {
     // Test in decreasing order of commonness
     //
@@ -1789,7 +1794,7 @@ static int getWeight( const QString &weightString, bool adjustScore )
     else if ( weightString == "black" )   return QFont::Black;
     else if ( weightString == "light" )   return QFont::Light;
 
-    QString s = weightString;
+    QCString s = weightString;
     s = s.lower();
     if ( s.contains("bold") ) {
 	if ( adjustScore )
@@ -1862,7 +1867,7 @@ public:
 
     bool italic;
     bool lesserItalic;
-    QString weightString;
+    QCString weightString;
     int  weight;
     bool weightDirty;
     void refresh() const;
@@ -2004,12 +2009,12 @@ public:
     QStringList familyNames;
     bool familyNamesNeedSort;
 
-    void addFamily( const QString &name, QFontFamily *family );
+    void addFamily( const QCString &name, QFontFamily *family );
 };
 
-void QFontDatabasePrivate::addFamily( const QString &name, QFontFamily *family)
+void QFontDatabasePrivate::addFamily( const QCString &name, QFontFamily *family)
 {
-    familyDict.insert( name, family );
+    familyDict.insert( name.data(), family );
     families.append( family );
     familyNames.append( name );
     familyNamesNeedSort = TRUE;
@@ -2045,7 +2050,7 @@ void QFontDatabasePrivate::createDatabase()
 		CHECK_PTR(fd);
 		fam = new QFontFamily( fd );
 		CHECK_PTR(fam);
-		fd->name = tokens[Family];
+		fd->name = QString::fromLatin1(tokens[Family]);
 		db->addFamily( tokens[Family], fam );
 	    }
 	    QString charSetName = getCharSetName( charSet );
@@ -2091,7 +2096,7 @@ void QFontDatabasePrivate::createDatabase()
 		    //     tokens[Family] );
 		}
 	    } else {
-		QString ps = tokens[PointSize];
+		QCString ps = tokens[PointSize];
 		int pSize = ps.toInt()/10;
 		if ( pSize != 0 ) {
 		    style->d->addPointSize( pSize );
@@ -2134,45 +2139,47 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 
 static QString getCharSetName( QFont::CharSet cs )
 {
+    const char* name=0;
     switch( cs ) {
     case QFont::ISO_8859_1:
-	return "Western (ISO 8859-1)";
+	name = "Western (ISO 8859-1)";
 	break;
     case QFont::ISO_8859_2:
-	return "Eastern European (ISO 8859-2)";
+	name = "Eastern European (ISO 8859-2)";
 	break;
     case QFont::ISO_8859_3:
-	return "Esperanto and more (ISO 8859-3)";
+	name = "Esperanto and more (ISO 8859-3)";
 	break;
     case QFont::ISO_8859_4:
-	return "(ISO 8859-4)";
+	name = "(ISO 8859-4)";
 	break;
     case QFont::ISO_8859_5:
-	return "Cyrillic (ISO 8859-5)";
+	name = "Cyrillic (ISO 8859-5)";
 	break;
     case QFont::ISO_8859_6:
-	return "(ISO 8859-6)";
+	name = "(ISO 8859-6)";
 	break;
     case QFont::ISO_8859_7:
-	return "Greek (ISO 8859-7)";
+	name = "Greek (ISO 8859-7)";
 	break;
     case QFont::ISO_8859_8:
-	return "Hebrew (ISO 8859-8)";
+	name = "Hebrew (ISO 8859-8)";
 	break;
     case QFont::ISO_8859_9:
-	return "Turkish(ISO 8859-9)";
+	name = "Turkish(ISO 8859-9)";
 	break;
     case QFont::KOI8R:
-	return "Cyrillic (KOI8-R)";
+	name = "Cyrillic (KOI8-R)";
 	break;
     case QFont::Unicode:
-	return "Unicode (ISO 10646)";
+	name = "Unicode (ISO 10646)";
 	break;
     default:
 	warning( "getCharSetName: Internal error, unknown charset (%i).", cs );
-	return "Unknown";
+	name = "Unknown";
 	break;
     }
+    return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
 }
 
 static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
@@ -2181,22 +2188,25 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
     *italic      = FALSE;
     *lesserItalic = FALSE;
 
-    QString nm = tokens[Weight_];
+    QString nm = QString::fromLatin1(tokens[Weight_]);
 
-    if ( nm == "medium" )
-	nm = "";
-    if ( nm != "" )
-	nm[0] = toupper(nm[0]);
+    if ( nm == QString::fromLatin1("medium") )
+	nm = QString::fromLatin1("");
+    if ( nm.length() > 0 )
+	nm.insert(0, QString(nm[0]).upper());
 
     if ( slant0 == 'r' ) {
+	// ############# Eng, doesn't 'r' just mean "Roman", not "Reverse"?
 	if ( tokens[Slant][1]) {
 	    char slant1 = tolower( tokens[Slant][1] );
 	    if ( slant1 == 'o' ) {
-		nm += " Reverse Oblique";
+		nm += ' ';
+		nm += qApp->translate("QFont","Reverse Oblique");
 		*italic      = TRUE;
 		*lesserItalic = TRUE;
 	    } else if ( slant0 == 'i' ) {
-		nm += " Reverse Italic";
+		nm += ' ';
+		nm += qApp->translate("QFont","Reverse Italic");
 		*italic       = TRUE;
 		*lesserItalic = TRUE;
 	    }
@@ -2204,18 +2214,20 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 	    // Normal
 	}
     } else if ( slant0 == 'o' ) {
+	nm += ' ';
 	if ( tokens[Slant][1] ) {
-	    nm += " Other";
+	    nm += qApp->translate("QFont","Other");
 	} else {
-	    nm += " Oblique";	
+	    nm += qApp->translate("QFont","Oblique");
 	    *italic = TRUE;
 	}
     } else if ( slant0 == 'i' ) {
-	nm += " Italic";
+	nm += ' ';
+	nm += qApp->translate("QFont","Italic");
 	*italic = TRUE;
     }
-    if ( nm == "" ) {
-	nm = "Normal";
+    if ( nm.isEmpty() ) {
+	nm = qApp->translate("QFont","Normal");
     } else if ( nm[0] == ' ' ) {
 	nm = nm.remove( 0, 1 );
     }

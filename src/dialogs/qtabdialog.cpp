@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#82 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#83 $
 **
 ** Implementation of QTabDialog class
 **
@@ -208,7 +208,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 
     d->ok = new QPushButton( this, "ok" );
     CHECK_PTR( d->ok );
-    d->ok->setText( "OK" );
+    d->ok->setText( tr("OK") );
     d->ok->setDefault( TRUE );
     connect( d->ok, SIGNAL(clicked()),
 	     this, SIGNAL(applyButtonPressed()) );

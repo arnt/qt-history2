@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#6 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -1307,7 +1307,7 @@ QCString &QCString::replace( uint index, uint len, const char *s )
 
 int QCString::find( const QRegExp &rx, int index ) const
 {
-    QString d( data() );
+    QString d = QString::fromLatin1( data() );
     return d.find( rx, index );
 }
 
@@ -1323,7 +1323,7 @@ int QCString::find( const QRegExp &rx, int index ) const
 
 int QCString::findRev( const QRegExp &rx, int index ) const
 {
-    QString d( data() );
+    QString d = QString::fromLatin1( data() );
     return d.findRev( rx, index );
 }
 
@@ -1342,7 +1342,7 @@ int QCString::findRev( const QRegExp &rx, int index ) const
 
 int QCString::contains( const QRegExp &rx ) const
 {
-    QString d( data() );
+    QString d = QString::fromLatin1( data() );
     return d.contains( rx );
 }
 
@@ -1367,8 +1367,8 @@ int QCString::contains( const QRegExp &rx ) const
 
 QCString &QCString::replace( const QRegExp &rx, const char *str )
 {
-    QString d( data() );
-    QString r( str );
+    QString d = QString::fromLatin1( data() );
+    QString r = QString::fromLatin1( str );
     d.replace( rx, r );
     setStr( d.ascii() );
     return *this;

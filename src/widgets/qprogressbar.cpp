@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#41 $
 **
 ** Implementation of QProgressBar class
 **
@@ -281,7 +281,7 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
     if ( !totalSteps )
 	return FALSE;
     if ( progress < 0 ) {
-	indicator = "";
+	indicator = QString::fromLatin1("");
 	return TRUE;
     } else {
 	// Get the values down to something usable.
@@ -322,7 +322,7 @@ void QProgressBar::drawContents( QPainter *p )
 	// with a percentage text display at the end.
 
 	const QFontMetrics & fm = p->fontMetrics();
-	int textw = fm.width("100%");
+	int textw = fm.width(QString::fromLatin1("100%"));
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
 
@@ -390,7 +390,7 @@ void QProgressBar::drawContentsMask( QPainter *p )
     if ( style() == WindowsStyle ) {
 	// ### This part doesn't actually change.
 	const QFontMetrics & fm = p->fontMetrics();
-	int textw = fm.width("100%");
+	int textw = fm.width(QString::fromLatin1("100%"));
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
 

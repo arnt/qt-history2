@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#75 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -99,21 +99,22 @@ static QString int2string( int num, int base, int ndigits, bool *oflow )
 	case QLCDNumber::OCT:
 	    s.sprintf( "%*lo", ndigits, num );
 	    break;
-	case QLCDNumber::BIN: {
-	    char buf[42];
-	    char *p = &buf[41];
-	    uint n = num;
-	    int len = 0;
-	    *p = '\0';
-	    do {
-		*--p = (char)((n&1)+'0');
-		n >>= 1;
-		len++;
-	    } while ( n != 0 );
-	    len = ndigits - len;
-	    if ( len > 0 )
-	    s.fill( ' ', len );
-	    s += p;
+	case QLCDNumber::BIN:
+	    {
+		char buf[42];
+		char *p = &buf[41];
+		uint n = num;
+		int len = 0;
+		*p = '\0';
+		do {
+		    *--p = (char)((n&1)+'0');
+		    n >>= 1;
+		    len++;
+		} while ( n != 0 );
+		len = ndigits - len;
+		if ( len > 0 )
+		s.fill( ' ', len );
+		s += QString::fromLatin1(p);
 	    }
 	    break;
     }
