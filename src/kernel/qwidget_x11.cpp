@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#340 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#341 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -957,35 +957,12 @@ QWidget *QWidget::keyboardGrabber()
 */
 
 bool QWidget::isActiveWindow() const
-{
+{ // ### should be portable in theory, different from _win in practice
     QWidget* tlw = topLevelWidget();
     return tlw == qApp->activeWindow()
-		|| (tlw->extra && tlw->extra->topextra && tlw->extra->topextra->embedded); //####
-
-//    Window win;
-//     int revert;
-//     XGetInputFocus( dpy, &win, &revert );
-
-//     if ( win == None) return FALSE;
-
-//     QWidget *w = find( (WId)win );
-//     if ( w ) {
-// 	// We know that window
-// 	return w->topLevelWidget() == topLevelWidget();
-//     } else {
-// 	// Window still may be a parent (if top-level is foreign window)
-// 	Window root, parent;
-// 	Window cursor = winId();
-// 	Window *ch;
-// 	unsigned int nch;
-// 	while ( XQueryTree(dpy, cursor, &root, &parent, &ch, &nch) ) {
-// 	    if (ch) XFree( (char*)ch);
-// 	    if ( parent == win ) return TRUE;
-// 	    if ( parent == root ) return FALSE;
-// 	    cursor = parent;
-// 	}
-// 	return FALSE;
-//     }
+		|| ( tlw->extra &&
+		     tlw->extra->topextra &&
+		     tlw->extra->topextra->embedded); //#### hashes for what?
 }
 
 

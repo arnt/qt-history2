@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#183 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -107,7 +107,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
-    
+
     if ( desktop ) {				// desktop widget
 	modal = popup = FALSE;			// force this flags off
 	fpos = QPoint(0, 0);
@@ -632,9 +632,6 @@ QWidget *QWidget::keyboardGrabber()
 bool QWidget::isActiveWindow() const
 {
      return topLevelWidget() == qApp->activeWindow();
-//    HWND win = GetActiveWindow();
-//     QWidget *w = find( win );
-//     return w && w->topLevelWidget() == topLevelWidget();
 }
 
 void QWidget::setActiveWindow()
