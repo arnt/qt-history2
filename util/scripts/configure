@@ -43,7 +43,7 @@ LIBPNG=yes
 # Parse the arguments, setting things to "yes" or "no".
 
 while [ -n "$1" ]; do
-   case $a in
+   case $1 in
    -platform)
        shift; PLATFORM=$1
 	;;
@@ -86,8 +86,11 @@ while [ -n "$1" ]; do
    -h | -help | --help)
        HELP=yes
 	;;
+   -v)
+       VERBOSE=yes
+        ;;
    *)
-       echo ${a}: unknown argument
+       echo $1: unknown argument
        HELP=yes;
        ERROR=yes
 	;;
@@ -328,7 +331,7 @@ echo "Build type:    $TARGET"
 echo "Compile flags: $QT_CXX"
 echo "Link flags:    $QT_LIBS"
 echo
-
+echo Creating makefiles...
 
 for a in `find . -name Makefile.in -print | sort` ; do
     N=`dirname $a`/Makefile
@@ -341,7 +344,9 @@ for a in `find . -name Makefile.in -print | sort` ; do
 
 EOF
     cat .buildopts $CONFIG $M >> $N
-    echo '  Created' $N
+    if [ "$VERBOSE" = "yes" ]; then
+       echo '  Created' $N
+    fi
 done
 
 echo
