@@ -58,24 +58,24 @@ QString Ui3Reader::fixString(const QString &str, bool encode)
     QString s;
     if (!encode) {
         s = str;
-        s.replace("\\", "\\\\");
-        s.replace("\"", "\\\"");
-        s.replace("\r", "");
-        s.replace("\n", "\\n\"\n\"");
+        s.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+        s.replace(QLatin1String("\""), QLatin1String("\\\""));
+        s.replace(QLatin1String("\r"), QLatin1String(""));
+        s.replace(QLatin1String("\n"), QLatin1String("\\n\"\n\""));
     } else {
         QByteArray utf8 = str.utf8();
         const int l = utf8.length();
         for (int i = 0; i < l; ++i)
-            s += "\\x" + QString::number((uchar)utf8[i], 16);
+            s += QLatin1String("\\x") + QString::number((uchar)utf8[i], 16);
     }
 
-    return "\"" + s + "\"";
+    return QLatin1String("\"") + s + QLatin1String("\"");
 }
 
 QString Ui3Reader::trcall(const QString& sourceText, const QString& comment)
 {
     if (sourceText.isEmpty() && comment.isEmpty())
-        return "QString()";
+        return QLatin1String("QString()");
 
     QString t = trmacro;
     bool encode = false;
@@ -91,16 +91,18 @@ QString Ui3Reader::trcall(const QString& sourceText, const QString& comment)
     }
 
     if (comment.isEmpty()) {
-        return t + "(" + fixString(sourceText, encode) + ")";
+        return t + QLatin1String("(") + fixString(sourceText, encode) + QLatin1String(")");
     } else {
-        return t + "(" + fixString(sourceText, encode) + ", " +
-               fixString(comment, encode) + ")";
+        return t + QLatin1String("(") 
+            + fixString(sourceText, encode) 
+            + QLatin1String(", ") 
+            + fixString(comment, encode) + QLatin1String(")");
     }
 }
 
 QString Ui3Reader::mkStdSet(const QString& prop)
 {
-    return QString("set") + prop[0].toUpper() + prop.mid(1);
+    return QLatin1String("set") + prop[0].toUpper() + prop.mid(1);
 }
 
 void Ui3Reader::init()
@@ -119,9 +121,9 @@ void Ui3Reader::init()
     item_used = cg_used = pal_used = 0;
 
     layouts.clear();
-    layouts << "hbox" << "vbox" << "grid";
+    layouts << QLatin1String("hbox") << QLatin1String("vbox") << QLatin1String("grid");
     tags = layouts;
-    tags << "widget";
+    tags << QLatin1String("widget");
 
     nameOfClass = QString::null;
     namespaces.clear();
@@ -136,8 +138,8 @@ QDomElement Ui3Reader::parse(const QDomDocument &doc)
     pixmapLoaderFunction = getPixmapLoaderFunction(doc.firstChild().toElement());
     nameOfClass = getFormClassName(doc.firstChild().toElement());
 
-    uiFileVersion = doc.firstChild().toElement().attribute("version");
-    stdsetdef = toBool(doc.firstChild().toElement().attribute("stdsetdef"));
+    uiFileVersion = doc.firstChild().toElement().attribute(QLatin1String("version"));
+    stdsetdef = toBool(doc.firstChild().toElement().attribute(QLatin1String("stdsetdef")));
 
     if (doc.firstChild().isNull() || doc.firstChild().firstChild().isNull())
         return widget;
@@ -149,21 +151,21 @@ QDomElement Ui3Reader::parse(const QDomDocument &doc)
         } else if (e.tagName() == QLatin1String("pixmapinproject")) {
             externPixmaps = true;
         } else if (e.tagName() == QLatin1String("layoutdefaults")) {
-            defSpacing = e.attribute("spacing", defSpacing.toString());
-            defMargin = e.attribute("margin", defMargin.toString());
+            defSpacing = e.attribute(QLatin1String("spacing"), defSpacing.toString());
+            defMargin = e.attribute(QLatin1String("margin"), defMargin.toString());
         } else if (e.tagName() == QLatin1String("layoutfunctions")) {
-            defSpacing = e.attribute("spacing", defSpacing.toString());
+            defSpacing = e.attribute(QLatin1String("spacing"), defSpacing.toString());
             bool ok;
             defSpacing.toInt(&ok);
             if (!ok) {
                 QString buf = defSpacing.toString();
-                defSpacing = buf.append("()");
+                defSpacing = buf.append(QLatin1String("()"));
             }
-            defMargin = e.attribute("margin", defMargin.toString());
+            defMargin = e.attribute(QLatin1String("margin"), defMargin.toString());
             defMargin.toInt(&ok);
             if (!ok) {
                 QString buf = defMargin.toString();
-                defMargin = buf.append("()");
+                defMargin = buf.append(QLatin1String("()"));
             }
         }
         e = e.nextSibling().toElement();
@@ -193,7 +195,7 @@ void Ui3Reader::generate(const QString &uiHeaderFn, const QString &fn, const QSt
 
     if (nameOfClass.isEmpty())
         nameOfClass = getObjectName(e);
-    namespaces = nameOfClass.split("::");
+    namespaces = nameOfClass.split(QLatin1String("::"));
     bareNameOfClass = namespaces.last();
     namespaces.removeLast();
 
@@ -270,8 +272,8 @@ QString Ui3Reader::getFormClassName(const QDomElement& e)
         if (n.tagName() == QLatin1String("class")) {
             QString s = n.firstChild().toText().data();
             int i;
-            while ((i = s.indexOf(' ')) != -1)
-                s[i] = '_';
+            while ((i = s.indexOf(QLatin1Char(' '))) != -1)
+                s[i] = QLatin1Char('_');
             cn = s;
         }
     }
@@ -282,9 +284,9 @@ QString Ui3Reader::getFormClassName(const QDomElement& e)
  */
 QString Ui3Reader::getClassName(const QDomElement& e)
 {
-    QString s = e.attribute("class");
+    QString s = e.attribute(QLatin1String("class"));
     if (s.isEmpty() && e.tagName() == QLatin1String("toolbar"))
-        s = QLatin1String("QToolBar");
+        s = QLatin1String(QLatin1String("QToolBar"));
     else if (s.isEmpty() && e.tagName() == QLatin1String("menubar"))
         s = QLatin1String("QMenuBar");
 
@@ -296,8 +298,8 @@ QString Ui3Reader::getClassName(const QDomElement& e)
 
 bool Ui3Reader::isFrameworkCodeGenerated(const QDomElement& e)
 {
-    QDomElement n = getObjectProperty(e, "frameworkCode");
-    if (n.attribute("name") == QLatin1String("frameworkCode") &&
+    QDomElement n = getObjectProperty(e, QLatin1String("frameworkCode"));
+    if (n.attribute(QLatin1String("name")) == QLatin1String("frameworkCode") &&
          !DomTool::elementToVariant(n.firstChild().toElement(), QCoreVariant(true)).toBool())
         return false;
     return true;
@@ -308,7 +310,7 @@ bool Ui3Reader::isFrameworkCodeGenerated(const QDomElement& e)
  */
 QString Ui3Reader::getObjectName(const QDomElement& e)
 {
-    QDomElement n = getObjectProperty(e, "name");
+    QDomElement n = getObjectProperty(e, QLatin1String("name"));
     if (n.firstChild().toElement().tagName() == QLatin1String("cstring"))
         return n.firstChild().toElement().firstChild().toText().data();
     return QString::null;
@@ -325,10 +327,10 @@ QString Ui3Reader::getLayoutName(const QDomElement& e)
     if (getClassName(p) != QLatin1String("QLayoutWidget"))
         name = QLatin1String("Layout");
 
-    QDomElement n = getObjectProperty(p, "name");
+    QDomElement n = getObjectProperty(p, QLatin1String("name"));
     if (n.firstChild().toElement().tagName() == QLatin1String("cstring")) {
         name.prepend(n.firstChild().toElement().firstChild().toText().data());
-        return name.split("::").last();
+        return name.split(QLatin1String("::")).last();
     }
     return e.tagName();
 }
@@ -348,7 +350,7 @@ QString Ui3Reader::getDatabaseInfo(const QDomElement& e, const QString& tag)
         child = 2;
     else
         return QString::null;
-    n = getObjectProperty(e, "database");
+    n = getObjectProperty(e, QLatin1String("database"));
     if (n.firstChild().toElement().tagName() == QLatin1String("stringlist")) {
             // find correct stringlist entry
             QDomElement n1 = n.firstChild().firstChild().toElement();
@@ -399,8 +401,11 @@ void Ui3Reader::createColorGroupImpl(const QString& name, const QDomElement& e)
         } else if (n.tagName() == QLatin1String("pixmap")) {
             QString pixmap = n.firstChild().toText().data();
             if (!pixmapLoaderFunction.isEmpty()) {
-                pixmap.prepend(pixmapLoaderFunction + "(" + QString(externPixmaps ? "\"" : ""));
-                pixmap.append(QString(externPixmaps ? "\"" : "") + ")");
+                pixmap.prepend(pixmapLoaderFunction 
+                    + QLatin1String("(") 
+                    + QLatin1String(externPixmaps ? "\"" : ""));
+                    
+                pixmap.append(QLatin1String(externPixmaps ? "\"" : "") + QLatin1String(")"));
             }
             out << indent << name << ".setBrush(QColorGroup::"
                 << ColorRole[r] << ", QBrush(" << color << ", " << pixmap << "));" << endl;
@@ -436,8 +441,8 @@ ColorGroup Ui3Reader::loadColorGroup(const QDomElement &e)
 
 bool Ui3Reader::isWidgetInTable(const QDomElement& e, const QString& connection, const QString& table)
 {
-    QString conn = getDatabaseInfo(e, "connection");
-    QString tab = getDatabaseInfo(e, "table");
+    QString conn = getDatabaseInfo(e, QLatin1String("connection"));
+    QString tab = getDatabaseInfo(e, QLatin1String("table"));
     if (conn == connection && tab == table)
         return true;
     return false;
@@ -452,12 +457,12 @@ void Ui3Reader::registerDatabases(const QDomElement& e)
     QDomElement n;
     QDomNodeList nl;
     int i;
-    nl = e.parentNode().toElement().elementsByTagName("widget");
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("widget"));
     for (i = 0; i < (int) nl.length(); ++i) {
         n = nl.item(i).toElement();
-        QString conn = getDatabaseInfo(n, "connection" );
-        QString tab = getDatabaseInfo(n, "table" );
-        QString fld = getDatabaseInfo(n, "field" );
+        QString conn = getDatabaseInfo(n, QLatin1String("connection"));
+        QString tab = getDatabaseInfo(n, QLatin1String("table"));
+        QString fld = getDatabaseInfo(n, QLatin1String("field"));
         if (!conn.isNull()) {
             dbConnections += conn;
             if (!tab.isNull()) {
@@ -481,23 +486,23 @@ QString Ui3Reader::registerObject(const QString& name)
 {
     if (objectNames.isEmpty()) {
         // some temporary variables we need
-        objectNames += "img";
-        objectNames += "item";
-        objectNames += "cg";
-        objectNames += "pal";
+        objectNames += QLatin1String("img");
+        objectNames += QLatin1String("item");
+        objectNames += QLatin1String("cg");
+        objectNames += QLatin1String("pal");
     }
 
     QString result = name;
     int i;
-    while ((i = result.indexOf(' ')) != -1 ) {
-        result[i] = '_';
+    while ((i = result.indexOf(QLatin1Char(' '))) != -1 ) {
+        result[i] = QLatin1Char('_');
     }
 
     if (objectNames.contains(result)) {
         int i = 2;
-        while (objectNames.contains(result + "_" + QString::number(i)))
+        while (objectNames.contains(result + QLatin1String("_") + QString::number(i)))
             i++;
-        result += "_";
+        result += QLatin1String("_");
         result += QString::number(i);
     }
     objectNames += result;

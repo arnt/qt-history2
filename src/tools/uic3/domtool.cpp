@@ -46,7 +46,7 @@ QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, co
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName() == QLatin1String("property")) {
-            if (n.attribute("name") != name)
+            if (n.attribute(QLatin1String("name")) != name)
                 continue;
             return elementToVariant(n.firstChild().toElement(), defValue, comment);
         }
@@ -74,7 +74,7 @@ bool DomTool::hasProperty(const QDomElement& e, const QString& name)
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName() == QLatin1String("property")) {
-            if (n.attribute("name") != name)
+            if (n.attribute(QLatin1String("name")) != name)
                 continue;
             return TRUE;
         }
@@ -94,7 +94,7 @@ QStringList DomTool::propertiesOfType(const QDomElement& e, const QString& type)
         if (n.tagName() == QLatin1String("property")) {
             QDomElement n2 = n.firstChild().toElement();
             if (n2.tagName() == type)
-                result += n.attribute("name");
+                result += n.attribute(QLatin1String("name"));
         }
     }
     return result;
@@ -326,7 +326,7 @@ QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, c
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName() == QLatin1String("attribute")) {
-            if (n.attribute("name") != name)
+            if (n.attribute(QLatin1String("name")) != name)
                 continue;
             return elementToVariant(n.firstChild().toElement(), defValue, comment);
         }
@@ -353,7 +353,7 @@ bool DomTool::hasAttribute(const QDomElement& e, const QString& name)
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName() == QLatin1String("attribute")) {
-            if (n.attribute("name") != name)
+            if (n.attribute(QLatin1String("name")) != name)
                 continue;
             return TRUE;
         }
@@ -383,19 +383,22 @@ void DomTool::fixDocument(QDomDocument& doc)
         return;
 
     // rename classes and properties
-    double version = (e.hasAttribute("version") ? e.attribute("version").toDouble() : 0.0);
+    double version = e.hasAttribute(QLatin1String("version")) 
+        ? e.attribute(QLatin1String("version")).toDouble() : 0.0;
+        
     nl = e.childNodes();
     fixAttributes(nl, version);
 
     // 3.x don't do anything more
-    if (e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0)
+    if (e.hasAttribute(QLatin1String("version")) 
+            && e.attribute(QLatin1String("version")).toDouble() >= 3.0)
         return;
 
     // in versions smaller than 3.0 we need to change more
 
-    e.setAttribute("version", 3.0);
-    e.setAttribute("stdsetdef", 1);
-    nl = e.elementsByTagName("property");
+    e.setAttribute(QLatin1String("version"), 3.0);
+    e.setAttribute(QLatin1String("stdsetdef"), 1);
+    nl = e.elementsByTagName(QLatin1String("property"));
     for (i = 0; i <  (int) nl.length(); i++) {
         e = nl.item(i).toElement();
         QString name;
@@ -403,55 +406,55 @@ void DomTool::fixDocument(QDomDocument& doc)
         if (n2.tagName() == QLatin1String("name")) {
             name = n2.firstChild().toText().data();
             if (name == QLatin1String("resizeable"))
-                e.setAttribute("name", "resizable");
+                e.setAttribute(QLatin1String("name"), QLatin1String("resizable"));
             else
-                e.setAttribute("name", name);
+                e.setAttribute(QLatin1String("name"), name);
             e.removeChild(n2);
         }
-        bool stdset = toBool(e.attribute("stdset"));
+        bool stdset = toBool(e.attribute(QLatin1String("stdset")));
         if (stdset || name == QLatin1String("toolTip") || name == QLatin1String("whatsThis") ||
              name == QLatin1String("buddy") ||
              e.parentNode().toElement().tagName() == QLatin1String("item") ||
              e.parentNode().toElement().tagName() == QLatin1String("spacer") ||
              e.parentNode().toElement().tagName() == QLatin1String("column")
             )
-            e.removeAttribute("stdset");
+            e.removeAttribute(QLatin1String("stdset"));
         else
-            e.setAttribute("stdset", 0);
+            e.setAttribute(QLatin1String("stdset"), 0);
     }
 
-    nl = doc.elementsByTagName("attribute");
+    nl = doc.elementsByTagName(QLatin1String("attribute"));
     for (i = 0; i <  (int) nl.length(); i++) {
         e = nl.item(i).toElement();
         QString name;
         QDomElement n2 = e.firstChild().toElement();
         if (n2.tagName() == QLatin1String("name")) {
             name = n2.firstChild().toText().data();
-            e.setAttribute("name", name);
+            e.setAttribute(QLatin1String("name"), name);
             e.removeChild(n2);
         }
     }
 
-    nl = doc.elementsByTagName("image");
+    nl = doc.elementsByTagName(QLatin1String("image"));
     for (i = 0; i <  (int) nl.length(); i++) {
         e = nl.item(i).toElement();
         QString name;
         QDomElement n2 = e.firstChild().toElement();
         if (n2.tagName() == QLatin1String("name")) {
             name = n2.firstChild().toText().data();
-            e.setAttribute("name", name);
+            e.setAttribute(QLatin1String("name"), name);
             e.removeChild(n2);
         }
     }
 
-    nl = doc.elementsByTagName("widget");
+    nl = doc.elementsByTagName(QLatin1String("widget"));
     for (i = 0; i <  (int) nl.length(); i++) {
         e = nl.item(i).toElement();
         QString name;
         QDomElement n2 = e.firstChild().toElement();
         if (n2.tagName() == QLatin1String("class")) {
             name = n2.firstChild().toText().data();
-            e.setAttribute("class", name);
+            e.setAttribute(QLatin1String("class"), name);
             e.removeChild(n2);
         }
     }
@@ -474,12 +477,12 @@ struct propertyName : public widgetName {
 
 const int widgs = 1;
 widgetName widgetTable[1] = {
-    widgetName(3.3, "before", "after"),
+    widgetName(3.3, QLatin1String("before"), QLatin1String("after")),
 };
 
 const int props = 1;
 propertyName propertyTable[1] = {
-    propertyName(3.0, "resizeable", "resizable"), // we need to fix a spelling error in 3.0
+    propertyName(3.0, QLatin1String("resizeable"), QLatin1String("resizable")), // we need to fix a spelling error in 3.0
 };
 
 /*!
@@ -504,25 +507,25 @@ void DomTool::fixAttribute(QDomNode &node, double version)
 {
     QString tagName =  node.toElement().tagName();
     if (tagName == QLatin1String("widget")) {
-        QString clss = node.toElement().attribute("class");
+        QString clss = node.toElement().attribute(QLatin1String("class"));
         for (int i = 0; i < widgs; ++i)
             if ((version < widgetTable[i].version)
                  && (clss == widgetTable[i].before)) {
-                node.toElement().setAttribute("class", propertyTable[i].after);
+                node.toElement().setAttribute(QLatin1String("class"), propertyTable[i].after);
                 return;
             }
         return;
     }
     if (tagName == QLatin1String("property")) {
         QDomElement e = node.parentNode().toElement();
-        QString clss = e.attribute("class");
-        QString name = node.toElement().attribute("name", "");
+        QString clss = e.attribute(QLatin1String("class"));
+        QString name = node.toElement().attribute(QLatin1String("name"), QLatin1String(""));
         for (int i = 0; i < props; ++i)
             if ((version < propertyTable[i].version)
                  && (clss == propertyTable[i].clss)
                  && (propertyTable[i].before == QString::null
                       || name == propertyTable[i].before)) {
-                node.toElement().setAttribute("name", propertyTable[i].after);
+                node.toElement().setAttribute(QLatin1String("name"), propertyTable[i].after);
                 return;
             }
     }

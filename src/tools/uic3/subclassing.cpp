@@ -64,20 +64,20 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
 
-    nl = e.parentNode().toElement().elementsByTagName( "slot" );
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("slot"));
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
         if ( n.parentNode().toElement().tagName() != QLatin1String("slots")
              && n.parentNode().toElement().tagName() != QLatin1String("connections") )
             continue;
-        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
+        if ( n.attribute(QLatin1String("language"), QLatin1String("C++")) != QLatin1String("C++") )
             continue;
-        QString returnType = n.attribute( "returnType", "void" );
+        QString returnType = n.attribute(QLatin1String("returnType"), QLatin1String("void"));
         QString functionName = n.firstChild().toText().data().trimmed();
-        if ( functionName.endsWith( ";" ) )
+        if ( functionName.endsWith(QLatin1String(";")))
             functionName = functionName.left( functionName.length() - 1 );
-        QString specifier = n.attribute( "specifier" );
-        QString access = n.attribute( "access" );
+        QString specifier = n.attribute(QLatin1String("specifier"));
+        QString access = n.attribute(QLatin1String("access"));
         if ( access == QLatin1String("protected") ) {
             protectedSlots += functionName;
             protectedSlotTypes += returnType;
@@ -93,19 +93,19 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
         }
     }
 
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("function"));
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
         if ( n.parentNode().toElement().tagName() != QLatin1String("functions") )
             continue;
-        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
+        if ( n.attribute(QLatin1String("language"), QLatin1String("C++")) != QLatin1String("C++") )
             continue;
-        QString returnType = n.attribute( "returnType", "void" );
+        QString returnType = n.attribute(QLatin1String("returnType"), QLatin1String("void"));
         QString functionName = n.firstChild().toText().data().trimmed();
-        if ( functionName.endsWith( ";" ) )
+        if ( functionName.endsWith(QLatin1String(";")) )
             functionName = functionName.left( functionName.length() - 1 );
-        QString specifier = n.attribute( "specifier" );
-        QString access = n.attribute( "access" );
+        QString specifier = n.attribute(QLatin1String("specifier"));
+        QString access = n.attribute(QLatin1String("access"));
         if ( access == QLatin1String("protected") ) {
             protectedFuncts += functionName;
             protectedFunctRetTyp += returnType;
@@ -227,20 +227,20 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
 
-    nl = e.parentNode().toElement().elementsByTagName( "slot" );
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("slot"));
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
         if ( n.parentNode().toElement().tagName() != QLatin1String("slots")
              && n.parentNode().toElement().tagName() != QLatin1String("connections") )
             continue;
-        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
+        if ( n.attribute(QLatin1String("language"), QLatin1String("C++")) != QLatin1String("C++") )
             continue;
-        QString returnType = n.attribute( "returnType", "void" );
+        QString returnType = n.attribute(QLatin1String("returnType"), QLatin1String("void"));
         QString functionName = n.firstChild().toText().data().trimmed();
-        if ( functionName.endsWith( ";" ) )
+        if ( functionName.endsWith(QLatin1String(";")) )
             functionName = functionName.left( functionName.length() - 1 );
-        QString specifier = n.attribute( "specifier" );
-        QString access = n.attribute( "access" );
+        QString specifier = n.attribute(QLatin1String("specifier"));
+        QString access = n.attribute(QLatin1String("access"));
         if ( access == QLatin1String("protected") ) {
             protectedSlots += functionName;
             protectedSlotTypes += returnType;
@@ -256,19 +256,19 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
         }
     }
 
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("function"));
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
         if ( n.parentNode().toElement().tagName() != QLatin1String("functions") )
             continue;
-        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
+        if ( n.attribute(QLatin1String("language"), QLatin1String("C++")) != QLatin1String("C++") )
             continue;
-        QString returnType = n.attribute( "returnType", "void" );
+        QString returnType = n.attribute(QLatin1String("returnType"), QLatin1String("void"));
         QString functionName = n.firstChild().toText().data().trimmed();
-        if ( functionName.endsWith( ";" ) )
+        if ( functionName.endsWith(QLatin1String(";")) )
             functionName = functionName.left( functionName.length() - 1 );
-        QString specifier = n.attribute( "specifier" );
-        QString access = n.attribute( "access" );
+        QString specifier = n.attribute(QLatin1String("specifier"));
+        QString access = n.attribute(QLatin1String("access"));
         if ( access == QLatin1String("protected") ) {
             protectedFuncts += functionName;
             protectedFunctRetTyp += returnType;
@@ -285,25 +285,25 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
     }
 
     if ( !publicFuncts.isEmpty() )
-        writeFunctionsSubImpl( publicFuncts, publicFunctRetTyp, publicFunctSpec, subClass, "public function" );
+        writeFunctionsSubImpl( publicFuncts, publicFunctRetTyp, publicFunctSpec, subClass, QLatin1String("public function"));
 
     // create stubs for public additional slots
     if ( !publicSlots.isEmpty() )
-        writeFunctionsSubImpl( publicSlots, publicSlotTypes, publicSlotSpecifier, subClass, "public slot" );
+        writeFunctionsSubImpl( publicSlots, publicSlotTypes, publicSlotSpecifier, subClass, QLatin1String("public slot"));
 
     if ( !protectedFuncts.isEmpty() )
-        writeFunctionsSubImpl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec, subClass, "protected function" );
+        writeFunctionsSubImpl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec, subClass, QLatin1String("protected function"));
 
     // create stubs for protected additional slots
     if ( !protectedSlots.isEmpty() )
-        writeFunctionsSubImpl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier, subClass, "protected slot" );
+        writeFunctionsSubImpl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier, subClass, QLatin1String("protected slot"));
 
     if ( !privateFuncts.isEmpty() )
-        writeFunctionsSubImpl( privateFuncts, privateFunctRetTyp, privateFunctSpec, subClass, "private function" );
+        writeFunctionsSubImpl( privateFuncts, privateFunctRetTyp, privateFunctSpec, subClass, QLatin1String("private function"));
 
     // create stubs for private additional slots
     if ( !privateSlots.isEmpty() )
-        writeFunctionsSubImpl( privateSlots, privateSlotTypes, privateSlotSpecifier, subClass, "private slot" );
+        writeFunctionsSubImpl( privateSlots, privateSlotTypes, privateSlotSpecifier, subClass, QLatin1String("private slot"));
 }
 
 void Ui3Reader::writeFunctionsSubImpl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst,

@@ -50,11 +50,15 @@ int main(int argc, char * argv[])
     QByteArray pchFile;
     QCoreApplication app(argc, argv);
 
-    QString keybase("/Qt Designer/" +
-        QString::number((QT_VERSION >> 16) & 0xff) +"." + QString::number((QT_VERSION >> 8) & 0xff) + "/");
+    QString keybase(QLatin1String("/Qt Designer/") 
+        + QString::number((QT_VERSION >> 16) & 0xff) 
+        + QLatin1String(".") 
+        + QString::number((QT_VERSION >> 8) & 0xff) 
+        + QLatin1String("/"));
+        
     QSettings config;
-    config.insertSearchPath(QSettings::Windows, "/Trolltech");
-    QStringList pluginPaths = config.readListEntry(keybase + "PluginPaths");
+    config.insertSearchPath(QSettings::Windows, QLatin1String("/Trolltech"));
+    QStringList pluginPaths = config.readListEntry(keybase + QLatin1String("PluginPaths"));
     if (pluginPaths.count())
         QCoreApplication::setLibraryPaths(pluginPaths);
 
@@ -165,7 +169,7 @@ int main(int argc, char * argv[])
             }
         } else {
             if (imagecollection && !imagecollection_tmpfile)
-                images << argv[n];
+                images << QLatin1String(argv[n]);
             else if (fileName)                // can handle only one file
                 error = "Too many input files specified";
             else
@@ -218,12 +222,12 @@ int main(int argc, char * argv[])
     }
 
     if (imagecollection_tmpfile) {
-        QFile ifile(image_tmpfile);
+        QFile ifile(QString::fromUtf8(image_tmpfile));
         if (ifile.open(IO_ReadOnly)) {
             QTextStream ts(&ifile);
             QString s = ts.read();
             s = s.simplified();
-            images = s.split(' ');
+            images = s.split(QLatin1Char(' '));
             for (QStringList::Iterator it = images.begin(); it != images.end(); ++it)
                 *it = (*it).simplified();
         }
@@ -231,7 +235,7 @@ int main(int argc, char * argv[])
 
     QFile fileOut;
     if (!outputFile.isEmpty()) {
-        fileOut.setFileName(outputFile);
+        fileOut.setFileName(QString::fromUtf8(outputFile));
         if (!fileOut.open(IO_WriteOnly)) {
             fprintf(stderr, "%s: Could not open output file '%s'\n", argv[0], outputFile.data());
             return 1;
@@ -252,7 +256,7 @@ int main(int argc, char * argv[])
 
     out.setEncoding(QTextStream::UnicodeUTF8);
 
-    QFile file(fileName);
+    QFile file(QString::fromUtf8(fileName));
     if (!file.open(IO_ReadOnly)) {
         fprintf(stderr, "%s: Could not open file '%s'\n", argv[0], fileName);
         return 1;
@@ -267,11 +271,11 @@ int main(int argc, char * argv[])
     }
 
     QDomElement e = doc.firstChild().toElement();
-    double version = e.attribute("version", "3.0").toDouble();
+    double version = e.attribute(QLatin1String("version"), QLatin1String("3.0")).toDouble();
 
     if (version > 3.3) {
         fprintf(stderr, "%s: File generated with too recent version of Qt Designer (%s vs. %s)\n",
-                  argv[0], e.attribute("version").latin1(), "3.3");
+                  argv[0], e.attribute(QLatin1String("version")).latin1(), "3.3");
         return 1;
     }
 
@@ -289,13 +293,13 @@ int main(int argc, char * argv[])
     }
 
     if (convert) {
-        ui3.generateUi4(fileName, outputFile, doc);
+        ui3.generateUi4(QString::fromUtf8(fileName), QString::fromUtf8(outputFile), doc);
         return 0;
     }
 
     QString protector;
     if (subcl && className && !impl)
-        protector = QString::fromLocal8Bit(className).toUpper() + "_H";
+        protector = QString::fromLocal8Bit(className).toUpper() + QLatin1String("_H");
 
     if (!protector.isEmpty()) {
         out << "#ifndef " << protector << endl;
@@ -312,9 +316,17 @@ int main(int argc, char * argv[])
 
     QString uiData;
     if (uiHeaderFile)
-        uiData = QFile::encodeName(uiHeaderFile);
+        uiData = QString::fromUtf8(uiHeaderFile);
 
-    ui3.generate(uiData, fileName, outputFile, doc, !impl, subcl, trmacro, className, nofwd);
+    ui3.generate(uiData, 
+        QString::fromLocal8Bit(fileName), 
+        QString::fromLocal8Bit(outputFile), 
+        doc, 
+        !impl, 
+        subcl, 
+        QString::fromLocal8Bit(trmacro), 
+        QString::fromLocal8Bit(className), 
+        nofwd);
 
     if (!protector.isEmpty()) {
         out << endl;

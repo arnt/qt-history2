@@ -26,7 +26,7 @@ QDomElement Ui3Reader::getObjectProperty( const QDomElement& e, const QString& n
     for ( n = e.firstChild().toElement();
           !n.isNull();
           n = n.nextSibling().toElement() ) {
-        if ( n.tagName() == QLatin1String("property")  && n.toElement().attribute("name") == name )
+        if ( n.tagName() == QLatin1String("property")  && n.toElement().attribute(QLatin1String("name")) == name )
             return n;
     }
     return n;

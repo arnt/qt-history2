@@ -1,6 +1,7 @@
 TEMPLATE = app
 CONFIG += console
 CONFIG -= resource_fork
+DEFINES += QT_NO_CAST_FROM_ASCII
 
 QT += xml compat
 

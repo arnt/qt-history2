@@ -162,7 +162,7 @@ QString WidgetInfo::resolveEnumerator(const QString &className, const QString &n
 {
     const QMetaObject *meta = metaObject(className);
     if (!meta) {
-        QString e = resolveEnumerator("QObject", QLatin1String("Qt::") + name);
+        QString e = resolveEnumerator(QLatin1String("QObject"), QLatin1String("Qt::") + name);
         if (e.size())
             return e;
 
@@ -190,7 +190,7 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
     int idx = metaEnum.keyToValue(name);
     if (idx != -1) {
         QString enumerator = name;
-        int i = enumerator.indexOf("::");
+        int i = enumerator.indexOf(QLatin1String("::"));
         if (i != -1)
             enumerator = enumerator.mid(i + 2);
 

@@ -43,15 +43,16 @@ struct EmbedImage
 
 static QString convertToCIdentifier( const char *s )
 {
-    QString r = s;
+    QByteArray r = s;
     int len = r.length();
-    if ( len > 0 && !isalpha( (char)r[0].latin1() ) )
+    if ( len > 0 && !isalpha( (char)r[0] ) )
         r[0] = '_';
     for ( int i=1; i<len; i++ ) {
-        if ( !isalnum( (char)r[i].latin1() ) )
+        if ( !isalnum( (char)r[i] ) )
             r[i] = '_';
     }
-    return r;
+    
+    return QString::fromAscii(r);
 }
 
 
@@ -67,7 +68,7 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
     QString s;
     for ( int i=0; i<(int)len; i++ ) {
         if ( (i%14) == 0 ) {
-            s += "\n    ";
+            s += QLatin1String("\n    ");
             out << s.latin1();
             s.truncate( 0 );
         }
@@ -78,11 +79,11 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
                  input
 #endif
                  [i];
-        s += "0x";
-        s += hexdigits[(v >> 4) & 15];
-        s += hexdigits[v & 15];
+        s += QLatin1String("0x");
+        s += QLatin1Char(hexdigits[(v >> 4) & 15]);
+        s += QLatin1Char(hexdigits[v & 15]);
         if ( i < (int)len-1 )
-            s += ',';
+            s += QLatin1Char(',');
     }
     if ( s.length() )
         out << s.latin1();
@@ -147,7 +148,7 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
         memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
         QFileInfo fi( *it );
         e->name = fi.fileName();
-        e->cname = QString("image_%1").arg( image_count++);
+        e->cname = QString::fromLatin1("image_%1").arg( image_count++);
         list_image.append( e );
         out << "// " << *it << "\n";
         QString s;
