@@ -118,8 +118,8 @@ protected:
     QDriverDict* drDict;
 };
 
-/*!  Constructs an SQL database manager.
-
+/*!
+    Constructs an SQL database manager.
 */
 
 QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
@@ -128,9 +128,9 @@ QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
 }
 
 /*!
-  Destroys the object and frees any allocated resources.  All open
-  database connections are closed.  All database connections are deleted.
-
+    Destroys the object and frees any allocated resources. All open
+    database connections are closed. All database connections are
+    deleted.
 */
 
 QSqlDatabaseManager::~QSqlDatabaseManager()
@@ -175,10 +175,10 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
     return sqlConnection;
 }
 
-/*!  Returns a pointer to the database connection with name \a name.  If \a open
-  is TRUE, the database connection is opened.  If \a name does not exist in the
-  list of managed databases, 0 is returned.
-
+/*!
+    Returns the database connection called \a name. If \a open is
+    TRUE, the database connection is opened. If \a name does not exist
+    in the list of managed databases, 0 is returned.
 */
 
 QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
@@ -200,10 +200,10 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
     return db;
 }
 
-/*! Returns TRUE if the list of database connections contains \a name,
-  otherwise returns FALSE.
-
- */
+/*!
+    Returns TRUE if the list of database connections contains \a name;
+    otherwise returns FALSE.
+*/
 
 bool QSqlDatabaseManager::contains( const QString& name )
 {
@@ -215,15 +215,15 @@ bool QSqlDatabaseManager::contains( const QString& name )
 }
 
 
-/*!  Adds a database to the SQL connection manager. The database
-  connection is referred to by \a name. A pointer to the newly added
-  database connection is returned. This function will only return 0 if
-  it is called before a QApplication object has been instantiated.
-  Use the output of drivers() to determine whether a particular driver
-  is available or not.
-  
-  \sa QSqlDatabase database()
+/*!
+    Adds a database to the SQL connection manager. The database
+    connection is referred to by \a name. The newly added database
+    connection is returned. This function will only return 0 if it is
+    called \e before a QApplication object has been instantiated. Use
+    the output of drivers() to determine whether a particular driver
+    is available or not.
 
+    \sa QSqlDatabase database()
 */
 
 QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
@@ -238,10 +238,13 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
 }
 
 
-/*!  Removes the database connection \a name from the SQL connection manager.
-  Note that there should be no open queries on the database connection when this
-  function is called, otherwise a resource leak will occur.
+/*!
+    Removes the database connection \a name from the SQL connection
+    manager.
 
+    \warning There should be no open queries on the database
+    connection when this function is called, otherwise a resource leak
+    will occur.
 */
 
 void QSqlDatabaseManager::removeDatabase( const QString& name )
@@ -278,12 +281,11 @@ public:
 
 /*!
     \class QSqlDatabase qsqldatabase.h
-    \ingroup database
-  \mainclass
-
     \brief The QSqlDatabase class is used to create SQL database
     connections and provide transaction handling.
 
+    \ingroup database
+    \mainclass
     \module sql
 
     This class is used to create connections to SQL databases. It also
@@ -295,38 +297,36 @@ public:
     are used internally to actually access and manipulate data, (see
     QSqlDriver). Result set objects provide the interface for executing
     and manipulating SQL queries (see QSqlQuery).
-
 */
 
-/*!  Adds a database to the list of database connections using the
-  driver \a type and the connection name \a connectionName.
+/*!
+    Adds a database to the list of database connections using the
+    driver \a type and the connection name \a connectionName.
 
-  The database connection is referred to by \a connectionName.  A
-  pointer to the newly added database connection is returned.  This
-  pointer is owned by QSqlDatabase and will be deleted on program exit
-  or when removeDatabase() is called.  If \a connectionName is not
-  specified, the newly added database connection becomes the default
-  database connection for the application, and subsequent calls to
-  database() (without a database name parameter) will return a pointer
-  to it.
+    The database connection is referred to by \a connectionName. The
+    newly added database connection is returned. This pointer is owned
+    by QSqlDatabase and will be deleted on program exit or when
+    removeDatabase() is called. If \a connectionName is not specified,
+    the newly added database connection becomes the default database
+    connection for the application, and subsequent calls to database()
+    (without a database name parameter) will return a pointer to it.
 
-  \sa database() removeDatabase()
-
+    \sa database() removeDatabase()
 */
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& connectionName )
 {
     return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, connectionName ), connectionName );
 }
 
-/*! Returns a pointer to the database connection named \a
-  connectionName.  The database connection must have been previously
-  added with addDatabase().  If \a open is TRUE (the default) and the
-  database connection is not already open it is opened now.  If no \a
-  connectionName is specified the default connection is used. If \a
-  connectionName does not exist in the list of databases, 0 is
-  returned.  The pointer returned is owned by QSqlDatabase and should
-  \e not be deleted.
-
+/*!
+    Returns the database connection called \a connectionName. The
+    database connection must have been previously added with
+    addDatabase(). If \a open is TRUE (the default) and the database
+    connection is not already open it is opened now. If no \a
+    connectionName is specified the default connection is used. If \a
+    connectionName does not exist in the list of databases, 0 is
+    returned. The pointer returned is owned by QSqlDatabase and should
+    \e not be deleted.
 */
 
 QSqlDatabase* QSqlDatabase::database( const QString& connectionName, bool open )
@@ -334,11 +334,13 @@ QSqlDatabase* QSqlDatabase::database( const QString& connectionName, bool open )
     return QSqlDatabaseManager::database( connectionName, open );
 }
 
-/*!  Removes the database connection \a connectionName from the list
-  of database connections.  Note that there should be no open queries
-  on the database connection when this function is called, otherwise a
-  resource leak will occur.
+/*!
+    Removes the database connection \a connectionName from the list of
+    database connections.
 
+    \warning There should be no open queries on the database
+    connection when this function is called, otherwise a resource leak
+    will occur.
 */
 
 void QSqlDatabase::removeDatabase( const QString& connectionName )
@@ -346,10 +348,11 @@ void QSqlDatabase::removeDatabase( const QString& connectionName )
     QSqlDatabaseManager::removeDatabase( connectionName );
 }
 
-/*! Returns a list of all available database drivers.
+/*!
+    Returns a list of all available database drivers.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myDatabase.drivers();
     QStringList::Iterator it = list.begin();
@@ -414,10 +417,10 @@ void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreat
     }
 }
 
-/*! Returns TRUE if the list of database connections contains \a
-  connectionName, otherwise returns FALSE.
-
- */
+/*!
+    Returns TRUE if the list of database connections contains \a
+    connectionName; otherwise returns FALSE.
+*/
 
 bool QSqlDatabase::contains( const QString& connectionName )
 {
@@ -425,24 +428,24 @@ bool QSqlDatabase::contains( const QString& connectionName )
 }
 
 
-/*!  Creates a QSqlDatabase connection named \a name that uses the
-     driver referred to by \a driver, with the parent \a parent and
-     the object name \a objname.  If the \a driver is not recognized,
-     the database connection will have no functionality.
+/*!
+    Creates a QSqlDatabase connection called \a name that uses the
+    driver referred to by \a driver, with the parent \a parent and the
+    object name \a objname. If the \a driver is not recognized, the
+    database connection will have no functionality.
 
-     The currently available drivers are:
+    The currently available drivers are:
 
-     \list
-     \i QODBC3 - ODBC (Open Database Connectivity) Driver
-     \i QOCI8 - Oracle Call Interface Driver
-     \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
-     \i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
-     \i QMYSQL3 - MySQL Driver
-     \endlist
+    \list
+    \i QODBC3 - ODBC (Open Database Connectivity) Driver
+    \i QOCI8 - Oracle Call Interface Driver
+    \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
+    \i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
+    \i QMYSQL3 - MySQL Driver
+    \endlist
 
-     Note that additional 3<sup>rd</sup> party drivers can be loaded
-     dynamically.
-
+    Note that additional 3<sup>rd</sup> party drivers can be loaded
+    dynamically.
 */
 
 QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject * parent, const char * objname )
@@ -523,8 +526,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
     }
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QSqlDatabase::~QSqlDatabase()
@@ -536,10 +539,12 @@ QSqlDatabase::~QSqlDatabase()
     delete d;
 }
 
-/*! Executes an SQL statement (e.g. an INSERT, UPDATE or DELETE statement)
-    on the database, and returns a QSqlQuery object.  Use lastError()
-    to retrieve error information. If \a query is QString::null, an
-    empty, invalid query is returned and lastError() is not affected.
+/*!
+    Executes a SQL statement (e.g. an INSERT, UPDATE or DELETE
+    statement) on the database, and returns a QSqlQuery object. Use
+    lastError() to retrieve error information. If \a query is
+    QString::null, an empty, invalid query is returned and lastError()
+    is not affected.
 
     \sa QSqlQuery lastError()
 */
@@ -554,8 +559,9 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
     return r;
 }
 
-/*! Opens the database connection using the current connection values.  Returns
-    TRUE on success, and FALSE if there was an error.  Error
+/*!
+    Opens the database connection using the current connection values.
+    Returns TRUE on success; otherwise returns FALSE. Error
     information can be retrieved using the lastError() function.
 
     \sa lastError()
@@ -570,11 +576,12 @@ bool QSqlDatabase::open()
 				d->port);
 }
 
-/*! \overload
+/*!
+    \overload
 
-  Opens the database connection using \a user name and \a password.  Returns
- TRUE on success, and FALSE if there was an error.  Error information
- can be retrieved using the lastError() function.
+    Opens the database connection using \a user name and \a password.
+    Returns TRUE on success; otherwise returns FALSE. Error
+    information can be retrieved using the lastError() function.
 
     \sa lastError()
 */
@@ -586,8 +593,8 @@ bool QSqlDatabase::open( const QString& user, const QString& password )
     return open();
 }
 
-/*! Closes the database connection, freeing any resources acquired.
-
+/*!
+    Closes the database connection, freeing any resources acquired.
 */
 
 void QSqlDatabase::close()
@@ -595,8 +602,9 @@ void QSqlDatabase::close()
     d->driver->close();
 }
 
-/*! Returns TRUE if the database connection is currently open, otherwise
- returns FALSE.
+/*!
+    Returns TRUE if the database connection is currently open;
+    otherwise returns FALSE.
 
 */
 
@@ -605,9 +613,10 @@ bool QSqlDatabase::isOpen() const
     return d->driver->isOpen();
 }
 
-/*! Returns TRUE if there was an error opening the database connection,
-    otherwise returns FALSE. Error information can be retrieved
-    using the lastError() function.
+/*!
+    Returns TRUE if there was an error opening the database
+    connection; otherwise returns FALSE. Error information can be
+    retrieved using the lastError() function.
 
 */
 
@@ -616,8 +625,10 @@ bool QSqlDatabase::isOpenError() const
     return d->driver->isOpenError();
 }
 
-/*! Begins a transaction on the database if the driver supports transactions.
-    Returns TRUE if the operation succeeded, FALSE otherwise.
+/*!
+    Begins a transaction on the database if the driver supports
+    transactions. Returns TRUE if the operation succeeded; otherwise
+    returns FALSE.
 
     \sa QSqlDriver::hasFeature() commit() rollback()
 */
@@ -629,8 +640,10 @@ bool QSqlDatabase::transaction()
     return d->driver->beginTransaction();
 }
 
-/*! Commits a transaction to the database if the driver supports transactions.
-    Returns TRUE if the operation succeeded, FALSE otherwise.
+/*!
+    Commits a transaction to the database if the driver supports
+    transactions. Returns TRUE if the operation succeeded; otherwise
+    returns FALSE.
 
     \sa QSqlDriver::hasFeature() rollback()
 */
@@ -642,8 +655,10 @@ bool QSqlDatabase::commit()
     return d->driver->commitTransaction();
 }
 
-/*! Rolls a transaction back on the database if the driver supports transactions.
-    Returns TRUE if the operation succeeded, FALSE otherwise.
+/*!
+    Rolls a transaction back on the database if the driver supports
+    transactions. Returns TRUE if the operation succeeded; otherwise
+    returns FALSE.
 
     \sa QSqlDriver::hasFeature() commit() transaction()
 */
@@ -655,11 +670,12 @@ bool QSqlDatabase::rollback()
     return d->driver->rollbackTransaction();
 }
 
-/*! \property QSqlDatabase::databaseName
+/*!
+    \property QSqlDatabase::databaseName
+    \brief the name of the database
 
-  \brief the name of the database. Note that the database name is the
-  TNS Service Name for the QOCI8 (Oracle) driver, and the Data Source
-  Name for the QODBC3 driver.
+    Note that the database name is the TNS Service Name for the QOCI8
+    (Oracle) driver, and the Data Source Name for the QODBC3 driver.
 
     There is no default value.
 */
@@ -669,12 +685,11 @@ void QSqlDatabase::setDatabaseName( const QString& name )
     d->dbname = name;
 }
 
-/*! \property QSqlDatabase::userName
-
-  \brief the user name connected to the database
+/*!
+    \property QSqlDatabase::userName
+    \brief the user name connected to the database
 
     There is no default value.
-
 */
 
 void QSqlDatabase::setUserName( const QString& name )
@@ -682,12 +697,11 @@ void QSqlDatabase::setUserName( const QString& name )
     d->uname = name;
 }
 
-/*! \property QSqlDatabase::password
-
-  \brief the password used to connect to the database
+/*!
+    \property QSqlDatabase::password
+    \brief the password used to connect to the database
 
     There is no default value.
-
 */
 
 void QSqlDatabase::setPassword( const QString& password )
@@ -695,12 +709,11 @@ void QSqlDatabase::setPassword( const QString& password )
     d->pword = password;
 }
 
-/*! \property QSqlDatabase::hostName
-
-  \brief the host name where the database resides
+/*!
+    \property QSqlDatabase::hostName
+    \brief the host name where the database resides
 
     There is no default value.
-
 */
 
 void QSqlDatabase::setHostName( const QString& host )
@@ -708,12 +721,11 @@ void QSqlDatabase::setHostName( const QString& host )
     d->hname = host;
 }
 
-/*! \property QSqlDatabase::port
-
-  \brief the port used to connect to the database
+/*!
+    \property QSqlDatabase::port
+    \brief the port used to connect to the database
 
     There is no default value.
-
 */
 
 void QSqlDatabase::setPort( int p )
@@ -741,8 +753,8 @@ QString QSqlDatabase::hostName() const
     return d->hname;
 }
 
-/*! Returns the name of the driver used by the database connection.
-
+/*!
+    Returns the name of the driver used by the database connection.
 */
 QString QSqlDatabase::driverName() const
 {
@@ -754,8 +766,9 @@ int QSqlDatabase::port() const
     return d->port;
 }
 
-/*! Returns a pointer to the database driver used to access the database connection.
-
+/*!
+    Returns the database driver used to access the database
+    connection.
 */
 
 QSqlDriver* QSqlDatabase::driver() const
@@ -763,9 +776,9 @@ QSqlDriver* QSqlDatabase::driver() const
     return d->driver;
 }
 
-/*! Returns information about the last error that occurred on the database.  See
-    QSqlError for more information.
-
+/*!
+    Returns information about the last error that occurred on the
+    database. See QSqlError for more information.
 */
 
 QSqlError QSqlDatabase::lastError() const
@@ -775,10 +788,10 @@ QSqlError QSqlDatabase::lastError() const
 
 
 /*!
-  Returns a list of tables in the database.
+    Returns a list of tables in the database.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myDatabase.tables();
     QStringList::Iterator it = list.begin();
@@ -795,9 +808,8 @@ QStringList QSqlDatabase::tables() const
 }
 
 /*!
-  Returns the primary index for table \a tablename.  If no
-  primary index exists an empty QSqlIndex will be returned.
-
+    Returns the primary index for table \a tablename. If no primary
+    index exists an empty QSqlIndex will be returned.
 */
 
 QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
@@ -806,10 +818,11 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 }
 
 
-/*!  Returns a QSqlRecord populated with the names of all the fields in
-    the table (or view) named \a tablename. The order in which the fields are
-    returned is undefined.  If no such table (or view) exists, an empty
-    record is returned.
+/*!
+    Returns a QSqlRecord populated with the names of all the fields in
+    the table (or view) named \a tablename. The order in which the
+    fields are returned is undefined. If no such table (or view)
+    exists, an empty record is returned.
 
     \sa recordInfo()
 */
@@ -820,13 +833,14 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 }
 
 
-/*! \overload
+/*!
+    \overload
 
-  Returns a QSqlRecord populated with the names of all the fields used
-  in the SQL \a query. If the query is a "SELECT *" the order in which
-  fields are returned is undefined.
+    Returns a QSqlRecord populated with the names of all the fields
+    used in the SQL \a query. If the query is a "SELECT *" the order
+    in which fields are returned is undefined.
 
-  \sa recordInfo()
+    \sa recordInfo()
 */
 
 QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
@@ -835,23 +849,26 @@ QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
 }
 
 /*!
-  Returns a QSqlRecordInfo populated with meta-data about the table (or view)
-  \a tablename. If no such table (or view) exists, an empty record is returned.
+    Returns a QSqlRecordInfo populated with meta data about the table
+    or view \a tablename. If no such table or view exists, an empty
+    record is returned.
 
-  \sa QSqlRecordInfo, QSqlFieldInfo, record()
+    \sa QSqlRecordInfo, QSqlFieldInfo, record()
 */
 QSqlRecordInfo QSqlDatabase::recordInfo( const QString& tablename ) const
 {
     return d->driver->recordInfo( tablename );
 }
 
-/*! \overload
+/*!
+    \overload
 
-    Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
-    Note that this overloaded function may return not as much information as
-    the recordInfo function which takes the name of a table as parameter.
+    Returns a QSqlRecordInfo object with meta data for the QSqlQuery
+    \a query. Note that this overloaded function may return less
+    information than the recordInfo() function which takes the name of
+    a table as parameter.
 
-   \sa QSqlRecordInfo, QSqlFieldInfo, record()
+    \sa QSqlRecordInfo, QSqlFieldInfo, record()
 */
 QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 {

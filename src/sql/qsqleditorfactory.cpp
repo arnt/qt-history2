@@ -42,30 +42,30 @@
 #include "qcleanuphandler.h"
 
 /*!
-  \class QSqlEditorFactory qsqleditorfactory.h
+    \class QSqlEditorFactory qsqleditorfactory.h
+    \brief The QSqlEditorFactory class is used to create the editors
+    used by QDataTable and QSqlForm.
+
     \ingroup database
+    \module sql
 
-  \brief The QSqlEditorFactory class is used to create the editors
-  used by QDataTable and QSqlForm.
+    QSqlEditorFactory is used by QDataTable and QSqlForm to
+    automatically create appropriate editors for a given QSqlField.
+    For example if the field is a QVariant::String a QLineEdit would
+    be the default editor, whereas a QVariant::Int's default editor
+    would be a QSpinBox.
 
-  \module sql
+    If you want to create different editors for fields with the same
+    data type, subclass QSqlEditorFactory and reimplement the
+    createEditor() function.
 
-  QSqlEditorFactory is used by QDataTable and QSqlForm to automatically
-  create appropriate editors for a given QSqlField. For example if the
-  field is a QVariant::String a QLineEdit would be the default editor,
-  whereas a QVariant::Int's default editor would be a QSpinBox.
-
-  If you want to create different editors for fields with the same
-  data type, subclass QSqlEditorFactory and reimplement the createEditor()
-  function.
-
-  \sa QDataTable, QSqlForm
- */
+    \sa QDataTable, QSqlForm
+*/
 
 
-/*!  Constructs a SQL editor factory with parent \a parent and name \a
- name.
-
+/*!
+    Constructs a SQL editor factory with parent \a parent, called \a
+    name.
 */
 
 QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
@@ -74,8 +74,8 @@ QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
 
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QSqlEditorFactory::~QSqlEditorFactory()
@@ -86,8 +86,8 @@ QSqlEditorFactory::~QSqlEditorFactory()
 static QSqlEditorFactory * defaultfactory = 0;
 static QCleanupHandler< QSqlEditorFactory > qsql_cleanup_editor_factory;
 
-/*! Returns an instance of a default editor factory.
-
+/*!
+    Returns an instance of a default editor factory.
 */
 
 QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
@@ -101,11 +101,10 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 }
 
 /*!
-
-  Replaces the default editor factory with \a factory. All QDataTable
-  and QSqlForm instantiations will use this new factory for creating
-  field editors. <em>QSqlEditorFactory takes ownership of factory,
-  and destroys it when it is no longer needed. </em>
+    Replaces the default editor factory with \a factory. All
+    QDataTable and QSqlForm instantiations will use this new factory
+    for creating field editors. \e{QSqlEditorFactory takes ownership
+    of \a factory, and destroys it when it is no longer needed.}
 */
 
 void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
@@ -121,14 +120,11 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
 }
 
 /*!
+    Creates and returns the appropriate editor widget for the QVariant
+    \a variant.
 
-  Creates and returns the appropriate editor widget for the QVariant
-  \a variant.
-
-  The widget that is returned has the parent \a parent (which may be
-  zero).  If \a variant is invalid, 0 is returned.
-
-
+    The widget that is returned has the parent \a parent (which may be
+    zero). If \a variant is invalid, 0 is returned.
 */
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
@@ -137,10 +133,11 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
     return QEditorFactory::createEditor( parent, variant );
 }
 
-/*! \overload
+/*!
+    \overload
 
-  Creates and returns the appropriate editor for the QSqlField \a field.
-
+    Creates and returns the appropriate editor for the QSqlField \a
+    field.
 */
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,

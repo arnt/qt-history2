@@ -38,35 +38,34 @@
 
 #ifndef QT_NO_SQL
 
-/*! \class QSqlError qsqlerror.h
-    \ingroup database
-
+/*!
+    \class QSqlError qsqlerror.h
     \brief The QSqlError class provides SQL database error information.
 
+    \ingroup database
     \module sql
 
-     This class is used to report database-specific errors.  An error
-     description and (if appropriate) a database-specific error number
-     can be recovered using this class.
-
+    This class is used to report database-specific errors. An error
+    description and (if appropriate) a database-specific error number
+    can be obtained using this class.
 */
 
-/*! \enum QSqlError::Type
+/*!
+    \enum QSqlError::Type
 
-  This enum type describes the type of SQL error that occurred.
+    This enum type describes the type of SQL error that occurred.
 
-  The currently defined values are:
-
-  \value None  no error occurred
-  \value Connection  connection error
-  \value Statement  statement syntax error
-  \value Transaction  transaction failed error
-  \value Unknown  unknown error
+    \value None  no error occurred
+    \value Connection  connection error
+    \value Statement  SQL statement syntax error
+    \value Transaction  transaction failed error
+    \value Unknown  unknown error
 */
 
-/*!  Constructs an error containing the driver error text \a driverText,
-    the database-specific error text \a databaseText, the type \a type and
-     the optional error number \a number.
+/*!
+    Constructs an error containing the driver error text \a
+    driverText, the database-specific error text \a databaseText, the
+    type \a type and the optional error number \a number.
 */
 
 QSqlError::QSqlError(  const QString& driverText,
@@ -80,8 +79,8 @@ QSqlError::QSqlError(  const QString& driverText,
 {
 }
 
-/*!  Creates a copy of \a other.
-
+/*!
+    Creates a copy of \a other.
 */
 
 QSqlError::QSqlError( const QSqlError& other )
@@ -92,8 +91,8 @@ QSqlError::QSqlError( const QSqlError& other )
 {
 }
 
-/*!  Sets the error equal to \a other.
-
+/*!
+    Sets the error equal to \a other.
 */
 
 QSqlError& QSqlError::operator=( const QSqlError& other )
@@ -105,25 +104,25 @@ QSqlError& QSqlError::operator=( const QSqlError& other )
     return *this;
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QSqlError::~QSqlError()
 {
 }
 
-/*!  Returns the text of the error as reported by the driver.  This
-     may contain database-specific descriptions.
-
+/*!
+    Returns the text of the error as reported by the driver. This may
+    contain database-specific descriptions.
 */
 QString QSqlError::driverText() const
 {
     return driverError;
 }
 
-/*!  Sets the driver error text to the value of \a driverText.
-
+/*!
+    Sets the driver error text to the value of \a driverText.
 */
 
 void QSqlError::setDriverText( const QString& driverText )
@@ -131,9 +130,9 @@ void QSqlError::setDriverText( const QString& driverText )
     driverError = driverText;
 }
 
-/*!  Returns the text of the error as reported by the database.  This
-     may contain database-specific descriptions.
-
+/*!
+    Returns the text of the error as reported by the database. This
+    may contain database-specific descriptions.
 */
 
 QString QSqlError::databaseText() const
@@ -141,8 +140,8 @@ QString QSqlError::databaseText() const
     return databaseError;
 }
 
-/*!  Sets the database error text to the value of \a databaseText.
-
+/*!
+    Sets the database error text to the value of \a databaseText.
 */
 
 void QSqlError::setDatabaseText( const QString& databaseText )
@@ -150,10 +149,10 @@ void QSqlError::setDatabaseText( const QString& databaseText )
     databaseError = databaseText;
 }
 
-/*!  Returns the error type, or -1 if the type cannot be determined.
+/*!
+    Returns the error type, or -1 if the type cannot be determined.
 
-  \sa QSqlError::Type.
-
+    \sa QSqlError::Type.
 */
 
 int QSqlError::type() const
@@ -161,8 +160,8 @@ int QSqlError::type() const
     return errorType;
 }
 
-/*!  Sets the error type to the value of \a type.
-
+/*!
+    Sets the error type to the value of \a type.
 */
 
 void QSqlError::setType( int type )
@@ -170,9 +169,9 @@ void QSqlError::setType( int type )
     errorType = type;
 }
 
-/*!  Returns the database-specific error number, or -1 if it cannot be
-     determined.
-
+/*!
+    Returns the database-specific error number, or -1 if it cannot be
+    determined.
 */
 
 int QSqlError::number() const
@@ -180,8 +179,8 @@ int QSqlError::number() const
     return errorNumber;
 }
 
-/*!  Sets the database-specific error number to the value of \a number.
-
+/*!
+    Sets the database-specific error number to the value of \a number.
 */
 
 void QSqlError::setNumber( int number )

@@ -36,54 +36,52 @@
 
 
 /*!
-  \class QSql qsql.h
-  \ingroup database
-  \mainclass
-  \module sql
+    \class QSql qsql.h
+    \brief The QSql class is a namespace for Qt SQL identifiers that
+    need to be global-like.
 
-  \brief The QSql class is a namespace for Qt SQL identifiers that
-  need to be global-like.
+    \ingroup database
+    \mainclass
+    \module sql
 
-  Normally, you can ignore this class.  Several Qt SQL classes inherit
-  it, so all the identifiers in the Qt SQL namespace are visible to
-  you without qualification.
-
+    Normally, you can ignore this class. Several Qt SQL classes
+    inherit it, so all the identifiers in the Qt SQL namespace are
+    visible to you without qualification.
 */
 
-/*! \enum QSql::Confirm
+/*!
+    \enum QSql::Confirm
 
-  This enum type describes edit confirmations.
+    This enum type describes edit confirmations.
 
-  The currently defined values are:
-
-  \value Yes
-  \value No
-  \value Cancel
+    \value Yes
+    \value No
+    \value Cancel
 */
 
-/*! \enum QSql::Op
+/*!
+    \enum QSql::Op
 
-  This enum type describes edit operations.
+    This enum type describes edit operations.
 
-  The currently defined values are:
-
-  \value None
-  \value Insert
-  \value Update
-  \value Delete
+    \value None
+    \value Insert
+    \value Update
+    \value Delete
 */
 
 
-/*! \enum QSql::Location
+/*!
+    \enum QSql::Location
 
-  This enum type describes SQL navigation locations.
+    This enum type describes SQL navigation locations.
 
-  The currently defined values are:
-
-  \value BeforeFirst
-  \value AfterLast
+    \value BeforeFirst
+    \value AfterLast
 */
 
-/*! \fn QSql::QSql()
-  Constructs a Qt SQL namepsace class
+/*!
+    \fn QSql::QSql()
+
+    Constructs a Qt SQL namepsace class
 */

@@ -46,21 +46,19 @@
 #define DBState_OpenError	0x0002
 
 /*!
-  \class QSqlDriver qsqldriver.h
+    \class QSqlDriver qsqldriver.h
+    \brief The QSqlDriver class is an abstract base class for accessing
+    SQL databases.
+
     \ingroup database
+    \module sql
 
-  \brief The QSqlDriver class is an abstract base class for accessing
-  SQL databases.
-
-  \module sql
-
-  This class should not be used directly.
-  Use QSqlDatabase instead.
-
+    This class should not be used directly. Use QSqlDatabase instead.
 */
 
-/*!  Default constructor. Creates a new driver with parent \a parent and
-   name \a name.
+/*!
+    Default constructor. Creates a new driver with parent \a parent,
+    called \a name.
 
 */
 
@@ -71,15 +69,16 @@ QSqlDriver::QSqlDriver( QObject * parent, const char * name )
 {
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QSqlDriver::~QSqlDriver()
 {
 }
 
-/*! \fn bool QSqlDriver::open( const QString& db, const QString& user,
+/*!
+    \fn bool QSqlDriver::open( const QString& db, const QString& user,
     const QString& password, const QString& host, int port )
 
     Derived classes must reimplement this abstract virtual function in
@@ -92,7 +91,9 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-/*! \fn bool QSqlDriver::close()
+/*!
+    \fn bool QSqlDriver::close()
+
     Derived classes must reimplement this abstract virtual function in
     order to close the database connection. Return TRUE on success,
     FALSE on failure.
@@ -101,10 +102,12 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-/*! \fn QSqlQuery QSqlDriver::createQuery() const
-    Creates an empty SQL result on the database.  Derived classes must
-    reimplement this function and return a QSqlQuery object appropriate
-    for their database to the caller.
+/*!
+    \fn QSqlQuery QSqlDriver::createQuery() const
+
+    Creates an empty SQL result on the database. Derived classes must
+    reimplement this function and return a QSqlQuery object
+    appropriate for their database to the caller.
 
 */
 
@@ -114,8 +117,9 @@ QSqlDriver::~QSqlDriver()
 //	delete r;
 //}
 
-/*!  Returns TRUE if the database connection is open, FALSE otherwise.
-
+/*!
+    Returns TRUE if the database connection is open; otherwise returns
+    FALSE.
 */
 
 bool QSqlDriver::isOpen() const
@@ -123,9 +127,9 @@ bool QSqlDriver::isOpen() const
     return ((dbState & DBState_Open) == DBState_Open);
 }
 
-/*!  Returns TRUE if the there was an error opening the database
-    connection, FALSE otherwise.
-
+/*!
+    Returns TRUE if the there was an error opening the database
+    connection; otherwise returns FALSE.
 */
 
 bool QSqlDriver::isOpenError() const
@@ -133,43 +137,45 @@ bool QSqlDriver::isOpenError() const
     return ((dbState & DBState_OpenError) == DBState_OpenError);
 }
 
-/*! \enum QSqlDriver::DriverFeature
+/*!
+    \enum QSqlDriver::DriverFeature
 
-  This enum contains a list of features a driver may support. Use hasFeature()
-  to query whether a feature is supported or not.
+    This enum contains a list of features a driver may support. Use
+    hasFeature() to query whether a feature is supported or not.
 
-  The currently defined values are:
+    \value Transactions  whether the driver supports SQL transactions
+    \value QuerySize  whether the database is capable of reporting the size
+    of a query. Note that some databases do not support returning the size
+    (i.e. number of rows returned) of a query, in which case
+    QSqlQuery::size() will return -1
+    \value BLOB  whether the driver supports Binary Large Object fields
+    \value Unicode  the driver supports Unicode strings if the
+    database server does
 
-  \value Transactions  whether the driver supports SQL transactions
-  \value QuerySize  whether the database is capable of reporting the size
-  of a query. Note that some databases do not support returning the size
-  (i.e. number of rows returned) of a query, in which case QSqlQuery::size() will return -1
-  \value BLOB  whether the driver supports Binary Large Object fields
-  \value Unicode  the driver supports Unicode strings if the database server does
+    More information about supported features can be found in the 
+    \link sql-driver.html Qt SQL driver\endlink documentation.
 
-  More information about supported features can be found in the 
-  <a href="sql-driver.html">Qt SQL driver</a> documentation.
-
-  \sa hasFeature()
-
+    \sa hasFeature()
 */
 
-/*! \fn bool QSqlDriver::hasFeature( DriverFeature f ) const
+/*!
+    \fn bool QSqlDriver::hasFeature( DriverFeature f ) const
 
-  Returns TRUE if the driver supports feature \a f; otherwise returns FALSE.
+    Returns TRUE if the driver supports feature \a f; otherwise
+    returns FALSE.
 
-  Note that some databases need to be open() before this can be
-  determined.
+    Note that some databases need to be open() before this can be
+    determined.
 
-  \sa DriverFeature
-
+    \sa DriverFeature
 */
 
-/*! Protected function which sets the open state of the database to \a o.
-    Derived classes can use this function to report the status of open().
+/*!
+    Protected function which sets the open state of the database to \a
+    o. Derived classes can use this function to report the status of
+    open().
 
     \sa open(), setOpenError()
-
 */
 
 void QSqlDriver::setOpen( bool o )
@@ -180,13 +186,13 @@ void QSqlDriver::setOpen( bool o )
 	dbState &= ~DBState_Open;
 }
 
-/*! Protected function which sets the open error state of the database to \a e.
-    Derived classes can use this function to report the status of open().
-    Note that if \a e is TRUE the open state of the database is set to closed
-    (i.e., isOpen() returns FALSE).
+/*!
+    Protected function which sets the open error state of the database
+    to \a e. Derived classes can use this function to report the
+    status of open(). Note that if \a e is TRUE the open state of the
+    database is set to closed (i.e. isOpen() returns FALSE).
 
     \sa open(), setOpenError()
-
 */
 
 void QSqlDriver::setOpenError( bool e )
@@ -199,12 +205,12 @@ void QSqlDriver::setOpenError( bool e )
 	dbState &= ~DBState_OpenError;
 }
 
-/*! Protected function which derived classes can reimplement to begin a
-    transaction. If successful, return TRUE, otherwise return FALSE.
+/*!
+    Protected function which derived classes can reimplement to begin
+    a transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
     \sa commitTransaction(), rollbackTransaction()
-
 */
 
 bool QSqlDriver::beginTransaction()
@@ -212,12 +218,12 @@ bool QSqlDriver::beginTransaction()
     return FALSE;
 }
 
-/*! Protected function which derived classes can reimplement to commit a
-    transaction. If successful, return TRUE, otherwise return FALSE. The
-    default implementation returns FALSE.
+/*!
+    Protected function which derived classes can reimplement to commit
+    a transaction. If successful, return TRUE, otherwise return FALSE.
+    The default implementation returns FALSE.
 
     \sa beginTransaction(), rollbackTransaction()
-
 */
 
 bool QSqlDriver::commitTransaction()
@@ -225,12 +231,12 @@ bool QSqlDriver::commitTransaction()
     return FALSE;
 }
 
-/*! Protected function which derived classes can reimplement to rollback a
-    transaction. If successful, return TRUE, otherwise return FALSE.
-    The default implementation returns FALSE.
+/*!
+    Protected function which derived classes can reimplement to
+    rollback a transaction. If successful, return TRUE, otherwise
+    return FALSE. The default implementation returns FALSE.
 
     \sa beginTransaction(), commitTransaction()
-
 */
 
 bool QSqlDriver::rollbackTransaction()
@@ -238,11 +244,11 @@ bool QSqlDriver::rollbackTransaction()
     return FALSE;
 }
 
-/*! Protected function which allows derived classes to set the value of
-    the last error, \a e, that occurred on the database.
+/*!
+    Protected function which allows derived classes to set the value
+    of the last error, \a e, that occurred on the database.
 
     \sa lastError()
-
 */
 
 void QSqlDriver::setLastError( const QSqlError& e )
@@ -250,9 +256,9 @@ void QSqlDriver::setLastError( const QSqlError& e )
     error = e;
 }
 
-/*! Returns a QSqlError object which contains information about the last
-    error that occurred on the database.
-
+/*!
+    Returns a QSqlError object which contains information about the
+    last error that occurred on the database.
 */
 
 QSqlError QSqlDriver::lastError() const
@@ -261,10 +267,10 @@ QSqlError QSqlDriver::lastError() const
 }
 
 /*!
-  Returns a list of tables in the database.  The default
-  implementation returns an empty list.
+    Returns a list of tables in the database. The default
+    implementation returns an empty list.
 
-  Currently the \a user argument is unused.
+    Currently the \a user argument is unused.
 */
 
 QStringList QSqlDriver::tables( const QString&	) const
@@ -273,10 +279,9 @@ QStringList QSqlDriver::tables( const QString&	) const
 }
 
 /*!
-  Returns the primary index for table \a tableName.  Returns an empty
-  QSqlIndex if the table doesn't have a primary index. The default
-  implementation returns an empty index.
-
+    Returns the primary index for table \a tableName. Returns an empty
+    QSqlIndex if the table doesn't have a primary index. The default
+    implementation returns an empty index.
 */
 
 QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
@@ -286,10 +291,9 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
 
 
 /*!
-  Returns a QSqlRecord populated with the names of the fields in table
-  \a tableName.	 If no such table exists, an empty list is returned.
-  The default implementation returns an empty record.
-
+    Returns a QSqlRecord populated with the names of the fields in
+    table \a tableName. If no such table exists, an empty record is
+    returned. The default implementation returns an empty record.
 */
 
 QSqlRecord QSqlDriver::record( const QString&  ) const
@@ -297,11 +301,11 @@ QSqlRecord QSqlDriver::record( const QString&  ) const
     return QSqlRecord();
 }
 
-/*! \overload
+/*!
+    \overload
 
-  Returns a QSqlRecord populated with the names of the fields in the
-  SQL \a query. The default implementation returns an empty record.
-
+    Returns a QSqlRecord populated with the names of the fields in the
+    SQL \a query. The default implementation returns an empty record.
 */
 
 QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
@@ -309,19 +313,22 @@ QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
    return QSqlRecord();
 }
 
-/*! Returns a QSqlRecordInfo object with meta data on the table \a tablename.
+/*!
+    Returns a QSqlRecordInfo object with meta data about the table \a
+    tablename.
 */
 QSqlRecordInfo QSqlDriver::recordInfo( const QString& tablename ) const
 {
     return QSqlRecordInfo( record( tablename ) );
 }
 
-/*! \overload
+/*!
+    \overload
 
-    Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
-    Note that this overloaded function may not return as much information as
-    the recordInfo function which takes the name of a table as parameter.
-
+    Returns a QSqlRecordInfo object with meta data for the QSqlQuery
+    \a query. Note that this overloaded function may return less
+    information than the recordInfo() function which takes the name of
+    a table as parameter.
 */
 QSqlRecordInfo QSqlDriver::recordInfo( const QSqlQuery& query ) const
 {
@@ -329,10 +336,11 @@ QSqlRecordInfo QSqlDriver::recordInfo( const QSqlQuery& query ) const
 }
 
 
-/*!  Returns a string representation of the 'NULL' value for the
-  database.  This is used, for example, when constructing INSERT and
-  UPDATE statements.  The default implementation returns the string 'NULL'.
-
+/*!
+    Returns a string representation of the NULL value for the
+    database. This is used, for example, when constructing INSERT and
+    UPDATE statements. The default implementation returns the string
+    "NULL".
 */
 
 QString QSqlDriver::nullText() const
@@ -340,37 +348,38 @@ QString QSqlDriver::nullText() const
     return "NULL";
 }
 
-/*!  Returns a string representation of the \a field value for the
-  database.  This is used, for example, when constructing INSERT and
-  UPDATE statements.
+/*!
+    Returns a string representation of the \a field value for the
+    database. This is used, for example, when constructing INSERT and
+    UPDATE statements.
 
-  The default implementation returns the value formatted as a string
-  according to the following rules:
+    The default implementation returns the value formatted as a string
+    according to the following rules:
 
-  <ul>
+    \list
 
-  <li> If \a field is null, nullText() is returned.
+    \i If \a field is NULL, nullText() is returned.
 
-  <li> If \a field is character data, the value is returned enclosed
-  in single quotation marks, which is appropriate for many SQL
-  databases. Any embedded single-quote characters are escaped
-  (replaced with two single-quote characters). If \a trimStrings is
-  TRUE (the default is FALSE), all trailing whitespace is trimmed from
-  the field.
+    \i If \a field is character data, the value is returned enclosed
+    in single quotation marks, which is appropriate for many SQL
+    databases. Any embedded single-quote characters are escaped
+    (replaced with two single-quote characters). If \a trimStrings is
+    TRUE (the default is FALSE), all trailing whitespace is trimmed
+    from the field.
 
-  <li> If \a field is date/time data, the value is formatted in ISO
-  format and enclosed in single quotation marks.  If the date/time
-  data is invalid, nullText() is returned.
+    \i If \a field is date/time data, the value is formatted in ISO
+    format and enclosed in single quotation marks. If the date/time
+    data is invalid, nullText() is returned.
 
-  <li> If \a field is bytearray data, and the driver can edit binary
-  fields, the value is formatted as a hexadecimal string.
+    \i If \a field is bytearray data, and the driver can edit binary
+    fields, the value is formatted as a hexadecimal string.
 
-  <li> For any other field type toString() will be called on its value
-  and the result returned.
+    \i For any other field type toString() will be called on its value
+    and the result returned.
 
-  </ul>
+    \endlist
 
-  \sa QVariant::toString().
+    \sa QVariant::toString().
 
 */
 QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) const

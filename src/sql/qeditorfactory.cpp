@@ -48,25 +48,25 @@
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
 /*!
-  \class QEditorFactory qeditorfactory.h
-  \ingroup advanced
-  \brief The QEditorFactory class is used to create editor widgets
-  for QVariant data types.
+    \class QEditorFactory qeditorfactory.h
+    \brief The QEditorFactory class is used to create editor widgets
+    for QVariant data types.
 
-  Each editor factory provides the createEditor() function which
-  given a QVariant will create and return a QWidget that can edit
-  that QVariant. For example if you have a QVariant::String type,
-  a QLineEdit would be the default editor returned, whereas a
-  QVariant::Int's default editor would be a QSpinBox.
+    \ingroup advanced
 
-  If you want to create different editors for fields with the same
-  data type, subclass QEditorFactory and reimplement the createEditor()
-  function.
+    Each editor factory provides the createEditor() function which
+    given a QVariant will create and return a QWidget that can edit
+    that QVariant. For example if you have a QVariant::String type, a
+    QLineEdit would be the default editor returned, whereas a
+    QVariant::Int's default editor would be a QSpinBox.
 
+    If you want to create different editors for fields with the same
+    data type, subclass QEditorFactory and reimplement the
+    createEditor() function.
 */
 
 /*!
-  Constructs an editor factory with parent \a parent and name \a name.
+    Constructs an editor factory with parent \a parent, called \a name.
 */
 
 QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
@@ -76,7 +76,7 @@ QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
 }
 
 /*!
-  Destroys the object and frees any allocated resources.
+    Destroys the object and frees any allocated resources.
 */
 
 QEditorFactory::~QEditorFactory()
@@ -88,7 +88,7 @@ static QEditorFactory * defaultfactory = 0;
 static QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
 /*!
-  Returns an instance of a default editor factory.
+    Returns an instance of a default editor factory.
 */
 
 QEditorFactory * QEditorFactory::defaultFactory()
@@ -102,9 +102,9 @@ QEditorFactory * QEditorFactory::defaultFactory()
 }
 
 /*!
-  Replaces the default editor factory with \a factory.
-  <em>QEditorFactory takes ownership of factory, and destroys it when
-  it is no longer needed. </em>
+    Replaces the default editor factory with \a factory.
+    \e{QEditorFactory takes ownership of factory, and destroys it
+    when it is no longer needed.}
 */
 
 void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
@@ -120,9 +120,9 @@ void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
 }
 
 /*!
-  Creates and returns the appropriate editor for the QVariant \a v.
-  If the QVariant is invalid, 0 is returned. The \a parent is passed to
-  the appropriate editor's constructor.
+    Creates and returns the appropriate editor for the QVariant \a v.
+    If the QVariant is invalid, 0 is returned. The \a parent is passed
+    to the appropriate editor's constructor.
 */
 
 QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )

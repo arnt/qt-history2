@@ -108,102 +108,103 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 }
 #endif
 
-/*! \enum QDataTable::Refresh
+/*!
+    \enum QDataTable::Refresh
 
-  This enum describes the refresh options.
+    This enum describes the refresh options.
 
-  The currently defined values are:
-
-  \value RefreshData  refresh the data, i.e. read it from the database
-  \value RefreshColumns  refresh the list of fields, e.g. the column headings
-  \value RefreshAll  refresh both the data and the list of fields
+    \value RefreshData  refresh the data, i.e. read it from the database
+    \value RefreshColumns  refresh the list of fields, e.g. the column headings
+    \value RefreshAll  refresh both the data and the list of fields
 */
 
 
 /*!
-  \class QDataTable qdatatable.h
+    \class QDataTable qdatatable.h
+    \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.
+
     \ingroup database
-  \mainclass
-  \module sql
+    \mainclass
+    \module sql
 
-  \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.
-
-  QDataTable supports various functions for presenting and editing SQL
-  data from a \l QSqlCursor in a table.
+    QDataTable supports various functions for presenting and editing
+    SQL data from a \l QSqlCursor in a table.
 
     If you want a to present your data in a form use QDataBrowser, or
     for read-only forms, QDataView.
 
-  When displaying data, QDataTable only retrieves data for visible rows.
-  If the driver supports the 'query size' property the QDataTable will
-  have the correct number of rows and the vertical scrollbar will
-  accurately reflect the number of rows displayed in proportion to the
-  number of rows in the dataset. If the driver does not support the
-  'query size' property rows are dynamically fetched from the database
-  on an as-needed basis with the scrollbar becoming more accurate as the
-  user scrolls down through the records.  This allows extremely large
-  queries to be displayed as quickly as possible, with minimum memory
-  usage.
+    When displaying data, QDataTable only retrieves data for visible
+    rows. If the driver supports the 'query size' property the
+    QDataTable will have the correct number of rows and the vertical
+    scrollbar will accurately reflect the number of rows displayed in
+    proportion to the number of rows in the dataset. If the driver
+    does not support the 'query size' property, rows are dynamically
+    fetched from the database on an as-needed basis with the scrollbar
+    becoming more accurate as the user scrolls down through the
+    records. This allows extremely large queries to be displayed as
+    quickly as possible, with minimum memory usage.
 
-  QDataTable inherits QTable's API and extends it with functions to
-  sort and filter the data and sort columns. See setSqlCursor(),
-  setFilter(), setSort(), setSorting(), sortColumn() and refresh().
+    QDataTable inherits QTable's API and extends it with functions to
+    sort and filter the data and sort columns. See setSqlCursor(),
+    setFilter(), setSort(), setSorting(), sortColumn() and refresh().
 
-  When displaying editable cursors, cell editing will be enabled. (For
-  more information on editable cursors, see \l QSqlCursor).  QDataTable
-  can be used to modify existing data and to add new records.  When
-  a user makes changes to a field in the table, the cursor's edit
-  buffer is used.  The table will not send changes in the edit buffer
-  to the database until the user moves to a different record in the grid
-  or presses Return. Cell editing is initiated by pressing F2 (or right
-  clicking and then clicking the appropriate popup menu item) and
-  cancelled by pressing Esc. If there is a problem updating or adding
-  data, errors are handled automatically (see handleError() to change
-  this behavior). Note that if autoEdit() is FALSE navigating to another
-  record will cancel the insert or update.
+    When displaying editable cursors, cell editing will be enabled.
+    (For more information on editable cursors, see \l QSqlCursor).
+    QDataTable can be used to modify existing data and to add new
+    records. When a user makes changes to a field in the table, the
+    cursor's edit buffer is used. The table will not send changes in
+    the edit buffer to the database until the user moves to a
+    different record in the grid or presses Enter. Cell editing is
+    initiated by pressing F2 (or right clicking and then clicking the
+    appropriate popup menu item) and cancelled by pressing Esc. If
+    there is a problem updating or adding data, errors are handled
+    automatically (see handleError() to change this behavior). Note
+    that if autoEdit() is FALSE navigating to another record will
+    cancel the insert or update.
 
     The user can be asked to confirm all edits with setConfirmEdits().
-    For more precise control use setConfirmInsert(), setConfirmUpdate(),
-    setConfirmDelete() and setConfirmCancels(). Use setAutoEdit() to
-    control the behaviour of the table when the user edits a record and
-    then navigates. (Note that setAutoDelete() is unrelated; it is used
-    to set whether the QSqlCursor is deleted when the table is deleted.)
+    For more precise control use setConfirmInsert(),
+    setConfirmUpdate(), setConfirmDelete() and setConfirmCancels().
+    Use setAutoEdit() to control the behaviour of the table when the
+    user edits a record and then navigates. (Note that setAutoDelete()
+    is unrelated; it is used to set whether the QSqlCursor is deleted
+    when the table is deleted.)
 
-  Since the data table can perform edits, it must be able to uniquely
-  identify every record so that edits are correctly applied. Because
-  of this the underlying cursor must have a valid primary index to
-  ensure that a unique record is inserted, updated or deleted within
-  the database otherwise the database may be changed to an
-  inconsistent state.
+    Since the data table can perform edits, it must be able to
+    uniquely identify every record so that edits are correctly
+    applied. Because of this the underlying cursor must have a valid
+    primary index to ensure that a unique record is inserted, updated
+    or deleted within the database otherwise the database may be
+    changed to an inconsistent state.
 
-  QDataTable creates editors using the default \l QSqlEditorFactory.
-  Different editor factories can be used by calling
-  installEditorFactory(). A property map is used to map between the
-  cell's value and the editor. You can use your own property map with
-  installPropertyMap().
+    QDataTable creates editors using the default \l QSqlEditorFactory.
+    Different editor factories can be used by calling
+    installEditorFactory(). A property map is used to map between the
+    cell's value and the editor. You can use your own property map
+    with installPropertyMap().
 
-    The contents of a cell is available as a QString with text() or as a
-    QVariant with value(). The current record is returned by
+    The contents of a cell is available as a QString with text() or as
+    a QVariant with value(). The current record is returned by
     currentRecord(). Use the find() function to search for a string in
     the table.
 
     Editing actions can be applied programatically. For example, the
     insertCurrent() function reads the fields from the current record
     into the cursor and performs the insert. The updateCurrent() and
-    deleteCurrent() functions perform similarly to update and delete the
-    current record respectively.
+    deleteCurrent() functions perform similarly to update and delete
+    the current record respectively.
 
-  Columns in the table can be created automatically based on the
-  cursor (see setSqlCursor()). Columns can be manipulated manually using
-  addColumn(), removeColumn() and setColumn().
+    Columns in the table can be created automatically based on the
+    cursor (see setSqlCursor()). Columns can be manipulated manually
+    using addColumn(), removeColumn() and setColumn().
 
-  The table automatically copies many of the properties of the cursor to
-  format the display of data within cells (alignment, visibility, etc.).
-  The cursor can be changed with setSqlCursor().
-  The filter (see setFilter()) and sort defined within the table
-  are used instead of the filter and sort set on the cursor. For sorting
-  options see setSort(), sortColumn(), sortAscending() and
-  sortDescending().
+    The table automatically copies many of the properties of the
+    cursor to format the display of data within cells (alignment,
+    visibility, etc.). The cursor can be changed with setSqlCursor().
+    The filter (see setFilter()) and sort defined within the table are
+    used instead of the filter and sort set on the cursor. For sorting
+    options see setSort(), sortColumn(), sortAscending() and
+    sortDescending().
 
     The text used to represent NULL, TRUE and FALSE values can be
     changed with setNullText(), setTrueText() and setFalseText()
@@ -212,16 +213,16 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
     Whenever a new row is selected in the table the currentChanged()
     signal is emitted. The primeInsert() signal is emitted when an
-    insert is initiated. The primeUpdate() and primeDelete() signals are
-    emitted when update and deletion are initiated respectively. Just
-    before the database is updated a signal is emitted; beforeInsert(),
-    beforeUpdate() or beforeDelete() as appropriate.
+    insert is initiated. The primeUpdate() and primeDelete() signals
+    are emitted when update and deletion are initiated respectively.
+    Just before the database is updated a signal is emitted;
+    beforeInsert(), beforeUpdate() or beforeDelete() as appropriate.
 
 */
 
-/*! Constructs a data table which is a child of \a parent, with the
-  name \a name.
-
+/*!
+    Constructs a data table which is a child of \a parent, called
+    name \a name.
 */
 
 QDataTable::QDataTable ( QWidget * parent, const char * name )
@@ -230,17 +231,18 @@ QDataTable::QDataTable ( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a data table which is a child of \a parent, with the
- name \a name using the cursor \a cursor.
+/*!
+    Constructs a data table which is a child of \a parent, called name
+    \a name using the cursor \a cursor.
 
-  If \a autoPopulate is TRUE (the default is FALSE), columns are
-  automatically created based upon the fields in the \a cursor record.
-  Note that \a autoPopulate only governs the creation of columns; to
-  load the cursor's data into the table use refresh().
+    If \a autoPopulate is TRUE (the default is FALSE), columns are
+    automatically created based upon the fields in the \a cursor
+    record. Note that \a autoPopulate only governs the creation of
+    columns; to load the cursor's data into the table use refresh().
 
-  If the \a cursor is read-only, the table also becomes read-only.  In
-  addition, the table adopts the cursor's driver's definition for
-  representing NULL values as strings.
+    If the \a cursor is read-only, the table also becomes read-only.
+    In addition, the table adopts the cursor's driver's definition for
+    representing NULL values as strings.
 */
 
 QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
@@ -268,8 +270,8 @@ void QDataTable::init()
 	     SLOT( setCurrentSelection( int, int )));
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QDataTable::~QDataTable()
@@ -278,17 +280,16 @@ QDataTable::~QDataTable()
 }
 
 
-/*!  Adds the next column to be displayed using the field \a
-  fieldName, column label \a label, width \a width and iconset \a
-  iconset.
+/*!
+    Adds the next column to be displayed using the field \a fieldName,
+    column label \a label, width \a width and iconset \a iconset.
 
-  If \a label is specified, it is used as the column's header label,
-  otherwise the field's display label is used when setSqlCursor() is
-  called. The \a iconset is used to set the icon used by the column
-  header; by default there is no icon.
+    If \a label is specified, it is used as the column's header label,
+    otherwise the field's display label is used when setSqlCursor() is
+    called. The \a iconset is used to set the icon used by the column
+    header; by default there is no icon.
 
-  \sa setSqlCursor() refresh()
-
+    \sa setSqlCursor() refresh()
 */
 
 void QDataTable::addColumn( const QString& fieldName,
@@ -302,16 +303,16 @@ void QDataTable::addColumn( const QString& fieldName,
     d->fldWidth += width;
 }
 
-/*!  Sets the \a col column to display using the field \a fieldName,
-  column label \a label, width \a width and iconset \a iconset.
+/*!
+    Sets the \a col column to display using the field \a fieldName,
+    column label \a label, width \a width and iconset \a iconset.
 
-  If \a label is specified, it is used as the column's header label,
-  otherwise the field's display label is used when setSqlCursor() is
-  called. The \a iconset is used to set the icon used by the column
-  header; by default there is no icon.
+    If \a label is specified, it is used as the column's header label,
+    otherwise the field's display label is used when setSqlCursor() is
+    called. The \a iconset is used to set the icon used by the column
+    header; by default there is no icon.
 
-  \sa setSqlCursor() refresh()
-
+    \sa setSqlCursor() refresh()
 */
 
 void QDataTable::setColumn( uint col, const QString& fieldName,
@@ -325,11 +326,11 @@ void QDataTable::setColumn( uint col, const QString& fieldName,
     d->fldWidth[col] = width;
 }
 
-/*!  Removes column \a col from the list of columns to be displayed.
-  If \a col does not exist, nothing happens.
+/*!
+    Removes column \a col from the list of columns to be displayed. If
+    \a col does not exist, nothing happens.
 
-  \sa QSqlField
-
+    \sa QSqlField
 */
 
 void QDataTable::removeColumn( uint col )
@@ -342,11 +343,12 @@ void QDataTable::removeColumn( uint col )
     }
 }
 
-/*!  Sets the column \a col to the width \a w. Note that opposed to
-  QTable the QDataTable is not immediately redrawn, you have to
-  call refresh() first.
+/*!
+    Sets the column \a col to the width \a w. Note that unlike QTable
+    the QDataTable is not immediately redrawn, you must call refresh()
+    yourself.
 
-  \sa refresh()
+    \sa refresh()
 */
 void QDataTable::setColumnWidth( int col, int w )
 {
@@ -355,15 +357,16 @@ void QDataTable::setColumnWidth( int col, int w )
     }
 }
 
-/*! Resizes column \a col so that the column width is wide enough to
-  display the widest item the column contains. Note that opposed to
-  QTable the QDataTable is not immediately redrawn, you have to call
-  refresh() first. If the table's QSqlCursor is currently not active,
-  the cursor will be refreshed before the column width is
-  calculated. Be aware that this function may be slow on tables that
-  contain large result sets.
+/*!
+    Resizes column \a col so that the column width is wide enough to
+    display the widest item the column contains. Note that unlike
+    QTable the QDataTable is not immediately redrawn, you must call
+    refresh() yourself. If the table's QSqlCursor is not currently
+    active, the cursor will be refreshed before the column width is
+    calculated. Be aware that this function may be slow on tables that
+    contain large result sets.
 
-  \sa refresh()
+    \sa refresh()
 */
 void QDataTable::adjustColumn( int col )
 {
@@ -399,17 +402,17 @@ QString QDataTable::filter() const
     return d->cur.filter();
 }
 
-/*! \property QDataTable::filter
+/*!
+    \property QDataTable::filter
+    \brief the data filter for the data table
 
-  \brief the data filter for the data table
+    The filter applies to the data shown in the table. To view data
+    with a new filter, use refresh(). A filter string is an SQL WHERE
+    clause without the WHERE keyword.
 
-  The filter applies to the data shown in the table. To view data with
-  a new filter, use refresh(). A filter string is an SQL WHERE
-  clause without the WHERE keyword.
+    There is no default filter.
 
-  There is no default filter.
-
-  \sa sort()
+    \sa sort()
 
 */
 
@@ -419,20 +422,21 @@ void QDataTable::setFilter( const QString& filter )
 }
 
 
-/*! \property QDataTable::sort
+/*!
+    \property QDataTable::sort
+    \brief the data table's sort
 
-  \brief the data table's sort
+    The table's sort affects the order in which data records are
+    displayed in the table. To apply a sort, use refresh().
 
-  The table's sort affects the order in which data records are displayed
-  in the table.  To apply a sort, use refresh().
+    When examining the sort property, a string list is returned with
+    each item having the form 'fieldname order' (e.g., 'id ASC',
+    'surname DESC').
 
-  When examining the sort property, a string list is returned with each
-  item having the form 'fieldname order' (e.g., 'id ASC', 'surname DESC').
+    There is no default sort.
 
-  There is no default sort.
-
-  Note that if you want to iterate over the sort list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the sort list, you should
+    iterate over a copy, e.g.
     \code
     QStringList list = myDataTable.sort();
     QStringList::Iterator it = list.begin();
@@ -442,8 +446,7 @@ void QDataTable::setFilter( const QString& filter )
     }
     \endcode
 
-  \sa filter() refresh()
-
+    \sa filter() refresh()
 */
 
 void QDataTable::setSort( const QStringList& sort )
@@ -451,14 +454,15 @@ void QDataTable::setSort( const QStringList& sort )
     d->cur.setSort( sort );
 }
 
-/*! \overload
+/*!
+    \overload
 
-  Sets the sort to be applied to the displayed data to \a sort.  If
-  there is no current cursor, nothing happens. A QSqlIndex contains
-  field names and their ordering (ASC or DESC); these are used to
-  compose the ORDER BY clause.
+    Sets the sort to be applied to the displayed data to \a sort. If
+    there is no current cursor, nothing happens. A QSqlIndex contains
+    field names and their ordering (ASC or DESC); these are used to
+    compose the ORDER BY clause.
 
-  \sa sort()
+    \sa sort()
 */
 
 void QDataTable::setSort( const QSqlIndex& sort )
@@ -471,7 +475,8 @@ QStringList QDataTable::sort() const
     return d->cur.sort();
 }
 
-/*! Returns a pointer to the cursor used by the data table.
+/*!
+    Returns the cursor used by the data table.
 */
 
 QSqlCursor* QDataTable::sqlCursor() const
@@ -499,15 +504,16 @@ void QDataTable::setConfirmDelete( bool confirm )
     d->dat.setConfirmDelete( confirm );
 }
 
-/*! \property QDataTable::confirmEdits
+/*!
+    \property QDataTable::confirmEdits
+    \brief whether the data table confirms edit operations
 
-  \brief whether the data table confirms edit operations
+    If the confirmEdits property is TRUE, the data table confirms all
+    edit operations (inserts, updates and deletes). Finer control of
+    edit confirmation can be achieved using \l confirmCancels, \l
+    confirmInsert, \l confirmUpdate and \l confirmDelete.
 
-  If the confirmEdits property is active, the data table confirms all
-  edit operations (inserts, updates and deletes), otherwise all edit
-  operations occur immediately.
-
-  \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
+    \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
 bool QDataTable::confirmEdits() const
@@ -515,16 +521,16 @@ bool QDataTable::confirmEdits() const
     return ( d->dat.confirmEdits() );
 }
 
-/*! \property QDataTable::confirmInsert
+/*!
+    \property QDataTable::confirmInsert
+    \brief whether the data table confirms insert operations
 
-  \brief whether the data table confirms insert operations
+    If the confirmInsert property is TRUE, all insertions must be
+    confirmed by the user through a message box (this behaviour can be
+    changed by overriding the confirmEdit() function), otherwise all
+    insert operations occur immediately.
 
-  If the confirmInsert property is active, all insertions must be confirmed
-  by the user through a message box (this behaviour can be changed by
-  overriding the confirmEdit() function), otherwise all insert
-  operations occur immediately.
-
-  \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
+    \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
 */
 
 bool QDataTable::confirmInsert() const
@@ -532,16 +538,16 @@ bool QDataTable::confirmInsert() const
     return ( d->dat.confirmInsert() );
 }
 
-/*! \property QDataTable::confirmUpdate
+/*!
+    \property QDataTable::confirmUpdate
+    \brief whether the data table confirms update operations
 
-  \brief whether the data table confirms update operations
+    If the confirmUpdate property is TRUE, all updates must be
+    confirmed by the user through a message box (this behaviour can be
+    changed by overriding the confirmEdit() function), otherwise all
+    update operations occur immediately.
 
-  If the confirmUpdate property is active, all updates must be confirmed
-  by the user through a message box (this behaviour can be changed by
-  overriding the confirmEdit() function), otherwise all update
-  operations occur immediately.
-
-  \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
+    \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
 */
 
 bool QDataTable::confirmUpdate() const
@@ -549,16 +555,16 @@ bool QDataTable::confirmUpdate() const
     return ( d->dat.confirmUpdate() );
 }
 
-/*! \property QDataTable::confirmDelete
+/*!
+    \property QDataTable::confirmDelete
+    \brief whether the data table confirms delete operations
 
-  \brief whether the data table confirms delete operations
+    If the confirmDelete property is TRUE, all deletions must be
+    confirmed by the user through a message box (this behaviour can be
+    changed by overriding the confirmEdit() function), otherwise all
+    delete operations occur immediately.
 
-  If the confirmDelete property is active, all deletions must be
-  confirmed by the user through a message box (this behaviour can be
-  changed by overriding the confirmEdit() function), otherwise all
-  delete operations occur immediately.
-
-  \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
+    \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
 */
 
 bool QDataTable::confirmDelete() const
@@ -566,16 +572,16 @@ bool QDataTable::confirmDelete() const
     return ( d->dat.confirmDelete() );
 }
 
-/*! \property QDataTable::confirmCancels
+/*!
+    \property QDataTable::confirmCancels
+    \brief whether the data table confirms cancel operations
 
-  \brief whether the data table confirms cancel operations
+    If the confirmCancel property is TRUE, all cancels must be
+    confirmed by the user through a message box (this behavior can be
+    changed by overriding the confirmCancel() function), otherwise all
+    cancels occur immediately. The default is FALSE.
 
-  If the confirmCancel property is active, all cancels must be
-  confirmed by the user through a message box (this behavior can be
-  changed by overriding the confirmCancel() function), otherwise all
-  cancels occur immediately. The default is FALSE.
-
-  \sa confirmEdits() confirmCancel()
+    \sa confirmEdits() confirmCancel()
 */
 
 void QDataTable::setConfirmCancels( bool confirm )
@@ -588,17 +594,17 @@ bool QDataTable::confirmCancels() const
     return d->dat.confirmCancels();
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  For an editable table, creates an editor suitable for the field in
-  column \a col.  The editor is created using the default editor
-  factory, unless a different editor factory was installed with
-  installEditorFactory().  The editor is primed with the value of the
-  field in \a col using a property map. The property map used is the
-  default property map, unless a new property map was installed with
-  installPropertMap(). If \a initFromCell is TRUE then the editor is
-  primed with the value in the QDataTable cell.
-
+    For an editable table, creates an editor suitable for the field in
+    column \a col. The editor is created using the default editor
+    factory, unless a different editor factory was installed with
+    installEditorFactory(). The editor is primed with the value of the
+    field in \a col using a property map. The property map used is the
+    default property map, unless a new property map was installed with
+    installPropertMap(). If \a initFromCell is TRUE then the editor is
+    primed with the value in the QDataTable cell.
 */
 
 QWidget * QDataTable::createEditor( int , int col, bool initFromCell ) const
@@ -697,7 +703,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	QSqlCursor * sql = sqlCursor();
-	if ( sql && sql->driver() && 
+	if ( sql && sql->driver() &&
 	     !sql->driver()->hasFeature( QSqlDriver::QuerySize ) &&
 	     ke->key() == Key_End && d->dat.mode() == QSql::None ) {
 #ifndef QT_NO_CURSOR
@@ -830,7 +836,7 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
 void QDataTable::endEdit( int row, int col, bool, bool )
 {
     bool accept = autoEdit();
-	 
+
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
@@ -908,17 +914,17 @@ void QDataTable::endUpdate()
     setEditMode( NotEditing, -1, -1 );
 }
 
-/*! Protected virtual function called when editing is about to begin on
-   a new record.  If the table is read-only, or if there's no cursor or
-   the cursor does not allow inserts, nothing happens.
+/*!
+    Protected virtual function called when editing is about to begin
+    on a new record. If the table is read-only, or if there's no
+    cursor or the cursor does not allow inserts, nothing happens.
 
-   Editing takes place using the cursor's edit buffer(see
-   QSqlCursor::editBuffer()).
+    Editing takes place using the cursor's edit buffer(see
+    QSqlCursor::editBuffer()).
 
-   When editing begins, a new row is created in the table marked with
-   an asterisk '*' in the row's vertical header column, i.e. at the left
-   of the row.
-
+    When editing begins, a new row is created in the table marked with
+    an asterisk '*' in the row's vertical header column, i.e. at the
+    left of the row.
 */
 
 bool QDataTable::beginInsert()
@@ -957,18 +963,18 @@ bool QDataTable::beginInsert()
     return TRUE;
 }
 
-/*! Protected virtual function called when editing is about to begin on
-   an existing row.  If the table is read-only, or if there's no cursor,
-   nothing happens.
+/*!
+    Protected virtual function called when editing is about to begin
+    on an existing row. If the table is read-only, or if there's no
+    cursor, nothing happens.
 
-   Editing takes place using the cursor's edit buffer (see
-   QSqlCursor::editBuffer()).
+    Editing takes place using the cursor's edit buffer (see
+    QSqlCursor::editBuffer()).
 
-   \a row and \a col refer to the row and column in the QDataTable.
+    \a row and \a col refer to the row and column in the QDataTable.
 
-   (\a replace is provided for reimplementors and reflects the API of
-   QTable::beginEdit().)
-
+    (\a replace is provided for reimplementors and reflects the API of
+    QTable::beginEdit().)
 */
 
 QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
@@ -985,17 +991,17 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
     return 0;
 }
 
-/*!  For an editable table, issues an insert on the current cursor
-  using the values in the cursor's edit buffer. If there is no current
-  cursor or there is no current "insert" row, nothing happens.  If
-  confirmEdits() or confirmInsert() is TRUE, confirmEdit() is called
-  to confirm the insert. Returns TRUE if the insert succeeded,
-  otherwise returns FALSE.
+/*!
+    For an editable table, issues an insert on the current cursor
+    using the values in the cursor's edit buffer. If there is no
+    current cursor or there is no current "insert" row, nothing
+    happens. If confirmEdits() or confirmInsert() is TRUE,
+    confirmEdit() is called to confirm the insert. Returns TRUE if the
+    insert succeeded; otherwise returns FALSE.
 
-  The underlying cursor must have a valid primary index to ensure that a
-  unique record is inserted within the database otherwise the database
-  may be changed to an inconsistent state.
-
+    The underlying cursor must have a valid primary index to ensure
+    that a unique record is inserted within the database otherwise the
+    database may be changed to an inconsistent state.
 */
 
 bool QDataTable::insertCurrent()
@@ -1059,16 +1065,16 @@ void QDataTable::updateRow( int row )
 	updateCell( row, i );
 }
 
-/*!  For an editable table, issues an update using the cursor's edit
-  buffer.  If there is no current cursor or there is no current
-  selection, nothing happens.  If confirmEdits() or confirmUpdate() is
-  TRUE, confirmEdit() is called to confirm the update. Returns TRUE if
-  the update succeeded, otherwise returns FALSE.
+/*!
+    For an editable table, issues an update using the cursor's edit
+    buffer. If there is no current cursor or there is no current
+    selection, nothing happens. If confirmEdits() or confirmUpdate()
+    is TRUE, confirmEdit() is called to confirm the update. Returns
+    TRUE if the update succeeded; otherwise returns FALSE.
 
-  The underlying cursor must have a valid primary index to ensure that a
-  unique record is updated within the database otherwise the database
-  may be changed to an inconsistent state.
-
+    The underlying cursor must have a valid primary index to ensure
+    that a unique record is updated within the database otherwise the
+    database may be changed to an inconsistent state.
 */
 
 bool QDataTable::updateCurrent()
@@ -1134,17 +1140,17 @@ bool QDataTable::updateCurrent()
     return ( b > 0 );
 }
 
-/*!  For an editable table, issues a delete on the current cursor's
-  primary index using the values of the currently selected row.  If
-  there is no current cursor or there is no current selection, nothing
-  happens. If confirmEdits() or confirmDelete() is TRUE, confirmEdit()
-  is called to confirm the delete. Returns TRUE if the delete
-  succeeded, otherwise FALSE.
+/*!
+    For an editable table, issues a delete on the current cursor's
+    primary index using the values of the currently selected row. If
+    there is no current cursor or there is no current selection,
+    nothing happens. If confirmEdits() or confirmDelete() is TRUE,
+    confirmEdit() is called to confirm the delete. Returns TRUE if the
+    delete succeeded; otherwise FALSE.
 
-  The underlying cursor must have a valid primary index to ensure that a
-  unique record is deleted within the database otherwise the database
-  may be changed to an inconsistent state.
-
+    The underlying cursor must have a valid primary index to ensure
+    that a unique record is deleted within the database otherwise the
+    database may be changed to an inconsistent state.
 */
 
 bool QDataTable::deleteCurrent()
@@ -1199,12 +1205,12 @@ bool QDataTable::deleteCurrent()
     return ( b > 0 );
 }
 
-/*!  Protected virtual function which returns a confirmation for an
-  edit of mode \a m.  Derived classes can reimplement this function
-  to provide their own confirmation dialog.  The default
-  implementation uses a message box which prompts the user to confirm
-  the edit action.
-
+/*!
+    Protected virtual function which returns a confirmation for an
+    edit of mode \a m. Derived classes can reimplement this function
+    to provide their own confirmation dialog. The default
+    implementation uses a message box which prompts the user to
+    confirm the edit action.
 */
 
 QSql::Confirm QDataTable::confirmEdit( QSql::Op m )
@@ -1212,12 +1218,12 @@ QSql::Confirm QDataTable::confirmEdit( QSql::Op m )
     return d->dat.confirmEdit( this, m );
 }
 
-/*!  Protected virtual function which returns a confirmation for
-   cancelling an edit mode of \a m.  Derived classes can reimplement
-   this function to provide their own cancel dialog.  The default
-   implementation uses a message box which prompts the user to confirm
-   the cancel.
-
+/*!
+    Protected virtual function which returns a confirmation for
+    cancelling an edit mode of \a m. Derived classes can reimplement
+    this function to provide their own cancel dialog. The default
+    implementation uses a message box which prompts the user to
+    confirm the cancel.
 */
 
 QSql::Confirm  QDataTable::confirmCancel( QSql::Op m )
@@ -1226,16 +1232,18 @@ QSql::Confirm  QDataTable::confirmCancel( QSql::Op m )
 }
 
 
-/*! Searches the current cursor for a cell containing the string \a str
-    starting at the current cell and working forwards (or backwards if
-    \a backwards is TRUE). If the string is found, the cell containing
-    the string is set as the current cell. If \a caseSensitive is FALSE
-    the case of \a str will be ignored.
+/*!
+    Searches the current cursor for a cell containing the string \a
+    str starting at the current cell and working forwards (or
+    backwards if \a backwards is TRUE). If the string is found, the
+    cell containing the string is set as the current cell. If \a
+    caseSensitive is FALSE the case of \a str will be ignored.
 
     The search will wrap, i.e. if the first (or if backwards is TRUE,
     last) cell is reached without finding \a str the search will
-    continue until it reaches the starting cell. If \a str is not found
-    the search will fail and the current cell will remain unchanged.
+    continue until it reaches the starting cell. If \a str is not
+    found the search will fail and the current cell will remain
+    unchanged.
 */
 void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 {
@@ -1306,10 +1314,10 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 }
 
 
-/*!  Resets the table so that it displays no data.
+/*!
+    Resets the table so that it displays no data.
 
-  \sa setSqlCursor()
-
+    \sa setSqlCursor()
 */
 
 void QDataTable::reset()
@@ -1346,9 +1354,9 @@ void QDataTable::reset()
 	horizontalHeader()->setSortIndicator( -1 );
 }
 
-/*!  Returns the index of the field within the current SQL query that is
-  displayed in column \a i.
-
+/*!
+    Returns the index of the field within the current SQL query that
+    is displayed in column \a i.
 */
 
 int QDataTable::indexOf( uint i ) const
@@ -1359,8 +1367,9 @@ int QDataTable::indexOf( uint i ) const
     return -1;
 }
 
-/*! Returns TRUE if the table will automatically delete the cursor
-  specified by setSqlCursor(), otherwise returns FALSE.
+/*!
+    Returns TRUE if the table will automatically delete the cursor
+    specified by setSqlCursor(); otherwise returns FALSE.
 */
 
 bool QDataTable::autoDelete() const
@@ -1368,9 +1377,11 @@ bool QDataTable::autoDelete() const
     return d->cur.autoDelete();
 }
 
-/*! Sets the cursor auto-delete flag to \a enable.  If \a enable is
- TRUE, the table will automatically delete the cursor specified by
- setSqlCursor(). Otherwise, (the default), the cursor will not be deleted.
+/*!
+    Sets the cursor auto-delete flag to \a enable. If \a enable is
+    TRUE, the table will automatically delete the cursor specified by
+    setSqlCursor(). If \a enable is FALSE (the default), the cursor
+    will not be deleted.
 */
 
 void QDataTable::setAutoDelete( bool enable )
@@ -1378,19 +1389,18 @@ void QDataTable::setAutoDelete( bool enable )
     d->cur.setAutoDelete( enable );
 }
 
-/*! \property QDataTable::autoEdit
+/*!
+    \property QDataTable::autoEdit
+    \brief whether the data table automatically applies edits
 
-  \brief whether the data table automatically applies edits
+    The default value for this property is TRUE. When the user begins
+    an insert or update in the table there are two possible outcomes
+    when they navigate to another record:
 
-  The default value for this property is TRUE. When the user begins an
-  insert or update in the table there are two possible outcomes when they
-  navigate to another record:
-
-  \list 1
-  \i the insert or update is is performed -- this occurs if autoEdit is TRUE
-  \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
-  \endlist
-
+    \list 1
+    \i the insert or update is is performed -- this occurs if autoEdit is TRUE
+    \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
+    \endlist
 */
 
 void QDataTable::setAutoEdit( bool autoEdit )
@@ -1403,13 +1413,12 @@ bool QDataTable::autoEdit() const
     return d->dat.autoEdit();
 }
 
-/*!  \property QDataTable::nullText
+/*!
+    \property QDataTable::nullText
+    \brief the text used to represent NULL values
 
-  \brief the text used to represent NULL values
-
-  The nullText property will be used to represent NULL values in the
-  table. The default value is provided by the cursor's driver.
-
+    The nullText property will be used to represent NULL values in the
+    table. The default value is provided by the cursor's driver.
 */
 
 void QDataTable::setNullText( const QString& nullText )
@@ -1422,13 +1431,12 @@ QString QDataTable::nullText() const
     return d->nullTxt;
 }
 
-/*!  \property QDataTable::trueText
+/*!
+    \property QDataTable::trueText
+    \brief the text used to represent true values
 
-  \brief the text used to represent true values
-
-  The trueText property will be used to represent NULL values in the
-  table. The default value is 'True'.
-
+    The trueText property will be used to represent NULL values in the
+    table. The default value is "True".
 */
 
 void QDataTable::setTrueText( const QString& trueText )
@@ -1441,13 +1449,12 @@ QString QDataTable::trueText() const
     return d->trueTxt;
 }
 
-/*!  \property QDataTable::falseText
+/*!
+    \property QDataTable::falseText
+    \brief the text used to represent false values
 
-  \brief the text used to represent false values
-
-  The falseText property will be used to represent NULL values in the
-  table. The default value is 'False'.
-
+    The falseText property will be used to represent NULL values in
+    the table. The default value is "False".
 */
 
 void QDataTable::setFalseText( const QString& falseText )
@@ -1460,11 +1467,12 @@ QString QDataTable::falseText() const
     return d->falseTxt;
 }
 
-/*! \property QDataTable::dateFormat
-  \brief the format how date/time values are displayed
+/*!
+    \property QDataTable::dateFormat
+    \brief the format used for displaying date/time values
 
-  The dateFormat property will be used to display date/time values in the
-  table. The default value is 'Qt::LocalDate'.
+    The dateFormat property is used for displaying date/time values in
+    the table. The default value is \c Qt::LocalDate.
 */
 
 void QDataTable::setDateFormat( const DateFormat f )
@@ -1477,9 +1485,10 @@ Qt::DateFormat QDataTable::dateFormat() const
     return d->datefmt;
 }
 
-/*! \property QDataTable::numRows
+/*!
+    \property QDataTable::numRows
 
-  \brief the number of rows in the table
+    \brief the number of rows in the table
 */
 
 int QDataTable::numRows() const
@@ -1487,11 +1496,12 @@ int QDataTable::numRows() const
     return QTable::numRows();
 }
 
-/*!  \reimp
+/*!
+    \reimp
 
-  The number of rows in the table will be determined by the cursor
-  (see setSqlCursor()), so normally this function should never be called.
-  It is included for completeness.
+    The number of rows in the table will be determined by the cursor
+    (see setSqlCursor()), so normally this function should never be
+    called. It is included for completeness.
 */
 
 void QDataTable::setNumRows ( int r )
@@ -1499,11 +1509,12 @@ void QDataTable::setNumRows ( int r )
     QTable::setNumRows( r );
 }
 
-/*!  \reimp
+/*!
+    \reimp
 
-  The number of columns in the table will be determined automatically
-  (see addColumn()), so normally this function should never be called.
-  It is included for completeness.
+    The number of columns in the table will be determined
+    automatically (see addColumn()), so normally this function should
+    never be called. It is included for completeness.
 */
 
 void QDataTable::setNumCols ( int r )
@@ -1511,9 +1522,10 @@ void QDataTable::setNumCols ( int r )
     QTable::setNumCols( r );
 }
 
-/*! \property QDataTable::numCols
+/*!
+    \property QDataTable::numCols
 
-  \brief the number of columns in the table
+    \brief the number of columns in the table
 */
 
 int QDataTable::numCols() const
@@ -1521,11 +1533,11 @@ int QDataTable::numCols() const
     return QTable::numCols();
 }
 
-/*!  Returns the text in cell \a row, \a col, or an empty string if
-  the cell is empty. If the cell's value is NULL then nullText()
-  will be returned. If the cell does not exist then a null QString is
-  returned.
-
+/*!
+    Returns the text in cell \a row, \a col, or an empty string if the
+    cell is empty. If the cell's value is NULL then nullText() will be
+    returned. If the cell does not exist then QString::null is
+    returned.
 */
 
 QString QDataTable::text ( int row, int col ) const
@@ -1537,9 +1549,9 @@ QString QDataTable::text ( int row, int col ) const
     return QString::null;
 }
 
-/*!  Returns the value in cell \a row, \a col, or an invalid value if
-   the cell does not exist or has no value.
-
+/*!
+    Returns the value in cell \a row, \a col, or an invalid value if
+    the cell does not exist or has no value.
 */
 
 QVariant QDataTable::value ( int row, int col ) const
@@ -1601,10 +1613,10 @@ void QDataTable::sliderReleased()
 	     this, SLOT( loadNextPage() ) );
 }
 
-/*!  Sorts column \a col in ascending order if \a ascending is
-  TRUE (the default), otherwise sorts in descending order. The \a
-  wholeRows parameter is ignored for SQL tables.
-
+/*!
+    Sorts column \a col in ascending order if \a ascending is TRUE
+    (the default); otherwise sorts in descending order. The \a
+    wholeRows parameter is ignored for SQL tables.
 */
 
 void QDataTable::sortColumn ( int col, bool ascending,
@@ -1641,10 +1653,10 @@ void QDataTable::columnClicked ( int col )
     }
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  Repaints the cell at \a row, \a col.
-
+    Repaints the cell at \a row, \a col.
 */
 void QDataTable::repaintCell( int row, int col )
 {
@@ -1654,17 +1666,18 @@ void QDataTable::repaintCell( int row, int col )
     repaintContents( re, FALSE );
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  This function renders the cell at \a row, \a col with the value of
-  the corresponding cursor field on the painter \a p.  Depending on the
-  current edit mode of the table, paintField() is called for the
-  appropriate cursor field. \a cr describes the cell coordinates in the
-  content coordinate system. If \a selected is TRUE the cell has been
-  selected and would normally be rendered differently than an unselected
-  cell.
+    This function renders the cell at \a row, \a col with the value of
+    the corresponding cursor field on the painter \a p. Depending on
+    the table's current edit mode, paintField() is called for the
+    appropriate cursor field. \a cr describes the cell coordinates in
+    the content coordinate system. If \a selected is TRUE the cell has
+    been selected and would normally be rendered differently than an
+    unselected cell.
 
-  \sa QSql::isNull()
+    \sa QSql::isNull()
 */
 
 void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
@@ -1697,17 +1710,18 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 }
 
 
-/*! Paints the \a field on the painter \a p. The painter has already
-   been translated to the appropriate cell's origin where the \a field
-   is to be rendered. \a cr describes the cell coordinates in the
-   content coordinate system.  The \a selected parameter is ignored.
+/*!
+    Paints the \a field on the painter \a p. The painter has already
+    been translated to the appropriate cell's origin where the \a
+    field is to be rendered. \a cr describes the cell coordinates in
+    the content coordinate system. The \a selected parameter is
+    ignored.
 
-   If you want to draw custom field content you have to reimplement
-   paintField() to do the custom drawing.  The default implementation
-   renders the \a field value as text.  If the field is NULL,
-   nullText() is displayed in the cell.  If the field is Boolean,
-   trueText() or falseText() is displayed as appropriate.
-
+    If you want to draw custom field content you must reimplement
+    paintField() to do the custom drawing. The default implementation
+    renders the \a field value as text. If the field is NULL,
+    nullText() is displayed in the cell. If the field is Boolean,
+    trueText() or falseText() is displayed as appropriate.
 */
 
 void QDataTable::paintField( QPainter * p, const QSqlField* field,
@@ -1743,7 +1757,8 @@ void QDataTable::paintField( QPainter * p, const QSqlField* field,
     p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
 }
 
-/*! Returns the alignment for \a field.
+/*!
+    Returns the alignment for \a field.
 */
 
 int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
@@ -1752,12 +1767,12 @@ int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
 }
 
 
-/*!  If the cursor's \a sql driver supports query sizes, the number of
-    rows in the table is set to the size of the query.  Otherwise, the
-    table dynamically resizes itself as it is scrolled.  If \a sql is
+/*!
+    If the cursor's \a sql driver supports query sizes, the number of
+    rows in the table is set to the size of the query. Otherwise, the
+    table dynamically resizes itself as it is scrolled. If \a sql is
     not active, it is made active by issuing a select() on the cursor
     using the \a sql cursor's current filter and current sort.
-
 */
 
 void QDataTable::setSize( QSqlCursor* sql )
@@ -1786,17 +1801,17 @@ void QDataTable::setSize( QSqlCursor* sql )
     }
 }
 
-/*!  Sets \a cursor as the data source for the table.  To force the
-  display of the data from \a cursor, use refresh(). If \a
-  autoPopulate is TRUE, columns are automatically created based upon
-  the fields in the \a cursor record.  If \a autoDelete is TRUE (the
-  default is FALSE), the table will take ownership of the \a cursor
-  and delete it when appropriate.  If the \a cursor is read-only, the
-  table becomes read-only.  The table adopts the cursor's driver's
-  definition for representing NULL values as strings.
+/*!
+    Sets \a cursor as the data source for the table. To force the
+    display of the data from \a cursor, use refresh(). If \a
+    autoPopulate is TRUE, columns are automatically created based upon
+    the fields in the \a cursor record. If \a autoDelete is TRUE (the
+    default is FALSE), the table will take ownership of the \a cursor
+    and delete it when appropriate. If the \a cursor is read-only, the
+    table becomes read-only. The table adopts the cursor's driver's
+    definition for representing NULL values as strings.
 
-  \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
-
+    \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
 */
 
 void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
@@ -1832,11 +1847,11 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 }
 
 
-/*!  Protected virtual function which is called when an error \a e has
-  occurred on the current cursor().  The default implementation
-  displays a warning message to the user with information about the
-  error.
-
+/*!
+    Protected virtual function which is called when an error \a e has
+    occurred on the current cursor(). The default implementation
+    displays a warning message to the user with information about the
+    error.
 */
 void QDataTable::handleError( const QSqlError& e )
 {
@@ -1889,13 +1904,14 @@ void QDataTable::takeItem ( QTableItem * )
 
 }
 
-/*!  Installs a new SQL editor factory \a f. This enables the user to
-  create and instantiate their own editors for use in cell editing.
-  Note that QDataTable takes ownership of this pointer, and will
-  delete it when it is no longer needed or when installEditorFactory()
-  is called again.
+/*!
+    Installs a new SQL editor factory \a f. This enables the user to
+    create and instantiate their own editors for use in cell editing.
+    Note that QDataTable takes ownership of this pointer, and will
+    delete it when it is no longer needed or when
+    installEditorFactory() is called again.
 
-  \sa QSqlEditorFactory
+    \sa QSqlEditorFactory
 */
 
 void QDataTable::installEditorFactory( QSqlEditorFactory * f )
@@ -1906,14 +1922,14 @@ void QDataTable::installEditorFactory( QSqlEditorFactory * f )
     }
 }
 
-/*!  Installs a new property map \a m. This enables the user to create
-  and instantiate their own property maps for use in cell editing.
-  Note that QDataTable takes ownership of this pointer, and will
-  delete it when it is no longer needed or when installPropertMap() is
-  called again.
+/*!
+    Installs a new property map \a m. This enables the user to create
+    and instantiate their own property maps for use in cell editing.
+    Note that QDataTable takes ownership of this pointer, and will
+    delete it when it is no longer needed or when installPropertMap()
+    is called again.
 
-  \sa QSqlPropertyMap
-
+    \sa QSqlPropertyMap
 */
 
 void QDataTable::installPropertyMap( QSqlPropertyMap* m )
@@ -1941,10 +1957,10 @@ void QDataTable::setCurrentSelection( int row, int )
     emit currentChanged( sqlCursor() );
 }
 
-/*!  Returns a pointer to the currently selected record, or 0 if there
-  is no current selection.  The table owns the pointer, so do \e not
-  delete it or otherwise modify it or the cursor it points to.
-
+/*!
+    Returns the currently selected record, or 0 if there is no current
+    selection. The table owns the pointer, so do \e not delete it or
+    otherwise modify it or the cursor it points to.
 */
 
 QSqlRecord* QDataTable::currentRecord() const
@@ -1956,9 +1972,10 @@ QSqlRecord* QDataTable::currentRecord() const
     return sqlCursor();
 }
 
-/*! Sorts column \a col in ascending order.
+/*!
+    Sorts column \a col in ascending order.
 
-  \sa setSorting()
+    \sa setSorting()
 */
 
 void QDataTable::sortAscending( int col )
@@ -1966,9 +1983,10 @@ void QDataTable::sortAscending( int col )
     sortColumn( col, TRUE );
 }
 
-/*! Sorts column \a col in descending order.
+/*!
+    Sorts column \a col in descending order.
 
-  \sa setSorting()
+    \sa setSorting()
 */
 
 void QDataTable::sortDescending( int col )
@@ -1978,11 +1996,12 @@ void QDataTable::sortDescending( int col )
 
 /*!
     \overload void QDataTable::refresh( Refresh mode )
-    Refreshes the table.  If there is no currently defined cursor (see
-  setSqlCursor()), nothing happens. The \a mode parameter determines which
-  type of refresh will take place.
 
-  \sa Refresh setSqlCursor() addColumn()
+    Refreshes the table. If there is no currently defined cursor (see
+    setSqlCursor()), nothing happens. The \a mode parameter determines
+    which type of refresh will take place.
+
+    \sa Refresh setSqlCursor() addColumn()
 */
 
 void QDataTable::refresh( QDataTable::Refresh mode )
@@ -2041,10 +2060,9 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 }
 
 /*!
-
-  Refreshes the table.  The cursor is refreshed using the current
-  filter, the current sort, and the currently defined columns.
-  Equivalent to calling refresh( QDataTable::RefreshData ).
+    Refreshes the table. The cursor is refreshed using the current
+    filter, the current sort, and the currently defined columns.
+    Equivalent to calling refresh( QDataTable::RefreshData ).
 */
 
 void QDataTable::refresh()
@@ -2052,12 +2070,13 @@ void QDataTable::refresh()
     refresh( RefreshData );
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  Selects the record in the table using the current cursor edit buffer
-  and the fields specified by the index \a idx.  If \a atHint is
-  specified, it will be used as a hint about where to begin searching.
-
+    Selects the record in the table using the current cursor edit
+    buffer and the fields specified by the index \a idx. If \a atHint
+    is specified, it will be used as a hint about where to begin
+    searching.
 */
 
 bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
@@ -2071,61 +2090,77 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
     return found;
 }
 
-/*! \fn void QDataTable::currentChanged( QSqlRecord* record )
-  This signal is emitted whenever a new row is selected in the table.
-  The \a record parameter points to the contents of the newly selected
-  record.
+/*!
+    \fn void QDataTable::currentChanged( QSqlRecord* record )
+
+    This signal is emitted whenever a new row is selected in the
+    table. The \a record parameter points to the contents of the newly
+    selected record.
 */
 
-/*! \fn void QDataTable::primeInsert( QSqlRecord* buf )
-  This signal is emitted after the cursor is primed for insert by the
-  table, when an insert action is beginning on the table.  The \a buf
-  parameter points to the edit buffer being inserted.  Connect to
-  this signal in order to, for example, prime the record buffer with
-  default data values.
+/*!
+    \fn void QDataTable::primeInsert( QSqlRecord* buf )
+
+    This signal is emitted after the cursor is primed for insert by
+    the table, when an insert action is beginning on the table. The \a
+    buf parameter points to the edit buffer being inserted. Connect to
+    this signal in order to, for example, prime the record buffer with
+    default data values.
 */
 
-/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf )
-  This signal is emitted after the cursor is primed for update by the
-  table, when an update action is beginning on the table.  The \a buf
-  parameter points to the edit buffer being updated. Connect to this
-  signal in order to, for example, provide some visual feedback that
-  the user is in 'insert mode'.
+/*!
+    \fn void QDataTable::primeUpdate( QSqlRecord* buf )
+
+    This signal is emitted after the cursor is primed for update by
+    the table, when an update action is beginning on the table. The \a
+    buf parameter points to the edit buffer being updated. Connect to
+    this signal in order to, for example, provide some visual feedback
+    that the user is in 'edit mode'.
 */
 
-/*! \fn void QDataTable::primeDelete( QSqlRecord* buf )
-  This signal is emitted after the cursor is primed for delete by
-  the table, when a delete action is beginning on the table.  The
-  \a buf parameter points to the edit buffer being deleted. Connect
-  to this signal in order to, for example, record auditing information
-  on deletions.
+/*!
+    \fn void QDataTable::primeDelete( QSqlRecord* buf )
+
+    This signal is emitted after the cursor is primed for delete by
+    the table, when a delete action is beginning on the table. The \a
+    buf parameter points to the edit buffer being deleted. Connect to
+    this signal in order to, for example, record auditing information
+    on deletions.
 */
 
-/*! \fn void QDataTable::beforeInsert( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer is
-  inserted into the database. The \a buf parameter points to the edit
-  buffer being inserted. Connect to this signal to, for example,
-  populate a key field with a unique sequence number.
+/*!
+    \fn void QDataTable::beforeInsert( QSqlRecord* buf )
+
+    This signal is emitted just before the cursor's edit buffer is
+    inserted into the database. The \a buf parameter points to the
+    edit buffer being inserted. Connect to this signal to, for
+    example, populate a key field with a unique sequence number.
 */
 
-/*! \fn void QDataTable::beforeUpdate( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer is updated
-  in the database. The \a buf parameter points to the edit buffer being
-  updated. Connect to this signal when you want to transform
-  the user's data behind-the-scenes.
+/*!
+    \fn void QDataTable::beforeUpdate( QSqlRecord* buf )
+
+    This signal is emitted just before the cursor's edit buffer is
+    updated in the database. The \a buf parameter points to the edit
+    buffer being updated. Connect to this signal when you want to
+    transform the user's data behind-the-scenes.
 */
 
-/*! \fn void QDataTable::beforeDelete( QSqlRecord* buf )
-  This signal is emitted just before the currently selected record is
-  deleted from the database. The \a buf parameter points to the edit
-  buffer being deleted. Connect to this signal to, for example, copy
-  some of the fields for later use.
+/*!
+    \fn void QDataTable::beforeDelete( QSqlRecord* buf )
 
+    This signal is emitted just before the currently selected record
+    is deleted from the database. The \a buf parameter points to the
+    edit buffer being deleted. Connect to this signal to, for example,
+    copy some of the fields for later use.
 */
 
-/*! \fn void QDataTable::cursorChanged( QSql::Op mode )
-  This signal is emitted whenever the cursor record was changed due to
-  an edit. The \a mode parameter is the type of edit that just took place.
+/*!
+    \fn void QDataTable::cursorChanged( QSql::Op mode )
+
+    This signal is emitted whenever the cursor record was changed due
+    to an edit. The \a mode parameter is the type of edit that just
+    took place.
 */
 
 #endif

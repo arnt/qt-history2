@@ -49,19 +49,17 @@ public:
 
 
 /*!
+    \class QDataView qdataview.h
+    \brief The QDataView class provides read-only SQL forms.
 
-  \class QDataView qdataview.h
     \ingroup database
-  \mainclass
+    \mainclass
+    \module sql
 
-  \brief The QDataView class provides read-only SQL forms.
-
-  \module sql
-
-  This class provides a form which displays SQL field data from a
-  record buffer.  Because QDataView does not support editing it uses
-  less resources than a QDataBrowser.  This class is well suited for
-  displaying read-only data from a SQL database.
+    This class provides a form which displays SQL field data from a
+    record buffer. Because QDataView does not support editing it uses
+    less resources than a QDataBrowser. This class is well suited for
+    displaying read-only data from a SQL database.
 
     If you want a to present your data in an editable form use
     QDataBrowser; if you want a table-based presentation of your data
@@ -73,9 +71,9 @@ public:
     the given record and read the record's fields into the form.
 */
 
-/*! Constructs a data view which is a child of \a parent, with the
-  name \a name and widget flags set to \a fl.
-
+/*!
+    Constructs a data view which is a child of \a parent, called \a
+    name, and with widget flags \a fl.
 */
 
 QDataView::QDataView( QWidget *parent, const char *name, WFlags fl )
@@ -84,8 +82,8 @@ QDataView::QDataView( QWidget *parent, const char *name, WFlags fl )
     d = new QDataViewPrivate();
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QDataView::~QDataView()
@@ -93,10 +91,10 @@ QDataView::~QDataView()
     delete d;
 }
 
-/*!  Clears the default form's values.  If there is no default form,
-  nothing happens. All the values are set to their 'zero state', e.g. 0
-  for numeric fields, "" for string fields.
-
+/*!
+    Clears the default form's values. If there is no default form,
+    nothing happens. All the values are set to their 'zero state',
+    e.g. 0 for numeric fields, "" for string fields.
 */
 
 void QDataView::clearValues()
@@ -104,12 +102,12 @@ void QDataView::clearValues()
     d->frm.clearValues();
 }
 
-/*! Sets the form used by the data view to \a form.  If a record has
-  already been assigned to the data view, the form will display that
-  record's data.
+/*!
+    Sets the form used by the data view to \a form. If a record has
+    already been assigned to the data view, the form will display that
+    record's data.
 
-  \sa form()
-
+    \sa form()
 */
 
 void QDataView::setForm( QSqlForm* form )
@@ -118,11 +116,11 @@ void QDataView::setForm( QSqlForm* form )
 }
 
 
-/*! Returns the default form used by the data view, or 0 if there is
-  none.
+/*!
+    Returns the default form used by the data view, or 0 if there is
+    none.
 
-  \sa setForm()
-
+    \sa setForm()
 */
 
 QSqlForm* QDataView::form()
@@ -131,12 +129,12 @@ QSqlForm* QDataView::form()
 }
 
 
-/*! Sets the record used by the data view to \a record.  If a form has
-  already been assigned to the data view, the form will display the
-  data from \a record in that form.
+/*!
+    Sets the record used by the data view to \a record. If a form has
+    already been assigned to the data view, the form will display the
+    data from \a record in that form.
 
-  \sa record()
-
+    \sa record()
 */
 
 void QDataView::setRecord( QSqlRecord* record )
@@ -145,10 +143,11 @@ void QDataView::setRecord( QSqlRecord* record )
 }
 
 
-/*! Returns the default record used by the data view, or 0 if there is
-  none.
+/*!
+    Returns the default record used by the data view, or 0 if there is
+    none.
 
-  \sa setRecord()
+    \sa setRecord()
 */
 
 QSqlRecord* QDataView::record()
@@ -157,11 +156,11 @@ QSqlRecord* QDataView::record()
 }
 
 
-/*! Causes the default form to read its fields from the record buffer.  If
-   there is no default form, or no record, nothing happens.
+/*!
+    Causes the default form to read its fields from the record buffer.
+    If there is no default form, or no record, nothing happens.
 
-  \sa setForm()
-
+    \sa setForm()
 */
 
 void QDataView::readFields()
@@ -169,11 +168,11 @@ void QDataView::readFields()
     d->frm.readFields();
 }
 
-/*! Causes the default form to write its fields to the record buffer.
-   If there is no default form, or no record, nothing happens.
+/*!
+    Causes the default form to write its fields to the record buffer.
+    If there is no default form, or no record, nothing happens.
 
-  \sa setForm()
-
+    \sa setForm()
 */
 
 void QDataView::writeFields()
@@ -181,18 +180,18 @@ void QDataView::writeFields()
     d->frm.writeFields();
 }
 
-/*! Causes the default form to display the contents of \a buf.  If
-  there is no default form, nothing happens.The \a buf also becomes
-  the default record for all subsequent calls to readFields() and
-  writefields().  This slot is equivalant to calling:
+/*!
+    Causes the default form to display the contents of \a buf. If
+    there is no default form, nothing happens.The \a buf also becomes
+    the default record for all subsequent calls to readFields() and
+    writefields(). This slot is equivalant to calling:
 
-  \code
-  myView.setRecord( record );
-  myView.readFields();
-  \endcode
+    \code
+    myView.setRecord( record );
+    myView.readFields();
+    \endcode
 
-  \sa setRecord() readFields()
-
+    \sa setRecord() readFields()
 */
 
 void QDataView::refresh( QSqlRecord* buf )
