@@ -21,31 +21,13 @@
 #include "qlocale.h"
 #include "qlocale_p.h"
 #include "qnamespace.h"
+
 #if defined(Q_WS_WIN)
 #   include "qt_windows.h"
 #endif
 
-#if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
-#   define isnan(d) _isnan(d)
-#endif
-
 #if !defined(QWS) && defined(Q_OS_MAC)
 #   include <private/qcore_mac_p.h>
-#endif
-
-// mingw defines NAN and INFINITY to 0/0 and x/0
-#if defined (Q_WS_WIN) && defined(Q_CC_GNU)
-#      undef NAN
-#      undef INFINITY
-#endif
-
-#if defined (Q_OS_SOLARIS)
-#   include <ieeefp.h>
-#endif
-
-#if defined (Q_OS_OSF) && (defined(__DECC) || defined(__DECCXX))
-#   define INFINITY DBL_INFINITY
-#   define NAN DBL_QNAN
 #endif
 
 enum {
@@ -67,7 +49,6 @@ static const unsigned int one = 1;
 static const bool ByteOrder = ((*((unsigned char *) &one) == 0) ? BigEndian : LittleEndian);
 #endif
 
-#if !defined(INFINITY)
 static const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
 static inline double inf()
@@ -76,20 +57,44 @@ static inline double inf()
             *((const double *) be_inf_bytes) :
             *((const double *) le_inf_bytes));
 }
-#   define INFINITY (::inf())
-#endif
+#define Q_INFINITY (::inf())
 
-#if !defined(NAN)
-static const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
-static const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-static inline double nan()
+// Signaling NAN
+static const unsigned char be_snan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
+static const unsigned char le_snan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
+static inline double snan()
 {
     return (ByteOrder == BigEndian ?
-            *((const double *) be_nan_bytes) :
-            *((const double *) le_nan_bytes));
+            *((const double *) be_snan_bytes) :
+            *((const double *) le_snan_bytes));
 }
-#   define NAN (::nan())
-#endif
+#define Q_SNAN (::snan())
+
+// Quiet NAN
+static const unsigned char be_qnan_bytes[] = { 0xff, 0xf8, 0, 0, 0, 0, 0, 0 };
+static const unsigned char le_qnan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0xff };
+static inline double qnan()
+{
+    return (ByteOrder == BigEndian ?
+            *((const double *) be_qnan_bytes) :
+            *((const double *) le_qnan_bytes));
+}
+#define Q_QNAN (::qnan())
+
+static inline bool compareBits(double d1, double d2)
+{
+    return memcmp((const char*)&d1, (const char*)&d2, sizeof(double)) == 0;
+}
+
+static inline bool qIsInf(double d)
+{
+    return compareBits(d, Q_INFINITY) || compareBits(d, -Q_INFINITY);
+}
+
+static inline bool qIsNan(double d)
+{
+    return compareBits(d, Q_QNAN) || compareBits(d, Q_SNAN);
+}
 
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
@@ -3135,17 +3140,12 @@ QString QLocalePrivate::doubleToString(double d,
     bool special_number = false; // nan, +/-inf
     QString num_str;
 
-    (void) INFINITY;
-
-    // Comparing directly to INFINITY gives weird results on some systems.
-    double tmp_infinity = INFINITY;
-
     // Detect special numbers (nan, +/-inf)
-    if (d == tmp_infinity || d == -tmp_infinity) {
+    if (qIsInf(d)) {
         num_str = infinity();
         special_number = true;
         negative = d < 0;
-    } else if (isnan(d)) {
+    } else if (qIsNan(d)) {
         num_str = nan();
         special_number = true;
     }
@@ -3601,14 +3601,14 @@ double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
         *ok = true;
 
     if (num == "nan")
-        return NAN;
+        return Q_SNAN;
 
     if (num == "+inf"
                 || num == "inf")
-        return INFINITY;
+        return Q_INFINITY;
 
     if (num == "-inf")
-        return -INFINITY;
+        return -Q_INFINITY;
 
     bool _ok;
 #ifdef QT_QLOCALE_USES_FCVT
