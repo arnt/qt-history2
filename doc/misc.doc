@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.15 1996/03/14 16:46:52 hanord Exp $
+** $Id: misc.doc,v 1.16 1996/05/15 16:06:39 eiriken Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,8 +8,154 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.15 1996/03/14 16:46:52 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.16 1996/05/15 16:06:39 eiriken Exp $";
 #endif
+
+
+/*! \page faq.html
+<title>Qt toolkit - FAQ</title>
+</head><body>
+<h1>
+Frequently Asked Questions
+</h1>
+<p>
+<ol>
+<li>Q: Will Qt continue to be free? <p>
+    A: We will continue to release free versions for the X Window System,
+and they will be free for non-commercial purposes. <p>
+
+       Send a mail to <a href=mailto:sales@troll.no>sales@troll.no</a> for more information. <p>
+
+<li>Q: What kind of licenses exist for Qt? <p>
+
+    A: The Qt toolkit is availble under several licenses; the free license
+for X, a license for shareware developers for X, an academic license, and
+a fully-fledged commercial license. <p>
+
+<li>Q: What are the differences between the free and commercial versions of Qt?
+ <p>
+    A: You can write commercial software using the commercial licence.
+The library itself is the same. <p>
+
+<li>Q: Can I write software under the Gnu General Public License, Gnu
+General Library Public License or BSD licenses using the Qt free license? <p>
+
+    A: Yes. <p>
+
+<li>Q: I want to use Qt to develop free software on Windows. <p>
+
+    A: Qt is not free for Windows.  We do however sell commercial licenses. <p>
+
+<li>Q: When will 1.0 be released? <p>
+
+    A: 1.0 will be released in the summer of '96.  All the features that
+are scheduled to go into 1.0 exist in-house already, there is only testing
+and polishing left to do. <p>
+
+<li>Q: I don't want to give away my source. What do I do? <p>
+
+    A: Then you need a shareware or commercial license. <p>
+
+<li>Q: Can I charge for my application? <p>
+
+   A: If you have a commercial license; of course. If you have a free
+license your software must be freely distributable and you must include
+the source. <p>
+
+The free license is intended for _free_ software.  We realize that CD-ROMs
+cost money to produce, for example, so you can charge a copying fee. <p>
+
+<li>Q: Where can I find Qt?  <p>
+
+    A: The latest version of Qt can be downloaded on the web or from
+ftp.troll.no, or (less often updated) from sunsite.unc.edu in
+/pub/Linux/X11/devel/ (or /pub/Linux/Incoming). <p>
+
+<li>Q: Who is Troll Tech and what are your future plans?  <p>
+
+    A: Troll Tech consists of four talented, hard-working programmers who work
+day and night to finish Qt, and enjoy it. We started the company in 1993,
+but parts of Qt were written for earlier projects. The first line of code
+was written in 1992. <p>
+
+Most of our income comes from a contract with a beta customer; we develop
+code based on Qt for the Norwegian division of called NCR (previously
+AT&T). <p>
+
+<li>Q: Can I use Qt's classes without writing a graphical user interface?  <p>
+
+    A: Quite a few of the classes can be used independently of the user
+interface. See utility classes, There are also a few classes that will
+work without the GUI only by chance. <p>
+
+
+<li>Q: I want to port Qt to a new platform.  What do I do? <p>
+
+    A: If the new platform is POSIX-like and runs the X Window System, it's
+simple.  Make a new Makefile with suitable CFLAGS and so on, edit
+qglobal.h and qapp_x11.cpp and try to compile.  Fix what comes up.
+Finally send us the patches.  When we've added your patches to our source
+tree, Qt will officially support the new platform and it will be legal to
+disitribute the new library. <p>
+
+<li>Q: Will Qt be available for [OS/2, Mac, Amiga]? <p>
+
+    A: At present, Qt only works well on X11 and win32 (Windows 95,
+Windows NT and Windows 3.11 with WinS).  Porting to other platforms is a
+lower priority.  Currently, we concentrate on the Windows and X
+versions. <p>
+
+<li>Q: Can I make a Qt shared library and distribute it with my linux
+distribution? <p>
+
+    A: Yes, if you do not make changes to Qt and include all the files
+present in our distribution of Qt.  (That is, you must include the source
+code.) <p>
+
+<li>Q: Can I distribute dynamically linked applications that use Qt?
+Can I distribute statically linked applications that use Qt? <p>
+
+    A: Yes and yes, as long as you do not modify Qt. <p>
+
+<li>Q: I need to modify Qt <p>
+
+    A: Are you sure?  Inheritance is very often a  better alternative.  If
+you do change Qt, you may not distribute  the modified toolkit or programs
+using it. <p>
+
+We encourage you to send patches to qt-bugs@troll.no.  We will try to
+evaluate the patches and reply as soon as they come in.  If we like what
+we see, we'll incorporate the patch in the next Qt release. <p>
+
+<li>Q: How can I distribute my cool widget library? <p>
+
+    A: In several ways.  Pick and choose. <p>
+
+If the library is small, a widget or two, perhaps the best way is to
+submit it as a contribution to Qt. <p>
+
+If it's larger, you can distribute it, and you can include Qt along with
+it.  But you _cannot_ include Qt _as_part_of_ your library (e.g. by making
+a shared library which includes Qt and your library). <p>
+
+People must still be aware that they are using Qt, and they must have a
+license for Qt. <p>
+
+This applies to wrapper libraries as well, of course.  If you write Ada or
+Perl bindings, fine.  But anyone who uses your bindings must also have a
+licence for Qt. <p>
+
+<li>Q: I found this obscure bug and I need it fixed, fast! <p>
+
+    A: We sell support and maintenance contracts.  We try to support the free
+usess, and we take all bug reports seriously, no matter who they come
+from. <p>
+
+But, of course, if there's too much to do we have to put more emphasis on
+paying customers. <p>
+
+</ol>
+*/
 
 /*! \page license.html
 
@@ -122,57 +268,6 @@ Here is some more information about Qt:
 <li><a href=tutorial.html>Tutorial</a>
 <li><a href=examples.html>Example Programs</a>
 </ul>
-*/
-
-/*! \page faq.html
-
-<title>Qt toolkit - FAQ</title>
-</head><body>
-<h1>
-Frequently Asked Questions
-</h1>
-
-<ol>
-<li>Q: Will Qt continue to be free? <p>
-    A: We will continue to release binary versions for Linux, and they will
-       be free for non-commercial purposes.  The source, and other versions
-       than for Linux, will not be free. <p>
-       The commercial versions of Qt will include the source code.
-       Send a mail to sales@troll.no for pricing etc.<p>
-<li>Q: What other versions of Qt exist/are planned? <p>
-    A: We're working on versions for several other version of UNIX/X-Windows,
-       Windows 95/NT and OS/2 Presentation Manager. <p>
-       At the time of writing, only the Windows 95/NT, Solaris and HP-UX
-       versions are as advanced as the Linux version. <p>
-<li>Q: When will v1.0 be released? <p>
-    A: We plan to release 1.0 for Linux in the summer of 1996. <p>
-<li>Q: Will v1.0 include... <p>
-    A: v1.0 will include more features such as geometry management,
-       clipboard support, multi-line editor and improved documentation. <p>
-<li>Q: Who is Troll Tech and what are your future plans? <p>
-    A: Troll Tech consists of three (soon to be four) talented,
-       hard-working programmers who
-       work day and night to finish Qt, and enjoy it.  We started the
-       company in 1993, but parts of Qt were written for earlier
-       projects.  The first line of code was written in 1992. <p>
-       Most of our income comes from a contract with a beta customer;
-       we develop code based on Qt for the Norwegian division of
-       called NCR (previously AT&T). <p>
-<li>Q: Can I use Qt's classes without writing a graphical user interface? <p>
-    A: Quite a few of the classes can be used independently of the user
-       interface.  See <a href=tools.html>utility classes,</a>  There are
-       also a few classes that will work without the GUI only by chance. <p>
-<li>Q: I have (linker, compiler) errors. <p>
-    A: gcc 2.7.2 changes the size of the bool type from 4 to 1 bytes.  For
-       the time being, we're staying with 2.7.0. <p>
-<li>Q: Where can I find Qt? <p>
-    A: The latest version of Qt can be downloaded
-	<a href=http://www.troll.no/>on the web</a> or via from <a
-        href=ftp://ftp.nvg.unit.no/pub/linux/qt/>ftp.nvg.unit.no in
-	/pub/linux/qt</a> or (less often updated) from <a
-	href=ftp://sunsite.unc.edu/pub/Linux/X11/devel/>sunsite.unc.edu
-	in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).</a> <p>
-</ol>
 */
 
 /*! \page easteregg.html
