@@ -2331,7 +2331,6 @@ bool QCoreVariant::isNull() const
     return handler->isNull(&d);
 }
 
-#if !defined(Q_OS_DARWIN) || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 {
@@ -2400,7 +2399,6 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
     Q_UNUSED(v);
 #endif
 }
-#endif
 #endif
 
 /*!
