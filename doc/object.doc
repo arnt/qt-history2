@@ -45,18 +45,18 @@ In addition to C++, Qt provides
 <li> a very powerful mechanism for seamless object
   communication dubbed <a href="signalsandslots.html">signals and
   slots</a>,
-<li> querable and thus designable <a href="properties.html"> object
-  properties </a>,
-<li> powerful <a href="eventsandfilters.html"> events and event filters</a>,
-<li> scoped <a href="i18n.html">string translation for internationalization</a>,
+<li> queryable and thus designable <a href="properties.html"> object
+  properties, </a>
+<li> powerful <a href="eventsandfilters.html"> events and event filters,</a>
+<li> scoped <a href="i18n.html">string translation for internationalization,</a>
 <li> sophisticated interval driven <a href="timers.html">timers</a>
-  that make it possible to emulate multiple threads in a single-threaded application,
-<li> hierarchical and querable <a href="objecttrees.html">object
-trees</a> that define object ownership for simplified memory
-management and
-<li> \link QGuardedPtr guarded pointers\endlink that are automatically
- set to null when the referenced object is destroyed, unlike normal C++
- pointers which become "dangling pointers" in that case. 
+  that make it possible to elegantly integrate many tasks in an
+  event-driven GUI.
+<li> hierarchical and queryable <a href="objecttrees.html">object
+  trees</a> that organize object ownership in a natural way.
+<li> guarded pointers, \l QGuardedPtr, that are automatically
+  set to null when the referenced object is destroyed, unlike normal C++
+  pointers which become "dangling pointers" in that case. 
 </ul>
 
 Many of these Qt features are implemented with standard C++
@@ -65,7 +65,7 @@ object communication mechanism and the dynamic property system,
 require the <a href="metaobjects.html">Meta Object System</a> provided
 by Qt's own <a href="moc.html">Meta Object Compiler (moc)</a>. Think
 of the Meta Object System as a C++ extension that makes the language
-suited for true component GUI programming.
+better suited for true component GUI programming.
 
 */
 
@@ -396,28 +396,28 @@ Qt Toolkit - Object Trees and Object Ownership
 
 <h1 align=center>Object Trees and Object Ownership</h1><br clear="all">
 
-\link QObject QObjects\endlink organize themselves in object
-trees. When you create a QObject with another object as parent, it
-will automatically do an \link QObject::insertChild
-insertChild()\endlink on the parent and thus show up in the parent's
-\link QObject::children() children() \endlink list. The parent
-receives object ownership, i.e. it will automatically delete its
-children in its destructor.
+\link QObject QObjects\endlink organize themselves in object trees.
+When you create a QObject with another object as parent, it's added to
+the parent's \link QObject::children() children() \endlink list, and
+is deleted when the parent is.  This turns out to fit the needs of
+many GUI objects well.  For example, a \l QAccel (keyboard
+accelerator) is a child of the right window, so when the user closes
+that window, the accelerator is deleted too.
 
-With the static function \l QObject::objectTrees(), you get direct
-access to all root objects currently existing. 
+The static function \l QObject::objectTrees(), gives you access to all
+root objects currently existing.
 
-With \l QWidget, the base class of all widgets in Qt, the parent/child
-relationship of QObject gets an additional meaning: a child normally
-also becomes a so-called child widget, i.e. it lives in its parent
-widgets coordinate system and is graphically clipped by its
-parent. Still the relationship also defines ownership. With Qt, you
-will never have to delete any childwidgets or childobjects manually,
-Qt does it automatically for you when you delete their respective
-parents.
+\l QWidget, the base class of everything that shows up on the screen,
+extensds the parent/child relationship : a child normally also becomes
+a so-called child widget, i.e. it is displayed in its parent's
+coordinate system and is graphically clipped by its parent.  Thus,
+when the the application deletes a message box after it's been closed,
+the child OK button is deleted too, just the way you'd expect.
 
-Deleting child objects manually, however, doesn't harm. The object
-will simply unregister with its parent before the parent has a chance
-to delete it (using \l QObject::removeChild() ).
+Of course, you can also delete a child object yourself, and it will
+remove itself from its parent.  For example, when the user removes a
+toolbar that could often result in the application deleting one of the
+\l QToolBar objects, and the tool bar's \l QMainWindow parent would
+then notice the change and reconfigure its screen space.
 
- */
+*/
