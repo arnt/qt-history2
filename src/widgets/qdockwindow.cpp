@@ -1065,7 +1065,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 			    boxLayout()->direction() == QBoxLayout::RightToLeft ?
 			    Horizontal : Vertical ) );
 	if ( startOrientation != o )
-	    swapRect( currRect, orientation(), startOffset, area );
+	    swapRect( currRect, o, startOffset, area );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 1 ) );
 	    QRect dr(currRect);
