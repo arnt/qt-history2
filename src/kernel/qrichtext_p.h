@@ -930,7 +930,10 @@ private:
 class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str );
+    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str,
+			const QValueList< QVector<QStyleSheetItem> > &os,
+			const QValueList<QStyleSheetItem::ListStyle> &ols,
+			const QArray<int> &oas );
     QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str );
     ~QTextDeleteCommand();
     Commands type() const { return Delete; };
@@ -941,14 +944,20 @@ protected:
     int id, index;
     QTextParag *parag;
     QArray<QTextStringChar> text;
+    QValueList< QVector<QStyleSheetItem> > oldStyles;
+    QValueList<QStyleSheetItem::ListStyle> oldListStyles;
+    QArray<int> oldAligns;
 
 };
 
 class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
-    QTextInsertCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str )
-	: QTextDeleteCommand( d, i, idx, str ) {}
+    QTextInsertCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str,
+			const QValueList< QVector<QStyleSheetItem> > &os,
+			const QValueList<QStyleSheetItem::ListStyle> &ols,
+			const QArray<int> &oas )
+	: QTextDeleteCommand( d, i, idx, str, os, ols, oas ) {}
     QTextInsertCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     Commands type() const { return Insert; };

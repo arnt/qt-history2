@@ -146,8 +146,11 @@ bool QTextCommandHistory::isRedoAvailable()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str )
-    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str )
+QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str,
+					const QValueList< QVector<QStyleSheetItem> > &os,
+					const QValueList<QStyleSheetItem::ListStyle> &ols,
+					const QArray<int> &oas)
+    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ), oldStyles( os ), oldListStyles( ols ), oldAligns( oas )
 {
     for ( int j = 0; j < (int)text.size(); ++j ) {
 	if ( text[ j ].format() )
@@ -221,6 +224,32 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 	c->setIndex( index );
 	for ( int i = 0; i < (int)text.size(); ++i )
 	    c->gotoRight();
+    }
+
+    QValueList< QVector<QStyleSheetItem> >::Iterator it = oldStyles.begin();
+    QValueList<QStyleSheetItem::ListStyle>::Iterator lit = oldListStyles.begin();
+    int i = 0;
+    QTextParag *p = s;
+    bool end = FALSE;
+    while ( p ) {
+	if ( it != oldStyles.end() )
+	    p->setStyleSheetItems( *it );
+	else
+	    end = TRUE;
+	if ( lit != oldListStyles.end() )
+	    p->setListStyle( *lit );
+	else
+	    end = TRUE;
+	if ( i < (int)oldAligns.size() )
+	    p->setAlignment( oldAligns.at( i ) );
+	else
+	    end = TRUE;
+	if ( end )
+	    break;
+	p = p->next();
+	++it;
+	++lit;
+	++i;
     }
 
     s = cursor.parag();

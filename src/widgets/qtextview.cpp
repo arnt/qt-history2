@@ -634,7 +634,7 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
     emit textChanged();
 }
 
-void QTextView::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text )
+void QTextView::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles )
 {
     c2.restoreState();
     c1.restoreState();
@@ -644,6 +644,11 @@ void QTextView::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 		c1.parag()->at( i )->format()->addRef();
 		text.at( oldLen + i - c1.index() ).setFormat( c1.parag()->at( i )->format() );
 	    }
+	}
+	if ( fillStyles ) {
+	    undoRedoInfo.oldAligns[ 0 ] = c1.parag()->alignment();
+	    undoRedoInfo.oldStyles << c1.parag()->styleSheetItems();
+	    undoRedoInfo.oldListStyles << c1.parag()->listStyle();
 	}
     } else {
 	int lastIndex = oldLen;
@@ -673,6 +678,20 @@ void QTextView::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 		text.at( i + lastIndex ).setFormat( c2.parag()->at( i )->format() );
 	    }
 	}
+	if ( fillStyles ) {
+	    QTextParag *p = c1.parag();
+	    i = 0;
+	    while ( p ) {
+		if ( i < (int)undoRedoInfo.oldAligns.size() )
+		    undoRedoInfo.oldAligns[ i ] = p->alignment();
+		undoRedoInfo.oldStyles << p->styleSheetItems();
+		undoRedoInfo.oldListStyles << p->listStyle();
+		if ( p == c2.parag() )
+		    break;
+		p = p->next();
+		++i;
+	    }
+	}
     }
 }
 
@@ -691,7 +710,8 @@ void QTextView::removeSelectedText()
     undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
     QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
     QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
-    readFormats( c1, c2, oldLen, undoRedoInfo.d->text );
+    undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
+    readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     doc->removeSelectedText( QTextDocument::Standard, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();
@@ -1555,7 +1575,7 @@ void QTextView::setAlignment( int a )
 	undoRedoInfo.type = UndoRedoInfo::Alignment;
 	undoRedoInfo.id = start->paragId();
 	undoRedoInfo.eid = end->paragId();
-	QArray<int> oa( len );
+	QArray<int> oa( QMAX( 0, len ) );
 	int i = 0;
 	while ( start ) {
 	    if ( i < (int)oa.size() )
@@ -2034,7 +2054,7 @@ void QTextView::UndoRedoInfo::clear()
 {
     if ( valid() ) {
 	if ( type == Insert || type == Return )
-	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData() ) );
+	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData(), oldStyles, oldListStyles, oldAligns ) );
 	else if ( type == Format )
 	    doc->addCommand( new QTextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
 	else if ( type == Alignment )
@@ -2042,11 +2062,14 @@ void QTextView::UndoRedoInfo::clear()
 	else if ( type == ParagType )
 	    doc->addCommand( new QTextParagTypeCommand( doc, id, eid, list, listStyle, oldStyles, oldListStyles ) );
 	else if ( type != Invalid )
-	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData() ) );
+	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData(), oldStyles, oldListStyles, oldAligns ) );
     }
     d->text = QString::null;
     id = -1;
     index = -1;
+    oldStyles.clear();
+    oldListStyles.clear();
+    oldAligns.resize( 0 );
 }
 
 QTextView::UndoRedoInfo::UndoRedoInfo( QTextDocument *dc )

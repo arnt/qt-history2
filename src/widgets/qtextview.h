@@ -317,7 +317,7 @@ private: // these are functions which actually do editing stuff, but
     void doKeyboardAction( KeyboardActionPrivate action );
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
     void save( const QString &fn = QString::null );
-    void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text );
+    void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
 
 private:
