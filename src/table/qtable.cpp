@@ -1682,11 +1682,11 @@ QSize QCheckTableItem::sizeHint() const
 
     Rows and columns can be set to be moveable using
     rowMovingEnabled() and columnMovingEnabled(). The user can drag
-    them to reorder them holding down the \Key Control key and
-    dragging the mouse. For performance reasons, the default behavior
-    of QHeader section numbers is overridden by QTable. Currently in
-    QTable, when a row or column is dragged and reordered, the section
-    number is also changed to its new position. Therefore, there is no
+    them to reorder them holding down the Ctrl key and dragging the
+    mouse. For performance reasons, the default behavior of QHeader
+    section numbers is overridden by QTable. Currently in QTable, when
+    a row or column is dragged and reordered, the section number is
+    also changed to its new position. Therefore, there is no
     difference between the section and the index fields in QHeader.
     The QTable QHeader classes do not provide a mechanism for indexing
     independently of the user interface ordering.
@@ -2344,7 +2344,8 @@ bool QTable::showGrid() const
     \property QTable::columnMovingEnabled
     \brief whether columns can be moved by the user
 
-    The default is FALSE.
+    The default is FALSE. Columns are moved by dragging whilst holding
+    down the Ctrl key.
 
     \sa rowMovingEnabled
 */
@@ -2363,7 +2364,9 @@ bool QTable::columnMovingEnabled() const
     \property QTable::rowMovingEnabled
     \brief whether rows can be moved by the user
 
-    The default is FALSE.
+    The default is FALSE. Rows are moved by dragging whilst holding
+    down the Ctrl key.
+
 
     \sa columnMovingEnabled
 */
