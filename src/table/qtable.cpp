@@ -678,6 +678,22 @@ void QTableItem::setText( const QString &str )
 }
 
 /*!
+    \internal
+*/
+
+QString QTableItem::content() const
+{
+    if ( rtti() == 1 ) {
+	QComboTableItem *that = (QComboTableItem *)this;
+	return that->currentText();
+    } else if ( rtti() == 2 ) {
+	QCheckTableItem *that = (QCheckTableItem *)this;
+	return that->isChecked() ? "1" : "0";
+    }
+    return text();
+}
+	
+/*!
     This virtual function is used to paint the contents of an item
     using the painter \a p in the rectangular area \a cr using the
     color group \a cg.
@@ -4980,10 +4996,15 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 	updateCell( row, col );
 	return;
     }
-
-    if ( replace && item( row, col ) )
-	clearCell( row, col );
-
+    
+    QTableItem *i = item( row, col );
+    QString oldContent;
+    if ( i ) {
+	oldContent = i->content();
+        if ( replace )
+	    clearCell( row, col );
+    }
+    
     setCellContentFromEditor( row, col );
 
     if ( row == editRow && col == editCol )
@@ -4992,7 +5013,12 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     viewport()->setFocus();
     updateCell( row, col );
 
-    emit valueChanged( row, col );
+    bool emitValueChanged = TRUE;
+    if ( i )
+	emitValueChanged = (oldContent != i->content());
+
+    if ( emitValueChanged )
+	emit valueChanged( row, col );
 
     clearCellWidget( row, col );
 }
