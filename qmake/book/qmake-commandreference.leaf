@@ -222,12 +222,21 @@ These options define the application/library type:
 \i plugin - The target is a plugin (lib only). This enables dll as well.
 \endlist
 
-These following options are used to set the compiler flags:
+These options are used to set the compiler flags:
 
 \list
 \i exceptions - Exception support is enabled
 \i rtti - RTTI support is enabled
 \i stl - STL support is enabled
+\endlist
+
+These options define specific things depending on the platform and/or template:
+
+\list
+\i flat - When using the vcapp template this will put all the source files into the source group and 
+	the header files into the header group regardless of what directory they reside in.  Turning this
+	option off will group the files within the source/header group depending on the directory they 
+	reside.  This is turned on by default.
 \endlist
 
 The \c CONFIG variable will also be checked when resolving
