@@ -240,11 +240,25 @@ public:
    ~QClipboardData();
 
     void setSource(QMimeSource* s)
-	{ delete src; src = s; }
+    { 
+	delete src; 
+	src = s; 
+	if ( src )
+	    src->clearCache();
+    }
     QMimeSource* source()
-	{ return src; }
+    { 
+	if ( src )
+	    src->clearCache();
+	return src; 
+    }
     QMimeSource* provider()
-	{ if (!prov) prov = new QClipboardWatcher(); return prov; }
+    { 
+	if (!prov) 
+	    prov = new QClipboardWatcher(); 
+	prov->clearCache();
+	return prov; 
+    }
 
 private:
     QMimeSource* src;

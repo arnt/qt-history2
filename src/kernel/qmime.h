@@ -50,6 +50,8 @@ class QTextDrag;
 
 class Q_EXPORT QMimeSource
 {
+    friend class QClipboardData;
+
 public:
     QMimeSource();
     virtual ~QMimeSource();
