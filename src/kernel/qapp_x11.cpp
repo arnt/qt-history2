@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#103 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#102 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#103 $")
 
 
 // --------------------------------------------------------------------------
@@ -670,8 +670,11 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
     uint   nchildren;
     XGetWindowProperty( appDpy, win, WM_STATE, 0, 0, False, AnyPropertyType,
 			&type, &format, &nitems, &after, &data );
-    if ( type )
+    if ( type ) {
+	if ( children )
+	    XFree( (char *)children );
 	return win;
+    }
     if ( !XQueryTree(appDpy,win,&root,&parent,&children,&nchildren) )
 	return 0;
     for ( i=nchildren-1; !target && i >= 0; i-- )
