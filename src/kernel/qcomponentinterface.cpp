@@ -60,31 +60,32 @@ QUuid QUuid::fromString( const QString &text )
     QUuid result;
     bool ok;
     QString tmp;
+    QString temp = text.lower();
     
-    tmp = text.mid( 1, 8 );
-    result.data1 = tmp.toLong( &ok, 16 );
+    tmp = temp.mid( 1, 8 );
+    result.data1 = tmp.toULong( &ok, 16 );
     if ( !ok )
 	return QUuid();
     
-    tmp = text.mid( 10, 4 );
-    result.data2 = tmp.toInt( &ok, 16 );
+    tmp = temp.mid( 10, 4 );
+    result.data2 = tmp.toUInt( &ok, 16 );
     if ( !ok )
 	return QUuid();
-    tmp = text.mid( 15, 4 );
-    result.data3 = tmp.toInt( &ok, 16 );
+    tmp = temp.mid( 15, 4 );
+    result.data3 = tmp.toUInt( &ok, 16 );
     if ( !ok )
 	return QUuid();
-    tmp = text.mid( 20, 2 );
-    result.data4[0] = tmp.toInt( &ok, 16 );
+    tmp = temp.mid( 20, 2 );
+    result.data4[0] = tmp.toUInt( &ok, 16 );
     if ( !ok )
 	return QUuid();
-    tmp = text.mid( 22, 2 );
-    result.data4[1] = tmp.toInt( &ok, 16 );
+    tmp = temp.mid( 22, 2 );
+    result.data4[1] = tmp.toUInt( &ok, 16 );
     if ( !ok )
 	return QUuid();
     for ( int i = 2; i<8; i++ ) {
-	tmp = text.mid( 25 + (i-2)*2, 2 );
-	result.data4[i] = tmp.toShort( &ok, 16 );
+	tmp = temp.mid( 25 + (i-2)*2, 2 );
+	result.data4[i] = tmp.toUShort( &ok, 16 );
 	if ( !ok )
 	    return QUuid();
     }
