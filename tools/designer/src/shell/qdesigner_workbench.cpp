@@ -194,6 +194,11 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     switchToNeutralMode();
     m_mode = WorkspaceMode;
 
+    QDesignerToolWindow *widgetBoxWrapper = 0;
+    if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
+        widgetBoxWrapper->action()->setEnabled(true);
+    }
+
     Q_ASSERT(m_workspace == 0);
 
     m_workspace = new Q3Workspace(mainWindow());
@@ -231,6 +236,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         mainWindow()->setCentralWidget(widgetBoxWrapper);
         mainWindow()->setGeometry(g);
         widgetBoxWrapper->show();
+        widgetBoxWrapper->action()->setEnabled(false);
     }
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
