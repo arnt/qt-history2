@@ -545,6 +545,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
 	d->refresh(AlwaysEmit);
 	d->edit->setSelection(d->prefix.length(), d->edit->displayText().length() - d->prefix.length() - d->suffix.length());
+        e->ignore(); // Yes, ignore.
 	return;
 
     case Qt::Key_Z:
