@@ -2,7 +2,7 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET         = assistant
 
-CONFIG        += qt warn_on uic4
+CONFIG        += qt warn_on uic4 uic3
 QT += compat xml network
 
 PROJECTNAME        = Assistant
