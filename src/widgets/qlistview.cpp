@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#330 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#331 $
 **
 ** Implementation of QListView widget class
 **
@@ -1472,6 +1472,18 @@ void QListViewPrivate::Root::setup()
 }
 
 
+/*! \enum QListView::SelectionMode
+
+  This enum type specifies the different selection modes of the
+  iconview.
+  <ul>
+  <li>\c Single (only one item can be selected)
+  <li>\c Multi (multiple items can be selected)
+  <li>\c Extended (multiple items can be selected, but only if the user pressed CTRL while selecting them)
+  <li>\c NoSelection (no items can be selected)
+  </ul>
+*/
+
 /*!
   \class QListView qlistview.h
   \brief The QListView class implements a list/tree view.
@@ -2857,8 +2869,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     QListViewItem *oldCurrent = currentItem();
     setCurrentItem( i );
-    
-    if ( i->isSelectable() ) {
+
+    if ( i->isSelectable() && selectionMode() != NoSelection ) {
 	if ( selectionMode() == Single )
 	    setSelected( i, TRUE );
 	else if ( selectionMode() == Multi  )
@@ -3408,7 +3420,8 @@ QListView::SelectionMode QListView::selectionMode() const
 
 void QListView::setSelected( QListViewItem * item, bool selected )
 {
-    if ( !item || item->isSelected() == selected || !item->isSelectable() )
+    if ( !item || item->isSelected() == selected || 
+	 !item->isSelectable() || selectionMode() == NoSelection )
 	return;
 
     if ( d->currentSelected == item && !selected ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#56 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#57 $
 **
 ** Definition of QIconView widget class
 **
@@ -260,7 +260,8 @@ public:
     enum SelectionMode {
 	Single = 0,
 	Multi,
-	Extended
+	Extended,
+	NoSelection
     };
     enum AlignMode {
 	East = 0,

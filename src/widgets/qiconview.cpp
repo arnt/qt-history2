@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#126 $
 **
 ** Definition of QIconView widget class
 **
@@ -939,7 +939,8 @@ int QIconViewItem::index() const
 
 void QIconViewItem::setSelected( bool s, bool cb )
 {
-    if ( selectable && s != selected ) {
+    if ( view->selectionMode() != QIconView::NoSelection &&
+	 selectable && s != selected ) {
 	if ( !s )
 	    selected = FALSE;
 	else {
@@ -1614,6 +1615,7 @@ void QIconViewItem::setIconRect( const QRect &r )
   <li>\c Single (only one item can be selected)
   <li>\c Multi (multiple items can be selected)
   <li>\c Extended (multiple items can be selected, but only if the user pressed CTRL while selecting them)
+  <li>\c NoSelection (no items can be selected)
   </ul>
 */
 
