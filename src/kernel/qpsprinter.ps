@@ -276,7 +276,7 @@
       false 
     } ifelse
     {
-      % languagelevel2, we can use image mask and dicts
+      % languagelevel3, we can use image mask and dicts
 
       % store the image mask
       /ma exch d
@@ -704,16 +704,27 @@
   grestore
 } D
 
-/T {                                 % PdcDrawText2 [string fm.width x]
+/T {  % [string [x/y displacement array] width x]
   PCol SC % really need to kill these SCs
-  ty MT
-  1 index % string cwidth string
-  dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
-  stringwidth pop % string cwidth length pwidth
-  3 -1 roll % string length pwidth cwidth
-  exch sub exch div % string extraperchar
-  exch 0 exch % extraperchar 0 string
-  ashow
+  ty MT % pops x
+
+  /languagelevel where {
+    pop
+    languagelevel 2 ge 
+  } { false } ifelse % args (languagelevel >= 2)
+  { % level 2 code, use xyshow
+    pop
+    xyshow
+  } { % level 1 code use ashow
+    exch pop % string cwidth
+    1 index % string cwidth string
+    dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
+    stringwidth pop % string cwidth length pwidth
+    3 -1 roll % string length pwidth cwidth
+    exch sub exch div % string extraperchar
+    exch 0 exch % extraperchar 0 string
+    ashow
+  } ifelse
 } D
 
 %% start of page
