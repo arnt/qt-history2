@@ -366,8 +366,8 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuOpening },
     { kEventClassMenu, kEventMenuTargetItem },
 
-    { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassKeyboard, kEventRawKeyModifiersChanged },
+    { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
@@ -1377,7 +1377,7 @@ static key_sym modifier_syms[] = {
 static int get_modifiers(int key)
 {
 #ifdef DEBUG_KEY_MAPS
-    qDebug("**Mapping modifier: %d", key);
+    qDebug("**Mapping modifier: %d (0x%04x)", key, key);
 #endif
     int ret = 0;
     for(int i = 0; modifier_syms[i].qt_code; i++) {
@@ -1461,7 +1461,7 @@ static key_sym keyscan_syms[] = { //real scan codes
 static int get_key(int modif, int key, int scan)
 {
 #ifdef DEBUG_KEY_MAPS
-    qDebug("**Mapping key: %d", key);
+    qDebug("**Mapping key: %d (0x%04x) - %d (0x%04x)", key, key, scan, scan);
 #endif
 
     //general cases..
@@ -2285,16 +2285,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 
-	int modifiers = get_modifiers(modif);
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	//map it into qt keys
 	UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 		   (modif & (shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
-	if(!chr)
+	if(!chr || (chr == kClearCharCode && keyc == 0x47)) 
 	    break;
-	int mychar=get_key(modifiers, chr, keyc);
+	int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
 	static QTextCodec *c = NULL;
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
