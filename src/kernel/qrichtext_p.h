@@ -780,26 +780,51 @@ public:
     {
 	friend class QTextString;
     public:
-	Char() : lineStart( 0 ), isCustom( 0 ) {d.format=0;} // this is never called, initialize variables in QTextString::insert()!!!
+	// this is never called, initialize variables in QTextString::insert()!!!
+	Char() : lineStart( 0 ), type( Regular ) {d.format=0;} 
 	~Char();
 	QChar c;
+	enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
 	uint lineStart : 1;
-	uint isCustom : 1;
 	uint rightToLeft : 1;
+	uint hasCursor : 1;
+	Type type : 3;
+	
 	int x;
 	int height() const;
 	int ascent() const;
 	int descent() const;
+	bool isCustom() const { return type == Custom; }
 	QTextFormat *format() const;
 	QTextCustomItem *customItem() const;
 	void setFormat( QTextFormat *f );
 	void setCustomItem( QTextCustomItem *i );
 	
     private:
-	struct CharData
+	struct CustomData
 	{
 	    QTextFormat *format;
 	    QTextCustomItem *custom;
+	};
+	
+	struct MarkData
+	{
+	    QTextFormat *format;
+	    short xoff; // x offset for painting the Mark
+	    short yoff; // y offset for painting the Mark
+	};
+	
+	struct ShapedData
+	{
+	    QTextFormat *format;
+	    QChar shapedGlyph;
+	};
+	
+	struct LigatureData
+	{
+	    QTextFormat *format;
+	    QChar ligature;
+	    unsigned short nchars; // length of the ligature in decomposed form
 	};
 	
 	Char &operator=( const Char & ) {
@@ -808,8 +833,10 @@ public:
 	}
 
 	union {
-	    CharData* custom;
 	    QTextFormat* format;
+	    CustomData* custom;
+	    ShapedData *shaped;
+	    LigatureData *ligature;
 	} d;
     };
 
@@ -2422,34 +2449,42 @@ inline QTextString::Char::~Char()
 {
     if ( format() )
 	format()->removeRef();
-    if ( isCustom )
-	delete d.custom;
+    switch ( type ) {
+	case Custom:
+	    delete d.custom; break;
+	case Shaped:
+	    delete d.shaped; break;
+	case Ligature:
+	    delete d.ligature;
+	default:
+	    break;
+    }
 }
 
 inline QTextFormat *QTextString::Char::format() const
 {
-    return !isCustom ? d.format : d.custom->format;
+    return !isCustom() ? d.format : d.custom->format;
 }
 
 
 inline QTextCustomItem *QTextString::Char::customItem() const
 {
-    return isCustom ? d.custom->custom : 0;
+    return isCustom() ? d.custom->custom : 0;
 }
 
 inline int QTextString::Char::height() const
 {
-    return !isCustom ? format()->height() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
+    return !isCustom() ? format()->height() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
 }
 
 inline int QTextString::Char::ascent() const
 {
-    return !isCustom ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
+    return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
 }
 
 inline int QTextString::Char::descent() const
 {
-    return !isCustom ? format()->descent() : 0;
+    return !isCustom() ? format()->descent() : 0;
 }
 
 #endif

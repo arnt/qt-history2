@@ -271,7 +271,7 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
     oy = y + string->rect().y();
     nested = TRUE;
     QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
-    ASSERT( string->at( idx )->isCustom );
+    ASSERT( string->at( idx )->isCustom() );
     string->at( idx )->customItem()->enterAt( doc, string, idx, ox, oy, p );
 }
 
@@ -284,7 +284,7 @@ void QTextCursor::invalidateNested()
 	    if ( *it == string )
 		continue;
 	    (*it)->invalidate( 0 );
-	    if ( (*it)->at( *it2 )->isCustom )
+	    if ( (*it)->at( *it2 )->isCustom() )
 		(*it)->at( *it2 )->customItem()->invalidate();
 	}		
     }
@@ -360,7 +360,7 @@ void QTextCursor::gotoLeft()
 	}
     }
 
-    if ( string->at( idx )->isCustom &&
+    if ( string->at( idx )->isCustom() &&
 	 string->at( idx )->customItem()->isNested() ) {
 	processNesting( EnterEnd );
     }
@@ -440,7 +440,7 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
 	chr = s->at(i);
 	int cpos = x + chr->x;
 	cw = s->string()->width( i );
-	if ( chr->isCustom ) {
+	if ( chr->isCustom() ) {
 	    if ( pos.x() >= cpos && pos.x() <= cpos + cw &&
 		 pos.y() >= y + cy && pos.y() <= y + cy + chr->height() ) {
 		inCustom = TRUE;
@@ -461,7 +461,7 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
     }
     setIndex( curpos, FALSE );
 
-    if ( inCustom && doc && parag()->at( curpos )->isCustom && parag()->at( curpos )->customItem()->isNested() ) {
+    if ( inCustom && doc && parag()->at( curpos )->isCustom() && parag()->at( curpos )->customItem()->isNested() ) {
 	gotoIntoNested( pos );
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
 	if ( !place( p, document()->firstParag() ) )
@@ -507,7 +507,7 @@ void QTextCursor::gotoRight()
 {
     tmpIndex = -1;
 
-    if ( string->at( idx )->isCustom &&
+    if ( string->at( idx )->isCustom() &&
 	 string->at( idx )->customItem()->isNested() ) {
 	processNesting( EnterBegin );
 	return;
@@ -840,7 +840,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	s->append( str, TRUE );
 	for ( uint i = 0; i < str.length(); ++i ) {
 	    s->setFormat( i, 1, string->at( idx + i )->format(), TRUE );
-	    if ( string->at( idx + i )->isCustom )
+	    if ( string->at( idx + i )->isCustom() )
 		s->at( i )->setCustomItem( string->at( idx + i )->customItem() );
 	}	
 	string->truncate( idx );
@@ -2241,7 +2241,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
 	data[ (int)index + i ].d.format = 0;
-	data[ (int)index + i ].isCustom = 0;
+	data[ (int)index + i ].type = Char::Regular;
 	data[ (int)index + i ].rightToLeft = 0;
 #if defined(Q_WS_X11)
 	//### workaround for broken courier fonts on X11
@@ -2260,7 +2260,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 QTextString::~QTextString()
 {
     for ( int i = 0; i < (int)data.count(); ++i ) {
-	if ( data[ i ].isCustom ) {
+	if ( data[ i ].isCustom() ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
@@ -2285,7 +2285,7 @@ void QTextString::insert( int index, Char *c )
     data[ (int)index ].lineStart = 0;
     data[ (int)index ].rightToLeft = 0;
     data[ (int)index ].d.format = 0;
-    data[ (int)index ].isCustom = 0;
+    data[ (int)index ].type = Char::Regular;
     data[ (int)index ].setFormat( c->format() );
     textChanged = TRUE;
 }
@@ -2296,7 +2296,7 @@ void QTextString::truncate( int index )
     index = QMIN( index, (int)data.size() - 1 );
     if ( index < (int)data.size() ) {
 	for ( int i = index + 1; i < (int)data.size(); ++i ) {
-	    if ( data[ i ].isCustom ) {
+	    if ( data[ i ].isCustom() ) {
 		delete data[ i ].customItem();
 		if ( data[ i ].d.custom->format )
 		    data[ i ].d.custom->format->removeRef();
@@ -2314,7 +2314,7 @@ void QTextString::truncate( int index )
 void QTextString::remove( int index, int len )
 {
     for ( int i = index; i < (int)data.size() && i - index < len; ++i ) {
-	if ( data[ i ].isCustom ) {
+	if ( data[ i ].isCustom() ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
@@ -2398,11 +2398,11 @@ void QTextDocument::updateStyles()
 
 void QTextString::Char::setFormat( QTextFormat *f )
 {
-    if ( !isCustom ) {
+    if ( !isCustom() ) {
 	d.format = f;
     } else {
 	if ( !d.custom ) {
-	    d.custom = new CharData;
+	    d.custom = new CustomData;
 	    d.custom->custom = 0;
 	}
 	d.custom->format = f;
@@ -2411,11 +2411,11 @@ void QTextString::Char::setFormat( QTextFormat *f )
 
 void QTextString::Char::setCustomItem( QTextCustomItem *i )
 {
-    if ( !isCustom ) {
+    if ( !isCustom() ) {
 	QTextFormat *f = d.format;
-	d.custom = new CharData;
+	d.custom = new CustomData;
 	d.custom->format = f;
-	isCustom = TRUE;
+	type = Custom;
     } else {
 	delete d.custom->custom;
     }
@@ -2426,7 +2426,7 @@ int QTextString::width(int idx) const
 {
      int w = 0;
      Char *c = &at( idx );
-     if( c->isCustom ) {
+     if( c->isCustom() ) {
 	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
 	     w = c->customItem()->width;
      } else {
@@ -2579,7 +2579,7 @@ void QTextParag::remove( int index, int len )
 {
     for ( int i = index; i < len; ++i ) {
 	QTextString::Char *c = at( i );
-	if ( doc && c->isCustom ) {
+	if ( doc && c->isCustom() ) {
 	    doc->unregisterCustomItem( c->customItem(), this );
 	    removeCustomItem();
 	}
@@ -2952,10 +2952,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    lastFormat = chr->format();
 	    lastY = cy;
 	    startX = chr->x;
-	    if ( !chr->isCustom && chr->c != '\n' )
+	    if ( !chr->isCustom() && chr->c != '\n' )
 		paintEnd = i;
 	    bw = cw;
-	    if ( !chr->isCustom )
+	    if ( !chr->isCustom() )
 		continue;
 	}
 	
@@ -2974,7 +2974,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	       lastDirection != chr->rightToLeft ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
-	       selectionChange || chr->isCustom ) ) {
+	       selectionChange || chr->isCustom() ) ) {
 	    if ( paintStart <= paintEnd ) {
 		if ( lastDirection ) // right to left
 		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, startX, lastY,
@@ -2994,7 +2994,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    tw = 0;
 		}
 	    }
-	    if ( !chr->isCustom ) {
+	    if ( !chr->isCustom() ) {
 		if ( chr->c != '\n' ) {
 		    paintStart = i;
 		    paintEnd = i;
@@ -3328,7 +3328,7 @@ void QTextParag::setPainter( QPainter *p )
 {
     pntr = p;
     for ( int i = 0; i < length(); ++i ) {
-	if ( at( i )->isCustom )
+	if ( at( i )->isCustom() )
 	    at( i )->customItem()->adjustToPainter( p );
     }
 }
@@ -3356,7 +3356,7 @@ QString QTextParag::richText() const
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
 	    s += "&gt;";
-	} else if ( c->isCustom ) {
+	} else if ( c->isCustom() ) {
 	    s += c->customItem()->richText();
 	} else {
 	    s += c->c;
@@ -4022,7 +4022,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QText
 		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
 		int ww = 0;
-		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
 		} else {
 		    ww = c->format()->width( ' ' );
@@ -4048,7 +4048,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QText
 		}
 		c->x = x + toAdd;
 		int ww = 0;
-		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
 		} else {
 		    ww = c->format()->width( ' ' );
@@ -4175,7 +4175,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    c->lineStart = 1;
 	    firstChar = c;
 	}
-	if ( c->c.unicode() >= 32 || c->isCustom ) {
+	if ( c->c.unicode() >= 32 || c->isCustom() ) {
 	    ww = parag->string()->width( i );
 	} else if ( c->c == '\t' ) {
 	    int nx = parag->nextTab( x );
@@ -4187,7 +4187,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    ww = c->format()->width( ' ' );
 	}
 	
-	if ( c->isCustom && c->customItem()->ownLine() ) {
+	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    if ( doc )
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
@@ -4310,12 +4310,12 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    firstChar = c;
 	}
 
-	if ( c->isCustom && c->customItem()->placement() != QTextCustomItem::PlaceInline )
+	if ( c->isCustom() && c->customItem()->placement() != QTextCustomItem::PlaceInline )
 	    lastWasNonInlineCustom = TRUE;
 	else
 	    lastWasNonInlineCustom = FALSE;
 	
-	if ( c->c.unicode() >= 32 || c->isCustom ) {
+	if ( c->c.unicode() >= 32 || c->isCustom() ) {
 	    ww = string->width( i );
 	} else if ( c->c == '\t' ) {
 	    int nx = parag->nextTab( x );
@@ -4327,7 +4327,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    ww = c->format()->width( ' ' );
 	}
 	
-	if ( c->isCustom && c->customItem()->ownLine() ) {
+	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 	    lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
