@@ -1152,3 +1152,159 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 }
 
 #endif //QT_NO_DATASTREAM
+
+
+
+
+/*****************************************************************************
+  QPixmap (and QImage) helper functions
+ *****************************************************************************/
+/*
+  This internal function contains the common (i.e. platform independent) code
+  to do a transformation of pixel data. It is used by QPixmap::xForm() and by
+  QImage::xForm().
+
+  \a trueMat is the true transformation matrix (see QPixmap::trueMatrix()) and
+  \a xoffset is an offset to the matrix.
+
+  \a msbfirst specifies for 1bpp images, if the MSB or LSB comes first and \a
+  depth specifies the colordepth of the data.
+
+  \a dptr is a pointer to the destination data, \a dbpl specifies the bits per
+  line for the destination data, \a p_inc is the offset that we advance for
+  every scanline and \a dHeight is the height of the destination image.
+
+  \a sprt is the pointer to the source data, \a sbpl specifies the bits per
+  line of the source data, \a sWidth and \a sHeight are the width and height of
+  the source data.
+*/
+#ifndef QT_NO_TRANSFORMATIONS
+bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
+	bool msbfirst, int depth,
+	uchar *dptr, int dbpl, int p_inc, int dHeight,
+	uchar *sptr, int sbpl, int sWidth, int sHeight
+	)
+{
+    int m11 = qRound((double)trueMat.m11()*65536.0);
+    int m12 = qRound((double)trueMat.m12()*65536.0);
+    int m21 = qRound((double)trueMat.m21()*65536.0);
+    int m22 = qRound((double)trueMat.m22()*65536.0);
+    int dx  = qRound((double)trueMat.dx() *65536.0);
+    int dy  = qRound((double)trueMat.dy() *65536.0);
+
+    int m21ydx = dx + (xoffset<<16);
+    int m22ydy = dy;
+    uint trigx;
+    uint trigy;
+    uint maxws = sWidth<<16;
+    uint maxhs = sHeight<<16;
+
+    for ( int y=0; y<dHeight; y++ ) {		// for each target scanline
+	trigx = m21ydx;
+	trigy = m22ydy;
+	uchar *maxp = dptr + dbpl;
+	if ( depth != 1 ) {
+	    switch ( depth ) {
+		case 8:				// 8 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*dptr = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr++;
+		}
+		break;
+
+		case 16:			// 16 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((ushort*)dptr) = *((ushort *)(sptr+sbpl*(trigy>>16) +
+						     ((trigx>>16)<<1)));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr++;
+		    dptr++;
+		}
+		break;
+
+		case 24: {			// 24 bpp transform
+		uchar *p2;
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs ) {
+			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
+			dptr[0] = p2[0];
+			dptr[1] = p2[1];
+			dptr[2] = p2[2];
+		    }
+		    trigx += m11;
+		    trigy += m12;
+		    dptr += 3;
+		}
+		}
+		break;
+
+		case 32:			// 32 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((uint*)dptr) = *((uint *)(sptr+sbpl*(trigy>>16) +
+						   ((trigx>>16)<<2)));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr += 4;
+		}
+		break;
+
+		default: {
+		return FALSE;
+		}
+	    }
+	} else if ( msbfirst ) {		// mono bitmap MSB first
+	    while ( dptr < maxp ) {
+#undef IWX
+#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << (7-((trigx>>16)&7))) )			      \
+			*dptr |= b;					      \
+		}							      \
+		trigx += m11;						      \
+		trigy += m12;
+	// END OF MACRO
+		IWX(128);
+		IWX(64);
+		IWX(32);
+		IWX(16);
+		IWX(8);
+		IWX(4);
+		IWX(2);
+		IWX(1);
+		dptr++;
+	    }
+	} else {				// mono bitmap LSB first
+	    while ( dptr < maxp ) {
+#undef IWX
+#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << ((trigx>>16)&7)) )			      \
+			*dptr |= b;					      \
+		}							      \
+		trigx += m11;						      \
+		trigy += m12;
+	// END OF MACRO
+		IWX(1);
+		IWX(2);
+		IWX(4);
+		IWX(8);
+		IWX(16);
+		IWX(32);
+		IWX(64);
+		IWX(128);
+		dptr++;
+	    }
+	}
+	m21ydx += m21;
+	m22ydy += m22;
+	dptr += p_inc;
+    }
+    return TRUE;
+}
+#endif // QT_NO_TRANSFORMATIONS

@@ -298,4 +298,12 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 #endif
 
+/*****************************************************************************
+  QPixmap (and QImage) helper functions
+ *****************************************************************************/
+
+#ifndef QT_NO_TRANSFORMATIONS
+Q_EXPORT bool qt_xForm_helper( const QWMatrix&, int, bool, int, uchar*, int, int, int, uchar*, int, int, int );
+#endif
+
 #endif // QPIXMAP_H

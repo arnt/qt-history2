@@ -2817,8 +2817,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     int hd;
 
     int bpp = depth();
-    bool depth1 = (bpp == 1);
-    int y;
 
     // compute size of target image
     QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
@@ -2877,98 +2875,13 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	    break;
     }
 
-    // compute the transformation
-    int m11 = qRound((double)mat.m11()*65536.0);
-    int m12 = qRound((double)mat.m12()*65536.0);
-    int m21 = qRound((double)mat.m21()*65536.0);
-    int m22 = qRound((double)mat.m22()*65536.0);
-    int dx  = qRound((double)mat.dx() *65536.0);
-    int dy  = qRound((double)mat.dy() *65536.0);
-
-    int	m21ydx = dx;// + (xi->xoffset<<16);
-    int m22ydy = dy;
-    uint trigx;
-    uint trigy;
-    uint maxws = ws<<16;
-    uint maxhs = hs<<16;
-    uchar *p = dImage.bits();
     bool msbfirst = systemByteOrder() == BigEndian; // ### is this right?
-
     int dbpl = dImage.bytesPerLine();
-    for ( y=0; y<hd; y++ ) {			// for each target scanline
-	p = dImage.scanLine( y );
-	trigx = m21ydx;
-	trigy = m22ydy;
-	uchar *maxp = p + dbpl; // ### is this right?
-	if ( !depth1 ) {
-	    switch ( bpp ) {
-		case 8:				// 8 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
-		    trigx += m11;
-		    trigy += m12;
-		    p++;
-		}
-		break;
-
-		case 32:			// 32 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*((uint*)p) = *((uint *)(sptr+sbpl*(trigy>>16) +
-						   ((trigx>>16)<<2)));
-		    trigx += m11;
-		    trigy += m12;
-		    p += 4;
-		}
-		break;
-	    }
-	} else if ( msbfirst ) {		// mono bitmap MSB first
-	    while ( p < maxp ) {
-#undef IWX
-#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
-			 (1 << (7-((trigx>>16)&7))) )			      \
-			*p |= b;					      \
-		}							      \
-		trigx += m11;						      \
-		trigy += m12;
-	// END OF MACRO
-		IWX(1);
-		IWX(2);
-		IWX(4);
-		IWX(8);
-		IWX(16);
-		IWX(32);
-		IWX(64);
-		IWX(128);
-		p++;
-	    }
-	} else {				// mono bitmap LSB first
-	    while ( p < maxp ) {
-#undef IWX
-#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
-			 (1 << ((trigx>>16)&7)) )			      \
-			*p |= b;					      \
-		}							      \
-		trigx += m11;						      \
-		trigy += m12;
-	// END OF MACRO
-		IWX(1);
-		IWX(2);
-		IWX(4);
-		IWX(8);
-		IWX(16);
-		IWX(32);
-		IWX(64);
-		IWX(128);
-		p++;
-	    }
-	}
-	m21ydx += m21;
-	m22ydy += m22;
-    }
+    qt_xForm_helper( mat, 0, msbfirst, bpp,
+	    dImage.bits(),
+	    dbpl, // ### right?
+	    0, //p_inc, // ### right?
+	    hd, sptr, sbpl, ws, hs );
     return dImage;
 }
 #endif
