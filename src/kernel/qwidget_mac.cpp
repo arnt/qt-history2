@@ -134,6 +134,16 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
+static OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHandle, void *w)
+{
+    QWidget *widget = (QWidget *)w;
+    if(!widget)
+	widget = QWidget::find( (WId)window );
+    if ( widget ) 
+	widget->erase(0, 0, widget->width(), widget->height());
+    return 0;
+}
+
 //FIXME How can I create translucent windows? (Need them for pull down menus)
 //FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
 //FIXME Perhaps we need to access the lower level Quartz API?
@@ -248,6 +258,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
 	setWinId(id);
+	InstallWindowContentPaintProc((WindowPtr)hd, macSpecialErase, 0, this);
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -439,8 +450,7 @@ void QWidget::setMicroFocusHint(int, int, int, int, bool )
 void QWidget::setFontSys()
 {
 }
-
-
+ 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
@@ -451,12 +461,14 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	extra->bg_pix = 0;
     }
 
-    SetPortWindowPort((WindowPtr)hd);
-    RGBColor f;
-    f.red = bg_col.red() * 256;
-    f.green = bg_col.green() * 256;;
-    f.blue = bg_col.blue() * 256;
-    RGBBackColor(&f);
+    if(isTopLevel()) {
+	SetPortWindowPort((WindowPtr)hd);
+	RGBColor f;
+	f.red = bg_col.red() * 256;
+	f.green = bg_col.green() * 256;;
+	f.blue = bg_col.blue() * 256;
+	RGBBackColor(&f);
+    }
 
     backgroundColorChange( old );
 }
@@ -626,19 +638,8 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w && h ) {
-#if 0
-		QPoint mp(posInWindow(this));
-		x += mp.x();
-		y += mp.y();
-
-		Rect r;
-		SetRect( &r, x, y, x+w, y+h );
-		InvalWindowRect( (WindowRef)hd, &r );
-#else
-		QApplication::postEvent( this, new QPaintEvent( QRect(x, y, w, h), !testWFlags( WRepaintNoErase ) ) );
-#endif
-	}
+	if ( w && h ) 
+	    QApplication::postEvent( this, new QPaintEvent( QRect(x, y, w, h), !testWFlags( WRepaintNoErase ) ) );
     }
 }
 
@@ -766,6 +767,7 @@ void QWidget::raise()
 {
     if(isTopLevel()) {
 	SelectWindow((WindowPtr)hd);
+	BringToFront((WindowPtr)hd);
     } else {
 	QWidget *p = parentWidget();
 	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
@@ -877,7 +879,7 @@ void QWidget::setMinimumSize( int minw, int minh)
 {
     //I'm not happy to be doing this, but apparently this helps (ie on a mainwindow, so the
     //status bar doesn't fall of the bottom) this might need a FIXME!!!
-    if(isTopLevel()) {
+    if(isTopLevel() && !parentWidget() && !isPopup()) {
 	minw+=10;
 	minh+=10;
     }
@@ -1164,8 +1166,10 @@ void QWidget::propagateUpdates(int , int , int w, int h)
     SetPortWindowPort((WindowPtr)handle());
     QRect paintRect( 0, 0, w, h );
 
+#if 0
     if(!testWFlags(WRepaintNoErase))
 	erase(paintRect);
+#endif
 
     setWState( WState_InPaintEvent );
     QPaintEvent e( paintRect );
