@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.h#5 $
+** $Id: //depot/qt/main/src/tools/qcstring.h#6 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -235,8 +235,8 @@ public:
   QCString stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QCString & );
-QDataStream &operator>>( QDataStream &, QCString & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QCString & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QCString & );
 
 
 /*****************************************************************************
