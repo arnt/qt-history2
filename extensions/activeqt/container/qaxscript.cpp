@@ -612,7 +612,7 @@ QStringList QAxScript::functions() const
 /*!
     Returns a list with the name of all scripts.
 */
-QStringList QAxScript::scripts() const
+QStringList QAxScript::scriptNames() const
 {
     QStringList scripts;
 

@@ -29,7 +29,7 @@ public:
     void addObject(QAxBase *object);
 
     QStringList functions() const;
-    QStringList scripts() const;
+    QStringList scriptNames() const;
     QAxObject *scriptEngine(const QString &name) const;
 
     QAxObject *load(const QString &code, const QString &language, const QString &name );
