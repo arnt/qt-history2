@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#35 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#35 $");
 
 
 bool QPixmap::optimAll = TRUE;
@@ -160,6 +160,13 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 	hdc = pixmap.hdc;			// copy QPaintDevice hdc
     }
+}
+
+QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( 0, 0, 0 );
+    load( fileName, format, mode );
 }
 
 QPixmap::~QPixmap()
