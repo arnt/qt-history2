@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#43 $
 **
 ** Implementation of QScrollView class
 **
@@ -664,20 +664,17 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
 	  case Event_MouseButtonPress:
+	    viewportMousePressEvent( (QMouseEvent*)e );
+	    break;
 	  case Event_MouseButtonRelease:
+	    viewportMouseReleaseEvent( (QMouseEvent*)e );
+	    break;
 	  case Event_MouseButtonDblClick:
+	    viewportMouseDoubleClickEvent( (QMouseEvent*)e );
+	    break;
 	  case Event_MouseMove:
-	    {
-#if 0 // ######### this will be useful - check QListView though
-		// Propagate to me
-		//
-		// Safe to do this, since there is no part of
-		// me visible for the user to otherwise click on.
-		//
-		qApp->sendEvent( this, me );
-		return TRUE;
-#endif
-	    } break;
+	    viewportMouseMoveEvent( (QMouseEvent*)e );
+	    break;
 	  case Event_ChildRemoved:
 	    removeChild(((QChildEvent*)e)->child());
 	    break;
@@ -710,6 +707,42 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
     int eh = pe->rect().height();
     drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
 }
+
+/*!
+  To provide simple processing of events on the contents, this method receives all mouse
+  press events sent to the viewport.
+*/
+void QScrollView::viewportMousePressEvent( QMouseEvent* )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all mouse
+  release events sent to the viewport.
+*/
+void QScrollView::viewportMouseReleaseEvent( QMouseEvent* )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all mouse
+  double click events sent to the viewport.
+*/
+void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all mouse
+  move events sent to the viewport.
+*/
+void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
+{
+}
+
 
 /*!
  Returns the component horizontal scrollbar.  It is made available to allow
