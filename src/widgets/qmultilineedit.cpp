@@ -2169,6 +2169,9 @@ void QMultiLineEdit::dropEvent( QDropEvent* event )
     if ( readOnly ) return;
     QString text;
     if ( QTextDrag::decode(event, text) ) {
+	int i = -1;
+	while ( ( i = text.find( '\r' ) ) != -1 )
+	    text.replace( i,1,"" );
 	if ( event->source() == this && event->action() == QDropEvent::Move )
 	    {
 		event->acceptAction();

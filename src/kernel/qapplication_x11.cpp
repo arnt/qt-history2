@@ -2474,6 +2474,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    return TRUE; // not interesting
  	if ( inPopupMode() ) // some delayed focus event to ignore
  	    break;
+	qDebug("XFocusIn for '%s', mode = %d, detail = %d", widget->className(), event->xfocus.mode, event->xfocus.detail );
 	// 	if ( event->xfocus.mode == NotifyUngrab )
 	// 	    break;
 	QWidget* old_active_window = active_window;
@@ -2481,10 +2482,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if (active_window && active_window->topData()->embedded ) {
 	    // we are embedded. Refuse focus, the out app will send us
 	    // qew_focus_in if that shall be necessary
-	    ((XEvent*)event)->xfocus.window
-		= active_window->topData()->parentWinId;
-	    XSendEvent( appDpy, active_window->topData()->parentWinId,
-			NoEventMask, FALSE, (XEvent*)event);
+// 	    ((XEvent*)event)->xfocus.window
+// 		= active_window->topData()->parentWinId;
+// 	    XSendEvent( appDpy, active_window->topData()->parentWinId,
+// 			NoEventMask, FALSE, (XEvent*)event);
 	    active_window = old_active_window;
 	    return TRUE;
 	}
