@@ -364,6 +364,15 @@ static int mapPageSizeDevmode( QPrinter::PageSize s )
     return names[i].winSizeName;
 }
 
+/*!
+    returns the Windows pageSize as defined in the DEVMODE structure.
+    \warning this method is only available on Windows.
+*/
+short QPrinter::winPageSize() const
+{
+    return hdevmode ? ((DEVMODE *)hdevmode)->dmPaperSize : 0;
+}
+
 /*
   Copy the settings from the Windows structures into QPrinter
 */

@@ -100,6 +100,9 @@ public:
     virtual void setOrientation( Orientation );
     PageSize    pageSize()      const;
     virtual void setPageSize( PageSize );
+#ifdef Q_WS_WIN
+    short winPageSize() const;
+#endif
 
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
