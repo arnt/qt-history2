@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#273 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#274 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13367,7 +13367,7 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 // WATCH OUT: mblen must include the NUL (or just use -1)
 QString qt_winMB2QString( const char* mb, int mblen )
 {
-    if ( !mb )
+    if ( !mb || !mblen )
 	return QString::null;
     const int wclen_auto = 4096;
     WCHAR wc_auto[wclen_auto];
@@ -13394,6 +13394,8 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	    break;
 	}
     }
+    if ( len <= 0 )
+	return QString::null;
     QString s( (QChar*)wc, len-1 ); // len-1: we don't want terminator
     if ( wc != wc_auto )
 	delete [] wc;
