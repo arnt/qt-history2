@@ -2185,16 +2185,20 @@ private:
 
     ~QXmlSimpleReaderPrivate()
     {
-	while(ParseState *s = parseStack->pop())
-	    delete s;
-	delete parseStack;
+	if(parseStack) {
+	    while(ParseState *s = parseStack->pop())
+		delete s;
+	    delete parseStack;
+	}
     }
 
     void initIncrementalParsing()
     {
-	while(ParseState *s = parseStack->pop())
-	    delete s;
-	delete parseStack;
+	if(parseStack) {
+	    while(ParseState *s = parseStack->pop())
+		delete s;
+	    delete parseStack;
+	}
 	parseStack = new QStack<ParseState*>;
     }
 
