@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#11 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#12 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -293,8 +293,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 		break;
 	    case WSAEAFNOSUPPORT:
 	    case WSAEFAULT:
-	    case WSAEINVAL:
 		e = Bug;
+		break;
+	    case WSAEINVAL:
+		// I experienced that this should be not an error situation.
 		break;
 	    case WSAECONNREFUSED:
 		e = ConnectionRefused;
