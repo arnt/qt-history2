@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#14 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#15 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,12 +26,24 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#15 $");
 
 
 #if defined(_CC_MSVC_)
 #pragma warning(disable:4355) // 'this' : used in base member initializer list
 #endif
+
+
+/*!
+  \relates QGLFormat
+  Returns the version number string for the Qt OpenGL extension,
+  e.g. "1.0".
+*/
+
+const char *qGLVersion()
+{
+    return QGL_VERSION_STR;
+}
 
 
 /*****************************************************************************
@@ -887,6 +899,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
+    glXMakeCurrent( paintDevice->x11Display(), 0, 0 );
 }
 
 
