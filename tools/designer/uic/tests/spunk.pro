@@ -3,5 +3,5 @@ CONFIG		+= qt warn_on release
 HEADERS		= 
 SOURCES		= main.cpp
 TARGET		= spunk
-INTERFACES 	= 
+INTERFACES 	= spunk.ui
 TMAKE_UIC 	=  $(QTDIR)/bin/uic
