@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#216 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -252,7 +252,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( fr.top == cr.top &&
 	     fr.left == cr.left &&
 	     fr.bottom == cr.bottom &&
-	     fr.right == cr.right ) {
+	     fr.right == cr.right )
+	{
+	    // Maybe we already have extra data (eg. reparent()).  Set it.
+	    if ( extra && extra->topextra )
+		extra->topextra->fsize = QSize(cr.right-fr.left+1,
+					       cr.bottom-cr.top+1);
 	} else {
 	    createTLExtra();
 	    setFRect( QRect( QPoint(fr.left,fr.top),
