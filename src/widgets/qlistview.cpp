@@ -1981,7 +1981,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 	    ci->truncated = FALSE;
 	    // if we have to do the ellipsis thingy calc the truncated text
 	    int pw = lv->itemMargin()*2 - lv->d->minLeftBearing - lv->d->minRightBearing;
-	    pw += pixmap( column ) ? pixmap( column )->width() : 0;
+	    pw += pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : 0;
 	    if ( !mlenabled && fm.width( t ) + pw > width ) {
 		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
