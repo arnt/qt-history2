@@ -49,7 +49,6 @@
  *****************************************************************************/
 
 /*!
-  \fn void *memmove( void *dst, const void *src, uint len )
   \relates QCString
 
   This function is normally part of the C library. Qt implements
@@ -83,9 +82,11 @@ void *qmemmove( void *dst, const void *src, uint len )
 
   Returns a duplicate string.
 
-  Allocates space for a copy of \a src (using \c new), copies it, and returns
+  Allocates space for a copy of \a src, copies it, and returns
   a pointer to the copy.
   If \a src is null, it immediately returns 0.
+
+  The returned string has to be deleted using \c delete[].
 */
 
 char *qstrdup( const char *src )
@@ -98,13 +99,24 @@ char *qstrdup( const char *src )
 }
 
 /*!
+  \fn char *qstrcpy( char *dst, const char *src )
+  \relates QCString
+
+  A safe strcpy() function.
+
+  Copies all characters up to and including the '\0' from \a src into
+  \a dst and returns a pointer to \a dst.
+*/
+
+/*!
   \relates QCString
 
   A safe strncpy() function.
 
-  Copies all characters up to \a len bytes from \a src into \a dst and
-  returns a pointer to \a dst.	Guarantees that \a dst is
-  '\0'-terminated. If \a src or \a dst is null, it immediately returns 0.
+  Copies all characters up to \a len bytes from \a src (or less if \a
+  src is shorter) into \a dst and returns a pointer to \a dst.
+  Guarantees that \a dst is '\0'-terminated. If \a src or \a dst is
+  null, returns 0 immediately.
 
   \sa qstrcpy()
 */
@@ -120,7 +132,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 }
 
 /*!
-  \fn int qstrcmp( const char *str1, const char *str2 )
+  \fn int qstrcmp( const char *str1, const char *str2 );
   \relates QCString
 
   A safe strcmp() function.
@@ -140,7 +152,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 */
 
 /*!
-  \fn int qstrncmp( const char *str1, const char *str2, uint len )
+  \fn int qstrncmp( const char *str1, const char *str2, uint len );
   \relates QCString
 
   A safe strncmp() function.
@@ -162,7 +174,6 @@ char *qstrncpy( char *dst, const char *src, uint len )
 */
 
 /*!
-  \fn int qstricmp( const char *str1, const char *str2 )
   \relates QCString
 
   A safe stricmp() function.
@@ -198,7 +209,6 @@ int qstricmp( const char *str1, const char *str2 )
 }
 
 /*!
-  \fn int strnicmp( const char *str1, const char *str2, uint len )
   \relates QCString
 
   A safe strnicmp() function.
@@ -1863,7 +1873,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -1871,7 +1881,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
-  Equivalent to \c{qstrcmp(s1,s2) == 0}.
+  Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -1879,7 +1889,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
-  Equivalent to \c{qstrcmp(s1,s2) == 0}.
+  Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -1887,7 +1897,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to \c{qstrcmp(s1,s2) != 0}.
+  Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
@@ -1895,7 +1905,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to \c{qstrcmp(s1,s2) != 0}.
+  Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
@@ -1903,7 +1913,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to \c{qstrcmp(s1,s2) != 0}.
+  Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
@@ -1913,7 +1923,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \< 0.
 */
 
 /*!
@@ -1923,7 +1933,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \< 0.
 */
 
 /*!
@@ -1934,7 +1944,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
 */
 
 /*!
@@ -1945,7 +1955,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
 */
 
 /*!
@@ -1955,7 +1965,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \> 0.
 */
 
 /*!
@@ -1965,7 +1975,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \> 0.
 */
 
 /*!
@@ -1976,7 +1986,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
 */
 
 /*!
@@ -1987,7 +1997,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
-  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
+  Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
 */
 
 /*!
