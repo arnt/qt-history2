@@ -232,12 +232,12 @@ static int at( const QMap<int, int>& m, int k )
 #ifndef QT_NO_REGEXP_WILDCARD
 /*
   Translates a wildcard pattern to an equivalent regular expression pattern
-  (e.g., *.cpp to ^.*\.cpp$).
+  (e.g., *.cpp to .*\.cpp).
 */
 static QString wc2rx( const QString& wc )
 {
     int wclen = wc.length();
-    QString rx = QChar( '^' );
+    QString rx = QString::fromLatin1( "" );
     int i = 0;
     while ( i < wclen ) {
 	QChar c = wc[i++];
@@ -279,7 +279,6 @@ static QString wc2rx( const QString& wc )
 	    rx += c;
 	}
     }
-    rx += QChar( '$' );
     return rx;
 }
 #endif
