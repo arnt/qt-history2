@@ -6186,7 +6186,7 @@ int QWidget::releaseShortcut(const QKeySequence &key, int id)
 /*!
   \brief
 */
-bool QWidget::enableShortcut(bool enable, const QKeySequence &key, int id)
+int QWidget::enableShortcut(bool enable, const QKeySequence &key, int id)
 {
     Q_ASSERT(qApp);
     return qApp->d->shortcutMap.setShortcutEnabled(enable, this, key, id);
