@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#67 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#67 $");
 
 
 /*!
@@ -85,15 +85,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#66 $");
 
   Read-write combo boxes offer four policies for dealing with typed
   input: <ul> <li> \c NoInsertion means to simply emit the activated()
-  signal, <li> \c AtEnd means to insert the string at the end of the
-  combo box and emit activated(), <li> \c AtBeginning means to insert
-  the string at the beginning of the combo box and emit activated(),
-  and finally <li> \c AtCurrent means to replace the previously
-  selected item with the typed string, and emit activated(). </ul> If
-  inserting the typed string would cause the combo box to breach its
-  content size limit, the item at the other end of the list is
-  deleted.  The default insertion policy is \c AtEnd, you can change
-  it using setInsertionPolicy().
+  signal, <li> \c AtBottom means to insert the string at the bottom of
+  the combo box and emit activated(), <li> \c AtTop means to insert
+  the string at the top of the combo box and emit activated(), and
+  finally <li> \c AtCurrent means to replace the previously selected
+  item with the typed string, and emit activated(). </ul> If inserting
+  the typed string would cause the combo box to breach its content
+  size limit, the item at the other end of the list is deleted.  The
+  default insertion policy is \c AtBottom, you can change it using
+  setInsertionPolicy().
 
   A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
@@ -236,7 +236,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->current               = 0;
     d->maxCount              = INT_MAX;
     d->sizeLimit	     = 10;
-    d->p = AtEnd;
+    d->p = AtBottom;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
     d->arrowDown             = FALSE;
@@ -276,7 +276,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->current = 0;
     d->maxCount = INT_MAX;
     d->sizeLimit = 10;
-    d->p = AtEnd;
+    d->p = AtBottom;
     d->autoresize = FALSE;
     d->poppedUp = FALSE;
     d->arrowDown = FALSE;
@@ -570,6 +570,8 @@ void QComboBox::setCurrentItem( int index )
 	return;
     }
     d->current = index;
+    if ( d->ed )
+	d->ed->setText( text( index ) );
     currentChanged();
 }
 
@@ -1355,12 +1357,12 @@ QComboBox::Policy QComboBox::insertionPolicy() const
   The insertion policy governs where items typed in by the user are
   inserted in the list.  The possible values are <ul> <li> \c
   NoInsertion: Strings typed by the user aren't inserted anywhere <li>
-  \c AtBeginning: Strings typed by the user are inserted before the
-  first item in the list <li> AtCurrent: Strings typed by the user
-  replace the last selected item <li> AtEnd: Strings typed by the user
-  are inserted at the end of the list. </ul>
+  \c AtTop: Strings typed by the user are inserted above the top item
+  in the list <li> AtCurrent: Strings typed by the user replace the
+  last selected item <li> AtBottom: Strings typed by the user are
+  inserted at the bottom of the list. </ul>
 
-  The default insertion policy is \c AtEnd.
+  The default insertion policy is \c AtBottom.
 
   \sa policy()
 */
@@ -1388,14 +1390,14 @@ void QComboBox::returnPressed()
 		emit activated( s );
 	    }
 	    break;
-	case AtBeginning:
+	case AtTop:
 	    if ( count() == d->maxCount )
 		removeItem( count() - 1 );
 	    insertItem( s, 0 );
 	    emit activated( count()-1 );
 	    emit activated( s );
 	    break;
-	case AtEnd:
+	case AtBottom:
 	    if ( count() == d->maxCount )
 		removeItem( 0 );
 	    insertItem( s );
