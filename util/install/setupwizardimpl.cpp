@@ -347,6 +347,8 @@ void SetupWizardImpl::doFinalIntegration()
 		outstream << "FALSE" << endl;
 		outstream << "SIGNAL" << endl;
 		outstream << "SLOT" << endl;
+		outstream << "signals:" << endl;
+		outstream << "slots:" << endl;
 		usertype.close();
 	    }
 	}
