@@ -283,7 +283,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), all addresses failed.");
 #endif
-            q->setState(Qt::UnconnectedState);
+            state = Qt::UnconnectedState;
             socketError = Qt::ConnectionRefusedError;
             socketErrorString = QT_TRANSLATE_NOOP(QAbstractSocket,
                                                   "Connection refused");
