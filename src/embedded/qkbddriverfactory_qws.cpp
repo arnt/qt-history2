@@ -142,8 +142,8 @@ QStringList QKbdDriverFactory::keys()
 	list << "SL5000";
 #endif
 #ifndef QT_NO_QWS_KBD_YOPY
-    if ( !list.contains( "SL5000" ) )
-	list << "SL5000";
+    if ( !list.contains( "YOPY" ) )
+	list << "YOPY";
 #endif
 #ifndef QT_NO_QWS_KBD_VR41
     if ( !list.contains( "VR41xx" ) )
