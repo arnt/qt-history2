@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#14 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#15 $
 **
 ** Definition of the QtTextView class
 **
@@ -58,8 +58,6 @@ public:
 
     bool isAnchor() const;
 
-
-
     QtTextCharFormat formatWithoutCustom();
 
     int addRef();
@@ -73,6 +71,7 @@ protected:
     QString key;
     int ref;
     int logicalFontSize;
+    int stdPointSize;
     QString anchor_href;
     QString anchor_name;
 

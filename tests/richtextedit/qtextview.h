@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#8 $
 **
 ** Definition of the QtTextView class
 **
@@ -78,6 +78,11 @@ public:
     QString documentTitle() const;
 
     int heightForWidth( int w ) const;
+    
+    void append( const QString& text );
+    
+public slots:
+    void temporary();
 
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
@@ -88,6 +93,7 @@ protected:
     void viewportMouseReleaseEvent( QMouseEvent* );
     void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * );
+    void showEvent( QShowEvent* );
 
 protected:
 
@@ -103,6 +109,7 @@ private:
     friend class QtRichText;
     QtTextViewData* d;
     void paragraphChanged( QtTextParagraph* );
+    void updateLayout( int ymax = -1 );
 };
 
 

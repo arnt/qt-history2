@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#6 $
 **
 ** Implementation of the QtTextView class
 **
@@ -376,7 +376,7 @@ void QtTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 QString QtTextBrowser::anchorAt(const QPoint& pos)
 {
     QPainter p( viewport() );
-    return richText().anchorAt( &p, contentsX() + pos.x(), 
+    return richText().anchorAt( &p, contentsX() + pos.x(),
 					   contentsY() + pos.y(),
 					   contentsY(),
 					   contentsY() + visibleHeight() );

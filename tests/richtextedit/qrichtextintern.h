@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#19 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#20 $
 **
 ** Internal rich text classes
 **
@@ -59,17 +59,6 @@ class QtTextRichString
 	    width = -1;
 	};
 	~Item() {
-	};
-	Item( const Item& other) {
-	    c = other.c;
-	    format = other.format;
-	    width = other.width;
-	};
-	Item& operator=( const Item& other) {
-	    c = other.c;
-	    format = other.format;
-	    width = other.width;
-	    return *this;
 	};
 	int width;
 	QString c;
@@ -146,6 +135,7 @@ public:
     QtTextParagraph* nextInDocument();
     QtTextParagraph* prevInDocument();
 
+    QtTextParagraph* lastChild();
 
     inline QMap<QString, QString> attributes()  const
     {
@@ -403,9 +393,8 @@ class QtTextCursor {
     bool pastEndOfLine() const;
     void gotoParagraph( QPainter* p, QtTextParagraph* b );
 
-    void initFlow( QtTextFlow* frm, int w  );
     void initParagraph( QPainter* p, QtTextParagraph* b );
-    bool doLayout( QPainter* p, int ymax = -1 );
+    bool updateLayout( QPainter* p, int ymax = -1 );
 
 
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
@@ -422,7 +411,6 @@ class QtTextCursor {
 
     void updateCharFormat( QPainter* p, const QFontMetrics& fm );
 
-    int y_;
     int y() const { return y_; }
     QtTextCharFormat* currentFormat();
     int width;
@@ -451,6 +439,9 @@ class QtTextCursor {
     int xline;
     QtTextParagraph* xline_paragraph;
     int xline_current;
+    
+private:
+    int y_;
 
 };
 
@@ -511,13 +502,15 @@ public:
     void doLayout( QPainter* p, int nwidth );
     QString anchorAt( QPainter* p, int x, int y, int fromY = 0, int toY = -1 ) const;
 
-
+    void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
+    
 
 private:
     void init( const QString& doc, int& pos );
 
     bool parse (QtTextParagraph* current, const QStyleSheetItem* cursty, QtTextParagraph* dummy,
 		QtTextCharFormat fmt, const QString& doc, int& pos);
+    
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);

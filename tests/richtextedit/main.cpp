@@ -4,6 +4,9 @@
 #include <qtextstream.h>
 #include "qtextview.h"
 #include "qtextbrowser.h"
+#include <qvbox.h>
+#include <qpushbutton.h>
+
 
 int main( int argc, char* argv[]  )
 {
@@ -39,14 +42,18 @@ int main( int argc, char* argv[]  )
     style->setMargin( QStyleSheetItem::MarginLeft, 80 );
     style->setMargin( QStyleSheetItem::MarginRight, 40 );
 
-    QtTextBrowser v;
-    v.setTextFormat( QtTextEdit::RichText );
-    //v.setFont( QFont("times", 12 ) );
-    v.resize( 800, 600 );
+    QVBox box;
+
+    QPushButton* b = new QPushButton( "Push me", &box, 0 );
+    QtTextBrowser*  v = new QtTextBrowser( &box );
+    v->setFocus();
+    b->connect( b, SIGNAL( clicked() ), v, SLOT( temporary() ) );
+    v->setTextFormat( QtTextEdit::RichText );
+    //v->setFont( QFont("times", 12 ) );
     QBrush paper;
      paper.setPixmap( QPixmap( "marble.xpm" ) );
-//     v.setPaper( paper );
-    a.setMainWidget( &v );
+//     v->setPaper( paper );
+    a.setMainWidget( &box );
 
 
     if ( argc > 1 ) {
@@ -55,18 +62,18 @@ int main( int argc, char* argv[]  )
 	    QTextStream ts( &f );
 	    QString txt = ts.read();
 	    f.close();
-	    v.setText(txt, argv[1] );
+	    v->setText(txt, argv[1] );
 	}
 	else {
-	    v.setText("Could not open file");
+	    v->setText("Could not open file");
 	}
     } else {
 	qDebug("set text ");
-	v.setText("No filename specified");
+	v->setText("No filename specified");
     }
 //     QtTextEdit second;
 //     second.setView( &v );
-    v.show();
+    box.show();
 //     second.show();
     return a.exec();
 }

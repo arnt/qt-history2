@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#24 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#25 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -282,8 +282,6 @@ QString QtRichText::context() const
     return contxt;
 }
 
-static int qt_link_count = 0;
-
 #define ENSURE_ENDTOKEN     if ( curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
 		     || curstyle->displayMode() == QStyleSheetItem::DisplayListItem ){ \
 		    (dummy?dummy:current)->text.append( "*", fmt ); \
@@ -308,6 +306,20 @@ static int qt_link_count = 0;
 		    it->next = dummy; \
 		    dummy->prev = it; \
 		}
+
+void QtRichText::append( const QString& txt, const QMimeSourceFactory* factory, const QtStyleSheet* sheet  )
+{
+    // for access during parsing only
+    factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
+    // for access during parsing only
+    sheet_ = sheet? sheet : (QtStyleSheet*)QtStyleSheet::defaultSheet();
+    int pos = 0;
+    lastChild()->invalidateLayout(); // fix bottom border
+    parse( this, style, 0, format, txt, pos );
+    // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
+}
 
 
 bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyle, QtTextParagraph* dummy,
@@ -380,8 +392,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		if ( current == this && !child && text.isEmpty() )
 		    attributes_ = attr; // propagate attributes
 		
-		if ( !current->text.isEmpty()
-		     || ( !current->child && subparagraph->flow() != flow_ )  ){
+		if ( !current->text.isEmpty() ){
 		    dummy = new QtTextParagraph( current, formats, fmt, nullstyle );
 		    dummy->text = current->text;
 		    dummy->text.append( "*", fmt );
@@ -426,11 +437,8 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 	    }
 	    else { // containers and empty tags
 		// TODO: check empty tags and custom tags in stylesheet
-		if ( nstyle->isAnchor() ) {
-		    qt_link_count++;
-		}
-		// for now: assume container
-		if ( parse( current, nstyle, dummy, fmt.makeTextFormat( nstyle, attr ), doc, pos ) ) {
+		
+		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos ) ) {
 		    CLOSE_TAG
 		}
 	    }
@@ -477,7 +485,6 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 
     QList<QtTextTableCell> multicells;
 
-    qDebug("parse table");
     QString tagname;
     (void) eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
@@ -487,7 +494,6 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 		tagname = parseCloseTag( doc, pos );
 		if ( tagname == "table" ) {
 		    pos = beforePos;
-		    qDebug("table done");
 		    return table;
 		}
 	    } else {
@@ -519,7 +525,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 			      contxt, *factory_, sheet_, doc, pos );
 			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
 			    multicells.append( cell );
-			qDebug("add cell %d %d (%d %d )", row, col, cell->rowspan(), cell->colspan() );
+// 			qDebug("add cell %d %d (%d %d )", row, col, cell->rowspan(), cell->colspan() );
 			col += cell->colspan()-1;
 		    }
 		}
@@ -529,7 +535,6 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 	    ++pos;
 	}
     }
-    qDebug("table done");
     return table;
 }
 
@@ -816,13 +821,8 @@ void QtRichText::draw(QPainter* p, int x, int y,
    QtTextCursor tc( *this );
    QtTextParagraph* b = this;
    QFontMetrics fm( p->fontMetrics() );
-   QtTextFlow*  tmpflow = 0;
    while ( b ) {
        tc.gotoParagraph( p, b );
-       if ( tc.flow != tmpflow ) {
-	   tmpflow = tc.flow;
-	   tmpflow->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
-       }
        do {
 	   tc.makeLineLayout( p, fm );
 	   QRect geom( tc.lineGeometry() );
@@ -832,15 +832,17 @@ void QtRichText::draw(QPainter* p, int x, int y,
        while ( tc.gotoNextLine( p, fm ) );
        b = tc.paragraph->nextInDocument();
    }
+   flow()->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
 }
 
 
 // convenience function
 void QtRichText::doLayout( QPainter* p, int nwidth ) {
     QtTextCursor fc( *this );
-    fc.initFlow( flow(), nwidth );
+    invalidateLayout();
+    flow()->initialize( nwidth );
     fc.initParagraph( p, this );
-    fc.doLayout( p );
+    fc.updateLayout( p );
 }
 
 // convenience function
@@ -853,7 +855,7 @@ QString QtRichText::anchorAt( QPainter* p, int x, int y, int fromY, int toY ) co
     while ( b && ( toY < 0 || tc.y() <= toY ) ) {
 	if ( b && b->dirty ){
 	    tc.initParagraph( p, b );
-	    tc.doLayout( p, toY );
+	    tc.updateLayout( p, toY );
 	}
 
 	tc.gotoParagraph( p, b );
@@ -1064,6 +1066,17 @@ QtTextParagraph* QtTextParagraph::prevInDocument()
 }
 
 
+QtTextParagraph* QtTextParagraph::lastChild()
+{
+    if ( !child )
+	return this;
+    QtTextParagraph* b = child;
+    while ( b->next )
+	b = b->next;
+    return b->lastChild();
+}
+
+
 QtTextFlow* QtTextParagraph::flow()
 {
     if ( !flow_ ) {
@@ -1222,15 +1235,6 @@ QtTextCursor::~QtTextCursor()
 {
 }
 
-
-
-void QtTextCursor::initFlow( QtTextFlow* frm, int w )
-{
-    flow = frm;
-    y_ = 0;
-    flow->initialize( w );
-    //flow->initializeMe( this );
-}
 
 /*!
   Like gotoParagraph() but also initializes the paragraph
@@ -1556,8 +1560,7 @@ bool QtTextCursor::rightOneItem( QPainter* p )
 	QtTextParagraph* next = paragraph->nextInDocument();
 	if ( next ) {
 	    if ( next->dirty ) {
-		qDebug("rightOneItem: dirty, make layout**************");
-		doLayout( p );
+		updateLayout( p );
 	    }
 	    gotoParagraph( p, next );
 	    makeLineLayout( p, fm );
@@ -1914,20 +1917,31 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     }
 }
 
-bool QtTextCursor::doLayout( QPainter* p, int ymax )
+
+/*\internal
+  
+  Note: The cursor's paragraph needs to be initialized
+ */
+bool QtTextCursor::updateLayout( QPainter* p, int ymax )
 {
     QFontMetrics fm( p->fontMetrics() );
     QtTextParagraph* b = paragraph;
     gotoParagraph( p, b );
-    while ( b && ( ymax < 0 || y_ < ymax ) ) {
-	do {
-	    makeLineLayout( p, fm );
-	}
-	while ( gotoNextLine( p, fm ) );
+    while ( b && ( ymax < 0 || y_ <= ymax ) ) {
+	
+	if ( !b->dirty )
+	    y_ = b->y + b->height;
+	else do {
+		makeLineLayout( p, fm );
+	} while ( gotoNextLine( p, fm ) );
+
 	b = b->nextInDocument();
 	if ( b ) {
-	    initParagraph( p, b );
-	    paragraph->dirty = FALSE;
+	    if ( b->dirty ) {
+		initParagraph( p, b );
+	    } else {
+		gotoParagraph( p, b );
+	    }
 	}
     }
     return b == 0;
@@ -2005,7 +2019,7 @@ void QtTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 	widthUsed = w;
 
 
-    if ( pages ) { // check pages
+    if ( FALSE && pages ) { // check pages
 	int ty = yp;
 	int yinpage = ty % pagesize;
  	if ( yinpage < 2 )
@@ -2017,7 +2031,7 @@ void QtTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 
     if ( yp + h > height )
 	height = yp + h;
-    
+
 }
 
 void QtTextFlow::registerFloatingItem( QtTextCustomItem* item, bool right   )
@@ -2246,8 +2260,9 @@ bool QtTextTableCell::isEmpty() const
 }
 void QtTextTableCell::setGeometry( const QRect& r)
 {
-    if ( r.width() != richtext->flow()->width )
+    if ( r.width() != richtext->flow()->width ) {
 	richtext->doLayout( painter(), r.width() );
+    }
     geom = r;
 }
 QRect QtTextTableCell::geometry() const
