@@ -1789,7 +1789,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(widget) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool)))
+							    !tlw->testWFlags(WStyle_Tool))) 
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -1800,7 +1800,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
-	    app->setActiveWindow(NULL);
+	    if(widget && widget == active_window)
+		app->setActiveWindow(NULL);
 	} else {
 	    handled_event = FALSE;
 	}
@@ -1811,6 +1812,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
 		QEvent ev(QEvent::Clipboard);
 		QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
+	    }
+
+	    WindowPtr wp = ActiveNonFloatingWindow();
+	    if(wp && !unhandled_dialogs.find((void *)wp)) {
+		if(QWidget *tmp_w = QWidget::find((WId)wp)) 
+		    app->setActiveWindow(tmp_w);
 	    }
 	} else if(ekind == kEventAppDeactivated) {
 	    while(app->inPopupMode())
