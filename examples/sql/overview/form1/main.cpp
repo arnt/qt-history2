@@ -50,10 +50,10 @@ FormDialog::FormDialog()
     staffCursor.next();
 
     QSqlForm sqlForm( this );
+    sqlForm.setRecord( staffCursor.primeUpdate() );
     sqlForm.insert( forenameDisplay, "forename" );
     sqlForm.insert( surnameDisplay, "surname" );
     sqlForm.insert( salaryEdit, "salary" );
-    sqlForm.setRecord( staffCursor.primeUpdate() );
     sqlForm.readFields();
 }
 
@@ -84,7 +84,7 @@ bool create_connections()
 	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
     // create a named connection to oracle
@@ -97,10 +97,10 @@ bool create_connections()
 	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
-    return true;
+    return TRUE;
 }
 
 

@@ -31,7 +31,7 @@ class CustomEdit : public QLineEdit
 	QString upperLine() const;
 	void setUpperLine( const QString &line );
     public slots:
-	void slotChanged( const QString &line );
+	void changed( const QString &line );
     private:
 	QString upper_line;
 };
@@ -44,7 +44,7 @@ class FormDialog : public QDialog
 	FormDialog();
 	~FormDialog();
     public slots:
-	void slotSave();
+	void save();
     private:
 	QSqlCursor *staffCursor;
 	QSqlForm *sqlForm;

@@ -28,7 +28,7 @@ class FormDialog : public QDialog
 	FormDialog();
 	~FormDialog();
     public slots:
-	void slotSave();
+	void save();
     private:
 	QSqlCursor *staffCursor;
 	QSqlForm *sqlForm;

@@ -53,7 +53,7 @@ bool create_connections()
 	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
     QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
@@ -65,8 +65,8 @@ bool create_connections()
 	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
-    return true;
+    return TRUE;
 }

@@ -19,7 +19,7 @@ FormDialog::FormDialog()
     QLabel	*salaryLabel   = new QLabel( "Salary:", this );
     QLineEdit	*salaryEdit    = new QLineEdit( this );
     QPushButton *saveButton    = new QPushButton( "&Save", this );
-    connect( saveButton, SIGNAL(clicked()), this, SLOT(slotSave()) );
+    connect( saveButton, SIGNAL(clicked()), this, SLOT(save()) );
 
     QGridLayout *grid = new QGridLayout( this );
     grid->addWidget( forenameLabel, 0, 0 );
@@ -37,10 +37,10 @@ FormDialog::FormDialog()
     staffCursor->first();
 
     sqlForm = new QSqlForm( this );
+    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->insert( forenameEdit, "forename" );
     sqlForm->insert( surnameEdit, "surname" );
     sqlForm->insert( salaryEdit, "salary" );
-    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->readFields();
 }
 
@@ -51,7 +51,7 @@ FormDialog::~FormDialog()
 }
 
 
-void FormDialog::slotSave()
+void FormDialog::save()
 {
     sqlForm->writeFields();
     staffCursor->update();
@@ -87,7 +87,7 @@ bool create_connections()
 	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
     QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
@@ -99,10 +99,10 @@ bool create_connections()
 	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
-    return true;
+    return TRUE;
 }
 
 

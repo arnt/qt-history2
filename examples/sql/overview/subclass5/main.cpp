@@ -14,25 +14,16 @@
 InvoiceItemCursor::InvoiceItemCursor() : 
     QSqlCursor( "invoiceitem" )
 {
-    setDisplayLabel( "quantity", "Quantity" );
-    setDisplayLabel( "paiddate", "Date" );
-    setAlignment( "quantity", Qt::AlignRight );
-
     QSqlField productName( "productname", QVariant::String );
     append( productName );
-    setDisplayLabel( "productname", "Product" );
     setCalculated( productName.name(), TRUE );
 
     QSqlField productPrice( "price", QVariant::Double );
     append( productPrice );
-    setDisplayLabel( "price", "Price" );
-    setAlignment( "price", Qt::AlignRight );
     setCalculated( productPrice.name(), TRUE );
 
     QSqlField productCost( "cost", QVariant::Double );
     append( productCost );
-    setDisplayLabel( "cost", "Cost" );
-    setAlignment( "cost", Qt::AlignRight );
     setCalculated( productCost.name(), TRUE );
 }
 
@@ -116,7 +107,7 @@ bool create_connections()
 	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
     // create a named connection to oracle
@@ -129,10 +120,10 @@ bool create_connections()
 	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
-    return true;
+    return TRUE;
 }
 
 
