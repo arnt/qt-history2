@@ -2188,7 +2188,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     : QListView( e ), editor( e )
 {
     header()->setMovingEnabled( FALSE );
-    viewport()->setBackgroundMode( PaletteBackground );
+    header()->setFullSize( TRUE );
     setResizePolicy( QScrollView::Manual );
     addColumn( tr( "Property" ) );
     addColumn( tr( "Value" ) );
