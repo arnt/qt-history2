@@ -207,12 +207,16 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
-    if(vals.right(1) == "}") {
+    int rbraces = vals.contains('}'), lbraces = vals.contains('{');
+    if(scope_block && rbraces - lbraces == 1) {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(), 
 		  parser.line_no, scope_block);
 	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
 	scope_block--;
 	vals.truncate(vals.length()-1);
+    } else if(rbraces != lbraces) {
+	warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
+		 vals.latin1(), parser.file.latin1(), parser.line_no);
     }
     doVariableReplace(vals, place);
 
