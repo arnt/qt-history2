@@ -53,8 +53,8 @@ QMAKE_LFLAGS_CONSOLE_DLL= -Gi -ap -Tpd c0d32.obj
 QMAKE_LFLAGS_WINDOWS_DLL= -Gi -aa -Tpd c0d32.obj
 
 QMAKE_LIBS              = import32.lib
-QMAKE_LIBS_RT           = cw32.lib
-QMAKE_LIBS_RTMT         = cw32mt.lib
+QMAKE_LIBS_RT           = cw32i.lib
+QMAKE_LIBS_RTMT         = cw32mti.lib
 QMAKE_LIBS_CONSOLE	=
 QMAKE_LIBS_WINDOWS      =
 QMAKE_LIBS_QT		= $(QTDIR)\lib\qt.lib
