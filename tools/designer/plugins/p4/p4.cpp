@@ -5,6 +5,7 @@
 #include <qlistview.h>
 #include <qheader.h>
 #include <qmultilineedit.h>
+#include <qapplication.h>
 #include "diffdialog.h"
 #include "submitdialog.h"
 
@@ -237,7 +238,7 @@ P4Submit::P4Submit( const QString &filename )
 
 bool P4Submit::execute()
 {
-    SubmitDialog *dialog = new SubmitDialog( 0, 0, TRUE );
+    SubmitDialog *dialog = new SubmitDialog( qApp->mainWidget(), 0, TRUE );
 
     QDictIterator<P4Info> it( P4Info::files );
     while ( it.current() ) {
@@ -387,7 +388,7 @@ void P4Diff::processExited()
 	    diff = diff.replace( QRegExp( "\\n\\&lt;" ), "</pre><font color=\"red\"><pre>" );
 	    diff = diff.replace( QRegExp( "\\n\\&gt;" ), "</pre><font color=\"blue\"><pre>" );
 	    diff = "<font face=\"Courier\">" + diff + "</font>";
-	    DiffDialog* dialog = new DiffDialog( 0, 0, TRUE );
+	    DiffDialog* dialog = new DiffDialog( qApp->mainWidget(), 0, TRUE );
 	    dialog->setCaption( caption );
 	    dialog->view->setText( diff );
 	    dialog->exec();
