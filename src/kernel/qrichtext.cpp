@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#30 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1951,9 +1951,12 @@ void QTextCursor::end(QPainter* p, bool select)
 
 QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
-		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
-    :QTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
+		      int margin,  const QMimeSourceFactory* factory,
+		      const QStyleSheet* sheet  )
+    : QTextBox( 0 )
 {
+    style = new QStyleSheetItem( 0, QString::fromLatin1("") );
+    base = (QStyleSheetItem*)style;
     isRoot = 1;
     contxt = context;
 
