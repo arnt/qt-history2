@@ -100,7 +100,7 @@ struct WMStyleFactoryItem {
     { KDE2_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "KDE2"), new_KDE2_WMDecorations },
 #endif // QT_NO_QWS_KDE2_WM_STYLE
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
-    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "BEOS"), new_BeOS_WMDecorations },
+    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "BeOS"), new_BeOS_WMDecorations },
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
     { Hydro_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Hydro"), new_Hydro_WMDecorations },
