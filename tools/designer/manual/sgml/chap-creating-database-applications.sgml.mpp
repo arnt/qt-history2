@@ -701,7 +701,7 @@ bool createConnections()
 	<sidebar><title>Using the Table Editor</>
 	<para>
 	<figure><title>Edit Table Dialog</title>
-	\img[edit-table-dialog]
+	\img[edit-dbtable-dialog]
 	</figure>
 	\class[QDataTable]s are created and set up using the SQL Table Wizard. Like
 	any other \qd widget their properties may be changed in the

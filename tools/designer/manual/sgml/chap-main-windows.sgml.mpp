@@ -190,16 +190,15 @@ buttons.
 	    associate the action with. The iconSet is also used for the
 	    toolbar button if you associate the action with a toolbar.
 	    Click the ellipsis button (<keycap>...</>) to invoke the
-	    Choose a Pixmap dialog. The pixmap we require is not in the
+	    Edit Pixmap Collection dialog. The pixmap we require is not in the
 	    default collection. Click the \button[Add] button and a file
 	    dialog will appear. The icons we require are in the Qt
 	    examples directory, \f[qt/examples/textedit/]. Navigate to
 	    the textedit directory and select the \f[textbold.xpm] file.
 	    Click the new textbold icon in the pixmap collection then
 	    click \ok. <!-- (See <xref linkend="choose-a-pixmap-dialog">
-	    "Choose a Pixmap Dialog" and <xref
-	    linkend="the-pixmap-collection-dialog"> "Pixmap
-	    Collection Dialog".) -->
+	    "Edit Pixmap Collection Dialog" and <xref
+	    linkend="the-pixmap-collection-dialog"> "Edit Pixmap Collection Dialog".) -->
 	    \P\Item
 	    
 	    \item\p

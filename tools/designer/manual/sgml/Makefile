@@ -6,15 +6,9 @@ targets = chap-preface.sgml \
 	chap-customizing.sgml \
 	chap-custom-controls.sgml \
 	chap-creating-database-applications.sgml \
-	chap-02.sgml \
-	chap-03.sgml \
-	chap-04.sgml \
 	chap-06.sgml \
 	chap-07.sgml \
 	chap-08.sgml \
-	chap-09.sgml \
-	chap-10.sgml \
-	chap-useful-techniques.sgml \
 	manual.sgml
 
 manual: $(targets)
@@ -28,6 +22,8 @@ manual.ps: $(targets)
 	
 manual.html: $(targets)
 	sgmltools -b html manual.sgml > /dev/null 
+	./fiximg manual/*.html
+	ln -s /home/mark/p4/qt/tools/designer/manual/images manual/images
 
 clean:
 	rm -f $(targets) *.ps
