@@ -425,7 +425,7 @@ void Moc::parse()
         Token t = next();
         if (t == NAMESPACE) {
             int rewind = index;
-            if (test(IDENTIFIER)) {
+            if (test(IDENTIFIER) && !test(SEMIC)) {
                 NamespaceDef def;
                 def.name = lexem();
                 next(LBRACE);
