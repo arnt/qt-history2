@@ -1298,11 +1298,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	int l = 0, r;
 	QCString apn = appName;
 	int apnl = apn.length();
+	int resl = res.length();
 
-	while( (unsigned) l < res.length()) {
-	    r = res.find( "\n", l );
+	while (l < resl) {
+	    r = res.find( '\n', l );
 	    if ( r < 0 )
-		r = res.length();
+		r = resl;
 	    while ( isspace(res[l]) )
 		l++;
 	    bool mine = FALSE;
