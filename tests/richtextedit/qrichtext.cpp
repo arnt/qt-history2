@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#9 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#10 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -168,7 +168,7 @@ QtTextRow::QtTextRow( QPainter* p, QtTextRow* row, QFontMetrics & fm,
     prev = row;
     if ( prev )
 	prev->next = this;
-    
+
     x_ = y_ = width = height = base = 0;
     fill = 0;
     first = last = 0;
@@ -193,7 +193,7 @@ QtTextRow::QtTextRow( QPainter* p, QtTextRow* row, QFontMetrics &fm,
     prev = row;
     if ( prev )
 	prev->next = this;
-    
+
     x_ = y_ = width = height = base = 0;
     dirty = TRUE;
 
@@ -457,7 +457,7 @@ void QtTextRow::indexAt(QPainter* p, int xpos, int &index, int& offset )
 		    offset++;
 	    }
 	    break;
-	} 
+	}
 	
 	if ( i == last ) {
 	    offset = c.length()-1;
@@ -1134,7 +1134,7 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
 	height = 0;
 	return;
     }
-    
+
     // page crap
     int pagesize = 600;
     int pagemargin = 20;
@@ -1209,15 +1209,15 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
 				 alignment() );
 	    if ( !rows )
 		rows = row;
-	    
-	    
+	
+	
 	    // page crap
 	    int yinpage = (gy + h ) % pagesize;
 	    if ( yinpage < pagemargin )
 		h = ( (gy+h)/pagesize) * pagesize + pagemargin - gy;
 	    else  if ( yinpage + row->height  > pagesize - pagemargin )
 		h = ( (gy+h)/pagesize) * pagesize + pagesize + pagemargin - gy;
-	    
+	
 	    row->move (marginleft + label_offset, h );
 	    h += row->height;
 	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
@@ -1272,7 +1272,7 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
     }
 
     delete oldRows;
-    
+
     // collapse the bottom margin
     if ( !next && parent ) {
 	// ignore bottom margin
@@ -1375,8 +1375,11 @@ QtBox* QtBox::prevInDocument()
 {
     if ( prev ){
 	QtBox* b = prev;
-	while ( b->child )
+	while ( b->child ) {
 	    b = b->child;
+	    while ( b->next )
+		b = b->next;
+	}
 	return b;
     }
     if ( parent ) {
@@ -1396,7 +1399,7 @@ QtTextCursor::QtTextCursor(QtRichText& doc)
     offset = 0;
 
     x = y = height = 0;
-    
+
     xline = 0;
     yline = 0;
     ylineOffsetClean = FALSE;
@@ -1485,7 +1488,7 @@ void QtTextCursor::goTo(QPainter* p, int xarg, int yarg, bool select )
     int oby = document->y;
     QtBox* b = document;
     do {
-	while ( row && !row->intersects( xarg-obx, yarg-oby, 0, 0 ) ) 
+	while ( row && !row->intersects( xarg-obx, yarg-oby, 0, 0 ) )
 	    row = row->next;
 	if ( !row )
 	    break;
