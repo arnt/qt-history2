@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $
+** $Id: examples.doc,v 2.10 1997/09/30 13:20:05 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.10 1997/09/30 13:20:05 hanord Exp $";
 #endif
 
 
@@ -27,7 +27,7 @@ static char ident[] = "$Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $
 
 /*! \example biff/biff.cpp
 
-  <h1 align=center>Biff (unix only)</a>
+  <h1 align=center>Biff (UNIX only)</h1>
 
   Biff is a simple graphical program to indicate whether there is new
   mail; it looks exactly like xbiff but is much shorter.
@@ -83,7 +83,7 @@ static char ident[] = "$Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $
 
 /*! \example desktop/desktop.cpp
 
-  <h1 align=center>Painting on the Desktop</a>
+  <h1 align=center>Painting on the Desktop</h1>
 
   The desktop demo contains three routines, each of which draws
   something on the desktop.  It does some nice stuff with QPainter,
@@ -135,7 +135,7 @@ static char ident[] = "$Id: examples.doc,v 2.9 1997/09/29 15:16:28 agulbra Exp $
 
 /*! \example life/life.cpp
 
-  <h1 align=center>Conway's Game of Life</a>
+  <h1 align=center>Conway's Game of Life</h1>
 
   We'll include just the main widget from Life; there are also a
   rudimentary main() and a dialog which wraps this widget in a QSlider
