@@ -547,8 +547,8 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 	    d->cleanup( TRUE );
 	    d->init( TRUE );
 	}
-    } else if (handleMap) { 
-    // this is called a couple of times for 
+    } else if (handleMap) {
+    // this is called a couple of times for
     // complex containers, but that doesn't really matter
     // as we get the handles back when we need them.
 	QMap<QString, HTHEME>::Iterator it;
@@ -1108,7 +1108,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
 	    if ( checkable ) {
 		// space for the checkmarks
-		maxpmw = QMAX( maxpmw, 20 );
+		maxpmw = qMax( maxpmw, 20 );
 	    }
 
 	    int checkcol = maxpmw;
@@ -2059,7 +2059,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			child = child->nextSibling();
 		    }
 
-		    if ( child && (child->height() > 0)) // there's a child, so move linebot to edge of rectangle
+		    // Expand line height to edge of rectangle if there's any
+		    // visible child below
+		    while ( child && child->height() <= 0)
+			child = child->nextSibling();
+		    if ( child )
 			linebot = r.height();
 
 		    if ( linetop < linebot ) {
@@ -2398,13 +2402,13 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 		h = windowsSepHeight;
 	    } else {
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height() + 2*windowsItemFrame);
+		    h = qMax(h, mi->pixmap()->height() + 2*windowsItemFrame);
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
+		    h = qMax(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
 			     2*windowsItemFrame);
 
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height() +
 			     2*windowsItemFrame);
 	    }

@@ -421,7 +421,7 @@ void QPocketPCStyle::polish(QWidget *w)
 	    ::qt_cast<QStatusBar*>(w) ||
 	    ::qt_cast<QDockWindow*>(w) ||
 	    ::qt_cast<QDockArea*>(w) ||
-	    ::qt_cast<QTable*>(w) || 
+	    ::qt_cast<QTable*>(w) ||
 	    ::qt_cast<QTabWidget*>(w)) {
 	    w->setBackgroundMode( Qt::PaletteBackground );
 	    QToolBar *tb = 0;
@@ -452,7 +452,7 @@ void QPocketPCStyle::unPolish(QApplication* app)
 void QPocketPCStyle::unpolish(QWidget *w)
 {
 #ifndef Q_OS_TEMP
-    if ( gotOriginal ) 
+    if ( gotOriginal )
 	unPolish( qApp );
 
     // Make widget grab "natural palette", which now
@@ -473,7 +473,7 @@ void QPocketPCStyle::polishPopupMenu(QPopupMenu* p)
 
 
 /*! \reimp */
-int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric, 
+int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 			        const QWidget *widget) const
 {
     int ret = 0;
@@ -508,7 +508,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 	    if ( !n ) { ret = space; break; } // Shortcut
 
 	    int thick = 6; // Magic constant to get 5 + 16 + 5
-	    if ( ticktype != QSlider::Both && 
+	    if ( ticktype != QSlider::Both &&
 		 ticktype != QSlider::NoMarks )
 		thick += PM_SLIDERLENGTH / 4; // pixelMetric( PM_SliderLength, sl ) / 4;
 
@@ -975,11 +975,11 @@ QRect QPocketPCStyle::subRect(SubRect	     subrect,
 	    if (dbtns->orientation() == Horizontal)
 		start = wrect.right() - fw;
 
-	    QDialogButtons::Button btns[] = 
-		   { 
+	    QDialogButtons::Button btns[] =
+		   {
 		     QDialogButtons::All, QDialogButtons::Reject, QDialogButtons::Accept, //reverse order (right to left)
-		     QDialogButtons::Apply, QDialogButtons::Retry, QDialogButtons::Ignore, 
-		     QDialogButtons::Abort, QDialogButtons::Help 
+		     QDialogButtons::Apply, QDialogButtons::Retry, QDialogButtons::Ignore,
+		     QDialogButtons::Abort, QDialogButtons::Help
 		   };
 
 	    for (unsigned int i = 0, cnt = 0; i < (sizeof(btns)/sizeof(btns[0])); i++) {
@@ -1319,7 +1319,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType	   contents,
 	}
 
 #ifndef QT_NO_DIALOGBUTTONS
-    case CT_DialogButtons: 
+    case CT_DialogButtons:
 	{
 	    const QDialogButtons *dbtns = (const QDialogButtons *)widget;
 	    int w = contentsSize.width(), h = contentsSize.height();
@@ -1472,7 +1472,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
     switch (complex)
     {
 #ifndef QT_NO_SCROLLBAR
-    case CC_ScrollBar: 
+    case CC_ScrollBar:
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 
@@ -1535,11 +1535,11 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
 		rect.setCoords(x1, 0, x2, height);
 	    else
 		rect.setCoords(0, x1, height, x2);
-	    return rect; 
+	    return rect;
 	}
 #endif // QT_NO_SCROLLBAR
 
-    case CC_SpinWidget: 
+    case CC_SpinWidget:
 	{
 	    const int PM_SPINBOXBUTTONWIDTH = 12;
 	    const int fw  = PM_SPINBOXFRAMEWIDTH; // pixelMetric( PM_SpinBoxFrameWidth, widget);
@@ -1584,7 +1584,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
 	}
 
 #ifndef QT_NO_SLIDER
-    case CC_Slider: 
+    case CC_Slider:
 	{
 	    const QSlider * sl = (const QSlider *) widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -1616,7 +1616,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
 
 
 #if !defined(QT_NO_TOOLBUTTON) && !defined(QT_NO_POPUPMENU)
-    case CC_ToolButton: 
+    case CC_ToolButton:
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 	    int mbi = PM_MENUBUTTONINDICATOR; // pixelMetric(PM_MenuButtonIndicator, widget);
@@ -1639,7 +1639,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
 #endif // QT_NO_TOOLBUTTON && QT_NO_POPUPMENU
 
 #ifndef QT_NO_TITLEBAR
-    case CC_TitleBar: 
+    case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 	    const int controlTop = 2;
@@ -1687,7 +1687,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl	 complex,
 	    case SC_TitleBarSysMenu:
 		return QRect( 3, controlTop, controlHeight, controlHeight);
 	    }
-	    break; 
+	    break;
 	}
 #endif //QT_NO_TITLEBAR
 
@@ -1717,12 +1717,12 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     static const QCOORD tick[18]       = {  3, 6,    6, 9,   11, 4,   11, 5,    6,10,    3, 7,    3, 8,    6,11,   11,6  };
     static const QCOORD arrowUp[16]    = { -3, 1,    3, 1,   -2, 0,    2, 0,   -1,-1,    1,-1,    0,-2,    0,-2 };
     static const QCOORD arrowDown[16]  = { -3,-2,    3,-2,   -2,-1,    2,-1,   -1, 0,    1, 0,    0, 1,    0, 1 };
-    
+
     // ### positioning needs fixing
     static const QCOORD arrowRight[16] = { -2,-3,   -2, 3,   -1,-2,   -1, 2,    0,-1,    0, 1,    1, 0,    1, 0 };
     static const QCOORD arrowLeft[16]  = {  0,-3,    0, 3,   -1,-2,   -1, 2,   -2,-1,   -2, 1,   -3, 0,   -3, 0 };
     static const QCOORD *arrows[4]     = { arrowUp, arrowDown, arrowRight, arrowLeft };
-    
+
     // See PE_ArrowUp, PE_ArrowDown, PE_ArrowRight
     int arrow = 3;
 
@@ -1743,7 +1743,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    break;
 	}
 
-    case PE_DockWindowHandle: 
+    case PE_DockWindowHandle:
 	{
 	    p->fillRect( r, pal.background() );
 	    p->setPen( pal.mid() );
@@ -1766,7 +1766,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 		p->drawLine( 0, 4, 0, r.height() - 5 );
 	    else
 		p->drawLine( 4, 0, r.width() - 5, 0 );
-	    break; 
+	    break;
 	}
 
     case PE_PanelDockWindow:
@@ -1940,7 +1940,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 		p->drawLine( r.x() + 3, midy + 0, r.x() + r.width() - 4, midy + 0 );
 		p->drawLine( r.x() + 3, midy + 2, r.x() + r.width() - 4, midy + 2 );
 	    }
-	    break; 
+	    break;
 	}
 
     case PE_ArrowUp:
@@ -1949,13 +1949,13 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	arrow--; // Fall-through intended
     case PE_ArrowRight:
 	arrow--; // Fall-through intended
-    case PE_ArrowLeft: 
+    case PE_ArrowLeft:
 	{
 	    QPointArray a( 8, arrows[arrow] );
 	    a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
 	    p->setPen( (flags & Style_Down) ? pal.base() : pal.foreground() );
 	    p->drawLineSegments( a );         // draw arrow
-	    break; 
+	    break;
 	}
 
     // Windows Style ====================================================================
@@ -2036,7 +2036,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_CheckListController:
 	{
 	    p->drawPixmap(r, QPixmap((const char **)check_list_controller_xpm));
-	    break; 
+	    break;
 	}
 
 #ifndef QT_NO_LISTVIEW
@@ -2049,7 +2049,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    if(!item)
 		return;
 	    int x = r.x(), y = r.y();
-    
+
 	    static const QCOORD pts1[] = { 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };    // dark lines
 	    static const QCOORD pts2[] = { 2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };		    // black lines
 	    static const QCOORD pts3[] = { 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };	    // background lines
@@ -2077,7 +2077,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 		p->drawRect( x+5, y+4, 2, 4 );
 		p->drawRect( x+4, y+5, 4, 2 );
 	    }
-	    break; 
+	    break;
 	}
 #endif
 
@@ -2126,10 +2126,10 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    p->setPen(color1);
 	    p->setBrush(color1);
 	    p->drawEllipse(r);
-	    break; 
+	    break;
 	}
 
-    case PE_SizeGrip: 
+    case PE_SizeGrip:
 	{
 	    p->save();
 
@@ -2172,10 +2172,10 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    }
 
 	    p->restore();
-	    break; 
+	    break;
 	}
 
-    case PE_CheckMark: 
+    case PE_CheckMark:
 	{
 	    const int markW = r.width() > 7 ? 7 : r.width();
 	    const int markH = markW;
@@ -2210,7 +2210,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    }
 	    p->setPen( pal.text() );
 	    p->drawLineSegments( a );
-	    break; 
+	    break;
 	}
 
 #ifndef QT_NO_FRAME
@@ -2313,7 +2313,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 		p->setPen( pal.base() );
 		QPoint from = r.topLeft();
 		QPoint   to = r.topRight();
-		if ( flags & Style_Top ) { 
+		if ( flags & Style_Top ) {
 		    from = r.bottomLeft();
 		    to = r.bottomRight();
 		}
@@ -2330,7 +2330,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 		p->setPen( p->brush().color() );
 		QPoint from = r.topLeft();
 		QPoint   to = r.bottomLeft();
-		if ( flags & Style_Top ) { 
+		if ( flags & Style_Top ) {
 		    from += QPoint(0, 1);
 		} else {
 		    to   += QPoint(0,-1);
@@ -2732,7 +2732,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
     // Common Style =====================================================================
     // ### Not optimized yet...
 
-    case CE_MenuBarEmptyArea: 
+    case CE_MenuBarEmptyArea:
 	{
 	    p->fillRect( r, widget->palette().color(QPalette::Background) );
 	    break;
@@ -2983,7 +2983,7 @@ void QPocketPCStyle::drawControlMask(ControlElement	 control,
 
 
 /*! \reimp */
-void QPocketPCStyle::drawComplexControl(ComplexControl	    complex, 
+void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 					QPainter	   *p,
 					const QWidget	   *widget,
 					const QRect	   &r,
@@ -3014,7 +3014,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 		// Which button symbol?
 		pe = sw->buttonSymbols() == QSpinWidget::PlusMinus
 			? PE_SpinWidgetPlus : PE_ArrowUp;
-		
+
 		QRect re = sw->upRect();
 		// Button Up pressed?
 		if ( subActive == SC_SpinWidgetUp ) {
@@ -3155,11 +3155,12 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 		    child = child->nextSibling();
 		}
 
-		// Expand line height to edge of rectangle if there's a
-		// child, and it's visible
-		if ( child && (child->height() > 0) ) {
+		// Expand line height to edge of rectangle if there's any
+		// visible child below
+		while ( child && child->height() <= 0)
+		    child = child->nextSibling();
+		if ( child )
 		    linebot = r.height();
-		}
 
 		if ( linetop < linebot ) {
 		    dotlines[c++] = QPoint( bx, linetop );
@@ -3342,7 +3343,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 		bool tickBelow     = sl->tickmarks() == QSlider::Below;
 
 		QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle, opt );
-		int x1 = re.x(),     y1 = re.y(), 
+		int x1 = re.x(),     y1 = re.y(),
 		    wi = re.width(), he = re.height();
 		int x2 = x1 + wi - 1;
 		int y2 = y1 + he - 1;
@@ -3525,7 +3526,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 	}
 #endif // QT_NO_SLIDER
 
-	
+
     // Common Style =====================================================================
     // ### Not optimized yet...
 
