@@ -12,7 +12,8 @@
 **
 ****************************************************************************/
 
-/*! \page xml.html
+/*! 
+    \page xml.html
 
     \title XML Module
 
@@ -164,19 +165,19 @@
     \header \i Handler class \i Description
     \row \i \l QXmlContentHandler
          \i Reports events related to the content of a document (e.g. the start tag
-	    or characters).
+            or characters).
     \row \i \l QXmlDTDHandler
          \i Reports events related to the DTD (e.g. notation declarations).
     \row \i \l QXmlErrorHandler
          \i Reports errors or warnings that occurred during parsing.
     \row \i \l QXmlEntityResolver
          \i Reports external entities during parsing and allows users to resolve
-	    external entities themselves instead of leaving it to the reader.
+            external entities themselves instead of leaving it to the reader.
     \row \i \l QXmlDeclHandler
          \i Reports further DTD related events (e.g. attribute declarations).
     \row \i \l QXmlLexicalHandler
          \i Reports events related to the lexical structure of the
-	    document (the beginning of the DTD, comments etc.).
+            document (the beginning of the DTD, comments etc.).
     \endtable
 
     These classes are abstract classes describing the interface. The \l
@@ -196,8 +197,8 @@
          \i Used to obtain the actual parsing position of an event.
     \row \i \l QXmlNamespaceSupport
          \i Used to implement \link xml.html#namespaces namespace\endlink
-	    support for a reader. Note that namespaces do not change the
-	    parsing behavior. They are only reported through the handler.
+            support for a reader. Note that namespaces do not change the
+            parsing behavior. They are only reported through the handler.
     \endtable
 
 
@@ -308,10 +309,6 @@
     note that the combination of both features set to
     false is illegal.
 
-    For a practical demonstration of how the two features affect the 
-    output of the reader run the \link tagreader-with-features-example.html
-    tagreader with features example. \endlink 
-
     \target sax2NamespacesSummary
     \section3 Summary
 
@@ -319,10 +316,10 @@
 
     \table
     \header \i (namespaces, namespace-prefixes)
-	    \i Namespace prefix and local part
-	    \i Qualified names
-	    \i Prefix mapping
-	    \i xmlns attributes
+            \i Namespace prefix and local part
+            \i Qualified names
+            \i Prefix mapping
+            \i xmlns attributes
     \row \i (true, false) \i Yes \i Yes* \i Yes \i No
     \row \i (true, true) \i Yes \i Yes \i Yes \i Yes
     \row \i (false, true) \i No* \i Yes \i No* \i Yes
@@ -373,58 +370,58 @@
 
     \list
     \i \l QDomDocument: Possible children are
-	    \list
-	    \i \l QDomElement (at most one)
-	    \i \l QDomProcessingInstruction
-	    \i \l QDomComment
-	    \i \l QDomDocumentType
-	    \endlist
+            \list
+            \i \l QDomElement (at most one)
+            \i \l QDomProcessingInstruction
+            \i \l QDomComment
+            \i \l QDomDocumentType
+            \endlist
     \i \l QDomDocumentFragment: Possible children are
-	    \list
-	    \i \l QDomElement
-	    \i \l QDomProcessingInstruction
-	    \i \l QDomComment
-	    \i \l QDomText
-	    \i \l QDomCDATASection
-	    \i \l QDomEntityReference
-	    \endlist
+            \list
+            \i \l QDomElement
+            \i \l QDomProcessingInstruction
+            \i \l QDomComment
+            \i \l QDomText
+            \i \l QDomCDATASection
+            \i \l QDomEntityReference
+            \endlist
     \i \l QDomDocumentType: No children
     \i \l QDomEntityReference: Possible children are
-	    \list
-	    \i \l QDomElement
-	    \i \l QDomProcessingInstruction
-	    \i \l QDomComment
-	    \i \l QDomText
-	    \i \l QDomCDATASection
-	    \i \l QDomEntityReference
-	    \endlist
+            \list
+            \i \l QDomElement
+            \i \l QDomProcessingInstruction
+            \i \l QDomComment
+            \i \l QDomText
+            \i \l QDomCDATASection
+            \i \l QDomEntityReference
+            \endlist
     \i \l QDomElement: Possible children are
-	    \list
-	    \i \l QDomElement
-	    \i \l QDomText
-	    \i \l QDomComment
-	    \i \l QDomProcessingInstruction
-	    \i \l QDomCDATASection
-	    \i \l QDomEntityReference
-	    \endlist
+            \list
+            \i \l QDomElement
+            \i \l QDomText
+            \i \l QDomComment
+            \i \l QDomProcessingInstruction
+            \i \l QDomCDATASection
+            \i \l QDomEntityReference
+            \endlist
     \i \l QDomAttr: Possible children are
-	    \list
-	    \i \l QDomText
-	    \i \l QDomEntityReference
-	    \endlist
+            \list
+            \i \l QDomText
+            \i \l QDomEntityReference
+            \endlist
     \i \l QDomProcessingInstruction: No children
     \i \l QDomComment: No children
     \i \l QDomText: No children
     \i \l QDomCDATASection: No children
     \i \l QDomEntity: Possible children are
-	    \list
-	    \i \l QDomElement
-	    \i \l QDomProcessingInstruction
-	    \i \l QDomComment
-	    \i \l QDomText
-	    \i \l QDomCDATASection
-	    \i \l QDomEntityReference
-	    \endlist
+            \list
+            \i \l QDomElement
+            \i \l QDomProcessingInstruction
+            \i \l QDomComment
+            \i \l QDomText
+            \i \l QDomCDATASection
+            \i \l QDomEntityReference
+            \endlist
     \i \l QDomNotation: No children
     \endlist
 
