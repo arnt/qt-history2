@@ -1357,6 +1357,14 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
+    case PM_DefaultFrameWidth:
+	if(widget && 
+	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
+	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	    ret = 0;
+	else
+	    ret = QWindowsStyle::pixelMetric(metric, widget);
+	break;
     case PM_TitleBarHeight:
 	ret = 16;
 	break;
@@ -1538,8 +1546,21 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_ScrollBar: {
 	if(!widget)
 	    break;
-	sub = 0xFFFFFFF; //bleh, must paint all?
 	QScrollBar *scrollbar = (QScrollBar *) widget;
+	if(!scrollbar->minValue() && !scrollbar->maxValue()) { //just a "groove"
+	    QPixmap fill;
+	    QString prefix="v";
+	    int size = r.width();
+	    if( flags & Style_Horizontal ) {
+		prefix = "h";
+		size = r.height();
+	    }
+	    qAquaPixmap(prefix + "sbr_back_fill_" + QString::number(size), fill);
+	    p->drawTiledPixmap(r, fill);
+	    break;
+	}
+
+	sub = 0xFFFFFFF; //bleh, must paint all?
 	QRect addline, subline, addpage, subpage, slider, first, last;
 	bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 

@@ -1138,6 +1138,14 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_DefaultFrameWidth:
+	if(widget && 
+	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
+	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	    ret = 0;
+	else
+	    ret = QWindowsStyle::pixelMetric(metric, widget);
+	break;
     case PM_MaximumDragDistance:
 	ret = -1;
 	break;
@@ -1181,6 +1189,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break; }
     case PM_TabBarTabOverlap:
 	GetThemeMetric(kThemeMetricTabOverlap, &ret);
+	break;
+    case PM_ScrollBarExtent:
+	GetThemeMetric(kThemeMetricScrollBarWidth, &ret);
 	break;
     case PM_TabBarBaseOverlap:
 	ret = kThemeTabPaneOverlap;
