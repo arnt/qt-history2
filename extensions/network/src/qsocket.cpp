@@ -373,12 +373,12 @@ void QSocket::tryConnecting()
   This signal is emitted after connectToHost() has been called and a
   connection has been successfully established.
 
-  \sa connectToHost(), closed()
+  \sa connectToHost(), connectionClosed()
 */
 
 
 /*!
-  \fn void QSocket::closed()
+  \fn void QSocket::connectionClosed()
 
   This signal is emitted when the other end has closed the connection.
   The read buffers may contain buffered input data which you can read
@@ -489,7 +489,6 @@ void QSocket::close()
     delete d;
     d = new QSocketPrivate( this );
     d->state = Idle;
-    emit closed();
 }
 
 
@@ -997,7 +996,7 @@ void QSocket::sn_read()
 	    d->socket->close();
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
-	    emit closed();
+	    emit connectionClosed();
 	    return;
 	} else {
 	    if ( nread < 0 ) {

@@ -59,7 +59,7 @@ void Thing::init()
     signalText = new QTextView( vb );
     QObject::connect( socket, SIGNAL(hostFound()), SLOT(hostFound()) );
     QObject::connect( socket, SIGNAL(connected()), SLOT(connected()) );
-    QObject::connect( socket, SIGNAL(closed()), SLOT(closed()) );
+    QObject::connect( socket, SIGNAL(connectionClosed()), SLOT(closed()) );
     QObject::connect( socket, SIGNAL(delayedCloseFinished()), SLOT(delayedCloseFinished()) );
     QObject::connect( socket, SIGNAL(readyRead()), SLOT(readyRead()) );
     QObject::connect( socket, SIGNAL(bytesWritten(int)), SLOT(bytesWritten(int)) );
@@ -159,7 +159,6 @@ void Thing::write()
 {
     QString text = writeEdit->text();
     int r = socket->writeBlock( text.latin1(), text.length() );
-    qDebug( "Write %d bytes", r );
 }
 
 
@@ -192,7 +191,7 @@ void Thing::connected()
 
 void Thing::closed()
 {
-    signalText->append( "closed()\n" );
+    signalText->append( "connectionClosed()\n" );
 }
 
 

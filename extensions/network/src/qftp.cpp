@@ -81,7 +81,7 @@ QFtp::QFtp()
 	     this, SLOT( hostFound() ) );
     connect( commandSocket, SIGNAL( connected() ),
 	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( closed() ),
+    connect( commandSocket, SIGNAL( connectionClosed() ),
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
@@ -91,7 +91,7 @@ QFtp::QFtp()
 	     this, SLOT( dataHostFound() ) );
     connect( dataSocket, SIGNAL( connected() ),
 	     this, SLOT( dataConnected() ) );
-    connect( dataSocket, SIGNAL( closed() ),
+    connect( dataSocket, SIGNAL( connectionClosed() ),
 	     this, SLOT( dataClosed() ) );
     connect( dataSocket, SIGNAL( readyRead() ),
 	     this, SLOT( dataReadyRead() ) );

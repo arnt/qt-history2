@@ -25,7 +25,7 @@ Nntp::Nntp()
 	     this, SLOT( hostFound() ) );
     connect( commandSocket, SIGNAL( connected() ),
 	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( closed() ),
+    connect( commandSocket, SIGNAL( connectionClosed() ),
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );

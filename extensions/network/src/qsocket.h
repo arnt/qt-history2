@@ -94,7 +94,7 @@ public:
 signals:
     void	 hostFound();
     void	 connected();
-    void	 closed();
+    void	 connectionClosed();
     void	 delayedCloseFinished();
     void	 readyRead();
     void	 bytesWritten( int nbytes );
