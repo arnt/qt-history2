@@ -129,6 +129,7 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
     Q_DECLARE_PRIVATE(QTreeWidget)
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
+    Q_PROPERTY(int topLevelItemCount READ topLevelItemCount)
 
 public:
     QTreeWidget(QWidget *parent = 0);

@@ -1403,8 +1403,8 @@ QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
     return d->model()->tree.value(index);
 }
 
-/*!
-  Returns the number of top-level items.
+/*!\property QTreeWidget::topLevelItemCount
+    \brief the number of top-level items
 */
 
 int QTreeWidget::topLevelItemCount() const

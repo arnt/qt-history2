@@ -15,7 +15,6 @@
 #define QCOREEVENT_H
 
 #include <qnamespace.h>
-#include <qobjectdefs.h>
 
 
 class QEventPrivate;

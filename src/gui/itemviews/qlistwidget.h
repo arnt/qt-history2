@@ -107,7 +107,7 @@ class QListWidgetPrivate;
 class Q_GUI_EXPORT QListWidget : public QListView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QListWidget)
+    Q_PROPERTY(int count READ count)
 
     friend class QListWidgetItem;
 public:
@@ -168,6 +168,7 @@ protected:
     void setup();
 
 private:
+    Q_DECLARE_PRIVATE(QListWidget)
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))

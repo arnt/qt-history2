@@ -861,9 +861,10 @@ QListWidgetItem *QListWidget::takeItem(int row)
     return d->model()->take(row);
 }
 
-/*!
-      Returns the number of items in the list including any hidden items.
+/*!\property QListWidget::count
+    \brief the number of items in the list including any hidden items.
 */
+
 int QListWidget::count() const
 {
     return d->model()->rowCount();

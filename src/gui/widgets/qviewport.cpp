@@ -241,12 +241,6 @@ QSize QViewport::maximumViewportSize() const
 }
 
 /*!
-    \property QViewport::acceptDrops
-    \brief whether the viewport accepts the dropping of dragged
-    objects
-*/
-
-/*!
     \property QViewport::verticalScrollBarPolicy
     \brief the policy for the vertical scroll bar
 

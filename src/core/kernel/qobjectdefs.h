@@ -37,7 +37,6 @@ class QByteArray;
 #define Q_CLASSINFO(name, value)
 #define Q_INTERFACES(x)
 #define Q_PROPERTY(text)
-#define QDOC_PROPERTY(text)
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)
 #define Q_FLAGS(x)
@@ -86,7 +85,6 @@ private:
 #define signals signals
 #define Q_CLASSINFO(name, value) Q_CLASSINFO(name, value)
 #define Q_PROPERTY(text) Q_PROPERTY(text)
-#define QDOC_PROPERTY(text) QDOC_PROPERTY(text)
 #define Q_OVERRIDE(text) Q_OVERRIDE(text)
 #define Q_ENUMS(x) Q_ENUMS(x)
 #define Q_FLAGS(x) Q_FLAGS(x)

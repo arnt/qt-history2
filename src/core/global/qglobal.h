@@ -1736,6 +1736,7 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 
 #define QT_TR_NOOP(x) (x)
 #define QT_TRANSLATE_NOOP(scope, x) (x)
+#define QDOC_PROPERTY(text)
 
 /*
    Some classes do not permit copies to be made of an object. These
