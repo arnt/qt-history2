@@ -22,12 +22,12 @@ class QTextFormat
 {
     friend class QTextFormatCollection;
 public:
-    enum FormatType { 
-	BlockFormat = 1, 
-	CharFormat = 2, 
-	ListFormat = 3 ,
+    enum FormatType {
+	BlockFormat = 1,
+	CharFormat = 2,
+	ListFormat = 3,
 
-	UserFormat = 100,
+	UserFormat = 100
     };
 
     enum Property {
@@ -64,7 +64,7 @@ public:
 	ListIndent = 0x3001,
 
 	// --
-	UserProperty = 0x10000,
+	UserProperty = 0x10000
     };
 
     enum PropertyType {
