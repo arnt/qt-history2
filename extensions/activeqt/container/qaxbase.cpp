@@ -651,6 +651,11 @@ public:
     \i const QValueList<QVariant>&
     \i QValueList<QVariant>&
     \row
+    \i SAFEARRAY(BYTE)
+    \i QByteArray
+    \i const QByteArray&
+    \i QByteArray&
+    \row
     \i VARIANT
     \i type dependent
     \i const QVariant&
