@@ -341,15 +341,15 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 
     // enter Connecting state (see also sn_write, which is called by
     // the write socket notifier after connect())
-    state = QSocket::Connecting;
+    state = QSocket::Connecting;    
 
+    // create a socket device if we don't have one already
+    if (!socket)
+        internalSetSocketDevice(0);
+    
     // attempt to connect to all addresses, one at a time.
     for (;;) {
-        // reset the socket device if it's 0
-        if (!socket) {
-            addr = addresses.takeFirst();
-            internalSetSocketDevice(0);
-        }
+        addr = addresses.takeFirst();
 
         // try connecting (nonblocking).  if the connect failed but
         // there was no error, the write socket notifier will fire at
@@ -367,12 +367,6 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
         qDebug("QSocket (%s)::tryConnecting: Gave up on IP address %s",
                q->name(), socket->peerAddress().toString().ascii());
 #endif
-        delete wsn;
-        wsn = 0;
-        delete rsn;
-        rsn = 0;
-        delete socket;
-        socket = 0;
 
         // if there are no more addresses to try; they all
         // failed. we also know that the list was not empty, so we
@@ -545,6 +539,7 @@ QSocket::State QSocket::state() const
 {
     return d->state;
 }
+
 
 /*!
     Attempts to make a connection to \a host on the specified \a port
