@@ -2735,6 +2735,7 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    setContentsPos( 0, 0 );
     bool block = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
@@ -3120,10 +3121,10 @@ void QListView::updateGeometries()
     if ( d->h->offset() &&
 	 tw < d->h->offset() + d->h->width() )
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
-#if 0    
+#if 0
     if ( QApplication::reverseLayout() && d->h->offset() != horizontalScrollBar()->value() )
 	horizontalScrollBar()->setValue( d->h->offset() );
-#endif    
+#endif
     verticalScrollBar()->raise();
     resizeContents( tw, th );
     if ( d->h->isHidden() ) {
@@ -5113,7 +5114,7 @@ QListViewItem* QListView::lastItem() const
 	    else
 		item = item->firstChild();
 	}
-    }	 
+    }	
     return item;
 }
 

@@ -1366,6 +1366,7 @@ void QListBox::removeItem( int index )
 
 void QListBox::clear()
 {
+    setContentsPos( 0, 0 );
     bool blocked = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
@@ -3652,7 +3653,7 @@ void QListBox::adjustItems()
 
 
 /*!  Provided for compatibility with the old QListBox.	
-    We recommend using QListBoxItem::paint() 
+    We recommend using QListBoxItem::paint()
 
     Repaints the cell at \a row, \a col using painter \a p.
 */

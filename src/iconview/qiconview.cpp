@@ -3743,6 +3743,7 @@ QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
 
 void QIconView::clear()
 {
+    setContentsPos( 0, 0 );
     d->clearing = TRUE;
     bool block = signalsBlocked();
     blockSignals( TRUE );

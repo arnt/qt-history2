@@ -3707,6 +3707,7 @@ QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
 
 void QTextEdit::clear()
 {
+    setContentsPos( 0, 0 );
     cursor->restoreState();
     doc->clear( TRUE );
     cursor->setDocument( doc );
