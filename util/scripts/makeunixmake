@@ -1,14 +1,12 @@
 #!/bin/sh
 
-DISTDIR=$QTDIR/qt
-
 VERBOSE=
 LIST=
 while [ -n "$1" ]
 do
     case "$1" in
-       -v) $VERBOSE=1
-    ;; -p) $LIST=1
+       -v) VERBOSE=1
+    ;; -p) LIST=1
     esac
     shift
 done
@@ -16,22 +14,22 @@ done
 if [ -n "$VERBOSE" ] ; then echo 'Building top-level make files...' >&2; fi
 
 export UNIX_MKDIST_QT=1
-export TMAKEPATH=$DISTDIR/qt/tmake:$TMAKEPATH
-( cd ${DISTDIR}/qt/src/moc; tmake moc.pro >Makefile.in)
+export TMAKEPATH=$QTDIR/tmake:$TMAKEPATH
+( cd $QTDIR/src/moc; tmake moc.pro >Makefile.in)
 if [ -n "$LIST" ] ; then echo 'src/moc/Makefile.in' ; fi
 
-sh ${DISTDIR}/qt/util/scripts/mkconfigs
-sh ${DISTDIR}/qt/util/scripts/makemake
-(cd ${DISTDIR}/qt/src; tmake -t ../tmake/propagate.t qt.pro |
-    perl -p -e "s{$DISTDIR/qt}{\\\$(QTDIR)}" >Makefile.in )
+sh $QTDIR/util/scripts/mkconfigs
+sh $QTDIR/util/scripts/makemake
+(cd $QTDIR/src; tmake -t ../tmake/propagate.t qt.pro |
+    perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
 if [ -n "$LIST" ] ; then echo 'src/Makefile.in' ; fi
 
-cp ${DISTDIR}/qt/util/scripts/propagate ${DISTDIR}/qt
+cp $QTDIR/util/scripts/propagate $QTDIR
 if [ -n "$LIST" ] ; then echo 'propagate' ; fi
 
 if [ -n "$VERBOSE" ] ; then echo "Build tutorial, example, and extensions Makefiles" >&2 ; fi
 
-cd ${DISTDIR}/qt
+cd $QTDIR
 find tutorial \
  examples \
  extensions -name '*.pro' |
@@ -43,7 +41,7 @@ find tutorial \
 	if [ ! -f $TEMPLATE ]
 	then
 	    if [ "${platform}" = "x11" ]; then
-		TEMPLATE=${DISTDIR}/qt/tmake/propagate.t
+		TEMPLATE=$QTDIR/tmake/propagate.t
 	    else
 		TEMPLATE=app
 	    fi
