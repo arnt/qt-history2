@@ -1789,6 +1789,7 @@ static const char * const qt_minimize_xpm[] = {
 "............",
 "............"};
 
+#if 0 // ### not used???
 static const char * const qt_normalize_xpm[] = {
 "12 12 2 1",
 "# c #000000",
@@ -1805,6 +1806,7 @@ static const char * const qt_normalize_xpm[] = {
 ".#.....#....",
 ".#######....",
 "............"};
+#endif
 
 static const char * const qt_normalizeup_xpm[] = {
 "12 12 2 1",
