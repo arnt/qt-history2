@@ -86,7 +86,7 @@ QPoint posInWindow(QWidget *w)
     if(w->isTopLevel())
 	return QPoint(0, 0);
     int x = 0, y = 0;
-    if(w->parentWidget()) {
+    if(w->parentWidget(TRUE)) {
 	QPoint p = posInWindow(w->parentWidget());
 	x = p.x() + w->geometry().x();
 	y = p.y() + w->geometry().y();
@@ -619,7 +619,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 	QMacSavedPortInfo savedInfo(((QWidget *)this));
 	GlobalToLocal(&mac_p);
     }
-    for(const QWidget *p = this; p && !p->isTopLevel(); p = p->parentWidget()) {
+    for(const QWidget *p = this; p && !p->isTopLevel(); p = p->parentWidget(TRUE)) {
 	mac_p.h -= p->geometry().x();
 	mac_p.v -= p->geometry().y();
     }
@@ -1020,7 +1020,7 @@ void QWidget::raise()
 {
     if(isTopLevel()) {
 	BringToFront((WindowPtr)hd);
-    } else if(QWidget *p = parentWidget()) {
+    } else if(QWidget *p = parentWidget(TRUE)) {
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
@@ -1038,7 +1038,7 @@ void QWidget::lower()
 {
     if ( isTopLevel() )
 	SendBehind((WindowPtr)handle(), NULL);
-    else if(QWidget *p = parentWidget()) {
+    else if(QWidget *p = parentWidget(TRUE)) {
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
@@ -1295,11 +1295,9 @@ void QWidget::erase( const QRegion& reg )
 	    xoff = x();
 	    yoff = y();
 	} else if(backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QWidget *topl = widget;
-	    do {
-		if(topl->isTopLevel() || topl->testWFlags(WSubWindow))
-		    break;
-	    } while((topl = topl->parentWidget(TRUE)));
+	    QWidget *topl = this;
+	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
+		topl = topl->parentWidget(TRUE);
 	    QPoint p = widget->mapTo( topl, QPoint(0,0) );
 	    xoff = p.x();
 	    yoff = p.y();

@@ -1171,10 +1171,8 @@ void QWidget::erase( int x, int y, int w, int h )
 	int oy = this->y();
 	if ( backgroundOrigin() == QWidget::WindowOrigin ) {
 	    QWidget *topl = this;
-	    do {
-		if(topl->isTopLevel() || topl->testWFlags(WSubWindow))
-		    break;
-	    } while((topl = topl->parentWidget(TRUE)));
+	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
+		topl = topl->parentWidget(TRUE);
 	    QPoint p = mapTo( topl, QPoint(0,0) );
 	    ox = p.x();
 	    oy = p.y();
@@ -1209,10 +1207,8 @@ void QWidget::erase( const QRegion& rgn )
 	int oy = y();
 	if ( backgroundOrigin() == QWidget::WindowOrigin ) {
 	    QWidget *topl = this;
-	    do {
-		if(topl->isTopLevel() || topl->testWFlags(WSubWindow))
-		    break;
-	    } while((topl = topl->parentWidget(TRUE)));
+	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
+		topl = topl->parentWidget(TRUE);
 	    QPoint p = mapTo( topl, QPoint(0,0) );
 	    ox = p.x();
 	    oy = p.y();

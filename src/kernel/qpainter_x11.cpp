@@ -91,10 +91,8 @@ void qt_erase_region( QWidget* w, const QRegion& region)
         int oy = w->y();
         if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
 	    QWidget *topl = w;
-	    do {
-		if(topl->isTopLevel() || topl->testWFlags(Qt::WSubWindow))
-		    break;
-	    } while((topl = topl->parentWidget(TRUE)));
+	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+		topl = topl->parentWidget(TRUE);
             QPoint p = w->mapTo( topl, QPoint(0, 0) );
             ox = p.x();
             oy = p.y();
