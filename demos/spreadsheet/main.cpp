@@ -76,7 +76,8 @@ QVariant SpreadSheetItem::data(int role) const
 void SpreadSheetItem::setData(int role, const QVariant &value)
 {
     QTableWidgetItem::setData(role, value);
-    tableWidget()->viewport()->update();
+    if (tableWidget())
+        tableWidget()->viewport()->update();
 }
 
 
@@ -433,10 +434,10 @@ void SpreadSheet::setupContents()
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
-    SpreadSheet sheet(20, 10);
+    SpreadSheet sheet(99, 26);
     app.setMainWidget(&sheet);
     sheet.show();
-    sheet.resize(600, 350);
+    sheet.resize(600, 400);
     return app.exec();
 }
 
