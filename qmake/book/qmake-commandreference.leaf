@@ -658,14 +658,6 @@ modified. Use the \link #QMAKESPEC QMAKESPEC \endlink environment
 variable instead.
 
 
-\target QMAKE_AIX_SHLIB
-\section3 QMAKE_AIX_SHLIB
-
-If this variable is not empty, then this variable tells \e qmake 
-to generate the
-\link #TARGET TARGET \endlink as an AIX shared library.
-
-
 
 \target QMAKE_APP_FLAG
 \section3 QMAKE_APP_FLAG
@@ -968,27 +960,6 @@ and HEADERS.  The value of this variable is typically handled by \e qmake or
 \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
-
-
-\target QMAKE_HPUX_SHLIB
-\section3 QMAKE_HPUX_SHLIB
-
-\e {This is used on Unix platforms only}
-
-If this variable is not empty then this variable tells \e qmake to generate the
-\link #TARGET TARGET \endlink as an HPUX shared library.  The value of this variable is 
-typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
-needs to be modified.
-
-
-\section3 QMAKE_HPUX_SHLIBS
-
-\e {This is used on Unix platforms only}
-
-If this variable is not empty then this variable tells \e qmake to generate the
-\link #TARGET TARGET \endlink as an HPUX shared library.  The value of this variable is 
-typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
-needs to be modified.
 
 
 \target QMAKE_INCDIR
