@@ -1028,7 +1028,7 @@ void SetupWizardImpl::makeDone()
 
 void SetupWizardImpl::configDone()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
     QStringList args;
 
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
@@ -1066,6 +1066,8 @@ void SetupWizardImpl::configDone()
 		args << "sub-extensions";
 	}
 #endif
+	if ( globalInformation.sysId() == GlobalInformation::MinGW )
+	    args << "-f Makefile.win32-g++";
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
