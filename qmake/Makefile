@@ -2,6 +2,7 @@
 #
 # specific stuff for nmake
 #
+CXX	    =   cl
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I$(QTDIR)\include /I$(QTDIR)\src\tools \

@@ -1976,16 +1976,22 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	qt_set_input_encoding();
 
-	QFont f;
+	// be smart about the size of the default font.  most X servers have helvetica
+	// 12 point available at 2 resolutions:
+	//     75dpi (12 pixels) and 100dpi (17 pixels).
+	// At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
+	// pixel font is a closer match than a 12 pixel font
+	int ptsz =
+	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
+		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
 
-	f = QFont(
+	QFont f(
 #ifdef Q_OS_SOLARIS
-		  "Interface System",
+		"Interface System",
 #else
-		  "Helvetica",
+		"Helvetica",
 #endif // Q_OS_SOLARIS
-		  (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
-
+		ptsz );
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
@@ -5230,6 +5236,7 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Hyper_L,		Qt::Key_Hyper_L,
     XK_Hyper_R,		Qt::Key_Hyper_R,
     XK_Help,		Qt::Key_Help,
+    0x1000FF74,         Qt::Key_BackTab,     // hardcoded HP backtab
     0,			0
 };
 
@@ -5603,10 +5610,19 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    QEvent::Type t;
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
 				       stateIntern, asciiIntern, codeIntern, t );
-	    bool isReturn = (codeIntern == Key_Return) ||
-                            (codeIntern == Key_Enter) ||
-                            ((codeIntern == 0) && (asciiIntern == '\n'));
-	    if (stateIntern == state && !textIntern.isEmpty() && !isReturn) {
+	    // use stopCompression to stop key compression for the following
+	    // key event ranges:
+	    bool stopCompression =
+		// 1) misc keys
+		( codeIntern >= Key_Escape && codeIntern <= Key_SysReq ) ||
+		// 2) cursor movement
+		( codeIntern >= Key_Home && codeIntern <= Key_Next ) ||
+		// 3) extra keys
+		( codeIntern >= Key_Super_L && codeIntern <= Key_Direction_R ) ||
+		// 4) something that a) doesn't translate to text or b) translates
+		//    to newline text
+		((codeIntern == 0) && (asciiIntern == '\n'));
+	    if (stateIntern == state && !textIntern.isEmpty() && !stopCompression) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
 		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
 				 asciiIntern, stateIntern, textIntern, FALSE,

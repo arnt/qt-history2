@@ -451,6 +451,9 @@ void SetupWizardImpl::prepareEnvironment()
 	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	}
     }
+    if( qWinVersion() & WV_NT_based ) {
+	SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)qt_winTchar(QString("Environment"),true) );
+    }
 #endif
 }
 

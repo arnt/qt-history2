@@ -358,13 +358,22 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig, bool useThre
     else
 	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
 #endif
-    const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
+    const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib"));
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
-    const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
-    const CComBSTR threadLibD("/MLd");
-    const CComBSTR threadLibR("/ML");
-    const CComBSTR correctLibD("/MDd");
-    const CComBSTR correctLibR("/MD");
+    const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib winspool.lib winmm.lib" );
+
+    CComBSTR threadLib;
+    CComBSTR correctLib;
+    CComBSTR configname;
+    pConfig->get_Name(&configname);
+    CString config = (CString)configname;
+    if ( config.Right(5) == "Debug" ) {
+	threadLib = "/MLd";
+	correctLib = "/MDd";
+    } else {
+	threadLib = "/ML";
+	correctLib = "/MD";
+    }
 
     VERIFY_OK(pConfig->AddToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
     if ( useThreads )
@@ -375,10 +384,8 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig, bool useThre
     VERIFY_OK(pConfig->RemoveToolSettings( linker, CComBSTR("$(QTDIR)\\lib\\qt-mt.lib"), CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, CComBSTR("$(QTDIR)\\lib\\qt.lib"), CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sharedLib, CComVariant(VARIANT_FALSE) ));
-    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLibD, CComVariant(VARIANT_FALSE) ));
-    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLibD, CComVariant(VARIANT_FALSE) ));
-    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLibR, CComVariant(VARIANT_FALSE) ));
-    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLibR, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLib, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLib, CComVariant(VARIANT_FALSE) ));
     m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded Qt shared library") );
 }
 
@@ -392,6 +399,7 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig, bool useThre
     const CComBSTR dllDefine( dllDefs );
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     CComBSTR staticLib = useThreads ? "$(QTDIR)\\lib\\qt-mt.lib" : "$(QTDIR)\\lib\\qt.lib";
+    staticLib += CComBSTR(" $(QTDIR)\\lib\\qtmain.lib");
     CString version;
     try {
 	CStdioFile file( CString(_T(getenv("QTDIR")) + CString("\\.qmake.cache")), CFile::modeRead );
@@ -424,9 +432,21 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig, bool useThre
     else
 	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
 #endif
-    const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
+    const CComBSTR sharedLib(sharedLibText);
+    CComBSTR threadLib;
+    CComBSTR correctLib;
+    CComBSTR configname;
+    pConfig->get_Name(&configname);
+    CString config = (CString)configname;
+    if ( config.Right(5) == "Debug" ) {
+	threadLib = "/MLd";
+	correctLib = "/MDd";
+    } else {
+	threadLib = "/ML";
+	correctLib = "/MD";
+    }
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
-    const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
+    const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib winspool.lib winmm.lib" );
 
     VERIFY_OK(pConfig->RemoveToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
     if ( useThreads )
@@ -436,6 +456,8 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig, bool useThre
     VERIFY_OK(pConfig->AddToolSettings( linker, sysLibs, CComVariant(VARIANT_FALSE) ));    
     VERIFY_OK(pConfig->RemoveToolSettings( linker, sharedLib, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, staticLib, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLib, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLib, CComVariant(VARIANT_FALSE) ));
     m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded Qt static library") );
 }
 

@@ -741,6 +741,18 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 void SetupWizardImpl::doFinalIntegration()
 {
 #if defined(Q_OS_WIN32)
+    // install the precompiled MS dev integration
+    QDir installDir( optionsPage->installPath->text() );
+    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	QDir addinsDir( foldersPage->devSysPath->text() );
+	addinsDir.cd( "Common/MSDev98/Addins" );
+	if ( copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
+	    installDir.remove( "qmsdev.dll" );
+	}
+    } else {
+	installDir.remove( "qmsdev.dll" );
+    }
+
     QString dirName, examplesName, tutorialsName;
     bool common( foldersPage->folderGroups->currentItem() == 0 );
     QString qtDir = QEnvironment::getEnv( "QTDIR" );
@@ -883,18 +895,6 @@ void SetupWizardImpl::makeDone()
 	QMessageBox::critical( this, "Error", "The build process failed!" );
 	setAppropriate( progressPage, false );
     } else {
-	QDir installDir( optionsPage->installPath->text() );
-	if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
-	    QDir addinsDir( QEnvironment::getEnv("MSDEVDIR") );
-	    addinsDir.cd( "Addins" );
-	    if ( !copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
-		logOutput( "WARNING: The installation of the QMsDev Developer Studio-Add-In failed: could not copy the file qmsdev.dll" );
-	    } else {
-		installDir.remove( "qmsdev.dll" );
-	    }
-	} else {
-	    installDir.remove( "qmsdev.dll" );
-	}
 	// We still have some more items to do in order to finish all the
 	// integration stuff.
 	if ( !globalInformation.reconfig() ) {
@@ -1083,8 +1083,17 @@ void SetupWizardImpl::showPageFolders()
     foldersPage->devSysPath->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
     foldersPage->devSysPathButton->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
 #if defined(Q_OS_WIN32)
-    if( globalInformation.sysId() == GlobalInformation::MSVC )
-	foldersPage->devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
+    if( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
+	if ( devPath.isEmpty() ) {
+	    // fallback for Windows 9x
+	    QDir msdevDir( QEnvironment::getEnv("MSDEVDIR") );
+	    msdevDir.cdUp();
+	    msdevDir.cdUp();
+	    devPath = QDir::convertSeparators( msdevDir.absPath() );
+	}
+	foldersPage->devSysPath->setText( devPath );
+    }
 #endif
 }
 
@@ -1321,10 +1330,6 @@ void SetupWizardImpl::showPageFinish()
 	}
 	else {
 	    finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + " and is ready to use.";
-#if defined(Q_OS_WIN32)
-            finishMsg += "\nYou may need to reboot, or open";
-	    finishMsg += " the environment editing dialog to make changes to the environment visible";
-#endif
 	}
     } else {
 	if( globalInformation.reconfig() ) {
