@@ -17,6 +17,13 @@ cat <<EOF
 
 
 all: moc src tutorial examples
+	@echo
+	@echo "The Qt library is now built in ./lib"
+	@echo "The Qt examples are built in the directories in ./examples"
+	@echo "The Qt tutorials are built in the directories in ./tutorial"
+	@echo
+	@echo "Enjoy!   - the Troll Tech team"
+	@echo
 
 moc: variables FORCE
 	cd src/moc; \$(MAKE)
