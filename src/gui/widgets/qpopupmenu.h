@@ -24,6 +24,7 @@ class Q_GUI_EXPORT QPopupMenu : public QMenu
 public:
     QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)  { }
 };
+typedef QAction QMenuItem;
 #else
 #include "q3popupmenu.h"
 class Q_GUI_EXPORT QPopupMenu : public Q3PopupMenu
@@ -37,6 +38,7 @@ class Q_GUI_EXPORT QCustomMenuItem : public Q3CustomMenuItem
 public:
     QCustomMenuItem() : Q3CustomMenuItem() { }
 };
+typedef Q3MenuItem QMenuItem;
 #endif
 
 #endif // QPOPUPMENU_H
