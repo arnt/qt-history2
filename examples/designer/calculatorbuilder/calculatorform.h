@@ -2,10 +2,11 @@
 #define CALCULATORFORM_H
 
 #include <QVBoxWidget>
+
 class QLabel;
 class QSpinBox;
 
-class CalculatorForm : public QVBoxWidget
+class CalculatorForm : public QWidget
 {
     Q_OBJECT
 
@@ -19,7 +20,7 @@ private slots:
 private:
     QSpinBox *ui_inputSpinBox1;
     QSpinBox *ui_inputSpinBox2;
-    QLabel *ui_resultLabel;
+    QLabel *ui_outputWidget;
 };
 
 #endif
