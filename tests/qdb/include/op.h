@@ -100,11 +100,11 @@ public:
     int exec( qdb::Environment* env )
     {
 	if ( p1.isValid() )
-	    env->stack().push( p1 );
+	    env->stack()->push( p1 );
 	if ( p2.isValid() )
-	    env->stack().push( p2 );
+	    env->stack()->push( p2 );
 	if ( p3.isValid() )
-	    env->stack().push( p3 );
+	    env->stack()->push( p3 );
 	return 1;
     }
 };
@@ -121,13 +121,13 @@ public:
     QString name() const { return "Add"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Add: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
-	env->stack().push( v1.toDouble() + v2.toDouble() );
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
+	env->stack()->push( v1.toDouble() + v2.toDouble() );
 	return 1;
     }
 };
@@ -144,13 +144,13 @@ public:
     QString name() const { return "Subtract"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Subtract: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
-	env->stack().push( v2.toDouble() - v1.toDouble() );
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
+	env->stack()->push( v2.toDouble() - v1.toDouble() );
 	return 1;
     }
 };
@@ -166,13 +166,13 @@ public:
     QString name() const { return "Multiply"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Multiply: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
-	env->stack().push( v2.toDouble() * v1.toDouble() );
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
+	env->stack()->push( v2.toDouble() * v1.toDouble() );
 	return 1;
     }
 };
@@ -190,16 +190,16 @@ public:
     QString name() const { return "Divide"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Divide: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v1.toInt() == 0 )
-	    env->stack().push( QVariant() );
+	    env->stack()->push( QVariant() );
 	else
-	    env->stack().push( v2.toDouble() / v1.toDouble() );
+	    env->stack()->push( v2.toDouble() / v1.toDouble() );
 	return 1;
     }
 };
@@ -215,17 +215,17 @@ public:
     QString name() const { return "Eq"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Eq: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v1 == v2 ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -243,17 +243,17 @@ public:
     QString name() const { return "Ne"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Ne: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v1 != v2 ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -272,17 +272,17 @@ public:
     QString name() const { return "Lt"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Lt: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() < v1.toDouble() ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -300,17 +300,17 @@ public:
     QString name() const { return "Le"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Le: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() <= v1.toDouble() ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -329,17 +329,17 @@ public:
     QString name() const { return "Gt"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Gt: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() > v1.toDouble() ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -358,17 +358,17 @@ public:
     QString name() const { return "Ge"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack().count() < 2 ) {
+	if ( env->stack()->count() < 2 ) {
 	    env->setLastError("Ge: not enough stack elements");
 	    return 0;
 	}
-	QVariant v1 = env->stack().pop();
-	QVariant v2 = env->stack().pop();
+	QVariant v1 = env->stack()->pop();
+	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() >= v1.toDouble() ) {
 	    if ( p1.type() == QVariant::String )
-		env->program().setCounter( p1.toString() );
+		env->program()->setCounter( p1.toString() );
 	    else
-		env->program().setCounter( p1.toInt() );
+		env->program()->setCounter( p1.toInt() );
 	}
 	return 1;
     }
@@ -406,14 +406,14 @@ public:
     QString name() const { return "PushList"; }
     int exec( qdb::Environment* env )
     {
-	if ( (int)env->stack().count() < p1.toInt() ) {
+	if ( (int)env->stack()->count() < p1.toInt() ) {
 	    env->setLastError("PushList: not enough stack elements");
 	    return 0;
 	}
 	QValueList<QVariant> rec;
 	for ( int i = 0; i < p1.toInt(); ++i )
-	    rec.prepend( env->stack().pop() );
-	env->stack().push( rec );
+	    rec.prepend( env->stack()->pop() );
+	env->stack()->push( rec );
 	return 1;
     }
 };
@@ -440,7 +440,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Create: no fields defined!");
 	    return 0;
@@ -457,8 +457,8 @@ public:
 	    rec.append( field );
 	}
 	env->addDriver( 0, p1.toString() );
-	qdb::FileDriver& drv = env->fileDriver( 0 );
-	return drv.create( &rec );
+	qdb::FileDriver* drv = env->fileDriver( 0 );
+	return drv->create( &rec );
     }
 };
 
@@ -476,8 +476,8 @@ public:
     int exec( qdb::Environment* env )
     {
 	env->addDriver( p1.toInt(), p2.toString() );
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.open() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->open() ) {
 	    env->setLastError("Open: unable to open file:" + p2.toString() );
 	    return 0;
 	}
@@ -497,12 +497,12 @@ public:
     QString name() const { return "Close"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Close: file not open!" );
 	    return 0;
 	}
-	return drv.close();
+	return drv->close();
     }
 };
 
@@ -521,13 +521,13 @@ public:
     QString name() const { return "Insert"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Insert: file not open!" );
 	    return 0;
 	}
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Insert: no values!");
 	    return 0;
@@ -538,7 +538,7 @@ public:
 	    field.setValue( val );
 	    rec.append( field );
 	}
-	return drv.insert( &rec );
+	return drv->insert( &rec );
     }
 };
 
@@ -555,12 +555,12 @@ public:
     QString name() const { return "Mark"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Mark: file not open!" );
 	    return 0;
 	}
-	return drv.mark();
+	return drv->mark();
     }
 };
 
@@ -577,12 +577,12 @@ public:
     QString name() const { return "DeleteMarked"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("DeleteMarked: file not open!" );
 	    return 0;
 	}
-	return drv.deleteMarked();
+	return drv->deleteMarked();
     }
 };
 
@@ -605,7 +605,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("UpdateMarked: no fields defined!");
 	    return 0;
@@ -622,14 +622,14 @@ public:
 	    field.setValue( fieldDescription[1] );
 	    rec.append( field );
 	}
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("UpdateMarked: file not open!" );
 	    return 0;
 	}
-	bool b = drv.updateMarked( &rec );
+	bool b = drv->updateMarked( &rec );
 	if ( !b )
-	    env->setLastError( drv.lastError() );
+	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -649,16 +649,16 @@ public:
     QString name() const { return "Next"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Next: file not open!" );
 	    return 0;
 	}
-	if ( !drv.next() ) {
+	if ( !drv->next() ) {
 	    if ( p2.type() == QVariant::String )
-		env->program().setCounter( p2.toString() );
+		env->program()->setCounter( p2.toString() );
 	    else
-		env->program().setCounter( p2.toInt() );
+		env->program()->setCounter( p2.toInt() );
 	}
 	return TRUE;
     }
@@ -677,9 +677,9 @@ public:
     int exec( qdb::Environment* env )
     {
 	if ( p1.type() == QVariant::String )
-	    env->program().setCounter( p1.toString() );
+	    env->program()->setCounter( p1.toString() );
 	else
-	    env->program().setCounter( p1.toInt() );
+	    env->program()->setCounter( p1.toInt() );
 	return TRUE;
     }
 };
@@ -708,7 +708,7 @@ public:
 	QValueList<QVariant> field;
 	field.append( name );
 	field.append( value );
-	env->stack().push( field );
+	env->stack()->push( field );
 	return TRUE;
     }
 };
@@ -728,17 +728,17 @@ public:
     QString name() const { return "PushFieldValue"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("PushFieldValue: file not open!" );
 	    return 0;
 	}
 	QVariant v;
-	if ( !drv.field( p2.toInt(), v ) ) {
+	if ( !drv->field( p2.toInt(), v ) ) {
 	    env->setLastError("PushFieldValue: unable to get field value!");
 	    return FALSE;
 	}
-	env->stack().push( v );
+	env->stack()->push( v );
 	return TRUE;
     }
 };
@@ -759,17 +759,17 @@ public:
     QString name() const { return "PushFieldDesc"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("PushFieldDesc: file not open!" );
 	    return 0;
 	}
 	QVariant v;
-	if ( !drv.fieldDescription( p2.toString(), v ) ) {
+	if ( !drv->fieldDescription( p2.toString(), v ) ) {
 	    env->setLastError("PushFieldDesc: unable to get field description!");
 	    return FALSE;
 	}
-	env->stack().push( v );
+	env->stack()->push( v );
 	return TRUE;
     }
 };
@@ -787,12 +787,12 @@ public:
     QString name() const { return "SaveResult"; }
     int exec( qdb::Environment* env )
     {
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("SaveResult: no values!");
 	    return 0;
 	}
-	return env->resultSet( p1.toInt() ).append( list );
+	return env->resultSet( p1.toInt() )->append( list );
     }
 };
 
@@ -816,7 +816,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("CreateResult: no fields defined!");
 	    return 0;
@@ -833,7 +833,7 @@ public:
 	    rec.append( field );
 	}
 	env->addResult( p1.toInt() );
-	return env->resultSet( p1.toInt() ).setHeader( rec );
+	return env->resultSet( p1.toInt() )->setHeader( rec );
     }
 };
 
@@ -851,12 +851,12 @@ public:
     QString name() const { return "RewindMarked"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("RewindMarked: file not open!" );
 	    return 0;
 	}
-	return drv.rewindMarked();
+	return drv->rewindMarked();
     }
 };
 
@@ -875,17 +875,17 @@ public:
     QString name() const { return "NextMarked"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("NextMarked: file not open!" );
 	    return 0;
 	}
-	bool b = drv.nextMarked();
+	bool b = drv->nextMarked();
 	if ( !b ) {
 	    if ( p2.type() == QVariant::String )
-		env->program().setCounter( p2.toString() );
+		env->program()->setCounter( p2.toString() );
 	    else
-		env->program().setCounter( p2.toInt() );
+		env->program()->setCounter( p2.toInt() );
 	}
 	return TRUE;
   }
@@ -907,13 +907,13 @@ public:
     QString name() const { return "Update"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Update: file not open!" );
 	    return 0;
 	}
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Update: no values!");
 	    return 0;
@@ -924,9 +924,9 @@ public:
 	    field.setValue( val );
 	    rec.append( field );
 	}
-	bool b = drv.update( &rec );
+	bool b = drv->update( &rec );
 	if ( !b )
-	    env->setLastError( drv.lastError() );
+	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -986,7 +986,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("RangeScan: no range scan fields defined!");
 	    return 0;
@@ -1008,14 +1008,14 @@ public:
 	    field.setValue( value );
 	    rec.append( field );
 	}
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("RangeScan: file not open!" );
 	    return 0;
 	}
-	bool b = drv.rangeScan( &rec );
+	bool b = drv->rangeScan( &rec );
 	if ( !b )
-	    env->setLastError( drv.lastError() );
+	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -1036,7 +1036,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("CreateIndex: no fields defined!");
 	    return 0;
@@ -1053,14 +1053,14 @@ public:
 	    field.setValue( fieldDescription[1] );
 	    rec.append( field );
 	}
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("CreateIndex: file not open!" );
 	    return 0;
 	}
-	bool b = drv.createIndex( &rec, p2.toBool() );
+	bool b = drv->createIndex( &rec, p2.toBool() );
 	if ( !b )
-	    env->setLastError( drv.lastError() );
+	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -1079,8 +1079,8 @@ public:
     int exec( qdb::Environment* env )
     {
 	env->addDriver( p1.toInt(), p2.toString() );
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.drop() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->drop() ) {
 	    env->setLastError("Drop: unable to drop file:" + p2.toString() );
 	    return 0;
 	}
@@ -1128,7 +1128,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	QSqlIndex idx;
-	QValueList<QVariant> list = env->stack().pop().toList();
+	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Sort: no fields defined!");
 	    return 0;
@@ -1150,14 +1150,14 @@ public:
 	    bool descend = list[++i].toBool();
 	    idx.append( field, descend );
 	}
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.isOpen() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->isOpen() ) {
 	    env->setLastError("Sort: file not open!" );
 	    return 0;
 	}
-	bool b = env->resultSet( p1.toInt() ).sort( &idx );
+	bool b = env->resultSet( p1.toInt() )->sort( &idx );
 	if ( !b )
-	    env->setLastError( drv.lastError() );
+	    env->setLastError( drv->lastError() );
 	return b;
     }
 };
@@ -1175,8 +1175,8 @@ public:
     QString name() const { return "ClearMarked"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver& drv = env->fileDriver( p1.toInt() );
-	if ( !drv.clearMarked() ) {
+	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	if ( !drv->clearMarked() ) {
 	    env->setLastError("ClearMarked: unable to clear marks!" );
 	    return 0;
 	}

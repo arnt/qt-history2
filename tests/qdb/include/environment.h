@@ -84,6 +84,8 @@ namespace qdb {
 	virtual Op* next() = 0;
     };
 
+    typedef QValueStack<QVariant> Stack;
+
     struct Environment
     {
 	virtual void setOutput( QTextStream& stream ) = 0;
@@ -91,19 +93,18 @@ namespace qdb {
 	virtual bool parse( const QString& commands, bool verbose = FALSE ) = 0;
 	virtual bool execute( bool verbose = FALSE ) = 0;
 	virtual void reset() = 0;
-	virtual QValueStack<QVariant>& stack() = 0;
-	virtual Program& program() = 0;
+	virtual Stack* stack() = 0;
+	virtual Program* program() = 0;
 	virtual void addDriver( int id, const QString& fileName ) = 0;
 	virtual void addResult( int id ) = 0;
-	virtual FileDriver& fileDriver( int id ) = 0;
-	virtual ResultSet& resultSet( int id ) = 0;
+	virtual FileDriver* fileDriver( int id ) = 0;
+	virtual ResultSet* resultSet( int id ) = 0;
 	virtual bool save( QIODevice *dev ) = 0;
 	virtual bool save( const QString& filename ) = 0;
 	virtual bool saveListing( QTextStream& stream ) = 0;
 	virtual bool saveListing( const QString& filename ) = 0;
 	virtual void setLastError( const QString& error ) = 0;
 	virtual QString lastError() const = 0;
-
     };
 
 };

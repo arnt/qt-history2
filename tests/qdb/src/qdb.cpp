@@ -1,14 +1,35 @@
 #include <qdb.h>
 #include <qfile.h>
+#include <sqlinterpreter.h>
+#include <qmap.h>
+#include <qtextstream.h>
+#include <qvaluestack.h>
+
+class QDb::Private
+{
+public:
+    Private() : stdOut( stdout, IO_WriteOnly )
+    {
+	out = &stdOut;
+    }
+    QMap<int,FileDriver> drivers;
+    QMap<int,ResultSet> results;
+    qdb::Stack stck;
+    Program pgm;
+    Parser prs;
+    QTextStream stdOut;
+    QTextStream* out;
+    QString err;
+};
+
 
 /*!  Constructs an empty environment
 
 */
 
 QDb::QDb()
-    : stdOut( stdout, IO_WriteOnly )
 {
-    out = &stdOut;
+    d = new Private();
 }
 
 
@@ -19,16 +40,17 @@ QDb::QDb()
 QDb::~QDb()
 {
     reset();
+    delete d;
 }
 
 void QDb::addDriver( int id, const QString& fileName )
 {
-    drivers[id] = FileDriver( this, fileName );
+    d->drivers[id] = FileDriver( this, fileName );
 }
 
 void QDb::addResult( int id )
 {
-    results[id] = ResultSet( this );
+    d->results[id] = ResultSet( this );
 }
 
 
@@ -38,9 +60,9 @@ void QDb::addResult( int id )
 
 */
 
-FileDriver& QDb::fileDriver( int id )
+qdb::FileDriver* QDb::fileDriver( int id )
 {
-    return drivers[id];
+    return &d->drivers[id];
 }
 
 
@@ -48,9 +70,9 @@ FileDriver& QDb::fileDriver( int id )
 
 */
 
-QValueStack<QVariant>& QDb::stack()
+qdb::Stack* QDb::stack()
 {
-    return stck;
+    return &d->stck;
 }
 
 
@@ -58,9 +80,9 @@ QValueStack<QVariant>& QDb::stack()
 
 */
 
-Program& QDb::program()
+qdb::Program* QDb::program()
 {
-    return pgm;
+    return &d->pgm;
 }
 
 
@@ -81,11 +103,11 @@ bool QDb::execute( bool verbose )
     if ( verbose )
 	output() << "executing..." << endl;
     qdb::Op* op = 0;
-    pgm.resetCounter();
-    while( (op = pgm.next() ) ) {
+    d->pgm.resetCounter();
+    while( (op = d->pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
 	    if ( verbose )
-		output() << "[Line " + QString::number(pgm.counter()) + "] " + lastError() << endl;
+		output() << "[Line " + QString::number(d->pgm.counter()) + "] " + lastError() << endl;
 	    break;
 	}
     }
@@ -99,33 +121,33 @@ bool QDb::execute( bool verbose )
 
 void QDb::reset()
 {
-    stck.clear();
-    pgm.clear();
+    d->stck.clear();
+    d->pgm.clear();
     uint i = 0;
-    for( i = 0; i < drivers.count(); ++i )
-	drivers[i].close();
-    drivers.clear();
-    results.clear();
+    for( i = 0; i < d->drivers.count(); ++i )
+	d->drivers[i].close();
+    d->drivers.clear();
+    d->results.clear();
 }
 
 /*!
 
 */
 
-ResultSet& QDb::resultSet( int id )
+qdb::ResultSet* QDb::resultSet( int id )
 {
-    return results[id];
+    return &d->results[id];
 }
 
 bool QDb::save( QIODevice *dev )
 {
     if ( !dev || !dev->isOpen() )
 	return FALSE;
-    pgm.resetCounter();
+    d->pgm.resetCounter();
     int i = 0;
     QDataStream stream( dev );
     qdb::Op* op = 0;
-    while( (op = pgm.next() ) ) {
+    while( (op = d->pgm.next() ) ) {
 	stream << i << op->name();
 	if ( op->P(0).isValid() )
 	     stream << op->P(0);
@@ -136,7 +158,7 @@ bool QDb::save( QIODevice *dev )
 	stream << "\n";
 	++i;
     }
-    pgm.resetCounter();
+    d->pgm.resetCounter();
     return TRUE;
 }
 
@@ -172,10 +194,10 @@ static QString asListing( QVariant& v )
 bool QDb::saveListing( QTextStream& stream )
 {
     stream << "Program Listing" << endl;
-    pgm.resetCounter();
+    d->pgm.resetCounter();
     int i = 0;
     qdb::Op* op = 0;
-    while( (op = pgm.next() ) ) {
+    while( (op = d->pgm.next() ) ) {
 	stream << QString::number( i ).rightJustify(4) << op->name().rightJustify(15);
 	stream << asListing( op->P(0) ).rightJustify(15);
 	stream << asListing( op->P(1) ).rightJustify(15);
@@ -183,7 +205,7 @@ bool QDb::saveListing( QTextStream& stream )
 	stream << endl;
 	++i;
     }
-    pgm.resetCounter();
+    d->pgm.resetCounter();
     return TRUE;
 }
 
@@ -197,4 +219,24 @@ bool QDb::saveListing( const QString& filename )
     saveListing( stream );
     f.close();
     return TRUE;
+}
+
+void QDb::setOutput( QTextStream& stream )
+{
+    d->out = &stream;
+}
+
+QTextStream& QDb::output()
+{
+    return *d->out;
+}
+
+void QDb::setLastError( const QString& error )
+{
+    d->err = error;
+}
+
+QString QDb::lastError() const
+{
+    return d->err;
 }
