@@ -1155,10 +1155,11 @@ void QCanvas::update()
 #ifndef QT_NO_TRANSFORMATIONS
             if (!wm.isIdentity()) {
                 // r = Visible area of the canvas where there are changes
-                QRect r = changeBounds(view->inverseWorldMatrix().map(area));
+		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
                 if (!r.isEmpty()) {
-		    r.moveBy(-view->contentsX(), -view->contentsY());
-   		    view->viewport()->repaint(wm.map(r));
+		    QRect tr = wm.map(r);
+		    tr.moveBy(-view->contentsX(), -view->contentsY());
+ 		    view->viewport()->repaint(tr);
 		    doneareas.append(r);
                 }
             } else
