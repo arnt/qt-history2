@@ -478,6 +478,8 @@ public:
 	PM_MDIFrameWidth,
 	PM_MDIMinimizedWidth,
 	PM_HeaderMargin,
+	PM_HeaderMarkSize,
+	PM_HeaderGripMargin,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

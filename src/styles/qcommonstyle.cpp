@@ -2361,6 +2361,12 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_HeaderMargin:
 	ret = 4;
 	break;
+    case PM_HeaderMarkSize:
+	ret = 32;
+	break;
+    case PM_HeaderGripMargin:
+	ret = 4;
+	break;
     default:
 	ret = 0;
 	break;

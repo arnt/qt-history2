@@ -45,10 +45,6 @@
 #include "qapplication.h"
 #include "qstyle.h"
 
-static const int GRIPMARGIN  = 4;	// half the size of the resize area
-static const int MARKSIZE = 32;
-
-
 class QHeaderData
 {
 public:
@@ -450,6 +446,7 @@ void QHeader::markLine( int idx )
 {
     QPainter paint( this );
     paint.setPen( QPen( black, 1, DotLine ) );
+    int MARKSIZE = style().pixelMetric( QStyle::PM_HeaderMarkSize );
     int p = pPos( idx );
     int x = p - MARKSIZE/2;
     int y = 2;
@@ -480,6 +477,7 @@ void QHeader::unMarkLine( int idx )
 {
     if ( idx < 0 )
 	return;
+    int MARKSIZE = style().pixelMetric( QStyle::PM_HeaderMarkSize );
     int p = pPos( idx );
     int x = p - MARKSIZE/2;
     int y = 2;
@@ -516,6 +514,7 @@ int QHeader::findLine( int c )
 	    return handleIdx;
 	i = d->s2i[section];
     }
+    int MARKSIZE = style().pixelMetric( QStyle::PM_HeaderMarkSize );
     if ( i == handleIdx )
 	return i;
     if ( i == handleIdx - 1 &&  pPos( handleIdx ) - c > MARKSIZE/2 )
@@ -642,7 +641,8 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	c = d->lastPos - c;
 
     int section = d->sectionAt( c );
-    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
+    int GripMargin = (bool)d->resize[ section ] ?
+	style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
     if ( section < 0 )
 	return;
     int index = d->s2i[section];
@@ -759,7 +759,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     case Idle:
 	hit = FALSE;
 	if ( (section = d->sectionAt( c )) >= 0 ) {
-	    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
+	    int GripMargin = (bool)d->resize[ section ] ?
+		style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
 	    int index = d->s2i[section];
 	    if ( (index > 0 && c < d->positions[index] + GripMargin) ||
 		 (c > d->positions[index] + d->sizes[section] - GripMargin) ) {
@@ -844,7 +845,8 @@ void QHeader::mouseDoubleClickEvent( QMouseEvent *e )
 void QHeader::handleColumnResize( int index, int c, bool final, bool recalcAll )
 {
     int section = d->i2s[index];
-    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
+    int GripMargin = (bool)d->resize[ section ] ?
+	style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
     int lim = d->positions[index] + 2*GripMargin;
     if ( c == lim )
 	return;
