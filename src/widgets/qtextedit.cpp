@@ -1049,8 +1049,21 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     \reimp
 */
 
-void QTextEdit::drawContents( QPainter * )
+void QTextEdit::drawContents( QPainter *p )
 {
+    if ( horizontalScrollBar()->isVisible() && 
+	 verticalScrollBar()->isVisible() ) {
+	const QRect verticalRect = verticalScrollBar()->geometry();
+	const QRect horizontalRect = horizontalScrollBar()->geometry();
+
+	QRect cornerRect;
+	cornerRect.setTop( verticalRect.bottom() );
+	cornerRect.setBottom( horizontalRect.bottom() );
+	cornerRect.setLeft( verticalRect.left() );
+	cornerRect.setRight( verticalRect.right() );
+
+	p->fillRect( cornerRect, colorGroup().background() );
+    }
 }
 
 /*!
