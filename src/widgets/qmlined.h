@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#14 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#15 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -70,8 +70,8 @@ protected:
     virtual void insertChar( char );
     virtual void newLine();
     virtual void killLine();
-    virtual void pageUp();
-    virtual void pageDown();
+    virtual void pageUp( bool mark=FALSE );
+    virtual void pageDown( bool mark=FALSE );
     virtual void cursorLeft( bool mark=FALSE, int steps = 1 );
     virtual void cursorRight( bool mark=FALSE, int steps = 1 );
     virtual void cursorUp( bool mark=FALSE, int steps = 1 );

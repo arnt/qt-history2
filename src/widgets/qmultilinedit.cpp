@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#21 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -689,10 +689,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    del();
 	    break;
 	case Key_Next:
-	    pageDown();
+	    pageDown( e->state() & ShiftButton );
 	    break;
 	case Key_Prior:
-	    pageUp();
+	    pageUp( e->state() & ShiftButton );
 	    break;
 	case Key_Enter:
 	case Key_Return:
@@ -716,8 +716,8 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
   Moves the cursor one page up.
 */
 
-void QMultiLineEdit::pageDown()
-{
+void QMultiLineEdit::pageDown( bool mark )
+{ 
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
@@ -728,16 +728,28 @@ void QMultiLineEdit::pageDown()
     if ( !curXPos )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
+
+    if ( mark && !hasMarkedText() ) {
+	markAnchorX    = cursorX;
+	markAnchorY    = cursorY;
+    }
     if ( newTopCell != topCell() ) {
 	cursorY = newTopCell + delta;
+	cursorX = mapFromView( curXPos, cursorY );
+	if ( mark )
+	    newMark( cursorX, cursorY );
 	setTopCell( newTopCell );
     } else { // just move the cursor
 	cursorY = QMIN( cursorY + pageSize, numLines() - 1);
+	cursorX = mapFromView( curXPos, cursorY );
+	if ( mark )
+	    newMark( cursorX, cursorY );
 	makeVisible();
     }
-    cursorX = mapFromView( curXPos, cursorY );
-    //makeVisible();
-    updateCell( oldY, 0, FALSE );
+    if ( mark )
+	repaint( FALSE );
+    else
+	updateCell( oldY, 0, FALSE );
 }
 
 
@@ -745,7 +757,7 @@ void QMultiLineEdit::pageDown()
   Moves the cursor one page down.
 */
 
-void QMultiLineEdit::pageUp()
+void QMultiLineEdit::pageUp( bool mark )
 {
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
@@ -755,7 +767,10 @@ void QMultiLineEdit::pageUp()
 	newTopCell = 0;
 	delta = 0;
     }
-	
+    if ( mark && !hasMarkedText() ) {
+	markAnchorX    = cursorX;
+	markAnchorY    = cursorY;
+    }
     if ( !curXPos )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
@@ -763,12 +778,20 @@ void QMultiLineEdit::pageUp()
 	cursorY = newTopCell + delta;
 	if ( partial )
 	    cursorY--;
+	cursorX = mapFromView( curXPos, cursorY );
+	if ( mark )
+	    newMark( cursorX, cursorY );
 	setTopCell( newTopCell );
     } else { // just move the cursor
 	cursorY = QMAX( cursorY - pageSize, 0 );
+	cursorX = mapFromView( curXPos, cursorY );
+	if ( mark )
+	    newMark( cursorX, cursorY );
     }
-    //makeVisible();
-    updateCell( oldY, 0, FALSE );
+    if ( mark )
+	repaint( FALSE );
+    else
+	updateCell( oldY, 0, FALSE );
 }
 
 /*!
@@ -928,14 +951,15 @@ void QMultiLineEdit::killLine()
 
 void QMultiLineEdit::cursorLeft( bool mark, int steps )
 {
-    if ( steps != 1 ) {
-	warning( "cursorLeft %d steps", steps );
-    }
     if ( steps < 0 ) {
 	cursorRight( mark, -steps );
 	return;
     }
     if ( cursorX != 0 || cursorY != 0 ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	killTimer( blinkTimer );
 	int ll = lineLength( cursorY );
 	if ( cursorX > ll )
@@ -953,12 +977,15 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	    }
 	    updateCell( oldY, 0, FALSE );
 	}
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
 	blinkTimer = startTimer( blinkTime );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
     makeVisible();
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
 }
 
 /*!
@@ -979,6 +1006,10 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
     int strl = lineLength( cursorY );
 
     if ( cursorX < strl || cursorY < (int)contents->count() - 1 ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	killTimer( blinkTimer );
 	cursorOn = TRUE;
 	cursorX += steps;
@@ -992,12 +1023,15 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	    }
 	    updateCell( oldY, 0, FALSE );
 	}
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
 	updateCell( cursorY, 0, FALSE );
 	blinkTimer = startTimer( blinkTime );
     }
     curXPos  = 0;
     makeVisible();
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
 }
 
 /*!
@@ -1016,6 +1050,10 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
     }
 
     if ( cursorY != 0 ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	if ( !curXPos )
 	    curXPos = mapToView( cursorX, cursorY );
 	int oldY = cursorY;
@@ -1026,12 +1064,15 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	    cursorY = 0;
 	}
         cursorX = mapFromView( curXPos, cursorY );
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
 	blinkTimer = startTimer( blinkTime );
     }
     makeVisible();
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
 }
 
 /*!
@@ -1050,6 +1091,10 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
     }
     int lastLin = contents->count() - 1;
     if ( cursorY != lastLin ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	if ( !curXPos )
 	    curXPos = mapToView( cursorX, cursorY );
 	int oldY = cursorY;
@@ -1059,13 +1104,16 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	if ( cursorY > lastLin ) {
 	    cursorY = lastLin;
 	}
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
         cursorX = mapFromView( curXPos, cursorY );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
 	blinkTimer = startTimer( blinkTime );
     }
     makeVisible();
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
 }
 
 /*!
@@ -1196,26 +1244,24 @@ void QMultiLineEdit::del()
   \sa end() 
 */
 
-void QMultiLineEdit::home( bool ) //mark
+void QMultiLineEdit::home( bool mark )
 {
     if ( cursorX != 0 ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	killTimer( blinkTimer );
 	cursorX = 0;
-	/*
-	if ( mark ) {
-	    newMark( cursorPos );
-	} else {
-	    markAnchor = 0;
-	    markDrag   = markAnchor;
-	}
-	*/
 	cursorOn = TRUE;
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	//startTimer( dragScrolling ? scrollTime : blinkTime );
 	blinkTimer = startTimer( blinkTime );
     }
     curXPos  = 0;
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
     makeVisible();
 }
 
@@ -1227,28 +1273,26 @@ void QMultiLineEdit::home( bool ) //mark
   \sa home()
 */
 
-void QMultiLineEdit::end( bool ) //mark
+void QMultiLineEdit::end( bool mark ) 
 {
     int tlen = lineLength( cursorY );
     if ( cursorX != tlen ) {
+	if ( mark && !hasMarkedText() ) {
+	    markAnchorX    = cursorX;
+	    markAnchorY    = cursorY;
+	}
 	killTimer( blinkTimer );
 	cursorX = tlen;
-	/*
-	if ( mark ) {
-	    newMark( cursorPos );
-	} else {
-	    markAnchor = cursorPos;
-	    markDrag   = markAnchor;
-	}
-	*/
 	cursorOn  = TRUE;
-	//startTimer( dragScrolling ? scrollTime : blinkTime );
+	if ( mark )
+	    newMark( cursorX, cursorY, FALSE );
 	blinkTimer = startTimer( blinkTime );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
     makeVisible();
-    turnMarkOff();
+    if ( !mark )
+	turnMarkOff();
 }
 
 /*!
