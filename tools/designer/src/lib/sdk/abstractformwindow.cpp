@@ -35,10 +35,9 @@ AbstractFormWindow *AbstractFormWindow::findFormWindow(QWidget *w)
     while (w) {
         if (AbstractFormWindow *fw = qobject_cast<AbstractFormWindow*>(w)) {
             return fw;
-        } else if (qobject_cast<QMainWindow*>(w)) {
-            /* skip */
-        } else if (w->isWindow())
+        } else if (w->isWindow()) {
             break;
+        }
 
         w = w->parentWidget();
     }

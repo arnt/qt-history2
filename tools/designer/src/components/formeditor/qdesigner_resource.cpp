@@ -368,6 +368,8 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
         m_core->metaDataBase()->add(w);
     }
 
+    w->setWindowFlags(w->windowFlags() & ~Qt::Window);
+
     return w;
 }
 

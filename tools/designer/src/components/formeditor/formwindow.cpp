@@ -291,6 +291,8 @@ void FormWindow::setMainContainer(QWidget *w)
         // ### generalize
     }
 
+    m_mainContainer->setFocusPolicy(Qt::StrongFocus);
+
     emit mainContainerChanged(m_mainContainer);
 }
 
@@ -360,7 +362,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     return true;
 }
 
-bool FormWindow::handleMouseMoveEvent(QWidget *www, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
 
@@ -915,6 +917,7 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
     switch (e->key()) {
         default: break; // we don't care about the other keys
 
+#if 0 // ### enable me
         case Qt::Key_Left:
             cursor()->movePosition(AbstractFormWindowCursor::Left);
             break;
@@ -922,6 +925,7 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
         case Qt::Key_Right:
             cursor()->movePosition(AbstractFormWindowCursor::Right);
             break;
+#endif
     }
 
     return true;
@@ -1630,10 +1634,9 @@ FormWindow *FormWindow::findFormWindow(QWidget *w)
     while (w) {
         if (FormWindow *fw = qobject_cast<FormWindow*>(w)) {
             return fw;
-        } else if (qobject_cast<QMainWindow*>(w)) {
-            /* skip me */
-        } else if (w->isWindow())
+        } else if (w->isWindow()) {
             break;
+        }
 
         w = w->parentWidget();
     }
