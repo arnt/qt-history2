@@ -105,7 +105,7 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
             pm_paint.begin(&pm);                                       \
             pm_paint.drawCall;                                         \
             pm_paint.end();                                            \
-            QImage image = pm.convertToImage();                        \
+            QImage image = pm.toImage();                        \
             for(int y = 0; y < image.height(); y++) {                  \
                 QRgb *row = (QRgb*)image.scanLine(y);                  \
                 for(int x = 0; x < image.width(); x++) {               \
@@ -3685,19 +3685,16 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     bitBlt_helper(dst, QPoint(dx, dy), src, QRect(sx, sy, sw, sh), ignoreMask);
 }
 
-void bitBlt(QPaintDevice *dst, const QPoint &dp,
-            const QPaintDevice *src, const QRect &sr,
-            bool ignoreMask)
+void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, bool ignoreMask)
 {
     bitBlt_helper(dst, dp, src, sr, ignoreMask);
 }
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
-             const QImage *src, int sx, int sy, int sw, int sh,
-             int conversion_flags)
+            const QImage *src, int sx, int sy, int sw, int sh, Qt::ImageConversionFlags flags)
 {
     QPixmap srcPixmap(src->width(), src->height());
-    srcPixmap.convertFromImage(*src, conversion_flags);
+    srcPixmap.fromImage(*src, flags);
     bitBlt_helper(dst, QPoint(dx, dy), &srcPixmap, QRect(sx, sy, sw, sh), false);
 }
 

@@ -2603,9 +2603,8 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         if (pixmap.mask()) {
             pixmapMask = *pixmap.mask();
         } else {
-            QImage img = pixmap.convertToImage();
-            pixmapMask.convertFromImage(img.createHeuristicMask(),
-                                         Qt::MonoOnly | Qt::ThresholdDither);
+            QImage img = pixmap.toImage();
+            pixmapMask.fromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
         }
         QPixmap ret(pixmap.width() + 1, pixmap.height() + 1);
         ret.fill(pal.color(QPalette::Disabled, QPalette::Background));

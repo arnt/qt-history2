@@ -5777,10 +5777,10 @@ void QPSPrintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                                 Qt::PixmapDrawingMode mode)
 {
-    QImage img = pm;
+    QImage img = pm.toImage();
     QImage mask;
     if (mode == Qt::ComposePixmap && pm.mask())
-        mask = *pm.mask();
+        mask = pm.mask()->toImage();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr), mask.copy(sr));
 }
 

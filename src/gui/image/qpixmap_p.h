@@ -15,6 +15,9 @@
 #define QPIXMAP_P_H
 
 #include <qpixmap.h>
+#if defined(Q_WS_X11)
+#include <qx11info_x11.h>
+#endif
 
 #if defined(Q_WS_WIN)
 // Internal pixmap memory optimization class for Windows 9x

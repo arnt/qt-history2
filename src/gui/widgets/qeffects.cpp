@@ -123,12 +123,12 @@ void QAlphaWidget::run(int time)
     resize(widget->size().width(), widget->size().height());
 
     front = QImage(widget->size(), 32);
-    front = QPixmap::grabWidget(widget);
+    front = QPixmap::grabWidget(widget).toImage();
 
     back = QImage(widget->size(), 32);
     back = QPixmap::grabWindow(QApplication::desktop()->winId(),
                                 widget->geometry().x(), widget->geometry().y(),
-                                widget->geometry().width(), widget->geometry().height());
+                                widget->geometry().width(), widget->geometry().height()).toImage();
 
     if (!back.isNull() && checkTime.elapsed() < duration / 2) {
         mixed = back.copy();

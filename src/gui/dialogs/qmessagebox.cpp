@@ -1531,7 +1531,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         logo.setColor(9, 0xffffff33);
         logo.setColor(11, 0xffcccc99);
     }
-    if (pm.convertFromImage(logo))
+    if (pm.fromImage(logo))
         mb->setIconPixmap(pm);
 #endif
     mb->setButtonText(0, tr("OK"));

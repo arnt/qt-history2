@@ -55,7 +55,6 @@ public:
     QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
 #ifndef QT_NO_IMAGEIO
     QImage(const QString &fileName, const char* format=0);
-    Q_EXPLICIT QImage(const char * const xpm[]);
     QImage(const QByteArray &data);
 #endif
     QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder);
@@ -70,8 +69,8 @@ public:
     bool operator!=(const QImage &) const;
     void detach();
     QImage copy() const;
-    inline QImage copy(int x, int y, int w, int h, int conversion_flags=0) const;
-    QImage copy(const QRect&, int conversion_flags = 0) const;
+    inline QImage copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QImage copy(const QRect&, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     bool isNull() const;
 
     int width() const;
@@ -117,9 +116,9 @@ public:
 
     QImage convertDepth(int) const;
 #ifndef QT_NO_IMAGE_TRUECOLOR
-    QImage convertDepthWithPalette(int, QRgb* p, int pc, int cf=0) const;
+    QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
 #endif
-    QImage convertDepth(int, int conversion_flags) const;
+    QImage convertDepth(int, Qt::ImageConversionFlags flags) const;
     QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
@@ -132,11 +131,12 @@ public:
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
     QImage xForm(const QMatrix &matrix) const;
+    QImage smoothXForm(const QMatrix &matrix) const;
     static QMatrix trueMatrix(const QMatrix &, int w, int h);
 #endif
 
 #ifndef QT_NO_IMAGE_DITHER_TO_1
-    QImage createAlphaMask(int conversion_flags=0) const;
+    QImage createAlphaMask(Qt::ImageConversionFlags flags = Qt::AutoColor) const;
 #endif
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QImage createHeuristicMask(bool clipTight=true) const;
@@ -179,12 +179,17 @@ public:
     QString text(const QImageTextKeyLang&) const;
     void setText(const char* key, const char* lang, const QString&);
 #endif
+
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QImage(const char * const xpm[]);
+#endif
+
 private:
     QImageData *data;
 
     friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
                                     const QImage* src, int sx, int sy,
-                                    int sw, int sh, int conversion_flags);
+                                    int sw, int sh, Qt::ImageConversionFlags flags);
 };
 
 
@@ -206,16 +211,16 @@ Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, in
 #endif
 
 Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
-                         int sx=0, int sy=0, int sw=-1, int sh=-1, int conversion_flags=0);
+                         int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
 
 /*****************************************************************************
   QImage member functions
  *****************************************************************************/
 
-inline QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
+inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags) const
 {
-    return copy(QRect(x, y, w, h), conversion_flags);
+    return copy(QRect(x, y, w, h), flags);
 }
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE

@@ -1253,12 +1253,12 @@ QByteArray QClipboardWatcher::encodedData(const char* fmt) const
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
                 iio.setFormat("PBMRAW");
-                iio.setImage(qbm.convertToImage());
+                iio.setImage(qbm.toImage());
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
                 iio.setFormat("PPMRAW");
-                iio.setImage(qpm.convertToImage());
+                iio.setImage(qpm.toImage());
             }
             XFreeGC(dpy,gc);
             QBuffer buf;

@@ -22,19 +22,13 @@
 
 class QPixmapPrivate;
 class QColor;
-
-#if defined(Q_WS_X11)
-// #### go away
-#include <qx11info_x11.h>
-class QX11PaintEngine;
-#endif
+class QX11Info;
 
 struct QPixmapData;
 
 class Q_GUI_EXPORT QPixmap : public QPaintDevice
 {
 public:
-    enum ColorMode { Auto, Color, Mono };
     enum Optimization { DefaultOptim, NoOptim, MemoryOptim=NoOptim,
                         NormalOptim, BestOptim };
 
@@ -43,9 +37,7 @@ public:
     QPixmap(int w, int h, int depth = -1, Optimization = DefaultOptim);
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
-    QPixmap(const QString& fileName, const char *format=0, ColorMode mode=Auto);
-    QPixmap(const QString& fileName, const char *format, int conversion_flags);
-    explicit QPixmap(const char * const xpm[]);
+    QPixmap(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #endif
     QPixmap(const QPixmap &);
     ~QPixmap();
@@ -84,15 +76,13 @@ public:
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
 
-    QImage convertToImage() const;
-    bool convertFromImage(const QImage &, ColorMode mode=Auto);
-    bool convertFromImage(const QImage &, int conversion_flags);
+    QImage toImage() const;
+    bool fromImage(const QImage &image, Qt::ImageConversionFlags flags = Qt::AutoColor);
+
 #ifndef QT_NO_IMAGEIO
-    bool load(const QString& fileName, const char *format=0, ColorMode mode=Auto);
-    bool load(const QString& fileName, const char *format, int conversion_flags);
-    bool loadFromData(const uchar *buf, uint len, const char* format=0, ColorMode mode=Auto);
-    bool loadFromData(const uchar *buf, uint len, const char* format, int conversion_flags);
-    bool loadFromData(const QByteArray &data, const char* format=0, int conversion_flags=0);
+    bool load(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
+    bool loadFromData(const uchar *buf, uint len, const char* format, Qt::ImageConversionFlags flags = Qt::AutoColor);
+    bool loadFromData(const QByteArray &data, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool save(const QString& fileName, const char* format, int quality = -1) const;
     bool save(QIODevice* device, const char* format, int quality = -1) const;
 #endif
@@ -101,15 +91,6 @@ public:
     HBITMAP hbm() const;
     HDC getDC() const;
     void releaseDC(HDC) const;
-
-private:
-    // These functions are internal and used by Windows 9x only
-   // bool isMultiCellPixmap() const;
-   // HBITMAP multiCellBitmap() const;
-   // int multiCellOffset() const;
-   // int allocCell();
-   // void freeCell(bool = false);
-public:
 #endif
 
     int serialNumber() const;
@@ -143,9 +124,24 @@ public:
     QPaintEngine *paintEngine() const;
 
     inline bool operator!() const { return isNull(); }
-    inline operator QImage() const { return convertToImage(); }
 
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
+
+
+#ifdef QT_COMPAT
+#ifndef QT_NO_IMAGEIO
+    enum ColorMode { Auto, Color, Mono };
+    QT_COMPAT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
+    QT_COMPAT_CONSTRUCTOR QPixmap(const char * const xpm[]);
+    QT_COMPAT bool load(const QString& fileName, const char *format, ColorMode mode);
+    QT_COMPAT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
+#endif
+    inline QT_COMPAT QImage convertToImage() const { return toImage(); }
+    QT_COMPAT bool convertFromImage(const QImage &, ColorMode mode);
+    QT_COMPAT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
+        { return fromImage(img, flags); }
+    inline QT_COMPAT operator QImage() const { return toImage(); }
+#endif
 
 protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);

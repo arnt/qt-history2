@@ -286,7 +286,7 @@ void QMoviePrivate::flushBuffer()
         }
     }
 
-    if (error) 
+    if (error)
         frametimer->stop();
     pollForData();
 }
@@ -329,11 +329,11 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
          memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 12)), &framenumber,
                 sizeof(framenumber));
          if (!QPixmapCache::find(key, lines)) {
-            lines.convertFromImage(img, Qt::ColorOnly);
+            lines.fromImage(img, Qt::ColorOnly);
             QPixmapCache::insert(key, lines);
         }
     } else {
-        lines.convertFromImage(img, Qt::ColorOnly);
+        lines.fromImage(img, Qt::ColorOnly);
     }
 
     if (bg.isValid()) {
@@ -396,7 +396,7 @@ void QMoviePrivate::showChanges()
 // Private as QImageConsumer
 void QMoviePrivate::changed(const QRect& rect)
 {
-    if (!frametimer->isActive()) 
+    if (!frametimer->isActive())
         frametimer->start(lasttimerinterval);
     changed_area = changed_area.unite(rect);
 }
@@ -550,9 +550,9 @@ void QMoviePrivate::pollForData()
         }
     } else if(int space = bufferSpace()) {
         int avail = source->readBlock((char*)buffer, space);
-        if(avail > 0) 
+        if(avail > 0)
             receive(buffer, avail);
-        if(avail == -1) 
+        if(avail == -1)
             source->close();
         else
             polltimer->start(0, true);

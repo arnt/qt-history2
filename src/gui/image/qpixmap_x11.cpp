@@ -567,7 +567,7 @@ int QPixmap::metric(int m) const
     \sa convertFromImage()
 */
 
-QImage QPixmap::convertToImage() const
+QImage QPixmap::toImage() const
 {
     QImage image;
     if (isNull())
@@ -626,7 +626,7 @@ QImage QPixmap::convertToImage() const
         }
     } else if (msk) {
         image.setAlphaBuffer(true);
-        alpha = msk->convertToImage();
+        alpha = msk->toImage();
     }
     bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
@@ -863,9 +863,9 @@ QImage QPixmap::convertToImage() const
     Converts image \a img and sets this pixmap. Returns true if
     successful; otherwise returns false.
 
-    The \a conversion_flags argument is a bitwise-OR of the
-    \l{Qt::ImageConversionFlags}. Passing 0 for \a conversion_flags
-    sets all the default options.
+    The \a flags argument is a bitwise-OR of the
+    \l{Qt::ImageConversionFlags}. Passing 0 for \a flags sets all the
+    default options.
 
     Note that even though a QPixmap with depth 1 behaves much like a
     QBitmap, isQBitmap() returns false.
@@ -879,7 +879,7 @@ QImage QPixmap::convertToImage() const
     defaultDepth(), QImage::hasAlphaBuffer()
 */
 
-bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
+bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
     if (img.isNull()) {
         qWarning("QPixmap::convertFromImage: Cannot convert a null image");
@@ -892,7 +892,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     int         d   = image.depth();
     const int         dd  = data->xinfo.depth();
     bool force_mono = (dd == 1 || isQBitmap() ||
-                       (conversion_flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
+                       (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
 
     // get rid of the mask
     delete data->mask;
@@ -906,17 +906,17 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     if (force_mono) {
         if (d != 1) {
             // dither
-            image = image.convertDepth(1, conversion_flags);
+            image = image.convertDepth(1, flags);
             d = 1;
         }
     } else {                                        // can be both
         bool conv8 = false;
         if (d > 8 && dd <= 8) {                // convert to 8 bit
-            if ((conversion_flags & Qt::DitherMode_Mask) == Qt::AutoDither)
-                conversion_flags = (conversion_flags & ~Qt::DitherMode_Mask)
+            if ((flags & Qt::DitherMode_Mask) == Qt::AutoDither)
+                flags = (flags & ~Qt::DitherMode_Mask)
                                    | Qt::PreferDither;
             conv8 = true;
-        } else if ((conversion_flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
+        } else if ((flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
             conv8 = d == 1;                        // native depth wanted
         } else if (d == 1) {
             if (image.numColors() == 2) {
@@ -929,7 +929,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             }
         }
         if (conv8) {
-            image = image.convertDepth(8, conversion_flags);
+            image = image.convertDepth(8, flags);
             d = 8;
         }
     }
@@ -1010,7 +1010,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
         if (image.hasAlphaBuffer()) {
             QBitmap m;
-            m = image.createAlphaMask(conversion_flags);
+            m = image.createAlphaMask(flags);
             setMask(m);
         }
         return true;
@@ -1066,8 +1066,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                            n_bits(blue_mask) == bbits;
         bool dither_tc =
             // Want it?
-            (conversion_flags & Qt::Dither_Mask) != Qt::ThresholdDither &&
-            (conversion_flags & Qt::DitherMode_Mask) != Qt::AvoidDither &&
+            (flags & Qt::Dither_Mask) != Qt::ThresholdDither &&
+            (flags & Qt::DitherMode_Mask) != Qt::AvoidDither &&
             // Need it?
             bppc < 24 && !d8 &&
             // Can do it? (Contiguous bits?)
@@ -1444,7 +1444,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
     if (image.hasAlphaBuffer()) {
         QBitmap m;
-        m = image.createAlphaMask(conversion_flags);
+        m = image.createAlphaMask(flags);
         setMask(m);
 
 #ifndef QT_NO_XFT
@@ -1894,7 +1894,7 @@ void QPixmap::x11SetScreen(int screen)
     qDebug("QPixmap::x11SetScreen for %p from %d to %d. Size is %d/%d", data, data->xinfo.screen(), screen, width(), height());
 #endif
 
-    QImage img = convertToImage();
+    QImage img = toImage();
     resize(0,0);
     QX11InfoData* xd = data->xinfo.getX11Data(true);
     xd->screen = screen;
@@ -1905,7 +1905,7 @@ void QPixmap::x11SetScreen(int screen)
     xd->visual = (Visual *)QX11Info::appVisual(screen);
     xd->defaultVisual = QX11Info::appDefaultVisual(screen);
     data->xinfo.setX11Data(xd);
-    convertFromImage(img);
+    fromImage(img);
 }
 
 /*!

@@ -744,7 +744,7 @@ QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
     if (!suppliedPix || suppliedPix->isNull())
         return 0;
 
-    QImage img = suppliedPix->convertToImage();
+    QImage img = suppliedPix->toImage();
     QSize imgSize = iconSize(size);
     if (size == Small) {
         imgSize = imgSize.boundedTo(img.size());
@@ -756,7 +756,7 @@ QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
     QPixmap *pixmap = new QPixmap(img);
     if (!pixmap->mask()) {
         QBitmap mask;
-        mask.convertFromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
+        mask.fromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
         pixmap->setMask(mask);
     }
     return pixmap;
@@ -774,7 +774,7 @@ QPixmap *QIconSet::createIcon(Size size, Mode mode, State state) const
         return 0;
 
     QPixmap pix = QApplication::style().stylePixmap(mode == Disabled
-                                                    ? QStyle::PT_Disabled 
+                                                    ? QStyle::PT_Disabled
                                                     : QStyle::PT_Active, normalPix,
                                                     QApplication::palette());
     return new QPixmap(pix);

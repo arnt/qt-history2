@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 
 #ifdef Q_WS_QWS
 #include "qpaintengine_qws.h"
@@ -405,6 +406,7 @@ QImage::QImage(const QString &fileName, const char* format)
     load(fileName, format);
 }
 
+#ifdef QT_COMPAT
 #ifndef QT_NO_IMAGEIO_XPM
 // helper
 extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
@@ -442,6 +444,7 @@ QImage::QImage(const char * const xpm[])
     qFatal("XPM not supported");
 #endif
 }
+#endif
 
 /*!
     Constructs an image from the binary data \a array. It tries to
@@ -634,7 +637,7 @@ QImage QImage::copy() const
 }
 
 /*!
-    \fn inline QImage QImage::copy(int x, int y, int w, int h, int conversion_flags=0) const
+    \fn inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = QFlag()) const
     \overload
 
     Returns a \link shclass.html deep copy\endlink of a sub-area of
@@ -646,7 +649,7 @@ QImage QImage::copy() const
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversion_flags to specify how you'd prefer this to happen.
+    flags to specify how you'd prefer this to happen.
 
     \sa bitBlt() Qt::ImageConversionFlags
 */
@@ -662,11 +665,11 @@ QImage QImage::copy() const
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversion_flags to specify how you'd prefer this to happen.
+    flags to specify how you'd prefer this to happen.
 
     \sa bitBlt() Qt::ImageConversionFlags
 */
-QImage QImage::copy(const QRect& r, int conversion_flags) const
+QImage QImage::copy(const QRect& r, Qt::ImageConversionFlags flags) const
 {
     int x = r.x();
     int y = r.y();
@@ -700,7 +703,7 @@ QImage QImage::copy(const QRect& r, int conversion_flags) const
         that->setAlphaBuffer(false);
     }
     memcpy(image.colorTable(), colorTable(), numColors()*sizeof(QRgb));
-    bitBlt(&image, dx, dy, this, x, y, -1, -1, conversion_flags);
+    bitBlt(&image, dx, dy, this, x, y, -1, -1, flags);
     if (has_alpha) {
         // restore image state
         QImage *that = (QImage *) this;
@@ -1337,7 +1340,7 @@ struct QRgbMap {
     QRgb  rgb;
 };
 
-static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags, QRgb* palette=0, int palette_count=0)
+static bool convert_32_to_8(const QImage *src, QImage *dst, Qt::ImageConversionFlags flags, QRgb* palette=0, int palette_count=0)
 {
     register QRgb *p;
     uchar  *b;
@@ -1385,7 +1388,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
         }
     }
 
-    if ((conversion_flags & Qt::DitherMode_Mask) == Qt::PreferDither) {
+    if ((flags & Qt::DitherMode_Mask) == Qt::PreferDither) {
         do_quant = true;
     } else {
         for (y=0; y<src->height(); y++) {        // check if <= 256 colors
@@ -1477,7 +1480,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
         int* line1[3];
         int* line2[3];
         int* pv[3];
-        if ((conversion_flags & Qt::Dither_Mask) == Qt::DiffuseDither) {
+        if ((flags & Qt::Dither_Mask) == Qt::DiffuseDither) {
             line1[0] = new int[src->width()];
             line2[0] = new int[src->width()];
             line1[1] = new int[src->width()];
@@ -1495,7 +1498,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
             QRgb *end = p + sw;
 
             // perform quantization
-            if ((conversion_flags & Qt::Dither_Mask) == Qt::ThresholdDither) {
+            if ((flags & Qt::Dither_Mask) == Qt::ThresholdDither) {
 #define DITHER(p,m) ((uchar) ((p * (m) + 127) / 255))
                 while (p < end) {
                     rc = qRed(*p);
@@ -1512,7 +1515,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
                     p++;
                 }
 #undef DITHER
-            } else if ((conversion_flags & Qt::Dither_Mask) == Qt::OrderedDither) {
+            } else if ((flags & Qt::Dither_Mask) == Qt::OrderedDither) {
 #define DITHER(p,d,m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) / 65536))
 
                 int x = 0;
@@ -1600,7 +1603,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
         if (src->hasAlphaBuffer()) {
             const int trans = 216;
             dst->setColor(trans, 0x00000000);        // transparent
-            QImage mask = src->createAlphaMask(conversion_flags);
+            QImage mask = src->createAlphaMask(flags);
             uchar* m;
             for (y=0; y < src->height(); y++) {
                 uchar bit = 0x80;
@@ -1620,7 +1623,7 @@ static bool convert_32_to_8(const QImage *src, QImage *dst, int conversion_flags
         }
 #endif
 
-        if ((conversion_flags & Qt::Dither_Mask) == Qt::DiffuseDither) {
+        if ((flags & Qt::Dither_Mask) == Qt::DiffuseDither) {
             delete [] line1[0];
             delete [] line2[0];
             delete [] line1[1];
@@ -1729,7 +1732,7 @@ static bool convert_1_to_8(const QImage *src, QImage *dst)
 //
 
 static bool dither_to_1(const QImage *src, QImage *dst,
-                         int conversion_flags, bool fromalpha)
+                        Qt::ImageConversionFlags flags, bool fromalpha)
 {
     if (!dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian))
         return false;                                // something failed
@@ -1737,16 +1740,16 @@ static bool dither_to_1(const QImage *src, QImage *dst,
     enum { Threshold, Ordered, Diffuse } dithermode;
 
     if (fromalpha) {
-        if ((conversion_flags & Qt::AlphaDither_Mask) == Qt::DiffuseAlphaDither)
+        if ((flags & Qt::AlphaDither_Mask) == Qt::DiffuseAlphaDither)
             dithermode = Diffuse;
-        else if ((conversion_flags & Qt::AlphaDither_Mask) == Qt::OrderedAlphaDither)
+        else if ((flags & Qt::AlphaDither_Mask) == Qt::OrderedAlphaDither)
             dithermode = Ordered;
         else
             dithermode = Threshold;
     } else {
-        if ((conversion_flags & Qt::Dither_Mask) == Qt::ThresholdDither)
+        if ((flags & Qt::Dither_Mask) == Qt::ThresholdDither)
             dithermode = Threshold;
-        else if ((conversion_flags & Qt::Dither_Mask) == Qt::OrderedDither)
+        else if ((flags & Qt::Dither_Mask) == Qt::OrderedDither)
             dithermode = Ordered;
         else
             dithermode = Diffuse;
@@ -2067,23 +2070,23 @@ static bool convert_32_to_16(const QImage *src, QImage *dst)
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversion_flags to specify how you'd prefer this to happen.
+    flags to specify how you'd prefer this to happen.
 
     \sa Qt::ImageConversionFlags depth() isNull()
 */
 
-QImage QImage::convertDepth(int depth, int conversion_flags) const
+QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
 {
     QImage image;
     if (data->d == depth)
         image = *this;                                // no conversion
 #ifndef QT_NO_IMAGE_DITHER_TO_1
     else if ((data->d == 8 || data->d == 32) && depth == 1) // dither
-        dither_to_1(this, &image, conversion_flags, false);
+        dither_to_1(this, &image, flags, false);
 #endif
 #ifndef QT_NO_IMAGE_TRUECOLOR
     else if (data->d == 32 && depth == 8)        // 32 -> 8
-        convert_32_to_8(this, &image, conversion_flags);
+        convert_32_to_8(this, &image, flags);
     else if (data->d == 8 && depth == 32)        // 8 -> 32
         convert_8_to_32(this, &image);
 #endif
@@ -2097,9 +2100,9 @@ QImage QImage::convertDepth(int depth, int conversion_flags) const
     else if (data->d == 16 && depth != 16) {
         QImage tmp;
         convert_16_to_32(this, &tmp);
-        image = tmp.convertDepth(depth, conversion_flags);
+        image = tmp.convertDepth(depth, flags);
     } else if (data->d != 16 && depth == 16) {
-        QImage tmp = convertDepth(32, conversion_flags);
+        QImage tmp = convertDepth(32, flags);
         convert_32_to_16(&tmp, &image);
     }
 #endif
@@ -2981,7 +2984,7 @@ QImage QImage::xForm(const QMatrix &matrix) const
     setAlphaBuffer() alpha buffer mode\endlink is disabled.
 
     See QPixmap::convertFromImage() for a description of the \a
-    conversion_flags argument.
+    flags argument.
 
     The returned image has little-endian bit order, which you can
     convert to big-endianness using convertBitOrder().
@@ -2989,11 +2992,11 @@ QImage QImage::xForm(const QMatrix &matrix) const
     \sa createHeuristicMask() hasAlphaBuffer() setAlphaBuffer()
 */
 #ifndef QT_NO_IMAGE_DITHER_TO_1
-QImage QImage::createAlphaMask(int conversion_flags) const
+QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 {
-    if (conversion_flags == 1) {
+    if (flags == 1) {
         // Old code is passing "TRUE".
-        conversion_flags = Qt::DiffuseAlphaDither;
+        flags = Qt::DiffuseAlphaDither;
     }
 
     if (isNull() || !hasAlphaBuffer())
@@ -3002,12 +3005,12 @@ QImage QImage::createAlphaMask(int conversion_flags) const
     if (depth() == 1) {
         // A monochrome pixmap, with alpha channels on those two colors.
         // Pretty unlikely, so use less efficient solution.
-        return convertDepth(8, conversion_flags)
-                .createAlphaMask(conversion_flags);
+        return convertDepth(8, flags)
+                .createAlphaMask(flags);
     }
 
     QImage mask1;
-    dither_to_1(this, &mask1, conversion_flags, true);
+    dither_to_1(this, &mask1, flags, true);
     return mask1;
 }
 #endif
@@ -3487,7 +3490,7 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversion_flags to specify how you'd prefer this to happen.
+    flags to specify how you'd prefer this to happen.
 
     Note: currently no closest-color search is made. If colors are
     found that are not in the palette, the palette may not be used at
@@ -3499,18 +3502,18 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
     \sa Qt::ImageConversionFlags
 */
 #ifndef QT_NO_IMAGE_TRUECOLOR
-QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, int conversion_flags) const
+QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, Qt::ImageConversionFlags flags) const
 {
     if (depth() == 1) {
-        return convertDepth(8, conversion_flags)
-               .convertDepthWithPalette(d, palette, palette_count, conversion_flags);
+        return convertDepth(8, flags)
+               .convertDepthWithPalette(d, palette, palette_count, flags);
     } else if (depth() == 8) {
-        return convertDepth(32, conversion_flags)
-               .convertDepthWithPalette(d, palette, palette_count, conversion_flags);
+        return convertDepth(32, flags)
+               .convertDepthWithPalette(d, palette, palette_count, flags);
     } else {
         QImage result;
         convert_32_to_8(this, &result,
-            (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither,
+            (flags&~Qt::DitherMode_Mask) | Qt::AvoidDither,
             palette, palette_count);
         return result.convertDepth(d);
     }
@@ -3534,7 +3537,7 @@ static bool haveSamePalette(const QImage& a, const QImage& b)
 
     Copies a block of pixels from \a src to \a dst. The pixels
     copied from source (src) are converted according to
-    \a conversion_flags if it is incompatible with the destination
+    \a flags if it is incompatible with the destination
     (\a dst).
 
     \a sx, \a sy is the top-left pixel in \a src, \a dx, \a dy
@@ -3550,7 +3553,7 @@ static bool haveSamePalette(const QImage& a, const QImage& b)
     Currently inefficient for non 32-bit images.
 */
 void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int sw, int sh,
-            int conversion_flags)
+            Qt::ImageConversionFlags flags)
 {
     dst->detach();
 
@@ -3579,7 +3582,7 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
 
     if (!byteAligned && !haveSamePalette(*dst,*src) && dst->depth() != 32) {
         QImage dstconv = dst->convertDepth(32);
-        bitBlt(&dstconv, dx, dy, src, sx, sy, sw, sh, (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither);
+        bitBlt(&dstconv, dx, dy, src, sx, sy, sw, sh, (flags&~Qt::DitherMode_Mask) | Qt::AvoidDither);
         *dst = dstconv.convertDepthWithPalette(dst->depth(), dst->colorTable(), dst->numColors());
         return;
     }
@@ -3588,11 +3591,11 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
 
     if (dst->depth() != src->depth()) {
         if (sw == src->width() && sh == src->height() || dst->depth()==32) {
-            QImage srcconv = src->convertDepth(dst->depth(), conversion_flags);
-            bitBlt(dst, dx, dy, &srcconv, sx, sy, sw, sh, conversion_flags);
+            QImage srcconv = src->convertDepth(dst->depth(), flags);
+            bitBlt(dst, dx, dy, &srcconv, sx, sy, sw, sh, flags);
         } else {
             QImage srcconv = src->copy(sx, sy, sw, sh); // ie. bitBlt
-            bitBlt(dst, dx, dy, &srcconv, 0, 0, sw, sh, conversion_flags);
+            bitBlt(dst, dx, dy, &srcconv, 0, 0, sw, sh, flags);
         }
         return;
     }
@@ -4103,3 +4106,189 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 #undef IWX_LSB
 #undef IWX_PIX
 #endif // QT_NO_PIXMAP_TRANSFORMATION
+
+QImage QImage::smoothXForm(const QMatrix &matrix) const
+{
+    if (depth() != 32)
+        return xForm(matrix);
+    if (isNull())
+        return *this;
+
+    // avoid degenerate transformations
+    if (QABS(matrix.det()) < 0.001)
+        return QImage();
+
+    /* we decompose the full transformation into a possible mirroring operation,
+       a n*90 degree rotation (n = 0...3), a scale along x, a scale along y,
+       a shear along x and a shear along y.
+
+       To avoid artifacts, the shearing transformations have to be minimized.
+
+       To do so we calculate the projection of the unit vectors:
+
+       / x1 \ = mat * / 1 \
+       \ y1 /         \ 0 /
+
+       / x2 \ = mat * / 0 \
+       \ y2 /         \ 1 /
+
+       To minimize the shearing error we need to find two orthogonal
+       axes of the coordinate system that are closest to the projected
+       unit vectors.
+    */
+
+    double v1x = matrix.m11(),
+           v1y = matrix.m12(),
+           v2x = matrix.m21(),
+           v2y = matrix.m22();
+
+    qDebug("\nv1=(%f/%f), v2=(%f/%f)", v1x, v1y, v2x, v2y);
+
+    bool v1Horizontal = QABS(v1x) > QABS(v1y);
+    bool v2Horizontal = QABS(v2x) > QABS(v2y);
+
+    if (v1Horizontal == true && v2Horizontal == true) {
+        // both want horizontal, move the one to vertical where the error would be smaller.
+        if (QABS(v1y/v1x) <= QABS(v2y/v2x))
+            v2Horizontal = false;
+        else
+            v1Horizontal = false;
+    } else if (v1Horizontal == false && v2Horizontal == false) {
+        // both want vertical, move the one to horizontal where the error would be smaller.
+        if (QABS(v1x/v1y) < QABS(v2x/v2y))
+            v2Horizontal = true;
+        else
+            v1Horizontal = true;
+    }
+    qDebug("v1Horizontal=%d, v2Horizontal=%d", v1Horizontal, v2Horizontal);
+
+    /* Now that we know this, we can turn/mirror the image to the corresponding axes */
+
+    uint v1Axis;
+    if (v1Horizontal)
+        v1Axis = v1x > 0 ? 0 : 2;
+    else
+        v1Axis = v1y > 0 ? 1 : 3;
+    uint v2Axis;
+    if (v2Horizontal)
+        v2Axis = v2x > 0 ? 0 : 2;
+    else
+        v2Axis = v2y > 0 ? 1 : 3;
+
+    bool mirror = false; // mirror vertically
+    int rotate = 0;
+    if ((v1Axis < v2Axis && !(v1Axis == 0 && v2Axis==3)) || (v1Axis == 3 && v2Axis == 0)) {
+        rotate = v1Axis;
+    } else {
+        mirror = true;
+        rotate = (4 - v1Axis) % 4;
+    }
+
+    qDebug("v1Axis=%d, v2Axis=%d, mirror=%d, rotate=%d", v1Axis, v2Axis, mirror, rotate);
+
+    // now mirror and rotate the image.
+    // #### optimise and don't do a deep copy if !rotate && !mirror.
+
+    bool swapAxes = rotate & 0x1;
+    QImage rotated(swapAxes ? data->h : data->w, swapAxes ? data->w : data->h, depth());
+    rotated.setAlphaBuffer(hasAlphaBuffer());
+    rotated.fill(0);
+
+    QMatrix mat;
+    switch(rotate) {
+    case 0:
+        if (!mirror) {
+            memcpy(rotated.bits(), bits(), data->nbytes);
+        } else {
+            const uchar * const *slines = jumpTable() + data->h - 1;
+            uchar **dlines = rotated.jumpTable();
+            const int bpl = data->nbytes/data->h;
+            for (int i = data->h; i > 0; --i) {
+                memcpy(*dlines, *slines, bpl);
+                ++dlines;
+                --slines;
+            }
+        }
+        mat = QMatrix(v1x, v1y, v2x, v2y, 0, 0);
+        break;
+    case 1: {
+        const uchar * const * slines = data->bits;
+        uchar **dlines = rotated.data->bits;
+        int dlinesi = 1;
+        if (mirror) {
+            dlines += data->w - 1;
+            dlinesi = -1;
+        }
+        for (int i = 0; i < data->w; ++i, dlines += dlinesi) {
+            Q_UINT32 *dl = (Q_UINT32 *)(*dlines) + data->h - 1;
+            for (int j = 0; j < data->h; ++j) {
+                *dl = ((Q_UINT32 *)*(slines+j))[i];
+                --dl;
+            }
+        }
+        mat = QMatrix(-v2x, -v2y, v1x, v1y, 0, 0);
+        break;
+    }
+    case 2: {
+        int dy;
+        int dyi;
+        if (mirror) {
+            dy = 0;
+            dyi = 1;
+        } else {
+            dy = data->h - 1;
+            dyi = -1;
+        }
+        for (int sy = 0; sy < data->h; sy++, dy += dyi) {
+            const Q_UINT32* sl = (Q_UINT32*)(data->bits[sy]);
+            Q_UINT32* dl = (Q_UINT32*)(rotated.data->bits[dy]) + data->w - 1;
+            for (int sx = 0; sx < data->w; sx++) {
+                *dl = *sl;
+                ++sl;
+                --dl;
+            }
+        }
+        mat = QMatrix(-v1x, -v1y, -v2x, -v2y, 0, 0);
+        break;
+    }
+    case 3: {
+        const uchar * const * slines = data->bits;
+        uchar **dlines = rotated.data->bits;
+        int dlinesi = 1;
+        if (!mirror) {
+            dlines += data->w - 1;
+            dlinesi = -1;
+        }
+        for (int i = 0; i < data->w; ++i, dlines += dlinesi) {
+            Q_UINT32 *dl = (Q_UINT32 *)(*dlines);
+            for (int j = 0; j < data->h; ++j) {
+                *dl = ((Q_UINT32 *)*(slines+j))[i];
+                ++dl;
+            }
+        }
+        mat = QMatrix(v2x, v2y, -v1x, -v1y, 0, 0);
+        break;
+    }
+    default:
+        Q_ASSERT(false);
+    }
+
+    if (mirror)
+        mat = QMatrix(1, 0, 0, -1, 0, 0) * mat;
+    /* Now we've reduced the rotational part to the area -45 -- 45 degrees.
+
+       after these preparations all that's left to do to get to our transformed image is to scale
+       it to the projection of v1 and v2 onto the two chosen axes, and then shear.
+    */
+    Q_ASSERT(mat.det() > 0);
+
+    double s1 = sqrt(mat.m11()*mat.m11() + mat.m12()*mat.m12());
+    double s2 = s1/mat.det();
+
+    QImage result = rotated.smoothScale(qRound(rotated.width()*s1), qRound(rotated.height()*s2));
+    mat = QMatrix(mat.m11()/s1, mat.m12()/s1, mat.m21()/s2, mat.m22()/s2, 0., 0.);
+
+    result = result.xForm(mat);
+
+    return result;
+}

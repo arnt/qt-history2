@@ -207,7 +207,7 @@ QPixmap::QPixmap(const QImage& image)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false, defOptim);
-    convertFromImage(image);
+    fromImage(image);
 }
 
 /*!
@@ -252,7 +252,7 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     not exist or is of an unknown format, the pixmap becomes a null
     pixmap.
 
-    The \a fileName, \a format and \a conversion_flags parameters are
+    The \a fileName, \a format and \a flags parameters are
     passed on to load(). This means that the data in \a fileName is
     not compiled into the binary. If \a fileName contains a relative
     path (e.g. the filename only) the relevant file must be found
@@ -260,70 +260,16 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversion_flags to specify how you'd prefer this to happen.
+    flags to specify how you'd prefer this to happen.
 
     \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
-QPixmap::QPixmap(const QString& fileName, const char *format,
-        int conversion_flags)
+QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false, defOptim);
-    load(fileName, format, conversion_flags);
-}
-
-/*!
-    Constructs a pixmap from the file \a fileName. If the file does
-    not exist or is of an unknown format, the pixmap becomes a null
-    pixmap.
-
-    The \a fileName, \a format and \a mode parameters are passed on to
-    load(). This means that the data in \a fileName is not compiled
-    into the binary. If \a fileName contains a relative path (e.g. the
-    filename only) the relevant file must be found relative to the
-    runtime working directory.
-
-    \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
-*/
-
-QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
-    : QPaintDevice(QInternal::Pixmap)
-{
-    init(0, 0, 0, false, defOptim);
-    load(fileName, format, mode);
-}
-
-/*!
-    Constructs a pixmap from \a xpm, which must be a valid XPM image.
-
-    Errors are silently ignored.
-
-    Note that it's possible to squeeze the XPM variable a little bit
-    by using an unusual declaration:
-
-    \code
-        static const char * const start_xpm[]={
-            "16 15 8 1",
-            "a c #cec6bd",
-        ....
-    \endcode
-
-    The extra \c const makes the entire definition read-only, which is
-    slightly more efficient (for example, when the code is in a shared
-    library) and ROMable when the application is to be stored in ROM.
-
-    In order to use that sort of declaration you must cast the
-    variable back to \c{const char **} when you create the QPixmap.
-*/
-
-QPixmap::QPixmap(const char * const xpm[])
-    : QPaintDevice(QInternal::Pixmap)
-{
-    init(0, 0, 0, false, defOptim);
-    QImage image(xpm);
-    if (!image.isNull())
-        convertFromImage(image);
+    load(fileName, format, flags);
 }
 #endif //QT_NO_IMAGEIO
 
@@ -422,7 +368,7 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
 
 QPixmap &QPixmap::operator=(const QImage &image)
 {
-    convertFromImage(image);
+    fromImage(image);
     return *this;
 }
 
@@ -738,7 +684,7 @@ bool QPixmap::selfMask() const
 QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 {
     QBitmap m;
-    m.convertFromImage(convertToImage().createHeuristicMask(clipTight));
+    m.fromImage(toImage().createHeuristicMask(clipTight));
     return m;
 }
 #endif
@@ -753,7 +699,7 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
     the file's format.
 
     See the convertFromImage() documentation for a description of the
-    \a conversion_flags argument.
+    \a flags argument.
 
     The QImageIO documentation lists the supported image formats and
     explains how to add extra formats.
@@ -762,83 +708,15 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
     QImageIO
 */
 
-bool QPixmap::load(const QString &fileName, const char *format,
-                    int conversion_flags)
+bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
     QImageIO io(fileName, format);
     bool result = io.read();
-    if (result) {
-        detach(); // ###hanord: Why detach here, convertFromImage does it
-        result = convertFromImage(io.image(), conversion_flags);
-    }
+    if (result)
+        result = fromImage(io.image(), flags);
     return result;
 }
 
-/*!
-    \overload
-
-    Loads a pixmap from the file \a fileName at runtime.
-
-    If \a format is specified, the loader attempts to read the pixmap
-    using the specified format. If \a format is not specified
-    (default), the loader reads a few bytes from the header to guess
-    the file's format.
-
-    The \a mode is used to specify the color mode of the pixmap.
-
-    \sa QPixmap::ColorMode
-*/
-
-bool QPixmap::load(const QString &fileName, const char *format,
-                    ColorMode mode)
-{
-    int conversion_flags = 0;
-    switch (mode) {
-      case Color:
-        conversion_flags |= Qt::ColorOnly;
-        break;
-      case Mono:
-        conversion_flags |= Qt::MonoOnly;
-        break;
-      default:
-        break;// Nothing.
-    }
-    return load(fileName, format, conversion_flags);
-}
-#endif //QT_NO_IMAGEIO
-
-/*!
-    \overload
-
-    Converts \a image and sets this pixmap using color mode \a mode.
-    Returns true if successful; otherwise returns false.
-
-    \sa QPixmap::ColorMode
-*/
-
-bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
-{
-    if (image.isNull()) {
-        // convert null image to null pixmap
-        *this = QPixmap();
-        return true;
-    }
-
-    int conversion_flags = 0;
-    switch (mode) {
-      case Color:
-        conversion_flags |= Qt::ColorOnly;
-        break;
-      case Mono:
-        conversion_flags |= Qt::MonoOnly;
-        break;
-      default:
-        break;// Nothing.
-    }
-    return convertFromImage(image, conversion_flags);
-}
-
-#ifndef QT_NO_IMAGEIO
 /*!
     Loads a pixmap from the binary data in \a buf (\a len bytes).
     Returns true if successful; otherwise returns false.
@@ -849,7 +727,7 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
     the file's format.
 
     See the convertFromImage() documentation for a description of the
-    \a conversion_flags argument.
+    \a flags argument.
 
     The QImageIO documentation lists the supported image formats and
     explains how to add extra formats.
@@ -858,7 +736,7 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
     QImageIO
 */
 
-bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, int conversion_flags)
+bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::ImageConversionFlags flags)
 {
     QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
     QBuffer b(&a);
@@ -866,43 +744,9 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, int c
     QImageIO io(&b, format);
     bool result = io.read();
     b.close();
-    if (result) {
-        detach();
-        result = convertFromImage(io.image(), conversion_flags);
-    }
+    if (result)
+        result = fromImage(io.image(), flags);
     return result;
-}
-
-/*!
-    \overload
-
-    Loads a pixmap from the binary data in \a buf (\a len bytes) using
-    color mode \a mode. Returns true if successful; otherwise returns
-    false.
-
-    If \a format is specified, the loader attempts to read the pixmap
-    using the specified format. If \a format is not specified
-    (default), the loader reads a few bytes from the header to guess
-    the file's format.
-
-    \sa QPixmap::ColorMode
-*/
-
-bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format,
-                            ColorMode mode)
-{
-    int conversion_flags = 0;
-    switch (mode) {
-      case Color:
-        conversion_flags |= Qt::ColorOnly;
-        break;
-      case Mono:
-        conversion_flags |= Qt::MonoOnly;
-        break;
-      default:
-        break;// Nothing.
-    }
-    return loadFromData(buf, len, format, conversion_flags);
 }
 
 /*!
@@ -910,9 +754,9 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format,
 */
 
 bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
-                            int conversion_flags)
+                           Qt::ImageConversionFlags flags)
 {
-    return loadFromData((const uchar *)buf.constData(), buf.size(), format, conversion_flags);
+    return loadFromData((const uchar *)buf.constData(), buf.size(), format, flags);
 }
 
 
@@ -966,7 +810,7 @@ bool QPixmap::doImageIO(QImageIO* io, int quality) const
 {
     if (!io)
         return false;
-    io->setImage(convertToImage());
+    io->setImage(toImage());
     if (quality > 100  || quality < -1)
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
@@ -1149,6 +993,144 @@ QPixmap QPixmap::grabWidget(QWidget * widget, int x, int y, int w, int h)
     return res;
 }
 
+
+#ifndef Q_WS_WIN
+Qt::HANDLE QPixmap::handle() const
+{
+    return data->hd;
+}
+#endif
+
+
+#ifdef QT_COMPAT
+#ifndef QT_NO_IMAGEIO
+static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
+{
+    Qt::ImageConversionFlags flags = Qt::AutoColor;
+    switch (mode) {
+      case QPixmap::Color:
+        flags |= Qt::ColorOnly;
+        break;
+      case QPixmap::Mono:
+        flags |= Qt::MonoOnly;
+        break;
+      default:
+        break;// Nothing.
+    }
+    return flags;
+}
+
+/*!
+    Constructs a pixmap from the file \a fileName. If the file does
+    not exist or is of an unknown format, the pixmap becomes a null
+    pixmap.
+
+    The \a fileName, \a format and \a mode parameters are passed on to
+    load(). This means that the data in \a fileName is not compiled
+    into the binary. If \a fileName contains a relative path (e.g. the
+    filename only) the relevant file must be found relative to the
+    runtime working directory.
+
+    \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
+*/
+
+QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
+    : QPaintDevice(QInternal::Pixmap)
+{
+    init(0, 0, 0, false, defOptim);
+    load(fileName, format, colorModeToFlags(mode));
+}
+
+
+/*!
+    Constructs a pixmap from \a xpm, which must be a valid XPM image.
+
+    Errors are silently ignored.
+
+    Note that it's possible to squeeze the XPM variable a little bit
+    by using an unusual declaration:
+
+    \code
+        static const char * const start_xpm[]={
+            "16 15 8 1",
+            "a c #cec6bd",
+        ....
+    \endcode
+
+    The extra \c const makes the entire definition read-only, which is
+    slightly more efficient (for example, when the code is in a shared
+    library) and ROMable when the application is to be stored in ROM.
+
+    In order to use that sort of declaration you must cast the
+    variable back to \c{const char **} when you create the QPixmap.
+*/
+
+QPixmap::QPixmap(const char * const xpm[])
+    : QPaintDevice(QInternal::Pixmap)
+{
+    init(0, 0, 0, false, defOptim);
+    QImage image(xpm);
+    if (!image.isNull())
+        fromImage(image);
+}
+
+/*!
+    \overload
+
+    Loads a pixmap from the file \a fileName at runtime.
+
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
+
+    The \a mode is used to specify the color mode of the pixmap.
+
+    \sa QPixmap::ColorMode
+*/
+
+bool QPixmap::load(const QString &fileName, const char *format, ColorMode mode)
+{
+    return load(fileName, format, colorModeToFlags(mode));
+}
+
+/*!
+    \overload
+
+    Loads a pixmap from the binary data in \a buf (\a len bytes) using
+    color mode \a mode. Returns true if successful; otherwise returns
+    false.
+
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
+
+    \sa QPixmap::ColorMode
+*/
+
+bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, ColorMode mode)
+{
+    return loadFromData(buf, len, format, colorModeToFlags(mode));
+}
+#endif
+
+/*!
+    \overload
+
+    Converts \a image and sets this pixmap using color mode \a mode.
+    Returns true if successful; otherwise returns false.
+
+    \sa QPixmap::ColorMode
+*/
+
+bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
+{
+    return fromImage(image, colorModeToFlags(mode));
+}
+
+#endif
+
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
@@ -1166,7 +1148,7 @@ QPixmap QPixmap::grabWidget(QWidget * widget, int x, int y, int w, int h)
 
 QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
 {
-    s << pixmap.convertToImage();
+    s << pixmap.toImage();
     return s;
 }
 
@@ -1183,7 +1165,7 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 {
     QImage img;
     s >> img;
-    pixmap.convertFromImage(img);
+    pixmap.fromImage(img);
     return s;
 }
 
@@ -1200,11 +1182,4 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::CopyPixmap);
 }
 
-#endif
-
-#ifndef Q_WS_WIN
-Qt::HANDLE QPixmap::handle() const
-{
-    return data->hd;
-}
 #endif

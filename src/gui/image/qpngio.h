@@ -63,7 +63,7 @@ private:
 
 class Q_PNGEXPORT QPNGImagePacker : public QPNGImageWriter {
 public:
-    QPNGImagePacker(QIODevice*, int depth, int convflags);
+    QPNGImagePacker(QIODevice*, int depth, Qt::ImageConversionFlags flags);
 
     void setPixelAlignment(int x);
     bool packImage(const QImage& img);
@@ -71,7 +71,7 @@ public:
 private:
     QImage previous;
     int depth;
-    int convflags;
+    Qt::ImageConversionFlags convflags;
     int alignx;
 };
 

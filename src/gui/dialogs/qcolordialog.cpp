@@ -734,7 +734,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
                 img.setPixel(x, y, r);
         }
         pix = new QPixmap;
-        pix->convertFromImage(img);
+        pix->fromImage(img);
     }
     QPainter p(this);
     p.drawPixmap(1, coff, *pix);
@@ -783,7 +783,7 @@ QColorPicker::QColorPicker(QWidget* parent)
             img.setPixel(x, y, c.rgb());
         }
     pix = new QPixmap;
-    pix->convertFromImage(img);
+    pix->fromImage(img);
     setAttribute(Qt::WA_NoSystemBackground);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed) );
 }

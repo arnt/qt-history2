@@ -651,11 +651,10 @@ void write_png_image(QImageIO* iio)
 
     \sa Qt::ImageConversionFlags
 */
-QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
-        int conversionflags) :
+QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth, Qt::ImageConversionFlags flags) :
     QPNGImageWriter(iod),
     depth(storage_depth),
-    convflags(conversionflags),
+    convflags(flags),
     alignx(1)
 {
 }

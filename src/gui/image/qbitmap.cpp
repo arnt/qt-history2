@@ -213,7 +213,7 @@ QBitmap::QBitmap(const QString& fileName, const char *format)
     : QPixmap() // Will set bitmap to null bitmap, explicit call for clarity
 {
     data->bitmap = true;
-    load(fileName, format, Mono);
+    load(fileName, format, Qt::MonoOnly);
 }
 #endif
 
@@ -257,7 +257,7 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
         }
     } else {                                        // n-bit depth pixmap
         QImage image;
-        image = pixmap;                                // convert pixmap to image
+        image = pixmap.toImage();                                // convert pixmap to image
         *this = image;                                // will dither image
     }
     return *this;
@@ -276,7 +276,7 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
 
 QBitmap &QBitmap::operator=(const QImage &image)
 {
-    convertFromImage(image);
+    fromImage(image);
     return *this;
 }
 

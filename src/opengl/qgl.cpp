@@ -1868,7 +1868,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     if (success) {
 #if defined(Q_WS_X11)
         if (gl_pixmap_visual != QX11Info::appVisual()) {
-            QImage image = pm.convertToImage();
+            QImage image = pm.toImage();
             QPixmap p;
             p = image;
             return p;

@@ -840,12 +840,12 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
         if (d->scaledcontents && !pix.isNull()) {
             if (!d->img)
-                d->img = new QImage(d->lpixmap->convertToImage());
+                d->img = new QImage(d->lpixmap->toImage());
 
             if (!d->pix)
                 d->pix = new QPixmap;
             if (d->pix->size() != cr.size())
-                d->pix->convertFromImage(d->img->smoothScale(cr.width(), cr.height()));
+                d->pix->fromImage(d->img->smoothScale(cr.width(), cr.height()));
             pix = *d->pix;
         }
 #endif

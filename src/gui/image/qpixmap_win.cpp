@@ -451,7 +451,7 @@ int QPixmap::metric(int m) const
 }
 
 
-QImage QPixmap::convertToImage() const
+QImage QPixmap::toImage() const
 {
     if (isNull())
         return QImage(); // null image
@@ -633,7 +633,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
+bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
     if (img.isNull()) {
         qWarning("QPixmap::convertFromImage: Cannot convert a null image");
@@ -643,21 +643,21 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     int           d     = image.depth();
     int    dd    = defaultDepth();
     bool force_mono = (dd == 1 || isQBitmap() ||
-                       (conversion_flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
+                       (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
 
     if (force_mono) {                                // must be monochrome
         if (d != 1) {                                // dither
-            image = image.convertDepth(1, conversion_flags);
+            image = image.convertDepth(1, flags);
             d = 1;
         }
     } else {                                        // can be both
         bool conv8 = false;
         if (d > 8 && dd <= 8) {                // convert to 8 bit
-            if ((conversion_flags & Qt::DitherMode_Mask) == Qt::AutoDither)
-                conversion_flags = (conversion_flags & ~Qt::DitherMode_Mask)
+            if ((flags & Qt::DitherMode_Mask) == Qt::AutoDither)
+                flags = (flags & ~Qt::DitherMode_Mask)
                                         | Qt::PreferDither;
             conv8 = true;
-        } else if ((conversion_flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
+        } else if ((flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
             conv8 = d == 1;                        // native depth wanted
         } else if (d == 1) {
             if (image.numColors() == 2) {
@@ -670,7 +670,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             }
         }
         if (conv8) {
-            image = image.convertDepth(8, conversion_flags);
+            image = image.convertDepth(8, flags);
             d = 8;
         }
     }
@@ -702,7 +702,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                 }
             }
             if (hasRealAlpha) {
-                image = image.convertDepth(32, conversion_flags);
+                image = image.convertDepth(32, flags);
                 d = image.depth();
             }
         } else if (image.depth() == 32) {
@@ -852,7 +852,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
     if (img.hasAlphaBuffer()) {
         QBitmap m;
-        m = img.createAlphaMask(conversion_flags);
+        m = img.createAlphaMask(flags);
         setMask(m);
     }
 
@@ -1074,7 +1074,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         pm.DATA_HBM = hBitmap;
 #endif
     }
- 
+
     delete [] bmi_data;
     delete [] dptr;
     if (data->mask) {
@@ -1437,7 +1437,7 @@ HDC QPixmap::getDC() const
         }
         mem_dc->bm = (HBITMAP)SelectObject(mem_dc->hdc, data->bm());
     }
-    if (data->mcp) 
+    if (data->mcp)
         SetViewportOrgEx(mem_dc->hdc, 0, data->mcpi->offset, NULL);
     ++mem_dc->ref;
     return mem_dc->hdc;

@@ -688,11 +688,11 @@ static void bind_texture_from_cache(const QPixmap &pm)
         QImage tx;
         int tx_w = nearest_gl_texture_size(pm.width());
         int tx_h = nearest_gl_texture_size(pm.height());
+        QImage im = pm.toImage();
         if (tx_w != pm.width() || tx_h !=  pm.height()) {
-            QImage im = pm;
             tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
         } else {
-            tx = QGLWidget::convertToGLFormat(pm);
+            tx = QGLWidget::convertToGLFormat(im);
         }
 
         GLuint tx_id;

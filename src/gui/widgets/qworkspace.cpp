@@ -547,7 +547,7 @@ void QWorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
                 int iconSize = d->maxtools->size().height();
                 if(pm.width() > iconSize || pm.height() > iconSize) {
                     QImage im;
-                    im = pm;
+                    im = pm.toImage();
                     pm = im.smoothScale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
                 }
                 d->maxtools->setPixmap(pm);
@@ -1251,7 +1251,7 @@ void QWorkspacePrivate::showMaximizeControls()
             int iconSize = d->maxcontrols->size().height();
             if(pm.width() > iconSize || pm.height() > iconSize) {
                 QImage im;
-                im = pm;
+                im = pm.toImage();
                 pm = im.smoothScale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
             }
             d->maxtools->setPixmap(pm);
@@ -1755,7 +1755,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
             QPixmap pm(childWidget->windowIcon());
             if(pm.width() > iconSize || pm.height() > iconSize) {
                 QImage im;
-                im = pm;
+                im = pm.toImage();
                 pm = im.smoothScale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
             }
             titlebar->setWindowIcon(pm);
@@ -1964,7 +1964,7 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
                 pm = childWidget->windowIcon();
                 if(pm.width() > iconSize || pm.height() > iconSize) {
                     QImage im;
-                    im = pm;
+                    im = pm.toImage();
                     pm = im.smoothScale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
                 }
             } else {
@@ -2216,7 +2216,7 @@ QWidget* QWorkspaceChild::iconWidget() const
             QPixmap pm(childWidget->windowIcon());
             if(pm.width() > iconSize || pm.height() > iconSize) {
                 QImage im;
-                im = pm;
+                im = pm.toImage();
                 pm = im.smoothScale(qMin(iconSize, pm.width()), qMin(iconSize, pm.height()));
             }
             iconw->setWindowIcon(pm);

@@ -322,7 +322,7 @@ QPixmap QClipboard::pixmap(Mode mode) const
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
     // *could* just use the handle, but that is X hackery, MIME is better.
-    setData(new QImageDrag(pixmap.convertToImage()), mode);
+    setData(new QImageDrag(pixmap.toImage()), mode);
 }
 
 

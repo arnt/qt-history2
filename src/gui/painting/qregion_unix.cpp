@@ -2087,7 +2087,7 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
 
 QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 {
-    QImage image = bitmap.convertToImage();
+    QImage image = bitmap.toImage();
 
     QRegionPrivate *region = new QRegionPrivate;
     QRect xr;

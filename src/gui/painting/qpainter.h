@@ -237,15 +237,14 @@ class Q_GUI_EXPORT QPainter
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
     inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image, const QRect &sr,
-                                    int conversionFlags = 0)
-        { QPixmap pm; pm.convertFromImage(image, conversionFlags); drawPixmap(p, pm, sr); }
+                                    Qt::ImageConversionFlags flags = Qt::AutoColor)
+        { QPixmap pm; pm.fromImage(image, flags); drawPixmap(p, pm, sr); }
     inline QT_COMPAT void drawImage(const QRect &r, const QImage &image)
         { drawPixmap(r, QPixmap(image)); }
     inline QT_COMPAT void drawImage(int x, int y, const QImage &image,
                                     int sx = 0, int sy = 0, int sw = -1, int sh = -1,
-                                    int conversionFlags = 0)
-        { QPixmap pm; pm.convertFromImage(image, conversionFlags);
-        drawPixmap(QPoint(x, y), pm, QRect(sx, sy, sw, sh)); }
+                                    Qt::ImageConversionFlags flags = Qt::AutoColor)
+        { QPixmap pm; pm.fromImage(image, flags); drawPixmap(QPoint(x, y), pm, QRect(sx, sy, sw, sh)); }
     inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image)
         { drawPixmap(p, QPixmap(image)); }
     QT_COMPAT void drawPoints(const QPointArray &pa, int index, int npoints = -1);

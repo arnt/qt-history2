@@ -554,7 +554,7 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
         painter.drawTextItem(0, ti.ascent, ti, textFlags);
         painter.end();
 
-        QImage img = pm;
+        QImage img = pm.toImage();
         if (img.depth() != 32)
             img = img.convertDepth(32);
         img.setAlphaBuffer(true);

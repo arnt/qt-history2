@@ -55,7 +55,7 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
 
         if (size.isValid() && img.size() != size)
             img = img.smoothScale(size);
-        pm.convertFromImage(img);
+        pm.fromImage(img);
         QPixmapCache::insert(key, pm);
     }
     return pm;

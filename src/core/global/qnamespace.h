@@ -314,7 +314,7 @@ public:
     // compatibility and default requirements.
     // Documented in qimage.cpp
 
-    enum ImageConversionFlags {
+    enum ImageConversionFlag {
         ColorMode_Mask                = 0x00000003,
         AutoColor                = 0x00000000,
         ColorOnly                = 0x00000003,
@@ -338,6 +338,7 @@ public:
         PreferDither                = 0x00000040,
         AvoidDither                = 0x00000080
     };
+    Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag);
 
     // documented in qnamespace.doc
     enum BGMode        {                                // background mode
@@ -1035,6 +1036,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas);
 

@@ -228,10 +228,9 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
 QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     : d(0)
 {
-    QImage img = pixmap.convertToImage().
-                    convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
+    QImage img = pixmap.toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bm;
-    bm.convertFromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
+    bm.fromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bmm;
     if (bm.mask()) {
         bmm = *bm.mask();
@@ -239,9 +238,8 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
         bm.setMask(nullBm);
     }
     else if (pixmap.mask()) {
-        QImage mimg = pixmap.mask()->convertToImage().
-                      convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
-        bmm.convertFromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
+        QImage mimg = pixmap.mask()->toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
+        bmm.fromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
     }
     else {
         bmm.resize(bm.size());
