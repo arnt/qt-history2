@@ -2952,6 +2952,20 @@ void QCanvasRectangle::setSize(int width, int height)
 }
 
 /*!
+  \fn QSize QCanvasRectangle::size() const
+
+  Returns the width() and height() of the rectangle.
+
+  \sa rect(), setSize()
+*/
+
+/*!
+  \fn QRect QCanvasRectangle::rect() const
+  Returns the integer-converted x(), y() position and size() of the rectangle
+  as a QRect.
+*/
+
+/*!
   \reimp
 */
 QPointArray QCanvasRectangle::areaPoints() const

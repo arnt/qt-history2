@@ -421,6 +421,7 @@ public:
     int width() const;
     int height() const;
     void setSize(int w, int h);
+    QSize size() const { return QSize(w,h); }
     QPointArray areaPoints() const;
     QRect rect() const { return QRect(int(x()),int(y()),w,h); }
 
