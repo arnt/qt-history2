@@ -25,6 +25,12 @@ public:
 
     int salary() const { return s; }
     void setSalary( int salary ) { s = salary; }
+
+    // this is here to support very old compilers
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const Employee & ) const { return FALSE; }
+#endif
+
 private:
     QString n;
     int s;
@@ -43,7 +49,7 @@ int main( int, char** )
     Employee joe( "Joe", 50000 );
     list.append( joe );
     joe.setSalary( 4000 );
-	
+
     EmployeeList::ConstIterator it = list.begin();
     while( it != list.end() ) {
 	printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
