@@ -258,6 +258,9 @@ QKeySequence QAction::shortcut() const
 */
 void QAction::setFont(const QFont &font)
 {
+    if (d->font == font)
+        return;
+
     d->font = font;
     d->sendDataChanged();
 }
@@ -399,6 +402,9 @@ QIconSet QAction::icon() const
 */
 void QAction::setMenu(QMenu *menu)
 {
+    if (d->menu == menu)
+        return;
+
     d->menu = menu;
     d->sendDataChanged();
 }
@@ -424,6 +430,9 @@ QMenu *QAction::menu() const
 */
 void QAction::setSeparator(bool b)
 {
+    if (d->separator == b)
+        return;
+
     d->separator = b;
     d->sendDataChanged();
 }
@@ -452,6 +461,9 @@ bool QAction::isSeparator() const
 */
 void QAction::setText(const QString &text)
 {
+    if (d->text == text)
+        return;
+
     d->text = text;
     d->sendDataChanged();
 }
@@ -484,6 +496,9 @@ QString QAction::text() const
 */
 void QAction::setMenuText(const QString &text)
 {
+    if (d->menuText == text)
+        return;
+
     d->menuText = text;
     d->sendDataChanged();
 }
@@ -512,6 +527,9 @@ QString QAction::menuText() const
 */
 void QAction::setToolTip(const QString &tooltip)
 {
+    if (d->tooltip == tooltip)
+        return;
+
     d->tooltip = tooltip;
     d->sendDataChanged();
 }
@@ -537,6 +555,9 @@ QString QAction::toolTip() const
 */
 void QAction::setStatusTip(const QString &statustip)
 {
+    if (d->statustip == statustip)
+        return;
+
     d->statustip = statustip;
     d->sendDataChanged();
 }
@@ -561,6 +582,9 @@ QString QAction::statusTip() const
 */
 void QAction::setWhatsThis(const QString &whatsthis)
 {
+    if (d->whatsthis == whatsthis)
+        return;
+
     d->whatsthis = whatsthis;
     d->sendDataChanged();
 }
@@ -592,6 +616,9 @@ QString QAction::whatsThis() const
 */
 void QAction::setCheckable(bool b)
 {
+    if (d->checkable == b)
+        return;
+
     d->checkable = b;
     d->sendDataChanged();
 }
@@ -621,6 +648,9 @@ bool QAction::isCheckable() const
 */
 void QAction::setChecked(bool b)
 {
+    if (d->checked == b)
+        return;
+
     d->checked = b;
     d->sendDataChanged();
     if(d->checkable) {
@@ -658,6 +688,9 @@ bool QAction::isChecked() const
 */
 void QAction::setEnabled(bool b)
 {
+    if (d->forceDisabled != b)
+        return;
+
     d->enabled = b;
     d->forceDisabled = !b;
     d->sendDataChanged();
@@ -681,6 +714,9 @@ bool QAction::isEnabled() const
 */
 void QAction::setVisible(bool b)
 {
+    if (d->forceInvisible != b)
+        return;
+
     d->forceInvisible = !b;
     d->visible = b;
     d->sendDataChanged();
