@@ -1,16 +1,15 @@
-/**********************************************************************
-** $Id: $
+/****************************************************************************
 **
-** Definition of QtTableView class
+** Definition of QtTableView class.
 **
-** Created : 941115
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** EDITIONS: NOLIMITS
 **
-** This file contains a class moved out of the Qt GUI Toolkit API. It
-** may be used, distributed and modified without limitation.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-**********************************************************************/
+****************************************************************************/
 
 #ifndef QTTABLEVIEW_H
 #define QTTABLEVIEW_H

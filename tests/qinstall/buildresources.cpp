@@ -1,17 +1,13 @@
 /****************************************************************************
 **
-** This utility is based on qembed. It reads in an installation setup file
-** and then compresses the required files and outputs it as C code. The
-** output can then be compiled and linked to an installation project to
-** provide the required data files to run and install using the wizard.
-** The data structure has both the compressed and uncompressed sizes stored
-** so that the uncompressor knows how much memory to allocate and also the
-** wizard knows the spaces requirements for installing various components
-** without needing to uncompress the data.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1995-2002 Trolltech AS.  All rights reserved.
+** EDITIONS: UNKNOWN
 **
-*****************************************************************************/
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include <qstring.h>
 #include <qfile.h>

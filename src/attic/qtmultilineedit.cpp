@@ -1,16 +1,15 @@
-/**********************************************************************
-** $Id$
+/****************************************************************************
 **
-** Implementation of QtMultiLineEdit widget class
+** Implementation of QtMultiLineEdit widget class.
 **
-** Created : 961005
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** EDITIONS: NOLIMITS
 **
-** This file contains a class moved out of the Qt GUI Toolkit API. It
-** may be used, distributed and modified without limitation.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-**********************************************************************/
+****************************************************************************/
 
 #include "qtmultilineedit.h"
 #ifndef QT_NO_QTMULTILINEEDIT

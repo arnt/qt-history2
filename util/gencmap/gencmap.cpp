@@ -1,16 +1,13 @@
 /****************************************************************************
-** $Id: $
 **
-** Utility program generating a color cube with priority ordered colors.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Author  : Warwick Allison
-** Created : 970519
+** EDITIONS: UNKNOWN
 **
-** Copyright (C) 1997 by Trolltech AS.  All rights reserved.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** --------------------------------------------------------------------------
-** This utility writes a list of colors to standard output.
-*****************************************************************************/
+****************************************************************************/
 
 #include <qcolor.h>
 #include <stdio.h>

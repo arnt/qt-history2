@@ -1,107 +1,14 @@
-#ifndef POPUPMENUEDITOR_H
-#define POPUPMENUEDITOR_H
-
-#include <qwidget.h>
-#include <qptrlist.h>
-#include <qaction.h>
-
-class PopupMenuEditor;
-class QMenuItem;
-
-class PopupMenuEditorItem : public QObject
-{
-    Q_OBJECT
-
-    friend class PopupMenuEditor;
-
-    PopupMenuEditorItem( PopupMenuEditor * menu = 0, QObject * parent = 0, const char * name = 0 );
-
-public:
-    enum ItemType {
-	Unknown = -1,
-	Separator = 0,
-	Action = 1,
-	ActionGroup = 3
-    };
-
-    PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
-			 QObject * parent = 0, const char * name = 0 );
-    PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-			 bool children = TRUE, QObject * parent = 0, const char * name = 0 );
-    PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
-			 QObject * parent = 0, const char * name = 0 );
-    ~PopupMenuEditorItem();
-
-    void init();
-
-    ItemType type() const;
-    
-    QAction * action() const { return a; }
-    QActionGroup * actionGroup() const { return g; }
-    QAction * anyAction() const { return ( a ? a : ( QAction * ) g ); }
-
-    void setVisible( bool enable );
-    bool isVisible() const;
-
-    void setSeparator( bool enable ) { separator = enable; }
-    bool isSeparator() const { return separator; }
-
-    void setRemovable( bool enable ) { removable = enable; }
-    bool isRemovable() const { return removable; }
-    
-    void setDirty( bool enable ) { dirty = enable; }
-    bool isDirty() const { return dirty; }
-
-    void showMenu( int x, int y );
-    void hideMenu();
-    void focusOnMenu();
-    PopupMenuEditor * subMenu() const { return s; }
-
-    int count() const;
-
-    bool eventFilter( QObject *, QEvent * event );
-    
-public slots:
-    void selfDestruct();
-
-protected:
-
-private:
-    QAction * a;
-    QActionGroup * g;
-    PopupMenuEditor * s;
-    PopupMenuEditor * m;
-    uint separator : 1;
-    uint removable : 1;
-    uint dirty : 1;
-};
-
-class FormWindow;
-/**********************************************************************
-** Copyright (C) 2003 Trolltech AS.  All rights reserved.
+/****************************************************************************
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of Qt Designer.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-**   information about Qt Commercial License Agreements.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 
 class MainWindow;
 class QLineEdit;

@@ -1,11 +1,13 @@
 /****************************************************************************
-** $Id$
 **
-** C++ file skeleton
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1996 by Trolltech AS.  All rights reserved.
+** EDITIONS: UNKNOWN
 **
-*****************************************************************************/
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 /*****************************************************************************
   The Graphical Interchange Format (c) is the Copyright property of

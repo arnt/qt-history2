@@ -1,13 +1,14 @@
 /****************************************************************************
-** $Id: $
 **
-** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of an example program for the ActiveQt integration.
-** This example program may be used, distributed and modified without 
-** limitation.
+** EDITIONS: UNKNOWN
 **
-*****************************************************************************/
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 
 #ifndef GTETRIX_H

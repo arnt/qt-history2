@@ -1,22 +1,14 @@
 /****************************************************************************
-** $Id: $
 **
-** Main program of Qt/FB central server
-**
-** Created : 991214
-**
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit Professional Edition.
+** EDITIONS: PROFESSIONAL
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
-**
-*****************************************************************************/
+****************************************************************************/
 
 #include <qapplication.h>
 

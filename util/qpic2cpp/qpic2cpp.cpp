@@ -1,22 +1,13 @@
 /****************************************************************************
-** $Id: $
 **
-** This is a utility program for converting Qt metafiles to C++ code
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Author  : Haavard Nord
-** Created : 940802
+** EDITIONS: UNKNOWN
 **
-** Copyright (C) 1994 by Trolltech AS.  All rights reserved.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** --------------------------------------------------------------------------
-** This utility translates a portable Qt metafile into a standalone C++
-** function that performs the drawing functions in the metafile.
-**
-** A Qt metafile starts with a header containing a tag, a checksum and
-** a version number, followed by drawing commands.
-** Each command consists of an identifier tag, a length identifier and
-** the actual drawing parameters. Qt metafiles are upwards compatible.
-*****************************************************************************/
+****************************************************************************/
 
 #include <qmetafil.h>
 #include <qrect.h>

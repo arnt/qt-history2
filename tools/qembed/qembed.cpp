@@ -1,21 +1,15 @@
 /****************************************************************************
-** $Id$
 **
-** Utility program for embedding binary data into a C/C++ source code.
-** It reads a binary file and generates a C array with the binary data.
-** The C code is written to standard output.
+** documentation for any purpose and without fee is hereby granted, provided.
 **
-** Created : 951017
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1995-2002 Trolltech AS.  All rights reserved.
+** EDITIONS: UNKNOWN
 **
-** Permission to use, copy, modify, and distribute this software and its
-** documentation for any purpose and without fee is hereby granted, provided
-** that this copyright notice appears in all copies.
-** No representations are made about the suitability of this software for any
-** purpose. It is provided "as is" without express or implied warranty.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-*****************************************************************************/
+****************************************************************************/
 
 #include <qstring.h>
 #include <qfile.h>

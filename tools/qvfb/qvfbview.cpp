@@ -1,22 +1,14 @@
-/**********************************************************************
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+/****************************************************************************
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of Qt/Embedded virtual framebuffer.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
+** EDITIONS: FREE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 
 #include "qglobal.h"
 #if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )

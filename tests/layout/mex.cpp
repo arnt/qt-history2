@@ -1,11 +1,13 @@
 /****************************************************************************
-** $Id: $
 **
-** QBoxLayout example with a QMenuBar
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Copyright (C) 1997 by Trolltech AS.  All rights reserved.
+** EDITIONS: UNKNOWN
 **
-*****************************************************************************/
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qmenubar.h>

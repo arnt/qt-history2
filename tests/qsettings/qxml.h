@@ -1,12 +1,14 @@
-/**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+/****************************************************************************
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of Qt GUI Designer.
+** EDITIONS: UNKNOWN
 **
-** See the file LICENSE included in the distribution for the usage
-** and distribution terms.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-**********************************************************************/
+****************************************************************************/
 
 #ifndef QXML_H
 #define QXML_H

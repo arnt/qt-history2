@@ -1,17 +1,14 @@
 /****************************************************************************
 **
-** Qt GUI Toolkit
-**
-** This header file efficiently includes all Qt GUI Toolkit functionality.
-**
-** Generated : Wed May  7 12:15:09 EST 2003
-
-**
-** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
+** EDITIONS: UNKNOWN
 **
-*****************************************************************************/
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #ifndef QT_H
 #define QT_H

@@ -1,22 +1,13 @@
 /****************************************************************************
-** $Id$
 **
-** makergb - Utility to generate X11 RGB color lookup function
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** Author  : Haavard Nord
-** Created : 940112
+** EDITIONS: UNKNOWN
 **
-** Copyright (C) 1994-1997 by Trolltech AS.  All rights reserved.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** --------------------------------------------------------------------------
-** This utility generates source code to lookup X11 RGB colors from X11
-** color names. It is particularly useful for platforms that do not have
-** the X11 color database.
-** To generate this code, you'll need an X11 rgb.txt file that contains
-** color names and their RGB values.
-**
-** Usage: makergb rgb.txt > file.cpp
-*****************************************************************************/
+****************************************************************************/
 
 #include <qstring.h>
 #include <qptrvector.h>

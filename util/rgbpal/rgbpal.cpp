@@ -1,16 +1,13 @@
 /****************************************************************************
-** $Id: $
 **
-** Generates code to create a Windows 8 bit RGB palette. This palette
-** is required by Qt for OpenGL RGBA rendering.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
-** This code is based on win8map.c on Microsoft Developer Network CD.
+** EDITIONS: UNKNOWN
 **
-** Created : 920604
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Copyright (C) 1997 by Trolltech AS.	 All rights reserved.
-**
-*****************************************************************************/
+****************************************************************************/
 
 
 #include <stdio.h>

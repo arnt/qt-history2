@@ -1,33 +1,16 @@
 /****************************************************************************
-** $Id$
 **
-** Definition of Aqua-like style class
+** Definition of Aqua-like style class.
 **
-** Created : 001129
-**
-** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
-**
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses for Macintosh may use this file in accordance with the Qt Commercial
-** License Agreement provided with the Software. This file and its contents may
-** not be distributed onto any other platform or included in any other licensed
-** package unless explicit permission is granted.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
+** EDITIONS: PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-**   information about Qt Commercial License Agreements.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 
 #include "qcheckbox.h"
 
