@@ -549,7 +549,7 @@ void QFont::setPointSize( int pointSize )
 {
     if ( pointSize <= 0 ) {
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
 #endif
 
@@ -576,7 +576,7 @@ void QFont::setPointSize( int pointSize )
 void QFont::setPointSizeFloat( float pointSize )
 {
     if ( pointSize <= 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
 #endif
 	return;
@@ -616,8 +616,8 @@ float QFont::pointSizeFloat() const
 void QFont::setPixelSize( int pixelSize )
 {
     if ( pixelSize <= 0 ) {
-#if defined(CHECK_RANGE)
-	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QFont::setPixelSize: Pixel size <= 0 (%f)", pixelSize );
 #endif
 	return;
     }
@@ -719,7 +719,7 @@ void QFont::setWeight( int weight )
 {
     if ( weight < 0 || weight > 99 ) {
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFont::setWeight: Value out of range (%d)", weight );
 #endif
 
@@ -2509,15 +2509,14 @@ void QFontCache::timerEvent(QTimerEvent *)
 // Converts a weight string to a value
 int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
 {
-    QCString s(weightString.lower());
-
     // Test in decreasing order of commonness
-    if ( s == "medium" || s == "normal" ) return QFont::Normal;
-    else if ( s == "bold" )    return QFont::Bold;
-    else if ( s == "regular" ) return QFont::Normal;
-    else if ( s == "demibold") return QFont::DemiBold;
-    else if ( s == "black" )   return QFont::Black;
-    else if ( s == "light" )   return QFont::Light;
+    if ( weightString == "medium" )       return QFont::Normal;
+    else if ( weightString == "bold" )    return QFont::Bold;
+    else if ( weightString == "demibold") return QFont::DemiBold;
+    else if ( weightString == "black" )   return QFont::Black;
+    else if ( weightString == "light" )   return QFont::Light;
+
+    QCString s(weightString.lower());
 
     if ( s.contains("bold") ) {
 	if ( adjustScore )
