@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#96 $
 **
 ** Implementation of QRadioButton class
 **
@@ -104,7 +104,7 @@ void QRadioButton::init()
     noHit = FALSE;
     if ( parentWidget()->inherits("QButtonGroup") ) {
 	QButtonGroup *bgrp = (QButtonGroup *)parentWidget();
-	bgrp->setExclusive( TRUE );
+	bgrp->setRadioButtonExclusive( TRUE );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#55 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -43,10 +43,11 @@
   ideal solution when you have several similar buttons and want to
   connect all their clicked() signals, for example, to one slot.
 
-  An \link setExclusive() exclusive\endlink button group switches off all
-  toggle buttons except the one that was clicked. A button group is by
-  default non-exclusive, however, it automatically becomes an exclusive
-  group when a QRadioButton is \link insert() inserted\endlink.
+  An \link setExclusive() exclusive\endlink button group switches off
+  all toggle buttons except the one that was clicked. A button group
+  is by default non-exclusive. All \link QRadioButton radio
+  buttons\endlink that are \link insert() inserted\endlink, will be
+  mutually exclusive even if the button group is non-exclusive.
 
   There are two ways of using a button group:
   <ol>
@@ -119,6 +120,7 @@ void QButtonGroup::init()
     CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
+    radio_buttons = FALSE;
 }
 
 /*!
@@ -152,8 +154,7 @@ bool QButtonGroup::isExclusive() const
   radio buttons\endlink A non-exclusive group allow many buttons to be
   switched on at the same time.
 
-  The default setting is FALSE. A button group automatically becomes an
-  exclusive group when a QRadioButton is \link insert() inserted\endlink.
+  The default setting is FALSE. 
 
   \sa isExclusive()
 */
@@ -182,9 +183,6 @@ void QButtonGroup::setExclusive( bool enable )
   Inserting several buttons with \e id = -1 assigns the identifiers 0,
   1, 2, etc.
 
-  This function calls setExclusive(TRUE) if \e button is a
-  QRadioButton.
-
   \sa find(), remove(), setExclusive()
 */
 
@@ -209,7 +207,7 @@ int QButtonGroup::insert( QButton *button, int id )
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
     if ( button->inherits("QRadioButton") )
-	setExclusive( TRUE );
+	setRadioButtonExclusive( TRUE );
     return bi->id;
 }
 
@@ -341,18 +339,22 @@ void QButtonGroup::buttonClicked()
 
 void QButtonGroup::buttonToggled( bool on )
 {
-    if ( !on || !excl_grp )
+    if ( !on || !excl_grp && !radio_buttons )
 	return;
     QButton *bt = (QButton *)sender();		// object that sent the signal
 #if defined(CHECK_NULL)
     ASSERT( bt->inherits("QButton") );
     ASSERT( bt->isToggleButton() );
 #endif
-    QButtonItem *i = buttons->first(); 
+
+    if ( !excl_grp && !bt->inherits("QRadioButton") )
+	return;
+    QButtonItem *i = buttons->first();
     while( i ) {
 	if ( bt != i->button &&
 	     i->button->isToggleButton() &&
-	     i->button->isOn() ) {
+	     i->button->isOn() &&
+	     (excl_grp || i->button->inherits("QRadioButton") ) ) {
 	    i->button->setOn( FALSE );
 	    if ( i->button->hasFocus() )
 		bt->setFocus();
@@ -372,4 +374,18 @@ void QButtonGroup::setButton( int id )
     QButton * b = find( id );
     if ( b )
 	b->setOn( TRUE );
+}
+
+
+/*!
+  If \a on is TRUE, this button group will treat radio buttons as
+  mutually exclusive, and other buttons according to
+  isExclusive(). This function is called automatically whenever a
+  QRadioButton is inserted, so you should normally never have to call
+  it.
+*/
+
+void QButtonGroup::setRadioButtonExclusive( bool on)
+{
+    radio_buttons = on;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#30 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#31 $
 **
 ** Definition of QButtonGroup class
 **
@@ -45,6 +45,7 @@ public:
 
     bool	isExclusive() const;
     virtual void	setExclusive( bool );
+    void	setRadioButtonExclusive( bool );
 
     int		insert( QButton *, int id=-1 );
     void	remove( QButton * );
@@ -63,9 +64,10 @@ protected slots:
     void	buttonClicked();
     void	buttonToggled( bool on );
 
-private:
+private:    
     void	init();
     bool	excl_grp;
+    bool	radio_buttons;
     QButtonList *buttons;
 
 private:	// Disabled copy constructor and operator=
