@@ -51,7 +51,13 @@
 /PCol  [ 0 0 0 ] d                   % pen color
 /BkCol [ 1 1 1 ] d                   % background color
 /BDArr [                             % Brush dense patterns
-  0.06 0.12 0.37 0.50 0.63 0.88 0.94
+  0.94
+  0.88
+  0.63
+  0.50
+  0.37 
+  0.12 
+  0.06 
 ] d
 /defM matrix d
 
@@ -351,7 +357,15 @@
     } if
     BSt 2 ge BSt 8 le and             % dense pattern?
     {
-      BDArr BSt 2 sub get setgray fill
+      BDArr BSt 2 sub get /sc ED 
+      % the following line scales the brush color according to the pattern. the higher the pattern the lighter the color.
+      BCol 
+      { 
+	1. exch sub sc mul 1. exch sub 
+      } forall 
+      3 array astore
+      SC 
+      WFi { fill } { eofill } ifelse
     } if
     BSt 9 ge BSt 14 le and            % brush pattern?
     {
