@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#26 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#27 $
 **
 ** Definition of QTableView class
 **
@@ -36,8 +36,8 @@ class Q_EXPORT QTableView : public QFrame
 {
     Q_OBJECT
 public:
-    virtual void	setBackgroundColor( const QColor & );
-    virtual void	setPalette( const QPalette & );
+    virtual void setBackgroundColor( const QColor & );
+    virtual void setPalette( const QPalette & );
     void	show();
 
     void	repaint( bool erase=TRUE );
@@ -49,39 +49,39 @@ protected:
    ~QTableView();
 
     int		numRows()	const;
-    virtual void	setNumRows( int );
+    virtual void setNumRows( int );
     int		numCols()	const;
-    virtual void	setNumCols( int );
+    virtual void setNumCols( int );
 
     int		topCell()	const;
-    virtual void	setTopCell( int row );
+    virtual void setTopCell( int row );
     int		leftCell()	const;
-    virtual void	setLeftCell( int col );
-    virtual void	setTopLeftCell( int row, int col );
+    virtual void setLeftCell( int col );
+    virtual void setTopLeftCell( int row, int col );
 
     int		xOffset()	const;
-    virtual void	setXOffset( int );
+    virtual void setXOffset( int );
     int		yOffset()	const;
-    virtual void	setYOffset( int );
-    virtual void	setOffset( int x, int y, bool updateScrBars = TRUE );
+    virtual void setYOffset( int );
+    virtual void setOffset( int x, int y, bool updateScrBars = TRUE );
 
     virtual int cellWidth( int col );
     virtual int cellHeight( int row );
     int		cellWidth()	const;
     int		cellHeight()	const;
-    virtual void	setCellWidth( int );
-    virtual void	setCellHeight( int );
+    virtual void setCellWidth( int );
+    virtual void setCellHeight( int );
 
     virtual int totalWidth();
     virtual int totalHeight();
 
     uint	tableFlags()	const;
     bool	testTableFlags( uint f ) const;
-    virtual void	setTableFlags( uint f );
+    virtual void setTableFlags( uint f );
     void	clearTableFlags( uint f = ~0 );
 
     bool	autoUpdate()	 const;
-    virtual void	setAutoUpdate( bool );
+    virtual void setAutoUpdate( bool );
 
     void	updateCell( int row, int column, bool erase=TRUE );
 
