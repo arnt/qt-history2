@@ -42,11 +42,16 @@ private slots:
     void removeDocFile();
     void saveProfileInFile();
     void setUrl();
+    void setPath();
 
 private:
     void initDialog();
     void setIcon();
     void checkForChanges();
+    QString iconAbsFilePath( const QString &docFileName,
+			     const QString &iconName );
+    void insertProfileData();
+    void updatePaths();
     QString profName, profFile;
     Profile *oldProfile, *profile;
     bool changed;

@@ -197,9 +197,9 @@ void HelpDialog::initialize()
     contentFactory = new QMimeSourceFactory();
     contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
 
-    contentFactory->addFilePath( Config::configuration()->docBasePath() );
+    contentFactory->addFilePath( Config::configuration()->basePath() );
     if( Config::configuration()->isDefaultProfile() )
-	contentFactory->addFilePath( Config::configuration()->docBasePath() + "/../gif/" );
+	contentFactory->addFilePath( Config::configuration()->basePath() + "/../gif/" );
 
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();
@@ -244,6 +244,7 @@ void HelpDialog::showProfile()
     indexDone = FALSE;
     titleMapDone = FALSE;
     contentsInserted = FALSE;
+    bookmarksInserted = FALSE;
     if ( fullTextIndex ) {
 	delete fullTextIndex;
 	fullTextIndex = 0;
@@ -256,6 +257,9 @@ void HelpDialog::showProfile()
     }
     else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
 	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
+    }
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Bookmarks" ) ) ) {
+	QTimer::singleShot( 0, this, SLOT( insertBookmarks() ) );
     }
     else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Search" ) ) ) {
 	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
@@ -525,6 +529,15 @@ void HelpDialog::buildContentDict()
     }
 }
 
+QString HelpDialog::docHomePage( const QString &doc )
+{
+    QFileInfo fi( doc );
+    QValueList<ContentItem> &lst = *(contentList[doc]);
+    if ( lst.first().reference.isEmpty() )
+	return fi.dirPath( TRUE ) + "/index.html";
+    return fi.dirPath( TRUE ) + "/" + lst.first().reference;
+}
+
 void HelpDialog::currentTabChanged( const QString &s )
 {
     if ( stripAmpersand( s ).contains( tr( "Index" ) ) )
@@ -683,6 +696,7 @@ void HelpDialog::insertBookmarks()
     if ( bookmarksInserted )
 	return;
     bookmarksInserted = TRUE;
+    listBookmarks->clear();
     QFile f( QDir::homeDirPath() + "/.assistant/bookmarks." +
 	     Config::configuration()->profileName() );
     if ( !f.open( IO_ReadOnly ) )

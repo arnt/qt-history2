@@ -128,6 +128,12 @@ void SettingsDialog::setupProfiles()
     config->reloadProfiles();
     QStringList profs = config->profiles();
 
+    QString oldProfile;
+    if (  currentCheckedProfile() )
+	oldProfile = currentCheckedProfile()->profileName();
+    else
+	oldProfile = config->profileName();
+
     profileView->clear();
     ProfileCheckItem *root = new ProfileCheckItem( profileView, tr( "Profiles" ) );
     root->setOpen( TRUE );
@@ -137,14 +143,11 @@ void SettingsDialog::setupProfiles()
     for ( ; it != profs.end(); ++it ) {
 	ci = new ProfileCheckItem( root, *it );
 	ci->setSelected( FALSE );
-	if ( *it == config->profileName() ) {
+	if ( *it == oldProfile ) {
 	    ci->activate();
 	    ci->setSelected( TRUE );
 	}
     }
-
-    //if( !config->isDefaultProfile() )
-    //	buttonDelete->setEnabled( FALSE );
 }
 
 void SettingsDialog::addProfile()

@@ -86,6 +86,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
     QMimeSourceFactory* getContentFactory() const { return contentFactory; }
+    QString docHomePage( const QString &doc );
 
 protected slots:
     void loadIndexFile();
@@ -120,6 +121,7 @@ private slots:
     void setIndexingProgress( int prog );
     void showItemMenu( QListBoxItem *item, const QPoint &pos );
     void showItemMenu( QListViewItem *item, const QPoint &pos );
+    void insertBookmarks();
 
 private:
     typedef QValueList<ContentItem> ContentList;
@@ -128,7 +130,6 @@ private:
     Q_UINT32 getFileAges();
     void showIndexTopic();
     void showBookmarkTopic();
-    void insertBookmarks();
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();

@@ -1,7 +1,28 @@
+/**********************************************************************
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt Assistant.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "config.h"
 #include "profile.h"
 
 #include <qapplication.h>
+#include <qdir.h>
 #include <qfileinfo.h>
 #include <qfile.h>
 #include <qsettings.h>
@@ -10,7 +31,7 @@
 static Config *static_configuration = 0;
 
 Config::Config( const QString &name )
-    : startWithProfile( FALSE )
+    : startWithProfile( FALSE ), profileNameValid( TRUE )
 {
     if( !static_configuration ) {
 	static_configuration = this;
@@ -22,7 +43,7 @@ Config::Config( const QString &name )
 }
 
 Config::Config()
-    : startWithProfile( FALSE )
+    : startWithProfile( FALSE ), profileNameValid( TRUE )
 {
     profil = new Profile();
 }
@@ -32,16 +53,45 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
     Config *config = new Config();
     if ( !config->profil->load( profileFileName ) )
 	return FALSE;
+    Profile *p = config->profil;
     QString docPath = path;
+    if ( docPath.isEmpty() )
+	docPath = p->props["basepath"];
     QFileInfo fi( profileFileName );
     if ( docPath.isEmpty() )
 	docPath = fi.dirPath( TRUE );
-    QValueListIterator<QString> it = config->profil->docs.begin();
-    for ( ; it != config->profil->docs.end(); ++it ) {
-	QFileInfo dfi( *it );
-	(*it) = docPath + "/" + dfi.fileName();
+
+    if ( !p->props["applicationicon"].isEmpty() ) {
+	QFileInfo fi( p->props["applicationicon"] );
+	if ( fi.isRelative() ) {
+	    QDir d( docPath + "/" + fi.dirPath() );
+	    p->props["applicationicon"] = d.path() + "/" + fi.fileName();
+	}
     }
-    config->saveProfile( config->profil, TRUE );
+    if ( !p->props["abouturl"].isEmpty() ) {
+	QFileInfo fi( p->props["abouturl"] );
+	if ( fi.isRelative() ) {
+	    QDir d( docPath + "/" + fi.dirPath() );
+	    p->props["abouturl"] = d.path() + "/" + fi.fileName();
+	}
+    }
+
+    QValueListIterator<QString> it = p->docs.begin();
+    for ( ; it != p->docs.end(); ++it ) {
+	QFileInfo dfi( *it );
+	QString icon = p->icons[*it];
+	QString dir = p->imageDirs[*it];
+	QString title = p->titles[*it];
+	p->icons.erase( *it );
+	p->imageDirs.erase( *it );
+	p->titles.erase( *it );
+	QDir d( docPath + "/" + dfi.dirPath() );
+	(*it) = d.path() + "/" + dfi.fileName();
+	p->icons[*it] = icon;
+	p->imageDirs[*it] = dir;
+	p->titles[*it] = title;
+    }
+    config->saveProfile( p, TRUE );
     return TRUE;
 }
 
@@ -59,10 +109,15 @@ void Config::load( const QString &name )
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QString profName = name;
-    if ( profName.isEmpty() )
+    if ( profName.isEmpty() ) {
 	profName = settings.readEntry( key + "LastProfile", "" );
-    else
+    } else {
+	settings.readBoolEntry( key + "Profile/" + profName, FALSE, &profileNameValid );
+	if ( !profileNameValid )
+	    return;
 	startWithProfile = TRUE;
+    }
+
     if ( profName.isEmpty() ) {
 	profil = Profile::createDefaultProfile();
 	saveProfile( profil, TRUE );
@@ -166,7 +221,7 @@ Profile* Config::loadProfile( const QString &name )
     profile->props["aboutmenutext"] = settings.readEntry( profKey + "AboutMenuText" );
     profile->props["abouturl"] = settings.readEntry( profKey + "AboutUrl" );
     profile->props["title"] = settings.readEntry( profKey + "Title" );
-    profile->props["docbasepath"] = settings.readEntry( profKey + "BasePath" );
+    profile->props["basepath"] = settings.readEntry( profKey + "BasePath" );
     profile->docs = settings.readListEntry( profKey + "DocFiles" );
     QStringList iconLst = settings.readListEntry( profKey + "DocIcons" );
     QStringList titleLst = settings.readListEntry( profKey + "DocTitles" );
@@ -198,7 +253,7 @@ void Config::saveProfile( Profile *profile, bool changed )
     settings.writeEntry( profKey + "/AboutMenuText", profile->props["aboutmenutext"] );
     settings.writeEntry( profKey + "/AboutUrl", profile->props["abouturl"] );
     settings.writeEntry( profKey + "/Title", profile->props["title"] );
-    settings.writeEntry( profKey + "/BasePath", profile->props["docbasepath"] );
+    settings.writeEntry( profKey + "/BasePath", profile->props["basepath"] );
 
     QStringList titles, icons, imgDirs;
     QValueListConstIterator<QString> it = profile->docs.begin();
@@ -289,17 +344,9 @@ QString Config::docImageDir( const QString &docfile ) const
     return profil->imageDirs[docfile];
 }
 
-QString Config::docContentsURL( const QString & /*docfile*/ ) const
+QString Config::basePath() const
 {
-    //return parser( docfile )->contentsURL();
-    // makes this sense? it should be good enough to
-    // assume it would be index.htm*
-    return QString( "index.html" );
-}
-
-QString Config::docBasePath() const
-{
-    return profil->props["docbasepath"];
+    return profil->props["basepath"];
 }
 
 bool Config::needsNewDoc() const
@@ -310,4 +357,9 @@ bool Config::needsNewDoc() const
 bool Config::startedWithProfile() const
 {
     return startWithProfile;
+}
+
+bool Config::validProfileName() const
+{
+    return profileNameValid;
 }

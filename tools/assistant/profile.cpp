@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt Assistant.
 **
@@ -19,13 +19,18 @@
 **********************************************************************/
 #include "profile.h"
 #include <qxml.h>
+#include <qtextcodec.h>
+#include <qfileinfo.h>
+#include <qregexp.h>
+#include <qdir.h>
 
-// #define PROFILE_DEBUG
+//#define PROFILE_DEBUG
 
 class ProfileHandler : public QXmlDefaultHandler
 {
 public:
-    enum State { StateNone, StateProfile, StateProperty, StateDocfile };
+    enum State { StateNone, StateProfile, StateProperty, StateDoc,
+		 StateDocTitle, StateDocIcon, StateDocDir };
 
     ProfileHandler( Profile *prof ) :
 	profile( prof ), state( StateNone ) { }
@@ -38,7 +43,7 @@ public:
 
     Profile *profile;
     State state;
-    QString propertyName;
+    QString propertyName, curDoc;
 };
 
 bool ProfileHandler::startElement( const QString & /*namespaceURI*/,
@@ -48,24 +53,36 @@ bool ProfileHandler::startElement( const QString & /*namespaceURI*/,
 {
     switch( state ) {
     case StateNone:
-	if ( qName.lower()!="profile" )
+	if ( qName.lower() != "profile" )
 	    return FALSE;
 	state = StateProfile;
 	break;
     case StateProfile:
-	if ( qName.lower()=="property" ) {
+	if ( qName.lower() == "property" ) {
 	    propertyName = attr.value( "name" );
 	    if( propertyName.isNull() ) {
 		return FALSE;
 	    }
 	    state = StateProperty;
-	} else if ( qName.lower() == "docfile" ) {
-	    propertyName = attr.value( "icon" );
-	    state = StateDocfile;
+	} else if ( qName.lower() == "documentation" ) {
+	    curDoc = attr.value( "file" );
+	    if ( curDoc.isEmpty() ) {
+		qWarning( "Cannot handle documentation without a file name" );
+		return FALSE;
+	    }
+	    profile->docs.append( curDoc );
+	    state = StateDoc;
 	}
 	break;
+    case StateDoc:
+	if ( qName.lower() == "title" )
+	    state = StateDocTitle;
+	else if ( qName.lower() == "icon" )
+	    state = StateDocIcon;
+	else if ( qName.lower() == "imgdir" )
+	    state = StateDocDir;
+	break;
     case StateProperty:
-    case StateDocfile:
 	return FALSE;
     }
     return TRUE;
@@ -81,8 +98,13 @@ bool ProfileHandler::endElement( const QString & /*namespaceURI*/,
     case StateProfile:
 	break;
     case StateProperty:
-    case StateDocfile:
+    case StateDoc:
 	state = StateProfile;
+	break;
+    case StateDocTitle:
+    case StateDocIcon:
+    case StateDocDir:
+	state = StateDoc;
     }
     return TRUE;
 }
@@ -92,16 +114,30 @@ bool ProfileHandler::characters( const QString &chars )
     switch( state ) {
     case StateNone:
     case StateProfile:
+    case StateDoc:
 	break;
     case StateProperty:
 	profile->props[propertyName.lower()] = chars;
 	break;
-    case StateDocfile:
-	profile->docs.append( chars );
-	if( !propertyName.isNull() )
-	    profile->icons[chars.lower()] = propertyName;
+    case StateDocTitle:
+	profile->titles[curDoc] = chars;
+	break;
+    case StateDocIcon:
+	profile->icons[curDoc] = chars;
+	break;
+    case StateDocDir:
+	profile->imageDirs[curDoc] = chars;
     }
     return TRUE;
+}
+
+static QString entitize( const QString &s )
+{
+    QString str = s;
+    str = str.replace( "&", "&amp;" );
+    str = str.replace( ">", "&gt;" );
+    str = str.replace( "<", "&lt;" );
+    return str;
 }
 
 Profile *Profile::createProfile( const QString &filename )
@@ -120,9 +156,9 @@ Profile *Profile::createDefaultProfile()
     profile->props["name"] = "default";
     profile->props["applicationicon"] = "appicon.png";
     profile->props["aboutmenutext"] = "About Qt";
-    profile->props["abouturl"] = "about_qt_url";
+    profile->props["abouturl"] = "about_qt";
     profile->props["title"] = "Qt Assistant";
-    profile->props["docbasepath"] = qInstallPathDocs() + QString( "/html" );
+    profile->props["basepath"] = qInstallPathDocs() + QString( "/html" );
 
     QString path = QString( qInstallPathDocs() ) + "/html/";
 
@@ -217,10 +253,42 @@ bool Profile::load( const QString &name )
 	    qDebug( "Icons: %15s = %s", (*it).latin1(), icons[*it].latin1() );
 	    it++;
 	}
+	keys = imageDirs.keys();
+	it = keys.begin();
+	while( it != keys.end() ) {
+	    qDebug( "Dirs: %15s = %s", (*it).latin1(), imageDirs[*it].latin1() );
+	    it++;
+	}
     }
 #endif
     changed = TRUE;
     return TRUE;
+}
+
+QString Profile::makeRelativePath( const QString &base, const QString &path )
+{
+    QDir bp( base );
+    QDir pp( path );
+    QStringList bl = QStringList::split( "/", bp.canonicalPath() );
+    QStringList pl = QStringList::split( "/", pp.canonicalPath() );
+
+    while ( bl.count() && pl.count() ) {
+	if ( bl.first() == pl.first() ) {
+	    bl.pop_front();
+	    pl.pop_front();
+	} else {
+	    break;
+	}
+    }
+    QString rel = "";
+    if ( bl.count() )
+	for ( int i = 0; i < bl.count(); ++i )
+	    rel += "../";
+    else
+	rel = "./";
+    rel += pl.join( "/" );
+    rel.replace( QRegExp( "/$" ), "" );
+    return rel;
 }
 
 void Profile::save( const QString &name )
@@ -232,25 +300,43 @@ void Profile::save( const QString &name )
     }
     QString indent( "    " );
     QTextStream s( &file );
-    s << "<profile>" << endl;
+    s.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+
+    s << "<!DOCTYPE PROFILE>"<< endl;
+    s << "<PROFILE>" << endl;
 
     QValueList<QString> keys = props.keys();
     QValueList<QString>::ConstIterator it = keys.begin();
-    QString buf;
+    QString buf, val;
     while( it != keys.end() ) {
-	    buf = QString( "<property name=\"%1\">%2</property>" )
-		  .arg( *it ).arg( props[*it] );
-	    s << indent << buf << endl;
-	    it++;
+	val = props[*it];
+	if ( (*it == "applicationicon" || *it == "abouturl") && !val.isEmpty() ) {
+	    QFileInfo fi( val );
+	    QString relPath = Profile::makeRelativePath( props["basepath"], fi.dirPath( TRUE ) );
+	    val = relPath + "/" + fi.fileName();
+	}
+	buf = QString( "<property name=\"%1\">%2</property>" )
+	    .arg( *it ).arg( entitize( val ) );
+	s << indent <<  buf << endl;
+	it++;
     }
     s << endl;
+    QString imgDir;
     QStringList::ConstIterator docfiles = docs.begin();
     while( docfiles != docs.end() ) {
-	buf = QString( "<docfile icon=\"%1\">%2</docfile>" )
-	      .arg( icons[*docfiles] ).arg( *docfiles );
-	s << indent << buf << endl;
-	docfiles++;
+	QFileInfo fi( *docfiles );
+	QString val = Profile::makeRelativePath( props["basepath"], fi.dirPath( TRUE ) );
+	val = val + "/" + fi.fileName();
+	s << indent << "<documentation file=\"" << entitize( val ) << "\">" << endl;
+	if ( !titles[*docfiles].isEmpty() )
+	    s << indent << indent << "<title>" << entitize( titles[*docfiles] ) << "</title>" << endl;
+	if ( !icons[*docfiles].isEmpty() )
+	    s << indent << indent << "<icon>" << entitize( icons[*docfiles] ) << "</icon>" << endl;
+	if ( !imageDirs[*docfiles].isEmpty() )
+	    s << indent << indent << "<imgdir>" << entitize( imageDirs[*docfiles] ) << "</imgdir>" << endl;
+	s << indent << "</documentation>" << endl;
+	++docfiles;
     }
-    s << "</profile>";
+    s << "</PROFILE>";
     file.close();
 }

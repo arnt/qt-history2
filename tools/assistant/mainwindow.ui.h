@@ -252,13 +252,11 @@ void MainWindow::about()
 
 void MainWindow::aboutApplication()
 {
-    if( Config::configuration()->isDefaultProfile() ) {
-	QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
+    QString url = Config::configuration()->aboutURL();
+    if ( url == "about_qt" ) {
+	QMessageBox::aboutQt( this, "Qt Assistant" );
 	return;
     }
-
-
-    QString url = Config::configuration()->aboutURL();
     QString text;
     QFile file( url );
     if( file.exists() && file.open( IO_ReadOnly ) )
@@ -385,8 +383,7 @@ void MainWindow::showLink( const QString &link )
     } else if ( link=="assistant_about_text" ) {
 	// No default startup text yet!!
 	QString docfile = Config::configuration()->docFiles()[0];
-	QString url = Config::configuration()->docContentsURL( docfile );
-	tabs->setSource( url );
+	tabs->setSource( helpDock->docHomePage( docfile ) );
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
@@ -424,6 +421,7 @@ void MainWindow::showSettingsDialog( int page )
 	settingsDia = new SettingsDialog( this );
 	connect( settingsDia, SIGNAL( profileChanged() ), helpDock, SLOT( showProfile() ) );
 	connect( settingsDia, SIGNAL( profileChanged() ), this, SLOT( updateProfileSettings() ) );
+	connect( settingsDia, SIGNAL( profileChanged() ), this, SLOT( updateBookmarkMenu() ) );
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
@@ -569,13 +567,12 @@ void MainWindow::showGoActionLink()
 
     QAction *action = (QAction*) origin;
     QString docfile = *( goActionDocFiles->find( action ) );
-    QString ref = Config::configuration()->docContentsURL( docfile );
-    showLink( ref );
+    showLink( helpDock->docHomePage( docfile ) );
 }
 
 void MainWindow::showAssistantHelp()
 {
-    showLink( "assistant.html" );
+    showLink( QString( qInstallPathDocs() ) + "/html/assistant.html" );
 }
 
 HelpDialog* MainWindow::helpDialog()

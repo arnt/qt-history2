@@ -45,6 +45,7 @@ public:
 
     static Profile* createProfile( const QString &file );
     static Profile* createDefaultProfile();
+    static QString makeRelativePath( const QString &base, const QString &path );
 
 private:
     Profile();

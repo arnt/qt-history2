@@ -41,7 +41,6 @@ ProfileDialog::ProfileDialog( QWidget *parent, QString pN )
 
 ProfileDialog::~ProfileDialog()
 {
-
 }
 
 void ProfileDialog::initDialog()
@@ -51,29 +50,39 @@ void ProfileDialog::initDialog()
 	mode = Modify;
 	if ( !profile )
 	    return;
-	leName->setText( profile->props["name"] );
-	iconName = profile->props["applicationicon"];
-	setIcon();
-	leAboutMenuText->setText( profile->props["aboutmenutext"] );
-	leAboutUrl->setText( profile->props["abouturl"] );
-	leTitle->setText( profile->props["title"] );
-
-	QStringList docList = profile->docs;
-	QListBoxPixmap *item;
-	for ( QStringList::Iterator it = docList.begin(); it != docList.end(); ++it ) {
-	    item = new QListBoxPixmap( docListView, QPixmap( profile->icons[ *it ] ), *it );
-	}
+	insertProfileData();
     } else {
 	profile = new Profile();
 	mode = Add;
     }
+    if ( lePath->text().isEmpty() )
+	lePath->setText( QDir::homeDirPath() );
     oldProfile = new Profile( profile );
+}
+
+void ProfileDialog::insertProfileData()
+{
+    leName->setText( profile->props["name"] );
+    iconName = profile->props["applicationicon"];
+    setIcon();
+    leAboutMenuText->setText( profile->props["aboutmenutext"] );
+    leAboutUrl->setText( profile->props["abouturl"] );
+    leTitle->setText( profile->props["title"] );
+    lePath->setText( profile->props["basepath"] );
+
+    QStringList docList = profile->docs;
+    QListBoxPixmap *item;
+    for ( QStringList::Iterator it = docList.begin(); it != docList.end(); ++it ) {
+	QPixmap pix( iconAbsFilePath( *it, profile->icons[*it] ) );
+	if ( pix.width() > 22 )
+	    pix.resize( 22, 22 );
+	item = new QListBoxPixmap( docListView, pix, profile->titles[*it] );
+    }
 }
 
 void ProfileDialog::setIcon()
 {
-    /* todo: accept not only pngs, also in open dialog */
-    iconButton->setIconSet( QIconSet( QPixmap( iconName, "PNG" ) ) );
+    iconButton->setIconSet( QIconSet( QPixmap( iconName ) ) );
 }
 
 void ProfileDialog::okClicked()
@@ -87,6 +96,7 @@ void ProfileDialog::okClicked()
     profile->props["applicationicon"] = iconName;
     profile->props["aboutmenutext"] = leAboutMenuText->text();
     profile->props["abouturl"] = leAboutUrl->text();
+    profile->props["basepath"] = lePath->text();
     profile->props["title"] = leTitle->text();
 
     if ( profile->props["name"] != oldProfile->props["name"] ||
@@ -114,8 +124,8 @@ void ProfileDialog::cancelClicked()
 
 void ProfileDialog::setProfileIcon()
 {
-    iconName = QFileDialog::getOpenFileName( QDir::homeDirPath(), "*", this, "saveProfileAs",
-	tr( "Qt Assistant - Choose Profile Icon" ) );
+    iconName = QFileDialog::getOpenFileName( QDir::homeDirPath(), "Images (*.png *.xpm *.jpg)",
+	       this, "profileIcon", tr( "Qt Assistant - Choose Profile Icon" ) );
     setIcon();
 }
 
@@ -154,12 +164,29 @@ void ProfileDialog::addDocFile()
 	if ( title.isEmpty() )
 	    title = file;
 
-	QListBoxPixmap *item = new QListBoxPixmap( docListView, QPixmap( handler.getIconName() ), file );
+	QPixmap pix( iconAbsFilePath( file, handler.getIconName() ) );
+	if ( pix.width() > 22 )
+	    pix.resize( 22, 22 );
+	QListBoxPixmap *item = new QListBoxPixmap( docListView,
+			       pix, handler.getDocumentationTitle() );
 	profile->addDocFile( file );
 	profile->addDocFileTitle( file, handler.getDocumentationTitle() );
 	profile->addDocFileIcon( file, handler.getIconName() );
 	profile->addDocFileImageDir( file, handler.getImageDir() );
     }
+}
+
+QString ProfileDialog::iconAbsFilePath( const QString &docFileName, const QString &iconName )
+{
+    QFileInfo iconInfo( iconName );
+    QString iconFile = iconName;
+    if ( iconInfo.isRelative() ) {
+	QFileInfo docInfo( docFileName );
+	QString basePath = docInfo.dirPath( TRUE );
+	QFileInfo buf( basePath + "/" + iconName );
+	iconFile = buf.absFilePath();
+    }
+    return iconFile;
 }
 
 void ProfileDialog::removeDocFile()
@@ -183,10 +210,11 @@ void ProfileDialog::saveProfileInFile()
 	tr( "Qt Assistant - Save Profile As" ) );
     if ( !fileName.isEmpty() ) {
 	profile->props["name"] = leName->text();
-	profile->props["applicationicon"] = iconName;
 	profile->props["aboutmenutext"] = leAboutMenuText->text();
-	profile->props["abouturl"] = leAboutUrl->text();
 	profile->props["title"] = leTitle->text();
+	profile->props["applicationicon"] = iconName;
+	profile->props["abouturl"] = leAboutUrl->text();
+	profile->props["basepath"] = lePath->text();
 	profile->save( fileName );
     }
 }
@@ -203,6 +231,16 @@ bool ProfileDialog::profileChanged() const
 
 void ProfileDialog::setUrl()
 {
-    leAboutUrl->setText( QFileDialog::getOpenFileName( QDir::homeDirPath(), "*", this, "saveProfileAs",
-	tr( "Qt Assistant - Edit About Url" ) ) );
+    QString file = QFileDialog::getOpenFileName( QDir::homeDirPath(), "*", this, "setUrl",
+	    tr( "Qt Assistant - Edit About Url" ) );
+    if ( !file.isNull() )
+	leAboutUrl->setText( file );
+}
+
+void ProfileDialog::setPath()
+{
+    QString dir = QFileDialog::getExistingDirectory( QDir::homeDirPath(), this, "setPath",
+	    tr( "Qt Assistant - Edit Base Path" ) );
+    if ( !dir.isNull() )
+	lePath->setText( dir );
 }

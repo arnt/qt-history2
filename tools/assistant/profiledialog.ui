@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>409</width>
-            <height>360</height>
+            <width>385</width>
+            <height>342</height>
         </rect>
     </property>
     <property name="caption">
@@ -73,13 +73,24 @@
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
+                                        <cstring>textLabel6</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>&amp;Path:</string>
+                                    </property>
+                                    <property name="buddy" stdset="0">
+                                        <cstring>lePath</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
                                         <cstring>textLabel4</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>About menu text:</string>
+                                        <string>About &amp;menu text:</string>
                                     </property>
                                     <property name="buddy" stdset="0">
-                                        <cstring>aboutMenuText</cstring>
+                                        <cstring>leAboutMenuText</cstring>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -87,7 +98,7 @@
                                         <cstring>textLabel5</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>About URL:</string>
+                                        <string>About &amp;URL:</string>
                                     </property>
                                     <property name="buddy" stdset="0">
                                         <cstring>leAboutUrl</cstring>
@@ -103,12 +114,12 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLineEdit" row="2" column="0" rowspan="1" colspan="3">
+                                <widget class="QLineEdit" row="3" column="0" rowspan="1" colspan="3">
                                     <property name="name">
                                         <cstring>leAboutMenuText</cstring>
                                     </property>
                                 </widget>
-                                <widget class="QPushButton" row="3" column="1" rowspan="1" colspan="2">
+                                <widget class="QPushButton" row="4" column="1" rowspan="1" colspan="2">
                                     <property name="name">
                                         <cstring>urlButton</cstring>
                                     </property>
@@ -119,6 +130,34 @@
                                             <horstretch>0</horstretch>
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>30</width>
+                                            <height>32767</height>
+                                        </size>
+                                    </property>
+                                    <property name="text">
+                                        <string>...</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton" row="2" column="1" rowspan="1" colspan="2">
+                                    <property name="name">
+                                        <cstring>pathButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>1</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>30</width>
+                                            <height>32767</height>
+                                        </size>
                                     </property>
                                     <property name="text">
                                         <string>...</string>
@@ -134,7 +173,12 @@
                                         <cstring>leTitle</cstring>
                                     </property>
                                 </widget>
-                                <widget class="QLineEdit" row="3" column="0">
+                                <widget class="QLineEdit" row="2" column="0">
+                                    <property name="name">
+                                        <cstring>lePath</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QLineEdit" row="4" column="0">
                                     <property name="name">
                                         <cstring>leAboutUrl</cstring>
                                     </property>
@@ -150,6 +194,12 @@
                                             <horstretch>0</horstretch>
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>22</width>
+                                            <height>0</height>
+                                        </size>
                                     </property>
                                     <property name="text">
                                         <string></string>
@@ -294,6 +344,9 @@
                     <property name="accel">
                         <string>Alt+O</string>
                     </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -358,11 +411,19 @@
         <receiver>ProfileDialogBase</receiver>
         <slot>setUrl()</slot>
     </connection>
+    <connection>
+        <sender>pathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ProfileDialogBase</receiver>
+        <slot>setPath()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>leName</tabstop>
     <tabstop>iconButton</tabstop>
     <tabstop>leTitle</tabstop>
+    <tabstop>lePath</tabstop>
+    <tabstop>pathButton</tabstop>
     <tabstop>leAboutMenuText</tabstop>
     <tabstop>leAboutUrl</tabstop>
     <tabstop>urlButton</tabstop>
@@ -381,6 +442,7 @@
     <slot>removeDocFile()</slot>
     <slot>saveProfileInFile()</slot>
     <slot>setUrl()</slot>
+    <slot>setPath()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
