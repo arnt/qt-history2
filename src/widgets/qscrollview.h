@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#28 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#29 $
 **
 ** Definition of QScrollView class
 **
@@ -73,6 +73,9 @@ public:
     void	resize( int w, int h );
     void	resize( const QSize& );
     void	show();
+
+    void	updateContents( int x, int y, int w, int h );
+    void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
 
 signals:
     void	contentsMoving(int x, int y);

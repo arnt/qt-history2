@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#69 $
 **
 ** Implementation of QScrollView class
 **
@@ -1104,6 +1104,61 @@ void QScrollView::resizeContents( int w, int h )
 	viewport()->update( 0, contentsY()+oh, viewport()->width(), h-oh);
     }
 }
+
+void QScrollView::updateContents( int x, int y, int w, int h )
+{
+    QWidget* vp = viewport();
+
+    // Translate
+    x -= contentsX();
+    y -= contentsY();
+
+    // Clip to QCOORD space
+    if ( x < 0 ) {
+	w += x;
+	x = 0;
+    }
+    if ( y < 0 ) {
+	h += y;
+	y = 0;
+    }
+    if ( w < 0 || h < 0 )
+	return;
+    if ( w > vp->width() )
+	w = vp->width();
+    if ( h > vp->height() )
+	h = vp->height();
+
+    vp->update( x, y, w, h );
+}
+
+void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
+{
+    QWidget* vp = viewport();
+
+    // Translate
+    x -= contentsX();
+    y -= contentsY();
+
+    // Clip to QCOORD space
+    if ( x < 0 ) {
+	w += x;
+	x = 0;
+    }
+    if ( y < 0 ) {
+	h += y;
+	y = 0;
+    }
+    if ( w < 0 || h < 0 )
+	return;
+    if ( w > vp->width() )
+	w = vp->width();
+    if ( h > vp->height() )
+	h = vp->height();
+
+    vp->repaint( x, y, w, h, erase );
+}
+
 
 /*!
   \fn void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
