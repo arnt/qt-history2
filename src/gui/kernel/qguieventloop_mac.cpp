@@ -18,6 +18,7 @@
 #include <qhash.h>
 #include "qsocketnotifier.h"
 #include "private/qwidget_p.h"
+#include "private/qthread_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
