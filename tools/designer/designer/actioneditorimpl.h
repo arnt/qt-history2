@@ -41,6 +41,8 @@ public:
     bool wantToBeShown() const { return !explicitlyClosed; }
     void setWantToBeShown( bool b ) { explicitlyClosed = !b; }
 
+    void setCurrentAction( QAction *a );
+
 protected:
     void closeEvent( QCloseEvent *e );
 

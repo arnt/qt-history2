@@ -60,8 +60,8 @@ public:
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
 
-    void setWidget( QWidget *w );
-    QWidget *widget() const;
+    void setObject( QObject *o );
+    QObject *object() const;
 
     void setText( int col, const QString &txt ) { if ( !txt.isEmpty() ) QListViewItem::setText( col, txt ); }
 
@@ -74,7 +74,7 @@ private:
 private:
     QColor backgroundColor();
     QColor backColor;
-    QWidget *wid;
+    QObject *obj;
     Type typ;
 
 };
@@ -87,10 +87,10 @@ public:
     HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects = TRUE );
 
     virtual void setup();
-    virtual void setCurrent( QWidget *w );
+    virtual void setCurrent( QObject *o );
     void setOpen( QListViewItem *i, bool b );
-    void changeNameOf( QWidget *w, const QString &name );
-    void changeDatabaseOf( QWidget *w, const QString &info );
+    void changeNameOf( QObject *o, const QString &name );
+    void changeDatabaseOf( QObject *o, const QString &info );
     void setFormWindow( FormWindow *fw ) { formWindow = fw; }
     void drawContentsOffset( QPainter *p, int ox, int oy,
 			     int cx, int cy, int cw, int ch ) {
@@ -114,9 +114,9 @@ public slots:
 
 private:
     void insertObject( QObject *o, QListViewItem *parent );
-    QWidget *findWidget( QListViewItem *i );
-    QListViewItem *findItem( QWidget *w );
-    QWidget *current() const;
+    QObject *findObject( QListViewItem *i );
+    QListViewItem *findItem( QObject *o );
+    QObject *current() const;
 
 private slots:
     virtual void objectClicked( QListViewItem *i );
@@ -188,6 +188,7 @@ public:
     void updateFormDefinitionView();
 
     FormDefinitionView *formDefinitionView() const { return fView; }
+    HierarchyList *hierarchyList() const { return listview; }
 
 protected slots:
     void jumpTo( const QString &func, const QString &clss,int type );

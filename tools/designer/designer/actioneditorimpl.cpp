@@ -24,6 +24,7 @@
 #include "actionlistview.h"
 #include "connectiondialog.h"
 #include "mainwindow.h"
+#include "hierarchyview.h"
 
 #include <qaction.h>
 #include <qlineedit.h>
@@ -72,6 +73,20 @@ void ActionEditor::currentActionChanged( QListViewItem *i )
 	currentAction = ( (ActionItem*)i )->actionGroup();
     if ( formWindow && currentAction )
 	formWindow->setActiveObject( currentAction );
+    MainWindow::self->objectHierarchy()->hierarchyList()->setCurrent( currentAction );
+}
+
+void ActionEditor::setCurrentAction( QAction *a )
+{
+    QListViewItemIterator it( listActions );
+    while ( it.current() ) {
+	if ( ( (ActionItem*)it.current() )->action() == a || ( (ActionItem*)it.current() )->actionGroup() == a ) {
+	    listActions->setCurrentItem( it.current() );
+	    listActions->ensureItemVisible( it.current() );
+	    break;
+	}
+	++it;
+    }
 }
 
 void ActionEditor::deleteAction()

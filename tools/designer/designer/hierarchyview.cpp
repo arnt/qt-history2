@@ -32,6 +32,7 @@
 #include "editslotsimpl.h"
 #include "listeditor.h"
 #include "actiondnd.h"
+#include "actioneditorimpl.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -153,14 +154,14 @@ void HierarchyItem::updateBackColor()
     }
 }
 
-void HierarchyItem::setWidget( QWidget *w )
+void HierarchyItem::setObject( QObject *o )
 {
-    wid = w;
+    obj = o;
 }
 
-QWidget *HierarchyItem::widget() const
+QObject *HierarchyItem::object() const
 {
-    return wid;
+    return obj;
 }
 
 void HierarchyItem::okRename( int col )
@@ -251,79 +252,91 @@ void HierarchyList::objectClicked( QListViewItem *i )
     if ( !i )
 	return;
 
-    QWidget *w = findWidget( i );
-    if ( !w )
+    QObject *o = findObject( i );
+    if ( !o )
 	return;
-    if ( formWindow == w ) {
+    if ( formWindow == o ) {
 	if ( deselect )
 	    formWindow->clearSelection( FALSE );
 	formWindow->emitShowProperties( formWindow );
 	return;
     }
 
-    if ( !formWindow->widgets()->find( w ) ) {
-	if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) &&
-	     w->parent()->parent() &&
-	     ( w->parent()->parent()->inherits( "QTabWidget" ) ||
-	       w->parent()->parent()->inherits( "QWizard" ) ) ) {
-	    if ( w->parent()->parent()->inherits( "QTabWidget" ) )
-		( (QTabWidget*)w->parent()->parent() )->showPage( w );
-	    else
-		( (QDesignerWizard*)w->parent()->parent() )->setCurrentPage( ( (QDesignerWizard*)w->parent()->parent() )->pageNum( w ) );
-	    w = (QWidget*)w->parent()->parent();
-	    formWindow->emitUpdateProperties( formWindow->currentWidget() );
-	} else if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) ) {
-	    ( (QDesignerWidgetStack*)w->parent() )->raiseWidget( w );
-	    ( (QDesignerWidgetStack*)w->parent() )->updateButtons();
-	} else {
-	    return;
+    if ( o->isWidgetType() ) {
+	QWidget *w = (QWidget*)o;
+	if ( !formWindow->widgets()->find( w ) ) {
+	    if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) &&
+		 w->parent()->parent() &&
+		 ( w->parent()->parent()->inherits( "QTabWidget" ) ||
+		   w->parent()->parent()->inherits( "QWizard" ) ) ) {
+		if ( w->parent()->parent()->inherits( "QTabWidget" ) )
+		    ( (QTabWidget*)w->parent()->parent() )->showPage( w );
+		else
+		    ( (QDesignerWizard*)w->parent()->parent() )->
+			setCurrentPage( ( (QDesignerWizard*)w->parent()->parent() )->
+					pageNum( w ) );
+		w = (QWidget*)w->parent()->parent();
+		formWindow->emitUpdateProperties( formWindow->currentWidget() );
+	    } else if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) ) {
+		( (QDesignerWidgetStack*)w->parent() )->raiseWidget( w );
+		( (QDesignerWidgetStack*)w->parent() )->updateButtons();
+	    } else if ( w->inherits( "QMenuBar" ) || w->inherits( "QDockWindow" ) ) {
+		formWindow->setActiveObject( w );
+	    } else if ( w->inherits( "QPopupMenu" ) ) {
+		return; // ### we could try to find our menu bar and change the currentMenu to our index
+	    } else {
+		return;
+	    }
 	}
+    } else if ( o->inherits( "QAction" ) ) {
+	MainWindow::self->actioneditor()->setCurrentAction( (QAction*)o );
+	deselect = TRUE;
     }
 
     if ( deselect )
 	formWindow->clearSelection( FALSE );
-    if ( w->isVisibleTo( formWindow ) )
-	formWindow->selectWidget( w, TRUE );
+    if ( o->isWidgetType() && ( (QWidget*)o )->isVisibleTo( formWindow ) )
+	formWindow->selectWidget( (QWidget*)o, TRUE );
 }
 
-QWidget *HierarchyList::findWidget( QListViewItem *i )
+QObject *HierarchyList::findObject( QListViewItem *i )
 {
-    return ( (HierarchyItem*)i )->widget();
+    return ( (HierarchyItem*)i )->object();
 }
 
-QListViewItem *HierarchyList::findItem( QWidget *w )
+QListViewItem *HierarchyList::findItem( QObject *o )
 {
     QListViewItemIterator it( this );
     while ( it.current() ) {
-	if ( ( (HierarchyItem*)it.current() )->widget() == w )
+	if ( ( (HierarchyItem*)it.current() )->object() == o )
 	    return it.current();
 	++it;
     }
     return 0;
 }
 
-QWidget *HierarchyList::current() const
+QObject *HierarchyList::current() const
 {
     if ( currentItem() )
-	return ( (HierarchyItem*)currentItem() )->widget();
+	return ( (HierarchyItem*)currentItem() )->object();
     return 0;
 }
 
-void HierarchyList::changeNameOf( QWidget *w, const QString &name )
+void HierarchyList::changeNameOf( QObject *o, const QString &name )
 {
-    QListViewItem *item = findItem( w );
+    QListViewItem *item = findItem( o );
     if ( !item )
 	return;
     item->setText( 0, name );
 }
 
 
-void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
+void HierarchyList::changeDatabaseOf( QObject *o, const QString &info )
 {
 #ifndef QT_NO_SQL
     if ( !formWindow->isDatabaseAware() )
 	return;
-    QListViewItem *item = findItem( w );
+    QListViewItem *item = findItem( o );
     if ( !item )
 	return;
     item->setText( 2, info );
@@ -428,7 +441,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     if ( o->inherits( "QAction" ) )
 	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
 
-    ( (HierarchyItem*)item )->setWidget( (QWidget*)o );
+    ( (HierarchyItem*)item )->setObject( o );
 
     const QObjectList *l = o->children();
     if ( l ) {
@@ -531,11 +544,11 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item->setOpen( TRUE );
 }
 
-void HierarchyList::setCurrent( QWidget *w )
+void HierarchyList::setCurrent( QObject *o )
 {
     QListViewItemIterator it( this );
     while ( it.current() ) {
-	if ( ( (HierarchyItem*)it.current() )->widget() == w ) {
+	if ( ( (HierarchyItem*)it.current() )->object() == o ) {
 	    blockSignals( TRUE );
 	    setCurrentItem( it.current() );
 	    ensureItemVisible( it.current() );
@@ -552,14 +565,15 @@ void HierarchyList::showRMBMenu( QListViewItem *i, const QPoint & p )
 	return;
 
 
-    QWidget *w = findWidget( i );
-    if ( !w )
+    QObject *o = findObject( i );
+    if ( !o )
 	return;
 
-    if ( w != formWindow &&
-	 !formWindow->widgets()->find( w ) )
+    if ( !o->isWidgetType() ||
+	 ( o != formWindow && !formWindow->widgets()->find( (QWidget*)o ) ) )
 	return;
 
+    QWidget *w = (QWidget*)o;
     if ( w->isVisibleTo( formWindow ) ) {
 	if ( !w->inherits( "QTabWidget" ) && !w->inherits( "QWizard" ) ) {
 	    if ( !normalMenu )
@@ -568,8 +582,9 @@ void HierarchyList::showRMBMenu( QListViewItem *i, const QPoint & p )
 	} else {
 	    if ( !tabWidgetMenu )
 		tabWidgetMenu =
-		    formWindow->mainWindow()->setupTabWidgetHierarchyMenu( this, SLOT( addTabPage() ),
-											  SLOT( removeTabPage() ) );
+		    formWindow->mainWindow()->setupTabWidgetHierarchyMenu(
+				  this, SLOT( addTabPage() ),
+				  SLOT( removeTabPage() ) );
 	    tabWidgetMenu->popup( p );
 	}
     }
@@ -577,18 +592,21 @@ void HierarchyList::showRMBMenu( QListViewItem *i, const QPoint & p )
 
 void HierarchyList::addTabPage()
 {
-    QWidget *w = current();
-    if ( !w )
+    QObject *o = current();
+    if ( !o || !o->isWidgetType() )
 	return;
+    QWidget *w = (QWidget*)o;
     if ( w->inherits( "QTabWidget" ) ) {
 	QTabWidget *tw = (QTabWidget*)w;
-	AddTabPageCommand *cmd = new AddTabPageCommand( tr( "Add Page to %1" ).arg( tw->name() ), formWindow,
+	AddTabPageCommand *cmd = new AddTabPageCommand( tr( "Add Page to %1" ).
+							arg( tw->name() ), formWindow,
 							tw, "Tab" );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
     } else if ( w->inherits( "QWizard" ) ) {
 	QWizard *wiz = (QWizard*)formWindow->mainContainer();
-	AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).arg( wiz->name() ), formWindow,
+	AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).
+							      arg( wiz->name() ), formWindow,
 							      wiz, "Page" );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
@@ -597,16 +615,18 @@ void HierarchyList::addTabPage()
 
 void HierarchyList::removeTabPage()
 {
-    QWidget *w = current();
-    if ( !w )
+    QObject *o = current();
+    if ( !o || !o->isWidgetType() )
 	return;
+    QWidget *w = (QWidget*)o;
     if ( w->inherits( "QTabWidget" ) ) {
 	QTabWidget *tw = (QTabWidget*)w;
 	if ( tw->currentPage() ) {
 	    QDesignerTabWidget *dtw = (QDesignerTabWidget*)tw;
-	    DeleteTabPageCommand *cmd = new DeleteTabPageCommand( tr( "Delete Page %1 of %2" ).
-								  arg( dtw->pageTitle() ).arg( tw->name() ),
-								  formWindow, tw, tw->currentPage() );
+	    DeleteTabPageCommand *cmd =
+		new DeleteTabPageCommand( tr( "Delete Page %1 of %2" ).
+					  arg( dtw->pageTitle() ).arg( tw->name() ),
+					  formWindow, tw, tw->currentPage() );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}
@@ -614,10 +634,11 @@ void HierarchyList::removeTabPage()
 	QWizard *wiz = (QWizard*)formWindow->mainContainer();
 	if ( wiz->currentPage() ) {
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
-	    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" ).
-									arg( dw->pageTitle() ).arg( wiz->name() ),
-									formWindow, wiz,
-									wiz->indexOf( wiz->currentPage() ), TRUE );
+	    DeleteWizardPageCommand *cmd =
+		new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" ).
+					     arg( dw->pageTitle() ).arg( wiz->name() ),
+					     formWindow, wiz,
+					     wiz->indexOf( wiz->currentPage() ), TRUE );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}
