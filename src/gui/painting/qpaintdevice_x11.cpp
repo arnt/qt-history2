@@ -37,7 +37,7 @@
     located at the top-left position. X increases to the right and Y
     increases downward. The unit is one pixel. There are several ways
     to set up a user-defined coordinate system using the painter, for
-    example, using QPainter::setWorldMatrix().
+    example, using QPainter::setMatrix().
 
     Example (draw on a paint device):
     \code

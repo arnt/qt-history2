@@ -414,7 +414,7 @@ void QPainterPrivate::updateInvMatrix()
     \i brushOrigin() is the origin of the tiled brushes, normally the
     origin of the window.
 
-    \i viewport(), window(), worldMatrix() and many more make up the
+    \i viewport(), window(), matrix() and many more make up the
     painter's coordinate transformation system. See \link
     coordsys.html The Coordinate System \endlink for an explanation of
     this, or see below for a very brief overview of the functions.
@@ -472,9 +472,9 @@ void QPainterPrivate::updateInvMatrix()
     System \endlink for a more general overview and a simple example.
 
     The most common functions used are scale(), rotate(), translate()
-    and shear(), all of which operate on the worldMatrix().
-    setWorldMatrix() can replace or add to the currently set
-    worldMatrix().
+    and shear(), all of which operate on the matrix().
+    setMatrix() can replace or add to the currently set
+    matrix().
 
     setViewport() sets the rectangle on which QPainter operates. The
     default is the entire device, which is usually fine, except on
@@ -1084,7 +1084,7 @@ void QPainter::setClipRegion(const QRegion &r)
     transformation matrix.
 
     If \a matrix is the identity matrix and \a combine is false, this
-    function calls setWorldXForm(false). (The identity matrix is the
+    function calls setMatrixEnabled(false). (The identity matrix is the
     matrix where QMatrix::m11() and QMatrix::m22() are 1.0 and the
     rest are 0.0.)
 
@@ -1108,7 +1108,7 @@ void QPainter::setClipRegion(const QRegion &r)
         {
             QMatrix m;
             m.rotate(a);
-            setWorldMatrix(m, true);
+            setMatrix(m, true);
         }
     \endcode
 
@@ -1130,7 +1130,7 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 #endif
 
    if (!isActive()) {
-        qWarning("QPainter::setWorldMatrix(), painter not active ");
+        qWarning("QPainter::setMatrix(), painter not active ");
         return;
     }
 
@@ -1156,7 +1156,7 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 /*!
     Returns the world transformation matrix.
 
-    \sa setWorldMatrix()
+    \sa setMatrix()
 */
 
 const QMatrix &QPainter::matrix() const
@@ -1166,7 +1166,7 @@ const QMatrix &QPainter::matrix() const
 
 /*!
     Resets any transformations that were made using translate(), scale(),
-    shear(), rotate(), setWorldMatrix(), setViewport() and
+    shear(), rotate(), setMatrix(), setViewport() and
     setWindow().
 
     \sa matrix(), setMatrix()
@@ -1207,7 +1207,7 @@ void QPainter::setMatrixEnabled(bool enable)
 #endif
 
     if (!isActive()) {
-        qWarning("QPainter::setWorldXForm(), painter not active");
+        qWarning("QPainter::setMatrixEnabled(), painter not active");
         return;
     }
     if (enable == d->state->WxF)
@@ -1242,7 +1242,7 @@ bool QPainter::matrixEnabled() const
 /*!
     Scales the coordinate system by (\a{sx}, \a{sy}).
 
-    \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
+    \sa translate(), shear(), rotate(), resetXForm(), setMatrix(),
     xForm()
 */
 
@@ -1260,7 +1260,7 @@ void QPainter::scale(double sx, double sy)
 /*!
     Shears the coordinate system by (\a{sh}, \a{sv}).
 
-    \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(),
+    \sa translate(), scale(), rotate(), resetXForm(), setMatrix(),
     xForm()
 */
 
@@ -1277,7 +1277,7 @@ void QPainter::shear(double sh, double sv)
 /*!
     Rotates the coordinate system \a a degrees counterclockwise.
 
-    \sa translate(), scale(), shear(), resetXForm(), setWorldMatrix(),
+    \sa translate(), scale(), shear(), resetXForm(), setMatrix(),
     xForm()
 */
 
@@ -1318,7 +1318,7 @@ void QPainter::rotate(double a)
         }
     \endcode
 
-    \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
+    \sa scale(), shear(), rotate(), resetXForm(), setMatrix(), xForm()
 */
 
 void QPainter::translate(double dx, double dy)
@@ -3083,8 +3083,8 @@ bool QPainter::hasViewXForm() const
     rectangle. See the \link coordsys.html Coordinate System Overview
     \endlink for an overview of coordinate transformation.
 
-    \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
-    setWorldXForm()
+    \sa window(), setViewport(), setViewXForm(), setMatrix(),
+    setMatrixEnabled()
 */
 
 void QPainter::setWindow(const QRect &r)
@@ -3147,8 +3147,8 @@ QRect QPainter::window() const
     rectangle. See the \link coordsys.html Coordinate System Overview
     \endlink for an overview of coordinate transformation.
 
-    \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-    setWorldXForm(), xForm()
+    \sa viewport(), setWindow(), setViewXForm(), setMatrix(),
+    setMatrixEnabled()
 */
 
 void QPainter::setViewport(const QRect &r)
@@ -3192,8 +3192,8 @@ QRect QPainter::viewport() const
     Enables view transformations if \a enable is true, or disables
     view transformations if \a enable is false.
 
-    \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
-    setWorldXForm(), xForm()
+    \sa hasViewXForm(), setWindow(), setViewport(), setMatrix(),
+    setMatrixEnabled()
 */
 
 void QPainter::setViewXForm(bool enable)

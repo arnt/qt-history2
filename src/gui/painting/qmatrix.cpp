@@ -43,7 +43,7 @@
             QMatrix m;                   // our transformation matrix
             m.rotate(22.5);               // rotated coordinate system
             p.begin(this);                // start painting
-            p.setWorldMatrix(m);          // use rotated coordinate system
+            p.setMatrix(m);          // use rotated coordinate system
             p.drawText(30,20, "detator"); // draw rotated text at 30,20
             p.end();                      // painting done
         }
@@ -123,10 +123,10 @@
     \l QPainter has functions to translate, scale, shear and rotate the
     coordinate system without using a QMatrix. Although these
     functions are very convenient, it can be more efficient to build a
-    QMatrix and call QPainter::setWorldMatrix() if you want to perform
+    QMatrix and call QPainter::setMatrix() if you want to perform
     more than a single transform operation.
 
-    \sa QPainter::setWorldMatrix(), QPixmap::xForm()
+    \sa QPainter::setMatrix(), QPixmap::xForm()
 */
 
 
