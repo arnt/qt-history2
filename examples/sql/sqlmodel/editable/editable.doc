@@ -12,7 +12,7 @@
   single table editable, this example just shows the principles how to
   subclass QSqlModel if QSqlTableModel is not sufficient enough for your needs.
 
-  \quotefile sql/editablesqlmodel/main.cpp
+  \quotefile sql/sqlmodel/editable/main.cpp
   \skipto class EditableSqlModel
   \printuntil };
 

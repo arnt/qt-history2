@@ -8,7 +8,7 @@
   This example demonstrates how to display the results of a QSqlQuery
   in a table.
 
-  \quotefile sql/sqlmodel/main.cpp
+  \quotefile sql/sqlmodel/simple/main.cpp
   \skipto main(
   \printuntil createConnection
 
