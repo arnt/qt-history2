@@ -66,7 +66,7 @@ public:
     void setReadChannel(ProcessChannel channel);
 
     void closeReadChannel(ProcessChannel channel);
-    void closeOutputChannel();
+    void closeWriteChannel();
 
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &dir);

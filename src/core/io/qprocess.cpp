@@ -319,7 +319,7 @@ QProcessPrivate::QProcessPrivate()
     childStartedPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
-    outputChannelClosing = false;
+    writeChannelClosing = false;
 #ifdef Q_WS_WIN
     pipeWriter = 0;
     processFinishedNotifier = 0;
@@ -494,8 +494,8 @@ bool QProcessPrivate::canWrite()
     emit q->bytesWritten(written);
     if (writeSocketNotifier && !writeBuffer.isEmpty())
         writeSocketNotifier->setEnabled(true);
-    if (writeBuffer.isEmpty() && outputChannelClosing)
-        closeOutputChannel();
+    if (writeBuffer.isEmpty() && writeChannelClosing)
+        closeWriteChannel();
     return true;
 }
 
@@ -555,10 +555,10 @@ bool QProcessPrivate::startupNotification()
 
 /*! \internal
 */
-void QProcessPrivate::closeOutputChannel()
+void QProcessPrivate::closeWriteChannel()
 {
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::closeOutputChannel()");
+    qDebug("QProcessPrivate::closeWriteChannel()");
 #endif
 
     if (writeSocketNotifier) {
@@ -659,7 +659,7 @@ void QProcess::setReadChannel(ProcessChannel channel)
     Call this function to save memory, if you are not interested in
     the output of the process.
 
-    \sa closeOutputChannel(), setReadChannel()
+    \sa closeWriteChannel(), setReadChannel()
 */
 void QProcess::closeReadChannel(ProcessChannel channel)
 {
@@ -687,7 +687,7 @@ void QProcess::closeReadChannel(ProcessChannel channel)
         QProcess more;
         more.start("more");
         more.write("Text to display");
-        more.closeOutputChannel();
+        more.closeWriteChannel();
         // QProcess will emit readyRead() once "more" starts printing
     \endcode
 
@@ -695,12 +695,12 @@ void QProcess::closeReadChannel(ProcessChannel channel)
 
     \sa closeReadChannel()
 */
-void QProcess::closeOutputChannel()
+void QProcess::closeWriteChannel()
 {
     Q_D(QProcess);
-    d->outputChannelClosing = true;
+    d->writeChannelClosing = true;
     if (d->writeBuffer.isEmpty())
-        d->closeOutputChannel();
+        d->closeWriteChannel();
 
 }
 
@@ -1014,7 +1014,7 @@ qint64 QProcess::writeData(const char *data, qint64 len)
 {
     Q_D(QProcess);
 
-    if (d->outputChannelClosing) {
+    if (d->writeChannelClosing) {
 #if defined QPROCESS_DEBUG
     qDebug("QProcess::writeData(%p \"%s\", %lld) == 0 (output channel closing)",
            data, qt_prettyDebug(data, len, 16).constData(), len);
@@ -1097,7 +1097,7 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     d->errorReadBuffer.clear();
     setOpenMode(mode);
 
-    d->outputChannelClosing = false;
+    d->writeChannelClosing = false;
     d->standardOutputClosed = false;
     d->standardErrorClosed = false;
 

@@ -8,7 +8,7 @@ bool zip()
         return false;
 
     gzip.write("Qt rocks!");
-    gzip.closeOutputChannel();
+    gzip.closeWriteChannel();
 
     if (!gzip.waitForFinished())
         return false;
@@ -17,7 +17,7 @@ bool zip()
 
     gzip.start("gzip", QStringList() << "-d" << "-c");
     gzip.write(result);
-    gzip.closeOutputChannel();
+    gzip.closeWriteChannel();
 
     if (!gzip.waitForFinished())
         return false;

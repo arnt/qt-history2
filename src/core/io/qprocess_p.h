@@ -72,8 +72,8 @@ public:
     bool standardOutputClosed;
     bool standardErrorClosed;
 
-    bool outputChannelClosing;
-    void closeOutputChannel();
+    bool writeChannelClosing;
+    void closeWriteChannel();
 
     QString program;
     QStringList arguments;
