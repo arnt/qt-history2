@@ -50,6 +50,8 @@ bool qt_compose_emptied = FALSE;
 #define XK_LATIN1
 #include <X11/keysymdef.h>
 
+// #define QT_XIM_DEBUG
+
 // from qapplication_x11.cpp
 extern XIM	qt_xim;
 extern XIMStyle	qt_xim_style;
@@ -109,7 +111,10 @@ extern "C" {
     static int xic_start_callback(XIC, XPointer client_data, XPointer) {
 	QInputContext *qic = (QInputContext *) client_data;
 	if (! qic) {
-	    // qDebug("compose start: no qic");
+#ifdef QT_XIM_DEBUG
+	    qDebug("compose start: no qic");
+#endif // QT_XIM_DEBUG
+
 	    return 0;
 	}
 
@@ -121,19 +126,29 @@ extern "C" {
 	    qic->selectedChars.resize( 128 );
 	qic->selectedChars.fill( 0 );
 
-	// qDebug("compose start");
+#ifdef QT_XIM_DEBUG
+	qDebug("compose start");
+#endif // QT_XIM_DEBUG
+
 	return 0;
     }
 
     static int xic_draw_callback(XIC, XPointer client_data, XPointer call_data) {
 	QInputContext *qic = (QInputContext *) client_data;
 	if (! qic) {
-	    // qDebug("compose event: invalid compose event %p", qic);
+#ifdef QT_XIM_DEBUG
+	    qDebug("compose event: invalid compose event %p", qic);
+#endif // QT_XIM_DEBUG
+
 	    return 0;
 	}
 
 	if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
 	    if (qic->focusWidget) {
+#ifdef QT_XIM_DEBUG
+		qDebug( "sending IMEnd (empty) to %p", qic->focusWidget );
+#endif // QT_XIM_DEBUG
+
 		QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
 		QApplication::sendEvent(qic->focusWidget, &endevent);
 	    }
@@ -148,14 +163,21 @@ extern "C" {
 
 	    if (qic->focusWidget) {
 		qic->composing = TRUE;
+#ifdef QT_XIM_DEBUG
+		qDebug( "sending IMStart to %p", qic->focusWidget );
+#endif // QT_XIM_DEBUG
+
 		QIMEvent startevent(QEvent::IMStart, QString::null, -1);
 		QApplication::sendEvent(qic->focusWidget, &startevent);
 	    }
 	}
 
 	if (! qic->composing || ! qic->focusWidget) {
-	    // qDebug("compose event: invalid compose event %d %p",
-	    // qic->composing, qic->focusWidget);
+#ifdef QT_XIM_DEBUG
+	    qDebug("compose event: invalid compose event %d %p",
+		   qic->composing, qic->focusWidget);
+#endif // QT_XIM_DEBUG
+
 	    return 0;
 	}
 
@@ -232,7 +254,10 @@ extern "C" {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 	    qt_compose_emptied = qic->text.isEmpty();
 	    if ( qt_compose_emptied ) {
-		// qDebug( "compose emptied" );
+#ifdef QT_XIM_DEBUG
+		qDebug( "compose emptied" );
+#endif // QT_XIM_DEBUG
+
 		// don't send an empty compose, since we will send an IMEnd with
 		// either the correct compose text (or null text if the user has
 		// cancelled the compose or deleted all chars).
@@ -240,7 +265,10 @@ extern "C" {
 	    }
 	}
 
- 	// qDebug( "sending compose event" );
+#ifdef QT_XIM_DEBUG
+	qDebug( "sending IMCompose to %p", qic->focusWidget );
+#endif // QT_XIM_DEBUG
+
 	QIMComposeEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
 	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
@@ -252,6 +280,10 @@ extern "C" {
 	    return 0;
 
 	if (qic->composing && qic->focusWidget) {
+#ifdef QT_XIM_DEBUG
+	    qDebug( "sending IMEnd (empty) to %p", qic->focusWidget );
+#endif // QT_XIM_DEBUG
+
        	    QIMEvent event(QEvent::IMEnd, QString::null, -1);
 	    QApplication::sendEvent(qic->focusWidget, &event);
 	}
@@ -361,7 +393,7 @@ QInputContext::~QInputContext()
 
     if ( --fontsetRefCount == 0 ) {
 	Display *dpy = QPaintDevice::x11AppDisplay();
-	for ( int i = 0; i < 4; i++ ) {
+	for ( int i = 0; i < 8; i++ ) {
 	    if ( fontsetCache[i] && fontsetCache[i] != (XFontSet)-1 ) {
 		XFreeFontSet(dpy, fontsetCache[i]);
 		fontsetCache[i] = 0;
@@ -381,7 +413,10 @@ void QInputContext::reset()
 {
 #if !defined(QT_NO_XIM)
     if (focusWidget && composing && ! text.isNull()) {
-	// qDebug("QInputContext::reset: composing - sending IMEnd");
+#ifdef QT_XIM_DEBUG
+	qDebug("QInputContext::reset: composing - sending IMEnd (empty) to %p",
+	       focusWidget);
+#endif // QT_XIM_DEBUG
 
 	QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
 	QApplication::sendEvent(focusWidget, &endevent);
