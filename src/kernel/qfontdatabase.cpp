@@ -116,7 +116,7 @@ public:
     static const QValueList<int> &standardSizes();
 
     int weight() const;
-    bool italic() const { return ital; }
+    bool italic() const { return ital || lesserItal; }
     bool lesserItalic() const { return lesserItal; }
 
     bool isBitmapScalable() const { return bitmapScalable; }
@@ -983,16 +983,22 @@ void add_style( QtFontCharSet *charSet, const QString& styleName,
 		bool italic, bool lesserItalic, int weight )
 {
     QString weightString;
-    if ( weight <= QFont::Light )
+    if ( weight <= QFont::Light ) {
+	weight = QFont::Light;
 	weightString = "Light";
-    else if ( weight <= QFont::Normal )
+    } else if ( weight <= QFont::Normal ) {
+	weight = QFont::Normal;
 	weightString = "Regular";
-    else if ( weight <= QFont::DemiBold )
+    } else if ( weight <= QFont::DemiBold ) {
+	weight = QFont::DemiBold;
 	weightString = "DemiBold";
-    else if ( weight <= QFont::Bold )
+    } else if ( weight <= QFont::Bold ) {
+	weight = QFont::Bold;
 	weightString = "Bold";
-    else
+    } else {
+	weight = QFont::Black;
 	weightString = "Black";
+    }
 
     QString sn = styleName;
     if ( sn.isEmpty() ) {
@@ -1010,14 +1016,6 @@ void add_style( QtFontCharSet *charSet, const QString& styleName,
 	}
 	sn = sn.left(sn.length()-1); // chomp " "
     }
-#if 0
-debug("New font: %s %s%s %d",
-sn.latin1(),
-italic?" Italic":"",
-lesserItalic?" Oblique":"",
-weight
-);
-#endif
     QtFontStyle *style = charSet->styleDict.find( sn );
     if ( !style ) {
 	//qWarning( "New style[%s] for [%s][%s][%s]",

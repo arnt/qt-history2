@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#223 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1001,8 +1001,8 @@ void QWidget::scroll( int dx, int dy )
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     RECT wr;
-    wr.top = r.x();
-    wr.left = r.y();
+    wr.top = r.top();
+    wr.left = r.left();
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
     ScrollWindow( winId(), dx, dy, &wr, &wr );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#179 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2164,8 +2164,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	maxwidth += overflow;
 	xp = w - maxwidth;			// right aligned
     } else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	xp = w/2 - maxwidth/2;			// centered text
 	maxwidth += overflow;
+	xp = w/2 - maxwidth/2;			// centered text
     } else {
 	maxwidth += overflow;
 	xp = 0;				// left aligned
@@ -2258,7 +2258,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
 	    xc = w - tw + fm.minRightBearing();
 	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	    xc = w/2 - tw/2;
+	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
+		-fm.minLeftBearing();
 	} else {
 	    xc = -fm.minLeftBearing();
 	}
