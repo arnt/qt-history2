@@ -188,7 +188,7 @@ void QCompletionEdit::addCompletionEntry( const QString &entry )
 
 void QCompletionEdit::removeCompletionEntry( const QString &entry )
 {
-    compList.removeAt(compList.find(entry));
+    compList.removeAt(compList.indexOf(entry));
 }
 
 void QCompletionEdit::setCaseSensitive( bool b )
