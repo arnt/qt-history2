@@ -39,6 +39,8 @@ static QColor getColor( const QString &type )
 	return Qt::darkRed;
     if ( type == "property" )
 	return Qt::darkGreen;
+    if ( type == "enum" )
+	return Qt::darkYellow;
     return Qt::black;
 }
 
