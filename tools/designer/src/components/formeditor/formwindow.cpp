@@ -301,6 +301,8 @@ void FormWindow::init()
 
     core()->metaDataBase()->add(this);
 
+    initializeCoreTools();
+
     m_signalSlotEditor = new SignalSlotEditor(this, this);
     m_signalSlotEditor->setGeometry(rect());
     m_signalSlotEditor->show();
@@ -314,8 +316,6 @@ void FormWindow::init()
     m_view_3d->setGeometry(rect());
     m_view_3d->show();
 #endif
-
-    initializeCoreTools();
 }
 /*
 void FormWindow::removeWidget(QWidget *w)
