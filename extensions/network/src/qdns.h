@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QDNS class.
+** Definition of QDns class.
 **
 ** Created : 991122
 **
@@ -66,6 +66,10 @@ public:
 	MailServer( const QString & n_, Q_UINT16 p_):n(n_),p(p_){}
 	QString name() const { return n; }
 	Q_UINT16 priority() const { return p; }
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator== ( const MailServer& ) const;
+	MailServer();
+#endif
     private:
 	QString n;
 	Q_UINT16 p;
@@ -79,6 +83,10 @@ public:
 	QString name() const { return n; }
 	Q_UINT16 priority() const { return p; }
 	Q_UINT16 weight() const { return w; }
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator== ( const Server& ) const;
+	Server();
+#endif
     private:
 	QString n;
 	Q_UINT16 p, w;
@@ -116,4 +124,4 @@ private slots:
     virtual void answer();
 };
 
-#endif
+#endif // QDNS_H

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QDNS class.
+** Implementation of QDns class.
 **
 ** Created : 991122
 **

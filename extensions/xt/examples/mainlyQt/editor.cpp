@@ -1,8 +1,8 @@
 #include "qxt.h"
+#include <qmainwindow.h>
 #include <qmultilineedit.h>
 #include <qpainter.h>
 #include <qmessagebox.h>
-#include <qmainwindow.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qsplitter.h>

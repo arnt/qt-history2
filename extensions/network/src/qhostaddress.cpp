@@ -140,7 +140,7 @@ QString QHostAddress::toString() const
   if they are different.
 */
 
-bool QHostAddress::operator==( const QHostAddress & other )
+bool QHostAddress::operator==( const QHostAddress & other ) const
 {
     return  a == other.a;
 }

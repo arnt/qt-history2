@@ -90,4 +90,8 @@ private:
 
 };
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+bool operator== ( const QUrlInfo&, const QUrlInfo& );
+#endif
+
 #endif

@@ -30,7 +30,7 @@ public:
     uint	 ip4Addr()	 const;
     QString	 toString() const;
 
-    bool	 operator==( const QHostAddress & );
+    bool	 operator==( const QHostAddress & ) const;
 
 private:
     void * d;

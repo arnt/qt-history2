@@ -406,7 +406,7 @@ Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-Q_EXPORT bool operator== ( const QVariant&, const QVariant& );
+bool operator== ( const QVariant&, const QVariant& );
 #endif
 
 #endif
