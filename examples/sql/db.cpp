@@ -1,9 +1,10 @@
 #include "db.h"
 #include "databaseapp.h"
+#include <qfile.h>
+#include <qtextstream.h>
 #include <qdatetime.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qpixmap.h>
 
 void drop_db();
 
@@ -14,70 +15,21 @@ void create_db()
     /* get the default app database */
     QSqlDatabase* db = QSqlDatabase::database();
 
-    QSqlRecord* buf = 0;
-    /* create sample database with some sample data */
-    db->exec("create table CUSTOMER "
-	     "(ID numeric(10) primary key,"
-	     "NAME char(30),"
-	     "ADD1 char(50),"
-	     "ADD2 char(50),"
-	     "CITY char(50),"
-	     "POSTALCODE char(20),"
-	     "COUNTRY char(2),"
-	     "BILLTOADD1 char(50),"
-	     "BILLTOADD2 char(50),"
-	     "BILLTOCITY char(50),"
-	     "BILLTOPOSTALCODE char(20),"
-	     "BILLTOCOUNTRY char(2),"
-	     "SHIPTOADD1 char(50),"
-	     "SHIPTOADD2 char(50),"
-	     "SHIPTOCITY char(50),"
-	     "SHIPTOPOSTALCODE char(20),"
-	     "SHIPTOCOUNTRY char(2));");
-    CustomerCursor customer;
-    buf = customer.insertBuffer();
-    buf->setValue( "NAME",  "Trolltech" );
-    buf->setValue( "ADD1",  "Waldemar Thranesgt. 98b" );
-    buf->setValue( "ADD2",  "" );
-    buf->setValue( "CITY",  "Oslo" );
-    buf->setValue( "POSTALCODE",  "N-0175" );
-    buf->setValue( "COUNTRY",  "NO" );
-    customer.insert();
-
-    db->exec("create table PRODUCT "
-	     "(ID numeric(10) primary key,"
-	     "NAME char(30),"
-	     "PIC char(255));");
-    ProductCursor product;
-    buf = product.insertBuffer();
-    buf->setValue( "NAME",  "Widget" );
-    buf->setValue( "PIC",  "" );
-    product.insert();
-    buf = product.insertBuffer();
-    buf->setValue( "NAME",  "Gadget" );
-    buf->setValue( "PIC",  "" );
-    product.insert();
-
-    db->exec("create table INVOICE "
-	     "(ID numeric(10) primary key,"
-	     "CUSTOMERID numeric(10) references customer,"
-	     "PRODUCTID numeric(10) references product,"
-	     "NUM numeric(10),"
-	     "PAID numeric(1),"
-	     "CREATEDATE date,"
-	     "TAX numeric(10,5),"
-	     "SHIPPING numeric(15,2),"
-	     "TOTAL numeric(15,2));");
-    InvoiceCursor invoice;
-    buf = invoice.insertBuffer();
-    buf->setValue( "CUSTOMERID",  customer.value("id") );
-    buf->setValue( "NUM",  1 );
-    buf->setValue( "PAID",  QVariant( TRUE, TRUE ) );
-    buf->setValue( "CREATEDATE",  QDate(2000,1,1) );
-    buf->setValue( "TAX",  0 );
-    buf->setValue( "SHIPPING",  0 );
-    buf->setValue( "TOTAL",  100.00 );
-    invoice.insert();
+    /* load sql script and execute each statement */
+    QFile sqlScript( "create_db.sql" );
+    if ( sqlScript.open( IO_ReadOnly ) ) {
+        QTextStream t( &sqlScript );    
+	QString stmt;
+        while ( !t.eof() ) {    
+            stmt += t.readLine();    
+	    if ( stmt[ stmt.length()-1 ] == ';' ) {
+		db->exec( stmt );
+		stmt = QString::null;
+	    }
+        }
+        sqlScript.close();	
+    }
+    
 }
 
 void drop_db()
