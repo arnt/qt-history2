@@ -13,7 +13,6 @@
 
 #include "qwidget.h"
 #include "qpixmap.h"
-#include <private/qpaintengine_x11_p.h>
 #include "qx11info_x11.h"
 #include "qt_x11_p.h"
 

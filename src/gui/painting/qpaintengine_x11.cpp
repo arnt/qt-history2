@@ -105,50 +105,6 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XFT
 }
 
-void qt_erase_background(QPaintDevice *pd, int screen,
-                         int x, int y, int w, int h,
-                         const QBrush &brush, int xoff, int yoff)
-{
-    if (brush.style() == Qt::LinearGradientPattern) {
-	QPainter p(pd);
-	QPoint rd;
- 	QPainter::redirected(pd, &rd);
- 	p.fillRect(rd.x(), rd.y(), w, h, brush);
-	return;
-    }
-
-    Qt::HANDLE hd = qt_x11Handle(pd);
-    Display *dpy = QX11Info::display();
-
-    ulong pixel;
-    if (pd->depth() == 1) {
-        pixel = qGray(brush.color().rgb()) > 127 ? 0 : 1;
-    } else if (pd->devType() == QInternal::Pixmap && pd->depth() == 32
-               && X11->use_xrender && X11->has_xft) {
-        pixel = brush.color().rgba();
-    } else {
-        pixel = QColormap::instance(screen).pixel(brush.color());
-    }
-
-    XGCValues vals;
-    vals.graphics_exposures = false;
-    vals.foreground = pixel;
-    GC gc = XCreateGC(dpy, hd, GCForeground | GCGraphicsExposures, &vals);
-
-    if (brush.texture().isNull()) {
-        XFillRectangle(dpy, hd, gc, x, y, w, h);
-    } else {
-        XSetTile(dpy, gc, brush.texture().handle());
-        XSetFillStyle(dpy, gc, FillTiled);
-        XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
-        XFillRectangle(dpy, hd, gc, x, y, w, h);
-        XSetTSOrigin(dpy, gc, 0, 0);
-        XSetFillStyle(dpy, gc, FillSolid);
-    }
-
-    XFreeGC(dpy, gc);
-}
-
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
@@ -1190,7 +1146,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                  Qt::PixmapDrawingMode mode)
 {
@@ -1209,10 +1164,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
-    bool mono_src = pixmap.depth() == 1;
-    bool mono_dst = d->pdev->depth() == 1;
-    bool restore_clip = false;
-
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture src_pict = pixmap.xftPictureHandle();
@@ -1226,6 +1177,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         return;
     }
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
+
+    bool mono_src = pixmap.depth() == 1;
+    bool mono_dst = d->pdev->depth() == 1;
+    bool restore_clip = false;
 
     if (pixmap.data->x11_mask) { // pixmap has a mask
         QBitmap comb(sw, sh);
