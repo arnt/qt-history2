@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/imageio/src/GNUmakefile#1 $
+# $Id: //depot/qt/main/extensions/imageio/src/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = imageio
+PROJECT = qimageio
 
 include $(QTDIR)/GNUmakefile.inc
