@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#18 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#18 $";
 #endif
 
 
@@ -1159,6 +1159,7 @@ struct GCInfo {					// information about GC
 
 declare(QListM,GCInfo);
 static QListM(GCInfo) *gcList = 0;		// list of GCs
+static GC readOnlyGC = 0;			// a read-only GC
 
 static GCInfo *findGC( GC gc )			// find 'gc' in list
 {
@@ -1214,6 +1215,13 @@ GC qXAllocGC( Font font, ulong bgc, ulong fgc, bool shareable )
     return g->gc;
 }
 
+GC qXGetReadOnlyGC()
+{
+    if ( !readOnlyGC )
+    	readOnlyGC = XCreateGC( appDpy, appRootWin, 0, 0 );
+    return readOnlyGC;
+}
+
 void qXFreeGC( GC gc )
 {
     register GCInfo *g = findGC( gc );
@@ -1254,6 +1262,8 @@ static void cleanupGCCache()			// cleanup the GC cache
 {
     if ( !gcList )
 	return;
+    if ( readOnlyGC )
+    	XFreeGC( appDpy, readOnlyGC );
     register GCInfo *g = gcList->first();
     while ( g ) {
 	XFreeGC( appDpy, g->gc );
