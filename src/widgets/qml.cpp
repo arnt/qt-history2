@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#40 $
 **
 ** Implementation of QML classes
 **
@@ -4564,8 +4564,8 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 {
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int normalMargin = 12; // *2
-    const int leftMargin = 18;   // *3
+    const int normalMargin = 2; // *2
+    const int leftMargin = 0;   // *3
 
     QWidget* popup = new QMLDetailPopup;
     popup->setBackgroundMode( QWidget::NoBackground );
