@@ -166,11 +166,7 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_Enabled;
     if (widget->hasFocus())
         state |= QStyle::State_HasFocus;
-    if (widget->topLevelWidget()->isActiveWindow()
-#ifdef Q_WS_MAC
-	|| qt_mac_can_clickThrough(widget)
-#endif
-	    )
+    if (widget->topLevelWidget()->isActiveWindow())
         state |= QStyle::State_Active;
 
     direction = widget->layoutDirection();
