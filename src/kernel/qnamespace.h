@@ -75,12 +75,12 @@ public:
 	LeftButton	= 0x0001,
 	RightButton	= 0x0002,
 	MidButton	= 0x0004,
-	MouseButtonMask = 0x0007,
-	ShiftButton	= 0x0008,
-	ControlButton   = 0x0010,
-	AltButton	= 0x0020,
-	MetaButton	= 0x0040,
-	KeyButtonMask	= 0x0078,
+	MouseButtonMask = 0x00ff,
+	ShiftButton	= 0x0100,
+	ControlButton   = 0x0200,
+	AltButton	= 0x0400,
+	MetaButton	= 0x0800,
+	KeyButtonMask	= 0x0fff,
 	Keypad		= 0x4000
     };
 
@@ -137,7 +137,7 @@ public:
 
     // Widget flags
     typedef uint WState;
-    
+
     // QWidget state flags (internal, not documented but should be)
     enum WidgetState {
 	WState_Created		= 0x00000001,
