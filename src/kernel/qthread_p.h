@@ -592,11 +592,11 @@ public:
 #include <pthread.h>
 
 
-class QMutex::Private {
+class QMutexPrivate {
 public:
     pthread_mutex_t mutex;
 
-    Private(bool recursive = FALSE)
+    QMutexPrivate(bool recursive = FALSE)
     {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
@@ -640,7 +640,7 @@ public:
 #endif
     }
 
-    virtual ~Private()
+    virtual ~QMutexPrivate()
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -718,7 +718,7 @@ public:
 };
 
 
-class QRMutexPrivate : public QMutex::Private
+class QRMutexPrivate : public QMutexPrivate
 {
 public:
 #ifndef Q_HAS_RECURSIVE_MUTEX
@@ -807,7 +807,7 @@ public:
 #endif
 
     QRMutexPrivate()
-	: Private(TRUE)
+	: QMutexPrivate(TRUE)
     {
 #ifndef Q_HAS_RECURSIVE_MUTEX
 	pthread_mutexattr_t attr;
