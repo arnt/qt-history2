@@ -1497,8 +1497,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if ( controls & SC_TitleBarCloseButton ) {
 		ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton ), widget );
 		down = active & SC_TitleBarCloseButton;
-		pm = stylePixmap(SP_TitleBarCloseButton, widget);
-		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
+		if ( widget->testWFlags( WStyle_Tool ) || widget->inherits( "QDockWindow" ) )
+		    pm = stylePixmap(SP_DockWindowCloseButton, widget);
+		else
+		    pm = stylePixmap(SP_TitleBarCloseButton, widget);
+    		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 			      down ? Style_Down : Style_Raised);
 
 		p->save();
@@ -1957,7 +1960,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
-	    const int controlTop = widget->testWFlags( WStyle_Tool ) ? 1 : 2;
+	    const int controlTop = 2;
 	    const int controlHeight = widget->height() - controlTop * 2;
 
 	    switch (sc) {
@@ -1983,24 +1986,24 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		break;
 
 	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-( controlHeight + 1 ), controlTop, controlHeight, controlHeight);
+		rect.setRect( titlebar->width() - ( controlHeight + controlTop ), controlTop, controlHeight, controlHeight );
 		break;
 
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2), controlTop, controlHeight, controlHeight);
+		rect.setRect( titlebar->width() - ( ( controlHeight + controlTop ) * 2 ), controlTop, controlHeight, controlHeight );
 		break;
 
 	    case SC_TitleBarMinButton:
 	    case SC_TitleBarNormalButton:
 		{
-		    int offset = controlHeight + 1;
+		    int offset = controlHeight + controlTop;
 		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
 			offset *= 2;
 		    else
 			offset *= 3;
-		    rect.setRect(titlebar->width() - offset, controlTop, controlHeight, controlHeight);
+		    rect.setRect( titlebar->width() - offset, controlTop, controlHeight, controlHeight );
 		}
 		break;
 

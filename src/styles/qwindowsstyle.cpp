@@ -894,13 +894,14 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
 	if ( widget && ( widget->testWFlags( WStyle_Tool ) || widget->inherits( "QDockWindow" ) ) ) {
+	    // MS always use one less than they say
 #if defined(Q_OS_TEMP)
-	    ret = GetSystemMetrics( SM_CYCAPTION );
+	    ret = GetSystemMetrics( SM_CYCAPTION ) - 1;
 #else
-	    ret = GetSystemMetrics( SM_CYSMCAPTION );
+	    ret = GetSystemMetrics( SM_CYSMCAPTION ) - 1;
 #endif
 	} else {
-	    ret = GetSystemMetrics( SM_CYCAPTION );
+	    ret = GetSystemMetrics( SM_CYCAPTION ) - 1;
 	}
 	break;
 #endif
@@ -1037,15 +1038,15 @@ static const char * const qt_close_xpm[] = {
 ". c None",
 "............",
 "............",
-"..##....##..",
-"...##..##...",
-"....####....",
-".....##.....",
-"....####....",
-"...##..##...",
-"..##....##..",
-"............",
-"............",
+"..##.....##.",
+"..###...###.",
+"...###.###..",
+"....#####...",
+".....###....",
+"....#####...",
+"...###.###..",
+"..###...###.",
+"..##.....##.",
 "............"};
 
 static const char * const qt_maximize_xpm[]={
@@ -1053,9 +1054,9 @@ static const char * const qt_maximize_xpm[]={
 "# c #000000",
 ". c None",
 "............",
-"............",
 ".##########.",
 ".##########.",
+".#........#.",
 ".#........#.",
 ".#........#.",
 ".#........#.",
@@ -1077,9 +1078,9 @@ static const char * const qt_minimize_xpm[] = {
 "............",
 "............",
 "............",
-"...######...",
-"...######...",
 "............",
+"..#######...",
+"..#######...",
 "............",
 "............"};
 
