@@ -23,14 +23,10 @@
 #endif // QT_H
 #ifndef QT_NO_WIDGETPLUGIN
 
-#ifdef Q_WS_WIN
 #ifdef QT_PLUGIN
-#define QT_WIDGET_PLUGIN_EXPORT __declspec(dllexport)
+#define QT_WIDGET_PLUGIN_EXPORT Q_DECL_EXPORT
 #else
-#define QT_WIDGET_PLUGIN_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QT_WIDGET_PLUGIN_EXPORT
+#define QT_WIDGET_PLUGIN_EXPORT Q_DECL_IMPORT
 #endif
 
 class QWidgetPluginPrivate;

@@ -869,12 +869,25 @@ class QDataStream;
 #  include "qfeatures.h"
 #endif /* QT_H */
 
+#ifndef Q_DECL_EXPORT
+#  ifdef Q_OS_WIN
+#    define Q_DECL_EXPORT __declspec(dllexport)
+#  else
+#    define Q_DECL_EXPORT
+#  endif
+#endif
+#ifndef Q_DECL_IMPORT
+#  ifdef Q_OS_WIN
+#    define Q_DECL_IMPORT __declspec(dllimport)
+#  else
+#    define Q_DECL_IMPORT
+#  endif
+#endif
 
 //
 // Create Qt DLL if QT_DLL is defined (Windows only)
 // or QT_SHARED is defined (Kylix only)
 //
-
 #if defined(Q_OS_WIN)
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
@@ -884,100 +897,89 @@ class QDataStream;
 #      undef QT_DLL
 #    endif
 #    if defined(QT_BUILD_CORE_LIB)
-#      define Q_CORE_EXPORT __declspec(dllexport)
+#      define Q_CORE_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_CORE_EXPORT __declspec(dllimport)
+#      define Q_CORE_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_GUI_LIB)
-#      define Q_GUI_EXPORT __declspec(dllexport)
+#      define Q_GUI_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_GUI_EXPORT __declspec(dllimport)
+#      define Q_GUI_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_SQL_LIB)
-#      define Q_SQL_EXPORT __declspec(dllexport)
+#      define Q_SQL_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_SQL_EXPORT __declspec(dllimport)
+#      define Q_SQL_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_NETWORK_LIB)
-#      define Q_NETWORK_EXPORT __declspec(dllexport)
+#      define Q_NETWORK_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_NETWORK_EXPORT __declspec(dllimport)
+#      define Q_NETWORK_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_OPENGL_LIB)
-#      define Q_OPENGL_EXPORT __declspec(dllexport)
+#      define Q_OPENGL_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_OPENGL_EXPORT __declspec(dllimport)
+#      define Q_OPENGL_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_XML_LIB)
-#      define Q_XML_EXPORT __declspec(dllexport)
+#      define Q_XML_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_XML_EXPORT __declspec(dllimport)
+#      define Q_XML_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_CANVAS_LIB)
-#      define Q_CANVAS_EXPORT __declspec(dllexport)
+#      define Q_CANVAS_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_CANVAS_EXPORT __declspec(dllimport)
+#      define Q_CANVAS_EXPORT Q_DECL_IMPORT
 #    endif
 #    if defined(QT_BUILD_COMPAT_LIB)
-#      define Q_COMPAT_EXPORT __declspec(dllexport)
+#      define Q_COMPAT_EXPORT Q_DECL_EXPORT
 #    else
-#      define Q_COMPAT_EXPORT __declspec(dllimport)
+#      define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    endif
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY        /* avoid unresolved externals */
 #  elif defined(QT_DLL)                /* use a Qt DLL library */
-#    define Q_CORE_EXPORT __declspec(dllimport)
-#    define Q_GUI_EXPORT __declspec(dllimport)
-#    define Q_SQL_EXPORT __declspec(dllimport)
-#    define Q_NETWORK_EXPORT __declspec(dllimport)
-#    define Q_CANVAS_EXPORT __declspec(dllimport)
-#    define Q_OPENGL_EXPORT __declspec(dllimport)
-#    define Q_XML_EXPORT __declspec(dllimport)
-#    define Q_COMPAT_EXPORT __declspec(dllimport)
+#    define Q_CORE_EXPORT Q_DECL_IMPORT
+#    define Q_GUI_EXPORT Q_DECL_IMPORT
+#    define Q_SQL_EXPORT Q_DECL_IMPORT
+#    define Q_NETWORK_EXPORT Q_DECL_IMPORT
+#    define Q_CANVAS_EXPORT Q_DECL_IMPORT
+#    define Q_OPENGL_EXPORT Q_DECL_IMPORT
+#    define Q_XML_EXPORT Q_DECL_IMPORT
+#    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY        /* avoid unresolved externals */
 #  endif
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
-#  if defined(QT_SHARED)        /* create a Qt shared library */
-#    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY        /* avoid unresolved externals */
-#  else
-#    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY         /* avoid unresolved externals */
-#  endif
+#  define Q_TEMPLATEDLL
+#  undef  Q_DISABLE_COPY        /* avoid unresolved externals */
 #else
 #  undef QT_MAKEDLL                /* ignore these for other platforms */
 #  undef QT_DLL
 #endif
 
+//defaults
 #ifndef Q_CORE_EXPORT
 #  define Q_CORE_EXPORT
 #endif
-
 #ifndef Q_GUI_EXPORT
 #  define Q_GUI_EXPORT
 #endif
-
 #ifndef Q_SQL_EXPORT
 #  define Q_SQL_EXPORT
 #endif
-
 #ifndef Q_NETWORK_EXPORT
 #  define Q_NETWORK_EXPORT
 #endif
-
 #ifndef Q_CANVAS_EXPORT
 #  define Q_CANVAS_EXPORT
 #endif
-
 #ifndef Q_OPENGL_EXPORT
 #  define Q_OPENGL_EXPORT
 #endif
-
 #ifndef Q_XML_EXPORT
 #  define Q_XML_EXPORT
 #endif
-
 #ifndef Q_COMPAT_EXPORT
 #  define Q_COMPAT_EXPORT
 #endif
