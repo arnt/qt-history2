@@ -1475,9 +1475,9 @@ void QWidget::setWindowState(uint newstate)
                         updateFrameStrut();
                     bounds.left += tlextra->fleft;
                     if(bounds.right < avail.x()+avail.width())
-                        bounds.right = QMIN((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
+                        bounds.right = qMin((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
                     if(bounds.bottom < avail.y()+avail.height())
-                        bounds.bottom = QMIN((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
+                        bounds.bottom = qMin((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
                     bounds.top += tlextra->ftop;
                     bounds.right -= tlextra->fright;
                     bounds.bottom -= tlextra->fbottom;
