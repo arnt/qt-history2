@@ -70,6 +70,7 @@ public:
 
     MetaTranslator& operator=( const MetaTranslator& tor );
 
+    void clear();
     bool load( const QString& filename );
     bool save( const QString& filename ) const;
     bool release( const QString& filename, bool verbose = FALSE,

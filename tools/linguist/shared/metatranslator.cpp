@@ -315,14 +315,13 @@ bool MetaTranslatorMessage::operator<( const MetaTranslatorMessage& m ) const
 }
 
 MetaTranslator::MetaTranslator()
-    : codecName( "ISO-8859-1" ), codec( 0 )
 {
+    clear();
 }
 
 MetaTranslator::MetaTranslator( const MetaTranslator& tor )
     : mm( tor.mm ), codecName( tor.codecName ), codec( tor.codec )
 {
-
 }
 
 MetaTranslator& MetaTranslator::operator=( const MetaTranslator& tor )
@@ -333,10 +332,15 @@ MetaTranslator& MetaTranslator::operator=( const MetaTranslator& tor )
     return *this;
 }
 
-bool MetaTranslator::load( const QString& filename )
+void MetaTranslator::clear()
 {
     mm.clear();
+    codecName = "ISO-8859-1";
+    codec = 0;
+}
 
+bool MetaTranslator::load( const QString& filename )
+{
     QFile f( filename );
     if ( !f.open(IO_ReadOnly) )
 	return FALSE;
@@ -344,7 +348,6 @@ bool MetaTranslator::load( const QString& filename )
     QTextStream t( &f );
     QXmlInputSource in( t );
     QXmlSimpleReader reader;
-    // don't click on these!
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
@@ -358,8 +361,6 @@ bool MetaTranslator::load( const QString& filename )
     reader.setErrorHandler( 0 );
     delete hand;
     f.close();
-    if ( !ok )
-	mm.clear();
     return ok;
 }
 

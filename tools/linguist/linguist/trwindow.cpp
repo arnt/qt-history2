@@ -340,6 +340,7 @@ void TrWindow::openFile( const QString& name )
     if ( !name.isEmpty() ) {
 	statusBar()->message( tr("Loading...") );
 	qApp->processEvents();
+	tor.clear();
 	if ( tor.load(name) ) {
 	    slv->clear();
 	    slv->repaint();

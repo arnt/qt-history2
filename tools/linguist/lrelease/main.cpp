@@ -46,27 +46,44 @@ static void printUsage()
 	      "           Display the version of lrelease and exit\n" );
 }
 
-static void releaseQmFile( const QString& tsFileName, bool verbose,
-			   bool stripped )
+static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
+			bool /* verbose */ )
 {
-    MetaTranslator tor;
     QString qmFileName = tsFileName;
     qmFileName.replace( QRegExp("\\.ts$"), "" );
     qmFileName += ".qm";
 
-    if ( tor.load(tsFileName) ) {
-	if ( verbose )
-	    fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
-	if ( !tor.release(qmFileName, verbose,
-			  stripped ? QTranslator::Stripped
-			  : QTranslator::Everything) )
-	    fprintf( stderr,
-		     "lrelease warning: For some reason, I cannot save '%s'\n",
-		     qmFileName.latin1() );
-    } else {
+    bool ok = tor.load( tsFileName );
+    if ( !ok )
 	fprintf( stderr,
 		 "lrelease warning: For some reason, I cannot load '%s'\n",
 		 tsFileName.latin1() );
+    return ok;
+}
+
+static void releaseMetaTranslator( const MetaTranslator& tor,
+				   const QString& qmFileName, bool verbose,
+				   bool stripped )
+{
+    if ( verbose )
+	fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
+    if ( !tor.release(qmFileName, verbose,
+		      stripped ? QTranslator::Stripped
+			       : QTranslator::Everything) )
+	fprintf( stderr,
+		 "lrelease warning: For some reason, I cannot save '%s'\n",
+		 qmFileName.latin1() );
+}
+
+static void releaseTsFile( const QString& tsFileName, bool verbose,
+			   bool stripped )
+{
+    MetaTranslator tor;
+    if ( loadTsFile(tor, tsFileName, verbose) ) {
+	QString qmFileName = tsFileName;
+	qmFileName.replace( QRegExp("\\.ts$"), "" );
+	qmFileName += ".qm";
+	releaseMetaTranslator( tor, qmFileName, verbose, stripped );
     }
 }
 
@@ -75,13 +92,13 @@ int main( int argc, char **argv )
     bool verbose = FALSE;
     bool stripped = TRUE;
     bool metTranslations = FALSE;
+    MetaTranslator tor;
+    QString outputFile;
     int numFiles = 0;
+    int i;
 
-    for ( int i = 1; i < argc; i++ ) {
-	if ( qstrcmp(argv[i], "-help") == 0 ) {
-	    printUsage();
-	    return 0;
-	} else if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
+    for ( i = 1; i < argc; i++ ) {
+	if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
 	    stripped = FALSE;
 	    continue;
 	} else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
@@ -90,9 +107,35 @@ int main( int argc, char **argv )
 	} else if ( qstrcmp(argv[i], "-version") == 0 ) {
 	    fprintf( stderr, "lrelease version %s\n", QT_VERSION_STR );
 	    return 0;
+	} else if ( qstrcmp(argv[i], "-qm") == 0 ) {
+	    if ( i == argc - 1 ) {
+		printUsage();
+		return 1;
+	    } else {
+		i++;
+		outputFile = argv[i];
+		argv[i][0] = '-';
+	    }
+	} else if ( qstrcmp(argv[i], "-help") == 0 ) {
+	    printUsage();
+	    return 0;
+	} else if ( argv[i][0] == '-' ) {
+	    printUsage();
+	    return 1;
+	} else {
+	    numFiles++;
 	}
+    }
 
-	numFiles++;
+    if ( numFiles == 0 ) {
+	printUsage();
+	return 1;
+    }
+
+    for ( i = 1; i < argc; i++ ) {
+	if ( argv[i][0] == '-' )
+	    continue;
+
 	QFile f( argv[i] );
 	if ( !f.open(IO_ReadOnly) ) {
 	    fprintf( stderr,
@@ -106,7 +149,11 @@ int main( int argc, char **argv )
 	f.close();
 
 	if ( fullText.find(QString("<!DOCTYPE TS>")) >= 0 ) {
-	    releaseQmFile( argv[i], verbose, stripped );
+	    if ( outputFile.isEmpty() ) {
+		releaseTsFile( argv[i], verbose, stripped );
+	    } else {
+		loadTsFile( tor, argv[i], verbose );
+	    }
 	} else {
 	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
 	    QMap<QString, QString>::Iterator it;
@@ -118,7 +165,7 @@ int main( int argc, char **argv )
         	for ( t = toks.begin(); t != toks.end(); ++t ) {
 		    if ( it.key() == QString("TRANSLATIONS") ) {
 			metTranslations = TRUE;
-			releaseQmFile( *t, verbose, stripped );
+			releaseTsFile( *t, verbose, stripped );
 		    }
 		}
 	    }
@@ -130,9 +177,8 @@ int main( int argc, char **argv )
 	}
     }
 
-    if ( numFiles == 0 ) {
-	printUsage();
-	return 1;
-    }
+    if ( !outputFile.isEmpty() )
+	releaseMetaTranslator( tor, outputFile, verbose, stripped );
+
     return 0;
 }
