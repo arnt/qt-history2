@@ -127,10 +127,11 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
 #if QT_MACOSX_VERSION >= 0x1030
-    return HIViewGetWindow(hiview);
-#else
-    return GetControlOwner(hiview);
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) 
+	return HIViewGetWindow(hiview);
 #endif
+    return GetControlOwner(hiview);
+
 }
 
 /* Use this function instead of ReleaseWindowGroup, this will be sure to release the
@@ -296,7 +297,8 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef, 
 				 NULL, sizeof(view), NULL, &view) == noErr) {
 #if QT_MACOSX_VERSION >= 0x1030
-		HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
+		if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) 
+		    HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
 #endif
 	    }
 	} else if(ekind == kEventHIObjectDestruct) {
@@ -405,8 +407,10 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		if(widget->d->qt_mac_dnd_event(ekind, drag)) 
 		    handled_event = true;
 #if QT_MACOSX_VERSION >= 0x1030
-		if(ekind == kEventControlDragEnter) 
-		    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(handled_event), &handled_event);
+		if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+		    if(ekind == kEventControlDragEnter) 
+			SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(handled_event), &handled_event);
+		}
 #endif
 	    }
 	}
@@ -449,7 +453,6 @@ bool qt_mac_is_macdrawer(QWidget *w)
 
 bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/Mac can use this..
 {
-#if QT_MACOSX_VERSION >= 0x1020
     if(!qt_mac_is_macdrawer(w))
 	return false;
     OptionBits bits;
@@ -465,9 +468,6 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 	return false;
     SetDrawerPreferredEdge(qt_mac_window_for((HIViewRef)w->winId()), bits);
     return true;
-#else
-    return false;
-#endif
 }
 
 bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
@@ -718,10 +718,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
-#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
-#endif
 	else if(testWFlags(WStyle_Tool) && qstrcmp(objectName(), "toolTipTip") == 0) // Tool tips
 	    wclass = kHelpWindowClass;
 	else if(testWFlags(WStyle_Tool)
@@ -860,10 +858,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
 				      window_events, static_cast<void *>(qApp), &d->window_event);
 	}
-#if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
-#endif
 	if(dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 	if(testWFlags(WStyle_StaysOnTop)) {
@@ -898,10 +894,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    SetWindowModality(window, kWindowModalityNone, NULL);
 	if(qt_mac_is_macsheet(this))
 	    setWindowOpacity(0.70);
-#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    SetDrawerOffsets(window, 0.0, 25.0);
-#endif
 	data->fstrut_dirty = true; // when we create a toplevel widget, the frame strut should be dirty
 	HIViewRef window_hiview = 0;
 	OSStatus err = HIViewFindByID(HIViewGetRoot(window), kHIViewWindowContentID, &window_hiview);
@@ -1360,10 +1354,8 @@ void QWidget::showWindow()
 	SizeWindow(window, width(), height(), true);
 	if(qt_mac_is_macsheet(this)) {
 	    qt_event_request_showsheet(this);
-#if QT_MACOSX_VERSION >= 0x1020
 	} else if(qt_mac_is_macdrawer(this)) {
 	    OpenDrawer(window, kWindowEdgeDefault, true);
-#endif
 	} else {
 	    ShowHide(window, true);	//now actually show it
         }
@@ -1387,10 +1379,8 @@ void QWidget::hideWindow()
 	WindowPtr window = qt_mac_window_for((HIViewRef)winId());
 	if(qt_mac_is_macsheet(this))
 	    HideSheetWindow(window);
-#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    CloseDrawer(window, true);
-#endif
 	else
 	    ShowHide(window, false); //now we hide
 	SizeWindow(window, 0, 0, true);
