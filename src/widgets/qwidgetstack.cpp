@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#37 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -428,11 +428,6 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
 
 QSize QWidgetStack::sizeHint() const
 {
-    if ( l )
-	return QFrame::sizeHint();
-
-    //We need a sensible sizeHint before the layout is constructed.
-
     QSize size(0,0);
     if ( children() ) {
 	const QObjectList * c = children();
@@ -442,11 +437,11 @@ QSize QWidgetStack::sizeHint() const
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() )
-		if ( o != topWidget )
+		if ( o != invisible )
 		    size = size.expandedTo( ((QWidget *)o)->sizeHint() );
 	}
     }
     if ( size.isNull() )
-	return QSize(50,50);//###
+	return QSize(100,50);//###
     return size;
 }
