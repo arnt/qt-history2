@@ -353,10 +353,13 @@ void WriteInitialization::acceptSpacer(DomSpacer *node)
     if (sizeHint)
         output << sizeHint->elementWidth() << ", " << sizeHint->elementHeight() << ", ";
 
+    if (sizeType.startsWith(QLatin1String("QSizePolicy::")) == false)
+        sizeType.prepend(QLatin1String("QSizePolicy::"));
+
     if (isVspacer)
-        output << "QSizePolicy::Minimum, QSizePolicy::" << sizeType << ");\n";
+        output << "QSizePolicy::Minimum, " << sizeType << ");\n";
     else
-        output << "QSizePolicy::" << sizeType << ", QSizePolicy::Minimum);\n";
+        output << sizeType << ", QSizePolicy::Minimum);\n";
 
     TreeWalker::acceptSpacer(node);
 }
