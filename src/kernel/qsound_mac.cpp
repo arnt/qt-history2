@@ -61,6 +61,8 @@ public:
 
 private:
     QPixmap *offscreen;
+    MovieController aMovie;
+    Fixed volume;
 };
 
 class QAuBucket {
@@ -69,18 +71,20 @@ public:
     QString filename;
 };
 
+static int servers = 0;
 QAuServerMac::QAuServerMac(QObject* parent) :
-    QAuServer(parent,"Mac Audio Server")
+    QAuServer(parent,"Mac Audio Server"), aMovie(nil), volume(1)
 {
-    EnterMovies();
+    if(!servers++)
+	EnterMovies();
     offscreen = new QPixmap( 1, 1 );
 }
 
 QAuServerMac::~QAuServerMac()
 {
-    ExitMovies();
+    if(!(--servers))
+	ExitMovies();
 }
-
 
 // The FSpLocationFromFullPath function is descended from Apple Source Code,
 // but changes have been made.
@@ -114,12 +118,12 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
     return result;
 }
 
-void QAuServerMac::play( const QString& filename )
+MovieController get_movie(const QString &filename, QPixmap *offscreen) 
 {
     OSErr err;
     FSSpec fileSpec;
-    Movie aMovie = nil;
     short movieResFile;
+    Movie aMovie = nil;
 
     QString macFilename = filename.mid( 1 );
     while ( macFilename.find( "/" ) != -1 )
@@ -129,7 +133,7 @@ void QAuServerMac::play( const QString& filename )
     err = FSpLocationFromFullPath( macFilename.length(), macFilename.latin1(),
 				   &fileSpec ); 
     if ( err != noErr )
-	return;
+	return NULL;
 
     // If a movie soundtrack is played then the movie will be played on
     // the current graphics port. So create an offscreen graphics port.
@@ -137,7 +141,7 @@ void QAuServerMac::play( const QString& filename )
 
     err = OpenMovieFile ( &fileSpec, &movieResFile, fsRdPerm );
     if ( err != noErr )
-	return;
+	return NULL;
 
     short           movieResID = 0;         /* want first movie */
     Str255          movieName;
@@ -148,11 +152,46 @@ void QAuServerMac::play( const QString& filename )
 			    newMovieActive,         /* flags */
 			    &wasChanged);
     if ( err != noErr )
-	return;
+	return NULL;
 
     CloseMovieFile (movieResFile);
-    StartMovie( aMovie );
+    Rect r;
+    return NewMovieController(aMovie, &r, 0);
 }
+
+void QAuServerMac::play( const QString& filename )
+{
+    if(!(aMovie = get_movie(filename, offscreen)))
+       return;
+    MCDoAction(aMovie, mcActionSetVolume, &volume); 
+
+    //play
+    Fixed rate = 1;
+    MCDoAction(aMovie, mcActionPlay, &rate);
+}
+
+/*
+void
+QAuServerMac::setVolume(int x) 
+{  
+    volume = x;
+    if(aMovie) 
+	MCDoAction(aMovie, mcActionSetVolume, &volume); 
+} 
+void
+QAuServerMac::playLoop(const QString &filename) 
+{
+    if(!(aMovie = get_movie(filename, offscreen)))
+       return;
+    Boolean loop = true;
+    MCDoAction(aMovie, mcActionSetLooping, &loop);
+    MCDoAction(aMovie, mcActionSetVolume, &volume); 
+
+    //play
+    Fixed rate = 1;
+    MCDoAction(aMovie, mcActionPlay, &raterate);
+}
+*/
 
 void QAuServerMac::play(QAuBucket* id)
 {
