@@ -1,4 +1,4 @@
-SOURCES	+= main.cpp 
+SOURCES	+= main.cpp ../connection.cpp
 TARGET	= book
 FORMS	= book.ui editbook.ui 
 TEMPLATE	=app

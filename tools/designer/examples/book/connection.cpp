@@ -1,0 +1,31 @@
+/****************************************************************************
+** $Id$
+**
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+#include <qsqldatabase.h>
+#include "connection.h"
+
+bool createConnections()
+{
+    // create the default database connection
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_BOOKS_DRIVER );
+    defaultDB->setDatabaseName( DB_BOOKS );
+    defaultDB->setUserName( DB_BOOKS_USER );
+    defaultDB->setPassword( DB_BOOKS_PASSWD );
+    defaultDB->setHostName( DB_BOOKS_HOST );
+    if ( ! defaultDB->open() ) { 
+	qWarning( "Failed to open books database: " + 
+		  defaultDB->lastError().driverText() );
+	qWarning( defaultDB->lastError().databaseText() );
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+
