@@ -979,6 +979,12 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		XPThemeData theme( w, p, "EDIT", partId, stateId, r );
 
 		theme.drawBackground();
+		if ( w->hasFocus() && !((QComboBox*)w)->editable() ) {
+	    	    QRect re = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, opt );
+		    p->fillRect(re, cg.brush( QColorGroup::Highlight) );
+		    p->setPen( cg.highlightedText() );
+		    p->setBackgroundColor( cg.highlight() );
+		}
 	    }
 
 	    if ( sub & SC_ComboBoxArrow ) {
