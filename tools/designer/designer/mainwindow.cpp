@@ -2570,7 +2570,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = "designer-manual-13.html#";
+    QString link = "designer-manual-12.html#";
 
     if ( w->inherits( "NewFormBase" ) )
 	link += "dialog-file-new";
