@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#471 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#472 $
 **
 ** Implementation of QWidget class
 **
@@ -518,6 +518,8 @@ static QFont default_font( QWidget *parent )
 
 /*! \enum Qt::WidgetFlags
 
+<a name="widgetflags"></a>
+
 This enum type is used to specify various window-system properties
 of the widget.  Mostly they are fairly unusal, but necessary in a
 few cases.
@@ -628,8 +630,6 @@ widget.  This allows smart-repainting to avoid flicker.
   \a parent.  The new widget is deleted when \a parent is.
 
   The \a name is sent to the QObject constructor.
-
-  <a name="widgetflags"></a>
 
   The widget flags argument \a f is normally 0, but it can be set to
   customize the window frame of a top-level widget (i.e. \a parent must be
