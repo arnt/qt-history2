@@ -54,8 +54,7 @@ class QCache
     Q_DISABLE_COPY(QCache)
 
 public:
-    inline explicit QCache(int maxCost = 100)
-        : f(0), l(0), mx(maxCost), total(0) {}
+    inline explicit QCache(int maxCost = 100);
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QCache(int maxCost, int /* dummy */)
         : f(0), l(0), mx(maxCost), total(0) {}
@@ -91,6 +90,10 @@ private:
 };
 
 template <class Key, class T>
+inline QCache<Key, T>::QCache(int amaxCost)
+    : f(0), l(0), mx(amaxCost), total(0) {}
+
+template <class Key, class T>
 inline void QCache<Key,T>::clear()
 { while (f) { delete f->t; f = f->n; }
  hash.clear(); l = 0; total = 0; }
@@ -118,18 +121,18 @@ inline T *QCache<Key,T>::take(const Key &key)
  Node &n = hash[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
 
 template <class Key, class T>
-void QCache<Key,T>::insert(const Key &key, T *object, int cost)
+void QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
 {
-    remove(key);
-    if (cost > mx) {
-        delete object;
+    remove(akey);
+    if (acost > mx) {
+        delete aobject;
         return;
     }
-    trim(mx - cost);
-    Node sn(key, object, cost);
-    hash.insert(key, sn);
-    total += cost;
-    Node *n = &hash[key];
+    trim(mx - acost);
+    Node sn(akey, aobject, acost);
+    hash.insert(akey, sn);
+    total += acost;
+    Node *n = &hash[akey];
     if (f) f->p = n;
     n->n = f;
     f = n;

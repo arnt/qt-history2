@@ -517,27 +517,27 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &_t)
 {
     detach();
     const T t = _t;
-    int count=0, i=0;
+    int removedCount=0, i=0;
     Node *n;
     while (i < p.size())
         if ((n = reinterpret_cast<Node *>(p.at(i)))->t() == t) {
             node_destruct(n);
             p.remove(i);
-            ++count;
+            ++removedCount;
         } else {
             ++i;
         }
-    return count;
+    return removedCount;
 }
 
 template <typename T>
-Q_OUTOFLINE_TEMPLATE typename QList<T>::iterator QList<T>::erase(typename QList<T>::iterator first,
-                                                                 typename QList<T>::iterator last)
+Q_OUTOFLINE_TEMPLATE typename QList<T>::iterator QList<T>::erase(typename QList<T>::iterator afirst,
+                                                                 typename QList<T>::iterator alast)
 {
-    for (Node *n = first.i; n < last.i; ++n)
+    for (Node *n = afirst.i; n < alast.i; ++n)
         node_destruct(n);
-    int idx = first - begin();
-    p.remove(idx, last - first);
+    int idx = afirst - begin();
+    p.remove(idx, alast - afirst);
     return begin() + idx;
 }
 

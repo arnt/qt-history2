@@ -79,7 +79,7 @@ public:
     void chop(int n);
 
     int capacity() const;
-    inline void reserve(int size) { if (d->ref != 1 || size > d->alloc) realloc(size); }
+    inline void reserve(int size);
     inline void squeeze() { if (d->size < d->alloc) realloc(); }
 
     inline const QChar *unicode() const;
@@ -239,8 +239,7 @@ public:
     static QString fromRawData(const QChar *, int size);
 
     QString &setUnicode(const QChar *unicode, int size);
-    inline QString &setUtf16(const ushort *utf16, int size)
-    { return setUnicode(reinterpret_cast<const QChar *>(utf16), size); }
+    inline QString &setUtf16(const ushort *utf16, int size);
 
     int compare(const QString &s) const;
     static inline int compare(const QString &s1, const QString &s2)
@@ -598,8 +597,8 @@ inline QString QString::arg(const QString &a1, const QString &a2, const QString 
 { return multiArg(3, a1, a2, a3); }
 inline QString QString::arg(const QString &a1, const QString &a2,  const QString &a3, const QString &a4) const
 { return multiArg(4, a1, a2, a3, a4); }
-inline QString QString::section(QChar sep, int start, int end, SectionFlags flags) const
-{ return section(QString(sep), start, end, flags); }
+inline QString QString::section(QChar asep, int astart, int aend, SectionFlags aflags) const
+{ return section(QString(asep), astart, aend, aflags); }
 
 
 class Q_CORE_EXPORT QCharRef {
@@ -665,8 +664,8 @@ public:
 
     inline uchar cell() const { return QChar(*this).cell(); }
     inline uchar row() const { return QChar(*this).row(); }
-    inline void setCell(uchar cell) { QChar(*this).setCell(cell); }
-    inline void setRow(uchar row) { QChar(*this).setRow(row); }
+    inline void setCell(uchar cell);
+    inline void setRow(uchar row);
 
     const char toAscii() const { return QChar(*this).toAscii(); }
     const char toLatin1() const { return QChar(*this).toLatin1(); }
@@ -676,8 +675,16 @@ public:
 #endif
     const ushort unicode() const { return QChar(*this).unicode(); }
 };
+
+inline void QCharRef::setRow(uchar arow) { QChar(*this).setRow(arow); }
+inline void QCharRef::setCell(uchar acell) { QChar(*this).setCell(acell); }
+
+
 inline QString::QString() : d(&shared_null) { d->ref.ref(); }
 inline QString::~QString() { if (!d->ref.deref()) free(d); }
+inline void QString::reserve(int asize) { if (d->ref != 1 || asize > d->alloc) realloc(asize); }
+inline QString &QString::setUtf16(const ushort *autf16, int asize)
+{ return setUnicode(reinterpret_cast<const QChar *>(autf16), asize); }
 inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QCharRef QString::operator[](uint i)

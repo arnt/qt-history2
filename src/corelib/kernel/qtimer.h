@@ -38,7 +38,7 @@ public:
     void setInterval(int msec);
     int interval() const { return inter; }
 
-    inline void setSingleShot(bool singleShot) { single = singleShot; }
+    inline void setSingleShot(bool singleShot);
     inline bool isSingleShot() const { return single; }
 
     static void singleShot(int msec, QObject *receiver, const char *member);
@@ -70,6 +70,8 @@ private:
     uint single : 1;
     uint nulltimer : 1;
 };
+
+inline void QTimer::setSingleShot(bool asingleShot) { single = asingleShot; }
 
 #endif
 

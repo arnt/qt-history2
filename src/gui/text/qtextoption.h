@@ -29,7 +29,7 @@ public:
     QTextOption(const QTextOption &o);
     QTextOption &operator=(const QTextOption &o);
 
-    inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
+    inline void setAlignment(Qt::Alignment alignment);
     inline Qt::Alignment alignment() const { return Qt::Alignment(align); }
 
     inline void setTextDirection(Qt::LayoutDirection aDirection) { this->direction = aDirection; }
@@ -49,10 +49,10 @@ public:
         IncludeTrailingSpaces = 0x80000000
     };
     Q_DECLARE_FLAGS(Flags, Flag)
-    inline void setFlags(Flags flags) { f = flags; }
+    inline void setFlags(Flags flags);
     inline Flags flags() const { return Flags(f); }
 
-    inline void setTabStop(qreal tabStop) { tab = tabStop; }
+    inline void setTabStop(qreal tabStop);
     inline qreal tabStop() const { return tab; }
 
     void setTabArray(QList<qreal> tabStops);
@@ -71,5 +71,14 @@ private:
     qreal tab;
     QTextOptionPrivate *d;
 };
+
+inline void QTextOption::setAlignment(Qt::Alignment aalignment)
+{ align = aalignment; }
+
+inline void QTextOption::setFlags(Flags aflags)
+{ f = aflags; }
+
+inline void QTextOption::setTabStop(qreal atabStop)
+{ tab = atabStop; }
 
 #endif // QTEXTOPTION_H

@@ -339,27 +339,27 @@ Q_INLINE_TEMPLATE void QMap<Key, T>::clear()
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMapData::Node *
-QMap<Key, T>::node_create(QMapData *dt, QMapData::Node *update[], const Key &key, const T &value)
+QMap<Key, T>::node_create(QMapData *adt, QMapData::Node *aupdate[], const Key &akey, const T &avalue)
 {
-    QMapData::Node *abstractNode = dt->node_create(update, Payload);
+    QMapData::Node *abstractNode = adt->node_create(aupdate, Payload);
     Node *concreteNode = concrete(abstractNode);
-    new (&concreteNode->key) Key(key);
-    new (&concreteNode->value) T(value);
+    new (&concreteNode->key) Key(akey);
+    new (&concreteNode->value) T(avalue);
     return abstractNode;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
+Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &akey) const
 {
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, akey))
             cur = next;
     }
 
-    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(akey, concrete(next)->key)) {
         return next;
     } else {
         return e;
@@ -367,9 +367,9 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &key) const
+Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey) const
 {
-    QMapData::Node *node = findNode(key);
+    QMapData::Node *node = findNode(akey);
     if (node == e) {
         T t;
         qInit(t);
@@ -380,112 +380,112 @@ Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &key) const
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &key, const T &defaultValue) const
+Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey, const T &adefaultValue) const
 {
-    QMapData::Node *node = findNode(key);
+    QMapData::Node *node = findNode(akey);
     if (node == e) {
-        return defaultValue;
+        return adefaultValue;
     } else {
         return concrete(node)->value;
     }
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE const T QMap<Key, T>::operator[](const Key &key) const
+Q_INLINE_TEMPLATE const T QMap<Key, T>::operator[](const Key &akey) const
 {
-    return value(key);
+    return value(akey);
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE T &QMap<Key, T>::operator[](const Key &key)
+Q_INLINE_TEMPLATE T &QMap<Key, T>::operator[](const Key &akey)
 {
     detach();
 
     QMapData::Node *update[QMapData::LastLevel + 1];
-    QMapData::Node *node = mutableFindNode(update, key);
+    QMapData::Node *node = mutableFindNode(update, akey);
     if (node == e)
-        node = node_create(d, update, key, T());
+        node = node_create(d, update, akey, T());
     return concrete(node)->value;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE int QMap<Key, T>::count(const Key &key) const
+Q_INLINE_TEMPLATE int QMap<Key, T>::count(const Key &akey) const
 {
     int cnt = 0;
-    QMapData::Node *node = findNode(key);
+    QMapData::Node *node = findNode(akey);
     if (node != e) {
         do {
             ++cnt;
             node = node->forward[0];
-        } while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key));
+        } while (node != e && !qMapLessThanKey<Key>(akey, concrete(node)->key));
     }
     return cnt;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE bool QMap<Key, T>::contains(const Key &key) const
+Q_INLINE_TEMPLATE bool QMap<Key, T>::contains(const Key &akey) const
 {
-    return findNode(key) != e;
+    return findNode(akey) != e;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &key,
-                                                                       const T &value)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &akey,
+                                                                       const T &avalue)
 {
     detach();
 
     QMapData::Node *update[QMapData::LastLevel + 1];
-    QMapData::Node *node = mutableFindNode(update, key);
+    QMapData::Node *node = mutableFindNode(update, akey);
     if (node == e) {
-        node = node_create(d, update, key, value);
+        node = node_create(d, update, akey, avalue);
     } else {
-        concrete(node)->value = value;
+        concrete(node)->value = avalue;
     }
     return iterator(node);
 }
 
 #ifdef QT3_SUPPORT
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &key,
-                                                                       const T &value,
-                                                                       bool overwrite)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &akey,
+                                                                       const T &avalue,
+                                                                       bool aoverwrite)
 {
     detach();
 
     QMapData::Node *update[QMapData::LastLevel + 1];
-    QMapData::Node *node = mutableFindNode(update, key);
+    QMapData::Node *node = mutableFindNode(update, akey);
     if (node == e) {
-        node = node_create(d, update, key, value);
+        node = node_create(d, update, akey, avalue);
     } else {
-        if (overwrite)
-            concrete(node)->value = value;
+        if (aoverwrite)
+            concrete(node)->value = avalue;
     }
     return iterator(node);
 }
 #endif
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insertMulti(const Key &key,
-                                                                            const T &value)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insertMulti(const Key &akey,
+                                                                            const T &avalue)
 {
     detach();
 
     QMapData::Node *update[QMapData::LastLevel + 1];
-    mutableFindNode(update, key);
-    return iterator(node_create(d, update, key, value));
+    mutableFindNode(update, akey);
+    return iterator(node_create(d, update, akey, avalue));
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator QMap<Key, T>::find(const Key &key) const
+Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator QMap<Key, T>::find(const Key &akey) const
 {
-    return const_iterator(findNode(key));
+    return const_iterator(findNode(akey));
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &key)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &akey)
 {
     detach();
-    return iterator(findNode(key));
+    return iterator(findNode(akey));
 }
 
 template <class Key, class T>
@@ -519,7 +519,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *x)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
+Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &akey)
 {
     detach();
 
@@ -529,12 +529,12 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
     int oldSize = d->size;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, akey))
             cur = next;
         update[i] = cur;
     }
 
-    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(akey, concrete(next)->key)) {
         bool deleteNext = true;
         do {
             cur = next;
@@ -549,7 +549,7 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
+Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &akey)
 {
     detach();
 
@@ -558,13 +558,13 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, akey))
             cur = next;
         update[i] = cur;
     }
 
     T t;
-    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(akey, concrete(next)->key)) {
         t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
@@ -633,18 +633,18 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Node *update[],
-                                                                   const Key &key) const
+Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Node *aupdate[],
+                                                                   const Key &akey) const
 {
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, akey))
             cur = next;
-        update[i] = cur;
+        aupdate[i] = cur;
     }
-    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(akey, concrete(next)->key)) {
         return next;
     } else {
         return e;
@@ -664,12 +664,12 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys() const
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys(const T &value) const
+Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys(const T &avalue) const
 {
     QList<Key> res;
     const_iterator i = begin();
     while (i != end()) {
-        if (i.value() == value)
+        if (i.value() == avalue)
             res.append(i.key());
         ++i;
     }
@@ -677,11 +677,11 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys(const T &value) const
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &value) const
+Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &avalue) const
 {
     const_iterator i = begin();
     while (i != end()) {
-        if (i.value() == value)
+        if (i.value() == avalue)
             return i.key();
         ++i;
     }
@@ -704,52 +704,52 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
+Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &akey) const
 {
     QList<T> res;
-    QMapData::Node *node = findNode(key);
+    QMapData::Node *node = findNode(akey);
     if (node != e) {
         do {
             res.append(concrete(node)->value);
             node = node->forward[0];
-        } while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key));
+        } while (node != e && !qMapLessThanKey<Key>(akey, concrete(node)->key));
     }
     return res;
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator
-QMap<Key, T>::lowerBound(const Key &key) const
+QMap<Key, T>::lowerBound(const Key &akey) const
 {
     QMapData::Node *update[QMapData::LastLevel + 1];
-    mutableFindNode(update, key);
+    mutableFindNode(update, akey);
     return const_iterator(update[0]->forward[0]);
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::lowerBound(const Key &key)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::lowerBound(const Key &akey)
 {
     detach();
-    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->lowerBound(key));
+    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->lowerBound(akey));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator
-QMap<Key, T>::upperBound(const Key &key) const
+QMap<Key, T>::upperBound(const Key &akey) const
 {
     QMapData::Node *update[QMapData::LastLevel + 1];
-    mutableFindNode(update, key);
+    mutableFindNode(update, akey);
     QMapData::Node *node = update[0]->forward[0];
-    while (node != e && !qMapLessThanKey<Key>(key, concrete(node)->key))
+    while (node != e && !qMapLessThanKey<Key>(akey, concrete(node)->key))
         node = node->forward[0];
     return const_iterator(node);
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::upperBound(const Key &key)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::upperBound(const Key &akey)
 {
     detach();
-    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->upperBound(key));
+    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->upperBound(akey));
 }
 
 template <class Key, class T>
@@ -807,10 +807,8 @@ public:
     QMultiMap() {}
     QMultiMap(const QMap<Key, T> &other) : QMap<Key, T>(other) {}
 
-    inline typename QMap<Key, T>::iterator replace(const Key &key, const T &value)
-    { return QMap<Key, T>::insert(key, value); }
-    inline typename QMap<Key, T>::iterator insert(const Key &key, const T &value)
-    { return QMap<Key, T>::insertMulti(key, value); }
+    inline typename QMap<Key, T>::iterator replace(const Key &key, const T &value);
+    inline typename QMap<Key, T>::iterator insert(const Key &key, const T &value);
 
     inline QMultiMap &operator+=(const QMultiMap &other)
     { unite(other); return *this; }
@@ -821,6 +819,15 @@ private:
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
 };
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMultiMap<Key, T>::replace(const Key &akey, const T &avalue)
+{ return QMap<Key, T>::insert(akey, avalue); }
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMultiMap<Key, T>::insert(const Key &akey, const T &avalue)
+{ return QMap<Key, T>::insertMulti(akey, avalue); }
+
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Map)

@@ -51,37 +51,31 @@ public:
     inline QTableWidget *tableWidget() const { return view; }
 
     inline Qt::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(Qt::ItemFlags flags) { itemFlags = flags; }
+    inline void setFlags(Qt::ItemFlags flags);
 
     inline QString text() const
         { return data(Qt::DisplayRole).toString(); }
-    inline void setText(const QString &text)
-        { setData(Qt::DisplayRole, text); }
+    inline void setText(const QString &text);
 
     inline QIcon icon() const
         { return qvariant_cast<QIcon>(data(Qt::DecorationRole)); }
-    inline void setIcon(const QIcon &icon)
-        { setData(Qt::DecorationRole, icon); }
+    inline void setIcon(const QIcon &icon);
 
     inline QString statusTip() const
         { return data(Qt::StatusTipRole).toString(); }
-    inline void setStatusTip(const QString &statusTip)
-        { setData(Qt::StatusTipRole, statusTip); }
+    inline void setStatusTip(const QString &statusTip);
 
     inline QString toolTip() const
         { return data(Qt::ToolTipRole).toString(); }
-    inline void setToolTip(const QString &toolTip)
-         { setData(Qt::ToolTipRole, toolTip); }
+    inline void setToolTip(const QString &toolTip);
 
     inline QString whatsThis() const
         { return data(Qt::WhatsThisRole).toString(); }
-    inline void setWhatsThis(const QString &whatsThis)
-        { setData(Qt::WhatsThisRole, whatsThis); }
+    inline void setWhatsThis(const QString &whatsThis);
 
     inline QFont font() const
         { return qvariant_cast<QFont>(data(Qt::FontRole)); }
-    inline void setFont(const QFont &font)
-        { setData(Qt::FontRole, font); }
+    inline void setFont(const QFont &font);
 
     inline int textAlignment() const
         { return data(Qt::TextAlignmentRole).toInt(); }
@@ -120,6 +114,27 @@ private:
     QTableModel *model;
     Qt::ItemFlags itemFlags;
 };
+
+inline void QTableWidgetItem::setFlags(Qt::ItemFlags aflags)
+{ itemFlags = aflags; }
+
+inline void QTableWidgetItem::setText(const QString &atext)
+{ setData(Qt::DisplayRole, atext); }
+
+inline void QTableWidgetItem::setIcon(const QIcon &aicon)
+{ setData(Qt::DecorationRole, aicon); }
+
+inline void QTableWidgetItem::setStatusTip(const QString &astatusTip)
+{ setData(Qt::StatusTipRole, astatusTip); }
+
+inline void QTableWidgetItem::setToolTip(const QString &atoolTip)
+{ setData(Qt::ToolTipRole, atoolTip); }
+
+inline void QTableWidgetItem::setWhatsThis(const QString &awhatsThis)
+{ setData(Qt::WhatsThisRole, awhatsThis); }
+
+inline void QTableWidgetItem::setFont(const QFont &afont)
+{ setData(Qt::FontRole, afont); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QTableWidgetItem &item);
@@ -187,7 +202,7 @@ public:
     int visualColumn(int logicalColumn) const;
 
     QTableWidgetItem *itemAt(const QPoint &p) const;
-    inline QTableWidgetItem *itemAt(int x, int y) const  { return itemAt(QPoint(x, y)); }
+    inline QTableWidgetItem *itemAt(int x, int y) const;
     QRect visualItemRect(const QTableWidgetItem *item) const;
 
     const QTableWidgetItem *itemPrototype() const;
@@ -227,5 +242,8 @@ private:
     Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
 };
+
+inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
+{ return itemAt(QPoint(ax, ay)); }
 
 #endif // QTABLEWIDGET_H

@@ -58,7 +58,7 @@ public:
     ~QFileDialog();
 
     void setDirectory(const QString &directory);
-    inline void setDirectory(const QDir &directory) { setDirectory(directory.absolutePath()); }
+    inline void setDirectory(const QDir &directory);
     QDir directory() const;
 
     void selectFile(const QString &filename);
@@ -217,6 +217,9 @@ private:
     Q_PRIVATE_SLOT(d, void sortByDate())
     Q_PRIVATE_SLOT(d, void setUnsorted())
 };
+
+inline void QFileDialog::setDirectory(const QDir &adirectory)
+{ setDirectory(adirectory.absolutePath()); }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options);
 

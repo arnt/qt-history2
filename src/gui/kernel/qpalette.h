@@ -57,12 +57,9 @@ public:
     inline const QColor &color(ColorGroup cg, ColorRole cr) const
     { return brush(cg, cr).color(); }
     const QBrush &brush(ColorGroup cg, ColorRole cr) const;
-    inline void setColor(ColorGroup cg, ColorRole cr, const QColor &color)
-    { setBrush(cg, cr, QBrush(color)); }
-    inline void setColor(ColorRole cr, const QColor &color)
-     { setColor(All, cr, color); }
-    inline void setBrush(ColorRole cr, const QBrush &brush)
-     { setBrush(All, cr, brush); }
+    inline void setColor(ColorGroup cg, ColorRole cr, const QColor &color);
+    inline void setColor(ColorRole cr, const QColor &color);
+    inline void setBrush(ColorRole cr, const QBrush &brush);
     void setBrush(ColorGroup cg, ColorRole cr, const QBrush &brush);
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
                        const QBrush &light, const QBrush &dark, const QBrush &mid,
@@ -133,6 +130,14 @@ private:
     uint resolve_mask : 28;
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
 };
+
+inline void QPalette::setColor(ColorGroup acg, ColorRole acr,
+                               const QColor &acolor)
+{ setBrush(acg, acr, QBrush(acolor)); }
+inline void QPalette::setColor(ColorRole acr, const QColor &acolor)
+{ setColor(All, acr, acolor); }
+inline void QPalette::setBrush(ColorRole acr, const QBrush &abrush)
+{ setBrush(All, acr, abrush); }
 
 #ifdef QT3_SUPPORT
 class Q_GUI_EXPORT QColorGroup : public QPalette

@@ -37,37 +37,31 @@ public:
     inline QTreeWidget *treeWidget() const { return view; }
 
     inline Qt::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(Qt::ItemFlags flags) { itemFlags = flags; }
+    inline void setFlags(Qt::ItemFlags flags);
 
     inline QString text(int column) const
         { return data(column, Qt::DisplayRole).toString(); }
-    inline void setText(int column, const QString &text)
-        { setData(column, Qt::DisplayRole, text); }
+    inline void setText(int column, const QString &text);
 
     inline QIcon icon(int column) const
         { return qvariant_cast<QIcon>(data(column, Qt::DecorationRole)); }
-    inline void setIcon(int column, const QIcon &icon)
-        { setData(column, Qt::DecorationRole, icon); }
+    inline void setIcon(int column, const QIcon &icon);
 
     inline QString statusTip(int column) const
         { return data(column, Qt::StatusTipRole).toString(); }
-    inline void setStatusTip(int column, const QString &statusTip)
-        { setData(column, Qt::StatusTipRole, statusTip); }
+    inline void setStatusTip(int column, const QString &statusTip);
 
     inline QString toolTip(int column) const
         { return data(column, Qt::ToolTipRole).toString(); }
-    inline void setToolTip(int column, const QString &toolTip)
-        { setData(column, Qt::ToolTipRole, toolTip); }
+    inline void setToolTip(int column, const QString &toolTip);
 
     inline QString whatsThis(int column) const
         { return data(column, Qt::WhatsThisRole).toString(); }
-    inline void setWhatsThis(int column, const QString &whatsThis)
-        { setData(column, Qt::WhatsThisRole, whatsThis); }
+    inline void setWhatsThis(int column, const QString &whatsThis);
 
     inline QFont font(int column) const
         { return qvariant_cast<QFont>(data(column, Qt::FontRole)); }
-    inline void setFont(int column, const QFont &font)
-        { setData(column, Qt::FontRole, font); }
+    inline void setFont(int column, const QFont &font);
 
     inline int textAlignment(int column) const
         { return data(column, Qt::TextAlignmentRole).toInt(); }
@@ -105,7 +99,7 @@ public:
         { if (index < 0 || index >= children.size()) return 0; return children.at(index); }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
-    inline int indexOfChild(QTreeWidgetItem *child) const { return children.indexOf(child); }
+    inline int indexOfChild(QTreeWidgetItem *child) const;
 
     void addChild(QTreeWidgetItem *child);
     void insertChild(int index, QTreeWidgetItem *child);
@@ -124,6 +118,30 @@ private:
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;
 };
+
+inline void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags)
+{ itemFlags = aflags; }
+
+inline void QTreeWidgetItem::setText(int column, const QString &atext)
+{ setData(column, Qt::DisplayRole, atext); }
+
+inline void QTreeWidgetItem::setIcon(int column, const QIcon &aicon)
+{ setData(column, Qt::DecorationRole, aicon); }
+
+inline void QTreeWidgetItem::setStatusTip(int column, const QString &astatusTip)
+{ setData(column, Qt::StatusTipRole, astatusTip); }
+
+inline void QTreeWidgetItem::setToolTip(int column, const QString &atoolTip)
+{ setData(column, Qt::ToolTipRole, atoolTip); }
+
+inline void QTreeWidgetItem::setWhatsThis(int column, const QString &awhatsThis)
+{ setData(column, Qt::WhatsThisRole, awhatsThis); }
+
+inline void QTreeWidgetItem::setFont(int column, const QFont &afont)
+{ setData(column, Qt::FontRole, afont); }
+
+inline int QTreeWidgetItem::indexOfChild(QTreeWidgetItem *achild) const
+{ return children.indexOf(achild); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem &item);
@@ -161,7 +179,7 @@ public:
     void setCurrentItem(QTreeWidgetItem *item);
 
     QTreeWidgetItem *itemAt(const QPoint &p) const;
-    inline QTreeWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
+    inline QTreeWidgetItem *itemAt(int x, int y) const;
     QRect visualItemRect(const QTreeWidgetItem *item) const;
 
     void sortItems(int column, Qt::SortOrder order);
@@ -217,5 +235,8 @@ private:
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
 
 };
+
+inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
+{ return itemAt(QPoint(ax, ay)); }
 
 #endif // QTREEWIDGET_H

@@ -458,8 +458,7 @@ public:
 #ifdef QT3_SUPPORT
     static QT3_SUPPORT QWidgetMapper *wmapper();
 #endif
-    inline QWidget *childAt(int x, int y) const
-    { return childAt(QPoint(x, y)); }
+    inline QWidget *childAt(int x, int y) const;
     QWidget *childAt(const QPoint &p) const;
 
 #if defined(Q_WS_X11)
@@ -717,6 +716,9 @@ template <> inline const QWidget *qobject_cast<const QWidget*>(const QObject *o)
 }
 #endif
 
+inline QWidget *QWidget::childAt(int ax, int ay) const
+{ return childAt(QPoint(ax, ay)); }
+
 inline Qt::WindowType QWidget::windowType() const
 { return static_cast<Qt::WindowType>(int(data->window_flags & Qt::WindowType_Mask)); }
 inline Qt::WindowFlags QWidget::windowFlags() const
@@ -785,8 +787,8 @@ inline bool QWidget::underMouse() const
 inline bool QWidget::updatesEnabled() const
 { return !testAttribute(Qt::WA_UpdatesDisabled); }
 
-inline void QWidget::update(int x, int y, int w, int h)
-{ update(QRect(x, y, w, h)); }
+inline void QWidget::update(int ax, int ay, int aw, int ah)
+{ update(QRect(ax, ay, aw, ah)); }
 
 inline bool QWidget::isVisible() const
 { return testAttribute(Qt::WA_WState_Visible); }
@@ -794,14 +796,14 @@ inline bool QWidget::isVisible() const
 inline bool QWidget::isExplicitlyHidden() const
 { return testAttribute(Qt::WA_WState_Hidden); }
 
-inline void QWidget::move(int x, int y)
-{ move(QPoint(x, y)); }
+inline void QWidget::move(int ax, int ay)
+{ move(QPoint(ax, ay)); }
 
 inline void QWidget::resize(int w, int h)
 { resize(QSize(w, h)); }
 
-inline void QWidget::setGeometry(int x, int y, int w, int h)
-{ setGeometry(QRect(x, y, w, h)); }
+inline void QWidget::setGeometry(int ax, int ay, int aw, int ah)
+{ setGeometry(QRect(ax, ay, aw, ah)); }
 
 inline QRect QWidget::rect() const
 { return QRect(0,0,data->crect.width(),data->crect.height()); }

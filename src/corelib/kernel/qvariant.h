@@ -256,8 +256,7 @@ class Q_CORE_EXPORT QVariant
 
 #ifndef QT_NO_MEMBER_TEMPLATES
     template<typename T>
-    inline void setValue(const T &value)
-    { qVariantSetValue(*this, value); }
+    inline void setValue(const T &value);
 
     template<typename T>
     inline T value() const
@@ -514,6 +513,12 @@ inline QRect &QVariant::asRect()
 inline QSize &QVariant::asSize()
 { return *reinterpret_cast<QSize *>(castOrDetach(Size)); }
 #endif //QT3_SUPPORT
+
+#ifndef QT_NO_MEMBER_TEMPLATES
+template<typename T>
+inline void QVariant::setValue(const T &avalue)
+{ qVariantSetValue(*this, avalue); }
+#endif
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QVariant& p);

@@ -20,21 +20,8 @@ template<class T, int Prealloc = 256>
 class QVarLengthArray
 {
 public:
-    inline explicit QVarLengthArray(int size = 0)
-        : s(size) {
-        if (s > Prealloc) {
-            ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
-            a = s;
-        } else {
-            ptr = reinterpret_cast<T *>(array);
-            a = Prealloc;
-        }
-        if (QTypeInfo<T>::isComplex) {
-            T *i = ptr + s;
-            while (i != ptr)
-                new (--i) T;
-        }
-    }
+    inline explicit QVarLengthArray(int size = 0);
+
     inline QVarLengthArray(const QVarLengthArray &other)
         : a(Prealloc), s(0), ptr(reinterpret_cast<T *>(array))
     {
@@ -62,11 +49,11 @@ public:
     inline int size() const { return s; }
     inline int count() const { return s; }
     inline bool isEmpty() const { return (s == 0); }
-    inline void resize(int size) { realloc(size, qMax(size, a)); }
+    inline void resize(int size);
     inline void clear() { resize(0); }
 
     inline int capacity() const { return a; }
-    inline void reserve(int size) { if (size > a) realloc(s, size); }
+    inline void reserve(int size);
 
     inline T &operator[](int idx) {
         Q_ASSERT(idx >= 0 && idx < s);
@@ -99,36 +86,61 @@ private:
 };
 
 template <class T, int Prealloc>
-Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::append(const T *buf, int size)
-{
-    Q_ASSERT(buf);
-    if (size <= 0)
-        return;
-
-    const int idx = s;
-    resize(idx + size);
-
-    if (QTypeInfo<T>::isComplex) {
-        T *i = ptr + idx;
-        T *j = i + size;
-        while (i < j)
-            new (i++) T(*buf++);
+Q_INLINE_TEMPLATE QVarLengthArray<T, Prealloc>::QVarLengthArray(int asize)
+    : s(asize) {
+    if (s > Prealloc) {
+        ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
+        a = s;
     } else {
-        qMemCopy(&ptr[idx], buf, size * sizeof(T));
+        ptr = reinterpret_cast<T *>(array);
+        a = Prealloc;
+    }
+    if (QTypeInfo<T>::isComplex) {
+        T *i = ptr + s;
+        while (i != ptr)
+            new (--i) T;
     }
 }
 
 template <class T, int Prealloc>
-Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int alloc)
+Q_INLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::resize(int asize)
+{ realloc(asize, qMax(asize, a)); }
+
+template <class T, int Prealloc>
+Q_INLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::reserve(int asize)
+{ if (asize > a) realloc(s, asize); }
+
+template <class T, int Prealloc>
+Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::append(const T *abuf, int asize)
 {
-    Q_ASSERT(alloc >= size);
+    Q_ASSERT(abuf);
+    if (asize <= 0)
+        return;
+
+    const int idx = s;
+    resize(idx + asize);
+
+    if (QTypeInfo<T>::isComplex) {
+        T *i = ptr + idx;
+        T *j = i + asize;
+        while (i < j)
+            new (i++) T(*abuf++);
+    } else {
+        qMemCopy(&ptr[idx], abuf, asize * sizeof(T));
+    }
+}
+
+template <class T, int Prealloc>
+Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int asize, int aalloc)
+{
+    Q_ASSERT(aalloc >= asize);
     T *oldPtr = ptr;
     int osize = s;
-    s = size;
+    s = asize;
 
-    if (alloc != a) {
-        ptr = (T *)qMalloc(alloc * sizeof(T));
-        a = alloc;
+    if (aalloc != a) {
+        ptr = (T *)qMalloc(aalloc * sizeof(T));
+        a = aalloc;
 
         if (QTypeInfo<T>::isStatic) {
             T *i = ptr + osize;
@@ -143,13 +155,13 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int al
     }
 
     if (QTypeInfo<T>::isComplex) {
-        if (size < osize) {
+        if (asize < osize) {
             T *i = oldPtr + osize;
-            T *j = oldPtr + size;
+            T *j = oldPtr + asize;
             while (i-- != j)
                 i->~T();
         } else {
-            T *i = ptr + size;
+            T *i = ptr + asize;
             T *j = ptr + osize;
             while (i != j)
                 new (--i) T;

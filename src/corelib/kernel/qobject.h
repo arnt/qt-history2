@@ -167,8 +167,7 @@ public:
 #else
                         Qt::AutoConnection
 #endif
-        ) const
-        { return connect(sender, signal, this, member, type); }
+        ) const;
 
     static bool disconnect(const QObject *sender, const char *signal,
                            const QObject *receiver, const char *member);
@@ -258,6 +257,10 @@ protected:
 private:
     Q_DISABLE_COPY(QObject)
 };
+
+inline bool QObject::connect(const QObject *asender, const char *asignal,
+                             const char *amember, Qt::ConnectionType atype) const
+{ return connect(asender, asignal, this, amember, atype); }
 
 inline bool QObject::isAncestorOf(const QObject *child) const
 {

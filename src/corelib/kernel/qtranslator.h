@@ -39,7 +39,7 @@ public:
     const char *sourceText() const { return st.isNull() ? 0 : st.constData(); }
     const char *comment() const { return cm.isNull() ? 0 : cm.constData(); }
 
-    void setTranslation(const QString & translation) { tn = translation; }
+    inline void setTranslation(const QString & translation);
     QString translation() const { return tn; }
 
     enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
@@ -72,6 +72,8 @@ private:
 };
 Q_DECLARE_TYPEINFO(QTranslatorMessage, Q_MOVABLE_TYPE);
 
+inline void QTranslatorMessage::setTranslation(const QString & atranslation)
+{ tn = atranslation; }
 
 class Q_CORE_EXPORT QTranslator : public QObject
 {

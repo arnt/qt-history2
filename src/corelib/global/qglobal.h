@@ -1426,9 +1426,11 @@ class Q_CORE_EXPORT QFlag
 {
     int i;
 public:
-    inline QFlag(int i) : i(i) {}
+    inline QFlag(int i);
     inline operator int() const { return i; }
 };
+
+inline QFlag::QFlag(int ai) : i(ai) {}
 
 
 //#define Q_NO_TYPESAFE_FLAGS

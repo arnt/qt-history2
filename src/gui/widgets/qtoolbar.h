@@ -75,8 +75,7 @@ public:
 
     QRect actionGeometry(QAction *action) const;
     QAction *actionAt(const QPoint &p) const;
-    inline QAction *actionAt(int x, int y) const
-    { return actionAt(QPoint(x, y)); }
+    inline QAction *actionAt(int x, int y) const;
 
     QAction *toggleViewAction() const;
 
@@ -121,5 +120,8 @@ private:
 
     friend class QMainWindow;
 };
+
+inline QAction *QToolBar::actionAt(int ax, int ay) const
+{ return actionAt(QPoint(ax, ay)); }
 
 #endif // QTOOLBAR_H

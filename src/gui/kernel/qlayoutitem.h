@@ -30,7 +30,7 @@ class QSize;
 class Q_GUI_EXPORT QLayoutItem
 {
 public:
-    explicit QLayoutItem(Qt::Alignment alignment = 0) : align(alignment) { }
+    inline explicit QLayoutItem(Qt::Alignment alignment = 0);
     virtual ~QLayoutItem();
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
@@ -54,6 +54,9 @@ public:
 protected:
     Qt::Alignment align;
 };
+
+inline QLayoutItem::QLayoutItem(Qt::Alignment aalignment)
+    : align(aalignment) { }
 
 class Q_GUI_EXPORT QSpacerItem : public QLayoutItem
 {

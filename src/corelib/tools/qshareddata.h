@@ -46,7 +46,7 @@ public:
     inline QExplicitlySharedDataPointer() { d = 0; }
     inline ~QExplicitlySharedDataPointer() { if (d && !d->ref.deref()) delete d; }
 
-    explicit inline QExplicitlySharedDataPointer(T *data) : d(data) { if (d) d->ref.ref(); }
+    explicit inline QExplicitlySharedDataPointer(T *data);
     inline QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d)
     { if (d) d->ref.ref(); }
     inline QExplicitlySharedDataPointer &operator=(const QExplicitlySharedDataPointer &o) {
@@ -76,6 +76,10 @@ private:
     T *d;
 };
 
+template <class T>
+Q_INLINE_TEMPLATE QExplicitlySharedDataPointer<T>::QExplicitlySharedDataPointer(T *adata) : d(adata)
+{ if (d) d->ref.ref(); }
+
 template <class T> class QSharedDataPointer
 {
 public:
@@ -96,7 +100,7 @@ public:
     inline QSharedDataPointer() { d = 0; }
     inline ~QSharedDataPointer() { if (d && !d->ref.deref()) delete d; }
 
-    explicit QSharedDataPointer(T *data) : d(data) { if (d) d->ref.ref(); }
+    explicit QSharedDataPointer(T *data);
     inline QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) d->ref.ref(); }
     inline QSharedDataPointer & operator=(const QSharedDataPointer &o) {
         if (o.d != d) {
@@ -126,6 +130,10 @@ private:
 
     T *d;
 };
+
+template <class T>
+Q_INLINE_TEMPLATE QSharedDataPointer<T>::QSharedDataPointer(T *adata) : d(adata)
+{ if (d) d->ref.ref(); }
 
 template <class T>
 Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach_helper()

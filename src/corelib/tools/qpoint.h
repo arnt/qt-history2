@@ -88,11 +88,11 @@ inline int QPoint::x() const
 inline int QPoint::y() const
 { return yp; }
 
-inline void QPoint::setX(int x)
-{ xp = x; }
+inline void QPoint::setX(int xpos)
+{ xp = xpos; }
 
-inline void QPoint::setY(int y)
-{ yp = y; }
+inline void QPoint::setY(int ypos)
+{ yp = ypos; }
 
 inline int &QPoint::rx()
 { return xp; }
@@ -227,14 +227,14 @@ inline qreal QPointF::y() const
     return yp;
 }
 
-inline void QPointF::setX(qreal x)
+inline void QPointF::setX(qreal xpos)
 {
-    xp = x;
+    xp = xpos;
 }
 
-inline void QPointF::setY(qreal y)
+inline void QPointF::setY(qreal ypos)
 {
-    yp = y;
+    yp = ypos;
 }
 
 inline qreal &QPointF::rx()

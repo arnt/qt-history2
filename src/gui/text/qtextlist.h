@@ -42,12 +42,15 @@ public:
 
     void add(const QTextBlock &block);
 
-    void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
+    inline void setFormat(const QTextListFormat &format);
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
 
 private:
     Q_DISABLE_COPY(QTextList)
     Q_DECLARE_PRIVATE(QTextList)
 };
+
+inline void QTextList::setFormat(const QTextListFormat &aformat)
+{ QTextObject::setFormat(aformat); }
 
 #endif // QTEXTLIST_H

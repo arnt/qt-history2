@@ -337,8 +337,8 @@ inline QByteArray::QByteArray(int size) : d(&shared_null)
 inline int QByteArray::capacity() const
 { return d->alloc; }
 
-inline void QByteArray::reserve(int size)
-{ if (d->ref != 1 || size > d->alloc) realloc(size); }
+inline void QByteArray::reserve(int asize)
+{ if (d->ref != 1 || asize > d->alloc) realloc(asize); }
 
 inline void QByteArray::squeeze()
 { if (d->size < d->alloc) realloc(d->size); }

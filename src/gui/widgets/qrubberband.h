@@ -31,12 +31,8 @@ public:
 
     void setGeometry(const QRect &r);
 
-    inline void setGeometry(int x, int y, int w, int h)
-        { setGeometry(QRect(x, y, w, h)); }
-    inline void move(int x, int y)
-    { setGeometry(x + geometry().x() - QWidget::x(),
-		  y - geometry().y() - QWidget::y(),
-		  width(), height()); }
+    inline void setGeometry(int x, int y, int w, int h);
+    inline void move(int x, int y);
     inline void move(const QPoint &p)
     { move(p.x(), p.y()); }
     inline void resize(int w, int h)
@@ -53,5 +49,12 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QRubberBand)
 };
+
+inline void QRubberBand::setGeometry(int ax, int ay, int aw, int ah)
+{ setGeometry(QRect(ax, ay, aw, ah)); }
+inline void QRubberBand::move(int ax, int ay)
+{ setGeometry(ax + geometry().x() - QWidget::x(),
+              ay - geometry().y() - QWidget::y(),
+              width(), height()); }
 
 #endif // QRUBBERBAND_H

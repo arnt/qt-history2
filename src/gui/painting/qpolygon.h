@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QPolygon : public QVector<QPoint>
 public:
     inline QPolygon() {}
     inline ~QPolygon() {}
-    inline QPolygon(int size) : QVector<QPoint>(size) {}
+    inline QPolygon(int size);
     inline QPolygon(const QPolygon &a) : QVector<QPoint>(a) {}
     inline QPolygon(const QVector<QPoint> &v) : QVector<QPoint>(v) {}
     QPolygon(const QRect &r, bool closed=false);
@@ -48,6 +48,8 @@ public:
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPolygon & from, int fromIndex=0);
 };
+
+inline QPolygon::QPolygon(int asize) : QVector<QPoint>(asize) {}
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygon &);
@@ -76,7 +78,7 @@ class Q_GUI_EXPORT QPolygonF : public QVector<QPointF>
 public:
     inline QPolygonF() {}
     inline ~QPolygonF() {}
-    inline QPolygonF(int size) : QVector<QPointF>(size) {}
+    inline QPolygonF(int size);
     inline QPolygonF(const QPolygonF &a) : QVector<QPointF>(a) {}
     inline QPolygonF(const QVector<QPointF> &v) : QVector<QPointF>(v) {}
     QPolygonF(const QRectF &r);
@@ -91,6 +93,8 @@ public:
 
     QRectF boundingRect() const;
 };
+
+inline QPolygonF::QPolygonF(int asize) : QVector<QPointF>(asize) {}
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygonF &);

@@ -165,28 +165,28 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QRect &);
   QRect inline member functions
  *****************************************************************************/
 
-inline QRect::QRect(int left, int top, int width, int height)
+inline QRect::QRect(int aleft, int atop, int awidth, int aheight)
 {
-    x1 = left;
-    y1 = top;
-    x2 = (left + width - 1);
-    y2 = (top + height - 1);
+    x1 = aleft;
+    y1 = atop;
+    x2 = (aleft + awidth - 1);
+    y2 = (atop + aheight - 1);
 }
 
-inline QRect::QRect(const QPoint &topLeft, const QPoint &bottomRight)
+inline QRect::QRect(const QPoint &atopLeft, const QPoint &abottomRight)
 {
-    x1 = topLeft.x();
-    y1 = topLeft.y();
-    x2 = bottomRight.x();
-    y2 = bottomRight.y();
+    x1 = atopLeft.x();
+    y1 = atopLeft.y();
+    x2 = abottomRight.x();
+    y2 = abottomRight.y();
 }
 
-inline QRect::QRect(const QPoint &topLeft, const QSize &size)
+inline QRect::QRect(const QPoint &atopLeft, const QSize &asize)
 {
-    x1 = topLeft.x();
-    y1 = topLeft.y();
-    x2 = (x1+size.width() - 1);
-    y2 = (y1+size.height() - 1);
+    x1 = atopLeft.x();
+    y1 = atopLeft.y();
+    x2 = (x1+asize.width() - 1);
+    y2 = (y1+asize.height() - 1);
 }
 
 inline bool QRect::isNull() const
@@ -240,11 +240,11 @@ inline void QRect::setTopRight(const QPoint &p)
 inline void QRect::setBottomLeft(const QPoint &p)
 { x1 = p.x(); y2 = p.y(); }
 
-inline void QRect::setX(int x)
-{ x1 = x; }
+inline void QRect::setX(int ax)
+{ x1 = ax; }
 
-inline void QRect::setY(int y)
-{ y1 = y; }
+inline void QRect::setY(int ay)
+{ y1 = ay; }
 
 inline QPoint QRect::topLeft() const
 { return QPoint(x1, y1); }
@@ -292,12 +292,12 @@ inline QRect QRect::translated(int dx, int dy) const
 inline QRect QRect::translated(const QPoint &p) const
 { return QRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y())); }
 
-inline void QRect::moveTo(int x, int y)
+inline void QRect::moveTo(int ax, int ay)
 {
-    x2 += x - x1;
-    y2 += y - y1;
-    x1 = x;
-    y1 = y;
+    x2 += ax - x1;
+    y2 += ay - y1;
+    x1 = ax;
+    y1 = ay;
 }
 
 inline void QRect::moveTo(const QPoint &p)
@@ -350,20 +350,20 @@ inline void QRect::moveBottomLeft(const QPoint &p)
     moveBottom(p.y());
 }
 
-inline void QRect::getRect(int *x, int *y, int *w, int *h) const
+inline void QRect::getRect(int *ax, int *ay, int *aw, int *ah) const
 {
-    *x = x1;
-    *y = y1;
-    *w = x2 - x1 + 1;
-    *h = y2 - y1 + 1;
+    *ax = x1;
+    *ay = y1;
+    *aw = x2 - x1 + 1;
+    *ah = y2 - y1 + 1;
 }
 
-inline void QRect::setRect(int x, int y, int w, int h)
+inline void QRect::setRect(int ax, int ay, int aw, int ah)
 {
-    x1 = x;
-    y1 = y;
-    x2 = (x + w - 1);
-    y2 = (y + h - 1);
+    x1 = ax;
+    y1 = ay;
+    x2 = (ax + aw - 1);
+    y2 = (ay + ah - 1);
 }
 
 inline void QRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
@@ -412,20 +412,20 @@ inline void QRect::setSize(const QSize &s)
     y2 = (s.height() + y1 - 1);
 }
 
-inline bool QRect::contains(int x, int y, bool proper) const
+inline bool QRect::contains(int ax, int ay, bool aproper) const
 {
-    if (proper)
-        return x > x1 && x < x2 &&
-               y > y1 && y < y2;
+    if (aproper)
+        return ax > x1 && ax < x2 &&
+               ay > y1 && ay < y2;
     else
-        return x >= x1 && x <= x2 &&
-               y >= y1 && y <= y2;
+        return ax >= x1 && ax <= x2 &&
+               ay >= y1 && ay <= y2;
 }
 
-inline bool QRect::contains(int x, int y) const
+inline bool QRect::contains(int ax, int ay) const
 {
-    return x >= x1 && x <= x2 &&
-           y >= y1 && y <= y2;
+    return ax >= x1 && ax <= x2 &&
+           ay >= y1 && ay <= y2;
 }
 
 inline bool QRect::contains(const QPoint &p, bool proper) const
@@ -588,17 +588,17 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QRectF &);
   QRectF inline member functions
  *****************************************************************************/
 
-inline QRectF::QRectF(qreal left, qreal top, qreal width, qreal height)
-    : xp(left), yp(top), w(width), h(height)
+inline QRectF::QRectF(qreal aleft, qreal atop, qreal awidth, qreal aheight)
+    : xp(aleft), yp(atop), w(awidth), h(aheight)
 {
 }
 
-inline QRectF::QRectF(const QPointF &topLeft, const QSizeF &size)
+inline QRectF::QRectF(const QPointF &atopLeft, const QSizeF &asize)
 {
-    xp = topLeft.x();
-    yp = topLeft.y();
-    w = size.width();
-    h = size.height();
+    xp = atopLeft.x();
+    yp = atopLeft.y();
+    w = asize.width();
+    h = asize.height();
 }
 
 inline QRectF::QRectF(const QRect &r)
@@ -685,20 +685,20 @@ inline QRectF QRectF::translated(qreal dx, qreal dy) const
 inline QRectF QRectF::translated(const QPointF &p) const
 { return QRectF(xp + p.x(), yp + p.y(), w, h); }
 
-inline void QRectF::getRect(qreal *x, qreal *y, qreal *aw, qreal *ah) const
+inline void QRectF::getRect(qreal *ax, qreal *ay, qreal *aaw, qreal *aah) const
 {
-    *x = this->xp;
-    *y = this->yp;
-    *aw = this->w;
-    *ah = this->h;
+    *ax = this->xp;
+    *ay = this->yp;
+    *aaw = this->w;
+    *aah = this->h;
 }
 
-inline void QRectF::setRect(qreal x, qreal y, qreal aw, qreal ah)
+inline void QRectF::setRect(qreal ax, qreal ay, qreal aaw, qreal aah)
 {
-    this->xp = x;
-    this->yp = y;
-    this->w = aw;
-    this->h = ah;
+    this->xp = ax;
+    this->yp = ay;
+    this->w = aaw;
+    this->h = aah;
 }
 
 inline void QRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
@@ -735,10 +735,10 @@ inline void QRectF::setSize(const QSizeF &s)
     h = s.height();
 }
 
-inline bool QRectF::contains(qreal x, qreal y) const
+inline bool QRectF::contains(qreal ax, qreal ay) const
 {
-    return x >= xp && x < xp + w &&
-           y >= yp && y < yp + h;
+    return ax >= xp && ax < xp + w &&
+           ay >= yp && ay < yp + h;
 }
 
 inline bool QRectF::contains(const QPointF &p) const

@@ -26,8 +26,7 @@ public:
     inline QItemSelectionRange() {}
     inline QItemSelectionRange(const QItemSelectionRange &other)
         : tl(other.tl), br(other.br) {}
-    inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-        { tl = topLeft; br = bottomRight; }
+    inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     inline QItemSelectionRange(const QModelIndex &index)
         { tl = index; br = tl; }
 
@@ -70,6 +69,10 @@ private:
     QPersistentModelIndex tl, br;
 };
 Q_DECLARE_TYPEINFO(QItemSelectionRange, Q_MOVABLE_TYPE);
+
+inline QItemSelectionRange::QItemSelectionRange(const QModelIndex &atopLeft,
+                                                const QModelIndex &abottomRight)
+{ tl = atopLeft; br = abottomRight; }
 
 class QItemSelection;
 class QItemSelectionModelPrivate;

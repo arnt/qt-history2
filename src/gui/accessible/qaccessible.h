@@ -299,8 +299,7 @@ class Q_GUI_EXPORT QAccessibleEvent: public QEvent
 public:
     enum TextType { Description, Help };
 
-    inline QAccessibleEvent(TextType textType, int child)
-        : QEvent(AccessibilityHelp), t(textType), c(child) {}
+    inline QAccessibleEvent(TextType textType, int child);
     inline TextType textType() const { return t; }
     inline int child() const { return c; }
     inline QString value() const { return val; }
@@ -311,6 +310,9 @@ private:
     int c;
     QString val;
 };
+
+inline QAccessibleEvent::QAccessibleEvent(TextType atextType, int achild)
+    : QEvent(AccessibilityHelp), t(atextType), c(achild) {}
 
 #endif // QT_NO_ACCESSIBILITY
 

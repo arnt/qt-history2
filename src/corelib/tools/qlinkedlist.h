@@ -371,12 +371,12 @@ typename QLinkedList<T>::iterator QLinkedList<T>::insert(iterator before, const 
 }
 
 template <typename T>
-typename QLinkedList<T>::iterator QLinkedList<T>::erase(typename QLinkedList<T>::iterator first,
-                                                         typename QLinkedList<T>::iterator last)
+typename QLinkedList<T>::iterator QLinkedList<T>::erase(typename QLinkedList<T>::iterator afirst,
+                                                         typename QLinkedList<T>::iterator alast)
 {
-    while (first != last)
-        erase(first++);
-    return last;
+    while (afirst != alast)
+        erase(afirst++);
+    return alast;
 }
 
 

@@ -206,15 +206,15 @@ inline QColor::QColor()
 inline QColor::QColor(int r, int g, int b, int a)
 { setRgb(r, g, b, a); }
 
-inline QColor::QColor(const char *name)
-{ setNamedColor(QLatin1String(name)); }
+inline QColor::QColor(const char *aname)
+{ setNamedColor(QLatin1String(aname)); }
 
-inline QColor::QColor(const QString& name)
-{ setNamedColor(name); }
+inline QColor::QColor(const QString& aname)
+{ setNamedColor(aname); }
 
-inline QColor::QColor(const QColor &color)
-    : cspec(color.cspec)
-{ ct.argb = color.ct.argb; }
+inline QColor::QColor(const QColor &acolor)
+    : cspec(acolor.cspec)
+{ ct.argb = acolor.ct.argb; }
 
 inline bool QColor::isValid() const
 { return cspec != Invalid; }

@@ -93,7 +93,7 @@ public:
     explicit QTextFrame(QTextDocument *doc);
     ~QTextFrame();
 
-    void setFrameFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
+    inline void setFrameFormat(const QTextFrameFormat &format);
     QTextFrameFormat frameFormat() const { return QTextObject::format().toFrameFormat(); }
 
     QTextCursor firstCursorPosition() const;
@@ -150,6 +150,9 @@ private:
     Q_DISABLE_COPY(QTextFrame)
 };
 Q_DECLARE_TYPEINFO(QTextFrame::iterator, Q_MOVABLE_TYPE);
+
+inline void QTextFrame::setFrameFormat(const QTextFrameFormat &aformat)
+{ QTextObject::setFormat(aformat); }
 
 class Q_GUI_EXPORT QTextBlock
 {

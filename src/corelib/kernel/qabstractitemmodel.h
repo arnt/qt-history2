@@ -42,13 +42,16 @@ public:
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
 private:
-    inline QModelIndex(int row, int column, void *ptr, const QAbstractItemModel *model)
-        : r(row), c(column), p(ptr), m(model) {}
+    inline QModelIndex(int row, int column, void *ptr, const QAbstractItemModel *model);
     int r, c;
     void *p;
     const QAbstractItemModel *m;
 };
 Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
+
+inline QModelIndex::QModelIndex(int arow, int acolumn, void *adata,
+				const QAbstractItemModel *amodel)
+    : r(arow), c(acolumn), p(adata), m(amodel) {}
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
@@ -152,14 +155,10 @@ public:
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     virtual bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
-    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex())
-        { return insertRows(row, 1, parent); }
-    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex())
-        { return insertColumns(column, 1, parent); }
-    inline bool removeRow(int row, const QModelIndex &parent = QModelIndex())
-        { return removeRows(row, 1, parent); }
-    inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex())
-        { return removeColumns(column, 1, parent); }
+    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex());
+    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex());
+    inline bool removeRow(int row, const QModelIndex &parent = QModelIndex());
+    inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex());
 
     virtual void fetchMore(const QModelIndex &parent);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -189,10 +188,8 @@ protected slots:
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent = 0);
 
-    inline QModelIndex createIndex(int row, int column, void *ptr = 0) const
-        { return QModelIndex(row, column, ptr, this); }
-    inline QModelIndex createIndex(int row, int column, int id) const
-        { return QModelIndex(row, column, reinterpret_cast<void*>(id), this); }
+    inline QModelIndex createIndex(int row, int column, void *data = 0) const;
+    inline QModelIndex createIndex(int row, int column, int id) const;
 
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;
@@ -212,6 +209,20 @@ private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
     Q_DISABLE_COPY(QAbstractItemModel)
 };
+
+inline bool QAbstractItemModel::insertRow(int arow, const QModelIndex &aparent)
+{ return insertRows(arow, 1, aparent); }
+inline bool QAbstractItemModel::insertColumn(int acolumn, const QModelIndex &aparent)
+{ return insertColumns(acolumn, 1, aparent); }
+inline bool QAbstractItemModel::removeRow(int arow, const QModelIndex &aparent)
+{ return removeRows(arow, 1, aparent); }
+inline bool QAbstractItemModel::removeColumn(int acolumn, const QModelIndex &aparent)
+{ return removeColumns(acolumn, 1, aparent); }
+
+inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, void *adata) const
+{ return QModelIndex(arow, acolumn, adata, this); }
+inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, int aid) const
+{ return QModelIndex(arow, acolumn, reinterpret_cast<void*>(aid), this); }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
 
@@ -259,10 +270,10 @@ private:
 inline QModelIndex QModelIndex::parent() const
 { return m ? m->parent(*this) : QModelIndex(); }
 
-inline QModelIndex QModelIndex::sibling(int row, int column) const
-{ return m ? m->index(row, column, m->parent(*this)) : QModelIndex(); }
+inline QModelIndex QModelIndex::sibling(int arow, int acolumn) const
+{ return m ? m->index(arow, acolumn, m->parent(*this)) : QModelIndex(); }
 
-inline QModelIndex QModelIndex::child(int row, int column) const
-{ return m ? m->index(row, column, *this) : QModelIndex(); }
+inline QModelIndex QModelIndex::child(int arow, int acolumn) const
+{ return m ? m->index(arow, acolumn, *this) : QModelIndex(); }
 
 #endif // QABSTRACTITEMMODEL_H

@@ -133,16 +133,13 @@ public:
     QIcon itemIcon(int index) const;
     QVariant itemData(int index, int role = Qt::UserRole) const;
 
-    inline void addItem(const QString &text, const QVariant &userData = QVariant())
-        { insertItem(count(), text, userData); }
+    inline void addItem(const QString &text, const QVariant &userData = QVariant());
     inline void addItem(const QIcon &icon, const QString &text,
-                        const QVariant &userData = QVariant())
-        { insertItem(count(), icon, text, userData); }
+                        const QVariant &userData = QVariant());
     inline void addItems(const QStringList &texts)
         { insertItems(count(), texts); }
 
-    inline void insertItem(int index, const QString &text, const QVariant &userData = QVariant())
-        { insertItem(index, QIcon(), text, userData); }
+    inline void insertItem(int index, const QString &text, const QVariant &userData = QVariant());
     void insertItem(int index, const QIcon &icon, const QString &text,
                     const QVariant &userData = QVariant());
     void insertItems(int index, const QStringList &texts);
@@ -242,5 +239,15 @@ private:
     Q_PRIVATE_SLOT(d, void rowsInserted(const QModelIndex & parent, int start, int end))
     Q_PRIVATE_SLOT(d, void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end))
 };
+
+inline void QComboBox::addItem(const QString &atext, const QVariant &auserData)
+{ insertItem(count(), atext, auserData); }
+inline void QComboBox::addItem(const QIcon &aicon, const QString &atext,
+                               const QVariant &auserData)
+{ insertItem(count(), aicon, atext, auserData); }
+
+inline void QComboBox::insertItem(int aindex, const QString &atext,
+                                  const QVariant &auserData)
+{ insertItem(aindex, QIcon(), atext, auserData); }
 
 #endif // QCOMBOBOX_H

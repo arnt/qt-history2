@@ -205,8 +205,8 @@ public:
 
     inline uchar cell() const { return uchar(ucs & 0xff); }
     inline uchar row() const { return uchar((ucs>>8)&0xff); }
-    inline void setCell(uchar cell) { ucs = (ucs & 0xff00) + cell; }
-    inline void setRow(uchar row) { ucs = (ushort(row)<<8) + (ucs&0xff); }
+    inline void setCell(uchar cell);
+    inline void setRow(uchar row);
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QChar lower() const { return toLower(); }
@@ -239,6 +239,11 @@ inline QChar::QChar(uint rc) : ucs(ushort(rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs(ushort(rc & 0xffff)){}
 inline QChar::QChar(SpecialCharacter s) : ucs(ushort(s)) {}
 inline QChar::QChar(QLatin1Char ch) : ucs(ch.unicode()) {}
+
+inline void QChar::setCell(uchar acell)
+{ ucs = (ucs & 0xff00) + acell; }
+inline void QChar::setRow(uchar arow)
+{ ucs = (ushort(arow)<<8) + (ucs&0xff); }
 
 inline bool operator==(QChar c1, QChar c2) { return c1.unicode() == c2.unicode(); }
 inline bool operator!=(QChar c1, QChar c2) { return c1.unicode() != c2.unicode(); }

@@ -60,7 +60,7 @@ inline QLine::QLine() { }
 
 inline QLine::QLine(const QPoint &pt1_, const QPoint &pt2_) : pt1(pt1_), pt2(pt2_) { }
 
-inline QLine::QLine(int x1, int y1, int x2, int y2) : pt1(QPoint(x1, y1)), pt2(QPoint(x2, y2)) { }
+inline QLine::QLine(int x1pos, int y1pos, int x2pos, int y2pos) : pt1(QPoint(x1pos, y1pos)), pt2(QPoint(x2pos, y2pos)) { }
 
 inline bool QLine::isNull() const
 {
@@ -113,9 +113,9 @@ inline void QLine::translate(const QPoint &point)
     pt2 += point;
 }
 
-inline void QLine::translate(int dx, int dy)
+inline void QLine::translate(int adx, int ady)
 {
-    this->translate(QPoint(dx, dy));
+    this->translate(QPoint(adx, ady));
 }
 
 inline bool QLine::operator==(const QLine &d) const
@@ -194,13 +194,13 @@ inline QLineF::QLineF()
 {
 }
 
-inline QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
-    : pt1(pt1), pt2(pt2)
+inline QLineF::QLineF(const QPointF &apt1, const QPointF &apt2)
+    : pt1(apt1), pt2(apt2)
 {
 }
 
-inline QLineF::QLineF(qreal x1, qreal y1, qreal x2, qreal y2)
-    : pt1(x1, y1), pt2(x2, y2)
+inline QLineF::QLineF(qreal x1pos, qreal y1pos, qreal x2pos, qreal y2pos)
+    : pt1(x1pos, y1pos), pt2(x2pos, y2pos)
 {
 }
 
@@ -255,9 +255,9 @@ inline void QLineF::translate(const QPointF &point)
     pt2 += point;
 }
 
-inline void QLineF::translate(qreal dx, qreal dy)
+inline void QLineF::translate(qreal adx, qreal ady)
 {
-    this->translate(QPointF(dx, dy));
+    this->translate(QPointF(adx, ady));
 }
 
 inline void QLineF::setLength(qreal len)

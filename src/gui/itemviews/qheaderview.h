@@ -49,10 +49,8 @@ public:
     int visualIndexAt(int position) const;
     int logicalIndexAt(int position) const;
 
-    inline int logicalIndexAt(int x, int y) const
-        { return orientation() == Qt::Horizontal ? logicalIndexAt(x) : logicalIndexAt(y); }
-    inline int logicalIndexAt(const QPoint &pos) const
-        { return logicalIndexAt(pos.x(), pos.y()); }
+    inline int logicalIndexAt(int x, int y) const;
+    inline int logicalIndexAt(const QPoint &pos) const;
 
     int sectionSize(int logicalIndex) const;
     int sectionPosition(int logicalIndex) const;
@@ -64,10 +62,8 @@ public:
     bool isSectionHidden(int logicalIndex) const;
     void setSectionHidden(int logicalIndex, bool hide);
 
-    inline void hideSection(int logicalIndex)
-        { setSectionHidden(logicalIndex, true); }
-    inline void showSection(int logicalIndex)
-        { setSectionHidden(logicalIndex, false); }
+    inline void hideSection(int logicalIndex);
+    inline void showSection(int logicalIndex);
 
     int count() const;
     int visualIndex(int logicalIndex) const;
@@ -158,5 +154,16 @@ private:
     Q_DECLARE_PRIVATE(QHeaderView)
     Q_DISABLE_COPY(QHeaderView)
 };
+
+inline int QHeaderView::logicalIndexAt(int ax, int ay) const
+{ return orientation() == Qt::Horizontal ? logicalIndexAt(ax) : logicalIndexAt(ay); }
+
+inline int QHeaderView::logicalIndexAt(const QPoint &apos) const
+{ return logicalIndexAt(apos.x(), apos.y()); }
+
+inline void QHeaderView::hideSection(int alogicalIndex)
+{ setSectionHidden(alogicalIndex, true); }
+inline void QHeaderView::showSection(int alogicalIndex)
+{ setSectionHidden(alogicalIndex, false); }
 
 #endif // QHEADERVIEW_H

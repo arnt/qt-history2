@@ -41,7 +41,7 @@ public:
     void setBuffer(QByteArray *a);
 
     void setData(const QByteArray &data);
-    inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
+    inline void setData(const char *data, int len);
     const QByteArray &data() const;
 
     bool open(OpenMode openMode);
@@ -63,5 +63,8 @@ private:
 
     Q_PRIVATE_SLOT(d, void emitSignals())
 };
+
+inline void QBuffer::setData(const char *adata, int alen)
+{ setData(QByteArray(adata, alen)); }
 
 #endif // QBUFFER_H

@@ -61,13 +61,14 @@ public:
     inline bool operator==(const QBitArray& a) const { return d == a.d; }
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
 
-    inline bool fill(bool val, int size = -1)
-        { *this = QBitArray((size < 0 ? this->size() : size), val); return true; }
+    inline bool fill(bool val, int size = -1);
     void fill(bool val, int first, int last);
 
     inline void truncate(int pos) { if (pos < size()) resize(pos); }
 };
 
+inline bool QBitArray::fill(bool aval, int asize)
+{ *this = QBitArray((asize < 0 ? this->size() : asize), aval); return true; }
 QBitArray operator&(const QBitArray &, const QBitArray &);
 QBitArray operator|(const QBitArray &, const QBitArray &);
 QBitArray operator^(const QBitArray &, const QBitArray &);

@@ -41,9 +41,8 @@ private:
 class Q_CORE_EXPORT QReadLocker
 {
 public:
-    inline QReadLocker(QReadWriteLock *readWriteLock)
-        : q_lock(readWriteLock)
-    { relock(); }
+    inline QReadLocker(QReadWriteLock *readWriteLock);
+
     inline ~QReadLocker()
     { unlock(); }
 
@@ -61,12 +60,15 @@ private:
     QReadWriteLock *q_lock;
 };
 
+inline QReadLocker::QReadLocker(QReadWriteLock *areadWriteLock)
+    : q_lock(areadWriteLock)
+{ relock(); }
+
 class Q_CORE_EXPORT QWriteLocker
 {
 public:
-    inline QWriteLocker(QReadWriteLock *readWriteLock)
-        : q_lock(readWriteLock)
-    { relock(); }
+    inline QWriteLocker(QReadWriteLock *readWriteLock);
+
     inline ~QWriteLocker()
     { unlock(); }
 
@@ -83,5 +85,9 @@ private:
     Q_DISABLE_COPY(QWriteLocker)
     QReadWriteLock *q_lock;
 };
+
+inline QWriteLocker::QWriteLocker(QReadWriteLock *areadWriteLock)
+    : q_lock(areadWriteLock)
+{ relock(); }
 
 #endif // QREADWRITELOCK_H

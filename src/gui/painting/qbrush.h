@@ -52,7 +52,7 @@ public:
 
     inline const QColor &color() const;
     void setColor(const QColor &color);
-    inline void setColor(Qt::GlobalColor color) { setColor(QColor(color)); }
+    inline void setColor(Qt::GlobalColor color);
 
     const QGradient *gradient() const;
 
@@ -78,6 +78,9 @@ private:
     void cleanUp(QBrushData *x);
     static QBrushData *shared_default;
 };
+
+inline void QBrush::setColor(Qt::GlobalColor acolor)
+{ setColor(QColor(acolor)); }
 
 Q_DECLARE_TYPEINFO(QBrush, Q_MOVABLE_TYPE);
 
@@ -136,7 +139,7 @@ public:
 
     Type type() const { return m_type; }
 
-    void setSpread(Spread spread) { m_spread = spread; }
+    inline void setSpread(Spread spread);
     Spread spread() const { return m_spread; }
 
     void appendStop(qreal pos, const QColor &color);
@@ -170,6 +173,8 @@ private:
     void *dummy;
 };
 
+inline void QGradient::setSpread(Spread aspread)
+{ m_spread = aspread; }
 
 class Q_GUI_EXPORT QLinearGradient : public QGradient
 {
