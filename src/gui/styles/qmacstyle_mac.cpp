@@ -992,6 +992,7 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
     }
 
     switch (tp) {
+    default:  // Stupid GCC, being overly pedantic
     case QStyleOptionTab::Beginning:
         doLine = false;
         pantherTabMid = pantherTabEnd = pantherTabStart + 1;
@@ -3998,6 +3999,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             ThemeButtonKind bkind;
             QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
             switch (aSize) {
+            default:  // Stupid GCC, being overly pedantic
             case QAquaSizeMini:
             case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
