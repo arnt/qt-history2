@@ -1862,7 +1862,7 @@ void FormWindow::lowerWidgets()
     commandHistory()->addCommand( cmd );
 }
 
-export void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w )
+void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w )
 {
     int i = txt.find( "&" );
     if ( i == -1 )
