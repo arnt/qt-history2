@@ -52,7 +52,8 @@
     file wasn't corrupted during transfer between different
     platforms. For example, transferring a .ui file from Windows to
     Unix using FTP with type ASCII will produce a file with '\r\n\r'
-    in place of '\n\r'.
+    in place of '\n\r'. This is followed by the QDataStream format
+    version number used.
 
     The rest of the file is made up of blocks, each of which starts
     with a block type (Block_XXX) and a block length. Block_Intro and
@@ -121,7 +122,7 @@
     Object_SubWidget were given values such as 'A' and 'W' to make
     .uib files easier to read in a hexadecimal editor.
 
-    The file format is not designed to be extensible. Any extension
+    The file format isn't designed to be extensible. Any extension
     that prevents an older version of QLayoutWidget of reading the
     file correctly must have a different magic number. The plan is to
     use UibMagic + 1 for version 2, UibMagic + 2 for version 3, etc.
@@ -868,6 +869,7 @@ void convertUiToUib( QDomDocument& doc, QDataStream& out )
     out << UibMagic;
     out << (Q_UINT8) '\n';
     out << (Q_UINT8) '\r';
+    out << (Q_UINT8) out.version();
     outputBlock( out, Block_Strings, strings.block() );
     outputBlock( out, Block_Intro, introBlock );
     outputBlock( out, Block_Images, imagesBlock );

@@ -1175,6 +1175,14 @@ QWidget *QWidgetFactory::createFromUibFile( QDataStream& in,
 	return 0;
     }
 
+    Q_UINT8 qdatastreamVersion;
+    in >> qdatastreamVersion;
+    if ( (int) qdatastreamVersion > in.version() ) {
+	qWarning( "Incompatible version of Qt" );
+	return 0;
+    }
+    in.setVersion( qdatastreamVersion );
+
     UibStrTable strings;
     QObject **objects = 0;
     int numObjects = 0;
