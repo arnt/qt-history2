@@ -580,13 +580,16 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
     bool justInsert = TRUE;
     QString s( str );
 #if defined(Q_WS_WIN)
-    if ( checkNewLine )
-	s = s.replace( QRegExp( "\\r" ), "" );
+    if ( checkNewLine ) {
+	int i = 0;
+	while ( ( i = s.find( '\\r', i ) ) != -1 )
+	    s.remove( i ,1 );
+    }
 #endif
     if ( checkNewLine )
 	justInsert = s.find( '\n' ) == -1;
     if ( justInsert ) {
-	string->insert( idx, s );
+	string->insert( idx, s.unicode(), s.length() );
 	if ( formatting ) {
 	    for ( int i = 0; i < (int)s.length(); ++i ) {
 		if ( formatting->at( i ).format() ) {
@@ -597,13 +600,16 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	}
 	idx += s.length();
     } else {
-	QStringList lst = QStringList::split( '\n', s, TRUE );
-	QStringList::Iterator it = lst.begin();
+	int start = -1;
+	int end;
 	int y = string->rect().y() + string->rect().height();
 	int lastIndex = 0;
 	QTextFormat *lastFormat = 0;
-	for ( ; it != lst.end(); ) {
-	    if ( it != lst.begin() ) {
+	do {
+	    end = s.find( '\n', start + 1 );
+	    if ( end == -1 )
+		end = s.length();
+	    if ( start > 0 ) {
 		splitAndInsertEmptyParag( FALSE, TRUE );
 		string->setEndState( -1 );
 		string->prev()->format( -1, FALSE );
@@ -613,28 +619,27 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 		}
 	    }
 	    lastFormat = 0;
-	    QString s = *it;
-	    ++it;
-	    if ( !s.isEmpty() )
-		string->insert( idx, s );
+	    int len = (start == -1 ? end : end - start - 1);
+	    if ( len > 0 )
+		string->insert( idx, s.unicode() + start + 1, len );
 	    else
 		string->invalidate( 0 );
+	    start = end;
 	    if ( formatting ) {
-		int len = s.length();
 		for ( int i = 0; i < len; ++i ) {
 		    if ( formatting->at( i + lastIndex ).format() ) {
 			formatting->at( i + lastIndex ).format()->addRef();
 			string->string()->setFormat( i + idx, formatting->at( i + lastIndex ).format(), TRUE );
 		    }
 		}
-		if ( it != lst.end() )
+		if ( end > (int)s.length() - 1 )
 		    lastFormat = formatting->at( len + lastIndex ).format();
-		++len;
 		lastIndex += len;
 	    }
 
-	    idx += s.length();
-	}
+	    idx += len;
+	} while ( end < (int)s.length() );
+
 	string->format( -1, FALSE );
 	int dy = string->rect().y() + string->rect().height() - y;
 	QTextParag *p = string;
@@ -3565,20 +3570,25 @@ QTextString::QTextString( const QTextString &s )
 
 void QTextString::insert( int index, const QString &s, QTextFormat *f )
 {
+    insert( index, s.unicode(), s.length(), f );
+}
+
+void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat *f )
+{
     int os = data.size();
-    data.resize( data.size() + s.length() );
+    data.resize( data.size() + len );
     if ( index < os ) {
-	memmove( data.data() + index + s.length(), data.data() + index,
+	memmove( data.data() + index + len, data.data() + index,
 		 sizeof( QTextStringChar ) * ( os - index ) );
     }
-    for ( int i = 0; i < (int)s.length(); ++i ) {
+    for ( int i = 0; i < len; ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
 	data[ (int)index + i ].d.format = 0;
 	data[ (int)index + i ].type = QTextStringChar::Regular;
 	data[ (int)index + i ].rightToLeft = 0;
 	data[ (int)index + i ].startOfRun = 0;
-	data[ (int)index + i ].c = s[ i ];
+	data[ (int)index + i ].c = unicode[i];
 	data[ (int)index + i ].setFormat( f );
     }
     bidiDirty = TRUE;
@@ -4018,11 +4028,16 @@ void QTextParag::invalidateStyleCache()
 
 void QTextParag::insert( int index, const QString &s )
 {
+    insert( index, s.unicode(), s.length() );
+}
+
+void QTextParag::insert( int index, const QChar *unicode, int len )
+{
     if ( hasdoc && !document()->useFormatCollection() && document()->preProcessor() )
-	str->insert( index, s,
+	str->insert( index, unicode, len,
 		     document()->preProcessor()->format( QTextPreProcessor::Standard ) );
     else
-	str->insert( index, s, formatCollection()->defaultFormat() );
+	str->insert( index, unicode, len, formatCollection()->defaultFormat() );
     invalidate( index );
     needPreProcess = TRUE;
 }

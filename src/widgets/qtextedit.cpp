@@ -2492,8 +2492,6 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
     return QScrollView::eventFilter( o, e );
 }
 
-
-
 /*!
   \obsolete
  */
@@ -2610,7 +2608,7 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 }
 
 /*! Inserts \a text in the paragraph \a para and position \a index
-  
+
     If the widget is in LogText mode this function will do nothing.
 */
 
@@ -2634,7 +2632,7 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 /*! Inserts \a text as the paragraph at position \a para. If \a para
   is -1 or out of range, the text is appended. Use append() if the
   append operation is performance critical.
-  
+
   If the widget is in LogText mode this function will do nothing.
 */
 
@@ -5109,7 +5107,7 @@ int QTextEdit::charAt( const QPoint &pos, int *para ) const
 	    *para = par;
 	return optimCharIndex( d->od->lines[ par ], pos.x() );
     }
-#endif    
+#endif
     QTextCursor c( doc );
     c.place( pos, doc->firstParag() );
     if ( c.parag() ) {

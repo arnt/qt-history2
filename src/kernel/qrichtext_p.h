@@ -185,6 +185,7 @@ public:
     int width( int idx ) const;
 
     void insert( int index, const QString &s, QTextFormat *f );
+    void insert( int index, const QChar *unicode, int len, QTextFormat *f );
     void insert( int index, QTextStringChar *c );
     void truncate( int index );
     void remove( int index, int len );
@@ -1199,6 +1200,7 @@ public:
     void setNext( QTextParag *s );
 
     void insert( int index, const QString &s );
+    void insert( int index, const QChar *unicode, int len );
     void append( const QString &s, bool reallyAtEnd = FALSE );
     void truncate( int index );
     void remove( int index, int len );
