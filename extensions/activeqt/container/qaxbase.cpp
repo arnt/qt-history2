@@ -1078,12 +1078,12 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
         ctrl = ctrl + ":" + key;
     
     COAUTHIDENTITY authIdentity;
-    authIdentity.User = (ushort*)user.utf16();
     authIdentity.UserLength = user.length();
-    authIdentity.Domain = (ushort*)domain.utf16();
+    authIdentity.User = authIdentity.UserLength ? (ushort*)user.utf16() : 0;
     authIdentity.DomainLength = domain.length();
-    authIdentity.Password = (ushort*)passwd.utf16();
+    authIdentity.Domain = authIdentity.DomainLength ? (ushort*)domain.utf16() : 0;
     authIdentity.PasswordLength = passwd.length();
+    authIdentity.Password = authIdentity.PasswordLength ? (ushort*)passwd.utf16() : 0;
     authIdentity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
     
     COAUTHINFO authInfo;
