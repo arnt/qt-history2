@@ -385,7 +385,9 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
     ctrlDown = FALSE;
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
+#ifdef Q_WS_WIN
     setCursor( SizeAllCursor );
+#endif
 }
 
 void QDockWindowHandle::paintEvent( QPaintEvent *e )
