@@ -1,37 +1,15 @@
-#include "plugmainwindow.h"
+#include <qapplication.h>
+#include "inspectorimpl.h"
 
 #include <qvariant.h>
 
-QApplicationInterface* PlugApplication::queryInterface()
-{
-    return appIface ? appIface : ( appIface = new PlugApplicationInterface );
-}
-
-PlugApplicationInterface::PlugApplicationInterface()
-{
-    iMainWindow = 0;
-}
-
-PlugApplicationInterface::~PlugApplicationInterface()
-{
-    delete iMainWindow;
-}
-
-QComponentInterface* PlugApplicationInterface::queryInterface( const QCString& request )
-{
-    if ( request == "PlugMainWindowInterface" ) {
-	return iMainWindow ? iMainWindow : (iMainWindow = new QComponentInterface( (PlugMainWindow*)qApp->mainWidget() ) );
-    }
-    return 0;
-}
-
 int main( int argc, char** argv )
 {
-    PlugApplication app( argc, argv );
-    PlugMainWindow mw;
+    QApplication app( argc, argv );
+    LibraryInspector view( 0, 0, TRUE );
 
-    app.setMainWidget( &mw );
-    mw.show();
+    app.setMainWidget( &view );
+    view.exec();
 
-    return app.exec();
+    return 0;
 }
