@@ -546,6 +546,16 @@ static void qgl_draw_poly(const QPointArray &pa)
 	qAddPostRoutine(qgl_cleanup_tesselator);
     }
     QVarLengthArray<GLdouble> v(pa.size()*3);
+#ifdef Q_WS_MAC  // This removes warnings.
+    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
+    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
+    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glEnd));
+    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_combine));
+    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_error));
+#else
     gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
     gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
                     reinterpret_cast<GLvoid (CALLBACK *)()>(&glVertex3dv));
@@ -554,6 +564,7 @@ static void qgl_draw_poly(const QPointArray &pa)
                     reinterpret_cast<GLvoid (CALLBACK *)()>(&qgl_tess_combine));
     gluTessCallback(qgl_tess, GLU_TESS_ERROR,
                     reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
+#endif
     gluTessBeginPolygon(qgl_tess, NULL);
     {
 	gluTessBeginContour(qgl_tess);
@@ -645,10 +656,8 @@ static void bind_texture_from_cache(const QPixmap &pm)
         glBindTexture(GL_TEXTURE_2D, tx_cache()->value(pm.serialNumber()));
     } else {
         // not cached - cache it!
-        if (add_texture_cleanup) {
-            qAddPostRoutine(cleanup_texture_cache);
+        if (add_texture_cleanup)
             add_texture_cleanup = false;
-        }
 
         // Scale the pixmap if needed. GL textures needs to have the
         // dimensions 2^n+2(border) x 2^m+2(border).
