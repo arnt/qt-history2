@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#409 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#410 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -523,7 +523,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-    
+
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
 
@@ -1222,7 +1222,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( isTopLevel() && topData()->wmstate == 2 ) 
+    if ( isTopLevel() && topData()->wmstate == 2 )
 	qt_deferred_map_add( this );
     else
 	XMapWindow( x11Display(), winId() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#245 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#246 $
 **
 ** Definition of QWidget class
 **

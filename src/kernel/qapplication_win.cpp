@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#335 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#336 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1596,6 +1596,11 @@ void qt_enter_modal( QWidget *widget )
     releaseAutoCapture();
     modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
+    QWidget *w = QWidget::find( (WId)curWin );
+    if ( w ) { // send synthetic leave event
+	QEvent e( QEvent::Leave );
+	QApplication::sendEvent( w, &e );
+    }
 }
 
 
@@ -1605,6 +1610,13 @@ void qt_leave_modal( QWidget *widget )
 	if ( modal_stack->isEmpty() ) {
 	    delete modal_stack;
 	    modal_stack = 0;
+	    QPoint p( QCursor::pos() );
+	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
+	    if ( w ) { // send synthetic enter event
+		curWin = w->winId();
+		QEvent e ( QEvent::Enter );
+ 		QApplication::sendEvent( w, &e );
+	    }
 	}
     }
     app_do_modal = modal_stack != 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#485 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#486 $
 **
 ** Implementation of QWidget class
 **
@@ -854,7 +854,7 @@ QWExtra *QWidget::extraData()
 /*!
   \internal
   Returns a pointer to the block of extra toplevel widget data.
-  
+
   This data is guaranteed to exist for toplevel widgets.
 */
 
@@ -3121,9 +3121,7 @@ void QWidget::hide()
     if ( testWState(WState_Withdrawn) )
 	return;
 
-    if ( testWFlags(WType_Modal) )
-	qt_leave_modal( this );
-    else if ( testWFlags(WType_Popup) )
+    if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
     hideWindow();
@@ -3149,6 +3147,8 @@ void QWidget::hide()
 
     sendHideEventsToChildren( FALSE );
 
+    if ( testWFlags(WType_Modal) )
+	qt_leave_modal( this );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#586 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#587 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -176,6 +176,7 @@ static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
 
 static bool	app_do_modal	= FALSE;	// modal mode
+static Window	curWin = 0;			// current window
 static int	app_Xfd;			// X network socket
 static fd_set	app_readfds;			// fd set for reading
 static fd_set	app_writefds;			// fd set for writing
@@ -1637,12 +1638,13 @@ Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
     uchar *data;
     Window root, parent, target=0, *children=0;
     uint   nchildren;
-    XGetWindowProperty( appDpy, win, property, 0, 0, FALSE, AnyPropertyType,
-			&type, &format, &nitems, &after, &data );
-    if ( data )
-	XFree( (char *)data );
-    if ( type )
-	return win;
+    if ( XGetWindowProperty( appDpy, win, property, 0, 0, FALSE, AnyPropertyType,
+			     &type, &format, &nitems, &after, &data ) == Success ) {
+	if ( data )
+	    XFree( (char *)data );
+	if ( type )
+	    return win;
+    }
     if ( !XQueryTree(appDpy,win,&root,&parent,&children,&nchildren) ) {
 	if ( children )
 	    XFree( (char *)children );
@@ -1679,20 +1681,14 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	return 0;
     QWidget *w, *c;
     w = QWidget::find( (WId)target );
-    if ( child && w ) {
-	c = findChildWidget( w, w->mapFromParent(QPoint(lx,ly)) );
-	if ( c )
-	    return c;
-    }
 
-    if ( !qt_wm_state )
-	return w;
-
-
-    target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
-    c = QWidget::find( (WId)target );
-    if ( !c ) {
-	if ( !w ) {
+    if ( !w ) {
+	qt_ignore_badwindow();
+	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+	if (qt_badwindow() )
+	    return 0;
+	w = QWidget::find( (WId)target );
+	if ( FALSE && !w ) {
 	    // Perhaps the widgets at (x,y) is inside a foreign application?
 	    // Search all toplevel widgets to see if one is within target
 	    QWidgetList *list   = topLevelWidgets();
@@ -1703,12 +1699,12 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		    Window wid = widget->winId();
 		    while ( ctarget && !w ) {
 			XTranslateCoordinates(appDpy, appRootWin, ctarget,
-			    x, y, &lx, &ly, &ctarget);
+					      x, y, &lx, &ly, &ctarget);
 			if ( ctarget == wid ) {
 			    // Found
 			    w = widget;
 			    XTranslateCoordinates(appDpy, appRootWin, ctarget,
-				x, y, &lx, &ly, &ctarget);
+						  x, y, &lx, &ly, &ctarget);
 			}
 		    }
 		}
@@ -1716,16 +1712,12 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	    }
 	    delete list;
 	}
-	c = w;
-	if ( !w )
-	    return w;
     }
-    if ( child ) {
-	c = findChildWidget( c, c->mapFromParent(QPoint(lx,ly)) );
-	if ( !c )
-	    c = w;
+    if ( child && w ) {
+	if ( (c = findChildWidget( w, w->mapFromGlobal(QPoint(x, y ) ) ) ) )
+	    return c;
     }
-    return c;
+    return w;
 }
 
 /*!
@@ -2359,7 +2351,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else {
 	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
  	    if ( !activeModalWidget() ||
- 		 ( event->type != ButtonRelease && 
+ 		 ( event->type != ButtonRelease &&
 		   event->type != ButtonPress &&
 		   event->type != MotionNotify &&
 		   event->type != XKeyPress &&
@@ -2459,14 +2451,22 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	break;
 
-    case EnterNotify:			// enter window
+    case EnterNotify: {			// enter window
+	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
+	    break;
+	curWin = widget->winId();
+	qt_x_clipboardtime = event->xcrossing.time;
+	QEvent e( QEvent::Enter );
+	QApplication::sendEvent( widget, &e );
+	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+    }
+    break;
     case LeaveNotify: {			// leave window
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	qt_x_clipboardtime = event->xcrossing.time;
-	if ( event->xcrossing.detail == NotifyNormal )
-	    widget->translateMouseEvent( event ); //we don't get MotionNotify
-	QEvent e( event->type == EnterNotify ? QEvent::Enter : QEvent::Leave );
+	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
     }
     break;
@@ -2668,6 +2668,11 @@ void qt_enter_modal( QWidget *widget )
     }
     modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
+    QWidget *w = QWidget::find( (WId)curWin );
+    if ( w ) { // send synthetic leave event
+	QEvent e( QEvent::Leave );
+	QApplication::sendEvent( w, &e );
+    }
 }
 
 
@@ -2677,6 +2682,13 @@ void qt_leave_modal( QWidget *widget )
 	if ( modal_stack->isEmpty() ) {
 	    delete modal_stack;
 	    modal_stack = 0;
+	    QPoint p( QCursor::pos() );
+	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
+	    if ( w ) { // send synthetic enter event
+		curWin = w->winId();
+		QEvent e ( QEvent::Enter );
+ 		QApplication::sendEvent( w, &e );
+	    }
 	}
     }
     app_do_modal = modal_stack != 0;
@@ -2728,6 +2740,8 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	case XFocusIn:
 	case XFocusOut:
 	case ClientMessage:
+	case EnterNotify:
+	case LeaveNotify:
 	    block_event	 = TRUE;
 	    break;
 	case Expose:
