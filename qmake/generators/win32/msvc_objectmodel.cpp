@@ -302,8 +302,11 @@ QTextStream &operator<<( QTextStream &strm, const SPair &prop )
 
 QTextStream &operator<<( QTextStream &strm, const XPair &prop )
 {
-    if ( !prop.value.isEmpty() )
-	strm << prop.name << prop.value.join(prop.sep).latin1() << "\"";
+    if ( !prop.value.isEmpty() ) {
+	QString outText = prop.value.join(prop.sep);
+	outText.replace( '\"', "&quot;" );
+	strm << prop.name << outText.latin1() << "\"";
+    }
     return strm;
 }
 
