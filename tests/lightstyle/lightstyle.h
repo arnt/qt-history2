@@ -77,9 +77,6 @@ public:
                           const QColorGroup& g, QCOORD,
                           Orientation );
 
-    void drawMenuBarPanel(QPainter *p, int x, int y, int w, int h,
-			  const QColorGroup &cg, const QBrush *fill = 0);
-
     QSize scrollBarExtent() const;
     int buttonDefaultIndicatorWidth() const;
     int buttonMargin() const;

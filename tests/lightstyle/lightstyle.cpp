@@ -477,17 +477,29 @@ void LightStyle::drawIndicator(QPainter *p, int x, int y ,int w, int h,
 
 
 void LightStyle::drawExclusiveIndicator(QPainter *p, int x, int y, int w, int h,
-				      const QColorGroup &g, bool on,
-				      bool, bool)
+					const QColorGroup &g, bool on,
+					bool, bool)
 {
-    drawButton(p, x, y, w, h, g, TRUE, &g.brush(QColorGroup::Base));
-
-    if (! on)
-	return;
-
     p->save();
-    p->setBrush(g.foreground());
-    p->drawEllipse(x + 3, y + 3, w - x - 6, h - y - 6);
+
+    p->fillRect(x, y, w, h, g.brush(QColorGroup::Background));
+
+    p->setPen(g.dark());
+    p->drawArc(x, y, w, h, 0, 16*360);
+    p->setPen(g.mid());
+    p->drawArc(x + 1, y + 1, w - 2, h - 2, 45*16, 180*16);
+    p->setPen(g.light());
+    p->drawArc(x + 1, y + 1, w - 2, h - 2, 235*16, 180*16);
+
+    p->setPen(g.base());
+    p->setBrush(g.base());
+    p->drawEllipse(x + 2, y + 2, w - 4, h - 4);
+
+    if (on) {
+	p->setBrush(g.foreground());
+	p->drawEllipse(x + 3, y + 3, w - x - 6, h - y - 6);
+    }
+
     p->restore();
 }
 
@@ -807,13 +819,6 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
 
         p->setBrushOrigin(bo);
     }
-}
-
-
-void LightStyle::drawMenuBarPanel(QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &, const QBrush *fill )
-{
-
 }
 
 
