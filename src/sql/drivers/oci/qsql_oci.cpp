@@ -33,6 +33,12 @@
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 #define QOCI_PREFETCH_MEM  10240
 
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+enum { QOCIEncoding = 2002 }; // AL16UTF16LE
+#else
+enum { QOCIEncoding = 2000 }; // AL16UTF16
+#endif
+
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 static const ub2 qOraCharset = OCI_UCS2ID;
 
@@ -916,6 +922,7 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
         if (isNull(i) || !(lob = fieldInf.at(i).lob))
             continue;
 
+        bool isClob = fieldInf.at(i).oraType == SQLT_CLOB;
         QByteArray buf;
         buf.resize(qInitialLobSize(d, lob));
         ub4 read = 0;
@@ -923,8 +930,8 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
         while (true) {
             ub4 amount = ub4(-1); // read maximum amount of data
             r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, buf.data() + read,
-                           ub4(buf.size() - read), 0, 0, 2000, 0);
-            //qDebug(" read: %d", amount);
+                           ub4(buf.size() - read), 0, 0, QOCIEncoding, 0);
+            qDebug(" read: %d", amount);
             read += amount;
             if (r == OCI_NEED_DATA)
                 buf.resize(buf.size() * 3);
@@ -933,9 +940,14 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
         }
 
         if (r == OCI_SUCCESS) {
-            //qDebug("amount: %d", read);
-            buf.resize(read);
-            values[i + index] = buf;
+            qDebug("amount: %d", read);
+            if (isClob) {
+                values[i + index] = QString::fromUtf16(
+                        reinterpret_cast<const ushort *>(buf.constData()), read);
+            } else {
+                buf.resize(read);
+                values[i + index] = buf;
+            }
         } else {
             qOraWarning("OCIResultPrivate::readLOBs: Cannot read LOB: ", d);
         }
