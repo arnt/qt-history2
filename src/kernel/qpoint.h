@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#27 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#28 $
 **
 ** Definition of QPoint class
 **
@@ -43,6 +43,8 @@ public:
     int	   y()		const;
     void   setX( int x );
     void   setY( int y );
+
+    int manhattanLength() const;
 
     QCOORD &rx();
     QCOORD &ry();
