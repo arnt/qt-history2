@@ -30,6 +30,7 @@
 #include <qtimer.h>
 #include <qobjectlist.h>
 #include <stdlib.h>
+#include <limits.h>
 
 /*!
   \class QTableItem qtable.h
@@ -621,20 +622,31 @@ void QTable::swapRows( int row1, int row2 )
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( FALSE );
     for ( i = 0; i < numCols(); ++i ) {
-	tmpContents.insert( i, item( row1, i ) );
-	contents.remove( indexOf( row1, i ) );
-	contents.insert( indexOf( row1, i ), contents[ indexOf( row2, i ) ] );
-	contents.remove( indexOf( row2, i ) );
-	contents.insert( indexOf( row2, i ), tmpContents[ i ] );
-	if ( contents[ indexOf( row1, i ) ] )
-	    contents[ indexOf( row1, i ) ]->row = row1;
-	if ( contents[ indexOf( row2, i ) ] )
-	    contents[ indexOf( row2, i ) ]->row = row2;
-	tmpWidgets.insert( i, cellWidget( row1, i ) );
-	widgets.remove( indexOf( row1, i ) );
-	widgets.insert( indexOf( row1, i ), widgets[ indexOf( row2, i ) ] );
-	widgets.remove( indexOf( row2, i ) );
-	widgets.insert( indexOf( row2, i ), tmpWidgets[ i ] );
+	QTableItem *i1, *i2;
+	i1 = item( row1, i );
+	i2 = item( row2, i );
+	if ( i1 || i2 ) {
+	    tmpContents.insert( i, i1 );
+	    contents.remove( indexOf( row1, i ) );
+	    contents.insert( indexOf( row1, i ), i2 );
+	    contents.remove( indexOf( row2, i ) );
+	    contents.insert( indexOf( row2, i ), tmpContents[ i ] );
+	    if ( contents[ indexOf( row1, i ) ] )
+		contents[ indexOf( row1, i ) ]->row = row1;
+	    if ( contents[ indexOf( row2, i ) ] )
+		contents[ indexOf( row2, i ) ]->row = row2;
+	}
+	
+	QWidget *w1, *w2;
+	w1 = cellWidget( row1, i );
+	w2 = cellWidget( row2, i );
+	if ( w1 || w2 ) {
+	    tmpWidgets.insert( i, w1 );
+	    widgets.remove( indexOf( row1, i ) );
+	    widgets.insert( indexOf( row1, i ), w2 );
+	    widgets.remove( indexOf( row2, i ) );
+	    widgets.insert( indexOf( row2, i ), tmpWidgets[ i ] );
+	}
     }
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( TRUE );
@@ -667,20 +679,31 @@ void QTable::swapColumns( int col1, int col2 )
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( FALSE );
     for ( i = 0; i < numRows(); ++i ) {
-	tmpContents.insert( i, item( i, col1 ) );
-	contents.remove( indexOf( i, col1 ) );
-	contents.insert( indexOf( i, col1 ), contents[ indexOf( i, col2 ) ] );
-	contents.remove( indexOf( i, col2 ) );
-	contents.insert( indexOf( i, col2 ), tmpContents[ i ] );
-	if ( contents[ indexOf( i, col1 ) ] )
-	    contents[ indexOf( i, col1 ) ]->col = col1;
-	if ( contents[ indexOf( i, col2 ) ] )
-	    contents[ indexOf( i, col2 ) ]->col = col2;
-	tmpWidgets.insert( i, cellWidget( i, col1 ) );
-	widgets.remove( indexOf( i, col1 ) );
-	widgets.insert( indexOf( i, col1 ), widgets[ indexOf( i, col2 ) ] );
-	widgets.remove( indexOf( i, col2 ) );
-	widgets.insert( indexOf( i, col2 ), tmpWidgets[ i ] );
+	QTableItem *i1, *i2;
+	i1 = item( i, col1 );
+	i2 = item( i, col2 );
+	if ( i1 || i2 ) {
+	    tmpContents.insert( i, i1 );
+	    contents.remove( indexOf( i, col1 ) );
+	    contents.insert( indexOf( i, col1 ), i2 );
+	    contents.remove( indexOf( i, col2 ) );
+	    contents.insert( indexOf( i, col2 ), tmpContents[ i ] );
+	    if ( contents[ indexOf( i, col1 ) ] )
+		contents[ indexOf( i, col1 ) ]->col = col1;
+	    if ( contents[ indexOf( i, col2 ) ] )
+		contents[ indexOf( i, col2 ) ]->col = col2;
+	}
+	
+	QWidget *w1, *w2;
+	w1 = cellWidget( i, col1 );
+	w2 = cellWidget( i, col2 );
+	if ( w1 || w2 ) {
+	    tmpWidgets.insert( i, w1 );
+	    widgets.remove( indexOf( i, col1 ) );
+	    widgets.insert( indexOf( i, col1 ), w2 );
+	    widgets.remove( indexOf( i, col2 ) );
+	    widgets.insert( indexOf( i, col2 ), tmpWidgets[ i ] );
+	}
     }
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( TRUE );
@@ -1520,6 +1543,9 @@ void QTable::columnWidthChanged( int col )
     if ( contentsWidth() < w )
 	repaintContents( s.width(), 0, w - s.width() + 1, contentsHeight(), TRUE );
 
+    updateGeometries();
+    qApp->processEvents();
+
     for ( int j = col; j < numCols(); ++j ) {
 	for ( int i = 0; i < numRows(); ++i ) {
 	    QWidget *w = cellWidget( i, j );
@@ -1529,8 +1555,6 @@ void QTable::columnWidthChanged( int col )
 	    w->resize( columnWidth( j ) + 1, rowHeight( i ) + 1 );
 	}
     }
-
-    updateGeometries();
 }
 
 /*!  This function is called if the height of the row \a row has
@@ -1546,6 +1570,9 @@ void QTable::rowHeightChanged( int row )
     if ( contentsHeight() < h )
 	repaintContents( 0, contentsHeight(), contentsWidth(), h - s.height() + 1, TRUE );
 
+    updateGeometries();
+    qApp->processEvents();
+    
     for ( int j = row; j < numRows(); ++j ) {
 	for ( int i = 0; i < numCols(); ++i ) {
 	    QWidget *w = cellWidget( j, i );
@@ -1556,7 +1583,6 @@ void QTable::rowHeightChanged( int row )
 	}
     }
 
-    updateGeometries();
 }
 
 /*!  This function is called if the order of the columns has been
@@ -2005,6 +2031,13 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 
     int i;
 
+    if ( old.x() >= SHRT_MAX || old.y() >= SHRT_MAX ||
+	 old.width() >= SHRT_MAX || old.height() >= SHRT_MAX )
+	optimize1 = FALSE;
+    if ( cur.x() >= SHRT_MAX || cur.y() >= SHRT_MAX ||
+	 cur.width() >= SHRT_MAX || cur.height() >= SHRT_MAX )
+	optimize2 = FALSE;
+    
     if ( !optimize1 || !optimize2 ) {
 	QRect rr = cur.unite( old );
 	repaintContents( rr, FALSE );
