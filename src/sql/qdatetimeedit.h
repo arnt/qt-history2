@@ -121,8 +121,8 @@ protected:
 
 private:
     QPushButton        * up, * down;
-    class QDateTimeEditBasePrivate;
-    QDateTimeEditBasePrivate* d;
+    class Private;
+    Private* d;
 };
 
 class Q_EXPORT QDateEdit : public QDateTimeEditBase
@@ -185,8 +185,8 @@ private:
     int sectionOffsetEnd( int sec );
     int sectionLength( int sec );
     QString sectionText( int sec );
-    class QDateEditPrivate;
-    QDateEditPrivate* d;
+    class Private;
+    Private* d;
 };
 
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase
@@ -235,8 +235,8 @@ protected:
 private:
     void init();
     QString sectionText( int sec );
-    class QTimeEditPrivate;
-    QTimeEditPrivate* d;
+    class Private;
+    Private* d;
 };
 
 
@@ -287,8 +287,8 @@ protected slots:
 private:
     QDateEdit* de;
     QTimeEdit* te;
-    class QDateTimeEditPrivate;
-    QDateTimeEditPrivate* d;
+    class Private;
+    Private* d;
 };
 
 
