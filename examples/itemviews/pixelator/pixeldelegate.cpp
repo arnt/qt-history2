@@ -5,6 +5,7 @@
 void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
+    painter->setRenderHint(QPainter::Antialiasing);
     painter->setBrush(QBrush(Qt::white));
     painter->setPen(Qt::NoPen);
     painter->drawRect(option.rect);
