@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#50 $
 **
 ** Implementation of QMainWindow class
 **
@@ -40,6 +40,7 @@
 #include "qstatusbar.h"
 
 #include "qtooltip.h"
+#include "qwhatsthis.h"
 
 /*! \class QMainWindow qmainwindow.h
 
@@ -521,7 +522,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 	} else if ( edge == Unmanaged ) {
 	    dl = d->unmanaged;
 	}
-  
+
 	if ( !dl ) {
 	    delete ct;
 	    return;
@@ -1077,4 +1078,24 @@ void QMainWindow::moveToolBar( QToolBar * t , QMouseEvent * e )
 	ct->nl = TRUE;
 	triggerLayout();
     }
+}
+
+/*!
+    Enters What's This? question mode and returns immediately.
+
+    This is the same as QWhatsThis::enterWhatsThisMode(), but as a slot of of a
+    main window object. This way it can be easily used for popup menus
+    as in the code fragment:
+
+  \code
+    QPopupMenu * help = new QPopupMenu( this );
+    help->insertItem( "What's &This", this , SLOT(whatsThis()), SHIFT+Key_F1);
+  \endcode
+  
+  \sa QWhatsThis::enterWhatsThisMode()
+
+ */
+void QMainWindow::whatsThis()
+{
+    QWhatsThis::enterWhatsThisMode();
 }

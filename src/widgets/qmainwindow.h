@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#26 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#27 $
 **
 ** Definition of QMainWindow class
 **
@@ -75,6 +75,8 @@ public:
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
+
+    void whatsThis();
 
 signals:
     void pixmapSizeChanged( bool );

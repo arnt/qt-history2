@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#39 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -284,7 +284,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	}
 	return FALSE;
     }
-    
+
     switch( state ) {
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
@@ -383,10 +383,10 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
 
 
     QPainter p( whatsThat );
-    
+
     QRect r;
     QMLSimpleDocument* qmlDoc = 0;
-    
+
     if ( isQml ) {
 	qmlDoc = new QMLSimpleDocument( text, whatsThat );
 	qmlDoc->setWidth( &p, w );
@@ -454,7 +454,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
 
     whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
     whatsThat->show();
-    
+
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
@@ -464,7 +464,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
-    
+
     if ( qmlDoc ) {
 	qmlDoc->draw( &p, leftMargin, normalMargin, r, whatsThat->colorGroup(), 0 );
 	delete qmlDoc;
@@ -701,12 +701,10 @@ rzs7fu9vvu5V7vNkv+uwXvWQfu0flepw3+dyL/N03+lFf/Rsny9u3/JSv/cqERAAOw==
 */
 
 
-/*!  Constructs a dynamic What's This object for \a parent.  \a name
-  is sent to the QObject constructor.
+/*!  Constructs a dynamic What's This object for \a widget.  
 */
 
-QWhatsThis::QWhatsThis( QWidget * parent, const char * name )
-    : QObject( parent, name )
+QWhatsThis::QWhatsThis( QWidget * widget)
 {
     QWhatsThisPrivate::setUpWhatsThis();
 
@@ -728,9 +726,25 @@ QWhatsThis::~QWhatsThis()
   This text for a position, QString::null may be returned.
 
   The default implementation returns QString::null.
+  
+  \sa qml()
 */
 
 QString QWhatsThis::text( const QPoint & )
+{
+    return QString::null; //####
+}
+
+/*!  This virtual functions returns the qml text for position \e p in the
+  widget this What's This object documents.  If there is no What's
+  This text for a position, QString::null may be returned.
+
+  The default implementation returns QString::null.
+  
+  \sa text()
+*/
+
+QString QWhatsThis::qml( const QPoint & )
 {
     return QString::null; //####
 }
@@ -744,7 +758,6 @@ QString QWhatsThis::text( const QPoint & )
   cursor and help window and restores ordinary event processing.  At
   this point the left mouse button is not pressed.
 
-  \sa whatsThis()
 */
 
 void QWhatsThis::enterWhatsThisMode()
@@ -757,23 +770,3 @@ void QWhatsThis::enterWhatsThisMode()
     }
 }
 
-
-
-/*!
-    Enters What's This? question mode and returns immediately.
-
-    This is the same as enterWhatsThisMode(), but as a slot of of a
-    QWhatsThis object. This way it can be easily used for popup menus
-    as in the code fragment:
-
-  \code
-    QPopupMenu * help = new QPopupMenu( this );
-    help->insertItem( "What's &This", new QWhatsThis(this), SLOT(whatsThis()), SHIFT+Key_F1);
-  \endcode
-  \sa enterWhatsThisMode()
-
- */
-void QWhatsThis::whatsThis()
-{
-    enterWhatsThisMode();
-}
