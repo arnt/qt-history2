@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#2 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#2 $";
 #endif
 
 
@@ -616,8 +616,8 @@ bool QETWidget::translateMouseEvent( const QMSG &msg )
     int	   button;
     int	   state;
 
-    pos.x() = SHORT1FROMMP(msg.mp1);		// get position
-    pos.y() = clientSize().height() - SHORT2FROMMP(msg.mp1) - 1;
+    pos.rx() = SHORT1FROMMP(msg.mp1);		// get position
+    pos.ry() = clientSize().height() - SHORT2FROMMP(msg.mp1) - 1;
     for ( int i=0; mouseTbl[i] != msg.msg || !mouseTbl[i]; i += 3 ) ;
     if ( !mouseTbl[i] )
 	return FALSE;
