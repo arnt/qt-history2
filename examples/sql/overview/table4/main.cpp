@@ -44,27 +44,22 @@ void StatusPicker::setStatusId( int statusid )
 
 
 void CustomTable::paintField( QPainter * p, const QSqlField* field,
-			    const QRect & cr, bool )
+			    const QRect & cr, bool b)
 {
     if ( !field )
 	return;
-    QString text;
-    if ( field->isNull() ) {
-	text = nullText();
-    } else {
-	const QVariant val = field->value();
-	text = val.toString();
-	if ( val.type() == QVariant::Bool ) {
-	    text = val.toBool() ? this->trueText() : this->falseText();
+    if ( field->name() == "statusid" ) {
+	QSqlQuery q( "SELECT name FROM status WHERE id=" +
+		     field->value().toString() ); 
+	QString text;
+	if ( q.next() ) {
+	    text = q.value( 0 ).toString();
 	}
-	else if ( field->name() == "statusid" ) {
-	    QSqlQuery q( "SELECT name FROM status WHERE id=" + text ); 
-	    if ( q.next() ) {
-		text = q.value( 0 ).toString();
-	    }
-	}
+	p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
     }
-    p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
+    else {
+	QSqlTable::paintField( p, field, cr, b) ;
+    }
 }
 
 
