@@ -605,6 +605,7 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
 
     layoutStruct->minimumWidth = 0;
 
+    const int width = layoutStruct->x_right - layoutStruct->x_left;
     // ### speed up
     // layout out child frames in that cell first
     foreach (QTextFrame *frame, t->childFrames())
@@ -612,7 +613,7 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
             QTextFrameData *cd = data(frame);
             // ####
             cd->dirty = true;
-            layoutFrame(frame, frame->firstPosition(), frame->lastPosition());
+            layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             td->layoutedFrames.removeAll(frame);
             layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, cd->boundingRect.width());
         }
@@ -639,9 +640,12 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     Q_ASSERT(constraintValues.count() == columns);
 
     int totalWidth = td->contentsWidth - (columns-1)*td->border;
-    td->widths.resize(columns);
 
+    td->widths.resize(columns);
     td->widths.fill(0);
+
+    td->minWidths.resize(columns);
+    td->minWidths.fill(0);
 
     // set fixed values, figure out total percentages used and number of
     // variable length cells
@@ -665,27 +669,9 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     totalWidth -= totalPercentagedWidth;
 
-    // normal procedure would be to set the variable columns to their
-    // minimum width first and then distribute the remaining space to them
-    // afterwards. but as we don't know the minimum widths of those columns
-    // yet we first distribute equally and in stage2 re-do the variable columns,
-    // obeying the minimum widths then.
-    if (variableCols) {
-        const int width = totalWidth / variableCols;
-        for (int i = 0; i < columns; ++i)
-            if (constraints.at(i) == QTextTableFormat::VariableLength)
-                td->widths[i] = width;
-    }
-
-    td->columnPositions.resize(columns);
-    td->columnPositions[0] = margin;
-    for (int i = 1; i < columns; ++i)
-        td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
-
-    td->minWidths.resize(columns);
-    td->minWidths.fill(0);
-
+    // for variable columsn set the minimum sizes first and distribute the remaining space
     if (variableCols > 0) {
+        int sharedWidth = totalWidth / variableCols;
         for (int i = 0; i < columns; ++i)
             if (constraints.at(i) == QTextTableFormat::VariableLength) {
                 td->minWidths[i] = 0;
@@ -693,7 +679,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     LayoutStruct layoutStruct;
                     layoutStruct.frame = table;
                     layoutStruct.y = layoutStruct.x_left = 0;
-                    layoutStruct.x_right = td->widths[i] - 2 * td->padding;
+                    layoutStruct.x_right = sharedWidth - 2 * td->padding;
                     layoutCell(table, table->cellAt(row, i), &layoutStruct);
                 }
                 td->widths[i] = td->minWidths[i];
@@ -701,17 +687,17 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             }
 
         if (totalWidth > 0) {
-            const int width = totalWidth / variableCols;
+            sharedWidth = totalWidth / variableCols;
             for (int i = 0; i < columns; ++i)
                 if (constraints.at(i) == QTextTableFormat::VariableLength)
-                    td->widths[i] += width;
+                    td->widths[i] += sharedWidth;
         }
-
-        td->columnPositions.resize(columns);
-        td->columnPositions[0] = td->margin + td->border;
-        for (int i = 1; i < columns; ++i)
-            td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
     }
+
+    td->columnPositions.resize(columns);
+    td->columnPositions[0] = td->margin + td->border;
+    for (int i = 1; i < columns; ++i)
+        td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
 
     LayoutStruct layoutStruct;
     layoutStruct.frame = table;
@@ -775,6 +761,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     int width = fformat.width();
     if (width == -1) {
         QTextTable *t = qt_cast<QTextTable *>(parent);
+        Q_ASSERT(t == 0);
+        /*
         if (t) {
             const QTextTableData *td = static_cast<const QTextTableData *>(pd);
             QTextTableCell cell = t->cellAt(f->firstPosition());
@@ -783,8 +771,9 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
             width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
                     - td->columnPositions.at(c) - 2*td->padding;
         } else {
+        */
             width = pd ? pd->contentsWidth : pageSize.width();
-        }
+        //}
     }
 
     int height = fformat.height();
