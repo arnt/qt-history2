@@ -337,7 +337,6 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     if (modal)
         connect(d->ok, SIGNAL(clicked()), SLOT(accept()));
     d->ok->setDefault(true);
-    d->ok->setFixedWidth(80);
 
     buttonBox->addSpacing(12);
 
@@ -345,8 +344,6 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->cancel = new QPushButton(cancelt, this);
     buttonBox->addWidget(d->cancel);
     connect(d->cancel, SIGNAL(clicked()), SLOT(reject()));
-    d->cancel->setFixedWidth(80);
-
 
     resize(500, 360);
 
