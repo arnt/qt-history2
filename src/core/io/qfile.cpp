@@ -769,9 +769,9 @@ bool QFile::isSequential() const
 */
 
 bool
-QFile::open(OpenMode flags, FILE *fh)
+QFile::open(OpenMode mode, FILE *fh)
 {
-    return open(flags, QT_FILENO(fh));
+    return open(mode, QT_FILENO(fh));
 }
 
 /*!
@@ -794,13 +794,14 @@ QFile::open(OpenMode mode)
     if (mode & Append)
         mode |= WriteOnly;
     unsetError();
-    setOpenMode(mode);
     if ((mode & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QIODevice::open: File access not specified");
         return false;
     }
-    if (fileEngine()->open(openMode()))
+    if (fileEngine()->open(openMode())) {
+        setOpenMode(mode);
         return true;
+    }
     QFile::Error err = fileEngine()->error();
     if(err == QFile::UnspecifiedError)
         err = QFile::OpenError;
@@ -840,8 +841,7 @@ QFile::open(OpenMode flags, int fd)
     if (flags & Append)
         flags |= WriteOnly;
     unsetError();
-    setOpenMode(flags);
-    if (!(isReadable() || isWritable())) {
+    if ((flags & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QFile::open: File access not specified");
         return false;
     }
