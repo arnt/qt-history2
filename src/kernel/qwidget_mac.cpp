@@ -268,6 +268,83 @@ bool qt_recreate_root_win() {
     return TRUE;
 }
 
+bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
+{
+    if(wcode == kWindowOpaqueRgn) {
+	EmptyRgn(rgn);
+	return TRUE;
+    }
+    QWidget *widget = QWidget::find( (WId)id );
+    switch(wcode) {
+    case kWindowOpaqueRgn: 
+	return TRUE;
+    case kWindowStructureRgn: {
+	QRegion cr;
+	if(widget) {
+	    if(widget->extra && !widget->extra->mask.isNull()) {
+		QRegion rin;
+		CopyRgn(rgn, rin.handle(TRUE));
+		QRegion rpm = widget->extra->mask;
+		QRect rpm_br = rpm.boundingRect();
+		rin -= QRegion(widget->x() + rpm_br.x(), widget->y() + rpm_br.y(), 
+			       widget->width(), widget->height());
+		rpm.translate(widget->x(), widget->y());
+		rin += rpm;
+		CopyRgn(rin.handle(TRUE), rgn);
+	    } else if(force) {
+		QRegion cr(widget->geometry());
+		CopyRgn(cr.handle(TRUE), rgn);
+	    }
+	}
+	return TRUE; }
+    case kWindowContentRgn: {
+	if(widget) {
+	    if(widget->extra && !widget->extra->mask.isNull()) {
+		QRegion cr = widget->extra->mask;
+		cr.translate(widget->x(), widget->y());
+		CopyRgn(cr.handle(TRUE), rgn);
+	    } else if(force) {
+		QRegion cr(widget->geometry());
+		CopyRgn(cr.handle(TRUE), rgn);
+	    }
+	}
+	return TRUE; }
+    default: break;
+    }
+    return FALSE;
+}
+
+static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
+{
+    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+    bool handled_event = TRUE;
+    QWidget *widget = NULL;
+    switch(eclass) {
+    case kEventClassWindow: {
+	WindowRef wid;
+	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
+			  sizeof(WindowRef), NULL, &wid);
+	if(ekind == kEventWindowGetRegion && widget) {
+	    CallNextEventHandler(er, event);
+	    WindowRegionCode wcode;
+	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
+			      sizeof(wcode), NULL, &wcode);
+	    RgnHandle rgn;
+	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+			      sizeof(rgn), NULL, &rgn);
+	    qt_window_rgn((WId)wid, wcode, rgn, FALSE);
+	} else {
+	    handled_event = FALSE;
+	}
+	break; }
+    default:
+	handled_event = FALSE;
+	break;
+    }
+    if(!handled_event) //let the event go through
+	return CallNextEventHandler(er, event);
+    return noErr; //we eat the event
+}
 static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowGetRegion }
 };
@@ -284,62 +361,38 @@ static const EventHandlerUPP make_win_eventUPP()
     qAddPostRoutine( cleanup_win_eventUPP );
     return mac_win_eventUPP = NewEventHandlerUPP(qt_window_event);
 }
-QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
+
+static QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 {
-    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-    bool handled_event = TRUE;
-    QWidget *widget = NULL;
-    switch(eclass) {
-    case kEventClassWindow: {
-	WindowRef wid;
-	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
-			  sizeof(WindowRef), NULL, &wid);
-	widget = QWidget::find( (WId)wid );
-	if(ekind == kEventWindowGetRegion && widget) {
-	    CallNextEventHandler(er, event);
-	    WindowRegionCode wcode;
-	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
-			      sizeof(wcode), NULL, &wcode);
-	    RgnHandle rgn;
-	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
-			      sizeof(rgn), NULL, &rgn);
-	    switch(wcode) {
-	    case kWindowOpaqueRgn: 
-		EmptyRgn(rgn);
-		break; 
-	    case kWindowStructureRgn: {
-		QRegion cr;
-		if(widget->extra && !widget->extra->mask.isNull()) {
-		    QRegion rin;
-		    CopyRgn(rgn, rin.handle(TRUE));
-		    QRegion rpm = widget->extra->mask;
-		    QRect rpm_br = rpm.boundingRect();
-		    rin -= QRegion(widget->x() + rpm_br.x(), widget->y() + rpm_br.y(), 
-				   widget->width(), widget->height());
-		    rpm.translate(widget->x(), widget->y());
-		    rin += rpm;
-		    CopyRgn(rin.handle(TRUE), rgn);
-		}
-		break; }
-	    case kWindowContentRgn: {
-		if(widget->extra && !widget->extra->mask.isNull()) {
-		    QRegion cr = widget->extra->mask;
-		    cr.translate(widget->x(), widget->y());
-		    CopyRgn(cr.handle(TRUE), rgn);
-		}
-		break; }
-	    }
-	} else {
-	    handled_event = FALSE;
-	}
+    long result = 0;
+    switch (message) {
+    case kWindowMsgHitTest:
+	result = wInContent;
+	break;
+    case kWindowMsgStateChanged:
+    case kWindowMsgCleanUp:
+    case kWindowMsgInitialize:
+    case kWindowMsgDrawInCurrentPort:
+    case kWindowMsgDraw:
+	result = 0;
+	break;
+    case kWindowMsgGetFeatures: {
+	SInt32 *s = (SInt32*)param;
+	*s = kWindowCanGetWindowRegion;
+	result = 1;
+	break; }
+    case kWindowMsgGetRegion: {
+	GetWindowRegionRec *s = (GetWindowRegionRec *)param;
+	if(qt_window_rgn((WId)window, s->regionCode, s->winRgn, TRUE))
+	    result = 0;
+	else
+	    result = errWindowRegionCodeInvalid;
 	break; }
     default:
-	handled_event = FALSE;
+	qDebug("Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
 	break;
     }
-    if(!handled_event) //let the event go through
-	return CallNextEventHandler(er, event);
-    return noErr; //we eat the event
+    return result;
 }
 
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
@@ -508,12 +561,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	//wattr |= kWindowLiveResizeAttribute;
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
-	if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
-	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	if(!desktop) { 	//setup an event callback handler on the window
-	    InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
-				      GetEventTypeCount(window_events),
-				      window_events, (void *)qApp, &window_event);
+#if 0
+	if( (wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool) ) {
+	    WindowDefSpec wds;
+	    wds.defType = kWindowDefProcPtr;
+	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
+	    CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id);
+	} else 
+#endif
+	{
+	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
+		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	    if(!desktop) { 	//setup an event callback handler on the window
+		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
+					  GetEventTypeCount(window_events),
+					  window_events, (void *)qApp, &window_event);
+	    }
 	}
 
 	if(wclass == kFloatingWindowClass)

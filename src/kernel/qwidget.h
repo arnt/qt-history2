@@ -560,7 +560,7 @@ private:
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
-    friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *); 
+    friend bool qt_window_rgn(WId, short, RgnHandle, bool);
     friend class QDragManager;
 #endif
 
