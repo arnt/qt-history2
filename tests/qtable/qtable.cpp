@@ -880,8 +880,22 @@ QPixmap QTable::cellPixmap( int row, int col ) const
 
 void QTable::setCurrentCell( int row, int col )
 {
+    QTableItem *item = cellContent( row, col );
+    QTableItem *oldIitem = cellContent( curRow, curCol );
+    if ( item && item->rowSpan() > 1 && oldIitem == item && item->row != row ) {
+	if ( row > curRow )
+	    row = item->row + item->rowSpan();
+	else if ( row < curRow )
+	    row = QMAX( 0, item->row - 1 );
+    }
+    if ( item && item->columnSpan() > 1 && oldIitem == item && item->col != col ) {
+	if ( col > curCol )
+	    col = item->col + item->columnSpan();
+	else if ( col < curCol )
+	    col = QMAX( 0, item->col - 1 );
+    }
     if ( curRow != row || curCol != col ) {
-	QTableItem *item = cellContent( curRow, curCol );
+	item = oldIitem;
 	if ( item && item->editType() == QTableItem::OnCurrent )
 	    endEdit( curRow, curCol, TRUE, item->lastEditor, Editing );
 	int oldRow = curRow;
@@ -1883,27 +1897,35 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 {
     if ( *oldSelection == *newSelection )
 	return;
+    bool optimize1, optimize2;
     QRect old = rangeGeometry( oldSelection->topRow,
 			       oldSelection->leftCol,
 			       oldSelection->bottomRow,
-			       oldSelection->rightCol );
+			       oldSelection->rightCol,
+			       optimize1 );
 
     QRect cur = rangeGeometry( newSelection->topRow,
 			       newSelection->leftCol,
 			       newSelection->bottomRow,
-			       newSelection->rightCol );
+			       newSelection->rightCol,
+			       optimize2 );
 
-    QRegion r1( old );
-    QRegion r2( cur );
-    QRegion r3 = r1.subtract( r2 );
-    QRegion r4 = r2.subtract( r1 );
-    
     int i;
 
-    for ( i = 0; i < (int)r3.rects().count(); ++i )
-	repaintContents( r3.rects()[ i ], FALSE );
-    for ( i = 0; i < (int)r4.rects().count(); ++i )
-	repaintContents( r4.rects()[ i ], FALSE );
+    if ( !optimize1 || !optimize2 ) {
+	QRect rr = cur.unite( old );
+	repaintContents( rr, FALSE );
+    } else {
+	QRegion r1( old );
+	QRegion r2( cur );
+	QRegion r3 = r1.subtract( r2 );
+	QRegion r4 = r2.subtract( r1 );
+
+	for ( i = 0; i < (int)r3.rects().count(); ++i )
+	    repaintContents( r3.rects()[ i ], FALSE );
+	for ( i = 0; i < (int)r4.rects().count(); ++i )
+	    repaintContents( r4.rects()[ i ], FALSE );
+    }
     
     if ( updateHorizontal ) {
 	for ( i = 0; i <= columns(); ++i ) {
@@ -1937,10 +1959,11 @@ void QTable::clearSelection()
 
     QRect r;
     for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	bool b;
 	r = r.unite( rangeGeometry( s->topRow,
 				    s->leftCol,
 				    s->bottomRow,
-				    s->rightCol ) );
+				    s->rightCol, b ) );
     }
 
     currentSelection = 0;
@@ -1971,12 +1994,17 @@ void QTable::clearSelection()
 /*!  \internal
 */
 
-QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol )
+QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol, bool &optimize )
 {
+    optimize = TRUE;
     QRect rect;
     for ( int r = topRow; r <= bottomRow; ++r ) {
-	for ( int c = leftCol; c <= rightCol; ++c )
+	for ( int c = leftCol; c <= rightCol; ++c ) {
 	    rect = rect.unite( cellGeometry( r, c ) );
+	    QTableItem *i = cellContent( r, c );
+	    if ( i && ( i->rowSpan() > 1 || i->columnSpan() > 1 ) )
+		optimize = FALSE;
+	}
     }
     return rect;
 }

@@ -233,13 +233,13 @@ private:
     void updateGeometries();
     void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
-    QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
+    QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol, bool &optimize );
     void fixRow( int &row, int y );
     void fixCol( int &col, int x );
     void editTypeChanged( QTableItem *i, QTableItem::EditType old );
 
     void init( int numRows, int numCols );
-    
+
 private:
     QVector<QTableItem> contents;
     int curRow;
