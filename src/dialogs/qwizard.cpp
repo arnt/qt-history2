@@ -122,7 +122,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d = new QWizardPrivate();
     d->current = 0; // not quite true, but...
     d->ws = new QWidgetStack( this );
-    d->title = 0;
+    d->title = new QLabel( this, "title label" );
 
     // create in nice tab order
     d->nextButton = new QPushButton( this, "next" );
@@ -486,6 +486,22 @@ void QWizard::setTitle( QWidget *page, const QString &t )
 	d->title->setText( t );
 }
 
+/*!
+  Returns the wizard's title font
+*/
+QFont QWizard::titleFont() const
+{
+    return d->title->font();
+}
+
+/*!
+  Sets the title font for the wizard to \a font
+*/
+void QWizard::setTitleFont( const QFont & font )
+{
+    d->title->setFont( font );
+}
+
 
 /*!
   Returns the Back button of the dialog.
@@ -617,11 +633,8 @@ changes.
 
 void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
 {
-    if ( !d->title )
-	d->title = new QLabel( this );
     d->title->setText( title );
     layout->addWidget( d->title, 10 );
-    d->title->repaint();
 }
 
 

@@ -53,6 +53,8 @@ class QHBoxLayout;
 class Q_EXPORT QWizard : public QDialog
 {
     Q_OBJECT
+    Q_PROPERTY( QFont titleFont READ titleFont WRITE setTitleFont )
+    
 public:
     QWizard( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
@@ -67,7 +69,9 @@ public:
 
     QString title( QWidget * ) const;
     void setTitle( QWidget *, const QString & );
-    
+    QFont titleFont() const;
+    void setTitleFont( const QFont & );
+
     virtual void showPage( QWidget * );
 
     QWidget * currentPage() const;
