@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#61 $
 **
 ** Implementation of QMenuData class
 **
@@ -841,7 +841,9 @@ bool QMenuData::isItemChecked( int id ) const
 
 /*!
   Checks a menu item if \a check is TRUE, or unchecks it if \a check is
-  FALSE.
+  FALSE.  Note that for popup menus (where checking is useful), you must
+  call QPopupMenu::setCheckable(TRUE) for check marks to be displayed.
+
   \sa isItemChecked()
 */
 
