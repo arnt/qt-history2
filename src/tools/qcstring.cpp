@@ -43,6 +43,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <zlib.h>
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
@@ -298,6 +299,104 @@ Q_UINT16 qChecksum( const char *data, uint len )
 	crc = ( (crc >> 4) & 0x0fff ) ^ crc_tbl[((crc ^ c) & 15)];
     }
     return ~crc & 0xffff;
+}
+
+/*! \fn QByteArray qCompress( const QByteArray& data)
+  \relates QByteArray
+  \overload
+*/
+
+/*!
+  \relates QByteArray
+
+  Compresses the array \a data which is \a nbytes long and returns the
+  compressed byte array.
+
+  \sa qUncompress()
+*/
+
+QByteArray qCompress( const uchar* data, int nbytes )
+{
+    ulong len = nbytes * 2;
+    QByteArray bazip;
+    for (;;) {
+	bazip.resize( len );
+	int res = ::compress(  (uchar*)bazip.data(), &len, (uchar*)data, nbytes );
+	
+	switch ( res ) {
+	case Z_OK:
+	    if ( len != bazip.size() )
+		bazip.resize( len );
+	    break;
+	case Z_MEM_ERROR:
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "qCcompress: Z_MEM_ERROR: Not enough memory." );
+#endif
+	    break;
+	case Z_BUF_ERROR:
+	    // try again with the correct length
+	    continue;
+	}
+	
+	break;
+    }
+
+    return bazip;
+}
+
+/*! \fn QByteArray qUncompress( const QByteArray& data, int expectedSize )
+  \relates QByteArray
+  \overload
+*/
+
+/*!
+  \relates QByteArray
+
+  Uncompresses the array \a data which is \a nbytes long and returns
+  the uncompressed byte array.
+
+  The uncompression algorithm has to estimate the size of the
+  uncompressed buffer. If you know the size you can specify in in \a
+  expectedSize, otherwise pass -1, which is the default.
+
+  \sa qCompress()
+*/
+
+QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
+{
+    ulong len = expectedSize;
+    if ( expectedSize == -1 )
+	expectedSize = nbytes * 2;
+    QByteArray baunzip;
+    for (;;) {
+	baunzip.resize( len );
+	int res = uncompress( (uchar*)baunzip.data(), &len,
+			      (uchar*)data, nbytes );
+
+	switch ( res ) {
+	case Z_OK:
+	    if ( len != baunzip.size() )
+		baunzip.resize( len );
+	    break;
+	case Z_MEM_ERROR:
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "qUncompress: Z_MEM_ERROR: Not enough memory." );
+#endif
+	    break;
+	case Z_BUF_ERROR:
+	    // try again with the correct length
+	    continue;
+	case Z_DATA_ERROR:
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "qUncompress: Z_DATA_ERROR: Input data is corrupted." );
+#endif
+	    break;
+	}
+	
+	break;
+    }
+
+    return baunzip;
 }
 
 /*****************************************************************************
