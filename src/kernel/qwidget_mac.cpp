@@ -1182,13 +1182,12 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	}
     }
 
-    QRegion copied(clippedRegion());
     QPoint p(posInWindow(this));
+    QRegion copied(clippedRegion());
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
-    QRegion exposed = QRegion(sr) - copied;
-    repaint( exposed, !testWFlags(WRepaintNoErase) );
+    repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
 }
 
 
@@ -1423,12 +1422,23 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    return extra->clip_sibs;
 	return extra->clip_saved;
     }
+    
+    QRegion contents;
+    {
+	RgnHandle r = NewRgn();
+	GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
+	if(!EmptyRgn(r)) {
+	    contents = QRegion(r);
+	    contents.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+	}
+	DisposeRgn(r);
+    }
 
     QRegion mask;
     //clip out my children
     if(do_children && extra->child_dirty) {
 	extra->child_dirty = FALSE;
-	extra->clip_children = QRegion(0, 0, width(), height());
+	extra->clip_children = QRegion(0, 0, width(), height()) & contents;
 	if(const QObjectList *chldnlst=children()) {
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
@@ -1450,7 +1460,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     if(isClippedRegionDirty()) {
 	extra->clip_dirty = FALSE;
 	QPoint tmp = posInWindow(this);
-	extra->clip_sibs = QRegion(tmp.x(), tmp.y(), width(), height());
+	extra->clip_sibs = QRegion(tmp.x(), tmp.y(), width(), height()) & contents;
 	//clip my rect with my mask
 	if(extra && !extra->mask.isNull()) {
 	    mask = extra->mask;
