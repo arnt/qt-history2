@@ -30,8 +30,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>323</width>
-            <height>339</height>
+            <width>295</width>
+            <height>346</height>
         </rect>
     </property>
     <property name="caption">
@@ -650,8 +650,8 @@
         <receiver>PaletteEditorAdvancedBase</receiver>
         <slot>onToggleBuildDisabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="protected" language="C++" returnType="void">onCentral(int)</slot>
     <slot access="protected" language="C++" returnType="void">onChooseCentralColor()</slot>
     <slot access="protected" language="C++" returnType="void">onChooseEffectColor()</slot>

@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>646</width>
-            <height>558</height>
+            <width>640</width>
+            <height>548</height>
         </rect>
     </property>
     <property name="caption">
@@ -80,10 +80,10 @@
                                 <cstring>unnamed</cstring>
                             </property>
                             <property name="margin">
-                                <number>11</number>
+                                <number>8</number>
                             </property>
                             <property name="spacing">
-                                <number>6</number>
+                                <number>4</number>
                             </property>
                             <widget class="QLayoutWidget">
                                 <property name="name">
@@ -97,7 +97,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -262,10 +262,10 @@
                                 <cstring>unnamed</cstring>
                             </property>
                             <property name="margin">
-                                <number>11</number>
+                                <number>8</number>
                             </property>
                             <property name="spacing">
-                                <number>6</number>
+                                <number>4</number>
                             </property>
                             <widget class="QLayoutWidget">
                                 <property name="name">
@@ -279,7 +279,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -486,7 +486,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -557,7 +557,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QPushButton">
                                         <property name="name">
@@ -605,7 +605,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -702,17 +702,6 @@
                                     <number>10</number>
                                 </property>
                             </widget>
-                            <widget class="QLabel" row="0" column="0">
-                                <property name="name">
-                                    <cstring>dcibuddy</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Double Click Interval:</string>
-                                </property>
-                                <property name="buddy" stdset="0">
-                                    <cstring>dcispin</cstring>
-                                </property>
-                            </widget>
                             <widget class="QSpinBox" row="1" column="1">
                                 <property name="name">
                                     <cstring>cfispin</cstring>
@@ -763,6 +752,17 @@
                                     <cstring>wslspin</cstring>
                                 </property>
                             </widget>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>dcibuddy</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Double Click Interval:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>dcispin</cstring>
+                                </property>
+                            </widget>
                         </grid>
                     </widget>
                     <widget class="QGroupBox">
@@ -772,7 +772,7 @@
                         <property name="title">
                             <string>GUI Effects</string>
                         </property>
-                        <vbox>
+                        <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
@@ -782,7 +782,7 @@
                             <property name="spacing">
                                 <number>4</number>
                             </property>
-                            <widget class="QCheckBox">
+                            <widget class="QCheckBox" row="0" column="0">
                                 <property name="name">
                                     <cstring>effectcheckbox</cstring>
                                 </property>
@@ -790,7 +790,7 @@
                                     <string>&amp;Enable</string>
                                 </property>
                             </widget>
-                            <widget class="QFrame">
+                            <widget class="QFrame" row="1" column="0">
                                 <property name="name">
                                     <cstring>effectbase</cstring>
                                 </property>
@@ -808,7 +808,7 @@
                                         <number>0</number>
                                     </property>
                                     <property name="spacing">
-                                        <number>6</number>
+                                        <number>4</number>
                                     </property>
                                     <widget class="QLabel" row="1" column="0">
                                         <property name="name">
@@ -903,7 +903,7 @@
                                     </widget>
                                 </grid>
                             </widget>
-                        </vbox>
+                        </grid>
                     </widget>
                     <widget class="QGroupBox">
                         <property name="name">
@@ -974,6 +974,23 @@
                             </widget>
                         </grid>
                     </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
                 </vbox>
             </widget>
             <widget class="QWidget">
@@ -1455,13 +1472,18 @@
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <connection>
+        <sender>TabWidget3</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>pageChanged(QWidget*)</slot>
+    </connection>
     <slot access="public" language="C++" returnType="void">addLibpath()</slot>
     <slot access="public" language="C++" returnType="void">addSubstitute()</slot>
     <slot access="public" language="C++" returnType="void">browseLibpath()</slot>
     <slot access="public" language="C++" returnType="void">buildFont()</slot>
     <slot access="public" language="C++" returnType="void">buildPalette()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">downLibpath()</slot>
     <slot access="public" language="C++" returnType="void">downSubstitute()</slot>
     <slot access="public" language="C++" returnType="void">familySelected( const QString &amp; )</slot>
@@ -1469,22 +1491,19 @@
     <slot access="public" language="C++" returnType="void">fileSave()</slot>
     <slot access="public" language="C++" returnType="void">helpAbout()</slot>
     <slot access="public" language="C++" returnType="void">helpAboutQt()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="public" language="C++" returnType="void">pageChanged(QWidget *)</slot>
     <slot access="public" language="C++" returnType="void">paletteSelected( int )</slot>
     <slot access="public" language="C++" returnType="void">removeLibpath()</slot>
     <slot access="public" language="C++" returnType="void">removeSubstitute()</slot>
+    <slot access="public" language="C++" returnType="void">somethingModified()</slot>
     <slot access="public" language="C++" returnType="void">styleSelected( const QString &amp; )</slot>
     <slot access="public" language="C++" returnType="void">substituteSelected( const QString &amp; )</slot>
-    <slot access="public" language="C++" returnType="void">somethingModified()</slot>
     <slot access="public" language="C++" returnType="void">tunePalette()</slot>
     <slot access="public" language="C++" returnType="void">upLibpath()</slot>
     <slot access="public" language="C++" returnType="void">upSubstitute()</slot>
 </connections>
 <functions>
-    <function name="init()" >{
-}</function>
-    <function name="destroy()" >{
-
-}</function>
     <function name="addLibpath()" >{
 
 }</function>
@@ -1498,6 +1517,9 @@
 
 }</function>
     <function name="buildPalette()" >{
+
+}</function>
+    <function name="destroy()" >{
 
 }</function>
     <function name="downLibpath()" >{
@@ -1521,6 +1543,9 @@
     <function name="helpAboutQt()" >{
 
 }</function>
+    <function name="init()" >{
+}</function>
+    <function name="" ></function>
     <function name="paletteSelected(int)" >{
 
 }</function>
@@ -1530,13 +1555,13 @@
     <function name="removeSubstitute()" >{
 
 }</function>
+    <function name="somethingModified()" >{
+
+}</function>
     <function name="styleSelected(const QString&amp;)" >{
 
 }</function>
     <function name="substituteSelected(const QString&amp;)" >{
-
-}</function>
-    <function name="somethingModified()" >{
 
 }</function>
     <function name="tunePalette()" >{
