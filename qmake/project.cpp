@@ -1188,7 +1188,7 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    1) environment variable QMAKEFEATURES (as separated by colons)
    2) <project_root> (where .qmake.cache lives) + FEATURES_DIR
    3) environment variable QMAKEPATH (as separated by colons) + /mkspecs/ + FEATURES_DIR
-   4) your QMAKESPEC dir
+   4) your QMAKESPEC/features dir
    5) environment variable QTDIR + /mkspecs/ + FEATURES_DIR
 
    FEATURES_DIR is defined as:
@@ -1297,12 +1297,18 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                 feature_roots << (qInstallPathData() + mkspecs_concat + (*concat_it));
 #endif
             debug_msg(2, "Looking for feature '%s' in (%s)", file.latin1(), feature_roots.join("::").latin1());
+            QFileInfo currentFile;
+            if(::parser.from_file) 
+                currentFile = QFileInfo(::parser.file).canonicalFilePath();
             for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
-                QString prf = (*it) + QDir::separator() + file;
-                if(QFile::exists(prf)) {
-                    found = true;
-                    file = prf;
-                    break;
+                QString prf((*it) + QDir::separator() + file);
+                QFileInfo prfFile(QFileInfo(prf).canonicalFilePath());
+                if(prfFile.exists()) {
+                    if(prfFile != currentFile) {
+                        found = true;
+                        file = prf;
+                        break;
+                    }
                 }
             }
             if(!found)
