@@ -1712,6 +1712,8 @@ QWidget::insertAction(QAction *before, QAction *action)
     if(d->actions.contains(action))
         d->actions.removeAll(action);
     int before_int = d->actions.indexOf(before);
+    if (before_int < 0)
+        before = d->actions.at(0);
     d->actions.insert(before_int, action);
     QObject::connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
     QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
