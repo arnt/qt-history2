@@ -56,17 +56,8 @@
 #undef errno
 #include <math.h>
 
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
-
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict();
+QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 class QPSQLPrivate
 {
@@ -106,7 +97,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );
+	       const QMap<QString, QVariant>& connOpts );
 private:
     QPSQLDriver *driver;
 };
@@ -116,7 +107,7 @@ bool QPSQLOpenExtension::open( const QString& db,
 			       const QString& password,
 			       const QString& host,
 			       int port,
-			       const QMap<QString, QString>& connOpts )
+			       const QMap<QString, QVariant>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -280,16 +271,6 @@ QDate qDateFromUInt( uint dt )
     QDate::julianToGregorian( dt, y, m, d );
     return QDate( y, m, d );
 }
-
-/* // ### this should be obsolete?
-QTime qTimeFromDouble( double tm )
-{
-    int hour = ((int)tm / ( 60 * 60 ) );
-    int min = (((int) (tm / 60)) % 60 );
-    int sec = (((int) tm) % 60 );
-    return QTime( hour, min, sec );
-}
-*/
 
 QVariant QPSQLResult::data( int i )
 {
@@ -525,13 +506,21 @@ QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
     init();
 }
 
+QPSQLDriver::QPSQLDriver( PGconn * conn, QObject * parent, const char * name )
+    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
+{
+    init();
+    d->connection = conn;
+    if ( conn ) {
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
+}
+
 void QPSQLDriver::init()
 {
-    if ( qt_driver_extension_dict )
-	qt_driver_extension_dict->insert( this, new QPSQLDriverExtension(this) );
-
-    if ( qt_open_extension_dict )
-	qt_open_extension_dict->insert( this, new QPSQLOpenExtension(this) );
+    qSqlDriverExtDict()->insert( this, new QPSQLDriverExtension(this) );
+    qSqlOpenExtDict()->insert( this, new QPSQLOpenExtension(this) );
 
     d = new QPSQLPrivate();
 }
@@ -541,12 +530,12 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
-    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
-	QSqlDriverExtension *ext = qt_driver_extension_dict->take( this );
+    if ( !qSqlDriverExtDict()->isEmpty() ) {
+	QSqlDriverExtension *ext = qSqlDriverExtDict()->take( this );
 	delete ext;
     }
-    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
-	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
 }
@@ -644,7 +633,7 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & password,
 			const QString & host,
 			int port,
-			const QMap<QString, QString>& connOpts )
+			const QMap<QString, QVariant>& connOpts )
 {
     if ( isOpen() )
 	close();
@@ -661,9 +650,9 @@ bool QPSQLDriver::open( const QString & db,
 	connectString.append( " port=" ).append( QString::number( port ) );
     
     if ( connOpts.count() ) {
-	QMap<QString, QString>::ConstIterator it;
+	QMap<QString, QVariant>::ConstIterator it;
 	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
-	    connectString.append( " " + it.key() + "=" + it.data() );
+	    connectString.append( " " + it.key() + "=" + it.data().toString() );
 	}
     }
     d->connection = PQconnectdb( connectString.local8Bit().data() );

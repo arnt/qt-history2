@@ -141,7 +141,7 @@ public:
 		       const QString& password,
 		       const QString& host,
 		       int port,
-		       const QMap<QString, QString>& connOpts ) = 0;
+		       const QMap<QString, QVariant>& connOpts ) = 0;
 };
 #endif
 #endif

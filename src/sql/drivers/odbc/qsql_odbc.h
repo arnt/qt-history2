@@ -107,6 +107,7 @@ class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
 {
 public:
     QODBCDriver( QObject * parent=0, const char * name=0 );
+    QODBCDriver( SQLHANDLE env, SQLHANDLE con, QObject * parent=0, const char * name=0 );
     ~QODBCDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
@@ -133,7 +134,8 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );
+	       const QMap<QString, QVariant>& connOpts );
+    
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

@@ -85,6 +85,7 @@ public:
     };
 
     QPSQLDriver( QObject * parent=0, const char * name=0 );
+    QPSQLDriver( PGconn * conn, QObject * parent=0, const char * name=0 );
     ~QPSQLDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
@@ -112,7 +113,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );
+	       const QMap<QString, QVariant>& connOpts );
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

@@ -97,11 +97,7 @@ public:
     QODBCResult * result;
 };
 
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 class QODBCOpenExtension : public QSqlOpenExtension
 {
@@ -115,7 +111,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );    
+	       const QMap<QString, QVariant>& connOpts );
 private:
     QODBCDriver *driver;
 };
@@ -125,7 +121,7 @@ bool QODBCOpenExtension::open( const QString& db,
 			       const QString& password,
 			       const QString& host,
 			       int port,
-			       const QMap<QString, QString>& connOpts )
+			       const QMap<QString, QVariant>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -1194,15 +1190,26 @@ bool QODBCResult::exec()
 
 
 QODBCDriver::QODBCDriver( QObject * parent, const char * name )
-: QSqlDriver(parent,name ? name : "QODBC")
+    : QSqlDriver(parent,name ? name : "QODBC")
 {
     init();
 }
 
+QODBCDriver::QODBCDriver( SQLHANDLE env, SQLHANDLE con, QObject * parent, const char * name )
+    : QSqlDriver(parent,name ? name : "QODBC")
+{
+    init();
+    d->hEnv = env;
+    d->hDbc = con;
+    if ( env && con ) {
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
+}
+
 void QODBCDriver::init()
 {
-    if ( qt_open_extension_dict )
-	qt_open_extension_dict->insert( this, new QODBCOpenExtension(this) );
+    qSqlOpenExtDict()->insert( this, new QODBCOpenExtension(this) );
     d = new QODBCPrivate();
 }
 
@@ -1210,8 +1217,8 @@ QODBCDriver::~QODBCDriver()
 {
     cleanup();
     delete d;
-    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
-	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
 }
@@ -1264,7 +1271,7 @@ bool QODBCDriver::open( const QString & db,
 			const QString & password,
 			const QString &,
 			int,
-			const QMap<QString, QString>& connOpts )
+			const QMap<QString, QVariant>& connOpts )
 {
     if ( isOpen() )
       close();
@@ -1296,13 +1303,12 @@ bool QODBCDriver::open( const QString & db,
 
     // Set connection attributes
     if ( connOpts.count() ) {
-	QMap<QString, QString>::ConstIterator it;
+	QMap<QString, QVariant>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
 	    opt = it.key().upper();
-	    val = it.data().upper();
-	    qWarning( opt + " - " + val );
+	    val = it.data().toString().upper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {
@@ -1310,7 +1316,7 @@ bool QODBCDriver::open( const QString & db,
 		} else if ( val == "SQL_MODE_READ_WRITE" ) {
 		    v = SQL_MODE_READ_WRITE;
 		} else {
-		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg((*it).toString()) );
 		    break;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
@@ -1335,7 +1341,7 @@ bool QODBCDriver::open( const QString & db,
 		} else if ( val == "SQL_FALSE" ) {
 		    v = SQL_FALSE;
 		} else {
-		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg((*it).toString()) );
 		    break;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
@@ -1357,7 +1363,7 @@ bool QODBCDriver::open( const QString & db,
 		} else if ( val == "SQL_OPT_TRACE_ON" ) {
 		    v = SQL_OPT_TRACE_ON;
 		} else {
-		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg((*it).toString()) );
 		    break;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
@@ -1512,7 +1518,7 @@ bool QODBCPrivate::checkDriver() const
 
     // these functions are optional
     static const SQLUSMALLINT optFunc[] = {
-    		SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLROWCOUNT, 0
+	SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLROWCOUNT, 0
     };
 
     SQLRETURN r;

@@ -80,7 +80,8 @@ private:
 class Q_EXPORT_SQLDRIVER_DB2 QDB2Driver : public QSqlDriver
 {
 public:
-    QDB2Driver();
+    QDB2Driver( QObject* parent = 0, const char* name = 0 );
+    QDB2Driver( SQLHANDLE env, SQLHANDLE con, QObject* parent = 0, const char* name = 0 );
     ~QDB2Driver();
     bool hasFeature( DriverFeature ) const;
     bool open( const QString& db, const QString& user, const QString& passwd, const QString&, int );
@@ -105,7 +106,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );
+	       const QMap<QString, QVariant>& connOpts );
 private:
     bool setAutoCommit( bool autoCommit );
     QDB2DriverPrivate* d;

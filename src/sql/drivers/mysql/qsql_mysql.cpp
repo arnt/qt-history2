@@ -43,11 +43,7 @@
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 class QMYSQLOpenExtension : public QSqlOpenExtension
 {
@@ -61,7 +57,8 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );
+	       const QMap<QString, QVariant>& connOpts );
+    
 private:
     QMYSQLDriver *driver;
 };
@@ -71,7 +68,7 @@ bool QMYSQLOpenExtension::open( const QString& db,
 				const QString& password,
 				const QString& host,
 				int port,
-				const QMap<QString, QString>& connOpts )
+				const QMap<QString, QVariant>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -341,15 +338,29 @@ int QMYSQLResult::numRowsAffected()
 /////////////////////////////////////////////////////////
 
 QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
-: QSqlDriver(parent, name ? name : QMYSQL_DRIVER_NAME)
+    : QSqlDriver( parent, name ? name : QMYSQL_DRIVER_NAME )
 {
     init();
 }
 
+/*!
+    Create a driver instance with an already open connection handle.
+*/
+
+QMYSQLDriver::QMYSQLDriver( MYSQL * con, QObject * parent, const char * name )
+    : QSqlDriver( parent, name ? name : QMYSQL_DRIVER_NAME )
+{
+    init();
+    if ( con ) {
+	d->mysql = (MYSQL *) con;
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
+}
+
 void QMYSQLDriver::init()
 {
-    if ( qt_open_extension_dict )
-	qt_open_extension_dict->insert( this, new QMYSQLOpenExtension(this) );
+    qSqlOpenExtDict()->insert( this, new QMYSQLOpenExtension(this) );
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
 }
@@ -357,8 +368,8 @@ void QMYSQLDriver::init()
 QMYSQLDriver::~QMYSQLDriver()
 {
     delete d;
-    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
-	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
 }
@@ -401,17 +412,17 @@ bool QMYSQLDriver::open( const QString& db,
 			 const QString& password,
 			 const QString& host,
 			 int port,
-			 const QMap<QString, QString>& connOpts )
+			 const QMap<QString, QVariant>& connOpts )
 {
     if ( isOpen() )
 	close();
     
     unsigned int optionFlags = 0;
     if ( connOpts.count() ) {
-	QMap<QString, QString>::ConstIterator it;
+	QMap<QString, QVariant>::ConstIterator it;
 	QString opt;
 	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
-	    if ( it.data().upper() == "TRUE" ) {
+	    if ( it.data().toString().upper() == "TRUE" ) {
 		opt = it.key().upper();
 		if ( opt == "CLIENT_COMPRESS" )
 		    optionFlags |= CLIENT_COMPRESS;

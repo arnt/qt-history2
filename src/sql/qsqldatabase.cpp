@@ -65,12 +65,35 @@
 #include <private/qsqlextension_p.h>
 #include "qobject.h"
 #include "qguardedptr.h"
+#include "qcleanuphandler.h"
 #include "qdict.h"
 #include <stdlib.h>
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
+
 Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
 Q_EXPORT QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
+
+static QSingleCleanupHandler< QPtrDict<QSqlDriverExtension> > qt_driver_ext_cleanup;
+static QSingleCleanupHandler< QPtrDict<QSqlOpenExtension> > qt_open_ext_cleanup;
+
+Q_EXPORT QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict()
+{
+    if ( !qt_driver_extension_dict ) {
+	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
+	qt_driver_ext_cleanup.set( &qt_driver_extension_dict );
+    }
+    return qt_driver_extension_dict;
+}
+
+Q_EXPORT QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict()
+{
+    if ( !qt_open_extension_dict ) {
+	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
+	qt_open_ext_cleanup.set( &qt_open_extension_dict );
+    }
+    return qt_open_extension_dict;
+}
 
 class QNullResult : public QSqlResult
 {
@@ -84,9 +107,9 @@ protected:
     bool        fetchFirst() { return FALSE; }
     bool        fetchLast() { return FALSE; }
     bool        isNull( int ) {return FALSE; }
-    QSqlRecord   record() {return QSqlRecord();}
-    int             size()  {return 0;}
-    int             numRowsAffected() {return 0;}
+    QSqlRecord 	record() {return QSqlRecord();}
+    int         size()  {return 0;}
+    int         numRowsAffected() {return 0;}
 };
 
 class QNullDriver : public QSqlDriver
@@ -247,7 +270,6 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
     return db;
 }
 
-
 /*!
     Removes the database connection \a name from the SQL connection
     manager.
@@ -314,7 +336,7 @@ public:
     QString hname;
     QString drvName;
     int port;
-    QMap<QString, QString> connOptions;
+    QMap<QString, QVariant> connOptions;
 };
 
 /*!
@@ -331,10 +353,10 @@ public:
     that support transactions.
 
     The QSqlDatabase class itself provides an abstract interface for
-    accessing many types of database backend. Database-specific drivers
-    are used internally to actually access and manipulate data, (see
-    QSqlDriver). Result set objects provide the interface for executing
-    and manipulating SQL queries (see QSqlQuery).
+    accessing many types of database backends. Database-specific
+    drivers are used internally to actually access and manipulate
+    data, (see QSqlDriver). Result set objects provide the interface
+    for executing and manipulating SQL queries (see QSqlQuery).
 */
 
 /*!
@@ -467,14 +489,24 @@ QStringList QSqlDatabase::drivers()
 }
 
 /*!
-  \internal
+    This function registers a new SQL driver within the framework
+    called \a name. This is useful if you have a custom SQL driver and
+    don't want to compile it as a plugin. Example usage:
+    
+    \code
+    QSqlDatabase::registerSqlDriver( "MYDRIVER", new QSqlDriverCreator<MySqlDriver> );
+    QSqlDatabase* db = QSqlDatabase::addDatabase( "MYDRIVER" );
+    ...
+    \endcode
+    
+    \warning The framework takes ownership of the \a creator pointer,
+    so it should not be deleted.
 */
-void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb )
+void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator )
 {
     QSqlDatabaseManager::driverDict()->remove( name );
-    if ( dcb ) {
-	QSqlDatabaseManager::driverDict()->insert( name, dcb );
-    }
+    if ( creator )
+	QSqlDatabaseManager::driverDict()->insert( name, creator );
 }
 
 /*!
@@ -509,25 +541,36 @@ bool QSqlDatabase::contains( const QString& connectionName )
     dynamically.
 */
 
-QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject * parent, const char * objname )
-: QObject(parent, objname)
+QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
+    : QObject( parent, objname )
 {
-    init( driver, name );
+    init( type, name );
+}
+
+
+/*! \overload
+
+     Creates a database connection using the driver \a driver.
+     
+     \warning The framework takes ownership of the \a driver pointer,
+     so it should not be deleted.
+*/
+
+QSqlDatabase::QSqlDatabase( QSqlDriver* driver, QObject * parent, const char * objname )
+    : QObject( parent, objname )
+{
+    d = new QSqlDatabasePrivate();
+    d->driver = driver;
 }
 
 /*!
   \internal
 
-  Iniitializes the database with driver \a type and name \a name.
+  Create the actual driver instance \a type.
 */
-void QSqlDatabase::init( const QString& type, const QString&  )
-{
-    // ### These must go in 4.0
-    if ( !qt_driver_extension_dict )
-	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
-    if ( !qt_open_extension_dict )
-	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
 
+void QSqlDatabase::init( const QString& type, const QString& )
+{
     d = new QSqlDatabasePrivate();
     d->drvName = type;
 
@@ -608,14 +651,6 @@ QSqlDatabase::~QSqlDatabase()
     delete d->plugIns;
 #endif
     delete d;
-    if ( qt_driver_extension_dict && qt_driver_extension_dict->isEmpty() ) {
-	delete qt_driver_extension_dict;
-	qt_driver_extension_dict = 0;
-    }
-    if ( qt_open_extension_dict && qt_open_extension_dict->isEmpty() ) {
-	delete qt_open_extension_dict;
-	qt_open_extension_dict = 0;
-    }
 }
 
 /*!
@@ -648,17 +683,8 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 
 bool QSqlDatabase::open()
 {
-//     return d->driver->open( d->dbname,
-// 			    d->uname,
-// 			    d->pword,
-// 			    d->hname,
-// 			    d->port );
-    return d->driver->open( d->dbname,
-			    d->uname,
-			    d->pword,
-			    d->hname,
-			    d->port,
-			    d->connOptions );
+    return d->driver->open( d->dbname, d->uname, d->pword, d->hname,
+			    d->port, d->connOptions );
 }
 
 /*!
@@ -964,34 +990,11 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 
 /*!
     Sets the specified connect \a option to the given \a value. To
-    unset an option, set the option's \a value to QString::null. The
+    unset an option, set the option's \a value to a null variant. The
     options supported depend on the database client used:
 
     \table
-    \header \i DB2 \i MySQL \i OCI
-    \row
-
-    \i
-    \list
-    \i SQL_ATTR_ACCESS_MODE
-    \i SQL_ATTR_LOGIN_TIMEOUT
-    \endlist
-
-    \i
-    \list
-    \i CLIENT_COMPRESS
-    \i CLIENT_FOUND_ROWS
-    \i CLIENT_IGNORE_SPACE
-    \i CLIENT_SSL
-    \i CLIENT_ODBC
-    \i CLIENT_NO_SCHEMA
-    \i CLIENT_INTERACTIVE
-    \endlist
-
-    \i
-    \e none
-
-    \header \i ODBC \i PostgreSQL \i TDS
+    \header \i ODBC \i MySQL \i PostgreSQL
     \row
 
     \i
@@ -1008,6 +1011,17 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 
     \i
     \list
+    \i CLIENT_COMPRESS
+    \i CLIENT_FOUND_ROWS
+    \i CLIENT_IGNORE_SPACE
+    \i CLIENT_SSL
+    \i CLIENT_ODBC
+    \i CLIENT_NO_SCHEMA
+    \i CLIENT_INTERACTIVE
+    \endlist
+
+    \i
+    \list
     \i connect_timeout
     \i options
     \i tty
@@ -1015,32 +1029,60 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     \i service
     \endlist
 
+    \header \i DB2 \i OCI \i TDS
+    \row
+
+    \i
+    \list
+    \i SQL_ATTR_ACCESS_MODE
+    \i SQL_ATTR_LOGIN_TIMEOUT
+    \endlist
+
+    \i
+    \e none
+
     \i
     \e none
 
     \endtable
 
+    Example of usage:
     \code
+    ...
     // MySQL connection
-    db->setConnectOption( "CLIENT_SSL", "TRUE" ); // enable SSL connections for MySQL
+    db->setConnectOption( "CLIENT_SSL", TRUE ); // use an SSL connection to the server
     if ( !db->open() ) {
-        db->setConnectOption( "CLIENT_SSL", "FALSE" ); // disable the SSL option and try again
+        db->setConnectOption( "CLIENT_SSL", FALSE ); // disable the SSL option
+	...
+    }
+    ...
+    // PostgreSQL connection
+    db->setConnectOption( "requiressl", 1 ); // enable SSL connections
+    if ( !db->open() ) {
+        db->setConnectOption( "requiressl", QVariant() ); // removes the option from the connection string
 	...
     }
     ...
     // ODBC connection
-    db->setConnectOption( "SQL_ATTR_TRACE", "SQL_OPT_TRACE_ON" ); // turn on ODBC tracing
+    db->setConnectOption( "SQL_ATTR_TRACE", "SQL_OPT_TRACE_ON" ); // turn ODBC tracing on
     if ( !db->open() ) {
-        db->setConnectOption( "SQL_ATTR_TRACE", QString::null ); // don't try to set this option at all
+        db->setConnectOption( "SQL_ATTR_TRACE", QVariant() ); // don't try to set this option
 	...
     }
-    ...
     \endcode
+
+    Please refer to the client library documentation for more
+    information about the different options. The options will be set
+    prior to opening the actual database connection. Setting a new
+    option without re-opening the connection does nothing.
+    
+    \sa connectOption()
 */
-void QSqlDatabase::setConnectOption( const QString& option, const QString& value )
+
+void QSqlDatabase::setConnectOption( const QString& option, const QVariant& value )
 {
-    if ( value == QString::null ) {
-	QMap<QString, QString>::Iterator it;
+    if ( value.isNull() ) {
+	QMap<QString, QVariant>::Iterator it;
 	if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
 	    d->connOptions.remove( it );
     } else {
@@ -1049,14 +1091,51 @@ void QSqlDatabase::setConnectOption( const QString& option, const QString& value
 }
 
 /*!
-    Returns the value assosiated with connect option \a option.
-    If the option is not set to anything, a null string is returned.
+    Returns the value assosiated with connect \a option. If the option
+    is not explicitly set with setConnectOption(), a null variant is
+    returned.
 */
-QString QSqlDatabase::connectOption( const QString& option ) const
+
+QVariant QSqlDatabase::connectOption( const QString& option ) const
 {
-    QMap<QString, QString>::Iterator it;
+    QMap<QString, QVariant>::ConstIterator it;
     if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
 	return it.data();
-    return QString::null;
+    return QVariant();
+}
+
+/*!
+    Returns TRUE if a driver called \a name is available, otherwise
+    FALSE.
+    
+    \sa drivers()
+*/
+
+bool QSqlDatabase::isDriverAvailable( const QString& name )
+{
+    QStringList l = drivers();
+    QStringList::ConstIterator it = l.begin();
+    for ( ;it != l.end(); ++it ) {
+	if ( *it == name )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+/*! \overload
+  
+    This is useful if you want to instantiate the driver yourself.
+    
+    \warning The framework takes ownership of the \a driver pointer,
+    so it should not be deleted. The returned QSqlDatabase object is
+    owned by the framework and must not be deleted. If you want to
+    explicitely remove the connection, use removeDatabase()
+    
+    \sa drivers()
+*/
+
+QSqlDatabase* QSqlDatabase::addDatabase( QSqlDriver* driver, const QString& connectionName )
+{
+    return QSqlDatabaseManager::addDatabase( new QSqlDatabase( driver ), connectionName );
 }
 #endif // QT_NO_SQL

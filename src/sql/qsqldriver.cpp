@@ -486,7 +486,7 @@ bool QSqlDriver::open( const QString& db,
 		       const QString& password,
 		       const QString& host,
 		       int port,
-		       const QMap<QString, QString>& connOpts )
+		       const QMap<QString, QVariant>& connOpts )
 {
     if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
 	QSqlOpenExtension *ext = qt_open_extension_dict->find((QSqlDriver*)this);
@@ -495,4 +495,5 @@ bool QSqlDriver::open( const QString& db,
     }
     return open( db, user, password, host, port );
 }
+
 #endif // QT_NO_SQL

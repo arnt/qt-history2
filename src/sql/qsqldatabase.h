@@ -116,25 +116,28 @@ public:
 
     QSqlDriver*		driver() const;
 
-    void 		setConnectOption( const QString& option, const QString& value );
-    QString 		connectOption( const QString& option ) const;
+    void 		setConnectOption( const QString& option, const QVariant& value );
+    QVariant 		connectOption( const QString& option ) const;
     
     // MOC_SKIP_BEGIN
     QT_STATIC_CONST char * const defaultConnection;
     // MOC_SKIP_END
 
     static QSqlDatabase* addDatabase( const QString& type, const QString& connectionName = defaultConnection );
+    static QSqlDatabase* addDatabase( QSqlDriver* driver, const QString& connectionName = defaultConnection );
     static QSqlDatabase* database( const QString& connectionName = defaultConnection, bool open = TRUE );
     static void          removeDatabase( const QString& connectionName );
     static void          removeDatabase( QSqlDatabase* db );
     static bool          contains( const QString& connectionName = defaultConnection );
     static QStringList   drivers();
-    static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb );
-
+    static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator ); // ### 4.0: creator should not be const
+    static bool 	 isDriverAvailable( const QString& name );
+    
 protected:
     QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );
+    QSqlDatabase( QSqlDriver* driver, QObject * parent=0, const char * objname=0 );
 private:
-    void	init( const QString& type, const QString& name );
+    void 	init( const QString& type, const QString& name );
     QSqlDatabasePrivate* d;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QSqlDatabase( const QSqlDatabase & );

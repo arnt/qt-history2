@@ -70,11 +70,7 @@ public:
     QDB2Result * result;
 };
 
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 class QDB2OpenExtension : public QSqlOpenExtension
 {
@@ -88,7 +84,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString>& connOpts );    
+	       const QMap<QString, QVariant>& connOpts );    
 private:
     QDB2Driver *driver;
 };
@@ -98,7 +94,7 @@ bool QDB2OpenExtension::open( const QString& db,
 			      const QString& password,
 			      const QString& host,
 			      int port,
-			      const QMap<QString, QString>& connOpts )
+			      const QMap<QString, QVariant>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -1114,20 +1110,32 @@ int QDB2Result::size()
 
 /************************************/
 
-QDB2Driver::QDB2Driver()
-    : QSqlDriver()
+QDB2Driver::QDB2Driver( QObject* parent, const char* name )
+    : QSqlDriver( parent, name )
 {
-    if ( qt_open_extension_dict )
-	qt_open_extension_dict->insert( this, new QDB2OpenExtension(this) );
+    qSqlOpenExtDict()->insert( this, new QDB2OpenExtension(this) );
     d = new QDB2DriverPrivate;
+}
+
+QDB2Driver::QDB2Driver( SQLHANDLE env, SQLHANDLE con, QObject* parent, const char* name )
+    : QSqlDriver( parent, name )
+{
+    qSqlOpenExtDict()->insert( this, new QDB2OpenExtension(this) );
+    d = new QDB2DriverPrivate;
+    d->hEnv = env;
+    d->hDbc = con;
+    if ( env && con ) {
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
 }
 
 QDB2Driver::~QDB2Driver()
 {
     close();
     delete d;
-    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
-	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
 }
@@ -1139,7 +1147,7 @@ bool QDB2Driver::open( const QString&, const QString&, const QString&, const QSt
 }
 
 bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int, 
-		       const QMap<QString, QString>& connOpts )
+		       const QMap<QString, QVariant>& connOpts )
 {
     if ( isOpen() )
       close();
@@ -1163,12 +1171,12 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
     }
     // Set connection attributes
     if ( connOpts.count() ) {
-	QMap<QString, QString>::ConstIterator it;
+	QMap<QString, QVariant>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
 	    opt = it.key().upper();
-	    val = it.data().upper();
+	    val = it.data().toString().upper();
 	    qWarning( opt + " - " + val );
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
@@ -1177,7 +1185,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 		} else if ( val == "SQL_MODE_READ_WRITE" ) {
 		    v = SQL_MODE_READ_WRITE;
 		} else {
-		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).latin1() );
+		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).toString().latin1() );
 		    break;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
@@ -1198,7 +1206,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
     }
         
     QString connQStr;
-    connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password + ";";
+    connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password;
     SQLTCHAR connOut[ SQL_MAX_OPTION_STRING_LENGTH ];
     SQLSMALLINT cb;
 
