@@ -12,7 +12,7 @@ void usage( const QString& message = QString::null )
 {
     if ( !message.isNull() )
 	qWarning( appname + ": " + message );
-    qWarning( "Usage: " + appname + " <options> [command]" );
+    qWarning( "Usage: " + appname + " <options> [command] ..." );
     qWarning( " Options:" );
     qWarning( " -a             Analyse and quit" );
     qWarning( " -c <commands>  Execute <commands>" );
@@ -74,8 +74,10 @@ int main( int argc, char** argv )
 	} else if ( arg == "-help" || arg == "-h" || arg == "--help" ) {
 	    usage();
 	    return 0;
-	} else
+	} else if ( arg[0] == '-' )
 	    die( "invalid option: " + arg );
+	else
+	    commands += commands.length() ? (" " + arg) : arg;
     }
 
     /* output file */
@@ -128,7 +130,7 @@ int main( int argc, char** argv )
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
 	if ( analyse )
-	    env.saveListing( outstream );
+	    outstream << env.program()->listing().join( "\n" ) ;
 	else if ( !env.execute( verbose ) )
 	    die( env.lastError() );
     } else
