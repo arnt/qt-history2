@@ -1433,51 +1433,47 @@ void QListViewPrivate::prepareItemsLayout()
 void QListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
     intersectVector.clear();
-    QAbstractItemModel *model = q->model();
-
-    QModelIndex index;
-    QModelIndex root = q->root();
-    int first, last, count, i, j;
-    bool wraps = wrapVector.count() > 1;
+    int wrapStartPosition;
+    int wrapEndPosition;
+    int flowStartPosition;
+    int flowEndPosition;
+    QVector<int> flowPositions;
+    QVector<int> wrappingPositions;
+    QVector<int> wrappingStartRows;
     if (flow == QListView::LeftToRight) {
-        if (yposVector.count() == 0)
-            return;
-        j = qBinarySearch<int>(yposVector, area.top(), 0, layoutWraps); // index to the first ypos
-        for (; j <= layoutWraps && yposVector.at(j) < area.bottom(); ++j) {
-            first = wrapVector.at(j);
-            count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
-            last = first + count;
-            i = qBinarySearch<int>(xposVector, area.left(), first, last);
-            for (; i <= last && xposVector.at(i) < area.right(); ++i) {
-                if (!hiddenRows.contains(i)) {
-                    index = model->index(i, d->column, root);
-                    if (index.isValid())
-                        intersectVector.append(index);
-                    else
-                        qFatal("intersectingStaticSet: index %d was invalid", i);
-                }
-            }
-        }
-    } else { // flow == TopToBottom
-        if (xposVector.count() == 0)
-            return;
-        j = qBinarySearch<int>(xposVector, area.left(), 0, layoutWraps); // index to the first xpos
-        for (; j <= layoutWraps && xposVector.at(j) < area.right(); ++j) {
-            first = wrapVector.at(j);
-            count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
-            last = first + count;
-            i = qBinarySearch<int>(yposVector, area.top(), first, last);
-            for (; i <= last && yposVector.at(i) < area.bottom(); ++i) {
-                if (!hiddenRows.contains(i)) {
-                    index = model->index(i, d->column, root);
-                    if (index.isValid())
-                        intersectVector.append(index);
-                    else
-                        qFatal("intersectingStaticSet: index %d was invalid", i);
-                }
-            }
-        }
+        flowPositions = xposVector;
+        wrappingPositions = yposVector;
+        wrappingStartRows = wrapVector;
+        wrapStartPosition = area.top();
+        wrapEndPosition = area.bottom();
+        flowStartPosition = area.left();
+        flowEndPosition = area.right();
+    } else {
+        flowPositions = yposVector;
+        wrappingPositions = xposVector;
+        wrappingStartRows = wrapVector;
+        wrapStartPosition = area.left();
+        wrapEndPosition = area.right();
+        flowStartPosition = area.top();
+        flowEndPosition = area.bottom();
     }
+    if (wrappingPositions.isEmpty() || flowPositions.isEmpty())
+        return;
+    int wrap = qBinarySearch<int>(wrappingPositions, wrapStartPosition, 0, layoutWraps);
+    for (; wrap <= layoutWraps && wrappingPositions.at(wrap) < wrapEndPosition; ++wrap) {
+        int first = wrappingStartRows.at(wrap);
+        int last = (wrap < layoutWraps ? wrappingStartRows.at(wrap + 1) : layoutStart) - 1;
+        int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
+        for (; row <= last && flowPositions.at(row) < flowEndPosition; ++row) {
+            if (hiddenRows.contains(row))
+                continue;
+            QModelIndex index = model->index(row, d->column, root);
+            if (index.isValid())
+                intersectVector.append(index);
+            else
+                qWarning("intersectingStaticSet: row %d was invalid", row);
+        }
+    }    
 }
 
 void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
