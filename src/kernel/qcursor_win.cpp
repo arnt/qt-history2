@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#40 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -179,7 +179,7 @@ QCursor &QCursor::operator=( const QCursor &c )
     if ( !initialized )
 	initialize();
     c.data->ref();				// avoid c = c
-    if ( data->deref() )
+    if ( data && data->deref() )
 	delete data;
     data = c.data;
     return *this;
