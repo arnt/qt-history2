@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#82 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -428,8 +428,10 @@ int QMultiLineEdit::textWidth( int line )
 
 void QMultiLineEdit::focusInEvent( QFocusEvent * )
 {
-    if ( dragScrolling )
+    if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	dragScrolling = FALSE;
+    }
     blinkTimer = startTimer( blinkTime );
     cursorOn = TRUE;
     updateCell( cursorY, 0, FALSE );
@@ -442,8 +444,10 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
-    if ( dragScrolling )
+    if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	dragScrolling = FALSE;
+    }
     killTimer( blinkTimer );
     blinkTimer = 0;
     if ( cursorOn )
@@ -1518,8 +1522,10 @@ void QMultiLineEdit::end( bool mark )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
-    if ( dragScrolling )
+    if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	dragScrolling = FALSE;
+    }
     textDirty = FALSE;
     wordMark = FALSE;
     int newY = findRow( m->pos().y() );
