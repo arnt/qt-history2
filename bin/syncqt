@@ -105,7 +105,12 @@ sub checkUnix {
 ######################################################################
 sub shouldMasterInclude {
     my ($iheader) = @_;
-    return 0 if($iheader =~ /_/);
+    return 0 if($iheader =~ /_p./);
+    return 0 if($iheader =~ /_win./);
+    return 0 if($iheader =~ /_mac./);
+    return 0 if($iheader =~ /_qws./);
+    return 0 if($iheader =~ /_x11./);
+    return 0 if($iheader =~ /_wce./);
     return 0 if($iheader =~ /qconfig/);
     if(open(F, "<$iheader")) {
         while(<F>) {
