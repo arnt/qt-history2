@@ -18,7 +18,6 @@
 #include "qdatastream.h"
 #include "qtextstream.h"
 #include "qbuffer.h"
-#include "qptrlist.h"
 #include "qasyncimageio.h"
 #include "qpngio.h"
 #include "qmngio.h"
@@ -3748,8 +3747,8 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QByteArray& fl
     write_image = w;
 }
 
-typedef QPtrList<QImageHandler> QIHList;// list of image handlers
-static QIHList *imageHandlers = 0;
+typedef QList<QImageHandler *> QIHList;// list of image handlers
+static QIHList imageHandlers;
 #ifndef QT_NO_COMPONENT
 static QPluginManager<QImageFormatInterface> *plugin_manager = 0;
 #else
@@ -3780,8 +3779,7 @@ void qt_init_image_plugins()
 static void cleanup()
 {
     // make sure that image handlers are delete before plugin manager
-    delete imageHandlers;
-    imageHandlers = 0;
+    imageHandlers.clear();
 #ifndef QT_NO_COMPONENT
     delete plugin_manager;
     plugin_manager = 0;
@@ -3791,8 +3789,7 @@ static void cleanup()
 void qt_init_image_handlers()		// initialize image handlers
 {
     if ( !imageHandlers ) {
-	imageHandlers = new QIHList;
-	imageHandlers->setAutoDelete( TRUE );
+	imageHandlers.setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup );
 #ifndef QT_NO_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
@@ -3836,11 +3833,10 @@ static QImageHandler *get_image_handler( const char *format )
 {						// get pointer to handler
     qt_init_image_handlers();
     qt_init_image_plugins();
-    register QImageHandler *p = imageHandlers->first();
-    while ( p ) {				// traverse list
+    for (int i = 0; i < imageHandlers.size(); ++i) {
+	QImageHandler *p = imageHandlers.at(i);
 	if ( p->format == format )
 	    return p;
-	p = imageHandlers->next();
     }
     return 0;					// no such handler
 }
@@ -3909,7 +3905,7 @@ void QImageIO::defineIOHandler( const char *format,
     QImageHandler *p;
     p = new QImageHandler( format, header, QByteArray(flags),
 			   readImage, writeImage );
-    imageHandlers->insert( 0, p );
+    imageHandlers.insert( 0, p );
 }
 
 
@@ -4188,15 +4184,13 @@ QByteArray QImageIO::imageFormat( QIODevice *d )
     if ( d->status() == IO_Ok && rdlen > 0 ) {
 	buf[rdlen - 1] = '\0';
 	QString bufStr = QString::fromLatin1(buf);
-	QImageHandler *p = imageHandlers->first();
-	while ( p ) {
-	    if ( p->header.search(bufStr) != -1 )
+	for (int i = 0; i < imageHandlers.size(); ++i) {
+	    QImageHandler *p = imageHandlers.at(i);
+	    if ( p->header.search(bufStr) != -1 ) {
 		// try match with headers
-	    {
 		format = p->format;
 		break;
 	    }
-	    p = imageHandlers->next();
 	}
     }
     d->at( pos );				// restore position
@@ -4224,15 +4218,12 @@ QList<QByteArray> QImageIO::inputFormats()
     result = QImageDecoder::inputFormats();
 #endif
 
-    QImageHandler *p = imageHandlers->first();
-    while ( p ) {
+    for (int i = 0; i < imageHandlers.size(); ++i) {
+	QImageHandler *p = imageHandlers.at(i);
 	if ( p->read_image
-	    && !p->obsolete
-	    && !result.contains(p->format) )
-	{
+	     && !p->obsolete
+	     && !result.contains(p->format) )
 	    result.append(p->format);
-	}
-	p = imageHandlers->next();
     }
     qHeapSort(result);
 
@@ -4253,15 +4244,12 @@ QList<QByteArray> QImageIO::outputFormats()
     // Include asynchronous writers (!) first.
     // (None)
 
-    QImageHandler *p = imageHandlers->first();
-    while ( p ) {
+    for (int i = 0; i < imageHandlers.size(); ++i) {
+	QImageHandler *p = imageHandlers.at(i);
 	if ( p->write_image
-	    && !p->obsolete
-	    && !result.contains(p->format) )
-	{
+	     && !p->obsolete
+	     && !result.contains(p->format) )
 	    result.append(p->format);
-	}
-	p = imageHandlers->next();
     }
 
     return result;

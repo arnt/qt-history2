@@ -20,7 +20,8 @@
 #include "qpixmap.h"
 #include "qcursor.h"
 #include "qscrollview.h"
-#include "qptrdict.h"
+#include "qlist.h"
+#include "qhash.h"
 #include "qapplication.h"
 #include "qtimer.h"
 #include "qstyle.h"
@@ -89,8 +90,6 @@ public:
         : QWidget ( parent,name,f) {}
 };
 
-#include "qscrollview.moc"
-
 class QScrollViewData {
 public:
     QScrollViewData(QScrollView* parent, Qt::WFlags vpwflags) :
@@ -127,7 +126,7 @@ public:
     }
     ~QScrollViewData();
 
-    QSVChildRec* rec(QWidget* w) { return childDict.find(w); }
+    QSVChildRec* rec(QWidget* w) { return *childDict.find(w); }
     QSVChildRec* ancestorRec(QWidget* w);
     QSVChildRec* addChildRec(QWidget* w, int x, int y )
     {
@@ -139,7 +138,7 @@ public:
     void deleteChildRec(QSVChildRec* r)
     {
         childDict.remove(r->child);
-        children.removeRef(r);
+        children.remove(r);
         delete r;
     }
 
@@ -158,8 +157,8 @@ public:
     QViewportWidget*	viewport;
     QClipperWidget*	clipped_viewport;
     Qt::WFlags flags;
-    QPtrList<QSVChildRec>       children;
-    QPtrDict<QSVChildRec>       childDict;
+    QList<QSVChildRec *> children;
+    QHash<QWidget *, QSVChildRec *> childDict;
     QWidget*    corner, *defaultCorner;
     int         vx, vy, vwidth, vheight; // for drawContents-style usage
     int         l_marg, r_marg, t_marg, b_marg;
@@ -241,7 +240,8 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 	// (with the safe assumption that the newly exposed area
 	// covers the entire viewport)
     }
-    for (QSVChildRec *r = children.first(); r; r=children.next()) {
+    for (int i = 0; i < children.size(); ++i) {
+	QSVChildRec *r = children.at(i);
 	r->hideOrShow(sv, clipped_viewport);
     }
 }
@@ -252,7 +252,8 @@ void QScrollViewData::moveAllBy(int dx, int dy)
 	clipped_viewport->move( clipped_viewport->x()+dx,
 				clipped_viewport->y()+dy );
     } else {
-	for (QSVChildRec *r = children.first(); r; r=children.next()) {
+	for (int i = 0; i < children.size(); ++i) {
+	    QSVChildRec *r = children.at(i);
 	    r->child->move(r->child->x()+dx,r->child->y()+dy);
 	}
 	if ( static_bg )
@@ -262,7 +263,8 @@ void QScrollViewData::moveAllBy(int dx, int dy)
 
 bool QScrollViewData::anyVisibleChildren()
 {
-    for (QSVChildRec *r = children.first(); r; r=children.next()) {
+    for (int i = 0; i < children.size(); ++i) {
+	QSVChildRec *r = children.at(i);
 	if (r->child->isVisible()) return TRUE;
     }
     return FALSE;

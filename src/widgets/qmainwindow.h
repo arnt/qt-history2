@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qtoolbar.h"
-#include "qptrlist.h"
 #include "qtextstream.h"
 #endif // QT_H
 
@@ -30,6 +29,7 @@ class QToolTipGroup;
 class QMainWindowPrivate;
 class QMainWindowLayout;
 class QPopupMenu;
+template<class T> class QPtrList;
 
 class Q_GUI_EXPORT QMainWindow: public QWidget
 {

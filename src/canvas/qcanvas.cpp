@@ -23,6 +23,7 @@
 #include "qpolygonscanner.h"
 #include "qtimer.h"
 #include "qtl.h"
+#include "qptrlist.h"
 
 #include <stdlib.h>
 
@@ -4424,7 +4425,7 @@ QPointArray QCanvasLine::areaPoints() const
     return p;
 }
 
-/*! 
+/*!
     \reimp
 
 */

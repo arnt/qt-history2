@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qasciidict.h"
 #include "qpalette.h"
-#include "qstrlist.h"
 #include "qstringlist.h"
 #include "qkernelapplication.h"
 #include "qpoint.h"
