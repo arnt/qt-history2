@@ -88,7 +88,7 @@ public:
 
 template<class type>
 Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::Q3MemArray(const QVector<type> &vector)
-    : Q3GArray(vector.size())
+    : Q3GArray(vector.size()*sizeof(type))
 {
     for (int i = 0; i < vector.size(); ++i)
         at(i) = vector.at(i);
