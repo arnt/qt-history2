@@ -181,7 +181,6 @@ void QTextView::init()
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
 	     this, SLOT( setRealWidth( int ) ) );
 
-    firstResize = TRUE;
     drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
@@ -729,23 +728,11 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 
 void QTextView::resizeEvent( QResizeEvent *e )
 {
-    if ( !firstResize
-#if defined(Q_WS_X11)
-	 && e->oldSize().width() != e->size().width()
-#endif
-	 )
-	resizeTimer->stop();
     QScrollView::resizeEvent( e );
-    if ( !firstResize ) {
-#if defined(Q_WS_X11) // ##### fix the data we get from QResizeEvent on windows!!!
-	if ( e->oldSize().width() != e->size().width() )
+#if defined(Q_WS_X11)
+    if ( e->oldSize().width() != e->size().width() )
 #endif
-	    resizeTimer->start( 0, TRUE );
-    } else {
-	    doResize();
-    }
-
-    firstResize = FALSE;
+	doResize();
 }
 
 void QTextView::ensureCursorVisible()

@@ -317,7 +317,6 @@ private:
     bool cursorVisible, blinkCursorVisible;
     bool readOnly, modified, mightStartDrag;
     QPoint dragStartPos;
-    bool firstResize;
     QString onLink;
     bool overWrite;
     WordWrap wrapMode;
