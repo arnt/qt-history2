@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#28 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#28 $";
 #endif
 
 
@@ -53,10 +53,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#27 $";
 					// helvetica, 18pt, normal
       p.setFont( QFont( "helvetica", 18 ) );
       p.drawText( 10, 120, "Text2" );
-					// courier, 18pt, bold
+					// courier, 24pt, bold
       p.setFont( QFont( "courier", 24, QFont::Bold ) );
       p.drawText( 10, 220, "Text3" );
-					// lucida, 24pt, bold, italic
+					// lucida, 36pt, bold, italic
       p.setFont( QFont( "lucida", 36, QFont::Bold, TRUE ) );
       p.drawText( 10, 320, "Text4" );
 
