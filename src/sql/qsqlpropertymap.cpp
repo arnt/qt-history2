@@ -64,7 +64,7 @@ public:
 
   For example, a QLineEdit can be used to edit text strings and other
   data types in QDataTables or QSqlForms. Several properties are
-  defined in QLineEdit, but only the \a text property is used to
+  defined in QLineEdit, but only the \e text property is used to
   insert and extract text from a QLineEdit. Both QDataTable and QSqlForm
   use the global QSqlPropertyMap for inserting and extracting values
   to and from an editor widget.  The global property map defines

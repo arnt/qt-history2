@@ -124,12 +124,10 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
   The currently defined values are:
 
-  ### Dave what does Column really mean?
-
   <ul>
   <li> \c Data -- refresh the data
-  <li> \c Column -- refresh the column headings
-  <li> \c All -- refresh both the data and the column headings
+  <li> \c Column -- refresh the list of fields, e.g. the column headings
+  <li> \c All -- refresh both the data and the list of fields 
   </ul>
 */
 
@@ -138,7 +136,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   \class QDataTable qdatatable.h
   \module sql
 
-  \brief A flexible SQL table widget that supports browsing and editing.
+  \brief This class provides a flexible SQL table widget that supports browsing and editing.
 
   QDataTable supports various functions for presenting and editing SQL
   data from a \l QSqlCursor.
@@ -158,17 +156,19 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   sort and filter the data and sort columns. See setCursor(),
   setFilter(), setSort(), setSorting(), sortColumn() and refresh().
 
-  When displaying editable cursors, cell editing will be enabled (for
+  When displaying editable cursors, cell editing will be enabled. (For
   more information on editable cursors, see \l QSqlCursor).  QDataTable
   can be used to modify existing data and to enter new records.  When
   a user makes changes to a field in the table, the cursor's edit
   buffer is used.  The table will not send changes in the edit buffer
   to the database until the user moves to a different record in the
-  grid.  If there is a problem updating data, errors will be handled
-  automatically (see handleError() to change this behavior). QDataTable
-  creates editors using the default \l QSqlEditorFactory. Different
-  editor factories can be used by calling installEditorFactory(). Cell
-  editing is initiated by pressing F2 and cancelled by pressing Esc.
+  grid or presses Return.  If there is a problem updating data, errors
+  will be handled automatically (see handleError() to change this
+  behavior). QDataTable creates editors using the default \l
+  QSqlEditorFactory. Different editor factories can be used by calling
+  installEditorFactory(). Cell editing is initiated by pressing F2 (or
+  right clicking and then left clicking the appropriate pop-up menu
+  item) and cancelled by pressing Esc.
 
   Columns in the table can be created automatically based on the
   cursor (see setCursor()), or manually (see addColumn() and
