@@ -13,11 +13,26 @@
 
 #include "qabstracttextdocumentlayout_p.h"
 
+#include <qdebug.h>
+
+#define LAYOUT_DEBUG
+
+#ifdef LAYOUT_DEBUG
+#define LDEBUG qDebug()
+#define INC_INDENT debug_indent += "  "
+#define DEC_INDENT debug_indent = debug_indent.left(debug_indent.length()-2)
+#else
+#define LDEBUG if(0) qDebug()
+#define INC_INDENT if(0)
+#define DEC_INDENT if(0)
+#endif
+
 // ################ should probably add frameFormatChange notification!
 
 class QTextFrameData : public QTextFrameLayoutData
 {
 public:
+    // relative to parent frame
     QRect boundingRect;
 
     // contents starts at (margin+border+padding/margin+border+padding)
@@ -47,6 +62,7 @@ inline QTextFrameData *data(QTextFrame *f)
     }
     return data;
 }
+
 
 /*
 
@@ -106,20 +122,27 @@ public:
     mutable QTextBlockIterator currentBlock;
 
     int widthUsed;
-
     int blockTextFlags;
+#ifdef LAYOUT_DEBUG
+    mutable QString debug_indent;
+#endif
 
-    void drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                             QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
-    void drawBlock(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context, QTextBlockIterator bl) const;
     static int indent(QTextBlockIterator bl);
+
+    void drawFrame(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                   QTextFrame *f) const;
+    void drawBlock(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                   QTextBlockIterator bl) const;
+    void drawListItem(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                      QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
+
     int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
-    void layoutBlock(const QTextBlockIterator block, LayoutStruct *layoutStruct);
-    void layoutFlow(LayoutStruct *layoutStruct, int from, int to);
-    void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
-
     void relayoutDocument();
+    void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
+    void layoutFlow(LayoutStruct *layoutStruct, int from, int to);
+    void layoutBlock(const QTextBlockIterator block, LayoutStruct *layoutStruct);
+
 
     void floatMargins(LayoutStruct *layoutStruct, int *left, int *right);
     void findY(LayoutStruct *layoutStruct, int requiredWidth);
@@ -172,7 +195,109 @@ int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl)
     return indent * TextIndentValue;
 }
 
-void QTextDocumentLayoutPrivate::drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *painter,
+                                           const QAbstractTextDocumentLayout::PaintContext &context,
+                                           QTextFrame *frame) const
+{
+    QTextFrameData *fd = data(frame);
+    if (!fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
+        return;
+    LDEBUG << debug_indent << "drawFrame" << frame->startPosition() << "--" << frame->endPosition() << "at" << offset;
+    INC_INDENT;
+
+    QPoint off = offset + fd->boundingRect.topLeft();
+
+    // draw frame decoration
+    if (fd->border) {
+        painter->save();
+        painter->setBrush(black);
+        painter->setPen(NoPen);
+        int w = fd->contentsWidth + 2*fd->padding + fd->border;
+        int h = fd->contentsHeight + 2*fd->padding + fd->border;
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, fd->border, h);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w, fd->border);
+        painter->drawRect(off.x() + fd->margin + w, off.y() + fd->margin, fd->border, h);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + h, w + fd->border, fd->border);
+        painter->restore();
+    }
+
+    QTextBlockIterator it = q->findBlock(frame->startPosition());
+    QTextBlockIterator end = q->findBlock(frame->endPosition()+1);
+
+    QList<QTextFrame *> children = frame->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QTextFrame *c = children.at(i);
+        QTextBlockIterator s = q->findBlock(c->startPosition());
+        while (it != s) {
+            drawBlock(off, painter, context, it);
+            ++it;
+        }
+        drawFrame(off, painter, context, children.at(i));
+        it = q->findBlock(c->endPosition()+1);
+    }
+    while (it != end) {
+        drawBlock(off, painter, context, it);
+        ++it;
+    }
+
+    DEC_INDENT;
+}
+
+void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *painter,
+                                           const QAbstractTextDocumentLayout::PaintContext &context,
+                                           QTextBlockIterator bl) const
+{
+    LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
+    currentBlock = bl;
+    const QTextLayout *tl = bl.layout();
+    QTextBlockFormat blockFormat = bl.blockFormat();
+
+    int cursor = context.showCursor ? context.cursor.position() : -1;
+
+    if (bl.contains(cursor))
+        cursor -= bl.position();
+    else
+        cursor = -1;
+
+    QColor bgCol = blockFormat.backgroundColor();
+    if (bgCol.isValid())
+        painter->fillRect(bl.layout()->rect(), bgCol);
+
+    QTextLayout::Selection s;
+    int nSel = 0;
+    if (context.cursor.hasSelection()) {
+        int selStart = context.cursor.selectionStart();
+        int selEnd = context.cursor.selectionEnd();
+        s.setRange(selStart - bl.position(), selEnd - selStart);
+        s.setType(QTextLayout::Highlight);
+        ++nSel;
+    }
+
+    if (bl.blockFormat().listFormat().style() != QTextListFormat::ListStyleUndefined)
+        drawListItem(offset, painter, context, bl, s);
+
+    if (tl->numLines() == 0) {
+
+        QPoint pos = tl->rect().topLeft() + offset;
+
+        pos.rx() += blockFormat.leftMargin() + indent(bl);
+        pos.ry() += blockFormat.topMargin();
+
+        if (cursor != -1)
+            painter->drawLine(pos.x(), pos.y(),
+                              pos.x(), pos.y() + QFontMetrics(bl.charFormat().font()).height());
+        return;
+    }
+
+    const_cast<QTextLayout *>(tl)->setPalette(context.palette,
+                                              context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
+
+    tl->draw(painter, offset, cursor, &s, nSel, painter->clipRegion().boundingRect());
+}
+
+
+void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *painter,
+                                              const QAbstractTextDocumentLayout::PaintContext &context,
                                               QTextBlockIterator bl, const QTextLayout::Selection &selection) const
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -180,7 +305,7 @@ void QTextDocumentLayoutPrivate::drawListItem(QPainter *painter, const QAbstract
     QFontMetrics fontMetrics(charFormat.font());
     const int style = bl.blockFormat().listFormat().style();
     QString itemText;
-    QPoint pos = bl.layout()->rect().topLeft();
+    QPoint pos = bl.layout()->rect().topLeft() + offset;
     QSize size;
 
     switch (style) {
@@ -246,55 +371,6 @@ void QTextDocumentLayoutPrivate::drawListItem(QPainter *painter, const QAbstract
     }
 }
 
-void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                                           QTextBlockIterator bl) const
-{
-    currentBlock = bl;
-    const QTextLayout *tl = bl.layout();
-    QTextBlockFormat blockFormat = bl.blockFormat();
-
-    int cursor = context.showCursor ? context.cursor.position() : -1;
-
-    if (bl.contains(cursor))
-        cursor -= bl.position();
-    else
-        cursor = -1;
-
-    QColor bgCol = blockFormat.backgroundColor();
-    if (bgCol.isValid())
-        painter->fillRect(bl.layout()->rect(), bgCol);
-
-    QTextLayout::Selection s;
-    int nSel = 0;
-    if (context.cursor.hasSelection()) {
-        int selStart = context.cursor.selectionStart();
-        int selEnd = context.cursor.selectionEnd();
-        s.setRange(selStart - bl.position(), selEnd - selStart);
-        s.setType(QTextLayout::Highlight);
-        ++nSel;
-    }
-
-    if (bl.blockFormat().listFormat().style() != QTextListFormat::ListStyleUndefined)
-        drawListItem(painter, context, bl, s);
-
-    if (tl->numLines() == 0) {
-
-        QPoint pos = tl->rect().topLeft();
-
-        pos.rx() += blockFormat.leftMargin() + indent(bl);
-        pos.ry() += blockFormat.topMargin();
-
-        if (cursor != -1)
-            painter->drawLine(pos.x(), pos.y(),
-                              pos.x(), pos.y() + QFontMetrics(bl.charFormat().font()).height());
-        return;
-    }
-
-    const_cast<QTextLayout *>(tl)->setPalette(context.palette,
-                                              context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
-
-    tl->draw(painter, QPoint(0, 0), cursor, &s, nSel, painter->clipRegion().boundingRect());
-}
 
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
@@ -321,13 +397,13 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         int width = fformat.width();
         if (width == -1)
             width = pd ? pd->contentsWidth : pageSize.width();
-        fd->contentsWidth = width - fd->margin - fd->border - fd->padding;
+        fd->contentsWidth = width - 2*(fd->margin + fd->border + fd->padding);
 
         int height = fformat.height();
         if (height == -1)
             height = pd ? pd->contentsHeight : -1;
         if (height != -1) {
-            fd->contentsHeight = height - fd->margin - fd->border - fd->padding;
+            fd->contentsHeight = height - 2*(fd->margin + fd->border + fd->padding);
         } else {
             fd->contentsHeight = height;
         }
@@ -411,15 +487,15 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         if (!fd->layoutedFrames.contains(c)) {
             QTextFrameData *cd = data(c);
             if (cd->position == QTextFrameFormat::InFlow) {
-                cd->boundingRect.moveTopLeft(QPoint(layoutStruct.y, margin));
+                cd->boundingRect.moveTopLeft(QPoint(margin, layoutStruct.y));
                 layoutStruct.y += cd->boundingRect.height();
             } else {
                 int left, right;
                 floatMargins(&layoutStruct, &left, &right);
                 if (cd->position == QTextFrameFormat::FloatLeft)
-                    cd->boundingRect.moveTopLeft(QPoint(layoutStruct.y, left));
+                    cd->boundingRect.moveTopLeft(QPoint(left, layoutStruct.y));
                 else
-                    cd->boundingRect.moveTopRight(QPoint(layoutStruct.y, right));
+                    cd->boundingRect.moveTopRight(QPoint(right, layoutStruct.y));
                 fd->layoutedFrames.append(c);
             }
         }
@@ -465,9 +541,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl, LayoutStruct
 
     int frameMargin = fd->margin + fd->border + fd->padding;
     int l = blockFormat.leftMargin() + indent(bl);
-    int r = fd->contentsWidth - blockFormat.rightMargin();
+    int r = fd->contentsWidth + 2*frameMargin - blockFormat.rightMargin();
 
-    tl->setPosition(QPoint(frameMargin, cy));
+    tl->setPosition(QPoint(0, cy));
 
     while (1) {
         QTextLine line = tl->createLine();
@@ -567,9 +643,8 @@ QTextDocumentLayout::QTextDocumentLayout()
 
 void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 {
-    QTextBlockIterator it = begin();
-    for (; it != end(); ++it)
-        d->drawBlock(painter, context, it);
+    QTextFrame *frame = rootFrame();
+    d->drawFrame(QPoint(), painter, context, frame);
 }
 
 static void markFrames(QTextFrame *current, int start, int end)
