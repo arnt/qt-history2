@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#33 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -771,7 +771,7 @@ void QWhatsThis::enterWhatsThisMode()
     as in the code fragment:
 
   \code
-    QPopupMenu * help = new QPopupMenu();
+    QPopupMenu * help = new QPopupMenu( this );
     help->insertItem( "What's &This", new QWhatsThis(this), SLOT(whatsThis()), SHIFT+Key_F1);
   \endcode
   \sa enterWhatsThisMode()
