@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#11 $
 **
 ** Definition of QPixMap class
 **
@@ -50,6 +50,7 @@ public:
     static QPixMap *find( const char *key );
     static bool     insert( const char *key, QPixMap * );
     static void	    setCacheSize( long );
+    static void	    cleanup();
 
 protected:
     QPixMap( int w, int h, const char *data );
