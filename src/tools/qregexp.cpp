@@ -3249,8 +3249,8 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 /*!
   Returns TRUE if the pattern string is empty, otherwise FALSE.
 
-  If you call match() with an empty pattern on an empty string it will
-  return TRUE otherwise it returns FALSE since match() operates over the
+  If you call exactMatch() with an empty pattern on an empty string it will
+  return TRUE; otherwise it returns FALSE since it operates over the
   whole string. If you call search() with an empty pattern on \e any
   string it will return the start position (0 by default) since it will
   match at the start position, because the empty pattern matches the
@@ -3402,13 +3402,13 @@ void QRegExp::setMinimal( bool minimal )
   matched by calling matchedLength().
 
   For a given regexp string, R, exactMatch("R") is the equivalent
-  of search("^R$") since match() effectively encloses the
+  of search("^R$") since exactMatch() effectively encloses the
   regexp in the start of string and end of string anchors, except that
   it sets matchedLength() differently.
 
-  For example, if the regular expression is <b>blue</b>, then match()
+  For example, if the regular expression is <b>blue</b>, then exactMatch()
   returns TRUE only for input \c blue.  For inputs \c bluebell, \c
-  blutak and \c lightblue, match() returns FALSE and matchedLength()
+  blutak and \c lightblue, exactMatch() returns FALSE and matchedLength()
   will return 4, 3 and 0 respectively.
 
   Although const, this function sets matchedLength(), capturedTexts()
