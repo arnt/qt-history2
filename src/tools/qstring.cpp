@@ -13689,7 +13689,8 @@ QString QString::arg( QChar a, int fieldwidth ) const
     \endtable
 
     In all cases the number of digits after the decimal point is equal
-    to the precision specified in \a prec.
+    to the precision specified in \a prec. If the format is 'g' the
+    the zeroes that follow are removed.
 
     \code
 	double d = 12.34;
@@ -14277,7 +14278,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    hashHaystack = ((hashHaystack<<1) + (h-i)->unicode() );
 	}
 	hashHaystack -= haystack->unicode();
-	
+
 	while ( haystack >= end ) {
 	    hashHaystack += haystack->unicode();
  	    if ( hashHaystack == hashNeedle  && ucstrncmp( needle, haystack, sl ) == 0 )
@@ -14291,7 +14292,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    hashHaystack = ((hashHaystack<<1) + ::lower( (h-i)->unicode() ).unicode() );
 	}
 	hashHaystack -= ::lower(*haystack).unicode();
-	
+
 	while ( haystack >= end ) {
 	    hashHaystack += ::lower(*haystack).unicode();
 	    if ( hashHaystack == hashNeedle && ucstrnicmp( needle, haystack, sl ) == 0 )

@@ -321,9 +321,9 @@ Since the search engine is built and optimized for a fast search
 instead of perfect string matching, some words are not considered in
 the search. One example is the English word 'a'. It would not make
 sense to search for 'a' because it contains no information. Searching
-for 'a' will return thousands of documents without knowing anything
+for 'a' would return thousands of documents without knowing anything
 about these documents, except that they all contain 'a'. But searching
-for a more meaningful phrase such as 'this is a string', will return in
+for a more meaningful phrase such as 'this is a string', will return 
 all documents which contain the phrase.
 
 The list of documents is ordered according to the number of
