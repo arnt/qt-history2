@@ -139,7 +139,7 @@ void QAccessible::updateAccessibility(QObject *object, int control, Event reason
     if(!AXAPIEnabled()) //no point in any of this code..
         return;
     if(control != 0) {
-        //need to look up the proper object.. FIXME
+        //need to look up the proper object..
     }
     CFStringRef notification = 0;
     if(object->isWidgetType()) {

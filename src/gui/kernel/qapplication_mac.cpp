@@ -2163,7 +2163,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                                tmp_mod | keyc, &tmp_state);
         }
         /* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
-           is this a bug on X11? --Sam ### */
+           is this a bug on X11? --Sam */
         QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
         if(etype == QEvent::KeyPress) {
             UInt32 unilen;
@@ -2310,8 +2310,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 widget->topLevelWidget()->setActiveWindow();
         } else if(ekind == kEventWindowActivated) {
             if(QApplication::app_style) {
-                //I shouldn't have to do this, but the StyleChanged isn't happening as I expected
-                //so this is in for now, FIXME!
                 QEvent ev(QEvent::Style);
                 QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
             }
