@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#25 $
 **
 ** Implementation of QStyle class
 **
@@ -539,10 +539,10 @@ QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int slid
 */
 
 /*!
-  \fn  void QStyle::drawSlider( QPainter *p,
+  \fn void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir)
+			     Orientation, bool tickAbove, bool tickBelow)
   Draws a slider.
 			
 */
@@ -559,10 +559,10 @@ QStyle::drawSliderMask( QPainter *p,
 }
 
 /*!
-  \fn  void QStyle::drawSliderGroove( QPainter *p,
-                    int x, int y, int w, int h,
-                    const QColorGroup& g, QCOORD c,
-                    bool horizontal )
+  \fn  void drawSliderGroove( QPainter *p,
+				   int x, int y, int w, int h,
+				   const QColorGroup& g, QCOORD c,
+				   Orientation )
 
   Draws a slider groove
 
