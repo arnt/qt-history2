@@ -138,6 +138,7 @@ inline QPainterPathElement QPainterPathElement::arc(float x, float y, float w, f
                                                     float start, float length)
 {
     QPainterPathElement e;
+    e.type = QPainterPathElement::Arc;
     e.arcData.x = x;
     e.arcData.y = y;
     e.arcData.w = w;
