@@ -137,7 +137,7 @@ void QFile::init()
     fh	   = 0;
     fd	   = 0;
     length = 0;
-    ioIndex  = 0;
+    ioIndex = 0;
     ext_f  = FALSE;				// not an external file handle
 }
 
@@ -191,11 +191,10 @@ bool qt_file_access( const QString& fn, int t )
 #if defined (UNIX)
     return ACCESS( QFile::encodeName(fn), t ) == 0;
 #elif defined(_OS_WIN32_)
-    if ( qt_winunicode ) {
+    if ( qt_winunicode )
 	return _taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
-    } else {
+    else
 	return ACCESS(qt_win95Name(fn), t) == 0;
-    }
 #endif
 }
 
@@ -249,11 +248,10 @@ bool QFile::remove( const QString &fileName )
     return unlink( QFile::encodeName(fileName) ) == 0;	// unlink more common in UNIX
 #elif defined(_OS_WIN32_)
     // use standard ANSI remove
-    if ( qt_winunicode ) {
+    if ( qt_winunicode )
 	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
-    } else {
+    else
 	return ::remove(qt_win95Name(fileName)) == 0;
-    }
 #endif
 }
 
@@ -383,8 +381,7 @@ bool QFile::open( int m )
 	    FSTAT( fd, &st );
 	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
 		ok = FALSE;
-	    }
-	    else {
+	    } else {
 		length = (int)st.st_size;
 		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
 	    }
@@ -447,8 +444,7 @@ bool QFile::open( int m )
 	    FSTAT( FILENO(fh), &st );
 	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
 		ok = FALSE;
-	    }
-	    else {
+	    } else {
 		length = (int)st.st_size;
 		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
 	    }
@@ -624,9 +620,9 @@ void QFile::flush()
 uint QFile::size() const
 {
     STATBUF st;
-    if ( isOpen() )
+    if ( isOpen() ) {
 	FSTAT( fh ? FILENO(fh) : fd, &st );
-    else {
+    } else {
 #if defined (UNIX)
 	STAT( QFile::encodeName(fn), &st );
 #elif defined(_OS_WIN32_)
