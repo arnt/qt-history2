@@ -564,13 +564,15 @@
 */
 
 /*! \fn bool QValueVector::operator==( const QValueVector<T>& x ) const
-  Returns TRUE if each item in this vector equals each
-  corresponding item in \a x, otherwise FALSE is returned.
+  Returns TRUE if each element in this vector equals each
+  corresponding element in \a x; otherwise returns FALSE.
 */
 
-/*! \fn bool QValueVector::operator==( const QValueVector<T>& x )
-  \internal
+/*! \overload bool QValueVector::operator==( const QValueVector<T>& x ) 
+  Returns TRUE if each element in this vector equals each
+  corresponding element in \a x; otherwise returns FALSE.
 */
+
 
 /*!
   \fn void QValueVector::detach()
