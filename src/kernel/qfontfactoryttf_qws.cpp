@@ -70,7 +70,7 @@ public:
 	fdescent=-FLOOR(myface->size->metrics.descender)/64-1;
 	fmaxwidth=CEIL(myface->size->metrics.max_advance)/64;
 	fleading=CEIL(myface->size->metrics.height)/64
-	    - fascent - fdescent + 1;
+	    - fascent - fdescent - 1;
 
 	// FT has these in font units
 	funderlinepos = ptsize/200+1;
