@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#22 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#23 $
 **
 ** Definition of QToolBar class
 **
@@ -34,7 +34,7 @@
 class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
-
+class QDomElement;
 
 class Q_EXPORT QToolBar: public QWidget
 {
@@ -66,6 +66,12 @@ public:
     QString label() const;
     
     void clear();
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+
+    static QObject* factory( QObject* parent );
+#endif // QT_BUILDER
 
 protected:
     void paintEvent( QPaintEvent * );

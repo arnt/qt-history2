@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#42 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#43 $
 **
 ** Definition of QMenuBar class
 **
@@ -30,6 +30,7 @@
 #include "qpopupmenu.h"
 #endif // QT_H
 
+class QDomElement;
 
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
@@ -52,6 +53,10 @@ public:
     virtual void	setSeparator( Separator when );
 
     bool customWhatsThis() const;
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+#endif
 
 signals:
     void	activated( int itemId );

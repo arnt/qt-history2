@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#86 $
 **
 ** Implementation of QMenuData class
 **
@@ -28,6 +28,10 @@
 #include "qpopupmenu.h"
 #include "qapplication.h"
 
+#ifdef QT_BUILDER
+#include "qdom.h"
+#include "qvariant.h"
+#endif // QT_BUILDER
 
 // Not used yet...
 class QMenuItemData { };
@@ -1175,3 +1179,54 @@ QString QMenuData::whatsThis( int id ) const
     QMenuItem *mi = findItem( id );
     return mi? mi->whatsThis() : QString::null;
 }
+
+#ifdef QT_BUILDER
+bool QMenuData::configure( QWidget* _this, const QDomElement& element )
+{
+  QDomElement r = element.firstChild().toElement();
+  for( ; !r.isNull(); r = r.nextSibling().toElement() )
+  {
+    if ( r.tagName() == "Entry" )
+    { 
+      QString text;
+      QString whatsthis;
+      QPopupMenu* menu = 0;
+      int id = -1;
+
+      QVariant prop = r.property( "text", QVariant::String );
+      if ( !prop.isEmpty() )
+	text = prop.stringValue();
+      prop = r.property( "whatsthis", QVariant::String );
+      if ( !prop.isEmpty() )
+	whatsthis = prop.stringValue();
+      if ( r.hasAttribute( "id" ) )
+	id = r.attribute( "id" ).toInt();
+     
+      QDomElement c = r.firstChild().toElement();
+      for( ; !c.isNull(); c = c.nextSibling().toElement() )
+      {
+	if ( c.tagName() == "Menu" )
+	{
+	  QWidget* w = c.firstChild().toElement().toWidget( _this );
+	  if ( w == 0 )
+	    return FALSE;
+	  if ( !w->inherits( "QPopupMenu" ) )
+	  {
+	    warning("%s does not derive from QPopupMenu", c.firstChild().nodeName().ascii() );
+	    return FALSE;
+	  }
+	  menu = (QPopupMenu*)w;
+	}
+      }
+
+      if ( menu )
+	id = insertItem( text, menu, id );
+      else
+	id = insertItem( text, id );
+      if ( !whatsthis.isEmpty() )
+	setWhatsThis( id, whatsthis );
+    }
+  }  
+  return TRUE;
+}
+#endif

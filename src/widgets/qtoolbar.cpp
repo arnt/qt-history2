@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#48 $
 **
 ** Implementation of QToolBar class
 **
@@ -36,6 +36,11 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 
+#ifdef QT_BUILDER
+#include "qdom.h"
+#include "qtoolbutton.h"
+#include "qwhatsthis.h"
+#endif
 
 /*! \class QToolBar qtoolbar.h
 
@@ -402,6 +407,49 @@ void QToolBar::clear()
     }
 }
 
+#ifdef QT_BUILDER
+bool QToolBar::configure( const QDomElement& element )
+{
+  // When this code changes then the code in the builder
+  // must be changed, too. Unfortunately it had to be copied.
+  QDomElement r = element.firstChild().toElement();
+  for( ; !r.isNull(); r = r.nextSibling().toElement() )
+  {
+    if ( r.tagName() == "Widget" )
+    {
+      if ( r.firstChild().toElement().toWidget( this ) )
+	return FALSE;
+    }
+    else if ( r.tagName() == "Separator" )
+      addSeparator();
+    else if ( r.tagName() == "WhatsThis" )
+    {
+      QToolButton *tb = QWhatsThis::whatsThisButton( this );
+      // Changing that name would break the builder
+      tb->setName( "whatsthis button" );
+    }
+  }
+
+  // Dont call QWidget configure: For example we dont
+  // allow for layouts
+  if ( !QObject::configure( element ) )
+    return FALSE;
+
+  return TRUE;
+}
+
+QObject* QToolBar::factory( QObject* parent )
+{
+  if ( !parent->inherits("QMainWindow") )
+  {
+    qDebug( "The parent of a toolbar must always be a QMainWindow.\n" );
+    return 0;
+  }
+
+  return new QToolBar( (QMainWindow*)parent );
+}
+
+#endif // QT_BUILDER
 
 /* from chaunsee:
 

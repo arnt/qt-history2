@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#244 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#245 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -35,6 +35,10 @@
 #include "qtimer.h"
 #include "qwhatsthis.h"
 #include <ctype.h>
+
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif // QT_BUILDER
 
 // Motif style parameters
 
@@ -1403,3 +1407,15 @@ bool QPopupMenu::customWhatsThis() const
 {
     return TRUE;
 }
+
+#ifdef QT_BUILDER
+bool QPopupMenu::configure( const QDomElement& element )
+{
+  // Dont call QWidget configure since we do not accept layouts or
+  // or direct child widget except for bars and the central widget
+  if ( !QMenuData::configure( this, element ) )
+    return FALSE;
+  
+  return QObject::configure( element );
+}
+#endif

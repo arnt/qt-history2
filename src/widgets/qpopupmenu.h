@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#65 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#66 $
 **
 ** Definition of QPopupMenu class
 **
@@ -31,6 +31,7 @@
 #include "qmenudata.h"
 #endif // QT_H
 
+class QDomElement;
 
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
@@ -59,6 +60,10 @@ public:
     int 	idAt( const QPoint& pos ) const;
 
     bool 	customWhatsThis() const;
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+#endif
 
 signals:
     void	activated( int itemId );

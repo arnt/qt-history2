@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#74 $
 **
 ** Implementation of QMainWindow class
 **
@@ -42,6 +42,10 @@
 #include "qwhatsthis.h"
 
 #include "qlayoutengine.h"
+
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif
 
 /*! \class QMainWindow qmainwindow.h
 
@@ -1322,3 +1326,49 @@ void QMainWindow::styleChange( QStyle& old )
     setUpLayout();
     QWidget::styleChange( old );
 }
+
+#ifdef QT_BUILDER
+bool QMainWindow::configure( const QDomElement& element )
+{  
+  QDomElement r = element.firstChild().toElement();
+  for( ; !r.isNull(); r = r.nextSibling().toElement() )
+  {
+    if ( r.tagName() == "ToolBar" )
+    {
+      if ( !r.firstChild().toElement().toWidget( this ) )
+	return FALSE;
+    }
+    else if ( r.tagName() == "MenuBar" )
+    {
+      QDomElement c = r.firstChild().toElement();
+      if ( c.isNull() )
+	return FALSE;
+      if ( c.tagName() != "QMenuBar" )
+      {
+	// ## Torben: Can we support derived types, too ?
+	warning("Only <QMenuBar> is allowed inside tag <MenuBar>");
+	return FALSE;
+      }
+      QMenuBar* bar = menuBar();
+
+      if ( !bar->configure( c ) )
+	return FALSE;
+    }
+    else if ( r.tagName() == "CentralWidget" )
+    {
+      QWidget* w = r.firstChild().toElement().toWidget( this );
+      if ( w == 0 )
+	return FALSE;
+      else
+	setCentralWidget( w );
+    }
+  }
+
+  // Dont call QWidget configure since we do not accept layouts or
+  // or direct child widget except for bars and the central widget
+  if ( !QObject::configure( element ) )
+    return FALSE;
+  
+  return TRUE;
+}
+#endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#94 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#95 $
 **
 ** Definition of QListView widget class
 **
@@ -30,6 +30,7 @@ class QPixmap;
 class QFont;
 class QHeader;
 class QIconSet;
+class QDomElement;
 
 class QListView;
 struct QListViewPrivate;
@@ -128,6 +129,10 @@ public:
     bool isExpandable() const { return expandable; }
 
     void repaint() const;
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& item, int columns );
+#endif // QT_BUILDER
 
 protected:
     virtual void enforceSortOrder() const;
@@ -241,6 +246,10 @@ public:
 
 public slots:
     void triggerUpdate();
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+#endif // QT_BUILDER
 
 signals:
     void selectionChanged();

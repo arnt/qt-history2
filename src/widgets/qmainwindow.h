@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#30 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#31 $
 **
 ** Definition of QMainWindow class
 **
@@ -34,6 +34,7 @@ class QMenuBar;
 class QToolBar;
 class QStatusBar;
 class QToolTipGroup;
+class QDomElement;
 
 class QMainWindowPrivate;
 
@@ -71,6 +72,10 @@ public:
     bool usesBigPixmaps() const;
 
     bool eventFilter( QObject*, QEvent* );
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+#endif // QT_BUILDER
 
 public slots:
     virtual void setRightJustification( bool );

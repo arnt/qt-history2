@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#160 $
 **
 ** Implementation of QMenuBar class
 **
@@ -30,6 +30,10 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include <ctype.h>
+
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif // QT_BUILDER
 
 /*!
   \class QMenuBar qmenubar.h
@@ -1177,3 +1181,16 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
     if ( windowsaltactive )
 	setWindowsAltMode( FALSE, -1 );
 }
+
+#ifdef QT_BUILDER
+bool QMenuBar::configure( const QDomElement& element )
+{
+  if ( !QMenuData::configure( this, element ) )
+    return FALSE;
+
+  // Dont call QWidget configure since we do not accept layouts or
+  // or direct child widget except for bars and the central widget
+  return QObject::configure( element );
+}
+#endif // QT_BUILDER
+ 
