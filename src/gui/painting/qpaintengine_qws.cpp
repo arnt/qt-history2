@@ -105,7 +105,7 @@ QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *pd
 }
 
 QWSPaintEngine::QWSPaintEngine(const QPaintDevice *pdev)
-    : QPaintEngine(*(new QPaintEnginePrivate), UsesFontEngine)
+    : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine)
 {
     d->pdev = const_cast<QPaintDevice *>(pdev);
 //	qDebug("QWSPaintEngine::QWSPaintEngine");
