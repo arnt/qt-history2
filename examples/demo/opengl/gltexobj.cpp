@@ -60,8 +60,8 @@ void GLTexobj::paintGL()
     glLineWidth( 1.0 );
     glBegin( GL_LINES );
     {
-	glVertex3f( 0.0, 0.0, 1.0 );
-	glVertex3f( 0.98, 0.98, 0.98 );
+	glVertex3f( 0.0f, 0.0f, 1.0f );
+	glVertex3f( 0.98f, 0.98f, 0.98f );
     }
     glEnd();
     renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );    
