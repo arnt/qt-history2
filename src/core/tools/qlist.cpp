@@ -797,7 +797,8 @@ void **QListData::erase(void **xi)
 
 /*! \fn int QList::count() const
 
-    Same as size().
+    Returns the number of items in the list. This is effectively the
+    same as size().
 */
 
 /*! \fn T& QList::first()
