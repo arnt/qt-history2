@@ -4,3 +4,4 @@ HEADERS		= listbox.h
 SOURCES		= listbox.cpp \
 		  main.cpp
 TARGET		= listbox
+DEPENDPATH	= ../../include 
