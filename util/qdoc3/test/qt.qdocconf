@@ -6,6 +6,8 @@ headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt/doc \
+                          $QTDIR/extensions/activeqt/tools \
+                          $QTDIR/extensions/activeqt/examples \
                           $QTDIR/extensions/motif/doc
 sources.fileextensions	= "*.cpp *.doc *.qdoc"
 exampledirs		= $QTDIR/doc/src/snippets \
@@ -13,7 +15,8 @@ exampledirs		= $QTDIR/doc/src/snippets \
 			  $QTDIR/examples/simple \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
-			  $QTDIR/tutorial
+			  $QTDIR/tutorial \
+                          $QTDIR/extensions/activeqt/examples
 imagedirs		= $QTDIR/doc/src/images \
 			  $QTDIR/doc/src/tech-preview/images
 outputdir		= $QTDIR/doc/html
