@@ -392,13 +392,12 @@ int QSvgDevice::metric( int m ) const
     return val;
 }
 
+#if 0 // ### port
 /*!
     \internal
 
     Records painter commands and stores them in the QDomDocument doc.
 */
-
-#if 0 // ### port
 bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
     pt = painter;

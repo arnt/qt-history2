@@ -5434,7 +5434,9 @@ QWidget *QWidget::childAt(int x, int y) const
 }
 
 /*!
-    \overload \fn QWidget *QWidget::childAt(const QPoint & p) const
+    \fn QWidget *QWidget::childAt(const QPoint & p) const
+
+    \overload
 
     Returns the visible child widget at point \a p in the widget's own
     coordinate system.

@@ -788,8 +788,15 @@ QPalette QPalette::resolve( const QPalette &other ) const
     return palette;
 }
 
-/*!\internal \fn uint QPalette::resolve() const */
-/*!\internal \fn void QPalette::resolve(uint mask) */
+/*!
+    \fn uint QPalette::resolve() const
+    \internal
+*/
+
+/*!
+    \fn void QPalette::resolve(uint mask)
+    \internal
+*/
 
 
 /*****************************************************************************
