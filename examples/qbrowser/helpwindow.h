@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#1 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -28,6 +28,9 @@ public:
     void setForwardAvailable( bool );
 
     void textChanged();
+    void about();
+    void aboutQt();
+    void open();
 
 private:
     QTextBrowser* browser;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/main.cpp#3 $
+** $Id: //depot/qt/main/examples/qbrowser/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -18,7 +18,6 @@
 int main( int argc, char ** argv )
 {
     QApplication::setColorSpec( QApplication::ManyColor );
-    //QApplication::setDesktopSettingsAware( FALSE );
     QApplication a(argc, argv);
 
     QStyleSheetItem* style;
@@ -44,17 +43,12 @@ int main( int argc, char ** argv )
     QString home;
 
     bool slideshow = FALSE;
-    if (argc > 2  && QString("-slideshow") == argv[1] )
-	slideshow = TRUE;
-    else if (argc > 1)
+    if (argc > 1)
 	home = argv[1];
     else
 	home = QString(getenv("QTDIR")) + "/doc/index.html";
 
     HelpWindow h(home, "");
-
-    if (slideshow)
-	h.setupSlideshow( argv[2] );
 
     a.setMainWidget( &h );
     h.show();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#4 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,6 +19,8 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qstylesheet.h>
+#include <qmessagebox.h>
+#include <qfiledialog.h>
 
 HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* parent, const char *name )
     : QMainWindow( parent, name )
@@ -41,15 +43,26 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     resize( 640,700 );
 
     QPopupMenu* file = new QPopupMenu( this );
+    file->insertItem( tr("&Open"), this, SLOT( open() ) );
+    file->insertSeparator();
     file->insertItem( tr("&Close"), this, SLOT( close() ) );
 
     QPopupMenu* navigate = new QPopupMenu( this );
-    backwardId = navigate->insertItem( tr("&Backward"), browser, SLOT( backward() ) );
-    forwardId = navigate->insertItem( tr("&Forward"), browser, SLOT( forward() ) );
-    navigate->insertItem( tr("&Home"), browser, SLOT( home() ) );
+    backwardId = navigate->insertItem( QPixmap("back.xpm"), 
+				       tr("&Backward"), browser, SLOT( backward() ),
+				       Key_Alt + Key_Left );
+    forwardId = navigate->insertItem( QPixmap("forward.xpm"), 
+				      tr("&Forward"), browser, SLOT( forward() ),
+				       Key_Alt + Key_Right );
+    navigate->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
 
+    QPopupMenu* help = new QPopupMenu( this );
+    help->insertItem( tr("&About ..."), this, SLOT( about() ) );
+    help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
+    
     menuBar()->insertItem( tr("&File"), file );
     menuBar()->insertItem( tr("&Navigate"), navigate );
+    menuBar()->insertItem( tr("&Help"), help );
 
     menuBar()->setItemEnabled( forwardId, FALSE);
     menuBar()->setItemEnabled( backwardId, FALSE);
@@ -89,7 +102,7 @@ void HelpWindow::setForwardAvailable( bool b)
 void HelpWindow::textChanged()
 {
     if ( browser->documentTitle().isNull() )
-	setCaption( tr("QBrowser") );
+	setCaption( browser->context() );
     else
 	setCaption( browser->documentTitle() ) ;
 }
@@ -98,42 +111,24 @@ HelpWindow::~HelpWindow()
 {
 }
 
-
-void HelpWindow::setupSlideshow( const QString& file)
+void HelpWindow::about()
 {
-    QColorGroup g = browser->paperColorGroup();
-    g.setColor( QColorGroup::Text, white );
-    g.setColor( QColorGroup::Foreground, white );
-    g.setColor( QColorGroup::Base, darkBlue );
-    browser->setPaperColorGroup( g );
-    //browser->setPaper( QBrush( darkBlue, QPixmap("bg.gif") ));
+    QMessageBox::about( this, "QBrowser Example",
+			"<p>This example implements a simple HTML browser "
+			"using Qt's rich text capabilities</p>" 
+			"<p>It's just about 100 lines of C++ code, so don't expect too much :-)</p>"
+			);
+}
 
-    QStyleSheet::defaultSheet()->item("qml")->setFontSize( 24 );
-    QStyleSheet::defaultSheet()->item("h1")->setFontSize( 32 );
-    QStyleSheet::defaultSheet()->item("h2")->setFontSize( 24 );
-    QStyleSheet::defaultSheet()->item("qml")->setMargin( QStyleSheetItem::MarginHorizontal, 50 );
-    QStyleSheet::defaultSheet()->item("li")->setMargin( QStyleSheetItem::MarginVertical, 4 );
-    QStyleSheetItem* style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "heading" );
-    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style->setFontItalic( TRUE );
-    style->setFontSize( 14 );
-    style->setAlignment( QStyleSheetItem::AlignRight );
-    resize(800-8,600-28);
 
-    QFile f (file );
-    if ( f.open( IO_ReadOnly) ) {
-	int n = 0;
-	QTextStream t(&f);
-	while ( !t.atEnd() ) {
-	    QString line = t.readLine();
-	    if ( !line.isEmpty() && line[0] != '#') {
-		browser->setText( line );
-		n++;
-	    }
-	}
-	f.close();
-	while ( n-- > 1) {
-	    browser->backward();
-	}
-    }
+void HelpWindow::aboutQt()
+{
+    QMessageBox::aboutQt( this, "QBrowser" );
+}
+
+void HelpWindow::open() 
+{
+    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
+    if ( !fn.isEmpty() )
+	browser->setSource( fn );
 }
