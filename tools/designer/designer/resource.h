@@ -44,6 +44,7 @@ class QMainWindow;
 struct LanguageInterface;
 class FormFile;
 class Project;
+class PopupMenuEditor;
 
 class Resource
 {
@@ -102,6 +103,7 @@ private:
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
+    void savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream &ts, int indent );
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0 );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
@@ -120,6 +122,7 @@ private:
     void loadChildAction( QObject *parent, const QDomElement &e );
     void loadToolBars( const QDomElement &n );
     void loadMenuBar( const QDomElement &n );
+    void loadPopupMenu( PopupMenuEditor *pm, const QDomElement &e );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e, const QString &tagname = "pixmap" );
 

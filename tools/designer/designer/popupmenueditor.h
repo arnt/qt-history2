@@ -55,11 +55,12 @@ public:
     void showMenu( int x, int y );
     void hideMenu();
     void focusMenu();
+    PopupMenuEditor * menu() { return s; }
 
     int count();
 
     bool eventFilter( QObject *, QEvent * event );
-
+    
 public slots:
     void selfDestruct();
 
@@ -88,10 +89,11 @@ class PopupMenuEditor : public QWidget
 
     friend class PopupMenuEditorItem;
     friend class MenuBarEditor;
+    friend class Resource;
 
 public:
     PopupMenuEditor( FormWindow * fw, QWidget * parent = 0, const char * name = 0 );
-    PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent );
+    PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent, const char * name = 0 );
     ~PopupMenuEditor();
 
     void init();
@@ -112,7 +114,7 @@ public:
     void insertedActions( QPtrList<QAction> & list );
 
     void show();
-    void loadIconPixmap( int index = -1 );
+    void choosePixmap( int index = -1 );
     void showLineEdit( int index = -1);
     void setAccelerator( int key, Qt::ButtonState state, int index = -1 );
     void resizeToContents();
@@ -124,10 +126,16 @@ public:
     FormWindow * formWindow() { return formWnd; }
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
 
+    QPtrList<PopupMenuEditorItem> * items() { return &itemList; }
+
+signals:
+    void inserted( QAction * );
+    void removed(  QAction * );
+    
 public slots:
     void remove( int index );
     void remove( QAction * );
-
+    
 protected:
     PopupMenuEditorItem * createItem( QAction * a = 0 );
     void deleteCurrentItem();
@@ -173,7 +181,7 @@ protected:
     void navigateLeft();
     void navigateRight();
     void enterEditMode( QKeyEvent * e );
-    void leaveEditMode();
+    void leaveEditMode( QKeyEvent * e );
 
 private:
     FormWindow * formWnd;
@@ -201,7 +209,7 @@ private:
 	Cut = 1,
 	Copy = 2
     };
-    static /*ClipboardOperation*/int clipboardOperation;
+    static int clipboardOperation;
     static PopupMenuEditorItem * clipboardItem;
 };
 

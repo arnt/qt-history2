@@ -2484,18 +2484,8 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "item" ) {
 	    QPopupMenu *popup = new QPopupMenu( mw );
+	    loadPopupMenu( popup, n );
 	    popup->setName( n.attribute( "name" ) );
-	    QDomElement n2 = n.firstChild().toElement();
-	    while ( !n2.isNull() ) {
-		if ( n2.tagName() == "action" ) {
-		    QAction *a = findAction( n2.attribute( "name" ) );
-		    if ( a )
-			a->addTo( popup );
-		} else if ( n2.tagName() == "separator" ) {
-		    popup->insertSeparator();
-		}
-		n2 = n2.nextSibling().toElement();
-	    }
 	    mb->insertItem( translate( n.attribute( "text" ).utf8() ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
@@ -2506,6 +2496,31 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
     }
 }
 
+void QWidgetFactory::loadPopupMenu( QPopupMenu *p, const QDomElement &e )
+{
+    QMainWindow *mw = ( (QMainWindow*)toplevel );
+    QDomElement n = e.firstChild().toElement();
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "action" ) {
+	    QDomElement n2 = n.nextSibling().toElement();
+	    if ( n2.tagName() == "item") { // load submenu
+		QPopupMenu *popup = new QPopupMenu( mw );
+		popup->setName( n2.attribute( "name" ) );
+		p->insertItem( translate( n2.attribute( "text" ).utf8() ), popup );
+		loadPopupMenu( popup, n2 );
+		n = n2;
+	    } else {
+		QAction *a = findAction( n.attribute( "name" ) );
+		if ( a ) {
+		    a->addTo( p );
+		}
+	    }
+	} else if ( n.tagName() == "separator" ) {
+	    p->insertSeparator();
+	}
+	n = n.nextSibling().toElement();
+    }    
+}
 
 // compatibility with early 3.0 betas
 // ### remove for 4.0

@@ -448,13 +448,7 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    QString itemName = c.attribute( "name" );
 	    out << endl;
 	    out << indent << itemName << " = new QPopupMenu( this );" << endl;
-
-	    for ( QDomElement n2 = c.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "action" )
-		    out << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
-		else if ( n2.tagName() == "separator" )
-		    out << indent << itemName << "->insertSeparator();" << endl;
-	    }
+	    createPopupMenuImpl( c, parentClass, itemName );
 	    out << indent << objName << "->insertItem( QString(\"\"), " << itemName << ", " << i << " );" << endl;
 	    trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( c.attribute( "text" ) ) << " );" << endl;
 	} else if ( c.tagName() == "separator" ) {
@@ -463,6 +457,27 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	}
 	c = c.nextSibling().toElement();
 	i++;
+    }
+}
+
+void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent )
+{
+    for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "action" ) {
+	    QDomElement n2 = n.nextSibling().toElement();
+	    if ( n2.tagName() == "item" ) { // the action is a sub menu
+		QString itemName = n2.attribute( "name" );
+		QString itemText = n2.attribute( "text" );
+		out << indent << "QPopupMenu *" << itemName << " = new QPopupMenu( this );" << endl;
+		out << indent << parent << "->insertItem( \"" << itemText << "\", " << itemName << " );" << endl; // FIXME: does not support icon or pixmap
+		createPopupMenuImpl( n2, parentClass, itemName );
+		n = n2;
+	    } else {
+		out << indent << n.attribute( "name" ) << "->addTo( " << parent << " );" << endl;
+	    }
+	} else if ( n.tagName() == "separator" ) {
+	    out << indent << parent << "->insertSeparator();" << endl;
+	}
     }
 }
 

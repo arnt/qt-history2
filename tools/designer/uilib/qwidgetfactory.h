@@ -87,6 +87,7 @@ private:
     void loadActions( const QDomElement &e );
     void loadToolBars( const QDomElement &e );
     void loadMenuBar( const QDomElement &e );
+    void loadPopupMenu( QPopupMenu *p, const QDomElement &e );
     void loadFunctions( const QDomElement &e );
     QAction *findAction( const QString &name );
     void loadExtraSource();

@@ -2173,16 +2173,17 @@ void AddMenuCommand::execute()
     QMainWindow *mw = (QMainWindow*)formWindow()->mainContainer();
     if ( !mb ) {
 	mb = new MenuBarEditor( formWindow(), mw );
-	n = "MenuBar";
+	QString n = "MenuBar";
 	formWindow()->unify( mb, n, TRUE );
 	mb->setName( n );
 	MetaDataBase::addEntry( mb );
     }
     if ( !item ) {
-	n = "PopupMenu";
 	PopupMenuEditor *popup = new PopupMenuEditor( formWindow(), mw );
+	QString n = "PopupMenu";
 	formWindow()->unify( popup, n, TRUE );
 	popup->setName( n );
+	MetaDataBase::addEntry( popup );
 	mb->insertItem( name, popup, index );
     } else {
 	mb->insertItem( item, index );

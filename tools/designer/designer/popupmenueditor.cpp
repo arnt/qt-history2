@@ -146,9 +146,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuE
       autodelete( item->autodelete )
 {
     init();
-    if ( item->s ) {
-	s = new PopupMenuEditor( m->formWindow(), item->s, m );
-    } else if ( item->type() == ActionGroup ) {
+    if ( item->type() == ActionGroup ) {
 	g->installEventFilter( this );
     }
 }
@@ -172,8 +170,14 @@ PopupMenuEditorItem::~PopupMenuEditorItem()
 
 void PopupMenuEditorItem::init()
 {
-    if ( m ) {
+    QAction * a = anyAction();
+    if ( a && m && !isSeparator() ) {
+	// FIXME: unify doesn't
 	s = new PopupMenuEditor( m->formWindow(), m );
+	QString n = QString( a->name() ) + "Menu";
+	m->formWindow()->unify( s, n, TRUE );
+	s->setName( n );
+	MetaDataBase::addEntry( s );
     }
        
     QObject * o = 0;
@@ -412,8 +416,9 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char 
     init();
 }
 
-PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent )
-    : formWnd( fw ),
+PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent, const char * name )
+    : QWidget( 0, name, WStyle_Customize | WStyle_NoBorder ), // ?
+      formWnd( fw ),
       parentMenu( parent ),
       iconWidth( menu->iconWidth ),
       textWidth( menu->textWidth ),
@@ -443,6 +448,9 @@ PopupMenuEditor::~PopupMenuEditor()
 void PopupMenuEditor::init()
 {
     reparent( ( QMainWindow * ) formWnd->mainContainer(), pos() );
+
+    // FIXME: move this out of the object
+    //QString n = QString( "PopupMenu%1" ).arg( (int)this ); // hack because the name is not unified
     
     addItem.action()->setMenuText( "new item" );
     addSeparator.action()->setMenuText( "new separator" );
@@ -475,8 +483,10 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 	//currentIndex = index;
     }
     resizeToContents();
-    if ( isVisible() && parentMenu )
+    if ( isVisible() && parentMenu ) {
 	parentMenu->update(); // draw arrow in parent menu
+    }
+    emit inserted( item->anyAction() );
 }
 
 void PopupMenuEditor::insert( QAction * action, int index )
@@ -581,7 +591,7 @@ void PopupMenuEditor::show()
     QWidget::show();
 }
 
-void PopupMenuEditor::loadIconPixmap( int index )
+void PopupMenuEditor::choosePixmap( int index )
 {
 
     if ( index == -1 ) {
@@ -621,16 +631,15 @@ void PopupMenuEditor::showLineEdit( int index )
     // open edit currentField for item name
     lineEdit->setText( i->anyAction()->menuText() );
     lineEdit->selectAll();
-    lineEdit->move( borderSize + iconWidth, borderSize + currentItemYCoord() );
-// FIXME: itemY( index )
-    lineEdit->resize( textWidth, itemHeight - borderSize );
+    lineEdit->setGeometry( borderSize + iconWidth, borderSize + currentItemYCoord(),
+			   textWidth, itemHeight - 1/* - borderSize*/ );
     lineEdit->show();
     lineEdit->setFocus();
 }
 
 void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index )
 {
-    // FIXME: make command
+    // FIXME: make this a command
     if ( index == -1 ) {
 	index = currentIndex;
     }
@@ -705,20 +714,21 @@ void PopupMenuEditor::focusCurrentItemMenu()
 
 void PopupMenuEditor::remove( int index )
 {
-    if ( index != -1 && itemList.at( index )->isRemovable() ) {
+    PopupMenuEditorItem * i = itemList.at( index );
+    if ( i && i->isRemovable() ) {
 	itemList.remove( index );
 	resizeToContents();
 	uint n = itemList.count() + 1;
 	if ( currentIndex >= n ) {
 	    currentIndex = itemList.count() + 1;
 	}
+	emit removed( i->anyAction() );
     }
 }
 
 void PopupMenuEditor::remove( QAction * a )
 {
-    int idx = find( a );
-    remove( idx );
+    remove( find( a ) );
 }
 
 PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
@@ -858,7 +868,7 @@ void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * e )
     setFocusAt( pos );
 
     if ( currentField == 0 ) {
-	loadIconPixmap();
+	choosePixmap();
 	resizeToContents();
     } else if ( currentField == 1 ) {
 	showLineEdit();
@@ -1071,15 +1081,13 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	}
 	
     } else { // In edit mode
-	
 	switch ( e->key() ) {
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
-	    leaveEditMode();
-	case Qt::Key_Escape:   
-	    lineEdit->hide();
-	    setFocus();
-	    break;	    
+	case Qt::Key_Escape:
+	    leaveEditMode( e );
+	    e->accept();
+	    return;	    
 	}	
     }
     update();
@@ -1615,7 +1623,7 @@ void PopupMenuEditor::enterEditMode( QKeyEvent * e )
     } else if ( i->isSeparator() ) {
 	return;
     } else if ( currentField == 0 ) {
-	loadIconPixmap();
+	choosePixmap();
     } else if ( currentField == 1 ) {
 	showLineEdit();
 	return;
@@ -1626,8 +1634,15 @@ void PopupMenuEditor::enterEditMode( QKeyEvent * e )
     return;
 }
 
-void PopupMenuEditor::leaveEditMode()
+void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 {
+    lineEdit->hide();
+    setFocus();
+
+    if ( e->key() == Qt::Key_Escape ) {
+	return;
+    }
+    
     PopupMenuEditorItem * i = 0;    
     if ( currentIndex >= itemList.count() ) {
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
@@ -1653,4 +1668,6 @@ void PopupMenuEditor::leaveEditMode()
     } else {
 	showCurrentItemMenu();		
     }
+
+    update();
 }

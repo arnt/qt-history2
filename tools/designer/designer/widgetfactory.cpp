@@ -1181,7 +1181,7 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
-    else if ( o->inherits( "QDesignerMenuBar" ) )
+    else if ( o->inherits( "MenuBarditor" ) )
 	return "QMenuBar";
     else if ( o->inherits( "QDesignerToolBar" ) )
 	return "QToolBar";
@@ -1189,7 +1189,7 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QAction";
     else if ( o->inherits( "QDesignerActionGroup" ) )
 	return "QActionGroup";
-    else if ( o->inherits( "QDesignerPopupMenu" ) )
+    else if ( o->inherits( "PopupMenuEditor" ) )
 	return "QPopupMenu";
 #ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
@@ -1269,7 +1269,7 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
     } else if ( o->inherits( "QDesignerToolBar" )  ) {
 	MetaDataBase::setPropertyChanged( o, "label", TRUE );
-    } else if ( o->inherits( "QDesignerMenuBar" )  ) {
+    } else if ( o->inherits( "MenuBarEditor" )  ) {
 	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemNumber", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemText", TRUE );

@@ -48,6 +48,7 @@ public:
     void createActionImpl( const QDomElement& e, const QString &parent );
     void createToolbarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
     void createMenuBarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
+    void createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
     QString createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
     QString createLayoutImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
     QString createObjectInstance( const QString& objClass, const QString& parent, const QString& objName );
