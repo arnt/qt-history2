@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -111,6 +111,7 @@ QUrlInfo::QUrlInfo()
     d = new QUrlInfoPrivate;
     d->isDir = FALSE;
     d->isFile = TRUE;
+    d->isReadable = TRUE;
 }
 
 /*!
