@@ -13,13 +13,16 @@ void Paths::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
-    fillBackground(&p);
+//     fillBackground(&p);
+    p.fillRect(0, 0, width(), height(), Qt::red);
 
     if (attributes->antialias)
         p.setRenderHints(QPainter::LineAntialiasing);
 
-    p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
-    p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));
+//     p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
+//     p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));
+    p.setBrush(Qt::green);
+    p.setPen(Qt::NoPen);
 
     int w = width(), h = height();
 
