@@ -45,19 +45,7 @@ HtmlWriter::HtmlWriter( const QString& fileName )
 {
     initStatic();
 
-    QString filePath = config->outputDir();
-
-    QDir dir( filePath ); 
-
-    if ( !dir.exists() ) {
-	if ( !dir.mkdir(filePath) ) {
-	    warning( 1, "Can't create '%s'", filePath.latin1() );
-	    return;
-	}
-	warning( 3, "Creating '%s' ", filePath.latin1() );
-    }
-
-    QString file = filePath + QChar( '/' ) + fileName;
+    QString file = config->outputDir() + QChar( '/' ) + fileName;
     out = fopen( QFile::encodeName(file), "w" );
     if ( out == 0 ) {
 	syswarning( "Cannot open '%s' for writing HTML", file.latin1() );

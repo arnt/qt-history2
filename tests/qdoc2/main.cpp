@@ -55,6 +55,19 @@ int main( int argc, char **argv )
     config = new Configuration( argc, argv );
     Steering steering;
 
+    if ( config->outputDir().isEmpty() ) {
+	warning( 0, "No output directory specified (OUTPUTDIR)" );
+	return EXIT_FAILURE;
+    }
+
+    QDir dir( config->outputDir() );
+    if ( !dir.exists() ) {
+	if ( !dir.mkdir(config->outputDir()) ) {
+	    warning( 0, "Cannot create '%s'", config->outputDir().latin1() );
+	    return EXIT_FAILURE;
+	}
+    }
+
     QStringList::ConstIterator s;
 
     s = config->includeDirList().begin();
