@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#1 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -45,7 +45,9 @@ public:
 	RenameFile = -2,
 	CopyFile = -3,
 	ReadDir = -4,
-	CreateDir = -5
+	CreateDir = -5,
+	UnknownProtocol = -6,
+	ParseError = -7
     };
 
     QUrl();
@@ -123,7 +125,7 @@ public:
 
     virtual void isDir();
     virtual void isFile();
-    
+
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
@@ -143,7 +145,7 @@ public:
     void emitData( const QString &d );
     void emitUrlIsDir();
     void emitUrlIsFile();
-    
+
 signals:
     void entry( const QUrlInfo & );
     void finished();
@@ -155,7 +157,7 @@ signals:
     void data( const QString & );
     void urlIsDir();
     void urlIsFile();
-    
+
 protected:
     virtual void reset();
     virtual void parse( const QString& url );

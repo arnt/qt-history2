@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -308,8 +308,8 @@ void QUrl::parse( const QString& url )
     if ( !isalpha( (int)x ) )
 	goto NodeErr;
 
-  // Node 2: Accept any amount of alphas
-  // Proceed with :// :/ or :
+    // Node 2: Accept any amount of alphas
+    // Proceed with :// :/ or :
     while( isalpha( buf[pos] ) && pos < len ) pos++;
     if ( pos == len )
 	goto NodeErr;
@@ -328,7 +328,7 @@ void QUrl::parse( const QString& url )
     } else
 	goto NodeErr;
 
-  //Node 3: We need at least one character here
+    //Node 3: We need at least one character here
     if ( pos == len )
 	goto NodeOk;
     //    goto NodeErr;
@@ -464,6 +464,7 @@ NodeErr:
     if ( d->path.isEmpty() )
 	d->path = "/";
     qWarning( "Error in parsing \"%s\"", url.ascii() );
+    emit error( ParseError, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
     delete []orig;
     d->isMalformed = true;
 
@@ -910,7 +911,8 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
     } else if ( d->networkProtocol ) {
 	emit start();
 	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
-    }	
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::mkdir( const QString &dirname )
@@ -930,7 +932,8 @@ void QUrl::mkdir( const QString &dirname )
 	}
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->mkdir( dirname );
-    }
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::remove( const QString &filename )
@@ -945,7 +948,8 @@ void QUrl::remove( const QString &filename )
 	}
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->remove( filename );
-    }
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::rename( const QString &oldname, const QString &newname )
@@ -956,7 +960,8 @@ void QUrl::rename( const QString &oldname, const QString &newname )
 	    emit itemChanged( oldname, newname );
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->rename( oldname, newname );
-    }
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::copy( const QString &from, const QString &to )
@@ -1015,8 +1020,8 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	}
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->copy( files, dest, move );
-    }
-
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::isDir()
@@ -1028,7 +1033,8 @@ void QUrl::isDir()
 	    emit urlIsFile();
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->isDir();
-    }
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::isFile()
@@ -1040,7 +1046,8 @@ void QUrl::isFile()
 	    emit urlIsDir();
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->isFile();
-    }
+    } else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 void QUrl::setNameFilter( const QString &nameFilter )
@@ -1059,6 +1066,8 @@ QString QUrl::toString() const
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
     else if ( d->networkProtocol )
 	return d->networkProtocol->toString();
+    else
+	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 
     return QString::null;
 }
