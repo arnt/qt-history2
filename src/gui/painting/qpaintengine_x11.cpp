@@ -1965,12 +1965,12 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                                              px->data->alphapm->data->h);
 #define d d_func()
                     }
-#endif // !QT_NO_XRENDER
                     GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
                     XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
                               agc, sx, sy, sw, sh, x, y);
                     XFreeGC(d->dpy, agc);
                 }
+#endif // !QT_NO_XRENDER
             }
     }
 
