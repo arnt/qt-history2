@@ -2051,6 +2051,25 @@ void QTextEdit::doAutoScroll()
 	scrollTimer->start( 100, FALSE );
     else if ( scrollTimer->isActive() && pos.y() >= 0 && pos.y() <= height() )
 	scrollTimer->stop();
+
+    if ( currentFormat && currentFormat->key() != cursor->parag()->at( cursor->index() )->format()->key() ) {
+	currentFormat->removeRef();
+	currentFormat = doc->formatCollection()->format( cursor->parag()->at( cursor->index() )->format() );
+	if ( currentFormat->isMisspelled() ) {
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	}
+	emit currentFontChanged( currentFormat->font() );
+	emit currentColorChanged( currentFormat->color() );
+	emit currentVerticalAlignmentChanged( (VerticalAlignment)currentFormat->vAlign() );
+    }
+
+    if ( currentAlignment != cursor->parag()->alignment() ) {
+	currentAlignment = cursor->parag()->alignment();
+	block_set_alignment = TRUE;
+	emit currentAlignmentChanged( currentAlignment );
+	block_set_alignment = FALSE;
+    }
 }
 
 /*!
