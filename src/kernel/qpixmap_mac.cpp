@@ -190,6 +190,15 @@ QImage QPixmap::convertToImage() const
 
     QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
+    //first we copy the clut
+    //handle bitmap case, what about other indexed depths?
+    if(d == 1) {
+	image->setNumColors( 2 );
+	image->setColor( 0, qRgba(255,255,255, 0) );
+	image->setColor( 1, qRgba(0,0,0, 0) );
+    }
+
+    //setup destination gworld
     GWorldPtr savedworld;
     GDHandle savedhandle;
     GetGWorld(&savedworld, &savedhandle);
@@ -212,20 +221,19 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-#if 0
-#error "Need to take QPixmap::mask() into account here, "\
-            "by adding a transparent color (if possible), and "\
-            "changing masked-out pixels to that color index."
+    //how do I handle a mask?
+    const QBitmap* msk = mask();
+    QImage alpha;
+    if (msk) {
+	qDebug("I had a mask...How will you handle me?");
+	image->setAlphaBuffer( TRUE );
+	alpha = msk->convertToImage();
+    }
+    bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
-#endif
-
-    for ( int i=0; i<ncols; i++ ) // copy color table
-	image->setColor( i, qRgb(0, 0, 0));
-
-
+    //now restore the old settings
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
     SetGWorld(savedworld,savedhandle);
-
     return *image;
 }
 
@@ -561,12 +569,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   memset( data, 0, sizeof(QPixmapData) );
   data->count=1;
   data->uninit=TRUE;
-  data->is_locked = FALSE;
-  data->savedworld = NULL;
-  data->savedhandle = 0;
   data->bitmap=bitmap;
+  data->clut = NULL;
   data->ser_no=++serial;
   data->optim=optim;
+
   data->d = d;
     
   hd=0;
@@ -594,10 +601,31 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   Rect rect;
   // God knows what this does
   someflags=alignPix | stretchPix | newDepth;
-  // Depth of 0=deepest screen depth
   SetRect(&rect,0,0,w,h);
-  e=NewGWorld((GWorldPtr *)&hd,d,&rect,0,0,someflags);
 
+#if 0
+  /* setup clut */
+  if(d == 1) {
+      data->clut = (ColorTable *)malloc(sizeof(ColorTable));
+      data->clut->ctSeed = 666; /* huh? FIXME */
+      data->clut->ctFlags = 0;
+      data->clut->ctSize = 2;
+
+      RGBColor r;
+      data->clut->ctTable = (CSpecArray *)calloc(2, sizeof(ColorSpec));
+      data->clut->ctTable[0].value = 0;
+      r.red = r.blue = r.green = 255;
+      data->clut->ctTable[0].rgb = r;
+      data->clut->ctTable[1].value = 1;
+      r.red = r.blue = r.green = 0;
+      data->clut->ctTable[1].rgb = r;
+  }
+#endif  
+
+  /* actually create world */
+  e=NewGWorld( (GWorldPtr *)&hd, 0, &rect, data->clut ? &data->clut : NULL, 0, someflags );
+
+  /* error? */
   if((e & gwFlagErr)!=0) {
     qDebug( "QPixmap::init Something went wrong" );
     ASSERT(0);

@@ -195,9 +195,7 @@ protected:
 	void   *ximage;
 	void   *maskgc;
 #elif defined(Q_WS_MAC)
-      bool is_locked;
-      GWorldPtr savedworld;
-      GDHandle savedhandle;
+	ColorTable *clut;
 #elif defined(Q_WS_QWS)
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
