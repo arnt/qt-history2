@@ -229,6 +229,7 @@ QPrinter::QPrinter( PrinterMode m )
     D->winPageSize = DMPAPER_A4;
     D->pageRangeEnabled = All | Range;
     D->pageRange = All;
+    d->outputToFileEnabled = TRUE;
 
     orient      = Portrait;
     page_size   = A4;
@@ -957,6 +958,9 @@ bool QPrinter::setup( QWidget *parent )
 		pd.nMinPage = min_pg;
 		pd.nMaxPage = max_pg;
 	    }
+
+	    if( !d->outputToFileEnabled )
+		pd.Flags |= PD_DISABLEPRINTTOFILE;
 
 	    if ( d->pageRange == Selection )
 		pd.Flags |= PD_SELECTION;

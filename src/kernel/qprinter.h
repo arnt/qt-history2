@@ -112,6 +112,9 @@ public:
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
 
+    void setOutputToFileEnabled( bool enabled );
+    bool outputToFileEnabled() const;
+
     void setResolution( int );
     int resolution() const;
 
