@@ -32,6 +32,7 @@
 
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
+#include <private/qgl_p.h>
 #include <qt_mac.h>
 #include <qpixmap.h>
 #include <qtimer.h>
