@@ -47,7 +47,7 @@ class QSqlCursorPrivate
 {
 public:
     QSqlCursorPrivate( const QString& name )
-        : lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
+	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
     ~QSqlCursorPrivate(){}
 
     int               lastAt;
@@ -166,7 +166,7 @@ QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* d
     d = new QSqlCursorPrivate( name );
     setMode( Writable );
     if ( !d->nm.isNull() )
-        setName( d->nm, autopopulate );
+	setName( d->nm, autopopulate );
 }
 
 /*!
@@ -205,7 +205,7 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
     QSqlRecord::operator=( other );
     QSqlQuery::operator=( other );
     if ( d )
-        delete d;
+	delete d;
     d = new QSqlCursorPrivate( other.d->nm );
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;
@@ -268,14 +268,14 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-        if ( driver() ) {
-            d->editBuffer = driver()->record( name );
-            *this = d->editBuffer;
-            d->priIndx = driver()->primaryIndex( name );
-        }
+	if ( driver() ) {
+	    d->editBuffer = driver()->record( name );
+	    *this = d->editBuffer;
+	    d->priIndx = driver()->primaryIndex( name );
+	}
 #ifdef QT_CHECK_RANGE
-        if ( isEmpty() )
-            qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
+	if ( isEmpty() )
+	    qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
 #endif
     }
 }
@@ -299,13 +299,13 @@ QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
     bool comma = FALSE;
 
     for ( uint i = 0; i < count(); ++i ){
-        const QString fname = fieldName( i );
-        if ( !isCalculated( fname ) && isGenerated( fname ) ) {
-            if( comma )
-                pflist += sep + " ";
-            pflist += pfix + fname;
-            comma = TRUE;
-        }
+	const QString fname = fieldName( i );
+	if ( !isCalculated( fname ) && isGenerated( fname ) ) {
+	    if( comma )
+		pflist += sep + " ";
+	    pflist += pfix + fname;
+	    comma = TRUE;
+	}
     }
     return pflist;
 }
@@ -329,11 +329,11 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
 QSqlIndex QSqlCursor::primaryIndex( bool setFromCursor ) const
 {
     if ( setFromCursor ) {
-        for ( uint i = 0; i < d->priIndx.count(); ++i ) {
-            const QString fn = d->priIndx.fieldName( i );
-            if ( contains( fn ) )
-                d->priIndx.setValue( i, value( fn ) );
-        }
+	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
+	    const QString fn = d->priIndx.fieldName( i );
+	    if ( contains( fn ) )
+		d->priIndx.setValue( i, value( fn ) );
+	}
     }
     return d->priIndx;
 }
@@ -362,12 +362,12 @@ QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
 {
     QSqlIndex idx;
     for ( QStringList::ConstIterator it = fieldNames.begin(); it != fieldNames.end(); ++it ) {
-        const QSqlField* f = field( (*it) );
-        if ( !f ) { /* all fields must exist */
-            idx.clear();
-            break;
-        }
-        idx.append( *f );
+	const QSqlField* f = field( (*it) );
+	if ( !f ) { /* all fields must exist */
+	    idx.clear();
+	    break;
+	}
+	idx.append( *f );
     }
     return idx;
 }
@@ -429,12 +429,12 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     QString str= "select " + toString( d->nm );
     str += " from " + d->nm;
     if ( !filter.isEmpty() ) {
-        d->ftr = filter;
-        str += " where " + filter;
+	d->ftr = filter;
+	str += " where " + filter;
     } else
-        d->ftr = QString::null;
+	d->ftr = QString::null;
     if ( sort.count() > 0 )
-        str += " order by " + sort.toString( d->nm );
+	str += " order by " + sort.toString( d->nm );
     str += ";";
     d->srt = sort;
     d->lastAt = QSqlResult::BeforeFirst;
@@ -551,7 +551,7 @@ int QSqlCursor::mode() const
 void QSqlCursor::setCalculated( const QString& name, bool calculated )
 {
     if ( !field( name ) )
-        return;
+	return;
     d->calcFields[ position( name ) ] = calculated;
     setGenerated( name, !calculated );
 }
@@ -563,7 +563,7 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
 bool QSqlCursor::isCalculated( const QString& name ) const
 {
     if ( !field( name ) )
-        return FALSE;
+	return FALSE;
     return d->calcFields[ position( name ) ];
 }
 
@@ -621,8 +621,8 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
 {
     QString f;
     if ( field && driver() ) {
-        f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
-        f += " " + fieldSep + " " + driver()->formatValue( field );
+	f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
+	f += " " + fieldSep + " " + driver()->formatValue( field );
     }
     return f;
 }
@@ -639,18 +639,18 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
 */
 
 QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
-                              const QString& sep ) const
+			      const QString& sep ) const
 {
     QString filter;
     bool separator = FALSE;
     for ( uint j = 0; j < count(); ++j ) {
-        QSqlField* f = rec->field( j );
-        if ( !isCalculated( f->name() ) && isGenerated( f->name() ) ) {
-            if ( separator )
-                filter += " " + sep + " " ;
-            filter += toString( prefix, f, fieldSep );
-            separator = TRUE;
-        }
+	QSqlField* f = rec->field( j );
+	if ( !isCalculated( f->name() ) && isGenerated( f->name() ) ) {
+	    if ( separator )
+		filter += sep + " " ;
+	    filter += toString( prefix, f, fieldSep );
+	    separator = TRUE;
+	}
     }
     return filter;
 }
@@ -666,17 +666,17 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
 */
 
 QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix,
-                                const QString& fieldSep, const QString& sep ) const
+				const QString& fieldSep, const QString& sep ) const
 {
     QString filter;
     bool separator = FALSE;
     for( uint j = 0; j < i.count(); ++j ){
-        if( separator )
-            filter += " " + sep + " " ;
-        QString fn = i.fieldName( j );
-        QSqlField* f = rec->field( fn );
-        filter += toString( prefix, f, fieldSep );
-        separator = TRUE;
+	if( separator )
+	    filter += sep + " " ;
+	QString fn = i.fieldName( j );
+	QSqlField* f = rec->field( fn );
+	filter += toString( prefix, f, fieldSep );
+	separator = TRUE;
     }
     return filter;
 }
@@ -695,7 +695,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
 int QSqlCursor::insert( bool invalidate )
 {
     if ( ( d->md & Insert ) != Insert || !driver() )
-        return FALSE;
+	return FALSE;
     int k = d->editBuffer.count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
@@ -704,17 +704,17 @@ int QSqlCursor::insert( bool invalidate )
     QString vals;
     bool comma = FALSE;
     for( int j = 0; j < k; ++j ){
-        QSqlField* f = d->editBuffer.field( j );
-        if ( !isCalculated( f->name() ) ) {
-            if( comma )
-                vals += ",";
-            vals += driver()->formatValue( f );
-            comma = TRUE;
-        }
+	QSqlField* f = d->editBuffer.field( j );
+	if ( !isCalculated( f->name() ) ) {
+	    if( comma )
+		vals += ",";
+	    vals += driver()->formatValue( f );
+	    comma = TRUE;
+	}
     }
     str += vals + ");";
     if ( invalidate )
-        QSqlRecord::operator=( d->editBuffer );
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
@@ -741,11 +741,11 @@ QSqlRecord* QSqlCursor::editBuffer( )
 QSqlRecord* QSqlCursor::primeUpdate()
 {
     if( d->editBuffer.count() == 0 ){
-        d->editBuffer = *((QSqlRecord*)this);
+	d->editBuffer = *((QSqlRecord*)this);
     } else {
-        for(uint i = 0; i < d->editBuffer.count(); i++){
-            d->editBuffer.setValue( i, value( i ) );
-        }
+	for(uint i = 0; i < d->editBuffer.count(); i++){
+	    d->editBuffer.setValue( i, value( i ) );
+	}
     }
     return &d->editBuffer;
 }
@@ -761,7 +761,7 @@ QSqlRecord* QSqlCursor::primeUpdate()
 QSqlRecord* QSqlCursor::primeInsert()
 {
     if( d->editBuffer.count() == 0 )
-        d->editBuffer = *((QSqlRecord*)this);
+	d->editBuffer = *((QSqlRecord*)this);
     d->editBuffer.clearValues();
     return &d->editBuffer;
 }
@@ -798,7 +798,7 @@ QSqlRecord* QSqlCursor::primeInsert()
 int QSqlCursor::update( bool invalidate )
 {
     if ( primaryIndex().isEmpty() )
-        return 0;
+	return 0;
     return update( toString( primaryIndex(), &d->editBuffer, d->nm, "=", "and" ), invalidate );
 }
 
@@ -818,16 +818,16 @@ int QSqlCursor::update( bool invalidate )
 int QSqlCursor::update( const QString & filter, bool invalidate )
 {
     if ( ( d->md & Update ) != Update )
-        return FALSE;
+	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
     str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
-        str+= " where " + filter;
+	str+= " where " + filter;
     str += ";";
     if ( invalidate )
-        QSqlRecord::operator=( d->editBuffer );
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
@@ -856,7 +856,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 int QSqlCursor::del( bool invalidate )
 {
     if ( !isActive() || !isValid() ||  primaryIndex().isEmpty() )
-        return 0;
+	return 0;
     return del( toString( primaryIndex(), this, d->nm, "=", "and" ), invalidate );
 }
 
@@ -875,15 +875,15 @@ int QSqlCursor::del( bool invalidate )
 int QSqlCursor::del( const QString & filter, bool invalidate )
 {
     if ( ( d->md & Delete ) != Delete )
-        return 0;
+	return 0;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "delete from " + name();
     if ( filter.length() )
-        str+= " where " + filter;
+	str+= " where " + filter;
     str += ";";
     if ( invalidate )
-        clearValues();
+	clearValues();
     return apply( str, invalidate );
 }
 
@@ -895,13 +895,13 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-        d->lastAt = QSqlResult::BeforeFirst;
-        if ( exec( q ) )
-            ar = numRowsAffected();
+	d->lastAt = QSqlResult::BeforeFirst;
+	if ( exec( q ) )
+	    ar = numRowsAffected();
     } else if ( driver() ) {
-        QSqlQuery sql( driver()->createQuery() );
-        if ( sql.exec( q ) )
-            ar = sql.numRowsAffected();
+	QSqlQuery sql( driver()->createQuery() );
+	if ( sql.exec( q ) )
+	    ar = sql.numRowsAffected();
     }
     return ar;
 }
@@ -937,22 +937,22 @@ QVariant QSqlCursor::calculateField( const QString& )
 void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
-        d->lastAt = at();
-        uint i = 0, j = 0;
-        for ( ; i < count(); ++i ){
-            QSqlField* f = field( i );
-            if ( !isCalculated( f->name() ) ){
-                QSqlRecord::setValue( i, QSqlQuery::value( j ) );
-                QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
-                j++;
-            }
-        }
-        i = 0;
-        for ( ; i < count(); ++i ){
-            QSqlField* f = field( i );
-            if ( isCalculated( f->name() ) )
-                QSqlRecord::setValue( i, calculateField( f->name() ) );
-        }
+	d->lastAt = at();
+	uint i = 0, j = 0;
+	for ( ; i < count(); ++i ){
+	    QSqlField* f = field( i );
+	    if ( !isCalculated( f->name() ) ){
+		QSqlRecord::setValue( i, QSqlQuery::value( j ) );
+		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
+		j++;
+	    }
+	}
+	i = 0;
+	for ( ; i < count(); ++i ){
+	    QSqlField* f = field( i );
+	    if ( isCalculated( f->name() ) )
+		QSqlRecord::setValue( i, calculateField( f->name() ) );
+	}
     }
 }
 
