@@ -4489,7 +4489,7 @@ int QTextParag::leftGap() const
     int line = 0;
     int x = str->at(0).x;  /* set x to x of first char */
     if ( str->isBidi() ) {
-	for ( int i = 1; i < str->length(); ++i )
+	for ( int i = 1; i < str->length()-1; ++i )
 	    x = QMIN(x, str->at(i).x);
 	return x;
     }
@@ -4698,7 +4698,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    xend = at( paintEnd )->x + str->width( paintEnd );
 		}
 		
-		if ( xend >= clipx && xstart <= clipx + clipw ) {
+		if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
 		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, xstart, lastY,
 				     lastBaseLine, xend-xstart, lasth, drawSelections,
 				     formatChar, i, selectionStarts, selectionEnds, cg, rightToLeft );
@@ -4757,7 +4757,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     }
 
     // if we should draw a cursor, draw it now
-    if ( curx != -1 && cursor && curx + 4 >= clipx && curx - 4 <= clipx + clipw ) {
+    if ( curx != -1 && cursor && 
+	 ((clipx == -1 || clipw == -1) || (curx + 4 >= clipx && curx - 4 <= clipx + clipw)) ) {
 	painter.fillRect( QRect( curx, cury, 1, curh - lineExtra() ), cg.color( QColorGroup::Text ) );
 	painter.save();
 	if ( string()->isBidi() ) {
