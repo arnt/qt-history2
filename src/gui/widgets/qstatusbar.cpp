@@ -23,6 +23,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qsizegrip.h"
+#include <private/qlayoutengine_p.h>
 
 #include <private/qwidget_p.h>
 
@@ -326,8 +327,7 @@ void QStatusBar::reformat()
         if (!item || item->p)
             break;
         l->addWidget(item->w, item->s);
-        int itemH = qMin(item->w->sizeHint().height(),
-                         item->w->maximumHeight());
+        int itemH = qMin(qSmartMinSize(item->w).height(), item->w->maximumHeight());
         maxH = qMax(maxH, itemH);
     }
 
@@ -338,8 +338,7 @@ void QStatusBar::reformat()
         if (!item)
             break;
         l->addWidget(item->w, item->s);
-        int itemH = qMin(item->w->sizeHint().height(),
-                         item->w->maximumHeight());
+        int itemH = qMin(qSmartMinSize(item->w).height(), item->w->maximumHeight());
         maxH = qMax(maxH, itemH);
     }
     l->addSpacing(4);
@@ -531,8 +530,7 @@ bool QStatusBar::event(QEvent *e)
             item = d->items.at(i);
             if (!item)
                 break;
-            int itemH = qMin(item->w->sizeHint().height(),
-                            item->w->maximumHeight());
+            int itemH = qMin(qSmartMinSize(item->w).height(), item->w->maximumHeight());
             maxH = qMax(maxH, itemH);
         }
 
