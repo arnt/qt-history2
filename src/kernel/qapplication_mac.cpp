@@ -67,7 +67,7 @@
 #include "qwindowsstyle.h" // ######## dependency
 #include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
-#ifdef QMAC_QMENUBAR_TOPLEVEL
+#if defined( QMAC_QMENUBAR_TOPLEVEL ) || defined(QMAC_QMENUBAR_NATIVE)
 #include "qmenubar.h"
 #endif
 #include "qvariant.h"
@@ -96,9 +96,6 @@ static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
-#ifdef QMAC_QMENUBAR_NATIVE
-MenuBarHandle qt_app_menubar = NULL;
-#endif
 
 void qt_mac_destroy_widget(QWidget *w)
 {
@@ -111,8 +108,6 @@ void qt_mac_destroy_widget(QWidget *w)
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
-
-const unsigned char * p_str(const char *); //qglobal.cpp
 
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static QWidget     *popupButtonFocus = 0;
@@ -223,101 +218,8 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 			     GetEventTypeCount(events), events,
 			     (void *)qApp, NULL);
 
-#ifdef QMAC_QMENUBAR_NATIVE
-	SetMenuBar((qt_app_menubar = GetMenuBar()));
-#endif
     }
 }
-
-
-#ifdef QMAC_QMENUBAR_NATIVE
-#define INCLUDE_MENUITEM_DEF
-#include <qpopupmenu.h>
-#include <qmenubar.h>
-
-class MacPopupBinding {
-public:
-    MacPopupBinding(QMenuData *m, MenuRef r) : qpopup(m), macpopup(r) { }
-    ~MacPopupBinding() { DisposeMenu(macpopup); }
-
-    QMenuData *qpopup;
-    MenuRef macpopup;
-};
-bool dirty_menu_bar = TRUE;
-static QIntDict<MacPopupBinding> *pdict = NULL;
-
-const unsigned char *no_ampersands(QString i) {
-    int w=0;
-    while((w=i.find('&', w)) != -1) 
-	i.remove(w, 1);
-    return p_str(i);
-}
-
-static MenuRef createPopup(QMenuData *d) 
-{
-    MenuRef ret;
-    if(CreateNewMenu(textMenuProc, 0, &ret) != noErr)
-	return NULL;
-
-    if(!pdict) {
-	pdict = new QIntDict<MacPopupBinding>();
-	pdict->setAutoDelete(TRUE);
-    }
-    short mid = (short)ret;
-    SetMenuID(ret, mid);
-    pdict->insert((int)mid, new MacPopupBinding(d, ret));
-
-    if(d) {
-	for(int id = 0, x = 0; x < (int)d->count(); x++) {
-	    QMenuItem *item = d->findItem(d->idAt(x));
-	
-	    id++;
-	    //Yes I need this, stupid!
-	    QString text = item->isSeparator() ? "empty" : item->text().latin1();
-	    qDebug("inserting %s", text.latin1());
-	    InsertMenuItem(ret, no_ampersands(text), id);
-	    if(item->isSeparator())
-		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
-
-	    if(item->pixmap()) {
-		//handle pixmaps..
-	    }
-	    if(item->isEnabled())
-		EnableMenuItem(ret, id);
-	    else
-		DisableMenuItem(ret, id);
-	    CheckMenuItem(ret, id, item->isChecked() ? true : false);
-	    if(item->popup()) 
-		SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup()));
-	    if(item->widget() || item->custom())
-		qDebug("Ooops, don't think I can handle that yet! %s:%d", __FILE__, __LINE__);
-	}
-    }
-    return ret;
-}
-	
-static bool updateMenuBar(QMenuBar *mbar) 
-{
-    qDebug("updating..");
-    ClearMenuBar();
-    InvalMenuBar();
-    if(pdict)
-	pdict->clear();
-    for(int x = 0; x < (int)mbar->count(); x++) {
-	QMenuItem *item = mbar->findItem(mbar->idAt(x));
-	if(item->isSeparator())
-	    continue;
-
-	MenuRef mp = createPopup(item->popup());
-	qDebug("inserting %s", item->text().latin1());
-	SetMenuTitle(mp, no_ampersands(item->text()));
-	InsertMenu(mp, x);
-    }
-    InvalMenuBar();
-    return TRUE;
-}
-#endif
-
 
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished
@@ -342,7 +244,7 @@ void qt_cleanup()
     QColor::cleanup();
 
 #ifdef QMAC_QMENUBAR_NATIVE
-    delete pdict;
+    QMenuBar::cleanup();
 #endif
 }
 
@@ -831,13 +733,7 @@ bool QApplication::processNextEvent( bool  )
     }
 
 #ifdef QMAC_QMENUBAR_NATIVE
-    if(dirty_menu_bar && mainWidget()) {
-	if(QObject *mb = mainWidget()->child(0, "QMenuBar", FALSE)) {
-	    dirty_menu_bar = FALSE;
-	    QMenuBar *bar = (QMenuBar *)mb;
-	    updateMenuBar(bar);
-	}
-    }
+    QMenuBar::macUpdateMenuBar();
 #endif
 
 #ifndef QT_NO_CLIPBOARD
@@ -1040,25 +936,19 @@ bool QApplication::do_mouse_down( Point *pt )
 		widget->showMaximized();
 	}
 	break;
+#ifdef QMAC_QMENUBAR_NATIVE
     case inMenuBar:
     {
-	if(!pdict) 
-	    break;
-
 	long msg = MenuSelect(*pt);
 	if(msg) {
-
-#ifdef QMAC_QMENUBAR_NATIVE
 #define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
 #define	LoWrd(aLong)	((aLong) & 0xFFFF)
 	    short menuID = HiWrd( msg ),  menuItem = LoWrd( msg );
-	    if(MacPopupBinding *mpb = pdict->find((int)menuID))
-		mpb->qpopup->activateItemAt(menuItem-1);
-#endif
-
+	    QMenuBar::activate(menuID, menuItem);
 	}
 	HiliteMenu(0);
     }
+#endif
     break;
     default:
 	qDebug("Unhandled case in mouse_down..");

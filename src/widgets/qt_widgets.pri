@@ -109,4 +109,5 @@ widgets {
 		  $$WIDGETS_CPP/qtextview.cpp \
 		  $$WIDGETS_CPP/qtextbrowser.cpp \
 		  $$WIDGETS_CPP/qtextedit.cpp
+      mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp
 }

@@ -83,6 +83,10 @@ public:
 
     void activateItemAt( int index ); // ### virtual in QMenuData 3.0
 
+#ifdef QMAC_QMENUBAR_NATIVE
+    static void cleanup();
+#endif
+
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -143,7 +147,16 @@ private:
 
     friend class QPopupMenu;
 
+#ifdef QMAC_QMENUBAR_NATIVE
+    friend class QApplication;
+    uint mac_dirty_menubar : 1;
+    static bool activate(short id, short index);
+    void macDirtyMenuBar();
+    static void macUpdateMenuBar();
+#endif
+
 private:	// Disabled copy constructor and operator=
+
 #if defined(Q_DISABLE_COPY)
     QMenuBar( const QMenuBar & );
     QMenuBar &operator=( const QMenuBar & );

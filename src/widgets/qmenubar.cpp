@@ -314,6 +314,9 @@ void QMenuBar::menuContentsChanged()
             parentWidget()->layout()->activate();
 #endif
     }
+#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+    macDirtyMenuBar();
+#endif
 }
 
 /*!
@@ -704,7 +707,14 @@ int QMenuBar::calculateRects( int max_width )
 
     while ( i < (int)mitems->count() ) {        // for each menu item...
         QMenuItem *mi = mitems->at(i);
+
         int w=0, h=0;
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
+	if(!mi->custom() && !mi->widget()) {
+	    w = 0;
+	    h = 0;
+	} else
+#endif
         if ( mi->widget() ) {
             if ( mi->widget()->parentWidget() != this ) {
                 mi->widget()->reparent( this, QPoint(0,0) );
@@ -829,7 +839,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )
         return -1;
     int i = 0;
     while ( i < (int)mitems->count() ) {
-        if ( irects[i].contains( pos ) ) {
+        if ( !irects[i].isEmpty() && irects[i].contains( pos ) ) {
             QMenuItem *mi = mitems->at(i);
             return mi->isSeparator() ? -1 : i;
         }
@@ -890,11 +900,9 @@ void QMenuBar::drawContents( QPainter *p )
     for ( int i=0; i<(int)mitems->count(); i++ ) {
         QMenuItem *mi = mitems->at( i );
         if ( !mi->text().isNull() || mi->pixmap() ) {
-#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
-	    if(!mi->custom() && !mi->widget())
-		continue;
-#endif
             QRect r = irects[i];
+	    if(r.isEmpty())
+		continue;
             e = mi->isEnabled();
             if ( e )
                 g = isEnabled() ? ( isActiveWindow() ? palette().active() :
