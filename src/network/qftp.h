@@ -122,16 +122,15 @@ public:
     QT_COMPAT_CONSTRUCTOR QFtp(QObject *parent, const char *name);
 #endif
 
-private slots:
-    void startNextCommand();
-    void piFinished(const QString&);
-    void piError(int, const QString&);
-    void piConnectState(int);
-    void piFtpReply(int, const QString&);
-
 private:
     Q_DISABLE_COPY(QFtp)
     Q_DECLARE_PRIVATE(QFtp)
+
+    Q_PRIVATE_SLOT(d, void startNextCommand())
+    Q_PRIVATE_SLOT(d, void piFinished(const QString&))
+    Q_PRIVATE_SLOT(d, void piError(int, const QString&))
+    Q_PRIVATE_SLOT(d, void piConnectState(int))
+    Q_PRIVATE_SLOT(d, void piFtpReply(int, const QString&))
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
