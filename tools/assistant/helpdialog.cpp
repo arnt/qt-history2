@@ -337,15 +337,29 @@ void HelpDialog::loadIndexFile()
     processEvents();
 
     ui.listIndex->clear();
-    HelpNavigationListItem *lastItem = 0;
-    QString lastKeyword = QString::null;
+
+    HelpNavigationListItem *oneAgo = 0;
+    HelpNavigationListItem *twoAgo = 0;
+    QString oneAgoStr = QString::null;
+    QString twoAgoStr = QString::null;
+
     QList<IndexKeyword>::ConstIterator it = lst.begin();
-    for (; it != lst.end(); ++it) {
-        if (lastKeyword.toLower() != (*it).keyword.toLower())
-            lastItem = new HelpNavigationListItem(ui.listIndex, (*it).keyword);
-        lastItem->addLink((*it).link);
-        lastKeyword = (*it).keyword;
+    for (; it!=lst.end(); ++it) {
+	if ((*it).keyword == twoAgoStr) {
+	    twoAgo->addLink((*it).link);
+	} else if ((*it).keyword == oneAgoStr) {
+	    oneAgo->addLink((*it).link);
+	} else {
+	    if (oneAgo) {
+		twoAgo = oneAgo;
+		twoAgoStr = oneAgoStr;
+	    }
+	    oneAgo = new HelpNavigationListItem(ui.listIndex, (*it).keyword);
+	    oneAgo->addLink((*it).link);
+	    oneAgoStr = (*it).keyword;
+	}
     }
+
     ui.framePrepare->hide();
     showInitDoneMessage();
     setCursor(Qt::arrowCursor);
