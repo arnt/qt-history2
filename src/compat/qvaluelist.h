@@ -51,10 +51,9 @@ public:
     inline QValueListConstIterator<T>(const typename QLinkedList<T>::Iterator &o) :
 	QLinkedList<T>::ConstIterator(o) {}
 };
-#endif
 
 template <typename T>
-class QValueList : public QLinkedList<T>
+class QT_COMPAT QValueList : public QLinkedList<T>
 {
 public:
     typedef T value_type;
@@ -186,5 +185,6 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QValueList<T>
     return operator<<(s, (QLinkedList<T>&)l);
 }
 #endif // QT_NO_DATASTREAM
+#endif // QT_COMPAT
 
 #endif // QVALUELIST_H
