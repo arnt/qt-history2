@@ -1128,7 +1128,7 @@ static inline const QChar nextChar( const QString *str, int pos)
 static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffer, int *shapedLength,
 			 bool reverse, QGlyphLayout *glyphs, unsigned short *logClusters )
 {
-    Q_ASSERT(uc->length() <= from + len);
+    Q_ASSERT(uc->length() >= from + len);
 
     if( len == 0 ) {
 	*shapedLength = 0;
