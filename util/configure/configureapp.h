@@ -24,7 +24,7 @@ public:
     void showSummary();
     void findProjects( const QString& dirName );
 
-    bool readLicense();
+    void readLicense();
 
     bool isProjectLibrary( const QString& proFileName );
 private:
@@ -34,7 +34,6 @@ private:
     // Our variable dictionaries
     QMap<QString,QString> dictionary;
     QStringList licensedModules;
-    QStringList allModules;
     QStringList allSqlDrivers;
     QStringList allConfigs;
     QStringList disabledModules;

@@ -71,7 +71,6 @@ void ConfigureApp::buildModulesList()
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
-    allModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql" );
     licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
     
     if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
@@ -228,7 +227,8 @@ void ConfigureApp::parseCmdLine()
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	qmakeConfig += modules;
-	qmakeConfig += "internal";
+	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
+	    qmakeConfig += "internal";
     }
     else
 	qmakeConfig += enabledModules;
@@ -825,7 +825,7 @@ bool ConfigureApp::isProjectLibrary( const QString& proFileName )
     return false;
 }
 
-bool ConfigureApp::readLicense()
+void ConfigureApp::readLicense()
 {
     QFile licenseFile( qtDir + "/.qt-license" );
 
@@ -843,18 +843,13 @@ bool ConfigureApp::readLicense()
 	    }
 	}
 	licenseFile.close();
-	return true;
     }
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
-	if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
-	    licenseInfo[ "PRODUCTS" ]= "qt-professional";
-	else {
-	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
-	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
-	}
-	return true;
+	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+	dictionary[ "QMAKE_INTERNAL" ] = "yes";
     }
-    return false;
+    if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
+        licenseInfo[ "PRODUCTS" ]= "qt-professional";
 }
 
 void ConfigureApp::reloadCmdLine()
