@@ -119,7 +119,7 @@ inline const QColor &QBrush::color() const { return d->color; }
 inline QBrush::operator const QColor&() const { return d->color; }
 inline QBrush::operator const QPixmap*() const { return pixmap(); }
 
-inline void QBrush::detach(BrushStyle newStyle) { if (d->ref != 1) detach_helper(newStyle); }
+inline void QBrush::detach(BrushStyle newStyle) { if (newStyle != d->style || d->ref != 1) detach_helper(newStyle); }
 
 inline QPixmap *QBrush::pixmap() const
 {
