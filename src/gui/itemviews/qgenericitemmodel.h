@@ -48,13 +48,15 @@ public:
     QGenericItemModel(QObject *parent = 0, const char *name = 0);
     virtual ~QGenericItemModel();
 
-    virtual QModelIndex index(int row, int col, const QModelIndex &parent = 0,
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                               QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
     inline QModelIndex topLeft(const QModelIndex &parent = 0) const
 	{ return index(0, 0, parent); }
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
 	{ return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
+    inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
+	{ return index(row, column, parent(idx)); }
 
     virtual int rowCount(const QModelIndex &parent = 0) const = 0;
     virtual int columnCount(const QModelIndex &parent = 0) const = 0;
