@@ -6379,7 +6379,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	}
 	return TRUE;
     }
-    return FALSE;
+    return table->selectionMode() == QTable::NoSelection;
 }
 
 static inline bool mayOverwriteMargin( int before, int after )
