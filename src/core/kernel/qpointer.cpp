@@ -68,7 +68,7 @@
     normal pointers. Use a QPointer when you are storing a pointer
     over time.
 
-    Note again that class \c T \e must inherit QObject, or a
+    Note that class \c T \e must inherit QObject, or a
     compilation or link error will result.
 */
 
@@ -131,7 +131,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator==(const T *p) const
+    \fn bool QPointer::operator==(T *p) const
 
     \overload
 
@@ -152,7 +152,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator!= (const T *p) const
+    \fn bool QPointer::operator!= (T *p) const
 
     \overload
 
