@@ -1175,16 +1175,9 @@ void Configure::generateMakefiles()
 	    QString makefileName = dirPath + (*makeListIterator);
 	    ++makeListIterator;
 	    QStringList args;
-	    switch( projectType( projectName ) ) {
-	    case Subdirs:
+	    if ( projectType( projectName ) == Subdirs )
 		qmakeTemplate = "subdirs";
-		break;
-	    case App:
-		qmakeTemplate = "vcapp";
-		break;
-	    case Lib:
-		qmakeTemplate = "vclib";
-	    }
+
 	    args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
 	    args << projectName;
 	    args << dictionary[ "QMAKE_ALL_ARGS" ];
@@ -1200,7 +1193,7 @@ void Configure::generateMakefiles()
 
 	    if( makefileName.right( 4 ) == ".dsp" ||
 	        makefileName.right( 7 ) == ".vcproj" )
-		args << "-t" << qmakeTemplate;
+		args << "-tp vc";
 	    else
 		cout << "For " << projectName.latin1() << endl;
 
