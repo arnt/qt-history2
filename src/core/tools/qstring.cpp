@@ -562,6 +562,61 @@ inline int QString::grow(int size)
     \sa fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
 
+#ifndef QT_NO_STL
+/*! \fn QString::QString(const std::wstring &str)
+
+    Constructs a copy of \a str. \a str is assumed to be encoded in
+    utf16 if the size of wchar_t is 2 bytes (e.g. on windows) and ucs4
+    if the size of wchar_t is 4 bytes (most Unix systems).
+
+    This constructor is only available if Qt is configured with STL
+    compabitility enabled.
+
+    \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8()
+*/
+QString::QString(const std::wstring &s)
+{
+    if (sizeof(wchar_t) == sizeof(QChar)) {
+        *this = fromUtf16((ushort *)s.c_str());
+    } else {
+        resize(s.length());
+        QChar *uc = data();
+        for (int i = 0; i < (int)s.length(); ++i) {
+            uc[i] = QChar(s[i]);
+        }
+    }
+}
+
+/*! \fn std::string QString::toStdWString() const
+
+    Returns a std::wstring object with the data contained in this
+    QString. The std::wstring is encoded in utf16 on platforms where
+    wchar_t is 2 bytes wide (e.g. windows) and in ucs4 on platforms
+    where wchar_t is 4 bytes wide (most Unix systems).
+
+    This operator is mostly useful to pass a QString to a function
+    that accepts a std::wstring object.
+
+    This operator is only available if Qt is configured with STL
+    compabitility enabled.
+
+    \sa utf16(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
+*/
+std::wstring QString::toStdWString() const
+{
+    if (sizeof(wchar_t) == sizeof(QChar)) {
+        return std::wstring((wchar_t *)utf16());
+    } else {
+        std::wstring std_string;
+        const unsigned short *uc = utf16();
+        for (int i = 0; i < length(); ++i) {
+            std_string += wchar_t(uc[i]);
+        }
+        return std_string;
+    }
+}
+#endif
+
 /*! \fn QString::QString(const QString &other)
 
     Constructs a copy of \a other.

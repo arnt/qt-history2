@@ -352,6 +352,8 @@ public:
 #ifndef QT_NO_STL
     inline explicit QString(const std::string &s);
     inline std::string toStdString() const;
+    explicit QString(const std::wstring &s);
+    std::wstring toStdWString() const;
 #endif
 
     // compatibility
