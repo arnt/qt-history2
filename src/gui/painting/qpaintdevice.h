@@ -53,8 +53,6 @@ public:
     Qt::HANDLE handle() const;
 #if defined(Q_WS_X11)
     QX11Info *x11Info() const;
-    Qt::HANDLE xftPictureHandle() const;
-    Qt::HANDLE xftDrawHandle() const;
 #elif defined(Q_WS_MAC)
     Qt::HANDLE macCGHandle() const;
 #endif

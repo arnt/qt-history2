@@ -21,6 +21,7 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 #include "qvarlengtharray.h"
+#include "qwidget.h"
 
 #include "qpaintengine_x11.h"
 
@@ -1349,7 +1350,13 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
 
     const QColor &pen = static_cast<QX11PaintEngine *>(p)->d->cpen.color();
 
-    XftDraw *draw = (XftDraw *) p->painter()->device()->xftDrawHandle();
+
+    XftDraw *draw = 0;
+    QPaintDevice *pd = p->painter()->device();
+    if (pd->devType() == QInternal::Widget)
+	draw = reinterpret_cast<XftDraw *>(static_cast<const QWidget *>(pd)->xftDrawHandle());
+    else
+	draw = reinterpret_cast<XftDraw *>(static_cast<const QPixmap *>(pd)->xftDrawHandle());
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
     col.color.green = pen.green () | pen.green() << 8;

@@ -540,7 +540,10 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
     d->xinfo = pdev->x11Info();
     d->hd = pdev->handle();
-    d->xft_hd = pdev->xftDrawHandle();
+    if (pdev->devType() == QInternal::Widget)
+        d->xft_hd = static_cast<const QWidget *>(pdev)->xftDrawHandle();
+    else if (pdev->devType() == QInternal::Pixmap)
+        d->xft_hd = static_cast<const QPixmap *>(pdev)->xftDrawHandle();
 
     Q_ASSERT(d->xinfo != 0);
     d->dpy = d->xinfo->display(); // get display variable
