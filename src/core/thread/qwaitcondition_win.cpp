@@ -61,9 +61,9 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     wce->priority = GetThreadPriority(GetCurrentThread());
 
     // insert 'wce' into the queue (sorted by priority)
-    QWaitConditionEvent *current = queue.first();
-    int index;
-    for (index = 0; index < queue.size(); ++index) {
+    int index = 0;
+    for (; index < queue.size(); ++index) {
+        QWaitConditionEvent *current = queue.at(index);
         if (current->priority < wce->priority)
             break;
     }

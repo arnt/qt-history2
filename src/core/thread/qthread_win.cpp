@@ -92,6 +92,7 @@ unsigned int __stdcall QThreadInstance::start(void *_arg)
     TlsSetValue(qt_tls_index, arg[1]);
 
     QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
+    QThreadInstance *self = reinterpret_cast<QThreadInstance *>(arg[1]);
     arg[2] = reinterpret_cast<Qt::HANDLE>(thr->thread());
     thr->QObject::setThread(QThread::currentThread());
     emit thr->started();
@@ -103,17 +104,14 @@ unsigned int __stdcall QThreadInstance::start(void *_arg)
         arg[0] = arg[1] = arg[2] = 0;
     }
 
-    finish((QThreadInstance *) arg[1]);
+    finish(self);
 
     return 0;
 }
 
 void QThreadInstance::finish(QThreadInstance *d)
 {
-    if (! d) {
-        qWarning("QThread: internal error: zero data for running thread.");
-        return;
-    }
+    Q_ASSERT_X(d, "QThread", "internal error: zero data for running thread.");
 
     QMutexLocker locker(d->mutex());
     d->running = false;

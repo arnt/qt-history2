@@ -116,11 +116,7 @@ void *QThreadInstance::start(void *_arg)
 void QThreadInstance::finish(void *)
 {
     QThreadInstance *d = current();
-
-    if (! d) {
-        qWarning("QThread: internal error: zero data for running thread.");
-        return;
-    }
+    Q_ASSERT_X(d, "QThread", "internal error: zero data for running thread.");
 
     QMutexLocker locker(d->mutex());
 
