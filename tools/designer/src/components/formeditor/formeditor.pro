@@ -47,13 +47,7 @@ SOURCES += \
            spacer_propertysheet.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
-           iconcache.cpp \
            tool_widgeteditor.cpp
-
-view3d {
-    HEADERS += view3d.h
-    SOURCES += view3d.cpp
-}
 
 MOCABLE += formwindow.cpp
 

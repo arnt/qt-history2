@@ -63,39 +63,62 @@ private:
     AbstractFormEditor *m_core;
 };
 
-class IconPropertyEditor : public QWidget
+class PixmapProperty : public AbstractProperty<QPixmap>
+{
+public:
+    PixmapProperty(AbstractFormEditor *core, const QPixmap &pixmap, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+    QVariant decoration() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+private:
+    AbstractFormEditor *m_core;
+};
+
+// This handles editing of pixmap and icon properties
+class GraphicsPropertyEditor : public QWidget
 {
     Q_OBJECT
 public:
-    IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm, QWidget *parent);
-    ~IconPropertyEditor();
+    GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm, QWidget *parent);
+    GraphicsPropertyEditor(AbstractFormEditor *core, const QPixmap &pixmap, QWidget *parent);
+    ~GraphicsPropertyEditor();
 
     void setIcon(const QIcon &pm);
-    QIcon icon() const { return m_icon; }
+    void setPixmap(const QPixmap &pm);
+    QIcon icon() const { return m_mode == Icon ? m_icon : QIcon(); }
+    QPixmap pixmap() const { return m_mode == Pixmap ? m_pixmap : QPixmap(); }
 
 signals:
     void iconChanged(const QIcon &pm);
+    void pixmapChanged(const QPixmap &pm);
 
 public slots:
     void showDialog();
 
 private:
+    void init();
+
+    enum Mode { Icon, Pixmap };
+    Mode m_mode;
+
     AbstractFormEditor *m_core;
     QLabel *m_label;
     QToolButton *m_button;
     QIcon m_icon;
+    QPixmap m_pixmap;
 };
 
-IconPropertyEditor::~IconPropertyEditor()
+GraphicsPropertyEditor::~GraphicsPropertyEditor()
 {
 }
 
-IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
-                                                QWidget *parent)
-    : QWidget(parent)
+void GraphicsPropertyEditor::init()
 {
-    m_core = core;
-
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(2);
 
@@ -106,11 +129,29 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
     m_button->setText(tr("Change..."));
     layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
+}
 
+GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
+                                                QWidget *parent)
+    : QWidget(parent)
+{
+    m_mode = Icon;
+    m_core = core;
+    init();
     setIcon(pm);
 }
 
-void IconPropertyEditor::showDialog()
+GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QPixmap &pm,
+                                                QWidget *parent)
+    : QWidget(parent)
+{
+    m_mode = Pixmap;
+    m_core = core;
+    init();
+    setPixmap(pm);
+}
+
+void GraphicsPropertyEditor::showDialog()
 {
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
@@ -119,11 +160,20 @@ void IconPropertyEditor::showDialog()
     FindIconDialog dialog(form, 0);
     QString file_path;
     QString qrc_path;
-    if (m_icon.isNull()) {
-        file_path = form->absolutePath(QString()) + QDir::separator();
+    if (m_mode == Icon) {
+        if (m_icon.isNull()) {
+            file_path = form->absolutePath(QString()) + QDir::separator();
+        } else {
+            file_path = m_core->iconCache()->iconToFilePath(m_icon);
+            qrc_path = m_core->iconCache()->iconToQrcPath(m_icon);
+        }
     } else {
-        file_path = m_core->iconCache()->iconToFilePath(m_icon);
-        qrc_path = m_core->iconCache()->iconToQrcPath(m_icon);
+        if (m_pixmap.isNull()) {
+            file_path = form->absolutePath(QString()) + QDir::separator();
+        } else {
+            file_path = m_core->iconCache()->pixmapToFilePath(m_pixmap);
+            qrc_path = m_core->iconCache()->pixmapToQrcPath(m_pixmap);
+        }
     }
     
     dialog.setPaths(qrc_path, file_path);
@@ -131,13 +181,19 @@ void IconPropertyEditor::showDialog()
         file_path = dialog.filePath();
         qrc_path = dialog.qrcPath();
         if (!file_path.isEmpty()) {
-            setIcon(m_core->iconCache()->nameToIcon(file_path, qrc_path));
+            if (m_mode == Icon)
+                setIcon(m_core->iconCache()->nameToIcon(file_path, qrc_path));
+            else
+                setPixmap(m_core->iconCache()->nameToPixmap(file_path, qrc_path));
         }
     }
 }
 
-void IconPropertyEditor::setIcon(const QIcon &pm)
+void GraphicsPropertyEditor::setIcon(const QIcon &pm)
 {
+    if (m_mode == Pixmap)
+        return;
+        
     if (pm.isNull() && m_icon.isNull())
         return;
     if (pm.serialNumber() == m_icon.serialNumber())
@@ -152,6 +208,27 @@ void IconPropertyEditor::setIcon(const QIcon &pm)
         m_label->setText(QFileInfo(path).fileName());
     }
     emit iconChanged(m_icon);
+}
+
+void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
+{
+    if (m_mode == Icon)
+        return;
+        
+    if (pm.isNull() && m_pixmap.isNull())
+        return;
+    if (pm.serialNumber() == m_pixmap.serialNumber())
+        return;
+
+    m_pixmap = pm;
+
+    if (m_pixmap.isNull()) {
+        m_label->setText(tr("<no icon>"));
+    } else {
+        QString path = m_core->iconCache()->pixmapToFilePath(pm);
+        m_label->setText(QFileInfo(path).fileName());
+    }
+    emit pixmapChanged(m_pixmap);
 }
 
 IconProperty::IconProperty(AbstractFormEditor *core, const QIcon &value, const QString &name)
@@ -185,7 +262,7 @@ QVariant IconProperty::decoration() const
 QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
                                         const char *receiver) const
 {
-    IconPropertyEditor *editor = new IconPropertyEditor(m_core, m_value, parent);
+    GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
 
     QObject::connect(editor, SIGNAL(iconChanged(const QIcon&)), target, receiver);
 
@@ -194,14 +271,14 @@ QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
 
 void IconProperty::updateEditorContents(QWidget *editor)
 {
-    if (IconPropertyEditor *ed = qobject_cast<IconPropertyEditor*>(editor)) {
+    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
         ed->setIcon(m_value);
     }
 }
 
 void IconProperty::updateValue(QWidget *editor)
 {
-    if (IconPropertyEditor *ed = qobject_cast<IconPropertyEditor*>(editor)) {
+    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
         QIcon newValue = ed->icon();
 
         if (newValue.serialNumber() != m_value.serialNumber()) {
@@ -210,6 +287,63 @@ void IconProperty::updateValue(QWidget *editor)
         }
     }
 }
+
+PixmapProperty::PixmapProperty(AbstractFormEditor *core, const QPixmap &pixmap, const QString &name)
+    : AbstractProperty<QPixmap>(pixmap, name)
+{
+    m_core = core;
+}
+
+void PixmapProperty::setValue(const QVariant &value)
+{
+    m_value = qvariant_cast<QPixmap>(value);
+}
+
+QString PixmapProperty::toString() const
+{
+    QString path = m_core->iconCache()->pixmapToFilePath(m_value);
+    return QFileInfo(path).fileName();
+}
+
+QVariant PixmapProperty::decoration() const
+{
+    static QPixmap empty_pm;
+    if (empty_pm.isNull())
+        empty_pm = QPixmap(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
+
+    if (m_value.isNull())
+        return qVariantFromValue(empty_pm);
+    return qVariantFromValue(m_value);
+}
+
+QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
+
+    QObject::connect(editor, SIGNAL(pixmapChanged(const QPixmap&)), target, receiver);
+
+    return editor;
+}
+
+void PixmapProperty::updateEditorContents(QWidget *editor)
+{
+    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
+        ed->setPixmap(m_value);
+    }
+}
+
+void PixmapProperty::updateValue(QWidget *editor)
+{
+    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
+        QPixmap newValue = ed->pixmap();
+
+        if (newValue.serialNumber() != m_value.serialNumber()) {
+            m_value = newValue;
+            setChanged(true);
+        }
+    }
+}
+
 
 // -------------------------------------------------------------------------------------
 
@@ -262,6 +396,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 break;
             case QVariant::Icon:
                 p = new IconProperty(m_core, qvariant_cast<QIcon>(value), pname);
+                break;
+            case QVariant::Pixmap:
+                p = new PixmapProperty(m_core, qvariant_cast<QPixmap>(value), pname);
                 break;
             case QVariant::Font:
                 p = new FontProperty(qvariant_cast<QFont>(value), pname);

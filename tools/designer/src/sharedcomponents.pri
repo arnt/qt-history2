@@ -24,4 +24,3 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     }
 }
 
-view3d: DEFINES += DESIGNER_VIEW3D

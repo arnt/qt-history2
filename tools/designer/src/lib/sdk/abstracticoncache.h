@@ -5,6 +5,7 @@
 #include "sdk_global.h"
 
 class QIcon;
+class QPixmap;
 class QString;
 
 class QT_SDK_EXPORT AbstractIconCache : public QObject
@@ -16,6 +17,9 @@ public:
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath = QString()) = 0;
     virtual QString iconToFilePath(const QIcon &pm) = 0;
     virtual QString iconToQrcPath(const QIcon &pm) = 0;
+    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath = QString()) = 0;
+    virtual QString pixmapToFilePath(const QPixmap &pm) = 0;
+    virtual QString pixmapToQrcPath(const QPixmap &pm) = 0;
 };
 
 #endif // ABSTRACTICONCACHE_H
