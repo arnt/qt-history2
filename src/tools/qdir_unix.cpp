@@ -70,7 +70,13 @@ QString QDir::homeDirPath()
 QString QDir::canonicalPath() const
 {
     QString r;
-
+    /* I'm not really sure why we don't use realpath on *all* unices, certainly it is supported on most, this changing directories
+       seems a bit heavy handed, I need it on Mac OS X anyway - but maybe we should really use it all over the place? ### */
+#ifdef Q_OS_MACX
+    char tmp[PATH_MAX+1];
+    if(realpath(QFile::encodeName(dPath), tmp)) 
+	r = QFile::decodeName(tmp);
+#else
     char cur[PATH_MAX+1];
     if ( ::getcwd( cur, PATH_MAX ) )
 	if ( ::chdir(QFile::encodeName(dPath)) >= 0 ) {
@@ -79,7 +85,7 @@ QString QDir::canonicalPath() const
 		r = QFile::decodeName(tmp);
 	    ::chdir( cur );
 	}
-
+#endif
     slashify( r );
     return r;
 }

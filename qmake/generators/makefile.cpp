@@ -2002,6 +2002,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		if(!out_fi.convertToAbs())
 		    out_dir = out_fi.filePath();
 	    }
+	    in_dir = QDir(in_dir).canonicalPath();
+	    out_dir = QDir(out_dir).canonicalPath();
 	}
 	if(out_dir != in_dir || !QDir::isRelativePath(qfile)) {
 	    if(QDir::isRelativePath(qfile)) {
@@ -2011,6 +2013,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		file.prepend(in_dir);
 	    }
 	    file = Option::fixPathToTargetOS(file, FALSE);
+	    if(QFile::exists(file) && file == Option::fixPathToTargetOS(file, TRUE))
+		file = QDir(file).canonicalPath();
 	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE);
 	    if(file == match_dir) {
 		file = "";
