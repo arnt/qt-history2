@@ -2280,6 +2280,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    else if ( tf & Qt::AlignHCenter )
 		xoff += ( r.width() - w ) / 2;
 
+	    if ( brect )
+		brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
+	
 	    QRegion reg;
 	    if ( painter->hasClipping() ) {
 		reg = painter->clipRegion();

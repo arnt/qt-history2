@@ -89,11 +89,11 @@
 */
 
 /*! \property QCheckBox::checked
-    \brief whether the checkbox is checked 
+    \brief whether the checkbox is checked
 */
 
 /*! \property QCheckBox::tristate
-    \brief whether the checkbox is a tri-state checkbox 
+    \brief whether the checkbox is a tri-state checkbox
 */
 
 /*!
@@ -289,7 +289,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+5);
+	br.setBottom( br.bottom()+2);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
 	if ( !text().isEmpty() )

@@ -204,7 +204,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	kf |= 2;
     if ( isEnabled() )
 	kf |= 4;
-    if( topLevelWidget() != qApp->activeWindow()) 
+    if( topLevelWidget() != qApp->activeWindow())
 	kf |= 8;
 
     QTextOStream os(&pmkey);
@@ -272,7 +272,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     h = height();
     if( QApplication::reverseLayout() )
 	x = 0;
-    
+
     style().drawItem( p, x, y, w, h,
 		      AlignAuto|AlignVCenter|ShowPrefix,
 		      colorGroup(), isEnabled(),
@@ -286,7 +286,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+5);
+	br.setBottom( br.bottom()+2);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
 	if ( !text().isEmpty() )
