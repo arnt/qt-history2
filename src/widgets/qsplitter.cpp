@@ -134,7 +134,8 @@ void QSplitterHandle::mousePressEvent( QMouseEvent *e )
 void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !opaque() && e->button() == LeftButton ) {
-	QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()));
+	QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+		     - mouseOffset;
 	s->setRubberband( -1 );
 	s->moveSplitter( pos, id() );
     }
@@ -692,10 +693,11 @@ void QSplitter::getRange( int id, int *min, int *max )
     }
     QRect r = contentsRect();
     if ( orient == Horizontal && QApplication::reverseLayout() ) {
+	int splitterWidth = style().pixelMetric(QStyle::PM_SplitterWidth, this);
 	if ( min )
-	    *min = pick(r.topRight()) - QMIN( maxB, pick(r.size())-minA );
+	    *min = pick(r.topRight()) - QMIN( maxB, pick(r.size())-minA ) - splitterWidth;
 	if ( max )
-	    *max = pick(r.topRight()) - QMAX( minB, pick(r.size())-maxA );
+	    *max = pick(r.topRight()) - QMAX( minB, pick(r.size())-maxA ) - splitterWidth;
     } else {
 	if ( min )
 	    *min = pick(r.topLeft()) + QMAX( minB, pick(r.size())-maxA );
