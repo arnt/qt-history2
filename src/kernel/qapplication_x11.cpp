@@ -3356,8 +3356,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
-	if ( enter )  //we don't get MotionNotify, emulate it
-	    ((QETWidget*) enter)->translateMouseEvent( event );
     }
 	break;
 
