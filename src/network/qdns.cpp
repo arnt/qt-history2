@@ -2240,24 +2240,27 @@ static void doResInit()
 #endif
 	    if ( getNetworkParams != 0 ) {
 		ULONG l = 0;
-		getNetworkParams( 0, &l );
-		FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
-		DWORD res = (getNetworkParams)( finfo, &l );
-		if ( res == ERROR_SUCCESS ) {
-		    domainName = finfo->DomainName;
-		    nameServer = "";
-		    IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
-		    while ( dnsServer != 0 ) {
-			nameServer += dnsServer->IpAddress.String;
-			dnsServer = dnsServer->Next;
-			if ( dnsServer != 0 )
-			    nameServer += " ";
+		DWORD res;
+		res = getNetworkParams( 0, &l );
+		if ( res == ERROR_BUFFER_OVERFLOW ) {
+		    FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
+		    res = getNetworkParams( finfo, &l );
+		    if ( res == ERROR_SUCCESS ) {
+			domainName = finfo->DomainName;
+			nameServer = "";
+			IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
+			while ( dnsServer != 0 ) {
+			    nameServer += dnsServer->IpAddress.String;
+			    dnsServer = dnsServer->Next;
+			    if ( dnsServer != 0 )
+				nameServer += " ";
+			}
+			searchList = "";
+			separator = ' ';
+			gotNetworkParams = TRUE;
 		    }
-		    searchList = "";
-		    separator = ' ';
-		    gotNetworkParams = TRUE;
+		    delete[] finfo;
 		}
-		delete[] finfo;
 	    }
 	    FreeLibrary( hinstLib );
 	}
