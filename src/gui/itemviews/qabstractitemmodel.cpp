@@ -678,7 +678,7 @@ QAbstractItemModel::~QAbstractItemModel()
     changes. The affected items are those between \a topLeft and \a
     bottomRight inclusive.
 
-    \sa rowsInserted() rowsRemoved() columnsInserted() columnsRemoved() setData()
+    \sa rowsInserted() rowsAboutToBeRemoved() columnsInserted() columnsAboutToBeRemoved() setData()
 */
 
 /*!
