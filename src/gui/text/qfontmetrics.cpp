@@ -167,7 +167,8 @@ QFontMetrics::QFontMetrics(const QFont &f, QPaintDevice *paintdevice)
 {
     int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
 #ifdef Q_WS_X11
-    int screen = paintdevice ? qt_x11Info(paintdevice)->screen() : 0;
+    const QX11Info *info = qt_x11Info(paintdevice);
+    int screen = info ? info->screen() : 0;
 #else
     const int screen = 0;
 #endif

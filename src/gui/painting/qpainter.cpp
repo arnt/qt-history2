@@ -1227,7 +1227,7 @@ QFontMetrics QPainter::fontMetrics() const
     Q_D(const QPainter);
     if (d->engine)
         d->engine->updateState(d->state);
-    return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font);
+    return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font, d->device);
 }
 
 
