@@ -213,19 +213,6 @@ void QToolBoxButton::drawButton( QPainter *p )
 	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, colorGroup() );
 }
 
-
-QToolBox::QToolBox( QWidget *parent, const char *name )
-    :  QWidget( parent, name )
-{
-    d = new QToolBoxPrivate;
-    d->layout = new QVBoxLayout( this );
-}
-
-QToolBox::~QToolBox()
-{
-    delete d;
-}
-
 // ### is this needed, seems hacky
 static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
 {
@@ -236,10 +223,72 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
     delete l;
 }
 
+
+/*! \class QToolBox qtoolbox.h
+
+  \brief The QToolBox class provides a stack of tabbed widgets
+
+  A toolbox is a widget that display the tabs below each other and the
+  current page is displayed below the current tab.
+
+  To add pages to QToolBox, call addPage() or insertPage(). To remove
+  a page again, use removePage().
+
+  A page can be enabled or disabled using setPageEnabled(). The label,
+  iconset and tooltip of a page can be modified using setPageLabel(),
+  setPageIconSet() and setPageToolTip().
+
+  The number of pages can be retrieved using count(); to set the
+  current page, use setCurrentPage() and to retrieve it, call
+  currentPage(). If the current page changes, currentChanged() is
+  emitted.
+
+  To map a page to its index or vica versa, use page() or pageIndex().
+
+  By default, QToolBox shows a quick animation when the user switches
+  berween pages. This effect can be enabled or disabled by calling
+  setScrollEffectEnabled().
+
+  \sa QTabWidget
+*/
+
+/*! \fn void QToolBox::currentChanged( QWidget *page )
+  This signal is emitted when the current page is changed to \a page.
+*/
+
+/*! Constructs a toolbox called \a name with parent \a parent.
+*/
+
+
+QToolBox::QToolBox( QWidget *parent, const char *name )
+    :  QWidget( parent, name )
+{
+    d = new QToolBoxPrivate;
+    d->layout = new QVBoxLayout( this );
+}
+
+/*! \reimp */
+
+QToolBox::~QToolBox()
+{
+    delete d;
+}
+
+/*! \overload
+
+  Adds the page \a page to bottom of the toolbox. The label of the
+  page's tab will be set to \a label.
+*/
+
 void QToolBox::addPage( const QString &label, QWidget *page )
 {
     addPage( label, QIconSet(), page );
 }
+
+/*!Adds the page \a page to bottom of the toolbox. The label of the
+  page's tab will be set to \a label and \a iconSet will be displayed
+  in front of it.
+*/
 
 void QToolBox::addPage( const QString &label, const QIconSet &iconSet,
 				QWidget *page )
@@ -247,10 +296,21 @@ void QToolBox::addPage( const QString &label, const QIconSet &iconSet,
     insertPage( label, iconSet, page );
 }
 
+/*! \overload
+
+  Insert the page \a page at index \a index to the toolbox. The
+  label of the page's tab will be set to \a label.
+*/
+
 void QToolBox::insertPage( const QString &label, QWidget *page, int index )
 {
     insertPage( label, QIconSet(), page, index );
 }
+
+/*! Insert the page \a page at index \a index to the toolbox. The
+  label of the page's tab will be set to \a label and \a iconSet will
+  be displayed in front of it.
+*/
 
 void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
 				   QWidget *page, int index )
@@ -375,6 +435,10 @@ void QToolBox::updateTabs()
     }
 }
 
+/*! \property QToolBox::count
+  \brief returns the number of pages contained by the toolbox
+*/
+
 int QToolBox::count() const
 {
     return d->categories->count();
@@ -384,6 +448,8 @@ void QToolBox::setCurrentPage( int index )
 {
     setCurrentPage( page( index ) );
 }
+
+/*! Sets the page \a page to be the current one. */
 
 void QToolBox::setCurrentPage( QWidget *page )
 {
@@ -423,6 +489,9 @@ void QToolBox::relayout()
     setCurrentPage( currPage );
 }
 
+/*! Removes the page \a page from the toolbox. Note that this function
+  does not delete the widget \a page! */
+
 void QToolBox::removePage( QWidget *page )
 {
     if ( !page )
@@ -440,20 +509,32 @@ void QToolBox::removePage( QWidget *page )
     d->layout->remove( tb );
 }
 
+/*! Returns the current page of the toolbox.
+*/
+
 QWidget *QToolBox::currentPage() const
 {
     return d->currentPage;
 }
+
+/*! \property QToolBox::currentPage
+  \brief the index of the current page of the toolbox
+*/
 
 int QToolBox::currentIndex() const
 {
     return pageIndex( d->currentPage );
 }
 
+/*! Returns the page which is located at index \a index in the
+  toolbox */
+
 QWidget *QToolBox::page( int index ) const
 {
     return d->pages.find( d->categories->at( index )->button );
 }
+
+/*! Returns the index at which the page \a page is located */
 
 int QToolBox::pageIndex( QWidget *page ) const
 {
@@ -466,6 +547,9 @@ int QToolBox::pageIndex( QWidget *page ) const
     }
     return -1;
 }
+
+/*! Enabled the page \a page, if \a enabled is TRUE. Disables the page
+  otherwise. */
 
 void QToolBox::setPageEnabled( QWidget *page, bool enabled )
 {
@@ -496,6 +580,8 @@ void QToolBox::activateClosestPage( QWidget *page )
     }
 }
 
+/*! Sets the page's tab label of page \a page to \a label. */
+
 void QToolBox::setPageLabel( QWidget *page, const QString &label )
 {
     QToolBoxButton *tb = d->button( page );
@@ -507,6 +593,8 @@ void QToolBox::setPageLabel( QWidget *page, const QString &label )
     c->button->setText( label );
 }
 
+/*! Sets the page's tab icon set of page \a page to \a iconSet. */
+
 void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 {
     QToolBoxButton *tb = d->button( page );
@@ -517,6 +605,8 @@ void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
     c->iconSet = iconSet;
     ( (QToolBoxButton*)c->button )->setIcon( iconSet );
 }
+
+/*! Sets the page's tab tooltip set of page \a page to \a tooltip. */
 
 void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 {
@@ -530,11 +620,15 @@ void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
     QToolTip::add( tb, toolTip );
 }
 
+/*! Returns TRUE if the page \a page is enabled, FALSE otherwise. */
+
 bool QToolBox::isPageEnabled( QWidget *page ) const
 {
     QToolBoxButton *tb = d->button( page );
     return tb && tb->isEnabled();
 }
+
+/*! Returns the label of the \a page's tab. */
 
 QString QToolBox::pageLabel( QWidget *page ) const
 {
@@ -542,17 +636,27 @@ QString QToolBox::pageLabel( QWidget *page ) const
     return c ? c->label : QString::null;
 }
 
+/*! Returns the icon set of the \a page's tab. */
+
 QIconSet QToolBox::pageIconSet( QWidget *page ) const
 {
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->iconSet : QIconSet();
 }
 
+/*! Returns the tooltip set of the \a page's tab. */
+
 QString QToolBox::pageToolTip( QWidget *page ) const
 {
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
 }
+
+/*! \property QToolBox::scrollEffectEnabled
+
+    \brief whether the toolbox shows a quick visual effect when the
+    user switches between pages
+*/
 
 bool QToolBox::isScrollEffectEnabled() const
 {

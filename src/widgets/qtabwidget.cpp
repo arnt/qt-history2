@@ -117,7 +117,7 @@
 
     <img src=qtabwidget-m.png> <img src=qtabwidget-w.png>
 
-    \sa QTabDialog
+    \sa QTabDialog, QToolBox
 */
 
 
