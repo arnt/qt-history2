@@ -416,3 +416,11 @@ Probably something needs to be said about new stuff from painting? Don't know, I
 QPicture::copy() is deprecated and QPicture::detach() is now a public internal
 function. In general, one should have never needed to call these functions.
 */
+
+\section1 QSqlRecord
+
+QSqlRecord behaves like a vector now, QSqlRecord::insert() will actually insert a new field instead
+of replacing the existing one.
+
+QSqlRecord::isGenerated() and QSqlRecord::setGenerated() are obsolete now, just set an empty
+invalid QVariant as value if you don't want to modify the column in the database.
