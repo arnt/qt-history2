@@ -1958,7 +1958,12 @@ QCString combinePath( const char *infile, const char *outfile )
     if(b.left(3) == "../") {
 	QCString cdir;
 	char currentName[PATH_MAX+1];
+// ### should be using QDir::currentDirPath() instead
+#if defined(Q_OS_WIN32)
 	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
+#else
+	if ( ::getcwd(currentName,PATH_MAX) != 0 ) {
+#endif
 	    cdir = QString::fromLatin1(currentName);
 	    replace(cdir.data(),'\\','/');
 	    if(isRelativePath(cdir))

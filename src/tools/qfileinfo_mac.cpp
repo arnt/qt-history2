@@ -51,6 +51,20 @@ void QFileInfo::makeAbs( QString & )
     return;
 }
 
+bool QFileInfo::isFile() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & S_IFMT) == S_IFREG : FALSE;
+}
+
+bool QFileInfo::isDir() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & S_IFMT) == S_IFDIR : FALSE;
+}
+
 bool QFileInfo::isSymLink() const
 {
 #if defined(Q_OS_UNIX)

@@ -530,32 +530,6 @@ bool QFileInfo::convertToAbs()
 #endif
 
 /*!
-  Returns TRUE if this object points to a file. Returns FALSE if the
-  object points to something which isn't a file, e.g. a directory or a
-  symlink.
-
-  \sa isDir(), isSymLink()
-*/
-bool QFileInfo::isFile() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
-}
-
-/*!
-  Returns TRUE if this object points to a directory or to a symbolic
-  link to a directory; otherwise returns FALSE.
-  \sa isFile(), isSymLink()
-*/
-bool QFileInfo::isDir() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
-}
-
-/*!
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */

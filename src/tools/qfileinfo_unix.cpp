@@ -56,6 +56,32 @@ void QFileInfo::makeAbs( QString & )
 }
 
 /*!
+  Returns TRUE if this object points to a file. Returns FALSE if the
+  object points to something which isn't a file, e.g. a directory or a
+  symlink.
+
+  \sa isDir(), isSymLink()
+*/
+bool QFileInfo::isFile() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & S_IFMT) == S_IFREG : FALSE;
+}
+
+/*!
+  Returns TRUE if this object points to a directory or to a symbolic
+  link to a directory; otherwise returns FALSE.
+  \sa isFile(), isSymLink()
+*/
+bool QFileInfo::isDir() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & S_IFMT) == S_IFDIR : FALSE;
+}
+
+/*!
   Returns TRUE if this object points to a symbolic link (or to a
   shortcut on Windows); otherwise returns FALSE. 
 

@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -142,6 +142,20 @@ void QFileInfo::makeAbs( QString &s )
 }
 
 extern QCString qt_win95Name(const QString s);
+
+bool QFileInfo::isFile() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
+}
+
+bool QFileInfo::isDir() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
+}
 
 bool QFileInfo::isSymLink() const
 {
