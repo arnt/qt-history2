@@ -1,11 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>FindDialog</class>
-<include location="global" impldecl="in implementation">qtextbrowser.h</include>
-<include location="local" implDecl="in declaration">finddialog.ui.h</include>
-<forward>class QTextBrowser;</forward>
-<variable>bool fromBegin;</variable>
-<variable>QTextBrowser *browser;</variable>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>FindDialog</cstring>
@@ -64,6 +58,8 @@
                         <sizepolicy>
                             <hsizetype>7</hsizetype>
                             <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
                     <property name="editable">
@@ -98,12 +94,6 @@
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
                     </property>
                 </spacer>
                 <widget class="QPushButton">
@@ -203,22 +193,42 @@
     </grid>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>doFind()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">doFind()</slot>
-    <slot access="public" language="C++" returnType="void">setBrowser( QTextBrowser * b )</slot>
+    <connection>
+        <sender>comboFind</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>FindDialog</receiver>
+        <slot>sthChanged()</slot>
+    </connection>
+    <connection>
+        <sender>checkWords</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>FindDialog</receiver>
+        <slot>sthChanged()</slot>
+    </connection>
+    <connection>
+        <sender>checkCase</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>FindDialog</receiver>
+        <slot>sthChanged()</slot>
+    </connection>
+    <connection>
+        <sender>radioForward</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>FindDialog</receiver>
+        <slot>sthChanged()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>comboFind</tabstop>
@@ -229,4 +239,25 @@
     <tabstop>PushButton1</tabstop>
     <tabstop>PushButton2</tabstop>
 </tabstops>
+<includes>
+    <include location="global" impldecl="in implementation">qtextbrowser.h</include>
+    <include location="global" impldecl="in implementation">qmessagebox.h</include>
+    <include location="local" impldecl="in implementation">finddialog.ui.h</include>
+</includes>
+<forwards>
+    <forward>class QTextBrowser;</forward>
+</forwards>
+<variables>
+    <variable>bool fromBegin;</variable>
+    <variable>QTextBrowser *browser;</variable>
+    <variable>bool firstRun;</variable>
+</variables>
+<functions>
+    <function type="slot" access="protected">init()</function>
+    <function type="slot" access="protected">destroy()</function>
+    <function type="slot">doFind()</function>
+    <function type="slot">setBrowser( QTextBrowser * b )</function>
+    <function type="slot">sthChanged()</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
