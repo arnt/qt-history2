@@ -40,6 +40,20 @@
 
 #include <stdlib.h>
 
+static QString make_pretty( const QString &s )
+{
+    QString res = s;
+    if ( res.find( ")" ) - res.find( "(" ) == 1 )
+	return res;
+    res.replace( QRegExp( "[(]" ), "( " );
+    res.replace( QRegExp( "[)]" ), " )" );
+    res.replace( QRegExp( "&" ), " &" );
+    res.replace( QRegExp( "[*]" ), " *" );
+    res.replace( QRegExp( "," ), ", " );
+    res = res.simplifyWhiteSpace();
+    return res;
+}
+
 class MetaDataBaseRecord
 {
 public:
@@ -63,6 +77,8 @@ public:
     QMap<QString, QString> functionComments;
     QValueList<int> breakPoints;
     QString exportMacro;
+    QString sourceFile;
+    QString code;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -486,6 +502,19 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
     s.returnType = returnType;
     if ( r->slotList.find( s ) == r->slotList.end() )
 	r->slotList.append( s );
+    if ( !r->code.isEmpty() ) {
+	LanguageInterface *iface = languageInterface( language );
+	if ( iface ) {
+	    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( slot ) );
+	    if ( it == r->functionBodies.end() ) {
+		r->code += "\n\n" + iface->createFunctionStart( o->name(), make_pretty( slot ),
+								returnType.isEmpty() ?
+								QString( "void" ) :
+								returnType ) +
+			   "\n" + iface->createEmptyFunction();
+	    }
+	}
+    }
 }
 
 void MetaDataBase::setSlotList( QObject *o, const QValueList<Slot> &slotList )
@@ -1269,20 +1298,6 @@ bool MetaDataBase::hasEditor( const QString &lang )
     return editorLangList.find( lang ) != editorLangList.end();
 }
 
-static QString make_pretty( const QString &s )
-{
-    QString res = s;
-    if ( res.find( ")" ) - res.find( "(" ) == 1 )
-	return res;
-    res.replace( QRegExp( "[(]" ), "( " );
-    res.replace( QRegExp( "[)]" ), " )" );
-    res.replace( QRegExp( "&" ), " &" );
-    res.replace( QRegExp( "[*]" ), " *" );
-    res.replace( QRegExp( "," ), ", " );
-    res = res.simplifyWhiteSpace();
-    return res;
-}
-
 void MetaDataBase::setFunctionComments( QObject *o, const QString &func, const QString &comments )
 {
     if ( !o )
@@ -1522,4 +1537,73 @@ void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, cons
     QString body = *it;
     r->functionBodies.remove( it );
     r->functionBodies.insert( newName, body );
+    if ( !r->code.isEmpty() ) {
+	QString funcStart = QString( o->name() ) + QString( "::" );
+	int i = r->code.find( funcStart + oldName );
+	if ( i != -1 ) {
+	    r->code.remove( i + funcStart.length(), oldName.length() );
+	    r->code.insert( i + funcStart.length(), newName );
+	}
+    }
 }
+
+void MetaDataBase::setFormSourceFile( QObject *o, const QString &fileName )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->sourceFile = fileName;
+}
+
+void MetaDataBase::setFormCode( QObject *o, const QString &code )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->code = code;
+}
+
+QString MetaDataBase::formSourceFile( QObject *o )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    return r->sourceFile;
+}
+
+QString MetaDataBase::formCode( QObject *o )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    return r->code;
+}
+

@@ -1,5 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ProjectSettingsBase</class>
+<include location="local" implDecl="in declaration">projectsettings.ui.h</include>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>ProjectSettingsBase</cstring>
@@ -8,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>398</width>
-            <height>363</height>
+            <width>382</width>
+            <height>355</height>
         </rect>
     </property>
     <property name="caption">
@@ -105,12 +107,28 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QTextEdit" row="3" column="1" rowspan="2" colspan="1">
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>TextLabel1_3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Default &amp;Language</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>comboLanguage</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="2" column="1">
+                        <property name="name">
+                            <cstring>comboLanguage</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QTextEdit" row="4" column="1" rowspan="2" colspan="1">
                         <property name="name">
                             <cstring>editProjectDescription</cstring>
                         </property>
                     </widget>
-                    <spacer row="4" column="0">
+                    <spacer row="5" column="0">
                         <property name="name">
                             <cstring>Spacer1</cstring>
                         </property>
@@ -127,7 +145,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLabel" row="3" column="0">
+                    <widget class="QLabel" row="4" column="0">
                         <property name="name">
                             <cstring>TextLabel2</cstring>
                         </property>
@@ -138,20 +156,18 @@
                             <cstring>editProjectDescription</cstring>
                         </property>
                     </widget>
-                    <widget class="QLabel" row="2" column="0">
+                    <widget class="QCheckBox" row="3" column="1">
                         <property name="name">
-                            <cstring>TextLabel1_3</cstring>
+                            <cstring>checkCreateSource</cstring>
                         </property>
                         <property name="text">
-                            <string>Default &amp;Language</string>
+                            <string>Always create extra source file</string>
                         </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>comboLanguage</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QComboBox" row="2" column="1">
-                        <property name="name">
-                            <cstring>comboLanguage</cstring>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;p&gt;&lt;b&gt;Always create extra source file&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;Normally the C++ source file (formfile.ui.h) with the code for a form is only created, if the user edits the code of the custom slots of the form in the Qt Designer. If this check is on, a C++ source file for a form with stubs for the custom slots is also created, if the user doesn't edit the sources of the form in the Qt Designer.&lt;/p&gt;
+&lt;p&gt;This is useful to edit the code of the custom slots of a form in a different editor (by editing this C++ source file), without the need to subclass from the generated source by uic.&lt;/p&gt;
+&lt;p&gt;A change to this setting becomes active for each form after saving the form once&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </grid>
@@ -403,69 +419,84 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>buttonProject</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseProjectFile()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>okClicked()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonHelp</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>helpClicked()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonDatabaseFile</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseDatabaseFile()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton4</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>removeProject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonImageFile</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseImageFile()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <connection language="C++">
+        <sender>editProjectName</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>ProjectSettingsBase</receiver>
+        <slot>projectNameChanged(const QString&amp;)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>comboLanguage</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>ProjectSettingsBase</receiver>
+        <slot>languageChanged(const QString&amp;)</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">chooseDatabaseFile()</slot>
-    <slot access="protected" language="C++" returnType="void">chooseProjectFile()</slot>
-    <slot access="protected" language="C++" returnType="void">helpClicked()</slot>
     <slot access="protected" language="C++" returnType="void">chooseImageFile()</slot>
+    <slot access="protected" language="C++" returnType="void">chooseProjectFile()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">helpClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
     <slot access="protected" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">projectNameChanged( const QString &amp; )</slot>
     <slot access="protected" language="C++" returnType="void">removeProject()</slot>
 </connections>
 <tabstops>
-    <tabstop>buttonOk</tabstop>
-    <tabstop>buttonCancel</tabstop>
     <tabstop>tabWidget</tabstop>
     <tabstop>editProjectName</tabstop>
     <tabstop>editProjectFile</tabstop>
     <tabstop>comboLanguage</tabstop>
+    <tabstop>checkCreateSource</tabstop>
     <tabstop>editProjectDescription</tabstop>
-    <tabstop>buttonHelp</tabstop>
-    <tabstop>editDatabaseFile</tabstop>
-    <tabstop>PushButton4</tabstop>
     <tabstop>listInterfaces</tabstop>
+    <tabstop>PushButton4</tabstop>
+    <tabstop>editDatabaseFile</tabstop>
     <tabstop>editImageFile</tabstop>
+    <tabstop>buttonHelp</tabstop>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
 </tabstops>
 </UI>

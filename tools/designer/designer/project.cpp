@@ -189,6 +189,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
+    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
 }
 
 Project::~Project()

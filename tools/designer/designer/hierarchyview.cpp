@@ -43,6 +43,7 @@
 #include <qtimer.h>
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/classbrowserinterface.h"
+#include <qworkspace.h>
 
 #include <stdlib.h>
 
@@ -92,7 +93,20 @@ void HierarchyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Base, backgroundColor() );
     g.setColor( QColorGroup::Foreground, Qt::black );
     g.setColor( QColorGroup::Text, Qt::black );
-    QListViewItem::paintCell( p, g, column, width, align );
+    QString txt = text( 0 );
+    if ( MainWindow::self->currProject()->language() == "C++" &&
+	 ( txt == "init()" || txt == "destroy()" ) ) {
+	listView()->setUpdatesEnabled( FALSE );
+	if ( txt == "init()" )
+	    setText( 0, txt + " " + "(Constructor)" );
+	else
+	    setText( 0, txt + " " + "(Destructor)" );
+	QListViewItem::paintCell( p, g, column, width, align );
+	setText( 0, txt );
+	listView()->setUpdatesEnabled( TRUE );
+    } else {
+	QListViewItem::paintCell( p, g, column, width, align );
+    }
     p->save();
     p->setPen( QPen( cg.dark(), 1 ) );
     if ( column == 0 )
@@ -621,6 +635,27 @@ void FunctionList::objectClicked( QListViewItem *i )
 	formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
 
+void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
+{
+    QListViewItem *i = itemAt( e->pos() );
+    if ( !i || i->parent() )
+	return;
+    if ( i->text( 0 ) == tr( "Functions" ) )
+	return;
+    if ( i->text( 0 ) == tr( "protected" ) || i->parent() && i->parent()->text( 0 ) == "protected" ) // ### should we be able to add functions here as well?
+	return;
+    if ( i->text( 0 ) == tr( "public" ) || i->parent() && i->parent()->text( 0 ) == "public"  ) // ### should we be able to add functions here as well?
+	return;
+    HierarchyItem *item = new HierarchyItem( i, QString::null, QString::null, QString::null );
+    item->setRenameEnabled( 0, TRUE );
+    setCurrentItem( item );
+    ensureItemVisible( item );
+    qApp->processEvents();
+    newItem = item;
+    item->startRename( 0 );
+}
+
+
 void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
@@ -740,6 +775,10 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 
     if ( fw == formwindow ) {
 	listview->setCurrent( w );
+	if ( MainWindow::self->workSpace()->activeWindow() == fw )
+	    showPage( listview );
+	else
+	    showPage( fList );
 	return;
     }
 
@@ -750,8 +789,10 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     listview->setCurrent( w );
     fList->setup();
 
-    if ( currentPage() != listview && currentPage() != fList )
+    if ( MainWindow::self->workSpace()->activeWindow() == fw )
 	showPage( listview );
+    else
+	showPage( fList );
 
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
 	  it != classBrowsers.end(); ++it )

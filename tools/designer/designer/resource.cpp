@@ -2442,38 +2442,67 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "</functions>" << endl;
     } else {
 	QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formwindow );
-	if ( functionBodies.isEmpty() )
-	    return;
-
-	QValueList<LanguageInterface::Function> funcs;
-	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
-	QValueList<MetaDataBase::Slot>::Iterator sit = slotList.begin();
-	for ( ; sit != slotList.end(); ++sit ) {
-	    MetaDataBase::Slot slot = *sit;
-	    QMap<QString, QString>::Iterator it =
-		functionBodies.find( MetaDataBase::normalizeSlot( (*sit).slot ) );
-	    LanguageInterface::Function func;
-	    func.name = slot.slot;
-	    func.body = *it;
-	    func.comments = MetaDataBase::functionComments( formwindow, func.name );
-	    func.returnType = slot.returnType;
-	    funcs.append( func );
+	if ( functionBodies.isEmpty() ) {
+	    if ( formwindow->project()->language() == "C++" &&
+		 formwindow->project()->customSetting( "CPP_ALWAYS_CREATE_SOURCE" ) == "TRUE" ) {
+		formwindow->initSlots();
+		QString code = MetaDataBase::formCode( formwindow );
+		QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
+		for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
+		      it != slotList.end(); ++it ) {
+		    code += "\n\n" + iface->createFunctionStart( formwindow->name(), (*it).slot,
+								 (*it).returnType.isEmpty() ?
+								 QString( "void" ) :
+								 (*it).returnType ) +
+			    "\n" + iface->createEmptyFunction();
+		}
+	    } else {
+		return;
+	    }
 	}
 
-	QValueList<LanguageInterface::Connection> conns;
-	QValueList<MetaDataBase::Connection> mconns = langConnections[ lang ];
-	for ( QValueList<MetaDataBase::Connection>::Iterator it = mconns.begin();
-	      it != mconns.end(); ++it ) {
-	    LanguageInterface::Connection conn;
-	    conn.sender = (*it).sender->name();
-	    conn.signal = (*it).signal;
-	    conn.slot = (*it).slot;
-	    conns.append( conn );
-	}
+	if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	    QString filename = MetaDataBase::formSourceFile( formwindow );
+	    if ( filename.isEmpty() ) {
+		filename = currFileName + iface->formCodeExtension();
+		MetaDataBase::setFormSourceFile( formwindow, filename );
+	    }
+	    QFile f( filename );
+	    if ( f.open( IO_WriteOnly ) ) {
+		QTextStream ts( &f );
+		ts << MetaDataBase::formCode( formwindow );
+	    }
+	} else {
+	    QValueList<LanguageInterface::Function> funcs;
+	    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
+	    QValueList<MetaDataBase::Slot>::Iterator sit = slotList.begin();
+	    for ( ; sit != slotList.end(); ++sit ) {
+		MetaDataBase::Slot slot = *sit;
+		QMap<QString, QString>::Iterator it =
+		    functionBodies.find( MetaDataBase::normalizeSlot( (*sit).slot ) );
+		LanguageInterface::Function func;
+		func.name = slot.slot;
+		func.body = *it;
+		func.comments = MetaDataBase::functionComments( formwindow, func.name );
+		func.returnType = slot.returnType;
+		funcs.append( func );
+	    }
 
-	iface->saveFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
-			     funcs, QStringList(), QStringList(), QStringList(),
-			     MetaDataBase::variables( formwindow ), conns );
+	    QValueList<LanguageInterface::Connection> conns;
+	    QValueList<MetaDataBase::Connection> mconns = langConnections[ lang ];
+	    for ( QValueList<MetaDataBase::Connection>::Iterator it = mconns.begin();
+		  it != mconns.end(); ++it ) {
+		LanguageInterface::Connection conn;
+		conn.sender = (*it).sender->name();
+		conn.signal = (*it).signal;
+		conn.slot = (*it).slot;
+		conns.append( conn );
+	    }
+
+	    iface->saveFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
+				 funcs, QStringList(), QStringList(), QStringList(),
+				 MetaDataBase::variables( formwindow ), conns );
+	}
     }
 }
 
@@ -2509,6 +2538,17 @@ void Resource::loadExtraSource()
     iface->loadFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
 			 functions, forwards, includesImpl, includesDecl, vars, connections );
 
+    if ( iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	MetaDataBase::setFormSourceFile( formwindow, currFileName + iface->formCodeExtension() );
+	QFile f( currFileName + iface->formCodeExtension() );
+	QString code;
+	if ( f.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &f );
+	    code = ts.read();
+	}
+	MetaDataBase::setFormCode( formwindow, code );
+    }
+
     for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();
 	  cit != connections.end(); ++cit ) {
 	QObject *sender  = 0;
@@ -2543,11 +2583,6 @@ void Resource::loadExtraSource()
 	bodies.insert( MetaDataBase::normalizeSlot( (*fit).name ), (*fit).body );
     }
     MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
-
-    if ( MainWindow::self->currProject()->language() != "C++" ) {
-	MetaDataBase::removeSlot( formwindow, "init()", "protected", lang, "void" );
-	MetaDataBase::removeSlot( formwindow, "destroy()", "protected", lang, "void" );
-    }
 
     QStringList v = MetaDataBase::variables( formwindow );
     QStringList::Iterator vit;

@@ -77,7 +77,8 @@ struct LanguageInterface : public QUnknownInterface
 	ReturnType,
 	ConnectionsToCustomSlots,
 	AdditionalFiles,
-	SaveFormCodeExternal
+	SaveFormCodeExternal,
+	StoreFormCodeSeperate
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;

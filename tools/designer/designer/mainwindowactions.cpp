@@ -1223,7 +1223,10 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 
 bool MainWindow::fileSave()
 {
+    SourceEditor *se = 0;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->object() == formWindow() )
+	    se = e;
 	if ( e->object() == formWindow() || e == workSpace()->activeWindow() ) {
 	    e->save();
 	    e->setModified( FALSE );
@@ -1231,7 +1234,7 @@ bool MainWindow::fileSave()
 	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
 	     e == workSpace()->activeWindow() )
 	    ( (SourceFile*)e->object() )->save();
-
+	
     }
     if ( !formWindow() )
 	return FALSE;
@@ -1240,6 +1243,8 @@ bool MainWindow::fileSave()
     } else {
 	QApplication::setOverrideCursor( WaitCursor );
 	formWindow()->save( formWindow()->fileName() );
+	if ( se )
+	    se->updateTimeStamp();
 	QApplication::restoreOverrideCursor();
     }
     return TRUE;

@@ -71,6 +71,8 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
     extractCppFunctions( code, &l );
     for ( QValueList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
 	Function func;
+	if ( (*it).prototype().find( "::" ) == -1 )
+	    continue;
 	func.name = (*it).prototype();
 	func.name.remove( 0, func.name.find( "::" ) + 2 );
 	func.body = (*it).body();
@@ -160,6 +162,8 @@ bool LanguageInterfaceImpl::supports( Support s ) const
     if ( s == AdditionalFiles )
 	return FALSE;
     if ( s == SaveFormCodeExternal )
+	return TRUE;
+    if ( s == StoreFormCodeSeperate )
 	return TRUE;
     return FALSE;
 }

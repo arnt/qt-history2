@@ -23,6 +23,7 @@
 #include "formwindow.h"
 #include "metadatabase.h"
 #include "mainwindow.h"
+#include "asciivalidator.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
@@ -32,6 +33,7 @@
 #include <qlistview.h>
 #include <qobjectlist.h>
 #include <qheader.h>
+#include <qcheckbox.h>
 
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
@@ -43,9 +45,21 @@
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
 {
+    editProjectName->setValidator( new AsciiValidator( editProjectName ) );
+    editProjectFile->setValidator( new AsciiValidator( QString( "." ), editProjectFile ) );
+
+    lastProjectName = pro->projectName();
+    editProjectName->setFocus();
     editProjectName->setText( pro->projectName() );
     editProjectFile->setText( pro->fileName() );
+    projectNameChanged( pro->projectName() );
     editProjectDescription->setText( pro->description() );
+
+    if ( lastProjectName == "<No Project>" ) {
+	editProjectName->setEnabled( FALSE );
+	editProjectFile->setEnabled( FALSE );
+	editProjectFile->setText( "" );
+    }
 
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -83,6 +97,9 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 	    break;
 	}
     }
+
+    checkCreateSource->setChecked( pro->customSetting( "CPP_ALWAYS_CREATE_SOURCE" ) == "TRUE" );
+    checkCreateSource->setEnabled( comboLanguage->currentText() == "C++" );
 }
 
 /*
@@ -130,6 +147,10 @@ void ProjectSettings::okClicked()
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setImageFile( editImageFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
+    QString flag = "FALSE";
+    if ( checkCreateSource->isChecked() )
+	flag = "TRUE";
+    project->setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", flag );
     project->save();
     accept();
 }
@@ -157,4 +178,17 @@ void ProjectSettings::removeProject()
     }
 
     lst.setAutoDelete( TRUE );
+}
+
+void ProjectSettings::projectNameChanged( const QString &name )
+{
+    if ( editProjectFile->text().isEmpty() ||
+	 editProjectFile->text() == lastProjectName + ".pro" )
+	editProjectFile->setText( name + ".pro" );
+    lastProjectName = name;
+}
+
+void ProjectSettings::languageChanged( const QString &lang )
+{
+    checkCreateSource->setEnabled( lang == "C++" );
 }

@@ -234,6 +234,11 @@ public:
 
     static void functionNameChanged( QObject *o, const QString &oldName, const QString &newName );
 
+    static void setFormSourceFile( QObject *o, const QString &fileName );
+    static void setFormCode( QObject *o, const QString &code );
+    static QString formSourceFile( QObject *o );
+    static QString formCode( QObject *o );
+
 };
 
 #endif

@@ -120,10 +120,7 @@ FormWindow::FormWindow( MainWindow *mw, QWidget *parent, const char *name )
 {
     init();
     MetaDataBase::addEntry( this );
-    if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
-    if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
+    initSlots();
 }
 
 FormWindow::FormWindow( QWidget *parent, const char *name )
@@ -188,12 +185,34 @@ void FormWindow::setMainWindow( MainWindow *w )
 {
     mainwindow = w;
     MetaDataBase::addEntry( this );
-    if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
-    if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
+    initSlots();
 }
 
+void FormWindow::initSlots()
+{
+    QString lang = "C++";
+    if ( project() )
+	lang = project()->language();
+    else
+	lang = MainWindow::self->currProject()->language();
+    if ( lang != "C++" ) {
+	if ( !MetaDataBase::hasSlot( this, "init()" ) )
+	    MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
+	if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
+	    MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
+    } else {
+	QString code = MetaDataBase::formCode( this );
+	if ( code.isEmpty() ) {
+	    code = "// Implement the slots of the form here. \n"
+		   "\n"
+		   "// Code which should be called from the constructor of the form,\n"
+		   "// has to be written into a 'void <ClassName>::init()' function.\n"
+		   "// Code that should be called from the destructor of the form,\n"
+		   "// has to be written into a 'void <ClassName>::destroy()' function.\n";
+	    MetaDataBase::setFormCode( this, code );
+	}
+    }
+}
 
 FormWindow::~FormWindow()
 {

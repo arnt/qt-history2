@@ -1137,6 +1137,16 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
 	    return TRUE;
+	if ( e->type() == QEvent::FocusIn && o->inherits( "Editor" ) ) {
+	    QWidget *w = (QWidget*)o;
+	    while ( w ) {
+		if ( w->inherits( "SourceEditor" ) )
+		    break;
+		w = w->parentWidget( TRUE );
+	    }
+	    if ( w && w->inherits( "SourceEditor" ) )
+		( (SourceEditor*)w )->checkTimeStamp();
+	}
 	break;
     default:
 	return QMainWindow::eventFilter( o, e );

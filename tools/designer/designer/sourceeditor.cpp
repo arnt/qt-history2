@@ -29,6 +29,8 @@
 #include "project.h"
 #include "sourcefile.h"
 #include "hierarchyview.h"
+#include <qmessagebox.h>
+#include <qtextstream.h>
 
 static QString make_func_pretty( const QString &s )
 {
@@ -83,30 +85,49 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     if ( changed || fw->inherits( "SourceFile" ) ) // #### ?
 	iFace->setBreakPoints( MetaDataBase::breakPoints( fw ) );
     MainWindow::self->objectHierarchy()->showClasses( this );
+    if ( fw->inherits( "FormWindow" ) && lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	QString fn = MetaDataBase::formSourceFile( fw );
+	if ( QFile::exists( fn ) )
+	    lastTimeStamp = QFileInfo( fn ).lastModified();
+    }
 }
 
 QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
 {
     QString txt;
     if ( fw->inherits( "FormWindow" ) ) {
-	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
-	QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
-	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	    if ( (*it).language != lang )
-		continue;
-	    QString sl( (*it).slot );
-	    QString comments = MetaDataBase::functionComments( fw, sl );
-	    if ( !comments.isEmpty() )
-		txt += comments + "\n";
-	    txt += lIface->createFunctionStart( fw->name(), make_func_pretty( sl ),
-						( (*it).returnType.isEmpty() ?
-						  QString( "void" ) :
-						  (*it).returnType ) );
-	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
-	    if ( bit != bodies.end() )
-		txt += "\n" + *bit + "\n\n";
-	    else
-		txt += "\n" + lIface->createEmptyFunction() + "\n\n";
+	bool createSource = TRUE;
+	bool setSource = FALSE;
+	if ( lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	    createSource = FALSE;
+	    txt = MetaDataBase::formCode( fw );
+	    if ( txt.isEmpty() ) {
+		createSource = TRUE;
+		setSource = TRUE;
+	    }
+	}
+	if ( createSource ) {
+	    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
+	    QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
+	    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
+		if ( (*it).language != lang )
+		    continue;
+		QString sl( (*it).slot );
+		QString comments = MetaDataBase::functionComments( fw, sl );
+		if ( !comments.isEmpty() )
+		    txt += comments + "\n";
+		txt += lIface->createFunctionStart( fw->name(), make_func_pretty( sl ),
+						    ( (*it).returnType.isEmpty() ?
+						      QString( "void" ) :
+						      (*it).returnType ) );
+		QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
+		if ( bit != bodies.end() )
+		    txt += "\n" + *bit + "\n\n";
+		else
+		    txt += "\n" + lIface->createEmptyFunction() + "\n\n";
+	    }
+	    if ( setSource )
+		MetaDataBase::setFormCode( fw, txt );
 	}
     } else if ( fw->inherits( "SourceFile" ) ) {
 	txt = ( (SourceFile*)fw )->text();
@@ -174,6 +195,8 @@ void SourceEditor::save()
 
 	MetaDataBase::setSlotList( formWindow, newSlots );
 	MetaDataBase::setFunctionBodies( formWindow, funcs, lang, QString::null );
+	if ( lIface->supports( LanguageInterface::StoreFormCodeSeperate ) )
+	    MetaDataBase::setFormCode( formWindow, iFace->text() );
     } else if ( formWindow->inherits( "SourceFile" ) ) {
 	( (SourceFile*)(QObject*)formWindow )->setText( iFace->text() );
     }
@@ -287,4 +310,38 @@ QString SourceEditor::text() const
 bool SourceEditor::isModified() const
 {
     return iFace->isModified();
+}
+
+void SourceEditor::checkTimeStamp()
+{
+    if ( formWindow->inherits( "FormWindow" ) &&
+	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	QString fn = MetaDataBase::formSourceFile( formWindow );
+	if ( QFile::exists( fn ) ) {
+	    if ( lastTimeStamp != QFileInfo( fn ).lastModified() ) {
+		lastTimeStamp = QFileInfo( fn ).lastModified();
+		if ( QMessageBox::information( this, tr( "Qt Designer" ),
+					       tr( "The file %1 has been changed outside Qt Designer.\n"
+						   "Do you want to reload it?" ).arg( fn ),
+					       tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
+		    QFile f( fn );
+		    if ( f.open( IO_ReadOnly ) ) {
+			QTextStream ts( &f );
+			iFace->setText( ts.read() );
+			save();
+			MainWindow::self->slotsChanged();
+		    }
+		}
+	    }
+	}
+    }
+}
+
+void SourceEditor::updateTimeStamp()
+{
+    if ( formWindow->inherits( "FormWindow" ) &&
+	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	QString fn = MetaDataBase::formSourceFile( formWindow );
+	lastTimeStamp = QFileInfo( fn ).lastModified();
+    }
 }

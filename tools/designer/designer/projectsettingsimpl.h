@@ -43,10 +43,13 @@ protected slots:
     void helpClicked();
     void okClicked();
     void removeProject();
+    void projectNameChanged( const QString &name );
+    void languageChanged( const QString &lang );
 
 private:
     Project *project;
     QMap<QListViewItem*, FormWindow*> formMap;
+    QString lastProjectName;
 
 };
 

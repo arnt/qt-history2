@@ -189,6 +189,8 @@ public:
     void setLayoutDefaultSpacing( int s );
     void setLayoutDefaultMargin( int s );
 
+    void initSlots();
+
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
