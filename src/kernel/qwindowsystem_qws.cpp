@@ -1435,6 +1435,23 @@ void QWSServer::resetGfx()
     qwsServer->gfx = qt_screen->screenGfx();
 }
 
+#ifndef QT_NO_QWS_CURSOR
+void QWSServer::setCursorVisible( bool vis )
+{
+    if ( qwsServer && qwsServer->haveviscurs != vis ) {
+	QWSCursor* c = qwsServer->cursor;
+	qwsServer->setCursor(QWSCursor::systemCursor(BlankCursor));
+	qwsServer->haveviscurs = vis;
+	qwsServer->setCursor(c);
+    }
+}
+
+bool QWSServer::isCursorVisible()
+{
+    return qwsServer ? qwsServer->haveviscurs : TRUE;
+}
+#endif
+
 #ifndef QT_NO_QWS_IM
 
 /*!
@@ -2243,12 +2260,7 @@ void QWSServer::openMouse()
 	    }
     }
 #ifndef QT_NO_QWS_CURSOR
-    if ( needviscurs != haveviscurs ) {
-	QWSCursor* c = cursor;
-	setCursor(QWSCursor::systemCursor(BlankCursor));
-	haveviscurs = needviscurs;
-	setCursor(c);
-    }
+    setCursorVisible( needviscurs );
 #endif
 }
 

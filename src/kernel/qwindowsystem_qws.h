@@ -272,6 +272,11 @@ public:
     static void beginDisplayReconfigure();
     static void endDisplayReconfigure();
 
+#ifndef QT_NO_QWS_CURSOR
+    static void setCursorVisible( bool );
+    static bool isCursorVisible();
+#endif
+
     enum WindowEvent { Create=0x01, Destroy=0x02, Hide=0x04, Show=0x08,
 		       Raise=0x10, Lower=0x20, Geometry=0x40 };
 
