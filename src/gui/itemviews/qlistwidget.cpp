@@ -652,8 +652,8 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
     QListWidget is a convenience class that provides a list view similar to
     the one supplied by QListView, but with a classic item-based interface
-    for adding and removing items from the list. QListWidget uses an internal
-    model to manage the items.
+    for adding and removing items. QListWidget uses an internal model to
+    manage each QListWidgetItem in the list.
 
     For a more flexible list view widget, use the QListView class with a
     standard model.
