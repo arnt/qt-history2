@@ -643,7 +643,6 @@ void Project::save( bool onlyProjectFile )
 
     // the contents of the saved file
     QString contents;
-    qDebug(original.latin1());
 
     // template
     contents += "TEMPLATE\t= " + templ + "\n";
