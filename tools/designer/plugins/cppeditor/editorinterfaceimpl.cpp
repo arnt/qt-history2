@@ -76,9 +76,8 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *design
 	    prefTab = new PreferencesBase( 0 );
  	    prefTab->hide();
   	    iface->addPreferencesTab( prefTab, "C++ Editor" );
-	}
-	iface->release();
-	
+	    iface->release();
+	}	
     }
     return viewManager->currentView();
 }

@@ -26,6 +26,7 @@ class CommonInterface : public QUnknownInterface
 {
 public:
     CommonInterface();
+    ~CommonInterface();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
@@ -42,7 +43,15 @@ CommonInterface::CommonInterface()
     : QUnknownInterface(), ref( 0 )
 {
     editorIface = new EditorInterfaceImpl;
+    editorIface->addRef();
     langIface = new LanguageInterfaceImpl;
+    langIface->addRef();
+}
+
+CommonInterface::~CommonInterface()
+{
+    editorIface->release();
+    langIface->release();
 }
 
 QUnknownInterface *CommonInterface::queryInterface( const QUuid &uuid )
