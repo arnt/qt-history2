@@ -97,11 +97,15 @@ class Q_EXPORT QMapIterator
     typedef QMapNode< K, T >* NodePtr;
 #ifndef QT_NO_STL
     typedef std::bidirectional_iterator_tag  iterator_category;
+#endif
     typedef T          value_type;
+#ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
+#else
+    typedef int difference_type;
+#endif
     typedef T*         pointer;
     typedef T&         reference;
-#endif
 
     /**
      * Variables
@@ -202,11 +206,16 @@ class Q_EXPORT QMapConstIterator
     typedef QMapNode< K, T >* NodePtr;
 #ifndef QT_NO_STL
     typedef std::bidirectional_iterator_tag  iterator_category;
+#endif
     typedef T          value_type;
+#ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
+#else
+    typedef int difference_type;
+#endif
     typedef const T*   pointer;
     typedef const T&   reference;
-#endif
+
 
     /**
      * Variables
@@ -605,7 +614,7 @@ public:
     {
 	detach();
 	uint n = count();
-	Iterator it = sh->insertSingle( x.first );
+	iterator it = sh->insertSingle( x.first );
 	if ( overwrite || n < count() )
 	    it.data() = x.second;
 	return it;
@@ -618,13 +627,13 @@ public:
     void erase( const key_type& k )
     {
 	detach();
-	Iterator it( sh->find( k ).node );
+	iterator it( sh->find( k ).node );
 	if ( it != end() )
 	    sh->remove( it );
     }
     size_type count( const key_type& k )
     {
-	Iterator it( sh->find( k ).node );
+	iterator it( sh->find( k ).node );
 	if ( it != end() ) {
 	    size_type c = 1;
 	    while ( ++it && it != end() )
@@ -658,12 +667,12 @@ public:
     typedef T ValueType;
     typedef QMapPrivate< Key, T > Priv;
 
-    Iterator find ( const Key& k )
+    iterator find ( const Key& k )
     {
 	detach();
-	return Iterator( sh->find( k ).node );
+	return iterator( sh->find( k ).node );
     }
-    ConstIterator find ( const Key& k ) const {	return sh->find( k ); }
+    const_iterator find ( const Key& k ) const {	return sh->find( k ); }
 
     const T& operator[] ( const Key& k ) const
 	{ QT_CHECK_INVALID_MAP_ELEMENT; return sh->find( k ).data(); }
@@ -676,19 +685,19 @@ public:
     bool isEmpty() const { return sh->node_count == 0; }
 
 
-    Iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
+    iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
 	detach();
 	uint n = count();
-	Iterator it = sh->insertSingle( key );
+	iterator it = sh->insertSingle( key );
 	if ( overwrite || n < count() )
 	    it.data() = value;
 	return it;
     }
 
-    void remove( Iterator it ) { detach(); sh->remove( it ); }
+    void remove( iterator it ) { detach(); sh->remove( it ); }
     void remove( const Key& k ) {
 	detach();
-	Iterator it( sh->find( k ).node );
+	iterator it( sh->find( k ).node );
 	if ( it != end() )
 	    sh->remove( it );
     }
@@ -728,7 +737,7 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 template<class Key, class T>
 inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << (Q_UINT32)m.count();
-    QMapConstIterator<Key,T> it = m.begin();
+    QMap<Key,T>::const_iterator it = m.begin();
     for( ; it != m.end(); ++it )
 	s << it.key() << it.data();
     return s;
