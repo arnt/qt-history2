@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#12 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#12 $");
 
 // a small private class to show the tabs on top
 
@@ -107,18 +107,76 @@ void QTab::paintEvent( QPaintEvent * )
   Tabbed dialogs provide an easy way for to cram four times as much
   information into a window as a normal dialog does.  No more than that,
   however, because once there is more than one row of tabs, it becomes much
-  harder to navigate for most people.
+  harder to navigate for most people, and often less than that.
 
-  QTabDialog does not provide more than one row of tabs, and does not provide
-  tabs along the sides or bottom of the dialog.
+  While tab dialogs can be a very good way to split up a complex
+  dialog, it's also very easy to make a hash of it.  Here is some
+  advice:
+
+  <ol><li> Make sure that each page forms a logical whole which is
+  adequately described by the label on the tab.
+
+  If two related functions are on different pages, users will often
+  not find one of the functions, or will spend far too long searching
+  for it.
+
+  <li> Do not join several independent dialogs into one tab dialog.
+  Several aspects of one complex dialog is acceptable (such as the
+  various aspects of "preferences") but a tab dialog is no substitute
+  for a pop-up menu leading to several smaller dialogs.
+
+  The OK button (and the others) apply to the \e entire dialog.  If
+  the tab dialog is really several independent smaller dialogs, users
+  often press Cancel to cancel just the changes he/she has made on the
+  current page: The user treats that page as independent of the other
+  pages.
+
+  <li> Do not use tab dialogs for frequent operations.  The tab dialog
+  is probably the most complex widget in common use at the moment, and
+  subjecting the user to this complexity during his/her normal use of
+  your application is most often a bad idea.
+
+  The tab dialog is good for complex operations which have to be
+  performed seldom, like Preferences dialogs.  Not for common
+  operations, like setting left/right alignment in a word processor.
+  (Often, these common operations are actually independent dialogs and
+  should be treated as such.)
+
+  The tab dialog is not a navigational aid, it is an organizational
+  aid.  It is a good way to organize aspects of a complex operation
+  (such as setting up proxy servers in a WWW browser), but a bad way
+  to navigate towards a simple operation (such as emptying the cache
+  in a WWW browser).
+
+  <li> The changes should take effect when the user presses Apply or
+  OK.  Not before.
+
+  Providing Apply, Cancel or OK buttons on the individual pages is
+  likely to weaken the users' mental model of how tab dialogs work,
+  which is very bad.  If you think a page needs its own buttons,
+  consider making it a separate dialog.
+
+  <li> There should be no implicit ordering of the pages.  If there
+  is, it is probably better to use a \link QWizardDialog wizard dialog.
+  \endlink
+
+  If some of the pages seem to be ordered and others not, perhaps they
+  ought not to be joined in a tab dialog.
+
+  </ol>
+
+  QTabDialog does not provide more than one row of tabs, and does not
+  provide tabs along the sides or bottom of the pages.  If you want
+  that sort of complexity, re-read the advice above.
 
   QTabDialog provides an OK button and optionally Apply, Cancel and
   Defaults buttons.
+
   */
 
 
 
-/*! Constructs a QTabDialog without cancel or default buttons. */
+/*! Constructs a QTabDialog with only a default button. */
 
 QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
     : QDialog( parent, name, f )
@@ -167,6 +225,61 @@ void QTabDialog::setFont( const QFont & font )
 	showTab();
     }
 }
+
+
+/*! \fn void QTabDialog::applyButtonPressed();
+
+  This signal is emitted when the Apply or OK buttons are clicked.
+
+  It should be connected to a slot (or several slots) which change the
+  application's state according to the state of the dialog.
+
+  \sa cancelButtonPressed() defaultButtonPressed() setApplyButton() */
+
+
+/*! \fn bool QTabDialog::hasApplyButton() const
+
+  Returns TRUE if the tab dialog has a Apply button, FALSE if not.
+
+  \sa setApplysButton() applyButtonPressed() hasCancelButton()
+  hasDefaultButton() */
+
+
+/*! \fn void QTabDialog::cancelButtonPressed();
+
+  This signal is emitted when the Cancel button is clicked.  It should
+  not do change the application's state in any way, so generally you
+  should not need to connect it to any slot.
+
+  \sa applyButtonPressed() defaultButtonPressed() setCancelButton() */
+
+
+/*! \fn bool QTabDialog::hasCancelButton() const
+
+  Returns TRUE if the tab dialog has a Cancel button, FALSE if not.
+
+  \sa setCancelButton() cancelButtonPressed() hasDefaultButton()
+  hasApplyButton() */
+
+
+/*! \fn void QTabDialog::defaultButtonPressed();
+
+  This signal is emitted when the Defaults button is pressed.  It
+  should reset the dialog (but not the application) to the "factory
+  defaults."
+
+  The application's state should not be changed until the user clicks
+  Apply or OK.
+
+  \sa applyButtonPressed() cancelButtonPressed() setDefaultButton() */
+
+
+/*! \fn bool QTabDialog::hasDefaultButton() const
+
+  Returns TRUE if the tab dialog has a Defaults button, FALSE if not.
+
+  \sa setDefaultsButton() defaultButtonPressed() hasApplyButton()
+  hasCancelButton() */
 
 
 /*! \fn void QTabDialog::aboutToShow()
@@ -223,6 +336,9 @@ void QTabDialog::showTab()
     
 /*! Add another tab and page to the tab view.
 
+  The tab will be labelled \e name and \e widget constitutes the new
+  page.
+
   It's a fairly bad idea to do this after show(). */
 
 void QTabDialog::addTab( QWidget * child, const char * name )
@@ -242,8 +358,10 @@ void QTabDialog::addTab( QWidget * child, const char * name )
 }
 
 
-/*! If \e enable is TRUE, a Apply button is added to the dialog.  If \e
-  enable is FALSE, the button is removed.
+/*! If \e enable is TRUE (the default), a Apply button is added to the
+  dialog.  If \e enable is FALSE, the button is removed.
+
+  The button's text is set to \e text (and defaults to "Apply").
 
   The Apply button should apply the current settings in the dialog box
   to the application, while keeping the dialog visible.
@@ -252,14 +370,14 @@ void QTabDialog::addTab( QWidget * child, const char * name )
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed() */
 
-void QTabDialog::setApplyButton( bool enable )
+void QTabDialog::setApplyButton( bool enable, const char * text )
 {
     if ( !!ab == enable )
 	return;
 
     if ( enable ) {
 	ab = new QPushButton( this, "apply settings" );
-	ab->setText( "Apply" );
+	ab->setText( text );
 	if ( isVisible() ) {
 	    setSizes();
 	    ab->show();
@@ -273,8 +391,10 @@ void QTabDialog::setApplyButton( bool enable )
 }
 
 
-/*! If \e enable is TRUE, a Defaults button is added to the dialog.  If \e
-  enable is FALSE, the button is removed.
+/*! If \e enable is TRUE (the default), a Defaults button is added to
+  the dialog.  If \e enable is FALSE, the button is removed.
+
+  The button's text is set to \e text (and defaults to "Defaults").
 
   The Defaults button should set the dialog to back to the application
   defaults.
@@ -283,14 +403,14 @@ void QTabDialog::setApplyButton( bool enable )
 
   \sa setApplyButton() setCancelButton() defaultButtonPressed() */
 
-void QTabDialog::setDefaultButton( bool enable )
+void QTabDialog::setDefaultButton( bool enable, const char * text )
 {
     if ( !!db == enable )
 	return;
 
     if ( enable ) {
 	db = new QPushButton( this, "back to default" );
-	db->setText( "Defaults" );
+	db->setText( text );
 	if ( isVisible() ) {
 	    setSizes();
 	    db->show();
@@ -304,8 +424,10 @@ void QTabDialog::setDefaultButton( bool enable )
 }
 
 
-/*! If \e enable is TRUE, a Cancel button is added to the dialog.  If \e
-  enable is FALSE, the button is removed.
+/*! If \e enable is TRUE (the default), a Cancel button is added to
+  the dialog.  If \e enable is FALSE, the button is removed.
+
+  The button's text is set to \e text (and defaults to "Cancel").
 
   The cancel button should always return the application to the state it
   was in before the tab view popped up.
@@ -314,14 +436,14 @@ void QTabDialog::setDefaultButton( bool enable )
 
   \sa setApplyButton setDefaultButton() cancelButtonPressed() */
 
-void QTabDialog::setCancelButton( bool enable )
+void QTabDialog::setCancelButton( bool enable, const char * text )
 {
     if ( !!cb == enable )
 	return;
 
     if ( enable ) {
 	cb = new QPushButton( this, "cancel dialog" );
-	cb->setText( "Cancel" );
+	cb->setText( text );
 	if ( isVisible() ) {
 	    setSizes();
 	    cb->show();
@@ -342,7 +464,7 @@ void QTabDialog::setCancelButton( bool enable )
 
   Finally set the minimum and maximum sizes for the dialog.
 
-  This function does not resize or move the panes - only resizeEvent()
+  This function does not resize or move the pages - only resizeEvent()
   does that.
 
   \sa setApplyButton() setCancelButton() setDefaultButton() */
