@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#13 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#14 $
 **
 **                    ***   INTERNAL HEADER FILE   ***
 **
@@ -55,6 +55,7 @@ struct QFontData : QShared {
 #if defined(_WS_WIN_) || defined(_WS_PM_)
     HANDLE	hfont;
     HANDLE	hdc;
+    void       *tm;
 #elif defined(_WS_X11_)
     QXFontData *xfd;
 #endif
