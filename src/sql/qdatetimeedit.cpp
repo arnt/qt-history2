@@ -2146,45 +2146,6 @@ QDateTime QDateTimeEdit::dateTime() const
     return QDateTime( de->date(), te->time() );
 }
 
-/*!  Set the separator for the date in this QDateTimeEdit to \a s.
-
-    \sa dateSeparator()
- */
-void QDateTimeEdit::setDateSeparator( const QString & s )
-{
-    de->setSeparator( s );
-}
-
-/*!  Returns the separator for the date in this QDateTimeEdit.
-    The default is "-".
-
-    \sa setDateSeparator()
-
- */
-QString QDateTimeEdit::dateSeparator() const
-{
-    return de->separator();
-}
-
-/*!  Set the separator for the time in this QDateTimeEdit to \a s.
-
-    \sa timeSeparator()
- */
-void QDateTimeEdit::setTimeSeparator( const QString & s )
-{
-    te->setSeparator( s );
-}
-
-/*!  Returns the separator for the time in this QDateTimeEdit. The
-    default is ":".
-
-    \sa setTimeSeparator()
- */
-QString QDateTimeEdit::timeSeparator() const
-{
-    return te->separator();
-}
-
 /*! \fn void QDateTimeEdit::valueChanged( const QDateTime& datetime )
 
   This signal is emitted every time the date or time changes.  The

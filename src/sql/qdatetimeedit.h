@@ -262,11 +262,6 @@ public:
     virtual void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
 
-    virtual void setTimeSeparator( const QString & separator );
-    QString timeSeparator() const;
-    virtual void setDateSeparator( const QString & separator );
-    QString dateSeparator() const;
-
     QDateEdit* dateEdit() { return de; }
     QTimeEdit* timeEdit() { return te; }
 
