@@ -28,6 +28,10 @@ platforms and build environments, including:
     \i Makefile
     \i Xcode
     \endlist
+\i Unix
+    \list
+    \i GCC 3.3 and up
+    \endlist
 \endlist
 
 
