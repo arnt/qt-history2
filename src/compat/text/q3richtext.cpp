@@ -604,6 +604,11 @@ void Q3TextCursor::gotoPreviousLetter()
             pop();
             if (idx > 0) {
                 idx = para->string()->previousCursorPosition(idx);
+#ifndef QT_NO_TEXTCUSTOMITEM
+                const Q3TextStringChar *tsc = para->at(idx);
+                if (tsc && tsc->isCustom() && tsc->customItem()->isNested())
+                    processNesting(EnterEnd);
+#endif
             } else if (para->prev()) {
                 para = para->prev();
                 idx = para->length() - 1;
@@ -3205,13 +3210,8 @@ void Q3TextDocument::drawParagraph(QPainter *painter, Q3TextParagraph *parag, in
         ir.setWidth(width());
 
     painter->translate(ir.x(), ir.y());
-    painter->setBrushOrigin(-ir.x(), -ir.y());
 
-    if (is_printer(painter))
-        painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
-    else if (cursor && cursor->paragraph() == parag)
-        painter->fillRect(QRect(parag->at(cursor->index())->x, 0, 2, ir.height()),
-                          parag->backgroundBrush(pal));
+    painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
 
     painter->translate(-(ir.x() - parag->rect().x()),
                        -(ir.y() - parag->rect().y()));
@@ -4092,6 +4092,7 @@ Q3TextParagraph::~Q3TextParagraph()
         p->setNext(n);
     if (n)
         n->setPrev(p);
+    delete bgcol;
 }
 
 void Q3TextParagraph::setNext(Q3TextParagraph *s)
