@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#315 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#316 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2385,6 +2385,10 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     }
     else {
 	int code = translateKeyCode( msg.wParam );
+	// If the bit 24 of lParm is set you received a enter,
+        // otherwise a Return. (This is the extended key bit)
+	if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000))
+	    code = Qt::Key_Enter;
 	int t = msg.message;
         if ( t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN ) {
 	    // KEYDOWN
@@ -2411,19 +2415,22 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( msg.wParam == VK_DELETE )
 		    uch = QChar((char)0x7f); // Windows doesn't know this one.
 		else {
-		    /*
-
-		    With this code, deadkeys don't work (we get the accent
-		    here, then the accented character later).
-
-		    if ( qt_winver == Qt::WV_NT ) {
-			uch = wmchar_to_unicode(
-			    (ushort)MapVirtualKey( msg.wParam, 2 ));
-		    } else {
-			uch = wmchar_to_unicode(
-			    (ushort)MapVirtualKeyA( msg.wParam, 2 ));
+		    if (t != WM_SYSKEYDOWN) {
+			UINT map;
+			if ( qt_winver == Qt::WV_NT ) {
+			    map = MapVirtualKey( msg.wParam, 2 );
+			} else {
+			    map = MapVirtualKeyA( msg.wParam, 2 );
+			    // High-order bit is 0x8000 on '95
+			    if ( map & 0x8000 )
+				map = (map^0x8000)|0x80000000;
+			}                                               
+			// If the high bit of the return value of
+			// MapVirtualKey is set, the key is a deadkey.
+			if ( !(map & 0x80000000) ) {
+			    uch = wmchar_to_unicode((DWORD)map);
+			}
 		    }
-		    */
 		}
 		if ( !code && !uch.row() )
 		    code = asciiToKeycode( uch.cell(), state);
