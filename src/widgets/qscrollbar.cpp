@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#8 $
 **
 ** Implementation of QScrollBar class
 **
@@ -13,10 +13,10 @@
 #include "qscrbar.h"
 #include "qpainter.h"
 #include "qpntarry.h"
-#include "qwxfmat.h"
+#include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#8 $";
 #endif
 
 
@@ -520,7 +520,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    }
 
 	    if ( controls & SUB_LINE ) {
-		QWXFMatrix m;
+		QWorldMatrix m;
 		m.translate( subB.x(), subB.y() );
 		if ( VERTICAL ) {
 		    m.translate( 0, addB.height() - 1 );
@@ -529,7 +529,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		    m.translate( addB.width() - 1, addB.height() - 1 );
 		    m.rotate( 180 );
 		}
-		p.setWxfMatrix( m );
+		p.setWorldMatrix( m );
 
 		QColor cleft, ctop, cbot, cmid;
 
@@ -575,13 +575,13 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    }
 
 	    if ( controls & ADD_LINE ) {
-		QWXFMatrix m;
+		QWorldMatrix m;
 		m.translate( addB.x(), addB.y() );
 		if ( VERTICAL ) {
 		    m.translate( addB.width()-1, 0 );
 		    m.rotate( 90 );
 		}
-		p.setWxfMatrix( m );
+		p.setWorldMatrix( m );
 		p.setWorldXForm( TRUE );
 
 		QColor cleft, ctop, cbot, cmid;
