@@ -2535,7 +2535,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS) -DQT_MACOSX_VERSION=`printf "0x%x" $QT_MAC_VERSION`"
-	    EXTRA_SOURCES="qurl.o qsettings_mac.o"
+	    EXTRA_SOURCES="qurl.o qsettings_mac.o qcore_mac.o"
         elif [ "$PLATFORM_QNX" = "yes" ]; then
 	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
 	  echo "QNX_CFLAGS += -lcpp" >>$mkfile

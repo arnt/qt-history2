@@ -50,7 +50,7 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
 unix {
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
    mac {
-     SOURCES += qsettings_mac.cpp qurl.cpp
+     SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
    }
 }
 win32 {
