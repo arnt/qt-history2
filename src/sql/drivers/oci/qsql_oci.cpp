@@ -1909,24 +1909,20 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     if ( !isOpen() )
 	return idx;
     QSqlQuery t = createQuery();
-    // do not change this query unless you know EXACTLY what you're doing
-    QString stmt( "select b.column_name, b.data_type, c.index_name "
-		  "from all_constraints a, all_tab_columns b, all_ind_columns c "
+    QString stmt( "select b.column_name, b.index_name, a.table_name, a.owner "
+		  "from all_constraints a, all_ind_columns b "
 		  "where a.constraint_type='P' "
-		  "and c.index_name = a.constraint_name "
-		  "and b.column_name = c.column_name "
-		  "and b.table_name = a.table_name "
-                  "and b.owner = a.owner and c.index_owner = a.owner" );
+		  "and b.index_name = a.constraint_name "
+                  "and b.index_owner = a.owner" );
 
     bool buildIndex = FALSE;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner( tablename, &table, &owner );
     tmpStmt = stmt + " and a.table_name='" + table + "'";
-    if ( !owner.isEmpty() ) {
-	tmpStmt += " and a.owner='" + owner + "'";
-    } else {
-	tmpStmt += " and a.owner='" + d->user +"'";
+    if ( owner.isEmpty() ) {
+	owner = d->user;
     }
+    tmpStmt += " and a.owner='" + owner + "'";
     t.setForwardOnly( TRUE );
     t.exec( tmpStmt );
     
@@ -1935,17 +1931,24 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
                 "where sname='" + table + "' and creator=a.owner)";
         t.setForwardOnly( TRUE );
 	t.exec( stmt );
-	if ( t.next() )
+	if ( t.next() ) {
+	    owner = t.value(3).toString();
 	    buildIndex = TRUE;
+	}
     } else {
 	buildIndex = TRUE;
     }
-    
-    if ( buildIndex ) {
-	idx.setName( t.value(2).toString() );
+    if ( buildIndex ) {	
+	QSqlQuery tt = createQuery();
+	idx.setName( t.value(1).toString() );
 	do {
-	    QSqlField f( t.value(0).toString(), 
-			 qDecodeOCIType( t.value(1).toString(), 0, 0, 0 ) );
+	    tt.exec( "select data_type from all_tab_columns where table_name='" + 
+		     t.value(2).toString() + "' and column_name='" + 
+		     t.value(0).toString() + "' and owner='" + owner + "'" );
+	    if ( !tt.next() ) {
+		return QSqlIndex();
+	    }
+	    QSqlField f( t.value(0).toString(), qDecodeOCIType( tt.value(0).toString(), 0, 0, 0 ) );
 	    idx.append(f);
 	} while ( t.next() );
 	return idx;
