@@ -1280,8 +1280,6 @@ void qt_x11_discard_double_buffer()
 
     delete global_double_buffer;
     global_double_buffer = 0;
-
-    qDebug("destroyed double buffer");
 }
 
 static
@@ -1328,8 +1326,6 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 
     hd = global_double_buffer->hd;
     rendhd = global_double_buffer->rendhd;
-
-    qDebug("created double buffer (%dx%d)", width, height);
 }
 
 void QWidget::repaint(const QRegion& r)
