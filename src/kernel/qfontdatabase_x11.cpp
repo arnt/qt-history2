@@ -1281,7 +1281,7 @@ void QFontDatabase::createDatabase()
 // --------------------------------------------------------------------------------------
 #define MAXFONTSIZE_XFT 256
 #define MAXFONTSIZE_XLFD 128
-
+#ifndef QT_NO_XFTFREETYPE
 static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique,
 			      const QFontPrivate *fp, const QFontDef &request)
 {
@@ -1348,6 +1348,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 
     return scale;
 }
+#endif // QT_NO_XFTFREETYPE
 
 static
 QFontEngine *loadEngine( QFont::Script script,
