@@ -2632,7 +2632,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int curx = -1, cury, curh;
     bool lastDirection = 0;
     int tw = 0;
-    
+
     int selectionStarts[ numSelections ];
     int selectionEnds[ numSelections ];
     if ( drawSelections ) {
@@ -5413,6 +5413,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
     richtext->setRichText( doc, context );
+    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
     rowspan_ = 1;
     colspan_ = 1;
     if ( attr.contains("colspan") )
@@ -5463,6 +5464,7 @@ QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
     richtext->setFormatter( table->parent->formatter() );
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setRichText( "<html></html>", QString::null );
+    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
     rowspan_ = 1;
     colspan_ = 1;
     background = 0;
