@@ -15,7 +15,9 @@
 
 static QMap<QString, int> *msgMap = 0;
 static int warningLevel = INT_MAX;
+#if 0
 static bool paranoia = FALSE;
+#endif
 static int numAll = 0;
 static int numOmitted = 0;
 
@@ -55,11 +57,12 @@ void setWarningLevel( int level )
     warningLevel = level;
 }
 
-// ### isn't used
+#if 0 // ### isn't used
 void setParanoiaEnabled( bool enabled )
 {
     paranoia = enabled;
 }
+#endif
 
 void warning( int level, const Location& loc, const char *message, ... )
 {

@@ -95,17 +95,17 @@ public:
     
     // documented in qpainter.cpp
     enum AlignmentFlags {
-	AlignAuto = 0x0000, 		// text alignment
-	AlignLeft	= 0x0001,
-	AlignRight	= 0x0002,
-	AlignHCenter	= 0x0004,
-	AlignJustify 	= 0x0008,
-	AlignHorizontal_Mask 	= AlignLeft | AlignRight | AlignHCenter | AlignJustify,
-	AlignTop	= 0x0010,
-	AlignBottom	= 0x0020,
-	AlignVCenter	= 0x0040,
+	AlignAuto		= 0x0000, 	// text alignment
+	AlignLeft		= 0x0001,
+	AlignRight		= 0x0002,
+	AlignHCenter		= 0x0004,
+	AlignJustify		= 0x0008,
+	AlignHorizontal_Mask	= AlignLeft | AlignRight | AlignHCenter | AlignJustify,
+	AlignTop		= 0x0010,
+	AlignBottom		= 0x0020,
+	AlignVCenter		= 0x0040,
 	AlignVertical_Mask 	= AlignTop | AlignBottom | AlignVCenter,
-	AlignCenter	= AlignVCenter | AlignHCenter,
+	AlignCenter		= AlignVCenter | AlignHCenter
     };
     
     // ### document me!!!
@@ -199,7 +199,7 @@ public:
 #endif
 	WRepaintNoErase		= 0x00800000,
 	WX11BypassWM		= 0x01000000,
-	WGroupLeader 		= 0x02000000,
+	WGroupLeader 		= 0x02000000
     };
 
     // Image conversion flags.  The unusual ordering is caused by
