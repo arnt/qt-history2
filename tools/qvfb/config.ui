@@ -376,7 +376,7 @@
 		<bool>true</bool>
 	  </property>
           <property name="text" >
-            <string>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth above. You may freely modify the Gamma below.</string>
+            <string>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth above. You may freely modify the values below.</string>
           </property>
         </widget>
       </item>
@@ -398,12 +398,15 @@
           <property name="title" >
             <string>Gamma</string>
           </property>
+          <property name="flat">
+            <bool>true</bool>
+          </property>
           <layout class="QGridLayout" >
             <property name="objectName" >
               <string notr="true">unnamed</string>
             </property>
             <property name="margin" >
-              <number>6</number>
+              <number>4</number>
             </property>
             <property name="spacing" >
               <number>2</number>
@@ -1558,16 +1561,6 @@
                 </property>
               </widget>
             </item>
-            <item rowspan="1" row="8" column="0" colspan="3" >
-              <widget class="QPushButton" name="resetgamma" >
-                <property name="objectName" >
-                  <string notr="true">PushButton3</string>
-                </property>
-                <property name="text" >
-                  <string>Set all to 1.0</string>
-                </property>
-              </widget>
-            </item>
             <item row="1" column="1" >
               <spacer name="Spacer4" >
                 <property name="sizeHint" >
@@ -1650,6 +1643,16 @@
             <property name="spacing" >
               <number>2</number>
             </property>
+            <item>
+              <widget class="QPushButton" name="resetgamma" >
+                <property name="objectName" >
+                  <string notr="true">PushButton3</string>
+                </property>
+                <property name="text" >
+                  <string>Reset Gamma</string>
+                </property>
+              </widget>
+            </item>
             <item>
               <spacer name="Horizontal Spacing2" >
                 <property name="sizeHint" >
