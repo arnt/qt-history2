@@ -177,6 +177,31 @@ QFilePrivate::setError(QFile::Error err, int errNum)
 */
 
 /*!
+    \enum QFile::Error
+
+    This enum describes the errors that may be returned by the error()
+    function.
+
+    \value NoError          No error occurred.
+    \value ReadError        An error occurred when reading from the file.
+    \value WriteError       An error occurred when writing to the file.
+    \value FatalError       A fatal error occurred.
+    \value ResourceError
+    \value OpenError        The file could not be opened.
+    \value AbortError       The operation was aborted.
+    \value TimeOutError     A timeout occurred.
+    \value UnspecifiedError An unspecified error occurred.
+    \value RemoveError      The file could not be removed.
+    \value RenameError      The file could not be renamed.
+    \value PositionError    The position in the file could not be changed.
+    \value ResizeError      The file could not be resized.
+    \value PermissionsError The file could not be accessed.
+    \value CopyError        The file could not be copied.
+
+    \omitvalue ConnectError
+*/
+
+/*!
     \enum QFile::Permission
 
     This enum is used by the permission() function to report the
@@ -224,28 +249,44 @@ QFile::QFile(QFilePrivate &dd)
     unsetError();
 }
 #else
+/*!
+    \internal
+*/
 QFile::QFile()
     : QIODevice(*new QFilePrivate, 0)
 {
     unsetError();
 }
+/*!
+    Constructs a new file object with the given \a parent.
+*/
 QFile::QFile(QObject *parent)
     : QIODevice(*new QFilePrivate, parent)
 {
     unsetError();
 }
+/*!
+    Constructs a new file object to represent the file with the given \a name.
+*/
 QFile::QFile(const QString &name)
     : QIODevice(*new QFilePrivate, 0)
 {
     d->fileName = name;
     unsetError();
 }
+/*!
+    Constructs a new file object with the given \a parent to represent the
+    file with the specified \a name.
+*/
 QFile::QFile(const QString &name, QObject *parent)
     : QIODevice(*new QFilePrivate, parent)
 {
     d->fileName = name;
     unsetError();
 }
+/*!
+    \internal
+*/
 QFile::QFile(QFilePrivate &dd, QObject *parent)
     : QIODevice(dd, parent)
 {
@@ -441,11 +482,12 @@ QFile::readLink() const
 }
 
 /*!
-    Returns the name a symlink (or shortcut on Windows) points to, or
-    a an empty string if the object isn't a symbolic link.
+    Returns the filename referred to by the symlink (or shortcut on Windows)
+    specified by \a fileName, or returns an empty string if the \a fileName
+    does not correspond to a symbolic link.
 
     This name may not represent an existing file; it is only a string.
-    QFie::exists() returns true if the symlink points to an
+    QFile::exists() returns true if the symlink points to an
     existing file.
 */
 
@@ -676,6 +718,12 @@ QFile::copy(const QString &fileName, const QString &newName)
     return QFile(fileName).copy(newName);
 }
 
+/*!
+    Returns true if the file can only be manipulated sequentially; otherwise
+    returns false.
+
+    \sa QIODevice::isSequential()
+*/
 bool QFile::isSequential() const
 {
     return d->fileEngine && d->fileEngine->isSequential();
