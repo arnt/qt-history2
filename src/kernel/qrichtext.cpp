@@ -1580,6 +1580,7 @@ struct Q_EXPORT QTextDocumentTag {
 };
 
 #define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
+		    if ( curpar->isBr ) curpar->isBr = FALSE; \
 		    hasNewPar = TRUE; \
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
@@ -1670,14 +1671,14 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 
 		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-		    if ( tagname == "br" ) {
-			// our standard br emty-tag handling breaks
-			// inside list items, we would get another
-			// list item in this case. As workaround, fake
-			// a new paragraph instead
-			tagname = "p";
-			nstyle = sheet_->item( tagname );
-		    }
+// 		    if ( tagname == "br" ) {
+// 			// our standard br emty-tag handling breaks
+// 			// inside list items, we would get another
+// 			// list item in this case. As workaround, fake
+// 			// a new paragraph instead
+// 			tagname = "p";
+// 			nstyle = sheet_->item( tagname );
+// 		    }
 		    if ( nstyle )
 			hasNewPar = FALSE; // we want empty paragraphs in this case
 		}
@@ -1712,6 +1713,15 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( tagname == "br" ) {
 		    emptyTag = TRUE;
 		    hasNewPar = FALSE;
+		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			// when linebreaking a list item, we do not
+			// actually want a new list item but just a
+			// new line. Fake this by pushing a paragraph
+			// onto the stack
+			tags.push( curtag );
+			curtag.name = "p";
+			curtag.style = sheet_->item( curtag.name );
+		    }
 		    NEWPAR;
 		    curpar->isBr = TRUE;
 		    curpar->setAlignment( curtag.alignment );
