@@ -172,8 +172,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
 		  $$WIDGETS_H/qframe.h \
-		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qgrid.h \
+		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qhbuttongroup.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qhgroupbox.h \
@@ -342,8 +342,8 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
 		  widgets/qframe.cpp \
-		  widgets/qgroupbox.cpp \
 		  widgets/qgrid.cpp \
+		  widgets/qgroupbox.cpp \
 		  widgets/qhbuttongroup.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qhgroupbox.cpp \
