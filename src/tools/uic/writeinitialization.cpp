@@ -348,6 +348,7 @@ void WriteInitialization::accept(DomActionGroup *node)
         varName = driver->findOrInsertActionGroup(m_actionGroupChain.top());
 
     output << option.indent << actionName << " = new QActionGroup(" << varName << ");\n";
+    output << option.indent << actionName << "->setExclusive(false);\n";
     writePropertiesImpl(actionName, "QActionGroup", node->elementProperty());
 
     m_actionGroupChain.push(node);

@@ -36,6 +36,8 @@ void BlockingProcess::exited()
 bool BlockingProcess::start(QStringList *env)
 {
     bool returnValue = QProcess::start(env);
-    QCoreApplication::instance()->enter_loop();
+    if (returnValue)
+        QCoreApplication::instance()->enter_loop();
+
     return returnValue;
 }

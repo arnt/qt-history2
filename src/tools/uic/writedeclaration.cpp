@@ -38,6 +38,7 @@ void WriteDeclaration::accept(DomUI *node)
 
     if (node->elementImages()) {
         output << "\n"
+            << "protected:\n"
             << option.indent << "enum IconID\n"
             << option.indent << "{\n";
         WriteIconDeclaration(driver).accept(node);
