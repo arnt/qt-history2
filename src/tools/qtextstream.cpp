@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#20 $
 **
 ** Implementation of QTextStream class
 **
@@ -11,13 +11,13 @@
 *****************************************************************************/
 
 #include "qtstream.h"
+#include "qbuffer.h"
 #include "qfile.h"
-#include "qstring.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#20 $")
 
 
 /*!
@@ -110,26 +110,6 @@ QTextStream::QTextStream()
 }
 
 /*!
-  Constructs a data stream that reads/writes an existing file handle \e fh
-  which will be translated to an internal QFile.
-
-  This constructor makes it convenient to do things such as:
-  \code
-    QTextStream cout( stdout );
-    QTextStream cin ( stdin );
-    QTextStream cerr( stderr );
- \endcode
-*/
-
-QTextStream::QTextStream( FILE *fh )
-{
-    dev = new QFile;
-    ((QFile *)dev)->open( IO_ReadWrite, fh );
-    fstrm = owndev = TRUE;
-    reset();
-}
-
-/*!
   Constructs a text stream that uses the IO device \e d.
 */
 
@@ -137,6 +117,61 @@ QTextStream::QTextStream( QIODevice *d )
 {
     dev = d;					// set device
     fstrm = owndev = FALSE;
+    reset();
+}
+
+/*!
+  Constructs a text stream that operates on a byte array throught an
+  internal QBuffer device.
+
+  Example:
+  \code
+    QString str;
+    QTextStream ts( str, IO_WriteOnly );
+    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+  \endcode
+
+  Writing data to the text stream will modify the contents of the string.
+  The string will be expanded when data is written beyond the end of the
+  string.
+
+  Same example, using a QBuffer:
+  \code
+    QString str;
+    QBuffer buf( str );
+    buf.open( IO_ReadOnly );
+    QTextStream ts( &str, IO_WriteOnly );
+    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+    buf.close();
+  \endcode
+*/
+
+QTextStream::QTextStream( QByteArray a, int mode )
+{
+    dev = new QBuffer( a );
+    ((QBuffer *)dev)->open( mode );
+    fstrm = FALSE;
+    owndev = TRUE;
+    reset();
+}
+
+/*!
+  Constructs a text stream that operates on an existing file handle \e fh
+  throught an internal QFile device.
+
+  Example:
+  \code
+    QTextStream cout( stdout, IO_WriteOnly );
+    QTextStream cin ( stdin,  IO_ReadOnly );
+    QTextStream cerr( stderr, IO_WriteOnly );
+ \endcode
+*/
+
+QTextStream::QTextStream( FILE *fh, int mode )
+{
+    dev = new QFile;
+    ((QFile *)dev)->open( mode, fh );
+    fstrm = owndev = TRUE;
     reset();
 }
 
@@ -178,24 +213,26 @@ void QTextStream::reset()
 /*!
   \fn QIODevice *QTextStream::device() const
   Returns the IO device currently set.
+  \sa setDevice(), unsetDevice()
 */
 
 /*!
   Sets the IO device to \e d.
+  \sa device(), unsetDevice()
 */
 
 void QTextStream::setDevice( QIODevice *d )
 {
     if ( owndev ) {
 	delete dev;
-	owndev = 0;
+	owndev = FALSE;
     }
     dev = d;
 }
 
 /*!
-  Unsets the IO device. <br>
-  Equivalent to calling setDevice( 0 ).
+  Unsets the IO device.  This is the same as calling setDevice( 0 ).
+  \sa device(), setDevice()
 */
 
 void QTextStream::unsetDevice()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#8 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#9 $
 **
 ** Definition of QDataStream class
 **
@@ -14,6 +14,7 @@
 #define QDSTREAM_H
 
 #include "qiodev.h"
+#include "qstring.h"
 
 
 class QDataStream				// data stream class
@@ -21,6 +22,8 @@ class QDataStream				// data stream class
 public:
     QDataStream();
     QDataStream( QIODevice * );
+    QDataStream( QByteArray, int mode );
+    QDataStream( QByteArray );
     virtual ~QDataStream();
 
     QIODevice	*device() const;		// get current stream device
@@ -67,6 +70,7 @@ public:
 
 private:
     QIODevice	*dev;				// I/O device
+    bool	 owndev;			// internally created device
     int		 byteorder;			// serialization byte order
     bool	 printable;			// printable data
     bool	 noswap;			// byte swapping not needed
@@ -79,12 +83,6 @@ private:
 
 inline QIODevice *QDataStream::device() const
 { return dev; }
-
-inline void QDataStream::setDevice(QIODevice *d )
-{ dev = d; }
-
-inline void QDataStream::unsetDevice()
-{ dev = 0; }
 
 inline bool QDataStream::eos() const
 { return dev ? dev->atEnd() : TRUE; }
