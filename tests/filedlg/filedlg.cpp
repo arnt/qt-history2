@@ -29,17 +29,20 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QPushButton *but4 = new QPushButton( "Open &Dir!", this );
     lay->addWidget( but4 );
     connect( but4, SIGNAL(clicked()), this, SLOT(whoosh()) );
+    QPushButton *but5 = new QPushButton( "Test &Filters", this );
+    lay->addWidget( but5 );
+    connect( but5, SIGNAL(clicked()), this, SLOT(boom()) );
 }
 
 void Main::bang()
 {
     QString s = QFileDialog::getOpenFileName( initEd->text(),
-					      filtEd->text() );
+                                              filtEd->text() );
     if ( s.isEmpty() )
-	lab->setText( "Open: No luck!" );
+        lab->setText( "Open: No luck!" );
     else {
-	s.prepend( "Open: " );
-	lab->setText( s );
+        s.prepend( "Open: " );
+        lab->setText( s );
     }
 }
 
@@ -47,13 +50,13 @@ void Main::bang()
 void Main::bop()
 {
     QString s = QFileDialog::getSaveFileName( initEd->text(),
-					      filtEd->text() );
+                                              filtEd->text() );
 
     if ( s.isEmpty() )
-	lab->setText( "Save: No luck!" );
+        lab->setText( "Save: No luck!" );
     else {
-	s.prepend( "Save: " );
-	lab->setText( s );
+        s.prepend( "Save: " );
+        lab->setText( s );
     }
 }
 
@@ -61,16 +64,16 @@ void Main::bop()
 void Main::ratatatat()
 {
     QStringList l = QFileDialog::getOpenFileNames( filtEd->text(),
-						   initEd->text() );
+                                                   initEd->text() );
     if ( l.isEmpty() )
-	lab->setText( "Opens: No luck!" );
+        lab->setText( "Opens: No luck!" );
     else {
-	QString s( "Opens: \n" );
-	for( int i = 0; i < (int)l.count(); i++ ) {
-	    s.append( l[i] );
-	    s.append( "\n" );
-	}
-	lab->setText( s );
+        QString s( "Opens: \n" );
+        for( int i = 0; i < (int)l.count(); i++ ) {
+            s.append( l[i] );
+            s.append( "\n" );
+        }
+        lab->setText( s );
     }
 }
 
@@ -79,11 +82,23 @@ void Main::whoosh()
 {
     QString s = QFileDialog::getExistingDirectory( initEd->text() );
     if ( s.isEmpty() )
-	lab->setText( "Open Dir: No luck!" );
+        lab->setText( "Open Dir: No luck!" );
     else {
-	s.prepend( "Open Dir: " );
-	lab->setText( s );
+        s.prepend( "Open Dir: " );
+        lab->setText( s );
     }
+}
+
+void Main::boom()
+{
+    QFileDialog *dlg = new QFileDialog( this );
+    QStringList lst;
+    lst.append( "C++ Files (*.cpp *.cc *.C *.cxx *.c++)" );
+    lst.append( "Header Files (*.h)" );
+    lst.append( "Project files (*.pro)" );
+    dlg->setFilters( lst );
+    dlg->resize( 600, 400 );
+    dlg->show();
 }
 
 void Main::resizeEvent(QResizeEvent*)
