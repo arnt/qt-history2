@@ -6,7 +6,7 @@
        BasedOn = sourcecode.cpp.h;
        Name = "Qt header file";
        ComputerLanguage = qt.c.cpp;
-       AppliesToBuildRules = yes;
+       AppliesToBuildRules = no;
        Extensions = (h);
        IncludeInIndex = NO;
        CanSetIncludeInIndex = YES;

@@ -69,7 +69,7 @@
 		};
 		20286C2AFDCF999611CA2CEA = {
 			children = (
-				//32DBCF6D0370B57F00C91783,
+				32DBCF6D0370B57F00C91783,
 				20286C2BFDCF999611CA2CEA,
 			);
 			isa = PBXGroup;
@@ -203,12 +203,13 @@
 //8D4
 		8D0C4E890486CD37000505A6 = {
 			buildPhases = (
+				22D275D307D515930050A600, //get_mocs phase
 				8D0C4E8F0486CD37000505A6,
 				8D0C4E910486CD37000505A6,
 				8D0C4E940486CD37000505A6,
 			);
 			buildRules = (
-			        22E554940732E0C3002CE4A0, //get_mocs rule
+			        //22E554940732E0C3002CE4A0, //get_mocs rule
 				2241F8060731C52400C1F590, //make_moc rule
 				2241F8060731C52430C1F590, //make_uic rule
 				2241F8060731C59400C1F590, //make_rcc rule
@@ -250,6 +251,22 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		22D275D307D515930050A600 = { //get_mocs phase
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			       //"*.h",
+			);
+			name = "Qt Auto-Retrieve Mocables";
+			isa = PBXShellScriptBuildPhase;
+			outputPaths = (
+				//"«PROJECTNAME».mocs",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/Library/Frameworks/QtCore.framework/Resources/xcode/get_mocs.sh -output \"«PROJECTNAME».mocs\"";
 		};
 		22E554940732E0C3002CE4A0 = { //get_mocs rule
 			compilerSpec = com.apple.compilers.proxy.script;

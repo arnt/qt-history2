@@ -90,12 +90,7 @@ else
        LINES=`wc -l "$FILE_LIST" | awk '{ print $1; }'`
        while [ "$LINE" -lt "$LINES" ]; do
           LINE=$((LINE+1))
-          SOURCE=`head -$LINE ${FILE_LIST} | tail -1`
-
-          TARGET=`echo $SOURCE | cut -d: -f1`
-          GROUP=`echo $SOURCE | cut -d: -f2`
-          FILE=`echo $SOURCE | cut -d: -f3`
-  
+          FILE=`head -$LINE ${FILE_LIST} | tail -1`
           FILE_TYPE=unknown
           case "$FILE" in
           *.cpp|*.C|*.cc|*.CPP|*.CC) FILE_TYPE=c++-source ;;
@@ -127,12 +122,6 @@ fi
 #sort it
 sort "$MOC_LIST" | uniq | grep -v '^$' >"${MOC_LIST}.sorted" 
 mv "${MOC_LIST}.sorted" "${MOC_LIST}"
-
-echo "**************** GET_MOCS.SH"
-echo "MOC_LIST"
-cat "$MOC_LIST"
-echo "CFG_OUTPUT"
-cat "$CFG_OUTPUT"
 
 #replace it
 if cmp -s "$MOC_LIST" "$CFG_OUTPUT"; then

@@ -1,19 +1,31 @@
+set all_files to {}
 tell application "Xcode"
 	tell project 1
-		set inputs to {}
-		repeat with targ in targets
-			tell targ
-				set targname to name of targ
-				repeat with bp in every build phase
-					set phasename to name of bp
-					set fr to absolute path of every build file of bp
-					repeat with f in fr
-						set end of inputs to targname & ":" & phasename & ":" & f & "
+		repeat with f in file references
+			tell f
+				set fn to absolute path
+				set end of all_files to fn & "
 "
-					end repeat
+			end tell
+		end repeat
+		set all_groups to {}
+		repeat with grp in groups
+			set end of all_groups to grp
+		end repeat
+		repeat with grp in all_groups
+			tell grp
+				repeat with grp in groups
+					set end of all_groups to grp
+				end repeat
+				repeat with f in file references
+					tell f
+						set fn to absolute path
+						set end of all_files to fn & "
+"
+					end tell
 				end repeat
 			end tell
 		end repeat
 	end tell
 end tell
-inputs
+all_files
