@@ -1045,6 +1045,7 @@ static QChar *indic_reorder( int script, const QString &string, int start, int e
 
     if ( invalid ) {
 	*reordered = QChar( 0x25cc );
+	len++;
     }
     memcpy( reordered + (invalid ? 1 : 0), string.unicode() + start, len*sizeof( QChar ) );
 
@@ -1331,16 +1332,15 @@ static QChar *indic_reorder( int script, const QString &string, int start, int e
 	state = newState;
     }
 
+    //qDebug("reordered:");
     for ( i = 0; i < len; i++ ) {
 	attributes[i].mark = (category( *reordered ) == QChar::Mark_NonSpacing);
 	attributes[i].clusterStart = FALSE;
+	//qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered->unicode(), featuresToApply[i], attributes[i].clusterStart );
 	reordered++;
     }
     attributes[0].clusterStart = TRUE;
 
-//     qDebug("reordered:");
-//     for ( int i = 0; i < (int)reordered.length(); i++ )
-// 	qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered[i].unicode(), featuresToApply[i], attributes[i].clusterStart );
 
     return reordered;
 }
@@ -1368,7 +1368,7 @@ static QChar *analyzeSyllables( int script, const QString &string, int from, int
 
 static void indic_shape( int script, const QString &string, int from, int len, QScriptItem *item )
 {
-//      qDebug("QScriptEngineDevanagari::shape( from=%d, len=%d)",  from,  len);
+//       qDebug("QScriptEngineDevanagari::shape( from=%d, len=%d)",  from,  len);
     QShapedItem *shaped = item->shaped;
 
     unsigned short fa[256];
