@@ -250,7 +250,7 @@ externaldef(qapplicationshellwidgetclass)
 
 class QMotifWidgetPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QMotifWidget);
+    Q_DECLARE_PUBLIC(QMotifWidget)
 
 public:
     QMotifWidgetPrivate() : widget( NULL ), shell( NULL ) { }

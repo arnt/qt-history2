@@ -151,7 +151,7 @@ externaldef(qmotifdialogwidgetclass)
 
 class QMotifDialogPrivate : public QDialogPrivate
 {
-    Q_DECLARE_PUBLIC(QMotifDialog);
+    Q_DECLARE_PUBLIC(QMotifDialog)
 
 public:
     QMotifDialogPrivate() : shell( NULL ), dialog( NULL ) { }
