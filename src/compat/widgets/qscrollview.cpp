@@ -920,7 +920,7 @@ void QScrollView::updateScrollBars()
     int xoffset = (reverse && (showv || cornerWidget())) ? vsbExt : 0;
     int xpos = reverse ? 0 : w - vsbExt;
     bool frameContentsOnly =
-        style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
+        style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, this);
 
     if(! frameContentsOnly) {
         if (reverse)

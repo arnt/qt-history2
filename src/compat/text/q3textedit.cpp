@@ -1007,7 +1007,7 @@ void Q3TextEdit::paintDocument(bool drawAll, QPainter *p, int cx, int cy, int cw
 #endif
 
     bool drawCur = blinkCursorVisible && (hasFocus() || viewport()->hasFocus());
-    if ((hasSelectedText() && !style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected)) ||
+    if ((hasSelectedText() && !style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)) ||
         isReadOnly() || !cursorVisible)
         drawCur = false;
     QPalette pal = palette();
