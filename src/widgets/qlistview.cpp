@@ -205,6 +205,8 @@ struct QListViewPrivate
     bool was_visible : 1;
     bool context_menu : 1;
 
+    bool startEdit : 1;
+
     QListView::RenameAction defRenameAction;
 
     QSize sizeHint;
@@ -3799,9 +3801,9 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( !e )
 	return;
 
-    bool didEdit = FALSE;
+    d->startEdit = TRUE;
     if ( currentItem() && currentItem()->renameBox ) {
-	didEdit = TRUE;
+	d->startEdit = FALSE;
 	if ( d->defRenameAction == Reject )
 	    currentItem()->cancelRename( currentItem()->renameCol );
 	else
@@ -3819,20 +3821,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedEmptyArea = e->y() > contentsHeight();
     if ( i && !i->isEnabled() )
 	return;
-    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton && !didEdit ) {
-	QRect r = itemRect( currentItem() );
-	r = QRect( viewportToContents( r.topLeft() ), r.size() );
-	d->pressedColumn = header()->sectionAt(  e->pos().x() );
-	r.setLeft( header()->sectionPos( d->pressedColumn ) );
-	r.setWidth( header()->sectionSize( d->pressedColumn ) - 1 );
-	if ( d->pressedColumn == 0 )
-	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
-						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
-	if ( r.contains( e->pos() ) &&
-	     !( ( e->state() & ShiftButton ) == ShiftButton ) &&
-	     !( ( e->state() & ControlButton ) == ControlButton ) )
-	    d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
-    }
+    if ( d->startEdit && i != currentItem() )
+	d->startEdit = FALSE;
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
 	d->focusItem = firstChild();
@@ -4062,6 +4052,20 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
     QListViewItem *i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
+    if ( i == d->pressedItem && i && i->isSelected() && e->button() == LeftButton && d->startEdit ) {
+	QRect r = itemRect( currentItem() );
+	r = QRect( viewportToContents( r.topLeft() ), r.size() );
+	d->pressedColumn = header()->sectionAt(  e->pos().x() );
+	r.setLeft( header()->sectionPos( d->pressedColumn ) );
+	r.setWidth( header()->sectionSize( d->pressedColumn ) - 1 );
+	if ( d->pressedColumn == 0 )
+	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
+						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	if ( r.contains( e->pos() ) &&
+	     !( ( e->state() & ShiftButton ) == ShiftButton ) &&
+	     !( ( e->state() & ControlButton ) == ControlButton ) )
+	    d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+    }
     if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
 	i = 0;
     emitClicked = emitClicked && d->pressedItem == i;
