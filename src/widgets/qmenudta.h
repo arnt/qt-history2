@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#24 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#25 $
 **
 ** Definition of QMenuData class
 **
@@ -82,6 +82,9 @@ public:
     uint	count() const;
 
     int		insertItem( const char *string,
+			    const QObject *receiver, const char *member,
+			    long accel=0 );
+    int		insertItem( const QPixmap &pixmap,
 			    const QObject *receiver, const char *member,
 			    long accel=0 );
     int		insertItem( const char *string, int id=-1, int index=-1 );
