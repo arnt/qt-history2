@@ -46,6 +46,8 @@
 #include "qtextstream.h"
 #include "qregexp.h"
 
+#include <private/qsettings_p.h>
+
 #ifndef Q_WS_MAC
 
 /*!
@@ -187,14 +189,6 @@
 */
 
 
-// QSettingsGroup is a map of key/value pairs
-class QSettingsGroup : public QMap<QString,QString>
-{
-public:
-    QSettingsGroup();
-
-    bool modified;
-};
 
 
 QSettingsGroup::QSettingsGroup()
@@ -203,14 +197,6 @@ QSettingsGroup::QSettingsGroup()
 }
 
 
-// QSettingsHeading is a map of heading/group pairs
-class QSettingsHeading : public QMap<QString,QSettingsGroup>
-{
-public:
-    QSettingsHeading::Iterator git;
-    void read(const QString &);
-    void parseLine(QTextStream &);
-};
 
 
 void QSettingsHeading::read(const QString &filename)
@@ -311,7 +297,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
     }
 }
 
-#ifdef Q_WS_WIN
+#ifdef Q_WS_WIN // for homedirpath reading from registry
 #include "qt_windows.h"
 #include "qlibrary.h"
 
@@ -322,62 +308,11 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 #define CSIDL_COMMON_APPDATA            0x0023        // All Users\Application Data
 #endif
 
-class QSettingsWinPrivate
-{
-public:
-    QSettingsWinPrivate();
-    ~QSettingsWinPrivate();
-
-    HKEY user;
-    HKEY local;
-
-    QString folder( const QString& );
-    QString entry( const QString& );
-
-    QString validateKey( const QString &key );
-
-    bool writeKey( const QString &key, const QByteArray &value, ulong type );
-    QByteArray readKey( const QString &key, bool *ok );
-
-    HKEY openKey( const QString &key, bool write, bool remove = FALSE );
-
-    QStringList paths;
-
-private:
-    static uint refCount;
-};
 #endif
-
-class QSettingsPrivate
-{
-public:
-    QSettingsPrivate();
-    ~QSettingsPrivate();
-
-    QSettingsGroup readGroup();
-    void removeGroup(const QString &);
-    void writeGroup(const QString &, const QString &);
-    QDateTime modificationTime();
-
-    QStringList searchPaths;
-    QMap<QString,QSettingsHeading> headings;
-    QString group;
-    QString heading;
-    bool modified;
-
-#ifdef Q_WS_WIN
-    QSettingsWinPrivate *win;
-#endif
-};
-
 
 QSettingsPrivate::QSettingsPrivate()
     : modified(FALSE)
 {
-#ifdef Q_WS_WIN
-    win = new QSettingsWinPrivate;
-#endif
-
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
 #ifdef Q_WS_WIN
@@ -430,9 +365,6 @@ QSettingsPrivate::QSettingsPrivate()
 
 QSettingsPrivate::~QSettingsPrivate()
 {
-#ifdef Q_WS_WIN
-    delete win;
-#endif
 }
 
 QSettingsGroup QSettingsPrivate::readGroup()
@@ -660,6 +592,7 @@ QDateTime QSettingsPrivate::modificationTime()
 void QSettings::insertSearchPath( System s, const QString &path)
 {
 #ifdef Q_WS_WIN
+/*
     if ( d->win ) {
 	if ( s != Windows || path.isEmpty() )
 	    return;
@@ -669,6 +602,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 	d->win->paths.append( p );
 	return;
     }
+*/
 #endif
 
     if ( s != Unix ) {
@@ -695,6 +629,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 void QSettings::removeSearchPath( System s, const QString &path)
 {
 #ifdef Q_WS_WIN
+/*
     if ( d->win ) {
 	if ( s != Windows || path.isEmpty() )
 	    return;
@@ -703,6 +638,7 @@ void QSettings::removeSearchPath( System s, const QString &path)
 	    p = "/" + p;
 	d->win->paths.remove( p );
     }
+*/
 #endif
     if ( s != Unix ) {
 #ifdef Q_OS_MAC
@@ -725,6 +661,10 @@ QSettings::QSettings()
 {
     d = new QSettingsPrivate;
     Q_CHECK_PTR(d);
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    d->sysInit();
+#endif
 }
 
 /*!
@@ -736,6 +676,10 @@ QSettings::~QSettings()
 {
     sync();
 
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    d->sysClear();
+#endif
+
     delete d;
 }
 
@@ -746,14 +690,8 @@ QSettings::~QSettings()
 */
 bool QSettings::sync()
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	if ( d->win->local )
-	    RegFlushKey( d->win->local );
-	if ( d->win->user )
-	    RegFlushKey( d->win->user );
-	return TRUE;
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    d->sysSync();
 #endif
     if (! d->modified)
 	// fake success
@@ -862,9 +800,8 @@ bool QSettings::sync()
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
-#ifdef Q_WS_WIN
-    if ( d->win )
-	return readNumEntry( key, def, ok );
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysReadBoolEntry( key, def, ok );
 #endif
 
     QString value = readEntry( key, ( def ? "true" : "false" ), ok );
@@ -897,35 +834,10 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 */
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	if ( ok )
-	    *ok = FALSE;
-	bool temp;
-	QByteArray array = d->win->readKey( key, &temp );
-	if ( !temp ) {
-	    char *data = array.data();
-	    array.resetRawData( data, array.size() );
-	    delete[] data;
-	    return def;
-	}
-	if ( array.size() != sizeof(double) )
-	    return def;
-
-	if ( ok )
-	    *ok = TRUE;
-
-	double res = 0;
-	char* data = (char*)&res;
-	for ( int i = 0; i < sizeof(double); ++i )
-	    data[i] = array[ i ];
-
-	char *adata = array.data();
-	array.resetRawData( adata, array.size() );
-	delete[] adata;
-	return res;
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysReadDoubleEntry( key, def, ok );
 #endif
+
     QString value = readEntry( key, QString::number(def), ok );
     bool conv_ok;
     double retval = value.toDouble( &conv_ok );
@@ -950,37 +862,10 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 */
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	if ( ok )
-	    *ok = FALSE;
-	bool temp;
-	QByteArray array = d->win->readKey( key, &temp );
-	if ( !temp ) {
-	    char *data = array.data();
-	    array.resetRawData( data, array.size() );
-	    delete[] data;
-
-	    return def;
-	}
-
-	if ( array.size() != sizeof(int) )
-	    return def;
-
-	if ( ok )
-	    *ok = TRUE;
-
-	int res = 0;
-	char* data = (char*)&res;
-	for ( int i = 0; i < sizeof(int); ++i )
-	    data[i] = array[ i ];
-
-	char *adata = array.data();
-	array.resetRawData( adata, array.size() );
-	delete[] adata;
-	return res;
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysReadNumEntry( key, def, ok );
 #endif
+
     QString value = readEntry( key, QString::number( def ), ok );
     bool conv_ok;
     int retval = value.toInt( &conv_ok );
@@ -1005,49 +890,12 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysReadEntry( key, def, ok );
+#endif
+
     if ( ok ) // no, everything is not ok
 	*ok = FALSE;
-
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	bool temp;
-	QByteArray array = d->win->readKey( key, &temp );
-	if ( !temp ) {
-	    char *data = array.data();
-	    array.resetRawData( data, array.size() );
-	    delete[] data;
-	    return def;
-	}
-
-	if ( ok )
-	    *ok = TRUE;
-	QString result = QString::null;
-
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-	    int s = array.size();
-	    for ( int i = 0; i < s; i+=2 ) {
-		QChar c( array[ i ], array[ i+1 ] );
-		if( !c.isNull() )
-		    result+=c;
-	    }
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	    result = QString::fromLocal8Bit( array );
-#endif
-
-	char *data = array.data();
-	array.resetRawData( data, array.size() );
-	delete[] data;
-
-	return result;
-    }
-#endif
 
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
@@ -1112,9 +960,8 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 */
 bool QSettings::writeEntry(const QString &key, bool value)
 {
-#ifdef Q_WS_WIN
-    if ( d->win )
-	return writeEntry( key, int(value) );
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysWriteEntry( key, value );
 #endif
     QString s(value ? "true" : "false");
     return writeEntry(key, s);
@@ -1135,16 +982,9 @@ bool QSettings::writeEntry(const QString &key, bool value)
 */
 bool QSettings::writeEntry(const QString &key, double value)
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	QByteArray array( sizeof(double) );
-	const char *data = (char*)&value;
-
-	for ( int i = 0; i < sizeof(double); ++i )
-	    array[i] = data[i];
-
-	return d->win->writeKey( key, array, REG_BINARY );
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd )
+	return d->sysWriteEntry( key, value );
 #endif
     QString s(QString::number(value));
     return writeEntry(key, s);
@@ -1164,15 +1004,9 @@ bool QSettings::writeEntry(const QString &key, double value)
 */
 bool QSettings::writeEntry(const QString &key, int value)
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	QByteArray array( sizeof(int) );
-	const char* data = (char*)&value;
-	for ( int i = 0; i < sizeof(int ); ++i )
-	    array[i] = data[i];
-
-	return d->win->writeKey( key, array, REG_DWORD );
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd )
+	return d->sysWriteEntry( key, value );
 #endif
     QString s(QString::number(value));
     return writeEntry(key, s);
@@ -1215,36 +1049,8 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	QByteArray array( 0 );
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-	    array.resize( value.length() * 2 + 2 );
-	    const QChar *data = value.unicode();
-	    int i;
-	    for ( i = 0; i < (int)value.length(); ++i ) {
-		array[ 2*i ] = data[ i ].cell();
-		array[ (2*i)+1 ] = data[ i ].row();
-	    }
-
-	    array[ (2*i) ] = 0;
-	    array[ (2*i)+1 ] = 0;
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
-	    array.resize( value.length() );
-	    array = value.local8Bit();
-	}
-#endif
-
-	return d->win->writeKey( key, array, REG_SZ );
-    }
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysWriteEntry( key, value );
 #endif
     // NOTE: we *do* allow value to be a null/empty string
 
@@ -1302,61 +1108,10 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 */
 bool QSettings::removeEntry(const QString &key)
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	QString e;
-	LONG res;
-
-	HKEY handle = 0;
-	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
-	    QString k = (*it).isEmpty() ? key : *it + "/" + key;
-	    handle = d->win->openKey( k, FALSE, TRUE );
-	    e = d->win->entry( k );
-	    if ( handle )
-		break;
-	}
-	if ( !handle )
-	    return TRUE;
-	if ( e == "Default" )
-	    e = "";
-#ifdef Q_OS_TEMP
-	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
-	else
-#endif
-	    res = RegDeleteValueA( handle, e.local8Bit() );
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysRemoveEntry( key );
 #endif
 
-	if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
-#if defined(QT_CHECK_STATE)
-	    qSystemWarning( "Error deleting value " + key, res );
-#endif
-	    return FALSE;
-	}
-	char vname[1];
-	DWORD vnamesz = 1;
-	FILETIME lastWrite;
-#ifdef Q_OS_TEMP
-	LONG res2 = RegEnumValue( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, NULL );
-	LONG res3 = RegEnumKeyEx( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, &lastWrite );
-#else
-	LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
-	LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite );
-#endif
-	if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
-#ifdef Q_OS_TEMP
-	    RegDeleteKeyW( handle, L"" );
-#else
-	RegDeleteKeyA( handle, "" );
-#endif
-	else
-	    RegCloseKey( handle );
-	return TRUE;
-    }
-#endif
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
 	qWarning("QSettings::removeEntry: invalid null/empty key.");
@@ -1430,97 +1185,17 @@ bool QSettings::removeEntry(const QString &key)
 */
 QStringList QSettings::entryList(const QString &key) const
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	if ( key.isNull() || key.isEmpty() ) {
+    if ( key.isNull() || key.isEmpty() ) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::entryList: invalid null/empty key.");
-#endif // QT_CHECK_STATE
-
-	    return QStringList();
-	}
-
-	QStringList result;
-
-	HKEY handle = 0;
-	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
-	    QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
-	    handle = d->win->openKey( k, FALSE );
-	    if ( handle )
-		break;
-	}
-	if ( !handle )
-	    return result;
-
-	DWORD count;
-	DWORD maxlen;
-#ifdef Q_OS_TEMP
-	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-	else
-#endif
-	    RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-#endif
-
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    maxlen++;
-
-	DWORD index = 0;
-
-	TCHAR *vnameT = new TCHAR[ maxlen ];
-	char *vnameA = new char[ maxlen ];
-	QString qname;
-
-	DWORD vnamesz = 0;
-	LONG res = ERROR_SUCCESS;
-
-	while ( res != ERROR_NO_MORE_ITEMS ) {
-	    vnamesz = maxlen;
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-		res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
-		if ( res == ERROR_SUCCESS )
-		    qname = qt_winQString( vnameT );
-#ifndef Q_OS_TEMP
-	    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	    {
-		res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
-		if ( res == ERROR_SUCCESS )
-		    qname = vnameA;
-	    }
-#endif
-	    if ( res == ERROR_NO_MORE_ITEMS )
-		break;
-	    if ( qname.isEmpty() )
-		result.append( "Default" );
-	    else
-		result.append( qname );
-	    ++index;
-	}
-
-	delete [] vnameA;
-	delete [] vnameT;
-
-	RegCloseKey( handle );
-	return result;
-    }
-#endif
-
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::listEntries: invalid null/empty key.");
+	qWarning("QSettings::entryList: invalid null/empty key.");
 #endif // QT_CHECK_STATE
 
 	return QStringList();
     }
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysEntryList( key );
+#endif
 
     QString realkey;
     if (key[0] == '/') {
@@ -1605,96 +1280,17 @@ QStringList QSettings::entryList(const QString &key) const
 */
 QStringList QSettings::subkeyList(const QString &key) const
 {
-#ifdef Q_WS_WIN
-    if ( d->win ) {
-	if ( key.isNull() || key.isEmpty() ) {
+    if ( key.isNull() || key.isEmpty() ) {
 #ifdef QT_CHECK_STATE
-	    qWarning( "QSettings::subkeyList: invalid null/empty key." );
-#endif // QT_CHECK_STATE
-
-	    return QStringList();
-	}
-
-	QStringList result;
-
-	HKEY handle = 0;
-	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
-	    QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
-	    handle = d->win->openKey( k, FALSE );
-	    if ( handle )
-		break;
-	}
-	if ( !handle )
-	    return result;
-
-	DWORD count;
-	DWORD maxlen;
-#ifdef Q_OS_TEMP
-	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-	else
-#endif
-	    RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-#endif
-
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    maxlen++;
-
-	DWORD index = 0;
-	FILETIME lastWrite;
-
-	TCHAR *vnameT = new TCHAR[ maxlen ];
-	char *vnameA = new char[ maxlen ];
-	QString qname;
-
-	DWORD vnamesz = 0;
-	LONG res = ERROR_SUCCESS;
-
-	while ( res != ERROR_NO_MORE_ITEMS ) {
-	    vnamesz = maxlen;
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-		res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
-		if ( res == ERROR_SUCCESS )
-		    qname = qt_winQString( vnameT );
-#ifndef Q_OS_TEMP
-	    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	    {
-		res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
-		if ( res == ERROR_SUCCESS )
-		    qname = vnameA;
-	    }
-#endif
-
-	    if ( res == ERROR_NO_MORE_ITEMS )
-		break;
-	    result.append( qname );
-	    ++index;
-	}
-
-	delete [] vnameA;
-	delete [] vnameT;
-
-	RegCloseKey( handle );
-	return result;
-    }
-#endif
-
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::listSubkeys: invalid null/empty key.");
+	qWarning( "QSettings::subkeyList: invalid null/empty key." );
 #endif // QT_CHECK_STATE
 
 	return QStringList();
     }
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    return d->sysSubkeyList( key );
+#endif
 
     QString realkey;
     if (key[0] == '/') {
@@ -1762,7 +1358,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 QDateTime QSettings::lastModficationTime(const QString &key)
 {
 #ifdef Q_WS_WIN
-    if ( d->win )
+    if ( d->sysd )
 	return QDateTime();
 #endif
 

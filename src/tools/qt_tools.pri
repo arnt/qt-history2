@@ -44,6 +44,7 @@ tools {
 		  $$TOOLS_H/qregexp.h \
 		  $$TOOLS_H/qsemaphore.h \
 		  $$TOOLS_H/qsettings.h \
+		  $$TOOLS_P/qsettings_p.h \
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qptrstack.h \

@@ -27,6 +27,8 @@
 **
 **********************************************************************/
 
+#include "qsettings.h"
+#include <private/qsettings_p.h>
 #include "qt_windows.h"
 #include "qregexp.h"
 
@@ -55,11 +57,11 @@ void Q_EXPORT qt_setSettingsBasePath( const QString &base )
     settingsBasePath = new QString( base );
 }
 
-class QSettingsWinPrivate
+class QSettingsSysPrivate
 {
 public:
-    QSettingsWinPrivate();
-    ~QSettingsWinPrivate();
+    QSettingsSysPrivate();
+    ~QSettingsSysPrivate();
 
     HKEY user;
     HKEY local;
@@ -80,9 +82,9 @@ private:
     static uint refCount;
 };
 
-uint QSettingsWinPrivate::refCount = 0;
+uint QSettingsSysPrivate::refCount = 0;
 
-QSettingsWinPrivate::QSettingsWinPrivate()
+QSettingsSysPrivate::QSettingsSysPrivate()
 {
     paths.append( "" );
     if ( !settingsBasePath ) {
@@ -157,7 +159,7 @@ QSettingsWinPrivate::QSettingsWinPrivate()
 #endif
 }
 
-QSettingsWinPrivate::~QSettingsWinPrivate()
+QSettingsSysPrivate::~QSettingsSysPrivate()
 {
     LONG res;
     if ( local ) {
@@ -186,7 +188,7 @@ QSettingsWinPrivate::~QSettingsWinPrivate()
     }
 }
 
-QString QSettingsWinPrivate::validateKey( const QString &key )
+QString QSettingsSysPrivate::validateKey( const QString &key )
 {
     if ( key.isEmpty() )
 	return key;
@@ -202,20 +204,20 @@ QString QSettingsWinPrivate::validateKey( const QString &key )
     return newKey;
 }
 
-QString QSettingsWinPrivate::folder( const QString &key )
+QString QSettingsSysPrivate::folder( const QString &key )
 {
     QString k = validateKey( key );
     Q_ASSERT(settingsBasePath);
     return *settingsBasePath + k.left( k.findRev( "\\" ) );
 }
 
-QString QSettingsWinPrivate::entry( const QString &key )
+QString QSettingsSysPrivate::entry( const QString &key )
 {
     QString k = validateKey( key );
     return k.right( k.length() - k.findRev( "\\" ) - 1 );
 }
 
-HKEY QSettingsWinPrivate::openKey( const QString &key, bool write, bool remove )
+HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 {
     QString f = folder( key );
 
@@ -285,7 +287,7 @@ HKEY QSettingsWinPrivate::openKey( const QString &key, bool write, bool remove )
     return handle;
 }
 
-bool QSettingsWinPrivate::writeKey( const QString &key, const QByteArray &value, ulong type )
+bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value, ulong type )
 {
     QString e;
     LONG res;
@@ -328,7 +330,7 @@ bool QSettingsWinPrivate::writeKey( const QString &key, const QByteArray &value,
     return TRUE;
 }
 
-QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
+QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 {
     HKEY handle = 0;
     LONG res;
@@ -448,5 +450,410 @@ QByteArray QSettingsWinPrivate::readKey( const QString &key, bool *ok )
 	*ok = TRUE;
     return result;
 }
+
+void QSettingsPrivate::sysInit()
+{
+    sysd = new QSettingsSysPrivate;
+}
+
+void QSettingsPrivate::sysClear()
+{
+    delete sysd;
+}
+
+bool QSettingsPrivate::sysSync()
+{
+    if ( sysd->local )
+	RegFlushKey( sysd->local );
+    if ( sysd->user )
+	RegFlushKey( sysd->user );
+    return TRUE;
+}
+
+bool QSettingsPrivate::sysReadBoolEntry(const QString &key, bool def, bool *ok ) const
+{
+    return sysReadNumEntry( key, def, ok );
+}
+
+double QSettingsPrivate::sysReadDoubleEntry( const QString &key, double def, bool *ok ) const
+{
+    Q_ASSERT(sysd);
+
+    if ( ok )
+	*ok = FALSE;
+    bool temp;
+    QByteArray array = sysd->readKey( key, &temp );
+    if ( !temp ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
+	return def;
+    }
+    if ( array.size() != sizeof(double) )
+	return def;
+
+    if ( ok )
+	*ok = TRUE;
+
+    double res = 0;
+    char* data = (char*)&res;
+    for ( int i = 0; i < sizeof(double); ++i )
+	data[i] = array[ i ];
+
+    char *adata = array.data();
+    array.resetRawData( adata, array.size() );
+    delete[] adata;
+    return res;
+}
+
+int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok ) const
+{
+    Q_ASSERT(sysd);
+
+    if ( ok )
+	*ok = FALSE;
+    bool temp;
+    QByteArray array = sysd->readKey( key, &temp );
+    if ( !temp ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
+
+	return def;
+    }
+
+    if ( array.size() != sizeof(int) )
+	return def;
+
+    if ( ok )
+	*ok = TRUE;
+
+    int res = 0;
+    char* data = (char*)&res;
+    for ( int i = 0; i < sizeof(int); ++i )
+	data[i] = array[ i ];
+
+    char *adata = array.data();
+    array.resetRawData( adata, array.size() );
+    delete[] adata;
+    return res;
+}
+
+QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, bool *ok ) const
+{
+    if ( ok ) // no, everything is not ok
+	*ok = FALSE;
+
+    bool temp;
+    QByteArray array = sysd->readKey( key, &temp );
+    if ( !temp ) {
+	char *data = array.data();
+	array.resetRawData( data, array.size() );
+	delete[] data;
+	return def;
+    }
+
+    if ( ok )
+	*ok = TRUE;
+    QString result = QString::null;
+
+#if defined(UNICODE)
+#ifndef Q_OS_TEMP
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
+	int s = array.size();
+	for ( int i = 0; i < s; i+=2 ) {
+	    QChar c( array[ i ], array[ i+1 ] );
+	    if( !c.isNull() )
+		result+=c;
+	}
+#ifndef Q_OS_TEMP
+    } else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+	result = QString::fromLocal8Bit( array );
+#endif
+
+    char *data = array.data();
+    array.resetRawData( data, array.size() );
+    delete[] data;
+
+    return result;
+}
+
+bool QSettingsPrivate::sysWriteEntry( const QString &key, bool value )
+{
+    return sysWriteEntry( key, (int)value );
+}
+
+bool QSettingsPrivate::sysWriteEntry( const QString &key, double value )
+{
+    Q_ASSERT(sysd);
+
+    QByteArray array( sizeof(double) );
+    const char *data = (char*)&value;
+
+    for ( int i = 0; i < sizeof(double); ++i )
+	array[i] = data[i];
+
+    return sysd->writeKey( key, array, REG_BINARY );
+}
+
+bool QSettingsPrivate::sysWriteEntry( const QString &key, int value )
+{
+    Q_ASSERT(sysd);
+
+    QByteArray array( sizeof(int) );
+    const char* data = (char*)&value;
+    for ( int i = 0; i < sizeof(int ); ++i )
+	array[i] = data[i];
+
+    return sysd->writeKey( key, array, REG_DWORD );
+}
+
+bool QSettingsPrivate::sysWriteEntry( const QString &key, const QString &value )
+{
+    Q_ASSERT(sysd);
+
+    QByteArray array( 0 );
+#if defined(UNICODE)
+#ifndef Q_OS_TEMP
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
+	array.resize( value.length() * 2 + 2 );
+	const QChar *data = value.unicode();
+	int i;
+	for ( i = 0; i < (int)value.length(); ++i ) {
+	    array[ 2*i ] = data[ i ].cell();
+	    array[ (2*i)+1 ] = data[ i ].row();
+	}
+
+	array[ (2*i) ] = 0;
+	array[ (2*i)+1 ] = 0;
+#ifndef Q_OS_TEMP
+    } else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+    {
+	array.resize( value.length() );
+	array = value.local8Bit();
+    }
+#endif
+
+    return sysd->writeKey( key, array, REG_SZ );
+}
+
+bool QSettingsPrivate::sysRemoveEntry( const QString &key )
+{
+    Q_ASSERT(sysd);
+
+    QString e;
+    LONG res;
+
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key : *it + "/" + key;
+	handle = sysd->openKey( k, FALSE, TRUE );
+	e = sysd->entry( k );
+	if ( handle )
+	    break;
+    }
+    if ( !handle )
+	return TRUE;
+    if ( e == "Default" )
+	e = "";
+#ifdef Q_OS_TEMP
+    res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+#else
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+    else
+#endif
+	res = RegDeleteValueA( handle, e.local8Bit() );
+#endif
+
+    if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "Error deleting value " + key, res );
+#endif
+	return FALSE;
+    }
+    char vname[1];
+    DWORD vnamesz = 1;
+    FILETIME lastWrite;
+#ifdef Q_OS_TEMP
+    LONG res2 = RegEnumValue( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyEx( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, &lastWrite );
+#else
+    LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite );
+#endif
+    if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
+#ifdef Q_OS_TEMP
+	RegDeleteKeyW( handle, L"" );
+#else
+    RegDeleteKeyA( handle, "" );
+#endif
+    else
+	RegCloseKey( handle );
+    return TRUE;
+}
+
+QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
+{
+    Q_ASSERT(sysd);
+
+    QStringList result;
+
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
+	handle = sysd->openKey( k, FALSE );
+	if ( handle )
+	    break;
+    }
+    if ( !handle )
+	return result;
+
+    DWORD count;
+    DWORD maxlen;
+#ifdef Q_OS_TEMP
+    RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+#else
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+    else
+#endif
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+#endif
+
+    if ( qWinVersion() & Qt::WV_NT_based )
+	maxlen++;
+
+    DWORD index = 0;
+
+    TCHAR *vnameT = new TCHAR[ maxlen ];
+    char *vnameA = new char[ maxlen ];
+    QString qname;
+
+    DWORD vnamesz = 0;
+    LONG res = ERROR_SUCCESS;
+
+    while ( res != ERROR_NO_MORE_ITEMS ) {
+	vnamesz = maxlen;
+#if defined(UNICODE)
+#ifndef Q_OS_TEMP
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
+	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
+	    if ( res == ERROR_SUCCESS )
+		qname = qt_winQString( vnameT );
+#ifndef Q_OS_TEMP
+	} else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+	{
+	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
+	    if ( res == ERROR_SUCCESS )
+		qname = vnameA;
+	}
+#endif
+	if ( res == ERROR_NO_MORE_ITEMS )
+	    break;
+	if ( qname.isEmpty() )
+	    result.append( "Default" );
+	else
+	    result.append( qname );
+	++index;
+    }
+
+    delete [] vnameA;
+    delete [] vnameT;
+
+    RegCloseKey( handle );
+    return result;
+}
+
+QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
+{
+    Q_ASSERT(sysd);
+
+    QStringList result;
+
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
+	handle = sysd->openKey( k, FALSE );
+	if ( handle )
+	    break;
+    }
+    if ( !handle )
+	return result;
+
+    DWORD count;
+    DWORD maxlen;
+#ifdef Q_OS_TEMP
+    RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+#else
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+    else
+#endif
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+#endif
+
+    if ( qWinVersion() & Qt::WV_NT_based )
+	maxlen++;
+
+    DWORD index = 0;
+    FILETIME lastWrite;
+
+    TCHAR *vnameT = new TCHAR[ maxlen ];
+    char *vnameA = new char[ maxlen ];
+    QString qname;
+
+    DWORD vnamesz = 0;
+    LONG res = ERROR_SUCCESS;
+
+    while ( res != ERROR_NO_MORE_ITEMS ) {
+	vnamesz = maxlen;
+#if defined(UNICODE)
+#ifndef Q_OS_TEMP
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
+	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
+	    if ( res == ERROR_SUCCESS )
+		qname = qt_winQString( vnameT );
+#ifndef Q_OS_TEMP
+	} else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+	{
+	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
+	    if ( res == ERROR_SUCCESS )
+		qname = vnameA;
+	}
+#endif
+
+	if ( res == ERROR_NO_MORE_ITEMS )
+	    break;
+	result.append( qname );
+	++index;
+    }
+
+    delete [] vnameA;
+    delete [] vnameT;
+
+    RegCloseKey( handle );
+    return result;
+}
+
 
 #endif //QT_NO_SETTINGS
