@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#5 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -23,9 +23,10 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
   \ingroup kernel
 
-  This class makes it possible to write asynchronous TCP/IP socket-based
-  code in Qt.  Using synchronous socket operations blocks the program,
-  which is clearly not acceptable for an event-based GUI program.
+  This class makes it possible to write asynchronous TCP/IP
+  socket-based code in Qt.  Using synchronous socket operations blocks
+  the program, which is clearly not acceptable for an event-based GUI
+  program.
 
   If you have opened a socket, you can create a socket notifier to monitor
   the socket.  Then connect the activated() signal to the slot you want to
@@ -39,7 +40,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
   <li> \c QSocketNofifier::Exception: An exception has ocurred (socket
-  exception event).
+  exception event).  We recommend against using this.
   </ol>
 
   For example, if you need to monitor both reads and writes for the same
@@ -57,18 +58,22 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 		      myObject, SLOT(dataReceived()) );
   \endcode
 
-  Notice that it is not wise to connect the activated() signal to more
-  than one slot, because the data can only be read/written only once.
+  For read notifiers, it is generally stupid to connect the
+  activated() signal to more than one slot, because the data can be
+  read from the socket only once.
 
-  Make sure to disable the socket notifier for write operations when there
-  is nothing more to be written, otherwise it will activate the slot
-  continuously.
+  Make sure to disable the socket notifier for write operations when
+  there is nothing to be written, otherwise the notifier fires on
+  every pass of the main event loop.  The socket notifier is enabled
+  when it is created.
 
   Also observe that if you do not read all the available data when the
-  read notifier fires, it will fire again and again.
+  read notifier fires, it fires again and again.
 
-  If you disable read or exception notifiers, your program may deadlock.
-  Avoid it if you do not know what you are doing.
+  If you disable the read notifier, your program may deadlock.  Avoid
+  it if you do not know what you are doing.  (The same applies to
+  exception notifiers if you have to use that, for instance if you \e
+  have to use TCP urgent data.)
 
   If you need a time-out for your sockets, you can use either
   \link QObject::startTimer() timer events\endlink or the QTimer class.
@@ -88,6 +93,11 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
     \c QSocketNotifier::Exception.
 
   The \e parent and \e name arguments are sent to the QObject constructor.
+
+  The socket is initially enabled.  It is generally advisable to
+  explicitly enable or disable it, especially for write notifiers.
+
+  \sa setEnabled() enabled()
  ----------------------------------------------------------------------------*/
 
 QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
@@ -116,7 +126,8 @@ QSocketNotifier::~QSocketNotifier()
 
 /*----------------------------------------------------------------------------
   \fn void QSocketNotifier::activated( int socket )
-  The type specifies when the activated() signal is to be emitted:
+
+  This signal is emitted at different times, depending on the value of type():
   <ol>
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
@@ -125,6 +136,8 @@ QSocketNotifier::~QSocketNotifier()
   </ol>
 
   The \e socket argument is the socket number.
+
+  \sa type()
  ----------------------------------------------------------------------------*/
 
 
@@ -161,7 +174,7 @@ QSocketNotifier::~QSocketNotifier()
   the socket notifier).
 
   Disable the socket notifier for writes if there is nothing to be
-  written, otherwise your program will comsume lots of CPU.
+  written, otherwise your program hogs the CPU.
 
   \sa enabled(), activated()
  ----------------------------------------------------------------------------*/
