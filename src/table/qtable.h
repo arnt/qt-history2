@@ -180,6 +180,7 @@ private:
     QStringList entries;
     int current;
     bool edit;
+    static QComboBox *fakeCombo;
 
 };
 

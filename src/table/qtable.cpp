@@ -53,6 +53,7 @@
 #include "qcheckbox.h"
 #include "qdragobject.h"
 #include "qevent.h"
+#include "qlistbox.h"
 
 #include <stdlib.h>
 
@@ -927,6 +928,8 @@ bool QTableItem::isEnabled() const
   (see rtti()).
 */
 
+QComboBox *QComboTableItem::fakeCombo = 0;
+
 /*! Creates a combo table item for the table \a table. The combobox's
     list of items is passed in the \a list argument. If \a editable is
     TRUE the user may type in new list items; if \a editable is FALSE
@@ -942,6 +945,10 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
     : QTableItem( table, WhenCurrent, "" ), entries( list ), current( 0 ), edit( editable )
 {
     setReplaceable( FALSE );
+    if ( !fakeCombo ) {
+	fakeCombo = new QComboBox( FALSE, 0 );
+	fakeCombo->hide();
+    }
 }
 
 /*! Sets the list items of this QComboTableItem to the strings
@@ -986,18 +993,21 @@ void QComboTableItem::setContentFromEditor( QWidget *w )
 void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 			   const QRect &cr, bool selected )
 {
-    int w = cr.width();
-    int h = cr.height();
+    fakeCombo->resize( cr.width(), cr.height() );
 
-    // table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE, selected ? &cg.brush( QColorGroup::Highlight ) : 0  );
-    QRect tmpR(0, 0, w, h); // = table()->style().comboButtonRect( 0, 0, w, h );
-    QRect textR( tmpR.x() + 1, tmpR.y() + 1, tmpR.width() - 2, tmpR.height() - 2 );
+    QColorGroup c( cg );
+    if ( selected ) {
+	c.setBrush( QColorGroup::Base, cg.brush( QColorGroup::Highlight ) );
+	c.setColor( QColorGroup::Text, cg.highlightedText() );
+    }
 
-    if ( selected )
-	p->setPen( cg.highlightedText() );
-    else
-	p->setPen( cg.text() );
+    table()->style().drawComplexControl( QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), c );
+
+    p->save();
+    QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
+							 QStyle::SC_ComboBoxEditField);
     p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
+    p->restore();
 }
 
 /*!
