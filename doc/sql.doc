@@ -130,6 +130,9 @@ used to provide default and calculated values for fields (such as
 auto-numbered primary index fields), and to display calculated data,
 e.g. showing names rather than ids of foreign keys. 
 
+All the examples in this document use the tables defined in the
+\link #Example_Tables Example Tables\endlink section.
+
 \target Architecture
 \section1 SQL Module Architecture
 
@@ -306,6 +309,10 @@ used to iterate through the query results. The value() function
 returns the contents of fields as QVariants. The insertions are
 achieved by creating and executing queries against the default
 database using the \c target QSqlQuery.
+
+Note that this example and all the other examples in this document use
+the tables defined in the \link #Example_Tables Example Tables\endlink
+section.
 
 \quotefile sql/overview/basicbrowsing2/main.cpp
 \skipto count
