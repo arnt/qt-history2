@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.9 1995/12/17 13:15:08 agulbra Exp $
+** $Id: qlist.doc,v 1.10 1995/12/17 13:58:11 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -242,7 +242,7 @@
   Removes the item at position \e index in the list.
 
   Returns TRUE if successful, or FALSE if \e index is out of range.
-  The valid range is <code>0 .. (count() - 1)<code> inclusive.
+  The valid range is <code>0 .. (count() - 1)</code> inclusive.
 
   The removed item is deleted if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
@@ -900,7 +900,7 @@
   case-sensitive string comparision.
   The inSort() function will insert strings in a sorted order.
 
-  The QStrListIt class is an iterator for QStrList.
+  The QStrListIterator class is an iterator for QStrList.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -934,7 +934,7 @@ case-insensitive compare.
   case-insensitive string comparision.
   The inSort() function will insert strings in a sorted order.
 
-  The QStrListIt class is an iterator for QStrList.
+  The QStrListIterator class is an iterator for QStrList.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -951,12 +951,12 @@ case-insensitive compare.
 
 
 /*****************************************************************************
-  QStrListIt documentation
+  QStrListIterator documentation
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  \class QStrListIt qstrlist.h
-  \brief The QStrListIt class is an iterator for the QStrList and QStrIList classes.
+  \class QStrListIterator qstrlist.h
+  \brief The QStrListIterator class is an iterator for the QStrList and QStrIList classes.
 
   \ingroup predefiterators
 
