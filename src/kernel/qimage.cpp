@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#96 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#96 $");
 
 
 /*!
@@ -2919,7 +2919,7 @@ static void write_xpm_image( QImageIO * iio )
     else
 	image = iio->image();
 
-    QIntDict<int> colorMap( 301 );
+    QIntDict<int> colorMap( 569 );
 
     int w = image.width(), h = image.height(), colours=0;
     int x, y;
