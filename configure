@@ -992,7 +992,7 @@ echo
 if [ '!' -f "$QTDIR/bin/qmake" ]
 then
     echo Creating qmake...
-    (cd qmake; $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
