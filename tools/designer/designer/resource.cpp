@@ -1846,6 +1846,8 @@ void Resource::loadTabOrder( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "tabstop" ) {
 	    QString name = n.firstChild().toText().data();
+	    if ( name.isEmpty() )
+		continue;
 	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
 	    if ( l ) {
 		if ( l->first() ) {

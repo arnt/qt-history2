@@ -487,6 +487,15 @@ bool SetPropertyCommand::checkProperty()
 	    setProperty( oldValue, oldCurrentItemText, FALSE );
 	    return FALSE;
 	}
+	if ( s.isEmpty() ) {
+	    QMessageBox::information( formWindow()->mainWindow(),
+				      FormWindow::tr( "Set 'name' property" ),
+				      FormWindow::tr( "The name of a widget must not be null!\n"
+						      "The name has been changed back to '%1'." ).
+				      arg( oldValue.toString() ));
+	    setProperty( oldValue, oldCurrentItemText, FALSE );
+	    return FALSE;
+	}
     }
     return TRUE;
 }
