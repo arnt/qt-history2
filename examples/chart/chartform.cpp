@@ -192,8 +192,8 @@ ChartForm::ChartForm( const QString& filename )
     settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
     int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 460 );
     int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 530 );
-    int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
-    int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
+    int windowX = settings.readNumEntry( APP_KEY + "WindowX", -1 );
+    int windowY = settings.readNumEntry( APP_KEY + "WindowY", -1 );
     setChartType( ChartType(
 	    settings.readNumEntry( APP_KEY + "ChartType", int(PIE) ) ) );
     m_addValues = AddValuesType(
@@ -218,7 +218,8 @@ ChartForm::ChartForm( const QString& filename )
 	     this, SLOT( updateChartType(QAction*) ) );
 
     resize( windowWidth, windowHeight );
-    move( windowX, windowY );
+    if ( windowX != -1 || windowY != -1 )
+	move( windowX, windowY );
 
     m_canvas = new QCanvas( this );
     m_canvas->resize( width(), height() );
