@@ -54,6 +54,26 @@ static int painter_fillrect()
     return i;
 }
 
+static int painter_drawpoly()
+{
+    int i;
+    QPainter *p = qperf_painter();
+    int n = qperf_maxColors();
+    QColor *c = qperf_colors();
+    p->setPen(Qt::NoPen);
+    p->setBrush(c[0]);
+    for ( i=0; i<10000; i++ ) {
+	if ( n > 1 )
+	    p->setBrush( c[qrnd(n)] );
+	QPointArray a(3);
+	a[0] = QPoint(qrnd(640),qrnd(480));
+	a[1] = QPoint(qrnd(640),qrnd(480));
+	a[2] = QPoint(qrnd(640),qrnd(480));
+	p->drawPolygon( a );
+    }
+    return i;
+}
+
 static int painter_drawtext()
 {
     int i;
@@ -139,6 +159,7 @@ QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawline,"Draw line")
     QPERF(painter_drawrect,"Draw rectangle outline")
     QPERF(painter_fillrect,"Draw filled rectangle")
+    QPERF(painter_drawpoly,"Draw polygon")
     QPERF(painter_drawtext,"Draw text without formatting")
     QPERF(painter_drawtext_left,"Draw text, left aligned")
     QPERF(painter_drawtext_right,"Draw text, right aligned")
