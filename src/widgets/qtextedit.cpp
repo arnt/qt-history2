@@ -1161,9 +1161,6 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
 
     repaintChanged();
 
-    setModified();
-    emit textChanged();
-
     e->accept();
 }
 
@@ -1177,9 +1174,6 @@ void QTextEdit::imEndEvent( QIMEvent *e )
     d->preeditStart = d->preeditLength = -1;
 
     repaintChanged();
-
-    setModified();
-    emit textChanged();
 
     e->accept();
 }
