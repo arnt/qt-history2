@@ -7,9 +7,33 @@
 #include <qdatetime.h>
 #include <qfont.h>
 #include <qpixmap.h>
+#include <qimage.h>
 
 #define PROP(prop) return m_##prop;
 #define SET_PROP(prop) m_##prop = prop;
+
+#define VERIFY_EQUAL( value, expected ) { \
+    QVariant valvar = value; \
+    QVariant expvar = expected; \
+    if ( valvar != expvar ) { \
+	if ( valvar.type() != expvar.type() ) \
+	    qDebug( "Error in type conversion!" ); \
+	bool reallyWrong = TRUE; \
+	if ( valvar.type() == QVariant::Pixmap ) { \
+	    QImage img1 = valvar.toPixmap().convertToImage(); \
+	    QImage img2 = expvar.toPixmap().convertToImage(); \
+	    reallyWrong = img1 != img2; \
+	} \
+	if ( reallyWrong ) { \
+	    qDebug( "\t\tfailed in line %d!", __LINE__ ); \
+	    if ( valvar.canCast( QVariant::String ) ) { \
+		qDebug( "\t\t\tobject value: %s\n\t\t\texpvar: %s", \
+		    valvar.toString().latin1(), expvar.toString().latin1() ); \
+	    } \
+	} \
+    } \
+} \
+
 
 static inline QString constRefify( const QString& type )
 {
@@ -66,11 +90,11 @@ public:
 	m_real = 3.1415927;
 	m_color = red;
 	m_date = QDate( 2002, 8, 7 );
-	m_time = QDateTime( QDate(), QTime( 10, 30, 45 ) );
+	m_time = QDateTime( QDate( 1,1,1 ), QTime( 10, 30, 45 ) );
 	m_datetime = QDateTime( QDate( 2001, 12, 31 ), QTime( 23, 59, 59 ) );
-	m_font = QFont( "Times New Roman", 12 );
+	m_font = QFont( "Times New Roman", 12, 75, TRUE );
 	m_pixmap = QPixmap( 100, 100 );
-	m_pixmap.fill( green );
+	m_pixmap.fill( red );
 	m_list << QString("Foo") << 13 << 2.5;
 
 /*
@@ -122,9 +146,24 @@ public:
 	    QVariant defvalue;
 	    QVariant::Type proptype = QVariant::nameToType( prop->type() );
 	    defvalue.cast( proptype );
-	    Q_ASSERT( defvalue.type() == proptype );
-	    if ( defvalue.type() == QVariant::Color )
+	    switch( defvalue.type() ) {
+	    case QVariant::Color:
 		defvalue = green;
+		break;
+	    case QVariant::Font:
+		defvalue = QFont( "Arial", 10 );
+		break;
+	    case QVariant::Pixmap:
+		{
+		    QPixmap pm( 5, 5 );
+		    pm.fill( green );
+		    defvalue = pm;
+		}
+		break;
+	    default:
+		break;
+	    }
+	    Q_ASSERT( defvalue.type() == proptype );
 
 	    // Get container's value
 	    containerValue = property( prop->name() );
@@ -132,20 +171,21 @@ public:
 	    Q_ASSERT( defvalue != containerValue );
 
 	    // Initialize property with default value, and verify initialization
+	    qDebug( "\tInitializing object with default values..." );
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
-	    Q_ASSERT( object->property( prop->name() ) == defvalue );
+	    VERIFY_EQUAL( object->property( prop->name() ), defvalue );
 
 	    qDebug( "\tsetProperty and property..." );
 	    // Verify setProperty and property
 	    Q_ASSERT( object->setProperty( prop->name(), containerValue ) );
-	    Q_ASSERT( object->property( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( object->property( prop->name() ), containerValue );
 	    // Reset property
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
 
 	    qDebug( "\tProperty handling via dynamicCall..." );
 	    // Verify property setting and getting with dynamicCall
 	    object->dynamicCall( prop->name(), containerValue );
-	    Q_ASSERT( object->dynamicCall( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( object->dynamicCall( prop->name() ), containerValue );
 	    // Reset property
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
 
@@ -161,7 +201,7 @@ public:
 	    slotname += constRefify( prop->type() );
 	    slotname += ")";
 	    object->dynamicCall( slotname, containerValue );
-	    Q_ASSERT( object->property( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( object->property( prop->name() ), containerValue );
 	    // Reset property
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
 
@@ -172,7 +212,7 @@ public:
 	    qDebug( "\tget%sSlot...", (const char*)ftemplate );
 	    // Call and verify get<Prop>Slot
 	    QCString getPropSlot = "get" + ftemplate + "Slot()";
-	    Q_ASSERT( object->dynamicCall( getPropSlot ) == defvalue );
+	    VERIFY_EQUAL( object->dynamicCall( getPropSlot ), defvalue );
 
 	    qDebug( "\tset%sSlot...", (const char*)ftemplate );
 	    // Call and verify set<Prop>Slot
@@ -180,7 +220,7 @@ public:
 	    setPropSlot += constRefify( prop->type() ) + ")";
 	    //** if this crashes, see QStringToQUType and VARIANTToQUObject
 	    object->dynamicCall( setPropSlot, containerValue );
-	    Q_ASSERT( object->property( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( object->property( prop->name() ), containerValue );
 
 	    qDebug( "\tgetAndSet%sSlot...", (const char*)ftemplate );
 	    // Call and verify getAndSet<Prop>Slot checking out-parameter
@@ -191,14 +231,14 @@ public:
 	    QValueList<QVariant> varlist;
 	    varlist << defvalue;
 	    //** if this crashes, see QUObjectToVARIANT for QVariant
-	    Q_ASSERT( object->dynamicCall( getAndSetPropSlot, varlist ) == defvalue );
+	    VERIFY_EQUAL( object->dynamicCall( getAndSetPropSlot, varlist ), defvalue );
 	    //** if this fails, see VARIANTToQVariant
-	    Q_ASSERT( varlist[0] == containerValue );
+	    VERIFY_EQUAL( varlist[0], containerValue );
 
 	    // Verify states
 	    Q_ASSERT( defvalue != containerValue );
-	    Q_ASSERT( object->property( prop->name() ) == defvalue );
-	    Q_ASSERT( property( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( object->property( prop->name() ), defvalue );
+	    VERIFY_EQUAL( property( prop->name() ), containerValue );
 
 	    // Turn on signals from object
 	    object->blockSignals( FALSE );
@@ -208,21 +248,21 @@ public:
 	    // (the signal calls the <prop>RefSignal slot of "this" and updates the value, and returns the old value)
 	    QCString emitPropRefSignal = "emit" + ftemplate + "RefSignal()";
 	    //** if this crashes, see... QUObjectToVARIANT and makeReference
-	    Q_ASSERT( object->dynamicCall( emitPropRefSignal ) == defvalue );
+	    VERIFY_EQUAL( object->dynamicCall( emitPropRefSignal ), defvalue );
 
 	    qDebug( "\tSynchronizing values..." );
 	    // Synchronize values in container - both are "containerValue"
 	    QVariant objvalue = object->property( prop->name() );
-	    Q_ASSERT( objvalue == containerValue );
+	    VERIFY_EQUAL( objvalue, containerValue );
 	    setProperty( prop->name(), objvalue );
-	    Q_ASSERT( property( prop->name() ) == containerValue );
+	    VERIFY_EQUAL( property( prop->name() ), containerValue );
 
 	    qDebug( "\tSynchronizing values via %sChanged...", prop->name() );
 	    // Synchronize values in container - both are "containerValue"
 	    // If this crashes, see QVariantToQUObject
 	    Q_ASSERT( object->setProperty( prop->name(), defvalue ) );
-	    Q_ASSERT( property( prop->name() ) == defvalue );
-	    Q_ASSERT( object->property( prop->name() ) == defvalue );
+	    VERIFY_EQUAL( property( prop->name() ), defvalue );
+	    VERIFY_EQUAL( object->property( prop->name() ), defvalue );
 
 	    // Set the container back to containerValue
 	    setProperty( prop->name(), containerValue );
