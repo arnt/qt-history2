@@ -127,7 +127,7 @@ class QObjectPrivate
   Last but not least, QObject provides the basic timer support in Qt;
   see QTimer for high-level support for timers.
 
-  Notice that the \c Q_OBJECT macro is mandatory for any object that
+  Notice that the Q_OBJECT macro is mandatory for any object that
   implements signals, slots or properties.  You also need to run the \link
   moc.html moc program (Meta Object Compiler) \endlink on the source file.
   We strongly recommend the use of this macro in \e all subclasses of QObject
@@ -445,7 +445,7 @@ QObject::~QObject()
 
   A meta object contains information about a class that inherits
   QObject, e.g. class name, superclass name, properties, signals and
-  slots. Every class that contains the \c Q_OBJECT macro will also
+  slots. Every class that contains the Q_OBJECT macro will also
   have a meta object.
 
   The meta object information is required by the signal/slot
@@ -461,7 +461,7 @@ QObject::~QObject()
   Compiler. \endlink
 
   \warning This function will return a wrong name if the class
-  definition lacks the \c Q_OBJECT macro.
+  definition lacks the Q_OBJECT macro.
 
   \sa name(), inherits(), isA(), isWidgetType()
 */
@@ -532,8 +532,8 @@ bool QObject::inherits( const char *clname ) const
   can call name( 0 ).
 
 \code
-qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
-	name(), newPrecision );
+    qDebug( "MyClass::setPrecision(): (%s) invalid precision %f",
+	    name(), newPrecision );
 \endcode
 
   \sa className(), child(), queryList()
@@ -686,7 +686,7 @@ void QObject::timerEvent( QTimerEvent * )
   If you change state based on \c ChildInserted events, call
   QWidget::constPolish(), or do
 \code
-QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 \endcode
   in functions that depend on the state. One notable example is
   QWidget::sizeHint().
@@ -801,33 +801,35 @@ void QObject::blockSignals( bool block )
 
   Example:
 \code
-class MyObject : public QObject
-{
-public:
-    MyObject( QObject *parent=0, const char *name=0 );
-protected:
-    void timerEvent( QTimerEvent * );
-};
+    class MyObject : public QObject
+    {
+	Q_OBJECT
+    public:
+	MyObject( QObject *parent = 0, const char *name = 0 );
 
-MyObject::MyObject( QObject *parent, const char *name )
-    : QObject( parent, name )
-{
-    startTimer( 50 );    // 50-millisecond timer
-    startTimer( 1000 );  // 1-second timer
-    startTimer( 60000 ); // 1-minute timer
-}
+    protected:
+	void timerEvent( QTimerEvent * );
+    };
 
-void MyObject::timerEvent( QTimerEvent *e )
-{
-    qDebug( "timer event, id=%d", e->timerId() );
-}
+    MyObject::MyObject( QObject *parent, const char *name )
+	: QObject( parent, name )
+    {
+	startTimer( 50 );    // 50-millisecond timer
+	startTimer( 1000 );  // 1-second timer
+	startTimer( 60000 ); // 1-minute timer
+    }
+
+    void MyObject::timerEvent( QTimerEvent *e )
+    {
+	qDebug( "timer event, id %d", e->timerId() );
+    }
 \endcode
 
-  There is practically no upper limit for the interval value (more than
-  one year is possible).  The accuracy depends on the underlying
+  There is practically no upper limit for the interval value (more
+  than one year is possible).  The accuracy depends on the underlying
   operating system. Windows 95 has 55-millisecond (18.2 times per
-  second) accuracy; other systems that we have tested (UNIX X11,
-  Windows NT, and OS/2) can handle 1-millisecond intervals.
+  second) accuracy; other systems that we have tested (Unix, Windows
+  NT) can handle 1-millisecond intervals.
 
   The QTimer class provides a high-level programming interface with
   one-shot timers and timer signals instead of events.
@@ -955,9 +957,10 @@ const QObjectList *QObject::objectTrees()
   default), all classes match.  If \a objName is 0 (the default), all
   object names match.
 
-  If \a regexpMatch is TRUE (the default), \a objName is a regexp that
-  the objects's names must match.  If \a regexpMatch is FALSE, \a
-  objName is a string and object names must match it exactly.
+  If \a regexpMatch is TRUE (the default), \a objName is a regular
+  expression that the objects's names must match. The syntax is that
+  of a QRegExp. If \a regexpMatch is FALSE, \a objName is a string
+  and object names must match it exactly.
 
   Note that \a inheritsClass uses single inheritance from QObject, the
   way inherits() does.  According to inherits(), QMenuBar inherits
@@ -974,20 +977,22 @@ const QObjectList *QObject::objectTrees()
   This somewhat contrived example disables all the buttons in this
   window:
 \code
-QObjectList * l = topLevelWidget()->queryList( "QButton" );
-QObjectListIt it( *l ); // iterate over the buttons
-QObject * obj;
-while ( (obj=it.current()) != 0 ) { // for each found object...
-    ++it;
-    ((QButton*)obj)->setEnabled( FALSE );
-}
-delete l; // delete the list, not the objects
+    QObjectList *l = topLevelWidget()->queryList( "QButton" );
+    QObjectListIt it( *l ); // iterate over the buttons
+    QObject *obj;
+
+    while ( (obj = it.current()) != 0 ) {
+	// for each found object...
+	++it;
+	((QButton*)obj)->setEnabled( FALSE );
+    }
+    delete l; // delete the list, not the objects
 \endcode
 
   \warning Delete the list as soon you have finished using it.
   The list contains pointers that may become invalid at almost any
-  time without notice - as soon as the user closes a window you may
-  have dangling pointers, for example.
+  time without notice (as soon as the user closes a window you may
+  have dangling pointers, for example).
 
   \sa child() children(), parent(), inherits(), name(), QRegExp
 */
@@ -1122,7 +1127,7 @@ void QObject::removeChild( QObject *obj )
 
 
 /*!
-  Installs an event filter \a obj for this object.
+  Installs an event filter \a obj on this object.
 
   An event filter is an object that receives all events that are sent to
   this object.	The filter can either stop the event or forward it to this
@@ -1130,40 +1135,47 @@ void QObject::removeChild( QObject *obj )
   function.  The eventFilter() function must return TRUE if the event
   should be stopped, or FALSE if the event should be dispatched normally.
 
-  If multiple event filters are installed for a single object, the
+  If multiple event filters are installed on a single object, the
   filter that was installed last is activated first.
 
   Example:
 \code
-#include <qwidget.h>
+    #include <qwidget.h>
 
-class MyWidget : public QWidget
-{
-public:
-    MyWidget::MyWidget( QWidget *parent=0, const char *name=0 );
-protected:
-    bool eventFilter( QObject *, QEvent * );
-};
+    class MyWidget : public QWidget
+    {
+	Q_OBJECT
+    public:
+	MyWidget( QWidget *parent = 0, const char *name = 0 );
 
-MyWidget::MyWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
-{
-    if ( parent )                           // has a parent widget
-	parent->installEventFilter( this ); // then install filter
-}
+    protected:
+	bool eventFilter( QObject *, QEvent * );
+    };
 
-bool MyWidget::eventFilter( QObject *o, QEvent *e )
-{
-    if ( e->type() == QEvent::KeyPress ) { // key press
-	QKeyEvent *k = (QKeyEvent*)e;
-	qDebug( "Ate key press %d", k->key() );
-	return TRUE; // eat event
+    MyWidget::MyWidget( QWidget *parent, const char *name )
+	: QWidget( parent, name )
+    {
+	// install a filter on the parent (if any)
+	if ( parent )
+	    parent->installEventFilter( this );
     }
-    return QWidget::eventFilter( o, e ); // standard event processing
-}
+
+    bool MyWidget::eventFilter( QObject *o, QEvent *e )
+    {
+	if ( e->type() == QEvent::KeyPress ) {
+	    // special processing for key press
+	    QKeyEvent *k = (QKeyEvent *)e;
+	    qDebug( "Ate key press %d", k->key() );
+	    return TRUE; // eat event
+	} else {
+	    // standard event processing
+	    return QWidget::eventFilter( o, e );
+	}
+    }
 \endcode
 
-  The QAccel class, for example, uses this technique.
+  The QAccel class, for example, uses this technique to intercept
+  accelerator key presses.
 
   \warning
   If you delete the receiver object in your eventFilter() function, be
@@ -1435,10 +1447,10 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
   You must use the SIGNAL() and SLOT() macros when specifying the \a signal
   and the \a member, for example:
 \code
-QLabel     *label  = new QLabel;
-QScrollBar *scroll = new QScrollBar;
-QObject::connect( scroll, SIGNAL(valueChanged(int)),
-                  label,  SLOT(setNum(int)) );
+    QLabel     *label  = new QLabel;
+    QScrollBar *scroll = new QScrollBar;
+    QObject::connect( scroll, SIGNAL(valueChanged(int)),
+                      label,  SLOT(setNum(int)) );
 \endcode
 
   This example ensures that the label always displays the current scroll bar
@@ -1447,24 +1459,24 @@ QObject::connect( scroll, SIGNAL(valueChanged(int)),
   A signal can also be connected to another signal:
 
 \code
-class MyWidget : public QWidget
-{
-public:
-    MyWidget();
-...
-signals:
-    void myUsefulSignal();
-...
-private:
-...
-    QPushButton *aButton;
-};
+    class MyWidget : public QWidget
+    {
+	Q_OBJECT
+    public:
+	MyWidget();
 
-MyWidget::MyWidget()
-{
-    aButton = new QPushButton( this );
-    connect( aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()) );
-}
+    signals:
+	void myUsefulSignal();
+
+    private:
+	QPushButton *aButton;
+    };
+
+    MyWidget::MyWidget()
+    {
+	aButton = new QPushButton( this );
+	connect( aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()) );
+    }
 \endcode
 
   In this example, the MyWidget constructor relays a signal from a
