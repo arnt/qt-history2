@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = walkthrough
+TARGET = walkthrough-print
 
 # Input
 FORMS    = ../pageeditdialog.ui \
