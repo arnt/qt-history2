@@ -303,37 +303,23 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 bool
 QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 {
-    QString dirName = name;
+    QString cleanName = QDir::cleanPath(name);
     if(recurse == QDir::Recursive) {
-        dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
-        for(int oldslash = 0, slash=dirName.length(); slash > 0; oldslash = slash) {
-            QString chunk = dirName.left(slash);
-            if (chunk.length() == 2 && chunk.at(0).isLetter() && chunk.at(1) == QLatin1Char(':'))
-                break;
-            QT_STATBUF st;
-            QT_WA({
-                if(QT_TSTAT((TCHAR*)chunk.utf16(), (QT_STATBUF4TSTAT*)&st) != -1) {
-                    if((st.st_mode & S_IFMT) != S_IFDIR)
-                        return false;
-                    else if(::_wrmdir((TCHAR*)chunk.utf16()) == -1)
-                        return oldslash != 0;
-                }
-            } , {
-                if(QT_STAT(QFSFileEnginePrivate::win95Name(chunk), &st) != -1) {
-                    if((st.st_mode & S_IFMT) != S_IFDIR) {
-                        return false;
-                    } else if(_rmdir(QFSFileEnginePrivate::win95Name(chunk)) == -1)
-                        return oldslash != 0;
-                }
-            });
-            slash = dirName.lastIndexOf(QDir::separator(), oldslash-1);
+        QFSFileEngine dir(cleanName);
+        QStringList subDirectories = dir.entryList(QDir::Dirs, QStringList(QLatin1String("*")));
+
+        for (int i = 0; i < subDirectories.count(); ++i) {
+            QString entry = subDirectories.at(i);
+            if (entry == QLatin1String(".") || entry == QLatin1String(".."))
+                continue;
+            if (!rmdir(cleanName + "/" + entry, recurse))
+                return false;
         }
-        return true;
     }
     QT_WA({
-        return ::_wrmdir((TCHAR*)QDir::convertSeparators(dirName).utf16()) != -1;
+        return RemoveDirectory((TCHAR*)QDir::convertSeparators(cleanName).utf16());
     } , {
-        return _rmdir(QFSFileEnginePrivate::win95Name(dirName)) != -1;
+        return RemoveDirectoryA(QFSFileEnginePrivate::win95Name(cleanName));
     });
 }
 
