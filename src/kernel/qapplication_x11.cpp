@@ -102,6 +102,10 @@
 // ### Caution, this may not work on pre-XPG4v2 systems.
 #include <strings.h>
 
+// ### BSD based systems define BSD4_4 in sys/param.h - any BSD derived/supporting
+// system should have this header
+#include <sys/param.h>
+
 #if defined(BSD4_4)
 // BSDs use <sys/ioctl.h> and FIONREAD.
 #  include <sys/ioctl.h>
@@ -974,12 +978,12 @@ static bool qt_set_desktop_properties()
 
 	num =
 	    QApplication::settings()->readNumEntry("/qt/cursorFlashTime",
-						QApplication::cursorFlashTime());
+						   QApplication::cursorFlashTime());
 	QApplication::setCursorFlashTime(num);
 
 	num =
 	    QApplication::settings()->readNumEntry("/qt/wheelScrollLines",
-						QApplication::wheelScrollLines());
+						   QApplication::wheelScrollLines());
 	QApplication::setWheelScrollLines(num);
 
 	QString colorspec = QApplication::settings()->readEntry("/qt/colorSpec",
@@ -1100,6 +1104,28 @@ static bool qt_set_desktop_properties()
 	QPalette pal;
 	QFont font;
 	d >> pal >> font;
+
+	// check the palette to see if the disabled foreground and background color
+	// are the same, if they are, we are going to do a hack and set the disabled
+	// foreground color to something sensible - this works around a bug in KDE that
+	// sets the disabled foreground color to the active foregroundcolor
+	QColor actfg(pal.color(QPalette::Active, QColorGroup::Foreground)),
+	    disfg(pal.color(QPalette::Disabled, QColorGroup::Foreground));
+	if (actfg == disfg) {
+	    int h, s, v;
+	    disfg.hsv( &h, &s, &v );
+	    if (v > 128)
+		// dark bg, light fg - need a darker disabled fg
+		disfg = disfg.dark();
+	    else if (disfg != Qt::black)
+		// light bg, dark fg - need a lighter disabled fg - but only if !black
+		disfg = disfg.light();
+	    else
+		// black fg - use darkgrey disabled fg
+		disfg = Qt::darkGray;
+
+	    pal.setColor(QPalette::Disabled, QColorGroup::Foreground, disfg);
+	}
 
 	if (pal != *qt_std_pal && pal != QApplication::palette())
 	    QApplication::setPalette(pal, TRUE);
@@ -4614,7 +4640,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	bool was_context = FALSE;
 	if ( type == QEvent::MouseButtonPress && button == RightButton ) {
 	    QWidget *popupEvent = popup;
-	    if(popupButtonFocus) 
+	    if(popupButtonFocus)
 		popupEvent = popupButtonFocus;
 	    else if(popupChild)
 		popupEvent = popupChild;
