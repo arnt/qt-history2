@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -996,7 +996,7 @@ QDnsDomain * QDnsManager::domain( const QString & label )
 //
 // the QDnsDomain class looks after and coordinates queries for QDnsRRs for
 // each domain, and the cached QDnsRRs.  (A domain, in DNS terminology, is
-// a node in the DNS.  "no", "troll.no" and "lupinella.troll.no" are
+// a node in the DNS.  "no", "trolltech.com" and "lupinella.troll.no" are
 // all domains.)
 //
 //
@@ -1486,10 +1486,10 @@ If the canonical name isn't known, this function returns a null
 string.
 
 The canonical name of a DNS node is its full name, or the full name of
-the target of its CNAME.  For example, if l.troll.no is a CNAME to
-lupinella.troll.no, and the search path for QDns is "troll.no", then
+the target of its CNAME.  For example, if l.trolltech.com is a CNAME to
+lupinella.troll.no, and the search path for QDns is "trolltech.com", then
 the canonical name for all of "lupinella", "l", "lupinella.troll.no."
-and "l.troll.no" is "lupinella.troll.no".  */
+and "l.trolltech.com" is "lupinella.troll.no.".  */
 
 QString QDns::canonicalName() const
 {

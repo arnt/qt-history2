@@ -37,7 +37,7 @@ View::View()
 		    "To open a file from the local filesystem, enter in the "
 		    "path combobox of the file dialog a url starting with file "
 		    "(like <u>file:/usr/bin</u>), to download something from an FTP "
-		    "server, use something like <u>ftp://ftp.troll.no</u> as url, and "
+		    "server, use something like <u>ftp://ftp.trolltech.com</u> as url, and "
 		    "for downloading a news article start with an url like "
 		    "<u>nntp://news.tu-graz.ac.at</u> " ) );
     QPushButton *b = new QPushButton( tr( "Open a file..." ), this );
