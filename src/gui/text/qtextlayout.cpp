@@ -1397,7 +1397,15 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
                     color = o.format.textColor();
                     if (color.isValid())
                         p->setPen(color);
-                    p->drawTextItem(QPointF(x, itemBaseLine), gf);
+
+                    QTextItem special_gf = gf;
+                    if (o.format.fontUnderline())
+                        special_gf.flags |= QTextItem::Underline;
+                    if (o.format.fontOverline())
+                        special_gf.flags |= QTextItem::Overline;
+                    if (o.format.fontStrikeOut())
+                        special_gf.flags |= QTextItem::StrikeOut;
+                    p->drawTextItem(QPointF(x, itemBaseLine), special_gf);
                     p->restore();
                 }
             }
