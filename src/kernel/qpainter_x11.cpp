@@ -3094,5 +3094,5 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
  */
 QPoint QPainter::pos() const
 {
-    return curPt;
+    return xFormDev( curPt );
 }

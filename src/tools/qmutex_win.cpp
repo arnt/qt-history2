@@ -57,9 +57,7 @@ public:
     void unlock();
     bool locked();
     bool trylock();
-#ifdef QT_CHECK_RANGE
-    virtual int type() const { return Q_MUTEX_RECURSIVE; }
-#endif
+    int type() const { return Q_MUTEX_RECURSIVE; }
 };
 
 QRecursiveMutexPrivate::QRecursiveMutexPrivate()
@@ -163,9 +161,7 @@ public:
     void lock();
     void unlock();
     bool trylock();
-#ifdef QT_CHECK_RANGE
     int type() const { return Q_MUTEX_NORMAL; };
-#endif
 
     unsigned int threadID;
     QCriticalSection protect;

@@ -103,10 +103,14 @@ thread {
 }
 
 cups {
-	# next few lines add cups support
 	DEFINES += QT_CUPS_SUPPORT
 	LIBS += -lcups
 }
+
+nis {
+	LIBS += -lnsl
+}
+!nis:DEFINES += QT_NO_NIS
 
 #here for compatability, should go away ####
 include($$KERNEL_CPP/qt_compat.pri)

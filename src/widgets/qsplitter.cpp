@@ -93,9 +93,11 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 
 QSize QSplitterHandle::sizeHint() const
 {
-    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
-    return (style().sizeFromContents(QStyle::CT_Splitter, s, QSize(sw, sw)).
-	    expandedTo(QApplication::globalStrut()));
+    int sw = parentWidget()->style().pixelMetric( QStyle::PM_SplitterWidth,
+						  this );
+    return parentWidget()->style().sizeFromContents( QStyle::CT_Splitter, s,
+						     QSize(sw, sw) )
+				  .expandedTo( QApplication::globalStrut() );
 }
 
 void QSplitterHandle::setOrientation( Qt::Orientation o )
@@ -144,9 +146,10 @@ void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 void QSplitterHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawPrimitive(QStyle::PE_Splitter, &p, rect(), colorGroup(),
-			  (orientation() == Qt::Horizontal ?
-			   QStyle::Style_Horizontal : 0));
+    parentWidget()->style().drawPrimitive( QStyle::PE_Splitter, &p, rect(),
+					   colorGroup(),
+					   (orientation() == Qt::Horizontal ?
+					    QStyle::Style_Horizontal : 0) );
 }
 
 class QSplitterLayoutStruct
