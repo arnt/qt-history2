@@ -1099,7 +1099,8 @@ void QWidget::setCursor(const QCursor &cursor)
 	const QCursor *n = extra->curs;
 	if(QApplication::overrideCursor()) 
 	    n = QApplication::overrideCursor();
-	qt_mac_set_cursor(n, &mouse_pos);
+	if(n)
+	    qt_mac_set_cursor(n, &mouse_pos);
     }
 }
 
