@@ -44,7 +44,7 @@
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
   \module sql
-  \brief Used to map editors to the SQL fields in QSqlTables and QSqlForms
+  \brief Maps widget editors to the SQL fields in QSqlTables and QSqlForms
 
   The SQL module uses Qt <a href="properties.html">object properties</a>
   to insert and extract values from editor widgets.
@@ -54,29 +54,32 @@
   properties used to insert and extract values to/from the editor.
 
   For example, a QLineEdit can be used to edit text strings and other
-  data types in QSqlTables or QSqlForms. Several properties are defined
-  in QLineEdit, but only the \a text property is used to insert and
-  extract text from QLineEdit. Both QSqlTable and QSqlForm use the 
-  global QSqlPropertyMap for inserting and extracting values to and
-  from an editor widget.
+  data types in QSqlTables or QSqlForms. Several properties are
+  defined in QLineEdit, but only the \a text property is used to
+  insert and extract text from QLineEdit. Both QSqlTable and QSqlForm
+  use the global QSqlPropertyMap for inserting and extracting values
+  to and from an editor widget.  The global property map defines
+  several common widgets and properties that are suitable for many
+  applications.  Of course, you can add and remove widget properties
+  to suit your specific needs.
 
   If you want to use custom editors with your QSqlTable or QSqlForm,
   you have to install your own QSqlPropertyMap for that table or form.
   Example:
 
   \code
-  QSqlPropertyMap myMap = new QSqlPropertyMap;
-  QSqlForm        myForm( this );
-  MySuperEditor   myEditor( this );
+  QSqlPropertyMap* myMap = new QSqlPropertyMap();
+  QSqlForm         myForm( this );
+  MySuperEditor    myEditor( this );
 
   // Install the customized map
   myMap->insert( "MySuperEditor", "content" );
-  myForm.installPropertyMap( myMap ); // myForm now owns myMap 
+  myForm.installPropertyMap( myMap ); // myForm now owns myMap
   ...
   // Insert a field into the form that uses myEditor to edit the
-  // field 'somefield' -- myBuffer points to the cursor's edit buffer 
+  // field 'somefield' -- myBuffer points to the cursor's edit buffer
   myForm.insert( &myEditor, myBuffer->field( "somefield" ) );
-  
+
   // Update myEditor with the value from the mapped database field
   myForm.readFields();
   ...
@@ -86,15 +89,15 @@
   myForm.writeFields();
   ...
   \endcode
-  
+
   You can also replace the global QSqlPropertyMap that is used by default:
-  \code 
-  // Bear in mind that QSqlPropertyMap takes ownership of the new 
+  \code
+  // Bear in mind that QSqlPropertyMap takes ownership of the new
   // default map
-  
+
   QSqlPropertyMap * myMap = new QSqlPropertyMap;
-  
-  myMap->insert( "MySuperEditor", "content" );  
+
+  myMap->insert( "MySuperEditor", "content" );
   QSqlPropertyMap::installDefaultMap( myMap );
   ...
   \endcode
@@ -209,7 +212,7 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
 {
     if( map == 0 ) return;
-    
+
     if( defaultmap != 0 ){
 	qsql_cleanup_property_map.remove( defaultmap );
 	delete defaultmap;
