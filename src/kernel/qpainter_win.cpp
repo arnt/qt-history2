@@ -1151,6 +1151,11 @@ void QPainter::setClipping( bool enable )
 	    rgn = QWMatrix( xscale, 0, 0, yscale, xoff, yoff ) * rgn;
 	}
 #endif
+	// Setting an empty region as clip region on Win just disables clipping completely.
+	// To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
+	// clip region far out in coordinate space in this case.
+	if ( rgn.isEmpty() )
+	    rgn = QRect( -0x1000000, -0x1000000, 1, 1 );
 	SelectClipRgn( hdc, rgn.handle() );
     }
     else {
