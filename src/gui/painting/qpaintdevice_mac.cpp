@@ -19,12 +19,10 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qt_mac.h"
-#include "qpaintengine_mac.h"
 
 QPaintDevice *g_cur_paintdev = 0;
 
 QPaintDevice::QPaintDevice(uint devflags)
-    : paintEngine(0)
 {
     if(!qApp) {				// global constructor
 	qFatal("QPaintDevice: Must construct a QApplication before a "
@@ -35,11 +33,6 @@ QPaintDevice::QPaintDevice(uint devflags)
     painters = 0;
     hd = 0;
     cg_hd = 0;
-#if defined( USE_CORE_GRAPHICS )
-    paintEngine = new QCoreGraphicsPaintEngine(this);
-#else
-    paintEngine = new QQuickDrawPaintEngine(this);
-#endif
 }
 
 QPaintDevice::~QPaintDevice()

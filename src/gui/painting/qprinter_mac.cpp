@@ -69,7 +69,9 @@ QPrinterPaintEngine::end()
     return QWrapperPaintEngine::end();
 }
 
-QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
+QPrinter::QPrinter(PrinterMode m)
+    : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice),
+      paintEngine(0)
 {
     d = new QPrinterPrivate;
     if(PMCreateSession(&psession) != noErr)
@@ -130,7 +132,6 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     setOptionEnabled( PrintToFile, true );
     setOptionEnabled( PrintPageRange, true );
     setPrintRange( AllPages );
-    paintEngine = new QPrinterPaintEngine(this, paintEngine);
 }
 
 QPrinter::~QPrinter()
@@ -346,7 +347,7 @@ QPrinter::printerBegin()
 
     if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
 	return false;
-    
+
     if(fullPage()) {
 	QSize marg(margins());
 	QMacSavedPortInfo mp(this);
@@ -491,6 +492,19 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*bottom = (uint)(paperr.bottom - pager.bottom);
     if(right)
 	*right = (uint)(paperr.right - pager.right);
+}
+
+QPaintEngine *QPrinter::engine() const
+{
+    if (!paintEngine) {
+#if defined( USE_CORE_GRAPHICS )
+	QPaintEngine *wr = new QCoreGraphicsPaintEngine(this);
+#else
+	QPaintEngine *wr = new QQuickDrawPaintEngine(this);
+#endif
+	((QPrinter *) this)->paintEngine = new QPrinterPaintEngine(this, wr);
+    }
+    return 0;
 }
 
 #endif

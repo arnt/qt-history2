@@ -399,12 +399,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     d->setFont_syshelper();
     QInputContext::enable( this, im_enabled & isEnabled() );
 
-    if (destroyOldWindow && paintEngine) {
-	delete paintEngine;
-	paintEngine = 0;
+    if (destroyOldWindow && d->paintEngine) {
+	delete d->paintEngine;
+	d->paintEngine = 0;
     }
-    Q_ASSERT(!paintEngine);
-    paintEngine = new QWin32PaintEngine(this);
 }
 
 
@@ -431,8 +429,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    DestroyWindow( winId() );
 	}
 	setWinId( 0 );
-       delete paintEngine;
-       paintEngine = 0;
+       delete d->paintEngine;
+       d->paintEngine = 0;
     }
 }
 
@@ -1772,4 +1770,11 @@ void QWidget::setWindowOpacity(double level)
 double QWidget::windowOpacity() const
 {
     return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
+}
+
+QPaintEngine *QWidget::engine() const
+{
+    if (!d->paintEngine)
+	((QWidget *) this)->d->paintEngine = new QWin32PaintEngine(this);
+    return d->paintEngine;
 }

@@ -157,6 +157,8 @@ public:
     QX11Info *x11Info() const;
 #endif
 
+    QPaintEngine *engine() const;
+
     inline bool operator!() const { return isNull(); }
     inline operator QImage() const { return convertToImage(); }
 
@@ -216,6 +218,7 @@ protected:
 #if defined(Q_WS_WIN)
 	HBITMAP old_hbm;
 #endif
+	QPaintEngine *paintEngine;
     } *data;
 private:
 #ifndef QT_NO_IMAGEIO

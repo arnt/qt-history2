@@ -193,8 +193,6 @@ void qws_mapPixmaps( bool from )
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-    //####### used from convertFromImage... Q_ASSERT(!paintEngine);
-    paintEngine = new QWSPaintEngine(this);
     static int serial = 0;
     int dd = defaultDepth();
 
@@ -941,4 +939,11 @@ Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
     }
 
     dst->data->hasAlpha = src->data->hasAlpha;
+}
+
+QPaintEngine *QPixmap::engine() const
+{
+    if (!data->paintEngine)
+	data->paintEngine = new QWSPaintEngine(this);
+    return data->paintEngine;
 }

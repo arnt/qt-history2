@@ -439,7 +439,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
-	paintEngine = pixmap.paintEngine;
+	data->paintEngine = pixmap.data->paintEngine;
     }
     return *this;
 }

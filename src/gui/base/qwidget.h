@@ -464,6 +464,8 @@ public:
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
 
+    QPaintEngine *engine() const;
+
 protected:
     // Event handlers
     bool	 event( QEvent * );

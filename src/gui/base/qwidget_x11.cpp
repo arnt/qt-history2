@@ -318,11 +318,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	initializeWindow = TRUE;
 
     if (destroyOldWindow) {
-	delete paintEngine;
-	paintEngine = 0;
+	delete d->paintEngine;
+	d->paintEngine = 0;
     }
-    if (!paintEngine)
-	paintEngine = new QX11PaintEngine(this);
 
     if (!d->xinfo)
 	d->xinfo = new QX11Info;
@@ -759,8 +757,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	extern void qPRCleanup( QWidget *widget ); // from qapplication_x11.cpp
 	if ( testWState(WState_Reparented) )
 	    qPRCleanup(this);
-	delete paintEngine;
-	paintEngine = 0;
+	delete d->paintEngine;
+	d->paintEngine = 0;
 	delete d->xinfo;
 	d->xinfo = 0;
     }
@@ -2562,3 +2560,9 @@ void QWidgetPrivate::setWindowRole(const char *role)
 		    (unsigned char *)role, qstrlen(role));
 }
 
+QPaintEngine *QWidget::engine() const
+{
+    if (!d->paintEngine)
+	((QWidget*) this)->d->paintEngine = new QX11PaintEngine(this);
+    return d->paintEngine;
+}

@@ -83,7 +83,7 @@ QPoint posInWindow(QWidget *w)
     QPoint ret(0, 0);
     if(w->isTopLevel())
 	return ret;
-    if(QWidget *par = w->parentWidget()) 
+    if(QWidget *par = w->parentWidget())
 	ret = posInWindow(par) + w->pos();
     return ret;
 }
@@ -450,7 +450,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 		    QRegion rpm = extra->mask;
 		    /* This is a gross hack, something is weird with how the Mac is handling this region.
 		       clearly the first paintable pixel is becoming 0,0 of this region, so to compensate
-		       I just force 0,0 to be on - that way I know the region is offset like I want. Of 
+		       I just force 0,0 to be on - that way I know the region is offset like I want. Of
 		       course it also means another pixel is showing that the user didn't mean to :( FIXME */
 		    if(!rpm.contains(QPoint(0, 0)) && rpm.boundingRect().topLeft() != QPoint(0, 0))
 			rpm |= QRegion(0, 0, 1, 1);
@@ -695,7 +695,7 @@ bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        (ignore_exclusion || !w->testWFlags(Qt::WMacNoSheet)) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible() 
+       w->parentWidget()->topLevelWidget()->isVisible()
        && ::qt_cast<QMacStyle *>(&w->style()))
 	return true;
 #else
@@ -968,7 +968,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		from = "Created";
 	    else if(grpf == grp)
 		from = "Copied";
-	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s", 
+	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s",
 		   cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
 	} else {
 	    qDebug("Qt: internal: No window group!!!");
@@ -2113,7 +2113,7 @@ void QWidgetPrivate::createTLSysExtra()
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    if(extra->topextra->group) 
+    if(extra->topextra->group)
 	qt_mac_release_window_group(extra->topextra->group);
 }
 
@@ -2569,4 +2569,16 @@ void QWidget::setWindowOpacity(double level)
 double QWidget::windowOpacity() const
 {
     return isTopLevel() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
+}
+
+QPaintEngine *QWidget::engine() const
+{
+    if (!d->paintEngine) {
+#if defined( USE_CORE_GRAPHICS )
+	((QWidget *) this)->d->paintEngine = new QCoreGraphicsPaintEngine(this);
+#else
+	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(this);
+#endif
+    }
+    return d->paintEngine;
 }

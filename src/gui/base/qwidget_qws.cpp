@@ -142,9 +142,6 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if (!paintEngine)
-	paintEngine = new QWSPaintEngine(this);
-
     if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
@@ -449,13 +446,13 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
 
 	QRect r = QRect( mapToGlobal( QPoint(0,0) ),
 			 size() );
-			 
+
 	r.setBottom( tlw->geometry().bottom() );
 
 	//qDebug( "QWidget::setMicroFocusHint %d %d %d %d", r.x(),
 	//	r.y(),  r.width(), r.height() );
 	QInputContext::setMicroFocusWidget( this );
-	
+
 	qwsDisplay()->setIMInfo( winid, gp.x(), gp.y(), r);
 
 	//send font info,  ###if necessary
@@ -1750,4 +1747,11 @@ void QWidget::setWindowOpacity(double)
 double QWidget::windowOpacity() const
 {
     return 1.0;
+}
+
+QPaintEngine *QWidget::engine() const
+{
+    if (!d->paintEngine)
+	((QWidget*) this)->d->paintEngine = new QWSPaintEngine(this);
+    return d->paintEngine;
 }

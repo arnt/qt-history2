@@ -257,9 +257,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-    Q_ASSERT(!paintEngine);
-    paintEngine = new QX11PaintEngine(this);
-
     static int serial = 0;
 
     data = new QPixmapData;
@@ -343,9 +340,8 @@ void QPixmap::deref()
 	    hd = 0;
 	}
 	delete data->xinfo;
+	delete data->paintEngine;
 	delete data;
-	delete paintEngine;
-	paintEngine = 0;
     }
 }
 
@@ -2057,4 +2053,11 @@ Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	      sx, sy, sw, sh, dx, dy);
     XFreeGC(dst->data->xinfo->display(), gc);
 #endif // QT_NO_XFTFREETYPE
+}
+
+QPaintEngine *QPixmap::engine() const
+{
+    if (!data->paintEngine)
+	data->paintEngine = new QX11PaintEngine(this);
+    return data->paintEngine;
 }

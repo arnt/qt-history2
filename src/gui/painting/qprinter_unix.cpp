@@ -84,7 +84,7 @@ static PrinterDefaults * globalPrinterDefaults = 0;
 QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
-    pdrv = 0;
+    paintEngine = 0;
     pid = 0;
     orient = Portrait;
     page_size = A4;
@@ -130,7 +130,7 @@ QPrinter::QPrinter( PrinterMode m )
 
 QPrinter::~QPrinter()
 {
-    delete pdrv;
+    delete paintEngine;
     if ( pid ) {
 	(void)::kill( pid, 6 );
 	(void)::wait( 0 );
@@ -147,8 +147,8 @@ QPrinter::~QPrinter()
 
 bool QPrinter::newPage()
 {
-    if ( state == PST_ACTIVE && pdrv )
-	((QPSPrinter*)pdrv)->newPage();
+    if ( state == PST_ACTIVE && paintEngine )
+	((QPSPrinter*)paintEngine)->newPage();
     return TRUE;
 }
 
@@ -162,8 +162,8 @@ bool QPrinter::newPage()
 
 bool QPrinter::abort()
 {
-    if ( state == PST_ACTIVE && pdrv ) {
-	((QPSPrinter*)pdrv)->abort();
+    if ( state == PST_ACTIVE && paintEngine ) {
+	((QPSPrinter*)paintEngine)->abort();
 	state = PST_ABORTED;
 	if ( pid ) {
 	    (void)::kill( pid, 6 );
@@ -298,7 +298,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		             O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 		             0666 );
 		if ( fd >= 0 ) {
-		    pdrv = new QPSPrinter( this, fd );
+		    paintEngine = new QPSPrinter( this, fd );
 		    state = PST_ACTIVE;
 		}
 	    } else {
@@ -341,7 +341,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 		dup2( tmp, 0 );
 		::close( tmp );
-		pdrv = new QPSPrinter( this, fds[1] );
+		paintEngine = new QPSPrinter( this, fds[1] );
 		state = PST_ACTIVE;
 #else
 		pid = fork();
@@ -408,26 +408,26 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    ::exit( 0 );
 		} else {                // parent process
 		    ::close( fds[0] );
-		    pdrv = new QPSPrinter( this, fds[1] );
+		    paintEngine = new QPSPrinter( this, fds[1] );
 		    state = PST_ACTIVE;
 		}
 #endif // else part of Q_OS_OS2EMX
 	    }
 	    // ##############################
-// 	    if ( state == PST_ACTIVE && pdrv )
-// 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+// 	    if ( state == PST_ACTIVE && paintEngine )
+// 		return ((QPSPrinter*)paintEngine)->cmd( c, paint, p );
 	} else {
 	    // ignore it?  I don't know
 	}
     } else {
 	bool r = FALSE;
-	if ( state == PST_ACTIVE && pdrv ) {
+	if ( state == PST_ACTIVE && paintEngine ) {
 	    // ##############################
-// 	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+// 	    r = ((QPSPrinter*)paintEngine)->cmd( c, paint, p );
 	    if ( c == PdcEnd ) {
 		state = PST_IDLE;
-		delete pdrv;
-		pdrv = 0;
+		delete paintEngine;
+		paintEngine = 0;
 		if ( pid ) {
 		    (void)::waitpid( pid, 0, 0 );
 		    pid = 0;
@@ -624,6 +624,15 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
     D->leftMargin = left;
     D->bottomMargin = bottom;
     D->rightMargin = right;
+}
+
+QPaintEngine *QPrinter::engine() const
+{
+//     if (!paintEngine)
+// 	((QPrinter *) this)->paintEngine = new QPSPrinter(this);
+//     return 0;
+    Q_ASSERT(!"QPrinter::engine() not implemented!");
+    return 0;
 }
 
 #endif

@@ -61,6 +61,8 @@ public:
 #endif
 #endif
 
+    QPaintEngine *engine() const { Q_ASSERT(!"QPicture::engine() is not implemented!"); return 0; }
+
 protected:
     int		metric( int ) const;
     void	detach();

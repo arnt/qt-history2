@@ -46,6 +46,7 @@ class QMacCGExtra;
 #if defined(Q_WS_X11)
 class QX11Info;
 #endif
+class QPaintEngine;
 
 struct QTLWExtra {
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -141,6 +142,7 @@ public:
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
+	,paintEngine(0)
 	,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
 #ifndef QT_NO_PALETTE
         ,fg_role(QPalette::Foreground)
@@ -211,6 +213,7 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
+    QPaintEngine *paintEngine;
 
     int leftmargin, topmargin, rightmargin, bottommargin;
     // ### TODO: reorganize private/extra/topextra to save memory

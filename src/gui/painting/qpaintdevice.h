@@ -57,7 +57,7 @@ public:
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE handle() const;
 #endif
-    virtual QPaintEngine *engine() const { return paintEngine; }
+    virtual QPaintEngine *engine() const = 0;
 
 #if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();
@@ -108,9 +108,6 @@ protected:
     friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
     friend void qt_cleanup();
 #endif
-
-protected:
-    QPaintEngine *paintEngine;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

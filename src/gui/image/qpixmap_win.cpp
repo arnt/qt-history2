@@ -120,9 +120,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-    Q_ASSERT(!paintEngine);
-    paintEngine = new QWin32PaintEngine(this);
-
     static int serial = 0;
     int dd = defaultDepth();
 
@@ -262,9 +259,8 @@ void QPixmap::deref()
 	    DeleteDC( hdc );
 	    hdc = 0;
 	}
+	delete data->paintEngine;
 	delete data;
-	delete paintEngine;
-	paintEngine = 0;
     }
 }
 
@@ -1632,4 +1628,11 @@ Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	// copy pixel data
 	bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
     }
+}
+
+QPaintEngine *QPixmap::engine() const
+{
+    if (!data->paintEngine)
+	data->paintEngine = new QWin32PaintEngine(this);
+    return data->paintEngine;
 }

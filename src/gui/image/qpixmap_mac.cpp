@@ -786,7 +786,7 @@ bool QPixmap::hasAlphaChannel() const
     return data->alphapm != 0;
 }
 
-IconRef qt_mac_create_iconref(const QPixmap &px) 
+IconRef qt_mac_create_iconref(const QPixmap &px)
 {
     QMacSavedPortInfo pi; //save the current state
     //create icon
@@ -828,7 +828,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 			    *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
 		    }
 		} else {
-		    for(int y = 0; y < y_rows; y++) 
+		    for(int y = 0; y < y_rows; y++)
 			memcpy((*hdl)+(y*x_rows), im.scanLine(y), x_rows);
 		}
 		OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
@@ -849,7 +849,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 
 }
 
-QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height) 
+QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 {
     QPixmap ret(width, height);
     Rect rect;
@@ -865,4 +865,16 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 	ret.setMask(mask);
     }
     return ret;
+}
+
+QPaintEngine *QPixmap::engine() const
+{
+    if (!data->paintEngine) {
+#if defined( USE_CORE_GRAPHICS )
+	data->paintEngine = new QCoreGraphicsPaintEngine(this);
+#else
+	data->paintEngine = new QQuickDrawPaintEngine(this);
+#endif
+    }
+    return data->paintEngine;
 }
