@@ -1132,6 +1132,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    parser.file.latin1(), parser.line_no);
 		} else {
 		    QString file = arg_list[0];
+		    file = Option::fixPathToLocalOS(file);
+		    file.replace("\"", "");
+
 		    if(QDir::isRelativePath(file)) {
 			QStringList include_roots;
 			include_roots << Option::output_dir;
