@@ -3374,10 +3374,11 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    repaintSelections( justCreated ? 0 : &oldSelection, currentSel );
 	    emit selectionChanged();
 	} else {
+	    setCurrentCell( tmpRow, tmpCol, FALSE );
 	    if ( !isRowSelection( selectionMode() ) ) {
 		clearSelection();
 	    } else {
-		bool currentInSelection = tmpRow == curRow && isSelected( tmpRow, tmpCol );
+		bool currentInSelection = tmpRow == oldRow && isSelected( tmpRow, tmpCol, FALSE );
 		if ( !currentInSelection ) {
 		    clearSelection();
 		    currentSel = new QTableSelection();
@@ -3387,7 +3388,6 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		    repaintSelections( 0, currentSel );
 		}
 	    }
-	    setCurrentCell( tmpRow, tmpCol, FALSE );
 	}
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
