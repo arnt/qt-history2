@@ -1642,8 +1642,22 @@ bool QFtp::checkConnection( QNetworkOperation * )
     }
 
     connectionReady = FALSE;
-    commandSocket->connectToHost( url()->host(),
-				  url()->port() != -1 ? url()->port() : 21 );
+
+    switch ( operationInProgress()->operation() )
+    {
+	case OpGet:
+	case OpPut:
+	    {
+		QUrl u( operationInProgress()->arg( 0 ) );
+		commandSocket->connectToHost( u.host(),
+			u.port() != -1 ? u.port() : 21 );
+	    }
+	    break;
+	default:
+	    commandSocket->connectToHost( url()->host(),
+		    url()->port() != -1 ? url()->port() : 21 );
+	    break;
+    }
 
 #if defined(QFTP_DEBUG)
 	qDebug( "QFtp: try connecting!" );
