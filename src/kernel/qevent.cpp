@@ -1008,6 +1008,55 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \value Key_thorn
     \value Key_ydiaeresis
 
+    Multimedia keys
+
+    \value Key_Back
+    \value Key_Forward
+    \value Key_Stop
+    \value Key_Refresh
+
+    \value Key_VolumeDown
+    \value Key_VolumeMute
+    \value Key_VolumeUp
+    \value Key_BassBoost
+    \value Key_BassUp
+    \value Key_BassDown
+    \value Key_TrebleUp
+    \value Key_TrebleDown
+
+    \value Key_MediaPlay
+    \value Key_MediaStop
+    \value Key_MediaPrev
+    \value Key_MediaNext
+    \value Key_MediaRecord
+
+    \value Key_HomePage
+    \value Key_Favorites
+    \value Key_Search
+    \value Key_Standby
+    \value Key_OpenUrl
+
+    \value Key_LaunchMail
+    \value Key_LaunchMedia
+    \value Key_Launch0
+    \value Key_Launch1
+    \value Key_Launch2
+    \value Key_Launch3
+    \value Key_Launch4
+    \value Key_Launch5
+    \value Key_Launch6
+    \value Key_Launch7
+    \value Key_Launch8
+    \value Key_Launch9
+    \value Key_LaunchA
+    \value Key_LaunchB
+    \value Key_LaunchC
+    \value Key_LaunchD
+    \value Key_LaunchE
+    \value Key_LaunchF
+
+    \value Key_MediaLast
+
     \value Key_unknown
 
     \value Key_Direction_L internal use only
