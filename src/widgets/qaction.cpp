@@ -746,7 +746,7 @@ bool QAction::isOn() const
 
     Disabled actions can't be chosen by the user. They don't disappear
     from the menu/tool bar but are displayed in a way which indicates
-    that they are unavailable, e.g. they might be displayed greyed
+    that they are unavailable, e.g. they might be displayed grayed
     out.
 
     What's this? help on disabled actions is still available provided
