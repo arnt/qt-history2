@@ -47,6 +47,12 @@ MingwMakefileGenerator::MingwMakefileGenerator(QMakeProject *p) : Win32MakefileG
 }
 
 bool
+MingwMakefileGenerator::findLibraries() // todo - pascal
+{
+    return TRUE;
+}
+
+bool
 MingwMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
