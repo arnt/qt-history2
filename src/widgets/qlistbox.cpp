@@ -560,7 +560,7 @@ void QListBoxText::paint( QPainter *painter )
 {
     int itemHeight = height( listBox() );
     QFontMetrics fm = painter->fontMetrics();
-    int yPos = ( ( itemHeight - fm.height() ) / 2 ) + fm.ascent() + 1;
+    int yPos = ( ( itemHeight - fm.height() ) / 2 ) + fm.ascent();
     painter->drawText( 3, yPos, text() );
 }
 
