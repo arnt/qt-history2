@@ -3380,17 +3380,8 @@ bool QImage::load( const QString &fileName, const char* format )
 
 bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
 {
-    QByteArray a;
-    a.setRawData( (char *)buf, len );
-    QBuffer b( a );
-    b.open( IO_ReadOnly );
-    QImageIO io( &b, format );
-    bool result = io.read();
-    b.close();
-    a.resetRawData( (char *)buf, len );
-    if ( result )
-	operator=( io.image() );
-    return result;
+    QConstByteArray a((char *)buf, len);
+    return loadFromData(a, format);
 }
 
 /*!
@@ -3400,7 +3391,14 @@ bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
 */
 bool QImage::loadFromData( QByteArray buf, const char *format )
 {
-    return loadFromData( (const uchar *)buf.constData(), buf.size(), format );
+    QBuffer b( buf );    
+    b.open( IO_ReadOnly );
+    QImageIO io( &b, format );
+    bool result = io.read();
+    b.close();
+    if ( result )
+	operator=( io.image() );
+    return result;
 }
 
 /*!
