@@ -53,7 +53,9 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <limits.h>
+#ifndef QT_NO_COMPONENT
 #include "qcleanuphandler.h"
+#endif
 
 /* -------------------------------------------------------------------------
  * unicode information
@@ -12943,7 +12945,9 @@ bool QString::findArg(int& pos, int& len) const
   \sa arg()
 */
 
+#ifndef QT_NO_COMPONENT
 static QCleanupHandler<QRegExp> qt_regexp_cleanup;
+#endif
 
 QString &QString::sprintf( const char* cformat, ... )
 {
@@ -12960,7 +12964,9 @@ QString &QString::sprintf( const char* cformat, ... )
     static QRegExp *escape = 0;
     if (!escape) {
         escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
+#ifndef QT_NO_COMPONENT
         qt_regexp_cleanup.add(escape);
+#endif
     }
     QString result;
     uint last = 0;
