@@ -779,10 +779,14 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QRegion reg = r;
+	if ( reg.handle() ) {
 #ifndef Q_OS_TEMP
-	if ( reg.handle() )
 	    ValidateRgn( winId(), reg.handle() );
+#else
+	    RECT r = { x, y, w, h };
+	    ValidateRect( winId(), &r );
 #endif
+	}
 	QPaintEvent e( r, erase );
 	if ( r != rect() )
 	    qt_set_paintevent_clipping( this, r );
@@ -798,6 +802,15 @@ void QWidget::repaint( const QRegion& rgn, bool erase )
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 #ifndef Q_OS_TEMP
 	ValidateRgn( winId(), rgn.handle() );
+#else
+	if ( rgn.handle() ) {
+	    QRect qr = rgn.boundingRect();
+	    RECT r = { qr.x(), qr.y(), qr.width(), qr.height() };
+	    ValidateRect( winId(), &r );
+	} else {
+	    // Entire area
+	    ValidateRect( winId(), NULL );
+	}
 #endif
 	QPaintEvent e( rgn, erase );
 	qt_set_paintevent_clipping( this, rgn );
