@@ -855,7 +855,7 @@ bool QImageIO::read()
 #if !defined(Q_OS_UNIX)
         if (h && h->text_mode) {                // reopen in translated mode
             file.close();
-            file.open(QIODevice::ReadOnly | QIODevice::Translate);
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
         }
         else
 #endif
