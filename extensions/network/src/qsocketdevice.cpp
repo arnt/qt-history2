@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#11 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#12 $
 **
 ** Implementation of Network Extension Library
 **
@@ -242,7 +242,7 @@ QSocketDevice::Type QSocketDevice::type() const
   \sa isValid(), type()
 */
 
-inline int QSocketDevice::socket() const
+int QSocketDevice::socket() const
 {
     return d->fd;
 }
