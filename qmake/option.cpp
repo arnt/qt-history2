@@ -181,7 +181,7 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::do_dep_heuristics = FALSE;
 		    } else if(opt == "E") {
 			Option::mkfile::do_preprocess = TRUE;
-		    } else if(opt == "mkcache") {
+		    } else if(opt == "cache") {
 			Option::mkfile::cachefile = argv[++x];
 		    } else if(opt == "spec") {
 			Option::mkfile::qmakespec = argv[++x];
