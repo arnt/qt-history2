@@ -1593,41 +1593,46 @@ QDir::cleanPath(const QString &path)
                 if(i < len - 2 && p[i+2] == '.')
                     dotcount++;
                 if(i == len - dotcount - 1) {
-                    if(last == -1) {
-                        for(int i2 = iwrite-1; i2 >= 0; i2--) {
-                            if(out[i2] == '/') {
-                                last = i2;
-                                break;
-                            }
-                        }
-                    }
-                    used -= iwrite - last - 1;
-                    break;
-                }
-                if(p[i+dotcount+1] == '/') {
-                    if(dotcount == 2 && levels) {
-                        if(last == -1 || iwrite - last == 1) {
-                            for(int i2 = (last == -1) ? (iwrite-1) : (last-1); i2 >= 0; i2--) {
+                    if(dotcount == 1) {
+                        break;
+                    } else if(levels) {
+                        if(last == -1) {
+                            for(int i2 = iwrite-1; i2 >= 0; i2--) {
                                 if(out[i2] == '/') {
-                                    eaten = true;
                                     last = i2;
                                     break;
                                 }
                             }
-                        } else {
+                        }
+                        used -= iwrite - last - 1;
+                        break;
+                    } 
+                } else {
+                    if(p[i+dotcount+1] == '/') {
+                        if(dotcount == 2 && levels) {
+                            if(last == -1 || iwrite - last == 1) {
+                                for(int i2 = (last == -1) ? (iwrite-1) : (last-1); i2 >= 0; i2--) {
+                                    if(out[i2] == '/') {
+                                        eaten = true;
+                                        last = i2;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                eaten = true;
+                            }
+                            if(eaten) {
+                                levels--;
+                                used -= iwrite - last;
+                                iwrite = last;
+                                last = -1;
+                            }
+                        } else if(dotcount == 1) {
                             eaten = true;
                         }
-                        if(eaten) {
-                            levels--;
-                            used -= iwrite - last;
-                            iwrite = last;
-                            last = -1;
-                        }
-                    } else if(dotcount == 1) {
-                        eaten = true;
+                        if(eaten)
+                            i += dotcount;
                     }
-                    if(eaten)
-                        i += dotcount;
                 }
             } else if(last != -1 && iwrite - last == 1) {
 #ifdef Q_OS_WIN
