@@ -990,8 +990,8 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
         fe = loadFontConfigFont(fp, request, script);
         usesFontConfigFont = (fe != 0);
     }
-    if (!fe)
 #endif
+    if (!fe)
     {
         QtFontFamily *best_family = 0;
         QtFontFoundry *best_foundry = 0;
