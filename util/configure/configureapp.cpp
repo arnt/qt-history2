@@ -751,8 +751,7 @@ void Configure::displayConfig()
     // Give some feedback
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
 	cout << "Trolltech license file used." << qtDir + "/LICENSE.TROLL" << endl;
-    } else if ( QFile::exists( QString("\"%1%2\"").arg( QDir::homeDirPath() ).arg( "/.qt-license" ) ) ) {
-	cout << "License file used..........." << QDir::homeDirPath() << "/.qt-license" << endl;
+    } else if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
 	cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
 	cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
 	cout << "Product license............." << licenseInfo[ "PRODUCTS" ] << endl;
@@ -1001,6 +1000,7 @@ void Configure::readLicense()
 {
     QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
     if( licenseFile.open( IO_ReadOnly ) ) {
+	cout << "Reading license file in....." << QDir::homeDirPath().latin1() << endl;
 	QString buffer;
 
 	while( licenseFile.readLine( buffer, 1024 ) != -1 ) {
@@ -1019,7 +1019,7 @@ void Configure::readLicense()
 	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
     } else if ( !licenseFile.exists() ) {
-	cout << "License file not found in \"" << QDir::homeDirPath() << "\"" << endl;
+	cout << "License file not found in " << QDir::homeDirPath() << endl;
 	cout << "Enterprise modules will not be available." << endl << endl;
 	licenseInfo[ "PRODUCTS" ] = "qt-professional";
     }
