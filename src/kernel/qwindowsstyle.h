@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#10 $
 **
 ** Definition of something or other
 **
@@ -16,6 +16,7 @@
 
 class Q_EXPORT QWindowsStyle : public QStyle
 {
+    Q_OBJECT
 public:
     QWindowsStyle();
     void drawButton( QPainter *p, int x, int y, int w, int h,
@@ -27,7 +28,7 @@ public:
 
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
-    
+
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void getButtonShift( int &x, int &y);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#9 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#10 $
 **
 ** Definition of something or other
 **
@@ -17,6 +17,7 @@
 
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {
+    Q_OBJECT
 public:
     QPlatinumStyle();
     void drawButton( QPainter *p, int x, int y, int w, int h,

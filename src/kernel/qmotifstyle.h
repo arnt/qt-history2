@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#11 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#12 $
 **
 ** Definition of something or other
 **
@@ -17,12 +17,13 @@
 
 class Q_EXPORT QMotifStyle : public QStyle
 {
+    Q_OBJECT
 public:
     QMotifStyle( bool useHighlightCols = FALSE);
-    
+
     void setUseHighlightColors( bool );
     bool useHighlightColors() const;
-    
+
     void polish( QPalette&);
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
@@ -33,7 +34,7 @@ public:
 			  const QBrush *fill = 0 );
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0, bool = FALSE );
-    
+
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
@@ -60,7 +61,7 @@ public:
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
 			   Orientation );
-private: 
+private:
     bool highlightCols;
 };
 

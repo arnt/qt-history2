@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.h#3 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.h#4 $
 **
 ** Definition of something or other
 **
@@ -16,6 +16,7 @@
 
 class Q_EXPORT QCDEStyle : public QMotifStyle
 {
+    Q_OBJECT
 public:
     QCDEStyle( bool useHighlightCols = FALSE );
 
