@@ -27,11 +27,15 @@
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qimage.h>
+#include <qpixmap.h>
+#include <qapplication.h>
+#include <qdragobject.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
-    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), formWindow( 0 )
+    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), formWindow( 0 ), mousePressed( false )
 {
     setMinimumSize( minimumSizeHint() );
+    setAcceptDrops( TRUE );
 
     connect( this, SIGNAL(clicked()), SLOT(onEditor()));
 
@@ -121,10 +125,10 @@ void StyledButton::scalePixmap()
     delete spix;
 
     if ( pix ) {
-	spix = new QPixmap( width()/2, height()/2 );
+	spix = new QPixmap( 6*width()/8, 6*height()/8 );
 	QImage img = pix->convertToImage();
 
-	spix->convertFromImage( s? img.smoothScale( width()/2, height()/2 ) : img );
+	spix->convertFromImage( s? img.smoothScale( 6*width()/8, 6*height()/8 ) : img );
     } else {
 	spix = 0;
     }
@@ -160,11 +164,11 @@ void StyledButton::drawButtonLabel( QPainter *paint )
     }
     else if ( edit == PixmapEditor && spix ) {
 	paint->setBrush( QBrush( col, *spix ) );
-	paint->setBrushOrigin( width()/4, height()/4 );
+	paint->setBrushOrigin( width()/8, height()/8 );
     } else
 	paint->setBrush( QBrush( col ) );
 
-    paint->drawRect( width()/4, height()/4, width()/2, height()/2 );
+    paint->drawRect( width()/8, height()/8, 6*width()/8, 6*height()/8 );
 }
 
 void StyledButton::onEditor()
@@ -192,3 +196,91 @@ void StyledButton::onEditor()
 	break;
     }
 }
+
+void StyledButton::mousePressEvent(QMouseEvent* e)
+{
+    QButton::mousePressEvent(e);
+    mousePressed = true;
+    pressPos = e->pos();
+}
+
+void StyledButton::mouseMoveEvent(QMouseEvent* e)
+{
+    QButton::mouseMoveEvent( e );
+#ifndef QT_NO_DRAGANDDROP
+    if ( !mousePressed )
+	return;
+    if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
+	if ( edit == ColorEditor ) {
+	    QColorDrag *drg = new QColorDrag( col, this );
+	    QPixmap pix( 6*width()/8, 6*height()/8 );
+	    pix.fill( col );
+	    QPainter p( &pix );
+	    p.drawRect( 0, 0, pix.width(), pix.height() );
+	    p.end();
+	    drg->setPixmap( pix );
+	    mousePressed = false;
+	    drg->dragCopy();
+	}
+	else if ( edit == PixmapEditor && pix && !pix->isNull() ) {
+	    QImage img = pix->convertToImage();
+	    QImageDrag *drg = new QImageDrag( img, this );
+	    if(spix)
+		drg->setPixmap( *spix );
+	    mousePressed = false;
+	    drg->dragCopy();
+	}
+    }
+#endif
+}
+
+#ifndef QT_NO_DRAGANDDROP
+void StyledButton::dragEnterEvent( QDragEnterEvent *e )
+{
+    setFocus();
+    if ( edit == ColorEditor && QColorDrag::canDecode( e ) )
+	e->accept();
+    else if ( edit == PixmapEditor && QImageDrag::canDecode( e ) )
+	e->accept();
+    else
+	e->ignore();
+}
+
+void StyledButton::dragLeaveEvent( QDragLeaveEvent * )
+{
+    if ( hasFocus() )
+	parentWidget()->setFocus();
+}
+
+void StyledButton::dragMoveEvent( QDragMoveEvent *e )
+{
+    if ( edit == ColorEditor && QColorDrag::canDecode( e ) )
+	e->accept();
+    else if ( edit == PixmapEditor && QImageDrag::canDecode( e ) )
+	e->accept();
+    else
+	e->ignore();
+}
+
+void StyledButton::dropEvent( QDropEvent *e )
+{
+    if ( edit == ColorEditor && QColorDrag::canDecode( e ) ) {
+	QColor color;
+	QColorDrag::decode( e, color );
+	setColor(color);
+	emit changed();
+	e->accept();
+    }
+    else if ( edit == PixmapEditor && QImageDrag::canDecode( e ) ) {
+	QImage img;
+	QImageDrag::decode( e, img );
+	QPixmap pm;
+	pm.convertFromImage(img);
+	setPixmap(pm);
+	emit changed();
+	e->accept();
+    } else {
+	e->ignore();
+    }
+}
+#endif // QT_NO_DRAGANDDROP

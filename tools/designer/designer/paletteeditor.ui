@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>465</width>
-            <height>490</height>
+            <width>478</width>
+            <height>461</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -64,219 +64,163 @@
                 <string>Build Palette</string>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignLeft</set>
             </property>
-            <vbox>
+            <hbox>
                 <property name="margin">
                     <number>11</number>
                 </property>
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget class="QLayoutWidget">
+                <widget class="QLabel">
                     <property name="name">
-                        <cstring>Layout28</cstring>
+                        <cstring>labelMainColor</cstring>
                     </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>checkBuildFromColors</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Build palette from colors</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Generate palette</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Generate the palette using basic colors.&lt;/b&gt;&lt;p&gt;If this option is checked, the whole palette can be generated using two basic color for 3D-effects and the background.&lt;/p&gt;</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>labelMainColor</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>50</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="lineWidth">
-                                <number>1</number>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="midLineWidth">
-                                <number>0</number>
-                            </property>
-                            <property name="text">
-                                <string>&amp;3-D Effects:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignAuto|AlignVCenter|AlignLeft</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>buttonMainColor</cstring>
-                            </property>
-                        </widget>
-                        <widget class="StyledButton">
-                            <property name="name">
-                                <cstring>buttonMainColor</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                </sizepolicy>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="scale" stdset="0">
-                                <bool>false</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Choose a color</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Choose the effect-color for the generated palette.</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>labelMainColor2</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>50</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="lineWidth">
-                                <number>1</number>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="midLineWidth">
-                                <number>0</number>
-                            </property>
-                            <property name="text">
-                                <string>Back&amp;ground:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignAuto|AlignVCenter|AlignLeft</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>buttonMainColor2</cstring>
-                            </property>
-                        </widget>
-                        <widget class="StyledButton">
-                            <property name="name">
-                                <cstring>buttonMainColor2</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                </sizepolicy>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="scale" stdset="0">
-                                <bool>false</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Choose a color</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Choose the background color for the generated palette.</string>
-                            </property>
-                        </widget>
-                    </hbox>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>1</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>50</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="lineWidth">
+                        <number>1</number>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="midLineWidth">
+                        <number>0</number>
+                    </property>
+                    <property name="text">
+                        <string>&amp;3-D Effects:</string>
+                    </property>
+                    <property name="alignment">
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>buttonMainColor</cstring>
+                    </property>
                 </widget>
-                <widget class="QLayoutWidget">
+                <widget class="StyledButton">
                     <property name="name">
-                        <cstring>Layout29</cstring>
+                        <cstring>buttonMainColor</cstring>
                     </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <spacer>
-                            <property name="name" stdset="0">
-                                <cstring>Spacer2</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>20</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>btnAdvanced</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Tune Palette...</string>
-                            </property>
-                        </widget>
-                    </hbox>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="scale" stdset="0">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Choose a color</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Choose the effect-color for the generated palette.</string>
+                    </property>
                 </widget>
-            </vbox>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>labelMainColor2</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>1</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>50</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="lineWidth">
+                        <number>1</number>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="midLineWidth">
+                        <number>0</number>
+                    </property>
+                    <property name="text">
+                        <string>Back&amp;ground:</string>
+                    </property>
+                    <property name="alignment">
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>buttonMainColor2</cstring>
+                    </property>
+                </widget>
+                <widget class="StyledButton">
+                    <property name="name">
+                        <cstring>buttonMainColor2</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="scale" stdset="0">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Choose a color</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Choose the background color for the generated palette.</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>Spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>btnAdvanced</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Tune Palette...</string>
+                    </property>
+                </widget>
+            </hbox>
         </widget>
         <widget class="QGroupBox">
             <property name="name">
                 <cstring>GroupBox126</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
             </property>
             <property name="title">
                 <string>Preview</string>
@@ -594,11 +538,10 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Horizontal Spacing11</cstring>
                     </property>
                     <property name="orientation">
-                        <enum>Horizontal</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
@@ -660,6 +603,7 @@
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>clicked()</signal>
+        <signal>changed()</signal>
         <property type="Color">color</property>
         <property type="Pixmap">pixmap</property>
         <property type="Bool">scale</property>
@@ -689,12 +633,6 @@
 </images>
 <connections>
     <connection>
-        <sender>buttonMainColor</sender>
-        <signal>clicked()</signal>
-        <receiver>PaletteEditorBase</receiver>
-        <slot>onChooseMainColor()</slot>
-    </connection>
-    <connection>
         <sender>buttonMainColor2</sender>
         <signal>clicked()</signal>
         <receiver>PaletteEditorBase</receiver>
@@ -723,6 +661,24 @@
         <signal>clicked()</signal>
         <receiver>PaletteEditorBase</receiver>
         <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>buttonMainColor</sender>
+        <signal>changed()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseMainColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonMainColor</sender>
+        <signal>clicked()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChooseMainColor()</slot>
+    </connection>
+    <connection>
+        <sender>buttonMainColor2</sender>
+        <signal>changed()</signal>
+        <receiver>PaletteEditorBase</receiver>
+        <slot>onChoose2ndMainColor()</slot>
     </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>

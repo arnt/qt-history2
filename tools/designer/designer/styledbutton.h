@@ -62,7 +62,7 @@ public:
     QSize minimumSizeHint() const;
 
     void setFormWindow( FormWindow *fw ) { formWindow = fw; }
-    
+
 public slots:
     virtual void onEditor();
 
@@ -70,6 +70,14 @@ signals:
     void changed();
 
 protected:
+    void mousePressEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+#ifndef QT_NO_DRAGANDDROP
+    void dragEnterEvent ( QDragEnterEvent * );
+    void dragMoveEvent ( QDragMoveEvent * );
+    void dragLeaveEvent ( QDragLeaveEvent * );
+    void dropEvent ( QDropEvent * );
+#endif // QT_NO_DRAGANDDROP
     void drawButton( QPainter* );
     void drawButtonLabel( QPainter* );
     void resizeEvent( QResizeEvent* );
@@ -82,6 +90,8 @@ private:
     EditorType edit;
     bool s;
     FormWindow *formWindow;
+    QPoint pressPos;
+    bool mousePressed;
 };
 
 #endif //STYLEDBUTTON_H

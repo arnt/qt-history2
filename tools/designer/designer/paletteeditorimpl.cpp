@@ -264,7 +264,6 @@ void PaletteEditor::updateStyledButtons()
 
 void PaletteEditor::setPal( const QPalette& pal )
 {
-    checkBuildFromColors->setChecked( true );
     editPalette = pal;
     setPreviewPalette( pal );
     updateStyledButtons();
