@@ -1,12 +1,12 @@
 #include <QtGui>
 
-#include "window.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    Window *window = new Window;
+    MainWindow *window = new MainWindow;
     app.setMainWidget(window);
     window->show();
 
