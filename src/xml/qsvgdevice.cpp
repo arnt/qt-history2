@@ -249,7 +249,7 @@ bool QSvgDevice::play( QPainter *painter )
     curr = &d->stack.last();
     // 'play' all elements recursively starting with 'svg' as root
     bool b = play( svg );
-    d->stack.remove( d->stack.begin() );
+    d->stack.removeFirst();
     return b;
 }
 
@@ -546,7 +546,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 		tmp.sprintf( "%d %d ", a[i].x(), a[i].y() );
 		str += tmp;
 	    }
-	    e.setAttribute( "points", str.stripWhiteSpace() );
+	    e.setAttribute( "points", str.trimmed() );
 	}
 	break;
     case PdcDrawCubicBezier:
@@ -787,7 +787,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    while ( i-- ) {
 		QDomNode n = attr.item( i );
 		QString a = n.nodeName();
-		QString val = n.nodeValue().lower().stripWhiteSpace();
+		QString val = n.nodeValue().toLower().trimmed();
 		setStyleProperty( a, val, &pen, &font, &curr->textalign );
 	    }
 	    pt->setPen( pen );
@@ -854,7 +854,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	case PolygonElement:
 	    {
 		QString pts = attr.namedItem( "points" ).nodeValue();
-		pts = pts.simplifyWhiteSpace();
+		pts = pts.simplified();
 		QStringList sl = QStringList::split( QRegExp( QString::fromLatin1("[ ,]") ), pts );
 		QPointArray ptarr( (uint)sl.count() / 2);
 		for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
@@ -911,7 +911,7 @@ bool QSvgDevice::play( const QDomNode &node )
 			pn.setColor( bcolor );
 			pt->setPen( pn );
 			QString text = c.toText().nodeValue();
-			text = text.simplifyWhiteSpace(); // ### 'preserve'
+			text = text.simplified(); // ### 'preserve'
 			w = pt->fontMetrics().width( text );
 			if ( curr->textalign == Qt::AlignHCenter )
 			    curr->textx -= w / 2;
@@ -1233,11 +1233,11 @@ void QSvgDevice::setStyle( const QString &s )
 
     QStringList::ConstIterator it = rules.begin();
     for ( ; it != rules.end(); it++ ) {
-	int col = (*it).find( ':' );
+	int col = (*it).indexOf( ':' );
 	if ( col > 0 ) {
-	    QString prop = (*it).left( col ).simplifyWhiteSpace();
+	    QString prop = (*it).left( col ).simplified();
 	    QString val = (*it).right( (*it).length() - col - 1 );
-	    val = val.lower().stripWhiteSpace();
+	    val = val.toLower().trimmed();
 	    setStyleProperty( prop, val, &pen, &font, &curr->textalign );
 	}
     }
@@ -1248,7 +1248,7 @@ void QSvgDevice::setStyle( const QString &s )
 
 void QSvgDevice::setTransform( const QString &tr )
 {
-    QString t = tr.simplifyWhiteSpace();
+    QString t = tr.simplified();
 
     QRegExp reg( QString::fromLatin1("\\s*([\\w]+)\\s*\\(([^\\(]*)\\)") );
     int index = 0;
@@ -1310,8 +1310,8 @@ void QSvgDevice::drawPath( const QString &data )
 	QChar ch = data[ (int)idx++ ];
 	if ( ch.isSpace() )
 	    continue;
-	QChar chUp = ch.upper();
-	int cmd = commands.find( chUp );
+	QChar chUp = ch.toUpper();
+	int cmd = commands.indexOf( chUp );
 	if ( cmd >= 0 ) {
 	    // switch to new command mode
 	    mode = cmd;

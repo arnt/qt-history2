@@ -391,7 +391,7 @@ void QDnsAnswer::parseMx()
     rr = new QDnsRR( label );
     rr->priority = (answer[pp] << 8) + answer[pp+1];
     pp += 2;
-    rr->target = readString().lower();
+    rr->target = readString().toLower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad string in MX for %s", label.ascii() );
@@ -421,7 +421,7 @@ void QDnsAnswer::parseSrv()
     rr->weight = (answer[pp+2] << 8) + answer[pp+3];
     rr->port = (answer[pp+4] << 8) + answer[pp+5];
     pp += 6;
-    rr->target = readString().lower();
+    rr->target = readString().toLower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad string in SRV for %s", label.ascii() );
@@ -438,7 +438,7 @@ void QDnsAnswer::parseSrv()
 
 void QDnsAnswer::parseCname()
 {
-    QString target = readString().lower();
+    QString target = readString().toLower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
@@ -461,7 +461,7 @@ void QDnsAnswer::parseNs()
 #if defined(QDNS_DEBUG)
     QString target =
 #endif
-	readString().lower();
+	readString().toLower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
@@ -480,7 +480,7 @@ void QDnsAnswer::parseNs()
 
 void QDnsAnswer::parsePtr()
 {
-    QString target = readString().lower();
+    QString target = readString().toLower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad PTR for for %s", label.ascii() );
@@ -593,7 +593,7 @@ void QDnsAnswer::parse()
     while( ( rrno < ancount ||
 	     ( ok && answers >0 && rrno < ancount + nscount + adcount ) ) &&
 	   pp < size ) {
-	label = readString().lower();
+	label = readString().toLower();
 	if ( !ok )
 	    return;
 	int rdlength = 0;
@@ -965,7 +965,8 @@ void QDnsManager::retransmit()
 
 void QDnsManager::answer()
 {
-    QByteArray a( 16383 ); // large enough for anything, one suspects
+    QByteArray a;
+    a.resize( 16383 ); // large enough for anything, one suspects
     int r = socket->readBlock( a.data(), a.size() );
 #if defined(QDNS_DEBUG)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
@@ -1052,7 +1053,8 @@ void QDnsManager::transmitQuery( int i )
 	// may benefit from caching the result.
 	return;
 
-    QByteArray p( 12 + q->l.length() + 2 + 4 );
+    QByteArray p;
+    p.resize( 12 + q->l.length() + 2 + 4 );
     if ( p.size() > 500 )
 	return; // way over the limit, so don't even try
 
@@ -1074,7 +1076,7 @@ void QDnsManager::transmitQuery( int i )
     int pp = 12;
     int lp = 0;
     while( lp < q->l.length() ) {
-	int le = q->l.find( '.', lp );
+	int le = q->l.indexOf( '.', lp );
 	if ( le < 0 )
 	    le = q->l.length();
 	QString component = q->l.mid( lp, le-lp );
@@ -1217,7 +1219,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 
     // test at first if you have to start a query at all
     if ( r->recordType() == QDns::A ) {
-	if ( r->label().lower() == "localhost" ) {
+	if ( r->label().toLower() == "localhost" ) {
 	    // undocumented hack. ipv4-specific. also, may be a memory
 	    // leak? not sure. would be better to do this in doResInit(),
 	    // anyway.
@@ -1361,7 +1363,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	    // we haven't done it before, so maybe we should.  but
 	    // wait - if it's an unqualified name, only ask when all
 	    // the other alternatives are exhausted.
-	    if ( q == (uint) m->queries.size() && ( s.find( '.' ) >= 0 ||
+	    if ( q == (uint) m->queries.size() && ( s.indexOf( '.' ) >= 0 ||
 					     (int)l->count() >= n.count()-1 ) ) {
 		QDnsQuery * query = new QDnsQuery;
 		query->started = now();
@@ -1599,7 +1601,7 @@ void QDns::setLabel( const QString & label )
     // construct a list of qualified names
     n.clear();
     if ( l.length() > 1 && l[(int)l.length()-1] == '.' ) {
-	n.append( l.left( l.length()-1 ).lower() );
+	n.append( l.left( l.length()-1 ).toLower() );
     } else {
 	int i = l.length();
 	int dots = 0;
@@ -1611,9 +1613,9 @@ void QDns::setLabel( const QString & label )
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
 	    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it)
-		n.append( l.lower() + "." + (*it).data() );
+		n.append( l.toLower() + "." + (*it).data() );
 	}
-	n.append( l.lower() );
+	n.append( l.toLower() );
     }
 
 #if defined(Q_DNS_SYNCHRONOUS)
@@ -2405,13 +2407,13 @@ void QDns::doResInit()
 #  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( res.dnsrch[i] && *(res.dnsrch[i]) )
-	    domains->append( QByteArray(QString::fromLatin1( res.dnsrch[i] ).lower()) );
+	    domains->append( QByteArray(QString::fromLatin1( res.dnsrch[i] ).toLower()) );
 	else
 	    break;
     }
 #  endif
     if ( *res.defdname )
-	domains->append( QByteArray(QString::fromLatin1( res.defdname ).lower()) );
+	domains->append( QByteArray(QString::fromLatin1( res.defdname ).toLower()) );
 #else
     res_init();
     int i;
@@ -2421,13 +2423,13 @@ void QDns::doResInit()
 #  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-	    domains->append( QByteArray(QString::fromLatin1( _res.dnsrch[i] ).lower()) );
+	    domains->append( QByteArray(QString::fromLatin1( _res.dnsrch[i] ).toLower()) );
 	else
 	    break;
     }
 #  endif
     if ( *_res.defdname )
-	domains->append( QByteArray(QString::fromLatin1( _res.defdname ).lower()) );
+	domains->append( QByteArray(QString::fromLatin1( _res.defdname ).toLower()) );
 #endif
 
     // the code above adds "0.0.0.0" as a name server at the slightest
@@ -2447,7 +2449,7 @@ void QDns::doResInit()
 	QTextStream i( &hosts );
 	QString line;
 	while( !i.atEnd() ) {
-	    line = i.readLine().simplifyWhiteSpace().lower();
+	    line = i.readLine().simplified().toLower();
 	    int n = 0;
 	    while( n < line.length() && line[(int)n] != '#' )
 		n++;

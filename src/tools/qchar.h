@@ -123,8 +123,8 @@ public:
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
 
     int digitValue() const;
-    QChar lower() const;
-    QChar upper() const;
+    QChar toLower() const;
+    QChar toUpper() const;
 
     Category category() const;
     Direction direction() const;
@@ -160,6 +160,8 @@ public:
     inline void setRow(uchar row) { ucs = (((ushort) row)<<8) + (ucs&0xff); }
 
 #ifdef QT_COMPAT
+    inline QT_COMPAT QChar lower() const { return toLower(); }
+    inline QT_COMPAT QChar upper() const { return toUpper(); }
     static inline QT_COMPAT bool networkOrdered() {
 	return QSysInfo::ByteOrder == QSysInfo::BigEndian;
     }

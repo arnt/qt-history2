@@ -2429,7 +2429,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	}
 	else if (compareSubstr(l_num, idx, nan().toUpper())) {
 	    for (int i = idx; i < idx + nan().length(); ++i)
-	    	l_num[i] = l_num.unicode()[i].lower();
+	    	l_num[i] = l_num.unicode()[i].toLower();
 	    idx += nan().length();
 	    break;
 	}
@@ -2449,7 +2449,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	}
 	else if (compareSubstr(l_num, idx, infinity().toUpper())) {
 	    for (int i = idx; i < idx + infinity().length(); ++i)
-	    	l_num[i] = l_num.unicode()[i].lower();
+	    	l_num[i] = l_num.unicode()[i].toLower();
 	    idx += infinity().length();
 	    break;
 	}
@@ -2467,7 +2467,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
         	c = '.';
             else if (c == group())
 	    	c = ',';
-	    else if (c == exponential() || c == exponential().upper())
+	    else if (c == exponential() || c == exponential().toUpper())
     		c = 'e';
             else if (c.unicode() == 'x' || c.unicode() == 'X') // hex number
 		c = 'x';
@@ -4585,7 +4585,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
     volatile double d2;
     double ds, eps;
     char *s, *s0;
-    
+
     if (word0(d) & Sign_bit) {
 	/* set sign for everything, including 0's and NaNs */
 	*sign = 1;

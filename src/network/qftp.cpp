@@ -471,12 +471,12 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 
     // name
     if ( info->isSymLink() )
-	info->setName( lst[ 8 ].stripWhiteSpace() );
+	info->setName( lst[ 8 ].trimmed() );
     else {
 	QString n;
 	for ( int i = 8; i < lst.count(); ++i )
 	    n += lst[ i ] + " ";
-	n = n.stripWhiteSpace();
+	n = n.trimmed();
 	info->setName( n );
     }
     return TRUE;
@@ -521,7 +521,8 @@ void QFtpDTP::socketReadyRead()
 	}
     } else {
 	if ( !is_ba && data.dev ) {
-	    QByteArray ba( socket.bytesAvailable() );
+	    QByteArray ba;
+	    ba.resize( socket.bytesAvailable() );
 	    Q_LONG bytesRead = socket.readBlock( ba.data(), ba.size() );
 	    if ( bytesRead < 0 ) {
 		// ### error handling
@@ -830,8 +831,8 @@ bool QFtpPI::processReply()
 	rawCommand = FALSE;
     } else if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
-	int l = replyText.find( "(" );
-	int r = replyText.find( ")" );
+	int l = replyText.indexOf( '(' );
+	int r = replyText.indexOf( ')' );
 	if ( l<0 || r<0 ) {
 #if defined(QFTPPI_DEBUG)
 	    qDebug( "QFtp: bad 227 response -- address and port information missing" );
@@ -855,7 +856,7 @@ bool QFtpPI::processReply()
     } else if ( replyCodeInt == 213 ) {
 	// 213 File status.
 	if ( currentCmd.startsWith("SIZE ") )
-	    dtp.setBytesTotal( replyText.simplifyWhiteSpace().toInt() );
+	    dtp.setBytesTotal( replyText.simplified().toInt() );
     } else if ( replyCode[0]==1 && currentCmd.startsWith("STOR ") ) {
 	dtp.writeData();
     }
@@ -1678,7 +1679,7 @@ int QFtp::rename( const QString &oldname, const QString &newname )
 */
 int QFtp::rawCommand( const QString &command )
 {
-    QString cmd = command.stripWhiteSpace() + "\r\n";
+    QString cmd = command.trimmed() + "\r\n";
     return addCommand( new QFtpCommand( RawCommand, QStringList(cmd) ) );
 }
 

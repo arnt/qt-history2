@@ -69,7 +69,7 @@
 */
 static void qt_split_namespace( QString& prefix, QString& name, const QString& qName, bool hasURI )
 {
-    int i = qName.find( ':' );
+    int i = qName.indexOf(':');
     if ( i == -1 ) {
 	if ( hasURI )
 	    prefix = "";

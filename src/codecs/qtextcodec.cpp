@@ -450,13 +450,13 @@ static QString lettersAndNumbers( const char * input )
     while( input && *input ) {
 	c = *input;
  	if ( c.isLetter() || c.isNumber() )
- 	    result += c.lower();
+ 	    result += c.toLower();
 	if ( input[1] ) {
 	    // add space at character class transition, except
 	    // transition from upper-case to lower-case letter
 	    QChar n( input[1] );
 	    if ( c.isLetter() && n.isLetter() ) {
-		if ( c == c.lower() && n == n.upper() )
+		if ( c == c.toLower() && n == n.toUpper() )
 		    result += ' ';
 	    } else if ( c.category() != n.category() ) {
 		result += ' ';
@@ -679,7 +679,7 @@ static bool try_locale_list( const char * const locale[], const char * lang )
 // For the probably_koi8_locales we have to look. the standard says
 // these are 8859-5, but almost all Russian users use KOI8-R and
 // incorrectly set $LANG to ru_RU. We'll check tolower() to see what
-// tolower() thinks ru_RU means.
+// totoLower() thinks ru_RU means.
 
 // If you read the history, it seems that many Russians blame ISO and
 // Perestroika for the confusion.

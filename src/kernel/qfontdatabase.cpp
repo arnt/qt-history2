@@ -2315,7 +2315,7 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
     QChar *s = const_cast<QChar*>(family.unicode());
     int len = family.length();
     while( len-- ) {
-	if ( space ) *s = s->upper();
+	if ( space ) *s = s->toUpper();
 	space = s->isSpace();
 	++s;
     }
@@ -2323,7 +2323,7 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
     s = const_cast<QChar*>(foundry.unicode());
     len = foundry.length();
     while( len-- ) {
-	if ( space ) *s = s->upper();
+	if ( space ) *s = s->toUpper();
 	space = s->isSpace();
 	++s;
     }

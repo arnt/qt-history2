@@ -430,11 +430,11 @@ bool QHttpHeader::isValid() const
 bool QHttpHeader::parse( const QString& str )
 {
     QStringList lst;
-    int pos = str.find( '\n' );
+    int pos = str.indexOf( '\n' );
     if ( pos > 0 && str.at( pos - 1 ) == '\r' )
-	lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
+	lst = QStringList::split( "\r\n", str.trimmed(), FALSE );
     else
-	lst = QStringList::split( "\n", str.stripWhiteSpace(), FALSE );
+	lst = QStringList::split( "\n", str.trimmed(), FALSE );
 
     if ( lst.isEmpty() )
 	return TRUE;
@@ -446,7 +446,7 @@ bool QHttpHeader::parse( const QString& str )
 	    if ( (*it)[0].isSpace() ) {
 		if ( !lines.isEmpty() ) {
 		    lines.last() += " ";
-		    lines.last() += (*it).stripWhiteSpace();
+		    lines.last() += (*it).trimmed();
 		}
 	    } else {
 		lines.append( (*it) );
@@ -480,7 +480,7 @@ void QHttpHeader::setValid( bool v )
 */
 QString QHttpHeader::value( const QString& key ) const
 {
-    return values[ key.lower() ];
+    return values[ key.toLower() ];
 }
 
 /*!
@@ -501,7 +501,7 @@ QStringList QHttpHeader::keys() const
 */
 bool QHttpHeader::hasKey( const QString& key ) const
 {
-    return values.contains( key.lower() );
+    return values.contains( key.toLower() );
 }
 
 /*!
@@ -516,7 +516,7 @@ bool QHttpHeader::hasKey( const QString& key ) const
 */
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
-    values[ key.lower() ] = value;
+    values[ key.toLower() ] = value;
 }
 
 /*!
@@ -526,7 +526,7 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 */
 void QHttpHeader::removeValue( const QString& key )
 {
-    values.remove( key.lower() );
+    values.remove( key.toLower() );
 }
 
 /*! \internal
@@ -539,11 +539,11 @@ void QHttpHeader::removeValue( const QString& key )
 */
 bool QHttpHeader::parseLine( const QString& line, int )
 {
-    int i = line.find( ":" );
+    int i = line.indexOf( ':' );
     if ( i == -1 )
 	return FALSE;
 
-    values.insert( line.left( i ).stripWhiteSpace().lower(), line.mid( i + 1 ).stripWhiteSpace() );
+    values.insert( line.left( i ).trimmed().toLower(), line.mid( i + 1 ).trimmed() );
 
     return TRUE;
 }
@@ -624,11 +624,11 @@ QString QHttpHeader::contentType() const
     if ( type.isEmpty() )
 	return QString::null;
 
-    int pos = type.find( ";" );
+    int pos = type.indexOf( ';' );
     if ( pos == -1 )
 	return type;
 
-    return type.left( pos ).stripWhiteSpace();
+    return type.left( pos ).trimmed();
 }
 
 /*!
@@ -773,7 +773,7 @@ bool QHttpResponseHeader::parseLine( const QString& line, int number )
     if ( number != 0 )
 	return QHttpHeader::parseLine( line, number );
 
-    QString l = line.simplifyWhiteSpace();
+    QString l = line.simplified();
     if ( l.length() < 10 )
 	return FALSE;
 
@@ -782,7 +782,7 @@ bool QHttpResponseHeader::parseLine( const QString& line, int number )
 	majVer = l[5].latin1() - '0';
 	minVer = l[7].latin1() - '0';
 
-	int pos = l.find( ' ', 9 );
+	int pos = l.indexOf( ' ', 9 );
 	if ( pos != -1 ) {
 	    reasonPhr = l.mid( pos + 1 );
 	    statCode = l.mid( 9, pos - 9 ).toInt();
@@ -949,7 +949,7 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
     if ( number != 0 )
 	return QHttpHeader::parseLine( line, number );
 
-    QStringList lst = QStringList::split( " ", line.simplifyWhiteSpace() );
+    QStringList lst = QStringList::split( " ", line.simplified() );
     if ( lst.count() > 0 ) {
 	m = lst[0];
 	if ( lst.count() > 1 ) {
@@ -1433,7 +1433,8 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 QByteArray QHttp::readAll()
 {
     Q_ULONG avail = bytesAvailable();
-    QByteArray tmp( avail );
+    QByteArray tmp;
+    tmp.resize( avail );
     Q_LONG read = readBlock( tmp.data(), avail );
     tmp.resize( read );
     return tmp;
@@ -1892,7 +1893,8 @@ void QHttp::slotBytesWritten( int written )
 
     if ( d->socket.bytesToWrite() == 0 ) {
 	int max = qMin( 4096, d->postDevice->size() - d->postDevice->at() );
-	QByteArray arr( max );
+	QByteArray arr;
+	arr.resize( max );
 
 	int n = d->postDevice->readBlock( arr.data(), max );
 	if ( n != max ) {
@@ -1976,7 +1978,7 @@ void QHttp::slotReadyRead()
 			if ( !d->socket.canReadLine() )
 			    break;
 			QString sizeString = d->socket.readLine();
-			int tPos = sizeString.find( ';' );
+			int tPos = sizeString.indexOf( ';' );
 			if ( tPos != -1 )
 			    sizeString.truncate( tPos );
 			bool ok;
@@ -2037,7 +2039,8 @@ void QHttp::slotReadyRead()
 	    } else if ( d->response.hasContentLength() ) {
 		n = qMin( d->response.contentLength() - d->bytesDone, n );
 		if ( n > 0 ) {
-		    arr = new QByteArray( n );
+		    arr = new QByteArray;
+		    arr->resize( n );
 		    Q_LONG read = d->socket.readBlock( arr->data(), n );
 		    arr->resize( read );
 		}

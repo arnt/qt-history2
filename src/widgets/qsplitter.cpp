@@ -1364,7 +1364,7 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 	    if ( it == splitter.d->list.end() )
 		break;
 
-	    if ( line[i].upper() == 'H' ) {
+	    if ( line[i].toUpper() == 'H' ) {
 		(*it)->wid->hide();
 		i++;
 	    } else {

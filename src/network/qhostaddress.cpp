@@ -215,7 +215,7 @@ static bool parseIp4(const QString& address, Q_UINT32 *addr)
 */
 bool QHostAddress::setAddress(const QString& address)
 {
-    QString a = address.simplifyWhiteSpace();
+    QString a = address.simplified();
 
     // try ipv4
     Q_UINT32 maybeIp4 = 0;

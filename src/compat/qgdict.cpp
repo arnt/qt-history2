@@ -79,7 +79,7 @@ int QGDict::hashKeyString( const QString &key )
 	}
     } else {					// case insensitive
 	for ( i=0; i<(int)key.length(); i++ ) {
-	    h = (h<<4) + p[i].lower().cell();
+	    h = (h<<4) + p[i].toLower().cell();
 	    if ( (g = h & 0xf0000000) )
 		h ^= g >> 24;
 	    h &= ~g;
@@ -311,10 +311,10 @@ QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::It
 		n = (QStringBucket*)n->getNext();
 	    }
 	} else {
-	    QString k = key.lower();
+	    QString k = key.toLower();
 	    n = (QStringBucket*)vec[index];
 	    while( n != 0 ) {
-		if ( k == n->getKey().lower() )
+		if ( k == n->getKey().toLower() )
 		    return n->getData();	// item found
 		n = (QStringBucket*)n->getNext();
 	    }
@@ -541,10 +541,10 @@ QStringBucket *QGDict::unlink_string( const QString &key, QPtrCollection::Item d
 	    prev = n;
 	}
     } else {
-	QString k = key.lower();
+	QString k = key.toLower();
 	for ( n=(QStringBucket*)vec[index]; n;
 	      n=(QStringBucket*)n->getNext() ) {
-	    bool found = (k == n->getKey().lower());
+	    bool found = (k == n->getKey().toLower());
 	    if ( found && d )
 		found = (n->getData() == d);
 	    if ( found ) {

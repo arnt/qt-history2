@@ -1269,7 +1269,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	}
 	setActiveItem( i, popupvisible	 );
     } else if ( ( !e->state() || ( e->state() & (MetaButton|AltButton) ) ) && e->text().length()==1 ) {
-	QChar c = e->text()[0].upper();
+	QChar c = e->text()[0].toUpper();
 
 	QMenuItem* first = 0;
 	QMenuItem* currentSelected = 0;
@@ -1284,7 +1284,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		int i = s.indexOf( '&' );
 		if ( i >= 0 )
 		{
-		    if ( s[i+1].upper() == c ) {
+		    if ( s[i+1].toUpper() == c ) {
 			clashCount++;
 			if ( !first )
 			    first = m;

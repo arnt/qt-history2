@@ -481,7 +481,7 @@ void QXmlNamespaceSupport::processName( const QString& qname,
 	bool isAttribute,
 	QString& nsuri, QString& localname ) const
 {
-    int pos = qname.find( ':' );
+    int pos = qname.indexOf( ':' );
     if ( pos < qname.length() ) {
 	// there was a ':'
 	nsuri = uri( qname.left( pos ) );
@@ -1130,10 +1130,10 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 	QString input = encMapper->toUnicode( data, data.size() );
 	// ### unexpected EOF? (for incremental parsing)
 	// starts the document with an XML declaration?
-	if ( input.find("<?xml") == 0 ) {
+	if ( input.indexOf("<?xml") == 0 ) {
 	    // try to find out if there is an encoding
-	    int endPos = input.find( ">" );
-	    int pos = input.find( "encoding" );
+	    int endPos = input.indexOf( '>' );
+	    int pos = input.indexOf( "encoding" );
 	    if ( pos < endPos && pos != -1 ) {
 		QString encoding;
 		do {
@@ -3700,7 +3700,7 @@ bool QXmlSimpleReader::parseContent()
 		// call the handler for CharData
 		if ( contentHnd ) {
 		    if ( d->contentCharDataRead ) {
-			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			if ( d->reportWhitespaceCharData || !string().simplified().isEmpty() ) {
 			    if ( !contentHnd->characters( string() ) ) {
 				reportParseError( contentHnd->errorString() );
 				return FALSE;
@@ -3781,7 +3781,7 @@ bool QXmlSimpleReader::parseContent()
 		    if ( d->reportEntities ) {
 			// report character data in chunks
 			if ( contentHnd ) {
-			    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			    if ( d->reportWhitespaceCharData || !string().simplified().isEmpty() ) {
 				if ( !contentHnd->characters( string() ) ) {
 				    reportParseError( contentHnd->errorString() );
 				    return FALSE;
@@ -3801,7 +3801,7 @@ bool QXmlSimpleReader::parseContent()
 		// call the handler for CharData
 		if ( contentHnd ) {
 		    if ( d->contentCharDataRead ) {
-			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			if ( d->reportWhitespaceCharData || !string().simplified().isEmpty() ) {
 			    if ( !contentHnd->characters( string() ) ) {
 				reportParseError( contentHnd->errorString() );
 				return FALSE;
@@ -3863,7 +3863,7 @@ bool QXmlSimpleReader::reportEndEntities()
     int count = (int)d->xmlRef.count();
     while ( count != 0 && d->xmlRef.top().isEmpty() ) {
 	if ( contentHnd ) {
-	    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+	    if ( d->reportWhitespaceCharData || !string().simplified().isEmpty() ) {
 		if ( !contentHnd->characters( string() ) ) {
 		    reportParseError( contentHnd->errorString() );
 		    return FALSE;
@@ -4094,7 +4094,7 @@ bool QXmlSimpleReader::parsePI()
 	    case Name:
 		// test what name was read and determine the next state
 		// (not very beautiful, I admit)
-		if ( name().lower() == "xml" ) {
+		if ( name().toLower() == "xml" ) {
 		    if ( d->parsePI_xmldecl && name()=="xml" ) {
 			state = XMLDecl;
 		    } else {

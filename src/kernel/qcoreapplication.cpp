@@ -4,6 +4,8 @@
 #include <qfile.h>
 #include <qtextcodec.h>
 #include <qdatastream.h>
+#include <qfileinfo.h>
+#include <qdir.h>
 
 #ifdef Q_WS_QWS
 #include <qcoreevent.h>
@@ -16,6 +18,8 @@
 
 #include "qcoreapplication_p.h"
 #include "qeventloop_p.h"
+
+#include <stdlib.h>
 
 #define d d_func()
 #define q q_func()
@@ -1093,6 +1097,196 @@ QTextCodec* QCoreApplication::defaultCodec() const
 #endif //QT_NO_TEXTCODEC
 #endif //QT_NO_TRANSLATE
 
+
+#ifndef QT_NO_DIR
+#ifndef Q_WS_WIN
+static QString resolveSymlinks( const QString& path, int depth = 0 )
+{
+    bool foundLink = FALSE;
+    QString linkTarget;
+    QString part = path;
+    int slashPos = path.length();
+
+    // too deep; we give up
+    if ( depth == 128 )
+	return QString::null;
+
+    do {
+	part = part.left( slashPos );
+	QFileInfo fileInfo( part );
+	if ( fileInfo.isSymLink() ) {
+	    foundLink = TRUE;
+	    linkTarget = fileInfo.readLink();
+	    break;
+	}
+    } while ( (slashPos = part.lastIndexOf('/')) != -1 );
+
+    if ( foundLink ) {
+	QString path2;
+	if ( linkTarget[0] == '/' ) {
+	    path2 = linkTarget;
+	    if ( slashPos < (int) path.length() )
+		path2 += "/" + path.right( path.length() - slashPos - 1 );
+	} else {
+	    QString relPath;
+	    relPath = part.left( part.lastIndexOf('/') + 1 ) + linkTarget;
+	    if ( slashPos < (int) path.length() ) {
+		if ( !linkTarget.endsWith( "/" ) )
+		    relPath += "/";
+		relPath += path.right( path.length() - slashPos - 1 );
+	    }
+	    path2 = QDir::current().absFilePath( relPath );
+	}
+	path2 = QDir::cleanDirPath( path2 );
+	return resolveSymlinks( path2, depth + 1 );
+    } else {
+	return path;
+    }
+}
+#endif // Q_WS_WIN
+
+/*!
+    Returns the directory that contains the application executable.
+
+    For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
+    directory, and you run the \c{demo} example, this function will
+    return "C:/Trolltech/Qt/examples/demo".
+
+    \warning On Unix and Mac OS X, this function assumes that argv[0]
+    contains the file name of the executable (which it normally
+    does). It also assumes that the current directory hasn't been
+    changed by the application.
+
+    \sa applicationFilePath()
+*/
+QString QCoreApplication::applicationDirPath()
+{
+    return QFileInfo( applicationFilePath() ).dirPath();
+}
+
+/*!
+    Returns the file path of the application executable.
+
+    For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
+    directory, and you run the \c{demo} example, this function will
+    return "C:/Trolltech/Qt/examples/demo/demo.exe".
+
+    \warning On Unix and Mac OS X, this function assumes that argv[0]
+    contains the file name of the executable (which it normally
+    does). It also assumes that the current directory hasn't been
+    changed by the application.
+
+    \sa applicationDirPath()
+*/
+QString QCoreApplication::applicationFilePath()
+{
+#ifdef Q_WS_WIN
+    return QDir::cleanDirPath( QFile::decodeName( qAppFileName() ) );
+#else
+    QString argv0 = QFile::decodeName( QByteArray(argv()[0]) );
+    QString absPath;
+
+    if ( argv0[0] == '/' ) {
+	/*
+	  If argv0 starts with a slash, it is already an absolute
+	  file path.
+	*/
+	absPath = argv0;
+    } else if (argv0.contains('/')) {
+	/*
+	  If argv0 contains one or more slashes, it is a file path
+	  relative to the current directory.
+	*/
+	absPath = QDir::current().absFilePath( argv0 );
+    } else {
+	/*
+	  Otherwise, the file path has to be determined using the
+	  PATH environment variable.
+	*/
+	char *pEnv = getenv( "PATH" );
+	QStringList paths( QStringList::split(QChar(':'), pEnv) );
+	QStringList::const_iterator p = paths.begin();
+	while ( p != paths.end() ) {
+	    QString candidate = QDir::current().absFilePath( *p + "/" + argv0 );
+	    if ( QFile::exists(candidate) ) {
+		absPath = candidate;
+		break;
+	    }
+	    ++p;
+	}
+    }
+
+    absPath = QDir::cleanDirPath( absPath );
+    if ( QFile::exists(absPath) ) {
+	return resolveSymlinks( absPath );
+    } else {
+	return QString::null;
+    }
+#endif
+}
+#endif // QT_NO_DIR
+
+/*!
+    Returns the number of command line arguments.
+
+    The documentation for argv() describes how to process command line
+    arguments.
+
+    \sa argv(), QApplication::QApplication()
+*/
+int QCoreApplication::argc() const
+{
+    return d->argc;
+}
+
+
+/*!
+    Returns the command line argument vector.
+
+    \c argv()[0] is the program name, \c argv()[1] is the first
+    argument and \c argv()[argc()-1] is the last argument.
+
+    A QApplication object is constructed by passing \e argc and \e
+    argv from the \c main() function. Some of the arguments may be
+    recognized as Qt options and removed from the argument vector. For
+    example, the X11 version of Qt knows about \c -display, \c -font
+    and a few more options.
+
+    Example:
+    \code
+	// showargs.cpp - displays program arguments in a list box
+
+	#include <qapplication.h>
+	#include <qlistbox.h>
+
+	int main( int argc, char **argv )
+	{
+	    QApplication a( argc, argv );
+	    QListBox b;
+	    a.setMainWidget( &b );
+	    for ( int i = 0; i < a.argc(); i++ )  // a.argc() == argc
+		b.insertItem( a.argv()[i] );      // a.argv()[i] == argv[i]
+	    b.show();
+	    return a.exec();
+	}
+    \endcode
+
+    If you run \c{showargs -display unix:0 -font 9x15bold hello world}
+    under X11, the list box contains the three strings "showargs",
+    "hello" and "world".
+
+    Qt provides a global pointer, \c qApp, that points to the
+    QApplication object, and through which you can access argc() and
+    argv() in functions other than main().
+
+    \sa argc(), QApplication::QApplication()
+*/
+char **QCoreApplication::argv() const
+{
+    return d->argv;
+}
+
+
 #ifndef QT_NO_COMPONENT
 
 /*!
@@ -1129,14 +1323,14 @@ QStringList QCoreApplication::libraryPaths()
 	if ( QFile::exists( qInstallPathPlugins() ) )
 	    app_libpaths->append( qInstallPathPlugins() );
 
-	QString app_location = qApp ? qApp->applicationDirPath() 
+	QString app_location = self ? self->applicationDirPath()
 #ifdef Q_WS_WIN
 	    : qAppFileName();
 	app_location.truncate( app_location.findRev( '\\' ) );
 #else
 	    : QString::null;
 #endif
-	app_location.truncate( app_location.findRev( '/' ) );
+	app_location.truncate( app_location.lastIndexOf( '/' ) );
 	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
 	    app_libpaths->append( app_location );
     }

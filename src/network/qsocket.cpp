@@ -177,7 +177,7 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
     if ( device ) {
 	socket = device;
     } else {
-	socket = new QSocketDevice( QSocketDevice::Stream, 
+	socket = new QSocketDevice( QSocketDevice::Stream,
 				    ( addr.isIPv4Address() ?
 				      QSocketDevice::IPv4 :
 				      QSocketDevice::IPv6 ), 0 );
@@ -492,7 +492,7 @@ void QSocket::tryConnecting()
 	    // if the host has more addresses, try another some.
 	    if ( d->socket == 0 && !d->addresses.isEmpty() ) {
 		d->addr = *d->addresses.begin();
-		d->addresses.remove( d->addresses.begin() );
+		d->addresses.removeFirst();
 		d->setSocketDevice( this, 0 );
 		stuck = TRUE;
 #if defined(QSOCKET_DEBUG)
@@ -722,7 +722,8 @@ void QSocket::flush()
 	    // and concatenate up to the largest payload TCP/IP can
 	    // carry.  with these precautions, nagle's algorithm
 	    // should apply only when really appropriate.
-	    QByteArray out( 65536 );
+	    QByteArray out;
+	    out.resize( 65536 );
 	    int j = d->windex;
 	    int s = a->size() - j;
 	    int n = 0;
@@ -978,7 +979,8 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 	memcpy( a->data()+i, data, len );
     } else {
 	// append new buffer
-	a = new QByteArray( len );
+	a = new QByteArray;
+	a->resize( len );
 	memcpy( a->data(), data, len );
 	d->wba.append( a );
     }
@@ -1090,7 +1092,8 @@ Q_LONG QSocket::readLine( char *data, Q_ULONG maxlen )
 
 QString QSocket::readLine()
 {
-    QByteArray a(256);
+    QByteArray a;
+    a.resize(256);
     bool nl = d->rba.scanNewline( &a );
     QString s;
     if ( nl ) {
@@ -1186,7 +1189,8 @@ void QSocket::sn_read( bool force )
 		QSocketPrivate::sn_read_alreadyCalled.remove(this);
 		return;
 	    }
-	    a = new QByteArray( nread );
+	    a = new QByteArray;
+	    a->resize( nread );
 	    memcpy( a->data(), buf, nread );
 	}
 
@@ -1196,14 +1200,16 @@ void QSocket::sn_read( bool force )
 #endif
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
-	    a = new QByteArray( nbytes );
+	    a = new QByteArray;
+	    a->resize( nbytes );
 	    nread = d->socket->readBlock( a->data(), maxToRead ? qMin(nbytes,maxToRead) : nbytes );
 	} else {
 	    a = 0;
 	    nread = d->socket->readBlock( buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	    if ( nread > 0 ) {
 		// ##### could setRawData
-		a = new QByteArray( nread );
+		a = new QByteArray;
+		a->resize( nread );
 		memcpy( a->data(), buf, nread );
 	    }
 	}

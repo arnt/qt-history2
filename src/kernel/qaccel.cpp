@@ -297,7 +297,7 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
 	}
     }
     if (!e->text().isEmpty()) {
-	temp.setKey((int)e->text().unicode()->upper().unicode() | modifier, index);
+	temp.setKey((int)e->text().unicode()->toUpper().unicode() | modifier, index);
 	result = temp.matches(item->key);
     }
     return result;
@@ -864,7 +864,7 @@ QKeySequence QAccel::shortcutKey(const QString &str)
 	if (str[p] != '&') {
 	    QChar c = str[p];
 	    if (c.isPrint()) {
-		c = c.upper();
+		c = c.toUpper();
 		return QKeySequence(c.unicode() + ALT);
 	    }
 	}

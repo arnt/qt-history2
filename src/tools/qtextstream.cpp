@@ -1262,7 +1262,7 @@ ulong QTextStream::input_hex()
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
 	for(uint i = 0; i < l; i++) {
-	    char c = buf[i].lower().latin1();
+	    char c = buf[i].toLower().latin1();
 	    val = (val << 4) + (buf[i].isDigit() ? c - '0' : 10 + c-'a');
 	}
 	if(sr)
@@ -1300,9 +1300,9 @@ long QTextStream::input_int()
 	QChar c = ts_getc();
 	if ( c == '0' ) {		// bin, oct or hex
 	    c = ts_getc();
-	    if ( c.lower() == 'x' ) {
+	    if ( c.toLower() == 'x' ) {
 		val = (long)input_hex();
-	    } else if ( c.lower() == 'b' ) {
+	    } else if ( c.toLower() == 'b' ) {
 		val = (long)input_bin();
 	    } else {			// octal
 		ts_ungetc( c );

@@ -1581,7 +1581,7 @@ int QFtpProtocol::supportedOperations() const
 void QFtpProtocol::npListInfo( const QUrlInfo & i )
 {
     if ( url() ) {
-	QRegExp filt( url()->nameFilter(), FALSE, TRUE );
+	QRegExp filt( url()->nameFilter(), QString::CaseInsensitive, TRUE );
 	if ( i.isDir() || filt.search( i.name() ) != -1 ) {
 	    emit newChild( i, operationInProgress() );
 	}

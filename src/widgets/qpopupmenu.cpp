@@ -1912,7 +1912,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     if ( !ok_key &&
 	 ( !e->state() || e->state() == AltButton || e->state() == ShiftButton ) &&
 	 e->text().length()==1 ) {
-	QChar c = e->text()[0].upper();
+	QChar c = e->text()[0].toUpper();
 
 	QMenuItem* first = 0;
 	QMenuItem* currentSelected = 0;
@@ -1927,7 +1927,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    if ( !s.isEmpty() ) {
 		int i = s.indexOf( '&' );
 		while ( i >= 0 && i < (int)s.length() - 1 ) {
-		    if ( s[i+1].upper() == c ) {
+		    if ( s[i+1].toUpper() == c ) {
 			ok_key = TRUE;
 			clashCount++;
 			if ( !first )

@@ -58,9 +58,6 @@ public:
 #endif
     virtual ~QApplication();
 
-    int		    argc()	const;
-    char	  **argv()	const;
-
     Type type() const;
 
 #ifndef QT_NO_STYLE
@@ -113,10 +110,6 @@ public:
     static void syncX();
     static void beep();
 
-#ifndef QT_NO_DIR
-    QString   applicationDirPath();
-    QString   applicationFilePath();
-#endif
     static void      setDesktopSettingsAware( bool );
     static bool      desktopSettingsAware();
 

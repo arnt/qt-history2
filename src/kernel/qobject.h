@@ -134,6 +134,9 @@ signals:
 public:
     inline QObject *parent() const { return parentObj; }
 
+    inline bool inherits(const char *classname) const
+	{ return qt_metacast(classname) != 0; }
+
 public slots:
     void deleteLater();
 
@@ -160,8 +163,6 @@ public:
 	{ if (o) o->setParent(0); }
     inline QT_COMPAT bool isA(const char *classname) const
 	{ return qstrcmp(classname, className() ) == 0; }
-    inline QT_COMPAT bool inherits(const char *classname) const
-	{ return metaObject()->inherits(classname); }
     inline QT_COMPAT const char *name() const { return objectName(); }
     inline QT_COMPAT const char *name(const char *defaultName) const { return objectName(defaultName); }
     inline QT_COMPAT void setName(const char *name) { setObjectName(name); }

@@ -1847,7 +1847,7 @@ bool QRegExpEngine::matchHere()
 			if (cs)
 			    in = (m == ch);
 			else
-			    in = (QChar(m).lower() == QChar(ch).lower());
+			    in = (QChar(m).toLower() == QChar(ch).toLower());
 		    } else if (next == FinalState) {
 			mmMatchLen = i;
 			stop = mmMinimal;
@@ -1858,11 +1858,11 @@ bool QRegExpEngine::matchHere()
 			if (cs)
 			    in = cc->in(ch);
 			else if (cc->negative())
-			    in = cc->in(QChar(ch).lower()) &&
-				 cc->in(QChar(ch).upper());
+			    in = cc->in(QChar(ch).toLower()) &&
+				 cc->in(QChar(ch).toUpper());
 			else
-			    in = cc->in(QChar(ch).lower()) ||
-				 cc->in(QChar(ch).upper());
+			    in = cc->in(QChar(ch).toLower()) ||
+				 cc->in(QChar(ch).toUpper());
 #endif
 #ifndef QT_NO_REGEXP_BACKREF
 		    } else { /* ((m & BackRefBit) != 0) */
@@ -1875,8 +1875,8 @@ bool QRegExpEngine::matchHere()
 				in = (mmIn[mmPos + mmCurCapBegin[ell]]
 				       == QChar(ch));
 			    else
-				in = (mmIn[mmPos + mmCurCapBegin[ell]].lower()
-				       == QChar(ch).lower());
+				in = (mmIn[mmPos + mmCurCapBegin[ell]].toLower()
+				       == QChar(ch).toLower());
 			}
 
 			if (in) {
@@ -1902,7 +1902,7 @@ bool QRegExpEngine::matchHere()
 					QChar a = mmIn[mmPos +
 						       mmCurCapBegin[ell] + n];
 					QChar b = mmIn[mmPos + i + n];
-					if (a.lower() != b.lower())
+					if (a.toLower() != b.toLower())
 					    break;
 					n++;
 				    }
@@ -2640,7 +2640,7 @@ int QRegExpEngine::getEscape()
     case 'x':
 	val = 0;
 	for (i = 0; i < 4; i++) {
-	    low = QChar(yyCh).lower().unicode();
+	    low = QChar(yyCh).toLower().unicode();
 	    if (low >= '0' && low <= '9')
 		val = (val << 4) | (low - '0');
 	    else if (low >= 'a' && low <= 'f')

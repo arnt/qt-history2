@@ -2640,10 +2640,10 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 		if ( isValidInput( str[(int)strIndex], maskData[ i ].maskChar ) ) {
 		    switch ( maskData[ i ].caseMode ) {
 		    case MaskInputData::Upper:
-			s += str[(int)strIndex].upper();
+			s += str[(int)strIndex].toUpper();
 			break;
 		    case MaskInputData::Lower:
-			s += str[(int)strIndex].lower();
+			s += str[(int)strIndex].toLower();
 			break;
 		    default:
 			s += str[(int)strIndex];
@@ -2664,10 +2664,10 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 			    s += fill.mid( i, n-i );
 			    switch ( maskData[ n ].caseMode ) {
 			    case MaskInputData::Upper:
-				s += str[(int)strIndex].upper();
+				s += str[(int)strIndex].toUpper();
 				break;
 			    case MaskInputData::Lower:
-				s += str[(int)strIndex].lower();
+				s += str[(int)strIndex].toLower();
 				break;
 			    default:
 				s += str[(int)strIndex];

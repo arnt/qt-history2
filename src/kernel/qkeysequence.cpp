@@ -401,7 +401,7 @@ int QKeySequence::decodeString(const QString& str)
 
     int fnum = 0;
     if (accel.length() == 1) {
-	ret |= accel[0].upper().unicode();
+	ret |= accel[0].toUpper().unicode();
     } else if (accel[0] == 'f' && (fnum = accel.mid(1).toInt())) {
         ret |= Key_F1 + fnum - 1;
     } else {
@@ -470,7 +470,7 @@ QString QKeySequence::encodeString(int key)
 
     if (key && key < Key_Escape) {
 	if (key < 0x10000) {
-	    p = QChar(key & 0xffff).upper();
+	    p = QChar(key & 0xffff).toUpper();
 	} else {
 	    p = QChar((key-0x10000)/0x400+0xd800);
 	    p += QChar((key-0x10000)%400+0xdc00);
@@ -494,7 +494,7 @@ QString QKeySequence::encodeString(int key)
 	// (Really depends on you locale)
 	if (!keyname[i].name) {
 	    if (key < 0x10000) {
-		p = QChar(key & 0xffff).upper();
+		p = QChar(key & 0xffff).toUpper();
 	    } else {
 		p = QChar((key-0x10000)/0x400+0xd800);
 		p += QChar((key-0x10000)%400+0xdc00);

@@ -233,7 +233,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
     if ( !list.isEmpty() ) {
 	for (int i = 0; i < list.size(); ++i) {
 	    QObject *obj = list.at(i);
-	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->metaObject()->inherits(type) )
+	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
 		return obj;
 	}
     }
@@ -482,16 +482,26 @@ const char *QObject::className() const
   \sa inherits() metaObject()
 */
 
+/*! \fn Type *qt_cast<Type *>(QObject *o)
+
+  \relates QObject
+
+  Returns the object \a o cast to Type if the object is of type Type,
+  otherwise returns 0.
+*/
+
 
 /*!
     \fn bool QObject::inherits( const char *clname ) const
 
-    \obsolete
     Returns TRUE if this object is an instance of a class that
-    inherits \a clname, and \a clname inherits QObject; otherwise
-    returns FALSE.
+    inherits \a clname or a QObject subclass that inherits classname,
+    otherwise returns FALSE.
 
     A class is considered to inherit itself.
+
+    Consider using qt_cast<Type *>(object) instead. The method is both
+    faster and safer.
 
     Example:
     \code
@@ -503,12 +513,12 @@ const char *QObject::className() const
 	// QScrollBar inherits QWidget and QRangeControl
 	QScrollBar *s = new QScrollBar( 0 );
 	s->inherits( "QWidget" );       // returns TRUE
-	s->inherits( "QRangeControl" ); // returns FALSE
+	s->inherits( "QRangeControl" ); // returns TRUE
     \endcode
 
     (\l QRangeControl is not a QObject.)
 
-    \sa isA(), metaObject()
+    \sa isA(), metaObject(), qt_cast
 */
 
 /*!
@@ -601,7 +611,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 	if ( onlyWidgets ) {
 	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 		return obj;
-	} else if ( ( !inheritsClass || obj->metaObject()->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
+	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 	    return obj;
 	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
 	    return obj;
@@ -986,7 +996,7 @@ static void objSearch( QObjectList &result,
 	bool ok = TRUE;
 	if ( onlyWidgets )
 	    ok = obj->isWidgetType();
-	else if ( inheritsClass && !obj->metaObject()->inherits(inheritsClass) )
+	else if ( inheritsClass && !obj->inherits(inheritsClass) )
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )

@@ -561,7 +561,7 @@ unsigned char QChar::combiningClass() const
     Returns the lowercase equivalent if the character is uppercase;
     otherwise returns the character itself.
 */
-QChar QChar::lower() const
+QChar QChar::toLower() const
 {
      return ::lower(*this);
 }
@@ -570,7 +570,7 @@ QChar QChar::lower() const
     Returns the uppercase equivalent if the character is lowercase;
     otherwise returns the character itself.
 */
-QChar QChar::upper() const
+QChar QChar::toUpper() const
 {
      return ::upper(*this);
 }

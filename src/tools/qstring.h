@@ -536,8 +536,12 @@ public:
     inline bool isDigit() const { return ((QChar)*this).isDigit(); }
 
     inline int digitValue() const { return ((QChar)*this).digitValue(); }
-    QChar lower() const { return ((QChar)*this).lower(); }
-    QChar upper() const { return ((QChar)*this).upper(); }
+    QChar toLower() const { return ((QChar)*this).toLower(); }
+    QChar toUpper() const { return ((QChar)*this).toUpper(); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT QChar lower() const { return ((QChar)*this).toLower(); }
+    inline QT_COMPAT QChar upper() const { return ((QChar)*this).toUpper(); }
+#endif
 
     QChar::Category category() const { return ((QChar)*this).category(); }
     QChar::Direction direction() const { return ((QChar)*this).direction(); }

@@ -34,6 +34,9 @@ public:
     QCoreApplication(QCoreApplicationPrivate &, QEventLoop *);
     ~QCoreApplication();
 
+    int		    argc()	const;
+    char	  **argv()	const;
+
     static QCoreApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 
@@ -58,6 +61,11 @@ public:
 
     static bool	     startingUp();
     static bool	     closingDown();
+
+#ifndef QT_NO_DIR
+    QString   applicationDirPath();
+    QString   applicationFilePath();
+#endif
 
 #ifndef QT_NO_COMPONENT
     static void      setLibraryPaths( const QStringList & );

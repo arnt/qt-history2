@@ -6752,7 +6752,7 @@ bool QTextDocument::hasPrefix(const QChar* doc, int length, int pos, QChar c)
 {
     if ( pos + 1 > length )
 	return FALSE;
-    return doc[ pos ].lower() == c.lower();
+    return doc[ pos ].toLower() == c.toLower();
 }
 
 bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QString& s )
@@ -6760,7 +6760,7 @@ bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QStr
     if ( pos + (int) s.length() > length )
 	return FALSE;
     for ( int i = 0; i < (int)s.length(); i++ ) {
-	if ( doc[ pos + i ].lower() != s[ i ].lower() )
+	if ( doc[ pos + i ].toLower() != s[ i ].toLower() )
 	    return FALSE;
     }
     return TRUE;

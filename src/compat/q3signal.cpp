@@ -107,8 +107,8 @@ Q3Signal::~Q3Signal()
 static inline bool intSignature( const char *member )
 {
     QByteArray s( member );
-    int p = s.find( '(' );
-    return p > 0 && p < s.findRev( "int" );
+    int p = s.indexOf( '(' );
+    return p > 0 && p < s.lastIndexOf( "int" );
 }
 #endif
 /*!

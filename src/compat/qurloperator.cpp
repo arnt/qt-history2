@@ -856,7 +856,7 @@ void QUrlOperator::addEntry( const QList<QUrlInfo> &i )
 {
     QList<QUrlInfo>::ConstIterator it = i.begin();
     for ( ; it != i.end(); ++it )
-	d->entryMap[ ( *it ).name().stripWhiteSpace() ] = *it;
+	d->entryMap[ ( *it ).name().trimmed() ] = *it;
 }
 
 /*!
@@ -868,8 +868,8 @@ void QUrlOperator::addEntry( const QList<QUrlInfo> &i )
 
 QUrlInfo QUrlOperator::info( const QString &entry ) const
 {
-    if ( d->entryMap.contains( entry.stripWhiteSpace() ) ) {
-	return d->entryMap[ entry.stripWhiteSpace() ];
+    if ( d->entryMap.contains( entry.trimmed() ) ) {
+	return d->entryMap[ entry.trimmed() ];
     } else if ( entry == "." || entry == ".." ) {
 	 // return a faked QUrlInfo
 	 QUrlInfo inf;

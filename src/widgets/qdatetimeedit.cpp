@@ -908,7 +908,7 @@ QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
 void QDateEdit::init()
 {
     d = new QDateEditPrivate();
-    d->controls = new QDateTimeSpinWidget( this, qstrcmp( name(), "qt_datetime_dateedit" ) == 0 ? "qt_spin_widget" : "date edit controls" );
+    d->controls = new QDateTimeSpinWidget( this, qstrcmp( objectName(), "qt_datetime_dateedit" ) == 0 ? "qt_spin_widget" : "date edit controls" );
     d->ed = new QDateTimeEditor( this, "date editor" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );

@@ -1513,7 +1513,7 @@ static QString makePSFontName( const QFontEngine *fe, int *listpos = 0, int *fty
       break;
     }
     if ( i == 0 || ps[i-1] == ' ' ) {
-      ps[i] = ps[i].upper();
+      ps[i] = ps[i].toUpper();
       if ( i )
         ps.remove( i-1, 1 );
       else
@@ -4222,7 +4222,7 @@ QString QPSPrinterFontAsian::makePSFontName( const QFontEngine *f, int type ) co
 	    break;
         }
 	if ( i == 0 || ps[i-1] == ' ' ) {
-	    ps[i] = ps[i].upper();
+	    ps[i] = ps[i].toUpper();
 	    if ( i )
 		ps.remove( i-1, 1 );
 	    else

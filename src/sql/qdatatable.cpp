@@ -1045,7 +1045,7 @@ bool QDataTable::insertCurrent()
 	    refresh();
 	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    findBuffer( idx, d->lastAt );
-	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight());
 	    emit cursorChanged( QSql::Insert );
 	}
 	break;
@@ -1194,7 +1194,7 @@ bool QDataTable::deleteCurrent()
 	    refresh();
 	    emit cursorChanged( QSql::Delete );
 	    setCurrentCell( currentRow(), currentColumn() );
-	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight());
 	    verticalHeader()->repaint(); // get rid of trailing garbage
 	}
 	break;
@@ -1680,7 +1680,7 @@ void QDataTable::repaintCell( int row, int col )
     QRect cg = cellGeometry( row, col );
     QRect re( QPoint( cg.x() - 2, cg.y() - 2 ),
 	      QSize( cg.width() + 4, cg.height() + 4 ) );
-    repaintContents( re, FALSE );
+    repaintContents(re);
 }
 
 /*!

@@ -116,24 +116,6 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 */
 
 /*!
-    Returns true if this class inherits \a classname within the meta
-    object inheritance chain; otherwise returns false.
-
-    (A class is considered to inherit itself.)
-*/
-bool QMetaObject::inherits(const char* classname) const
-{
-    if (classname) {
-	const QMetaObject *meta = this;
-	do {
-	    if ( strcmp(classname, meta->d.stringdata) == 0 )
-		return true;
-	} while ((meta = meta->d.superdata));
-    }
-    return false;
-}
-
-/*!
     \internal
     Returns \a obj if object \a obj inherits from this meta
     object; otherwise returns 0.

@@ -1160,7 +1160,7 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
 	 renaming )
 	return;
 
-    QString keyPressed = ((QKeyEvent *)e)->text().lower();
+    QString keyPressed = ((QKeyEvent *)e)->text().toLower();
     QChar keyChar = keyPressed[0];
     if ( keyChar.isLetterOrNumber() ) {
 	QListBoxItem * i = 0;
@@ -1174,7 +1174,7 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
 	i = firstItem();
 	while ( i != item( currentItem() ) ) {
 	    QString it = text( index( i ) );
-	    if ( it[0].lower() == keyChar ) {
+	    if ( it[0].toLower() == keyChar ) {
 	    clearSelection();
 	    setCurrentItem( i );
 	    } else {
@@ -1579,7 +1579,7 @@ void QFileDialogQFileListView::keyPressEvent( QKeyEvent *e )
 	 renaming )
 	return;
 
-    QString keyPressed = e->text().lower();
+    QString keyPressed = e->text().toLower();
     QChar keyChar = keyPressed[0];
     if ( keyChar.isLetterOrNumber() ) {
 	QListViewItem * i = 0;
@@ -1593,7 +1593,7 @@ void QFileDialogQFileListView::keyPressEvent( QKeyEvent *e )
 	i = firstChild();
 	while ( i != currentItem() ) {
 	    QString it = i->text(0);
-	    if ( it[0].lower() == keyChar ) {
+	    if ( it[0].toLower() == keyChar ) {
 	    clearSelection();
 	    ensureItemVisible( i );
 	    setCurrentItem( i );
@@ -2056,12 +2056,12 @@ static QStringList makeFiltersList( const QString &filter )
     if ( filter.isEmpty() )
 	return QStringList();
 
-    int i = filter.find( ";;", 0 );
+    int i = filter.indexOf( ";;", 0 );
     QString sep( ";;" );
     if ( i == -1 ) {
-	if ( filter.find( "\n", 0 ) != -1 ) {
+	if ( filter.contains( '\n') ) {
 	    sep = "\n";
-	    i = filter.find( sep, 0 );
+	    i = filter.indexOf( sep );
 	}
     }
 
@@ -2339,7 +2339,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
 	if ( !dirName.isEmpty() ) {
-	    int dotpos = dirName.find( QChar('.'), 0, FALSE );
+	    int dotpos = dirName.indexOf( QChar('.'), 0, QString::CaseInsensitive );
 	    if ( dotpos != -1 ) {
 		for ( int b=0 ; b<d->types->count() ; b++ ) {
 		    if ( d->types->text(b).contains( dirName.right( dirName.length() - dotpos ) ) ) {
@@ -2897,7 +2897,7 @@ void QFileDialog::setSelectedFilter( const QString& mask )
     int n;
 
     for ( n = 0; n < d->types->count(); n++ ) {
-	if ( d->types->text( n ).contains( mask, FALSE ) ) {
+	if ( d->types->text( n ).contains( mask, QString::CaseInsensitive ) ) {
 	    d->types->setCurrentItem( n );
 	    QString f = mask;
 	    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
@@ -2944,7 +2944,7 @@ QStringList QFileDialog::selectedFiles() const
     if ( mode() == ExistingFiles ) {
 	QStringList selectedLst;
 	QString selectedFiles = nameEdit->text();
-	selectedFiles.truncate( selectedFiles.findRev( '\"' ) );
+	selectedFiles.truncate( selectedFiles.lastIndexOf( '\"' ) );
 	selectedLst = selectedLst.split( QString("\" "), selectedFiles );
 	for ( QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it ) {
 	    QUrl u;
@@ -4408,7 +4408,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dlg->d->types->setEnabled( FALSE );
 
     QString dir_( dir );
-    dir_ = dir_.simplifyWhiteSpace();
+    dir_ = dir_.simplified();
     if ( dir_.isEmpty() && !wd.isEmpty() )
 	dir_ = wd;
     QUrlOperator u( dir_ );
@@ -5074,7 +5074,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 
     if ( fi.isDir() ) {
 	return &defaultFolder;
-    } else if ( ext.lower() != ".exe" ) {
+    } else if ( ext.toLower() != ".exe" ) {
 	it = cache.find( key );
 	if ( it != cache.end() )
 	    return &( *it );
@@ -5122,7 +5122,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	if ( !filepath.isEmpty() ) {
 	    if ( filepath.find("%1") != -1 ) {
 		filepath = filepath.arg( fi.filePath() );
-		if ( ext.lower() == ".dll" ) {
+		if ( ext.toLower() == ".dll" ) {
 		    pix = defaultFile;
 		    return &pix;
 		}
@@ -5286,7 +5286,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasSelectedText() ) &&
 	     isprint(((QKeyEvent *)e)->ascii()) ) {
 #if defined(Q_WS_WIN)
-	    QString nt( nameEdit->text().lower() );
+	    QString nt( nameEdit->text().toLower() );
 #else
 	    QString nt( nameEdit->text() );
 #endif
@@ -5294,7 +5294,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    nt += (char)(((QKeyEvent *)e)->ascii());
 	    QListViewItem * i = files->firstChild();
 #if defined(Q_WS_WIN)
-	    while( i && i->text( 0 ).left(nt.length()).lower() != nt )
+	    while( i && i->text( 0 ).left(nt.length()).toLower() != nt )
 #else
 	    while( i && i->text( 0 ).left(nt.length()) != nt )
 #endif
@@ -5642,7 +5642,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	bool found = FALSE;
 	for ( int i = 0; i < d->paths->count(); ++i ) {
 #if defined(Q_WS_WIN)
-	    if ( d->paths->text( i ).lower() == s.lower() ) {
+	    if ( d->paths->text( i ).toLower() == s.toLower() ) {
 #else
 	    if ( d->paths->text( i ) == s ) {
 #endif
@@ -6223,9 +6223,9 @@ void QFileDialog::doMimeTypeLookup()
     }
 
     if ( d->moreFiles->isVisible() ) {
-	d->moreFiles->viewport()->repaint( r, FALSE );
+	d->moreFiles->viewport()->repaint(r);
     } else {
-	files->viewport()->repaint( r, FALSE );
+	files->viewport()->repaint(r);
     }
 
     if ( d->pendingItems.count() )
