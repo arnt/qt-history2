@@ -1069,6 +1069,12 @@ void QAbstractItemView::updateCurrentEditor()
     getViewOptions(&options);
     options.itemRect = itemViewportRect(currentItem());
     itemDelegate()->updateEditorGeometry(d->currentEditor, options, item);
+
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->persistentEditors.begin();
+    for (; it != d->persistentEditors.end(); ++it) {
+        options.itemRect = itemViewportRect(it.key());
+        itemDelegate()->updateEditorGeometry(it.data(), options, it.key());
+    }
 }
 
 // ### DOC: No idea!
