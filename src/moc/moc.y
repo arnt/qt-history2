@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#33 $
+** $Id: //depot/qt/main/src/moc/moc.y#34 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#34 $";
 #endif
 
 
@@ -758,7 +758,12 @@ void generate()                                 // generate C++ source code
 
 //
 // Generate internal signal functions
-//
+//'
+    if ( signals.count() ) {
+	fprintf( out, "\n#include <qlist.h>\n" );
+	fprintf( out, "declare(QListM,QConnection);\n" );
+	fprintf( out, "declare(QListIteratorM,QConnection);\n" );
+    }
     Function *f;
     f = signals.first();                        // make internal signal methods
     while ( f ) {
@@ -792,16 +797,34 @@ void generate()                                 // generate C++ source code
 	    fprintf( out, ")\n{\n" );
 	else
 	    fprintf( out, " %s )\n{\n", (char*)argstr );
+	if ( typstr.isEmpty() || typstr == "short" || typstr == "int" ||
+	     typstr == "long" || typstr == "char*" || typstr == "const char*"){
+	    fprintf( out, "    activate_signal( \"%s(%s)\"",
+		     (char*)f->name, (char*)typstr );
+	    if ( !valstr.isEmpty() )
+		fprintf( out, ", %s", (char *)valstr );
+	    fprintf( out, " );\n}\n" );
+	    f = signals.next();
+	    continue;
+	}
+	fprintf( out, "    QConnectionList *clist;\n" );
+	fprintf( out, "    if ( signalsBlocked() || "
+		      "!(clist=receivers(\"%s(%s)\")) )\n",
+		 (char*)f->name, (char*)typstr );
+	fprintf( out, "\treturn;\n" );
         fprintf( out, "    typedef void (QObject::*RT)(%s);\n",(char*)typstr);
 	fprintf( out, "    typedef RT *PRT;\n" );
-        fprintf( out, "    QConnection *c = receiver(\"%s(%s)\");\n",
-                 (char*)f->name, (char*)typstr );
-        fprintf( out, "    if ( !c || signalsBlocked() )\n\treturn;\n" );
-        fprintf( out, "    RT r =  *((PRT)(c->member()));\n" );
-        fprintf( out, "    QSenderObject *object = "
-		      "(QSenderObject*)c->object();\n", (char*)className );
-        fprintf( out, "    object->setSender( this );\n" );
-        fprintf( out, "    (object->*r)(%s);\n}\n", (char*)valstr );
+	fprintf( out, "    QConnectionListIt it(*clist);\n" );
+	fprintf( out, "    register QConnection *c;\n" );
+	fprintf( out, "    RT r;\n" );
+	fprintf( out, "    QSenderObject *object;\n" );
+	fprintf( out, "    while ( (c=it.current()) ) {\n" );
+	fprintf( out, "\t++it;\n" );
+	fprintf( out, "\tr = *((PRT)(c->member()));\n" );
+	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
+	fprintf( out, "\tobject->setSender( this );\n" );
+	fprintf( out, "\t(object->*r)(%s);\n", (char*)valstr );
+	fprintf( out, "    }\n}\n" );
         f = signals.next();
     }
 
