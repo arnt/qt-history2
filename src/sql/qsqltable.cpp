@@ -10,12 +10,12 @@ class QSqlTablePrivate
 {
 public:
     QSqlTablePrivate() : view(0) {}
-    
+
     QString      nullTxt;
     typedef      QValueList< uint > ColIndex;
     ColIndex     colIndex;
     bool         haveAllRows;
-    
+
     QSqlEditorFactory* editorFactory;
     QString trueTxt;
     QString falseTxt;
@@ -579,6 +579,18 @@ void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 	addColumns( *d->view );
     setSize( d->view );
     setUpdatesEnabled( TRUE );
+}
+
+/*!
+
+  Returns a pointer to the view associated with the table, or 0 if
+  there is no current view.
+
+*/
+
+QSqlView* QSqlTable::view() const
+{
+    return d->view;
 }
 
 /*!

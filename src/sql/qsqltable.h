@@ -36,7 +36,8 @@ public:
     void         setColumn( uint col, const QSqlField* field );
     void         addColumns( const QSqlFieldList& fieldList );
 
-    void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );    
+    void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );
+    QSqlView*    view() const;
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
