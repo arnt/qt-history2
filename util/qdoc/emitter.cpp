@@ -317,9 +317,11 @@ void Emitter::emitHtml() const
 		    c = (*groupies).begin();
 		    while ( c != (*groupies).end() ) {
 			QString link = (*c)->fileName();
-qDebug( " [%s]", link.latin1() );
-qDebug( "  [%p]", *c );
-qDebug( "   [%s]", (*c)->name().latin1() );
+#ifndef Q_NO_DEBUG
+    qDebug( " [%s]", link.latin1() );
+    qDebug( "  [%p]", *c );
+    qDebug( "   [%s]", (*c)->name().latin1() );
+#endif
 			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
 					link.latin1(), (*c)->name().latin1() );
 			if ( !(*c)->whatsThis().isEmpty() )
