@@ -404,8 +404,11 @@ void QGLWidget::reparent(QWidget* parent, WFlags f, const QPoint& p,
 
 void QGLWidget::macWidgetChangedWindow()
 {
-    if(!macInternalDoubleBuffer(FALSE))
+    if(!macInternalDoubleBuffer(FALSE)) {
+	delete glcx;
+	glcx = NULL;
 	macInternalRecreateContext(new QGLContext(req_format, this));
+    }
 }
 
 void QGLWidget::setMouseTracking(bool enable)
