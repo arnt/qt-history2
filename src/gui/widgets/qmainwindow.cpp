@@ -526,26 +526,6 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 }
 
 /*! \reimp */
-void QMainWindow::childEvent(QChildEvent *event)
-{
-    if (event->polished()) {
-	QMenuBar *menubar;
-	QStatusBar *statusbar;
-	if ((menubar = qt_cast<QMenuBar *>(event->child()))) {
-	    QMenuBar *mb = qt_cast<QMenuBar*>(d->layout->menuBar());
-	    Q_ASSERT(mb == 0 || mb == menubar);
-	    if (!mb)
-                d->layout->setMenuBar(menubar);
-	} else if ((statusbar = qt_cast<QStatusBar *>(event->child()))) {
-	    QStatusBar *sb = d->layout->statusBar();
-	    Q_ASSERT(sb == 0 || sb == statusbar);
-	    if (!sb)
-                d->layout->setStatusBar(statusbar);
-	}
-    }
-}
-
-/*! \reimp */
 bool QMainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolBarChange) {
