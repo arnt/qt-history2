@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#6 $
 **
 ** Definition of QPicture class
 **
 ** Author  : Haavard Nord
 ** Created : 940729
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -33,7 +33,7 @@ public:
 
 private:
     bool	exec( QPainter *, QDataStream &s, long );
-    QBuffer	mfbuf;
+    QBuffer	pictb;				// internal buffer
     long	trecs;
     bool	formatOk;
 };
