@@ -22,6 +22,15 @@
 extern "C" {
 
 #if defined(Q_CC_GNU)
+#ifdef __64BIT__
+#  define LPARX "ldarx"
+#  define CMPP  "cmpd"
+#  define STPCX "stdcx."
+#else
+#  define LPARX "lwarx"
+#  define CMPP  "cmpw"
+#  define STPCX "stwcx."
+#endif
 
     inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
     {
@@ -45,17 +54,6 @@ extern "C" {
     {
 	register void *tmp;
 	register int ret;
-
-#ifdef __64BIT__
-#  define LPARX "ldarx"
-#  define CMPP  "cmpd"
-#  define STPCX "stdcx."
-#else
-#  define LPARX "lwarx"
-#  define CMPP  "cmpw"
-#  define STPCX "stwcx."
-#endif
-
 	asm volatile(LPARX"  %0,0,%2\n"
 		     CMPP"   %0,%3\n"
 		     "bne-   $+20\n"
@@ -65,15 +63,70 @@ extern "C" {
 		     "b      $+8\n"
 		     "li     %1,0\n"
 		     : "=&r" (tmp), "=&r" (ret)
-		     : "r" (&ptr), "r" (expected), "r" (newval)
+		     : "r" (ptr), "r" (expected), "r" (newval)
 		     : "cc", "memory");
+	return ret;
+    }
+
+#define Q_HAVE_ATOMIC_INCDEC
+
+    inline int q_atomic_increment(volatile int *ptr)
+    {
+	register int ret;
+	register int one = 1;
+	asm volatile("lwarx  %0, 0, %1\n"
+		     "add    %0, %2, %0\n"
+		     "stwcx. %0, 0, %1\n"
+		     "bne-   $-12\n"
+		    : "=&r" (ret)
+		    : "r" (ptr), "r" (one)
+		    : "cc", "memory");
+	return ret;
+    }
+
+    inline int q_atomic_decrement(volatile int *ptr)
+    {
+	register int ret;
+	register int one = -1;
+	asm volatile("lwarx  %0, 0, %1\n"
+		     "add    %0, %2, %0\n"
+		     "stwcx. %0, 0, %1\n"
+		     "bne-   $-12\n"
+		    : "=&r" (ret)
+		    : "r" (ptr), "r" (one)
+		    : "cc", "memory");
+	return ret;
+    }
+
+#define Q_HAVE_ATOMIC_SET
+
+    inline int q_atomic_set_int(volatile int *ptr, int newval)
+    {
+	register int ret;
+	asm volatile("lwarx  %0, 0, %1\n"
+		     "stwcx. %2, 0, %1\n"
+		     "bne-   $-8\n"
+		    : "=&r" (ret)
+		    : "r" (ptr), "r" (newval)
+		    : "cc", "memory");
+	return ret;
+    }
+
+    inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+    {
+	register void *ret;
+	asm volatile(LPARX"  %0, 0, %1\n"
+		     STPCX"  %2, 0, %1\n"
+		     "bne-   $-8\n"
+		    : "=&r" (ret)
+		    : "r" (ptr), "r" (newval)
+		    : "cc", "memory");
+	return ret;
+    }
 
 #undef LPARX
 #undef CMPP
 #undef STPCX
-
-	return ret;
-    }
 
 #else
 
