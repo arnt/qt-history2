@@ -309,8 +309,6 @@ QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     if (name)
 	setObjectName(name);
     if (parent) {
-	if (qt_cast<QDesktopWidget*>(parent))
-	    return; // QDesktop widget does not take ownership of widget children
 	parentObj = parent;
 	parentObj->d->children.append(this);
     }

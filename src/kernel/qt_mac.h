@@ -37,7 +37,7 @@
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
-//#define USE_CORE_GRAPHICS
+#define USE_CORE_GRAPHICS
 
 #endif
 

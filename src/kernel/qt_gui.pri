@@ -6,8 +6,6 @@ kernel {
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
-		  $$KERNEL_H/qasyncimageio.h \
-#		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
 		  $$KERNEL_H/qclipboard.h \
@@ -55,7 +53,6 @@ kernel {
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_P/qrichtext_p.h \
-		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_H/qsimplerichtext.h \
 		  $$KERNEL_CPP/qscriptengine_p.h \
 		  $$KERNEL_CPP/qtextengine_p.h \
@@ -138,8 +135,6 @@ kernel {
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
-		  $$KERNEL_CPP/qasyncimageio.cpp \
-#		  $$KERNEL_CPP/qasyncio.cpp \
 		  $$KERNEL_CPP/qbitmap.cpp \
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
@@ -173,7 +168,6 @@ kernel {
 		  $$KERNEL_CPP/qwidget.cpp \
 		  $$KERNEL_CPP/qvariant_gui.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
-		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qsimplerichtext.cpp \
 		  $$KERNEL_CPP/qscriptengine.cpp \

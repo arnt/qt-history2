@@ -16,6 +16,33 @@
 #define d d_func()
 #define q q_func()
 
+
+typedef void (*VFPTR)();
+typedef QList<VFPTR> QVFuncList;
+static QVFuncList *postRList = 0;		// list of post routines
+
+Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p)
+{
+    if ( !postRList )
+	postRList = new QVFuncList;
+    postRList->prepend( p );
+}
+
+
+Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
+{
+    if ( !postRList ) return;
+    QVFuncList::Iterator it = postRList->begin();
+    while ( it != postRList->end() ) {
+	if ( *it == p ) {
+	    postRList->remove( it );
+	    it = postRList->begin();
+	} else {
+	    ++it;
+	}
+    }
+}
+
 // Definitions for posted events
 struct QPostEvent {
     QPostEvent():receiver(0),event(0){}
@@ -108,6 +135,16 @@ QKernelApplication::~QKernelApplication()
     postevent_mutex = 0;
     QThread::cleanup();
 #endif
+    if ( postRList ) {
+	QVFuncList::Iterator it = postRList->begin();
+	while ( it != postRList->end() ) {	// call post routines
+	    (**it)();
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+	delete postRList;
+	postRList = 0;
+    }
 
     removePostedEvents(this);
     self = 0;

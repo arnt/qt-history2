@@ -23,18 +23,8 @@
 #include "qmime.h"
 #include "qpair.h"
 #include "qstring.h"
+#include "qkernelevent.h"
 #endif // QT_H
-
-class Q_EXPORT QTimerEvent : public QEvent
-{
-public:
-    QTimerEvent( int timerId )
-	: QEvent(Timer), id(timerId) {}
-    int	  timerId()	const	{ return id; }
-protected:
-    int	  id;
-};
-
 
 class Q_EXPORT QMouseEvent : public QEvent
 {
@@ -436,35 +426,5 @@ public:
 };
 
 #endif // QT_NO_DRAGANDDROP
-
-class Q_EXPORT QChildEvent : public QEvent
-{
-public:
-    QChildEvent( Type type, QObject *child )
-	: QEvent(type), c(child) {}
-    QObject *child() const { return c; }
-    QWidget *childWidget() const;
-    bool added() const { return type() == ChildAdded; }
-#ifndef QT_NO_COMPAT
-    bool inserted() const { return type() == ChildInserted; }
-#endif
-    bool polished() const { return type() == ChildPolished; }
-    bool removed() const { return type() == ChildRemoved; }
-protected:
-    QObject *c;
-};
-
-
-class Q_EXPORT QCustomEvent : public QEvent
-{
-public:
-    QCustomEvent( int type );
-    QCustomEvent( Type type, void *data )
-	: QEvent(type), d(data) {};
-    void       *data()	const	{ return d; }
-    void	setData( void* data )	{ d = data; }
-private:
-    void       *d;
-};
 
 #endif // QEVENT_H

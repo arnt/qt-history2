@@ -342,7 +342,6 @@ int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 #endif
 bool	  qt_is_gui_used;
-bool      Q_EXPORT qt_resolve_symlinks = TRUE;
 bool      Q_EXPORT qt_tab_all_widgets  = TRUE;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
@@ -379,10 +378,6 @@ void qt_setMaxWindowRect(const QRect& r)
 	    w->showMaximized();
     }
 }
-
-typedef void (*VFPTR)();
-typedef QList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
 
 /*!
   \relates QApplication
@@ -443,29 +438,6 @@ static QVFuncList *postRList = 0;		// list of post routines
   By selecting the right parent widget/object, this can often be made
   to clean up the module's data at the exact right moment.
 */
-
-Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p)
-{
-    if ( !postRList ) {
-	postRList = new QVFuncList;
-    }
-    postRList->prepend( p );
-}
-
-
-Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList ) return;
-    QVFuncList::Iterator it = postRList->begin();
-    while ( it != postRList->end() ) {
-	if ( *it == p ) {
-	    postRList->remove( it );
-	    it = postRList->begin();
-	} else {
-	    ++it;
-	}
-    }
-}
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -894,16 +866,6 @@ QApplication::~QApplication()
 
     if ( eventloop )
 	eventloop->appClosingDown();
-    if ( postRList ) {
-	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
-	    (**it)();
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
-    }
 
     QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
     delete tipmanager;

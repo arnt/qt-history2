@@ -20,6 +20,8 @@
 
 #include <stdlib.h>
 
+bool      Q_EXPORT qt_resolve_symlinks = TRUE;
+
 class QUrlPrivate
 {
 public:

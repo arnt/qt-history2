@@ -4,7 +4,10 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qkernelapplication.h \
 		  $$KERNEL_P/qkernelapplication_p.h \
+		  $$KERNEL_H/qasyncimageio.h \
+#		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qeventloop.h\
+		  $$KERNEL_H/qkernelevent.h \
 		  $$KERNEL_P/qeventloop_p.h \
 		  $$KERNEL_H/qguardedptr.h \
 		  $$KERNEL_H/qimage.h \
@@ -35,6 +38,7 @@ kernel {
 		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
+		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_H/qgplugin.h 
 
 		  
@@ -42,7 +46,10 @@ kernel {
 	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp $$KERNEL_CPP/qeventloop_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qkernelapplication.cpp \
+		  $$KERNEL_CPP/qasyncimageio.cpp \
+#		  $$KERNEL_CPP/qasyncio.cpp \
 		  $$KERNEL_CPP/qeventloop.cpp \
+		  $$KERNEL_CPP/qkernelevent.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
 		  $$KERNEL_CPP/qimageformatplugin.cpp \
 		  $$KERNEL_CPP/qtranslator.cpp \
@@ -67,6 +74,7 @@ kernel {
 		  $$KERNEL_CPP/qurlinfo.cpp \
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
+		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qgplugin.cpp
 
 	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp

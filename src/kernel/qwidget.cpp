@@ -689,7 +689,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 */
 
 QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
-    : QObject(new QWidgetPrivate, parent, name), QPaintDevice(QInternal::Widget)
+    : QObject(new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent), name), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
 }
@@ -697,7 +697,7 @@ QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
 /*! \internal
 */
 QWidget::QWidget(QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
-    : QObject(dd, parent, name), QPaintDevice(QInternal::Widget)
+    : QObject(dd, ((parent && parent->isDesktop()) ? 0 : parent), name), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
 }
