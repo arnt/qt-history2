@@ -34,7 +34,7 @@ extern QDict<EmbImage> *imageDict;
 
 void setupImageDict();
 
-enum PixmapType { SplashPixmap, LogoPixmap };
+enum PixmapType { SplashPixmap, IconPixmap };
 
 const QPixmap createPixmap( PixmapType type );
 

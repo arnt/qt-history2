@@ -254,7 +254,7 @@ TrWindow::TrWindow()
 {
     setupImageDict();
 
-    setIcon( createPixmap( LogoPixmap ) );
+    setIcon( createPixmap( IconPixmap ) );
 
     // Create the application global listview symbols
     pxOn  = new QPixmap;

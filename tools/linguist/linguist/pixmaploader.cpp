@@ -24,8 +24,8 @@
 
 
 #if defined(Q_WS_MACX)
-//logo is 40x40 on the mac, if it changes - please notify the Qt/Mac team
-static const char * const logo_xpm[] = {
+//icon is 40x40 on the mac, if it changes - please notify the Qt/Mac team
+static const char * const icon_xpm[] = {
 "40 40 543 2",
 "  	c None",
 ". 	c #C9D98D",
@@ -635,14 +635,14 @@ const QPixmap createPixmap( PixmapType type )
     QPixmap pix;
     EmbImage *em = 0;
     switch ( type ) {
-    case LogoPixmap:
+    case IconPixmap:
 #if defined(Q_WS_MACX)
-	QImage image( logo_xpm );
+	QImage image( icon_xpm );
 	if ( !image.isNull() )
 	    pix.convertFromImage( image );
 #else
 	setupImageDict();
-	em = imageDict->find( "logo" );
+	em = imageDict->find( "icon" );
 #endif
 	break;
     case SplashPixmap:

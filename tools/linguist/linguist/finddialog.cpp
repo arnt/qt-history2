@@ -38,7 +38,7 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
 			bool modal )
     : QDialog( parent, name, modal )
 {
-    setIcon( createPixmap( LogoPixmap ) );
+    setIcon( createPixmap( IconPixmap ) );
 
     sourceText = 0;
     

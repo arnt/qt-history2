@@ -13857,8 +13857,8 @@ static const unsigned char splash_png_data[] = {
     0xae,0x42,0x60,0x82
 };
 
-static const unsigned int  logo_xpm_len = 1436;
-static const unsigned char logo_xpm_data[] = {
+static const unsigned int  icon_xpm_len = 1436;
+static const unsigned char icon_xpm_data[] = {
     0x2f,0x2a,0x20,0x58,0x50,0x4d,0x20,0x2a,0x2f,0x0a,0x73,0x74,0x61,0x74,
     0x69,0x63,0x20,0x63,0x68,0x61,0x72,0x20,0x2a,0x6c,0x6f,0x67,0x6f,0x5b,
     0x5d,0x20,0x3d,0x20,0x7b,0x0a,0x2f,0x2a,0x20,0x77,0x69,0x64,0x74,0x68,
@@ -16409,7 +16409,7 @@ static struct Embed {
 } embed_vec[] = {
     { 2229, pagecurl_png_data, "pagecurl.png" },
     { 191636, splash_png_data, "splash.png" },
-    { 1436, logo_xpm_data, "logo.xpm" },
+    { 1436, icon_xpm_data, "icon.xpm" },
     { 541, disabled_doneandnext_png_data, "disabled/doneandnext.png" },
     { 931, disabled_editcopy_png_data, "disabled/editcopy.png" },
     { 901, disabled_editpaste_png_data, "disabled/editpaste.png" },

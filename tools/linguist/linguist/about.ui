@@ -37,7 +37,7 @@
         <string>Qt Linguist</string>
     </property>
     <property name="icon">
-        <pixmap>LogoPixmap</pixmap>
+        <pixmap>IconPixmap</pixmap>
     </property>
     <vbox>
         <property name="name">
