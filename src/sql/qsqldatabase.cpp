@@ -922,6 +922,14 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     service
     
     For ODBC/DB2:
+    SQL_ATTR_ACCESS_MODE
+    SQL_ATTR_CONNECTION_TIMEOUT
+    SQL_ATTR_LOGIN_TIMEOUT
+    SQL_ATTR_CURRENT_CATALOG
+    SQL_ATTR_METADATA_ID
+    SQL_ATTR_PACKET_SIZE
+    SQL_ATTR_TRACEFILE
+    SQL_ATTR_TRACE
     
     For OCI:
     

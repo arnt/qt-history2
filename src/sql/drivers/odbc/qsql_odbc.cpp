@@ -1273,12 +1273,12 @@ bool QODBCDriver::open( const QString & db,
 	return FALSE;
     }
     r = SQLSetEnvAttr( d->hEnv,
-			SQL_ATTR_ODBC_VERSION,
-			(SQLPOINTER)SQL_OV_ODBC2,
-			SQL_IS_UINTEGER );
-    r = SQLAllocHandle(SQL_HANDLE_DBC,
-			d->hEnv,
-			&d->hDbc);
+		       SQL_ATTR_ODBC_VERSION,
+		       (SQLPOINTER)SQL_OV_ODBC2,
+		       SQL_IS_UINTEGER );
+    r = SQLAllocHandle( SQL_HANDLE_DBC,
+		        d->hEnv,
+		        &d->hDbc);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
@@ -1286,6 +1286,90 @@ bool QODBCDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
+
+    // Set connection attributes
+    if ( connOpts.count() ) {
+	QMap<QString, QString>::ConstIterator it;
+	QString opt, val;
+	SQLUINTEGER v = 0;
+	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
+	    opt = it.key().upper();
+	    val = it.data().upper();
+	    qWarning( opt + " - " + val );
+	    r = SQL_SUCCESS;
+	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
+		if ( val == "SQL_MODE_READ_ONLY" ) {
+		    v = SQL_MODE_READ_ONLY;
+		} else if ( val == "SQL_MODE_READ_WRITE" ) {
+		    v = SQL_MODE_READ_WRITE;
+		} else {
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    break;
+		}
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_CONNECTION_TIMEOUT" ) {
+		v = val.toUInt();
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
+		v = val.toUInt();
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_CURRENT_CATALOG" ) {
+		val.ucs2(); // 0 terminate
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_CURRENT_CATALOG,
+#ifdef UNICODE
+				       (SQLWCHAR*) val.unicode(),
+#else
+				       (SQLCHAR*) val.latin1(),
+#endif
+				       SQL_NTS );
+	    } else if ( opt == "SQL_ATTR_METADATA_ID" ) {
+		if ( val == "SQL_TRUE" ) {
+		    v = SQL_TRUE;
+		} else if ( val == "SQL_FALSE" ) {
+		    v = SQL_FALSE;
+		} else {
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    break;
+		}
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_PACKET_SIZE" ) {
+		v = val.toUInt();
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_PACKET_SIZE, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_TRACEFILE" ) {
+		val.ucs2(); // 0 terminate
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_TRACEFILE,
+#ifdef UNICODE
+				       (SQLWCHAR*) val.unicode(),
+#else
+				       (SQLCHAR*) val.latin1(),
+#endif
+				       SQL_NTS );
+	    } else if ( opt == "SQL_ATTR_TRACE" ) {
+		if ( val == "SQL_OPT_TRACE_OFF" ) {
+		    v = SQL_OPT_TRACE_OFF;
+		} else if ( val == "SQL_OPT_TRACE_ON" ) {
+		    v = SQL_OPT_TRACE_ON;
+		} else {
+		    qWarning( QString("QODBCDriver::open: Unknown option value '%1'").arg(*it) );
+		    break;
+		}
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
+	    }
+#ifdef QT_CHECK_RANGE
+              else {
+		  qWarning( QString("QODBCDriver::open: Unknown connection attribute '%1'").arg(opt.ascii()) );
+	    }
+#endif		
+	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
+#ifdef QT_CHECK_RANGE
+		qSqlWarning( QString("QODBCDriver::open: Unable to set connection attribute '%1'").arg(opt.ascii()), d );
+#endif
+		return FALSE;
+	    }
+	}
+    }
+    
+    // Create the connection string
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
     if ( db.contains(".dsn") ) {
@@ -1299,17 +1383,17 @@ bool QODBCDriver::open( const QString & db,
     SQLSMALLINT cb;
     SQLTCHAR connOut[1024];
     r = SQLDriverConnect( d->hDbc,
-			    NULL,
+			  NULL,
 #ifdef UNICODE
-			    (SQLWCHAR*)connQStr.unicode(),
+			  (SQLWCHAR*)connQStr.unicode(),
 #else
-			    (SQLCHAR*)connQStr.latin1(),
+			  (SQLCHAR*)connQStr.latin1(),
 #endif
-			    (SQLSMALLINT)connQStr.length(),
-			    connOut,
-			    1024,
-			    &cb,
-			    SQL_DRIVER_NOPROMPT );
+			  (SQLSMALLINT)connQStr.length(),
+			  connOut,
+			  1024,
+			  &cb,
+			  SQL_DRIVER_NOPROMPT );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
