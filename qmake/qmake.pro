@@ -17,7 +17,7 @@ SOURCES+=project.cpp main.cpp makefile.cpp \
          unixmake2.cpp unixmake.cpp \
          borland_bmake.cpp msvc_nmake.cpp \
 	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
-	 projectgenerator.cpp metrowerks_xml.cpp \
+	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \
          pbuilder_pbx.cpp msvc_objectmodel.cpp
 
 #Qt code
