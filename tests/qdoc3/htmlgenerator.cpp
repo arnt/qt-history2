@@ -361,16 +361,30 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     s = sections.begin();
     while ( s != sections.end() ) {
 	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
+
+	if ( (*s).name.find("Propert") != -1 )
+	    out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
+		  << " cellspacing=\"0\"><tr><td width=\"50%\" valign=\"top\">";
 	out() << "<ul>\n";
 
+	int i = 0;
 	m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
+	    if ( (*s).name.find("Propert") != -1 ) {
+		if ( i == (int) ((*s).members.count() + 1) / 2 )
+		    out() << "</ul></td><td width=\"50%\" valign=\"top\"><ul>";
+	    }
+
 	    out() << "<li><div class=\"fn\"/>";
 	    generateSynopsis( *m, classe, marker, CodeMarker::Summary );
 	    out() << "</li>\n";
+	    i++;
 	    ++m;
 	}
 	out() << "</ul>\n";
+
+	if ( (*s).name.find("Properties") != -1 )
+	    out() << "</td></tr></table>";
 	++s;
     }
 
