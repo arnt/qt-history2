@@ -47,7 +47,6 @@
 
   \ingroup events
   \ingroup environment
-  \mainclass
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them

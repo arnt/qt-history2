@@ -85,7 +85,6 @@ struct QWaitConditionPrivate {
 
   \ingroup thread
   \ingroup environment
-  \mainclass
 
   QWaitConditions allow a thread to tell other threads that some sort of
   condition has been met; one or many threads can block waiting for a

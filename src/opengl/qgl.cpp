@@ -51,7 +51,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 /*! \class QGL qgl.h
     \ingroup graphics
     \ingroup images
-  \mainclass
   \brief The QGL class is a namespace for miscellaneous identifiers
   in the Qt OpenGL module.
 
@@ -78,7 +77,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
   \class QGLFormat qgl.h
     \ingroup graphics
     \ingroup images
-  \mainclass
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
 
@@ -690,7 +688,6 @@ QGLContext* QGLContext::currentCtx = 0;
   \class QGLContext qgl.h
     \ingroup graphics
     \ingroup images
-  \mainclass
   \brief The QGLContext class encapsulates an OpenGL rendering context.
 
   \module OpenGL

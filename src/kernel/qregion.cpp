@@ -47,7 +47,6 @@
 
   \ingroup images
   \ingroup graphics
-  \mainclass
 
   QRegion is used with QPainter::setClipRegion() to limit the paint
   area to what needs to be painted. There is also a QWidget::repaint()

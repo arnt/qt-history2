@@ -48,7 +48,6 @@
 
   \ingroup thread
   \ingroup environment
-  \mainclass
 
   A QSemaphore can be used to serialize thread execution, in a similar
   way to a QMutex.  A semaphore differs from a mutex, in that a

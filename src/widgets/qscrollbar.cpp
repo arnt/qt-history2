@@ -53,7 +53,6 @@
   \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 
   \ingroup basic
-  \mainclass
 
   A scroll bar allows the user to control a value within a
   program-definable range and gives users a visible indication of

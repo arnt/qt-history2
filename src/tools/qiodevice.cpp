@@ -43,7 +43,6 @@
   \brief The QIODevice class is the base class of I/O devices.
 
   \ingroup io
-  \mainclass
 
   An I/O device represents a medium that one can read bytes from
   and/or write bytes to.  The QIODevice class is the abstract

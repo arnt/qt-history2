@@ -3971,7 +3971,6 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 /*!
   \class QDomElement qdom.h
   \ingroup xml-tools
-  \mainclass
   \brief The QDomElement class represents one element in the DOM tree.
 
   \module XML
@@ -5790,7 +5789,6 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 /*!
   \class QDomDocument qdom.h
   \ingroup xml-tools
-  \mainclass
   \brief The QDomDocument class represents an XML document.
 
   \module XML

@@ -40,7 +40,6 @@
 
   \ingroup collection
   \ingroup tools
-  \mainclass
 
   A template instance QPtrQueue\<X\> is a queue that operates on
   pointers to X (X*).

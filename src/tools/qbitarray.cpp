@@ -81,7 +81,6 @@
 /*!
   \class QBitArray qbitarray.h
   \ingroup collection
-  \mainclass
   \brief The QBitArray class provides an array of bits.
 
   \ingroup tools

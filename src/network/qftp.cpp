@@ -53,7 +53,6 @@
 /*!
   \class QFtp qftp.h
     \ingroup io
-  \mainclass
   \brief The QFtp class provides an implementation of the FTP protocol.
 
   \module network

@@ -238,7 +238,6 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
   \ingroup thread
   \ingroup environment
-  \mainclass
 
   A QThread represents a separate thread of control within the program;
   it shares data with all the other threads within the process but

@@ -1480,8 +1480,7 @@ private:
 
   \ingroup geomanagement
   \ingroup appearance
-  \mainclass
-
+  
   QBoxLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into a row of boxes, and makes each
   managed widget fill one box.

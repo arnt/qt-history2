@@ -16272,7 +16272,6 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 /*!
   \class QConstString qstring.h
   \ingroup text
-  \mainclass
   \brief The QConstString class provides string objects using constant Unicode data.
 
   In order to minimize copying, highly optimized applications can use

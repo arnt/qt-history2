@@ -54,7 +54,6 @@
   on the local file system.
 
   \ingroup io
-  \mainclass
 
   \module network
 

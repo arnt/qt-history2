@@ -45,7 +45,6 @@
 
   \ingroup collection
   \ingroup tools
-  \mainclass
 
   QIntCache is implemented as a template class. Define a
   template instance QIntCache\<X\> to create a cache that operates on

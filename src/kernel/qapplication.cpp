@@ -3269,7 +3269,6 @@ bool QApplication::reverseLayout()
 
   \ingroup application
   \ingroup environment
-  \mainclass
 
   The session manager is responsible for session management, most
   importantly for interruption and resumption. A "session" is a kind

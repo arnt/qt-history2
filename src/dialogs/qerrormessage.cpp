@@ -54,11 +54,10 @@
 
 /*! \class QErrorMessage qerrormessage.h
 
-\brief The QErrorMessage class provides an error message display dialog.
+  \brief The QErrorMessage class provides an error message display dialog.
 
-\ingroup dialogs
-\ingroup misc
-  \mainclass
+  \ingroup dialogs
+  \ingroup misc
 
 This is basically a QLabel and a "show this message again" checkbox which
 remembers what not to show.

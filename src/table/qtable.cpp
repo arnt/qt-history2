@@ -154,7 +154,6 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 
 /*! \class QTableSelection qtable.h
     \ingroup advanced
-  \mainclass
   \brief The QTableSelection class provides access to a selected area in a
   QTable.
 

@@ -44,7 +44,6 @@
   \ingroup qtl
   \ingroup tools
   \ingroup shared
-  \mainclass
   
   QPair is a Qt implementation of an STL-like pair.  It
   can be used in your application if the standard pair\<\> is not

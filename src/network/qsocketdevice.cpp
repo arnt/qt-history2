@@ -55,7 +55,6 @@ public:
 /*!
   \class QSocketDevice qsocketdevice.h
     \ingroup io
-  \mainclass
   \brief The QSocketDevice class provides a platform-independent low-level socket API.
 
   \module network

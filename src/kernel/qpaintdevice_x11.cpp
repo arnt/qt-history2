@@ -50,7 +50,6 @@
 
   \ingroup graphics
   \ingroup images
-  \mainclass
 
   A paint device is an abstraction of a two-dimensional space that can be
   drawn using a QPainter.

@@ -2261,7 +2261,6 @@ QTextStream &reset( QTextStream &s )
   \class QTextIStream qtextstream.h
   \ingroup io
   \ingroup text
-  \mainclass
   \brief The QTextIStream class is a convenience class for input streams.
 
   For simple tasks code should be simple, so this
@@ -2299,7 +2298,6 @@ QTextStream &reset( QTextStream &s )
   \class QTextOStream
   \ingroup io
   \ingroup text
-  \mainclass
   \brief The QTextOStream class is a convenience class for output streams.
 
   For simple tasks, code should be simple,  so this

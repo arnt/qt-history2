@@ -3237,7 +3237,6 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   \ingroup graphics
   \ingroup images
   \ingroup shared
-  \mainclass
 
   A brush has a style and a color.  One of the brush styles is a custom
   pattern, which is defined by a QPixmap.

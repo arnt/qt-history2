@@ -1062,8 +1062,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 /*! \class QActionGroup qaction.h
     \ingroup basic
     \ingroup application
-  \mainclass
-
+  
   \brief The QActionGroup class groups actions together.
 
     In some situations it is useful to group actions together. For

@@ -312,7 +312,6 @@ Q_UINT16 qChecksum( const char *data, uint len )
   \class QByteArray
   \ingroup collection
   \ingroup tools
-  \mainclass
   \brief The QByteArray class provides an array of bytes.
 
   The QByteArray class provides an explicitly shared array of
@@ -390,7 +389,6 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   \ingroup collection
   \ingroup tools
   \ingroup shared
-  \mainclass
 
   \brief The QCString class provides an abstraction of the classic C
   zero-terminated char array (char *).

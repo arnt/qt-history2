@@ -164,7 +164,6 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 
   \ingroup advanced
   \ingroup environment
-  \mainclass
 
   Systems with more than one graphics card and monitor can manage the
   physical screen space available either as multiple desktops, or as a

@@ -3567,7 +3567,6 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \ingroup images
   \ingroup graphics
   \ingroup io
-  \mainclass
 
   QImageIO contains a QIODevice object that is used for image data I/O.
   The programmer can install new image file formats in addition to those
