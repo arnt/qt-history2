@@ -408,7 +408,7 @@ QString qToBase64( const QByteArray &array, int linelength )
 	    counter += 4;
 	    if ( counter < linelength )
 		base64 += word;
-	    else if ( counter = linelength ) {
+	    else if ( counter == linelength ) {
 		base64 += word + "\n";
 	    } else {
 		base64 += word.left( counter - linelength ) + '\n' + word.right( word.length() - ( counter - linelength ) );
@@ -429,7 +429,7 @@ QByteArray qFromBase64( const QString &base64, bool *ok )
     // construct the translation table, to make it static?
     for ( i = 0; i < 256; i++ )
 	table[ i ] = -1;
-    for ( i = 0; i < qstrlen( Base64Alphabet ); i++ ) 
+    for ( i = 0; i < qstrlen( Base64Alphabet ); i++ )
 	table[ Base64Alphabet[ i ] ] = i;
     table[ Base64Terminator ] = 0;
 
