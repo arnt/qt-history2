@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#70 $
 **
 ** Implementation of QIconSet class
 **
@@ -82,8 +82,7 @@ public:
     Variant on_largeDisabled;
 };
 
-
-// REVISED: warwick
+// REVISED: not revised
 /*! \class QIconSet qiconset.h
 
   \brief The QIconSet class provides a set of differently styled and sized
@@ -138,6 +137,11 @@ public:
   smooth scaling\endlink, which can partially blend the color component
   of pixmaps.  If the results look poor, the best solution
   is to supply both large and small sizes of pixmaps.
+  
+  You can use the static function setIconSize() to set the preferred
+  size of the generated large/small icons. The default small size is 
+  16x16, while the default large size is 32x32. Please note that these
+  sizes only affect generated icons.
 
   QIconSet provides a function, isGenerated(), that indicates whether
   an icon was set by the application programmer or computed by
@@ -186,13 +190,13 @@ public:
     \value Small  the pixmap is the smaller of two.
     \value Large  the pixmap is the larger of two.
 
-  If a Small pixmap is not set by QIconSet::setPixmap(), the
-  Large pixmap may be automatically scaled to two-thirds of its size to
-  generate the Small pixmap.  Conversely, a Small pixmap will be
-  automatically scaled up by 50% to create a Large pixmap if needed.
+  If a Small pixmap is not set by QIconSet::setPixmap(), the Large
+  pixmap may be automatically scaled down to the size of a small
+  generated icon.  Conversely, a Small pixmap will be automatically
+  scaled up to create a Large pixmap if needed. The preferred sizes
+  for large/small generated icons can be set using setIconSize().
 
-  \sa setPixmap() pixmap() QIconViewItem::setViewMode()
-      QMainWindow::setUsesBigPixmaps()
+  \sa setIconSize() iconSize() setPixmap() pixmap() QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
 */
 
 /*!
@@ -246,9 +250,11 @@ QIconSet::QIconSet()
   The default for \a size is \c Automatic, which means that
   QIconSet will determine whether the pixmap is Small or Large
   from its pixel size.
-  Pixmaps less than 23 pixels wide are considered to be Small.
+  Pixmaps less than the width of a small generated icon are
+  considered to be Small. You can use setIconSize() to set the preferred 
+  size of a generated icon.
 
-  \sa reset()
+  \sa setIconSize() reset()
 */
 QIconSet::QIconSet( const QPixmap& pixmap, Size size )
 : d(0)
@@ -346,7 +352,9 @@ void QIconSet::reset( const QPixmap & pm, Size size )
 
   The \a size can be one of Automatic, Large or Small.  If Automatic is used,
   QIconSet will determine if the pixmap is Small or Large from its pixel size.
-  Pixmaps less than 23 pixels wide are considered to be Small.
+  Pixmaps less than the width of a small generated icon are
+  considered to be Small. You can use setIconSize() to set the preferred 
+  size of a generated icon.
 
   \sa reset()
 */
@@ -372,7 +380,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
     } else {
 	d = new QIconSetPrivate;
     }
-    if ( size == Large || (size == Automatic && pm.width() > 22)) {
+    if ( size == Large || (size == Automatic && pm.width() > small.width()) ) {
 	switch( mode ) {
 	case Active:
 	    if ( state == Off ) {
@@ -409,7 +417,9 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	    }
 	    break;
 	}
-    } else if ( size == Small  || (size == Automatic && pm.width() <= 22)) {
+    } else if ( size == Small  ||
+		(size == Automatic && pm.width() <= small.width()) ) 
+    {
 	switch( mode ) {
 	case Active:
 	    if ( state == Off ) {
@@ -462,7 +472,9 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 
   The \a size can be one of Automatic, Large or Small.  If Automatic is used,
   QIconSet will determine if the pixmap is Small or Large from its pixel size.
-  Pixmaps less than 23 pixels wide are considered to be Small.
+  Pixmaps less than the width of a small generated icon are
+  considered to be Small. You can use setIconSize() to set the preferred 
+  size of a generated icon.
 */
 void QIconSet::setPixmap( const QString &fileName, Size size, Mode mode, State state )
 {
@@ -492,7 +504,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->vlarge.pm ) {
 		    Q_ASSERT( p->vsmall.pm );
 		    i = p->vsmall.pm->convertToImage();
-		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+		    i = i.smoothScale( large.width(), large.height() );
 		    p->vlarge.pm = new QPixmap;
 		    p->vlarge.generated = TRUE;
 		    p->vlarge.pm->convertFromImage( i );
@@ -521,7 +533,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			// but the normal big one is null or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->smallDisabled.pm->convertToImage();
-			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			i = i.smoothScale( large.width(), large.height() );
 			p->largeDisabled.pm = new QPixmap;
 			p->largeDisabled.generated = TRUE;
 			p->largeDisabled.pm->convertFromImage( i );
@@ -573,7 +585,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->vsmall.pm ) {
 		    Q_ASSERT( p->vlarge.pm );
 		    i = p->vlarge.pm->convertToImage();
-		    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
+		    i = i.smoothScale( small.width(), small.height() );
 		    p->vsmall.pm = new QPixmap;
 		    p->vsmall.generated = TRUE;
 		    p->vsmall.pm->convertFromImage( i );
@@ -602,7 +614,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			// but the normal small one is NULL or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->largeDisabled.pm->convertToImage();
-			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			i = i.smoothScale( large.width(), large.height() );
 			p->smallDisabled.pm = new QPixmap;
 			p->smallDisabled.generated = TRUE;
 			p->smallDisabled.pm->convertFromImage( i );
@@ -663,7 +675,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
-		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+		    i = i.smoothScale( large.width(), large.height() );
 		    p->on_vlarge.pm = new QPixmap;
 		    p->on_vlarge.generated = TRUE;
 		    p->on_vlarge.pm->convertFromImage( i );
@@ -702,7 +714,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    if ( disBase ) {
 			i = disBase->convertToImage();
 			if ( mustScale )
-			    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			    i = i.smoothScale( large.width(), large.height() );
 			p->on_largeDisabled.pm = new QPixmap;
 			p->on_largeDisabled.generated = TRUE;
 			p->on_largeDisabled.pm->convertFromImage( i );
@@ -760,7 +772,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
-		    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
+		    i = i.smoothScale( small.width(), small.height() );
 		    p->on_vsmall.pm = new QPixmap;
 		    p->on_vsmall.generated = TRUE;
 		    p->on_vsmall.pm->convertFromImage( i );
@@ -799,7 +811,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    if ( disBase ) {
 			i = disBase->convertToImage();
 			if ( mustScale )
-			    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
+			    i = i.smoothScale( small.width(), small.height() );
 			p->on_smallDisabled.pm = new QPixmap;
 			p->on_smallDisabled.generated = TRUE;
 			p->on_smallDisabled.pm->convertFromImage( i );
@@ -974,4 +986,34 @@ void QIconSet::detach()
     d = p;
 }
 
+// static stuff
+
+QSize QIconSet::small( 16, 16 ); // default small size
+QSize QIconSet::large( 32, 32 ); // default large size
+
+/*!
+  Set the preferred size for the large/small generated icons.
+  
+  \sa iconSize()
+*/
+void QIconSet::setIconSize( Size s, const QSize & size )
+{
+    if ( s == Small )
+	small = size;
+    else if ( s == Large )
+	large = size;
+}
+
+/*!
+  Returns the size of the large/small generated icons.
+  
+  \sa setIconSize()
+*/
+const QSize & QIconSet::iconSize( Size s )
+{
+    if ( s == Small )
+	return small;
+    else
+	return large;
+}
 #endif // QT_NO_ICONSET
