@@ -5,7 +5,7 @@
 **
 ** Created : 920604
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -621,11 +621,16 @@ void qSystemWarning( const char* msg, int code )
 //
 // The Q_CHECK_PTR macro calls this function to check if an allocation went ok.
 //
-
+#if (QT_VERSION-0 >= 400)
+#if defined(Q_CC_GNU)
+#warning "Change Q_CHECK_PTR to '{if ((p)==0) qt_check_pointer(__FILE__,__LINE__);}'"
+#warning "No need for qt_check_pointer() to return a value - make it void!"
+#endif
+#endif
 bool qt_check_pointer( bool c, const char *n, int l )
 {
     if ( c )
-	qFatal( "In file %s, line %d: Out of memory", n, l );
+	qWarning( "In file %s, line %d: Out of memory", n, l );
     return TRUE;
 }
 
