@@ -1202,7 +1202,8 @@ void QTab::setText( const QString& text )
 #ifndef QT_NO_ACCEL
 	tb->d->a->removeItem( id );
 	int p = QAccel::shortcutKey( text );
-	tb->d->a->insertItem( p, id );
+	if ( p )
+	    tb->d->a->insertItem( p, id );
 #endif
         tb->repaint();
     }
