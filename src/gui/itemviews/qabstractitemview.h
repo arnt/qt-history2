@@ -99,7 +99,6 @@ protected slots:
     virtual bool doItemsLayout(int num);
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
-
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
 
@@ -115,7 +114,7 @@ signals:
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
 
-    enum CursorAction { MoveDown, MoveUp, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
+    enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;
 
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
@@ -148,6 +147,7 @@ protected:
     State state() const;
     void setState(State state);
 
+    bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);

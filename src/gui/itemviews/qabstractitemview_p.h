@@ -76,7 +76,7 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
 template <typename T>
 inline int qSortedInsert(QVector<T> &vec, const T &item)
 {
-    qDebug("inserting %Ld", item);
+    qDebug("inserting not implemented: %Ld", item);
 }
 
 template <typename T>

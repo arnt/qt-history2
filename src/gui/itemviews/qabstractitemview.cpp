@@ -20,6 +20,8 @@
 #include <qpair.h>
 #include <qevent.h>
 #include <qscrollbar.h>
+#include <qwhatsthis.h>
+#include <qtooltip.h>
 
 #include <private/qabstractitemview_p.h>
 #define d d_func()
@@ -242,6 +244,23 @@ void QAbstractItemView::setStartEditActions(int actions)
 int QAbstractItemView::startEditActions() const
 {
     return d->startEditActions;
+}
+
+bool QAbstractItemView::event(QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::ToolTip:
+        QToolTip::showText(QPoint(0, 0), "tooltip", this);
+        return true;
+    case QEvent::WhatsThis:
+        QWhatsThis::showText(QPoint(0, 0), "what's this", this);
+        return true;
+//     case QEvent::StatusTip:
+//         return true;
+    default:
+        break;
+    }
+    return QViewport::event(e);
 }
 
 void QAbstractItemView::mousePressEvent(QMouseEvent *e)
