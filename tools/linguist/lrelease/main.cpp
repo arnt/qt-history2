@@ -32,7 +32,7 @@ static void printUsage()
 	      "Options:\n"
 	      "    -help  Display this information and exits\n"
 	      "    -verbose\n"
-	      "           Explains what is being done\n"
+	      "           Explain what is being done\n"
 	      "    -version\n"
 	      "           Display the version of lrelease and exits" );
 }

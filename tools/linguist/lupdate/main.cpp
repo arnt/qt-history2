@@ -44,7 +44,7 @@ static void printUsage()
 	      "    -noobsolete\n"
 	      "           Drop all obsolete strings\n"
 	      "    -verbose\n"
-	      "           Explains what is being done\n"
+	      "           Explain what is being done\n"
 	      "    -version\n"
 	      "           Display the version of lupdate and exits" );
 }
