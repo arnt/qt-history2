@@ -616,7 +616,8 @@ public:
     way.  If the user minimizes a dock window by clicking the dock window's 
     window handle then the dock window is moved to the \c Minimized dock 
     area.  If the user clicks the close button, then the dock window is 
-    hidden and can only be shown again by using the dock window menu.  
+    hidden and can only be shown again by using the 
+    <a href="#dwm">dock window menu</a>.  
 
     Some functions change the appearance of a QMainWindow globally: 
     <ul>
@@ -635,29 +636,30 @@ public:
     rearrange the order of some toolbars. Dock windows can also be
     dragged outside any docking area (undocked or 'floated'). Being
     able to drag dock windows can be enabled (the default) and disabled
-    using setDockWindowsMovable(). If the user clicks the close button
-    on a floating dock window then the dock window will disappear. To get the dock
-    window back the user must right click a dock area, then click the
-    name of the dock window they want to restore. Visible dock windows
-    have a tick by their name in the right-click popup menu (dock window
-    menu). This menu is created automatically as required by createDockWindowMenu().
-    Since it may not always be appropriate for a dock window to appear
-    on this menu the setAppropriate() function is used to inform the
-    main window whether or not the dock window menu should
-    include a particular dock window. Double clicking a dock window
-    handle (usually on the left-hand side of the dock window) undocks 
-    (floats) the dock window. Double clicking a floating
+    using setDockWindowsMovable(). <a name="dwm">If the user clicks the
+    close button on a floating dock window then the dock window will
+    disappear.</a> To get the dock window back the user must right click
+    a dock area, to pop up the dock window menu, then click the name of
+    the dock window they want to restore. Visible dock windows have a
+    tick by their name in the dock window menu.
+    The dock window menu is created automatically as required by
+    createDockWindowMenu(). Since it may not always be appropriate for a
+    dock window to appear on this menu the setAppropriate() function is
+    used to inform the main window whether or not the dock window menu
+    should include a particular dock window. Double clicking a dock
+    window handle (usually on the left-hand side of the dock
+    window) undocks (floats) the dock window. Double clicking a floating
     dock window's titlebar will dock the floating dock window. 
     
     The \c Minimized edge is a hidden dock area. If this dock area is
     enabled the user can hide (minimize) a dock window or show (restore)
-    a minimized dock window by clicking the dock window handle. If the user hovers the mouse cursor
-    over one of the handles, the caption of the dock window is displayed
-    in a tool tip (see QDockWindow::caption() or QToolBar::label()), so
-    if you enable the \c Minimized dock area, it is best to specify a
-    meaningful caption or label for each dock window. To minimize a dock
-    window programmatically use moveDockWindow() with an edge of \c
-    Minimized.
+    a minimized dock window by clicking the dock window handle. If the
+    user hovers the mouse cursor over one of the handles, the caption of
+    the dock window is displayed in a tool tip (see
+    QDockWindow::caption() or QToolBar::label()), so if you enable the
+    \c Minimized dock area, it is best to specify a meaningful caption
+    or label for each dock window. To minimize a dock window
+    programmatically use moveDockWindow() with an edge of \c Minimized.
 
     Dock windows are moved transparently by default, i.e.
     during the drag an outline rectangle is drawn on the screen
@@ -767,7 +769,7 @@ public:
 /*!
     \enum QMainWindow::DockWindows
 
-    Right-clicking a dock area will pop-up a menu
+    Right-clicking a dock area will pop-up the dock window menu
     (createDockWindowMenu() is called automatically). When called in
     code you can specify what items should appear on the menu with this
     enum.
@@ -1896,10 +1898,10 @@ void QMainWindow::setDockMenuEnabled( bool b )
     d->dockMenu = b;
 }
 
-/*!  Creates a menu which contains all toolbars (if \a dockWindows
-  is \c OnlyToolBars ), all dock windows (if \a dockWindows is \c
-  NoToolBars) or all toolbars and dock windows ( if \a dockWindows is
-  \c AllDockWindows - the default).
+/*!  Creates the dock window menu which contains all toolbars (if \a
+    dockWindows is \c OnlyToolBars ), all dock windows (if \a
+    dockWindows is \c NoToolBars) or all toolbars and dock windows ( if
+    \a dockWindows is \c AllDockWindows - the default).
 
   This function is called internally when necessary, e.g. when the user
   right clicks a dock area (providing isDockMenuEnabled() returns TRUE).
@@ -2005,9 +2007,10 @@ void QMainWindow::menuAboutToShow()
     dock windows so that they can be shown (or hidden), lined up, and
     possibly customized. 
 
-  The default implementation uses the menu which gets created by
-  createDockWindowMenu(). You can reimplement createDockWindowMenu() if
-  you want to use your own specialized popup menu.
+  The default implementation uses the dock window menu which gets
+  created by createDockWindowMenu(). You can reimplement
+  createDockWindowMenu() if you want to use your own specialized popup
+  menu.
 */
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
