@@ -319,7 +319,8 @@ the enumeration type \c Priority for the property, this type must be
 registered with the property system as well.
 
 There are two exceptions to the above: The type of a property can also
-be either \l QValueList\<QVariant\> or \l QMap\<QString,QVariant\>. In
+be either \link QValueList QValueList\<QVariant\>\endlink or \link
+QMap QMap\<QString,QVariant\>\endlink. In
 these cases the type must be specified as \c QValueList or as \c QMap
 (i.e. without their template parameters).
 

@@ -144,12 +144,19 @@
 
     The readyReadStdout() signal is emitted when there is new data on
     standard output. This happens asynchronously: you don't know if
-    more data will arrive later. In the above example you could
-    connect the processExited() signal to the slot
-    UicManager::readFromStdout() instead. If you do so, you will be
-    certain that all the data is available when the slot is called. On
-    the other hand, you must wait until the process has finished
-    before doing any processing.
+    more data will arrive later.
+
+    In the above example you could connect the processExited() signal
+    to the slot UicManager::readFromStdout() instead. If you do so,
+    you will be certain that all the data is available when the slot
+    is called. On the other hand, you must wait until the process has
+    finished before doing any processing.
+
+    Note that if you are expecting a lot of output from the process,
+    you may hit platform-dependent limits to the pipe buffer size. The
+    solution is to make sure you connect to the output, e.g. the
+    readyReadStdout() and readyReadStderr() signals and read the data
+    as soon as it becomes available.
 
     \sa QSocket
 */
