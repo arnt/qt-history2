@@ -111,7 +111,7 @@ void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
     configRequests->enqueue( r );		// store request in queue
 }
 
-static void qWinProcessConfigRequests()		// perform requests in queue
+Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
 {
     if ( !configRequests )
 	return;
@@ -136,6 +136,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
     delete configRequests;
     configRequests = 0;
 }
+
 
 /*****************************************************************************
   Timer handling; Our routines depend on Windows timer functions, but we
