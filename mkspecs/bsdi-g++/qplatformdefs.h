@@ -76,15 +76,10 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T		size_t
+#define QT_SOCKLEN_T		socklen_t
+#define QT_SOCKOPTLEN_T		size_t
 
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
-
-// Older BSD/OS versions may still use the a.out format instead of ELF.
-#ifndef __ELF__
-#define QT_AOUT_UNDERSCORE
-#endif
-
 
 #endif // QPLATFORMDEFS_H
