@@ -2690,12 +2690,10 @@ struct qt_truple
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
-void QPainter::drawText( int x, int y, const QString &str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 {
     if ( !isActive() )
 	return;
-    if ( len < 0 )
-	len = str.length();
     if ( len == 0 )				// empty string
 	return;
 
@@ -2753,7 +2751,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( dfont );
-		paint.drawText( tx, ty, str, len );
+		paint.drawText( tx, ty, str, pos, len );
 		paint.end();
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
@@ -2806,7 +2804,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     // we are going to to this:
     //
-    // 1. allocate an array of encoding/pixeloffset/stringoffset truples as long as
+    // 1. allocate an array of script/pixeloffset/stringoffset truples as long as
     //    the string
     // 2. (a.) find all encoding boundaries,
     //    (b.) calc all string widths and
@@ -2824,7 +2822,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     int currx = x;
 
     // step 2
-    const QChar *uc = str.unicode();
+    const QChar *uc = str.unicode() + pos;
     QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
     XFontStruct *f;
     int i;
@@ -2836,7 +2834,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	// 2a. encoding boundary
 	if (tmp != currs) {
 	    currs = tmp;
-	    
+
 	    // new encoding! time to draw this text
 	    truples[currt].script = currs;
 
@@ -2887,10 +2885,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 			     (cfont.d->request.pointSize * 3 / 40);
 		}
 	    }
-	    
+
 	    // 2c.
 	    truples[currt].script = currs;
-	    truples[currt].stroffset = i;
+	    truples[currt].stroffset = i + pos;
 	    truples[currt].xoffset = currx;
 	    currt++;
 	}
@@ -2949,7 +2947,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    // continue;
 	    break;
 	}
-		    
+
 	// step 5
 	int j;
 	currs = truples[i].script;
@@ -2962,11 +2960,11 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		if (truples[j].stroffset == -1) {
 		    break;
 		}
-		
+
 		if (truples[j].script != currs) {
 		    continue;
 		}
-		
+
 		QString v = str;
 #ifdef QT_BIDI
 		v.compose();  // apply ligatures (for arabic, etc...)
@@ -2982,7 +2980,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		} else {
 		    l = truples[j + 1].stroffset - truples[j].stroffset;
 		}
-		
+
 		if (truples[j].mapped.isNull()) {
 		    if (f->max_byte1) {
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
@@ -3013,29 +3011,29 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		if (truples[j].script != currs) {
 		    continue;
 		}
-		
+
 		int inc = cfont.d->request.pointSize * 3 / 40;
 		int l;
-		
+
 		if (truples[j + 1].stroffset == -1) {
 		    l = len - truples[j].stroffset;
 		} else {
 		    l = truples[j + 1].stroffset - truples[j].stroffset;
 		}
-		
+
 		XRectangle *rects = new XRectangle[l];
-		
+
 		for (int k = 0; k < l; k++) {
 		    rects[k].x = truples[j].xoffset + (k * inc) + 1;
 		    rects[k].y = y - inc + 1;
 		    rects[k].width = rects[k].height = inc - 2;
 		}
-		    
+
 		XDrawRectangles(dpy, hd, gc, rects, l);
 		delete [] rects;
 	    }
 	}
-	
+
 	// step 6 - gotta love loops
     }
 

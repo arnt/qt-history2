@@ -232,6 +232,7 @@ public:
   // Text drawing functions
 
     void	drawText( int x, int y, const QString &, int len = -1 );
+    void        drawText( int x, int y, const QString &, int pos, int len);
     void	drawText( const QPoint &, const QString &, int len = -1 );
     void	drawText( int x, int y, int w, int h, int flags,
 			  const QString&, int len = -1, QRect *br=0,
@@ -362,7 +363,7 @@ protected:
     QRegion clippedreg;
     QMacSavedPortInfo *saved;
     void initPaintDevice(bool force=FALSE);
-    
+
     int offx, offy;
     int penx, peny;
     void * hd;
@@ -602,7 +603,7 @@ inline void QPainter::drawImage( const QPoint &p, const QImage &pm,
 {
     drawImage( p.x(), p.y(), pm,
 	       sr.x(), sr.y(), sr.width(), sr.height(), conversionFlags );
-}                                                                               
+}
 
 inline void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm,
 				       const QPoint &sp )
@@ -628,6 +629,16 @@ inline void QPainter::eraseRect( int x, int y, int w, int h )
 inline void QPainter::eraseRect( const QRect &r )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
+}
+
+inline void QPainter::drawText( int x, int y, const QString &s, int len)
+{
+    if (len < 0)
+	len = s.length();
+    if (len == 0)
+	return;
+    
+    drawText(x, y, s, 0, len);
 }
 
 inline void QPainter::drawText( const QPoint &p, const QString &s, int len )

@@ -84,15 +84,15 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "iso8859-15"       , 0 }, // EXTLATINA15
 
     // TODO: Latin Extended-B
-
+    
     { "iso8859-5",
       "koi8-r",
       "koi8-ru"          , 0 }, // CYRILLIC
     { "iso8859-6.8x",
-      "iso8859-6"	, 0 }, // ARABIC
+      "iso8859-6"        , 0 }, // ARABIC
     { "iso8859-7"        , 0 }, // GREEK
     { "iso8859-8"        , 0 }, // HEBREW
-
+    
     { "tscii-*"          , 0 }, // TAMIL
     { "tis620-0",
       "iso8859-11"       , 0 }, // THAI
@@ -1176,12 +1176,12 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 	return;
     }
-    
+
     if (script > QFontPrivate::UNICODE) {
 	qDebug("OUT OF RANGE");
 	int *foo = 0; *foo = 0;
     }
-    
+
     if (x11data.fontstruct[script] && ! request.dirty) {
 	return;
     }
@@ -1431,13 +1431,12 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	chars = 5000;
     }
 
-#warning "TODO: codec matching should be done better"
     // get unicode -> font encoding codec
     QTextCodec *codec = 0;
     if (script < QFontPrivate::UNICODE) {
 	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
     }
-
+    
 #ifdef QFONTLOADER_DEBUG
     if (codec) {
 	qDebug("QFP::load: got codec %s for script %d %s",
@@ -1734,33 +1733,11 @@ void QFont::setPixelSizeFloat( float pixelSize )
 
 
 
-#define printerAdjusted(a) (a)
+
 
 // **********************************************************************
 // QFontMetrics member methods
 // **********************************************************************
-
-/* int QFontMetrics::printerAdjusted(int val) const
-   {
-
-   // OLD
-   // if ( painter && painter->device() &&
-   // painter->device()->devType() == QInternal::Printer) {
-   // painter->cfont.handle();
-
-   // // ### printer font metrics hack
-   // if ( painter->device() &&
-   // painter->device()->devType() == QInternal::Printer &&
-   // painter->cfont.d->printerHackFont ) {
-   // painter->cfont.d->printerHackFont->handle();
-   // val *= painter->cfont.pointSize() / 64;
-   // }
-   // }
-
-   return val;
-   }
-*/
-
 
 /*!
   Returns the maximum ascent of the font.
@@ -1790,7 +1767,7 @@ int QFontMetrics::ascent() const
 	    a = aa;
     }
 
-    return printerAdjusted(a);
+    return a);
 
 #else // !Q_SUPERFONT_METRICS
 
@@ -1834,7 +1811,7 @@ int QFontMetrics::descent() const
 	    c = cc;
     }
 
-    return printerAdjusted(c);
+    return c);
 
 #else // !Q_SUPERFONT_METRICS
 
@@ -1929,6 +1906,56 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 }
 
 
+static
+XCharStruct* charStrShaped(const QTextCodec* codec, XFontStruct *f,
+			   const QString &str, int pos)
+{
+    // Optimized - inFont() is merged in here.
+    QChar ch;
+
+    if (! f->per_char) {
+	return &f->max_bounds;
+    }
+
+    if (codec) {
+	QShapingCodec *c = (QShapingCodec *)codec;
+	ch = QChar( c->shapedGlyph(str, pos) );
+    } else {
+	ch = str[pos];
+    }
+    
+    if ( f->max_byte1 ) {
+	if (! (ch.cell() >= f->min_char_or_byte2 &&
+	       ch.cell() <= f->max_char_or_byte2 &&
+	       ch.row() >= f->min_byte1 &&
+	       ch.row() <= f->max_byte1)) {
+	    ch = QChar((ushort)f->default_char);
+	}
+
+	return f->per_char +
+	    ((ch.row() - f->min_byte1)
+	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
+	     + ch.cell() - f->min_char_or_byte2);
+    } else if ( ch.row() ) {
+	uint ch16 = ch.unicode();
+
+	if (! (ch16 >= f->min_char_or_byte2 &&
+	       ch16 <= f->max_char_or_byte2)) {
+	    ch16 = f->default_char;
+	}
+
+	return f->per_char + ch16;
+    }
+
+    if (! (ch.cell() >= f->min_char_or_byte2 &&
+	   ch.cell() <= f->max_char_or_byte2)) {
+	ch = QChar((uchar)f->default_char);
+    }
+
+    return f->per_char + ch.cell() - f->min_char_or_byte2;
+}
+
+
 /*!
   Returns the left bearing of character \a ch in the font.
 
@@ -1959,7 +1986,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     XCharStruct *xcs =
 	charStr(d->x11data.fontstruct[script]->codec,
 		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
-    return printerAdjusted(xcs ? xcs->width : 0);
+    return xcs ? xcs->width : 0;
 }
 
 
@@ -1993,7 +2020,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     XCharStruct *xcs =
 	charStr(d->x11data.fontstruct[script]->codec,
 		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
-    return printerAdjusted(xcs ? xcs->width : 0);
+    return xcs ? xcs->width : 0;
 }
 
 
@@ -2023,7 +2050,7 @@ int QFontMetrics::minLeftBearing() const
 	    mlb = f->min_bounds.lbearing;
     }
 
-    return printerAdjusted(mlb);
+    return mlb;
 }
 
 
@@ -2073,7 +2100,7 @@ int QFontMetrics::minRightBearing() const
 	d->actual.rbearing = mx;
     }
 
-    return printerAdjusted(d->actual.rbearing);
+    return d->actual.rbearing;
 }
 
 
@@ -2097,7 +2124,7 @@ int QFontMetrics::height() const
 	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	hh = printerAdjusted(f->max_bounds.ascent + f->max_bounds.descent);
+	hh = f->max_bounds.ascent + f->max_bounds.descent);
 	if (hh > h)
 	    h = hh;
     }
@@ -2139,7 +2166,7 @@ int QFontMetrics::leading() const
 	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	ll = printerAdjusted(f->ascent + f->descent - f->max_bounds.ascent -
+	ll = f->ascent + f->descent - f->max_bounds.ascent -
 			     f->max_bounds.descent);
 	if (ll > l)
 	    l = ll;
@@ -2209,66 +2236,19 @@ int QFontMetrics::width(QChar ch) const
     if (script == QFontPrivate::UnknownScript) {
 	return d->request.pointSize * 3 / 40;
     }
-    
+
     d->load(script);
     if (! d->x11data.fontstruct[script]) {
 	return d->request.pointSize * 3 / 40;
     }
-    
+
     XCharStruct *xcs =
 	charStr(d->x11data.fontstruct[script]->codec,
 		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
-    
+
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
 
-
-static
-XCharStruct* charStrShaped(const QTextCodec* codec, XFontStruct *f, const QString &str, int pos)
-{
-    // Optimized - inFont() is merged in here.
-    QChar ch;
-    
-    if (! f->per_char) {
-	return &f->max_bounds;
-    }
-
-    if (codec) {
-	QShapingCodec *c = (QShapingCodec *)codec;
-	ch = QChar( c->shapedGlyph(str, pos) );
-    } else
-	ch = str[pos];
-
-    if ( f->max_byte1 ) {
-	if (! (ch.cell() >= f->min_char_or_byte2 &&
-	       ch.cell() <= f->max_char_or_byte2 &&
-	       ch.row() >= f->min_byte1 &&
-	       ch.row() <= f->max_byte1)) {
-	    ch = QChar((ushort)f->default_char);
-	}
-
-	return f->per_char +
-	    ((ch.row() - f->min_byte1)
-	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
-	     + ch.cell() - f->min_char_or_byte2);
-    } else if ( ch.row() ) {
-	uint ch16 = ch.unicode();
-
-	if (! (ch16 >= f->min_char_or_byte2 &&
-	       ch16 <= f->max_char_or_byte2)) {
-	    ch16 = f->default_char;
-	}
-
-	return f->per_char + ch16;
-    }
-
-    if (! (ch.cell() >= f->min_char_or_byte2 &&
-	   ch.cell() <= f->max_char_or_byte2)) {
-	ch = QChar((uchar)f->default_char);
-    }
-
-    return f->per_char + ch.cell() - f->min_char_or_byte2;
-}
 
 /*!
   Returns the width in pixels of the first \e len characters of \e str.
@@ -2314,7 +2294,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 			mapped = d->x11data.fontstruct[currs]->codec->
 				 fromUnicode(str.mid(lasts, i - lasts));
 		    }
-		    
+
 		    if (mapped.isNull()) {
 			// we are dealing with unicode text and a unicode font - YAY
 			if (f->max_byte1) {
@@ -2339,7 +2319,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	    } else {
 		currw += (i - lasts) * (d->request.pointSize * 3 / 40);
 	    }
-	    
+
 	    currs = tmp;
 	    lasts = i;
 	}
@@ -2348,7 +2328,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     if (lasts >= 0) {
 	if (currs != QFontPrivate::UnknownScript) {
 	    d->load(currs);
-	    
+
 	    if (d->x11data.fontstruct[currs]) {
 		f = (XFontStruct *) d->x11data.fontstruct[currs]->handle;
 
@@ -2382,7 +2362,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
 	}
     }
-    
+
     return currw;
 }
 
@@ -2403,7 +2383,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if (script == QFontPrivate::UnknownScript) {
 	return d->request.pointSize * 3 / 40;
     }
-    
+
     d->load(script);
     if (! d->x11data.fontstruct[script]) {
         return d->request.pointSize * 3 / 40;
@@ -2413,11 +2393,11 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if ( script == QFontPrivate::ARABIC ) {
 	xcs = charStrShaped(d->x11data.fontstruct[script]->codec,
 		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
-    } else { 
+    } else {
 	xcs = charStr(d->x11data.fontstruct[script]->codec,
 		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
     }
-    
+
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
 
@@ -2530,7 +2510,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	    } else {
 		qDebug("QFM::boundingRect: need to handle unknown text");
 	    }
-	    
+
 	    currs = tmp;
 	    lasts = i;
 	}
@@ -2594,11 +2574,11 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	}
     }
 
-    overall.lbearing = printerAdjusted(overall.lbearing);
-    overall.rbearing = printerAdjusted(overall.rbearing);
-    overall.ascent = printerAdjusted(overall.ascent);
-    overall.descent = printerAdjusted(overall.descent);
-    overall.width = printerAdjusted(overall.width);
+    overall.lbearing = overall.lbearing;
+    overall.rbearing = overall.rbearing;
+    overall.ascent = overall.ascent;
+    overall.descent = overall.descent;
+    overall.width = overall.width;
 
     bool underline;
     bool strikeOut;
@@ -2666,7 +2646,7 @@ int QFontMetrics::maxWidth() const
 	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	ww = printerAdjusted(f->max_bounds.width);
+	ww = f->max_bounds.width;
 	if (ww > w)
 	    w = ww;
     }
@@ -2710,7 +2690,7 @@ int QFontMetrics::lineWidth() const
 {
     if ( painter ) {
 	painter->cfont.d->load(QFontPrivate::defaultScript);
-	return printerAdjusted(painter->cfont.d->lineWidth);
+	return painter->cfont.d->lineWidth;
     }
 
     return d->lineWidth;

@@ -2696,7 +2696,7 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
   is not the same for the two drawText() varieties.
 */
 
-void QPainter::drawText( int x, int y, const QString &str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int /*pos*/, int len )
 {
     if ( !isActive() )
 	return;
