@@ -259,7 +259,9 @@ public:
     {
 	delete iconset;
     }
+#ifndef QT_NO_POPUPMENU
     QGuardedPtr<QPopupMenu> popup;
+#endif
     QIconSet* iconset;
 };
 
@@ -627,10 +629,14 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 #endif
 
     QButton::focusOutEvent( e );
+#ifndef QT_NO_POPUPMENU
     if ( popup() && popup()->isVisible() )	// restore pressed status
 	setDown( TRUE );
+#endif
 }
 
+
+#ifndef QT_NO_POPUPMENU
 /*!
     Associates the popup menu \a popup with this push button and thus
     turns it into a menu button.
@@ -650,7 +656,7 @@ void QPushButton::setPopup( QPopupMenu* popup )
     d->popup = popup;
     setIsMenuButton( popup != 0 );
 }
-
+#endif
 
 void QPushButton::setIconSet( const QIconSet& icon )
 {
@@ -676,6 +682,7 @@ QIconSet* QPushButton::iconSet() const
     return d ? d->iconset : 0;
 }
 
+#ifndef QT_NO_POPUPMENU
 /*!
     Returns the button's associated popup menu or 0 if no popup menu
     has been set.
@@ -728,6 +735,7 @@ void QPushButton::popupPressed()
 	setDown( FALSE );
     }
 }
+#endif
 
 void QPushButton::setFlat( bool f )
 {

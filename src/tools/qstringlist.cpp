@@ -369,7 +369,7 @@ QStringList& QStringList::gres( const QString &before, const QString &after,
     return *this;
 }
 
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
 /*!
     \overload
 

@@ -92,9 +92,10 @@ public:
     }
     bool	isMenuButton() const { return hasMenuArrow; }
 
+#ifndef QT_NO_POPUPMENU
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
-
+#endif
     void setIconSet( const QIconSet& );
     QIconSet* iconSet() const;
 
@@ -111,10 +112,10 @@ protected:
     void	focusOutEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
     void	updateMask();
-
 private slots:
+#ifndef QT_NO_POPUPMENU
     void popupPressed();
-
+#endif
 private:
     void	init();
 

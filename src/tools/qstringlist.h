@@ -84,7 +84,7 @@ public:
 
     QStringList& gres( const QString &before, const QString &after,
 		       bool cs = TRUE );
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
     QStringList& gres( const QRegExp &expr, const QString &after );
 #endif
 

@@ -49,7 +49,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires: STRINGLIST
+Requires: STRINGLIST REGEXP_CAPTURE
 Name: SQL classes
 SeeAlso: ???
 
@@ -217,7 +217,7 @@ SeeAlso: ???
 
 Feature: SETTINGS
 Section: File I/O
-Requires: DIR TEXTSTREAM
+Requires: DIR TEXTSTREAM REGEXP_CAPTURE
 Name: Persistent application settings
 SeeAlso: ???
 
@@ -764,7 +764,7 @@ SeeAlso: ???
 
 Feature: PRINTER
 Section: Painting
-Requires: TEXTSTREAM SPRINTF FONTDATABASE DATESTRING
+Requires: TEXTSTREAM SPRINTF FONTDATABASE DATESTRING REGEXP_CAPTURE
 Name: Printing
 SeeAlso: ???
 
@@ -938,7 +938,7 @@ SeeAlso: ???
 
 Feature: PUSHBUTTON
 Section: Widgets
-Requires: BUTTON POPUPMENU
+Requires: BUTTON
 Name: Push-buttons
 SeeAlso: ???
 
@@ -1008,7 +1008,7 @@ Requires: RICHTEXT SCROLLVIEW
 Name: Rich text edit
 SeeAlso: ???
 
-Feature SYNTAXHIGHLIGHTER
+Feature: SYNTAXHIGHLIGHTER
 Section: Widgets
 Requires: RICHTEXT
 Name: Rich text syntax highlighting
@@ -1309,6 +1309,6 @@ SeeAlso: ???
 
 Feature: DIALOGBUTTONS
 Section: Widgets
-Requires: LAYOUT STYLE
+Requires: LAYOUT STYLE PUSHBUTTON
 Name: Experimental internal class
 SeeAlso: ???
