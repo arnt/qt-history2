@@ -22,13 +22,13 @@ beta1 have been fixed.
 
 - QActionGroup
 	Syncronize comboboxes correctly for groups with
-	seperators. Set the initial currentItem of comboboxes to the
+	separators. Set the initial currentItem of comboboxes to the
 	action that is on when adding the group. Emit activated signal
 	for non-toggle actions selected from a combobox. Apply the
 	state of the action group for new widgets.
 
 - QApplication
-	Correctly set the accpet() flag on accel events. Obsoleted
+	Correctly set the accept() flag on accel events. Obsoleted
 	processOneEvent(), we have a better way for integrating
 	eventloops now.
 	Windows only: reserve more space for very long application
@@ -50,7 +50,7 @@ beta1 have been fixed.
 	called while editor exists.
 
 - QDataTable:
-	Windows only: Fixed that if confirmation was switched on and
+	Windows only: If edit confirmation was switched on and
 	the user cancelled an update by clicking in a different field,
 	the current row was changed without reason.
 
@@ -82,8 +82,12 @@ beta1 have been fixed.
 	not really required.
 
 - QGLContext
-	 Added a workaround to get overlays to work on ATi FireGL
-	 cards.
+	Added a workaround to get overlays to work on ATi FireGL
+	cards.
+
+- QGLWidget
+	Added support for rendering text into a GL context with the
+	renderText() calls.
 
 - QHeader
 	Draw the sort arrow at the right position with multi-line
