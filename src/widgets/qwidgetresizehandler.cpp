@@ -120,7 +120,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 {
     QPoint pos = widget->mapFromGlobal( e->globalPos() );
-    if ( !buttonDown || e->state() == NoButton ) {
+    if ( !buttonDown || ( e->state() & LeftButton ) == 0 ) {
 	if ( pos.y() <= RANGE && pos.x() <= RANGE)
 	    mode = TopLeft;
 	else if ( pos.y() >= widget->height()-RANGE && pos.x() >= widget->width()-RANGE)
@@ -144,6 +144,9 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 #endif
 	return;
     }
+
+    if ( buttonDown && !isMovingEnabled() && mode == Center )
+	return;
 
     if ( widget->testWState( WState_ConfigPending ) )
  	return;
