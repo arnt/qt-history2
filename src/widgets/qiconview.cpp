@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#8 $
 **
 ** Definition of QIconView widget class
 **
@@ -102,7 +102,7 @@ struct QIconViewPrivate
     QRect *rubber;
     QTimer *scrollTimer;
     int rastX, rastY, spacing;
-    bool cleared;
+    bool cleared, dropped;
     int dragItems;
     int numSelectedItems;
     QPoint oldDragPos;
@@ -712,7 +712,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->alignMode = East;
     d->resizeMode = Fixed;
     d->mostOuter = 0;
-
+    d->dropped = FALSE;
+    
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -1211,6 +1212,7 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
     d->dragItems = dragItems( e );
     d->oldDragPos = contentsToViewport( e->pos() );
     drawDragShape( e->pos() );
+    d->dropped = FALSE;
 }
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
@@ -1255,8 +1257,9 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
-    drawDragShape( d->oldDragPos );
-
+    if ( !d->dropped )
+        drawDragShape( d->oldDragPos );
+    
     if ( d->tmpCurrentItem ) {
         repaintItem( d->tmpCurrentItem );
         d->tmpCurrentItem->dragLeft();
@@ -1267,8 +1270,9 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QIconView::contentsDropEvent( QDropEvent *e )
 {
+    d->dropped = TRUE;
     drawDragShape( d->oldDragPos );
-
+    
     if ( d->tmpCurrentItem )
         repaintItem( d->tmpCurrentItem );
 
