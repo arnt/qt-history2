@@ -18,7 +18,6 @@
 #include "qobject.h"
 #include "qregion.h"
 #include "qnamespace.h"
-#include "qpair.h"
 #include "qstring.h"
 #include "qkeysequence.h"
 #include "qcoreevent.h"
@@ -119,7 +118,7 @@ public:
     QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  Qt::KeyboardModifiers keyState, const QPair<int,int> &uId);
+                  Qt::KeyboardModifiers keyState, Q_LONGLONG uniqueID);
     inline int pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
@@ -133,7 +132,7 @@ public:
     inline int hiResX() const { return mHiResPos.x(); }
     inline int hiResY() const { return mHiResPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
-    inline QPair<int, int> uniqueId() { return QPair<int,int>(mType, mPhy); }
+    inline Q_LONGLONG uniqueId() { return mUnique; }
     inline int minPressure() const { return mMinPressure; }
     inline int maxPressure() const { return mMaxPressure; }
     inline int minHiResX() const { return mHiResMinX; }
@@ -144,8 +143,9 @@ public:
 protected:
     QPoint mPos, mGPos, mHiResPos;
     int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
-    int mDev, mPress, mXT, mYT, mType, mPhy;
+    int mDev, mPress, mXT, mYT;
     int mMinPressure, mMaxPressure;
+    Q_LONGLONG mUnique;
 };
 
 

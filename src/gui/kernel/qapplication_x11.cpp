@@ -3664,6 +3664,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     if (s == NULL)
         return false;
     iClass = s->data;
+    Q_LONGLONG uid;
     for (j = 0; j < s->num_classes; j++) {
         if (iClass->c_class == ValuatorClass) {
             vs = (XValuatorState *)iClass;
@@ -3683,10 +3684,11 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
                     break;
                 }
                 // Get a Unique Id for the device, Wacom gives us this ability
-                tId.first = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
-                tId.second = vs->valuators[WAC_SERIAL_NUM_I];
-            } else
+                uid = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
+                uid = (uid << 24) | vs->valuators[WAC_SERIAL_NUM_I];
+            } else {
                 deviceType = QTabletEvent::NoDevice;
+            }
             // apparently Wacom needs a cast for the +/- values to make sense
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
@@ -3724,12 +3726,11 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         state = translateButtonState(button->state);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
-    tId.first = tId.second = -1;
+    uid = -1;
 #endif
-
     QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
-                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt,
-                    Qt::KeyboardModifiers(state), tId);
+                   deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt,
+                   Qt::KeyboardModifiers(state), uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }

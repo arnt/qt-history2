@@ -1259,7 +1259,7 @@ QInputMethodEvent::QInputMethodEvent(Type type, const QString &text, int cursorP
   \fn QTabletEvent::QTabletEvent(Type type, const QPoint &position,
                                   const QPoint &globalPos, int device,
                                   int pressure, int xTilt, int yTilt,
-                                  const QPair<int,int> &uId)
+                                  Q_LONGLONG &uId)
 
   Construct a tablet event of the given \a type. The \a position
   indicates where the event occurred in the widget; \a globalPos is
@@ -1279,7 +1279,7 @@ QInputMethodEvent::QInputMethodEvent(Type type, const QString &text, int cursorP
 QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  Qt::KeyboardModifiers keyState, const QPair<int,int> &uId)
+                  Qt::KeyboardModifiers keyState, Q_LONGLONG unique)
     : QInputEvent(t, keyState),
       mPos(pos),
       mGPos(globalPos),
@@ -1292,30 +1292,11 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
       mPress(pressure),
       mXT(xTilt),
       mYT(yTilt),
-      mType(uId.first),
-      mPhy(uId.second),
       mMinPressure(minPressure),
-      mMaxPressure(maxPressure)
+      mMaxPressure(maxPressure),
+      mUnique(unique)
 {
 }
-
-/*!
-  \obsolete
-  \fn QTabletEvent::QTabletEvent(const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId)
-
-    Constructs a tablet event object. The position when the event
-    occurred is is given in \a pos and \a globalPos. \a device
-    contains the \link TabletDevice device type\endlink, \a pressure
-    contains the pressure exerted on the \a device, \a xTilt and \a
-    yTilt contain the \a device's degrees of tilt from the x and y
-    axis respectively. The \a uId contains an event id.
-
-    On Irix, \a globalPos will contain the high-resolution coordinates
-    received from the tablet device driver, instead of from the
-    windowing system.
-
-  \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
-*/
 
 /*!
     \fn TabletDevices QTabletEvent::device() const
@@ -1423,16 +1404,13 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QPair<int, int> QTabletEvent::uniqueId()
+    \fn Q_LONGLONG QTabletEvent::uniqueId()
 
     Returns a unique ID for the current device, making it possible
     to differentiate between multiple devices being used at the same
-    time on the tablet. The \c first member contains a value for the
-    type, the \c second member contains a physical ID obtained from
-    the device. Each combination of these values is unique.
+    time on the tablet.
 
-    Note that the \c first value will vary due to different driver
-    implementations on each platform supported by Qt.
+    Values for the same device might vary from OS to OS.
 
     It is possible to generate a unique ID for any Wacom device.
 

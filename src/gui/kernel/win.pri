@@ -9,3 +9,4 @@
 			   $$KERNEL_CPP/qfontengine_wce.cpp \			   
 			   $$KERNEL_CPP/qregion_wce.cpp
 	}
+        INCLUDEPATH += ../3rdparty/wintab
