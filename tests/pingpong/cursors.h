@@ -11,6 +11,13 @@ public:
     MatchView();
 };
 
+class Player2TeamView : public QSqlCursor
+{
+public:
+    Player2TeamView();
+};
+
+
 class MatchCursor : public QSqlCursor
 {
 public:

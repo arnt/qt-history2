@@ -77,8 +77,9 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     player2teamLabel->setFont( f );
     g->addMultiCellWidget( player2teamLabel, 2, 2, 0, 1 );
     player2teamTable = new QSqlTable( this );
-    player2teamTable->setCursor( &player2teamCursor );
+    player2teamTable->setCursor( &player2teamView );
     player2teamTable->setReadOnly( TRUE );
+    player2teamTable->setSorting( TRUE );
     g->addWidget( player2teamTable, 3, 0 );
     QFrame * buttonFrame = new QFrame( this );
     QVBoxLayout * v = new QVBoxLayout( buttonFrame );
@@ -101,7 +102,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
 
 void TeamEditorWidget::updateTeamMembers( const QSqlRecord * record )
 {
-    player2teamCursor.select( "teamid = " + record->value( "id" ).toString());
+    player2teamView.select( "teamid = " + record->value( "id" ).toString());
     player2teamTable->refresh();
     player2teamLabel->setText( "Players on <i>" +
 			       teamCursor.value("name").toString() +
@@ -114,7 +115,7 @@ void TeamEditorWidget::addPlayer()
     QSqlRecord currentPlayer = playerTable->currentFieldSelection();
     if ( currentPlayer.isEmpty() || currentTeam.isEmpty() )
 	return;
-    
+
     QSqlQuery sql( "select count(*) from player2team where teamid = " +
 		   currentTeam.value("id").toString() + " and playerid = " +
 		   currentPlayer.value("id").toString() + ";" );
@@ -130,9 +131,15 @@ void TeamEditorWidget::addPlayer()
 
 void TeamEditorWidget::removePlayer()
 {
-    // ### Review this!
-    player2teamCursor.del();
-    player2teamTable->refresh();
+    QSqlRecord r = player2teamTable->currentFieldSelection();
+    if ( r.isEmpty() )
+	return;
+    player2teamCursor.setValue( "id", r.value( "id" ) );
+    player2teamCursor.select( player2teamCursor.primaryIndex(), player2teamCursor.primaryIndex() );
+    if ( player2teamCursor.next() ) {
+	player2teamCursor.del();
+	player2teamTable->refresh();
+    }
 }
 
 //

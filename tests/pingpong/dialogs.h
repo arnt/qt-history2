@@ -34,18 +34,19 @@ class TeamEditorWidget : public QWidget
 
 public:
     TeamEditorWidget( QWidget * parent = 0, const char * name = 0 );
-    
+
 protected slots:
     void updateTeamMembers( const QSqlRecord * record );
     void addPlayer();
     void removePlayer();
-    
+
 private:
     QSqlTable * teamTable;
     QSqlTable * playerTable;
     QSqlTable * player2teamTable;
-    
+
     QLabel * player2teamLabel;
+    Player2TeamView player2teamView;
     Player2TeamCursor player2teamCursor;
     TeamCursor   teamCursor;
     PlayerCursor playerCursor;
@@ -56,14 +57,14 @@ class MatchDialog : public QDialog
     Q_OBJECT
 
 public:
-    typedef enum Mode { Insert, Update, Delete };    
-    
+    typedef enum Mode { Insert, Update, Delete };
+
     MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent = 0,
 		 const char * name = 0 );
 public slots:
     void close();
     void execute();
-    
+
 private slots:
     void updateSets();
 
@@ -75,7 +76,7 @@ private:
     QSpinBox   * wins;
     QSpinBox   * losses;
     QLineEdit  * sets;
-    Mode mMode;        
+    Mode mMode;
 };
 
 #endif // DIALOGS_H

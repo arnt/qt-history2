@@ -42,5 +42,7 @@ from match a, team b, team c
 where b.id=a.winnerid
 and c.id=a.loserid);
 
+create view player2teamview as
+(select pt.id, t.id as teamid, p.name from player2team pt, player p, team t where p.id=pt.playerid and t.id=pt.teamid);
 
 

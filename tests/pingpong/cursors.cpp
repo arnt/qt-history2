@@ -9,8 +9,16 @@ MatchView::MatchView()
     setDisplayLabel( "winnerwins", "Winner Wins" );
     setDisplayLabel( "date", "Date" );
     setDisplayLabel( "loser", "Loser" );
-    setDisplayLabel( "winner", "Winner" );    
-    setDisplayLabel( "sets", "Sets" );    
+    setDisplayLabel( "winner", "Winner" );
+    setDisplayLabel( "sets", "Sets" );
+}
+
+Player2TeamView::Player2TeamView()
+    : QSqlCursor( "player2teamview" )
+{
+    setDisplayLabel( "name", "Name" );    
+    setVisible( "teamid", FALSE );
+    setVisible( "id" , FALSE );
 }
 
 MatchCursor::MatchCursor()
