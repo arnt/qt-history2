@@ -1378,8 +1378,9 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	if ( pw == 0 && pt->pen().style() != Qt::NoPen )
 	    pw = 0.9;
 	s += QString( "stroke-width:%1;" ).arg( pw );
-	if ( pt->brush().style() == Qt::NoBrush || c == PdcDrawPolyline )
-	    s += "fill:none;"; // Qt polylines use no brush
+	if ( pt->brush().style() == Qt::NoBrush || c == PdcDrawPolyline ||
+	     c == PdcDrawCubicBezier )
+	    s += "fill:none;"; // Qt polylines use no brush, neither do Beziers
 	else
 	    s += QString( "fill:rgb(%1,%2,%3);" )
 		 .arg( bcol.red() ).arg( bcol.green() ).arg( bcol.blue() );
