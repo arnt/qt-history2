@@ -183,7 +183,7 @@ construct a CharacterWidget custom widget, and add a QWidgetView
 so that we can view its contents.
 
 \skipto QWidget *centralWidget
-\printuntil clipboardButton
+\printuntil view->setWidget
 
 QWidgetView provides a viewport onto the \c CharacterWidget when we set
 its widget and handles much of the work needed to provide a scrolling
@@ -192,8 +192,13 @@ viewport.
 We list the available fonts and styles in the comboboxes using the
 following functions:
 
-\skipto findFonts
-\printuntil clipboard
+\skipto findFonts()
+\printuntil findStyles()
+
+The line edit and push button are used to supply text to the clipboard:
+
+\skipto lineEdit =
+\printuntil QPushButton *clipboardButton
 
 We also obtain a clipboard object so that we can send text entered by the
 user to other applications.
