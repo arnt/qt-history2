@@ -10,6 +10,11 @@
 
 #include <qapplication.h>
 #include <qmap.h>
+#include <qpushbutton.h>
+#include <qlineedit.h>
+#include <qlabel.h>
+#include <qvbox.h>
+#include <qhbox.h>
 
 struct QUrlPrivate
 {
@@ -861,7 +866,17 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	emit finished();
     } else if ( d->protocol == "ftp" ) {
 	d->ftp.close();
-	d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path );
+	if ( d->user.isEmpty() )
+	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
+			 "anonymous", "Qt is cool" );
+	else {
+	    if ( d->pass.isEmpty() )
+		if ( !getPassword() )
+		    return;
+	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
+			 d->user, d->pass );
+	}
+ 	    
 	emit start();
     }
 }
@@ -1011,4 +1026,61 @@ QUrlInfo QUrl::info( const QString &entry ) const
 void QUrl::listFinished()
 {
     emit finished();
+}
+
+// class QPasswordDialog : public QVBox
+// {
+//     Q_OBJECT
+    
+// public:
+//     QPasswordDialog( const QWidget *parent, const QString &user );
+    
+// protected slots:
+//     void ok() { 
+// 	emit ok( this );
+//     }
+    
+// signals:
+//     void ok( QWidget * );
+//     void cancel();
+    
+// };
+
+// QPasswordDialog::QPasswordDialog(  const QWidget *parent, const QString &user )
+//     : QVBox( parent )
+// {
+//     setMargin( 5 );
+//     setSpacing( 5 );
+    
+//     QHBox *box;
+    
+//     box = new QHBox( this );
+//     box->setMargin( 5 );
+    
+//     (void)new QLabel( tr( "Username:" ), box );
+//     username = new QLineEdit( user, box );
+    
+//     box = new QHBox( this );
+//     box->setMargin( 5 );
+    
+//     (void)new QLabel( tr( "Password:" ), box );
+//     password = new QLineEdit( "", box );
+//     password->setEchoMode( QLineEdit::Password );
+    
+//     box = new QHBox( this );
+//     box->setMargin( 5 );
+ 
+//     box->addStretch();
+//     connect( new QPushButton( tr( "&OK" ), box ), SIGNAL( clicked() ),
+// 	     this, SLOT( ok() ) );
+//     connect( new QPushButton( tr( "&Cancel" ), box ), SIGNAL( clicked() ),
+// 	     this, SIGNAL( cancel() ) );
+// }
+
+bool QUrl::getPassword()
+{
+//     QPasswordDialog dlg( 0, d->user );
+//     connect( dlg, SIGNAL( ok( QWidget * ) ), this, SLOT( setPassword( QWidget * ) ) );
+//     return 
+    return TRUE;
 }

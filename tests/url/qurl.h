@@ -7,6 +7,7 @@
 
 struct QUrlPrivate;
 class QUrlInfo;
+class QWidget;
 
 class QUrl : public QObject
 {
@@ -110,12 +111,14 @@ protected:
     void parse( const QString& url );
     void addEntry( const QUrlInfo &i );
     void clearEntries();
-
+    bool getPassword();
+    
     static char hex2int( char c );
 
 protected slots:
     void sendNewEntry( const QUrlInfo &i );
     void listFinished();
+//     void setPassword( QWidget * );
     
 private:
     QUrlPrivate *d;

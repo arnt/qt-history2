@@ -90,9 +90,11 @@ void FTP::readyRead()
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 	
     if ( s.contains( "220" ) ) {
-	commandSocket->writeBlock( "USER anonymous\r\n", strlen( "USER anonymous\r\n" ) );
+	QString cmd = "USER " + username + "\r\n";
+	commandSocket->writeBlock( cmd, cmd.length() );
     } else if ( s.contains( "331" ) ) {
-	commandSocket->writeBlock( "PASS reggie@troll.no\r\n", strlen( "PASS reggie@troll.no\r\n" ) );
+	QString cmd = "PASS " + passwd + "\r\n";
+	commandSocket->writeBlock( cmd, cmd.length() );
     } else if ( s.contains( "230" ) ) {
 	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
     } else if ( s.contains( "227" ) ) {
@@ -136,13 +138,17 @@ FTP::FTP()
 
 }
 
-void FTP::open( const QString &host_, int port, const QString &path_ )
+void FTP::open( const QString &host_, int port, const QString &path_, 
+		const QString &username_, const QString &passwd_ )
+
 {
     commandSocket->connectToHost( host_, port );
     if ( !dataSocket->host().isEmpty() )
 	dataSocket->close();
     host = host_;
     path = path_;
+    username = username_;
+    passwd = passwd_;
 }
 
 void FTP::close()

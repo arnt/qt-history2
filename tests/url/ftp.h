@@ -15,7 +15,8 @@ public:
     ~FTP();
     FTP &operator=( const FTP &ftp );
     void read();
-    void open( const QString &host_, int port, const QString &path_ = "/"  );
+    void open( const QString &host_, int port, const QString &path_ = "/",
+	       const QString &username_ = "anonymous", const QString &passwd_ = "Qt is cool!" );
     void close();
 
 protected:
@@ -24,7 +25,7 @@ protected:
     QSocket *commandSocket, *dataSocket;
     QString host;
     QCString buffer;
-    QString path;
+    QString path, username, passwd;
 
 protected slots:
     void hostFound();
