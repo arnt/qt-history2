@@ -43,7 +43,7 @@ static uint decodeBaseZ( const QString& str )
     int i = str.length();
     while ( i > 0 ) {
 	i--;
-	const char *p = strchr( alphabet, str[i].latin1() );
+	const char *p = strchr( alphabet, str[i].toLatin1() );
 	if ( p == 0 ) {
 	    return 0;
 	} else {
