@@ -29,6 +29,7 @@
 #include "qnamespace.h"
 #ifndef QT_NO_CODECS
 #include "qtsciicodec.h"
+#include "qisciicodec_p.h"
 #endif // QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
 #include "qbig5codec.h"
@@ -2831,6 +2832,10 @@ static void realSetup()
     } while( unicodevalues[i++].mib != LAST_MIB );
 
     (void)new QTsciiCodec;
+
+    for (int i = 0; i < 9; ++i) {
+	(void)new QIsciiCodec(i);
+    }
 #endif // QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
     (void)new QBig5Codec;
