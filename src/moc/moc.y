@@ -107,7 +107,15 @@ public:
 };
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
-void	 addMember( char );			// add tmpFunc to current class
+
+enum Member { SignalMember, 
+	      SlotMember, 
+	      PropertyMember, 
+	      SignalPropertyMember, 
+	      SlotPropertyMember 
+	    };
+
+void	 addMember( Member );			// add tmpFunc to current class
 void     addEnum();				// add tmpEnum to current class
 
 char	*strnew( const char * );		// returns a new string (copy)
@@ -695,7 +703,7 @@ slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 opt_property:			/* empty */
 			| property
 				{ if ( !tmpFunc->name.isEmpty() )
-				    addMember('p');
+				    addMember( PropertyMember );
 				}
 			;
 
@@ -708,7 +716,8 @@ signal_declarations:	  signal_declarations signal_declaration
 			;
 
 
-signal_declaration:	  signal_or_slot	{ addMember('s'); }
+signal_declaration:	  signal_or_slot	{ addMember( SignalMember ); }
+			| Q_PROPERTY signal_or_slot	{ addMember( SignalPropertyMember ); }
 			;
 
 opt_slot_declarations:		/* empty */
@@ -719,8 +728,8 @@ slot_declarations:	  slot_declarations slot_declaration
 			| slot_declaration
 			;
 
-slot_declaration:	  signal_or_slot		{ addMember('t'); }
-			| Q_PROPERTY signal_or_slot	{ addMember('t'); }
+slot_declaration:	  signal_or_slot		{ addMember( SlotMember ); }
+			| Q_PROPERTY signal_or_slot	{ addMember( SlotPropertyMember ); }
 			;
 
 opt_semicolons:			/* empty */
@@ -2211,7 +2220,7 @@ void addEnum()
     tmpEnum = new Enum;
 }
 
-void addMember( char m )
+void addMember( Member m )
 {
     if ( skipFunc ) {
 	tmpArgList  = new ArgList;   // ugly but works!
@@ -2222,7 +2231,13 @@ void addMember( char m )
 	return;
     }
 
-    if ( m == 's' && tmpFunc->type != "void" ) {
+    if ( m == SignalPropertyMember ) {
+	moc_warn( "Signal %s() declared as property.",
+		  tmpFunc->name.data() );
+	m = SignalMember;
+    }
+    
+    if ( m == SignalMember && tmpFunc->type != "void" ) {
 	moc_err( "Signals must have \"void\" as their return type" );
 	goto Failed;
     }
@@ -2232,16 +2247,19 @@ void addMember( char m )
     tmpFunc->lineNo	= lineNo;
 
     switch( m ) {
-    case 's':
+    case SignalMember:
 	signals.append( tmpFunc );
 	break;
-    case 't':
+    case SlotMember:
+    case SlotPropertyMember:
 	slots.append( tmpFunc );
+	break;
+    default:
 	break;
     }
 
     // check for property set/get candidates
-    if ( m == 'p' ) { // todo: check slots!
+    if ( m == PropertyMember || m == SlotPropertyMember ) {
 	
 	if ( tmpFunc->name.left(3) == "set") { //  set-function candidate
 
