@@ -620,15 +620,24 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int l = image.numBytes();
 	uchar *b = new uchar[l];
 	memcpy( b, image.bits(), l );
+	bool hasRealAlpha = FALSE;
 	for ( int i=0; i+3<l; i+=4 ) {
+	    if ( b[i+3]!=0 && b[i+3]!=255 ) {
+		hasRealAlpha = TRUE;
+	    }
 	    b[i]   = (b[i]  *b[i+3]) / 255;
 	    b[i+1] = (b[i+1]*b[i+3]) / 255;
 	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
-	SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
-		b, bmi, DIB_RGB_COLORS );
+	if ( hasRealAlpha ) {
+	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
+		    b, bmi, DIB_RGB_COLORS );
+	} else {
+	    data->hasAlpha = FALSE;
+	}
 	delete [] b;
-    } else {
+    }
+    if ( !(data->hasAlpha && d==32) ) { // almost the else case of the above if
 	SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		image.bits(), bmi, DIB_RGB_COLORS );
 	if ( img.hasAlphaBuffer() ) {
