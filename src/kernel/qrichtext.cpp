@@ -3003,6 +3003,8 @@ void QTextParag::truncate( int index )
 
 void QTextParag::remove( int index, int len )
 {
+    if ( index + len - str->length() > 0 )
+	return;
     for ( int i = index; i < len; ++i ) {
 	QTextStringChar *c = at( i );
 	if ( doc && c->isCustom() ) {
