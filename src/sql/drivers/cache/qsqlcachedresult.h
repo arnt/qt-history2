@@ -47,12 +47,12 @@
 //
 //
 
-#ifndef QT_NO_SQL
-
 #include <qglobal.h>
 #include <qvariant.h>
 #include <qvector.h>
 #include <qsqlresult.h>
+
+#ifndef QT_NO_SQL
 
 class QtSqlCachedResultPrivate;
 

@@ -12,11 +12,11 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_SQL
-
 #include "qsqlfield.h"
 #include "qatomic.h"
 #include "qdebug.h"
+
+#ifndef QT_NO_SQL
 
 class QSqlFieldPrivate
 {
