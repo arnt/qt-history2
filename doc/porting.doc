@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.27 1999/02/18 14:55:48 paul Exp $
+** $Id: porting.doc,v 1.28 1999/03/03 15:29:04 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -75,7 +75,7 @@ special class <code>Qt</code> (qnamespace.h), which is inherited by
 most Qt classes.  This means that in any code you have that is
 <em>not</em> in functions of classes inherited from <code>Qt</code>,
 you must qualify these identifiers like this: <code>Qt::red,
-Qt::LeftButton, Qt::AlignRight</endcode>, etc.
+Qt::LeftButton, Qt::AlignRight</code>, etc.
 
 <p>The <code>qt/bin/qt20fix</code> script helps to fix the code that
 needs adaption. Most code does not need any change.
@@ -143,7 +143,7 @@ paintEvent(0) crashes.
 Never pass 0 as the argument to paintEvent().
 
 <p> 
-Some repaint problems problems might occur with subclasses on QFrame,
+Some repaint problems might occur with subclasses on QFrame,
  QPushButton, and QComboBox, which now use WResizeNoErase to improve
  resize repainting.  Be sure to call the resizeEvent() of your base
  class if your derive a widget subclass.  The quickest fix is to add:
@@ -170,7 +170,7 @@ takes the ownership of the dialog, i.e. he will delete the dialog on
 destruction time. Furthermore, the window system will be able to tell
 that both the dialog and the parent belong together. Some X11 window
 managers will for instance provide a common taskbar entry in that
-case. To sum it up: If the dialogs belongs to a toplevel main window
+case. To sum it up: If the dialog belongs to a toplevel main window
 of your application, pass this main window as parent to the dialog's
 constructor. Old code (with 0 pointer) will still run. Old code that
 included QDialogs as simple widget will no longer work (but was broken
@@ -222,7 +222,7 @@ In qt/src/tools/qstring.cpp there is a Q2HELPER - define it for some
  extra debugging/optimizing features (don't leave it it - it kills performance).
 <dt><b>QString::detach() is obsolete and removed</b></dt>
 <dd>
-QString is always shared.  Remove callses to QString::detach().
+QString is always shared.  Remove calls to QString::detach().
 <dt><b>QString::resize(size) is obsolete and removed</b></dt>
 <dd>
 Code using this to truncate a string should use truncate(size-1).
@@ -401,8 +401,8 @@ of another widget (as is the usual way to intercept foreign events).
 <h3>QTextStream</h3>
 
 <p>
-operator>>(QTextStream&, QChar&) does not skip whitespace.
-operator>>(QTextStream&, char&) does, as was the case with Qt 1.x.
+operator&lt;&lt;(QTextStream&, QChar&) does not skip whitespace.
+operator&lt;&lt;(QTextStream&, char&) does, as was the case with Qt 1.x.
 
 
 <h3>QPainter</h3>
@@ -445,7 +445,7 @@ non-const you'll get a compile error (validate was pure virtual).
 XXX::setValidator(...) now takes a const pointer to a QValidator,
 XXX::validator() returns a const pointer, resp.. This is correct since
 the widgets don't take the ownership of the validator (a validator is
-a QObject on its own, with it's own parent), so changing the state of
+a QObject on its own, with its own parent), so changing the state of
 such an object or deleting it is very likely a bug.
 
 <h3>QWindow</h3>
