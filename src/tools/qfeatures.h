@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#91 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#92 $
 **
 ** Global feature selection
 **
@@ -535,6 +535,16 @@
 #endif
 
 /*!
+  Autodetecting mouse driver
+*/
+//#define QT_NO_QWS_MOUSE_AUTO
+
+/*!
+  Non-autodetecting mouse driver (uses env. variable QWS_MOUSE_PROTO
+*/
+//#define QT_NO_QWS_MOUSE_MANUAL
+
+/*!
     Saving of fonts
 */
 //#define QT_NO_QWS_SAVEFONTS
@@ -586,6 +596,22 @@
     Smooth QImage scaling
 */
 //#define QT_NO_IMAGE_SMOOTHSCALE
+
+/*!
+  Dither QImage to 1-bit image
+*/
+//#define QT_NO_IMAGE_DITHER_TO_1
+
+/*!
+  QImage::createHeuristicMask()
+*/
+//#define QT_NO_IMAGE_HEURISTIC_MASK
+
+/*!
+  QImage mirroring
+*/
+//#define QT_NO_IMAGE_MIRROR
+
 /*!
     Image file text strings
 */
@@ -654,6 +680,12 @@
 # define QT_NO_STYLE
 #endif
 
+#if defined(QT_NO_IMAGE_HEURISTIC_MASK)
+/*!
+  QWidget icon, caption etc.
+*/
+# define QT_NO_WIDGET_TOPEXTRA
+#endif
 
 /*!
   Dialogs

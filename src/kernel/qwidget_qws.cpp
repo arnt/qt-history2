@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#59 $
 **
 ** Implementation of QWidget and QWindow classes for FB
 **
@@ -353,7 +353,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     //QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     //QColor   bgc    = bg_col;			// save colors
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QString capt= caption();
+#endif
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
     if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
@@ -383,10 +385,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !capt.isNull() ) {
 	extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
+#endif
     if ( showIt )
 	show();
     if ( old_winid ) {
@@ -528,6 +532,7 @@ void QWidget::unsetCursor()
 }
 #endif //QT_NO_CURSOR
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidget::setCaption( const QString &caption )
 {
     if ( extra && extra->topextra && extra->topextra->caption == caption )
@@ -564,6 +569,7 @@ void QWidget::setIconText( const QString &iconText )
     // XXX XSetIconName( x11Display(), winId(), iconText.utf8() );
     // XXX XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
+#endif
 
 void QWidget::grabMouse()
 {

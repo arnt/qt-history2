@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#355 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#356 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1508,7 +1508,7 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
     return TRUE;
 }
 
-
+#ifndef QT_NO_IMAGE_DITHER_TO_1
 //
 // dither_to_1:  Uses selected dithering algorithm.
 //
@@ -1796,6 +1796,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
     }
     return TRUE;
 }
+#endif
 
 #ifndef QT_NO_IMAGE_16_BIT
 //###### Endianness issues!
@@ -1860,8 +1861,12 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
 QImage QImage::convertDepth( int depth, int conversion_flags ) const
 {
     QImage image;
-    if ( (data->d == 8 || data->d == 32) && depth == 1 ) // dither
+    if ( data->d == depth )
+	image = *this;				// no conversion
+#ifndef QT_NO_IMAGE_DITHER_TO_1
+    else if ( (data->d == 8 || data->d == 32) && depth == 1 ) // dither
 	dither_to_1( this, &image, conversion_flags, FALSE );
+#endif
 #ifndef QT_NO_IMAGE_TRUECOLOR
     else if ( data->d == 32 && depth == 8 )	// 32 -> 8
 	convert_32_to_8( this, &image, conversion_flags );
@@ -1884,8 +1889,6 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
 	convert_32_to_16( &tmp, &image );
     }
 #endif
-    else if ( data->d == depth )
-	image = *this;				// no conversion
     else {
 #if defined(QT_CHECK_RANGE)
 	if ( isNull() )
@@ -2842,7 +2845,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
 */
-
+#ifndef QT_NO_IMAGE_DITHER_TO_1
 QImage QImage::createAlphaMask( int conversion_flags ) const
 {
     if ( conversion_flags == 1 ) {
@@ -2866,9 +2869,9 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
     dither_to_1( this, &mask1, conversion_flags, TRUE );
     return mask1;
 }
+#endif
 
-
-
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
   Creates and returns a 1-bpp heuristic mask for this image. It works by
   selecting a color from one of the corners, then chipping away pixels of
@@ -2974,7 +2977,9 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
 
     return m;
 }
+#endif //QT_NO_IMAGE_HEURISTIC_MASK
 
+#ifndef QT_NO_IMAGE_MIRROR
 /*
   This code is contributed by Philipp Lang,
   GeneriCom Software Germany (www.generi.com)
@@ -3089,7 +3094,7 @@ QImage QImage::mirror() const
 {
     return mirror(FALSE,TRUE);
 }
-
+#endif //QT_NO_IMAGE_MIRROR
 
 /*!
   Returns a QImage in which the values of the red and blue components of

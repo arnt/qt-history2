@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#373 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#374 $
 **
 ** Definition of QWidget class
 **
@@ -101,9 +101,11 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
     Q_PROPERTY( bool ownCursor READ ownCursor )
 #endif
+#ifndef QT_NO_WIDGET_TOPEXTRA
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
     Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
+#endif
     Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
     Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
     Q_PROPERTY( bool focusEnabled READ isFocusEnabled )
@@ -245,9 +247,11 @@ public:
     virtual void	setCursor( const QCursor & );
     virtual void	unsetCursor();
 #endif
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QString		caption() const;
     const QPixmap      *icon() const;
     QString		iconText() const;
+#endif
     bool		hasMouseTracking() const;
 
     virtual void	setMask( const QBitmap & );
@@ -255,9 +259,11 @@ public:
     void		clearMask();
 
 public slots:
+#ifndef QT_NO_WIDGET_TOPEXTRA
     virtual void	setCaption( const QString &);
     virtual void	setIcon( const QPixmap & );
     virtual void	setIconText( const QString &);
+#endif
     virtual void	setMouseTracking( bool enable );
 
     // Keyboard input focus functions
@@ -853,9 +859,11 @@ class QMacDndExtra;
 #endif
 
 struct Q_EXPORT QTLWExtra {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QString  caption;				// widget caption
     QString  iconText;				// widget icon text
     QPixmap *icon;				// widget icon
+#endif
     QFocusData *focusData;			// focus data (for TLW)
     short    incw, inch;			// size increments
     // frame strut

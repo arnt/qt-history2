@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#716 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#717 $
 **
 ** Implementation of QWidget class
 **
@@ -921,7 +921,9 @@ void QWidget::createTLExtra()
 	createExtra();
     if ( !extra->topextra ) {
 	QTLWExtra* x = extra->topextra = new QTLWExtra;
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	x->icon = 0;
+#endif
 	x->focusData = 0;
 	x->fleft = x->fright = x->ftop = x->fbottom = 0;
 	x->incw = x->inch = 0;
@@ -990,7 +992,9 @@ void QWidget::deleteExtra()
 	deleteSysExtra();
 	if ( extra->topextra ) {
 	    deleteTLSysExtra();
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	    delete extra->topextra->icon;
+#endif
 	    delete extra->topextra->focusData;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	    delete extra->topextra->qwsManager;
@@ -2583,7 +2587,7 @@ const QCursor &QWidget::cursor() const
 	return isTopLevel() ? arrowCursor : parentWidget()->cursor();
 }
 #endif
-
+#ifndef QT_NO_WIDGET_TOPEXTRA
 /*! \property QWidget::caption
     \brief the window caption (title)
 
@@ -2627,6 +2631,7 @@ QString QWidget::iconText() const
     return ( extra && extra->topextra ) ? extra->topextra->iconText
 	: QString::null;
 }
+#endif //QT_NO_WIDGET_TOPEXTRA
 
 /*! \property QWidget::mouseTracking
     \brief whether mouse tracking is enabled for this widget

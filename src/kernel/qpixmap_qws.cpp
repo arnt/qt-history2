@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_qws.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_qws.cpp#41 $
 **
 ** Implementation of QPixmap class for FB
 **
@@ -497,11 +497,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     delete mygfx;
 
     if ( image.hasAlphaBuffer() ) {
+#ifndef QT_NO_IMAGE_DITHER_TO_1
 	if ( !partialalpha ) {
 	    QBitmap m;
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
         } else
+#endif	    
 	    data->hasAlpha = TRUE;
     }
     data->uninit = FALSE;

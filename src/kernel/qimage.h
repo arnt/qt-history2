@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#114 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#115 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -161,11 +161,16 @@ public:
     QImage xForm( const QWMatrix &matrix ) const;
 #endif
 
+#ifndef QT_NO_IMAGE_DITHER_TO_1
     QImage	createAlphaMask( int conversion_flags=0 ) const;
+#endif
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
-
+#endif
+#ifndef QT_NO_IMAGE_MIRROR
     QImage	mirror() const;
     QImage	mirror(bool horizontally, bool vertically) const;
+#endif
     QImage	swapRGB() const;
 
     static Endian systemBitOrder();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#170 $
 **
 ** Implementation of QPixmap class
 **
@@ -665,7 +665,7 @@ void QPixmap::setMask( const QBitmap &newmask )
   \sa mask()
 */
 
-
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
   Creates and returns a heuristic mask for this pixmap. It works by
   selecting a color from one of the corners and then chipping away pixels of
@@ -689,7 +689,7 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
     m.convertFromImage( convertToImage().createHeuristicMask(clipTight) );
     return m;
 }
-
+#endif
 #ifndef QT_NO_IMAGEIO
 /*!
   Returns a string that specifies the image format of the file \e fileName,
