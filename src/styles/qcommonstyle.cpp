@@ -1361,12 +1361,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	// calculate slider length
 	if (scrollbar->maxValue() != scrollbar->minValue()) {
-	    sliderlen = (scrollbar->pageStep() * maxlen)/
-			(scrollbar->maxValue() -
-			 scrollbar->minValue() +
-			 scrollbar->pageStep());
-
 	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	    sliderlen = (scrollbar->pageStep() * maxlen) /
+			(range + scrollbar->pageStep());
+
 	    if ( sliderlen < 9 || range > INT_MAX / 2 )
 		sliderlen = 9;
 	    if ( sliderlen > maxlen )

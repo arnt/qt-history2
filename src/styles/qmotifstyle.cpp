@@ -252,7 +252,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	p->eraseRect( r );
 	p->setPen( NoPen );
 	p->setBrush( showUp ? cg.brush( QColorGroup::Button ) :
-		              cg.brush( QColorGroup::Mid ) );
+		     cg.brush( QColorGroup::Mid ) );
 	a.translate( r.x(), r.y() );
 	p->drawPolygon( a );
 	p->setPen( showUp ? cg.light() : cg.dark() );
@@ -282,11 +282,8 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	if ( data )
 	    lw = *((int *) data[0]);
 
-	if ( lw == 2 )
-	    qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken), 0,
-			     &cg.brush(QColorGroup::Button) );
-	else
-	    QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
+	qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken), lw,
+			 &cg.brush(QColorGroup::Button) );
 	break; }
     case PO_ArrowUp:
     case PO_ArrowDown:
@@ -302,8 +299,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	bool horizontal = !vertical;
 	int dim = rect.width() < rect.height() ? rect.width() : rect.height();
 	int colspec = 0x0000;
+
 	if ( dim < 2 )
 	    break;
+
+	// adjust size and center (to fix rotation below)
 	if ( rect.width() > dim ) {
 	    rect.setX( rect.x() + ((rect.width() - dim ) / 2) );
 	    rect.setWidth( dim );
@@ -312,58 +312,71 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    rect.setY( rect.y() + ((rect.height() - dim ) / 2 ));
 	    rect.setHeight( dim );
 	}
+
 	if ( dim > 3 ) {
 	    if ( dim > 6 )
 		bFill.resize( dim & 1 ? 3 : 4 );
-	    bTop.resize( (dim / 2) * 2 );
+	    bTop.resize( (dim/2)*2 );
 	    bBot.resize( dim & 1 ? dim + 1 : dim );
 	    bLeft.resize( dim > 4 ? 4 : 2 );
-	    bLeft.putPoints( 0, 2, 0, 0, 0, dim - 1 );
+	    bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
 	    if ( dim > 4 )
-		bLeft.putPoints( 2 ,2, 1, 2, 1, dim - 3 );
-	    bTop.putPoints( 0, 4, 1, 0, 1, 1, 2, 1, 3, 1 );
-	    bBot.putPoints( 0, 4, 1, dim - 1, 1, dim - 2, 2, dim - 2, 3, dim - 2 );
-	    for ( int i = 0; i < dim / 2 - 2; i++ ) {
-		bTop.putPoints( i * 2 + 4, 2, 2 + i * 2, 2 + i, 5 + i * 2, 2 + i );
-		bBot.putPoints( i * 2 + 4, 2, 2 + i * 2, dim - 3 - i,
-				5 + i * 2, dim - 3 - i );
+		bLeft.putPoints( 2, 2, 1,2, 1,dim-3 );
+	    bTop.putPoints( 0, 4, 1,0, 1,1, 2,1, 3,1 );
+	    bBot.putPoints( 0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2 );
+
+	    for( int i=0; i<dim/2-2 ; i++ ) {
+		bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
+		bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
 	    }
-	    if ( dim & 1 )
-		bBot.putPoints(dim - 1, 2, dim - 3, dim / 2, dim - 1, dim / 2);
-	    if ( dim > 6 ) {
-		bFill.putPoints( dim - 1, 2, dim - 3, dim / 2, dim - 1, dim / 2 );
-		if ( dim & 1 )
-		    bFill.setPoints( 2, dim - 3, dim / 2 );
+	    if ( dim & 1 )                          // odd number size: extra line
+		bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
+	    if ( dim > 6 ) {                        // dim>6: must fill interior
+		bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
+		if ( dim & 1 )                      // if size is an odd number
+		    bFill.setPoint( 2, dim - 3, dim / 2 );
 		else
-		    bFill.putPoints( 2, 2, dim - 4, dim / 2 - 1, dim - 4,
-				     dim / 2 );
+		    bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );
 	    }
-	} else {
-	    if ( dim == 3 ) {
-		bLeft.setPoints( 4, 0, 0, 0, 2, 1, 1, 1, 1 );
-		bTop.setPoints( 2, 1, 0, 1, 0 );
-		bBot.setPoints( 2, 1, 2, 2, 1 );
-	    } else {
-		bLeft.setPoints( 2, 0, 0, 0, 1 );
-		bTop.setPoints( 2, 1, 0, 1, 0 );
-		bBot.setPoints( 2, 1, 1, 1, 1 );
+	}
+	else {
+	    if ( dim == 3 ) {                       // 3x3 arrow pattern
+		bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
+		bTop .setPoints( 2, 1,0, 1,0 );
+		bBot .setPoints( 2, 1,2, 2,1 );
+	    }
+	    else {                                  // 2x2 arrow pattern
+		bLeft.setPoints( 2, 0,0, 0,1 );
+		bTop .setPoints( 2, 1,0, 1,0 );
+		bBot .setPoints( 2, 1,1, 1,1 );
 	    }
 	}
 
-	if ( op == PO_ArrowUp || op == PO_ArrowDown ) {
+	if ( op == PO_ArrowUp || op == PO_ArrowLeft ) {
 	    matrix.translate( rect.x(), rect.y() );
 	    if ( vertical ) {
-		matrix.translate( rect.x(), rect.y() );
+		matrix.translate( 0, rect.height() - 1 );
 		matrix.rotate( -90 );
 	    } else {
-		matrix.translate( r.width() - 1, r.height() - 1 );
+		matrix.translate( rect.width() - 1, rect.height() - 1 );
 		matrix.rotate( 180 );
 	    }
 	    if ( flags & PStyle_Sunken )
 		colspec = horizontal ? 0x2334 : 0x2343;
 	    else
 		colspec = horizontal ? 0x1443 : 0x1434;
+	} else if ( op == PO_ArrowDown || op == PO_ArrowRight ) {
+	    matrix.translate( rect.x(), rect.y() );
+	    if ( vertical ) {
+		matrix.translate( rect.width() - 1, 0 );
+		matrix.rotate( 90 );
+	    }
+	    if ( flags & PStyle_Sunken )
+		colspec = horizontal ? 0x2443 : 0x2434;
+	    else
+		colspec = horizontal ? 0x1334 : 0x1343;
 	}
+
 	QColor *cols[5];
 	if ( flags & PStyle_Enabled ) {
 	    cols[0] = 0;
@@ -393,7 +406,9 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	p->setPen( pen );
 	p->setBrush( brush );
 	p->setWorldMatrix( matrix, TRUE );
-	p->drawPolygon( NoBrush );
+	p->drawPolygon( bFill );
+	p->setBrush( NoBrush );
+
 	p->setPen( CLEFT );
 	p->drawLineSegments( bLeft );
 	p->setPen( CTOP );
@@ -724,6 +739,51 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			    data );
 	break;
 
+    case CC_ScrollBar: {
+	if (! w)
+	    break;
+
+	QScrollBar *scrollbar = (QScrollBar *) w;
+	QRect addline, subline, addpage, subpage, slider, groove;
+
+	subline = querySubControlMetrics(control, w, SC_ScrollBarSubLine, data);
+	addline = querySubControlMetrics(control, w, SC_ScrollBarAddLine, data);
+	subpage = querySubControlMetrics(control, w, SC_ScrollBarSubPage, data);
+	addpage = querySubControlMetrics(control, w, SC_ScrollBarAddPage, data);
+	slider  = querySubControlMetrics(control, w, SC_ScrollBarSlider,  data);
+	int fw  = pixelMetric(PM_DefaultFrameWidth, w);
+
+	if (sub == (SC_ScrollBarAddLine | SC_ScrollBarSubLine | SC_ScrollBarAddPage |
+		    SC_ScrollBarSubPage | SC_ScrollBarFirst | SC_ScrollBarLast |
+		    SC_ScrollBarSlider))
+	    qDrawShadePanel(p, scrollbar->rect(), cg, TRUE, fw,
+			    &cg.brush(QColorGroup::Mid));
+
+	if (sub & SC_ScrollBarSubLine)
+	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
+			   PO_ArrowLeft : PO_ArrowUp),
+			  p, subline, cg,
+			  PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
+					    PStyle_Sunken : PStyle_Default));
+
+	if (sub & SC_ScrollBarAddLine)
+	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
+			   PO_ArrowRight : PO_ArrowDown),
+			  p, addline, cg,
+			  PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
+					    PStyle_Sunken : PStyle_Default));
+
+	if (sub & SC_ScrollBarSubPage)
+	    p->fillRect(subpage, cg.brush(QColorGroup::Mid));
+
+	if (sub & SC_ScrollBarAddPage)
+	    p->fillRect(addpage, cg.brush(QColorGroup::Mid));
+
+	if (sub & SC_ScrollBarSlider)
+	    qDrawShadePanel(p, slider, cg, FALSE, fw, &cg.brush(QColorGroup::Button));
+
+	break; }
+
     default:
 	QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
 					  sub, subActive, data );
@@ -925,6 +985,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 					   void **data ) const
 {
     QRect rect;
+
     switch ( control ) {
     case CC_SpinWidget: {
 	if ( !widget )
@@ -992,6 +1053,90 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 
 	break; }
 
+    case CC_ScrollBar: {
+	if (! widget)
+	    break;
+
+	QScrollBar *scrollbar = (QScrollBar *) widget;
+	int sliderstart = 0;
+	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
+	int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+	int buttonw = sbextent - (fw * 2);
+	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
+		      scrollbar->width() : scrollbar->height()) -
+		     (buttonw * 2) - (fw * 2);
+	int sliderlen;
+
+	if (data)
+	    sliderstart = *((int *) data[0]);
+	else
+	    sliderstart = sbextent;
+
+	// calculate slider length
+	if (scrollbar->maxValue() != scrollbar->minValue()) {
+	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	    sliderlen = (scrollbar->pageStep() * maxlen) /
+			(range + scrollbar->pageStep());
+
+	    if ( sliderlen < 9 || range > INT_MAX/2 )
+		sliderlen = 9;
+	    if ( sliderlen > maxlen )
+		sliderlen = maxlen;
+	} else
+	    sliderlen = maxlen;
+
+	switch (sc) {
+	case SC_ScrollBarSubLine:
+	    // top/left button
+	    rect.setRect(fw, fw, buttonw, buttonw);
+	    break;
+
+	case SC_ScrollBarAddLine:
+	    // bottom/right button
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(scrollbar->width() - sbextent + fw, fw,
+			     buttonw, buttonw);
+	    else
+		rect.setRect(fw, scrollbar->height() - sbextent + fw,
+			     buttonw, buttonw);
+	    break;
+
+	case SC_ScrollBarSubPage:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
+	    else
+		rect.setRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
+	    break;
+
+ 	case SC_ScrollBarAddPage:
+ 	    if (scrollbar->orientation() == Qt::Horizontal)
+ 		rect.setRect(sliderstart + sliderlen, fw,
+			     maxlen - sliderstart - sliderlen + buttonw + fw,
+			     buttonw);
+ 	    else
+ 		rect.setRect(fw, sliderstart + sliderlen, buttonw,
+			     maxlen - sliderstart - sliderlen + buttonw + fw);
+ 	    break;
+
+	case SC_ScrollBarGroove:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(buttonw + fw, fw, maxlen, buttonw);
+	    else
+		rect.setRect(fw, buttonw + fw, buttonw, maxlen);
+ 	    break;
+
+ 	case SC_ScrollBarSlider:
+ 	    if (scrollbar->orientation() == Qt::Horizontal)
+ 		rect.setRect(sliderstart, fw, sliderlen, buttonw);
+ 	    else
+ 		rect.setRect(fw, sliderstart, buttonw, sliderlen);
+ 	    break;
+
+	default:
+	    break;
+	}
+
+	break; }
 
     default:
 	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
