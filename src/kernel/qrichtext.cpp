@@ -3816,6 +3816,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check for cursor mark
 	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
 	    curx = chr->x;
+	    if ( !chr->rightToLeft &&
+		 chr->c.isSpace() &&
+		 i > 0 &&
+		 ( alignment() & Qt:: AlignJustify ) == Qt::AlignJustify )
+		curx = at( i - 1 )->x + str->width( i - 1 );
 	    if ( chr->rightToLeft )
 		curx += cw;
 	    curh = h;
