@@ -322,7 +322,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 if(slsh != -1)
                     dir = (*it).left(slsh + 1);
                 QString targ = dir + libinfo.first("QMAKE_PRL_TARGET");
-                deps += " " + targ;
+                target_deps += " " + targ;
                 t << targ << ":" << "\n\t"
                   << "@echo \"Creating '" << targ << "'\"" << "\n\t"
                   << "(cd " << libinfo.first("QMAKE_PRL_BUILD_DIR") << ";"
