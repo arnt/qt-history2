@@ -1,9 +1,10 @@
-dokumentasjon
-
+Dokumentasjon:
+--------------
     temasider (programmers guide)
 
 
-stoettefunksjoner:
+Støttefunksjoner:
+-----------------
     make system
     automatisk generere distribusjon
     lage en distribusjon checkliste/huskeliste
@@ -11,14 +12,20 @@ stoettefunksjoner:
     porte til flere plattformer
 
 
-PR
+PR:
+---
     skrive artikler om qt
     lage pressemeldinger
-    
 
-funksjonalitet:
+
+Funksjonalitet:
+---------------
 
     Multi line editor
+
+    MessageBox-funksjonalitet (YesNoCancel osv.)
+
+    Fontdatabase
 
     Designer/Resurser
 
@@ -30,34 +37,41 @@ funksjonalitet:
 
     Geometry management
 
+    Fontdatabase (liste av systemets fonter)
+
+    Akselleratortaster i dialog (f.eks. "&Ok" knapp)
+
     Dialoger:
 
 	font select
 	color select
 	
 
-    enkeltoppgaver:
+    Enkeltoppgaver:
 
 	- connect protected/public
 	- toppnivaa autodelete
 	- assign operator og copy constructor i alle klasser
 	- size increment (max/min size force)
 
-ferdigstilling
 
-    tastaturfokus/default knapp
+Ferdigstilling:
+---------------
 
-    postscript generering
+    Windows porting (mest kritisk: rotert tekst)
 
-    windows look & feel
+    Clipboard
 
-    file selection
+    Tastaturfokus/default knapp
 
-    font selection i xForm
+    Postscript generering (font metrics)
 
-    fargekube
+    Windows look & feel (spes. meny og combobox)
+
+    File selection (combobox med filtyper)
+
+    Font selection i xForm
+
+    Fargekube
     
-    innebygget fontfamilie matching
-
-
-
+    Innebygget fontfamilie matching
