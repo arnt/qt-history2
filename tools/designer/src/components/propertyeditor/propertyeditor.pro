@@ -18,6 +18,7 @@ INCLUDEPATH += \
     ../../lib/uilib \
     ../../lib/extension \
     ../../lib/shared \
+    $$QT_BUILD_TREE/tools/designer/src/lib \
     ../../lib
 
 include(../component.pri)
