@@ -20,7 +20,6 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     connect( dataGrid, SIGNAL( currentChanged(const QSqlFieldList*)),
 	     SLOT( newSelection(const QSqlFieldList*)));
     browseType->setButton( 0 );
-    //    grid->addWidget( new MyDataGrid( this ), 5, 5 );
 }
 
 ResultWindow::~ResultWindow()
@@ -58,10 +57,10 @@ void ResultWindow::slotExec()
 
 void ResultWindow::newSelection( const QSqlFieldList* fields )
 {
-    QString cap ("Selection ");
+    QString cap;
     for ( uint i = 0; i < fields->count(); ++i ) {
 	QSqlField f = fields->field(i);
-	cap += " - " + f.value().toString();
+	cap += f.displayLabel().leftJustify(20) + ":" + f.value().toString().rightJustify(30) + "\n";
     }
-    setCaption( cap );
+    currentRecordEdit->setText( cap );
 }
