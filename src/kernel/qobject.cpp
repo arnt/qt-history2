@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#145 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#144 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#145 $");
 
 
 /*!
@@ -188,6 +188,9 @@ static QString rmWS( const char *src )
 	    last = *d++ = ' ';
     }
     result.truncate( (int)(d - result.data()) );
+    int void_pos = result.find("(void)");
+    if ( void_pos >= 0 )
+	result.remove( void_pos+1, strlen("void") );
     return result;
 }
 
