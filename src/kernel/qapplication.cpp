@@ -1825,9 +1825,17 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QWidget* w = (QWidget*)receiver;
 	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
 	    while ( w ) {
+		QContextMenuEvent *ce = new QContextMenuEvent( cevent->reason(), w->mapFromGlobal( cevent->globalPos() ), cevent->globalPos() );
 		res = internalNotify( w, cevent );
-		if ( cevent->isAccepted() || w->isTopLevel() )
-		    break;		
+
+		if ( ce->isAccepted() )
+		    cevent->accept();
+		else
+		    cevent->ignore();
+		delete ce;
+		if ( res || cevent->isAccepted() || w->isTopLevel() )
+		    break;
+
 		w = w->parentWidget();
 	    }
 	}
