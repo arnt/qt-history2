@@ -1145,7 +1145,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
         }
 
         if(!target.isEmpty()) {
-            t << "install_" << (*it) << ": all ";
+            if(project->isActiveConfig("build_all"))
+                t << "install_" << (*it) << ": all ";
+            else
+                t << "install_" << (*it) << ": first ";
             const QStringList &deps = project->variables()[(*it) + ".depends"];
             if(!deps.isEmpty()) {
                 for(QStringList::ConstIterator dep_it = deps.begin(); dep_it != deps.end(); ++dep_it) {
