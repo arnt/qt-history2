@@ -1075,11 +1075,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     const int width = fformat.width().value(maximumWidth);
 
-    int height = fformat.height();
-    if (height == -1)
-        height = pd ? pd->contentsHeight : -1;
+    QTextLength height = fformat.height();
+    int h = height.value(pd ? pd->contentsHeight : -1);
 
-    layoutFrame(f, layoutFrom, layoutTo, width, height);
+    layoutFrame(f, layoutFrom, layoutTo, width, h);
 }
 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, int frameWidth, int frameHeight)

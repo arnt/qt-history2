@@ -566,11 +566,11 @@ QTextImageFormat QTextFormat::toImageFormat() const
 
     \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
+bool QTextFormat::boolProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Bool)
-        return defaultValue;
+        return false;
     return prop.toBool();
 }
 
@@ -581,11 +581,11 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 
     \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-int QTextFormat::intProperty(int propertyId, int defaultValue) const
+int QTextFormat::intProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Int)
-        return defaultValue;
+        return 0;
     return prop.toInt();
 }
 
@@ -596,11 +596,11 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-float QTextFormat::floatProperty(int propertyId, float defaultValue) const
+float QTextFormat::floatProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Double)
-        return defaultValue;
+        return 0.;
     return prop.toDouble(); // ####
 }
 
@@ -611,11 +611,11 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 
     \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
+QString QTextFormat::stringProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::String)
-        return defaultValue;
+        return QString();
     return prop.toString();
 }
 
@@ -626,11 +626,11 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 
     \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) const
+QColor QTextFormat::colorProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Color)
-        return defaultValue;
+        return QColor();
     return prop.toColor();
 }
 
@@ -643,12 +643,7 @@ QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) co
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
-    static int typeId = registerTextLengthType();
-    Q_UNUSED(typeId);
-    const QVariant prop = d->properties().value(propertyId);
-    QTextLength length;
-    qVariantGet(prop, length, "Qt/QTextLength");
-    return length;
+    return d->properties().value(propertyId).toTextLength();
 }
 
 /*!
@@ -668,6 +663,20 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
     return vector;
 }
 
+
+QVariant QTextFormat::property(int propertyId) const
+{
+    return d->properties().value(propertyId);
+}
+
+void QTextFormat::setProperty(int propertyId, const QVariant &value)
+{
+    if (!value.isValid())
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
+}
+
 /*!
     \overload
 
@@ -677,7 +686,10 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 */
 void QTextFormat::setProperty(int propertyId, bool value)
 {
-    d->insertProperty(propertyId, value);
+    if (!value)
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -688,7 +700,10 @@ void QTextFormat::setProperty(int propertyId, bool value)
 */
 void QTextFormat::setProperty(int propertyId, int value)
 {
-    d->insertProperty(propertyId, value);
+    if (!value)
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -700,7 +715,10 @@ void QTextFormat::setProperty(int propertyId, int value)
 */
 void QTextFormat::setProperty(int propertyId, float value)
 {
-    d->insertProperty(propertyId, value);
+    if (value == 0.)
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -710,7 +728,10 @@ void QTextFormat::setProperty(int propertyId, float value)
 */
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
-    d->insertProperty(propertyId, value);
+    if (value.isNull())
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -720,91 +741,12 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 */
 void QTextFormat::setProperty(int propertyId, const QColor &value)
 {
-    d->insertProperty(propertyId, value);
-}
-
-
-
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
-
-    \sa intProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, bool value, bool defaultValue)
-{
-    if (value == defaultValue)
-        d->clearProperty(propertyId);
+    if (!value.isValid())
+        clearProperty(propertyId);
     else
         d->insertProperty(propertyId, value);
 }
 
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
-
-    \sa intProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, int value, int defaultValue)
-{
-    if (value == defaultValue)
-        d->clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
-}
-
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
-
-    \sa floatProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, float value, float defaultValue)
-{
-    if (value == defaultValue)
-        d->clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
-}
-
-/*!
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
-
-    \sa stringProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, const QString &value, const QString &defaultValue)
-{
-    if (value == defaultValue)
-        d->clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
-}
-
-/*!
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
-
-    \sa colorProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor &defaultValue)
-{
-    if (value == defaultValue)
-        d->clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
-}
 
 /*!
     Sets the value of the property given by \a propertyId to \a value.
@@ -813,11 +755,10 @@ void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor 
 */
 void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 {
-    static int typeId = registerTextLengthType();
-    Q_UNUSED(typeId);
-    QVariant v;
-    qVariantSet(v, value, "Qt/QTextLength");
-    d->insertProperty(propertyId, v);
+    if (value.type() == QTextLength::VariableLength)
+        clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -1841,6 +1782,12 @@ QFont QTextCharFormat::font() const
 
     Constructs a new table format object.
 */
+QTextTableFormat::QTextTableFormat()
+ : QTextFrameFormat()
+{
+    setObjectType(TableObject);
+    setCellSpacing(2);
+}
 
 
 /*!

@@ -16,6 +16,7 @@
 
 #include <qstring.h>
 #include <qshareddata.h>
+#include <qtextformat.h>
 
 class QTextDocument;
 class QTextCursorPrivate;
@@ -125,10 +126,10 @@ public:
     void insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat);
 
     QTextList *insertList(const QTextListFormat &format);
-    QTextList *insertList(int style);
+    QTextList *insertList(QTextListFormat::Style style);
 
     QTextList *createList(const QTextListFormat &format);
-    QTextList *createList(int style);
+    QTextList *createList(QTextListFormat::Style style);
     QTextList *currentList() const;
 
     QTextTable *insertTable(int rows, int cols, const QTextTableFormat &format);

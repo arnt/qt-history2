@@ -73,6 +73,7 @@ class Q_CORE_EXPORT QCoreVariant
         ULongLong = 34,
         Char = 35,
         Url = 36,
+        TextLength = 37,
         UserType = 63,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT_COMPAT

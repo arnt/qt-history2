@@ -27,6 +27,7 @@ class QPalette;
 class QColorGroup;
 #endif
 class QIcon;
+class QTextLength;
 class QDataStream;
 class QPointArray;
 class QRegion;
@@ -61,6 +62,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifndef QT_NO_ICON
     QVariant(const QIcon &icon);
 #endif
+    QVariant(const QTextLength &length);
     QVariant(const QPointArray &pointarray);
     QVariant(const QRegion &region);
     QVariant(const QBitmap &bitmap);
@@ -122,6 +124,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QT_COMPAT QColorGroup toColorGroup() const;
 #endif
     QIcon toIcon() const;
+    QTextLength toTextLength() const;
     const QPointArray toPointArray() const;
     QBitmap toBitmap() const;
     QRegion toRegion() const;
@@ -219,6 +222,7 @@ template<> QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush
 template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*);
 template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*);
 template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*);
+template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*);
 template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*);
 template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*);
 template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*);
@@ -240,6 +244,7 @@ template<> QBrush QVariant_to<QBrush>(const QCoreVariant &v);
 template<> QColor QVariant_to<QColor>(const QCoreVariant &v);
 template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v);
 template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v);
+template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v);
 template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v);
 template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v);
 template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v);

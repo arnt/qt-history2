@@ -1386,7 +1386,7 @@ QTextList *QTextCursor::insertList(const QTextListFormat &format)
 
     \sa currentList(), createList(), insertBlock()
  */
-QTextList *QTextCursor::insertList(int style)
+QTextList *QTextCursor::insertList(QTextListFormat::Style style)
 {
     insertBlock();
     return createList(style);
@@ -1420,7 +1420,7 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
 
     \sa insertList() currentList()
  */
-QTextList *QTextCursor::createList(int style)
+QTextList *QTextCursor::createList(QTextListFormat::Style style)
 {
     QTextListFormat fmt;
     fmt.setStyle(style);
@@ -1713,7 +1713,7 @@ void QTextCursor::beginEditBlock()
 /*!
     Like beginEditBlock() indicates the start of a block of editing operations
     that should appear as a single operation for undo/redo. However unlike
-    beginEditBlock() it does not start a new block but reverses the previous call to 
+    beginEditBlock() it does not start a new block but reverses the previous call to
     endEditBlock() and therefore makes following operations part of the previous edit block created.
 
     For example:
@@ -1735,7 +1735,7 @@ void QTextCursor::beginEditBlock()
     \endcode
 
     The call to undo() will cause all three insertions to be undone.
- 
+
     \sa beginEditBlock(), endEditBlock()
  */
 void QTextCursor::joinPreviousEditBlock()

@@ -29,6 +29,7 @@
 #include "qpointarray.h"
 #include "qregion.h"
 #include "qsizepolicy.h"
+#include "qtextformat.h"
 
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
@@ -100,6 +101,10 @@ static void construct(QVariant::Private *x, const void *v)
                      new QIcon(*static_cast<const QIcon *>(v)));
             break;
 #endif
+        case QVariant::TextLength:
+            x->data.shared = new QCoreVariant::PrivateShared(
+                     new QTextLength(*static_cast<const QTextLength *>(v)));
+            break;
 #ifndef QT_NO_ACCEL
         case QVariant::KeySequence:
             x->data.shared = new QCoreVariant::PrivateShared(
@@ -166,6 +171,9 @@ static void construct(QVariant::Private *x, const void *v)
             x->data.shared = new QCoreVariant::PrivateShared(new QIcon);
             break;
 #endif
+        case QVariant::TextLength:
+            x->data.shared = new QCoreVariant::PrivateShared(new QTextLength);
+            break;
 #ifndef QT_NO_ACCEL
         case QVariant::KeySequence:
             x->data.shared = new QCoreVariant::PrivateShared(new QKeySequence);
@@ -236,6 +244,9 @@ static void clear(QVariant::Private *p)
         delete static_cast<QIcon *>(p->data.shared->value.ptr);
         break;
 #endif
+    case QVariant::TextLength:
+        delete static_cast<QTextLength *>(p->data.shared->value.ptr);
+        break;
     case QVariant::SizePolicy:
         delete static_cast<QSizePolicy *>(p->data.shared->value.ptr);
         break;
@@ -276,6 +287,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Icon:
         return static_cast<QIcon *>(d->data.shared->value.ptr)->isNull();
 #endif
+    case QVariant::TextLength:
     case QVariant::Cursor:
     case QVariant::StringList:
     case QVariant::Font:
@@ -354,6 +366,12 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     }
 #endif
+    case QVariant::TextLength: {
+        QTextLength x;
+        s >> x;
+        *static_cast<QTextLength *>(d->data.shared->value.ptr) = x;
+        break;
+    }
     case QVariant::SizePolicy: {
         int h, v;
         Q_INT8 hfw;
@@ -430,6 +448,10 @@ static void save(const QVariant::Private *d, QDataStream &s)
         s << static_cast<QIcon *>(d->data.shared->value.ptr)->pixmap();
         break;
 #endif
+    case QVariant::TextLength:
+        //### add stream operator to icon
+        s << *static_cast<QTextLength *>(d->data.shared->value.ptr);
+        break;
     case QVariant::SizePolicy:
         {
             QSizePolicy *p = static_cast<QSizePolicy *>(d->data.shared->value.ptr);
@@ -500,6 +522,9 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return static_cast<QIcon *>(a->data.shared->value.ptr)->pixmap().serialNumber()
             == static_cast<QIcon *>(b->data.shared->value.ptr)->pixmap().serialNumber();
 #endif
+    case QVariant::TextLength:
+        return *static_cast<QTextLength *>(a->data.shared->value.ptr)
+            == *static_cast<QTextLength *>(b->data.shared->value.ptr);
     case QVariant::SizePolicy:
         return *static_cast<QSizePolicy *>(a->data.shared->value.ptr)
             == *static_cast<QSizePolicy *>(b->data.shared->value.ptr);
@@ -934,6 +959,7 @@ QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
 #ifndef QT_NO_ICON
 QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
 #endif //QT_NO_ICON
+QVariant::QVariant(const QTextLength &val) { create(TextLength, &val); }
 QVariant::QVariant(const QPointArray &val) { create(PointArray, &val); }
 QVariant::QVariant(const QRegion &val) { create(Region, &val); }
 QVariant::QVariant(const QBitmap& val) { create(Bitmap, &val); }
@@ -1165,6 +1191,14 @@ QIcon QVariant::toIconSet() const { return toIcon(); }
 
 #endif //QT_NO_ICON
 
+QTextLength QVariant::toTextLength() const
+{
+    if (d.type != TextLength)
+        return QTextLength();
+
+    return *static_cast<QTextLength *>(d.data.shared->value.ptr);
+}
+
 
 #define Q_VARIANT_TO(f) \
 Q##f QVariant::to##f() const { \
@@ -1284,6 +1318,8 @@ template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QP
 { return static_cast<const QVariant &>(v).toPalette(); }
 template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*)
 { return static_cast<const QVariant &>(v).toIconSet(); }
+template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*)
+{ return static_cast<const QVariant &>(v).toTextLength(); }
 template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
 { return static_cast<const QVariant &>(v).toPointArray(); }
 template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
@@ -1319,6 +1355,8 @@ template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPalette(); }
 template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toIconSet(); }
+template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toTextLength(); }
 template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPointArray(); }
 template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v)

@@ -186,11 +186,16 @@ public:
     int objectIndex() const;
     void setObjectIndex(int object);
 
-    bool boolProperty(int propertyId, bool defaultValue = false) const;
-    int intProperty(int propertyId, int defaultValue = 0) const;
-    float floatProperty(int propertyId, float defaultValue = 0.0) const;
-    QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
-    QColor colorProperty(int propertyId, const QColor &defaultValue = QColor()) const;
+    QVariant property(int propertyId) const;
+    void setProperty(int propertyId, const QVariant &value);
+    void clearProperty(int propertyId);
+    bool hasProperty(int propertyId) const;
+
+    bool boolProperty(int propertyId) const;
+    int intProperty(int propertyId) const;
+    float floatProperty(int propertyId) const;
+    QString stringProperty(int propertyId) const;
+    QColor colorProperty(int propertyId) const;
     QTextLength lengthProperty(int propertyId) const;
     QVector<QTextLength> lengthVectorProperty(int propertyId) const;
 
@@ -202,25 +207,13 @@ public:
     void setProperty(int propertyId, const QTextLength &length);
     void setProperty(int propertyId, const QVector<QTextLength> &lengths);
 
-    //#### I would prefer to remove the next 5. Weird API and they
-    //#### safe little. Instead the caller can simply have one
-    //#### if-statement and call clearProperty().
-    void setProperty(int propertyId, bool value, bool defaultValue);
-    void setProperty(int propertyId, int value, int defaultValue);
-    void setProperty(int propertyId, float value, float defaultValue);
-    void setProperty(int propertyId, const QString &value, const QString &defaultValue);
-    void setProperty(int propertyId, const QColor &value, const QColor &defaultValue);
-
-    void clearProperty(int propertyId);
-
-    bool hasProperty(int propertyId) const;
 
     QMap<int, QVariant> properties() const;
 
     inline void setObjectType(int type)
-    { setProperty(ObjectType, type, NoObject); }
+    { setProperty(ObjectType, type); }
     inline int objectType() const
-    { return intProperty(ObjectType, NoObject); }
+    { return intProperty(ObjectType); }
 
     inline bool isCharFormat() const { return type() == CharFormat; }
     inline bool isBlockFormat() const { return type() == BlockFormat; }
@@ -269,9 +262,9 @@ public:
     { return floatProperty(FontPointSize); }
 
     inline void setFontWeight(int weight)
-    { setProperty(FontWeight, weight); }
+    { if (weight == QFont::Normal) weight = 0; setProperty(FontWeight, weight); }
     inline int fontWeight() const
-    { return intProperty(FontWeight, QFont::Normal); }
+    { int weight = intProperty(FontWeight); if (weight == 0) weight = QFont::Normal; return weight; }
 
     inline void setFontItalic(bool italic)
     { setProperty(FontItalic, italic); }
@@ -319,13 +312,13 @@ public:
     { return stringProperty(AnchorName); }
 
     inline void setTableCellRowSpan(int tableCellRowSpan)
-    { setProperty(TableCellRowSpan, tableCellRowSpan, 1); }
+    { if (tableCellRowSpan == 1) tableCellRowSpan = 0; setProperty(TableCellRowSpan, tableCellRowSpan); }
     inline int tableCellRowSpan() const
-    { return intProperty(TableCellRowSpan, 1); }
+    { int s = intProperty(TableCellRowSpan); if (s == 0) s = 1; return s; }
     inline void setTableCellColumnSpan(int tableCellColumnSpan)
-    { setProperty(TableCellColumnSpan, tableCellColumnSpan, 1); }
+    { if (tableCellColumnSpan == 1) tableCellColumnSpan = 0; setProperty(TableCellColumnSpan, tableCellColumnSpan); }
     inline int tableCellColumnSpan() const
-    { return intProperty(TableCellColumnSpan, 1); }
+    { int s = intProperty(TableCellColumnSpan); if (s == 0) s = 1; return s; }
 
     inline void setTableCellBackgroundColor(const QColor &color)
     { setProperty(TableCellBackgroundColor, color); }
@@ -337,46 +330,46 @@ public:
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
 {
 public:
-    enum Direction { LeftToRight, RightToLeft, AutoDirection };
+    enum Direction { AutoDirection, LeftToRight, RightToLeft };
 
     inline QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
     bool isValid() const { return isBlockFormat(); }
 
     inline void setDirection(Direction dir)
-    { setProperty(BlockDirection, dir, AutoDirection); }
+    { setProperty(BlockDirection, dir); }
     inline Direction direction() const
-    { return static_cast<Direction>(intProperty(BlockDirection, AutoDirection)); }
+    { return static_cast<Direction>(intProperty(BlockDirection)); }
 
     inline void setAlignment(Qt::Alignment alignment)
-    { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
+    { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
-    { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
+    { return QFlag(intProperty(BlockAlignment)); }
 
     inline void setTopMargin(int margin)
-    { setProperty(BlockTopMargin, margin, 0); }
+    { setProperty(BlockTopMargin, margin); }
     inline int topMargin() const
-    { return intProperty(BlockTopMargin, 0); }
+    { return intProperty(BlockTopMargin); }
 
     inline void setBottomMargin(int margin)
-    { setProperty(BlockBottomMargin, margin, 0); }
+    { setProperty(BlockBottomMargin, margin); }
     inline int bottomMargin() const
-    { return intProperty(BlockBottomMargin, 0); }
+    { return intProperty(BlockBottomMargin); }
 
     inline void setLeftMargin(int margin)
-    { setProperty(BlockLeftMargin, margin, 0); }
+    { setProperty(BlockLeftMargin, margin); }
     inline int leftMargin() const
-    { return intProperty(BlockLeftMargin, 0); }
+    { return intProperty(BlockLeftMargin); }
 
     inline void setRightMargin(int margin)
-    { setProperty(BlockRightMargin, margin, 0); }
+    { setProperty(BlockRightMargin, margin); }
     inline int rightMargin() const
-    { return intProperty(BlockRightMargin, 0); }
+    { return intProperty(BlockRightMargin); }
 
     inline void setFirstLineMargin(int margin)
-    { setProperty(BlockFirstLineMargin, margin, 0); }
+    { setProperty(BlockFirstLineMargin, margin); }
     inline int firstLineMargin() const
-    { return intProperty(BlockFirstLineMargin, 0); }
+    { return intProperty(BlockFirstLineMargin); }
 
     inline void setIndent(int indent)
     { setProperty(BlockIndent, indent); }
@@ -413,10 +406,10 @@ public:
         ListStyleUndefined = 0
     };
 
-    inline void setStyle(int style)
-    { setProperty(ListStyle, style, ListStyleUndefined); }
-    inline int style() const
-    { return intProperty(ListStyle, ListStyleUndefined); }
+    inline void setStyle(Style style)
+    { setProperty(ListStyle, style); }
+    inline Style style() const
+    { return static_cast<Style>(intProperty(ListStyle)); }
 
     inline void setIndent(int indent)
     { setProperty(ListIndent, indent); }
@@ -464,24 +457,24 @@ public:
     };
 
     inline void setPosition(Position f)
-    { setProperty(CssFloat, f, InFlow); }
+    { setProperty(CssFloat, f); }
     inline Position position() const
-    { return static_cast<Position>(intProperty(CssFloat, InFlow)); }
+    { return static_cast<Position>(intProperty(CssFloat)); }
 
     inline void setBorder(int border)
-    { setProperty(FrameBorder, border, 0); }
+    { setProperty(FrameBorder, border); }
     inline int border() const
-    { return intProperty(FrameBorder, 0); }
+    { return intProperty(FrameBorder); }
 
     inline void setMargin(int margin)
-    { setProperty(FrameMargin, margin, 0); }
+    { setProperty(FrameMargin, margin); }
     inline int margin() const
-    { return intProperty(FrameMargin, 0); }
+    { return intProperty(FrameMargin); }
 
     inline void setPadding(int padding)
-    { setProperty(FramePadding, padding, 0); }
+    { setProperty(FramePadding, padding); }
     inline int padding() const
-    { return intProperty(FramePadding, 0); }
+    { return intProperty(FramePadding); }
 
     inline void setWidth(int width)
     { setProperty(Width, QTextLength(QTextLength::FixedLength, width)); }
@@ -490,10 +483,12 @@ public:
     inline QTextLength width() const
     { return lengthProperty(Width); }
 
-    inline void setHeight(int border)
-    { setProperty(Height, border, -1); }
-    inline int height() const
-    { return intProperty(Height, -1); }
+    inline void setHeight(int height)
+    { setProperty(Height, QTextLength(QTextLength::FixedLength, height)); }
+    inline void setHeight(const QTextLength &height)
+    { setProperty(Height, height); }
+    inline QTextLength height() const
+    { return lengthProperty(Height); }
 
 
 };
@@ -501,14 +496,14 @@ public:
 class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
 {
 public:
-    inline QTextTableFormat() : QTextFrameFormat() { setObjectType(TableObject); }
+    QTextTableFormat();
 
     inline bool isValid() const { return isTableFormat(); }
 
     inline int columns() const
-    { return intProperty(TableColumns, 1); }
+    { int cols = intProperty(TableColumns); if (cols == 0) cols = 1; return cols; }
     inline void setColumns(int columns)
-    { setProperty(TableColumns, columns, 1); }
+    { if (columns == 1) columns = 0; setProperty(TableColumns, columns); }
 
     inline void setColumnWidthConstraints(const QVector<QTextLength> &constraints)
     { setProperty(TableColumnWidthConstraints, constraints); }
@@ -520,19 +515,19 @@ public:
     { clearProperty(TableColumnWidthConstraints); }
 
     inline int cellSpacing() const
-    { return intProperty(TableCellSpacing, 2); }
+    { return intProperty(TableCellSpacing); }
     inline void setCellSpacing(int spacing)
-    { setProperty(TableCellSpacing, spacing, 2); }
+    { setProperty(TableCellSpacing, spacing); }
 
     inline int cellPadding() const
-    { return intProperty(TableCellPadding, 0); }
+    { return intProperty(TableCellPadding); }
     inline void setCellPadding(int padding)
-    { setProperty(TableCellPadding, padding, 0); }
+    { setProperty(TableCellPadding, padding); }
 
     inline void setAlignment(Qt::Alignment alignment)
-    { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
+    { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
-    { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
+    { return QFlag(intProperty(BlockAlignment)); }
 
     inline void setBackgroundColor(const QColor &color)
     { setProperty(TableBackgroundColor, color); }
