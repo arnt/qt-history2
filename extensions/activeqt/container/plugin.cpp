@@ -41,6 +41,7 @@
 #include <actioninterface.h>
 #include <designerinterface.h>
 #include <qdict.h>
+#include <olectl.h>
 
 #include "qaxwidget.h"
 #include "qactivexselect.h"
@@ -138,7 +139,6 @@ public:
     QString whatsThis( const QString& ) const;
     bool isContainer( const QString& ) const;
 
-
     bool init() { return TRUE; }
     void cleanup() {}
     bool canUnload() const { return objects.isEmpty(); }
@@ -147,11 +147,16 @@ protected slots:
     void onFormChange();
     void onSelectionChanged();
     void onShowDocumentation();
+    void onShowProperties();
+    void onPropertyChanged( const QString &name );
 
 private:
+    QActionGroup *actions;
     QAction *actionDocu;
+    QAction *actionProp;
 
     QDict<QDialog> browserDict;
+    bool    property_changed;
     QObjectCleanupHandler objects;
 
     static DesignerInterface *designer;
@@ -199,13 +204,13 @@ void QActiveXPlugin::onSelectionChanged()
 	++it;
 	QAxWidget *axwidget = (QAxWidget*)widget->qt_cast( "QAxWidget" );
 	if ( !axwidget ) {
-	    actionDocu->setEnabled( FALSE );
+	    actions->setEnabled( FALSE );
 	    return;
 	} else {
 	    enabled = TRUE;
 	}
     }
-    actionDocu->setEnabled( enabled );
+    actions->setEnabled( enabled );
 }
 
 void QActiveXPlugin::onShowDocumentation()
@@ -236,6 +241,63 @@ void QActiveXPlugin::onShowDocumentation()
 	    }
 	}
     }
+}
+
+void QActiveXPlugin::onShowProperties()
+{
+    if ( !designer || !designer->currentForm() )
+	return;
+
+    QWidgetList widgets = designer->currentForm()->selectedWidgets();
+    QWidgetListIt it( widgets );
+    while ( it.current() ) {
+	QWidget *widget = it.current();
+	++it;
+	if ( widget->inherits( "QAxWidget" ) ) {
+	    QAxWidget *axwidget = (QAxWidget*)widget;
+	    if ( !axwidget->isNull() ) {
+		ISpecifyPropertyPages *spp = 0;
+		axwidget->queryInterface( IID_ISpecifyPropertyPages, (void**)&spp );
+		CAUUID pages;
+		if ( !spp )
+		    return;
+
+		spp->GetPages( &pages );
+		IUnknown *objects[1];
+		axwidget->queryInterface( IID_IUnknown, (void**)&objects[0] );
+
+		property_changed = FALSE;
+		connect( axwidget, SIGNAL(propertyChanged(const QString&)), this, SLOT(onPropertyChanged(const QString&)) );
+
+		HRESULT res = OleCreatePropertyFrame( widget->topLevelWidget()->winId(), 0, 0, L"Properties", 
+		    1, objects, pages.cElems, pages.pElems, LOCALE_USER_DEFAULT, 0, 0 );
+
+		if ( property_changed ) {
+		    QMetaObject *mo = axwidget->metaObject();
+		    int pc = mo->numProperties( TRUE );
+
+		    for ( int i = mo->propertyOffset(); i < pc; ++i ) {
+			const QMetaProperty *mp = mo->property( i, TRUE );
+			designer->currentForm()->setPropertyChanged( axwidget, mp->name(), TRUE );
+		    }
+		}
+		designer->currentForm()->clearSelection();
+		qApp->processEvents();
+		designer->currentForm()->selectWidget( axwidget );
+		designer->currentForm()->setCurrentWidget( axwidget );
+
+		CoTaskMemFree( pages.pElems );
+
+		disconnect( axwidget, SIGNAL(propertyChanged(const QString&)), this, SLOT(onPropertyChanged(const QString&)) );
+		return;
+	    }
+	}
+    }
+}
+
+void QActiveXPlugin::onPropertyChanged( const QString & )
+{
+    property_changed = TRUE;
 }
 
 QRESULT QActiveXPlugin::queryInterface( const QUuid &iid, QUnknownInterface **iface )
@@ -270,12 +332,19 @@ QStringList QActiveXPlugin::featureList() const
 QAction *QActiveXPlugin::create( const QString &key, QObject *parent )
 {
     if ( key == "QAxWidget" ) {
+	actions = new QActionGroup( parent, "qaxactions" );
+
 	actionDocu = new QAction( "AxWidget Documentation", QIconSet( helpIcon ),
-	                          "A&xWidget Documentation", 0, parent, "qaxdocu" );
-	actionDocu->setEnabled( FALSE );
-	objects.add( actionDocu );
+	                          "A&xWidget Documentation", 0, actions, "qaxdocu" );
 	connect( actionDocu, SIGNAL(activated()), this, SLOT(onShowDocumentation()) );
-	return actionDocu;
+
+	actionDocu = new QAction( "AxWidget Property Pages", QIconSet( helpIcon ),
+	                          "A&xWidget Property Pages", 0, actions, "qaxprop" );
+	connect( actionDocu, SIGNAL(activated()), this, SLOT(onShowProperties()) );
+
+	actions->setEnabled( FALSE );
+	objects.add( actions );	
+	return actions;
     }
     return 0;
 }
