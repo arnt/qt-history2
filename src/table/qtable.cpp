@@ -6774,14 +6774,16 @@ void QTableHeader::updateSelections()
     }
     repaint( FALSE );
 
-    QTableSelection oldSelection = *table->currentSel;
-    if ( orientation() == Vertical )
-	table->currentSel->expandTo( b, table->horizontalHeader()->count() - 1 );
-    else
-	table->currentSel->expandTo( table->verticalHeader()->count() - 1, b );
-    table->repaintSelections( &oldSelection, table->currentSel,
-			      orientation() == Horizontal,
-			      orientation() == Vertical );
+    if (table->currentSel) {
+	QTableSelection oldSelection = *table->currentSel;
+	if ( orientation() == Vertical )
+	    table->currentSel->expandTo( b, table->horizontalHeader()->count() - 1 );
+	else
+	    table->currentSel->expandTo( table->verticalHeader()->count() - 1, b );
+	table->repaintSelections( &oldSelection, table->currentSel,
+				  orientation() == Horizontal,
+				  orientation() == Vertical );
+    }
     emit table->selectionChanged();
 }
 
