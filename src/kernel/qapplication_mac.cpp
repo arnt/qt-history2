@@ -937,14 +937,6 @@ void QApplication::restoreOverrideCursor()
 
 #endif
 
-void QApplication::setGlobalMouseTracking(bool b)
-{
-    if(b)
-	app_tracking++;
-    else
-	app_tracking--;
-}
-
 
 QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 {

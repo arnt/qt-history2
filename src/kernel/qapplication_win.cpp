@@ -1147,30 +1147,6 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
 }
 
 
-void QApplication::setGlobalMouseTracking( bool enable )
-{
-    bool tellAllWidgets;
-    if ( enable ) {
-	tellAllWidgets = (++app_tracking == 1);
-    } else {
-	tellAllWidgets = (--app_tracking == 0);
-    }
-    if ( tellAllWidgets ) {
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->begin(); it != QWidget::mapper->end(); ++it) {
-	    register QWidget *w = *it;
-	    if ( app_tracking > 0 ) {		// switch on
-		if ( !w->testWState(WState_MouseTracking) ) {
-		    w->setMouseTracking( TRUE );
-		}
-	    } else {				// switch off
-		if ( w->testWState(WState_MouseTracking) ) {
-		    w->setMouseTracking( FALSE );
-		}
-	    }
-	}
-    }
-}
-
 
 /*****************************************************************************
   Routines to find a Qt widget from a screen position
@@ -2602,10 +2578,6 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
 	gpos = curPos;
-
-	if ( state == 0 && autoCaptureWnd == 0 && !hasMouseTracking() &&
-	     !QApplication::hasGlobalMouseTracking() )
-	    return TRUE;			// no button
 
 	ScreenToClient( winId(), &curPos );
 

@@ -88,8 +88,6 @@ public:
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
 #endif
-    static bool	     hasGlobalMouseTracking();
-    static void	     setGlobalMouseTracking( bool enable );
 #ifndef QT_NO_PALETTE
     static QPalette  palette( const QWidget* = 0 );
     static void	     setPalette( const QPalette &, bool informWidgets=FALSE,
@@ -282,6 +280,12 @@ protected:
 protected:
     bool event(QEvent *);
 
+#ifndef QT_NO_COMPAT
+public:
+    inline static bool hasGlobalMouseTracking() {return true;}
+    inline static void setGlobalMouseTracking(bool) {};
+
+#endif // QT_NO_COMPAT
 private:
     void construct( int &argc, char **argv, Type );
     void initialize( int, char ** );
@@ -325,7 +329,6 @@ private:
     static QCursor  *app_cursor;
 #endif
     static QEventLoop* eventloop;
-    static int	     app_tracking;
     static bool	     is_app_running;
     static bool	     is_app_closing;
     static bool	     app_exit_loop;
@@ -421,11 +424,6 @@ inline QCursor *QApplication::overrideCursor()
     return app_cursor;
 }
 #endif
-inline bool QApplication::hasGlobalMouseTracking()
-{
-    return app_tracking > 0;
-}
-
 inline QWidget *QApplication::mainWidget() const
 {
     return main_widget;

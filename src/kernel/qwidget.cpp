@@ -359,10 +359,8 @@ QWidgetPrivate::~QWidgetPrivate()
     \i mouseMoveEvent() - called whenever the mouse moves while a
     button is held down. This is useful for, for example, dragging. If
     you call setMouseTracking(TRUE), you get mouse move events even
-    when no buttons are held down. (Note that applications which make
-    use of mouse tracking are often not very useful on low-bandwidth X
-    connections.) (See also the \link dnd.html drag and drop\endlink
-    information.)
+    when no buttons are held down. (See also the \link dnd.html drag
+    and drop\endlink information.)
 
     \i keyReleaseEvent() - called whenever a key is released, and also
     while it is held down if the key is auto-repeating. In that case

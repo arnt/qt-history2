@@ -263,7 +263,9 @@ public:
     const QPixmap      *icon() const;
     QString		iconText() const;
 #endif
-    bool		hasMouseTracking() const;
+
+    void setMouseTracking(bool enable);
+    bool hasMouseTracking() const;
     bool underMouse() const;
 
     void setMask( const QBitmap & );
@@ -283,8 +285,6 @@ public slots:
     void setIcon( const QPixmap & ); // ### becomes setWidgetIcon(const QIconSet &)
     void setIconText( const QString &); // ### becomes extern qt_x11_setIconText(...)
 #endif
-    void setMouseTracking( bool enable );
-
     // Keyboard input focus functions
 
     void setFocus();
@@ -470,6 +470,7 @@ public:
     enum WidgetAttribute {
 	WA_Disabled,
 	WA_UnderMouse,
+	WA_MouseTracking,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
@@ -785,8 +786,11 @@ inline QFontMetrics QWidget::fontMetrics() const
 inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(font()); }
 
+inline void QWidget::setMouseTracking(bool enable)
+{ setAttribute(WA_MouseTracking, enable); }
+
 inline bool QWidget::hasMouseTracking() const
-{ return testWState(WState_MouseTracking); }
+{ return testAttribute(WA_MouseTracking); }
 
 inline bool QWidget::underMouse() const
 { return testAttribute(WA_UnderMouse); }

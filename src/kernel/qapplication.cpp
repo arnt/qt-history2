@@ -102,7 +102,7 @@
   topLevelWidgets() and closeAllWindows(), etc.
 
   \i It manages the application's mouse cursor handling,
-  see setOverrideCursor() and setGlobalMouseTracking().
+  see setOverrideCursor()
 
   \i On the X window system, it provides functions to flush and sync
   the communication stream, see flushX() and syncX().
@@ -213,8 +213,6 @@
     \row
      \i Advanced cursor handling
      \i
-	hasGlobalMouseTracking(),
-	setGlobalMouseTracking(),
 	overrideCursor(),
 	setOverrideCursor(),
 	restoreOverrideCursor().
@@ -308,7 +306,6 @@ bool	  qt_app_has_font	       = FALSE;
 #ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 #endif
-int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
 bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
 int	  QApplication::loop_level     = 0;	// event loop level
@@ -1047,7 +1044,6 @@ QApplication::~QApplication()
 
     qt_explicit_app_style = FALSE;
     qt_app_has_font = FALSE;
-    app_tracking = 0;
     obey_desktop_settings = TRUE;
     cursor_flash_time = 1000;
     mouse_double_click_time = 400;
@@ -2185,10 +2181,7 @@ void QApplication::aboutQt()
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(); furthermore, it's possible to have more
   than one application-global event filter. Global event filters even
-  see mouse events for \link QWidget::isEnabled() disabled
-  widgets, \endlink and if \link setGlobalMouseTracking() global mouse
-  tracking \endlink is enabled, as well as mouse move events for all
-  widgets.
+  see mouse events for \link QWidget::isEnabled() disabled widgets.
 
   \i Reimplementing QObject::event() (as QWidget does). If you do
   this you get Tab key presses, and you get to see the events before
@@ -2456,10 +2449,18 @@ bool QApplication::event( QEvent *e )
  */
 bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 {
-    bool consumed = FALSE;
-    bool handled = FALSE;
+    bool consumed = false;
 
-    if ( receiver->isWidgetType() ) {
+    // send to all application event filters
+    for (int i = 0; i < d->eventFilters.size(); ++i) {
+	register QObject *obj = d->eventFilters.at(i);
+	if ( obj && obj->eventFilter(receiver,e) ) {
+	    consumed = true;
+	    goto handled;
+	}
+    }
+
+    if (receiver->isWidgetType()) {
 	QWidget *widget = (QWidget*)receiver;
 
 	// toggle HasMouse widget state on enter and leave
@@ -2472,8 +2473,8 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 	if ( e->type() == QEvent::MouseMove &&
 	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
 	     !widget->hasMouseTracking() ) {
-	    handled = TRUE;
-	    consumed = TRUE;
+	    consumed = true;
+	    goto handled;
 	} else if ( !widget->isEnabled() ) { // throw away mouse events to disabled widgets
 	    switch(e->type()) {
 	    case QEvent::MouseButtonPress:
@@ -2481,36 +2482,30 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 	    case QEvent::MouseButtonDblClick:
 	    case QEvent::MouseMove:
 		( (QMouseEvent*) e)->ignore();
-		handled = TRUE;
-		consumed = TRUE;
-		break;
+		consumed = true;
+		goto handled;
 #ifndef QT_NO_DRAGANDDROP
 	    case QEvent::DragEnter:
 	    case QEvent::DragMove:
 		( (QDragMoveEvent*) e)->ignore();
-		handled = TRUE;
-		break;
+		goto handled;
 
 	    case QEvent::DragLeave:
 	    case QEvent::DragResponse:
-		handled = TRUE;
-		break;
+		goto handled;
 
 	    case QEvent::Drop:
 		( (QDropEvent*) e)->ignore();
-		handled = TRUE;
-		break;
+		goto handled;
 #endif
 #ifndef QT_NO_WHEELEVENT
 	    case QEvent::Wheel:
 		( (QWheelEvent*) e)->ignore();
-		handled = TRUE;
-		break;
+		goto handled;
 #endif
 	    case QEvent::ContextMenu:
 		( (QContextMenuEvent*) e)->ignore();
-		handled = TRUE;
-		break;
+		goto handled;
 	    default:
 		break;
 	    }
@@ -2518,31 +2513,21 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 
     }
 
-    if (!handled) {
-	// send to all application event filters
-	for (int i = 0; i < d->eventFilters.size(); ++i) {
-	    register QObject *obj = d->eventFilters.at(i);
+    // send to all receiver event filters
+    if (receiver != this) {
+	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+	    register QObject *obj = receiver->d->eventFilters.at(i);
 	    if ( obj && obj->eventFilter(receiver,e) ) {
-		handled = consumed = true;
-		break;
-	    }
-	}
-
-	if (receiver != this) {
-	    // send to all event filters on the object
-	    for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-		register QObject *obj = receiver->d->eventFilters.at(i);
-		if ( obj && obj->eventFilter(receiver,e) ) {
-		    handled = consumed = true;
-		    break;
-		}
+		consumed = true;
+		goto handled;
 	    }
 	}
     }
 
-    if (!handled)
-	consumed = receiver->event( e );
-    e->spont = FALSE;
+    consumed = receiver->event( e );
+
+ handled:
+    e->spont = false;
     return consumed;
 }
 

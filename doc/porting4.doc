@@ -117,6 +117,21 @@ COMPAT mode, but we recommend not using them in new code.
 \endlist
 
 
+The following functions were slots, but are no more:
+\list
+\i QWidget::setMouseTracking()
+\endlist
+
+\section1 QApplication
+
+The following functions are obsolete. Most will continue to work in
+COMPAT mode, but we recommend not using them in new code.
+
+\list
+\i QApplication::hasGlobalMouseTracking() - use true instead.
+\i QApplication::setGlobalMouseTracking() - no effect.
+\endlist
+
 \section1 QString
 
 If you specify a negative value for \e len to left() or right() then

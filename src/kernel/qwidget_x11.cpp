@@ -121,7 +121,7 @@ const uint stdWidgetEventMask =			// X event mask
 	    KeyPressMask | KeyReleaseMask |
 	    ButtonPressMask | ButtonReleaseMask |
 	    KeymapStateMask |
-	    ButtonMotionMask |
+	    ButtonMotionMask | PointerMotionMask |
 	    EnterWindowMask | LeaveWindowMask |
 	    FocusChangeMask |
 	    ExposureMask |
@@ -557,13 +557,27 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( initializeWindow ) {
 	// don't erase when resizing
-	wsa.bit_gravity =
-	    QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+	wsa.bit_gravity = QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
 
-    setWState( WState_MouseTracking );
-    setMouseTracking( FALSE );			// also sets event mask
+    // set X11 event mask
+    if (desktop) {
+	QWidget* main_desktop = find( id );
+	if ( main_desktop->testWFlags(WPaintDesktop) )
+	    XSelectInput( dpy, id, stdDesktopEventMask | ExposureMask );
+	else
+	    XSelectInput( dpy, id, stdDesktopEventMask );
+    } else {
+	XSelectInput( dpy, id, stdWidgetEventMask );
+#if defined (QT_TABLET_SUPPORT)
+ 	if ( devStylus != NULL )
+ 	    XSelectExtensionEvent( dpy, id, event_list_stylus, qt_curr_events_stylus );
+	if ( devEraser != NULL )
+	    XSelectExtensionEvent( dpy, id, event_list_eraser, qt_curr_events_eraser );
+#endif
+    }
+
     if ( desktop ) {
 	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
@@ -652,10 +666,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     // dnd unregister (we will register again below)
     bool accept_drops = acceptDrops();
     setAcceptDrops( FALSE );
-
-    // clear mouse tracking, re-enabled below
-    bool mouse_tracking = hasMouseTracking();
-    clearWState(WState_MouseTracking);
 
     QWidget* oldtlw = topLevelWidget();
     QWidget *oldparent = parentWidget();
@@ -753,10 +763,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	d->topData()->dnd = 0;
 	qt_dnd_enable(this, (d->extra && d->extra->children_use_dnd));
     }
-
-    // re-enable mouse tracking
-    if (mouse_tracking)
-	setMouseTracking(mouse_tracking);
 }
 
 
@@ -1050,39 +1056,6 @@ void QWidget::setIconText( const QString &iconText )
     d->extra->topextra->iconText = iconText;
     XSetIconName( x11Display(), winId(), iconText.utf8() );
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
-}
-
-void QWidget::setMouseTracking( bool enable )
-{
-    bool gmt = QApplication::hasGlobalMouseTracking();
-    if ( !enable == !testWState(WState_MouseTracking) && !gmt )
-	return;
-    uint m = (enable || gmt) ? (uint)PointerMotionMask : 0;
-    if ( enable )
-	setWState( WState_MouseTracking );
-    else
-	clearWState( WState_MouseTracking );
-    if ( testWFlags(WType_Desktop) ) {		// desktop widget?
-	QWidget* main_desktop = find( winId() );
-	if ( main_desktop->testWFlags(WPaintDesktop) )
-	    XSelectInput( x11Display(), winId(),
-			  stdDesktopEventMask | ExposureMask );
-	else
-	    XSelectInput( x11Display(), winId(), stdDesktopEventMask );
-    } else {
-	XSelectInput( x11Display(), winId(),
-		      m | stdWidgetEventMask );
-#if defined (QT_TABLET_SUPPORT)
- 	if ( devStylus != NULL ) {
- 	    XSelectExtensionEvent( x11Display(), winId(), event_list_stylus,
- 				   qt_curr_events_stylus );
- 	}
-	if ( devEraser != NULL ) {
-	    XSelectExtensionEvent( x11Display(), winId(), event_list_eraser,
-				   qt_curr_events_eraser );
-	}
-#endif
-    }
 }
 
 

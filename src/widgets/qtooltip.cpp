@@ -147,10 +147,8 @@ QTipManager::QTipManager()
 
 QTipManager::~QTipManager()
 {
-    if ( isApplicationFilter && !qApp->closingDown() ) {
-	qApp->setGlobalMouseTracking( FALSE );
+    if ( isApplicationFilter && !qApp->closingDown() )
 	qApp->removeEventFilter( tipManager );
-    }
 
     if ( tips ) {
 	QPtrDictIterator<QTipManager::Tip> i( *tips );
@@ -209,7 +207,6 @@ void QTipManager::add( const QRect &gm, QWidget *w,
     if ( !isApplicationFilter && qApp ) {
 	isApplicationFilter = TRUE;
 	qApp->installEventFilter( tipManager );
-	qApp->setGlobalMouseTracking( TRUE );
     }
 
     if ( t->group ) {

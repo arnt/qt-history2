@@ -1503,18 +1503,6 @@ void QWidget::updateFrameStrut() const
     that->fstrut_dirty = FALSE;
 }
 
-void QWidget::setMouseTracking( bool enable )
-{
-    if ( enable )
-        setWState( WState_MouseTracking );
-    else
-        clearWState( WState_MouseTracking );
-#if defined(QT_TABLET_SUPPORT)
-    if ( !qt_tablet_widget )
-	qt_tablet_init();
-#endif
-}
-
 #if defined(QT_TABLET_SUPPORT)
 extern bool qt_is_gui_used;
 static void init_wintab_functions()
