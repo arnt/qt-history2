@@ -97,8 +97,8 @@ machine and how to use Qt on X11 without a window manager. In addition
 it explains the most common source of link errors with Qt.
 
 Other frequently asked questions can be found in the
-\link http://www.trolltech.com/developer/faq/ FAQ index\endlink and
-in the \link http://www.trolltech.com/faq/tech.html Technical FAQ\endlink.
+\link http://www.trolltech.com/developer/faqs/ FAQ index\endlink and
+in the \link http://www.trolltech.com/faqs/technical.html Technical FAQ\endlink.
 
 \list
 \i \link #linkerror Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar\endlink
@@ -315,7 +315,7 @@ If you think you have found a bug in Qt, we would like to hear
 about it so we can fix it.
 
 Before reporting a bug, please check the
-\link http://www.trolltech.com/faq/ FAQs\endlink and
+\link http://www.trolltech.com/developer/faqs/ FAQs\endlink and
 \link http://www.trolltech.com/platforms/ Platform Notes\endlink
 on our web site to see if the issue is already known.
 

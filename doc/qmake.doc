@@ -36,33 +36,28 @@
 
 \title qmake
 
-\e qmake is a simple tool from Trolltech to create and maintain
-makefiles for software projects.
+\e qmake is an easy-to-use tool from Trolltech for creating and
+maintaining makefiles for software projects.
 
 It can be a painful task to manage makefiles manually, especially if
 you develop for more than one platform or use more than one compiler.
-\e qmake automates and streamlines this process and lets you spend
-your valuable time on writing code, not makefiles.
+\e qmake automates and streamlines this process and frees you spend
+your valuable time on writing code, rather than hacking makefiles.
 
 The main motivation for developing \e qmake was that we spent far too
-much time maintaining makefiles for <a
-href="http://www.trolltech.com/qt/">Qt</a>, our cross-platform GUI
-toolkit. Qt supports around 15 flavors of Unix, Microsoft Windows, Mac
-OS X, and around 15 different C++ compilers.  We looked at GNU
-autoconf, but it was Unix-specific and not flexible enough in our
-opinion. Our makefile system also had to deal with Qt <a
-href="http://doc.trolltech.com/metaobjects.html">meta object
-compiler</a> (moc) and <a
-href="http://doc.trolltech.com/designer/book1.html"> user interface
-compiler</a> (uic) issues. The moc program extracts meta information
-from C++ files and generates a C++ file with data tables etc, while
-the uic program generates additional .h and .cpp files when building a
-typical Qt application.  It takes extra work to add makefile rules for
-the moc and the uic and we wanted to automate this task.
+much time maintaining makefiles for \link http://www.trolltech.com/qt/
+Qt\endlink, our cross-platform GUI toolkit. Qt supports around 15
+flavors of Unix, Microsoft Windows, Mac OS X, and around 15 different
+C++ compilers.  We looked at GNU autoconf, but it was Unix-specific
+and not flexible enough in our opinion. Our makefile system also had
+to deal with Qt's \link metaobjects.html meta object compiler\endlink
+(moc) and \link designer-manual.book user interface compiler
+(uic)\endlink issues. The moc program extracts meta information from
+C++ files and generates a C++ file with data tables etc, while the uic
+program generates additional .h and .cpp files when building a typical
+Qt application.  It takes extra work to add makefile rules for the moc
+and the uic and we wanted to automate this task.
 
-<ul>
-<li> <a href="qmake-guide.html"><em>qmake</em> User's Guide</a>
-<li> <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>
-</ul>
+The \link qmake-manual.book qmake User's Guide and Command Reference\endlink.
 
 */
