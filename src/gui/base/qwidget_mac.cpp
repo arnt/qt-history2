@@ -394,7 +394,9 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		//these are really handled in qdnd_mac.cpp just to modularize the code a little..
 		if(ekind == kEventControlDragEnter) {
 		    Boolean accept_drops = widget->acceptDrops() ? true : false;
+#if QT_MACOSX_VERSION >= 0x1030
 		    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(accept_drops), &accept_drops);
+#endif
 		    if(!accept_drops)
 			break;
 		}
