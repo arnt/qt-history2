@@ -41,7 +41,7 @@ public:
           features(QDockWindow::DockWindowClosable
                    | QDockWindow::DockWindowMovable
                    | QDockWindow::DockWindowFloatable),
-          area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
+          area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowArea_Mask),
           top(0), box(0), title(0), resizer(0)
     { }
 

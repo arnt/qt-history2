@@ -246,7 +246,7 @@ bool QToolBar::isMovable() const
 */
 
 void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
-{ d->allowedAreas = (areas & Qt::ToolBarAreaMask); }
+{ d->allowedAreas = (areas & Qt::ToolBarArea_Mask); }
 
 Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }

@@ -55,8 +55,7 @@ public:
         ControlModifier      = 0x04000000,
         AltModifier          = 0x08000000,
         MetaModifier         = 0x10000000,
-        KeypadModifier       = 0x20000000,
-        KeyboardModifierMask = 0x3e000000
+        KeypadModifier       = 0x20000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
 
@@ -66,7 +65,7 @@ public:
         SHIFT         = Qt::ShiftModifier,
         CTRL          = Qt::ControlModifier,
         ALT           = Qt::AltModifier,
-        MODIFIER_MASK = Qt::KeyboardModifierMask,
+        MODIFIER_MASK = 0xff000000,
         UNICODE_ACCEL = 0x00000000
     };
 
@@ -77,8 +76,7 @@ public:
         RightButton      = 0x00000002,
         MidButton        = 0x00000004,
         XButton1         = 0x00000008,
-        XButton2         = 0x0000000f,
-        MouseButtonMask  = 0x000000ff
+        XButton2         = 0x0000000f
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton);
 
@@ -89,7 +87,8 @@ public:
         AltButton       = Qt::AltModifier,
         MetaButton      = Qt::MetaModifier,
         Keypad          = Qt::KeypadModifier,
-        KeyButtonMask   = Qt::KeyboardModifierMask
+        KeyButtonMask   = 0xff000000,
+        MouseButtonMask  = 0x000000ff
     };
     typedef int ButtonState;
 #endif
@@ -839,7 +838,7 @@ public:
     };
 
 #if defined(QT_COMPAT)
-#if defined(Q_OS_MAC) 
+#if defined(Q_OS_MAC)
     typedef int MacintoshVersion;
 
     enum {
@@ -972,9 +971,11 @@ public:
         DockWindowAreaTop    = 0x4,
         DockWindowAreaBottom = 0x8,
 
-        DockWindowAreaMask   = 0xf,
-        AllDockWindowAreas   = DockWindowAreaMask,
+        DockWindowArea_Mask   = 0xf,
+        AllDockWindowAreas   = DockWindowArea_Mask
 
+    };
+    enum {
         NDockWindowAreas     = 4
     };
 
@@ -986,9 +987,11 @@ public:
         ToolBarAreaTop    = 0x4,
         ToolBarAreaBottom = 0x8,
 
-        ToolBarAreaMask   = 0xf,
-        AllToolBarAreas   = ToolBarAreaMask,
+        ToolBarArea_Mask   = 0xf,
+        AllToolBarAreas   = ToolBarArea_Mask
+    };
 
+    enum {
         NToolBarAreas     = 4
     };
 
