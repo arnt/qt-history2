@@ -1440,7 +1440,6 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
     QWidget* vp = viewport();
     QPainter p(vp);
     QRect r = pe->rect();
-    p.setClipRect( r );
     if ( d->clipped_viewport ) {
         QRect rr(
             -d->clipped_viewport->x(), -d->clipped_viewport->y(),
