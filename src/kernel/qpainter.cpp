@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#29 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#29 $";
 #endif
 
 
@@ -58,20 +58,6 @@ Example of use:
 */
 
 
-QPaintDevice *QPainter::pdev_ov = 0;
-
-/*!
-Redirects all paint command to a a paint device \e pd. Careful here!
-*/
-
-bool QPainter::redirect( const QPaintDevice *pd )
-{
-    if ( pdev_ov && pd )			// already set
-	return FALSE;
-    pdev_ov = (QPaintDevice *)pd;
-    return TRUE;
-}
-
 void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 {
     if ( v )
@@ -79,6 +65,7 @@ void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
     else
 	clearf( b );
 }
+
 
 /*!
 Set the number of pixels per tab stop to a fixed number.
