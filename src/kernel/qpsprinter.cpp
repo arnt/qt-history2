@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#107 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2245,10 +2245,10 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
 #define POINT(index)	XCOORD(p[index].point->x()) << ' ' <<		\
 			YCOORD(p[index].point->y()) << ' '
-#define RECT(index)	XCOORD(p[index].rect->x())  << ' ' <<		\
-			YCOORD(p[index].rect->y())  << ' ' <<		\
-			WIDTH (p[index].rect->width())	<< ' ' <<	\
-			HEIGHT(p[index].rect->height()) << ' '
+#define RECT(index)	XCOORD(p[index].rect->normalize().x())  << ' ' <<     \
+			YCOORD(p[index].rect->normalize().y())  << ' ' <<     \
+			WIDTH (p[index].rect->normalize().width()) << ' ' <<  \
+			HEIGHT(p[index].rect->normalize().height()) << ' '
 #define INT_ARG(index)	p[index].ival << ' '
 #define COLOR(x)	(x).red()   << ' ' <<	\
 			(x).green() << ' ' <<	\
