@@ -457,6 +457,16 @@ void Configure::parseCmdLine()
 	dictionary[ "ACCESSIBILITY" ] = "no";
     }
 
+    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||
+    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
+    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
+	dictionary[ "MAKE" ] = "nmake";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+    } else {
+	dictionary[ "MAKE" ] = "make";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+    }
+
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	    qmakeConfig += "internal";
@@ -979,6 +989,7 @@ void Configure::displayConfig()
     }
 
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
+    cout << "Maketool...................." << dictionary[ "MAKE" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
 
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
@@ -1055,16 +1066,6 @@ void Configure::displayConfig()
 
 void Configure::buildQmake()
 {
-    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||
-    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
-    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
-	dictionary[ "MAKE" ] = "nmake";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
-    } else {
-	dictionary[ "MAKE" ] = "make";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
-    }
-
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
 	QStringList args;
 
