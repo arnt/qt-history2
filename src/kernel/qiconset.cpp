@@ -839,7 +839,7 @@ QIconFactory::~QIconFactory()
   \a state. Returns 0 if the default QIconSet algorithm should be
   used to create a pixmap that wasn't supplied by the user.
 
-  It is the caller's responsability to delete the returned pixmap.
+  It is the caller's responsibility to delete the returned pixmap.
 
   The default implementation always returns 0.
 */

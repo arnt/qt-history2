@@ -1822,7 +1822,7 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
 /*!
     Removes the widget \a widget from the layout. After this call, it
-    is the caller's responsability to give the widget a reasonable
+    is the caller's responsibility to give the widget a reasonable
     geometry or to put the widget back into a layout.
 
     \sa removeItem(), QWidget::setGeometry(), add()
@@ -1845,7 +1845,7 @@ void QLayout::remove( QWidget *widget )
 
 /*!
     Removes the layout item \a item from the layout. It is the
-    caller's responsability to delete the item.
+    caller's responsibility to delete the item.
 
     Notice that \a item can be a layout (since QLayout inherits
     QLayoutItem).
