@@ -1540,7 +1540,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    }
 	}
 
-	if (!!parents) {
+	if (parents.size()) {
 	    w = parents.pop();
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
@@ -1555,7 +1555,7 @@ void QWidget::repaint(const QRegion& rgn)
 			w->clearWState(WState_InPaintEvent);
 		    QPainter::restoreRedirected(w);
 		}
-		if (!parents)
+		if (parents.size() == 0)
 		    break;
 		w = parents.pop();
 		offset -= w->pos();
