@@ -39,7 +39,7 @@
 
 #ifndef QT_NO_STYLE_AQUA
 
-enum {
+enum AquaMode {
     AquaModeUnknown,
     AquaModeGraphite,
     AquaModeAqua
@@ -11787,18 +11787,21 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     if(aquaMode == AquaModeGraphite) { //take that!!
 	QPixmapCache::find( "$qt_aqua_" + s, p );
-	im = p;
+	QPixmap mp = p;
 	if( !s.contains("gen_back") ) {
-	    im = im.convertDepth(32);
+	    im = mp.convertToImage().convertDepth(32);
 	    for(int x = 0; x < im.width(); x++) {
 		for(int y = 0; y < im.height(); y++) {
-		    QRgb p = im.pixel(x, y);
-		    p = (qRed(p) + qGreen(p) + qBlue(p)) / 3;
-		    im.setPixel(x, y, qRgb(p, p, p));
+		    QRgb c = im.pixel(x, y);
+		    c = (qRed(c) + qGreen(c) + qBlue(c)) / 3;
+		    im.setPixel(x, y, qRgb(c, c, c));
 		}
 	    }
+	    mp = im;
+	    if(p.mask())
+		mp.setMask(*p.mask());
 	}
-	QPixmapCache::insert(str, QPixmap(im));
+	QPixmapCache::insert(str, mp);
     } else {
 	QPixmapCache::find( str, p );
     }
