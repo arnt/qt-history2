@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#34 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -2220,19 +2220,19 @@ QMap<QCString, QChar> *htmlMap()
 	html_map->insert("gt", '>');
 	html_map->insert("amp", '&');
 	html_map->insert("nbsp", 0x00a0U);
-	html_map->insert("aring", 'å');
-	html_map->insert("oslash", 'ø');
-	html_map->insert("ouml", 'ö');
-	html_map->insert("auml", 'ä');
-	html_map->insert("uuml", 'ü');
-	html_map->insert("Ouml", 'Ö');
-	html_map->insert("Auml", 'Ä');
-	html_map->insert("Uuml", 'Ü');
-	html_map->insert("szlig", 'ß');
-	html_map->insert("copy", '©');
-	html_map->insert("deg", '°');
-	html_map->insert("micro", 'µ');
-	html_map->insert("plusmn", '±');
+	html_map->insert("aring", 0x00e5U);
+	html_map->insert("oslash", 0x00f8U);
+	html_map->insert("ouml", 0x00f6U);
+	html_map->insert("auml", 0x00e4U);
+	html_map->insert("uuml", 0x00fcU);
+	html_map->insert("Ouml", 0x00d6U);
+	html_map->insert("Auml", 0x00c4U);
+	html_map->insert("Uuml", 0x00dcU);
+	html_map->insert("szlig", 0x00dfU);
+	html_map->insert("copy", 0x00a9U);
+	html_map->insert("deg", 0x00b0U);
+	html_map->insert("micro", 0x00b5U);
+	html_map->insert("plusmn", 0x00b1U);                                   
     }
     return html_map;
 }
