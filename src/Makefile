@@ -14,19 +14,16 @@ DISTDIR		= /tmp/qt-0.93
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
 CFLAGS		= -O2
 CDBGFLAGS	= -g
-AOUTCFLAGS	= -b i486-linuxaout
-ELFCFLAGS	= -fPIC -b i486-linux
+CSTATICFLAGS	=
+CSHAREDFLAGS	= -fPIC -b i486-linux
 CC		= gcc
 
 ####### Targets
 
-AOUTTARGET	= $(LIBDIR)/libqt.a
-ELFTARGET	= $(LIBDIR)/libqt.so.0.9.3
-ELFTARGETPRE	= libqt.so.0
+STATICTARGET	= $(LIBDIR)/libqt.a
+SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.3
 
-#######	Sub directories
-#
-# most are also make targets
+#######	Sub directories (excluding moc)
 
 DIRS		= tools kernel widgets dialogs
 
@@ -34,13 +31,13 @@ DIRS		= tools kernel widgets dialogs
 
 all:
 	@echo "PLEASE SPECIFY A TARGET"
-	@echo "  make aout    - creates an aout static library"
-	@echo "  make aoutdbg - creates an aout static library w/debug info"
-	@echo "  make elf     - creates an ELF dynamic library"
-	@echo "  make elfdbg  - creates an ELF dynamic library w/debug info"
-	@echo "  make moc     - creates the meta object compiler"
-	@echo "  make tools   - creates the tools library"
-	@echo "  make dist    - make libraries for a distribution"
+	@echo "  make static    - creates a static library"
+	@echo "  make staticdbg - creates a static library w/debug info"
+	@echo "  make shared    - creates a shared library"
+	@echo "  make shareddbg - creates a shared library w/debug info"
+	@echo "  make moc       - creates the meta object compiler"
+	@echo "  make tools     - creates the tools library"
+	@echo "  make dist      - make libraries for a distribution"
 	@exit 1
 
 #
@@ -53,7 +50,7 @@ mochack:
 	make -C moc
 
 #
-# Create a library, called from aout, aoutdbg, elf and elfdbg
+# Create a library, called from static, staticdbg, shared and shareddbg
 #
 
 FORCE:
@@ -69,36 +66,29 @@ tools kernel widgets dialogs: FORCE
 	rm -f $(OBJDIR)/$@/*.o
 	mv -f $@/*.o $(OBJDIR)/$@
 
-aout:
-	make lib 'CFLAGS=$(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/aout/*/*.o
-	ranlib $(AOUTTARGET)
+static:
+	make lib 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
+	/bin/rm -f $(STATICTARGET)
+	ar q $(STATICTARGET) obj/static/*/*.o
+	ranlib $(STATICTARGET)
 
-aoutdbg:
-	make lib 'CFLAGS=$(CDBGFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aoutdbg'
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/aoutdbg/*/*.o
-	ranlib $(AOUTTARGET)
+staticdbg:
+	make lib 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
+	/bin/rm -f $(STATICTARGET)
+	ar q $(STATICTARGET) obj/staticdbg/*/*.o
+	ranlib $(STATICTARGET)
 
-elf:
-	make lib 'CFLAGS=$(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+shared:
+	make lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
+	/bin/rm -f $(SHAREDTARGET)
+	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lgcc -lc
 
-elfdbg:
-	make lib 'CFLAGS=$(CDBGFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elfdbg'
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
+shareddbg:
+	make lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
+	/bin/rm -f $(SHAREDTARGET)
+	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lgcc -lc
 
-dist: clean include depend
-	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
-	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/aout/*/*.o
-	ranlib $(AOUTTARGET)
+dist: clean include depend static shared
 	-$(RM) -rf $(DISTDIR)
 	find /local/qt/examples -type d -print \
 	    | grep -v RCS \
@@ -116,9 +106,9 @@ dist: clean include depend
 tar: dist
 	-rm $(DISTDIR).tar.gz
 	( set -e ; cd $(DISTDIR) ; tar cf misc.tar bin lib man )
-	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/elf.tar libqt.so* )
-	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/aout.tar libqt.a )
-	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{INSTALL,README,ANNOUNCE,MANIFEST,LICENCE,misc.tar,aout.tar,elf.tar} ; gzip -f9 $(DISTDIR).tar )
+	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/shared.tar libqt.so* )
+	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/static.tar libqt.a )
+	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{INSTALL,README,ANNOUNCE,MANIFEST,LICENCE,misc.tar,static.tar,shared.tar} ; gzip -f9 $(DISTDIR).tar )
 
 info:
 	@for d in $(DIRS); do cd $$d ; rinfo ; cd .. ; done

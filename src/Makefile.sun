@@ -4,29 +4,29 @@
 
 include Makefile
 
-SUNAOUTCFLAGS	=
-SUNELFCFLAGS	= -fPIC
+CSTATICFLAGS	=
+CSHAREDFLAGS	= -fPIC
 
-sun:	sunelf
+sun:	sunshared
 
-sunaout:
-	make lib "CFLAGS=$(CFLAGS) $(SUNAOUTCFLAGS)" "OBJDIR=obj/aout"
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/aout/*/*.o
+sunstatic:
+	make lib "CFLAGS=$(CFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/static"
+	/bin/rm -f $(STATICTARGET)
+	ar q $(STATICTARGET) obj/static/*/*.o
 
-sunaoutdbg:
-	make lib "CFLAGS=$(CDBGFLAGS) $(SUNAOUTCFLAGS)" "OBJDIR=obj/aoutdbg"
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/aoutdbg/*/*.o
+sunstaticdbg:
+	make lib "CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/staticdbg"
+	/bin/rm -f $(STATICTARGET)
+	ar q $(STATICTARGET) obj/staticdbg/*/*.o
 
-sunelf:
-	make lib "CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)" "OBJDIR=obj/elf"
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lc
+sunshared:
+	make lib "CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shared"
+	/bin/rm -f $(SHAREDTARGET)
+	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lc
 
-sunelfdbg:
-	make lib "CFLAGS=$(CDBGFLAGS) $(SUNELFCFLAGS)" "OBJDIR=obj/elfdbg"
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lc
+sunshareddbg:
+	make lib "CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shareddbg"
+	/bin/rm -f $(SHAREDTARGET)
+	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lc
 
-purify: sunaout
+purify: sunstatic
