@@ -12732,7 +12732,9 @@ int QString::find( QChar c, int index, bool cs ) const
 
 /*!
   Finds the first occurrence of the string \a str, starting at position
-  \a index.
+  \a index. If \a index is -1, the string is checked for at the end;
+  if -2, the string is checked for one character from the end then
+  at the end, etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
@@ -12744,10 +12746,12 @@ int QString::find( const QString& str, int index, bool cs ) const
 {
     if ( (uint)index >= length() )		// index outside string
 	return -1;
+    uint strl = str.length();
+    if ( index < 0 )				// neg index ==> start from end
+	index = length()-strl+index+1;
     register const QChar *uc;
     uc = unicode()+index;
     uint n = length()-index+1;
-    uint strl = str.length();
     if ( cs ) {
 	while ( n-- > strl && ucstrncmp(uc,str.d->unicode,strl) )
 	    uc++;
@@ -12772,8 +12776,8 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 /*!
   Finds the first occurrence of the character \a c, starting at
-  position \a index and searching backwards. If \a index is negative,
-  the search starts at the end.
+  position \a index and searching backwards. If \a index is -1,
+  the search starts at the end; -2 one character from the end, etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
@@ -12789,8 +12793,8 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
 /*!
   Finds the first occurrence of the string \a str, starting at
-  position \a index and searching backwards. If \a index is negative,
-  the search starts at the end.
+  position \a index and searching backwards. If \a index is -1,
+  the search starts at the end; -2 one character from the end, etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \e
   cs is FALSE.
@@ -12804,7 +12808,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     if ( !slen )
 	return index;
     if ( index < 0 )				// neg index ==> start from end
-	index = length()-slen;
+	index = length()-slen+index+1;
     else if ( (uint)index > length() )		// bad index
 	return -1;
     else if ( (uint)index == length() )		// bad index, but accept it
@@ -13441,8 +13445,9 @@ int QString::find( const QRegExp &rx, int index ) const
 
 /*!
   Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index and searching backwards. If \a index is negative,
-  the search starts at the end of this string.
+  position \a index and searching backwards. If \a index is -1,
+  the search starts at the end of this string; -2 starts one character from
+  the end, etc.
 
   Returns the position of the next match (backwards), or -1 if \a rx was not
   found.
@@ -13453,7 +13458,7 @@ int QString::findRev( const QRegExp &rx, int index ) const
     if ( isEmpty() && index <= 0 )
 	return rx.match( *this );
     if ( index < 0 )				// neg index ==> start from end
-	index = length() - 1;
+	index = length() + index;
     else if ( (uint)index >= length() )		// bad index
 	return -1;
     while( index >= 0 ) {
