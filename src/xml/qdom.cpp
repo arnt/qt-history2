@@ -172,6 +172,9 @@ QDOM_ImplementationPrivate* QDOM_ImplementationPrivate::clone()
   This class describes the features that are supported by the DOM
   implementation. Currently only the XML subset of DOM Level 1 is supported.
 
+  Normally you will use the function QDomDocument::implementation() to get the
+  implementation object.
+
   For further information about the Document Objct Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
   For a more general introduction of the DOM implementation see the
@@ -2281,6 +2284,9 @@ QDomDocumentType::QDomDocumentType() : QDomNode()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocumentType::QDomDocumentType( const QDomDocumentType& n )
     : QDomNode( n )
@@ -2297,6 +2303,9 @@ QDomDocumentType::QDomDocumentType( QDOM_DocumentTypePrivate* n )
 
 /*!
   Assignement operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocumentType& QDomDocumentType::operator= ( const QDomDocumentType& n )
 {
@@ -2465,6 +2474,9 @@ QDomDocumentFragment::QDomDocumentFragment( QDOM_DocumentFragmentPrivate* n )
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
     : QDomNode( x )
@@ -2473,6 +2485,9 @@ QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocumentFragment& QDomDocumentFragment::operator= ( const QDomDocumentFragment& x )
 {
@@ -2629,6 +2644,9 @@ QDomCharacterData::QDomCharacterData()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomCharacterData::QDomCharacterData( const QDomCharacterData& x )
     : QDomNode( x )
@@ -2645,6 +2663,9 @@ QDomCharacterData::QDomCharacterData( QDOM_CharacterDataPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomCharacterData& QDomCharacterData::operator= ( const QDomCharacterData& x )
 {
@@ -2929,6 +2950,9 @@ QDomAttr::QDomAttr()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomAttr::QDomAttr( const QDomAttr& x )
     : QDomNode( x )
@@ -2945,6 +2969,9 @@ QDomAttr::QDomAttr( QDOM_AttrPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomAttr& QDomAttr::operator= ( const QDomAttr& x )
 {
@@ -3261,6 +3288,9 @@ QDomElement::QDomElement()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomElement::QDomElement( const QDomElement& x )
     : QDomNode( x )
@@ -3277,6 +3307,9 @@ QDomElement::QDomElement( QDOM_ElementPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomElement& QDomElement::operator= ( const QDomElement& x )
 {
@@ -3602,6 +3635,9 @@ QDomText::QDomText()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomText::QDomText( const QDomText& x )
     : QDomCharacterData( x )
@@ -3618,6 +3654,9 @@ QDomText::QDomText( QDOM_TextPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomText& QDomText::operator= ( const QDomText& x )
 {
@@ -3758,6 +3797,9 @@ QDomComment::QDomComment()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomComment::QDomComment( const QDomComment& x )
     : QDomCharacterData( x )
@@ -3774,6 +3816,9 @@ QDomComment::QDomComment( QDOM_CommentPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomComment& QDomComment::operator= ( const QDomComment& x )
 {
@@ -3905,6 +3950,9 @@ QDomCDATASection::QDomCDATASection()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomCDATASection::QDomCDATASection( const QDomCDATASection& x )
     : QDomText( x )
@@ -3921,6 +3969,9 @@ QDomCDATASection::QDomCDATASection( QDOM_CDATASectionPrivate* n )
 
 /*!
   Assigment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomCDATASection& QDomCDATASection::operator= ( const QDomCDATASection& x )
 {
@@ -4062,6 +4113,9 @@ QDomNotation::QDomNotation()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomNotation::QDomNotation( const QDomNotation& x )
     : QDomNode( x )
@@ -4078,6 +4132,9 @@ QDomNotation::QDomNotation( QDOM_NotationPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomNotation& QDomNotation::operator= ( const QDomNotation& x )
 {
@@ -4283,6 +4340,9 @@ QDomEntity::QDomEntity()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomEntity::QDomEntity( const QDomEntity& x )
     : QDomNode( x )
@@ -4299,6 +4359,9 @@ QDomEntity::QDomEntity( QDOM_EntityPrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomEntity& QDomEntity::operator= ( const QDomEntity& x )
 {
@@ -4467,6 +4530,9 @@ QDomEntityReference::QDomEntityReference()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomEntityReference::QDomEntityReference( const QDomEntityReference& x )
     : QDomNode( x )
@@ -4483,6 +4549,9 @@ QDomEntityReference::QDomEntityReference( QDOM_EntityReferencePrivate* n )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomEntityReference& QDomEntityReference::operator= ( const QDomEntityReference& x )
 {
@@ -4607,6 +4676,9 @@ QDomProcessingInstruction::QDomProcessingInstruction()
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomProcessingInstruction::QDomProcessingInstruction( const QDomProcessingInstruction& x )
     : QDomNode( x )
@@ -4623,6 +4695,9 @@ QDomProcessingInstruction::QDomProcessingInstruction( QDOM_ProcessingInstruction
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomProcessingInstruction& QDomProcessingInstruction::operator= ( const QDomProcessingInstruction& x )
 {
@@ -4999,6 +5074,9 @@ QDomDocument::QDomDocument( const QString& name )
 
 /*!
   Copy constructor.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocument::QDomDocument( const QDomDocument& x )
     : QDomNode( x )
@@ -5015,6 +5093,9 @@ QDomDocument::QDomDocument( QDOM_DocumentPrivate* x )
 
 /*!
   Assignment operator.
+
+  The data of the copy is shared: modifying one will also change the other. If
+  you want to make a real copy, use cloneNode() instead.
 */
 QDomDocument& QDomDocument::operator= ( const QDomDocument& x )
 {
