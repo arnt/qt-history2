@@ -43,90 +43,22 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
                     QPainter* painter);
 void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
 
-// Helper function for filling gradients...
-#define QT_FILL_GRADIENT(rect, fillCall, outlineCall)                   \
-        QBitmap mask(rect.width(), rect.height());                      \
-        mask.fill(Qt::color0);                                          \
-        QPainter p(&mask);                                              \
-        p.setPen(Qt::NoPen);                                            \
-        p.setBrush(Qt::color1);                                         \
-        p.fillCall;                                                     \
-        save();                                                         \
-        QRegion region(mask);                                           \
-        region.translate(rect.topLeft());                               \
-        setClipRegion(region);                                          \
-        qt_fill_linear_gradient(rect, this, d->state->brush);           \
-        if (d->state->pen.style() != Qt::NoPen) {                       \
-            setBrush(Qt::NoBrush);                                      \
-            outlineCall;                                                \
-        }                                                               \
-        restore();                                                      \
-        return
-
-// Helper function for alpha blending...
-#define QT_ALPHA_BLEND(rect, drawCall, nonAlphaDrawCall, justPen)      \
-        save();                                                        \
-        QPixmap pm(rect.size(), 32);                                   \
-        QPainter pm_paint;                                             \
-        for(int i = justPen; i < 2; i++) {                             \
-            char alpha = 0;                                            \
-            QColor mask_color(0, 1, 2);                                \
-            if(i == 0) {                                               \
-                if(d->state->brush.style() != Qt::SolidPattern         \
-                   || d->state->brush.color().alpha() == 255)          \
-                    continue;                                          \
-                pm_paint.setPen(Qt::NoPen);                            \
-                QBrush b = brush();                                    \
-                alpha = b.color().alpha();                             \
-                b.setColor(QColor(b.color().red(), b.color().green(),  \
-                                  b.color().blue()));                  \
-                pm_paint.setBrush(b);                                  \
-                if(mask_color == b.color())                            \
-                    mask_color = QColor(mask_color.red(),              \
-                                        mask_color.green()+5,          \
-                                        mask_color.blue());            \
-                setBrush(Qt::NoBrush);                                 \
-            } else if(i == 1) {                                        \
-                if(d->state->pen.style() == Qt::NoPen                  \
-                   || d->state->pen.color().alpha() == 255)            \
-                    continue;                                          \
-                pm_paint.setBrush(Qt::NoBrush);                        \
-                QPen p = pen();                                        \
-                alpha = p.color().alpha();                             \
-                p.setColor(QColor(p.color().red(), p.color().green(),  \
-                                  p.color().blue()));                  \
-                pm_paint.setPen(p);                                    \
-                if(mask_color == p.color())                            \
-                    mask_color = QColor(mask_color.red(),              \
-                                        mask_color.green()+5,          \
-                                        mask_color.blue());            \
-                setPen(Qt::NoPen);                                     \
-            }                                                          \
-            pm.fill(mask_color);                                       \
-            pm_paint.begin(&pm);                                       \
-            pm_paint.drawCall;                                         \
-            pm_paint.end();                                            \
-            QImage image = pm.toImage();                        \
-            for(int y = 0; y < image.height(); y++) {                  \
-                QRgb *row = (QRgb*)image.scanLine(y);                  \
-                for(int x = 0; x < image.width(); x++) {               \
-                    if(qRed(row[x]) == mask_color.red()                \
-                       && qGreen(row[x]) == mask_color.green()         \
-                       && qBlue(row[x]) == mask_color.blue())          \
-                        row[x] &= RGB_MASK;                            \
-                    else                                               \
-                        row[x] = (alpha << 24) | (row[x] & RGB_MASK);  \
-                }                                                      \
-            }                                                          \
-            image.setAlphaBuffer(true);                                \
-            pm = image;                                                \
-            drawPixmap(rect, pm);                                      \
-        }                                                              \
-        if(pen().style() != Qt::NoPen                                  \
-           || (!justPen && brush().style() != Qt::NoBrush))            \
-            nonAlphaDrawCall;                                          \
-        restore();                                                     \
-        return
+QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, QPainter::ShapeType shape)
+{
+    switch (shape) {
+    case QPainter::EllipseShape: {
+        QPainterPath path;
+        path.addEllipse(*reinterpret_cast<const QRectF*>(data));
+        return path.toPolygon() * state->matrix;
+    }
+    case QPainter::RectangleShape:
+        return (*reinterpret_cast<const QRectF*>(data)) * state->matrix;
+    case QPainter::PathShape:
+        return reinterpret_cast<const QPainterPath*>(data)->toPolygon() * state->matrix;
+    default:
+        return (*reinterpret_cast<const QPolygon*>(data)) * state->matrix;
+    }
+}
 
 /*!
     \enum Qt::PixmapDrawingMode
@@ -234,7 +166,7 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
     functions to draw most primitives: drawPoint(), drawPoints(),
     drawLine(), drawRect(), drawRoundRect(),
     drawEllipse(), drawArc(), drawPie(), drawChord(),
-    drawLineSegments(), drawPolyline(), drawPolygon(),
+    drawLine:Segments(), drawPolyline(), drawPolygon(),
     drawConvexPolygon() and drawCubicBezier(). All of these functions
     take integer coordinates; there are no floating-point versions
     since we want drawing to be as fast as possible.
@@ -799,7 +731,7 @@ QRegion QPainter::clipRegion() const
         return QRegion();
     }
     if (d->state->txop > TxNone)
-	return d->state->clipRegion * d->state->clipRegionMatrix * d->state->matrix.invert();
+	return d->state->clipRegion * d->state->clipMatrix * d->state->matrix.invert();
     else
 	return d->state->clipRegion;
 }
@@ -841,12 +773,12 @@ void QPainter::setClipRegion(const QRegion &r)
     }
 
     d->state->clipRegion = r;
-    d->state->clipRegionMatrix = d->state->matrix;
+    d->state->clipMatrix = d->state->matrix;
     d->state->clipEnabled = true;
-    if (d->engine) {
-        d->engine->setDirty(QPaintEngine::DirtyClip);
-        d->engine->updateState(d->state);
-    }
+    d->state->clipType = QPainterState::RegionClip;
+
+    d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 /*!
@@ -1098,21 +1030,164 @@ void QPainter::setClipPath(const QPainterPath &path)
     if (!isActive())
         return;
 
+    if (!d->engine->hasFeature(QPaintEngine::PainterPaths)) {
+        QPolygon p = path.toPolygon();
+
+        if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
+            p = p * d->state->matrix;
+            QMatrix oldMatrix = d->state->matrix;
+            d->state->matrix = QMatrix();
+            setClipRegion(QRegion(p.toPointArray(), path.fillMode() == QPainterPath::Winding));
+            d->state->matrix = oldMatrix;
+            d->engine->setDirty(QPaintEngine::DirtyTransform);
+        } else {
+            setClipRegion(QRegion(p.toPointArray(), path.fillMode() == QPainterPath::Winding));
+        }
+        return;
+    }
+
     d->state->clipEnabled = true;
     d->state->clipPath = path;
-    d->state->clipPathMatrix = d->state->matrix;
+    d->state->clipMatrix = d->state->matrix;
+    d->state->clipType = QPainterState::PathClip;
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
-
-    // If supported nativly, we don't need to do anything..
-    if (d->engine->hasFeature(QPaintEngine::PainterPaths))
-        return;
-
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-        d->state->clipPathRegion = path.d_ptr->toFillPolygon(QMatrix()).toPointArray();
-    } else {
-        d->state->clipPathRegion = path.d_ptr->toFillPolygon(d->state->matrix).toPointArray();
-    }
 }
+
+/*!
+  \internal
+
+*/
+void QPainter::draw_helper(const void *data, bool winding, ShapeType shape, DrawOperation op)
+{
+//     printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d\n",
+//            winding, shape, op);
+
+    enum { Normal, PathBased, None } outlineMode = Normal;
+    if (d->state->pen.style() == Qt::NoPen)
+        op = DrawOperation(op&~StrokeDraw);
+    if (d->state->brush.style() == Qt::NoBrush)
+        op = DrawOperation(op&~FillDraw);
+
+    // Creates an outline path to handle the stroking.
+     if ((op & StrokeDraw)
+        && (d->engine->emulationSpecifier & QPaintEngine::PenWidthTransform
+            || d->engine->emulationSpecifier & QPaintEngine::AlphaStroke))
+        outlineMode = PathBased;
+
+    // Do the filling for gradients or alpha.
+    if (op & FillDraw) {
+        if (d->engine->emulationSpecifier & QPaintEngine::LinearGradients
+            || d->engine->emulationSpecifier & QPaintEngine::AlphaFill) {
+            QRectF bounds;
+            // set clip to match polygon to fill
+            if (shape != RectangleShape) {
+                save();
+                QPainterPath clip;
+                switch (shape) {
+                case EllipseShape:
+                    bounds = *reinterpret_cast<const QRectF*>(data);
+                    clip.addEllipse(bounds);
+                    break;
+                case PathShape:
+                    clip = *reinterpret_cast<const QPainterPath*>(data);
+                    break;
+                default:
+                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
+                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                    break;
+                }
+                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+                setClipPath(clip);
+            } else {
+                bounds = *reinterpret_cast<const QRectF*>(data);
+            }
+            if (d->engine->emulationSpecifier & QPaintEngine::LinearGradients) {
+                qt_fill_linear_gradient(bounds.toRect(), this, d->state->brush);
+            } else { // AlphaFill
+                const int BUFFERSIZE = 16;
+                QImage image(BUFFERSIZE, BUFFERSIZE, 32);
+                image.fill(d->state->brush.color().rgb());
+                image.setAlphaBuffer(true);
+                QPixmap pm(image);
+                drawTiledPixmap(bounds.toRect(), pm);
+            }
+
+            if (shape != RectangleShape)
+                restore();
+        } else if (d->engine->emulationSpecifier & QPaintEngine::CoordTransform) {
+            outlineMode = None;
+            QPolygon xformed = d->draw_helper_xpolygon(data, shape);
+            save();
+            resetMatrix();
+            d->engine->drawPolygon(xformed,
+                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            restore();
+        } else {
+            // Custom outlining only, do standard draw...
+            QPen oldPen = d->state->pen;
+            setPen(Qt::NoPen);
+            d->engine->updateState(d->state);
+            switch (shape) {
+            case EllipseShape:
+                d->engine->drawEllipse(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case RectangleShape:
+                d->engine->drawRect(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case PathShape: {
+                const QPainterPath *path = reinterpret_cast<const QPainterPath*>(data);
+                if (d->engine->hasFeature(QPaintEngine::PainterPaths))
+                    d->engine->drawPath(*path);
+                else
+                    d->engine->drawPolygon(path->toPolygon(), winding
+                                           ? QPaintEngine::WindingMode
+                                           : QPaintEngine::OddEvenMode);
+                break;
+            }
+            default:
+                d->engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data), winding
+                                           ? QPaintEngine::WindingMode
+                                           : QPaintEngine::OddEvenMode);
+                break;
+            }
+        }
+    } // end of filling
+
+    // Do the outlining...
+    if (op & StrokeDraw) {
+        if (outlineMode == Normal && d->state->pen.style() != Qt::NoPen) {
+            QBrush originalBrush = d->state->brush;
+            setBrush(Qt::NoBrush);
+            d->engine->updateState(d->state);
+            QPolygon xformed = d->draw_helper_xpolygon(data, shape);
+            d->engine->drawPolygon(xformed,
+                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            setBrush(originalBrush);
+        } else if (outlineMode == PathBased) {
+            QPainterPath path;
+            switch (shape) {
+            case EllipseShape:
+                path.addEllipse(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case RectangleShape:
+                path.addRect(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case PathShape:
+                path = *reinterpret_cast<const QPainterPath*>(data);
+                break;
+            default:
+                path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                break;
+            }
+            QPainterPath outline = path.createPathOutline(d->state->pen.width(),
+                                                          d->state->pen.style(),
+                                                          d->state->pen.capStyle(),
+                                                          d->state->pen.joinStyle());
+            fillPath(outline, QBrush(d->state->pen.color()));
+        }
+    } // end of stroking
+}
+
 
 /*!
     Draws the outline (strokes) the path \a path with the pen specified
@@ -1120,11 +1195,19 @@ void QPainter::setClipPath(const QPainterPath &path)
 */
 void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
 {
-    save();
-    setPen(pen);
-    setBrush(Qt::NoBrush);
+    QBrush oldBrush = d->state->brush;
+    QPen oldPen = d->state->pen;
+
+    d->state->pen = pen;
+    d->state->brush = Qt::NoBrush;
+    d->engine->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::DirtyPen | QPaintEngine::DirtyBrush));
+
     drawPath(path);
-    restore();
+
+    // Reset old state
+    d->state->pen = oldPen;
+    d->state->brush = oldBrush;
+    d->engine->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::DirtyPen | QPaintEngine::DirtyBrush));
 }
 
 /*!
@@ -1133,11 +1216,19 @@ void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
 */
 void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
 {
-    save();
-    setBrush(brush);
-    setPen(Qt::NoPen);
+    QBrush oldBrush = d->state->brush;
+    QPen oldPen = d->state->pen;
+
+    d->state->pen = Qt::NoPen;
+    d->state->brush = brush;
+    d->engine->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::DirtyPen | QPaintEngine::DirtyBrush));
+
     drawPath(path);
-    restore();
+
+    // Reset old state
+    d->state->pen = oldPen;
+    d->state->brush = oldBrush;
+    d->engine->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::DirtyPen | QPaintEngine::DirtyBrush));
 }
 /*!
     Draws the painter path specified by \a path using the current pen
@@ -1151,10 +1242,12 @@ void QPainter::drawPath(const QPainterPath &path)
     d->engine->updateState(d->state);
 
     if (d->engine->hasFeature(QPaintEngine::PainterPaths)) {
-        if (!(d->state->VxF || d->state->WxF) || d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-            d->engine->drawPath(path);
+        if (d->engine->emulationSpecifier) {
+            draw_helper(&path, path.fillMode() == QPainterPath::Winding, PathShape);
             return;
         }
+        d->engine->drawPath(path);
+        return;
     }
 
     QPainterPathPrivate *pd = path.d_ptr;
@@ -1176,8 +1269,11 @@ void QPainter::drawPath(const QPainterPath &path)
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
-	d->engine->drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding ?
- 			       QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+        if (d->engine->emulationSpecifier)
+            draw_helper(&fillPoly, path.fillMode() == QPainterPath::Winding, PolygonShape);
+	else
+            d->engine->drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding ?
+                                   QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
         setPen(oldPen);
     }
 
@@ -1185,7 +1281,13 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->pen.style() != Qt::NoPen) {
 	for (int i=0; i<polygons.size(); ++i) {
 	    d->engine->updateState(d->state);
-  	    d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
+            if (d->engine->emulationSpecifier) {
+                QPolygon polygon = polygons.at(i);
+                draw_helper(&polygon, path.fillMode() == QPainterPath::Winding,
+                            PolygonShape, StrokeDraw);
+            } else {
+                d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
+            }
 	}
     }
 
@@ -1214,39 +1316,19 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     d->engine->updateState(d->state);
 
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && (d->state->pen.style() != Qt::NoPen
-            && d->state->pen.color().alpha() != 255)) {
-        QRect bounds(0, 0, 0, 0);
-        bounds.setWidth((p1.x() > p2.x()) ? (p1.x()-p2.x()) : (p2.x()-p1.x()));
-        bounds.setHeight((p1.y() > p2.y()) ? (p1.y()-p2.y()) : (p2.y()-p1.y()));
-        QPoint copy_p1(0, 0), copy_p2(0, 0);
-        if(p1.x() > p2.x()) {
-            copy_p1.setX(bounds.width());
-            bounds.moveLeft(p2.x());
+    QLineF line(p1, p2);
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            line += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
-            copy_p2.setX(bounds.width());
-            bounds.moveLeft(p1.x());
+            QPolygon polyline;
+            polyline << p1 << p2;
+            draw_helper(&polyline, false, LineShape, StrokeDraw);
+            return;
         }
-        if(p1.y() > p2.y()) {
-            copy_p1.setY(bounds.height());
-            bounds.moveTop(p2.y());
-        } else {
-            copy_p2.setY(bounds.height());
-            bounds.moveTop(p1.y());
-        }
-        QT_ALPHA_BLEND(bounds,
-                       drawLine(copy_p1, copy_p2),
-                       drawLine(p1, p2), 1);
     }
-
-
-    if ((d->state->WxF || d->state->VxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        d->engine->drawLine(QLineF(p1 * d->state->matrix, p2 * d->state->matrix));
-        return;
-    }
-
-    d->engine->drawLine(QLineF(p1, p2));
+    d->engine->drawLine(line);
 }
 
 /*!
@@ -1271,75 +1353,15 @@ void QPainter::drawRect(const QRectF &r)
         return;
     d->engine->updateState(d->state);
 
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        bool doRestore = true;
-        if (r.x() == 0 && r.y() == 0
-            && r.width() == d->device->metric(QPaintDeviceMetrics::PdmWidth)
-            && r.height() == d->device->metric(QPaintDeviceMetrics::PdmHeight)) {
-            doRestore = false;
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            save();
-            setClipRect(r.toRect());
-        }
-        qt_fill_linear_gradient(r.toRect(), this, d->state->brush);
-        if (d->state->pen.style() != Qt::NoPen) {
-            QBrush oldBrush = d->state->brush;
-            setBrush(Qt::NoBrush);
-            drawRect(r);
-            setBrush(oldBrush);
-        }
-        if (doRestore)
-            restore();
-        return;
-    }
-
-    if (d->state->brush.style() == Qt::SolidPattern
-	&& d->state->brush.color().alpha() != 255
-	&& !d->engine->hasFeature(QPaintEngine::SolidAlphaFill)) {
-	const int BUFFERSIZE = 16;
-	QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-	image.fill(d->state->brush.color().rgb());
-	image.setAlphaBuffer(true);
-	QPixmap pm(image);
-	drawTiledPixmap(r.toRect(), pm);
-	if (d->state->pen.style() != Qt::NoPen) {
-	    save();
-	    setBrush(Qt::NoBrush);
-	    drawRect(r);
-	    restore();
-	}
-	return;
-    }
-
-    if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-  	    drawPolygon(rect.toRect());
-#if 0 // NB! keep this golden magic nugget of code
-	    QPointArray tr = d->state->matrix * QPointArray(QRect(QPoint(0,0), rect.size()));
-	    QRect br = tr.boundingRect();
-	    QBitmap bm(br.size());
-	    bm.fill(Qt::color0);
- 	    QPainter pt(&bm);
-	    pt.translate(-br.x(), -br.y());
- 	    pt.setBrush(Qt::color1);
-	    pt.drawPolygon(tr);
-	    pt.end();
-	    save();
-	    resetXForm();
-	    QPoint p = d->state->matrix * rect.topLeft();
-	    translate(p.x() + br.left(), p.y() + br.top());
- 	    setClipRegion(bm);
-  	    drawRect(0, 0, br.width(), br.height());
-	    restore();
-#endif // 0
+            draw_helper(&rect, false, RectangleShape);
             return;
         }
-        rect = d->state->matrix.mapRect(rect);
     }
-
-    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     d->engine->drawRect(rect);
 }
@@ -1358,7 +1380,7 @@ void QPainter::drawRect(const QRectF &r)
 /*!
   Draws the one or more edges of the rectangle \a r. Edges to draw are
   specified in \a edges. Drawing all edges are equivalent to setting
-  the current brush to Qt::NoBrush and calling QPainter::drawRect().
+  the current brush to Qt::NoBrush and calling QPainter::drawRec(t).
 
   \sa drawRect(),
 */
@@ -1387,21 +1409,17 @@ void QPainter::drawRects(const QList<QRectF> &rects)
 
     d->engine->updateState(d->state);
 
-    if ((!d->engine->hasFeature(QPaintEngine::DrawRects)
-         || !d->engine->hasFeature(QPaintEngine::LinearGradients)
-         || (d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255
-             && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
-         || ((d->state->VxF || d->state->WxF)
-             && !d->engine->hasFeature(QPaintEngine::CoordTransform)))
-
-        ) {
+    QList<QRectF> rectangles = rects;
+    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+        for (int i=0; i<rects.size(); ++i)
+            rectangles[i].moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+    } else if (d->engine->emulationSpecifier) {
         for (int i=0; i<rects.size(); ++i)
             drawRect(rects.at(i));
         return;
     }
 
-    d->engine->drawRects(rects);
+    d->engine->drawRects(rectangles);
 }
 
 /*!
@@ -1415,13 +1433,18 @@ void QPainter::drawPoint(const QPoint &p)
         return;
     d->engine->updateState(d->state);
 
-    if ((d->state->VxF || d->state->WxF)
-        && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        d->engine->drawPoint(p * d->state->matrix);
-        return;
+    QPointF pt(p);
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
+        } else {
+            QRectF rect(pt.x(), pt.y(), 1, 1);
+            draw_helper(&rect, false, RectangleShape);
+            return;
+        }
     }
-
-    d->engine->drawPoint(p);
+    d->engine->drawPoint(pt);
 }
 
 /*! \fn void QPainter::drawPoint(int x, int y)
@@ -1443,8 +1466,18 @@ void QPainter::drawPoints(const QPointArray &pa)
     d->engine->updateState(d->state);
 
     QPolygon a = QPolygon::fromPointArray(pa);
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        a = a * d->state->matrix;
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            a.translate(d->state->matrix.dx(), d->state->matrix.dy());
+        } else {
+            for (int i=0; i<a.size(); ++i) {
+                QRectF rect(a.at(i).x(), a.at(i).y(), 1, 1);
+                draw_helper(&rect, false, RectangleShape);
+            }
+            return;
+        }
+    }
 
     d->engine->drawPoints(a);
 }
@@ -1734,43 +1767,23 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 /*!
     Draws the ellipse that fits inside rectangle \a r.
 */
-
 void QPainter::drawEllipse(const QRect &r)
 {
     if (!isActive())
         return;
     d->engine->updateState(d->state);
 
-    QRect rect = r.normalize();
+    QRectF rect(r.normalize());
 
-    if ((d->state->txop > TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        QPainterPath path;
-        path.moveTo(rect.x() + rect.width(), rect.y() + rect.height() / 2.0);
-        path.arcTo(rect, 0, 360);
-        drawPath(path);
-        return;
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            draw_helper(&rect, false, EllipseShape);
+            return;
+        }
     }
-
-    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && ((d->state->brush.style() == Qt::SolidPattern
-             && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen
-                && d->state->pen.color().alpha() != 255))) {
-        QT_ALPHA_BLEND(rect,
-                       drawEllipse(0, 0, rect.width(), rect.height()),
-                       drawEllipse(rect), 0);
-    }
-
-    if (d->state->brush.style() == Qt::LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        QT_FILL_GRADIENT(rect,
-                         drawEllipse(0, 0, rect.width(), rect.height()),
-                         drawEllipse(rect));
-
-    }
-
-    if ((d->state->txop == TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     d->engine->drawEllipse(rect);
 }
@@ -1939,12 +1952,23 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
         return;
 
     QList<QLineF> lines;
-    for (int i=index; i<index + nlines*2; i+=2)
-        lines << QLineF(a.at(i), a.at(i+1));
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        for (int i=0; i<lines.size(); ++i)
-            lines.replace(i, lines.at(i) * d->state->matrix);
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            QPoint offset(d->state->matrix.dx(), d->state->matrix.dy());
+            for (int i=index; i<index + nlines*2; i+=2)
+                lines << QLineF(a.at(i) + offset, a.at(i+1) + offset);
+        } else {
+            for (int i=index; i<index + nlines*2; i+=2) {
+                QPolygon p;
+                p << a.at(i) << a.at(i+1);
+                draw_helper(&p, false, LineShape, StrokeDraw);
+            }
+            return;
+        }
+    } else {
+        for (int i=index; i<index + nlines*2; i+=2)
+            lines << QLineF(a.at(i), a.at(i+1));
     }
 
     d->engine->drawLines(lines);
@@ -1978,8 +2002,15 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
     QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa = pa * d->state->matrix;
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            draw_helper(&pa, false, PolygonShape, StrokeDraw);
+            return;
+        }
+    }
 
     d->engine->drawPolygon(pa, QPaintEngine::PolylineMode);
 }
@@ -2021,27 +2052,19 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
     QPolygon pa = (npoints - index != polygon.size() ?
                    QPolygon(polygon.mid(index, npoints)) : polygon);
 
-    if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-            && ((d->state->brush.style() == Qt::SolidPattern
-                 && d->state->brush.color().alpha() != 255)
-                || (d->state->pen.style() != Qt::NoPen
-                    && d->state->pen.color().alpha() != 255)))
-        || (d->state->brush.style() == Qt::LinearGradientPattern
-            && !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
-        QPainterPath path;
-        path.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-        if (!pa.isEmpty())
-            path.moveTo(pa.at(0));
-        for (int i=1; i<pa.size(); ++i)
-            path.lineTo(pa.at(i));
-        path.closeSubpath();
-        drawPath(path);
-        return;
-    }
+    // Connect if polygon if we have a pen.
+    if (d->state->pen.style() != Qt::NoPen && pa.first() != pa.last())
+        pa << pa.first();
 
-    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa.translate(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+            && d->state->txop == TxTranslate) {
+            pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            draw_helper(&pa, winding, PolygonShape);
+            return;
+        }
+    }
 
     d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
 }
@@ -2427,34 +2450,6 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
         drawText(QRect(x, y, w, h), flags | Qt::TextDontPrint, str, len, &brect);
     return brect;
 }
-
-/*!\internal internal, used by drawTiledPixmap */
-void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
-                  const QPixmap &pixmap, int xOffset, int yOffset,
-		  Qt::PixmapDrawingMode mode)
-{
-    int yPos, xPos, drawH, drawW, yOff, xOff;
-    yPos = y;
-    yOff = yOffset;
-    while(yPos < y + h) {
-        drawH = pixmap.height() - yOff;    // Cropping first row
-        if (yPos + drawH > y + h)           // Cropping last row
-            drawH = y + h - yPos;
-        xPos = x;
-        xOff = xOffset;
-        while(xPos < x + w) {
-            drawW = pixmap.width() - xOff; // Cropping first column
-            if (xPos + drawW > x + w)           // Cropping last column
-                drawW = x + w - xPos;
-            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), mode);
-            xPos += drawW;
-            xOff = 0;
-        }
-        yPos += drawH;
-        yOff = 0;
-    }
-}
-
 
 /*!
   \fn void QPainter::drawTiledPixmap(int x, int y, int w, int h, const

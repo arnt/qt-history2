@@ -272,7 +272,7 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
         return;
 
     Rect rect;
-    SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy, 
+    SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
             qRound(r.right())+d->offx+1, qRound(r.bottom())+d->offy+1);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
@@ -360,7 +360,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
         return;
 
     Rect mac_r;
-    SetRect(&mac_r, qRound(r.x()) + d->offx, qRound(r.y()) + d->offy, 
+    SetRect(&mac_r, qRound(r.x()) + d->offx, qRound(r.y()) + d->offy,
             qRound(r.right()) + d->offx+1, qRound(r.bottom()) + d->offy+1);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
@@ -611,11 +611,11 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
 
     //do the blt
     Rect srcr;
-    SetRect(&srcr, qRound(sr.x()), qRound(sr.y()), 
+    SetRect(&srcr, qRound(sr.x()), qRound(sr.y()),
             qRound(sr.x() + sr.width()) + 1, qRound(sr.y()+sr.height()) + 1);
     Rect dstr;
-    SetRect(&dstr, d->offx + qRound(r.x()), d->offy + qRound(r.y()), 
-            d->offx + qRound(r.x() + r.width()) + 1, 
+    SetRect(&dstr, d->offx + qRound(r.x()), d->offy + qRound(r.y()),
+            d->offx + qRound(r.x() + r.width()) + 1,
             d->offy + qRound(r.y() + r.height()) + 1);
     if(srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
@@ -936,14 +936,14 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill
+                                                |PixmapScale|UsesFontEngine|LinearGradients|AlphaFill
                                                 |ClipTransform))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
     : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                      |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill
+                                                      |PixmapScale|UsesFontEngine|LinearGradients|AlphaFill
                                                       |ClipTransform))
 {
 }
@@ -1309,7 +1309,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
     CGPathRelease(path);
 }
 
-void 
+void
 QCoreGraphicsPaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
@@ -1402,7 +1402,7 @@ QCoreGraphicsPaintEngine::handle() const
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
                                           const QPointF &p, Qt::PixmapDrawingMode)
 {
     Q_ASSERT(isActive());
@@ -1434,13 +1434,13 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     CGPatternRelease(pat);
 }
 
-QPainter::RenderHints 
+QPainter::RenderHints
 QCoreGraphicsPaintEngine::supportedRenderHints() const
 {
     return QPainter::RenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
 }
 
-void 
+void
 QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);

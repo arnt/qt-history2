@@ -50,8 +50,6 @@ public:
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-			 Qt::PixmapDrawingMode mode);
 
     void drawPath(const QPainterPath &path);
 
@@ -104,10 +102,7 @@ public:
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
 		    Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-			 Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
-
 
     void drawPath(const QPainterPath &p);
 

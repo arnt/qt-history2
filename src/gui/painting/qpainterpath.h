@@ -27,6 +27,7 @@ public:
     enum FillMode { OddEven, Winding };
 
     QPainterPath();
+    QPainterPath(const QPointF &startPoint);
     QPainterPath(const QPainterPath &other);
     QPainterPath &operator=(const QPainterPath &other);
     ~QPainterPath();
@@ -45,6 +46,11 @@ public:
     void curveTo(const QPointF &ctrlPt1, const QPointF &ctrlPt2, const QPointF &endPt);
     inline void curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x, float ctrlPt2y,
                         float endPtx, float endPty);
+
+    void addPolygon(const QPolygon &polygon);
+
+    void addEllipse(const QRectF &rect);
+    inline void addEllipse(float x, float y, float w, float h);
 
     void addRect(const QRectF &rect);
     inline void addRect(float x, float y, float w, float h);
@@ -96,6 +102,11 @@ inline void QPainterPath::curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x
 {
     curveTo(QPointF(ctrlPt1x, ctrlPt1y), QPointF(ctrlPt2x, ctrlPt2y),
             QPointF(endPtx, endPty));
+}
+
+inline void QPainterPath::addEllipse(float x, float y, float w, float h)
+{
+    addEllipse(QRectF(x, y, w, h));
 }
 
 inline void QPainterPath::addRect(float x, float y, float w, float h)

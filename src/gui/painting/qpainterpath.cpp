@@ -269,7 +269,8 @@ QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclu
 
     bool includeUnclosed = incl & UnclosedSubpaths;
     for (int i=0; i<subpaths.size(); ++i)
-        if (includeUnclosed || subpaths.at(i).isClosed())
+        if (!subpaths.at(i).elements.isEmpty()
+            && (includeUnclosed || subpaths.at(i).isClosed()))
             flatCurves.append(subpaths.at(i).toPolygon(matrix));
 
     return flatCurves;
@@ -663,8 +664,8 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
         }
         PM_MEASURE("iteration");
 
-        usegs.removeBrokenSegments();
-        dsegs.removeBrokenSegments();
+//         usegs.removeBrokenSegments();
+//         dsegs.removeBrokenSegments();
 
         PM_MEASURE("removal");
 
@@ -781,8 +782,8 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
  Constructs a new empty QPainterPath.
  */
 QPainterPath::QPainterPath()
+    : d_ptr(new QPainterPathPrivate)
 {
-    d_ptr = new QPainterPathPrivate;
     d->subpaths.append(QPainterSubpath());
 }
 
@@ -793,6 +794,16 @@ QPainterPath::QPainterPath()
 QPainterPath::QPainterPath(const QPainterPath &other)
     : d_ptr(new QPainterPathPrivate(*other.d_ptr))
 {
+}
+
+/*!
+    Creates a new painter path with \a startPoint as starting poing
+*/
+
+QPainterPath::QPainterPath(const QPointF &startPoint)
+    : d_ptr(new QPainterPathPrivate())
+{
+    d->subpaths.append(QPainterSubpath(startPoint));
 }
 
 /*!
@@ -962,6 +973,31 @@ void QPainterPath::addRect(const QRectF &r)
     sp.lineTo(r.bottomRight());
     sp.lineTo(r.bottomLeft());
     closeSubpath();
+}
+
+/*!
+    Adds the \a polygon to path as a new subpath.
+*/
+void QPainterPath::addPolygon(const QPolygon &polygon)
+{
+    if (polygon.isEmpty())
+        return;
+    moveTo(polygon.first());
+    QPainterSubpath &sp = d->subpaths.last();
+    for (int i=1; i<polygon.size(); ++i)
+        sp.lineTo(polygon.at(i));
+}
+
+/*!
+    Adds the ellipse defined by the bounding rectangle \a rect to the
+    path as a new subpath.
+
+*/
+void QPainterPath::addEllipse(const QRectF &boundingRect)
+{
+    moveTo(boundingRect.x() + boundingRect.width(),
+           boundingRect.y() + boundingRect.height() / 2);
+    d->subpaths.last().arcTo(boundingRect, 0, 360);
 }
 
 #undef d

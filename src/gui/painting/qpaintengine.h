@@ -59,9 +59,10 @@ public:
         LinearGradients   	= 0x0010,               // Can fill gradient areas.
         PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
         DrawRects               = 0x0040,               // Can draw rectangles
-	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
-        PainterPaths            = 0x0100,               // Can fill, outline and clip paths
-        ClipTransform           = 0x0200,               // Can trasform clip regions.
+	AlphaFill               = 0x0080,               // Can fill with alpha.
+        AlphaStroke             = 0x0100,               // Can outline with alpha.
+        PainterPaths            = 0x0200,               // Can fill, outline and clip paths
+        ClipTransform           = 0x0400,               // Can trasform clip regions.
         UsesFontEngine          = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent  = 0x20000000            // Engine is capable of painting outside paint events
     };
@@ -119,7 +120,7 @@ public:
                             Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
     virtual void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
+				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 
 
     virtual QPainter::RenderHints supportedRenderHints() const;
@@ -199,6 +200,13 @@ protected:
     inline void updateState(QPainterState *state, bool updateGC = true);
 
 private:
+    enum EmulationSpecifier { GradientEmulation         = 0x0001,
+                              AlphaEmulation            = 0x0002,
+                              AntialiasingEmluation     = 0x0004,
+                              TransformEmulation        = 0x0008
+    };
+    uint emulationSpecifier;
+
     inline QPainterState *painterState() const { return state; }
     virtual void updateInternal(QPainterState *state, bool updateGC = true);
 

@@ -38,7 +38,11 @@
 
 #include <math.h>
 
-// #define NO_NATIVE_XFORM
+// #define QT_NO_NATIVE_XFORM
+// #define QT_NO_NATIVE_GRADIENT
+// #define QT_NO_NATIVE_PATH
+// #define QT_NO_NATIVE_ALPHA
+
 #define d d_func()
 #define q q_func()
 
@@ -513,6 +517,10 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
 
 void QWin32PaintEngine::drawRect(const QRectF &r)
 {
+#ifdef QT_NO_NATIVE_GRADIENT
+    Q_ASSERT(d->brushStyle != Qt::LinearGradientPattern);
+#endif // QT_NO_NATIVE_GRADIENT
+
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawRect(r);
@@ -534,10 +542,13 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
     if (d->brushStyle == Qt::LinearGradientPattern) {
         d->fillGradient(r.toRect());
         outlineOnly = true;
-    } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
+    }
+#ifndef QT_NO_NATIVE_ALPHA
+    else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
         d->fillAlpha(r.toRect(), d->brush.color());
         outlineOnly = true;
     }
+#endif
 
     if (outlineOnly) {
         if (d->penStyle != Qt::NoPen) {
@@ -678,6 +689,10 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 
 void QWin32PaintEngine::drawPath(const QPainterPath &p)
 {
+#ifdef QT_NO_NATIVE_PATH
+    Q_ASSERT(!"QWin32PaintEngine::drawPath(), QT_NO_NATIVE_PATH is defined...\n");
+    return;
+#endif
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPath(p);
         return;
@@ -1169,7 +1184,7 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 {
-#ifdef NO_NATIVE_XFORM
+#ifdef QT_NO_NATIVE_XFORM
     return;
 #endif
 
@@ -1221,7 +1236,7 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
     }
     if (clipEnabled) {
         QRegion rgn = region
-#ifndef NO_NATIVE_XFORM
+#ifndef QT_NO_NATIVE_XFORM
             * d->matrix
 #endif
             ;
@@ -1239,6 +1254,11 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
 
 void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnabled)
 {
+#ifdef QT_NO_NATIVE_PATH
+    Q_ASSERT(!"QWin32PaintEngine::updateClipPath()");
+    return;
+#endif
+
     if (clipEnabled && !path.isEmpty()) {
         d->composeGdiPath(path.d_ptr);
         SelectClipPath(d->hdc, RGN_AND);
@@ -1255,45 +1275,6 @@ void QWin32PaintEngine::updateFont(const QFont &font)
 #undef d
     state->pfont = new QFont(font.d, d_func()->pdev);
 #define d d_func()
-}
-
-extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
-extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int,
-			 Qt::PixmapDrawingMode);
-
-void QWin32PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
-					Qt::PixmapDrawingMode mode)
-{
-    QBitmap *mask = (QBitmap *)pixmap.mask();
-
-    int sw = pixmap.width();
-    int sh = pixmap.height();
-
-    if (sw*sh < 8192 && sw*sh < 16*r.width()*r.height()) {
-        int tw = sw, th = sh;
-        while (tw*th < 32678 && tw < r.width()/2)
-            tw *= 2;
-        while (tw*th < 32678 && th < r.height()/2)
-            th *= 2;
-        QPixmap tile;
-        if (pixmap.hasAlphaChannel()) {
-            QImage image(tw, th, 32);
-            image.fill(QColor(0, 0, 0, 0).rgb());
-            image.setAlphaBuffer(true);
-            tile = image;
-        } else {
-            tile = QPixmap(tw, th, pixmap.depth(), QPixmap::BestOptim);
-        }
-        qt_fill_tile(&tile, pixmap);
-        if (mask) {
-            QBitmap tilemask(tw, th, false, QPixmap::NormalOptim);
-            qt_fill_tile(&tilemask, *mask);
-            tile.setMask(tilemask);
-        }
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y(), mode);
-    } else {
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y(), mode);
-    }
 }
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
@@ -1334,6 +1315,9 @@ template <class T> void qt_swap(T &a, T &b) { T tmp=a; a=b; b=tmp; }
 
 void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 {
+#ifdef QT_NO_NATIVE_GRADIENT
+    Q_ASSERT(!"QWin32PaintEnginePrivate::fillGradient()\n");
+#endif
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
 
@@ -1489,6 +1473,9 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 
 void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 {
+#ifdef QT_NO_NATIVE_ALPHA
+    Q_ASSERT(!"QWin32PaintEnginePrivate::fillAlpha()\n");
+#endif
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
@@ -1508,6 +1495,9 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 
 void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
 {
+#ifdef QT_NO_NATIVE_PATH
+    Q_ASSERT(!"QWin32PaintEnginePrivate::composeGdiPath()\n");
+#endif
     if (!BeginPath(hdc))
         qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
 
@@ -1572,24 +1562,32 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         qt_resolve_gdiplus();
 
     QPaintEngine::PaintEngineFeatures commonFeatures =
-#ifndef NO_NATIVE_XFORM
-        QPaintEngine::CoordTransform
+        QPaintEngine::UsesFontEngine
+#ifndef QT_NO_NATIVE_XFORM
+        | QPaintEngine::CoordTransform
         | QPaintEngine::PenWidthTransform
         | QPaintEngine::PixmapTransform
         | QPaintEngine::PixmapScale
         | QPaintEngine::ClipTransform
-        |
 #endif
-        QPaintEngine::PainterPaths
-        | QPaintEngine::UsesFontEngine
-        | QPaintEngine::LinearGradients;
 
+#ifndef QT_NO_NATIVE_PATH
+        | QPaintEngine::PainterPaths
+#endif
+
+#ifndef QT_NO_NATIVE_GRADIENT
+        | QPaintEngine::LinearGradients
+#endif
+        ;
 
     int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
-
-
+#ifndef QT_NO_NATIVE_ALPHA
     if ((shadeCaps & SB_CONST_ALPHA) || qt_gdiplus_support)
-        commonFeatures |= QPaintEngine::SolidAlphaFill;
+        commonFeatures |= QPaintEngine::AlphaFill;
+    if (qt_gdiplus_support)
+        commonFeatures |= QPaintEngine::AlphaFill | QPaintEngine::AlphaStroke;
+#endif
+
 
     return commonFeatures;
 }
@@ -2119,7 +2117,6 @@ void QGdiplusPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
     if (d->usePen && mode == PolylineMode) {
         QtGpPath *path = 0;
         GdipCreatePath(0, &path);
-        Q_ASSERT(p.size()>2);
         for (int i=1; i<p.size(); ++i)
             GdipAddPathLine(path, p.at(i-1).x(), p.at(i-1).y(), p.at(i).x(), p.at(i).y());
         GdipDrawPath(d->graphics, d->pen, path);
@@ -2164,21 +2161,6 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
                            2, // UnitPixel
                            0, 0, 0);
     GdipDisposeImage(bitmap);
-}
-
-void QGdiplusPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm,
-                                          const QPointF &, Qt::PixmapDrawingMode)
-{
-    Q_UNUSED(r);
-    Q_UNUSED(pm);
-//     QImage image = pm.convertToImage();
-//     Q_ASSERT(image.depth() == 32);
-//     Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), PixelFormat32bppARGB,
-//                   image.bits());
-//     TextureBrush texture(&bitmap, WrapModeTile);
-//     texture.TranslateTransform(r.x(), r.y());
-//     int subtract = d->usePen ? 1 : 0;
-//     d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
 void QGdiplusPaintEngine::drawPath(const QPainterPath &p)

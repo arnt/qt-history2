@@ -29,6 +29,8 @@ class QPaintEngine;
 class QPainterState
 {
 public:
+    enum ClipType { RegionClip, PathClip };
+
     QPainterState() {
         init(0);
     }
@@ -42,11 +44,10 @@ public:
         bgOrigin = s->bgOrigin;
         bgBrush = QBrush(s->bgBrush);
         clipRegion = QRegion(s->clipRegion);
-        clipRegionMatrix = s->clipRegionMatrix;
         clipPath = s->clipPath;
-        clipPathRegion = s->clipPathRegion;
-        clipPathMatrix = s->clipPathMatrix;
+        clipMatrix = s->clipMatrix;
         clipEnabled = s->clipEnabled;
+        clipType = s->clipType;
         bgMode = s->bgMode;
         VxF = s->VxF;
         WxF = s->WxF;
@@ -90,10 +91,10 @@ public:
         bgOrigin = QPoint(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
-        clipRegion = clipPathRegion = QRegion();
+        clipRegion = QRegion();
         clipPath = QPainterPath();
-        clipRegionMatrix.reset();
-        clipPathMatrix.reset();
+        clipMatrix.reset();
+        clipType = RegionClip;
 #ifndef QT_NO_TRANSFORMATIONS
         worldMatrix.reset();
         matrix.reset();
@@ -111,10 +112,9 @@ public:
     QBrush brush;
     QBrush bgBrush;             // background brush
     QRegion clipRegion;
-    QMatrix clipRegionMatrix;
+    QMatrix clipMatrix;
     QPainterPath clipPath;
-    QRegion clipPathRegion;
-    QMatrix clipPathMatrix;
+    ClipType clipType;
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QMatrix matrix;            // Complete transformation matrix, including win and view.
@@ -151,6 +151,8 @@ public:
         for (int i=0; i<states.size(); ++i)
             delete states.at(i);
     }
+
+    QPolygon draw_helper_xpolygon(const void *data, QPainter::ShapeType type);
 
     QPoint redirection_offset;
 

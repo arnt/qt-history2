@@ -271,6 +271,20 @@ public:
 #endif
 
 private:
+    enum DrawOperation { StrokeDraw        = 0x1,
+                         FillDraw          = 0x2,
+                         StrokeAndFillDraw = 0x3
+    };
+
+    enum ShapeType { LineShape,
+                     RectangleShape,
+                     EllipseShape,
+                     PolygonShape,
+                     PathShape
+    };
+    void draw_helper(const void *data, bool winding, ShapeType type,
+                     DrawOperation operation = StrokeAndFillDraw);
+
     friend void qt_format_text(const QFont& font, const QRect &_r,
                                int tf, const QString& str, int len, QRect *brect,
                                int tabstops, int* tabarray, int tabarraylen,

@@ -1006,21 +1006,7 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
     pixmap->releaseDC(tmp_hdc);
 }
 
-void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
-{
-    QPainter p(tile);
-    p.drawPixmap(0, 0, pixmap);
-    int x = pixmap.width();
-    while (x < tile->width()) {
-        p.drawPixmap(x, 0, *tile, 0, 0, x, pixmap.height());
-        x *= 2;
-    }
-    int y = pixmap.height();
-    while (y < tile->height()) {
-        p.drawPixmap(0, y, *tile, 0, 0, tile->width(), y);
-        y *= 2;
-    }
-}
+extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
 
 void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
                            const QPixmap *bg_pixmap,

@@ -186,7 +186,7 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
                                                                              | PixmapScale
                                                                              | UsesFontEngine
                                                                              | LinearGradients
-                                                                             | SolidAlphaFill
+                                                                             | AlphaFill
                                                                              | PainterPaths))
 {
     d->docName = "document1";

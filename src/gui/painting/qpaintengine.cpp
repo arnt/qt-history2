@@ -56,7 +56,7 @@
   QPainter will do a best effort to emulate that feature through other
   means. The features that are currently emulated are: \c
   CoordTransform, \c PixmapTransform, \c LinearGradients, \c
-  PixmapScale, \c SolidAlphaFill and \c ClipTransform.
+  PixmapScale, \c AlphaFill and \c ClipTransform.
 
   \value CoordTransform The engine can transform the points in a
   drawing operation.
@@ -76,7 +76,7 @@
 
   \value PixmapScale The engine can scale pixmaps.
 
-  \value SolidAlphaFill The engine can fill and outline with alpha colors
+  \value AlphaFill The engine can fill and outline with alpha colors
 
   \value PainterPaths The engine has path support.
 
@@ -227,6 +227,50 @@ void QPaintEngine::drawLines(const QList<QLineF> &lines)
     the given drawing \a mode.
 */
 
+
+void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
+{
+    QPainter p(tile);
+    p.drawPixmap(0, 0, pixmap, Qt::CopyPixmap);
+    int x = pixmap.width();
+    while (x < tile->width()) {
+        p.drawPixmap(x, 0, *tile, 0, 0, x, pixmap.height(), Qt::CopyPixmap);
+        x *= 2;
+    }
+    int y = pixmap.height();
+    while (y < tile->height()) {
+        p.drawPixmap(0, y, *tile, 0, 0, tile->width(), y, Qt::CopyPixmap);
+        y *= 2;
+    }
+}
+
+void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
+                  const QPixmap &pixmap, int xOffset, int yOffset,
+		  Qt::PixmapDrawingMode mode)
+{
+    int yPos, xPos, drawH, drawW, yOff, xOff;
+    yPos = y;
+    yOff = yOffset;
+    while(yPos < y + h) {
+        drawH = pixmap.height() - yOff;    // Cropping first row
+        if (yPos + drawH > y + h)           // Cropping last row
+            drawH = y + h - yPos;
+        xPos = x;
+        xOff = xOffset;
+        while(xPos < x + w) {
+            drawW = pixmap.width() - xOff; // Cropping first column
+            if (xPos + drawW > x + w)           // Cropping last column
+                drawW = x + w - xPos;
+            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), mode);
+            xPos += drawW;
+            xOff = 0;
+        }
+        yPos += drawH;
+        yOff = 0;
+    }
+}
+
+
 /*!
     \fn void QPaintEngine::drawTiledPixmap(const QRectF &rectangle, const
     QPixmap &pixmap, const QPoint &point, Qt::PixmapDrawingMode mode)
@@ -236,6 +280,40 @@ void QPaintEngine::drawLines(const QList<QLineF> &lines)
     drawn repeatedly until the \a rectangle is filled using the given
     \a mode.
 */
+void QPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
+                                   Qt::PixmapDrawingMode mode)
+{
+    QBitmap *mask = (QBitmap *)pixmap.mask();
+
+    int sw = pixmap.width();
+    int sh = pixmap.height();
+
+    if (sw*sh < 8192 && sw*sh < 16*r.width()*r.height()) {
+        int tw = sw, th = sh;
+        while (tw*th < 32678 && tw < r.width()/2)
+            tw *= 2;
+        while (tw*th < 32678 && th < r.height()/2)
+            th *= 2;
+        QPixmap tile;
+        if (pixmap.hasAlphaChannel()) {
+            QImage image(tw, th, 32);
+            image.fill(QColor(255, 0, 0, 127).rgb());
+            image.setAlphaBuffer(true);
+            tile = image;
+        } else {
+            tile = QPixmap(tw, th, pixmap.depth(), QPixmap::BestOptim);
+        }
+        qt_fill_tile(&tile, pixmap);
+        if (mask) {
+            QBitmap tilemask(tw, th, false, QPixmap::NormalOptim);
+            qt_fill_tile(&tilemask, *mask);
+            tile.setMask(tilemask);
+        }
+        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y(), mode);
+    } else {
+        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y(), mode);
+    }
+}
 
 /*!
     \fn Type QPaintEngine::type() const
@@ -321,7 +399,8 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
       selfDestruct(false),
       state(0),
       gccaps(caps),
-      d_ptr(new QPaintEnginePrivate)
+      d_ptr(new QPaintEnginePrivate),
+      emulationSpecifier(0)
 {
     d_ptr->q_ptr = this;
 }
@@ -336,7 +415,8 @@ QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
       selfDestruct(false),
       state(0),
       gccaps(caps),
-      d_ptr(&dptr)
+      d_ptr(&dptr),
+      emulationSpecifier(0)
 {
     d_ptr->q_ptr = this;
 }
@@ -387,55 +467,83 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyPen)) {
         updatePen(s->pen);
         clearDirty(DirtyPen);
+
+        // Check for emulation of alpha stroking
+        if (s->pen.style() != Qt::NoPen && s->pen.color().alpha() != 255 && !hasFeature(AlphaStroke))
+            emulationSpecifier |= AlphaStroke;
+        else
+            emulationSpecifier &= ~AlphaStroke;
+
+        // Check for emulation of pen xform
+        if (s->txop > QPainter::TxTranslate && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+            emulationSpecifier |= PenWidthTransform;
+        else
+            emulationSpecifier &= ~PenWidthTransform;
     }
+
     if (testDirty(DirtyBrush)) {
         updateBrush(s->brush, s->bgOrigin);
         clearDirty(DirtyBrush);
+        if (s->brush.style() == Qt::LinearGradientPattern && !hasFeature(LinearGradients))
+            emulationSpecifier |= LinearGradients;
+        else
+            emulationSpecifier &= ~LinearGradients;
+        if (s->brush.color().alpha() != 255 && !hasFeature(AlphaFill))
+            emulationSpecifier |= AlphaFill;
+        else
+            emulationSpecifier &= ~AlphaFill;
     }
+
     if (testDirty(DirtyFont)) {
         updateFont(s->font);
         clearDirty(DirtyFont);
     }
+
     if (testDirty(DirtyBackground)) {
         updateBackground(s->bgMode, s->bgBrush);
         clearDirty(DirtyBackground);
     }
-    bool joinWithPath = false;
+
     if (testDirty(DirtyClipPath)) {
         // Assume for now that painterpaths implies native clip xform.
-        if (hasFeature(PainterPaths)) {
-            updateMatrix(s->clipPathMatrix);
+        if (s->clipType == QPainterState::PathClip && hasFeature(PainterPaths)) {
+            updateMatrix(s->clipMatrix);
             updateClipPath(s->clipPath, s->clipEnabled);
             setDirty(DirtyTransform);
-        } else {
-            joinWithPath = true;
-            setDirty(DirtyClip);
         }
         clearDirty(DirtyClipPath);
     }
     if (testDirty(DirtyClip)) {
         if (hasFeature(ClipTransform)) {
-            if (joinWithPath) {
-                qWarning("QPaintEngine::updateInternal(), feature combination ClipTransform and"
-                         " not PainterPaths is not supported");
-            }
-            updateMatrix(s->clipRegionMatrix);
+            updateMatrix(s->clipMatrix);
             updateClipRegion(s->clipRegion, s->clipEnabled);
             setDirty(DirtyTransform);
         } else {
             QRegion region = s->txop > QPainter::TxNone
-                             ? (s->clipRegion * s->clipRegionMatrix)
+                             ? (s->clipRegion * s->clipMatrix)
                              : s->clipRegion;
-            if (joinWithPath && !s->clipPathRegion.isEmpty())
-                region &= s->clipPathRegion * s->clipPathMatrix;
             updateClipRegion(region, s->clipEnabled);
         }
         clearDirty(DirtyClip);
     }
+
     if (testDirty(DirtyTransform)) {
         updateMatrix(s->matrix);
         clearDirty(DirtyTransform);
+        if (s->txop >= QPainter::TxTranslate) {
+            if (!hasFeature(CoordTransform))
+                emulationSpecifier |= CoordTransform;
+            else
+                emulationSpecifier &= ~CoordTransform;
+            if (s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+                emulationSpecifier |= PenWidthTransform;
+            else
+                emulationSpecifier &= ~PenWidthTransform;
+        }
     }
+
+
+
     if (testDirty(DirtyHints)) {
         updateRenderHints(d->renderhints);
         clearDirty(DirtyHints);

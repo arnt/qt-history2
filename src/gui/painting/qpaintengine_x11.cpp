@@ -774,7 +774,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
  */
 
 QX11PaintEngine::QX11PaintEngine()
-    : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine | SolidAlphaFill)
+    : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine | AlphaFill)
 {
     d->dpy = 0;
     d->scrn = 0;
@@ -784,7 +784,7 @@ QX11PaintEngine::QX11PaintEngine()
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, DrawRects | UsesFontEngine | SolidAlphaFill)
+    : QPaintEngine(dptr, DrawRects | UsesFontEngine | AlphaFill)
 {
     d->dpy = 0;
     d->scrn = 0;
