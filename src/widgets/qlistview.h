@@ -38,6 +38,10 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
+#ifndef TRISTATE_CHECKLIST
+#define TRISTATE_CHECKLIST
+#endif // TRISTATE_CHECKLIST
+
 #ifndef QT_H
 #include "qscrollview.h"
 #endif // QT_H
@@ -457,20 +461,26 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QCheckListItem : public QListViewItem
 {
 public:
-    enum Type { RadioButton, CheckBox, Controller };
+    enum Type { RadioButton,
+		CheckBox,
+		Controller,
+		RadioButtonController=Controller,
+		CheckBoxController };
+    // ### should be integrated with qbutton in ver4 perhaps
+    enum ToggleState { Off, NoChange, On };
 
     QCheckListItem( QCheckListItem *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QCheckListItem *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListView *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QListView *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, const QString &text,
 		    const QPixmap & );
     QCheckListItem( QListView *parent, const QString &text,
@@ -490,6 +500,11 @@ public:
     QString text() const { return QListViewItem::text( 0 ); }
     QString text( int n ) const { return QListViewItem::text( n ); }
 
+    void setTristate( bool );
+    bool isTristate() const;
+    ToggleState state() const;
+    void setState( ToggleState s);
+
     int rtti() const;
     static int RTTI;
 
@@ -500,9 +515,19 @@ protected:
 
 private:
     void init();
+    ToggleState internalState() const;
+    void setStoredState( ToggleState newState, void *key );
+    ToggleState storedState( void *key ) const;
+    void stateChange( ToggleState s );
+    void restoreState( void *key, int depth = 0 );
+    void updateController( bool update = TRUE , bool store = FALSE );
+    void updateStoredState( void *key );
+    void setState( ToggleState s, bool update, bool store );
+    void setCurrentState( ToggleState s );
+
     Type myType;
-    bool on;
-    QCheckListItem *exclusive;
+    bool on; // ### remove in ver4
+    QCheckListItemPrivate *d;
 };
 
 class Q_EXPORT QListViewItemIterator

@@ -47,11 +47,13 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qcheckbox.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
 
-/*!
+
+/* IGNORE!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
@@ -89,7 +91,20 @@
 */
 
 
-/*!
+struct QGroupBoxPrivate
+{
+    QGroupBoxPrivate():
+	spacer( 0 ),
+	checkbox( 0 ) {}
+
+    QSpacerItem *spacer;
+    QCheckBox *checkbox;
+};
+
+
+
+
+/* IGNORE!
   Constructs a group box widget with no title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
@@ -103,7 +118,7 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
     init();
 }
 
-/*!
+/* IGNORE!
   Constructs a group box with the title \a title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
@@ -118,7 +133,7 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
     setTitle( title );
 }
 
-/*!
+/* IGNORE!
   Constructs a group box with no title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
@@ -133,7 +148,7 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
     setColumnLayout( strips, orientation );
 }
 
-/*!
+/* IGNORE!
   Constructs a group box titled \a title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
@@ -159,7 +174,7 @@ void QGroupBox::init()
 #endif
     vbox = 0;
     grid = 0;
-    d = 0;	//we use d directly to store a QSpacerItem
+    d = new QGroupBoxPrivate();
     lenvisible = 0;
     nCols = nRows = 0;
     dir = Horizontal;
@@ -170,23 +185,28 @@ void QGroupBox::init()
 
 void QGroupBox::setTextSpacer()
 {
-    QSpacerItem *spacer = (QSpacerItem*)d;
-    if ( !spacer )
+    if ( !d->spacer )
 	return;
     int h = 0;
     int w = 0;
-    if ( lenvisible ) {
+    if ( isCheckable() || lenvisible ) {
 	QFontMetrics fm = fontMetrics();
 	int fh = fm.height();
-	w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
+	if ( isCheckable() ) {
+	    fh = d->checkbox->sizeHint().height() + 2;
+	    w = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
+	} else {
+	    fh = fm.height();
+	    w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
+	}
 	h = frameRect().y();
 	if ( layout() ) {
- 	    int m = layout()->margin();
+	    int m = layout()->margin();
 	    int sp = layout()->spacing();
 	    // do we have a child layout?
 	    for ( QLayoutIterator it = layout()->iterator(); it.current(); ++it ) {
 		if ( it.current()->layout() ) {
- 		    m += it.current()->layout()->margin();
+		    m += it.current()->layout()->margin();
 		    sp = QMAX( sp, it.current()->layout()->spacing() );
 		    break;
 		}
@@ -195,7 +215,7 @@ void QGroupBox::setTextSpacer()
 	    h += QMAX( sp - (h+m - fh), 0 );
 	}
     }
-    spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
+    d->spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 
@@ -215,6 +235,10 @@ void QGroupBox::setTitle( const QString &title )
 			    this, SLOT(fixFocus()) );
     }
 #endif
+    if ( isCheckable() ) {
+	d->checkbox->setText( str );
+	updateCheckBoxGeometry();
+    }
     calculateFrame();
     setTextSpacer();
     if ( layout() ) {
@@ -232,7 +256,7 @@ void QGroupBox::setTitle( const QString &title )
 #endif
 }
 
-/*!
+/* IGNORE!
   \property QGroupBox::title
   \brief the group box title text.
 
@@ -249,7 +273,7 @@ void QGroupBox::setTitle( const QString &title )
 
 */
 
-/*!
+/* IGNORE!
   \property QGroupBox::alignment
   \brief the alignment of the group box title.
 
@@ -272,18 +296,22 @@ void QGroupBox::setTitle( const QString &title )
 void QGroupBox::setAlignment( int alignment )
 {
     align = alignment;
+    updateCheckBoxGeometry();
     update();
 }
 
-/*! \reimp
+/* IGNORE! \reimp
 */
 void QGroupBox::resizeEvent( QResizeEvent *e )
 {
     QFrame::resizeEvent(e);
+    if ( align & AlignRight || align & AlignCenter ||
+	 ( QApplication::reverseLayout() && !(align & AlignLeft) ) )
+	updateCheckBoxGeometry();
     calculateFrame();
 }
 
-/*! \reimp
+/* IGNORE! \reimp
 
   \internal
   overrides QFrame::paintEvent
@@ -293,7 +321,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
 
-    if ( lenvisible ) {					// draw title
+    if ( lenvisible && !isCheckable() ) {	// draw title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	int tw = fm.width( str, lenvisible ) + fm.width(QChar(' '));
@@ -319,6 +347,12 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
 			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
+    } else if ( isCheckable() ) {
+	QRect cbClip = d->checkbox->geometry();
+	QFontMetrics fm = paint.fontMetrics();
+	cbClip.setX( cbClip.x() - fm.width(QChar(' ')) );
+	cbClip.setWidth( cbClip.width() + fm.width(QChar(' ')) );
+	paint.setClipRegion( event->region().subtract( cbClip ) );
     }
     if ( bFlat ) {
 	    QRect fr = frameRect();
@@ -334,7 +368,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 }
 
 
-/*!
+/* IGNORE!
   Adds an empty cell at the next free position. If \a size is greater
   than 0, the empty cell has a fixed height or width.
   If the group box is oriented horizontally, the empty cell has a fixed
@@ -368,7 +402,7 @@ void QGroupBox::addSpace( int size )
     skip();
 }
 
-/*!
+/* IGNORE!
   \property QGroupBox::columns
   \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
 
@@ -388,7 +422,7 @@ void QGroupBox::setColumns( int c )
     setColumnLayout( c, dir );
 }
 
-/*!
+/* IGNORE!
   Returns the width of the blank spacing between the items in the group
   and the frame of the group.
 
@@ -403,7 +437,7 @@ int QGroupBox::insideMargin() const
     return marg;
 }
 
-/*!
+/* IGNORE!
   Returns the width of the blank spacing between each of the items in the
   group.
 
@@ -418,7 +452,7 @@ int QGroupBox::insideSpacing() const
     return spac;
 }
 
-/*!
+/* IGNORE!
   Sets the the width of the blank spacing between each of the items in the
   group to \a m pixels.
 
@@ -430,7 +464,7 @@ void QGroupBox::setInsideMargin( int m )
     setColumnLayout( columns(), dir );
 }
 
-/*!
+/* IGNORE!
   Sets the width of the blank spacing between each of the items in the
   group to \a s pixels.
 */
@@ -440,7 +474,7 @@ void QGroupBox::setInsideSpacing( int s )
     setColumnLayout( columns(), dir );
 }
 
-/*!
+/* IGNORE!
   \property QGroupBox::orientation
   \brief the current orientation of the group box.
 
@@ -457,7 +491,7 @@ void QGroupBox::setOrientation( Qt::Orientation o )
     setColumnLayout( columns(), o );
 }
 
-/*!
+/* IGNORE!
   Changes the layout of the group box. This function is useful only in
   combination with the default constructor that does not take any
   layout information. This function will put all existing children in
@@ -469,8 +503,11 @@ void QGroupBox::setOrientation( Qt::Orientation o )
  */
 void QGroupBox::setColumnLayout(int strips, Orientation direction)
 {
-    if ( layout() )
-      delete layout();
+    if ( layout() ) {
+	if ( d->spacer )
+	    delete d->spacer;
+	delete layout();
+    }
     vbox = 0;
     grid = 0;
 
@@ -479,11 +516,11 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 
     vbox = new QVBoxLayout( this, marg, 0 );
 
-    QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
-					   QSizePolicy::Fixed );
-    d = (QGroupBoxPrivate*) spacer;
+    d->spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
+				 QSizePolicy::Fixed );
+
     setTextSpacer();
-    vbox->addItem( spacer );
+    vbox->addItem( d->spacer );
 
     nCols = 0;
     nRows = 0;
@@ -518,14 +555,14 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() )
+	    if ( w->isWidgetType() && w->name() != QString( "qt_groupbox_checkbox" ) )
 		insertWid( w );
 	}
     }
 }
 
 
-/*! \reimp  */
+/* IGNORE! \reimp  */
 bool QGroupBox::event( QEvent * e )
 {
     if ( e->type() == QEvent::LayoutHint && layout() )
@@ -533,11 +570,17 @@ bool QGroupBox::event( QEvent * e )
     return QFrame::event( e );
 }
 
-/*!\reimp */
+/* IGNORE!\reimp */
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
-    if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
+    if ( !c->inserted() || !c->child()->isWidgetType() ||
+	 qstrcmp(c->child()->name(), "qt_groupbox_checkbox") == 0 )
+	return;
+    if ( isCheckable() ) {
+	((QWidget*)c->child())->setEnabled( isChecked() );
+    }
+    if ( !grid )
 	return;
     insertWid( (QWidget*)c->child() );
 }
@@ -573,7 +616,7 @@ void QGroupBox::skip()
 }
 
 
-/*!  This private slot finds a widget in this group box that can
+/* IGNORE!  This private slot finds a widget in this group box that can
 accept focus, and gives the focus to that widget.
 */
 
@@ -613,7 +656,7 @@ void QGroupBox::fixFocus()
 }
 
 
-/*!
+/* IGNORE!
   Sets the right framerect depending on the title. Also calculates the
   visible part of the title.
  */
@@ -621,7 +664,7 @@ void QGroupBox::calculateFrame()
 {
     lenvisible = str.length();
 
-    if ( lenvisible ) { // do we have a label?
+    if ( lenvisible && !isCheckable() ) { // do we have a label?
 	QFontMetrics fm = fontMetrics();
 	while ( lenvisible ) {
 	    int tw = fm.width( str, lenvisible ) + 4*fm.width(QChar(' '));
@@ -639,6 +682,15 @@ void QGroupBox::calculateFrame()
 	    setFrameRect( r );			//   smaller than client rect
 	    return;
 	}
+    } else if ( isCheckable() ) {
+	QRect r = rect();
+	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+	if( va & AlignVCenter )
+	    r.setTop( d->checkbox->rect().height()/2 );
+	else if( va & AlignTop )
+	    r.setTop( fontMetrics().ascent() );
+	setFrameRect( r );
+	return;
     }
 
     // no visible label
@@ -647,7 +699,7 @@ void QGroupBox::calculateFrame()
 
 
 
-/*! \reimp
+/* IGNORE! \reimp
  */
 void QGroupBox::focusInEvent( QFocusEvent * )
 { // note no call to super
@@ -655,23 +707,35 @@ void QGroupBox::focusInEvent( QFocusEvent * )
 }
 
 
-/*!\reimp
+/* IGNORE!\reimp
  */
 void QGroupBox::fontChange( const QFont & oldFont )
 {
+    QWidget::fontChange( oldFont );
+    if ( isCheckable() ) {
+	// make sure checkbox gets the right font as its font change is called too late
+	d->checkbox->setFont( font() );
+	updateCheckBoxGeometry();
+    }
     calculateFrame();
     setTextSpacer();
-    QWidget::fontChange( oldFont );
 }
 
-/*!
+/* IGNORE!
   \reimp
 */
 
 QSize QGroupBox::sizeHint() const
 {
     QFontMetrics fm( font() );
-    int tw = fm.width( title() ) + 2 * fm.width( "xx" );
+    int tw, th;
+    if ( isCheckable() ) {
+	tw = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
+	th = d->checkbox->sizeHint().height() + fm.width( QChar(' ') );
+    } else {
+	tw = fm.width( title() ) + 2 * fm.width( "xx" );
+	th = fm.height() + fm.width( QChar(' ') );
+    }
 
     QSize s;
     if ( layout() ) {
@@ -680,7 +744,7 @@ QSize QGroupBox::sizeHint() const
     } else {
 	QRect r = childrenRect();
 	QSize s( 100, 50 );
-	s = s.expandedTo( QSize( tw, 0 ) );
+	s = s.expandedTo( QSize( tw, th ) );
 	if ( r.isNull() )
 	    return s;
 
@@ -688,7 +752,7 @@ QSize QGroupBox::sizeHint() const
     }
 }
 
-/*!
+/* IGNORE!
   \property QGroupBox::flat
   \brief whether the group box is painted flat or has a frame around it.
 
@@ -710,5 +774,121 @@ void QGroupBox::setFlat( bool b )
     bFlat = b;
     update();
 }
+
+
+/* IGNORE!
+  Sets whether the group box has a checkbox as the title or not.
+  If TRUE the checkbox is checked by default and the children are enabled.
+
+  \sa isCheckable
+*/
+void QGroupBox::setCheckable( bool b )
+{
+    if ( isCheckable() == b )
+	return;
+
+    if ( b ) {
+	if ( !d->checkbox ) {
+	    d->checkbox = new QCheckBox( title(), this, "qt_groupbox_checkbox" );
+	    setChecked( TRUE );
+	    setChildrenEnabled( TRUE );
+	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
+		     this, SLOT( setChildrenEnabled( bool ) ) );
+	    updateCheckBoxGeometry();
+	}
+	d->checkbox->show();
+    } else {
+	setChildrenEnabled( TRUE );
+	delete d->checkbox;
+	d->checkbox = 0;
+    }
+    calculateFrame();
+    setTextSpacer();
+    update();
+}
+
+
+/* IGNORE!
+  Returns TRUE if the group box has a checkbox as the title.
+
+  \sa setCheckable
+*/
+bool QGroupBox::isCheckable() const
+{
+    return ( d->checkbox != 0 );
+}
+
+/* IGNORE!
+   Returns the checked state of the title checkbox. If the group box has no checkbox
+   (meaning the group box is not checkable) isChecked returns FALSE.
+
+   \sa setChecked isCheckable
+*/
+bool QGroupBox::isChecked() const
+{
+    if ( isCheckable() )
+	return d->checkbox->isChecked();
+    else
+	return FALSE;
+}
+
+/* IGNORE!
+   Sets the title checkbox to checked \ b and enables or disables the
+   children accordingly.
+*/
+void QGroupBox::setChecked( bool b )
+{
+    if ( isCheckable() )
+	d->checkbox->setChecked( b );
+}
+
+/*
+  sets all children of the group box except the qt_groupbox_checkbox
+  to either disabled/enabled
+*/
+void QGroupBox::setChildrenEnabled( bool b )
+{
+    if ( children() ) {
+	QObjectListIt it( *children() );
+	while( it.current() ) {
+	    if ( it.current()->isWidgetType() &&
+		 it.current()->name() != QString( "qt_groupbox_checkbox" ) )
+		((QWidget*)it.current())->setEnabled( b );
+	    ++it;
+	}
+    }
+}
+
+
+/*
+  recalculates and sets the checkbox setGeometry
+*/
+void QGroupBox::updateCheckBoxGeometry()
+{
+    if ( isCheckable() ) {
+	QSize cbSize = d->checkbox->sizeHint();
+	QRect cbRect( 0, 0, cbSize.width(), cbSize.height() );
+
+	int marg = bFlat ? 2 : 8;
+	marg += fontMetrics().width( QChar(' ') );
+
+	if ( align & AlignHCenter ) {
+	    cbRect.moveCenter( frameRect().center() );
+	    cbRect.moveTop( 0 );
+	} else if ( align & AlignRight ) {
+	    cbRect.moveRight( frameRect().right() - marg );
+	} else if ( align & AlignLeft ) {
+	    cbRect.moveLeft( frameRect().left() + marg );
+	} else { // auto align
+	    if( QApplication::reverseLayout() )
+		cbRect.moveRight( frameRect().right() - marg );
+	    else
+		cbRect.moveLeft( frameRect().left() + marg );
+	}
+
+	d->checkbox->setGeometry( cbRect );
+    }
+}
+
 
 #endif

@@ -38,6 +38,10 @@
 #ifndef QLINEEDIT_H
 #define QLINEEDIT_H
 
+#ifndef MASK_EDIT
+#define MASK_EDIT
+#endif // MASK_EDIT
+
 struct QLineEditPrivate;
 
 class QValidator;
@@ -73,10 +77,13 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoAvailable READ isUndoAvailable )
     Q_PROPERTY( bool redoAvailable READ isRedoAvailable )
+    Q_PROPERTY( QString mask READ mask WRITE setMask )
+    Q_PROPERTY( bool hasMask READ hasMask )
 
 public:
     QLineEdit( QWidget* parent, const char* name=0 );
     QLineEdit( const QString &, QWidget* parent, const char* name=0 );
+    QLineEdit( const QString &, const QString &, QWidget* parent, const char* name=0 );
     ~QLineEdit();
 
     QString text() const;
@@ -125,7 +132,6 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-
 #ifndef QT_NO_COMPAT
     bool hasMarkedText() const { return hasSelectedText(); }
     QString markedText() const { return selectedText(); }
@@ -136,6 +142,12 @@ public:
 
     bool dragEnabled() const;
     int characterAt( int xpos, QChar *chr ) const;
+
+    bool isValidInput() const;
+    void setMask( const QString &mask = QString::null );
+    bool hasMask() const;
+    void clearMask();
+    QString mask() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -168,6 +180,7 @@ signals:
     void returnPressed();
     void lostFocus();
     void selectionChanged();
+    void invalidInput();
 
 protected:
     bool event( QEvent * );
@@ -215,6 +228,24 @@ private:
     void updateSelection();
     void removeSelectedText();
     void delOrBackspace( bool backspace );
+    // mask functions
+    void parseMaskFields( const QString & );
+    int nextSeparator( uint pos ) const;
+    int nextSeparator( uint pos, QChar sep ) const;
+    int nextBlank( uint pos ) const;
+    int prevBlank( uint pos ) const;
+    bool isValidInput( QChar key, QChar mask ) const;
+    QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
+    QString clearString( uint pos, uint len ) const;
+    QString stripString( const QString &str ) const;
+    QString text( bool strip ) const;
+    void insert( const QString &newText, bool paste);
+    bool validateAndSet( const QString &, int, int, int, bool );
+    void updateOverwriteSelection();
+    bool hasSelectedText( bool ignore ) const;
+    bool hasOverWriteSelection() const;
+    QString selectedText(bool ignore) const;
+    bool getSelection( int *start, int *end, bool ignore );
 
     QLineEditPrivate * d;
 
