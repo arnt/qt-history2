@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#460 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#461 $
 **
 ** Implementation of QWidget class
 **
@@ -243,7 +243,7 @@
 	getWFlags(),
 	setWFlags(),
 	testWFlags().
-	
+
   <li> What's this help:
   	customWhatsThis()
   </ul>
@@ -2282,20 +2282,15 @@ void QWidget::setFocus()
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
-	if ( prev && prev != this ) {
-	    if ( !prev->isPopup() &&
-		 topLevelWidget()->isPopup() &&
-		 topLevelWidget() != prev->topLevelWidget()) {
-		// imitate other toolkits by not sending a focus out event
-		// in that case
-	    } else {
+	if ( prev != this ) {
+	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
+
+	    QFocusEvent in( QEvent::FocusIn );
+	    QApplication::sendEvent( this, &in );
 	}
-	
-	QFocusEvent in( QEvent::FocusIn );
-	QApplication::sendEvent( this, &in );
     }
 }
 
@@ -3615,16 +3610,16 @@ bool QWidget::event( QEvent *e )
 	    break;
 	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
-	    break;	
+	    break;
 	case QEvent::DragEnter:
 	    dragEnterEvent( (QDragEnterEvent*) e);
-	    break;	
+	    break;
 	case QEvent::DragMove:
 	    dragMoveEvent( (QDragMoveEvent*) e);
-	    break;	
+	    break;
 	case QEvent::DragLeave:
 	    dragLeaveEvent( (QDragLeaveEvent*) e);
-	    break;	
+	    break;
 	case QEvent::Show:
 	    showEvent( (QShowEvent*) e);
 	    break;
@@ -3691,7 +3686,7 @@ void QWidget::mousePressEvent( QMouseEvent *e )
 	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
 		w->hide(); // hide at least
 	}
-	if (!rect().contains(e->pos()) ){	
+	if (!rect().contains(e->pos()) ){
 	    close();
 	}
     }
@@ -4355,7 +4350,7 @@ void QWidget::updateGeometry()
 				 new QEvent( QEvent::LayoutHint ) );
     else if ( FALSE && layout() )
 	layout()->activate();
-	
+
 }
 
 
