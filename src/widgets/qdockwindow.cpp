@@ -1141,14 +1141,12 @@ void QDockWindow::endRectDraw( bool drawRect )
     unclippedPainter = 0;
 }
 
-/*!
+/*! \property QDockWindow::resizeEnabled
+  \brief whether the dock window is resizeable
 
-    If \a b is TRUE, the dock window becomes resizeable. If \a b is
-    FALSE the dock window cannot be resized.
-
-    A resizeable QDockWindow can be resized using splitter-like handles
-    inside a QDockArea and like every other top level window when
-    floating.
+  A resizeable QDockWindow can be resized using splitter-like handles
+  inside a QDockArea and like every other top level window when
+  floating.
 */
 
 void QDockWindow::setResizeEnabled( bool b )
@@ -1158,11 +1156,10 @@ void QDockWindow::setResizeEnabled( bool b )
     updateGui();
 }
 
-/*! If \a b is TRUE, the user can move the dock window within the
+/*! \property QDockWindow::movingEnabled
+  \brief whether the user can move the dock window within the
   QDockArea, move the dock window to another dock area, or float the
-  dock window. If \a b is FALSE the dock window cannot be moved at all.
-
-  \sa isMovingEnabled() dock() undock() QDockArea::moveDockWindow() QMainWindow::moveDockWindow()
+  dock window.
 */
 
 void QDockWindow::setMovingEnabled( bool b )
@@ -1171,35 +1168,22 @@ void QDockWindow::setMovingEnabled( bool b )
     updateGui();
 }
 
-/*! Returns TRUE if the dock window is resizeable, otherwise returns
- FALSE.
-
-  \sa setResizeEnabled()
-*/
-
 bool QDockWindow::isResizeEnabled() const
 {
     return resizeEnabled;
 }
-
-/*! Returns TRUE if the dock window is movable
- otherwise returns FALSE. A movable dock window can be moved \e within a
- dock area, to another dock area, or floated.
-
-  \sa setMovingEnabled()
-*/
 
 bool QDockWindow::isMovingEnabled() const
 {
     return moveEnabled;
 }
 
-/*!
-    Sets when (if ever) the dock window has a close button. The choices
-    are \c Never, \c Docked (i.e. only when docked), \c Undocked (only
-    when undocked - floated) or \c Always.
+/*! \property QDockWindow::closeMode
+  \brief the close mode of a dock window
 
-    \sa closeMode()
+  Defines when (if ever) the dock window has a close button. The
+  choices are \c Never, \c Docked (i.e. only when docked), \c Undocked
+  (only when undocked - floated) or \c Always.
 */
 
 void QDockWindow::setCloseMode( int m )
@@ -1226,22 +1210,13 @@ bool QDockWindow::isCloseEnabled() const
 	      ( cMode & Undocked ) == Undocked && place() == OutsideDock );
 }
 
-/*! Returns the dock window's CloseMode.
-
-  \sa setCloseMode()
-*/
-
 int QDockWindow::closeMode() const
 {
     return cMode;
 }
 
-/*!
-    If \a b is TRUE the dock window will be horizontally stretchable.
-    If \a b is FALSE the dock window will not be horizontally
-    stretchable..
-
-    \sa setVerticallyStretchable()
+/*! \property QDockWindow::horizontallyStretchable
+  \brief whether the dock window will be horizontally stretchable.
 */
 
 void QDockWindow::setHorizontallyStretchable( bool b )
@@ -1249,11 +1224,8 @@ void QDockWindow::setHorizontallyStretchable( bool b )
     stretchable[ Horizontal ] = b;
 }
 
-/*!
-    If \a b is TRUE the dock window will be vertically stretchable.
-    If \a b is FALSE the dock window will not be vertically stretchable.
-
-    \sa setHorizontallyStretchable()
+/*! \property QDockWindow::verticallyStretchable
+  \brief whether the dock window will be vertically stretchable.
 */
 
 void QDockWindow::setVerticallyStretchable( bool b )
@@ -1261,32 +1233,21 @@ void QDockWindow::setVerticallyStretchable( bool b )
     stretchable[ Vertical ] = b;
 }
 
-/*!  Returns TRUE if the dock window is horizontally stretchable,
-    otherwise returns FALSE.
-
-  \sa setHorizontallyStretchable()
- */
-
 bool QDockWindow::isHorizontallyStretchable() const
 {
     return isResizeEnabled() || stretchable[ Horizontal ];
 }
-
-/*!  Returns TRUE if the dock window is vertically stretchable,
-    otherwise returns FALSE.
-
-  \sa setVerticallyStretchable()
- */
 
 bool QDockWindow::isVerticallyStretchable() const
 {
     return isResizeEnabled() || stretchable[ Vertical ];
 }
 
-/*! Returns TRUE if the dock window is stretchable in the current
-  orientation(), otherwise returns FALSE.
+/*! \property QDockWindow::stretchable
+  \brief whether the dock window is stretchable in the current orientation()
 
-  \sa isVerticallyStretchable() isHorizontallyStretchable()
+  This property can be set using setHorizontallyStretchable() and
+  setVerticallyStretchable()
 */
 
 bool QDockWindow::isStretchable() const
@@ -1308,22 +1269,13 @@ Qt::Orientation QDockWindow::orientation() const
     return Vertical;
 }
 
-/*! Returns the dock window's preferred offset from the dock area's left
-    edge (top edge for vertical dock areas).
-
-    \sa setOffset()
-*/
-
 int QDockWindow::offset() const
 {
     return offs;
 }
 
-/*!
-    Sets the dock window's preferred offset from the dock area's left
-    edge (top edge for vertical dock areas) to \a o.
-
-    \sa offset()
+/*! \property QDockWindow::offset
+  \brief the dock window's preferred offset from the dock area's left edge (top edge for vertical dock areas)
 */
 
 void QDockWindow::setOffset( int o )
@@ -1364,24 +1316,14 @@ void QDockWindow::setFixedExtentHeight( int h )
     fExtent.setHeight( h );
 }
 
-/*!
-    If \a b is TRUE the dock window prefers to start a new line in the
-    dock area. If \a b is FALSE the dock window does not care whether it
-    starts a new line or not.
-
-    \sa newLine()
+/*! \property QDockWindow::newLine
+  \brief whether the dock window prefers to start a new line in the dock area.
 */
 
 void QDockWindow::setNewLine( bool b )
 {
     nl = b;
 }
-
-/*! Returns TRUE if the dock window prefers to start a new line in a
-  QDockArea, otherwise returns FALSE.
-
-  \sa setNewLine()
-*/
 
 bool QDockWindow::newLine() const
 {
@@ -1548,12 +1490,12 @@ void QDockWindow::showEvent( QShowEvent *e )
     emit visibilityChanged( TRUE );
 }
 
-/*!
-    If \a b is TRUE, the dock window will be shown normally when it is
-    moved. If \a b is FALSE the dock window will be represented by an
-    outline rectangle when it is moved.
+/*! \property QDockWindow::opaqueMoving
+  \brief whether the dock window will be shown normally when it is
+    moved.
 
-    \sa opaqueMoving()
+    If this property is FALSE, (which is the default), the dock window
+    will be represented by an outline rectangle when it is moved.
 */
 
 void QDockWindow::setOpaqueMoving( bool b )
@@ -1563,13 +1505,6 @@ void QDockWindow::setOpaqueMoving( bool b )
     verHandle->setOpaqueMoving( b );
     titleBar->setOpaqueMoving( b );
 }
-
-/*! Returns TRUE if the dock window will be shown normally when moved.
-    Returns FALSE if the dock window will be shown as an outline
-    rectangle when moved.
-
-  \sa setOpaqueMoving()
-*/
 
 bool QDockWindow::opaqueMoving() const
 {
