@@ -74,9 +74,31 @@ int QFontMetrics::width(QChar c) const
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
 {
-    QTextEngine layout(str, d);
-    layout.itemize(QTextEngine::WidthOnly);
-    return qRound(layout.width(pos, 1));
+    if (pos < 0 || pos > str.length())
+        return 0;
+
+    const QChar &ch = str.unicode()[pos];
+
+    if (::category(ch) == QChar::Mark_NonSpacing)
+        return 0;
+
+    QFont::Script script;
+    SCRIPT_FOR_CHAR(script, ch);
+
+    int cwidth;
+
+    if (script >= QFont::Arabic && script <= QFont::Khmer) {
+        // complex script shaping. Have to do some hard work
+        int from = QMAX(0,  pos - 8);
+        int to = QMIN(str.length(), pos + 8);
+        QConstString cstr(str.unicode() + from, to - from);
+        QTextEngine layout(cstr.string(), d);
+        layout.itemize(QTextEngine::WidthOnly);
+        cwidth = layout.width(pos - from, 1);
+    } else {
+        cwidth = width(ch);
+    }
+    return cwidth;
 }
 
 QString QFont::rawName() const
