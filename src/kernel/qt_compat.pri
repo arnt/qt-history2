@@ -31,7 +31,7 @@ mac {
      #never
      CONFIG -= nas mng x11 x11sm
      
-     CONFIG += shared
+     #CONFIG += shared
      CONFIG += sqlcrap
      sqlcrap {
 	sql-driver += postgres
