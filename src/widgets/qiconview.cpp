@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#51 $
 **
 ** Definition of QIconView widget class
 **
@@ -41,6 +41,7 @@
 #include <qmultilinedit.h>
 
 #include <stdlib.h>
+#include <math.h>
 
 static const char *unknown[] = {
     "32 32 11 1",
@@ -1688,6 +1689,34 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 }
 
 /*!
+  Finds the first item which is visible on the viewport. If no items is visible at all,
+  0 is returned.
+*/
+
+QIconViewItem* QIconView::findFirstVisibleItem()
+{
+    QRect r( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    QIconViewItem *item = d->firstItem, *i = 0;
+    for ( ; item; item = item->next ) {
+	if ( r.intersects( item->rect() ) ) {
+	    if ( !i )
+		i = item;
+	    else {
+		QRect r2 = item->rect();
+		QRect r3 = i->rect();
+		if ( r2.y() < r3.y() )
+		    i = item;
+		else if ( r2.y() == r3.y() &&
+			  r2.x() < r3.x() )
+		    i = item;
+	    }
+	}
+    }
+
+    return i;
+}
+
+/*!
   Cleares the iconview.
 */
 
@@ -2220,8 +2249,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
     switch ( e->key() )
     {
-    case Key_Home:
-    {
+    case Key_Home: {
 	if ( !d->firstItem )
 	    return;
 
@@ -2239,8 +2267,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
-    case Key_End:
-    {
+    case Key_End: {
 	if ( !d->lastItem )
 	    return;
 
@@ -2258,8 +2285,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
-    case Key_Right:
-    {	
+    case Key_Right: {	
 	QIconViewItem *item;
 	if ( d->alignMode == East ) {
 	    if ( !d->currentItem->next )
@@ -2304,8 +2330,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
-    case Key_Left:
-    {
+    case Key_Left: {
 	QIconViewItem *item;
 	if ( d->alignMode == East ) {
 	    if ( !d->currentItem->prev )
@@ -2350,8 +2375,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
-    case Key_Space:
-    {
+    case Key_Space: {
 	if ( d->selectionMode == Single )
 	    return;
 
@@ -2360,8 +2384,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Enter: case Key_Return:
 	emit doubleClicked( d->currentItem );
 	break;
-    case Key_Down:
-    {
+    case Key_Down: {
 	QIconViewItem *item;
 	
 	if ( d->alignMode == East ) {
@@ -2406,8 +2429,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
-    case Key_Up:
-    {
+    case Key_Up: {
 	QIconViewItem *item;
 	
 	if ( d->alignMode == East ) {
@@ -2453,6 +2475,14 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
+    case Key_Next:
+	scrollBy( 0, visibleHeight() );
+	setCurrentItem( findFirstVisibleItem() );
+	break;
+    case Key_Prior:
+	scrollBy( 0, -visibleHeight() );
+	setCurrentItem( findFirstVisibleItem() );
+	break;
     }
 
     ensureItemVisible( d->currentItem );

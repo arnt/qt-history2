@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#21 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#22 $
 **
 ** Definition of QIconView widget class
 **
@@ -279,7 +279,8 @@ public:
     virtual void repaintItem( QIconViewItem *item );
 
     virtual void ensureItemVisible( QIconViewItem *item );
-
+    virtual QIconViewItem* findFirstVisibleItem();
+    
     virtual void clear();
 
     virtual void setRastX( int rx );
