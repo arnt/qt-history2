@@ -83,10 +83,10 @@ void MainWindow::showList()
         QTextBlock block = it.currentBlock();
 
         if (block.isValid()) {
-            const QTextBlockFormat blockFormat = block.blockFormat();
-            QTextObject *object = document->objectForFormat(blockFormat);
 
-            if (QTextList *list = qt_cast<QTextList*>(object)) {
+            QTextList *list = block.textList();
+
+            if (list) {
                 int index = list->itemNumber(block);
                 if (index == 0) {
                     parentItems.append(parentItem);
