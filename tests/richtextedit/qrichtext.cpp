@@ -937,9 +937,9 @@ void QtTextParagraph::invalidateLayout()
     }
     if ( next ) {
 	next->invalidateLayout();
-    } 
-    
-    
+    }
+
+
     if ( parent ) {
 	QtTextParagraph* p = parent;
 	while ( p && !p->next && p->parent )
@@ -1523,7 +1523,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 
     bool clipMode = currentFormat()->customItem() && currentFormat()->customItem()->noErase();
 
-    if (!clipMode ) { //!onlyDirty && !onlySelection && to.paper) {
+    if (!clipMode ) { 
 	if ( to.paper->pixmap() )
 	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(gx, gy));
 	else
@@ -1806,9 +1806,9 @@ void QtTextCursor::insert( QPainter* p, const QString& text )
     updateParagraph( p );
 }
 
-bool QtTextCursor::split() 
+bool QtTextCursor::split()
 {
-    QString s = paragraph->text.getCharAt( current );
+    QString s = paragraph->text.charAt( current );
     if ( currentoffset == 0 || currentoffset >= int(s.length()) ) {
 	return FALSE;
     }
@@ -1852,7 +1852,7 @@ void QtTextCursor::updateParagraph( QPainter* p )
      if ( ph != paragraph->height ) {
 	 qDebug("height different ");
 	 if ( paragraph->nextInDocument() )
-	     paragraph->nextInDocument()->invalidateLayout(); 
+	     paragraph->nextInDocument()->invalidateLayout();
 	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, MAXINT-1000) ) );
      } else if ( first == oldfirst && last == oldlast && current != first ) {
 	 flow->invalidateRect( QRect( 0, uy, width, height ) );
@@ -1870,8 +1870,9 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     // tabulators belong here
     QtTextRichString::Item* item = &paragraph->text.items[current];
     QtTextCustomItem* custom = item->format->customItem();
-    if ( currentFormat() != formatinuse ) // somebody may have changed the document
+    if ( currentFormat() != formatinuse ){ // somebody may have changed the document
 	updateCharFormat( p, fm );
+    }
     if ( custom ) {
 	if ( custom->placeInline() )
 	    currentx += custom->width;
