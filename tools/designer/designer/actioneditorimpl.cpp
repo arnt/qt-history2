@@ -113,42 +113,10 @@ void ActionEditor::deleteAction()
 	return;
 
     QListViewItemIterator it( listActions );
+    ActionItem *ai = 0;
     while ( it.current() ) {
-	if ( ( (ActionItem*)it.current() )->action() == currentAction ) {
-	    formWindow->actionList().removeRef( currentAction );
-	    QValueList<MetaDataBase::Connection> conns =
-		MetaDataBase::connections( formWindow, currentAction );
-	    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
-		  it2 != conns.end(); ++it2 )
-		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
-						(*it2).receiver, (*it2).slot );
-	    delete currentAction;
-	    currentAction = 0;
-	    delete it.current();
-	    break;
-	} else if ( ( (ActionItem*)it.current() )->actionGroup() == currentAction ) {
-	    formWindow->actionList().removeRef( currentAction );
-	    QValueList<MetaDataBase::Connection> conns =
-		MetaDataBase::connections( formWindow, currentAction );
-	    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
-		  it2 != conns.end(); ++it2 )
-		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
-						(*it2).receiver, (*it2).slot );
-	    QObjectList *subActions = currentAction->queryList( "QAction" );
-	    if ( subActions && subActions->count() ) {
-		QObjectListIt subAction( *subActions );
-		while ( subAction.current() ) {
-		    QAction *action = (QAction*)subAction.current();
-		    ++subAction;
-		    formWindow->actionList().removeRef( action );
-		    conns = MetaDataBase::connections( formWindow, action );
-		    for ( it2 = conns.begin(); it2 != conns.end(); ++it2 )
-			MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
-							(*it2).receiver, (*it2).slot );
-		}
-	    }
-	    delete subActions;
-	    subActions = 0;
+	ai = (ActionItem*)it.current();
+	if ( ai->action() == currentAction || ai->actionGroup() == currentAction ) {
 	    delete currentAction;
 	    currentAction = 0;
 	    delete it.current();
