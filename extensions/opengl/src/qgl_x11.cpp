@@ -656,7 +656,6 @@ void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
 
 void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
 {
-    qDebug( "oglw got move!" );
     QApplication::sendEvent( realWidget, e );
 }
 
