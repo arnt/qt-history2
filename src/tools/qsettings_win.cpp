@@ -70,7 +70,7 @@ public:
     QStringList paths;
 
 private:
-	static uint refCount;
+    static uint refCount;
 };
 
 uint QSettingsPrivate::refCount = 0;
@@ -81,7 +81,7 @@ QSettingsPrivate::QSettingsPrivate()
     if ( !settingsBasePath ) {
 	settingsBasePath = new QString("Software");
     }
-	refCount++;
+    refCount++;
     local = 0;
     user  = 0 ;
 
@@ -167,15 +167,15 @@ QSettingsPrivate::~QSettingsPrivate()
 #endif
     }
 
-	// Make sure that we only delete the base path if no one else is using it anymore
-	if (refCount > 0) {
-		refCount--;
+    // Make sure that we only delete the base path if no one else is using it anymore
+    if (refCount > 0) {
+	refCount--;
 
-		if (refCount == 0) {
-			delete settingsBasePath;
-			settingsBasePath = 0;
-		}
+	if (refCount == 0) {
+	    delete settingsBasePath;
+	    settingsBasePath = 0;
 	}
+    }
 }
 
 inline QString QSettingsPrivate::validateKey( const QString &key )
