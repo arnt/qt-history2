@@ -487,25 +487,27 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     if ( len == 0 )
 	return 0;
 
-	int width = 0;
+    int width = 0;
     SIZE s;
     const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
-	int i;
-	int last = 0;
-	const QChar *uc = str.unicode() + pos;
-	for ( i = 0; i < len; i++ ) {
-		if ( uc->combiningClass() != 0 && pos + i > 0 ) {
-			if ( i - last > 0 ) {
-				GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
-				width += s.cx;
-			}
-			last = i + 1;
-		}
-		uc++;
+    int i;
+    int last = 0;
+    const QChar *uc = str.unicode() + pos;
+    for ( i = 0; i < len; i++ ) {
+	if ( uc->combiningClass() != 0 && pos + i > 0 ) {
+	    if ( i - last > 0 ) {
+		GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+		width += s.cx;
+	    }
+	    last = i + 1;
 	}
+	uc++;
+    }
+    GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+    width += s.cx;
 
-	if ( (qt_winver & Qt::WV_NT_based) == 0 )
-		width -= TMX->tmOverhang;
+    if ( (qt_winver & Qt::WV_NT_based) == 0 )
+	width -= TMX->tmOverhang;
     return width;
 	
 }
@@ -634,7 +636,7 @@ int QFontMetrics::descent() const
     return TMX->tmDescent;
 }
 
-
+// #### FIXME. This does not work at all.
 bool QFontMetrics::inFont(QChar ch) const
 {
 #ifdef UNICODE
@@ -889,24 +891,22 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( len == 0 )
 	return 0;
 
-    SIZE s;
-    const TCHAR* tc = (const TCHAR*)qt_winTchar(str,FALSE);
-    GetTextExtentPoint32( hdc(), tc, len, &s );
-    if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	s.cx -= TMX->tmOverhang;
-    return s.cx;
+    return d->textWidth( str, 0, len );
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    QChar ch = QComplexText::shapedCharacter( str, pos );
-    if ( !ch.unicode() || ch.combiningClass() != 0 )
+    QChar ch = str[pos];
+    if ( ch.combiningClass() > 0 )
+	return 0;
+    ch = QComplexText::shapedCharacter( str, pos );
+    if ( !ch.unicode() )
 		return 0;
     SIZE s;
 #ifdef UNICODE
     TCHAR tc = ch.unicode();
 #else
-	TCHAR tc = ch.latin1();
+    TCHAR tc = ch.latin1();
 #endif
     GetTextExtentPoint32( hdc(), &tc, 1, &s );
     if ( (qt_winver & Qt::WV_NT_based) == 0 )

@@ -2089,13 +2089,12 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 
 
-void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir )
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
 {
-    QString shaped = QComplexText::shapedString( str, pos, len, dir );
-    drawText( x, y, shaped, shaped.length(), dir );
+    drawText( x, y, str, 0, len, dir );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection )
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir)
 {
     if ( !isActive() )
 	return;
@@ -2106,6 +2105,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	len = str.length();
     if ( len == 0 )				// empty string
 	return;
+
+    QString shaped = QComplexText::shapedString( str, pos, len, dir );
+    len = shaped.length();
 
     if ( testf(DirtyFont) )
 	updateFont();
@@ -2125,9 +2127,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
-	    QString newstr = str.left(len);
 	    param[0].point = &p;
-	    param[1].str = &newstr;
+	    param[1].str = &shaped;
 	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 		return;
 	}
@@ -2186,7 +2187,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		    }
 		}
 		paint.setFont( pmFont );
-		paint.drawText( tx, ty, str, len );
+		paint.drawText( tx, ty, str, 0, len, dir );
 		paint.end();
 		if ( txop >= TxScale )
 		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -2273,8 +2274,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    map( x, y, &x, &y );
     }
 
- 	QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-	cfont.d->textWidth( hdc, str, 0, len, cache );
+
+    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
+    cfont.d->textWidth( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
 		cfont.d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
