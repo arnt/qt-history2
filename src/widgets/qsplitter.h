@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#13 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#14 $
 **
 ** Defintion of  QSplitter class
 **
@@ -35,7 +35,7 @@ class Q_EXPORT QSplitter : public QFrame
 public:
     enum Orientation { Horizontal, Vertical };
     enum ResizeMode { Stretch, KeepSize };
-    
+
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
 
@@ -51,12 +51,12 @@ public:
 
     void moveToFirst( QWidget * );
     void moveToLast( QWidget * );
-    
+
     //void setHidden( QWidget *, bool );
     //bool isHidden( QWidget *) const;
 
     void refresh() { recalc( TRUE ); }
-    
+
 protected:
     void childInsertEvent( QChildEvent * );
     void childRemoveEvent( QChildEvent * );
@@ -83,7 +83,7 @@ private:
     void stopMoving( );
 
 
-
+    // Josef Wagmann <josef.wagmann@passau.netsurf.de> wants access to these
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
     QCOORD pick( const QSize &s ) const
