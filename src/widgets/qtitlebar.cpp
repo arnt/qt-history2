@@ -164,6 +164,8 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     d->act = 0;
     if ( w ) {
 	setWFlags( ((QTitleBar*)w)->getWFlags() | WNoAutoErase );
+	if ( w->minimumSize() == w->maximumSize() )
+	    clearWFlags( WStyle_Maximize );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     	setCaption( w->caption() );
 #endif

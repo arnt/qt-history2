@@ -1660,8 +1660,11 @@ void QWorkspace::operationMenuAboutToShow()
     if ( !d->active || !d->active->windowWidget() )
 	return;
 
-    d->popup->setItemEnabled( 4, d->active->windowWidget()->testWFlags( WStyle_Minimize ) );
-    d->popup->setItemEnabled( 5, d->active->windowWidget()->testWFlags( WStyle_Maximize ) );
+    QWidget *windowWidget = d->active->windowWidget();
+    bool canResize = windowWidget->maximumSize() != windowWidget->minimumSize();
+    d->popup->setItemEnabled( 3, canResize );
+    d->popup->setItemEnabled( 4, windowWidget->testWFlags( WStyle_Minimize ) );
+    d->popup->setItemEnabled( 5, windowWidget->testWFlags( WStyle_Maximize ) && canResize );
 
     if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
