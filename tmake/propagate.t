@@ -80,6 +80,7 @@
     $project{"VER_MIN"} =~ s/^\d+\.//;
     if ( Config("dll") ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_SHOBJ)' );
+	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_SHOBJ)' );
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_SHOBJ)');
     }
     if ( Config("yacc") ) {
@@ -91,6 +92,7 @@
     Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );
     if ( Project('TEMPLATE') eq "lib" ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_LIB)' );
+	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_LIB)' );
     } else {
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS)' );
     }
