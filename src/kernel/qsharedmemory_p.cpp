@@ -155,7 +155,7 @@ int QSharedMemory::size ()
 {
     struct shmid_ds shm;
     shmctl (shmId, IPC_STAT, &shm);
-    return shm.segsz;
+    return shm.shm_segsz;
 }
 
 #endif
