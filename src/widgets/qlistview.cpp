@@ -852,6 +852,8 @@ void QListViewItem::startRename( int col )
     if ( lv->d->renameTimer )
 	lv->d->renameTimer->stop();
 
+    lv->ensureItemVisible( this );
+
     if ( lv->d->timer->isActive() ) {
 	// make sure that pending calculations get finished
 	lv->d->timer->stop();
@@ -7630,6 +7632,7 @@ void QListView::startRename()
 {
     if ( !currentItem() )
 	return;
+    ensureItemVisible( currentItem() );
     currentItem()->startRename( d->pressedColumn );
     d->buttonDown = FALSE;
 }
