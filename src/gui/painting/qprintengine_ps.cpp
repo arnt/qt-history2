@@ -3655,7 +3655,6 @@ void QPSPrintEngine::updateState(const QPaintEngineState &state)
                          state.clipOperation());
     }
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
-    if (flags & DirtyHints) updateRenderHints(state.renderHints());
 // ### if (flags & DirtyCompositionMode) updateCompositionMode(state.clipRegion(), state.clipOperation());p
 }
 

@@ -108,22 +108,23 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
+    QMatrix matrix = p->d->matrix;
 
     XPoint points[5];
     int xp = x,  yp = y;
-    p->state->matrix.map(xp, yp, &xp, &yp);
+    matrix.map(xp, yp, &xp, &yp);
     points[0].x = xp;
     points[0].y = yp;
     xp = x + w; yp = y;
-    p->state->matrix.map(xp, yp, &xp, &yp);
+    matrix.map(xp, yp, &xp, &yp);
     points[1].x = xp;
     points[1].y = yp;
     xp = x + w; yp = y + h;
-    p->state->matrix.map(xp, yp, &xp, &yp);
+    matrix.map(xp, yp, &xp, &yp);
     points[2].x = xp;
     points[2].y = yp;
     xp = x; yp = y + h;
-    p->state->matrix.map(xp, yp, &xp, &yp);
+    matrix.map(xp, yp, &xp, &yp);
     points[3].x = xp;
     points[3].y = yp;
     points[4] = points[0];
@@ -791,7 +792,7 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     d->render_hints = hints;
     if ((d->txop > QPainterPrivate::TxNone)
-        || (renderHints() & QPainter::Antialiasing))
+        || (hints & QPainter::Antialiasing))
         d->use_path_fallback = true;
     else
         d->use_path_fallback = false;
@@ -1070,7 +1071,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     }
 
 #if !defined(QT_NO_XRENDER)
-    bool antialias = q->renderHints() & QPainter::Antialiasing;
+    bool antialias = d->render_hints & QPainter::Antialias;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (antialias || fill.color().alpha() != 255))
     {
@@ -1169,7 +1170,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
     if (d->cbrush.style() != Qt::NoBrush) {
-        QPolygonF poly = path.toFillPolygon(state->matrix);
+        QPolygonF poly = path.toFillPolygon(d->matrix);
         d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::BrushGC,
                        path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
     }
@@ -1177,7 +1178,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (d->cpen.style() != Qt::NoPen
         && (d->cpen.color().alpha() != 255
             || (d->cpen.widthF() > 0)
-            || (renderHints() & QPainter::Antialiasing))) {
+            || (d->render_hints & QPainter::Antialiasing))) {
         QPainterPathStroker stroker;
         stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());
@@ -1187,7 +1188,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         QPolygonF poly;
         if (width == 0) {
             stroker.setWidth(1);
-            stroke = stroker.createStroke(path * state->matrix);
+            stroke = stroker.createStroke(path * d->matrix);
             if (stroke.isEmpty())
                 return;
             poly = stroke.toFillPolygon();
@@ -1197,12 +1198,12 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             stroke = stroker.createStroke(path);
             if (stroke.isEmpty())
                 return;
-            poly = stroke.toFillPolygon(state->matrix);
+            poly = stroke.toFillPolygon(d->matrix);
         }
         d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::PenGC, WindingMode);
     } else if (d->cpen.style() != Qt::NoPen) {
         // if we have a pen width of 0 - use XDrawLine() for speed
-        QList<QPolygonF> polys = path.toSubpathPolygons(state->matrix);
+        QList<QPolygonF> polys = path.toSubpathPolygons(d->matrix);
         for (int i = 0; i < polys.size(); ++i)
             d->strokePolygon(polys.at(i).data(), polys.at(i).size());
     }
@@ -1336,7 +1337,7 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
 
     if ((d->txop > QPainterPrivate::TxNone)
-        || (renderHints() & QPainter::Antialiasing))
+        || (d->render_hints & QPainter::Antialiasing))
         d->use_path_fallback = true;
     else
         d->use_path_fallback = false;
@@ -1567,8 +1568,8 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
         }
     } else {
         if (d->txop == QPainterPrivate::TxTranslate) {
-            x += qRound(state->matrix.dx());
-            y += qRound(state->matrix.dy());
+            x += qRound(d->matrix.dx());
+            y += qRound(d->matrix.dy());
         }
         XRectangle rects[64];
 
@@ -1609,8 +1610,8 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
     qreal y = p.y();
 
     if (d->txop == QPainterPrivate::TxTranslate) {
-        x += state->matrix.dx();
-        y += state->matrix.dy();
+        x += d->matrix.dx();
+        y += d->matrix.dy();
     }
 
     XSetFont(d->dpy, d->gc, font_id);
@@ -1776,8 +1777,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
     bool transform = d->txop >= QPainterPrivate::TxScale;
 
     if (d->txop == QPainterPrivate::TxTranslate) {
-        xpos += state->matrix.dx();
-        ypos += state->matrix.dy();
+        xpos += d->matrix.dx();
+        ypos += d->matrix.dy();
     }
 
     QPointF pos(xpos, ypos);
@@ -1824,7 +1825,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 
                 QPointF gpos = pos + glyphs[i].offset;
                 if (transform)
-                    gpos = gpos * state->matrix;
+                    gpos = gpos * d->matrix;
                 int xp = qRound(gpos.x());
                 int yp = qRound(gpos.y());
                 if (xp > SHRT_MIN && xp < SHRT_MAX) {
@@ -1846,7 +1847,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 
                         QPointF gpos(pos);
                         if (transform)
-                            gpos = gpos * state->matrix;
+                            gpos = gpos * d->matrix;
                         int xp = qRound(gpos.x());
                         int yp = qRound(gpos.y());
                         if (xp > SHRT_MIN && xp < SHRT_MAX) {
@@ -1875,7 +1876,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
                 QPointF gpos = pos;
                 gpos += glyphs[i].offset;
                 if (transform)
-                    gpos = gpos * state->matrix;
+                    gpos = gpos * d->matrix;
                 int xp = qRound(gpos.x());
                 int yp = qRound(gpos.y());
                 if (xp > SHRT_MIN && xp < SHRT_MAX) {
@@ -1935,7 +1936,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 
             QPointF gpos = pos + glyphs[i].offset;
             if (transform)
-                gpos = gpos * state->matrix;
+                gpos = gpos * d->matrix;
             int xp = qRound(gpos.x());
             int yp = qRound(gpos.y());
             core_render_glyph(ft, xp, yp, glyphs[i].glyph);
@@ -1950,7 +1951,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 
                     QPointF gpos(pos);
                     if (transform)
-                        gpos = gpos * state->matrix;
+                        gpos = gpos * d->matrix;
                     int xp = qRound(gpos.x());
                     int yp = qRound(gpos.y());
                     core_render_glyph(ft, xp, yp, g[0].glyph);
@@ -1966,7 +1967,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
             QPointF gpos = pos;
             gpos += glyphs[i].offset;
             if (transform)
-                gpos = gpos * state->matrix;
+                gpos = gpos * d->matrix;
             int xp = qRound(gpos.x());
             int yp = qRound(gpos.y());
             core_render_glyph(ft, xp, yp, glyphs[i].glyph);
