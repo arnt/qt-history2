@@ -216,7 +216,9 @@ void SourceEditor::refresh( bool allowSave )
 {
     if ( allowSave )
 	save();
+    bool oldMod = iFace->isModified();
     iFace->setText( sourceOfObject( obj, lang, iFace, lIface ) );
+    iFace->setModified( oldMod );
 }
 
 void SourceEditor::resetContext()
