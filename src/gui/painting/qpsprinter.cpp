@@ -1828,12 +1828,16 @@ void QPSPrinterFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngi
 
     QGlyphLayout *glyphs = engine->glyphs(&si);
     QFontEngine *fe = engine->fontEngine(si);
+#ifdef Q_WS_X11
     int type = fe->type();
     bool glyphIndices = (type == QFontEngine::Xft);
     // This helps us get arabic for XLFD fonts working. In that case we have a Unicode
     // cmap (== 0), and the glyphs array contains the shaped string.
     bool useGlyphAsUnicode = (type == QFontEngine::XLFD && fe->cmap() == 0);
-
+#else  // Q_WS_QWS
+    const bool glyphIndices = FALSE;
+    const bool useGlyphAsUnicode = TRUE;
+#endif
     stream << "<";
     if (si.analysis.bidiLevel % 2) {
         for (int i = len-1; i >=0; i--) {
