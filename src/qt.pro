@@ -6,7 +6,7 @@ CONFIG		+= png zlib
 
 # Uncomment the next line for builder development
 # Also define QT_BUILDER in qglobal.h
-#CONFIG		+= builder
+CONFIG		+= builder
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
@@ -52,6 +52,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
+		  $$DIALOGS_H/qlinedialog.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -412,7 +413,8 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
-		  dialogs/qwizard.cpp
+		  dialogs/qwizard.cpp \
+		  dialogs/qlinedialog.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
@@ -454,14 +456,17 @@ zlib:SOURCES   += $$ZLIB_SOURCES
 
 builder:HEADERS+= $$KERNEL_H/qdom.h \
 		  $$KERNEL_H/qvariant.h \
-		  $$KERNEL_H/qxml.h
+		  $$KERNEL_H/qxml.h \
+		  $$WIDGETS_H/qaction.h
 
 builder:SOURCES+= kernel/qdom.cpp \
 		  kernel/qdomext.cpp \
 		  kernel/qvariant.cpp \
-		  kernel/qxml.cpp
+		  kernel/qxml.cpp \
+		  widgets/qaction.cpp
 
 TARGET		= qt
 VERSION		= 2.1.0
 DESTDIR		= ../lib
 DLLDESTDIR	= ../bin
+
