@@ -187,7 +187,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
     const QColorGroup &cg = colorGroup();
 
-#if !defined( QT_NO_TEXTSTREAM )
+#if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
 #   define  SAVE_RADIOBUTTON_PIXMAPS
 #endif
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)

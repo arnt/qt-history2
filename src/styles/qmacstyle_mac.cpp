@@ -577,7 +577,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallRadioButton;
 	if(pe == PE_ExclusiveIndicator) {
-	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind, &info, NULL, NULL, NULL, 0);
 	} else {
@@ -602,7 +601,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
 	if(pe == PE_Indicator) {
-	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
 			    &info, NULL, NULL, NULL, 0);
