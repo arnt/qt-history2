@@ -1,6 +1,11 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on staticlib
-CONFIG 		-= dll
+CONFIG		+= qt warn_on 
+
+!contains(QT_PRODUCT,qt-internal) {
+   message(whee..)
+   CONFIG          += staticlib
+   CONFIG 		-= dll
+}
 
 TARGET	= designer
 win32:TARGET = designerlib
