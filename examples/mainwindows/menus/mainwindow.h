@@ -37,6 +37,7 @@ private slots:
     void setLineSpacing();
     void setParagraphSpacing();
     void about();
+    void aboutQt();
 
 private:
     void createActions();

@@ -125,9 +125,15 @@ void MainWindow::setParagraphSpacing()
 
 void MainWindow::about()
 {
+    infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     QMessageBox::about(this, tr("About Menu"),
             tr("The <b>Menu</b> example shows how to create "
                "menu-bar menus and context menus."));
+}
+
+void MainWindow::aboutQt()
+{
+    infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
 }
 
 void MainWindow::createActions()
@@ -237,12 +243,12 @@ void MainWindow::createActions()
     setLineSpacingAct = new QAction(tr("Set &Line Spacing..."), this);
     setLineSpacingAct->setStatusTip(tr("Change the gap between the lines of a "
                                        "paragraph"));
-    connect(setLineSpacingAct, SIGNAL(triggered()), this, SLOT(leftAlign()));
+    connect(setLineSpacingAct, SIGNAL(triggered()), this, SLOT(setLineSpacing()));
 
     setParagraphSpacingAct = new QAction(tr("Set &Paragraph Spacing..."), this);
     setLineSpacingAct->setStatusTip(tr("Change the gap between paragraphs"));
     connect(setParagraphSpacingAct, SIGNAL(triggered()),
-            this, SLOT(leftAlign()));
+            this, SLOT(setParagraphSpacing()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -251,6 +257,7 @@ void MainWindow::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
