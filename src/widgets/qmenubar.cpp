@@ -276,7 +276,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
     setGeometry( 0, 0, width(), h );
 
-    setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
+    setMouseTracking( style().styleHint(QStyle::SH_MenuBar_MouseTracking) );
 }
 
 
@@ -285,7 +285,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 void QMenuBar::changeEvent( QEvent *ev )
 {
     if(ev->type() == QEvent::StyleChange) {
-	setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
+	setMouseTracking( style().styleHint(QStyle::SH_MenuBar_MouseTracking) );
     } else if(ev->type() == QEvent::FontChange) {
 	badSize = TRUE;
 	updateGeometry();
