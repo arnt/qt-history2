@@ -2264,10 +2264,10 @@ elif [ "$Edition" = "troll" ]; then
 	Platform="Qt/QNX"
     elif [ "$PLATFORM_QWS" = "yes" ]; then
 	Platform="Qt/Embedded"
-    elif [ "$PLATFORM_X11" = "yes" ]; then
-	Platform="Qt/X11"
     elif [ "$PLATFORM_MAC" = "yes" ]; then
 	Platform="Qt/Mac"
+    elif [ "$PLATFORM_X11" = "yes" ]; then
+	Platform="Qt/X11"
     else
 	echo
 	echo "Internal error: unknown platform."
@@ -2304,10 +2304,10 @@ else
     fi
     if [ "$PLATFORM_QWS" = "yes" ]; then
 	Platform="Qt/Embedded"
-    elif [ "$PLATFORM_X11" = "yes" ]; then
-	Platform="Qt/X11"
     elif [ "$PLATFORM_MAC" = "yes" ]; then
 	Platform="Qt/Mac"
+    elif [ "$PLATFORM_X11" = "yes" ]; then
+	Platform="Qt/X11"
     else
 	echo >&2
 	echo "Internal error." >&2
