@@ -1193,7 +1193,7 @@ void QWidget::setWindowIconText(const QString &iconText)
 	CFStringRef str = 0;
 	if(!iconText.isNull())
 	    CFStringCreateWithCharacters(0, (UniChar *)iconText.unicode(), iconText.length());
-	SetWindowAlternateTitle(HIViewGetWindow((HIViewRef)winId()), str);
+	SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), str);
     }
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
@@ -1328,8 +1328,7 @@ void QWidget::showWindow()
 		    movey = avail.bottom() - r.height();
 		if(r.right() > avail.right())
 		    movex = avail.right() - r.width();
-		// +2 to prevent going under the menu bar
-		move(qMax(avail.left(), movex), qMax(avail.top() + 2, movey));
+		move(qMax(avail.left(), movex), qMax(avail.top(), movey));
 	}
     }
     data->fstrut_dirty = true;
@@ -1342,11 +1341,13 @@ void QWidget::showWindow()
 	} else if(qt_mac_is_macdrawer(this)) {
 	    OpenDrawer(window, kWindowEdgeDefault, true);
 #endif
-	} else {
-	    ShowHide(window, true);	//now actually show it
-            if(windowState() & WindowMinimized) //show in collapsed state
-                CollapseWindow(window, true);
+	else {
+	    ShowHide((WindowPtr)hd, true);	//now actually show it
         }
+	if(windowState() & WindowMinimized)
+	    CollapseWindow((WindowPtr)hd, true);
+	if(windowState() & WindowFullScreen)
+	    HideMenuBar();
 #ifndef QMAC_NO_FAKECURSOR
 	if(qstrcmp(name(), "fake_cursor") != 0)
 #endif
@@ -1386,6 +1387,8 @@ void QWidget::hideWindow()
 	    if(w && w->isVisible())
 		qt_event_request_activate(w);
 	}
+	if(windowState() & WindowFullScreen)
+	    ShowMenuBar();
     } else if(!parentWidget() || parentWidget()->isVisible()) { //strange!! ###
 	HIViewSetVisible((HIViewRef)winId(), false);
     }
@@ -1414,12 +1417,15 @@ void QWidget::setWindowState(uint newstate)
 		    }
 		    tlextra->savedFlags = getWFlags();
 		}
+		QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
 		setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 			  (getWFlags() & 0xffff0000)); 			  // preserve some widget flags
-		setGeometry(qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(this)));
+		resize(screen.size());
+		HideMenuBar();
 	    } else {
 		setParent(0, d->topData()->savedFlags);
 		setGeometry(d->topData()->normalGeometry);
+		ShowMenuBar();
 	    }
 	}
 
