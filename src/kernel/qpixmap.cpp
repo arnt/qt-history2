@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#4 $
 **
 ** Implementation of QPixmap class
 **
@@ -22,7 +22,7 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#4 $";
 #endif
 
 // --------------------------------------------------------------------------
@@ -42,8 +42,29 @@ void QPixmap::resize( int w, int h )
 	*this = pm;
     }
     else					// create new pixmap
-	*this = QPixmap( w, h, isBitMap() ? 1 : -1 );
+	*this = QPixmap( w, h, isBitmap() ? 1 : -1 );
 }
+
+
+void QPixmap::detach()				// detach shared pixmap
+{
+    if ( data->optim )				// detach is called before
+	data->dirty = 1;			//   pixmap is changed
+    if ( data->virgin || data->count == 1 ) {
+        data->virgin = FALSE;
+        return;
+    }
+    data->deref();
+    *this = copy();
+}
+
+QPixmap QPixmap::copy() const			// deep copy
+{
+    QPixmap tmp( data->w, data->h, data->d );
+    bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
+    return tmp;
+}
+
 
 const char *QPixmap::imageType( const char *fileName )
 {						// determine image format
@@ -73,7 +94,7 @@ bool QPixmap::save( const char *fileName, const char *format ) const
     return io.write();
 }
 
-bool QPixmap::isBitMap() const			// reimplemented in QBitmap
+bool QPixmap::isBitmap() const			// reimplemented in QBitmap
 {
     return FALSE;
 }
@@ -120,8 +141,9 @@ void QPixmap::cleanup()				// cleanup cache
     delete pmcache;
 }
 
+
 // --------------------------------------------------------------------------
-// standard image io handlers (defined below)
+// Standard image io handlers (defined below)
 //
 
 static void read_qt_image( QImageIO * );
@@ -232,10 +254,10 @@ static QImageHandler *get_image_handler( const char *format )
 }
 
 void QPixmap::defineIOHandler( const char *format,
-			      const char *header,
-			      const char *flags,
-			      image_io_handler read_image,
-			      image_io_handler write_image )
+			       const char *header,
+			       const char *flags,
+			       image_io_handler read_image,
+			       image_io_handler write_image )
 {
     if ( imageHandlers == 0 )
 	init_image_handlers();

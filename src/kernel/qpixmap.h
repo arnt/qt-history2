@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#20 $
 **
 ** Definition of QPixmap class
 **
@@ -40,17 +40,17 @@ public:
 
     QPixmap &operator=( const QPixmap & );
 
-    int	    width()     const { return data->pw; }
-    int	    height()    const { return data->ph; }
-    QSize   size()      const { return QSize(data->pw,data->ph); }
-    QRect   rect()      const { return QRect(0,0,data->pw,data->ph); }
-    int	    depth()     const { return data->pd; }
-    int	    numColors() const { return (1 << data->pd); }
+    int	    width()     const { return data->w; }
+    int	    height()    const { return data->h; }
+    QSize   size()      const { return QSize(data->w,data->h); }
+    QRect   rect()      const { return QRect(0,0,data->w,data->h); }
+    int	    depth()     const { return data->d; }
+    int	    numColors() const { return (1 << data->d); }
 
 #if defined(_WS_X11_)
     bool    isNull() const { return hd == 0; }
 #else
-    bool    isNull() const { return hbm == 0; }
+    bool    isNull() const { return data->hbm == 0; }
 #endif
 
     void    fill( const QColor &fillColor=white );
@@ -99,9 +99,9 @@ private:
     void   freeMemDC();
 #endif
 
-    struct QPixmapData : QShared {
-        QCOORD pw, ph;				// pixmap width,height
-        short  pd;				// pixmap depth
+    struct QPixmapData : QShared {		// internal pixmap data
+        QCOORD w, h;
+        short  d;
         uint   dirty  : 1;
         uint   optim  : 1;
         uint   virgin : 1;
