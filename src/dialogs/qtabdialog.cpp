@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#81 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#82 $
 **
 ** Implementation of QTabDialog class
 **
@@ -154,9 +154,7 @@
 
   </ol>
 
-  Most of the functionality in QTabDialog is provided by a QTabBar (at
-  the top, providing the tabs) and a QWidgetStack (most of the area,
-  organizing the individual pages).
+  Most of the functionality in QTabDialog is provided by a QTabWidget.
 
   <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
 

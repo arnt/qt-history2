@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#13 $
 **
 ** Implementation of QTabWidget class
 **
@@ -78,7 +78,7 @@
   the top, providing the tabs) and a QWidgetStack (most of the area,
   organizing the individual pages).
 
-  <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
+  <img src=qtabwidget-m.gif> <img src=qtabwidget-w.gif>
 
   \sa QTabDialog
 */
@@ -190,7 +190,7 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
-    
+
     //#### accelerators
     int id = d->stack->id( w );
     if ( !id )
@@ -278,8 +278,8 @@ void QTabWidget::showPage( QWidget * w)
     }
 }
 
-/*! Removes page \a w from this stack of widgets.  Does not 
-  delete \a w. 
+/*! Removes page \a w from this stack of widgets.  Does not
+  delete \a w.
   \sa showPage(), \sa QWidgetStack::removeWidget()
 */
 void QTabWidget::removePage( QWidget * w )
