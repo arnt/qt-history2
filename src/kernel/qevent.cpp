@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#98 $
 **
 ** Implementation of event classes
 **
@@ -977,7 +977,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   </ul>
 
   The Link and Move actions only makes sense if the data is
-  a reference, such as \link QUrlDrag text/uri-list file lists\endlink.
+  a reference, such as \link QUriDrag text/uri-list file lists\endlink.
 */
 
 /*!
