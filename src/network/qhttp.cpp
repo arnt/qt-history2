@@ -1110,35 +1110,9 @@ QString QHttpRequestHeader::toString() const
     \module network
     \mainclass
 
-    This class provides two different interfaces: one is the
-    QNetworkProtocol interface that allows you to use HTTP through the
-    QUrlOperator abstraction. The other is a direct interface to HTTP
-    that allows you to have more control over the requests and that
-    allows you to access the response header fields.
-
-    Don't mix the two interfaces, since the behavior is not
-    well-defined.
-
-    If you want to use QHttp with the QNetworkProtocol interface, you
-    do not use it directly, but rather through a QUrlOperator, for
-    example:
-
-    \code
-    QUrlOperator op("http://www.trolltech.com");
-    op.get("index.html");
-    \endcode
-
-    This code will only work if the QHttp class is registered; to
-    register the class, you must call qInitNetworkProtocols() before
-    using a QUrlOperator with HTTP.
-
-    The QNetworkProtocol interface for HTTP only supports the
-    operations operationGet() and operationPut(), i.e.
-    QUrlOperator::get() and QUrlOperator::put(), if you use it with a
-    QUrlOperator.
-
-    The rest of this descrption describes the direct interface to
-    HTTP.
+    This class provides a direct interface to HTTP that allows you to
+    have more control over the requests and that allows you to access
+    the response header fields.
 
     The class works asynchronously, so there are no blocking
     functions. If an operation cannot be executed immediately, the
@@ -1267,15 +1241,15 @@ QString QHttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QFtp
+    \sa \l{networking.html}{Networking Overview}, QFtp
 */
 
 /*!
-    Constructs a QHttp object. The parameters \a parent and \a name
-    are passed on to the QNetworkProtocol constructor.
+    Constructs a QHttp object. The \a parent and \a name parameters
+    are passed on to the QObject constructor.
 */
 QHttp::QHttp(QObject* parent, const char* name)
-: QObject(parent)
+    : QObject(parent)
 {
     setObjectName(name);
     init();
@@ -1283,14 +1257,15 @@ QHttp::QHttp(QObject* parent, const char* name)
 
 /*!
     Constructs a QHttp object. Subsequent requests are done by
-    connecting to the server \a hostname on port \a port. The
-    parameters \a parent and \a name are passed on to the
-    QNetworkProtocol constructor.
+    connecting to the server \a hostname on port \a port.
+
+    The \a parent and \a name parameters are passed on to the
+    QObject constructor.
 
     \sa setHost()
 */
 QHttp::QHttp(const QString &hostname, Q_UINT16 port, QObject* parent, const char* name)
-: QObject(parent)
+    : QObject(parent)
 {
     setObjectName(name);
     init();
