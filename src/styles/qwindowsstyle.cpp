@@ -801,13 +801,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 		xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
 		vrect = visualRect( QRect(xpos, y + h / 2 - dim / 2, dim, dim), r );
 		if ( act ) {
-		    if ( !dis )
-			discol = white;
-		    QColorGroup g2( discol, cg.highlight(),
-				    white, white,
-				    dis ? discol : white,
-				    discol, white );
-
+		    QColorGroup g2 = cg;
+		    g2.setColor( QColorGroup::ButtonText, g2.highlightedText() );
 		    drawPrimitive(arrow, p, vrect,
 				  g2, dis ? Style_Default : Style_Enabled);
 		} else {
