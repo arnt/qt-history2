@@ -3,7 +3,6 @@
 #include "qtextformat.h"
 #include "qtextblockiterator.h"
 #include <qdebug.h>
-#include "qtextlist_p.h"
 #include "qtexttable_p.h"
 
 #include <stdlib.h>
