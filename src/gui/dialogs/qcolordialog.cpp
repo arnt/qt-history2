@@ -21,7 +21,6 @@
 #include "qdragobject.h"
 #include "qdrawutil.h"
 #include "qevent.h"
-#include "qgridview.h"
 #include "qimage.h"
 #include "qlabel.h"
 #include "qlayout.h"
@@ -44,18 +43,16 @@ QColor macGetColor(const QColor& initial, QWidget *parent, const char *name);
 
 struct QWellArrayData;
 
-class QWellArray : public QGridView
+class QWellArray : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(int selectedColumn READ selectedColumn)
     Q_PROPERTY(int selectedRow READ selectedRow)
 
 public:
-    QWellArray(QWidget* parent=0, const char* name=0, bool popup = false);
-
+    QWellArray(int rows, int cols, QWidget* parent=0);
     ~QWellArray() {}
     QString cellContent(int row, int col) const;
-    // ### Paul !!! virtual void setCellContent(int row, int col, const QString &);
 
     int selectedColumn() const { return selCol; }
     int selectedRow() const { return selRow; }
@@ -68,28 +65,65 @@ public:
     virtual void setCellBrush(int row, int col, const QBrush &);
     QBrush cellBrush(int row, int col);
 
+    inline int cellWidth() const
+        { return cellw; }
+
+    inline int cellHeight() const
+        { return cellh; }
+
+    inline int rowAt(int y) const
+        { return y / cellh; }
+
+    inline int columnAt(int x) const
+        { return x / cellw; }
+
+    inline int numRows() const
+        { return nrows; }
+
+    inline int numCols() const
+        {return ncols; }
+
+    inline QRect cellRect() const
+        { return QRect(0, 0, cellw, cellh); }
+
+    inline QSize gridSize() const
+        { return QSize(ncols * cellw, nrows * cellh); }
+
+    QRect cellGeometry(int row, int column)
+        {
+            QRect r;
+            if (row >= 0 && row < nrows && column >= 0 && column < ncols)
+                r.setRect(cellw * column, cellh * row, cellw, cellh);
+            return r;
+        }
+
+
+    inline void updateCell(int row, int column) { update(cellGeometry(row, column)); }
+
+
 signals:
     void selected(int row, int col);
 
 protected:
-    void dimensionChange(int oldRows, int oldCols);
-
     virtual void paintCell(QPainter *, int row, int col);
     virtual void paintCellContents(QPainter *, int row, int col, const QRect&);
 
     void mousePressEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
-    void mouseMoveEvent(QMouseEvent*);
     void keyPressEvent(QKeyEvent*);
     void focusInEvent(QFocusEvent*);
     void focusOutEvent(QFocusEvent*);
+    void paintEvent(QPaintEvent *);
 
 private:
+    int nrows;
+    int ncols;
+    int cellw;
+    int cellh;
     int curRow;
     int curCol;
     int selRow;
     int selCol;
-    bool smallStyle;
     QWellArrayData *d;
 
 private:        // Disabled copy constructor and operator=
@@ -99,6 +133,46 @@ private:        // Disabled copy constructor and operator=
 #endif
 };
 
+void QWellArray::paintEvent(QPaintEvent *e)
+{
+    QRect r = e->rect();
+    int cx = r.x();
+    int cy = r.y();
+    int ch = r.height();
+    int cw = r.width();
+    int colfirst = columnAt(cx);
+    int collast = columnAt(cx + cw);
+    int rowfirst = rowAt(cy);
+    int rowlast = rowAt(cy + ch);
+
+    QPainter painter(this);
+    QPainter *p = &painter;
+
+
+    if (collast < 0 || collast >= ncols)
+        collast = ncols-1;
+    if (rowlast < 0 || rowlast >= nrows)
+        rowlast = nrows-1;
+
+    // Go through the rows
+    for (int r = rowfirst; r <= rowlast; ++r) {
+        // get row position and height
+        int rowp = r * cellh;
+
+        // Go through the columns in the row r
+        // if we know from where to where, go through [colfirst, collast],
+        // else go through all of them
+        for (int c = colfirst; c <= collast; ++c) {
+            // get position and width of column c
+            int colp = c * cellw;
+            // Translate painter and draw the cell
+            p->translate(colp, rowp);
+            paintCell(p, r, c);
+            p->translate(-colp, -rowp);
+        }
+    }
+
+}
 
 
 // non-interface ...
@@ -118,44 +192,26 @@ struct QWellArrayData {
     \ingroup advanced
 */
 
-QWellArray::QWellArray(QWidget *parent, const char * name, bool popup)
-    : QGridView(parent, name,
-                 (popup ? (Qt::WStyle_Customize|Qt::WStyle_Tool|Qt::WStyle_NoBorder) : Qt::WFlags(0)))
+QWellArray::QWellArray(int rows, int cols, QWidget *parent)
+    : QWidget(parent)
+        ,nrows(rows), ncols(cols)
 {
     d = 0;
     setFocusPolicy(Qt::StrongFocus);
-    setVScrollBarMode(AlwaysOff);
-    setHScrollBarMode(AlwaysOff);
-    viewport()->setBackgroundRole(QPalette::Background);
-    setNumCols(7);
-    setNumRows(7);
-    setCellWidth(24);
-    setCellHeight(21);
-    smallStyle = popup;
-
-    if (popup) {
-        setCellWidth(18);
-        setCellHeight(18);
-        setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-        setLineWidth(2);
-    } else {
-        setFrameStyle(QFrame::NoFrame);
-    }
+    cellw = 28;
+    cellh = 24;
     curCol = 0;
     curRow = 0;
     selCol = -1;
     selRow = -1;
 
-    if (smallStyle)
-        setMouseTracking(true);
 }
 
 
 QSize QWellArray::sizeHint() const
 {
     ensurePolished();
-    QSize s = gridSize().boundedTo(QSize(640, 480));
-    return QSize(s.width() + 2*frameWidth(), s.height() + 2*frameWidth());
+    return gridSize().boundedTo(QSize(640, 480));
 }
 
 
@@ -163,19 +219,18 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
 {
     int w = cellWidth();                        // width of cell in pixels
     int h = cellHeight();                        // height of cell in pixels
-    int b = 1;
-
-    if (!smallStyle)
-        b = 3;
+    int b = 3;
 
     const QPalette & g = palette();
     p->setPen(QPen(Qt::black, 0, Qt::SolidLine));
-    if (!smallStyle && row ==selRow && col == selCol &&
+    if (row ==selRow && col == selCol &&
          style().styleHint(QStyle::SH_GUIStyle) != Qt::MotifStyle) {
         int n = 2;
         p->drawRect(n, n, w-2*n, h-2*n);
     }
     QStyleOptionFrame opt(0);
+    opt.lineWidth = 2;
+    opt.midLineWidth = 1;
     opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
     opt.palette = g;
     opt.state = QStyle::Style_Enabled | QStyle::Style_Sunken;
@@ -187,14 +242,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
     b += 2 + t;
 
     if ((row == curRow) && (col == curCol)) {
-        if (smallStyle) {
-            p->setPen (Qt::white);
-            p->drawRect(1, 1, w-2, h-2);
-            p->setPen (Qt::black);
-            p->drawRect(0, 0, w, h);
-            p->drawRect(2, 2, w-4, h-4);
-            b = 3;
-        } else if (hasFocus()) {
+        if (hasFocus()) {
             QStyleOptionFocusRect opt(0);
             opt.palette = g;
             opt.rect.setRect(0, 0, w, h);
@@ -241,18 +289,6 @@ void QWellArray::mouseReleaseEvent(QMouseEvent*)
     setSelected(curRow, curCol);
 }
 
-
-/*\reimp
-*/
-void QWellArray::mouseMoveEvent(QMouseEvent* e)
-{
-    //   The current cell marker is set to the cell the mouse is
-    //   clicked in.
-    if (smallStyle) {
-        QPoint pos = e->pos();
-        setCurrent(rowAt(pos.y()), columnAt(pos.x()));
-    }
-}
 
 /*
   Sets the cell currently having the focus. This is not necessarily
@@ -319,20 +355,6 @@ void QWellArray::focusInEvent(QFocusEvent*)
 }
 
 
-/*!
-  Sets the size of the well array to be \a rows cells by \a cols.
-  Resets any brush information set by setCellBrush().
- */
-void QWellArray::dimensionChange(int, int)
-{
-    if (d) {
-        if (d->brush)
-            delete[] d->brush;
-        delete d;
-        d = 0;
-    }
-}
-
 void QWellArray::setCellBrush(int row, int col, const QBrush &b)
 {
     if (!d) {
@@ -384,14 +406,10 @@ void QWellArray::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Up:
         if(curRow > 0)
             setCurrent(curRow - 1, curCol);
-        else if (smallStyle)
-            focusNextPrevChild(false);
         break;
     case Qt::Key_Down:
         if(curRow < numRows()-1)
             setCurrent(curRow + 1, curCol);
-        else if (smallStyle)
-            focusNextPrevChild(true);
         break;
     case Qt::Key_Space:
     case Qt::Key_Return:
@@ -480,8 +498,8 @@ class QColorWell : public QWellArray
 {
 public:
     QColorWell(QWidget *parent, int r, int c, QRgb *vals)
-        :QWellArray(parent, ""), values(vals), mousePressed(false), oldCurrent(-1, -1)
-    { setNumRows(r), setNumCols(c); setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum)); }
+        :QWellArray(r, c, parent), values(vals), mousePressed(false), oldCurrent(-1, -1)
+    { setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum)); }
 
 protected:
     void paintCellContents(QPainter *, int row, int col, const QRect&);
@@ -572,7 +590,7 @@ void QColorWell::dropEvent(QDropEvent *e)
         QColor col;
         QColorDrag::decode(e, col);
         values[i] = col.rgb();
-        repaintContents();
+        update();
         e->accept();
     } else {
         e->ignore();
@@ -604,7 +622,7 @@ signals:
 
 protected:
     QSize sizeHint() const;
-    void drawContents(QPainter* p);
+    void paintEvent(QPaintEvent*);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
 
@@ -818,16 +836,18 @@ void QColorPicker::mousePressEvent(QMouseEvent *m)
     emit newCol(hue, sat);
 }
 
-void QColorPicker::drawContents(QPainter* p)
+void QColorPicker::paintEvent(QPaintEvent* )
 {
+    QPainter p(this);
+    drawFrame(&p);
     QRect r = contentsRect();
 
-    p->drawPixmap(r.topLeft(), *pix);
+    p.drawPixmap(r.topLeft(), *pix);
     QPoint pt = colPt() + r.topLeft();
-    p->setPen(QPen(Qt::black));
+    p.setPen(Qt::black);
 
-    p->fillRect(pt.x()-9, pt.y(), 20, 2, Qt::black);
-    p->fillRect(pt.x(), pt.y()-9, 2, 20, Qt::black);
+    p.fillRect(pt.x()-9, pt.y(), 20, 2, Qt::black);
+    p.fillRect(pt.x(), pt.y()-9, 2, 20, Qt::black);
 
 }
 
@@ -1279,8 +1299,6 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
 
     if (!compact) {
         standard = new QColorWell(dialog, 6, 8, stdrgb);
-        standard->setCellWidth(28);
-        standard->setCellHeight(24);
         QLabel * lab = new QLabel(standard,
                                 QColorDialog::tr("&Basic colors"), dialog, "qt_basiccolors_lbl");
         connect(standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
@@ -1291,8 +1309,6 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
         leftLay->addStretch();
 
         custom = new QColorWell(dialog, 2, 8, cusrgb);
-        custom->setCellWidth(28);
-        custom->setCellHeight(24);
         custom->setAcceptDrops(true);
 
         connect(custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
@@ -1364,7 +1380,7 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
 void QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
-    custom->repaintContents();
+    custom->update();
     nextCust = (nextCust+1) % 16;
 }
 
