@@ -2561,14 +2561,20 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 
 	if ( qApp->inPopupMode() ) {			// in popup mode
 	    QWidget *popup = qApp->activePopupWidget();
-	    if ( popup != this ) {
-		QSize s( qt_screen->width(), qt_screen->height() );
-		QPoint dp = qt_screen->mapToDevice( globalPos, s );
-		if ( testWFlags(WType_Popup) && alloc_region.contains(dp) )
-		    popup = this;
-		else				// send to last popup
-		    pos = popup->mapFromGlobal( globalPos );
+	    // in X11, this would be the window we are over.
+	    // in QWS this is the top level popup.  to allow mouse
+	    // events to other widgets, need to go through qApp->popupWidgets.
+	    QWidgetListIt it(*(qApp->popupWidgets));
+	    QSize s( qt_screen->width(), qt_screen->height() );
+	    QPoint dp = qt_screen->mapToDevice( globalPos, s );
+	    for (; it.current(); ++it) {
+		QWidget *w = it.current();
+		if ( w->testWFlags(WType_Popup) && w->alloc_region.contains(dp) ) {
+		    popup = w;
+		    break;
+		}
 	    }
+	    pos = popup->mapFromGlobal( globalPos );
 	    bool releaseAfter = FALSE;
 	    QWidget *popupChild  = QApplication::findChildWidget( popup, pos );
 	    QWidget *popupTarget = popupChild ? popupChild : popup;
