@@ -1485,6 +1485,31 @@ QByteArray& QByteArray::append(char ch)
 }
 
 /*!
+  \internal
+  Inserts \a len bytes from the array \a arr at position \a pos and returns a
+  reference the modified byte array.
+*/
+static inline QByteArray &qbytearray_insert(QByteArray *ba,
+                                            int pos, const char *arr, int len)
+{
+    Q_ASSERT(pos >= 0);
+    
+    if (pos < 0 || len <= 0 || arr == 0)
+        return *ba;
+    
+    int oldsize = ba->size();
+    ba->resize(qMax(pos, oldsize) + len);    
+    char *dst = ba->data();    
+    if (pos > oldsize)
+        ::memset(dst + oldsize, 0x20, pos - oldsize);
+    else 
+        ::memmove(dst + pos + len, dst + pos,
+                  (oldsize - pos) * sizeof(char));
+    memcpy(dst + pos, arr, len * sizeof(char));
+    return *ba;
+}
+
+/*!
     Inserts the byte array \a ba at index position \a i and returns a
     reference to this byte array.
 
@@ -1501,13 +1526,7 @@ QByteArray& QByteArray::append(char ch)
 QByteArray &QByteArray::insert(int i, const QByteArray &ba)
 {
     QByteArray copy(ba);
-
-    if (i < 0 || copy.d->size == 0)
-        return *this;
-    expand(qMax(d->size, i) + copy.d->size - 1);
-    ::memmove(d->data + i + copy.d->size, d->data + i, (d->size - i - copy.d->size) * sizeof(char));
-    memcpy(d->data + i, copy.d->data, copy.d->size * sizeof(char));
-    return *this;
+    return qbytearray_insert(this, i, copy.d->data, copy.d->size);
 }
 
 /*!
@@ -1541,17 +1560,7 @@ QByteArray &QByteArray::insert(int i, const QByteArray &ba)
 
 QByteArray &QByteArray::insert(int i, const char *str)
 {
-    if (!str || !*str || i < 0)
-        return *this;
-    int l = qstrlen(str);
-    int oldsize = d->size;
-    expand(qMax(d->size, i) + l - 1);
-    if (i > oldsize)
-        memset(d->data + oldsize, 0x20, i - oldsize);
-    else
-        ::memmove(d->data + i + l, d->data + i, (d->size - i - l)*sizeof(char));
-    memcpy(d->data + i, str, l * sizeof(char));
-    return *this;
+    return qbytearray_insert(this, i, str, qstrlen(str));    
 }
 
 /*!
@@ -1564,18 +1573,7 @@ QByteArray &QByteArray::insert(int i, const char *str)
 
 QByteArray &QByteArray::insert(int i, char ch)
 {
-    if (i < 0)
-        i += d->size;
-    if (i < 0)
-        return *this;
-    int oldsize = d->size;
-    expand(qMax(i, d->size));
-    if (i > oldsize)
-        memset(d->data + oldsize, 0x20, i - oldsize);
-    else
-        ::memmove(d->data + i + 1, d->data + i, (d->size - i) * sizeof(char));
-    d->data[i] = ch;
-    return *this;
+    return qbytearray_insert(this, i, &ch, 1);    
 }
 
 /*!
@@ -1598,7 +1596,7 @@ QByteArray &QByteArray::insert(int i, char ch)
 
 QByteArray &QByteArray::remove(int pos, int len)
 {
-    if (len <= 0 || pos >= d->size || pos < 0)
+    if (len <= 0  || pos >= d->size || pos < 0)
         return *this;
     detach();
     if (pos + len >= d->size) {
