@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#24 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#24 $");
 
 
 /*!
@@ -263,6 +263,26 @@ void QFileDialog::rereadDir()
 }
 
 
+
+/*!
+  \fn void QFileDialog::fileHighlighted( const char * )
+
+  This signal is emitted when the user highlights a file.
+  */
+
+/*!
+  \fn void QFileDialog::fileSelected( const char * )
+
+  This signal is emitted when the user selects a file.
+  */
+
+/*!
+  \fn void QFileDialog::dirEntered( const char * )
+
+  This signal is emitted when the user has selected a new directory.
+  */
+
+
 /*!
   Opens a modal file dialog and returns the name of the file to be opened.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
@@ -379,24 +399,6 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 #endif
 }
 
-
-/*!
-  \fn QFileDialog::fileHighlighted ( const char * )
-
-  This signal is emitted when the user highlights a file.
-  */
-
-/*!
-  \fn QFileDialog::fileSelected ( const char * )
-
-  This signal is emitted when the user selects a file.
-  */
-
-/*!
-  \fn QFileDialog::dirEntered ( const char * )
-
-  This signal is emitted when the user has selected a new directory.
-  */
 
 /*!
   \internal
