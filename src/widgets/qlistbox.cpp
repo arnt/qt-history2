@@ -2796,7 +2796,7 @@ bool QListBox::isSelected( const QListBoxItem * i ) const
     return i->s;
 }
 
-/*!  Returns the index of the selected item if the list box is in
+/*!  Returns the selected item if the list box is in
 single-selection mode and an item is selected.
 
 If no items are selected or the list box is in another selection mode
