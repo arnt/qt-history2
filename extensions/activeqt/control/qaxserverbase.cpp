@@ -1040,7 +1040,8 @@ void QAxServerBase::internalBind()
 	isBindable = TRUE;
 	// no addref; this is aggregated
 	axb->activex = this;
-	aggregatedObject = axb->createAggregate();
+	if (!aggregatedObject)
+	    aggregatedObject = axb->createAggregate();
 	if ( aggregatedObject ) {
 	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
 	    aggregatedObject->the_object = qt.object;
@@ -1055,7 +1056,8 @@ void QAxServerBase::internalConnect()
 {
     QString eventsID = qAxFactory()->eventsID(class_name);
     if ( !eventsID.isEmpty() ) {
-	points[eventsID] = new QAxConnection( this, eventsID );
+	if (!points[eventsID])
+	    points[eventsID] = new QAxConnection( this, eventsID );
 	// connect the generic slot to all signals of qt.object
 	const QMetaObject *mo = qt.object->metaObject();
 	for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
@@ -2553,10 +2555,10 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
     if ( !lprcBounds )
 	return E_INVALIDARG;
 
+    internalCreate();
+
     if ( !isWidget || !qt.widget )
 	return OLE_E_BLANK;
-
-    internalCreate();
 
     switch ( dwAspect ) {
     case DVASPECT_CONTENT:
@@ -2575,22 +2577,14 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 	bDeleteDC = (hicTargetDev != hdcDraw);
     }
 
-    RECTL rectBoundsDP = *lprcBounds;
-    bool bMetaFile = GetDeviceCaps(hdcDraw, TECHNOLOGY) == DT_METAFILE;
-    if ( !bMetaFile  ) {
-	::LPtoDP(hicTargetDev, (LPPOINT)&rectBoundsDP, 2);
-	SaveDC(hdcDraw);
-	SetMapMode(hdcDraw, MM_TEXT);
-	SetWindowOrgEx(hdcDraw, 0, 0, 0);
-	SetViewportOrgEx(hdcDraw, 0, 0, 0);
-    }
-    lprcBounds = &rectBoundsDP;
     RECTL rc = *lprcBounds;
+    bool bMetaFile = GetDeviceCaps(hdcDraw, TECHNOLOGY) == DT_METAFILE;
+    if ( !bMetaFile  )
+	::LPtoDP(hicTargetDev, (LPPOINT)&rc, 2);
 
     qt.widget->resize( rc.right - rc.left, rc.bottom - rc.top );
     QPixmap pm = QPixmap::grabWidget( qt.widget );
-    BOOL res = ::BitBlt( hdcDraw, 0, 0, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY );
-
+    BOOL res = ::BitBlt( hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY );
     if ( !res ) {
 	QPainter painter( qt.widget );
 	HDC oldDC = ((HackPainter*)&painter)->hdc;
@@ -2603,8 +2597,6 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 
     if ( bDeleteDC )
 	DeleteDC( hicTargetDev );
-    if (!bMetaFile)
-	RestoreDC( hdcDraw, -1 );
 
     return S_OK;
 }
