@@ -12,8 +12,6 @@ public:
     QDomDocument *toXml();
 
 private:
-    void createItems(QDomElement &parent, const QTextBlock &block);
-
     QDomDocument *document;
     QTextDocument *textDocument;
 };

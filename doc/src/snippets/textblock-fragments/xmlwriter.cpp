@@ -19,20 +19,12 @@ QDomDocument *XmlWriter::toXml()
     QDomElement documentElement = document->createElement("document");
     document->appendChild(documentElement);
 
-    QTextBlock firstBlock = textDocument->begin();
-    createItems(documentElement, firstBlock);
-
-    return document;
-}
-
-void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
-{
-    QTextBlock currentBlock = block;
+    QTextBlock currentBlock = textDocument->begin();
 
     while (currentBlock.isValid()) {
 
         QDomElement blockElement = document->createElement("block");
-        parent.appendChild(blockElement);
+        document->appendChild(blockElement);
 
         QTextBlock::iterator it;
         for (it = currentBlock.begin(); !(it.atEnd()); ++it) {
@@ -53,4 +45,6 @@ void XmlWriter::createItems(QDomElement &parent, const QTextBlock &block)
         }
         currentBlock = currentBlock.next();
     }
+
+    return document;
 }
