@@ -163,14 +163,14 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 	p->painterState()->painter->map( x, y, &x, &y );
 
     if ( textFlags ) {
-	int lw = lineThickness();
+	int lw = lineThickness().toInt();
 	GFX(p)->setBrush( p->painterState()->pen.color() );
 	if ( textFlags & Qt::Underline )
-	    GFX(p)->fillRect( x, y+underlinePosition(), si.width, lw );
+	    GFX(p)->fillRect( x, y+underlinePosition().toInt(), si.width, lw );
 	if ( textFlags & Qt::StrikeOut )
-	    GFX(p)->fillRect( x, y-ascent()/3, si.width, lw );
+	    GFX(p)->fillRect( x, y-ascent().toInt()/3, si.width, lw );
 	if ( textFlags & Qt::Overline )
-	    GFX(p)->fillRect( x, y-ascent()-1, si.width, lw );
+	    GFX(p)->fillRect( x, y-ascent().toInt()-1, si.width, lw );
 	GFX(p)->setBrush( p->painterState()->brush );
     }
 
@@ -200,13 +200,13 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 	Q_ASSERT(glyph);
 	int myw = glyph->width;
 	gfx->setAlphaSource(glyph->data, glyph->pitch);
-	int myx = x + g->offset.x + glyph->bearingx;
-	int myy = y + g->offset.y - glyph->bearingy;
+	int myx = x + (g->offset.x + glyph->bearingx).toInt();
+	int myy = y + (g->offset.y - glyph->bearingy).toInt();
 
 	if( glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
 	    gfx->blt(myx,myy,myw,glyph->height,0,0);
 
-	x += g->advance.x;
+	x += g->advance.x.toInt();
     }
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText unlock");
@@ -225,11 +225,11 @@ glyph_metrics_t QFontEngineFT::boundingBox( const QGlyphLayout *glyphs, int numG
     if ( numGlyphs == 0 )
 	return glyph_metrics_t();
 
-    int w = 0;
+    Q26Dot6 w;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while( end > glyphs )
 	w += (--end)->advance.x;
-    w = (w*_scale)>>8;
+    w *= _scale;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
 
@@ -237,9 +237,9 @@ glyph_metrics_t QFontEngineFT::boundingBox( glyph_t glyph )
 {
     const QGlyph *g = rendered_glyphs[glyph];
     Q_ASSERT(g);
-    return glyph_metrics_t( (g->bearingx*_scale)>>8, (g->bearingy*_scale)>>8,
-			    (g->width*_scale)>>8, (g->height*_scale)>>8,
-			    (g->advance*_scale)>>8, 0 );
+    return glyph_metrics_t( g->bearingx*_scale, g->bearingy*_scale,
+			    g->width*_scale, g->height*_scale,
+			    g->advance*_scale, 0 );
 }
 
 bool QFontEngineFT::canRender( const QChar *string,  int len )
@@ -256,49 +256,49 @@ bool QFontEngineFT::canRender( const QChar *string,  int len )
 #define CEIL(x)   (((x)+63) & -64)
 #define TRUNC(x)  ((x) >> 6)
 
-int QFontEngineFT::ascent() const
+Q26Dot6 QFontEngineFT::ascent() const
 {
-    return CEIL(face->size->metrics.ascender)/64;
+    return Q26Dot6(face->size->metrics.ascender, F26Dot6);
 }
 
-int QFontEngineFT::descent() const
+Q26Dot6 QFontEngineFT::descent() const
 {
-    return -FLOOR(face->size->metrics.descender)/64-1;
+    return Q26Dot6(-face->size->metrics.descender + 64, F26Dot6);
 }
 
-int QFontEngineFT::leading() const
+Q26Dot6 QFontEngineFT::leading() const
 {
-    return CEIL(face->size->metrics.height)/64
-	- CEIL(face->size->metrics.ascender)/64 /*ascent*/
-	- (-FLOOR(face->size->metrics.descender)/64-1) /* descent */
-	- 1;
+    return Q26Dot6(face->size->metrics.height
+		   - face->size->metrics.ascender /*ascent*/
+		   + face->size->metrics.descender - 64   /* descent */
+		   - 1, F26Dot6);
 }
 
-int QFontEngineFT::maxCharWidth() const
+Q26Dot6 QFontEngineFT::maxCharWidth() const
 {
-    return CEIL(face->size->metrics.max_advance)/64;
+    return Q26Dot6(face->size->metrics.max_advance, F26Dot6);
 }
 
-int QFontEngineFT::minLeftBearing() const
+Q26Dot6 QFontEngineFT::minLeftBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinLeftBearing(handle())*_scale)>>8;
 }
 
-int QFontEngineFT::minRightBearing() const
+Q26Dot6 QFontEngineFT::minRightBearing() const
 {
     return 0;
 //     return (memorymanager->fontMinRightBearing(handle())*_scale)>>8;
 }
 
-int QFontEngineFT::underlinePosition() const
+Q26Dot6 QFontEngineFT::underlinePosition() const
 {
-    return CEIL(FT_MulFix(face->underline_position, face->size->metrics.y_scale))/64;
+    return Q26Dot6(FT_MulFix(face->underline_position, face->size->metrics.y_scale), F26Dot6);
 }
 
-int QFontEngineFT::lineThickness() const
+Q26Dot6 QFontEngineFT::lineThickness() const
 {
-    return CEIL(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale))/64;
+    return Q26Dot6(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale), F26Dot6);
 }
 
 QFontEngine::Type QFontEngineFT::type() const
@@ -397,23 +397,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
     return glyph_metrics_t(0, _size, _size, _size, _size, 0);
 }
 
-int QFontEngineBox::ascent() const
+Q26Dot6 QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-int QFontEngineBox::descent() const
+Q26Dot6 QFontEngineBox::descent() const
 {
     return 0;
 }
 
-int QFontEngineBox::leading() const
+Q26Dot6 QFontEngineBox::leading() const
 {
     int l = qRound(_size * 0.15);
     return (l > 0) ? l : 1;
 }
 
-int QFontEngineBox::maxCharWidth() const
+Q26Dot6 QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }
@@ -434,7 +434,7 @@ QFontEngine::Type QFontEngineBox::type() const
 }
 
 
-int QFontEngine::lineThickness() const
+Q26Dot6 QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -447,10 +447,9 @@ int QFontEngine::lineThickness() const
     return lw;
 }
 
-int QFontEngine::underlinePosition() const
+Q26Dot6 QFontEngine::underlinePosition() const
 {
-    int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
-    return pos ? pos : 1;
+    return ( ( lineThickness() * 2 ) + 3 ) / 6;
 }
 
 

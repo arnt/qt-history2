@@ -210,11 +210,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	return 0;
 
     const QChar &ch = str.unicode()[ pos ];
-    if ( ch.unicode() < QFontEngineData::widthCacheSize &&
-	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
-	return (d->engineData->widthCache[ ch.unicode() ]*d->engineData->engine->_scale)>>8;
 
-    if ( ::isMark( ch.unicode() ) )
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
     QFont::Script script;
@@ -229,7 +226,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	QConstString cstr( str.unicode()+from, to-from);
 	QTextEngine layout( cstr.string(), d );
 	layout.itemize( QTextEngine::WidthOnly );
-	width = layout.width( pos-from, 1 );
+	width = layout.width(pos-from, 1).toInt();
     } else {
 	QFontEngine *engine = d->engineForScript( script );
 	Q_ASSERT( engine != 0 );
@@ -237,33 +234,26 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
 	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
-	width = glyphs[0].advance.x;
+	width = glyphs[0].advance.x.toInt();
     }
-    if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
-	d->engineData->widthCache[ ch.unicode() ] = width;
     return width;
 }
 
 int QFontMetrics::width( QChar ch ) const
 {
-    unsigned short uc = ch.unicode();
-    QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    if ( uc < QFontEngineData::widthCacheSize &&
-	 d->engineData && d->engineData->widthCache[ uc ] )
-	return (d->engineData->widthCache[ uc ]*engine->_scale)>>8;
-
     if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
+
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+    Q_ASSERT( engine != 0 );
 
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
-
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance.x < 0x100 )
-	d->engineData->widthCache[ uc ] = glyphs[0].advance.x;
-
-    return (glyphs[0].advance.x*engine->_scale)>>8;
+    return glyphs[0].advance.x.toInt();
 }
 
 
