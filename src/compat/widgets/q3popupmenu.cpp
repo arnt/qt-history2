@@ -1611,6 +1611,7 @@ bool Q3PopupMenu::event(QEvent *e)
             return true;
         }
     break; }
+#ifndef QT_NO_ACCESSIBILITY
     case QEvent::Accessibility: {
         QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
         if (ev->child() > 0 && ev->textType() == QAccessibleEvent::Help) {
@@ -1618,6 +1619,7 @@ bool Q3PopupMenu::event(QEvent *e)
             return true;
         }
     break; }
+#endif
     default:
         break;
     }
