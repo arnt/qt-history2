@@ -360,6 +360,7 @@ void QMenuBar::menuContentsChanged()
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(mac_eaten_menubar)
 	macDirtyNativeMenubar();
+
     bool all_hidden = TRUE;
     if(irects) {
 	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
@@ -452,6 +453,14 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	event->type() == QEvent::MouseButtonRelease ) {
 	waitforalt = FALSE;
 	return FALSE;
+    } else if ( waitforalt && event->type() == QEvent::FocusOut ) {
+	// some window systems/managers use alt/meta as accelerator keys
+	// for switching between windows/desktops/etc.  If the focus
+	// widget gets unfocused, then we need to stop waiting for alt
+	// NOTE: this event came from the real focus widget, so we don't
+	// need to touch the event filters
+	waitforalt = 0;
+	return FALSE;
     } else if ( ! ( event->type() == QEvent::Accel ||
 	event->type() == QEvent::KeyPress ||
 	event->type() == QEvent::KeyRelease ) ||
@@ -521,7 +530,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    setAltMode( FALSE );
 	}
     }
-
 
     return FALSE;				// don't stop event
 }
@@ -705,7 +713,7 @@ void QMenuBar::show()
     if ( parentWidget() )
 	resize( parentWidget()->width(), height() );
     calculateRects();
-    
+
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     //If all elements are invisible no reason for me to be visible either
     bool all_hidden = TRUE;

@@ -628,7 +628,13 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 
     // okay, now to find a suitable location
+#if defined(Q_WS_X11)
+    QRect screen =
+	QApplication::desktop()->screenGeometry( widget ? widget->x11Screen() :
+						 QCursor::x11Screen() );
+#else
     QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
+#endif
     int x;
     int w = whatsThat->width();
     int h = whatsThat->height();

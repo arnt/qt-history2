@@ -41,6 +41,8 @@
 #include "qdir.h"
 #include "qfiledefs_p.h"
 
+#include <limits.h>
+
 
 void QFileInfo::slashify( QString& )
 {
