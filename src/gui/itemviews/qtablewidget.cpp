@@ -51,9 +51,9 @@ public:
 
 #ifdef Q_NO_USING_KEYWORD
     int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parnet); }
+        { return QAbstractItemModel::rowCount(parent); }
     int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parnet); }
+        { return QAbstractItemModel::columnCount(parent); }
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order)
         { QAbstractItemModel::sort(column, parent, order); }
 #else
