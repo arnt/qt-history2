@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#90 $
 **
 ** Implementation of QColor class for X11
 **
@@ -324,9 +324,9 @@ uint QColor::alloc()
 	pix = dpy ? (uint)BlackPixel(dpy, scr) : 0;
 	return pix;
     }
-    int r = (int)(rgbVal & 0xff);
-    int g = (int)((rgbVal >> 8) & 0xff);
-    int b = (int)((rgbVal >> 16) & 0xff);
+    int r = qRed(rgbVal);
+    int g = qGreen(rgbVal);
+    int b = qBlue(rgbVal);
     if ( g_truecolor ) {			// truecolor: map to pixel
 	r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 	g = green_shift > 0 ? g << green_shift : g >> -green_shift;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#85 $
 **
 ** Implementation of QColor class
 **
@@ -390,9 +390,9 @@ void QColor::hsv( int *h, int *s, int *v ) const
 
 void QColor::getHsv( int &h, int &s, int &v ) const
 {
-    int r = (int)(rgbVal & 0xff);
-    int g = (int)((rgbVal >> 8) & 0xff);
-    int b = (int)((rgbVal >> 16) & 0xff);
+    int r = qRed(rgbVal);
+    int g = qGreen(rgbVal);
+    int b = qBlue(rgbVal);
     uint max = r;				// maximum RGB component
     int whatmax = 0;				// r=>0, g=>1, b=>2
     if ( (uint)g > max ) {
@@ -487,11 +487,9 @@ void QColor::setHsv( int h, int s, int v )
   \fn QRgb QColor::rgb() const
   Returns the RGB value.
 
-  Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
-
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
-  \sa setRgb(), hsv()
+  \sa setRgb(), hsv(), qRed(), qBlue(), qGreen()
 */
 
 /*!
@@ -502,9 +500,9 @@ void QColor::setHsv( int h, int s, int v )
 
 void QColor::rgb( int *r, int *g, int *b ) const
 {
-    *r = (int)(rgbVal & 0xff);
-    *g = (int)((rgbVal >> 8) & 0xff);
-    *b = (int)((rgbVal >> 16) & 0xff);
+    *r = qRed(rgbVal);
+    *g = qGreen(rgbVal);
+    *b = qBlue(rgbVal);
 }
 
 
@@ -532,11 +530,6 @@ void QColor::setRgb( int r, int g, int b )
 
 /*!
   Sets the RGB value to \a rgb.
-
-  Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
-
-  \warning The bit encoding may change in a future version of Qt.
-  Please use the qRgb() function to compose RGB triplets.
 
   The type \e QRgb is equivalent to \c unsigned \c int.
 
@@ -749,10 +742,6 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
   Returns the RGB triplet \a (r,g,b).
-
-  Bits 0-7 = \e r (red), bits 8-15 = \e g (green), bits 16-23 = \e b (blue).
-
-  \warning The bit encoding may change in a future version of Qt.
 
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
