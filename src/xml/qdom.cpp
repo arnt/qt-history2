@@ -622,6 +622,8 @@ QDomImplementation::QDomImplementation( QDomImplementationPrivate* p )
 {
     // We want to be co-owners, so increase the reference count
     impl = p;
+    if (impl)
+    	impl->ref();
 }
 
 /*!
