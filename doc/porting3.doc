@@ -165,19 +165,19 @@ have been changed:
 
 All these functions have been removed in Qt 3.x:
 \list
-\i QWidget::setFontPropagation, QWidget::setPalettePropagation
-\i QMenuBar::setActItem, QMenuBar::setWindowsAltMode
-\i QCheckListItem::paintBranches
-\i QString::visual, QString::basicDirection
-\i QRegExp::find - has been renamed QRegExp::search
-\i QFont::charSet, QFont::setCharSet
-\i QPushButton::upButton, QPushButton::downButton
-\i QSpinBox::upButton, QPushButton::downButton
+\i QCheckListItem::paintBranches()
+\i QFont::charSet(), QFont::setCharSet()
+\i QMenuBar::setActItem(), QMenuBar::setWindowsAltMode()
+\i QPushButton::upButton(), QPushButton::downButton()
+\i QRegExp::find() (has been renamed QRegExp::search())
+\i QSpinBox::upButton(), QPushButton::downButton()
+\i QString::visual(), QString::basicDirection()
 \i QStyle::set...
+\i QWidget::setFontPropagation(), QWidget::setPalettePropagation()
     ### keep in sync with dist/changes-3.0
 \endlist
 
-Additionally, the following preprocessor directives have been removed:
+Additionally, these preprocessor directives have been removed:
 
 \list
 \i \c {#define strlen qstrlen}
@@ -432,23 +432,6 @@ returns 1, not 13 or 14.
 
 These changes affect very few existing programs.
 
-\section1 QString
-
-\section2 QString::operator[]() and Friends
-
-Weirdly enough, Qt allowed you to type code like
-\code
-    void setChar( const QString& t, int i, QChar ch )
-    {
-	t[i] = ch;
-    }
-\endcode
-although it would not actually perform the assignment (\e t is const
-after all). In Qt 3.0, this anomaly is flagged at compile time.
-
-Apart from the const overload of QString::operator[](), this applies
-to QString::constref() and to the const overload of QString::at().
-
 \section1 QTableView
 
 The QTableView class has been obsoleted and is no longer a part of the
@@ -535,7 +518,7 @@ only code that parses the same data from the same input source multiple
 times. In that cases you have to do a QXmlInputSource::reset() before the
 second call to QXmlSimpleReader::parse().
 
-So code like:
+So code like
 \code
     QXmlInputSource source( &xmlFile );
     QXmlSimpleReader reader;
@@ -544,8 +527,7 @@ So code like:
     ...
     reader.parse( source );
 \endcode
-
-Has to be changed to:
+has to be changed to
 \code
     QXmlInputSource source( &xmlFile );
     QXmlSimpleReader reader;
