@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: headers.doc,v 1.1 1997/06/25 14:33:22 warwick Exp $
+** $Id: headers.doc,v 1.2 1997/08/25 18:29:39 agulbra Exp $
 **
 ** Documentation for class overview
 **
@@ -8,12 +8,12 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: headers.doc,v 1.1 1997/06/25 14:33:22 warwick Exp $";
+static char ident[] = "$Id: headers.doc,v 1.2 1997/08/25 18:29:39 agulbra Exp $";
 #endif
 
 
 /*!
-\page headers2.html
+\page headers.html
 
 <title>Qt Documentation</title>
 </head><body bgcolor="#ffffff">
