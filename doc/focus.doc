@@ -65,14 +65,10 @@ moves focus along the circular list in one direction, Shift+Tab in the
 other. The order in which Tab presses move from widget to widget is
 called the tab order.
 
-In Qt, this list is kept in the \l QFocusData class. There is one
-QFocusData object per window, and widgets automatically append
-themselves to the end of it when \l QWidget::setFocusPolicy() is
-called with an appropriate \l QWidget::FocusPolicy. You can customize
-the tab order using \l QWidget::setTabOrder(). (If you don't, Tab
-generally moves focus in the order of widget construction.) \link
-designer-manual.book Qt Designer\endlink provides a means of visually
-changing the tab order.
+You can customize the tab order using \l QWidget::setTabOrder(). (If
+you don't, Tab generally moves focus in the order of widget
+construction.) \link designer-manual.book Qt Designer\endlink provides
+a means of visually changing the tab order.
 
 Since pressing Tab is so common, most widgets that can have focus
 should support tab focus. The major exception is widgets that are

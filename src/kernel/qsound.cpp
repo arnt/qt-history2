@@ -116,12 +116,6 @@ public:
 */
 
 /*!
-    \fn static bool QSound::available()
-
-    Returns TRUE if sound support is available; otherwise returns FALSE.
-*/
-
-/*!
     Plays the sound in a file called \a filename.
 */
 void QSound::play(const QString& filename)

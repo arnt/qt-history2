@@ -142,9 +142,9 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 */
 
 /*!
-    \fn const QColor & QPalette::setBrush(ColorRole cr, const QBrush &brush) const
+    \fn void QPalette::setBrush(ColorRole cr, const QBrush &brush)
 
-    Sets the brush used for color role \a r for the current color group to \a b.
+    Sets the brush used to color role \a cr and brush \a brush.
 
     \sa brush() setColor() ColorRole
 */
@@ -579,8 +579,6 @@ void QPalette::init() {
     palette.
 
     This is fast (it uses copy-on-write).
-
-    \sa copy()
 */
 QPalette &QPalette::operator=(const QPalette &p)
 {
@@ -632,6 +630,8 @@ const QBrush &QPalette::brush(ColorGroup gr, ColorRole cr) const
 */
 
 /*!
+    \overload
+
     Sets the brush in color group \a cg, used for color role \a cr, to
     \a b.
 
@@ -658,15 +658,6 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
     resolve_mask |= (1<<cr);
 }
 
-
-/*!
-    \fn QPalette QPalette::copy() const
-    \obsolete
-    Returns a deep copy of this palette.
-
-    \warning This is slower than the copy constructor and assignment
-    operator and offers no benefits.
-*/
 
 /*!
     \fn void QPalette::detach()

@@ -997,7 +997,6 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value Bool  a bool
     \value Brush  a QBrush
     \value Color  a QColor
-    \value ColorGroup  internal.
     \value Cursor  a QCursor
     \value Date  a QDate
     \value DateTime  a QDateTime
@@ -1036,12 +1035,12 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(Type type, void *v)
+    \fn QCoreVariant::create(Type type, const void *v)
 
     \internal
 
     Constructs a variant of type \a type, and initializes with \a v if
-    \a not 0.
+    \a v is not 0.
 */
 
 
@@ -1437,14 +1436,6 @@ QDataStream& operator<<(QDataStream &s, const QCoreVariant::Type p)
     QCoreVariant::Invalid; otherwise returns false.
 */
 
-/*! \fn QByteArray QCoreVariant::toCString() const
-  \obsolete
-    Returns the variant as a QCString if the variant has type()
-    CString or String; otherwise returns 0.
-
-    \sa asCString()
-*/
-
 #define Q_VARIANT_TO(f) \
 Q##f QCoreVariant::to##f() const { \
     if ( d->type == f ) \
@@ -1468,8 +1459,6 @@ Q_VARIANT_TO(ByteArray)
     Returns the variant as a QString if the variant has type() String,
     ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
     KeySequence, Font or Color; otherwise returns QString::null.
-
-    \sa asString()
 */
 
 
@@ -1490,8 +1479,6 @@ Q_VARIANT_TO(ByteArray)
 	++it;
     }
     \endcode
-
-    \sa asStringList()
 */
 
 
@@ -1523,8 +1510,6 @@ QString QCoreVariant::toString() const
 	++it;
     }
     \endcode
-
-    \sa asMap()
 */
 QMap<QString, QCoreVariant> QCoreVariant::toMap() const
 {
@@ -1543,8 +1528,6 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
 
     Note that if the type() is String an invalid date will be returned
     if the string cannot be parsed as a Qt::ISODate format date.
-
-    \sa asDate()
 */
 
 
@@ -1556,8 +1539,6 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
 
     Note that if the type() is String an invalid time will be returned
     if the string cannot be parsed as a Qt::ISODate format time.
-
-    \sa asTime()
 */
 
 /*!
@@ -1569,8 +1550,6 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
     Note that if the type() is String an invalid date/time will be
     returned if the string cannot be parsed as a Qt::ISODate format
     date/time.
-
-    \sa asDateTime()
 */
 
 /*!
@@ -1578,15 +1557,11 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
 
     Returns the variant as a QByteArray if the variant has type()
     ByteArray; otherwise returns an empty bytearray.
-
-    \sa asByteArray()
 */
 
 /*!
     Returns the variant as a QBitArray if the variant has type()
     BitArray; otherwise returns an empty bitarray.
-
-    \sa asBitArray()
 */
 QBitArray QCoreVariant::toBitArray() const
 {
@@ -1603,7 +1578,7 @@ QBitArray QCoreVariant::toBitArray() const
     If \a ok is non-null: \a *ok is set to true if the value could be
     converted to an int; otherwise \a *ok is set to false.
 
-    \sa asInt() canCast()
+    \sa canCast()
 */
 int QCoreVariant::toInt(bool *ok) const
 {
@@ -1629,8 +1604,6 @@ int QCoreVariant::toInt(bool *ok) const
 
     If \a ok is non-null: \a *ok is set to true if the value could be
     converted to an unsigned int; otherwise \a *ok is set to false.
-
-    \sa asUInt()
 */
 uint QCoreVariant::toUInt(bool *ok) const
 {
@@ -1658,7 +1631,7 @@ uint QCoreVariant::toUInt(bool *ok) const
     If \a ok is non-null: \a *ok is set to true if the value could be
     converted to an int; otherwise \a *ok is set to false.
 
-    \sa asLongLong() canCast()
+    \sa canCast()
 */
 Q_LLONG QCoreVariant::toLongLong(bool *ok) const
 {
@@ -1686,7 +1659,7 @@ Q_LLONG QCoreVariant::toLongLong(bool *ok) const
     If \a ok is non-null: \a *ok is set to true if the value could be
     converted to an int; otherwise \a *ok is set to false.
 
-    \sa asULongLong() canCast()
+    \sa canCast()
 */
 Q_ULLONG QCoreVariant::toULongLong(bool *ok) const
 {
@@ -1712,8 +1685,6 @@ Q_ULLONG QCoreVariant::toULongLong(bool *ok) const
     Returns true if the variant has type Int, UInt or Double and its
     value is non-zero, or if the variant has type String and its lower-case
     content is not empty, "0" or "false"; otherwise returns false.
-
-    \sa asBool()
 */
 bool QCoreVariant::toBool() const
 {
@@ -1733,8 +1704,6 @@ bool QCoreVariant::toBool() const
 
     If \a ok is non-null: \a *ok is set to true if the value could be
     converted to a double; otherwise \a *ok is set to false.
-
-    \sa asDouble()
 */
 double QCoreVariant::toDouble(bool *ok) const
 {
@@ -1771,8 +1740,6 @@ double QCoreVariant::toDouble(bool *ok) const
 	++it;
     }
     \endcode
-
-    \sa asList()
 */
 QList<QCoreVariant> QCoreVariant::toList() const
 {
@@ -1783,328 +1750,6 @@ QList<QCoreVariant> QCoreVariant::toList() const
     return res;
 }
 #endif
-
-
-/*!
-    \fn QString& QCoreVariant::asString()
-
-    Tries to convert the variant to hold a string value. If that is
-    not possible the variant is set to an empty string.
-
-    Returns a reference to the stored string.
-
-    \sa toString()
-*/
-
-/*!
-    \fn QCString& QCoreVariant::asCString()
-
-    \obsolete
-
-    Tries to convert the variant to hold a string value. If that is
-    not possible the variant is set to an empty string.
-
-    Returns a reference to the stored string.
-
-    \sa toCString()
-*/
-
-/*!
-    \fn QStringList& QCoreVariant::asStringList()
-
-    Tries to convert the variant to hold a QStringList value. If that
-    is not possible the variant is set to an empty string list.
-
-    Returns a reference to the stored string list.
-
-    Note that if you want to iterate over the list, you should
-    iterate over a copy, e.g.
-    \code
-    QStringList list = myVariant.asStringList();
-    QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
-    }
-    \endcode
-
-    \sa toStringList()
-*/
-
-/*!
-    \fn QFont& QCoreVariant::asFont()
-
-    Tries to convert the variant to hold a QFont. If that is not
-    possible the variant is set to the application's default font.
-
-    Returns a reference to the stored font.
-
-    \sa toFont()
-*/
-
-/*!
-    \fn QPixmap& QCoreVariant::asPixmap()
-
-    Tries to convert the variant to hold a pixmap value. If that is
-    not possible the variant is set to a null pixmap.
-
-    Returns a reference to the stored pixmap.
-
-    \sa toPixmap()
-*/
-
-/*!
-    \fn QImage& QCoreVariant::asImage()
-
-    Tries to convert the variant to hold an image value. If that is
-    not possible the variant is set to a null image.
-
-    Returns a reference to the stored image.
-
-    \sa toImage()
-*/
-
-/*!
-    \fn QBrush& QCoreVariant::asBrush()
-
-    Tries to convert the variant to hold a brush value. If that is not
-    possible the variant is set to a default black brush.
-
-    Returns a reference to the stored brush.
-
-    \sa toBrush()
-*/
-
-/*!
-    \fn QSizePolicy& QCoreVariant::asSizePolicy()
-
-    Tries to convert the variant to hold a QSizePolicy value. If that
-    fails, the variant is set to an arbitrary (valid) size policy.
-*/
-
-
-/*!
-    \fn QColor& QCoreVariant::asColor()
-
-    Tries to convert the variant to hold a QColor value. If that is
-    not possible the variant is set to an invalid color.
-
-    Returns a reference to the stored color.
-
-    \sa toColor() QColor::isValid()
-*/
-
-/*!
-    \fn QPalette& QCoreVariant::asPalette()
-
-    Tries to convert the variant to hold a QPalette value. If that is
-    not possible the variant is set to a palette of black colors.
-
-    Returns a reference to the stored palette.
-
-    \sa toString()
-*/
-
-/*!
-    \fn QIconSet& QCoreVariant::asIconSet()
-
-    Tries to convert the variant to hold a QIconSet value. If that is
-    not possible the variant is set to an empty iconset.
-
-    Returns a reference to the stored iconset.
-
-    \sa toIconSet()
-*/
-
-/*!
-    \fn QPointArray& QCoreVariant::asPointArray()
-
-    Tries to convert the variant to hold a QPointArray value. If that
-    is not possible the variant is set to an empty point array.
-
-    Returns a reference to the stored point array.
-
-    \sa toPointArray()
-*/
-
-/*!
-    \fn QBitmap& QCoreVariant::asBitmap()
-
-    Tries to convert the variant to hold a bitmap value. If that is
-    not possible the variant is set to a null bitmap.
-
-    Returns a reference to the stored bitmap.
-
-    \sa toBitmap()
-*/
-
-/*!
-    \fn QRegion& QCoreVariant::asRegion()
-
-    Tries to convert the variant to hold a QRegion value. If that is
-    not possible the variant is set to a null region.
-
-    Returns a reference to the stored region.
-
-    \sa toRegion()
-*/
-
-/*!
-    \fn QCursor& QCoreVariant::asCursor()
-
-    Tries to convert the variant to hold a QCursor value. If that is
-    not possible the variant is set to a default arrow cursor.
-
-    Returns a reference to the stored cursor.
-
-    \sa toCursor()
-*/
-
-/*!
-    \fn QDate& QCoreVariant::asDate()
-
-    Tries to convert the variant to hold a QDate value. If that is not
-    possible then the variant is set to an invalid date.
-
-    Returns a reference to the stored date.
-
-    \sa toDate()
-*/
-
-/*!
-    \fn QTime& QCoreVariant::asTime()
-
-    Tries to convert the variant to hold a QTime value. If that is not
-    possible then the variant is set to an invalid time.
-
-    Returns a reference to the stored time.
-
-    \sa toTime()
-*/
-
-/*!
-    \fn QDateTime& QCoreVariant::asDateTime()
-
-    Tries to convert the variant to hold a QDateTime value. If that is
-    not possible then the variant is set to an invalid date/time.
-
-    Returns a reference to the stored date/time.
-
-    \sa toDateTime()
-*/
-
-/*!
-    \fn QByteArray& QCoreVariant::asByteArray()
-
-    Tries to convert the variant to hold a QByteArray value. If that
-    is not possible then the variant is set to an empty bytearray.
-
-    Returns a reference to the stored bytearray.
-
-    \sa toByteArray()
-*/
-
-/*!
-    \fn QBitArray& QCoreVariant::asBitArray()
-
-    Tries to convert the variant to hold a QBitArray value. If that is
-    not possible then the variant is set to an empty bitarray.
-
-    Returns a reference to the stored bitarray.
-
-    \sa toBitArray()
-*/
-
-/*!
-    \fn QKeySequence& QCoreVariant::asKeySequence()
-
-    Tries to convert the variant to hold a QKeySequence value. If that
-    is not possible then the variant is set to an empty key sequence.
-
-    Returns a reference to the stored key sequence.
-
-    \sa toKeySequence()
-*/
-
-/*! \fn QPen& QCoreVariant::asPen()
-
-  Tries to convert the variant to hold a QPen value. If that
-  is not possible then the variant is set to an empty pen.
-
-  Returns a reference to the stored pen.
-
-  \sa toPen()
-*/
-
-/*!
-  \fn int &QCoreVariant::asInt()
-
-    Returns the variant's value as int reference.
-*/
-
-/*!
-  \fn uint &QCoreVariant::asUInt()
-
-    Returns the variant's value as unsigned int reference.
-*/
-
-/*!
-  \fn Q_LLONG &QCoreVariant::asLongLong()
-
-    Returns the variant's value as long long reference.
-*/
-
-/*!
-  \fn Q_ULLONG &QCoreVariant::asULongLong()
-
-    Returns the variant's value as unsigned long long reference.
-*/
-
-/*!
-  \fn bool &QCoreVariant::asBool()
-
-    Returns the variant's value as bool reference.
-*/
-
-/*!
-  \fn double &QCoreVariant::asDouble()
-
-    Returns the variant's value as double reference.
-*/
-
-/*!
-  \fn QList<QCoreVariant>& QCoreVariant::asList()
-
-    Returns the variant's value as variant list reference.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QList<QCoreVariant> list = myVariant.asList();
-    QList<QCoreVariant>::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
-    }
-    \endcode
-*/
-
-/*!
-  \fn QMap<QString, QCoreVariant>& QCoreVariant::asMap()
-
-    Returns the variant's value as variant map reference.
-
-    Note that if you want to iterate over the map, you should iterate
-    over a copy, e.g.
-    \code
-    QMap<QString, QCoreVariant> map = myVariant.asMap();
-    QMap<QString, QCoreVariant>::Iterator it = map.begin();
-    while( it != map.end() ) {
-	myProcessing( *it );
-	++it;
-    }
-    \endcode
-*/
 
 /*!
     Returns true if the variant's type can be cast to the requested

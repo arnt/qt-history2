@@ -218,8 +218,8 @@ static void deleteGlobalPrinterDefaults()
     user to specify which printer they wish to use and what settings
     it should have.
 
-    Returns TRUE if the user pressed "OK" to print, or FALSE if the
-    user canceled the operation.
+    Returns true if the user pressed "OK" to print; otherwise returns
+    false.
 */
 
 bool QPrinter::printSetup( QWidget * parent )

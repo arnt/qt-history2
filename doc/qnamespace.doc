@@ -97,3 +97,18 @@
 
 */
 
+/*!
+    \enum Qt::PenStyle
+
+    \value NoPen
+    \value SolidLine
+    \value DashLine
+    \value DotLine
+    \value DashDotLine
+    \value DashDotDotLine
+    \value MPenStyle Mask
+
+    \img pen-styles.png Pen styles
+
+    \sa QPen
+*/

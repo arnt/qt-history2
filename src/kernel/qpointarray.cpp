@@ -120,13 +120,6 @@ QPointArray::QPointArray(int nPoints, const QCOORD *points)
 */
 
 
-/*! \obsolete
-    \fn QPointArray QPointArray::copy() const
-
-    Returns a copy of this point array.
-*/
-
-
 /*!
     Translates all points in the array by \a (dx, dy).
 */
@@ -164,14 +157,15 @@ void QPointArray::point(int index, int *x, int *y) const
 }
 
 /*!
+    \fn QPoint QPointArray::point(int index) const
+
     \overload
 
-    \fn QPoint QPointArray::point(int index) const
     Returns the point at position \a index within the array.
 */
 
 /*!
-    \fn void QPointArray::setPoint( uint i, const QPoint &p )
+    \fn void QPointArray::setPoint( int i, const QPoint &p )
 
     \overload
 

@@ -339,9 +339,6 @@
 
   \value WindowsStyle
   \value MotifStyle
-  \value MacStyle
-  \value Win3Style
-  \value PMStyle
 */
 
 /*!

@@ -78,9 +78,10 @@
 */
 
 /*!
-  \fn bool QSignal::connect( const QObject *receiver, const char *member )
+  \fn bool QSignal::connect( const QObject *receiver, const char *member, Qt::ConnectionType type)
 
-  Connects the signal to \a member in object \a receiver.
+  Connects the signal to \a member in object \a receiver using the
+  given connection \a type.
 
   \sa disconnect()
 */

@@ -652,7 +652,7 @@ public:
 	NorROP,	LastROP=NorROP
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum PenStyle { // pen style
 	NoPen,
 	SolidLine,

@@ -279,9 +279,6 @@ void QPrinter::interpret(PMPageFormat *f)
 }
 
 // shows the native mac print setup dialog
-/*!
-    \internal
-*/
 bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)

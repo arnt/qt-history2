@@ -453,16 +453,14 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 */
 
 /*!
-    \fn QKeyEvent::QKeyEvent( Type type, int key, int ascii, int state,
-			      const QString& text, bool autorep, ushort count )
+    \fn QKeyEvent::QKeyEvent(Type type, int key, int state, const QString& text, bool autorep, ushort count)
 
     Constructs a key event object.
 
     The \a type parameter must be \c QEvent::KeyPress or \c
     QEvent::KeyRelease. If \a key is 0 the event is not a result of a
     known key (e.g. it may be the result of a compose sequence or
-    keyboard macro). \a ascii is the ASCII code of the key that was
-    pressed or released. \a state holds the keyboard modifiers. \a
+    keyboard macro). \a state holds the keyboard modifiers. \a
     text is the Unicode text that the key generated. If \a autorep is
     TRUE, isAutoRepeat() will be TRUE. \a count is the number of
     single keys.
@@ -481,15 +479,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     sequence or a keyboard macro, or due to key event compression).
 
     \sa QWidget::WA_KeyCompression
-*/
-
-/*!
-    \fn int QKeyEvent::ascii() const
-
-    Returns the ASCII code of the key that was pressed or released. We
-    recommend using text() instead.
-
-    \sa text()
 */
 
 /*!
@@ -768,37 +757,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \value Key_Yacute
     \value Key_THORN
     \value Key_ssharp
-    \value Key_agrave
-    \value Key_aacute
-    \value Key_acircumflex
-    \value Key_atilde
-    \value Key_adiaeresis
-    \value Key_aring
-    \value Key_ae
-    \value Key_ccedilla
-    \value Key_egrave
-    \value Key_eacute
-    \value Key_ecircumflex
-    \value Key_ediaeresis
-    \value Key_igrave
-    \value Key_iacute
-    \value Key_icircumflex
-    \value Key_idiaeresis
-    \value Key_eth
-    \value Key_ntilde
-    \value Key_ograve
-    \value Key_oacute
-    \value Key_ocircumflex
-    \value Key_otilde
-    \value Key_odiaeresis
     \value Key_division
-    \value Key_oslash
-    \value Key_ugrave
-    \value Key_uacute
-    \value Key_ucircumflex
-    \value Key_udiaeresis
-    \value Key_yacute
-    \value Key_thorn
     \value Key_ydiaeresis
 
     Multimedia keys
