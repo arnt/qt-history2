@@ -932,7 +932,10 @@ QMakeProject::read(uchar cmd)
 
     // now let the user override the template from an option..
     if(!Option::user_template.isEmpty()) {
-        debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(),
+        QString s;
+        if (!vars["TEMPLATE"].isEmpty())
+	    s = vars["TEMPLATE"].first();
+        debug_msg(1, "Overriding TEMPLATE (%s) with: %s", s.latin1(),
                   Option::user_template.latin1());
         vars["TEMPLATE"].clear();
         vars["TEMPLATE"].append(Option::user_template);
