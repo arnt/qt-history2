@@ -1097,7 +1097,7 @@ bool QAxBase::initialize(IUnknown **ptr)
         res = S_OK == hres;
 #ifndef QT_NO_DEBUG
         if (!res)
-            qSystemWarning("CoCreateInstance failure", hres);
+            qErrnoWarning(hres, "CoCreateInstance failure");
 #endif
     }
 
@@ -1265,7 +1265,7 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
     }
 #ifndef QT_NO_DEBUG
     if (res != S_OK)
-        qSystemWarning("initializeRemote Failed", res);
+        qErrnoWarning(res, "initializeRemote Failed");
 #endif
 
     return res == S_OK;
