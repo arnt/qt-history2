@@ -38,6 +38,7 @@ public slots:
     void on_tree_returnPressed(QTreeWidgetItem *item, int column);
 
 private:
+    void itemActivated(QTreeWidgetItem *item);
     void setActive(QTreeWidgetItem *);
 
     QTreeWidget *tree;

@@ -83,33 +83,49 @@ QSqlDatabase ConnectionWidget::currentDatabase() const
     return QSqlDatabase::database(activeDb);
 }
 
+static void qSetBold(QTreeWidgetItem *item, bool bold)
+{
+    QFont font = item->font(0);
+    font.setBold(bold);
+    item->setFont(0, font);
+}
+
 void ConnectionWidget::setActive(QTreeWidgetItem *item)
 {
+    for (int i = 0; i < tree->topLevelItemCount(); ++i) {
+        if (tree->topLevelItem(i)->font(0).bold())
+            qSetBold(tree->topLevelItem(i), false);
+    }
+
     if (!item)
         return;
 
-    QFont font = item->font(0);
-    font.setBold(true);
-    item->setFont(0, font);
+    qSetBold(item, true);
+    activeDb = QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
 }
 
 void ConnectionWidget::on_tree_doubleClicked(QTreeWidgetItem *item, int column,
                                              Qt::ButtonState button)
 {
-    Q_ASSERT(item);
-
-    if (button != Qt::LeftButton || column != 0 || !item->parent())
-        return;
-
-    emit tableActivated(item->text(0));
+    if (button == Qt::LeftButton && column == 0)
+        itemActivated(item);
 }
 
 void ConnectionWidget::on_tree_returnPressed(QTreeWidgetItem *item, int column)
 {
-    Q_ASSERT(item);
+    if (column == 0)
+        itemActivated(item);
+}
 
-    if (column != 0 || !item->parent())
+void ConnectionWidget::itemActivated(QTreeWidgetItem *item)
+{
+    if (!item)
         return;
 
-    emit tableActivated(item->text(0));
+    if (!item->parent()) {
+        setActive(item);
+    } else {
+        setActive(item->parent());
+        emit tableActivated(item->text(0));
+    }
 }
