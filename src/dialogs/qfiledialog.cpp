@@ -2816,15 +2816,16 @@ void QFileDialog::fileNameEditReturnPressed()
 	    else
 		f = QUrlInfo( d->url, nameEdit->text() );
 	    if ( f.isDir() ) {
-		setUrl( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text() + "/" ) ) );
+		setUrl( QUrlOperator( d->url,
+				      QFileDialogPrivate::encodeFileName(nameEdit->text() + "/" ) ) );
 		d->checkForFilter = TRUE;
 		trySetSelection( TRUE, d->url, TRUE );
 		d->checkForFilter = FALSE;
 	    }
 	}
 	nameEdit->setText( QString::null );
-	d->ignoreReturn = TRUE;
     }
+    d->ignoreReturn = TRUE;
 }
 
 /*!
@@ -3641,11 +3642,12 @@ void QFileDialog::okClicked()
     lastWidth = width();
     lastHeight = height();
 
+    if ( d->ignoreReturn ) {
+	d->ignoreReturn = FALSE;
+	return;
+    }
+
     if ( isDirectoryMode( d->mode ) ) {
-	if ( d->ignoreReturn ) {
-	    d->ignoreReturn = FALSE;
-	    return;
-	}
 	QUrlInfo f( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
 	    d->currentFileName = d->url;
