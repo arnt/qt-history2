@@ -168,6 +168,7 @@ bool QPSQLResult::fetchLast()
     return fetch( PQntuples( d->result ) - 1 );
 }
 
+// some Postgres conversions
 QPoint pointFromString( const QString& s)
 {
     // format '(x,y)'
@@ -178,6 +179,21 @@ QPoint pointFromString( const QString& s)
 	return QPoint( x, y ) ;
     } else
 	return QPoint();
+}
+
+QDate qDateFromUInt( uint dt )
+{
+    int y,m,d;
+    QDate::jul2greg( dt, y, m, d );
+    return QDate( y, m, d );
+}
+
+QTime qTimeFromDouble( double tm )
+{
+    int hour = ((int)tm / ( 60 * 60 ) );
+    int min = (((int) (tm / 60)) % 60 );
+    int sec = (((int) tm) % 60 );
+    return QTime( hour, min, sec );
 }
 
 QVariant QPSQLResult::data( int i )
@@ -202,17 +218,12 @@ QVariant QPSQLResult::data( int i )
 	case QVariant::Date:
 	    {
 		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1);
- 		int y,m,d;
- 		QDate::jul2greg( dt, y, m, d );
- 		return QVariant( QDate( y, m, d ) );
+ 		return QVariant( qDateFromUInt( dt ) );
 	    }
 	case QVariant::Time:
 	    {
 		double tm = *((double*)rawdata);
-		int hour = ((int)tm / ( 60 * 60 ) );
-		int min = (((int) (tm / 60)) % 60 );
-		int sec = (((int) tm) % 60 );
-		return QVariant( QTime( hour, min, sec ) );
+		return QVariant( qTimeFromDouble( tm ) );
 	    }
 	case QVariant::DateTime:
 	    {
@@ -228,10 +239,7 @@ QVariant QPSQLResult::data( int i )
 		    date -= 1;
 		}
 		uint dt = date + QDate::greg2jul(2000,1,1);
- 		int y,m,d;
- 		QDate::jul2greg( dt, y, m, d );
-		return QVariant( QDateTime( QDate(y,m,d), QTime() ) );
-
+		return QVariant( QDateTime( qDateFromUInt( dt ), qTimeFromDouble( time ) ) );
 	    }
 	case QVariant::Point:
 	    {
