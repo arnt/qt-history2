@@ -33,7 +33,8 @@
   \ingroup model-view
 
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
+
 */
 
 /*!
@@ -56,6 +57,13 @@
   \endomit
 
   \sa \link model-view-programming.html Model/View Programming\endlink.
+*/
+
+/*!
+  Constructs a table view with a \a parent to represent the data in
+  the given \a model.
+
+  \sa QAbstractItemModel
 */
 
 QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
@@ -197,6 +205,7 @@ void QGenericTreeView::setShowRootDecoration(bool show)
 }
 
 /*!
+  Returns the horizontal position of the \a column in the viewport.
 */
 
 int QGenericTreeView::columnViewportPosition(int column) const
@@ -208,6 +217,7 @@ int QGenericTreeView::columnViewportPosition(int column) const
 }
 
 /*!
+  Returns the width of the \a column.
 */
 
 int QGenericTreeView::columnWidth(int column) const
@@ -242,7 +252,7 @@ bool QGenericTreeView::isColumnHidden(int column) const
 /*!
   Hides the \a column given.
 
-  \sa */
+  \sa showColumn() */
 
 void QGenericTreeView::hideColumn(int column)
 {
@@ -267,6 +277,9 @@ void QGenericTreeView::open(const QModelIndex &item)
 }
 
 /*!
+  \fn void QGenericTreeView::close(const QModelIndex &index)
+
+  Closes the model item given by the \a index.
 */
 
 void QGenericTreeView::close(const QModelIndex &item)
@@ -293,7 +306,8 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 }
 
 /*!
-*/
+  Returns the rectangle on the viewport occupied by the item at \a
+  index.*/
 
 QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
 {
@@ -589,6 +603,7 @@ int QGenericTreeView::horizontalOffset() const
 }
 
 /*!
+  Returns the vertical offset of the items in the tree view.
 */
 
 int QGenericTreeView::verticalOffset() const
@@ -600,7 +615,12 @@ int QGenericTreeView::verticalOffset() const
     return item * iheight;
 }
 
-/*!                                                                                       \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState buttons)                                                                                                                                                         Move the cursor to the                                                                                                                                                        */
+/*!                                                                                       \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+
+Move the cursor in the way described by \a cursorAction, using the
+information provided by the button \a state.
+
+\sa QAbstractItemView::CursorAction                                                                                                                                                        */
 
 QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
@@ -693,6 +713,8 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 }
 
 /*!
+  Returns the rectangle from the viewport of the items in the given
+  \a selection.
 */
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
@@ -787,10 +809,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
-  This signal is emitted whenever the contents of the tree view are changed.
-  \omit
-  ### This should be a signal.
-  \endomit
+  This signal is emitted whenever the items in the tree view are changed.
+
 */
 
 void QGenericTreeView::dataChanged()
@@ -799,6 +819,10 @@ void QGenericTreeView::dataChanged()
 }
 
 /*!
+  \fn void QGenericTreeView::rowsInserted(const QModelIndex &parent, int first, int last)
+
+  Informs the view that the rows from the \a first to the \a last
+  inclusive have been inserted into the \a parent model item.
 */
 
 void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
@@ -807,13 +831,20 @@ void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
 }
 
 /*!
-*/
+  \fn void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int first, int last)
+
+  Informs the view that the rows from the \a first to the \a last
+  inclusive have been removed from the given \a parent model item.*/
 void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int, int)
 {
     d->relayout(parent);
 }
 
 /*!
+  \fn void QGenericTreeView::columnCountChanged(int first, int last)
+
+  Informs the tree view that the columns from the \a first to the
+  \a last inclusive as changed.
 */
 
 void QGenericTreeView::columnCountChanged(int, int)
@@ -833,6 +864,9 @@ void QGenericTreeView::resizeColumnToContents(int column)
 }
 
 /*!
+  \fn void QGenericTreeView::columnWidthChanged(int column, int, int)
+
+  Marks the \a column's width as changed.
 */
 
 void QGenericTreeView::columnWidthChanged(int column, int, int)
@@ -984,6 +1018,9 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
 }
 
 /*!
+  Returns the size hint for the \a column's width.
+
+  \sa QWidget::sizeHint
 */
 
 int QGenericTreeView::columnSizeHint(int column) const
