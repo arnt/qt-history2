@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#286 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1071,22 +1071,22 @@ static short ropCodes[] = {			// ROP translation table
 
   The \e r parameter must be one of:
   <ul>
-  <li> \c CopyROP:     dst = src.
-  <li> \c OrROP:       dst = src OR dst.
-  <li> \c XorROP:      dst = src XOR dst.
-  <li> \c NotAndROP:   dst = (NOT src) AND dst
-  <li> \c NotCopyROP:  dst = NOT src
-  <li> \c NotOrROP:    dst = (NOT src) OR dst
-  <li> \c NotXorROP:   dst = (NOT src) XOR dst
-  <li> \c AndROP       dst = src AND dst
-  <li> \c NotROP:      dst = NOT dst
-  <li> \c ClearROP:    dst = 0
-  <li> \c SetROP:      dst = 1
-  <li> \c NopROP:      dst = dst
-  <li> \c AndNotROP:   dst = src AND (NOT dst)
-  <li> \c OrNotROP:    dst = src OR (NOT dst)
-  <li> \c NandROP:     dst = NOT (src AND dst)
-  <li> \c NorROP:      dst = NOT (src OR dst)
+  <li> \c Qt::CopyROP:     dst = src.
+  <li> \c Qt::OrROP:       dst = src OR dst.
+  <li> \c Qt::XorROP:      dst = src XOR dst.
+  <li> \c Qt::NotAndROP:   dst = (NOT src) AND dst
+  <li> \c Qt::NotCopyROP:  dst = NOT src
+  <li> \c Qt::NotOrROP:    dst = (NOT src) OR dst
+  <li> \c Qt::NotXorROP:   dst = (NOT src) XOR dst
+  <li> \c Qt::AndROP       dst = src AND dst
+  <li> \c Qt::NotROP:      dst = NOT dst
+  <li> \c Qt::ClearROP:    dst = 0
+  <li> \c Qt::SetROP:      dst = 1
+  <li> \c Qt::NopROP:      dst = dst
+  <li> \c Qt::AndNotROP:   dst = src AND (NOT dst)
+  <li> \c Qt::OrNotROP:    dst = src OR (NOT dst)
+  <li> \c Qt::NandROP:     dst = NOT (src AND dst)
+  <li> \c Qt::NorROP:      dst = NOT (src OR dst)
   </ul>
 
   \sa rasterOp()

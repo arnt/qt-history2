@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#167 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -65,7 +65,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
     void MyWidget::paintEvent()
     {
 	QPainter paint( this );			// start painting widget
-	paint.setPen( blue );			// set blue pen
+	paint.setPen( Qt::blue );		// set blue pen
 	paint.drawText( rect(),			// draw a text, centered
 			AlignCenter,		//   in the widget
 			"The Text" );
@@ -80,7 +80,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
     {
 	QPainter paint;
 	paint.begin( this );			// start painting widget
-	paint.setPen( blue );			// set blue pen
+	paint.setPen( Qt::blue );		// set blue pen
 	paint.drawText( rect(),			// draw a text, centered
 			AlignCenter,		//   in the widget
 			"The Text" );
