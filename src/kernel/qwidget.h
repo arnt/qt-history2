@@ -61,6 +61,7 @@ class QWSRegionManager;
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
+    Q_ENUMS( BackgroundMode FocusPolicy BackgroundOrigin )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isModal READ isModal )
     Q_PROPERTY( bool isPopup READ isPopup )
