@@ -50,6 +50,14 @@
     organized in an object hierarchy, receive events and connect to
     signals and slots.
 
+    \warning
+    You can subclass QAxObject, but you cannot use the Q_OBJECT macro
+    in the subclass (the generated moc-file will not compile), so you
+    cannot add further signals, slots or properties. This limitation is 
+    due to the metaobject information generated in runtime. 
+    To work around this problem, aggregate the QAxObject as a member of 
+    the QObject subclass.
+
     \important dynamicCall() querySubObject()
 */
 
