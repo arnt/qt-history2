@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#40 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#41 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -96,7 +96,7 @@ protected:
     bool	hasMarkedText() const;
     QString	markedText() const;
     int		textWidth( int );
-    int		textWidth( QString * );
+    int		textWidth( QString );
 
     QPoint	cursorPoint() const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#52 $
 **
 ** Implementation of QTextStream class
 **
@@ -696,7 +696,7 @@ QTextStream &QTextStream::operator>>( char *s )
   Reads a word from the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator>>( Q2String &str )
+QTextStream &QTextStream::operator>>( QString &str )
 {
     CHECK_STREAM_PRECOND
     str="";
@@ -718,10 +718,10 @@ QTextStream &QTextStream::operator>>( Q2String &str )
   Reads a word from the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator>>( QString &str )
+QTextStream &QTextStream::operator>>( Q1String &str )
 {
     CHECK_STREAM_PRECOND
-    QString  *dynbuf = 0;
+    Q1String  *dynbuf = 0;
     const int buflen = 256;
     char      buffer[buflen];
     char     *s = buffer;
@@ -735,7 +735,7 @@ QTextStream &QTextStream::operator>>( QString &str )
 	}
 	if ( i >= buflen-1 ) {
 	    if ( !dynbuf )  {			// create dynamic buffer
-		dynbuf = new QString(buflen*2);
+		dynbuf = new Q1String(buflen*2);
 		memcpy( dynbuf->data(), s, i );	// copy old data
 	    } else if ( i >= (int)dynbuf->size()-1 ) {
 		dynbuf->resize( dynbuf->size()*2 );
@@ -771,10 +771,7 @@ QString QTextStream::readLine()
 	return nullString;
     }
 #endif
-    QString  *dynbuf = 0;
-    const int buflen = 256;
-    char      buffer[buflen];
-    char     *s = buffer;
+    QString   result;
     int	      i = 0;
     int	      c = dev->getch();
 
@@ -782,24 +779,12 @@ QString QTextStream::readLine()
 	if ( c == '\n' ) {
 	    break;
 	}
-	if ( i >= buflen-1 ) {
-	    if ( !dynbuf )  {			// create dynamic buffer
-		dynbuf = new QString(buflen*2);
-		memcpy( dynbuf->data(), s, i );	// copy old data
-	    } else if ( i >= (int)dynbuf->size()-1 ) {
-		dynbuf->resize( dynbuf->size()*2 );
-	    }
-	    s = dynbuf->data();
-	}
-	s[i++] = c;
+	result[i++] = c;
 	c = dev->getch();
     }
-    if ( i > 0 && s[i-1] == '\r' )
-	i--;				// if there are two \r, let one stay
-    QString str(i+1);
-    memcpy( str.data(), s, i );
-    delete dynbuf;
-    return str;
+    if ( i > 0 && result[i-1] == '\r' )
+	result.setLength(i-1);			// if there are two \r, let one stay
+    return result;
 }
 
 

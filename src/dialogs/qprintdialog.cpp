@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#49 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#50 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -182,7 +182,7 @@ static void parseEtcLpPrinters( QListView * printers )
 	++it;
 	if ( printer->isDir() ) {
 	    tmp.sprintf( "/etc/lp/printers/%s/configuration",
-			 printer->fileName().data() );
+			 printer->fileName().ascii() );
 	    QFile configuration( tmp );
 	    char * line = new char[1025];
 	    QRegExp remote( "^Remote:" );
@@ -229,7 +229,7 @@ static void parseEtcLpPrinters( QListView * printers )
 		    }
 		}
 		if ( canPrintPostscript )
-		    perhapsAddPrinter( printers, printer->fileName().data(),
+		    perhapsAddPrinter( printers, printer->fileName(),
 				       printerHost, 0 );
 	    }
 	    delete[] line;
@@ -366,7 +366,7 @@ static void parseEtcLpMember( QListView * printers )
 	// other directories, it's the one to use.  I did not find a
 	// decent way to locate aliases and remote printers.
 	if ( printer->isFile() )
-	    perhapsAddPrinter( printers, printer->fileName().data(),
+	    perhapsAddPrinter( printers, printer->fileName(),
 			       "unknown", 0 );
     }
 }
@@ -403,7 +403,7 @@ static void parseSpoolInterface( QListView * printers )
 	int length;
 
 	while( !configFile.atEnd() &&
-	    (configFile.readLine( line.data(), 1024 )) > 0 ) {
+	    (configFile.readLine( line, 1024 )) > 0 ) {
 
 	    if(typeKey.match(line, 0, &length) == 0) {
 		printerType = line.mid(length, line.length()-length);
@@ -426,13 +426,13 @@ static void parseSpoolInterface( QListView * printers )
 
 	if(hostName.isEmpty() || hostPrinter.isEmpty())
 	{
-	    perhapsAddPrinter( printers, printer->fileName().data(),
+	    perhapsAddPrinter( printers, printer->fileName(),
 		0, 0);
 	} else
 	{
 	    QString comment("Remote name: ");
 	    comment += hostPrinter;
-	    perhapsAddPrinter( printers, printer->fileName().data(),
+	    perhapsAddPrinter( printers, printer->fileName(),
 		hostName, comment);
 	}
     }

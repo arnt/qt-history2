@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#64 $
 **
 ** Implementation of QFile class
 **
@@ -159,7 +159,7 @@ bool QFile::exists() const
 {
     if ( fn.isEmpty() )
 	return FALSE;
-    return ACCESS(fn.data(), F_OK) == 0;
+    return ACCESS(fn, F_OK) == 0;
 }
 
 /*!
@@ -185,7 +185,7 @@ bool QFile::exists( const char *fileName )
 bool QFile::remove()
 {
     close();
-    return remove( fn.data()  );
+    return remove( fn );
 }
 
 /*!
@@ -745,6 +745,32 @@ int QFile::readLine( char *p, uint maxlen )
 	}
     }
     return nread;
+}
+
+
+/*!
+  Reads a line of text.
+
+  Reads bytes from the file until end-of-line is reached, or up to \a
+  maxlen bytes, and returns the number of bytes read, or -1 in case of
+  error.  The terminating newline is not stripped.
+
+  This function is efficient only for buffered files.  Avoid
+  readLine() for files that have been opened with the \c IO_Raw
+  flag.
+
+  \sa readBlock(), QTextStream::readLine()
+*/
+
+int QFile::readLine( QString& s, uint maxlen )
+{
+    QByteArray ba(maxlen);
+    int l = readLine(ba.data(),maxlen);
+    if ( l >= 0 ) {
+	ba.truncate(l);
+	s = ba;
+    }
+    return l;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#251 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2445,7 +2445,7 @@ static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
   is not the same for the two drawText() varieties.
 */
 
-void QPainter::drawText( int x, int y, const char *str, int len )
+void QPainter::drawText( int x, int y, QString str, int len )
 {
     if ( !isActive() )
 	return;
@@ -2462,7 +2462,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QPoint p( x, y );
 	    QString newstr( str, len+1 );
 	    param[0].point = &p;
-	    param[1].str = newstr.data();
+	    param[1].str = newstr;
 	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
 		return;
 	}

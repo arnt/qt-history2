@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#97 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1012,14 +1012,14 @@ QString QFont::key() const
     if ( d->req.rawMode )
 	return d->req.family.lower();
     int	    len = d->req.family.length();
-    QString s( len+13 );
+    Q1String s( len+13 );
     UINT8   bits = get_font_bits( d->req );
     char   *p = s.data();
     CHECK_PTR( p );
     hex4( d->req.pointSize, p );
     p += 4;
     if ( len ) {
-	strcpy( p, d->req.family.data() );
+	strcpy( p, d->req.family.ascii() );
 	while ( *p ) {
 	    *p = tolower(*p);
 	    p++;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#152 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -102,10 +102,10 @@ static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
 
 
-static int xPosToCursorPos( char *s, const QFontMetrics &fm,
+static int xPosToCursorPos( QString s, int offset, const QFontMetrics &fm,
 			    int xPos, int width )
 {
-    char *tmp;
+    uint  i = offset;
     int	  dist;
 
     if ( xPos > width )
@@ -113,23 +113,27 @@ static int xPosToCursorPos( char *s, const QFontMetrics &fm,
     if ( xPos <= 0 )
 	return 0;
     dist = xPos;
-    tmp	 = s;
-    while ( *tmp && dist > 0 )
-	dist -= fm.width( tmp++, 1 );
-    if ( dist < 0 && ( xPos - dist > width || fm.width( tmp - 1, 1)/2 < -dist))
-	tmp--;
-    return tmp - s;
+    while ( i < s.length() && dist > 0 )
+	dist -= fm.width( s[i++] );
+    if ( dist < 0 && ( xPos - dist > width || fm.width( s[i-1] )/2 < -dist))
+	i--;
+    return i - offset;
 }
 
-static int showLastPartOffset( char *s, const QFontMetrics &fm, int width )
+static int showLastPartOffset( QString s, uint offset, const QFontMetrics &fm, int width )
 {
-    if ( !s || s[0] == '\0' )
+    if ( offset > s.length() )
 	return 0;
-    char *tmp = &s[strlen( s ) - 1];
+    uint i=s.length()-1;
     do {
-	width -= fm.width( tmp--, 1 );
-    } while ( tmp >=s && width >=0 );
-    return width < 0 ? tmp - s + 2 : 0;
+	width -= fm.width(s[i]);
+	if ( i ) {
+	    i--;
+	} else {
+	    break; // -- would underflow
+	}
+    } while ( i >= offset && width >= 0 );
+    return width < 0 ? i - offset + 2 : 0;
 }
 
 
@@ -189,7 +193,6 @@ QLineEdit::~QLineEdit()
 void QLineEdit::setText( const char *text )
 {
     QString oldText( tbuf );
-    oldText.detach();
     tbuf = text ? text : "";
     if ( (int)tbuf.length() > maxLen ) {
 	tbuf.resize( maxLen+1 );
@@ -411,7 +414,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_K:
 	    if ( cursorPos < (int)tbuf.length() ) {
 		QString t( tbuf );
-		t.detach(); // ### 2.0
 		t.truncate( cursorPos );
 		validateAndSet( t, cursorPos, cursorPos, cursorPos );
 	    }
@@ -535,7 +537,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
 	switch( echoMode() ) {
 	case Normal:
-	    displayText = tbuf.mid( offset, tbuf.length() );
+	    displayText = tbuf.mid( offset );
 	    break;
 	case NoEcho:
 	    displayText = "";
@@ -658,7 +660,7 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 	    i++;
 	offset = i;
     } else if ( offset ) {
-	int i = showLastPartOffset( tbuf.data(), fontMetrics(),
+	int i = showLastPartOffset( tbuf, 0, fontMetrics(),
 				    width() - (frame() ? 8 : 4) );
 	if ( i < offset )
 	    offset = i;
@@ -677,7 +679,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     killTimers();
     d->inDoubleClick = FALSE;
     int margin = frame() ? 4 : 2;
-    cursorPos = offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
+    cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 					  e->pos().x() - margin,
 					  width() - 2*margin );
     if ( e->button() == MidButton ) {
@@ -743,7 +745,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	}
     } else {
 	dragScrolling = FALSE;
-	int mousePos = offset + xPosToCursorPos( &tbuf[(int)offset],
+	int mousePos = offset + xPosToCursorPos( tbuf, offset,
 						 fontMetrics(),
 						 e->pos().x() - margin,
 						 width() - margin - margin );
@@ -782,7 +784,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 		 height() - 2*margin ).contains( e->pos() ) )
 	return;
 
-    int mousePos = offset + xPosToCursorPos( &tbuf[(int)offset],
+    int mousePos = offset + xPosToCursorPos( tbuf, offset,
 					     fontMetrics(),
 					     e->pos().x() - margin,
 					     width() - margin - margin );
@@ -973,7 +975,7 @@ void QLineEdit::end( bool mark )
 {
     int tlen = strlen( tbuf );
     if ( cursorPos != tlen || (!mark && hasMarkedText()) ) {
-	int mo = showLastPartOffset( &tbuf[offset], fontMetrics(),
+	int mo = showLastPartOffset( tbuf, offset, fontMetrics(),
 				     width() - (frame() ? 8 : 4) );
 	int markStart = cursorPos;
 	cursorPos = tlen;
@@ -1081,7 +1083,7 @@ void QLineEdit::clipboardChanged()
 int QLineEdit::lastCharVisible() const
 {
     int tDispWidth = width() - (frame() ? 8 : 4);
-    return offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
+    return offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 			       tDispWidth, tDispWidth );
 }
 
@@ -1312,13 +1314,9 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
 {
     QString t( newText );
-    if ( !t.isEmpty() ) {
-	uchar *p = (uchar *) t.data();
-	while ( *p ) {		// unprintable/linefeed becomes space
-	    if ( *p < 32 )
-		*p = 32;
-	    p++;
-	}
+    for ( uint i=0; i<t.length(); i++ ) {
+	if ( t[i] < 32 )  // unprintable/linefeed becomes space
+	    t[i] = 32;
     }
     if ( t.length() > (uint)maxLength() )
 	t.truncate( maxLength() );
@@ -1394,11 +1392,9 @@ void QLineEdit::insert( const char * newText )
     if ( t.isEmpty() )
 	return;
 
-    uchar *p = (uchar *) t.data();
-    while ( *p ) {		// unprintable/nl becomes space
-	if ( *p < 32 )
-	    *p = 32;
-	p++;
+    for ( uint i=0; i<t.length(); i++ ) {
+	if ( t[i] < 32 )  // unprintable/linefeed becomes space
+	    t[i] = 32;
     }
 
     QString test( tbuf.copy() );

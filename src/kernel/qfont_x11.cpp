@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#109 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -57,7 +57,7 @@ enum FontFieldNames {				// X LFD fields
 
 // Internal functions
 
-static bool	parseXFontName( QString &fontName, char **tokens );
+static bool	parseXFontName( Q1String &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
 static bool	smoothlyScalable( const char *fontName );
 static bool	fontExists( const char *fontName );
@@ -69,7 +69,7 @@ static int	getWeight( const char *weightString, bool adjustScore=FALSE );
 class QFont_Private : public QFont
 {
 public:
-    int	    fontMatchScore( char *fontName, QString &buffer,
+    int	    fontMatchScore( char *fontName, Q1String &buffer,
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *polymorphic,
 			    int *resx, int *resy );
@@ -106,7 +106,7 @@ private:
     QFontInternal( const QString & );
     void computeLineWidth();
 
-    QString	    n;
+    Q1String	    n;
     XFontStruct	   *f;
     QFontDef	    s;
     int		    lw;
@@ -462,7 +462,7 @@ void QFont::initFontInfo() const
     }
 
     char *tokens[fontFields];
-    QString buffer = f->name();
+    Q1String buffer = f->name();
     if ( !parseXFontName(buffer, tokens) ) {	// not an XLFD name
 	resetFontDef( &f->s );
 	f->s.family   = f->name();
@@ -601,7 +601,7 @@ void QFont::load( HANDLE ) const
 // of a font.
 //
 
-int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
+int QFont_Private::fontMatchScore( char	 *fontName,	 Q1String &buffer,
 				   float *pointSizeDiff, int  *weightDiff,
 				   bool	 *scalable     , bool *polymorphic,
                                    int   *resx	       , int  *resy )
@@ -796,7 +796,7 @@ QString QFont_Private::bestMatch( const char *pattern, int *score )
     MatchData	best;
     MatchData	bestScalable;
 
-    QString	matchBuffer( 256 );	// X font name always <= 255 chars
+    Q1String	matchBuffer( 256 );	// X font name always <= 255 chars
     char **	xFontNames;
     int		count;
     int		sc;
@@ -835,7 +835,7 @@ QString QFont_Private::bestMatch( const char *pattern, int *score )
 	    }
 	}
     }
-    QString bestName;
+    Q1String bestName;
     char *tokens[fontFields];
 
     if ( best.score != exactScore && ( bestScalable.score > best.score ||
@@ -1397,7 +1397,7 @@ const QFontDef *QFontInfo::spec() const
 // Splits an X font name into fields separated by '-'
 //
 
-static bool parseXFontName( QString &fontName, char **tokens )
+static bool parseXFontName( Q1String &fontName, char **tokens )
 {
     if ( fontName.isEmpty() || fontName[0] != '-' ) {
 	tokens[0] = 0;
@@ -1471,7 +1471,7 @@ static bool fontExists( const char *fontName )
 void QFontInternal::computeLineWidth()
 {
     char *tokens[fontFields];
-    QString buffer(256);		// X font name always <= 255 chars
+    Q1String buffer(256);		// X font name always <= 255 chars
     strcpy( buffer.data(), name() );
     if ( !parseXFontName(buffer, tokens) ) {
 	lw   = 1;                   // name did not conform to X LFD

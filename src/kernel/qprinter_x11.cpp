@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#48 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -163,7 +163,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PDC_BEGIN ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
-		int fd = ::open( output_filename.data(),
+		int fd = ::open( output_filename,
 				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 				 0666 );
 		if ( fd >= 0 ) {
@@ -233,20 +233,19 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    while( --i > 0 )
 			::close( i );
 #endif // _WS_X11_
-		    (void)execlp( print_prog.data(), print_prog.data(),
-				  pr.data(), 0 );
+		    (void)execlp( print_prog, print_prog.ascii(), pr.ascii(), 0 );
 		    // if execlp returns EACCES it couldn't find the
 		    // program.  if no special print program has been
 		    // set, let's try a little harder...
 		    if ( print_prog == "lpr" && ( errno == EACCES ||
 						  errno == ENOENT ||
 						  errno == ENOEXEC ) ) {
-			(void)execl( "/bin/lpr", "lpr", pr.data(), 0 );
-			(void)execl( "/usr/bin/lpr", "lpr", pr.data(), 0 );
+			(void)execl( "/bin/lpr", "lpr", pr.ascii(), 0 );
+			(void)execl( "/usr/bin/lpr", "lpr", pr.ascii(), 0 );
 			pr[1] = 'd';
-			(void)execlp( "lp", "lp", pr.data(), 0 );
-			(void)execl( "/bin/lp", "lp", pr.data(), 0 );
-			(void)execl( "/usr/bin/lp", "lp", pr.data(), 0 );
+			(void)execlp( "lp", "lp", pr.ascii(), 0 );
+			(void)execl( "/bin/lp", "lp", pr.ascii(), 0 );
+			(void)execl( "/usr/bin/lp", "lp", pr.ascii(), 0 );
 		    }
 		    exit( 0 );
 		} else {		// parent process

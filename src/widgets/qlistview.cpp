@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#142 $
 **
 ** Implementation of QListView widget class
 **
@@ -2590,7 +2590,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
     default:
 	if ( e->ascii() && isalnum( e->ascii() ) ) {
 	    QString input( d->currentPrefix );
-	    input.detach();
 	    QListViewItem * keyItem = i;
 	    QTime now( QTime::currentTime() );
 	    while( keyItem ) {
@@ -2613,7 +2612,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
 			    i = keyItem;
 			     // nonoptimal double-break...
 			    keyItem = 0;
-			    input.detach();
 			    input.truncate( 0 );
 			}
 		    }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#38 $
 **
 ** Implementation of QFileInfo class
 **
@@ -42,20 +42,17 @@ extern "C" int readlink( const char *, void *, uint );
 
 #if defined(_OS_FATFS_)
 
-static void convertSeparators( char *n )
+static void convertSeparators( QString& s )
 {
-    if ( !n )
-	return;
-    while ( *n ) {
-	if ( *n ==  '\\' )
-	    *n = '/';
-	n++;
+    for (int i=0; i<s.length(); i++) {
+	if ( s[i] ==  '\\' )
+	    s[i] = '/';
     }
 }
 
 #elif defined(UNIX)
 
-static void convertSeparators( char * )
+static void convertSeparators( QString& )
 {
     return;
 }
@@ -122,7 +119,7 @@ QFileInfo::QFileInfo()
 QFileInfo::QFileInfo( const char *file )
 {
     fn	  = file;
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -138,7 +135,7 @@ QFileInfo::QFileInfo( const char *file )
 QFileInfo::QFileInfo( const QFile &file )
 {
     fn	  = file.name();
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -155,7 +152,7 @@ QFileInfo::QFileInfo( const QFile &file )
 QFileInfo::QFileInfo( const QDir &d, const char *fileName )
 {
     fn	  = d.filePath( fileName );
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -244,7 +241,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 void QFileInfo::setFile( const char *file )
 {
     fn = file;
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     delete fic;
     fic = 0;
 }
@@ -260,7 +257,7 @@ void QFileInfo::setFile( const char *file )
 void QFileInfo::setFile( const QFile &file )
 {
     fn	= file.name();
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     delete fic;
     fic = 0;
 }
@@ -277,7 +274,7 @@ void QFileInfo::setFile( const QFile &file )
 void QFileInfo::setFile( const QDir &d, const char *fileName )
 {
     fn	= d.filePath( fileName );
-    convertSeparators( fn.data() );
+    convertSeparators( fn );
     delete fic;
     fic = 0;
 }
@@ -290,7 +287,7 @@ void QFileInfo::setFile( const QDir &d, const char *fileName )
 bool QFileInfo::exists() const
 {
     if ( !fn.isNull() )
-	return ACCESS( fn.data(), F_OK ) == 0;
+	return ACCESS( fn, F_OK ) == 0;
     else
 	return FALSE;
 }
@@ -348,7 +345,7 @@ void QFileInfo::setCaching( bool enable )
 
 const char *QFileInfo::filePath() const
 {
-    return fn.data();
+    return fn;
 }
 
 /*!
@@ -369,7 +366,7 @@ QString QFileInfo::fileName() const
     if ( p == -1 )
 	return fn.copy();
     else
-	return QString( &fn[p+1] );
+	return fn.mid(p+1);
 }
 
 /*!
@@ -389,7 +386,6 @@ QString QFileInfo::absFilePath() const
 {
     if ( QDir::isRelativePath(fn) ) {
 	QString tmp = QDir::currentDirPath();
-	tmp.detach();
 	tmp += '/';
 	tmp += fn;
 	return QDir::cleanDirPath( tmp );
@@ -497,7 +493,7 @@ QDir QFileInfo::dir( bool absPath ) const
 bool QFileInfo::isReadable() const
 {
     if ( !fn.isNull() )
-	return ACCESS( fn.data(), R_OK ) == 0;
+	return ACCESS( fn, R_OK ) == 0;
     else
 	return FALSE;
 }
@@ -510,7 +506,7 @@ bool QFileInfo::isReadable() const
 bool QFileInfo::isWritable() const
 {
     if ( !fn.isNull() )
-	return ACCESS( fn.data(), W_OK ) == 0 ;
+	return ACCESS( fn, W_OK ) == 0 ;
     else
 	return FALSE;
 }
@@ -523,7 +519,7 @@ bool QFileInfo::isWritable() const
 bool QFileInfo::isExecutable() const
 {
     if ( !fn.isNull() )
-	return ACCESS( fn.data(), X_OK ) == 0;
+	return ACCESS( fn, X_OK ) == 0;
     else
 	return FALSE;
 }
@@ -539,7 +535,7 @@ bool QFileInfo::isExecutable() const
 
 bool QFileInfo::isRelative() const
 {
-    return QDir::isRelativePath( fn.data() );
+    return QDir::isRelativePath( fn );
 }
 
 /*!
@@ -554,7 +550,7 @@ bool QFileInfo::convertToAbs()
 {
     if ( isRelative() )
 	fn = absFilePath();
-    return QDir::isRelativePath( fn.data() );
+    return QDir::isRelativePath( fn );
 }
 
 
@@ -617,15 +613,13 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-    QString s;
+    char s[PATH_MAX+1];
 #if defined(UNIX) && !defined(_OS_OS2EMX_)
     if ( !isSymLink() )
-	return s;
-    s.resize( PATH_MAX+1 );
-    int len = readlink( fn.data(), s.data(), s.size() );
+	return QString();
+    int len = readlink( fn, s, PATH_MAX );
     if ( len < 0 )
 	len = 0;				// error, return empty string
-    s.truncate( len );
 #endif
     return s;
 }
@@ -845,7 +839,7 @@ void QFileInfo::doStat() const
     that->fic->isSymLink = FALSE;
 
 #if defined( UNIX ) && defined(S_IFLNK)
-    if ( ::lstat(fn.data(),b) == 0 ) {
+    if ( ::lstat(fn,b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
 	    that->fic->isSymLink = TRUE;
 	else
@@ -853,7 +847,7 @@ void QFileInfo::doStat() const
     }
 #endif
 
-    if ( STAT(fn.data(),b) != 0 ) {
+    if ( STAT(fn,b) != 0 ) {
 	delete that->fic;
 	that->fic = 0;
     }

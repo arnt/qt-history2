@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#52 $
 **
 ** Implementation of QRegExp class
 **
@@ -505,9 +505,9 @@ static QString wc2rx( const char *pattern )
 // Internal: Get char value and increment pointer.
 //
 
-static int char_val( char **str )		// get char value
+static int char_val( const char **str )		// get char value
 {
-    register char *p = *str;
+    register const char *p = *str;
     int len = 1;
     int v = 0;
     if ( *p == '\\' ) {				// escaped code
@@ -649,7 +649,8 @@ void QRegExp::compile()
 	pattern = wc2rx(rxstring);
     else
 	pattern = rxstring;
-    char   *p = pattern.data();			// pattern pointer
+    const char *start = pattern.ascii();	// pattern pointer
+    const char *p = start;			// pattern pointer
     ushort *d = rxarray;			// data pointer
     ushort *prev_d = 0;
 
@@ -660,7 +661,7 @@ void QRegExp::compile()
 
 	    case '^':				// beginning of line
 		prev_d = d;
-		GEN( p == pattern.data() ? BOL : *p );
+		GEN( p == start ? BOL : *p );
 		p++;
 		break;
 
@@ -827,7 +828,7 @@ void QRegExp::compile()
   Returns the position of the next match, or -1 if \e rx was not found.
 */
 
-int Q2String::find( const QRegExp &rx, int index ) const
+int QString::find( const QRegExp &rx, int index ) const
 {
     char* a = ascii();
     int r = (uint)index >= length() ? -1 : rx.match( a, index );
@@ -845,7 +846,7 @@ int Q2String::find( const QRegExp &rx, int index ) const
   found.
 */
 
-int Q2String::findRev( const QRegExp &rx, int index ) const
+int QString::findRev( const QRegExp &rx, int index ) const
 {
     char* a = ascii();
     if ( index < 0 ) {				// neg index ==> start from end
@@ -874,7 +875,7 @@ int Q2String::findRev( const QRegExp &rx, int index ) const
 
   Example:
   \code
-    Q2String s = "banana and panama";
+    QString s = "banana and panama";
     QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
     s.contains( r );				// 4 matches
   \endcode
@@ -882,7 +883,7 @@ int Q2String::findRev( const QRegExp &rx, int index ) const
   \sa find(), findRev()
 */
 
-int Q2String::contains( const QRegExp &rx ) const
+int QString::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
 	return 0;
@@ -907,19 +908,19 @@ int Q2String::contains( const QRegExp &rx ) const
 
   Example:
   \code
-    Q2String s = "banana";
+    QString s = "banana";
     s.replace( QRegExp("a.*a"), "" );		// becomes "b"
 
-    Q2String s = "banana";
+    QString s = "banana";
     s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
 
-    Q2String s = "banana";
+    QString s = "banana";
     s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
   
 */
 
-Q2String &Q2String::replace( const QRegExp &rx, const Q2String &str )
+QString &QString::replace( const QRegExp &rx, const QString &str )
 {
     if ( isEmpty() )
 	return *this;
@@ -947,7 +948,7 @@ Q2String &Q2String::replace( const QRegExp &rx, const Q2String &str )
   Returns the position of the next match, or -1 if \e rx was not found.
 */
 
-int QString::find( const QRegExp &rx, int index ) const
+int Q1String::find( const QRegExp &rx, int index ) const
 {
     return (uint)index >= size() ? -1 : rx.match( data(), index );
 }
@@ -962,7 +963,7 @@ int QString::find( const QRegExp &rx, int index ) const
   found.
 */
 
-int QString::findRev( const QRegExp &rx, int index ) const
+int Q1String::findRev( const QRegExp &rx, int index ) const
 {
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() )
@@ -993,7 +994,7 @@ int QString::findRev( const QRegExp &rx, int index ) const
   \sa find(), findRev()
 */
 
-int QString::contains( const QRegExp &rx ) const
+int Q1String::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
 	return 0;
@@ -1028,7 +1029,7 @@ int QString::contains( const QRegExp &rx ) const
   
 */
 
-QString &QString::replace( const QRegExp &rx, const char *str )
+Q1String &Q1String::replace( const QRegExp &rx, const char *str )
 {
     if ( isEmpty() )
 	return *this;

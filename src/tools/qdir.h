@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#28 $
+** $Id: //depot/qt/main/src/tools/qdir.h#29 $
 **
 ** Definition of QDir class
 **
@@ -168,7 +168,7 @@ private:
 
 inline const char *QDir::path() const
 {
-    return dPath.data();
+    return dPath;
 }
 
 inline const char *QDir::nameFilter() const

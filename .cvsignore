@@ -2,3 +2,5 @@ propagate variables
 .previous-changelog
 *.debug
 unsorted
+patches
+configs

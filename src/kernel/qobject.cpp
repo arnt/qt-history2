@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#162 $
 **
 ** Implementation of QObject class
 **
@@ -186,9 +186,9 @@ inline bool isSpace( char x )
 #endif
 }
 
-static QString rmWS( const char *src )
+static Q1String rmWS( const char *src )
 {
-    QString result( strlen(src)+1 );
+    Q1String result( strlen(src)+1 );
     char *d = result.data();
     char *s = (char *)src;
     char last = 0;
@@ -1459,8 +1459,8 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
     if ( !sender->connections )			// no connected signals
 	return FALSE;
-    QString signal_name;
-    QString member_name;
+    Q1String signal_name;
+    Q1String member_name;
     QMetaData *rm = 0;
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;

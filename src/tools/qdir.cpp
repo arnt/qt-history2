@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#56 $
 **
 ** Implementation of QDir class
 **
@@ -43,20 +43,19 @@ extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
-static void slashify( char *n )
+static void slashify( QString& n )
 {
-    if ( !n )
+    if ( n.isNull() )
 	return;
-    while ( *n ) {
-	if ( *n ==  '\\' )
-	    *n = '/';
-	n++;
+    for ( int i=0; i<n.length(); i++ ) {
+	if ( n[i] ==  '\\' )
+	    n[i] = '/';
     }
 }
 
 #elif defined(UNIX)
 
-static void slashify( char * )
+static void slashify( QString& )
 {
     return;
 }
@@ -314,12 +313,12 @@ QString QDir::absPath() const
 
 QString QDir::canonicalPath() const
 {
-    QString cur( PATH_MAX );
-    QString tmp( PATH_MAX );
+    char cur[PATH_MAX];
+    char tmp[PATH_MAX];
 
-    GETCWD( cur.data(), PATH_MAX );
+    GETCWD( cur, PATH_MAX );
     if ( CHDIR(dPath) >= 0 )
-	GETCWD( tmp.data(), PATH_MAX );
+	GETCWD( tmp, PATH_MAX );
     CHDIR( cur );
 
     return tmp;
@@ -472,7 +471,6 @@ bool QDir::cd( const char *dirName, bool acceptAbsPath )
     if ( !dirName || !*dirName || strcmp(dirName,".") == 0 )
 	return TRUE;
     QString old = dPath;
-    dPath.detach();			// dPath can be shared by several QDirs
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
 	dPath = cleanDirPath( dirName );
     } else {
@@ -480,7 +478,7 @@ bool QDir::cd( const char *dirName, bool acceptAbsPath )
 	    dPath += '/';
 	dPath += dirName;
 	if ( strchr(dirName,'/') || old == "." || strcmp(dirName,"..") == 0 )
-	    dPath = cleanDirPath( dPath.data() );
+	    dPath = cleanDirPath( dPath );
     }
     if ( !exists() ) {
 	dPath = old;			// regret
@@ -817,9 +815,9 @@ bool QDir::rmdir( const char *dirName, bool acceptAbsPath ) const
 bool QDir::isReadable() const
 {
 #if defined(UNIX)
-    return ACCESS( dPath.data(), R_OK | X_OK ) == 0;
+    return ACCESS( dPath, R_OK | X_OK ) == 0;
 #else
-    return ACCESS( dPath.data(), R_OK ) == 0;
+    return ACCESS( dPath, R_OK ) == 0;
 #endif
 }
 
@@ -876,7 +874,7 @@ bool QDir::isRoot() const
 
 bool QDir::isRelative() const
 {
-    return isRelativePath( dPath.data() );
+    return isRelativePath( dPath );
 }
 
 /*!
@@ -1014,7 +1012,7 @@ bool QDir::exists( const char *name, bool acceptAbsPath )
 	return FALSE;
     }
     QString tmp = filePath( name, acceptAbsPath );
-    return QFile::exists( tmp.data() );
+    return QFile::exists( tmp );
 }
 
 /*!
@@ -1093,20 +1091,21 @@ QString QDir::currentDirPath()
     static bool forcecwd = TRUE;
     static ino_t cINode;
     static dev_t cDevice;
-    QString currentName( PATH_MAX );
+    char currentName[PATH_MAX];
+    QString result;
 
     STATBUF st;
 
     if ( STAT( ".", &st ) == 0 ) {
 	if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
-	    if ( GETCWD( currentName.data(), PATH_MAX ) != 0 ) {
+	    if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
+		result = currentName;
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
-		slashify( currentName.data() );
+		slashify( result );
 		// forcecwd = FALSE;   ### caching removed, not safe
 	    } else {
 		warning( "QDir::currentDirPath: getcwd() failed" );
-		currentName = 0;
 		forcecwd    = TRUE;
 	    }
 	}
@@ -1114,10 +1113,9 @@ QString QDir::currentDirPath()
 #if defined(DEBUG)
 	debug( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
-	currentName = 0;
 	forcecwd    = TRUE;
     }
-    return currentName.copy();
+    return result;
 }
 
 /*!
@@ -1129,7 +1127,7 @@ QString QDir::homeDirPath()
 {
     QString d( PATH_MAX );
     d = getenv("HOME");
-    slashify( d.data() );
+    slashify( d );
     if ( d.isNull() )
 	d = rootDirPath();
     return d;
@@ -1185,7 +1183,7 @@ QString QDir::cleanDirPath( const char *filePath )
     if ( name.isEmpty() )
 	return name;
 
-    slashify( name.data() );
+    slashify( name );
 
     bool addedSeparator;
     if ( isRelativePath(name) ) {
@@ -1197,7 +1195,7 @@ QString QDir::cleanDirPath( const char *filePath )
 
     int ePos, pos, upLevel;
 
-    pos = ePos = name.size() - 1;
+    pos = ePos = name.length();
     upLevel = 0;
     int len;
 

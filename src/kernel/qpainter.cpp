@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#141 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1815,7 +1815,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 */
 
 void QPainter::drawText( int x, int y, int w, int h, int tf,
-			 const char *str, int len, QRect *brect,
+			 QString str, int len, QRect *brect,
 			 char **internal )
 {
     if ( !isActive() )
@@ -1835,7 +1835,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    newstr.truncate( len );
 	    param[0].rect = &r;
 	    param[1].ival = tf;
-	    param[2].str = newstr.data();
+	    param[2].str = newstr.ascii(); // #### unicode
 	    if ( pdev->devType() != PDT_PRINTER ) {
 #if defined(_WS_WIN_)
 		if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hdc )
@@ -2303,7 +2303,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 */
 
 QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
-			      const char *str, int len, char **internal )
+			      QString str, int len, char **internal )
 {
     QRect brect;
     if ( str && *str )

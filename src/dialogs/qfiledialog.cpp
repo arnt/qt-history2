@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#116 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#117 $
 **
 ** Implementation of QFileDialog class
 **
@@ -284,7 +284,6 @@ const char * QFileDialogPrivate::File::text( int column ) const
 	*tmpString = "<--->";
     }
 
-    tmpString->detach();
     return *tmpString;
 }
 
@@ -1741,7 +1740,6 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 	QFileInfo f( dir );
 	if ( f.isDir() ) {
 	    *workingDirectory = dir;
-	    workingDirectory->detach();
 	    dialog->setDir( dir );
 	}
     }
@@ -1752,7 +1750,6 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 	QFileInfo f( result );
 	if ( f.isDir() ) {
 	    *workingDirectory = result;
-	    workingDirectory->detach();
 	} else {
 	    result = 0;
 	}
@@ -1967,7 +1964,6 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	// ### here, in QListView and QComboBox.
 	if ( isprint(((QKeyEvent *)e)->ascii()) ) {
 	    QString nt( nameEdit->text() );;
-	    nt.detach();
 	    nt.truncate( nameEdit->cursorPosition() );
 	    nt += (char)(((QKeyEvent *)e)->ascii());
 	    QListViewItem * i = files->firstChild();

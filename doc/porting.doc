@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.1 1998/08/12 21:49:44 warwick Exp $
+** $Id: porting.doc,v 1.2 1998/08/13 17:03:09 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -15,6 +15,13 @@
 
 <h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
 
+<h2>How</h2>
+
+ - Read all the notes to get an idea of what to expect
+ - Recompile.  For each error, seach below for related idetifiers
+    (eg. function names, class names)
+
+<h2>Notes</h2>
 <p>
 QApplication::setColorSpec()
 PrivateColor and TrueColor are obsolete.  Use ManyColor.
@@ -37,7 +44,42 @@ QLabel::setMovie()
 No longer changes the text.
 
 <p>
+QString
+Now uses Unicode.  data() is obsolete - you cannot directly access the
+string as an array of bytes, because it isn't one.  Often, ascii() is
+what you want rather than data(), or just leave it to convert to
+const char* automatically.
+detach() is obsolete - QString is always shared.
+size() should be replaced by length()+1.
+Code that uses QString as an array of bytes should use QByteArray
+or char[].  THEN convert that to a QString if needed.
+Assigning 0 to a QString should be assigning the empty string QString()
+A BIG advantage of the new QString is that it automatically expands - 
+ write to an indexed position and it is there.
+Try to always use QString.  If you MUST, use Q1String which is the
+implementation used in Qt 1.x.
+Every conversion to and from ascii is wasted time, so try to use QString
+ as much as possible rather than const char*.  This also ensures you have
+ full 16-bit support. [should we have a warning feature/copy count?]
+The return value from operator const char*() is transient - don't expect
+ it to remain valid while you make deep function calls.
+Expect your code to become simpler with the new QString, especially
+ places where you have used a char* to wander over the string rather
+ than using indexes into the string.
+This hack:
+  use_sub_string( &my_string[index] )
+should be replaced by:
+  use_sub_string( my_string.mid(index) )
+You may find yourself needing ascii() for passing to the operating system
+ or other libraries, and be tempted to use Q1String to save the conversion,
+ but you are better off using unicode throughout, then when the operating
+ system supports unicode, you'll be prepared.
+
 <p>
+QMultiLineEdit::textWidth(QString*)
+changed to QMultiLineEdit::textWidth(QString)
+ Should be no problem.
+
 <p>
 
 */

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#64 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1786,12 +1786,12 @@ static void cleanup()
 }
 
 
-static void wordwrap( char * s )
+static void wordwrap( QString& s )
 {
     int ip = 0, ilp = 0, op = 0, olp = 0, oline = 0;
     bool needws = FALSE, insertws = FALSE;
 
-    while( s[ip] ) {
+    while( ip < s.length() ) {
 	if ( ilp && op - oline > 79 ) {
 	    // we have a possible line start position and a long line - let's
 	    // use it.
@@ -1893,10 +1893,9 @@ static void makeFixedStrings()
 	    vector += glyphname;
 	}
 	vector += " ] def";
-	wordwrap( vector.data() );
+	wordwrap( vector );
 	font_vectors->insert( (int)(unicodevalues[i].cs),
 			      new QString( vector ) );
-	vector.detach(); // ### remove in 2.0
     } while ( unicodevalues[i++].cs != QFont::Latin9 );
 }
 
@@ -2068,7 +2067,7 @@ void QPSPrinter::setFont( const QFont & f )
 	    cs = QFont::Latin1;
     }
 
-    key.sprintf( "%s %d %d", ps.data(), f.pointSize(), cs );
+    key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), cs );
     QString * tmp;
     tmp = d->headerFontNames.find( key );
     if ( !tmp && !d->buffer )
@@ -2080,7 +2079,7 @@ void QPSPrinter::setFont( const QFont & f )
 
     if ( fontName.isEmpty() ) {
 	QString key2;
-	key2.sprintf( "%s %d", ps.data(), cs );
+	key2.sprintf( "%s %d", ps.ascii(), cs );
 	tmp = d->headerFontNames.find( key );
 
 	QString fontEncoding;

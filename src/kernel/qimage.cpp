@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#178 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2316,13 +2316,13 @@ static QString fbname( const char *fileName )	// get file basename (sort of)
     if ( !s.isEmpty() ) {
 	int i;
 	if ( (i=s.findRev('/')) >= 0 )
-	    s = &s[i];
+	    s = s.mid(i);
 	if ( (i=s.findRev('\\')) >= 0 )
-	    s = &s[i];
+	    s = s.mid(i);
 	QRegExp r( "[a-zA-Z][a-zA-Z0-9_]*" );
 	int p = r.match( s, 0, &i );
 	if ( p >= 0 )
-	    s = &s[p];
+	    s = s.mid(p);
 	s.truncate(i);
     }
     if ( s.isEmpty() )
@@ -3902,7 +3902,7 @@ static void write_xbm_image( QImageIO *iio )
 // Skip until ", read until the next ", return the rest in *buf
 // Returns FALSE on error, TRUE on success
 
-static bool read_xpm_string( QString &buf, QIODevice *d,
+static bool read_xpm_string( Q1String &buf, QIODevice *d,
 			     const char **source, int &index )
 {
     if ( source ) {
@@ -3948,7 +3948,7 @@ static bool read_xpm_string( QString &buf, QIODevice *d,
 static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 				     QImage & image)
 {
-    QString buf;
+    Q1String buf;
     QIODevice *d = 0;
     buf.resize( 200 );
 
