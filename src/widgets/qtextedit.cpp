@@ -3948,6 +3948,13 @@ void QTextEdit::getCursorPosition( int *para, int *index ) const
 void QTextEdit::setSelection( int paraFrom, int indexFrom,
 			      int paraTo, int indexTo, int selNum )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if (d->optimMode) {
+	optimSetSelection(paraFrom, indexFrom, paraTo, indexTo);
+ 	repaintContents(FALSE);
+	return;
+    }
+#endif
     if ( doc->hasSelection( selNum ) ) {
 	doc->removeSelection( selNum );
 	repaintChanged();
@@ -5442,6 +5449,7 @@ void QTextEdit::setFont( const QFont &f )
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	QScrollView::setFont( f );
+	doc->setDefaultFormat( f, doc->formatCollection()->defaultFormat()->color() );
 	return;
     }
 #endif
@@ -6220,6 +6228,36 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
     }
 }
 
+// calculate the width of a string in pixels inc. tabs
+static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
+{
+    int tabs = str.contains('\t');
+    
+    if (!tabs)
+	return fm.width(str);
+    
+    int newIdx = 0;
+    int lastIdx = 0;
+    int strWidth = 0;
+    int tn;
+    for (tn = 1; tn <= tabs; ++tn) {
+	newIdx = str.find('\t', newIdx);
+	strWidth += fm.width(str.mid(lastIdx, newIdx - lastIdx));
+	if (strWidth >= tn * tabWidth) {
+	    int u = tn;
+	    while (strWidth >= u * tabWidth)
+		++u;
+	    strWidth = u * tabWidth;
+	} else {
+	    strWidth = tn * tabWidth;
+	}
+	lastIdx = ++newIdx;
+    }
+    if ((int)str.length() - 1 > newIdx)
+	strWidth += fm.width(str.mid(newIdx));
+    return strWidth;
+}
+
 /*! \internal
 
   Append \a str to the current text buffer. Parses each line to find
@@ -6238,7 +6276,7 @@ void QTextEdit::optimAppend( const QString &str )
     for ( ; it != strl.end(); ++it ) {
  	optimParseTags( &*it );
 	optimCheckLimit( *it );
-	lWidth = fm.width( *it );
+	lWidth = qStrWidth(*it, tabStopWidth(), fm);
 	if ( lWidth > d->od->maxLineWidth )
 	    d->od->maxLineWidth = lWidth;
     }
@@ -6552,6 +6590,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     td->setPlainText( str );
     td->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
     td->formatter()->setWrapEnabled( FALSE );
+    td->setTabStops(doc->tabStopWidth());
 
     // get the current text color from the current format
     td->selectAll( QTextDocument::Standard );
@@ -6839,26 +6878,25 @@ void QTextEdit::optimDoAutoScroll()
 */
 int QTextEdit::optimCharIndex( const QString &str, int mx ) const
 {
-    QFontMetrics fm( QScrollView::font() );
-    int i = 0;
+    QFontMetrics fm(QScrollView::font());
+    uint i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
+    int strWidth;
     mx = mx - 4; // ### get the real margin from somewhere
 
-    if ( mx > fm.width( str ) )
+    if (!str.contains('\t') && mx > fm.width(str))
 	return str.length();
-
-    int tabs = 0;
-    int tabWidth = tabStopWidth() - fm.width('\t');
-    while ( i < str.length() ) {
-	tabs = str.left(i).count( '\t' );
-	dd = fm.width(str.left( i )) + tabs*tabWidth - mx;
-	if ( QABS(dd) < dist || dist == dd ) {
+    
+    while (i < str.length()) {
+	strWidth = qStrWidth(str.left(i), tabStopWidth(), fm);
+	dd = strWidth - mx;
+	if (QABS(dd) <= dist) {
 	    dist = QABS(dd);
-	    if ( mx >= (fm.width(str.left( i )) + tabs*tabWidth) )
+	    if (mx >= strWidth)
 		curpos = i;
 	}
-	i++;
+	++i;
     }
     return curpos;
 }
