@@ -342,7 +342,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
 	    return;
 	QAction *a = *it;
 	int index = actionList.find( a );
-	RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand( 
+	RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand(
 	    tr( "Remove Action '%1' from Toolbar '%2'" ).
 	    arg( a->name() ).arg( caption() ),
 	    formWindow, a, this, index );
@@ -357,7 +357,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
 	if ( !insertAnchor )
 	    index = 0;
 
-	AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( 
+	AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand(
 	    tr( "Add Separator to Toolbar '%1'" ).
 	    arg( a->name() ).arg( caption() ),
 	    formWindow, a, this, index );
@@ -732,10 +732,10 @@ void QDesignerMenuBar::contextMenuEvent( QContextMenuEvent *e )
     } else if ( res == 2 ) {
 	bool ok;
 	QString old = text( idAt( itm ) );
-	QString txt = QInputDialog::getText( tr( "Rename Menuitem" ), tr( "Menu Text" ), 
+	QString txt = QInputDialog::getText( tr( "Rename Menuitem" ), tr( "Menu Text" ),
 					     QLineEdit::Normal, text( idAt( itm ) ), &ok, 0 );
 	if ( ok ) {
-	    RenameMenuCommand *cmd = new RenameMenuCommand( 
+	    RenameMenuCommand *cmd = new RenameMenuCommand(
 		tr( "Rename Menu '%1' to '%2'" ).arg( old ).arg( txt ),
 		formWindow, this, idAt( itm ), old, txt );
 	    formWindow->commandHistory()->addCommand( cmd );
@@ -749,7 +749,7 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
     lastIndicatorPos = QPoint( -1, -1 );
     insertAt = -1;
     mousePressed = TRUE;
-    if ( e->button() == MidButton )
+    if ( e->button() == MidButton || e->button() == RightButton )
 	return;
 
     dragStartPos = e->pos();
@@ -968,7 +968,7 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 	QAction *a = actionList.at( itm );
 	if ( !a )
 	    return;
-	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand( 
+	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
 	    tr( "Remove Action '%1' from the Popup Menu '%2'" ).
 	    arg( a->name() ).arg( caption() ),
 	    formWindow, a, this, itm );
@@ -978,7 +978,7 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 	QPoint p( pos() );
 	calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	QAction *a = new QSeparatorAction( 0 );
-	AddActionToPopupCommand *cmd = new AddActionToPopupCommand( 
+	AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
 	    tr( "Add Separator to the Popup Menu '%1'" ).
 	    arg( name() ),
 	    formWindow, a, this, insertAt );
