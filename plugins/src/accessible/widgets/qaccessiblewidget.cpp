@@ -506,7 +506,8 @@ bool	QAccessibleButton::doDefaultAction( int control )
     if ( !widget()->isEnabled() )
 	return FALSE;
 
-    if ( role(control) == PushButton ) {
+    Role r = role(control);
+    if ( r == PushButton || r ==  CheckBox || r == RadioButton ) {
 	((QButton*)object())->animateClick();
     } else if ( object()->inherits("QToolButton") ) {
 	QToolButton *tb = (QToolButton*)object();
