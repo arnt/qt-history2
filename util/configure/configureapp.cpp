@@ -121,11 +121,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
-    dictionary[ "STYLE_MOTIF" ]	    = "no";
+    dictionary[ "STYLE_MOTIF" ]     = "yes";
     dictionary[ "STYLE_MOTIFPLUS" ] = "no";
     dictionary[ "STYLE_PLATINUM" ]  = "no";
     dictionary[ "STYLE_SGI" ]	    = "no";
-    dictionary[ "STYLE_CDE" ]	    = "no";
+    dictionary[ "STYLE_CDE" ]	    = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "no";
     dictionary[ "STYLE_COMPACT" ]   = "no";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
@@ -1256,7 +1256,6 @@ void Configure::generateConfigfiles()
                   << "#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;" << endl
                   << "#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;"
                   << endl;
-
 
         outFile.close();
     }
