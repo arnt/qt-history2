@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#23 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#24 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -198,7 +198,7 @@ typedef ulong WFlags;
 #define WWin_AltCreate	0x00100000		// widget flags for Windows
 #define WWin_AltClass	0x00200000
 
-#define WGetMouseMove	0x01000000		// misc widget flags
+#define WMouseTracking	0x01000000		// misc widget flags
 #define WConfigPending	0x02000000
 #define WResizeNoErase	0x04000000
 #define WExplicitHide	0x08000000
