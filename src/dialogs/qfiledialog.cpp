@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#98 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#99 $
 **
 ** Implementation of QFileDialog class
 **
@@ -439,7 +439,7 @@ void QFileDialogPrivate::MCList::setUpContents()
 
 	while( file ) {
 	    if ( file->height() ) {
-		w = fontMetrics().width( file->text( 0 ) ) + 20;
+		w = file->width( fontMetrics(), lv, 0 );
 		if ( w > maxw )
 		    maxw = w;
 		file = file->nextSibling();
@@ -470,7 +470,7 @@ void QFileDialogPrivate::MCList::setUpContents()
 
 		while( file ) {
 		    if ( file->height() ) {
-			w = fontMetrics().width( file->text( 0 ) ) + 20;
+			w = file->width( fontMetrics(), lv, 0 );
 			if ( w > maxw )
 			    maxw = w;
 			file = file->nextSibling();
