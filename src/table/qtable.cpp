@@ -3100,7 +3100,7 @@ QPixmap QTable::pixmap( int row, int col ) const
 
 void QTable::setCurrentCell( int row, int col )
 {
-    setCurrentCell( row, col, TRUE );
+    setCurrentCell( row, col, TRUE, TRUE );
 }
 
 // need to use a define, as leftMargin() is protected
@@ -3113,10 +3113,9 @@ void QTable::setCurrentCell( int row, int col )
 
 /*! \internal */
 
-void QTable::setCurrentCell( int row, int col, bool updateSelections )
+void QTable::setCurrentCell( int row, int col, bool updateSelections, bool ensureVisible )
 {
-    QTableItem *itm = item( row, col );
-    QTableItem *oldIitem = item( curRow, curCol );
+    QTableItem *oldItem = item( curRow, curCol );
 
     if ( row > numRows() - 1 )
 	row = numRows() - 1;
@@ -3126,7 +3125,8 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
     if ( curRow == row && curCol == col )
 	return;
 
-    itm = oldIitem;
+
+    QTableItem *itm = oldItem;
     if ( itm && itm->editType() != QTableItem::Always && itm->editType() != QTableItem::Never )
 	endEdit( curRow, curCol, TRUE, FALSE );
     int oldRow = curRow;
@@ -3135,7 +3135,8 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
     curCol = col;
     repaintCell( oldRow, oldCol );
     repaintCell( curRow, curCol );
-    ensureCellVisible( curRow, curCol );
+    if ( ensureVisible )
+        ensureCellVisible( curRow, curCol );
     emit currentChanged( row, col );
 
     if ( oldCol != curCol ) {
@@ -3528,7 +3529,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	    repaintSelections( &oldSelection, currentSel );
 	    emit selectionChanged();
 	}
-	setCurrentCell( tmpRow, tmpCol, selMode == SingleRow );
+	setCurrentCell( tmpRow, tmpCol, selMode == SingleRow, TRUE );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	if ( selMode != NoSelection ) {
 	    if ( selMode == Single || selMode == SingleRow && !isSelected( tmpRow, tmpCol, FALSE ) )
@@ -3547,9 +3548,9 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 		emit selectionChanged();
 	    }
 	}
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     } else {
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	QTableItem *itm = item( tmpRow, tmpCol );
 	if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
 	    QWidget *w = cellWidget( tmpRow, tmpCol );
@@ -3741,12 +3742,12 @@ void QTable::doAutoScroll()
 		currentSel->expandTo( tmpRow, numCols() - 1 );
 	    }
 	}
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	repaintSelections( useOld ? &oldSelection : 0, currentSel );
 	if ( currentSel && oldSelection != *currentSel )
 	    emit selectionChanged();
     } else {
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     }
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
@@ -4083,7 +4084,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	if ( ( e->state() & ShiftButton ) == ShiftButton &&
 	     selMode != NoSelection && selMode != SingleRow ) {
 	    bool justCreated = FALSE;
-	    setCurrentCell( tmpRow, tmpCol, FALSE );
+	    setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	    if ( !currentSel ) {
 		justCreated = TRUE;
 		currentSel = new QTableSelection();
@@ -4101,7 +4102,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    repaintSelections( justCreated ? 0 : &oldSelection, currentSel );
 	    emit selectionChanged();
 	} else {
-	    setCurrentCell( tmpRow, tmpCol, FALSE );
+	    setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	    if ( !isRowSelection( selectionMode() ) ) {
 		clearSelection();
 	    } else {
@@ -4132,7 +4133,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    }
 	}
     } else {
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     }
 }
 
@@ -5927,20 +5928,45 @@ void QTable::insertRows( int row, int count )
     if ( curRow >= row && curRow < row + count )
 	curRow = row + count;
 
-    row--;
+    --row;
     if ( row >= numRows() )
 	return;
 
+    bool updatesEnabled = isUpdatesEnabled();
+    setUpdatesEnabled( FALSE );
+    bool leftHeaderUpdatesEnabled = leftHeader->isUpdatesEnabled();
+    leftHeader->setUpdatesEnabled( FALSE );
+    int oldLeftMargin = leftMargin();
+
     setNumRows( numRows() + count );
-
-    int cr = qMax( 0, currentRow() );
-    int cc = qMax( 0, currentColumn() );
-    setCurrentCell( cr, cc );
-
+    
     for ( int i = numRows() - count - 1; i > row; --i )
-	( (QTableHeader*)verticalHeader() )->swapSections( i, i + count );
+	leftHeader->swapSections( i, i + count );
+    
+    leftHeader->setUpdatesEnabled( leftHeaderUpdatesEnabled );
+    setUpdatesEnabled( updatesEnabled );
 
-    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    int cr = QMAX( 0, currentRow() );
+    int cc = QMAX( 0, currentColumn() );
+    if ( curRow > row )
+	curRow -= count; // this is where curRow was
+    setCurrentCell( cr, cc, TRUE, FALSE ); // without ensureCellVisible
+
+    // Repaint the header
+    if ( leftHeaderUpdatesEnabled ) {
+	int y = rowPos( row ) - contentsY();
+	if ( leftMargin() != oldLeftMargin || d->hasRowSpan )
+	    y = 0; // full repaint
+	QRect rect( 0, y, leftHeader->width(), contentsHeight() );
+	leftHeader->update( rect );
+    }
+
+    if ( updatesEnabled ) {
+	int p = rowPos( row );
+	if ( d->hasRowSpan )
+	    p = contentsY();
+	updateContents( contentsX(), p, visibleWidth(), contentsHeight() + 1 );
+    }
 }
 
 /*!
@@ -5960,20 +5986,45 @@ void QTable::insertColumns( int col, int count )
     if ( curCol >= col && curCol < col + count )
 	curCol = col + count;
 
-    col--;
+    --col;
     if ( col >= numCols() )
 	return;
 
+    bool updatesEnabled = isUpdatesEnabled();
+    setUpdatesEnabled( FALSE );
+    bool topHeaderUpdatesEnabled = topHeader->isUpdatesEnabled();
+    topHeader->setUpdatesEnabled( FALSE );
+    int oldTopMargin = topMargin();
+
     setNumCols( numCols() + count );
-
-    int cr = qMax( 0, currentRow() );
-    int cc = qMax( 0, currentColumn() );
-    setCurrentCell( cr, cc );
-
+ 
     for ( int i = numCols() - count - 1; i > col; --i )
-	( (QTableHeader*)horizontalHeader() )->swapSections( i, i + count );
+	topHeader->swapSections( i, i + count );
+    
+    topHeader->setUpdatesEnabled( topHeaderUpdatesEnabled );
+    setUpdatesEnabled( updatesEnabled );
 
-    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    int cr = QMAX( 0, currentRow() );
+    int cc = QMAX( 0, currentColumn() );
+    if ( curCol > col )
+	curCol -= count; // this is where curCol was
+    setCurrentCell( cr, cc, TRUE, FALSE ); // without ensureCellVisible
+
+    // Repaint the header
+    if ( topHeaderUpdatesEnabled ) {
+	int x = columnPos( col ) - contentsX();
+	if ( topMargin() != oldTopMargin || d->hasColSpan )
+	    x = 0; // full repaint
+	QRect rect( x, 0, contentsWidth(), topHeader->height() );
+	topHeader->update( rect );
+    }
+
+    if ( updatesEnabled ) {
+	int p = columnPos( col );
+	if ( d->hasColSpan )
+	    p = contentsX();
+	updateContents( p, contentsY(), contentsWidth() + 1, visibleHeight() );
+    }
 }
 
 /*!
@@ -6116,7 +6167,7 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
     if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     e->accept();
 }
 
@@ -6135,7 +6186,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
     if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     e->accept();
 }
 
@@ -6146,7 +6197,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
-    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
+    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE, TRUE );
 }
 
 /*!
@@ -6157,7 +6208,7 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QTable::contentsDropEvent( QDropEvent *e )
 {
-    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
+    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE, TRUE );
     emit dropped( e );
 }
 

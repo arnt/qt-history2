@@ -457,7 +457,7 @@ private:
     void updateRowWidgets( int row );
     void updateColWidgets( int col );
     bool isSelected( int row, int col, bool includeCurrent ) const;
-    void setCurrentCell( int row, int col, bool updateSelections );
+    void setCurrentCell( int row, int col, bool updateSelections, bool ensureVisible = FALSE );
     void fixCell( int &row, int &col, int key );
     void delayedUpdateGeometries();
     struct TableWidget
