@@ -152,7 +152,8 @@ uint QColor::alloc()
 #elif defined(QWS_DEPTH_8DIRECT)
 	return pix=((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-	return pix = closestMatch( r, g, b );
+	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+//	return pix = closestMatch( r, g, b );
 #endif
     } else if(depth==1) {
 	// #### just a hack

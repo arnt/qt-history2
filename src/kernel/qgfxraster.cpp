@@ -3665,7 +3665,6 @@ bool QScreen::initCard()
 #endif
 
     if(vinfo.bits_per_pixel==8) {
-	// Build greyscale palette
 	screencols=256;
 	unsigned int loopc;
 	fb_cmap cmap;
@@ -3679,14 +3678,17 @@ bool QScreen::initCard()
 		  malloc(sizeof(unsigned short int)*256);
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
-	for(loopc=0;loopc<256;loopc++) {
 #if defined(QWS_DEPTH_8GRAYSCALE)
+	// Build greyscale palette
+	for(loopc=0;loopc<256;loopc++) {
 	    cmap.red[loopc]=loopc << 8;
 	    cmap.green[loopc]=loopc << 8;
 	    cmap.blue[loopc]=loopc << 8;
 	    cmap.transp[loopc]=0;
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
-#else
+	}
+#elif defined(QWS_DEPTH_8DIRECT)
+	for(loopc=0;loopc<256;loopc++) {
 	    int a,b,c;
 	    a=((loopc & 0xe0) >> 5) << 5;
 	    b=((loopc & 0x18) >> 3) << 6;
@@ -3701,8 +3703,23 @@ bool QScreen::initCard()
 	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
 				   cmap.green[loopc] >> 8,
 				   cmap.blue[loopc] >> 8);
-#endif
 	}
+#else
+	int idx = 0;
+	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
+	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
+		for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
+		    cmap.red[idx] = ir << 8;
+		    cmap.green[idx] = ig << 8;
+		    cmap.blue[idx] = ib << 8;
+		    cmap.transp[idx] = 0;
+		    screenclut[idx]=qRgb( ir, ig, ib );
+		    idx++;
+		}
+	    }
+	}
+	screencols=idx;
+#endif
 	ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
