@@ -579,6 +579,7 @@ void QTextEngine::shape( int item ) const
 
     si.glyph_data_offset = used;
 
+#if 0
     if ( !si.font() ) {
 	if ( hasUsp10 ) {
 	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
@@ -609,7 +610,7 @@ void QTextEngine::shape( int item ) const
 	    fe = fnt->engineForScript( QFont::NoScript );
 	si.setFont(fe);
     }
-
+#endif
 
 #if 0
     if ( hasUsp10 ) {
@@ -658,8 +659,9 @@ void QTextEngine::shape( int item ) const
 	for ( int i = 0; i < si.num_glyphs; i++ )
 	    si.width += glyphs[i].advance;
     }
-    si.ascent = si.font()->ascent();
-    si.descent = si.font()->descent();
+    QFontEngine *f = fontEngine(si);
+    si.ascent = f->ascent();
+    si.descent = f->descent();
 
     ((QTextEngine *)this)->used += si.num_glyphs;
 }

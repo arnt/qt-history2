@@ -341,7 +341,7 @@ private:
     short rbearing;
     float _scale;
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    unsigned char widthCache[widthCacheSize];
+    mutable unsigned char widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
 };
 #endif
@@ -559,7 +559,7 @@ public:
     Type type() const;
 
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    unsigned char widthCache[widthCacheSize];
+    mutable unsigned char widthCache[widthCacheSize];
 };
 
 #endif // Q_WS_WIN

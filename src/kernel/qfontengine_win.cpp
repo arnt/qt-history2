@@ -254,7 +254,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
 	    glyphs[i].advance = size.cx - overhang;
 	    // if glyph's within cache range, store it for later
 	    if ( glyph < widthCacheSize )
-		((QFontEngineWin *)this)->widthCache[glyph] = size.cx - overhang;
+		widthCache[glyph] = size.cx - overhang;
 	}
 	str++;
     }

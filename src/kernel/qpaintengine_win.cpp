@@ -906,7 +906,7 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
     QScriptItem *si = &engine->items[ti.item()];
 
     engine->shape( ti.item() );
-    QFontEngine *fe = si->font();
+    QFontEngine *fe = engine->fontEngine(*si);
     Q_ASSERT( fe );
 
     int x = p.x() + si->x;
