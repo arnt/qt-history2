@@ -17,13 +17,18 @@
 
 QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
-    QModelIndexList items;
+    QModelIndex index;
+    QModelIndexList indexes;
     if (isValid()) {
-        for (int column=l; column<=r; ++column)
-            for (int row=t; row<=b; ++row)
-                items.append(model->index(row, column, parent())); //###does not specify Type
+        for (int column = l; column <= r; ++column) {
+            for (int row = t; row <= b; ++row) {
+                index = model->index(row, column, parent());
+                if (model->isSelectable(index))
+                    indexes.append(index); //###does not specify Type
+            }
+        }
     }
-    return items;
+    return indexes;
 }
 
 /*!
@@ -55,11 +60,11 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
                bottomRight.row(), bottomRight.column()));
 }
 
-bool QItemSelection::contains(const QModelIndex &item, const QAbstractItemModel *model) const
+bool QItemSelection::contains(const QModelIndex &index, const QAbstractItemModel *model) const
 {
     QList<QItemSelectionRange>::const_iterator it = begin();
     for (; it != end(); ++it)
-        if ((*it).contains(item, model))
+        if ((*it).contains(index, model))
             return true;
     return false;
 }
@@ -229,7 +234,8 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
 /*!
   \internal
 */
-QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent)
+QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
+                                         QObject *parent)
     : QObject(dd, parent)
 {
     d->model = model;
@@ -248,9 +254,9 @@ QItemSelectionModel::~QItemSelectionModel()
 
   \sa QItemSelectionModel::SelectionCommand
 */
-void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
+void QItemSelectionModel::select(const QModelIndex &index, int selectionCommand)
 {
-    QItemSelection selection(item, item, model());
+    QItemSelection selection(index, index, model());
     select(selection, selectionCommand);
 }
 
@@ -359,15 +365,15 @@ void QItemSelectionModel::clear()
   Depending on the \a selectionCommand a selection can also be performed.
   \sa select()
 */
-void QItemSelectionModel::setCurrentItem(const QModelIndex &item, int selectionCommand)
+void QItemSelectionModel::setCurrentItem(const QModelIndex &index, int selectionCommand)
 {
     if (selectionCommand != NoUpdate)
-        select(item, selectionCommand); // select item
-    if (item == d->currentItem)
+        select(index, selectionCommand); // select item
+    if (index == d->currentItem)
         return;
     QModelIndex old = d->currentItem;
-    d->currentItem = QPersistentModelIndex(item, d->model); // set current
-    emit currentChanged(old, item);
+    d->currentItem = QPersistentModelIndex(index, d->model); // set current
+    emit currentChanged(old, index);
 }
 
 /*!
@@ -381,22 +387,24 @@ QModelIndex QItemSelectionModel::currentItem() const
 /*!
   Returns true if \a item is selected.
 */
-bool QItemSelectionModel::isSelected(const QModelIndex &item) const
+bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
+    if (!model()->isSelectable(index))
+        return false;
     bool selected = false;
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
     //  search model ranges
     for (; !selected && it != d->ranges.end(); ++it)
-        if ((*it).contains(item, model()))
+        if ((*it).contains(index, model()))
             selected = true;
     // check  currentSelection
     if (d->currentSelection.count()) {
         if (d->currentCommand & Deselect && selected)
-            selected = !d->currentSelection.contains(item, model());
+            selected = !d->currentSelection.contains(index, model());
         else if (d->currentCommand & Toggle)
-            selected ^= d->currentSelection.contains(item, model());
+            selected ^= d->currentSelection.contains(index, model());
         else if (d->currentCommand & Select && !selected)
-            selected = d->currentSelection.contains(item, model());
+            selected = d->currentSelection.contains(index, model());
     }
     return selected;
 }
@@ -429,15 +437,15 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
                         return false;
     }
     // add ranges and currentSelection and check through them all
-    QModelIndex item;
+    QModelIndex index;
     QList<QItemSelectionRange>::const_iterator it;
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
     for (int i = 0; i < model()->columnCount(parent); ++i) {
-        item = model()->index(row, i, parent);
+        index = model()->index(row, i, parent);
         for (it = joined.begin(); it != joined.end(); ++it)
-            if ((*it).contains(item, model())) {
+            if ((*it).contains(index, model())) {
                 i = (*it).right();
                 break;
             }
@@ -479,15 +487,15 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
         }
     }
     // add ranges and currentSelection and check through them all
-    QModelIndex item;
+    QModelIndex index;
     QList<QItemSelectionRange>::const_iterator it;
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
     for (int i = 0; i < model()->rowCount(parent); ++i) {
-         item = model()->index(i, column, parent);
+         index = model()->index(i, column, parent);
          for (it = joined.begin(); it != joined.end(); ++it) {
-             if ((*it).contains(item, model())) {
+             if ((*it).contains(index, model())) {
                  i = (*it).bottom();
                  break;
              }

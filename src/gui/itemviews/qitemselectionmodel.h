@@ -80,12 +80,15 @@ class QItemSelection : public QList<QItemSelectionRange>
 {
 public:
     QItemSelection() {}
-    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
-    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
+    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                   const QAbstractItemModel *model);
+    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                const QAbstractItemModel *model);
     bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
     QModelIndexList items(QAbstractItemModel *model) const;
     void merge(const QItemSelection &other, int selectionCommand);
-    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result);
+    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other,
+                      QItemSelection *result);
 };
 
 class QItemSelectionModelPrivate;
@@ -117,9 +120,9 @@ public:
     virtual ~QItemSelectionModel();
 
     QModelIndex currentItem() const;
-    void setCurrentItem(const QModelIndex &item, int selectionCommand);
+    void setCurrentItem(const QModelIndex &index, int selectionCommand);
 
-    bool isSelected(const QModelIndex &item) const;
+    bool isSelected(const QModelIndex &index) const;
     bool isRowSelected(int row, const QModelIndex &parent) const;
     bool isColumnSelected(int column, const QModelIndex &parent) const;
 
@@ -127,7 +130,7 @@ public:
     QModelIndexList selectedItems() const;
 
 public slots:    
-    virtual void select(const QModelIndex &item, int selectionCommand);
+    virtual void select(const QModelIndex &index, int selectionCommand);
     virtual void select(const QItemSelection &selection, int selectionCommand);
     virtual void clear();
 
@@ -136,7 +139,8 @@ signals:
     void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 
 protected:
-    QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
+                        QObject *parent = 0);
     void emitSelectionChanged(const QItemSelection &oldSelection, const QItemSelection &newSelection);
 };
 
