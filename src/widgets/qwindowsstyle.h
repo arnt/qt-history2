@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#3 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#4 $
 **
 ** Definition of Windows-like style class
 **
@@ -52,9 +52,9 @@ public:
 		    int lineWidth = 1, const QBrush *fill = 0 );
 
     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-			 const QColorGroup &,  int lineWidth = 2, 
+			 const QColorGroup &,  int lineWidth = 2,
 			 const QBrush *fill = 0 );
-    
+
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
 		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );

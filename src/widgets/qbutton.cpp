@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#146 $
 **
 ** Implementation of QButton widget class
 **
@@ -705,8 +705,7 @@ bool QButton::focusNextPrevChild( bool next )
 	if ( w != startingPoint &&
 	     !( w->inherits( "QRadioButton" ) &&
 		((QButton*)w)->group() == group() ) &&
-	     (w->focusPolicy() == TabFocus ||
-	      w->focusPolicy() == StrongFocus)  &&
+	     ( ( w->focusPolicy() & TabFocus ) == TabFocus ) &&
 	     !w->focusProxy() &&
 	     w->isVisibleToTLW() &&
 	     w->isEnabledToTLW() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#15 $
 **
 ** Implementation of Motif-like style class
 **
@@ -99,6 +99,13 @@ bool QMotifStyle::useHighlightColors() const
 
 void QMotifStyle::polish( QPalette& pal)
 {
+    if ( pal.normal().light() == pal.normal().base() ) {
+	QColor nlight = pal.normal().light().dark(108 );
+	pal.setColor( QPalette::Normal, QColorGroup::Light, nlight ) ;
+	pal.setColor( QPalette::Disabled, QColorGroup::Light, nlight ) ;
+	pal.setColor( QPalette::Active, QColorGroup::Light, nlight ) ;
+    }
+
     if ( highlightCols )
 	return;
 
@@ -106,24 +113,6 @@ void QMotifStyle::polish( QPalette& pal)
     QColorGroup normal = pal.normal();
     QColorGroup disabled = pal.disabled();
     QColorGroup active = pal.active();
-
-//     int h,s,v;
-//     normal.text().hsv(&h,&s,&v);
-//     if (v >= 255-50) {
-// 	normal.setHighlight( Qt::white );
-// 	normal.setHighlightedText( normal.base() );
-// 	disabled.setHighlight( Qt::white );
-// 	disabled.setHighlightedText( disabled.base() );
-// 	active.setHighlight( Qt::white );
-// 	active.setHighlightedText( active.base() );
-//     } else {
-// 	normal.setHighlight( Qt::black );
-// 	normal.setHighlightedText( normal.base() );
-// 	disabled.setHighlight( Qt::black );
-// 	disabled.setHighlightedText( disabled.base() );
-// 	active.setHighlight( Qt::black );
-// 	active.setHighlightedText( active.base() );
-//     }
 
     pal.setColor( QPalette::Normal, QColorGroup::Highlight,
 		  normal.text() );

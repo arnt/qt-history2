@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#447 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#448 $
 **
 ** Implementation of QWidget class
 **
@@ -2210,7 +2210,7 @@ void QWidget::setFocus()
 	return;
 
     if ( isFocusEnabled() ) {
-	if ( focusPolicy() == TabFocus || focusPolicy() == StrongFocus ) {
+	if ( ( focusPolicy() & TabFocus ) == TabFocus ) {
 	    // move the tab focus pointer only if this widget can be
 	    // tabbed to or from.
 	    f->it.toFirst();
@@ -2316,7 +2316,7 @@ bool QWidget::focusNextPrevChild( bool next )
 #endif
     do {
 	if ( w && w != startingPoint &&
-	     (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
+	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
 	     && !w->focusProxy() && w->isVisibleToTLW() && w->isEnabledToTLW())
 	    candidate = w;
 #if defined(_WS_X11_)
@@ -2750,7 +2750,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
   <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
   and clicking.
-  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts 
+  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
   <li> \c QWidget::NoFocus, the widget does not accept focus
   </ul>

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#66 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -374,8 +374,7 @@ void QGroupBox::fixFocus()
 	QWidget * p = w;
 	while( p && p != this && !p->isTopLevel() )
 	    p = p->parentWidget();
-	if ( p == this && ( w->focusPolicy() == TabFocus ||
-			    w->focusPolicy() == StrongFocus ) ) {
+	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus ) {
 	    if ( w->hasFocus() ||
 		 ( !best &&
 		   w->inherits( "QRadioButton" ) &&

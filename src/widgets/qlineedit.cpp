@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#226 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#227 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -567,7 +567,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     QPainter p( this );
 
     if ( frame() ) {
-	qDrawWinPanel( &p, 0, 0, width(), height(), colorGroup(), TRUE, 0 );
+	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(), TRUE, style().defaultFrameWidth() );
 	p.drawPixmap( 2, 2, *d->pm );
     } else {
 	p.drawPixmap( 0, 0, *d->pm );

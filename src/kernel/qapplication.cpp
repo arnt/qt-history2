@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#266 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#267 $
 **
 ** Implementation of QApplication class
 **
@@ -635,9 +635,9 @@ void QApplication::setStyle( QStyle *style )
 	    register QWidget *w;
 	    while ( (w=it.current()) ) {		// for all widgets...
 		++it;
-		if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		     && w->testWState(WState_Polished)) { // (and have been polished)
-		    app_style->polish(w);
+		if ( !w->testWFlags(WType_Desktop) ) { // (except desktop)
+		    if ( w->testWState(WState_Polished) )
+			app_style->polish(w); // repolish
 		    w->styleChange( *old );
 		    if ( w->isVisibleToTLW() ){
 			w->update();
@@ -780,7 +780,7 @@ void QApplication::setColorSpec( int spec )
   \sa setPalette(), QWidget::palette()
 */
 
-const QPalette& QApplication::palette(const QWidget* w)
+QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
@@ -841,10 +841,13 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 
 
     if (!className) {
-	QPalette* old =  app_pal;
-	app_pal = pal;
-	CHECK_PTR( app_pal );
-	delete old;
+	if ( !app_pal ) {
+	    app_pal = new QPalette( palette );
+	    CHECK_PTR( app_pal );
+	}
+	else {
+	    *app_pal = palette;
+	}
 	delete app_palettes;
 	app_palettes = 0;
     }
@@ -882,7 +885,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
-const QFont& QApplication::font( const QWidget* w )
+QFont QApplication::font( const QWidget* w )
 {
     if ( w && app_fonts ) {
 	QAsciiDictIterator<QFont> it( *app_fonts );
@@ -927,10 +930,12 @@ const QFont& QApplication::font( const QWidget* w )
 void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char* className )
 {
     if (!className) {
-	if ( !( app_font && font == *app_font ) ) {
-	    delete app_font;
+	if ( !app_font ) {
 	    app_font = new QFont( font );
 	    CHECK_PTR( app_font );
+	}
+	else {
+	    *app_font = font;
 	}
 	delete app_fonts;
 	app_fonts = 0;

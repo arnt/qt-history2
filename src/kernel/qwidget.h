@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#234 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#235 $
 **
 ** Definition of QWidget class
 **
@@ -149,7 +149,7 @@ public:
     virtual void	setPalette( const QPalette & );
     void setPalette( const QPalette &, bool fixed );
 
-    const QFont &	font() const;
+    QFont		font() const;
     virtual void	setFont( const QFont & );
     void		setFont( const QFont &, bool fixed );
     QFontMetrics	fontMetrics() const;
@@ -522,7 +522,7 @@ inline const QColor &QWidget::backgroundColor() const
 inline const QPalette &QWidget::palette() const
 { return pal; }
 
-inline const QFont &QWidget::font() const
+inline QFont QWidget::font() const
 { return fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const

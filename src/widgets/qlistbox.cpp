@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#281 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#282 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1554,6 +1554,8 @@ void QListBox::focusInEvent( QFocusEvent * )
     emitChangedSignal( FALSE );
     if ( !d->current && d->head )
         setCurrentItem( d->head );
+    if ( d->current )
+	updateItem( currentItem() );
 }
 
 
@@ -2497,7 +2499,7 @@ void QListBox::refreshSlot()
 
     if ( r.isEmpty() )
         viewport()->repaint( FALSE );
-    else 
+    else
         viewport()->repaint( r, FALSE );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#41 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#42 $
 **
 ** Definition of QMenuBar class
 **
@@ -64,6 +64,7 @@ protected:
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
+    void	focusOutEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
     void	leaveEvent( QEvent * );
     void	menuContentsChanged();

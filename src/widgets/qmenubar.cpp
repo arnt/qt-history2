@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#157 $
 **
 ** Implementation of QMenuBar class
 **
@@ -52,10 +52,10 @@
 
 
 /*! \enum QMenuBar::Separator
-  
+
   This enum type is used to decide whether QMenuBar should draw a
   separator line at its bottom.  The possible values are: <ul>
-  
+
   <li> \c Never - in many applications, there already is a separator,
   and two looks stupid.
 
@@ -341,9 +341,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    actItem = 0;
-	    setUpdatesEnabled( FALSE );
 	    setFocus();
-	    setUpdatesEnabled( TRUE );
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
@@ -365,14 +363,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	}
     }
 
-    // look for top-level window focus changes
-    if ( windowsaltactive &&
-	 event->type() == QEvent::FocusOut &&
-	 qApp && qApp->focusWidget() != this ) {
-	setWindowsAltMode( FALSE, -1 );
-	if ( object->parent() )
-	    object->removeEventFilter( this );
-    }
 
     return FALSE;				// don't stop event
 }
@@ -713,7 +703,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )
   QMenuBar::Never, or QMenuBar::InWindowsStyle.
 
   The default is QMenuBar::Never.
-  
+
   \sa Separator separator()
 */
 void QMenuBar::setSeparator( Separator when )
@@ -723,7 +713,7 @@ void QMenuBar::setSeparator( Separator when )
 
 /*!
   Returns the currently set Separator usage.
-  
+
   \sa Separator setSeparator()
 */
 QMenuBar::Separator QMenuBar::separator() const
@@ -1180,3 +1170,12 @@ bool QMenuBar::customWhatsThis() const
     return TRUE;
 }
 
+
+/*!\reimp
+ */
+void QMenuBar::focusOutEvent( QFocusEvent * e )
+{
+    if ( windowsaltactive )
+	setWindowsAltMode( FALSE, -1 );
+    QWidget::focusOutEvent( e );
+}
