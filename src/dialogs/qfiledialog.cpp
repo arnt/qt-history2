@@ -3243,12 +3243,6 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 
     if ( !d->currentFileName.isNull() || isDir ) {
 	okB->setEnabled( TRUE );
-	if ( d->currentFileName.isNull() && isDir )
-	    okB->setText( tr("Open") );
-	else {
-	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
-	    okB->setText( okt );
-	}
     } else if ( !isDirectoryMode( d->mode ) ) {
 	okB->setEnabled( FALSE );
     }
@@ -3394,7 +3388,6 @@ void QFileDialog::detailViewSelectionChanged()
     d->moreFiles->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
-    okB->setText( tr( "Open" ) );
     okB->setEnabled( TRUE );
 }
 
@@ -3421,7 +3414,6 @@ void QFileDialog::listBoxSelectionChanged()
     files->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
-    okB->setText( tr( "Open" ) );
     okB->setEnabled( TRUE );
 }
 
@@ -3901,6 +3893,9 @@ void QFileDialog::setMode( Mode newMode )
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, TRUE );
     }
+    
+    QString okt = mode() == AnyFile ? tr("Save") : tr("Open");
+    okB->setText( okt );
 }
 
 
