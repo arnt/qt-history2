@@ -5,8 +5,9 @@ CONFIG         += console warn_off qtinc
 CONFIG	       -= qt
 DESTDIR         = ../../../../bin
 
-DEFINES        += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM QT_NO_REGEXP \
-                  QT_NO_COMPRESS QT_NO_SPRINTF QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT
+DEFINES        += QT_NO_THREAD QT_LITE_UNICODE QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM \
+                  QT_NO_REGEXP QT_NO_COMPRESS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT QT_NO_TEXTSTREAM
+                  
 INCLUDEPATH     = ../../../../include/qtcore .
 DEPENDPATH      = ../../../../include .
 
@@ -23,7 +24,13 @@ SOURCES		+= ../../../../src/core/global/qglobal.cpp \
 		   ../../../../src/core/tools/qstringlist.cpp \
 		   ../../../../src/core/tools/qstringmatcher.cpp \
 		   ../../../../src/core/tools/qunicodetables.cpp \
-                   ../../../../src/core/tools/qvector.cpp
+                   ../../../../src/core/tools/qvector.cpp \
+                   ../../../../src/core/tools/qregexp.cpp \
+                   ../../../../src/core/kernel/qinternal.cpp \
+                   ../../../../src/core/tools/qbitarray.cpp \
+                   ../../../../src/core/tools/qhash.cpp \
+                   ../../../../src/core/tools/qmap.cpp
+
 
 SOURCES		+= ../../../../src/core/io/qdir.cpp \
                    ../../../../src/core/io/qfile.cpp \
