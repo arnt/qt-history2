@@ -1036,8 +1036,6 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
         widget = QWidget::find((WId)child);
     else if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
         widget = QWidget::find((WId)child);;
-    qDebug("%p: %d %d - %s", QMacMouseEvent::events.isEmpty() ? 0 : QMacMouseEvent::events.top(), x, y, 
-           widget ? widget->className() : "unknown");
     return widget;
 }
 
