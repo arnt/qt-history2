@@ -8,7 +8,7 @@
   extension.
 
   To build the example, you must first build the
-  \link nsplugin.html Qt Netscape Plugin Extension\endlink library.
+  \link netscape-plugin.html Qt Netscape Plugin Extension\endlink library.
   Then type \c{make} in \c{extensions/nsplugin/examples/trivial/}
   and copy the resulting \c{trivial.so} or \c{nptrivial.dll}
   to the Plugins directory of your WWW browser.

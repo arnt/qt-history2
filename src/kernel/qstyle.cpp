@@ -1253,7 +1253,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how, SCFlags sub, SCFlags subActive, const QStyleOption& opt ) const
 
     Draws the ComplexControl \a control using the painter \a p in the
     area \a r. Colors are used from the color group \a cg. The \a sub
@@ -1346,7 +1346,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt ) const
 
     Draw a bitmask for the ComplexControl \a control using the painter
     \a p in the area \a r. See drawComplexControl() for an explanation

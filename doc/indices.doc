@@ -457,7 +457,7 @@ The following example programs show how to write plugins
 that can be used with web browsers supporting the LiveConnect
 protocol.
 
-For more information see the \link nsplugin.html Plugin Howto \endlink.
+For more information see the \link netscape-plugin.html Plugin Howto \endlink.
 */
 
 /*! \defgroup motif-examples 

@@ -1049,7 +1049,9 @@ int QStyleSheetItem::lineSpacing() const
 	    \i \c rowspan -- Specifies how many rows this cell spans. The
 		default is 1.
 	    \i \c align -- Alignment; possible values are \c left, \c
-		right, and \c center. The default is left.
+		right, and \c center. The default is \c left.
+	    \i \c valign -- Vertical alignment; possible values are \c
+	    top, \c middle, and \c bottom. The default is \c middle.
 	    \endlist
     \endtable
 */
