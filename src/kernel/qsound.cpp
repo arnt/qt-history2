@@ -172,6 +172,8 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 */
 QSound::~QSound()
 {
+    if ( !isFinished() )
+	stop();
     delete d;
 }
 
