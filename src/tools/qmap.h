@@ -313,7 +313,9 @@ public:
 
     void detach() {  if (d->ref != 1) detachInternal(); }
 
-    bool ensure_constructed() { return true;}
+    inline bool ensure_constructed()
+    { if (!d) { d = &QMapData::shared_null; ++d->ref; } return true; }
+
 #ifdef QT_QMAP_DEBUG
     void inorder(QMapData::Node* x = 0, int level = 0)
     {
