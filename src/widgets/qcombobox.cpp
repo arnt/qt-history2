@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#65 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#65 $");
 
 
 /*!
@@ -661,9 +661,9 @@ void QComboBox::internalActivate( int index )
     else
 	d->popup->removeEventFilter( this );
     d->poppedUp = FALSE;
-    emit activated( index );
 
     const char *t = text( index );
+    emit activated( index );
     if ( !t )
 	return;					// shouldn't happen
     if ( d->ed )
