@@ -174,7 +174,7 @@ static void resolveUsp10()
 
         resolvedUsp10 = true;
         QLibrary lib("usp10");
-        
+
 	hasUsp10 = false;
 
         ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
@@ -187,6 +187,11 @@ static void resolveUsp10()
 
         if (!ScriptFreeCache)
             return;
+
+        // ### Disable uniscript for windows 9x for now. Fix for Qt 4.0
+        if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
+            return;
+
 
         hasUsp10 = true;
         ScriptGetProperties(&script_properties, &num_scripts);
@@ -618,7 +623,7 @@ void QTextEngine::shapeText(int item) const
         QVarLengthArray<WORD> glyphs(l);
         QVarLengthArray<WORD> logClusters(l);
         QVarLengthArray<SCRIPT_VISATTR> glyphAttributes(l);
-        
+
 
         do {
             res = ScriptShape(hdc, &fontEngine->script_cache, (WCHAR *)string.unicode() + from, len,
@@ -665,7 +670,7 @@ void QTextEngine::shapeText(int item) const
             g[i].attributes = glyphAttributes[i];
         }
         unsigned short *lc = this->logClusters(&si);
-        for(int i = 0; i < len; ++i) 
+        for(int i = 0; i < len; ++i)
             lc[i] = logClusters[i];
 
         if (hdc)
