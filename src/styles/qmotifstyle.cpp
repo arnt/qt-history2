@@ -586,10 +586,25 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				     SCFlags subActive,
 				     void *data ) const
 {
-    //cheat
-
-    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
-				      sub, subActive, data );
+    switch ( control ) {
+    case CC_SpinWidget:
+	if ( sub != SC_None ) {
+	    // draw only specified component
+	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	} else {
+	    // draw the whole thing
+	    drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
+			    subActive, data );
+	}
+	break;
+    default:
+	QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+					  sub, subActive, data );
+    }
 }
 
 void QMotifStyle::drawSubControl( SCFlags subCtrl,
@@ -600,7 +615,50 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 CFlags flags,
 				 SCFlags subActive, void *data ) const
 {
-    //cheat
+    switch( subCtrl ) {
+    case SC_SpinWidgetUp: {
+	QSpinWidget * sw = (QSpinWidget *) w;
+	PFlags flags = PStyle_Default;
+	PrimitiveOperation op = PO_SpinWidgetUp;
+
+	flags |= PStyle_Enabled;
+	if (subActive == subCtrl) {
+	    flags |= PStyle_On;
+	    flags |= PStyle_Sunken;
+	}
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+	    op = PO_SpinWidgetPlus;
+
+	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	drawPrimitive(op, p, r, cg, flags);
+    	break; }
+
+    case SC_SpinWidgetDown: {
+	QSpinWidget * sw = (QSpinWidget *) w;
+	PFlags flags = PStyle_Default;
+	PrimitiveOperation op = PO_SpinWidgetDown;
+
+	flags |= PStyle_Enabled;
+	if (subActive == subCtrl) {
+	    flags |= PStyle_On;
+	    flags |= PStyle_Sunken;
+	}
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+	    op = PO_SpinWidgetMinus;
+
+	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	drawPrimitive(op, p, r, cg, flags);
+	break; }
+
+    case SC_SpinWidgetFrame:
+	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
+	break;
+	
+    default:
+	break;
+    }
+
+	//cheat
     //    QCommonStyle::drawSubControl(subCtrl, p, w, r, cg, flags, subActive, data);
 }
 
@@ -672,6 +730,24 @@ int QMotifStyle::pixelMetric( PixelMetric metic, const QWidget *widget ) const
     // cheat
     ret =  QCommonStyle::pixelMetric( metic, widget );
     return ret;
+}
+
+
+QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
+					   const QWidget *widget,
+					   SubControl sc,
+					   void *data ) const
+{
+    switch ( control ) {
+    case SC_SpinWidgetUp:
+	break;
+    case SC_SpinWidgetDown:
+	break;
+    case SC_SpinWidgetFrame:
+	break;
+    default:
+	QCommonStyle::querySubControlMetrics( control, widget, sc, data );
+    }
 }
 
 QSize QMotifStyle::sizeFromContents( ContentsType contents,
@@ -2025,5 +2101,4 @@ QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
 
 
 #endif
-
 
