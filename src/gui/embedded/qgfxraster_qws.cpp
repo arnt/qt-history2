@@ -1891,7 +1891,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned 
 //        printf("Using hAlphaLineUnclipped instead of hLineUnclipped!\n");
         alphabuf = new unsigned int[w];
         hAlphaLineUnclipped(x1, x2, l, 0, 0);
-        delete alphabuf;
+        delete[] alphabuf;
         alphabuf = 0;
         return;
     }
