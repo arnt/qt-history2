@@ -208,6 +208,9 @@ QGridLayoutData::QGridLayoutData( int nRows, int nCols )
 
 QGridLayoutData::~QGridLayoutData()
 {
+    // must be cleared while the data is still in a stable state
+    things.clear();
+
     delete multi;
     delete hfwData;
 }
@@ -817,7 +820,7 @@ public:
 	}
     }
     void toFirst() {
-	multi = FALSE;
+	multi = data->things.isEmpty();
 	idx = 0;
     }
     QLayoutItem *next() {
