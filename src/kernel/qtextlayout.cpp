@@ -762,6 +762,16 @@ QTextLine QTextLayout::lineAt(int i) const
     return QTextLine(i, d);
 }
 
+QTextLine QTextLayout::findLine(int pos) const
+{
+    for (int i = 0; i < d->lines.size(); ++i) {
+	const QScriptLine& line = d->lines[i];
+	if (line.from + line.length > pos)
+	    return QTextLine(i, d);
+    }
+    return QTextLine();
+}
+
 
 QRect QTextLine::rect() const
 {

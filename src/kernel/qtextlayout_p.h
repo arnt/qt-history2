@@ -161,6 +161,7 @@ public:
     QTextLine createLine(int from, int y, int x1, int x2);
     int numLines() const;
     QTextLine lineAt(int i) const;
+    QTextLine findLine(int pos) const;
 #if 1
     void beginLayout( LayoutMode m = MultiLine, int textFlags = 0 );
     void beginLine( int width );
