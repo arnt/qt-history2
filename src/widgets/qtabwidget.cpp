@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#33 $
 **
 ** Implementation of QTabWidget class
 **
@@ -479,6 +479,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	return; // we'll do it later
     }
     QSize t( d->tabs->sizeHint() );
+    if ( t.width() > width() )
+	t.setWidth( width() );
     int lw = d->stack->lineWidth();
     if ( d->pos == Bottom ) {
 	d->tabs->setGeometry( QMAX(0, lw-2), height() - t.height(), t.width(), t.height() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#6 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -124,7 +124,8 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	x+=sx;
 	y+=sy;
     }
-    x += 2;  y += 2;  w -= 4;  h -= 4;
+    int fw = defaultFrameWidth();
+    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
     drawItem( p, x, y, w, h,
 	       AlignCenter|ShowPrefix,
 	       btn->colorGroup(), btn->isEnabled(),

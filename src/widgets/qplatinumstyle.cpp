@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#9 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -498,7 +498,8 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	x+=sx;
 	y+=sy;
     }
-    x += 2;  y += 2;  w -= 4;  h -= 4;
+    int fw = defaultFrameWidth();
+    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),

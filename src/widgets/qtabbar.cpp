@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#87 $
 **
 ** Implementation of QTabBar class
 **
@@ -24,6 +24,7 @@
 #include "qtabbar.h"
 #include "qaccel.h"
 #include "qbitmap.h"
+#include "qpushbutton.h"
 
 #include <ctype.h>
 
@@ -51,6 +52,42 @@ QTab::~QTab()
     delete iconset;
 }
 
+class QArrowButton : public QPushButton
+{
+public: 
+    QArrowButton( Qt::ArrowType, QWidget *parent, const char *name=0 );
+    ~QArrowButton();
+protected:
+    void  drawButtonLabel( QPainter * );
+private:
+    Qt::ArrowType arrow;
+};
+
+QArrowButton::QArrowButton( Qt::ArrowType arrowType, QWidget *parent, const char *name )
+    : QPushButton( parent, name ), arrow( arrowType )
+{
+    setAutoRepeat( TRUE );
+}
+QArrowButton::~QArrowButton()
+{
+}
+
+void  QArrowButton::drawButtonLabel( QPainter * p)
+{
+    int x, y, w, h;
+    rect().rect( &x, &y, &w, &h );
+    if ( isDown() || isOn() ){
+	int sx = 0;
+	int sy = 0;
+	style().getButtonShift(sx, sy);
+	x+=sx;
+	y+=sy;
+    }
+    int fw = style().defaultFrameWidth();
+    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
+    style().drawArrow( p, arrow, FALSE, x, y, w, h, colorGroup(), isEnabled() );
+}
+
 // this struct can be expanded without breaking binary compatibility
 struct QTabPrivate {
     int id;
@@ -58,7 +95,11 @@ struct QTabPrivate {
     QTab * pressed;
     QAccel * a;
     QTabBar::Shape s;
+    QArrowButton* rightB;
+    QArrowButton* leftB;
+    QTab*  offset;
 };
+
 
 
 /*!
@@ -114,7 +155,7 @@ struct QTabPrivate {
 
   <li> \c TriangularAbove - triangular tabs, above the pages (very
   unusual, included for completeness)
-  
+
   <li> \c TriangularBelow - triangular tabs, similar to those used in
   e.g. the spreadsheet Excel
 
@@ -144,6 +185,13 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
+    d->leftB = new QArrowButton( LeftArrow, this );
+    d->offset = 0;
+    connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
+    d->leftB->hide();
+    d->rightB = new QArrowButton( RightArrow, this );
+    connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
+    d->rightB->hide();
     l = new QList<QTab>;
     lstatic = new QList<QTab>;
     lstatic->setAutoDelete( TRUE );
@@ -205,6 +253,7 @@ int QTabBar::insertTab( QTab * newTab, int index )
 	lstatic->insert( index, newTab );
 
     layoutTabs();
+    updateArrowButtons();
 
     int p = QAccel::shortcutKey( newTab->label );
     if ( p )
@@ -223,6 +272,7 @@ void QTabBar::removeTab( QTab * tab )
     l->remove( tab );
     lstatic->remove( tab );
     layoutTabs();
+    updateArrowButtons();
     repaint();
 }
 
@@ -337,10 +387,9 @@ QSizePolicy QTabBar::sizePolicy() const
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
-    QRect r( t->r );
-
     style().drawTab( p, this, t, selected );
 
+    QRect r( t->r );
     p->setFont( font() );
 
     int iw = 0;
@@ -729,14 +778,14 @@ void QTabBar::setShape( Shape s )
  */
 void QTabBar::layoutTabs()
 {
-    if ( l->isEmpty() )
+    if ( lstatic->isEmpty() )
 	return;
-
+    
     QTab* t = lstatic->first();
     QRect r( t->r );
     while ( (t = lstatic->next()) != 0 )
 	r = r.unite( t->r );
-
+    
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     QFontMetrics fm = fontMetrics();
@@ -811,4 +860,61 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    p.end();
 	}
     }
+}
+
+void QTabBar::resizeEvent( QResizeEvent * )
+{
+    const int arrowWidth = 16;
+    d->rightB->setGeometry( width() - arrowWidth, 0, arrowWidth, height() );
+    d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
+    layoutTabs();
+    updateArrowButtons();
+}
+
+void QTabBar::scrollTabs()
+{
+    QTab * t = lstatic->first();
+    QTab* oldOffset = d->offset;
+    if ( d->offset )
+	while ( t != d->offset )
+	    t = lstatic->next();
+    if ( !t )
+	return;
+    if ( sender() == d->leftB ) {
+	d->offset = lstatic->prev(); 
+    } else {
+	d->offset = lstatic->next(); 
+    }
+    if ( !d->offset )
+	d->offset = oldOffset;
+    
+    layoutTabs();
+    
+    if ( d->offset ) {
+	int offset = d->offset->r.left();
+	if ( lstatic->last()->r.right() - offset < d->leftB->x()-1 ) {
+	    offset = lstatic->last()->r.right() - d->leftB->x() + 1;
+	    d->rightB->setEnabled( FALSE );
+	} else {
+	    d->rightB->setEnabled( TRUE );
+	}
+	for ( t = lstatic->first(); t; t = lstatic->next() ) {
+	    t->r.moveBy( -offset, 0 );
+	}
+    }
+    d->leftB->setEnabled( d->offset != lstatic->first() );
+    repaint( TRUE );
+}
+
+void QTabBar::updateArrowButtons()
+{
+    if ( lstatic->last()->r.right() > width() ) {
+	d->leftB->show();
+	d->rightB->show();
+    } else {
+	d->leftB->hide();
+	d->rightB->hide();
+    }
+    d->leftB->setEnabled( FALSE );
+    d->rightB->setEnabled( TRUE );
 }
