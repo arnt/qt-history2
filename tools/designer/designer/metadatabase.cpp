@@ -23,7 +23,8 @@
 #include "metadatabase.h"
 #include "widgetfactory.h"
 #include "formwindow.h"
-#include "../shared/parser.h"
+#include "parser.h"
+#include "widgetdatabase.h"
 
 #include <qapplication.h>
 #include <qobject.h>
@@ -35,6 +36,7 @@
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
 #include <qregexp.h>
+#include <qpluginmanager.h>
 
 #include <stdlib.h>
 

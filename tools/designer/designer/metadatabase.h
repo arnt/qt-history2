@@ -28,14 +28,13 @@
 #include <qptrlist.h>
 #include <qsizepolicy.h>
 #include <qsize.h>
-#include <qpixmap.h>
 #include <qwidgetlist.h>
 #include <qcursor.h>
 
 #include "pixmapchooser.h"
-#include <widgetdatabase.h>
 
 class QObject;
+class QPixmap;
 struct LanguageInterface;
 
 class MetaDataBase

@@ -38,6 +38,7 @@
 #include <qapplication.h>
 
 #ifndef QT_NO_SQL
+#include <qsqldatabase.h>
 #include <qsqlrecord.h>
 #include <qdatatable.h>
 #endif

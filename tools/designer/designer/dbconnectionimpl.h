@@ -22,9 +22,9 @@
 #define DATABASECONNECTION_H
 
 #include "dbconnectioneditor.h"
-#include "dbconnection.h"
 
 class DatabaseConnection;
+class DatabaseConnectionWidget;
 class QGridLayout;
 
 class DatabaseConnectionEditor : public DatabaseConnectionEditorBase

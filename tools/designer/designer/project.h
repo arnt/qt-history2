@@ -23,10 +23,6 @@
 
 #include <qfeatures.h>
 
-#ifndef QT_NO_SQL
-#include <qsqldatabase.h>
-#endif
-
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qptrlist.h>
@@ -43,6 +39,8 @@ class PixmapCollection;
 class Project;
 
 #ifndef QT_NO_SQL
+class QSqlDatabase;
+
 class DatabaseConnection
 {
 public:

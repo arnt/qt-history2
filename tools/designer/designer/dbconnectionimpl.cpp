@@ -19,6 +19,7 @@
 **********************************************************************/
 
 #include "dbconnectionimpl.h"
+#include "dbconnection.h"
 #include "project.h"
 #include <qgroupbox.h>
 #include <qcombobox.h>

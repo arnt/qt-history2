@@ -27,7 +27,6 @@
 #include <qpixmap.h>
 #include <qvaluelist.h>
 
-class QPixmap;
 class FormWindow;
 
 class ListViewEditor : public ListViewEditorBase

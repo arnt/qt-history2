@@ -25,6 +25,7 @@
 #include "asciivalidator.h"
 #include "resource.h"
 #include "widgetfactory.h"
+#include "widgetdatabase.h"
 
 #include <qlistbox.h>
 #include <qpushbutton.h>

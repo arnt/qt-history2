@@ -24,13 +24,10 @@
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtabwidget.h>
-#include <qptrlist.h>
 
 class FormWindow;
-class QResizeEvent;
 class QCloseEvent;
 class QPopupMenu;
-class QTabWidget;
 class QKeyEvent;
 class QMouseEvent;
 class QWizard;
