@@ -208,6 +208,9 @@ class QTextCommandHistory
 {
 public:
     QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
+    ~QTextCommandHistory() { clear(); }
+
+    void clear() { history.clear(); current = -1; }
 
     void addCommand( QTextCommand *cmd );
     QTextCursor *undo( QTextCursor *c );

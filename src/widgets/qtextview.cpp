@@ -1543,6 +1543,11 @@ QString QTextView::text( int parag ) const
 
 void QTextView::setText( const QString &txt, const QString &context )
 {
+    emitUndoAvailable( FALSE );
+    emitRedoAvailable( FALSE );
+    undoRedoInfo.clear();
+    doc->commands()->clear();
+
     lastFormatted = 0;
     cursor->restoreState();
     doc->setText( txt, context );
