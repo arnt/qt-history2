@@ -633,6 +633,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	}
 	break;
     case VT_ARRAY|VT_VARIANT:
+    case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	{
 	    SAFEARRAY *array = arg.parray;
 	    QValueList<QVariant> list;
