@@ -1558,6 +1558,8 @@ int QCheckTableItem::rtti() const
     QComboTableItems and QCheckTableItems works automatically. Cells may
     be editable or read-only,
     see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
+    If you want fine control over editing see beginEdit() and
+    endEdit().
 
     The contents of a cell can be retrieved as a QTableItem using
     item(), or as a string with text() or as a pixmap (if there is one)

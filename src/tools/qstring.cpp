@@ -13048,7 +13048,7 @@ QT_STATIC_CONST_IMPL QChar QChar::nbsp((ushort)0x00a0);
 QStringData* QString::makeSharedNull()
 {
     QString::shared_null = new QStringData;
-#if defined( Q_OS_MAC ) 
+#if defined( Q_OS_MAC )
     QString *that = const_cast<QString *>(&QString::null);
     that->d = QString::shared_null;
 #endif
@@ -14083,7 +14083,8 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     character, \a sep. The returned string consists of the fields from
     position \a start to position \a end inclusive. If \a end is not
     specified, all fields from position \a start to the end of the
-    string are included.
+    string are included. Fields are numbered 0, 1, 2, etc., counting
+    from the left, and -1, -2, etc., counting from the right.
 
     The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
@@ -14122,7 +14123,8 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     string, \a sep. The returned string consists of the fields from
     position \a start to position \a end inclusive. If \a end is not
     specified, all fields from position \a start to the end of the
-    string are included.
+    string are included. Fields are numbered 0, 1, 2, etc., counting
+    from the left, and -1, -2, etc., counting from the right.
 
     The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
@@ -14302,7 +14304,8 @@ public:
     regular expression, \a reg. The returned string consists of the
     fields from position \a start to position \a end inclusive. If \a
     end is not specified, all fields from position \a start to the end
-    of the string are included.
+    of the string are included. Fields are numbered 0, 1, 2, etc., counting
+    from the left, and -1, -2, etc., counting from the right.
 
     The \a flags argument can be used to affect some aspects of the
     function's behaviour, e.g. whether to be case sensitive, whether
