@@ -39,17 +39,16 @@ void MainWindow::init()
 	windows = new QPtrList<MainWindow>;
     windows->append( this );
     setWFlags( WDestructiveClose );
-    browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
-    browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    connect( browser, SIGNAL(chooseWebBrowser()), this, SLOT(showWebBrowserSettings()) );
-    setCentralWidget( browser );
+    tabs = new TabbedBrowser( this, "qt_assistant_tabbedbrowser" );
+//     connect( browser, SIGNAL(chooseWebBrowser()), this, SLOT(showWebBrowserSettings()) );
+    setCentralWidget( tabs );
     settingsDia = 0;
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     dw = new QDockWindow( QDockWindow::InDock, this );
-    helpDock = new HelpDialog( dw, this, browser );
+    helpDock = new HelpDialog( dw, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addDockWindow( dw, DockLeft );
@@ -83,34 +82,36 @@ void MainWindow::init()
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
-    QTimer::singleShot( 0, this, SLOT( setup() ) );
+//     QTimer::singleShot( 0, this, SLOT( setup() ) );
+    setup();
 }
 
 void MainWindow::setup()
 {
     helpDock->initialize();
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString base( qInstallPathDocs() );
-    browser->mimeSourceFactory()->addFilePath( base + "/html/" );
-
-    connect( actionGoPrevious, SIGNAL( activated() ), browser, SLOT( backward() ) );
-    connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
-    connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
+    connect( actionGoPrevious, SIGNAL( activated() ), tabs, SLOT( backward() ) );
+    connect( actionGoNext, SIGNAL( activated() ), tabs, SLOT( forward() ) );
+    connect( actionEditCopy, SIGNAL( activated() ), tabs, SLOT( copy() ) );
     connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
     connect( actionAddBookmark, SIGNAL( activated() ),
 	     helpDock, SLOT( addBookmark() ) );
     connect( helpDock, SIGNAL( showLink( const QString& ) ),
 	     this, SLOT( showLink( const QString& ) ) );
+
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( showBookmark( int ) ) );
-    connect( browser, SIGNAL( highlighted( const QString & ) ),
-	     statusBar(), SLOT( message( const QString & ) ) );
-    connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
-    connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
+    connect( actionZoomIn, SIGNAL( activated() ), tabs, SLOT( zoomIn() ) );
+    connect( actionZoomOut, SIGNAL( activated() ), tabs, SLOT( zoomOut() ) );
+
+    connect( actionOpenPage, SIGNAL( activated() ), tabs, SLOT( newTab() ) );
+    connect( actionClosePage, SIGNAL( activated() ), tabs, SLOT( closeTab() ) );
+    connect( actionNextPage, SIGNAL( activated() ), tabs, SLOT( nextTab() ) );
+    connect( actionPrevPage, SIGNAL( activated() ), tabs, SLOT( previousTab() ) );
+
+
 
     QAccel *acc = new QAccel( this );
-    acc->connectItem( acc->insertItem( Key_F5 ), browser, SLOT( reload() ) );
+//     acc->connectItem( acc->insertItem( Key_F5 ), browser, SLOT( reload() ) );
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     acc->connectItem( acc->insertItem( QKeySequence("SHIFT+CTRL+=") ), actionZoomIn, SIGNAL(activated()) );
 #endif
@@ -125,32 +126,11 @@ void MainWindow::setup()
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+S") ) ),
 		    helpDock, SLOT( toggleSearch() ) );
 
-    // read configuration
-    QString keybase("/Qt Assistant/3.1/");
+    QSettings settings;
+    QString keybase("/Qt Assistant/3.1/"); // ### include in setPath??
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    QFont fnt( browser->QWidget::font() );
-    QFontInfo fntInfo( fnt );
-    fnt.setFamily( settings.readEntry( keybase + "Family", fntInfo.family() ) );
-    fnt.setPointSize( settings.readNumEntry( keybase + "Size", fntInfo.pointSize() ) );
-    browser->setFont( fnt );
-    browser->setLinkUnderline( settings.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
-
-    QPalette pal = browser->palette();
-    QColor lc( settings.readEntry( keybase + "LinkColor",
-	       pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
-    pal.setColor( QPalette::Active, QColorGroup::Link, lc );
-    pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
-    pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
-    browser->setPalette( pal );
-
-    QString family = settings.readEntry( keybase + "FixedFamily",
-			browser->styleSheet()->item( "pre" )->fontFamily() );
-
-    QStyleSheet *sh = browser->styleSheet();
-    sh->item( "pre" )->setFontFamily( family );
-    sh->item( "code" )->setFontFamily( family );
-    sh->item( "tt" )->setFontFamily( family );
-    browser->setStyleSheet( sh );
+    tabs->setup( settings );
 
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
@@ -272,7 +252,7 @@ void MainWindow::find()
 {
     if ( !findDialog ) {
 	findDialog = new FindDialog( this );
-	findDialog->setBrowser( browser );
+//	findDialog->setBrowser( browser );
     }
     findDialog->comboFind->setFocus();
     findDialog->comboFind->lineEdit()->setSelection(
@@ -314,6 +294,7 @@ void MainWindow::print()
 	printer.setResolution( screen.logicalDpiY() );
 	QPainter p( &printer );
 	QPaintDeviceMetrics metrics(p.device());
+	QTextBrowser *browser = tabs->currentBrowser();
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
 	const int margin = 72; // pt
@@ -389,12 +370,12 @@ void MainWindow::showLink( const QString &link )
     QFileInfo fi( filename );
     // ### introduce a default-not-found site
     if ( !fi.exists() ) {
-	browser->setSource( "index.html" );
+	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ) );
+	tabs->setSource( "index.html" );
     }
     else {
-	browser->setSource( link );
+	tabs->setSource( link );
     }
-    browser->setFocus();
 }
 
 void MainWindow::showQtHelp()
@@ -404,15 +385,15 @@ void MainWindow::showQtHelp()
 
 void MainWindow::setFamily( const QString & f )
 {
-    QFont fnt( browser->QWidget::font() );
+    QFont fnt( tabs->font() );
     fnt.setFamily( f );
-    browser->setFont( fnt );
+    tabs->setFont( fnt );
 }
 
 void MainWindow::showSettingsDialog()
 {
     showSettingsDialog( -1 );
-} 
+}
 void MainWindow::showWebBrowserSettings()
 {
     showSettingsDialog( 1 );
@@ -426,11 +407,11 @@ void MainWindow::showSettingsDialog( int page )
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
-    settingsDia->fontCombo->lineEdit()->setText( browser->QWidget::font().family() );
+    settingsDia->fontCombo->lineEdit()->setText( tabs->QWidget::font().family() );
     settingsDia->fixedfontCombo->insertStringList( fonts.families() );
-    settingsDia->fixedfontCombo->lineEdit()->setText( browser->styleSheet()->item( "pre" )->fontFamily() );
-    settingsDia->linkUnderlineCB->setChecked( browser->linkUnderline() );
-    settingsDia->colorButton->setPaletteBackgroundColor( browser->palette().color( QPalette::Active, QColorGroup::Link ) );
+    settingsDia->fixedfontCombo->lineEdit()->setText( tabs->styleSheet()->item( "pre" )->fontFamily() );
+    settingsDia->linkUnderlineCB->setChecked( tabs->linkUnderline() );
+    settingsDia->colorButton->setPaletteBackgroundColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ) );
     if ( page != -1 )
 	settingsDia->settingsTab->setCurrentPage( page );
 
@@ -460,25 +441,24 @@ void MainWindow::showSettingsDialog( int page )
 
     setupGoActions( settingsDia->documentationList(), settingsDia->selCategoriesList() );
 
-    QFont fnt( browser->QWidget::font() );
+    QFont fnt( tabs->QWidget::font() );
     fnt.setFamily( settingsDia->fontCombo->currentText() );
-    browser->setFont( fnt );
-    browser->setLinkUnderline( settingsDia->linkUnderlineCB->isChecked() );
+    tabs->setFont( fnt );
+    tabs->setLinkUnderline( settingsDia->linkUnderlineCB->isChecked() );
 
-    QPalette pal = browser->palette();
+    QPalette pal = tabs->palette();
     QColor lc = settingsDia->colorButton->paletteBackgroundColor();
     pal.setColor( QPalette::Active, QColorGroup::Link, lc );
     pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
     pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
-    browser->setPalette( pal );
+    tabs->setPalette( pal );
 
     QString family = settingsDia->fixedfontCombo->currentText();
 
-    QStyleSheet *sh = browser->styleSheet();
+    QStyleSheet *sh = tabs->styleSheet();
     sh->item( "pre" )->setFontFamily( family );
     sh->item( "code" )->setFontFamily( family );
     sh->item( "tt" )->setFontFamily( family );
-    browser->setStyleSheet( sh );
 }
 
 void MainWindow::hide()
@@ -498,6 +478,7 @@ MainWindow* MainWindow::newWindow()
 	mw->showMaximized();
     else
 	mw->show();
+    mw->goHome();
     return mw;
 }
 
@@ -506,13 +487,13 @@ void MainWindow::saveSettings()
     QString keybase("/Qt Assistant/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
-    config.writeEntry( keybase + "Size",  browser->QWidget::font().pointSize() );
-    config.writeEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
-    config.writeEntry( keybase + "LinkUnderline", browser->linkUnderline() );
-    config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
-    config.writeEntry( keybase + "Source", browser->source() );
-    config.writeEntry( keybase + "Title", browser->caption() );
+    config.writeEntry( keybase + "Family",  tabs->font().family() );
+    config.writeEntry( keybase + "Size",  tabs->font().pointSize() );
+    config.writeEntry( keybase + "FixedFamily", tabs->styleSheet()->item( "pre" )->fontFamily() );
+    config.writeEntry( keybase + "LinkUnderline", tabs->linkUnderline() );
+    config.writeEntry( keybase + "LinkColor", tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
+    config.writeEntry( keybase + "Source", tabs->currentBrowser()->source() );
+    //    config.writeEntry( keybase + "Title", browser->caption() );
     config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
     config.writeEntry( keybase + "GeometryX", x() );
     config.writeEntry( keybase + "GeometryY", y() );
@@ -529,4 +510,12 @@ void MainWindow::saveToolbarSettings()
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( "/Qt Assistant/3.1/MainwindowLayout", mainWindowLayout );
+}
+
+
+
+
+TabbedBrowser* MainWindow::browsers()
+{
+    return tabs;
 }

@@ -22,7 +22,6 @@
 
 void FindDialog::init()
 {
-    browser = 0;
     fromBegin = TRUE;
     firstRun = TRUE;
     onceFound = FALSE;
@@ -38,13 +37,12 @@ void FindDialog::destroy()
 
 void FindDialog::doFind()
 {
-    if ( !browser )
-	return;
+    QTextBrowser *browser = (QTextBrowser*) mainWindow()->browsers()->currentBrowser();
     sb->clear();
-    if ( comboFind->currentText() != findExpr ) 
+    if ( comboFind->currentText() != findExpr )
 	onceFound = FALSE;
-    findExpr = comboFind->currentText();
-        
+    findExpr = comboFind->currentText(); 
+
     int dummy = radioForward->isChecked() ? 0 : INT_MAX;
     if ( !fromBegin )
 	fromBegin = !browser->find( findExpr, checkCase->isChecked(),
@@ -60,13 +58,14 @@ void FindDialog::doFind()
 	    else
 		sb->message( tr( "Search reached start of the document" ) );
 	} else
-	    sb->message( tr( "Text not found" ) );  
+	    sb->message( tr( "Text not found" ) );
     } else
 	onceFound = TRUE;
 }
 
-void FindDialog::setBrowser( QTextBrowser * b )
+
+
+MainWindow* FindDialog::mainWindow()
 {
-    browser = b;
-    fromBegin = TRUE;
+    return (MainWindow*) parent();
 }

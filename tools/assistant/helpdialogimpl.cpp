@@ -107,7 +107,7 @@ QValidator::State SearchValidator::validate( QString &str, int & ) const
 	    return QValidator::Invalid;
     }
     return QValidator::Acceptable;
-}
+}	
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -150,8 +150,8 @@ QString HelpNavigationContentsItem::link() const
 
 
 
-HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, HelpWindow *v )
-    : HelpDialogBase( parent, 0, FALSE ),  lwClosed( FALSE ), help( h ), viewer( v )
+HelpDialog::HelpDialog( QWidget *parent, MainWindow *h )
+    : HelpDialogBase( parent, 0, FALSE ),  lwClosed( FALSE ), help( h )
 {
 }
 
@@ -191,7 +191,7 @@ void HelpDialog::initialize()
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
 
     contentFactory = new QMimeSourceFactory();
-    viewer->setMimeSourceFactory( contentFactory );
+    // ###    viewer->setMimeSourceFactory( contentFactory );
     contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
 
     QString base( qInstallPathDocs() );
@@ -648,6 +648,7 @@ bool HelpDialog::eventFilter( QObject * o, QEvent * e )
 
 void HelpDialog::addBookmark()
 {
+    /* ### 
     if ( !bookmarksInserted )
 	insertBookmarks();
     QString link = QUrl( viewer->context(), viewer->source() ).path();
@@ -659,6 +660,7 @@ void HelpDialog::addBookmark()
     i->setLink( link );
     saveBookmarks();
     help->updateBookmarkMenu();
+    */
 }
 
 void HelpDialog::removeBookmark()
@@ -1005,6 +1007,7 @@ void HelpDialog::showSearchHelp()
 
 void HelpDialog::showResultPage( int page )
 {
+    /* ###
     viewer->blockScrolling( TRUE );
     viewer->setCursor( waitCursor );
     if ( viewer->source() == foundDocs[page] )
@@ -1035,4 +1038,5 @@ void HelpDialog::showResultPage( int page )
     viewer->viewport()->setUpdatesEnabled( TRUE );
     viewer->setCursorPosition( minPar, minIndex );
     viewer->updateContents();
+    */
 }

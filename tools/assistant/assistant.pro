@@ -30,14 +30,15 @@ TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts
 
 unix:!zlib:LIBS	+= -lz
+	
 FORMS	= mainwindow.ui \
 	topicchooser.ui \
 	finddialog.ui \
 	helpdialog.ui \
-	settingsdialog.ui
-IMAGES	= images/appicon.png \
-        images/editcopy.png \
-        images/find.png \
+	settingsdialog.ui \
+	tabbedbrowser.ui
+IMAGES	= images/editcopy.png \
+	images/find.png \
 	images/home.png \
 	images/next.png \
 	images/previous.png \
@@ -50,7 +51,8 @@ IMAGES	= images/appicon.png \
 	images/qt.png \
 	images/zoomin.png \
 	images/zoomout.png \
-	images/splash.png
+	images/splash.png \
+	images/appicon.png
 	
 TEMPLATE	=app
 CONFIG	+= qt

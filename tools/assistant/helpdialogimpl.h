@@ -78,7 +78,7 @@ class HelpDialog : public HelpDialogBase
     Q_OBJECT
 
 public:
-    HelpDialog( QWidget *parent, MainWindow *h, HelpWindow *v );
+    HelpDialog( QWidget *parent, MainWindow *h );
 
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
@@ -135,8 +135,7 @@ private:
     QMap<QString, uint> categoryMap;
     bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;
     bool lwClosed;
-    MainWindow *help;
-    HelpWindow *viewer;
+    MainWindow *help;    
     QString documentationPath;
     Index *fullTextIndex;
     QStringList terms, foundDocs;

@@ -23,6 +23,7 @@
 
 #include <qtextbrowser.h>
 
+class QMouseEvent;
 class MainWindow;
 
 class HelpWindow : public QTextBrowser
@@ -46,6 +47,7 @@ protected slots:
 
 private slots:
     void openLinkInNewWindow();
+    void openLinkInNewPage();
 
 private:
     MainWindow *mw;

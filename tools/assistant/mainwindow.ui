@@ -1,23 +1,23 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindow</class>
-<comment>*********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Assistant.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
+<comment>*********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Assistant.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
 *********************************************************************</comment>
 <widget class="QMainWindow">
     <property name="name">
@@ -41,6 +41,8 @@
     </property>
     <item text="&amp;File" name="fileMenu">
         <action name="actionNewWindow"/>
+        <action name="actionOpenPage"/>
+        <action name="actionClosePage"/>
         <separator/>
         <action name="actionFilePrint"/>
         <separator/>
@@ -62,6 +64,9 @@
         <action name="actionGoPrevious"/>
         <action name="actionGoNext"/>
         <action name="actionGoHome"/>
+        <separator/>
+        <action name="actionNextPage"/>
+        <action name="actionPrevPage"/>
     </item>
     <item text="&amp;Bookmarks" name="bookmarkMenu">
     </item>
@@ -434,6 +439,50 @@
             <string>Shift+F1</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionOpenPage</cstring>
+        </property>
+        <property name="text">
+            <string>New page</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Alt+N</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionNextPage</cstring>
+        </property>
+        <property name="text">
+            <string>Next Page</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Alt+Right</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionPrevPage</cstring>
+        </property>
+        <property name="text">
+            <string>Previous Page</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Alt+Left</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionClosePage</cstring>
+        </property>
+        <property name="text">
+            <string>Close Page</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Alt+Q</string>
+        </property>
+    </action>
 </actions>
 <connections>
     <connection>
@@ -516,6 +565,10 @@
     </connection>
 </connections>
 <includes>
+    <include location="global" impldecl="in declaration">qptrlist.h</include>
+    <include location="global" impldecl="in declaration">qguardedptr.h</include>
+    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="local" impldecl="in declaration">finddialog.h</include>
     <include location="global" impldecl="in implementation">qtoolbutton.h</include>
     <include location="local" impldecl="in implementation">settingsdialogimpl.h</include>
     <include location="global" impldecl="in implementation">qmessagebox.h</include>
@@ -541,30 +594,28 @@
     <include location="global" impldecl="in implementation">qlineedit.h</include>
     <include location="global" impldecl="in implementation">qsettings.h</include>
     <include location="global" impldecl="in implementation">qcheckbox.h</include>
-    <include location="global" impldecl="in declaration">qptrlist.h</include>
-    <include location="global" impldecl="in declaration">qguardedptr.h</include>
-    <include location="global" impldecl="in declaration">qmap.h</include>
-    <include location="local" impldecl="in declaration">finddialog.h</include>
+    <include location="local" impldecl="in implementation">tabbedbrowser.h</include>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
 </includes>
 <forwards>
     <forward>class SettingsDialog;</forward>
     <forward>class HelpWindow;</forward>
     <forward>class HelpDialog;</forward>
+    <forward>class TabbedBrowser;</forward>
 </forwards>
 <variables>
-    <variable>SettingsDialog * settingsDia;</variable>
-    <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
-    <variable>HelpWindow *browser;</variable>
-    <variable>HelpDialog *helpDock;</variable>
-    <variable>QDockWindow *dw;</variable>
-    <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
     <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
+    <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+    <variable>QDockWindow *dw;</variable>
+    <variable>HelpDialog *helpDock;</variable>
+    <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
+    <variable>SettingsDialog * settingsDia;</variable>
+    <variable>TabbedBrowser *tabs;</variable>
 </variables>
 <slots>
     <slot>init()</slot>
     <slot>setup()</slot>
-    <slot>setObjectsEnabled( bool )</slot>
+    <slot>setObjectsEnabled( bool b )</slot>
     <slot>destroy()</slot>
     <slot>about()</slot>
     <slot>aboutQt()</slot>
@@ -590,9 +641,10 @@
     <slot>saveToolbarSettings()</slot>
 </slots>
 <functions>
-    <function access="private">setupGoActions( const QStringList &amp;, const QStringList &amp; )</function>
+    <function access="private">setupGoActions( const QStringList &amp; docList, const QStringList &amp; catList )</function>
     <function access="private" returnType="bool">insertActionSeparator()</function>
-    <function returnType="bool">close( bool )</function>
+    <function returnType="bool">close( bool alsoDelete )</function>
+    <function specifier="non virtual" returnType="TabbedBrowser *">browsers()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

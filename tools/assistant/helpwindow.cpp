@@ -20,6 +20,7 @@
 
 #include "helpwindow.h"
 #include "mainwindow.h"
+#include "tabbedbrowser.h"
 
 #include <qurl.h>
 #include <qmessagebox.h>
@@ -31,6 +32,8 @@
 #include <qpopupmenu.h>
 #include <qaction.h>
 #include <qfileinfo.h>
+#include <qevent.h>
+#include <qregexp.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -52,6 +55,7 @@ void HelpWindow::setSource( const QString &name )
 	mw->saveSettings();
 	mw->saveToolbarSettings();
 	MainWindow *nmw = new MainWindow;
+	nmw->show();
 	nmw->showLink( name );
 	nmw->move( mw->geometry().topLeft() );
 	if ( mw->isMaximized() )
@@ -60,6 +64,7 @@ void HelpWindow::setSource( const QString &name )
 	    nmw->show();
 	return;
     }
+
     QFileInfo fi( name );
 
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
@@ -170,7 +175,10 @@ void HelpWindow::setSource( const QString &name )
     QString sect;
     if ( i != -1 )
 	sect = ": " + name.right( name.length() - i - 1 );
-    mw->setCaption( tr( "Qt Assistant by Trolltech - %1%2" ).arg( documentTitle() ).arg( sect ) );
+    if( !documentTitle().isEmpty() )
+	mw->browsers()->updateTitle( documentTitle() );
+    else
+	mw->browsers()->updateTitle( tr( "Untitled" ) );
 }
 
 
@@ -182,21 +190,33 @@ void HelpWindow::openLinkInNewWindow()
     shiftPressed = TRUE;
     setSource( lastAnchor );
     shiftPressed = oldShiftPressed;
-
 }
 
+void HelpWindow::openLinkInNewPage()
+{
+    if( lastAnchor.isEmpty() )
+	return;
+    mw->browsers()->newTab( lastAnchor );
+    lastAnchor = QString::null;
+}
 
 QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
 {
     QPopupMenu *m = new QPopupMenu( this );
     lastAnchor = anchorAt( pos );
     if ( !lastAnchor.isEmpty() ) {
-	QFileInfo fi( source() );
-	if ( !fi.dirPath( TRUE ).isEmpty() )
-	    lastAnchor = QFileInfo( fi.dirPath( TRUE ) + "/" + lastAnchor ).absFilePath();
-	m->insertItem( tr("Open Link in New Window\tShift+LMB"), this, SLOT( openLinkInNewWindow() ) );
+	if ( lastAnchor.find( '#' )>=0 ) {
+	    QString src = source();
+	    int hsh = src.find( '#' );
+	    lastAnchor = ( hsh>=0 ? src.left( hsh ) : src ) + lastAnchor;
+	}
+	m->insertItem( tr("Open Link in New Window\tShift+LMB"),
+		       this, SLOT( openLinkInNewWindow() ) );
+	m->insertItem( tr("Open Link in New Page"),
+		       this, SLOT( openLinkInNewPage() ) );
     }
     mw->actionNewWindow->addTo( m );
+    mw->actionOpenPage->addTo( m );
     m->insertSeparator();
     mw->actionGoPrevious->addTo( m );
     mw->actionGoNext->addTo( m );
@@ -212,13 +232,13 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
 
 void HelpWindow::keyPressEvent( QKeyEvent *e )
 {
-    shiftPressed = e->key() == Key_Shift;
+    shiftPressed = e->key() == Key_Shift   ? TRUE : shiftPressed;
     QTextBrowser::keyPressEvent( e );
 }
 
 void HelpWindow::keyReleaseEvent( QKeyEvent *e )
 {
-    shiftPressed = FALSE;
+    shiftPressed = e->key() == Key_Shift   ? FALSE : shiftPressed;
     QTextBrowser::keyReleaseEvent( e );
 }
 
