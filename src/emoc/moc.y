@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#8 $
+** $Id: //depot/qt/main/src/emoc/moc.y#9 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1844,7 +1844,7 @@ bool isPropertyType( const char* type, bool test_enums = TRUE )
       if ( lit.current()->name == type )
 	return TRUE;
     }
-    
+
     return FALSE;
 }
 
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.8 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.9 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1918,18 +1918,33 @@ void generateClass()		      // generate C++ source code for a class
 	       Q_INSPECTORclass.data() );
 	while( TorbensHack[ti] != 0 && TorbensHack[ti][0] != '+' )
 	{
-	  tmpFunc->type = TorbensHack[ti++];
-	  tmpFunc->name = TorbensHack[ti++];
-	  tmpFunc->qualifier = TorbensHack[ti++];
-	  printf("ret=%s name=%s qual=%s\n",tmpFunc->type.data(),tmpFunc->name.data(),tmpFunc->qualifier.data());
-	  while( TorbensHack[ti][0] != ')' )
+	  if ( strcmp( TorbensHack[ti], "enum" ) == 0 )
 	  {
-	    printf("Argument %s\n",(char*)TorbensHack[ti]);
-	    tmpFunc->args = addArg( new Argument( (char*)TorbensHack[ti++], "" ) );
+	      ++ti;
+	      tmpEnum->name = TorbensHack[ti];
+	      ++ti;
+	      while( TorbensHack[ti][0] != '}' )
+	      {
+		tmpEnum->append( TorbensHack[ti++] );
+	      }
+	      ++ti;
+	      addEnum();
 	  }
-	  ++ti;
+	  else
+	  {
+	      tmpFunc->type = TorbensHack[ti++];
+	      tmpFunc->name = TorbensHack[ti++];
+	      tmpFunc->qualifier = TorbensHack[ti++];
+	      printf("ret=%s name=%s qual=%s\n",tmpFunc->type.data(),tmpFunc->name.data(),tmpFunc->qualifier.data());
+	      while( TorbensHack[ti][0] != ')' )
+	      {
+	          printf("Argument %s\n",(char*)TorbensHack[ti]);
+	          tmpFunc->args = addArg( new Argument( (char*)TorbensHack[ti++], "" ) );
+	      }
+	      ++ti;
 
-	  addMember( 'p' );
+	      addMember( 'p' );
+           }
 	}
 	// we are done
 	ti = -1;
@@ -2089,7 +2104,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
 	}
     }
-    
+
 //
 // Generate virtual function className()
 //

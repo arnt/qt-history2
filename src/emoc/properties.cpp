@@ -42,7 +42,18 @@ static const char* TorbensHack[] = {
   "+", "QGroupBox", "", "", "",
   "+", "QMultiLineEdit", "", "", "",
   "+", "QPopupMenu", "", "", "",
+  
   "+", "QFrame", "", "", "",
+  "enum", "Shape",
+          "NoFrame", "Box", "Panel",
+	  "WinPanel", "HLine", "VLine",
+	  "StyledPanel", "PopupPanel", "MShape", "}",
+  "enum", "Shadow",
+          "Plain", "Raised", "Sunken", "MShadow", "}",
+  "void", "setFrameShape", "", "Shape", ")",
+  "Shape", "frameShape", "const", ")",
+  "void", "setFrameShadow", "", "Shadow", ")",
+  "Shadow", "frameShadow", "const", ")",
 
   "+", "QGridLayout", "A grid layout", "", "",
   "+", "QVBoxLayout", "", "", "",
