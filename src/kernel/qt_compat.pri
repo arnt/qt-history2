@@ -14,11 +14,12 @@ internal {
 	MODULES_PRO	= iconview workspace
 	MODULES_ENT	= network canvas table xml sql
 	# we want everything
-	CONFIG		= $$MODULES_BASE $$MODULES_PRO $$MODULES_ENT
+	CONFIG		+= $$MODULES_BASE $$MODULES_PRO $$MODULES_ENT
 	CONFIG	+= png zlib  # Done differently in external system
 	CONFIG  += x11sm
 #	CONFIG += nas
 	CONFIG -= opengl
+	CONFIG -= canvas
 	# Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 	CONFIG += jpeg
 #	LIBS += -lpng -lz

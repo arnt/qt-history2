@@ -571,11 +571,11 @@ fi
 # Auto-detect opengl support
 if [ "x$EMBEDDED" = "xno" ]
 then
-    LIBS=`sed -n -e '/^TMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC`
+    LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC`
     for L in $LIBS
     do
 	F=
-	for LIB in `sed -n -e '/^TMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC` /usr/lib /lib
+	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC` /usr/lib /lib
 	do
 	    if [ "`echo $LIB/lib$L.*`" != "$LIB"/lib$L.\* ]
 	    then
@@ -592,7 +592,7 @@ then
 fi
 
 # Find default thread option for target
-if grep >/dev/null '^TMAKE_LIBS_THREAD' $XMKSPEC
+if grep >/dev/null '^QMAKE_LIBS_THREAD' $XMKSPEC
 then
     AUTOTHREAD=yes
     AUTOTHREAD=no  ####### leave off for now
@@ -620,7 +620,7 @@ fi
 if [ $SM = auto ]
 then
     SM=no
-    for INC in `sed -n -e '/^TMAKE_CXXFLAGS_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+    for INC in `sed -n -e '/^QMAKE_CXXFLAGS_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
     do
 	if [ -f $INC/X11/SM/SM.h ]
 	then
@@ -784,15 +784,15 @@ fi
 if [ '!' "x$EMBEDDED" = "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
-    QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
+    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
     QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=QWS\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     case $EMBEDDED in
     mips)
-	QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
+	QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
 	;;
     arm)
-	QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CXXFLAGS+=-fshort-enums -fshared-data\""
+	QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=-fshort-enums -fshared-data\""
 	;;
     *) ;;
     esac
@@ -813,11 +813,11 @@ if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
 then
     QMAKE_ARGS="$QMAKE_ARGS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
-[ ! -z $R_FLAGS ] && QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_LFLAGS+=$R_FLAGS\""
+[ ! -z $R_FLAGS ] && QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_LFLAGS+=$R_FLAGS\""
 if [ ! -z $I_FLAGS ]
 then
-    QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CFLAGS+=$I_FLAGS\""
-    QMAKE_ARGS="$QMAKE_ARGS \"TMAKE_CXXFLAGS+=$I_FLAGS\""
+    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CFLAGS+=$I_FLAGS\""
+    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
 fi
 [ ! -z "$D_FLAGS" ]  && QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=$D_FLAGS\""
 
@@ -942,7 +942,7 @@ done
 
 if echo $LD_LIBRARY_PATH | grep >/dev/null $QTDIR/lib
 then
-    if grep >/dev/null TMAKE_RPATH $XMKSPEC
+    if grep >/dev/null QMAKE_RPATH $XMKSPEC
     then
 	echo # Using -R/-rpath, so no need to warn
     else

@@ -282,13 +282,14 @@ QMakeProject::read(const char *project)
 	printf("Project file: reading %s\n", project);
 
     vars = base_vars; /* start with the base */
+    vars["CONFIG"] += cache["CONFIG"];
     pfile = project;
     if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
 	pfile += ".pro";
 
     if(!read(pfile, vars))
 	return FALSE;
-
+    
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {
 	if(Option::debug_level)
@@ -296,7 +297,7 @@ QMakeProject::read(const char *project)
 	    Option::user_template.latin1());
 	vars["TEMPLATE"].first() = Option::user_template;
     }
-
+    
     return TRUE;
 }
 
@@ -311,7 +312,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::specfile.right(x.length()) == x)
 	return TRUE;
-    return ( vars["CONFIG"].findIndex(x) != -1 ) || ( cache["CONFIG"].findIndex(x) != -1 ) ;
+    return ( vars["CONFIG"].findIndex(x) != -1 );
 }
 
 bool
@@ -340,7 +341,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 
 	int rep, rep_len;
 	QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
-	while((rep = reg_var.match(file, 0, &rep_len)) != -1) 
+	while((rep = reg_var.match(file, 0, &rep_len)) != -1)
 	    file.replace(rep, rep_len, place[file.mid(rep + 2, rep_len - 2)].join(" "));
 
 	if(Option::debug_level)
