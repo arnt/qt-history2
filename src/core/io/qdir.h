@@ -154,7 +154,7 @@ public:
     static bool isRelativePath(const QString &path);
     inline static bool isAbsolutePath(const QString &path) { return !isRelativePath(path); }
     bool isRelative() const;
-    inline bool isAbsolute() { return !isRelative(); }
+    inline bool isAbsolute() const { return !isRelative(); }
     bool makeAbsolute();
 #ifdef QT_COMPAT
     inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
