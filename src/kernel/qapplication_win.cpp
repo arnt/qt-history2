@@ -1,504 +1,504 @@
-/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#134 $
-**
-** Implementation of Win32 startup routines and event handling
-**
-** Created : 931203
-**
-** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
-**
-*****************************************************************************/
-
-#include "qapp.h"
-#include "qwidget.h"
-#include "qwidcoll.h"
-#include "qobjcoll.h"
-#include "qpainter.h"
-#include "qpmcache.h"
-#include "qdatetm.h"
-#include <ctype.h>
-
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
-#if defined(__CYGWIN32__)
-#define __INSIDE_CYGWIN32__
-#include <mywinsock.h>
-#endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#134 $");
-
-
-/*****************************************************************************
-  Internal variables and functions
- *****************************************************************************/
-
-static char	appName[120];			// application name
-static HANDLE	appInst;			// handle to app instance
-static HANDLE	appPrevInst;			// handle to prev app instance
-static int	appCmdShow;			// main window show command
-static int	numZeroTimers	= 0;		// number of full-speed timers
-static HWND	curWin		= 0;		// current window
-static HANDLE	displayDC	= 0;		// display device context
-static QWidget *desktopWidget	= 0;		// desktop window widget
-#define USE_HEARTBEAT
-#if defined(USE_HEARTBEAT)
-static int	heartBeat	= 0;		// heatbeat timer
-#endif
-
-#if defined(DEBUG)
-static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
-#endif
-
-static bool	app_do_modal	= FALSE;	// modal mode
-static bool	app_exit_loop	= FALSE;	// flag to exit local loop
-
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
-static QWidgetList *popupWidgets= 0;		// list of popup widgets
-static QWidget	   *popupButtonFocus = 0;
-static bool	    popupCloseDownMode = FALSE;
-
-static HANDLE	autoCaptureWnd = 0;
-static void	setAutoCapture( HANDLE );	// automatic capturing
-static void	releaseAutoCapture();
-
-typedef void  (*VFPTR)();
-typedef Q_DECLARE(QListM,void) QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
-
-static void	msgHandler( QtMsgType, const char * );
-
-static void	cleanupPostedEvents();
-static void     unregWinClasses();
-
-// Simpler timers are needed when Qt does not have the
-// event loop (such as for plugins).
-bool		qt_win_use_simple_timers = FALSE;
-void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
-
-static void	initTimers();
-static void	cleanupTimers();
-static void	dispatchTimer( uint, MSG * );
-static bool	activateTimer( uint );
-static void	activateZeroTimers();
-
-WindowsVersion	qt_winver = WV_NT;
-
-QObject	       *qt_clipboard = 0;
-
-static bool	qt_try_modal( QWidget *, MSG * );
-
-static int	translateKeyCode( int );
-
-
-#if defined(_WS_WIN32_)
-#define __export
-#endif
-
-extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
-
-class QETWidget : public QWidget		// event translator widget
-{
-public:
-    void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
-    void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
-    QWExtra    *xtra()			{ return QWidget::extraData(); }
-    bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
-    bool	translateMouseEvent( const MSG &msg );
-    bool	translateKeyEvent( const MSG &msg, bool grab );
-    bool	sendKeyEvent( int type, int code, int ascii, int state,
-			      bool grab );
-    bool	translatePaintEvent( const MSG &msg );
-    bool	translateConfigEvent( const MSG &msg );
-    bool	translateCloseEvent( const MSG &msg );
-};
-
-
-typedef Q_DECLARE(QArrayM,pchar) ArgV;
-
-
-static void set_winapp_name()
-{
-    static bool already_set = FALSE;
-    if ( !already_set ) {
-	already_set = TRUE;
-	GetModuleFileName( 0, appName, sizeof(appName) );
-	char *p = strrchr( appName, '\\' );	// skip path
-	if ( p )
-	    memmove( appName, p+1, strlen(p) );
-    }
-}
-
-
-/*****************************************************************************
-  WinMain() - Initializes Windows and calls user's startup function main().
-  NOTE: WinMain() won't be called if the application was linked as a "console"
-  application.
- *****************************************************************************/
-
-#if defined(NEEDS_QMAIN)
-int qMain( int, char ** );
-#else
-extern "C" int main( int, char ** );
-#endif
-
-extern "C"
-int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
-		      LPSTR  cmdParam, int cmdShow )
-{
-  // Install default debug handler
-
-    qInstallMsgHandler( msgHandler );
-
-  // Create command line
-
-    set_winapp_name();
-
-    char *p = cmdParam;
-    int	 argc = 1;
-    ArgV argv( 8 );
-    argv[0] = appName;
-
-    while ( *p ) {				// parse cmd line arguments
-
-	while ( isspace(*p) )			// skip white space
-	    p++;
-
-	if ( *p ) {				// arg starts
-	    int quote;
-	    char *start, *r;
-	    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
-		quote = *p;
-		start = ++p;
-	    } else {
-		quote = 0;
-		start = p;
-	    }
-	    r = start;
-	    while ( *p ) {
-		if ( *p == '\\' ) {		// escape char?
-		    p++;
-		    if ( *p == '\"' || *p == '\'' )
-			;			// yes
-		    else
-			p--;			// treat \ literally
-		} else if ( quote ) {
-		    if ( *p == quote ) {
-			p++;
-			if ( isspace(*p) )
-			    break;
-			quote = 0;
-		    }
-		} else {
-		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
-			quote = *p++;
-			continue;
-		    } else if ( isspace(*p) )
-			break;
-		}
-		*r++ = *p++;
-	    }
-	    if ( *p )
-		p++;
-	    *r = '\0';
-
-	    if ( argc >= (int)argv.size() )	// expand array
-		argv.resize( argv.size()*2 );
-	    argv[argc++] = start;
-	}
-    }
-
-  // Get Windows parameters
-
-    appInst = instance;
-    appPrevInst = prevInstance;
-    appCmdShow = cmdShow;
-
-  // Call user main()
-
-    return main( argc, argv.data() );
-}
-
-
-
-/*****************************************************************************
-  qt_init() - initializes Qt for Windows
- *****************************************************************************/
-
-void qt_init( int *argcptr, char **argv )
-{
-#if defined(DEBUG)
-    int argc = *argcptr;
-    int i, j;
-
-  // Get command line params
-
-    j = 1;
-    for ( i=1; i<argc; i++ ) {
-	if ( argv[i] && *argv[i] != '-' ) {
-	    argv[j++] = argv[i];
-	    continue;
-	}
-	QString arg = argv[i];
-	if ( arg == "-nograb" )
-	    appNoGrab = !appNoGrab;
-	else
-	    argv[j++] = argv[i];
-    }
-    *argcptr = j;
-#endif // DEBUG
-
-  // Get the application name if WinMain() was not invoked
-
-    set_winapp_name();
-
-  // Detect the Windows version
-
-#ifndef VER_PLATFORM_WIN32s
-#define VER_PLATFORM_WIN32s	    0
-#endif
-#ifndef VER_PLATFORM_WIN32_WINDOWS
-#define VER_PLATFORM_WIN32_WINDOWS  1
-#endif
-#ifndef VER_PLATFORM_WIN32_NT
-#define VER_PLATFORM_WIN32_NT	    2
-#endif
-
-    OSVERSIONINFO osver;
-    osver.dwOSVersionInfoSize = sizeof(osver);
-    GetVersionEx( &osver );
-    switch ( osver.dwPlatformId ) {
-	case VER_PLATFORM_WIN32s:
-	    qt_winver = WV_32s;
-	    break;
-	case VER_PLATFORM_WIN32_WINDOWS:
-	    qt_winver = WV_95;
-	    break;
-	default:
-	    qt_winver = WV_NT;
-    }
-
-  // Misc. initialization
-
-    QColor::initialize();
-    QFont::initialize();
-    QCursor::initialize();
-    QPainter::initialize();
-    qApp->setName( appName );
-#if defined(USE_HEARTBEAT)
-    heartBeat = SetTimer( 0, 0, 200,
-	qt_win_use_simple_timers ?
-	(TIMERPROC)qt_simple_timer_func : 0 );
-#endif
-}
-
-
-/*****************************************************************************
-  qt_cleanup() - cleans up when the application is finished
- *****************************************************************************/
-
-void qt_cleanup()
-{
-    cleanupPostedEvents();			// remove list of posted events
-    if ( postRList ) {
-	VFPTR f = (VFPTR)postRList->first();
-	while ( f ) {				// call post routines
-	    (*f)();
-	    postRList->remove();
-	    f = (VFPTR)postRList->first();
-	}
-	delete postRList;
-    }
-#if defined(USE_HEARTBEAT)
-    KillTimer( 0, heartBeat );
-#endif
-    cleanupTimers();
-    unregWinClasses();
-    QPixmapCache::clear();
-    QPainter::cleanup();
-    QCursor::cleanup();
-    QFont::cleanup();
-    QColor::cleanup();
-    if ( displayDC )
-	ReleaseDC( 0, displayDC );
-}
-
-
-/*****************************************************************************
-  Platform specific global and internal functions
- *****************************************************************************/
-
-static void msgHandler( QtMsgType t, const char *str )
-{
-    QString s = str;
-    s += "\n";
-    OutputDebugString( s.data() );
-    if ( t == QtFatalMsg )
-	ExitProcess( 1 );
-}
-
-
-void qAddPostRoutine( CleanUpFunction p )
-{
-    if ( !postRList ) {
-	postRList = new QVFuncList;
-	CHECK_PTR( postRList );
-    }
-    postRList->insert( 0, (void *)p );		// store at list head
-}
-
-
-char *qAppName()				// get application name
-{
-    return appName;
-}
-
-HANDLE qWinAppInst()				// get Windows app handle
-{
-    return appInst;
-}
-
-HANDLE qWinAppPrevInst()			// get Windows prev app handle
-{
-    return appPrevInst;
-}
-
-int qWinAppCmdShow()				// get main window show command
-{
-    return appCmdShow;
-}
-
-HANDLE qt_display_dc()				// get display DC
-{
-    if ( !displayDC )
-	displayDC = GetDC( 0 );
-    return displayDC;
-}
-
-bool qt_nograb()				// application no-grab option
-{
-    return appNoGrab;
-}
-
-
-static bool widget_class_registered = FALSE;
-static bool popup_class_registered = FALSE;
-
-const char *qt_reg_winclass( int type )		// register window class
-{
-    const char *className;
-    uint style = 0;
-    if ( type == 0 ) {
-	className = "QWidget";
-	if ( !widget_class_registered ) {
-	    widget_class_registered = TRUE;
-	    style = CS_DBLCLKS;
-	}
-    } else if ( type == 1 ) {
-	className = "QPopup";
-	if ( !popup_class_registered ) {
-	    popup_class_registered = TRUE;
-	    style = CS_DBLCLKS | CS_SAVEBITS;
-	}
-    } else {
-#if defined(DEBUG)
-	warning( "Qt internal error: Invalid window class type", type );
-#endif
-	className = 0;
-    }
-    if ( style != 0 ) {
-	WNDCLASS wc;
-	wc.style	 = style;
-	wc.lpfnWndProc	 = (WNDPROC)WndProc;
-	wc.cbClsExtra	 = 0;
-	wc.cbWndExtra	 = 0;
-	wc.hInstance	 = qWinAppInst();
-	wc.hIcon	 = type == 0 ? LoadIcon(0,IDI_APPLICATION) : 0;
-	wc.hCursor	 = 0;
-	wc.hbrBackground = 0;
-	wc.lpszMenuName	 = 0;
-	wc.lpszClassName = className;
-	RegisterClass( &wc );
-    }
-    return className;
-}
-
-static void unregWinClasses()
-{
-    if ( widget_class_registered ) {
-	widget_class_registered = FALSE;
-	UnregisterClass( "QWidget", qWinAppInst() );
-    }
-    if ( popup_class_registered ) {
-	popup_class_registered = FALSE;
-	UnregisterClass( "QPopup", qWinAppInst() );
-    }
-}
-
-
-/*****************************************************************************
-  Platform specific QApplication members
- *****************************************************************************/
-
-void QApplication::setMainWidget( QWidget *mainWidget )
-{
-    main_widget = mainWidget;			// set main widget
-}
-
-
-QWidget *QApplication::desktop()
-{
-    if ( !desktopWidget ) {			// not created yet
-	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	CHECK_PTR( desktopWidget );
-    }
-    return desktopWidget;
-}
-
-
-/*****************************************************************************
-  QApplication cursor stack
- *****************************************************************************/
-
-typedef Q_DECLARE(QListM,QCursor) QCursorList;
-
-static QCursorList *cursorStack = 0;
-
-void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
-{
-    if ( !cursorStack ) {
-	cursorStack = new QCursorList;
-	CHECK_PTR( cursorStack );
-	cursorStack->setAutoDelete( TRUE );
-    }
-    app_cursor = new QCursor( cursor );
-    CHECK_PTR( app_cursor );
-    if ( replace )
-	cursorStack->removeLast();
-    cursorStack->append( app_cursor );
-    SetCursor( app_cursor->handle() );
-}
-
-void QApplication::restoreOverrideCursor()
-{
-    if ( !cursorStack )				// no cursor stack
-	return;
-    cursorStack->removeLast();
-    app_cursor = cursorStack->last();
-    if ( app_cursor ) {
-	SetCursor( app_cursor->handle() );
-    } else {
-	delete cursorStack;
-	cursorStack = 0;
-	QWidget *w = QWidget::find( curWin );
-	if ( w )
-	    SetCursor( w->cursor().handle() );
-	else
-	    SetCursor( arrowCursor.handle() );
+// /****************************************************************************
+// ** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#135 $
+// **
+// ** Implementation of Win32 startup routines and event handling
+// **
+// ** Created : 931203
+// **
+// ** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
+// **
+// *****************************************************************************/
+
+// #include "qapp.h"
+// #include "qwidget.h"
+// #include "qwidcoll.h"
+// #include "qobjcoll.h"
+// #include "qpainter.h"
+// #include "qpmcache.h"
+// #include "qdatetm.h"
+// #include <ctype.h>
+
+// #if defined(_CC_BOOL_DEF_)
+// #undef	bool
+// #include <windows.h>
+// #define bool int
+// #else
+// #include <windows.h>
+// #endif
+// #if defined(__CYGWIN32__)
+// #define __INSIDE_CYGWIN32__
+// #include <mywinsock.h>
+// #endif
+
+// RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#135 $");
+
+
+// /*****************************************************************************
+//   Internal variables and functions
+//  *****************************************************************************/
+
+// static char	appName[120];			// application name
+// static HANDLE	appInst;			// handle to app instance
+// static HANDLE	appPrevInst;			// handle to prev app instance
+// static int	appCmdShow;			// main window show command
+// static int	numZeroTimers	= 0;		// number of full-speed timers
+// static HWND	curWin		= 0;		// current window
+// static HANDLE	displayDC	= 0;		// display device context
+// static QWidget *desktopWidget	= 0;		// desktop window widget
+// #define USE_HEARTBEAT
+// #if defined(USE_HEARTBEAT)
+// static int	heartBeat	= 0;		// heatbeat timer
+// #endif
+
+// #if defined(DEBUG)
+// static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
+// #endif
+
+// static bool	app_do_modal	= FALSE;	// modal mode
+// static bool	app_exit_loop	= FALSE;	// flag to exit local loop
+
+// static QWidgetList *modal_stack = 0;		// stack of modal widgets
+// static QWidgetList *popupWidgets= 0;		// list of popup widgets
+// static QWidget	   *popupButtonFocus = 0;
+// static bool	    popupCloseDownMode = FALSE;
+
+// static HANDLE	autoCaptureWnd = 0;
+// static void	setAutoCapture( HANDLE );	// automatic capturing
+// static void	releaseAutoCapture();
+
+// typedef void  (*VFPTR)();
+// typedef Q_DECLARE(QListM,void) QVFuncList;
+// static QVFuncList *postRList = 0;		// list of post routines
+
+// static void	msgHandler( QtMsgType, const char * );
+
+// static void	cleanupPostedEvents();
+// static void     unregWinClasses();
+
+// // Simpler timers are needed when Qt does not have the
+// // event loop (such as for plugins).
+// bool		qt_win_use_simple_timers = FALSE;
+// void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
+
+// static void	initTimers();
+// static void	cleanupTimers();
+// static void	dispatchTimer( uint, MSG * );
+// static bool	activateTimer( uint );
+// static void	activateZeroTimers();
+
+// WindowsVersion	qt_winver = WV_NT;
+
+// QObject	       *qt_clipboard = 0;
+
+// static bool	qt_try_modal( QWidget *, MSG * );
+
+// static int	translateKeyCode( int );
+
+
+// #if defined(_WS_WIN32_)
+// #define __export
+// #endif
+
+// extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
+
+// class QETWidget : public QWidget		// event translator widget
+// {
+// public:
+//     void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
+//     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
+//     QWExtra    *xtra()			{ return QWidget::extraData(); }
+//     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
+//     bool	translateMouseEvent( const MSG &msg );
+//     bool	translateKeyEvent( const MSG &msg, bool grab );
+//     bool	sendKeyEvent( int type, int code, int ascii, int state,
+// 			      bool grab );
+//     bool	translatePaintEvent( const MSG &msg );
+//     bool	translateConfigEvent( const MSG &msg );
+//     bool	translateCloseEvent( const MSG &msg );
+// };
+
+
+// typedef Q_DECLARE(QArrayM,pchar) ArgV;
+
+
+// static void set_winapp_name()
+// {
+//     static bool already_set = FALSE;
+//     if ( !already_set ) {
+// 	already_set = TRUE;
+// 	GetModuleFileName( 0, appName, sizeof(appName) );
+// 	char *p = strrchr( appName, '\\' );	// skip path
+// 	if ( p )
+// 	    memmove( appName, p+1, strlen(p) );
+//     }
+// }
+
+
+// /*****************************************************************************
+//   WinMain() - Initializes Windows and calls user's startup function main().
+//   NOTE: WinMain() won't be called if the application was linked as a "console"
+//   application.
+//  *****************************************************************************/
+
+// #if defined(NEEDS_QMAIN)
+// int qMain( int, char ** );
+// #else
+// extern "C" int main( int, char ** );
+// #endif
+
+// extern "C"
+// int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
+// 		      LPSTR  cmdParam, int cmdShow )
+// {
+//   // Install default debug handler
+
+//     qInstallMsgHandler( msgHandler );
+
+//   // Create command line
+
+//     set_winapp_name();
+
+//     char *p = cmdParam;
+//     int	 argc = 1;
+//     ArgV argv( 8 );
+//     argv[0] = appName;
+
+//     while ( *p ) {				// parse cmd line arguments
+
+// 	while ( isspace(*p) )			// skip white space
+// 	    p++;
+
+// 	if ( *p ) {				// arg starts
+// 	    int quote;
+// 	    char *start, *r;
+// 	    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
+// 		quote = *p;
+// 		start = ++p;
+// 	    } else {
+// 		quote = 0;
+// 		start = p;
+// 	    }
+// 	    r = start;
+// 	    while ( *p ) {
+// 		if ( *p == '\\' ) {		// escape char?
+// 		    p++;
+// 		    if ( *p == '\"' || *p == '\'' )
+// 			;			// yes
+// 		    else
+// 			p--;			// treat \ literally
+// 		} else if ( quote ) {
+// 		    if ( *p == quote ) {
+// 			p++;
+// 			if ( isspace(*p) )
+// 			    break;
+// 			quote = 0;
+// 		    }
+// 		} else {
+// 		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
+// 			quote = *p++;
+// 			continue;
+// 		    } else if ( isspace(*p) )
+// 			break;
+// 		}
+// 		*r++ = *p++;
+// 	    }
+// 	    if ( *p )
+// 		p++;
+// 	    *r = '\0';
+
+// 	    if ( argc >= (int)argv.size() )	// expand array
+// 		argv.resize( argv.size()*2 );
+// 	    argv[argc++] = start;
+// 	}
+//     }
+
+//   // Get Windows parameters
+
+//     appInst = instance;
+//     appPrevInst = prevInstance;
+//     appCmdShow = cmdShow;
+
+//   // Call user main()
+
+//     return main( argc, argv.data() );
+// }
+
+
+
+// /*****************************************************************************
+//   qt_init() - initializes Qt for Windows
+//  *****************************************************************************/
+
+// void qt_init( int *argcptr, char **argv )
+// {
+// #if defined(DEBUG)
+//     int argc = *argcptr;
+//     int i, j;
+
+//   // Get command line params
+
+//     j = 1;
+//     for ( i=1; i<argc; i++ ) {
+// 	if ( argv[i] && *argv[i] != '-' ) {
+// 	    argv[j++] = argv[i];
+// 	    continue;
+// 	}
+// 	QString arg = argv[i];
+// 	if ( arg == "-nograb" )
+// 	    appNoGrab = !appNoGrab;
+// 	else
+// 	    argv[j++] = argv[i];
+//     }
+//     *argcptr = j;
+// #endif // DEBUG
+
+//   // Get the application name if WinMain() was not invoked
+
+//     set_winapp_name();
+
+//   // Detect the Windows version
+
+// #ifndef VER_PLATFORM_WIN32s
+// #define VER_PLATFORM_WIN32s	    0
+// #endif
+// #ifndef VER_PLATFORM_WIN32_WINDOWS
+// #define VER_PLATFORM_WIN32_WINDOWS  1
+// #endif
+// #ifndef VER_PLATFORM_WIN32_NT
+// #define VER_PLATFORM_WIN32_NT	    2
+// #endif
+
+//     OSVERSIONINFO osver;
+//     osver.dwOSVersionInfoSize = sizeof(osver);
+//     GetVersionEx( &osver );
+//     switch ( osver.dwPlatformId ) {
+// 	case VER_PLATFORM_WIN32s:
+// 	    qt_winver = WV_32s;
+// 	    break;
+// 	case VER_PLATFORM_WIN32_WINDOWS:
+// 	    qt_winver = WV_95;
+// 	    break;
+// 	default:
+// 	    qt_winver = WV_NT;
+//     }
+
+//   // Misc. initialization
+
+//     QColor::initialize();
+//     QFont::initialize();
+//     QCursor::initialize();
+//     QPainter::initialize();
+//     qApp->setName( appName );
+// #if defined(USE_HEARTBEAT)
+//     heartBeat = SetTimer( 0, 0, 200,
+// 	qt_win_use_simple_timers ?
+// 	(TIMERPROC)qt_simple_timer_func : 0 );
+// #endif
+// }
+
+
+// /*****************************************************************************
+//   qt_cleanup() - cleans up when the application is finished
+//  *****************************************************************************/
+
+// void qt_cleanup()
+// {
+//     cleanupPostedEvents();			// remove list of posted events
+//     if ( postRList ) {
+// 	VFPTR f = (VFPTR)postRList->first();
+// 	while ( f ) {				// call post routines
+// 	    (*f)();
+// 	    postRList->remove();
+// 	    f = (VFPTR)postRList->first();
+// 	}
+// 	delete postRList;
+//     }
+// #if defined(USE_HEARTBEAT)
+//     KillTimer( 0, heartBeat );
+// #endif
+//     cleanupTimers();
+//     unregWinClasses();
+//     QPixmapCache::clear();
+//     QPainter::cleanup();
+//     QCursor::cleanup();
+//     QFont::cleanup();
+//     QColor::cleanup();
+//     if ( displayDC )
+// 	ReleaseDC( 0, displayDC );
+// }
+
+
+// /*****************************************************************************
+//   Platform specific global and internal functions
+//  *****************************************************************************/
+
+// static void msgHandler( QtMsgType t, const char *str )
+// {
+//     QString s = str;
+//     s += "\n";
+//     OutputDebugString( s.data() );
+//     if ( t == QtFatalMsg )
+// 	ExitProcess( 1 );
+// }
+
+
+// void qAddPostRoutine( CleanUpFunction p )
+// {
+//     if ( !postRList ) {
+// 	postRList = new QVFuncList;
+// 	CHECK_PTR( postRList );
+//     }
+//     postRList->insert( 0, (void *)p );		// store at list head
+// }
+
+
+// char *qAppName()				// get application name
+// {
+//     return appName;
+// }
+
+// HANDLE qWinAppInst()				// get Windows app handle
+// {
+//     return appInst;
+// }
+
+// HANDLE qWinAppPrevInst()			// get Windows prev app handle
+// {
+//     return appPrevInst;
+// }
+
+// int qWinAppCmdShow()				// get main window show command
+// {
+//     return appCmdShow;
+// }
+
+// HANDLE qt_display_dc()				// get display DC
+// {
+//     if ( !displayDC )
+// 	displayDC = GetDC( 0 );
+//     return displayDC;
+// }
+
+// bool qt_nograb()				// application no-grab option
+// {
+//     return appNoGrab;
+// }
+
+
+// static bool widget_class_registered = FALSE;
+// static bool popup_class_registered = FALSE;
+
+// const char *qt_reg_winclass( int type )		// register window class
+// {
+//     const char *className;
+//     uint style = 0;
+//     if ( type == 0 ) {
+// 	className = "QWidget";
+// 	if ( !widget_class_registered ) {
+// 	    widget_class_registered = TRUE;
+// 	    style = CS_DBLCLKS;
+// 	}
+//     } else if ( type == 1 ) {
+// 	className = "QPopup";
+// 	if ( !popup_class_registered ) {
+// 	    popup_class_registered = TRUE;
+// 	    style = CS_DBLCLKS | CS_SAVEBITS;
+// 	}
+//     } else {
+// #if defined(DEBUG)
+// 	warning( "Qt internal error: Invalid window class type", type );
+// #endif
+// 	className = 0;
+//     }
+//     if ( style != 0 ) {
+// 	WNDCLASS wc;
+// 	wc.style	 = style;
+// 	wc.lpfnWndProc	 = (WNDPROC)WndProc;
+// 	wc.cbClsExtra	 = 0;
+// 	wc.cbWndExtra	 = 0;
+// 	wc.hInstance	 = qWinAppInst();
+// 	wc.hIcon	 = type == 0 ? LoadIcon(0,IDI_APPLICATION) : 0;
+// 	wc.hCursor	 = 0;
+// 	wc.hbrBackground = 0;
+// 	wc.lpszMenuName	 = 0;
+// 	wc.lpszClassName = className;
+// 	RegisterClass( &wc );
+//     }
+//     return className;
+// }
+
+// static void unregWinClasses()
+// {
+//     if ( widget_class_registered ) {
+// 	widget_class_registered = FALSE;
+// 	UnregisterClass( "QWidget", qWinAppInst() );
+//     }
+//     if ( popup_class_registered ) {
+// 	popup_class_registered = FALSE;
+// 	UnregisterClass( "QPopup", qWinAppInst() );
+//     }
+// }
+
+
+// /*****************************************************************************
+//   Platform specific QApplication members
+//  *****************************************************************************/
+
+// void QApplication::setMainWidget( QWidget *mainWidget )
+// {
+//     main_widget = mainWidget;			// set main widget
+// }
+
+
+// QWidget *QApplication::desktop()
+// {
+//     if ( !desktopWidget ) {			// not created yet
+// 	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
+// 	CHECK_PTR( desktopWidget );
+//     }
+//     return desktopWidget;
+// }
+
+
+// /*****************************************************************************
+//   QApplication cursor stack
+//  *****************************************************************************/
+
+// typedef Q_DECLARE(QListM,QCursor) QCursorList;
+
+// static QCursorList *cursorStack = 0;
+
+// void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
+// {
+//     if ( !cursorStack ) {
+// 	cursorStack = new QCursorList;
+// 	CHECK_PTR( cursorStack );
+// 	cursorStack->setAutoDelete( TRUE );
+//     }
+//     app_cursor = new QCursor( cursor );
+//     CHECK_PTR( app_cursor );
+//     if ( replace )
+// 	cursorStack->removeLast();
+//     cursorStack->append( app_cursor );
+//     SetCursor( app_cursor->handle() );
+// }
+
+// void QApplication::restoreOverrideCursor()
+// {
+//     if ( !cursorStack )				// no cursor stack
+// 	return;
+//     cursorStack->removeLast();
+//     app_cursor = cursorStack->last();
+//     if ( app_cursor ) {
+// 	SetCursor( app_cursor->handle() );
+//     } else {
+// 	delete cursorStack;
+// 	cursorStack = 0;
+// 	QWidget *w = QWidget::find( curWin );
+// 	if ( w )
+// 	    SetCursor( w->cursor().handle() );
+// 	else
+// 	    SetCursor( arrowCursor.handle() );
     }
 }
 
@@ -2084,11 +2084,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	r.setSize( newSize );
 	setCRect( r );
 	if ( isTopLevel() ) {			// update caption/icon text
+#if 0
+	    //### This needs more work!
 	    if ( msg.wParam == SIZE_MINIMIZED )
 		clearWFlags( WState_Visible );
 	    else if ( !isVisible() && ( msg.wParam == SIZE_RESTORED ||
 					msg.wParam == SIZE_MAXIMIZED ) )
 		setWFlags( WState_Visible );
+#endif
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), iconText() );
 	    else if ( caption() )
