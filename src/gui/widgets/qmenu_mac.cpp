@@ -50,6 +50,10 @@ enum {
 
     kHICommandAboutQt = 'AOQT'
 };
+#ifdef QT_COMPAT
+static Q3MenuBarCallBacks *qt_mac_menubar3callbk = 0;
+Q_GUI_EXPORT void qt_mac_setMenuBar3Callbk(Q3MenuBarCallBacks *cb) { qt_mac_menubar3callbk = cb; }
+#endif
 
 /*****************************************************************************
   Externals
@@ -272,7 +276,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                                                QAction::Trigger, context & kMenuContextKeyMatching);
 #ifdef QT_COMPAT
         if(!handled_event) {
-            if(Q3MenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, false, context & kMenuContextKeyMatching))
+            if(qt_mac_menubar3callbk && (qt_mac_menubar3callbk->activate)(cmd.menu.menuRef, cmd.menu.menuItemIndex, false, context & kMenuContextKeyMatching))
                 handled_event = true;
         }
 #endif
@@ -290,7 +294,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                 MenuItemIndex idx;
                 GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
                                   0, sizeof(idx), 0, &idx);
-                if(!Q3MenuBar::activate(menu, idx, true))
+                if(qt_mac_menubar3callbk && !(qt_mac_menubar3callbk->activate)(menu, idx, true, false))
                     handled_event = false;
             }
 #endif
@@ -310,16 +314,17 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                 }
             }
 #ifdef QT_COMPAT
-            if(!handled_event) {
+            if(qt_mac_menubar3callbk && !handled_event) {
                 if(ekind == kEventMenuOpening) {
                     Boolean first;
                     GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
                                       0, sizeof(first), 0, &first);
-                    if(first && !Q3MenuBar::macUpdatePopup(mr))
+
+                    if(first && !(qt_mac_menubar3callbk->updatePopup)(mr))
                         handled_event = false;
                 }
                 if(handled_event) {
-                    if(!Q3MenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
+                    if(!(qt_mac_menubar3callbk->updatePopupVisible)(mr, ekind == kEventMenuOpening))
                         handled_event = false;
                 }
             }
@@ -851,7 +856,7 @@ bool QMenuBar::macUpdateMenuBar()
         }
         ret = true;
 #ifdef QT_COMPAT
-    } else if(Q3MenuBar::macUpdateMenuBar()) {
+    } else if(qt_mac_menubar3callbk && (qt_mac_menubar3callbk->updateMenuBar)()) {
         qt_mac_create_menu_event_handler();
         ret = true;
 #endif

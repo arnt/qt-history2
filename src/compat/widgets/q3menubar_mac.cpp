@@ -17,6 +17,8 @@
 #include "qt_mac.h"
 #if !defined(QMAC_Q3MENUBAR_NO_NATIVE)
 
+#define QMAC_Q3MENUBAR_CPP_FILE
+#include <private/qmenubar_p.h>
 #include <qaccel.h>
 #include <qapplication.h>
 #include <qdockarea.h>
@@ -514,6 +516,16 @@ void Q3MenuBar::macCreateNativeMenubar()
         menubars.insert(topLevelWidget(), this);
         if(!mac_d)
             mac_d = new MacPrivate;
+    }
+    if(mac_eaten_menubar) {
+        static bool first = true;
+        if(first) {
+            Q3MenuBarCallBacks *cb = new Q3MenuBarCallBacks;
+            cb->activate = Q3MenuBar::activate;
+            cb->updatePopup = Q3MenuBar::macUpdatePopup;
+            cb->updatePopupVisible = Q3MenuBar::macUpdatePopupVisible;
+            cb->updateMenuBar = Q3MenuBar::macUpdateMenuBar;
+        }
     }
 }
 void Q3MenuBar::macRemoveNativeMenubar()

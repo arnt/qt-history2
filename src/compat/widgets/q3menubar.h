@@ -127,8 +127,6 @@ private:
 #if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
     friend class QWidget;
     friend class QApplication;
-    friend class QMenuBar; //compat
-    friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef event, void *); //compat
 
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();
