@@ -454,7 +454,10 @@ MakefileGenerator::init()
                         compiler.flags |= Compiler::CompilerIgnoreNoExist;
                     if(v[(*it) + ".CONFIG"].indexOf("no_dependencies") != -1)
                         compiler.flags |= Compiler::CompilerNoCheckDeps;
-                    compiler.type = QMakeSourceFileInfo::TYPE_C; //need to be able to customize
+                    if(v[(*it) + ".dependency_type"].first() == "TYPE_UI")
+                        compiler.type = QMakeSourceFileInfo::TYPE_UI;
+                    else
+                        compiler.type = QMakeSourceFileInfo::TYPE_C;
                     compilers.append(compiler);
                 }
             }
@@ -1701,7 +1704,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
             if(!tmp_dep.isEmpty()) {
                 QStringList pre_deps = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-                for(int i = 0; i < pre_deps.size(); ++i) 
+                for(int i = 0; i < pre_deps.size(); ++i)
                    deps += replaceExtraCompilerVariables(pre_deps.at(i), (*input), out);
             }
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
