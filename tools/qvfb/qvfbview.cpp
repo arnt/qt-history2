@@ -247,13 +247,53 @@ void QVFbView::setRate( int r )
     timer->start( 1000/r );
 }
 
+#ifndef Q_WS_QWS
+// Get the name of the directory where Qt/Embedded temporary data should
+// live.
+static QString qws_dataDir()
+{
+    QString username = "unknown";
+    const char *logname = getenv("LOGNAME");
+    if ( logname )
+	username = logname;
+
+    QString dataDir = "/tmp/qtembedded-" + username;
+    if ( mkdir( dataDir.latin1(), 0700 ) ) {
+	if ( errno != EEXIST ) {
+	    qFatal( QString("Cannot create Qt/Embedded data directory: %1")
+		    .arg( dataDir ) );
+	}
+    }
+
+    struct stat buf;
+    if ( lstat( dataDir.latin1(), &buf ) )
+	qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
+		.arg( dataDir ) );
+
+    if ( !S_ISDIR( buf.st_mode ) )
+	qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
+
+    if ( buf.st_uid != getuid() )
+	qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
+		.arg( getuid() ) );
+
+    if ( (buf.st_mode & 0677) != 0600 )
+	qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
+		.arg( dataDir ) );
+
+    dataDir += "/";
+
+    return dataDir;
+}
+#endif
+
 void QVFbView::initLock()
 {
     QString username = "unknown";
     const char *logname = getenv("LOGNAME");
     if ( logname )
 	username = logname;
-    qwslock = new QLock("/tmp/qtembedded-" + username + "/" + QString( QTE_PIPE ).arg( displayid ),
+    qwslock = new QLock(qws_dataDir() + QString( QTE_PIPE ).arg( displayid ),
 			'd', TRUE);
 }
 
@@ -280,7 +320,6 @@ void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
 				 bool press, bool repeat )
 {
     QVFbKeyData kd;
-
     kd.unicode = unicode | (keycode << 16);
     kd.modifiers = modifiers;
     kd.press = press;

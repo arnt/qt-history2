@@ -42,7 +42,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
 //  setPixmap( ipaq );
     setFixedSize( skinImageUp->size() );
     QBitmap mask = skinImageUp->createHeuristicMask();
-    int wf = WType_TopLevel | WStyle_NoBorderEx;
+    int wf = WStyle_Customize | WType_TopLevel | WStyle_NoBorder;
     parent->reparent( 0, wf, pos(), TRUE );
     parent->setMask( mask );
     parent->setFixedSize( skinImageUp->size() );
