@@ -30,6 +30,7 @@
 #include <qtundo.h>
 #include <qdesigner_command.h>
 #include <qdesigner_widget.h>
+#include <qlayout_widget.h>
 
 #define BG_ALPHA                32
 #define VBOX_MARGIN             1
@@ -54,7 +55,7 @@ TabOrderEditor::TabOrderEditor(AbstractFormWindow *form, QWidget *parent)
     setFont(font);
     m_font_metrics = QFontMetrics(font);
     m_current_index = 0;
-    
+
     setAttribute(Qt::WA_MouseTracking, true);
 }
 
@@ -102,7 +103,7 @@ QRect TabOrderEditor::indicatorRect(int index) const
 
     QWidget *w = m_tab_order_list.at(index);
     QString text = QString::number(index + 1);
-    
+
     QPoint center = mapFromGlobal(w->mapToGlobal(w->rect().center()));
     QSize size = m_font_metrics.size(Qt::TextSingleLine, text);
     QRect r(center - QPoint(size.width(), size.height())/2, size);
@@ -120,7 +121,7 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
     if (m_bg_pixmap.isNull())
         updateBackground();
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
-    
+
     for (int i = 0; i < m_tab_order_list.size(); ++i) {
         QRect r = indicatorRect(i);
 
@@ -164,7 +165,7 @@ void TabOrderEditor::initTabOrder()
     if (AbstractMetaDataBaseItem *item = core->metaDataBase()->item(formWindow())) {
         m_tab_order_list = item->tabOrder();
     }
-    
+
     AbstractFormWindowCursor *cursor = formWindow()->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
         QWidget *widget = cursor->widget(i);
@@ -172,7 +173,7 @@ void TabOrderEditor::initTabOrder()
             continue;
 
         if (!m_tab_order_list.contains(widget))
-            m_tab_order_list.append(widget);            
+            m_tab_order_list.append(widget);
     }
 
     m_indicator_region = QRegion();
@@ -217,7 +218,7 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
     m_tab_order_list.swap(target_index, m_current_index);
     update(indicatorRect(target_index));
     update(indicatorRect(m_current_index));
-    
+
     ++m_current_index;
     if (m_current_index == m_tab_order_list.size())
         m_current_index = 0;

@@ -13,6 +13,7 @@
 
 #include "default_layoutdecoration.h"
 #include "formwindow.h"
+#include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 
 #include <QLayout>

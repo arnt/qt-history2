@@ -27,11 +27,12 @@
 // shared
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
+#include <qlayout_widget.h>
 #include <spacer_widget.h>
-#include <layoutinfo.h>
-#include <layoutdecoration.h>
 #include <qdesigner_widget.h>
 #include <invisible_widget.h>
+#include <layoutinfo.h>
+#include <layoutdecoration.h>
 #include <connectionedit.h>
 
 // sdk

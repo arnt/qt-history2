@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "widgetfactory.h"
+#include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
@@ -68,7 +69,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
-    
+
     AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(parentWidget);
 
     QWidget *w = 0;

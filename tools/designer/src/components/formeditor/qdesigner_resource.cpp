@@ -15,6 +15,7 @@
 #include "formwindow.h"
 #include "widgetdatabase.h"
 #include "layout.h"
+#include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"

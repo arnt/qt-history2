@@ -32,6 +32,7 @@ HEADERS += \
     qdesigner_propertysheet.h \
     qdesigner_integration.h \
     invisible_widget.h \
+    qlayout_widget.h \
     tree_widget.h \
     sheet_delegate.h \
     qdesigner_promotedwidget.h \
@@ -60,6 +61,7 @@ SOURCES += \
     qdesigner_integration.cpp \
     qdesigner_dnditem.cpp \
     invisible_widget.cpp \
+    qlayout_widget.cpp \
     tree_widget.cpp \
     sheet_delegate.cpp \
     metadatabase.cpp \

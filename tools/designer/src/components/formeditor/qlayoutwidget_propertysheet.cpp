@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qlayoutwidget_propertysheet.h"
+#include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 #include "formwindow.h"
 #include "formeditor.h"
@@ -27,7 +28,7 @@ QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QO
     : QDesignerPropertySheet(object, parent)
 {
     m_fakeProperties.clear();
-    
+
     for (int index = 0; index < count(); ++index) {
         QString pname = propertyName(index);
         setVisible(index, false);
@@ -43,9 +44,9 @@ QLayoutWidgetPropertySheet::~QLayoutWidgetPropertySheet()
 }
 
 void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)
-{    
+{
     QDesignerPropertySheet::setProperty(index, value);
-    
+
     QLayoutWidget *l = static_cast<QLayoutWidget*>(m_object);
     AbstractFormEditor *core = l->formWindow()->core();
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core->extensionManager(), l->layout())) {
