@@ -21,8 +21,13 @@
 #if !defined(UIC)
 #include "../designer/pixmapchooser.h"
 #endif
-
+#if defined(UIC)
+#define Q_INITGUID
+#endif
 #include "widgetinterface.h"
+#if defined(UIC)
+#undef Q_INITGUID
+#endif
 #include "widgetdatabase.h"
 
 #include "../integration/kdevelop/kdewidgets.h"
@@ -779,7 +784,7 @@ QInterfaceManager<WidgetInterface> *widgetManager()
     if ( !widgetPluginManager ) {
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins";
-	widgetPluginManager = new QInterfaceManager<WidgetInterface>( "WidgetInterface", dir );
+	widgetPluginManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
 	cleanup_manager.add( widgetPluginManager );
     }
     return widgetPluginManager;
