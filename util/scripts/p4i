@@ -56,7 +56,7 @@ close( P4 );
 # The last line is blank, so discard it.
 pop( @changeDescription );
 foreach $changeLine (@changeDescription) {
-    $changeLine =~ s/^[\t ]+//;
+    $changeLine =~ s/^[\t ]//;
 }
 
 if ( $#fromBranchFiles == -1 ) {
