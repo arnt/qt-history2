@@ -581,6 +581,10 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
+            bdi.adornment = kThemeDrawIndicatorOnly;
+            if (btn->state & Style_HasFocus
+                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                bdi.adornment |= kThemeAdornmentFocus;
             bool isRadioButton = (pe == PE_CheckListExclusiveIndicator
                                   || pe == PE_ExclusiveIndicatorMask
                                   || pe == PE_ExclusiveIndicator);
@@ -615,7 +619,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 bdi.value = kThemeButtonOn;
             else
                 bdi.value = kThemeButtonOff;
-            bdi.adornment = kThemeDrawIndicatorOnly;
             HIRect macRect = qt_hirectForQRect(btn->rect, p);
             if (pe == PE_IndicatorMask || pe == PE_ExclusiveIndicatorMask) {
                 QRegion saveRegion = p->clipRegion();
@@ -840,9 +843,12 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             else
                 bdi.kind = kThemePushButton;
             HIRect newRect = qt_hirectForQRect(btn->rect, p);
+            if (btn->state & Style_HasFocus
+                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                bdi.adornment |= kThemeAdornmentFocus;
             if (btn->state & Style_ButtonDefault
                 && d->animatable(QAquaAnimate::AquaPushButton, w)) {
-                bdi.adornment = kThemeAdornmentDefault;
+                bdi.adornment |= kThemeAdornmentDefault;
                 bdi.animation.time.start = d->defaultButtonStart;
                 bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
             }
