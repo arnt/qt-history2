@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QGENERICTREEVIEW_H
 #define QGENERICTREEVIEW_H
 
@@ -36,6 +48,9 @@ public:
     bool isColumnHidden(int column) const;
     bool isOpen(const QModelIndex &item) const;
 
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
+
  signals:
     void expanded(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
@@ -63,9 +78,6 @@ protected:
     QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;
-
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
 
     void setSelection(const QRect &rect, int command);
     QRect selectionViewportRect(const QItemSelection &selection) const;

@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qabstractitemview.h"
 #include <qitemdelegate.h>
 #include <qpointer.h>
@@ -571,6 +583,7 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
     }
     return false;
 }
+
 /*!
   Moves to and selects the item best matching the string \a search. If no item is found nothing happens.
 */
@@ -619,6 +632,26 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
     if (!match.isEmpty() && match.at(0).isValid()) {
         setCurrentItem(match.at(0));
     }
+}
+
+void QAbstractItemView::updateItem(const QModelIndex &item)
+{
+    if (!isVisible())
+        return;
+    QRect rect = itemViewportRect(item);
+    if (rect.isValid())
+        d->viewport->update(itemViewportRect(item));
+}
+
+void QAbstractItemView::updateRow(const QModelIndex &item)
+{
+    QModelIndex parent = model()->parent(item);
+    int row = item.row();
+    int columns = model()->columnCount(parent);
+    QModelIndex left = model()->index(row, 0, parent);
+    QModelIndex right = model()->index(row, columns - 1, parent);
+    QRect rect = itemViewportRect(left) | itemViewportRect(right);
+    d->viewport->update(rect);
 }
 
 /*!
@@ -733,26 +766,6 @@ void QAbstractItemView::fetchMore()
     if (!verticalScrollBar()->isSliderDown() &&
         verticalScrollBar()->value() == verticalScrollBar()->maximum())
         model()->fetchMore();
-}
-
-void QAbstractItemView::updateItem(const QModelIndex &item)
-{
-    if (!isVisible())
-        return;
-    QRect rect = itemViewportRect(item);
-    if (rect.isValid())
-        d->viewport->update(itemViewportRect(item));
-}
-
-void QAbstractItemView::updateRow(const QModelIndex &item)
-{
-    QModelIndex parent = model()->parent(item);
-    int row = item.row();
-    int columns = model()->columnCount(parent);
-    QModelIndex left = model()->index(row, 0, parent);
-    QModelIndex right = model()->index(row, columns - 1, parent);
-    QRect rect = itemViewportRect(left) | itemViewportRect(right);
-    d->viewport->update(rect);
 }
 
 void QAbstractItemView::clearArea(QPainter *painter, const QRect &rect) const

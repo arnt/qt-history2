@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qgenericlistview.h"
 #include <qabstractitemdelegate.h>
 #include <qapplication.h>
@@ -341,37 +353,44 @@ QSize QGenericListView::gridSize() const
     return d->gridSize;
 }
 
-void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
+QRect QGenericListView::itemViewportRect(const QModelIndex &item) const
 {
-    QRect crect(rect.left() + horizontalScrollBar()->value(), rect.top() + verticalScrollBar()->value(), rect.width(), rect.height());
+    QRect rect = itemRect(item);
+    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
+    rect.moveTop(rect.top() - verticalScrollBar()->value());
+    if (!d->wrap && d->movement == QGenericListView::Static)
+        if (d->flow == QGenericListView::TopToBottom)
+            rect.setWidth(d->viewport->width());
+        else
+            rect.setHeight(d->viewport->height());
+    return rect;
+}
 
-    if (d->movement == Static)
-        d->intersectingStaticSet(crect);
-    else
-        d->intersectingDynamicSet(crect);
+void QGenericListView::ensureItemVisible(const QModelIndex &item)
+{
+    QRect area = d->viewport->geometry();
+    QRect rect = itemViewportRect(item);
 
-    //qHeapSort(items); // FIXME: should be sorted by row
+    if (area.contains(rect) || model()->parent(item) != root())
+        return;
 
-    QItemSelection selection;
-    QModelIndex tl;
-    QModelIndex br;
-    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-    for (; it != d->intersectVector.end(); ++it) {
-        if (!tl.isValid() && !br.isValid()) {
-            tl = br = *it;
-        } else if ((*it).row() == (tl.row() - 1)) {
-            tl = *it; // expand current range
-        } else if ((*it).row() == (br.row() + 1)) {
-            br = (*it); // expand current range
-        } else {
-            selection.select(tl, br, model()); // select current range
-            tl = br = *it; // start new range
-        }
+    // vertical
+    if (rect.top() < area.top()) { // above
+        int cy = verticalScrollBar()->value() + rect.top();
+        verticalScrollBar()->setValue(cy);
+    } else if (rect.bottom() > area.bottom()) { // below
+        int cy = verticalScrollBar()->value() + rect.bottom() - viewport()->height();
+        verticalScrollBar()->setValue(cy);
     }
-    if (tl.isValid() && br.isValid())
-        selection.select(tl, br, model());
 
-    selectionModel()->select(selection, selectionCommand);
+    // horizontal
+    if (rect.left() < area.left()) { // left of
+        int cx = horizontalScrollBar()->value() + rect.left();
+        horizontalScrollBar()->setValue(cx);
+    } else if (rect.right() > area.right()) { // right of
+        int cx = horizontalScrollBar()->value() + rect.right() - viewport()->width();
+        horizontalScrollBar()->setValue(cx);
+    }
 }
 
 void QGenericListView::scrollContentsBy(int dx, int dy)
@@ -679,44 +698,38 @@ QRect QGenericListView::itemRect(const QModelIndex &item) const
     return d->indexToListViewItem(item).rect();
 }
 
-QRect QGenericListView::itemViewportRect(const QModelIndex &item) const
+void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 {
-    QRect rect = itemRect(item);
-    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
-    rect.moveTop(rect.top() - verticalScrollBar()->value());
-    if (!d->wrap && d->movement == QGenericListView::Static)
-        if (d->flow == QGenericListView::TopToBottom)
-            rect.setWidth(d->viewport->width());
-        else
-            rect.setHeight(d->viewport->height());
-    return rect;
-}
+    QRect crect(rect.left() + horizontalScrollBar()->value(), rect.top() + verticalScrollBar()->value(),
+                rect.width(), rect.height());
 
-void QGenericListView::ensureItemVisible(const QModelIndex &item)
-{
-    QRect area = d->viewport->geometry();
-    QRect rect = itemViewportRect(item);
+    if (d->movement == Static)
+        d->intersectingStaticSet(crect);
+    else
+        d->intersectingDynamicSet(crect);
 
-    if (area.contains(rect) || model()->parent(item) != root())
-        return;
+    //qHeapSort(items); // FIXME: should be sorted by row
 
-    // vertical
-    if (rect.top() < area.top()) { // above
-        int cy = verticalScrollBar()->value() + rect.top();
-        verticalScrollBar()->setValue(cy);
-    } else if (rect.bottom() > area.bottom()) { // below
-        int cy = verticalScrollBar()->value() + rect.bottom() - viewport()->height();
-        verticalScrollBar()->setValue(cy);
+    QItemSelection selection;
+    QModelIndex tl;
+    QModelIndex br;
+    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
+    for (; it != d->intersectVector.end(); ++it) {
+        if (!tl.isValid() && !br.isValid()) {
+            tl = br = *it;
+        } else if ((*it).row() == (tl.row() - 1)) {
+            tl = *it; // expand current range
+        } else if ((*it).row() == (br.row() + 1)) {
+            br = (*it); // expand current range
+        } else {
+            selection.select(tl, br, model()); // select current range
+            tl = br = *it; // start new range
+        }
     }
+    if (tl.isValid() && br.isValid())
+        selection.select(tl, br, model());
 
-    // horizontal
-    if (rect.left() < area.left()) { // left of
-        int cx = horizontalScrollBar()->value() + rect.left();
-        horizontalScrollBar()->setValue(cx);
-    } else if (rect.right() > area.right()) { // right of
-        int cx = horizontalScrollBar()->value() + rect.right() - viewport()->width();
-        horizontalScrollBar()->setValue(cx);
-    }
+    selectionModel()->select(selection, selectionCommand);
 }
 
 QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const

@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QGENERICLISTVIEW_H
 #define QGENERICLISTVIEW_H
 
@@ -47,7 +59,8 @@ public:
     void setGridSize(const QSize &size);
     QSize gridSize() const;
 
-    void setSelection(const QRect &rect, int selectionCommand);
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
 
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
@@ -79,9 +92,8 @@ protected:
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
 
+    void setSelection(const QRect &rect, int selectionCommand);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);

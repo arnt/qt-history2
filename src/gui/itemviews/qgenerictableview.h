@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QGENERICTABLEVIEW_H
 #define QGENERICTABLEVIEW_H
 
@@ -33,6 +45,9 @@ public:
     void setShowGrid(bool show);
     bool showGrid() const;
 
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &item);
+
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
     void selectColumn(int column, ButtonState state = Qt::NoButton);
@@ -63,8 +78,6 @@ protected:
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
 
     void setSelection(const QRect &rect, int command);
     QRect selectionViewportRect(const QItemSelection &selection) const;

@@ -3,6 +3,18 @@
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qscrollbar.h>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <qpainter.h>
 #include <qstack.h>
 #include <qstyle.h>
@@ -178,6 +190,66 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
     return d->opened.contains(item);
 }
 
+QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
+{
+    if (!item.isValid())
+        return QRect();
+
+    int x = columnViewportPosition(item.column());
+    int w = columnWidth(item.column());
+    int vi = d->viewIndex(item);
+    if (vi < 0)
+        return QRect();
+    if (item.column() == 0) {
+        int i = d->indentation(vi);
+        x += i;
+        w -= i;
+    }
+    int y = d->coordinate(vi);
+    QItemOptions options;
+    getViewOptions(&options);
+    int h = itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(vi)).height();
+    return QRect(x, y, w, h);
+}
+
+void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
+{
+    QRect area = viewport()->geometry();
+    QRect rect = itemViewportRect(item);
+
+    if (area.contains(rect))
+        return;
+
+    // vertical
+    if (rect.top() < area.top()) { // above
+        int i = d->viewIndex(item);
+        verticalScrollBar()->setValue(i * verticalFactor());
+    } else if (rect.bottom() > area.bottom()) { // below
+        QItemOptions options;
+        getViewOptions(&options);
+        QFontMetrics fontMetrics(this->fontMetrics());
+        QAbstractItemDelegate *delegate = itemDelegate();
+        int i = d->viewIndex(item);
+        int y = area.height();
+        while (y > 0 && i > 0)
+            y -= delegate->sizeHint(fontMetrics, options, d->items.at(i--).index).height();
+        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, options, d->items.at(i).index).height();
+        verticalScrollBar()->setValue(++i * verticalFactor() + a);
+    }
+
+    // horizontal
+    if (rect.left() < area.left()) { // left of
+        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
+    } else if (rect.right() > area.right()) { // right of
+        int c = item.column();
+        int x = area.width();
+        while (x > 0 && c > 0)
+            x -= columnWidth(c--);
+        int a = (-x * horizontalFactor()) / columnWidth(c);
+        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
+    }
+}
+
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
@@ -336,66 +408,6 @@ int QGenericTreeView::verticalOffset() const
     int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
-}
-
-QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
-{
-    if (!item.isValid())
-        return QRect();
-
-    int x = columnViewportPosition(item.column());
-    int w = columnWidth(item.column());
-    int vi = d->viewIndex(item);
-    if (vi < 0)
-        return QRect();
-    if (item.column() == 0) {
-        int i = d->indentation(vi);
-        x += i;
-        w -= i;
-    }
-    int y = d->coordinate(vi);
-    QItemOptions options;
-    getViewOptions(&options);
-    int h = itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(vi)).height();
-    return QRect(x, y, w, h);
-}
-
-void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
-{
-    QRect area = viewport()->geometry();
-    QRect rect = itemViewportRect(item);
-
-    if (area.contains(rect))
-        return;
-
-    // vertical
-    if (rect.top() < area.top()) { // above
-        int i = d->viewIndex(item);
-        verticalScrollBar()->setValue(i * verticalFactor());
-    } else if (rect.bottom() > area.bottom()) { // below
-        QItemOptions options;
-        getViewOptions(&options);
-        QFontMetrics fontMetrics(this->fontMetrics());
-        QAbstractItemDelegate *delegate = itemDelegate();
-        int i = d->viewIndex(item);
-        int y = area.height();
-        while (y > 0 && i > 0)
-            y -= delegate->sizeHint(fontMetrics, options, d->items.at(i--).index).height();
-        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, options, d->items.at(i).index).height();
-        verticalScrollBar()->setValue(++i * verticalFactor() + a);
-    }
-
-    // horizontal
-    if (rect.left() < area.left()) { // left of
-        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
-    } else if (rect.right() > area.right()) { // right of
-        int c = item.column();
-        int x = area.width();
-        while (x > 0 && c > 0)
-            x -= columnWidth(c--);
-        int a = (-x * horizontalFactor()) / columnWidth(c);
-        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
-    }
 }
 
 QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState)

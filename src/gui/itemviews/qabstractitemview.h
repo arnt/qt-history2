@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QABSTRACTITEMVIEW_H
 #define QABSTRACTITEMVIEW_H
 
@@ -65,6 +77,12 @@ public:
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
+
+    virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
+    virtual void ensureItemVisible(const QModelIndex &item) = 0;
+
+    virtual void updateItem(const QModelIndex &item);
+    virtual void updateRow(const QModelIndex &item);
     
 public slots:
     void setRoot(const QModelIndex &index);
@@ -106,12 +124,6 @@ protected:
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
 
-    virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
-    virtual void ensureItemVisible(const QModelIndex &item) = 0;
-
-    virtual void updateItem(const QModelIndex &item);
-    virtual void updateRow(const QModelIndex &item);
-
     virtual void setSelection(const QRect&, int command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
@@ -130,7 +142,6 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
 
-    // FIXME: find better solutions
     virtual void getViewOptions(QItemOptions *options) const;
 
     enum State { NoState, Dragging, Selecting, Editing, Opening, Closing };

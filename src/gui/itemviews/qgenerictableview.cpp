@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qgenerictableview.h"
 #include "qgenericheader.h"
 #include <qitemdelegate.h>
@@ -242,47 +254,6 @@ int QGenericTableView::verticalOffset() const
     return d->leftHeader->offset();
 }
 
-QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
-{
-    if (!item.isValid() || model()->parent(item) != root())
-        return QRect();
-    return QRect(columnViewportPosition(item.column()), rowViewportPosition(item.row()),
-                 columnWidth(item.column()), rowHeight(item.row()));
-}
-
-void QGenericTableView::ensureItemVisible(const QModelIndex &item)
-{
-    QRect area = d->viewport->geometry();
-    QRect rect = itemViewportRect(item);
-
-    if (area.contains(rect) || model()->parent(item) != root())
-        return;
-
-    // vertical
-    if (rect.top() < area.top()) { // above
-        verticalScrollBar()->setValue(item.row() * verticalFactor());
-    } else if (rect.bottom() > area.bottom()) { // below
-        int r = item.row();
-        int y = area.height();
-        while (y > 0 && r > 0)
-            y -= rowHeight(r--);
-        int a = (-y * verticalFactor()) / rowHeight(r);
-        verticalScrollBar()->setValue(++r * verticalFactor() + a);
-    }
-
-    // horizontal
-    if (rect.left() < area.left()) { // left of
-        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
-    } else if (rect.right() > area.right()) { // right of
-        int c = item.column();
-        int x = area.width();
-        while (x > 0 && c > 0)
-            x -= columnWidth(c--);
-        int a = (-x * horizontalFactor()) / columnWidth(c);
-        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
-    }
-}
-
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           ButtonState /*state*/)
 {
@@ -519,6 +490,47 @@ void QGenericTableView::setShowGrid(bool show)
 bool QGenericTableView::showGrid() const
 {
     return d->showGrid;
+}
+
+QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
+{
+    if (!item.isValid() || model()->parent(item) != root())
+        return QRect();
+    return QRect(columnViewportPosition(item.column()), rowViewportPosition(item.row()),
+                 columnWidth(item.column()), rowHeight(item.row()));
+}
+
+void QGenericTableView::ensureItemVisible(const QModelIndex &item)
+{
+    QRect area = d->viewport->geometry();
+    QRect rect = itemViewportRect(item);
+
+    if (area.contains(rect) || model()->parent(item) != root())
+        return;
+
+    // vertical
+    if (rect.top() < area.top()) { // above
+        verticalScrollBar()->setValue(item.row() * verticalFactor());
+    } else if (rect.bottom() > area.bottom()) { // below
+        int r = item.row();
+        int y = area.height();
+        while (y > 0 && r > 0)
+            y -= rowHeight(r--);
+        int a = (-y * verticalFactor()) / rowHeight(r);
+        verticalScrollBar()->setValue(++r * verticalFactor() + a);
+    }
+
+    // horizontal
+    if (rect.left() < area.left()) { // left of
+        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
+    } else if (rect.right() > area.right()) { // right of
+        int c = item.column();
+        int x = area.width();
+        while (x > 0 && c > 0)
+            x -= columnWidth(c--);
+        int a = (-x * horizontalFactor()) / columnWidth(c);
+        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
+    }
 }
 
 void QGenericTableView::rowHeightChanged(int row, int, int)
