@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#18 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ QIODevice::~QIODevice()
   Used by subclasses to set the device type.
  ----------------------------------------------------------------------------*/
 
-void QIODevice::setType( int t )		// set device type
+void QIODevice::setType( int t )
 {
 #if defined(CHECK_RANGE)
     if ( (t & IO_TypeMask) != t )
@@ -252,7 +252,7 @@ void QIODevice::setType( int t )		// set device type
   Used by subclasses to set the device mode.
  ----------------------------------------------------------------------------*/
 
-void QIODevice::setMode( int m )		// set device mode
+void QIODevice::setMode( int m )
 {
 #if defined(CHECK_RANGE)
     if ( (m & IO_ModeMask) != m )
@@ -267,7 +267,7 @@ void QIODevice::setMode( int m )		// set device mode
   Used by subclasses to set the device state.
  ----------------------------------------------------------------------------*/
 
-void QIODevice::setState( int s )		// set device state
+void QIODevice::setState( int s )
 {
 #if defined(CHECK_RANGE)
     if ( ((uint)s & IO_StateMask) != (uint)s )
@@ -282,7 +282,7 @@ void QIODevice::setState( int s )		// set device state
   Used by subclasses to set the device status (not state).
  ----------------------------------------------------------------------------*/
 
-void QIODevice::setStatus( int s )		// set status
+void QIODevice::setStatus( int s )
 {
     ioSt = s;
 }
@@ -343,7 +343,7 @@ void QIODevice::setStatus( int s )		// set status
   \sa size()
  ----------------------------------------------------------------------------*/
 
-long QIODevice::at() const			// get data index
+long QIODevice::at() const
 {
     return index;
 }
@@ -354,7 +354,7 @@ long QIODevice::at() const			// get data index
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QIODevice::at( long n )			// set data index
+bool QIODevice::at( long n )
 {
 #if defined(CHECK_RANGE)
     if ( n > size() ) {
@@ -371,7 +371,7 @@ bool QIODevice::at( long n )			// set data index
   end of the input.
  ----------------------------------------------------------------------------*/
 
-bool QIODevice::atEnd() const			// at end of data
+bool QIODevice::atEnd() const
 {
     return at() == size();
 }
