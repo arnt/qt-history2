@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#48 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -156,6 +156,8 @@ void QWidgetStack::removeWidget( QWidget * w )
 	dict->take( i+1 );
     if ( w == topWidget )
 	topWidget = 0;
+    if ( dict->isEmpty() )
+	invisible->hide(); // let background shine through again
 }
 
 
@@ -262,7 +264,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( f )
 	f->setFocus();
 
-    if ( isVisible() ) { 
+    if ( isVisible() ) {
 	emit aboutToShow( w );
 	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
 	    int i = id( w );
@@ -461,4 +463,12 @@ QSize QWidgetStack::minimumSizeHint() const
 	}
     }
     return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
+}
+
+/*!\reimp
+ */
+void QWidgetStack::childEvent( QChildEvent * e)
+{
+    if ( e->child()->isWidgetType() && e->removed() )
+	removeWidget( (QWidget*) e->child() );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#20 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#21 $
 **
 ** Definition of QWidgetStack class
 **
@@ -70,6 +70,7 @@ protected:
     void resizeEvent( QResizeEvent * );
 
     virtual void setChildGeometries();
+    void childEvent( QChildEvent * );
 
 private:
     bool isMyChild( QWidget * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#92 $
 **
 ** Implementation of QFrame widget class
 **
@@ -620,10 +620,13 @@ void QFrame::drawContents( QPainter * )
 
   This function can be reimplemented by subclasses that need to know
   when the frame attributes change.
+  
+  The default implementation calls update().
 */
 
 void QFrame::frameChanged()
 {
+    update();
 }
 
 /*!

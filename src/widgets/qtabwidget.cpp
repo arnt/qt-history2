@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#22 $
 **
 ** Implementation of QTabWidget class
 **
@@ -113,6 +113,7 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name)
     d = new QTabWidgetData;
 
     d->stack = new QWidgetStack( this, "tab pages" );
+    d->stack->installEventFilter( this );
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -185,6 +186,8 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
     d->stack->addWidget( child, id );
+    if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -251,6 +254,8 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
     tab->enabled = TRUE;
     int id = d->tabs->insertTab( tab, index );
     d->stack->addWidget( child, id );
+    if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -345,6 +350,8 @@ void QTabWidget::showPage( QWidget * w)
     if ( id >= 0 ) {
 	d->stack->raiseWidget( w );
 	d->tabs->setCurrentTab( id );
+	if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+	    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     }
 }
 
@@ -360,6 +367,9 @@ void QTabWidget::removePage( QWidget * w )
 	d->stack->removeWidget( w );
 	d->tabs->removeTab( d->tabs->tab(id) );
 	setUpLayout();
+	if ( !currentPage() && d->stack->frameStyle() != QFrame::NoFrame )
+	    d->stack->setFrameStyle( QFrame::NoFrame );
+
     }
 }
 
@@ -575,4 +585,17 @@ void QTabWidget::updateMask()
     p.drawRect( d->stack->geometry() );
    p.end();
    setMask( bm );
+}
+
+
+/*!\reimp
+ */
+bool QTabWidget::eventFilter( QObject *o, QEvent * e)
+{
+    if ( o == d->stack && e->type() == QEvent::ChildRemoved 
+	 && ( (QChildEvent*)e )->child()->isWidgetType() ) {
+	removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
+	return TRUE;
+    }
+    return FALSE;
 }
