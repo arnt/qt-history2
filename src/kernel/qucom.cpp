@@ -167,7 +167,7 @@ bool QUType_idisp::convertTo( QUObject *o, QUType *t )
 {
 #ifndef QT_NO_COMPONENT
     if ( isEqual( t, pQUType_iface ) ) {
-	o->payload.iface = o->payload.idisp;
+	o->payload.iface = (QUnknownInterface*)o->payload.idisp;
 	o->type = pQUType_iface;
 	return true;
     }
