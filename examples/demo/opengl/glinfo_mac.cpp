@@ -117,7 +117,7 @@ GLInfo::GLInfo()
 	aglDescribeRenderer(rf, AGL_MULTISCREEN, &val );
 	infotext += QString("Multi Screen: %1\n").arg(val ? "Yes" : "No");
 	aglDescribeRenderer(rf, AGL_BUFFER_MODES, &val );
-	infotext += QString("Buffer Modes: %1%1%1%1\n").arg(val & AGL_MONOSCOPIC_BIT ? "Monoscopic, " : "").arg(val & AGL_STEREOSCOPIC_BIT ? "Stereoscopic, " : "").arg(val & AGL_SINGLEBUFFER_BIT ? "Single Buffer, " : "").arg(val & AGL_DOUBLEBUFFER_BIT ? "Double Buffer" : "");
+	infotext += QString("Buffer Modes: %1%2%3%4\n").arg(val & AGL_MONOSCOPIC_BIT ? "Monoscopic, " : "").arg(val & AGL_STEREOSCOPIC_BIT ? "Stereoscopic, " : "").arg(val & AGL_SINGLEBUFFER_BIT ? "Single Buffer, " : "").arg(val & AGL_DOUBLEBUFFER_BIT ? "Double Buffer" : "");
 	aglDescribeRenderer(rf, AGL_MIN_LEVEL, &val );
 	infotext += QString("Min Level: %1\n").arg(val);
 	aglDescribeRenderer(rf, AGL_MAX_LEVEL, &val );
