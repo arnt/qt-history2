@@ -686,6 +686,13 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
     Returns the number of copies to be printed. The default value is 1.
 
+    After a call to setup(), this value will return the number of
+    times the application is required to print in order to match the 
+    number specified in the printer setup dialog. This has been done since
+    some printer drivers are not capable of buffering up the copies and
+    the application in those cases have to make an explicit call to the
+    print code for each copy.
+
     \sa setNumCopies()
 */
 
