@@ -426,7 +426,7 @@ void QApplication::setGlobalMouseTracking( bool b)
 }
 
 
-static QWidget *recursive_match(QWidget *widg, int x, int y)
+QWidget *recursive_match(QWidget *widg, int x, int y)
 {
     // Keep looking until we find ourselves in a widget with no kiddies
     // where the x,y is

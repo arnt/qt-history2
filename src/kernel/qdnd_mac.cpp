@@ -337,8 +337,7 @@ struct QMacDndExtra {
 };
 
 
-QMAC_PASCAL OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
-		       DragReference theDrag)
+static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     Point mouse;
@@ -356,41 +355,29 @@ QMAC_PASCAL OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
 
     return 0;
 }
+static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
+static void cleanup_dnd_receiveUPP() 
+{
+    if(qt_mac_receive_handlerUPP) {
+	DisposeDragReceiveHandlerUPP(qt_mac_receive_handlerUPP);
+	qt_mac_receive_handlerUPP = NULL;
+    }
+}    
+static const DragReceiveHandlerUPP make_receiveUPP() 
+{
+    if(qt_mac_receive_handlerUPP)
+	return qt_mac_receive_handlerUPP;
+    qAddPostRoutine( cleanup_dnd_receiveUPP );
+    return qt_mac_receive_handlerUPP = NewDragReceiveHandlerUPP(qt_mac_receive_handler);
+}
+
 
 QWidget *current_drag_widget = 0;
 
 //FIXME: This is duplicated code
-static QWidget *recursive_match(QWidget *widg, int x, int y)
-{
-    // Keep looking until we find ourselves in a widget with no kiddies
-    // where the x,y is
-    if(!widg) 
-	return 0;
-
-    const QObjectList *objl=widg->children();
-    if(!objl) // No children 
-	return widg;
-
-    QObjectListIt it(*objl);
-    for(it.toLast(); it.current(); --it) {
-	if((*it)->isWidgetType()) {
-	    QWidget *curwidg=(QWidget *)(*it);
-	    if(curwidg->isVisible()) {
-		int wx=curwidg->x(), wy=curwidg->y();
-		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
-		    return recursive_match(curwidg,x-wx,y-wy);
-		} 
-	    }
-	}
-    }
-    // If we get here, it's within a widget that has children, but isn't in any
-    // of the children
-    return widg;
-}
-
-QMAC_PASCAL OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
-			 void *handlerRefCon, DragReference theDrag )
+QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
+static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
+						  void *handlerRefCon, DragReference theDrag )
 {
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     Point mouse;
@@ -410,9 +397,6 @@ QMAC_PASCAL OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
     QMacSavedPortInfo savedInfo(macDndExtra->widget);;
     GlobalToLocal( &local );
     QWidget *widget = recursive_match( macDndExtra->widget, local.h, local.v );
-
-//  FIXME: Mention to sam that this line below did not work.
-//  QWidget *widget = QApplication::widgetAt( mouse.h, mouse.v, true );
 
     if ( widget && (!widget->acceptDrops()) )
 	widget = 0;
@@ -447,14 +431,31 @@ QMAC_PASCAL OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
 
     return 0;
 }
+static DragTrackingHandlerUPP qt_mac_tracking_handlerUPP = NULL;
+static void cleanup_dnd_trackingUPP() 
+{
+    if(qt_mac_tracking_handlerUPP) {
+	DisposeDragTrackingHandlerUPP(qt_mac_tracking_handlerUPP);
+	qt_mac_tracking_handlerUPP = NULL;
+    }
+}    
+static const DragTrackingHandlerUPP make_trackingUPP() 
+{
+    if(qt_mac_tracking_handlerUPP)
+	return qt_mac_tracking_handlerUPP;
+    qAddPostRoutine( cleanup_dnd_trackingUPP );
+    return qt_mac_tracking_handlerUPP = NewDragTrackingHandlerUPP(qt_mac_tracking_handler);
+}
 
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra )
 {
     if ( extra && extra->macDndExtra ) {
 	extra->macDndExtra->ref--;
 	if ( extra->macDndExtra->ref == 0 ) {
-	    RemoveTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), (WindowPtr)widget->handle() );
-	    RemoveReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler), (WindowPtr)widget->handle() );
+	    if(qt_mac_tracking_handlerUPP)
+		RemoveTrackingHandler( make_trackingUPP(), (WindowPtr)widget->handle() );
+	    if(qt_mac_receive_handlerUPP)
+		RemoveReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle() );
 	    delete extra->macDndExtra;
 	    extra->macDndExtra = 0;
 	}
@@ -468,12 +469,10 @@ void qt_macdnd_register( QWidget *widget, QWExtra *extra )
 	extra->macDndExtra = new QMacDndExtra;
 	extra->macDndExtra->ref = 1;
 	extra->macDndExtra->widget = widget->topLevelWidget();
-	if ( (result = InstallTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), 
-					      (WindowPtr)widget->handle(),
-					      extra->macDndExtra )))
+	if ( (result = InstallTrackingHandler( make_trackingUPP(),  (WindowPtr)widget->handle(),
+					       extra->macDndExtra )))
 	    return;
-	if ( (result = InstallReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler),
-					     (WindowPtr)widget->handle(),
+	if ( (result = InstallReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle(),
 					     extra->macDndExtra )))
 	    return;
     } 	else {	

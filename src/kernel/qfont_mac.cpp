@@ -131,6 +131,21 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
     DisposeUnicodeToTextInfo(&tuni);
     return err == noErr ? noErr : kTECUnmappableElementErr;
 }
+static UnicodeToTextFallbackUPP qt_macFallbackCharUPP = NULL;
+static void cleanup_font_fallbackUPP() 
+{
+    if(qt_macFallbackCharUPP) {
+	DisposeUnicodeToTextFallbackUPP(qt_macFallbackCharUPP);
+	qt_macFallbackCharUPP = NULL;
+    }
+}    
+static const UnicodeToTextFallbackUPP make_font_fallbackUPP() 
+{
+    if(qt_macFallbackCharUPP)
+	return qt_macFallbackCharUPP;
+    qAddPostRoutine( cleanup_font_fallbackUPP );
+    return qt_macFallbackCharUPP = NewUnicodeToTextFallbackUPP(macFallbackChar);
+}
 
 const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02 };
@@ -176,8 +191,7 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	return 0;
     }
-    SetFallbackUnicodeToTextRun( runi, NewUnicodeToTextFallbackUPP(macFallbackChar), 
-				 kUnicodeFallbackCustomFirst, NULL);
+    SetFallbackUnicodeToTextRun( runi, make_font_fallbackUPP(), kUnicodeFallbackCustomFirst, NULL);
 
     //now convert
     int buf_len = 2056;     //buffer
