@@ -350,6 +350,8 @@ void QProcessPrivate::startProcess()
         notifier->start(NOTIFYTIMEOUT);
     }
 
+    // give the process a chance to start ... 
+    Sleep(SLEEPMIN*2);
     startupNotification();
 }
 
@@ -405,8 +407,13 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
 
 void QProcessPrivate::killProcess()
 {
-    if (pid)
+    if (pid) {
+        if (PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0)) {
+            if (WaitForSingleObject(pid->hProcess, SLEEPMIN * 2) == WAIT_OBJECT_0)
+                return;
+        }
         TerminateProcess(pid->hProcess, 0xf291);
+    }
 }
 
 bool QProcessPrivate::waitForStarted(int)
@@ -456,14 +463,14 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         nextSleep = qMax(nextSleep, 0);
 
         if (!pid)
-            break;
-        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+            return false;
+        if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             // find the return value if there is noew data to read
-            bool ret = processChannel == QProcess::StandardOutput ? bytesAvailableFromStdout() != 0
-                                                                  : bytesAvailableFromStderr() != 0;
             processDied();
-            return ret;
+            return false;
         }
+
+        Sleep(nextSleep);
         nextSleep *= 2;
     }
 
@@ -499,7 +506,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
         }
         
         if (!pid)
-            break;
+            return false;
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             processDied();
             return false;
