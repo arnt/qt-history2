@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#344 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#345 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1524,6 +1524,9 @@ void QWidget::erase( const QRegion& reg )
   pixels downwards.  If \e dx/dy is negative, the scroll direction is
   leftwards/upwards.  Child widgets are moved accordingly.
 
+  \warning You might find that QScrollView offers a higher-level of
+	functionality than using this function.
+
   The areas of the widget that are exposed will be erased and
   \link paintEvent() paint events\endlink may be generated immediately,
   or after some further event processing.
@@ -1537,23 +1540,49 @@ void QWidget::erase( const QRegion& reg )
 
 void QWidget::scroll( int dx, int dy )
 {
-    int x1, y1, x2, y2, w=crect.width(), h=crect.height();
+    scroll( dx, dy, QRect() );
+}
+
+/*!
+  Scrolls the area \a r of this widget \a dx pixels rightwards and \a dy
+  pixels downwards.  If \e dx/dy is negative, the scroll direction is
+  leftwards/upwards.  Child widgets are not moved.
+
+  \warning You might find that QScrollView offers a higher-level of
+	functionality than using this function.
+
+  The areas of the widget that are exposed will be erased and
+  \link paintEvent() paint events\endlink may be generated immediately,
+  or after some further event processing.
+
+  \warning If you call scroll() in a function which may itself be
+  called from the moveEvent() or paintEvent() of a direct child of the
+  widget being scrolled, you may see infinite recursion.
+
+  \sa erase(), bitBlt()
+*/
+void QWidget::scroll( int dx, int dy, const QRect& r )
+{
+    bool valid_rect = r.isValid();
+    if ( !valid_rect )
+	r = rect();
+    int x1, y1, x2, y2, w=r.width(), h=r.height();
     if ( dx > 0 ) {
-	x1 = 0;
-	x2 = dx;
+	x1 = r.x();
+	x2 = x1+dx;
 	w -= dx;
     } else {
-	x1 = -dx;
-	x2 = 0;
+	x2 = r.x();
+	x1 = x2-dx;
 	w += dx;
     }
     if ( dy > 0 ) {
-	y1 = 0;
-	y2 = dy;
+	y1 = r.y();
+	y2 = y1+dy;
 	h -= dy;
     } else {
-	y1 = -dy;
-	y2 = 0;
+	y2 = r.y();
+	y1 = y2-dy;
 	h += dy;
     }
 
@@ -1567,7 +1596,7 @@ void QWidget::scroll( int dx, int dy )
     XCopyArea( dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
     XSetGraphicsExposures( dpy, gc, FALSE );
 
-    if ( children() ) {				// scroll children
+    if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -1585,23 +1614,21 @@ void QWidget::scroll( int dx, int dy )
     bool repaint_immediately = qt_sip_count( this ) < 3;
 
     if ( dx ) {
-	x1 = x2 == 0 ? w : 0;
+	int x = x2 == r.x() ? r.x()+w : r.x();
 	if ( repaint_immediately )
-	    repaint( x1, 0, crect.width()-w, crect.height(), TRUE );
+	    repaint( x, r.y(), abs(dx), r.height(), TRUE );
 	else
-	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(),
-			TRUE);
+	    XClearArea( dpy, winid, x, r.y(), abs(dx), r.height(), TRUE );
     }
     if ( dy ) {
-	y1 = y2 == 0 ? h : 0;
+	int y = y2 == r.y() ? r.y()+h : r.y();
 	if ( repaint_immediately )
-	    repaint( 0, y1, crect.width(), crect.height()-h, TRUE );
+	    repaint( r.x(), y, r.width(), abs(dy), TRUE );
 	else
-	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h,
-		       TRUE );
+	    XClearArea( dpy, winid, r.x(), y, r.width(), abs(dy), TRUE );
     }
 
-    qt_insert_sip( this, dx, dy );
+    qt_insert_sip( this, dx, dy ); // #### ignores r
 }
 
 

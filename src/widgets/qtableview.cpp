@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#108 $
 **
 ** Implementation of QTableView class
 **
@@ -1784,7 +1784,11 @@ bool QTableView::colXPos( int col, int *xPos ) const
   Moves the visible area of the table rightwards by \e xPixels and
   downwards by \e yPixels pixels.  Both may be negative.
 
-  This function is \e not the same as QWidget::scroll().
+  \warning You might find that QScrollView offers a higher-level of
+	functionality than using QTableView and this function.
+
+  This function is \e not the same as QWidget::scroll(), in particular,
+  the signs of \a xPixels and \a yPixels have the reverse semantics.
 
   \sa setXOffset(), setYOffset(), setOffset(), setTopCell(),
   setLeftCell(), setTopLeftOffset()
@@ -1792,118 +1796,7 @@ bool QTableView::colXPos( int col, int *xPos ) const
 
 void QTableView::scroll( int xPixels, int yPixels )
 {
-    if ( xPixels == 0 && yPixels == 0 )
-	return;
-    if ( xPixels != 0 && yPixels != 0 ||
-	 QABS(xPixels) > viewWidth() || QABS(yPixels) > viewHeight() ) {
-	repaint();
-	return;
-    }
-
-    int xStart, yStart, width, height;
-
-    if ( xPixels != 0 ) {
-	yStart = minViewY();
-	height = viewHeight();
-	xStart = xPixels < 0 ? minViewX() : minViewX() + xPixels;
-
-	width = viewWidth() - QABS(xPixels);
-
-	// If we are cutting cells horizontally
-	// the rightmost limit for drawing will vary
-	// this makes scrolling tricky since we might
-	// have to erase an area no longer used for
-	// cell drawing.
-
-	int oldLim;
-#if 0
-	int newLim;
-#endif
-	if ( testTableFlags(Tbl_cutCellsH) ) {
-	    int maxX = maxViewX();
-	    int oldLastMaxX, oldLastMinX;
-	    int newLastMaxX, newLastMinX;
-	    findRawCol( maxX - xPixels,
-			&oldLastMaxX, &oldLastMinX, TRUE );
-	    findRawCol( maxX,&newLastMaxX, &newLastMinX, TRUE );
-	    oldLastMaxX += xPixels;
-	    oldLastMinX += xPixels;
-	    oldLim = oldLastMaxX <= maxX ? oldLastMaxX : oldLastMinX - 1;
-#if 0
-	    newLim = newLastMaxX <= maxX ? newLastMaxX : newLastMinX - 1;
-#endif
-	    width -= maxX - oldLim;
-
-	    bitBlt( this, xStart - xPixels, yStart,
-		    this, xStart, yStart, width, height );
-
-	    if ( xPixels < 0 )
-		repaint( minViewX(), yStart, -xPixels, height );
-	    else
-		repaint( minViewX() + width, yStart,
-			 maxX - minViewX() - width, height );
-	} else {
-	    bitBlt( this, xStart - xPixels, yStart,
-		    this, xStart, yStart, width, height );
-	    if ( xPixels < 0 )
-		repaint( minViewX(), yStart, -xPixels, height );
-	    else
-		repaint( minViewX() + width, yStart, xPixels, height );
-	}
-    }
-
-    if ( yPixels != 0 ) {
-	xStart = minViewY();
-	width  = viewWidth();
-	yStart = yPixels < 0 ? minViewY() : minViewY() + yPixels;
-
-	height = viewHeight() - QABS(yPixels);
-
-      // If we are cutting cells vertically
-      // the lower limit for drawing will vary
-      // this makes scrolling tricky since we might
-      // have to erase an area no longer used for
-      // cell drawing.
-
-	int oldLim;
-#if 0
-	int newLim;
-#endif
-	if ( testTableFlags(Tbl_cutCellsV) ) {
-	    int maxY = maxViewY();
-	    int oldLastMaxY, oldLastMinY;
-	    int newLastMaxY, newLastMinY;
-	    findRawRow( maxY - yPixels,
-			&oldLastMaxY, &oldLastMinY, TRUE );
-	    findRawRow( maxY,&newLastMaxY, &newLastMinY, TRUE );
-	    oldLastMaxY += yPixels;
-	    oldLastMinY += yPixels;
-	    oldLim = oldLastMaxY <= maxY ? oldLastMaxY : oldLastMinY - 1;
-#if 0
-	    newLim = newLastMaxY <= maxY ? newLastMaxY : newLastMinY - 1;
-#endif
-	    height -= maxY - oldLim;
-
-	    bitBlt( this, xStart, yStart - yPixels,
-		    this, xStart, yStart, width, height );
-
-	    if ( yPixels < 0 ) {
-		repaint( xStart, minViewY(), width, -yPixels );
-	    } else {
-		repaint( xStart, minViewY() + height,
-			 width, maxY - minViewY() - height );
-	    }
-	} else {
-	    bitBlt( this, xStart, yStart - yPixels,
-		    this, xStart, yStart, width, height );
-
-	    if ( yPixels < 0 ) {
-		repaint( xStart, minViewY(), width, -yPixels );
-	    } else {
-		repaint( xStart, minViewY() + height, width, yPixels );
-	    }
-	}
-    }
+    QWidget::scroll( -xPixels, -yPixels, contentsRect() );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#188 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -388,6 +388,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setFontSys()
 {
+    // SendIMEMessageEx( IME_SETCONVERSIONFONTEX ); ...
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height)
@@ -396,6 +397,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height)
     // caret are the location is moved.
     CreateCaret( winId(), 0, width, height );
     SetCaretPos( x, y );
+    // SendIMEMessageEx( IME_SETCONVERSIONWINDOW ); ...
 }
 
 void QWidget::setSizeGrip(bool /* sizegrip */)
@@ -912,7 +914,20 @@ void QWidget::erase( const QRegion& rgn )
 
 void QWidget::scroll( int dx, int dy )
 {
+    // maybe scroll(dx,dy,rect()) ?
+
     ScrollWindow( winId(), dx, dy, 0, 0 );
+    UpdateWindow( winId() );
+}
+
+void QWidget::scroll( int dx, int dy, const QRect& r )
+{
+    RECT wr;
+    wr.x = r.x();
+    wr.y = r.y();
+    wr.width = r.width();
+    wr.height = r.height();
+    ScrollWindow( winId(), dx, dy, &wr, &wr );
     UpdateWindow( winId() );
 }
 
