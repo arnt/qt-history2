@@ -193,6 +193,7 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, QGlyphLayout *
 
 QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
 {
+    paintDevice = FALSE;
     //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
 
     _name = name;
