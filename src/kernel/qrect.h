@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#4 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#5 $
 **
 ** Definition of QRect class
 **
@@ -156,7 +156,7 @@ inline QPoint QRect::center() const
 
 inline bool QRect::isNull() const
 {
-    return x1 == x2-1 && y1 == y2-1;
+    return x2 == x1-1 && y2 == y1-1;
 }
 
 inline bool QRect::isEmpty() const

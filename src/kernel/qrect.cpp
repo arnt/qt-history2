@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#5 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#5 $";
 #endif
 
 
@@ -65,7 +65,7 @@ QRect::QRect( QCOOT left, QCOOT top, QCOOT width, QCOOT height )
 
 bool QRect::isNull() const
 {
-    return x1 == x2-1 && y1 == y2-1;
+    return x2 == x1-1 && y2 == y1-1;
 }
 
 bool QRect::isEmpty() const
