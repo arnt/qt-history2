@@ -759,12 +759,12 @@ bool QTextCursor::hasSelection() const
 
 
 /*!
-    Returns true if the cursor contains a selection and the selection is simple a range
-    from selectionStart() to selectionEnd(); otherwise returns false.
+    Returns true if the cursor contains a selection and the selection
+    is simple a range from selectionStart() to selectionEnd();
+    otherwise returns false.
 
-    Complex selections can currently only appear if table cells over
-    more than one row are selected. In this case the selected range of table
-    cells in the current table can be retrieved with selectedTableCells().
+    Complex selections are ones that span at least two rows of cells
+    in a table; their extent is given by selectedTableCells().
 */
 bool QTextCursor::hasComplexSelection() const
 {
@@ -788,8 +788,12 @@ bool QTextCursor::hasComplexSelection() const
 }
 
 /*!
-  If the selection spans over table cells, the arguments are set to the range of cells selected in the
-  table. Otherwise all arguments are set to -1.
+    If the selection spans over table cells, \a firstRow is populated
+    with the number of the first row in the selection, \a firstColumn
+    with the number of the first column in the selection, and \a
+    numRows and \a numColumns with the number of rows and columns in
+    the selection. If the selection does not span any table cells the
+    results are harmless but undefined.
 */
 void QTextCursor::selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const
 {
@@ -890,7 +894,7 @@ static void getText(QString &text, QTextDocumentPrivate *priv, const QString &do
 /*!
     Returns the current selection's text (which may be empty). This
     only returns the text, with no formatting information. If you want
-    a document fragment use selection() instead.
+    a document fragment (i.e. formatted text) use selection() instead.
 */
 QString QTextCursor::selectedText() const
 {
@@ -933,9 +937,9 @@ QString QTextCursor::selectedText() const
 }
 
 /*!
-    Returns the current selection (which may be empty). If you just
-    want the selected text, i.e. without formatting information, use
-    selectedText() instead.
+    Returns the current selection (which may be empty) with all its
+    formatting information. If you just want the selected text, i.e.
+    plain text, use selectedText() instead.
 */
 QTextDocumentFragment QTextCursor::selection() const
 {

@@ -283,8 +283,6 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     \value AnchorHref
     \value AnchorName
 
-    \value NonDeletable
-
     \value ObjectType
 
     List properties
@@ -998,23 +996,6 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 
     Returns the text format's hypertext link's name, or an empty
     string if none has been set.
-*/
-
-
-/*!
-    \fn void QTextCharFormat::setNonDeletable(bool d)
-
-    If \a d is true, the characters formatted by this character format
-    cannot be deleted by the user; otherwise they can be deleted
-    normally.
-*/
-
-
-/*!
-    \fn bool QTextCharFormat::nonDeletable() const
-
-    Returns true if characters in this character format cannot be
-    deleted; otherwise returns false.
 */
 
 

@@ -76,7 +76,9 @@ bool QText::mightBeRichText(const QString& text)
     You can retrieve the contents of the document using plainText() or
     html(). If you want the text with format information, or wish to
     edit the text, use a QTextCursor The text can be searched using
-    the find() functions.
+    the find() functions. If you want to iterate over the contents of
+    the document you can use begin(), end(), or findBlock() to
+    retrieve a QTextBlock that you can query and iterate from.
 
     Undo/redo can be controlled using setUndoRedoEnabled(). undo() and
     redo() slots are provided, along with contentsChanged(),
@@ -297,12 +299,14 @@ void QTextDocument::setHtml(const QString &html)
 }
 
 /*!
+    \fn QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options) const
+
     \overload
 
     Finds the next occurrence of the string, \a expr, starting at
-    position \a from, using the given string comparison \a flags.
-    Returns a cursor with the match selected if \a expr was found;
-    otherwise returns a null cursor.
+    position \a from, using the given \a options. Returns a cursor
+    with the match selected if \a expr was found; otherwise returns a
+    null cursor.
 
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
@@ -358,9 +362,9 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
 
 /*!
     Finds the next occurrence of the string, \a expr, starting at
-    position \a from, using the given string comparison \a flags.
-    Returns a cursor with the match selected if \a expr was found;
-    otherwise returns a null cursor.
+    position \a from, using the given \a options. Returns a cursor
+    with the match selected if \a expr was found; otherwise returns a
+    null cursor.
 
     If the \a from cursor has a selection the search begins after the
     selection; otherwise from the position of the cursor.
@@ -412,27 +416,38 @@ QTextFrame *QTextDocument::rootFrame() const
     return d->rootFrame();
 }
 
+// ### DOC: Give us a clue!
 QTextObject *QTextDocument::object(int objectIndex) const
 {
     return d->objectForIndex(objectIndex);
 }
 
+// ### DOC: Give us a clue!
 QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
 {
     return d->objectForFormat(f);
 }
 
 
+/*!
+    Returns the text block that contains the \a{pos}-th character.
+*/
 QTextBlock QTextDocument::findBlock(int pos) const
 {
     return QTextBlock(docHandle(), d->blockMap().findNode(pos));
 }
 
+/*!
+    Returns the document's first text block.
+*/
 QTextBlock QTextDocument::begin() const
 {
     return QTextBlock(docHandle(), d->blockMap().begin().n);
 }
 
+/*!
+    Returns the document's last text block.
+*/
 QTextBlock QTextDocument::end() const
 {
     return QTextBlock(docHandle(), 0);

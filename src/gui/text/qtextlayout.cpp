@@ -595,20 +595,26 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
 
 /*!
-  \class QTextLine
+    \class QTextLine
+    \brief The QTextLine class represents a line of text inside a QTextLayout.
 
-  \ingroup text
+    \ingroup text
 
-  This class represents a line of text inside a QtextLayout.
+    A text line is usually created by QTextLayout::createLine().
 
-  A line of text can be created using QTextLayout::createLine().
-
-  After being created, the line can be filled using the layout(int
-  width) method.
+    After being created, the line can be filled using the layout()
+    function. A line has a number of attributes including
+    the rectangle it occupies, rect(), its coordinates, x() and y(),
+    its length(), width() and textWidth(), and its ascent() and
+    decent() relative to the text. The position of the cursor in terms
+    of the line is available from cursorToX() and its inverse from
+    xToCursor(). A line can be moved with setPosition().
 */
 
 /*!
-  returns the bounding rectangle of the line.
+    Returns the line's bounding rectangle.
+
+    \sa x() y() length() width()
 */
 QRect QTextLine::rect() const
 {
@@ -617,7 +623,9 @@ QRect QTextLine::rect() const
 }
 
 /*!
-  the x position of the line.
+    Returns the line's x position.
+
+    \sa rect() y() length() width()
 */
 int QTextLine::x() const
 {
@@ -625,7 +633,9 @@ int QTextLine::x() const
 }
 
 /*!
-  the y position of the line.
+    Returns the line's y position.
+
+    \sa x() rect() length() width()
 */
 int QTextLine::y() const
 {
@@ -633,7 +643,9 @@ int QTextLine::y() const
 }
 
 /*!
-  the width position of the line as specified by the layout() method.
+    Returns the line's width as specified by the layout() function.
+
+    \sa textWidth() x() y() length() rect()
 */
 int QTextLine::width() const
 {
@@ -642,7 +654,9 @@ int QTextLine::width() const
 
 
 /*!
-  the ascent of the line.
+    Returns the line's ascent.
+
+    \sa descent()
 */
 int QTextLine::ascent() const
 {
@@ -650,7 +664,9 @@ int QTextLine::ascent() const
 }
 
 /*!
-  the descent of the line.
+    Returns the line's descent.
+
+    \sa ascent()
 */
 int QTextLine::descent() const
 {
@@ -658,11 +674,9 @@ int QTextLine::descent() const
 }
 
 /*!
-  the actual space of the line that is occupied by text. This is
-  always smaller or equals to width().
-
-  textWidth() equals the minimum width one could use in layout() that would result
-  in the same line break position .
+    Returns the width of the line that is occupied by text. This is
+    always \<= to width(), and is the minimum width that could be used
+    by layout() without changing the line break position.
 */
 int QTextLine::textWidth() const
 {
@@ -670,8 +684,9 @@ int QTextLine::textWidth() const
 }
 
 /*!
-  layout the line with a width of \a width. The line is filled from
-  it's starting position with as many character as fit into the line.
+    Lays out the line with the given \a width. The line is filled from
+    it's starting position with as many characters as will fit into
+    the line depending on the break \a mode.
 */
 void QTextLine::layout(int width, BreakMode mode)
 {
@@ -814,7 +829,7 @@ void QTextLine::layout(int width, BreakMode mode)
 }
 
 /*!
-  Move the line to position \a pos.
+    Moves the line to position \a pos.
 */
 void QTextLine::setPosition(const QPoint &pos)
 {
@@ -822,8 +837,10 @@ void QTextLine::setPosition(const QPoint &pos)
     eng->lines[i].y = pos.y();
 }
 
+// ### DOC: I have no idea what this means/does.
 /*!
-  The start of the line from the beginning of the string passed to the QTextLayout.
+    Returns the start of the line from the beginning of the string
+    passed to the QTextLayout.
 */
 int QTextLine::from() const
 {
@@ -831,16 +848,19 @@ int QTextLine::from() const
 }
 
 /*!
-  The length of the text in the line.
+    Returns the length of the text in the line.
+
+    \sa textWidth()
 */
 int QTextLine::length() const
 {
     return eng->lines[i].length;
 }
 
+// ### DOC: You can't draw a line with only one point, so how does this work?
 /*!
-  Draws the line to the painter at position \a xpos /\a ypos. \a
-  selection is reserved for internal use.
+    Draws a line on painter \a p at position \a xpos, \a ypos. \a
+    selection is reserved for internal use.
 */
 void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 {
@@ -981,10 +1001,13 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 
 
 /*!
-  Converts the cursor position cPos to the corresponding x position inside the line.
+    Converts the cursor position \c cPos to the corresponding x position
+    inside the line, taking account of the \a edge.
 
-  If cPos does not point to a valid cursor position it will be
-  adjusted to the next valid cursor position.
+    If \c cPos is not a valid cursor position, the nearest valid
+    cursor position will be used instead.
+
+    \sa xToCursor()
 */
 int QTextLine::cursorToX(int *cPos, Edge edge) const
 {
@@ -1091,7 +1114,10 @@ int QTextLine::cursorToX(int *cPos, Edge edge) const
 }
 
 /*!
-  Converts a x coordinate to the nearest matching cursor position.
+    Converts the x-coordinate \a xpos, to the nearest matching cursor
+    position, depending on the cursor position type, \a cpos.
+
+    \sa cursorToX()
 */
 int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
 {
