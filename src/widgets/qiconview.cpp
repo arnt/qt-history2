@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#49 $
 **
 ** Definition of QIconView widget class
 **
@@ -1141,7 +1141,6 @@ void QIconViewItem::dragLeft()
   are: <ul>
 
   <li> \c Fixed - the icons' positions are not changed.
-
   <li> \c Adjust - the icons' positions are adjusted to be within the
   new geometry, if possible.
 
@@ -1166,8 +1165,8 @@ void QIconViewItem::dragLeft()
    screen anymore flow.
 
    <ul>
-   <li> East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
-   <li> South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
+   <li> \c East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
+   <li> \c South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
    </ul>
 */
 
