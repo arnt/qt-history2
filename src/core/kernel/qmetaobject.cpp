@@ -85,31 +85,32 @@
     Returns true if this property is readable; otherwise returns false.
 */
 
+// do not touch without touching the moc as well
 enum ProperyFlags  {
-    Invalid              = 0x00000000,
-    Readable             = 0x00000001,
-    Writable             = 0x00000002,
-    Resetable            = 0x00000004,
-    EnumOrFlag           = 0x00000008,
-    StdCppSet            = 0x00000100,
-    Override             = 0x00000200,
-    Designable           = 0x00001000,
-    ResolveDesignable    = 0x00002000,
-    Scriptable           = 0x00004000,
-    ResolveScriptable    = 0x00008000,
-    Stored               = 0x00010000,
-    ResolveStored        = 0x00020000,
-    Editable             = 0x00040000,
-    ResolveEditable      = 0x00080000
+    Invalid = 0x00000000,
+    Readable = 0x00000001,
+    Writable = 0x00000002,
+    Resetable = 0x00000004,
+    EnumOrFlag = 0x00000008,
+    StdCppSet = 0x00000100,
+    Override = 0x00000200,
+    Designable = 0x00001000,
+    ResolveDesignable = 0x00002000,
+    Scriptable = 0x00004000,
+    ResolveScriptable = 0x00008000,
+    Stored = 0x00010000,
+    ResolveStored = 0x00020000,
+    Editable = 0x00040000,
+    ResolveEditable = 0x00080000
 };
 
 enum FunctionFlags  {
-    AccessPrivate         = 0x01,
-    AccessPublic          = 0x02,
-    AccessProtected       = 0x04,
-    AccessMask            = 0x07, //mask
-    Compatability         = QMetaMember::Compatability,
-    Cloned                = QMetaMember::Cloned
+    AccessPrivate = 0x01,
+    AccessPublic = 0x02,
+    AccessProtected = 0x04,
+    AccessMask = 0x07, //mask
+    Compatability = QMetaMember::Compatability,
+    Cloned = QMetaMember::Cloned
 };
 
 struct QMetaObjectPrivate
@@ -1125,7 +1126,7 @@ const char *QMetaProperty::typeName() const
 }
 
 /*!
-    Returns this property's type. The return value is one 
+    Returns this property's type. The return value is one
     of the values of the QCoreVariant::Type enumeration, or
     -1 for properties of type QVariant.
 */
