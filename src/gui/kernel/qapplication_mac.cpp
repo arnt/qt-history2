@@ -1,4 +1,3 @@
-//depot/qt/main/src/gui/kernel/qapplication_mac.cpp#118 - edit change 157749 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -509,31 +508,6 @@ void qt_mac_update_os_settings()
 #endif
 }
 
-/* Event masks */
-// internal Qt types
-const UInt32 kEventClassQt = 'cute';
-enum {
-    //AE types
-    typeAEClipboardChanged = 1,
-    //types
-    typeQWidget = 1,  /* QWidget *  */
-    typeMacTimerInfo = 2, /* MacTimerInfo * */
-    typeQEventDispatcherMac = 3, /* QEventDispatcherMac * */
-    //params
-    kEventParamMacTimer = 'qtim',     /* typeMacTimerInfo */
-    kEventParamQWidget = 'qwid',   /* typeQWidget */
-    kEventParamQEventDispatcherMac = 'qevd', /* typeQEventDispatcherMac */
-    //events
-    kEventQtRequestSelect = 12,
-    kEventQtRequestContext = 13,
-    kEventQtRequestMenubarUpdate = 14,
-    kEventQtRequestTimer = 15,
-    kEventQtRequestWakeup = 16,
-    kEventQtRequestShowSheet = 17,
-    kEventQtRequestActivate = 18,
-    kEventQtRequestSocketAct = 19,
-    kEventQtRequestWindowChange = 20
-};
 static void qt_mac_event_release(EventRef &event)
 {
     ReleaseEvent(event);
@@ -1648,17 +1622,6 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 {
     if(flags != QEventLoop::AllEvents) {
         UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-        if(flags & QEventLoop::ExcludeUserInputEvents) {
-            switch(eclass) {
-            case kEventClassQt:
-                if(ekind == kEventQtRequestContext)
-                    return false;
-                break;
-            case kEventClassMouse:
-            case kEventClassKeyboard:
-                return false;
-            }
-        }
         if(flags & QEventLoop::ExcludeSocketNotifiers) {
             switch(eclass) {
             case kEventClassQt:

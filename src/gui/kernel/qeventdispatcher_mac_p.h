@@ -89,6 +89,7 @@ public:
     int activateTimers();
 
     QHash<QSocketNotifier *, MacSocketInfo *> *macSockets;
+    QList<EventRef> queuedUserInputEvents;
 };
 
 #endif // QEVENTDISPATCHER_MAC_P_H

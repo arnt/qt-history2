@@ -38,6 +38,32 @@
 #include "qwidget.h"
 #include "private/qwidget_p.h"
 
+/* Event masks */
+// internal Qt types
+const UInt32 kEventClassQt = 'cute'; // Event class for our own Carbon events.
+enum {
+    //AE types
+    typeAEClipboardChanged = 1,
+    //types
+    typeQWidget = 1,  /* QWidget *  */
+    typeMacTimerInfo = 2, /* MacTimerInfo * */
+    typeQEventDispatcherMac = 3, /* QEventDispatcherMac * */
+    //params
+    kEventParamMacTimer = 'qtim',     /* typeMacTimerInfo */
+    kEventParamQWidget = 'qwid',   /* typeQWidget */
+    kEventParamQEventDispatcherMac = 'qevd', /* typeQEventDispatcherMac */
+    //events
+    kEventQtRequestSelect = 12,
+    kEventQtRequestContext = 13,
+    kEventQtRequestMenubarUpdate = 14,
+    kEventQtRequestTimer = 15,
+    kEventQtRequestWakeup = 16,
+    kEventQtRequestShowSheet = 17,
+    kEventQtRequestActivate = 18,
+    kEventQtRequestSocketAct = 19,
+    kEventQtRequestWindowChange = 20
+};
+
 class QMacBlockingFunction //implemented in qeventloop_mac.cpp
 {
 private:

@@ -369,8 +369,31 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 
         do {
             EventRef event;
-            if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event) != noErr)
-                break;
+            if (!(flags & QEventLoop::ExcludeUserInputEvents)
+                    && !d->queuedUserInputEvents.isEmpty()) {
+                // process a pending user input event
+                event = d->queuedUserInputEvents.takeFirst();
+            } else {
+                if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event)
+                      != noErr)
+                    break;
+                // else
+                if (flags & QEventLoop::ExcludeUserInputEvents) {
+                     UInt32 ekind = GetEventKind(event),
+                            eclass = GetEventClass(event);
+                     switch(eclass) {
+                         case kEventClassQt:
+                             if(ekind != kEventQtRequestContext)
+                                 break;
+                             // fall through
+                         case kEventClassMouse:
+                         case kEventClassKeyboard:
+                             d->queuedUserInputEvents.append(event);
+                             continue;
+                     }
+                }
+            }
+
             if (!filterEvent(&event) && qt_mac_send_event(flags, event))
                 retVal = true;
             ReleaseEvent(event);
@@ -389,7 +412,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         } else {
             break;
         }
-    } 
+    }
     d->interrupt = false;
     return retVal;
 }
