@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#22 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#22 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -487,6 +487,18 @@ void QTipManager::hideTip()
   lets the mouse rest within the same rectangle again.  You can
   forcibly remove the tip by calling remove() with no arguments.  This
   is handy if the widget scrolls.
+*/
+
+
+/*! \class QToolTipGroup qtooltip.h
+
+  \brief The QToolTipGroup class provides a way to group tool tips
+  into natural groups.
+
+  Tool tips can display \e two texts, the one in the tip an optionally
+  another one, typically in a status bar.  QTooTipGroup provides a way
+  to link tool tips to this status bar.
+
 */
 
 
