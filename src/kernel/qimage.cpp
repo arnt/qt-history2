@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#146 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#145 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#146 $");
 
 
 /*!
@@ -427,10 +427,11 @@ void QImage::setColor( int i, QRgb c )
   The scanline data is aligned on a 32-bit boundary.
 
   \warning If you are accessing 32-bpp image data, cast the returned
-  pointer to \c uint* and use it to read/write the pixel value. You cannot
-  use the \c uchar* pointer directly, because the pixel format depends on
-  the byte order on the underlying platform. Hint: use \link ::qRgb()
-  qRgb()\endlink and friends (qcolor.h) to access the pixels.
+  pointer to \c QRgb* (QRgb has a 32 bit size) and use it to read/write
+  the pixel value. You cannot use the \c uchar* pointer directly, because
+  the pixel format depends on the byte order on the underlying
+  platform. Hint: use \link ::qRed() qRed()\endlink and friends (qcolor.h)
+  to access the pixels.
 
   \sa bits()
 */
