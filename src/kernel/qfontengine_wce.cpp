@@ -5,6 +5,8 @@
 #include <qpainter.h>
 
 #include <qpaintdevice.h>
+#include <private/qunicodetables_p.h>
+
 #include <limits.h>
 
 // ### Probably don't need this
@@ -93,15 +95,20 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
 }
 
-QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances,
+						 int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
-    for ( int i = 0; i < len; i++ ) {
-	glyphs[i] = str[i].unicode();
+    if ( mirrored ) {
+	for ( int i = 0; i < len; i++ )
+	    glyphs[i] = ::mirroredChar(str[i]).unicode();
+    } else {
+	for ( int i = 0; i < len; i++ )
+	    glyphs[i] = str[i].unicode();
     }
 
     if ( advances ) {
@@ -130,7 +137,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     if ( p->txop == QPainter::TxTranslate ) {
 	p->map( x, y, &x, &y );
     }
-    
+
     y -= ascent();
 
     if ( !(si->analysis.bidiLevel % 2) ) {
@@ -244,7 +251,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;

@@ -386,7 +386,7 @@ int QFontMetrics::width( QChar ch ) const
     advance_t advances[8];
 
     int nglyphs = 7;
-    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
 
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );

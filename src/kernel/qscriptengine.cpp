@@ -275,10 +275,10 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
 
     si->num_glyphs = len;
     engine->ensureSpace( len );
-    int error = si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs );
+    int error = si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     if ( error == QFontEngine::OutOfMemory ) {
 	engine->ensureSpace( si->num_glyphs );
-	si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs );
+	si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     }
 }
 

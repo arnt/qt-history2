@@ -44,7 +44,8 @@ int QFontEngine::underlinePosition() const
 
 //Mac (ATSUI) engine
 QFontEngine::Error
-QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs) const
+QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs,
+			     bool /*mirrored*/) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;

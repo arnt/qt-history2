@@ -15,6 +15,8 @@
 #include "qfont.h"
 #include "qtextengine_p.h"
 
+#include <private/qunicodetables_p.h>
+
 #include <limits.h>
 
 // defined in qfontdatbase_x11.cpp
@@ -80,7 +82,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -281,7 +283,7 @@ QFontEngineXLFD::~QFontEngineXLFD()
     }
 }
 
-QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -297,10 +299,10 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
 	    }
 
 	QChar *chars = (QChar *)str;
-	if ( haveNbsp ) {
+	if ( haveNbsp || mirrored ) {
 	    chars = (QChar *)malloc( len*sizeof(QChar) );
 	    for ( int i = 0; i < len; i++ )
-		chars[i] = ( str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode() );
+		chars[i] = ( str[i].unicode() == 0xa0 ? 0x20 : ::mirroredChar(str[i]).unicode() );
 	}
 	_codec->fromUnicodeInternal( chars, glyphs, len );
 	if ( haveNbsp )
@@ -308,8 +310,12 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
     } else {
 	glyph_t *g = glyphs + len;
 	const QChar *c = str + len;
-	while ( c != str ) {
-	    *(--g) = (--c)->unicode() == 0xa0 ? 0x20 : c->unicode();
+	if ( mirrored ) {
+	    while ( c != str )
+		*(--g) = (--c)->unicode() == 0xa0 ? 0x20 : ::mirroredChar(*c).unicode();
+	} else {
+	    while ( c != str )
+		*(--g) = (--c)->unicode() == 0xa0 ? 0x20 : c->unicode();
 	}
     }
     *nglyphs = len;
@@ -744,9 +750,9 @@ bool QFontEngineXLFD::canRender( const QChar *string, int len )
     glyph_t glyphs[256];
     int nglyphs = 255;
     glyph_t *g = glyphs;
-    if ( stringToCMap( string, len, g, 0, &nglyphs ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, g, 0, &nglyphs, FALSE ) == OutOfMemory ) {
 	g = (glyph_t *)malloc( nglyphs*sizeof(glyph_t) );
-	stringToCMap( string, len, g, 0, &nglyphs );
+	stringToCMap( string, len, g, 0, &nglyphs, FALSE );
     }
 
     bool allExist = TRUE;
@@ -797,7 +803,7 @@ QFontEngineLatinXLFD::QFontEngineLatinXLFD( XFontStruct *xfs, const char *name,
 	chars[i] = i;
     int glyphCount = 0x200;
     _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
-			       glyphIndices, glyphAdvances, &glyphCount );
+			       glyphIndices, glyphAdvances, &glyphCount, FALSE );
 }
 
 QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
@@ -884,7 +890,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     for ( i = 0; i < 0x200; ++i )
 	chars[i] = i;
     int glyphCount = 0x200;
-    engine->stringToCMap( (const QChar *) chars, 0x200, glyphs, advances, &glyphCount );
+    engine->stringToCMap( (const QChar *) chars, 0x200, glyphs, advances, &glyphCount, FALSE );
 
     // merge member data with the above
     for ( i = 0; i < 0x200; ++i ) {
@@ -897,7 +903,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
 
 QFontEngine::Error
 QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
-				    advance_t *advances, int *nglyphs ) const
+				    advance_t *advances, int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -911,27 +917,55 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
     if ( advances ) {
 	int asc = ascent();
 	advance_t *a = advances+len;
-	while ( c != str ) {
-	    --c;
-	    --g;
-	    --a;
-	    if ( c->unicode() < 0x200 ) {
-		*g = glyphIndices[c->unicode()];
-		*a = glyphAdvances[c->unicode()];
-	    } else {
-		// #### fix for Euro et al.
-		*g = 0;
-		*a = asc;
+	if ( mirrored ) {
+	    while ( c != str ) {
+		--c;
+		--g;
+		--a;
+		if ( c->unicode() < 0x200 ) {
+		    unsigned short ch = ::mirroredChar(*c).unicode();
+		    *g = glyphIndices[ch];
+		    *a = glyphAdvances[ch];
+		} else {
+		    // #### fix for Euro et al.
+		    *g = 0;
+		    *a = asc;
+		}
+		missing = ( missing || ( *g == 0 ) );
 	    }
-	    missing = ( missing || ( *g == 0 ) );
+	} else {
+	    while ( c != str ) {
+		--c;
+		--g;
+		--a;
+		if ( c->unicode() < 0x200 ) {
+		    *g = glyphIndices[c->unicode()];
+		    *a = glyphAdvances[c->unicode()];
+		} else {
+		    // #### fix for Euro et al.
+		    *g = 0;
+		    *a = asc;
+		}
+		missing = ( missing || ( *g == 0 ) );
+	    }
 	}
     } else {
-	while ( c != str ) {
-	    --c;
-	    --g;
-	    // ### fix for Euro et al.
-	    *g = ( ( c->unicode() < 0x200 ) ? glyphIndices[c->unicode()] : 0 );
-	    missing = ( missing || ( *g == 0 ) );
+	if ( mirrored ) {
+	    while ( c != str ) {
+		--c;
+		--g;
+		// ### fix for Euro et al.
+		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[::mirroredChar(*c).unicode()] : 0 );
+		missing = ( missing || ( *g == 0 ) );
+	    }
+	} else {
+	    while ( c != str ) {
+		--c;
+		--g;
+		// ### fix for Euro et al.
+		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[c->unicode()] : 0 );
+		missing = ( missing || ( *g == 0 ) );
+	    }
 	}
     }
 
@@ -1271,7 +1305,7 @@ QFontEngineXft::~QFontEngineXft()
     }
 }
 
-QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -1279,14 +1313,27 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     }
 
 #ifdef QT_XFT2
-    for ( int i = 0; i < len; ++i ) {
-	unsigned short uc = str[i].unicode();
-	glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
-	if ( !glyphs[i] ) {
-	    glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
-	    glyphs[i] = glyph;
-	    if ( uc < cmapCacheSize )
-		((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+    if ( mirrored ) {
+	for ( int i = 0; i < len; ++i ) {
+	    unsigned short uc = ::mirroredChar(str[i]).unicode();
+	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+	    if ( !glyphs[i] ) {
+		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
+		glyphs[i] = glyph;
+		if ( uc < cmapCacheSize )
+		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+	    }
+	}
+    } else {
+	for ( int i = 0; i < len; ++i ) {
+	    unsigned short uc = str[i].unicode();
+	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+	    if ( !glyphs[i] ) {
+		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
+		glyphs[i] = glyph;
+		if ( uc < cmapCacheSize )
+		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+	    }
 	}
     }
 
@@ -1309,17 +1356,35 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     }
 #else
     if ( !_face ) {
-	for ( int i = 0; i < len; i++ )
-	    glyphs[i] = str[i].unicode();
+	if ( mirrored ) {
+	    for ( int i = 0; i < len; i++ )
+		glyphs[i] = ::mirroredChar(str[i]).unicode();
+	} else {
+	    for ( int i = 0; i < len; i++ )
+		glyphs[i] = str[i].unicode();
+	}
     } else {
-	for ( int i = 0; i < len; i++ ) {
-	    unsigned short uc = str[i].unicode();
-	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
-	    if ( !glyphs[i] ) {
-		glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
-		glyphs[i] = glyph;
-		if ( uc < cmapCacheSize )
-		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+	if ( mirrored ) {
+	    for ( int i = 0; i < len; i++ ) {
+		unsigned short uc = ::mirroredChar(str[i]).unicode();
+		glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+		if ( !glyphs[i] ) {
+		    glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
+		    glyphs[i] = glyph;
+		    if ( uc < cmapCacheSize )
+			((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+		}
+	    }
+	} else {
+	    for ( int i = 0; i < len; i++ ) {
+		unsigned short uc = str[i].unicode();
+		glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+		if ( !glyphs[i] ) {
+		    glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
+		    glyphs[i] = glyph;
+		    if ( uc < cmapCacheSize )
+			((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+		}
 	    }
 	}
     }
@@ -1724,9 +1789,9 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
     glyph_t glyphs[256];
     int nglyphs = 255;
     glyph_t *g = glyphs;
-    if ( stringToCMap( string, len, g, 0, &nglyphs ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, g, 0, &nglyphs, false ) == OutOfMemory ) {
 	g = (glyph_t *)malloc( nglyphs*sizeof(glyph_t) );
-	stringToCMap( string, len, g, 0, &nglyphs );
+	stringToCMap( string, len, g, 0, &nglyphs, false );
     }
 
     for ( int i = 0; i < nglyphs; i++ ) {

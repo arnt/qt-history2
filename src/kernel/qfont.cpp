@@ -2119,7 +2119,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
     return gi.x;
@@ -2153,7 +2153,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
     return gi.xoff - gi.x - gi.width;
@@ -2204,7 +2204,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	    glyph_t glyphs[8];
 	    advance_t advances[8];
 	    int nglyphs = 7;
-	    engine->stringToCMap( ch, 1, glyphs, advances, &nglyphs );
+	    engine->stringToCMap( ch, 1, glyphs, advances, &nglyphs, FALSE );
 
 	    // ### can nglyphs != 1 happen at all? Not currently I think
 	    if ( uc < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
@@ -2333,7 +2333,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs, FALSE );
     glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }

@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <math.h>
 
+#include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
 #ifndef M_PI
@@ -117,19 +118,35 @@ void QFontEngine::getCMap()
     script_cache = 0;
 }
 
-void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs ) const
+void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const
 {
-    if ( ttf ) {
-	while( numChars-- ) {
-	    *glyphs = getGlyphIndex(cmap, ch->unicode() );
-	    glyphs++;
-	    ch++;
+    if ( mirrored ) {
+	if ( ttf ) {
+	    while( numChars-- ) {
+		*glyphs = getGlyphIndex(cmap, ::mirroredChar(*ch).unicode() );
+		glyphs++;
+		ch++;
+	    }
+	} else {
+	    while( numChars-- ) {
+		*glyphs = ::mirroredChar(*ch).unicode();
+		glyphs++;
+		ch++;
+	    }
 	}
     } else {
-	while( numChars-- ) {
-	    *glyphs = ch->unicode();
-	    glyphs++;
-	    ch++;
+	if ( ttf ) {
+	    while( numChars-- ) {
+		*glyphs = getGlyphIndex(cmap, ch->unicode() );
+		glyphs++;
+		ch++;
+	    }
+	} else {
+	    while( numChars-- ) {
+		*glyphs = ch->unicode();
+		glyphs++;
+		ch++;
+	    }
 	}
     }
 }
@@ -176,14 +193,14 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 }
 
 
-QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
-    getGlyphIndexes( str, len, glyphs );
+    getGlyphIndexes( str, len, glyphs, mirrored );
 
     if ( advances ) {
 	HDC hdc = dc();
@@ -719,7 +736,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;

@@ -3,6 +3,7 @@
 #include <private/qunicodetables_p.h>
 #include <qpainter.h>
 #include <qgfxraster_qws.h>
+#include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
 /*QMemoryManager::FontID*/ void *QFontEngine::handle() const
@@ -23,14 +24,19 @@ QFontEngine::~QFontEngine()
 
 
 /* returns 0 as glyph index for non existant glyphs */
-QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
-    for(int i = 0; i < len; i++ )
-	glyphs[i] = str[i].unicode();
+    if ( mirrored ) {
+	for(int i = 0; i < len; i++ ) {
+	    glyphs[i] = ::mirroredChar(str[i]).unicode();
+    } else {
+	for(int i = 0; i < len; i++ )
+	    glyphs[i] = str[i].unicode();
+    }
     *nglyphs = len;
     if(advances) {
 	for(int i = 0; i < len; i++)
@@ -145,7 +151,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
     }
 #endif
 
-#ifndef QT_NO_TRANSFORMATIONS    
+#ifndef QT_NO_TRANSFORMATIONS
     if ( p->txop == QPainter::TxTranslate )
 #endif
 	p->map( x, y, &x, &y );

@@ -55,7 +55,7 @@ public:
 
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs,
-				advance_t *advances, int *nglyphs ) const = 0;
+				advance_t *advances, int *nglyphs, bool mirrored ) const = 0;
 
 #ifdef Q_WS_X11
     virtual int cmap() const { return -1; }
@@ -95,7 +95,7 @@ public:
 
 #ifdef Q_WS_WIN
     HDC dc() const;
-    void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs ) const;
+    void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const;
     void getCMap();
 
     QCString _name;
@@ -158,7 +158,7 @@ public:
 	OutOfMemory
     };
     /* returns 0 as glyph index for non existant glyphs */
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
@@ -211,7 +211,7 @@ public:
     QFontEngineBox( int size );
     ~QFontEngineBox();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
@@ -275,7 +275,7 @@ public:
 
     QOpenType *openType() const;
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
@@ -329,7 +329,7 @@ public:
     QFontEngineXLFD( XFontStruct *fs, const char *name, int cmap );
     ~QFontEngineXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
@@ -381,7 +381,7 @@ public:
     ~QFontEngineLatinXLFD();
 
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs,
-			advance_t *advances, int *nglyphs ) const;
+			advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	       const QScriptItem *si, int textFlags );
@@ -476,7 +476,7 @@ class QFontEngineMac : public QFontEngine
 public:
     QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { }
 
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
@@ -513,7 +513,7 @@ class QFontEngineWin : public QFontEngine
 public:
     QFontEngineWin( const char *name, HDC, HFONT, bool, LOGFONT );
 
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
