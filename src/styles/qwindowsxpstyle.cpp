@@ -1915,7 +1915,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    stateId = SBS_NORMAL;
 		theme.drawBackground( partId, stateId );
 		if ( titlebar->windowIcon() )
-		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), TRUE, *titlebar->windowIcon() );
+		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), true, *titlebar->windowIcon() );
 	    }
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarMinButton ) {

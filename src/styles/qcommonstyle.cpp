@@ -671,8 +671,7 @@ void QCommonStyle::drawControl( ControlElement element,
 #endif //QT_NO_ICONSET
 		tf |= AlignHCenter;
 	    drawItem(p, ir, tf, pal,
-		     flags & Style_Enabled, button->pixmap(), button->text(),
-		     button->text().length(), &(pal.buttonText().color()) );
+		     flags & Style_Enabled, button->pixmap(), button->text(), -1, &(pal.buttonText().color()) );
 
 	    if (flags & Style_HasFocus)
 		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
@@ -786,8 +785,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    int alignment = AlignCenter | ShowPrefix;
 	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 		alignment |= NoAccel;
-	    drawItem( p, tr, alignment, pal,
-		      flags & Style_Enabled, 0, t->text() );
+	    drawItem( p, tr, alignment, pal, flags & Style_Enabled, t->text() );
 
 	    if ( (flags & Style_HasFocus) && !t->text().isEmpty() )
 		drawPrimitive( PE_FocusRect, p, r, pal );
@@ -909,7 +907,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    if ( progressbar->centerIndicator() && !progressbar->indicatorFollowsStyle() &&
 		 progressbar->progress()*2 >= progressbar->totalSteps() )
 		pcolor = &penColor;
-	    drawItem(p, r, AlignCenter | SingleLine, pal, flags & Style_Enabled, 0,
+	    drawItem(p, r, AlignCenter | SingleLine, pal, flags & Style_Enabled,
 		     progressbar->progressString(), -1, pcolor );
 	}
 	break;
@@ -965,8 +963,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 			alignment |= NoAccel;
 		    drawItem(p, rect, alignment, pal,
-			     flags & Style_Enabled, 0, toolbutton->text(),
-			     toolbutton->text().length(), &btext);
+			     flags & Style_Enabled, toolbutton->text(), -1, &btext);
 		} else {
 		    QPixmap pm;
 		    QIconSet::Size size =
@@ -990,29 +987,29 @@ void QCommonStyle::drawControl( ControlElement element,
 			    int fh = p->fontMetrics().height();
 			    pr.addCoords( 0, 1, 0, -fh-3 );
 			    tr.addCoords( 0, pr.bottom(), 0, -3 );
-			    drawItem( p, pr, AlignCenter, pal, TRUE, &pm, QString::null );
+			    drawItem( p, pr, AlignCenter, pal, 
+				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
 			    int alignment = AlignCenter | ShowPrefix;
 			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 				alignment |= NoAccel;
 			    drawItem( p, tr, alignment, pal,
-				      flags & Style_Enabled, 0, toolbutton->textLabel(),
-				      toolbutton->textLabel().length(), &btext);
+				      flags & Style_Enabled, toolbutton->textLabel(), -1, &btext);
 			} else {
 			    p->setFont( toolbutton->font() );
 
 			    QRect pr = rect, tr = rect;
 			    pr.setWidth( pm.width() + 8 );
 			    tr.addCoords( pr.right(), 0, 0, 0 );
-			    drawItem( p, pr, AlignCenter, pal, TRUE, &pm, QString::null );
+			    drawItem( p, pr, AlignCenter, pal, 
+				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm );
 			    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
 			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 				alignment |= NoAccel;
-			    drawItem( p, tr, alignment, pal,
-				      flags & Style_Enabled, 0, toolbutton->textLabel(),
-				      toolbutton->textLabel().length(), &btext);
+			    drawItem( p, tr, alignment, pal, flags & Style_Enabled, toolbutton->textLabel(), -1, &btext);
 			}
 		    } else
-			drawItem( p, rect, AlignCenter, pal, TRUE, &pm, QString::null );
+			drawItem( p, rect, AlignCenter, pal, 
+				  mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
 		}
 	    }
 
@@ -1037,13 +1034,13 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		QRect pixRect = rect;
 		pixRect.setY( rect.center().y() - (pixh - 1) / 2 );
-		drawItem ( p, pixRect, AlignVCenter, pal, flags & Style_Enabled,
-			   &pixmap, QString::null );
+		drawItem ( p, pixRect, AlignVCenter, pal, 
+			   (flags & Style_Enabled) || !icon->isGenerated(QIconSet::Small, QIconSet::Disabled ), pixmap );
 		rect.setLeft( rect.left() + pixw + 2 );
 	    }
 
 	    drawItem ( p, rect, AlignVCenter, pal, flags & Style_Enabled,
-		       0, header->label( section ), -1, &(pal.buttonText().color()) );
+		       header->label( section ), -1, &(pal.buttonText().color()) );
 	}
 #endif // QT_NO_HEADER
     default:
@@ -1641,7 +1638,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		if( down )
 		    p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				  pixelMetric(PM_ButtonShiftVertical, widget) );
-		drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, &pm, QString::null );
+		drawItem( p, ir, AlignCenter, titlebar->palette(), true, pm );
 		p->restore();
 	    }
 
@@ -1658,7 +1655,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    if( down )
 			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
-    		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, &pm, QString::null );
+    		    drawItem( p, ir, AlignCenter, titlebar->palette(), true, pm );
 		    p->restore();
 		}
 
@@ -1679,7 +1676,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    if( down )
 			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
-		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, &pm, QString::null );
+		    drawItem( p, ir, AlignCenter, titlebar->palette(), true, pm );
 		    p->restore();
 		}
 
@@ -1694,7 +1691,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    if( down )
 			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
-		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, &pm, QString::null );
+		    drawItem( p, ir, AlignCenter, titlebar->palette(), true, pm );
 		    p->restore();
 		}
 
@@ -1709,7 +1706,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    if( down )
 			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
-		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, &pm, QString::null );
+		    drawItem( p, ir, AlignCenter, titlebar->palette(), true, pm );
 		    p->restore();
 		}
 	    }
@@ -1717,7 +1714,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if ( controls & SC_TitleBarSysMenu ) {
 		if ( !titlebar->windowIcon().isNull() ) {
 		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu ), widget );
-		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, titlebar->windowIcon());
+		    drawItem( p, ir, AlignCenter, titlebar->palette(), true, titlebar->windowIcon());
 		}
 	    }
 #endif

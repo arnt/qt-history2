@@ -655,7 +655,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 			      pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
 
 	    drawItem( p, tr, AlignCenter | ShowPrefix, pal, tb->isEnabled() &&
-		      t->isEnabled(), 0, t->text() );
+		      t->isEnabled(), t->text() );
 
 	    //if ( has_focus )
 		//drawPrimitive( PE_FocusRect, p, r, pal );
@@ -1014,7 +1014,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
     case CE_ProgressBarLabel:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
-	    drawItem(p, r, AlignCenter | SingleLine, pal, progressbar->isEnabled(), 0,
+	    drawItem(p, r, AlignCenter | SingleLine, pal, progressbar->isEnabled(),
 		     progressbar->progressString());
 	}
 	break;
