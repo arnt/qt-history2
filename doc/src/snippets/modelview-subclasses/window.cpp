@@ -63,10 +63,10 @@ void MainWindow::openFile(const QString &fileName)
     int length = file.size();
 
     if (file.open(QIODevice::ReadOnly)) {
-        model->removeRows(0, QModelIndex(), model->rowCount());
+        model->removeRows(0, QModelIndex::Null, model->rowCount());
 
         int rows = (length - 0x2c)/2;
-        model->insertRows(0, QModelIndex(), rows);
+        model->insertRows(0, QModelIndex::Null, rows);
 
         // Perform some dodgy tricks to extract the data from the file.
         QDataStream stream(&file);
@@ -76,7 +76,7 @@ void MainWindow::openFile(const QString &fileName)
         Q_INT16 right;
 
         for (int row = 0; row < rows; ++row) {
-            QModelIndex index = model->index(row, 0, QModelIndex());
+            QModelIndex index = model->index(row, 0, QModelIndex::Null);
 
             stream >> left >> right;
             model->setData(index, QAbstractItemModel::EditRole, int(left / 256));

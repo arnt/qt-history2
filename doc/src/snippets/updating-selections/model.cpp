@@ -141,7 +141,7 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/,
         rowList.insert(position, items);
     }
 
-    emit rowsInserted(QModelIndex(), position, position+rows-1);
+    emit rowsInserted(QModelIndex::Null, position, position+rows-1);
     return true;
 }
 
@@ -162,7 +162,7 @@ bool TableModel::insertColumns(int position, const QModelIndex &/*index*/,
         }
     }
 
-    emit columnsInserted(QModelIndex(), position, position+columns-1);
+    emit columnsInserted(QModelIndex::Null, position, position+columns-1);
     return true;
 }
 
@@ -173,7 +173,7 @@ bool TableModel::insertColumns(int position, const QModelIndex &/*index*/,
 bool TableModel::removeRows(int position, const QModelIndex &/*index*/,
                             int rows)
 {
-    emit rowsRemoved(QModelIndex(), position, position+rows-1);
+    emit rowsRemoved(QModelIndex::Null, position, position+rows-1);
 
     for (int row = 0; row < rows; ++row) {
         rowList.removeAt(position);
@@ -191,7 +191,7 @@ bool TableModel::removeColumns(int position, const QModelIndex &/*index*/,
                                int columns)
 {
     int rows = rowCount();
-    emit columnsRemoved(QModelIndex(), position, position+columns-1);
+    emit columnsRemoved(QModelIndex::Null, position, position+columns-1);
 
     for (int row = 0; row < rows; ++row) {
         for (int column = 0; column < columns; ++column) {

@@ -48,7 +48,7 @@ QModelIndex LinearModel::index(int row, int column, const QModelIndex &parent) c
     if (isValid(row, column, parent))
         return createIndex(row, column, 0);
     else
-        return QModelIndex();
+        return QModelIndex::Null;
 }
 
 QVariant LinearModel::data(const QModelIndex &index, int /* role */) const
@@ -98,7 +98,7 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
 {
     values.insert(position, rows, 0);
 
-    emit rowsInserted(QModelIndex(), position, position+rows-1);
+    emit rowsInserted(QModelIndex::Null, position, position+rows-1);
     return true;
 }
 
@@ -109,7 +109,7 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
 bool LinearModel::removeRows(int position, const QModelIndex &/*index*/,
                              int rows)
 {
-    emit rowsRemoved(QModelIndex(), position, position+rows-1);
+    emit rowsRemoved(QModelIndex::Null, position, position+rows-1);
     values.remove(position, rows);
 
     return true;

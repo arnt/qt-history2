@@ -85,7 +85,7 @@ QModelIndex LinearView::itemAt(int x, int /* y */) const
 {
     int row = x + horizontalScrollBar()->value();
 
-    return model()->index(row, 0, QModelIndex());
+    return model()->index(row, 0, QModelIndex::Null);
 }
 
 //void LinearView::dataChanged(const QModelIndex &/* topLeft */,
@@ -145,15 +145,15 @@ QModelIndex LinearView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     switch (cursorAction) {
     case MoveLeft:{
         if (current.row() > 0)
-            return model()->index(current.row() - 1, 0, QModelIndex());
+            return model()->index(current.row() - 1, 0, QModelIndex::Null);
         else
-            return model()->index(0, 0, QModelIndex());
+            return model()->index(0, 0, QModelIndex::Null);
         break;}
     case MoveRight:{
         if (current.row() < rows(current) - 1)
-            return model()->index(current.row() + 1, 0, QModelIndex());
+            return model()->index(current.row() + 1, 0, QModelIndex::Null);
         else
-            return model()->index(rows(current) - 1, 0,QModelIndex());
+            return model()->index(rows(current) - 1, 0,QModelIndex::Null);
         break;}
     case MoveUp:
         return current;
@@ -164,9 +164,9 @@ QModelIndex LinearView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MovePageDown:
         return current;
     case MoveHome:
-        return model()->index(0, 0, QModelIndex());
+        return model()->index(0, 0, QModelIndex::Null);
     case MoveEnd:
-        return model()->index(rows(current) - 1, 0, QModelIndex());
+        return model()->index(rows(current) - 1, 0, QModelIndex::Null);
     default:
         return current;
     }
@@ -205,9 +205,9 @@ QRect LinearView::selectionViewportRect(const QItemSelection &selection) const
     }
 
     QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0,
-        QModelIndex());
+        QModelIndex::Null);
     QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0,
-        QModelIndex());
+        QModelIndex::Null);
 
     QRect firstRect = itemViewportRect(firstItem);
     QRect lastRect = itemViewportRect(lastItem);
@@ -229,25 +229,25 @@ void LinearView::paintEvent(QPaintEvent *event)
 
     QModelIndex firstItem = itemAt(updateRect.left(), updateRect.top());
     if (!firstItem.isValid())
-        firstItem = model()->index(0, 0, QModelIndex());
+        firstItem = model()->index(0, 0, QModelIndex::Null);
 
     QModelIndex lastItem = itemAt(updateRect.right(), updateRect.bottom());
     if (!lastItem.isValid())
-        lastItem = model()->index(rows() - 1, 0, QModelIndex());
+        lastItem = model()->index(rows() - 1, 0, QModelIndex::Null);
 
     int x = updateRect.left();
     //int top = updateRect.top();
     //int bottom = updateRect.bottom();
 
     int row = firstItem.row();
-    QModelIndex index = model()->index(row, 0, QModelIndex());
+    QModelIndex index = model()->index(row, 0, QModelIndex::Null);
     int value = model()->data(index, QAbstractItemModel::DisplayRole).toInt();
     int midPoint = viewport()->height()/2;
     int y2 = midPoint - int(value * midPoint/255.0);
 
     while (row <= lastItem.row()) {
 
-        QModelIndex index = model()->index(row, 0, QModelIndex());
+        QModelIndex index = model()->index(row, 0, QModelIndex::Null);
         int value = model()->data(index, QAbstractItemModel::DisplayRole).toInt();
 
         int y1 = y2;

@@ -47,8 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(table);
 }
 
-void MainWindow::updateSelection(const QItemSelection &deselected,
-    const QItemSelection &selected)
+void MainWindow::updateSelection(const QItemSelection &selected,
+    const QItemSelection &deselected)
 {
     QModelIndex index;
     QModelIndexList items = selected.items(model);
