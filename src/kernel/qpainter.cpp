@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#22 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#22 $";
 #endif
 
 
@@ -196,6 +196,31 @@ void QPainter::restore()			// restore/pop painter state
 // Painter functions for drawing shadow effects.
 //
 
+/*! Draw a nicely shaded line.  The arguments may not reveal it, but
+  the line has to be either vertical or horizontal.  If the line is
+  horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
+  top color) at the y coordinate and \e bColor at the line below.  If
+  the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
+  at the x coordinate and bColor at the next line to the right.  The
+  end pixels are treated specially.
+
+  You may consider the line to be illuminated from the top left corner
+  of the screen.
+
+  If \e tColor is darker than \e bColor, the line will appear to be a
+  groove, and if \e bColor is darker then \e tColor, the line will
+  appear to be raised.
+
+  drawShadeLine() doesn't disturb the pen color.
+
+  For the curious: If the line, as specified, isn't either vertical or
+  horizontal, the routine won't notice.  It only tests for one
+  alternative, and uses the other if the test fails.  (But I'm not
+  telling which :)
+
+  \todo document mColor, mlw, lw
+
+  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			      const QColor &tColor, const QColor &bColor,
 			      int lw, const QColor &mColor, int mlw )
