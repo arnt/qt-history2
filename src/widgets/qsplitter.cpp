@@ -661,6 +661,20 @@ void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
     }
 }
 
+int QSplitter::findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsibleSize )
+{
+    id += delta;
+    do {
+	QWidget *w = d->list.at( id )->wid;
+	if ( !w->isHidden() ) {
+	    collapsibleSize = pick( qSmartMinSize(w) );
+	    return id;
+	}
+	id += 2 * delta; // go to previous (or next) widget, skip the handle
+    } while ( id >= 0 && id < (int)d->list.count() );
+
+    return -1;
+}
 
 void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
 {
@@ -668,29 +682,11 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     if ( id <= 0 || id >= n - 1 )
 	return;
 
-    int leftMinSize = 0;
-    int leftId = id - 1;
-    do {
-	QWidget *w = d->list.at( leftId )->wid;
-	if ( !w->isHidden() ) {
-	    if ( collapsible(d->list.at(leftId)) )
-		leftMinSize = pick( qSmartMinSize(w) );
-	    break;
-	}
-	leftId -= 2; // go to previous widget, skip the handle
-    } while ( leftId >= 0 );
+    int collapsibleSizeBefore = 0;
+    int idJustBefore = findWidgetJustBeforeOrJustAfter( id, -1, collapsibleSizeBefore );
 
-    int rightMinSize = 0;
-    int rightId = id + 1;
-    do {
-	QWidget *w = d->list.at( rightId )->wid;
-	if ( !w->isHidden() ) {
-	    if ( collapsible(d->list.at(rightId)) )
-		rightMinSize = pick( qSmartMinSize(w) );
-	    break;
-	}
-	rightId += 2; // go to next widget, skip the handle
-    } while ( rightId < n );
+    int collapsibleSizeAfter = 0;
+    int idJustAfter = findWidgetJustBeforeOrJustAfter( id, +1, collapsibleSizeAfter );
 
     int minBefore = 0;
     int minAfter = 0;
@@ -699,33 +695,50 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int i;
 
     for ( i = 0; i < id; i++ )
-	addContribution( i, &minBefore, &maxBefore, i == leftId );
+	addContribution( i, &minBefore, &maxBefore, i == idJustBefore );
     for ( i = id; i < n; i++ )
-	addContribution( i, &minAfter, &maxAfter, i == rightId );
+	addContribution( i, &minAfter, &maxAfter, i == idJustAfter );
 
     QRect r = contentsRect();
+    int farMinVal;
     int minVal;
     int maxVal;
+    int farMaxVal;
 
-    if ( orient == Horizontal && QApplication::reverseLayout() ) {
-	int hw = handleWidth();
-	minVal = r.width() - QMIN( maxBefore, pick(r.size()) - minAfter ) - hw;
-	maxVal = r.width() - QMAX( minBefore, pick(r.size()) - maxAfter ) - hw;
+    int smartMinBefore = QMAX( minBefore, pick(r.size()) - maxAfter );
+    int smartMaxBefore = QMIN( maxBefore, pick(r.size()) - minAfter );
+
+    if ( orient == Vertical || !QApplication::reverseLayout() ) {
+	minVal = pick( r.topLeft() ) + smartMinBefore;
+	maxVal = pick( r.topLeft() ) + smartMaxBefore;
+
+	farMinVal = minVal;
+	if ( minBefore - collapsibleSizeBefore >= pick(r.size()) - maxAfter )
+	    farMinVal -= collapsibleSizeBefore;
+	farMaxVal = maxVal;
+	if ( pick(r.size()) - (minAfter - collapsibleSizeAfter) <= maxBefore )
+	    farMaxVal += collapsibleSizeAfter;
     } else {
-	minVal = pick( r.topLeft() )
-		 + QMAX( minBefore, pick(r.size()) - maxAfter );
-	maxVal = pick( r.topLeft() )
-		 + QMIN( maxBefore, pick(r.size()) - minAfter );
+	int hw = handleWidth();
+	minVal = r.width() - smartMaxBefore - hw;
+	maxVal = r.width() - smartMinBefore - hw;
+
+	farMinVal = minVal;
+	if ( pick(r.size()) - (minAfter - collapsibleSizeAfter) <= maxBefore )
+	    farMinVal -= collapsibleSizeAfter;
+	farMaxVal = maxVal;
+	if ( minBefore - collapsibleSizeBefore >= pick(r.size()) - maxAfter )
+	    farMaxVal += collapsibleSizeBefore;
     }
 
     if ( farMin )
-	*farMin = minVal - leftMinSize;
+	*farMin = farMinVal;
     if ( min )
 	*min = minVal;
     if ( max )
 	*max = maxVal;
     if ( farMax )
-	*farMax = maxVal + rightMinSize;
+	*farMax = farMaxVal;
 }
 
 /*!

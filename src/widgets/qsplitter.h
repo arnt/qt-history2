@@ -103,6 +103,7 @@ private:
     void doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 		 bool mayCollapse );
     void setGeo( QWidget *w, int pos, int size, bool splitterMoved );
+    int findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsibleSize );
     void updateHandles();
 
     inline QCOORD pick( const QPoint &p ) const
