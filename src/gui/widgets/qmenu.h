@@ -108,7 +108,6 @@ signals:
 protected:
     int columnCount() const;
 
-    void contextMenuEvent(QContextMenuEvent *);
     void changeEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
     void mouseReleaseEvent(QMouseEvent *);

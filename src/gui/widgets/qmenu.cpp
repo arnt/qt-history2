@@ -1626,13 +1626,6 @@ void QMenu::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
-/*!
-  \reimp
-*/
-void QMenu::contextMenuEvent(QContextMenuEvent *e)
-{
-    e->accept();
-}
 
 /*!
   \reimp

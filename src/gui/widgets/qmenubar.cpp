@@ -933,14 +933,6 @@ void QMenuBar::changeEvent(QEvent *e)
 /*!
   \reimp
 */
-void QMenuBar::contextMenuEvent(QContextMenuEvent *e)
-{
-    e->ignore();
-}
-
-/*!
-  \reimp
-*/
 bool QMenuBar::event(QEvent *e)
 {
     Q_D(QMenuBar);
