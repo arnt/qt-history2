@@ -1410,14 +1410,22 @@ bool QActionGroup::addTo( QWidget* w )
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
-		if ( !iconSet().isNull() )
+		if ( !iconSet().pixmap().isNull() )
 		    btn->setIconSet( iconSet() );
+		else
+		    btn->setIconSet( defAction->iconSet() );
 		if ( !!text() )
 		    btn->setTextLabel( text() );
+		else if ( !!defAction->text() )
+		    btn->setTextLabel( defAction->text() );
 		if ( !!toolTip() )
 		    QToolTip::add( btn, toolTip() );
+		else if ( !!defAction->toolTip() )
+		    QToolTip::add( btn, defAction->toolTip() );
 		if ( !!whatsThis() )
 		    QWhatsThis::add( btn, whatsThis() );
+		else if ( !!defAction->whatsThis() )
+		    QWhatsThis::add( btn, defAction->whatsThis() );
 
 		connect( btn, SIGNAL( clicked() ), defAction, SIGNAL( activated() ) );
 		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
