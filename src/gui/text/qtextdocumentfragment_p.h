@@ -52,16 +52,8 @@ public:
 
     QTextFormatCollectionState formatCollectionState() const;
 
-    inline void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat())
-    { appendBlock(localFormatCollection->indexForFormat(format), localFormatCollection->indexForFormat(charFmt)); }
     void appendBlock(int blockFormatIndex, int charFormatIndex);
-
-    inline void appendText(const QString &text, const QTextFormat &format)
-    { appendText(text, localFormatCollection->indexForFormat(format)); }
     void appendText(const QString &text, int formatIdx);
-
-    inline void appendImage(const QTextImageFormat &format)
-    { appendText(QString(QTextObjectReplacementChar), format); }
 
     // ### TODO: merge back into one big vector.
 
@@ -111,10 +103,17 @@ public:
 private:
     void closeTag(int i);
 
+    void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat());
+    void appendText(const QString &text, const QTextFormat &format);
+    inline void appendImage(const QTextImageFormat &format)
+    { appendText(QString(QTextObjectReplacementChar), format); }
+
     QTextDocumentFragmentPrivate *d;
     QVarLengthArray<int> listReferences;
     int indent;
     QVarLengthArray<int> tableIndices;
+
+    QTextFormatCollection formats;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

@@ -454,6 +454,8 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
     : d(_d), indent(0)
 {
+    ++formats.ref;
+
     parse(html);
     //dumpHtml();
 }
@@ -483,11 +485,11 @@ void QTextHTMLImporter::import()
 
             const int idx = listReferences.size();
             listReferences.resize(idx + 1);
-            listReferences[idx] = d->localFormatCollection->indexForGroup(d->localFormatCollection->createGroup(listFmt));
+            listReferences[idx] = formats.indexForGroup(formats.createGroup(listFmt));
         } else if (node->tag == QLatin1String("table")) {
             const int idx = tableIndices.size();
             tableIndices.resize(tableIndices.size() + 1);
-            tableIndices[idx] = d->localFormatCollection->indexForGroup(d->localFormatCollection->createGroup(QTextTableFormat()));
+            tableIndices[idx] = formats.indexForGroup(formats.createGroup(QTextTableFormat()));
         } else if (node->isTableCell) {
             Q_ASSERT(!tableIndices.isEmpty());
 
@@ -497,7 +499,7 @@ void QTextHTMLImporter::import()
             fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
-            d->appendBlock(fmt, charFmt);
+            appendBlock(fmt, charFmt);
         }
 
         if (node->isBlock) {
@@ -527,7 +529,7 @@ void QTextHTMLImporter::import()
                 if (node->bgColor.isValid())
                     block.setBackgroundColor(node->bgColor);
 
-                d->appendBlock(block);
+                appendBlock(block);
             }
         } else if (node->isImage) {
             QTextImageFormat fmt;
@@ -547,7 +549,7 @@ void QTextHTMLImporter::import()
             }
             fmt.setFloatPosition(f);
 
-            d->appendImage(fmt);
+            appendImage(fmt);
             continue;
         } else if (node->tag == QLatin1String("title")) {
             // ### fixme
@@ -578,11 +580,40 @@ void QTextHTMLImporter::import()
             format.setColor(Qt::blue); // ### use css
         }
 
-        d->appendText(node->text, format);
+        appendText(node->text, format);
     }
 
     if (listReferences.size() || tableIndices.size())
         closeTag(count() - 1);
+
+    QList<int> usedFormats;
+
+    Q_FOREACH(const QTextDocumentFragmentPrivate::Block &b, d->blocks) {
+
+        if (b.blockFormat != -1)
+            usedFormats << b.blockFormat;
+
+        if (b.charFormat != -1)
+            usedFormats << b.charFormat;
+
+        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, b.fragments)
+            if (f.format != -1)
+                usedFormats << f.format;
+    }
+
+    QTextFormatCollectionState collState(&formats, usedFormats);
+    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
+
+    for (int i = 0; i < d->blocks.count(); ++i) {
+        QTextDocumentFragmentPrivate::Block &b = d->blocks[i];
+        b.blockFormat = formatIndexMap.value(b.blockFormat, -1);
+        b.charFormat = formatIndexMap.value(b.charFormat, -1);
+
+        for (int i = 0; i < b.fragments.count(); ++i) {
+            QTextDocumentFragmentPrivate::TextFragment &f = b.fragments[i];
+            f.format = formatIndexMap.value(f.format, -1);
+        }
+    }
 }
 
 void QTextHTMLImporter::closeTag(int i)
@@ -600,13 +631,13 @@ void QTextHTMLImporter::closeTag(int i)
             QTextBlockFormat fmt;
             fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
             fmt.setTableCellEndOfRow(true);
-            d->appendBlock(fmt, charFmt);
+            appendBlock(fmt, charFmt);
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tableIndices.isEmpty());
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            d->appendBlock(fmt, charFmt);
+            appendBlock(fmt, charFmt);
             tableIndices.resize(tableIndices.size() - 1);
         } else if (closedNode->isListStart) {
 
@@ -618,6 +649,16 @@ void QTextHTMLImporter::closeTag(int i)
 
         closedNode = &at(closedNode->parent);
     }
+}
+
+void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt)
+{
+    d->appendBlock(formats.indexForFormat(format), formats.indexForFormat(charFmt));
+}
+
+void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &format)
+{
+    d->appendText(text, formats.indexForFormat(format)); 
 }
 
 /*!
