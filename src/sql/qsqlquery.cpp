@@ -1129,7 +1129,7 @@ QVariant QSqlQuery::boundValue( int pos ) const
     QValueList<QVariant> list = query.boundValues().values();
     int i = 0;
     for ( it = list.begin(); it != list.end(); ++it )
-        qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), ++i );
+        qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), i++ );
     ...
 	
     \endcode
