@@ -44,6 +44,10 @@ PROJECTNAME	= Qt Linguist
 target.path=$$bins.path
 INSTALLS	+= target
 
+linguisttranslations.files = *.qm
+linguisttranslations.path = $$translations.path
+INSTALLS += linguisttranslations
+
 phrasebooks.path=$$data.path/phrasebooks
 phrasebooks.files = ../phrasebooks/*
 INSTALLS += phrasebooks

@@ -426,6 +426,11 @@ TRANSLATIONS	= designer_de.ts designer_fr.ts
 
 target.path=$$libs.path
 INSTALLS += target
+
 templates.path=$$data.path/templates
 templates.files = ../templates/*
 INSTALLS += templates
+
+designertranlations.files = *.qm
+designertranlations.path = $$translations.path
+INSTALLS += designertranlations

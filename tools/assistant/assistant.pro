@@ -30,8 +30,12 @@ win32:RC_FILE = assistant.rc
 mac:RC_FILE = assistant.icns
 
 
-target.path=$$bins.path
+target.path = $$bins.path
 INSTALLS += target
+
+assistanttranslations.files = *.qm
+assistanttranslations.path = $$translations.path
+INSTALLS += assistanttranslations
 
 PROJECTNAME	= Assistant
 
