@@ -36,10 +36,11 @@ public:
     QSqlRecord record(int row) const;
     QSqlRecord record() const;
 
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &item, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = QAbstractItemModel::DisplayRole) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
+                        int role = DisplayRole) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
+                       int role = EditRole);
 
     bool insertColumns(int column, int count, const QModelIndex &parent);
     bool removeColumns(int column, int count, const QModelIndex &parent);

@@ -40,10 +40,10 @@ public:
 
     ItemFlags flags(const QModelIndex &index) const;
 
-    QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QVariant data(const QModelIndex &idx, int role = DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 
     bool isDirty(const QModelIndex &index) const;
     void clear();

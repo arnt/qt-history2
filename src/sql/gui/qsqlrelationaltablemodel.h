@@ -45,8 +45,8 @@ public:
     QSqlRelationalTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     virtual ~QSqlRelationalTableModel();
 
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &item, const QVariant &value, int role = QAbstractItemModel::EditRole);
+    QVariant data(const QModelIndex &item, int role = DisplayRole) const;
+    bool setData(const QModelIndex &item, const QVariant &value, int role = EditRole);
 
     void clear();
     bool select();
