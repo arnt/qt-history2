@@ -440,6 +440,7 @@ qpopmenu.o: /home/popcorn/home/hanord/qt/include/qsignal.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qcollect.h qmenubar.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qaccel.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qkeycode.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpainter.h
 qpopmenu.o: /home/popcorn/home/hanord/qt/include/qregion.h
