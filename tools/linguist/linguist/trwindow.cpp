@@ -1081,7 +1081,7 @@ void TrWindow::revertSorting()
 void TrWindow::manual()
 {
     QStringList lst;
-    lst << "assistant" << "qt-translation-tools.html";
+    lst << "assistant" << "linguist-manual.html";
     QProcess proc( lst );
     proc.start();
 }
