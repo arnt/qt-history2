@@ -50,7 +50,7 @@ void MyListBoxItem::paint( QPainter *painter )
 	painter->eraseRect( r );
     painter->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
     if ( in_list_box && isCurrent() )
-	listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, listBox()->colorGroup() );
+	listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, listBox()->palette() );
 }
 
 /*
