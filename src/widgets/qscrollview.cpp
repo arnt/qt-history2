@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#44 $
 **
 ** Implementation of QScrollView class
 **
@@ -248,7 +248,7 @@ void QScrollView::updateScrollBars()
     bool needv;
     bool showh;
     bool showv;
-
+    
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
@@ -526,7 +526,7 @@ void QScrollView::setCornerWidget(QWidget* corner)
 
   The policies are:
   <ul>
-   <li> \c Default is the initial value.  It converts to \c Manual if 
+   <li> \c Default is the initial value.  It converts to \c Manual if
 	    the view is resized with resizeContents(), or to \c AutoOne
 	    if a child is added.
    <li> \c Manual means the view stays the size set by resizeContents().
@@ -777,8 +777,6 @@ void QScrollView::ensureVisible( int x, int y )
 */
 void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 {
-    updateScrollBars();
-
     int pw=d->viewport.width();
     int ph=d->viewport.height();
 
@@ -956,7 +954,7 @@ int QScrollView::contentsHeight() const
 }
 
 /*!
-  Set the size of the contents area to \a w pixesls wide and \a h
+  Set the size of the contents area to \a w pixels wide and \a h
   pixels high, and updates the viewport accordingly.
 */
 void QScrollView::resizeContents( int w, int h )
@@ -1085,9 +1083,11 @@ void QScrollView::changeFrameRect(const QRect& r)
     QRect oldr = frameRect();
     if (oldr != r) {
 	setFrameRect(r);
-	// Redraw frames
-	update(r);
-	update(oldr);
+	if ( frameWidth() ) {
+	    // Redraw frames
+	    update(r);
+	    update(oldr);
+	}
     }
 }
 
@@ -1104,6 +1104,12 @@ void QScrollView::changeFrameRect(const QRect& r)
 */
 void QScrollView::setMargins(int left, int top, int right, int bottom)
 {
+    if ( left == d->l_marg &&
+	 top == d->t_marg &&
+	 right == d->r_marg &&
+	 bottom == d->b_marg )
+	return;
+	 
     d->l_marg = left;
     d->t_marg = top;
     d->r_marg = right;
