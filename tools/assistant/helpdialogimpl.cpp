@@ -151,7 +151,7 @@ QString HelpNavigationContentsItem::link() const
 
 
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, HelpWindow *v )
-    : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v ), lwClosed( FALSE )
+    : HelpDialogBase( parent, 0, FALSE ),  lwClosed( FALSE ), help( h ), viewer( v )
 {
 }
 
@@ -403,7 +403,8 @@ void HelpDialog::buildKeywordDB()
 	    QFileInfo fi( dir + indItem->reference );
 	    lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
 	    if ( progressPrepare )
-		progressPrepare->setProgress( progressPrepare->progress() + fi.absFilePath().length() * 1.6 );
+		progressPrepare->setProgress( progressPrepare->progress() +
+					      int(fi.absFilePath().length() * 1.6) );
 	    ++it;
 	}
     }

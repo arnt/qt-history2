@@ -74,12 +74,11 @@ CheckListItem* CheckListItem::getCheckItem( QListViewItem *i )
     return 0;
 }
 
-void CheckListItem::stateChange( bool state )
+void CheckListItem::stateChange( bool /*state*/ )
 {
     QPtrStack<stateListItem> stackState;
 
     QListViewItemIterator it( listView() );
-    bool root = FALSE;
     bool disableNext = FALSE;
     int depth = -1;
 

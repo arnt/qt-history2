@@ -53,5 +53,5 @@ IMAGES	= images/appicon.png \
 	images/zoomout.png \
 	images/splash.png
 TEMPLATE	=app
-CONFIG	+= qt warn_off release
+CONFIG	+= qt
 LANGUAGE	= C++
