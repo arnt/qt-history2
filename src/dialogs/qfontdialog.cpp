@@ -438,6 +438,10 @@ QListBox * QFontDialog::sizeListBox() const
     return d->sizeList;
 }
 
+/*!
+  This slot is called if the user changes the font size.
+*/
+
 void QFontDialog::sizeChanged( const QString &s )
 {
     bool ok = FALSE;
@@ -769,13 +773,13 @@ void QFontDialog::emitSelectedFont()
 }
 
 /*!
-  \fn  void QFontDialog::fontSelected( const QFont & ) const
-  
+  \fn void QFontDialog::fontSelected( const QFont & )
+
   This signal is emitted, when the user has chosen a font and clicked ok.
 */
 
 /*!
-  \fn  void QFontDialog::fontHighlighted( const QFont & ) const
-  
+  \fn void QFontDialog::fontHighlighted( const QFont & )
+
   This signal is emitted, when the user changed a setting in the dialog.
 */
