@@ -189,8 +189,10 @@ void QPointArray::translate( int dx, int dy )
 void QPointArray::point( uint index, int *x, int *y ) const
 {
     QPoint p = QArray<QPoint>::at( index );
-    *x = (int)p.x();
-    *y = (int)p.y();
+    if ( x )
+	*x = (int)p.x();
+    if ( y )
+	*y = (int)p.y();
 }
 
 /*!
@@ -198,16 +200,20 @@ void QPointArray::point( uint index, int *x, int *y ) const
 */
 
 QPoint QPointArray::point( uint index ) const
-{
+{ // #### index out of bounds
     return QArray<QPoint>::at( index );
 }
+
+/*!
+  \overload void QPointArray::setPoint( uint i, const QPoint &p )
+*/
 
 /*!
   Sets the point at position \a index in the array to \a (x,y).
 */
 
 void QPointArray::setPoint( uint index, int x, int y )
-{
+{ // #### index out of bounds
     QArray<QPoint>::at( index ) = QPoint( x, y );
 }
 
@@ -240,12 +246,6 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
     }
     return TRUE;
 }
-
-/*!
-  \fn void QPointArray::setPoint( uint i, const QPoint &p )
-
-  Equivalent to setPoint( i, p.x(), p.y() ).
-*/
 
 /*!
   Resizes the array to \a nPoints and sets the points in the array to
@@ -282,27 +282,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty, ... )
     return TRUE;
 }
 
-/*!
-  Copies \a nPoints points from the \a points array into this point array.
-  Will resize this point array if <code>index+nPoints</code> exceeds
-  the size of the array.
-
-  Returns TRUE if successful, or FALSE if the array could not be
-  resized (typcailly due to lack of memory).
-
-  The example code creates an array with three points: (1,2), (3,4)
-  and (5,6):
-  \code
-    QPointArray a( 1 );
-    a[0] = QPoint( 1, 2 );
-    static QCOORD points[] = { 3,4, 5,6 };
-    a.putPoints( 1, 2, points );
-  \endcode
-
-  This function differs from setPoints() in that it does not resize the
-  array unless the array size is exceeded.
-
-  \sa resize(), setPoints()
+/*! \overload
 */
 
 bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
@@ -320,23 +300,29 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
     return TRUE;
 }
 
-/*!
-  Copies \a nPoints points from the variable argument list into this point
-  array. Will resize this point array if <code>index+nPoints</code> exceeds
-  the size of the array.
+/*!  Copies \a nPoints points from the variable argument list into
+  this point array, and resizes the point array if
+  <code>index+nPoints</code> exceeds the size of the array.
 
   Returns TRUE if successful, or FALSE if the array could not be
   resized (typically due to lack of memory).
 
-  The example code creates an array with two points (1,2), (3,4) and (5,6):
+  The example code creates an array with three points (1,2), (3,4) and
+  (5,6), by expanding the array from 1 to 3 points:
+  
   \code
     QPointArray a( 1 );
     a[0] = QPoint( 1, 2 );
     a.putPoints( 1, 2, 3,4, 5,6 );
   \endcode
-
-  This function differs from setPoints() in that it does not resize the
-  array unless the array size is exceeded.
+  
+  This has the same result, but here putPoints overwrites rather than
+  extends:
+  \code
+    QPointArray a( 3 );
+    a.putPoints( 0, 3, 1,2, 0.0, 5,6 );
+    a.putPoints( 1, 1, 3,4 );
+  \endcode
 
   \sa resize(), setPoints()
 */
