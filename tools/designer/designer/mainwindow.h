@@ -155,13 +155,7 @@ private slots:
     void editPreferences();
 
     void previewForm();
-    void previewFormMotif();
-    void previewFormWindows();
-    void previewFormCDE();
-    void previewFormPlatinum();
-    void previewFormSGI();
-    void previewFormMotifPlus();
-
+    void previewForm( const QString& );
     void windowPropertyEditor( bool );
     void windowHierarchyView( bool );
     void windowFormList( bool );

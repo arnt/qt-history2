@@ -91,6 +91,8 @@
 #include <stdlib.h>
 #include <qdockwindow.h>
 #include <qregexp.h>
+#include <qstylefactory.h>
+#include <qsignalmapper.h>
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
 #include "project.h"
@@ -775,72 +777,35 @@ void MainWindow::setupPreviewActions()
 
     menu->insertSeparator();
 
-    a = new QAction( tr( "Preview Form in Motif Style" ), createIconSet("previewform.xpm"),
-				     tr( "Preview Form in &Motif Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in Motif style") );
-    a->setWhatsThis( tr("<b>Open a preview in Motif style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use the Motif "
-			"Look&Feel used as the default style on most UNIX-Systems.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormMotif() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
+    QSignalMapper *mapper = new QSignalMapper( this );
+    connect( mapper, SIGNAL(mapped(const QString&)), this, SLOT(previewForm(const QString&)) );
+    QStringList styles = QStyleFactory::styles();
+    for ( QStringList::Iterator it = styles.begin(); it != styles.end(); ++it ) {
+	QString info;
+	if ( *it == "Motif" )
+	    info = tr( "The preview will use the Motif Look&Feel used as the default style on most UNIX-Systems." );
+	else if ( *it == "Windows" )
+	    info = tr( "The preview will use the Windows Look&Feel used as the default style on Windows-Systems." );
+	else if ( *it == "Platinum" )
+	    info = tr( "The preview will use the Platinum Look&Feel resembling a Macinosh-like GUI style." );
+	else if ( *it == "CDE" )
+	    info = tr( "The preview will use the CDE Look&Feel which is similar to some versions of the Common Desktop Environment." );
+	else if ( *it == "SGI" )
+	    info = tr( "The preview will use the Motif Look&Feel used as the default style on SGI-systems." );
+	else if ( *it == "MotifPlus" )
+	    info = tr( "The preview will use an advanced Motif Look&Feel as used by the GIMP toolkit (GTK) on Linux." );
 
-    a = new QAction( tr( "Preview Form in Windows Style" ), createIconSet("previewform.xpm"),
-				     tr( "Preview Form in &Windows Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in Windows style") );
-    a->setWhatsThis( tr("<b>Open a preview in Windows style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use the Windows "
-			"Look&Feel used as the default style on Windows-Systems.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormWindows() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
-
-    a = new QAction( tr( "Preview Form in Platinum Style" ), createIconSet("previewform.xpm"),
-				     tr( "Preview Form in &Platinum Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in Platinum style") );
-    a->setWhatsThis( tr("<b>Open a preview in Platinum style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use the Platinum "
-			"Look&Feel resembling a Macinosh-like GUI style.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormPlatinum() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
-
-    a = new QAction( tr( "Preview Form in CDE Style" ), createIconSet("previewform.xpm"),
-				     tr( "Preview Form in &CDE Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in CDE style") );
-    a->setWhatsThis( tr("<b>Open a preview in CDE style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use the CDE "
-			"Look&Feel which is similar to some versions of the "
-			"Common Desktop Environment.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormCDE() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
-
-    a = new QAction( tr( "Preview Form in SGI Style" ), createIconSet("previewform.xpm"),
-		     tr( "Preview Form in &SGI Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in SGI style") );
-    a->setWhatsThis( tr("<b>Open a preview in SGI style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use the Motif "
-			"Look&Feel used as the default style on SGI-systems.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormSGI() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
-
-    a = new QAction( tr( "Preview Form in Motif Plus Style" ), createIconSet("previewform.xpm"),
-		     tr( "Preview Form in Motif &Plus Style" ), 0, this, 0 );
-    a->setStatusTip( tr("Opens a preview in Motif Plus style") );
-    a->setWhatsThis( tr("<b>Open a preview in Motif Plus style.</b>"
-			"<p>Use the preview to test the design and signal-slot "
-			"connections of the form. The preview will use an advanced "
-			"Motif Look&Feel as used by the GIMP toolkit (GTK) on Linux.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( previewFormMotifPlus() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
+	a = new QAction( tr( "Preview Form in %1 Style" ).arg( *it ), createIconSet("previewform.xpm"),
+					 tr( "... in %1 Style" ).arg( *it ), 0, this, 0 );
+	a->setStatusTip( tr("Opens a preview in %1 style").arg( *it ) );
+	a->setWhatsThis( tr("<b>Open a preview in %1 style.</b>"
+			"<p>Use the preview to test the design and "
+			"signal-slot connections of the current form. %2</p>").arg( *it ).arg( info ) );
+	mapper->setMapping( a, *it );
+	connect( a, SIGNAL(activated()), mapper, SLOT(map()) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
+	a->addTo( menu );
+    }
 }
 
 void MainWindow::setupWindowActions()
@@ -1682,6 +1647,95 @@ void MainWindow::previewForm()
 	w->show();
 }
 
+void MainWindow::previewForm( const QString & style )
+{
+    QStyle* st = QStyleFactory::create( style );
+    QWidget* w = 0;
+    if ( style == "Motif" ) {
+	QPalette p( QColor( 192, 192, 192 ) );
+	w = previewFormInternal( st, &p );
+    } else if ( style == "Windows" ) {
+	QPalette p( QColor( 212, 208, 200 ) );
+	w = previewFormInternal( st, &p );
+    } else if ( style == "Platinum" ) {
+	QPalette p( QColor( 220, 220, 220 ) );
+	w = previewFormInternal( st, &p );
+    } else if ( style == "CDE" ) {
+	QPalette p( QColor( 75, 123, 130 ) );
+	p.setColor( QPalette::Active, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QColorGroup::Highlight, Qt::white );
+	p.setColor( QPalette::Disabled, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QColorGroup::Foreground, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::Text, Qt::white );
+	p.setColor( QPalette::Active, QColorGroup::ButtonText, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::Foreground, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::Text, Qt::white );
+	p.setColor( QPalette::Inactive, QColorGroup::ButtonText, Qt::white );
+	p.setColor( QPalette::Disabled, QColorGroup::Foreground, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QColorGroup::Text, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QColorGroup::ButtonText, Qt::lightGray );
+
+	w = previewFormInternal( st, &p );
+    } else if ( style == "SGI" ) {
+	QPalette p( QColor( 220, 220, 220 ) );
+	w = previewFormInternal( st, &p );
+    } else if ( style == "MotifPlus" ) {
+	QColor gtkfg(0x00, 0x00, 0x00);
+	QColor gtkdf(0x75, 0x75, 0x75);
+	QColor gtksf(0xff, 0xff, 0xff);
+	QColor gtkbs(0xff, 0xff, 0xff);
+	QColor gtkbg(0xd6, 0xd6, 0xd6);
+	QColor gtksl(0x00, 0x00, 0x9c);
+	QColorGroup active(gtkfg,            // foreground
+			   gtkbg,            // button
+			   gtkbg.light(),    // light
+			   gtkbg.dark(142),  // dark
+			   gtkbg.dark(110),  // mid
+			   gtkfg,            // text
+			   gtkfg,            // bright text
+			   gtkbs,            // base
+			   gtkbg),           // background
+	    disabled(gtkdf,            // foreground
+		     gtkbg,            // button
+		     gtkbg.light(), // light
+		     gtkbg.dark(156),  // dark
+		     gtkbg.dark(110),  // mid
+		     gtkdf,            // text
+		     gtkdf,            // bright text
+		     gtkbs,            // base
+		     gtkbg);           // background
+
+	QPalette pal(active, disabled, active);
+
+	pal.setColor(QPalette::Active, QColorGroup::Highlight,
+		     gtksl);
+	pal.setColor(QPalette::Active, QColorGroup::HighlightedText,
+		     gtksf);
+	pal.setColor(QPalette::Inactive, QColorGroup::Highlight,
+		     gtksl);
+	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText,
+		     gtksf);
+	pal.setColor(QPalette::Disabled, QColorGroup::Highlight,
+		     gtksl);
+	pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText,
+		     gtkdf);
+	w = previewFormInternal( st, &pal );
+    } else {
+	w = previewFormInternal( st );
+    }
+    
+    if ( !w )
+	return;
+    w->insertChild( st );
+    w->show();
+}
+/*
 void MainWindow::previewFormMotif()
 {
     static QMotifStyle* style = 0;
@@ -1813,7 +1867,7 @@ void MainWindow::previewFormMotifPlus()
 	return;
     w->show();
 }
-
+*/
 static void correctGeometry( QWidget *wid, QWidget *workspace )
 {
     int x = wid->parentWidget()->x(), y = wid->parentWidget()->y();
