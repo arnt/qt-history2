@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/sh 
+
+echo "boink"
 
 CFG_PREPROCESS_FLAGS=
 CFG_MOC="/usr/bin/moc"
@@ -37,7 +39,6 @@ if [ -z "$CFG_INPUT" ] || [ -z "$CFG_OUTPUT" ]; then
    echo "No input/output file specified."
    exit 1
 fi
-[ "$CFG_OUTPUT" -nt "$CFG_INPUT" ] && exit 0
 
 cd "${SOURCE_ROOT}"
 for a in $OTHER_CPLUSPLUSFLAGS; do
@@ -52,8 +53,10 @@ for a in $GCC_PREPROCESSOR_DEFINITIONS; do
 done
 CFG_PREPROCESS_FLAGS="$CFG_PREPROCESS_FLAGS -I${SOURCE_ROOT}" 
 
+MOC_OUTPUT="${TEMP_FILE_DIR}/moc.out"
+echo >"$MOC_OUTPUT"
+
 #do the moc
-echo >"$CFG_OUTPUT"
 if [ -e "$CFG_INPUT" ]; then
    LINE=0
    LINES=`wc -l "$CFG_INPUT" | awk '{ print $1; }'`
@@ -63,7 +66,14 @@ if [ -e "$CFG_INPUT" ]; then
 
       FILE=`echo $SOURCE | sed "s,^#include \"\([^\"]*\)\"$,\1,"`
       if [ -f "$FILE" ]; then
-          $CFG_MOC $CFG_PREPROCESS_FLAGS "$FILE" >>"$CFG_OUTPUT"
+          $CFG_MOC $CFG_PREPROCESS_FLAGS "$FILE" >>"$MOC_OUTPUT"
       fi
    done
+fi
+
+#replace it
+if cmp -s "$MOC_OUTPUT" "$CFG_OUTPUT"; then
+   rm -f "$MOC_OUTPUT"
+else
+   mv "$MOC_OUTPUT" "$CFG_OUTPUT"
 fi

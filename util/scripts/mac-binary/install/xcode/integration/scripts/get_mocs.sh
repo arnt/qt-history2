@@ -128,6 +128,12 @@ fi
 sort "$MOC_LIST" | uniq | grep -v '^$' >"${MOC_LIST}.sorted" 
 mv "${MOC_LIST}.sorted" "${MOC_LIST}"
 
+echo "**************** GET_MOCS.SH"
+echo "MOC_LIST"
+cat "$MOC_LIST"
+echo "CFG_OUTPUT"
+cat "$CFG_OUTPUT"
+
 #replace it
 if cmp -s "$MOC_LIST" "$CFG_OUTPUT"; then
    rm -f "$MOC_LIST"

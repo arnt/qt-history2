@@ -11,7 +11,7 @@
     {
        Identifier = sourcecode.qt.h;
        BasedOn = sourcecode.qt;
-       Extensions = (qh);
+       Extensions = (h);
        IncludeInIndex = NO;
        MagicWord = ( "Q_OBJECT" );
        CanSetIncludeInIndex = NO;
@@ -19,7 +19,7 @@
     {
        Identifier = sourcecode.qt.cpp;
        BasedOn = sourcecode.qt;
-       Extensions = (qcpp);
+       Extensions = (cpp);
        IncludeInIndex = YES;
        CanSetIncludeInIndex = YES;
     },

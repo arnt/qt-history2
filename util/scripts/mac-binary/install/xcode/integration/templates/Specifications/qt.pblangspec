@@ -3,6 +3,8 @@
     Identifier = qt.c.cpp;  
     BasedOn = c.cpp;
     Name = "Qt C++";
+    SourceScannerClassName = PBXCPPSourceScanner;
+    SupportsIndentation = YES;
     Description = "Qt C++";
     SyntaxColoring = {
       CaseSensitive = YES;
