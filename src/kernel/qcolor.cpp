@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#81 $
 **
 ** Implementation of QColor class
 **
@@ -86,7 +86,7 @@
 #define COLOR1_PIX 1
 #endif
 
-static QColor stdcol[18];
+static QColor stdcol[19];
 
 QT_STATIC_CONST_IMPL QColor & Qt::color0 = stdcol[0];
 QT_STATIC_CONST_IMPL QColor & Qt::color1  = stdcol[1];
