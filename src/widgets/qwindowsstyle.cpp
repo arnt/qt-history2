@@ -1397,9 +1397,9 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	if ( mi->isChecked() ) {
 	    int xp = xpos;
 	    if( reverse )
-		xp += windowsItemFrame;
-	    else
 		xp -= windowsItemFrame;
+	    else
+		xp += windowsItemFrame;
 	    drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
 	}
     }
