@@ -4430,6 +4430,7 @@ bool QWidget::event( QEvent *e )
     case QEvent::PaletteChange:
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
+    case QEvent::ObjectNameChange:
 	changeEvent(e);
 	break;
 
