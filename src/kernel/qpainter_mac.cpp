@@ -31,7 +31,7 @@
 #include <string.h>
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
-#define USE_CORE_GRAPHICS
+//#define USE_CORE_GRAPHICS
 
 class paintevent_item;
 class QPainterPrivate
