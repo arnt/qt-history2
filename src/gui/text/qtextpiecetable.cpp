@@ -106,10 +106,7 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    for (int i = 0; i < cursors.size(); ++i)
-        cursors.at(i)->adjustPosition(pos, length, op);
-    adjustDocumentChanges(pos, length);
-    emit contentsChanged();
+    adjustDocumentChangesAndCursors(pos, length, op);
 }
 
 void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
@@ -152,10 +149,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
 
-    for (int i = 0; i < cursors.size(); ++i)
-        cursors.at(i)->adjustPosition(pos, 1, op);
-    adjustDocumentChanges(pos, 1);
-    emit contentsChanged();
+    adjustDocumentChangesAndCursors(pos, 1, op);
 }
 
 void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
@@ -235,10 +229,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
     blocks.setSize(b, blocks.size(b)-length);
     const int w = fragments.erase_single(x);
 
-    for (int i = 0; i < cursors.size(); ++i)
-        cursors.at(i)->adjustPosition(pos, -length, op);
-    adjustDocumentChanges(pos, -length);
-    emit contentsChanged();
+    adjustDocumentChangesAndCursors(pos, -length, op);
 
     return w;
 }
@@ -281,10 +272,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
 
     const int w = fragments.erase_single(x);
 
-    for (int i = 0; i < cursors.size(); ++i)
-        cursors.at(i)->adjustPosition(pos, -1, op);
-    adjustDocumentChanges(pos, -1);
-    emit contentsChanged();
+    adjustDocumentChangesAndCursors(pos, -1, op);
 
     return w;
 }
@@ -710,8 +698,11 @@ void QTextPieceTable::documentChange(int from, int length)
     docChangeLength += diff;
 }
 
-void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
+void QTextPieceTable::adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op)
 {
+    for (int i = 0; i < cursors.size(); ++i)
+        cursors.at(i)->adjustPosition(from, addedOrRemoved, op);
+
 //     qDebug("QTextPieceTable::adjustDocumentChanges: from=%d,addedOrRemoved=%d", from, addedOrRemoved);
     if (docChangeFrom < 0) {
         docChangeFrom = from;
@@ -724,6 +715,7 @@ void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
         }
 //         qDebug("adjustDocumentChanges:");
 //         qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
+        emit contentsChanged();
         return;
     }
 
@@ -747,6 +739,8 @@ void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
     docChangeOldLength += removed + diff;
     docChangeLength += added - removedInside + diff;
 //     qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
+
+    emit contentsChanged();
 }
 
 

@@ -174,7 +174,7 @@ private:
     int remove_string(int pos, uint length, UndoCommand::Operation op);
     int remove_block(int pos, int *blockformat, int command, UndoCommand::Operation op);
 
-    void adjustDocumentChanges(int from, int addedOrRemoved);
+    void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op);
     void documentChange(int from, int length);
 
 public:
