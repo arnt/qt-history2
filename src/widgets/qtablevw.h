@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#3 $
 **
 ** Definition of QTableView class
 **
@@ -107,10 +107,10 @@ protected:
     int		maxColOffset();
     int		maxRowOffset();
 
-    int		maxWindowX() const;
-    int		maxWindowY() const;
-    int		windowWidth() const;
-    int		windowHeight() const;
+    int		maxViewX()	const;
+    int		maxViewY()	const;
+    int		viewWidth()	const;
+    int		viewHeight()	const;
 
     void	scroll( int xPixels, int yPixels );
     void	updateScrollBars();
@@ -120,11 +120,11 @@ private:
     void	snapToGrid( bool horizontal, bool vertical );
     void	setHorScrollBar( bool on, bool update = TRUE );
     void	setVerScrollBar( bool on, bool update = TRUE );
-    void	updateWindow();
+    void	updateView();
     int		findRawRow( int yPos, int *cellMaxY, int *cellMinY = 0,
-			    bool goOutsideWindow = FALSE ) const;
+			    bool goOutsideView = FALSE ) const;
     int		findRawCol( int xPos, int *cellMaxX, int *cellMinX = 0,
-			    bool goOutsideWindow = FALSE ) const;
+			    bool goOutsideView = FALSE ) const;
     int		maxColsVisible() const;
 
     void	updateScrollBars( uint );
