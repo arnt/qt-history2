@@ -1007,8 +1007,10 @@ void QDragManager::updateCursor()
 	} else {
 	    c = moveCursor;
 	}
-	if ( qt_xdnd_deco )
+	if ( qt_xdnd_deco ) {
 	    qt_xdnd_deco->show();
+	    qt_xdnd_deco->raise();
+	}
     } else {
 	c = noDropCursor;
 	//if ( qt_xdnd_deco )
