@@ -137,7 +137,7 @@ public:
     bool dragEnabled() const;
     int characterAt( int xpos, QChar *chr ) const;
 
-    bool isValidInput();
+    bool isValidInput() const;
     void setMask( const QString & );
     bool hasMask() const;
 
@@ -224,7 +224,7 @@ private:
     int nextSeparator( uint pos );
     int nextSeparator( uint pos, QChar sep );
     int nextBlank( uint pos );
-    bool isValidInput( QChar key, QChar mask );
+    bool isValidInput( QChar key, QChar mask ) const;
     QString maskString( uint pos, const QString &str );
     QString clearString( uint pos, uint len );
     QString stripString( const QString &str ) const;
