@@ -353,7 +353,7 @@ void QWhatsThat::keyPressEvent( QKeyEvent* )
 
 
 
-void QWhatsThat::paintEvent( QPaintEvent* ) 
+void QWhatsThat::paintEvent( QPaintEvent* )
 {
     bool drawShadow = TRUE;
 #if defined(Q_WS_WIN)
@@ -647,7 +647,8 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     whatsThat = new QWhatsThat(
 			       widget, text,
 #if defined(Q_WS_X11)
-			       QApplication::desktop()->screen( widget ? widget->x11Screen() :
+			       QApplication::desktop()->screen( widget ?
+								widget->x11Screen() :
 								QCursor::x11Screen() ),
 #else
 			       0,
@@ -656,13 +657,17 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 
     // okay, now to find a suitable location
+
+    int scr = ( widget ?
+		QApplication::desktop()->screenNumber( widget ) :
 #if defined(Q_WS_X11)
-    QRect screen =
-	QApplication::desktop()->screenGeometry( widget ? widget->x11Screen() :
-						 QCursor::x11Screen() );
+		QCursor::x11Screen()
 #else
-    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
-#endif
+		QApplication::desktop()->screenNumber( ppos )
+#endif // Q_WS_X11
+		);
+    QRect screen = QApplication::desktop()->screenGeometry( scr );
+
     int x;
     int w = whatsThat->width();
     int h = whatsThat->height();
