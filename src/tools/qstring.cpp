@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#153 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#154 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -954,6 +954,20 @@ QString QString::arg(const QString& a, int fieldwidth) const
   See arg(const QString&,int) for more details.
 */
 QString QString::arg(int a, int fieldwidth) const
+{
+    QString n;
+    n.setNum(a);
+    return arg(n,fieldwidth);
+}
+
+/*!
+  Returns a string equal to this one, but with the first
+  occurrence of <tt>%<em>digit</em></tt> replaced by the
+  value \a a.
+
+  See arg(const QString&,int) for more details.
+*/
+QString QString::arg(uint a, int fieldwidth) const
 {
     QString n;
     n.setNum(a);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#88 $
+** $Id: //depot/qt/main/src/tools/qstring.h#89 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -302,6 +302,7 @@ public:
     QString	copy()	const;
 
     QString arg(int a, int fieldwidth=0) const;
+    QString arg(uint a, int fieldwidth=0) const;
     QString arg(char a, int fieldwidth=0) const;
     QString arg(QChar a, int fieldwidth=0) const;
     QString arg(const QString& a, int fieldwidth=0) const;
