@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#5 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#5 $";
 #endif
 
 
@@ -270,7 +270,7 @@ int QString::findRev( char c, int index, bool cs ) const
 	if ( index == 0 )
 	    return -1;
     }
-    else if ( index >= size() )			// bad index
+    else if ( (uint)index >= size() )		// bad index
 	return -1;
     char *b = data();
     register char *d = b+index;
@@ -291,9 +291,9 @@ int QString::findRev( const char *str, int index, bool cs ) const
     int slen = strlen(str);
     if ( index < 0 )				// neg index ==> start from end
 	index = length()-slen;
-    else if ( index >= size() )			// bad index
+    else if ( (uint)index >= size() )		// bad index
 	return -1;
-    else if ( index + slen > length() )		// str would be too long
+    else if ( (uint)(index + slen) > length() )	// str would be too long
 	index = length() - slen;
     if ( index < 0 )
 	return -1;
@@ -369,7 +369,7 @@ QString QString::left( uint len ) const		// get left substring
     else {
 	QString s( len+1 );
 	strncpy( s.data(), data(), len );
-	s[len] = '\0';
+	*(s.data()+len) = '\0';
 	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
 	return s;
     }
@@ -396,7 +396,7 @@ QString QString::right( uint len ) const	// get right substring
 
 QString QString::mid( uint index, uint len ) const // get mid substring
 {
-    int slen = strlen( data() );
+    uint slen = strlen( data() );
     if ( isEmpty() || index >= slen ) {
 	QString empty;
 	return empty;
@@ -405,7 +405,7 @@ QString QString::mid( uint index, uint len ) const // get mid substring
 	register char *p = data()+index;
 	QString s( len+1 );
 	strncpy( s.data(), p, len );
-	s[len] = '\0';
+	*(s.data()+len) = '\0';
 	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
 	return s;
     }
@@ -474,7 +474,7 @@ QString &QString::insert( uint index, const char *s )
     int len = strlen(s);
     if ( len == 0 )
 	return *this;
-    int olen = length();
+    uint olen = length();
     int nlen = olen + len;
     if ( index >= olen ) {			// insert after end of string
 	if ( QByteArray::resize(nlen+index-olen+1) ) {
@@ -507,7 +507,7 @@ QString &QString::insert( uint index, char c )	// insert char
 
 QString &QString::remove( uint index, uint len )// remove part of string
 {
-    int olen = length();
+    uint olen = length();
     if ( index + len > olen ) {			// range problems
 	if ( index >= olen )			// index outside string
 	    return *this;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#3 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#3 $";
 #endif
 
 
@@ -309,7 +309,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    p = &buf[74];			// go reverse order
 	    *p = '\0';
 	    while ( len-- ) {
-		*--p = ((n & 1) + '0');
+		*--p = (char)(n&1) + '0';
 		n >>= 1;
 	    }
 	    if ( flags() & showbase ) {		// show base
@@ -322,7 +322,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    p = &buf[74];
 	    *p = '\0';
 	    do {
-		*--p = (n&7) + '0';
+		*--p = (char)(n&7) + '0';
 		n >>= 3;
 	    } while ( n );
 	    if ( flags() & showbase )

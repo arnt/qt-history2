@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#2 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#2 $";
 #endif
 
 
@@ -56,11 +56,11 @@ void QIODevice::setMode( int m )		// set device mode
 void QIODevice::setState( int s )		// set device state
 {
 #if defined(CHECK_RANGE)
-    if ( (s & IO_StateMask) != s )
+    if ( ((uint)s & IO_StateMask) != (uint)s )
 	warning( "QIODevice::setState: Specified state out of range" );
 #endif
     ioMode &= ~IO_StateMask;			// reset state bits
-    ioMode |= s;
+    ioMode |= (uint)s;
 }
 
 void QIODevice::setStatus( int s )		// set status
