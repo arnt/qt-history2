@@ -206,7 +206,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     }
 
     t << "####### Build rules" << endl << endl;
-    t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
+    t << "all: " << fileFixify(Option::output.name()) << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " 
       << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
