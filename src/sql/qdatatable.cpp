@@ -2053,6 +2053,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
+    viewport()->repaint( FALSE );
     horizontalHeader()->repaint();
     setSize( cur );
     // keep others aware
