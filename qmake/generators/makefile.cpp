@@ -1214,10 +1214,10 @@ MakefileGenerator::processPrlFile(QString &file)
 	}
     }
     QString real_meta_file = Option::fixPathToLocalOS(meta_file);
-    if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(meta_file) != -1) {
+    if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(QMakeMetaInfo::findLib(meta_file)) != -1) {
 	ret = TRUE;
     } else if(!meta_file.isEmpty()) {
-	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(meta_file);
+	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(QMakeMetaInfo::findLib(meta_file));
 	QString f = fileFixify(real_meta_file, QDir::currentDirPath(), Option::output_dir);
 	if(QMakeMetaInfo::libExists(f)) {
 	    QMakeMetaInfo libinfo;
@@ -1239,7 +1239,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	    }
 	}
 	if(ret)
-	    project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(meta_file);
+	    project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(QMakeMetaInfo::findLib(meta_file));
     }
     return ret;
 }
