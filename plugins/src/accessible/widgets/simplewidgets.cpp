@@ -80,7 +80,6 @@ QString QAccessibleButton::text(Text t, int child) const
 		str = QAccel::keyToString(Key_Enter);
 	    if (str.isEmpty())
 		str = qacc_hotKey(button()->text());
-	    qDebug("%s", str.latin1());
 	}
 	break;
     case Name:
