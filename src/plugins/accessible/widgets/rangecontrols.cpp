@@ -6,6 +6,7 @@
 #include <qscrollbar.h>
 #include <qslider.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
 QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 
@@ -54,19 +55,23 @@ int QAccessibleSpinBox::childCount() const
 QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
+    Q4StyleOptionComplex so(0);
+    so.rect = widget()->rect();
     switch(child) {
     case Editor:
-        rect = widget()->rect();
-        rect.setRight(spinBox()->upRect().left());
+        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+                                                        QStyle::SC_SpinBoxEditField, widget());
         break;
     case ValueUp:
-        rect = spinBox()->upRect();
+        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+                                                        QStyle::SC_SpinBoxUp, widget());
         break;
     case ValueDown:
-        rect = spinBox()->downRect();
+        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+                                                        QStyle::SC_SpinBoxDown, widget());
         break;
     default:
-        rect = widget()->rect();
+        rect = so.rect;
         break;
     }
     QPoint tl = widget()->mapToGlobal(QPoint(0, 0));
@@ -89,6 +94,8 @@ int QAccessibleSpinBox::navigate(Relation rel, int entry, QAccessibleInterface *
         return entry == ValueDown ? ValueUp : -1;
     case QAccessible::Down:
         return entry == ValueUp ? ValueDown : -1;
+    default:
+        break;
     }
     return QAccessibleWidget::navigate(rel, entry, target);
 }
@@ -100,14 +107,16 @@ QString QAccessibleSpinBox::text(Text t, int child) const
     case Name:
         switch (child) {
         case ValueUp:
-            return QSpinWidget::tr("More");
+            return QSpinBox::tr("More");
         case ValueDown:
-            return QSpinWidget::tr("Less");
+            return QSpinBox::tr("Less");
         }
         break;
     case Value:
         if (child == Editor || child == SpinBoxSelf)
             return spinBox()->text();
+        break;
+    default:
         break;
     }
     return QAccessibleWidget::text(t, 0);
@@ -134,11 +143,11 @@ int QAccessibleSpinBox::state(int child) const
     int state = QAccessibleWidget::state(child);
     switch(child) {
     case ValueUp:
-        if (spinBox()->value() >= spinBox()->maxValue())
+        if (spinBox()->value() >= spinBox()->maximum())
             state |= Unavailable;
         return state;
     case ValueDown:
-        if (spinBox()->value() <= spinBox()->minValue())
+        if (spinBox()->value() <= spinBox()->minimum())
             state |= Unavailable;
         return state;
     default:
@@ -148,7 +157,7 @@ int QAccessibleSpinBox::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleSpinBox::doAction(int action, int child, const QVariantList &params)
+bool QAccessibleSpinBox::doAction(int action, int /*child*/, const QVariantList &params)
 {
     if (!widget()->isEnabled())
         return false;
@@ -300,7 +309,7 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleScrollBar::doAction(int action, int child, const QVariantList &params)
+bool QAccessibleScrollBar::doAction(int /*action*/, int /*child*/, const QVariantList &/*params*/)
 {
 /*
     if (action == Press) switch (child) {
@@ -439,7 +448,7 @@ QAccessible::Role QAccessibleSlider::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleSlider::defaultAction(int child) const
+int QAccessibleSlider::defaultAction(int /*child*/) const
 {
 /*
     switch (child) {
@@ -455,7 +464,7 @@ int QAccessibleSlider::defaultAction(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleSlider::doAction(int action, int child, const QVariantList &params)
+bool QAccessibleSlider::doAction(int /*action*/, int /*child*/, const QVariantList &/*params*/)
 {
 /*
     switch(child) {
