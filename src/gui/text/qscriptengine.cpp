@@ -60,7 +60,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 
     qreal size = f->ascent()/10.;
     qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
-//     qDebug("offset = %d", offsetBase);
+//     qDebug("offset = %f", offsetBase);
 
     bool rightToLeft = item->flags & QTextEngine::RightToLeft;
 
@@ -177,6 +177,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
             glyphs[gfrom+i].offset.setX(p.x() - baseInfo.xoff);
             glyphs[gfrom+i].offset.setX(p.y() - baseInfo.yoff);
         }
+        glyphs[gfrom+i].advance = QPointF();
     }
 }
 
@@ -286,7 +287,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
             glyphs[pos].attributes.mark = true;
             glyphs[pos].attributes.clusterStart = false;
             glyphs[pos].attributes.combiningClass = cmb;
-            //                 qDebug("found a mark at position %d", pos);
+            // qDebug("found a mark at position %d", pos);
             logClusters[pos] = cStart;
             glyphs[pos].advance = QPointF();
         }
