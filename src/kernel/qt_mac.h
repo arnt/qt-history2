@@ -13,6 +13,13 @@
 #endif
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
+#ifdef Q_OS_MACX
+# define ENUM_DYLD_BOOL
+ enum DYLD_BOOL { DYLD_FALSE, DYLD_TRUE };
+ extern "C" {
+//# include "mach-o/dyld.h"
+ }
+#endif
 #include "qglobal.h"
 
 #ifdef Q_OS_MAC9
@@ -20,35 +27,6 @@
 # include "qt_mac9.h"
 #elif defined( Q_OS_MACX )
 # define QMAC_DEFAULT_STYLE "QAquaStyle" //DefaultStyle
-//is this gross or what!?! God I love the preprocessor..
-# ifdef TRUE
-#  define OLD_T TRUE
-#  undef TRUE
-# else
-#  undef OLD_T
-# endif
-# ifdef FALSE
-#  define OLD_F FALSE
-#  undef FALSE
-# else
-#  undef OLD_F
-# endif
-# define TRUE DYLD_TRUE
-# define FALSE DYLD_FALSE
-# define ENUM_DYLD_BOOL
- enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
- extern "C" {
-# include "mach-o/dyld.h"
- }
-# undef bool
-# undef TRUE
-# ifdef OLD_T
-#  define TRUE OLD_T
-# endif
-# undef FALSE
-# ifdef OLD_F
-#  define FALSE OLD_F
-# endif
 #endif
 
 #undef DEBUG
