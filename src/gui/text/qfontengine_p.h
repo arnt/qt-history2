@@ -135,7 +135,7 @@ public:
     qreal _scale;
 
 #ifdef Q_WS_WIN
-    void getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
+    int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
     void getCMap();
 
     QString        _name;
