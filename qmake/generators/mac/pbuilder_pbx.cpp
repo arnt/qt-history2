@@ -50,7 +50,7 @@
 // Note: this is fairly hacky, but it does the job... 
 
 
-ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p), init_flag(FALSE)
+ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p)
 {
 
 }
@@ -611,16 +611,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     return TRUE;
 }
 
-void
-ProjectBuilderMakefileGenerator::init()
-{
-    if(init_flag)
-	return;
-    QStringList::Iterator it;
-    init_flag = TRUE;
-    UnixMakefileGenerator::init();
-}
-
 QString
 ProjectBuilderMakefileGenerator::fixEnvs(QString file)
 {
@@ -685,8 +675,79 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
 bool
 ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t)
 {
-    fprintf(stderr, "Subdirs not supported yet, sorry.\n");
-    return TRUE;
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+
+    t << "MAKEFILE =	" << var("MAKEFILE") << endl;
+    t << "QMAKE =	" << var("QMAKE") << endl;
+    t << "SUBDIRS =	" << varList("SUBDIRS") << endl;
+
+    // subdirectory targets are sub-directory
+    t << "SUBTARGETS =	";
+    QStringList subdirs = project->variables()["SUBDIRS"];
+    QStringList::Iterator it = subdirs.begin();
+    while (it != subdirs.end())
+	t << " \\\n\t\tsub-" << *it++;
+    t << endl << endl;
+
+    t << "all: " << ofile << " $(SUBTARGETS)" << endl << endl;
+
+    // generate target rules
+    it = subdirs.begin();
+    while (it != subdirs.end()) {
+	QString base = (*it).section('/', -1, -1), pbdir =  base + ".pbproj/", dir = (*it),
+		 pro = base + ".pro";
+	if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
+	    dir += Option::dir_sep;
+	//qmake it
+	t << "#build rules for " << (*it) << "\n"
+	  //QMAKE
+	  << "qmake-" << (*it) << ": FORCE" << "\n\t"
+	  << "@echo qmake " << dir << pro << "\n\t"
+	  << "@cd " << dir << " && "
+	  << " if grep \"^ *TEMPLATE *= *subdirs$$\" " << pro << " 2>/dev/null >/dev/null; then "
+	  << "[ ! -f $(MAKEFILE) ] && $(QMAKE) " << pro << " -o $(MAKEFILE); "
+	  << "$(MAKE) -f $(MAKEFILE) qmake_all; "
+	  << "elif [ ! -f " << pbdir << "project.pbxproj ]; then $(QMAKE) " << pro << "; fi" << "\n"
+	  //CLEAN
+	  << "clean-" << (*it) << ": qmake_all FORCE" << "\n\t"
+	  << "cd " << dir << pbdir << " && pbxbuild clean" << "\n"
+	  //DISTCLEAN
+	  << "distclean-" << (*it) << ": clean-" << (*it) << " FORCE" << "\n\t"
+	  << "cd " << dir << " && "
+	  << " if grep \"^ *TEMPLATE *= *subdirs$$\" " << pro << " 2>/dev/null >/dev/null; then "
+	  << "rm -f $(MAKEFILE); "
+	  << "else rm -rf " << pbdir << "; fi" << "\n"
+	  //BUILD
+	  << "sub-" << (*it) << ": qmake_all FORCE" << "\n\t"
+	  << "cd " << dir << pbdir << " && pbxbuild" << endl << endl;
+	it++;
+    }
+
+    if (project->isActiveConfig("ordered")) {
+	// generate dependencies
+	QString tar, dep;
+	it = subdirs.begin();
+	while (it != subdirs.end()) {
+	    tar = *it++;
+	    if (it != subdirs.end()) {
+		dep = *it;
+		t << "sub-" << dep << ": sub-" << tar << endl;
+	    }
+	}
+	t << endl;
+    }
+    writeMakeQmake(t);
+
+    if(project->isEmpty("SUBDIRS")) {
+	t << "qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
+    } else {
+	t << "qmake_all:" << varGlue("SUBDIRS", " qmake-", " qmake-", "") << "\n\n"
+	  << "clean:" << varGlue("SUBDIRS", " clean-", " clean-", "") << "\n\n"
+	  << "distclean:" << varGlue("SUBDIRS", " distclean-", " distclean-", "")  << endl << endl;
+    }
+    t <<"FORCE:" << endl << endl;
 }
 
 
