@@ -36,6 +36,12 @@ private:
 private:
     QWidget *widget;
     QComponentInterface *appIface;
+    enum Mode {
+	None,
+	Form,
+	Table
+    };
+    Mode mode;
 
 };
 

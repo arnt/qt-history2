@@ -224,6 +224,7 @@ struct DesignerMetaDatabaseInterface : public QUnknownInterface
     virtual bool isPropertyChanged( QObject *o, const QString &property ) = 0;
     virtual void addConnection( QObject *o, QObject *sender, const QCString &signal,
 				QObject *receiver, const QCString &slot ) = 0;
+    virtual void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields ) = 0;
 
 };
 

@@ -284,6 +284,7 @@ public:
     bool isPropertyChanged( QObject *o, const QString &property );
     void addConnection( QObject *o, QObject *sender, const QCString &signal,
 			QObject *receiver, const QCString &slot );
+    void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
 
 private:
     QUnknownInterface *appIface;

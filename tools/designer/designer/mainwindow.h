@@ -122,6 +122,9 @@ public:
 
     FormWindow *activeForm() const { return lastActiveFormWindow; }
 
+    TemplateWizardInterface* templateWizardInterface( const QString& className );
+    QComponentInterface* applicationInterface() const { return appInterface; }
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );

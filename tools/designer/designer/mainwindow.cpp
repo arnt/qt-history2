@@ -1,4 +1,4 @@
-/**********************************************************************
+ /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -1905,7 +1905,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	    }
 	}
     }
-	
+
     QWidget *w = QWidgetFactory::create( &buffer );
     if ( w ) {
 	if ( style )
@@ -2476,7 +2476,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 	fw->setMainContainer( w );
     }
 
-    TemplateWizardInterface *iface = templateWizardPluginManager->queryInterface( fw->mainContainer()->className() );
+    TemplateWizardInterface *iface = templateWizardInterface( fw->mainContainer()->className() );
     if ( iface ) {
 	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), appInterface );
 	iface->release();
@@ -3856,4 +3856,11 @@ void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
     if ( lst.count() >= 10 )
 	lst.remove( lst.begin() );
     lst << fn;
+}
+
+TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& className )
+{
+    if ( templateWizardPluginManager )
+	return templateWizardPluginManager->queryInterface( className );
+    return 0;
 }

@@ -285,6 +285,13 @@ void FormWindow::insertWidget()
     QWidget *w = WidgetFactory::create( currTool, insertParent, 0, TRUE, &currRect, orient );
     if ( !w )
 	return;
+
+    TemplateWizardInterface *iface = mainWindow()->templateWizardInterface( w->className() );
+    if ( iface ) {
+	iface->setup( w->className(), w, mainWindow()->applicationInterface() );
+	iface->release();
+    }
+
     if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) )
 	( (QLabel*)w )->setPixmap( PixmapChooser::loadPixmap( "image.xpm" ) );
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
@@ -307,8 +314,6 @@ void FormWindow::insertWidget()
     QString s = w->name();
     unify( w, s, TRUE );
     w->setName( s );
-    if ( !w )
-	return;
     insertWidget( w );
     QRect r( currRect );
     if ( !oldRectValid ||

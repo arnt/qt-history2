@@ -1122,6 +1122,10 @@ void DesignerMetaDatabaseInterfaceImpl::addConnection( QObject *o, QObject *send
     MetaDataBase::addConnection( o, sender, signal, receiver, slot );
 }
 
+void DesignerMetaDatabaseInterfaceImpl::setColumnFields( QObject *o, const QMap<QString, QString> &columnFields )
+{
+    MetaDataBase::setColumnFields( o, columnFields );
+}
 
 
 DesignerWidgetFactoryInterfaceImpl::DesignerWidgetFactoryInterfaceImpl( QUnknownInterface *i )
