@@ -194,7 +194,7 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, QGlyphLayout *
 
 // non Uniscribe engine
 
-QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
+QFontEngineWin::QFontEngineWin( const QString &name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
 {
     paintDevice = FALSE;
     //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
@@ -228,7 +228,8 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     // TextOutW doesn't work for symbol fonts on Windows 95!
     // since we're using glyph indices we don't care for ttfs about this!
     if ( qWinVersion() == Qt::WV_95 && !ttf &&
-	 ( _name == "Marlett" || _name == "Symbol" || _name == "Webdings" || _name == "Wingdings" ) )
+	 ( _name == QLatin1String("Marlett") || _name == QLatin1String("Symbol") || 
+	   _name == QLatin1String("Webdings") || _name == QLatin1String("Wingdings") ) )
 	    useTextOutA = TRUE;
 #endif
     memset( widthCache, 0, sizeof(widthCache) );

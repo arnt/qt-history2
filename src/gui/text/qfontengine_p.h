@@ -125,7 +125,7 @@ public:
     void getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
     void getCMap();
 
-    QByteArray _name;
+    QString	_name;
     HDC		hdc;
     HFONT	hfont;
     LOGFONT     logfont;
@@ -530,7 +530,7 @@ public:
 class QFontEngineWin : public QFontEngine
 {
 public:
-    QFontEngineWin(const char *name, HDC, HFONT, bool, LOGFONT);
+    QFontEngineWin(const QString &name, HDC, HFONT, bool, LOGFONT);
 
     FECaps capabilites() const;
 
