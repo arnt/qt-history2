@@ -85,7 +85,6 @@ int QPaintDevice::fontInf( QFont *, int ) const
     return 0;
 }
 
-
 QPoint posInWindow(QWidget *w);
 
 void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
@@ -142,10 +141,6 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sh = pm->height();
     }
 
-    ::RGBColor f;
-    f.red = f.green = f.blue = 0;
-    RGBForeColor( &f );
-
     int dstoffx=0, dstoffy=0;
     const BitMap *dstbitmap=NULL;
     if(dst->devType() == QInternal::Widget) {
@@ -181,6 +176,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	return;
     }
 
+    ::RGBColor f;
+    f.red = f.green = f.blue = 0;
+    RGBForeColor( &f );
+
     short copymode;
     switch(rop) {
     default:
@@ -208,8 +207,6 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
     Rect r2;
     SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
-//    qDebug("%d %d %d %d - %d %d %d %d", sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy,
-//	   dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
 	
     if(srcbitmask && !imask) {
 	BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
