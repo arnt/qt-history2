@@ -451,10 +451,10 @@ public:
     QWidget *parentWidget() const;
 
     void setWindowFlags(Qt::WindowFlags type);
-    Qt::WindowFlags windowFlags() const;
+    inline Qt::WindowFlags windowFlags() const;
     void overrideWindowFlags(Qt::WindowFlags type);
 
-    Qt::WindowType windowType() const;
+    inline Qt::WindowType windowType() const;
 
     static QWidget *find(WId);
 #ifdef QT3_SUPPORT
