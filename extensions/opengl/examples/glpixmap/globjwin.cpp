@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#3 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -134,15 +134,12 @@ void GLObjectWindow::makePixmapManually()
     // Store the QGLWidget's current context, for later restoration
     QGLContext* origCx = (QGLContext*)c1->context();
 
-    // Make a gl format suitable for pixmap rendering 
-    QGLFormat fmt( QGL::SingleBuffer | QGL::IndirectRendering );
-
     // Make a gl context to draw on our pixmap
-    QGLContext* pcx = new QGLContext( fmt, &pm );
+    QGLContext* pcx = new QGLContext( QGLFormat(), &pm );
 
-    // Make the QGLwidget use our pixmap-context, 
+    // Make the QGLwidget use our pixmap-context,
     // without deleting the old context, which we are storing
-    // It will share GL display lists with the old context
+    // It will share GL display lists with the old context, if possible
     c1->setContext( pcx, 0, FALSE );
     
     if ( c1->isValid() ) {
@@ -202,9 +199,6 @@ void GLObjectWindow::makePixmapHidden()
 
 void GLObjectWindow::makePixmapHiddenManually()
 {
-    // Make a gl format suitable for pixmap rendering 
-    QGLFormat fmt( QGL::SingleBuffer | QGL::IndirectRendering );
-
     // Make a QGLWidget to draw the pixmap. This widget will not be shown.    
     GLBox* w = new GLBox( this, "temporary glwidget", c1 );
 
@@ -212,7 +206,7 @@ void GLObjectWindow::makePixmapHiddenManually()
     QPixmap pm( pmSz.isValid() ? pmSz : c1->size() );
 
     // Make a gl context to draw on this pixmap
-    QGLContext* pcx = new QGLContext( fmt, &pm );
+    QGLContext* pcx = new QGLContext( QGLFormat(), &pm );
 
     // Make our widget use this context
     w->setContext( pcx );

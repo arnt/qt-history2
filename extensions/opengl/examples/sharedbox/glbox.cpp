@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#3 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#4 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying a box
@@ -41,7 +41,9 @@ GLBox::GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget )
 
 void GLBox::initializeGL()
 {
-    glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
+    // Let OpenGL clear to black
+    qglClearColor( black ); 
+
     glEnable(GL_DEPTH_TEST);
 
     if ( sharedListUsers == 0 ) {	// No shared list has been made yet
@@ -129,7 +131,7 @@ void GLBox::resizeGL( int w, int h )
 */
 
 GLuint GLBox::makeObject()
-{	
+{
     GLuint list;
 
     list = glGenLists( 1 );
@@ -138,25 +140,25 @@ GLuint GLBox::makeObject()
 
     glBegin(GL_QUADS);
     /* Front face */
-    glColor3f((GLfloat)0.0, (GLfloat)0.7, (GLfloat)0.1);  /* Green */
+    qglColor( green );
     glVertex3f(-1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, 1.0);
     glVertex3f(1.0, -1.0, 1.0);
     glVertex3f(-1.0, -1.0, 1.0);
     /* Back face */
-    glColor3f((GLfloat)0.9, (GLfloat)1.0, (GLfloat)0.0);  /* Yellow */
+    qglColor( yellow );
     glVertex3f(-1.0, 1.0, -1.0);
     glVertex3f(1.0, 1.0, -1.0);
     glVertex3f(1.0, -1.0, -1.0);
     glVertex3f(-1.0, -1.0, -1.0);
     /* Top side face */
-    glColor3f((GLfloat)0.2, (GLfloat)0.2, (GLfloat)1.0);  /* Blue */
+    qglColor( blue );
     glVertex3f(-1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, -1.0);
     glVertex3f(-1.0, 1.0, -1.0);
     /* Bottom side face */
-    glColor3f((GLfloat)0.7, (GLfloat)0.0, (GLfloat)0.1);  /* Red */
+    qglColor( red );
     glVertex3f(-1.0, -1.0, 1.0);
     glVertex3f(1.0, -1.0, 1.0);
     glVertex3f(1.0, -1.0, -1.0);

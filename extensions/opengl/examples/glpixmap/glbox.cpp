@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/glbox.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/glbox.cpp#2 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying a box
@@ -55,7 +55,7 @@ GLBox::~GLBox()
 
 void GLBox::initializeGL()
 {
-    glClearColor( 0.0, 0.5, 0.0, 0.0 ); // Let OpenGL clear to green
+    qglClearColor( green );		// Let OpenGL clear to green
     object = makeObject();		// Make display list
     glEnable( GL_DEPTH_TEST );
 }
@@ -180,9 +180,11 @@ GLuint GLBox::makeObject()
             t3[1] = v3[1]*scalFac + 0.5;
             t3[2] = v3[2]*scalFac + 0.5;
 
-	    glColor3f( (GLfloat) ((i+j) % 2),
-		       (GLfloat) 0.0,
-		       (GLfloat) 0.0 );
+	    // Create blue-black checkered coloring
+	    if ( (i+j) % 2 )
+		qglColor( black );
+	    else
+		qglColor( QColor( "steelblue" ) );
 
             glBegin(GL_POLYGON);
                 glNormal3fv(n3); glTexCoord3fv(t3); glVertex3fv(v3);

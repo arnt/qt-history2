@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#4 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#5 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying an openGL wireframe box
@@ -52,7 +52,6 @@ void GLBox::paintGL()
     glRotatef( yRot, 0.0, 1.0, 0.0 ); 
     glRotatef( zRot, 0.0, 0.0, 1.0 );
 
-    glColor3f( 1.0, 1.0, 1.0 );
     glCallList( object );
 }
 
@@ -63,7 +62,7 @@ void GLBox::paintGL()
 
 void GLBox::initializeGL()
 {
-    glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
+    qglClearColor( black ); 		// Let OpenGL clear to black
     object = makeObject();		// Generate an OpenGL display list
     glShadeModel( GL_FLAT );
 }
@@ -95,6 +94,8 @@ GLuint GLBox::makeObject()
     list = glGenLists( 1 );
 
     glNewList( list, GL_COMPILE );
+
+    qglColor( white );		      // Shorthand for glColor3f or glIndex
 
     glLineWidth( 2.0 );
 

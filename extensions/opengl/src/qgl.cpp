@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#37 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#38 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1120,14 +1120,46 @@ void QGLContext::swapBuffers()
 
 bool QGLContext::chooseContext( const QGLContext* shareContext )
 {
+    Display* disp = paintDevice->x11Display();
     bool ok = TRUE;
     vi = chooseVisual();
     if ( !vi )
 	return FALSE;
 
+    if ( deviceIsPixmap() && 
+	 ((XVisualInfo*)vi)->depth != paintDevice->x11Depth() ) {
+	XFree( vi );
+	XVisualInfo appVisInfo;
+	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
+	appVisInfo.visualid = XVisualIDFromVisual( (Visual*)paintDevice->x11Visual() );
+	int nvis;
+	vi = XGetVisualInfo( disp, VisualIDMask, &appVisInfo, &nvis );
+	if ( !vi )
+	    return FALSE;
+	
+	int useGL;
+	glXGetConfig( disp, (XVisualInfo*)vi, GLX_USE_GL, &useGL );
+	if ( !useGL )
+	    return FALSE;	//# Chickening out already...
+    }
+    int res;
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_DOUBLEBUFFER, &res );
+    glFormat.setDoubleBuffer( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_DEPTH_SIZE, &res );
+    glFormat.setDepth( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_RGBA, &res );
+    glFormat.setRgba( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_ALPHA_SIZE, &res );
+    glFormat.setAlpha( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_ACCUM_RED_SIZE, &res );
+    glFormat.setAccum( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_STENCIL_SIZE, &res );
+    glFormat.setStencil( res );
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_STEREO, &res );
+    glFormat.setStereo( res );
+
     Bool direct = format().directRendering() ? True : False;
     
-
     if ( shareContext && 
 	 ( !shareContext->isValid() || !shareContext->cx ) ) {
 #if defined(CHECK_NULL)
@@ -1136,30 +1168,29 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    shareContext = 0;
     }
 
+    // sharing between rgba and color-index will give wrong colors
+    if ( shareContext && ( format().rgba() != shareContext->format().rgba() ) )
+	shareContext = 0;
+
     cx = 0;
     if ( shareContext ) {
-	cx = glXCreateContext( paintDevice->x11Display(), (XVisualInfo *)vi,
+	cx = glXCreateContext( disp, (XVisualInfo *)vi,
 			       (GLXContext)shareContext->cx, direct );
 	if ( cx )
 	    sharing = TRUE;
     }
     if ( !cx )
-	cx = glXCreateContext( paintDevice->x11Display(), (XVisualInfo *)vi,
-			       None, direct );
+	cx = glXCreateContext( disp, (XVisualInfo *)vi, None, direct );
     if ( !cx )
 	return FALSE;
-    glFormat.setDirectRendering( glXIsDirect( paintDevice->x11Display(), 
-					      (GLXContext)cx ) );
+    glFormat.setDirectRendering( glXIsDirect( disp, (GLXContext)cx ) );
     if ( deviceIsPixmap() ) {
 #ifdef GLX_MESA_pixmap_colormap
-	gpm = glXCreateGLXPixmapMESA( paintDevice->x11Display(),
-				      (XVisualInfo *)vi,
+	gpm = glXCreateGLXPixmapMESA( disp, (XVisualInfo *)vi,
 				      paintDevice->handle(),
-				      choose_cmap( paintDevice->x11Display(),
-						   (XVisualInfo *)vi ) );
+				      choose_cmap( disp, (XVisualInfo *)vi ) );
 #else
-	gpm = (Q_UINT32)glXCreateGLXPixmap( paintDevice->x11Display(),
-					    (XVisualInfo *)vi,
+	gpm = (Q_UINT32)glXCreateGLXPixmap( disp, (XVisualInfo *)vi,
 					    paintDevice->handle() );
 #endif
 	if ( !gpm )
@@ -1183,7 +1214,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 void *QGLContext::chooseVisual()
 {
-    static int bufDepths[] = { 16, 12, 8, 4, 2, 1 };
+    static int bufDepths[] = { 8, 4, 2, 1 };	// Try 16, 12 also? 
     //todo: if pixmap, also make sure that vi->depth == pixmap->depth
     void* vis = 0;
     int i = 0;
@@ -2026,6 +2057,42 @@ void QGLWidget::glDraw()
     }
 }
 
+
+/*!
+  Convenience function for specifying a drawing color to OpenGL. Calls
+  glColor3 (in RGBA mode) or glIndex (in color-index mode) with the
+  color \a c.
+
+  \sa qglClearColor(), QColor
+*/
+
+void QGLWidget::qglColor( const QColor& c )
+{
+    makeCurrent();
+    if ( format().rgba() )
+	glColor3ub( c.red(), c.green(), c.blue() );
+    else
+	glIndexi( c.pixel() );
+}
+
+/*!
+  Convenience function for specifying the clearing color to
+  OpenGL. Calls glClearColor (in RGBA mode) or glClearIndex (in
+  color-index mode) with the color \a c.
+
+  \sa qglColor(), QColor
+*/
+
+void QGLWidget::qglClearColor( const QColor& c )
+{
+    makeCurrent();
+    if ( format().rgba() )
+	glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
+		      (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
+    else
+	glClearIndex( c.pixel() );
+}
+
 /*****************************************************************************
   QGL classes overview documentation.
  *****************************************************************************/
@@ -2067,6 +2134,10 @@ display format of a rendering context.
 Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features.
 */
+
+
+
+
 
 
 

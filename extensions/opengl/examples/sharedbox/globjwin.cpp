@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#4 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#5 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -41,7 +41,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     f2->setLineWidth( 2 );
 
     // Create an OpenGL widget
-    c1 = new GLBox( f1, "glbox1");
+    c1 = new GLBox( f1, "glbox1" );
     
     // Create another OpenGL widget that shares display lists with the first
     c2 = new GLBox( f2, "glbox2", c1 );

@@ -14,6 +14,14 @@ into GL for use as textures etc.
 Added 'overlay_x11" example program to demonstrate how to use X server
 overlays with Qt and Qt OpenGL Extension.
 
+Fixed an error in X11 visual selection when rendering to pixmap on a
+multi-visual server; will now use the server's default visual (which
+the pixmap also uses) if its depth is different from the visual
+suggesed by glxchoosevisual, thus avoiding X errors.
+
+Added qglColor and qglClearColor convenience functions in QGLWidget;
+they allow using QColor objects for doing glColor3() or glIndex().
+
 
 Changes from version 3.00 to version 4.00 (Qt 1.42) 
 ---------------------------------------------------

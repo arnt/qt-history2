@@ -198,9 +198,9 @@ GearWidget::GearWidget( QWidget *parent, const char *name )
 void GearWidget::initializeGL()
 {
     static GLfloat pos[4] = {5.0, 5.0, 10.0, 1.0 };
-    static GLfloat red[4] = {0.8, 0.1, 0.0, 1.0 };
-    static GLfloat green[4] = {0.0, 0.8, 0.2, 1.0 };
-    static GLfloat blue[4] = {0.2, 0.2, 1.0, 1.0 };
+    static GLfloat ared[4] = {0.8, 0.1, 0.0, 1.0 };
+    static GLfloat agreen[4] = {0.0, 0.8, 0.2, 1.0 };
+    static GLfloat ablue[4] = {0.2, 0.2, 1.0, 1.0 };
 
     glLightfv( GL_LIGHT0, GL_POSITION, pos );
     glEnable( GL_CULL_FACE );
@@ -211,19 +211,19 @@ void GearWidget::initializeGL()
     /* make the gears */
     gear1 = glGenLists(1);
     glNewList(gear1, GL_COMPILE);
-    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red );
+    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ared );
     gear( 1.0, 4.0, 1.0, 20, 0.7 );
     glEndList();
 
     gear2 = glGenLists(1);
     glNewList(gear2, GL_COMPILE);
-    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green );
+    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, agreen );
     gear( 0.5, 2.0, 2.0, 10, 0.7 );
     glEndList();
 
     gear3 = glGenLists(1);
     glNewList(gear3, GL_COMPILE);
-    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue );
+    glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ablue );
     gear( 1.3, 2.0, 0.5, 10, 0.7 );
     glEndList();
 
