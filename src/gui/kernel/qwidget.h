@@ -183,6 +183,7 @@ public:
 public slots:
     void setEnabled(bool);
     void setDisabled(bool);
+    void setWindowModified(bool);
 
     // Widget coordinates
 
@@ -284,7 +285,6 @@ public:
     qreal windowOpacity() const;
 
     bool isWindowModified() const;
-    void setWindowModified(bool);
 
     void setToolTip(const QString &);
     QString toolTip() const;

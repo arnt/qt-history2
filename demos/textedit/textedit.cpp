@@ -524,7 +524,7 @@ void TextEdit::editorChanged()
         disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
                    actionSave, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-                   this, SLOT(updateModified(bool)));
+                   this, SLOT(setWindowModified(bool)));
         disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
                    actionUndo, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
@@ -553,7 +553,7 @@ void TextEdit::editorChanged()
     connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
             actionSave, SLOT(setEnabled(bool)));
     connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-            this, SLOT(updateModified(bool)));
+            this, SLOT(setWindowModified(bool)));
     connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
             actionUndo, SLOT(setEnabled(bool)));
     connect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
@@ -590,9 +590,4 @@ QTextEdit *TextEdit::createNewEditor(const QString &title)
     edit->setFocus();
 
     return edit;
-}
-
-void TextEdit::updateModified(bool isDirty)
-{
-    setWindowModified(isDirty);
 }

@@ -46,7 +46,6 @@ private slots:
     void filePrint();
     void fileClose();
     void fileExit();
-    void updateModified(bool);
 
     void textBold();
     void textUnderline();
