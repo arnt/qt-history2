@@ -37,7 +37,7 @@ class QFileDialogQFileListView;
 
 #ifndef QT_NO_FILEDIALOG
 
-class Q_GUI_EXPORT QFileIconProvider : public QObject
+class Q_COMPAT_EXPORT QFileIconProvider : public QObject
 {
     Q_OBJECT
 public:
@@ -51,7 +51,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-class Q_GUI_EXPORT QFilePreview
+class Q_COMPAT_EXPORT QFilePreview
 {
 public:
     QFilePreview();
@@ -59,7 +59,7 @@ public:
 
 };
 
-class Q_GUI_EXPORT QFileDialog : public QDialog
+class Q_COMPAT_EXPORT QFileDialog : public QDialog
 {
     Q_OBJECT
     Q_ENUMS( Mode ViewMode PreviewMode )
