@@ -19,7 +19,6 @@
 *****************************************************************************/
 
 #include "qws.h"
-#include "qws_gui.h"
 #include "qwsevent.h"
 #include "qwscommand.h"
 #include "qwsutils.h"
@@ -669,27 +668,3 @@ void QWSServer::handleMouseData()
 
 }
 
-
-
-main(int argc, char** argv)
-{
-    int refresh_delay=500;
-
-    bool useGUI = getenv( "DISPLAY" ) != 0;
-
-    QApplication app(argc, argv, useGUI);
-
-    if ( useGUI ) {
-	if ( argc > 1 ) {
-	    refresh_delay = atoi(argv[1]);
-	}
-	DebuggingGUI m;
-	app.setMainWidget(&m);
-	m.show();
-	m.serve(refresh_delay);
-	return app.exec();
-    } else {
-	(void)new QWSServer;
-	return app.exec();
-    }
-}
