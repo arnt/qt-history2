@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#24 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#25 $
 **
 ** Implementation of QFontDialog
 **
@@ -51,7 +51,7 @@
 //  snapshot releases of Qt.
 //
 
-/*notready
+/*!
   \class QFontDialog qfontdialog.h
   \brief The QFontDialog provides a dialog widget for selecting a text font
   \ingroup dialogs
@@ -119,7 +119,7 @@ public:
     }
     QSize sizeHint() const { QSize sz = QLineEdit::sizeHint();
                              sz.setWidth( 20 );
-			     return sz; 
+			     return sz;
                            }
     bool f;
 };
@@ -322,7 +322,7 @@ QFontDialog::~QFontDialog()
   the user clicked Cancel.
 
   If the user clicks Cancel the \a def font is returned.
-  
+
   This static function is less capable than the full QFontDialog object,
   but is convenient and easy to use.
 
@@ -356,7 +356,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont &def,
   the user clicked Cancel.
 
   If the user clicks Cancel the Qt default font is returned.
-  
+
   This static function is less capable than the full QFontDialog object,
   but is convenient and easy to use.
 
@@ -462,10 +462,6 @@ void QFontDialog::sizeSelected()
 {
 }
 
-
-/*!
-
-*/
 
 /*!  Event filter to make up, down, pageup and pagedown work correctly
   in the line edits.
@@ -577,7 +573,7 @@ void QFontDialog::updateSizes()
     d->sizeList->repaint();
 }
 
-/*!
+/*! 
 
 */
 
