@@ -7,8 +7,14 @@ fi
 
 if [ ! -d "$TMAKEDIR/lib" ]
 then
-    echo '$TMAKEDIR not set properly - eg. ~/tmake'
-    exit 1
+    if [ -d $HOME/tmake/lib ]
+    then
+	# Guess
+	TMAKEDIR=$HOME/tmake
+    else
+	echo '$TMAKEDIR not set properly - eg. ~/tmake'
+	exit 1
+    fi
 fi
 
 for platform in `(cd $TMAKEDIR/lib; /bin/ls -d *-*)`
@@ -22,7 +28,7 @@ do
           for i in static static-debug shared shared-debug
           do
 	    sysconf=$QTDIR/configs/$platform-$i
-	    TMAKEPATH=$TMAKEDIR/lib/unix:$TMAKEDIR/lib/$platform:$TMAKEPATH \
+	    TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
 		tmake -t $i /dev/null >$sysconf
 	    if [ ! -s $sysconf  ]
 	    then
