@@ -53,6 +53,7 @@ class QFontStylePrivate; /* Don't touch! */
 class QtFontStyle;
 class QtFontFamily;
 class QtFontFoundry;
+class FontEngineIface;
 #ifdef Q_WS_QWS
 class QDiskFont;
 #endif
@@ -112,10 +113,11 @@ public:
 #endif // QT_NO_COMPAT
 
 #ifdef Q_WS_X11
-    static bool findFont( int script, int styleStrategy,
-			  QString &family, QString &foundry,
-			  int &weight, bool &italic, bool &oblique, int &pixelSize,
-			  char &pitch, bool &xlfd_uses_regular, QCString &encoding );
+    static FontEngineIface *findFont( QFont::Script script,
+				      int styleStrategy, int styleHint,
+				      const QString &family, const QString &foundry,
+				      int weight, bool italic,
+				      int pixelSize, char pitch, int x11Screen );
 #endif // Q_WS_X11
 
 private:
