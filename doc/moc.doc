@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.13 1999/01/28 15:40:31 warwick Exp $
+** $Id: moc.doc,v 2.14 1999/04/14 13:51:14 eiriken Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -149,6 +149,14 @@ This guarantees that make(1) will run the moc before it compiles
 
 at the end of <var>NAME.cpp,</var> where all the classes declared in
 that file are fully known.
+
+<p>
+
+You can explicitely tell the moc to not parse parts of a header file. It
+recognizes any C++ comment (//) that contains the substrings
+MOC_SKIP_BEGIN or MOC_SKIP_END. They work as you would expect and you can
+have several levels of them. The net result as seen by the moc is as if you
+had removed all lines between a MOC_SKIP_BEGIN and a MOC_SKIP_END
 
 <h2>Diagnostics</h2>
 
