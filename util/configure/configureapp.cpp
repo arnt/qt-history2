@@ -1690,8 +1690,9 @@ static uint convertor( const QString &list )
 #if !defined(EVAL)
 void Configure::readLicense()
 {
-    QFile licenseFile( firstLicensePath() );
-    if( licenseFile.open( IO_ReadOnly ) ) {
+    QString licensePath = firstLicensePath();
+    QFile licenseFile( licensePath );
+    if( !licensePath.isEmpty() && licenseFile.open( IO_ReadOnly ) ) {
 	cout << "Reading license file in....." << firstLicensePath().latin1() << endl;
 	QString buffer;
 
