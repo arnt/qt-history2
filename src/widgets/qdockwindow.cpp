@@ -969,29 +969,42 @@ void QDockWindow::init()
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
 
-    hbox = new QVBoxLayout( this );
-    hbox->setResizeMode( QLayout::Minimum );
+    titleBar      = new QDockWindowTitleBar( this );
+    verHandle     = new QDockWindowHandle( this );
+    horHandle     = new QDockWindowHandle( this );
+
+    vHandleLeft   = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
+    vHandleRight  = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
+    hHandleTop    = new QDockWindowResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
+    hHandleBottom = new QDockWindowResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
+
+    // Creating inner layout
+    hbox	  = new QVBoxLayout();
+    vbox	  = (QHBoxLayout *)new QBoxLayout( QBoxLayout::LeftToRight );
+    childBox	  = new QBoxLayout( QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
+    if ( QApplication::reverseLayout() ) {
+	vbox->addLayout( childBox );
+	vbox->addWidget( verHandle );
+    } else {
+	vbox->addWidget( verHandle );
+	vbox->addLayout( childBox );
+    }
+    hbox->setResizeMode( QLayout::FreeResize );
     hbox->setMargin( isResizeEnabled() || curPlace == OutsideDock ? 2 : 0 );
     hbox->setSpacing( 1 );
-    titleBar = new QDockWindowTitleBar( this );
-    horHandle = new QDockWindowHandle( this );
-    hHandleTop = new QDockWindowResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
     hbox->addWidget( titleBar );
     hbox->addWidget( horHandle );
-    hbox->addWidget( hHandleTop );
-    vbox = (QHBoxLayout *)new QBoxLayout( hbox, QBoxLayout::LeftToRight );
-    verHandle = new QDockWindowHandle( this );
-    vHandleLeft = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
-    if ( !QApplication::reverseLayout() )
-	vbox->addWidget( verHandle );
-    vbox->addWidget( vHandleLeft );
-    childBox = new QBoxLayout( vbox, QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
-    vHandleRight = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
-    vbox->addWidget( vHandleRight );
-    if ( QApplication::reverseLayout() )
-	vbox->addWidget( verHandle );
-    hHandleBottom = new QDockWindowResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
-    hbox->addWidget( hHandleBottom );
+    hbox->addLayout( vbox );
+
+    // Set up the initial handle layout for Vertical
+    // Handle layout will change on calls to setOrienation()
+    QGridLayout *glayout = new QGridLayout( this, 3, 3 );
+    glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
+    glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
+    glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
+    glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
+    glayout->addLayout( hbox, 1, 1 );
+
     hHandleBottom->hide();
     vHandleRight->hide();
     hHandleTop->hide();
@@ -1047,6 +1060,31 @@ void QDockWindow::init()
 
 void QDockWindow::setOrientation( Orientation o )
 {
+    QGridLayout *glayout = (QGridLayout*)layout();
+    glayout->remove( hHandleTop );
+    glayout->remove( hHandleBottom );
+    glayout->remove( vHandleLeft );
+    glayout->remove( vHandleRight );
+
+    if ( o == Horizontal ) {
+	// Set up the new layout as
+	//   3 3 3      1 = vHandleLeft   4 = hHandleBottom
+	//   1 X 2      2 = vHandleRight  X = Inner Layout
+	//   4 4 4      3 = hHandleTop     
+	glayout->addMultiCellWidget( hHandleTop,    0, 0, 0, 2 );
+	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 0, 2 );
+	glayout->addMultiCellWidget( vHandleLeft,   1, 1, 0, 0 );
+	glayout->addMultiCellWidget( vHandleRight,  1, 1, 2, 2 );
+    } else {
+	// Set up the new layout as
+	//   1 3 2      1 = vHandleLeft   4 = hHandleBottom
+	//   1 X 2      2 = vHandleRight  X = Inner Layout
+	//   1 4 2      3 = hHandleTop     
+	glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
+	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
+	glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
+	glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
+    }
     boxLayout()->setDirection( o == Horizontal ?
 			       (QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight)
 			       : QBoxLayout::TopToBottom );
