@@ -414,10 +414,8 @@ QSize QDockWidget::sizeHint() const
     s += QSize( addX, addY );
 
     if ( sizeHintSet ) {
-	if ( !dockArea || dockArea->orientation() == Horizontal )
-	    s.setHeight( sh.height() );
-	else
-	    s.setWidth( sh.width() );
+	s.setHeight( sh.height() );
+	s.setWidth( sh.width() );
     }
 
     return s;
@@ -429,6 +427,13 @@ QSize QDockWidget::minimumSize() const
 	return QFrame::minimumSize();
     QSize s = wid->minimumSize();
     s += QSize( addX, addY );
+
+    QSize sh = sizeHint();
+    if ( s.width() > sh.width() )
+	s.setWidth( sh.width() );
+    if ( s.height() > sh.height() )
+	s.setHeight( sh.height() );
+
     return s;
 }
 
@@ -438,6 +443,13 @@ QSize QDockWidget::minimumSizeHint() const
 	return QFrame::minimumSizeHint();
     QSize s = wid->minimumSizeHint();
     s += QSize( addX, addY );
+
+    QSize sh = sizeHint();
+    if ( s.width() > sh.width() )
+	s.setWidth( sh.width() );
+    if ( s.height() > sh.height() )
+	s.setHeight( sh.height() );
+    
     return s;
 }
 

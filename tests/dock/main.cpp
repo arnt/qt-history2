@@ -7,6 +7,7 @@
 #include <qmainwindow.h>
 #include <qhbox.h>
 #include <qvbox.h>
+#include <qlistview.h>
 
 class MyMainWindow : public QMainWindow
 {
@@ -39,6 +40,7 @@ int main( int argc, char ** argv )
     dw->show();
 
     dw = new QDockWidget( 0 );
+    dw->setWidget( new QListView( dw ) );
     dw->setGeometry( 40, 40, 200, 70 );
     dw->show();
 

@@ -34,7 +34,7 @@ private:
     QWidgetList widgetList;
     bool mousePressed;
     QPainter *unclippedPainter;
-    QPoint lastPos;
+    QPoint lastPos, firstPos;
 
 };
 
@@ -42,7 +42,7 @@ QDockAreaHandle::QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QW
     : QWidget( parent, name ), widgetList( wl ), mousePressed( FALSE ), unclippedPainter( 0 )
 {
     s = parent;
-    setOrientation(o);
+    setOrientation( o );
 }
 
 QSize QDockAreaHandle::sizeHint() const
@@ -67,7 +67,7 @@ void QDockAreaHandle::mousePressEvent( QMouseEvent *e )
 {
     mousePressed = TRUE;
     startLineDraw();
-    lastPos = e->globalPos();
+    lastPos = firstPos = e->globalPos();
     drawLine( e->globalPos() );
 }
 
@@ -80,17 +80,50 @@ void QDockAreaHandle::mouseMoveEvent( QMouseEvent *e )
     drawLine( e->globalPos() );
 }
 
-void QDockAreaHandle::mouseReleaseEvent( QMouseEvent * )
+void QDockAreaHandle::mouseReleaseEvent( QMouseEvent *e )
 {
-    drawLine( lastPos );
-    endLineDraw();
+    if ( mousePressed ) {
+	drawLine( lastPos );
+	endLineDraw();
+	if ( orientation() == Horizontal ) {
+	    int dy = e->globalPos().y() - firstPos.y();
+	    if ( s->orientation() == orientation() ) {
+		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
+		    ( (QDockWidget*)w )->unsetSizeHint();
+		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width(), w->height() + dy ) );
+		}
+	    } else {
+		int dy = e->globalPos().y() - firstPos.y();
+		QDockWidget *dw = (QDockWidget*)widgetList.first();
+		dw->unsetSizeHint();
+		dw->setSizeHint( QSize( dw->width(), dw->height() + dy ) );
+	    }
+	} else {
+	    int dx = e->globalPos().x() - firstPos.x();
+	    if ( s->orientation() == orientation() ) {
+		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
+		    ( (QDockWidget*)w )->unsetSizeHint();
+		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width() + dx, w->height() ) );
+		}
+	    } else {
+		int dx = e->globalPos().x() - firstPos.x();
+		QDockWidget *dw = (QDockWidget*)widgetList.first();
+		dw->unsetSizeHint();
+		dw->setSizeHint( QSize( dw->width() + dx, dw->height() ) );
+	    }
+	}
+    }
+    
+    s->QWidget::layout()->invalidate();
+    s->QWidget::layout()->activate();
+    
     mousePressed = FALSE;
 }
 
 void QDockAreaHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawSplitter( &p, 0, 0, width(), height(), colorGroup(), orientation() );
+    style().drawSplitter( &p, 0, 0, width(), height(), colorGroup(), orientation() == Horizontal ? Vertical : Horizontal );
 }
 
 void QDockAreaHandle::startLineDraw()
@@ -152,6 +185,8 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, b
     }
     sections = 1;
     setupLayout();
+    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
 }
 
 void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
@@ -168,6 +203,8 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
     dockWidgets.remove( i );
     sections = 1;
     setupLayout();
+    if ( dockWidgets.isEmpty() )
+	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 }
 
 int QDockArea::findDockWidget( QDockWidget *w )
