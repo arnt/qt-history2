@@ -129,7 +129,7 @@ int main( int argc, char **argv )
 	slashify( tlbfile );
 	QFile file( tlbfile );
 	if ( !file.open( IO_ReadOnly ) )
-	    qFatal( "Couldn't open %s for read", tlbfile.latin1() );
+	    qFatal( "Couldn't open %s for read", (const char*)tlbfile.local8Bit() );
 	QByteArray data = file.readAll();
 	QString error;
 	bool ok = attachTypeLibrary( input, 1, data, &error );
@@ -144,19 +144,19 @@ int main( int argc, char **argv )
 	    hdll = LoadLibraryA( input.local8Bit() );
 	} );
 	if ( !hdll ) {
-	    qFatal( "Couldn't load library file %s", input.local8Bit() );
+	    qFatal( "Couldn't load library file %s", (const char*)input.local8Bit() );
 	    return 3;
 	}
 	typedef HRESULT(* DumpIDLProc)(const QString&, const QString&);
 	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, "DumpIDL" );
 	if ( !DumpIDL ) {
-	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", input.local8Bit() );
+	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", (const char*)input.local8Bit() );
 	    return 3;
 	}
 	HRESULT res = DumpIDL( idlfile, version );
 	FreeLibrary( hdll );
 	if ( res != S_OK )
-	    qFatal( "Error writing IDL from %s", input.local8Bit() );
+	    qFatal( "Error writing IDL from %s", (const char*)input.local8Bit() );
     }
     return 0;
 }
