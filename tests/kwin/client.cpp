@@ -5,6 +5,7 @@
 #include <qlayout.h>
 #include "workspace.h"
 #include "client.h"
+#include "atoms.h"
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -13,6 +14,23 @@
 
 extern Atom qt_wm_state;
 
+
+static void sendClientMessage(Window w, Atom a, long x){
+  XEvent ev;
+  long mask;
+
+  memset(&ev, 0, sizeof(ev));
+  ev.xclient.type = ClientMessage;
+  ev.xclient.window = w;
+  ev.xclient.message_type = a;
+  ev.xclient.format = 32;
+  ev.xclient.data.l[0] = x;
+  ev.xclient.data.l[1] = CurrentTime;
+  mask = 0L;
+  if (w == qt_xrootwin())
+    mask = SubstructureRedirectMask;        /* magic! */
+  XSendEvent(qt_xdisplay(), w, False, mask, &ev);
+}
 
 
 static int _getprop(Window w, Atom a, Atom type, long len, unsigned char **p){
@@ -390,6 +408,7 @@ Client::~Client()
 void Client::manage( bool isMapped )
 {
     getIcons();
+    getWindowProtocols();
     layout()->setResizeMode( QLayout::Minimum );
     QRect geom( original_geometry );
     getWmNormalHints(); // get xSizeHint
@@ -545,7 +564,6 @@ bool Client::mapRequest( XMapRequestEvent& /* e */  )
 	manage();
 	break;
     case IconicState:
-	setMappingState( NormalState );
 	show();
 	break;
     case NormalState:
@@ -673,7 +691,10 @@ bool Client::propertyNotify( XPropertyEvent& e )
 	break;
     case XA_WM_HINTS:
 	getIcons();
+	break;
     default:
+	if ( e.atom == atoms->wm_protocols )
+	    getWindowProtocols();
 	break;
     }
     return TRUE;
@@ -896,8 +917,7 @@ void Client::leaveEvent( QEvent * )
 
 
 /*!
-  Reimplemented to inform the client about the new window position as
-  well.
+  Reimplemented to inform the client about the new window position.
  */
 void Client::moveEvent( QMoveEvent * )
 {
@@ -905,11 +925,11 @@ void Client::moveEvent( QMoveEvent * )
 }
 
 
-/*!
-  Reimplemented to show the window wrapper as well
+/*!\reimp
  */
 void Client::showEvent( QShowEvent* )
 {
+    setMappingState( NormalState );
     windowWrapper()->show();
  }
 
@@ -946,6 +966,17 @@ void Client::captionChange( const QString& )
 void Client::activeChange( bool )
 {
     repaint( FALSE );
+}
+
+
+/*!\fn maximizeChange( bool max )
+
+  Indicates that the window was maximized or demaximized. \a max is
+  set respectively. Subclasses may want to indicate the new state
+  graphically, for example with a different icon.
+ */
+void Client::maximizeChange( bool )
+{
 }
 
 
@@ -1045,10 +1076,38 @@ void Client::iconify()
     // TODO animation (virtual function)
 }
 
-void Client::maximize( MaximizeMode /*m*/)
+void Client::closeWindow()
 {
+  if ( Pdeletewindow ){
+      sendClientMessage( win, atoms->wm_protocols, atoms->wm_delete_window);
+  }
+  else {
+    // client will not react on wm_delete_window. We have not choice
+    // but destroy his connection to the XServer.
+      XKillClient(qt_xdisplay(), win );
+      workspace()->destroyClient( this );
+  }
 }
 
+void Client::maximize( MaximizeMode /*m*/)
+{
+    if ( geom_restore.isNull() ) {
+	geom_restore = geometry();
+	setGeometry( workspace()->geometry() );
+	maximizeChange( TRUE );
+    }
+    else {
+	setGeometry( geom_restore );
+	QRect invalid;
+	geom_restore = invalid;
+	maximizeChange( FALSE );
+    }
+}
+
+void Client::maximize()
+{
+    maximize( MaximizeFull );
+}
 
 
 
@@ -1273,6 +1332,25 @@ void Client::getIcons()
     icon_pix = KWM::icon( win, 32, 32 ); // TODO sizes from workspace
     miniicon_pix = KWM::miniIcon( win, 16, 16 );
 }
+
+void Client::getWindowProtocols(){
+  Atom *p;
+  int i,n;
+
+  Pdeletewindow = 0;
+  Ptakefocus = 0;
+  
+  if (XGetWMProtocols(qt_xdisplay(), win, &p, &n)){
+      for (i = 0; i < n; i++)
+	  if (p[i] == atoms->wm_delete_window)
+	      Pdeletewindow = 1;
+	  else if (p[i] == atoms->wm_take_focus)
+	      Ptakefocus = 1;
+      if (n>0)
+	  XFree(p);
+  }
+}
+
 
 
 NoBorderClient::NoBorderClient( Workspace *ws, WId w, QWidget *parent=0, const char *name=0 )

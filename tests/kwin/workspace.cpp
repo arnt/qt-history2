@@ -3,6 +3,7 @@
 #include "stdclient.h"
 #include "beclient.h"
 #include "tabbox.h"
+#include "atoms.h"
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -26,7 +27,7 @@ static Client* clientFactory( Workspace *ws, WId w )
 	ws->setDesktopClient( c );
 	return c;
     }
-    
+
     return new StdClient( ws, w );
 }
 
@@ -545,6 +546,7 @@ void Workspace::activateClient( Client* c)
 void Workspace::requestFocus( Client* c)
 {
     if ( c->isVisible() && !c->isShade() ) {
+	// TODO take focus protocol
 	XSetInputFocus( qt_xdisplay(), c->window(), RevertToPointerRoot, CurrentTime );
 	should_get_focus = c;
     } else if ( c->isShade() ) {
@@ -666,7 +668,7 @@ void Workspace::raiseClient( Client* c )
     XRaiseWindow(qt_xdisplay(), new_stack[0]);
     XRestackWindows(qt_xdisplay(), new_stack, i);
     delete [] new_stack;
-    
+
     if ( c->transientFor() )
 	raiseClient( findClient( c->transientFor() ) );
 }

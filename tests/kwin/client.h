@@ -98,7 +98,7 @@ public:
     bool isNormal(){
 	return state == NormalState;
     }
-
+    
     inline bool isActive() const;
     void setActive( bool );
 
@@ -108,11 +108,14 @@ public:
     bool isShade() const;
     virtual void setShade( bool );
 
+    inline bool isMaximized() const;
     enum MaximizeMode { MaximizeVertical, MaximizeHorizontal, MaximizeFull };
 public slots:
     void iconify();
-    void maximize( MaximizeMode);
-
+    void closeWindow();
+    void maximize( MaximizeMode );
+    void maximize();
+    
 protected:
     void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent * );
@@ -128,8 +131,8 @@ protected:
     bool eventFilter( QObject *, QEvent * );
 
     virtual void captionChange( const QString& name );
-
     virtual void activeChange( bool );
+    virtual void maximizeChange( bool );
 
 
     enum MousePosition {
@@ -170,8 +173,12 @@ private:
     bool shaded;
     WId transient_for;
     void getIcons();
+    void getWindowProtocols();
+    uint Pdeletewindow :1; // does the window understand the DeleteWindow protocol?
+    uint Ptakefocus :1;// does the window understand the TakeFocus protocol?
     QPixmap icon_pix;
     QPixmap miniicon_pix;
+    QRect geom_restore;
 };
 
 inline WId Client::window() const
@@ -234,6 +241,15 @@ inline QPixmap Client::icon() const
 inline QPixmap Client::miniIcon() const
 {
     return miniicon_pix;
+}
+
+
+/*!
+  Is the client maximized?
+ */
+inline bool Client::isMaximized() const
+{
+    return !geom_restore.isNull();
 }
 
 

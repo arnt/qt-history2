@@ -86,32 +86,30 @@ static const char * minimize_xpm[] = {
 "                ",
 "                "};
 
-
 static const char * normalize_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "16 16 3 1",
 /* colors */
-" 	s None	c None",
-".	c white",
-"X	c #707070",
+"       s None  c None",
+".      c #707070",
+"X      c white",
 /* pixels */
 "                ",
 "                ",
-"     ........   ",
-"     .XXXXXXXX  ",
-"     .X     .X  ",
-"     .X     .X  ",
-"  ....X...  .X  ",
-"  .XXXXXXXX .X  ",
-"  .X     .XXXX  ",
-"  .X     .X     ",
-"  .X     .X     ",
-"  .X......X     ",
-"  .XXXXXXXX     ",
+"  ...........   ",
+"  .XXXXXXXXXX   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X       .X   ",
+"  .X........X   ",
+"  .XXXXXXXXXX   ",
 "                ",
 "                ",
-"                "};
-
+"                "};                      
 
 static QPixmap* close_pix = 0;
 static QPixmap* maximize_pix = 0;
@@ -119,7 +117,7 @@ static QPixmap* minimize_pix = 0;
 static QPixmap* normalize_pix = 0;
 static bool pixmaps_created = FALSE;
 
-static void create_pixmaps() 
+static void create_pixmaps()
 {
     if ( pixmaps_created )
 	return;
@@ -134,7 +132,7 @@ StdClient::StdClient( Workspace *ws, WId w, QWidget *parent, const char *name )
     : Client( ws, w, parent, name, WResizeNoErase )
 {
     create_pixmaps();
-    
+
     QFont f = font();
     f.setBold( TRUE );
     setFont( f );
@@ -181,7 +179,9 @@ StdClient::StdClient( Workspace *ws, WId w, QWidget *parent, const char *name )
     button[3]->setIconSet( *minimize_pix );
     connect( button[3], SIGNAL( clicked() ), this, ( SLOT( iconify() ) ) );
     button[4]->setIconSet( *maximize_pix  );
+    connect( button[4], SIGNAL( clicked() ), this, ( SLOT( maximize() ) ) );
     button[5]->setIconSet( *close_pix );
+    connect( button[5], SIGNAL( clicked() ), this, ( SLOT( closeWindow() ) ) );
 
 }
 
@@ -212,6 +212,14 @@ void StdClient::resizeEvent( QResizeEvent* e)
 void StdClient::captionChange( const QString& )
 {
     repaint( titlebar->geometry(), FALSE );
+}
+
+
+/*!\reimp
+ */
+void StdClient::maximizeChange( bool m )
+{
+    button[4]->setIconSet( m?*normalize_pix:*maximize_pix  );
 }
 
 void StdClient::paintEvent( QPaintEvent* )

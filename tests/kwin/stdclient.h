@@ -17,8 +17,9 @@ protected:
     void paintEvent( QPaintEvent* );
 
     void mouseDoubleClickEvent( QMouseEvent * );
-    
+
     void captionChange( const QString& name );
+    void maximizeChange( bool );
 
 private:
     QToolButton* button[6];

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "options.h"
+#include "atoms.h"
 #include "workspace.h"
 #include <X11/X.h>
 #include <X11/Xos.h>
@@ -17,6 +18,7 @@
 #define i18n(x) (x)
 
 Options* options;
+Atoms* atoms;
 
 static bool initting = FALSE;
 int x11ErrorHandler(Display *d, XErrorEvent *e){
@@ -53,6 +55,8 @@ Application::Application( int &argc, char *argv[] )
 : QApplication( argc, argv )
 {
     initting = TRUE;
+    options = new Options;
+    atoms = new Atoms;
 
     // install X11 error handler
     XSetErrorHandler( x11ErrorHandler );
@@ -83,7 +87,6 @@ static void sighandler(int) {
 
 int main( int argc, char * argv[] ) {
 
-    options = new Options;
     if (signal(SIGTERM, sighandler) == SIG_IGN)
 	signal(SIGTERM, SIG_IGN);
     if (signal(SIGINT, sighandler) == SIG_IGN)
