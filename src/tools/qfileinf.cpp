@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#35 $
 **
 ** Implementation of QFileInfo class
 **
@@ -54,6 +54,7 @@ static void convertSeparators( char * )
 struct QFileInfoCache
 {
     STATBUF st;
+    bool isSymLink;
 };
 
 
@@ -383,7 +384,7 @@ QString QFileInfo::absFilePath() const
     } else {
 	return QDir::cleanDirPath( fn );
     }
-     
+
 }
 
 /*!
@@ -585,12 +586,9 @@ bool QFileInfo::isDir() const
 
 bool QFileInfo::isSymLink() const
 {
-#if defined( UNIX ) && defined(S_IFLNK)
-    STATBUF st;
-    return lstat( fn.data(), &st ) == 0 && S_ISLNK( st.st_mode );
-#else
-    return FALSE;
-#endif
+    if ( !fic || !cache )
+	doStat();
+    return fic ? fic->isSymLink : FALSE;
 }
 
 
@@ -832,6 +830,17 @@ void QFileInfo::doStat() const
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
     STATBUF *b = &that->fic->st;
+    that->fic->isSymLink = FALSE;
+
+#if defined( UNIX ) && defined(S_IFLNK)
+    if ( ::lstat(fn.data(),b) == 0 ) {
+	if ( S_ISLNK( b->st_mode ) )
+	    that->fic->isSymLink = TRUE;
+	else
+	    return;
+    }
+#endif
+
     if ( STAT(fn.data(),b) != 0 ) {
 	delete that->fic;
 	that->fic = 0;
