@@ -444,7 +444,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             cursor = *qApp->overrideCursor();
         } else if(q) {
             for(QWidget *p = q; p; p = p->parentWidget()) {
-                if(p->testAttribute(Qt::WA_SetCursor)) {
+                if(p->isEnabled() && p->testAttribute(Qt::WA_SetCursor)) {
                     cursor = p->cursor();
                     break;
                 }

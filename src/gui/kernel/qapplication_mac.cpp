@@ -1910,7 +1910,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 } else {
                     for(; cursor_widget; cursor_widget = cursor_widget->parentWidget()) {
                         QWExtra *extra = ((QETWidget*)cursor_widget)->extraData();
-                        if(extra && extra->curs) {
+                        if(extra && extra->curs && cursor_widget->isEnabled()) {
                             cursor = *extra->curs;
                             break;
                         }

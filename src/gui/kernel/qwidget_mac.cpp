@@ -1231,7 +1231,8 @@ void QWidget::setCursor(const QCursor &cursor)
     d->extraData()->curs = new QCursor(cursor);
     setAttribute(Qt::WA_SetCursor);
 
-    if(qApp && qApp->activeWindow() && QApplication::widgetAt(QCursor::pos()) == this) {
+    if(qApp && isEnabled() && qApp->activeWindow() &&
+       QApplication::widgetAt(QCursor::pos()) == this) {
         const QCursor *n = &cursor;
         if(QApplication::overrideCursor())
             n = QApplication::overrideCursor();
@@ -1249,7 +1250,8 @@ void QWidget::unsetCursor()
         setAttribute(Qt::WA_SetCursor, false);
     }
 
-    if(qApp && qApp->activeWindow() && QApplication::widgetAt(QCursor::pos()) == this) {
+    if(qApp && isEnabled() && qApp->activeWindow() &&
+       QApplication::widgetAt(QCursor::pos()) == this) {
         const QCursor *n = 0;
         if(QApplication::overrideCursor()) {
             n = QApplication::overrideCursor();
@@ -1307,16 +1309,6 @@ void QWidgetPrivate::setWindowIcon_sys()
         d->extra->topextra->iconPixmap = pm;
     }
     if (q->isWindow()) {
-#ifdef QT3_SUPPORT
-        //I hate to do this but, I've moved the application icon to
-        //where it belongs in *gasp* QApplication but I'm afraid to
-        //break assumptions so I'll leave this in for now maybe we can
-        //consider its removal for 5.0 --Sam
-	if (qApp->mainWidget() == q && qApp->windowIcon().isNull() && pm) {
-            void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
-            qt_mac_set_app_icon(*pm);
-        }
-#endif
         if (icon.isNull()) {
             RemoveWindowProxy(qt_mac_window_for(q));
         } else {
