@@ -473,22 +473,26 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(w);
         bool tracking = slider->hasTracking();
+        bool horizontal = slider->orientation() == Horizontal;
+        bool invertedAppearance = slider->invertedAppearance();
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
         tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
                                                               : kThemeMediumSlider;
-        //tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(r, p);
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-        tdi.value = slider->sliderPosition();
+        if (!horizontal == !invertedAppearance)
+            tdi.value = slider->maximum() - slider->sliderPosition();
+        else
+            tdi.value = slider->sliderPosition();
         tdi.reserved = 0;
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR) {
             if (flags & Style_HasFocus)
                 tdi.attributes |= kThemeTrackHasFocus;
         }
-	if (slider->orientation() == Qt::Horizontal)
+	if (horizontal)
 	    tdi.attributes |= kThemeTrackHorizontal;
 	tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
 	if (slider->tickmarks() == QSlider::NoMarks || slider->tickmarks() == QSlider::Both)
@@ -507,7 +511,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             CFRelease(shape);
-	    tdi.value = slider->value();
+            if (!horizontal == !invertedAppearance)
+                tdi.value = slider->maximum() - slider->value();
+            else
+                tdi.value = slider->value();
 	}
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
@@ -575,17 +582,22 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(widget);
+        bool horizontal = slider->orientation() == Horizontal;
+        bool invertedAppearance = slider->invertedAppearance();
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
         tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(widget->rect());
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-	tdi.value = slider->sliderPosition();
+        if (!horizontal == !invertedAppearance)
+            tdi.value = slider->maximum() - slider->sliderPosition();
+        else
+            tdi.value = slider->sliderPosition();
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR && slider->hasFocus())
             tdi.attributes |= kThemeTrackHasFocus;
-        if (slider->orientation() == Qt::Horizontal)
+        if (horizontal)
             tdi.attributes |= kThemeTrackHorizontal;
         tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
         if (slider->tickmarks() == QSlider::Above)

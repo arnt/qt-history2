@@ -238,6 +238,7 @@ QScrollBar::~QScrollBar()
 
 void QScrollBarPrivate::init()
 {
+    invertedControls = true;
     pressedControl = QStyle::SC_None;
     pointerLeftControl = false;
     q->setFocusPolicy(QWidget::NoFocus);
@@ -276,50 +277,6 @@ void QScrollBar::sliderChange(SliderChange change)
 	}
     }
     QAbstractSlider::sliderChange(change);
-}
-
-
-/*!
-    \reimp
-*/
-void QScrollBar::keyPressEvent(QKeyEvent *e)
-{
-    SliderAction action = SliderNoAction;
-    switch (e->key()) {
-    case Key_Left:
-	if (d->orientation == Horizontal)
-	    action = SliderSingleStepSub;
-	break;
-    case Key_Right:
-	if (d->orientation == Horizontal)
-	    action = SliderSingleStepAdd;
-	break;
-    case Key_Up:
-	if (d->orientation == Vertical)
-	    action = SliderSingleStepSub;
-	break;
-    case Key_Down:
-	if (d->orientation == Vertical)
-	    action = SliderSingleStepAdd;
-	break;
-    case Key_PageUp:
-	action = SliderPageStepSub;
-	break;
-    case Key_PageDown:
-	action = SliderPageStepAdd;
-	break;
-    case Key_Home:
-	action = SliderToMinimum;
-	break;
-    case Key_End:
-	action = SliderToMaximum;
-	break;
-    default:
-	e->ignore();
-	break;
-    }
-    if (action)
-	triggerAction(action);
 }
 
 /*!
@@ -455,7 +412,8 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
 	sliderMax = gr.bottom() - sliderLength + 1;
     }
 
-    return  QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin);
+    return  QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin,
+                                      sliderMax - sliderMin, d->invertedAppearance);
 }
 
 

@@ -141,11 +141,11 @@
 
 
 QAbstractSliderPrivate::QAbstractSliderPrivate()
-    :minimum(0), maximum(99), singleStep(1), pageStep(10),
-     value(0), position(0), tracking(true), blocktracking(false),pressed(false),
-     orientation(Qt::Horizontal), repeatAction(QAbstractSlider::SliderNoAction)
+    : minimum(0), maximum(99), singleStep(1), pageStep(10),
+      value(0), position(0), tracking(true), blocktracking(false), pressed(false),
+      invertedAppearance(false), invertedControls(false),
+      orientation(Qt::Horizontal), repeatAction(QAbstractSlider::SliderNoAction)
 {
-
 }
 
 QAbstractSliderPrivate::~QAbstractSliderPrivate()
@@ -401,7 +401,45 @@ void QAbstractSlider::setValue(int value)
     emit valueChanged(value);
 }
 
+/*!
+    \property QAbstractSlider::invertedAppearance
+    \brief whether or not a slider shows its values inverted or not.
+ 
+    If this property is false (the default), the minimum and maximum will
+    be shown in its classic position for the inherited widget. If the 
+    value is true, the minimum and maximum appear at their opposite location.
+*/
 
+bool QAbstractSlider::invertedAppearance() const
+{
+    return d->invertedAppearance;
+}
+
+void QAbstractSlider::setInvertedAppearance(bool invert)
+{
+    d->invertedAppearance = invert;
+}
+
+
+/*!
+    \property QAbstractSlider::invertedControls
+    \brief whether or not the slider inverts its wheel and key events.
+ 
+    If this property is false, scrolling the mouse wheel "up" and using keys
+    like page up will increase the slider's value towards its maximum. Otherwise
+    pressing page up will move value towards the slider's minimum.
+*/
+
+
+bool QAbstractSlider::invertedControls() const
+{
+    return d->invertedControls;
+}
+
+void QAbstractSlider::setInvertedControls(bool invert)
+{
+    d->invertedControls = invert;
+}
 
 /*!  Triggers a slider \a action.  Possible actions are \c
   SliderSingleStepAdd, \c SliderSingleStepSub, \c SliderPageStepAdd,
@@ -498,20 +536,64 @@ void QAbstractSlider::wheelEvent( QWheelEvent * e )
 	return;
 
     static float offset = 0;
-    static QAbstractSlider* offset_owner = 0;
+    static QAbstractSlider *offset_owner = 0;
     if (offset_owner != this){
 	offset_owner = this;
 	offset = 0;
     }
 
-    int step = qMin(QApplication::wheelScrollLines()*d->singleStep, d->pageStep);
+    int step = qMin(QApplication::wheelScrollLines() * d->singleStep, d->pageStep);
     if ((e->state() & ControlButton) || (e->state() & ShiftButton))
 	step = d->pageStep;
-    offset += -e->delta()*step/120;
-
-    if (QABS(offset)<1)
+    offset += e->delta() * step / 120;
+    if (d->invertedControls)
+        offset = -offset;
+    if (QABS(offset) < 1)
 	return;
     setValue(d->value + int(offset));
     offset -= int(offset);
     e->accept();
+}
+
+
+void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
+{
+    SliderAction action = SliderNoAction;
+    switch (ev->key()) {
+        
+        // It seems we need to use invertedAppearance for Left and right, otherwise, things look weird.
+        case Key_Left:
+            if (d->orientation == Horizontal)
+                action = !d->invertedAppearance ? SliderSingleStepSub : SliderSingleStepAdd;
+            break;
+        case Key_Right:
+            if (d->orientation == Horizontal)
+                action = !d->invertedAppearance ? SliderSingleStepAdd : SliderSingleStepSub;
+            break;
+        case Key_Up:
+            if (d->orientation == Vertical)
+                action = d->invertedControls ? SliderSingleStepSub : SliderSingleStepAdd;
+            break;
+        case Key_Down:
+            if (d->orientation == Vertical)
+                action = d->invertedControls ? SliderSingleStepAdd : SliderSingleStepSub;
+            break;
+        case Key_PageUp:
+            action = d->invertedControls ? SliderPageStepSub : SliderPageStepAdd;
+            break;
+        case Key_PageDown:
+            action = d->invertedControls ? SliderPageStepAdd : SliderPageStepSub;
+            break;
+        case Key_Home:
+            action = SliderToMinimum;
+            break;
+        case Key_End:
+            action = SliderToMaximum;
+            break;
+        default:
+            ev->ignore();
+            break;
+    }
+    if (action)
+	triggerAction(action);
 }

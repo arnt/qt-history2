@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qrangecontrol.h"
 #endif // QT_H
 
 class QAbstractSliderPrivate;
@@ -34,6 +33,8 @@ class Q_GUI_EXPORT QAbstractSlider : public QWidget
     Q_PROPERTY( int value READ value WRITE setValue )
     Q_PROPERTY( bool tracking READ hasTracking WRITE setTracking )
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+    Q_PROPERTY( bool invertedAppearance READ invertedAppearance WRITE setInvertedAppearance )
+    Q_PROPERTY( bool invertedControls READ invertedControls WRITE setInvertedControls )
     QDOC_PROPERTY( bool sliderDown READ isSliderDown WRITE setSliderDown )
 
 public:
@@ -63,6 +64,12 @@ public:
 
     void setSliderPosition(int);
     int sliderPosition() const;
+    
+    void setInvertedAppearance(bool);
+    bool invertedAppearance() const;
+
+    void setInvertedControls(bool);
+    bool invertedControls() const;
 
     enum SliderAction {
 	SliderNoAction,
@@ -103,8 +110,9 @@ protected:
     };
     virtual void sliderChange(SliderChange change);
 
+    void keyPressEvent(QKeyEvent *ev);
     void timerEvent(QTimerEvent *);
-    void wheelEvent( QWheelEvent * e );
+    void wheelEvent(QWheelEvent *e);
 
 protected:
     QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);

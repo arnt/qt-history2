@@ -1544,14 +1544,14 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    const QSlider *sl = static_cast<const QSlider *>(widget);
 	    int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
 	    int thickness = pixelMetric(PM_SliderControlThickness, sl);
-
+            bool horizontal = sl->orientation() == Horizontal;
 	    int len = pixelMetric(PM_SliderLength, sl);
 	    int motifBorder = 3;
 	    int sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
-					      sl->orientation() == Horizontal
-					      ? sl->width() - len - 2 * motifBorder
-					      : sl->height() - len - 2 * motifBorder);
-	    if (sl->orientation() == Horizontal)
+					      horizontal ? sl->width() - len - 2 * motifBorder
+                                                         : sl->height() - len - 2 * motifBorder,
+                                              (!horizontal == !sl->invertedAppearance()));
+	    if (horizontal)
 		return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
 			     thickness - 2 * motifBorder);
 	    return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
@@ -1589,7 +1589,9 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    sliderlen = maxlen;
 
 	int sliderstart = sbextent + positionFromValue(scrollbar->minimum(), scrollbar->maximum(),
-						       scrollbar->sliderPosition(), maxlen - sliderlen);
+						       scrollbar->sliderPosition(),
+                                                       maxlen - sliderlen,
+                                                       scrollbar->invertedAppearance());
 
 	switch (sc) {
 	case SC_ScrollBarSubLine:

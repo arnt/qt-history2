@@ -725,8 +725,8 @@ public:
 
     static QRect visualRect( const QRect &logical, const QWidget *w );
     static QRect visualRect( const QRect &logical, const QRect &bounding );
-    static int positionFromValue(int min, int max, int val, int space);
-    static int valueFromPosition(int min, int max, int pos, int space);
+    static int positionFromValue(int min, int max, int val, int space, bool upsideDown = false);
+    static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
 
 
     // Old 2.x QStyle API

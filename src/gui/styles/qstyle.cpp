@@ -1907,19 +1907,23 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 
     This function can handle the entire integer range without
     overflow, providing \a span is \<= 4096.
+ 
+    By default, this function assumes that the maximum value
+    is on the right for horizontal items and on the bottom for
+    vertical items. Set upsideDown to true to reverse this behavior.
 
     \sa valueFromPosition()
 */
 
-int QStyle::positionFromValue( int min, int max, int logical_val, int span )
+int QStyle::positionFromValue(int min, int max, int logical_val, int span, bool upsideDown)
 {
-    if ( span <= 0 || logical_val < min || max <= min )
+    if (span <= 0 || logical_val < min || max <= min)
 	return 0;
     if ( logical_val > max )
-	return span;
+	return upsideDown ? span : min;
 
     uint range = max - min;
-    uint p = logical_val - min;
+    uint p = upsideDown ? max - logical_val : logical_val - min;
 
     if ( range > (uint)INT_MAX/4096 ) {
 	const int scale = 4096*2;
@@ -1946,25 +1950,31 @@ int QStyle::positionFromValue( int min, int max, int logical_val, int span )
 
     This function can handle the entire integer range without
     overflow.
-
+ 
+    By default, this function assumes that the maximum value
+    is on the right for horizontal items and on the bottom for
+    vertical items. Set upsideDown to true to reverse this behavior.
+ 
     \sa positionFromValue()
 */
 
-int QStyle::valueFromPosition( int min, int max, int pos, int span )
+int QStyle::valueFromPosition(int min, int max, int pos, int span, bool upsideDown)
 {
     if ( span <= 0 || pos <= 0 )
-	return min;
+	return upsideDown ? max : min;
     if ( pos >= span )
-	return max;
+	return upsideDown ? min : max;
 
     uint range = max - min;
 
-    if ( (uint)span > range )
-	return  min + (2*pos*range + span) / (2*span);
-    else {
+    if ( (uint)span > range ) {
+        int tmp = (2 * pos * range + span) / (2 * span);
+        return upsideDown ? max - tmp : tmp + min;
+    } else {
 	uint div = range / span;
 	uint mod = range % span;
-	return  min + pos*div + (2*pos*mod + span) / (2*span);
+        int tmp = pos * div + (2 * pos * mod + span) / (2 * span);
+        return upsideDown ? max - tmp : tmp + min;
     }
     // equiv. to min + (pos*range)/span + 0.5
     // no overflow because of this implicit assumption:

@@ -1973,7 +1973,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	} else
 	    sliderlen = maxlen;
 
-	int sliderstart = sbextent + positionFromValue(scrollbar->minimum(), scrollbar->maximum(), scrollbar->sliderPosition(), maxlen - sliderlen);
+	int sliderstart = sbextent + positionFromValue(scrollbar->minimum(), scrollbar->maximum(),
+                                                       scrollbar->sliderPosition(),
+                                                       maxlen - sliderlen,
+                                                       scrollbar->invertedAppearance());
 	switch (sc) {
 	case SC_ScrollBarSubLine:	    // top/left button
 	    if (scrollbar->orientation() == Qt::Horizontal) {
@@ -2031,20 +2034,20 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	switch (sc) {
 	case SC_SliderHandle: {
-		int sliderPos = 0;
-		int len = pixelMetric(PM_SliderLength, sl);
-
-		sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
-					      sl->orientation() == Horizontal ? sl->width() - len
-					      : sl->height() - len);
-
-		if (sl->orientation() == Horizontal)
-		    return QRect(sliderPos, tickOffset, len, thickness);
-		return QRect(tickOffset, sliderPos, thickness, len); }
+            
+            int sliderPos = 0;
+            int len = pixelMetric(PM_SliderLength, sl);
+            bool horizontal = sl->orientation() == Horizontal;
+            sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
+                                          (horizontal ? sl->width() : sl->height()) - len,
+                                           (!horizontal == !sl->invertedAppearance()));
+            if (horizontal)
+                return QRect(sliderPos, tickOffset, len, thickness);
+            return QRect(tickOffset, sliderPos, thickness, len); }
 	case SC_SliderGroove: {
 	    if (sl->orientation() == Horizontal)
 		return QRect(0, tickOffset, sl->width(), thickness);
-	    return QRect(tickOffset, 0, thickness, sl->height());	}
+	    return QRect(tickOffset, 0, thickness, sl->height()); }
 	default:
 	    break;
 	}

@@ -30,6 +30,7 @@
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
+#include <qrangecontrol.h>
 #include <qsize.h>
 #include <qsizegrip.h>
 #include <qslider.h>

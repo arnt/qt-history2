@@ -35,7 +35,6 @@ public:
     QSize sizeHint() const;
 
 protected:
-    void	keyPressEvent( QKeyEvent * );
     void	paintEvent( QPaintEvent * );
 
     void	mousePressEvent( QMouseEvent * );

@@ -1384,7 +1384,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
 	ttdi.min = scrollbar->minimum();
 	ttdi.max = scrollbar->maximum();
-	ttdi.value = scrollbar->value();
+	ttdi.value = scrollbar->invertedAppearance() ? scrollbar->maximum() - scrollbar->value() : scrollbar->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
@@ -1412,6 +1412,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(!widget)
 	    break;
 	QSlider *sldr = (QSlider *)widget;
+        bool horizontal = sldr->orientation() == Horizontal;
+        bool invertedAppearance = sldr->invertedAppearance();
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
@@ -1420,13 +1422,16 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
 	ttdi.min = sldr->minimum();
 	ttdi.max = sldr->maximum();
-	ttdi.value = sldr->value();
+        if ((!horizontal && !invertedAppearance) || (horizontal && invertedAppearance))
+            ttdi.value = sldr->maximum() - sldr->value();
+        else
+            ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 #if QT_MACOSX_VERSION >= 0x1020
 	if(flags & Style_HasFocus)
 	    ttdi.attributes |= kThemeTrackHasFocus;
 #endif
-	if(sldr->orientation() == Qt::Horizontal)
+	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(widget->isEnabled())
 	    ttdi.enableState |= kThemeTrackActive;
@@ -1756,6 +1761,8 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	if(!w)
 	    return QRect();
 	QSlider *sldr = (QSlider *)w;
+        bool horizontal = sldr->orientation() == Horizontal;
+        bool invertedAppearance = sldr->invertedAppearance();
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
@@ -1768,9 +1775,12 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minimum();
 	ttdi.max = sldr->maximum();
-	ttdi.value = sldr->value();
+        if ((!horizontal && !invertedAppearance) || (horizontal && invertedAppearance))
+            ttdi.value = sldr->maximum() - sldr->value();
+        else
+            ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
-	if(sldr->orientation() == Qt::Horizontal)
+	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(!qAquaActive(sldr->palette()))
 	    ttdi.enableState = kThemeTrackInactive;

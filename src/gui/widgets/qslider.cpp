@@ -75,7 +75,8 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
 	sliderMin = gr.y();
 	sliderMax = gr.bottom() - sliderLength + 1;
     }
-    return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin);
+    return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin,
+                                     (!d->invertedAppearance == !(d->orientation == Horizontal)));
 }
 
 inline int QSliderPrivate::pick(const QPoint &pt) const
@@ -319,51 +320,6 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
     if (oldPressed == QStyle::SC_SliderHandle)
         setSliderDown(false);
     update(style().querySubControlMetrics(QStyle::CC_Slider, this, oldPressed));
-}
-
-
-
-/*!
-    \reimp
-*/
-void QSlider::keyPressEvent(QKeyEvent *ev)
-{
-    SliderAction action = SliderNoAction;
-    switch (ev->key()) {
-        case Key_Left:
-            if (d->orientation == Horizontal)
-                action = SliderSingleStepSub;
-            break;
-        case Key_Right:
-            if (d->orientation == Horizontal)
-                action = SliderSingleStepAdd;
-            break;
-        case Key_Up:
-            if (d->orientation == Vertical)
-                action = SliderSingleStepSub;
-            break;
-        case Key_Down:
-            if (d->orientation == Vertical)
-                action = SliderSingleStepAdd;
-            break;
-        case Key_PageUp:
-            action = SliderPageStepSub;
-            break;
-        case Key_PageDown:
-            action = SliderPageStepAdd;
-            break;
-        case Key_Home:
-            action = SliderToMinimum;
-            break;
-        case Key_End:
-            action = SliderToMaximum;
-            break;
-        default:
-            ev->ignore();
-            break;
-    }
-    if (action)
-	triggerAction(action);
 }
 
 /*!

@@ -31,6 +31,8 @@ public:
     uint tracking : 1;
     uint blocktracking :1;
     uint pressed : 1;
+    uint invertedAppearance : 1;
+    uint invertedControls : 1;
     Orientation orientation;
 
     QBasicTimer repeatActionTimer;
