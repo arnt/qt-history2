@@ -343,6 +343,10 @@ static int max_pressure;
 extern bool chokeMouse;
 #endif
 
+// last timestamp read from QSettings
+static uint appliedstamp = 0;
+
+
 typedef int (*QX11EventFilter) (XEvent*);
 QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
@@ -799,7 +803,6 @@ bool QApplication::x11_apply_settings()
     unsigned long nitems, after = 1;
     unsigned char *data = 0;
     QDateTime timestamp, settingsstamp;
-    static QDateTime appliedstamp;
     bool update_timestamp = FALSE;
 
     if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
@@ -834,9 +837,9 @@ bool QApplication::x11_apply_settings()
     if (! settingsstamp.isValid())
 	return FALSE;
 
-    if ( appliedstamp == settingsstamp )
+    if ( appliedstamp && appliedstamp == settingsstamp.toTime_t() )
 	return TRUE;
-    appliedstamp = settingsstamp;
+    appliedstamp = settingsstamp.toTime_t();
 
     if (! timestamp.isValid() || settingsstamp > timestamp)
 	update_timestamp = TRUE;
@@ -917,7 +920,8 @@ bool QApplication::x11_apply_settings()
     // read new QStyle
     extern bool qt_explicit_app_style; // defined in qapplication.cpp
     QString stylename = settings.readEntry( "/qt/style" );
-    if ( !stylename.isNull() && !stylename.isEmpty() && !qt_explicit_app_style ) {
+    qDebug( "read style '%s' - explicit %d", stylename.latin1(), qt_explicit_app_style );
+    if ( !stylename.isEmpty() && !qt_explicit_app_style ) {
 	QApplication::setStyle( stylename );
 	// took the style from the user settings, so mark the explicit flag FALSE
 	qt_explicit_app_style = FALSE;
@@ -2290,6 +2294,8 @@ void qt_init( Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 
 void qt_cleanup()
 {
+    appliedstamp = 0;
+
     if ( app_save_rootinfo )			// root window must keep state
 	qt_save_rootinfo();
 
