@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#2 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#2 $";
 #endif
 
 
@@ -105,7 +105,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 #if defined(_WS_MAC_)
 GuiStyle QWidget::ggui = MacStyle;
-#elif defined(_WS_WIN_) || defined(_WS_WIN32_)
+#elif defined(_WS_WIN_)
 GuiStyle QWidget::ggui = WindowsStyle;
 #elif defined(_WS_PM_)
 GuiStyle QWidget::ggui = PMStyle;
@@ -401,7 +401,7 @@ bool QWidget::macEvent( MSG * )			// Macintosh event
     return FALSE;
 }
 
-#elif defined(_WS_WIN_) || defined(_WS_WIN32_)
+#elif defined(_WS_WIN_)
 
 bool QWidget::winEvent( MSG * )			// Windows (+NT) event
 {

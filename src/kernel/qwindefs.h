@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#3 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -40,13 +40,17 @@ class QPixMap;
 #if defined(_OS_MAC_)
 #define _WS_MAC_
 #elif defined(_OS_MSDOS_)
-#define _WS_WIN_
-#elif defined(_OS_OS2_)
-#define _WS_PM_
+#define _WS_WIN16_
 #elif defined(_OS_WINNT_)
 #define _WS_WIN32_
+#elif defined(_OS_OS2_)
+#define _WS_PM_
 #elif defined(UNIX)
 #define _WS_X11_
+#endif
+
+#if defined(_WS_WIN16_) || defined(_WS_WIN32_)
+#define _WS_WIN_
 #endif
 
 
@@ -56,13 +60,13 @@ class QPixMap;
 #endif // _WS_MAC_
 
 
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
 
 #if defined(_WS_WIN32_)
 typedef void *HANDLE;
 typedef void *WId;
 typedef void *HDC;
-#else
+#elif defined(_WS_WIN16_)
 typedef uint HANDLE;
 typedef uint WId;
 typedef uint HDC;
@@ -73,7 +77,7 @@ HANDLE qWinAppInst();
 HANDLE qWinPrevAppInst();
 int    qWinAppCmdShow();
 
-#endif // _WS_WIN_ or _WS_WIN32_
+#endif // _WS_WIN16_ or _WS_WIN32_
 
 
 #if defined(_WS_PM_)
