@@ -480,6 +480,7 @@ bool QAxClientSite::activateObject(bool initialized)
 {
     host = new QAxHostWidget(widget, this);
 
+    bool showHost = false;
     HRESULT hr = S_OK;
     m_spOleObject = 0;
     widget->queryInterface(IID_IOleObject, (void**)&m_spOleObject);
@@ -554,6 +555,7 @@ bool QAxClientSite::activateObject(bool initialized)
             
             sizehint.setWidth(MAP_LOGHIM_TO_PIX(hmSize.cx, widget->logicalDpiX()));
             sizehint.setHeight(MAP_LOGHIM_TO_PIX(hmSize.cy, widget->logicalDpiY()));
+            showHost = true;
         } else {
             sizehint = QSize(0, 0);
             host->hide();
@@ -592,9 +594,9 @@ bool QAxClientSite::activateObject(bool initialized)
     }
 
     host->resize(widget->size());
-    if (!host->isHidden())
+    if (showHost)
         host->show();
-    
+
     if (host->focusPolicy() != Qt::NoFocus) {
         widget->setFocusProxy(host);
         widget->setFocusPolicy(host->focusPolicy());
@@ -605,12 +607,14 @@ bool QAxClientSite::activateObject(bool initialized)
 
 QAxClientSite::~QAxClientSite()
 {
-    if (host)
+    if (host) {
         host->axhost = 0;
+    }
 
     if (aggregatedObject)
         aggregatedObject->the_object = 0;
     delete aggregatedObject;
+    delete host;
 }
 
 void QAxClientSite::releaseAll()
