@@ -23,7 +23,10 @@
 
 class QTextEngine;
 class QFont;
+class QRect;
+class QRegion;
 
+// ###### go away
 class Q_GUI_EXPORT QTextItem
 {
 public:
@@ -196,6 +199,9 @@ public:
     void draw(QPainter *p, const QPoint &pos, int cursorPos = NoCursor, const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
 
 
+    QRect boundingRect() const;
+    QRegion region() const;
+
     QTextEngine *engine() const { return d; }
 
 private:
@@ -209,13 +215,5 @@ private:
     friend class QPSPrinter;
     QTextEngine *d;
 };
-
-
-/*
-  class QPainter {
-      .....
-      void drawTextItem( int x, int y, QTextItem *item );
-  };
-*/
 
 #endif

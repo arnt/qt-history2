@@ -373,6 +373,22 @@ QTextLine QTextLayout::findLine(int pos) const
 }
 
 
+QRect QTextLayout::boundingRect() const
+{
+    QRect r;
+    for (int i = 0; i < d->lines.size(); ++i) {
+	const QScriptLine &si = d->lines[i];
+	r |= QRect(si.x, si.y, si.width, si.ascent + si.descent);
+    }
+    return r;
+}
+
+QRegion QTextLayout::region() const
+{
+    // ####
+    return QRegion();
+}
+
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
 			  const QRect &rect, const QTextLine &line, const QPoint &pos)
 {
