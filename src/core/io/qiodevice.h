@@ -99,19 +99,19 @@ public:
     void resetStatus();
     QString errorString() const;
 
-    virtual bool open(int) { return false; }
+    virtual inline bool open(int) { return false; }
     virtual void close() = 0;
-    virtual void flush() { }
+    virtual inline void flush() { }
 
     virtual Q_LLONG size() const = 0;
     virtual Q_LLONG at() const = 0;
     virtual bool seek(Q_LLONG off) = 0;
-    virtual bool atEnd() const { return at() == size(); }
+    virtual inline bool atEnd() const { return at() == size(); }
     inline bool reset() { return seek(0); }
 
     virtual Q_LLONG read(char *data, Q_LLONG maxlen) = 0;
-    inline QByteArray read(Q_LLONG maxlen) 
-    { QByteArray ret; ret.resize(maxlen); read(ret.data(), maxlen); return ret; }
+    inline QByteArray read(Q_LLONG maxlen)
+    { QByteArray ret; ret.resize(maxlen); Q_LLONG r = read(ret.data(), maxlen); ret.resize(r > 0 ? r : 0); return ret; }
     virtual Q_LLONG write(const char *data, Q_LLONG len) = 0;
     inline Q_LLONG write(const QByteArray &data) { return write(data.constData(), data.size()); }
     virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
