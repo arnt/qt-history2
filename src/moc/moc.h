@@ -145,13 +145,13 @@ public:
     void parseFunction(FunctionDef *def);
     bool parsePropertyCandidate(FunctionDef *def);
 
-    void parseSlots(FunctionDef::Access access,         ClassDef *def);
+    void parseSlots(ClassDef *def, FunctionDef::Access access);
     void parseSignals(ClassDef *def);
     void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseClassInfo(ClassDef *def);
     void parseInterfaces(ClassDef *def);
-    void parseSlotInPrivate(ClassDef *def);
+    void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);
 
     void parseFunctionArguments(FunctionDef *def);
 

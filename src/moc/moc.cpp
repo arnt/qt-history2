@@ -470,7 +470,7 @@ void Moc::parse()
                     case PUBLIC:
                     case PROTECTED:
                     case PRIVATE:
-                        parseSlots(access, &def);
+                        parseSlots(&def, access);
                         break;
                     default:
                         error("Missing access specifier for slots");
@@ -498,7 +498,7 @@ void Moc::parse()
                     parseInterfaces(&def);
                     break;
                 case Q_PRIVATE_SLOT_TOKEN:
-                    parseSlotInPrivate(&def);
+                    parseSlotInPrivate(&def, access);
                     break;
                 case ENUM: {
                     EnumDef enumDef;
@@ -584,7 +584,7 @@ void Moc::generate(FILE *out)
 
 
 
-void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
+void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
 {
     next(COLON);
     while (inClass(def) && hasNext()) {
@@ -763,11 +763,12 @@ void Moc::parseInterfaces(ClassDef *def)
 
 }
 
-void Moc::parseSlotInPrivate(ClassDef *def)
+void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
 {
     next(LPAREN);
     FunctionDef funcDef;
     funcDef.inPrivateClass = true;
+    funcDef.access = access;
     parseFunction(&funcDef);
     def->slotList += funcDef;
     while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
