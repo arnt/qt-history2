@@ -685,7 +685,7 @@ inline bool QWidgetMapper::remove( WId id )
     secondary window from the group (i.e. show a window whose top-most
     parent is a group leader), that window will be modal with respect
     to the other windows in the group, but modeless with respect to
-    any other windows.
+    windows in other groups.
 
     Miscellaneous flags
 
