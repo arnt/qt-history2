@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#26 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -27,16 +27,23 @@ extern Time qt_x_clipboardtime;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
 
 
-static QWidget *clipboardOwner()
+static QWidget * owner = 0;
+static QByteArray * buf = 0;
+
+static void cleanup() {
+    delete owner;
+    owner = 0;
+    delete buf;
+    buf = 0;
+}
+
+void setupOwner()
 {
-    static QWidget *owner = 0;
-    if ( owner )				// owner already created
-	return owner;
-    if ( qApp->mainWidget() )			// there's a main widget
-	owner = qApp->mainWidget();
-    else					// otherwise create fake widget
-	owner = new QWidget( 0, "internalClipboardOwner" );
-    return owner;
+    if ( owner )
+	return;
+    owner = new QWidget( 0, "internal clibpoard owner" );
+    buf = new QByteArray;
+    qAddPostRoutine( cleanup );
 }
 
 
@@ -358,7 +365,7 @@ void *QClipboard::data( const char *format ) const
     }
 
     QClipboardData *d = clipboardData();
-    QWidget *owner = clipboardOwner();
+    setupOwner();
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
 
@@ -378,16 +385,15 @@ void *QClipboard::data( const char *format ) const
     if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
 	return 0;
 
-    static QByteArray buf;
     Atom   type;
 
     if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
-			       &buf,0,&type,0) ) {
+			       buf,0,&type,0) ) {
 	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
-	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
-	    buf = qt_xclb_read_incremental_property( dpy, win,
-						     qt_selection_property,
-						     nbytes );
+	    int nbytes = buf->size() >= 4 ? *((int*)buf->data()) : 0;
+	    *buf = qt_xclb_read_incremental_property( dpy, win,
+						      qt_selection_property,
+						      nbytes );
 	} else if ( type != XA_STRING ) {
 #if 0
 	    // For debugging
@@ -397,7 +403,7 @@ void *QClipboard::data( const char *format ) const
 #endif
 	}
     }
-    return buf.data();
+    return buf->data();
 }
 
 
@@ -427,7 +433,7 @@ void QClipboard::setData( const char *format, void *data )
     }
 
     QClipboardData *d = clipboardData();
-    QWidget *owner = clipboardOwner();
+    setupOwner();
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
 
