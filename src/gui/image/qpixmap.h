@@ -259,6 +259,7 @@ private:
     friend class QCoreGraphicsPaintEngine;
     friend class QWSPaintEngine;
     friend class QFontEngineXft;
+    friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
 

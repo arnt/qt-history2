@@ -88,7 +88,9 @@ public:
     friend class QPaintDeviceMetrics;
     friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
+    friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
+
 #ifdef QT_COMPAT
 QT_COMPAT Q_GUI_EXPORT
 void bitBlt(QPaintDevice *dst, int dx, int dy,

@@ -15,6 +15,7 @@
 #include "qplatformdefs.h"
 #include "qpaintengine_x11.h"
 
+#include "qapplication.h"
 #include "qfont.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -1287,6 +1288,346 @@ void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
+//
+// Internal functions for simple GC caching for blt'ing masked pixmaps.
+// This cache is used when the pixmap optimization is set to Normal
+// and the pixmap size doesn't exceed 128x128.
+//
+
+static bool      init_mask_gc = false;
+static const int max_mask_gcs = 11;                // suitable for hashing
+
+struct mask_gc {
+    GC        gc;
+    int mask_no;
+};
+
+static mask_gc gc_vec[max_mask_gcs];
+
+
+static void cleanup_mask_gc()
+{
+    Display *dpy = QX11Info::appDisplay();
+    init_mask_gc = false;
+    for (int i=0; i<max_mask_gcs; i++) {
+        if (gc_vec[i].gc)
+            XFreeGC(dpy, gc_vec[i].gc);
+    }
+}
+
+static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
+{
+    if (!init_mask_gc) {                        // first time initialization
+        init_mask_gc = true;
+        qAddPostRoutine(cleanup_mask_gc);
+        for (int i=0; i<max_mask_gcs; i++)
+            gc_vec[i].gc = 0;
+    }
+    mask_gc *p = &gc_vec[mask_no % max_mask_gcs];
+    if (!p->gc || p->mask_no != mask_no) {        // not a perfect match
+        if (!p->gc) {                                // no GC
+            p->gc = XCreateGC(dpy, hd, 0, 0);
+            XSetGraphicsExposures(dpy, p->gc, False);
+        }
+        XSetClipMask(dpy, p->gc, mask);
+        p->mask_no = mask_no;
+    }
+    return p->gc;
+}
+
+void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
+		const QPaintDevice *src, int sx, int sy, int sw, int sh,
+		bool ignoreMask=false);
+
+void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
+		const QPaintDevice *src, int sx, int sy, int sw, int sh,
+		bool ignoreMask)
+{
+    if (!src || !dst) {
+        Q_ASSERT(src != 0);
+        Q_ASSERT(dst != 0);
+        return;
+    }
+    if (!qt_x11Handle(src) || src->isExtDev())
+        return;
+
+    QPoint redirection_offset;
+    const QPaintDevice *redirected = QPainter::redirected(dst, &redirection_offset);
+    if (redirected) {
+        dst = const_cast<QPaintDevice*>(redirected);
+        dx -= redirection_offset.x();
+        dy -= redirection_offset.y();
+    }
+
+    int ts = src->devType();                        // from device type
+    int td = dst->devType();                        // to device type
+
+    QX11Info *src_xf = qt_x11Info(src),
+	     *dst_xf = qt_x11Info(dst);
+
+    Q_ASSERT(src_xf != 0 && dst_xf != 0);
+
+    Display *dpy = src_xf->display();
+
+    if (sw <= 0) {                                // special width
+        if (sw < 0)
+            sw = src->metric(QPaintDeviceMetrics::PdmWidth) - sx;
+        else
+            return;
+    }
+    if (sh <= 0) {                                // special height
+        if (sh < 0)
+            sh = src->metric(QPaintDeviceMetrics::PdmHeight) - sy;
+        else
+            return;
+    }
+
+    if (dst->paintingActive() && dst->isExtDev()) {
+        QPixmap *pm;                                // output to picture/printer
+        bool tmp_pm = true;
+        if (ts == QInternal::Pixmap) {
+            pm = (QPixmap*)src;
+            if (sx != 0 || sy != 0 ||
+		sw != pm->width() || sh != pm->height() || ignoreMask) {
+                QPixmap *tmp = new QPixmap(sw, sh, pm->depth());
+                qt_bit_blt(tmp, 0, 0, pm, sx, sy, sw, sh, true);
+                if (pm->mask() && !ignoreMask) {
+                    QBitmap mask(sw, sh);
+                    qt_bit_blt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh, true);
+                    tmp->setMask(mask);
+                }
+                pm = tmp;
+            } else {
+                tmp_pm = false;
+            }
+        } else if (ts == QInternal::Widget) {// bitBlt to temp pixmap
+            pm = new QPixmap(sw, sh);
+            qt_bit_blt(pm, 0, 0, src, sx, sy, sw, sh);
+        } else {
+            qWarning("bitBlt: Cannot bitBlt from device");
+            return;
+        }
+	if (pm && dst->paintEngine())
+	    dst->paintEngine()->drawPixmap(QRect(dx, dy, -1, -1), *pm, QRect(0, 0, -1, -1));
+
+        if (tmp_pm)
+            delete pm;
+        return;
+    }
+
+    switch (ts) {
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+    case QInternal::System:                        // OK, can blt from these
+        break;
+    default:
+        qWarning("bitBlt: Cannot bitBlt from device type %x", ts);
+        return;
+    }
+    switch (td) {
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+    case QInternal::System:                        // OK, can blt to these
+        break;
+    default:
+        qWarning("bitBlt: Cannot bitBlt to device type %x", td);
+        return;
+    }
+
+    if (qt_x11Handle(dst) == 0) {
+        qWarning("bitBlt: Cannot bitBlt to device");
+        return;
+    }
+
+    bool mono_src;
+    bool mono_dst;
+    bool include_inferiors = false;
+    bool graphics_exposure = false;
+    QPixmap *src_pm;
+    QBitmap *mask;
+
+    if (ts == QInternal::Pixmap) {
+        src_pm = (QPixmap*)src;
+        if (src_pm->x11Info()->screen() != dst_xf->screen())
+            src_pm->x11SetScreen(dst_xf->screen());
+        mono_src = src_pm->depth() == 1;
+        mask = ignoreMask ? 0 : src_pm->data->mask;
+    } else {
+        src_pm = 0;
+        mono_src = false;
+        mask = 0;
+        include_inferiors = ((QWidget*)src)->testAttribute(Qt::WA_PaintUnclipped);
+        graphics_exposure = td == QInternal::Widget;
+    }
+    if (td == QInternal::Pixmap) {
+        if (dst_xf->screen() != src_xf->screen())
+            ((QPixmap*)dst)->x11SetScreen(src_xf->screen());
+        mono_dst = ((QPixmap*)dst)->depth() == 1;
+        ((QPixmap*)dst)->detach();                // changes shared pixmap
+    } else {
+        mono_dst = false;
+        include_inferiors = include_inferiors ||
+                            ((QWidget*)dst)->testAttribute(Qt::WA_PaintUnclipped);
+    }
+
+    if (mono_dst && !mono_src) {        // dest is 1-bit pixmap, source is not
+        qWarning("bitBlt: Incompatible destination pixmap");
+        return;
+    }
+
+#ifndef QT_NO_XRENDER
+    if (src_pm && !mono_src && src_pm->data->alphapm && !ignoreMask) {
+        // use RENDER to do the blit
+        QPixmap *alpha = src_pm->data->alphapm;
+	Qt::HANDLE src_pict, dst_pict;
+	if (src->devType() == QInternal::Widget)
+	    src_pict = static_cast<const QWidget *>(src)->xftPictureHandle();
+	else
+	    src_pict = static_cast<const QPixmap *>(src)->xftPictureHandle();
+	if (dst->devType() == QInternal::Widget)
+	    dst_pict = static_cast<const QWidget *>(dst)->xftPictureHandle();
+	else
+	    dst_pict = static_cast<const QPixmap *>(dst)->xftPictureHandle();
+        if (dst_pict && src_pict && alpha->xftPictureHandle()) {
+            XRenderPictureAttributes pattr;
+            ulong picmask = 0;
+            if (include_inferiors) {
+                pattr.subwindow_mode = IncludeInferiors;
+                picmask |= CPSubwindowMode;
+            }
+            if (graphics_exposure) {
+                pattr.graphics_exposures = true;
+                picmask |= CPGraphicsExposure;
+            }
+            if (picmask)
+                XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
+            XRenderComposite(dpy, PictOpOver, src_pict, alpha->xftPictureHandle(), dst_pict,
+                             sx, sy, sx, sy, dx, dy, sw, sh);
+            // restore attributes
+            pattr.subwindow_mode = ClipByChildren;
+            pattr.graphics_exposures = false;
+            if (picmask)
+                XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
+            return;
+        }
+    }
+#endif
+
+    GC gc;
+
+    if (mask && !mono_src) {                        // fast masked blt
+        bool temp_gc = false;
+        if (mask->data->maskgc) {
+            gc = (GC)mask->data->maskgc;        // we have a premade mask GC
+        } else {
+            if (false && src_pm->optimization() == QPixmap::NormalOptim) { // cache disabled
+                // Compete for the global cache
+                gc = cache_mask_gc(dpy, qt_x11Handle(dst),
+				   mask->data->ser_no,
+				   mask->handle());
+            } else {
+                // Create a new mask GC. If BestOptim, we store the mask GC
+                // with the mask (not at the pixmap). This way, many pixmaps
+                // which have a common mask will be optimized at no extra cost.
+                gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
+                XSetGraphicsExposures(dpy, gc, False);
+                XSetClipMask(dpy, gc, mask->handle());
+                if (src_pm->optimization() == QPixmap::BestOptim) {
+                    mask->data->maskgc = gc;
+                } else {
+                    temp_gc = true;
+                }
+            }
+        }
+        XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
+        if (include_inferiors) {
+            XSetSubwindowMode(dpy, gc, IncludeInferiors);
+            XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
+            XSetSubwindowMode(dpy, gc, ClipByChildren);
+        } else {
+            XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
+        }
+
+        if (temp_gc)                                // delete temporary GC
+            XFreeGC(dpy, gc);
+        return;
+    }
+
+    gc = qt_xget_temp_gc(dst_xf->screen(), mono_dst);                // get a reusable GC
+
+
+    if (mono_src && mono_dst && src == dst) { // dst and src are the same bitmap
+        XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
+    } else if (mono_src) {                        // src is bitmap
+        XGCValues gcvals;
+        ulong          valmask = GCBackground | GCForeground | GCFillStyle |
+				 GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
+        if (td == QInternal::Widget) {        // set GC colors
+            QWidget *w = (QWidget *)dst;
+            gcvals.background = w->palette().color(w->backgroundRole()).pixel(dst_xf->screen());
+            gcvals.foreground = w->palette().color(w->foregroundRole()).pixel(dst_xf->screen());
+            if (include_inferiors) {
+                valmask |= GCSubwindowMode;
+                gcvals.subwindow_mode = IncludeInferiors;
+            }
+        } else if (mono_dst) {
+            gcvals.background = 0;
+            gcvals.foreground = 1;
+        } else {
+            gcvals.background = QColor(Qt::white).pixel(dst_xf->screen());
+            gcvals.foreground = QColor(Qt::black).pixel(dst_xf->screen());
+        }
+
+        gcvals.fill_style  = FillOpaqueStippled;
+        gcvals.stipple = qt_x11Handle(src);
+        gcvals.ts_x_origin = dx - sx;
+	gcvals.ts_y_origin = dy - sy;
+
+	bool clipmask = false;
+        if (mask) {
+            if (((QPixmap*)src)->data->selfmask) {
+                gcvals.fill_style = FillStippled;
+            } else {
+                XSetClipMask(dpy, gc, mask->handle());
+                XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
+		clipmask = true;
+	    }
+	}
+
+	XChangeGC(dpy, gc, valmask, &gcvals);
+	XFillRectangle(dpy, qt_x11Handle(dst), gc, dx, dy, sw, sh);
+
+	valmask = GCFillStyle | GCTileStipXOrigin | GCTileStipYOrigin;
+	gcvals.fill_style  = FillSolid;
+	gcvals.ts_x_origin = 0;
+	gcvals.ts_y_origin = 0;
+	if (include_inferiors) {
+	    valmask |= GCSubwindowMode;
+	    gcvals.subwindow_mode = ClipByChildren;
+	}
+	XChangeGC(dpy, gc, valmask, &gcvals);
+
+	if (clipmask) {
+	    XSetClipOrigin(dpy, gc, 0, 0);
+	    XSetClipMask(dpy, gc, XNone);
+	}
+
+    } else {                                        // src is pixmap/widget
+	if (graphics_exposure)                // widget to widget
+	    XSetGraphicsExposures(dpy, gc, True);
+	if (include_inferiors) {
+	    XSetSubwindowMode(dpy, gc, IncludeInferiors);
+	    XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
+	    XSetSubwindowMode(dpy, gc, ClipByChildren);
+	} else {
+	    XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
+	}
+	if (graphics_exposure)                // reset graphics exposure
+	    XSetGraphicsExposures(dpy, gc, False);
+    }
+}
+
+
 void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
                                  Qt::BlendMode mode)
 {
@@ -1335,7 +1676,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            bitBlt(d->pdev, x, y, &pixmap, sx, sy, sw, sh);
+            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh);
         }
         return;
     }
