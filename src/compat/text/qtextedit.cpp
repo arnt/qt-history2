@@ -35,7 +35,7 @@
 #include "qcolordialog.h"
 #include "qstylesheet.h"
 #include "qdragobject.h"
-#include "q3url.h"
+#include "qurl.h"
 #include "qcursor.h"
 #include "qregexp.h"
 #include "qpopupmenu.h"
@@ -2421,8 +2421,8 @@ void QTextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
           || (!d->onName.isEmpty() && d->onName == d->pressedName))
          && linksEnabled()) {
         if (!onLink.isEmpty()) {
-            Q3Url u(doc->context(), onLink, true);
-            emitLinkClicked(u.toString(false, false));
+            QUrl u = QUrl(doc->context()).resolved(onLink);
+            emitLinkClicked(u.toString(QUrl::None));
         }
         if (QTextBrowser *browser = qt_cast<QTextBrowser*>(this))
             emit browser->anchorClicked(d->onName, onLink);
@@ -4713,8 +4713,8 @@ bool QTextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
         if (!doc->focusIndicator.href.isEmpty()
                 || !doc->focusIndicator.name.isEmpty()) {
             if (!doc->focusIndicator.href.isEmpty()) {
-                Q3Url u(doc->context(), doc->focusIndicator.href, true);
-                emitLinkClicked(u.toString(false, false));
+                QUrl u = QUrl(doc->context()).resolved(doc->focusIndicator.href);
+                emitLinkClicked(u.toString(QUrl::None));
             }
             if (!doc->focusIndicator.name.isEmpty())
                 if (QTextBrowser *browser = qt_cast<QTextBrowser*>(this))
@@ -5870,8 +5870,8 @@ void QTextEdit::updateCursor(const QPoint & pos)
 #ifndef QT_NO_CURSOR
                 viewport()->setCursor(onLink.isEmpty() ? ArrowCursor : PointingHandCursor);
 #endif
-                Q3Url u(doc->context(), onLink, true);
-                emitHighlighted(u.toString(false, false));
+                QUrl u = QUrl(doc->context()).resolved(onLink);
+                emitHighlighted(u.toString(QUrl::None));
             }
         } else {
 #ifndef QT_NO_CURSOR
