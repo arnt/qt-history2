@@ -193,6 +193,8 @@ bool QFile::open( int m )
 		fh = fopen(qt_win95Name(fn),
 			    perm2 );
 	    } );
+	    if ( errno == EACCES )
+		break;
 	    if ( !fh && try_create ) {
 		perm2[0] = 'w';			// try "w+" instead of "r+"
 		try_create = FALSE;
