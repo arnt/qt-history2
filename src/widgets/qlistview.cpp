@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#57 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#57 $");
 
 
 const int Unsorted = 32767;
@@ -1456,19 +1456,26 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 			 me->button(), me->state() );
 	switch( me2.type() ) {
 	case Event_MouseButtonPress:
-	    if ( me2.button() == RightButton )
+	    if ( me2.button() == RightButton ) {
 		mousePressEvent( &me2 );
+		return TRUE;
+	    }
 	    break;
 	case Event_MouseButtonDblClick:
-	    // nothing
+	    if ( me2.button() == RightButton )
+		return TRUE;
 	    break;
 	case Event_MouseMove:
-	    if ( me2.state() & RightButton )
+	    if ( me2.state() & RightButton ) {
 		mouseMoveEvent( &me2 );
+		return TRUE;
+	    }
 	    break;
 	case Event_MouseButtonRelease:
-	    if ( me2.button() == RightButton )
+	    if ( me2.button() == RightButton ) {
 		mouseReleaseEvent( &me2 );
+		return TRUE;
+	    }
 	    break;
 	default:
 	    break;
