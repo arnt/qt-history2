@@ -931,6 +931,7 @@ bool QPrinter::setup( QWidget *parent )
 
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
+	hdevmode = 0;
 	hdevnames = 0;
         if (pd.hDevMode)
             result = TRUE;
@@ -989,6 +990,7 @@ bool QPrinter::setup( QWidget *parent )
 
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
+	hdevmode = 0;
 	hdevnames = 0;
         if (pd.hDevMode)
             result = TRUE;
