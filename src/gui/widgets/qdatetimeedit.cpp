@@ -580,7 +580,6 @@ bool QDateTimeEditor::eventFilter(QObject *o, QEvent *e)
             case Key_BackTab: {
                 if (ke->state() == Qt::ControlButton)
                     return false;
-
                 QWidget *w = this;
                 bool hadDateEdit = false;
                 while (w) {
@@ -590,7 +589,6 @@ bool QDateTimeEditor::eventFilter(QObject *o, QEvent *e)
                     hadDateEdit = hadDateEdit || qt_cast<QDateEdit*>(w);
                     w = w->parentWidget();
                 }
-
                 if (w) {
                     if (!qt_cast<QDateTimeEdit*>(w)) {
                         w = w->parentWidget();
@@ -607,7 +605,6 @@ bool QDateTimeEditor::eventFilter(QObject *o, QEvent *e)
                                 w = w->parentWidget();
                         }
                     }
-
                     qApp->sendEvent(w, e);
                     return true;
                 }
@@ -1540,6 +1537,8 @@ bool QDateEdit::setFocusSection(int s)
     \i If the year has three digits in the range 100..999, the
     current millennium, i.e. 2000, will be added giving a year
     in the range 2100..2999.
+    \i If the day or month is 0 then it will be set to 1 or the
+    minimum valid day\month in the range.
     \endlist
 
 */
@@ -1564,8 +1563,14 @@ void QDateEdit::fix()
         int currentMillennium = currentYear / 10;
         year += currentMillennium * 10;
         changed = true;
+    } else if (d->d == 0) {
+	d->d = 1;
+	changed = true;
+    } else if (d->m == 0) {
+	d->m = 1;
+	changed = true;
     }
-    if (changed && outOfRange(year, d->m, d->d)) {
+    if (outOfRange(year, d->m, d->d)) {
         if (minValue().isValid() && date() < minValue()) {
             d->d =  minValue().day();
             d->dayCache = d->d;
@@ -1578,6 +1583,7 @@ void QDateEdit::fix()
             d->m = maxValue().month();
             d->y = maxValue().year();
         }
+	changed = true;
     } else if (changed)
         setYear(year);
     if (changed) {
