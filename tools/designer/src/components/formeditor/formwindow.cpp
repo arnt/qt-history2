@@ -1750,7 +1750,7 @@ void FormWindow::showOrderIndicators()
     foreach (QWidget *widget, widgets()) {
         if (qt_cast<QLayoutWidget*>(widget)
                 || widget == mainContainer()
-                || !widget->isShown()
+                || !widget->isExplicitlyHidden()
                 || !canBeBuddy(widget))
             continue;
 
