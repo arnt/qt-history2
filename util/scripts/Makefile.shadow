@@ -1,5 +1,5 @@
 
-CONFG_DIR=src/
+#CONFG_DIR=src/
 CONFG=$(QTDIR)/configure 
 MAKE_D=
 ifdef CONFG_DIR
