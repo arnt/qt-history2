@@ -728,10 +728,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("COMPAT_VERSION"))
 	t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";
 
-#if 0
-    if(!project->isEmpty("OBJECTS_DIR"))
-	t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
-#endif
+    if(ideType() == MAC_XCODE) {
+	if(!project->isEmpty("OBJECTS_DIR"))
+	    t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
+    }
+    if(!project->isEmpty("DESTDIR"))
+	t << "\t\t\t\t" << "SYMROOT = \"" << project->first("DESTDIR") << "\";" << "\n";
+    else
+	t << "\t\t\t\t" << "SYMROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
@@ -769,42 +773,42 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(ideType() == MAC_XCODE)
 	t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
     if(project->first("TEMPLATE") == "app") {
-	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+	if(project->isActiveConfig("console")) {
+	    if(ideType() == MAC_XCODE) 
+		t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
+	    else
+		t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+	} else {
 	    if(ideType() == MAC_XCODE) {
 		t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
 	    } else {
-		t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n"
-		  << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
-		  << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
-		  << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
-		  << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
-		  << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
-		  << "\t\t\t\t" << "<dict>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
-		  << "\t\t\t\t\t" << "<string>English</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
-		  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-		  << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
-		  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
-		  << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-		    //Although the output below looks strange it is to avoid the trigraph ??<
-		  << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
-		  << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
-		  << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
-		  << "\t\t\t\t\t" << "<true/>" << "\n"
-		  << "\t\t\t\t" << "</dict>" << "\n"
-		  << "\t\t\t\t" << "</plist>" << "\";" << "\n";
+		t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
 	    }
-	} else {
-	    if(ideType() == MAC_XCODE) 
-		t << "\t\t\t" << "productType = \"com.apple.product-type.bundle\";" << "\n";
-	    else
-		t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+	    t << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
+	      << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
+	      << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
+	      << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
+	      << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
+	      << "\t\t\t\t" << "<dict>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>English</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
+	      << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
+		//Although the output below looks strange it is to avoid the trigraph ??<
+	      << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
+	      << "\t\t\t\t\t" << "<true/>" << "\n"
+	      << "\t\t\t\t" << "</dict>" << "\n"
+	      << "\t\t\t\t" << "</plist>" << "\";" << "\n";
 	}
 	t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
@@ -1059,7 +1063,8 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
 ProjectBuilderMakefileGenerator::IDE_TYPE
 ProjectBuilderMakefileGenerator::ideType() const
 {
-    if(QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist") || project->isActiveConfig("pbx_xcode"))
+    if(!project->isActiveConfig("no_pbx_xcode") &&
+       (QFile::exists("/Developer/Applications/Xcode.app") || project->isActiveConfig("pbx_xcode")))
 	return ProjectBuilderMakefileGenerator::MAC_XCODE;
     return ProjectBuilderMakefileGenerator::MAC_PBUILDER;
 }
@@ -1069,7 +1074,7 @@ ProjectBuilderMakefileGenerator::projectSuffix() const
 {
     if(ideType() == MAC_XCODE)
 	return ".xcode";
-    return "pbproj";
+    return ".pbproj";
 }
 
 QString
