@@ -118,6 +118,8 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     pipe(thread_pipe);
     fcntl(thread_pipe[0], F_SETFD, FD_CLOEXEC);
     fcntl(thread_pipe[1], F_SETFD, FD_CLOEXEC);
+    fcntl(thread_pipe[0], F_SETFL, fcntl(thread_pipe[0], F_GETFL) | O_NONBLOCK);
+    fcntl(thread_pipe[1], F_SETFL, fcntl(thread_pipe[1], F_GETFL) | O_NONBLOCK);
 
     sn_highest = -1;
     timerList = 0;
@@ -240,8 +242,9 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
     // select doesn't immediately return next time
     int nevents = 0;
     if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
-        char c;
-        ::read(thread_pipe[0], &c, 1);
+        char c[16];
+        while (::read(thread_pipe[0], c, sizeof(c)) > 0)
+            ;
         ++nevents;
     }
 
@@ -721,27 +724,9 @@ bool QEventDispatcherUNIX::hasPendingEvents()
 
 void QEventDispatcherUNIX::wakeUp()
 {
-    /*
-      Apparently, there is not consistency among different operating
-      systems on how to use FIONREAD.
-
-      FreeBSD, Linux and Solaris all expect the 3rd argument to
-      ioctl() to be an int, which is normally 32-bit even on 64-bit
-      machines.
-
-      IRIX, on the other hand, expects a size_t, which is 64-bit on
-      64-bit machines.
-
-      So, the solution is to use size_t initialized to zero to make
-      sure all bits are set to zero, preventing underflow with the
-      FreeBSD/Linux/Solaris ioctls.
-    */
-    size_t nbytes = 0;
     char c = 0;
     Q_D(QEventDispatcherUNIX);
-    if (::ioctl(d->thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0) {
-        ::write( d->thread_pipe[1], &c, 1 );
-    }
+    ::write( d->thread_pipe[1], &c, 1 );
 }
 
 void QEventDispatcherUNIX::interrupt()
