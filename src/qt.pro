@@ -120,6 +120,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$TOOLS_H/qarray.h \
+		  $$TOOLS_H/qasciicache.h \
+		  $$TOOLS_H/qasciidict.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \

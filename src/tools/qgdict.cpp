@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#78 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -663,7 +663,7 @@ bool QGDict::remove_ascii( const char *key, Item item )
     QAsciiBucket *n = unlink_ascii( key, item );
     if ( n ) {
 	if ( copyk )
-	    delete [] n->getKey();
+	    delete [] (char *)n->getKey();
 	deleteItem( n->getData() );
 	delete n;
     }
@@ -709,7 +709,7 @@ QCollection::Item QGDict::take_ascii( const char *key )
     Item d;
     if ( n ) {
 	if ( copyk )
-	    delete [] n->getKey();
+	    delete [] (char *)n->getKey();
 	d = n->getData();
 	delete n;
     } else {
@@ -774,7 +774,7 @@ void QGDict::clear()
 			while ( n ) {
 			    QAsciiBucket *next = (QAsciiBucket*)n->getNext();
 			    if ( copyk )
-				delete [] n->getKey();
+				delete [] (char *)n->getKey();
 			    delete n;
 			    n = next;
 			}

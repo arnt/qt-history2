@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#295 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -601,12 +601,12 @@ bool qt_nograb()				// application no-grab option
 }
 
 
-static QDict<int> *winclassNames = 0;
+static QAsciiDict<int> *winclassNames = 0;
 
 const char* qt_reg_winclass( int flags )	// register window class
 {
     if ( !winclassNames ) {
-	winclassNames = new QDict<int>;
+	winclassNames = new QAsciiDict<int>;
 	CHECK_PTR( winclassNames );
     }
     uint style;
@@ -661,9 +661,9 @@ static void unregWinClasses()
 {
     if ( !winclassNames )
 	return;
-    QDictIterator<int> it(*winclassNames);
-    const char* k;
-    while ( (k = (const char*)(void*)it.currentKeyLong()) ) {
+    QAsciiDictIterator<int> it(*winclassNames);
+    const char *k;
+    while ( (k = it.currentKey()) ) {
 	if ( qt_winver == Qt::WV_NT ) {
 	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
 			     (HINSTANCE)qWinAppInst() );
