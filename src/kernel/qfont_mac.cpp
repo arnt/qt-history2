@@ -419,7 +419,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     //do required task now
     if(task & GIMME_WIDTH) {
 	ATSUTextMeasurement left, right, bottom, top;
-	ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
+	ATSUGetUnjustifiedBounds(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			&left, &right, &bottom, &top);
 #if 0
 	qDebug("(%s) (%s): %p %d %d %d (%d %d == %d)", 
