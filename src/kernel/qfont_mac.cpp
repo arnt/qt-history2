@@ -53,6 +53,7 @@ public:
 
     inline short style() const { return fi_face; }
     inline void setStyle(short f) { fi_face = f; }
+    inline short realStyleMask() const { return ~(underline); }
 
     inline int size() const { return fi_size; }
     inline void setSize(int f) { fi_size = f; }
@@ -140,22 +141,23 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     QMacSetFontInfo fi(d);
     if(!no_optim) //latin1 optimization
     {
-	uint is_latin = 1;
+	bool is_latin = TRUE;
 	const QChar *chs = s.unicode() + pos;
 	for(int i = 0; i < len; i++) {
 	    if(chs[i].row() || (chs[i].cell() & (1 << 7))) {
-		is_latin = 0;
+		is_latin = FALSE;
 		break;
 	    } 
 	}
 	if(is_latin) {
 	    int ret = 0;
-	    if(task & GIMME_WIDTH)
-		ret = TextWidth(chs, 0, len * 2);
+	    const unsigned char *str = p_str(s.mid(pos, len));
 	    if(task & GIMME_DRAW) {
-		TextFace(fi.style() & ~(underline)); //do my own underlining
-		DrawText(chs, 0, len * 2);
+		TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
+		DrawString(str);
 	    }
+	    if(task & GIMME_WIDTH)
+		ret = StringWidth(str);
 	    return ret;
 	}
     }
@@ -223,13 +225,13 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	    int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
 
 	    //do the requested task
-	    if(task & GIMME_WIDTH)
-		ret += TextWidth(buf, off, rlen);
 	    if(task & GIMME_DRAW) {
-		TextFace(fi.style() & ~(underline)); //do my own underlining
+		TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
 		DrawText(buf, off, rlen);
 		TextFace(fi.style());
 	    }
+	    if(task & GIMME_WIDTH)
+		ret += TextWidth(buf, off, rlen);
 
 	    //restore the scale
 	    if(msz != sz)
@@ -252,7 +254,7 @@ static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar tas
     if(task & GIMME_WIDTH)
 	ret = CharWidth((char)c.cell());
     if(task & GIMME_DRAW) {
-	TextFace(fi.style() & ~(underline)); //do my own underlining
+	TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
 	DrawChar((char)c.cell());
     }
     return ret;
