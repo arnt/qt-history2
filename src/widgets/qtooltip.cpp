@@ -29,6 +29,9 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 
+//#define ANIMATED_TOOLTIP
+//#define BLEND_TOOLTIP
+
 static bool globally_enabled = TRUE;
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -479,7 +482,29 @@ void QTipManager::showTip()
 	p.setY( p.y() - 20 - label->height() );
     if ( label->text().length() ) {
 	label->move( p );
-	label->show();
+
+	bool animate = FALSE;
+	bool blend = FALSE;
+#ifdef _WS_WIN_
+	animate = QApplication::winEffectSupport( UI_AnimateTooltip );
+	blend = QApplication::winEffectSupport( UI_FadeTooltip );
+#endif
+#ifdef ANIMATED_TOOLTIP
+	animate = TRUE;
+#endif
+#ifdef BLEND_TOOLTIP
+	blend = TRUE;
+#endif
+
+	if ( animate && !previousTip ) {
+	    if ( blend )
+		label->show();  // in a distant future...
+	    else
+		label->show();  // in a distant future...
+	} else {
+	    label->show();
+	}
+
 	label->raise();
 	fallAsleep.start( 10000, TRUE );
     }

@@ -38,6 +38,9 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 
+//#define ANIMATED_WHATSTHIS
+//#define BLEND_WHATSTHIS
+
 // REVISED: warwick
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -519,12 +522,31 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 		- h;
 	if ( y < 0 )
 	    y = 0;
-
-
+	
 	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
-	whatsThat->show();
+	
+	bool animate = FALSE;
+	bool blend = FALSE;
+#ifdef _WS_WIN_
+	animate = QApplication::winEffectSupport( UI_AnimateTooltip );
+	blend = QApplication::winEffectSupport( UI_FadeTooltip );
+#endif
+#ifdef ANIMATED_WHATSTHIS
+	animate = TRUE;
+#endif
+#ifdef BLEND_WHATSTHIS
+	blend = TRUE;
+#endif
+	if ( animate ) {
+	    if ( blend )
+		whatsThat->show();	// in a distant future...
+	    else
+		whatsThat->show();	// in a distant future...
+	} else {
+	    whatsThat->show();
+	}
     }
-
+    
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 

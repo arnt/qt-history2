@@ -39,6 +39,9 @@
 #include "qguardedptr.h"
 #include <ctype.h>
 
+//#define ANIMATED_POPUP
+//#define BLEND_POPUP
+
 // Motif style parameters
 
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
@@ -336,7 +339,6 @@ void QPopupMenu::frameChanged()
     menuContentsChanged();
 }
 
-
 /*!
   Opens the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
@@ -393,7 +395,26 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     move( x, y );
     motion=0;
     actItem = -1;
-    show();
+    bool animate = FALSE;
+    bool blend = FALSE;
+#ifdef _WS_WIN_
+    animate = QApplication::winEffectSupport( UI_AnimateMenu );
+    blend = QApplication::winEffectSupport( UI_FadeMenu );
+#endif
+#ifdef ANIMATED_POPUP
+    animate = TRUE;
+#endif
+#ifdef ANIMATED_BLEND
+    blend = TRUE;
+#endif
+    if ( animate ) {
+	if ( blend )
+	    show();	// in a distant future...
+	else
+	    show();	// in a distant future...
+    } else {
+	show();
+    }
 }
 
 /*!
