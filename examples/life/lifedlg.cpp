@@ -131,7 +131,8 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
     s = life->sizeIncrement();
     setSizeIncrement( s.width(), s.height() );
 
-    resize( 512, 480 );
+    resize( QMIN(512, qApp->desktop()->width()),
+	    QMIN(480, qApp->desktop()->height()) );
 }
 
 
