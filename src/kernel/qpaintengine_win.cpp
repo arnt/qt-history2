@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-#define NO_NATIVE_XFORM
+// #define NO_NATIVE_XFORM
 
 #define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
@@ -268,7 +268,9 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine( GCCaps(CoordTransform | PenWidthTransform | PixmapTransform) ),
+      QPaintEngine(GCCaps(UsesFontEngine)),
+#else
+      QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform | UsesFontEngine)),
 #endif
       d(new QWin32PaintEnginePrivate)
 {

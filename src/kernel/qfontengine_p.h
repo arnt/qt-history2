@@ -63,6 +63,16 @@ public:
 	QWS
     };
 
+    enum Capabilities {
+	NoTransformations = 0x00,
+	Scale = 0x01,
+	Rotate = 0x02,
+	RotScale = 0x03,
+	Shear = 0x04,
+	FullTransformations = 0x0f
+    };
+    Q_DECLARE_FLAGS(FECaps, Capabilities);
+
     QFontEngine() {
 	count = 0; cache_count = 0;
 #ifdef Q_WS_X11
@@ -70,6 +80,8 @@ public:
 #endif
     }
     virtual ~QFontEngine();
+
+    virtual FECaps capabilites() const = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const = 0;
@@ -229,6 +241,8 @@ public:
     QFontEngineBox(int size);
     ~QFontEngineBox();
 
+    FECaps capabilites() const;
+
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
@@ -297,6 +311,8 @@ public:
     QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap);
     ~QFontEngineXft();
 
+    FECaps capabilites() const;
+
     QOpenType *openType() const;
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
@@ -353,6 +369,8 @@ public:
     QFontEngineXLFD(XFontStruct *fs, const char *name, int cmap);
     ~QFontEngineXLFD();
 
+    FECaps capabilites() const;
+
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
@@ -402,6 +420,8 @@ class QFontEngineLatinXLFD : public QFontEngine
 public:
     QFontEngineLatinXLFD(XFontStruct *xfs, const char *name, int cmap);
     ~QFontEngineLatinXLFD();
+
+    FECaps capabilites() const;
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
@@ -536,6 +556,8 @@ class QFontEngineWin : public QFontEngine
 {
 public:
     QFontEngineWin(const char *name, HDC, HFONT, bool, LOGFONT);
+
+    FECaps capabilites() const;
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 

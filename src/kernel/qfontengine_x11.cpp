@@ -99,6 +99,11 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
+QFontEngine::FECaps QFontEngineBox::capabilites() const
+{
+    return FullTransformations;
+}
+
 QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, bool ) const
 {
     if ( *nglyphs < len ) {
@@ -314,6 +319,11 @@ QFontEngineXLFD::~QFontEngineXLFD()
 	trf = trf->next;
 	delete tmp;
     }
+}
+
+QFontEngine::FECaps QFontEngineXLFD::capabilites() const
+{
+    return NoTransformations;
 }
 
 QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
@@ -867,6 +877,11 @@ QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
     _engines = 0;
 }
 
+QFontEngine::FECaps QFontEngineLatinXLFD::capabilites() const
+{
+    return NoTransformations;
+}
+
 void QFontEngineLatinXLFD::findEngine( const QChar &ch )
 {
     if ( ch.unicode() == 0 ) return;
@@ -1318,6 +1333,11 @@ QFontEngineXft::~QFontEngineXft()
 	trf = trf->next;
 	delete tmp;
     }
+}
+
+QFontEngine::FECaps QFontEngineXft::capabilites() const
+{
+    return (_face->face_flags & FT_FACE_FLAG_SCALABLE) ? FullTransformations : NoTransformations;
 }
 
 QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const

@@ -234,6 +234,13 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     memset( widthCache, 0, sizeof(widthCache) );
 }
 
+QFontEngine::FECaps QFontEngineWin::capabilites() const
+{
+    return QT_WA_INLINE(
+	(tm.w.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? FullTransformations : NoTransformations),
+	(tm.a.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? RotScale : NoTransformations)
+	);
+}
 
 QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
 {
@@ -765,6 +772,11 @@ QFontEngineBox::QFontEngineBox( int size )
 
 QFontEngineBox::~QFontEngineBox()
 {
+}
+
+QFontEngine::FECaps QFontEngineBox::capabilites() const
+{
+    return FullTransformations;
 }
 
 QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, bool ) const

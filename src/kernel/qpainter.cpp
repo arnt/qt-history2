@@ -1138,12 +1138,39 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
 		   0, 0, 0, this);
 }
 
-void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
+void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
     if (!isActive())
 	return;
     d->engine->updateState(d->state);
-    d->engine->drawTextItem(QPoint(x, y), ti, textFlags);
+    if (d->engine->hasCapability(QPaintEngine::CanRenderText)) {
+	d->engine->drawTextItem(p, ti, textFlags);
+	return;
+    }
+
+    if (d->engine->hasCapability(QPaintEngine::UsesFontEngine)) {
+	bool useFontEngine = true;
+	if (d->state->txop > TxTranslate) {
+	    useFontEngine = false;
+	    QFontEngine *fe = ti.fontEngine;
+	    QFontEngine::FECaps fecaps = fe->capabilites();
+	    if (d->state->txop == TxRotShear) {
+		useFontEngine = (fecaps & QFontEngine::FullTransformations);
+		if (!useFontEngine
+		    && d->state->matrix.m11() == d->state->matrix.m22()
+		    && d->state->matrix.m12() == -d->state->matrix.m21())
+		    useFontEngine = (fecaps & QFontEngine::RotScale);
+	    } else if (d->state->txop == TxScale) {
+		useFontEngine = (fecaps & QFontEngine::Scale);
+	    }
+	}
+	if (useFontEngine) {
+	    ti.fontEngine->draw(d->engine, p.x(),  p.y(), ti, textFlags);
+	    return;
+	}
+    }
+    // Fallback: draw into pixmap
+    // ##############
 }
 
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len)

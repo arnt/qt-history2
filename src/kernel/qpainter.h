@@ -402,9 +402,9 @@ inline QRect QPainter::boundingRect(const QRect &r, int flags,
     return boundingRect(r.x(), r.y(), r.width(), r.height(), flags, s, len);
 }
 
-inline void QPainter::drawTextItem(const QPoint& p, const QTextItem &ti, int textflags)
+inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
-    drawTextItem(p.x(), p.y(), ti, textflags);
+    drawTextItem(QPoint(x, y), ti, textflags);
 }
 
 inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str,

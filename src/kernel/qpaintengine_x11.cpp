@@ -481,7 +481,7 @@ void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h )
  */
 
 QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
-    : QPaintEngine()
+    : QPaintEngine(UsesFontEngine)
 {
     d = new QX11PaintEnginePrivate;
 
@@ -1495,11 +1495,6 @@ void QX11PaintEngine::updateFont(QPainterState *ps)
     clearf(DirtyFont);
     if (d->penRef)
         updatePen(ps);                            // force a non-cached GC
-}
-
-void QX11PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
-{
-    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textflags);
 }
 
 Qt::HANDLE QX11PaintEngine::handle() const
