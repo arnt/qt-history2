@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#55 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1652,7 +1652,7 @@ void QMultiLineEdit::del()
 
 	    for( int i = markBeginY + 1 ; i <= markEndY ; i++ )
 		contents->remove( markBeginY + 1 );
-	    
+	
 	    if ( contents->isEmpty() )
 		insertLine( QString::fromLatin1(""), -1 );
 
@@ -1861,7 +1861,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	if ( newX >= 0 && newX < lim ) {
 	    int i = newX;
 	    int startclass = charClass(s.at(i));
-	    if ( markAnchorY < markDragY || 
+	    if ( markAnchorY < markDragY ||
 		 ( markAnchorY == markDragY && markAnchorX < markDragX ) ) {
 		// going right
 		while ( i < lim && charClass(s.at(i)) == startclass )
@@ -2314,8 +2314,8 @@ void QMultiLineEdit::copy() const
     }
 }
 
-/*
-  \internal
+/* \obsolete
+  
   Backward compatibility.
 */
 void QMultiLineEdit::copyText() const
