@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#34 $
 **
 ** Implementation of QScrollView class
 **
@@ -82,6 +82,10 @@ struct QScrollViewData {
 	hbar.setSteps( 20, 1/*set later*/ );
 	policy = QScrollView::Default;
     }
+    ~QScrollViewData()
+    {
+	deleteAll();
+    }
 
     ChildRec* rec(QWidget* w) { return childDict.find(w); }
     ChildRec* ancestorRec(QWidget* w)
@@ -109,6 +113,11 @@ struct QScrollViewData {
 	for (ChildRec *r = children.first(); r; r=children.next()) {
 	    r->child->move(r->child->x()+dx,r->child->y()+dy);
 	}
+    }
+    void deleteAll()
+    {
+	for (ChildRec *r = children.first(); r; r=children.next())
+	    delete r;
     }
     bool anyVisibleChildren()
     {
@@ -169,6 +178,7 @@ this limitation, but currently the scrollbars fail beyond about
 Constructs a QScrollView.  A single child can then be set with the setContents()
 method.
 */
+
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f, FALSE )
 {
