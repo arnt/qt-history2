@@ -899,6 +899,10 @@ then
     echo "QMake args....... $QMAKE_ARGS"
 fi
 
+if [ ! "x$CONCURRENT" = "x0" ]
+then
+    echo "Concurrent........... $CONCURRENT"
+fi
 echo "Configuration........ $QMAKE_CONFIG"
 echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"
@@ -938,7 +942,7 @@ for a in $QMAKE_PROJECTS ; do
     esac
 
     PIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS -o $dir/$MFILE -mkspec $CONF $a"
-    if [ "x$CONCURRENT" = "x0" ]
+    if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
     else
