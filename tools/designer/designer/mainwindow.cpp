@@ -2466,6 +2466,13 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	}
 	ids << ( id = rmbFormWindow->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
+    } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
+	if ( ids.isEmpty() )
+	    ids << rmbFormWindow->insertSeparator( 0 );
+	ids << ( id = rmbFormWindow->insertItem( tr( "Add Menu Item" ), -1, 0 ) );
+	commands.insert( "add_menu_item", id );
+	ids << ( id = rmbFormWindow->insertItem( tr( "Add Toolbar" ), -1, 0 ) );
+	commands.insert( "add_toolbar", id );
     }
 }
 
@@ -2572,6 +2579,16 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
+	}
+    } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
+	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
+	if ( id == commands[ "add_toolbar" ] ) {
+	    QToolBar *tb = new QToolBar( this );
+	    mw->addToolBar( tb, "Toolbar" );
+	} else if ( id == commands[ "add_menu_item" ] ) {
+	    QPopupMenu *popup = new QPopupMenu( mw );
+	    popup->insertItem( "" );
+	    mw->menuBar()->insertItem( "Menu", popup );
 	}
     }
 }

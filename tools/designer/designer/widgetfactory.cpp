@@ -70,6 +70,7 @@
 #include <qscrollbar.h>
 #include <qmainwindow.h>
 #include <qmenubar.h>
+#include <qapplication.h>
 
 #include <globaldefs.h>
 
@@ -653,7 +654,6 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
 	    MetaDataBase::addEntry( dw );
 	    mw->setCentralWidget( dw );
-	    mw->menuBar()->insertItem( "Dummy" );
 	    dw->show();
 	}
 	return mw;
@@ -791,6 +791,9 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
  */
 bool WidgetFactory::isPassiveInteractor( QObject* o )
 {
+    if ( QApplication::activePopupWidget() ) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
+	return TRUE;
+    
     if ( o->inherits( "QTabBar" ) )
 	return TRUE;
     else if ( o->inherits( "QSizeGrip" ) )
@@ -798,6 +801,8 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( o->inherits( "QToolButton" ) && o->parent() && o->parent()->inherits( "QTabBar" ) )
 	return TRUE;
     else if ( o->parent() && o->parent()->inherits( "QWizard" ) && o->inherits( "QPushButton" ) )
+	return TRUE;
+    else if ( o->parent() && o->parent()->inherits( "QMainWindow" ) && o->inherits( "QMenuBar" ) )
 	return TRUE;
 
     return FALSE;
