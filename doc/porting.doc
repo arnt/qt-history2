@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.9 1998/11/04 11:42:44 warwick Exp $
+** $Id: porting.doc,v 1.10 1998/11/10 16:53:15 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -15,80 +15,186 @@
 
 <h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
 
-<h2>How</h2>
+<h2>How to port code using Qt 1.x to use Qt 2.0</h2>
 
- - Read all the notes to get an idea of what to expect
- - Recompile.  For each error, search below for related identifiers
-    (eg. function names, class names)
+<ul>
+ <li> Read all the notes to get an idea of what to expect
+ <li> Recompile.  For each error, search below for related identifiers
+	(eg. function names, class names).  Where possible, we have tried
+	to make problem code cause compile-time errors when compiled 
+	with Qt 2.0.
+</ul>
 
 <h2>Notes</h2>
+
+
+
+<h3>General</h3>
+
+
+<p>
+The following virtual functions have changed signature in Qt 2.0.
+If you override them, you must change your code.
+[can we provide assistance in the code for this?]
+[GENERATE THE LIST]
+Easy for const char* -> QString - there are about 20 in total.
+
+<p> The Q_DECLARE macro and qgeneric.h are obsolete.  Use real
+template instantiations instead.  (e.g. QCache<QPixmap> instead of
+Q_DECLARE(QCache,QPixmap).)
+
+<p> The GrayText painter flag has ben removed.  use
+setPen( palette().disabled().foreground() ) instead.
+
+<p> Compiling with -DQT1COMPATIBILITY will help you get going with
+Qt 2.0 - it allows all the old "dirty namespace" identifiers from
+Qt 1.x to continue working.  Without it, you'll get errors that
+can easily be fixed by searching this page for the clean identifiers.
+
+<p> Many previously global identifiers have been moved into our new
+namespace class, Qt (qnamespace.h).  The <code>qt/bin/qt20fix</code>
+script helps to fix the code that needs adaption.  Most code does not
+need any change.
+
+
+<h3>QApplication</h3>
+
+
 <p>
 QApplication::setColorSpec()
 PrivateColor and TrueColor are obsolete.  Use ManyColor.
+
+
+<h3>QRegion</h3>
+
 
 <p>
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 QRegion data files now write in a more efficient form.  The new form
 cannot be read by Qt 1.x, but Qt 2.0 can still read old 1.x data.
 
+
+<h3>QWidget</h3>
+
+
 <p>
 QWidget::recreate()
 This function is now called reparent().
 
 <p>
-paintEvent() crashes
+paintEvent(0) crashes.
 Never pass 0 as the argument to paintEvent().
+
+<p> 
+Some repaint problems problems might occur with subclasses on QFrame,
+ QPushButton, and QComboBox, which now use WResizeNoErase to improve
+ resize repainting.  Be sure to call the resizeEvent() of your base
+ class if your derive a widget subclass.  The quickest fix is to add:
+ \code
+   resizeEvent(QResizeEvent* e)
+   {
+       repaint( e->rect(), TRUE );
+   }
+ \endcode
+
+
+<h3>QLabel</h3>
+
 
 <p>
 QLabel::setMovie()
 No longer changes the text.
 
-<p>
-QString
+
+<h3>QString</h3>
+
+QString has undergone major changes internally, and although it is highly
+backward compatible, it is worth studying in detail when porting to Qt 2.0.
+
+<dl compact>
+<dt><b>Unicode</b></dt>
+<dd>
 Now uses Unicode.  data() is obsolete - you cannot directly access the
  string as an array of bytes, because it isn't one.  Often, ascii() is
  what you want rather than data(), or just leave it to convert to
  const char* automatically.  data() is only used now to aide porting to Qt 2.0
+<dt><b>Signals and Slots</b></dt>
+<dd>
+Many signal/slots have changed from const char* to QString.  You will
+ get run-time errors when you try to QObject::connect() to the old
+ signals and slots.
+<dt><b>Optimize with Q2HELPER</b></dt>
+<dd>
 In qt/src/tools/qstring.cpp there is a Q2HELPER - define it for some
- extra debugging features (don't leave it it - it kills performance).
-detach() is obsolete - QString is always shared.  It is now a no-op.
-size() should be replaced by length()+1.
+ extra debugging/optimizing features (don't leave it it - it kills performance).
+<dt><b>QString::detach() is obsolete</b></dt>
+<dd>
+QString is always shared.  It is now a no-op.
+<dt><b>QString::size() is obsolete</b></dt>
+<dd>
+should be replaced by length()+1.
+<dt><b>QString is not an array of bytes</b></dt>
+<dd>
 Code that uses QString as an array of bytes should use QByteArray
  or char[].  THEN convert that to a QString if needed.
+<dt><b>"string = 0"</b></dt>
+<dd>
 Assigning 0 to a QString should be assigning the empty string QString()
-A BIG advantage of the new QString is that it automatically expands
+<dt><b>Automatic-expanding</b></dt>
+<dd>
+A big advantage of the new QString is that it automatically expands
  when you write to an indexed position.
+<dt><b>Use QString</b></dt>
+<dd>
 Try to always use QString.  If you MUST, use Q1String which is the
  implementation used in Qt 1.x.
+<dt><b>Unicode vs. ASCII</b></dt>
+<dd>
 Every conversion to and from ascii is wasted time, so try to use QString
  as much as possible rather than const char*.  This also ensures you have
  full 16-bit support. [should we have a warning feature/copy count?]
+<dt><b>Convestion to ASCII</b></dt>
+<dd>
 The return value from operator const char*() is transient - don't expect
- it to remain valid while you make deep function calls.
+ it to remain valid while you make deep function calls.  The value is
+ in Latin1 characters.
+<dt><b>QString is simpler</b></dt>
+<dd>
 Expect your code to become simpler with the new QString, especially
  places where you have used a char* to wander over the string rather
  than using indexes into the string.
+<dt><b>Some hacks don't work</b></dt>
+<dd>
 This hack:
   use_sub_string( &my_string[index] )
  should be replaced by:
   use_sub_string( my_string.mid(index) )
+<dt><b>System functions</b></dt>
+<dd>
 You may find yourself needing ascii() for passing to the operating system
  or other libraries, and be tempted to use Q1String to save the conversion,
  but you are better off using unicode throughout, then when the operating
  system supports unicode, you'll be prepared.
+<dt><b>Bugs removed</b></dt>
+<dd>
 toShort() returns 0 (and sets *ok to false) on error.
 toUInt() now works for big valid uints
 insert() now works into the same string
+<dt><b>NULL pointers</b></dt>
+<dd>
 When converting "const char*" usage to QString in order to make your
  application fully unicode-aware, use QString::null for the null value
- where you would have used 0 with char pointers.
+ where you would have used 0 with char pointers.  0 will usually work,
+ but it wastes memory (more allocations are done).
+<dt><b>How to be Unicode-clean</b></dt>
+<dd>
 When converting, set a breakpoint in QString::ascii() to catch places where
  you are losing Unicode information.
-Many signal/slots have changed from const char* to QString.  You will
- get run-time errors when you try to QObject::connect() to the old
- signals and slots.
-QString is not null terminated.  This means that inserting a 0-character
+<dt><b>QString is not null terminated</b></dt>
+<dd>
+This means that inserting a 0-character
  in the middle of the string does NOT change the length().  ie.
+ \code
    QString s = "fred";
    s[1] = '\0';
      s.length() == 4
@@ -97,39 +203,49 @@ QString is not null terminated.  This means that inserting a 0-character
    s[1] = 'r';
      s == "fred";
      s.ascii() == "fred";
+ \endcode
  Especially look out for this type of code:
+ \code
    QString s(2);
    s[0] = '?';
    s[1] = 0;
+ \endcode
  This creates a string 2 characters long.
  To find these problems while converting, ASSERT(strlen(d->ascii)==d->len)
   inside QString::ascii().
+</dl>
+
+
+<h3>QLayout</h3>
+
 
 <p>
 QLayout, QBoxLayout, QGridLayout
-Doesn't set minimumSize(), resize(0,0) or resize(1,1) will work unless
+Don't set minimumSize(). resize(0,0) or resize(1,1) will work unless
 QT_NO_LAYOUT_COMPAT is defined.
 The layout classes will use sizeHint() if minimumSize() is not set.
 The class QGManager is removed. Subclasses of QLayout need to be rewritten
 to use the new, much simpler API.
+
+
+<h3>QMultiLineEdit</h3>
+
 
 <p>
 QMultiLineEdit::textWidth(QString*)
 changed to QMultiLineEdit::textWidth(QString)
  Should be no problem.
 
-<p> 
-Some repaint problems problems might occur with subclasses on QFrame,
- QPushButton, and QComboBox, which now use WResizeNoErase to improve
- resize repainting.  Be sure to call the resizeEvent() of your base
- class if your derive a widget subclass.  The quickest fix is to add:
-   resizeEvent(QResizeEvent* e)
-   {
-       repaint( e->rect(), TRUE );
-   }
+
+<h3>QClipboard</h3>
+
 
 <p>
 QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
+
+
+<h3>QDropSite</h3>
+
 
 <P>
 QDropSite is obsolete.  If you passed anything other than <tt>this</tt>
@@ -139,12 +255,15 @@ etc.  functions rather than QListView's dragMoveEvent() etc.  For other
 cases, you will need to use an event filter to act on the drag/drop events
 of another widget (as is the usual way to intercept foreign events).
 
+
+<h3>QTextStream</h3>
+
 <p>
-The following virtual functions have changed signature in Qt 2.0.
-If you override them, you must change your code.
-[can we provide assistance in the code for this?]
-[GENERATE THE LIST]
-Easy for const char* -> QString - there are about 20 in total.
+operator>>(QTextStream&, QChar&) does not skip whitespace.
+operator>>(QTextStream&, char&) does, as was the case with Qt 1.x.
+
+<h3>QEvent</h3>
+
 
 <p> The global #define macros in qevent.h have been replaced by an
 enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint.
@@ -155,17 +274,5 @@ explicit cast instead.
 <p> QChildEvents are now sent for all QObjects, not just QWidgets.
 You may need to add extra checking if you use QChildEvent without
 much testing of its values.
-
-<p> The Q_DECLARE macro and qgeneric.h are obsolete.  Use real
-template instantiations instead.  (e.g. QCache<QPixmap> instead of
-Q_DECLARE(QCache,QPixmap).)
-
-<p> The GrayText painter flag has ben removed.  use
-setPen( palette().disabled().foreground() ) instead.
-
-<p> Many previously global identifiers have been moved into our new
-namespace class, Qt (qnamespace.h).  The <code>qt/bin/qt20fix</code>
-script helps to fix the code that needs adaption.  Most code does not
-need any change.
 
 */

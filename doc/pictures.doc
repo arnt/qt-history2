@@ -1,4 +1,4 @@
-// $Id: pictures.doc,v 2.2 1998/10/31 03:19:40 agulbra Exp $
+// $Id: pictures.doc,v 2.3 1998/11/10 16:53:15 warwick Exp $
 
 /*! \page pictures.html
 
@@ -36,7 +36,7 @@ down on the number of repeated images.
 <h2><a href="qheader.html">QHeader</a></h2>
 <img src=qheader-m.gif align=top>&nbsp;Motif
 
-<h2><a href="qlabel.html">QLagbel</a></h2>
+<h2><a href="qlabel.html">QLabel</a></h2>
 <img src=qlabel-m.gif align=top>&nbsp;Motif
 
 <h2><a href="qlcdnumber.html">QLCDNumber</a></h2>
@@ -52,7 +52,7 @@ down on the number of repeated images.
 <img src="listview.gif" width="518" height="82" align="top">&nbsp;
 Non-hierarchical list view
 <br clear="all">
-<img src="treeview.gif" width="256" height="216" align="top">
+<img src="treeview.gif" width="227" height="261" align="top">
 Hierarchical list view (multi-column tree view)
 
 <img src=qlistbox-w.gif align=top>&nbsp;Windows
