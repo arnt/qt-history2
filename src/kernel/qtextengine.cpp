@@ -684,14 +684,14 @@ void QTextEngine::bidiReorder( int numItems, const Q_UINT8 *levels, int *visualO
 // -----------------------------------------------------------------------------------------------------
 
 enum break_action {
-    Dbk,
-    Ibk,
-    Pbk
+    Dbk, // Direct break
+    Ibk, // Indirect break; only allowed if space between the two chars
+    Pbk // Prohibited break; no break allowed even if space between chars
 };
 
 // The folowing line break classes are not treated by the table:
 // SA, BK, CR, LF, SG, CB, SP
-static break_action breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
+static const break_action breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
 {
     //   OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
     { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
@@ -737,7 +737,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 	    charAttributes[i].softBreak = FALSE;
 	    continue;
 	}
-	if (ncls == QUnicodeTables::SA) {
+	if (ncls >= QUnicodeTables::SA) {
 	    // ### handle complex case
 	    ncls = QUnicodeTables::ID;
 	}
@@ -746,6 +746,8 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 	    charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::SP);
 	else
 	    charAttributes[i].softBreak = (brk == Dbk);
+//	qDebug("char = %c %04x, cls=%d, ncls=%d, brk=%d soft=%d", uc[i].cell(), uc[i].unicode(), cls, ncls, brk, charAttributes[i].softBreak);
+	cls = ncls;
     }
 }
 

@@ -308,39 +308,16 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 
     QCharAttributes *a = attributes;
 
-    bool softHyphen = FALSE;
     for ( int i = 0; i < len; i++ ) {
 	QChar::Category cat = ::category( *uc );
 	a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	a->softBreak = softHyphen;
+	a->softBreak = FALSE;
 	a->charStop = (cat != QChar::Mark_NonSpacing);
 	a->wordStop = FALSE;
 	a->invalid = FALSE;
-	softHyphen = (uc->unicode() == 0xad);
 	++uc;
 	++a;
     }
-
-    bool noSoftBreak = TRUE;
-    if ( from > 0 ) {
-	// asian line breaking rules. This part has to be done here, as we don't want a softbreak
-	// after some asian char in case we have eg. closing braces following
-	unsigned short ch = text.unicode()[from-1].unicode();
-	if ((ch > 0x2dff && ch < 0xfb00) || ((ch & 0xff00) == 0x1100) ) {
-	    noSoftBreak = FALSE;
-
-	    ch = text.unicode()[from].unicode();
-	    noSoftBreak |= (ch == 0x29); // right round brace
-	    noSoftBreak |= (ch == 0x7d); // right curly brace
-	    noSoftBreak |= (ch == 0x5d); // right square brace
-	    noSoftBreak |= (ch == 0x21); // exclamation mark
-	    noSoftBreak |= (ch == 0x2c); // period
-	    noSoftBreak |= (ch == 0x2e); // full stop
-	    noSoftBreak |= (ch == 0x3f); // question mark
-	}
-    }
-
-    attributes->softBreak = !noSoftBreak;
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -1012,75 +989,6 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     ::free( shapedChars );
     q_heuristicPosition( engine, si );
 }
-
-static inline bool asianBreakForbiddenAfter(unsigned short uc)
-{
-    bool forbidden = FALSE;
-    if ( (uc & 0xff00) == 0x3000 ) {
-	// line breaking is forbidden after the following characters:
-	forbidden |= (uc == 0x3008); // left angle bracket
-	forbidden |= (uc == 0x300a); // double left angle bracket
-	forbidden |= (uc == 0x300c); // left corner bracket
-	forbidden |= (uc == 0x300e); // white left corner bracket
-	forbidden |= (uc == 0x3010); // left black lenticular bracket
-    }
-    return forbidden;
-}
-
-static inline bool asianBreakForbiddenBefore(unsigned short uc)
-{
-    bool forbidden = FALSE;
-    if ( (uc & 0xff00) == 0x3000 ) {
-	// line breaking is forbidden before the following characters:
-	forbidden |= (uc == 0x3001); // Ideographic comma
-	forbidden |= (uc == 0x3002); // Ideographic full stop
-	forbidden |= (uc == 0x3009); // Right angle bracket
-	forbidden |= (uc == 0x300b); // double right angle bracket
-	forbidden |= (uc == 0x300d); // right corner bracket
-	forbidden |= (uc == 0x300f); // white right corner bracket
-	forbidden |= (uc == 0x3011); // right black lenticular bracket
-    }
-    return forbidden;
-}
-
-/* The main difference to the basic attributes are asian line breaking rules. One small bit had to be implemented in basic_attributes, to
-   ensure we allow breaks before most latin chars following asian text except for some punctuation chars
-*/
-static void asian_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
-{
-    const QChar *uc = text.unicode() + from;
-    attributes += from;
-    bool forbiddenBreak = FALSE;
-
-    if ( from > 0 ) {
-	unsigned short ch = text.unicode()[from - 1].unicode();
-	if ( ch < 0x80 ) {
-	    // line breaks are forbidden after these latin chars
-	    forbiddenBreak |= (ch == 0x28); // left round brace
-	    forbiddenBreak |= (ch == 0x5b); // left curly brace
-	    forbiddenBreak |= (ch == 0x7b); // left square brace
-	}
-	forbiddenBreak |= asianBreakForbiddenAfter(ch);
-    }
-
-    for ( int i = 0; i < len; i++ ) {
-	QChar::Category cat = ::category( *uc );
-	attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	attributes->charStop = (cat != QChar::Mark_NonSpacing);
-	attributes->wordStop = FALSE;
-	attributes->invalid = FALSE;
-
-	// asian line breaking rules
-	if ( !forbiddenBreak )
-	    forbiddenBreak |= asianBreakForbiddenBefore(*uc);
-	attributes->softBreak = !forbiddenBreak;
-	forbiddenBreak = asianBreakForbiddenAfter(*uc);
-
-	++uc;
-	++attributes;
-    }
-}
-
 
 #ifdef Q_WS_X11
 # include "qscriptengine_x11.cpp"

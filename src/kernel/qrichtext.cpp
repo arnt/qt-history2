@@ -87,7 +87,7 @@ static inline int scale( int value, QPainter *painter )
 
 inline bool isBreakable( QTextString *string, int pos )
 {
-    return (string->at(pos).whiteSpace || (pos < string->length()-1 && string->at(pos+1).softBreak));
+    return (pos < string->length()-1 && string->at(pos+1).softBreak);
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

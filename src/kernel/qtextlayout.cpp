@@ -379,7 +379,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 #endif
 	{
 	    int tmpWidth = 0;
-	    bool lastWasSpace = FALSE;
 	    // forward search is probably faster
 	    for ( int i = d->firstItemInLine; i < d->currentItem; i++ ) {
 		const QScriptItem *si = &d->items[i];
@@ -406,12 +405,12 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			    goto found;
 			}
 		    }
-		    if ( (lastWasSpace || itemAttrs->softBreak ||
+		    if ( (itemAttrs->softBreak ||
 			  ( breakany && itemAttrs->charStop ) ) &&
 			 (i != d->firstItemInLine || pos != 0) ) {
 			if ( breakItem != i )
 			    itemWidth = 0;
-			if (lastWasSpace || itemAttrs->softBreak)
+			if (itemAttrs->softBreak)
 			    breakany = FALSE;
 			breakItem = i;
 			breakPosition = pos;
@@ -422,7 +421,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			tmpWidth = 0;
 			tmpItemWidth = 0;
 		    }
-		    lastWasSpace = itemAttrs->whiteSpace;
 		    itemAttrs++;
 		}
 		while ( lastGlyph < si->num_glyphs )
