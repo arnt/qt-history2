@@ -1,6 +1,8 @@
 TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
 		action \
+		action/actiongroup \
+		action/toggleaction \
 		addressbook \
 		application \
 		buttongroups \
