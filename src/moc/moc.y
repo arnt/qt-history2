@@ -67,6 +67,13 @@ void yyerror( const char *msg );
 #include <limits.h>
 #include <qplatformdefs.h> 
 
+#if defined CONST
+#undef CONST
+#endif
+#if defined VOID
+#undef VOID
+#endif
+
 bool isEnumType( const char* type );
  int enumIndex( const char* type );
 
@@ -1795,6 +1802,10 @@ QString cleanDirPath( const QCString &filePath )
   return newPath;
 }
 
+#ifndef PATH_MAX
+#define PATH_MAX _MAX_PATH
+#endif
+
 QCString combinePath( const char *infile, const char *outfile )
 {
     QCString a = infile;  replace(a.data(),'\\','/');
@@ -2601,7 +2612,7 @@ void generatePropsStrings()
 			if ( lit.current()->name == p->type && lit.current()->set )
 			    set = TRUE;
 
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writeable.\n",
 			     g->fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public set functions \n");
 		    if ( !set && p->oredEnum != 1 ) {
@@ -2699,7 +2710,7 @@ int generateProps()
 	    if ( it.current()->getfunc )
 		flags += "QMetaProperty::Readable|";
 	    if ( it.current()->setfunc )
-		flags += "QMetaProperty::Writable|";
+		flags += "QMetaProperty::Writeable|";
 	    if ( it.current()->stdSet() )
 		flags += "QMetaProperty::StdSet|";
 
@@ -2715,7 +2726,7 @@ int generateProps()
 		if ( !it.current()->getfunc )
 		    flags += "QMetaProperty::Readable|";
 		if ( !it.current()->setfunc )
-		    flags += "QMetaProperty::Writable|QMetaProperty::StdSet|";
+		    flags += "QMetaProperty::Writeable|QMetaProperty::StdSet|";
 		if ( flags[ (int) flags.length() - 1] == '|' )
 		    flags.remove( flags.length()-1, 1);
 		if (!flags.isEmpty() ) {

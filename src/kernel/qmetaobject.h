@@ -85,7 +85,10 @@ public:
     const char*	type() const { return t; }	// type of the property
     const char*	name() const { return n; }	// name of the property
 
-    bool writable() const;
+#ifndef QT_NO_COMPAT
+    bool writable() const { return writeable(); }
+#endif
+    bool writeable() const;
     bool isValid() const;
 
     bool isSetType() const;
@@ -111,9 +114,12 @@ public:
 
     enum Flags  {
 	Readable		= 0x00000001,
+#ifndef QT_NO_COMPAT
 	Writable		= 0x00000002,
-	EnumOrSet	= 0x00000004,
-	StdSet	             = 0x00000100
+#endif
+	Writeable		= 0x00000002,
+	EnumOrSet		= 0x00000004,
+	StdSet			= 0x00000100
     };
 
     bool testFlags( uint f ) const;
@@ -235,8 +241,8 @@ inline int QMetaObject::propertyOffset() const
 
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }
-inline bool QMetaProperty::writable() const
-{ return testFlags( Writable ); }
+inline bool QMetaProperty::writeable() const
+{ return testFlags( Writeable ); }
 inline bool QMetaProperty::isValid() const
 { return testFlags( Readable ); }
 inline bool QMetaProperty::isSetType() const

@@ -764,9 +764,12 @@ QMetaProperty::~QMetaProperty()
   Returns the name of the property.
  */
 
-/*! \fn bool QMetaProperty::writable() const
+/* \obsolete bool QMetaProperty::writable() const
+*/
 
-  Returns whether the property is writable or not.
+/*! \fn bool QMetaProperty::writeable() const
+
+  Returns whether the property is writeable or not.
 
 */
 
