@@ -32,37 +32,37 @@
 // NOT REVISED
 
 /*!
-  \class QMetaData
-  
+  \class QMetaData qmetaobject.h
+
   \brief The QMetaData struct contains a member function that is known
   to the meta object system.
-  
+
   \internal
 
   The struct consists of two members, \e name and \e ptr:
-  
+
   \code
     const char *name;				// - member name
     QMember ptr;				// - member pointer
   \endcode
-  
+
   \e QMember is a void QObject member function.
  */
 
 /*!
-  \class QClassInfo
-  
+  \class QClassInfo qmetaobject.h
+
   \brief The QClassInfo struct stores a single class information
 
   \internal
 
   A class information is a simple \e name / \e value pair:
-  
+
   \code
     const char* name;				// - name of the info
     const char* value;				// - value of the info
   \endcode
-  
+
  */
 
 
@@ -70,18 +70,18 @@
   \class QMetaObject qmetaobject.h
 
   \brief The QMetaObject class contains meta information about Qt objects.
-  
+
   \ingroup objectmodel
-  
+
   The Meta Object System in Qt is responsible for the signal/slot
   mechanism for communication between objects, runtime type
   information and the property system. All meta information in Qt is
   kept in a singla instance of QMetaObject per class.
-  
+
   In general, you will not have to use this class directly in any
   application program. Most of the class members and functions are
   internal, <strong> do not use them </strong>.
-  
+
   Some functions, however, are marked as public API and may make sense
   for certain "meta" applications such as scripting engines or GUI
   builders:
@@ -261,29 +261,29 @@ QMetaObject::~QMetaObject()
 
 
 /*! \fn const char *QMetaObject::className() const
-  
+
   Returns the class name.
-  
+
   \sa QObject::className(), superClassName()
 */
 
 /*! \fn const char *QMetaObject::superClassName() const
-  
+
   Returns the class name of the super class, or 0 if there is no super
   class in the QObject hierachy.
-  
+
   \sa className()
 */
 
 /*! \fn QMetaObject *QMetaObject::superClass() const
-  
+
   Returns the meta object of the super class or 0, if there is no such
   object.
  */
 
 /*!
-  Returns the number of slots for this class. 
-  
+  Returns the number of slots for this class.
+
   If \a super is TRUE, inherited slots are included.
 
   \sa slotNames()
@@ -303,10 +303,10 @@ int QMetaObject::numSlots( bool super ) const	// number of slots
 }
 
 /*!
-  Returns the number of signals for this class. 
-  
+  Returns the number of signals for this class.
+
   If \a super is TRUE, inherited signals are included.
-  
+
   \sa signalNames()
  */
 int QMetaObject::numSignals( bool super ) const	// number of signals
@@ -327,7 +327,7 @@ int QMetaObject::numSignals( bool super ) const	// number of signals
 /*!  \internal
   Returns the meta data of the slot with the name \a n or 0 if no
   such slot exists.
-  
+
   If \a super is TRUE,  inherited slots are included.
  */
 QMetaData *QMetaObject::slot( const char *n, bool super ) const
@@ -338,9 +338,9 @@ QMetaData *QMetaObject::slot( const char *n, bool super ) const
 /*!  \internal
   Returns the meta data of the signal with the name \a n or 0 if no
   such signal exists.
-  
+
   If \a super is TRUE, include inherited signals.
-  
+
  */
 QMetaData *QMetaObject::signal( const char *n, bool super ) const
 {
@@ -350,7 +350,7 @@ QMetaData *QMetaObject::signal( const char *n, bool super ) const
 /*!  \internal
   Returns the meta data of the slot with index \a index or 0 if no
   such slot exists.
-  
+
   If  \a super is TRUE, inherited slots are included.
  */
 QMetaData *QMetaObject::slot( int index, bool super ) const
@@ -361,7 +361,7 @@ QMetaData *QMetaObject::slot( int index, bool super ) const
 /*!  \internal
   Returns the meta data of the signal with \a index index or 0 if no
   such signal exists.
-  
+
   If  \a super is TRUE, inherited signals are included.
  */
 QMetaData *QMetaObject::signal( int index, bool super ) const
@@ -520,7 +520,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 
 /*!
   Returns the number of class information available for this class.
-  
+
   If  \a super is TRUE, inherited class information is included.
  */
 int QMetaObject::numClassInfo( bool super ) const
@@ -528,10 +528,10 @@ int QMetaObject::numClassInfo( bool super ) const
     return d->numClassInfo + (super && superclass)?superclass->numClassInfo(super):0;
 }
 
-/*!  
+/*!
   Returns the class information with index \a index or 0 if no such
   information exists.
-  
+
   If  \a super is TRUE,  inherited class information is included.
  */
 QClassInfo* QMetaObject::classInfo( int index, bool super ) const
@@ -545,10 +545,10 @@ QClassInfo* QMetaObject::classInfo( int index, bool super ) const
     return superclass->classInfo( index - d->numClassInfo, super );
 }
 
-/*!  
+/*!
   Returns the class information with name \a name or 0 if no such
   information exists.
-  
+
   If \a super is TRUE, inherited class information is included.
  */
 const char* QMetaObject::classInfo( const char* name, bool super ) const
@@ -631,12 +631,12 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 }
 
 
-/*!  
+/*!
   Returns the property meta data for the property with name \a name
   or 0 if no such property exists.
-  
+
   If \a super is TRUE, inherited properties are included.
-  
+
   \sa propertyNames()
  */
 const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
@@ -650,11 +650,11 @@ const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
     return superclass->property( name, super );
 }
 
-/*!  
+/*!
   Returns a list with the names of all properties for this class.
-  
+
   If \a super is TRUE, inherited properties are included.
-  
+
   \sa property()
  */
 QStrList QMetaObject::propertyNames( bool super ) const
@@ -688,11 +688,11 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
-/*!  
+/*!
   Returns a list with the names of all signals for this class.
-  
+
   If \a super is TRUE, inherited signals are included.
-  
+
   \sa signal()
  */
 QStrList QMetaObject::signalNames( bool super ) const
@@ -719,11 +719,11 @@ QStrList QMetaObject::signalNames( bool super ) const
     return l;
 }
 
-/*!  
+/*!
   Returns a list with the names of all slots for this class.
-  
+
   If \a super is TRUE, inherited slots are included.
-  
+
   \sa numSlots()
  */
 QStrList QMetaObject::slotNames( bool super ) const
@@ -763,7 +763,7 @@ QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
     return superclass->enumerator( name, super );
 }
 
-/*!  
+/*!
   Returns TRUE if this class inherits \e clname within the meta
   object inheritance chain.
 
@@ -782,28 +782,28 @@ bool QMetaObject::inherits( const char* clname ) const
 
 /*!
   \class QMetaProperty qmetaobject.h
-  
+
   \brief The QMetaProperty class stores meta data about a property.
   \ingroup objectmodel
 
   Property meta data mainly consists of a type(), a name() and the
   fact, whether a property is writeable(), designable() or stored().
-  
+
   The functions isSetType(), isEnumType() and enumKeys() provide further
   information about a property's type.
-  
+
   Actual property values are set and received through QObject's set
   and get functions.  See QObject::setProperty() and
   QObject::property() for details.
-  
+
   You receive meta property data through an object's meta object. See
   QMetaObject::property() and QMetaObject::propertyNames() for details.
 */
 
-/*! 
+/*!
   Returns the possible enumeration keys if this property is an
   enumeration type (or a set type).
-  
+
   \sa isEnumType()
 */
 QStrList QMetaProperty::enumKeys() const
@@ -818,7 +818,7 @@ QStrList QMetaProperty::enumKeys() const
 
 
 /*! \internal
-  
+
   Constructs a meta property.
  */
 QMetaProperty::QMetaProperty()
@@ -830,7 +830,7 @@ QMetaProperty::QMetaProperty()
 }
 
 /*! \internal
-  
+
   Destructs a meta property.
  */
 QMetaProperty::~QMetaProperty()
@@ -838,56 +838,56 @@ QMetaProperty::~QMetaProperty()
 }
 
 /*! \fn const char* QMetaProperty::type() const
-  
+
   Returns the type of the property.
  */
 
 /*! \fn const char* QMetaProperty::name() const
-  
+
   Returns the name of the property.
  */
 
 /*! \fn bool QMetaProperty::writeable() const
-  
-  Returns whether the property is writable or not. 
-  
+
+  Returns whether the property is writable or not.
+
   \sa isValid()
 */
 
 /*! \fn bool QMetaProperty::isValid() const
-  
+
   \internal
-  
+
   Returns whether the property is valid.
 */
 
 /*! \fn bool QMetaProperty::isEnumType() const
-  
+
   Returns whether the property's type is an enumeration value.
-  
+
   \sa isSetType(), enumKeys()
 */
 
 /*! \fn bool QMetaProperty::isSetType() const
-  
+
   Returns whether the property's type is an enumeration value that is
   used as set, i.e. the enumeration values can be or'ed together.  A
   set type is implicitely also an enum type.
-  
+
   \sa isEnumType(), enumKeys()
 */
 
 /*! \fn bool QMetaProperty::testFlags( uint f ) const
-  
-  \internal 
+
+  \internal
 */
 /*! \fn void QMetaProperty::setFlags( uint f )
-  
-  \internal 
+
+  \internal
  */
 /*! \fn void QMetaProperty::clearFlags( uint f )
-  
-  \internal 
+
+  \internal
 */
 
 /*! \fn bool QMetaProperty::designable() const
@@ -896,7 +896,7 @@ QMetaProperty::~QMetaProperty()
  */
 
 
-/*!  
+/*!
   Returns whether the property shall be stored for object \a o or
   not.
  */
@@ -915,12 +915,12 @@ bool QMetaProperty::stored( QObject* o ) const
 }
 
 /*! \enum QMetaProperty::Specification
-  
+
   \internal
 */
 
 /*! \enum QMetaProperty::Flags
-  
+
   \internal
 */
 
