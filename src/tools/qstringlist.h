@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#6 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#7 $
 **
 ** Definition of QStringList class
 **
@@ -35,6 +35,7 @@ class QStringList : public QValueList<QString>
 {
 public:
     QStringList() { }
+    QStringList( const QString& i ) { append(i); }
     QStringList( const QStringList& l ) : QValueList<QString>(l) { }
 
     void sort();
