@@ -51,6 +51,11 @@ Config::Config()
 bool Config::addProfile( const QString &profileFileName, const QString &path )
 {
     Config *config = new Config();
+    if ( profileFileName == "default" ) {
+	config->profil = Profile::createDefaultProfile();
+	config->saveProfile( config->profil, TRUE );
+	return TRUE;
+    }
     if ( !config->profil->load( profileFileName ) )
 	return FALSE;
     Profile *p = config->profil;

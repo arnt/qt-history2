@@ -131,6 +131,7 @@ int main( int argc, char ** argv )
 	QString arg( argv[1] );
 	arg = arg.lower();
 	if ( arg == "-addprofile" ||
+	     arg == "-installqtdoc" ||
 	     arg == "-help" )
 	    withGUI = FALSE;
     }
@@ -165,6 +166,10 @@ int main( int argc, char ** argv )
 		if ( !Config::addProfile( QString( argv[i] ), path ) )
 		    exit( 1 );
 		exit( 0 );
+	    } else if ( QString( argv[i] ).lower() == "-installqtdoc" ) {
+		if ( !Config::addProfile( "default", QString::null ) )
+		    exit( 1 );
+		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		profileName = argv[++i];
@@ -185,6 +190,11 @@ int main( int argc, char ** argv )
 		printf( "                         path of the profile is taken.\n" );
 		printf( "                         For further informations have a look\n" );
 		printf( "                         at the assistant online help.\n" );
+		printf( " -installQtDoc           installs the Qt profile. This option is\n" );
+		printf( "                         only necessary if assistants first installed\n" );
+		printf( "                         profile was another than the Qt one.\n" );
+		printf( "                         If assistant is run the first time without\n" );
+		printf( "                         any argument this is called by default.\n" );
 		printf( " -hideSidebar            assistant will hide the sidebar.\n" );
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
