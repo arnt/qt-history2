@@ -104,15 +104,13 @@ class QTextCodec;
 class QFontStruct : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, Qt::HANDLE xftp,
-		QCString n, QTextCodec *c, int a) :
-	QShared(), handle(h), xfthandle(xfth), xftpattern(xftp),
-	name(n), codec(c), cache_cost(a)
+    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, QCString n, QTextCodec *c, int a) :
+	QShared(), handle(h), xfthandle(xfth), name(n), codec(c), cache_cost(a)
     { ; }
 
     ~QFontStruct();
 
-    Qt::HANDLE handle, xfthandle, xftpattern;
+    Qt::HANDLE handle, xfthandle;
     QCString name;
     QTextCodec *codec;
     int cache_cost;
@@ -356,7 +354,12 @@ public:
 	NFontFields
     };
 
+#ifndef QT_NO_XFTFREETYPE
+    XftPattern *findXftFont(const QChar &) const;
+    XftPattern *bestXftPattern(const QString &, const QString &) const;
+#endif // QT_NO_XFTFREETYPE
     QCString findFont(QFont::Script, bool *) const;
+    QCString findXftFont(QFont::Script, bool *) const;
     QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
 			      int *) const;
     QCString bestMatch(const char *, int *, QFont::Script) const;
@@ -364,6 +367,7 @@ public:
 		       bool *, QFont::Script) const;
     void initFontInfo(QFont::Script);
     void load(QFont::Script = QFont::NoScript, bool = TRUE);
+    bool loadUnicode(QFont::Script, const QChar &);
     void computeLineWidth();
 
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
