@@ -6110,7 +6110,8 @@ void QTextFormatCollection::remove( QTextFormat *f )
 	cres = 0;
     if ( cachedFormat == f )
 	cachedFormat = 0;
-    cKey.remove( f->key() );
+    if (cKey.find(f->key()) == f)
+	cKey.remove( f->key() );
 }
 
 #define UPDATE( up, lo, rest ) \
