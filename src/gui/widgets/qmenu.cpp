@@ -960,23 +960,19 @@ QRect QMenu::actionGeometry(QAction *act) const
 QSize QMenu::sizeHint() const
 {
     ensurePolished();
-    QSize s(0, 0);
     QList<QMenuAction*> actions = d->calcActionRects();
-    for(int i = 0; i < actions.count(); ++i) {
-        QRect actionRect(actions[i]->rect);
-        if(actionRect.right() > s.width())
-            s.setWidth(actionRect.right());
-        if(actionRect.bottom() > s.height())
-            s.setHeight(actions[i]->rect.bottom());
-    }
+    QRect r;
+    for(int i = 0; i < actions.count(); ++i)
+        r = r.unite(actions[i]->rect);
+    QSize s = r.size();
     if(d->tearoff)
-        s.setHeight(s.height()+style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
+        s.rheight() += style().pixelMetric(QStyle::PM_MenuTearoffHeight, this);
     if(const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q)) {
-        s.setWidth(s.width()+(fw*2));
-        s.setHeight(s.height()+(fw*2));
+        s.rwidth() += fw*2;
+        s.rheight() += fw*2;
     }
-    s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
-    s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
+    s.rwidth() +=2*q->style().pixelMetric(QStyle::PM_MenuHMargin, q);
+    s.rheight() += 2*q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
@@ -1573,7 +1569,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 #endif
             if(!d->currentAction->action->isEnabled() && !whats_this_mode)
                 break;
-            if(d->currentAction->action->menu()) 
+            if(d->currentAction->action->menu())
                 d->popupAction(d->currentAction, 20, true);
             else
                 d->activateAction(d->currentAction->action, QAction::Trigger);
