@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#3 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#4 $
 **
 ** Definition of QRect class
 **
@@ -186,8 +186,8 @@ inline QCOOT QRect::height() const
 
 inline void QRect::setSize( const QSize &s )
 {
-    x2 = x1+s.getWidth()-1;
-    y2 = y1+s.getHeight()-1;
+    x2 = x1+s.width()-1;
+    y2 = y1+s.height()-1;
 }
 
 #endif // inline functions
