@@ -2020,12 +2020,27 @@ void QLineEdit::dropEvent( QDropEvent* e )
 	decoded = QTextDrag::decode(e, str);
 
     if ( decoded && !d->readOnly ) {
-	if ( e->source() == this )
-	    deselect();
+	if ( e->source() == this && e->action() == QDropEvent::Copy )
+ 	    deselect();
 	d->cursor =d->xToPos( e->pos().x() );
+	int selStart = d->cursor;
+	int oldSelStart = d->selstart;
+	int oldSelEnd = d->selend;
 	d->cursorVisible = FALSE;
 	e->acceptAction();
 	insert( str );
+	if ( e->source() == this ) {
+	    if ( e->action() == QDropEvent::Move ) {
+		if ( selStart > oldSelStart && selStart <= oldSelEnd )
+		    setSelection( oldSelStart, str.length() );
+		else if ( selStart > oldSelEnd )
+		    setSelection( selStart - str.length(), str.length() );
+		else
+		    setSelection( selStart, str.length() );
+	    } else {
+		setSelection( selStart, str.length() );
+	    }
+	}
     } else {
 	e->ignore();
 	update();
