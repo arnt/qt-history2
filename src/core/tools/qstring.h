@@ -312,11 +312,11 @@ public:
     inline QString &operator=(const std::string &s)
     { return operator=(s.c_str()); }
     inline void push_back(const std::string &s)
-    { append(s.c_str()); }
+    { append(QString(s.c_str())); }
     inline QString &append(const std::string &s)
-    { return append(s.c_str()); }
+    { return append(QString(s.c_str())); }
     inline QString &operator+=(const std::string &s)
-    { return append(s.c_str()); }
+    { return append(QString(s.c_str())); }
 #endif
 #endif
 
@@ -678,11 +678,11 @@ inline const QString operator+(QChar s1, const QString &s2)
 { return QString(s1) += s2; }
 #ifndef QT_NO_CAST_FROM_ASCII
 inline const QString operator+(const QString &s1, const char *s2)
-{ return QString(s1) += s2; }
+{ return QString(s1) += QString(s2); }
 inline const QString operator+(const char *s1, const QString &s2)
 { return QString(s1) += s2; }
 inline const QString operator+(const QString &s1, char *s2)
-{ return QString(s1) += s2; }
+{ return QString(s1) += QString(s2); }
 inline const QString operator+(char *s1, const QString &s2)
 { return QString(s1) += s2; }
 inline const QString operator+(char c, const QString &s)
