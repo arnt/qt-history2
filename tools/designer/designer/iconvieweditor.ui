@@ -233,7 +233,7 @@
                                         <string></string>
                                     </property>
                                     <property name="pixmap">
-                                        <pixmap>small_editcut.png</pixmap>
+                                        <pixmap>s_editcut.png</pixmap>
                                     </property>
                                     <property name="toolTip" stdset="0">
                                         <string>Delete Pixmap</string>

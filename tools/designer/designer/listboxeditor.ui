@@ -200,7 +200,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>small_editcut.png</pixmap>
+                        <pixmap>s_editcut.png</pixmap>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Delete Pixmap</string>
@@ -312,7 +312,7 @@
                 <string></string>
             </property>
             <property name="pixmap">
-                <pixmap>small_up.png</pixmap>
+                <pixmap>s_up.png</pixmap>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Move up</string>
@@ -329,7 +329,7 @@
                 <string></string>
             </property>
             <property name="pixmap">
-                <pixmap>small_down.png</pixmap>
+                <pixmap>s_down.png</pixmap>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Move down</string>

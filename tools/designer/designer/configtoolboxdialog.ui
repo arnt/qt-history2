@@ -171,7 +171,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>small_down.png</pixmap>
+                        <pixmap>s_down.png</pixmap>
                     </property>
                 </widget>
                 <spacer row="1" column="1">
@@ -202,7 +202,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>small_up.png</pixmap>
+                        <pixmap>s_up.png</pixmap>
                     </property>
                 </widget>
             </grid>
