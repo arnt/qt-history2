@@ -764,7 +764,6 @@ public:
     ~QPSPrintEnginePrivate();
 
     void orientationSetup();
-    void resetDrawingTools(QPainterState *);
     void emitHeader(bool finished);
     void setFont(const QFont &, int script);
     void drawImage(float x, float y, float w, float h, const QImage &img, const QImage &mask);
@@ -5399,42 +5398,6 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     fontBuffer = 0;
 }
 
-
-/* Called whenever a restore has been done. Currently done at the top of a
-  new page and whenever clipping is turned off. */
-void QPSPrintEnginePrivate::resetDrawingTools(QPainterState *ps)
-{
-    QPen   defaultPen;                  // default drawing tools
-    QBrush defaultBrush;
-
-    QColor c = ps->bgBrush;
-    if (c != Qt::white)
-        pageStream << color(c, this) << "BC\n";
-
-    if (ps->bgMode != Qt::TransparentMode)
-        pageStream << "/OMo true d\n";
-
-    //currentUsed = currentSet;
-    //setFont(currentSet);
-    currentFontFile = 0;
-
-    if (ps->brush != defaultBrush) {
-        if (ps->brush == Qt::CustomPattern) {
-#if defined(CHECK_RANGE)
-            qWarning("QPrinter: Pixmap brush not supported");
-#endif
-        } else {
-            cbrush = ps->brush;
-        }
-    }
-
-
-    // ####################
-//     if (ps->VxF || ps->WxF)
-//         matrixSetup(ps);
-}
-
-
 static void putRect(QTextStream &stream, const QRect &r)
 {
     stream << r.x() << " "
@@ -5974,7 +5937,7 @@ bool QPSPrintEngine::newPage()
     d->savedImage = 0;
     d->textY = 0;
 
-//     d->resetDrawingTools(d->ps);
+    setDirty(AllDirty);
     d->pageFontNumber = d->headerFontNumber;
 
     return true;
