@@ -2839,7 +2839,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    menu.setCheckable( TRUE );
 	    const int cat_id = 1;
 	    const int alpha_id = 2;
-	    int cat = menu.insertItem( tr( "Sort &Categorized" ), cat_id );
+	    menu.insertItem( tr( "Sort &Categorized" ), cat_id );
 	    int alpha = menu.insertItem( tr( "Sort &Alphabetically" ), alpha_id );
 	    if ( showSorted )
 		menu.setItemChecked( alpha_id, TRUE );
@@ -2847,11 +2847,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 		menu.setItemChecked( cat_id, TRUE );
 	    int res = menu.exec( ( (QContextMenuEvent*)e )->globalPos() );
 	    if ( res != -1 ) {
-		bool newShowSorted;
-		if ( res == cat )
-		    newShowSorted = FALSE;
-		else if ( res == alpha )
-		    newShowSorted = TRUE;
+		bool newShowSorted = ( res == alpha );
 		if ( showSorted != newShowSorted ) {
 		    showSorted = newShowSorted;
 		    editor->clear();
