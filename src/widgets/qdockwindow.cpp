@@ -985,7 +985,7 @@ void QDockWindow::init()
     if ( !QApplication::reverseLayout() )
 	vbox->addWidget( verHandle );
     vbox->addWidget( vHandleLeft );
-    layout = new QBoxLayout( vbox, QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
+    childBox = new QBoxLayout( vbox, QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
     vHandleRight = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
     vbox->addWidget( vHandleRight );
     if ( QApplication::reverseLayout() )
@@ -1715,7 +1715,7 @@ bool QDockWindow::newLine() const
 
 QBoxLayout *QDockWindow::boxLayout()
 {
-    return layout;
+    return childBox;
 }
 
 /*! \reimp

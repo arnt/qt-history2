@@ -207,7 +207,7 @@ private:
     QDockWindowResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
-    QBoxLayout *layout;
+    QBoxLayout *childBox;
     void *dockWindowData;
     QPoint lastPos;
     QSize lastSize;
