@@ -85,21 +85,6 @@ MainWindow::MainWindow()
     connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
             this, SLOT(propertyChanged(const QString&, const QVariant&)));
 
-#ifndef IDE_NO_DEBUGVIEWS
-    QWidget *dbShell = new QVBoxWidget(this, Qt::WType_Dialog);
-    dbShell->setWindowTitle(tr("Widget DB"));
-    WidgetDataBaseView *dbView = new WidgetDataBaseView(dbShell);
-    dbView->setWidgetDataBase(core->widgetDataBase());
-    connect(core->widgetDataBase(), SIGNAL(changed()), dbView, SLOT(refresh()));
-    dbShell->show();
-
-    QWidget *mdbShell = new QVBoxWidget(this, Qt::WType_Dialog);
-    mdbShell->setWindowTitle(tr("Meta DB"));
-    MetaDataBaseView *mdbView = new MetaDataBaseView(mdbShell);
-    mdbView->setMetaDataBase(core->metaDataBase());
-    connect(core->metaDataBase(), SIGNAL(changed()), mdbView, SLOT(refresh()));
-    mdbShell->show();
-#endif
     readSettings();
 
     statusBar()->show();
@@ -792,7 +777,7 @@ void MainWindow::previewForm()
         QBuffer stream(&contents);
 
         QDesignerFormBuilder formBuilder(core);
-        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel);
+        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel | Qt::WType_Dialog);
         shell->setAttribute(Qt::WA_DeleteOnClose, true);
         QWidget *w = formBuilder.load(&stream, shell);
         if (QDialog *dlg = qt_cast<QDialog *>(w)) {
@@ -1094,9 +1079,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant) 
+    if (!assistant)
         assistant = new QAssistantClient(qInstallPathBins(), this);
-    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);    
+    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);
 }
 
 void MainWindow::aboutDesigner()
