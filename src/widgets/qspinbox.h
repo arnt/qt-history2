@@ -155,13 +155,9 @@ private:
     QString pfix;
     QString sfix;
     QString specText;
-//     QRect up;
-//     QRect down;
 
     uint wrap		: 1;
     uint edited		: 1;
-//     uint buttonDown	: 2;
-//     uint enabled	: 2;
 
     void arrangeWidgets();
 
