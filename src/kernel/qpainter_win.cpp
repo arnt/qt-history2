@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#134 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -689,7 +689,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(Qt::WState_InPaintEvent) ) {
+	if ( w->testWState(Qt::WState_InPaintEvent) ) {
 	    hdc = w->hdc;			// during paint event
 	} else {
 	    if ( w->testWFlags(Qt::WPaintUnclipped) ) {
@@ -822,7 +822,7 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
-	if ( !((QWidget*)pdev)->testWFlags(Qt::WState_InPaintEvent) ) {
+	if ( !((QWidget*)pdev)->testWState(Qt::WState_InPaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
 	    ReleaseDC( w->winId(), hdc );
 	    w->hdc = 0;

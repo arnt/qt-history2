@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#175 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -859,7 +859,7 @@ void QWidget::erase( int x, int y, int w, int h )
     if ( h < 0 )
 	h = crect.height() - y;
 
-    bool     tmphdc;
+    bool tmphdc;
     if ( !hdc ) {
 	tmphdc = TRUE;
 	hdc = GetDC( winId() );
@@ -888,7 +888,8 @@ void QWidget::erase( const QRegion& rgn )
 	tmphdc = FALSE;
     }
     SelectClipRgn( hdc, rgn.handle() );
-    qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col, backgroundPixmap(), 0, 0 );
+    qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+		 backgroundPixmap(), 0, 0 );
     SelectClipRgn( hdc, 0 );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
