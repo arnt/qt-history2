@@ -92,6 +92,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << endl << endl;
     }
 
+    if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].findIndex("qmake_all") == -1)
+	project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
     writeMakeQmake(t);
 
     t << "qmake_all:";

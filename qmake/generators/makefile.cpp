@@ -991,7 +991,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
-	t << "qmake: " << "\n\t"
+	t << "qmake: " << project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].join(" \\\n\t\t") << "\n\t"
 	  << "@" << qmake << endl << endl;
     }
     return TRUE;
