@@ -777,14 +777,14 @@ void qt_init( int *argcptr, char **argv )
   FlushEvents(everyEvent,0);
   InitCursor();
   SetPort(qd.thePort);
-  InitOpenTransport();
+  //InitOpenTransport();
   Microseconds(&thesecs);
 }
 
 void qt_cleanup()
 {
   printf("%s %d\n",__FILE__,__LINE__);
-  CloseOpenTransport();
+  //CloseOpenTransport();
 }
 
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
