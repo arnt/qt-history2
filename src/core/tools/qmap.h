@@ -822,7 +822,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_OUTPUT
-#include "qdebug.h"
+#include <QtCore/qdebug>
 template <class aKey, class aT>
 Q_CORE_EXPORT Q_OUTOFLINE_TEMPLATE QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
 {
