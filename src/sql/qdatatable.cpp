@@ -1796,7 +1796,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 			setNumCols( numCols() + 1 );
 			d->colIndex.append( cur->position( field->name() ) );
 			setColumnReadOnly( numCols()-1, field->isReadOnly() );
-			QHeader* h = horizontalHeader();
+2			QHeader* h = horizontalHeader();
 			QString label = d->fldLabel[ i ];
 			QIconSet icons = d->fldIcon[ i ];
 			h->setLabel( numCols()-1, icons, label );
@@ -1821,7 +1821,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 
   Refreshes the table.  The cursor is refreshed using the current
   filter, the current sort, and the currently defined columns.
-  Equivalent to calling refresh( QDataTable::RefreshAll ).
+  Equivalent to calling refresh( QDataTable::RefreshData ).
 */
 
 void QDataTable::refresh()
