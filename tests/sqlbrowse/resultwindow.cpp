@@ -17,8 +17,8 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     QStringList fil = db->tables();
     tableList->insertStringList( fil );
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
-    connect( dataGrid, SIGNAL( currentChanged(const QSqlRecord*)),
-	     SLOT( newSelection(const QSqlRecord*)));
+//     connect( dataGrid, SIGNAL( currentChanged(const QSqlRecord*)),
+//	     SLOT( newSelection(const QSqlRecord*)));
     dataGrid->setReadOnly( FALSE );
     dataGrid->setSorting( TRUE );
     dataGrid->setConfirmEdits( TRUE );
@@ -38,7 +38,7 @@ void ResultWindow::slotExec()
     dataGrid->refresh( QDataTable::RefreshAll );
 }
 
-void ResultWindow::newSelection( const QSqlRecord* fields )
+void ResultWindow::newSelection( const QSqlRecord* /*fields*/ )
 {
 //     QString cap;
 //     for ( uint i = 0; i < fields->count(); ++i ) {
