@@ -44,7 +44,6 @@ static bool mcp_system_unstable = false;
   implement the setOptimization(MemoryOptim) feature for Win9x.
 */
 
-
 class QMultiCellPixmap {
 public:
     struct FreeNode {
@@ -80,6 +79,10 @@ private:
     FreeList free_list;
 };
 
+struct QMCPI { // mem optim for win9x
+    QMultiCellPixmap *mcp;
+    int offset;
+};
 
 static inline HDC alloc_mem_dc(HBITMAP hbm, HBITMAP *old_hbm)
 {

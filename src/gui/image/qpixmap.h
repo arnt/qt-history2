@@ -23,10 +23,6 @@
 class QPixmapPrivate;
 class QColor;
 
-#if defined(Q_WS_WIN)
-// Internal pixmap memory optimization class for Windows 9x
-class QMultiCellPixmap;
-#endif
 #if defined(Q_WS_X11)
 // #### go away
 #include <qx11info_x11.h>
@@ -157,13 +153,7 @@ protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);
     int metric(int) const;
 
-#if defined(Q_WS_WIN)
-    struct QMCPI { // mem optim for win9x
-        QMultiCellPixmap *mcp;
-        int offset;
-    };
-#endif
-
+private:
     QPixmapData *data;
 private:
 #ifndef QT_NO_IMAGEIO
@@ -193,7 +183,7 @@ private:
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
-void QPixmap::fill(const QWidget *w, int x, int y)
+inline void QPixmap::fill(const QWidget *w, int x, int y)
 {
     fill(w, QPoint(x, y));
 }

@@ -16,6 +16,11 @@
 
 #include <qpixmap.h>
 
+#if defined(Q_WS_WIN)
+// Internal pixmap memory optimization class for Windows 9x
+struct QMCPI;
+#endif
+
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
     void ref() { ++count; }
