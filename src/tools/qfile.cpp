@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#58 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#58 $");
 
 
 /*!
@@ -412,7 +412,7 @@ bool QFile::open( int m, FILE *f )
 	return FALSE;
     }
     init();
-    setMode( m );
+    setMode( m &~IO_Raw );
     setState( IO_Open );
     fh = f;
     ext_f = TRUE;
@@ -452,7 +452,7 @@ bool QFile::open( int m, int f )
 	return FALSE;
     }
     init();
-    setMode( m );
+    setMode( m |IO_Raw );
     setState( IO_Open );
     fd = f;
     ext_f = TRUE;

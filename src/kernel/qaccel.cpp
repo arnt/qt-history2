@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#41 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#41 $");
 
 
 /*!
@@ -37,8 +37,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#40 $");
   items can also be individually connected, so that two different keys
   will activate two different slots (see connectItem()).
 
-  A QAccel object handles key events to its parent widget and all children
-  of this parent widget.
+  A QAccel object handles key events to the
+  \link QWidget::topLevelWidget() top level window\endlink
+  containing \a parent, and hence to any child widgets of that window.
+  Note that the accelerator will be deleted only when the \a parent
+  is deleted, and will consume relevant key events until then.
 
   Example:
   \code
