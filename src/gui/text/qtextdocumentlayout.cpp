@@ -662,12 +662,14 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         }
 
     // set percentage values
-    const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
-    for (int i = 0; i < columns; ++i)
-        if (constraints.at(i) == QTextTableFormat::PercentageLength)
-            td->widths[i] = totalPercentagedWidth * constraintValues.at(i) / totalPercentage;
+    {
+        const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
+        for (int i = 0; i < columns; ++i)
+            if (constraints.at(i) == QTextTableFormat::PercentageLength)
+                td->widths[i] = totalPercentagedWidth * constraintValues.at(i) / totalPercentage;
 
-    totalWidth -= totalPercentagedWidth;
+        totalWidth -= totalPercentagedWidth;
+    }
 
     // for variable columsn set the minimum sizes first and distribute the remaining space
     if (variableCols > 0) {
@@ -695,7 +697,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     }
 
     td->columnPositions.resize(columns);
-    td->columnPositions[0] = td->margin + td->border;
+    td->columnPositions[0] = margin;
     for (int i = 1; i < columns; ++i)
         td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
 
@@ -703,8 +705,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     layoutStruct.frame = table;
 
     td->heights.resize(rows);
-    for (int r = 0; r < rows; ++r)
-        td->heights[r] = 0;
+    td->heights.fill(0);
 
     td->rowPositions.resize(rows);
     td->rowPositions[0] = margin;
@@ -712,7 +713,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         if (r > 0)
             td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
 
-        int y = td->rowPositions.at(r) + td->padding;
+        const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
             int rspan = cell.rowSpan();
@@ -729,6 +730,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     continue;
                 }
             }
+
             layoutStruct.y = y;
             layoutStruct.x_left = td->columnPositions.at(c) + td->padding;
             layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - td->padding;
