@@ -1578,7 +1578,7 @@ void QWidget::repaint(const QRegion& rgn)
                     QApplication::sendEvent(w, &e);
                     if(!was_in_paint_event) {
                         w->clearWState(Qt::WState_InPaintEvent);
-                        if(w->paintingActive())
+                        if(!w->testAttribute(Qt::WA_PaintOutsidePaintEvent) && w->paintingActive())
                             qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                     }
                     QPainter::restoreRedirected(w);
@@ -1627,7 +1627,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     clearWState(Qt::WState_InPaintEvent);
-    if(paintingActive())
+    if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
     if (testAttribute(Qt::WA_ContentsPropagated))

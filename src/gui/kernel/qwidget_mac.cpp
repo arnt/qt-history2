@@ -421,7 +421,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         QPainter::restoreRedirected(widget);
 
                     widget->clearWState(Qt::WState_InPaintEvent);
-                    if(widget->paintingActive())
+                    if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
                 SetPort(old_qdref); //restore the state..
