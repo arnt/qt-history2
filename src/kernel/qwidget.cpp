@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#396 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#397 $
 **
 ** Implementation of QWidget class
 **
@@ -4099,6 +4099,14 @@ void QWidget::updateGeometry()
 
   If no style is set, the widget uses the application's style
   QApplication::style() instead.
+  
+  Setting a widget's style has no effect on existing or future
+  childwidgets.
+
+  \warning This function is particularly useful for demonstration
+  purposes, where you want to show Qt's styling capabilities.  Real
+  appliations should stay away from it and use one consistent GUI
+  style instead.
 
   \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
 */
