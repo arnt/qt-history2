@@ -10,6 +10,7 @@ DEFINES += QT_BUILD_GUI_LIB
 
 # Temporarly build compat into gui, hence the export logics...
 DEFINES += QT_BUILD_COMPAT_LIB 
+win32:DEFINES += QT_BUILD_NETWORK_LIB
 
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
@@ -17,6 +18,7 @@ mac:include($$KERNEL_CPP/qt_mac.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
+win32:include($$NETWORK_CPP/qt_network.pri)
 include($$KERNEL_CPP/qt_gui.pri)
 include($$CANVAS_CPP/qt_canvas.pri)
 include($$TABLE_CPP/qt_table.pri)
