@@ -16,7 +16,11 @@ HEADERS += fontengine.h \
            scriptenginebasic.h \
 	   fontenginexlfd.h \
 	   fontenginexft.h \
-	   fontenginebox.h
+	   fontenginebox.h \
+	   opentype.h \
+	opentype/fterrcompat.h  opentype/ftxgpos.h  opentype/ftxopen.h \
+	opentype/ftxgdef.h      opentype/ftxgsub.h  opentype/ftxopenf.h
+
 SOURCES += qfont.cpp \
 	   qfont_x11.cpp \
            qpainter_x11.cpp \
@@ -27,6 +31,8 @@ SOURCES += qfont.cpp \
 	   fontenginexlfd.cpp \
 	   fontenginexft.cpp \
 	   fontenginebox.cpp \
+	   opentype.cpp \
+	opentype/ftxgdef.c  opentype/ftxgpos.c  opentype/ftxgsub.c  opentype/ftxopen.c \
            test.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt

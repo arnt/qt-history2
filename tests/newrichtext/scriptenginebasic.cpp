@@ -171,13 +171,14 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
     d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->num_glyphs * sizeof( GlyphAttributes ) );
 
     d->logClusters = (unsigned short *) realloc( d->logClusters, d->num_glyphs * sizeof( unsigned short ) );
-    for ( int i = 0; i < d->num_glyphs; i++ )
-	d->logClusters[i] = i;
 
     // honour the logClusters array if it exists.
     const QChar *uc = d->string.unicode() + d->from;
     if ( d->analysis.bidiLevel % 2 ) {
 	// reversed
+	for ( int i = 0; i < d->num_glyphs; i++ )
+	    d->logClusters[i] = d->num_glyphs-i-1;
+
 	int gpos = d->length - 2;
 	int cpos = 1;
 
@@ -241,6 +242,9 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 
 	}
     } else {
+	for ( int i = 0; i < d->num_glyphs; i++ )
+	    d->logClusters[i] = i;
+
 	int pos = 1;
 
 	// first char in a run is never (treated as) a mark

@@ -14,6 +14,8 @@ public:
     FontEngineXft( XftFont *font, XftPattern *pattern, int cmap );
     ~FontEngineXft();
 
+    const OpenTypeIface *openTypeIface() const;
+
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const;
 
     void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
@@ -36,6 +38,7 @@ public:
 private:
     XftFont *_font;
     XftPattern *_pattern;
+    OpenTypeIface *_openType;
     int _cmap;
 };
 

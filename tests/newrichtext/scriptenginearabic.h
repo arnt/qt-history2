@@ -10,6 +10,8 @@ public:
     virtual void charAttributes( const QString &text, int from, int len, CharAttributes *attributes );
     virtual void shape( ShapedItem *result );
 
+private:
+    void openTypeShape( const OpenTypeIface*, ShapedItem *result );
 };
 
 #endif

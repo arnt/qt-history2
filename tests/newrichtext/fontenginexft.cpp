@@ -7,6 +7,7 @@
 #include "qpainter.h"
 #include <qt_x11.h>
 #include "qtextlayout.h"
+#include "opentype.h"
 
 #include <stdlib.h>
 
@@ -20,6 +21,17 @@ public:
 	return (XftDraw *)rendhd;
     }
 };
+
+// ### all this won't work with Xft2!!!!
+// we need to encapsulate these in some methods to get it working!
+
+inline XftFontStruct *
+getFontStruct( XftFont *font )
+{
+    if (font->core)
+	return 0;
+    return font->u.ft.font;
+}
 
 // ditto
 static inline bool getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
@@ -35,9 +47,15 @@ static inline bool getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 
 
 FontEngineXft::FontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
-    : _font( font ), _pattern( pattern ), _cmap( cmap )
+    : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap )
 {
-
+    XftFontStruct *xftfs = getFontStruct( _font );
+    if ( xftfs ) {
+	// dirty hack: we set the charmap in the Xftfreetype to -1, so XftFreetype assumes no encoding and
+	// really draws glyph indices. The FT_Face still has the Unicode encoding to we can convert from
+	// Unicode to glyph index
+	xftfs->charmap = -1;
+    }
 }
 
 FontEngineXft::~FontEngineXft()
@@ -46,6 +64,7 @@ FontEngineXft::~FontEngineXft()
     XftPatternDestroy( _pattern );
     _font = 0;
     _pattern = 0;
+    delete _openType;
 }
 
 FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const
@@ -55,15 +74,32 @@ FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, 
 	return OutOfMemory;
     }
 
+    XftFontStruct *fs = getFontStruct( _font );
+    if ( !fs ) {
+	if ( reverse ) {
+	    int pos = len - 1;
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = str[pos].unicode();
+		pos--;
+	    }
+	} else {
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = str[i].unicode();
+	    }
+	}
+	*nglyphs = len;
+	return NoError;
+    }
+
     if ( reverse ) {
 	int pos = len - 1;
 	for ( int i = 0; i < len; i++ ) {
-	    glyphs[i] = str[pos].unicode();
+	    glyphs[i] = FT_Get_Char_Index (fs->face, str[pos].unicode() );
 	    pos--;
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
-	    glyphs[i] = str[i].unicode();
+	    glyphs[i] = FT_Get_Char_Index (fs->face, str[i].unicode() );
 	}
     }
     *nglyphs = len;
@@ -265,4 +301,21 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
 	free( g );
 	return allExist;
 
+}
+
+const OpenTypeIface *FontEngineXft::openTypeIface() const
+{
+    qDebug("openTypeIface requested!");
+    if ( _openType )
+	return _openType;
+    XftFontStruct *xftfs = getFontStruct( _font );
+    if ( !xftfs ) {
+	qDebug("font is core font!");
+	return 0;
+    }
+
+    FontEngineXft *that = (FontEngineXft *)this;
+
+    that->_openType = new OpenTypeIface( xftfs->face );
+    return _openType;
 }
