@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#30 $
 **
 ** Localization database support.
 **
@@ -181,7 +181,7 @@ QTranslatorPrivate::Message::Message( QDataStream & stream )
 	switch( (Tag)tag ) {
 	case End:
 	    return;
-	    break;
+	    //break;
 	case Input:
 	    stream >> i;
 	    break;
@@ -548,7 +548,7 @@ void QTranslator::squeeze()
     QTranslatorPrivate::Message * m;
     while( (m = it.current()) != 0 ) {
 	++it;
-	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()), 
+	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()),
 			 (void*)0 );
 	m->write( Everything, ms );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#51 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -948,13 +948,13 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
     switch( gr ) {
     case Normal:
 	return data->normal.br[r];
-	break;
+	//break;
     case Disabled:
 	return data->disabled.br[r];
-	break;
+	//break;
     case Active:
 	return data->active.br[r];
-	break;
+	//break;
     default:
 	break;
     };

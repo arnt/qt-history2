@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#523 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#524 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2309,7 +2309,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case ClientMessage:			// client message
 	return x11ClientMessage(widget,event,FALSE);
-	break;
+	//break;
 
     case ReparentNotify:			// window manager reparents
 	if ( event->xreparent.parent == appRootWin ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#10 $
 **
 ** Implementation of QJisCodec class
 **
@@ -97,7 +97,7 @@ int QJisCodec::mibEnum() const
 {
     /*
     Name: JIS_Encoding
-    MIBenum: 16    
+    MIBenum: 16
     Source: JIS X 0202-1991.  Uses ISO 2022 escape sequences to
 	    shift code sets as documented in JIS X 0202-1991.
     Alias: csJISEncoding
@@ -285,10 +285,10 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
     int score = 0;
     bool ja = FALSE;
     if (strnicmp(hint, "ja_JP", 5) == 0 || strnicmp(hint, "japan", 5) == 0) {
-	score += 3; 
+	score += 3;
 	ja = TRUE;
     } else if (strnicmp(hint, "ja", 2) == 0) {
-	score += 2; 
+	score += 2;
 	ja = TRUE;
     }
     const char *p;
@@ -434,7 +434,7 @@ int QJisCodec::heuristicContentMatch(const char* chars, int len) const
 		break;
 	      default:
 		return -1;
-		break;
+		//break;
 	    }
 	}
     }
