@@ -57,6 +57,8 @@ public:
     void editCut();
     void editCopy();
     void editPaste();
+    bool editIsUndoAvailable();
+    bool editIsRedoAvailable();
     void editUndo();
     void editRedo();
     void editSelectAll();

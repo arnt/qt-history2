@@ -285,6 +285,7 @@ public slots:
 private slots:
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
+    void updateEditorUndoRedo();
 
     void toolSelected( QAction* );
 

@@ -217,6 +217,7 @@ void MainWindow::setupEditActions()
 #endif
 
     QPopupMenu *menu = new QPopupMenu( this, "Edit" );
+    connect( menu, SIGNAL( aboutToShow() ), this, SLOT( updateEditorUndoRedo() ) );
     menubar->insertItem( tr( "&Edit" ), menu );
     actionEditUndo->addTo( menu );
     actionEditRedo->addTo( menu );
@@ -474,7 +475,7 @@ void MainWindow::setupToolActions()
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
 	toolBox->addCategory( grp, tb2 );
-	
+
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
 		actionToolsCustomWidget->addTo( menu );
@@ -589,7 +590,7 @@ void MainWindow::setupFileActions()
 	newForm->setAccel( CTRL + Key_N );
 	newForm->setStatusTip( tr( "Creates a new dialog." ) );
 	connect( newForm, SIGNAL( activated() ), this, SLOT( fileNewDialog() ) );
-	
+
 	QAction *newFile = new QAction( a, 0 );
 	newFile->setText( tr( "New File" ) );
 	newFile->setMenuText( tr( "&File..." ) );
@@ -598,28 +599,28 @@ void MainWindow::setupFileActions()
 	newFile->setStatusTip( tr( "Creates a new file." ) );
 	connect( newFile, SIGNAL( activated() ), this, SLOT( fileNewFile() ) );
 	actionNewFile = newFile;
-	
+
 	a->addTo( tb );
 	a->addTo( fileMenu );
-	
+
 	fileMenu->insertSeparator();
 
 #if defined(PACKAGE_SUPPORT)
-    	a = new QAction( this, 0 );
+	a = new QAction( this, 0 );
 	a->setText( tr( "Import" ) );
 	a->setToolTip( tr( "Import Dialog or File" ) );
 	a->setMenuText( tr( "&Import package for editing..." ) );
 	connect( a, SIGNAL( activated() ), this, SLOT( fileImport() ) );
 	a->addTo( fileMenu );
 
-        	a = new QAction( this, 0 );
+	a = new QAction( this, 0 );
 	a->setText( tr( "Export" ) );
 	a->setToolTip( tr( "Export Dialog or File" ) );
 	a->setMenuText( tr( "&Export as package..." ) );
 	connect( a, SIGNAL( activated() ), this, SLOT( fileExport() ) );
 	a->addTo( fileMenu );
 	fileMenu->insertSeparator();
-#endif	
+#endif
     }
 
     a = new QAction( this, 0 );
@@ -1182,7 +1183,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	} else {
 	    filenames << fn;
 	}
-	
+
 	for ( QStringList::Iterator fit = filenames.begin(); fit != filenames.end(); ++fit ) {
 	    QString filename = *fit;
 	    if ( !filename.isEmpty() ) {
@@ -1401,7 +1402,7 @@ void MainWindow::fileImport()
 	QFileDialog::getOpenFileName( QStringList::split( ':', currentProject->iFace()->
 							  customSetting( "QTSCRIPT_PACKAGES" ) ).first(),
 				      filters, this, 0, tr("Open Package"), &lastOpenFilter );
-	
+
     QFileInfo fi( filename );
 
     if ( fi.extension( FALSE ) == "ui" ) {

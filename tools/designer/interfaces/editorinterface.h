@@ -59,6 +59,8 @@ struct EditorInterface : public QUnknownInterface
 
     virtual void setText( const QString &txt ) = 0;
     virtual QString text() const = 0;
+    virtual bool isUndoAvailable() const = 0;
+    virtual bool isRedoAvailable() const = 0;
     virtual void undo() = 0;
     virtual void redo() = 0;
     virtual void cut() = 0;

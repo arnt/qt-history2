@@ -45,6 +45,8 @@ public:
 
     void setText( const QString &txt );
     QString text() const;
+    bool isUndoAvailable() const;
+    bool isRedoAvailable() const;
     void undo();
     void redo();
     void cut();

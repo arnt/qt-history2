@@ -94,6 +94,20 @@ QString EditorInterfaceImpl::text() const
     return txt;
 }
 
+bool EditorInterfaceImpl::isUndoAvailable() const
+{
+    if ( !viewManager || !viewManager->currentView() )
+	return FALSE;
+    return ( (CppEditor*)viewManager->currentView() )->isUndoAvailable();
+}
+
+bool EditorInterfaceImpl::isRedoAvailable() const
+{
+    if ( !viewManager || !viewManager->currentView() )
+	return FALSE;
+    return ( (CppEditor*)viewManager->currentView() )->isRedoAvailable();
+}
+
 void EditorInterfaceImpl::undo()
 {
     if ( !viewManager || !viewManager->currentView() )

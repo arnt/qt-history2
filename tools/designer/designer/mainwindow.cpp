@@ -1376,8 +1376,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionSearchGotoLine->setEnabled( TRUE );
 	incrementalSearch->setEnabled( TRUE );
 
-	actionEditUndo->setEnabled( TRUE );
-	actionEditRedo->setEnabled( TRUE );
+	actionEditUndo->setEnabled( FALSE );
+	actionEditRedo->setEnabled( FALSE );
 	actionEditCut->setEnabled( TRUE );
 	actionEditCopy->setEnabled( TRUE );
 	actionEditPaste->setEnabled( TRUE );
@@ -1415,6 +1415,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
 void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
 				 const QString &undoCmd, const QString &redoCmd )
 {
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return; // do not set a formWindow related command
     actionEditUndo->setEnabled( undoAvailable );
     actionEditRedo->setEnabled( redoAvailable );
     if ( !undoCmd.isEmpty() )
@@ -1433,6 +1436,16 @@ void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
 	actionEditUndo->setEnabled( FALSE );
 	actionEditRedo->setEnabled( FALSE );
     }
+}
+
+void MainWindow::updateEditorUndoRedo()
+{
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
+	return;
+    SourceEditor *editor = (SourceEditor*)qWorkspace()->activeWindow();
+    actionEditUndo->setEnabled( editor->editIsUndoAvailable() );
+    actionEditRedo->setEnabled( editor->editIsRedoAvailable() );
 }
 
 QWorkspace *MainWindow::qWorkspace() const
@@ -1733,14 +1746,14 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    bool ok = FALSE;
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
 	    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, dw->pageTitle(), &ok, this );
- 	    if ( ok ) {
- 		QString pn( tr( "Rename page %1 of %2" ).arg( dw->pageTitle() ).arg( wiz->name() ) );
+	    if ( ok ) {
+		QString pn( tr( "Rename page %1 of %2" ).arg( dw->pageTitle() ).arg( wiz->name() ) );
 		RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formWindow()
 									    , wiz, wiz->indexOf( wiz->currentPage() ), text );
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
- 	}
+	}
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
@@ -2377,7 +2390,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 			break;
 		    }
 		}
-		
+
 		if ( !fullSignal.isEmpty() ) {
 		    QString signl = fullSignal;
 		    fullSignal = fullSignal.mid( fullSignal.find( '(' ) + 1 );

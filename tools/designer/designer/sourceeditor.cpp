@@ -172,6 +172,16 @@ void SourceEditor::editPaste()
     iFace->paste();
 }
 
+bool SourceEditor::editIsUndoAvailable()
+{
+    return iFace->isUndoAvailable();
+}
+
+bool SourceEditor::editIsRedoAvailable()
+{
+    return iFace->isRedoAvailable();
+}
+
 void SourceEditor::editUndo()
 {
     iFace->undo();
