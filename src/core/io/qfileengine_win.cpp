@@ -154,8 +154,7 @@ QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
     QString ret;
     for (int i=0, lastSlash=-1; i<(int)path.length(); i++) {
 	if(path[i] == '/' || path[i] == '\\') {
-	    if(i <= 3 ||
-	       (i < path.length() - 1) && (lastSlash == -1 || i != lastSlash+1))
+	    if(i <= 3 || (i < path.length()) && (lastSlash == -1 || i != lastSlash+1))
 		ret += '/';
 	    lastSlash = i;
 	} else {
