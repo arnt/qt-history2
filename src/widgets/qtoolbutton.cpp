@@ -607,18 +607,6 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
     QButton::mousePressEvent( e );
 }
 
-/*!\reimp
-*/
-bool QToolButton::eventFilter( QObject *o, QEvent *e )
-{
-    if ( e->type() == QEvent::Hide && d->delay <= 0 && o == d->popup ) {
-	d->instantPopup = FALSE;
-	setDown( FALSE );
-    }
-
-    return QButton::eventFilter( o, e );
-}
-
 /*!  Returns TRUE if this button should be drawn using raised edges.
   \sa drawButton() */
 
@@ -792,7 +780,6 @@ void QToolButton::setPopup( QPopupMenu* popup )
 	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
     }
     d->popup = popup;
-    d->popup->installEventFilter( this );
 
     update();
 }

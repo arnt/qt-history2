@@ -118,8 +118,6 @@ protected:
     void leaveEvent( QEvent * );
     void moveEvent( QMoveEvent * );
 
-    bool eventFilter( QObject*, QEvent* );
-
     bool uses3D() const;
 
 private slots:
@@ -139,9 +137,9 @@ private:
     QToolButtonPrivate * d;
     QIconSet * s, *son;
 
-    uint utl: 1;
-    uint ubp: 1;
-    uint hasArrow : 1;
+    uint utl	    : 1;
+    uint ubp	    : 1;
+    uint hasArrow   : 1;
 
     friend class QCommonStyle;
 
