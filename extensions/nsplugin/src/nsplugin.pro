@@ -1,6 +1,5 @@
 TEMPLATE    =   lib
 HEADERS     =   qnp.h
-SOURCES     =   qnpbind.cpp npunix.c
-MOC???
+SOURCES     =   qnpbind.cpp
 TARGET      =   qnp
 VERSION     =   0.1

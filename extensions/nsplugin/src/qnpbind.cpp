@@ -20,6 +20,7 @@
 //    }
 //   - qWinProcessConfigRequests?
 
+#define PLUGIN_TRACE
 
 
 // Qt stuff
@@ -53,6 +54,13 @@ extern "C" {
 #endif
 
 #include "npapi.h"
+
+
+
+#ifdef _WS_X11_
+#include "npunix.c"
+#endif
+
 //
 // Stuff for the NPP_SetWindow function:
 //
@@ -71,6 +79,9 @@ extern "C" {
 #endif
 }
 
+#ifdef _WS_WIN_
+#include "npwin.cpp"
+#endif
 
 struct _NPInstance
 {
@@ -320,6 +331,8 @@ public:
 
     bool winEventFilter( MSG *msg )
     {
+	return FALSE;
+
 	if (!mousecheck) {
 	    // Only way to get "leave" events is to poll.
 	    mousecheck = startTimer(200);
@@ -343,6 +356,7 @@ public:
 	npwidgets.remove(w);
     }
 
+#ifdef _WS_X11_
     static void removeXtEventFiltersIfOutsideQNPWidget(XLeaveWindowEvent* e)
     {
 	// If QApplication doesn't know about the widget at the
@@ -374,6 +388,7 @@ public:
 	    }
 	}
     }
+#endif
 
 private:
     static QList<QNPWidget> npwidgets;
@@ -495,11 +510,12 @@ extern "C" void
 NPP_Shutdown(void)
 {
     if (piApp) {
+#ifdef _WS_X11_
 	qt_np_remove_timeoutcb(np_do_timers);
 	qt_np_remove_timer_setter(np_set_timer);
 	qt_np_remove_event_proc(np_event_proc);
 	qt_np_count--;
-#ifdef _WS_X11_
+
 	if (qt_np_leave_cb == PluginSDK_QApplication::removeXtEventFiltersIfOutsideQNPWidget)
 	    qt_np_leave_cb = 0;
 	if ( qt_np_count == 0) {
@@ -513,7 +529,11 @@ NPP_Shutdown(void)
 	delete piApp;
 #endif
 	piApp = 0;
-	// delete qApp; ### Crashes.  Waste memory until we can fix this.
+
+	// delete qApp; ### Crashes under X11.  Waste memory until we can fix this.
+#ifdef _WS_WIN_
+	delete qApp;
+#endif
     }
 }
 
@@ -633,16 +653,18 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
+#if 0
 #ifdef _WS_WIN_
 	if (This->fDefaultWindowProc && This->window) {
 	    SetWindowLong( This->window, GWL_WNDPROC,
 		(LONG)This->fDefaultWindowProc);
 	}
 #endif
-	if (This->widget) {
-#ifdef _WS_X11_
-	    This->widget->unsetWindow();
 #endif
+	if (This->widget) {
+//#ifdef _WS_X11_
+	    This->widget->unsetWindow();
+//#endif
 	    delete This->widget;
 	}
 
@@ -688,13 +710,15 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     
     if (!window) {
 	if (This->widget) {
-#ifdef _WS_X11_
+//#ifdef _WS_X11_
 	    This->widget->unsetWindow();
-#endif
+//#endif
 #ifdef _WS_WIN_
+#if 0
 	    SetWindowLong( This->window, GWL_WNDPROC,
 		(LONG)This->fDefaultWindowProc);
 	    This->fDefaultWindowProc = NULL;
+#endif
 	    This->window = NULL;
 #endif
 	    delete This->widget;
@@ -1089,8 +1113,16 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
                         ULONG ul_reason_for_call,
                         LPVOID lpReserved)
 {
-    // Call Qt's WinMain
-    WinMain( hInst, 0, "", SW_SHOW );
+    switch ( ul_reason_for_call ) {
+	case DLL_PROCESS_ATTACH:
+	case DLL_THREAD_ATTACH:
+	    WinMain( hInst, 0, "", SW_SHOW );
+	    break;
+	case DLL_PROCESS_DETACH:
+	case DLL_THREAD_DETACH:
+	    break;
+    }
+	    
     return TRUE;
 }
 
@@ -1275,13 +1307,6 @@ void QNPWidget::setWindow()
 	// ### Doesn't matter yet, because Netscape doesn't ever set
 	// ### the background image of the window it gives us.
     }
-#endif
-#ifdef _WS_WIN_
-    if ( !pi->fDefaultWindowProc )
-	pi->fDefaultWindowProc = (WNDPROC)SetWindowLong( pi->window, GWL_WNDPROC,
-	   (LONG)WndProc );
-    SetWindowLong( pi->window, GWL_STYLE,
-	   GetWindowLong( pi->window, GWL_STYLE ) | WS_CLIPCHILDREN );
 #endif
 
     createNewWindowsForAllChildren(this);
@@ -1768,3 +1793,4 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 
   Returns a plain-text description of the plugin.
 */
+
