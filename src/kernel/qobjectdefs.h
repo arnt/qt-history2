@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#71 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#72 $
 **
 ** Macros and definitions related to QObject
 **
@@ -80,19 +80,19 @@ struct QUObject;
  #define Q_SETS( x )
 
 /* tmake ignore Q_OBJECT */
- #define Q_OBJECT						\
-public:								\
+ #define Q_OBJECT							\
+public:									\
     virtual QMetaObject *metaObject() const { 				\
-         return staticMetaObject();				\
-    }								\
+         return staticMetaObject();					\
+    }									\
     virtual const char *className() const;				\
     virtual bool qt_invoke( int, QUObject* ); 				\
     virtual bool qt_emit( int, QUObject* ); 				\
     virtual bool qt_property( const QMetaProperty*, int, QVariant* );	\
-    static QMetaObject* staticMetaObject();			\
-    virtual QObject* qObject() { return this; } 			\
-    QT_TR_FUNCTIONS						\
-private:							\
+    static QMetaObject* staticMetaObject();				\
+    QObject* qObject() { return this; } 				\
+    QT_TR_FUNCTIONS							\
+private:								\
     static QMetaObject *metaObj;
 
 /* tmake ignore Q_OBJECT */
