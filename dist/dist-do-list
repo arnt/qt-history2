@@ -19,6 +19,8 @@ Check that GIFs made by util/makegifs/Makefile are up-to-date, and do not
 Check that qdoc reports 0 undocumented member functions
     (alternative: make mkdist fail)
 
+Tell aavit press release.
+
 Do a copy-and-paste job from faq-general.html into dist/free/FAQ
 (easily done using netscape resized to ~80 cols, and emacs).
 
@@ -82,3 +84,4 @@ After those two or three days, post an announcement to
 comp.windows.x.announce, comp.os.linux.announce,
 comp.unix.bsd.freebsd.announce, comp.you.name.it.announce and
 talk.bizarre.
+
