@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#9 $
 **
 ** Definition of QPainter class
 **
@@ -223,6 +223,8 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
+    bool	borrowWidgetGC;			// GC optimization
+    void	createOwnGC();
 #endif
     static QPnList *list;
 };
