@@ -83,6 +83,8 @@ QDataTable
  - Fixed a rare crash when the database is deleted while its popup is
    still open.
  - Made setColumnWidth() a public slot like in the base class.
+ - The setCursor() function is obsolete and has been removed due to
+   problems with some compilers. Use setSqlCursor() instead.
 
 QDateTimeEdit
 -------------
