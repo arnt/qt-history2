@@ -1,5 +1,7 @@
 #include <qobject.h>
 
+// Some more junk. I bet you hate seeing this in the kjerub ;)
+
 class Sender : public QObject
 {
     Q_OBJECT
