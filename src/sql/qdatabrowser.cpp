@@ -239,8 +239,16 @@ bool QDataBrowser::boundaryChecking() const
 
   There is no default sort.
 
-  \sa filter() refresh()
-
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDataBrowser.sort();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 
 void QDataBrowser::setSort( const QStringList& sort )

@@ -145,6 +145,9 @@
   As you can see, the latest changes to Joe's salary did not affect the value
   in the vector because the vector created a copy of Joe's entry.
 
+  Many Qt functions return const value vectors; to iterate over these
+  you should make a copy and iterate over the copy.
+
   There are several ways to find items in the vector.  The begin() and
   end() functions return iterators to the beginning and end of the
   vector.  The advantage of getting an iterator is that you can now move

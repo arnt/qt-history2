@@ -82,6 +82,9 @@
     //	Times:Courier:Courier New:Helvetica [Cronyx]:Helvetica [Adobe]:
     \endcode
 
+    Many Qt functions return const string lists; to iterate over these
+    you should make a copy and iterate over the copy.
+
     You can concatenate all the strings in a string list into a single
     string (with an optional separator) using join(), e.g.
     \code

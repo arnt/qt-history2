@@ -1625,6 +1625,18 @@ void QDns::setLabel( const QHostAddress & address )
   \fn QStringList QDns::qualifiedNames() const
 
   Returns a list of the fully qualified names label() maps to.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDns.qualifiedNames();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
 */
 
 
@@ -1788,6 +1800,18 @@ bool QDns::isWorking() const
 
   As a special case, if label() is a valid numeric IP address, this function
   returns that address.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QHostAddress> list = myDns.addresses();
+    QValueList<QHostAddress>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
 */
 
 QValueList<QHostAddress> QDns::addresses() const
@@ -1827,6 +1851,18 @@ QValueList<QHostAddress> QDns::addresses() const
    \i QString QDns::MailServer::name
    \i Q_UINT16 QDns::MailServer::priority
    \endlist
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QDns::MailServer> list = myDns.mailServers();
+    QValueList<QDns::MailServer>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
 */
 QValueList<QDns::MailServer> QDns::mailServers() const
 {
@@ -1869,6 +1905,17 @@ QValueList<QDns::MailServer> QDns::mailServers() const
   \i Q_UINT16 QDns::Server::weight
   \i Q_UINT16 QDns::Server::port
   \endlist
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QDns::Server> list = myDns.servers();
+    QValueList<QDns::Server>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QValueList<QDns::Server> QDns::servers() const
 {
@@ -1896,6 +1943,18 @@ QValueList<QDns::Server> QDns::servers() const
 
 /*!
   Returns a list of host names if the record type is \c Ptr.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDns.hostNames();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
 */
 QStringList QDns::hostNames() const
 {
@@ -1923,6 +1982,17 @@ QStringList QDns::hostNames() const
 
 /*!
   Returns a list of texts if the record type is \c Txt.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDns.texts();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QStringList QDns::texts() const
 {

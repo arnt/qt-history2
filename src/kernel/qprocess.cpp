@@ -236,6 +236,17 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
   specified with the constructor or with the functions setArguments() and
   addArgument().
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myProcess.arguments();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa setArguments() addArgument()
 */
 QStringList QProcess::arguments() const

@@ -517,7 +517,7 @@ int QSplitter::idAfter( QWidget* w ) const
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
     p = adjustPos( p, id );
-    
+
     QSplitterLayoutStruct *s = data->list.at(id);
     int oldP = orient == Horizontal ? s->wid->x() : s->wid->y();
     bool upLeft;
@@ -1093,6 +1093,17 @@ bool QSplitter::isHidden( QWidget *w ) const
 
   Giving the values to another splitter's setSizes() function will
   produce a splitter with the same layout as this one.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<int> list = mySplitter.sizes();
+    QValueList<int>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa setSizes()
 */

@@ -989,6 +989,17 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 /*!  Returns a list of the messages in the translator.  This function is
   rather slow; because it is seldom called, it's optimized for simplicity and
   small size, not speed.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QTranslatorMessage> list = myTranslator.messages();
+    QValueList<QTranslatorMessage>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 
 QValueList<QTranslatorMessage> QTranslator::messages() const

@@ -1319,6 +1319,17 @@ void QApplication::setGlobalStrut( const QSize& strut )
   dynamically loading libraries.
   Returns $QTDIR/plugins as the only entry if no paths have been set explicitely.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = app.libraryPaths();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
 QStringList QApplication::libraryPaths()
@@ -3584,6 +3595,17 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   Returns the currently set restart command.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = mySession.restartCommand();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa setRestartCommand(), restartHint()
 */
 
@@ -3598,6 +3620,17 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn QStringList QSessionManager::discardCommand() const
 
   Returns the currently set discard command.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = mySession.discardCommand();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa setDiscardCommand(), restartCommand(), setRestartCommand()
 */

@@ -413,7 +413,7 @@
   if the expression does not match at this point in the regexp. For
   example, <b>const(?!\\s+char)</b> matches 'const' \e except when
   it is followed by 'char'.
-  
+
   \endlist
 
   \target wildcard-matching
@@ -3587,6 +3587,17 @@ int QRegExp::matchedLength() const
     QStringList list = rx.capturedTexts();
     // list is now ( "36 inches", "36", "inches" )
   \endcode
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = rx.capturedTexts();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   Some regexps can match an indeterminate number of times. For example
   if the input string is "Offsets: 12 14 99 231 7" and the regexp,

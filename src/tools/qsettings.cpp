@@ -98,6 +98,17 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = mySettings.readListEntry( "size", " " );
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */
 QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
@@ -113,6 +124,17 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
   Reads the entry specified by \a key as a string.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = mySettings.readListEntry( "recentfiles" );
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */

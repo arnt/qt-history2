@@ -779,7 +779,8 @@ private:
   algorithms in the STL or the \link qtl.html QTL\endlink.
 
   Using an invalid iterator is undefined (your application will
-  probably crash).
+  probably crash). Many Qt functions return const value lists; to
+  iterate over these you should make a copy and iterate over the copy.
 
   For every Iterator there is a ConstIterator. When accessing a
   QValueList in a const environment or if the reference or pointer to

@@ -202,6 +202,17 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
   If \a verbose is TRUE (the default), each field contains a
   suffix indicating an ASCending or DESCending sort order.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myIndex.toStringList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
 */
 QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
 {

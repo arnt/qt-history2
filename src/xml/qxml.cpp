@@ -522,6 +522,17 @@ void QXmlNamespaceSupport::processName( const QString& qname,
   If there is a default prefix, this function does not return it in the
   list; check for the default prefix using uri() with an argument
   of "".
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myXmlNamespaceSupport.prefixes();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QStringList QXmlNamespaceSupport::prefixes() const
 {
@@ -548,6 +559,17 @@ QStringList QXmlNamespaceSupport::prefixes() const
   Note: the empty (default) prefix is never included in this list; to
   check for the presence of a default namespace, use uri() with an
   argument of "".
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myXmlNamespaceSupport.prefixes( "" );
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 {

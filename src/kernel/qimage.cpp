@@ -3226,6 +3226,17 @@ QStrList QImage::inputFormats()
 /*!
   Returns a list of image formats that are supported for image input.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myImage.inputFormatList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa outputFormatList() inputFormats() QImageIO
 */
 QStringList QImage::inputFormatList()
@@ -3236,6 +3247,17 @@ QStringList QImage::inputFormatList()
 
 /*!
   Returns a list of image formats that are supported for image output.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myImage.outputFormatList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa inputFormatList() outputFormats() QImageIO
 */
@@ -5994,6 +6016,17 @@ QString QImage::text(const QImageTextKeyLang& kl) const
 /*!
     Returns the language identifiers for which some texts are recorded.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myImage.textLanguages();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
     \sa textList() text() setText() textKeys()
 */
 QStringList QImage::textLanguages() const
@@ -6005,6 +6038,17 @@ QStringList QImage::textLanguages() const
 
 /*!
     Returns the keywords for which some texts are recorded.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myImage.textKeys();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
     \sa textList() text() setText() textLanguages()
 */
@@ -6018,6 +6062,17 @@ QStringList QImage::textKeys() const
 /*!
     Returns a list of QImageTextKeyLang objects that enumerate
     all the texts key/language pairs set by setText() for this image.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QImageTextKeyLang> list = myImage.textList();
+    QValueList<QImageTextKeyLang>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QValueList<QImageTextKeyLang> QImage::textList() const
 {

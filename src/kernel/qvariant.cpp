@@ -1539,6 +1539,17 @@ const QCString QVariant::toCString() const
   StringList or List of a type that can be converted to QString, or an
   empty list otherwise.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myVariant.toStringList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa asStringList()
 */
 const QStringList QVariant::toStringList() const
@@ -1567,6 +1578,17 @@ const QStringList QVariant::toStringList() const
 /*!
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
   Map, or an empty map otherwise.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QMap<QString, QVariant> list = myVariant.toMap();
+    QMap<QString, QVariant>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa asMap()
 */
@@ -2016,6 +2038,17 @@ double QVariant::toDouble( bool * ok ) const
   Returns the variant as a QValueList<QVariant> if the variant has type()
   List or StringList, or an empty list otherwise.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QVariant> list = myVariant.toList();
+    QValueList<QVariant>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa asList()
 */
 const QValueList<QVariant> QVariant::toList() const
@@ -2112,6 +2145,17 @@ Q_VARIANT_AS(KeySequence)
   is not possible the variant is set to an empty string list.
 
   Returns a reference to the stored string list.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myVariant.asStringList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa toStringList()
 */
@@ -2396,6 +2440,17 @@ double& QVariant::asDouble()
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Returns the variant's value as variant list reference.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QValueList<QVariant> list = myVariant.asList();
+    QValueList<QVariant>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QValueList<QVariant>& QVariant::asList()
 {
@@ -2406,6 +2461,17 @@ QValueList<QVariant>& QVariant::asList()
 
 /*!
   Returns the variant's value as variant map reference.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QMap<QString, QVariant> list = myVariant.asMap();
+    QMap<QString, QVariant>::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 QMap<QString, QVariant>& QVariant::asMap()
 {
@@ -2609,7 +2675,7 @@ bool QVariant::cast( Type t )
 bool QVariant::operator==( const QVariant &v ) const
 {
     if ( !v.canCast( type() ) )
-	return FALSE;    
+	return FALSE;
     switch( d->typ ) {
     case Cursor:
 #ifndef QT_NO_CURSOR

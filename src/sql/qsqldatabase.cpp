@@ -343,6 +343,17 @@ void QSqlDatabase::removeDatabase( const QString& connectionName )
 }
 
 /*! Returns a list of all available database drivers.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDatabase.drivers();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 
 QStringList QSqlDatabase::drivers()
@@ -761,6 +772,16 @@ QSqlError QSqlDatabase::lastError() const
 /*!
   Returns a list of tables in the database.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDatabase.tables();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 */
 
 QStringList QSqlDatabase::tables() const

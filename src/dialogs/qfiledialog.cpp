@@ -2828,6 +2828,17 @@ void QFileDialog::setSelectedFilter( const QString& mask )
   It is more convenient to use selectedFile() if the mode is
   \c ExistingFile, \c Directory or \c DirectoryOnly.
 
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myFileDialog.selectedFiles();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa selectedFile, selectedFilter, QValueList::empty()
 */
 
@@ -5269,10 +5280,10 @@ void QFileDialog::modeButtonsDestroyed()
   existing files as selected by the user.
 
   \code
-    QStringList s = QFileDialog::getOpenFileNames(
-		        "Images (*.png *.xpm *.jpg)", "/home",
-			this, "open files dialog"
-			"Select one or more files" );
+    QStringList files = QFileDialog::getOpenFileNames(
+			    "Images (*.png *.xpm *.jpg)", "/home",
+			    this, "open files dialog"
+			    "Select one or more files" );
   \endcode
 
   The function creates a modal file dialog with parent \a parent, and
@@ -5297,6 +5308,17 @@ void QFileDialog::modeButtonsDestroyed()
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will treat
   symlinks as regular directories.
+
+  Note that if you want to iterate over the list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = files;
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
 
   \sa getOpenFileName(), getSaveFileName(), getExistingDirectory()
 */

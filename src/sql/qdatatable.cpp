@@ -393,6 +393,17 @@ void QDataTable::setFilter( const QString& filter )
 
   There is no default sort.
 
+  Note that if you want to iterate over the sort list, you should
+  iterate over a copy, e.g.
+    \code
+    QStringList list = myDataTable.sort();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
   \sa filter() refresh()
 
 */
