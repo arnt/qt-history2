@@ -1289,7 +1289,7 @@ QStringList QFontDatabase::families() const
     load();
 
     QStringList flist;
-    for ( int i = 1; i < d->count; i++ ) {
+    for ( int i = 0; i < d->count; i++ ) {
 	QtFontFamily *f = d->families[i];
 	if ( f->count == 0 )
 	    continue;
