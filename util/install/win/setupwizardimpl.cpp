@@ -412,6 +412,17 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
 static bool copyFile( const QString& src, const QString& dest )
 {
+#ifdef Q_WS_WIN
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	bool res;
+	TCHAR *tentryName = qt_winTchar_new( entryName );
+	res = CopyFileW( tentryName, qt_winTchar( targetName, TRUE ), false );
+	delete tentryName;
+	return res;
+    } else {
+	return CopyFileA( entryName.local8Bit(), targetName.local8Bit(), false );
+    }
+#else
     int len;
     const int buflen = 4096;
     char buf[buflen];
@@ -433,6 +444,7 @@ static bool copyFile( const QString& src, const QString& dest )
     }
     destFile.flush();
     return true;
+#endif
 }
 
 void SetupWizardImpl::initPages()
@@ -1794,6 +1806,17 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 	logFiles( msg );
 }
 
+#ifdef Q_WS_WIN
+static HANDLE createFile( const QString &entryName, DWORD attr1, DWORD attr2 )
+{
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	return ::CreateFileW( (WCHAR*)qt_winTchar( entryName, TRUE ), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+    } else {
+	return ::CreateFileA( entryName.local8Bit(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+    }
+}
+#endif
+
 bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
@@ -1835,15 +1858,14 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		    entryName.right( 3 ) == ".ui" )
 		    filesToCompile++;
 		bool res = true;
-#if defined(Q_OS_WIN32)
 		if ( !QFile::exists( targetName ) )
-		    res = CopyFileA( entryName.local8Bit(), targetName.local8Bit(), false );
-
+		    res = copyFile( entryName, targetName );
+#if defined(Q_OS_WIN32)
 		if ( res ) {
 		    totalFiles++;
 		    HANDLE inFile, outFile;
-		    if( inFile = ::CreateFileA( entryName.latin1(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
-			if( outFile = ::CreateFileA( targetName.latin1(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+		    if( inFile = createFile( entryName, GENERIC_READ, FILE_SHARE_READ ) ){
+			if( outFile = createFile( targetName, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE ) ){
 			    FILETIME createTime, accessTime, writeTime;
 			    ::GetFileTime( inFile, &createTime, &accessTime, &writeTime );
 			    ::SetFileTime( outFile, &createTime, &accessTime, &writeTime );
@@ -1857,10 +1879,8 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		    if( QMessageBox::warning( this, "File copy error", entryName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
 			return false;
 		}
-#elif defined(Q_OS_UNIX)
-		if ( !QFile::exists( targetName ) )
-		    res = copyFile( entryName.local8Bit(), targetName.local8Bit() );
-		// TODO: keep file date the same, handle errors
+#elif defined( Q_OS_UNIX )
+		// ### TODO: keep file date the same, handle errors
 #endif
 	    }
 	}

@@ -110,9 +110,10 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	else { // Win 9x
 	    QFile autoexec( "c:\\autoexec.bat" );
 	    QTextStream ostream( &autoexec );
+	    ostream.setEncoding( QTextStream::Locale );
 
 	    if( autoexec.open( IO_Append | IO_ReadWrite | IO_Translate ) ) {
-		ostream << "set " << varName.latin1() << "=" << varValue.latin1() << endl;
+		ostream << "set " << varName << "=" << varValue << endl;
 		autoexec.close();
 	    }
 	}
@@ -161,8 +162,8 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     }
     else {
 	if( RegCreateKeyExA( HKEY_LOCAL_MACHINE, QString( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName ).local8Bit(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
-	    RegSetValueExA( key, "DisplayName", 0, REG_SZ, (const unsigned char*)displayName.latin1(), displayName.length() + 1 );
-	    RegSetValueExA( key, "UninstallString", 0, REG_SZ, (const unsigned char*)cmdString.latin1(), cmdString.length() + 1 );
+	    RegSetValueExA( key, "DisplayName", 0, REG_SZ, displayName.local8Bit(), displayName.local8Bit().length() + 1 );
+	    RegSetValueExA( key, "UninstallString", 0, REG_SZ, cmdString.local8Bit(), cmdString.local8Bit().length() + 1 );
 
 	    RegCloseKey( key );
 	    return true;
@@ -276,11 +277,10 @@ QString QEnvironment::getFSFileName( const QString& fileName )
     QByteArray buffer( MAX_PATH );
     QString tmp( fileName );
     
-    GetVolumeInformationA( fileName.left( fileName.find( '\\' ) + 1 ).latin1(), NULL, NULL, NULL, NULL, NULL, buffer.data(), buffer.size() );
+    GetVolumeInformationA( fileName.left( fileName.find( '\\' ) + 1 ).local8Bit(), NULL, NULL, NULL, NULL, NULL, buffer.data(), buffer.size() );
     if( QString( buffer.data() ) != "NTFS" ) {
 	DWORD dw;
-
-	dw = GetShortPathNameA( fileName.latin1(), (char*)buffer.data(), buffer.size() );
+	dw = GetShortPathNameA( fileName.local8Bit(), (char*)buffer.data(), buffer.size() );
 	if( dw > 0 )
 	    tmp = buffer.data();
     }

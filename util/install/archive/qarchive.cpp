@@ -393,9 +393,9 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		QDateTime t; t.setTime_t(0); //epoch
 		struct utimbuf tb;
 		tb.actime = tb.modtime = t.secsTo(timeStamp);
-		utime(fileName.latin1(), &tb);
+		utime(fileName.local8Bit(), &tb);
 		if(filePerm != -1) 
-		    chmod(fileName.latin1(), (mode_t)filePerm);
+		    chmod(fileName.local8Bit(), (mode_t)filePerm);
 #endif
 	    } else {
 		emit operationFeedback( "Cannot open: " + fileName );
@@ -417,7 +417,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    else if( verbosityMode & Destination )
 		emit operationFeedback( "Linking " + fileName + "... " );
 #ifdef Q_OS_UNIX
-	    symlink( symName.latin1(), fileName.latin1() );
+	    symlink( symName.local8Bit(), fileName.local8Bit() );
 #endif
 	} else {
 	    if( verbosityMode & Source )

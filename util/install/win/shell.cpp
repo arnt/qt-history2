@@ -277,7 +277,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
         IShellLinkA* link;
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
-		link->SetPath( QString( target.latin1() ) );
+		link->SetPath( target.local8Bit().data() );
 		QString wrkDir = QDir::convertSeparators( target );
 
 		// remove the filename
@@ -289,9 +289,9 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 
 		link->SetWorkingDirectory( wrkDir );
 		if( description.length() )
-		    link->SetDescription( description.latin1() );
+		    link->SetDescription( description.local8Bit() );
 		if( arguments.length() )
-		    link->SetArguments( arguments.latin1() );
+		    link->SetArguments( arguments.local8Bit() );
 
 		hr = linkFile->Save( (LPCOLESTR)qt_winTchar( folderName + QString( "\\" ) + shortcutName, true ), false );
 		
@@ -389,12 +389,12 @@ ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
 
     if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceExA" ) ) {
 	ULARGE_INTEGER ulBytesAvailable, ulBytesTotal;
-	if( GetDiskFreeSpaceExA( drive.latin1(), &ulBytesAvailable, &ulBytesTotal, NULL ) )
+	if( GetDiskFreeSpaceExA( drive.local8Bit(), &ulBytesAvailable, &ulBytesTotal, NULL ) )
 	    freeSpace = ulBytesAvailable;
     }
     else if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceA" ) ) {
 	DWORD dwSPC, dwBPS, dwClusters, dwTotalClusters;
-	if( GetDiskFreeSpaceA( drive.latin1(), &dwSPC, &dwBPS, &dwClusters, &dwTotalClusters ) )
+	if( GetDiskFreeSpaceA( drive.local8Bit(), &dwSPC, &dwBPS, &dwClusters, &dwTotalClusters ) )
 	    freeSpace.QuadPart = dwSPC * dwBPS * dwClusters;
     }
     return freeSpace;
