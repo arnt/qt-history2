@@ -64,6 +64,17 @@
 #define QT_NO_IMAGE_16_BIT
 #endif
 
+// All platforms redefine open() to open64() when _FILE_OFFSET_BITS is set
+// to 64.  This breaks our sources.
+#if defined(open)
+# undef open
+#endif
+
+// All platforms redefine truncate() to truncate64() when _FILE_OFFSET_BITS
+// is set to 64.  This breaks our sources.
+#if defined(truncate)
+# undef truncate
+#endif
 
 /*!
     \class QImage qimage.h
