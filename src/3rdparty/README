@@ -10,6 +10,6 @@ have been removed:
     zlib/old - Zlib for other platforms not supported by Qt ;-)
     libmng/contrib - ?
     libmng/special - ?
-    sqlite/* - only the source files have been copied over
+    sqlite/* - a few source files may have been removed
 
 Some patches are applied from time to time.
