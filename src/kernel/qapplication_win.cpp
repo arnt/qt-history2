@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#295 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#296 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2327,13 +2327,19 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
-	QString s = wmchar_to_unicode(msg.wParam);
+	QString s;
+	QChar ch = wmchar_to_unicode(msg.wParam);
+	if (!ch.isNull())
+	    s += ch;
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
     }
     else if ( msg.message == WM_IME_CHAR ) {
 	// input method characters not found by our look-ahead
-	QString s = imechar_to_unicode(msg.wParam);
+	QString s;
+	QChar ch = imechar_to_unicode(msg.wParam);
+	if (!ch.isNull())
+	    s += ch;
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
     }
@@ -2410,7 +2416,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		}
 	    } else {
 		QString text;
-		if ( uch != QChar::null )
+		if ( !uch.isNull() )
 		    text += uch;
 		char a = uch.row() ? 0 : uch.cell();
 		store_key_rec( msg.wParam, a, text );
