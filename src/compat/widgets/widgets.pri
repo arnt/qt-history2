@@ -20,6 +20,7 @@ HEADERS += \
     widgets/qgrid.h \
     widgets/qhbox.h \
     widgets/qvbox.h \
+    widgets/q3gridview.h \
     widgets/qgridview.h \
     widgets/qpopupmenu.h \
     widgets/qrangecontrol.h \
@@ -43,7 +44,7 @@ SOURCES += \
     widgets/q3frame.cpp \
     widgets/q3whatsthis.cpp \
     widgets/q3workspace.cpp \
-    widgets/qgridview.cpp \
+    widgets/q3gridview.cpp \
     widgets/qrangecontrol.cpp \
     widgets/q3scrollview.cpp \
     widgets/qspinwidget.cpp \
