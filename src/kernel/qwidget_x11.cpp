@@ -128,8 +128,8 @@ extern XDevice *devStylus;
 extern XDevice *devEraser;
 extern XEventClass event_list_stylus[7];
 extern XEventClass event_list_eraser[7];
-extern int curr_events_stylus;
-extern int curr_events_eraser;
+extern int qt_curr_events_stylus;
+extern int qt_curr_events_eraser;
 #endif
 
 const uint stdWidgetEventMask =			// X event mask

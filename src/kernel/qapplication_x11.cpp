@@ -326,8 +326,8 @@ XDevice *devEraser = NULL;
 XEventClass event_list_stylus[TOTAL_XINPUT_EVENTS];
 XEventClass event_list_eraser[TOTAL_XINPUT_EVENTS];
 
-int curr_events_stylus = 0;
-int curr_events_eraser = 0;
+int qt_curr_events_stylus = 0;
+int qt_curr_events_eraser = 0;
 
 // well, luckily we only need to do this once.
 static int xinput_motion = INVALID_EVENT;
@@ -2177,7 +2177,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		// get the min/max value for pressure!
 		any = (XAnyClassPtr) ( devs->inputclassinfo );
 		if ( dev == devStylus ) {
-		    curr_events_stylus = curr_event_count;
+		    qt_curr_events_stylus = curr_event_count;
 		    for (j = 0; j < devs->num_classes; j++) {
 			if ( any->c_class == ValuatorClass ) {
 			    v = (XValuatorInfoPtr) any;
@@ -2194,7 +2194,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			any = (XAnyClassPtr) ((char *) any + any->length);
 		    }
 		} else {
-		    curr_events_eraser = curr_event_count;
+		    qt_curr_events_eraser = curr_event_count;
 		}
 		// at this point we are assuming there is only one
 		// wacom device...
