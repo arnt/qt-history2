@@ -631,16 +631,13 @@ bool FileDriver::update( const localsql::List& data )
     }
     xbShort rc;
     uint i = 0;
-    qDebug("data count:" + QString::number( data.count() ) );
     for ( ;  i < data.count(); ++i ) {
 	localsql::List updateData = data[i].toList();
-	qDebug("update data count:" + QString::number( updateData.count() ) );
 	if ( updateData.count() != 2 ) {
 	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
 	localsql::List fieldDesc = updateData[0].toList();
 	QString name = fieldDesc[0].toString();
-	qDebug("name:" + name );
 	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
