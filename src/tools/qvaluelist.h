@@ -85,7 +85,7 @@ class Q_EXPORT QValueListIterator
     typedef T        value_type;
     typedef size_t size_type;
 #ifndef QT_NO_STL
-    typedef ptrdiff_t  difference_type;
+    typedef std::ptrdiff_t  difference_type;
 #else
     typedef int difference_type;
 #endif
@@ -148,7 +148,7 @@ class Q_EXPORT QValueListConstIterator
     typedef T        value_type;
     typedef size_t size_type;
 #ifndef QT_NO_STL
-    typedef ptrdiff_t  difference_type;
+    typedef std::ptrdiff_t  difference_type;
 #else
     typedef int difference_type;
 #endif
@@ -366,7 +366,7 @@ public:
     typedef const value_type& const_reference;
     typedef size_t size_type;
 #ifndef QT_NO_STL
-    typedef ptrdiff_t difference_type;
+    typedef std::ptrdiff_t difference_type;
 #else
     typedef int difference_type;
 #endif
