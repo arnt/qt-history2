@@ -331,7 +331,8 @@ bool QMenuBar::updateMenuBar()
 			break;
 		    }
 		} else {
-		    qDebug("Shouldn't happen! %s:%d %d", __FILE__, __LINE__, (int)foo);
+		    valid = FALSE;
+		    break;
 		}
 	    }
 	    ReleaseMenu(mr);
