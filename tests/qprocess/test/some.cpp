@@ -15,16 +15,14 @@
 
 Some::Some( QObject *p ) : QObject( p )
 {
-#if 0
-#if defined( UNIX )
-    proc = new QProcess( "cat" );
-#else
-    QDir dir( "cat/Debug" );
-    proc = new QProcess( dir.absFilePath("cat.exe").latin1() );
-#endif
-#endif
     proc = new QProcess( this );
-    proc->setCommand( QDir::current().absFilePath("some") );
+#if defined( UNIX )
+    proc->setCommand( QDir::current().absFilePath( "some" ) );
+#else
+    QDir dir = QDir::current();
+    dir.cd( "Debug" );
+    proc->setCommand( dir.absFilePath( "some" ) );
+#endif
     proc->addArgument( "-cat" );
 
     // io stuff
