@@ -349,9 +349,10 @@ void QEventLoop::cleanup()
 
 void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 {
-    int sockfd = notifier->socket();
-    int type = notifier->type();
-    if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
+    int sockfd;
+    int type;
+    if (notifier == 0 || (sockfd = notifier->socket()) < 0
+	|| (type = notifier->type()) < 0 || type > 2) {
 	qWarning( "QSocketNotifier: Internal error" );
 	return;
     }
