@@ -75,7 +75,7 @@ void QActionPrivate::sendDataChanged()
 
 
 /*!
-    Constructs an action with a \a parent action group. The action will
+    Constructs an action for a \a parent action group. The action will
     be automatically inserted into the \a parent.
 */
 QAction::QAction(QActionGroup* parent)
@@ -87,8 +87,8 @@ QAction::QAction(QActionGroup* parent)
 }
 
 /*!
-    Constructs an action with a \a parent widget. The action will \e not
-    be automatically inserted into the \a parent widget.
+    Constructs an action for a \a parent widget. The action will \e not
+    be automatically inserted into the widget.
 */
 QAction::QAction(QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -96,9 +96,9 @@ QAction::QAction(QWidget* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and will have a submenu \a menu. This will
-    automatically insert the QAction into the group \a parent.
+    Constructs an action with some \a text and a submenu given by
+    \a menu for the \a parent action group. The action will be
+    automatically inserted into the action group.
 */
 QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -111,9 +111,9 @@ QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text. This will automatically insert the QAction into the
-    group \a parent.
+    Constructs an action with some \a text for the \a parent action
+    group. The action will be automatically inserted into the
+    action group.
 */
 QAction::QAction(const QString &text, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -125,9 +125,9 @@ QAction::QAction(const QString &text, QActionGroup* parent)
 }
 
 /*!
-    Constructs an action with a \a parent action group, some \a text,
-    and an \a icon. The action will be automatically inserted into the
-    \a parent action group.
+    Constructs an action with an \a icon and some \a text for the
+    \a parent action group. The action will be automatically inserted
+    into the action group.
 */
 QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -140,9 +140,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and will have a submenu of \a menu. This will not
-    automatically insert the QAction into the widget \a parent.
+    Constructs an action with some \a text and a submenu given by
+    \a menu for the \a parent widget. The action will \e not be
+    automatically inserted into the widget.
 */
 QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -152,9 +152,8 @@ QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text. This will not automatically insert the QAction into
-    the widget \a parent.
+    Constructs an action with some \a text for the \a parent widget.
+    The action will \e not be automatically inserted into the widget.
 */
 QAction::QAction(const QString &text, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -163,9 +162,9 @@ QAction::QAction(const QString &text, QWidget* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and icon set to \a icon. This will not automatically
-    insert the QAction into the widget \a parent.
+    Constructs an action with an \a icon and some \a text for the
+    \a parent widget. The action will \e not be automatically inserted
+    into the widget.
 */
 QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -175,9 +174,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and an shortcut set to \a shortcut. This will
-    automatically insert the QAction into the group \a parent.
+    Constructs an action with some \a text and a keyboard \shortcut
+    for the \a parent action group. The action will be automatically
+    inserted into the action group.
 */
 QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -190,10 +189,9 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text, icon set to \a icon, and an shortcut set to \a
-    shortcut. This will automatically insert the QAction into the group
-    \a parent.
+    Constructs an action with an \a icon, some \a text, and a keyboard
+    \a shortcut for the \a parent action group. The action will
+    automatically be inserted into the action group.
 */
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -207,9 +205,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and an shortcut set to \a shortcut. This will not
-    automatically insert the QAction into the widget \a parent.
+    Constructs an action with some \a text and a keyboard \a shortcut
+    for the \a parent widget. The action will \e not be automatically
+    inserted into the widget.
 */
 QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -219,10 +217,9 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* par
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text, icon set to \a icon, and an shortcut set to \a
-    shortcut. This will not automatically insert the QAction into the
-    widget \a parent.
+    Constructs an action with an \a icon, some \a text, and a keyboard
+    \a shortcut for the \a parent widget. The action will \e not be
+    automatically inserted into the widget.
 */
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                    QWidget* parent) : QObject(*(new QActionPrivate), parent)
@@ -233,7 +230,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 }
 
 /*!
-  
+    Returns the parent widget.
 */
 QWidget *QAction::parentWidget() const
 {
@@ -247,8 +244,8 @@ QWidget *QAction::parentWidget() const
     \property QAction::shortcut
     \brief the action's shortcut key
 
-    The keycodes can be found in \l Qt::Key and \l Qt::Modifier. There
-    is no default shortcut key.
+    Valid keycodes for this property can be found in \l Qt::Key and
+    \l Qt::Modifier. There is no default shortcut key.
 */
 void QAction::setShortcut(const QKeySequence &shortcut)
 {
@@ -374,10 +371,11 @@ QActionGroup *QAction::actionGroup() const
 
 /*!
     \property QAction::iconSet
-    \brief  the action's icon
+    \brief the action's icon
 
-    The icon is used as the tool button icon and in the menu to the
-    left of the menu text. There is no default icon.
+    In toolbars, the icon is used as the tool button icon; in menus,
+    it is displayed to the left of the menu text. There is no default
+    icon.
 
     If a null icon (QIconSet::isNull() is passed into this function,
     the icon of the action is cleared.
@@ -407,7 +405,7 @@ void QAction::setMenu(QMenu *menu)
 }
 
 /*!
-  Returns the submenu set on this action.
+  Returns this action's submenu.
 
   \sa QAction::setMenu()
 */
@@ -432,7 +430,8 @@ void QAction::setSeparator(bool b)
 }
 
 /*!
-  Returns true if this action is a separator action, false otherwise.
+  Returns true if this action is a separator action; otherwise it
+  returns false.
 
   \sa QAction::setSeparator()
 */
@@ -468,10 +467,10 @@ QString QAction::text() const
     \property QAction::menuText
     \brief the action's menu text
 
-    If the action is added to a menu the menu option will consist of
-    the icon (if there is one), the menu text and the shortcut (if
+    If the action is added to a menu, the menu option will consist of
+    the icon (if there is one), the menu text, and the shortcut (if
     there is one). If the menu text is not explicitly set in the
-    constructor or by using setMenuText() the action's description
+    constructor, or by using setMenuText(), the action's description
     text will be used as the menu text. There is no default menu text.
 
     \sa text
@@ -575,10 +574,11 @@ QString QAction::whatsThis() const
     \property QAction::checkable
     \brief whether the action is a checkable action
 
-    A toggle action is one which has an on/off state. For example a
-    Bold toolbar button is either on or off. An action which is not a
-    toggle action is a command action; a command action is simply
-    executed, e.g. file save. This property's default is false.
+    A toggle action is one which has an on/off state. For example,
+    in a word processor, a "Bold" toolbar button may be either on or
+    off. An action which is not a toggle action is a command action;
+    a command action is simply executed, e.g. file save.
+    By default, this property is false.
 
     In some situations, the state of one toggle action should depend
     on the state of others. For example, "Left Align", "Center" and
@@ -605,9 +605,9 @@ bool QAction::isCheckable() const
     \brief whether a toggle action is on
 
     This property is always on (true) for command actions and
-    \l{QActionGroup}s; setOn() has no effect on them. For action's
-    where isCheckable() is true, this property's default value is off
-    (false).
+    \l{QActionGroup}s; setOn() has no effect on them. For actions
+    where isCheckable() is true, this property's default value is
+    off (false).
 
     \sa checkable
 */
@@ -630,13 +630,13 @@ bool QAction::isChecked() const
     \property QAction::enabled
     \brief whether the action is enabled
 
-    Disabled actions can't be chosen by the user. They don't disappear
-    from the menu/tool bar but are displayed in a way which indicates
-    that they are unavailable, e.g. they might be displayed grayed
-    out.
+    Disabled actions cannot be chosen by the user. They do not
+    disappear from menus or toolbars, but they are displayed in a way
+    which indicates that they are unavailable. For example, they might
+    be displayed using only shades of gray.
 
-    What's this? help on disabled actions is still available provided
-    the \l QAction::whatsThis property is set.
+    What's this? help on disabled actions is still available, provided
+    that the QAction::whatsThis property is set.
 */
 void QAction::setEnabled(bool b)
 {
