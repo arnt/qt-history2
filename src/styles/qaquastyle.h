@@ -38,11 +38,11 @@
 #define QAQUASTYLE_H
 
 #ifndef QT_H
+#include "qvariant.h"	// for template-challenged compilers
 //#include "qmotifstyle.h"
 #include "qwindowsstyle.h"
 #include "qpalette.h"
 #include "qvaluelist.h"
-#include "qvariant.h"	// for template-challenged compilers
 #include "qmap.h"
 #endif // QT_H
 
