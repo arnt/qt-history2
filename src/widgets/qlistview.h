@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#102 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#103 $
 **
 ** Definition of QListView widget class
 **
@@ -249,6 +249,9 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+    void setShowSortIndicator( bool show );
+    bool showSortIndicator() const;
+    
 #ifdef QT_BUILDER
     bool setConfiguration( const QDomElement& element );
 #endif // QT_BUILDER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#322 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#323 $
 **
 ** Implementation of QListView widget class
 **
@@ -160,7 +160,8 @@ struct QListViewPrivate
     // sort column and order   #### may need to move to QHeader [subclass]
     int sortcolumn;
     bool ascending;
-
+    bool sortIndicator;
+    
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
@@ -1603,7 +1604,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->iterators = 0;
     d->scrollTimer = 0;
     d->autoResort = FALSE;
-
+    d->sortIndicator = FALSE;
+    
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -1622,6 +1624,8 @@ QListView::QListView( QWidget * parent, const char *name )
     connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
 	     d->h, SLOT(setOffset(int)) );
 
+    setShowSortIndicator( TRUE );
+    
     // will access d->r
     QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
     r->is_root = TRUE;
@@ -1632,6 +1636,35 @@ QListView::QListView( QWidget * parent, const char *name )
     viewport()->setFocusPolicy( WheelFocus );
 }
 
+/*!
+  It's possible that there is drawn an arrow in the header of the
+  listview to indicate the sort order and column of the listview
+  contents (this means this arrow is then always drawn in the
+  correct column and points into the correct direction).
+  To enable this, specify TRUE \a show, to disable this feature
+  set \a show to FALSE.
+  
+  \sa QHeader::setSortIndicator()
+*/
+
+void QListView::setShowSortIndicator( bool show )
+{
+    d->sortIndicator = show;
+    if ( d->sortcolumn != -1 )
+	d->h->setSortIndicator( d->sortcolumn, d->ascending ); 
+}
+  
+/*!
+  Returns TRUE, of the sort order and column is indicated
+  in the header, else FALSE.
+  
+  \sa QListView::setSortIndicator()
+*/
+
+bool QListView::showSortIndicator() const
+{
+    return d->sortIndicator;
+}
 
 /*!  Deletes the list view and all items in it, and frees all
   allocated resources.  */
@@ -3513,6 +3546,8 @@ void QListView::setSorting( int column, bool ascending )
 
     d->ascending = ascending;
     d->sortcolumn = column;
+    if ( d->sortcolumn != -1 )
+	d->h->setSortIndicator( d->sortcolumn, d->ascending ); 
     triggerUpdate();
 }
 

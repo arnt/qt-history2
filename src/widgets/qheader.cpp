@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#100 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -47,7 +47,9 @@ struct QHeaderData
     QBitArray           clicks;
     QBitArray           resize;
     bool		move;
-
+    int sortColumn;
+    bool sortDirection;
+    
 };
 
 
@@ -238,6 +240,8 @@ void QHeader::init( int n )
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
     data->move = TRUE;
+    data->sortColumn = -1;
+    data->sortDirection = TRUE;
     /*
     setFrameStyle( QFrame::NoFrame );
 
@@ -571,6 +575,11 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     }
 }
 
+/*!
+  Handles resizing of sections. This means it redraws the relevant parts
+  of the header.
+*/
+
 void QHeader::handleColumnResize( int index, int s, bool final )
 {
     int lim = pPos(index-1) + 2*GRIPMARGIN;
@@ -585,9 +594,13 @@ void QHeader::handleColumnResize( int index, int s, bool final )
     int repaintPos = QMIN( oldPos, s );
 
     if ( orient == Horizontal ) {
-	if ( repaintPos < width() )
-	    scroll( delta, 0, QRect( repaintPos, 0, width() - repaintPos,  height() ) );
-	repaint( repaintPos - 4, 0, 4, height(), FALSE ); // border between the items
+// 	if ( repaintPos < width() )
+// 	    scroll( delta, 0, QRect( repaintPos, 0, width() - repaintPos,  height() ) );
+// 	repaint( repaintPos - 4, 0, 4, height(), FALSE ); // border between the items
+	repaint( FALSE );
+	int pos = cellPos( count() - 1 ) + cellSize( count() - 1 ) - offset(); 
+	if ( pos > 0 && pos < width() )
+	    repaint( pos, 0, width() - pos, height() );
     } else
 	repaint(0, repaintPos-oldSize+2, width(), height());
 
@@ -1000,16 +1013,44 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
     QRect r( fr.x() + QH_MARGIN+d, fr.y() + 2+d,
 	     fr.width() - 6, fr.height() - 4 );
 
+    int pw = 0;
     if ( data->iconsets[logIdx] ) {
 	QIconSet::Mode mode = isEnabled()?QIconSet::Normal:QIconSet::Disabled;
 	QPixmap pixmap = data->iconsets[logIdx]->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
+	pw = pixw;
 	int pixh = pixmap.height();
 	p->drawPixmap( r.left(), r.center().y()-pixh/2, pixmap );
 	r.setLeft( r.left() + pixw + 2 );
     }
 
     p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
+
+    if ( data->sortColumn == logIdx && pw + 8 + p->fontMetrics().width( s ) + 12 < fr.width() ) {
+	p->save();
+	if ( data->sortDirection ) {
+	    QPointArray pa( 3 );
+	    int x = fr.x() + fr.width() - 16;
+	    p->setPen( colorGroup().dark() );
+	    pa.setPoint( 0, x, 4 );
+	    pa.setPoint( 1, x + 12, 4 );
+	    pa.setPoint( 2, x + 6, fr.height() - 6 );
+	    p->drawPolyline( pa );
+	    p->setPen( colorGroup().light() );
+	    p->drawLine( x, 4, x + 6, fr.height() - 6 );
+	} else {
+	    QPointArray pa( 3 );
+	    int x = fr.x() + fr.width() - 16;
+	    p->setPen( colorGroup().dark() );
+	    pa.setPoint( 0, x, fr.height() - 6 );
+	    pa.setPoint( 1, x + 12, fr.height() - 6 );
+	    pa.setPoint( 2, x + 6, 4 );
+	    p->drawPolyline( pa );
+	    p->setPen( colorGroup().light() );
+	    p->drawLine( x, fr.height() - 6, x + 6, 4 );
+	}
+	p->restore();
+    }
 }
 
 
@@ -1040,5 +1081,23 @@ void QHeader::paintEvent( QPaintEvent *e )
 
 }
 
+/*!
+  As most of the time QHeader is used together with a list widget,
+  QHeader can indicate a sort order. This is done using an arrow
+  at the right edge of a section which points up or down. \a column
+  specifies in which column this arrow should be drawn, and \a
+  increasing, if the arrow should point to the bottom (TRUE) or
+  the the top (FALSE).
+  If \a column is -1, no arrow is drawn.
+
+  \sa QListView::setShowSortIndicator()
+*/
+
+void QHeader::setSortIndicator( int column, bool increasing )
+{
+    data->sortColumn = column;
+    data->sortDirection = increasing;
+    repaint( TRUE );
+}
 
 //#### what about lastSectionCoversAll?

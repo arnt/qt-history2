@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#35 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#36 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -74,6 +74,8 @@ public:
 
     virtual void moveCell( int fromIdx, int toIdx );
 
+    void setSortIndicator( int column, bool increasing = TRUE );
+    
 public slots:
     virtual void	setOffset( int );
 
