@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#11 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#12 $
 **
 ** Definition of QColor class
 **
@@ -21,7 +21,26 @@ const ulong RGB_INVALID	= 0x40000000;		// flags invalid color
 const ulong RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
-class QColor					// RGB based color
+inline int   QRED( ulong rgb )			// get red part of RGB
+{ return (int)(rgb & 0xff); }
+
+inline int   QGREEN( ulong rgb )		// get green part of RGB
+{ return (int)((rgb >> 8) & 0xff); }
+
+inline int   QBLUE( ulong rgb )			// get blue part of RGB
+{ return (int)((rgb >> 16) & 0xff); }
+
+inline ulong QRGB( int r, int g, int b )	// set RGB value
+{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
+
+inline int QGRAY( int r, int g, int b )		// convert R,G,B to gray 0..255
+{ return (r*11+g*16+b*5)/32; }
+
+inline int QGRAY( ulong rgb )			// convert RGB to gray 0..255
+{ return QGRAY( QRED(rgb), QGREEN(rgb), QBLUE(rgb) ); }
+
+
+class QColor					// color class
 {
 public:
     QColor();					// default RGB=0,0,0
@@ -43,9 +62,9 @@ public:
     bool   setRGB( int r, int g, int b );	// set RGB value
     bool   setRGB( ulong rgb );
 
-    int	   red()    const { return (int)(rgb & 0xff); }
-    int	   green()  const { return (int)((rgb >> 8) & 0xff); }
-    int	   blue()   const { return (int)((rgb >> 16) & 0xff); }
+    int	   red()    const { return QRED(rgb); }
+    int	   green()  const { return QGREEN(rgb); }
+    int	   blue()   const { return QBLUE(rgb); }
 
     void   getHSV( int *h, int *s, int *v ) const; // get HSV value
     bool   setHSV( int h, int s, int v );	// set HSV value
