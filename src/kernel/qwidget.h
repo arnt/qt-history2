@@ -43,7 +43,6 @@
 #include "qobject.h"
 #include "qpaintdevice.h"
 #include "qpalette.h"
-#include "qcursor.h"
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
@@ -55,7 +54,7 @@ class QLayout;
 struct QWExtra;
 struct QTLWExtra;
 class QFocusData;
-class QStyle;
+class QCursor;
 class QWSRegionManager;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice

@@ -41,7 +41,7 @@
 #include "qtimer.h"
 #include "qlayout.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
+#include "qintdict.h"
 #include "qapplication.h"
 #include "qlist.h"
 #include "qmap.h"

@@ -38,12 +38,13 @@
 
 #ifndef QT_NO_TABLE
 
-#include <qpainter.h>
-#include <qkeycode.h>
-#include <qlineedit.h>
-#include <qapplication.h>
-#include <qtimer.h>
-#include <qobjectlist.h>
+#include "qpainter.h"
+#include "qkeycode.h"
+#include "qlineedit.h"
+#include "qcursor.h"
+#include "qapplication.h"
+#include "qtimer.h"
+#include "qobjectlist.h"
 #include "qiconset.h"
 #include <stdlib.h>
 #include <limits.h>

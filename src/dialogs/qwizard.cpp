@@ -41,6 +41,7 @@
 
 #include "qlayout.h"
 #include "qpushbutton.h"
+#include "qcursor.h"
 #include "qlabel.h"
 #include "qwidgetstack.h"
 #include "qapplication.h"

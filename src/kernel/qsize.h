@@ -39,7 +39,7 @@
 #define QSIZE_H
 
 #ifndef QT_H
-#include "qpoint.h"
+#include "qpoint.h" // ### change to windowdefs.h?
 #endif // QT_H
 
 

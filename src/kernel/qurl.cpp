@@ -40,6 +40,8 @@
 #ifndef QT_NO_NETWORKPROTOCOL
 #ifndef QT_NO_DIR
 
+#include "qdir.h"
+
 #include <stdlib.h>
 
 struct QUrlPrivate

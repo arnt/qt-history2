@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qshared.h"
 #include "qrect.h"
-#include "qstring.h"
 #endif // QT_H
 
 

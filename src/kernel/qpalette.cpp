@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_PALETTE
 #include "qdatastream.h"
-#include "qpixmap.h"
 
 /*****************************************************************************
   QColorGroup member functions

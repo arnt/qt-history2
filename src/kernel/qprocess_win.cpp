@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QApplication class
+** Implementation of QProcess class for Win32
 **
 ** Created : 20000905
 **

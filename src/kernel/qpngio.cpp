@@ -35,13 +35,12 @@
 **
 **********************************************************************/
 
-#include "qimage.h"
+#include "qpngio.h"
 
 #ifndef QT_NO_IMAGEIO_PNG
 
 #include "qasyncimageio.h"
 #include "qiodevice.h"
-#include "qpngio.h"
 
 #include <png.h>
 

@@ -40,8 +40,8 @@
 
 #ifndef QT_H
 #include "qpaintdevice.h"
-#include "qcolor.h"
-#include "qstring.h"
+#include "qcolor.h" // char*->QColor conversion
+#include "qstring.h" // char*->QString conversion
 #include "qnamespace.h"
 #endif // QT_H
 

@@ -45,6 +45,7 @@
 #include "qdatetime.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
+#include "qcursor.h"
 #include "qtimer.h"
 #include <limits.h>
 

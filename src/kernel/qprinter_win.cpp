@@ -36,7 +36,6 @@
 #include "qimage.h"
 #include "qwidget.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
 

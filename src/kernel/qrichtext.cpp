@@ -40,9 +40,7 @@
 #ifndef QT_NO_RICHTEXT
 
 #include "qpainter.h"
-#include "qfile.h"
 #include "qtextstream.h"
-#include "qtimer.h"
 #include "qimage.h"
 #include "qdragobject.h"
 #include "qdrawutil.h"

@@ -42,7 +42,7 @@
 #include "qwindowdefs.h"
 #include "qcolor.h"
 #include "qshared.h"
-#include "qbrush.h"
+#include "qbrush.h" // QColor->QBrush conversion
 #endif // QT_H
 
 #ifndef QT_NO_PALETTE

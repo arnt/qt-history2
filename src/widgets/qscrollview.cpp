@@ -42,6 +42,7 @@
 #include "qobjectdict.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qcursor.h"
 #include "qfocusdata.h"
 #include "qscrollview.h"
 #include "qptrdict.h"

@@ -39,7 +39,7 @@
 #define QPNGIO_H
 
 #ifndef QT_H
-#include <qimage.h>
+#include "qimage.h"
 #endif // QT_H
 
 #ifndef QT_NO_IMAGEIO_PNG
@@ -47,7 +47,6 @@
 void qInitPngIO();
 
 class QIODevice;
-class QImage;
 
 class Q_EXPORT QPNGImageWriter {
 public:

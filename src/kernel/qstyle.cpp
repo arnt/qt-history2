@@ -40,13 +40,8 @@
 #include "qnamespace.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qpalette.h" // for now
 #include "qwidget.h"
 #include "qimage.h"
-#include "qwidget.h"
-#include "qptrdict.h" //binary compatibility
-
 
 #include <limits.h>
 

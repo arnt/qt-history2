@@ -46,7 +46,6 @@
 
 #include "qstring.h"
 #include "qdict.h"
-#include "qregexp.h"
 
 #include "qfile.h"
 #include "qbuffer.h"

@@ -37,7 +37,6 @@
 
 #include "qpointarray.h"
 #include "qrect.h"
-#include "qbitarray.h"
 #include "qdatastream.h"
 #include "qwmatrix.h"
 #include <stdarg.h>

@@ -39,7 +39,6 @@
 #define QPAINTDEVICEMETRICS_H
 
 #ifndef QT_H
-#include "qwindowdefs.h"
 #include "qpaintdevice.h"
 #endif // QT_H
 

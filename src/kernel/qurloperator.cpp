@@ -42,9 +42,8 @@
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #include "qmap.h"
-#include "qapplication.h"
+#include "qdir.h"
 #include "qptrdict.h"
-#include "qtimer.h"
 
 //#define QURLOPERATOR_DEBUG
 

@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_SOUND
 
-#include "qapplication.h"
 #include "qlist.h"
 
 static QList<QAuServer> *servers=0;

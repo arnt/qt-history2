@@ -57,6 +57,7 @@
 #include "qtextcodec.h"
 #include "qpngio.h"
 #include "qsessionmanager.h"
+#include "qcursor.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"

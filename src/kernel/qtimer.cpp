@@ -38,7 +38,6 @@
 #include "qtimer.h"
 #include "qsignal.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 
 // NOT REVISED
 /*!

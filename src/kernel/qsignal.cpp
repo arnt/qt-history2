@@ -37,7 +37,6 @@
 
 #include "qsignal.h"
 #include "qmetaobject.h"
-#include "qptrdict.h"
 #include <ctype.h>
 
 // NOT REVISED

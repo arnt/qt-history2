@@ -42,9 +42,10 @@
 #include "qsocket.h"
 #include "qurlinfo.h"
 #include "qurloperator.h"
-#include <qstringlist.h>
-#include <qregexp.h>
-#include <qtimer.h>
+#include "qstringlist.h"
+#include "qregexp.h"
+#include "qtimer.h"
+#include "qfileinfo.h"
 #include <stdlib.h>
 
 #define QFTP_MAX_BYTES 1024

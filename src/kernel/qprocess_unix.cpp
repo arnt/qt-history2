@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QApplication class
+** Implementation of QProcess class for Unix
 **
 ** Created : 20000905
 **

@@ -40,15 +40,10 @@
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
-#include "qaccel.h"
-#include "qdragobject.h"
-#include "qfocusdata.h"
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
+#include "qcursor.h"
 #include "qt_x11.h"
 
 // NOT REVISED

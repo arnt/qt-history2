@@ -39,7 +39,6 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
-#include "qlist.h"
 #include "qintdict.h"
 #include "qfontdata_p.h"
 #include "qtextcodec.h"

@@ -40,7 +40,6 @@
 
 
 #ifndef QT_H
-#include "qpaintdevice.h"
 #include "qcolor.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
@@ -53,6 +52,7 @@
 
 class QGfx;
 class QTextCodec;
+class QPaintDevice;
 
 
 class Q_EXPORT QPainter : public Qt

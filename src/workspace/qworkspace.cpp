@@ -44,6 +44,7 @@
 #include "qlabel.h"
 #include "qvbox.h"
 #include "qaccel.h"
+#include "qcursor.h"
 #include "qpopupmenu.h"
 #include "qmenubar.h"
 #include "qguardedptr.h"
@@ -1772,7 +1773,7 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
 
     iconL->setGeometry( 2, 0, BUTTON_WIDTH, height()-1 );
-    int left = iconL->isVisibleTo( this ) ? iconL->width() : 0;
+//  int left = iconL->isVisibleTo( this ) ? iconL->width() : 0; // ### not used! remove?
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
 	right = iconB->x();

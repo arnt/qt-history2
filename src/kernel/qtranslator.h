@@ -41,7 +41,6 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qintdict.h"
 #include "qvaluelist.h"
 #endif // QT_H
 
@@ -112,8 +111,7 @@ public:
     QString find( const char *, const char *, const char * ) const;
 // ### find( const char *, const char * ) obsolete in Qt 3.0
     virtual QString find( const char *, const char * ) const;
-// ### findMessage made virtual in Qt 3.0
-    QTranslatorMessage findMessage( const char *, const char *,
+    virtual QTranslatorMessage findMessage( const char *, const char *,
 				    const char * ) const;
 
     bool load( const QString & filename,

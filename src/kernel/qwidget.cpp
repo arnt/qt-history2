@@ -43,6 +43,7 @@
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
 #include "qfocusdata.h"
+#include "qcursor.h"
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qapplication_p.h"

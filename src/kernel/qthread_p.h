@@ -38,7 +38,7 @@
 #ifndef QTHREAD_P_H
 #define QTHREAD_P_H
 
-#include <qglobal.h>
+#include "qglobal.h"
 
 #include <errno.h>
 #include <unistd.h>

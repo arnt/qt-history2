@@ -42,8 +42,8 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
-#include <qapplication.h>
-#include <qlist.h>
+#include "qapplication.h"
+#include "qlist.h"
 
 #include "qthread_p.h"
 

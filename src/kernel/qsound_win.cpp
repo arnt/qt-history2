@@ -31,8 +31,8 @@
 
 #ifndef QT_NO_SOUND
 
-#include <qsocknot.h>
-#include <qapplication.h>
+#include "qsocknot.h"
+#include "qapplication.h"
 #include "qapplication_p.h"
 #include <qfile.h>
 

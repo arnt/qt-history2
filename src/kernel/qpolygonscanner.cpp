@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#include <qpolygonscanner.h>
-#include <qpointarray.h>
+#include "qpolygonscanner.h"
+#include "qpointarray.h"
 #include <stdlib.h>
 
 

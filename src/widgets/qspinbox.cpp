@@ -39,6 +39,7 @@
 #ifndef QT_NO_COMPLEXWIDGETS
 
 #include "qspinbox.h"
+#include "qcursor.h"
 #include "qpushbutton.h"
 #include "qpainter.h"
 #include "qbitmap.h"

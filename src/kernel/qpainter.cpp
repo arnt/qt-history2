@@ -42,7 +42,6 @@
 #include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
-#include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
 #include "qapplication.h"
 #ifdef _WS_QWS_

@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#include "qdir.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL

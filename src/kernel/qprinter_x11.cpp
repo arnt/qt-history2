@@ -40,13 +40,9 @@
 #ifndef QT_NO_PRINTER
 
 #include "qpaintdevicemetrics.h"
-#include "qfile.h"
-#include "qfileinfo.h"
-#include "qdir.h"
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
 #include <stdlib.h>
 
 #if defined(_OS_WIN32_)

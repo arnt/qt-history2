@@ -39,6 +39,7 @@
 #ifndef QT_NO_COMPLEXWIDGETS
 #include "qpainter.h"
 #include "qscrollbar.h"
+#include "qcursor.h"
 #include "qclipboard.h"
 #include "qpixmap.h"
 #include "qregexp.h"

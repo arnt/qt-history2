@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qwindowdefs.h"
-#include "qnamespace.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #endif // QT_H

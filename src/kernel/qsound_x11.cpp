@@ -41,8 +41,8 @@
 
 #ifndef QT_NO_SOUND
 
-#include <qsocknot.h>
-#include <qapplication.h>
+#include "qsocknot.h"
+#include "qapplication.h"
 
 
 #ifdef QT_NAS_SUPPORT

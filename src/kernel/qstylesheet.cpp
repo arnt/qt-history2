@@ -40,17 +40,8 @@
 #ifndef QT_NO_RICHTEXT
 
 #include "qrichtext_p.h"
-#include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
-
-#include "qstack.h"
-#include "qfile.h"
-#include "qtextstream.h"
-#include "qlayout.h"
-#include "qbitmap.h"
-#include "qtimer.h"
-#include "qimage.h"
 
 #include <stdio.h>
 

@@ -40,6 +40,7 @@
 #include "qtimer.h"
 #include "qheader.h"
 #include "qpainter.h"
+#include "qcursor.h"
 #include "qstack.h"
 #include "qlist.h"
 #include "qstrlist.h"

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QApplication class
+** Implementation of QProcess class
 **
 ** Created : 20000905
 **
@@ -38,11 +38,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "qapplication.h"
+#include "qprocess.h"
 
 #ifndef QT_NO_PROCESS
 
-#include "qprocess.h"
+#include "qapplication.h"
 
 
 //#define QPROCESS_DEBUG

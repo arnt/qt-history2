@@ -45,7 +45,7 @@
 #include "qdict.h"
 #include "qdragobject.h"
 #include "qobjectlist.h"
-#include "qbitmap.h"
+#include "qcursor.h"
 
 #include "qt_x11.h"
 
