@@ -225,8 +225,10 @@ void generateXmlSubSections( QString indent, BinaryWriter& out,
     if ( sect.subsections ) {
 	QValueList<XmlSection>::ConstIterator ss = sect.subsections->begin();
 	while ( ss != sect.subsections->end() ) {
-	    out.puts( indent + "<section ref=\"" + htmlProtect( (*ss).ref, FALSE ) +
-		      "\" title=\"" + htmlProtect( (*ss).title, FALSE ) + "\"" );
+	    out.puts( indent + "<section ref=\"" +
+		      htmlProtect( (*ss).ref, FALSE, TRUE ) +
+		      "\" title=\"" + htmlProtect( (*ss).title, FALSE, TRUE ) +
+		      "\"" );
 	    if ( (*ss).keywords.isEmpty() && (*ss).subsections == 0 ) {
 		out.puts( "/>\n" );
 	    } else {
@@ -238,7 +240,7 @@ void generateXmlSubSections( QString indent, BinaryWriter& out,
 		    out.puts( indentIndent + "<keyword ref=\"" );
 		    out.puts( (*k).second );
 		    out.puts( "\">" );
-		    out.puts( htmlProtect((*k).first) );
+		    out.puts( htmlProtect((*k).first, FALSE, TRUE) );
 		    out.puts( "</keyword>\n" );
 		    ++k;
 		}
@@ -258,9 +260,10 @@ void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
     BinaryWriter out( fileName );
 
     out.puts( "<!DOCTYPE DCF>\n" );
-    out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE) +
-	      "\" category=\"" + htmlProtect(category, FALSE) + "\" title=\"" +
-	      htmlProtect(rootSect.title, FALSE) + "\">\n" );
+    out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE, TRUE) +
+	      "\" category=\"" + htmlProtect(category, FALSE, TRUE) +
+	      "\" title=\"" + htmlProtect(rootSect.title, FALSE, TRUE) +
+	      "\">\n" );
 
     generateXmlSubSections( "", out, rootSect );
 
