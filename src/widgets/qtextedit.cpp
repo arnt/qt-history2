@@ -3238,7 +3238,7 @@ void QTextEdit::repaintChanged()
     if ( !isUpdatesEnabled() || !viewport()->isUpdatesEnabled() )
 	return;
 
-    repaint(contentsX(), contentsY(), visibleWidth(), visibleHeight()); //hmm..
+    updateContents(); // good enough until this class is rewritten
 }
 
 #ifndef QT_NO_MIME
@@ -6231,10 +6231,10 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
 static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
 {
     int tabs = str.contains('\t');
-    
+
     if (!tabs)
 	return fm.width(str);
-    
+
     int newIdx = 0;
     int lastIdx = 0;
     int strWidth = 0;
@@ -6886,7 +6886,7 @@ int QTextEdit::optimCharIndex( const QString &str, int mx ) const
 
     if (!str.contains('\t') && mx > fm.width(str))
 	return str.length();
-    
+
     while (i < str.length()) {
 	strWidth = qStrWidth(str.left(i), tabStopWidth(), fm);
 	dd = strWidth - mx;
