@@ -390,7 +390,6 @@ sub findFiles {
 # --------------------------------------------------------------------
 # "main" function
 # --------------------------------------------------------------------
-$isunix = checkUnix; #cache checkUnix
 
 while ( @ARGV ) {
     my $var = 0;
@@ -467,6 +466,8 @@ while ( @ARGV ) {
     }
 }
 @modules_to_sync = keys(%modules) if($#modules_to_sync == -1);
+
+$isunix = checkUnix; #cache checkUnix
 
 # create path
 mkpath $includedir, 0777;
