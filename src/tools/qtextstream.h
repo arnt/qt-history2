@@ -154,23 +154,20 @@ private:
     void	init();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
-    bool isNetworkOrder() {
-	return !internalOrder == !QChar::networkOrdered();
-    }
 
     int		fflags;
     int		fwidth;
     int		fillchar;
     int		fprec;
-    bool	fstrm;
+    bool	doUnicodeHeader;
     bool	owndev;
     QTextCodec 	*mapper;
     QTextStreamPrivate * d;
-    QChar	ungetcBuf;
+    QChar	unused1; // ### remove in Qt 4.0
     bool	latin1;
     bool 	internalOrder;
-    bool	doUnicodeHeader;
-    void	*reserved_ptr;
+    bool	networkOrder;
+    void	*unused2; // ### remove in Qt 4.0
 
     QChar	eat_ws();
     uint 	ts_getline( QChar* );

@@ -214,17 +214,16 @@ const int QTextStream::floatfield  = ( QTextStream::scientific |
 class QTextStreamPrivate {
 public:
 #ifndef QT_NO_TEXTCODEC
-    QTextStreamPrivate() : decoder( 0 ), encoder( 0 ), sourceType( NotSet )
-    {}
-    ~QTextStreamPrivate()
-    {
+    QTextStreamPrivate()
+	: decoder( 0 ), encoder( 0 ), sourceType( NotSet ) { }
+    ~QTextStreamPrivate() {
 	delete decoder;
 	delete encoder;
     }
     QTextDecoder *decoder;
     QTextEncoder *encoder;
 #else
-    QTextStreamPrivate() : sourceType( NotSet ) {}
+    QTextStreamPrivate() : sourceType( NotSet ) { }
     ~QTextStreamPrivate() { }
 #endif
     QString ungetcBuf;
@@ -246,12 +245,13 @@ void QTextStream::init()
 {
     // ### ungetcBuf = QEOF;
     dev = 0;
-    fstrm = owndev = FALSE;
+    owndev = FALSE;
     mapper = 0;
     d = new QTextStreamPrivate;
-    doUnicodeHeader = TRUE;	 // autodetect
-    latin1 = TRUE;		 // should use local?
+    doUnicodeHeader = TRUE; // autodetect
+    latin1 = TRUE; // should use locale?
     internalOrder = QChar::networkOrdered();
+    networkOrder = TRUE;
 }
 
 /*!
@@ -274,7 +274,7 @@ QTextStream::QTextStream( QIODevice *iod )
 {
     init();
     setEncoding( Locale ); //###
-    dev = iod;					// set device
+    dev = iod;
     reset();
     d->sourceType = QTextStreamPrivate::IODevice;
 }
@@ -460,10 +460,7 @@ int QStringBuffer::getch()
 	setStatus( IO_ReadError );
 	return -1;
     }
-    QChar *ch = (QChar*)((ushort*)s->unicode() + ioIndex/2);
-    int retval = (ioIndex&01) ? ch->row() : ch->cell();
-    ioIndex++;
-    return retval;
+    return (int) *( (const char *) s->unicode() + ioIndex++ );
 }
 
 int QStringBuffer::putch( int ch )
@@ -608,7 +605,7 @@ QTextStream::QTextStream( FILE *fh, int mode )
     setEncoding( Locale ); //###
     dev = new QFile;
     ((QFile *)dev)->open( mode, fh );
-    fstrm = owndev = TRUE;
+    owndev = TRUE;
     reset();
     d->sourceType = QTextStreamPrivate::File;
 }
@@ -643,14 +640,14 @@ void QTextStream::skipWhiteSpace()
 */
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {
-    if( len<1 )
+    if( len < 1 )
 	return 0;
 
     uint rnum=0;   // the number of QChars really read
 
     if ( d && d->ungetcBuf.length() ) {
 	while( rnum < len && rnum < d->ungetcBuf.length() ) {
-	    *buf = d->ungetcBuf.constref(rnum);
+	    *buf = d->ungetcBuf.constref( rnum );
 	    buf++;
 	    rnum++;
 	}
@@ -673,10 +670,12 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    mapper = 0;
 	    latin1 = FALSE;
 	    internalOrder = QChar::networkOrdered();
+	    networkOrder = TRUE;
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
 	    internalOrder = !QChar::networkOrdered();
+	    networkOrder = FALSE;
 	} else {
 	    if ( c2 != EOF ) {
 	 	dev->ungetch( c2 );
@@ -800,10 +799,12 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    int c2 = dev->getch();
 	    if ( c2 == EOF )
 		return rnum;
-	    if ( isNetworkOrder() )
+
+	    if ( networkOrder ) {
 		*buf = QChar( c2, c1 );
-	    else
+	    } else {
 		*buf = QChar( c1, c2 );
+	    }
 	    buf++;
 	    rnum++;
 	} else {
@@ -825,7 +826,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    if ( !dev->atEnd() )
 			dev->ungetch( cbuf[--rlen] );
 		uint i = 0;
-		if ( isNetworkOrder() ) {
+		if ( networkOrder ) {
 		    while( i < rlen ) {
 			*buf = QChar( cbuf[i+1], cbuf[i] );
 			buf++;
@@ -969,14 +970,14 @@ void QTextStream::ts_putc( QChar c )
 	    ts_putc( QChar::byteOrderMark );
 	}
 	if ( internalOrder ) {
-	    // this case is important for QStringBuffer
+	    // this case is needed by QStringBuffer
 	    dev->writeBlock( (char*)&c, sizeof(QChar) );
-	} else if ( isNetworkOrder() ) {
-	    dev->putch(c.row());
-	    dev->putch(c.cell());
+	} else if ( networkOrder ) {
+	    dev->putch( c.row() );
+	    dev->putch( c.cell() );
 	} else {
-	    dev->putch(c.cell());
-	    dev->putch(c.row());
+	    dev->putch( c.cell() );
+	    dev->putch( c.row() );
 	}
     }
 }
@@ -1052,17 +1053,17 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	if ( !mapper && !latin1 )
 	    ts_putc( QChar::byteOrderMark );
     }
-    //All QCStrings and const char* are defined to be in Latin1
+    // QCString and const char * are treated as Latin-1
     if ( !mapper && latin1 ) {
 	dev->writeBlock( p, len );
     } else if ( !mapper && internalOrder ) {
 	QChar *u = new QChar[len];
-	for (uint i=0; i<len; i++)
+	for ( uint i = 0; i < len; i++ )
 	    u[i] = p[i];
-	dev->writeBlock( (char*)u, len*sizeof(QChar) );
+	dev->writeBlock( (char*)u, len * sizeof(QChar) );
 	delete [] u;
     } else {
-	for (uint i=0; i<len; i++)
+	for ( uint i = 0; i < len; i++ )
 	    ts_putc( (uchar)p[i] );
     }
     return *this;
@@ -2396,13 +2397,15 @@ QTextStream &reset( QTextStream &s )
 void QTextStream::setEncoding( Encoding e )
 {
     if ( d->sourceType == QTextStreamPrivate::String )
-	return; // QString does not need any encoding
+	return;
+
     switch ( e ) {
     case Unicode:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = TRUE;
+	networkOrder = QChar::networkOrdered();
 	break;
     case UnicodeUTF8:
 #ifndef QT_NO_TEXTCODEC
@@ -2410,6 +2413,7 @@ void QTextStream::setEncoding( Encoding e )
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = TRUE;
+	networkOrder = QChar::networkOrdered();
 #else
 	mapper = 0;
 	latin1 = TRUE;
@@ -2421,31 +2425,36 @@ void QTextStream::setEncoding( Encoding e )
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = QChar::networkOrdered();
+	networkOrder = TRUE;
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = !QChar::networkOrdered();
+	networkOrder = FALSE;
 	break;
     case RawUnicode:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = FALSE;
 	internalOrder = TRUE;
+	networkOrder = QChar::networkOrdered();
 	break;
     case Locale:
-	latin1 = TRUE; 				// fallback to Latin-1
+	latin1 = TRUE; // fallback to Latin-1
 #ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForLocale();
+	// optimized Latin-1 processing
 #if defined(Q_OS_WIN32)
 	if ( GetACP() == 1252 )
-	    mapper = 0;				// optimized Latin-1 processing
+	    mapper = 0;
 #endif
 	if ( mapper && mapper->mibEnum() == 4 )
 #endif
-	    mapper = 0;				// optimized Latin-1 processing
-	doUnicodeHeader = TRUE;
+	    mapper = 0;
+
+	doUnicodeHeader = TRUE; // If it reads as Unicode, accept it
 	break;
     case Latin1:
 	mapper = 0;
