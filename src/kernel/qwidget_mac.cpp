@@ -272,9 +272,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags(WShowModal))
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WType_Dialog)  || testWFlags(WType_Popup) )
+	else if(testWFlags(WType_Dialog) )
 	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WStyle_Tool ))
+	else if(testWFlags( WType_Popup ))
+	    wclass = kAlertWindowClass;
+	else if(testWFlags( WStyle_Tool ) )
 	    wclass = kSheetWindowClass;
 	else if(testWFlags(WType_TopLevel) )
 	    wclass = kDocumentWindowClass;
@@ -307,6 +309,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	InstallWindowContentPaintProc((WindowPtr)id, macSpecialErase, 0, this);
+	if(testWFlags( WType_Popup )) 
+	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 
 	hd = (void *)id;
 	setWinId(id);

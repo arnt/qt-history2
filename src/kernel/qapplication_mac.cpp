@@ -910,7 +910,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 #ifdef WEIRD_MOUSE_EMULATE
 	    if(!GetNextEvent(everyEvent, &event) && 
-	       (qt_button_down || mac_mouse_grabber )) {
+	       (qt_button_down || mac_mouse_grabber ) || inPopupMode() ) {
 
 		    Point point;
 		    GetGlobalMouse(&point);
