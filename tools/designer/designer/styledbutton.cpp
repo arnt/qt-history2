@@ -154,7 +154,11 @@ void StyledButton::drawButtonLabel( QPainter *paint )
 		 hasFocus() ? palette().active().buttonText() : palette().inactive().buttonText()
 		 : palette().disabled().buttonText();
     paint->setPen( pen );
-    if ( edit == PixmapEditor && spix ) {
+
+    if(!isEnabled()) {
+	paint->setBrush( QBrush( colorGroup().button() ) );
+    }
+    else if ( edit == PixmapEditor && spix ) {
 	paint->setBrush( QBrush( col, *spix ) );
 	paint->setBrushOrigin( width()/4, height()/4 );
     } else
