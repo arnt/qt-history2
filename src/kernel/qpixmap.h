@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#14 $
 **
 ** Definition of QPixMap class
 **
@@ -78,6 +78,14 @@ private:
     void  *ximage;
 #endif
 };
+
+
+// --------------------------------------------------------------------------
+// QPixMap stream functions
+//
+
+QDataStream &operator<<( QDataStream &, const QPixMap & );
+QDataStream &operator>>( QDataStream &, QPixMap & );
 
 
 #endif // QPIXMAP_H
