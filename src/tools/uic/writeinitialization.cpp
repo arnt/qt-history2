@@ -129,6 +129,10 @@ void WriteInitialization::accept(DomWidget *node)
 
     writePropertiesImpl(varName, className, node->elementProperty());
 
+    if (className == QLatin1String("QListBox")) {
+        initializeListBox(node);
+    }
+
     if (node->elementLayout().isEmpty())
         m_layoutChain.push(0);
 
@@ -598,5 +602,22 @@ void WriteInitialization::accept(DomLayoutDefault *node)
         m_defaultMargin = node->attributeMargin();
     if (node->hasAttributeSpacing())
         m_defaultSpacing = node->attributeSpacing();
+}
+
+void WriteInitialization::initializeListBox(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+
+    QList<DomItem*> items = w->elementItem();
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        DomProperty *text = properties.value("text");
+        if (!text)
+            continue;
+
+        output << option.indent << varName << "->insertItem(" << fixString(text->elementString()) << ");\n";
+    }
 }
 

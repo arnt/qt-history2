@@ -62,6 +62,8 @@ private:
 
     QString translate(const QString &text, const QString &className=QString::null);
 
+    void initializeListBox(DomWidget *w);
+
 private:
     Driver *driver;
     QTextStream &output;
