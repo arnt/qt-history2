@@ -378,7 +378,6 @@ UnixMakefileGenerator::processPrlFiles()
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
 			    if(processPrlFile(prl)) {
-				l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^./=]*)\\..*$");
@@ -399,22 +398,21 @@ UnixMakefileGenerator::processPrlFiles()
 			}
 			QString prl = "/System/Library/Frameworks/" + opt +
 				      ".framework/" + opt + Option::prl_ext;
-			if(processPrlFile(prl)) {
-			    l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
+			if(processPrlFile(prl)) 
 			    ret = TRUE;
-			}
 			l_out.append("-framework");
 		    }
 		    if(!opt.isEmpty())
 			l_out.append(opt);
+		    l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 		} else {
 		    if(!processed[opt] && processPrlFile(opt)) {
-			l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 			processed.insert(opt, (void*)1);
 			ret = TRUE;
 		    }
 		    if(!opt.isEmpty())
 			l_out.append(opt);
+		    l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 		}
 	    }
 	    if(ret && l != l_out)
