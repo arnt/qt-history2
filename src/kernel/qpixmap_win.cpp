@@ -175,8 +175,15 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 #else
 	// WinCE must use DIBSections instead of Compatible Bitmaps
 	// so it's possible to get the colortable at a later point.
+
+	// For 16bpp or 32bpp non-palettized images, the color table
+	// must be three entries long; the entries must specify the
+	// values of the red, green, and blue bitmasks. Also, the
+	// biCompression field in the BITMAPINFOHEADER structure
+	// should be set to BI_BITFIELDS. BI_RBG is not supported
+	// for these bit depths.
 	int   ncols           = data->d <= 8 ? 1<<data->d : 0;
-        int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
+        int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD) * (data->d > 8 ? 3 : ncols);
 	char *bmi_data        = new char[bmi_data_len];
 	memset( bmi_data, 0, bmi_data_len );
 	BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
@@ -186,13 +193,33 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	bmh->biHeight	      = -h; // top-down bitmap
 	bmh->biPlanes	      = 1;
 	bmh->biBitCount	      = data->d;
-	bmh->biCompression    = BI_RGB;
+	bmh->biCompression    = (data->d > 8 ? BI_BITFIELDS : BI_RGB);
 	bmh->biSizeImage      = 0;
 	bmh->biClrUsed	      = ncols;
 	bmh->biClrImportant   = 0;
 	QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-	coltbl[1] = 0xffffff;
-	coltbl[0] = 0x0;
+	if ( ncols == 2 ) {
+	    coltbl[0] = 0x0;
+	    coltbl[1] = 0xffffff;
+	} else if ( ncols == 0 && data->d > 8 ) {
+	    switch( data->d ) {
+	    case 16:
+		coltbl[0] = 0x00F800; // R 1111100000000000
+		coltbl[1] = 0x0007E0; // G 0000011111100000
+		coltbl[2] = 0x00001F; // B 0000000000011111
+		break;
+	    case 24:
+		coltbl[0] = 0x0;      // R
+		coltbl[1] = 0x0;      // G
+		coltbl[2] = 0x0;      // B
+		break;
+	    case 32:
+		coltbl[0] = 0xff0000; // R
+		coltbl[1] = 0x00ff00; // G
+		coltbl[2] = 0x0000ff; // B
+		break;
+	    }
+	}
 	DATA_HBM = CreateDIBSection( qt_display_dc(), 
 				     bmi,
 				     DIB_RGB_COLORS,
