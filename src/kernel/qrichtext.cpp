@@ -1922,6 +1922,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    continue; // nothing we could do with this, probably parse error
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
 		    continue;
+		if ( tagname == "li" )
+		    continue;
 
 		// we close a block item. Since the text may continue, we need to have a new paragraph
 		bool needNewPar = curtag.style->displayMode() == QStyleSheetItem::DisplayBlock
