@@ -36,13 +36,13 @@ class Graph : public QNPWidget {
 public:
     Graph( GraphModel& mdl ) :
 	model(mdl),
-	menubar(this),
 	style(Bar),
 	pieRotationTimer(0),
 	pieRotation(0)
     {
 	setBackgroundColor(white);
 
+	menubar = new QMenuBar( this );
 	stylemenu = new QPopupMenu;
 	stylemenu->setCheckable(TRUE);
 	for ( Style s = Pie; styleName[s]; s = Style(s+1)) {
@@ -52,14 +52,14 @@ public:
 	    this, SLOT(setStyleFromMenu(int)));
 	setStyle(Pie);
 
-	menubar.insertItem("Style", stylemenu);
+	menubar->insertItem("Style", stylemenu);
 
-	menubar.insertSeparator();
+	menubar->insertSeparator();
 	 
 	QPopupMenu* help = new QPopupMenu;
 	help->insertItem( "About plugin...", this, SIGNAL(aboutPlugin()) );
 	help->insertItem( "About data...", this, SIGNAL(aboutData()) );
-	menubar.insertItem("Help", help);
+	menubar->insertItem("Help", help);
     }
 
     ~Graph()
@@ -100,12 +100,12 @@ public:
 
     void enterInstance()
     {
-	menubar.show();
+	menubar->show();
     }
 
     void leaveInstance()
     {
-	menubar.hide();
+	menubar->hide();
     }
 
     void paintError(const char* e)
@@ -289,7 +289,7 @@ signals:
 
 private:
     GraphModel& model;
-    QMenuBar menubar;
+    QMenuBar *menubar;
     Style style;
     QPopupMenu* stylemenu;
     int pieRotationTimer;
