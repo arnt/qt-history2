@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "unpackdlgimpl.h"
 #include "qarchive.h"
 #include <qapplication.h>
 #include <qdir.h>
@@ -81,6 +82,10 @@ int main( int argc, char** argv )
 		qDebug("Failed to unpack %s", (*it).latin1());
 	    archive.close();
 	}
+    } else {
+	QApplication app( argc, argv );
+	UnpackDlgImpl dlg;
+	dlg.exec();
     }
     return 0;
 }
