@@ -1,5 +1,6 @@
 TEMPLATE = lib
 CONFIG += qt plugin
+win32-borland:CONFIG += warn_off
 TARGET += qmng
 VERSION = 1.0.0
 DESTDIR = ../../../imageformats
