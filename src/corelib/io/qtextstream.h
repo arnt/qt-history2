@@ -143,7 +143,7 @@ public:
     QTextStream &operator<<(const void *ptr);
 
 #ifdef QT_USE_FIXED_POINT
-    inline QTextStream &operator>>(QFixedPoint &f) { double d; operator>>(d); f = d; return *this; }
+    inline QTextStream &operator>>(QFixedPoint &f) { double d; operator>>(d); f = QFixedPoint(d); return *this; }
     inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
 #endif
 
