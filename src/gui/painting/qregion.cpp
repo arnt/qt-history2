@@ -274,9 +274,10 @@ QDataStream &operator>>(QDataStream &s, QRegion &r)
 QDebug operator<<(QDebug s, const QRegion &r)
 {
     QVector<QRect> rects = r.rects();
-    s.nospace() << "QRegion(size=" << rects.size() << ")\n";
+    s.nospace() << "QRegion(size=" << rects.size() << "), "
+                << "bounds = " << r.boundingRect() << "\n";
     for (int i=0; i<rects.size(); ++i)
-        s << " - " << rects.at(i) << "\n";
+        s << "- " << i << rects.at(i) << "\n";
     return s;
 }
 #endif
