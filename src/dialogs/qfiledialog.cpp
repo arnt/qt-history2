@@ -3138,7 +3138,7 @@ void QFileDialog::okClicked()
     
 #if defined(Q_WS_WIN)
     QFileInfo fi( d->url.path() + fn );
-    if ( fi.isShortcut() ) {
+    if ( fi.isSymLink() ) {
         nameEdit->setText( fi.readLink() );
     }
 #endif
@@ -3550,7 +3550,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 
 #if defined(Q_WS_WIN)
     QFileInfo fi( d->url.path() + newItem->text(0) );
-    if ( fi.isShortcut() ) {
+    if ( fi.isSymLink() ) {
         nameEdit->setText( fi.readLink() ); 
         okClicked();
         return;

@@ -109,15 +109,6 @@ bool QFileInfo::isDir() const
 
 bool QFileInfo::isSymLink() const
 {
-    return FALSE;
-}
-
-/*!
-  This function returns TRUE if the file is a Windows shortcut file
-*/
-
-bool QFileInfo::isShortcut() const
-{
     if ( fn.right( 4 ) == ".lnk" )
         return TRUE;
     else
@@ -129,7 +120,7 @@ QString QFileInfo::readLink() const
     IShellLink *psl;                            // pointer to IShellLink i/f
     HRESULT hres;
     WIN32_FIND_DATA wfd;
-    QString fileLinked = fn;
+    QString fileLinked;
     char szGotPath[MAX_PATH];
     // Get pointer to the IShellLink interface.
 
