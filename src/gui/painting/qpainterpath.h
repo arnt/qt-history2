@@ -77,6 +77,8 @@ public:
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(float x, float y, const QFont &f, const QString &text);
 
+    void addPath(const QPainterPath &path);
+
     QRectF boundingRect() const;
 
     FillMode fillMode() const;
@@ -91,6 +93,8 @@ public:
 
     int elementCount() const { return elements.size(); }
     const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }
+
+    inline QPainterPath &operator +=(const QPainterPath &other) { addPath(other); return *this; }
 
 private:
     QPainterPathPrivate *d_ptr;
