@@ -117,6 +117,7 @@ rm -rf qt/doc qt/etc qt/gif qt/tmake
 rm -rf qt/examples/sheet
 rm -rf qt/examples/scrollview
 rm -rf qt/examples/network
+rm -rf qt/examples/validator
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
