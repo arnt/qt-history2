@@ -1247,7 +1247,7 @@ void QTextHtmlParser::parseAttributes()
             for (int s = 0; s < count; s++) {
                 QString style = a.section(';', s, s).trimmed();
                 if (style.startsWith(QLatin1String("font-size:")) && style.endsWith(QLatin1String("pt"))) {
-                    node->fontPointSize = int(style.mid(10, style.length() - 12).toDouble());
+                    node->fontPointSize = int(style.mid(10, style.length() - 12).trimmed().toDouble());
                     node->hasFontPointSize = true;
                 } if (style.startsWith(QLatin1String("font-style:"))) {
                     QString s = style.mid(11).trimmed();
@@ -1262,7 +1262,7 @@ void QTextHtmlParser::parseAttributes()
                     if (ok)
                         node->fontWeight = n/8;
                 } else if (style.startsWith(QLatin1String("font-family:"))) {
-                    node->fontFamily = style.mid(12).section(',',0,0);
+                    node->fontFamily = style.mid(12).trimmed();
                 } else if (style.startsWith(QLatin1String("text-decoration:"))) {
                     QString s = style.mid(16);
                     node->fontUnderline = static_cast<bool>(s.contains("underline"));
