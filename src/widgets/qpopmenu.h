@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#3 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#4 $
 **
 ** Definition of QPopupMenu class
 **
@@ -19,6 +19,7 @@
 
 class QPopupMenu : public QTableWidget, public QMenuData
 {
+friend class QMenuBar;
     Q_OBJECT
 public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
