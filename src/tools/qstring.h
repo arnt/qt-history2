@@ -529,25 +529,25 @@ inline QBool QString::contains(const QString &s, CaseSensitivity cs) const
 inline QBool QString::contains(QChar c, CaseSensitivity cs) const
 { return find(c, 0, cs) != -1; }
 
-bool operator!=(const QString &s1, const QString &s2);
-bool operator<(const QString &s1, const QString &s2);
-bool operator<=(const QString &s1, const QString &s2);
-bool operator==(const QString &s1, const QString &s2);
-bool operator>(const QString &s1, const QString &s2);
-bool operator>=(const QString &s1, const QString &s2);
+Q_EXPORT bool operator!=(const QString &s1, const QString &s2);
+Q_EXPORT bool operator<(const QString &s1, const QString &s2);
+Q_EXPORT bool operator<=(const QString &s1, const QString &s2);
+Q_EXPORT bool operator==(const QString &s1, const QString &s2);
+Q_EXPORT bool operator>(const QString &s1, const QString &s2);
+Q_EXPORT bool operator>=(const QString &s1, const QString &s2);
 #ifndef QT_NO_CAST_TO_ASCII
-bool operator!=(const QString &s1, const char *s2);
-bool operator<(const QString &s1, const char *s2);
-bool operator<=(const QString &s1, const char *s2);
-bool operator==(const QString &s1, const char *s2);
-bool operator>(const QString &s1, const char *s2);
-bool operator>=(const QString &s1, const char *s2);
-bool operator!=(const char *s1, const QString &s2);
-bool operator<(const char *s1, const QString &s2);
-bool operator<=(const char *s1, const QString &s2);
-bool operator==(const char *s1, const QString &s2);
-bool operator>(const char *s1, const QString &s2);
-bool operator>=(const char *s1, const QString &s2);
+Q_EXPORT bool operator!=(const QString &s1, const char *s2);
+Q_EXPORT bool operator<(const QString &s1, const char *s2);
+Q_EXPORT bool operator<=(const QString &s1, const char *s2);
+Q_EXPORT bool operator==(const QString &s1, const char *s2);
+Q_EXPORT bool operator>(const QString &s1, const char *s2);
+Q_EXPORT bool operator>=(const QString &s1, const char *s2);
+Q_EXPORT bool operator!=(const char *s1, const QString &s2);
+Q_EXPORT bool operator<(const char *s1, const QString &s2);
+Q_EXPORT bool operator<=(const char *s1, const QString &s2);
+Q_EXPORT bool operator==(const char *s1, const QString &s2);
+Q_EXPORT bool operator>(const char *s1, const QString &s2);
+Q_EXPORT bool operator>=(const char *s1, const QString &s2);
 #endif
 
 inline const QString operator+(const QString &s1, const QString &s2)
