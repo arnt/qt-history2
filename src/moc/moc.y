@@ -2747,8 +2747,14 @@ int generateProps()
 
 	    fprintf( out, "\t{ \"%s\",\"%s\", ", it.current()->type.data(), it.current()->name.data() );
 	    int flags = Invalid;
-	    if ( !isVariantType( it.current()->type ) )
+	    if ( !isVariantType( it.current()->type ) ) {
+		if ( !isEnumType( it.current()->type ) ) 
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' has unknown type '%s'; assuming this is an enum.\n",
+			     g->fileName.data(), it.current()->lineNo, 
+			     (const char*) it.current()->name, 
+			     (const char*) it.current()->type );
 		flags |= EnumOrSet;
+	    }
 	    if ( it.current()->getfunc )
 		flags |= Readable;
 	    if ( it.current()->setfunc ) {
