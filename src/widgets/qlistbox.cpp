@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#268 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#269 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2376,8 +2376,6 @@ void QListBox::doAutoScroll()
             y = contentsY() - verticalScrollBar()->lineStep();
             d->mouseMoveRow = rowAt( y );
             updateSelection();
-//             if ( y < contentsY() )
-//                 setContentsPos( contentsX(), y );
         }
     } else if ( d->scrollPos.y() > 0 ) {
         // scroll down
@@ -2388,8 +2386,6 @@ void QListBox::doAutoScroll()
             y = contentsY() + verticalScrollBar()->lineStep();
             d->mouseMoveRow = rowAt(y + visibleHeight() - 1 );
             updateSelection();
-//             if ( y > contentsY() )
-//                 setContentsPos( contentsX(), y );
         }
     }
 
