@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#5 $
 **
 ** Implementation of the QTextView class
 **
@@ -46,6 +46,7 @@
 /*!
   \class QTextView qtextview.h
   \brief A sophisticated single-page rich text viewer.
+  \ingroup realwidgets
 
   Unlike QSimpleTextDocument, which merely draws small pieces of rich text,
   a QTextView is a real widget, with scrollbars when necessary, for showing
@@ -330,7 +331,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 			   *paper().pixmap(), ox, oy);
     else
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-    
+
     qApp->syncX();
 
     p->setClipping( FALSE );

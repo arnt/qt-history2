@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#4 $
 **
 ** Implementation of the QTextView class
 **
@@ -44,6 +44,7 @@
 /*!
   \class QTextBrowser qtextbrowser.h
   \brief A rich text  browser with simple navigation.
+  \ingroup realwidgets
 
   This class is the same as the QTextView it inherits, with the addition
   that it provides basic navigation features to follow links in hypertext
