@@ -19,7 +19,7 @@
 **********************************************************************/
 
 
-void ReplaceDialog::init()ovoid ReplaceDialog::init()
+void ReplaceDialog::init()
 {
     editor = 0;
     formWindow = 0;
