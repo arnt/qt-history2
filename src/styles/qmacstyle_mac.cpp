@@ -527,12 +527,13 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(flags & Style_Sunken) 
 	    info.value = kThemeButtonOn;
 
+	QRect ir = r;
 	if((flags & Style_Off)) 
-	    r.setRight(r.right() + 50);
+	    ir.setRight(ir.right() + 50);
 	else if((flags & Style_Up)) 
 	    info.adornment = kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(r, p, FALSE), kThemeListHeaderButton, 
+	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton, 
 			&info, NULL, NULL, NULL, 0);
 	break; }
     case PE_ExclusiveIndicatorMask:
