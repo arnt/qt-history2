@@ -606,7 +606,7 @@ void QColorWell::dropEvent( QDropEvent *e )
 	QColor col;
 	QColorDrag::decode( e, col );
 	values[ i ] = col.rgb();
-	repaint( FALSE );
+	repaintContents( FALSE );
 	e->accept();
     } else {
 	e->ignore();
