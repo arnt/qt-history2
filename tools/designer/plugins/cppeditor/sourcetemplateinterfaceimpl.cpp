@@ -78,6 +78,9 @@ SourceTemplateInterface::Source SourceTemplateInterfaceImpl::create( const QStri
 				  formFileName( dia.listForms->text( dia.listForms->currentItem() ) );
 		include.remove( include.length() - 2, 2 );
 		include += "h";
+		int slashFind = include.findRev('/');
+		if (slashFind != -1)
+		    include = include.mid(slashFind+1);
 		src.code = generateMainCppCode( dia.listForms->text( dia.listForms->currentItem() ),
 						include );
 	    }
