@@ -5084,7 +5084,8 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     int tmpCol = columnAt( e->pos().x() );
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
-    setCurrentCell( tmpRow, tmpCol, FALSE );
+    if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
 
@@ -5100,7 +5101,8 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     int tmpCol = columnAt( e->pos().x() );
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
-    setCurrentCell( tmpRow, tmpCol, FALSE );
+    if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
 
