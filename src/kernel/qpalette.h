@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#41 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#42 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -32,6 +32,9 @@
 #include "qshared.h"
 #include "qbrush.h"
 #endif // QT_H
+
+
+class QColorGroupPrivate;
 
 
 class Q_EXPORT QColorGroup				// color group class
@@ -101,6 +104,7 @@ public:
 
 private:
     QBrush br[MaxColorRole + 1];
+    QColorGroupPrivate * d;
 
     friend class QPalette;
 };

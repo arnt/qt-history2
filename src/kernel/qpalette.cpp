@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#47 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -77,6 +77,7 @@
 
 QColorGroup::QColorGroup()
 {						// all colors become black
+    d = 0;
 }
 
 /*!
@@ -86,6 +87,7 @@ QColorGroup::QColorGroup(const QColorGroup& other)
 {
     for (int i=0; i<=MaxColorRole; i++)
 	br[i] = other.br[i];
+    d = 0;
 }
 
 /*!
