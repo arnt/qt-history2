@@ -2280,70 +2280,103 @@ g++)
     ;;
 esac
 
+# QMAKE_CONFIG can contain the following:
+# 
+# Things that affect the Qt API/ABI:
+#
+#   Options:
+#     minimal-config small-config medium-config large-config full-config
+#
+#   Modules:
+#     styles tools kernel widgets dialogs iconview workspace
+#
+#   Enterprise/Free edition modules:
+#     network canvas table xml opengl sql
+#
+#   Options:
+#     stl tablet
+#
+# Things that do not affect the Qt API/ABI:
+#     system-jpeg no-jpeg jpeg
+#     system-mng no-mng mng
+#     system-png no-png png
+#     system-zlib no-zlib zlib
+#     no-gif gif
+#     debug release
+#     dll staticlib
+#
+#     internal
+#     nocrosscompiler
+#     enterprise
+#     thread
+#     GNUmake
+#     nis
+#     nas
+#     bigcodecs
+#
+#     X11     : xftnameunparse x11sm xinerama xrender xftfreetype xkb
+#     Embedded: embedded ft
+#
+ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl tablet"
+BUILD_CONFIG=
 BUILD_OPTIONS=
-rm -f .options
+
+# determine the build options
 for config_option in $QMAKE_CONFIG; do
+    SKIP="yes"
     case "$config_option" in
-    # compilation
-    debug|release)				;;
-    dll|staticlib)				;;
-    thread)					;;
-
-    # edition
-    internal|enterprise)			;;
-
-    # image format
-    system-png|png|no-png)			;;
-    system-mng|mng|no-mng)			;;
-    system-jpeg|jpeg|no-jpeg)			;;
-    system-zlib|zlib|no-zlib)			;;
-    gif|no-gif)					;;
-
-    # x11
-    xkb|xftfreetype|xrender|xinerama|x11sm)	;;
-    
-    # embedded
-    nocrosscompiler|embedded|ft)		;;
-
-    # misc
-    GNUmake)					;;
-    bigcodecs)					;;
-    nis)					;;
-    nas)					;;
-
-    # the above config options make no impact on the Qt API. don't put them into
-    # the build key
-
     *-config)
 	# take the last *-config setting.  this is the highest config being used,
 	# and is the one that we will use for tagging plugins
-	BUILD_OPTIONS="$config_option"
+	BUILD_CONFIG="$config_option"
 	;;
 
-    *)
-	echo "$config_option" >> .options
+    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl|tablet)
+	# these config options affect the Qt API/ABI. they should influence
+	# the generation of the buildkey, so we don't skip them
+   	SKIP="no" 
+	;;
+
+    *) # skip all other options since they don't affect the Qt API/ABI.
 	;;
     esac
+
+    if [ "$SKIP" = "no" ]; then
+	BUILD_OPTIONS="$BUILD_OPTIONS $config_option"
+    fi
 done
 
-# sort the .options file (helps ensure that changes in this configure script 
-# don't affect the QT_BUILD_KEY generation)
+# put the options that we are missing into .options
+rm -f .options
+for opt in `echo $ALL_OPTIONS`; do
+    SKIP="no"
+    if echo $BUILD_OPTIONS | grep $opt >/dev/null 2>&1; then
+	SKIP="yes"
+    fi
+    if [ "$SKIP" = "no" ]; then
+	echo "$opt" >> .options
+    fi
+done
+
+# reconstruct BUILD_OPTIONS with a sorted negative feature list
+# (ie. only things that are missing are will be put into the build key)
+BUILD_OPTIONS=
 if [ -f .options ]; then
-    for opt in `sort -f .options`; do
-	BUILD_OPTIONS="$BUILD_OPTIONS $opt"
+    for opt in `sort -f .options | uniq`; do
+	BUILD_OPTIONS="$BUILD_OPTIONS no-$opt"
     done
 fi
 rm -f .options
 
+# QT_NO* defines affect the Qt API (and binary compatibility).  they need
+# to be included in the build key
 for build_option in $D_FLAGS; do
     case "$build_option" in
     QT_NO*)
-	# QT_NO* defines affect the Qt API (and binary compatibility).  they need
-	# to be included in the build key
 	echo "$build_option" >> .options
 	;;
     *)
-	[ "$OPT_VERBOSE" = "yes" ] && echo "$build_option shouldn't change Qt API"
+	# skip all other compiler defines
 	;;
     esac
 done
@@ -2351,17 +2384,16 @@ done
 # sort the compile time defines (helps ensure that changes in this configure
 # script don't affect the QT_BUILD_KEY generation)
 if [ -f .options ]; then
-    for opt in `sort -f .options`; do
+    for opt in `sort -f .options | uniq`; do
 	BUILD_OPTIONS="$BUILD_OPTIONS $opt"
     done
 fi
 rm -f .options
 
-if [ -z "$CFG_USER_BUILD_KEY" ]; then
-    QT_BUILD_KEY="$UNAME_MACHINE $UNAME_SYSTEM $COMPILER $BUILD_OPTIONS"
-else
-    QT_BUILD_KEY="$CFG_USER_BUILD_KEY $UNAME_MACHINE $UNAME_SYSTEM $COMPILER $BUILD_OPTIONS"
-fi
+BUILD_OPTIONS="$BUILD_CONFIG $BUILD_OPTIONS"
+QT_BUILD_KEY="$CFG_USER_BUILD_KEY $UNAME_MACHINE $UNAME_SYSTEM $COMPILER $BUILD_OPTIONS"
+# strip out leading/trailing/extra whitespace
+QT_BUILD_KEY=`echo $QT_BUILD_KEY | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,"`
 
 #-------------------------------------------------------------------------------
 # part of configuration information goes into qconfig.h
