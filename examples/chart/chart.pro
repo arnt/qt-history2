@@ -10,6 +10,8 @@ HEADERS +=  element.h \
 SOURCES +=  element.cpp \
 	    canvasview.cpp \
 	    chartform.cpp \
+	    chartform_canvas.cpp \
+	    chartform_files.cpp \
 	    optionsform.cpp \
 	    setdataform.cpp \
 	    main.cpp
