@@ -750,8 +750,8 @@ buttons.
 
 	\p
 	In a plain text editor open the \f[richedit.pro] project file
-	and add the line \c[SOURCES = main.cpp]. The file should look
-	similar to this:
+	and add the line \c[SOURCES += main.cpp] to the end of the file.
+	The file should look similar to this:
 <programlisting>
 \scan eg/richedit/richedit.pro
 </programlisting>

@@ -383,7 +383,8 @@ bool createConnections()
 		    <para>
 		    Open the project file, e.g. <filename>book.pro</>, in a
 		    plain text editor and add the line: 
-		    <literal>SOURCES = main.cpp</>. 
+		    <literal>SOURCES += main.cpp</> 
+		    at the end of the file.
 		    </para>
 		</listitem>
 
