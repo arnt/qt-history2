@@ -1548,9 +1548,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ), where);
 
 	// halant forms
-	if (reordered[len-1] == halant) {
-	    memset(where, 0, len*sizeof(bool));
-	    where[len-1] = where[len-2] = TRUE;
+	if (reordered[len-1] == halant || script == QFont::Malayalam) {
+	    // The hlnt feature needs to get always applied for malayalam according to the MS docs.
+// 	    memset(where, 0, len*sizeof(bool));
+// 	    where[len-1] = where[len-2] = TRUE;
 	    openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'n' ));
 	}
 
