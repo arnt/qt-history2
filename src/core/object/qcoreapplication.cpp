@@ -179,6 +179,7 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
 	argc = 0;
 	argv = (char **)&empty; // ouch! careful with QApplication::argv()!
     }
+    QCoreApplication::is_app_closing = false;
 }
 
 /*!
@@ -250,8 +251,6 @@ void QCoreApplication::init()
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
 #endif
-
-    is_app_closing = FALSE;
 
 #ifndef QT_NO_COMPONENT
     d->app_libpaths = 0;
