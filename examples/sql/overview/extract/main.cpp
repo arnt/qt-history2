@@ -17,7 +17,7 @@ bool create_connections();
 int main( int argc, char *argv[] )
 {
     if ( create_connections() ) {
-	QSqlCursor cur( "creditors" ); 
+	QSqlCursor cur( "creditors" );
 
 	QStringList orderFields = QStringList() << "surname" << "forename";
 	QSqlIndex order = cur.index( orderFields );
@@ -27,13 +27,13 @@ int main( int argc, char *argv[] )
 	cur.setValue( "surname", "Chirac" );
 	cur.setValue( "city", "Paris" );
 
-	cur.select( filter, order ); 
+	cur.select( filter, order );
 
 	while ( cur.next() ) {
 	    int id = cur.value( "id" ).toInt();
-	    QString name = cur.value( "forename" ).toString() + " " + 
+	    QString name = cur.value( "forename" ).toString() + " " +
 			   cur.value( "surname" ).toString();
-	    debug( QString::number( id ) + ": " + name ); 
+	    qDebug( QString::number( id ) + ": " + name );
 	}
     }
 
@@ -49,8 +49,8 @@ bool create_connections()
     defaultDB->setUserName( "db" );
     defaultDB->setPassword( "db" );
     defaultDB->setHostName( "silverfish" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return false;
@@ -62,7 +62,7 @@ bool create_connections()
     oracle->setPassword( "db" );
     oracle->setHostName( "silverfish" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return false;
@@ -70,6 +70,3 @@ bool create_connections()
 
     return true;
 }
-
-
-
