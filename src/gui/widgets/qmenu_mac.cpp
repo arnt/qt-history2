@@ -460,6 +460,18 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         data.iconType = kMenuNoIcon;
     }
 
+    //font
+    if(action->action->font().bold())
+        data.style |= bold;
+    if(action->action->font().underline())
+        data.style |= underline;
+    if(action->action->font().italic())
+        data.style |= italic;
+    if(data.style)
+        data.whichData |= kMenuItemDataStyle;
+    data.whichData |= kMenuItemDataFontID;
+    ATSUFONDtoFontID((ATSFontRef)action->action->font().handle(), NULL, (ATSUFontID*)&data.fontID);
+
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
         data.submenuHandle = action->action->menu()->macMenu();
@@ -529,7 +541,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     SetMenuItemData(action->menu, action->command, true, &data);
 
     //grrrrr.. why isn't checked in the data?
-    MacCheckMenuItem(action->menu, index, action->action->isChecked() && action->action->isCheckable());
+    CheckMenuItem(action->menu, index, action->action->isChecked());
 }
 
 void
