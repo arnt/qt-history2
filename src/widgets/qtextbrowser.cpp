@@ -69,9 +69,10 @@
   possible to set documents by name. These names are looked up in the
   text view's mime source factory. If a document name ends with an
   anchor, for example "\c #anchor", the text browser will
-  automatically scroll accordingly ( using scrollToAnchor() ). When
-  the user clicks on a hyperlink, the browser will call setSource()
-  itself, with the link's \c href value as argument.
+  automatically scroll accordingly (using
+  QTextView::scrollToAnchor()). When the user clicks on a hyperlink,
+  the browser will call setSource() itself, with the link's \c href
+  value as argument.
 
   QTextBrowser doesn't provide actual Back and Forward buttons, but it
   has backward() and forward() slots that implement the
@@ -93,6 +94,9 @@
 
   For simpler richt text use, see QLabel, QTextView or QSimpleRichText.
 
+  Also see QTextEdit, if you need an editor widget which supports
+  richtext formatting.
+  
   <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
 */
 
@@ -113,8 +117,7 @@ public:
 };
 
 
-/*!
-  Constructs an empty QTextBrowser.
+/*!  Constructs an empty QTextBrowser.
 */
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextView( parent, name )
@@ -126,8 +129,7 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
 	     this, SLOT( setSource( const QString & ) ) );
 }
 
-/*!
-  Destructs the browser.
+/*!  \reimp
 */
 QTextBrowser::~QTextBrowser()
 {
@@ -135,9 +137,8 @@ QTextBrowser::~QTextBrowser()
 }
 
 
-/*!
-  Sets the text document with the given \a name to be displayed.  The
-  name is looked up in the mimeSourceFactory() of the browser.
+/*!  Sets the text document with the given \a name to be displayed.
+  The name is looked up in the mimeSourceFactory() of the browser.
 
   In addition to the factory lookup, this functions also checks for
   optional anchors and scrolls the document accordingly.
@@ -247,9 +248,9 @@ void QTextBrowser::setSource(const QString& name)
 #endif
 }
 
-/*!
-  Returns the source of the currently display document. If no document is displayed or
-  the source is unknown, a null string is returned.
+/*!  Returns the source of the currently display document. If no
+  document is displayed or the source is unknown, a null string is
+  returned.
 
   \sa setSource()
  */
@@ -261,48 +262,30 @@ QString QTextBrowser::source() const
 	return d->stack.top();
 }
 
+/*!  \fn void QTextBrowser::backwardAvailable(bool available)
 
-/*!
-  Sets the contents of the browser to \a text, and emits the
-  textChanged() signal.
-*/
-void QTextBrowser::setText( const QString& text, const QString& context )
-{
-    QTextView::setText( text, context );
-    emit QTextView::textChanged();
-}
-
-/*!
-  \fn void QTextBrowser::backwardAvailable(bool available)
   This signal is emitted when the availability of the backward()
-  changes.  It becomes available when the user navigates forward,
-  and unavailable when the user is at the home().
+  changes.  It becomes available when the user navigates forward, and
+  unavailable when the user is at the home().
 */
 
-/*!
-  \fn void QTextBrowser::forwardAvailable(bool available)
+/*!  \fn void QTextBrowser::forwardAvailable(bool available)
+
   This signal is emitted when the availability of the forward()
-  changes.  It becomes available after backward() is activated,
-  and unavailable when the user navigates or goes forward() to
-  the last navigated document.
+  changes.  It becomes available after backward() is activated, and
+  unavailable when the user navigates or goes forward() to the last
+  navigated document.
 */
 
-/*!
-  \fn void QTextBrowser::highlighted (const QString &href)
+/*!  \fn void QTextBrowser::highlighted (const QString &href)
+
   This signal is emitted when the user has selected but not activated
-  a link in the document.  \a href is the value of the href tag
-  in the link.
+  a link in the document.  \a href is the value of the href tag in the
+  link.
 */
 
-/*!
-  \fn void QTextBrowser::textChanged()
-  This signal is emitted whenever the setText() changes the
-  contents (eg. because the user clicked on a link).
-*/
-
-/*!
-  Changes the document displayed to be the previous document
-  in the list of documents build by navigating links.
+/*!  Changes the document displayed to be the previous document in the
+  list of documents build by navigating links.
 
   \sa forward(), backwardAvailable()
 */
@@ -315,9 +298,8 @@ void QTextBrowser::backward()
     emit forwardAvailable( TRUE );
 }
 
-/*!
-  Changes the document displayed to be the next document
-  in the list of documents build by navigating links.
+/*!  Changes the document displayed to be the next document in the
+  list of documents build by navigating links.
 
   \sa backward(), forwardAvailable()
 */
@@ -329,8 +311,7 @@ void QTextBrowser::forward()
     emit forwardAvailable( !d->forwardStack.isEmpty() );
 }
 
-/*!
-  Changes the document displayed to be the first document the
+/*!  Changes the document displayed to be the first document the
   browser displayed.
 */
 void QTextBrowser::home()
