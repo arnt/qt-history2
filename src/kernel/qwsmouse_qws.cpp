@@ -103,7 +103,7 @@ static QPoint mousePos;
 
 class QAutoMouseSubHandler {
 protected:
-    enum { max_buf=32, gracious_goodness=10 };
+    enum { max_buf=32 };
 
     int fd;
 
@@ -135,7 +135,7 @@ public:
     }
 
     void worse(int by=1) { badness+=by; }
-    bool reliable() const { return goodness >= 20 && badness < 20; }
+    bool reliable() const { return goodness >= 5 && badness < 20; }
     int buttonState() const { return bstate; }
     bool motionPending() const { return motion!=QPoint(0,0); }
     QPoint takeMotion() { QPoint r=motion; motion=QPoint(0,0); return r; }
