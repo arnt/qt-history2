@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#131 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#132 $
 **
 ** Global type declarations and definitions
 **
@@ -190,48 +190,6 @@
 
 
 //
-// Specify to use macro or template classes (if not set from cmd line)
-//
-
-#define USE_MACROCLASS				/* always use macro classes */
-#define USE_TEMPLATECLASS			/* use template classes */
-
-
-//
-// Some compilers do not support templates
-//
-
-#if defined(_CC_MPW_) || (defined(_CC_MSVC_) && _MSC_VER < 900)
-#define NO_TEMPLATECLASS
-#endif
-
-#if defined(NO_TEMPLATECLASS)
-#undef	USE_TEMPLATECLASS			/* templates not wanted */
-#endif
-
-
-//
-// Smart setting/checking of DEFAULT_ flag
-//
-
-#if !defined(DEFAULT_MACROCLASS) && !defined(DEFAULT_TEMPLATECLASS)
-#if defined(USE_TEMPLATECLASS)
-#define DEFAULT_TEMPLATECLASS
-#else
-#define DEFAULT_MACROCLASS
-#endif
-#endif
-
-#if !defined(USE_TEMPLATECLASS) && defined(DEFAULT_TEMPLATECLASS)
-#error "Can't use templates as default when USE_TEMPLATECLASS is not defined!"
-#endif
-
-#if defined(DEFAULT_MACROCLASS) && defined(DEFAULT_TEMPLATECLASS)
-#error "Define DEFAULT_MACROCLASS or DEFAULT_TEMPLATECLASS, not both!"
-#endif
-
-
-//
 // Some classes do not permit copies to be made of an object.
 // These classes contains a private copy constructor and operator=
 // to disable copying (the compiler gives an error message).
@@ -398,46 +356,13 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif // NO_WARNINGS
 
 //
-// Avoid compiler warning "argument defined but not used"
-//
-
-#if !defined(NOT_USED)
-#define NOT_USED(argument) argument=argument;
-#endif
-
-//
 // Avoid dead code
 //
 
 #if defined(_CC_EDG_) || defined(_CC_WAT_)
-#define NO_DEADCODE
+#define Q_NO_DEAD_CODE
 #endif
 
-//
-// Avoid compiler warning "function defined but not used" (gcc only)
-//
-
-#if defined(NOT_USED_FN)
-// user provided
-#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-#define NOT_USED_FN __attribute__ ((unused))
-#else
-#define NOT_USED_FN
-#endif
-
-//
-// Avoid "char ident[54] defined but not used" for the RCS tag
-//
-
-#if !defined(DEBUG)
-#define RCSTAG(string)
-#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-#define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string
-#elif defined(_CC_DEC_) || defined(_CC_COMEAU_)
-#define RCSTAG(string) typedef int QUnusedSemicolon
-#else
-#define RCSTAG(string)
-#endif
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_)
@@ -465,10 +390,10 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 	warning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #endif
 
-Q_EXPORT bool chk_pointer( bool c, const char *, int );
+Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if defined(CHECK_NULL)
-#define CHECK_PTR(p) (chk_pointer((p)==0,__FILE__,__LINE__))
+#define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
 #define CHECK_PTR(p)
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#60 $
 **
 ** Global functions
 **
@@ -334,7 +334,7 @@ void fatal( const char *msg, ... )
 //
 
 Q_EXPORT
-bool chk_pointer( bool c, const char *n, int l )
+bool qt_check_pointer( bool c, const char *n, int l )
 {
     if ( c )
 	fatal( "In file %s, line %d: Out of memory", n, l );
