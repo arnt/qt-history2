@@ -357,8 +357,8 @@ void QWSDisplayData::init()
 	exit(1);
     }
 
-    probe_bus();
-    
+    qt_probe_bus();
+
     int offset=qt_screen->screenSize();
 
     int mouseoffset=qt_screen->initCursor(offscreenaddress + ramsize);
