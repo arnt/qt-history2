@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#238 $
 **
 ** Implementation of QApplication class
 **
@@ -276,6 +276,9 @@ static QColor * winHighlightColor = 0;
 
 static void create_palettes()			// creates default palettes
 {
+    if ( stdPalette )
+        delete stdPalette;
+    
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
@@ -418,8 +421,8 @@ QApplication::QApplication( int &argc, char **argv )
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
-	argc = 0;
-	argv = &empty;
+        argc = 0;
+        argv = &empty;
     }
 
     qt_init( &argc, argv );
@@ -470,14 +473,14 @@ void QApplication::initialize( int argc, char **argv )
     quit_now = FALSE;
     quit_code = 0;
     if ( !app_pal ) {				// palette not already set
-	create_palettes();
-	app_pal = new QPalette( *stdPalette );
-	CHECK_PTR( app_pal );
+        create_palettes();
+        app_pal = new QPalette( *stdPalette );
+        CHECK_PTR( app_pal );
     }
     if ( !app_font ) {				// font not already set
-	app_font = new QFont;
-	app_font->setCharSet( QFont::defaultFont().charSet() );
-	CHECK_PTR( app_font );
+        app_font = new QFont;
+        app_font->setCharSet( QFont::defaultFont().charSet() );
+        CHECK_PTR( app_font );
     }
 
     QWidget::createMapper();			// create widget mapper
@@ -485,9 +488,9 @@ void QApplication::initialize( int argc, char **argv )
 
     if (!app_style) {
 #if defined(_WS_WIN_)
-	app_style = new QWindowsStyle;// default style for Windows
+        app_style = new QWindowsStyle;// default style for Windows
 #elif defined(_WS_X11_)
-	app_style = new QMotifStyle;// default style for X Windows
+        app_style = new QMotifStyle;// default style for X Windows
 #endif
     }
 
@@ -497,8 +500,8 @@ void QApplication::initialize( int argc, char **argv )
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
 
     if ( makeqdevel ) {
-	qdevel = new QDeveloper;
-	qdevel->show();
+        qdevel = new QDeveloper;
+        qdevel->show();
     }
 
     // connect to the session manager
@@ -783,24 +786,30 @@ QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
-	qWarning( "QApplication::palette: This function can only be "
-		 "called after the QApplication object has been created" );
+        qWarning( "QApplication::palette: This function can only be "
+                  "called after the QApplication object has been created" );
     }
 #endif
+    if ( !app_pal ) {
+        if ( !stdPalette )
+            create_palettes();
+        app_pal = new QPalette( *stdPalette );
+    }
+    
     if ( w && app_palettes ) {
-	QDictIterator<QPalette> it( *app_palettes );
-	const char* name;
-	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
-	    if ( w->isA(name) )
-		return *it.current();
-	    ++it; // ### ++it at end of loop, not beginning
-	}
-	(void) it.toFirst();
-	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
-	    if ( w->inherits( name ) )
-		return *it.current();
-	    ++it; // ### ++it at end of loop, not beginning
-	}
+        QDictIterator<QPalette> it( *app_palettes );
+        const char* name;
+        while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+            if ( w->isA(name) )
+                return *it.current();
+            ++it; // ### ++it at end of loop, not beginning
+        }
+        (void) it.toFirst();
+        while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+            if ( w->inherits( name ) )
+                return *it.current();
+            ++it; // ### ++it at end of loop, not beginning
+        }
     }
     return *app_pal;
 }
