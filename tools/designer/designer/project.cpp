@@ -584,7 +584,6 @@ static QDomElement loadSingleProperty( QDomElement e, const QString& name )
 	if ( n.tagName() == "property" && n.toElement().attribute("name") == name )
 	    return n;
     }
-    qDebug("loaded single property " + name + ":" + n.firstChild().firstChild().toText().data());
     return n;
 }
 
