@@ -42,10 +42,12 @@
 # define QMAC_FONT_ANTIALIAS
 #endif
 #ifdef QMAC_FONT_ANTIALIAS
-# ifndef QMAC_FONT_ATSUI
-#  warning "Fancy anti-aliasing not available without ATSUI"
-# else
+# ifdef QMAC_FONT_ATSUI
 #  include <ApplicationServices/ApplicationServices.h>
+# else
+#  define kQDUseCGTextRendering (1 << 1)
+#  define kQDUseCGTextMetrics (1 << 2)
+   extern "C" UInt32 SwapQDTextFlags(UInt32);
 # endif
 #endif
 #include <stdlib.h>
@@ -940,6 +942,10 @@ void QFont::initialize()
     if(!QFontPrivate::fontCache)
 	QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR(QFontPrivate::fontCache);
+#if defined( QMAC_FONT_ANTIALIAS ) && !defined( QMAC_FONT_ATSUI )
+    SwapQDTextFlags(kQDUseCGTextMetrics | kQDUseCGTextRendering);
+#endif
+
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
