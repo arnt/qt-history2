@@ -15,14 +15,7 @@ diff -uwr template/Makefile freebsd-gcc-shared/Makefile
 diff -uwr template/library/Makefile freebsd-gcc-shared/library/Makefile
 --- template/library/Makefile	Thu Aug 22 20:31:45 1996
 +++ freebsd-gcc-shared/library/Makefile	Thu Aug 22 20:36:55 1996
-@@ -80,15 +80,16 @@
- 
- # VERSION - the version number of the shared library, where applicable
- 
--VERSION=0.9.9
-+VERSION=0.909
- 
- # Creates the library when all files have been compiled
+@@ -80,9 +80,10 @@
  
  library: $(OBJECTS) $(METAOBJ)
  	-rm -f ../lib/libqt.so.$(VERSION)
