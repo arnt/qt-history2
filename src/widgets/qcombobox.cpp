@@ -1435,6 +1435,16 @@ void QComboBox::focusInEvent( QFocusEvent * e )
 /*!\reimp
 */
 
+void QComboBox::focusOutEvent( QFocusEvent * e )
+{
+    QWidget::focusOutEvent( e );
+    d->completeNow = FALSE;
+    d->completeAt = 0;
+}
+
+/*!\reimp
+*/
+
 void QComboBox::wheelEvent( QWheelEvent *e )
 {
     if ( d->poppedUp ) {
@@ -1662,12 +1672,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );
 	    return ((QKeyEvent *)event)->isAccepted();
-	} else if ( (event->type() == QEvent::FocusIn ||
-		     event->type() == QEvent::FocusOut ) ) {
-	    d->completeNow = FALSE;
-	    d->completeAt = 0;
-	    // to get the focus indication right
-	    update();
+	} else if ( event->type() == QEvent::FocusIn ) {
+	    focusInEvent( (QFocusEvent *)event );
+	} else if ( event->type() == QEvent::FocusOut ) {
+	    focusOutEvent( (QFocusEvent *)event );
 	} else if ( d->useCompletion && d->completeNow ) {
 	    if ( !d->ed->text().isNull() &&
 		 d->ed->cursorPosition() > d->completeAt &&

@@ -169,6 +169,7 @@ protected:
     void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent *e );
     void	focusInEvent( QFocusEvent *e );
+    void	focusOutEvent( QFocusEvent *e );
     void	wheelEvent( QWheelEvent *e );
     void	styleChange( QStyle& );
 
