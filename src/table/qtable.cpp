@@ -3504,7 +3504,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		if ( ke->key() == Key_Tab ) {
 		    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
 		    while ( cc < numCols() ) {
-			if ( !isColumnReadOnly( cc ) )
+			QTableItem *i = item( currentRow(), cc );
+			if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
 			    break;
 			++cc;
 		    }
@@ -3512,7 +3513,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		} else { // Key_BackTab
 		    int cc  = QMAX( 0, currentColumn() - 1 );
 		    while ( cc >= 0 ) {
-			if ( !isColumnReadOnly( cc ) )
+			QTableItem *i = item( currentRow(), cc );
+			if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
 			    break;
 			--cc;
 		    }
