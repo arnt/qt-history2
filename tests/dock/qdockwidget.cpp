@@ -34,6 +34,10 @@ public:
     QDockWidgetHandle( QDockWidget *dw );
     void updateGui();
 
+    QSize minimumSizeHint() const;
+    QSize minimumSize() const { return minimumSizeHint(); }
+    QSize sizeHint() const { return minimumSize(); }
+    
 protected:
     void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -122,6 +126,13 @@ void QDockWidgetHandle::updateGui()
 	closeButton->move( 2, 2 );
     else
 	closeButton->move( width() - closeButton->width() - 2, 2 );
+}
+
+QSize QDockWidgetHandle::minimumSizeHint() const
+{
+    if ( dockWidget->orientation() == Horizontal )
+	return QSize( 14, 0 );
+    return QSize( 0, 14 );
 }
 
 
@@ -289,8 +300,10 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
 void QDockWidget::updateGui()
 {
-    addX = addY = 0;
+    addX = addY = 2;
     if ( curPlace == OutsideDock ) {
+	addX++;
+	addY++;
 	handle->hide();
 	titleBar->setGeometry( 2, 2, width() - 4, titleBar->sizeHint().height() - 4 );
 	if ( wid )
@@ -298,21 +311,19 @@ void QDockWidget::updateGui()
 	titleBar->show();
 	titleBar->updateGui();
 	setLineWidth( 2 );
-	addX = titleBar->height();
+	addY += titleBar->height();
     } else {
 	titleBar->hide();
 	if ( dockArea && dockArea->orientation() == Horizontal ) {
-	    handle->setMinimumWidth( 14 );
 	    handle->setGeometry( 1, 1, handle->sizeHint().width() - 2, height() - 2 );
 	    if ( wid )
 		wid->setGeometry( handle->width() + 1, 1, width() - handle->width() - 2, height() - 2);
-	    addY = handle->width();
+	    addX += handle->width();
 	} else {
-	    handle->setMinimumHeight( 14 );
 	    handle->setGeometry( 1, 1, width() - 2, handle->sizeHint().height() - 2 );
 	    if ( wid )
 		wid->setGeometry( 1, handle->height() + 1, width() - 2, height() - handle->height() - 2 );
-	    addX = handle->height();
+	    addY += handle->height();
 	}
 	handle->show();
 	handle->updateGui();
@@ -480,11 +491,11 @@ void QDockWidget::unsetSizeHint()
 void QDockWidget::updateSizePolicy()
 {
     if ( !dockArea || dockArea->orientation() == Horizontal )
- 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed,
-				    isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed ) );
+ 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+				    isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
     else
- 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed,
-				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed ) );
+ 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
 }
 
 void QDockWidget::setHorizontalStretchable( bool b )

@@ -176,7 +176,6 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
     insertedSplitters.setAutoDelete( TRUE );
     dockWidgets.setAutoDelete( TRUE );
     setMinimumSize( 3, 3 );
-    toolbarHackFor30Development = TRUE;
 }
 
 void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )

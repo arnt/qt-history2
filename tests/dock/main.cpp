@@ -2,12 +2,13 @@
 #include "qdockwidget.h"
 #include "qdockarea.h"
 #include <qtoolbar.h>
-#include <qpushbutton.h>
+#include <qtoolbutton.h>
 #include <qmultilineedit.h>
 #include <qmainwindow.h>
 #include <qhbox.h>
 #include <qvbox.h>
 #include <qlistview.h>
+#include "fileopen.xpm"
 
 class MyMainWindow : public QMainWindow
 {
@@ -46,17 +47,24 @@ int main( int argc, char ** argv )
 
     dw = new QDockWidget( 0 );
     dw->setGeometry( 60, 60, 200, 70 );
-
+    
     QToolBar *b = new QToolBar( "", 0, dw );
-    new QPushButton( "1", b );
-    new QPushButton( "2", b );
-    new QPushButton( "3", b );
-    new QPushButton( "4", b );
-    new QPushButton( "5", b );
+    b->setShowHandle( FALSE );
+    QToolButton *t = new QToolButton( b );
+    t->setPixmap( QPixmap( fileopen ) );
+    t = new QToolButton( b );
+    t->setPixmap( QPixmap( fileopen ) );
+    t = new QToolButton( b );
+    t->setPixmap( QPixmap( fileopen ) );
+    t = new QToolButton( b );
+    t->setPixmap( QPixmap( fileopen ) );
+    t = new QToolButton( b );
+    t->setPixmap( QPixmap( fileopen ) );
     dw->setWidget( b );
     dw->setResizeEnabled( FALSE );
     dw->setCloseEnabled( FALSE );
     dw->show();
-
+    dw->adjustSize();
+    
     return a.exec();
 }
