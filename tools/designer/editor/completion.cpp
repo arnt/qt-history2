@@ -347,9 +347,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
 	    if ( ke->key() == Key_Tab ) {
 		if ( curEditor->textCursor()->index() == 0 &&
-		     curEditor->textCursor()->paragraph()->style() &&
-		     curEditor->textCursor()->paragraph()->style()->displayMode() ==
-		     QStyleSheetItem::DisplayListItem )
+		     curEditor->textCursor()->paragraph()->isListItem() )
 		    return FALSE;
 		if ( doCompletion() )
 			return TRUE;

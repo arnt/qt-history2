@@ -141,8 +141,8 @@ void Editor::doChangeInterval()
 
 void Editor::commentSelection()
 {
-    QTextParagraph *start = document()->selectionStart( QTextDocument::Standard );
-    QTextParagraph *end = document()->selectionEnd( QTextDocument::Standard );
+    QTextParagraph *start = document()->selectionStartCursor( QTextDocument::Standard ).paragraph();
+    QTextParagraph *end = document()->selectionEndCursor( QTextDocument::Standard ).paragraph();
     if ( !start || !end )
 	start = end = textCursor()->paragraph();
     while ( start ) {
@@ -160,8 +160,8 @@ void Editor::commentSelection()
 
 void Editor::uncommentSelection()
 {
-    QTextParagraph *start = document()->selectionStart( QTextDocument::Standard );
-    QTextParagraph *end = document()->selectionEnd( QTextDocument::Standard );
+    QTextParagraph *start = document()->selectionStartCursor( QTextDocument::Standard ).paragraph();
+    QTextParagraph *end = document()->selectionEndCursor( QTextDocument::Standard ).paragraph();
     if ( !start || !end )
 	start = end = textCursor()->paragraph();
     while ( start ) {
