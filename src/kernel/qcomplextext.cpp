@@ -1558,11 +1558,12 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction ba
     const QChar *str_uc = ch;
     while( lineStart < len ) {
 	lineEnd = lineStart;
-	while( lineEnd < len && *ch != '\n' ) {
+	while( lineEnd <= len ) {
+	    if ( lineEnd < len && *ch == '\n' )
+		break;
 	    ch++;
 	    lineEnd++;
 	}
-	lineEnd++;
 	QPtrList<QTextRun> *runs = bidiReorderLine( &control, str, lineStart, lineEnd - lineStart, basicDir );
 
 	// reorder the content of the line, and output to visual
