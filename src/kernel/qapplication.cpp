@@ -1399,7 +1399,7 @@ QStringList QApplication::libraryPaths()
     if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
 	if ( QFile::exists( qInstallPathPlugins() ) )
-	    app_libpaths->append( qInstallPathPlugins() );
+            app_libpaths->append( qInstallPathPlugins() );
     }
     return *app_libpaths;
 }
