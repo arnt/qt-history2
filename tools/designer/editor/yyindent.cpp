@@ -298,13 +298,13 @@ static const bool& yyLeftBraceFollows = yyLinizerState.leftBraceFollows;
 */
 static bool readLine()
 {
-    static QRegExp *braceElse = 0;
+    static QRegExp *braceX = 0;
 
     int k;
 
-    if ( braceElse == 0 ) {
-	braceElse = new QRegExp( QString("^\\s*\\}\\s*else\\b") );
-	regexp_cleanup.add( &braceElse );
+    if ( braceX == 0 ) {
+	braceX = new QRegExp( QString("^\\s*\\}\\s*(?:else|catch)\\b") );
+	regexp_cleanup.add( &braceX );
     }
 
     yyLinizerState.leftBraceFollows =
@@ -398,7 +398,7 @@ static bool readLine()
 	if ( yyLinizerState.pendingRightBrace )
 	    yyLinizerState.braceDepth++;
 	yyLinizerState.pendingRightBrace =
-		( yyLinizerState.line.find(*braceElse) == 0 );
+		( yyLinizerState.line.find(*braceX) == 0 );
 	if ( yyLinizerState.pendingRightBrace )
 	    yyLinizerState.braceDepth--;
     } while ( yyLinizerState.line.isEmpty() );
@@ -529,7 +529,8 @@ static bool matchBracelessControlStatement()
 	      else
 		  y;
 	*/
-	iflikeKeyword = new QRegExp( QString("\\b(?:do|for|if|while)\\b") );
+	iflikeKeyword = new QRegExp( QString(
+		"\\b(?:catch|do|for|if|while)\\b") );
 	regexp_cleanup.add( &iflikeKeyword );
     }
 
