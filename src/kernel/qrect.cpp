@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#21 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#21 $")
 
 
 /*! \class QRect qrect.h
@@ -387,8 +387,8 @@ void QRect::setBottomLeft( const QPoint &p )
 
 
 /*!
-Sets the center point of the rectangle to \e p, leaving the size
-unchanged. \sa center()
+  Sets the center point of the rectangle to \e p, leaving the size
+  unchanged. \sa center()
 */
 
 void QRect::setCenter( const QPoint &p )
@@ -400,9 +400,6 @@ void QRect::setCenter( const QPoint &p )
     x2 = x1 + w;
     y2 = y1 + h;
 }
-
-/*! \overload void QRect::setCenter( int x, int y ) */
-
 
 
 /*!
