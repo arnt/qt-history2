@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#202 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#201 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#202 $");
 
 
 /*****************************************************************************
@@ -2499,7 +2499,8 @@ static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
 /*!
   Draws at most \e len characters from \e str at position \e (x,y).
 
-  \e (x,y) is the base line position.
+  \e (x,y) is the base line position.  Note that the meaning of \a y
+  is not the same for the two drawText() varieties.
 */
 
 void QPainter::drawText( int x, int y, const char *str, int len )
@@ -2642,10 +2643,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 /*!
   Draws at most \e len characters from \e str in the rectangle \e (x,y,w,h).
 
-  This function draws formatted text.
+  Note that the meaning of \a y is not the same for the two drawText()
+  varieties.
 
-  The \e tf text formatting is the bitwise OR of the following flags:
-  <ul>
+  This function draws formatted text.  The \e tf text formatting is
+  the bitwise OR of the following flags:  <ul>
   <li> \c AlignLeft aligns to the left border.
   <li> \c AlignRight aligns to the right border.
   <li> \c AlignHCenter aligns horizontally centered.
@@ -2660,6 +2662,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
   <li> \c WordBreak breaks the text to fit the rectangle.
   <li> \c GrayText grays out the text.
   </ul>
+
+  \a brect (if non-null) is set to the actual bounding rectangle of
+  the output.  \a internal is, yes, internal.
 
   These flags are defined in qwindefs.h.
 
