@@ -16,6 +16,7 @@
 
 #include "QtCore/qpair.h"
 #include "QtCore/qpoint.h"
+#include "QtCore/qvector.h"
 #include "QtGui/qcolor.h"
 
 struct QBrushData;
@@ -110,7 +111,7 @@ inline QBrush::operator const QColor&() const { return d->color; }
 #endif
 
 
-#if 0
+#if 1
 /*******************************************************************************
  * QGradients
  */
@@ -142,8 +143,8 @@ public:
     void appendStop(qreal pos, const QColor &color);
     void appendStop(const QGradientStop &stop);
 
-    void setStops(const QGradientStop &stops);
-    QGradientStops stops() const { return m_stops; }
+    void setStops(const QGradientStops &stops);
+    QGradientStops stops() const;
 
 private:
     friend class QLinearGradient;

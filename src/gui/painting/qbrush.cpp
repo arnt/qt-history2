@@ -687,16 +687,177 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 }
 #endif // QT_NO_DATASTREAM
 
-#if 0
+#if 1
 /*******************************************************************************
  * QGradient implementations
  */
 
 
 /*!
+    \class QGradient qbrush.h
+
+    \brief The QGradient class is used in combination with QBrush to
+    specify gradient fills.
+
+    Qt currently supports three types of gradient fills: linear,
+    radial and conical. Each of these is represented by a subclass of
+    QGradient: QLinearGradient, QRadialGradient and QConicalGradient.
+
+    The colors in a gradient is defined using stop points, which is a
+    position and a color. The set of stop points describes how the
+    gradient area should be filled. A diagonal linear gradient from
+    black at (100, 100) to white at (200, 200) could be specified like
+    this:
+
+    \code
+    QLinearGradient grad(QPointF(100, 100), QPointF(200, 200));
+    grad.appendStop(0, Qt::black);
+    grad.appendStop(1, Qt::white);
+    \endcode
+
+    A gradient can have an arbitrary number of stop points. The
+    following gradient would create a radial gradient starting with
+    red in the center, blue and then green on the edges:
+
+    \code
+    QRadialGradient grad(QPointF(100, 100), 100);
+    grad.appendStop(0, Qt::red);
+    grad.appendStop(0.5, Qt::blue);
+    grad.appendStop(1, Qt::green);
+    \endcode
+
+    It is possible to repeat or reflect the gradient outside the area
+    by specifiying spread. The default is to pad the outside area with
+    the color at the closest stop point.
+
+    \sa QLinearGradient, QRadialGradient, QConicalGradient
+*/
+
+/*!
+    \internal
+*/
+QGradient::QGradient()
+{
+}
+
+
+/*!
+    \enum QGradient::Type
+
+    Specifies the type of gradient.
+
+    \value LinearGradient The gradient is a linear gradient.
+    \value RadialGradient The gradient is a radial gradient.
+    \value ConicalGradient The gradient is a conical gradient.
+*/
+
+/*!
+    \enum QGradient::Spread
+
+    Specifies how the areas outside the gradient area should be
+    filled.
+
+    \value PadSpread The areas are filled with the closes stop
+    color. This is the default.
+
+    \value RepeatSpread The gradient repeats outside the gradient
+    area.
+
+    \value ReflectSpread The gradient is reflected outside the
+    gradient area.
+*/
+
+/*!
+    \fn void QGradient::setSpread(QGradient::Spread spread)
+
+    Specifies the spread method that should be used for this
+    gradient. This function only has effect for linear and
+    radial gradients.
+*/
+
+/*!
+    \fn QGradient::Spread QGradient::spread() const
+
+    Returns the spread method use by this gradient. The default is
+    Pad
+*/
+
+/*!
+    \fn QGradient::Type QGradient::type() const
+
+    Returns the type of gradient.
+*/
+
+/*!
+    \overload
+
+    Appends another stop point at the relative position \a pos with
+    color \a color. The position \a pos must be in the range 0 to 1
+    and must be added in increasing order.
+*/
+
+void QGradient::appendStop(qreal pos, const QColor &color)
+{
+    QGradientStop stop;
+    stop.first = pos;
+    stop.second = color;
+    appendStop(stop);
+}
+
+
+/*!
+    Appends the stop point \a stop to the gradient.. The position of \a
+    stop must be in the range 0 to 1 and must be added in increasing
+    order.
+*/
+
+void QGradient::appendStop(const QGradientStop &stop)
+{
+    if (stop.first > 1 || stop.first < 0) {
+        qWarning("QGradient::appendStop(), stop position must be in the range of 0 to 1");
+        return;
+    } else if (!m_stops.isEmpty() && stop.first <= m_stops.last().first) {
+        qWarning("QGradient::appendStop(), stops must be appended in increasing order");
+        return;
+    }
+    m_stops << stop;
+}
+
+
+/*!
+    Replaces the current set of stop points with \a stops. The
+    positions of the stop points must in the range 0 to 1 and must be
+    sorted with the lowest point first.
+*/
+void QGradient::setStops(const QGradientStops &stops)
+{
+    m_stops.clear();
+    for (int i=0; i<stops.size(); ++i)
+        appendStop(stops.at(i));
+}
+
+
+/*!
+    Returns the stops for this gradient.
+
+    If no stops have been spesified a gradient of black at 0 to white
+    at 1 is used.
+*/
+QGradientStops QGradient::stops() const
+{
+    if (m_stops.isEmpty()) {
+        QGradientStops tmp;
+        tmp << QGradientStop(0, Qt::black) << QGradientStop(1, Qt::white);
+        return tmp;
+    }
+    return m_stops;
+}
+
+
+/*!
     \class QLinearGradient qbrush.h
 
-    \brief The QLinearGradient class is used together with QBrush to
+    \brief The QLinearGradient class is used in combination with QBrush to
     specify a linear gradient brush.
 
     \sa QBrush
@@ -746,7 +907,7 @@ QPointF QLinearGradient::finalStop() const
 /*!
     \class QRadialGradient qbrush.h
 
-    \breif The QRadialGradient class is used together with QBrush to
+    \breif The QRadialGradient class is used in combination with QBrush to
     specify a radial gradient brush.
 
     \sa QBrush
@@ -809,7 +970,7 @@ QPointF QRadialGradient::focalPoint() const
 /*!
     \class QConicalGradient qbrush.h
 
-    \brief The QConicalGradient class is used together with QBrush to
+    \brief The QConicalGradient class is used in combination with QBrush to
     specify a conical gradient brush.
 
     \sa QBrush
