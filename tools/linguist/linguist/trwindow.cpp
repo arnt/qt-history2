@@ -29,10 +29,15 @@
 #include <qaccel.h>
 #include <qaction.h>
 #include <qapplication.h>
+#include <qbitmap.h>
 #include <qdict.h>
+#include <qdockarea.h>
+#include <qdockwindow.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qfileinfo.h>
+#include <qfontdialog.h>
+#include <qheader.h>
 #include <qheader.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -41,18 +46,13 @@
 #include <qpopupmenu.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
+#include <qsettings.h>
 #include <qstatusbar.h>
 #include <qtextbrowser.h>
 #include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
-#include <qsettings.h>
-#include <qfontdialog.h>
-#include <qheader.h>
 
-#include <qdockarea.h>
-#include <qdockwindow.h>
-#include <qbitmap.h>
 #include "phraselv.h"
 
 #include <images.h>
@@ -442,14 +442,24 @@ void Action::setWhatsThis( const QString& whatsThis )
 bool Action::addToToolbar( QToolBar *tb, const QString& text,
 			   const char *xpmName )
 {
-    Embed *ess = 0;
-
     setText( text );
-    ess = imageDict->find( QString("small/") + QString(xpmName) );
-    if ( ess != 0 ) {
-	QPixmap sm;
-	sm.loadFromData( ess->data, ess->size );
- 	QIconSet s( sm );
+    Embed *en = imageDict->find( QString("enabled/") + QString(xpmName) );
+    if ( en != 0 ) {
+	QPixmap enabled;
+	enabled.loadFromData( en->data, en->size );
+ 	QIconSet s( enabled );
+
+	Embed *dis = imageDict->find( QString("disabled/") + QString(xpmName) );
+	if ( dis != 0 ) {
+	    QPixmap disabled;
+	    disabled.loadFromData( dis->data, dis->size );
+	    // work around a bug in QIconSet
+	    s.setPixmap( disabled, QIconSet::Small, QIconSet::Disabled,
+			 QIconSet::On );
+	    s.setPixmap( disabled, QIconSet::Small, QIconSet::Disabled,
+			 QIconSet::Off );
+	}
+
  	setIconSet( s );
     }
     return QAction::addTo( tb );
@@ -457,14 +467,14 @@ bool Action::addToToolbar( QToolBar *tb, const QString& text,
 
 const QPixmap TrWindow::splash()
 {
-    Embed *ess = 0;
+    Embed *splash = 0;
 
     setupImageDict();
-    ess = imageDict->find( QString("splash.png") );
-    if ( ess == 0 )
+    splash = imageDict->find( QString("splash.png") );
+    if ( splash == 0 )
 	return 0;
     QPixmap pixmap;
-    pixmap.loadFromData( ess->data, ess->size );
+    pixmap.loadFromData( splash->data, splash->size );
     return pixmap;
 }
 
@@ -485,8 +495,7 @@ const QPixmap TrWindow::pageCurl()
 }
 
 TrWindow::TrWindow()
-    : QMainWindow( 0, "translation window",
-		   WType_TopLevel | WDestructiveClose )
+    : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
     setIcon( QPixmap(logo_xpm) );
 
@@ -691,13 +700,13 @@ void TrWindow::openFile( const QString& name )
 		if ( (*it).sourceText()[0] == '\0' ) {
 		    c->appendToComment( tor.toUnicode((*it).comment()) );
 		} else {
-		    MessageLVI * tmp = new MessageLVI( slv,
-					   (*it),
+		    MessageLVI * tmp = new MessageLVI( slv, *it,
 					   tor.toUnicode((*it).sourceText()),
 					   tor.toUnicode((*it).comment()), c );
 		    tmp->setDanger( danger(tmp->sourceText(),
 					   tmp->translation()) &&
-					   tmp->message().type() == MetaTranslatorMessage::Finished );
+				    tmp->message().type() ==
+				    MetaTranslatorMessage::Finished );
 		    c->instantiateMessageItem( slv, tmp );
 
 		    if ( (*it).type() != MetaTranslatorMessage::Obsolete ) {
@@ -728,8 +737,8 @@ void TrWindow::openFile( const QString& name )
 	    finishedAndNextAct->setEnabled( FALSE );
 	    messageIsShown = FALSE;
 	    statusBar()->message(
-		tr("%1 source phrase(s) loaded.").arg(numMessages),
-		MessageMS );
+		    tr("%1 source phrase(s) loaded.").arg(numMessages),
+		    MessageMS );
 
 	    foundItem = 0;
 	    foundWhere = 0;
@@ -756,7 +765,7 @@ void TrWindow::open()
     if ( maybeSave() ) {
 	QString newFilename = QFileDialog::getOpenFileName( filename,
 				      tr("Qt translation source (*.ts)\n"
-				      "All files (*)"), this );
+					 "All files (*)"), this );
 	openFile( newFilename );
     }
 }
