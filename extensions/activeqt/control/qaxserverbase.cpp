@@ -111,8 +111,11 @@ class QAxServerBase :
     public IOleObject,
     public IOleControl,
 #if defined Q_CC_GNU
+#   include <w32api.h>
+#   if (__W32API_MAJOR_VERSION < 2 || (__W32API_MAJOR_VERSION == 2 && __W32API_MINOR_VERSION < 5))
     public IViewObject, // this should not be needed as IViewObject2 is meant to inherit from this,
                         // untill the mingw headers are fixed this will need to stay.
+#   endif
 #endif
     public IViewObject2,
     public IOleInPlaceObject,
