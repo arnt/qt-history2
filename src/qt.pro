@@ -218,6 +218,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
+		  $$WIDGETS_H/qworkspace.h \
+		  $$WIDGETS_H/qworkspacechild.h \
 	          $$WIDGETS_H/qiconview.h \
         	  $$WIDGETS_H/qdial.h
 
@@ -400,6 +402,8 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
+		  dialogs/qworkspace.cpp \
+		  dialogs/qworkspacechild.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
