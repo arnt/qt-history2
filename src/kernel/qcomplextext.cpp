@@ -1109,8 +1109,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 				++eor; sor = eor; status.eor = QChar::DirON;
 				dir = QChar::DirR;
 			    }
-			    else
-				eor = current - 1;
+			    eor = current - 1;
 			    runs->append( new QTextRun(sor, eor, context, dir) );
 			    ++eor; sor = eor; dir = direction( unicode[eor] ); status.eor = dir;
 			} else {
