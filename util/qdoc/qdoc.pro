@@ -68,7 +68,7 @@ unix:SOURCES+=../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qregexp.cpp \
 		  ../../src/tools/qstring.cpp \
 		  ../../src/tools/qstringlist.cpp \
-		  ../../src/tools/qtextcodec.cpp \
+		  ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qtextstream.cpp \
 		  ../../src/tools/qdir_unix.cpp \
 		   ../../src/tools/qfile_unix.cpp \
