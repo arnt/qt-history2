@@ -64,7 +64,20 @@ QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter* painter, int x, int y, int w
 {
     begin( painter, x, y, w, h );
 }
- 
+
+QSharedDoubleBuffer::QSharedDoubleBuffer( QWidget *widget, const QRect &r )
+    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0)
+{
+    begin( widget, r.x(), r.y(), r.width(), r.height() );
+}
+
+QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter *painter, const QRect &r )
+    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0)
+{
+    begin( painter, r.x(), r.y(), r.width(), r.height() );
+}
+
+
 QSharedDoubleBuffer::~QSharedDoubleBuffer()
 {
     if ( wid )
@@ -80,11 +93,11 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 #endif
         return FALSE;
     }
-    
+
     xp = painter;
-    
+
     if ( xp->device()->devType() == QInternal::Widget ) {
-	if (!buffer_disabled ) 
+	if (!buffer_disabled )
 	    return begin( (QWidget*) xp->device(), x, y, w, h );
 	if ( w < 0 )
 	    w = wid->width();
@@ -105,11 +118,11 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 #endif
         return FALSE;
     }
-    
+
     wid = widget;
     if ( !wid )
 	return FALSE;
-    
+
     if ( w < 0 )
 	w = wid->width();
     if ( h < 0 )
@@ -120,7 +133,7 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 	p = new QPainter( widget );
 	return TRUE;
     }
-    
+
     rx = x;
     ry = y;
     rw = w;
@@ -174,12 +187,6 @@ bool QSharedDoubleBuffer::isActive() const
     return p != 0;
 }
 
-QPainter* QSharedDoubleBuffer::painter() const
-{
-    return p;
-}
-
-
 void QSharedDoubleBuffer::flush()
 {
     if ( !pix )
@@ -188,6 +195,6 @@ void QSharedDoubleBuffer::flush()
 	xp->drawPixmap( rx, ry, *pix, 0, 0, rw, rh );
     else if ( wid && wid->isVisible() )
 	bitBlt( wid, rx, ry, pix, 0, 0, rw, rh );
-    
+
 
 }

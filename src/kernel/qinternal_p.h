@@ -50,6 +50,7 @@
 //
 //
 #include <qnamespace.h>
+#include <qrect.h>
 
 class QWidget;
 class QPainter;
@@ -59,12 +60,16 @@ class Q_EXPORT QSharedDoubleBuffer
 {
 public:
     QSharedDoubleBuffer();
-    QSharedDoubleBuffer( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1);
-    QSharedDoubleBuffer( QPainter* painter, int x = 0, int y = 0, int w = -1, int h = -1);
+    QSharedDoubleBuffer( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1 );
+    QSharedDoubleBuffer( QPainter* painter, int x = 0, int y = 0, int w = -1, int h = -1 );
+    QSharedDoubleBuffer( QWidget *widget, const QRect &r );
+    QSharedDoubleBuffer( QPainter *painter, const QRect &r );
     ~QSharedDoubleBuffer();
 
-    bool begin( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1);
-    bool begin( QPainter* painter, int x = 0, int y = 0, int w = -1, int h = -1);
+    bool begin( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1 );
+    bool begin( QPainter* painter, int x = 0, int y = 0, int w = -1, int h = -1 );
+    bool begin( QWidget* widget, const QRect &r );
+    bool begin( QPainter* painter, const QRect &r );
     bool end();
 
     QPainter* painter() const;
@@ -78,5 +83,14 @@ private:
     QPainter *p, *xp;
     QPixmap* pix;
 };
+
+inline bool QSharedDoubleBuffer::begin( QWidget* widget, const QRect &r )
+{ return begin( widget, r.x(), r.y(), r.width(), r.height() ); }
+
+inline bool QSharedDoubleBuffer::begin( QPainter *painter, const QRect &r )
+{ return begin( painter, r.x(), r.y(), r.width(), r.height() ); }
+
+inline QPainter* QSharedDoubleBuffer::painter() const
+{ return p; }
 
 #endif QINTERNAL_P_H
