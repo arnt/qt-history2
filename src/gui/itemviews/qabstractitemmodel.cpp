@@ -778,8 +778,8 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     \a role. The list may be empty. The search starts from index \a
     start and continues until the number of matching data items equals
     \a hits or the search reaches the last row or \a start, depending
-    on whether \a wrap is true (search from \a start and work
-    forwards), or false (search from \a start and work backwards).
+    on whether \a wrap is true (search wraps around), or false
+    (searches from \a start to the last row).
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits, bool wrap) const
