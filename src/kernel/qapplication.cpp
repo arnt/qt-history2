@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#286 $
 **
 ** Implementation of QApplication class
 **
@@ -77,7 +77,7 @@
   details about this.
 
   <li> It defines the application's look and feel, which is
-  encapsulate in a QStyle object. This can be changed during runtime
+  encapsulated in a QStyle object. This can be changed during runtime
   with setStyle().
 
   <li> It specifies how the application is to allocate colors.
