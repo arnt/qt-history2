@@ -487,11 +487,11 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     dgl->makeCurrent();
     if (hints & QPainter::LineAntialiasing) {
   	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- 	glEnable(GL_POLYGON_SMOOTH);
+ 	// glEnable(GL_POLYGON_SMOOTH); // not supported properly - too many artifacts
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
     } else { // i.e. !LineAntialiasing
-	glDisable(GL_POLYGON_SMOOTH);
+	// glDisable(GL_POLYGON_SMOOTH);
 	glDisable(GL_LINE_SMOOTH);
     }
 }
@@ -529,13 +529,6 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
 	}
     }
 
-    // The below seems strange and gives different results on
-    // different systems - keep it like this for now since it seems to
-    // work best with newer GL drivers (e.g. from NVidia).
-    w--;
-    h--;
-    y++;
-
     if (d->cpen.style() != Qt::NoPen) {
         // Specify the outline as 4 separate lines since a quad or a
         // polygon won't give us exactly what we want
@@ -544,9 +537,9 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
             glVertex2f(x, y);
             glVertex2f(x+w, y);
             glVertex2f(x+w, y-1);
-            glVertex2f(x+w, y+h-1);
-            glVertex2f(x+w+1, y+h);
-            glVertex2f(x+1, y+h);
+            glVertex2f(x+w, y+h);
+            glVertex2f(x+w, y+h);
+            glVertex2f(x, y+h);
             glVertex2f(x, y+h);
             glVertex2f(x, y);
         }
