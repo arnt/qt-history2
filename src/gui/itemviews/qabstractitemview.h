@@ -23,6 +23,7 @@
 #include <qdatetime.h>
 #endif
 
+class QMenu;
 class QAbstractItemViewPrivate;
 
 class Q_GUI_EXPORT QAbstractItemView : public QViewport
@@ -116,7 +117,7 @@ signals:
     void returnPressed(const QModelIndex &index);
     void spacePressed(const QModelIndex &index);
     void deletePressed(const QModelIndex &index);
-    void contextMenuRequested(const QModelIndex &index, const QPoint &position);
+    void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);

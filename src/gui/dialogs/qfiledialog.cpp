@@ -286,12 +286,10 @@ public:
     QFileDialogLineEdit *fileName;
     QComboBox *fileType;
 
-    QMenu *fileContextMenu;
     QAction *openAction;
     QAction *renameAction;
     QAction *deleteAction;
-    
-    QMenu *viewContextMenu;
+
     QAction *reloadAction;
     QAction *sortByNameAction;
     QAction *sortBySizeAction;
@@ -348,8 +346,13 @@ QStringList QFileDialog::selectedFiles() const
     QModelIndexList items = d->selectedItems();
     //qDebug("selected items list count %d", items.count());
     QStringList files;
-    for (int i = 0; i < items.count(); ++i)
-        files.append(d->model->fileInfo(items.at(i)).filePath());
+    int r = -1;
+    for (int i = 0; i < items.count(); ++i) {
+        if (items.at(i).row() != r) {
+            files.append(d->model->fileInfo(items.at(i)).filePath());
+            r = items.at(i).row();
+        }
+    }
     if (d->fileMode == AnyFile && files.count() <= 0) // a new filename
         files.append(d->fileName->text());
     return files;
@@ -613,45 +616,26 @@ void QFileDialog::setCurrentDir(const QString &path)
     d->updateButtons(index);
 }
 
-void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &position)
+void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) const
 {
-    QAbstractItemView *view = d->listMode->isDown()
-                              ? static_cast<QAbstractItemView*>(d->lview)
-                              : static_cast<QAbstractItemView*>(d->tview);
     if (index.isValid()) {
-        bool editable = d->model->isEditable(index);
-        bool children = d->model->hasChildren(index);
-        d->renameAction->setEnabled(editable);
-        d->deleteAction->setEnabled(editable && !children);
-        QAction *selected = d->fileContextMenu->exec(view->mapToGlobal(position));
-        if (selected == d->openAction)
-            accept();
-        else if (selected == d->renameAction)
-            view->edit(index);
-        else if (selected == d->deleteAction)
-            deletePressed(index);
+        // file context menu
+        menu->addAction(d->openAction);
+        menu->addSeparator();
+        menu->addAction(d->renameAction);
+        menu->addAction(d->deleteAction);
     } else {
-        QAction *selected = d->viewContextMenu->exec(view->mapToGlobal(position));
-        if (selected == d->reloadAction) {
-            d->refresh();
-        } else if (selected == d->showHiddenAction) {
-            int filter = (d->showHiddenAction->isChecked()
-                          ? d->model->filter() & ~QDir::Hidden
-                          : d->model->filter() | QDir::Hidden);
-            d->setDirFilter(filter);
-        } else if (selected == d->sortByNameAction) {
-            d->setDirSorting(QDir::Name|QDir::DirsFirst
-                             |(d->model->filter() & QDir::Reversed));
-        } else if (selected == d->sortBySizeAction) {
-            d->setDirSorting(QDir::Size|QDir::DirsFirst
-                             |(d->model->filter() & QDir::Reversed));
-        } else if (selected == d->sortByDateAction) {
-            d->setDirSorting(QDir::Time|QDir::DirsFirst
-                             |(d->model->filter() & QDir::Reversed));
-        } else if (selected == d->unsortedAction) {
-            d->setDirSorting(QDir::Unsorted|QDir::DirsFirst
-                             |(d->model->filter() & QDir::Reversed));
-        }
+        // view context menu
+        menu->addAction(d->reloadAction);
+        QMenu *sort = new QMenu();
+        menu->addMenu("Sort", sort);
+        sort->addAction(d->sortByNameAction);
+        sort->addAction(d->sortBySizeAction);
+        sort->addAction(d->sortByDateAction);
+        sort->addSeparator();
+        sort->addAction(d->unsortedAction);
+        menu->addSeparator();
+        menu->addAction(d->showHiddenAction);
     }
 }
 
@@ -694,6 +678,52 @@ void QFileDialog::headerClicked(int section)
     header->setSortIndicator(section, order);
 }
 
+void QFileDialog::renameCurrent()
+{
+    QAbstractItemView *view = d->listMode->isDown()
+                              ? static_cast<QAbstractItemView*>(d->lview)
+                              : static_cast<QAbstractItemView*>(d->tview);
+    view->edit(d->current());
+}
+
+void QFileDialog::deleteCurrent()
+{
+    deletePressed(d->current());
+}
+
+void QFileDialog::reload()
+{
+    d->refresh();
+}
+
+void QFileDialog::sortByName()
+{
+    d->setDirSorting(QDir::Name|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+}
+
+void QFileDialog::sortBySize()
+{
+    d->setDirSorting(QDir::Size|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+}
+
+void QFileDialog::sortByDate()
+{
+    d->setDirSorting(QDir::Time|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+}
+
+void QFileDialog::setUnsorted()
+{
+    d->setDirSorting(QDir::Unsorted|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+}
+
+void QFileDialog::showHidden()
+{
+    int filter = (d->showHiddenAction->isChecked()
+                  ? d->model->filter() & ~QDir::Hidden
+                  : d->model->filter() | QDir::Hidden);
+    d->setDirFilter(filter);
+}
+
 void QFileDialogPrivate::setup()
 {
     q->setSizeGripEnabled(true);
@@ -726,6 +756,38 @@ void QFileDialogPrivate::setup()
     tview->hide();
     tview->setStartEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(tview, 1, 0, 1, 6);
+
+    // actions
+    openAction = new QAction("&Open", q);
+    renameAction = new QAction("&Rename", q);
+    deleteAction = new QAction("&Delete", q);
+    reloadAction = new QAction("&Reload", q);
+    sortByNameAction = new QAction("Sort by &Name", q);
+    sortByNameAction->setCheckable(true);
+    sortByNameAction->setChecked(true);
+    sortBySizeAction = new QAction("Sort by &Size", q);
+    sortBySizeAction->setCheckable(true);
+    sortByDateAction = new QAction("Sort by &Date", q);
+    sortByDateAction->setCheckable(true);
+    unsortedAction = new QAction("&Unsorted", q);
+    unsortedAction->setCheckable(true);
+    showHiddenAction = new QAction("Show &hidden files", q);
+    showHiddenAction->setCheckable(true);
+
+    
+    QObject::connect(lview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
+                     q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
+    QObject::connect(tview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
+                     q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
+    QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
+    QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(renameCurrent()));
+    QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(deleteCurrent()));
+    QObject::connect(reloadAction, SIGNAL(triggered()), q, SLOT(reload()));
+    QObject::connect(sortByNameAction, SIGNAL(triggered()), q, SLOT(sortByName()));
+    QObject::connect(sortBySizeAction, SIGNAL(triggered()), q, SLOT(sortBySize()));
+    QObject::connect(sortByDateAction, SIGNAL(triggered()), q, SLOT(sortByDate()));
+    QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
+    QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
     // connect signals
     QObject::connect(lview, SIGNAL(doubleClicked(const QModelIndex&, int)),
@@ -773,36 +835,6 @@ void QFileDialogPrivate::setup()
     QObject::connect(fileType, SIGNAL(activated(const QString&)),
                      q, SLOT(setFilter(const QString&)));
     grid->addWidget(fileType, 3, 2, 1, 3);
-
-    // file context menu
-    fileContextMenu = new QMenu(q);
-    openAction = fileContextMenu->addAction("&Open");
-    fileContextMenu->addSeparator();
-    renameAction = fileContextMenu->addAction("&Rename");
-    deleteAction = fileContextMenu->addAction("&Delete");
-    QObject::connect(lview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
-                     q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
-    QObject::connect(tview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
-                     q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
-    
-    // view context menu
-    viewContextMenu = new QMenu(q);
-    reloadAction = viewContextMenu->addAction("&Reload");
-    QMenu *sortContextMenu = new QMenu();
-    viewContextMenu->addMenu("Sort", sortContextMenu);
-    sortByNameAction = sortContextMenu->addAction("Sort by &Name");
-    sortByNameAction->setCheckable(true);
-    sortByNameAction->setChecked(true);
-    sortBySizeAction = sortContextMenu->addAction("Sort by &Size");
-    sortBySizeAction->setCheckable(true);
-    sortByDateAction = sortContextMenu->addAction("Sort by &Date");
-    sortByDateAction->setCheckable(true);
-    sortContextMenu->addSeparator();
-    unsortedAction = sortContextMenu->addAction("&Unsorted");
-    unsortedAction->setCheckable(true);
-    viewContextMenu->addSeparator();
-    showHiddenAction = viewContextMenu->addAction("Show &hidden files");
-    showHiddenAction->setCheckable(true);
 
     // tool buttons
     QHBoxLayout *box = new QHBoxLayout(0, 3, 3);

@@ -19,6 +19,7 @@
 #include <qdialog.h>
 #endif
 
+class QMenu;
 class QModelIndex;
 class QFileDialogPrivate;
 
@@ -98,8 +99,16 @@ protected slots:
     void textChanged(const QString &text);
     void setFilter(const QString &filter);
     void setCurrentDir(const QString &path);
-    void showContextMenu(const QModelIndex &index, const QPoint &position);
+    void populateContextMenu(QMenu *menu, const QModelIndex &index) const;
     void headerClicked(int section);
+    void renameCurrent();
+    void deleteCurrent();
+    void reload();
+    void sortByName();
+    void sortBySize();
+    void sortByDate();
+    void setUnsorted();
+    void showHidden();
 };
 
 #endif // QFILEDIALOG_H

@@ -28,7 +28,8 @@ public:
     void updateSectionIndicator();
     QRect sectionHandleRect(int section);
 
-    inline bool reverse() const { return QApplication::reverseLayout() && orientation == Horizontal; }
+    inline bool reverse() const
+        { return QApplication::reverseLayout() && orientation == Horizontal; }
 
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
     int offset;
@@ -127,7 +128,9 @@ QSize QGenericHeader::sizeHint() const
     getViewOptions(&options);
     int row = orientation() == Horizontal ? 0 : section(count() - 1);
     int col = orientation() == Horizontal ? section(count() - 1) : 0;
-    QModelIndex::Type type = orientation() == Horizontal ? QModelIndex::HorizontalHeader : QModelIndex::VerticalHeader;
+    QModelIndex::Type type = orientation() == Horizontal
+                             ? QModelIndex::HorizontalHeader
+                             : QModelIndex::VerticalHeader;
     QModelIndex item(row, col, 0, type);
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), options, item);
     if (orientation() == Vertical)
@@ -209,7 +212,8 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
                 continue;
             section = sections[i].section;
             item = model()->index(section, 0, 0, QModelIndex::VerticalHeader);
-            options.itemRect.setRect(0, sectionPosition(section) - offset, width(), sectionSize(section));
+            options.itemRect.setRect(0, sectionPosition(section) - offset,
+                                     width(), sectionSize(section));
             paintSection(&painter, &options, item);
         }
     }
@@ -217,7 +221,9 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
 void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
 {
-    QStyle::SFlags flags = QStyle::Style_Off | (orientation() == Horizontal ? QStyle::Style_Horizontal : 0);
+    QStyle::SFlags flags = QStyle::Style_Off;
+    if (orientation() == Horizontal)
+        flags |= QStyle::Style_Horizontal;
     if (isEnabled())
         flags |= QStyle::Style_Enabled;
     QStyle::SFlags arrowFlags = flags;
@@ -435,9 +441,11 @@ void QGenericHeader::ensureItemVisible(const QModelIndex &)
 void QGenericHeader::updateSection(int section)
 {
     if (orientation() == Horizontal)
-        d->viewport->update(QRect(sectionPosition(section) - offset(), 0, sectionSize(section), height()));
+        d->viewport->update(QRect(sectionPosition(section) - offset(),
+                                  0, sectionSize(section), height()));
     else
-        d->viewport->update(QRect(0, sectionPosition(section) - offset(), width(), sectionSize(section)));
+        d->viewport->update(QRect(0, sectionPosition(section) - offset(),
+                                  width(), sectionSize(section)));
 }
 
 void QGenericHeader::resizeSections()
@@ -552,8 +560,6 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
 
 void QGenericHeader::mouseReleaseEvent(QMouseEvent *)
 {
-    // ### Unused variable:
-    // int pos = orientation() == Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QGenericHeaderPrivate::MoveSection:
         moveSection(index(d->section), index(d->target));
@@ -600,12 +606,12 @@ void QGenericHeader::moveSection(int from, int to)
     int idx = from;
     if (to > from) {
         while (idx < to) {
-            sections[idx].section = sections[idx+1].section;
+            sections[idx].section = sections[idx + 1].section;
             indices[sections[idx].section] = idx++;
         }
     } else {
         while (idx > to) {
-            sections[idx].section = sections[idx-1].section;
+            sections[idx].section = sections[idx - 1].section;
             indices[sections[idx].section] = idx--;
         }
     }
@@ -615,7 +621,8 @@ void QGenericHeader::moveSection(int from, int to)
     // move positions
     if (to > from) {
         for (idx = from; idx < to; ++idx)
-            sections[idx+1].position -= sectionSize(section(idx)) - sectionSize(section(idx+1));
+            sections[idx+1].position -= sectionSize(section(idx))
+                                        - sectionSize(section(idx + 1));
     } else {
         int tmp;
         int size = sectionSize(section(from));
@@ -659,8 +666,7 @@ void QGenericHeader::resizeSection(int section, int size)
         }
     }
 
-    bool reverse = QApplication::reverseLayout();
-    int pos = sectionPosition(section) - offset() - (reverse ? size : 0);
+    int pos = sectionPosition(section) - offset() - (d->reverse() ? size : 0);
     QRect r;
     if (orientation() == Horizontal)
         r = QRect(pos, 0, width() - pos, height());
@@ -719,8 +725,10 @@ QRect QGenericHeader::itemViewportRect(const QModelIndex &item) const
     if (!item.isValid() || item.type() == QModelIndex::View)
         return QRect();
     if (orientation() == Horizontal)
-        return QRect(sectionPosition(item.column()) - offset(), 0, sectionSize(item.column()), height());
-    return QRect(0, sectionPosition(item.row()) - offset(), width(), sectionSize(item.row()));
+        return QRect(sectionPosition(item.column()) - offset(),
+                     0, sectionSize(item.column()), height());
+    return QRect(0, sectionPosition(item.row()) - offset(),
+                 width(), sectionSize(item.row()));
 }
 
 QModelIndex QGenericHeader::item(int section) const

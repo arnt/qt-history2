@@ -18,6 +18,7 @@
 #include <qstyle.h>
 #include <qbitmap.h>
 #include <qpair.h>
+#include <qmenu.h>
 #include <qevent.h>
 #include <qscrollbar.h>
 #include <qwhatsthis.h>
@@ -345,8 +346,10 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     setState(NoState);
     if (index == d->pressedItem)
         emit clicked(index, e->button());
-    if (e->button() == RightButton)
-        emit contextMenuRequested(index, pos);
+    if (e->button() == RightButton) {
+        QContextMenuEvent me(QContextMenuEvent::Mouse, pos, e->state());
+        QApplication::sendEvent(this, &me);
+    }
 }
 
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
@@ -362,7 +365,10 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 {
     QPoint position = e->pos();
     QModelIndex index = itemAt(position);
-    emit contextMenuRequested(index, position);
+    QMenu contextMenu(this);
+    emit aboutToShowContextMenu(&contextMenu, index);
+    if (contextMenu.actions().count() > 0)
+        contextMenu.exec(mapToGlobal(position));
 }
 
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
