@@ -444,32 +444,47 @@ MakefileGenerator::init()
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
 		    QString file = Option::fixPathToLocalOS((*val_it));
-		    if(QDir::isRelativePath(file) && !QFile::exists(file)) {
-			if(vpath.isEmpty()) {
-			    vpath = v["VPATH_" + sources[x]] + v["VPATH"] +  
-				    v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
-			}
+		    if(!QFile::exists(file)) {
 			bool found = FALSE;
-			for(QStringList::Iterator vpath_it = vpath.begin();
-			    vpath_it != vpath.end(); ++vpath_it) {
-			    QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-			    if(QFile::exists(real_dir + Option::dir_sep + (*val_it))) {
-				QString dir = (*vpath_it);
-				if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
-				    dir += Option::dir_sep;
-				(*val_it).prepend(dir);
-				fileFixify((*val_it));
-				found = TRUE;
-				debug_msg(1, "Found file through vpath %s -> %s", 
-					  file.latin1(), (*val_it).latin1());
-				break;
+			if(QDir::isRelativePath(file)) {
+			    if(vpath.isEmpty()) 
+				vpath = v["VPATH_" + sources[x]] + v["VPATH"] +  
+					v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
+
+			    for(QStringList::Iterator vpath_it = vpath.begin();
+				vpath_it != vpath.end(); ++vpath_it) {
+				QString real_dir = Option::fixPathToLocalOS((*vpath_it));
+				if(QFile::exists(real_dir + Option::dir_sep + (*val_it))) {
+				    QString dir = (*vpath_it);
+				    if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
+					dir += Option::dir_sep;
+				    (*val_it).prepend(dir);
+				    fileFixify((*val_it));
+				    found = TRUE;
+				    debug_msg(1, "Found file through vpath %s -> %s", 
+					      file.latin1(), (*val_it).latin1());
+				    break;
+				}
 			    }
 			}
 			if(!found) {
-			    debug_msg(1, "Failure to find %s in vpath (%s)", 
-				      (*val_it).latin1(), vpath.join("::").latin1());
-			    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
-			    continue;
+			    QString dir, regex = (*val_it), real_dir;
+			    if(regex.findRev(Option::dir_sep) != -1) {
+				dir = regex.left(regex.findRev(Option::dir_sep) + 1);
+				real_dir = Option::fixPathToLocalOS(dir);
+				regex = regex.right(regex.length() - dir.length());
+			    }
+			    QDir d(real_dir, regex);
+			    if(!d.count()) {
+				debug_msg(1, "Failure to find %s in vpath (%s)", 
+					  (*val_it).latin1(), vpath.join("::").latin1());
+				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+				continue;
+			    } else {
+				(*val_it) = dir + d[0];
+				for(int i = 1; i < (int)d.count(); i++) 
+				    l.insert(val_it, dir + d[i]);
+			    }
 			} 
 		    }
 		    generateDependencies(deplist, (*val_it), doDepends());
