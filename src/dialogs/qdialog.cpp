@@ -658,8 +658,10 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 
     // sanity check for decoration frames. With embedding, we
     // might get extraordinary values
-    if ( extraw >= 10 || extrah >= 40 )
-	extraw = extrah = 0;
+    if ( extraw == 0 || extrah == 0 || extraw >= 10 || extrah >= 40 ) {
+	extrah = 40;
+	extraw = 10;
+    }
 
     if ( useRelPos && w ) {
 	p = w->pos() + d->relPos;
