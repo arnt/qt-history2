@@ -2978,7 +2978,7 @@ if [ "$CFG_SHARED" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG shared dll"
 elif [ "$CFG_SHARED" = "no" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-static"
-    QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
+    QMAKE_CONFIG="$QMAKE_CONFIG static"
 fi
 if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"

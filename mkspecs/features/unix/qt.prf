@@ -52,6 +52,6 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
 }
 
 plugin {
-   staticlib:DEFINES += QT_STATICPLUGIN
+   static:DEFINES += QT_STATICPLUGIN
    DEFINES += QT_PLUGIN
 }

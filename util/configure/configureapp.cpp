@@ -1064,6 +1064,8 @@ void Configure::generateCachefile()
 	configStream << "CONFIG+=";
 	if( dictionary[ "SHARED" ] == "yes" )
 	    configStream << " shared";
+        else
+	    configStream << " static";
 	if ( dictionary[ "DEBUG" ] == "yes" )
 	    configStream << " debug";
 	else

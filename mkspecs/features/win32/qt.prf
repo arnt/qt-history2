@@ -1,8 +1,8 @@
 shared:DEFINES += QT_DLL
 CONFIG *= moc thread
 plugin {
-    CONFIG += dll
-   staticlib:DEFINES += QT_STATICPLUGIN
+   CONFIG += dll
+   static:DEFINES += QT_STATICPLUGIN
    DEFINES += QT_PLUGIN
 }
 !contains(DEFINES, QT_NODLL) {

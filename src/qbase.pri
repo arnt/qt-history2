@@ -82,7 +82,7 @@ mac {
    }
 }
 
-win32:!shared:CONFIG += staticlib
+win32:!shared:CONFIG += static
 
 win32-borland {
     mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
@@ -96,7 +96,7 @@ win32-borland {
 win32 {
     CONFIG += zlib
     INCLUDEPATH += tmp
-    !staticlib {
+    !static {
          DEFINES+=QT_MAKEDLL
          exists(../qt.rc):RC_FILE = ../qt.rc
     }
@@ -117,7 +117,7 @@ DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$THREAD_H;$$TOOLS_H;$$CODECS_H;
 DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
 
-!staticlib:PRL_EXPORT_DEFINES += QT_SHARED
+!static:PRL_EXPORT_DEFINES += QT_SHARED
 
 #install directives
 include(qt_install.pri)
