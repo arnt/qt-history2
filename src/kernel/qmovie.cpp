@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#36 $
 **
 ** Implementation of movie classes
 **
@@ -474,7 +474,7 @@ QMovie::QMovie()
     d = new QMoviePrivate();
 }
 
-/*
+/*!
   Creates a QMovie which reads an image sequence from the given
   QDataSource.  The source must be allocated dynamically,
   as it becomes owned by the QMovie, and will be destroyed
@@ -830,7 +830,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.35 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.36 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
