@@ -38,16 +38,19 @@
 
 This walkthrough shows simple use of QSqlIndex, QSqlQuery, QSqlCursor,
 QSqlTable and QSqlForm - classes that a database front-end or database
-application would want to use. It is not meant as a guide to Qt
+application would be expected to use. It is not meant as a guide to Qt
 programming in general, but rather to illustrate the most common use
 of some of the classes in the SQL module. Explanations that cover
 general widget creation and layout is in most cases skipped. To get
-the most from this walkthrough, you should have read the <a href="sql.html">documentation</a> on records, fields, indexes, queries and cursors.
+the most from this walkthrough, you should have read the 
+<a href="sql.html">documentation</a> on records, fields, indexes,
+queries and cursors.
 
-This example is built on a set of database tables that are used to
-keep track of pingpong teams and scores. The example program can be
-found in \c $QTDIR/examples/pingpong.  First, an overview of the
-database:
+This example uses a set of database tables which keep track of pingpong
+teams and scores. The example program can be found in \c
+$QTDIR/examples/pingpong. This directory also contains \e pingpong.sql
+which is a SQL script for creating the tables and views used in this
+example. First, an overview of the database:
 
 The database contains four simple tables: 
 <ul>
@@ -61,7 +64,7 @@ In addition, the database contains a couple of views (\a matchview and
 \a player2teamview) and a few key sequences used to generate new
 primary keys.
 
-Our goal was to create a simple application that made it possible to
+Our goal is to create a simple application that makes it possible to
 do the following:
 <ul>
 <li> manage match results (insert/update/delete results)</li>
@@ -72,13 +75,18 @@ do the following:
 
 The \c pingpong example program consists of the following files:
 
-\c main.cpp - Contains the main() function and shows how to connect to an existing database<br>
-\c cursors.h/cpp - Contains reimplementations of QSqlCursor that are used for traversing datasets.<br>
-\c dialogs.h/cpp - Contains the dialogs that are used in the pingpong example.<br>
-\c widgets.h/cpp - Contains the different widgets that are used to display statistics, highscores and such.<br>
-\c pingpongfrontend.h/cpp - Implementation of the main window in the application.<br>
+\c main.cpp - Contains the main() function and shows how to connect to
+an existing database<br>
+\c cursors.h/cpp - Contains reimplementations of QSqlCursor that are
+used for traversing datasets.<br>
+\c dialogs.h/cpp - Contains the dialogs that are used in the pingpong
+example.<br>
+\c widgets.h/cpp - Contains the different widgets that are used to
+display statistics, highscores, etc.<br>
+\c pingpongfrontend.h/cpp - Implementation of the main window in the
+application.<br>
 
-Most of the widget layout and creation is done using the Qt Designer -
+Most of the widget layout and creation is performed using Qt Designer -
 try loading the following files into the Designer:
 
 \c teameditorbase.ui - \c TeamEditor widget form.<br>
@@ -113,9 +121,9 @@ int main( int argc, char ** argv )
 }
 \endcode
 
-If we start with the \c main.cpp file, the first thing that is done after
-the usual QApplication object is created, is to specify a connection to
-the database we want to use.
+Starting with the \c main.cpp file, the first thing we do after the
+usual QApplication object is created, is to specify a connection to the
+database we want to use.
 \code
     QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
 \endcode 
@@ -141,7 +149,7 @@ and password, and the host the database is running on.
     db->setHostName( "silverfish" );
 \endcode
 After all the necessary information is passed to QSqlDatabase, the
-database connection is opened with the following statement:
+database we attempt to open the connection with the following statement:
 \code
     if( !db->open() ){
 	qWarning( "Unable to open database: " + db->lastError().driverText());
@@ -151,14 +159,18 @@ database connection is opened with the following statement:
 \endcode
 
 If there was an error while opening the database it can be retrieved
-by using QSqlDatabase::lastError() call (also see \l QSqlError).
+by calling QSqlDatabase::lastError() (also see \l QSqlError).
 
-The connection that has just been created is from this point on used
-as the default database connection by the low-level classes in the SQL
-modules to seamlessly access the database. You will in most cases not
-need to use the QSqlDatabase class again after the initialization.
-However, multiple database connections can be added by using
-QSqlDatabase::addDatabase().
+The connection that has just been created will now be used as the
+default database connection by the low-level classes in the SQL modules.
+So long as you only need access to just one database you will not need
+to use the QSqlDatabase class any further. There is no need to specify
+the database connection in subsequent code since this default will be
+assumed where no connection is given.
+
+If multiple database connections are required they can be added using
+calls to QSqlDatabase::addDatabase(). In this situation the particular
+connection to be used for each call should be specified.
 
 After the database connection is up and running - we create an
 instance of the main window widget, \c PingpongFrontEnd, and enter the
@@ -176,7 +188,7 @@ tabs:
 </ul>
 
 Except for match table widget, the definition and implementation of
-these widgets can be found in the \c widgets.h/cpp files.
+these widgets can be found in the \c widgets.h and \c widgets.cpp files.
 
 <b>The match table widget</b>
 
@@ -207,14 +219,13 @@ MatchView::MatchView()
 }
 \endcode
 
-The definition and implementation of the \c MatchView class is simple
-and straight forward. In the constructor a \l QSqlCursor is
-instantiated, with bindings to the \a matchview database view. Also, a
-new set of display labels are assigned to the different fields in the
-cursor. These display labels are used by QSqlTable while displaying
-data on screen.
+The definition and implementation of the \c MatchView class is simple.
+In the constructor a \l QSqlCursor is instantiated, with bindings to the
+\a matchview database view. Also, a new set of display labels are
+assigned to the different fields in the cursor. These display labels are
+used by QSqlTable when displaying data on screen.
 
-The initialization of the match table itself is done in the
+The initialization of the match table itself is performed in the
 constructor of the \c PingpongFrontEnd class.
 
 From \c pingpongfrontend.cpp:
@@ -318,8 +329,8 @@ TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
 \endcode
 
 When the \c TeamPicker widget is constructed, the database is queried
-for the team names. This is done by creating a cursor associated with
-the \a team table, and by selecting all entries in that table, sorted
+for the team names. We do this by creating a cursor associated with
+the \a team table, and selecting all the entries in that table, sorted
 on the team name. We then iterate through the cursor records and
 insert the team names into the QComboBox. Notice also that we store
 the primary key for each of these entries. This is necessary so that
@@ -332,7 +343,7 @@ record.
 The Statistics widget is a collection of QLabel widgets that are used
 to display statistical information about our teams.  The statistics
 consists of sets won, matches won, sets lost, etc. All the interesting
-things take place in the \c Statistics::update() function, where the
+action takes place in the \c Statistics::update() function, where the
 database is queried and the values generated and displayed. 
 
 To calculate the statistical values, a series of simple SQL queries
@@ -354,7 +365,7 @@ label used to view 'Total sets won':
 		     QString::number( teamId ) + ";" );
     if( query.next() )
 	sets = query.value(0).toInt();
-    // Remember the sets won in matches that has been lost
+    // Remember the sets won in matches that have been lost
     query.exec( "select sum(loserwins) from match where loserid = " +
 		QString::number( teamId ) + ";" );
     if( query.next() )
@@ -383,11 +394,11 @@ The Team editor is used to add/remove teams, add/remove players and
 add/remove players from teams. 
 
 The editor consists of three QSqlTable widgets that are used to
-display a list of teams, players and the players that are on a
+display a list of teams, players and the players that belong to a
 specific team. QSqlTable widgets are used because we want the user to
 be able to insert, update and delete teams and players directly in the
 table. Once the QSqlTable widgets are initialized properly, they can
-handle inserts, updates and deletes all by themselves.
+handle inserts, updates and deletes without additional code. 
 
 From the TeamEditor constructor in widgets.cpp:
 \code
@@ -470,7 +481,7 @@ their respective database fields, we can use the \l QSqlForm::readFields()
 and \l QSqlForm::writeFields() functions to synchronize the widgets
 and fields.
 
-The actual inserts, updates and deletes are done in the \c insertMatch(),
+The actual inserts, updates and deletes occur in the \c insertMatch(),
 \c updateMatch() and \c deleteMatch() functions in \c pingpongfrontend.cpp.
 
 \code
@@ -517,18 +528,18 @@ void PingpongFrontEnd::updateMatch()
 }
 \endcode
 
-To update a match result we also use a \c MatchDialog. The first thing
-we do is to obtain the currently selected record from our
-\c matchTable widget. If the record does not contain any fields - return
-without doing anything. The next two lines retrieves the corresponding
-record from the actual \a match table in the database. We cannot
-update the values directly in \c matchTable, because it is based on a
-view in the database (a limitation in Postgres databases). Instead, we
-retrieve the record we want to update from the \a match table using
-the id from the \a matchview (bound to our \c matchTable widget). A \c
-MatchDialog is instantiated with a QSqlRecord buffer that contains the
-current values of the fields we want to update. QSqlCursor::update()
-is then called to actually update the fields in the database.
+To update a match result we also use a \c MatchDialog. Firstly we obtain
+the currently selected record from our \c matchTable widget. If the
+record does not contain any fields we return without doing anything. The
+next two lines retrieve the corresponding record from the actual \a
+match table in the database. We cannot update the values directly in \c
+matchTable, because it is based on a view in the database (a limitation
+in Postgres databases). Instead, we retrieve the record we want to
+update from the \a match table using the id from the \a matchview (bound
+to our \c matchTable widget). A \c MatchDialog is instantiated with a
+QSqlRecord buffer that contains the current values of the fields we want
+to update. QSqlCursor::update() is then called to actually update the
+fields in the database.
 
 
 \code
@@ -553,7 +564,7 @@ void PingpongFrontEnd::deleteMatch()
 \endcode
 
 Deleting a match result from the match table is done in a similar
-way. We retrive the currently selected record from the \a match table
+way. We retrieve the currently selected record from the \a match table
 and display it in a \c MatchDialog. The QSqlCursor::del() function is
 called to actually delete the record from the database.
 
