@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#46 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -25,6 +25,7 @@
 #include "qdatastream.h"
 #include "qt_windows.h"
 
+extern Qt::WindowsVersion qt_winver;
 
 static const int cursors = 14;
 static QCursor cursorTable[cursors];
