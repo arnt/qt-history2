@@ -11,6 +11,7 @@ include(../qbase.pri)
 PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
 
 include(tools/tools.pri)
+include(sql/sql.pri)
 include(other/other.pri)
 include(containers/containers.pri)
 

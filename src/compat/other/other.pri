@@ -7,8 +7,6 @@ compat {
 		other/qurloperator.h \
 		other/qlocalfs.h \
 		other/qnetworkprotocol.h \
-		other/qsqlfieldinfo.h \
-		other/qsqlrecordinfo.h \
 		../gui/dialogs/qfiledialog.h 
 
 	SOURCES += \

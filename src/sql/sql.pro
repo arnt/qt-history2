@@ -30,9 +30,6 @@ sql {
 		    qsqlindex.h \
 		    qsqlpropertymap.h \
 		    qsqlmanager_p.h \
-		    qdatatable.h \
-		    qdataview.h \
-		    qdatabrowser.h \
 		    qsqlselectcursor.h 
 
 	SOURCES     += qsqlquery.cpp \
@@ -50,9 +47,6 @@ sql {
 		    qsqlindex.cpp \
 		    qsqlpropertymap.cpp \
 		    qsqlmanager_p.cpp \
-		    qdatatable.cpp \
-		    qdataview.cpp \
-		    qdatabrowser.cpp \
 		    qsqlselectcursor.cpp \
 		    drivers/cache/qsqlcachedresult.cpp
 
