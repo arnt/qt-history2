@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#54 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -800,7 +800,6 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
     while ( (child = it.current() ) ) {
 	if ( child->widget() == w ) {
 	    it.removeCurrent();
-	    delete child;
 	    lay->invalidate();
 	    return TRUE;
 	} else if ( removeWidget( child, w ) ) {
