@@ -1314,7 +1314,7 @@ QMetaObject *QAxBase::metaObject() const
 			metaEnum->set = FALSE;
 
 			// Get all values of the enumeration
-			for ( UINT vd = 0; vd < typeattr->cVars; ++vd ) {
+			for ( UINT vd = 0; vd < (UINT)typeattr->cVars; ++vd ) {
 			    VARDESC *vardesc = 0;
 			    enuminfo->GetVarDesc( vd, &vardesc );
 			    if ( vardesc && vardesc->varkind == VAR_CONST ) {
@@ -1892,7 +1892,7 @@ QMetaObject *QAxBase::metaObject() const
 		    }
 
 		    // get information about all event functions
-		    for ( UINT fd = 0; fd < eventattr->cFuncs; ++fd ) {
+		    for ( UINT fd = 0; fd < (UINT)eventattr->cFuncs; ++fd ) {
 			FUNCDESC *funcdesc;
 			eventinfo->GetFuncDesc( fd, &funcdesc );
 			if ( !funcdesc )

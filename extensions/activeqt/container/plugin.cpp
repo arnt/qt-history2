@@ -128,12 +128,12 @@ QStringList QActiveXPlugin::featureList() const
     return list;
 }
 
-QAction *QActiveXPlugin::create( const QString &key, QObject *parent )
+QAction *QActiveXPlugin::create( const QString &/*key*/, QObject * /*parent*/ )
 {
     return 0;
 }
 
-bool QActiveXPlugin::location( const QString &name , Location l ) const
+bool QActiveXPlugin::location( const QString & /*name*/, Location /*l*/ ) const
 {
     return FALSE;
 }

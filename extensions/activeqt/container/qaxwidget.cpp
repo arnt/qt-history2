@@ -508,14 +508,14 @@ HRESULT WINAPI QAxHostWindow::QueryInterface( REFIID iid, void **iface )
 }
 
 //**** IDispatch
-HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember, 
-			      REFIID riid, 
-			      LCID lcid, 
-			      WORD wFlags, 
-			      DISPPARAMS *pDispParams, 
-			      VARIANT *pVarResult, 
-			      EXCEPINFO *pExcepInfo, 
-			      UINT *puArgErr )
+HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
+			      REFIID /*riid*/,
+			      LCID /*lcid*/,
+			      WORD /*wFlags*/,
+			      DISPPARAMS * /*pDispParams*/,
+			      VARIANT *pVarResult,
+			      EXCEPINFO * /*pExcepInfo*/,
+			      UINT * /*puArgErr*/ )
 {
     if ( !pVarResult )
 	return E_POINTER;
@@ -591,6 +591,10 @@ HRESULT WINAPI QAxHostWindow::GetMoniker( DWORD, DWORD, IMoniker **ppmk )
 
 HRESULT WINAPI QAxHostWindow::GetContainer( LPOLECONTAINER *ppContainer )
 {
+    if ( !ppContainer )
+	return E_POINTER;
+
+    *ppContainer = 0;
     return E_NOINTERFACE;
 }
 
@@ -599,7 +603,7 @@ HRESULT WINAPI QAxHostWindow::ShowObject()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnShowWindow( BOOL fShow )
+HRESULT WINAPI QAxHostWindow::OnShowWindow( BOOL /*fShow*/ )
 {
     return S_OK;
 }
@@ -624,6 +628,8 @@ HRESULT WINAPI QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
 {
     if ( !ppDisp )
 	return E_POINTER;
+    
+    *ppDisp = 0;
     return E_NOTIMPL;
 }
 
@@ -722,7 +728,7 @@ HRESULT WINAPI QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOle
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::Scroll( SIZE scrollExtant )
+HRESULT WINAPI QAxHostWindow::Scroll( SIZE /*scrollExtant*/ )
 {
     return S_FALSE;
 }
@@ -757,13 +763,14 @@ HRESULT WINAPI QAxHostWindow::DeactivateAndUndo()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
+HRESULT WINAPI QAxHostWindow::OnPosRectChange( LPCRECT /*lprcPosRect*/ )
 {
+    // ###
     return S_OK;
 }
 
 //**** IOleInPlaceFrame
-HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths )
+HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths )
 {
     QMenuBar *mb = menuBar;
     QWidget *p = widget;
@@ -881,7 +888,7 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
     return popup;
 }
 
-HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject )
+HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/, HWND hwndActiveObject )
 {
     if ( hmenuShared ) {
 	m_menuOwner = hwndActiveObject;
@@ -988,7 +995,7 @@ bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
     return TRUE;
 }
 
-HRESULT WINAPI QAxHostWindow::RemoveMenus( HMENU hmenuShared )
+HRESULT WINAPI QAxHostWindow::RemoveMenus( HMENU /*hmenuShared*/ )
 {
     //###
     return E_NOTIMPL;
@@ -1041,7 +1048,7 @@ HRESULT WINAPI QAxHostWindow::GetBorder( LPRECT lprectBorder )
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::RequestBorderSpace( LPCBORDERWIDTHS pborderwidths )
+HRESULT WINAPI QAxHostWindow::RequestBorderSpace( LPCBORDERWIDTHS /*pborderwidths*/ )
 {
     return S_OK;
 }
@@ -1185,7 +1192,7 @@ void QAxHostWidget::windowActivationChange( bool oldActive )
 	axhost->windowActivationChange( oldActive );
 }
 
-void QAxHostWindow::windowActivationChange( bool oldActive )
+void QAxHostWindow::windowActivationChange( bool /*oldActive*/ )
 {
     if ( m_spInPlaceActiveObject ) {
 	QWidget *modal = QApplication::activeModalWidget();
