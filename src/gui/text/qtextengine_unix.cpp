@@ -13,9 +13,12 @@
 #include <assert.h>
 
 
-#ifndef FT_KERNING_DEFAULT
+#if (FREETYPE_MAJOR == 2) && (FREETYPE_MINOR == 1) && (FREETYPE_PATCH < 3)
 #  define FT_KERNING_DEFAULT ft_kerning_default
+#  define FT_KERNING_UNFITTED ft_kerning_unfitted
 #endif
+
+
 void QTextEngine::shapeText( int item ) const
 {
     assert( item < items.size() );
