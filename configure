@@ -1934,7 +1934,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     # fix makefiles
     for mkfile in GNUmakefile Makefile; do
 	EXTRA_LFLAGS=
-	EXTRA_CFLAGS=-I
+	EXTRA_CFLAGS=
 	in_mkfile="${mkfile}.in"
 	if [ "$mkfile" = "Makefile" ]; then
 #	    if which qmake >/dev/null 2>&1 && [ -f qmake/qmake.pro ]; then
