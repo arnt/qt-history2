@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#3 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -219,6 +219,8 @@ void QSocketDevice::close()
 {
     if ( sock_fd == -1 || !isOpen() )		// already closed
 	return;
+    setFlags( IO_Sequential );
+    setStatus( IO_Ok );
 #if defined(_OS_WIN32_)
     ::closesocket( sock_fd );
 #else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#5 $
 **
 ** Definition of QSocket class
 **
@@ -67,6 +67,13 @@ public:
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
+    int		 getch()	{ return 0; }
+    int		 putch( int )	{ return 0; }
+    int		 ungetch(int)	{ return 0; }
+
+    bool	 canReadLine() const;
+    QString	 readLine();
+
 signals:
     void	 hostFound();
     void	 connected();
@@ -86,6 +93,7 @@ private:
 
     bool	 skipReadBuf( int nbytes, char * );
     bool	 skipWriteBuf( int nbytes );
+    bool	 scanNewline( QByteArray * = 0 );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

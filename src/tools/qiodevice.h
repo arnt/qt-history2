@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#25 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#26 $
 **
 ** Definition of QIODevice class
 **
@@ -113,7 +113,7 @@ public:
     virtual bool atEnd()  const;
     bool	 reset() { return at(0); }
 
-    virtual int	 readBlock( char *data, uint len ) = 0;
+    virtual int	 readBlock( char *data, uint maxlen ) = 0;
     virtual int	 writeBlock( const char *data, uint len ) = 0;
     virtual int	 readLine( char *data, uint maxlen );
 

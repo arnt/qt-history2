@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#45 $
 **
 ** Implementation of QIODevice class
 **
@@ -77,7 +77,7 @@
 	bool at( int );		// not a pure virtual function
 	bool atEnd() const;	// not a pure virtual function
 
-	int readBlock( char *data, uint len );
+	int readBlock( char *data, uint maxlen );
 	int writeBlock( const char *data, uint len );
 	int readLine( char *data, uint maxlen );
 
@@ -436,8 +436,8 @@ bool QIODevice::atEnd() const
 
 
 /*!
-  \fn int QIODevice::readBlock( char *data, uint len )
-  Reads at most \e len bytes from the I/O device into \e data and
+  \fn int QIODevice::readBlock( char *data, uint maxlen )
+  Reads at most \e maxlen bytes from the I/O device into \e data and
   returns the number of bytes actually read.
 
   This virtual function must be reimplemented by all subclasses.
