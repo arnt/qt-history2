@@ -20,11 +20,11 @@ public:
     inline QTextNode* nextLayout(QTextNode* tag, QTextContainer* &parent);
     inline QTextNode* nextLeaf(QTextNode* tag, QTextContainer* &parent);
 
-    QString c;
+    QString text;
 
-    inline bool isSpace() const {return c[0] == ' ';}
-    inline bool isNewline() const {return c[0] == '\n';}
-    inline bool isNull() const {return c.isNull();}
+    inline bool isSpace() const {return text[0] == ' ';}
+    inline bool isNewline() const {return text[0] == '\n';}
+    inline bool isNull() const {return text.isNull();}
 
 
     inline QRichText* root() const;
@@ -186,7 +186,7 @@ private:
     void createFont();
 
     QFont* fnt;
-    const QMap<QString, QString> * attributes_;
+    QMap<QString, QString> * attributes_;
 };
 
 class QTextIterator

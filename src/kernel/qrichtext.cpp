@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#19 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -298,7 +298,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 		p->setFont( it.parentNode()->font() );
 	    }
 	    if (!it->isNull())
-		tx += fm.width(it->c);
+		tx += fm.width(it->text);
 	    h = fm.height();
 	    a = fm.ascent();
 	    d = h-a;
@@ -475,8 +475,8 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	it->isSelectionDirty = 0;
 	if (it->isSimpleNode) {
 	    if (!it->isNull()){
-		s += it->c;
-		tw += fm.width( it->c );
+		s += it->text;
+		tw += fm.width( it->text );
 	    }
 	    QTextNode* tmp;
 	    // special optimized code for simple nodes (characters)
@@ -488,8 +488,8 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 		it = QTextIterator( tmp, it.parentNode() );
 		tmp->isSelectionDirty = 0;
 		if (!it->isNull()) {
-		    s += it->c;
-		    tw += fm.width( it->c );
+		    s += it->text;
+		    tw += fm.width( it->text );
 		}
 		// 	    if (it->isSpace())
 		// 	      break;
@@ -616,7 +616,7 @@ QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 	    continue;
 	p->setFont( it.parentNode()->font() );
 	if (it->isSimpleNode)
-	    tx += fm.width( it->c );
+	    tx += fm.width( it->text );
 	else
 	    tx += ((QTextCustomNode*)*it)->width;
 	if (obx + x + tx > xarg)
@@ -652,7 +652,7 @@ bool QTextRow::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh)
 	p->setFont( it.parentNode()->font() );
 	fm = p->fontMetrics();
 	if (it->isSimpleNode)
-	    lx += fm.width( it->c );
+	    lx += fm.width( it->text );
 	else
 	    lx += ((QTextCustomNode*)*it)->width;
     };
@@ -739,7 +739,7 @@ void QTextContainer::split(QTextNode* node)
     QTextNode* prev = node->previousSibling(); // slow!
     if (!node->isContainer) {
 	QTextNode* n = new QTextNode;
-	n->c = QChar::null;
+	//n->text = QString::null;  already does this
 	n->isLastSibling = 1;
 	n->next = this;
 	if (prev)
@@ -1502,13 +1502,13 @@ void QTextCursor::insert(QPainter* p, const QString& s)
 	return;
 
     QTextNode* n = new QTextNode;
-    n->c = s[0];
+    n->text = s[0];
 
     QTextNode* last = n;
     for (unsigned int i = 1; i < s.length(); i++) {
 	last->next = new QTextNode;
 	last = last->next;
-	last->c = s[int(i)];
+	last->text = s[int(i)];
     }
 
     if (nodeParent->child == node) {
@@ -1848,7 +1848,7 @@ void QTextCursor::end(QPainter* p, bool select)
 
 
 
-QRichText::QRichText( const QString &doc, const QFont& fnt,
+QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
 		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
     :QTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
@@ -1861,7 +1861,7 @@ QRichText::QRichText( const QString &doc, const QFont& fnt,
     // for access during parsing only
     sheet_ = sheet? sheet : QStyleSheet::defaultSheet();
 
-    init( doc, fnt, margin );
+    init( doc, font, margin );
 
     // clear references that are no longer needed
     factory_ = 0;
@@ -1869,15 +1869,15 @@ QRichText::QRichText( const QString &doc, const QFont& fnt,
 }
 
 
-void QRichText::init( const QString& doc, const QFont& fnt, int margin )
+void QRichText::init( const QString& doc, const QFont& font, int margin )
 {
     //set up base style
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
-    base->setFontFamily( fnt.family() );
-    base->setFontItalic( fnt.italic() );
-    base->setFontUnderline( fnt.underline() );
-    base->setFontWeight( fnt.weight() );
-    base->setFontSize( fnt.pointSize() );
+    base->setFontFamily( font.family() );
+    base->setFontItalic( font.italic() );
+    base->setFontUnderline( font.underline() );
+    base->setFontWeight( font.weight() );
+    base->setFontSize( font.pointSize() );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
     valid = TRUE;
@@ -1924,7 +1924,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 // 		// only in editor mode!
 // 		if (current->isBox){ // todo this inserts a hitable null character
 // 		    QTextNode* n = new QTextNode;
-// 		    n->c = QChar::null;
+// 		    n->text = QChar::null;
 // 		    QTextNode* l = lastChild;
 // 		    if (!l)
 // 			current->child = n;
@@ -2038,7 +2038,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 // 		QTextNode* l = lastChild;
 // 		for (int i = 0; i < int(word.length()); i++){
 // 		    QTextNode* n = new QTextNode;
-// 		    n->c = word[i];
+// 		    n->text = word[i];
 // 		    if (!l)
 // 			current->child = n;
 // 		    else {
@@ -2057,7 +2057,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 	    if (valid){
 		QTextNode* l = lastChild;
 		QTextNode* n = new QTextNode;
-		n->c = word;
+		n->text = word;
 		if (!l)
 		    current->child = n;
 		else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#10 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -958,7 +958,7 @@ QTextNode* QStyleSheet::tag( const QString& name,
 	return new QTextHorizontalLine(attr, factory);
     else if (style->name() == s_br ) {
 	QTextNode* result = new QTextNode;
-	result->c = '\n';
+	result->text = '\n';
 	return result;
     }
     else if (style->name() == s_multicol)
