@@ -50,6 +50,7 @@
 #include "qcombobox.h"
 #include "qlineedit.h"
 #include "qspinbox.h"
+#include "qslider.h"
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
@@ -205,6 +206,19 @@ void QMotifPlusStyle::polish(QWidget *widget)
 void QMotifPlusStyle::unPolish(QWidget *widget)
 {
     widget->removeEventFilter(this);
+
+    if (widget == singleton->hoverWidget) {
+        if (singleton->hoverPalette) {
+	    singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
+	    delete singleton->hoverPalette;
+	    singleton->hoverPalette = 0;
+	} else {
+	    singleton->hoverWidget->unsetPalette();
+	}
+
+	singleton->hoverWidget = 0;
+    }
+
     QMotifStyle::unPolish(widget);
 }
 
@@ -322,6 +336,11 @@ void QMotifPlusStyle::polish(QApplication *app)
 			pal.color(QPalette::Active,
 				  QColorGroup::Base),       // base
 			prelight);                          // background
+
+    active2.setColor(QColorGroup::Highlight,
+		     pal.color(QPalette::Active, QColorGroup::Highlight));
+    active2.setColor(QColorGroup::HighlightedText,
+		     pal.color(QPalette::Active, QColorGroup::HighlightedText));
 
     singleton->prelight_palette = pal;
     singleton->prelight_palette.setActive(active2);
@@ -1031,6 +1050,29 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 	    break;
 	}
 
+    case SR_SliderFocusRect:
+	{
+	    const QSlider *slider = (const QSlider *) widget;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget );
+	    int thickness = pixelMetric( PM_SliderControlThickness, widget );
+	    int x, y, wi, he;
+
+	    if ( slider->orientation() == Horizontal ) {
+		x = 0;
+		y = tickOffset;
+		wi = slider->width();
+		he = thickness;
+	    } else {
+		x = tickOffset;
+		y = 0;
+		wi = thickness;
+		he = slider->height();
+	    }
+
+	    rect.setRect(x, y, wi, he);
+	    break;
+	}
+
     default:
 	rect = QMotifStyle::subRect(r, widget);
 	break;
@@ -1266,6 +1308,51 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    break;
 	}
 
+    case CC_Slider:
+	{
+	    const QSlider *slider = (const QSlider *) widget;
+
+	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+						  data),
+		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+						  data);
+
+	    if ((controls & SC_SliderGroove) && groove.isValid()) {
+		drawMotifPlusShade(p, groove, cg, TRUE, &cg.brush(QColorGroup::Mid));
+
+		if ( slider->hasFocus() ) {
+		    QRect fr = subRect( SR_SliderFocusRect, widget );
+		    drawPrimitive( PE_FocusRect, p, fr, cg );
+		}
+	    }
+
+	    if ((controls & SC_SliderHandle) && handle.isValid()) {
+		drawPrimitive(PE_ButtonBevel, p, handle,
+			      (((singleton->hovering &&
+				 handle.contains(singleton->mousePos)) ||
+				singleton->sliderActive ) ?
+			       singleton->prelight_palette.active() : cg));
+
+		if ( slider->orientation() == Horizontal ) {
+		    QCOORD mid = handle.x() + handle.width() / 2;
+		    qDrawShadeLine( p, mid,  handle.y() + 1, mid ,
+				    handle.y() + handle.height() - 3,
+				    cg, TRUE, 1);
+		} else {
+		    QCOORD mid = handle.y() + handle.height() / 2;
+		    qDrawShadeLine( p, handle.x() + 1, mid,
+				    handle.x() + handle.width() - 3, mid,
+				    cg, TRUE, 1);
+		}
+	    }
+
+	    if (controls & SC_SliderTickmarks)
+		QCommonStyle::drawComplexControl(control, p, widget, r, cg, how,
+						 SC_SliderTickmarks, active, data);
+
+	    break;
+	}
+
     default:
 	QMotifStyle::drawComplexControl(control, p, widget, r, cg, how,
 					controls, active, data);
@@ -1371,6 +1458,34 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    break;
 	}
 
+    case CC_Slider:
+	{
+	    if (subcontrol == SC_SliderHandle) {
+		const QSlider *slider = (const QSlider *) widget;
+		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
+		int thickness   = pixelMetric( PM_SliderControlThickness, widget );
+		int len         = pixelMetric( PM_SliderLength, widget );
+		int sliderPos   = 0;
+		int motifBorder = 2;
+
+		if ( data )
+		    sliderPos = *((int *) data[0]);
+
+		if ( slider->orientation() == Horizontal )
+		    rect.setRect( sliderPos + motifBorder,
+				  tickOffset + motifBorder, len,
+				  thickness - 2*motifBorder );
+		else
+		    rect.setRect( tickOffset + motifBorder,
+				  sliderPos + motifBorder,
+				  thickness - 2*motifBorder, len );
+	    } else
+		rect = QMotifStyle::querySubControlMetrics(control, widget,
+							   subcontrol, data);
+
+	    break;
+	}
+
     default:
 	rect = QMotifStyle::querySubControlMetrics(control, widget, subcontrol, data);
 	break;
@@ -1402,7 +1517,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
             if (! object->inherits("QSlider"))
 		break;
 
-	    singleton->mousePressed = FALSE;
+	    singleton->sliderActive = FALSE;
 	    ((QWidget *) object)->repaint(FALSE);
 	    break;
         }
@@ -1577,45 +1692,5 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
 //     p->setPen(oldpen);
 // }
-
-
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawSlider(QPainter *p, int x, int y, int w, int h,
-//                                  const QColorGroup &g, Orientation orientation,
-//                                  bool, bool)
-// {
-//     QRect sliderR(x, y, w, h);
-//     QColorGroup cg = g;
-
-//     if ( (singleton->hovering && sliderR.contains(singleton->mousePos)) ||
-//          singleton->sliderActive )
-//         cg = singleton->prelight_palette.active();
-
-//     if (orientation == Horizontal) {
-//         drawButton(p, x, y, w / 2, h, cg, FALSE,
-//                    &cg.brush(QColorGroup::Button));
-//         drawButton(p, x + (w / 2), y, w / 2, h, cg, FALSE,
-//                    &cg.brush(QColorGroup::Button));
-//     } else {
-//         drawButton(p, x, y, w, h / 2, cg, FALSE,
-//                    &cg.brush(QColorGroup::Button));
-//         drawButton(p, x, y + (h / 2), w, h / 2, cg, FALSE,
-//                    &cg.brush(QColorGroup::Button));
-//     }
-// }
-
-
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawSliderGroove(QPainter *p, int x, int y, int w, int h,
-//                                        const QColorGroup& g, QCOORD,
-//                                        Orientation )
-// {
-//     drawButton(p, x, y, w, h, g, TRUE, &g.brush(QColorGroup::Mid));
-// }
-
 
 #endif // QT_NO_STYLE_MOTIFPLUS

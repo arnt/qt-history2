@@ -1374,262 +1374,257 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 #ifndef QT_NO_SLIDER
     case CC_Slider:
-	if ( sub & SC_SliderGroove ) {
-	    const QSlider * sl = (const QSlider *) widget;
-
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	    int mid   = thickness / 2;
+	{
+	    const QSlider *sl = (const QSlider *) widget;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget );
+	    int thickness  = pixelMetric( PM_SliderControlThickness, widget );
+	    int len        = pixelMetric( PM_SliderLength, widget );
 	    int ticks = sl->tickmarks();
-	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int x, y, wi, he;
 
-	    if ( sl->orientation() == Horizontal ) {
-		x = 0;
-		y = tickOffset;
-		wi = sl->width();
-		he = thickness;
-	    } else {
-		x = tickOffset;
-		y = 0;
-		wi = thickness;
-		he = sl->height();
+	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+						  data),
+		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+						  data);
+
+	    if ((sub & SC_SliderGroove) && groove.isValid()) {
+		int mid = groove.height() / 2;
+
+		if ( ticks & QSlider::Above )
+		    mid += len / 8;
+		if ( ticks & QSlider::Below )
+		    mid -= len / 8;
+
+		p->setPen( cg.shadow() );
+		if ( sl->orientation() == Horizontal ) {
+		    qDrawWinPanel( p, groove.x(), groove.y() + mid - 2,
+				   groove.width(), 4, cg, TRUE );
+		    p->drawLine( groove.x() + 1, groove.y() + mid - 1,
+				 groove.x() + groove.width() - 3, groove.y() + mid - 1 );
+		} else {
+		    qDrawWinPanel( p, groove.x() + mid - 2, groove.y(),
+				   4, groove.height(), cg, TRUE );
+		    p->drawLine( groove.x() + mid - 1, groove.y() + 1,
+				 groove.x() + mid - 1,
+				 groove.y() + groove.height() - 3 );
+		}
 	    }
 
-	    if ( ticks & QSlider::Above )
-		mid += len / 8;
-	    if ( ticks & QSlider::Below )
-		mid -= len / 8;
+	    if ( sub & SC_SliderHandle ) {
+		// 4444440
+		// 4333310
+		// 4322210
+		// 4322210
+		// 4322210
+		// 4322210
+		// *43210*
+		// **410**
+		// ***0***
+		enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
 
-	    p->setPen( cg.shadow() );
-	    if ( sl->orientation() == Horizontal ) {
-		qDrawWinPanel( p, x, y + mid - 2,  wi, 4, cg, TRUE );
-		p->drawLine( x+1, y + mid - 1, x + wi - 3, y + mid - 1 );
-		((QSlider *) sl)->erase( 0, 0, sl->width(), tickOffset );
-		((QSlider *) sl)->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
-	    } else {
-		qDrawWinPanel( p, x + mid - 2, y, 4, he, cg, TRUE );
-		p->drawLine( x + mid - 1, y + 1, x + mid - 1, y + he - 3 );
-		((QSlider *) sl)->erase( 0, 0,  tickOffset, sl->height() );
-		((QSlider *) sl)->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
-	    }
-	}
+		const QColor c0 = cg.shadow();
+		const QColor c1 = cg.dark();
+		// const QColor c2 = g.button();
+		const QColor c3 = cg.midlight();
+		const QColor c4 = cg.light();
 
-	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
-					      SC_SliderTickmarks, subActive,
-					      data );
+		int x = handle.x(), y = handle.y(),
+		   wi = handle.width(), he = handle.height();
 
-	if ( sub & SC_SliderHandle ) {
-	    // 4444440
-	    // 4333310
-	    // 4322210
-	    // 4322210
-	    // 4322210
-	    // 4322210
-	    // *43210*
-	    // **410**
-	    // ***0***
-	    enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
+		int x1 = x;
+		int x2 = x+wi-1;
+		int y1 = y;
+		int y2 = y+he-1;
 
-	    const QColor c0 = cg.shadow();
-	    const QColor c1 = cg.dark();
-	    //    const QColor c2 = g.button();
-	    const QColor c3 = cg.midlight();
-	    const QColor c4 = cg.light();
+		bool reverse = QApplication::reverseLayout();
 
-	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
-					       data );
-	    int x = re.x(), y = re.y(), wi = re.width(), he = re.height();
+		Orientation orient = sl->orientation();
+		bool tickAbove = sl->tickmarks() == QSlider::Above;
+		bool tickBelow = sl->tickmarks() == QSlider::Below;
 
-	    int x1 = x;
-	    int x2 = x+wi-1;
-	    int y1 = y;
-	    int y2 = y+he-1;
+		p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
 
-	    bool reverse = QApplication::reverseLayout();
+		if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
+		    qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
+				    &cg.brush( QColorGroup::Button ) );
+		    return;
+		}
 
-	    const QSlider * sl = (const QSlider *) widget;
-	    Orientation orient = sl->orientation();
-	    bool tickAbove = sl->tickmarks() == QSlider::Above;
-	    bool tickBelow = sl->tickmarks() == QSlider::Below;
+		if ( sl->hasFocus() ) {
+		    QRect re = subRect( SR_SliderFocusRect, sl );
+		    drawPrimitive( PE_FocusRect, p, re, cg );
+		}
 
-	    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
+		SliderDir dir;
 
-	    if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
-		qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
-				&cg.brush( QColorGroup::Button ) );
-		return;
-	    }
-
-	    if ( sl->hasFocus() ) {
-		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PE_FocusRect, p, re, cg );
-	    }
-
-	    SliderDir dir;
-
-	    if ( orient == Horizontal )
-		if ( tickAbove )
-		    dir = SlUp;
+		if ( orient == Horizontal )
+		    if ( tickAbove )
+			dir = SlUp;
+		    else
+			dir = SlDown;
 		else
-		    dir = SlDown;
-	    else
-		if ( tickAbove )
-		    dir = SlLeft;
-		else
-		    dir = SlRight;
+		    if ( tickAbove )
+			dir = SlLeft;
+		    else
+			dir = SlRight;
 
-	    QPointArray a;
+		QPointArray a;
 
-	    int d = 0;
-	    switch ( dir ) {
-	    case SlUp:
-		y1 = y1 + wi/2;
-		d =  (wi + 1) / 2 - 1;
-		a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
-		break;
-	    case SlDown:
-		y2 = y2 - wi/2;
-		d =  (wi + 1) / 2 - 1;
-		a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
-		break;
-	    case SlLeft:
-		d =  (he + 1) / 2 - 1;
-		x1 = x1 + he/2;
-		a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
-		break;
-	    case SlRight:
-		d =  (he + 1) / 2 - 1;
-		x2 = x2 - he/2;
-		a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
-		break;
-	    }
+		int d = 0;
+		switch ( dir ) {
+		case SlUp:
+		    y1 = y1 + wi/2;
+		    d =  (wi + 1) / 2 - 1;
+		    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
+		    break;
+		case SlDown:
+		    y2 = y2 - wi/2;
+		    d =  (wi + 1) / 2 - 1;
+		    a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
+		    break;
+		case SlLeft:
+		    d =  (he + 1) / 2 - 1;
+		    x1 = x1 + he/2;
+		    a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
+		    break;
+		case SlRight:
+		    d =  (he + 1) / 2 - 1;
+		    x2 = x2 - he/2;
+		    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
+		    break;
+		}
 
-	    QBrush oldBrush = p->brush();
-	    p->setBrush( cg.brush( QColorGroup::Button ) );
-	    p->setPen( NoPen );
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	    p->drawPolygon( a );
-	    p->setBrush( oldBrush );
+		QBrush oldBrush = p->brush();
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+		p->setPen( NoPen );
+		p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+		p->drawPolygon( a );
+		p->setBrush( oldBrush );
 
-	    if ( dir != SlUp ) {
-		p->setPen( c4 );
-		p->drawLine( x1, y1, x2, y1 );
-		p->setPen( c3 );
-		p->drawLine( x1, y1+1, x2, y1+1 );
-	    }
-	    if ( dir != SlLeft ) {
-		if ( reverse )
-		    p->setPen( c1 );
-		else
-		    p->setPen( c3 );
-		p->drawLine( x1+1, y1+1, x1+1, y2 );
-		if ( reverse )
-		    p->setPen( c0 );
-		else
+		if ( dir != SlUp ) {
 		    p->setPen( c4 );
-		p->drawLine( x1, y1, x1, y2 );
-	    }
-	    if ( dir != SlRight ) {
-		if ( reverse )
-		    p->setPen( c4 );
-		else
-		    p->setPen( c0 );
-		p->drawLine( x2, y1, x2, y2 );
-		if ( reverse )
+		    p->drawLine( x1, y1, x2, y1 );
 		    p->setPen( c3 );
-		else
+		    p->drawLine( x1, y1+1, x2, y1+1 );
+		}
+		if ( dir != SlLeft ) {
+		    if ( reverse )
+			p->setPen( c1 );
+		    else
+			p->setPen( c3 );
+		    p->drawLine( x1+1, y1+1, x1+1, y2 );
+		    if ( reverse )
+			p->setPen( c0 );
+		    else
+			p->setPen( c4 );
+		    p->drawLine( x1, y1, x1, y2 );
+		}
+		if ( dir != SlRight ) {
+		    if ( reverse )
+			p->setPen( c4 );
+		    else
+			p->setPen( c0 );
+		    p->drawLine( x2, y1, x2, y2 );
+		    if ( reverse )
+			p->setPen( c3 );
+		    else
+			p->setPen( c1 );
+		    p->drawLine( x2-1, y1+1, x2-1, y2-1 );
+		}
+		if ( dir != SlDown ) {
+		    p->setPen( c0 );
+		    p->drawLine( x1, y2, x2, y2 );
 		    p->setPen( c1 );
-		p->drawLine( x2-1, y1+1, x2-1, y2-1 );
-	    }
-	    if ( dir != SlDown ) {
-		p->setPen( c0 );
-		p->drawLine( x1, y2, x2, y2 );
-		p->setPen( c1 );
-		p->drawLine( x1+1, y2-1, x2-1, y2-1 );
+		    p->drawLine( x1+1, y2-1, x2-1, y2-1 );
+		}
+
+		switch ( dir ) {
+		case SlUp:
+		    if ( reverse )
+			p->setPen( c0 );
+		    else
+			p->setPen( c4 );
+		    p->drawLine( x1, y1, x1+d, y1-d);
+		    if ( reverse )
+			p->setPen( c4 );
+		    else
+			p->setPen( c0 );
+		    d = wi - d - 1;
+		    p->drawLine( x2, y1, x2-d, y1-d);
+		    d--;
+		    if ( reverse )
+			p->setPen( c1 );
+		    else
+			p->setPen( c3 );
+		    p->drawLine( x1+1, y1, x1+1+d, y1-d );
+		    if ( reverse )
+			p->setPen( c3 );
+		    else
+			p->setPen( c1 );
+		    p->drawLine( x2-1, y1, x2-1-d, y1-d);
+		    break;
+		case SlDown:
+		    if ( reverse )
+			p->setPen( c0 );
+		    else
+			p->setPen( c4 );
+		    p->drawLine( x1, y2, x1+d, y2+d);
+		    if ( reverse )
+			p->setPen( c4 );
+		    else
+			p->setPen( c0 );
+		    d = wi - d - 1;
+		    p->drawLine( x2, y2, x2-d, y2+d);
+		    d--;
+		    if ( reverse )
+			p->setPen( c1 );
+		    else
+			p->setPen( c3 );
+		    p->drawLine( x1+1, y2, x1+1+d, y2+d );
+		    if ( reverse )
+			p->setPen( c3 );
+		    else
+			p->setPen( c1 );
+		    p->drawLine( x2-1, y2, x2-1-d, y2+d);
+		    break;
+		case SlLeft:
+		    p->setPen( c4 );
+		    p->drawLine( x1, y1, x1-d, y1+d);
+		    p->setPen( c0 );
+		    d = he - d - 1;
+		    p->drawLine( x1, y2, x1-d, y2-d);
+		    d--;
+		    p->setPen( c3 );
+		    p->drawLine( x1, y1+1, x1-d, y1+1+d );
+		    p->setPen( c1 );
+		    p->drawLine( x1, y2-1, x1-d, y2-1-d);
+		    break;
+		case SlRight:
+		    p->setPen( c4 );
+		    p->drawLine( x2, y1, x2+d, y1+d);
+		    p->setPen( c0 );
+		    d = he - d - 1;
+		    p->drawLine( x2, y2, x2+d, y2-d);
+		    d--;
+		    p->setPen( c3 );
+		    p->drawLine(  x2, y1+1, x2+d, y1+1+d );
+		    p->setPen( c1 );
+		    p->drawLine( x2, y2-1, x2+d, y2-1-d);
+		    break;
+		}
 	    }
 
-	    switch ( dir ) {
-	    case SlUp:
-		if ( reverse )
-		    p->setPen( c0 );
-		else
-		    p->setPen( c4 );
-		p->drawLine( x1, y1, x1+d, y1-d);
-		if ( reverse )
-		    p->setPen( c4 );
-		else
-		    p->setPen( c0 );
-		d = wi - d - 1;
-		p->drawLine( x2, y1, x2-d, y1-d);
-		d--;
-		if ( reverse )
-		    p->setPen( c1 );
-		else
-		    p->setPen( c3 );
-		p->drawLine( x1+1, y1, x1+1+d, y1-d );
-		if ( reverse )
-		    p->setPen( c3 );
-		else
-		    p->setPen( c1 );
-		p->drawLine( x2-1, y1, x2-1-d, y1-d);
-		break;
-	    case SlDown:
-		if ( reverse )
-		    p->setPen( c0 );
-		else
-		    p->setPen( c4 );
-		p->drawLine( x1, y2, x1+d, y2+d);
-		if ( reverse )
-		    p->setPen( c4 );
-		else
-		    p->setPen( c0 );
-		d = wi - d - 1;
-		p->drawLine( x2, y2, x2-d, y2+d);
-		d--;
-		if ( reverse )
-		    p->setPen( c1 );
-		else
-		    p->setPen( c3 );
-		p->drawLine( x1+1, y2, x1+1+d, y2+d );
-		if ( reverse )
-		    p->setPen( c3 );
-		else
-		    p->setPen( c1 );
-		p->drawLine( x2-1, y2, x2-1-d, y2+d);
-		break;
-	    case SlLeft:
-		p->setPen( c4 );
-		p->drawLine( x1, y1, x1-d, y1+d);
-		p->setPen( c0 );
-		d = he - d - 1;
-		p->drawLine( x1, y2, x1-d, y2-d);
-		d--;
-		p->setPen( c3 );
-		p->drawLine( x1, y1+1, x1-d, y1+1+d );
-		p->setPen( c1 );
-		p->drawLine( x1, y2-1, x1-d, y2-1-d);
-		break;
-	    case SlRight:
-		p->setPen( c4 );
-		p->drawLine( x2, y1, x2+d, y1+d);
-		p->setPen( c0 );
-		d = he - d - 1;
-		p->drawLine( x2, y2, x2+d, y2-d);
-		d--;
-		p->setPen( c3 );
-		p->drawLine(  x2, y1+1, x2+d, y1+1+d );
-		p->setPen( c1 );
-		p->drawLine( x2, y2-1, x2+d, y2-1-d);
-		break;
-	    }
+	    if ( sub & SC_SliderTickmarks )
+		QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+						  SC_SliderTickmarks, subActive,
+						  data );
+
+	    break;
 	}
 #endif // QT_NO_SLIDER
 
-	default:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
-					      subActive, data );
+    default:
+	QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
+					  subActive, data );
 	break;
     }
 }

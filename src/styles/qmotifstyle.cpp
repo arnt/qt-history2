@@ -1083,75 +1083,48 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	break;
 
     case CC_Slider:
-	if ( sub & SC_SliderGroove ) {
-	    const QSlider * sl = (const QSlider *) widget;
+	{
+	    const QSlider * slider = (const QSlider *) widget;
 
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	    int mid   = thickness / 2;
-	    int ticks = sl->tickmarks();
-	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int x, y, wi, he;
+	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+						  data),
+		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+						  data);
 
-	    if ( sl->orientation() == Horizontal ) {
-		x = 0;
-		y = tickOffset;
-		wi = sl->width();
-		he = thickness;
-	    } else {
-		x = tickOffset;
-		y = 0;
-		wi = thickness;
-		he = sl->height();
-	    }
-
-	    if ( ticks & QSlider::Above )
-		mid += len / 8;
-	    if ( ticks & QSlider::Below )
-		mid -= len / 8;
-
-	    p->setPen( cg.shadow() );
-	    if ( sl->orientation() == Horizontal ) {
-		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
+	    if ((sub & SC_SliderGroove) && groove.isValid()) {
+		qDrawShadePanel( p, groove, cg, TRUE, 2,
 				 &cg.brush( QColorGroup::Mid ) );
-		((QSlider *) sl)->erase( 0, 0, sl->width(), tickOffset );
-		((QSlider *) sl)->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
-	    } else {
-		qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
-				 &cg.brush( QColorGroup::Mid ) );
-		((QSlider *) sl)->erase( 0, 0,  tickOffset, sl->height() );
-		((QSlider *) sl)->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
+
+
+		if ( slider->hasFocus() ) {
+		    QRect fr = subRect( SR_SliderFocusRect, widget );
+		    drawPrimitive( PE_FocusRect, p, fr, cg );
+		}
 	    }
+
+	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
+		drawPrimitive( PE_ButtonBevel, p, handle, cg );
+
+		if ( slider->orientation() == Horizontal ) {
+		    QCOORD mid = handle.x() + handle.width() / 2;
+		    qDrawShadeLine( p, mid, handle.y(), mid,
+				    handle.y() + handle.height() - 2,
+				    cg, TRUE, 1);
+		} else {
+		    QCOORD mid = handle.y() + handle.height() / 2;
+		    qDrawShadeLine( p, handle.x(), mid,
+				    handle.x() + handle.width() - 2, mid,
+				    cg, TRUE, 1);
+		}
+	    }
+
+	    if ( sub & SC_SliderTickmarks )
+		QCommonStyle::drawComplexControl( control, p, widget, r, cg, how,
+						  SC_SliderTickmarks, subActive,
+						  data );
+
+	    break;
 	}
-
-	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, how,
-					      SC_SliderTickmarks, subActive,
-					      data );
-
-	if ( sub & SC_SliderHandle ) {
-	    QSlider * sl = (QSlider *) widget;
-
-	    if ( sl->hasFocus() ) {
-		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PE_FocusRect, p, re, cg );
-	    }
-
-	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
-					       data );
-	    drawPrimitive( PE_ButtonBevel, p, re, cg );
-	    if ( sl->orientation() == Horizontal ) {
-		QCOORD mid = re.x() + re.width() / 2;
-		qDrawShadeLine( p, mid,  re.y(), mid,  re.y() + re.height() - 2,
-				cg, TRUE, 1);
-	    } else {
-		QCOORD mid = re.y() + re.height() / 2;
-		qDrawShadeLine( p, re.x(), mid,  re.x() + re.width() - 2, mid,
-				cg, TRUE, 1);
-	    }
-	}
-
-	break;
 
     case CC_ComboBox:
 	if ( sub & SC_ComboBoxArrow ) {
@@ -1420,13 +1393,12 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 
     case CC_Slider:
 	{
-	    switch ( sc ) {
-	    case SC_SliderHandle: {
+	    if (sc == SC_SliderHandle) {
 		const QSlider * sl = (const QSlider *) widget;
-		int sliderPos = 0;
-		int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-		int thickness  = pixelMetric( PM_SliderControlThickness, sl );
-		int len   = pixelMetric( PM_SliderLength, sl );
+		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
+		int thickness   = pixelMetric( PM_SliderControlThickness, sl );
+		int sliderPos   = 0;
+		int len         = pixelMetric( PM_SliderLength, sl );
 		int motifBorder = 3;
 
 		if ( data )
@@ -1440,11 +1412,8 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		    rect.setRect( tickOffset + motifBorder,
 				  sliderPos + motifBorder,
 				  thickness - 2*motifBorder, len );
-		break; }
-
-	    default:
-		break;
-	    }
+	    } else
+		rect = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 
 	    break;
 	}

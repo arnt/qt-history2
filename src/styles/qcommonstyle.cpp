@@ -1436,6 +1436,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    int pos;
 
 	    if ( ticks & QSlider::Above ) {
+		if (sl->orientation() == Horizontal)
+		    p->fillRect(0, 0, sl->width(), tickOffset,
+				cg.brush(QColorGroup::Background));
+		else
+		    p->fillRect(0, 0, tickOffset, sl->width(),
+				cg.brush(QColorGroup::Background));
 		p->setPen( cg.foreground() );
 		int v = sl->minValue();
 		if ( !interval )
@@ -1454,6 +1460,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		int avail = (sl->orientation() == Horizontal) ? sl->height() :
 			    sl->width();
 		avail -= tickOffset + thickness;
+
+		if (sl->orientation() == Horizontal)
+		    p->fillRect(0, tickOffset + thickness, sl->width(), tickOffset,
+				cg.brush(QColorGroup::Background));
+		else
+		    p->fillRect(tickOffset + thickness, 0, tickOffset, sl->height(),
+				cg.brush(QColorGroup::Background));
 		p->setPen( cg.foreground() );
 		int v = sl->minValue();
 		if ( !interval )
@@ -1653,104 +1666,131 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 #endif // QT_NO_SCROLLBAR
 
 #ifndef QT_NO_SLIDER
-    case CC_Slider: {
-	switch ( sc ) {
-	case SC_SliderHandle: {
+    case CC_Slider:
+	{
 	    const QSlider * sl = (const QSlider *) widget;
-	    int sliderPos = 0;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
-	    int len   = pixelMetric( PM_SliderLength, sl );
+	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
 
-	    if ( data )
-		sliderPos = *((int *) data[0]);
+	    switch ( sc ) {
+	    case SC_SliderHandle:
+		{
+		    const QSlider * sl = (const QSlider *) widget;
+		    int sliderPos = 0;
+		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+		    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
+		    int len   = pixelMetric( PM_SliderLength, sl );
 
-	    if ( sl->orientation() == Horizontal )
-		rect.setRect( sliderPos, tickOffset, len, thickness );
-	    else
-		rect.setRect( tickOffset, sliderPos, thickness, len );
-	    break; }
+		    if ( data )
+			sliderPos = *((int *) data[0]);
 
-	case SC_SliderGroove:
-	    break;
-	default:
+		    if ( sl->orientation() == Horizontal )
+			rect.setRect( sliderPos, tickOffset, len, thickness );
+		    else
+			rect.setRect( tickOffset, sliderPos, thickness, len );
+		    break;
+		}
+
+	    case SC_SliderGroove:
+		{
+		    int x, y, wi, he;
+
+		    if ( sl->orientation() == Horizontal ) {
+			x = 0;
+			y = tickOffset;
+			wi = sl->width();
+			he = thickness;
+		    } else {
+			x = tickOffset;
+			y = 0;
+			wi = thickness;
+			he = sl->height();
+		    }
+
+		    rect.setRect(x, y, wi, he);
+		    break;
+		}
+
+	    default:
+		break;
+	    }
+
 	    break;
 	}
-	break; }
 #endif // QT_NO_SLIDER
 
 #ifndef QT_NO_TOOLBUTTON
-    case CC_ToolButton:
-	{
-	    const QToolButton *toolbutton = (const QToolButton *) widget;
-	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+ case CC_ToolButton:
+     {
+	 const QToolButton *toolbutton = (const QToolButton *) widget;
+	 int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	    rect = toolbutton->rect();
+	 rect = toolbutton->rect();
 
-	    switch (sc) {
-	    case SC_ToolButton:
-		if (toolbutton->popup() && ! toolbutton->popupDelay())
-		    rect.addCoords(0, 0, -mbi, 0);
-		break;
+	 switch (sc) {
+	 case SC_ToolButton:
+	     if (toolbutton->popup() && ! toolbutton->popupDelay())
+		 rect.addCoords(0, 0, -mbi, 0);
+	     break;
 
-	    case SC_ToolButtonMenu:
-		if (toolbutton->popup() && ! toolbutton->popupDelay())
-		    rect.addCoords(rect.width() - mbi, 0, 0, 0);
-		break;
+	 case SC_ToolButtonMenu:
+	     if (toolbutton->popup() && ! toolbutton->popupDelay())
+		 rect.addCoords(rect.width() - mbi, 0, 0, 0);
+	     break;
 
-	    default:
-		break;
-	    }
-	    break;
-	}
+	 default:
+	     break;
+	 }
+	 break;
+     }
 #endif // QT_NO_TOOLBUTTON
 
 #ifndef QT_NO_TITLEBAR
-    case CC_TitleBar:
-	{
-	    const QTitleBar *titlebar = (const QTitleBar *) widget;
+ case CC_TitleBar:
+     {
+	 const QTitleBar *titlebar = (const QTitleBar *) widget;
 
-	    switch (sc) {
-	    case SC_TitleBarLabel:
-		rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
-			       titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
-						   TITLEBAR_SEPARATION) * 3),
-			       titlebar->height());
-		break;
+	 switch (sc) {
+	 case SC_TitleBarLabel:
+	     rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
+			    titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
+						TITLEBAR_SEPARATION) * 3),
+			    titlebar->height());
+	     break;
 
-	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-						TITLEBAR_SEPARATION), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	 case SC_TitleBarCloseButton:
+	     rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
+					     TITLEBAR_SEPARATION), 2,
+			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	     break;
 
-	    case SC_TitleBarMaxButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 2), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	 case SC_TitleBarMaxButton:
+	     rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+					      TITLEBAR_SEPARATION) * 2), 2,
+			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	     break;
 
-	    case SC_TitleBarMinButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 3), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	 case SC_TitleBarMinButton:
+	     rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+					      TITLEBAR_SEPARATION) * 3), 2,
+			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	     break;
 
-	    case SC_TitleBarSysMenu:
-		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			     TITLEBAR_CONTROL_HEIGHT);
-		break;
+	 case SC_TitleBarSysMenu:
+	     rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
+			  TITLEBAR_CONTROL_HEIGHT);
+	     break;
 
-	    default:
-		break;
-	    }
-	    break;
-	}
+	 default:
+	     break;
+	 }
+	 break;
+     }
 #endif //QT_NO_TITLEBAR
 
-    default:
-	break;
-    }
+ default:
+     break;
+}
 
     return rect;
 }
