@@ -5311,16 +5311,19 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 }
 #endif
 
+static inline bool isAsian( uchar row ) {
+    return( row > 0x2d && row < 0xfb || row == 0x11 );
+}
+
 bool QTextFormatter::isBreakable( QTextString *string, int pos )
 {
     const QChar &c = string->at( pos ).c;
+    if ( c == QChar_linesep ||
+	 ( c.isSpace() && c.unicode() != '\n' && c.unicode() != 0x00a0U ) ||
+	 c.unicode() == 0xad ) // soft hyphen
+	return TRUE;
     char ch = c.latin1();
-    if ( c == QChar_linesep )
-	return TRUE;
-    if ( c.isSpace() && ch != '\n' && c.unicode() != 0x00a0U )
-	return TRUE;
-    if ( c.unicode() == 0xad ) // soft hyphen
-	return TRUE;
+    bool asian = FALSE;
     if ( !ch ) {
 	// not latin1, need to do more sophisticated checks for other scripts
 	uchar row = c.row();
@@ -5356,12 +5359,69 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos )
 	}
 	if ( row < 0x11 ) // no asian font
 	    return FALSE;
-	if ( row > 0x2d && row < 0xfb || row == 0x11 )
-	    // asian line breaking. Everywhere allowed except directly
-	    // in front of a punctuation character.
-	    return TRUE;
+	if ( isAsian ( row ) ) {
+	    asian = TRUE;
+	    if ( row == 0x30 ) {
+		// line breaking is forbidden after the following characters:
+		switch ( c.cell() ) {
+		case 0x08: // left angle bracket
+		case 0x0a: // double left angle bracket
+		case 0x0c: // left corner bracket
+		case 0x0e: // white left corner bracket
+		case 0x10: // left black lenticular bracket
+		    return FALSE;
+		}
+	    }
+	}
     }
-    return FALSE;
+    if ( pos < string->length() - 1 ) {
+	const QChar &c2 = string->at( pos + 1 ).c;
+	uchar row = c2.row();
+	bool asianFollows = isAsian( row );
+	if ( asian ) {
+	    if ( row == 0x30 ) {
+		// line breaking is forbidden before the following characters:
+		switch ( c2.cell() ) {
+		case 0x01: // Ideographic comma
+		case 0x02: // Ideographic full stop
+		case 0x09: // Right angle bracket
+		case 0x0b: // double right angle bracket
+		case 0x0d: // right corner bracket
+		case 0x0f: // white right corner bracket
+		case 0x11: // right black lenticular bracket
+		    return FALSE;
+		}
+	    } else if ( !row ) {
+		switch( c2.cell() ) {
+		case 0x29: // right round brace
+		case 0x7d: // right curly brace
+		case 0x5d: // right square brace
+		case 0x21: // exclamation mark
+		case 0x2c: // period
+		case 0x2e: // full stop
+		case 0x3f: // question mark
+		    return FALSE;
+		}
+	    }
+	}
+	if ( asianFollows && !c.row() ) {
+	    switch( c.cell() ) {
+	    case 0x28: // left round brace
+	    case 0x5b: // left curly brace
+	    case 0x7b: // left square brace
+		return FALSE;
+	    case 0x29: // right round brace
+	    case 0x7d: // right curly brace
+	    case 0x5d: // right square brace
+	    case 0x21: // exclamation mark
+	    case 0x2c: // period
+	    case 0x2e: // full stop
+	    case 0x3f: // question mark
+		return TRUE;
+	    }
+	}
+    }
+    return asian;
 }
 
 void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
