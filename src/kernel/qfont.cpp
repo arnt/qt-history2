@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#9 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#9 $";
 #endif
 
 
@@ -48,7 +48,6 @@ void QFont::setFamily( const char *family )
     if ( d->req.family != family ) {
 	d->req.family = family;
 	d->req.dirty  = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -64,7 +63,6 @@ void QFont::setPointSize( int pointSize )
     if ( d->req.pointSize != pointSize ) {
 	d->req.pointSize = pointSize * 10;
 	d->req.dirty     = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -73,7 +71,6 @@ void QFont::setItalic( bool i )
     if ( d->req.italic != i ) {
 	d->req.italic = i;
 	d->req.dirty  = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -88,7 +85,6 @@ void QFont::setWeight( int w )
     if ( d->req.weight != w ) {
 	d->req.weight = w;
 	d->req.dirty  = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -97,7 +93,6 @@ void QFont::setUnderline( bool b )
     if ( d->req.underline != b ) {
 	d->req.underline  = b;
 	d->act.underline  = b;                  // underline always possible
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -106,7 +101,6 @@ void QFont::setStrikeOut( bool b )
     if ( d->req.strikeOut != b ) {
 	d->req.strikeOut  = b;
 	d->act.strikeOut  = b;                  // strikeOut always posible
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -115,7 +109,6 @@ void QFont::setFixedPitch( bool b )
     if ( d->req.fixedPitch != b ) {
 	d->req.fixedPitch = b;
 	d->req.dirty      = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -125,7 +118,6 @@ void QFont::setStyleHint( StyleHint h )
 	d->req.styleHint     = h;
 	d->req.hintSetByUser = TRUE;
 	d->req.dirty         = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -134,7 +126,6 @@ void QFont::setCharSet( CharSet c )
     if ( d->req.charSet != c ) {
 	d->req.charSet = c;
 	d->req.dirty   = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -200,7 +191,6 @@ void QFont::setRawMode( bool b )
     if ( d->req.rawMode != b ) {
 	d->req.rawMode = b;
 	d->req.dirty   = TRUE;
-	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -301,7 +291,6 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
     f.d->req.hintSetByUser = ( bits && 0x0f ) ? TRUE : FALSE;
     f.d->req.rawMode	   = ( bits && 0x10 ) ? TRUE : FALSE;
     f.d->req.dirty	   = TRUE;
-    QPainter::changedFont( &f, TRUE );	// tell painter about new font
 
     return s;
 }
