@@ -786,8 +786,10 @@ bool QApplication::x11_apply_settings()
     }
 
     X11->default_im = settings.value("DefaultInputMethodSwitcher", QLatin1String("imsw-multi")).toString();
+#ifndef QT_NO_IM
     if (!QInputContextFactory::keys().contains(X11->default_im))
         X11->default_im = QLatin1String("xim");
+#endif // QT_NO_IM
 #endif
 
     if (update_timestamp) {

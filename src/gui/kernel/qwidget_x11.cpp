@@ -2791,14 +2791,15 @@ QInputContext *QWidget::inputContext()
 */
 void QWidget::setInputContext( const QString& identifierName )
 {
+#ifndef QT_NO_IM
     if (!testAttribute(Qt::WA_InputMethodEnabled))
         return;
     QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
-
     if (icWidget->d->ic)
 	delete icWidget->d->ic;
     // an input context that has the identifierName is generated.
     icWidget->d->ic = QInputContextFactory::create( identifierName, icWidget );
+#endif // QT_NO_IM
 }
 
 
@@ -2814,11 +2815,11 @@ void QWidget::setInputContext( const QString& identifierName )
 */
 void QWidgetPrivate::createInputContext()
 {
+#ifndef QT_NO_IM
     if(!q->testAttribute(Qt::WA_InputMethodEnabled))
 	return;
 
     QWidget *icWidget = q->testAttribute(Qt::WA_OwnInputContext) ? q : q->topLevelWidget();
-#ifndef QT_NO_IM
     if (icWidget->d->ic)
         return;
     q->setInputContext(QApplication::defaultInputMethod());
