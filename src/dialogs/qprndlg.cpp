@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#41 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -359,6 +359,68 @@ static void parseEtcLpMember( QListView * printers )
     }
 }
 
+// IRIX 6.x
+static void parseSpoolInterface( QListView * printers )
+{
+    QDir lp( "/usr/spool/lp/interface" );
+    const QFileInfoList * files = lp.entryInfoList();
+    if( !files )
+	return;
+
+    QFileInfoListIterator it( *files );
+    QFileInfo *printer;
+    while ( (printer = it.current()) != 0) {
+	++it;
+  
+	if ( !printer->isFile() )
+	    continue;
+
+	// parse out some information
+	QFile configFile( printer->filePath() );
+	if ( !configFile.open( IO_ReadOnly ) )
+	    continue;
+
+	QString line(1025);
+	QString hostName;
+	QString hostPrinter;
+	QString printerType;
+	int lineLength = 0;
+
+	QRegExp typeKey("^TYPE=");
+	QRegExp hostKey("^HOSTNAME=");
+	QRegExp hostPrinterKey("^HOSTPRINTER=");
+	int length;
+
+	while( !configFile.atEnd() &&
+	    (lineLength=configFile.readLine( line.data(), 1024 )) > 0 ) {
+
+	    if(typeKey.match(line, 0, &length) == 0)
+		printerType = line.mid(length, line.length()-length);
+	    if(hostKey.match(line, 0, &length) == 0)
+		hostName = line.mid(length, line.length()-length);
+	    if(hostPrinterKey.match(line, 0, &length) == 0)
+		hostPrinter = line.mid(length, line.length()-length);
+	}
+	configFile.close();
+
+	printerType = printerType.stripWhiteSpace();
+	if ( !printerType.isEmpty() && qstricmp( printerType, "postscript" ))
+	    continue;
+
+	if(hostName.isEmpty() || hostPrinter.isEmpty())
+	{
+	    perhapsAddPrinter( printers, printer->fileName().data(),
+		0, 0);
+	} else
+	{
+	    QString comment("Remote name: ");
+	    comment += hostPrinter;
+	    perhapsAddPrinter( printers, printer->fileName().data(),
+		hostName, comment);
+	}
+    }
+}
+
 static QPrintDialog * globalPrintDialog = 0;
 
 
@@ -549,6 +611,10 @@ QGroupBox * QPrintDialog::setupDestination()
     f.setFile( "/etc/lp/member" );
     if ( f.isDir() )
 	parseEtcLpMember( d->printers );
+
+    f.setFile( "/usr/spool/lp/interface" );
+    if ( f.isDir() )
+	parseSpoolInterface( d->printers );
 
     // all printers hopefully known.  try to find a good default
     char * dollarPrinter;
