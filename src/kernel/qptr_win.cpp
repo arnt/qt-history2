@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#22 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#22 $")
 
 
 // --------------------------------------------------------------------------
@@ -156,10 +156,7 @@ static bool obtain_obj( void **ref, HANDLE *obj, ulong pix, QHDCObj **cache,
     if ( !cache_init )
 	init_cache();
 
-    int k = (pix % cache_size) * 4;
-    // noe bedre ( (((pix >> 12) & 0xc0) + ((pix >> 6) & 0x3c) + ((pix >> 4) & 0x0f)) % cache_size) * 4;
-    // temmelig dårlig (((pix >> 15) ^ (pix >> 9) ^ pix) % cache_size) * 4;
-
+    int	     k = (pix % cache_size) * 4;
     QHDCObj *h = cache[k++];
     QHDCObj *prev = 0;
 
@@ -663,12 +660,14 @@ bool QPainter::begin( const QPaintDevice *pd )
     else if ( dt == PDT_PRINTER ) {		// device is a printer
 	if ( pdev->handle() ) {
 	    hdc = pdev->handle();
-	    ww = vw = GetDeviceCaps( hdc, HORZRES );
-	    wh = vh = GetDeviceCaps( hdc, VERTRES );
 	}
     }
+    if ( testf(ExtDev) ) {
+	ww = vw = pdev->metric( PDM_WIDTH );
+	wh = vh = pdev->metric( PDM_HEIGHT );
+    }
     if ( ww == 0 )
-	ww = wh = vw = vh = 1;
+	ww = wh = vw = vh = 1024;
 
     if ( testf(ExtDev) ) {			// external device
 	setBackgroundColor( bg_col );		// default background color
@@ -835,8 +834,38 @@ void QPainter::setBrushOrigin( int x, int y )
 }
 
 
+// #define OUR_XFORM
+
 void QPainter::updateXForm()
 {
+#if defined(OUR_XFORM)
+
+    QWMatrix m;
+    if ( testf(VxF) ) {
+	m.translate( vx, vy );
+	m.scale( 1.0*vw/ww, 1.0*vh/wh );
+	m.translate( -wx, -wy );
+	m = wxmat * m;
+    }
+    else
+	m = wxmat;
+    wm11 = d2i_round((double)m.m11()*65536.0);
+    wm12 = d2i_round((double)m.m12()*65536.0);
+    wm21 = d2i_round((double)m.m21()*65536.0);
+    wm22 = d2i_round((double)m.m22()*65536.0);
+    wdx	 = d2i_round((double)m.dx() *65536.0);
+    wdy	 = d2i_round((double)m.dy() *65536.0);
+    bool invertible;
+    m = m.invert( &invertible );		// invert matrix
+    im11 = d2i_round((double)m.m11()*65536.0);
+    im12 = d2i_round((double)m.m12()*65536.0);
+    im21 = d2i_round((double)m.m21()*65536.0);
+    im22 = d2i_round((double)m.m22()*65536.0);
+    idx	 = d2i_round((double)m.dx() *65536.0);
+    idy	 = d2i_round((double)m.dy() *65536.0);
+
+#else
+
     if ( testf(VxF) ) {				// view xform enabled
 	SetMapMode( hdc, MM_ANISOTROPIC );
 #if defined(_WS_WIN32_)
@@ -874,8 +903,8 @@ void QPainter::updateXForm()
 	m.eM22 = wxmat.m22();
 	m.eDx  = wxmat.dx();
 	m.eDy  = wxmat.dy();
-//	SetGraphicsMode( hdc, GM_ADVANCED );
-	SetGraphicsMode( hdc, GM_COMPATIBLE );
+	SetGraphicsMode( hdc, GM_ADVANCED );
+//	SetGraphicsMode( hdc, GM_COMPATIBLE );
 	SetWorldTransform( hdc, &m );
 #endif
     }
@@ -900,11 +929,57 @@ void QPainter::updateXForm()
 	SelectObject( hdc, cfont.handle(xff ? 0 : hdc) );
 	xfFont = xff;
     }
+
+#endif // OUR_XFORM
 }
+
+
+#if defined(OUR_XFORM)
+
+// xForm macros, use with care...
+
+#define VXFORM_P(x,y)						\
+    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy; }
+
+#define VXFORM_R(x,y,w,h)					\
+    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy;		\
+      w = (vw*w)/ww; h = (vh*h)/wh;				\
+      if ( w < 0 ) { w = -w; x -= w; }				\
+      if ( h < 0 ) { h = -h; y -= h; } }
+
+#define WXFORM_P(x,y)						\
+    { int xx = wm11*x+wm21*y+wdx;				\
+      xx += xx>0 ? 32768 : -32768;				\
+      y = wm12*x+wm22*y+wdy;					\
+      y += y>0 ? 32768 : -32768;				\
+      x = xx/65536;  y /= 65536; }
+
+#define WXFORM_R(x,y,w,h)					\
+    { x = wm11*x+wdx;						\
+      y = wm22*y+wdy;						\
+      w = wm11*w;						\
+      h = wm22*h;						\
+      x += x>0 ? 32768 : -32768;				\
+      y += y>0 ? 32768 : -32768;				\
+      w += w>0 ? 32768 : -32768;				\
+      h += h>0 ? 32768 : -32768;				\
+      x/=65536; y/=65536; w/=65536; h/=65536; }
+
+#endif // OUR_XFORM
 
 
 QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
+#if defined(OUR_XFORM)
+    int x=pv.x(), y=pv.y();
+    if ( testf(WxF) ) {				// world xform
+	WXFORM_P( x, y );
+    }
+    else if ( testf(VxF) ) {			// view xform
+	VXFORM_P( x, y );
+    }
+    return QPoint( x, y );
+#else
     if ( !hdc ) {
 	return pv;	// !!!hanord what about ext devs???
     }
@@ -913,10 +988,33 @@ QPoint QPainter::xForm( const QPoint &pv ) const
     p.y = pv.y();
     LPtoDP( hdc, &p, 1 );
     return QPoint( p.x, p.y );
+#endif
 }
 
 QRect QPainter::xForm( const QRect &rv ) const
 {						// map rect, virtual -> device
+#if defined(OUR_XFORM)
+    if ( !testf(VxF|WxF) )
+	return rv;
+    int x, y, w, h;
+    rv.rect( &x, &y, &w, &h );
+    if ( testf(WxF) ) {				// world xform
+	if ( wm12 == 0 && wm21 == 0 ) {		// scaling+translation only
+	    WXFORM_R(x,y,w,h);
+	}
+	else {					// return bounding rect
+	    QPointArray a( rv );
+	    a = xForm( a );
+	    return a.boundingRect();
+	}
+    }
+    else if ( testf(VxF) ) {			// view xform
+	VXFORM_P(x,y);
+	w = (vw*w)/ww;
+	h = (vh*h)/wh;
+    }
+    return QRect( x, y, w, h );
+#else
     if ( !hdc ) {
 	return rv;	// !!!hanord what about ext devs???
     }
@@ -930,20 +1028,53 @@ QRect QPainter::xForm( const QRect &rv ) const
     LPtoDP( hdc, (POINT*)&r, 2 );
     return QRect( QPoint(r.left,  r.top),
 		  QPoint(r.right, r.bottom) );
+#endif
 }
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {						// map point array, v -> d
+#if defined(OUR_XFORM)
+    if ( !testf(VxF|WxF) )
+	return av;
+    QPointArray a = av.copy();
+    int x, y;
+    for ( int i=0; i<(int)a.size(); i++ ) {
+	a.point( i, &x, &y );
+	if ( testf(WxF) )
+	    WXFORM_P( x, y )
+	else if ( testf(VxF) )
+	    VXFORM_P( x, y )
+	a.setPoint( i, x, y );
+    }
+    return a;
+#else
     if ( !hdc ) {
 	return av.copy(); // !!!hanord what about ext devs???
     }
     QPointArray a = av.copy();
     LPtoDP( hdc, (POINT*)a.data(), a.size() );
     return a;
+#endif
 }
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
+#if defined(OUR_XFORM)
+    int x=pd.x(), y=pd.y();
+    if ( testf(WxF) ) {
+	int xx = im11*x+im21*y+idx;
+	xx += xx > 0 ? 32768 : -32768;
+	int yy = im12*x+im22*y+idy;
+	yy += yy > 0 ? 32768 : -32768;
+	x = xx/65536;
+	y = yy/65536;
+    }
+    else if ( testf(VxF) ) {
+	x = (ww*(x-vx))/vw + wx;
+	y = (wh*(y-vy))/vh + wy;
+    }
+    return QPoint( x, y );
+#else
     if ( !hdc ) {
 	return pd;	// !!!hanord what about ext devs???
     }
@@ -952,10 +1083,35 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
     p.y = pd.y();
     DPtoLP( hdc, &p, 1 );
     return QPoint( p.x, p.y );
+#endif
 }
 
 QRect QPainter::xFormDev( const QRect &rd ) const
 {						// map rect, device -> virtual
+#if defined(OUR_XFORM)
+    if ( !testf(VxF|WxF) )
+	return rd;
+    int x, y, w, h;
+    rd.rect( &x, &y, &w, &h );
+    if ( testf(WxF) ) {
+	int x1 = im11*x+im21*y+idx;
+	int y1 = im12*x+im22*y+idy;
+	int x2 = im11*(x+w-1)+im21*(y+h-1)+idx;
+	int y2 = im12*(x+w-1)+im22*(y+h-1)+idy;
+	x1 += x1>0 ? 32768 : -32768;
+	y1 += y1>0 ? 32768 : -32768;
+	x2 += x2>0 ? 32768 : -32768;
+	y2 += y2>0 ? 32768 : -32768;
+	x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1;
+    }
+    else if ( testf(VxF) ) {
+	x = (ww*(x-vx))/vw + wx;
+	y = (wh*(y-vy))/vh + wy;
+	w = (ww*w)/vw;
+	h = (wh*h)/vh;
+    }
+    return QRect( x, y, w, h );
+#else
     if ( !hdc ) {
 	return rd;	// !!!hanord what about ext devs???
     }
@@ -964,16 +1120,41 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     DPtoLP( hdc, (POINT*)&r, 2 );
     return QRect( QPoint(r.left, r.top),
 		  QPoint(r.right,r.bottom) );
+#endif
 }
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {
+#if defined(OUR_XFORM)
+    if ( !testf(VxF|WxF) )
+	return ad;
+    QPointArray a = ad.copy();
+    int x, y;
+    for ( int i=0; i<(int)a.size(); i++ ) {
+	a.point( i, &x, &y );
+	if ( testf(WxF) ) {
+	    int xx = im11*x+im21*y+idx;
+	    xx += xx > 0 ? 32768 : -32768;
+	    y = im12*x+im22*y+idy;
+	    y += y > 0 ? 32768 : -32768;
+	    x = xx/65536;
+	    y /= 65536;
+	}
+	else if ( testf(VxF) ) {
+	    x = (ww*(x-vx))/vw + wx;
+	    y = (wh*(y-vy))/vh + wy;
+	}
+	a.setPoint( i, x, y );
+    }
+    return a;
+#else
     if ( !hdc ) {
 	return ad.copy(); // !!!hanord what about ext devs???
     }
     QPointArray a = ad.copy();
     DPtoLP( hdc, (POINT*)a.data(), a.size() );
     return a;
+#endif
 }
 
 
@@ -1117,6 +1298,33 @@ void QPainter::drawRect( int x, int y, int w, int h )
 {
     if ( !isActive() )
 	return;
+#if defined(OUR_XFORM)
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hdc )
+		return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a( QRect(x,y,w,h) );// rectangle polygon
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon; // fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	else if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
+    }
+#else
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	QRect r( x, y, w, h );
@@ -1124,6 +1332,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hdc )
 	    return;
     }
+#endif
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
 	    return;
@@ -1477,12 +1686,10 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    drawPixmap( x, y, tmp );
 	    return;
 	}
-	QPDevCmdParam param[3];
-	QRect  r(0,0,sw,sh);
+	QPDevCmdParam param[2];
 	QPoint p(x,y);
-	param[0].rect	= &r;
-	param[1].point	= &p;
-	param[2].pixmap = &pixmap;
+	param[0].point	= &p;
+	param[1].pixmap = &pixmap;
 	if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
 	    return;
     }
