@@ -425,11 +425,11 @@ QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
 
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
 
-    drawBevelButton( p, x+1, y+5, w-7, h-7, g,
+    drawBevelButton( p, x+1, y+3, w-7, h-7, g,
             enabled && down, &g.brush( QColorGroup::Button) );
 
     if (s != QButton::Off)
-	    drawCheckMark( p, x+w-18, y+h-12, w, h, g, s==QButton::On, !enabled );
+	    drawCheckMark( p, x+w-18, y+h-14, w, h, g, s==QButton::On, !enabled );
 
     p->setPen( oldPen );
 }
@@ -485,7 +485,7 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
     p->setPen( color1 );
     p->setBrush( color1 );
     p->fillRect( x, y, w, h, QBrush(color0) );
-    p->fillRect( x+2, y+5, w-7, h-7, QBrush(color1) );
+    p->fillRect( x+2, y+3, w-7, h-7, QBrush(color1) );
 
     if (s != QButton::Off ) {
         static QCOORD check_mark[] = {
@@ -495,7 +495,7 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
 
         QPointArray amark;
         amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
-        amark.translate( x+w-18, y+h-12 );
+        amark.translate( x+w-18, y+h-14 );
         p->drawLineSegments( amark );
         amark.translate( +1, +1 );
         p->drawLineSegments( amark );
