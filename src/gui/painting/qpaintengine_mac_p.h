@@ -25,10 +25,13 @@ static int ropCodes[] = {			// ROP translation table
 };
 
 class paintevent_item;
-class QQuickDrawPaintEnginePrivate
+class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
 {
+    Q_DECL_PUBLIC(QQuickDrawPaintEngine);
 public:
-    QQuickDrawPaintEnginePrivate() {
+    QQuickDrawPaintEnginePrivate(QPaintEngine *engine)
+	: QPaintEnginePrivate(engine)
+    {
 	saved = 0;
 	paintevent = 0;
 	clip.serial = 0;
@@ -68,10 +71,13 @@ public:
 /*****************************************************************************
   Private data
  *****************************************************************************/
-class QCoreGraphicsPaintEnginePrivate
+class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
 {
+    Q_DECL_PUBLIC(QQuickDrawPaintEngine);
 public:
-    QCoreGraphicsPaintEnginePrivate() {
+    QCoreGraphicsPaintEnginePrivate(QPaintEngine *engine)
+	: QQuickPaintEnginePrivate(engine)
+    {
 	hd = 0;
 	pdev = 0;
 	unclipped = 0;

@@ -16,14 +16,15 @@
 #define QPAINTENGINE_H
 
 #include "qnamespace.h"
-#include "qpointarray.h"
-
+#include "qobjectdefs.h"
 #include "qpainter.h"
+#include "qpointarray.h"
 
 class QPainterState;
 class QPaintDevice;
 struct QGlyphLayout;
 class QFontEngine;
+class QPaintEnginePrivate;
 
 class QTextItem {
 public:
@@ -44,11 +45,6 @@ public:
 };
 Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
-struct QPaintEnginePrivate {
-    QPaintEnginePrivate() : active(false), flags(0) {}
-    bool active : 1;
-    uint flags;
-};
 
 class Q_GUI_EXPORT QPaintEngine : public Qt
 {
@@ -73,11 +69,11 @@ public:
 	DirtyRasterOp 		= 0x0040
     };
 
-    QPaintEngine(GCCaps devcaps=0);
-    virtual ~QPaintEngine() { delete d_ptr; }
+    QPaintEngine(QPaintEnginePrivate *dptr, GCCaps devcaps=0);
+    virtual ~QPaintEngine();
 
-    bool isActive() const { return d_ptr->active; }
-    void setActive(bool state) { d_ptr->active = state; };
+    bool isActive() const { return active; }
+    void setActive(bool state) { active = state; }
 
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE) = 0;
     virtual bool end() = 0;
@@ -158,10 +154,10 @@ public:
            UsePrivateCx   	= 0x00010000,
 	   VolatileDC 		= 0x00020000,
 	   Qt2Compat 		= 0x00040000 };
-    inline bool testf( uint b ) const { return (d_ptr->flags&b)!=0; }
-    inline void setf( uint b ) { d_ptr->flags |= b; }
-    inline void clearf( uint b ) { d_ptr->flags &= (uint)(~b); }
-    inline void assignf( uint b ) { d_ptr->flags = (uint) b; }
+    inline bool testf( uint b ) const { return (flags&b)!=0; }
+    inline void setf( uint b ) { flags |= b; }
+    inline void clearf( uint b ) { flags &= (uint)(~b); }
+    inline void assignf( uint b ) { flags = (uint) b; }
     inline void fix_neg_rect( int *x, int *y, int *w, int *h );
     inline bool hasClipping() const { return testf(ClipOn); }
 
@@ -174,26 +170,28 @@ public:
     inline void updateState(QPainterState *state, bool updateGC = true);
     inline QPainterState *painterState() const { return state; }
 
-private:
-    void updateInternal(QPainterState *state, bool updateGC = true);
-
 protected:
     uint dirtyFlag;
     uint changeFlag;
+    uint active : 1;
+    uint flags : 1;
     QPainterState *state;
     GCCaps gccaps;
 
-private:
     QPaintEnginePrivate *d_ptr;
+    Q_DECL_PRIVATE(QPaintEngine);
 
     friend class QWrapperPaintEngine;
     friend class QPainter;
+
+private:
+    void updateInternal(QPainterState *state, bool updateGC = true);
 };
 
 class QWrapperPaintEngine : public QPaintEngine
 {
 public:
-    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
+    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(0, w->gccaps), wrap(w) { }
 
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
     virtual bool end() { return wrap->end(); }

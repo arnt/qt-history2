@@ -872,9 +872,9 @@ QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	data->paintEngine = new QCoreGraphicsPaintEngine(this);
+	data->paintEngine = new QCoreGraphicsPaintEngine(0, this);
 #else
-	data->paintEngine = new QQuickDrawPaintEngine(this);
+	data->paintEngine = new QQuickDrawPaintEngine(0, this);
 #endif
     }
     return data->paintEngine;

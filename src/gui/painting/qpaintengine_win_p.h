@@ -18,6 +18,7 @@
 #include <windows.h>
 
 #include "qnamespace.h"
+#include "qpaintengine_p.h"
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
@@ -40,10 +41,13 @@ static const short rasterOpCodes[] = {
     R2_NOTMERGEPEN	// NorROP
 };
 
-class QWin32PaintEnginePrivate
+class QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
 public:
-    QWin32PaintEnginePrivate() :
+    Q_DECL_PUBLIC(QWin32PaintEngine);
+
+    QWin32PaintEnginePrivate(QPaintEngine *paintEngine) :
+	QPaintEnginePrivate(paintEngine),
 	hwnd(0),
 	hdc(0),
 	hpen(0),
@@ -90,18 +94,6 @@ public:
     uint 		fontFlags;
 
     const QPaintDevice        *device;
-};
-
-class QWin32PrinterPaintEnginePrivate : public QWin32PaintEnginePrivate
-{
-public:
-    QWin32PrinterPaintEnginePrivate()
-	: printer(0),
-	  state(0)
-    {
-    }
-    QPrinter *printer;
-    int state;
 };
 
 #endif

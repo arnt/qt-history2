@@ -39,7 +39,17 @@
 
 #include "qmath_p.h"
 
+#include <private/qpaintengine_p.h>
 #include "qpaintengine_x11_p.h"
+
+// #define GC_CACHE_STAT
+#if defined(GC_CACHE_STAT)
+#include "qtextstream.h"
+#include "qbuffer.h"
+#endif
+
+#define d d_func()
+#define q q_func()
 
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
@@ -269,11 +279,7 @@ static void init_gc_cache()
 }
 
 
-// #define GC_CACHE_STAT
 #if defined(GC_CACHE_STAT)
-#include "qtextstream.h"
-#include "qbuffer.h"
-
 static int g_numhits    = 0;
 static int g_numcreates = 0;
 static int g_numfaults  = 0;
@@ -480,11 +486,9 @@ void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h )
  * QX11PaintEngine members
  */
 
-QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
-    : QPaintEngine(UsesFontEngine)
+QX11PaintEngine::QX11PaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *target)
+    : QPaintEngine(dptr ? dptr : new QX11PaintEnginePrivate(this), UsesFontEngine)
 {
-    d = new QX11PaintEnginePrivate;
-
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
@@ -494,7 +498,6 @@ QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
 
 QX11PaintEngine::~QX11PaintEngine()
 {
-    delete d;
 }
 
 void QX11PaintEngine::initialize()

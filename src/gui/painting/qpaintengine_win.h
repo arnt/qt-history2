@@ -27,7 +27,7 @@ class QTextEngine;
 class QWin32PaintEngine : public QPaintEngine
 {
 public:
-    QWin32PaintEngine(const QPaintDevice *target, QWin32PaintEnginePrivate *dptr = 0);
+    QWin32PaintEngine(QWin32PaintEnginePrivate *dptr, const QPaintDevice *target);
     ~QWin32PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
@@ -77,13 +77,13 @@ public:
 	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
+    Q_DECL_PRIVATE(QWin32PaintEngine);
+
 private:
     void drawPolyInternal( const QPointArray &a, bool close );
 
 protected:
     friend class QPainter;
-
-    QWin32PaintEnginePrivate *d;
 };
 
 #ifndef QT_NO_PRINTER

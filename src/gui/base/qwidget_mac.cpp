@@ -1185,7 +1185,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *)
 {
-    if(!width) 
+    if(!width)
 	width = 1;
     if(!height)
 	height = 1;
@@ -2581,9 +2581,9 @@ QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(this);
+	const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(0, this);
 #else
-	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(this);
+	((QWidget *) this)->d->paintEngine = new QQuickDrawPaintEngine(0, this);
 #endif
     }
     return d->paintEngine;

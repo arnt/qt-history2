@@ -20,6 +20,7 @@
 #include "qregion.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+#include <private/qpaintengine_p.h>
 
 /* paintevent magic to provide Windows semantics on Qt/E
  */
@@ -84,33 +85,27 @@ void qt_draw_background( QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int
 // ########
 
 
-class QWSPaintEnginePrivate
+class QWSPaintEnginePrivate : public QPaintEnginePrivate
 {
+    Q_DECL_PUBLIC(QWSPaintEngine);
 public:
     QWSPaintEnginePrivate() :gfx(0), pdev(0) {}
     QGfx *gfx;
     QPaintDevice *pdev;
 };
 
+#define d d_func()
+#define q q_func()
 
-
-
-
-QWSPaintEngine::QWSPaintEngine(const QPaintDevice *pdev)
-    : QPaintEngine(UsesFontEngine)
+QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *pdev)
+    : QPaintEngine(dptr ? dptr : new QWSPaintEnginePrivate(this), UsesFontEngine)
 {
-
-    d = new QWSPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice *>(pdev);
-
-
 //	qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 QWSPaintEngine::~QWSPaintEngine()
 {
 //	qDebug("QWSPaintEngine::~QWSPaintEngine");
-
-    delete d;
 }
 
 QGfx *QWSPaintEngine::gfx()

@@ -303,11 +303,7 @@ public:
     void	clearWState( WState f ) { QWidget::clearWState(f); }
     QWExtra    *xtra()			{ return d->extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
-#if defined(Q_CC_GNU)
-    void	markFrameStrutDirty()	{ fstrut_dirty = 1; }
-#else
-    void	markFrameStrutDirty()	{ QWidget::fstrut_dirty = 1; }
-#endif
+    void	markFrameStrutDirty()	{ data->fstrut_dirty = 1; }
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
@@ -328,9 +324,9 @@ public:
 
 void QETWidget::reparentWorkaround()
 {
-    QWidget::wmapper()->remove(winid);
+    QWidget::wmapper()->remove(data->winid);
     clearWState(WState_Created | WState_Visible | WState_ForceHide);
-    winid = 0;
+    data->winid = 0;
     QRect geom = geometry();
     create(0, FALSE, FALSE);
     setGeometry(geom);
@@ -3176,7 +3172,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QSize newSize( a, b );
 	cr.setSize( newSize );
 	if ( msg.wParam != SIZE_MINIMIZED )
-	    crect = cr;
+	    data->crect = cr;
 	if ( isTopLevel() ) {			// update caption/icon text
 	    d->createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
@@ -3231,7 +3227,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	// Ignore silly Windows move event to wild pos after iconify.
 	if ( !isMinimized() && newCPos != oldPos ) {
 	    cr.moveTopLeft( newCPos );
-	    crect = cr;
+	    data->crect = cr;
 	    if ( isVisible() ) {
 		QMoveEvent e( newCPos, oldPos );  // cpos (client position)
 		QApplication::sendSpontaneousEvent( this, &e );
@@ -3272,12 +3268,12 @@ void QETWidget::eraseWindowBackground(HDC hdc)
     }
 
     RECT r;
-    GetClientRect( winid, &r );
+    GetClientRect( data->winid, &r );
 
     qt_erase_background
 	( hdc, r.left, r.top,
 	  r.right-r.left, r.bottom-r.top,
-	  pal.brush(w->d->bg_role),
+	  data->pal.brush(w->d->bg_role),
 	  offset.x(), offset.y() );
 }
 

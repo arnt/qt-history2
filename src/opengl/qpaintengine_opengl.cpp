@@ -19,10 +19,14 @@
 #include "qmap.h"
 #include "qpaintengine_opengl.h"
 #include "qpen.h"
+#include "private/qpaintengine_p.h"
 
-class QOpenGLPaintEnginePrivate {
+class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
+    Q_DECL_PUBLIC(QOpenGLPaintEngine);
 public:
-    QOpenGLPaintEnginePrivate()
+    QOpenGLPaintEnginePrivate(QPaintEngine *engine)
+	: QPaintEnginePrivate(engine)
+
     {
 	rop = Qt::CopyROP;
 	dev = 0;
@@ -34,17 +38,19 @@ public:
     Qt::RasterOp rop;
 };
 
+#define d d_func()
+#define q q_func()
+
 #define dgl d->dev
 
 QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
-    : QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform))
+    : QPaintEngine(new QOpenGLPaintEnginePrivate(this),
+		   GCCaps(CoordTransform | PenWidthTransform | PixmapTransform))
 {
-    d = new QOpenGLPaintEnginePrivate;
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-    delete d;
 }
 
 bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool begin)

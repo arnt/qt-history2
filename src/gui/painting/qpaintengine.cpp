@@ -13,15 +13,24 @@
 ****************************************************************************/
 
 #include "qpaintengine.h"
+#include "qpaintengine_p.h"
 #include "qpainter_p.h"
 
-QPaintEngine::QPaintEngine(GCCaps caps)
+#define d d_ptr()
+#define q q_ptr()
+
+QPaintEngine::QPaintEngine(QPaintEnginePrivate *dptr, GCCaps caps)
     : dirtyFlag(0),
       changeFlag(0),
       state(0),
-      gccaps(caps)
+      gccaps(caps),
+      d_ptr(dptr ? dptr : new QPaintEnginePrivate(this))
 {
-    d_ptr = new QPaintEnginePrivate;
+}
+
+QPaintEngine::~QPaintEngine()
+{
+    delete d_ptr;
 }
 
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
@@ -84,7 +93,6 @@ void QPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
 {
 }
 
-
 void QWrapperPaintEngine::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
 void QWrapperPaintEngine::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
 void QWrapperPaintEngine::updateFont(QPainterState *ps) { wrap->updateFont(ps); }
@@ -92,7 +100,6 @@ void QWrapperPaintEngine::updateRasterOp(QPainterState *ps) { wrap->updateRaster
 void QWrapperPaintEngine::updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
 void QWrapperPaintEngine::updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
 void QWrapperPaintEngine::updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
-
 
 void QWrapperPaintEngine::drawLine(const QPoint &p1, const QPoint &p2) { wrap->drawLine(p1, p2); }
 void QWrapperPaintEngine::drawRect(const QRect &r) { wrap->drawRect(r); }

@@ -32,6 +32,9 @@
 
 // #define NO_NATIVE_XFORM
 
+#define d d_func()
+#define q q_func()
+
 #define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
 static int qt_winver = Qt::WV_NT;
@@ -265,14 +268,19 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen	release_obj
 #define release_brush	release_obj
 
-QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target, QWin32PaintEnginePrivate *dptr)
+QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate *dptr, const QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform | UsesFontEngine)),
+      QPaintEngine(dptr ? dptr : new QWin32PaintEnginePrivate(this),
+		   GCCaps(CoordTransform
+			  | PenWidthTransform
+			  | PixmapTransform
+			  | UsesFontEngine))
 #else
-      QPaintEngine(GCCaps(UsesFontEngine)),
+      QPaintEngine(dptr ? dptr : new QWin32PaintEnginePrivate(this),
+		   GCCaps(UsesFontEngine))
 #endif
-      d(dptr ? dptr : new QWin32PaintEnginePrivate)
+
 {
     // ### below is temp hack to survive pixmap gc construction
     d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
@@ -282,7 +290,6 @@ QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target, QWin32PaintEngi
 
 QWin32PaintEngine::~QWin32PaintEngine()
 {
-    delete d;
 }
 
 
@@ -1341,281 +1348,3 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
 	drawTile( this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y() );
     }
 }
-
-#ifndef QT_NO_PRINTER
-
-QWin32PrinterPaintEngine::QWin32PrinterPaintEngine(const QPaintDevice *target)
-    : QWin32PaintEngine(target, new QWin32PrinterPaintEnginePrivate)
-{
-}
-
-bool QWin32PrinterPaintEngine::begin(const QPaintDevice *pdev,
-				     QPainterState *state,
-				     bool unclipped)
-{
-#if 0
-    bool ok = state == PST_IDLE;
-    if ( ok && !hdc ) {
-	setup( 0 );
-	if ( !hdc )
-	    ok = FALSE;
-    }
-    QT_WA( {
-	DOCINFO di;
-	memset( &di, 0, sizeof(DOCINFO) );
-	di.cbSize = sizeof(DOCINFO);
-	di.lpszDocName = (TCHAR*)doc_name.ucs2();
-	if ( output_file && !output_filename.isEmpty() )
-	    di.lpszOutput = (TCHAR*)output_filename.ucs2();
-	if ( ok && StartDoc(hdc, &di) == SP_ERROR )
-	    ok = FALSE;
-    } , {
-	DOCINFOA di;
-	memset( &di, 0, sizeof(DOCINFOA) );
-	di.cbSize = sizeof(DOCINFOA);
-	QByteArray docNameA = doc_name.toLocal8Bit();
-	di.lpszDocName = docNameA.data();
-	QByteArray outfileA = output_filename.toLocal8Bit();
-	if ( output_file && !output_filename.isEmpty() )
-	    di.lpszOutput = outfileA.data();
-	if ( ok && StartDocA(hdc, &di) == SP_ERROR )
-	    ok = FALSE;
-    } );
-    if ( ok ) {
-	reinit(); // initialize latest changes before StartPage
-	ok = StartPage( hdc ) != SP_ERROR;
-    }
-    if ( qWinVersion() & Qt::WV_DOS_based )
-	// StartPage resets DC on Win95/98
-	setPrinterMapping( hdc, res );
-    if ( ok && fullPage() && !viewOffsetDone ) {
-	POINT p;
-	GetViewportOrgEx( hdc, &p );
-	OffsetViewportOrgEx( hdc,
-			     -p.x - GetDeviceCaps( hdc, PHYSICALOFFSETX ),
-			     -p.y - GetDeviceCaps( hdc, PHYSICALOFFSETY ),
-			     0 );
-	//### CS097 viewOffsetDone = TRUE;
-    } else {
-	POINT p;
-	GetViewportOrgEx( hdc, &p );
-	OffsetViewportOrgEx( hdc, -p.x, -p.y, 0 );
-    }
-    if ( !ok ) {
-	if ( hdc ) {
-	    DeleteDC( hdc );
-	    hdc = 0;
-	}
-	state = PST_IDLE;
-	return FALSE;
-    } else {
-	state = PST_ACTIVE;
-	painter = paint;
-    }
-#endif
-    return FALSE;
-}
-
-bool QWin32PrinterPaintEngine::end()
-{
-#if 0
-    if ( hdc ) {
-	if ( state == PST_ABORTED ) {
-	    AbortDoc( hdc );
-	} else {
-	    EndPage( hdc );                 // end; printing done
-	    EndDoc( hdc );
-	}
-    }
-    state = PST_IDLE;
-#endif
-    return false;
-}
-
-
-void QWin32PrinterPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
-{
-#if 0
-    if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
-	QRect rect    = *p[0].rect;
-	QPoint pos( rect.x(), rect.y() );
-	QImage  image;
-
-	int w;
-	int h;
-
-	if ( c == PdcDrawPixmap ) {
-	    QPixmap pixmap = *p[1].pixmap;
-	    w = pixmap.width();
-	    h = pixmap.height();
-	    image = pixmap;
-	    if ( pixmap.isQBitmap() ) {
-		QColor bg = paint->backgroundColor();
-		QColor fg = paint->pen().color();
-		image.convertDepth( 8 );
-		if( image.color( 0 ) == QColor(Qt::black).rgb() &&
-		    image.color( 1 ) == QColor(Qt::white).rgb() ) {
-		    image.setColor( 1, bg.rgb() );
-		    image.setColor( 0, fg.rgb() );
-		} else {
-		    image.setColor( 0, bg.rgb() );
-		    image.setColor( 1, fg.rgb() );
-		}
-	    }
-	} else {
-	    image = *p[1].image;
-	    w = image.width();
-	    h = image.height();
-	}
-
-	double xs = 1.0;                    // x stretch
-	double ys = 1.0;                    // y stretch
-	if ( paint ) {
-	    bool wxf = paint->hasWorldXForm();
-	    bool vxf = paint->hasViewXForm();
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-	    bool complexWxf = FALSE;
-#endif
-	    if ( wxf ) {
-		QWMatrix m = paint->worldMatrix();
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-		complexWxf = m.m12() != 0 || m.m21() != 0;
-		if ( complexWxf ) {
-		    image.setAlphaBuffer( TRUE );
-
-		    // When have to scale the image according to the rectangle before
-		    // the rotation takes place to avoid shearing the image.
-		    if (rect.width() != image.width() || rect.height() != image.height()) {
-			m = QWMatrix( rect.width()/(double)image.width(), 0,
-				      0, rect.height()/(double)image.height(),
-				      0, 0 ) * m;
-		    }
-
-		    int origW = image.width();
-		    int origH = image.height();
-		    image = image.xForm( m );
-		    w = image.width();
-		    h = image.height();
-		    rect.setWidth(w);
-		    rect.setHeight(h);
-
-		    // The image is already transformed. For the transformation
-		    // of pos, we need a modified world matrix:
-		    //   Let M be the original world matrix and T its true
-		    //   matrix of image transformation. The resulting new
-		    //   world matrix we are looking for has only the
-		    //   translation
-		    //     v = pos' - pos
-		    //       = M*pos - T*0 - pos
-		    //   whith pos' being the desired upper left corner of the
-		    //   transformed image.
-		    paint->save();
-		    QPoint p1 = QPixmap::trueMatrix( m, origW, origH ) * QPoint(0,0);
-		    QPoint p2 = paint->worldMatrix() * pos;
-		    p1 = p2 - p1 - pos;
-		    paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
-		} else
-#endif
-		    {
-			xs = m.m11();
-			ys = m.m22();
-		    }
-	    }
-	    if ( vxf ) {
-		QRect vr = paint->viewport();
-		QRect wr = paint->window();
-		xs = xs * vr.width() / wr.width();
-		ys = ys * vr.height() / wr.height();
-	    }
-	    if ( wxf || vxf ) {             // map position
-		pos = paint->xForm( pos );
-	    }
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-	    if ( complexWxf )
-		paint->restore();
-#endif
-	}
-
-	int dw = qRound( xs * rect.width() );
-	int dh = qRound( ys * rect.height() );
-	BITMAPINFO *bmi = getWindowsBITMAPINFO( image );
-	BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-	uchar *bits;
-
-
-	// Since we scale the image in the StretchXXX below, we scale the
-	// bitmask to make the transparency clip region correct.
-	if ( paint && image.hasAlphaBuffer() ) {
-	    QWMatrix::TransformationMode tmpMode = QWMatrix::transformationMode();
-	    QWMatrix::setTransformationMode( QWMatrix::Areas );
-	    QImage mask = image.createAlphaMask();
-	    QBitmap bm;
-	    bm = mask;
-	    xs = dw/(double)image.width();
-	    ys = dh/(double)image.height();
-	    if( xs!=1 || ys!=1 )
-		bm = bm.xForm( QWMatrix( xs, 0, 0, ys, 0, 0 ) );
-	    QRegion r( bm );
-	    r.translate( pos.x(), pos.y() );
-	    if ( paint->hasClipping() )
-		r &= paint->clipRegion();
-	    paint->save();
-	    paint->setClipRegion( r );
-	    QWMatrix::setTransformationMode( tmpMode );
-	}
-
-	bits = new uchar[bmh->biSizeImage];
-	if ( bmh->biBitCount == 24 ) {
-	    int width = image.width();
-	    uchar *b = bits;
-	    uint lineFill = (3*width+3)/4*4 - 3*width;
-	    for( int y=image.height()-1; y >= 0 ; y-- ) {
-		QRgb *s = (QRgb*)(image.scanLine( y ));
-		for( int x=0; x < width; x++ ) {
-		    *b++ = qBlue( *s );
-		    *b++ = qGreen( *s );
-		    *b++ = qRed( *s );
-		    s++;
-		}
-		b += lineFill;
-	    }
-
-	} else {
-	    uchar *b = bits;
-	    int w = (image.width()*image.depth() + 7)/8;
-	    int incr = w + ( (4-w) & 3 );
-	    for( int y=image.height()-1; y >= 0 ; y-- ) {
-		memcpy( b, image.scanLine( y ), w );
-		b += incr;
-	    }
-	}
-
-	int rc = GetDeviceCaps(hdc,RASTERCAPS);
-	if ( (rc & RC_STRETCHDIB) != 0 ) {
-	    // StretchDIBits supported
-	    StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
-			   bits, bmi, DIB_RGB_COLORS, SRCCOPY );
-	} else if ( (rc & RC_STRETCHBLT) != 0 ) {
-	    // StretchBlt supported
-	    HDC     hdcPrn = CreateCompatibleDC( hdc );
-	    HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
-					     bits, bmi, DIB_RGB_COLORS );
-	    HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
-	    StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
-			hdcPrn, 0, 0, w, h, SRCCOPY );
-	    SelectObject( hdcPrn, oldHbm );
-	    DeleteObject( hbm );
-	    DeleteObject( hdcPrn );
-	}
-	delete [] bits;
-	free( bmi );
-
-	if ( paint && image.hasAlphaBuffer() )
-	    paint->restore();
-
-	return FALSE;                       // don't bitblt
-    }
-#endif
-}
-
-#endif

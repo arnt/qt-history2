@@ -22,7 +22,7 @@ class QPainterState;
 class QX11PaintEngine : public QPaintEngine
 {
 public:
-    QX11PaintEngine(const QPaintDevice *);
+    QX11PaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *);
     ~QX11PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
@@ -74,8 +74,7 @@ protected:
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
 
-private:
-    QX11PaintEnginePrivate *d;
+    Q_DECL_PRIVATE(QX11PaintEngine);
 
 private:
 #if defined(Q_DISABLE_COPY)

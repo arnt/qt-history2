@@ -19,6 +19,7 @@
 #include "qpen.h"
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
+#include <private/qpaintengine_p.h>
 
 static const short ropCodes[] = {                     // ROP translation table
     GXcopy, // CopyROP
@@ -39,8 +40,11 @@ static const short ropCodes[] = {                     // ROP translation table
     GXnor // NorROP
 };
 
-struct QX11PaintEnginePrivate {
-    QX11PaintEnginePrivate()
+class QX11PaintEnginePrivate : public QPaintEnginePrivate {
+
+public:
+    QX11PaintEnginePrivate(QPaintEngine *engine)
+	: QPaintEnginePrivate(engine)
 	{
 	    dpy = 0;
 	    scrn = -1;

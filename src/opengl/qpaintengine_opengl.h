@@ -66,8 +66,7 @@ public:
 #endif
     inline Type type() const { return QPaintEngine::OpenGL; }
 
-private:
-    QOpenGLPaintEnginePrivate *d;
+    Q_DECL_PRIVATE(QOpenGLPaintEngine);
 
 private:
 #if defined(Q_DISABLE_COPY)

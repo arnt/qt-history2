@@ -32,6 +32,9 @@
 
 #include <string.h>
 
+#define d d_func()
+#define q q_func()
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -95,16 +98,18 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 /*****************************************************************************
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(const QPaintDevice *pdev)
-    : QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform | UsesFontEngine))
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *pdev)
+    : QPaintEngine(dptr ? dptr : new QuickDrawPaintEnginePrivate(this),
+		   GCCaps(CoordTransform
+			  | PenWidthTransform
+			  | PixmapTransform
+			  | UsesFontEngine))
 {
-    d = new QQuickDrawPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);
 }
 
 QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 {
-    delete d;
 }
 
 bool
@@ -1064,15 +1069,15 @@ static inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(const QPaintDevice *pdev) : QQuickDrawPaintEngine(pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate *dptr,
+						   const QPaintDevice *pdev)
+    : QQuickDrawPaintEngine(dptr ? dptr : new QCoreGraphicsPaintEnginePrivate(this), pdev)
 {
-    d = new QCoreGraphicsPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);
 }
 
 QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 {
-    delete d;
 }
 
 bool

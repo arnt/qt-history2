@@ -1744,6 +1744,6 @@ double QWidget::windowOpacity() const
 QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine)
-	((QWidget*) this)->d->paintEngine = new QWSPaintEngine(this);
+	((QWidget*) this)->d->paintEngine = new QWSPaintEngine(0, this);
     return d->paintEngine;
 }

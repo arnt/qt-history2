@@ -1682,7 +1682,7 @@ void QWidget::setEnabled_helper(bool enable)
     }
 #endif
 #ifdef Q_WS_WIN
-    QInputContext::enable(this, im_enabled && enable);
+    QInputContext::enable(this, data->im_enabled && enable);
 #endif
     QEvent e(QEvent::EnabledChange);
     QApplication::sendEvent(this, &e);

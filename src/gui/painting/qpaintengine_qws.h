@@ -28,7 +28,7 @@ class QApplicationPrivate;
 class QWSPaintEngine : public QPaintEngine
 {
 public:
-    QWSPaintEngine(const QPaintDevice *);
+    QWSPaintEngine(QPaintEnginePrivate *dptr, const QPaintDevice *);
     ~QWSPaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
@@ -93,13 +93,14 @@ protected:
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
 
+    Q_DECL_PRIVATE(QWSPaintEngine);
+
 private:
 //    friend class QWidget;
 //    friend class QPixmap;
     friend class QFontEngine;
 
-    QWSPaintEnginePrivate *d;
-    //QWSPaintEngineData *qwsData;
+   //QWSPaintEngineData *qwsData;
 
 private:
 #if defined(Q_DISABLE_COPY)
