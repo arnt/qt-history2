@@ -1059,14 +1059,23 @@ void QDateTimeEditPrivate::readLocaleSettings()
     defaultTimeFormat = str;
 
     // Date
+    const QString shortMonthName = QDate::shortMonthName(11);
+    const QString longMonthName = QDate::longMonthName(11);
+
     str = QDate(1999, 11, 22).toString(Qt::LocalDate);
     index = str.indexOf(QLatin1String("22"));
-    if (index != -1)
+    if (index != -1) {
         str.replace(index, 2, QLatin1String("dd"));
+    }
 
     index = str.indexOf(QLatin1String("11"));
-    if (index != -1)
+    if (index != -1) {
         str.replace(index, 2, QLatin1String("MM"));
+    } else if ((index = str.indexOf(longMonthName)) != -1) {
+        str.replace(index, longMonthName.size(), QLatin1String("MMM"));
+    } else if ((index = str.indexOf(shortMonthName)) != -1) {
+        str.replace(index, shortMonthName.size(), QLatin1String("MMM"));
+    }
 
     index = str.indexOf(QLatin1String("99"));
     if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
@@ -1078,7 +1087,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
     defaultDateFormat = str;
 
     // DateTime
-    str = QDateTime(QDate(1999, 10, 22), QTime(12, 34, 56, 789)).toString(Qt::LocalDate);
+    str = QDateTime(QDate(1999, 11, 22), QTime(12, 34, 56, 789)).toString(Qt::LocalDate);
     index = str.indexOf(QLatin1String("12"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("hh"));
@@ -1103,9 +1112,14 @@ void QDateTimeEditPrivate::readLocaleSettings()
     if (index != -1)
         str.replace(index, 2, QLatin1String("dd"));
 
-    index = str.indexOf(QLatin1String("10"));
-    if (index != -1)
+    index = str.indexOf(QLatin1String("11"));
+    if (index != -1) {
         str.replace(index, 2, QLatin1String("MM"));
+    } else if ((index = str.indexOf(longMonthName)) != -1) {
+        str.replace(index, longMonthName.size(), QLatin1String("MMM"));
+    } else if ((index = str.indexOf(shortMonthName)) != -1) {
+        str.replace(index, shortMonthName.size(), QLatin1String("MMM"));
+    }
 
     index = str.indexOf(QLatin1String("99"));
     if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
