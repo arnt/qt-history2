@@ -753,7 +753,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 
     // since multiple Qt versions can be used in one process
     // each one has to have window class names with a unique name
-    // The first instance gets the unmodified name; if the class 
+    // The first instance gets the unmodified name; if the class
     // has already been registered by another instance of Qt then
     // add an instance-specific ID, the address of the window proc.
     static int classExists = -1;
@@ -761,7 +761,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
     if (classExists == -1) {
         QT_WA({
             WNDCLASS wcinfo;
-            classExists = GetClassInfo((HINSTANCE)qWinAppInst(), (TCHAR*)cname.ucs2(), &wcinfo);
+            classExists = GetClassInfo((HINSTANCE)qWinAppInst(), (TCHAR*)cname.utf16(), &wcinfo);
             classExists &= wcinfo.lpfnWndProc != QtWndProc;
         }, {
             WNDCLASSA wcinfo;
@@ -3144,7 +3144,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
                               bool autor)
 {
 #if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
-    if (type == QEvent::KeyPress && !grab 
+    if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
         QKeyEvent a(type, code, state, text, autor, qMax(1, int(text.length())));
