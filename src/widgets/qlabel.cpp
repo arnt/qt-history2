@@ -618,7 +618,7 @@ int QLabel::heightForWidth( int w ) const
 QSize QLabel::sizeHint() const
 {
     if ( d->valid_hints != frameWidth() )
-	(void) minimumSizeHint();
+	(void) QLabel::minimumSizeHint();
     return d->sh;
 }
 
