@@ -749,18 +749,19 @@ void QLayout::setSpacing( int spacing )
     Returns the parent widget of this layout, or 0 if
     this layout is a sub-layout that is not yet inserted.
 */
-QWidget * QLayout::parentWidget() const
+QWidget *QLayout::parentWidget() const
 {
     if ( !topLevel ) {
 	if ( parent() ) {
-	    Q_ASSERT( qt_cast<QLayout*>(parent()) );
-	    return static_cast<QLayout*>(parent())->parentWidget();
+	    QLayout *parentLayout = ::qt_cast<QLayout*>(parent());
+	    Q_ASSERT(parentLayout);
+	    return parentLayout->parentWidget();
 	} else {
 	    return 0;
 	}
     } else {
 	Q_ASSERT( parent() && parent()->isWidgetType() );
-	return static_cast<QWidget*>(parent());
+	return static_cast<QWidget *>(parent());
     }
 }
 
