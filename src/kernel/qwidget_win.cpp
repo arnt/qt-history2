@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#28 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#28 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -556,7 +556,7 @@ void QWidget::lower()
 //
 void qWinRequestConfig( WId, int, int, int, int, int );
 
-void QWidget::move( int x, int y )		// move widget
+void QWidget::move( int x, int y )
 {
     if ( testWFlags(WConfigPending) )		// processing config event
 	qWinRequestConfig( id(), 0, x, y, 0, 0 );
@@ -569,7 +569,7 @@ void QWidget::move( int x, int y )		// move widget
     }
 }
 
-void QWidget::resize( int w, int h )		// resize widget
+void QWidget::resize( int w, int h )
 {
     if ( testWFlags(WConfigPending) )		// processing config event
 	qWinRequestConfig( id(), 1, 0, 0, w, h );
@@ -587,7 +587,7 @@ void QWidget::resize( int w, int h )		// resize widget
 }
 
 void QWidget::setGeometry( int x, int y, int w, int h )
-{						// move and resize widget
+{
     if ( testWFlags(WConfigPending) )		// processing config event
 	qWinRequestConfig( id(), 2, x, y, w, h );
     else {
@@ -624,12 +624,6 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    HDC tmphdc;
-    if ( hdc )
-	tmphdc = hdc;
-    else
-	tmphdc = GetDC( id() );
-    HANDLE hbrush = CreateSolidBrush( bg_col.pixel() );
     RECT r;
     r.left = x;
     r.top  = y;
@@ -641,11 +635,35 @@ void QWidget::erase( int x, int y, int w, int h )
 	r.bottom = crect.height();
     else
 	r.bottom = y + h;
-    FillRect( tmphdc, &r, hbrush );
-    DeleteObject( hbrush );
-    if ( !hdc )
-	ReleaseDC( id(), tmphdc );
+
+    bool     tmphdc;
+    HBRUSH   brush;
+    HPALETTE pal;
+
+    if ( !hdc ) {
+	tmphdc = TRUE;
+	hdc = GetDC( id() );
+    } else {
+	tmphdc = FALSE;
+    }
+
+    brush = CreateSolidBrush( bg_col.pixel() );
+    if ( QColor::hPal() ) {
+	pal = SelectPalette( hdc, QColor::hPal(), FALSE );
+	RealizePalette( hdc );
+    } else {
+	pal = 0;
+    }
+    FillRect( hdc, &r, brush );
+    DeleteObject( brush );
+    if ( tmphdc ) {
+	ReleaseDC( id(), hdc );
+	hdc = 0;
+    }
+    else if ( pal )
+	SelectPalette( hdc, pal, FALSE );
 }
+
 
 void QWidget::scroll( int dx, int dy )
 {
