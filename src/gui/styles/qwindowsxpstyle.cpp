@@ -442,34 +442,23 @@ private:
     uint rotated;
 };
 
+extern Q_GUI_EXPORT HDC qt_win_display_dc();
 const QPixmap *QWindowsXPStylePrivate::tabBody(QWidget *widget)
 {
     if (!tabbody) {
-        tabbody = new QPixmap(1, 1);
-        QPainter painter(tabbody);
-        XPThemeData theme(widget, &painter, "TAB", TABP_BODY, 0);
         SIZE sz;
-        HDC dc = painter.paintEngine()->getDC();
-        pGetThemePartSize(theme.handle(), dc, TABP_BODY, 0, 0, TS_TRUE, &sz);
-        painter.paintEngine()->releaseDC(dc);
+        XPThemeData theme(0, 0, "TAB", TABP_BODY);
+        pGetThemePartSize(theme.handle(), qt_win_display_dc(), TABP_BODY, 0, 0, TS_TRUE, &sz);
 
-        // Get color for border of tab pane
-        COLORREF cref;
-        pGetThemeColor(theme.handle(), TABP_PANE, 0, TMT_BORDERCOLORHINT, &cref);
-        tabPaneBorderColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
-
-        painter.end();
-        tabbody->resize(sz.cx, QApplication::desktop()->screenGeometry().height());
-        painter.begin(tabbody);
+        tabbody = new QPixmap(sz.cx, QApplication::desktop()->screenGeometry().height());
+        QPainter painter(tabbody);
         theme.rec = QRect(0, 0, sz.cx, sz.cy);
         theme.drawBackground();
         // We fill with the last line of the themedata, that
         // way we don't get a tiled pixmap inside big tabs
         QPixmap temp(sz.cx, 1);
-//        bitBlt(&temp, 0,0, tabbody, 0, sz.cy-1);
         painter.drawPixmap(0, 0, temp, 0, sz.cy-1, -1, -1);
         painter.drawTiledPixmap(0, sz.cy, sz.cx, tabbody->height()-sz.cy, temp);
-        painter.end();
     }
     return tabbody;
 }
