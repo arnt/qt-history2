@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#350 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#351 $
 **
 ** Implementation of QFileDialog class
 **
@@ -460,7 +460,7 @@ struct QFileDialogPrivate {
     QProgressDialog *progressDia;
     bool checkForFilter;
     bool ignoreReturn;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1613,7 +1613,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     d->mode = ExistingFile;
     if ( !dirName.isEmpty() )
 	setSelection( dirName );
-    
+
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
     } else {
@@ -1640,7 +1640,7 @@ void QFileDialog::init()
     d->progressDia = 0;
     d->checkForFilter = FALSE;
     d->ignoreReturn = FALSE;
-    
+
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -2462,6 +2462,7 @@ void QFileDialog::okClicked()
     if ( d->mode == Directory ) {
 	if ( d->ignoreReturn ) {
 	    d->ignoreReturn = FALSE;
+	    qDebug( "no" );
 	    return;
 	}
 	d->currentFileName = d->url.dirPath();
@@ -2771,7 +2772,7 @@ void QFileDialog::listBoxSelectionChanged()
 	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->selected() )
 		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
 	}
-	if ( d->moreFiles->isSelected( i ) 
+	if ( d->moreFiles->isSelected( i )
 	     && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() )
 	    str += QString( "\"%1\" " ).arg( i->text() );
 	i = d->moreFiles->item( ++index );
@@ -3188,7 +3189,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
     QString result;
     dialog->setSelection( "." );
-    
+
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
 	*workingDirectory = result;
@@ -3899,7 +3900,8 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
     i = new QFileDialogPrivate::File( d, &inf, files );
     i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
-    if ( d->mode == ExistingFiles && inf.isDir() ) {
+    if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
+	 d->mode == Directory ) {
 	i->setSelectable( FALSE );
 	i2->setSelectable( FALSE );
     }
@@ -4069,7 +4071,8 @@ void QFileDialog::resortDir()
 		files->setCurrentItem( item );
 		d->moreFiles->setCurrentItem( item2 );
 	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ) {
+	    if ( d->mode == ExistingFiles && item->info.isDir() ||
+		 d->mode == Directory ) {
 		item->setSelectable( FALSE );
 		item2->setSelectable( FALSE );
 	    }
@@ -4086,7 +4089,8 @@ void QFileDialog::resortDir()
 		files->setCurrentItem( item );
 		d->moreFiles->setCurrentItem( item2 );
 	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ) {
+	    if ( d->mode == ExistingFiles && item->info.isDir() ||
+		 d->mode == Directory ) {
 		item->setSelectable( FALSE );
 		item2->setSelectable( FALSE );
 	    }
@@ -4104,7 +4108,8 @@ void QFileDialog::resortDir()
 		files->setCurrentItem( item );
 		d->moreFiles->setCurrentItem( item2 );
 	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ) {
+	    if ( d->mode == ExistingFiles && item->info.isDir() ||
+		 d->mode == Directory ) {
 		item->setSelectable( FALSE );
 		item2->setSelectable( FALSE );
 	    }
@@ -4121,7 +4126,8 @@ void QFileDialog::resortDir()
 		files->setCurrentItem( item );
 		d->moreFiles->setCurrentItem( item2 );
 	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ) {
+	    if ( d->mode == ExistingFiles && item->info.isDir() ||
+		 d->mode == Directory ) {
 		item->setSelectable( FALSE );
 		item2->setSelectable( FALSE );
 	    }

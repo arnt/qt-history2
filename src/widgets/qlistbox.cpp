@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#323 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#324 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1602,8 +1602,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     }
     if ( i ) {
 	if ( selectionMode() == Single && !i->s ) {
-	    i->s = TRUE;
-	    updateItem( i );
+	    setSelected( i, TRUE );
 	}
 	setCurrentItem( i );
     }
