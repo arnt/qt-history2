@@ -1119,10 +1119,15 @@ bool QWidgetPrivate::isForegroundInherited() const
 bool QWidgetPrivate::isBackgroundInherited() const
 {
     Q_Q(const QWidget);
-    return (!q->isWindow() && !(q->windowType() == Qt::SubWindow)
-            && (!q->testAttribute(Qt::WA_SetBackgroundRole)
-                ||  (q->testAttribute(Qt::WA_SetPalette)
-                     && !q->palette().brush(q->backgroundRole()).isOpaque())));
+
+    if (q->isWindow() || q->windowType() == Qt::SubWindow)
+        return false;
+
+    if ((q->testAttribute(Qt::WA_SetBackgroundRole) || q->testAttribute(Qt::WA_SetPalette))
+        && q->palette().brush(q->backgroundRole()).isOpaque())
+        return false;
+
+    return true;
 }
 
 /*
