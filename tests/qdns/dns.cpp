@@ -4,9 +4,9 @@
 #include <qtimer.h>
 #include <qvaluelist.h>
 
-typedef QValueList<QHostAddress> HostAddresses;
-typedef QValueList<QDns::MailServer> MailServer;
-typedef QValueList<QDns::Server> Server;
+typedef QList<QHostAddress> HostAddresses;
+typedef QList<QDns::MailServer> MailServer;
+typedef QList<QDns::Server> Server;
 
 
 class Reporter : public QObject
