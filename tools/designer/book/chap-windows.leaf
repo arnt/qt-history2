@@ -2,30 +2,28 @@
 
 \section1 Introduction
 
-When you start up \QD, by default you will see three windows on the
-left hand side. They are the File Overview window, the Object Explorer
-window, and the Property Editor/Signal Handlers window. This chapter
+By default \QD starts up with three windows on the left hand side.
+They are the \l{File Overview Window}, the \l{Object Explorer Window},
+and the \l{Property Editor/Signal Handlers Window}. This chapter
 explains each window in detail.
 
 \section1 File Overview Window
 
-The 'File Overview' window lists all files associated with the
-project, including forms, source files, and images. To open any forms
-or files single click it in the Files list. For rapid switching
-between forms and files, type the name of the file in the line edit
-above the files list.
+This window lists all the files associated with the project, including
+forms, source files and images. To open a form or file single click it
+in the Files list. To rapidly switch between forms and files, type the
+name of the file in the line edit above the files list.
 
 \section1 Object Explorer Window
 
-The Object Explorer window lists the current form's widgets and slots.
-The window comprises of two tabs, the Widgets tab and the Source tab. 
+This window lists the current form's widgets and slots.
+The window contains two tabs, the Widgets tab and the Source tab. 
 
 Click the Widgets tab to view all the widgets for the current form.
-The widgets are listed by name and class. When you click a widget in
-list, the widget is automatically highlighted in the corresponding
-form.
+The widgets are listed by name and class. Click a widget in the list
+to highlight it in the corresponding form.
 
-Click the Source tab to view the current form's declared slots,
+Click the Source tab to view and edit the current form's slots,
 variables, includes, etc.
 
 \section1 Property Editor/Signal Handlers Window
