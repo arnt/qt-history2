@@ -154,6 +154,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	selChanged = doc->removeSelection( i ) || selChanged;
 
     if ( selChanged ) {
+	cursor->parag()->document()->nextDoubleBuffered = TRUE;
 	repaintChanged();
     }
 
@@ -382,6 +383,7 @@ void QTextEdit::moveCursor( int direction, bool shift, bool control )
 	    doc->setSelectionStart( QTextDocument::Standard, cursor );
 	moveCursor( direction, control );
 	if ( doc->setSelectionEnd( QTextDocument::Standard, cursor ) ) {
+	    cursor->parag()->document()->nextDoubleBuffered = TRUE;
 	    repaintChanged();
 	} else {
 	    drawCursor( TRUE );
@@ -394,6 +396,7 @@ void QTextEdit::moveCursor( int direction, bool shift, bool control )
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
 	} else {
+	    cursor->parag()->document()->nextDoubleBuffered = TRUE;
 	    repaintChanged();
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
@@ -502,6 +505,7 @@ void QTextEdit::drawCursor( bool visible )
     else if ( doc->paper() )
 	cg.setBrush( QColorGroup::Base, *doc->paper() );
     p.setBrushOrigin( -contentsX(), -contentsY() );
+    cursor->parag()->document()->nextDoubleBuffered = TRUE;
     doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
 		    r.y() - cursor->totalOffsetX(), r.width(), r.height(),
 		    pix, cg, visible, cursor );

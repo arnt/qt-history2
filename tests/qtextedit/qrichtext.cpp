@@ -697,6 +697,8 @@ bool QTextCursor::remove()
 	string->format( -1, TRUE );
 	if ( h != string->rect().height() )
 	    invalidateNested();
+	else if ( doc->parent() )
+	    doc->nextDoubleBuffered = TRUE;
 	return FALSE;
     } else if ( string->next() ) {
 	string->join( string->next() );
@@ -900,7 +902,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     backBrush = 0;
     buf_pixmap = 0;
     nextDoubleBuffered = FALSE;
-    
+
     if ( p )
 	withoutDoubleBuffer = p->withoutDoubleBuffer;
     else
@@ -1959,7 +1961,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		       cg.brush( QColorGroup::Base ) );
     } else {
 	if ( cursor && cursor->parag() == parag ) {
-	    painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 10, ir.height() ),
+	    painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
 			       cg.brush( QColorGroup::Base ) );
 	}
     }
@@ -1990,6 +1992,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		     ( parag->rect().x() + parag->rect().width() ),
 		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
     }
+
     parag->document()->nextDoubleBuffered = FALSE;
 }	
 
@@ -2030,6 +2033,11 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
 	    if ( parag->rect().y() > cy + ch ) {
 		tmpCursor = 0;
+		if ( buf_pixmap && buf_pixmap->height() > 300 ) {
+		    delete buf_pixmap;
+		    buf_pixmap = 0;
+		}
+
 		return lastFormatted;
 	    }
 	    parag = parag->next();

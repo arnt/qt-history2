@@ -200,6 +200,7 @@ class QTextDocument
 {
     friend class QTextTableCell;
     friend class QTextCursor;
+    friend class QTextEdit;
     
 public:
     enum SelectionIds {
@@ -975,7 +976,6 @@ private:
     QList<QTextTableCell> cells;
 
     friend class QTextTableCell;
-    friend class QRichTextIterator;
     void addCell( QTextTableCell* cell );
     QPainter* painter;
     int cachewidth;
