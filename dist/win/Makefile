@@ -48,7 +48,7 @@ sub-src: .qmake.cache $(FORCEDEP)
 	cd ..
 
 sub-codecs: sub-src .qmake.cache $(FORCEDEP)
-	cd plugins/src/codecs
+	cd src\codecs\src
 	$(MAKE)
 	cd ..\..\..
 
@@ -86,7 +86,7 @@ clean:
 distclean: clean
 	-del .qmake.cache
 
-.qmake.cache:
+.qmake.cache: 
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
