@@ -182,7 +182,7 @@ bool QProcess::start()
 	};
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
 	success = CreateProcess( 0, commandLine,
-		0, 0, TRUE, 0, 0,
+		0, 0, TRUE, DETACHED_PROCESS, 0,
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, &d->pid );
 	delete[] commandLine;
@@ -197,7 +197,7 @@ bool QProcess::start()
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
 	success = CreateProcessA( 0, args.local8Bit().data(),
-		0, 0, TRUE, 0, 0,
+		0, 0, TRUE, DETACHED_PROCESS, 0,
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, &d->pid );
     }
