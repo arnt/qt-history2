@@ -236,7 +236,8 @@ QRegion::QRegion(const QRect &r, RegionType t)
     }
 }
 
-QRegion::QRegion(const QPointArray &a, bool winding)
+//### We do not support winding yet, how do we do that?? --SAM
+QRegion::QRegion(const QPointArray &a, bool)
 {
     data = qt_mac_get_rgn_data();
     data->is_null = FALSE;
