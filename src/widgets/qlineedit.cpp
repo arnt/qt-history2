@@ -417,6 +417,7 @@ void QLineEdit::setText( const QString &text )
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
     }
+    setEdited( FALSE );
 }
 
 

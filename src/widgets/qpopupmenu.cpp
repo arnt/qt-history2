@@ -358,11 +358,10 @@ void QPopupMenu::menuStateChanged()
 #ifndef QT_NO_ACCEL
     updateAccel( 0 ); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
 #endif
-    if ( isVisible() ) {
+    if ( isVisible() )
 	update();
-	if ( QMenuData::d->aWidget )
-	    QMenuData::d->aWidget->update();
-    } 
+    if ( QMenuData::d->aWidget && QMenuData::d->aWidget->isVisible() )
+	QMenuData::d->aWidget->update();
 }
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
