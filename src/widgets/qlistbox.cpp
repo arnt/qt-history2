@@ -2303,7 +2303,7 @@ void QListBox::updateSelection()
 		else
 		    clearSelection(); // dont reset drag-selected items
 		d->pressedItem = 0;
-		if ( i->isSelectable() ) {
+		if ( i && i->isSelectable() ) {
 		    bool block = signalsBlocked();
 		    blockSignals( TRUE );
 		    i->s = TRUE;
