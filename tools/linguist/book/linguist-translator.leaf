@@ -469,6 +469,9 @@ Books} for details.)
     pane into their original order.
     \i \e {Display Guesses} \BR turns the display of phrases and
     guesses on or off.
+    \i \e {Views} \BR toggles the visibility of the Context, Source text and
+     Phrase views.
+    \i \e {Toolbars} \BR toggles the visibility of the different toolbars.
 \omit
     \i \e {Large Icons} \BR switches between large or standard
     size icons on the toolbar.
