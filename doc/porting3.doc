@@ -285,6 +285,19 @@ confusing.  Use \l QRegExp::search() or \l QString::find() instead.
 </dd>
 </dl>
 
+<h3><a name="QFont">QFont</a></h3>
+
+The internals of QFont have changed significantly between Qt 2.2 and Qt 3.0, to give better 
+Unicode support and make developing internationalized applications easier. The external 
+behaviour has however not changed a lot. The main change is that the CharSet enum in QFont 
+and functions related to it have disappeared. This comes about because Qt does now
+handle all charset related issues internally, and takes this burden away from the developer.
+
+If you used the CharSet enum anywhere or any functions as QFont::charSet(), QFont::setCharSet() 
+just remove them from your code to get things working again. There are a few other functions that 
+took a QFont::CharSet as parameter. Just remove the charset from the parameterlist.
+
+
 <h3><a name="QTranslator">QTranslator</a></h3>
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
