@@ -115,6 +115,16 @@ QWidget *qt_mac_find_window(WindowPtr window)
     return 0;
 }
 
+static void qt_mac_set_fullscreen_mode(bool b)
+{
+    extern bool qt_mac_fullscreen; //qapplication_mac.cpp
+    qt_mac_fullscreen = b;
+    if(b)
+	HideMenuBar();
+    else
+	ShowMenuBar();
+}
+
 //find a WindowPtr from a QWidget/HIView
 WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
@@ -1268,6 +1278,7 @@ void QWidget::setActiveWindow()
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
 	return;
     qt_event_remove_activate();
+    qt_mac_set_fullscreen_mode(tlw->windowState() & WindowFullScreen);
     WindowPtr window = qt_mac_window_for((HIViewRef)winId());
     if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
 	ActivateWindow(window, true);
@@ -1360,8 +1371,6 @@ void QWidget::showWindow()
         }
 	if(windowState() & WindowMinimized) //show in collapsed state
 	    CollapseWindow(window, true);
-	if(windowState() & WindowFullScreen)
-	    HideMenuBar();
 #ifndef QMAC_NO_FAKECURSOR
 	if(qstrcmp(name(), "fake_cursor") != 0)
 #endif
@@ -1432,11 +1441,11 @@ void QWidget::setWindowState(uint newstate)
 		setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 			  (getWFlags() & 0xffff0000)); 			  // preserve some widget flags
 		setGeometry(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
-		HideMenuBar();
+		qt_mac_set_fullscreen_mode(true);
 	    } else {
 		setParent(0, d->topData()->savedFlags);
 		setGeometry(d->topData()->normalGeometry);
-		ShowMenuBar();
+		qt_mac_set_fullscreen_mode(false);
 	    }
 	}
 
