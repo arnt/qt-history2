@@ -198,7 +198,6 @@ protected:
 #elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;
-	int scrn;
 #elif defined(Q_WS_MAC)
 	ColorTable *clut;
 #elif defined(Q_WS_QWS)

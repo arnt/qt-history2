@@ -292,7 +292,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
-    data->scrn = x11Screen();
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -1889,8 +1888,6 @@ void QPixmap::x11SetScreen( int screen )
     qDebug("QPixmap::x11SetScreen for %p from %d to %d. Size is %d/%d", data, x11Screen(), screen, width(), height() );
 #endif
 
-    data->scrn = screen; // for the other copies, see "clever code" in qpixmap copy constructor and assignment operator
-
     QImage img = convertToImage();
     QBitmap msk;
     if ( mask() )
@@ -1903,7 +1900,6 @@ void QPixmap::x11SetScreen( int screen )
     convertFromImage( img );
     if ( !msk.isNull() )
 	setMask( msk );
-    data->scrn = screen; // for ourselves
 }
 
 
