@@ -189,7 +189,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
         cleanup();
 }
 
-QDesktopWidgetPrivate::cleanup()
+void QDesktopWidgetPrivate::cleanup()
 {
     screen_number = 0;
     screenCount = 1;
