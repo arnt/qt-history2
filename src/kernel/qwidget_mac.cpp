@@ -525,6 +525,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 
 void QWidget::showWindow()
 {
+    dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	ShowHide( (WindowPtr)winid, 1 );
 	setActiveWindow();
@@ -560,6 +561,7 @@ static void paint_children(QWidget * p,const QRegion& r)
 void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
+    dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)winid,0);
@@ -999,7 +1001,7 @@ bool QWidget::isClippedRegionDirty()
 QRegion QWidget::clippedRegion()
 {
     //I'm not too confident this is right, as it seemed to work immediatly, so I'll 
-    //comment this out when stuff starts breaking.
+    //comment this out when stuff (inevitably) starts breaking.
 #if 1
     if(!isClippedRegionDirty())
 	return extra->clip_saved;
