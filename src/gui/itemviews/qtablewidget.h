@@ -169,8 +169,7 @@ public:
     void setSelected(const QTableWidgetItem *item, bool select);
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
-    QList<QTableWidgetItem*> selectedItems() const;
-
+    QList<QTableWidgetItem*> selectedItems(bool fillEmptyCells = false);
     QList<QTableWidgetItem*> findItems(const QString &text,
                                        QAbstractItemModel::MatchFlags flags
                                        = QAbstractItemModel::MatchDefault) const;

@@ -179,22 +179,26 @@ QTableWidgetItem *QTableModel::item(const QModelIndex &index) const
 }
 
 void QTableModel::removeItem(QTableWidgetItem *item)
-{
+{       
     int i = table.indexOf(item);
     if (i != -1) {
         table[i] = 0;
+        QModelIndex idx = index(item);
+        emit dataChanged(idx, idx);
         return;
     }
 
     i = vertical.indexOf(item);
     if (i != -1) {
         vertical[i] = 0;
+        emit headerDataChanged(Qt::Vertical, i, i);
         return;
     }
 
     i = horizontal.indexOf(item);
     if (i != -1) {
         horizontal[i] = 0;
+        emit headerDataChanged(Qt::Horizontal, i, i);
         return;
     }
 }
@@ -1316,15 +1320,22 @@ QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
 }
 
 /*!
-  Returns a list of all selected items.
+  Returns a list of all selected items. If a cell is empty and \a fillEmptyCells is true,
+  the item is created and set in that cell.
 */
 
-QList<QTableWidgetItem*> QTableWidget::selectedItems() const
+QList<QTableWidgetItem*> QTableWidget::selectedItems(bool fillEmptyCells)
 {
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     QList<QTableWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items.append(d->model()->item(indexes.at(i)));
+    for (int i = 0; i < indexes.count(); ++i) {
+        QModelIndex index = indexes.at(i);
+        QTableWidgetItem *item = d->model()->item(index);
+        if (!item && index.isValid() && fillEmptyCells)
+            setItem(index.row(), index.column(), item = createItem());
+        if (item)
+            items.append(item);
+    }
     return items;
 }
 
