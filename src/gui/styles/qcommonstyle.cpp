@@ -1693,9 +1693,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                      || qt_cast<const QDockWindow *>(widget)
 #endif
                    )
-                    pm = stylePixmap(SP_DockWindowCloseButton, &tool, widget);
+                    pm = standardPixmap(SP_DockWindowCloseButton, &tool, widget);
                 else
-                    pm = stylePixmap(SP_TitleBarCloseButton, &tool, widget);
+                    pm = standardPixmap(SP_TitleBarCloseButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1713,7 +1713,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarMaxButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, &tool, widget));
+                pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1732,11 +1732,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QStyle::SubControl ctrl = (tb->parts & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
-                QStyle::StylePixmap spixmap = (tb->parts & SC_TitleBarNormalButton ?
+                QStyle::StandardPixmap spixmap = (tb->parts & SC_TitleBarNormalButton ?
                                                SP_TitleBarNormalButton :
                                                SP_TitleBarMinButton);
                 down = tb->activeParts & ctrl;
-                pm = QPixmap(stylePixmap(spixmap, &tool, widget));
+                pm = standardPixmap(spixmap, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1754,7 +1754,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarShadeButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, &tool, widget));
+                pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1771,7 +1771,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarUnshadeButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, &tool, widget));
+                pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -2626,7 +2626,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::stylePixmap(StylePixmap, const QStyleOption *, const QWidget *) const
+QPixmap QCommonStyle::standardPixmap(StandardPixmap, const QStyleOption *, const QWidget *) const
 {
     return QPixmap();
 }

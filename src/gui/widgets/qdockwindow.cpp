@@ -205,10 +205,10 @@ void QDockWindowTitle::styleChange(QStyle &)
     updateWindowTitle();
 
     if (floatButton)
-        floatButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarMaxButton));
+        floatButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarMaxButton));
 
     if (closeButton)
-        closeButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarCloseButton));
+        closeButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarCloseButton));
 }
 
 void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
@@ -399,7 +399,7 @@ void QDockWindowTitle::updateButtons()
     if (dockwindow->hasFeature(QDockWindow::DockWindowFloatable)) {
         if (!floatButton) {
             floatButton = new QDockWindowTitleButton(this);
-            floatButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarMaxButton));
+            floatButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarMaxButton));
             connect(floatButton, SIGNAL(clicked()), SLOT(toggleTopLevel()));
 
             box->insertWidget(1, floatButton);
@@ -415,7 +415,7 @@ void QDockWindowTitle::updateButtons()
     if (dockwindow->hasFeature(QDockWindow::DockWindowClosable)) {
         if (!closeButton) {
             closeButton = new QDockWindowTitleButton(this);
-            closeButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarCloseButton));
+            closeButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarCloseButton));
             connect(closeButton, SIGNAL(clicked()), dockwindow, SLOT(close()));
 
             box->insertWidget(2, closeButton);

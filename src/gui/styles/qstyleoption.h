@@ -20,12 +20,74 @@
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
-struct Q_GUI_EXPORT QStyleOption {
-    int version;
-    int type;
-    QStyle::SFlags state;
-    QRect rect;
-    QPalette palette;
+/*
+    Warning: Unless you plan to modify Qt's source code, you don't
+    need to read this comment.
+
+    The QStyleOption class and its subclasses use a versioning
+    mechanism to ensure binary compatibility. In addition:
+
+      * The constructors, destructors, and the QStyleOption::init()
+        function are not inline, to ensure that all three are defined
+        in the Qt library. The alternative would have been to make
+        all three inline, but we can never be sure that compilers
+        respect that hint and could end up with an asymmetric
+        situation, which could eventually result in a crash.
+
+      * The QSTYLEOPTION_PADDING() macro reserves extra space for
+        future extensions, without breaking binary compatibility. Its
+        first argument is the number of used extra variables. It
+        should be 0 at first and incremented every time a new member
+        variable is added. The second argument is the maximum number
+        of extra variables. Unsurprisingly, the first argument should
+        not be greater than the second argument.
+
+    How to add members: Increment numUsedVariables by one. If the
+    variable is of pointer type, just add it *after* the
+    QSTYLEOPTION_PADDING() macro. If it's not a pointer, do the same
+    but using a non-const reference type instead of a value type.
+
+    Example: Suppose that the type QStyleOptionFocusRect looks like
+    this in Qt 4.0:
+
+        class QStyleOptionFocusRect : public QStyleOption
+        {
+        public:
+            ...
+            QSTYLEOPTION_PADDING(0, 8)
+
+            ...
+        };
+
+    If we want to add a QWidget *, a QString, and an int, we would
+    end up with the following class definition:
+
+        class QStyleOptionFocusRect : public QStyleOption
+        {
+        public:
+            ...
+            QSTYLEOPTION_PADDING(3, 8)
+            QWidget *widget;
+            QString &label;
+            int &borderWidth;
+
+            ...
+        };
+
+    Then, in the constructor, we need to initialize the variables.
+    The QSTYLEOPTION_PADDING() macro preallocates some space that we
+    can use with a placement new, to avoid an extra memory
+    allocation:
+
+
+*/
+#define QSTYLEOPTION_PADDING(numUsedVariables, maxExtraVariables) \
+        union { Q_LLONG alonglong; double adouble; } qt_extraData[maxExtraVariables]; \
+        void *qt_extraVars[maxExtraVariables - numUsedVariables];
+
+class Q_GUI_EXPORT QStyleOption
+{
+public:
     enum OptionType {
                       // Standard controls
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
@@ -42,8 +104,19 @@ struct Q_GUI_EXPORT QStyleOption {
                       SO_ComplexCustomBase = 0xf000000
                     };
     enum { Type = SO_Default };
+
+    int version;
+    int type;
+    QStyle::SFlags state;
+    QRect rect;
+    QPalette palette;
+    QSTYLEOPTION_PADDING(0, 8);
+
     QStyleOption(int optionversion, int optiontype = SO_Default);
+    ~QStyleOption();
+
     void init(const QWidget *w);
+
     QDOC_PROPERTY(int version);
     QDOC_PROPERTY(int type);
     QDOC_PROPERTY(QStyle::SFlags state);
@@ -51,56 +124,85 @@ struct Q_GUI_EXPORT QStyleOption {
     QDOC_PROPERTY(QPalette palette);
 };
 
-struct QStyleOptionFocusRect  : public QStyleOption {
+class QStyleOptionFocusRect  : public QStyleOption
+{
+public:
     enum { Type = SO_FocusRect };
+
     QColor backgroundColor;
-    QStyleOptionFocusRect(int version) : QStyleOption(version, SO_FocusRect) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionFocusRect(int version);
+
     QDOC_PROPERTY(QColor backgroundColor);
 };
 
-struct QStyleOptionFrame : public QStyleOption {
+class QStyleOptionFrame : public QStyleOption
+{
+public:
     enum { Type = SO_Frame };
+
     int lineWidth;
     int midLineWidth;
-    QStyleOptionFrame(int version)
-        : QStyleOption(version, SO_Frame), lineWidth(0), midLineWidth(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionFrame(int version);
+
     QDOC_PROPERTY(int lineWidth);
     QDOC_PROPERTY(int midLineWidth);
 };
 
-struct QStyleOptionHeader : public QStyleOption {
+class QStyleOptionHeader : public QStyleOption
+{
+public:
     enum { Type = SO_Header };
+
     int section;
     QString text;
     QIconSet icon;
-    QStyleOptionHeader(int version) : QStyleOption(version, SO_Header), section(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionHeader(int version);
+
     QDOC_PROPERTY(int section);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
 };
 
-struct QStyleOptionButton : public QStyleOption {
+class QStyleOptionButton : public QStyleOption
+{
+public:
     enum { Type = SO_Button };
     enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
     Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature);
+
     ButtonFeatures features;
     QString text;
     QIconSet icon;
-    QStyleOptionButton(int version) : QStyleOption(version, SO_Button), features(None) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionButton(int version);
+
     QDOC_PROPERTY(ButtonFeatures features);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
 };
 
-struct QStyleOptionTab : public QStyleOption {
+class QStyleOptionTab : public QStyleOption
+{
+public:
     enum { Type = SO_Tab };
     enum TabPosition { Beginning, Middle, End, OnlyOneTab };
+
     QTabBar::Shape shape;
     QString text;
     QIconSet icon;
     int row;
     TabPosition position;
-    QStyleOptionTab(int version) : QStyleOption(version, SO_Tab), row(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionTab(int version);
+
     QDOC_PROPERTY(QTabBar::Shape shape);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
@@ -108,29 +210,36 @@ struct QStyleOptionTab : public QStyleOption {
     QDOC_PROPERTY(TabPosition position);
 };
 
-struct QStyleOptionProgressBar : public QStyleOption
+class QStyleOptionProgressBar : public QStyleOption
 {
+public:
     enum { Type = SO_ProgressBar };
     enum ProgressBarFeature { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
                               IndicatorFollowsStyle = 0x03 };
     Q_DECLARE_FLAGS(ProgressBarFeatures, ProgressBarFeature);
+
     ProgressBarFeatures features;
     QString progressString;
     int totalSteps;
     int progress;
-    QStyleOptionProgressBar(int version)
-        : QStyleOption(version, SO_ProgressBar), features(None), totalSteps(0), progress(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionProgressBar(int version);
+
     QDOC_PROPERTY(ProgressBarFeatures features);
     QDOC_PROPERTY(QString progressString);
     QDOC_PROPERTY(int totalSteps);
     QDOC_PROPERTY(int progress);
 };
 
-struct QStyleOptionMenuItem : public QStyleOption {
+class QStyleOptionMenuItem : public QStyleOption
+{
+public:
     enum { Type = SO_MenuItem };
     enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin,
 			EmptyArea };
     enum CheckState { NotCheckable, Checked, Unchecked };
+
     MenuItemType menuItemType;
     CheckState checkState;
     QRect menuRect;
@@ -139,8 +248,10 @@ struct QStyleOptionMenuItem : public QStyleOption {
     int maxIconWidth;
     int tabWidth;
     QFont font;
-    QStyleOptionMenuItem(int version) : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
-    checkState(NotCheckable), maxIconWidth(0), tabWidth(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionMenuItem(int version);
+
     QDOC_PROPERTY(MenuItemType menuItemType);
     QDOC_PROPERTY(CheckState checkState);
     QDOC_PROPERTY(QRect menuRect);
@@ -151,21 +262,23 @@ struct QStyleOptionMenuItem : public QStyleOption {
     QDOC_PROPERTY(QFont font);
 };
 
-struct QStyleOptionListViewItem : public QStyleOption
+class QStyleOptionListViewItem : public QStyleOption
 {
+public:
     enum { Type = SO_ListViewItem };
     enum ListViewItemFeature { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
                                ParentControl = 0x08 };
     Q_DECLARE_FLAGS(ListViewItemFeatures, ListViewItemFeature);
+
     ListViewItemFeatures features;
     int height;
     int totalHeight;
     int itemY;
     int childCount;
-    QStyleOptionListViewItem(int version)
-        : QStyleOption(version, SO_ListViewItem), features(None), height(0), totalHeight(0),
-          itemY(0), childCount(0) {}
-    QDOC_PROPERTY(ListViewItemFeatures features);
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionListViewItem(int version);
+
     QDOC_PROPERTY(int height);
     QDOC_PROPERTY(int totalHeight);
     QDOC_PROPERTY(int itemY);
@@ -173,45 +286,57 @@ struct QStyleOptionListViewItem : public QStyleOption
 };
 
 
-struct QStyleOptionDockWindow : public QStyleOption
+class QStyleOptionDockWindow : public QStyleOption
 {
+public:
     enum { Type = SO_DockWindow };
+
     bool docked;
     bool isCloseEnabled;
-    QStyleOptionDockWindow(int version) : QStyleOption(version , SO_DockWindow),
-    docked(false), isCloseEnabled(false) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionDockWindow(int version);
+
     QDOC_PROPERTY(bool docked);
     QDOC_PROPERTY(bool isCloseEnabled);
 };
 
-struct QStyleOptionViewItem : public QStyleOption
+class QStyleOptionViewItem : public QStyleOption
 {
+public:
     enum { Type = SO_ViewItem };
     enum Position { Left, Right, Top, Bottom };
     enum Size { Small, Large };
+
     int displayAlignment;
     int decorationAlignment;
     Position decorationPosition;
     Size decorationSize;
     QFont font;
-    QStyleOptionViewItem(int version) : QStyleOption(version, SO_ViewItem),
-    displayAlignment(0), decorationAlignment(0), decorationPosition(Left), decorationSize(Small) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionViewItem(int version);
+
     QDOC_PROPERTY(int displayAlignment);
     QDOC_PROPERTY(int decorationAlignment);
     QDOC_PROPERTY(Position decorationPosition);
     QDOC_PROPERTY(Size decorationSize);
 };
 
-struct QStyleOptionToolBox : public QStyleOption
+class QStyleOptionToolBox : public QStyleOption
 {
+public:
     enum { Type = SO_ToolBox };
+
     QString text;
     QIconSet icon;
     QPalette::ColorRole bgRole;
     QPalette::ColorRole currentWidgetBGRole;
     QPalette currentWidgetPalette;
-    QStyleOptionToolBox(int version)
-        : QStyleOption(version, SO_ToolBox), bgRole(QPalette::Foreground) {};
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionToolBox(int version);
+
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
     QDOC_PROPERTY(QPalette::ColorRole bgRole);
@@ -220,35 +345,40 @@ struct QStyleOptionToolBox : public QStyleOption
 };
 
 // -------------------------- Complex style options -------------------------------
-struct QStyleOptionComplex : public QStyleOption
+class QStyleOptionComplex : public QStyleOption
 {
+public:
     enum { Type = SO_Complex };
+
     QStyle::SCFlags parts;
     QStyle::SCFlags activeParts;
-    QStyleOptionComplex(int version, int type = SO_Complex)
-        : QStyleOption(version, type), parts(QStyle::SC_All), activeParts(QStyle::SC_None) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionComplex(int version, int type = SO_Complex);
+
     QDOC_PROPERTY(QStyle::SCFlags parts);
     QDOC_PROPERTY(QStyle::SCFlags activeParts);
 };
 
-struct QStyleOptionSlider : public QStyleOptionComplex
+class QStyleOptionSlider : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_Slider };
+
     Qt::Orientation orientation;
     int minimum;
     int maximum;
     QSlider::TickSetting tickmarks;
     int tickInterval;
     bool useRightToLeft;
-    // These two values are typically the same, but different if tracking is not enabled.
     int sliderPosition;
     int sliderValue;
     int singleStep;
     int pageStep;
-    QStyleOptionSlider(int version)
-        : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
-          tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false), sliderPosition(0),
-          sliderValue(0), singleStep(0), pageStep(0) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionSlider(int version);
+
     QDOC_PROPERTY(Qt::Orientation orientation);
     QDOC_PROPERTY(int maximum);
     QDOC_PROPERTY(int minimum);
@@ -261,17 +391,20 @@ struct QStyleOptionSlider : public QStyleOptionComplex
     QDOC_PROPERTY(int pageStep);
 };
 
-struct QStyleOptionSpinBox : public QStyleOptionComplex
+class QStyleOptionSpinBox : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_SpinBox };
+
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
     bool slider;
     bool frame;
-    QStyleOptionSpinBox(int version)
-        : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-          stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionSpinBox(int version);
+
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols);
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled);
     QDOC_PROPERTY(double percentage);
@@ -279,11 +412,11 @@ struct QStyleOptionSpinBox : public QStyleOptionComplex
     QDOC_PROPERTY(bool frame);
 };
 
-struct QStyleOptionListView : public QStyleOptionComplex
+class QStyleOptionListView : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_ListView };
-    // List of listview items. The first item corresponds to the old ListViewItem we passed,
-    // all the other items are its children
+
     QList<QStyleOptionListViewItem> items;
     QPalette viewportPalette;
     QPalette::ColorRole viewportBGRole;
@@ -291,8 +424,10 @@ struct QStyleOptionListView : public QStyleOptionComplex
     int itemMargin;
     int treeStepSize;
     bool rootIsDecorated;
-    QStyleOptionListView(int version) : QStyleOptionComplex(version, SO_ListView), sortColumn(0),
-    itemMargin(0), treeStepSize(0), rootIsDecorated(false) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionListView(int version);
+
     QDOC_PROPERTY(QList<QStyleOptionListViewItem> items);
     QDOC_PROPERTY(QPalette viewportPalette);
     QDOC_PROPERTY(QPalette::ColorRole viewportBGRole);
@@ -302,12 +437,14 @@ struct QStyleOptionListView : public QStyleOptionComplex
     QDOC_PROPERTY(bool rootIsDecorated);
 };
 
-struct QStyleOptionToolButton : public QStyleOptionComplex
+class QStyleOptionToolButton : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_ToolButton };
     enum ToolButtonFeature { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04,
                              PopupDelay = 0x08, BigPixmap = 0x10 };
     Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature);
+
     ToolButtonFeatures features;
     QIconSet icon;
     QString text;
@@ -316,9 +453,10 @@ struct QStyleOptionToolButton : public QStyleOptionComplex
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
-    QStyleOptionToolButton(int version)
-        : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
-          textPosition(QToolButton::BesideIcon) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionToolButton(int version);
+
     QDOC_PROPERTY(ToolButtonFeatures features);
     QDOC_PROPERTY(QIconSet icon);
     QDOC_PROPERTY(QString text);
@@ -329,26 +467,34 @@ struct QStyleOptionToolButton : public QStyleOptionComplex
     QDOC_PROPERTY(QToolButton::TextPosition textPosition);
 };
 
-struct QStyleOptionComboBox : public QStyleOptionComplex
+class QStyleOptionComboBox : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_ComboBox };
+
     bool editable;
     QRect popupRect;
-    QStyleOptionComboBox(int version)
-        : QStyleOptionComplex(version, SO_ComboBox), editable(false) {}
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionComboBox(int version);
+
     QDOC_PROPERTY(bool editable);
     QDOC_PROPERTY(QRect popupRect);
 };
 
-struct QStyleOptionTitleBar : public QStyleOptionComplex
+class QStyleOptionTitleBar : public QStyleOptionComplex
 {
+public:
     enum { Type = SO_TitleBar };
+
     QString text;
     QPixmap icon;
     int titleBarState;
     Qt::WFlags titleBarFlags;
-    QStyleOptionTitleBar(int version)
-        : QStyleOptionComplex(version, SO_TitleBar), titleBarState(0), titleBarFlags(0) {};
+    QSTYLEOPTION_PADDING(0, 8);
+
+    QStyleOptionTitleBar(int version);
+
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QPixmap icon);
     QDOC_PROPERTY(int titleBarState);

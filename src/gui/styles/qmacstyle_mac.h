@@ -72,7 +72,8 @@ public:
     static void setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy);
     static WidgetSizePolicy widgetSizePolicy(const QWidget *w);
 
-    QPixmap stylePixmap(StylePixmap sp, const QStyleOption *opt, const QWidget *widget = 0) const;
+    QPixmap standardPixmap(StandardPixmap sp, const QStyleOption *opt,
+                           const QWidget *widget = 0) const;
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QStyleOption *opt) const;

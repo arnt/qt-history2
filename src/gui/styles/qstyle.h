@@ -648,7 +648,7 @@ public:
                           const QWidget *widget = 0, QStyleHintReturn* returnData = 0) const = 0;
 
 
-    enum StylePixmap {
+    enum StandardPixmap {
         SP_TitleBarMinButton,
         SP_TitleBarMaxButton,
         SP_TitleBarCloseButton,
@@ -678,8 +678,8 @@ public:
         SP_CustomBase = 0xf0000000
     };
 
-    virtual QPixmap stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt = 0,
-                                const QWidget *widget = 0) const = 0;
+    virtual QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt = 0,
+                                   const QWidget *widget = 0) const = 0;
 
     enum PixmapType {
         PT_Disabled,

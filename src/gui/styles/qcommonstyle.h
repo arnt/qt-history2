@@ -50,8 +50,8 @@ public:
     int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
                   QStyleHintReturn *shret = 0) const;
 
-    QPixmap stylePixmap(StylePixmap sp, const QStyleOption *opt = 0,
-                        const QWidget *widget = 0) const;
+    QPixmap standardPixmap(StandardPixmap sp, const QStyleOption *opt = 0,
+                           const QWidget *widget = 0) const;
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QStyleOption *opt) const;

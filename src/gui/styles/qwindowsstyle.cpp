@@ -838,11 +838,11 @@ static char * trashcan_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
+QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                    const QWidget *widget) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
-    switch (stylepixmap) {
+    switch (standardPixmap) {
     case SP_TitleBarShadeButton:
         return QPixmap((const char **)qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
@@ -892,7 +892,7 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *
         break;
     }
 #endif //QT_NO_IMAGEIO_XPM
-    return QCommonStyle::stylePixmap(stylepixmap, opt, widget);
+    return QCommonStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
 /*! \reimp */

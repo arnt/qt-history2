@@ -297,22 +297,22 @@ QWorkspacePrivate::init()
     d->popup->setObjectName("qt_internal_mdi_popup");
     d->toolPopup->setObjectName("qt_internal_mdi_tool_popup");
 
-    d->actions[QWorkspacePrivate::RestoreAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton)),
+    d->actions[QWorkspacePrivate::RestoreAct] = new QAction(QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarNormalButton)),
                                                             q->tr("&Restore"), q);
     d->actions[QWorkspacePrivate::MoveAct] = new QAction(q->tr("&Move"), q);
     d->actions[QWorkspacePrivate::ResizeAct] = new QAction(q->tr("&Size"), q);
-    d->actions[QWorkspacePrivate::MinimizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMinButton)),
+    d->actions[QWorkspacePrivate::MinimizeAct] = new QAction(QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarMinButton)),
                                                              q->tr("Mi&nimize"), q);
-    d->actions[QWorkspacePrivate::MaximizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMaxButton)),
+    d->actions[QWorkspacePrivate::MaximizeAct] = new QAction(QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarMaxButton)),
                                                              q->tr("Ma&ximize"), q);
-    d->actions[QWorkspacePrivate::CloseAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
+    d->actions[QWorkspacePrivate::CloseAct] = new QAction(QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarCloseButton)),
                                                           q->tr("&Close")
                                                           +"\t"+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
                                                           ,q);
     QObject::connect(d->actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
     d->actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
     d->actions[QWorkspacePrivate::StaysOnTopAct]->setChecked(true);
-    d->actions[QWorkspacePrivate::ShadeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)),
+    d->actions[QWorkspacePrivate::ShadeAct] = new QAction(QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarShadeButton)),
                                                           q->tr("Sh&ade"), q);
 
     QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
@@ -1196,7 +1196,7 @@ void QWorkspacePrivate::showMaximizeControls()
 #endif
             l->addWidget(iconB);
             iconB->setFocusPolicy(Qt::NoFocus);
-            iconB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarMinButton));
+            iconB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarMinButton));
             iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
             QObject::connect(iconB, SIGNAL(clicked()),
                              q, SLOT(minimizeActiveWindow()));
@@ -1209,7 +1209,7 @@ void QWorkspacePrivate::showMaximizeControls()
 #endif
         l->addWidget(restoreB);
         restoreB->setFocusPolicy(Qt::NoFocus);
-        restoreB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton));
+        restoreB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarNormalButton));
         restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(restoreB, SIGNAL(clicked()),
                          q, SLOT(normalizeActiveWindow()));
@@ -1222,7 +1222,7 @@ void QWorkspacePrivate::showMaximizeControls()
 #endif
         l->addWidget(closeB);
         closeB->setFocusPolicy(Qt::NoFocus);
-        closeB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton));
+        closeB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarCloseButton));
         closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(closeB, SIGNAL(clicked()),
                          q, SLOT(closeActiveWindow()));
@@ -1387,11 +1387,11 @@ void QWorkspacePrivate::updateActions()
     }
     if (d->active->shademode) {
         d->actions[QWorkspacePrivate::ShadeAct]->setIcon(
-            QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarUnshadeButton)));
+            QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarUnshadeButton)));
         d->actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("&Unshade"));
     } else {
         d->actions[QWorkspacePrivate::ShadeAct]->setIcon(
-            QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)));
+            QIconSet(q->style().standardPixmap(QStyle::SP_TitleBarShadeButton)));
         d->actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("Sh&ade"));
     }
     d->actions[QWorkspacePrivate::StaysOnTopAct]->setEnabled(!d->active->shademode && canResize);

@@ -2841,7 +2841,8 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyl
 #endif
 }
 
-void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *widget)
+void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &sz,
+                                               const QWidget *widget)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     ThemeButtonKind bkind = kThemePushButton;
@@ -3665,7 +3666,7 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
         break;
     case QStyle::SR_PanelTab:
         r = opt->rect;
-        r.setY(r.y() + q->pixelMetric(QStyle::PM_TabBarBaseHeight) + q->pixelMetric(QStyle::PM_TabBarBaseOverlap) + 12);
+        r.setY(r.y() + q->pixelMetric(QStyle::PM_TabBarBaseHeight) + q->pixelMetric(QStyle::PM_TabBarBaseOverlap) + 8);
         break;
     default:
         r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
@@ -4822,11 +4823,11 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 }
 
 /*! \reimp */
-QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
-                               const QWidget *widget) const
+QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                                  const QWidget *widget) const
 {
     IconRef icon = 0;
-    switch (stylepixmap) {
+    switch (standardPixmap) {
         case QStyle::SP_MessageBoxQuestion:
         case QStyle::SP_MessageBoxInformation:
             GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
@@ -4845,7 +4846,7 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
         ReleaseIconRef(icon);
         return ret;
     }
-    return QWindowsStyle::stylePixmap(stylepixmap, opt, widget);
+    return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
 /*!

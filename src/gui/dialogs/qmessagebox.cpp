@@ -759,16 +759,16 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     QPixmap pm;
     switch (icon) {
     case Information:
-        pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxInformation);
+        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxInformation);
         break;
     case Warning:
-        pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxWarning);
+        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxWarning);
         break;
     case Critical:
-        pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxCritical);
+        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxCritical);
         break;
     case Question:
-        pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxQuestion);
+        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxQuestion);
     default:
         break;
     }
