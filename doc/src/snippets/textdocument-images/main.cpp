@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     QTextCursor cursor(document);
 
     QTextImageFormat imageFormat;
-    imageFormat.setName(":/Images/advert.png");
+    imageFormat.setName(":/images/advert.png");
     cursor.insertImage(imageFormat);
 
     cursor.insertBlock();
