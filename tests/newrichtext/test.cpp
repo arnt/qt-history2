@@ -11,7 +11,7 @@
 
 
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
+const char *family = "Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Raghindi,Rama,TCRC Youtso Unicode"; // Devanagari
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
@@ -47,6 +47,8 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 // Tibetan
 // const char * s="ས་བཅད་གཉིས་པ་། ཡ་ཐོག་བོད་ཀྱི་བོན་རབས་བྱུང་ཚུལ།  རང་རེས་བོད་ཀྱི་ཡ་ཐོག་གི་བོན་བཤད་པའི་ཚེ། ཐོག་མར་\"བོན་\"ཅེས་པ་འདིའི་གདགས་གཞི་གང་འདྲ་ཞིག་ ལ་ངོས་འཛིན་དགོས་པ་འདི་ཐག་ལེགས་པོར་ཆོད་པ་ཞིག་མ་བྱུང་ན། ཡ་ཐོག་གི་བོན་ཅེས་པའི་དོན་གང་ཡིན་ངེས་ཐུབ་ཐབས་མེད་པ་ཡིན། འགྲོ་བ་མིའི་རིགས་ཡོངས་ལ་མི་རེ་བཞིན་གྱི་ལུས་ངག་ཡིད་ གསུམ་དང་འབྲེལ་བའི་དཀའ་ངལ་དང་འཇིགས་སྐྲགས་སྡུག་....";
 
+// Kannada
+// const char *s = "ಕನ್ನಡ ಯೂನಿಕೋಡ್ ಉದಾಹರಣೆ ಉದಯವಾಗಲಿ ನಮ್ಮ ಚೆಲುವ ಕನ್ನಡ ನಾಡು ಬದುಕು ಬಲುಹಿನ ನಿಧಿಯು ಸದಭಿಮಾನದ ಗೂಡು ರಾಜನ್ಯರಿಪು ಪರಶುರಾಮನಮ್ಮನ ನಾಡು ಆ ಜಲಧಿಯನೆ ಜಿಗಿದ ಹನುಮನುದಿಸಿದ ನಾಡು ಓಜೆಯಿಂ ಮೆರೆದರಸುಗಳ ಸಾಹಸದ ಸೂಡು ತೇಜವನು ನಮಗೀವ ವೀರವೃಂದದ ಬೀಡು ಲೆಕ್ಕಿಗ ಮಿತಾಕ್ಷರರು ಬೆಳೆದು ಮೆರೆದಿಹ ನಾಡು ಜಕ್ಕಣನ ಶಿಲ್ಪಕಲೆಯಚ್ಚರಿಯ ಕರುಗೋಡು ಚೊಕ್ಕ ಮತಗಳ ಸಾರಿದವರಿಗಿದು ನೆಲೆವೀಡು ಬೊಕ್ಕಸದ ಕಣಜವೈ ವಿದ್ವತ್ತೆಗಳ ಕಾಡು ಪಾವನೆಯರಾ ಕೃಷ್ಣೆ ಭೀಮೆಯರ ತಾಯ್ನಾಡು ಕಾವೇರಿ ಗೋದೆಯರು ಮೈದೊಳೆವ ನಲುನಾಡು ಆವಗಂ ಸ್ಫೂರ್ತಿಸುವ ಕಬ್ಬಿಗರ ನಡೆಮಾಡು ಕಾವ ಗದುಗಿನ ವೀರನಾರಾಯಣ ಬೀಡು ಹುಯಿಲುಗೋಳ ನಾರಾಯಣರಾಯರು";
 
 // mixed
 // const char *s =
