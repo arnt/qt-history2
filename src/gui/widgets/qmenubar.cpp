@@ -174,6 +174,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     }
     actionRects.clear();
     actionList.clear();
+    const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, 0, q);
     int max_item_height = 0, separator = -1, separator_start = 0, separator_len = 0;
     QList<QAction*> items = q->actions();
 
@@ -205,10 +206,16 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
         sz = q->style().sizeFromContents(QStyle::CT_MenuBarItem, &opt, sz, fm, q);
 
         if(!sz.isEmpty()) {
-            if(separator == -1)
-                separator_start += sz.width();
-            else
-                separator_len += sz.width();
+            { //update the separator state
+                int iWidth = sz.width();
+                if(i)
+                    iWidth += itemSpacing;
+                if(separator == -1) 
+                    separator_start += iWidth;
+                else 
+                    separator_len += iWidth;
+            }
+            //maximum height
             max_item_height = qMax(max_item_height, sz.height());
             //append
             actionRects.insert(action, QRect(0, 0, sz.width(), sz.height()));
@@ -219,8 +226,8 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     //calculate position
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
-    const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, 0, q);
     int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
+    qDebug("attemping to calc the rects... %d [%d]", max_width, separator_start);
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
@@ -234,6 +241,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
                 separator_start = x = hmargin;
                 y += max_item_height;
             }
+            qDebug("Placing %s %d", action->text().latin1(), left);
             rect.moveLeft(left);
         } else {
             if(x+rect.width() >= max_width-vmargin) { //wrap
