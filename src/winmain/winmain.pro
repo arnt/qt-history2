@@ -8,7 +8,7 @@ CONFIG	+= qt staticlib warn_on release
 CONFIG	-= dll
 
 win32 {
-	SOURCES		= kernel/qtmain_win.cpp
+	SOURCES		= qtmain_win.cpp
 	CONFIG		+= png zlib
 	CONFIG		-= jpeg
 	INCLUDEPATH	+= tmp
