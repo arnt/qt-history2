@@ -92,7 +92,8 @@ static void analyzeFile( const QString& fileName )
 
     qWarning( "Processing %s", fileName.latin1() );
 
-    system( QString("annotate %1 >& /tmp/storebror").arg(fileName).latin1() );
+    system( QString("annotate %1 2>&1 > /tmp/storebror")
+	    .arg(fileName).latin1() );
     QString str = fileContents( "/tmp/storebror" );
     int k = 0;
     while ( (k = str.find(docComment, k)) != -1 ) {
