@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#2 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -25,7 +25,9 @@ extern "C" {
 #include <png.h>
 }
 #include <qimage.h>
+#include <qasyncimageio.h>
 #include <qiodevice.h>
+#include <qpngio.h>
 
 /*
   The following PNG Test Suite (October 1996) images do not load correctly,
@@ -61,10 +63,10 @@ void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 }
 
 static
-void iod_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
+void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    QImageIO* iio = (QImageIO*)png_get_io_ptr(png_ptr);
-    QIODevice* out = iio->ioDevice();
+    QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr(png_ptr);
+    QIODevice* out = qpiw->device();
 
     uint nr = out->writeBlock((char*)data, length);
     if (nr != length) {
@@ -74,43 +76,8 @@ void iod_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 }
 
 static
-void read_png_image(QImageIO* iio)
+void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 {
-    png_structp png_ptr;
-    png_infop info_ptr;
-    png_infop end_info;
-    png_bytep* row_pointers;
-
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,0,0,0);
-    if (!png_ptr) {
-	iio->setStatus(-1);
-	return;
-    }
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-	png_destroy_read_struct(&png_ptr, 0, 0);
-	iio->setStatus(-2);
-	return;
-    }
-
-    end_info = png_create_info_struct(png_ptr);
-    if (!end_info) {
-	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
-	iio->setStatus(-3);
-	return;
-    }
-
-    if (setjmp(png_ptr->jmpbuf)) {
-	png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-	iio->setStatus(-4);
-	return;
-    }
-
-    png_set_read_fn(png_ptr, (void*)iio, iod_read_fn);
-
-
-    png_read_info(png_ptr, info_ptr);
     png_set_strip_16(png_ptr);
 
     if (info_ptr->bit_depth < 8
@@ -125,7 +92,6 @@ void read_png_image(QImageIO* iio)
     if (info_ptr->valid & PNG_INFO_gAMA)
 	png_set_gamma(png_ptr, 2.2, info_ptr->gamma);
 
-    QImage image;
     bool noalpha = FALSE;
 
     if (info_ptr->bit_depth == 1
@@ -224,6 +190,47 @@ void read_png_image(QImageIO* iio)
 	png_set_bgr(png_ptr);
 	png_set_swap_alpha(png_ptr);
     }
+}
+
+static
+void read_png_image(QImageIO* iio)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_infop end_info;
+    png_bytep* row_pointers;
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,0,0,0);
+    if (!png_ptr) {
+	iio->setStatus(-1);
+	return;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+	png_destroy_read_struct(&png_ptr, 0, 0);
+	iio->setStatus(-2);
+	return;
+    }
+
+    end_info = png_create_info_struct(png_ptr);
+    if (!end_info) {
+	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+	iio->setStatus(-3);
+	return;
+    }
+
+    if (setjmp(png_ptr->jmpbuf)) {
+	png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+	iio->setStatus(-4);
+	return;
+    }
+
+    png_set_read_fn(png_ptr, (void*)iio, iod_read_fn);
+    png_read_info(png_ptr, info_ptr);
+
+    QImage image;
+    setup_qt(image, png_ptr, info_ptr);
 
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];
@@ -261,8 +268,36 @@ void read_png_image(QImageIO* iio)
     iio->setStatus(0);
 }
 
-static
-void write_png_image(QImageIO* iio)
+QPNGImageWriter::QPNGImageWriter(QIODevice* iod) :
+    dev(iod),
+    frames_written(0),
+    disposal(Unspecified),
+    looping(-1),
+    ms_delay(0)
+{
+}
+
+QPNGImageWriter::~QPNGImageWriter()
+{
+}
+
+void QPNGImageWriter::setDisposalMethod(DisposalMethod dm)
+{
+    disposal = dm;
+}
+
+void QPNGImageWriter::setLooping(int loops)
+{
+    looping = loops;
+}
+
+void QPNGImageWriter::setFrameDelay(int msecs)
+{
+    ms_delay = msecs;
+}
+
+
+bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -270,26 +305,21 @@ void write_png_image(QImageIO* iio)
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
     if (!png_ptr) {
-	iio->setStatus(-1);
-	return;
+	return FALSE;
     }
 
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
 	png_destroy_write_struct(&png_ptr, 0);
-	iio->setStatus(-2);
-	return;
+	return FALSE;
     }
 
     if (setjmp(png_ptr->jmpbuf)) {
 	png_destroy_write_struct(&png_ptr, &info_ptr);
-	iio->setStatus(-4);
-	return;
+	return FALSE;
     }
 
-    png_set_write_fn(png_ptr, (void*)iio, iod_write_fn, 0);
-
-    const QImage& image = iio->image();
+    png_set_write_fn(png_ptr, (void*)this, qpiw_write_fn, 0);
 
     info_ptr->channels =
 	(image.depth() == 32)
@@ -353,6 +383,13 @@ void write_png_image(QImageIO* iio)
 	png_set_swap_alpha(png_ptr);
     }
 
+    if (off_x || off_y) {
+	png_set_oFFs(png_ptr, info_ptr, off_x, off_y, PNG_OFFSET_PIXEL);
+    }
+
+    if ( frames_written > 0 )
+        png_set_sig_bytes(png_ptr, 8);
+
     png_write_info(png_ptr, info_ptr);
 
     if ( image.depth() != 1 )
@@ -362,6 +399,22 @@ void write_png_image(QImageIO* iio)
 	png_set_filler(png_ptr, 0,
 	    QImage::systemByteOrder() == QImage::BigEndian ?
 		PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
+
+    if ( looping >= 0 && frames_written == 0 ) {
+	uchar data[13] = "NETSCAPE2.0";
+	//                0123456789aBC
+	data[0xB] = looping%0x100;
+	data[0xC] = looping/0x100;
+	png_write_chunk(png_ptr, (png_byte*)"gIFx", data, 13);
+    }
+    if ( ms_delay >= 0 || disposal!=Unspecified ) {
+	uchar data[4];
+	data[0] = disposal;
+	data[1] = 0;
+	data[2] = (ms_delay/10)/0x100; // hundredths
+	data[3] = (ms_delay/10)%0x100;
+	png_write_chunk(png_ptr, (png_byte*)"gIFg", data, 4);
+    }
 
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];
@@ -373,6 +426,7 @@ void write_png_image(QImageIO* iio)
     delete row_pointers;
 
     png_write_end(png_ptr, info_ptr);
+    frames_written++;
 
     if (image.numColors())
 	delete info_ptr->palette;
@@ -381,11 +435,415 @@ void write_png_image(QImageIO* iio)
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
 
-    iio->setStatus(0);
+    return TRUE;
 }
+
+static
+void write_png_image(QImageIO* iio)
+{
+    QPNGImageWriter writer(iio->ioDevice());
+    if ( writer.writeImage(iio->image()) )
+	iio->setStatus(0);
+    else
+	iio->setStatus(-1);
+}
+
+
+QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth=32,
+	int conversionflags=0) :
+    QPNGImageWriter(iod),
+    depth(storage_depth),
+    convflags(conversionflags)
+{
+}
+
+bool QPNGImagePacker::packImage(const QImage& img)
+{
+    QImage image = img.convertDepth(32);
+    if ( previous.isNull() ) {
+	// First image
+	writeImage(image.convertDepth(depth,convflags));
+debug("Initial image has %d pixels",image.width()*image.height());
+    } else {
+	bool done;
+	int minx, maxx, miny, maxy;
+	int w = image.width();
+	int h = image.height();
+
+	QRgb** jt = (QRgb**)image.jumpTable();
+	QRgb** pjt = (QRgb**)previous.jumpTable();
+
+	// Find left edge of change
+	done = FALSE;
+	for (minx = 0; minx < w && !done; minx++) {
+	    for (int ty = 0; ty < h; ty++) {
+		if ( jt[ty][minx] != pjt[ty][minx] ) {
+		    done = TRUE;
+		    break;
+		}
+	    }
+	}
+	minx--;
+
+	// Find right edge of change
+	done = FALSE;
+	for (maxx = w-1; maxx >= 0 && !done; maxx--) {
+	    for (int ty = 0; ty < h; ty++) {
+		if ( jt[ty][maxx] != pjt[ty][maxx] ) {
+		    done = TRUE;
+		    break;
+		}
+	    }
+	}
+	maxx++;
+
+	// Find top edge of change
+	done = FALSE;
+	for (miny = 0; miny < h && !done; miny++) {
+	    for (int tx = 0; tx < w; tx++) {
+		if ( jt[miny][tx] != pjt[miny][tx] ) {
+		    done = TRUE;
+		    break;
+		}
+	    }
+	}
+	miny--;
+
+	// Find right edge of change
+	done = FALSE;
+	for (maxy = h-1; maxy >= 0 && !done; maxy--) {
+	    for (int tx = 0; tx < w; tx++) {
+		if ( jt[maxy][tx] != pjt[maxy][tx] ) {
+		    done = TRUE;
+		    break;
+		}
+	    }
+	}
+	maxy++;
+
+	if ( minx > maxx ) minx=maxx=0;
+	if ( miny > maxy ) miny=maxy=0;
+
+	int dw = maxx-minx+1;
+	int dh = maxy-miny+1;
+
+	QImage diff(dw, dh, 32);
+
+	diff.setAlphaBuffer(TRUE);
+	int x, y;
+	int n = 0;
+	for (y = 0; y < dh; y++) {
+	    QRgb* li = (QRgb*)image.scanLine(y+miny)+minx;
+	    QRgb* lp = (QRgb*)previous.scanLine(y+miny)+minx;
+	    QRgb* ld = (QRgb*)diff.scanLine(y);
+	    for (x = 0; x < dw; x++) {
+		if ( li[x] == lp[x] ) {
+		    ld[x] = qRgba(0,0,0,0);
+		} else {
+		    ld[x] = 0xff000000 | li[x];
+		    n++;
+		}
+	    }
+	}
+debug("Semi-transparent frame has %d new pixels",n);
+
+	diff = diff.convertDepth(depth,convflags);
+	if ( !writeImage(diff, minx, miny) )
+	    return FALSE;
+    }
+    previous = image;
+    return TRUE;
+}
+
+
+
+class Q_EXPORT QPNGFormat : public QImageFormat {
+public:
+    QPNGFormat();
+    virtual ~QPNGFormat();
+
+    int decode(QImage& img, QImageConsumer* consumer,
+	    const uchar* buffer, int length);
+
+    void info(png_structp png_ptr, png_infop info);
+    void row(png_structp png_ptr, png_bytep new_row,
+		png_uint_32 row_num, int pass);
+    void end(png_structp png_ptr, png_infop info);
+#ifdef PNG_USER_CHUNK_SUPPORTED
+    void user_chunk(png_structp png_ptr, png_infop info,
+	    png_bytep data, png_uint_32 length);
+#endif
+
+private:
+    // Animation-level information
+    enum { MovieStart, FrameStart, Inside } state;
+    int first_frame;
+    int base_offx;
+    int base_offy;
+
+    // Image-level information
+    png_structp png_ptr;
+    png_infop info_ptr;
+
+    // Temporary locals during single data-chunk processing
+    QImageConsumer* consumer;
+    QImage* image;
+    int unused_data;
+};
+
+class Q_EXPORT QPNGFormatType : public QImageFormatType
+{
+    QImageFormat* decoderFor(const uchar* buffer, int length);
+    const char* formatName() const;
+};
+
+
+/*!
+  \class QPNGFormat qpngio.h
+  \brief Incremental image decoder for PNG image format.
+
+  \ingroup images
+
+  This subclass of QImageFormat decodes PNG format images,
+  including animated PNGs.
+
+  Animated PNG images are standard PNG images.  The PNG standard
+  defines two extension chunks that are useful for animations:
+
+  <dl>
+   <dt>gIFg - GIF-like Graphic Control Extension
+    <dd>Includes frame disposal, user input flag (we ignore this),
+	    and inter-frame delay.
+   <dt>gIFx - GIF-like Application Extension
+    <dd>Multi-purpose, but we just use the Netscape extension
+	    which specifies looping.
+  </dl>
+
+  The subimages usually contain a offset chunk (oFFs) but need not.  
+
+  The first image defines the "screen" size.  Any subsequent image that
+  doesn't fit is clipped.
+
+TODO: decide on this point.  gIFg gives disposal types, so it can be done.
+  All images paste (\e not composite, just place all-channel copying)
+  over the previous image to produce a subsequent frame.
+*/
+
+/*!
+  \class QPNGFormatType qasyncimageio.h
+  \brief Incremental image decoder for PNG image format.
+
+  \ingroup images
+
+  This subclass of QImageFormatType recognizes PNG
+  format images, creating a QPNGFormat when required.  An instance
+  of this class is created automatically before any other factories,
+  so you should have no need for such objects.
+*/
+
+QImageFormat* QPNGFormatType::decoderFor(
+    const uchar* buffer, int length)
+{
+    if (length < 8) return 0;
+    if (buffer[0]==137
+     && buffer[1]=='P'
+     && buffer[2]=='N'
+     && buffer[3]=='G'
+     && buffer[4]==13
+     && buffer[5]==10
+     && buffer[6]==26
+     && buffer[7]==10)
+        return new QPNGFormat;
+    return 0;
+}
+
+const char* QPNGFormatType::formatName() const
+{
+    return "PNG";
+}
+
+
+static void
+info_callback(png_structp png_ptr, png_infop info)
+{
+    QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
+    that->info(png_ptr,info);
+}
+
+static void
+row_callback(png_structp png_ptr, png_bytep new_row,
+   png_uint_32 row_num, int pass)
+{
+    QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
+    that->row(png_ptr,new_row,row_num,pass);
+}
+
+static void
+end_callback(png_structp png_ptr, png_infop info)
+{
+    QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
+    that->end(png_ptr,info);
+}
+
+#ifdef PNG_USER_CHUNK_SUPPORTED
+static int
+user_chunk_callback(png_structp png_ptr, png_infop info,
+	    png_bytep data, png_uint_32 length)
+{
+    QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
+    return that->user_chunk(png_ptr,info,data,length);
+}
+#endif
+
+
+/*!
+  Constructs a QPNGFormat.
+*/
+QPNGFormat::QPNGFormat()
+{
+    state = MovieStart;
+    first_frame = 1;
+    base_offx = 0;
+    base_offy = 0;
+    png_ptr = 0;
+    info_ptr = 0;
+}
+
+/*!
+  Destructs a QPNGFormat.
+*/
+QPNGFormat::~QPNGFormat()
+{
+}
+
+
+
+
+
+/*!
+  This function decodes some data into image changes.
+
+  Returns the number of bytes consumed.
+*/
+int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
+	const uchar* buffer, int length)
+{
+    consumer = cons;
+    image = &img;
+
+    if ( state != Inside ) {
+       png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+       png_set_compression_level(png_ptr, 9);
+
+       if (png_ptr == NULL) {
+	  info_ptr = NULL;
+	  image = 0;
+	  return 0;
+       }
+
+       info_ptr = png_create_info_struct(png_ptr);
+
+       if (info_ptr == NULL) {
+	  png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+	  image = 0;
+	  return 0;
+       }
+
+       if (setjmp((png_ptr)->jmpbuf)) {
+	  png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+	  image = 0;
+	  return 0;
+       }
+
+       png_set_progressive_read_fn(png_ptr, (void *)this,
+	  info_callback, row_callback, end_callback);
+
+#ifdef PNG_USER_CHUNK_SUPPORTED
+       png_set_user_chunk_fn(png_ptr, user_chunk_callback);
+#endif
+
+       if ( state != MovieStart && *buffer != 0211 ) {
+	   // Good, no signature - the preferred way to concat PNG images.
+	   // Skip them.
+	   png_set_sig_bytes(png_ptr, 8);
+       }
+
+       state = Inside;
+    }
+
+    if (setjmp(png_ptr->jmpbuf)) {
+       png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+       image = 0;
+       return 0;
+    }
+    unused_data = 0;
+    png_process_data(png_ptr, info_ptr, (png_bytep)buffer, length);
+    length -= unused_data;
+
+    // TODO: send incremental stuff to consumer (optional)
+
+    if ( state != Inside ) {
+	if ( png_ptr )
+	    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+    }
+
+    image = 0;
+    return length;
+}
+
+void QPNGFormat::info(png_structp png_ptr, png_infop)
+{
+    png_set_interlace_handling(png_ptr);
+    setup_qt(*image, png_ptr, info_ptr);
+}
+
+void QPNGFormat::row(png_structp png_ptr, png_bytep new_row,
+   png_uint_32 row_num, int)
+{
+    uchar* old_row = image->scanLine(row_num);
+    png_progressive_combine_row(png_ptr, old_row, new_row);
+}
+
+
+void QPNGFormat::end(png_structp png_ptr, png_infop info)
+{
+    int offx = png_get_x_offset_pixels(png_ptr,info) - base_offx;
+    int offy = png_get_y_offset_pixels(png_ptr,info) - base_offy;
+    if ( first_frame ) {
+	base_offx = offx;
+	base_offy = offy;
+	first_frame = 0;
+    }
+    QRect r(0,0,image->width(),image->height());
+    consumer->frameDone(QPoint(offx,offy),r);
+    state = FrameStart;
+    unused_data = png_ptr->buffer_size; // Since libpng doesn't tell us
+}
+
+#ifdef PNG_USER_CHUNK_SUPPORTED
+int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
+	    png_bytep data, png_uint_32 length)
+{
+    // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
+    if ( 0==strcmp(png_ptr->chunk_name, "gIFg") ) {
+	return 1;
+    } if ( 0==strcmp(png_ptr->chunk_name, "gIFx") ) {
+	return 1;
+    } else {
+	return 0;
+    }
+}
+#endif
+
+
 
 
 void qInitPngIO()
 {
     QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, read_png_image, write_png_image);
+    (void)new QPNGFormatType;
 }
+
+
+
+

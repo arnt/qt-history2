@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpngio.h#2 $
 **
 ** Definition of PNG QImage IOHandler
 **
@@ -24,6 +24,47 @@
 #ifndef QPNGIO_H
 #define QPNGIO_H
 
+#include <qimage.h>
+
 void qInitPngIO();
+
+class QIODevice;
+class QImage;
+
+class QPNGImageWriter {
+public:
+    QPNGImageWriter(QIODevice*);
+    ~QPNGImageWriter();
+
+    enum DisposalMethod { Unspecified, NoDisposal, RestoreBackground, RestoreImage };
+    void setDisposalMethod(DisposalMethod);
+    void setLooping(int loops=0); // 0 == infinity
+    void setFrameDelay(int msecs);
+
+    bool writeImage(const QImage& img, int x, int y);
+    bool writeImage(const QImage& img)
+	{ return writeImage(img, 0, 0); }
+
+    QIODevice* device() { return dev; }
+
+private:
+    QIODevice* dev;
+    int frames_written;
+    DisposalMethod disposal;
+    int looping;
+    int ms_delay;
+};
+
+class QPNGImagePacker : public QPNGImageWriter {
+public:
+    QPNGImagePacker(QIODevice*, int depth, int convflags);
+
+    bool packImage(const QImage& img);
+
+private:
+    QImage previous;
+    int depth;
+    int convflags;
+};
 
 #endif
