@@ -150,7 +150,6 @@ qDebug( QString(parseChar) );
 		    break;
 	    }
 	    str = expr.mid( strBegin, parsePos-strBegin );
-	    num = str.toDouble();
 	    token = TkNumber;
 	    return token;
 	}
@@ -414,7 +413,7 @@ qDebug( QString(parseChar) );
     double getNumber() const
     {
 	if ( token == TkNumber )
-	    return num;
+	    return str.toDouble();
 	else
 	    return 0;
     }
@@ -453,7 +452,6 @@ private:
     Token token;
 
     QString str;
-    double num;
     Operator op;
 };
 
@@ -476,15 +474,24 @@ public:
 	delete lex;
     }
 
+    enum State {
+	SExpr,
+	SAxisName,
+	SNodeTest,
+	STestPredicate
+    };
+
     QXPathAtom* parse()
     {
 	Token token;
+	State s = SExpr;
+	QXPathAtom *act_root = 0;
 
 	while ( !lex->atEnd() ) {
 	    token = lex->nextToken();
 	    switch ( token ) {
 		case TkError:
-		    // ### think about error handling
+		    goto error;
 		    break;
 		case TkLeftParen:
 		    break;
@@ -539,6 +546,9 @@ public:
 		    break;
 	    }
 	}
+	return act_root;
+    error:
+	delete act_root;
 	return 0;
     }
 
