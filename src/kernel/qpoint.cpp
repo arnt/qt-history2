@@ -14,6 +14,7 @@
 
 #include "qpoint.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 
 
 /*!
@@ -406,3 +407,10 @@ int QPoint::manhattanLength() const
 {
     return QABS(x())+QABS(y());
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QPoint &p) {
+    dbg.nospace() << "QPoint(" << p.x() << ',' << p.y() << ')';
+    return dbg.space();
+}
+#endif

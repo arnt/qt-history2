@@ -16,7 +16,7 @@
 #include "qcursor.h"
 #include "qapplication.h"
 #include "qwidget.h"
-
+#include "qdebug.h"
 /*!
     \class QInputEvent qevent.h
     \ingroup events
@@ -266,8 +266,8 @@ Qt::ButtonState QMouseEvent::stateAfter() const
     \ingroup events
 
     Wheel events are sent to the widget under the mouse, and if that widget
-    does not handle the event they are sent to the focus widget. The rotation 
-    distance is provided by delta(). The functions pos() and globalPos() return 
+    does not handle the event they are sent to the focus widget. The rotation
+    distance is provided by delta(). The functions pos() and globalPos() return
     the mouse pointer location at the time of the event.
 
     A wheel event contains a special accept flag that indicates
@@ -1879,3 +1879,80 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 */
 
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, QEvent *e) {
+
+    // More useful event output could be added here
+
+    if (!e)
+	return dbg << "QEvent(this = 0x0)";
+    const char *n;
+    switch ( e->type() ) {
+    case QEvent::Timer:
+	n = "Timer";
+	break;
+    case QEvent::MouseButtonPress:
+	n = "MouseButtonPress";
+	break;
+    case QEvent::MouseButtonRelease:
+	n = "MouseButtonRelease";
+	break;
+    case QEvent::MouseButtonDblClick:
+	n = "MouseButtonDblClick";
+	break;
+    case QEvent::MouseMove:
+	n = "MouseMove";
+	break;
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+	n = "Wheel";
+	break;
+#endif
+    case QEvent::KeyPress:
+	n = "KeyPress";
+	break;
+    case QEvent::KeyRelease:
+	n = "KeyRelease";
+	break;
+    case QEvent::FocusIn:
+	n = "FocusIn";
+	break;
+    case QEvent::FocusOut:
+	n = "FocusOut";
+	break;
+    case QEvent::Enter:
+	n = "Enter";
+	break;
+    case QEvent::Leave:
+	n = "Leave";
+	break;
+    case QEvent::Paint:
+	n = "Paint";
+	break;
+    case QEvent::Move:
+	n = "Move";
+	break;
+    case QEvent::Resize:
+	n = "Resize";
+	break;
+    case QEvent::Create:
+	n = "Create";
+	break;
+    case QEvent::Destroy:
+	n = "Destroy";
+	break;
+    case QEvent::Close:
+	n = "Close";
+	break;
+    case QEvent::Quit:
+	n = "Quit";
+	break;
+    default:
+	n = "<other>";
+	break;
+    }
+
+    dbg.nospace() << 'Q' << n << "Event(" << (void *)e << ')';
+    return dbg.space();
+}
+#endif

@@ -18,6 +18,7 @@
 #include "qcoreevent.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
+#include "qdebug.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -2434,3 +2435,15 @@ QObjectUserData* QObject::userData( uint id ) const
     function you can pass a QPointer\<X\> to a function where an X*
     is required.
 */
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, QObject *o) {
+    if (!o)
+	return dbg << "QObject(0x0)";
+    dbg.nospace() << o->className() << "(" << (void *)o;
+    if (o->objectName(0))
+	dbg << ", name = \"" << o->objectName(0) << '\"';
+    dbg << ')';
+    return dbg.space();
+}
+#endif

@@ -15,6 +15,7 @@
 #define	 QRECT_C
 #include "qrect.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 
 /*!
     \class QRect
@@ -825,4 +826,15 @@ QDataStream &operator>>( QDataStream &s, QRect &r )
     }
     return s;
 }
+
 #endif // QT_NO_DATASTREAM
+
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QRect &r) {
+    dbg.nospace() << "QRect(" << r.x() << ',' << r.y() << ','
+		  << r.width() << ',' << r.height() << ')';
+    return dbg.space();
+}
+#endif
+

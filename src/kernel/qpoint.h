@@ -175,4 +175,8 @@ inline const QPoint operator/( const QPoint &p, double c )
     return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c));
 }
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QPoint &);
+#endif
+
 #endif // QPOINT_H

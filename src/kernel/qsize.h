@@ -193,5 +193,8 @@ inline QSize QSize::boundedTo( const QSize & otherSize ) const
     return QSize( qMin(wd,otherSize.wd), qMin(ht,otherSize.ht) );
 }
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QSize &);
+#endif
 
 #endif // QSIZE_H

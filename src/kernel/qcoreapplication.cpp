@@ -806,77 +806,11 @@ void QCoreApplication::removePostedEvent( QEvent * event )
     for (int i = 0; i < postedEvents->size(); ++i) {
 	const QPostEvent & pe = postedEvents->at(i);
 	if ( pe.event == event ) {
-#if defined(QT_DEBUG)
-	    const char *n;
-	    switch ( event->type() ) {
-	    case QEvent::Timer:
-		n = "Timer";
-		break;
-	    case QEvent::MouseButtonPress:
-		n = "MouseButtonPress";
-		break;
-	    case QEvent::MouseButtonRelease:
-		n = "MouseButtonRelease";
-		break;
-	    case QEvent::MouseButtonDblClick:
-		n = "MouseButtonDblClick";
-		break;
-	    case QEvent::MouseMove:
-		n = "MouseMove";
-		break;
-#ifndef QT_NO_WHEELEVENT
-	    case QEvent::Wheel:
-		n = "Wheel";
-		break;
-#endif
-	    case QEvent::KeyPress:
-		n = "KeyPress";
-		break;
-	    case QEvent::KeyRelease:
-		n = "KeyRelease";
-		break;
-	    case QEvent::FocusIn:
-		n = "FocusIn";
-		break;
-	    case QEvent::FocusOut:
-		n = "FocusOut";
-		break;
-	    case QEvent::Enter:
-		n = "Enter";
-		break;
-	    case QEvent::Leave:
-		n = "Leave";
-		break;
-	    case QEvent::Paint:
-		n = "Paint";
-		break;
-	    case QEvent::Move:
-		n = "Move";
-		break;
-	    case QEvent::Resize:
-		n = "Resize";
-		break;
-	    case QEvent::Create:
-		n = "Create";
-		break;
-	    case QEvent::Destroy:
-		n = "Destroy";
-		break;
-	    case QEvent::Close:
-		n = "Close";
-		break;
-	    case QEvent::Quit:
-		n = "Quit";
-		break;
-	    default:
-		n = "<other>";
-		break;
-	    }
-	    qWarning("QEvent: Warning: %s event deleted while posted to %s %s",
-		     n,
+#ifndef QT_NO_DEBUG
+	    qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
+		     event->type(),
 		     pe.receiver ? pe.receiver->className() : "null",
 		     pe.receiver ? pe.receiver->name() : "object" );
-	    // note the beautiful uglehack if !pe->receiver :)
 #endif
 	    pe.event->posted = false;
 	    delete pe.event;

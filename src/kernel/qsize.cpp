@@ -14,7 +14,7 @@
 
 #include "qsize.h"
 #include "qdatastream.h"
-
+#include "qdebug.h"
 
 /*!
   \class QSize
@@ -397,3 +397,11 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QSize &s) {
+    dbg.nospace() << "QSize(" << s.width() << ',' << s.height() << ')';
+    return dbg.space();
+}
+#endif

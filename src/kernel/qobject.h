@@ -239,5 +239,8 @@ inline T qt_cast(const QObject *object)
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, QObject *);
+#endif
 
 #endif // QOBJECT_H

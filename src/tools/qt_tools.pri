@@ -19,6 +19,7 @@ tools {
 		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
 		  $$TOOLS_H/qglobal.h \
+		  $$TOOLS_H/qdebug.h \
 		  $$TOOLS_H/qhash.h \
 		  $$TOOLS_H/qlinkedlist.h \
 		  $$TOOLS_H/qlist.h \
@@ -88,6 +89,7 @@ tools {
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qshared.cpp \
+		  $$TOOLS_CPP/qdebug.cpp \
 		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qsettings.cpp \

@@ -412,4 +412,8 @@ public:
 
 #endif // QT_NO_DRAGANDDROP
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, QEvent *);
+#endif
+
 #endif // QEVENT_H
