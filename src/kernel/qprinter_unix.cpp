@@ -94,7 +94,7 @@ QPrinter::QPrinter( PrinterMode m )
 }
 
 /*!
-  Destructs the printer paint device and cleans up.
+  Destroys the printer paint device and cleans up.
 */
 
 QPrinter::~QPrinter()

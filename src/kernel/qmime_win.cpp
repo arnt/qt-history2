@@ -97,7 +97,7 @@ QWindowsMime::QWindowsMime()
 }
 
 /*!
-  Destructs a conversion object, removing it from the global
+  Destroys a conversion object, removing it from the global
   list of available convertors.
 */
 QWindowsMime::~QWindowsMime()

@@ -253,7 +253,7 @@ QMimeSourceFactory::QMimeSourceFactory() :
 }
 
 /*!
-  Destructs the QMimeSourceFactory, deleting all stored content.
+  Destroys the QMimeSourceFactory, deleting all stored content.
 */
 QMimeSourceFactory::~QMimeSourceFactory()
 {

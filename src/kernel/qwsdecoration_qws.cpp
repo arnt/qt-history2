@@ -64,7 +64,7 @@
 /*!
   \fn QWSDecoration::~QWSDecoration()
 
-  Destructs a decorator.
+  Destroys a decorator.
 */
 
 /*!

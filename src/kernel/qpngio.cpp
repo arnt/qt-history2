@@ -917,7 +917,7 @@ QPNGFormat::QPNGFormat()
 
 
 /*!
-  Destructs a QPNGFormat.
+  Destroys a QPNGFormat.
 */
 QPNGFormat::~QPNGFormat()
 {

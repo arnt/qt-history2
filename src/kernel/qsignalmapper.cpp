@@ -83,7 +83,7 @@ QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
 }
 
 /*!
-  Destructs the QSignalMapper.
+  Destroys the QSignalMapper.
 */
 QSignalMapper::~QSignalMapper()
 {

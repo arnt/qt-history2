@@ -54,7 +54,7 @@
 
 
 /*!
-  Destructs the async IO object.
+  Destroys the async IO object.
 */
 QAsyncIO::~QAsyncIO()
 {
@@ -211,7 +211,7 @@ void QDataSource::rewind()
 /*!
   Constructs a QIODeviceSource from a pointer to an QIODevice.  The QIODevice
   \e must be dynamically allocated, becomes owned by the QIODeviceSource,
-  and will be deleted when the QIODeviceSource destructs. \a buffer_size
+  and will be deleted when the QIODeviceSource is destroyed. \a buffer_size
   determines the size of buffering to use between asynchronous operations.
   The higher the \a buffer_size, the more efficient, but the less interleaved
   the operation will be with other processing.
@@ -225,7 +225,7 @@ QIODeviceSource::QIODeviceSource(QIODevice* device, int buffer_size) :
 }
 
 /*!
-  Destructs the QIODeviceSource, deleting the QIODevice from which it was
+  Destroys the QIODeviceSource, deleting the QIODevice from which it was
   constructed.
 */
 QIODeviceSource::~QIODeviceSource()

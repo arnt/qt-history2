@@ -266,7 +266,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
 }
 
 /*!
-  Destructs the color group.
+  Destroys the color group.
 */
 
 QColorGroup::~QColorGroup()
@@ -596,7 +596,7 @@ QPalette::QPalette( const QPalette &p )
 }
 
 /*!
-  Destructs the palette.
+  Destroys the palette.
 */
 
 QPalette::~QPalette()

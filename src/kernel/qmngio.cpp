@@ -283,7 +283,7 @@ QMNGFormat::QMNGFormat()
 }
 
 /*!
-  Destructs a QMNGFormat.
+  Destroys a QMNGFormat.
 */
 QMNGFormat::~QMNGFormat()
 {

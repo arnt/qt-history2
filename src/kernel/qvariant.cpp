@@ -399,7 +399,7 @@ QVariant::QVariant()
 }
 
 /*!
-  Destructs the QVariant and the contained object.
+  Destroys the QVariant and the contained object.
 
   Note that subclasses that reimplement clear() should reimplement
   the destructor to call clear().  This destructor calls clear(), but

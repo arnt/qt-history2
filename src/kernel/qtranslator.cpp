@@ -306,7 +306,7 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 }
 
 
-/*!  Destructs the object and frees any allocated resources.
+/*!  Destroys the object and frees any allocated resources.
 */
 
 QTranslator::~QTranslator()

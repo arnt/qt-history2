@@ -262,7 +262,7 @@ void QUrlInfo::setLastModified( const QDateTime &dt )
     d->lastModified = dt;
 }
 
-/*! Destructs the URL object. Does not touch the object to which this URL
+/*! Destroys the URL object. Does not touch the object to which this URL
 referred, of course */
 
 QUrlInfo::~QUrlInfo()

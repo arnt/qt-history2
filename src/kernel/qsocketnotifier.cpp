@@ -154,7 +154,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 }
 
 /*!
-  Destructs the socket notifier.
+  Destroys the socket notifier.
 */
 
 QSocketNotifier::~QSocketNotifier()

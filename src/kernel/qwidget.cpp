@@ -721,7 +721,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 static bool noMoreToplevels();
 
 /*!
-  Destructs the widget.
+  Destroys the widget.
 
   All children of this widget are deleted first.
   The application exits if this widget is (was) the main widget.

@@ -120,7 +120,7 @@ QStyle::QStyle() :
 }
 
 /*!
-  Destructs the style and frees all allocated resources.
+  Destroys the style and frees all allocated resources.
 */
 QStyle::~QStyle()
 {

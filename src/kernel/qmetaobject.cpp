@@ -711,7 +711,7 @@ QMetaProperty::QMetaProperty()
 
 /*! \internal
 
-  Destructs a meta property.
+  Destroys a meta property.
  */
 QMetaProperty::~QMetaProperty()
 {

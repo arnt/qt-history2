@@ -141,7 +141,7 @@ QPicture::QPicture( const QPicture &pic )
 }
 
 /*!
-  Destructs the picture.
+  Destroys the picture.
 */
 QPicture::~QPicture()
 {

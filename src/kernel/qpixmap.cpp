@@ -335,7 +335,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 
 
 /*!
-  Destructs the pixmap.
+  Destroys the pixmap.
 */
 
 QPixmap::~QPixmap()

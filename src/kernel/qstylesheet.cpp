@@ -140,7 +140,7 @@ QStyleSheetItem::QStyleSheetItem( const QStyleSheetItem & other )
 
 
 /*!
-  Destructs the style.  Note that QStyleSheetItem objects become owned
+  Destroys the style.  Note that QStyleSheetItem objects become owned
   by QStyleSheet when they are created.
  */
 QStyleSheetItem::~QStyleSheetItem()
@@ -913,7 +913,7 @@ int QStyleSheetItem::lineSpacing() const
 
 /*!
   Creates a style sheet.  Like any QObject, the created object will be
-  deleted when its parent destructs (if the child still exists).
+  deleted when its parent is destroyed (if the child still exists).
 
   By default the style sheet has the tag definitions defined above.
 */
@@ -924,7 +924,7 @@ QStyleSheet::QStyleSheet( QObject *parent, const char *name )
 }
 
 /*!
-  Destructs the style sheet.  All styles inserted into the style sheet
+  Destroys the style sheet.  All styles inserted into the style sheet
   will be deleted.
 */
 QStyleSheet::~QStyleSheet()
@@ -1122,7 +1122,7 @@ void QStyleSheet::setDefaultSheet( QStyleSheet* sheet)
 /*!\internal
   Inserts \a style.  Any tags generated after this time will be
   bound to this style.  Note that \a style becomes owned by the
-  style sheet and will be deleted when the style sheet destructs.
+  style sheet and will be deleted when the style sheet is destroyed.
 */
 void QStyleSheet::insert( QStyleSheetItem* style )
 {

@@ -165,7 +165,7 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 }
 
 /*!
-  Destructs the sound.
+  Destroys the sound.
 */
 QSound::~QSound()
 {

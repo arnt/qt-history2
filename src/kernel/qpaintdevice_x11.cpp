@@ -124,7 +124,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 }
 
 /*!
-  Destructs the paint device and frees window system resources.
+  Destroys the paint device and frees window system resources.
 */
 
 QPaintDevice::~QPaintDevice()

@@ -154,7 +154,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 /*!
   \fn QPointArray::~QPointArray()
 
-  Destructs the point array.
+  Destroys the point array.
 */
 
 

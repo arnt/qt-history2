@@ -355,7 +355,7 @@ QObject::QObject( QObject *parent, const char *name )
 
 
 /*!
-  Destructs the object, deleting all its child objects.
+  Destroys the object, deleting all its child objects.
 
   All signals to and from the object are automatically disconnected.
 

@@ -149,7 +149,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 }
 
 /*!
-  Destructs the document, freeing memory.
+  Destroys the document, freeing memory.
 */
 
 QSimpleRichText::~QSimpleRichText()

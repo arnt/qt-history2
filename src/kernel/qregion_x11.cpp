@@ -248,7 +248,7 @@ QRegion::QRegion( const QBitmap & bm )
 }
 
 /*!
-  Destructs the region.
+  Destroys the region.
 */
 
 QRegion::~QRegion()

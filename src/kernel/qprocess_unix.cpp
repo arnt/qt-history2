@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#70 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -492,7 +492,7 @@ void QProcess::consumeBufStderr( int consume )
 }
 
 /*!
-  Destructs the class.
+  Destroys the class.
 
   If the process is running, it is NOT terminated! Standard input, standard
   output and standard error of the process are closed.

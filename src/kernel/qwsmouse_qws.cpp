@@ -97,7 +97,7 @@ QWSMouseHandler::QWSMouseHandler()
 }
 
 /*!
-  Destructs the mouse handler. You should not invoked this directly.
+  Destroys the mouse handler. You should not invoked this directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {

@@ -434,7 +434,7 @@ QPainter::QPainter( const QPaintDevice *pd,
 
 
 /*!
-  Destructs the painter.
+  Destroys the painter.
 */
 
 QPainter::~QPainter()
@@ -2593,7 +2593,7 @@ QPen::QPen( const QPen &p )
 }
 
 /*!
-  Destructs the pen.
+  Destroys the pen.
 */
 
 QPen::~QPen()
@@ -2948,7 +2948,7 @@ QBrush::QBrush( const QBrush &b )
 }
 
 /*!
-  Destructs the brush.
+  Destroys the brush.
 */
 
 QBrush::~QBrush()
