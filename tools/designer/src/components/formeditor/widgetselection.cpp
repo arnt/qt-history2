@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "sizehandle.h"
+#include "widgetselection.h"
 #include "formwindow.h"
 #include "formwindowmanager.h"
 #include "layoutinfo.h"

@@ -24,7 +24,7 @@ HEADERS += qdesigner_widget.h \
            qdesigner_customwidget.h \
            formwindow.h \
            formwindowcursor.h \
-           sizehandle.h \
+           widgetselection.h \
            widgetfactory.h \
            layout.h \
            metadatabase.h \
@@ -51,7 +51,7 @@ SOURCES += qdesigner_widget.cpp \
            qdesigner_customwidget.cpp \
            formwindow.cpp \
            formwindowcursor.cpp \
-           sizehandle.cpp \
+           widgetselection.cpp \
            widgetfactory.cpp \
            layout.cpp \
            metadatabase.cpp \
@@ -71,7 +71,7 @@ view3d {
     HEADERS += view3d.h
     SOURCES += view3d.cpp
 }
-           
+
 MOCABLE += formwindow.cpp
 
 QMAKE_MOD_RCC = rcc_resource
