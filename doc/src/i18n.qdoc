@@ -46,7 +46,7 @@ Qt supports most languages in use today, in particular:
 \i Greek
 \i Hebrew
 \i Thai and Lao
-\i All scripts in Unicode 3.2 that do not require special processing
+\i All scripts in Unicode 4.0 that do not require special processing
 \endlist
 
 On Windows NT/2000/XP and Unix/X11 with Xft (client side font support)
