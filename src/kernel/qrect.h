@@ -88,6 +88,10 @@ public:
     void   rect( int *x, int *y, int *w, int *h ) const;
     void   coords( int *x1, int *y1, int *x2, int *y2 ) const;
 
+    void   moveLeft( int pos );
+    void   moveTop( int pos );
+    void   moveRight( int pos );
+    void   moveBottom( int pos );
     void   moveTopLeft( const QPoint &p );
     void   moveBottomRight( const QPoint &p );
     void   moveTopRight( const QPoint &p );

@@ -40,7 +40,7 @@
 #include "qdatastream.h"
 
 /*!
-    \class QRect qrect.h
+    \class QRect
     \brief The QRect class defines a rectangle in the plane.
 
     \ingroup images
@@ -433,6 +433,58 @@ void QRect::coords( int *xp1, int *yp1, int *xp2, int *yp2 ) const
     *yp2 = y2;
 }
 
+
+/*!
+    Sets the left position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa left(), setLeft(), moveTop(), moveRight(), moveBottom()
+*/
+void QRect::moveLeft( int pos )
+{
+    x2 += (QCOORD)(pos - x1);
+    x1 = (QCOORD)pos;
+}
+
+/*!
+    Sets the top position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa top(), setTop(), moveLeft(), moveRight(), moveBottom()
+*/
+
+void QRect::moveTop( int pos )
+{
+    y2 += (QCOORD)(pos - y1);
+    y1 = (QCOORD)pos;
+}
+
+/*!
+    Sets the right position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa right(), setRight(), moveLeft(), moveTop(), moveBottom()
+*/
+
+void QRect::moveRight( int pos )
+{
+    x1 += (QCOORD)(pos - x2);
+    x2 = (QCOORD)pos;
+}
+
+/*!
+    Sets the bottom position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa bottom(), setBottom(), moveLeft(), moveTop(), moveRight()
+*/
+
+void QRect::moveBottom( int pos )
+{
+    y1 += (QCOORD)(pos - y2);
+    y2 = (QCOORD)pos;
+}
+
 /*!
     Sets the top-left position of the rectangle to \a p, leaving the
     size unchanged.
@@ -443,10 +495,8 @@ void QRect::coords( int *xp1, int *yp1, int *xp2, int *yp2 ) const
 
 void QRect::moveTopLeft( const QPoint &p )
 {
-    x2 += (QCOORD)(p.x() - x1);
-    y2 += (QCOORD)(p.y() - y1);
-    x1 = (QCOORD)p.x();
-    y1 = (QCOORD)p.y();
+    moveLeft( p.x() );
+    moveTop( p.y() );
 }
 
 /*!
@@ -459,10 +509,8 @@ void QRect::moveTopLeft( const QPoint &p )
 
 void QRect::moveBottomRight( const QPoint &p )
 {
-    x1 += (QCOORD)(p.x() - x2);
-    y1 += (QCOORD)(p.y() - y2);
-    x2 = (QCOORD)p.x();
-    y2 = (QCOORD)p.y();
+    moveRight( p.x() );
+    moveBottom( p.y() );
 }
 
 /*!
@@ -475,10 +523,8 @@ void QRect::moveBottomRight( const QPoint &p )
 
 void QRect::moveTopRight( const QPoint &p )
 {
-    x1 += (QCOORD)(p.x() - x2);
-    y2 += (QCOORD)(p.y() - y1);
-    x2 = (QCOORD)p.x();
-    y1 = (QCOORD)p.y();
+    moveRight( p.x() );
+    moveTop( p.y() );
 }
 
 /*!
@@ -491,10 +537,8 @@ void QRect::moveTopRight( const QPoint &p )
 
 void QRect::moveBottomLeft( const QPoint &p )
 {
-    x2 += (QCOORD)(p.x() - x1);
-    y1 += (QCOORD)(p.y() - y2);
-    x1 = (QCOORD)p.x();
-    y2 = (QCOORD)p.y();
+    moveLeft( p.x() );
+    moveBottom( p.y() );
 }
 
 
