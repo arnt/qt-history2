@@ -611,6 +611,14 @@ void QtFileIconViewItem::openFolder()
     ((QtFileIconView*)iconView())->setDirectory( itemFileName );
 }
 
+void QtFileIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &font )
+{
+    QFont f( font );
+    if ( itemFileInfo->isSymLink() )
+	f.setItalic( TRUE );
+    QIconViewItem::paintItem( p, cg, f );
+}
+
 /*****************************************************************************
  *
  * Class QtFileIconView
@@ -663,12 +671,6 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
 
     setAligning( TRUE );
     setSorting( TRUE );
-
-    QFont f( font() );
-    f.setUnderline( TRUE );
-    setSingleClickConfiguration( new QFont( f ), new QColor( Qt::red ),
-				 new QFont( f ), new QColor( Qt::blue ),
-				 new QCursor( PointingHandCursor ), 1000 );
 }
 
 void QtFileIconView::setDirectory( const QString &dir )
@@ -737,14 +739,6 @@ void QtFileIconView::readDir( const QDir &dir )
 	    item->setKey( QString( "000000%1" ).arg( fi->fileName() ) );
 	else
 	    item->setKey( fi->fileName() );
-
-	if ( fi->isSymLink() ) {
-	    QFont f = font();
-	    f.setItalic( TRUE );
-	    item->setFont( f );
-	}
-		
-	
 	if ( !allowRenameSet ) {
 	    if ( !QFileInfo( fi->absFilePath() ).isWritable() ||
 		 item->text() == "." || item->text() == ".." )
@@ -757,7 +751,6 @@ void QtFileIconView::readDir( const QDir &dir )
 		allowRenameSet = TRUE;
 	}
 	item->setRenameEnabled( allowRename );
-	//qApp->processEvents();
     }
     emit readDirDone();
     makeNewGradient = TRUE;
@@ -879,12 +872,12 @@ void QtFileIconView::flowSouth()
 
 void QtFileIconView::doubleClick()
 {
-    setUseSingleClickMode( FALSE );
+    setSingleClickEnabled( FALSE );
 }
 
 void QtFileIconView::singleClick()
 {
-    setUseSingleClickMode( TRUE );
+    setSingleClickEnabled( TRUE, TRUE, TRUE, pointingHandCursor, 1000 );
 }
 
 void QtFileIconView::sortAscending()

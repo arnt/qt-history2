@@ -92,7 +92,7 @@ public:
                     QWidget *parent = 0, const char *name = 0 );
 
     enum ViewMode { Large, Small };
-    
+
     void setViewMode( ViewMode m );
     ViewMode viewMode() const { return vm; }
 
@@ -148,7 +148,7 @@ protected:
     QPixmap pix;
     bool makeNewGradient;
     ViewMode vm;
-    
+
 };
 
 /*****************************************************************************
@@ -184,9 +184,10 @@ public:
     virtual void dragLeft();
 
     void viewModeChanged( QtFileIconView::ViewMode m );
-    
+
 protected:
     virtual void dropped( QDropEvent *e );
+    virtual void paintItem( QPainter *p, const QColorGroup &cg, const QFont &font );
 
     QString itemFileName;
     QFileInfo *itemFileInfo;

@@ -191,11 +191,6 @@ public:
     bool contains( QPoint pnt ) const;
     bool intersects( QRect r ) const;
 
-    virtual void setFont( const QFont &font );
-    virtual void setColor( const QColor &color );
-    QFont font() const;
-    QColor color() const;
-
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
     void rename();
@@ -220,8 +215,8 @@ protected slots:
 protected:
     virtual void removeRenameBox();
     virtual void calcRect( const QString &text_ = QString::null );
-    virtual void paintItem( QPainter *p );
-    virtual void paintFocus( QPainter *p );
+    virtual void paintItem( QPainter *p, const QColorGroup &cg, const QFont &font );
+    virtual void paintFocus( QPainter *p, const QColorGroup &cg );
     virtual void dropped( QDropEvent *e );
     virtual void dragEntered();
     virtual void dragLeft();
@@ -241,9 +236,6 @@ private:
     bool allow_rename, allow_drag, allow_drop;
     bool selected, selectable;
     QRect itemRect, itemTextRect, itemIconRect;
-    QFontMetrics *fm;
-    QFont *f;
-    QColor *c;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
     QRect oldRect;
@@ -310,16 +302,12 @@ public:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
 
-    virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
-					      QFont *highlightedText, QColor *highlightedTextCol,
-					      QCursor *highlightedCursor, int setCurrentInterval );
-    void singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
-				   QFont *highlightedText, QColor *highlightedTextCol,
-				   QCursor *highlightedCursor, int &setCurrentInterval ) const;
-
-    virtual void setUseSingleClickMode( bool b );
-    bool useSingleClickMode() const;
-
+    virtual void setSingleClickEnabled( bool enable, bool underline = TRUE, bool highlighte = TRUE,
+					const QCursor &cursor = pointingHandCursor,
+					int interval = -1 );
+    bool isSingleClickEnabled( bool *underline = 0, bool *highlighte = 0, QCursor *cursor = 0, int *interval = 0) const;
+			       
+    
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
@@ -363,9 +351,6 @@ public:
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
 
-    virtual void setItemFont( const QFont &font );
-    virtual void setItemColor( const QColor &color );
-
     bool eventFilter( QObject * o, QEvent * );
 
     QSize minimumSizeHint() const;
@@ -373,6 +358,9 @@ public:
     QSize sizeHint() const;
 
     virtual void sort( bool ascending = TRUE );
+
+    virtual void setFont( const QFont & );
+    virtual void setPalette( const QPalette & );
 
 public slots:
     virtual void alignItemsInGrid( const QSize &grid, bool update = TRUE );
@@ -451,11 +439,12 @@ protected:
     void setNumDragItems( int num );
     QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y );
 
+    void styleChange( QStyle& );
+
 private:
     void findItemByName( const QString &text );
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
-    void clearSingleClickConfig();
 
     QIconViewPrivate *d;
 
