@@ -1107,7 +1107,10 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \endlist
 
     \i
-    \e none
+    \list
+    \i OCI_ATTR_PREFETCH_ROWS
+    \i OCI_ATTR_PREFETCH_MEMORY
+    \endlist
 
     \i
     \e none
