@@ -122,6 +122,7 @@ bool usage(const char *a0)
 	    "\t-d             Increase debug level\n"
 	    "\t-t templ       Overrides TEMPLATE as templ\n"
 	    "\t-help          This help\n"
+	    "\t-v             Version information\n"
 	    "\t-cache file    Use file as cache           [makefile mode only]\n"
 	    "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
@@ -175,8 +176,12 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::target_mode = TARG_UNIX_MODE;
 	    } else if(opt == "win32") {
 		Option::target_mode = TARG_WIN_MODE;
-	    } else if(opt == "v" || opt == "d") {
+	    } else if(opt == "d") {
 		Option::debug_level++;
+	    } else if(opt == "version" || opt == "v" || opt == "-version") {
+		fprintf(stderr, "Qmake version: %s\n", QMAKE_VERSION);
+		fprintf(stderr, "Qmake is free software from TrollTech AS.\n");
+		return FALSE;
 	    } else if(opt == "h" || opt == "help") {
 		return usage(argv[0]);
 	    } else if(opt == "Wall") {
