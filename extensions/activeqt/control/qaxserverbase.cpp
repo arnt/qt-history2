@@ -1790,13 +1790,9 @@ void QAxServerBase::updateMask()
     if (!isWidget || !qt.widget || qt.widget->mask().isEmpty())
 	return;
 
-    HRGN hrgn = CreateRectRgn(0,0,0,0);
-    int regionType = GetWindowRgn(qt.widget->winId(), hrgn);
-    if (regionType != ERROR) {
-	SetWindowRgn(m_hWnd, hrgn, true);
-    } else {
-	DeleteObject(hrgn);
-    }
+    QRegion rgn = qt.widget->mask();
+    HRGN hrgn = rgn.handle();
+    SetWindowRgn(m_hWnd, hrgn, true);
 }
 
 static bool checkHRESULT(HRESULT hres)
