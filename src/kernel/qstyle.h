@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#30 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#31 $
 **
 ** Definition of QStyle class
 **
@@ -55,7 +55,7 @@ public:
 
 
 
-#ifndef NO_QT1_COMPAT
+#ifndef QT_NO_COMPAT
     operator GUIStyle() const { return gs; }
     int operator==(GUIStyle s) const { return gs==s; }
     int operator!=(GUIStyle s) const { return gs!=s; }
