@@ -2197,8 +2197,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             }
         }
         if (event->type == QWSEvent::Mouse && *mouseInWidget) {
-            QEvent leave(QEvent::Leave);
-            QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
+            qt_dispatchEnterLeave(0, *mouseInWidget);
             (*mouseInWidget) = 0;
         }
         return -1;
@@ -2848,8 +2847,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
             && (widget->d->topData()->qwsManager->region().contains(globalPos)
                 || QWSManager::grabbedMouse() )) {
             if ((*mouseInWidget)) {
-                QEvent leave(QEvent::Leave);
-                QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
+                qt_dispatchEnterLeave(0, *mouseInWidget);
                 (*mouseInWidget) = 0;
             }
             QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
@@ -2858,12 +2856,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 #endif
         {
             if (widget != (*mouseInWidget)) {
-                if (*mouseInWidget) {
-                    QEvent leave(QEvent::Leave);
-                    QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
-                }
-                QEvent enter(QEvent::Enter);
-                QApplication::sendSpontaneousEvent(widget, &enter);
+                qt_dispatchEnterLeave(widget, *mouseInWidget);
                 (*mouseInWidget) = widget;
             }
             QApplication::sendSpontaneousEvent(widget, &e);
