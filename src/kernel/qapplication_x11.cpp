@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#439 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#440 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -169,7 +169,6 @@ static GC	app_gc_ro	= 0;		// read-only GC
 static GC	app_gc_tmp	= 0;		// temporary GC
 static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
-static QWidget *desktopWidget	= 0;		// root window widget
 static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
@@ -1235,31 +1234,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 }
 
 
-/*!
-  \fn QWidget *QApplication::desktop()
-  Returns the desktop widget (also called the root window).
-
-  The desktop widget is useful for obtaining the size of the screen.
-  It can also be used to draw on the desktop.
-
-  \code
-    QWidget *d = QApplication::desktop();
-    int w=d->width();			// returns screen width
-    int h=d->height();			// returns screen height
-    d->setBackgroundColor( red );	// makes desktop red
-  \endcode
-*/
-
-QWidget *QApplication::desktop()
-{
-    if ( !desktopWidget ) {			// not created yet
-	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	CHECK_PTR( desktopWidget );
-    }
-    return desktopWidget;
-}
-
-
 /*****************************************************************************
   QApplication cursor stack
  *****************************************************************************/
@@ -2284,7 +2258,7 @@ void QApplication::processEvents( int maxtime )
 
 /*!
   This function enters the main event loop (recursively).
-  Do not call it unless you are an expert.
+  Do not call it unless you really know what you are doing.
   \sa exit_loop()
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#208 $
 **
 ** Implementation of QApplication class
 **
@@ -119,6 +119,7 @@ QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input 
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
+static QWidget *desktopWidget	= 0;		// root window widget
 
 
 int	 QApplication::app_cspec = QApplication::NormalColor;
@@ -1580,3 +1581,27 @@ void QApplication::removePostedEvent( QEvent *  event )
     }
 }
 
+
+
+/*! Returns the desktop widget (also called the root window).
+
+  The desktop widget is useful for obtaining the size of the screen.
+  It can also be used to draw on the desktop.
+
+  \code
+    QWidget *d = QApplication::desktop();
+    int w=d->width();			// returns screen width
+    int h=d->height();			// returns screen height
+    d->setBackgroundColor( red );	// makes desktop red
+  \endcode
+*/
+
+QWidget *QApplication::desktop()
+{
+    if ( !desktopWidget ||			// not created yet
+	 !desktopWidget->testWFlags( WType_Desktop ) ) { // recreated away
+	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
+	CHECK_PTR( desktopWidget );
+    }
+    return desktopWidget;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#251 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -63,7 +63,6 @@ static int	 appCmdShow	= 0;		// main window show command
 static int	 numZeroTimers	= 0;		// number of full-speed timers
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
-static QWidget	*desktopWidget	= 0;		// desktop window widget
 #define USE_HEARTBEAT
 #if defined(USE_HEARTBEAT)
 static int	 heartBeat	= 0;		// heatbeat timer
@@ -244,7 +243,7 @@ static void outColor(const char* s, const QColor& col) {
 }
 static void qt_set_windows_resources()
 {
-    
+
     // windows supports special fonts for the menus
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
@@ -609,15 +608,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     main_widget = mainWidget;			// set main widget
 }
 
-
-QWidget *QApplication::desktop()
-{
-    if ( !desktopWidget ) {			// not created yet
-	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	CHECK_PTR( desktopWidget );
-    }
-    return desktopWidget;
-}
 
 Qt::WindowsVersion QApplication::winVersion()
 {
