@@ -154,7 +154,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR") << "\n\t"
+	  << "[ -d " << project->variables()["DESTDIR"].first() 
+	  << " ] || mkdir -p " << project->variables()["DESTDIR"].first() << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
@@ -439,9 +440,6 @@ UnixMakefileGenerator::init()
     if ( project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty() ) {
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     }
-    if ( project->isActiveConfig("resource_fork") ) {
-	project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
-    }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
 	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "allmoc.cpp");
@@ -449,6 +447,9 @@ UnixMakefileGenerator::init()
 	project->variables()["HEADERS"].clear();
     }
     MakefileGenerator::init();
+    if ( project->isActiveConfig("resource_fork") ) {
+	project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
+    }
     if(project->variables()["VERSION"].isEmpty()) {
 	project->variables()["VERSION"].append("1.0.0");
 	project->variables()["VER_MAJ"].append("1");
