@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#94 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -837,7 +837,6 @@ int QHeader::pHeight( int i ) const
 
 
 /*!
-  int QHeader::offset() const
   Returns the leftmost (or uppermost for vertical headers) visible pixel.
  */
 

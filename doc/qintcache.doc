@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintcache.doc,v 2.1 1999/06/23 18:48:01 hanord Exp $
+** $Id: qintcache.doc,v 2.2 1999/08/17 09:25:59 paul Exp $
 **
 ** QIntCache and QIntCacheIterator class documentation
 **
@@ -317,6 +317,7 @@
   \fn uint QIntCacheIterator::count() const
 
   Returns the number of items in the cache on which this iterator operates.
+
   \sa isEmpty()
 */
 
@@ -324,7 +325,9 @@
   \fn bool QIntCacheIterator::isEmpty() const
 
   Returns TRUE if the cache is empty, i.e. count() == 0, otherwise
-  FALSE.  \sa count()
+  FALSE.  
+
+  \sa count()
 */
 
 /*!
@@ -346,7 +349,7 @@
 
   Sets the iterator to null and returns null if if the cache is empty.
 
-  \sa toLast() isEmpty()
+  \sa toFirst() isEmpty()
 */
 
 /*!

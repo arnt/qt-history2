@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 2.9 1999/06/23 18:48:43 hanord Exp $
+** $Id: qintdict.doc,v 2.10 1999/08/17 09:26:00 paul Exp $
 **
 ** QIntDict and QIntDictIterator class documentation
 **
@@ -182,7 +182,7 @@
   This dictionary is first cleared, then each item in \e dict is inserted
   into this dictionary.
   Only the pointers are copied (shallow copy), unless newItem() has been
-  reimplemented().
+  reimplemented.
 */
 
 /*!
@@ -307,7 +307,7 @@
 
   Equivalent to the [] operator.
 
-  \sa operator[]
+  \sa operator[]()
 */
 
 /*!
@@ -328,7 +328,7 @@
 /*!
   \fn void QIntDict::statistics() const
   Debugging-only function that prints out the dictionary distribution
-  using debug().
+  using qDebug().
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#297 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#298 $
 **
 ** Implementation of QListView widget class
 **
@@ -944,7 +944,7 @@ void QListViewItem::enforceSortOrder() const
 
   Returns TRUE if this item is selected, or FALSE if it is not.
 
-  \sa setSelection() selectionChanged() QListViewItem::setSelected()
+  \sa setSelected() QListView::setSelected() QListView::selectionChanged() 
 */
 
 
@@ -2427,7 +2427,7 @@ int QListViewItem::depth() const
   (ie. that this item is visible, or can be made visible by
   scrolling).
 
-  \sa itemBelow() itemRect()
+  \sa itemBelow() QListView::itemRect()
 */
 
 QListViewItem * QListViewItem::itemAbove()
@@ -2464,7 +2464,8 @@ QListViewItem * QListViewItem::itemAbove()
   (ie. that this item is visible, or can be made visible by
   scrolling).
 
-  \sa itemAbove() itemRect() */
+  \sa itemAbove() QListView::itemRect() 
+*/
 
 QListViewItem * QListViewItem::itemBelow()
 {

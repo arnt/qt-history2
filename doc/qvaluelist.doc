@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluelist.doc,v 1.3 1999/06/15 12:58:15 weis Exp $
+** $Id: qvaluelist.doc,v 1.4 1999/08/17 09:26:01 paul Exp $
 **
 ** QValueList and QValueListIterator class documentation
 **
@@ -554,8 +554,7 @@
   const, then you have to use the ConstIterator. Its semantics are the same,
   but it returns only const references to the item it points to.
 
-  \sa QValueList
-  \sa QValueListConstIterator
+  \sa QValueList, QValueListConstIterator
 */
 
 /*!
@@ -661,8 +660,7 @@
 
   For more informations on QValueList iterators see QValueListIterator.
 
-  \sa QValueListIterator
-  \sa QValueList
+  \sa QValueListIterator, QValueList
 */
 
 /*!

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#298 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#299 $
 **
 ** Implementation of QListBox widget class
 **
@@ -214,7 +214,7 @@ QListBoxItem::~QListBoxItem()
 
 
 
-/*
+/*!
   \fn int QListBoxItem::width( const QListBox* lb ) const
 
   Implement this function to return the width of your item.
@@ -997,7 +997,7 @@ void QListBox::removeItem( int index )
 
 
 /*! Deletes all items in the list.
-  \sa removeItem(), setStrList() */
+  \sa removeItem()  */
 
 void QListBox::clear()
 {

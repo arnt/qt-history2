@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#136 $
 **
 ** Implementation of QLabel widget class
 **
@@ -790,7 +790,7 @@ void QLabel::buddyDied() // I can't remember if I cried.
   When the user presses the accelerator key indicated by this label,
   the keyboard focus is transferred to the label's buddy.
 
-  \sa label(), setText()
+  \sa buddy(), setText()
 */
 
 void QLabel::setBuddy( QWidget *buddy )
@@ -888,7 +888,7 @@ void QLabel::setMovie( const QMovie& movie )
     }
 }
 
-/*
+/*!
   Unset the movie.
 */
 void QLabel::unsetMovie()
