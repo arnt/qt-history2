@@ -373,9 +373,9 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 
     PolyHandle polyHandle = OpenPoly();
     MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    for(int x = 1; x < pa.size(); x++)
+    for(int x = 1; x < pa.size(); x++) 
         LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
-    if(close)
+    if(close) 
         LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
     ClosePoly();
 
@@ -633,7 +633,7 @@ QQuickDrawPaintEngine::drawPie(const QRect &r, int a, int alen)
     pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen); // arc polyline
     int n = pa.size();
     pa.resize(n+2);
-    pa.setPoint(n, r.right()/2, r.bottom()/2);        // add legs
+    pa.setPoint(n, r.x()+(r.width()/2), r.y()+(r.height()/2));        // add legs
     pa.setPoint(n+1, pa.at(0));
     drawPolyInternal(pa, true);
 }
@@ -662,12 +662,12 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
 
     //setup port
     ::RGBColor f;
-    if(pixmap.depth() > 1) {
-        f.red = f.green = f.blue = 0;
+    if(pixmap.depth() == 1) {
+        f.red = d->current.pen.color().red()*256;
+        f.green = d->current.pen.color().green()*256;
+        f.blue = d->current.pen.color().blue()*256;
     } else {
-        f.red = d->current.bg.brush.color().red()*256;
-        f.green = d->current.bg.brush.color().green()*256;
-        f.blue = d->current.bg.brush.color().blue()*256;
+        f.red = f.green = f.blue = 0;
     }
     RGBForeColor(&f);
     f.red = f.green = f.blue = ~0;
