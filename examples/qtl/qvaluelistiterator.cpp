@@ -30,7 +30,7 @@ private:
 };
 
 
-void main()
+int main( int, char )
 {
     typedef QValueList<Employee> EmployeeList;
     EmployeeList list;
