@@ -468,6 +468,11 @@ void QButton::setText( const QString &text )
 {
     if ( btext == text )
 	return;
+#ifndef QT_NO_ACCEL
+    if( !d || !d->a || !QAccel::shortcutKey( btext ).isEmpty() )
+	setAccel( QAccel::shortcutKey( text ) );
+	
+#endif
     btext = text;
 
     if ( bpixmap ) {
@@ -477,10 +482,6 @@ void QButton::setText( const QString &text )
 
     if ( autoresize )
 	adjustSize();
-
-#ifndef QT_NO_ACCEL
-    setAccel( QAccel::shortcutKey( btext ) );
-#endif
 
     update();
     updateGeometry();
@@ -507,13 +508,13 @@ void QButton::setPixmap( const QPixmap &pixmap )
     }
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
-    if ( !btext.isNull() )
+    if ( !btext.isNull() ) {
+	if( !d || !d->a || !QAccel::shortcutKey( btext ).isEmpty() )
+	    setAccel( QKeySequence() );
 	btext = QString::null;
+    }
     if ( autoresize && newSize )
 	adjustSize();
-#ifndef QT_NO_ACCEL
-    setAccel( 0 );
-#endif
     if ( autoMask() )
 	updateMask();
     update();
@@ -533,7 +534,7 @@ void QButton::setAccel( const QKeySequence& key )
 {
     if ( d && d->a )
 	d->a->clear();
-    if ( !(int)key )
+    if ( key.isEmpty() )
 	return;
     ensureData();
     if ( !d->a ) {
@@ -541,7 +542,7 @@ void QButton::setAccel( const QKeySequence& key )
 	connect( d->a, SIGNAL( activated(int) ), this, SLOT( animateClick() ) );
 	connect( d->a, SIGNAL( activatedAmbiguously(int) ), this, SLOT( setFocus() ) );
     }
-    d->a->insertItem( key );
+    d->a->insertItem( key, 0 );
 }
 #endif
 

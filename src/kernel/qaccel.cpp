@@ -690,7 +690,7 @@ QKeySequence QAccel::shortcutKey( const QString &str )
 	}
 	p++;
     }
-    return QKeySequence(0);
+    return QKeySequence();
 }
 
 /*! \obsolete
