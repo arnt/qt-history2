@@ -112,6 +112,9 @@ void QGenericComboBoxPrivate::handleReturnPressed()
     QLineEdit *lineEdit = qt_cast<QLineEdit *>(editor);
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
+        // check for duplicates (if not enabled) and quit
+        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Display))
+            return;
         QModelIndex newItem;
         switch (insertionPolicy) {
         case QGenericComboBox::AtTop:
@@ -141,6 +144,28 @@ void QGenericComboBoxPrivate::handleReturnPressed()
     }
 }
 
+void QGenericComboBoxPrivate::handleTextChanged()
+{
+    if (!autoCompletion)
+        return;
+    QLineEdit *lineEdit = qt_cast<QLineEdit *>(editor);
+    QString text = lineEdit->text();
+    if (lineEdit && !text.isEmpty()) {
+        if (lastKey != Qt::Key_Delete && lastKey != Qt::Key_Backspace) {
+            QModelIndexList list
+                = d->model->match(q->currentItem(), QAbstractItemModel::Display, text);
+            if (!list.count())
+                return;
+            QString completed = d->model->data(list.first(),
+                                               QAbstractItemModel::Display).toString();
+            int start = completed.length();
+            int length = text.length() - start; // negative length
+            lineEdit->setText(completed);
+            lineEdit->setSelection(start, length);
+        }
+    }
+}
+
 void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
 {
     if (item != q->currentItem()) {
@@ -152,6 +177,17 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
         q->itemDelegate()->setEditorData(editor, q->currentItem());
         q->emit activated(q->currentItem());
     }
+}
+
+/*
+  \internal
+  returns true if any item under \a root containes \a text in role \a role.
+*/
+bool QGenericComboBoxPrivate::contains(const QString &text, int role)
+{
+    return q->model()->match(q->model()->index(0, 0, q->root()),
+                             role, text, 1, QAbstractItemModel::MatchExactly
+                             |QAbstractItemModel::MatchCase).count() > 0;
 }
 
 QGenericComboBox::~QGenericComboBox()
@@ -222,8 +258,11 @@ void QGenericComboBox::setEditable(bool editable)
         QLineEdit *lineEdit = qt_cast<QLineEdit *>(d->editor);
         if (lineEdit) {
             connect(lineEdit, SIGNAL(textChanged(const QString&)),
+                    this, SLOT(handleTextChanged()));
+            connect(lineEdit, SIGNAL(textChanged(const QString&)),
                     this, SIGNAL(textChanged(const QString&)));
             connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(handleReturnPressed()));
+            lineEdit->installEventFilter(this);
         }
         itemDelegate()->setEditorData(d->editor, currentItem());
         if (lineEdit)
@@ -497,6 +536,13 @@ void QGenericComboBox::mousePressEvent(QMouseEvent *e)
         popupListView();
 }
 
+bool QGenericComboBox::eventFilter (QObject *watched, QEvent *e)
+{
+    if (watched == d->editor && e->type() == QEvent::KeyPress)
+        d->lastKey = static_cast<QKeyEvent*>(e)->key();
+    return false;
+}
+
 bool QGenericComboBox::startEdit(const QModelIndex &,
                                  QAbstractItemDelegate::StartEditAction,
                                  QEvent *)
@@ -534,7 +580,7 @@ void QGenericComboBox::popupListView()
                        d->listView->spacing());
 
     // make sure the widget fits on screen
-    //### do horizontally as well?
+    //### do horizontally as well
     QRect screen = QApplication::desktop()->availableGeometry(this);
     QPoint below = d->viewport->mapToGlobal(d->viewport->rect().bottomLeft());
     int belowHeight = screen.bottom() - below.y();

@@ -37,14 +37,17 @@ public:
           editor(0),
           listView(0),
           insertionPolicy(QGenericComboBox::AtBottom),
-          autoCompletion(false),
+          autoCompletion(true),
           duplicatesEnabled(false),
           sizeLimit(10),
-          ignoreMousePressEvent(false) {}
+          ignoreMousePressEvent(false),
+          lastKey(0) {}
     ~QGenericComboBoxPrivate() {}
     void init();
     void handleReturnPressed();
+    void handleTextChanged();
     void itemSelected(const QModelIndex &item);
+    bool contains(const QString &text, int role);
 
     QWidget *editor;
     ComboListView *listView;
@@ -54,6 +57,7 @@ public:
     int sizeLimit;
     bool ignoreMousePressEvent;
     mutable QSize sizeHint;
+    int lastKey;
 };
 
 #endif //QGENERICCOMBOBOX_P_H

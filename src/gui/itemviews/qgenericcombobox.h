@@ -86,8 +86,8 @@ protected:
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);
-
     void mousePressEvent(QMouseEvent *e);
+    bool eventFilter (QObject *watched, QEvent *e);
 
     bool startEdit(const QModelIndex &item,
                    QAbstractItemDelegate::StartEditAction action,
@@ -99,6 +99,7 @@ protected:
 private:
     void popupListView();
     Q_PRIVATE_SLOT(void handleReturnPressed())
+    Q_PRIVATE_SLOT(void handleTextChanged())
     Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
 };
 
