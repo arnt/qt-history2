@@ -477,7 +477,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     // we have to ignore NSMs at the beginning and add at the end.
     int num = uc.length() - from - len;
     const QChar *ch = uc.unicode() + from + len;
-    while ( num && ch->combiningClass() != 0 ) {
+    while ( num > 0 && ch->combiningClass() != 0 ) {
 	ch++;
 	num--;
 	len++;
@@ -560,7 +560,6 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	    ch++;
     }
 
-    
     if ( dir == QPainter::RTL ) {
 	// reverses the non spacing marks to be again after the base char
 	QChar *s = shapeBuffer;
@@ -593,7 +592,6 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	    }
 	}
     }
-    
 
     
     return QConstString( shapeBuffer, lenOut ).string();

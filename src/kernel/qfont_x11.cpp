@@ -720,6 +720,16 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 
     if (lasts >= 0) {
 	QFontStruct *qfs = 0;
+	if ( nmarks ) {
+	    if (currs != QFontPrivate::UnknownScript) {
+		qfs = x11data.fontstruct[currs];
+	    }
+	    QPoint p = pa[pa.size() - nmarks];
+	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
+	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, qfs );
+	    if ( qfs && qfs != (QFontStruct *)-1 && qfs->codec )
+		cache->mapped = qfs->codec->fromUnicode( str, pos + i, 1 );
+	} else {
 	if (currs != QFontPrivate::UnknownScript) {
 	    load(currs);
 	    qfs = x11data.fontstruct[currs];
@@ -728,6 +738,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	currw += runWidth( this, qfs, str, lasts, i - lasts, cache->mapped );
 	QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 	cache->next = run;
+	}
     }
 
     return currw;
