@@ -160,7 +160,9 @@ bool QSqlQuery::exec ( const QString& query )
 	return FALSE;
     if ( query.isNull() || query.length() == 0 )
 	return FALSE;
-    qDebug( "\n### SQL: " + query ); // ###
+#ifdef QT_DEBUG_SQL    
+    qDebug( "\n QSqlQuery: " + query );
+#endif    
     return d->sqlResult->reset( query );
 }
 
