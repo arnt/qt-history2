@@ -123,9 +123,9 @@ Once actions have been created, we can add them to the main window
 components. To begin with, we add them to the popup menus:
 
 \code
-        QMenu *fileMenu = new QMenu(this);
-        QMenu *editMenu = new QMenu(this);
-        QMenu *helpMenu = new QMenu(this);
+        QMenu *fileMenu = new QMenu(tr("&File"), this);
+        QMenu *editMenu = new QMenu(tr("&Edit"), this);
+        QMenu *helpMenu = new QMenu(tr("&Help"), this);
         ...
         fileMenu->addAction(newAction);
         fileMenu->addAction(openAction);
@@ -133,9 +133,9 @@ components. To begin with, we add them to the popup menus:
         fileMenu->addAction(saveAsAction);
         fileMenu->addSeparator();
         ...
-        menuBar()->addMenu(tr("&File"), fileMenu);
-        menuBar()->addMenu(tr("&Edit"), editMenu);
-        menuBar()->addMenu(tr("&Help"), helpMenu);
+        menuBar()->addMenu(fileMenu);
+        menuBar()->addMenu(editMenu);
+        menuBar()->addMenu(helpMenu);
         ...
     }
 \endcode
