@@ -1631,11 +1631,11 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 #ifndef Q_OS_TEMP
     if ( rop == CopyROP ) {
         Arc( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
-    } else 
+    } else
 #endif
     {
 	QPointArray pa;
-	pa.makeArc( x, y, w, h, a, alen, xmat );	// arc polyline
+	pa.makeArc( x, y, w, h, a, alen );	// arc polyline
 	drawPolyInternal( pa, FALSE );
     }
 }
@@ -2312,7 +2312,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
 	    QFont dfont( cfont );
 	    float pixSize = cfont.pixelSize();
-	    if ( pixSize == -1 ) 
+	    if ( pixSize == -1 )
 		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
 	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
 	    newSize = QMAX( 6, QMIN( newSize, 256 ) ); // empirical values
