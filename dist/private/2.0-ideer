@@ -14,7 +14,10 @@ FUNKSJONSENDRINGER
 ------------------
 
 - QTableView const: cellWidth, cellHeight, totalWidth,  totalHeight, .....
+    * leave the virtuals as they are (non const) and make const overloads
+	when all compilers can handle differentiation by const.
 - QComboBox::activated() rename to selected()
+    * Could do (runtime moc reports error), but not worth the cost to users
 
 > There doesn't seem to be an easy way to get a pointer to the active page
 > from a QTabDialog object.  There should be some function like:
@@ -22,6 +25,7 @@ FUNKSJONSENDRINGER
 > QWidget* QTabDialog::activePage()
 > {
 > }
+    * QTabBar::currentTab() can do some of it.  User shouldn't need this.
 Also, the stuff with the buttons should be redesigned, or at least
 there should be a class which does not impose so many design choices
 on the users. And the pointers to the buttons should be available
@@ -32,23 +36,19 @@ AKSESSENDRINGER
 
 - QObject::eventFilter protected overalt
 
-- QObject::parent public
-
 - QWidget::setEnabled() og tusen andre nye slots
+    * Some done.
 
 
 ENDRINGER UTSATT PGA BINAERKOMPATIBILITET
 -----------------------------------------
 
 QPaintDevice::x__Display() -> x11Display()
-QLineEdit QLineEdit QLineEdit QLineEdit QLineEdit
-Alle set*() virtual, slik at subklasser kan sørge for sine invarianter
-
+    * Both exist for some reason.
 
 ENGLISH THINGS
 --------------
 
-Re-arrange all data members to minimize object size.
 Provide auto-expanding(?):
     (for LHS)
     type& QArray::operator[](int) 
@@ -62,13 +62,10 @@ From qt-interest: I wrote a sizeHint() function in a widget derived
 from QListBox. In sizeHint(), I thought I could use
 QListBox::maxItemWidth(), but sizeHint() is a const function and
 maxItemWidth() is not. Shouldn't maxItemWidth() be const?
-
-
-EAa: How about making Qt listen a bit more to global settings in X
-resources?
+    * see QTableView above
 
 EAa: We should probably strive to match Win Look & Feel even closer
-
+     *********
 
 Use "top" and "bottom" logical color names rather than "light" and
  "dark" physical names. THEN, use Motif's algorithm for setting those
@@ -85,16 +82,15 @@ PNG.  MNG MNG MNG.  !GIF.  Unisys die die die.
 Light-weight KDE stuff (eg. respecting colours, style, etc.)
 QListView *Event() redirection is BAD.  Especially since QScrollView
  already does something similar.
-Change QMultiLineEdit to use QString* much less - use QString instead.
 Q*Dict must use QString, so the QIntDict and QPtrDict hackery
  needs to be done some other way (eg. implement QDictTemplate that
- can use any ket type)
+ can use any key type)
 Add activate_signal(const char* signal, QString) for fast QString signals
-Split Q1String, QByteArray, etc. out of qstring.h, making it cheaper to #include.
+Split QCString, QByteArray, etc. out of qstring.h, making it cheaper to #include.
+    * Difficult, since QByteArray is a typedef - ANSI C++ forbids
 Move QString(int) to private!!!
 DND QPictures - as WMF/etc.?
 QRegion transformations.  Windows can do some stuff.
-Add Alpha versions of qRgb & friends.
 Redo QT_H stuff for all header files.
 
 
