@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#5 $
 **
 ** Definition of QPicture class
 **
@@ -32,9 +32,10 @@ public:
     bool	cmd( int, QPDevCmdParam * );
 
 private:
+    bool	exec( QPainter *, QDataStream &s, long );
     QBuffer	mfbuf;
     long	trecs;
-    bool	exec( QPainter *, QDataStream &s, long );
+    bool	formatOk;
 };
 
 

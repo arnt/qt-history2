@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#12 $
 **
 ** Implementation of QPicture class
 **
@@ -19,11 +19,11 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#12 $";
 #endif
 
 
-static const UINT32 mfhdr_tag = 0x11100903;	// header tag
+static const char  *mfhdr_tag = "QPIC";		// header tag
 static const UINT16 mfhdr_maj = 1;		// major version #
 static const UINT16 mfhdr_min = 0;		// minor version #
 
@@ -38,6 +38,7 @@ bool QPicture::load( const char *fileName )	// read from file
     f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
     mfbuf.setBuffer( a );			// set byte array in buffer
+    formatOk = FALSE;				// we'll have to check
     return TRUE;
 }
 
@@ -61,43 +62,49 @@ bool QPicture::play( QPainter *painter )
     QDataStream s;
     s.setDevice( &mfbuf );			// attach data stream to buffer
 
-    UINT32 mf_id;				// picture id (tag)
-    s >> mf_id;					// read tag
-    if ( mf_id != mfhdr_tag ) {			// wrong header id
+    if ( !formatOk ) {				// first time we read it
+	char mf_id[4];				// picture header tag
+	s.readRawBytes( mf_id, 4 );		// read actual tag
+	if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { // wrong header id
 #if defined(CHECK_RANGE)
-	warning( "QPicture::play: Incorrect header" );
+	    warning( "QPicture::play: Incorrect header" );
 #endif
-	mfbuf.close();
-	return FALSE;
-    }
+	    mfbuf.close();
+	    return FALSE;
+	}
 
-    int cs_start = sizeof(UINT32);		// pos of checksum word
-    int data_start = cs_start + sizeof(UINT16);
-    UINT16 cs,ccs;
-    QByteArray buf = mfbuf.buffer();		// pointer to data
-    s >> cs;					// read checksum
-    ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
-    if ( ccs != cs ) {
+	int cs_start = sizeof(UINT32);		// pos of checksum word
+	int data_start = cs_start + sizeof(UINT16);
+	UINT16 cs,ccs;
+	QByteArray buf = mfbuf.buffer();	// pointer to data
+	s >> cs;				// read checksum
+	ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
+	if ( ccs != cs ) {
 #if defined(CHECK_STATE)
-	warning( "QPicture::play: Invalid checksum %x, %x expected",
-		 ccs, cs );
+	    warning( "QPicture::play: Invalid checksum %x, %x expected",
+		     ccs, cs );
 #endif
 #if !defined(DEBUG)
-	mfbuf.close();		// NOTE!!! PASS THROUGH
-	return FALSE;
+	    mfbuf.close();		// NOTE!!! PASS THROUGH
+	    return FALSE;
 #endif
-    }
+	}
 
-    UINT16 major, minor;
-    s >> major >> minor;			// read version number
-    if ( major > mfhdr_maj ) {			// new, incompatible version
+	UINT16 major, minor;
+	s >> major >> minor;			// read version number
+	if ( major > mfhdr_maj ) {		// new, incompatible version
 #if defined(CHECK_RANGE)
-	warning( "QPicture::play: Incompatible version %d.%d",
-		 major, minor);
+	    warning( "QPicture::play: Incompatible version %d.%d",
+		     major, minor);
 #endif
-	mfbuf.close();
-	return FALSE;
+	    mfbuf.close();
+	    return FALSE;
+	}
+	formatOk = TRUE;			// picture seems to be ok
     }
+    else
+	s.device()->at( 10 );			// go directly to the data
+
     UINT8  c, clen;
     UINT32 nrecords;
     s >> c >> clen;
@@ -308,10 +315,12 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	QByteArray empty( 0 );
 	mfbuf.setBuffer( empty );		// reset byte array in buffer
 	mfbuf.open( IO_WriteOnly );
-	s << mfhdr_tag << (UINT16)0 << mfhdr_maj << mfhdr_min;
+	s.writeRawBytes( mfhdr_tag, 4 );
+	s << (UINT16)0 << mfhdr_maj << mfhdr_min;
 	s << (UINT8)c << (UINT8)sizeof(INT32);
 	trecs = 0;
 	s << trecs;				// total number of records
+	formatOk = FALSE;
 	return TRUE;
     }
     else if ( c == PDC_END ) {			// end; calc checksum and close
