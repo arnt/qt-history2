@@ -475,6 +475,11 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if ( isVisible() || !isEnabled() )
 	return;
 
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if( macPopupMenu(pos, indexAtPoint ))
+	return;
+#endif
+
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
 

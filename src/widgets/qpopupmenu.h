@@ -162,6 +162,7 @@ private:
 #endif
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    bool macPopupMenu(const QPoint &, int);
     uint mac_dirty_popup : 1;
 #endif
 

@@ -197,6 +197,35 @@ void no_ampersands(QString i, CFStringRef *ret) {
     *ret = CFStringCreateWithCharacters(0, (UniChar *)i.unicode(), i.length());
 }
 
+/*!
+    \internal
+*/
+bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
+{
+#if 0
+    if(index == -1 && activeMenuBar && activeMenuBar->mac_d->popups) {
+	MenuRef ref = NULL;
+	for(QIntDictIterator<QMenuBar::MacPrivate::PopupBinding> it(*(activeMenuBar->mac_d->popups)); it.current(); ++it) {
+	    if(it.current()->qpopup == this) {
+		ref = it.current()->macpopup;
+		break;
+	    }
+	}
+	if(ref) {
+	    activeMenuBar->syncPopups(ref, this);
+	    InvalidateMenuSize(ref);
+	    PopUpMenuSelect(ref, p.y(), p.x(), -1);
+	    return TRUE; //we did it for Qt..
+	} 
+    }
+#else
+    Q_UNUSED(p);
+    Q_UNUSED(index);
+#endif
+    return FALSE;
+}
+
+
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
 uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 {
