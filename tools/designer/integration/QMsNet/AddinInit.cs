@@ -24,7 +24,9 @@ namespace QMsNet
 	    try {
 		cmdBar  = (CommandBar)cmdBars[ Resource.CommandBarName ];
 	    }
-	    catch ( System.Exception ){}
+	    catch ( System.Exception e ){
+		MessageBox.Show( e.Message );
+	    }
 	}
 
 	public void removeCommands()
@@ -32,16 +34,16 @@ namespace QMsNet
 	    // Remove all commands we've registered...
 	    foreach ( Command cmdDel in cmds ) {
 		if ( (cmdDel.Name == Resource.NewQtProjectFullCommand) ||
-		     (cmdDel.Name == Resource.MakeQtProjectFullCommand) ||
+		     (cmdDel.Name == Resource.DialogQtProjectFullCommand) ||
 		     (cmdDel.Name == Resource.LoadDesignerFullCommand) ||
 		     (cmdDel.Name == Resource.LoadQtProjectFullCommand) ||
 		     (cmdDel.Name == Resource.SaveQtProjectFullCommand) ||
-		     (cmdDel.Name == Resource.DLLQtProjectFullCommand) ||
+		     (cmdDel.Name == Resource.MakeQtProjectFullCommand) ||
 		     (cmdDel.Name == Resource.AddMocStepFullCommand) ||
 		     (cmdDel.Name == Resource.mntEventsFullCommand) ||
 		     (cmdDel.Name == Resource.unmntEventsFullCommand) ) {
 		    try { cmdDel.Delete(); }
-		    catch ( System.Exception ){}
+		    catch {}
 		}                                  
 	    }
 	}
@@ -55,24 +57,18 @@ namespace QMsNet
 	public void registerCommandBars()
 	{
 	    try {
-
 		cmdBar = (CommandBar)
 			cmds.AddCommandBar( Resource.CommandBarName,
 					    vsCommandBarType.vsCommandBarTypeToolbar,
 		                            null,
 					    1 );
 		cmdBar.Position = MsoBarPosition.msoBarTop;
-
-//		cmdBar = cmdBars.Add( Resource.CommandBarName, 
-//					    MsoBarPosition.msoBarTop, 
-//					    false, false );
-//		cmdBar.Visible = true;
-//		cmdBar.Protection = 0;
-		// We may enable this to make users choose were to place the toolbar
-		// QMsDevCmdBar.Position = MsoBarPosition.msoBarFloating;
+		cmdBar.Visible = true;
+		cmdBar.Protection = MsoBarProtection.msoBarNoCustomize;
 	    }
 	    catch( System.Exception e )
 	    {
+		MessageBox.Show( e.Message );
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
 			     "Couldn't registerCommandBars()" );
 	    }
@@ -99,13 +95,13 @@ namespace QMsNet
 		CommandBarControl ctrl = cmd.AddControl( cmdBar, 1 );
 		ctrl.Caption = " ";
 
-		// DLL Project command
+		// Make Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-					    Resource.DLLQtProject,
-					    Resource.DLLQtProjectButtonText,
-					    Resource.DLLQtProjectToolTip,
+					    Resource.MakeQtProject,
+					    Resource.MakeQtProjectButtonText,
+					    Resource.MakeQtProjectToolTip,
 					    false,
-					    Resource.DLLQtProjectBitmapID,
+					    Resource.MakeQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
 		ctrl = cmd.AddControl( cmdBar, 1 );
@@ -147,17 +143,17 @@ namespace QMsNet
 		ctrl = cmd.AddControl( cmdBar, 1 );
 		ctrl.Caption = " ";
 
-		// Make Qt Project command
-		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-					    Resource.MakeQtProject,
-					    Resource.MakeQtProjectButtonText,
-					    Resource.MakeQtProjectToolTip,
-					    false,
-					    Resource.MakeQtProjectBitmapID,
-					    ref contextGUIDS,
-					    disableFlags );
-		ctrl = cmd.AddControl( cmdBar, 1 );
-		ctrl.Caption = " ";
+		// Dialog Qt Project command
+//		cmd = cmds.AddNamedCommand( Connect.addinInstance,
+//					    Resource.DialogQtProject,
+//					    Resource.DialogQtProjectButtonText,
+//					    Resource.DialogQtProjectToolTip,
+//					    false,
+//					    Resource.DialogQtProjectBitmapID,
+//					    ref contextGUIDS,
+//					    disableFlags );
+//		ctrl = cmd.AddControl( cmdBar, 1 );
+//		ctrl.Caption = " ";
 
 		// New Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -186,35 +182,9 @@ namespace QMsNet
 				      Resource.unmntEventsToolTip,
 				      true, 0, ref contextGUIDS,
 				      disableFlags );
-
-//		_CommandBars commandBars;
-//		CommandBar toolsCommandBar;
-//		CommandBarControls commandBarControls;
-//		CommandBarControl commandBarControl;
-//		CommandBarEvents commandBarEvents;
-//		String strCommandBarItem = "Tools";
-//
-//		commandBars = Connect.applicationObject.CommandBars;
-//		toolsCommandBar = commandBars[strCommandBarItem];
-//		commandBarControls = toolsCommandBar.Controls;
-//
-//		try {
-////		    commandBarControl = commandBarControls.Add(MsoControlType.msoControlButton, 1, null, 1, false);
-////		    commandBarControl.Visible = true;
-////		    commandBarControl.Caption = "C# Test Button";
-////		    commandBarEvents = (EnvDTE.CommandBarEvents)Connect.applicationObject.Events.get_CommandBarEvents(commandBarControl);
-////		    commandBarEvents.Click += new EnvDTE._dispCommandBarControlEvents_ClickEventHandler(this.Click);
-//		    commandBarControl = cmdBar.Controls.Add(MsoControlType.msoControlButton, 1, null, 1, false);
-//		    commandBarControl.Visible = true;
-//		    commandBarControl.Caption = "#4";
-//		    commandBarEvents = (EnvDTE.CommandBarEvents)Connect.applicationObject.Events.get_CommandBarEvents(commandBarControl);
-//		    commandBarEvents.Click += new EnvDTE._dispCommandBarControlEvents_ClickEventHandler(this.Click);
-//		}
-//		catch (System.Exception ex) {
-//		    System.Windows.Forms.MessageBox.Show(ex.ToString());
-//		}
 	    }
 	    catch( System.Exception e ) {
+		MessageBox.Show( e.Message );
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
 			     "Couldn't registerCommands()" );
 	    }

@@ -57,6 +57,7 @@ namespace QMsNet
 		    aii.registerCommands();
 		}
 		catch ( System.Exception e ) {
+		    MessageBox.Show( e.Message );
 		    Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
 			"Couldn't registerCommands()" );
 		}
@@ -77,11 +78,11 @@ namespace QMsNet
 	    try {
 		if( neededText == EnvDTE.vsCommandStatusTextWanted.vsCommandStatusTextWantedNone ) {
 		    if( (commandName == Resource.NewQtProjectFullCommand) ||
-			(commandName == Resource.MakeQtProjectFullCommand) ||
+			(commandName == Resource.DialogQtProjectFullCommand) ||
 			(commandName == Resource.LoadDesignerFullCommand) ||
 			(commandName == Resource.LoadQtProjectFullCommand) ||
 			(commandName == Resource.SaveQtProjectFullCommand) ||
-			(commandName == Resource.DLLQtProjectFullCommand) ||
+			(commandName == Resource.MakeQtProjectFullCommand) ||
 			(commandName == Resource.AddMocStepFullCommand) ||
 			(commandName == Resource.mntEventsFullCommand) ||
 			(commandName == Resource.unmntEventsFullCommand) ) {
@@ -91,6 +92,7 @@ namespace QMsNet
 		}
 	    }
 	    catch ( System.Exception e ) {
+		MessageBox.Show( e.Message );
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
 		    "Couldn't registerCommands()" );
 	    }
@@ -110,10 +112,10 @@ namespace QMsNet
 			    handled = true;
 			    QMNCommands.newQtProject();
 			    break;
-			case Resource.MakeQtProjectFullCommand:
-			    handled = true;
-			    QMNCommands.newQtProject();
-			    break;
+//			case Resource.DialogQtProjectFullCommand:
+//			    handled = true;
+//			    QMNCommands.DialogProjectDll();
+//			    break;
 			case Resource.LoadDesignerFullCommand:
 			    handled = true;
 			    extLoader.loadDesigner( "", true );
@@ -126,9 +128,9 @@ namespace QMsNet
 			    handled = true;
 			    extLoader.saveProject();
 			    break;
-			case Resource.DLLQtProjectFullCommand:
+			case Resource.MakeQtProjectFullCommand:
 			    handled = true;
-			    QMNCommands.makeProjectDll();
+			    QMNCommands.makeQtProject();
 			    break;
 			case Resource.AddMocStepFullCommand:
 			    handled = true;
@@ -146,8 +148,9 @@ namespace QMsNet
 		}
 	    }
 	    catch( System.Exception e ) {
+		MessageBox.Show( e.Message );
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
-		    "Couldn't registerCommands()" );
+		    "Couldn't handle Exec()" );
 	    }
 	}
 
@@ -177,6 +180,7 @@ namespace QMsNet
 	private OutputWindowPane outputWindowPane;
 
 	public void MonitorEvents() {
+	    QMNCommands.Say( "-- Starting to monitor events in MSVC automation model" );
 	    EnvDTE.Events events = applicationObject.Events;
 	    OutputWindow outputWindow = (OutputWindow)applicationObject.Windows.Item(Constants.vsWindowKindOutput).Object;
 	    outputWindowPane = outputWindow.OutputWindowPanes.Add("DTE Event Information");
@@ -349,6 +353,7 @@ namespace QMsNet
 		solutionItemsEvents.ItemRemoved -= new _dispProjectItemsEvents_ItemRemovedEventHandler(this.SolutionItemsEvents_ItemRemoved);
 		solutionItemsEvents.ItemRenamed -= new _dispProjectItemsEvents_ItemRenamedEventHandler(this.SolutionItemsEvents_ItemRenamed);
 	    }
+	    QMNCommands.Say( "-- Stopped monitoring events in MSVC automation model" );
 	}
 
 	//WindowEvents

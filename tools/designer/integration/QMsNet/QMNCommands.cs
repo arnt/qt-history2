@@ -17,12 +17,13 @@ namespace QMsNet
 	{
 	}
 
+	// Moc functions ------------------------------------------------
 	public static void addMocStep() 
 	{
 	    try {
 		Document doc = Connect.applicationObject.ActiveDocument;
 		if ( doc == null ) {
-		    Connect.applicationObject.StatusBar.Text = "Cannot add Moc step... No file open";
+		    Say ( "Cannot add Moc step... No file open" );
 		    return;
 		}
 
@@ -36,6 +37,7 @@ namespace QMsNet
 		string filename = fileparts.Length > 0 ? fileparts[0] : "";
 		string ext = fileparts.Length > 1 ? fileparts[1] : "";
 
+		Say( "Adding Moc step for " + vf.Name );
 		// Moc'ing a CPP ------------------------------------
 		if ( vf.Name.EndsWith(".cpp") ) {
 		    if ( DialogResult.No == MessageBox.Show( "Normally one only Moc headerfiles.\n\r" +
@@ -55,7 +57,6 @@ namespace QMsNet
 		    addMStep( vf, filename, false );
 		    addFileInFilter( vp, "Generated MOC Files", "moc_" + filename + ".cpp" );
 		}
-		Connect.applicationObject.StatusBar.Text = "Moc step added to file...";
 	    }
 	    catch( System.Exception e ) {
 		Say( e, "Couldn't addMocStep()" );
@@ -92,25 +93,64 @@ namespace QMsNet
 	    try {
 		VCFilter vfilt = (VCFilter)((IVCCollection)project.Filters).Item( filterName );
 
-		if ( vfilt == null )
+		if ( vfilt == null ) {
 		    if ( !project.CanAddFilter( filterName ) )
 			throw new System.Exception( "Project can't add filter" + filterName );
+		    project.AddFilter( filterName );
+		}
 
-		project.AddFilter( filterName );
 		vfilt = (VCFilter)((IVCCollection)project.Filters).Item( filterName );
-		vfilt.AddFile( fileName );
+		if( vfilt.CanAddFile( fileName ) )
+		    vfilt.AddFile( fileName );
 	    }
 	    catch( System.Exception e ) {
 		Say( e, "Couldn't addFileInFilter()" );
 	    }
 	}
 
-	public static void makeProjectDll() 
+	// Project use Qt DLL functions ------------------------------------
+	public static void makeQtProject() 
 	{
 	    try {
 		Document doc = Connect.applicationObject.ActiveDocument;
 		if ( doc == null ) {
-		    Connect.applicationObject.StatusBar.Text = "Cannot convert project to Dll target... No project open";
+		    Say( "Cannot add Qt to project... No project open" );
+		    return;
+		}
+		ProjectItem itm = doc.ProjectItem;
+		VCProject prj = (VCProject)((VCProjectItem)itm.Object).Project;
+		foreach ( VCConfiguration pc in (IVCCollection)prj.Configurations ) {
+		    Say( "Adding Qt settings for project configuration " + pc.Name );
+		    VCLinkerTool lt = null;
+		    try {
+			lt = (VCLinkerTool)((IVCCollection)pc.Tools).Item("VCLinkerTool");
+		    }
+		    catch {
+			Say( "Couldn't get Linker configuration! Does this configuration have a linker tool defined?" );
+			return;
+		    }
+		    int index = lt.OutputFile.LastIndexOf( '.' );
+		    string filename = lt.OutputFile.Substring( 0, index );
+		    string qtlib = "qt";
+		    if ( Resource.qtThreaded )
+			qtlib += "-mt";
+		    qtlib += Resource.qtVersion + ".lib";
+		    lt.OutputFile = filename + ".dll";
+		    lt.AdditionalLibraryDirectories += "$(QTDIR)\\lib";
+		    lt.AdditionalDependencies += qtlib;
+		    lt.AdditionalDependencies += "qtmain.lib";
+		}
+	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't makeQtProject()" );
+	    }
+	}
+	// Project to DLL functions ----------------------------------------
+	public static void makeProjectDll() {
+	    try {
+		Document doc = Connect.applicationObject.ActiveDocument;
+		if ( doc == null ) {
+		    Say( "Cannot convert static to dynamic project... No project open" );
 		    return;
 		}
 		ProjectItem itm = doc.ProjectItem;
@@ -139,8 +179,10 @@ namespace QMsNet
 	    }
 	}
 
+	// Project generation functions ------------------------------------
 	public static void newQtProject() 
 	{
+	    Say( "-- newQtProject " );
 	    NewQtProject prj = new NewQtProject();
 	    prj.ShowDialog();
 	    if ( prj.DialogResult != DialogResult.OK )
@@ -154,11 +196,13 @@ namespace QMsNet
 	    // Generate template project
 	    if ( prj.optApplication.Checked ) {
 		int opt = prj.optSDI.Checked ? 1 : prj.optMDI.Checked ? 2 : 3;
+		Say( "Generating application " + (opt==1?"(SDI)":opt==2?"(MDI)":"(Dialog)") );
 		newQtAppProject( inf.DirectoryName,
 				 filename,
 				 tempPath,
 				 opt );
 	    } else {
+		Say( "Generating library " + (prj.optDynamic.Checked?"(dynamic - DLL)":"(static - LIB)") );
 		newQtLibProject( inf.DirectoryName, 
 				 filename, 
 				 tempPath,
@@ -166,12 +210,14 @@ namespace QMsNet
 	    }
 
 	    try {
+		Say( "Generate .vcproj file from .pro" );
 		if ( generateVCProjectFile( filename, inf.DirectoryName ) ) {
 		    if ( prj.chkAddToSolution.Checked ) {
 			// Add it to the current Solution
 			try {
 			    Connect.applicationObject.Solution.AddFromFile( 
 				inf.DirectoryName + "\\" + filename + ".vcproj", false );
+			    Say( "Added new project to current solution" );
 			}
 			catch {
 			    MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
@@ -183,6 +229,7 @@ namespace QMsNet
 			Connect.applicationObject.Solution.Close( false ); /// ### Do we get a question here?
 			Connect.applicationObject.Solution.AddFromFile( 
 			    inf.DirectoryName + "\\" + filename + ".vcproj", false );
+			Say( "Added new project to new solution" );
 		    }
 		    // If generating dynamic DLL, the files copied were
 		    // for a static lib, so make project DLL
@@ -190,6 +237,7 @@ namespace QMsNet
 			makeProjectDll();
 		}
 		// Start designer with the given .pro file
+		Say( "Loading project in Designer" );
 		Connect.extLoader.loadDesigner( inf.DirectoryName + "\\" + filename + ".pro", false );
 	    }
 	    catch ( System.Exception e ) {
@@ -199,6 +247,7 @@ namespace QMsNet
 				 "Not starting QMake" );
 		Say( e, "Couldn't run qmake [Path not correct?]" );
 	    }
+	    Say( "-- newQtProject - done " );
 	}
 
 	public static bool generateVCProjectFile( string filename, string workingDirectory ) 
@@ -229,7 +278,8 @@ namespace QMsNet
 	    return false;
 	}
 
-	private static void newQtAppProject( string path, string filename, string res, int opt ) {
+	private static void newQtAppProject( string path, string filename, string res, int opt ) 
+	{
 	    try {
 		if ( opt == 1 ) {
 		    // Single Document Interface ----------
@@ -272,7 +322,8 @@ namespace QMsNet
 	    }
 	}
 
-	private static void newQtLibProject( string path, string filename, string res, bool dyn ) {
+	private static void newQtLibProject( string path, string filename, string res, bool dyn ) 
+	{
 	    try{
 		// copy identical files
 		File.Copy( res + "\\libStatic\\libStatic.pro", path + "\\" + filename + ".pro", true );
@@ -284,9 +335,24 @@ namespace QMsNet
 	    }
 	}
 
-	private static void Say ( System.Exception e, String caption ) 
-	{
-	    Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(), caption );
+	// Output functions ------------------------------------------------
+	public static void Say ( String str ) {
+	    aPane().OutputString( str + "\r\n" );
+	}
+
+	public static void Say ( System.Exception e, String caption ) {
+	    string str = "** QMsNet Exception: " + caption + "\r\n" + e.Message + "\r\n" + e.StackTrace.ToString() + "\r\n";
+	    Debug.Write( str );
+	    aPane().OutputString( str );
+	}
+
+	private static OutputWindowPane wndp = null;
+	private static OutputWindowPane aPane () {
+	    if ( wndp == null ) {
+		OutputWindow wnd = (OutputWindow)Connect.applicationObject.Windows.Item( EnvDTE.Constants.vsWindowKindOutput ).Object;
+		wndp = wnd.OutputWindowPanes.Add( "QMsNet - Trolltech .NET integration" );
+	    }
+	    return wndp;
 	}
     }
 }
