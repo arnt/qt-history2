@@ -1212,6 +1212,9 @@ QList<int> QSplitter::sizes() const
     If \a list contains too few values, the result is undefined but
     the program will still be well-behaved.
 
+    Note that the values in \a list should be the height/width that
+    the widgets should be resized to.
+
     \sa sizes()
 */
 
