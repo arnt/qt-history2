@@ -1315,7 +1315,7 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 	    bool found = FALSE;
 	    for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
 		  it != funcs.end(); ++it ) {
-		if ( (*it).name == func ) {
+		if ( (*it).name.left( (*it).name.find( '(' ) ) == func ) {
 		    found = TRUE;
 		    break;
 		}
