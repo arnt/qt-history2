@@ -7,6 +7,9 @@
 
 static QString qt_cwd;
 
+extern int qt_cmp_si_sortSpec;
+extern int qt_cmp_si( const void *, const void * );
+
 void QDir::slashify(QString& n)
 {
   if(n.isNull())
@@ -75,7 +78,7 @@ bool QDir::isReadable() const
     FSSpec myspec;
     char bigbuf[257];
     const char * wingle=
-           (const char *)QFile::encodeName(filePath(dirname,
+           (const char *)QFile::encodeName(filePath(dPath,
 						    acceptAbsPath));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
@@ -120,7 +123,7 @@ bool QDir::setCurrent(const QString& path)
     FSSpec myspec;
     char bigbuf[257];
     const char * wingle=
-           (const char *)QFile::encodeName(filePath(dirname,
+           (const char *)QFile::encodeName(filePath(path,
 						    acceptAbsPath));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
@@ -157,6 +160,8 @@ bool QDir::isRelativePath(const QString& path)
     return false;
 }
 
+extern QStringList makeFilterList ( const QString &filter );
+
 bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 			  int sortSpec)
 {
@@ -191,7 +196,6 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     short myvrefnum;
     long mydirid;
 
-    qt_cwd=path;
     FSSpec myspec;
     char bigbuf[257];
     const char * wingle=
@@ -199,7 +203,6 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 						    acceptAbsPath));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
-    OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
 	qWarning("Make FS spec in readDirEntries error %d",ret);
@@ -240,7 +243,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 	if(done==noErr) {
 	    int loopc;
 	    for(loopc=0;loopc<mycpb.ioActMatchCount;loopc++) {
-		char * thename=matches[loopc].name;
+		unsigned char * thename=matches[loopc].name;
 		thename[thename[0]+1]=0;
 		QString fn = thename+1;
 		fi.setFile( *this, fn );
