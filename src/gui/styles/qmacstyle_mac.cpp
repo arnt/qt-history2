@@ -5030,9 +5030,11 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
     case SP_TrashIcon:
         iconType = kTrashIcon;
         break;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     case SP_ComputerIcon:
         iconType = kComputerIcon;
         break;
+#endif
     case SP_DriveFDIcon:
         iconType = kGenericFloppyIcon;
         break;
