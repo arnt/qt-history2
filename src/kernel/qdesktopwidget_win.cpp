@@ -68,6 +68,8 @@ static int screen_number = 0;
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 {
+    QDesktopWidgetPrivate::screenCount++;
+    QDesktopWidgetPrivate::rects->resize( QDesktopWidgetPrivate::screenCount );
     // Get the MONITORINFO block
     QDesktopWidgetPrivate::MONITORINFO info;
     memset( &info, 0, sizeof(QDesktopWidgetPrivate::MONITORINFO) );
@@ -88,15 +90,14 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 
     ++screen_number;
     // Stop the enumeration if we have them all
-    return ( screen_number != QDesktopWidgetPrivate::screenCount );
+    return TRUE;
 }
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
     rects = new QMemArray<QRect>();
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
-	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
-	rects->resize( screenCount );
+	screenCount = 0;  // SM_CMONITORS
 	// Trying to get the function pointers to Win98/2000 only functions
 #ifdef Q_OS_TEMP
 	user32hnd = LoadLibraryW( L"user32.dll" );
@@ -121,6 +122,8 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 #endif
 
 	if ( !enumDisplayMonitors || !getMonitorInfo ) {
+	    screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
+	    rects->resize( screenCount );
 	    for ( int i = 0; i < screenCount; ++i )
 		rects->at( i ) = that->rect();
 	    return;
