@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#441 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#442 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -496,7 +496,7 @@ static bool qt_set_desktop_properties()
 
     if ( XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
 			     TRUE, AnyPropertyType, &type, &format,
-			     &nitems, &after,  (unsigned char**)&data ) != Success ) 
+			     &nitems, &after,  (unsigned char**)&data ) != Success )
 	return FALSE;
     if ( !nitems ) {
 	XFree(  (unsigned char*)data );
@@ -504,7 +504,7 @@ static bool qt_set_desktop_properties()
     }
 
     debug("read desktop properties");
-    
+
     QCString properties;
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
@@ -514,9 +514,9 @@ static bool qt_set_desktop_properties()
 	offset += 256;
 	XFree(  (unsigned char*)data );
     }
-    
-    QDataStream d( properties, IO_ReadOnly ); 
-    
+
+    QDataStream d( properties, IO_ReadOnly );
+
     QPalette pal;
     QFont font;
     d >> pal >> font;
@@ -532,7 +532,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 {
     if ( qt_set_desktop_properties() ) // qt desktop properties have priority
 	return;
-    
+
     Atom   type = None;
     int	   format;
     ulong  nitems, after = 1;
@@ -3757,7 +3757,7 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    if ( !testWFlags(WType_TopLevel) )
+    if ( !testWFlags(WType_TopLevel) || testWFlags( WType_Popup ) )
 	return TRUE;				// child widget
 
     clearWState(WState_ConfigPending);
