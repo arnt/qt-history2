@@ -839,7 +839,6 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	if ( !d->decoder )
 	    d->decoder = mapper->makeDecoder();
 	QString s;
-	bool shortRead = FALSE;
 	bool readBlock = TRUE;
 	while ( TRUE ) {
 	    // for efficiency: try to read a line
@@ -863,7 +862,6 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 		int c;
 		c = dev->getch();
 		if ( c == EOF ) {
-		    shortRead = TRUE;
 		    break;
 		}
 		char b = c;
@@ -1365,7 +1363,7 @@ double QTextStream::input_double()
 	c = ts_getc();
     }
 
-#if !defined(_CC_EGG_)
+#if !defined(_CC_EGG_) && !defined(_CC_KAI_)
     return 0.0;
 #endif
 }
