@@ -5820,7 +5820,6 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
     e->resize( cr.size() );
     moveChild( e, cr.x(), cr.y() );
     e->show();
-    viewport()->setFocus();
 }
 
 /*!
