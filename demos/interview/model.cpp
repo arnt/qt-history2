@@ -31,7 +31,7 @@ Model::~Model()
 QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
     if (row < rc && row >= 0 && column < cc && column >= 0) {
-        Node *p = static_cast<Node*>(parent.data());
+        Node *p = static_cast<Node*>(parent.internalPointer());
         Node *n = node(row, p);
 	if (n)
 	    return createIndex(row, column, n);
@@ -42,7 +42,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 QModelIndex Model::parent(const QModelIndex &child) const
 {
     if (child.isValid()) {
-        Node *n = static_cast<Node*>(child.data());
+        Node *n = static_cast<Node*>(child.internalPointer());
         Node *p = parent(n);
         if (p)
             return createIndex(row(p), 0, p);
