@@ -1184,12 +1184,10 @@ public:
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
-
-private:
-    void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
-			  int lastY, int baseLine, int bw, int h, bool drawSelections,
-			  QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
-			  const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
+    virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
+				  int lastY, int baseLine, int bw, int h, bool drawSelections,
+				  QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
+				  const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
 
