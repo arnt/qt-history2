@@ -654,7 +654,7 @@ void QPainter::setBackgroundColor(const QColor &color)
 {
     d->state->bgColor = QBrush(color);
     if (d->engine && d->engine->isActive())
-	d->engine->updateBackground(d->state);
+	d->engine->setDirty(QPaintEngine::DirtyBackground);
 }
 
 const QColor &QPainter::backgroundColor() const
