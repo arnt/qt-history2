@@ -16,10 +16,10 @@
 
 #ifndef QT_NO_RICHTEXT
 
-
 #include "qstringlist.h"
 #include "qfont.h"
 #include "qtextstream.h"
+#include "qdatastream.h"
 #include "qfile.h"
 #include "qapplication.h"
 #include "qmap.h"
