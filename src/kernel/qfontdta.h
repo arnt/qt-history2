@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#8 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#9 $
 **
 ** Definition of QFontData struct
 **
@@ -19,36 +19,34 @@
 #define QFONTDTA_H
 
 
-struct QFontDef	 {
-	QString	  family;
-	short	  pointSize;
-	uint	  styleHint	: 8;
-	uint	  charSet	: 8;
-	uint	  weight	: 8;
-	uint	  italic	: 1;
-	uint	  underline	: 1;
-	uint	  strikeOut	: 1;
-	uint	  fixedPitch	: 1;
-	uint	  hintSetByUser : 1;
-	uint	  rawMode	: 1;
-	uint	  dirty		: 1;
+struct QFontDef	{				// font definition
+    QString	family;
+    short	pointSize;
+    uint	styleHint	: 8;
+    uint	charSet		: 8;
+    uint	weight		: 8;
+    uint	italic		: 1;
+    uint	underline	: 1;
+    uint	strikeOut	: 1;
+    uint	fixedPitch	: 1;
+    uint	hintSetByUser	: 1;
+    uint	rawMode		: 1;
+    uint	dirty		: 1;
 };
 
 #if defined(_WS_X11_)
-    struct QXFontData;
+struct QXFontData;
 #endif
 
 struct QFontData : QShared {
-    QFontDef	    req;		// requested
-    QFontDef	    act;		// actual
-    uint	    exactMatch	  : 1;
-    short	    lineW;		// width of underline and strikeOut
-
-#if defined(_WS_WIN_)
-	HANDLE	hfont;
-#elif defined(_WS_PM_)
+    QFontDef	req;				// requested font
+    QFontDef	act;				// actual font
+    uint	exactMatch	: 1;
+    short	lineW;				// underline/strikeOut font
+#if defined(_WS_WIN_) || defined(_WS_PM_)
+    HANDLE	hfont;
 #elif defined(_WS_X11_)
-	QXFontData *xfd;
+    QXFontData *xfd;
 #endif
 };
 
