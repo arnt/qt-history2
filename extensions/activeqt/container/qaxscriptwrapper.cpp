@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#include <qaxobject.h>
-#include <qaxfactory.h>
+#include "qaxobject.h"
+#include <activeqt/qaxfactory.h>
 
 #include <qt_windows.h>
 

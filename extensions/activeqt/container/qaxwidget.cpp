@@ -13,17 +13,17 @@
 ****************************************************************************/
 
 #include "qaxwidget.h"
-#include "qaxaggregated.h"
+#include <activeqt/qaxaggregated.h>
 
 #include <qapplication.h>
 #include <qevent.h>
-#include <qguardedptr.h>
 #include <qlayout.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
 #include <qmetaobject.h>
+#include <qpopupmenu.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
+#include <qpointer.h>
 #include <qregexp.h>
 #include <qstatusbar.h>
 #include <qwhatsthis.h>
@@ -285,10 +285,10 @@ private:
     QSize sizehint;
     
     unsigned long ref;
-    QGuardedPtr<QAxWidget> widget;
-    QGuardedPtr<QAxHostWidget> host;
-    QGuardedPtr<QStatusBar> statusBar;
-    QGuardedPtr<QMenuBar> menuBar;
+    QPointer<QAxWidget> widget;
+    QPointer<QAxHostWidget> host;
+    QPointer<QStatusBar> statusBar;
+    QPointer<QMenuBar> menuBar;
     QMap<int,OleMenuItem> menuItemMap;
 };
 
