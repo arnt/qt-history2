@@ -1962,6 +1962,7 @@ void QWorkspaceChild::showShaded()
     }
     titlebar->setMovable( !shademode );
     widgetResizeHandler->setActive( !shademode );
+    titlebar->update();
 }
 
 void QWorkspaceChild::titleBarDoubleClicked()
