@@ -3003,6 +3003,7 @@ bool QRegExp::match( const QString& str ) const
   If you really need the \a indexIsStart functionality, try this:
 
   \code
+    QRegExp rx( "some text" );
     int pos = rx.search( str.mid(index) );
     if ( pos != -1 )
 	pos += index;
