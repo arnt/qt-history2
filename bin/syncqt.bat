@@ -25,6 +25,7 @@ goto endofperl
 #
 ############################################################################
 
+use Config;
 use strict;
 
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
@@ -294,17 +295,12 @@ sub find_files {
 
 sub check_unix {
     my($r);
-    $r = 0;
+    $r = 1;
     if ( $force_win != 0) {
 	return 0;
     }
-    if ( -f "/bin/uname" ) {
-	$r = 1;
-	(-f "\\bin\\uname") && ($r = 0);
-    } elsif ( -f "/usr/bin/uname" ) {
-        $r = 1;
-	(-f "\\usr\\bin\\uname") && ($r = 0);
-    }
+    $_ = $Config{'osname'};
+    $r = 0 if( /(ms)|(cyg)win/i );
     return $r;
 }
 __END__
