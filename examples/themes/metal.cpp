@@ -171,6 +171,28 @@ void MetalStyle::unPolish( QWidget* w)
 
 }
 
+void MetalStyle::drawPrimitive( PrimitiveElement pe,
+				QPainter *p,
+				const QRect &r,
+				const QColorGroup &cg,
+				SFlags flags = Style_Default ) const
+{
+    QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+}
+
+void MetalStyle::drawControl( ControlElement element,
+			      QPainter *p,
+			      const QWidget *widget,
+			      const QRect &r,
+			      const QColorGroup &cg,
+			      SFlags how = Style_Default,
+			      void **data = 0 ) const
+{
+    QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+}
+
+
+
 /*!
   Reimplementation from QStyle
  */
@@ -260,9 +282,11 @@ void MetalStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
     if ( btn->isMenuButton() ) {
 	int dx = (y1-y2-4)/3;
+	/*
 	drawArrow( p, DownArrow, FALSE,
 		   x2 - dx, dx, y1, y2 - y1,
 		   g, btn->isEnabled() );
+*/
     }
 
     if ( p->brush().style() != NoBrush )
@@ -295,7 +319,7 @@ void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
     x += 2;  y += 2;  w -= 4;  h -= 4;
     QColorGroup g = btn->colorGroup();
-    drawItem( p, x, y, w, h,
+    drawItem( p, QRect(x, y, w, h),
 	      AlignCenter|ShowPrefix,
 	      g, btn->isEnabled(),
 	      btn->pixmap(), btn->text(), -1,
@@ -303,15 +327,4 @@ void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
     if ( dx || dy )
 	p->translate( -dx, -dy );
-}
-
-
-void MetalStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, bool sunken,
-			    int lineWidth, const QBrush *fill )
-{
-
-    QStyle::drawPanel( p,  x,  y,  w,  h,
-			    g, sunken,
-			    lineWidth, fill );
 }

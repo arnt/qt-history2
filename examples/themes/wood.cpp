@@ -896,6 +896,67 @@ void NorwegianWoodStyle::unPolish( QWidget* w)
     }
 }
 
+void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
+					QPainter *p,
+					const QRect &r,
+					const QColorGroup &cg,
+					SFlags flags ) const
+{
+    QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+}
+
+void NorwegianWoodStyle::drawControl( ControlElement element,
+				      QPainter *p,
+				      const QWidget *widget,
+				      const QRect &r,
+				      const QColorGroup &cg,
+				      SFlags how, void **data ) const
+{
+    QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+}
+
+void NorwegianWoodStyle::drawControlMask( ControlElement element,
+					  QPainter *p,
+					  const QWidget *widget,
+					  const QRect &r,
+					  void **data = 0 ) const
+{
+    QWindowsStyle::drawControlMask( element, p, widget, r, data );
+}
+
+void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
+					     QPainter *p,
+					     const QWidget *widget,
+					     const QRect &r,
+					     const QColorGroup &cg,
+					     SFlags how,
+					     SCFlags sub,
+					     SCFlags subActive,
+					     void **data = 0 ) const
+{
+    QWindowsStyle::drawComplexControl( control, p, widget, r, cg, how,
+				       sub, subActive, data );
+}
+
+QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
+						  const QWidget *widget,
+						  SubControl sc,
+						  void **data ) const
+{
+    return QWindowsStyle::querySubControlMetrics( control, widget, sc, data );
+}
+
+int NorwegianWoodStyle::pixelMetric( PixelMetric metric,
+				     const QWidget *widget ) const
+{
+    return QWindowsStyle::pixelMetric( metric, widget );
+}
+
+QRect NorwegianWoodStyle::subRect( SubRect r, const QWidget * widget ) const
+{
+    return QWindowsStyle::subRect( r, widget );
+}
+
 static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
 			   QCOORD w, QCOORD h, QCOORD d )
 {
@@ -1068,7 +1129,7 @@ void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
 }
 
 
-
+/*
 void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 						int sliderStart, uint controls,
 						uint activeControl )
@@ -1102,6 +1163,7 @@ void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* s
 	}
     }
 }
+*/
 
 /*!
   Reimplementation from QStyle
@@ -1161,18 +1223,8 @@ void NorwegianWoodStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
-void NorwegianWoodStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g, bool sunken, const QBrush* fill)
-{
-    QWindowsStyle::drawBevelButton(p, x, y, w, h, g, sunken, fill);
-}
-
-/*!
-  Reimplementation from QStyle
  */
+/*
 void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
     QColorGroup g = btn->colorGroup();
@@ -1220,7 +1272,7 @@ void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	p->setBrush( NoBrush );
 
 }
-
+ */
 
 /*!
   Reimplementation from QStyle
@@ -1242,7 +1294,7 @@ void NorwegianWoodStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
     x += 2;  y += 2;  w -= 4;  h -= 4;
     QColorGroup g = btn->colorGroup();
-    drawItem( p, x, y, w, h,
+    drawItem( p, QRect(x, y, w, h),
 	      AlignCenter|ShowPrefix,
 	      g, btn->isEnabled(),
 	      btn->pixmap(), btn->text(), -1,

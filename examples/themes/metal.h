@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of something or other
+** Definition of the Metal Style for the themes example
 **
 ** Created : 979899
 **
@@ -27,6 +27,20 @@ public:
     void polish( QWidget* );
     void unPolish( QWidget* );
 
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			SFlags flags = Style_Default ) const;
+
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      SFlags how = Style_Default,
+		      void **data = 0 ) const;
+    
     void drawButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, bool sunken = FALSE,
 			     const QBrush *fill = 0 );
@@ -36,9 +50,6 @@ public:
 
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
-    void drawPanel( QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &, bool sunken,
-		    int lineWidth, const QBrush *fill );
 
 private:
     QPalette oldPalette;
