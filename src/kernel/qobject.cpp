@@ -42,14 +42,6 @@
 #include "qsignalslotimp.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
-#include "qpixmap.h"
-#include "qiconset.h"
-#include "qimage.h"
-#include "qregion.h"
-#include "qbitmap.h"
-#include "qpointarray.h"
-#include "qcursor.h"
-#include "qdatetime.h"
 #include <private/qucom_p.h>
 #include "qptrvector.h"
 
