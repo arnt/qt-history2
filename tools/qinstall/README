@@ -8,19 +8,19 @@ users and enterprises wanting to make the transition to Linux suddenly
 find that they have to deal with installing rpm packages and either
 must use the command line or an rpm GUI wrapper.
 
-As far as I can tell /bin/rpm is a static binary and there isn't a
-library yet for accessing the rpm database. What I think would be very
-nice is for systems to have pre-installed on them an rpm library and a
-graphical installer stub program and associated libraries (ie
-qt-mt.so). Then it is possible to create a setup install program for a
-Linux binary similar to on Windows, but without the user needing to
-download as much as they only download the program's files and the
-setup script, but none of the setup wizard executable code. The
-installation is still registered in the rpm database using the rpm
-library and it makes it possible to uninstalled packages similar to on
-Windows where there is the add/remove program dialog. Windows is
-currently moving in the direction of having setup executable code on
-the system and what is distributed is an .ism file.
+Apparently, at least in recent versions of RPM, there is a RPM library.
+It is described in chapter 21 "A Guide to the RPM Library API" of the
+"Maximum RPM" manual. What would be nice is a graphical installer stub
+program and associated libraries (ie qt-mt.so) as part of a base
+workstation linux standard. Then it is possible to create a setup
+install program for a Linux binary similar to on Windows, but without
+the user needing to download as much as they only download the
+program's files and the setup script, but none of the setup wizard
+executable code. The installation is still registered in the rpm
+database using the rpm library and it makes it possible to uninstalled
+packages similar to on Windows where there is the add/remove program
+dialog. Windows is currently moving in the direction of having setup
+executable code on the system and what is distributed is an .ism file.
 
 On the Mac there is no standard, typically you download a .sit file
 which is similar to a .zip file but is uncomressed with stuffit
