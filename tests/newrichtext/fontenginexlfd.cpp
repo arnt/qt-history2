@@ -194,40 +194,54 @@ int FontEngineXLFD::width( const GlyphIndex *glyphs, const Offset *offsets, int 
     return (int)(width*_scale);
 }
 
-QCharStruct FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+QCharInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int i;
 
-    QCharStruct overall;
-    int x = 0;
-    int y = 0;
+    QCharInfo overall;
+    int ymax = 0;
+    int xmax = 0;
     for (i = 0; i < numGlyphs; i++) {
 	XCharStruct *xcs = charStruct( _fs, glyphs[i] );
-	x += offsets[i].x;
-	y += offsets[i].y;
+	overall.xoff += offsets[i].x;
+	overall.yoff += offsets[i].y;
 	if (xcs) {
-	    overall.ascent = QMAX(overall.ascent, xcs->ascent+y);
-	    overall.descent = QMAX(overall.descent, xcs->descent+y);
-	    overall.lbearing = QMIN(overall.lbearing, x + xcs->lbearing);
-	    x += xcs->width;
-	    overall.rbearing = QMAX(overall.rbearing, x + xcs->rbearing);
+	    overall.x = QMIN( overall.x, overall.xoff + xcs->lbearing );
+	    overall.y = QMAX( overall.y, overall.yoff - xcs->ascent );
+	    xmax = QMAX( xmax, overall.xoff + xcs->rbearing );
+	    ymax = QMAX( ymax, overall.yoff + xcs->descent );
+	    overall.xoff += xcs->width;
 	} else {
 	    int size = ascent();
-	    overall.ascent = QMAX(overall.ascent, size+y);
-	    overall.descent = QMAX(overall.descent, y);
-	    overall.lbearing = QMIN(overall.lbearing, x);
-	    x += size;
-	    overall.rbearing = QMAX(overall.rbearing, x);
+	    overall.x = QMIN(overall.x, overall.xoff );
+	    overall.y = QMIN(overall.y, overall.yoff - size );
+	    ymax = QMAX( ymax, overall.yoff );
+	    overall.xoff += size;
+	    xmax = QMAX( xmax, overall.xoff );
 	}
-	overall.width = QMAX(overall.width, x);
     }
-    overall.ascent = (int)(overall.ascent * _scale);
-    overall.descent = (int)(overall.descent * _scale);
-    overall.lbearing = (int)(overall.lbearing * _scale);
+    overall.height = ymax - overall.y;
+    overall.width = xmax - overall.x;
+
+    overall.x = (int)(overall.x * _scale);
+    overall.y = (int)(overall.y * _scale);
+    overall.height = (int)(overall.height * _scale);
     overall.width = (int)(overall.width * _scale);
-    overall.rbearing = (int)(overall.rbearing * _scale);
+    overall.xoff = (int)(overall.xoff * _scale);
+    overall.yoff = (int)(overall.yoff * _scale);
     return overall;
 }
+
+QCharInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
+{
+    XCharStruct *xcs = charStruct( _fs, glyph );
+    if (xcs) {
+	return QCharInfo( xcs->lbearing, xcs->ascent, xcs->rbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+    }
+    int size = ascent();
+    return QCharInfo( 0, size, size, size, size, 0 );
+}
+
 
 int FontEngineXLFD::ascent() const
 {

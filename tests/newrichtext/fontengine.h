@@ -3,26 +3,42 @@
 
 #include <qshared.h>
 #include "qtextlayout.h"
+#include <qrect.h>
 
 class QChar;
 class QPainter;
 class OpenTypeIface;
 class Offset;
 
-struct QCharStruct
+// this uses the same coordinate system as Qt, but a different one to freetype and Xft.
+// * y is usually negative, and is equal to the ascent.
+// * negative yoff means the following stuff is drawn higher up.
+// the characters bounding rect is given by QRect( x,y,width,height), it's advance by
+// xoo and yoff
+struct QCharInfo
 {
-    QCharStruct() {
-	ascent = -1000000;
-	descent = -1000000;
-	lbearing = 1000000;
-	rbearing = -1000000;
+    QCharInfo() {
+	x = 100000;
+	y = -100000;
 	width = 0;
+	height = 0;
+	xoff = 0;
+	yoff = 0;
     }
-    int ascent;
-    int descent;
-    int lbearing;
-    int rbearing;
+    QCharInfo( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
+	x = _x;
+	y = _y;
+	width = _width;
+	height = _height;
+	xoff = _xoff;
+	yoff = _yoff;
+    }
+    int x;
+    int y;
     int width;
+    int height;
+    int xoff;
+    int yoff;
 };
 
 class FontEngineIface : public QShared
@@ -44,7 +60,8 @@ public:
     virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
 
     virtual int width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
-    virtual QCharStruct boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QCharInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QCharInfo boundingBox( GlyphIndex glyph ) = 0;
 
     virtual int ascent() const = 0;
     virtual int descent() const = 0;

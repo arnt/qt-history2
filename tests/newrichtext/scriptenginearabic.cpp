@@ -36,5 +36,11 @@ void ScriptEngineArabic::shape( ShapedItem *result )
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     }
-    d->offsets = new Offset[d->num_glyphs];
+
+    // ######## wrong!!!!!!
+    heuristicSetGlyphAttributes( result );
+
+    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
+
 }

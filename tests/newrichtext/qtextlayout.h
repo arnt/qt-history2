@@ -85,9 +85,7 @@ public:
     ScriptItemArrayPrivate *d;
 };
 
-class Offset {
-public:
-    Offset() : x( 0 ), y( 0 ) {}
+struct Offset {
     short x;
     short y;
 };
@@ -95,7 +93,10 @@ public:
 
 // enum and struct are  made to be compatible with Uniscribe
 struct GlyphAttributes {
-    // highest value means highest priority for justification.
+    // highest value means highest priority for justification. Justification is done by first inserting kashidas
+    // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
+    // spacing, and last spacing between arabic words.
+    // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
     enum Justification {
 	NoJustification= 0,   // Justification can't be applied at this glyph
 	Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
@@ -113,9 +114,9 @@ struct GlyphAttributes {
     unsigned int justification   :4;  // Justification class
     unsigned int clusterStart    :1;  // First glyph of representation of cluster
     unsigned int mark            :1;  // needs to be positioned around base char
-    unsigned int zeroWidth       :1;  // Blank, ZWJ, ZWNJ etc, with no width
-    unsigned int reserved        :1;  // General reserved
-    unsigned int engineReserved  :8;
+    unsigned int zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
+    unsigned int reserved        :1;
+    unsigned char combiningClass :8;
 };
 
 typedef unsigned short GlyphIndex;
@@ -124,15 +125,20 @@ class ShapedItemPrivate
 {
 public:
     ShapedItemPrivate()
-	: num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), fontEngine( 0 ),
+	: num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), logClusters( 0 ),
+	  glyphAttributes( 0 ), fontEngine( 0 ),
 	  from( 0 ), length( 0 ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
-	delete[] offsets;
+	free( offsets );
+	free( logClusters );
+	free( glyphAttributes );
     }
     int num_glyphs;
     GlyphIndex * glyphs;
     Offset *offsets;
+    unsigned short *logClusters;
+    GlyphAttributes *glyphAttributes;
     FontEngineIface *fontEngine;
     ScriptAnalysis analysis;
     QString string;

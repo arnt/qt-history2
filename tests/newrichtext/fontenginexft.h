@@ -19,7 +19,8 @@ public:
     void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
 
     int width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
-    QCharStruct boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
+    QCharInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
+    QCharInfo boundingBox( GlyphIndex glyph );
 
     int ascent() const;
     int descent() const;

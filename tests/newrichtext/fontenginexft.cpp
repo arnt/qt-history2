@@ -114,35 +114,49 @@ int FontEngineXft::width( const GlyphIndex *glyphs, const Offset *offsets, int n
 
 }
 
-QCharStruct FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+QCharInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
-    QCharStruct overall;
-    int x = 0;
-    int y = 0;
-
+    QCharInfo overall;
+    int ymax = 0;
+    int xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
-	x += offsets[i].x;
-	y += offsets[i].y;
+	overall.xoff += offsets[i].x;
+	overall.yoff += offsets[i].y;
 	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
-	    overall.ascent = QMAX(overall.ascent, xgi.y);
-	    overall.descent = QMAX(overall.descent, (xgi.height - xgi.y));
-	    overall.lbearing = QMIN(overall.lbearing, -xgi.x);
-	    overall.rbearing = QMAX(overall.rbearing, x + (xgi.width - xgi.x));
-	    x += xgi.xOff;
+	    overall.x = QMIN( overall.x, overall.xoff + xgi.x );
+	    overall.y = QMIN( overall.y, overall.yoff - xgi.y );
+	    xmax = QMAX( xmax, overall.xoff + xgi.x );
+	    ymax = QMAX( ymax, overall.yoff - xgi.y + xgi.height );
+	    overall.xoff += xgi.xOff;
+	    overall.yoff -= xgi.yOff;
 	} else {
 	    int size = ascent();
-	    overall.ascent = QMAX(overall.ascent, size+y);
-	    overall.descent = QMAX(overall.descent, y);
-	    overall.lbearing = QMIN(overall.lbearing, x);
-	    x += size;
-	    overall.rbearing = QMAX(overall.rbearing, x);
+	    overall.x = QMIN(overall.x, overall.xoff );
+	    overall.y = QMIN(overall.y, overall.yoff - size );
+	    ymax = QMAX( ymax, overall.yoff );
+	    overall.xoff += size;
+	    xmax = QMAX( xmax, overall.xoff );
 	}
-	overall.width = QMAX( overall.width, x );
     }
+    overall.height = ymax - overall.y;
+    overall.width = xmax - overall.x;
+
     return overall;
 }
+
+QCharInfo FontEngineXft::boundingBox( GlyphIndex glyph )
+{
+    XGlyphInfo xgi;
+    if ( getGlyphInfo( &xgi, _font, glyph ) ) {
+	return QCharInfo( xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+    }
+    int size = ascent();
+    return QCharInfo( 0, size, size, size, size, 0 );
+}
+
+
 
 int FontEngineXft::ascent() const
 {
