@@ -579,6 +579,9 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	    ch++;
     }
 
+    if ( dir == QPainter::Auto ) {
+	return bidiReorderString( QConstString( shapeBuffer, lenOut ).string() );
+    }
     if ( dir == QPainter::RTL ) {
 	// reverses the non spacing marks to be again after the base char
 	QChar *s = shapeBuffer;
