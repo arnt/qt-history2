@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#55 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#55 $";
 #endif
 
 
@@ -40,13 +40,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#54 $";
         Q_OBJECT				// required for signals/slots
     public:
         MyObject( QObject *parent=0, const char *name );
-
     signals:
 	void	minuteTimeout();
-
     private slots:
 	void	secondTimeout();
-
     private:
         QTimer *timer;
 	int	secs;
@@ -54,7 +51,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#54 $";
 
     //
     // Initializes MyObject and sets up a timer.
-    // The QTime::timeout() signal is emitted at a specified millisecond
+    // The QTimer::timeout() signal is emitted at a specified millisecond
     // interval (here: 1 second).
     // This timeout signal is connected to the internal secondTimeout()
     // slot of MyObject.
