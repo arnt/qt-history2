@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#76 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#75 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#76 $";
 #endif
 
 
@@ -1546,7 +1546,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	code = Key_0 + ((int)key - XK_KP_0);	// assumes contiguous codes!
     else {
 	int i = 0;				// any other keys
-	while ( KeyTbl[i] && code==0 ) {
+	while ( KeyTbl[i] && code<0 ) {
 	    if ( key == KeyTbl[i] )
 		code = KeyTbl[i+1];
 	    else
