@@ -154,7 +154,9 @@ private:
     void	init();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
-    bool	isNetworkOrder() { return !internalOrder; }
+    bool isNetworkOrder() {
+	return !internalOrder == !QChar::networkOrdered();
+    }
 
     int		fflags;
     int		fwidth;
