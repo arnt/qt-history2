@@ -39,6 +39,13 @@ public:
             append(list.at(i));
     }
 
+    Q3StrList &operator =(const QList<QByteArray> &list) {
+        clear();
+        for (int i = 0; i < list.size(); ++i)
+            append(list.at(i));
+        return *this;
+    }
+
     operator QList<QByteArray>() const {
         QList<QByteArray> list;
         for (Q3PtrListStdIterator<char> it = begin(); it != end(); ++it)
