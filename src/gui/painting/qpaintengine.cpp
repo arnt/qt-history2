@@ -164,18 +164,37 @@ static int qt_polygon_recursion;
     Reimplement this virtual function to draw the polygon defined
     by the \a pointCount first points in \a points, using mode \a
     mode.
+
+    The default implementation of this function will try to use drawPath
+    if the engine supports the feature QPaintEngine::PainterPaths or try
+    the int based drawPolygon() implementation if not.
 */
 void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
-               "At least one drawPolygon function must be implemented");
-    qt_polygon_recursion = 1;
-    QPolygon p;
-    p.reserve(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        p << points[i].toPoint();
-    drawPolygon(p.data(), pointCount, mode);
-    qt_polygon_recursion = 0;
+    if (hasFeature(PainterPaths)) {
+        Q_ASSERT(pointCount > 0); // these should have been cleared out by QPainter.
+        QPainterPath path(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            path.lineTo(points[i]);
+        // ### don't like this... should perhaps introduce strokePath in api
+        if (mode == PolylineMode) {
+            updateBrush(QBrush(), QPoint(0, 0));
+            setDirty(DirtyBrush);
+        } else {
+            path.closeSubpath();
+        }
+        drawPath(path);
+    } else {
+        Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+                   "At least one drawPolygon function must be implemented");
+        qt_polygon_recursion = 1;
+        QPolygon p;
+        p.reserve(pointCount);
+        for (int i=0; i<pointCount; ++i)
+            p << points[i].toPoint();
+        drawPolygon(p.data(), pointCount, mode);
+        qt_polygon_recursion = 0;
+    }
 }
 
 /*!
@@ -183,18 +202,35 @@ void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDra
 
     Reimplement this virtual function to draw the polygon defined by the
     \a pointCount first points in \a points, using mode \a mode.
+
+    The default implementation of this function will try to use drawPath()
+    if the engine supports the feature QPaintEngine::PainterPaths or try
+    the float based drawPolygon() implementation if not.
 */
 void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
-    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
-               "At least one drawPolygon function must be implemented");
-    qt_polygon_recursion = 1;
-    QPolygonF p;
-    p.reserve(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        p << points[i];
-    drawPolygon(p.data(), pointCount, mode);
-    qt_polygon_recursion = 0;
+    if (hasFeature(PainterPaths)) {
+        QPainterPath path(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            path.lineTo(points[i]);
+        if (mode == PolylineMode) {
+            updateBrush(QBrush(), QPoint(0, 0));
+            setDirty(DirtyBrush);
+        } else {
+            path.closeSubpath();
+        }
+        drawPath(path);
+    } else {
+        Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+                   "At least one drawPolygon function must be implemented");
+        qt_polygon_recursion = 1;
+        QPolygonF p;
+        p.reserve(pointCount);
+        for (int i=0; i<pointCount; ++i)
+            p << points[i];
+        drawPolygon(p.data(), pointCount, mode);
+        qt_polygon_recursion = 0;
+    }
 }
 
 
@@ -283,8 +319,12 @@ void QPaintEngine::drawEllipse(const QRectF &rect)
     QPainterPath path;
     path.moveTo(rect.x() + rect.width(), rect.y() + rect.height()/2);
     path.arcTo(rect, 0, 360);
-    QPolygonF polygon = path.toFillPolygon();
-    drawPolygon(polygon.data(), polygon.size(), ConvexMode);
+    if (hasFeature(PainterPaths)) {
+        drawPath(path);
+    } else {
+        QPolygonF polygon = path.toFillPolygon();
+        drawPolygon(polygon.data(), polygon.size(), ConvexMode);
+    }
 }
 
 /*!
@@ -701,7 +741,9 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
 void QPaintEngine::drawPath(const QPainterPath &)
 {
-
+    if (hasFeature(PainterPaths)) {
+        qWarning("QPaintEngine::drawPath(), must be implemented when feature PainterPaths is set");
+    }
 }
 
 /*!
@@ -710,8 +752,16 @@ void QPaintEngine::drawPath(const QPainterPath &)
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
-    QPointF pts[2] = { line.start(), line.end() };
-    drawPolygon(pts, 2, PolylineMode);
+    if (hasFeature(PainterPaths)) {
+        QPainterPath path(line.start());
+        path.lineTo(line.end());
+        updateBrush(QBrush(), QPointF(0, 0));
+        drawPath(path);
+        setDirty(QPaintEngine::DirtyBrush);
+    } else {
+        QPointF pts[2] = { line.start(), line.end() };
+        drawPolygon(pts, 2, PolylineMode);
+    }
 }
 
 /*!
@@ -722,11 +772,17 @@ void QPaintEngine::drawLine(const QLineF &line)
 */
 void QPaintEngine::drawRect(const QRectF &rf)
 {
-    QPointF pts[4] = { QPointF(rf.x(), rf.y()),
-                       QPointF(rf.x() + rf.width(), rf.y()),
-                       QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
-                       QPointF(rf.y(), rf.y() + rf.height()) };
-    drawPolygon(pts, 4, ConvexMode);
+    if (hasFeature(PainterPaths)) {
+        QPainterPath path;
+        path.addRect(rf);
+        drawPath(path);
+    } else {
+        QPointF pts[4] = { QPointF(rf.x(), rf.y()),
+                           QPointF(rf.x() + rf.width(), rf.y()),
+                           QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
+                           QPointF(rf.y(), rf.y() + rf.height()) };
+        drawPolygon(pts, 4, ConvexMode);
+    }
 }
 
 /*!
