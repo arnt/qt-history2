@@ -53,6 +53,7 @@ const bool CaseSensitiveFS = TRUE;
 
 /*!
     \class QDir
+    \reentrant
     \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
 
     \ingroup io
@@ -422,7 +423,6 @@ QString QDir::absFilePath( const QString &fileName,
 			       fileName[0] != '/') )
 	    tmp += '/';
 	tmp += fileName;
- 
     }
     return tmp;
 }
