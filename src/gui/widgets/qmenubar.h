@@ -266,7 +266,6 @@ private:
     Q_PRIVATE_SLOT(d, void updateLayout())
 
     friend class QMenu;
-    friend class QWorkspacePrivate;
     friend class QMenuPrivate;
 
 #ifdef Q_WS_MAC
