@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#119 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#119 $");
 
 
 struct QLineEditPrivate {
@@ -361,6 +361,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	QString t( 2 );
 	t[0] = e->ascii();
 	t[1] = '\0';
+	debug( "lezz try <%s>", t.data() );
 	insert( t );
 	return;
     }
@@ -479,7 +480,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	QFontMetrics fm = fontMetrics();
 	int markBegin = minMark();
 	int markEnd = maxMark();
-	int margin = frame() ? 4 : 2;
+	int margin = frame() ? 2 : 0;
 
 	if ( frame() ) {
 	    QBrush fill( bg );
@@ -1285,7 +1286,7 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 	    d->pmDirty = TRUE;
 	    QFontMetrics fm = fontMetrics();
 	    int x = fm.width( t.mid( offset, cursorPos - offset ) );
-	    int margin = frame() ? 4 : 2;
+	    int margin = frame() ? 2 : 0;
 	    if ( x >= width() - margin ) {
 		while( x >= width() - margin ) {
 		    int w = fm.width( tbuf[offset] );
@@ -1370,12 +1371,8 @@ void QLineEdit::repaintArea( int from, int to )
 
     QFontMetrics fm( fontMetrics() );
 
-    int margin = frame() ? 4 : 2;
+    int margin = frame() ? 2 : 0;
     int x3 = fm.width( tbuf.mid( offset, cursorPos - offset ) ) + 2*margin;
-#if 0
-    debug( "outside? %d %d <%s>",
-	   x3, width(), tbuf.mid( offset, cursorPos - offset ).data() );
-#endif
     if ( x3 >= width() ) {
 	while( x3 >= width() ) {
 	    x3 -= fm.width( tbuf[offset] );
@@ -1423,4 +1420,44 @@ void QLineEdit::setFont( const QFont & f )
 void QLineEdit::clear()
 {
     setText( "" );
+}
+
+
+/*!  Sets the marked area of this line edit to start at \a start and
+  be \a length characters long. */
+
+void QLineEdit::setSelection( int start, int length )
+{
+    int b, e;
+    b = QMIN( markAnchor, markDrag );
+    e = QMAX( markAnchor, markDrag );
+    b = QMIN( b, start );
+    e = QMAX( e, start + length );
+    markAnchor = start;
+    markDrag = start + length;
+    repaintArea( b, e );
+}
+
+
+/*!  Set the cursor position for this line edit to \a newPos and
+  repaint accordingly.  \sa cursorPosition() */
+
+void QLineEdit::setCursorPosition( int newPos )
+{
+    if ( newPos > (int)tbuf.length() || newPos < 0 )
+	return;
+    int b, e;
+    b = QMIN( newPos, cursorPos );
+    e = QMAX( newPos, cursorPos );
+    cursorPos = newPos;
+    repaintArea( b, e );
+}
+
+
+/*!  Returns the current cursor position for this line edit.  \sa
+  setCursorPosition() */
+
+int QLineEdit::cursorPosition() const
+{
+    return cursorPos;
 }
