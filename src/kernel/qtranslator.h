@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#3 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#4 $
 **
 ** Definition of something or other
 **
@@ -28,8 +28,11 @@ public:
 
     virtual QString find( uint, const char *, const char * ) const;
 
-    void load( const QString & filename, const QString & directory = QString::null );
-    void save( const QString & filename );
+    bool load( const QString & filename,
+	       const QString & directory = QString::null,
+	       const QString & search_delimiters = QString::null,
+	       const QString & suffix = QString::null );
+    bool save( const QString & filename );
     void clear();
 
     void squeeze();

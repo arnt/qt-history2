@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#7 $
 **
 ** Localization database support.
 **
@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #include "qtranslator.h"
+#include "qfileinfo.h"
 
 #if defined(UNIX)
 
@@ -151,20 +152,16 @@ static inline uint readhash( const char * c, int o, uint base ) {
   algorithm is not specified beyond the fact that it will remain
   unchanged in future versions of Qt.
 
-  Since QTranslator offers functionality (insert(), remove()) that is
-  hard to implement such that the most common way of using
-  QTranslator (load from file and never change), QTranslator has two
-  entirely different internal representations.  It converts its
-  contents transparently between the two as required, using two
-  functions that are present in the API: squeeze() and unsqueeze().
+  Internally, QTranslator uses compressed and uncompressed formats,
+  but as it converts its contents transparently between the two as
+  required, using two functions squeeze() and unsqueeze().
   squeeze() converts to a format that is well suited to on-disk
   storage and read-only operations, unsqueeze() to one that takes more
-  space but can be changed easily.  You should never need to cal these
+  space but can be changed easily.  You should never need to call these
   two functions; they are present in the API mostly because our
   regression testing needs them.
 
-  QTranslator itself provides no way to list its contents, but the
-  QTranslatorIterator does.
+  To examine the contents of a QTranslator, use QTranslatorIterator.
 
   \sa QTranslatorIterator QApplication::installTranslator QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
@@ -193,22 +190,87 @@ QTranslator::~QTranslator()
 
 
 /*!  Loads \a filename, which may be an absolute file name or relative
-  to \a directory.
+  to \a directory.  If the full filename does not exist, other filenames
+  are tried in the following order:
+  <ol>
+   <li>Filename with \a suffix appended (".qm" if suffix is QString::null)
+   <li>Filename with text after a character in \a search_delimiters stripped
+	("_." is the default for \a search_delimiters if it is QString::null)
+   <li>Filename stripped and \a suffix appended.
+   <li>Filename stripped further, etc.
+  </ol>
+  For example, load("foo_bar.baz", "/opt/foolib") will search for:
+  <ol>
+   <li>/opt/foolib/foo_bar.baz
+   <li>/opt/foolib/foo_bar.baz.qm
+   <li>/opt/foolib/foo_bar
+   <li>/opt/foolib/foo_bar.qm
+   <li>/opt/foolib/foo
+   <li>/opt/foolib/foo.qm
+  </ol>
 */
 
-void QTranslator::load( const QString & filename, const QString & directory )
+bool QTranslator::load( const QString & filename, const QString & directory,
+		        const QString & search_delimiters,
+		        const QString & suffix )
 {
     clear();
     squeeze();
 
-    QString realname( filename );
-    if ( directory.length() ) {
-	if ( realname[0] != '/' ) { // also check \ and c:\ on windows
-	    if ( directory[int(qstrlen(directory)-1)] != '/' )
-		realname.prepend( "/" );
-	    realname.prepend( directory );
-	}
+    QString prefix;
+
+    if ( filename[0] == '/'
+#ifdef _WS_WIN_
+	|| filename[0] && filename[1] == ':'
+	|| filename[0] == '\\'
+#endif
+    )
+	prefix = "";
+    else
+	prefix = directory;
+
+    if ( prefix.length() ) {
+	if ( prefix[int(prefix.length()-1)] != '/' )
+	    prefix += QChar('/');
     }
+
+    QString fname = filename;
+    QString realname;
+    QString delims;
+    delims = search_delimiters ? search_delimiters : QString("_.");
+
+    // COMPLICATED LOOP
+    try_with_and_without_suffix:
+    {
+	QFileInfo fi;
+
+	realname = prefix + fname;
+	fi.setFile(realname);
+	if ( fi.isReadable() )
+	    goto found_file; // EXIT LOOP
+
+	realname += suffix ? suffix : QString(".qm");
+	fi.setFile(realname);
+	if ( fi.isReadable() )
+	    goto found_file; // EXIT LOOP
+
+	for ( int i=0; i<(int)delims.length(); i++) {
+	    int d;
+	    if ( (d=fname.find(delims[i])) >= 0 ) {
+		// found a truncation
+		fname = fname.left(d);
+		goto try_with_and_without_suffix;
+	    }
+	}
+
+	// No truncations - fail
+	return FALSE;
+    }
+    found_file: ; // END OF COMPLICATED LOOP
+
+
+    // realname is now the fully qualified name of a readable file.
+
 
 #if defined(UNIX)
     // unix (if mmap supported)
@@ -224,14 +286,14 @@ void QTranslator::load( const QString & filename, const QString & directory )
 
     f = ::open( realname.ascii(), O_RDONLY );
     if ( f < 0 ) {
-	debug( "can't open %s: %s", realname.ascii(), strerror( errno ) );
-	return;
+	// debug( "can't open %s: %s", realname.ascii(), strerror( errno ) );
+	return FALSE;
     }
 
     struct stat st;
     if ( fstat( f, &st ) ) {
-	debug( "can't stat %s: %s", realname.ascii(), strerror( errno ) );
-	return;
+	// debug( "can't stat %s: %s", realname.ascii(), strerror( errno ) );
+	return FALSE;
     }
     char * tmp;
     tmp = (char*)mmap( 0, st.st_size, // any address, whole file
@@ -239,8 +301,8 @@ void QTranslator::load( const QString & filename, const QString & directory )
 		       MAP_FILE | MAP_PRIVATE, // swap-backed map from file
 		       f, 0 ); // from offset 0 of f
     if ( !tmp ) {
-	debug( "can't mmap %s: %s", filename.ascii(), strerror( errno ) );
-	return;
+	// debug( "can't mmap %s: %s", filename.ascii(), strerror( errno ) );
+	return FALSE;
     }
 
     ::close( f );
@@ -256,10 +318,14 @@ void QTranslator::load( const QString & filename, const QString & directory )
 
     // now that we've read it and all, check that it has the right
     // magic number, and forget all about it if it doesn't.
-    if ( memcmp( (const void *)(d->unmapPointer), magic, 16 ) )
+    if ( memcmp( (const void *)(d->unmapPointer), magic, 16 ) ) {
 	clear();
+	return FALSE;
+    }
 
     // then we go on to read in the headers... I'd prefer not, but...
+
+    return TRUE;
 }
 
 
@@ -269,7 +335,7 @@ void QTranslator::load( const QString & filename, const QString & directory )
   \sa load()
 */
 
-void QTranslator::save( const QString & filename )
+bool QTranslator::save( const QString & filename )
 {
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
@@ -277,7 +343,7 @@ void QTranslator::save( const QString & filename )
 
 	// magic number
 	if ( f.writeBlock( (const char *)magic, 16 ) < 16 )
-	    return;
+	    return FALSE;
 
 #if 0
 	// header strings
@@ -295,7 +361,9 @@ void QTranslator::save( const QString & filename )
 	// the rest
 	squeeze();
 	f.writeBlock( d->t, d->l );
+	return TRUE;
     }
+    return FALSE;
 }
 
 
