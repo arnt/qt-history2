@@ -240,6 +240,10 @@ IRIX MIPSpro o32 mode.
 	Support full alpha-maps for paletted (8-bit) images.
 	Support 16-bit grayscale PNG images with transparency.
 
+- QPushButton
+	A push button with both an iconset and text left-aligns the
+	text.
+
 - QSocketDevice
 	Added setProtocol() and protocol() for IPv6 support.
 
