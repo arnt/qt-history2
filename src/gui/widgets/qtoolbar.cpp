@@ -260,6 +260,19 @@ void QToolBarPrivate::init()
     q->setArea(Qt::ToolBarAreaTop);
 }
 
+/*! \class QToolBar qtoolbar.h
+    \brief The QToolBar class provides a movable panel that contains a
+    set of controls.
+
+    \ingroup application
+    \mainclass
+
+    \sa QMainWindow
+*/
+
+/*!
+    Constructs a QToolBar with parent \a parent.
+*/
 QToolBar::QToolBar(QMainWindow *parent)
     : QFrame(*new QToolBarPrivate, parent)
 {
@@ -268,6 +281,9 @@ QToolBar::QToolBar(QMainWindow *parent)
 }
 
 #ifdef QT_COMPAT
+/*! \obsolete
+    Constructs a QToolBar with parent \a parent, named \a name.
+*/
 QToolBar::QToolBar(QMainWindow *parent, const char *name)
     : QFrame(*new QToolBarPrivate, parent)
 {
@@ -277,15 +293,37 @@ QToolBar::QToolBar(QMainWindow *parent, const char *name)
 }
 #endif
 
+/*!
+    Destroys the tool bar.
+*/
 QToolBar::~QToolBar()
 {
 }
 
+/*!
+    Sets the main window for the tool bar to \a parent.
+
+    \sa mainWindow()
+ */
 void QToolBar::setParent(QMainWindow *parent)
 { QFrame::setParent(parent); }
 
+/*!
+    Returns the main window for the tool bar.
+
+    \sa setParent()
+ */
 QMainWindow *QToolBar::mainWindow() const
 { return qt_cast<QMainWindow *>(parentWidget()); }
+
+/*! \property QToolBar::movable
+    \brief whether the user can move the tool bar either within the
+    tool bar area or to another tool bar area.
+
+    This property is true by default.
+
+    \sa QToolBar::allowedAreas
+*/
 
 void QToolBar::setMovable(bool movable)
 {
@@ -296,11 +334,23 @@ void QToolBar::setMovable(bool movable)
 bool QToolBar::isMovable() const
 { return d->movable; }
 
+/*! \property QToolBar::allowedAreas
+    \brief areas where the tool bar may be placed.
+
+    The default is \c Qt::AllToolBarAreas.
+*/
+
 void QToolBar::setAllowedAreas(Qt::ToolBarAreaFlags areas)
 { d->allowedAreas = (areas & Qt::ToolBarAreaMask); }
 
 Qt::ToolBarAreaFlags QToolBar::allowedAreas() const
 { return d->allowedAreas; }
+
+/*! \property QToolBar::area
+    \brief area where the tool bar is currently placed.
+
+    The default is \c Qt::ToolBarAreaTop.
+*/
 
 void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 {
@@ -451,6 +501,7 @@ QAction *QToolBar::insertSeparator(QAction *before)
     return action;
 }
 
+/*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
     QWidget *widget = qt_cast<QWidget *>(event->child());
@@ -459,6 +510,7 @@ void QToolBar::childEvent(QChildEvent *event)
     else if (event->removed()) layout()->removeWidget(widget);
 }
 
+/*! \reimp */
 void QToolBar::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
@@ -504,6 +556,7 @@ void QToolBar::actionEvent(QActionEvent *event)
     }
 }
 
+/*! \reimp */
 void QToolBar::resizeEvent(QResizeEvent *)
 {
     QList<int> hidden;
