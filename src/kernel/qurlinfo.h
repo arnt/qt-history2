@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#4 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -48,15 +48,15 @@ public:
     QUrlInfo( const QUrlOperator &path, const QString &file );
     QUrlInfo( const QUrlInfo &ui );
     QUrlInfo &operator=( const QUrlInfo &ui );
-    ~QUrlInfo();
+    virtual ~QUrlInfo();
 
-    void setName( const QString &name );
-    void setDir( bool b );
-    void setFile( bool b );
-    void setSymLink( bool b );
-    void setOwner( const QString &s );
-    void setGroup( const QString &s );
-    void setSize( uint s );
+    virtual void setName( const QString &name );
+    virtual void setDir( bool b );
+    virtual void setFile( bool b );
+    virtual void setSymLink( bool b );
+    virtual void setOwner( const QString &s );
+    virtual void setGroup( const QString &s );
+    virtual void setSize( uint s );
 
     QString name() const;
     int permissions() const;

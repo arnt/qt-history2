@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -50,12 +50,12 @@ struct QUrlInfoPrivate
   \class QUrlInfo qurlinfo.h
 
   This class is just a container for storing information about a
-  URL. That's why all informations have to be passed in the
+  URLs. That's why all informations have to be passed in the
   constructor.
 */
 
 /*!
-  #### todo
+  Constructs a QUrlInfo object by specifying all information of the URL.
 */
 
 QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
@@ -81,7 +81,7 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 
 
 /*!
-  #### todo
+  Constructs a QUrlInfo object by specifying all information of the URL.
 */
 
 QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
@@ -106,7 +106,7 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 }
 
 /*!
-  #### todo
+  Creates an empty QUrlInfo object with default values.
 */
 
 QUrlInfo::QUrlInfo()
@@ -118,7 +118,9 @@ QUrlInfo::QUrlInfo()
 }
 
 /*!
-  #### todo
+  Creates a QUrlInfo object with information about the file \ a file
+  in the \a path. As a QUrlOperator stores all information about all
+  its childern, this information can be used by the QUrlInfo.
 */
 
 QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
@@ -132,7 +134,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
 }
 
 /*!
-  #### todo
+  Copy constructor.
 */
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
@@ -142,7 +144,7 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 }
 
 /*!
-  Sets the filename.
+  Sets the filename or the URL.
 */
 
 void QUrlInfo::setName( const QString &name )
@@ -151,7 +153,7 @@ void QUrlInfo::setName( const QString &name )
 }
 
 /*!
-  #### todo
+  Specifies if the URL is a directory.
 */
 
 void QUrlInfo::setDir( bool b )
@@ -160,7 +162,7 @@ void QUrlInfo::setDir( bool b )
 }
 
 /*!
-  #### todo
+  Specifies if the URL is a file.
 */
 
 void QUrlInfo::setFile( bool b )
@@ -169,7 +171,7 @@ void QUrlInfo::setFile( bool b )
 }
 
 /*!
-  #### todo
+  Specifies if the URL is a symbolic link.
 */
 
 void QUrlInfo::setSymLink( bool b )
@@ -178,7 +180,7 @@ void QUrlInfo::setSymLink( bool b )
 }
 
 /*!
-  #### todo
+  Sets the owner of the URL to \a s.
 */
 
 void QUrlInfo::setOwner( const QString &s )
@@ -187,7 +189,7 @@ void QUrlInfo::setOwner( const QString &s )
 }
 
 /*!
-  #### todo
+  Sets the group if the URL to \a s.
 */
 
 void QUrlInfo::setGroup( const QString &s )
@@ -196,7 +198,7 @@ void QUrlInfo::setGroup( const QString &s )
 }
 
 /*!
-  #### todo
+  Sets the size of the URL to \a s.
 */
 
 void QUrlInfo::setSize( uint s )
@@ -205,7 +207,7 @@ void QUrlInfo::setSize( uint s )
 }
 
 /*!
-  #### todo
+  Destructor.
 */
 
 QUrlInfo::~QUrlInfo()
@@ -214,7 +216,7 @@ QUrlInfo::~QUrlInfo()
 }
 
 /*!
-  #### todo
+  Assings the values of \a ui to this QUrlInfo.
 */
 
 QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
@@ -224,7 +226,7 @@ QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
 }
 
 /*!
-  #### todo
+  Returns the filename of the URL.
 */
 
 QString QUrlInfo::name() const
@@ -233,7 +235,7 @@ QString QUrlInfo::name() const
 }
 
 /*!
-  #### todo
+  Returns the permissions of the URL.
 */
 
 int QUrlInfo::permissions() const
@@ -242,7 +244,7 @@ int QUrlInfo::permissions() const
 }
 
 /*!
-  #### todo
+  Returns the owner of the URL.
 */
 
 QString QUrlInfo::owner() const
@@ -251,7 +253,7 @@ QString QUrlInfo::owner() const
 }
 
 /*!
-  #### todo
+  Returns the group of the URL.
 */
 
 QString QUrlInfo::group() const
@@ -260,7 +262,7 @@ QString QUrlInfo::group() const
 }
 
 /*!
-  #### todo
+  Returns the size of the URL.
 */
 
 uint QUrlInfo::size() const
@@ -269,7 +271,7 @@ uint QUrlInfo::size() const
 }
 
 /*!
-  #### todo
+  Returns the last modification date of the URL.
 */
 
 QDateTime QUrlInfo::lastModified() const
@@ -278,7 +280,7 @@ QDateTime QUrlInfo::lastModified() const
 }
 
 /*!
-  #### todo
+  Returns the date at which the URL was read the last time.
 */
 
 QDateTime QUrlInfo::lastRead() const
@@ -287,7 +289,7 @@ QDateTime QUrlInfo::lastRead() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is a directory, else FALSE.
 */
 
 bool QUrlInfo::isDir() const
@@ -296,7 +298,7 @@ bool QUrlInfo::isDir() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is a file, else FALSE.
 */
 
 bool QUrlInfo::isFile() const
@@ -305,7 +307,7 @@ bool QUrlInfo::isFile() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is a symbolic link, else FALSE.
 */
 
 bool QUrlInfo::isSymLink() const
@@ -314,7 +316,7 @@ bool QUrlInfo::isSymLink() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is writeable, else FALSE.
 */
 
 bool QUrlInfo::isWritable() const
@@ -323,7 +325,7 @@ bool QUrlInfo::isWritable() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is readable , else FALSE.
 */
 
 bool QUrlInfo::isReadable() const
@@ -332,7 +334,7 @@ bool QUrlInfo::isReadable() const
 }
 
 /*!
-  #### todo
+  Returns TRUE, if the URL is executable, else FALSE.
 */
 
 bool QUrlInfo::isExecutable() const
@@ -341,7 +343,9 @@ bool QUrlInfo::isExecutable() const
 }
 
 /*!
-  #### todo
+  Returns TRUE if \a u1 is greater than \a u2, else FALSE. The objects 
+  are compared by the value, which is specified by \a sortBy. This has 
+  to be one of  QDir::Name, QDir::Time and QDir::Size. 
 */
 
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -367,7 +371,9 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  #### todo
+  Returns TRUE if \a u1 is less than \a u2, else FALSE. The objects 
+  are compared by the value, which is specified by \a sortBy. This has 
+  to be one of  QDir::Name, QDir::Time and QDir::Size. 
 */
 
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -393,7 +399,9 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  #### todo
+  Returns TRUE if \a u1 is equal \a u2, else FALSE. The objects 
+  are compared by the value, which is specified by \a sortBy. This has 
+  to be one of  QDir::Name, QDir::Time and QDir::Size. 
 */
 
 bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
