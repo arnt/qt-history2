@@ -148,9 +148,6 @@ public:
     struct SortableItem {
 	QListBoxItem *item;
     };
-
-    QSize sizeHint;
-    QSize minimumSizeHint;
 };
 
 
@@ -1214,7 +1211,6 @@ QListBox::~QListBox()
 
 void QListBox::setFont( const QFont &font )
 {
-    d->sizeHint = QSize();		// invalidate size hint
     QScrollView::setFont( font );
     triggerUpdate( TRUE );
 }
@@ -2904,34 +2900,8 @@ void QListBox::emitChangedSignal( bool )
 
 QSize QListBox::sizeHint() const
 {
-    if ( isVisibleTo(0) && d->sizeHint.isValid() )
-	return d->sizeHint;
-
-    doLayout();
-
-    int i=0;
-    while( i < 10 &&
-	   i < (int)d->columnPos.size()-1 &&
-	   d->columnPos[i] < 200 )
-	i++;
-    int x;
-    x = QMIN( 200, d->columnPos[i] );
-    x = QMAX( 40, x );
-
-    i = 0;
-    while( i < 10 &&
-	   i < (int)d->rowPos.size()-1 &&
-	   d->rowPos[i] < 200 )
-	i++;
-    int y;
-    y = QMIN( 200, d->rowPos[i] );
-    y = QMAX( 40, y );
-
-    d->sizeHint = QSize( x, y);
-    return d->sizeHint;
+    return QScrollView::sizeHint();
 }
-
-
 
 /*!
   \reimp
@@ -2939,19 +2909,7 @@ QSize QListBox::sizeHint() const
 
 QSize QListBox::minimumSizeHint() const
 {
-    if ( isVisibleTo(0) && d->minimumSizeHint.isValid() )
-	return d->minimumSizeHint;
-
-    doLayout();
-
-    int x, y;
-    x = QMIN( 200, d->columnPos[1] );
-    x = QMAX( 10, x );
-    y = QMIN( 200, d->rowPos[1] + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
-    y = QMAX( 10, y );
-
-    d->minimumSizeHint = QSize( x, y );
-    return d->minimumSizeHint;
+    return QScrollView::minimumSizeHint();
 }
 
 

@@ -525,7 +525,7 @@ private:
     int oldCurrentRow, oldCurrentCol;
     QWidget *unused_topLeftCorner; //### remove in 4.0
     FocusStyle focusStl;
-    QSize cachedSizeHint;
+    QSize unused_cachedSizeHint; // ### remove in 4.0
 
 };
 

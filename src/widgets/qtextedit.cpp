@@ -4869,8 +4869,7 @@ void QTextEdit::setTabStopWidth( int ts )
 
 QSize QTextEdit::sizeHint() const
 {
-    // ### calculate a reasonable one
-    return QSize( 100, 100 );
+    return QScrollView::sizeHint();
 }
 
 void QTextEdit::clearUndoRedo()

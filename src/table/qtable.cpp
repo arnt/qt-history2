@@ -34,13 +34,11 @@
 **
 **********************************************************************/
 
-// needed for qsort (Borland), because of a std namespace problem
+// needed for qsort() (Borland) because of a std namespace problem
 #include "qplatformdefs.h"
 
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
+// Solaris redefines connect to __xnet_connect with _XOPEN_SOURCE_EXTENDED
 #undef connect
-#endif
 
 #include "qtable.h"
 
@@ -1951,15 +1949,14 @@ void QTable::init( int rows, int cols )
 
     focusStl = SpreadSheet;
 
-    cachedSizeHint = QSize( -1, -1 );
     was_visible = FALSE;
 
-    // Initial size
+    // initial size
     resize( 640, 480 );
 }
 
 /*!
-    Destructor. Deletes all the resources used by the QTable object,
+    Releases all the resources used by the QTable object,
     including all \l{QTableItem}s and their widgets.
 */
 
@@ -3979,15 +3976,7 @@ void QTable::focusOutEvent( QFocusEvent *e )
 
 QSize QTable::sizeHint() const
 {
-    if ( ( isVisibleTo( 0 ) || was_visible ) && cachedSizeHint.isValid() ) {
-	( (QTable*)this )->was_visible = TRUE;
-	return cachedSizeHint;
-    }
-    QSize s = tableSize();
-    if ( s.width() < 500 && s.height() < 500 )
-	return ( ( (QTable*)this )->cachedSizeHint = QSize( tableSize().width() + VERTICALMARGIN + 5,
-							    tableSize().height() + topMargin() + 5 ) );
-    return ( ( (QTable*)this )->cachedSizeHint = QScrollView::sizeHint() );
+    return QScrollView::sizeHint();
 }
 
 /*! \reimp

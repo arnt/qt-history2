@@ -2534,22 +2534,8 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 */
 QSize QScrollView::sizeHint() const
 {
-    constPolish();
-    QSize result = QSize(frameWidth()*2, frameWidth()*2);
-    if ( d->policy > Manual ) {
-        QSVChildRec* r = d->children.first();
-        if (r)
-        {
-            QSize cs = r->child->sizeHint();
-            if ( cs.isValid() )
-                result += cs.boundedTo( r->child->maximumSize() );
-            else
-                result += r->child->size();
-        }
-    } else {
-        result += QSize(contentsWidth(),contentsHeight());
-    }
-    return result;
+    int d = 10 * fontMetrics().height() + 2 * frameWidth();
+    return QSize( d, d );
 }
 
 
@@ -2558,8 +2544,8 @@ QSize QScrollView::sizeHint() const
 */
 QSize QScrollView::minimumSizeHint() const
 {
-    return QSize(100+frameWidth()*2,
-                 100+frameWidth()*2);
+    int d = 5 * fontMetrics().height() + 2 * frameWidth();
+    return QSize( d, d );
 }
 
 

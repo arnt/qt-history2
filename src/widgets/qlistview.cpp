@@ -232,7 +232,6 @@ struct QListViewPrivate
 
     QListView::RenameAction defRenameAction;
 
-    QSize sizeHint;
     QListViewItem *startDragItem;
     QPoint dragStartPos;
     QListViewToolTip *toolTip;
@@ -2821,12 +2820,6 @@ void QListView::buildDrawableList() const
     // scrolling
     int cy = contentsY();
     int ch = ((QListView *)this)->visibleHeight();
-    // ### hack to help sizeHint().  if not visible, assume that we'll
-    // ### use 200 pixels rather than whatever QScrollView thinks.
-    // ### this lets sizeHint() base its width on a more realistic
-    // ### number of items.
-    if ( !isVisible() && ch < 200 )
-	ch = 200;
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
 
@@ -5250,7 +5243,6 @@ int QListView::itemMargin() const
 */
 void QListView::styleChange( QStyle& old )
 {
-    d->sizeHint = QSize();		// invalidate size hint
     reconfigureItems();
     QScrollView::styleChange( old );
 }
@@ -5260,7 +5252,6 @@ void QListView::styleChange( QStyle& old )
 */
 void QListView::setFont( const QFont & f )
 {
-    d->sizeHint = QSize();		// invalidate size hint
     QScrollView::setFont( f );
     reconfigureItems();
 }
@@ -5820,59 +5811,23 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
     }
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSize QListView::sizeHint() const
 {
-    if ( d->was_visible ) {
-	if ( d->sizeHint.isValid() )
-	    return d->sizeHint;
-    } else {
-	d->was_visible = isVisibleTo( 0 );
-    }
-
-    /*
-      This is as wide as QHeader::sizeHint() recommends and tall
-      enough for perhaps 10 items.
-    */
-    constPolish();
-    if ( !isVisible() &&
-	 (!d->drawables || d->drawables->isEmpty()) )
-	// force the column widths to sanity, if possible
-	buildDrawableList();
-
-    QSize s( d->h->sizeHint() );
-    s.setWidth( s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
-    s += QSize(frameWidth()*2,frameWidth()*2);
-    QListViewItem * l = d->r;
-    while( l && !l->height() )
-	l = l->childItem ? l->childItem : l->siblingItem;
-
-    if ( l && l->height() )
-	s.setHeight( s.height() + 10 * l->height() );
-    else
-	s.setHeight( s.height() + 140 );
-
-    if ( s.width() > s.height() * 3 )
-	s.setHeight( s.width() / 3 );
-    else if ( s.width() *3 < s.height() )
-	s.setHeight( s.width() * 3 );
-
-    d->sizeHint = s;
-    return d->sizeHint;
+    return QScrollView::sizeHint();
 }
 
 
 /*!
-  \reimp
+    \reimp
 */
 
 QSize QListView::minimumSizeHint() const
 {
-    //###should be implemented
     return QScrollView::minimumSizeHint();
 }
-
 
 
 /*!  Sets \a item to be open if \a open is TRUE and \a item is

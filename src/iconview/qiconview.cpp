@@ -255,7 +255,6 @@ public:
     uint sortDirection		:1;
     uint wordWrapIconText	:1;
     uint containerUpdateLocked	:1;
-    uint firstSizeHint		:1;
     uint showTips		:1;
     uint pressedSelected	:1;
     uint dragging		:1;
@@ -2691,7 +2690,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->minRightBearing = d->fm->minRightBearing();
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
-    d->firstSizeHint = TRUE;
     d->selectAnchor = 0;
     d->renamingItem = 0;
     d->drawActiveSelection = TRUE;
@@ -5405,7 +5403,7 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
 
 QSize QIconView::minimumSizeHint() const
 {
-    return QSize( 100, 100 );
+    return QScrollView::minimumSizeHint();
 }
 
 /*!
@@ -5750,24 +5748,7 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    constPolish();
-
-    if ( !d->firstItem )
-	return QSize( 50, 50 );
-
-    if ( d->dirty && d->firstSizeHint ) {
-	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
-					      QMAX( 400, contentsHeight() ) );
-	if ( autoArrange() )
-	    ( (QIconView*)this )->arrangeItemsInGrid( FALSE );
-	d->firstSizeHint = FALSE;
-    }
-
-    d->dirty = TRUE;
-    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent,
-				    verticalScrollBar()) + 2*frameWidth();
-    return QSize( QMIN(400, contentsWidth() + extra),
-		  QMIN(400, contentsHeight() + extra) );
+    return QScrollView::sizeHint();
 }
 
 /*!
