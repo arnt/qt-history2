@@ -83,22 +83,24 @@ void QPainterSubpath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint
 
 void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
 {
-#define RHAT sqrt( (rx*rx*ry*ry) / ( rx*rx*sintheta + ry*ry*costheta ) )
+#define RHAT sqrt( (rx*rx*ry*ry) / ( ry*ry*sintheta + ry*ry*costheta ) )
     const int THETAFACOTR = 2 * M_PI / (16.0 * 360);
 
     double rx = rect.width() / 2.0;
     double ry = rect.height() / 2.0;
     double theta = startAngle * THETAFACOTR;
+    double cx = rect.x() + rx;
+    double cy = rect.y() + ry;
     double sintheta = sin(theta);
     double costheta = cos(theta);
     double rhat = RHAT;
-    QPoint firstPoint(rhat * costheta, rhat * sintheta);
 
+    QPoint firstPoint(cx + rhat * costheta, cy + rhat * sintheta);
     theta = (startAngle + arcLength) * THETAFACOTR;
     sintheta = sin(theta);
     costheta = cos(theta);
     rhat =  RHAT;
-    QPoint lastPoint(rhat * costheta, rhat * sintheta);
+    QPoint lastPoint(cx + rhat * costheta, cy + rhat * sintheta);
 
     connectLast(firstPoint);
     this->lastPoint = lastPoint;
@@ -115,7 +117,6 @@ void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
     elm.arcData.fpy    = firstPoint.y();
     elm.arcData.lpx    = lastPoint.x();
     elm.arcData.lpy    = lastPoint.y();
-    qDebug() << "firstPoint: " << firstPoint << "lastPoint: " << lastPoint;
     elements.append(elm);
 }
 
