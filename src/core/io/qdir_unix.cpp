@@ -149,16 +149,11 @@ bool QDir::isRelativePath(const QString &path)
     return path[0] != '/';
 }
 
-void QDir::readDirEntries(const QString &nameFilter,
-                           int filterSpec, int sortSpec) const
+void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int sortSpec) const
 {
     int i;
     fList.clear();
     fiList.clear();
-
-#ifndef QT_NO_REGEXP
-    QList<QRegExp> filters = qt_makeFilterList(nameFilter);
-#endif
 
     bool doDirs            = (filterSpec & Dirs)        != 0;
     bool doFiles    = (filterSpec & Files)        != 0;
@@ -190,7 +185,7 @@ void QDir::readDirEntries(const QString &nameFilter,
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(*this, fn);
 #ifndef QT_NO_REGEXP
-        if (!qt_matchFilterList(filters, fn) && !(allDirs && fi.isDir()))
+        if (!match(nameFilters, fn) && !(allDirs && fi.isDir()))
              continue;
 #endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||

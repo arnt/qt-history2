@@ -424,14 +424,14 @@ Q4FileIconProvider *QDirModel::iconProvider() const
     return d->iconProvider;
 }
 
-void QDirModel::setNameFilter(const QString &filter)
+void QDirModel::setNameFilters(const QStringList &filters)
 {
-    d->root.setNameFilter(filter);
+    d->root.setNameFilters(filters);
 }
 
-QString QDirModel::nameFilter() const
+QStringList QDirModel::nameFilters() const
 {
-    return d->root.nameFilter();
+    return d->root.nameFilters();
 }
 
 void QDirModel::setFilter(QDir::FilterSpec spec)
@@ -467,7 +467,7 @@ QModelIndex QDirModel::index(const QString &path) const
         }
         parent = index(i, 0, parent);
     }
-    QStringList entries = dir.entryList(d->root.nameFilter(), d->root.filter(), d->root.sorting());
+    QStringList entries = dir.entryList(d->root.nameFilters(), d->root.filter(), d->root.sorting());
     return index(entries.indexOf(pth.last()), 0, parent);
 }
 
@@ -557,7 +557,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
 {
     if (parent && parent->children.isEmpty() && parent->info.isDir() || !parent) {
         QDir dir = parent ? QDir(parent->info.filePath()) : root;
-        const QFileInfoList info = dir.entryInfoList(root.nameFilter(), root.filter(), root.sorting());
+        const QFileInfoList info = dir.entryInfoList(root.nameFilters(), root.filter(), root.sorting());
         QVector<QDirNode> nodes(info.count());
 	for (int i = 0; i < (int)dir.count(); ++i) {
             nodes[i].parent = parent;

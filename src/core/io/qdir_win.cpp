@@ -324,26 +324,29 @@ bool QDir::isRelativePath(const QString &path)
   Reads directory entries.
 */
 
-void QDir::readDirEntries(const QString &nameFilter,
-                           int filterSpec, int sortSpec) const
+void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int sortSpec) const
 {
     int i;
 
-#ifndef QT_NO_REGEXP
-    QList<QRegExp> filters = qt_makeFilterList(nameFilter);
-#endif
-
-    bool doDirs            = (filterSpec & Dirs)        != 0;
-    bool doFiles    = (filterSpec & Files)        != 0;
+    bool doDirs     = (filterSpec & Dirs)       != 0;
+    bool doFiles    = (filterSpec & Files)      != 0;
     bool noSymLinks = (filterSpec & NoSymLinks) != 0;
-    bool doReadable = (filterSpec & Readable)        != 0;
-    bool doWritable = (filterSpec & Writable)        != 0;
+    bool doReadable = (filterSpec & Readable)   != 0;
+    bool doWritable = (filterSpec & Writable)   != 0;
     bool doExecable = (filterSpec & Executable) != 0;
-    bool doHidden   = (filterSpec & Hidden)        != 0;
+    bool doHidden   = (filterSpec & Hidden)     != 0;
 
     // show hidden files if the user asks explicitly for e.g. .*
-    if (!doHidden && !nameFilter.isEmpty() && nameFilter[0] == '.')
-        doHidden = true;
+    if (!doHidden && !nameFilters.size()) {
+        QStringList::ConstIterator sit = nameFilters.begin();
+        while (sit != nameFilters.end()) {
+            if ((*sit)[0] == '.') {
+                doHidden = true;
+                break;
+            }
+            ++sit;
+        }
+    }
     bool doModified = (filterSpec & Modified)        != 0;
     bool doSystem   = (filterSpec & System)        != 0;
 
@@ -430,7 +433,7 @@ void QDir::readDirEntries(const QString &nameFilter,
         });
 
 #ifndef QT_NO_REGEXP
-        if (!qt_matchFilterList(filters, fname) && !(allDirs && isDir))
+        if (!match(nameFilters, fname) && !(allDirs && isDir))
             continue;
 #endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
@@ -484,7 +487,7 @@ void QDir::readDirEntries(const QString &nameFilter,
     delete [] si;
 
     if (filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-         nameFilter == nameFilt)
+         nameFilters == nameFilts)
         dirty = false;
     else
         dirty = true;

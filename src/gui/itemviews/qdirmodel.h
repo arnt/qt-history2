@@ -54,8 +54,8 @@ public:
     void setIconProvider(Q4FileIconProvider *provider);
     Q4FileIconProvider *iconProvider() const;
 
-    void setNameFilter(const QString &filter);
-    QString nameFilter() const;
+    void setNameFilters(const QStringList &filters);
+    QStringList nameFilters() const;
     void setFilter(QDir::FilterSpec spec);
     QDir::FilterSpec filter() const;
     void setSorting(int spec);

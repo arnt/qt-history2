@@ -33,7 +33,6 @@
 #include "qlist.h"
 #endif // QT_H
 
-extern QList<QRegExp> qt_makeFilterList(const QString &);
 extern bool qt_matchFilterList(const QList<QRegExp> &, const QString &);
 
 extern int qt_cmp_si_sortSpec;
