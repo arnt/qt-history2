@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#53 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#53 $");
 
 
 /*!
@@ -312,7 +312,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    int i = t.find( '\n' );	// no multiline text
 		    if ( i >= 0 )
 			t.truncate( i );
-		    char *p = t.data();
+		    uchar *p = (uchar *) t.data();
 		    while ( *p ) {		// unprintable becomes space
 			if ( *p < 32 )
 			    *p = 32;
