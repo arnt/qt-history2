@@ -24,7 +24,7 @@ fi
 cd ..
 BASE=`pwd`
 
-VERSION=`awk '/^#define[ 	]+QT_VERSION[ 	]+/{print $3}' src/tools/qglobal.cpp | tr -d '"' | sed 's/.$/.&/'`
+VERSION=`awk '/^#define[ 	]+QT_VERSION[ 	]+/{print $3}' src/tools/qglobal.cpp | tr -d '"'`
 
 # prepare the directories for content
 if [ -d include ]; then
