@@ -171,6 +171,8 @@ public:
     void append( QProc *p );
     void remove( QProc *p );
 
+    void cleanup();
+
 public slots:
     void removeMe();
     void sigchldHnd( int );
@@ -270,6 +272,11 @@ void QProcessManager::remove( QProc *p )
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
+    cleanup();
+}
+
+void QProcessManager::cleanup()
+{
     if ( procList->count() == 0 ) {
 	QTimer::singleShot( 0, this, SLOT(removeMe()) );
     }
@@ -604,6 +611,13 @@ bool QProcess::start( QStringList *env )
     }
     arglist[i] = 0;
 
+    // Must make sure signal handlers are installed before exec'ing
+    // in case the process exits quickly.
+    if ( d->procManager == 0 ) {
+	d->procManager = new QProcessManager;
+	qprocess_cleanup_procmanager.add( &d->procManager );
+    }
+
     // fork and exec
     QApplication::flushX();
     pid_t pid = fork();
@@ -681,19 +695,15 @@ bool QProcess::start( QStringList *env )
 	goto error;
     }
 
-    // Must add signal handlers immediately in case process exits quickly.
-    d->newProc( pid, this );
-
     // test if exec was successful
     if ( fd[1] )
-	close( fd[1] );
+	::close( fd[1] );
     if ( fd[0] ) {
 	char buf;
 	for ( ;; ) {
 	    int n = ::read( fd[0], &buf, 1 );
 	    if ( n==1 ) {
 		// socket was not closed => error
-		QProcessPrivate::procManager->remove( d->proc );
 		d->proc = 0;
 		goto error;
 	    } else if ( n==-1 ) {
@@ -703,12 +713,14 @@ bool QProcess::start( QStringList *env )
 	    }
 	    break;
 	}
+	::close( fd[0] );
     }
 
     ::close( sStdin[0] );
     ::close( sStdout[1] );
     ::close( sStderr[1] );
 
+    d->newProc( pid, this );
     d->proc->socketStdin = sStdin[1];
     d->proc->socketStdout = sStdout[0];
     d->proc->socketStderr = sStderr[0];
@@ -740,6 +752,8 @@ error:
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start(): error starting process" );
 #endif
+    if ( d->procManager )
+	d->procManager->cleanup();
     ::close( sStdin[1] );
     ::close( sStdout[0] );
     ::close( sStderr[0] );
