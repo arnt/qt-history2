@@ -13,6 +13,7 @@
 #endif
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
+#include "qglobal.h"
 
 #ifdef Q_WS_MAC9
 #include "qt_mac9.h"
