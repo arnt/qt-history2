@@ -219,7 +219,7 @@ void QProcessPrivate::cleanup()
 
 /*! \internal
 */
-void QProcessPrivate::canReadStandardOutput()
+bool QProcessPrivate::canReadStandardOutput()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStdout();
@@ -229,7 +229,7 @@ void QProcessPrivate::canReadStandardOutput()
 #endif
 
     if (available == 0)
-        return;
+        return false;
 
     char *ptr = outputReadBuffer.reserve(available);
     Q_LONGLONG readBytes = readFromStdout(ptr, available);
@@ -237,27 +237,30 @@ void QProcessPrivate::canReadStandardOutput()
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
         emit q->error(processError);
-        return;
+        return false;
     }
     if (standardOutputClosed) {
         outputReadBuffer.truncate(readBytes);
-        return;
+        return false;
     }
 
     outputReadBuffer.truncate(available - readBytes);
 
+    bool readyReadEmitted = false;
     if (readBytes == 0) {
         if (standardReadSocketNotifier)
             standardReadSocketNotifier->setEnabled(false);
     } else if (processChannel == QProcess::StandardOutput) {
+        readyReadEmitted = true;
         emit q->readyRead();
     }
     emit q->readyReadStandardOutput();
+    return readyReadEmitted;
 }
 
 /*! \internal
 */
-void QProcessPrivate::canReadStandardError()
+bool QProcessPrivate::canReadStandardError()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStderr();
@@ -267,7 +270,7 @@ void QProcessPrivate::canReadStandardError()
 #endif
 
     if (available == 0)
-        return;
+        return false;
 
     char *ptr = errorReadBuffer.reserve(available);
     Q_LONGLONG readBytes = readFromStderr(ptr, available);
@@ -275,34 +278,37 @@ void QProcessPrivate::canReadStandardError()
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
         emit q->error(processError);
-        return;
+        return false;
     }
     if (standardErrorClosed) {
         errorReadBuffer.truncate(readBytes);
-        return;
+        return false;
     }
 
     errorReadBuffer.truncate(available - readBytes);
 
+    bool readyReadEmitted = false;
     if (readBytes == 0) {
         if (errorReadSocketNotifier)
             errorReadSocketNotifier->setEnabled(false);
     } else if (processChannel == QProcess::StandardError) {
+        readyReadEmitted = true;
         emit q->readyRead();
     }
     emit q->readyReadStandardError();
+    return readyReadEmitted;
 }
 
 /*! \internal
 */
-void QProcessPrivate::canWrite()
+bool QProcessPrivate::canWrite()
 {
     Q_Q(QProcess);
     if (writeSocketNotifier)
         writeSocketNotifier->setEnabled(false);
 
     if (writeBuffer.isEmpty())
-        return;
+        return false;
 
     Q_LONGLONG written = writeToStdin(writeBuffer.readPointer(),
                                       writeBuffer.nextDataBlockSize());
@@ -310,7 +316,7 @@ void QProcessPrivate::canWrite()
         processError = QProcess::WriteError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error writing to process"));
         emit q->error(processError);
-        return;
+        return false;
     }
 
     writeBuffer.free(written);
@@ -319,6 +325,7 @@ void QProcessPrivate::canWrite()
         writeSocketNotifier->setEnabled(true);
     if (writeBuffer.isEmpty() && outputChannelClosing)
         closeOutputChannel();
+    return true;
 }
 
 /*! \internal
@@ -354,7 +361,7 @@ void QProcessPrivate::processDied()
 
 /*! \internal
 */
-void QProcessPrivate::startupNotification()
+bool QProcessPrivate::startupNotification()
 {
     Q_Q(QProcess);
     if (startupSocketNotifier)
@@ -362,12 +369,14 @@ void QProcessPrivate::startupNotification()
     if (processStarted()) {
         processState = QProcess::Running;
         emit q->started();
-    } else {
-        processState = QProcess::NotRunning;
-        processError = QProcess::FailedToStart;
-        emit q->error(processError);
-        cleanup();
+        return true;
     }
+
+    processState = QProcess::NotRunning;
+    processError = QProcess::FailedToStart;
+    emit q->error(processError);
+    cleanup();
+    return false;
 }
 
 /*! \internal
@@ -396,6 +405,7 @@ QProcess::QProcess(QObject *parent)
 QProcess::~QProcess()
 {
     Q_D(QProcess);
+    terminate();
     d->cleanup();
 }
 

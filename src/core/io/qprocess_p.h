@@ -55,10 +55,10 @@ public:
     virtual ~QProcessPrivate();
 
     // private slots
-    void canReadStandardOutput();
-    void canReadStandardError();
-    void canWrite();
-    void startupNotification();
+    bool canReadStandardOutput();
+    bool canReadStandardError();
+    bool canWrite();
+    bool startupNotification();
     void processDied();
     void notified();
 

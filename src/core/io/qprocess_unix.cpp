@@ -390,50 +390,33 @@ Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
 
 void QProcessPrivate::killProcess()
 {
-    ::kill(pid, SIGTERM);
+    if (pid)
+        ::kill(pid, SIGTERM);
 }
 
-static int qt_native_select(const QList<int> &fd, int timeout, bool selectForRead)
+static int qt_native_select(fd_set *fdread, fd_set *fdwrite, int timeout)
 {
-    fd_set fds;
-    FD_ZERO(&fds);
-
-    int fdmax = 0;
-    for (int i = 0; i < fd.count(); ++i) {
-        int f = fd.at(i);
-        if (f > fdmax)
-            fdmax = f;
-        FD_SET(f, &fds);
-    }
-
     struct timeval tv;
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
 
-    if (selectForRead)
-        select(fdmax + 1, &fds, 0, 0, timeout < 0 ? 0 : &tv);
-    else
-        select(fdmax + 1, 0, &fds, 0, timeout < 0 ? 0 : &tv);
-
-    int ret = 0;
-    for (int i = 0; i < fd.count(); ++i) {
-        if (FD_ISSET(fd.at(i), &fds))
-            ret += 1<<i;
-    }
-    return ret;
+    return select(FD_SETSIZE, fdread, fdwrite, 0, timeout < 0 ? 0 : &tv);
 }
 
 bool QProcessPrivate::waitForStarted(int msecs)
 {
     Q_Q(QProcess);
-    int ret = qt_native_select(QList<int>() << childStartedPipe[0], msecs, true);
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(childStartedPipe[0], &fds);
+    int ret = qt_native_select(&fds, 0, msecs);
     if (ret == 0) {
         processError = QProcess::Timedout;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
         return false;
     }
 
-    return processStarted();
+    return startupNotification();
 }
 
 bool QProcessPrivate::waitForReadyRead(int msecs)
@@ -442,29 +425,47 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     if (QProcessManager::instance().has(pid)) {
         QTime stopWatch;
         stopWatch.start();
-        int timeout = msecs;
         forever {
-            int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0]
-                                       << standardReadPipe[0] << errorReadPipe[0],
-                                       timeout, true);
-            int channel = (processChannel == QProcess::StandardOutput? 2 : 4);
+            fd_set fdread;
+            FD_ZERO(&fdread);
+            if (processState == QProcess::NotRunning)
+                FD_SET(childStartedPipe[0], &fdread);
+            FD_SET(qt_qprocess_deadChild_pipe[0], &fdread);
+            FD_SET(standardReadPipe[0], &fdread);
+            FD_SET(errorReadPipe[0], &fdread);
 
+            fd_set fdwrite;
+            FD_ZERO(&fdwrite);
+            if (!writeBuffer.isEmpty() && writePipe[1] != -1)
+                FD_SET(writePipe[1], &fdwrite);
+
+            int timeout = msecs - stopWatch.elapsed();
+            int ret = qt_native_select(&fdread, &fdwrite, timeout);
             if (ret == 0) {
                 processError = QProcess::Timedout;
                 q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
                 return false;
             }
-            if (ret & 2)
-                canReadStandardOutput();
-            if (ret & 4)
-                canReadStandardError();
-            if (ret & 1) {
-                QProcessManager::instance().deadChildNotification(0);
-                return (ret & channel);
+
+            if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
+                if (!startupNotification())
+                    return false;
             }
-            if (ret & channel)
+
+            bool readyReadEmitted = false;
+            if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
+                canWrite();
+            if (FD_ISSET(standardReadPipe[0], &fdread))
+                readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
+            if (FD_ISSET(errorReadPipe[0], &fdread))
+                readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
+            if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
+                QProcessManager::instance().deadChildNotification(0);
+                if (processState != QProcess::Running)
+                    return readyReadEmitted;
+            }
+            if (readyReadEmitted)
                 return true;
-            timeout = msecs - stopWatch.elapsed();
         }
     }
     return false;
@@ -473,40 +474,97 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 bool QProcessPrivate::waitForBytesWritten(int msecs)
 {
     Q_Q(QProcess);
-    if (writeBuffer.isEmpty())
-        return false;
+    if (QProcessManager::instance().has(pid)) {
+        QTime stopWatch;
+        stopWatch.start();
+        forever {
+            fd_set fdread;
+            FD_ZERO(&fdread);
+            if (processState == QProcess::NotRunning)
+                FD_SET(childStartedPipe[0], &fdread);
+            FD_SET(qt_qprocess_deadChild_pipe[0], &fdread);
+            FD_SET(standardReadPipe[0], &fdread);
+            FD_SET(errorReadPipe[0], &fdread);
 
-    int ret = qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false);
-    if (ret == 0) {
-        processError = QProcess::Timedout;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
-        return false;
+            fd_set fdwrite;
+            FD_ZERO(&fdwrite);
+            if (!writeBuffer.isEmpty() && writePipe[1] != -1)
+                FD_SET(writePipe[1], &fdwrite);
+
+            int timeout = msecs - stopWatch.elapsed();
+            int ret = qt_native_select(&fdread, &fdwrite, timeout);
+            if (ret == 0) {
+                processError = QProcess::Timedout;
+                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+                return false;
+            }
+
+            if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
+                if (!startupNotification())
+                    return false;
+            }
+
+            if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite)) {
+                if (canWrite())
+                    return true;
+            }
+            if (FD_ISSET(standardReadPipe[0], &fdread))
+                canReadStandardOutput();
+            if (FD_ISSET(errorReadPipe[0], &fdread))
+                canReadStandardError();
+            if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
+                QProcessManager::instance().deadChildNotification(0);
+                if (processState != QProcess::Running)
+                    return false;
+            }
+        }
     }
-
-    canWrite();
-    return true;
+    return false;
 }
 
 bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
     if (QProcessManager::instance().has(pid)) {
+        QTime stopWatch;
+        stopWatch.start();
         forever {
-            int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0]
-                                       << standardReadPipe[0] << errorReadPipe[0],
-                                       msecs, true);
+            fd_set fdread;
+            FD_ZERO(&fdread);
+            if (processState == QProcess::NotRunning)
+                FD_SET(childStartedPipe[0], &fdread);
+            FD_SET(qt_qprocess_deadChild_pipe[0], &fdread);
+            FD_SET(standardReadPipe[0], &fdread);
+            FD_SET(errorReadPipe[0], &fdread);
+
+            fd_set fdwrite;
+            FD_ZERO(&fdwrite);
+            if (!writeBuffer.isEmpty() && writePipe[1] != -1)
+                FD_SET(writePipe[1], &fdwrite);
+
+            int timeout = msecs - stopWatch.elapsed();
+            int ret = qt_native_select(&fdread, &fdwrite, timeout);
             if (ret == 0) {
                 processError = QProcess::Timedout;
                 q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
                 return false;
             }
-            if (ret & 2)
+
+            if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
+                if (!startupNotification())
+                    return false;
+            }
+
+            if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
+                canWrite();
+            if (FD_ISSET(standardReadPipe[0], &fdread))
                 canReadStandardOutput();
-            if (ret & 4)
+            if (FD_ISSET(errorReadPipe[0], &fdread))
                 canReadStandardError();
-            if (ret & 1) {
+            if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
                 QProcessManager::instance().deadChildNotification(0);
-                return true;
+                if (processState != QProcess::Running)
+                    return true;
             }
         }
     }
@@ -515,7 +573,11 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
 bool QProcessPrivate::waitForWrite(int msecs)
 {
-    return qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false) == 1;
+    fd_set fdwrite;
+    FD_ZERO(&fdwrite);
+    FD_SET(writePipe[1], &fdwrite);
+
+    return qt_native_select(0, &fdwrite, msecs < 0 ? 0 : msecs) == 1;
 }
 
 void QProcessPrivate::findExitCode()
