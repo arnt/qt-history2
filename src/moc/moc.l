@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#5 $
+** $Id: //depot/qt/main/src/moc/moc.l#6 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -171,11 +171,6 @@ int level = 1;    /* Used to keep track of nested curly braces in INSIDE */
 
 <CLASS_DEF>'\\0'       { X;
                          yylval.char_val = '\0';
-                         return CHAR_VAL;
-                       }
-
-<CLASS_DEF>'\\v'       { X;
-                         yylval.char_val = '\v';
                          return CHAR_VAL;
                        }
 
