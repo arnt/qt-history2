@@ -118,6 +118,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
         case QTextFormat::String: {
             QString s;
             stream >> s;
+            prop.type = QTextFormat::Undefined;
             prop = QTextFormatProperty(s);
             break;
         }
