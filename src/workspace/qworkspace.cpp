@@ -1986,7 +1986,7 @@ void QWorkspaceChild::titleBarDoubleClicked()
 	    showShaded();
 	else if ( iconw )
 	    showNormal();
-	else
+	else if ( windowWidget()->testWFlags( WStyle_Maximize ) )
 	    showMaximized();
     }
 }

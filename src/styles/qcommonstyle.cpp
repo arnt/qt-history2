@@ -1812,8 +1812,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
 					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
 			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
-				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
-			    else if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
+				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+			    if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			}
 		    }
@@ -1830,16 +1830,22 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
 						 TITLEBAR_SEPARATION) * 2), 2,
 			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 		break;
 
 	    case SC_TitleBarMinButton:
 	    case SC_TitleBarNormalButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 3), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		{
+		    int offset = TITLEBAR_CONTROL_WIDTH + TITLEBAR_SEPARATION;
+		    if ( titlebar->window() && !titlebar->window()->testWFlags( WStyle_Maximize ) )
+			offset *= 2;
+		    else
+			offset *= 3;
+		    rect.setRect(titlebar->width() - offset, 2,
+				 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		}
 		break;
 
 	    case SC_TitleBarSysMenu:
