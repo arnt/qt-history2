@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#52 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#53 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2333,25 +2333,64 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
 	    return FALSE;
 	}
     }
-    // parse prolog
-    if ( !parseProlog() ) {
-	if ( incremental && d->error.isNull() ) {
-	    pushParseState( 0, 0 );
-	    return TRUE;
-	} else {
-	    d->tags.clear();
-	    return FALSE;
-	}
+    return parseBeginOrContinue( 0, incremental );
+}
+
+/*!
+  Continues incremental parsing with the input \a input. If the input source
+  returns an empty string for the function QXmlInputSource::data(), then this
+  means that the end of the XML file is reached; this is quite important,
+  especially if you want to use the reader to parse more than one XML file.
+
+  This function returns FALSE in the case of a parsing error. The case that the
+  end of the XML file is reached without having finished the parsing is also an
+  error. Otherwise this function returns TRUE. A return value of TRUE does not
+  mean that the parsing is finished. Use ### instead to determine if the
+  parsing is really finished.
+
+  \sa parse()
+*/
+bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
+{
+    if ( d->parseStack == 0 ) {
+	return parse( input, TRUE );
     }
-    // parse element
-    if ( !parseElement() ) {
-	if ( incremental && d->error.isNull() ) {
-	    pushParseState( 0, 1 );
-	    return TRUE;
-	} else {
-	    d->tags.clear();
-	    return FALSE;
+    if ( !d->parseStack->isEmpty() ) {
+	int state = state = d->parseStack->top()->state;
+	d->parseStack->pop();
+	return parseBeginOrContinue( state, TRUE );
+    }
+    return FALSE; // this should never happen
+}
+
+/*
+  Common part of parse() and parseContinue()
+*/
+bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
+{
+    if ( state==0 ) {
+	if ( !parseProlog() ) {
+	    if ( incremental && d->error.isNull() ) {
+		pushParseState( 0, 0 );
+		return TRUE;
+	    } else {
+		d->tags.clear();
+		return FALSE;
+	    }
 	}
+	state = 1;
+    }
+    if ( state==1 ) {
+	if ( !parseElement() ) {
+	    if ( incremental && d->error.isNull() ) {
+		pushParseState( 0, 1 );
+		return TRUE;
+	    } else {
+		d->tags.clear();
+		return FALSE;
+	    }
+	}
+	state = 2;
     }
     // parse Misc*
     while ( !atEnd() ) {
@@ -2380,28 +2419,6 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
 	}
     }
     return TRUE;
-}
-
-/*!
-  Continues incremental parsing with the input \a input. If the input source
-  returns an empty string for the function QXmlInputSource::data(), then this
-  means that the end of the XML file is reached; this is quite important,
-  especially if you want to use the reader to parse more than one XML file.
-
-  This function returns FALSE in the case of a parsing error. The case that the
-  end of the XML file is reached without having finished the parsing is also an
-  error. Otherwise this function returns TRUE. A return value of TRUE does not
-  mean that the parsing is finished. Use ### instead to determine if the
-  parsing is really finished.
-
-  \sa parse()
-*/
-bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
-{
-    if ( d->parseStack == 0 ) {
-	return parse( input, TRUE );
-    }
-    return FALSE;
 }
 
 //
