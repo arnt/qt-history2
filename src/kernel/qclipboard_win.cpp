@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#7 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#7 $");
 
 
 /*****************************************************************************
@@ -166,8 +166,8 @@ void QClipboard::setData( const char *format, void *data )
     EmptyClipboard();
 
     if ( f == CFText ) {
-	int len = strlen((char*)data) + 1;
-	if ( len > 1 ) {
+	int len = strlen((char*)data);
+	if ( len > 0 ) {
 	    HANDLE h = GlobalAlloc( GHND, len+1 );
 	    char *d = (char *)GlobalLock( h );
 	    memcpy( d, data, len+1 );
