@@ -211,8 +211,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	return FALSE; // cannot read the directory
 
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
-    dirent mt_file;
-    while ( readdir_r(dir, &mt_file, &file) == 0 && file == &mt_file ) {
+    union {
+	struct dirent mt_file;
+	char b[sizeof(struct dirent) + NAME_MAX + 1];
+    } u;
+    while ( readdir_r(dir, &u.mt_file, &file ) == 0 && file == &u.mt_file ) {
 #else
     while ( (file = readdir(dir)) ) {
 #endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
