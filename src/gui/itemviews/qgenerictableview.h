@@ -59,6 +59,7 @@ protected:
     
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
     void paintEvent(QPaintEvent *e);
+    bool event(QEvent *e);
     
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);

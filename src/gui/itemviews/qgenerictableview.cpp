@@ -41,7 +41,6 @@ QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent)
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Horizontal, this));
     d->topHeader->setClickable(true);
-    //model->fetchMore(); // FIXME: can we move this to qabstractitemview?
 }
 
 QGenericTableView::~QGenericTableView()
@@ -198,6 +197,14 @@ void QGenericTableView::paintEvent(QPaintEvent *)
     }
 }
 
+bool QGenericTableView::event(QEvent *e)
+{
+    if (e->type() == QEvent::Show) {
+        emit needMore();
+    }
+    return QAbstractItemView::event(e);
+}
+
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
@@ -331,11 +338,8 @@ void QGenericTableView::rowCountChanged(int, int)
 {
     updateGeometries();
     updateViewport();
-//    if (viewport()->height() >= contentsHeight())
-//         QApplication::postEvent(model(), new QMetaCallEvent(QEvent::InvokeSlot,
-// 				model()->metaObject()->indexOfSlot("fetchMore()"), this));
-//    if (viewport()->height() >= contentsHeight())
-//	emit needMore();
+    if (viewport()->height() >= contentsHeight())
+	emit needMore();
 }
 
 void QGenericTableView::columnCountChanged(int, int)

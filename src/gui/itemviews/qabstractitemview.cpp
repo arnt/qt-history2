@@ -699,9 +699,9 @@ bool QAbstractItemView::doItemsLayout(int)
 void QAbstractItemView::fetchMore()
 {
     // FIXME
-//     if (!verticalScrollBar()->isSliderDown() &&
-// 	verticalScrollBar()->value() == verticalScrollBar()->maximum())
-// 	model()->fetchMore();
+    if (!verticalScrollBar()->isSliderDown() &&
+ 	verticalScrollBar()->value() == verticalScrollBar()->maximum())
+ 	model()->fetchMore();
 }
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
