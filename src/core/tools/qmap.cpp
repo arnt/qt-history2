@@ -166,7 +166,7 @@ void QMapData::dump()
     stores (key, value) pairs and provides fast lookup of the
     value associated with a key.
 
-    QMap and QMap provide very similar functionality. The
+    QMap and QHash provide very similar functionality. The
     differences are:
 
     \list
