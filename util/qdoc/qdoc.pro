@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= warn_on console release qtinc
+CONFIG+= warn_on console release qtinc
 DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT
 win32:DEFINES   += QT_NODLL
 INCLUDEPATH	= ../../include ../../src/tools

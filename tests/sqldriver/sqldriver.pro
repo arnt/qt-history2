@@ -1,5 +1,5 @@
 TEMPLATE    	= app
-CONFIG      	= qt console warn_on debug
+CONFIG+= qt console warn_on debug
 win32:DEFINES  	+= QT_DLL
 SOURCES		+= sqldriver.cpp
 

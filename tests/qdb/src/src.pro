@@ -20,7 +20,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 TEMPLATE	= lib
-CONFIG 		= xbase
+CONFIG+= xbase
 include(../include/shared.pri)
 SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/filedriver_xbase.cpp \

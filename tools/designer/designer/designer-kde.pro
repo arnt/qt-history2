@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release
+CONFIG+= qt warn_on release
 OBJECTS_DIR	= .
 HEADERS	= command.h \
 		  defs.h \

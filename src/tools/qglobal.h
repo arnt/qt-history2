@@ -150,6 +150,9 @@
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
+// on UNIX systems, we want to use the latest POSIX (1003.1c - 1995) and X Open Group
+// extensions (Single UNIX Specification - UNIX98 aka XPG5)
+#define _XOPEN_SOURCE 500
 #endif
 
 #if defined(Q_OS_UNIX)

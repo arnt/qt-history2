@@ -21,7 +21,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 TEMPLATE	= app
-CONFIG		= xbase
+CONFIG+= xbase
 include(../include/shared.pri)
 SOURCES	        += main.cpp
 QMAKE_LIBDIR		+= ../lib
