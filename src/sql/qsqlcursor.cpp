@@ -75,12 +75,12 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     \module sql
 
-    A 'cursor' is a reference to a database record (see \l QSqlRecord)
-    that corresponds to a table or view within an SQL database.  Cursors
-    contain a list of fields, and when positioned on a valid record,
-    contain the value's for the record's fields. Cursors can be used
-    to browse the database, to edit existing records, and to add new
-    records.
+    A 'cursor' is a database record (see \l QSqlRecord) that
+    corresponds to a table or view within an SQL database (see \l
+    QSqlDatabase).  Cursors contain a list of fields, and when
+    positioned on a valid record, contain the values for the record's
+    fields. Cursors can be used to browse the database, to edit
+    existing records, and to add new records.
 
     To position the cursor on a valid record, cursors can be navigated
     in the same way as a \l QSqlQuery, using next(), first(), seek(),
@@ -91,19 +91,28 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     To edit a database record, edit the values in the cursor's edit
     buffer (see editBuffer() and primeUpdate()).  The edit buffer can
-    then be updated in the database. To add a new record populate an
+    then be updated in the database. To add a new record, populate an
     empty edit buffer (see editBuffer() and primeInsert()) and then
-    update the database with the new record.
+    update the database with the new record.  QSqlCursor contains
+    virtual methods which allow all editing behavior to be customized
+    by subclasses.  This allows custom cursors to be created which
+    encapsulate all of the editing behavior of a database table for an
+    entire application.  For example, a cursor can be customized to
+    always auto-number primary index fields when inserting new
+    records.
 
-    Many operations apply to the "current cursor record". If the cursor
-    has never been positioned on a valid record, e.g. immediately after
-    creation, then the field values it returns are all nulls. If the
-    cursor is positioned on a valid record, e.g. after a next(),
-    first(), last(), prev() or seek() that succeeded (isValid() returns
-    TRUE), then the field values it returns are those of the record it
-    is positioned on. If the cursor is moved to an invalid record, e.g.
-    after an update(), insert() or del(), then the field values returned
-    are those of the last valid record it was positioned on.
+    Many operations apply to the "current cursor record". If the
+    cursor has never been positioned on a valid record,
+    e.g. immediately after creation, then the field values it returns
+    are not valued ( isValid() will return FALSE and isNull() will
+    return TRUE for each field). If the cursor is positioned on a
+    valid record, e.g. after a successful next(), first(), last(),
+    prev() or seek() that succeeded (isValid() returns TRUE), then the
+    field values it returns are those of the database record it is
+    positioned on. If the cursor is moved to an invalid record, e.g.
+    after an update(), insert() or del() or after a failed seek(),
+    then the field values returned are those of the last valid record
+    it was positioned on.
 
 */
 
@@ -135,12 +144,17 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   TRUE (the default), the \a name of the cursor must correspond to an
   existing table or view name in the database so that field
   information can be automatically created.  If the table or view does
-  not exist invalid SQL will be generated. The cursor is created with an
-  initial mode of QSqlCursor::Writable (meaning that records can be
-  inserted, updated or deleted using the cursor). Note that \a
-  autopopulate refers to populating the cursor with meta-data, e.g. the
-  names of the table's fields, not with retrieving data. The refresh()
-  function is used to populate the cursor with data. 
+  not exist, the cursor will not be functional.
+
+  The cursor is created with an initial mode of QSqlCursor::Writable
+  (meaning that records can be inserted, updated or deleted using the
+  cursor). Note however that if the cursor does not have a unique
+  primary index, update and deletes cannot be performed.
+
+  Note that \a autopopulate refers to populating the cursor with
+  meta-data, e.g. the names of the table's fields, not with retrieving
+  data. The refresh() function is used to populate the cursor with
+  data.
 
   \sa setName() setMode()
 
@@ -203,9 +217,9 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
 }
 
 /*!  Sets the current sort to \a sort.  Note that no new records are
-  selected.  To select new records, use select(). This sort will apply
+  selected.  To select new records, use select(). The \a sort will apply
   to any subsequent select() calls that do not explicitly specify a
-  sort. 
+  sort.
 
 */
 
@@ -224,9 +238,9 @@ QSqlIndex QSqlCursor::sort() const
 }
 
 /*! Sets the current filter to \a filter.  Note that no new records
-  are selected.  To select new records, use select(). This filter will
-  apply to any subsequent select() calls that do not explicitly specify
-  a filter. 
+  are selected.  To select new records, use select(). The \a filter
+  will apply to any subsequent select() calls that do not explicitly
+  specify a filter.
 
 
 */
@@ -246,7 +260,8 @@ QString QSqlCursor::filter() const
 
 /*!  Sets the name of the cursor to \a name.  If autopopulate is TRUE
   (the default), the \a name must correspond to a valid table or view
-  name in the database.
+  name in the database.  See the QSqlCursor constructor documentation
+  for more information.
 
 */
 void QSqlCursor::setName( const QString& name, bool autopopulate )
@@ -325,7 +340,10 @@ QSqlIndex QSqlCursor::primaryIndex( bool setFromCursor ) const
 
 /*!  Sets the primary index associated with the cursor.  Note that
   this index must contain fields which identify a unique record within
-  the underlying database table or view.
+  the underlying database table or view so that update() and del()
+  will execute as expected.
+
+  \sa update() del()
 
 */
 
@@ -335,9 +353,9 @@ void QSqlCursor::setPrimaryIndex( const QSqlIndex& idx )
 }
 
 
-/*!  Returns an index composed of \a fieldNames.  Note that all field
-  names must exist in the cursor, otherwise an empty index is
-  returned.
+/*!  Returns an index composed of \a fieldNames, all in ASCending
+  order.  Note that all field names must exist in the cursor,
+  otherwise an empty index is returned.
 */
 
 QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
@@ -374,26 +392,35 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 /*!  Selects all fields in the cursor from the database matching the
   filter criteria \a filter.  The data is returned in the order
   specified by the index \a sort.  Note that the \a filter string will
-  be placed in the generated WHERE clause, but should \e not include the
-  'WHERE' keyword.  As a special case, using "*" as the filter string
-  will retrieve all records.  The cursor is initially positioned at an
-  invalid row.  To move to a valid row, use seek(), first(),
-  last(), prev() or next(). For example:
+  be placed in the generated WHERE clause, but should \e not include
+  the 'WHERE' keyword.  The cursor is initially positioned to an
+  invalid row, therefore data cannot be retrieved.  To move to a valid
+  row, use seek(), first(), last(), prev() or next(). For example:
 
   \code
   QSqlCursor myCursor( "Employee" );
   myCursor.select( "deptno=10" ); // select everything in department 10
+  while( myCursor.next() ) {
+      ... // process data
+  }
   ...
-  myCursor.select( "*" );         // select all records in cursor
+  myCursor.select( "deptno>10", myCursor.index( "deptno DESC" ) ); // select other departments, ordered descending by department number
   ...
-  myCursor.select( "deptno>10" ); // select other departments
-  ...
-  myCursor.select();              // select WHERE DEPTNO>10 again
   \endcode
 
   The filter will apply to any subsequent select() calls that do not
   explicitly specify a filter. Similarly the sort will apply to any
   subsequent select() calls that do not explicitly specify a sort.
+
+  \code
+  QSqlCursor myCursor( "Employee" );
+  myCursor.select( "deptno=10" ); // select everything in department 10
+  while( myCursor.next() ) {
+      ... // process data
+  }
+  ...
+  myCursor.select();  // re-select everything in department 10
+  ...
 
 */
 
@@ -401,7 +428,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
     QString str= "select " + toString( d->nm );
     str += " from " + d->nm;
-    if ( !filter.isEmpty() && filter != "*" ) {
+    if ( !filter.isEmpty() ) {
 	d->ftr = filter;
 	str += " where " + filter;
     } else
@@ -511,11 +538,12 @@ int QSqlCursor::mode() const
     return d->md;
 }
 
-/*! Sets field \a name to \a calculated.  If the field \a name does not
-  exist, nothing happens.  The value of a calculated field is set by the
-  calculateField() virtual function which you must reimplement otherwise
-  the field value will be an invalid QVariant. Calculated fields do not
-  appear in the generated SQL statements sent to the database. 
+/*! Sets field \a name to \a calculated.  If the field \a name does
+  not exist, nothing happens.  The value of a calculated field is set
+  by the calculateField() virtual function which you must reimplement
+  otherwise the field value will be an invalid QVariant. Calculated
+  fields do not appear in generated SQL statements sent to the
+  database.
 
   \sa calculateField() QSqlRecord::setGenerated()
 */
@@ -762,7 +790,7 @@ QSqlRecord* QSqlCursor::primeInsert()
   \endcode
 
   Note that if the primary index does not uniquely distinguish records
-  the database may be changed into an inconsistent state. 
+  the database may be changed into an inconsistent state.
 
   \sa setMode() lastError()
 */
