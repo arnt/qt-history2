@@ -18,14 +18,12 @@ class TestInterface : public QObject, public QActionInterface
 {
     Q_OBJECT
 public:
-    QString queryInterface() { return "QActionInterface"; }
-
     QString name() { return "Test Actionplugin"; }
     QString description() { return "Test implementation of the QActionInterface"; }
     QString author() { return "vohi"; }
 
     QStringList actions();
-    QAction* create( const QString &actionname, bool& self, QObject* parent = 0 );
+    QAction* create( const QString &actionname, QObject* parent = 0 );
 
 public slots:
     void onOpenModalDialog();
@@ -42,28 +40,13 @@ QStringList TestInterface::actions()
     return list;
 }
 
-QAction* TestInterface::create( const QString& actionname, bool &self, QObject* parent )
+QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
     if ( actionname == "Open Modal Dialog" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "Open &modal dialog", Qt::CTRL + Qt::Key_M, parent, actionname, FALSE );
 	connect( a, SIGNAL(activated()), this, SLOT(onOpenModalDialog()) );
-	if ( self ) {
-	    if ( parent->inherits("QMainWindow") ) {
-		QMainWindow* mw = (QMainWindow*)parent;
-		QPopupMenu* popup = new QPopupMenu( mw );
-		a->addTo( popup );
-		
-		QToolBar* toolbar = new QToolBar( mw );
-		mw->addToolBar( toolbar, "Dialogs" );
-		toolbar->show();
-		a->addTo( toolbar );
-
-		mw->menuBar()->insertItem( "&Dialogs", popup );
-	    }
-	}
 	return a;
     } else if ( actionname == "Open non-Modal Dialog" ) {
-	self = FALSE;
 	QAction* a = new QAction( actionname, QIconSet(), "Open &non-modal dialog", Qt::CTRL + Qt::Key_N, parent, actionname, FALSE );
 	connect( a, SIGNAL(activated()), this, SLOT(onOpenNonmodalDialog()) );
 	return a;
