@@ -664,7 +664,7 @@ static bool QT_FASTCALL _port(char **ptr, int *port)
         char ch = *((*ptr)++);
         if (ch < '0' || ch > '9') {
             *ptr = ptrBackup;
-            return true;
+            break;
         }
 
         if (first) {

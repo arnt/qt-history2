@@ -1292,15 +1292,14 @@ double QTextStreamPrivate::input_double()
             if (c.unicode() != QEOF)
                 ts_ungetc(c);
             buf[i] = '\0';
-            char *end;
-            return strtod(buf, &end);
+            break;
         }
 
         buf[i++] = c.latin1();
         c = ts_getc();
     }
 
-    return 0.0;
+    return strtod(buf, 0);
 }
 
 

@@ -92,10 +92,9 @@ template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
 template <typename T>
 inline static const T *v_cast(const QCoreVariant::Private *d)
 {
-    if (QTypeInfo<T>::isLarge)
-        // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<const T*>(d->data.shared->value.ptr);
-    return reinterpret_cast<const T*>(&d->data.ptr);
+    return reinterpret_cast<const T*>(QTypeInfo<T>::isLarge
+                                      ? d->data.shared->value.ptr
+                                      : &d->data.ptr);
 }
 
 #define QCONSTRUCT(vType) \
@@ -658,11 +657,11 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::Invalid:
         return true;
     default:
-        if (!QMetaType::isRegistered(a->type))
-            qFatal("QCoreVariant::compare: type %d unknown to QCoreVariant.", a->type);
-        return a->data.shared->value.ptr == b->data.shared->value.ptr;
+        break;
     }
-    return false;
+    if (!QMetaType::isRegistered(a->type))
+        qFatal("QCoreVariant::compare: type %d unknown to QCoreVariant.", a->type);
+    return a->data.shared->value.ptr == b->data.shared->value.ptr;
 }
 
 static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
