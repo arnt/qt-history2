@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/socket/prime/prime.cpp#1 $
+** $Id: //depot/qt/main/tests/socket/prime/prime.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -62,19 +62,31 @@ void Prime::makeConnection()
 
     delete c;
     c = new QSocket;
-    c->connectToHost("localhost", 17000);
+    c->connectToHost("195.0.254.22", 17000);
     c->setMode( QSocket::Ascii );
     connect( c, SIGNAL(readyRead()), SLOT(dataArrived()) );
     connect( c, SIGNAL(closed()), SLOT(timeToUpdate()) );
     delete s;
     s = new QTextStream( c );
-    *s << input->text() << "\r\n";
+    QString str = input->text();
+    if ( str[0] == '#' ) {
+	str = str.mid(1,20);
+	int len = str.toInt();
+	str = "";
+	for ( int i=0; i<len/16 + 1; i++ ) {
+	    str += "0123456789abcdef";
+	}
+	str.truncate(len);
+    }
+    *s << str.ascii() << "\r\n";
 }
 
 
 void Prime::dataArrived()
 {
     debug("Prime::dataArrived");
+    if ( c == 0 || s == 0 )
+	debug("Prime::dataArrived: Fatal error c=%p, s=%p", c, s);
     debug("stream eof : %d", s->eof());
     debug("canreadline: %d", c->canReadLine());
     QString l;
@@ -87,6 +99,7 @@ void Prime::dataArrived()
 
 void Prime::timeToUpdate()
 {
+    debug("Prime::timeToUpdate");
     delete c;
     c = 0;
     delete s;
@@ -97,9 +110,11 @@ void Prime::timeToUpdate()
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
-    Prime mw;
-    a.setMainWidget( &mw );
-    mw.setCaption( "prime client" );
-    mw.show();
-    return a.exec();
+    Prime *mw = new Prime;
+    a.setMainWidget( mw );
+    mw->setCaption( "prime client" );
+    mw->show();
+    a.exec();
+    delete mw;
+    return 0;
 }
