@@ -11,7 +11,7 @@
 #include "qmenu.h"
 
 // To enable verbose output uncomment below
-#define Debug_QShortcutMap
+//#define Debug_QShortcutMap
 
 #define d d_func()
 #define p p_func()

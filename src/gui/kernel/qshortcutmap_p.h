@@ -5,7 +5,7 @@
 #include <qvector.h>
 
 // To enable dump output uncomment below
-#define Dump_QShortcutMap
+//#define Dump_QShortcutMap
 
 class QKeyEvent;
 struct QShortcutEntry;
