@@ -970,16 +970,6 @@ public:
 #endif
 
     // Documented in qstring.cpp
-    enum StringComparisonFlags {
-        BeginsWith = 0x00001,
-        EndsWith = 0x00002,
-        ExactMatch = BeginsWith | EndsWith,
-        IgnoreCase = 0x00004
-    };
-
-    Q_DECLARE_FLAGS(StringComparison, StringComparisonFlags);
-
-    // Documented in qstring.cpp
     enum CaseSensitivity {
         CaseInsensitive,
         CaseSensitive
@@ -1042,7 +1032,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparison);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreaFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreaFlags);
