@@ -381,7 +381,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	clean_targets += " mocclean";
     }
     t << "uiclean:" << "\n\t"
-      << "-rm -f $(UICIMPLS) $(UICDECLS)" << "\n\t"
+      << "-rm -f $(UICIMPLS) $(UICDECLS)" << "\n"
       << endl << endl;
     clean_targets += " uiclean";
 
@@ -390,8 +390,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty())
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
-      << "-rm -f *~ core *.core" << "\n\t"
-      << varGlue("CLEAN_FILES","-rm -f "," ","") << endl << endl;
+      << "-rm -f *~ core *.core" << "\n"
+      << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
     if ( !project->variables()["SUBLIBS"].isEmpty() ) {
 	QStringList &l = project->variables()["SUBLIBS"];
