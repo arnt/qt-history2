@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#29 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#30 $
 #
 # this is a massive hack, written very quickly
 #
@@ -387,7 +387,7 @@ sub readc {
 	$doc = $1;
 	$def = $2;
 	($name, $args) = split(/\s*\(\s*/, $def);
-	if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+)/s) {
+	if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^(\s\w]{0,3})/s) {
 	    $type = $1;
 	    $class = $2;
 	    $name = $3;
