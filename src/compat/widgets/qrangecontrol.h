@@ -4,7 +4,7 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the widgets module of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt Compat Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
@@ -99,7 +99,7 @@ inline int QRangeControl::pageStep() const
 #ifndef QT_NO_SPINWIDGET
 
 class QSpinWidgetPrivate;
-class Q_GUI_EXPORT QSpinWidget : public QWidget
+class Q_COMPAT_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
 public:
