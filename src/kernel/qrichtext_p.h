@@ -820,8 +820,8 @@ public:
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QList<QTextDocument> children() const { return childList; }
 
-    void setShowFirstTopMargin( bool b ) { showFirstM = b; }
-    int showFirstTopMargin() const { return showFirstM; }
+    void setAddMargis( bool b ) { addMargs = b; }
+    int addMargins() const { return addMargs; }
 
 signals:
     void minimumWidthChanged( int );
@@ -888,7 +888,7 @@ private:
     QString oText;
     QList<QTextDocument> childList;
     int nSelections;
-    bool showFirstM;
+    bool addMargs;
 
 };
 

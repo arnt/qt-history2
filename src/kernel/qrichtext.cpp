@@ -1203,7 +1203,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     minwParag = 0;
     align = AlignAuto;
     nSelections = 1;
-    showFirstM = FALSE;
+    addMargs = FALSE;
 
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
@@ -3859,7 +3859,7 @@ QTextCursor *QTextParag::redo( QTextCursor *c )
 
 int QTextParag::topMargin() const
 {
-    if ( !p && ( !doc || !doc->showFirstTopMargin() ) )
+    if ( !p && ( !doc || !doc->addMargins() ) )
 	return 0;
     if ( tm != -1 )
 	return tm;
@@ -4623,8 +4623,12 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     minw = QMAX( minw, tminw );
 
     int m = parag->bottomMargin();
-    if ( parag->next() )
-	m = QMAX( m, parag->next()->topMargin() );
+    if ( parag->next() ) {
+	if ( !doc->addMargins() )
+	    m = QMAX( m, parag->next()->topMargin() );
+	else
+	    m += parag->next()->topMargin();
+    }
     parag->setFullWidth( fullWidth );
     if ( is_printer( parag->painter() ) ) {
 	QPaintDeviceMetrics metrics( parag->painter()->device() );
