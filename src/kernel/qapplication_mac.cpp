@@ -1403,9 +1403,13 @@ int QApplication::macProcessEvent(MSG * m)
 			QMouseEvent qme( QEvent::MouseMove, plocal, p, 
 					 QMouseEvent::NoButton, mouse_button_state);
 			QApplication::sendEvent( widget, &qme );
-		     }
-//		     qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
-//			   plocal.x(), plocal.y());
+		    }
+		    if(getenv("GIMME_MOVES"))  { //debugs
+			QPoint p( er->where.h, er->where.v );
+			QPoint plocal(widget->mapFromGlobal( p ));
+			qDebug("Mouse has Moved %s %s %d %d (%d, %d)", widget->name(), widget->className(), 
+			       plocal.x(), plocal.y(), p.x(), p.y());
+		    }
 		} 
 	    }
 	}

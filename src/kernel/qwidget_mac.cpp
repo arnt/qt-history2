@@ -161,7 +161,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     title[1]='\0';
     unsigned char visible=0;
     short procid;
-    if ( popup ) {
+    if ( popup || testWFlags(WStyle_Tool ) ) {
 	procid = plainDBox;
     } else {
 	procid = zoomDocProc;
@@ -296,15 +296,14 @@ void QWidget::reparent( QWidget *, WFlags, const QPoint &,
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
   Point mac_p;
-  mac_p.h = pos.x();
-  mac_p.v = pos.y();
+  QPoint mp(posInWindow(((QWidget *)this)));
+  mac_p.h = mp.x() + pos.x();
+  mac_p.v = mp.y() + pos.y();
   if(handle()) {
     SetPortWindowPort((WindowPtr)handle());
     LocalToGlobal(&mac_p);
   }
-
-  QPoint p2(mac_p.h,mac_p.v);
-  return p2;
+  return QPoint(mac_p.h, mac_p.v);
 }
 
 
@@ -326,9 +325,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     mac_p.h -= p->x();
     mac_p.v -= p->y();
   }
-
-  QPoint p2(mac_p.h,mac_p.v);
-  return p2;
+  return QPoint(mac_p.h, mac_p.v);
 }
 
 
@@ -1183,8 +1180,7 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(reg.boundingRect(),bg_col);
     else if ( back_type == 2 ) {
 	QRect br = reg.boundingRect();
-	p.drawTiledPixmap( br.x(), br.y(), br.x() + br.width(), br.y() + br.height(), 
-			   *bg_pix, 0, 0 );
+	p.drawTiledPixmap( br.x(), br.y(), br.width(), br.height(), *bg_pix, 0, 0 );
     }
     p.end();
 }
@@ -1408,27 +1404,25 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 QRegion QWidget::clippedRegion()
 {
     QPoint mp = posInWindow(this), tmp;
-    QRegion clippedRgn(mp.x(), mp.y(), width(), height());
+    QRegion clippedRgn;
 
     //clip out my children
     if(const QObjectList *chldnlst=children()) {
-	QRegion chldRgns;
 	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 	    if((*it)->isWidgetType()) {
 		QWidget *cw = (QWidget *)(*it);
 		if(cw->isVisible() && cw->back_type != 3) {
 		    tmp  = posInWindow(cw);
-		    chldRgns += QRegion(tmp.x(), tmp.y(), cw->width(), cw->height());
+		    clippedRgn += QRegion(tmp.x(), tmp.y(), cw->width(), cw->height());
 		}
 	    }
 	}
-	clippedRgn = (chldRgns & clippedRgn) ^ clippedRgn;
+
     }
 
     //clip away my siblings
     if(!isTopLevel() && parentWidget()) {
 	if(const QObjectList *siblst = parentWidget()->children()) {
-	    QRegion sibRgns;
 	    //loop to this because its in zorder, and i don't care about people behind me
 	    QObjectListIt it(*siblst);
 	    for(it.toLast(); it.current() && it.current() != this; --it) {
@@ -1436,14 +1430,13 @@ QRegion QWidget::clippedRegion()
 		    QWidget *sw = (QWidget *)(*it);
 		    if(sw->isVisible()) {
 			tmp = posInWindow(sw);
-			sibRgns += QRegion(tmp.x(), tmp.y(), sw->width(), sw->height());
+			clippedRgn += QRegion(tmp.x(), tmp.y(), sw->width(), sw->height());
 		    }
 		}
 	    }
-	    clippedRgn = (sibRgns & clippedRgn) ^ clippedRgn;
 	}
     }
-    return clippedRgn;
+    return QRegion(mp.x(), mp.y(), width(), height()) ^ clippedRgn;
 }
 
 
