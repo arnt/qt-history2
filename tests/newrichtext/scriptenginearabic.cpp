@@ -102,9 +102,9 @@ void ScriptEngineArabic::charAttributes( const QString &text, int from, int len,
 
 void ScriptEngineArabic::shape( ShapedItem *result )
 {
-    const OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( openType ) {
+    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
 	openTypeShape( openType, result );
 	return;
     }

@@ -296,7 +296,7 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
 
 }
 
-const OpenTypeIface *FontEngineXft::openTypeIface() const
+OpenTypeIface *FontEngineXft::openTypeIface() const
 {
     qDebug("openTypeIface requested!");
     if ( _openType )

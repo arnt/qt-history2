@@ -14,7 +14,7 @@ public:
     FontEngineXft( XftFont *font, XftPattern *pattern, int cmap );
     ~FontEngineXft();
 
-    const OpenTypeIface *openTypeIface() const;
+    OpenTypeIface *openTypeIface() const;
 
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
 

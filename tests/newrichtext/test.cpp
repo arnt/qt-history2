@@ -29,10 +29,16 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-    QFont f("Tahoma");
-    f.setPointSize( 24 );
+    QFont f("Diwani Letter");
+    f.setPointSize( 48 );
     p.setFont( f );
-    p.drawText( 10, 100, string );
+    p.drawText( 10, 60, string );
+    f.setFamily("Times New Roman");
+    p.setFont( f );
+    p.drawText( 10, 120, string );
+    f.setFamily("Diwani Bent");
+    p.setFont( f );
+    p.drawText( 10, 180, string );
 }
 
 //const char *s = "some string";
@@ -58,7 +64,7 @@ int main( int argc, char **argv )
     QApplication a(argc, argv);
 
     MyWidget *w = new MyWidget;
-    w->resize( 600,  300 );
+    w->resize( 700,  300 );
     w->show();
     a.setMainWidget ( w );
 
