@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#23 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#23 $";
 #endif
 
 /*!
@@ -2094,8 +2094,8 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 	if ( p ) {				// p = "0x.."
 	    *b++ = hex2byte(p+2);
 	    p += 2;
-	    if ( ++x == w ) {
-		b = image.scanline(++y);
+	    if ( ++x == w && ++y < h ) {
+		b = image.scanline(y);
 		x = 0;
 	    }
 	    p = strstr( p, "0x" );
