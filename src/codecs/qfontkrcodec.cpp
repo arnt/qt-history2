@@ -101,6 +101,13 @@ QByteArray QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) con
     return result;
 }
 
+void QFontKsc5601Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    while (length--) {
+	*out++ = (qt_UnicodeToKsc5601(in->unicode()) & 0x7f7f);
+	++in;
+    }
+}
 
 bool QFontKsc5601Codec::canEncode( QChar ch ) const
 {

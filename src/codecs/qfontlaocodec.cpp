@@ -108,10 +108,28 @@ QByteArray QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 		*rdata = lao;
 	    else
 		*rdata = '?';
+	} else {
+	    *rdata = '?';
 	}
     }
     *rdata = 0u;
     return rstring;
+}
+
+void QFontLaoCodec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    while (length--) {
+	if ( in->unicode() < 0x80 ) {
+	    *out = (uchar) in->unicode();
+	} else if ( in->unicode() >= 0x0e80 && in->unicode() <= 0x0eff ) {
+	    *out = unicode_to_mulelao[in->unicode() - 0x0e80];
+	} else {
+	    *out = 0;
+	}
+
+	++in;
+	++out;
+    }
 }
 
 int QFontLaoCodec::heuristicContentMatch(const char *, int) const

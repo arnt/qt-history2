@@ -126,6 +126,27 @@ QByteArray QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) c
 }
 
 
+/*! internal */
+void QFontBig5hkscsCodec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    uchar c[2];
+    while (length--) {
+	if ( in->row() == 0x00 && in->cell() < 0x80 ) {
+	    // ASCII
+	    *out = in->cell();
+	} else if ( qt_UnicodeToBig5hkscs( in->unicode(), c ) == 2 ) {
+	    // Big5-HKSCS
+	    *out = (c[0] << 8) | c[1];
+	} else {
+	    // Unknown char
+	    *out = 0;
+	}
+
+	++in;
+	++out;
+    }
+}
+
 bool QFontBig5hkscsCodec::canEncode( QChar ch ) const
 {
     //qDebug("QFontBig5hkscsCodec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());

@@ -76,6 +76,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -112,6 +113,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -152,6 +154,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -183,7 +186,11 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QByteArray result, and also returning
     // the length of the result in lenInOut.
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -212,7 +219,11 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QByteArray result, and also returning
     // the length of the result in lenInOut.
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -246,6 +257,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -281,6 +293,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -312,7 +325,11 @@ public:
     // Converts lenInOut characters (of type QChar) from the start of
     // the string uc, returning a QByteArray result, and also returning
     // the length of the result in lenInOut.
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -338,6 +355,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 

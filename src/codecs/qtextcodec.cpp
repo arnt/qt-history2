@@ -66,6 +66,10 @@
 #include "qstrlist.h"
 #include "qstring.h"
 
+#if !defined(QT_NO_CODECS) && !defined(QT_NO_BIG_CODECS) && defined(Q_WS_X11)
+#  include "qfontcodecs_p.h"
+#endif
+
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
@@ -2902,8 +2906,48 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     case 2258:
     case 2259:
 	((QSimpleTextCodec *)this)->fromUnicode( in, out, length );
-	return;
+	break;
+
+#if !defined(QT_NO_BIG_CODECS) && defined(Q_WS_X11)
+	// the QFont*Codecs are only used on X11
+
+    case 15:
+	((QFontJis0201Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case 63:
+	((QFontJis0208Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case 36:
+	((QFontKsc5601Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case 57:
+	((QFontGb2312Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case -113:
+	((QFontGbkCodec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case -114:
+	((QFontGb18030_0Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case -2026:
+	((QFontBig5Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case -2101:
+	((QFontBig5hkscsCodec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case -4242:
+	((QFontLaoCodec *) this)->fromUnicode( in, out, length );
+	break;
 #endif
+#endif // QT_NO_CODECS
 
     case 4:
 	((QLatin1Codec *) this)->fromUnicode( in, out, length );

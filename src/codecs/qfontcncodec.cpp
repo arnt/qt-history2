@@ -113,6 +113,23 @@ QByteArray QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
     return result;
 }
 
+void QFontGb2312Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    int len;
+    uchar buf[8];
+    while (length--) {
+	len = qt_UnicodeToGbk(in->unicode(), buf);
+	if ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0 ) {
+	    *out = (((buf[0] << 8) | buf[0]) & 0x7f7f);
+	} else {
+	    *out = 0;
+	}
+
+	++in;
+	++out;
+    }
+}
+
 
 bool QFontGb2312Codec::canEncode( QChar ch ) const
 {
@@ -202,6 +219,14 @@ QByteArray QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
+void QFontGbkCodec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    uchar buf[8];
+    while (length--) {
+	*out++ = (qt_UnicodeToGbk(in->unicode(), buf) == 2) ? (buf[0] << 8) | buf[1] : 0;
+	++in;
+    }
+}
 
 bool QFontGbkCodec::canEncode( QChar ch ) const
 {
@@ -278,6 +303,15 @@ QByteArray QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) c
     return result;
 }
 
+void QFontGb18030_0Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    while (length--) {
+	*out = ((in->row () > 0 && !(in->row () >= 0xd8 && in->row () < 0xe0))
+		? in->unicode() : 0);
+	++in;
+	++out;
+    }
+}
 
 bool QFontGb18030_0Codec::canEncode( QChar ch ) const
 {

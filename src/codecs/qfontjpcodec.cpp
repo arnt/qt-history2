@@ -89,6 +89,22 @@ QByteArray QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) con
     return rstring;
 }
 
+void QFontJis0201Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    while (length--) {
+	if ( in->unicode() < 0x80 ) {
+	    *out = (uchar) in->unicode();
+	} else if ( in->unicode() >= 0xff61 && in->unicode() <= 0xff9f ) {
+	    *out = (uchar) (in->unicode() - 0xff61 + 0xa1);
+	} else {
+	    *out = 0;
+	}
+
+	++in;
+	++out;
+    }
+}
+
 int QFontJis0201Codec::heuristicNameMatch(const char* hint) const
 {
     if ( qstrncmp( hint, "jisx0201", 8 ) == 0 )
@@ -182,6 +198,15 @@ QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) con
     lenInOut *= 2;
 
     return result;
+}
+
+void QFontJis0208Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
+{
+    uint ch;
+    while (length--) {
+	*out++ = convJP->unicodeToJisx0208(in->unicode());
+	++in;
+    }
 }
 
 
