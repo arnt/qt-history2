@@ -542,8 +542,6 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	functionLabel->setNumFunctions( argl.count() );
     for ( QValueList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit, ++num ) {
 	QStringList args = *vit;
-	if ( args.isEmpty() )
-	    continue;
 	int argNum = 0;
 	int inParen = 0;
 	for ( int k = 0; k < (int)part.length(); ++k ) {
