@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#2 $
 **
-** Tab Bar, for QTabDialog and other
+** Definition of QTabBar class
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
@@ -35,31 +35,32 @@ class QTabBar: public QWidget
 
 public:
     QTabBar( QWidget * parent = 0, const char * name = 0 );
-    ~QTabBar();
+   ~QTabBar();
 
-    void show();
+    void  show();
 
     virtual int addTab( QTab * );
 
-    void setTabEnabled( int, bool );
-    bool isTabEnabled( int ) const;
+    void  setTabEnabled( int, bool );
+    bool  isTabEnabled( int ) const;
 
     QSize sizeHint() const;
 
 signals:
-    void selected( unsigned int );
+    void  selected( int );
 
 protected:
     virtual void paint( QPainter *, QTab *, bool ) const;
     virtual QTab * selectTab( const QPoint & p ) const;
 
-    void paintEvent( QPaintEvent * );
-    void mousePressEvent ( QMouseEvent * );
-    void mouseReleaseEvent ( QMouseEvent * );
+    void  paintEvent( QPaintEvent * );
+    void  mousePressEvent ( QMouseEvent * );
+    void  mouseReleaseEvent ( QMouseEvent * );
 
 private:
     QListT<QTab> * l;
     QTabPrivate * d;
 };
 
-#endif
+
+#endif // QTABBAR_H

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#13 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#14 $
 **
-** Definition of tab dialog
+** Definition of QTabDialog class
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
@@ -12,7 +12,9 @@
 
 #include "qdialog.h"
 
+
 struct QTabPrivate;
+
 
 class QTabDialog : public QDialog
 {
@@ -20,7 +22,7 @@ class QTabDialog : public QDialog
 
 public:
     QTabDialog( QWidget *parent=0, const char *name=0, WFlags f=0 );
-    ~QTabDialog();
+   ~QTabDialog();
 
     void show();
     void setFont( const QFont & font );
@@ -50,7 +52,7 @@ signals:
     void defaultButtonPressed();
 
 private slots:
-    void showTab( unsigned int i );
+    void showTab( int i );
 
 private:
     void setSizes();
@@ -59,4 +61,5 @@ private:
     QTabPrivate * d;
 };
 
-#endif
+
+#endif //QTABDLG_H

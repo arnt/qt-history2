@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#3 $
 **
-** tab control implementation
+** Implementation of QTabBar class
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
@@ -9,7 +9,8 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#3 $");
+
 
 QTab::~QTab()
 {

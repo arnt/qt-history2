@@ -1,20 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#22 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#23 $
 **
-** Implementation of tab dialog
+** Implementation of QTabDialog class
 **
 *****************************************************************************/
 
 #include "qtabdlg.h"
 #include "qtabbar.h"
-#include "qrect.h"
-#include "qfontmet.h"
 #include "qpushbt.h"
 #include "qpainter.h"
-#include "qstring.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#23 $");
 
 /*!
   \class QTabDialog qtabdlg.h
@@ -156,8 +153,8 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
     CHECK_PTR( d );
 
     d->tabs = new QTabBar( this, "tab control" );
-    connect( d->tabs, SIGNAL(selected(unsigned int)),
-	     this, SLOT(showTab(unsigned int)) );
+    connect( d->tabs, SIGNAL(selected(int)),
+	     this,    SLOT(showTab(int)) );
     d->tabs->move( 6, 6 );
 
     d->ab = d->cb = d->db = 0;
@@ -318,7 +315,7 @@ void QTabDialog::show()
     emit aboutToShow();
     setSizes();
 
-    for( uint i = 0; i < d->children.size(); i++ )
+    for( int i=0; i < (int)d->children.size(); i++ )
 	d->children[i]->hide();
 
     // fake a resize event to trigger child widget moves
@@ -333,9 +330,9 @@ void QTabDialog::show()
   Ensure that the selected tab's page is visible and appropriately sized.
 */
 
-void QTabDialog::showTab( unsigned int i )
+void QTabDialog::showTab( int i )
 {
-    if ( d && i < d->children.size() ) {
+    if ( d && (uint)i < d->children.size() ) {
 	if ( d->children[i]->isVisible() ) {
 	    d->children[i]->raise();
 	} else {
@@ -365,8 +362,8 @@ void QTabDialog::addTab( QWidget * child, const char * label )
     CHECK_PTR( t );
     t->label = label;
     t->enabled = TRUE;
-    unsigned int id = d->tabs->addTab( t );
-    if ( id == d->children.size() ) {
+    int id = d->tabs->addTab( t );
+    if ( id ==(int)d->children.size() ) {
 	d->children.resize( id+1 );
 	d->children[id] = child;
     } else {
@@ -397,9 +394,8 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
 {
     if ( !name || !*name )
 	return;
-
-    unsigned int i;
-    for( i=0; i<d->children.size(); i++ )
+    int i;
+    for( i=0; i<(int)d->children.size(); i++ )
 	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
 	    d->tabs->setTabEnabled( i, enable );
 }
@@ -417,8 +413,8 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
 
 bool QTabDialog::isTabEnabled( const char * name )
 {
-    unsigned int i;
-    for( i=0; i < d->children.size(); i++ )
+    int i;
+    for( i=0; i<(int)d->children.size(); i++ )
 	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
 	    return d->tabs->isTabEnabled( i );
     return FALSE;
@@ -569,8 +565,8 @@ void QTabDialog::setSizes()
     d->tabs->resize( min ); // resize it just in case
     QSize max(QCOORD_MAX,QCOORD_MAX);
     int th = min.height();
-    unsigned int i;
-    for ( i=0; i<d->children.size(); i++ ) {
+    int i;
+    for ( i=0; i<(int)d->children.size(); i++ ) {
 	// maximum sizes
 	if ( d->children[i]->maximumSize().height() < max.height() )
 	    max.setHeight( d->children[i]->maximumSize().height() );
@@ -592,7 +588,7 @@ void QTabDialog::setSizes()
 
     // bang in the pages' minimum and maximum sizes, to avoid ugly
     // size mismatches
-    for( i = 0; i < d->children.size(); i++ ) {
+    for( i=0; i<(int)d->children.size(); i++ ) {
 	d->children[i]->setMinimumSize( min );
 	d->children[i]->setMaximumSize( max );
     }
@@ -646,7 +642,8 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	    d->ok->move( x - 5 - d->ok->width(), height() - 5 - d->bh );
 	}
 
-	for ( unsigned int i=0; i < d->children.size(); i++ )
+	int i;
+	for ( i=0; i<(int)d->children.size(); i++ )
 	    if ( d->children[i]->isVisible() )
 		d->children[i]->setGeometry( childRect() );
     }
