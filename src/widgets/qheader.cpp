@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#74 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -676,7 +676,7 @@ int QHeader::addLabel( const QString &s, int size )
   Returns the recommended size of the QHeader.
 */
 QSize QHeader::sizeHint() const
-{
+{ // #### seriously buggy if there are lots of columns
     QFontMetrics fm( font() );
     if ( orient == Horizontal )
 	return QSize( count() > 0
@@ -889,8 +889,8 @@ void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
     p.setPen( colorGroup().buttonText() );
-    int id = cellAt( orient == Horizontal 
-		     ? e->rect().left() 
+    int id = cellAt( orient == Horizontal
+		     ? e->rect().left()
 		     : e->rect().top() );
 
     for ( int i = id; i < count(); i++ ) {
