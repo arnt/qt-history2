@@ -6043,6 +6043,8 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
     t->tag   = tag;
     t->leftTag = 0;
     t->parent  = 0;
+    t->next = 0;
+    t->prev = 0;
 
     // find insertion pt. in tag struct.
     QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
@@ -6058,6 +6060,8 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
 	tmp = d->od->tags;
 	while (tmp && tmp->next && tmp->next->line < line)
 	    tmp = tmp->next;
+	if (tmp == d->od->tags)
+	    tmp = 0;
     }
 
     t->prev = tmp;
@@ -6271,6 +6275,23 @@ static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
     return strWidth;
 }
 
+bool QTextEdit::optimHasBoldMetrics(int line)
+{
+    QTextEditOptimPrivate::Tag *t;
+    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
+    if ((it = d->od->tagIndex.find(line)) != d->od->tagIndex.end()) {
+	t = *it;
+	while (t && t->line == line) {
+	    if (t->bold)
+		return TRUE;
+	    t = t->next;
+	}
+    } else if ((t = optimPreviousLeftTag(line)) && t->bold) {
+	return TRUE;
+    }
+    return FALSE;
+}
+
 /*! \internal
 
   Append \a str to the current text buffer. Parses each line to find
@@ -6289,7 +6310,12 @@ void QTextEdit::optimAppend( const QString &str )
     for ( ; it != strl.end(); ++it ) {
  	optimParseTags( &*it );
 	optimCheckLimit( *it );
-	lWidth = qStrWidth(*it, tabStopWidth(), fm);
+	if (optimHasBoldMetrics(d->od->numLines-1)) {
+	    QFont fnt = QScrollView::font();
+	    fnt.setBold(TRUE);
+	    fm = QFontMetrics(fnt);
+	}
+	lWidth = qStrWidth(*it, tabStopWidth(), fm) + 4;
 	if ( lWidth > d->od->maxLineWidth )
 	    d->od->maxLineWidth = lWidth;
     }
@@ -6471,7 +6497,12 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
     for (x = line; x < line + numNewLines; x++) {
-	lWidth = fm.width(d->od->lines[x]);
+	if (optimHasBoldMetrics(x)) {
+	    QFont fnt = QScrollView::font();
+	    fnt.setBold(TRUE);
+	    fm = QFontMetrics(fnt);
+	}
+	lWidth = fm.width(d->od->lines[x]) + 4;
 	if (lWidth > d->od->maxLineWidth)
 	    d->od->maxLineWidth = lWidth;
     }

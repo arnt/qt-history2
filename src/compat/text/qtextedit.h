@@ -516,6 +516,7 @@ private:
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
     QTextEditOptimPrivate::Tag * optimInsertTag( int line, int index, const QString & tag );
     void optimCheckLimit( const QString& str );
+    bool optimHasBoldMetrics( int line );
 
 private slots:
     void optimDoAutoScroll();
