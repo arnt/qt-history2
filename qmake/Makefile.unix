@@ -8,7 +8,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
       qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
-      qconfig.o
+      qconfig.o qunicodetables.o
 
 CFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -55,6 +55,9 @@ qstring.o: @SOURCE_PATH@/src/tools/qstring.cpp
 
 qdatastream.o: @SOURCE_PATH@/src/tools/qdatastream.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qdatastream.cpp
+
+qunicodetables.o: @SOURCE_PATH@/src/tools/qunicodetables.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qunicodetables.cpp
 
 qgarray.o: @SOURCE_PATH@/src/tools/qgarray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qgarray.cpp

@@ -31,7 +31,7 @@ SOURCES+=qstring.cpp qtextstream.cpp \
 	 qgvector.cpp qgcache.cpp \
 	 qbitarray.cpp qdir.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
-	 qstringlist.cpp qmap.cpp
+	 qstringlist.cpp qmap.cpp qunicodetables.cpp
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
     SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
 }
