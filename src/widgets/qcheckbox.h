@@ -29,8 +29,8 @@ class Q_EXPORT QCheckBox : public QButton
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
-    QCheckBox( QWidget *parent, const char* name=0 );
-    QCheckBox( const QString &text, QWidget *parent, const char* name=0 );
+    QCheckBox( QWidget *parent=0, const char* name=0 );
+    QCheckBox( const QString &text, QWidget *parent=0, const char* name=0 );
 
     bool    isChecked() const;
 

@@ -28,8 +28,8 @@ class Q_EXPORT QRadioButton : public QButton
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
-    QRadioButton( QWidget *parent, const char* name=0 );
-    QRadioButton( const QString &text, QWidget *parent, const char* name=0 );
+    QRadioButton( QWidget *parent=0, const char* name=0 );
+    QRadioButton( const QString &text, QWidget *parent=0, const char* name=0 );
 
     bool    isChecked() const;
 

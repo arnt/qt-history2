@@ -55,9 +55,9 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool acceptableInput READ hasAcceptableInput )
 
 public:
-    QLineEdit( QWidget* parent, const char* name=0 );
-    QLineEdit( const QString &, QWidget* parent, const char* name=0 );
-    QLineEdit( const QString &, const QString &, QWidget* parent, const char* name=0 );
+    QLineEdit( QWidget* parent=0, const char* name=0 );
+    QLineEdit( const QString &, QWidget* parent=0, const char* name=0 );
+    QLineEdit( const QString &, const QString &, QWidget* parent=0, const char* name=0 );
     ~QLineEdit();
 
     QString text() const;

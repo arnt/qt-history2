@@ -37,10 +37,10 @@ class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 
 public:
-    QScrollBar( QWidget *parent, const char* name = 0 );
-    QScrollBar( Orientation, QWidget *parent, const char* name = 0 );
+    QScrollBar( QWidget *parent=0, const char* name = 0 );
+    QScrollBar( Orientation, QWidget *parent=0, const char* name = 0 );
     QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
-		int value, Orientation, QWidget *parent, const char* name = 0 );
+		int value, Orientation, QWidget *parent=0, const char* name = 0 );
     ~QScrollBar();
 
     virtual void setOrientation( Orientation );
@@ -161,8 +161,8 @@ inline int QScrollBar::sliderStart() const
 }
 
 inline void QScrollBar::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
-{ 
-    QWidget::setSizePolicy( hor, ver, hfw ); 
+{
+    QWidget::setSizePolicy( hor, ver, hfw );
 }
 
 

@@ -55,14 +55,14 @@ public:
 	Right = BesideIcon, // obsolete
 	Under = BelowIcon // obsolete
     };
-    QToolButton( QWidget * parent, const char* name=0 );
+    QToolButton( QWidget * parent=0, const char* name=0 );
 #ifndef QT_NO_TOOLBAR
     QToolButton( const QIconSet& s, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
-		 QToolBar * parent, const char* name=0 );
+		 QToolBar * parent=0, const char* name=0 );
 #endif
-    QToolButton( ArrowType type, QWidget *parent, const char* name=0 );
+    QToolButton( ArrowType type, QWidget *parent=0, const char* name=0 );
     ~QToolButton();
 
     QSize sizeHint() const;

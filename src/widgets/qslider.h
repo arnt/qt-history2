@@ -39,15 +39,15 @@ class Q_EXPORT QSlider : public QWidget, public QRangeControl
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
     Q_PROPERTY( TickSetting tickmarks READ tickmarks WRITE setTickmarks )
     Q_PROPERTY( int tickInterval READ tickInterval WRITE setTickInterval )
-	
+
 public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
 
-    QSlider( QWidget *parent, const char* name = 0 );
-    QSlider( Orientation, QWidget *parent, const char* name = 0 );
+    QSlider( QWidget *parent=0, const char* name = 0 );
+    QSlider( Orientation, QWidget *parent=0, const char* name = 0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent, const char* name = 0 );
+	     QWidget *parent=0, const char* name = 0 );
     ~QSlider();
 
     virtual void	setOrientation( Orientation );
@@ -164,8 +164,8 @@ inline int QSlider::sliderStart() const
 }
 
 inline void QSlider::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
-{ 
-    QWidget::setSizePolicy( hor, ver, hfw ); 
+{
+    QWidget::setSizePolicy( hor, ver, hfw );
 }
 
 #endif // QT_NO_SLIDER
