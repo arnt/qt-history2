@@ -342,15 +342,6 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
                         + QString::number(s.height()) + ")";
             break;
         }
-            // #### wrong anyways. It ignores alpha and other than rgb color models
-//         case QVariant::Color: {
-//             QColor c = v2.toColor();
-//             result += "@Color("
-//                         + QByteArray::number(c.red()) + ", "
-//                         + QByteArray::number(c.green()) + ", "
-//                         + QByteArray::number(c.blue()) + ")";
-//             break;
-//         }
         case QVariant::Point: {
             QPoint p = qVariant_to<QPoint>(v);
             result += "@Point("
@@ -409,12 +400,6 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
             if (args.size() == 2) {
                 return QVariant(QSize(args[0].toInt(), args[1].toInt()));
             }
-            // ### see above
-//         } else if (s.startsWith(QLatin1String("@Color("))) {
-//             QStringList args = QSettingsPrivate::splitArgs(s, 6);
-//             if (args.size() == 3) {
-//                 return QVariant(QColor(args[0].toInt(), args[1].toInt(), args[2].toInt()));
-//             }
         } else if (s.startsWith(QLatin1String("@Point("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 6);
             if (args.size() == 2) {
@@ -1540,7 +1525,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     portable manner.
 
     QSettings's API is based on QVariant, allowing you to save
-    most value-based types, such as QRect, QSize, and QColor,
+    most value-based types, such as QString, QRect, and QImage,
     with the minimum of effort.
 
     \tableofcontents section1
@@ -1605,6 +1590,32 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     list of all keys, call allKeys(). To remove all keys, call
     clear().
 
+    \section1 QVariant and GUI Types
+
+    Because QVariant is part of the QtCore library, it cannot provide
+    conversion functions to data types such as QColor, QImage, and
+    QPixmap, which are part of QtGui. In other words, there is no
+    \c QVariant::toColor() function.
+
+    Instead, you must use the qvariant_cast<T>() global function. For
+    example:
+
+    \code
+        QSettings settings("software-inc.com", "DataMill");
+        QColor color = qvariant_cast<QColor>(
+                settings.value("DataPump/bgcolor"));
+    \endcode
+
+    The inverse conversion (e.g., from QColor to QVariant) is
+    automatic for all data types supported by QVariant, including
+    GUI-related types:
+
+    \code
+        QSettings settings("software-inc.com", "DataMill");
+        QColor color = palette().background().color();
+        settings.setValue("DataPump/bgcolor", color);
+    \endcode
+
     \section1 Key Syntax
 
     Setting keys can contain any Unicode characters. The Windows
@@ -1629,10 +1640,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printline setValue
     \printline setValue
 
-    If you want to save many settings with the same prefix, you can
-    specify the prefix using beginGroup() and call endGroup() at the
-    end. Here's the same example again, but this time using the group
-    mechanism:
+    If you want to save or restore many settings with the same
+    prefix, you can specify the prefix using beginGroup() and call
+    endGroup() at the end. Here's the same example again, but this
+    time using the group mechanism:
 
     \printline beginGroup
     \printuntil endGroup
@@ -1663,13 +1674,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     following files:
 
     \list 1
-    \o \c{$HOME/.settings/software.org/DataMill.conf}
-    \o \c{$HOME/.settings/software.org.conf}
-    \o \c{$QTDIR/.settings/software.org/DataMill.conf}
-    \o \c{$QTDIR/.settings/software.org.conf}
+    \o \c{$HOME/.config/software.org/DataMill.conf}
+    \o \c{$HOME/.config/software.org.conf}
+    \o \c{/etc/xdg/software.org/DataMill.conf}
+    \o \c{/etc/xdg/software.org.conf}
     \endlist
-
-    ($QTDIR is the location where Qt is installed.)
 
     On Mac OS X versions 10.2 and 10.3, these files are used:
 
@@ -1795,8 +1804,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     objects refer to the same files on disk (or to the same entries
     in the system registry). If a setting is modified through one
     QSettings object, the change will immediately be visible in
-    any other QSettings object that operates on the same location
-    and that lives in the same process.
+    any other QSettings objects that operate on the same location
+    and that live in the same process.
 
     QSettings can safely be used from different processes (which
     can be different instances of your application running at the
@@ -1813,16 +1822,17 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     application:
 
     \list
-    \o  The Windows system registry has the following limitations: a
+    \o  The Windows system registry has the following limitations: A
         subkey may not exceed 255 characters, an entry's value may not
         exceed 16,383 characters, and all the values of a key may not
         exceed 65,535 characters.
 
     \o  On Mac OS X, allKeys() will return some extra keys for global
         settings that apply to \e all applications. These keys can be
-        read using value() but cannot be change, only shadowed. You
-        can hide these global settings by calling
-        setFallbacksEnabled(false).
+        read using value() but cannot be change, only shadowed.
+        Calling setFallbacksEnabled(false) will hide these global
+        settings.
+
     \endlist
 
     \sa QVariant, QSessionManager
@@ -1854,9 +1864,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \sa {Locations for Storing Settings}
 */
-QSettings::QSettings(const QString &organization, const QString &application,
-                             QObject *parent)
-    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, QSettings::UserScope, organization, application),
+QSettings::QSettings(const QString &organization, const QString &application, QObject *parent)
+    : QObject(*QSettingsPrivate::create(NativeFormat, UserScope, organization, application),
               parent)
 {
 }
@@ -1879,9 +1888,8 @@ QSettings::QSettings(const QString &organization, const QString &application,
     \l{Locations for Storing Settings}{locations}.
 */
 QSettings::QSettings(QSettings::Scope scope, const QString &organization,
-                             const QString &application, QObject *parent)
-    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, scope, organization, application),
-              parent)
+                     const QString &application, QObject *parent)
+    : QObject(*QSettingsPrivate::create(NativeFormat, scope, organization, application), parent)
 {
 }
 
@@ -2559,10 +2567,10 @@ bool QSettings::event(QEvent *event)
 
     \code
         QSettings settings;
-        settings.setValue("snake", 58);
-        settings.value("snake", 1024).toInt();  // returns 58
-        settings.value("zebra", 1024).toInt();  // returns 1024
-        settings.value("zebra").toInt();        // returns 0
+        settings.setValue("animal/snake", 58);
+        settings.value("animal/snake", 1024).toInt();   // returns 58
+        settings.value("animal/zebra", 1024).toInt();   // returns 1024
+        settings.value("animal/zebra").toInt();         // returns 0
     \endcode
 
     \sa setValue(), contains(), remove()
