@@ -218,7 +218,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     prior to the introduction of the Gregorian calendar. This calendar
     was adopted by England from the 14<sup><small>th</small></sup>
     September 1752 (hence this is the earliest valid QDate), and
-    subsequently by most other Western countries, until 1923.
+    subsequently by most other Western countries, by 1923.
 
     The end of time is reached around the year 8000, by which time we
     expect Qt to be obsolete.
@@ -753,7 +753,7 @@ QString QDate::toString(Qt::DateFormat f) const
     20<sup><small>th</small></sup> July 1969):
     \table
     \header \i Format \i Result
-    \row \i dd.MM.yyyy          \i 20.07.1969
+    \row \i dd.MM.yyyy    \i 20.07.1969
     \row \i ddd MMMM d yy \i Sun July 20 69
     \endtable
 
@@ -1395,8 +1395,8 @@ QString QTime::toString(Qt::DateFormat f) const
 
     \table
     \header \i Format \i Result
-    \row \i hh:mm:ss.zzz    \i 14:13:09.042
-    \row \i h:m:s ap            \i 2:13:9 pm
+    \row \i hh:mm:ss.zzz \i11 14:13:09.042
+    \row \i h:m:s ap     \i11 2:13:9 pm
     \endtable
 
     If the time is an invalid time, then QString::null will be returned.
@@ -2131,11 +2131,11 @@ QString QDateTime::toString(Qt::DateFormat f) const
     21<small><sup>st</sup></small> May 2001 14:13:09)
 
     \table
-    \header \i Format \i Result
-    \row \i dd.MM.yyyy            \i 21.05.2001
-    \row \i ddd MMMM d yy   \i Tue May 21 01
-    \row \i hh:mm:ss.zzz    \i 14:13:09.042
-    \row \i h:m:s ap            \i 2:13:9 pm
+    \header \i Format       \i Result
+    \row \i dd.MM.yyyy      \i11 21.05.2001
+    \row \i ddd MMMM d yy   \i11 Tue May 21 01
+    \row \i hh:mm:ss.zzz    \i11 14:13:09.042
+    \row \i h:m:s ap        \i11 2:13:9 pm
     \endtable
 
     If the datetime is an invalid datetime, then QString::null will be returned.

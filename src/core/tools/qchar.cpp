@@ -74,11 +74,12 @@
     (true if the character is any sort of printable character,
     including whitespace), isPunct() (any sort of punctation),
     isMark() (Unicode Mark), isLetter() (a letter), isNumber() (any
-    sort of numeric character), isLetterOrNumber(), and isDigit()
-    (decimal digits). All of these are wrappers around category()
-    which return the Unicode-defined category of each character.
+    sort of numeric character, not just 0-9), isLetterOrNumber(), and
+    isDigit() (decimal digits). All of these are wrappers around
+    category() which return the Unicode-defined category of each
+    character.
 
-    QChar further provides direction(), which indicates the "natural"
+    QChar also provides direction(), which indicates the "natural"
     writing direction of this character. The joining() function
     indicates how the character joins with its neighbors (needed
     mostly for Arabic) and finally hasMirrored(), which indicates
@@ -116,7 +117,7 @@
     More information can be found in the document \link unicode.html
     About Unicode. \endlink
 
-    \sa QString, QLatin1Char
+    \sa QString
 */
 
 /*!
@@ -485,8 +486,8 @@ bool QChar::isLetter() const
 }
 
 /*!
-    Returns true if the character is a number (of any sort - Number_*
-    categories); otherwise returns false.
+    Returns true if the character is a number (Number_* categories,
+    not just 0-9); otherwise returns false.
 
     \sa isDigit()
 */
@@ -589,7 +590,7 @@ bool QChar::hasMirrored() const
 
 /*!
     Returns the mirrored character if this character is a mirrored
-    character, otherwise returns the character itself.
+    character; otherwise returns the character itself.
 
     \sa hasMirrored()
 */
@@ -647,7 +648,7 @@ QChar::Decomposition QChar::decompositionTag() const
     marks attached to a base character.
 
     The Qt text rendering engine uses this information to correctly
-    position non spacing marks around a base character.
+    position non-spacing marks around a base character.
 */
 unsigned char QChar::combiningClass() const
 {
@@ -765,8 +766,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns true if the numeric Unicode value of \a c1 is less than
-    that of \a c2, or they are the same Unicode character; otherwise
-    returns false.
+    or equal to that of \a c2; otherwise returns false.
 */
 
 /*!
@@ -775,8 +775,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns true if the numeric Unicode value of \a c1 is greater than
-    that of \a c2, or they are the same Unicode character; otherwise
-    returns false.
+    or equal to that of \a c2; otherwise returns false.
 */
 
 /*!
