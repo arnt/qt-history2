@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#24 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#24 $";
 #endif
 
 
@@ -102,7 +102,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name ),
-	  pal( *qApp->palette() ),
+	  pal( *qApp->palette() ),		// use application palette
           fnt( TRUE )                           // create a default font
 {
     initMetaObject();				// initialize meta object
@@ -110,7 +110,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     ident = 0;					// default attributes
     flags = f;
     extra = 0;					// no extra widget info
-    pal   = *qApp->palette();			// default app palette
     create();					// platform-dependent init
 }
 
@@ -221,7 +220,7 @@ void QWidget::disable()				// disable events
 }
 
 
-const QColorGroup &QWidget::colorGroup() const
+const QColorGroup &QWidget::colorGroup() const	// get current colors
 {
     if ( testFlag(WState_Disabled) )
 	return pal.disabled();
@@ -229,15 +228,16 @@ const QColorGroup &QWidget::colorGroup() const
 	return pal.normal();
 }
 
-const QPalette &QWidget::palette() const
+const QPalette &QWidget::palette() const	// get widget palette
 {
     return pal;
 }
 
-void QWidget::setPalette( const QPalette &p )
+void QWidget::setPalette( const QPalette &p )	// set widget palette
 {
     pal = p;
     setBackgroundColor( colorGroup().background() );
+    update();
 }
 
 
