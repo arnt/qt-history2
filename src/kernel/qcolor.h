@@ -187,6 +187,9 @@ inline bool QColor::operator!=( const QColor &c ) const
     return !operator==(c);
 }
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QColor &);
+#endif
 
 /*****************************************************************************
   QColor stream functions

@@ -16,6 +16,7 @@
 #include "qcolor_p.h"
 #include "qnamespace.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 
 #include <stdio.h>
 
@@ -780,6 +781,15 @@ QStringList QColor::colorNames()
 {
     return qt_get_colornames();
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QColor &c)
+{
+    dbg.nospace() << "QColor(" << c.name() << ')';
+    return dbg.space();
+}
+#endif
+
 
 /*****************************************************************************
   QColor stream functions

@@ -16,6 +16,7 @@
 #include "qcleanuphandler.h"
 #include "qpixmap.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 
 /*!
     \class QBrush qbrush.h
@@ -384,6 +385,13 @@ bool QBrush::operator==(const QBrush &b) const
     \internal
 */
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QBrush &b)
+{
+    dbg.nospace() << "QBrush(" << b.color() << ',' << b.style() << ')';
+    return dbg.space();
+}
+#endif
 
 /*****************************************************************************
   QBrush stream functions

@@ -62,6 +62,9 @@ public:
     static void cleanBuffers();
 };
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QPointArray &);
+#endif
 
 /*****************************************************************************
   QPointArray stream functions

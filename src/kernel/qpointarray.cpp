@@ -16,6 +16,7 @@
 #include "qrect.h"
 #include "qdatastream.h"
 #include "qwmatrix.h"
+#include "qdebug.h"
 #include <stdarg.h>
 
 const double Q_PI = 3.14159265358979323846;
@@ -974,3 +975,15 @@ void QPointArray::cleanBuffers()
     sp = 0;
     splen = 0;
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QPointArray &a)
+{
+    dbg.nospace() << "QPointArray(";
+    for (int i = 0; i < a.count(); ++i)
+	dbg.nospace() << a.at(i);
+    dbg.nospace() << ')';
+    return dbg.space();
+}
+#endif
+
