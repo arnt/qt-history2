@@ -58,6 +58,7 @@ bool ProfileHandler::startElement( const QString &namespaceURI,
 	    }
 	    state = StateProperty;
 	} else if ( qName.lower() == "docfile" ) {
+	    propertyName = attr.value( "icon" );
 	    state = StateDocfile;
 	}
 	break;
@@ -94,6 +95,8 @@ bool ProfileHandler::characters( const QString &chars )
 	break;
     case StateDocfile:
 	profile->docs.append( chars );
+	if( !propertyName.isNull() )
+	    profile->icons[chars] = propertyName;
 	break;
     default:
 	break;
@@ -105,7 +108,8 @@ bool ProfileHandler::characters( const QString &chars )
 Profile::Profile( const QString &filename )
     : valid( FALSE )
 {
-    load( filename );
+    if ( !filename.isNull() )
+	load( filename );
 }
 
 void Profile::load( const QString &name )
@@ -139,6 +143,13 @@ void Profile::load( const QString &name )
 	while( docfiles != docs.end() ) {
 	    qDebug( "Docfile: %s", (*docfiles).latin1() );
 	    docfiles++;
+	}
+
+	keys = icons.keys();
+	it = keys.begin();
+	while( it != keys.end() ) {
+	    qDebug( "Icons: %15s = %s", (*it).latin1(), icons[*it].latin1() );
+	    it++;
 	}
     }
 }

@@ -82,7 +82,7 @@
     <slot>newTab()</slot>
     <slot>transferFocus()</slot>
     <slot>initHelpWindow( HelpWindow * win )</slot>
-    <slot>setup( const QSettings &amp; settings )</slot>
+    <slot>setup()</slot>
     <slot>setLinkUnderline( bool uline )</slot>
     <slot>setFont( const QFont &amp; fnt )</slot>
     <slot>setPalette( const QPalette &amp; pal )</slot>

@@ -4,13 +4,19 @@ SOURCES	+= main.cpp \
 	docuparser.cpp \
 	helpdialogimpl.cpp \
 	settingsdialogimpl.cpp \
-	index.cpp
+	index.cpp \
+        profile.cpp \
+        config.cpp
+
 HEADERS	+= helpwindow.h \
 	topicchooserimpl.h \
 	docuparser.h \
 	helpdialogimpl.h \
 	settingsdialogimpl.h \
-	index.h
+	index.h \
+        profile.h \
+        config.h 
+
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
@@ -55,6 +61,6 @@ IMAGES	= images/editcopy.png \
 	images/appicon.png
 	
 TEMPLATE	=app
-CONFIG	+= qt
+CONFIG	+= qt console
 DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++

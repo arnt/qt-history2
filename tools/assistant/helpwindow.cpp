@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "docuparser.h"
 #include "tabbedbrowser.h"
+#include "config.h"
 
 #include <qurl.h>
 #include <qmessagebox.h>
@@ -69,9 +70,7 @@ void HelpWindow::setSource( const QString &name )
     QFileInfo fi( name );
 
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-	QString webbrowser = settings.readEntry( DocuParser::DocumentKey + "Webbrowser" );
+	QString webbrowser = Config::configuration()->webBrowser();
 	if ( webbrowser.isEmpty() ) {
 #if defined(Q_OS_WIN32)
 	    QT_WA( {
@@ -83,8 +82,7 @@ void HelpWindow::setSource( const QString &name )
 	    int result = QMessageBox::information( mw, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ), "Open", "Cancel" );
 	    if ( result == 0 ) {
 		emit chooseWebBrowser();
-		QSettings freshSettings;
-		webbrowser = freshSettings.readEntry( DocuParser::DocumentKey + "Webbrowser" );
+		webbrowser = Config::configuration()->webBrowser();
 	    }
 #endif
 	    if ( webbrowser.isEmpty() )
@@ -98,10 +96,7 @@ void HelpWindow::setSource( const QString &name )
     }
 
     if ( name.right( 3 ) == "pdf" ) {
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-	QString pdfbrowser =
-	    settings.readEntry( DocuParser::DocumentKey + "PDFApplication" );
+	QString pdfbrowser = Config::configuration()->pdfReader();
 	if ( pdfbrowser.isEmpty() ) {
 	    QMessageBox::information( mw,
 				      tr( "Help" ),

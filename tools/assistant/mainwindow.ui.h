@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include "config.h"
+
 #include <qtabwidget.h>
 #include <qfileinfo.h>
 #include <qaccel.h>
@@ -41,12 +43,10 @@ void MainWindow::init()
     windows->append( this );
     setWFlags( WDestructiveClose );
     tabs = new TabbedBrowser( this, "qt_assistant_tabbedbrowser" );
-//     connect( browser, SIGNAL(chooseWebBrowser()), this, SLOT(showWebBrowserSettings()) );
     setCentralWidget( tabs );
     settingsDia = 0;
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    Config *config = Config::configuration();
 
     dw = new QDockWindow( QDockWindow::InDock, this );
     helpDock = new HelpDialog( dw, this );
@@ -60,24 +60,18 @@ void MainWindow::init()
     setObjectsEnabled( FALSE );
 
     // read geometry configuration
-    setupGoActions( settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" ),
-		    settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" ) );
-    if ( !settings.readBoolEntry( DocuParser::DocumentKey + "GeometryMaximized", FALSE ) ) {
-	QRect r( pos(), size() );
-	r.setX( settings.readNumEntry( DocuParser::DocumentKey + "GeometryX", r.x() ) );
-	r.setY( settings.readNumEntry( DocuParser::DocumentKey + "GeometryY", r.y() ) );
-	r.setWidth( settings.readNumEntry( DocuParser::DocumentKey + "GeometryWidth", r.width() ) );
-	r.setHeight( settings.readNumEntry( DocuParser::DocumentKey + "GeometryHeight", r.height() ) );
+    setupGoActions( config->docFiles(), config->selectedCategories() );
 
-	QRect desk = QApplication::desktop()->geometry();
-	QRect inter = desk.intersect( r );
-	resize( r.size() );
-	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-	    move( r.topLeft() );
+    if ( !config->isMaximized() ) {
+	QRect geom = config->geometry();
+	if( geom.isValid() ) {
+	    QRect desktop =  QApplication::desktop()->geometry();
+	    setGeometry( geom.intersect( desktop ) );
 	}
     }
 
-    QString mainWindowLayout = settings.readEntry( DocuParser::DocumentKey + "MainwindowLayout" );
+    QString mainWindowLayout = config->mainWindowLayout();
+
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
@@ -129,54 +123,38 @@ void MainWindow::setup()
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+S") ) ),
 		    helpDock, SLOT( toggleSearch() ) );
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    Config *config = Config::configuration();
 
-    tabs->setup( settings );
+    tabs->setup();
 
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
-    helpDock->tabWidget->setCurrentPage( settings.readNumEntry( DocuParser::DocumentKey + "SideBarPage", 0 ) );
+    helpDock->tabWidget->setCurrentPage( config->sideBarPage() );
 
     setObjectsEnabled( TRUE );
-
-    if ( settings.readBoolEntry( DocuParser::DocumentKey + "NewDoc/", FALSE ) ) {
-	QTimer::singleShot( 0, helpDock, SLOT( generateNewDocu() ));
-	settings.writeEntry( DocuParser::DocumentKey + "NewDoc/", FALSE );
-    }
 
     setupCompleted = TRUE;
 }
 
 void MainWindow::setupGoActions( const QStringList &docList, const QStringList &catList )
 {
-    QStringList::ConstIterator it = docList.begin();
+    Config * config = Config::configuration();
+    QStringList docFiles = config->docFiles();
+    QAction * action = 0;
+
     bool separatorInserted = FALSE;
-    for ( ; it != docList.end(); ++it ) {
-	if ( (*it).lower().contains( "qt.xml" ) &&
-	     catList.find( "qt/reference" ) != catList.end() ) {
-	    if ( !separatorInserted )
+
+    QStringList::ConstIterator it = docFiles.begin();
+    for ( ; it != docFiles.end(); ++it ) {
+	QString cat = config->docCategory( *it );
+	QString title = config->docTitle( *it );
+	QPixmap pix = config->docIcon( *it );
+	if ( catList.contains( cat ) && !pix.isNull() ) {
+	    if( !separatorInserted )
 		separatorInserted = insertActionSeparator();
-	    actionGoQt->addTo( goMenu );
-	    actionGoQt->addTo( Toolbar );
-	} else if ( (*it).lower().contains( "designer.xml" ) &&
-		    catList.find( "qt/designer" ) != catList.end() ) {
-	    if ( !separatorInserted )
-		separatorInserted = insertActionSeparator();
-	    actionGoDesigner->addTo( goMenu );
-	    actionGoDesigner->addTo( Toolbar );
-	} else if ( (*it).lower().contains( "assistant.xml" ) &&
-		    catList.find( "qt/assistant" ) != catList.end() ) {
-	    if ( !separatorInserted )
-		separatorInserted = insertActionSeparator();
-	    actionGoAssistant->addTo( goMenu );
-	    actionGoAssistant->addTo( Toolbar );
-	} else if ( (*it).lower().contains( "linguist.xml" ) &&
-		    catList.find( "qt/linguist" ) != catList.end() ) {
-	    if ( !separatorInserted )
-		separatorInserted = insertActionSeparator();
-	    actionGoLinguist->addTo( goMenu );
-	    actionGoLinguist->addTo( Toolbar );
+	    action = new QAction( title, QIconSet( pix ), title, 0, 0 );
+	    action->addTo( goMenu );
+	    action->addTo( Toolbar );
 	}
     }
 }
@@ -264,27 +242,12 @@ void MainWindow::find()
 
 void MainWindow::goHome()
 {
-    QSettings settings;
-
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString home = settings.readEntry( DocuParser::DocumentKey + "Homepage" );
+    QString home = Config::configuration()->homePage();
 
     if ( home.isEmpty() )
 	showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
     else
 	showLink( QString( home ) );
-}
-
-void MainWindow::showAssistantHelp()
-{
-    showLink( QString( qInstallPathDocs() ) +
-	      "/html/assistant.html" );
-}
-
-void MainWindow::showLinguistHelp()
-{
-    showLink( QString( qInstallPathDocs() ) +
-	      "/html/linguist-manual.html" );
 }
 
 void MainWindow::print()
@@ -356,12 +319,6 @@ void MainWindow::showBookmark( int id )
 	showLink( *bookmarks.find( id ) );
 }
 
-void MainWindow::showDesignerHelp()
-{
-    showLink( QString( qInstallPathDocs() ) +
-	      "/html/designer-manual.html" );
-}
-
 void MainWindow::showLinkFromClient( const QString &link )
 {
     raise();
@@ -398,7 +355,7 @@ void MainWindow::setFamily( const QString & f )
 void MainWindow::showSettingsDialog()
 {
     showSettingsDialog( -1 );
-} 
+}
 
 void MainWindow::showWebBrowserSettings()
 {
@@ -425,7 +382,7 @@ void MainWindow::showSettingsDialog( int page )
 
     if ( ret != QDialog::Accepted )
 	return;
-
+    /*
     actionGoQt->removeFrom( goMenu );
     actionGoQt->removeFrom( Toolbar );
     actionGoDesigner->removeFrom( goMenu );
@@ -434,6 +391,7 @@ void MainWindow::showSettingsDialog( int page )
     actionGoAssistant->removeFrom( Toolbar );
     actionGoLinguist->removeFrom( goMenu );
     actionGoLinguist->removeFrom( Toolbar );
+    */
     goMenu->removeItemAt( goMenu->count() - 1 );
     QObjectList *lst = (QObjectList*)Toolbar->children();
     QObject *obj;
@@ -490,21 +448,17 @@ MainWindow* MainWindow::newWindow()
 
 void MainWindow::saveSettings()
 {
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( DocuParser::DocumentKey + "Family",  tabs->font().family() );
-    config.writeEntry( DocuParser::DocumentKey + "Size",  tabs->font().pointSize() );
-    config.writeEntry( DocuParser::DocumentKey + "FixedFamily", tabs->styleSheet()->item( "pre" )->fontFamily() );
-    config.writeEntry( DocuParser::DocumentKey + "LinkUnderline", tabs->linkUnderline() );
-    config.writeEntry( DocuParser::DocumentKey + "LinkColor", tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
-    config.writeEntry( DocuParser::DocumentKey + "Source", tabs->currentBrowser()->source() );
-    //    config.writeEntry( DocuParser::DocumentKey + "Title", browser->caption() );
-    config.writeEntry( DocuParser::DocumentKey + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
-    config.writeEntry( DocuParser::DocumentKey + "GeometryX", x() );
-    config.writeEntry( DocuParser::DocumentKey + "GeometryY", y() );
-    config.writeEntry( DocuParser::DocumentKey + "GeometryWidth", width() );
-    config.writeEntry( DocuParser::DocumentKey + "GeometryHeight", height() );
-    config.writeEntry( DocuParser::DocumentKey + "GeometryMaximized", isMaximized() );
+    Config *config = Config::configuration();
+    config->setFontFamily( tabs->font().family() );
+    config->setFontSize( tabs->font().pointSize() );
+    config->setFontFixedFamily( tabs->styleSheet()->item( "pre" )->fontFamily() );
+    config->setLinkUnderline( tabs->linkUnderline() );
+    config->setLinkColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
+    config->setSource( tabs->currentBrowser()->source() );
+    config->setSideBarPage( helpDock->tabWidget->currentPageIndex() );
+    config->setGeometry( geometry() );
+    config->setMaximized( isMaximized() );
+    config->save();
 }
 
 void MainWindow::saveToolbarSettings()
@@ -512,9 +466,7 @@ void MainWindow::saveToolbarSettings()
     QString mainWindowLayout;
     QTextStream ts( &mainWindowLayout, IO_WriteOnly );
     ts << *this;
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( DocuParser::DocumentKey + "MainwindowLayout", mainWindowLayout );
+    Config::configuration()->setMainWindowLayout( mainWindowLayout );
 }
 
 

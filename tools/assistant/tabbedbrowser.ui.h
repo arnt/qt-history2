@@ -8,6 +8,7 @@
 *****************************************************************************/
 
 #include "docuparser.h"
+#include "config.h"
 
 void TabbedBrowser::forward()
 {
@@ -136,28 +137,28 @@ void TabbedBrowser::initHelpWindow( HelpWindow * /*win*/ )
 {
 }
 
-void TabbedBrowser::setup( const QSettings &settings )
+void TabbedBrowser::setup()
 {
+    Config *config = Config::configuration();
+
     QString base( qInstallPathDocs() );
 
     QFont fnt( font() );
     QFontInfo fntInfo( fnt );
-    fnt.setFamily( settings.readEntry( DocuParser::DocumentKey + "Family", fntInfo.family() ) );
-    fnt.setPointSize( settings.readNumEntry( DocuParser::DocumentKey + "Size", fntInfo.pointSize() ) );
+    fnt.setFamily( config->fontFamily() );
+    fnt.setPointSize( config->fontSize() );
     setFont( fnt );
 
     QPalette pal = palette();
-    QColor lc( settings.readEntry( DocuParser::DocumentKey + "LinkColor",
-	       pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
+    QColor lc( config->linkColor() );
     pal.setColor( QPalette::Active, QColorGroup::Link, lc );
     pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
     pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
     setPalette( pal );
 
-    tabLinkUnderline = settings.readBoolEntry( DocuParser::DocumentKey + "LinkUnderline", TRUE );
+    tabLinkUnderline = config->isLinkUnderline();
 
-    QString family = settings.readEntry( DocuParser::DocumentKey + "FixedFamily",
-					 tabStyleSheet->item( "pre" )->fontFamily() );
+    QString family = config->fontFixedFamily();
     tabStyleSheet->item( "pre" )->setFontFamily( family );
     tabStyleSheet->item( "code" )->setFontFamily( family );
     tabStyleSheet->item( "tt" )->setFontFamily( family );

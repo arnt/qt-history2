@@ -1,23 +1,23 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindow</class>
-<comment>*********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Assistant.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
+<comment>*********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Assistant.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
 *********************************************************************</comment>
 <widget class="QMainWindow">
     <property name="name">
@@ -38,6 +38,14 @@
 <menubar>
     <property name="name">
         <cstring>menubar</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1000</width>
+            <height>21</height>
+        </rect>
     </property>
     <item text="&amp;File" name="fileMenu">
         <action name="actionNewWindow"/>
@@ -71,7 +79,6 @@
     <item text="&amp;Bookmarks" name="bookmarkMenu">
     </item>
     <item text="&amp;Help" name="helpMenu">
-        <action name="actionGoAssistant"/>
         <separator/>
         <action name="actionAbout"/>
         <action name="actionAboutQt"/>
@@ -266,34 +273,6 @@
     </action>
     <action>
         <property name="name">
-            <cstring>actionGoQt</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>qt.png</iconset>
-        </property>
-        <property name="text">
-            <string>Qt Class Reference</string>
-        </property>
-        <property name="whatsThis">
-            <string>Display the Qt Reference Documentation.</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>actionGoDesigner</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>designer.png</iconset>
-        </property>
-        <property name="text">
-            <string>Qt Designer Manual</string>
-        </property>
-        <property name="whatsThis">
-            <string>Display the Qt Designer manual.</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
             <cstring>actionZoomIn</cstring>
         </property>
         <property name="iconSet">
@@ -330,20 +309,6 @@
         </property>
         <property name="accel">
             <string>Ctrl+-</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>actionGoLinguist</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>linguist.png</iconset>
-        </property>
-        <property name="text">
-            <string>Qt Linguist Manual</string>
-        </property>
-        <property name="whatsThis">
-            <string>Display the Guide to the Qt Translation Tools.</string>
         </property>
     </action>
     <action>
@@ -389,23 +354,6 @@
         </property>
         <property name="whatsThis">
             <string>Close the current window.</string>
-        </property>
-    </action>
-    <action>
-        <property name="name">
-            <cstring>actionGoAssistant</cstring>
-        </property>
-        <property name="iconSet">
-            <iconset>assistant.png</iconset>
-        </property>
-        <property name="text">
-            <string>Qt Assistant Manual</string>
-        </property>
-        <property name="whatsThis">
-            <string>Display the Qt Assistant manual.</string>
-        </property>
-        <property name="accel">
-            <string>F1</string>
         </property>
     </action>
     <action>
@@ -516,24 +464,6 @@
         <slot>print()</slot>
     </connection>
     <connection>
-        <sender>actionGoDesigner</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>showDesignerHelp()</slot>
-    </connection>
-    <connection>
-        <sender>actionGoQt</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>showQtHelp()</slot>
-    </connection>
-    <connection>
-        <sender>actionGoLinguist</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>showLinguistHelp()</slot>
-    </connection>
-    <connection>
         <sender>actionSettings</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -550,12 +480,6 @@
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>close()</slot>
-    </connection>
-    <connection>
-        <sender>actionGoAssistant</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>showAssistantHelp()</slot>
     </connection>
     <connection>
         <sender>actionHelpWhatsThis</sender>
@@ -623,13 +547,10 @@
     <slot>aboutQt()</slot>
     <slot>find()</slot>
     <slot>goHome()</slot>
-    <slot>showAssistantHelp()</slot>
-    <slot>showLinguistHelp()</slot>
     <slot>print()</slot>
     <slot>updateBookmarkMenu()</slot>
     <slot>setupBookmarkMenu()</slot>
     <slot>showBookmark( int id )</slot>
-    <slot>showDesignerHelp()</slot>
     <slot>showLinkFromClient( const QString &amp; link )</slot>
     <slot>showLink( const QString &amp; link )</slot>
     <slot>showQtHelp()</slot>

@@ -23,6 +23,7 @@
 #include "topicchooserimpl.h"
 #include "docuparser.h"
 #include "mainwindow.h"
+#include "config.h"
 
 #include <qprogressbar.h>
 #include <qfile.h>
@@ -107,7 +108,7 @@ QValidator::State SearchValidator::validate( QString &str, int & ) const
 	    return QValidator::Invalid;
     }
     return QValidator::Acceptable;
-}	
+}
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -259,9 +260,7 @@ void HelpDialog::generateNewDocu()
 
 bool HelpDialog::isValidCategory( QString category )
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList list = settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" );
+    QStringList list = Config::configuration()->selectedCategories();
     QStringList::iterator it = list.begin();
     for( ; it != list.end(); ++it ){
 	if( ((*it).lower() == category.lower()) || ( *it == "all" ) )
@@ -331,11 +330,7 @@ void HelpDialog::loadIndexFile()
 
 Q_UINT32 HelpDialog::getFileAges()
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-
-    QStringList addDocuFiles = settings.readListEntry( DocuParser::DocumentKey
-						       + "AdditionalDocFiles" );
+    QStringList addDocuFiles = Config::configuration()->docFiles();
     QStringList::const_iterator i = addDocuFiles.begin();
 
     Q_UINT32 fileAges = 0;
@@ -350,10 +345,7 @@ Q_UINT32 HelpDialog::getFileAges()
 
 void HelpDialog::buildKeywordDB()
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList addDocuFiles = settings.readListEntry( DocuParser::DocumentKey +
-						       "AdditionalDocFiles" );
+    QStringList addDocuFiles = Config::configuration()->docFiles();
     QStringList::iterator i = addDocuFiles.begin();
 
     int steps = 0;
@@ -473,10 +465,7 @@ void HelpDialog::getAllContents()
 
 void HelpDialog::buildContentDict()
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList docuFiles = settings.readListEntry( DocuParser::DocumentKey
-						    + "AdditionalDocFiles" );
+    QStringList docuFiles = Config::configuration()->docFiles();
 
     Q_UINT32 fileAges = 0;
     for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
@@ -648,7 +637,7 @@ bool HelpDialog::eventFilter( QObject * o, QEvent * e )
 
 void HelpDialog::addBookmark()
 {
-    /* ### 
+    /* ###
     if ( !bookmarksInserted )
 	insertBookmarks();
     QString link = QUrl( viewer->context(), viewer->source() ).path();
@@ -856,23 +845,24 @@ void HelpDialog::toggleSearch()
 
 void HelpDialog::removeDocFile( const QString &fileName )
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString fileKey = DocuParser::DocumentKey + "AdditionalDocFiles";
-    QString titleKey = DocuParser::DocumentKey + "AdditionalDocTitles";
-    QStringList lst = settings.readListEntry( fileKey );
-    QStringList titleLst = settings.readListEntry( titleKey );
-    QStringList::iterator it = titleLst.begin();
-    QStringList::iterator i = lst.begin();
-    for ( ; i != lst.end() && it != titleLst.end(); ++i, ++it ) {
-	if ( *i == fileName ) {
-	    titleLst.remove( it );
-	    lst.remove( i );
-	    break;
-	}
-    }
-    settings.writeEntry( fileKey, lst );
-    settings.writeEntry( titleKey, titleLst );
+//     QSettings settings;
+//     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+//     QString fileKey = DocuParser::DocumentKey + "AdditionalDocFiles";
+//     QString titleKey = DocuParser::DocumentKey + "AdditionalDocTitles";
+//     QStringList lst = settings.readListEntry( fileKey );
+//     QStringList titleLst = settings.readListEntry( titleKey );
+//     QStringList::iterator it = titleLst.begin();
+//     QStringList::iterator i = lst.begin();
+//     for ( ; i != lst.end() && it != titleLst.end(); ++i, ++it ) {
+// 	if ( *i == fileName ) {
+// 	    titleLst.remove( it );
+// 	    lst.remove( i );
+// 	    break;
+// 	}
+//     }
+//     settings.writeEntry( fileKey, lst );
+//     settings.writeEntry( titleKey, titleLst );
+    qDebug( "HelpDialog::removeDocFile() - not implemented!!" );
 }
 
 void HelpDialog::setupFullTextIndex()

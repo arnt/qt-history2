@@ -30,10 +30,15 @@ class ProfileHandler;
 class Profile
 {
     friend class ProfileHandler;
+    friend class Config;
 
 public:
     Profile( const QString &str );
     inline bool isValid() const;
+
+    inline void addDocFile( const QString &docfile );
+    inline void addDocFileIcon( const QString docfile, const QString &icon );
+    inline void addProperty( const QString &name, const QString &value );
 
 private:
     void load( const QString &str );
@@ -41,6 +46,7 @@ private:
 private:
     int valid:1;
     QMap<QString,QString> props;
+    QMap<QString,QString> icons;
     QStringList docs;
 };
 
@@ -50,5 +56,21 @@ inline bool Profile::isValid() const
     return valid;
 }
 
+inline void Profile::addDocFile( const QString &docfile )
+{
+    docs << docfile;
+}
+
+inline void Profile::addDocFileIcon( const QString docfile,
+				     const QString &icon )
+{
+    icons[docfile] = icon;
+}
+
+inline void Profile::addProperty( const QString &name,
+				  const QString &value )
+{
+    props[name] = value;
+}
 
 #endif

@@ -20,6 +20,7 @@
 
 #include "settingsdialogimpl.h"
 #include "docuparser.h"
+#include "config.h"
 
 #include <qcolordialog.h>
 #include <qtoolbutton.h>
@@ -112,24 +113,26 @@ SettingsDialog::SettingsDialog( QWidget *parent, const char* name )
 
 void SettingsDialog::init()
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    Config *config = Config::configuration();
+
     changed = FALSE;
     selectionChanged = FALSE;
 
-    browserApp->setText( settings.readEntry( DocuParser::DocumentKey + "Webbrowser", "" ) );
-    homePage->setText( settings.readEntry( DocuParser::DocumentKey + "Homepage", "" ) );
-    pdfApp->setText( settings.readEntry( DocuParser::DocumentKey + "PDFApplication", "" ) );
+    browserApp->setText( config->webBrowser() );
+    homePage->setText( config->homePage() );
+    pdfApp->setText( config->pdfReader() );
 
+    catListAvail.clear();
     docuFileBox->clear();
-    docuFileList = settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" );
-    docuTitleList = settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocTitles" );
+    docuFileList = config->docFiles();
+    docuTitleList = config->docFiles();
     QStringList::iterator it = docuTitleList.begin();
-    for ( ; it != docuTitleList.end(); ++it )
-	docuFileBox->insertItem( *it );
+    for ( ; it != docuTitleList.end(); ++it ) {
+	docuFileBox->insertItem( config->docTitle( *it ) );
+	catListAvail.append( config->docCategory( *it ) );
+    }
 
-    catListAvail = settings.readListEntry( DocuParser::DocumentKey + "CategoriesAvailable" );
-    catListSel = settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" );
+    catListSel = config->selectedCategories();
 
     insertCategories();
 }
@@ -399,15 +402,16 @@ void SettingsDialog::browseHomepage()
 
 void SettingsDialog::accept()
 {
-    QSettings *settings = new QSettings();
-    settings->insertSearchPath( QSettings::Windows, "/Trolltech" );
-    settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocFiles", docuFileList );
-    settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocTitles", docuTitleList );
-    settings->writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", catListAvail );
+    Config *config = Config::configuration();
 
-    settings->writeEntry( DocuParser::DocumentKey + "Webbrowser", browserApp->text() );
-    settings->writeEntry( DocuParser::DocumentKey + "Homepage", homePage->text() );
-    settings->writeEntry( DocuParser::DocumentKey + "PDFApplication", pdfApp->text() );
+    config->setWebBrowser( browserApp->text() );
+    config->setHomePage( homePage->text() );
+    config->setPdfReader( pdfApp->text() );
+
+    // ### Get back to this
+//     settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocFiles", docuFileList );
+//     settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocTitles", docuTitleList );
+//     settings->writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", catListAvail );
 
     hide();
 
@@ -416,12 +420,9 @@ void SettingsDialog::accept()
     QStringList newCatListSel = getCheckedItemList();
     if ( catListSel != newCatListSel || selectionChanged ) {
 	catListSel = newCatListSel;
-	settings->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", catListSel );
+	config->setSelectedCategories( catListSel );
 	changedCategory = TRUE;
     }
-
-    delete settings;
-    settings = 0;
 
     if ( changed ||  changedCategory ) {
 	changed = FALSE;
