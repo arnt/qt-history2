@@ -55,6 +55,8 @@ public:
     using QList<QObject*>::setAutoDelete;
     using QList<QObject*>::size;
     using QList<QObject*>::take;
+    using QList<QObject*>::begin;
+    using QList<QObject*>::end;
 
     using QList<QObject*>::operator!;
 };
