@@ -1,7 +1,6 @@
 #ifndef QABSTRACTITEMVIEW_P_H
 #define QABSTRACTITEMVIEW_P_H
 
-#include <qpointer.h>
 #include <private/qviewport_p.h>
 
 class QAbstractItemViewPrivate : public QViewportPrivate
@@ -25,7 +24,7 @@ public:
     QPointer<QWidget> currentEditor;
     QModelIndex editItem;
     mutable QAbstractItemDelegate *delegate;
-    QItemSelectionModelPointer selectionModel;
+    QItemSelectionModel* selectionModel;
  //    QVector<int> sorting;
 //     int sortColumn;
 

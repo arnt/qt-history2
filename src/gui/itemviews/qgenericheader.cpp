@@ -710,8 +710,8 @@ QRect QGenericHeader::selectionRect(const QItemSelection &selection) const
 	int right = 0;
 	int rangeLeft, rangeRight;
         int i;
-	for (i = 0; i < selection.ranges.count(); ++i) {
-            QItemSelectionRange r = selection.ranges.at(i);
+	for (i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange r = selection.at(i);
  	    if (r.parent().isValid())
  		continue; // we only know about toplevel items
 	    // FIXME an item inside the range may be the leftmost or rightmost
@@ -731,8 +731,8 @@ QRect QGenericHeader::selectionRect(const QItemSelection &selection) const
     int bottom = 0;
     int rangeTop, rangeBottom;
     int i;
-    for (i = 0; i < selection.ranges.count(); ++i) {
-        QItemSelectionRange r = selection.ranges.at(i);
+    for (i = 0; i < selection.count(); ++i) {
+        QItemSelectionRange r = selection.at(i);
  	if (r.parent().isValid())
  	    continue; // we only know about toplevel items
 	// FIXME an item inside the range may be the leftmost or rightmost

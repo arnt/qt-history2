@@ -468,7 +468,7 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 // 	return;
 //     d->topLeft = tl;
 //     d->bottomRight = br;
-    selectionModel()->select(new QItemSelection(tl, br, model()), mode, selectionBehavior());
+    selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
 QRect QGenericTreeView::selectionRect(const QItemSelection &selection) const
@@ -478,8 +478,8 @@ QRect QGenericTreeView::selectionRect(const QItemSelection &selection) const
     int rightPos = 0;
     int topPos = contentsHeight();
     int bottomPos = 0;
-    for (int i = 0; i < selection.ranges.count(); ++i) {
-	QItemSelectionRange r = selection.ranges.at(i);
+    for (int i = 0; i < selection.count(); ++i) {
+	QItemSelectionRange r = selection.at(i);
 	leftPos = qMin(columnViewportPosition(r.left()), leftPos);
 	rightPos = qMax(columnViewportPosition(r.right()) + columnWidth(r.right()), rightPos);
 	topPos = qMin(itemViewportRect(model()->index(r.top(), r.left(), r.parent())).top(), topPos);

@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include <qgenericitemmodel.h>
-#include <qshareddatapointer.h>
 #include <qlist.h>
 #endif
 
@@ -45,14 +44,7 @@ public:
     }
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
-    {
-	int t = top() > other.top() ? top() : other.top();
-	int l = left() > other.left() ? left() : other.left();
-	int b = bottom() < other.bottom() ? bottom() : other.bottom();
-	int r = right() < other.right() ? right() : other.right();
-	QItemSelectionRange isr(p, t, l, b, r);
-	return isr;
-    }
+	{ return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l), qMin(b, other.b), qMin(r, other.r)); }
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
@@ -71,31 +63,23 @@ private:
 
 class QItemSelectionModel;
 
-class QItemSelection : public QSharedObject
+class QItemSelection : public QList<QItemSelectionRange>
 {
-    friend class QItemSelectionModel;
 public:
     QItemSelection() {}
-    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-		   const QGenericItemModel *model);
-    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-		const QGenericItemModel *model);
+    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
+    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
     bool contains(const QModelIndex &item, const QGenericItemModel *model) const;
-    inline void append(QItemSelectionRange &range) { ranges.append(range); }
 
     bool operator==(const QItemSelection &other) const;
     inline bool operator!=(const QItemSelection &other) const { return !operator==(other); }
 
     QModelIndexList items(QGenericItemModel *model) const;
-
-//private:
-    QList<QItemSelectionRange> ranges;
 };
 
-typedef QExplicitlySharedDataPointer<QItemSelection> QItemSelectionPointer;
 class QItemSelectionModelPrivate;
 
-class Q_GUI_EXPORT QItemSelectionModel : public QObject, public QSharedObject
+class Q_GUI_EXPORT QItemSelectionModel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QItemSelectionModel);
@@ -127,7 +111,7 @@ public:
     virtual void select(const QModelIndex &item,
 			SelectionUpdateMode mode,
 			SelectionBehavior behavior);
-    virtual void select(QItemSelection *selection,
+    virtual void select(const QItemSelection &selection,
 			SelectionUpdateMode mode,
 			SelectionBehavior behavior);
     virtual void clear();
@@ -148,18 +132,13 @@ public:
     QModelIndexList selectedItems() const;
 
 signals:
-    void selectionChanged(const QItemSelectionPointer &deselected,
-			  const QItemSelectionPointer &selected);
+    void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 
 protected:
-    void exchange(QItemSelectionPointer &oldSelection,
-		  const QItemSelectionPointer &newSelection,
-		  bool alterRanges = true);
-    void toggle(const QItemSelectionPointer &selection, bool emitSelectionChanged = true);
+    void exchange(QItemSelection &oldSelection, const QItemSelection &newSelection, bool alterRanges = true);
+    void toggle(const QItemSelection &selection, bool emitSelectionChanged = true);
     void mergeCurrentSelection();
 };
-
-typedef QExplicitlySharedDataPointer<QItemSelectionModel> QItemSelectionModelPointer;
 
 #endif

@@ -68,6 +68,7 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
+	selectionModel(0),
 //        sortColumn(-1),
         layoutLock(false),
         state(QAbstractItemView::NoState),
@@ -630,30 +631,28 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 
     if (!!d->selectionModel) {
 	disconnect(d->selectionModel,
-		   SIGNAL(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)),
-		   this, SLOT(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)));
+		   SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+		   this, SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
 	disconnect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 		   this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
     }
 
     d->selectionModel = selectionModel;
 
-    connect(d->selectionModel, SIGNAL(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)),
-	    this, SLOT(selectionChanged(const QItemSelectionPointer&, const QItemSelectionPointer&)));
+    connect(d->selectionModel, SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+	    this, SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
     connect(d->selectionModel, SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 	    this, SLOT(currentChanged(const QModelIndex&, const QModelIndex&)));
 }
 
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
-    return const_cast<QItemSelectionModel *>(d->selectionModel.data());
+    return d->selectionModel;
 }
 
-void QAbstractItemView::selectionChanged(const QItemSelectionPointer &deselected,
-					 const QItemSelectionPointer &selected)
+void QAbstractItemView::selectionChanged(const QItemSelection &deselected, const QItemSelection &selected)
 {
-    if (!!deselected || !!selected)
-	update();
+    update();
 }
 
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)

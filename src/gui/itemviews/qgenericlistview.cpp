@@ -453,7 +453,7 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 	return;
     //qHeapSort( items ); // FIXME: should be sorted by row
 
-    QItemSelection *selection = new QItemSelection;
+    QItemSelection selection;
     QModelIndex tl;
     QModelIndex br;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
@@ -465,12 +465,12 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 	} else if ((*it).row() == (br.row() + 1)) {
 	    br = (*it); // expand current range
 	} else {
-	    selection->select(tl, br, model()); // select current range
+	    selection.select(tl, br, model()); // select current range
 	    tl = br = *it; // start new range
 	}
     }
     if (tl.isValid() && br.isValid())
- 	selection->select(tl, br, model());
+ 	selection.select(tl, br, model());
 
     selectionModel()->select(selection, mode, selectionBehavior());
 }

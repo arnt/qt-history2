@@ -288,7 +288,7 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
     d->bottomRight = br;
 
     // FIXME: only change selection when the tl and br items have changed
-    selectionModel()->select(new QItemSelection(tl, br, model()), mode, selectionBehavior());
+    selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
 QRect QGenericTableView::selectionRect(const QItemSelection &selection) const
@@ -303,8 +303,8 @@ QRect QGenericTableView::selectionRect(const QItemSelection &selection) const
     int right = 0;
     int rangeTop, rangeLeft, rangeBottom, rangeRight;
     int i;
-    for (i = 0; i < selection.ranges.count(); ++i) {
-        QItemSelectionRange r = selection.ranges.at(i);
+    for (i = 0; i < selection.count(); ++i) {
+        QItemSelectionRange r = selection.at(i);
 	if (r.parent().isValid())
 	    continue; // FIXME: table don't know about anything but toplevel items
 	rangeTop = d->leftHeader->index(r.top());
@@ -537,7 +537,7 @@ void QGenericTableView::selectRow(int row, ButtonState state)
 	QModelIndex br = model()->index(row, bottomRight.column(), root());
 	selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate,
 					 QItemSelectionModel::SelectItems);
-	selectionModel()->select(new QItemSelection(tl, br, model()),
+	selectionModel()->select(QItemSelection(tl, br, model()),
 				 selectionUpdateMode(state),
 				 QItemSelectionModel::SelectItems);
     }
@@ -551,7 +551,7 @@ void QGenericTableView::selectColumn(int column, ButtonState state)
 	QModelIndex br = model()->index(bottomRight.row(), column, root());
 	selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate,
 					 QItemSelectionModel::SelectItems);
-	selectionModel()->select(new QItemSelection(tl, br, model()),
+	selectionModel()->select(QItemSelection(tl, br, model()),
 				 selectionUpdateMode(state),
 				 QItemSelectionModel::SelectItems);
     }
