@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1037,6 +1037,8 @@ bool QUrl::isDir()
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
+    
+    return TRUE;
 }
 
 bool QUrl::isFile()
@@ -1052,6 +1054,8 @@ bool QUrl::isFile()
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
+    
+    return TRUE;
 }
 
 void QUrl::setNameFilter( const QString &nameFilter )
@@ -1066,9 +1070,12 @@ QString QUrl::nameFilter() const
 
 QString QUrl::toString() const
 {
-    if ( isLocalFile() )
+    if ( isLocalFile() ) {
+	if ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
+					    qNetworkProtocolRegister->count() == 0 ) )
+	    return QDir::cleanDirPath( d->path );
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
-    else if ( d->networkProtocol )
+    } else if ( d->networkProtocol )
 	return d->networkProtocol->toString();
 
     return QString::null;
