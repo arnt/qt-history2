@@ -189,8 +189,8 @@ QByteArray QFSFileEnginePrivate::win95Name(const QString &path)
 
 bool isValidFile(const QString& fileName)
 {
-    // Only : needs to be checked for, other invalid characters
-    // are currently checked by fopen()
+    // Only character : needs to be checked for, other invalid characters
+    // are currently checked by open()
     int findColon = fileName.lastIndexOf(':');
     if (findColon == -1)
         return true;
