@@ -490,8 +490,8 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget) {
-	return FALSE;
 	dragSource = 0;
+	return FALSE;
     }
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
@@ -538,6 +538,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     macDndExtra->acceptact = de.isActionAccepted();
     macDndExtra->acceptfmt = de.isAccepted();
     drag_received = TRUE;
+    current_drag_widget = NULL;
     return macDndExtra->acceptfmt ? noErr : dragNotAcceptedErr;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
