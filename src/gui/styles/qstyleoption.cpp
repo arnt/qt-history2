@@ -14,157 +14,191 @@
 #include "qstyleoption.h"
 
 /*!
-    \class QStyleOption qstyleoption.h
-    \brief The QStyleOption class and its sub-classes are used to
-    describe the parameters used by QStyle functions.
+    \class QStyleOption
+    \brief The QStyleOption class stores the parameters used by QStyle functions.
 
     \ingroup appearance
 
-    In previous Qt versions, many QStyle functions required a QWidget parameter
-    of a certain type in order for it to work correctly. This coupled the
-    QStyle closely to the widgets it was styling. In Qt 4.0, this restriction
-    has been removed.  Instead, a QStyleOption or one of its sub-classes supply
-    the information the function needs.
+    QStyleOption and its subclasses contain all the information that
+    QStyle functions need to draw a graphical element.
 
-    QStyleOption and its sub-classes all have a version parameter. The current
-    version is 0.  This version number must be specified explicitly when
-    creating the structure.  The version number helps to ensure future
-    expansion without ruining compatiblity with older styles.
+    For performance reasons, there are few member functions and the
+    access to the variables is direct. The "low-level" feel makes the
+    structures use straightforward and empahsizes that these are
+    simply parameters used by the style functions. As a downside, it
+    forces developers to be careful to initialize all the variables.
 
-    Contrary to the rest of Qt, there are few member functions and the access
-    to the variables is direct. The "low-level" feel makes the structures use
-    straight forward and empahsizes that these are parameters used by the style
-    functions, not clases. As a downside it forces developers to be careful to
-    initialize all the variables.
+    Example:
 
-    QStyleOption and its sub-classes can be safely checked using the qt_cast()
-    functions.
+    \code
+        void MyStyle::drawPrimitive(PrimitiveElement element,
+                                    const QStyleOption *option,
+                                    QPainter *painter,
+                                    const QWidget *widget)
+        {
+            QRect rect = option->rect;
+            QPalette palette = option->palette;
+
+            ...
+        }
+    \endcode
+
+    When reimplementing QStyle functions that take a QStyleOption
+    parameter, you often need to cast the QStyleOption to a subclass
+    (e.g., QStyleOptionFocusRect). For safety, you can use
+    qt_cast<T>() to ensure that the pointer type is correct. For
+    example:
+
+    \code
+        void MyStyle::drawPrimitive(PrimitiveElement element,
+                                    const QStyleOption *option,
+                                    QPainter *painter,
+                                    const QWidget *widget)
+        {
+            if (element == PE_FocusRect) {
+                const QStyleOptionFocusRect *focusRectOption =
+                        qt_cast<const QStyleOptionFocusRect *>(option);
+                if (focusRectOption) {
+                    ...
+                }
+            } else {
+                ...
+            }
+        }
+    \endcode
+
+    Unless you implement a custom style, you don't need to use
+    QStyleOption or any of its subclasses.
+
+    \sa QStyle
 */
 
 /*!
-  \enum QStyleOption::OptionType
+    \enum QStyleOption::OptionType
 
-  This enum is used internally by the QStyleOption, its sub-classes and
-  qt_cast() to determine the type of style option. In general you do not need
-  to worry about this unless you want to create your own QStyleOption
-  sub-class.
+    This enum is used internally by QStyleOption, its subclasses, and
+    qt_cast() to determine the type of style option. In general you do not need
+    to worry about this unless you want to create your own QStyleOption
+    subclass and your own styles.
 
-  \value SO_Default Indicates a default QStyleOption
-  \value SO_FocusRect Indicates a \l QStyleOptionFocusRect
-  \value SO_Button Indicates a \l QStyleOptionButton
-  \value SO_Tab Indicates a \l QStyleOptionTab
-  \value SO_MenuItem Indicates a \l QStyleOptionMenuItem
-  \value SO_Complex Indicates a \l QStyleOptionComplex
-  \value SO_Slider Indicates a \l QStyleOptionSlider
-  \value SO_Frame Indicates a \l QStyleOptionFrame
-  \value SO_ProgressBar Indicates a \l QStyleOptionProgressBar
-  \value SO_ListView Indicates a \l QStyleOptionListView
-  \value SO_ListViewItem Indicates a \l QStyleOptionListViewItem
-  \value SO_Header Indicates a \l QStyleOptionHeader
-  \value SO_DockWindow Indicates a \l QStyleOptionDockWindow
-  \value SO_SpinBox Indicates a \l QStyleOptionSpinBox
-  \value SO_ToolButton Indicates a \l QStyleOptionToolButton
-  \value SO_ComboBox Indicates a \l QStyleOptionComboBox
-  \value SO_ToolBox Indicates a \l QStyleOptionToolBox
-  \value SO_TitleBar Indicates a \l QStyleOptionTitleBar
-  \value SO_ViewItem Indicates a \l QStyleOptionViewItem (used in Interviews)
-  \value SO_CustomBase This is reserved for custom QStyleOptions,
-                        all custom values must be above this value.
-
+    \value SO_Default QStyleOption
+    \value SO_FocusRect \l QStyleOptionFocusRect
+    \value SO_Button \l QStyleOptionButton
+    \value SO_Tab \l QStyleOptionTab
+    \value SO_MenuItem \l QStyleOptionMenuItem
+    \value SO_Complex \l QStyleOptionComplex
+    \value SO_Slider \l QStyleOptionSlider
+    \value SO_Frame \l QStyleOptionFrame
+    \value SO_ProgressBar \l QStyleOptionProgressBar
+    \value SO_ListView \l QStyleOptionListView
+    \value SO_ListViewItem \l QStyleOptionListViewItem
+    \value SO_Header \l QStyleOptionHeader
+    \value SO_DockWindow \l QStyleOptionDockWindow
+    \value SO_SpinBox \l QStyleOptionSpinBox
+    \value SO_ToolButton \l QStyleOptionToolButton
+    \value SO_ComboBox \l QStyleOptionComboBox
+    \value SO_ToolBox \l QStyleOptionToolBox
+    \value SO_TitleBar \l QStyleOptionTitleBar
+    \value SO_ViewItem \l QStyleOptionViewItem (used in Interviews)
+    \value SO_CustomBase Reserved for custom QStyleOptions;
+                         all custom controls values must be above this value
+    \value SO_ComplexCustomBase Reserved for custom QStyleOptions;
+                         all custom complex controls values must be above this value
 */
+
 /*!
-  Constructs a QStyleOption with version \a optionversion and type \a optiontype.
-  Usually, you will only pass \a optionversion. The \a optiontype parameter is
-  mainly used by the subclasses for RTTI information.
+    Constructs a QStyleOption with version \a version and type \a
+    type.
+
+    The version has no special meaning for QStyleOption; it can be
+    used by subclasses to distinguish between different version of
+    the same option type.
+
+    The \l state member variable is initialized to
+    QStyle::Style_Default.
+
+    \sa version, type
 */
 
-QStyleOption::QStyleOption(int optionversion, int optiontype)
-    : version(optionversion), type(optiontype), state(QStyle::Style_Default)
+QStyleOption::QStyleOption(int version, int type)
+    : version(version), type(type), state(QStyle::Style_Default)
 {
 }
 
 
 /*!
-  Destroys the style option.
+    Destroys the style option object.
 */
 QStyleOption::~QStyleOption()
 {
 }
 
 /*!
-  A convenience function that intializes some of the variables in the
-  QStyleOption structure based on the widget \a w.
+    Intializes the \l state, \l rect, and \l palette member variables
+    based on \a widget.
 
-  The init() function assigns the rect and palette variables to \a w's rect()
-  and palette() respectively. It also initializes the state variable checking
-  if the widget is enabled and if it has focus.
+    This function is provided only for convenience. You can also
+    initialize the \l state, \l rect, and \l palette variables
+    manually if you want.
 */
-void QStyleOption::init(const QWidget *w)
+void QStyleOption::init(const QWidget *widget)
 {
     state = QStyle::Style_Default;
-    if (w->isEnabled())
+    if (widget->isEnabled())
         state |= QStyle::Style_Enabled;
-    if (w->hasFocus())
+    if (widget->hasFocus())
         state |= QStyle::Style_HasFocus;
-    rect = w->rect();
-    palette = w->palette();
+    rect = widget->rect();
+    palette = widget->palette();
 }
 
 /*!
     \property QStyleOption::palette
-
     \brief The palette that should be used in when painting the control
 */
 
 /*!
     \property QStyleOption::rect
-
     \brief The area that should be used for various calculations and painting.
 
-    This can have overloaded meanings. For example, for \l CE_PushButton it would
-    be the rectangle for the entire button, while for \l CE_PushButtonLabel it
-    would be just the area for the label.
+    This can have different meanings for different types of elements.
+    For example, for \l QStyle::CE_PushButton it would be the
+    rectangle for the entire button, while for \l
+    QStyle::CE_PushButtonLabel it would be just the area for the push
+    button label.
 */
 
 /*!
     \property QStyleOption::state
-
     \brief The QStyle::StyleFlags that are used when drawing the control.
 
-    Several flags can be OR'd together. See drawControl and drawPrimitive for
-    further information.
-
-    \sa QStyle::drawPrimitive() QStyle::drawControl() QStyle::drawComplexControl() QStyle::StyleFlags
+    \sa QStyle::drawPrimitive(), QStyle::drawControl(), QStyle::drawComplexControl(),
+        QStyle::StyleFlags
 */
 
 /*!
     \property QStyleOption::type
-
     \brief The \l OptionType of the QStyleOption
 */
 
 /*!
     \property QStyleOption::version
-
     \brief The version of the QStyleOption
 
-    The current default is 0.
+    This value can be used by subclasses to implement extensions
+    without breaking compatibility. If you use qt_cast<T>(), you
+    normally don't need to check it.
 */
 
 /*!
-    \class QStyleOptionFocusRect qstyleoption.h
+    \class QStyleOptionFocusRect
     \brief The QStyleOptionFocusRect class is used to describe the
-    parameters for drawing a focus rect with QStyle.
-
-    Note that on Mac OS X, the focus rect is handled by a FocusWidget, so be
-    sure that you only use the focus rect for things that really need a focus
-    rect or that it is not calling the QMacStyle::drawPrimitive in that case.
-
-    \ingroup appearance
+    parameters for drawing a focus rectangle with QStyle.
 */
 
 /*!
-  Constructs a QStyleOptionFocusRect.
+    Constructs a QStyleOptionFocusRect. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionFocusRect::QStyleOptionFocusRect()
@@ -172,6 +206,9 @@ QStyleOptionFocusRect::QStyleOptionFocusRect()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     : QStyleOption(version, SO_FocusRect)
 {
@@ -179,22 +216,21 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 
 /*!
     \property QStyleOptionFocusRect::backgroundColor
-
-    \brief The background color on which the focus rect is being drawn.
+    \brief The background color on which the focus rectangle is being drawn.
 */
 
 /*!
-    \class QStyleOptionFrame qstyleoption.h
+    \class QStyleOptionFrame
     \brief The QStyleOptionFrame class is used to describe the
     parameters for drawing a frame.
 
-    QStyleOptionFrame is used for drawing several objects inside of Qt. Among
-    them: QFrame, QGroupBox, QLineEdits, and the frame around a QMenu.
+    QStyleOptionFrame is used for drawing several built-in Qt widget,
+    including QFrame, QGroupBox, QLineEdit, and QMenu.
 */
 
 /*!
-    Constructs a QStyleOptionFrame. The other
-    members of the struct are set to zero.
+    Constructs a QStyleOptionFrame. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionFrame::QStyleOptionFrame()
@@ -202,6 +238,9 @@ QStyleOptionFrame::QStyleOptionFrame()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionFrame::QStyleOptionFrame(int version)
     : QStyleOption(version, SO_Frame), lineWidth(0), midLineWidth(0)
 {
@@ -209,30 +248,27 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 
 /*!
     \property QStyleOptionFrame::lineWidth
-
     \brief The line width for drawing the panel.
 */
 
 /*!
     \property QStyleOptionFrame::midLineWidth
-
     \brief The mid-line width for drawing the panel. This is usually used in
     drawing sunken or raised frames.
 */
 
 /*!
-    \class QStyleOptionHeader qstyleoption.h
+    \class QStyleOptionHeader
     \brief The QStyleOptionHeader class is used to describe the
     parameters for drawing a header.
 
-    The QStleOptionHeader structure is used for drawing the header pane, the
-    header sort arrow, and the header label.
+    The QStyleOptionHeader class is used for drawing the item views'
+    header pane, header sort arrow, and header label.
 */
 
 /*!
-    Constructs a QStyleOptionHeader. The
-    members are either null, empty, or zero. It is your responsibilty to set
-    the correct values yourself.
+    Constructs a QStyleOptionHeader. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionHeader::QStyleOptionHeader()
@@ -240,6 +276,9 @@ QStyleOptionHeader::QStyleOptionHeader()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionHeader::QStyleOptionHeader(int version)
     : QStyleOption(version, SO_Header), section(0)
 {
@@ -248,30 +287,28 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
 /*!
     \property QStyleOptionHeader::section
-
     \brief Which section of the header is being painted.
 */
 
 /*!
     \property QStyleOptionHeader::text
-
-    \brief The text (if any) of the header.
+    \brief The text of the header.
 */
 
 /*!
     \property QStyleOptionHeader::icon
-
-    \brief The iconset (if any) of the header.
+    \brief The icon of the header.
 */
 
 /*!
-    \class QStyleOptionButton qstyleoption.h
+    \class QStyleOptionButton
     \brief The QStyleOptionButton class is used to describe the
     parameters for drawing buttons.
 
-    The QStyleOptionButton structure is used to draw \l QPushbuttons, \l
-    QCheckBoxes, and \l QRadioButtons. \l QStyleOptionToolButton is used to draw
-    a \l QToolButton.
+    The QStyleOptionButton class is used to draw \l QPushButton, \l
+    QCheckBox, and \l QRadioButton.
+
+    \sa QStyleOptionToolButton
 */
 
 /*!
@@ -283,13 +320,12 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \value Flat Indicates a flat push button.
     \value HasMenu Indicates that the button has a drop down menu.
 
-    \sa QStyleOptionButton::features
+    \sa features
 */
 
 /*!
-    Constructs a QStyleOptionButton. The rest of the
-    parameters are either zero, null, or empty. It is the developer's
-    responsibilty to populate the structure with the proper parameters.
+    Constructs a QStyleOptionButton. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionButton::QStyleOptionButton()
@@ -297,6 +333,9 @@ QStyleOptionButton::QStyleOptionButton()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionButton::QStyleOptionButton(int version)
     : QStyleOption(version, SO_Button), features(None)
 {
@@ -307,32 +346,32 @@ QStyleOptionButton::QStyleOptionButton(int version)
     \brief The features for the button
 
     This variable is a bitwise OR of the features that describe this button.
+
     \sa ButtonFeature
 */
 
 /*!
     \property QStyleOptionButton::text
-    \brief The text (if any) of the button.
+    \brief The text of the button.
 */
 
 /*!
     \property QStyleOptionButton::icon
-    \brief The iconset of the button (if any).
+    \brief The icon of the button.
 */
 
 /*!
-    \class QStyleOptionTab qstyleoption.h
+    \class QStyleOptionTab
     \brief The QStyleOptionTab class is used to describe the
-    parameters for drawing a TabBar.
+    parameters for drawing a tab bar.
 
-    The QStyleOptionTab structure is used for drawing the \l QTabBar and the
+    The QStyleOptionTab class is used for drawing \l QTabBar and the
     pane for \l QTabWidget.
 */
 
 /*!
-    Constructs a QStyleOptionTab structure. The
-    parameters are either 0, empty or null. It is the developer's
-    responsibility to populate the structure with proper values.
+    Constructs a QStyleOptionTab object. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionTab::QStyleOptionTab()
@@ -340,11 +379,23 @@ QStyleOptionTab::QStyleOptionTab()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionTab::QStyleOptionTab(int version)
     : QStyleOption(version, SO_Tab), row(0)
 {
 }
 
+/*! \enum QStyleOptionTab::TabPosition
+
+    \value Beginning The tab is the first tab in the tab bar.
+    \value Middle The tab is neither the first nor the last tab in the tab bar.
+    \value End The tab is the last tab in the tab bar.
+    \value OnlyOneTab The tab is both the first and the last tab in the tab bar.
+
+    \sa position
+*/
 
 /*!
     \property QStyleOptionTab::shape
@@ -354,48 +405,54 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \property QStyleOptionTab::text
-    \brief The text of the tab (if any).
+    \brief The text of the tab.
 */
 
 /*!
     \property QStyleOptionTab::icon
-    \brief The iconset for the tab (if any).
+    \brief The icon for the tab.
 */
 
 /*!
     \property QStyleOptionTab::row
-    \brief which row the tab is currently in. 0 indicates the front row.
+    \brief which row the tab is currently in
 
-    Currently this property is not used.
+    0 indicates the front row.
+
+    Currently this property can only be 0.
 */
 
 /*!
-    \class QStyleOptionProgressBar qstyleoption.h
+    \property QStyleOptionTab::position
+    \brief the position of the tab in the tab bar
+*/
+
+/*!
+    \class QStyleOptionProgressBar
     \brief The QStyleOptionProgressBar class is used to describe the
     parameters necessary for drawing a progress bar.
 
-    The QStyleOptionProgressBar structure is used to draw \l QProgressBars.
+    The QStyleOptionProgressBar class is used to draw \l QProgressBar.
 */
 
 /*!
     \enum QStyleOptionProgressBar::ProgressBarFeature
 
     This describes features for a progress bar.
+
     \value None Indicates a normal progress bar.
     \value CenterIndicator Indicates that the percentage indicator \l
-    progressBarString should be centered.
-    \value PercentageVisible Indicates that the \l progressBarString should also be drawn
-    \sa QProgressBar::percentageVisible.
+        progressBarString should be centered.
+    \value PercentageVisible Indicates that the \l progressBarString should also be drawn.
     \value IndicatorFollowsStyle Indicates that the \l progressBarString should
-    follow the style.
+        follow the style.
 
-    \sa features QProgressBar::indicatorFollowsStyle QProgressBar::centerIndicator
+    \sa features, QProgressBar::indicatorFollowsStyle, QProgressBar::centerIndicator
 */
 
 /*!
-    Constructs a QStyleOptionProgressBar. The values are
-    either 0 or empty. It is the responsibilty of the developer to populate the
-    structure with the proper values.
+    Constructs a QStyleOptionProgressBar. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionProgressBar::QStyleOptionProgressBar()
@@ -404,6 +461,9 @@ QStyleOptionProgressBar::QStyleOptionProgressBar()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     : QStyleOption(version, SO_ProgressBar), features(None), totalSteps(0), progress(0)
 {
@@ -414,7 +474,8 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \property QStyleOptionProgressBar::features
     \brief Describes the features of the progress bar.
 
-    This is a bitwise OR of the features of the progress bar.
+    This variable is a bitwise OR of the features of the progress bar.
+
     \sa ProgressBarFeature
 */
 
@@ -422,7 +483,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \property QStyleOptionProgressBar::progressString
     \brief The progress of the progress bar as a string.
 
-    This is the progress in terms of a string. If the string is empty, it
+    This is the progress expressed as a string. An empty string
     indicates that the progress bar hasn't started yet.
 
     \sa QProgressBar::progressString
@@ -432,9 +493,9 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \property QStyleOptionProgressBar::totalSteps
     \brief The total steps for the progress bar.
 
-    The total number of steps for the progress bar. If the totalSteps is zero,
-    it indicates that a busy indicator should be drawn instead of a standard
-    progress bar.
+    The total number of steps for the progress bar. A \l totalSteps
+    of 0 indicates that a busy indicator should be drawn instead of a
+    standard progress bar.
 
     \sa QProgressBar::totalSteps
 */
@@ -443,23 +504,22 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \property QStyleOptionProgressBar::progress
     \brief the current progress for the progress bar.
 
-    The current progress. If the value is -1, it indicates that the progress
+    The current progress. A value of -1 indicates that the progress
     hasn't started yet.
 */
 
 /*!
-    \class QStyleOptionMenuItem qstyleoption.h
+    \class QStyleOptionMenuItem
     \brief The QStyleOptionMenuItem class is used to describe the
     parameter necessary for drawing a menu item.
 
-    The QStyleOptionMenuItem is used for drawing menu items from \l QMenu.
-    It is also used for drawing a variety of other menu related things.
+    The QStyleOptionMenuItem is used for drawing menu items from \l
+    QMenu. It is also used for drawing other menu-related widgets.
 */
 
 /*!
-    Constructs a QStyleOptionMenuItem. The values of
-    the structure are either zero, null, or empty. It is the responsibilty of
-    the developer to make sure these have proper values.
+    Constructs a QStyleOptionMenuItem. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionMenuItem::QStyleOptionMenuItem()
@@ -468,6 +528,9 @@ QStyleOptionMenuItem::QStyleOptionMenuItem()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
       checkState(NotCheckable), maxIconWidth(0), tabWidth(0)
@@ -477,7 +540,9 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \enum QStyleOptionMenuItem::MenuItemType
+
     These values indicate the type of menu item that the structure describes.
+
     \value Normal A normal menu item.
     \value Separator A menu separator.
     \value SubMenu Indicates the menu item points to a sub-menu.
@@ -485,7 +550,6 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \value TearOff A tear-off handle for the menu.
     \value Margin The margin of the menu.
     \value EmptyArea The empty area of the menu.
-
 */
 
 /*!
@@ -503,52 +567,59 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \property QStyleOptionMenuItem::menuItemType
-    \brief The current menuItemType for the structure.
+
+    \brief the type of menu item
+
     \sa MenuItemType
 */
 
 /*!
     \property QStyleOptionMenuItem::checkState
-    \brief The checkmark state for the structure.
+    \brief The checkmark state of the menu item
     \sa CheckState
 */
 
 /*!
+    \property QStyleOptionMenuItem::exclusive
+    \brief whether the menu option is exclusive or not
+*/
+
+/*!
     \property QStyleOptionMenuItem::menuRect
-    \brief The rect for the entire menu.
+    \brief The rectangle for the entire menu.
 */
 
 /*!
     \property QStyleOptionMenuItem::text
-    \brief The text (if any) for the menu item.
+    \brief The text for the menu item.
 
-    Note that the text format is something like this:
-    MenuText<Tab>MenuShortCut
+    Note that the text format is something like this "Menu
+    text\bold{\\t}Shortcut".
 
-    If the menu item does not have a shortcut it will just contain the menu
-    item's text.
+    If the menu item doesn't have a shortcut, it will just contain
+    the menu item's text.
 */
 
 /*!
     \property QStyleOptionMenuItem::icon
-    \brief The icon (if any) for the menu item.
+    \brief The icon for the menu item.
 */
 
 /*!
     \property QStyleOptionMenuItem::maxIconWidth
     \brief the maximum icon width for the icon in the menu item.
 
-    This can be used for drawing the icon into the correct place or properly
-    aligning items. maxIconWidth is set regardless of whether or not the menu
-    item has an icon or not.
+    This can be used for drawing the icon into the correct place or
+    properly aligning items. The variable must be set regardless of
+    whether or not the menu item has an icon.
 */
 
 /*!
     \property QStyleOptionMenuItem::tabWidth
     \brief The tab width for the menu item.
 
-    The tab width is the distance between the text of the menu item and the
-    shortcut if it contains one.
+    The tab width is the distance between the text of the menu item
+    and the shortcut.
 */
 
 
@@ -561,20 +632,22 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \class QStyleOptionComplex qstyleoption.h
+    \class QStyleOptionComplex
     \brief The QStyleOptionComplex class is used to hold parameters that are
     common to all complex controls.
 
     This class is not used on its own. Instead it is used to derive other
     complex control options, for example \l QStyleOptionSlider and
-    \l QStyleOptionSpinbox.
+    \l QStyleOptionSpinBox.
 */
 
 /*!
-    Constructs a QStyleOptioncomplex of type \a type and version \a version.
-    Usually this constructor is called by structures derived
-    QStyleOptionComplex.  The \l subControls parameter is initialized to \l
-    QStyle::SC_All and the \l activeSubControls is linked to \l QStyle::SC_None.
+    Constructs a QStyleOptionComplex of type \a type and version \a
+    version. Usually this constructor is called by subclasses.
+
+    The \l subControls member is initialized to \l QStyle::SC_All.
+    The \l activeSubControls member is initialized to \l
+    QStyle::SC_None.
 */
 
 QStyleOptionComplex::QStyleOptionComplex(int version, int type)
@@ -587,6 +660,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     \brief The sub-controls that need to be painted.
 
     This is a bitwise OR of the various parts that need to be drawn for the complex control.
+
     \sa QStyle::SubControl
 */
 
@@ -594,23 +668,23 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     \property QStyleOptionComplex::activeParts
     \brief The sub-controls that are active for the complex control.
 
-    This a bitwise OR of the various parts that are "active" (pressed) for the complex control.
+    This a bitwise OR of the various parts that are active (pressed) for the complex control.
+
     \sa QStyle::SubControl
 */
 
 /*!
-    \class QStyleOptionSlider qstyleoption.h
+    \class QStyleOptionSlider
     \brief The QStyleOptionSlider class is used to describe the
     parameters needed for drawing a slider.
 
-    The QStyleOptionSlider structure is used for drawing both a \l QSlider and a \l QScrollBar.
+    The QStyleOptionSlider class is used for drawing \l QSlider and
+    \l QScrollBar.
 */
 
 /*!
-    Constructs a QStyleOptionSlider.
-
-    All the values in the structure are initialized to zero. It is the
-    responsibility of the developer to set them to the proper value.
+    Constructs a QStyleOptionSlider. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionSlider::QStyleOptionSlider()
@@ -620,6 +694,9 @@ QStyleOptionSlider::QStyleOptionSlider()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionSlider::QStyleOptionSlider(int version)
     : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
       tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false),
@@ -629,7 +706,8 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 /*!
     \property QStyleOptionSlider::orientation
-    \brief Indicates whether the slider is horizontal or vertical.
+    \brief the slider's orientation (horizontal or vertical)
+
     \sa Qt::Orientation
 */
 
@@ -646,6 +724,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 /*!
     \property QStyleOptionSlider::tickmarks
     \brief Indicates the type of tickmarks the slider should have, if any.
+
     \sa QSlider::TickSetting
 */
 
@@ -658,31 +737,34 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     \property QStyleOptionSlider::useRightToLeft
     \brief Indicates slider control orientation.
 
-    Normally a slider increases as it moves up or to the right, useRightToLeft
+    Normally a slider increases as it moves up or to the right; useRightToLeft
     indicates that it should do the opposite (increase as it moves down or to
-    the left). Note that this is different than \l QApplication::reverse().
+    the left).
 
-    \sa QStyle::positionFromValue QStyle::valueFromPosition QAbstractSlider::invertedAppearance
+    \sa QStyle::positionFromValue(), QStyle::valueFromPosition(),
+        QAbstractSlider::invertedAppearance, QApplication::reverseLayout()
 */
 
 /*!
     \property QStyleOptionSlider::sliderPosition
     \brief The position of the slider handle.
 
-    If the slider has active feedback (QAbstractSlider::tracking is true). This
-    value will be the same as \l sliderValue. Otherwise, it will have the
-    current position of the handle.
+    If the slider has active feedback (i.e.,
+    QAbstractSlider::tracking is true), this value will be the same
+    as \l sliderValue. Otherwise, it will have the current position
+    of the handle.
 
-    \sa QAbstractSlider::tracking sliderValue
+    \sa QAbstractSlider::tracking, sliderValue
 */
 
 /*!
     \property QStyleOptionSlider::sliderValue
     \brief The value of the slider.
 
-    If the slider has active feedback (QAbstractSlider::tracking is true). This
-    value will be the same as \l sliderPosition. Otherwise, it will have the
-    value the slider had before the mouse was pressed.
+    If the slider has active feedback (i.e.,
+    QAbstractSlider::tracking is true), this value will be the same
+    as \l sliderPosition. Otherwise, it will have the value the
+    slider had before the mouse was pressed.
 
     \sa QAbstractSlider::tracking sliderPosition
 */
@@ -690,28 +772,28 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 /*!
     \property QStyleOptionSlider::singleStep
     \brief The size of the single step of the slider.
+
     \sa QAbstractSlider::singleStep
 */
 
 /*!
     \property QStyleOptionSlider::pageStep
     \brief The size of the page step of the slider.
+
     \sa QAbstractSlider::pageStep
 */
 
 /*!
-    \class QStyleOptionSpinBox qstyleoption.h
+    \class QStyleOptionSpinBox
     \brief The QStyleOptionSpinBox class is used to describe the
     parameters necessary for drawing a spin box.
 
-    The QStyleOptionSpinBox is used for drawing a QSpinBox and QDateTimeEdit.
+    The QStyleOptionSpinBox is used for drawing QSpinBox and QDateTimeEdit.
 */
 
 /*!
-    Constructs a QStyleOptionSpinBox.
-
-    The values of the structure are set to zero. It is the Developer's
-    responsiblity to set them to proper values.
+    Constructs a QStyleOptionSpinBox. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
@@ -720,6 +802,9 @@ QStyleOptionSpinBox::QStyleOptionSpinBox()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
       stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true)
@@ -730,12 +815,14 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 /*!
     \property QStyleOptionSpinBox::buttonSymbols
     \brief The type of button symbols to draw for the spin box.
+
     \sa QAbstractSpinBox::ButtonSymbols
 */
 
 /*!
     \property QStyleOptionSpinBox::stepEnabled
     \brief Indicates which buttons of the spin box are enabled.
+
     \sa QAbstractSpinBox::StepEnabled
 */
 
@@ -743,12 +830,13 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     \property QStyleOptionSpinBox::percentage
     \brief The percentage of the spin box
 
-    The quotient of the current value divided by the and maximum value.
+    The percentage is the quotient of the current value divided by
+    the maximum value.
 */
 
 /*!
     \property QStyleOptionSpinBox::slider
-    \brief Indicates whether the optional slider indicator should be drawn.
+    \brief Indicates whether the slider indicator should be drawn.
 */
 
 /*!
@@ -757,33 +845,34 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \class QStyleOptionListViewItem qsytleoption.h
+    \class QStyleOptionListViewItem
     \brief The QStyleOptionListViewItem class is used to describe an
     item drawn in a Q3ListView.
 
-    This is used by the compat Q3ListView to draw its items. It should be
-    avoided for new clases.
+    This is used by the compatibility Q3ListView to draw its items.
+    It should be avoided for new classes.
 
-    \sa Q3ListView Q3ListViewItem
+    \sa Q3ListView, Q3ListViewItem
 */
 
 /*!
     \enum QStyleOptionListViewItem::ListViewItemFeature
-    This enum describes the features a list view item can have.
-    \value None A standard item
-    \value Expandable The item has children that can be shown
-    \value MultiLine The item is more than one line tall.
-    \value Visible The item is visible
-    \value ParentControl The item's parent is a type of item control (QCheckListItem::Controller)
 
-    \sa Q3ListViewItem::isVisible() Q3ListViewItem::multiLinesEnabled() Q3ListViewItem::isExpandable() features
+    This enum describes the features a list view item can have.
+
+    \value None A standard item.
+    \value Expandable The item has children that can be shown.
+    \value MultiLine The item is more than one line tall.
+    \value Visible The item is visible.
+    \value ParentControl The item's parent is a type of item control (QCheckListItem::Controller).
+
+    \sa features, Q3ListViewItem::isVisible(), Q3ListViewItem::multiLinesEnabled(),
+        Q3ListViewItem::isExpandable()
 */
 
 /*!
-    Constructs a QStyleOptionListViewItem.
-
-    All values in the structure are set to zero. It is the responsibility of
-    the developer to set all appropriate values.
+    Constructs a QStyleOptionListViewItem. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionListViewItem::QStyleOptionListViewItem()
@@ -792,6 +881,9 @@ QStyleOptionListViewItem::QStyleOptionListViewItem()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
     : QStyleOption(version, SO_ListViewItem), features(None), height(0), totalHeight(0),
       itemY(0), childCount(0)
@@ -803,7 +895,8 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
     \property QStyleOptionListViewItem::features
     \brief The features for this item
 
-    This is a bitwise OR of the features of the item.
+    This variable is a bitwise OR of the features of the item.
+
     \sa ListViewItemFeature
 */
 
@@ -811,21 +904,22 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
     \property QStyleOptionListViewItem::height
     \brief The height of the item
 
-    This is the height of just the item (not it's children).
+    This doesn't include the height of the item's children.
+
     \sa Q3ListViewItem::height()
 */
 
 /*!
     \property QStyleOptionListViewItem::totalHeight
-    \brief The total height of the item
+    \brief The total height of the item, including its children
 
-    This is the height of the item including its children.
     \sa Q3ListViewItem::totalHeight()
 */
 
 /*!
     \property QStyleOptionListViewItem::itemY
     \brief The Y-coordinate for the item
+
     \sa Q3ListViewItem::itemY()
 */
 
@@ -835,19 +929,17 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
 */
 
 /*!
-    \class QStyleOptionListView qstyleoption.h
+    \class QStyleOptionListView
     \brief The QStyleOptionListView class is used to describe the
     parameters for drawing a Q3ListView.
 
-    The structure is used for drawing the compat \l Q3ListView. It is not
+    The class is used for drawing the compat \l Q3ListView. It is not
     recommended for use in new code.
 */
 
 /*!
-    Creates a QStyleOptionListView.
-
-    The values in the structure are either zero, null, or empty. It is the
-    developer's responsibility to set them to correct values.
+    Creates a QStyleOptionListView. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionListView::QStyleOptionListView()
@@ -856,6 +948,9 @@ QStyleOptionListView::QStyleOptionListView()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionListView::QStyleOptionListView(int version)
     : QStyleOptionComplex(version, SO_ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
       rootIsDecorated(false)
@@ -867,36 +962,36 @@ QStyleOptionListView::QStyleOptionListView(int version)
     \property QStyleOptionListView::items
     \brief A list of items in the \l Q3ListView.
 
-    This is a list of \l {QStyleOptionListViewItem}s. The first item can be
-    used for most of the calculation that are needed for listview. Any
-    additional items are the children of this first item. Which may be used for
-    additional information.
+    This is a list of \l {QStyleOptionListViewItem}s. The first item
+    can be used for most of the calculation that are needed for
+    drawing a list view. Any additional items are the children of
+    this first item, which may be used for additional information.
 
     \sa QStyleOptionListViewItem
 */
 
 /*!
     \property QStyleOptionListView::viewportPalette
-    \brief The palette of the viewport of the \l Q3ListView.
+    \brief The palette of Q3ListView's viewport.
 */
 
 /*!
     \property QStyleOptionListView::viewportBGRole
-    \brief The background role of the viewport of the \l Q3ListView.
+    \brief The background role of \l Q3ListView's viewport.
 
     \sa QWidget::backgroundRole()
 */
 
 /*!
     \property QStyleOptionListView::sortColumn
-    \brief The sort column of the listview.
+    \brief The sort column of the list view.
 
     \sa Q3ListView::sortColumn()
 */
 
 /*!
     \property QStyleOptionListView::itemMargin
-    \brief The margin for items in the listview.
+    \brief The margin for items in the list view.
 
     \sa Q3ListView::itemMargin()
 */
@@ -910,7 +1005,7 @@ QStyleOptionListView::QStyleOptionListView(int version)
 
 /*!
     \property QStyleOptionListView::rootIsDecorated
-    \brief Whether root items are decorated or not
+    \brief Whether root items are decorated
 
     \sa Q3ListView::rootIsDecorated()
 */
@@ -920,15 +1015,13 @@ QStyleOptionListView::QStyleOptionListView(int version)
     \brief The QStyleOptionDockWindow class is used to describe the
     parameters for drawing various parts of \l Q3DockWindows.
 
-    This structure is used for drawing the old Q3DockWindow and its parts. It
-    is not recommended for new classes.
+    This class is used for drawing the old Q3DockWindow and its
+    parts. It is not recommended for new classes.
 */
 
 /*!
-    Constructs a QStyleOptionDockWindow.
-
-    The values in the structure will be set to false. It is the responsibility
-    of the developer to set them correctly.
+    Constructs a QStyleOptionDockWindow. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionDockWindow::QStyleOptionDockWindow()
@@ -936,6 +1029,9 @@ QStyleOptionDockWindow::QStyleOptionDockWindow()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
     : QStyleOption(version, SO_DockWindow), docked(false), isCloseEnabled(false)
 {
@@ -952,11 +1048,11 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 */
 
 /*!
-    \class QStyleOptionToolButton qstyleoption.h
+    \class QStyleOptionToolButton
     \brief The QStyleOptionToolButton class is used to describe the
     parameters for drawing a tool button.
 
-    The QStyleOptionToolButton structure is used for drawing \l {QToolButton}s
+    The QStyleOptionToolButton class is used for drawing QToolButton.
 */
 
 /*!
@@ -970,14 +1066,13 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
     \value PopupDelay There is a delay to showing the menu.
     \value BigPixmap The tool button uses big pixmaps.
 
-    \sa features QToolButton::usesTextLabel(), QToolButton::popupDelay(), QToolButton::usesBigPixmap()
+    \sa features, QToolButton::usesTextLabel(), QToolButton::popupDelay(),
+        QToolButton::usesBigPixmap()
 */
 
 /*!
-    Constructs a QStyleOptionToolButton.
-
-    The values of the structure are either zero, empty, or null. It is the
-    responsibility of the developer to set them correctly.
+    Constructs a QStyleOptionToolButton. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionToolButton::QStyleOptionToolButton()
@@ -986,6 +1081,9 @@ QStyleOptionToolButton::QStyleOptionToolButton()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionToolButton::QStyleOptionToolButton(int version)
     : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
       textPosition(QToolButton::BesideIcon)
@@ -997,34 +1095,34 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \property QStyleOptionToolButton::features
     \brief The features of the tool button.
 
-    This is a bitwise OR describing the features of the button.
+    This variable is a bitwise OR describing the features of the button.
+
     \sa ToolButtonFeature
 */
 
 /*!
     \property QStyleOptionToolButton::icon
-    \brief The iconset (if any) for the tool button.
+    \brief The icon for the tool button.
 */
 
 /*!
     \property QStyleOptionToolButton::text
-    \brief The text (if any) of the tool button.
+    \brief The text of the tool button.
 
-    Note that this is only used if the \l TextLabel feature is part of the features.
-    \sa ToolButtonFeatures
+    This value is only used if \l features includes \l TextLabel.
 */
 
 /*!
     \property QStyleOptionToolButton::arrowType
     \brief The direction of the arrow for the tool button
 
-    Note that this is only used if the \l Arrow feature is part of the features.
-    \sa ToolButtonFeatures
+    This value is only used if \l features includes \l Arrow.
 */
 
 /*!
     \property QStyleOptionToolButton::bgRole
     \brief The background role of the tool button
+
     \sa QWidget::backgroundRole()
 */
 
@@ -1037,31 +1135,27 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \property QStyleOptionToolButton::font
     \brief The font that is used for the text.
 
-    Note that this is only used if the \l TextLabel feature is part of the features.
-    \sa ToolButtonFeatures
+    This value is only used if \l features includes \l TextLabel.
 */
 
 /*!
     \property QStyleOptionToolButton::textPosition
     \brief The position of the text in the tool button.
 
-    Note that this is only used if the \l TextLabel feature is part of the features.
-    \sa ToolButtonFeatures
+    This value is only used if \l features includes \l TextLabel.
 */
 
 /*!
-    \class QStyleOptionComboBox qstyleoption.h
+    \class QStyleOptionComboBox
     \brief The QStyleOptionComboBox class is used to describe the
     parameter for drawing a combobox.
 
-    The QStyleOptionComboBox structure is used for drawing QComboBox.
+    The QStyleOptionComboBox class is used for drawing QComboBox.
 */
 
 /*!
-    Create a QStyleOptionComboBox.
-
-    The values of the structure are set to zero or null. It is the developer's
-    responsibility to set them correctly.
+    Creates a QStyleOptionComboBox. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionComboBox::QStyleOptionComboBox()
@@ -1069,6 +1163,9 @@ QStyleOptionComboBox::QStyleOptionComboBox()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionComboBox::QStyleOptionComboBox(int version)
     : QStyleOptionComplex(version, SO_ComboBox), editable(false)
 {
@@ -1077,6 +1174,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 /*!
     \property QStyleOptionComboBox::editable
     \brief whether or not the combobox is editable or not.
+
     \sa QComboBox::isEditable()
 */
 
@@ -1086,18 +1184,16 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 */
 
 /*!
-    \class QStyleOptionToolBox qstyleoption.h
+    \class QStyleOptionToolBox
     \brief The QStyleOptionToolBox class is used to describe the
     parameters needed for drawing a tool box.
 
-    The QStyleOptionToolBox structure is used for drawing parts of the \l QToolBox.
+    The QStyleOptionToolBox class is used for drawing QToolBox.
 */
 
 /*!
-    Create a QStyleOptionToolBox.
-
-    The values of the structure are set to zero, null, or empty. It is the
-    developers responsibility to set them correctly.
+    Creates a QStyleOptionToolBox. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionToolBox::QStyleOptionToolBox()
@@ -1105,6 +1201,9 @@ QStyleOptionToolBox::QStyleOptionToolBox()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionToolBox::QStyleOptionToolBox(int version)
     : QStyleOption(version, SO_ToolBox), bgRole(QPalette::Foreground)
 {
@@ -1112,12 +1211,12 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 
 /*!
     \property QStyleOptionToolBox::icon
-    \brief The iconset (if any) for the tool box tab.
+    \brief The icon for the tool box tab.
 */
 
 /*!
     \property QStyleOptionToolBox::text
-    \brief The text (if any) for the tool box tab.
+    \brief The text for the tool box tab.
 */
 
 /*!
@@ -1129,30 +1228,28 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     \property QStyleOptionToolBox::currentWidgetBGRole
     \brief The background role for the current widget.
 
-    This may be useful if you wish to draw the selected tab differently.
+    This may be useful if you want to draw the selected tab differently.
 */
 
 /*!
     \property QStyleOptionToolBox::currentWidgetPalette
     \brief The palette for the current widget.
 
-    This may be useful if you wish the draw the selected tab differently.
+    This may be useful if you want the draw the selected tab differently.
 */
 
 /*!
-    \class QStyleOptionTitleBar qstyleoption.h
+    \class QStyleOptionTitleBar
     \brief The QStyleOptionTitleBar class is used to describe the
     parameters for drawing a title bar.
 
-    The QStyleOptionTitleBar structure is used to draw QTitleBar an internal
-    class.
+    The QStyleOptionTitleBar class is used to draw the title bars of
+    QWorkspace's MDI children.
 */
 
 /*!
-    Constructs a QStyleOptionTitleBar.
-
-    The values of the structure will be zero, null, or empty. It is the
-    responsibility of the developer to set them correctly.
+    Constructs a QStyleOptionTitleBar. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionTitleBar::QStyleOptionTitleBar()
@@ -1160,6 +1257,9 @@ QStyleOptionTitleBar::QStyleOptionTitleBar()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     : QStyleOptionComplex(version, SO_TitleBar), titleBarState(0), titleBarFlags(0)
 {
@@ -1173,58 +1273,63 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 /*!
     \property QStyleOptionTitleBar::icon
-    \brief The icon for the title bar (if any).
+    \brief The icon for the title bar.
 */
 
 /*!
     \property QStyleOptionTitleBar::titleBarState
     \brief The state of the title bar.
+
     This is basically the window state of the underlying widget.
+
     \sa QWidget::windowState()
 */
 
 /*!
     \property QStyleOptionTitleBar::titleBarFlags
     \brief The widget flags for the title bar.
+
     \sa Qt::WFlags
 */
 
 /*!
-    \class QStyleOptionViewItem qstyleoption.h
+    \class QStyleOptionViewItem
     \brief The QStyleOptionViewItem class is used to describe the
     parameters used to draw an item in a view widget.
 
-    The QStyleOptionViewItem structure is used by Qt's Model/View
-    classes to draw their items.
+    The QStyleOptionViewItem class is used by Qt's model/view classes
+    to draw their items.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \sa {model-view-programming.html}{Model/View Programming}
 */
 
 /*!
     \enum QStyleOptionViewItem::Position
+
     This enum describes the position of the item's decoration.
-    \value Left
-    \value Right
-    \value Top
-    \value Bottom
+
+    \value Left On the left of the text.
+    \value Right On the right of the text.
+    \value Top Above the text.
+    \value Bottom Below the text.
 
     \sa decorationPosition
 */
 
 /*!
     \enum QStyleOptionViewItem::Size
+
     This enum describes the size of the item's decoration size.
-    \value Small
-    \value Large
+
+    \value Small Small decorations.
+    \value Large Large decorations.
 
     \sa decorationSize
 */
 
 /*!
-    Constructs a QStyleOptionViewItem.
-
-    The values of the structure are set to zero. It is the responsibility of
-    the developer to set them to the correct values.
+    Constructs a QStyleOptionViewItem. The members variables are
+    initialized to default values.
 */
 
 QStyleOptionViewItem::QStyleOptionViewItem()
@@ -1233,6 +1338,9 @@ QStyleOptionViewItem::QStyleOptionViewItem()
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionViewItem::QStyleOptionViewItem(int version)
     : QStyleOption(version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
       decorationPosition(Left), decorationSize(Small)
@@ -1264,14 +1372,38 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 /*!
-    \fn T qt_cast(const QStyleOption *opt)
-    Returns a T or 0 depending on the type of \a opt. This is equivalent of a dynamic_cast.
+    \fn T qt_cast<T>(const QStyleOption *option)
+    \relates QStyleOption
+
+    Returns a T or 0 depending on the \l{QStyleOption::type}{type}
+    and \l{QStyleOption::version}{version} of \a option.
+
+    Example:
+
+    \code
+        void MyStyle::drawPrimitive(PrimitiveElement element,
+                                    const QStyleOption *option,
+                                    QPainter *painter,
+                                    const QWidget *widget)
+        {
+            if (element == PE_FocusRect) {
+                const QStyleOptionFocusRect *focusRectOption =
+                        qt_cast<const QStyleOptionFocusRect *>(option);
+                if (focusRectOption) {
+                    ...
+                }
+            }
+            ...
+        }
+    \endcode    
+
+    \sa QStyleOption::type, QStyleOption::version
 */
 
 /*!
-    \fn T qt_cast(QStyleOption *opt)
+    \fn T qt_cast<T>(QStyleOption *option)
     \overload
-    This is the non-const version of the qt_cast taking \a opt.
+    \relates QStyleOption
 
-    Returns a T or 0 depending on the type of \a opt. This is equivalent of a dynamic_cast.
+    Returns a T or 0 depending on the type of \a option.
 */

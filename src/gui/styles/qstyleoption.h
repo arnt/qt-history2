@@ -48,7 +48,7 @@ public:
     QRect rect;
     QPalette palette;
 
-    QStyleOption(int optionversion = QStyleOption::Version, int optiontype = SO_Default);
+    QStyleOption(int version = QStyleOption::Version, int type = SO_Default);
     ~QStyleOption();
 
     void init(const QWidget *w);
@@ -247,6 +247,7 @@ public:
 
     QStyleOptionListViewItem();
 
+    QDOC_PROPERTY(ListViewItemFeatures features);
     QDOC_PROPERTY(int height);
     QDOC_PROPERTY(int totalHeight);
     QDOC_PROPERTY(int itemY);
@@ -340,9 +341,6 @@ public:
 
     QDOC_PROPERTY(QStyle::SubControls parts);
     QDOC_PROPERTY(QStyle::SubControls activeParts);
-
-protected:
-    QStyleOptionComplex(int version);
 };
 
 class Q_GUI_EXPORT QStyleOptionSlider : public QStyleOptionComplex
