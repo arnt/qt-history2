@@ -126,19 +126,6 @@ void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     Qt::HANDLE hd = p->handle();
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
-#ifdef FONTENGINE_DEBUG
-    p->save();
-    p->setBrush( Qt::white );
-    glyph_metrics_t ci = boundingBox( glyphs, numGlyphs );
-    p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
-    p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
-     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
-    p->restore();
-    int xp = x;
-    int yp = y;
-#endif
-
-
     if ( p->painterState()->txop > QPainter::TxTranslate ) {
 	int xp = x;
 	int yp = _size + 2;
@@ -167,24 +154,6 @@ void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 
     if ( textFlags != 0 )
 	drawLines( p, this, y, x, si.num_glyphs*_size, textFlags );
-
-#ifdef FONTENGINE_DEBUG
-    x = xp;
-    y = yp;
-    p->save();
-    p->setPen( Qt::red );
-    for ( int i = 0; i < numGlyphs; i++ ) {
-	glyph_metrics_t ci = boundingBox( glyphs[i] );
-	x += glyphs[i].offset.x;
-	y += glyphs[i].offset.y;
-	p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
-	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offset=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-	       ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y );
-	x += ci.xoff;
-	y += ci.yoff;
-    }
-    p->restore();
-#endif
 }
 
 glyph_metrics_t QFontEngineBox::boundingBox( const QGlyphLayout *, int numGlyphs )
@@ -288,37 +257,12 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
 		  (fs->max_bounds.width * cache_cost / 8));
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
-
-#if 1
-    // Server side transformations do not seem to work correctly for
-    // all types of fonts (for example, it works for bdf/pcf fonts,
-    // but not for ttf).  It also seems to be extermely server
-    // dependent.  The best thing is to just disable server side
-    // transformations until either server support matures or we
-    // figure out a better way to do it.
-    xlfd_transformations = XlfdTrUnsupported;
-#else
-    xlfd_transformations = XlfdTrUnknown;
-
-    // Hummingbird's Exceed X server will substitute 'fixed' for any
-    // known fonts, and it doesn't seem to support transformations, so
-    // we should never try to use xlfd transformations with it
-    if (strstr(ServerVendor(QX11Info::appDisplay()), "Hummingbird"))
-	xlfd_transformations = XlfdTrUnsupported;
-#endif
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
 {
     XFreeFont( QX11Info::appDisplay(), _fs );
     _fs = 0;
-    TransformedFont *trf = transformed_fonts;
-    while ( trf ) {
-	XUnloadFont( QX11Info::appDisplay(), trf->xlfd_font );
-	TransformedFont *tmp = trf;
-	trf = trf->next;
-	delete tmp;
-    }
 }
 
 QFontEngine::FECaps QFontEngineXLFD::capabilites() const
@@ -398,26 +342,13 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
     return NoError;
 }
 
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-static bool x_font_load_error = FALSE;
-static int x_font_errorhandler(Display *, XErrorEvent *)
-{
-    x_font_load_error = TRUE;
-    return 0;
-}
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
-
 void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     if ( !si.num_glyphs )
 	return;
+
+    // since we advocate we can't do translations this should hold.
+    Q_ASSERT(p->painterState()->txop <= QPainter::TxTranslate);
 
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, si.num_glyphs );
 
@@ -425,154 +356,12 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, 
     Qt::HANDLE hd = p->handle();
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
-    bool transform = FALSE;
     int xorig = x;
     int yorig = y;
 
     Qt::HANDLE font_id = _fs->fid;
-    if ( p->painterState()->txop > QPainter::TxTranslate ) {
-	const QWMatrix &m = p->painterState()->worldMatrix;
-	bool degenerate = QABS( m.m11()*m.m22() - m.m12()*m.m21() ) < 0.01;
-	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
-	    // need a transformed font from the server
-	    QByteArray xlfd_transformed = _name;
-	    int field = 0;
-	    const char *data = xlfd_transformed;
-	    int pos = 0;
-	    while ( field < 7 ) {
-		if ( data[pos] == '-' )
-		    field++;
-		pos++;
-	    }
-	    int endPos = pos;
-	    while ( data[endPos] != '-' )
-		endPos++;
-	    float size = QString(xlfd_transformed.mid( pos, endPos-pos )).toInt();
-	    float mat[4];
-	    mat[0] = m.m11()*size*_scale;
-	    mat[1] = -m.m12()*size*_scale;
-	    mat[2] = -m.m21()*size*_scale;
-	    mat[3] = m.m22()*size*_scale;
-
-	    // check if we have it cached
-	    TransformedFont *trf = transformed_fonts;
-	    TransformedFont *prev = 0;
-	    int i = 0;
-	    while ( trf ) {
-		if ( trf->xx == mat[0] &&
-		     trf->xy == mat[1] &&
-		     trf->yx == mat[2] &&
-		     trf->yy == mat[3] )
-		    break;
-		TransformedFont *tmp = trf;
-		trf = trf->next;
-		if (i > 10) {
-		    XUnloadFont( QX11Info::appDisplay(), tmp->xlfd_font );
-		    delete tmp;
-		    prev->next = trf;
-		} else {
-		    prev = tmp;
-		}
-		++i;
-	    }
-	    if ( trf ) {
-		if ( prev ) {
-		    // move to beginning of list
-		    prev->next = trf->next;
-		    trf->next = transformed_fonts;
-		    transformed_fonts = trf;
-		}
-		font_id = trf->xlfd_font;
-	    } else {
-		QByteArray matrix="[";
-		for ( int i = 0; i < 4; i++ ) {
-		    float f = mat[i];
-		    if ( f < 0 ) {
-			matrix += '~';
-			f = -f;
-		    }
-		    matrix += QString::number( f, 'f', 5 ).latin1();
-		    matrix += ' ';
-		}
-		matrix += ']';
-		//qDebug("m: %2.2f %2.2f %2.2f %2.2f, matrix=%s", p->m11(), p->m12(), p->m21(), p->m22(), matrix.data());
-		xlfd_transformed.replace( pos, endPos-pos, matrix );
-
-		x_font_load_error = FALSE;
-		XErrorHandler old_handler = XSetErrorHandler( x_font_errorhandler );
-		font_id = XLoadFont( dpy, xlfd_transformed );
-		XSync( dpy, FALSE );
-		XSetErrorHandler( old_handler );
-		if ( x_font_load_error ) {
-		    //qDebug( "couldn't load transformed font" );
-		    font_id = _fs->fid;
-		    xlfd_transformations = XlfdTrUnsupported;
-		} else {
-		    TransformedFont *trf = new TransformedFont;
-		    trf->xx = mat[0];
-		    trf->xy = mat[1];
-		    trf->yx = mat[2];
-		    trf->yy = mat[3];
-		    trf->xlfd_font = font_id;
-		    trf->next = transformed_fonts;
-		    transformed_fonts = trf;
-		}
-	    }
-	}
-	if ( degenerate || xlfd_transformations == XlfdTrUnsupported ) {
-	    // XServer or font don't support server side transformations, need to do it by hand
-            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
-            int w=bbox.width(), h=bbox.height();
-            int aw = w, ah = h;
-            int tx=-bbox.x(), ty=-bbox.y();    // text position
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*m, aw, ah );
-	    QBitmap *wx_bm;
-#if 0
-            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
-            wx_bm = get_text_bitmap( bm_key );
-            bool create_new_bm = wx_bm == 0;
-            if ( create_new_bm )
-#endif
-	    { 	        // no such cached bitmap
-                QBitmap bm( aw, ah, TRUE );     // create bitmap
-                QPainter paint;
-                paint.begin( &bm );             // draw text in bitmap
-		draw( paint.d->engine, 0, si.ascent, si, textFlags );
-                paint.end();
-                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-                if ( wx_bm->isNull() ) {
-                    delete wx_bm;               // nothing to draw
-                    return;
-                }
-            }
-            double fx=x, fy=y - si.ascent, nfx, nfy;
-            m.map( fx,fy, &nfx,&nfy );
-            double tfx=tx, tfy=ty, dx, dy;
-            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-            x = qRound(nfx-dx);
-            y = qRound(nfy-dy);
-            XSetFillStyle( dpy, gc, FillStippled );
-            XSetStipple( dpy, gc, wx_bm->handle() );
-            XSetTSOrigin( dpy, gc, x, y );
-            XFillRectangle( dpy, hd, gc, x, y, wx_bm->width(), wx_bm->height() );
-            XSetTSOrigin( dpy, gc, 0, 0 );
-            XSetFillStyle( dpy, gc, FillSolid );
-#if 0
-	    if ( create_new_bm )
-                ins_text_bitmap( bm_key, wx_bm );
-#else
-	    delete wx_bm;
-#endif
-            return;
-        }
-	transform = TRUE;
-    } else if ( p->painterState()->txop == QPainter::TxTranslate ) {
+    if ( p->painterState()->txop == QPainter::TxTranslate )
 	p->painterState()->painter->map( x, y, &x, &y );
-    }
 
     XSetFont(dpy, gc, font_id);
 
@@ -608,18 +397,14 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, 
 	    glyph_metrics_t gi = boundingBox( glyphs[i].glyph );
 	    int xp = x-glyphs[i].offset.x-gi.xoff;
 	    int yp = y+glyphs[i].offset.y-gi.yoff;
-	    if ( transform )
-		p->painterState()->painter->map( xp, yp, &xp, &yp );
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	}
     } else {
-	if ( transform || si.hasPositioning ) {
+	if (si.hasPositioning) {
 	    int i = 0;
 	    while( i < si.num_glyphs ) {
 		int xp = x+glyphs[i].offset.x;
 		int yp = y+glyphs[i].offset.y;
-		if ( transform )
-		    p->painterState()->painter->map( xp, yp, &xp, &yp );
 		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 		advance_t adv = glyphs[i].advance;
 		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
@@ -1295,7 +1080,7 @@ static inline void unlockFTFace( XftFont *font )
 
 
 QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
-    : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap )
+    : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap ), transformed_fonts(0)
 {
     _face = lockFTFace( _font );
 
@@ -1426,49 +1211,7 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     XftFont *fnt = _font;
     bool transform = FALSE;
     if ( p->painterState()->txop >= QPainter::TxScale ) {
-	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
-	    Qt::HANDLE hd = p->handle();
-	    GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
-
-	    // font doesn't support transformations, need to do it by hand
-            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
-            int w=bbox.width(), h=bbox.height();
-            int aw = w, ah = h;
-            int tx=-bbox.x(), ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->painterState()->worldMatrix;
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-	    QBitmap *wx_bm;
-	    { 	        // no such cached bitmap
-                QBitmap bm( aw, ah, TRUE );     // create bitmap
-                QPainter paint;
-                paint.begin( &bm );             // draw text in bitmap
-                draw( paint.d->engine, 0, si.ascent, si, textFlags );
-                paint.end();
-                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-                if ( wx_bm->isNull() ) {
-                    delete wx_bm;               // nothing to draw
-                    return;
-                }
-            }
-            double fx=x, fy=y - si.ascent, nfx, nfy;
-            mat1.map( fx,fy, &nfx,&nfy );
-            double tfx=tx, tfy=ty, dx, dy;
-            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-            x = qRound(nfx-dx);
-            y = qRound(nfy-dy);
-            XSetFillStyle( dpy, gc, FillStippled );
-            XSetStipple( dpy, gc, wx_bm->handle() );
-            XSetTSOrigin( dpy, gc, x, y );
-            XFillRectangle( dpy, hd, gc, x, y, wx_bm->width(), wx_bm->height() );
-            XSetTSOrigin( dpy, gc, 0, 0 );
-            XSetFillStyle( dpy, gc, FillSolid );
-	    delete wx_bm;
-	    return;
-	}
+	Q_ASSERT(_face->face_flags & FT_FACE_FLAG_SCALABLE);
 
 	XftPattern *pattern = XftPatternDuplicate( _pattern );
 	XftMatrix *mat = 0;

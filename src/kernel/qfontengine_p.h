@@ -30,7 +30,6 @@ struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
 class QOpenType;
-struct TransformedFont;
 typedef int advance_t;
 
 class QTextEngine;
@@ -75,9 +74,6 @@ public:
 
     QFontEngine() {
 	count = 0; cache_count = 0;
-#ifdef Q_WS_X11
-	transformed_fonts = 0;
-#endif
     }
     virtual ~QFontEngine();
 
@@ -144,10 +140,8 @@ public:
     short lbearing;
     short rbearing;
 #endif // Q_WS_WIN
-#ifdef Q_WS_X11
-    TransformedFont *transformed_fonts;
-#endif
 };
+
 #elif defined(Q_WS_QWS)
 class QGfx;
 
@@ -295,6 +289,12 @@ private:
 #ifdef Q_WS_X11
 #include "qt_x11_p.h"
 
+class QTextCodec;
+
+#ifndef QT_NO_XFTFREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "ftxopen.h"
 
 struct TransformedFont
 {
@@ -303,20 +303,10 @@ struct TransformedFont
     float yx;
     float yy;
     union {
-	Font xlfd_font;
-#ifndef QT_NO_XFTFREETYPE
 	XftFont *xft_font;
-#endif
     };
     TransformedFont *next;
 };
-
-class QTextCodec;
-
-#ifndef QT_NO_XFTFREETYPE
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "ftxopen.h"
 
 class QFontEngineXft : public QFontEngine
 {
@@ -371,6 +361,8 @@ private:
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
+
+    TransformedFont *transformed_fonts;
 };
 #endif
 
@@ -418,12 +410,6 @@ private:
     int _cmap;
     short lbearing;
     short rbearing;
-    enum XlfdTransformations {
-	XlfdTrUnknown,
-	XlfdTrSupported,
-	XlfdTrUnsupported
-    };
-    XlfdTransformations xlfd_transformations;
 
     friend class QFontEngineLatinXLFD;
 };
@@ -557,7 +543,7 @@ public:
     Type type() const { return QFontEngine::Mac; }
 
     void calculateCost();
-    
+
     FECaps capabilites() const { return FullTransformations; }
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
