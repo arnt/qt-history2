@@ -26,6 +26,7 @@ class QFontDialogPrivate;
 class Q_GUI_EXPORT QFontDialog: public QDialog
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QFontDialog)
 
 public:
     static QFont getFont(bool *ok, const QFont &def, QWidget* parent=0);
@@ -53,20 +54,15 @@ private:
     void updateStyles();
     void updateSizes();
 
-private slots:
-    void sizeChanged(const QString &);
-    void familyHighlighted(int);
-    void scriptHighlighted(int);
-    void styleHighlighted(int);
-    void sizeHighlighted(int);
-    void updateSample();
-
 private:
+    Q_PRIVATE_SLOT(d, void sizeChanged(const QString &))
+    Q_PRIVATE_SLOT(d, void familyHighlighted(int))
+    Q_PRIVATE_SLOT(d, void scriptHighlighted(int))
+    Q_PRIVATE_SLOT(d, void styleHighlighted(int))
+    Q_PRIVATE_SLOT(d, void sizeHighlighted(int))
+    Q_PRIVATE_SLOT(d, void updateSample())
+
     Q_DISABLE_COPY(QFontDialog)
-
-    QFontDialogPrivate *d;
-
-    friend class QFontDialogPrivate;
 };
 
 #endif
