@@ -85,6 +85,7 @@ static const int motifArrowVMargin	= 2;	// arrow vertical margin
 
 
 
+//# define DEBUG_SLOPPY_SUBMENU
 
 // used for internal communication
 static QPopupMenu * syncMenu = 0;
@@ -251,6 +252,7 @@ public:
 	QTime lastScroll;
 	QTimer *scrolltimer;
     } scroll;
+    QRegion mouseMoveBuffer;
 };
 
 static QPopupMenu* active_popup_menu = 0;
@@ -765,6 +767,8 @@ void QPopupMenu::hidePopups()
 	    mi->popup()->hide();
     }
     popupActive = -1;				// no active sub menu
+    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+	d->mouseMoveBuffer = QRegion();
 
     QRect mfrect = itemGeometry( actItem );
     setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
@@ -1275,6 +1279,8 @@ void QPopupMenu::show()
 	updateSize();
     QWidget::show();
     popupActive = -1;
+    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+	d->mouseMoveBuffer = QRegion();
 }
 
 /*!
@@ -1295,6 +1301,8 @@ void QPopupMenu::hide()
     emit aboutToHide();
 
     actItem = popupActive = -1;
+    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+	d->mouseMoveBuffer = QRegion();
     mouseBtDn = FALSE;				// mouse button up
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuEnd );
@@ -1465,6 +1473,12 @@ void QPopupMenu::drawContents( QPainter* p )
 				colorGroup(), flags, QStyleOption(maxPMWidth));
 	}
     }
+#if defined( DEBUG_SLOPPY_SUBMENU ) 
+    if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+	p->setClipRegion( d->mouseMoveBuffer );
+	p->fillRect( d->mouseMoveBuffer.boundingRect(), colorGroup().brush( QColorGroup::Highlight ) );
+    }
+#endif
 }
 
 
@@ -1621,6 +1635,13 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	QPoint pPos = p->mapFromParent( e->globalPos() );
 	if ( p->actItem != myIndex && !p->rect().contains( pPos ) )
 	    p->setActiveItem( myIndex );
+
+	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+	    p->d->mouseMoveBuffer = QRegion();
+#ifdef DEBUG_SLOPPY_SUBMENU
+	    p->repaint();
+#endif
+	}
     }
 
     if ( (e->state() & Qt::MouseButtonMask) == 0 &&
@@ -1675,10 +1696,17 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( actItem == item )
 	    return;
 
-	if ( mi->popup() || (popupActive >= 0 && popupActive != item) )
-	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
-						this),
-			      this);
+	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this) && 
+	     d->mouseMoveBuffer.contains( e->pos() ) ) {
+	    actItem = item;
+	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 2, 
+			       this );
+	    return;
+	}
+
+	if ( mi->popup() || ( popupActive >= 0 && popupActive != item ))
+	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this), 
+			       this );
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
 
@@ -2181,6 +2209,27 @@ void QPopupMenu::subMenuTimer() {
 	p.y() - ps.height() + (QCOORD) pr.height() >= 0)
 	p.setY( p.y() - ps.height() + (QCOORD) pr.height());
 
+    if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+	 QPoint cur = QCursor::pos();
+	 if ( r.contains( mapFromGlobal( cur ) ) ) {
+	     QPoint pts[4];
+	     pts[0] = QPoint( cur.x(), cur.y() - 2 );
+	     pts[3] = QPoint( cur.x(), cur.y() + 2 );
+	     if ( p.x() >= cur.x() )	{
+		 pts[1] = QPoint( geometry().right(), p.y() );
+		 pts[2] = QPoint( geometry().right(), p.y() + ps.height() );
+	     } else {
+		 pts[1] = QPoint( p.x() + ps.width(), p.y() );
+		 pts[2] = QPoint( p.x() + ps.width(), p.y() + ps.height() );
+	     }
+	     QPointArray points( 4 );
+	     for( int i = 0; i < 4; i++ )
+		 points.setPoint( i, mapFromGlobal( pts[i] ) );
+	     d->mouseMoveBuffer = QRegion( points );
+	     repaint();
+	 }
+    }
+    
     popupActive = actItem;
     popup->popup( p );
 }

@@ -592,6 +592,9 @@ public:
 	// Center on windows, Auto|VCenter otherwize
 	SH_GroupBox_TextLabelVerticalAlignment,
 
+	// bool - popupmenu supports sloppy submenus
+	SH_PopupMenu_SloppySubMenus,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

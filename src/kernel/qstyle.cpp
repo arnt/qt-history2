@@ -1618,6 +1618,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_PopupMenu_SubMenuPopupDelay  the number of milliseconds
 	to wait before opening a submenu; 256 on windows, 96 on Motif.
 
+    \value SH_PopupMenu_Scrollable whether popupmenu's must support
+	scrolling.
+
+    \value SH_PopupMenu_SloppySubMenus whether popupmenu's must support
+	sloppy submenu; as implemented on Mac OS.
+
     \value SH_ScrollView_FrameOnlyAroundContents  whether scrollviews
 	draw their frame only around contents (like Motif), or around
 	contents, scrollbars and corner widgets (like Windows).
@@ -1658,9 +1664,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_RichText_FullWidthSelection whether richtext selections
 	should extend the full width of the document.
-
-    \value SH_PopupMenu_Scrollable whether popupmenu's must support
-	scrolling.
 
     \value SH_GroupBox_TextLabelVerticalAlignment how to vertically align a
         groupbox's text label.
