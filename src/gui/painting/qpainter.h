@@ -92,11 +92,8 @@ public:
     void setBackground(const QBrush &bg);
     const QBrush &background() const;
 
+    // Clip functions
     QRegion clipRegion() const;
-
-    void setClipRectangle(const QRectF &, Qt::ClipOperation op = Qt::ReplaceClip);
-    inline void setClipRectangle(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);
-    inline void setClipRectangle(int x, int y, int w, int h, Qt::ClipOperation op = Qt::ReplaceClip);
 
     void setClipRect(const QRectF &, Qt::ClipOperation op = Qt::ReplaceClip);
     inline void setClipRect(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);
@@ -104,12 +101,15 @@ public:
 
     void setClipRegion(const QRegion &, Qt::ClipOperation op = Qt::ReplaceClip);
 
+    void setClipPath(const QPainterPath &path, Qt::ClipOperation op = Qt::ReplaceClip);
+
     void setClipping(bool enable);
     bool hasClipping() const;
 
     void save();
     void restore();
 
+    // XForm functions
 #ifndef QT_NO_TRANSFORMATIONS
     void setMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &matrix() const;
@@ -141,35 +141,20 @@ public:
     void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
 
-    void setClipPath(const QPainterPath &path, Qt::ClipOperation op = Qt::ReplaceClip);
-
     void drawLine(const QLineF &line);
     inline void drawLine(int x1, int y1, int x2, int y2);
     inline void drawLine(const QPoint &p1, const QPoint &p2);
     inline void drawLine(const QPointF &p1, const QPointF &p2);
 
-    void drawRectangles(const QList<QRectF> &rectangles);
-
-    void drawRectangle(const QRectF &rectangle);
-    inline void drawRectangle(int x, int y, int width, int height);
-    inline void drawRectangle(const QRect &rectangle);
+    void drawRects(const QList<QRectF> &rectangles);
 
     void drawRect(const QRectF &rect);
     inline void drawRect(int x1, int y1, int w, int h);
     inline void drawRect(const QRect &rect);
 
-    void drawRoundRectangle(const QRectF &rectangle, int xround = 25, int yround = 25);
-    inline void drawRoundRectangle(int x, int y, int width, int height,
-                                   int xround = 25, int yround = 25);
-    inline void drawRoundRectangle(const QRect &rectangle, int xround = 25, int yround = 25);
-
     void drawRoundRect(const QRectF &r, int xround = 25, int yround = 25);
     inline void drawRoundRect(int x, int y, int w, int h, int = 25, int = 25);
     inline void drawRoundRect(const QRect &r, int xround = 25, int yround = 25);
-
-    void drawOval(const QRectF &rectangle);
-    inline void drawOval(const QRect &rectangle);
-    inline void drawOval(int x, int y, int width, int height);
 
     void drawEllipse(const QRectF &r);
     inline void drawEllipse(const QRect &r);
@@ -340,6 +325,7 @@ public:
 #endif
 
 private:
+    friend class Q3Painter;
     friend void qt_format_text(const QFont &font,
                                const QRectF &_r, int tf, const QString& str, int len, QRectF *brect,
                                int tabstops, int* tabarray, int tabarraylen,
@@ -383,16 +369,6 @@ inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
     drawLine(QLineF(p1, p2));
 }
 
-inline void QPainter::drawRectangle(int x, int y, int width, int height)
-{
-    drawRectangle(QRectF(x, y, width, height));
-}
-
-inline void QPainter::drawRectangle(const QRect &rectangle)
-{
-    drawRectangle(QRectF(rectangle));
-}
-
 inline void QPainter::drawRect(int x, int y, int w, int h)
 {
     drawRect(QRectF(x, y, w, h));
@@ -413,16 +389,6 @@ inline void QPainter::drawPoint(const QPoint &p)
     drawPoint(QPointF(p));
 }
 
-inline void QPainter::drawRoundRectangle(int x, int y, int w, int h, int xRnd, int yRnd)
-{
-    drawRoundRectangle(QRectF(x, y, w, h), xRnd, yRnd);
-}
-
-inline void QPainter::drawRoundRectangle(const QRect &rect, int xRnd, int yRnd)
-{
-    drawRoundRectangle(QRectF(rect), xRnd, yRnd);
-}
-
 inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
     drawRoundRect(QRectF(x, y, w, h), xRnd, yRnd);
@@ -431,16 +397,6 @@ inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yR
 inline void QPainter::drawRoundRect(const QRect &rect, int xRnd, int yRnd)
 {
     drawRoundRect(QRectF(rect), xRnd, yRnd);
-}
-
-inline void QPainter::drawOval(int x, int y, int w, int h)
-{
-    drawOval(QRectF(x, y, w, h));
-}
-
-inline void QPainter::drawOval(const QRect &rect)
-{
-    drawOval(QRectF(rect));
 }
 
 inline void QPainter::drawEllipse(const QRect &rect)
@@ -481,16 +437,6 @@ inline void QPainter::drawChord(const QRect &rect, int a, int alen)
 inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 {
     drawChord(QRectF(x, y, w, h), a, alen);
-}
-
-inline void QPainter::setClipRectangle(int x, int y, int w, int h, Qt::ClipOperation op)
-{
-    setClipRectangle(QRectF(x, y, w, h), op);
-}
-
-inline void QPainter::setClipRectangle(const QRect &r, Qt::ClipOperation op)
-{
-    setClipRectangle(QRectF(r), op);
 }
 
 inline void QPainter::setClipRect(int x, int y, int w, int h, Qt::ClipOperation op)
