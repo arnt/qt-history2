@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -230,15 +230,6 @@ void QNetworkProtocol::rename( const QString &, const QString & )
 
 void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
 {
-}
-
-/*!
-  #### todo
-*/
-
-bool QNetworkProtocol::isUrlDir()
-{
-    return TRUE;
 }
 
 /*!

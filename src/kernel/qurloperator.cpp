@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -534,14 +534,8 @@ bool QUrlOperator::isDir()
     if ( d->entryMap.contains( "." ) )
 	return d->entryMap[ "." ].isDir();
     else {
-	if ( d->networkProtocol &&
-	     ( d->networkProtocol->supportedOperations() & QNetworkProtocol::OpUrlIsDir ) )
-	    return d->networkProtocol->isUrlDir();
-	// if we are here, we really have a problem!!
-	// Checking for a trailing slash to find out
-	// if URL is a dir is not reliable at all :-)
-	if ( !path( FALSE ).isEmpty() )
-	    return path( FALSE ).right( 1 ) == "/";
+	// #### can assume that we are a directory?
+	return TRUE;
     }
 
     return FALSE;
