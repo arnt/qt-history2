@@ -1559,10 +1559,10 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             QRect cr = subRect(SR_CheckBoxContents, opt, widget);
 
             if (!btn->icon.isNull()) {
-                r = itemPixmapRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                                    btn->icon.pixmap(Qt::SmallIconSize, QIcon::Normal));
             } else {
-                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter
+                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
@@ -1596,10 +1596,10 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             QRect cr = subRect(SR_RadioButtonContents, opt, widget);
 
             if(!btn->icon.isNull()) {
-                r = itemPixmapRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                                    btn->icon.pixmap(Qt::SmallIconSize, QIcon::Normal));
             } else {
-                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter
+                r = itemTextRect(opt->fontMetrics, cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
