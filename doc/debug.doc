@@ -107,7 +107,7 @@ These macros are useful for detecting program errors, e.g. like this:
 \endcode
 
 Note that Q_ASSERT, Q_ASSERT_X and Q_CHECK_PTR are null expressions if
-\c QT_NO_DEBUG was defined during compilation. Any code in it will
+\c QT_NO_DEBUG was defined during compilation. Any code in them will
 simply not be executed. Here is an example of how you should \e not
 use Q_ASSERT and Q_CHECK_PTR:
 
