@@ -255,20 +255,22 @@ struct QScrollViewData {
 	        if ( s.isValid() )
 		    r->child->resize(s);
 	    }
-	} else if ( policy == QScrollView::StretchOne ) {
+	} else if ( policy == QScrollView::AutoOneFit ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
 		QSize sh = r->child->sizeHint();
+		sh = sh.boundedTo( r->child->maximumSize() );
 	        sv->resizeContents( sh.width(), sh.height() );
 	    }
 	}
     }
 
     void viewportResized( int w, int h ) {
-	if ( policy == QScrollView::StretchOne ) {
+	if ( policy == QScrollView::AutoOneFit ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
 		QSize sh = r->child->sizeHint();
+		sh = sh.boundedTo( r->child->maximumSize() );
 		r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
 	    }
 
@@ -486,15 +488,18 @@ flag explicitly.
   events.  There are three possible settings:<ul>
 
   <li> \c Default - QScrollView selects one of the other settings
-  automatically when it has to.  At the time of this writing, QScrollView
+  automatically when it has to.  In this version, QScrollView
   changes to \c Manual if you resize the contents with resizeContents()
   and to \c AutoOne if a child is added.
 
   <li> \c Manual - the view stays the size set by resizeContents().
 
-  <li> \c AutoOne - if there is only child widget the view stays
+  <li> \c AutoOne - if there is only one child widget the view stays
   the size of that widget.  Otherwise the behaviour is undefined.
 
+  <li> \c AutoOneFit - if there is only one child widget the child
+  will be stretched to fit the QScrollView.  
+  Otherwise the behaviour is undefined.
 
   </ul>
 */
@@ -2328,7 +2333,7 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 	{
             QSize cs = r->child->sizeHint();
 	    if ( cs.isValid() )
-        	result += cs;
+        	result += cs.boundedTo( r->child->maximumSize() );
 	    else
         	result += r->child->size();
         }
