@@ -503,10 +503,16 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	    FD_ZERO( &d->sn_vec[0].select_fds );
 	if ( d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty() )
 	    d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
+	else
+	    FD_ZERO( &d->sn_vec[1].select_fds );
 	if ( d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty() )
 	    d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
+	else
+	    FD_ZERO( &d->sn_vec[2].select_fds );
     } else {
 	FD_ZERO( &d->sn_vec[0].select_fds );
+	FD_ZERO( &d->sn_vec[1].select_fds );
+	FD_ZERO( &d->sn_vec[2].select_fds );
     }
     highest = d->sn_highest;
 
@@ -514,9 +520,9 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
 	highest = QMAX( highest, d->thread_pipe[0] );
     }
-    int nsel = select( highest + 1, &d->sn_vec[0].select_fds,
-		       d->sn_vec[1].list ? &d->sn_vec[1].select_fds : 0,
-		       d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0, tm );
+    int nsel = select(highest + 1, &d->sn_vec[0].select_fds,
+		      d->sn_vec[1].list ? &d->sn_vec[1].select_fds : 0,
+		      d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0, tm);
 #endif
     if (qt_postselect_handler) {
 	QVFuncList::Iterator end = qt_postselect_handler->end();
@@ -545,7 +551,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	    QPtrList<QSockNot> *list = d->sn_vec[i].list;
 	    QSockNot *sn = list->first();
 	    while ( sn ) {
-		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) )
+		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) ) 
 		    setSocketNotifierPending( sn->obj );
 		sn = list->next();
 	    }
@@ -640,7 +646,6 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	sn = list->next();
     if ( !sn ) // not found
 	return;
-
     FD_CLR( sockfd, fds );			// clear fd bit
     FD_CLR( sockfd, sn->queue );
     d->sn_pending_list.removeRef( sn );		// remove from activation list
@@ -800,13 +805,15 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     QApplication::sendPostedEvents();
     if(!qt_is_gui_used) {
-	timeval *tm = qt_wait_timer();
+	timeval *tm = NULL;
 	if (!canWait) { 		// no time to wait
 	    static timeval zerotm;
 	    if (!tm)
 		tm = &zerotm;
 	    tm->tv_sec  = 0;
 	    tm->tv_usec = 0;
+	} else {
+	    tm = qt_wait_timer();
 	}
 	if(!(flags & ExcludeSocketNotifiers))
 	    nevents += macHandleSelect(tm);
