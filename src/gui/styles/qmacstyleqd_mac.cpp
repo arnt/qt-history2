@@ -347,8 +347,8 @@ void QMacStyleQD::polish(QWidget* w)
 {
     QPixmap *bgPixmap = w->palette().brush(w->backgroundRole()).pixmap();
     if(!w->isTopLevel() && qt_cast<QSplitter*>(w) == 0
-       && bgPixmap && qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()
-       && bgPixmap->serialNumber() == qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) {
+       && bgPixmap && qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()
+       && bgPixmap->serialNumber() == qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()->serialNumber()) {
         // w->setBackgroundOrigin(QWidget::AncestorOrigin); // I currently do nothing.
     }
     d->addWidget(w);
@@ -1381,7 +1381,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             // change the color to bright text if we are a table header and selected.
             const QColor *penColor = &header->palette.buttonText().color();
             if (widget && widget->parentWidget()->inherits("QTable") && p->font().bold())
-                penColor = &header->palette.color(QColorGroup::BrightText);
+                penColor = &header->palette.color(QPalette::BrightText);
             drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
                      header->text, -1, penColor);
         }
