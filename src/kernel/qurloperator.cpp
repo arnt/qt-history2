@@ -507,7 +507,9 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!  Copies the file \a from to \a to. If \a move is TRUE, the file is
   moved (copied and removed). \a from must point to a file and \a to
-  must point to a directory (into which \a from is copied).  The copying
+  points to a directory (into which \a from is copied) unless \a toPath is
+  set to TRUE.  If \a toPath is set to TRUE then the \a to variable is
+  assumed to be the destination file path + file name.  The copying
   is done using the get() and put() operations. If you want to be notified
   about the progress of the operation, connect to the
   dataTransferProgress() signal. Bear in mind that the get() and put()
@@ -530,7 +532,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   \sa get(), put()
 */
 
-QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
+QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move, bool toPath )
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
@@ -579,7 +581,12 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 	ops.append( opGet );
 	gProt->addOperation( opGet );
 
-	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, to + file, QString::null, QString::null );
+
+	QString toFile = to + file;
+	if (!toPath)
+	    toFile = to;
+
+	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, toFile, QString::null, QString::null );
 	ops.append( opPut );
 
 	d->getOpPutProtMap.insert( (void*)opGet, pProt );

@@ -73,7 +73,7 @@ public:
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *get( const QString &location = QString::null );
     virtual const QNetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
-    virtual QPtrList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
+    virtual QPtrList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE, bool toPath = TRUE );
     virtual void copy( const QStringList &files, const QString &dest, bool move = FALSE );
     virtual bool isDir( bool *ok = 0 );
 
