@@ -41,7 +41,6 @@
 #include <qwidgetstack.h>
 #include <qtabwidget.h>
 #include <qtoolbar.h>
-#include <qobjectlist.h>
 #include <qdrawutil.h>
 #include <qmap.h>
 #include <qevent.h>
@@ -549,16 +548,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	if ( ::qt_cast<QWidgetStack*>(widget->parentWidget(TRUE)) ) {
 	    // Repolish all children of a tab page to get
 	    // gradient right. ### FIX properly in 4.0!
-	    QObjectList *objList = widget->queryList( "QWidget" );
-	    if ( objList ) {
-		QObjectListIt obListIt(*objList);
-		QWidget *cw;
-		while ( (cw = (QWidget*)obListIt.current()) != 0 ) {
-		    ++obListIt;
-		    polish( cw );
-		}
-	    }
-	    delete objList;
+	    QObjectList objList = widget->queryList( "QWidget" );
+	    for ( QObjectList::ConstIterator it = objList.begin(); it != objList.end(); ++it )
+		polish((QWidget*)(*it));
 	}
     }
 
@@ -812,7 +804,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		stateId = HSAS_SORTEDUP;
 #else
 	    p->save();
-	    p->setPen(cg.dark());
+	    p->setPen(pal.dark());
 	    p->translate(0, r.height()/2 - 4);
 	    if ( flags & Style_Up ) { // invert logic to follow Windows style guide
 		p->drawLine(r.x(), r.y(), r.x()+8, r.y());
@@ -903,7 +895,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		    int drawArea = qMin( r.right() - r.left(), r.bottom() - r.top() );
 		    drawDockTitle = ( drawArea >= w->fontMetrics().height() );
 		    isDockWindow = TRUE;
-		    title = p->windowCaption();
+		    title = p->windowTitle();
 		}
 	    }
 
@@ -1184,16 +1176,16 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    int checkcol = maxpmw;
 
 	    if ( mi && mi->isSeparator() ) {                    // draw separator
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( x, y + h/2, x+w, y + h/2 );
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawLine( x, y+1 + h/2, x+w, y+1 + h/2 );
 		return;
 	    }
 
 	    QBrush fill = (act ?
-			   cg.brush( QColorGroup::Highlight ) :
-			   cg.brush( QColorGroup::Button ));
+			   pal.highlight() :
+			   pal.button());
 	    p->fillRect( x, y, w, h, fill);
 
 	    if ( !mi )
@@ -1205,21 +1197,21 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    if ( mi->isChecked() ) {
 		if ( act && !dis )
 		    qDrawShadePanel( p, xvis, y, checkcol, h,
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+				     pal, TRUE, 1, &pal.button() );
 		else {
-		    QBrush fill( cg.light(), Dense4Pattern );
+		    QBrush fill( pal.light(), Dense4Pattern );
 		    // set the brush origin for the hash pattern to the x/y coordinate
 		    // of the menu item's checkmark... this way, the check marks have
 		    // a consistent look
 		    QPoint origin = p->brushOrigin();
 		    p->setBrushOrigin( xvis, y );
-		    qDrawShadePanel( p, xvis, y, checkcol, h, cg, TRUE, 1,
+		    qDrawShadePanel( p, xvis, y, checkcol, h, pal, TRUE, 1,
 				     &fill );
 		    // restore the previous brush origin
 		    p->setBrushOrigin( origin );
 		}
 	    } else if (! act)
-		p->fillRect(xvis, y, checkcol , h, cg.brush( QColorGroup::Button ));
+		p->fillRect(xvis, y, checkcol , h, pal.brush( QColorGroup::Button ));
 
 	    if ( mi->iconSet() ) {              // draw iconset
 		QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
@@ -1233,16 +1225,16 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
 		if ( act && !dis && !mi->isChecked() )
-		    qDrawShadePanel( p, xvis, y, checkcol, h, cg, FALSE, 1,
-				     &cg.brush( QColorGroup::Button ) );
+		    qDrawShadePanel( p, xvis, y, checkcol, h, pal, FALSE, 1,
+				     &pal.button() );
 		QRect pmr( 0, 0, pixw, pixh );
 		pmr.moveCenter( vrect.center() );
-		p->setPen( cg.text() );
+		p->setPen( pal.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 
 		fill = (act ?
-			cg.brush( QColorGroup::Highlight ) :
-			cg.brush( QColorGroup::Button ));
+			pal.highlight() :
+			pal.button());
 		int xp = xpos + checkcol + 1;
 		p->fillRect( visualRect( QRect( xp, y, w - checkcol - 1, h ), r ), fill);
 	    } else  if ( checkable ) {  // just "checking"...
@@ -1258,15 +1250,15 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		    drawPrimitive(PE_CheckMark, p,
 				  visualRect( QRect(xp, y + windowsItemFrame,
 					checkcol - 2*windowsItemFrame,
-					h - 2*windowsItemFrame), r ), cg, cflags);
+					h - 2*windowsItemFrame), r ), pal, cflags);
 		}
 	    }
 
-	    p->setPen( act ? cg.highlightedText() : cg.buttonText() );
+	    p->setPen( act ? pal.highlightedText() : pal.buttonText() );
 
 	    QColor discol;
 	    if ( dis ) {
-		discol = cg.text();
+		discol = pal.text();
 		p->setPen( discol );
 	    }
 
@@ -1278,12 +1270,12 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    if ( mi->custom() ) {
 		p->save();
 		if ( dis && !act ) {
-		    p->setPen( cg.light() );
-		    mi->custom()->paint( p, cg, act, !dis,
+		    p->setPen( pal.light() );
+		    mi->custom()->paint( p, pal, act, !dis,
 					 xvis+1, y+windowsItemVMargin+1, w-xm-tab+1, h-2*windowsItemVMargin );
 		    p->setPen( discol );
 		}
-		mi->custom()->paint( p, cg, act, !dis,
+		mi->custom()->paint( p, pal, act, !dis,
 				     xvis, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin );
 		p->restore();
 	    }
@@ -1299,7 +1291,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		    xp -= 20;
 		    int xoff = visualRect( QRect( xp, y+windowsItemVMargin, tab, h-2*windowsItemVMargin ), r ).x();
 		    if ( dis && !act ) {
-			p->setPen( cg.light() );
+			p->setPen( pal.light() );
 			p->drawText( xoff+1, y+windowsItemVMargin+1, tab, h-2*windowsItemVMargin, text_flags, s.mid( t+1 ));
 			p->setPen( discol );
 		    }
@@ -1307,7 +1299,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		    s = s.left( t );
 		}
 		if ( dis && !act ) {
-		    p->setPen( cg.light() );
+		    p->setPen( pal.light() );
 		    p->drawText( xvis+1, y+windowsItemVMargin+1, w-xm-tab+1, h-2*windowsItemVMargin, text_flags, s, t );
 		    p->setPen( discol );
 		}
@@ -1327,13 +1319,13 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
 		vrect = visualRect( QRect(xpos, y + h / 2 - dim / 2, dim, dim), r );
 		if ( act ) {
-		    QColorGroup g2 = cg;
-		    g2.setColor( QColorGroup::ButtonText, g2.highlightedText() );
+		    QPalette pal2 = pal;
+		    pal2.setColor( QPalette::ButtonText, pal2.highlightedText() );
 		    drawPrimitive(arrow, p, vrect,
-				  g2, dis ? Style_Default : Style_Enabled);
+				  pal2, dis ? Style_Default : Style_Enabled);
 		} else {
 		    drawPrimitive(arrow, p, vrect,
-				  cg, dis ? Style_Default : Style_Enabled );
+				  pal, dis ? Style_Default : Style_Enabled );
 		}
 	    }
 
@@ -1984,8 +1976,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		else
 		    stateId = SBS_NORMAL;
 		theme.drawBackground( partId, stateId );
-		if ( titlebar->windowIcon() )
-		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), true, *titlebar->windowIcon() );
+		if ( !titlebar->windowIcon().isNull() )
+		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), true, titlebar->windowIcon() );
 	    }
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarMinButton ) {
@@ -2627,7 +2619,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	    } else if ( ::qt_cast<QSlider*>(o) ) {
 		static bool clearSlider = FALSE;
 		QSlider *slider = (QSlider*)o;
-		const QRect rect = slider->sliderRect();
+		const QRect rect = querySubControlMetrics(CC_Slider, (QWidget*)o, SC_SliderHandle, 0);
 		const bool inSlider = rect.contains( d->hotSpot );
 		if ( ( inSlider && !clearSlider ) || ( !inSlider && clearSlider ) ) {
 		    clearSlider = inSlider;
