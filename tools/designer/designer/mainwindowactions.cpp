@@ -351,7 +351,6 @@ void MainWindow::setupLayoutActions()
 
     int id = WidgetDatabase::idFromClassName( "Spacer" );
     actionInsertSpacer = new WidgetAction( "Layout", actionGroupTools, QString::number( id ).latin1() );
-    actionInsertSpacer->setEnabled( FALSE );
     actionInsertSpacer->setToggleAction( TRUE );
     actionInsertSpacer->setText( WidgetDatabase::className( id ) );
     actionInsertSpacer->setMenuText( tr( "Add ") + WidgetDatabase::className( id ) );
