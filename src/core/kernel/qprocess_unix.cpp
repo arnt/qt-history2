@@ -708,9 +708,9 @@ bool QProcess::start(QStringList *env)
     QByteArray *arglistQ = new QByteArray[_arguments.count() + 1];
     const char** arglist = new const char*[_arguments.count() + 1];
     int i = 0;
-    for (QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+    for (QStringList::ConstIterator it = _arguments.constBegin(); it != _arguments.constEnd(); ++it) {
         arglistQ[i] = (*it).local8Bit();
-        arglist[i] = arglistQ[i];
+        arglist[i] = arglistQ[i].constData();
 #if defined(QT_QPROCESS_DEBUG)
         qDebug("QProcess::start(): arg %d = %s", i, arglist[i]);
 #endif
@@ -811,19 +811,20 @@ bool QProcess::start(QStringList *env)
                 envlist[i] = envlistQ[i];
                 i++;
             }
-            for (QStringList::Iterator it = env->begin(); it != env->end(); ++it) {
+            for (QStringList::ConstIterator it = env->constBegin(); it != env->constEnd(); ++it) {
                 envlistQ[i] = (*it).local8Bit();
-                envlist[i] = envlistQ[i];
+                envlist[i] = envlistQ[i].constData();
                 i++;
             }
             envlist[i] = 0;
 
             // look for the executable in the search path
-            if (_arguments.count()>0 && getenv("PATH")!=0) {
+            const char *path = getenv("PATH");
+            if (_arguments.count()>0 && path != 0) {
                 QString command = _arguments[0];
                 if (!command.contains(QLatin1Char('/'))) {
-                    QStringList pathList = QString::fromLocal8Bit(getenv("PATH")).split(QLatin1Char(':'));
-                    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it) {
+                    QStringList pathList = QString::fromLocal8Bit(path).split(QLatin1Char(':'));
+                    for (QStringList::ConstIterator it = pathList.constBegin(); it != pathList.constEnd(); ++it) {
                         QString dir = *it;
 #if defined(Q_OS_DARWIN) //look in a bundle
                         if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))

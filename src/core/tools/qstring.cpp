@@ -2453,7 +2453,7 @@ QString QString::section(const QString &sep, int start, int end, int flags) cons
             end += sections.count();
     } else {
         int skip = 0;
-        for(QStringList::Iterator it = sections.begin(); it != sections.end(); ++it) {
+        for(QStringList::ConstIterator it = sections.constBegin(); it != sections.constEnd(); ++it) {
             if((*it).isEmpty())
                 skip++;
         }
@@ -2464,7 +2464,7 @@ QString QString::section(const QString &sep, int start, int end, int flags) cons
     }
     int x = 0, run = 0;
     QString ret;
-    for(QStringList::Iterator it = sections.begin(); x <= end && it != sections.end(); ++it) {
+    for(QStringList::ConstIterator it = sections.constBegin(); x <= end && it != sections.constEnd(); ++it) {
         if(x >= start) {
             if((*it).isEmpty()) {
                 run++;
@@ -2473,11 +2473,11 @@ QString QString::section(const QString &sep, int start, int end, int flags) cons
                     int i_end = run;
                     if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
                         i_end++;
-                    if((flags & SectionIncludeLeadingSep) && it != sections.begin() && x == start)
+                    if((flags & SectionIncludeLeadingSep) && it != sections.constBegin() && x == start)
                         i_end++;
                     for(int i = 0; i < i_end; i++)
                         ret += sep;
-                } else if((flags & SectionIncludeLeadingSep) && it != sections.begin()) {
+                } else if((flags & SectionIncludeLeadingSep) && it != sections.constBegin()) {
                     ret += sep;
                 }
                 run = 0;

@@ -1156,11 +1156,12 @@ QString QCoreApplication::applicationFilePath()
           PATH environment variable.
         */
         char *pEnv = getenv("PATH");
+        QDir currentDir = QDir::current();
         QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(":"));
-        for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
+        for (QStringList::const_iterator p = paths.constBegin(); p != paths.constEnd(); ++p) {
             if ((*p).isEmpty())
                 continue;
-            QString candidate = QDir::current().absoluteFilePath(*p + QLatin1Char('/') + argv0);
+            QString candidate = currentDir.absoluteFilePath(*p + QLatin1Char('/') + argv0);
             if (QFile::exists(candidate)) {
                 absPath = candidate;
                 break;
