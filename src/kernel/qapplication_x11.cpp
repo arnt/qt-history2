@@ -3055,12 +3055,6 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
-
-#if defined(QT_THREAD_SUPPORT)
-    if (qt_is_gui_used)
-	qApp->unlock(FALSE);
-#endif
-
     enter_loop();
 
     return quit_code;
