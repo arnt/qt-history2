@@ -3833,7 +3833,6 @@ void QTextString::checkBidi() const
 	if ( item->position > pos ) {
 	    --item;
 	    Q_ASSERT( item >= &textEngine.items[0] );
-	    Q_ASSERT( item < &textEngine.items[textEngine.items.size()] );
 	    bidiLevel = item->analysis.bidiLevel;
 	    if ( bidiLevel )
 		that->bidi = TRUE;
