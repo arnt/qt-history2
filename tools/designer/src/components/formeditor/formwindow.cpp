@@ -198,6 +198,8 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
 
 void FormWindow::init()
 {
+    m_blockSelectionChanged = false;
+
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
 
@@ -342,6 +344,8 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         return;
     }
 
+    bool blocked = blockSelectionChanged(true);
+
     if (selected == true && inLayout == true) {
         // select the direct parent
         selectWidget(w->parentWidget());
@@ -353,6 +357,8 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 
     raiseChildSelections(w);
     selectWidget(w);
+
+    blockSelectionChanged(blocked);
 }
 
 void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
@@ -375,6 +381,8 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
         return;
     }
 
+    bool blocked = blockSelectionChanged(true);
+
     // if widget is laid out, find the first non-laid out super-widget
     QWidget *current = w;
     while (QWidget *p = current->parentWidget()) {
@@ -388,6 +396,7 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
     }
     selectWidget(current);
 
+    blockSelectionChanged(blocked);
 
     QDesignerResource builder(this);
 
@@ -411,6 +420,8 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
     if (sel.count())
         core()->formWindowManager()->dragItems(item_list, this);
+
+    emitSelectionChanged(); // ensure the selection is updated!
 }
 
 void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
@@ -419,13 +430,15 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
 
     if (drawRubber) { // we were drawing a rubber selection
         endRectDraw(); // get rid of the rectangle
-        bool block = blockSignals(true);
+
+        bool blocked = blockSelectionChanged(true);
         selectWidgets(); // select widgets which intersect the rect
-        blockSignals(block);
+        blockSelectionChanged(blocked);
 
         drawRubber = false;
-        emitSelectionChanged(); // inform about selection changes
     }
+
+    emitSelectionChanged(); // inform about selection changes
 }
 
 void FormWindow::checkPreviewGeometry(QRect &r)
@@ -520,7 +533,7 @@ void FormWindow::selectWidget(QWidget* w, bool select)
         setCurrentWidget(w);
         repaintSelection(opw);
         WidgetSelection *s = usedSelections.value(w);
-        if (s) {
+        if (s != 0) {
             s->show();
             return;
         }
@@ -528,35 +541,36 @@ void FormWindow::selectWidget(QWidget* w, bool select)
         QListIterator<WidgetSelection*> it(selections);
         while (it.hasNext()) {
             WidgetSelection *sel = it.next();
-            if (!sel->isUsed())
+            if (!sel->isUsed()) {
                 s = sel;
+                break;
+            }
         }
 
-        if (!s) {
+        if (s == 0) {
             s = new WidgetSelection(this, &usedSelections);
             selections.append(s);
         }
 
         s->setWidget(w);
-        emitSelectionChanged();
     } else {
-        WidgetSelection *s = usedSelections.value(w);
-        if (s)
+        if (WidgetSelection *s = usedSelections.value(w))
             s->setWidget(0);
-        QWidget *opw = m_currentWidget;
+
         if (!usedSelections.isEmpty())
             setCurrentWidget((*usedSelections.begin())->widget());
         else
             setCurrentWidget(mainContainer());
-        repaintSelection(opw);
-        emitSelectionChanged();
+
+        repaintSelection(currentWidget());
     }
+
+    emitSelectionChanged();
 }
 
 void FormWindow::hideSelection(QWidget *w)
 {
     selectWidget(w, false);
-    m_selectionChangedTimer->stop();
 }
 
 void FormWindow::clearSelection(bool changePropertyDisplay)
@@ -566,19 +580,25 @@ void FormWindow::clearSelection(bool changePropertyDisplay)
     }
 
     usedSelections.clear();
-    if (changePropertyDisplay) {
-        setCurrentWidget(mainContainer());
-        if (m_currentWidget) {
-            repaintSelection(m_currentWidget);
-        }
-    }
+
+    if (changePropertyDisplay == false)
+        return;
+
+    setCurrentWidget(mainContainer());
+
+    if (m_currentWidget)
+        repaintSelection(m_currentWidget);
 
     emitSelectionChanged();
 }
 
 void FormWindow::emitSelectionChanged()
 {
-    m_selectionChangedTimer->setSingleShot(true);
+    if (m_blockSelectionChanged == true) {
+        // nothing to do
+        return;
+    }
+
     m_selectionChangedTimer->start(0);
 }
 
@@ -1805,9 +1825,8 @@ bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *ev
     AbstractFormWindowTool *tool = m_widgetStack->currentTool();
     if (tool == 0)
         return false;
-    bool handled = tool->handleEvent(widget, managedWidget, event);
 
-    return handled;
+    return tool->handleEvent(widget, managedWidget, event);
 }
 
 void FormWindow::initializeCoreTools()
@@ -1923,5 +1942,13 @@ QString FormWindow::absolutePath(const QString &rel_path) const
 
     return QDir::cleanPath(ui_dir + QDir::separator() + rel_path);
 }
+
+bool FormWindow::blockSelectionChanged(bool b)
+{
+    bool blocked = m_blockSelectionChanged;
+    m_blockSelectionChanged = b;
+    return blocked;
+}
+
 
 #include "formwindow.moc"

@@ -166,6 +166,7 @@ public:
     void beginCommand(const QString &description);
     void endCommand();
 
+    bool blockSelectionChanged(bool blocked);
     void emitSelectionChanged();
 
     bool unify(QObject *w, QString &s, bool changeIt);
@@ -287,10 +288,14 @@ private:
     QWidget *m_currentWidget;
     QPoint m_grid;
 
-    bool drawRubber;
+    uint m_blockSelectionChanged: 1;
+    uint drawRubber: 1;
+    uint oldRectValid: 1;
+    uint hadOwnPalette: 1;
+    uint pad[28];
+
     QPoint rectAnchor;
     QRect currRect;
-    bool oldRectValid;
 
     QList<QWidget*> m_widgets;
     QSet<QWidget*> m_insertedWidgets;
@@ -308,7 +313,6 @@ private:
     QWidget *endWidget;
 
     QWidget *targetContainer;
-    bool hadOwnPalette;
     QPalette restorePalette;
 
     QtUndoStack *m_commandHistory;
