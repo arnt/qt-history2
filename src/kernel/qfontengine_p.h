@@ -303,6 +303,8 @@ public:
     Type type() const;
     XftPattern *pattern() const { return _pattern; }
 
+    void recalcAdvances( int len, glyph_t *glyphs, advance_t *advances );
+
 private:
     friend class QFontPrivate;
     XftFont *_font;
@@ -313,7 +315,7 @@ private:
     short lbearing;
     short rbearing;
     float _scale;
-    enum { widthCacheSize = 0x500, cmapCacheSize = 0x500 };
+    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
     unsigned char widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
 };
@@ -446,6 +448,11 @@ private:
     bool hasGDef : 1;
     bool hasGSub : 1;
     bool hasGPos : 1;
+    TTO_GSUB_String *in;
+    TTO_GSUB_String *out;
+    TTO_GSUB_String *tmp;
+    GlyphAttributes *tmpAttributes;
+    int tmpAttributesLen;
 };
 #endif // QT_NO_XFTFREETYPE
 

@@ -4443,70 +4443,33 @@ EXPORT_FUNC
   EXPORT_FUNC
   FT_Error  TT_GSUB_Apply_String( TTO_GSUBHeader*   gsub,
                                   TTO_GSUB_String*  in,
-                                  TTO_GSUB_String*  out )
+                                  TTO_GSUB_String** out,
+				  TTO_GSUB_String** tmp )
   {
     FT_Error          error = TTO_Err_Not_Covered;
-    FT_Memory         memory = in->memory;
     FT_UShort         j;
 
-    TTO_GSUB_String   tmp1;
-    TTO_GSUB_String*  ptmp1;
-    TTO_GSUB_String   tmp2;
-    TTO_GSUB_String*  ptmp2;
     TTO_GSUB_String*  t;
+    TTO_GSUB_String *ptmp1 = *tmp;
+    TTO_GSUB_String *ptmp2 = *out;
 
-    FT_UShort*        properties;
-
+    FT_UShort*        properties = gsub->LookupList.Properties;
 
     if ( !gsub ||
          !in || !out || in->length == 0 || in->pos >= in->length )
       return TT_Err_Invalid_Argument;
 
-    properties = gsub->LookupList.Properties;
+    TT_GSUB_String_Allocate( ptmp1, 3*in->length+1 );
+    TT_GSUB_String_Allocate( ptmp2, 3*in->length+1 );
 
-    tmp1.memory    = memory;
-    tmp1.length    = in->length;
-    tmp1.allocated = 3*in->length + 1;
-    tmp1.pos       = in->pos;
-    tmp1.max_ligID = 1;
-
-    if ( ALLOC_ARRAY( tmp1.string, tmp1.allocated, FT_UShort ) )
-      return error;
-    MEM_Copy( tmp1.string, in->string, in->length * sizeof ( FT_UShort ) );
-
-    /* make sure that we always have a `properties', `components', and
-       `ligIDs' array in the string object                             */
-
-    if ( ALLOC_ARRAY( tmp1.components, tmp1.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp1.ligIDs, tmp1.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp1.properties, tmp1.allocated, FT_UShort ) )
-      return error;
-    if ( in->properties )
-      MEM_Copy( tmp1.properties, in->properties,
-                in->length * sizeof( FT_UShort ) );
-    if ( ALLOC_ARRAY( tmp1.logClusters, tmp1.allocated, FT_Int ) )
-      return error;
-    MEM_Copy( tmp1.logClusters, in->logClusters,
+    ptmp1->length    = in->length;
+    ptmp1->pos       = in->pos;
+    ptmp1->max_ligID = 1;
+    MEM_Copy( ptmp1->string, in->string, in->length * sizeof ( FT_UShort ) );
+    MEM_Copy( ptmp1->properties, in->properties,
+	      in->length * sizeof( FT_UShort ) );
+    MEM_Copy( ptmp1->logClusters, in->logClusters,
 	      in->length * sizeof( FT_Int ) );
-
-    tmp2.memory      = memory;
-    tmp2.allocated   = tmp1.allocated;
-    tmp2.pos         = 0;
-    if ( ALLOC_ARRAY( tmp2.string, tmp2.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp2.components, tmp2.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp2.ligIDs, tmp2.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp2.properties, tmp2.allocated, FT_UShort ) )
-      return error;
-    if ( ALLOC_ARRAY( tmp2.logClusters, tmp2.allocated, FT_Int ) )
-      return error;
-
-    ptmp1 = &tmp1;
-    ptmp2 = &tmp2;
 
     for ( j = 0; j < gsub->LookupList.LookupCount; j++ )
       if ( properties[j] )
@@ -4527,27 +4490,10 @@ EXPORT_FUNC
         ptmp1 = t;
       }
 
-    out->length      = ptmp1->length;
-    out->pos         = 0;
-    out->allocated   = ptmp1->allocated;
-    out->string      = ptmp1->string;
-    out->components  = ptmp1->components;
-    out->ligIDs      = ptmp1->ligIDs;
-    out->logClusters = ptmp1->logClusters;
+    *out = ptmp1;
+    (*out)->pos = 0;
 
-    if ( in->properties )
-      out->properties = ptmp1->properties;
-    else
-    {
-      FREE( ptmp1->properties );
-      out->properties = NULL;
-    }
-
-    FREE( ptmp2->string );
-    FREE( ptmp2->properties );
-    FREE( ptmp2->components );
-    FREE( ptmp2->ligIDs );
-    FREE( ptmp2->logClusters );
+    *tmp = ptmp2;
 
     return error;
   }

@@ -595,7 +595,8 @@ extern "C" {
   EXPORT_DEF
   FT_Error  TT_GSUB_Apply_String( TTO_GSUBHeader*   gsub,
                                   TTO_GSUB_String*  in,
-                                  TTO_GSUB_String*  out );
+                                  TTO_GSUB_String**  out,
+				  TTO_GSUB_String** tmp );
 
   EXPORT_DEF
   FT_Error  TT_GSUB_Add_String( TTO_GSUB_String*  in,

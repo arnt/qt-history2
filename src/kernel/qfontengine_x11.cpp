@@ -1349,6 +1349,48 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     return NoError;
 }
 
+
+void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advances )
+{
+
+#ifdef QT_XFT2
+    for ( int i = 0; i < len; i++ ) {
+	FT_UInt glyph = *(glyphs + i);
+	if ( glyph < widthCacheSize )
+	    advances[i] = widthCache[glyph];
+	if ( !advances[i] ) {
+	    XGlyphInfo gi;
+	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
+	    advances[i] = gi.xOff;
+	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
+		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
+	}
+	if ( _scale != 1. ) {
+	    for ( int i = 0; i < len; i++ )
+		advances[i] = (int)(advances[i]*_scale);
+	}
+    }
+#else
+    for ( int i = 0; i < len; i++ ) {
+	XftChar16 glyph = *(glyphs + i);
+	if ( glyph < widthCacheSize )
+	    advances[i] = widthCache[glyph];
+	if ( !advances[i] ) {
+	    XGlyphInfo gi;
+	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
+	    advances[i] = gi.xOff;
+	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
+		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
+	}
+    }
+    if ( _scale != 1. ) {
+	for ( int i = 0; i < len; i++ )
+	    advances[i] = (int)(advances[i]*_scale);
+    }
+#endif // QT_XFT2
+}
+
+
 //#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
@@ -2043,6 +2085,9 @@ QOpenType::QOpenType( FT_Face _face )
     : face( _face ), gdef( 0 ), gsub( 0 ), gpos( 0 ), current_script( 0 )
 {
     hasGDef = hasGSub = hasGPos = TRUE;
+    in = out = tmp = 0;
+    tmpAttributes = 0;
+    tmpAttributesLen = 0;
 }
 
 QOpenType::~QOpenType()
@@ -2053,6 +2098,14 @@ QOpenType::~QOpenType()
 	TT_Done_GSUB_Table( gsub );
     if ( gdef )
 	TT_Done_GDEF_Table( gdef );
+    if ( in )
+	TT_GSUB_String_Done( in );
+    if ( out )
+	TT_GSUB_String_Done( out );
+    if ( tmp )
+	TT_GSUB_String_Done( tmp );
+    if ( tmpAttributes )
+	free( tmpAttributes );
 }
 
 bool QOpenType::supportsScript( unsigned int script )
@@ -2103,27 +2156,6 @@ bool QOpenType::supportsScript( unsigned int script )
     return FALSE;
 }
 
-static void q_calculateAdvances( QTextEngine *engine, QScriptItem *si )
-{
-
-    glyph_t *glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
-    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
-
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
-	if ( glyphAttributes[i].mark )
-	    advances[i] = 0;
-	else {
-	    glyph_metrics_t gi = si->fontEngine->boundingBox( glyphs[i] );
-	    advances[i] = gi.xoff;
-	    //qDebug("setting advance of glyph %d to %d", i, gi.xoff );
-	    int y = offsets[i].y + gi.y;
-	    si->ascent = QMAX( si->ascent, -y );
-	    si->descent = QMAX( si->descent, y + gi.height );
-	}
-    }
-}
 
 extern void q_heuristicPosition( QTextEngine *engine, QScriptItem *item );
 
@@ -2144,14 +2176,17 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
 
     // shaping code
 
-    TTO_GSUB_String *in = 0;
-    TTO_GSUB_String *out = 0;
-
-    TT_GSUB_String_New( face->memory, &in );
-    TT_GSUB_String_Set_Length( in, si->num_glyphs );
-    TT_GSUB_String_New( face->memory, &out);
-    TT_GSUB_String_Set_Length( out, si->num_glyphs*3+1 );
+    if ( !in )
+	TT_GSUB_String_New( face->memory, &in );
+    if ( in->allocated < (uint)si->num_glyphs )
+	TT_GSUB_String_Allocate( in, si->num_glyphs );
+    if ( !out )
+	TT_GSUB_String_New( face->memory, &out );
+    if ( !tmp )
+	TT_GSUB_String_New( face->memory, &tmp );
     out->length = 0;
+    tmp->length = 0;
+    out->pos = tmp->pos = 0;
 
     for ( int i = 0; i < si->num_glyphs; i++) {
       in->string[i] = glyphs[i];
@@ -2159,15 +2194,21 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
       in->properties[i] = ~((featuresToApply ? featuresToApply[i] : 0)|always_apply);
     }
     in->max_ligID = 0;
+    in->length = si->num_glyphs;
 
-    TT_GSUB_Apply_String (gsub, in, out);
+
+    TT_GSUB_Apply_String (gsub, in, &out, &tmp);
 
     // #### do this in place!
-    GlyphAttributes *oldAttrs = ( GlyphAttributes *) malloc( si->num_glyphs*sizeof(GlyphAttributes) );
-    memcpy( oldAttrs, glyphAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
+    if ( tmpAttributesLen < si->num_glyphs ) {
+	tmpAttributes = ( GlyphAttributes *) realloc( tmpAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
+	tmpAttributesLen = si->num_glyphs;
+    }
+    memcpy( tmpAttributes, glyphAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
 
     si->num_glyphs = out->length;
     engine->ensureSpace( si->num_glyphs );
+    glyphAttributes = engine->glyphAttributes( si );
 
 //     qDebug("out: num_glyphs = %d", si->num_glyphs );
 
@@ -2176,14 +2217,14 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
     for ( int i = 0; i < si->num_glyphs; i++ ) {
 	glyphs[i] = out->string[i];
 	int lc = out->logClusters[i];
-	glyphAttributes[i] = oldAttrs[lc];
+	glyphAttributes[i] = tmpAttributes[lc];
 	if ( !glyphAttributes[i].mark && glyphAttributes[i].clusterStart && lc != oldlc ) {
 	    for ( int j = oldlc; j < lc; j++ )
 		logClusters[j] = clusterStart;
 	    clusterStart = i;
 	    oldlc = lc;
 	}
-//     	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], glyphAttributes[i].mark );
+//      	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
     for ( int j = oldlc; j < stringLength; j++ )
@@ -2191,17 +2232,19 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
 //     qDebug("log clusters after shaping:");
 //     for ( int j = 0; j < stringLength; j++ )
 // 	qDebug("    log[%d] = %d", j, logClusters[j] );
-    free( oldAttrs );
 
-    TT_GSUB_String_Done( in );
-
-
-    // positioning code:
-
-    q_calculateAdvances( engine, si );
+    // calulate the advances for the shaped glyphs
+    glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
 
+    ((QFontEngineXft *)si->fontEngine)->recalcAdvances( si->num_glyphs, glyphs, advances );
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+	if ( glyphAttributes[i].mark )
+	    advances[i] = 0;
+    }
+
+    // positioning code:
     if ( hasGPos ) {
 	TTO_GPOS_Data *positions = 0;
 
@@ -2241,9 +2284,6 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
     } else {
 	q_heuristicPosition( engine, si );
     }
-
-    if ( out )
-	TT_GSUB_String_Done( out );
 }
 
 #endif
