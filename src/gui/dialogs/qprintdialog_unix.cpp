@@ -121,9 +121,9 @@ public:
 
 #ifdef Q_NO_USING_KEYWORD
     int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parnet); }
+        { return QAbstractItemModel::rowCount(parent); }
     int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parnet); }
+        { return QAbstractItemModel::columnCount(parent); }
 #else
     using QAbstractItemModel::rowCount;
     using QAbstractItemModel::columnCount;
