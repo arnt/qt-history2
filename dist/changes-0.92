@@ -1,0 +1,4 @@
+toUpper, toLower, simplifyWhiteSpace etc. do NOT change the string.
+
+QFile::isDirectory => QFile::isDir
+QFile::isRegular   => QFile::isFile
