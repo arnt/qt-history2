@@ -3819,7 +3819,7 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 	    }
 
 	    if ( compare & EndsWith ) {
-		if ( itmtxt.right( comtxt.length() ) == comtxt )
+		if ( itmtxt.endsWith( comtxt ) )
 		    return item;
 	    }
 
@@ -3848,7 +3848,7 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 		}
 
 		if ( compare & EndsWith ) {
-		    if ( itmtxt.right( comtxt.length() ) == comtxt )
+		    if ( itmtxt.endsWith( comtxt ) )
 			return item;
 		}
 

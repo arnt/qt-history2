@@ -6529,7 +6529,7 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
 	    }
 
 	    if ( compare & EndsWith ) {
-		if ( itmtxt.right( comtxt.length() ) == comtxt )
+		if ( itmtxt.endsWith( comtxt ) )
 		    return item;
 	    }
 
@@ -6560,7 +6560,7 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
 		}
 
 		if ( compare & EndsWith ) {
-		    if ( itmtxt.right( comtxt.length() ) == comtxt )
+		    if ( itmtxt.endsWith( comtxt ) )
 			return item;
 		}
 
