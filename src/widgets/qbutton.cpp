@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#41 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -73,9 +73,9 @@ QButton::QButton( QWidget *parent, const char *name )
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
-    }
-    else
+    } else {
 	group = 0;
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -95,14 +95,14 @@ QButton::~QButton()
   This signal is emitted when the button is pressed down.
 
   \sa released() clicked()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::released()
   This signal is emitted when the button is released.
 
   \sa clicked() pressed() toggled()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::clicked()
@@ -111,7 +111,7 @@ QButton::~QButton()
   button).
 
   \sa pressed() released() toggled()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::toggled( bool on )
@@ -122,7 +122,7 @@ QButton::~QButton()
   or because setOn() was called.
 
   \sa clicked()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------

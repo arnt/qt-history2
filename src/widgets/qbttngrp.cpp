@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#22 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#22 $")
 
 
 /*----------------------------------------------------------------------------
@@ -83,7 +83,6 @@ QButtonGroup::QButtonGroup( const char *title, QWidget *parent,
 }
 
 /*----------------------------------------------------------------------------
-  \internal
   Initializes the button group.
  ----------------------------------------------------------------------------*/
 
