@@ -1770,7 +1770,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->append( QChar('b') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
-		    if ( !curtag.anchorHref.isEmpty() ) 
+		    if ( !curtag.anchorHref.isEmpty() )
  			curpar->at(index)->setAnchor( QString::null, curtag.anchorHref );
  		    if ( !anchorName.isEmpty()  ) {
  			curpar->at(index)->setAnchor( anchorName, curpar->at(index)->anchorHref() );
@@ -5665,12 +5665,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    minw = QMAX( minw, tminw );
 
 	    int tw = ci->minimumWidth();
-	    // the next line breaks support/arc-20/40253
-	    //int tw = QMAX( c->customItem()->minimumWidth(), QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
 	    if ( tw < QWIDGETSIZE_MAX )
 		tminw = tw;
 	    else
 		tminw = marg;
+	    wused = QMAX( wused, ci->width );
 	    continue;
 	} else if ( c->isCustom() && ci->placement() != QTextCustomItem::PlaceInline ) {
 	    int tw = ci->minimumWidth();
@@ -7603,8 +7602,9 @@ void QTextTable::format( int w )
 {
     for ( int i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
- 	cell->richText()->doLayout( QTextFormat::painter(), w-2*outerborder );
- 	cell->cached_width = w-2*outerborder;
+	QRect r = cell->geometry();
+	r.setWidth( w - 2*outerborder );
+	cell->setGeometry( r );
     }
 }
 
@@ -7935,7 +7935,7 @@ QTextTableCell::~QTextTableCell()
 QSize QTextTableCell::sizeHint() const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
-    int used = richtext->widthUsed() + extra + border_tolerance;
+    int used = richtext->widthUsed() + extra;
 
     if  (stretch_ ) {
 	int w = parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding;
@@ -8023,7 +8023,8 @@ int QTextTableCell::verticalAlignmentOffset() const
 void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
 {
     if ( cached_width != geom.width() ) {
-	richtext->doLayout( p, geom.width() );
+	int extra = 2 * ( parent->innerborder + parent->cellpadding );
+	richtext->doLayout( p, geom.width() - extra );
 	cached_width = geom.width();
     }
     QColorGroup g( cg );
