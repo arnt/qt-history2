@@ -1,0 +1,71 @@
+# This file contains the mapping of xlfds to mib enum (used to convert
+# unicode to the xlfd encoding) and the QFont::Script's they support
+# the format is 'xlfd mib script,...'
+#
+# Latin
+iso8859-1 4 Common
+iso8859-2 5 Common
+iso8859-3 6 Common
+iso8859-4 7 Common
+iso8859-9 12 Common
+iso8859-10 13 Common
+iso8859-13 109 Common
+iso8859-14 110 Common
+iso8859-15 111 Common
+hp-roman8 2004 Common
+#
+# Cyrillic
+iso8859-5 8 Common
+*-cp1251 2251 Common
+koi8-ru 2084 Common 
+koi8-u 2088 Common 
+koi8-r 2084 Common 
+#
+# Greek
+iso8859-7 10 Common
+#
+#
+# Hebrew
+iso8859-8 85 Common,Hebrew
+#
+# China, Mainland
+gb18030-0 -114 Common
+gb18030.2000-0 -113 Common
+gbk-0 -113 Common
+gb2312.*-0 57 Common
+#
+# Japan
+jisx0201*-0 15 Common
+jisx0208*-0 63 Common
+#
+# Korea
+ksc5601*-* 36 Common,Hangul
+#
+# Hong Kong
+big5hkscs-0 -2101 Common
+hkscs-1 -2101 Common
+#
+# Taiwan
+big5*-* -2026 Common
+#
+# Tamil
+tscii-* 2028 Common,Tamil
+#
+# Thai
+tis620*-* 2259 Common,Thai
+iso8859-11 2259 Common,Thai
+#
+# Lao
+mulelao-1 -4242 Common,Lao
+#
+# Ethiopic
+ethiopic-unicode 0 Common
+#
+# Unicode - NOTE: iso10646-1 is listed above with Arabic
+iso10646-1 0 Common,Arabic,Hebrew,Thai,Lao,Hangul
+unicode-* 0 Common,Arabic,Hebrew,Thai,Lao,Hangul
+#
+# Other
+*-symbol 0 Common
+*-fontspecific 0 Common
+fontspecific-* 0 Common
