@@ -717,19 +717,19 @@ static inline QString groupKey( const QString &group, const QString &key )
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
-    if ( !verifyKey( path ) ) {
-#if defined(QT_CHECK_STATE)
-	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
-#endif
-	return;
-    }
-
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd ) {
 	d->sysInsertSearchPath( s, path );
 	return;
     }
 #endif
+
+    if ( !verifyKey( path ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
+#endif
+	return;
+    }
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd && s != Unix ) {

@@ -382,8 +382,8 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 		handle = 0;
 	    }
 	    QString k = *it + "/" + key;
-	    QString f = folder( key );
-	    e = entry( key );
+	    QString f = folder( k );
+	    e = entry( k );
 	    if ( e == "Default" || e == "." )
 		e = "";
 
@@ -404,8 +404,8 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 	    }
 
 	    QString k = *it + "/" + key;
-	    QString f = folder( key );
-	    e = entry( key );
+	    QString f = folder( k );
+	    e = entry( k );
 	    if ( e == "Default" || e == "." )
 		e = "";
 
