@@ -600,6 +600,23 @@ QShapedItem *QTextEngine::shape( int item ) const
 	if ( hasUsp10 ) {
 	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
 	    script = scriptForWinLanguage( script_prop->langid );
+	    if ( script == QFont::Latin && script_prop->fAmbiguousCharSet ) {
+		// maybe some asian language
+		const QFont::Script tryScripts[] = {
+		    QFont::Hiragana,
+		    QFont::Han,
+		    QFont::Hangul
+		};
+		for( int i = 0; i < 3; i++ ) {
+		    QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
+		    if ( fe->type() == QFontEngine::Box )
+			continue;
+		    if ( fe->canRender( string.unicode()+from, len ) ) {
+			script = tryScripts[i];
+    			break;
+		    }
+		}
+	    }
 	}
 	si.fontEngine = fnt->engineForScript( script );
 	if ( si.fontEngine->type() == QFontEngine::Box )
@@ -611,7 +628,6 @@ QShapedItem *QTextEngine::shape( int item ) const
 	int l = len;
 	si.analysis.logicalOrder = TRUE;
 	HRESULT res = E_OUTOFMEMORY;
-	bool scriptChanged = FALSE;
 	HDC hdc = 0;
 	do {
 	    shaped_allocate( &si, l );
@@ -622,18 +638,7 @@ QShapedItem *QTextEngine::shape( int item ) const
 		hdc = si.fontEngine->dc();
 		SelectObject( hdc, si.fontEngine->hfont );
 	    } else if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
-		const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-		script = scriptForWinLanguage( script_prop->langid );
-		if ( scriptChanged || script == QFont::NScripts )
-		    si.analysis.script = 0;
-		else {
-		    si.fontEngine->deref();
-		    fnt->engineForScript( script );
-		    if ( si.fontEngine->type() == QFontEngine::Box )
-			si.fontEngine = fnt->engineForScript( QFont::NoScript );
-		    si.fontEngine->ref();
-		}
-		scriptChanged = true;
+		si.analysis.script = 0;
 		hdc = 0;
 	    } else {
 		l += 32;

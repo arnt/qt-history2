@@ -983,9 +983,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    if ( loop == 2 && family_name.isNull() )
 		load( family->name, script );
 
-	    if ( !( family->scripts[script] & QtFontFamily::Supported ||
-		    family->scripts[QFont::UnknownScript] &
-		    QtFontFamily::Supported ) )
+	    if ( !( family->scripts[script] & QtFontFamily::Supported ) )
 		continue;
 
 	    // as we know the script is supported, we can be sure
