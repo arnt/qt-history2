@@ -1,9 +1,9 @@
 Troll Tech is proud to release a free version of Qt for the X Window
-System. This release, Qt 0.99, is free for free software development
+System. This release, Qt 1.0, is free for free software development
 on all operating systems that support the X Window System and includes
 the complete Qt source code for X.
 
-Qt 0.99 includes makefiles for Linux, Solaris, SunOS, FreeBSD, OSF/1,
+Qt 1.0 includes makefiles for Linux, Solaris, SunOS, FreeBSD, OSF/1,
 Irix, BSD/OS, SCO and HP-UX. New platforms may be added in the future.
 
 Qt is a complete and well-developed object-oriented framework for
@@ -72,16 +72,16 @@ And here is the LSM entry:
 
 Begin3
 Title:          Qt toolkit
-Version:        0.99
+Version:        1.0
 Entered-date:   06sep96
 Description:    C++ GUI class library with Motif look and feel
 Keywords:       gui library motif c++
 Author:         qt-bugs@troll.no
 Maintained-by:  qt-bugs@troll.no
 Primary-site:   sunsite.unc.edu /pub/Linux/X11/devel
-                1277kB qt-0.99.tar.gz
+                1240kB qt-1.0.tar.gz
 Alternate-site: ftp.troll.no /qt/linux
-                1277kB qt-0.99.tar.gz
+                1240kB qt-1.0.tar.gz
 Platform:       linux/X11R6
 Copying-policy: freely distributable with certain restrictions
 End
