@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#187 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#188 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -326,6 +326,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     : QTableView( parent, name, WType_Popup )
 {
     isPopupMenu	  = TRUE;
+    parentMenu	  = 0;
     selfItem	  = 0;
     autoaccel	  = 0;
     accelDisabled = FALSE;
@@ -501,9 +502,14 @@ void QPopupMenu::frameChanged()
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
+    //avoid circularity
+    if ( isVisible() )
+	return;
+
     if (parentMenu && parentMenu->actItem == -1){
 	//reuse
 	parentMenu->menuDelPopup( this );
+	selfItem = 0;
 	parentMenu = 0;
     }
     // #### should move to QWidget - anything might need this functionality,
@@ -652,7 +658,7 @@ void QPopupMenu::hidePopups()
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
-	if ( mi->popup() )
+	if ( mi->popup() && mi->popup()->parentMenu == this ) //avoid circularity
 	    mi->popup()->hide();
     }
     popupActive = -1;				// no active sub menu
@@ -870,8 +876,19 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		}
 	    }
 	}
-	if ( mi->popup() && parent )		// call recursively
-	    mi->popup()->updateAccel( parent );
+	if ( mi->popup() && parent ) {		// call recursively
+	    // reuse
+	    QPopupMenu* popup = mi->popup();
+	    if (!popup->avoid_circularity) {
+		popup->avoid_circularity = 1;
+		if (popup->parentMenu)
+		    popup->parentMenu->menuDelPopup(popup);
+		popup->selfItem  = mi;
+		menuInsPopup(popup);
+		popup->updateAccel( parent );
+		popup->avoid_circularity = 0;
+	    }
+	}
     }
 }
 
@@ -934,6 +951,8 @@ void QPopupMenu::show()
 
 void QPopupMenu::hide()
 {
+    if ( !isVisible() )
+	return;
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
     hidePopups();
@@ -1551,17 +1570,22 @@ void QPopupMenu::subMenuTimer() {
     }
 
     QMenuItem *mi = mitems->at(actItem);
-    if ( !mi->isEnabled() )
+    if ( !mi || !mi->isEnabled() )
 	return;
 
     QPopupMenu *popup = mi->popup();
     if ( !popup || !popup->isEnabled() )
 	return;
 
+    //avoid circularity
+    if ( popup->isVisible() )
+	return;
+
     if (popup->parentMenu != this ){
 	// reuse
 	if (popup->parentMenu)
 	    popup->parentMenu->menuDelPopup(popup);
+	popup->selfItem  = mi;
 	menuInsPopup(popup);
     }
 

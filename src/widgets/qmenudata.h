@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#58 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#59 $
 **
 ** Definition of QMenuData class
 **
@@ -175,6 +175,7 @@ protected:
     uint	   isMenuBar	: 1;
     uint	   badSize	: 1;
     uint	   mouseBtDn	: 1;
+    uint	avoid_circularity : 1;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
     virtual void   menuInsPopup( QPopupMenu * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#127 $
 **
 ** Implementation of QMenuBar class
 **
@@ -451,10 +451,15 @@ void QMenuBar::openActPopup()
 	pos.ry() -= (QCOORD)ph;
     }
 
+    //avoid circularity
+    if ( popup->isVisible() )
+	return;
+    
     if (popup->parentMenu != this ){
 	// reuse
 	if (popup->parentMenu)
 	    popup->parentMenu->menuDelPopup(popup);
+	popup->selfItem  = mitems->at(actItem);
 	menuInsPopup(popup);
     }
 
@@ -1102,9 +1107,15 @@ void QMenuBar::setupAccelerators()
 	    }
 	}
 	if ( mi->popup() ) {
-	    mi->popup()->updateAccel( this );
-	    if ( !mi->popup()->isEnabled() )
-		mi->popup()->enableAccel( FALSE );
+	    // reuse
+	    QPopupMenu* popup = mi->popup();
+	    if (popup->parentMenu)
+		popup->parentMenu->menuDelPopup(popup);
+	    popup->selfItem  = mi;
+	    menuInsPopup(popup);
+	    popup->updateAccel( this );
+	    if ( !popup->isEnabled() )
+		popup->enableAccel( FALSE );
 	}
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#70 $
 **
 ** Implementation of QMenuData class
 **
@@ -93,6 +93,7 @@ QMenuData::QMenuData()
     parentMenu = 0;				// assume top level
     isPopupMenu = isMenuBar = mouseBtDn = FALSE;
     badSize = TRUE;
+    avoid_circularity = 0;
 }
 
 /*!
@@ -184,6 +185,8 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
 	index = mitems->count();
     if ( id < -1 )				// -2, -3 etc.
 	id = get_seq_id();
+    
+    /*
     if ( popup && popup->parentMenu ){		// popup already in use
 #if defined(CHECK_STATE)
 	warning( "QMenuData::insertItem: "
@@ -191,6 +194,7 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
 #endif
   	return 0;
     }
+    */
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id == -1 ? index : id;
@@ -204,6 +208,7 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
 	mi->popup_menu = popup;
 	if ( popup ) {
 	    popup->selfItem = mi;
+	    /*	    
 	    menuInsPopup( popup );
 	    if ( isPopupMenu ) {		// circular popups?
 		QPopupMenu *p = (QPopupMenu*)this;
@@ -217,8 +222,10 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
 		    return 0;
 		}
 	    }
+	    */
 	}
     }
+
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
     return mi->ident;
