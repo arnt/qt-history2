@@ -4,6 +4,7 @@
 #include <qlabel.h>
 #include <qchkbox.h>
 #include <qradiobt.h>
+#include <qlined.h>
 #include <qwidgetstack.h>
 #include <qvbox.h>
 #include <qhbox.h>
@@ -31,7 +32,7 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
 
     QHBox*        hbox = new QHBox(vbox);
     QListView*    selector = new QListView(hbox);
-                  categories = new QWidgetStack(hbox);
+    categories = new QWidgetStack(hbox);
     QButtonRow*   buttons = new QButtonRow(vbox);
     QPushButton*  ok = new QPushButton("OK",buttons);
     QPushButton*  cancel = new QPushButton("Cancel",buttons);
@@ -51,44 +52,72 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     PreferenceItem *group;
 
     QVBox *appearance = new QVBox;
-    QLabel *l = new QLabel( "Appearance   Change the appearance of the display"
-			    , appearance );
-    QLabelled *frame = new QLabelled( "On startup, launch", appearance );
-    QVBox *box = new QVBox( frame );
-    new QCheckBox( "&Navigator", box );
-    new QCheckBox( "&Messenger Mailbox", box );
-    new QCheckBox( "Collabra &Discussions", box );
-    new QCheckBox( "Page &Composer", box );
-    new QCheckBox( "N&etcaster", box );
-    frame = new QLabelled( "Show Toolbar As", appearance );
-    box = new QVBox( frame );
-    new QRadioButton( "&Pictures and Text", box );
-    new QRadioButton( "Pictures &Only", box );
-    new QRadioButton( "&Text Only", box );
+    {
+	QLabel *l = new QLabel( "Appearance   Change the appearance of the display" , appearance );
+	QLabelled *frame = new QLabelled( "On startup, launch", appearance );
+	QVBox *box = new QVBox( frame );
+	new QCheckBox( "&Navigator", box );
+	new QCheckBox( "&Messenger Mailbox", box );
+	new QCheckBox( "Collabra &Discussions", box );
+	new QCheckBox( "Page &Composer", box );
+	new QCheckBox( "N&etcaster", box );
+	frame = new QLabelled( "Show Toolbar As", appearance );
+	box = new QVBox( frame );
+	new QRadioButton( "&Pictures and Text", box );
+	new QRadioButton( "Pictures &Only", box );
+	new QRadioButton( "&Text Only", box );
+    }
+    QVBox *navigator = new QVBox;
+    {
+	QLabel *l = new QLabel( "Navigator   Specify the home page location",
+				navigator );
+	QLabelled *frame = new QLabelled( "Browser starts with", navigator );
+	QVBox *box = new QVBox( frame );
+	new QRadioButton( "Blank page", box );
+	new QRadioButton( "Home page", box );
+	new QRadioButton( "Last page visited", box );
 
+	frame = new QLabelled( "Home Page", navigator );
+	box = new QVBox( frame );
+	new QLabel( "Clicking the Home button will take you to this page",
+		    box );
+	QHBox *hbox = new QHBox( box );
+	new QLabel( "Location:", hbox );
+	new QLineEdit( hbox );
+	hbox = new QHBox( box );
+	new QPushButton( "Use Current Page" );
+	new QPushButton ( "Choose" );
+
+	frame = new QLabelled( "History", navigator );
+	hbox = new QHBox( frame );
+	new QLabel( "History expires after", hbox );
+	new QLineEdit( hbox );
+	new QLabel( "days", hbox );
+	new QPushButton( "Clear History", hbox );
+
+    }
     add(group = new PreferenceItem(selector, "Appearance"), 
 	appearance );
-     add(new PreferenceItem(group, "Font"), new DummyCategory("Font"));
-     add(new PreferenceItem(group, "Colors"), new DummyCategory("Colors"));
-    add(group = new PreferenceItem(selector, "Navigator"), 
-	new DummyCategory("Navigator"));
-     add(new PreferenceItem(group, "Languages"), 
-	 new DummyCategory("Languages"));
-     add(new PreferenceItem(group, "Applications"), 
-	 new DummyCategory("Applications"));
+    add(new PreferenceItem(group, "Font"), new DummyCategory("Font"));
+    add(new PreferenceItem(group, "Colors"), new DummyCategory("Colors"));
+    add(group = new PreferenceItem(selector, "Navigator"), navigator);
+    add(new PreferenceItem(group, "Languages"), 
+	new DummyCategory("Languages"));
+    add(new PreferenceItem(group, "Applications"), 
+	new DummyCategory("Applications"));
     add(group = new PreferenceItem(selector, "Mail & Groups"), new DummyCategory);
-     add(new PreferenceItem(group, "Identity"), new DummyCategory);
-     add(new PreferenceItem(group, "Messages"), new DummyCategory);
-     add(new PreferenceItem(group, "Mail Server"), new DummyCategory);
-     add(new PreferenceItem(group, "Groups Server"), new DummyCategory);
-     add(new PreferenceItem(group, "Directory"), new DummyCategory);
+    add(new PreferenceItem(group, "Identity"), new DummyCategory);
+    add(new PreferenceItem(group, "Messages"), new DummyCategory);
+    add(new PreferenceItem(group, "Mail Server"), new DummyCategory);
+    add(new PreferenceItem(group, "Groups Server"), new DummyCategory);
+    add(new PreferenceItem(group, "Directory"), new DummyCategory);
     add(group = new PreferenceItem(selector, "Composer"), new DummyCategory);
-     add(new PreferenceItem(group, "New Page Colors"), new DummyCategory);
-     add(new PreferenceItem(group, "Publish"), new DummyCategory);
+    add(new PreferenceItem(group, "New Page Colors"), new DummyCategory);
+    add(new PreferenceItem(group, "Publish"), new DummyCategory);
     add(group = new PreferenceItem(selector, "Advanced"), new DummyCategory);
-     add(new PreferenceItem(group, "Cache"), new DummyCategory);
-     add(new PreferenceItem(group, "Proxies"), new DummyCategory);
-     add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
+    add(new PreferenceItem(group, "Cache"), new DummyCategory);
+    add(new PreferenceItem(group, "Proxies"), new DummyCategory);
+    add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
 
     setCaption("Netscape: Preferences");
 }
