@@ -845,7 +845,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         bdi.version = qt_mac_hitheme_version;
         QRect comborect(r);
         bdi.adornment = flags & Style_HasFocus ? kThemeAdornmentFocus : kThemeAdornmentNone;
-        bdi.state = subActive & SC_ComboBoxArrow ? kThemeStatePressed : tds;
+        bdi.state = (subActive & SC_ComboBoxArrow) ? (UInt32)kThemeStatePressed : tds;
         if (static_cast<const QComboBox *>(w)->editable()) {
             bdi.adornment |= kThemeAdornmentArrowDownArrow;
             comborect = querySubControlMetrics(CC_ComboBox, w, SC_ComboBoxArrow, opt);
