@@ -99,6 +99,9 @@ QCursor
   QCursor::QCursor(const QPixmap & pixmap, ...) should do colored cursors on
   systems where color cursors are supported.
 
+QListView
+  Ctrl+NumPlus resizes all listview items to the optimum on windows (see more on info/arc-07/15307)
+
 
 New functionality
 -----------------
