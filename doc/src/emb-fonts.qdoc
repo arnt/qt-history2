@@ -2,6 +2,11 @@
 
 \title Fonts in Qt/Embedded
 
+
+
+\omit ###
+
+
 \section1 Supported Formats
 
 Qt/Embedded supports four font formats:
@@ -137,6 +142,8 @@ See QMemoryManager::savePrerenderedFont() for this functionality.
 
 The font definition file, naming conventions for font files, and the
 format of QPF files may change in future versions of Qt/Embedded.
+
+\endomit
 
 When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
 TrueType and Type1 support.

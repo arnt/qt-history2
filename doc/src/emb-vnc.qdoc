@@ -6,7 +6,7 @@ The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol
 allows you to view and interact with the computer's display from
 anywhere on the network.
 
-To use Qt/Embedded in this way, \c configure Qt with the \c -vnc
+To use Qt/Embedded in this way, \c configure Qt with the \c -qt-gfx-vnc
 option, and ensure that you also enable 16-bit display support. Run
 your application like this:
 \code

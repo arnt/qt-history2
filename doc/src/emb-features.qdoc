@@ -26,6 +26,10 @@ Note that such modification is only supported on Qt/Embedded
 platforms, where reducing the size of Qt is
 important and the application set is often fixed.
 
+\bold{Note: Qt/Embedded 4.0 Beta 1 does not support the \c -qconfig option.}
+
+
+\omit ### the set of features will change
 The \c qconfig.h definition file simply defines macros to disable
 features. Some features are dependent on other features and these
 dependencies are expressed in \c qfeatures.h.
@@ -244,5 +248,5 @@ The available options are:
      \i Multi-step dialog (\l QWizard)
      \i \c QT_NO_DIALOGS
 \endtable
-
+\endomit
 */

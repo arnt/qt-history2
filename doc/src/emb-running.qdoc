@@ -30,11 +30,11 @@ export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 Run the application with the \c{-qws} option:
 
 \code
-cd $QTDIR/examples/widgets
-./widgets -qws
+cd $QTDIR/examples/demos/textedit
+./textedit -qws
 \endcode
 
-You should see the \c widgets example appear. If your mouse doesn't
+You should see the \c textedit example appear. If your mouse doesn't
 work correctly you must specify the type of mouse to use. You can
 exit the master application at any time using
 \bold{Ctrl+Alt+Backspace}.

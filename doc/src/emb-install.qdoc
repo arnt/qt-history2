@@ -77,6 +77,8 @@ You can create your own custom configuration by adding new files
    \c /dev/mouse is normally a symbolic link; the actual mouse device
    must be readable.)
 
+
+\omit ### this doesn't exist anymore
 \i How to run the demonstration program.
 
    Log into a virtual console and do this:
@@ -85,7 +87,7 @@ You can create your own custom configuration by adding new files
     cd ~/qt-embedded-commercial-VERSION/examples/launcher
     ./start-demo
 \endcode
-  
+\endomit
 
 \i Miscellaneous troubleshooting and known bugs.
 

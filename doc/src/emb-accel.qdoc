@@ -23,7 +23,7 @@
     \i 
     \bold{Define an accelerated descendant of QLinuxFbScreen.}
 
-    This should implement QVoodooScreen::connect() to map its
+    This should implement QScreen::connect() to map its
     registers. Use \c qt_probe_bus to get a pointer to the PCI config
     space. This is where you should check that you're being pointed to the
     right device (using the PCI device/manufacturer ID information). Then
@@ -31,7 +31,7 @@
     physical memory and mmap the appropriate region from \c /dev/mem.
     There is no need to map the framebuffer, QLinuxFbScreen will do
     this for you. Return false if a problem occurs at any point. \c
-    QVoodooScreen::initDevice() will be called only by the QWS server and
+    QScreen::initDevice() will be called only by the QWS server and
     is guaranteed to be called before any drawing is done (and so is a
     good place to set registers to known states). connect() will be called
     by every connecting client.
@@ -89,6 +89,7 @@
     Implement a small function qt_get_screen_mychip(), which simply
     returns a new QMychipScreen
 
+\omit ### DriverTable doesn't exist anymore
     \i
     \bold{Add your to the DriverTable table}
 
@@ -100,6 +101,7 @@
 
     The first parameter is the name used with QWS_DISPLAY to request your
     accelerated driver.
+\endomit
 
     \i
     \bold{Use your new driver.}

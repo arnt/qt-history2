@@ -24,6 +24,7 @@ indicates inheritance.
 
 \tableofcontents
 
+\omit ### Font system is completely changed
 \section1 QFontManager
 
 There is one of these per application. At application startup time it
@@ -95,20 +96,11 @@ not currently implemented for TrueType fonts).
 You would only need to modify this class if you were, for example,
 modifying Qt/Embedded to support textured fonts, in which case you
 would also need to modify \c QGfxRaster.
+\endomit
 
 \section1 QMemoryManagerPixmap/QMemoryManager
 
-This handles requests for space for pixmaps and also keeps track of
-QPF format fonts (these are small 'state dumps' of \c{QRenderedFont}s,
-typically 2-20KB in size; they can be memory mapped (mmap'd) direct
-from disk in order to save memory). If a QPF font is found which
-matches a font request no new \c QRenderedFont need be created for it.
-It's possible to strip out all \c QFontFactory support and simply use
-QPFs if your font needs are modest (for instance, if you only require
-a few fixed point sizes). Note that no best-match loading is performed
-with QPFs, as opposed to those loaded via \c QFontManager, so if you
-don't have the correct QPF for a point size, text in that size will
-simply not be displayed. 
+This handles requests for space for pixmaps. 
 
 There should be no need to modify this class.
 
