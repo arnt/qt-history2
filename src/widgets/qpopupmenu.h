@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#16 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#17 $
 **
 ** Definition of QPopupMenu class
 **
@@ -61,6 +61,7 @@ private:
     void	menuStateChanged();		// menu item state changed
     void	menuInsPopup( QPopupMenu * );	// menu popup item inserted
     void	menuDelPopup( QPopupMenu * );	// menu popup item deleted
+    void	frameChanged();
 
     void	actSig( int );
     void	hilitSig( int );
