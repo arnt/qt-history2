@@ -45,9 +45,6 @@
 #define QT_NO_STYLE_PLATINUM
 #define QT_NO_STYLE_SGI
 #define QT_NO_STYLE_COMPACT
-#ifndef QT_NO_STYLE_AQUA
-#define QT_NO_STYLE_AQUA
-#endif
 
 #include "qapplication.h"
 #include "qpluginmanager.h"
@@ -163,11 +160,10 @@ QStyle *QStyleFactory::create( const QString& s )
 	return new QMacStyle;
 #endif
 #endif
-#endif
 
 #ifndef QT_NO_STYLE_AQUA
 	if ( style == "aqua" ) 
-        return new QAquaStyle;
+	    return new QAquaStyle;
 #endif
 
 #ifndef QT_NO_COMPONENT

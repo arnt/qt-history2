@@ -379,20 +379,10 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 				   void **data ) const
 {
     switch( op ) {
-    case PO_MenuBarItem: {
-	QMenuItem *mi = (QMenuItem *)data[0];
-	bool down = flags & PStyle_Down;
-	bool active = flags & PStyle_On;
-	if( down && active ){
-	    QPixmap px;
-	    qAquaPixmap( "sel_back", px );
-	    p->fillRect( r, QBrush( black, px ) );
-	} else {
-	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
-	}
-	drawItem( p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
-		  cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
-		  (down && active) ? &white : &cg.buttonText() );
+    case PO_ProgressBarChunk: {
+	QPixmap px;
+	qAquaPixmap( "progress_" + QString::number(r.height()), px );
+	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
 	break; }
     case PO_FocusRect:
 	break;     // The Mac Aqua style doesn't use focus rectangles
@@ -620,11 +610,6 @@ void QAquaStyle::drawControl( ControlElement element,
 	flags |= PStyle_Enabled;
 
     switch(element) {
-    case CE_ProgressBar: {
-	QPixmap px;
-	qAquaPixmap( "progress_" + QString::number(r.height()), px );
-	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
-	break; }
     case CE_TabBarTab: {
 #ifndef QT_NO_TABBAR
 	QPixmap left, mid, right;
@@ -844,6 +829,21 @@ void QAquaStyle::drawControl( ControlElement element,
 	    }
 	}
 #endif 
+	break; }
+    case CE_MenuBarItem: {
+	QMenuItem *mi = (QMenuItem *)data[0];
+	bool down = flags & PStyle_Down;
+	bool active = flags & PStyle_On;
+	if( down && active ){
+	    QPixmap px;
+	    qAquaPixmap( "sel_back", px );
+	    p->fillRect( r, QBrush( black, px ) );
+	} else {
+	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	}
+	drawItem( p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
+		  cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
+		  (down && active) ? &white : &cg.buttonText() );
 	break; }
     case CE_PushButton: {
 #ifndef QT_NO_PUSHBUTTON
