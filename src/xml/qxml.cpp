@@ -3327,8 +3327,8 @@ parseError:
 bool QXmlSimpleReader::parseDoctype()
 {
     // some init-stuff
-    d->systemId = "";
-    d->publicId = "";
+    d->systemId = QString::null;
+    d->publicId = QString::null;
 
     const signed char Init             =  0;
     const signed char Doctype          =  1; // read the doctype
@@ -3504,8 +3504,8 @@ parseError:
 bool QXmlSimpleReader::parseExternalID( bool allowPublicID )
 {
     // some init-stuff
-    d->systemId = "";
-    d->publicId = "";
+    d->systemId = QString::null;
+    d->publicId = QString::null;
 
     const signed char Init             =  0;
     const signed char Sys              =  1; // parse 'SYSTEM'
@@ -4967,6 +4967,7 @@ bool QXmlSimpleReader::parseEntityDecl()
     const signed char PEVal            = 15; // parse entity value
     const signed char PEEID            = 16; // parse ExternalID
     const signed char WsE              = 17; // white space read
+    const signed char EDDone           = 19; // done, but also report an external, unparsed entity decl
     const signed char Done             = 18;
 
     const signed char InpWs            = 0; // white space
@@ -4985,8 +4986,8 @@ bool QXmlSimpleReader::parseEntityDecl()
 	{ Ws2,   -1,     -1,      -1,    -1,     -1      }, // Name
 	{ -1,    -1,     EValue,  -1,    -1,     ExtID   }, // Ws2
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // EValue
-	{ Ws3,   -1,     -1,      Done,  -1,     -1      }, // ExtID
-	{ -1,    -1,     -1,      Done,  Ndata,  -1      }, // Ws3
+	{ Ws3,   -1,     -1,      EDDone,-1,     -1      }, // ExtID
+	{ -1,    -1,     -1,      EDDone,Ndata,  -1      }, // Ws3
 	{ Ws4,   -1,     -1,      -1,    -1,     -1      }, // Ndata
 	{ -1,    -1,     -1,      -1,    NNam,   NNam    }, // Ws4
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // NNam
@@ -5079,6 +5080,9 @@ bool QXmlSimpleReader::parseEntityDecl()
 	    case WsE:
 		eat_ws();
 		break;
+	    case EDDone:
+		next();
+		break;
 	    case Done:
 		next();
 		break;
@@ -5118,16 +5122,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    d->error = XMLERR_ERRORPARSINGEXTERNALID;
 		    goto parseError;
 		}
-		if (  d->entities.find( name() ) == d->entities.end() &&
-			d->externEntities.find( name() ) == d->externEntities.end() ) {
-		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, "" ) );
-		    if ( declHnd ) {
-			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
-			    d->error = declHnd->errorString();
-			    goto parseError;
-			}
-		    }
-		}
 		break;
 	    case Ndata:
 		if ( !parseOk ) {
@@ -5143,8 +5137,8 @@ bool QXmlSimpleReader::parseEntityDecl()
 		if (  d->entities.find( name() ) == d->entities.end() &&
 			d->externEntities.find( name() ) == d->externEntities.end() ) {
 		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, ref() ) );
-		    if ( declHnd ) {
-			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
+		    if ( dtdHnd ) {
+			if ( !dtdHnd->unparsedEntityDecl( name(), d->publicId, d->systemId, ref() ) ) {
 			    d->error = declHnd->errorString();
 			    goto parseError;
 			}
@@ -5189,6 +5183,18 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    }
 		}
 		break;
+	    case EDDone:
+		if (  d->entities.find( name() ) == d->entities.end() &&
+			d->externEntities.find( name() ) == d->externEntities.end() ) {
+		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, "" ) );
+		    if ( declHnd ) {
+			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
+			    d->error = declHnd->errorString();
+			    goto parseError;
+			}
+		    }
+		}
+		return TRUE;
 	    case Done:
 		return TRUE;
 	    case -1:

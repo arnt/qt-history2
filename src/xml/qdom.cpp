@@ -113,6 +113,12 @@ public:
     bool startDTD( const QString& name, const QString&, const QString& );
     bool comment( const QString& ch );
 
+    // decl handler
+    bool externalEntityDecl( const QString &name, const QString &publicId, const QString &systemId ) ;
+
+    // DTD handler
+    bool unparsedEntityDecl( const QString &name, const QString &publicId, const QString &systemId, const QString &notationName ) ;
+
 private:
     QXmlLocator* loc;
     QDOM_DocumentPrivate* doc;
@@ -4879,6 +4885,8 @@ bool QDOM_DocumentPrivate::setContent( QXmlInputSource& source )
     reader.setContentHandler( &hnd );
     reader.setErrorHandler( &hnd );
     reader.setLexicalHandler( &hnd );
+    reader.setDeclHandler( &hnd );
+    reader.setDTDHandler( &hnd );
 #if defined(Q_BROKEN_ALPHA) // #### very ugly hack, ws should really be able to get rid of that
     reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
 #else
@@ -5609,7 +5617,29 @@ bool QDomHandler::comment( const QString& ch )
     return TRUE;
 }
 
+bool QDomHandler::unparsedEntityDecl( const QString &name, const QString &publicId, const QString &systemId, const QString &notationName )
+{
+    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name,
+	    publicId, systemId, notationName );
+    doc->doctype()->appendChild( e );
+    return TRUE;
+}
+
+bool QDomHandler::externalEntityDecl( const QString &name, const QString &publicId, const QString &systemId )
+{
+    return unparsedEntityDecl( name, publicId, systemId, QString::null );
+}
+
 #if 0
+bool QDomConsumer::entity( const QString& name, const QString& value )
+{
+    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name, QString::null, QString::null, QString::null );
+    e->value = value;
+    doc->doctype()->appendChild( e );
+
+    return TRUE;
+}
+
 bool QDomConsumer::entityRef( const QString& name )
 {
     if ( node == doc )
@@ -5626,22 +5656,6 @@ bool QDomConsumer::entityRef( const QString& name )
     }
 
     node->appendChild( doc->createEntityReference( name ) );
-
-    return TRUE;
-}
-
-bool QDomConsumer::entity( const QString& name, const QString& publicId, const QString& systemId, const QString& ndata )
-{
-    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name, publicId, systemId, ndata );
-    doc->doctype()->appendChild( e );
-    return TRUE;
-}
-
-bool QDomConsumer::entity( const QString& name, const QString& value )
-{
-    QDOM_EntityPrivate* e = new QDOM_EntityPrivate( doc, 0, name, QString::null, QString::null, QString::null );
-    e->value = value;
-    doc->doctype()->appendChild( e );
 
     return TRUE;
 }
