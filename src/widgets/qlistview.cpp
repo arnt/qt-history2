@@ -102,12 +102,13 @@ struct QListViewPrivate
 
     class ItemColumnInfo {
     public:
-	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), width( 0 ) {}
+	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), dirty( FALSE ), width( 0 ) {}
 	~ItemColumnInfo() { delete pm; delete next; }
 	QString text, tmpText;
 	QPixmap * pm;
 	ItemColumnInfo * next;
-	bool truncated;
+	uint truncated : 1;
+	uint dirty : 1;
 	int width;
     };
 
@@ -1139,6 +1140,7 @@ void QListViewItem::setText( int column, const QString &text )
     if ( l->text == text )
 	return;
 
+    l->dirty = TRUE;
     l->text = text;
     if ( column == (int)lsc )
 	lsc = Unsorted;
@@ -1297,7 +1299,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	}
 
 	// if the column width changed and this item was not painted since this change
-	if ( ci && ci->width != width || ci->text != t ) {
+	if ( ci && ( ci->width != width || ci->text != t || ci->dirty ) ) {
+	    ci->dirty = FALSE;
 	    QFontMetrics fm( p->fontMetrics() );
 	    ci->width = width;
 	    ci->truncated = FALSE;
