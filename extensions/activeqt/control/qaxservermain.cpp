@@ -554,7 +554,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
     // dummy application to create widgets
     int argc;
-    QApplication app( argc, 0 );
+    QApplication app( argc, 0, FALSE );
 
     QString appID = qAxFactory()->appID().toString().upper();
     STRIPCB(appID);
@@ -762,7 +762,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		if ( param->inOut & QUParameter::Out )
 		    slot += "*";
 		if ( param->name )
-		    slot += "_" + replaceKeyword( param->name );
+		    slot += "p_" + replaceKeyword( param->name );
 		else
 		    slot += "p" + QString::number( p );
 		if ( p+1 < slotdata->method->count )
