@@ -110,6 +110,11 @@ public:
     QTestContainer( const QString &control )
 	: QObject( 0, "Test Container" )
     {
+	object = new QAxObject( control, this, "Test Control" );
+	Q_ASSERT( !object->isNull() );
+	if ( object->isNull() )
+	    return;
+
 	m_unicode = "unicode";
 	m_text = "c-string";
 	m_boolval = TRUE;
@@ -125,18 +130,12 @@ public:
 	m_pixmap.fill( red );
 	m_list << 1.5 << 2.6 << 3.7 << 4.8;
 	m_beta = AlphaC;
-
 /*
 	m_shortnumber = 23;
 	m_longnumber = 12345678;
 */
 	QTime inittimer;
 	inittimer.start();
-
-	object = new QAxObject( control, this, "Test Control" );
-	Q_ASSERT( !object->isNull() );
-	if ( object->isNull() )
-	    return;
 
 	QString str = object->generateDocumentation();
 	qDebug( "%s\n\n", str.latin1() );
@@ -477,6 +476,30 @@ public:
 	qDebug( "Performance test of signal emitting finished after %dms", timer.elapsed() );
     }
 
+    void runSubObjectTest()
+    {
+	QAxObject *subType = object->querySubObject( "subType()" );
+	Q_ASSERT( subType );
+	if ( subType ) {
+	    subType->setProperty( "unicode", m_unicode );
+	    VERIFY_EQUAL( subType->property( "unicode" ), m_unicode );
+	    subType->setProperty( "number", m_number );
+	    VERIFY_EQUAL( subType->property( "number" ), m_number );
+	}
+
+	QAxObject *subTypeNum = object->querySubObject( "subTypeNum(int)", m_number );
+	Q_ASSERT( subTypeNum );
+	if ( subTypeNum ) {
+	    VERIFY_EQUAL( subTypeNum->property( "number" ), m_number );
+	}
+
+	QAxObject *subTypeUnicode = object->querySubObject( "subTypeUnicode(const QString&)", m_unicode );
+	Q_ASSERT( subTypeUnicode );
+	if ( subTypeUnicode ) {
+	    VERIFY_EQUAL( subTypeUnicode->property( "unicode" ), m_unicode );
+	}
+    }
+
     QString unicode() const { PROP(unicode) }
     void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
 
@@ -639,11 +662,13 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
 
     QTestContainer container( "testcontrol.QTestControl" );
-    container.run();
-    container.runPropertyPerformance();
-    container.runDynamicCallPerformance();
-    container.runSetSlotPerformance();
-    container.runGetSlotPerformance();
-    container.runEmitPointerSlotPerformance();
+    if ( container.run() == 0 ) {
+	container.runPropertyPerformance();
+	container.runDynamicCallPerformance();
+	container.runSetSlotPerformance();
+	container.runGetSlotPerformance();
+	container.runEmitPointerSlotPerformance();
+	container.runSubObjectTest();
+    }
     return 0;
 }
