@@ -17,7 +17,7 @@
 
 int main( int argc, char **argv )
 {
-    QApplication::setColorSpec( QApplication::ManyColor );
+    QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a(argc,argv);			
 
     GLObjectWindow w;
