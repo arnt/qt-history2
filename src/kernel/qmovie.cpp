@@ -399,7 +399,7 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
 	mypixmap.setMask(mymask);
     }
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     extern bool qt_use_xrender;
     // in qpixmap_x11.cpp
     extern void qt_x11_blit_alpha_pixmap(QPixmap *, int, int,
