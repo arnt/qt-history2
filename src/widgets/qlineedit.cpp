@@ -682,12 +682,13 @@ void QLineEdit::paintEvent( QPaintEvent * )
     d->getTextObjects( &parag, &cursor );
     QTextFormat *f = parag->formatCollection()->format( font(), p.pen().color() );
     parag->setFormat( 0, parag->length(), f );
-    parag->setDocumentRect( rect() );
-    parag->invalidate(0);
-    parag->format();
     int fw = 0;
     if ( frame() )
 	fw = style().defaultFrameWidth();
+    QRect r( rect().x(), rect().y(), width() - 2 * ( 2 + fw ), rect().height() );
+    parag->setDocumentRect( r );
+    parag->invalidate(0);
+    parag->format();
     int xoff = -d->offset + 2 + fw;
     int yoff = (height() - parag->rect().height())/2;
     if ( yoff < 0 )
