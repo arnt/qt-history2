@@ -171,15 +171,12 @@ QEventDispatcherMacPrivate::QEventDispatcherMacPrivate()
 {
     macSockets = 0;
     macTimerList = 0;
-    // ###
-#if 0
     select_timer = 0;
-#endif
     zero_timer_count = 0;
 }
 
 QEventDispatcherMac::QEventDispatcherMac(QObject *parent)
-    : QAbstractEventDispatcher(*new QEventDispatcherMacPrivate, parent)
+    : QEventDispatcherUNIX(*new QEventDispatcherMacPrivate, parent)
 { }
 
 QEventDispatcherMac::~QEventDispatcherMac()
@@ -205,14 +202,11 @@ QEventDispatcherMac::~QEventDispatcherMac()
         DisposeEventLoopTimerUPP(timerUPP);
         timerUPP = 0;
     }
-    // ###
-#if 0
     //select cleanup
     if(d->select_timer) {
         RemoveEventLoopTimer(d->select_timer);
         d->select_timer = 0;
     }
-#endif
     DisposeEventLoopTimerUPP(mac_select_timerUPP);
     mac_select_timerUPP = 0;
     if(d->macSockets) {
@@ -239,17 +233,14 @@ QEventDispatcherMac::~QEventDispatcherMac()
  *************************************************************************/
 void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
-    // ### 
-#if 0
+    QEventDispatcherMac *eloop = (QEventDispatcherMac*)me;
     if(QMacBlockingFunction::blocking()) { //just send it immediately
-        QGuiEventLoop *eloop = (QGuiEventLoop*)me;
         timeval tm;
         memset(&tm, '\0', sizeof(tm));
         eloop->d->eventloopSelect(QEventLoop::AllEvents, &tm);
     } else {
         qt_event_request_select(eloop);
     }
-#endif
 }
 void qt_mac_internal_select_callbk(int, int, QEventDispatcherMac *eloop)
 {
@@ -286,6 +277,7 @@ static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventTyp
 
 void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
+    QEventDispatcherUNIX::registerSocketNotifier(notifier);
     MacSocketInfo *mac_notifier = 0;
     if(notifier->type() == QSocketNotifier::Read) {
         mac_notifier = new MacSocketInfo;
@@ -311,19 +303,17 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
             d->macSockets = new QHash<QSocketNotifier *, MacSocketInfo *>;
         d->macSockets->insert(notifier, mac_notifier);
     }
-    // ###
-#if 0
     if(!d->select_timer) {
         if(!mac_select_timerUPP)
             mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
         InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
                               mac_select_timerUPP, (void *)this, &d->select_timer);
     }
-#endif
 }
 
 void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
+    QEventDispatcherUNIX::unregisterSocketNotifier(notifier);
     if(d->macSockets) {
         if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
             d->macSockets->remove(notifier);
@@ -339,13 +329,10 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
             delete mac_notifier;
         }
     }
-    // ###
-#if 0
     if(d->sn_highest == -1 && d->select_timer) {
         RemoveEventLoopTimer(d->select_timer);
         d->select_timer = 0;
     }
-#endif
 }
 
 bool QEventDispatcherMac::hasPendingEvents()

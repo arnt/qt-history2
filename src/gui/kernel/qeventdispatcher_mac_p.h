@@ -1,7 +1,7 @@
 #ifndef QEVENTDISPATCHER_MAC_P_H
 #define QEVENTDISPATCHER_MAC_P_H
 
-#include <private/qabstracteventdispatcher_p.h>
+#include <private/qeventdispatcher_unix_p.h>
 
 struct MacTimerInfo {
     int id;
@@ -19,7 +19,7 @@ struct MacSocketInfo {
     };
 };
 
-class QEventDispatcherMacPrivate : public QAbstractEventDispatcherPrivate
+class QEventDispatcherMacPrivate : public QEventDispatcherUNIXPrivate
 {
     Q_DECLARE_PUBLIC(QEventDispatcherMac)
 
@@ -27,6 +27,7 @@ public:
     QEventDispatcherMacPrivate();
 
     int zero_timer_count;
+    EventLoopTimerRef select_timer;
     MacTimerList *macTimerList;
     void activateTimers();
 

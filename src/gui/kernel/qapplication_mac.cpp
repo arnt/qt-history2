@@ -510,11 +510,11 @@ enum {
     //types
     typeQWidget = 1,  /* QWidget *  */
     typeMacTimerInfo = 2, /* MacTimerInfo * */
-    typeQGuiEventLoop = 3, /* QGuiEventLoop * */
+    typeQEventDispatcherMac = 3, /* QEventDispatcherMac * */
     //params
     kEventParamMacTimer = 'qtim',     /* typeMacTimerInfo */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
-    kEventParamQGuiEventLoop = 'qlop', /* typeQGuiEventLoop */
+    kEventParamQEventDispatcherMac = 'qevd', /* typeQEventDispatcherMac */
     //events
     kEventQtRequestSelect = 12,
     kEventQtRequestContext = 13,
@@ -557,7 +557,7 @@ static bool qt_mac_event_remove(EventRef &event)
 
 /* socket notifiers */
 static EventRef request_select_pending = 0;
-void qt_event_request_select(QGuiEventLoop *loop) {
+void qt_event_request_select(QEventDispatcherMac *loop) {
     if(request_select_pending) {
         if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
             return;
@@ -569,11 +569,11 @@ void qt_event_request_select(QGuiEventLoop *loop) {
     CreateEvent(0, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &request_select_pending);
     SetEventParameter(request_select_pending,
-                      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
+                      kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
 }
 static EventRef request_sockact_pending = 0;
-void qt_event_request_sockact(QGuiEventLoop *loop) {
+void qt_event_request_sockact(QEventDispatcherMac *loop) {
     if(request_sockact_pending) {
         if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
             return;
@@ -585,7 +585,7 @@ void qt_event_request_sockact(QGuiEventLoop *loop) {
     CreateEvent(0, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &request_sockact_pending);
     SetEventParameter(request_sockact_pending,
-                      kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
+                      kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
 }
 
@@ -1654,20 +1654,18 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();
-#if 0
         } else if(ekind == kEventQtRequestSelect) {
             qt_mac_event_release(request_select_pending);
-            QGuiEventLoop *l = 0;
-            GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, 0, sizeof(l), 0, &l);
+            QEventDispatcherMac *l = 0;
+            GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
             timeval tm;
             memset(&tm, '\0', sizeof(tm));
             l->d->eventloopSelect(QEventLoop::AllEvents, &tm);
         } else if(ekind == kEventQtRequestSocketAct) {
             qt_mac_event_release(request_sockact_pending);
-            QGuiEventLoop *l = 0;
-            GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, 0, sizeof(l), 0, &l);
+            QEventDispatcherMac *l = 0;
+            GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
             l->activateSocketNotifiers();
-#endif
         } else if(ekind == kEventQtRequestActivate) {
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
