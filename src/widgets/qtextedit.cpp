@@ -1392,7 +1392,7 @@ void QTextEdit::ensureCursorVisible()
 }
 
 /*!
-    \internal 
+    \internal
 */
 void QTextEdit::drawCursor( bool visible )
 {
@@ -1416,9 +1416,11 @@ void QTextEdit::drawCursor( bool visible )
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	p.setClipRect( QRect( r.x() - cursor->totalOffsetX() + cursor->x() - 5 - contentsX(),
+	int x = r.x() - cursor->totalOffsetX() + cursor->x() - 5;
+	x = QMAX( x, 0 );
+	p.setClipRect( QRect( x - contentsX(),
 			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 10, h ) );
-	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX() + cursor->x() - 5,
+	doc->drawParag( &p, cursor->parag(), x,
 			r.y() - cursor->totalOffsetY() + cursor->y(), 10, h, pix, cg, visible, cursor );
     } else {
 	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
@@ -2244,7 +2246,7 @@ void QTextEdit::indent()
     emit textChanged();
 }
 
-/*! Reimplemented to allow tabbing through links. 
+/*! Reimplemented to allow tabbing through links.
     If \a n is TRUE the tab moves the focus to the next child; if \a n
     is FALSE the tab moves the focus to the previous child.
     Returns TRUE if the focus was moved; otherwise returns FALSE.
