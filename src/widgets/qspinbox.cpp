@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#34 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -597,8 +597,8 @@ void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
     edited = FALSE;
-    up->setEnabled( wrapping() || value() < maxValue() );
-    down->setEnabled( wrapping() || value() > minValue() );
+    up->setEnabled( isEnabled() && (wrapping() || value() < maxValue()) );
+    down->setEnabled( isEnabled() && (wrapping() || value() > minValue()) );
 }
 
 
@@ -803,4 +803,19 @@ void QSpinBox::styleChange( GUIStyle )
     else
 	setFrameStyle( Panel | Sunken );
     update();
+}
+
+
+/*! \reimp */
+
+void QSpinBox::setEnabled( bool e )
+{
+    QFrame::setEnabled( e );
+    vi->setEnabled( e );
+    if ( e ) {
+	updateDisplay();
+    } else {
+	up->setEnabled( FALSE );
+	down->setEnabled( FALSE );
+    }
 }
