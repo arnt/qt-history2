@@ -225,9 +225,9 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 }
 
 bool
-MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &x, bool recurse)
+MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &f, bool recurse)
 {
-    QString fn = fileFixify(x);
+    QString fn = fileFixify(f);
     QStringList &fndeps = findDependencies(fn);
     if(!fndeps.isEmpty())
 	return TRUE;
