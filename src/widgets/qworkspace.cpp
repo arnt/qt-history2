@@ -812,15 +812,20 @@ void QWorkspace::showMaximizeControls()
 				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
 
-    if ( d->controlId == -1 )
-	d->controlId = b->insertItem( d->maxcontrols, -1, b->count() );
+    if ( d->controlId == -1 ) {
+	QFrame* dmaxcontrols = d->maxcontrols;
+	d->controlId = b->insertItem( dmaxcontrols, -1, b->count() );
+    }
     if ( d->active && d->menuId == -1 ) {
 	if ( d->active->clientWidget()->icon() ) {
-	    d->menuId = b->insertItem( *d->active->clientWidget()->icon(), d->popup, -1, 0 );
+	    const QPixmap* pm = d->active->clientWidget()->icon();
+	    QPopupMenu* pu = d->popup;
+	    d->menuId = b->insertItem( *pm, pu, -1, 0 );
 	} else {
 	    QPixmap pm(10,12);
 	    pm.fill( white );
-	    d->menuId = b->insertItem( pm, d->popup, -1, 0 );
+	    QPopupMenu* pu = d->popup;
+	    d->menuId = b->insertItem( pm, pu, -1, 0 );
 	}
     }
 }
@@ -834,10 +839,12 @@ void QWorkspace::hideMaximizeControls()
 	b = (QMenuBar *)l->first();
     delete l;
     if ( b ) {
-	if ( d->menuId != -1 )
-	    b->removeItem( d->menuId );
-	if ( d->controlId != -1 )
-	    b->removeItem( d->controlId );
+	int mi = d->menuId;
+	if ( mi != -1 )
+	    b->removeItem( mi );
+	int ci = d->controlId;
+	if ( ci != -1 )
+	    b->removeItem( ci );
     }
     d->maxcontrols = 0;
     d->menuId = -1;
@@ -883,8 +890,10 @@ void QWorkspace::popupOperationMenu( const QPoint&  p)
 
 void QWorkspace::operationMenuAboutToShow()
 {
-    for ( int i = 1; i < 6; i++ )
-	d->popup->setItemEnabled( i, d->active!= 0 );
+    for ( int i = 1; i < 6; i++ ) {
+	bool enable = d->active != 0;
+	d->popup->setItemEnabled( i, enable );
+    }
 
     if ( !d->active )
 	return;
