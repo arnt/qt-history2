@@ -683,7 +683,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     }
 #endif
 
-    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xa_targets, 32,
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, XA_ATOM, 32,
 		    PropModeReplace, (uchar *) data.data(), n);
     return property;
 }
