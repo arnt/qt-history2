@@ -25,6 +25,8 @@
 #include <qpixmap.h>
 #include <qvaluelist.h>
 
+class QMimeSourceFactory;
+
 class PixmapCollection
 {
 public:
@@ -38,14 +40,18 @@ public:
 
     void addPixmap( const Pixmap &pix );
     void removePixmap( const QString &name );
+    QPixmap pixmap( const QString &name );
 
     QValueList<Pixmap> pixmaps() const;
+
+    void setActive();
 
 private:
     QString unifyName( const QString &n );
 
 private:
     QValueList<Pixmap> pixList;
+    QMimeSourceFactory *mimeSourceFactory;
 
 };
 

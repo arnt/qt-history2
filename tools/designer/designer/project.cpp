@@ -834,3 +834,8 @@ void Project::saveImages()
 void Project::loadImages()
 {
 }
+
+void Project::setActive()
+{
+    pixCollection->setActive();
+}

@@ -162,6 +162,8 @@ public:
 
     PixmapCollection *pixmapCollection() const { return pixCollection; }
 
+    void setActive();
+
 private:
     void parse();
     void clear();

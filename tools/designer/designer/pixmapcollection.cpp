@@ -19,9 +19,11 @@
 **********************************************************************/
 
 #include "pixmapcollection.h"
+#include <qmime.h>
 
 PixmapCollection::PixmapCollection()
 {
+    mimeSourceFactory = new QMimeSourceFactory();
 }
 
 void PixmapCollection::addPixmap( const Pixmap &pix )
@@ -29,6 +31,7 @@ void PixmapCollection::addPixmap( const Pixmap &pix )
     Pixmap pixmap = pix;
     pixmap.name = unifyName( pixmap.name );
     pixList.append( pixmap );
+    mimeSourceFactory->setPixmap( pixmap.name, pixmap.pix );
 }
 
 void PixmapCollection::removePixmap( const QString &name )
@@ -65,4 +68,19 @@ QString PixmapCollection::unifyName( const QString &n )
     }
 	
     return name;
+}
+
+void PixmapCollection::setActive()
+{
+    QMimeSourceFactory::takeDefaultFactory();
+    QMimeSourceFactory::setDefaultFactory( mimeSourceFactory );
+}
+
+QPixmap PixmapCollection::pixmap( const QString &name )
+{
+    for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+	if ( (*it).name == name )
+	    return (*it).pix;
+    }
+    return QPixmap();
 }

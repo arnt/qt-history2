@@ -191,6 +191,10 @@ public:
     static QString pixmapArgument( QObject *o, int pixmap );
     static void clearPixmapArguments( QObject *o );
 
+    static void setPixmapKey( QObject *o, int pixmap, const QString &arg );
+    static QString pixmapKey( QObject *o, int pixmap );
+    static void clearPixmapKeys( QObject *o );
+
     static void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
     static QMap<QString, QString> columnFields( QObject *o );
 

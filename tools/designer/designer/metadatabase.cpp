@@ -53,6 +53,7 @@ public:
     MetaDataBase::MetaInfo metaInfo;
     QCursor cursor;
     QMap<int, QString> pixmapArguments;
+    QMap<int, QString> pixmapKeys;
     QMap<QString, QString> columnFields;
     QMap<QString, QString> eventFunctions;
     QMap<QString, QString> functionBodies;
@@ -976,6 +977,54 @@ void MetaDataBase::clearPixmapArguments( QObject *o )
 
     r->pixmapArguments.clear();
 }
+
+
+void MetaDataBase::setPixmapKey( QObject *o, int pixmap, const QString &arg )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->pixmapKeys.remove( pixmap );
+    r->pixmapKeys.insert( pixmap, arg );
+}
+
+QString MetaDataBase::pixmapKey( QObject *o, int pixmap )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    return *r->pixmapKeys.find( pixmap );
+}
+
+void MetaDataBase::clearPixmapKeys( QObject *o )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->pixmapKeys.clear();
+}
+
 
 
 void MetaDataBase::setColumnFields( QObject *o, const QMap<QString, QString> &columnFields )

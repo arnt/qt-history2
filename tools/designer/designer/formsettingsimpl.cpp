@@ -67,8 +67,14 @@ void FormSettings::okClicked()
 
     formwindow->commandHistory()->setModified( TRUE );
 
-    if ( formwindow->savePixmapInline() != radioPixmapInline->isChecked() )
+    if ( formwindow->savePixmapInline() ) {
 	MetaDataBase::clearPixmapArguments( formwindow );
+	MetaDataBase::clearPixmapKeys( formwindow );
+    } else if ( formwindow->savePixmapInProject() ) {
+	MetaDataBase::clearPixmapArguments( formwindow );
+    } else {
+	MetaDataBase::clearPixmapKeys( formwindow );
+    }
 
     if ( radioPixmapInline->isChecked() ) {
 	formwindow->setSavePixmapInline( TRUE );

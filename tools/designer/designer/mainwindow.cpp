@@ -4219,6 +4219,7 @@ void MainWindow::projectSelected( QAction *a )
 	formList->setProject( currentProject );
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
+    currentProject->setActive();
 }
 
 void MainWindow::openProject( const QString &fn )

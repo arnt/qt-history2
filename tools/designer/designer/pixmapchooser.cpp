@@ -27,6 +27,9 @@
 #endif
 #include "metadatabase.h"
 #include "mainwindow.h"
+#include "pixmapcollectioneditor.h"
+#include "pixmapcollection.h"
+#include "project.h"
 
 #include <qapplication.h>
 #include <qimage.h>
@@ -34,6 +37,7 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qiconview.h>
 
 #if defined(DESIGNER)
 #include "../pics/images.h"
@@ -338,7 +342,16 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	    MetaDataBase::setPixmapArgument( fw, pix.serialNumber(), fd.selectedFile() );
 	    return pix;
 	}
-    } else if ( fw && fw->savePixmapInProject() ) { // ##### todo choosing when pixmaps in project
+    } else if ( fw && fw->savePixmapInProject() ) {
+	PixmapCollectionEditor dia( parent, 0, TRUE );
+	dia.setProject( fw->project() );
+	dia.setChooserMode( TRUE );
+	dia.setCurrentItem( MetaDataBase::pixmapKey( fw, old.serialNumber() ) );
+	if ( dia.exec() == QDialog::Accepted ) {
+	    QPixmap pix( fw->project()->pixmapCollection()->pixmap( dia.viewPixmaps->currentItem()->text() ) );
+	    MetaDataBase::setPixmapKey( fw, pix.serialNumber(), dia.viewPixmaps->currentItem()->text() );
+	    return pix;
+	}
     } else {
 	PixmapFunction dia( parent, 0, TRUE );
 	QObject::connect( dia.helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
