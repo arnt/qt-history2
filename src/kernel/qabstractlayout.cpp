@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#31 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1042,7 +1042,7 @@ Sets the horizontal component of the size policy to \a d.
 Sets the vertical component of the size policy to \a d.
 */
 
-/*! \fn bool QSizePolicy::hasHeightForWidth()
+/*! \fn bool QSizePolicy::hasHeightForWidth() const
 Returns TRUE if the widget's preferred height depends on its width.
 */
 
