@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#90 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#90 $");
 
 
 /*!
@@ -808,11 +808,11 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 		setWindowsAltMode( TRUE, item );
 		mi = mitems->at( item );
 		emit highlighted( mi->id() );
-	    } else if (actItem >= 0 && irects && // ### uglehack alert!
-		       QRect(irects[actItem].left(), irects[actItem].top()-4,
-			     irects[actItem].width(),
-			     irects[actItem].height()+8 ).contains(e->pos())) {
-		// nothing
+	    } else if (actItem >= 0 && irects ) {
+		QRect r( irects[actItem].left(), irects[actItem].top()-4,
+			 irects[actItem].width(),irects[actItem].height()+8 );
+		if ( !r.contains(e->pos()) )
+		    setWindowsAltMode( FALSE, -1 );
 	    } else {
 		setWindowsAltMode( FALSE, -1 );
 	    }
