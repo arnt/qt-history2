@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#31 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#32 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2460,7 +2460,6 @@ parseError:
 bool QXmlSimpleReader::parseElement()
 {
     QString uri, lname, prefix;
-    bool t;
 
     const signed char Init             =  0;
     const signed char ReadName         =  1;
@@ -2519,7 +2518,6 @@ bool QXmlSimpleReader::parseElement()
 	    input = InpUnknown;
 	}
 	// get new state
-//qDebug( "%d -%d(%c)-> %d", state, input, c.latin1(), table[state][input] );
 	state = table[state][input];
 
 	// in some cases do special actions depending on state
@@ -2537,13 +2535,15 @@ bool QXmlSimpleReader::parseElement()
 		if ( contentHnd ) {
 		    if ( d->useNamespaces ) {
 			d->namespaceSupport.processName( d->tags.top(), FALSE, uri, lname );
-			t = contentHnd->startElement( uri, lname, d->tags.top(), d->attList );
+			if ( !contentHnd->startElement( uri, lname, d->tags.top(), d->attList ) ) {
+			    d->error = contentHnd->errorString();
+			    goto parseError;
+			}
 		    } else {
-			t = contentHnd->startElement( QString::null, QString::null, d->tags.top(), d->attList );
-		    }
-		    if ( !t ) {
-			d->error = contentHnd->errorString();
-			goto parseError;
+			if ( !contentHnd->startElement( QString::null, QString::null, d->tags.top(), d->attList ) ) {
+			    d->error = contentHnd->errorString();
+			    goto parseError;
+			}
 		    }
 		}
 		next();
@@ -2563,7 +2563,7 @@ bool QXmlSimpleReader::parseElement()
 		    d->error = XMLERR_TAGMISMATCH;
 		    goto parseError;
 		}
-		if ( !parseElementEmptyTag( t, uri, lname ) )
+		if ( !parseElementEmptyTag() )
 		    goto parseError;
 		// next character
 		next();
@@ -2614,7 +2614,7 @@ bool QXmlSimpleReader::parseElement()
 		    d->error = XMLERR_ERRORPARSINGATTRIBUTE;
 		    goto parseError;
 		}
-		if ( !parseElementAttribute( prefix, uri, lname ) )
+		if ( !parseElementAttribute() )
 		    goto parseError;
 		break;
 	    case Done:
@@ -2634,9 +2634,9 @@ parseError:
   Helper to break down the size of the code in the case statement.
   Return FALSE on error, otherwise TRUE.
 */
-// ### Remove t argument in Qt 3.0 -- I don't need it. The same should be true for uri and lname.
-bool QXmlSimpleReader::parseElementEmptyTag( bool &, QString &uri, QString &lname )
+bool QXmlSimpleReader::parseElementEmptyTag()
 {
+    QString uri, lname;
     // pop the stack and call the handler
     if ( contentHnd ) {
 	if ( d->useNamespaces ) {
@@ -2736,9 +2736,9 @@ bool QXmlSimpleReader::parseElementETagBegin2()
   Helper to break down the size of the code in the case statement.
   Return FALSE on error, otherwise TRUE.
 */
-// ### Remove arguments in Qt 3.0? I think, I don't need them.
-bool QXmlSimpleReader::parseElementAttribute( QString &prefix, QString &uri, QString &lname )
+bool QXmlSimpleReader::parseElementAttribute()
 {
+    QString uri, lname, prefix;
     // add the attribute to the list
     if ( d->useNamespaces ) {
 	// is it a namespace declaration?
@@ -4139,7 +4139,7 @@ bool QXmlSimpleReader::parseAttlistDecl()
 		break;
 	    case Ws4:
 		if ( declHnd ) {
-		    // TODO: not all values are computed yet...
+		    // ### not all values are computed yet...
 		    if ( !declHnd->attributeDecl( d->attDeclEName, d->attDeclAName, "", "", "" ) ) {
 			d->error = declHnd->errorString();
 			goto parseError;
@@ -4672,7 +4672,6 @@ bool QXmlSimpleReader::parseElementDecl()
 	    input = InpUnknown;
 	}
 	// get new state
-//qDebug( "%d -%d(%c)-> %d", state, input, c.latin1(), table[state][input] );
 	state = table[state][input];
 
 	// in some cases do special actions depending on state
