@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#46 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#46 $");
 
 
 // Note: this is comment-stripped and word-wrapped later.
@@ -2200,6 +2200,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream << "%%Pages: " << pageCount << '\n';
 	stream << "%%DocumentFonts: " << fontsUsed << '\n';
 	stream.unsetDevice();
+	d->realDevice->close();
+	delete d->realDevice;
+	d->realDevice = 0;
+	d->fd = -1;
     }
 
     if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
@@ -2428,7 +2432,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     bool mask  = FALSE;
     int width  = img.width();
     int height = img.height();
-    
+
     QColor fgCol = paint->pen().color();
     QColor bgCol = paint->backgroundColor();
     if ( mask )
