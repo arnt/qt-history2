@@ -2205,6 +2205,7 @@ void FormWindow::editConnections()
     ConnectionDialog dlg( mainwindow );
     mainWindow()->statusBar()->message( tr( "Edit connections...") );
     dlg.addConnection( startWidget, endWidget, QString::null, QString::null );
+    QTimer::singleShot( 0, &dlg, SLOT(ensureConnectionVisible()) );
     dlg.exec();
 }
 

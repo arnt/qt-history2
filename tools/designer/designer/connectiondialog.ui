@@ -207,6 +207,7 @@
     <slot>setDefault( QObject * sender, QObject * receiver )</slot>
     <slot>updateEditSlotsButton()</slot>
     <slot>updateConnectionContainers()</slot>
+    <slot>ensureConnectionVisible()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

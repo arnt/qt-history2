@@ -97,6 +97,7 @@ void ConnectionDialog::init()
 void ConnectionDialog::addConnection()
 {
     addConnection( defaultSender, defaultReceiver, QString::null, QString::null );
+    ensureConnectionVisible();
 }
 
 ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *receiver,
@@ -110,7 +111,6 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
     SignalItem *si;
     ReceiverItem *re;
     SlotItem *sl;
-    connectionsTable->ensureCellVisible( row, 0 );
     connectionsTable->setItem( row, 0,
 			       ( se = new SenderItem( connectionsTable,
 						      MainWindow::self->formWindow() ) ) );
@@ -170,7 +170,6 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
     }
 
     c->setModified( TRUE );
-
     return c;
 }
 
@@ -306,4 +305,9 @@ void ConnectionDialog::updateConnectionContainers()
     }
     connections = newContainers;
     updateEditSlotsButton();
+}
+
+void ConnectionDialog::ensureConnectionVisible()
+{
+    connectionsTable->ensureCellVisible( connectionsTable->numRows() - 1, 0 );
 }
