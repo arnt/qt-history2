@@ -1,0 +1,57 @@
+#!/bin/sh
+
+BUILDROOT=/home/mike/sandbox/build-kjeruben
+SOURCEQTDIR=/local/qt/qt/main
+
+if [ ! -d "$BUILDROOT" ]; then
+    echo "$BUILDROOT does not exist."
+    exit 1;
+fi
+
+if [ -z "$MKSPEC" ]; then
+    echo "MKSPEC not set."
+    exit 1;
+fi
+
+PLATFORMSJEF="$SOURCEQTDIR/mkspecs/$MKSPEC/platformsjef"
+if [ ! -f "$PLATFORMSJEF" ]; then
+    echo "No $PLATFORMSJEF file."
+    exit 1;
+else
+    PLATFORMSJEF=`cat $PLATFORMSJEF`
+    echo "Platformsjef for $MKSPEC: $PLATFORMSJEF"
+fi
+
+# This brace expansion is kinda magic, but not too bad.
+for config in -{static,shared}_-{no-thread,thread}_-{enable-opengl,disable-opengl}; do
+#for config in -{static,shared}_-no-thread_-enable-opengl; do
+    echo
+    if [ -d "$BUILDROOT/$config" ]; then
+	echo "Removing old $BUILDROOT/$config"
+	rm -rf $BUILDROOT/$config
+    fi
+    mkdir $BUILDROOT/$config
+    echo "Copying files from $SOURCEQTDIR to $BUILDROOT/$config"
+    tar -C $SOURCEQTDIR -cf - . | tar -C $BUILDROOT/$config -xf - .
+    QTDIR=$BUILDROOT/$config 
+    export QTDIR
+    cd $QTDIR
+    args=`echo $config | sed 's/_/ /g'`
+    echo "Configuring as $MKSPEC $args"
+    if echo yes yes | ./configure $args > configure-output 2>&1; then
+	echo "Configure succeeded, making"
+	if make > make-output 2>&1; then
+	    date=`date`
+	    echo "Successful build: $date"
+	    rm -rf $BUILDROOT/$config
+	else
+	    date=`date`
+	    echo "Build failed: $date"
+	    mail -s "$MKSPEC $config failed to make: $date" $PLATFORMSJEF < make-output
+	fi
+    else
+	date=`date`
+	echo "Configure failed: $date"
+	mail -s "$MKSPEC $config failed to configure: $date" $PLATFORMSJEF < configure-output
+    fi
+done
