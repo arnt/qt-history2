@@ -321,6 +321,7 @@ public:
     bool rootIsDecorated() const;
 
     virtual void setSorting( int column, bool increasing = TRUE );
+    int sortColumn() const;
     virtual void sort();
 
     virtual void setFont( const QFont & );

@@ -1838,7 +1838,11 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
+    if ( cg != lv->colorGroup() )
+	p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    else
+	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
+
 
     // (lars) what does this do???
 #if 0 // RS: ####
@@ -5060,6 +5064,15 @@ void QListView::changeSortColumn( int column )
     }
 }
 
+/*! Returns the column by which the list view is sorted, or
+    -1 if sorting is disabled. */
+
+int QListView::sortColumn() const
+{
+    return d->sortcolumn;
+}
+
+
 /*!
   (Re)sorts the list view using the last sorting configuration (sort column
   and ascending/descending).
@@ -5605,7 +5618,10 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !lv )
 	return;
 
-    lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
+    if ( cg != lv->colorGroup() )
+	p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
+    else
+	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
     if ( column != 0 ) {
 	// The rest is text, or for subclasses to change.
