@@ -1393,11 +1393,10 @@ void QListView::updateGeometries()
 }
 
 /*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+  \reimp
 */
-
 bool QListView::isIndexHidden(const QModelIndex &index) const
-{       
+{
     return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root());
 }
 

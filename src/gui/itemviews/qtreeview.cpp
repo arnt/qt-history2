@@ -1072,9 +1072,8 @@ int QTreeView::columnSizeHint(int column) const
 }
 
 /*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+  \reimp
 */
-
 bool QTreeView::isIndexHidden(const QModelIndex &index) const
 {
     return (isColumnHidden(index.column())

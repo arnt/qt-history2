@@ -181,7 +181,7 @@ void QAbstractItemViewPrivate::init()
 /*!
   \enum QAbstractItemView::CursorAction
 
-  This enum describes the different ways to navigate between items, \sa moveCursor().
+  This enum describes the different ways to navigate between items, \sa moveCursor()
 
   \value MoveUp       Move to the item above the current.
   \value MoveDown     Move to the item below the current.
@@ -197,7 +197,7 @@ void QAbstractItemViewPrivate::init()
     \enum QAbstractItemView::State
 
     Describes the different states the view can be in. This is usually
-    only interesting when reimlpementing your own view.
+    only interesting when reimplementing your own view.
 
     \value NoState        The is the default state.
     \value DraggingState  The user is dragging items.
@@ -252,11 +252,19 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::onItem(const QModelIndex &index, Qt::ButtonState button)
+  \fn void QAbstractItemView::itemEntered(const QModelIndex &index, Qt::ButtonState button)
 
-  This signal is emitted when the cursor is positioned on the item
-  specified by \a index.
-  The button state is specified by \a button (see \l{Qt::ButtonState}).
+  This signal is emitted when the mouse cursor enters the item
+  specified by \a index.  The button state is specified by \a button
+  (see \l{Qt::ButtonState}).
+*/
+
+/*!
+  \fn void QAbstractItemView::viewportEntered(Qt::ButtonState state)
+
+  This signal is emitted when the mouse cursor enters the
+  viewport. The button state is specified by \a state (see
+  \l{Qt::ButtonState}).
 */
 
 /*!
@@ -287,24 +295,18 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
+    \fn void QAbstractItemView::keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state)
+
+    This signal is emitted if keyTracking is enabled and a key is
+    pressed in the view.  The item \a index is the current item when
+    the key \a key was pressed, and \a state is the button state at
+    the keypress (see \l{Qt::ButtonState}).
+*/
+
+/*!
     \fn void QAbstractItemView::returnPressed(const QModelIndex &index)
 
     This signal is emitted when Return (or Enter) is pressed. The item
-    to be acted on by the key press is specified by \a index.
-*/
-
-/*!
-    \fn void QAbstractItemView::spacePressed(const QModelIndex &index)
-
-    This signal is emitted when the space bar is pressed. The item to be
-    acted on by the key press is specified by \a index.
-
-*/
-
-/*!
-    \fn void QAbstractItemView::deletePressed(const QModelIndex &index)
-
-    This signal is emitted when the Delete key is pressed. The item
     to be acted on by the key press is specified by \a index.
 */
 
@@ -341,6 +343,14 @@ void QAbstractItemViewPrivate::init()
     In the base class this is a pure virtual function.
 */
 
+/*!
+  \fn bool QAbstractItemView::isIndexHidden(const QModelIndex &index) const
+
+  Returns true if the item refered to by the given \a index is hidden,
+  otherwise returns false.
+
+  In the base class this is a pure virtual function.
+*/
 
 /*!
     \fn void QAbstractItemView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags)
@@ -620,7 +630,9 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
 }
 
 /*!
-    Returns the model index of the model's root item.
+    Returns the model index of the model's root item. The root item is
+    the parent item to the views toplevel items. The root can be invalid.
+
     \sa setRoot()
 */
 QModelIndex QAbstractItemView::root() const
@@ -641,7 +653,7 @@ void QAbstractItemView::selectAll()
 }
 
 /*!
-    Calls edit() for the item at \a index.
+    Starts editing the item item at \a index if it is editable.
 */
 void QAbstractItemView::edit(const QModelIndex &index)
 {
@@ -1314,13 +1326,8 @@ void QAbstractItemView::selectionModelDestroyed()
 }
 
 /*!
-  If the \a object is the current editor: if the \a event is an Esc
-  key press the current edit is cancelled and ended, or if the \a
-  event is an Enter or Return key press the current edit is accepted
-  and ended. If editing is ended the event filter returns true to
-  signify that it has handled the event; in all other cases it does
-  nothing and returns false to signify that the event hasn't been
-  handled.
+  Releases the editor \a editor from the view without commiting the
+  editors data.
 
   \sa endEdit()
 */
@@ -1342,7 +1349,7 @@ void QAbstractItemView::commitData(QWidget *editor)
 
 
 /*!
-  Remove the editor from the map.
+  Remove the editor \a editor from the map.
 */
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
@@ -1598,7 +1605,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 
 /*!
     This slot is called when a new item becomes the current item.
-    The previous current item is specified by the \a old index, and the new
+    The previous current item is specified by the \a previous index, and the new
     item by the \a current index.
 
     If you want to know about changes to items see the

@@ -1131,9 +1131,8 @@ void QTableView::horizontalScrollbarAction(int action)
 }
 
 /*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+  \reimp
 */
-
 bool QTableView::isIndexHidden(const QModelIndex &index) const
 {
     return isRowHidden(index.row()) || isColumnHidden(index.column());
