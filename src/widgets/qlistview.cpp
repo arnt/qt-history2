@@ -4454,7 +4454,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     QListViewItem * i = currentItem();
     QListViewItem *old = i;
 
-    if ( isMultiSelection() && i->isSelectable() && e->ascii() == ' ' ) {
+    if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) && i->isSelectable() && e->ascii() == ' ' ) {
 	setSelected( i, !i->isSelected() );
 	d->currentPrefix.truncate( 0 );
 	return;
@@ -4780,7 +4780,7 @@ void QListView::setMultiSelection( bool enable )
 {
     if ( !enable )
 	d->selectionMode = QListView::Single;
-    else if ( !isMultiSelection() )
+    else if (  d->selectionMode != Multi && d->selectionMode != Extended )
 	d->selectionMode = QListView::Multi;
 }
 
@@ -4803,7 +4803,8 @@ void QListView::setSelectionMode( SelectionMode mode )
     if ( d->selectionMode == mode )
 	return;    
     
-    if ( isMultiSelection() && ( mode == QListView::Single || mode == QListView::NoSelection ) ){
+    if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) && 
+	 ( mode == QListView::Single || mode == QListView::NoSelection ) ){
 	clearSelection();
 	if ( ( mode == QListView::Single ) && currentItem() )
 	    currentItem()->selected = TRUE;
@@ -4882,7 +4883,7 @@ void QListView::clearSelection()
 
 void QListView::selectAll( bool select )
 {
-    if ( isMultiSelection() ) {
+    if ( d->selectionMode == Multi || d->selectionMode == Extended ) {
 	bool b = signalsBlocked();
 	blockSignals( TRUE );
 	bool anything = FALSE;
