@@ -635,7 +635,7 @@ void QSocket::flush()
 {
     bool osBufferFull = FALSE;
     int consumed = 0;
-    while( !osBufferFull && d->state >= Connecting && d->wsize > 0 ) {
+    while ( !osBufferFull && d->state >= Connecting && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): flush: Write data to the socket", name() );
 #endif
@@ -672,7 +672,7 @@ void QSocket::flush()
 	    if ( d->wsn )
 		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	}
-	if ( nwritten ) {
+	if ( nwritten > 0 ) {
 	    if ( consumeWriteBuf( nwritten ) )
 		consumed += nwritten;
 	}
