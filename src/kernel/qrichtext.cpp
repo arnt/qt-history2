@@ -405,9 +405,9 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
 	s = s->next();
     }
 
-    if ( !s ) 
+    if ( !s )
 	return FALSE;
-    
+
     setParag( s, FALSE );
     int y = s->rect().y();
     int lines = s->lines();
@@ -440,7 +440,7 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
 	chr = s->at(i);
 	int cpos = x + chr->x;
 	cw = s->string()->width( i );
-	if ( chr->isCustom ) { 
+	if ( chr->isCustom ) {
 	    if ( pos.x() >= cpos && pos.x() <= cpos + cw &&
 		 pos.y() >= y + cy && pos.y() <= y + cy + chr->height() ) {
 		inCustom = TRUE;
@@ -2901,6 +2901,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    tw = 0;
 	    ++line;
 	    lineInfo( line, cy, h, baseLine );
+	    lasth = h;
 	    if ( clipy != -1 && cy > clipy - r.y() + cliph ) // outside clip area, leave
 		break;
 	    if ( lastBaseLine == 0 )
