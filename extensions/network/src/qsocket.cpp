@@ -77,6 +77,8 @@ QSocketPrivate::QSocketPrivate()
 
 QSocketPrivate::~QSocketPrivate()
 {
+    // order is important here - the socket notifiers must go away
+    // before the socket does.
     delete rsn;
     delete wsn;
     delete socket;
@@ -130,8 +132,8 @@ QSocket::QSocket( int socket, QObject *parent, const char *name )
     d->socket->setAddressReusable( TRUE );
     d->state = Connection;
     d->mode = Binary;
-    d->rsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Read);
-    d->wsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Write);
+    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read );
+    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write);
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
     d->rsn->setEnabled( TRUE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
@@ -306,6 +308,7 @@ void QSocket::connectToHost( const QString &host, int port )
     // Re-initialize
     delete d;
     d = new QSocketPrivate;
+    d->socket = new QSocketDevice( QSocketDevice::Stream );
     d->state = HostLookup;
     d->host = host;
     d->port = port;
@@ -356,12 +359,18 @@ void QSocket::tryConnecting()
 
     // Create and setup read/write socket notifiers
     // The socket write notifier will fire when the connection succeeds
-    d->rsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Read);
-    d->rsn->setEnabled( TRUE );
-    d->wsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Write);
-    d->wsn->setEnabled( TRUE );
-    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    if ( !d->rsn ) {
+	d->rsn = new QSocketNotifier( d->socket->socket(),
+				      QSocketNotifier::Read );
+	d->rsn->setEnabled( TRUE );
+	connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    }
+    if ( !d->wsn ) {
+	d->wsn = new QSocketNotifier( d->socket->socket(),
+				      QSocketNotifier::Write );
+	d->wsn->setEnabled( TRUE );
+	connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    }
     return;
 }
 
@@ -511,13 +520,6 @@ void QSocket::close()
     }
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-    if ( d->socket ) {
-	// We must disable the socket notifiers before the socket
-	// disappears
-	d->rsn->setEnabled( FALSE );
-	d->wsn->setEnabled( FALSE );
-	d->socket->close();
-    }
     delete d;
     d = new QSocketPrivate;
     d->state = Idle;
@@ -709,11 +711,6 @@ void QSocket::flush()
 #endif
 	    setFlags( IO_Sequential );
 	    setStatus( IO_Ok );
-	    // We must disable the socket notifiers before the socket
-	    // disappears
-	    d->rsn->setEnabled( FALSE );
-	    d->wsn->setEnabled( FALSE );
-	    d->socket->close();
 	    delete d;
 	    d = new QSocketPrivate;
 	    d->state = Idle;
@@ -768,9 +765,10 @@ bool QSocket::at( int index )
 
 bool QSocket::atEnd() const
 {
-    if ( d->socket->bytesAvailable() ) // a little slow, perhaps...
-	sn_read();
-    return d->rsize == 0;
+    QSocket * that = (QSocket *)this;
+    if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
+	that->sn_read();
+    return that->d->rsize == 0;
 }
 
 
@@ -782,9 +780,10 @@ bool QSocket::atEnd() const
 
 int QSocket::bytesAvailable() const
 {
-    if ( d->socket->bytesAvailable() ) // a little slow, perhaps...
-	sn_read();
-    return d->rsize;
+    QSocket * that = (QSocket *)this;
+    if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
+	(void)that->sn_read();
+    return that->d->rsize;
 }
 
 
