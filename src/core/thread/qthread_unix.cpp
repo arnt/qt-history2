@@ -21,19 +21,10 @@
 #include "qthread.h"
 #include "qthreadstorage.h"
 
-#include "qmutex_p.h"
 #include "qmutexpool_p.h"
-#include "qthreadinstance_p.h"
-
-#include <qcoreapplication.h>
-#include <qpointer.h>
-
-static QThreadInstance main_instance = {
-    0, { 0, &main_instance }, 0, 0, 1, 0, PTHREAD_COND_INITIALIZER, 0
-};
-
-extern QMutexPool *static_qt_global_mutexpool;
-static QMutexPool *qt_thread_mutexpool = 0;
+#include "qthread_p.h"
+#define d d_func()
+#define q q_func()
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -41,119 +32,52 @@ extern "C" {
 
 typedef void*(*QtThreadCallback)(void*);
 
-static pthread_once_t storage_key_once = PTHREAD_ONCE_INIT;
-static pthread_key_t storage_key;
-static void create_storage_key()
-{
-    pthread_key_create(&storage_key, NULL);
-}
-
 #if defined(Q_C_CALLBACKS)
 }
 #endif
 
+static pthread_once_t current_thread_key_once = PTHREAD_ONCE_INIT;
+static pthread_key_t current_thread_key;
+static void create_current_thread_key()
+{ pthread_key_create(&current_thread_key, NULL); }
 
-/**************************************************************************
- ** QThreadInstance
- *************************************************************************/
-
-QThreadInstance *QThreadInstance::current()
+void *QThreadPrivate::start(void *arg)
 {
-    pthread_once(&storage_key_once, create_storage_key);
-    QThreadInstance *ret =
-        (QThreadInstance *) pthread_getspecific(storage_key);
-    if (! ret) return &main_instance;
-    return ret;
-}
-
-void QThreadInstance::init(unsigned int stackSize)
-{
-    stacksize = stackSize;
-    args[0] = args[1] = args[2] = 0;
-    thread_storage = 0;
-
-    finished = false;
-    running =false;
-    orphan = false;
-
-    pthread_cond_init(&thread_done, NULL);
-    thread_id = 0;
-
-    // threads have not been initialized yet, do it now
-    if (! qt_thread_mutexpool) QThread::initialize();
-}
-
-void QThreadInstance::deinit()
-{
-    pthread_cond_destroy(&thread_done);
-}
-
-void *QThreadInstance::start(void *_arg)
-{
-    void **arg = (void **) _arg;
-
-    pthread_once(&storage_key_once, create_storage_key);
-    pthread_setspecific(storage_key, arg[1]);
-    pthread_cleanup_push(QThreadInstance::finish, arg[1]);
+    pthread_once(&current_thread_key_once, create_current_thread_key);
+    pthread_setspecific(current_thread_key, arg);
+    pthread_cleanup_push(QThreadPrivate::finish, arg);
     pthread_testcancel();
 
-    QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
-    arg[2] = reinterpret_cast<void *>(thr->thread());
-    thr->QObject::setThread(QThread::currentThread());
+    QThread *thr = reinterpret_cast<QThread *>(arg);
     emit thr->started();
     thr->run();
-    if (thr) {
-        emit thr->finished();
-        QCoreApplication::sendPostedEvents();
-        thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
-        arg[0] = arg[1] = arg[2] = 0;
-    }
-
-    pthread_cleanup_pop(true);
     return 0;
 }
 
-void QThreadInstance::finish(void *)
+void QThreadPrivate::finish(void *arg)
 {
-    QThreadInstance *d = current();
-    Q_ASSERT_X(d, "QThread", "internal error: zero data for running thread.");
+    QThread *thr = reinterpret_cast<QThread *>(arg);
+    QMutexLocker locker(thr->d->mutex());
 
-    QMutexLocker locker(d->mutex());
-
-    if (d->args[0] && d->args[1] && d->args[2]) {
-        // terminated!
-        QThread *thr = reinterpret_cast<QThread *>(d->args[0]);
-        Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(d->args[2]);
+    thr->d->running = false;
+    thr->d->finished = true;
+    if (thr->d->terminated)
         emit thr->terminated();
-        thr->QObject::setThread(old);
-    }
+    thr->d->terminated = false;
+    emit thr->finished();
 
-    d->running = false;
-    d->finished = true;
-    d->args[0] = d->args[1] = d->args[2] = 0;
+    QThreadStorageData::finish(thr->d->tls);
+    thr->d->tls = 0;
 
-    QThreadStorageData::finish(d->thread_storage);
-    d->thread_storage = 0;
-
-    d->thread_id = 0;
-    pthread_cond_broadcast(&d->thread_done);
-
-    if (d->orphan) {
-        d->deinit();
-        delete d;
-    }
+    thr->d->thread_id = 0;
+    thr->d->thread_done.wakeAll();
 }
 
-QMutex *QThreadInstance::mutex() const
-{
-    return qt_thread_mutexpool ? qt_thread_mutexpool->get((void *) this) : 0;
-}
+Q_GLOBAL_STATIC(QMutexPool, qt_thread_mutexpool)
+QMutex *QThreadPrivate::mutex() const
+{ return qt_thread_mutexpool()->get((void *) this); }
 
-void QThreadInstance::terminate()
-{
-    if (! thread_id) return;
-    pthread_cancel(thread_id);
-}
+
 
 
 /**************************************************************************
@@ -161,7 +85,7 @@ void QThreadInstance::terminate()
  *************************************************************************/
 
 /*!
-    This returns the thread handle of the currently executing thread.
+    Returns the thread handle of the currently executing thread.
 
     \warning The handle returned by this function is used for internal
     purposes and should \e not be used in any application code. On
@@ -169,8 +93,17 @@ void QThreadInstance::terminate()
     thread, and it cannot be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThread()
+{ return reinterpret_cast<Qt::HANDLE>(pthread_self()); }
+
+/*!
+    Returns a pointer to the currently executing QThread. If the
+    current thread was not started using the QThread API (e.g. the GUI
+    thread), this function returns zero.
+*/
+QThread *QThread::currentQThread()
 {
-    return (Qt::HANDLE)pthread_self();
+    pthread_once(&current_thread_key_once, create_current_thread_key);
+    return reinterpret_cast<QThread *>(pthread_getspecific(current_thread_key));
 }
 
 /*! \internal
@@ -179,11 +112,8 @@ Qt::HANDLE QThread::currentThread()
 void QThread::initialize()
 {
     extern QMutexPool *static_qt_global_mutexpool;
-    if (static_qt_global_mutexpool)
-        return;
-
-    static_qt_global_mutexpool = new QMutexPool(true);
-    qt_thread_mutexpool = new QMutexPool(false);
+    if (!static_qt_global_mutexpool)
+        static_qt_global_mutexpool = new QMutexPool(true);
 }
 
 /*! \internal
@@ -191,13 +121,11 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
+    extern QMutexPool *static_qt_global_mutexpool;
     delete static_qt_global_mutexpool;
-    delete qt_thread_mutexpool;
     static_qt_global_mutexpool = 0;
-    qt_thread_mutexpool = 0;
 
-    // cleanup the QThreadInstance for the main() thread
-    QThreadInstance::finish(&main_instance);
+    QThreadStorageData::finish(QThreadPrivate::threadLocalStorage(0));
 }
 
 /*!
@@ -290,13 +218,13 @@ void QThread::usleep(unsigned long usecs)
 void QThread::start(Priority priority)
 {
     QMutexLocker locker(d->mutex());
-
     if (d->running)
-        pthread_cond_wait(&d->thread_done, &locker.mutex()->d->mutex);
+        d->thread_done.wait(locker.mutex());
+
     d->running = true;
     d->finished = false;
+    d->terminated = false;
 
-    int ret;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
@@ -340,8 +268,7 @@ void QThread::start(Priority priority)
 
             default:
                 // crudely scale our priority enum values to the prio_min/prio_max
-                prio = (((prio_max - prio_min) / TimeCriticalPriority) *
-                        priority) + prio_min;
+                prio = (((prio_max - prio_min) / TimeCriticalPriority) * priority) + prio_min;
                 prio = qMax(prio_min, qMin(prio_max, prio));
                 break;
             }
@@ -356,15 +283,15 @@ void QThread::start(Priority priority)
     }
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
-    if (d->stacksize > 0) {
+    if (d->stackSize > 0) {
 #if defined(_POSIX_THREAD_ATTR_STACKSIZE) && (_POSIX_THREAD_ATTR_STACKSIZE-0 > 0)
-        ret = pthread_attr_setstacksize(&attr, d->stacksize);
+        int code = pthread_attr_setstacksize(&attr, d->stackSize);
 #else
-        ret = ENOSYS; // stack size not supported, automatically fail
+        int code = ENOSYS; // stack size not supported, automatically fail
 #endif // _POSIX_THREAD_ATTR_STACKSIZE
 
-        if (ret) {
-            qWarning("QThread::start: thread stack size error: %s", strerror(ret)) ;
+        if (code) {
+            qWarning("QThread::start: thread stack size error: %s", strerror(code)) ;
 
             // we failed to set the stacksize, and as the documentation states,
             // the thread will fail to run...
@@ -374,24 +301,54 @@ void QThread::start(Priority priority)
         }
     }
 
-    d->args[0] = this;
-    d->args[1] = d;
-    d->args[2] = 0;
-    ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
-#if defined (Q_OS_HPUX)
-    if (ret == EPERM) {
+    int code =
+        pthread_create(&d->thread_id, &attr, (QtThreadCallback) QThreadPrivate::start, this);
+    if (code == EPERM) {
+        // caller does not have permission to set the scheduling
+        // parameters/policy
         pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
-       ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
+        code =
+            pthread_create(&d->thread_id, &attr, (QtThreadCallback) QThreadPrivate::start, this);
     }
-#endif
+
     pthread_attr_destroy(&attr);
 
-    if (ret) {
-        qWarning("QThread::start: thread creation error: %s", strerror(ret));
+    if (code) {
+        qWarning("QThread::start: thread creation error: %s", strerror(code));
 
         d->running = false;
         d->finished = false;
-        d->args[0] = d->args[1] = d->args[2] = 0;
+        d->thread_id = 0;
+    }
+}
+
+/*!
+    This function terminates the execution of the thread. The thread
+    may or may not be terminated immediately, depending on the
+    operating systems scheduling policies. Use QThread::wait()
+    after terminate() for synchronous termination.
+
+    When the thread is terminated, all threads waiting for the thread
+    to finish will be woken up.
+
+    \warning This function is dangerous, and its use is discouraged.
+    The thread can be terminate at any point in its code path.  Threads
+    can be terminated while modifying data.  There is no chance for
+    the thread to cleanup after itself, unlock any held mutexes, etc.
+    In short, use this function only if \e absolutely necessary.
+*/
+void QThread::terminate()
+{
+    QMutexLocker locker(d->mutex());
+
+    if (!d->thread_id)
+        return;
+
+    int code = pthread_cancel(reinterpret_cast<pthread_t>(d->thread_id));
+    if (code) {
+        qWarning("QThread::start: thread termination error: %s", strerror(code));
+    } else {
+        d->terminated = true;
     }
 }
 
@@ -421,26 +378,8 @@ bool QThread::wait(unsigned long time)
         return false;
     }
 
-    if (d->finished || ! d->running)
+    if (d->finished || !d->running)
         return true;
 
-    int ret;
-    if (time != ULONG_MAX) {
-        struct timeval tv;
-        gettimeofday(&tv, 0);
-
-        timespec ti;
-        ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
-        ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
-        ti.tv_nsec %= 1000000000;
-
-        ret = pthread_cond_timedwait(&d->thread_done, &locker.mutex()->d->mutex, &ti);
-    } else {
-        ret = pthread_cond_wait(&d->thread_done, &locker.mutex()->d->mutex);
-    }
-
-    if (ret != 0 && ret != ETIMEDOUT)
-        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
-
-    return (ret == 0);
+    return d->thread_done.wait(locker.mutex(), time);
 }

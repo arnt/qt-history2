@@ -13,7 +13,7 @@ HEADERS += thread/qmutex.h \
 HEADERS += thread/qmutex_p.h \
  	   thread/qmutexpool_p.h \
 	   thread/qspinlock_p.h \
-	   thread/qthreadinstance_p.h
+	   thread/qthread_p.h
 
 SOURCES += thread/qmutexpool.cpp \
 	   thread/qsemaphore.cpp \

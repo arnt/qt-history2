@@ -21,27 +21,26 @@
 
 #include <limits.h>
 
-struct QThreadInstance;
-class QObject;
-class QEvent;
+class QThreadPrivate;
 
 class Q_CORE_EXPORT QThread : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QThread)
+
+#if defined(Q_DISABLE_COPY)
+    QThread(const QThread &);
+    QThread &operator=(const QThread &);
+#endif // Q_DISABLE_COPY
 
 public:
-#ifdef QT_COMPAT
-    static QT_COMPAT void postEvent(QObject *,QEvent *);
-#endif
-
     static Qt::HANDLE currentThread();
+    static QThread *currentQThread(); // better name?
 
     static void initialize();
     static void cleanup();
 
-    static void exit();
-
-    QThread(unsigned int stackSize = 0);
+    QThread();
     virtual ~QThread();
 
     enum Priority {
@@ -61,6 +60,9 @@ public:
     bool isFinished() const;
     bool isRunning() const;
 
+    void setStackSize(uint stackSize);
+    uint stackSize() const;
+
 public slots:
     void start(Priority = InheritPriority);
     void terminate();
@@ -77,18 +79,11 @@ signals:
 protected:
     virtual void run() = 0;
 
+    static void exit();
+
     static void sleep(unsigned long);
     static void msleep(unsigned long);
     static void usleep(unsigned long);
-
-private:
-    QThreadInstance * d;
-    friend struct QThreadInstance;
-
-#if defined(Q_DISABLE_COPY)
-    QThread(const QThread &);
-    QThread &operator=(const QThread &);
-#endif // Q_DISABLE_COPY
 };
 
 #endif // QTHREAD_H

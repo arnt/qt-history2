@@ -37,7 +37,7 @@ public:
     QEventLoop(QEventLoopPrivate &, QObject *parent);
     ~QEventLoop();
 
-    static QEventLoop *instance(Qt::HANDLE thread = 0);
+    static QEventLoop *instance(QThread *thread = 0);
 
     enum ProcessEvents {
         AllEvents = 0x00,

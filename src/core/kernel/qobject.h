@@ -35,6 +35,7 @@ struct QMetaObject;
 class QCoreVariant;
 class QObjectPrivate;
 class QObject;
+class QThread;
 class QWidget;
 #ifndef QT_NO_REGEXP
 class QRegExp;
@@ -100,8 +101,7 @@ public:
     inline bool signalsBlocked() const { return d_ptr->blockSig; }
     bool blockSignals(bool b);
 
-    Qt::HANDLE thread() const;
-    void setThread(Qt::HANDLE thread);
+    QThread *thread() const;
 
     int startTimer(int interval);
     void killTimer(int id);

@@ -19,14 +19,12 @@
 #include <qdatetime.h>
 #include <qhash.h>
 #include <qthread.h>
+#include <private/qthread_p.h>
 #include <private/qspinlock_p.h>
 
 #define d d_func()
 #define q q_func()
 
-static QStaticSpinLock spinlock = 0;
-static int eventloop_count = 0;
-static QHash<Qt::HANDLE, QEventLoop *> eventloops;
 
 QEventLoopPrivate::QEventLoopPrivate()
     : QObjectPrivate()
@@ -39,10 +37,6 @@ QEventLoopPrivate::QEventLoopPrivate()
     process_event_handler = 0;
     event_filter = 0;
 }
-
-
-// in qcoreapplication.cpp
-extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
 
 /*!
@@ -129,17 +123,9 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate(), parent)
 {
-    {
-        QSpinLockLocker locker(::spinlock);
-        eventloops.ensure_constructed();
-        const Qt::HANDLE thr = thread();
-        Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-                   "Cannot have more than one event loop per thread.");
-        eventloop_count++;
-        eventloops.insert(thr, this);
-    }
-
     init();
+
+    QThreadPrivate::setEventLoop(thread(), this);
 }
 
 
@@ -148,17 +134,9 @@ QEventLoop::QEventLoop(QObject *parent)
 QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
     : QObject(priv, parent)
 {
-    {
-        QSpinLockLocker locker(::spinlock);
-        eventloops.ensure_constructed();
-        const Qt::HANDLE thr = thread();
-        Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-                   "Cannot have more than one event loop per thread.");
-        eventloop_count++;
-        eventloops.insert(thr, this);
-    }
-
     init();
+
+    QThreadPrivate::setEventLoop(thread(), this);
 }
 
 
@@ -167,13 +145,9 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 */
 QEventLoop::~QEventLoop()
 {
-    cleanup();
+    QThreadPrivate::setEventLoop(thread(), 0);
 
-    {
-        QSpinLockLocker locker(::spinlock);
-        eventloop_count--;
-        eventloops.remove(thread());
-    }
+    cleanup();
 }
 
 /*!
@@ -187,16 +161,8 @@ QEventLoop::~QEventLoop()
 
     \sa QApplication::eventLoop()
  */
-QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
-{
-    if (thread == 0)
-        thread = QThread::currentThread();
-    QSpinLockLocker locker(::spinlock);
-    if(!eventloop_count)
-        return 0;
-    eventloops.ensure_constructed();
-    return eventloops.value(thread);
-}
+QEventLoop *QEventLoop::instance(QThread *thread)
+{ return QThreadPrivate::eventLoop(thread); }
 
 /*!
     Enters the main event loop and waits until exit() is called.
@@ -491,7 +457,7 @@ void QEventLoop::appClosingDown()
 }
 
 /*!
-    Sets the process event handler \a handler. Returns a pointer to 
+    Sets the process event handler \a handler. Returns a pointer to
     the handler previously defined.
 
     The process event handler is a function that receives all messages
@@ -514,7 +480,7 @@ QEventLoop::ProcessEventHandler QEventLoop::setProcessEventHandler(ProcessEventH
 }
 
 /*!
-    Sets the event filter \a filter. Returns a pointer to the filter function 
+    Sets the event filter \a filter. Returns a pointer to the filter function
     previously defined.
 
     The event filter is a function that is called for every message received. This

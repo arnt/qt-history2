@@ -46,11 +46,11 @@ QObjectPrivate::QObjectPrivate()
 {
     // QObjectData initialization
     q_ptr = 0;
-    parent = 0;                                // no parent yet. It is set by setParent()
-    isWidget = false;                                 // assume not a widget object
-    pendTimer = false;                                // no timers yet
-    blockSig = false;                              // not blocking signals
-    wasDeleted = false;                               // double-delete catcher
+    parent = 0;                                 // no parent yet. It is set by setParent()
+    isWidget = false;                           // assume not a widget object
+    pendTimer = false;                          // no timers yet
+    blockSig = false;                           // not blocking signals
+    wasDeleted = false;                         // double-delete catcher
     hasPostedEvents = false;
 #ifdef QT_COMPAT
     hasPostedChildInsertedEvents = false;
@@ -282,7 +282,7 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = QThread::currentThread();
+    d->thread = parent ? parent->thread() : QThread::currentQThread();
     setParent(parent);
     QEvent e(QEvent::Create);
     QCoreApplication::sendEvent(this, &e);
@@ -298,7 +298,7 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = QThread::currentThread();
+    d->thread = parent ? parent->thread() : QThread::currentQThread();
     setParent(parent);
     if (name)
         setObjectName(name);
@@ -313,7 +313,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
-    d->thread = QThread::currentThread();
+    d->thread = parent ? parent->thread() : QThread::currentQThread();
     if (d->isWidget) {
         if (parent) {
             d->parent = parent;
@@ -853,48 +853,13 @@ bool QObject::blockSignals(bool block)
 }
 
 /*!
-    Returns the thread id in which this object was created.
  */
-Qt::HANDLE QObject::thread() const
+QThread *QObject::thread() const
 {
     const QObject *toplevel = this;
     for (; toplevel && toplevel->d->parent; toplevel = toplevel->d->parent)
         ;
-    Q_ASSERT(toplevel->d->thread != 0);
     return toplevel->d->thread;
-}
-
-/*!
-    \internal
-
-    Note: Any running timers for thie object are stopped in the
-    object's eventloop .  They are \e not restarted in the new
-    thread's eventloop.
- */
-void QObject::setThread(Qt::HANDLE thr)
-{
-    Q_ASSERT_X(!d->parent, "QObject::setThread",
-               "Cannot set the thread on an object with a parent.");
-    Q_ASSERT_X(thr != 0, "QObject::setThread",
-               "thread argument must not be zero.");
-
-    // ### TODO: make sure this works for objects with children
-    Q_ASSERT_X(d->children.size() == 0, "QObject::setThread",
-               "TODO: make sure this works for objects with children");
-
-    if (d->thread == thr) return;
-
-    // might have pending timers
-    QEventLoop *eventloop = QEventLoop::instance(thread());
-    if (eventloop && d->pendTimer)
-        eventloop->unregisterTimers(this);
-    d->pendTimer = false;
-
-    // move any posted events to the new thread
-    extern void qt_movePostedEvents(QObject *object, Qt::HANDLE _from, Qt::HANDLE _to);
-    qt_movePostedEvents(this, d->thread, thr);
-
-    d->thread = thr;
 }
 
 //
@@ -1201,16 +1166,14 @@ void QObject::setParent_helper(QObject *parent)
         QChildEvent e(QEvent::ChildRemoved, this);
         QCoreApplication::sendEvent(d->parent, &e);
     }
-    const Qt::HANDLE thr = thread();
+    QThread *thr = thread();
     d->parent = parent;
     if (d->parent) {
         // object heirarchies are constrained to a single thread
         Q_ASSERT_X(thr == d->parent->thread(), "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
         d->thread = 0;
-
         d->parent->d->children.append(this);
-
         if (!d->isWidget) {
             const QMetaObject *polished = d->polished;
             QChildEvent e(QEvent::ChildAdded, this);
@@ -2344,7 +2307,8 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         // put into the event queue
         const bool queued = (c->type == Qt::QueuedConnection
                              || (c->type == Qt::AutoConnection
-                                 && c->receiver->thread() != obj->thread()));
+                                 && (QThread::currentQThread() != obj->thread()
+                                     || c->receiver->thread() != obj->thread())));
         if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
             QMetaMember m = obj->metaObject()->signal(signal_index);
             c->types = QObjectPrivate::queuedConnectionTypes(m.signature());

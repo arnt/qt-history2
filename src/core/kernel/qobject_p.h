@@ -49,8 +49,8 @@ public:
     QObjectPrivate();
     virtual ~QObjectPrivate();
 
-    // id of the thread that owns the object
-    Qt::HANDLE thread;
+    // pointer to the thread that owns the object
+    QThread *thread;
 
     // signal connections
     struct Connections {

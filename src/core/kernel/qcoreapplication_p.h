@@ -6,33 +6,6 @@
 #include "qtranslator.h"
 #include "qmetaobject.h"
 
-#include <qvector.h>
-#include <private/qspinlock_p.h>
-
-struct QPostEvent
-{
-    QObject *receiver;
-    QEvent *event;
-    inline QPostEvent()
-        : receiver(0), event(0)
-    { }
-    inline QPostEvent(QObject *r, QEvent *e)
-        : receiver(r), event(e)
-    { }
-};
-
-class QPostEventList : public QVector<QPostEvent>
-{
-public:
-    int offset;
-    QSpinLock spinlock;
-
-    inline QPostEventList()
-        : QVector<QPostEvent>(), offset(0)
-    { }
-    ~QPostEventList();
-};
-
 class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
 {
 public:
@@ -52,6 +25,7 @@ public:
 
     int &argc;
     char **argv;
+    QEventLoop *eventLoop;
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
 #endif

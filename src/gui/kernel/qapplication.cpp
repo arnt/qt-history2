@@ -38,6 +38,7 @@
 #include "qhash.h"
 
 #include <qthread.h>
+#include <private/qthread_p.h>
 #include <private/qspinlock_p.h>
 
 #ifdef Q_WS_WIN
@@ -2497,7 +2498,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
-    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
+    Q_ASSERT_X(QThread::currentQThread() == receiver->thread(),
                "QApplication::sendEvent",
                QString("Cannot send events to objects owned by a different thread (%1).  "
                        "Receiver '%2' (of type '%3') was created in thread %4")
@@ -2509,8 +2510,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-        extern QPostEventList *qt_postEventList(Qt::HANDLE); // from qcoreapplication.cpp
-        QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+        QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
         if (postedEvents) {
             QSpinLockLocker locker(&postedEvents->spinlock);
 

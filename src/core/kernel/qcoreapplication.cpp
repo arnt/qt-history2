@@ -26,6 +26,7 @@
 
 #include <qthread.h>
 #include <qthreadstorage.h>
+#include <private/qthread_p.h>
 #include <private/qspinlock_p.h>
 
 #include <stdlib.h>
@@ -82,94 +83,6 @@ void Q_CORE_EXPORT qt_call_post_routines()
     }
 }
 
-typedef QThreadStorage<QPostEventList *> PerThreadPostEventList;
-Q_GLOBAL_STATIC(PerThreadPostEventList, postEventLists);
-
-typedef QHash<Qt::HANDLE, QPostEventList *> PostEventListHash;
-Q_GLOBAL_STATIC(PostEventListHash, postEventListHash);
-static QStaticSpinLock spinlock = 0;
-
-Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
-{
-    if (QCoreApplication::closingDown())
-        //closing down (postEventListHash could already be destructed)
-        return 0;
-
-    const Qt::HANDLE current = QThread::currentThread();
-    if (thread == 0) thread = current;
-
-    if (thread == current && postEventLists()->hasLocalData())
-        return postEventLists()->localData();
-
-    QSpinLockLocker locker(::spinlock);
-    QPostEventList *plist = postEventListHash()->value(thread);
-    if (!plist) {
-        if (thread == current) {
-            // creating post event list for current thread
-            plist = new QPostEventList;
-            postEventListHash()->insert(thread, plist);
-            postEventLists()->setLocalData(plist);
-        }
-    }
-    return plist;
-}
-
-void qt_movePostedEvents(QObject *object, Qt::HANDLE _from, Qt::HANDLE _to)
-{
-    Q_ASSERT_X(object && _from != _to, "QObject::setThread", "Internal error");
-
-    QPostEventList *from = qt_postEventList(_from);
-    if (!from) return;
-
-    QPostEventList *to = qt_postEventList(_to);
-    Q_ASSERT_X(to, "QObject::setThread",
-               "This function only works when starting threads with QThread");
-
-    QSpinLockLocker from_locker(&from->spinlock);
-    for (int i = 0; i < from->size(); ++i) {
-        const QPostEvent &pe = from->at(i);
-        if (pe.receiver != object) continue;
-        if (!pe.event) continue;
-
-        from_locker.release();
-
-        to->spinlock.acquire();
-        to->append(pe);
-        to->spinlock.release();
-
-        from_locker.acquire();
-        const_cast<QPostEvent &>(pe).event = 0;
-    }
-}
-
-QPostEventList::~QPostEventList()
-{
-    {
-        // post event list for current thread destroyed
-        QSpinLockLocker locker(::spinlock);
-        postEventListHash()->remove(QThread::currentThread());
-    }
-
-    // don't leak undelivered events
-    for (int i = 0; i < size(); ++i) {
-        QPostEvent &pe = operator[](i);
-        if (pe.event) {
-            struct HACK {
-                ushort t;
-                ushort posted : 1;
-                ushort spont  : 1;
-            };
-            HACK *e = (HACK *) pe.event;
-            const_cast<QPostEvent &>(pe).event = 0;
-
-            e->posted = false;
-            delete e;
-        }
-    }
-}
-
-
-
 
 // app starting up if false
 bool QCoreApplication::is_app_running = false;
@@ -179,7 +92,7 @@ bool QCoreApplication::is_app_closing = false;
 
 Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 {
-    QPostEventList *postedEvents = qt_postEventList(0);
+    QPostEventList *postedEvents = QThreadPrivate::postEventList(QThread::currentQThread());
     return postedEvents ? postedEvents->size() : 0;
 }
 
@@ -188,7 +101,7 @@ QCoreApplication *QCoreApplication::self = 0;
 
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv)
+    : QObjectPrivate(), argc(aargc), argv(aargv), eventLoop(0)
 {
     static const char *empty = "";
     if (argc == 0 || argv == 0) {
@@ -223,8 +136,10 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
 QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
     : QObject(p, 0)
 {
+    d->eventLoop = e;
+    d->eventLoop->setParent(this);
+
     init();
-    e->setParent(this);
 }
 
 /*!
@@ -240,8 +155,8 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
 */
 void QCoreApplication::flush()
 {
-    if (self)
-        self->eventLoop()->flush();
+    if (self && self->d->eventLoop)
+        self->d->eventLoop->flush();
 }
 
 /*!
@@ -277,8 +192,8 @@ void QCoreApplication::init()
 
     QThread::initialize();
 
-    if (!eventLoop())
-        (void) new QEventLoop(self);
+    if (!d->eventLoop)
+        d->eventLoop = new QEventLoop(this);
 }
 
 /*!
@@ -309,7 +224,7 @@ QCoreApplication::~QCoreApplication()
     \sa QEventLoop
 */
 QEventLoop *QCoreApplication::eventLoop()
-{ return self ? QEventLoop::instance(self->thread()) : 0; }
+{ return self ? self->d->eventLoop : 0; }
 
 /*!
   Sends event \a e to \a receiver: \a {receiver}->event(\a e).
@@ -359,11 +274,11 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
-    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
+    Q_ASSERT_X(QThread::currentQThread() == receiver->thread(),
                "QCoreApplication::sendEvent",
                QString("Cannot send events to objects owned by a different thread (%1).  "
                        "Receiver '%2' (of type '%3') was created in thread %4")
-               .arg(QString::number((ulong) QThread::currentThread(), 16))
+               .arg(QString::number((ulong) QThread::currentQThread(), 16))
                .arg(receiver->objectName())
                .arg(receiver->metaObject()->className())
                .arg(QString::number((ulong) receiver->thread(), 16))
@@ -371,7 +286,7 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-        QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+        QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
         if (postedEvents) {
             QSpinLockLocker locker(&postedEvents->spinlock);
 
@@ -630,28 +545,32 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
-    QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+    QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
     Q_ASSERT_X(postedEvents, "QCoreApplication::postEvent",
                "Cannot post events to threads without an event loop");
 
-    QSpinLockLocker locker(&postedEvents->spinlock);
+    {
+        QSpinLockLocker locker(&postedEvents->spinlock);
 
-    // if this is one of the compressible events, do compression
-    if (receiver->d->hasPostedEvents
-        && self && self->compressEvent(event, receiver, postedEvents)) {
-        delete event;
-        return;
+        // if this is one of the compressible events, do compression
+        if (receiver->d->hasPostedEvents
+            && self && self->compressEvent(event, receiver, postedEvents)) {
+            delete event;
+            return;
+        }
+
+        event->posted = true;
+        receiver->d->hasPostedEvents = true;
+#ifdef QT_COMPAT
+        if (event->type() == QEvent::ChildInserted)
+            receiver->d->hasPostedChildInsertedEvents = true;
+#endif
+        postedEvents->append(QPostEvent(receiver, event));
     }
 
-    event->posted = true;
-    receiver->d->hasPostedEvents = true;
-#ifdef QT_COMPAT
-    if (event->type() == QEvent::ChildInserted)
-        receiver->d->hasPostedChildInsertedEvents = true;
-#endif
-    postedEvents->append(QPostEvent(receiver, event));
-
-    if (eventLoop()) eventLoop()->wakeUp();
+    QEventLoop *eventLoop = QEventLoop::instance(receiver->thread());
+    if (eventLoop)
+        eventLoop->wakeUp();
 }
 
 /*!
@@ -688,7 +607,8 @@ bool QCoreApplication::compressEvent(QEvent *, QObject *, QPostEventList *)
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
-    QPostEventList *postedEvents = qt_postEventList(receiver ? receiver->thread() : 0);
+    QPostEventList *postedEvents =
+        QThreadPrivate::postEventList(receiver ? receiver->thread() : QThread::currentQThread());
     Q_ASSERT_X(postedEvents, "QCoreApplication::sendPostedEvents",
                "Cannot send posted events without an event loop");
 
@@ -811,7 +731,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 void QCoreApplication::removePostedEvents(QObject *receiver)
 {
     if (!receiver) return;
-    QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+    QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
     if (!postedEvents) return;
 
     QSpinLockLocker locker(&postedEvents->spinlock);
@@ -855,7 +775,7 @@ void QCoreApplication::removePostedEvent(QEvent * event)
     if (!event || !event->posted)
         return;
 
-    QPostEventList *postedEvents = qt_postEventList(0);
+    QPostEventList *postedEvents = QThreadPrivate::postEventList(QThread::currentQThread());
     if (!postedEvents) return;
 
     QSpinLockLocker locker(&postedEvents->spinlock);

@@ -11,9 +11,9 @@
 ****************************************************************************/
 
 #include "qthreadstorage.h"
-#include "qthread.h"
 
-#include "qthreadinstance_p.h"
+#include "qthread.h"
+#include "qthread_p.h"
 #include "qspinlock_p.h"
 
 #include <string.h>
@@ -26,8 +26,8 @@
 #endif
 
 
- // 256 maximum + 1 used in QRegExp + 1 used in QEventLoop
-static const int MAX_THREAD_STORAGE = 258;
+// 256 maximum + 1 used in QRegExp
+static const int MAX_THREAD_STORAGE = 257;
 
 static QStaticSpinLock spinlock = 0;
 
@@ -72,59 +72,59 @@ QThreadStorageData::~QThreadStorageData()
 
 void **QThreadStorageData::get() const
 {
-    QThreadInstance *d = QThreadInstance::current();
-    return d->thread_storage && d->thread_storage[id] ? &d->thread_storage[id] : 0;
+    void **&tls = QThreadPrivate::threadLocalStorage(QThread::currentQThread());
+    return tls && tls[id] ? &tls[id] : 0;
 }
 
 void **QThreadStorageData::set(void *p)
 {
-    QThreadInstance *d = QThreadInstance::current();
-    if (!d->thread_storage) {
+    void **&tls = QThreadPrivate::threadLocalStorage(QThread::currentQThread());
+    if (!tls) {
         DEBUG("QThreadStorageData: allocating storage %d for thread %lx",
               id, QThread::currentThread());
 
-        d->thread_storage = new void*[MAX_THREAD_STORAGE];
-        memset(d->thread_storage, 0, sizeof(void*) * MAX_THREAD_STORAGE);
+        tls = new void*[MAX_THREAD_STORAGE];
+        memset(tls, 0, sizeof(void*) * MAX_THREAD_STORAGE);
     }
 
     // delete any previous data
-    if (d->thread_storage[id]) {
+    if (tls[id]) {
         DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
               id, QThread::currentThread());
 
-        void *q = d->thread_storage[id];
-        d->thread_storage[id] = 0;
+        void *q = tls[id];
+        tls[id] = 0;
         thread_storage_usage[id].func(q);
     }
 
     // store new data
-    d->thread_storage[id] = p;
-    DEBUG("QThreadStorageData: set storage %d for thread %lx to %p",
+    tls[id] = p;
+    DEBUG("QThreadStorageData: set storage %d for thread %p to %p",
           id, QThread::currentThread(), p);
-    return &d->thread_storage[id];
+    return &tls[id];
 }
 
-void QThreadStorageData::finish(void **thread_storage)
+void QThreadStorageData::finish(void **tls)
 {
-    if (! thread_storage) return; // nothing to do
+    if (!tls) return; // nothing to do
 
     DEBUG("QThreadStorageData: destroying storage for thread %lx",
           QThread::currentThread());
 
     for (int i = 0; i < MAX_THREAD_STORAGE; ++i) {
-        if (!thread_storage[i]) continue;
+        if (!tls[i]) continue;
         if (!thread_storage_usage[i].func) {
-            qWarning("QThreadStorage: thread %lx exited after QThreadStorage destroyed",
-                     QThread::currentThread());
+            // qWarning("QThreadStorage: thread %lx exited after QThreadStorage destroyed",
+            // QThread::currentThread());
             continue;
         }
 
-        void *q = thread_storage[i];
-        thread_storage[i] = 0;
+        void *q = tls[i];
+        tls[i] = 0;
         thread_storage_usage[i].func(q);
     }
 
-    delete [] thread_storage;
+    delete [] tls;
 }
 
 bool QThreadStorageData::ensure_constructed(void (*func)(void *))

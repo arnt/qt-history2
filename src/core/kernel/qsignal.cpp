@@ -226,9 +226,11 @@ bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
 
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
                      val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
-    if (type == Qt::AutoConnection)
-        type = QThread::currentThread() == obj->thread() ? Qt::DirectConnection
-                                                         : Qt::QueuedConnection;
+    if (type == Qt::AutoConnection) {
+        type = QThread::currentQThread() == obj->thread()
+               ? Qt::DirectConnection
+               : Qt::QueuedConnection;
+    }
 
     if (type != Qt::QueuedConnection) {
         return obj->qt_metacall(QMetaObject::InvokeSlot, idx, param) < 0;

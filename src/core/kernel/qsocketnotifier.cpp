@@ -143,7 +143,7 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = true;
-    QEventLoop::instance()->registerSocketNotifier(this);
+    QEventLoop::instance(thread())->registerSocketNotifier(this);
 }
 
 /*!

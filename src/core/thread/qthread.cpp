@@ -11,7 +11,85 @@
 ****************************************************************************/
 
 #include "qthread.h"
-#include "qthreadinstance_p.h"
+#include "qmutex.h"
+
+#include <qeventloop.h>
+#include <qhash.h>
+
+#include "qthread_p.h"
+
+#define d d_func()
+#define q q_func()
+
+
+
+
+/*
+  QThreadPrivate
+*/
+
+QThreadPrivate::QThreadPrivate()
+    : QObjectPrivate(), running(false), finished(false), terminated(false),
+      stackSize(0), eventloop(0), tls(0)
+{
+#ifdef Q_OS_UNIX
+    thread_id = 0;
+#endif
+}
+
+/*
+    Sets the eventloop for the specified thread.
+*/
+static QEventLoop *globalEventLoop = 0;
+void QThreadPrivate::setEventLoop(QThread *thread, QEventLoop *eventLoop)
+{
+    if (!thread) {
+        if (eventLoop)
+            Q_ASSERT_X(!globalEventLoop, "QEventLoop",
+                       "Cannot have more than one event loop per application");
+        globalEventLoop = eventLoop;
+        return;
+    }
+    if (eventLoop)
+        Q_ASSERT_X(!thread->d->eventloop, "QEventLoop",
+                   "Cannot have more than one event loop per thread");
+    thread->d->eventloop = eventLoop;
+}
+
+/*
+    Returns the eventloop for the specified thread.
+*/
+QEventLoop *QThreadPrivate::eventLoop(QThread *thread)
+{
+    if (thread)
+        return thread->d->eventloop;
+    return globalEventLoop;
+}
+
+/*
+    Returns the eventloop for the specified thread.
+*/
+Q_GLOBAL_STATIC(QPostEventList, globalPostEventList)
+QPostEventList *QThreadPrivate::postEventList(QThread *thread)
+{
+    if (thread)
+        return &thread->d->postedEvents;
+    static QStaticSpinLock spinlock = 0;
+    QSpinLockLocker locker(spinlock);
+    return globalPostEventList();
+}
+
+/*
+   Returns the tls for the specified thread.
+*/
+void **&QThreadPrivate::threadLocalStorage(QThread *thread)
+{
+    if (!thread) {
+        static void **globalTLS = 0;
+        return globalTLS;
+    }
+    return thread->d->tls;
+}
 
 
 
@@ -70,19 +148,19 @@
 */
 
 /*!
-    \fn void QThread::started();
+    \fn void QThread::started()
 
     This signal is emitted when the thread starts executing.
 */
 
 /*!
-    \fn void QThread::finished();
+    \fn void QThread::finished()
 
     This signal is emitted when the thread has finished executing.
 */
 
 /*!
-    \fn void QThread::terminated();
+    \fn void QThread::terminated()
 
     This signal is emitted when the thread is terminated.
 */
@@ -114,20 +192,10 @@
 /*!
     Constructs a new thread. The thread does not begin executing until
     start() is called.
-
-    If \a stackSize is greater than zero, the maximum stack size is
-    set to \a stackSize bytes, otherwise the maximum stack size is
-    automatically determined by the operating system.
-
-    \warning Most operating systems place minimum and maximum limits
-    on thread stack sizes. The thread will fail to start if the stack
-    size is outside these limits.
 */
-QThread::QThread(unsigned int stackSize)
-{
-    d = new QThreadInstance;
-    d->init(stackSize);
-}
+QThread::QThread()
+    : QObject(*(new QThreadPrivate), 0)
+{ }
 
 /*!
     QThread destructor.
@@ -140,37 +208,8 @@ QThread::QThread(unsigned int stackSize)
 QThread::~QThread()
 {
     QMutexLocker locker(d->mutex());
-    if (d->running && !d->finished) {
+    if (d->running && !d->finished)
         qWarning("QThread object destroyed while thread is still running.");
-        d->orphan = true;
-        return;
-    }
-
-    d->deinit();
-    delete d;
-}
-
-/*!
-    This function terminates the execution of the thread. The thread
-    may or may not be terminated immediately, depending on the
-    operating systems scheduling policies. Use QThread::wait()
-    after terminate() for synchronous termination.
-
-    When the thread is terminated, all threads waiting for the thread
-    to finish will be woken up.
-
-    \warning This function is dangerous, and its use is discouraged.
-    The thread can be terminate at any point in its code path.  Threads
-    can be terminated while modifying data.  There is no chance for
-    the thread to cleanup after itself, unlock any held mutexes, etc.
-    In short, use this function only if \e absolutely necessary.
-*/
-void QThread::terminate()
-{
-    QMutexLocker locker(d->mutex());
-    if (d->finished || !d->running)
-        return;
-    d->terminate();
 }
 
 /*!
@@ -189,6 +228,34 @@ bool QThread::isRunning() const
 {
     QMutexLocker locker(d->mutex());
     return d->running;
+}
+
+/*!
+    Set the maximum stack size for the thread to \a stackSize. If \a
+    stackSize is greater than zero, the maximum stack size is set to
+    \a stackSize bytes, otherwise the maximum stack size is
+    automatically determined by the operating system.
+
+    \warning Most operating systems place minimum and maximum limits
+    on thread stack sizes. The thread will fail to start if the stack
+    size is outside these limits.
+*/
+void QThread::setStackSize(uint stackSize)
+{
+    QMutexLocker locker(d->mutex());
+    Q_ASSERT_X(!d->running, "QThread::setStackSize",
+               "cannot change stack size while the thread is running");
+    d->stackSize = stackSize;
+}
+
+/*!
+    Returns the maximum stack size for the thread (if set with
+    setStackSize()); otherwise returns zero.
+*/
+uint QThread::stackSize() const
+{
+    QMutexLocker locker(d->mutex());
+    return d->stackSize;
 }
 
 /*!

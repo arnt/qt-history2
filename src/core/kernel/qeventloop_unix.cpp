@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include "qsocketnotifier.h"
+#include <qthread.h>
 #define d d_func()
 #define q q_func()
 
@@ -167,6 +168,9 @@ bool QEventLoopPrivate::timerWait(timeval &tm)
 */
 int QEventLoop::registerTimer(int interval, QObject *obj)
 {
+    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentQThread(),
+               "QEventLoop::registerTimer", "timers cannot be started from another thread");
+
     if (!d->timerList) {                                // initialize timer data
         d->timerBitVec = new QBitArray(128);
         int i = d->timerBitVec->size();
@@ -233,6 +237,9 @@ bool QEventLoop::unregisterTimer(int id)
 */
 bool QEventLoop::unregisterTimers(QObject *obj)
 {
+    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentQThread(),
+               "QEventLoop::unregisterTimers", "timers cannot be stopped from another thread");
+
     if (!d->timerList)                                // not initialized
         return false;
 
@@ -271,8 +278,11 @@ QSockNotType::~QSockNotType()
 /*****************************************************************************
  QEventLoop implementations for UNIX
  *****************************************************************************/
+
 void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 {
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+
     int sockfd = notifier->socket();
     int type = notifier->type();
     if (sockfd < 0 || sockfd >= FD_SETSIZE || type < 0 || type > 2 || notifier == 0) {
@@ -308,6 +318,8 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 
 void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+
     int sockfd = notifier->socket();
     int type = notifier->type();
     if (sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
@@ -345,6 +357,8 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
 {
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+
     int sockfd = notifier->socket();
     int type = notifier->type();
     if (sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
@@ -410,6 +424,8 @@ int QEventLoop::timeToWait() const
 
 int QEventLoop::activateTimers()
 {
+    Q_ASSERT(thread() == QThread::currentQThread());
+
     if (qt_disable_lowpriority_timers || !d->timerList || d->timerList->isEmpty())
         return 0; // nothing to do
 
