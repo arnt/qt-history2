@@ -2311,7 +2311,11 @@ double QVariant::toDouble( bool * ok ) const
     case LongLong:
 	return (double)d->value.ll;
     case ULongLong:
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+	return (double)(Q_LLONG)d->value.ull;
+#else
 	return (double)d->value.ull;
+#endif
     default:
 	return 0.0;
     }
