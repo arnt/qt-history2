@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#42 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#42 $";
 #endif
 
 
@@ -767,6 +767,57 @@ Here are the main features of Qt:
   independently of the GUI classes.
 
   */
+
+/* \page faq.html
+
+<title>Qt toolkit - FAQ</title>
+</head><body>
+<h1>
+Frequently Asked Questions
+</h1>
+
+Here is this week's top ten Qt questions:
+<ol>
+<li>Q: Does there exist a FAQ for Qt? <p>
+    A: This shouldn't be a FAQ any more, so naturally this answer won't be
+       in the next version of the FAQ.
+<li>Q: Will Qt continue to be free? <p>
+    A: We will continue to release binary versions for linux, and they will
+       be free for non-commercial purposes.  The source, and other versions
+       and linux, will not be free. <p>
+       The commercial versions of Qt will include the source code.
+<li>Q: What other versions of Qt exist/are planned? <p>
+    A: We're working on versions for several other version of Unix, Windows
+       and OS/2.  The other versions are not as complete as the linux version
+       yet.
+<li>Q: When will v1.0 be released? <p>
+    A: We plan to release 1.0 for linux on November 1st.  Other
+       platforms will follow.
+<li>Q: Will v1.0 include... <p>
+    A: v1.0 will not include resources or an interactive GUI designer.  It
+       will include postscript output, geometry management and much more
+       documentation.
+<li>Q: Who is Troll Tech and what are your future plans? <p>
+    A: Troll Tech consists of three talented, hard-working programmers who
+       work day and night to finish Qt, and enjoy it.  We started the
+       company about a year ago, but parts of Qt were written for earlier
+       projects.  The first line of code was written in 1992. <p>
+       Most of our income comes from a contract with a beta customer;
+       we develop code based on Qt for the Norwegian division of a small
+       American company called AT&T.
+<li>Q: Can I use Qt's classes without writing a graphical user interface? <p>
+    A: Quite a few of the classes can be used independently of the user
+       interface.  See <a href=tools.html>utility classes,</a>  There are
+       also a few classes that will work without the GUI only by chance.
+<li>Q: I have (linker, compiler) errors. <p>
+    A: gcc 2.5.8 will not work with Qt.  You need libc 4.6.27 at the
+       very least, 4.7 is recommended.  We use gcc 2.6.2, 2.6.3 and
+       2.7.0; all work.  Linker problems are probably due to a too-old
+       version of binutils, but we don't know exactly which version is
+       the oldest working.
+</ol>
+
+*/
 
 /*! \example wheel.cpp
 
