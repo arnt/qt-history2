@@ -1924,36 +1924,6 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_ProgressBarLabel:
     case QStyle::CE_ProgressBarGroove:
         break;
-    case QStyle::CE_HeaderLabel:
-        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            QRect textr = header->rect;
-            if (!header->icon.isNull()) {
-                QIconSet::Mode mode = QIconSet::Disabled;
-                if (opt->state & QStyle::Style_Enabled)
-                    mode = QIconSet::Normal;
-                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
-
-                QRect pixr = header->rect;
-                pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                q->drawItem(p, pixr, Qt::AlignVCenter, header->palette,
-                            mode != QIconSet::Disabled
-                            || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
-                textr.moveBy(pixmap.width() + 2, 0);
-            }
-
-	    QColor penColor = header->palette.buttonText().color();
-            if (p->font().bold()) {
-                // If it's a table, use the bright text instead.
-                if (!(w && (qt_cast<QTreeView *>(w->parentWidget())
-#ifdef QT_COMPAT
-                            || w->parentWidget()->inherits("Q3ListView"))))
-#endif
-                    penColor = header->palette.color(QPalette::BrightText);
-            }
-            q->drawItem(p, textr, Qt::AlignVCenter, header->palette,
-                        header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
-        }
-        break;
     case QStyle::CE_ToolBoxTab:
         q->QCommonStyle::drawControl(ce, opt, p, w);
         break;
@@ -3552,37 +3522,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             DrawThemeTrack(&tdi, 0, 0, 0);
         }
         break;
-    case QStyle::CE_HeaderLabel:
-        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            QRect textr = header->rect;
-            if (!header->icon.isNull()) {
-                QIconSet::Mode mode = QIconSet::Disabled;
-                if (opt->state & QStyle::Style_Enabled)
-                    mode = QIconSet::Normal;
-                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
-
-                QRect pixr = header->rect;
-                pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                q->drawItem(p, pixr, Qt::AlignVCenter, header->palette,
-                         mode != QIconSet::Disabled
-                         || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
-                textr.moveBy(pixmap.width() + 2, 0);
-            }
-
-            // change the color to bright text if we are a table header and selected.
-	    QColor penColor;
-            if (widget && p->font().bold() && (qt_cast<QTreeView *>(widget->parentWidget())
-#ifdef QT_COMPAT
-			|| widget->parentWidget()->inherits("Q3ListView")
-#endif
-		))
-		penColor = header->palette.buttonText().color();
-	    else
-                penColor = header->palette.color(QPalette::BrightText);
-            q->drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & QStyle::Style_Enabled,
-                     header->text, -1, &penColor);
-        }
-        break;
     case QStyle::CE_ToolBoxTab:
         q->QCommonStyle::drawControl(ce, opt, p, widget);
         break;
@@ -4964,10 +4903,44 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p,
                             const QWidget *w) const
 {
-    if (d->useHITheme)
-	d->HIThemeDrawControl(ce, opt, p, w);
-    else
-	d->AppManDrawControl(ce, opt, p, w);
+    switch (ce) {
+    case CE_HeaderLabel:
+        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
+            QRect textr = header->rect;
+            if (!header->icon.isNull()) {
+                QIconSet::Mode mode = QIconSet::Disabled;
+                if (opt->state & QStyle::Style_Enabled)
+                    mode = QIconSet::Normal;
+                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
+
+                QRect pixr = header->rect;
+                pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
+                drawItem(p, pixr, Qt::AlignVCenter, header->palette,
+                         mode != QIconSet::Disabled
+                                || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
+                textr.moveBy(pixmap.width() + 2, 0);
+            }
+
+	    QColor penColor = header->palette.buttonText().color();
+            if (p->font().bold()) {
+                // If it's a table, use the bright text instead.
+                if (!(w && (qt_cast<QTreeView *>(w->parentWidget())
+#ifdef QT_COMPAT
+                            || w->parentWidget()->inherits("Q3ListView"))))
+#endif
+                    penColor = header->palette.color(QPalette::BrightText);
+            }
+            drawItem(p, textr, Qt::AlignVCenter, header->palette,
+                     header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
+        }
+        break;
+    default:
+        if (d->useHITheme)
+            d->HIThemeDrawControl(ce, opt, p, w);
+        else
+            d->AppManDrawControl(ce, opt, p, w);
+        break;
+    }
 }
 
 /*! \reimp */
