@@ -1230,13 +1230,13 @@ bool qt_xdnd_handle_badwindow()
     \class QDragMoveEvent qevent.h
     \ingroup events
     \ingroup draganddrop
-    \brief The QDragMoveEvent class provides an event which is sent while a drag and drop is in progress.
+    \brief The QDragMoveEvent class provides an event which is sent while a drag and drop action is in progress.
 
     When a widget \link QWidget::setAcceptDrops() accepts drop
-    events\endlink, it will receive this event repeatedly while the
+    events \endlink, it will receive this event repeatedly while the
     drag is within the widget's boundaries. The widget should examine
     the event to see what data it \link QDragMoveEvent::provides()
-    provides\endlink, and accept() the drop if appropriate.
+    provides \endlink, and accept() the drop if appropriate.
 
     Note that this class inherits most of its functionality from
     QDropEvent.
@@ -1389,10 +1389,11 @@ bool qt_dnd_enable(QWidget* w, bool on)
     \ingroup events
     \ingroup draganddrop
 
-    \brief The QDropEvent class provides an event which is sent when a drag and drop is completed.
+    \brief The QDropEvent class provides an event which is sent when a
+    drag and drop action is completed.
 
     When a widget \link QWidget::setAcceptDrops() accepts drop
-    events\endlink, it will receive this event if it has accepted the
+    events \endlink, it will receive this event if it has accepted the
     most recent QDragEnterEvent or QDragMoveEvent sent to it.
 
     The widget should use data() to extract the data in an appropriate
@@ -1401,10 +1402,10 @@ bool qt_dnd_enable(QWidget* w, bool on)
 
 
 /*!
-    \fn QDropEvent::QDropEvent (const QPoint & pos, Type typ)
+    \fn QDropEvent::QDropEvent (const QPoint &point, Type type)
 
-    Constructs a drop event that drops a drop of type \a typ on point
-    \a pos.
+    Constructs a drop event of a certain \a type corresponding to
+    a drop at the given \a point in a widget.
 */ // ### pos is in which coordinate system?
 
 
@@ -1413,7 +1414,8 @@ bool qt_dnd_enable(QWidget* w, bool on)
 
     data() normally needs to get the data from the drag source, which
     is potentially very slow, so it's advisable to call this function
-    only if you're sure that you will need the data in \a format.
+    only if you're sure that you will need the data in that
+    particular \a format.
 
     The resulting data will have a size of 0 if the format was not
     available.
@@ -1430,9 +1432,9 @@ QByteArray QDropEvent::encodedData(const char *format) const
 
 /*!
     Returns a string describing one of the available data types for
-    this drag. Common examples are "text/plain" and "image/gif". If \a
-    n is less than zero or greater than the number of available data
-    types, format() returns 0.
+    this drag. Common examples are "text/plain" and "image/gif".
+    If \a n is less than zero or greater than the number of available
+    data types, format() returns 0.
 
     This function is provided mainly for debugging. Most drop targets
     will use provides().
