@@ -405,9 +405,10 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
                 painter->fillRect(rect, QBrush(painter->background().color(), Qt::Dense5Pattern));
                 return;
             } else if (styleHint(SH_EtchDisabledText)) {
+                QPen pen = painter->pen();
                 painter->setPen(pal.light().color());
                 painter->drawText(rect.adjusted(1, 1, 1, 1), alignment, text);
-                painter->setPen(pal.text().color());
+                painter->setPen(pen);
             }
         }
         painter->drawText(rect, alignment, text);
