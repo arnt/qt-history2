@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#24 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#25 $
 **
 ** Definition of QComboBox class
 **
@@ -62,6 +62,7 @@ signals:
 private slots:
     void	internalActivate( int );
     void	internalHighlight( int );
+    void	internalClickTimeout();
 
 protected:
     void	paintEvent( QPaintEvent * );
@@ -72,9 +73,9 @@ protected:
     void	keyPressEvent( QKeyEvent *e );
 
     void	popup();
-    void	popDown();
 
 private:
+    void	popDownListBox();
     void	reIndex();
     void	currentChanged();
     QRect	arrowRect() const;
