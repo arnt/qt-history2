@@ -21,6 +21,16 @@ void QDir::slashify(QString& n)
   }
 }
 
+QString QDir::homeDirPath()
+{
+    QString d;
+    d = QFile::decodeName(getenv("HOME"));
+    slashify( d );
+    if ( d.isNull() )
+	d = rootDirPath();
+    return d;
+}
+
 QString QDir::canonicalPath() const
 {
     return QString();
