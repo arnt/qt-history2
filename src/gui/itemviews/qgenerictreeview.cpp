@@ -1099,14 +1099,19 @@ int QGenericTreeView::columnSizeHint(int column) const
     return w;
 }
 
+/*
+  private implementation
+*/
+
 void QGenericTreeViewPrivate::open(int i, bool update)
 {
     QModelIndex index = items.at(i).index;
-    opened.append(index);
-    items[i].open = true;
-    if (q->model()->rowCount(index) <= 0)
+
+    if (model->hasChildren(index))
         return;
 
+    opened.append(index);
+    items[i].open = true;
     layout(i);
 
     if (update) {
@@ -1119,7 +1124,7 @@ void QGenericTreeViewPrivate::open(int i, bool update)
     // FIXME: this is slow: optimize
     QVector<QModelIndex> o = opened;
     for (int j = 0; j < o.count(); ++j) {
-        if (q->model()->parent(o.at(j)) == index) {
+        if (model->parent(o.at(j)) == index) {
             int k = opened.indexOf(o.at(j));
             opened.remove(k);
             int v = viewIndex(o.at(j));
@@ -1133,7 +1138,6 @@ void QGenericTreeViewPrivate::open(int i, bool update)
 
 void QGenericTreeViewPrivate::close(int i, bool update)
 {
-    QAbstractItemModel *model = q->model();
     int total = items.at(i).total;
     QModelIndex index = items.at(i).index;
     opened.remove(opened.indexOf(index));
@@ -1159,7 +1163,7 @@ void QGenericTreeViewPrivate::layout(int i)
 {
     QModelIndex current;
     QModelIndex parent = modelIndex(i);
-    int count = q->model()->rowCount(parent);
+    int count = model->rowCount(parent);
 
     if (i == -1)
         items.resize(count);
@@ -1169,7 +1173,7 @@ void QGenericTreeViewPrivate::layout(int i)
     int level = i >= 0 ? items.at(i).level + 1 : 0;
     int first = i + 1;
     for (int j = first; j < first + count; ++j) {
-        current = q->model()->index(j - first, 0, parent);
+        current = model->index(j - first, 0, parent);
         items[j].index = current;
         items[j].level = level;
     }
@@ -1178,7 +1182,7 @@ void QGenericTreeViewPrivate::layout(int i)
     QModelIndex root = q->root();
     while (parent != root) {
         items[k].total += count;
-        parent = q->model()->parent(parent);
+        parent = model->parent(parent);
         k = viewIndex(parent);
     }
 }
