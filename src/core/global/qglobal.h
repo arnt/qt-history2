@@ -60,7 +60,7 @@
      UNIX     - Any UNIX BSD/SYSV system
 */
 
-#if defined(__APPLE__) && defined(__GNUC__)
+#if defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__) || defined(__xlc__))
 #  define Q_OS_DARWIN
 #elif defined(__CYGWIN__)
 #  define Q_OS_CYGWIN
