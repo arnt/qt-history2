@@ -33,9 +33,12 @@ private:
 
     // Our variable dictionaries
     QMap<QString,QString> dictionary;
+    QStringList licensedModules;
     QStringList allModules;
     QStringList allSqlDrivers;
     QStringList allConfigs;
+    QStringList disabledModules;
+    QStringList enabledModules;
     QStringList modules;
     QStringList sqlDrivers;
     QStringList configCmdLine;

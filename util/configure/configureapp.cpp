@@ -65,15 +65,16 @@ void ConfigureApp::buildModulesList()
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
-    allModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
+    allModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql" );
+    licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
     
     readLicense();
     
     if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
-	allModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
+	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
     while( ( fi = listIter.current() ) ) {
-	if( allModules.findIndex( fi->fileName() ) != -1 )
+	if( licensedModules.findIndex( fi->fileName() ) != -1 )
 	    modules += fi->fileName();
 	++listIter;
     }
@@ -178,9 +179,9 @@ void ConfigureApp::parseCmdLine()
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
 	    if( (*args) == QString( "-enable-" ) + (*module) )
-		qmakeConfig += (*module);
+		enabledModules += (*module);
 	    if( (*args) == QString( "-disable-" ) + (*module) )
-		qmakeConfig.remove( (*module) );
+		disabledModules += (*module);
 	}
 	for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
 	    if( (*args) == QString( "-sql-" ) + (*sql) )
@@ -190,6 +191,11 @@ void ConfigureApp::parseCmdLine()
     }
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
 	qmakeConfig += modules;
+    else
+	qmakeConfig += enabledModules;
+
+    for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
+	qmakeConfig.remove( (*it) );
 }
 
 void ConfigureApp::validateArgs()
@@ -335,7 +341,7 @@ void ConfigureApp::generateCachefile()
 {    
     // Generate .qmake.cache
     QFile cacheFile( qtDir + "\\.qmake.cache" );
-    if( cacheFile.open( IO_WriteOnly ) ) { // Truncates any existing file.
+    if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
@@ -365,7 +371,7 @@ void ConfigureApp::generateCachefile()
 	srcConfig += "staticlib";
     
     cacheFile.setName( qtDir + "\\src\\.qmake.cache" );
-    if( cacheFile.open( IO_WriteOnly ) ) { // Truncates any existing file.
+    if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
 	for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
@@ -390,10 +396,10 @@ void ConfigureApp::generateCachefile()
 
 void ConfigureApp::generateConfigfiles()
 {
-    QString outName( qtDir + "/src/tools/qconfig.h" );
+    QString outName( qtDir + "/include/qconfig.h" );
 
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
-    QFile::remove( outName );
+//    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+//    QFile::remove( outName );
     QFile outFile( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -409,15 +415,21 @@ void ConfigureApp::generateConfigfiles()
 	    outFile.writeBlock( buffer.data(), buffer.size() );
 	    inFile.close();
 	}
+	QString activeMods = qmakeConfig.join( " " );
+	for( QStringList::Iterator mods = allModules.begin(); mods != allModules.end(); ++mods ) {
+	    int index( qmakeConfig.findIndex( (*mods) ) );
+	    if( index == -1 )
+		outStream << "#define QT_NO_" << (*mods).upper() << endl;
+	}
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 	outFile.close();
-	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+//	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
     outName = qtDir + "/src/tools/qmodules.h";
 
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
-    QFile::remove( outName );
+//    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+//    QFile::remove( outName );
     outFile.setName( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -435,7 +447,7 @@ void ConfigureApp::generateConfigfiles()
 	    outStream << "#endif" << endl;
 	}
 	outFile.close();
-	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+//	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
 
 }
