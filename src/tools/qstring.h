@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#22 $
+** $Id: //depot/qt/main/src/tools/qstring.h#23 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -220,7 +220,7 @@ QDataStream &operator>>( QDataStream &, QString & );
 //
 
 inline bool QString::truncate( uint pos )
-{ return resize(size+1); }
+{ return resize(pos+1); }
 
 inline short QString::toShort( bool *ok ) const
 { return (short)toLong(ok); }
