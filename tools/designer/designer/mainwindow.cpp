@@ -346,9 +346,9 @@ void MainWindow::setupOutputWindow()
     addToolBar( dw, Qt::DockBottom );
     oWindow = new OutputWindow( dw );
     dw->setWidget( oWindow );
-    dw->setFixedExtentHeight( 200 );
+    dw->setFixedExtentHeight( 150 );
     dw->setCaption( tr( "Output Window" ) );
-    dw->hide();
+    dw->show();
 }
 
 void MainWindow::setupHierarchyView()
@@ -2082,7 +2082,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "View/TextLabels", usesTextLabel() );
     config.writeEntry( keybase + "View/BigIcons", usesBigPixmaps() );
 
-    QString fn = QDir::homeDirPath() + "/.designerrctb2";
+    QString fn = QDir::homeDirPath() + "/.designerrctb3";
     QFile f( fn );
     f.open( IO_WriteOnly );
     QTextStream ts( &f );
@@ -2247,7 +2247,7 @@ void MainWindow::readConfig()
        things the designer does ###Sam */
     QApplication::sendPostedEvents();
 #endif
-    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb3";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
 /*###	tbSettingsRead = TRUE;*/
@@ -2372,7 +2372,7 @@ void MainWindow::readOldConfig()
 	return;
 
     QApplication::sendPostedEvents();
-    fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+    fn = QDir::homeDirPath() + "/.designerrc" + "tb3";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
