@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#66 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#67 $
 **
 ** Global type declarations and definitions
 **
@@ -16,22 +16,22 @@
 //
 // The operating system, must be one of: (_OS_x_)
 //
-//   MAC    -	Macintosh
-//   MSDOS  -	MS-DOS and Windows
-//   OS2    -	OS/2
-//   WIN32  -	Win32 (Windows 95 and Windows NT)
-//   SUN    -	SunOS
-//   SOLARIS-	Sun Solaris
-//   HPUX   -	HP-UX
-//   ULTRIX -	DEC Ultrix
-//   LINUX  -	Linux
-//   FREEBSD-	FreeBSD
-//   NETBSD -   NetBSD
-//   IRIX   -	SGI Irix
-//   OSF    -	OSF Unix
-//   BSDI   -	BSDI Unix
-//   SCO    -	SCO of some sort
-//   UNIX   -	Any UNIX bsd/sysv system
+//   MAC	- Macintosh
+//   MSDOS	- MS-DOS and Windows
+//   OS2	- OS/2
+//   WIN32	- Win32 (Windows 95 and Windows NT)
+//   SUN	- SunOS
+//   SOLARIS	- Sun Solaris
+//   HPUX	- HP-UX
+//   ULTRIX	- DEC Ultrix
+//   LINUX	- Linux
+//   FREEBSD	- FreeBSD
+//   NETBSD	- NetBSD
+//   IRIX	- SGI Irix
+//   OSF	- OSF Unix
+//   BSDI	- BSDI Unix
+//   SCO     	- SCO of some sort
+//   UNIX	- Any UNIX bsd/sysv system
 //
 
 #if defined(macintosh)
@@ -81,16 +81,16 @@
 //
 // The compiler, must be one of: (_CC_x_)
 //
-//   SYM    -	Symantec C++ for both PC and Macintosh
-//   MPW    -	MPW C++
-//   MSVC    -	Microsoft Visual C/C++
-//   BOR    -	Borland/Turbo C++
-//   GNU    -	GNU C++
-//   EDG    -	Edison Design Group C++
-//   OC	    -	CenterLine ObjectCenter C++
-//   SUN    -	Sun C++
-//   DEC    -	DEC C++
-//   HP	    -	HPUX C++
+//   SYM	- Symantec C++ for both PC and Macintosh
+//   MPW	- MPW C++
+//   MSVC	- Microsoft Visual C/C++
+//   BOR	- Borland/Turbo C++
+//   GNU	- GNU C++
+//   EDG	- Edison Design Group C++
+//   OC		- CenterLine ObjectCenter C++
+//   SUN	- Sun C++
+//   DEC	- DEC C++
+//   HP		- HPUX C++
 //
 
 #if defined(__SC__)
