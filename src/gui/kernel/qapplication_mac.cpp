@@ -525,24 +525,22 @@ static void qt_mac_event_release(EventRef &event)
 static void qt_mac_event_release(QWidget *w, EventRef &event)
 {
     if (event) {
-        if (IsEventInQueue(GetMainEventQueue(), event))  {
-            QWidget *widget = 0;
-            GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
-            if (w == widget) {
+        QWidget *widget = 0;
+        if(GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget) == noErr
+           && w == widget) {
+            if (IsEventInQueue(GetMainEventQueue(), event))  
                 RemoveEventFromQueue(GetMainEventQueue(), event);
-                qt_mac_event_release(event);
-            }
+            qt_mac_event_release(event);
         }
     }
 }
 
-static bool qt_event_remove(EventRef &event)
+static bool qt_mac_event_remove(EventRef &event)
 {
     if (event) {
-        if (IsEventInQueue(GetMainEventQueue(), event))  {
+        if (IsEventInQueue(GetMainEventQueue(), event))
             RemoveEventFromQueue(GetMainEventQueue(), event);
-            qt_mac_event_release(event);
-        }
+        qt_mac_event_release(event);
         return true;
     }
     return false;
@@ -564,7 +562,6 @@ void qt_event_request_select(QGuiEventLoop *loop) {
     SetEventParameter(request_select_pending,
                       kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
-    ReleaseEvent(request_select_pending);
 }
 static EventRef request_sockact_pending = 0;
 void qt_event_request_sockact(QGuiEventLoop *loop) {
@@ -581,7 +578,6 @@ void qt_event_request_sockact(QGuiEventLoop *loop) {
     SetEventParameter(request_sockact_pending,
                       kEventParamQGuiEventLoop, typeQGuiEventLoop, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
-    ReleaseEvent(request_sockact_pending);
 }
 
 /* sheets */
@@ -589,12 +585,11 @@ static EventRef request_showsheet_pending = 0;
 void qt_event_request_showsheet(QWidget *w)
 {
     Q_ASSERT(qt_mac_is_macsheet(w));
-    qt_event_remove(request_showsheet_pending);
+    qt_mac_event_remove(request_showsheet_pending);
     CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &request_showsheet_pending);
     SetEventParameter(request_showsheet_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue(GetMainEventQueue(), request_showsheet_pending, kEventPriorityStandard);
-    ReleaseEvent(request_showsheet_pending);
 }
 
 /* window changing. This is a hack around Apple's missing functionality, pending the toolbox
@@ -614,7 +609,6 @@ void qt_event_request_window_change()
                 kEventAttributeUserEvent, &request_window_change_pending);
     PostEventToQueue(GetMainEventQueue(), request_window_change_pending,
                      kEventPriorityHigh);
-    ReleaseEvent(request_window_change_pending);
 }
 
 
@@ -634,7 +628,6 @@ void qt_event_request_wakeup()
                 kEventAttributeUserEvent, &request_wakeup_pending);
     PostEventToQueue(GetMainEventQueue(), request_wakeup_pending,
                      kEventPriorityHigh);
-    ReleaseEvent(request_wakeup_pending);
 }
 
 /* activation */
@@ -662,7 +655,6 @@ void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
         CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
                     kEventAttributeUserEvent, &request_activate_pending.event);
         PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
-        ReleaseEvent(request_activate_pending.event);
     }
 }
 void qt_event_request_activate(QWidget *w)
@@ -713,7 +705,6 @@ void qt_event_request_menubarupdate()
     CreateEvent(0, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &request_menubarupdate_pending);
     PostEventToQueue(GetMainEventQueue(), request_menubarupdate_pending, kEventPriorityHigh);
-    ReleaseEvent(request_menubarupdate_pending);
 }
 
 //context menu
@@ -729,7 +720,6 @@ static void qt_event_request_context(QWidget *w=0, EventRef *where=0)
     if(w)
         SetEventParameter(*where, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue(GetMainEventQueue(), *where, kEventPriorityStandard);
-    ReleaseEvent(*where);
 }
 static EventRef request_context_hold_pending = 0;
 void
@@ -767,8 +757,8 @@ void qt_mac_set_dock_menu(QMenu *menu)
 void qt_mac_event_release(QWidget *w)
 {
     if (w) {
-        // cleanup show sheet pending
         qt_mac_event_release(w, request_showsheet_pending);
+        qt_mac_event_release(w, request_context_pending);
         if(w == qt_mac_dock_menu) {
             qt_mac_dock_menu = 0;
             SetApplicationDockTileMenu(0);
@@ -1602,27 +1592,27 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     ShowHide(window, true);
             }
         } else if(ekind == kEventQtRequestWindowChange) {
-            request_window_change_pending = 0;
+            qt_mac_event_release(request_window_change_pending);
             QMacWindowChangeEvent::exec();
         } else if(ekind == kEventQtRequestWakeup) {
-            request_wakeup_pending = 0;             //do nothing else, we just woke up!
+            qt_mac_event_release(request_wakeup_pending);             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {
-            request_menubarupdate_pending = 0;
+            qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventQtRequestSelect) {
-            request_select_pending = 0;
+            qt_mac_event_release(request_select_pending);
             QGuiEventLoop *l = 0;
             GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, 0, sizeof(l), 0, &l);
             timeval tm;
             memset(&tm, '\0', sizeof(tm));
             l->d->eventloopSelect(QEventLoop::AllEvents, &tm);
         } else if(ekind == kEventQtRequestSocketAct) {
-            request_sockact_pending = 0;
+            qt_mac_event_release(request_sockact_pending);
             QGuiEventLoop *l = 0;
             GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, 0, sizeof(l), 0, &l);
             l->activateSocketNotifiers();
         } else if(ekind == kEventQtRequestActivate) {
-            request_activate_pending.event = 0;
+            qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
                 QWidget *w = request_activate_pending.widget;
                 request_activate_pending.widget = 0;
@@ -1631,9 +1621,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestContext) {
             bool send = false;
             if((send = (event == request_context_hold_pending)))
-                request_context_hold_pending = 0;
+                qt_mac_event_release(request_context_hold_pending);
             else if((send = (event == request_context_pending)))
-                request_context_pending = 0;
+                qt_mac_event_release(request_context_pending);
             if(send) {
                 //figure out which widget to send it to
                 QPoint where = QCursor::pos();
@@ -2504,11 +2494,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             RemoveEventLoopTimer(mac_context_timer);
             mac_context_timer = 0;
         }
-        if(request_context_hold_pending) {
-            RemoveEventFromQueue(GetMainEventQueue(), request_context_hold_pending);
-            ReleaseEvent(request_context_hold_pending);
-            request_context_hold_pending = 0;
-        }
+        if(request_context_hold_pending) 
+            qt_mac_event_remove(request_context_hold_pending);
     }
 
 #ifdef DEBUG_EVENTS
