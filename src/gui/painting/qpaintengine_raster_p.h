@@ -32,10 +32,6 @@
 #include <private/qdatabuffer_p.h>
 #include <private/qdrawhelper_p.h>
 
-#ifdef Q_WS_X11
-#include <X11/Xlib.h>
-#endif
-
 class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
 class QRasterBuffer;
@@ -169,8 +165,7 @@ public:
 
     HDC hdc() const { return m_hdc; }
 #elif defined(Q_WS_X11)
-    QRasterBuffer() : m_ximg(0), m_width(0), m_height(0), m_buffer(0) { init(); }
-    XImage *m_ximg;
+    QRasterBuffer() : m_width(0), m_height(0), m_buffer(0) { init(); }
 #elif defined(Q_WS_MAC)
     QRasterBuffer() : m_data(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 # if defined(QMAC_NO_COREGRAPHICS)

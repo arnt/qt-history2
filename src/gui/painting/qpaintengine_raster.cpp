@@ -610,6 +610,8 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
         HIViewDrawCGImage(hd, &rect, d->rasterBuffer->m_data); //top left
     }
 #endif
+#else
+    Q_UNUSED(d);
 #endif
 }
 
@@ -1474,22 +1476,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
-    if (m_ximg) {
-	m_ximg->data = 0;
-	XDestroyImage(m_ximg);
-    }
-
-    m_buffer = new ARGB[width*height];
-    m_ximg = XCreateImage(QX11Info::display(),
-			(Visual *) QX11Info::appVisual(),
-			QX11Info::appDepth(),
-			ZPixmap,
-			0,
-			(char *) m_buffer,
-			width,
-			height,
-			32,
-			width * (32/8));
+    g = new ARGB[width*height];
     memset(m_buffer, 255, width*height*sizeof(ARGB));
 }
 #elif defined(Q_WS_MAC)
@@ -1907,6 +1894,8 @@ void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
             ++spans;
         }
         break;
+    case Qt::NoClip:
+        break;
     }
 
     fflush(stdout);
@@ -2023,10 +2012,10 @@ void GradientData::initColorTable()
                      / (stopPoints[current_stop+1] - stopPoints[current_stop]);
         qreal idist = 1 - dist;
 
-        colorTable[pos] = ARGB(current_color.a * idist + next_color.a * dist,
-                               current_color.r * idist + next_color.r * dist,
-                               current_color.g * idist + next_color.g * dist,
-                               current_color.b * idist + next_color.b * dist);
+        colorTable[pos] = ARGB(uchar(current_color.a * idist + next_color.a * dist),
+                               uchar(current_color.r * idist + next_color.r * dist),
+                               uchar(current_color.g * idist + next_color.g * dist),
+                               uchar(current_color.b * idist + next_color.b * dist));
 
         ++pos;
         dpos += incr;
