@@ -322,28 +322,10 @@ public:
                                           int numPackets);
 #endif
     void        repolishStyle(QStyle &style) { setStyle(&style); }
-    void        reparentWorkaround();
     void eraseWindowBackground(HDC);
     inline void showChildren(bool spontaneous) { QWidget::showChildren(spontaneous); }
     inline void hideChildren(bool spontaneous) { QWidget::hideChildren(spontaneous); }
 };
-
-void QETWidget::reparentWorkaround()
-{
-    QWidget::wmapper()->remove(data->winid);
-    clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_ForceHide);
-    data->winid = 0;
-    QRect geom = geometry();
-    create(0, false, false);
-    setGeometry(geom);
-    QWidget *p = parentWidget();
-    while (p) {
-        if (!p->isVisible())
-            return;
-        p = p->parentWidget();
-    }
-    show();
-}
 
 static void qt_show_system_menu(QWidget* tlw)
 {
@@ -1683,10 +1665,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 QApplication::sendEvent(widget, &leave);
                 curWin = 0;
             }
-            // We are blown away when our parent reparents, so we have to
-            // recreate the handle
-            if (widget->testWState(Qt::WState_Created))
-                ((QETWidget*)widget)->reparentWorkaround();
             if (widget == popupButtonFocus)
                 popupButtonFocus = 0;
             result = false;
