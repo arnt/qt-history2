@@ -115,11 +115,13 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
         }
         int i;
         for (i = 0; i < rec.count(); ++i) {
-            if (rec.isGenerated(i))
+            if (rec.isGenerated(i) && rec.value(i).type() != QCoreVariant::Invalid)
                 editQuery.addBindValue(rec.value(i));
         }
-        for (i = 0; i < whereValues.count(); ++i)
-            editQuery.addBindValue(whereValues.value(i));
+        for (i = 0; i < whereValues.count(); ++i) {
+            if (whereValues.isGenerated(i))
+                editQuery.addBindValue(whereValues.value(i));
+        }
 
         if (!editQuery.exec()) {
             error = editQuery.lastError();
@@ -131,7 +133,7 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
             return false;
         }
     }
-    qDebug("executed: %s (%d)", stmt.ascii(), editQuery.numRowsAffected());
+    //qDebug("executed: %s (%d)", stmt.ascii(), editQuery.numRowsAffected());
     return true;
 }
 
