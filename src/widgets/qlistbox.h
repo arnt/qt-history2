@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#46 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#47 $
 **
 ** Definition of QListBox widget class
 **
@@ -149,9 +149,16 @@ public:
 
     long	maxItemWidth();
 
+    void	setMultiSelection( bool );
+    bool	isMultiSelection() const { return multiSelect; }
+
+    void	setSelected( int, bool );
+    bool	isSelected( int ) const;
+
 signals:
     void	highlighted( int index );
     void	selected( int index );
+    void	selected( int index, bool );
     void	highlighted( const char * );
     void	selected( const char * );
 
@@ -177,6 +184,8 @@ protected:
     void	updateItem( int index, bool clear = TRUE );
     void	clearList();
     void	updateCellWidth();
+
+    void	toggleCurrentItem();
 
 private:
     void	updateNumRows( bool );

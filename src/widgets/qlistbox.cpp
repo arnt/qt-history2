@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#106 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#106 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -404,6 +404,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     current	  = -1;
     isTiming	  = FALSE;
     stringsOnly	  = TRUE;
+    multiSelect   = FALSE;
     goingDown	  = FALSE;
     itemList	  = new QLBItemList;
     CHECK_PTR( itemList );
@@ -1198,7 +1199,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	return;
 
     QColorGroup g = colorGroup();
-    if ( current == row ) {
+    if ( isSelected( row ) ) {
 	QColor	 fc;				// fill color
 	if ( style() == WindowsStyle )
 	    fc = darkBlue;			// !!!hardcoded
@@ -1239,9 +1240,11 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     int itemClicked = findItem( e->pos().y() );
     if ( itemClicked != -1 ) {
 	setCurrentItem( itemClicked );
+	toggleCurrentItem();
     } else if ( contentsRect().contains( e->pos() ) &&
 		lastRowVisible() >= (int) count() ) {
 	setCurrentItem( count()-1 );
+	toggleCurrentItem();
     }
 }
 
@@ -1291,6 +1294,13 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		killTimer( itemList->timerId );
 		isTiming = FALSE;
 	    }
+	    if ( multiSelect ) {
+		int i = QMIN( itemClicked, currentItem() );
+		while( i <= itemClicked || i <= currentItem() ) {
+		    setSelected( i, isSelected( currentItem() ) );
+		    i++;
+		}
+	    }
 	    setCurrentItem( itemClicked );	// already current -> return
 	    return;
 	} else {
@@ -1335,6 +1345,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( currentItem() - 1 );
 	    if ( currentItem() < topItem()	)
 		setTopItem( currentItem() );
+	    if ( e->state() & ShiftButton )
+		toggleCurrentItem();
 	}
 	break;
     case Key_Down:
@@ -1342,6 +1354,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( currentItem() + 1 );
 	    if ( currentItem() > lastRowVisible() )
 		setTopItem( topItem() + currentItem() - lastRowVisible() );
+	    if ( e->state() & ShiftButton )
+		toggleCurrentItem();
 	}
 	break;
     case Key_Next:
@@ -1367,6 +1381,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setTopItem( QMAX(0,currentItem()-pageSize+1) );
 	    setCurrentItem( topItem() );
 	}
+	break;
+
+    case Key_Space:
+	toggleCurrentItem();
 	break;
 
     case Key_Return:
@@ -1629,4 +1647,87 @@ void QListBox::setMaxItemWidth( int len )
     qlb_maxLenDict->remove( (long)this );
     if ( len )
 	qlb_maxLenDict->insert( (long)this, (int*)len );
+}
+
+
+
+/*! \fn bool QListBox::isMultiSelection() const
+
+  Returns TRUE if the listbox is in multi-selection mode, and FALSE if
+  it is in single-selection mode.
+
+  \sa setMultiSelection()
+*/
+
+/*!  Sets the list box to multi-selection mode if \a enable is TRUE,
+  and to single-selection mode if \a enable is FALSE.
+
+  Single- and multi-selections modes work the same, except that the
+  highlighed() and selected() signals are emitted at different times,
+  and that the setSelected() and isSelected() functions are available
+  only in multi-selection mode.
+*/
+
+void QListBox::setMultiSelection( bool enable )
+{
+    if ( enable != multiSelect ) {
+	multiSelect = enable;
+	update();
+    }
+}
+
+
+/*!  Toggles the selection status of currentItem() and repaints, if
+  the listbox is a multi-selection listbox.
+
+  Does nothing if the listbox is a single-selection listbox.
+*/
+
+void QListBox::toggleCurrentItem()
+{
+    if ( !multiSelect || currentItem() < 0 )
+	return;
+
+    QListBoxItem * i = item( currentItem() );
+    if ( !i )
+	return;
+
+    i->selected = !i->selected;
+    updateItem( currentItem() );
+    emit selected( currentItem(), i->selected );
+}
+
+
+/*!  Sets the selection status of item \a i \a s, if the listbox is a
+  multi-selection listbox.  May also repaint.
+
+  Does nothing if the listbox is a single-selection listbox.
+*/
+
+void QListBox::setSelected( int i , bool s )
+{
+    if ( !multiSelect || currentItem() < 0 )
+	return;
+
+    QListBoxItem * lbi = item( i );
+    if ( !lbi || lbi->selected == s )
+	return;
+
+    lbi->selected = s;
+    updateItem( i );
+    emit selected( currentItem(), s );
+}
+
+
+/*!  Returns TRUE if item \a i is selected, FALSE if it is not or
+  there is an error.
+*/
+
+bool QListBox::isSelected( int i ) const
+{
+    if ( !multiSelect )
+	return i == current;
+
+    QListBoxItem * lbi = item( i );
+    return lbi ? lbi->selected : FALSE;
 }
