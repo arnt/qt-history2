@@ -70,10 +70,10 @@ public:
     virtual ~QObject();
 
 #ifdef Q_QDOC
-    const char *className() const;
-    QString tr( const char *, const char * ) const;
-    QString trUtf8( const char *, const char * ) const;
-    QMetaObject *metaObject() const;
+    virtual const char *className() const;
+    static QString tr( const char *, const char * ) const;
+    static QString trUtf8( const char *, const char * ) const;
+    virtual QMetaObject *metaObject() const;
 #endif
 
     virtual bool event( QEvent * );
