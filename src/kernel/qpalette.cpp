@@ -128,6 +128,7 @@
   \value Mid  between \c Button and \c Dark.
 
   \value Shadow  a very dark color.
+  By default, the shadow color is Qt::black.
 
   All of these are normally derived from \c Background and used
   in ways that depend on that relationship.  For example, buttons
@@ -137,8 +138,10 @@
   Selected (marked) items have two roles:
 
   \value Highlight   a color to indicate a selected or highlighted item.
+  By default, the highlight color is Qt::darkBlue.
 
   \value HighlightedText  a text color that contrasts with \c Highlight.
+  By default, the highlighted text color is Qt::white.
 
   Finally, there is a special role for text that needs to be
   drawn where \c Text or \c Foreground would give poor contrast,
@@ -148,8 +151,10 @@
   Foreground and contrasts well with e.g. \c Dark.
 
   \value Link a text color used for unvisited hyperlinks.
+  By default, the link color is Qt::blue.
 
   \value LinkVisited a text color used for already visited hyperlinks.
+  By default, the linkvisited color is Qt::magenta.
 
   \value NColorRoles Internal.
 
