@@ -699,7 +699,7 @@ QDateTime QSettingsPrivate::modificationTime()
     return datetime;
 }
 
-static bool verifyKey( const QString &key )
+bool qt_verify_key( const QString &key )
 {
     if ( key.isEmpty() || key[0] != '/' || key.contains( QRegExp("[=\\\\r\\\\n" ) ) )
 	return FALSE;
@@ -815,8 +815,12 @@ void QSettings::insertSearchPath( System s, const QString &path)
     if ( s == Windows )
 	return;
 #endif
+#if !defined(Q_WS_WIN)
+    if ( s == Mac )
+	return;
+#endif
 
-    if ( !verifyKey( path ) ) {
+    if ( !qt_verify_key( path ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
 #endif
@@ -856,7 +860,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 */
 void QSettings::removeSearchPath( System s, const QString &path)
 {
-    if ( !verifyKey( path ) ) {
+    if ( !qt_verify_key( path ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
 #endif
@@ -1086,7 +1090,7 @@ bool QSettings::sync()
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readBoolEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1137,7 +1141,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 */
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readDoubleEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1182,7 +1186,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 */
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readNumEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1226,7 +1230,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::readEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1304,7 +1308,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 */
 bool QSettings::writeEntry(const QString &key, bool value)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1334,7 +1338,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
 */
 bool QSettings::writeEntry(const QString &key, double value)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1363,7 +1367,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 */
 bool QSettings::writeEntry(const QString &key, int value)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1397,7 +1401,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 */
 bool QSettings::writeEntry(const QString &key, const char *value)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1422,7 +1426,7 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1483,7 +1487,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 */
 bool QSettings::removeEntry(const QString &key)
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::removeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1562,7 +1566,7 @@ bool QSettings::removeEntry(const QString &key)
 */
 QStringList QSettings::entryList(const QString &key) const
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::entryList: Invalid key: %s", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1659,7 +1663,7 @@ QStringList QSettings::entryList(const QString &key) const
 */
 QStringList QSettings::subkeyList(const QString &key) const
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::subkeyList: Invalid key: %s", key.isNull() ? "(null)" : key.latin1() );
 #endif
@@ -1753,7 +1757,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 */
 QDateTime QSettings::lastModificationTime( const QString &key )
 {
-    if ( !verifyKey( key ) ) {
+    if ( !qt_verify_key( key ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::lastModificationTime: Invalid key '%s'", key.isNull() ? "(null)" : key.latin1() );
 #endif

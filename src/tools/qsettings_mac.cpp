@@ -49,6 +49,7 @@
 
 static QString *qt_mac_settings_base = NULL;
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
+bool qt_verify_key(const QString &); //qsettings.cpp
 
 /*****************************************************************************
   QSettings utility functions
@@ -285,6 +286,14 @@ void QSettingsPrivate::sysInsertSearchPath(QSettings::System s, const QString &p
 {
     if(s != QSettings::Mac)
 	return;
+    if ( !qt_verify_key( path ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
+#endif
+	return;
+    }
+
+
     QString realpath = path;
     while(realpath.right(1) == "/")
 	realpath.truncate(realpath.length() -1);
