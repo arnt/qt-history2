@@ -101,6 +101,7 @@ public:
     QTimer *inputTimer;
 
     QListBoxItem *pressedItem;
+    bool select;
 };
 
 
@@ -674,7 +675,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->resizeTimer = new QTimer( this, "listbox resize timer" );
     d->clearing = FALSE;
     d->pressedItem = 0;
-
+    d->select = FALSE;
+    
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -1534,6 +1536,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     if ( !i && ( e->button() == RightButton || isMultiSelection() ) )
 	clearSelection();
 
+    d->select = isMultiSelection() ? ( i ? !i->selected() : FALSE ) : TRUE;
+
     switch( selectionMode() ) {
     default:
     case Single:
@@ -1744,6 +1748,10 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     }
     d->mouseMoveRow = rowAt( y + contentsY() );
 
+    if ( d->mouseMoveRow == d->mousePressRow &&
+	 d->mouseMoveColumn == d->mousePressColumn )
+	return;
+    
     if ( d->mousePressRow < 0 && d->mouseMoveRow >= 0 )
 	d->mousePressRow = d->mouseMoveRow;
     if ( d->mousePressRow < 0 && d->currentRow >= 0 )
@@ -1775,7 +1783,7 @@ void QListBox::updateSelection()
 	 d->mousePressColumn >= 0 && d->mousePressRow >= 0 ) {
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
-	if ( selectionMode() == Single ) {
+	if ( selectionMode() == Single || selectionMode() == NoSelection ) {
 	    if ( i ) {
 		setCurrentItem( i );
 		setSelected( i, TRUE );
@@ -1788,7 +1796,7 @@ void QListBox::updateSelection()
 	    while( c <= c2 ) {
 		QListBoxItem * i = item( c*numRows()+r );
 		while( i && r <= r2 ) {
-		    setSelected( i, d->current ? d->current->s : TRUE );
+		    setSelected( i, d->select );
 		    i = i->n;
 		    r++;
 		}
