@@ -3142,19 +3142,18 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
 #ifndef QT_NO_PLUGIN
 /*!
-  Returns an interface that matches the \a request, or null if this application 
-  doesn't provide the requested interface.
+  Returns the application interface, or null if this application doesn't provide 
+  an interface. There can only be one interface, and it will be deleted when
+  the application object is destroyed.
 
   Plugins can use this function to get access to application components using
-  the methods the interface provides. This is usually done in the connectNotify 
-  method of a subclass of QPlugInInterface where the plugin can check if required 
-  interfaces can be provided by the application object.
+  requestInterface.
 
-  The default implementation returns null for all requests.
+  The default implementation returns null.
 
-  \sa QPlugInInterface
+  \sa QComponentInterface, QPlugInInterface
 */
-QApplicationInterface* QApplication::requestApplicationInterface( const QCString& /*request*/ )
+QApplicationInterface* QApplication::requestApplicationInterface()
 {
     return 0;
 }

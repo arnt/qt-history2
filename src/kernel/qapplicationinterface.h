@@ -7,11 +7,21 @@
 #include "qvariant.h"
 #include "qobject.h"
 #endif // QT_H
+    
+class QComponentInterface;
 
 class Q_EXPORT QApplicationInterface : public QObject
 {
 public:
-    QApplicationInterface( QObject* o );
+    QApplicationInterface();
+
+    virtual QComponentInterface* requestInterface( const QCString& request ) = 0;
+};
+
+class Q_EXPORT QComponentInterface : public QApplicationInterface
+{
+public:
+    QComponentInterface( QObject* o );
 
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );
@@ -19,9 +29,13 @@ public:
 #endif
     virtual bool requestConnect( const char* signal, QObject* target, const char* slot );
     virtual bool requestEvents( QObject* o );
-    virtual QApplicationInterface* requestInterface( const QCString& request );
+
+    QComponentInterface* requestInterface( const QCString& );
 
 protected:
+    QObject* object() { return QObject::parent(); }
+
+private:
     QObject* parent() { return QObject::parent(); }
 };
 
