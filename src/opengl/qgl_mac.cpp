@@ -261,7 +261,7 @@ void QGLContext::fixBufferRect()
 #if QT_MACOSX_VERSION >= 0x1020
 	    if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
 		aglEnable((AGLContext)cx, AGL_CLIP_REGION);
-	    aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle());
+	    aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(TRUE));
 #endif
 	}
 	if(update) {
