@@ -332,6 +332,8 @@ function initialize()
 	p4Command = System.getenv("which p4");
     if (!File.exists(p4Command))
 	p4Command = "/usr/local/bin/p4";
+    if (!File.exists(p4Command))
+	p4Command = "/usr/bin/p4";
 
 //     for (var i in options)
 // 	print("options[%1] = %2".arg(i).arg(options[i]));
