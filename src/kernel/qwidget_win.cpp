@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#101 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -18,6 +18,7 @@
 #include "qobjcoll.h"
 #include "qaccel.h"
 #include "qimage.h"
+#include "qfocusdata.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -27,7 +28,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#101 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -366,6 +367,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {
 	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
 	QApplication::postEvent( parent, e );
+    } else {
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
+ 	    fd->focusWidgets.append( this );
     }
 }
 
