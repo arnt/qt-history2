@@ -33,9 +33,9 @@ The following options can be specified on the command line to \e qmake:
 
 \list
 \i \c -o file \BR
-	\e qmake output will be directed to \e file. If this argument
-	is not specified then qmake will try to guess a suitable name, if '-' is
-	specified output is directed to stdout. 
+	\e qmake output will be directed to \e file. if this argument
+	is not specified, then \e qmake will try to guess a suitable name.  If '-' is
+	specified, output is directed to stdout. 
 \i \c -unix \BR
 	\e qmake will run in unix mode.  In this mode, Unix file
 	naming and path conventions will be used. This is the default mode on all Unices.
@@ -51,15 +51,14 @@ The following options can be specified on the command line to \e qmake:
 \endlist
 
 
-QMake supports two different modes of operation. The first mode (and
-default) is makefile generation, in this mode qmake will take a .pro file
-and turn it into a makefile. This is the mode documented in
-this guide, however there is an additional mode in qmake to generate .pro
-files.
+\e qmake supports two different modes of operation. The first mode, which 
+is the default is makefile generation.  In this mode, \e qmake will take a .pro file
+and turn it into a makefile.  Creating makefiles is covered by this reference guide,
+there is another mode which generates .pro files.
 
 To toggle between these modes you must specify in the first argument what
-mode you want, if no mode is specified qmake will assume you want makefile
-mode, the available mode switches are:
+mode you want to use.  If no mode is specified, \e qmake will assume you want makefile
+mode.  The available modes are:
 
 \list
 \i \c -makefile \BR
@@ -71,7 +70,7 @@ mode, the available mode switches are:
 \target MakefileMode
 \section3 Makefile Mode
 
-In Makefile mode QMake will generate a makefile. Additionally you may
+In Makefile mode \e qmake will generate a makefile. Additionally you may
 supply the following arguments in this mode:
 
 \list
@@ -86,12 +85,12 @@ supply the following arguments in this mode:
 \endlist
 
 The \c files argument can be a list of one or more project files, separated
-by spaces. You may also pass qmake assignments on the commandline here and
+by spaces. You may also pass qmake assignments on the command line here and
 they will be processed before all files specified, for example:
 
 qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
 
-This will generate a Makefile from test.pro, with Unix pathnames, however
+This will generate a Makefile, from test.pro with Unix pathnames.  However
 many of these arguments aren't necessary as they are the default.  Therefore
 the line can be simplified on Unix to:
 
@@ -101,7 +100,7 @@ qmake "CONFIG+=test" test.pro
 \target ProjectfileMode
 \section3 Projectfile Mode
 
-In Projectfile mode QMake will generate a project file. Additionally you may
+In Projectfile mode \e qmake will generate a project file. Additionally, you may
 supply the following arguments in this mode:
 
 \list
@@ -110,8 +109,8 @@ supply the following arguments in this mode:
 	source code and only use the specified \c files
 \endlist
 
-The \c files argument can be a list of files or directories, if a directory
-is specified then this will be included in the DEPENDPATH variable and relevant 
+The \c files argument can be a list of files or directories.  If a directory
+is specified, then it will be included in the DEPENDPATH variable and relevant 
 code from there will be included in the generated project file, if a file is 
 given it will go into the correct variable depending on extension (i.e. .ui 
 files go into FORMS, .cpp files go into SOURCES, etc).
@@ -137,7 +136,7 @@ most frequently when creating project files.
 
  The \c CONFIG variable specifies project configuration and
 compiler options.  The values will be recognized internally by
-\e qmake and have several special meaning.  They are as follows.
+\e qmake and have special meaning.  They are as follows.
 
 These \c CONFIG values control compilation flags: 
 
@@ -147,7 +146,7 @@ These \c CONFIG values control compilation flags:
 \i debug - Compile with debug options enabled
 \i warn_on - The compiler should emit more warnings than normally, ignored if
      "warn_off" is specified
-\i warn_off - The compiler should emit no warnings except severe warnings.
+\i warn_off - The compiler should only emit severe warnings.
 \endlist
 
 These options define the application/library type:
@@ -332,7 +331,7 @@ win32:MOC_DIR = c:\myproject\tmp
 \section3 OBJECTS_DIR
 
 This variable specifies the directory where all intermediate
-object should be placed.  
+objects should be placed.  
 
 For example:
 
@@ -347,8 +346,8 @@ win32:OBJECTS__DIR = c:\myproject\tmp
 
 This is a special variable processed by \e qmake.  If the
 contents of this variable do not appear in CONFIG by the time this
-variable is assigned to then a minimal makefile will be generated that
-states what dependencies (the values assigned to REQUIRES) were
+variable is assigned, then a minimal makefile will be generated that
+states what dependencies (the values assigned to REQUIRES) are
 missing.
 
 This is mainly used in Qt's build system for building the examples.
@@ -397,7 +396,7 @@ TARGET = myapp
 SOURCES = main.cpp
 \endcode
 
-The above project file would produce an executable named 'myapp' on
+The project file above would produce an executable named 'myapp' on
 unix and 'myapp.exe' on windows.
 
 
@@ -430,7 +429,7 @@ TARGET = mylib
 
 \section3 VERSION
 
-This variable contains the version number of the library, if the
+This variable contains the version number of the library if the
 'lib' \link #TEMPLATE TEMPLATE \endlink is specified.
 
 For example:
@@ -465,7 +464,7 @@ either internal or very rarely used.
 \target DESTDIR_TARGET
 \section3 DESTDIR_TARGET
 
-This variable is set internally by \e qmake which is basically the DESTDIR variable with
+This variable is set internally by \e qmake, which is basically the DESTDIR variable with
 the TARGET variable appened at the end.  The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.
@@ -474,7 +473,7 @@ modified.
 \target DSP_TEMPLATE
 \section3 DSP_TEMPLATE
 
-This variable is set internally by \e qmake which specifies where the dsp template file for
+This variable is set internally by \e qmake, which specifies where the dsp template file for
 basing generated dsp files is stored.  The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.
@@ -856,7 +855,7 @@ and rarely needs to be modified.
 \section3 QMAKE_FAILED_REQUIREMENTS
 
 This variable contains the list of requirements that were failed to be met when
-\e qmake was ran, such as, the sql module is needed and wasn't compiled into Qt.  The 
+\e qmake was used.  For example, the sql module is needed and wasn't compiled into Qt.  The 
 value of this variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink 
 and rarely needs to be modified.
 
@@ -917,7 +916,7 @@ value of this variable is typically handled by \e qmake or
 \target QMAKE_INCDIR_QT
 \section3 QMAKE_INCDIR_QT
 
-This variable contains the location of all known header files
+This variable contains the location of all known header file
 paths to be added to INCLUDEPATH when building a Qt application. The value 
 of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
@@ -928,7 +927,7 @@ of this variable is typically handled by \e qmake or
 \target QMAKE_INCDIR_THREAD
 \section3 QMAKE_INCDIR_THREAD
 
-This variable contains the location of all known header files
+This variable contains the location of all known header file
 paths to be added to INCLUDEPATH when building a multi-threaded application. 
 The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
@@ -941,7 +940,7 @@ The value of this variable is typically handled by \e qmake or
 
 \e {This is used on Unix platforms only}
 
-This variable contains the location of X11 header files paths to be
+This variable contains the location of X11 header file paths to be
 added to INCLUDEPATH when building a X11 application.  The
 value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
@@ -1509,7 +1508,7 @@ this variable is typically handled by \e qmake or
 \section2 include( filename )
 
 This function will include the contents of \e filename into the
-current project at the point it was included.  The function succeeds
+current project at the point where was included.  The function succeeds
 if \e filename was included, otherwise it fails. You can check the
 return value of this function using a
 scope.
@@ -1527,7 +1526,7 @@ OPTIONS = standard custom
 
 \section2 exists( file )
 
-This function will test if \e file exists, if so it will succeed; otherwise it will
+This function will test if \e file exists.  If the file exists, then it will succeed; otherwise it will
 fail. 
 You can specify a regular expression in file and it will succeed if any file
 matches the regular expression specified.
@@ -1588,9 +1587,8 @@ empty (same as \c count(variable, 0)).
 \section2 system( command )
 
 This function will execute \c command in a secondary shell and will
-succeed if the command exits with a exit status of 1.You can check the
-return value of this function using a
-scope.
+succeed if the command exits with an exit status of 1.  You can check the
+return value of this function using a scope.
 
 For example:
 
@@ -1605,9 +1603,9 @@ This function will always succeed, and will display the given
 
 \section2 error( string )
 
-This function will never return.  It will display the given \e
+This function will never return a value.  It will display the given \e
 string to the user, and then exit \e qmake. This function should
-only be used for very fatal configurations
+only be used for very fatal configurations.
 
 For example:
 
@@ -1643,8 +1641,8 @@ Note: the QMAKESPEC path will automatically be added to the
 
 The cache file (mentioned above in the options) is a special file
 \e qmake will read to find settings not specified in the
-qmake.conf file, the .pro file, or the command line. If neither -path
-or -nocache are specified qmake will try to find a file called
-.qmake.cache in parent directories.  If it fails to find this file it
+\c qmake.conf file, the .pro file, or the command line. If neither \c -path
+or \c -nocache are specified, \e qmake will try to find a file called
+\c .qmake.cache in parent directories.  If it fails to find this file, it
 will silently ignore this step of processing.
 
