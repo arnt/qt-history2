@@ -1413,7 +1413,7 @@
 
     fileInfoList(), entryInfoList(), and drives() now return a QList<QFileInfo>
     and not a QPtrList<QFileInfo> *. Code using these methods will not work with
-    the {The Qt 3 Support Classes}{Qt3Support} library and will have to be
+    the \l{The Qt 3 Support Classes}{Qt3Support} library and will have to be
     adapted instead.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
