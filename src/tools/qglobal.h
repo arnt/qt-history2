@@ -28,7 +28,7 @@
 
 
 #define QT_VERSION	210
-#define QT_VERSION_STR	"2.1.0"
+#define QT_VERSION_STR	"2.1.0 (pre-release)"
 
 
 //
