@@ -2173,7 +2173,7 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
  *     encoding of the resultant bitmap -- the run-length
  *     encoding is in the form of an array of rectangles.
  */
-QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
+static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
     //Point     *Pts;		     /* the pts                 */
     //int       Count;                 /* number of pts           */
     //int	rule;			     /* winding rule */

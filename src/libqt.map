@@ -3,6 +3,9 @@
   extern "C++"
   {
 	QClipboardWatcher::*;
+	QColorLuminancePicker::*;
+	QErrorMessageTextView::*;
+	QETWidget::*;
 	QFDProgress*;
 	QFileDialogQFileListView::*;
 	QFtpDTP::*;
@@ -27,8 +30,10 @@
 	QSqlRecordShared::*;
 	QSVChildRec::*;
 	qt_xdnd_*;
+	QTipLabel::*;
 	QUnicodeTables::*;
 	QViewportWidget::*;
+	QWFlagWidget::*;
 	QWorkspaceChild::*;
 	QFontDef::*;
 	QFontStruct::*;

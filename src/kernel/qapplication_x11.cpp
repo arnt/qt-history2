@@ -3027,7 +3027,7 @@ void qPRCleanup( QWidget *widget )
     }
 }
 
-QETWidget *qPRFindWidget( Window oldwin )
+static QETWidget *qPRFindWidget( Window oldwin )
 {
     return wPRmapper ? (QETWidget*)wPRmapper->find((long)oldwin) : 0;
 }
