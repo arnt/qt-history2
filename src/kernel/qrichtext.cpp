@@ -1904,13 +1904,26 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 void QTextDocument::selectAll( int id )
 {
     removeSelection( id );
+
+    QTextDocumentSelection sel;
+    sel.swapped = FALSE;
     QTextCursor c( this );
+
     c.setParag( fParag );
     c.setIndex( 0 );
-    setSelectionStart( id, &c );
+    sel.startCursor = c;
+
     c.setParag( lParag );
     c.setIndex( lParag->length() - 1 );
-    setSelectionEnd( id, &c );
+    sel.endCursor = c;
+
+    QTextParag *p = fParag;
+    while ( p ) {
+	p->setSelection( id, 0, p->length() - 1 );
+	p = p->next();
+    }
+
+    selections.insert( id, sel );
 }
 
 bool QTextDocument::removeSelection( int id )
