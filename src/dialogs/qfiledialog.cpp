@@ -2731,6 +2731,8 @@ QFileDialog::~QFileDialog()
     d->moreFiles->clear();
     d->moreFiles->blockSignals( FALSE );
     files->blockSignals( FALSE );
+    if ( QApplication::overrideCursor() )
+	QApplication::restoreOverrideCursor();
     delete d;
     d = 0;
 }
