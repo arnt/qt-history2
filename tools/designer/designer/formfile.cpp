@@ -253,7 +253,7 @@ bool FormFile::saveAs( bool ignoreModified )
 	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
     bool saved = FALSE;
     if ( ignoreModified ) {
-	QString dir = getenv( "QTSCRIPTDIR" );
+	QString dir = getenv( "QTSCRIPT_PACKAGES" );
 	f = QFileInfo( f ).fileName();
 	f.prepend( dir + "/" );
     }

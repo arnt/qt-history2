@@ -1485,7 +1485,7 @@ void MainWindow::fileExport( QObject *o )
 	if ( !ff->saveAs( TRUE ) )
 	    return;
 	QString fn = ff->fileName();
-	QString dir = getenv( "QTSCRIPTDIR" );
+	QString dir = getenv( "QTSCRIPT_PACKAGES" );
 	currentProject->setModified( TRUE );
 	ff->setPackage( TRUE );
     }
