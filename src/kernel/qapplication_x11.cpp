@@ -1480,6 +1480,19 @@ void qt_init_internal( int *argcptr, char **argv,
 	p = strrchr( argv[0], '/' );
 	appName = p ? p + 1 : argv[0];
 
+	// Read global settings file
+#if !defined(QT_NO_XIM)
+	QString ximInputStyle = QSettings().readEntry( "/qt/XIMInputStyle", QObject::trUtf8( "On The Spot" ) );
+	if ( ximInputStyle == "On The Spot" )
+	    xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
+	else if ( ximInputStyle == "Over The Spot" )
+	    xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+	else if ( ximInputStyle == "Off The Spot" )
+	    xim_preferred_style = XIMPreeditArea | XIMStatusArea;
+	else if ( ximInputStyle == "Root" )
+	    xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+#endif // !QT_NO_XIM
+
 	// Get command line params
 
 	j = 1;

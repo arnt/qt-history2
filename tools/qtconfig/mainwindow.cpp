@@ -566,6 +566,13 @@ MainWindow::MainWindow()
     rtlExtensions->setChecked( settings.readBoolEntry( "/qt/useRtlExtensions", FALSE ) );
 
 #ifdef Q_WS_X11
+    inputStyle->setCurrentText( settings.readEntry( "/qt/XIMInputStyle", trUtf8( "On The Spot" ) ) );
+#else
+    inputStyle->hide();
+    inputStyleLabel->hide();
+#endif
+    
+#ifdef Q_WS_X11
     xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
     if ( xftcheckbox->isChecked() ) {
 	aacheckbox->setEnabled( TRUE );
@@ -650,6 +657,18 @@ void MainWindow::fileSave()
 
 	settings.writeEntry("/qt/useRtlExtensions", rtlExtensions->isChecked() );
 
+#ifdef Q_WS_X11	
+	QString style = inputStyle->currentText();
+	QString str = "On The Spot";
+	if ( style == trUtf8( "Over The Spot" ) )
+	    str = "Over The Spot";
+	else if ( style == trUtf8( "Off The Spot" ) )
+	    str = "Off The Spot";
+	else if ( style == trUtf8( "Root" ) )
+	    str = "Root";
+        settings.writeEntry( "/qt/XIMInputStyle", inputStyle->currentText() );
+#endif
+	
 	QStringList effects;
 	if (effectcheckbox->isChecked()) {
 	    effects << "general";
