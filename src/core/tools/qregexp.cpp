@@ -307,12 +307,12 @@
 
     \row \i \bold{\e {E}+}
          \i Matches one or more occurrences of \e E. This is the same
-         as \bold{\e {E}{1,MAXINT}}. For example, \bold{0+} will match
+         as \bold{\e {E}{1,}}. For example, \bold{0+} will match
          '0', '00', '000', etc.
 
     \row \i \bold{\e {E}*}
          \i Matches zero or more occurrences of \e E. This is the same
-         as \bold{\e {E}{0,MAXINT}}. The \bold{*} quantifier is often
+         as \bold{\e {E}{0,}}. The \bold{*} quantifier is often
          used by a mistake. Since it matches \e zero or more
          occurrences it will match no occurrences at all. For example
          if we want to match strings that end in whitespace and use
@@ -330,8 +330,7 @@
          the same as \bold{\e {E}{n,n}}, e.g. \bold{x{5,5}}.
 
     \row \i \bold{\e {E}{n,}}
-         \i Matches at least \e n occurrences of the expression. This
-         is the same as \bold{\e {E}{n,MAXINT}}.
+         \i Matches at least \e n occurrences of the expression.
 
     \row \i \bold{\e {E}{,m}}
          \i Matches at most \e m occurrences of the expression. This
@@ -341,9 +340,6 @@
          \i Matches at least \e n occurrences of the expression and at
          most \e m occurrences of the expression.
     \endtable
-
-    (MAXINT is implementation dependent but will not be smaller than
-    1024.)
 
     If we wish to apply a quantifier to more than just the preceding
     character we can use parentheses to group characters together in

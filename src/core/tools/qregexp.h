@@ -27,8 +27,8 @@ public:
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
 
     QRegExp();
-    QRegExp(const QString &pattern, QString::CaseSensitivity cs = QString::CaseSensitive,
-            bool wildcard = false);
+    explicit QRegExp(const QString &pattern, QString::CaseSensitivity cs = QString::CaseSensitive,
+		     bool wildcard = false);
     QRegExp(const QRegExp &rx);
     ~QRegExp();
     QRegExp &operator=(const QRegExp &rx);
