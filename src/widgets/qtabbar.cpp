@@ -221,6 +221,7 @@ struct QTabPrivate {
     QTabBarToolTip * toolTips;
     QList<QTab*> l;
     QList<QTab*> lstatic;
+    int btnWidth;
 };
 
 #ifndef QT_NO_TOOLTIP
@@ -329,6 +330,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->rightB = new QToolButton( RightArrow, this, "qt_right_btn" );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
+    d->btnWidth = style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, this);
     d->lstatic.setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
@@ -1049,6 +1051,7 @@ void QTabBar::layoutTabs()
 	oldSh = r.size();
     }
 
+    d->btnWidth = style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, this);
     int hframe, vframe, overlap;
     hframe  = style().pixelMetric( QStyle::PM_TabBarTabHSpace, this );
     vframe  = style().pixelMetric( QStyle::PM_TabBarTabVSpace, this );
@@ -1096,14 +1099,6 @@ void QTabBar::layoutTabs()
 bool QTabBar::event( QEvent *e )
 {
     if ( e->type() == QEvent::LanguageChange ) {
-	const int arrowWidth = 16;
-	if ( QApplication::reverseLayout() ) {
-	    d->rightB->setGeometry( arrowWidth, 0, arrowWidth, height() );
-	    d->leftB->setGeometry( 0, 0, arrowWidth, height() );
-	} else {
-	    d->rightB->setGeometry( width() - arrowWidth, 0, arrowWidth, height() );
-	    d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
-	}
 	layoutTabs();
 	updateArrowButtons();
 	makeVisible( tab( currentTab() ));
@@ -1221,6 +1216,15 @@ void QTabBar::updateArrowButtons()
     bool b = !d->lstatic.isEmpty() && (d->lstatic.last()->r.right() > width());
     d->scrolls = b;
     if ( d->scrolls ) {
+	const int arrowWidth = QMAX( d->btnWidth, QApplication::globalStrut().width() );
+	if ( QApplication::reverseLayout() ) {
+	    d->rightB->setGeometry( arrowWidth, 0, arrowWidth, height() );
+	    d->leftB->setGeometry( 0, 0, arrowWidth, height() );
+	} else {
+	    d->rightB->setGeometry( width() - arrowWidth, 0, arrowWidth, height() );
+	    d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
+	}
+
 	d->leftB->setEnabled( FALSE );
 	d->rightB->setEnabled( TRUE );
 	d->leftB->show();

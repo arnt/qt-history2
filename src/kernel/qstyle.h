@@ -487,7 +487,7 @@ public:
 	PM_HeaderGripMargin,
 	PM_TabBarTabShiftHorizontal,
 	PM_TabBarTabShiftVertical,
-
+	PM_TabBarScrollButtonWidth,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

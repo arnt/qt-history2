@@ -2403,6 +2403,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_HeaderGripMargin:
 	ret = 4;
 	break;
+    case PM_TabBarScrollButtonWidth:
+	ret = 16;
+	break;
     default:
 	ret = 0;
 	break;
