@@ -57,7 +57,7 @@ if x%1==x-help set HELP=yes
 if x%1==x-qconfig (
 	set QCONFIG=%2
 	shift)
-if x%1==x-release set DEBUG=NO
+if x%1==x-release set DEBUG=no
 if x%1==x-debug set DEBUG=yes
 if x%1==x-shared set SHARED=yes
 if x%1==x-static set SHARED=no
@@ -176,23 +176,23 @@ rem **************************************
 rem   Build variables for output
 rem **************************************
 if x%DEBUG%==xyes (
-set QMAKE_CONFIG=%QMAKE_CONFIG% debug
-set QMAKE_OUTDIR=%QMAKE_OUTDIR%debug)
+	set QMAKE_CONFIG=%QMAKE_CONFIG% debug
+	set QMAKE_OUTDIR=%QMAKE_OUTDIR%debug)
 if x%DEBUG%==xno (
-set QMAKE_CONFIG=%QMAKE_CONFIG% release
-set QMAKE_OUTDIR=%QMAKE_OUTDIR%release)
+	set QMAKE_CONFIG=%QMAKE_CONFIG% release
+	set QMAKE_OUTDIR=%QMAKE_OUTDIR%release)
 if x%THREAD%==xyes (
-set QMAKE_CONFIG=%QMAKE_CONFIG% thread
-set QMAKE_OUTDIR=%QMAKE_OUTDIR%-mt)
+	set QMAKE_CONFIG=%QMAKE_CONFIG% thread
+	set QMAKE_OUTDIR=%QMAKE_OUTDIR%-mt)
+
+if x%SHARED%==xyes (
+	set QMAKE_OUTDIR=%QMAKE_OUTDIR%-shared
+	set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL")
+if x%SHARED%==xno (
+	set QMAKE_OUTDIR=%QMAKE_OUTDIR%-static)
 
 set QMAKE_VARS=%QMAKE_VARS% "QMAKE_LIBDIR_QT=%QTDIR%\lib"
 set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=tmp\obj\%QMAKE_OUTDIR%" "MOC_DIR=tmp\moc\%QMAKE_OUTDIR%"
-
-if x%SHARED%==xyes (
-set QMAKE_OUTDIR=%QMAKE_OUTDIR%-shared
-set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL")
-if x%SHARED%==xno (
-set QMAKE_OUTDIR=%QMAKE_OUTDIR%-static)
 
 if x%JPEG%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% jpeg
 if x%MNG%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% mng
@@ -252,7 +252,6 @@ for %%v in ( %QMAKE_VARS% ) do (
 )
 echo CONFIG=%QMAKE_CONFIG_SRC%>>src\.qmake.cache
 echo MKSPEC=%XMKSPEC%>>src\.qmake.cache
-
 rem **************************************
 rem   Give some feedback
 rem **************************************
