@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#13 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#14 $
 **
 ** Definition of keyboard codes
 **
@@ -245,5 +245,7 @@ const uint ASCII_ACCEL	= 0x10000000;
 #define Key_yacute		0x0fd
 #define Key_thorn		0x0fe
 #define Key_ydiaeresis		0x0ff
+
+#define Key_unknown		0xffff
 
 #endif // QKEYCODE_H
