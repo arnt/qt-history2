@@ -39,13 +39,20 @@ public:
     QEmptyModel empty;
 };
 
-QProxyModel::QProxyModel(QObject *parent)
+/*!
+    \class QProxyModel
+*/
+
+/*!
+*/QProxyModel::QProxyModel(QObject *parent)
     : QAbstractItemModel(*new QProxyModelPrivate, parent)
 {
     setModel(&d->empty);
     disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
 
+/*!
+*/
 QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
@@ -53,10 +60,14 @@ QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
     disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
 
+/*!
+*/
 QProxyModel::~QProxyModel()
 {
 }
 
+/*!
+*/
 void QProxyModel::setModel(QAbstractItemModel *model)
 {
     if (d->model && d->model != &d->empty) {
@@ -95,111 +106,155 @@ void QProxyModel::setModel(QAbstractItemModel *model)
     }
 }
 
+/*!
+*/
 QAbstractItemModel *QProxyModel::model() const
 {
     return d->model;
 }
 
+/*!
+*/
 QModelIndex QProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
     return d->model->index(row, column, parent);    
 }
 
+/*!
+*/
 QModelIndex QProxyModel::parent(const QModelIndex &child) const
 {
     return d->model->parent(child);
 }
 
+/*!
+*/
 int QProxyModel::rowCount(const QModelIndex &parent) const
 {
     return d->model->rowCount(parent);
 }
 
+/*!
+*/
 int QProxyModel::columnCount(const QModelIndex &parent) const
 {
     return d->model->columnCount(parent);
 }
 
+/*!
+*/
 bool QProxyModel::hasChildren(const QModelIndex &parent) const
 {
     return d->model->hasChildren(parent);
 }
 
+/*!
+*/
 bool QProxyModel::canDecode(QMimeSource *src) const
 {
     return d->model->canDecode(src);
 }
 
+/*!
+*/
 bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
     return d->model->decode(e, parent);
 }
 
+/*!
+*/
 QDragObject *QProxyModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
 {
     return d->model->dragObject(indexes, dragSource);
 }
 
+/*!
+*/
 QVariant QProxyModel::data(const QModelIndex &index, int role) const
 {
     return d->model->data(index, role);
 }
 
+/*!
+*/
 bool QProxyModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     return d->model->setData(index, role, value);
 }
 
+/*!
+*/
 QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     return d->model->headerData(section, orientation, role);
 }
 
+/*!
+*/
 bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value)
 {
     return d->model->setHeaderData(section, orientation, role, value);
 }
 
+/*!
+*/
 bool QProxyModel::insertRows(int row, const QModelIndex &parent, int count)
 {
     return d->model->insertRows(row, parent, count);
 }
 
+/*!
+*/
 bool QProxyModel::insertColumns(int column, const QModelIndex &parent, int count)
 {
     return d->model->insertColumns(column, parent, count);
 }
 
+/*!
+*/
 void QProxyModel::fetchMore(const QModelIndex &parent)
 {
     d->model->fetchMore(parent);
 }
 
+/*!
+*/
 QAbstractItemModel::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 {
     return d->model->flags(index);
 }
 
+/*!
+*/
 bool QProxyModel::isSortable() const
 {
     return true;
 }
 
+/*!
+*/
 void QProxyModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
 {
     d->model->sort(column, parent, order);
 }
 
+/*!
+*/
 bool QProxyModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
     return d->model->equal(left, right);
 }
 
+/*!
+*/
 bool QProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     return d->model->lessThan(left, right);
 }
 
+/*!
+*/
 QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
                                    const QVariant &value,
                                    int hits, QAbstractItemModel::MatchFlags flags) const
@@ -207,6 +262,8 @@ QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
     return d->model->match(start, role, value, hits, flags);
 }
 
+/*!
+*/
 QSize QProxyModel::span(const QModelIndex &index) const
 {
     return d->model->span(index);
