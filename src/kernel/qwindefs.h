@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#4 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -176,6 +176,19 @@ typedef ulong WFlags;
 #define WX11_OddWM	0x00010000		// widget flags for X11
 
 #define WEtc_MouMove	0x01000000		// misc widget flags
+
+
+// Raster operations
+
+enum RasterOp					// raster op/transfer mode
+    { CopyROP, OrROP, XorROP, EraseROP,
+      NotCopyROP, NotOrROP, NotXorROP, NotEraseROP, NotROP };
+
+
+// Text output flags
+
+enum TextAlignment				// text alignment
+    { AlignLeft=0x0, AlignRight, AlignTop, AlignBottom, AlignCenter };
 
 
 // GUI styles
