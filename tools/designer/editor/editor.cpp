@@ -151,6 +151,7 @@ void Editor::commentSelection()
     }
     document()->removeSelection( QTextDocument::Standard );
     repaintChanged();
+    setModified( TRUE );
 }
 
 void Editor::uncommentSelection()
@@ -168,6 +169,7 @@ void Editor::uncommentSelection()
     }
     document()->removeSelection( QTextDocument::Standard );
     repaintChanged();
+    setModified( TRUE );
 }
 
 QPopupMenu *Editor::createPopupMenu()
