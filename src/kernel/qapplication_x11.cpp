@@ -257,6 +257,14 @@ Window		*qt_net_virtual_root_list	= 0;
 // Display
 bool	qt_use_xrender	= FALSE;
 
+// modifier masks for alt/meta - detected when the application starts
+static long qt_alt_mask = 0;
+static long qt_meta_mask = 0;
+// modifier mask to remove mode switch from modifiers that have alt/meta set
+// this problem manifests itself on HP/UX 10.20 at least, and without it
+// modifiers do not work at all...
+static long qt_mode_switch_remove_mask = 0;
+
 // flags for extensions for special Languages, currently only for RTL languages
 static bool 	qt_use_rtl_extensions = FALSE;
 
@@ -1465,6 +1473,10 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
   qt_init() - initializes Qt for X11
  *****************************************************************************/
 
+#define XK_MISCELLANY
+#define XK_LATIN1
+#include <X11/keysymdef.h>
+
 // ### This should be static but it isn't because of the friend declaration
 // ### in qpaintdevice.h which then should have a static too but can't have
 // ### it because "storage class specifiers invalid in friend function
@@ -1700,16 +1712,17 @@ void qt_init_internal( int *argcptr, char **argv,
 	    if ( qt_visual_option == TrueColor ||
 		 QApplication::colorSpec() == QApplication::ManyColor ) {
 		// find custom visual
+
 		vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
 					     &QPaintDevice::x_appcells );
 
+		QPaintDevice::x_appvisual = vis;
+		QPaintDevice::x_appvisual_arr[appScreen] = vis;
 		QPaintDevice::x_appdefvisual =
 		    (XVisualIDFromVisual(vis) ==
 		     XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
-		QPaintDevice::x_appvisual = vis;
 		QPaintDevice::x_appdefvisual_arr[appScreen] =
 		    QPaintDevice::x_appdefvisual;
-		QPaintDevice::x_appvisual_arr[appScreen] = vis;
 	    }
 
 #if defined( QT_MODULE_OPENGL )
@@ -1757,7 +1770,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		XFree( vi );
 	    }
 #endif
-	    QPaintDevice::x_appvisual = vis;
+     	    QPaintDevice::x_appvisual = vis;
 	    QPaintDevice::x_appvisual_arr[appScreen] = vis;
 	} else {
 	    // use the provided visual
@@ -1774,9 +1787,9 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appdefcolormap_arr[appScreen] =
 		    QPaintDevice::x_appdefvisual_arr[appScreen];
 	    } else {
-		QPaintDevice::x_appdefcolormap = 
+		QPaintDevice::x_appdefcolormap =
 		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
-		QPaintDevice::x_appdefcolormap_arr[appScreen] = 
+		QPaintDevice::x_appdefcolormap_arr[appScreen] =
 		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
 	    }
 
@@ -1789,7 +1802,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appcolormap_arr[appScreen] = 0;
 
 		QString serverVendor( ServerVendor( appDpy) );
-                if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
+		if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
 		    // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
 		    // doesn't give us correct colors.  Why this happens, I have
 		    // no clue, so we disable this for HPUX
@@ -1797,11 +1810,14 @@ void qt_init_internal( int *argcptr, char **argv,
 				     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
 		        i = 0;
 			while (i < count && QPaintDevice::x_appcolormap == 0) {
-			    if (stdcmap[i].visualid == vid)
+			    if (stdcmap[i].visualid == vid) {
 				QPaintDevice::x_appcolormap = stdcmap[i].colormap;
 				QPaintDevice::x_appcolormap_arr[appScreen] = stdcmap[i].colormap;
-				i++;
+			    }
+			    i++;
 			}
+
+		        XFree( (char *)stdcmap );
 		    }
 		}
 
@@ -1903,6 +1919,67 @@ void qt_init_internal( int *argcptr, char **argv,
 	unsigned int state = XkbPCF_GrabsUseXKBStateMask;
 	(void) XkbSetPerClientControls(appDpy, state, &state);
 #endif
+
+	// look at the modifier mapping, and get the correct masks for alt/meta
+	// find the alt/meta masks
+	XModifierKeymap *map = XGetModifierMapping(appDpy);
+	if (map) {
+	    int i, maskIndex = 0, mapIndex = 0;
+	    for (maskIndex = 0; maskIndex < 8; maskIndex++) {
+		for (i = 0; i < map->max_keypermod; i++) {
+		    if (map->modifiermap[mapIndex]) {
+			KeySym sym =
+			    XKeycodeToKeysym(appDpy, map->modifiermap[mapIndex], 0);
+			if ( qt_alt_mask == 0 &&
+			     ( sym == XK_Alt_L || sym == XK_Alt_R ) ) {
+			    qt_alt_mask = 1 << maskIndex;
+			}
+			if ( qt_meta_mask == 0 &&
+			     (sym == XK_Meta_L || sym == XK_Meta_R ) ) {
+			    qt_meta_mask = 1 << maskIndex;
+			}
+		    }
+		    mapIndex++;
+		}
+	    }
+
+	    if (qt_alt_mask == 0) // no alt keys mapped
+		qt_alt_mask = Mod1Mask;
+	    if (qt_meta_mask == 0) // no meta keys mapped
+		qt_meta_mask = Mod4Mask;
+
+	    // not look for mode_switch in qt_alt_mask and qt_meta_mask - if it is
+	    // present in one or both, then we set qt_mode_switch_remove_mask.
+	    // see QETWidget::translateKeyEventInternal for an explanation
+	    // of why this is needed
+	    mapIndex = 0;
+	    for ( maskIndex = 0; maskIndex < 8; maskIndex++ ) {
+		if ( qt_alt_mask  != ( 1 << maskIndex ) &&
+		     qt_meta_mask != ( 1 << maskIndex ) ) {
+		    for ( i = 0; i < map->max_keypermod; i++ )
+			mapIndex++;
+		    continue;
+		}
+
+		for ( i = 0; i < map->max_keypermod; i++ ) {
+		    if ( map->modifiermap[ mapIndex ] ) {
+			KeySym sym =
+			    XKeycodeToKeysym( appDpy, map->modifiermap[ mapIndex ], 0 );
+			if ( sym == XK_Mode_switch ) {
+			    qt_mode_switch_remove_mask |= 1 << maskIndex;
+			}
+		    }
+		    mapIndex++;
+		}
+	    }
+
+	    XFreeModifiermap(map);
+	} else {
+	    // assume defaults
+	    qt_alt_mask = Mod1Mask;
+	    qt_meta_mask = Mod4Mask;
+	    qt_mode_switch_remove_mask = 0;
+	}
 
 	// Misc. initialization
 
@@ -4676,49 +4753,8 @@ bool qKillTimer( QObject *obj )
 // Keyboard event translation
 //
 
-#define XK_MISCELLANY
-#define XK_LATIN1
-#include <X11/keysymdef.h>
-
 static int translateButtonState( int s )
 {
-    // find the alt/meta masks
-    static long altmask = 0, metamask = 0;
-    if (altmask == 0 && metamask == 0) {
-	// get modifier mapping
-	XModifierKeymap *map = XGetModifierMapping(appDpy);
-	if (map) {
-	    int i, maskIndex = 0, mapIndex = 0;
-	    for (maskIndex = 0; maskIndex < 8; maskIndex++) {
-		for (i = 0; i < map->max_keypermod; i++) {
-		    if (map->modifiermap[mapIndex]) {
-			KeySym sym =
-			    XKeycodeToKeysym(appDpy, map->modifiermap[mapIndex], 0);
-			if ( altmask == 0 &&
-			     ( sym == XK_Alt_L || sym == XK_Alt_R ) ) {
-			    altmask = 1 << maskIndex;
-			}
-			if ( metamask == 0 &&
-			     (sym == XK_Meta_L || sym == XK_Meta_R ) ) {
-			    metamask = 1 << maskIndex;
-			}
-		    }
-		    mapIndex++;
-		}
-	    }
-
-	    if (altmask == 0) // no alt keys mapped
-		altmask = Mod1Mask;
-	    if (metamask == 0) // no meta keys mapped
-		metamask = Mod4Mask;
-	    XFreeModifiermap(map);
-	} else {
-	    // assume defaults
-	    altmask = Mod1Mask;
-	    metamask = Mod4Mask;
-	}
-    }
-
     int bst = 0;
     if ( s & Button1Mask )
 	bst |= Qt::LeftButton;
@@ -4730,9 +4766,9 @@ static int translateButtonState( int s )
 	bst |= Qt::ShiftButton;
     if ( s & ControlMask )
 	bst |= Qt::ControlButton;
-    if ( s & altmask )
+    if ( s & qt_alt_mask )
 	bst |= Qt::AltButton;
-    if ( s & metamask )
+    if ( s & qt_meta_mask )
 	bst |= Qt::MetaButton;
     return bst;
 }
@@ -5330,6 +5366,16 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 
     XKeyEvent xkeyevent = event->xkey;
 
+    // save the modifier state, we will use the keystate uint later by passing
+    // it to translateButtonState
+    uint keystate = event->xkey.state;
+    // remove the modifiers where mode_switch exists... HPUX machines seem
+    // to have alt *AND* mode_switch both in Mod1Mask, which causes
+    // XLookupString to return things like 'å' (aring) for ALT-A.  This
+    // completely breaks modifiers.  If we remove the modifier for Mode_switch,
+    // then things work correctly...
+    xkeyevent.state &= ~qt_mode_switch_remove_mask;
+
     type = (event->type == XKeyPress)
 			? QEvent::KeyPress : QEvent::KeyRelease;
 #if defined(QT_NO_XIM)
@@ -5437,7 +5483,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     }
 #endif // !QT_NO_XIM
 
-    state = translateButtonState( event->xkey.state );
+    state = translateButtonState( keystate );
 
     static int directionKeyEvent = 0;
     if ( qt_use_rtl_extensions && type == QEvent::KeyRelease ) {
@@ -5580,6 +5626,14 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     QString text;
 
     translateKeyEventInternal( event, count, text, state, ascii, code, type );
+
+    // once chained accelerators are possible in Qt, the accelavailable code should
+    // be removed completely from Qt, and instead we should use an internal
+    // QAccelManager which we feed key events, and it will tell us if the key
+    // is an accelerator (in which case we return, doing nothing) or a normal
+    // key event
+
+    // process accelerators before doing key compressiong
     bool isAccel = FALSE;
     if ( !grab ) { // test for accel if the keyboard is not grabbed
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
@@ -5589,6 +5643,33 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	isAccel = a.isAccepted();
     }
 
+    if ( type == QEvent::KeyPress && !grab ) {
+	// send accel events if the keyboard is not grabbed
+	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
+		      QMAX(count, int(text.length())) );
+	aa.ignore();
+	QApplication::sendSpontaneousEvent( this, &aa );
+	if ( !aa.isAccepted() ) {
+	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
+			 QMAX(count, int(text.length())) );
+	    a.ignore();
+	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
+	    if ( a.isAccepted() )
+		return TRUE;
+	}
+    }
+
+    long save = 0;
+    if ( qt_mode_switch_remove_mask != 0 ) {
+	save = qt_mode_switch_remove_mask;
+	qt_mode_switch_remove_mask = 0;
+
+	// translate the key event again, but this time apply any Mode_switch
+	// modifiers
+	translateKeyEventInternal( event, count, text, state, ascii, code, type );
+    }
+
+    // compress keys
     if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) ) {
 	// the widget wants key compression so it gets it
 	int	codeIntern = -1;
@@ -5645,6 +5726,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     }
 
+    if ( save != 0 )
+	qt_mode_switch_remove_mask = save;
 
     // was this the last auto-repeater?
     static uint curr_autorep = 0;
@@ -5712,24 +5795,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    return TRUE;
     }
 
-    // process accelerators before popups
     QKeyEvent e( type, code, ascii, state, text, autor,
 		 QMAX(count, int(text.length())) );
-    if ( type == QEvent::KeyPress && !grab ) {
-	// send accel events if the keyboard is not grabbed
-	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
-		      QMAX(count, int(text.length())) );
-	aa.ignore();
-	QApplication::sendSpontaneousEvent( this, &aa );
-	if ( !aa.isAccepted() ) {
-	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
-			 QMAX(count, int(text.length())) );
-	    a.ignore();
-	    QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
-	    if ( a.isAccepted() )
-		return TRUE;
-	}
-    }
 
 #ifndef QT_NO_XIM
     if (qt_xim_style & XIMPreeditCallbacks) {
@@ -6356,7 +6423,7 @@ static void sm_performSaveYourself( QSessionManagerData* smd )
     timeval tv;
     gettimeofday( &tv, 0 );
     smd->sessionKey  = QString::number( tv.tv_sec ) + "_" + QString::number(tv.tv_usec);
- 
+
     // tell the session manager about our program in best POSIX style
     sm_setProperty( SmProgram, QString( qApp->argv()[0] ) );
     // tell the session manager about our user as well.
