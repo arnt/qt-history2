@@ -4278,6 +4278,17 @@ bool QDomElement::isElement() const
 }
 
 /*!
+    Returns TRUE if this element has an attribute called \a name;
+    otherwise returns FALSE.
+*/
+bool QDomElement::hasAttribute( const QString& name ) const
+{
+    if ( !impl )
+	return FALSE;
+    return IMPL->hasAttribute( name );
+}
+
+/*!
     Returns the attribute with the local name \a localName and the
     namespace URI \a nsURI. If the attribute does not exist \a
     defValue is returned.
