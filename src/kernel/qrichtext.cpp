@@ -2840,7 +2840,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && buffer.length() > 0 && buffer[ (int)buffer.length() - 1 ].isSpace() ) ||
-	     (uint)lastDirection != chr->rightToLeft || chr->rightToLeft ||
+	     //(uint)lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
@@ -2880,8 +2880,13 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		}
 	    }
 	} else {
-	    if ( chr->c != '\n' )
-		buffer += chr->c;
+	    if ( chr->c != '\n' ) {
+		if( chr->rightToLeft ) {
+		    buffer = chr->c + buffer;
+		    startX = chr->x;
+		} else
+		    buffer += chr->c;
+	    }
 	    bw += cw;
 	}
 	lastBaseLine = baseLine;
@@ -2928,6 +2933,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 				      QTextFormat *lastFormat, int i, int *selectionStarts,
 				      int *selectionEnds, const QColorGroup &cg )
 {
+    qDebug("printing %s len=%d", buffer.utf8().data(), buffer.length());
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
 

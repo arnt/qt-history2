@@ -20,7 +20,7 @@ public:
     {
 	textview = new QTextView(this, "new font testing textview");
 
-	QFile file("x-utf8.html");
+	QFile file("arabic.html");
 	if (file.open(IO_ReadOnly)) {
 	    QTextStream stream(&file);
             stream.setEncoding(QTextStream::UnicodeUTF8);
@@ -64,6 +64,10 @@ void NewFont::showFD()
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    QFont f;
+    f.setFamily( "nakshi" );
+    f.setPointSize(18);
+    app.setFont(f);
     NewFont newfont(0, "newfont testing widget");
     
     newfont.resize(600, 1000);

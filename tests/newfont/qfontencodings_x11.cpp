@@ -253,9 +253,11 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 */
 static inline bool leftChar( const QString &str, int pos)
 {
+    //qDebug("leftChar: pos=%d", pos);
     pos--;
     while( pos > -1 ) {
 	const QChar &ch = str[pos];
+	//qDebug("leftChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
 	if( ch.isLetter() )
 	    return (	 ch.joining() != QChar::OtherJoining );
 	// assume it's a transparent char, this might not be 100% correct
@@ -270,6 +272,7 @@ static inline bool rightChar( const QString &str, int pos)
     int len = str.length();
     while( pos < len ) {
 	const QChar &ch = str[pos];
+	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
 	if( ch.isLetter() ) {
 	    QChar::Joining join = ch.joining();
 	    return ( join == QChar::Dual || join == QChar::Center );
@@ -315,6 +318,7 @@ QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 {
     // ### ignores L1 - L3
     QChar::Joining joining = str[pos].joining();
+    //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
 	case QChar::OtherJoining:
 	case QChar::Center:
@@ -328,6 +332,7 @@ QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 	case QChar::Dual:
 	    bool right = rightChar( str, pos );
 	    bool left = leftChar( str, pos );
+	    //qDebug("dual: right=%d, left=%d", right, left);
 	    if( right && left )
 		return XMedial;
 	    else if ( right )
@@ -478,7 +483,7 @@ QFontArabic68Codec::QFontArabic68Codec()
 
 const char* QFontArabic68Codec::name() const
 {
-    return "iso8869-6.8x";
+    return "iso8859-6.8x";
 }
 
 int QFontArabic68Codec::mibEnum() const
@@ -503,8 +508,10 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
 	    result += 0xff; // undefined char in iso8859-6.8x
 	else {
 	    int shape = QArabicShaping::glyphVariant( uc, i );
+	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
 	    result += arabic68Mapping[ch->cell()][shape];
 	}
+	ch++;
     }
     return result;
 }

@@ -88,7 +88,7 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "iso8859-5",
       "koi8-r",
       "koi8-ru"          , 0 }, // CYRILLIC
-    { "iso8859-6"        , 0 }, // ARABIC
+    { "iso8859-6.8x"        , 0 }, // ARABIC
     { "iso8859-7"        , 0 }, // GREEK
     { "iso8859-8"        , 0 }, // HEBREW
 
@@ -1373,8 +1373,8 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
-	    // qDebug("QFP::load: no font name - this must be unicode (%d %s)",
-	    // script, qt_x11encodings[script][qt_x11indices[script]]);
+	    //qDebug("QFP::load: no font name - this must be unicode (%d %s)",
+	    //script, qt_x11encodings[script][qt_x11indices[script]]);
 
 	    name = k + "NU";
 	}
@@ -1439,7 +1439,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	    }
 	} else {
 	    // Didn't get unicode font, set to sentinel and return
-	    // qDebug("no unicode font, doing negative caching");
+	    //qDebug("no unicode font, doing negative caching");
 	    x11data.fontstruct[script] = (QFontStruct *) -1;
 	    fontCache->insert((const char *) n, x11data.fontstruct[script], 1);
 
@@ -1477,6 +1477,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 			  f->max_bounds.width * chars / 8);
 
     x11data.fontstruct[script] = qfs;
+
     initFontInfo(script);
     request.dirty = FALSE;
 
@@ -1573,6 +1574,7 @@ void QFont::initialize()
     (void) new QFontKsc5601Codec;
     (void) new QFontGB2312Codec;
     (void) new QFontBig5Codec;
+    (void) new QFontArabic68Codec;
 #endif
 
 }
@@ -2205,6 +2207,11 @@ int QFontMetrics::lineSpacing() const
 
 
 /*!
+  \obsolete
+  This function will produce incorrect results for arabic characters, as
+  the glyph shaping occuring in these languages ca not be taken into account.
+  Use \a charWidth() instead.
+  
   <img src="bearings.png" align=right> Returns the logical width of a
   \e ch in pixels.  This is a distance appropriate for drawing a
   subsequent character after \e ch.
@@ -2340,6 +2347,31 @@ int QFontMetrics::width( const QString &str, int len ) const
     return currw;
 }
 
+/*!
+  returns the width of the character at position \e pos in the string \e str.
+  
+  The whole string is needed, as the glyph drawn may change depending on the
+  context (the letter before and after the current one) for some languages (eg. arabic).
+  
+  Also takes non spacing marks and ligatures into account.
+*/
+int QFontMetrics::charWidth( const QString &str, int pos )
+{
+    QChar ch = str[pos];
+    QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
+
+    if (script == QFontPrivate::UnknownScript)
+	return 0;
+
+    d->load(script);
+    if (! d->x11data.fontstruct[script]) return 0;
+
+    XCharStruct *xcs =
+	charStr(d->x11data.fontstruct[script]->codec,
+		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
+    return printerAdjusted(xcs ? xcs->width : 0);
+    
+}
 
 /*!
   Returns the bounding rectangle of the first \e len characters of \e str,
