@@ -1,8 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PrintPreview</class>
-<include location="global" impldecl="in declaration">qimage.h</include>
-<include location="global" impldecl="in declaration">qpixmap.h</include>
-<variable>QPixmap pix</variable>
 <widget class="QDialog">
     <property name="name">
         <cstring>PrintPreview</cstring>
@@ -39,12 +36,17 @@
                 <sizepolicy>
                     <hsizetype>7</hsizetype>
                     <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
             <property name="title">
                 <string>Preview</string>
             </property>
             <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -69,12 +71,17 @@
                 <sizepolicy>
                     <hsizetype>4</hsizetype>
                     <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
             <property name="title">
                 <string>Modify</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -153,15 +160,10 @@
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">
+                        <enum>Horizontal</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
                     </property>
                 </spacer>
                 <widget class="QPushButton">
@@ -251,60 +253,25 @@
         <receiver>PrintPreview</receiver>
         <slot>rotateRight(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">updatePreview()</slot>
-    <slot access="public" language="C++" returnType="void">flip( bool )</slot>
-    <slot access="public" language="C++" returnType="void">invertColors( bool )</slot>
-    <slot access="public" language="C++" returnType="void">mirror( bool )</slot>
-    <slot access="public" language="C++" returnType="void">rotateLeft( bool )</slot>
-    <slot access="public" language="C++" returnType="void">rotateRight( bool )</slot>
-    <slot access="public" language="C++" returnType="void">setPixmap( const QPixmap &amp; pm )</slot>
 </connections>
+<includes>
+    <include location="global" impldecl="in declaration">qimage.h</include>
+    <include location="global" impldecl="in declaration">qpixmap.h</include>
+    <include location="local" impldecl="in implementation">printpreview.ui.h</include>
+</includes>
+<variables>
+    <variable>QPixmap pix</variable>
+</variables>
 <functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="updatePreview()" >{
-    QImage img = pix.convertToImage();
-    if ( checkInvert-&gt;isChecked() ) {
-	img.invertPixels();
-    }
-    if ( checkMirror-&gt;isChecked() ) {
-	img = img.mirror( TRUE, FALSE );
-    }
-    if ( checkFlip-&gt;isChecked() ) {
-	img = img.mirror( FALSE, TRUE );
-    }
-    if ( checkLeft-&gt;isEnabled() &amp;&amp; checkLeft-&gt;isChecked() ) {
-    }
-    if ( checkRight-&gt;isEnabled() &amp;&amp; checkRight-&gt;isChecked() ) {
-    }
-    QPixmap pm;
-    pm.convertFromImage( img );
-    pixmapLabel-&gt;setPixmap( pm );
-}</function>
-    <function name="flip(bool)" >{
-    updatePreview();
-}</function>
-    <function name="invertColors(bool)" >{
-    updatePreview();
-}</function>
-    <function name="mirror(bool)" >{
-    updatePreview();
-}</function>
-    <function name="rotateLeft(bool)" >{
-    updatePreview();
-}</function>
-    <function name="rotateRight(bool)" >{
-    updatePreview();
-}</function>
-    <function name="setPixmap(const QPixmap&amp;)" >{
-    pix = pm;
-    updatePreview();
-}</function>
+    <function type="slot" access="protected">init()</function>
+    <function type="slot" access="protected">destroy()</function>
+    <function type="slot">updatePreview()</function>
+    <function type="slot">flip( bool )</function>
+    <function type="slot">invertColors( bool )</function>
+    <function type="slot">mirror( bool )</function>
+    <function type="slot">rotateLeft( bool )</function>
+    <function type="slot">rotateRight( bool )</function>
+    <function type="slot">setPixmap( const QPixmap &amp; pm )</function>
 </functions>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
