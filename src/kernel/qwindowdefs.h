@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#51 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#52 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -161,7 +161,7 @@ class QAddPreRoutine {				// class for registering pre-
 public:						//    routines
     typedef void (*vf)();
     QAddPreRoutine( void (*p)( int, char ** ) ) { qAddPreRoutine((vf)p); }
-    QAddPreRoutine( void (*p)() ) { qAddPreRoutine(p); }
+    QAddPreRoutine( void (*p)() )		{ qAddPreRoutine(p); }
 };
 
 
