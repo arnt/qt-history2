@@ -1820,7 +1820,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			tlw->raise();
 			if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
 			   (tlw->isModal() || !tlw->isDialog()))
-			    app->setActiveWindow(tlw);
+			    tlw->setActiveWindow();
 		    }
 		}
 		int fp = (ekind == kEventMouseDown) ? QWidget::ClickFocus : QWidget::WheelFocus;
