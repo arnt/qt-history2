@@ -78,7 +78,7 @@ void add_style( QtFontFamily *family,
         sn += "Italic";
     }
 #endif
-//    sn = sn.stripWhiteSpace();
+    sn = sn.stripWhiteSpace();
     QtFontStyle *style = family->styleDict.find( sn );
     if ( !style ) {
         // qWarning( "New style[%s] for [%s][%s][%s]",
@@ -187,8 +187,7 @@ qDebug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
 static
 void populate_database(const QString& fam)
 {
-    QWidget dummy( 0, "qt_dummy_popdb");
-    QPainter p( &dummy );
+    HDC dummy = GetDC(0);
 
     QT_WA( {
         LOGFONT lf;
@@ -200,7 +199,7 @@ void populate_database(const QString& fam)
         }
         lf.lfPitchAndFamily = 0;
 
-        EnumFontFamiliesEx( dummy.handle(), &lf, 
+        EnumFontFamiliesEx( dummy, &lf, 
             (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
     } , {
         LOGFONTA lf;
@@ -214,9 +213,11 @@ void populate_database(const QString& fam)
         }
         lf.lfPitchAndFamily = 0;
 
-	EnumFontFamiliesExA( dummy.handle(), &lf,
+	EnumFontFamiliesExA( dummy, &lf,
             (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
     } );
+
+    ReleaseDC(0, dummy);
 
     // ##### Should add Italic if none already
     // ##### Should add Bold and Bold Italic if any less-than-bold exists
