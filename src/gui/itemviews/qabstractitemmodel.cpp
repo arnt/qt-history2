@@ -197,8 +197,8 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 }
 
 /*!
-    Creates a new QPersistentModelIndex that is a copy of the \a index
-    model index in the given \a model.
+    Creates a new QPersistentModelIndex that is a copy of the model \a index
+    in the given \a model.
 */
 
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
@@ -502,6 +502,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     and columnsRemoved().
 
     \sa \link model-view-programming.html Model/View Programming\endlink
+        QModelIndex
+
 */
 
 /*!
