@@ -2931,8 +2931,10 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     for ( w = leaveList.first(); w; w = leaveList.next() )
 	QApplication::sendEvent( w, &leaveEvent );
     QEvent enterEvent( QEvent::Enter );
-    for ( w = enterList.first(); w; w = enterList.next() )
-	QApplication::sendEvent( w, &enterEvent );
+    for ( w = enterList.first(); w; w = enterList.next() ) {
+	if ( !qApp->activeModalWidget() || w->topLevelWidget() == qApp->activeModalWidget() )
+	    QApplication::sendEvent( w, &enterEvent );
+    }
 }
 
 
