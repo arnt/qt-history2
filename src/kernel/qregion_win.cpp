@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#44 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,6 +21,8 @@
 #include "qregion.h"
 #include "qpointarray.h"
 #include "qbuffer.h"
+#include "qbitmap.h"
+#include "qimage.h"
 #include "qt_windows.h"
 
 
