@@ -22,8 +22,6 @@
 
 #include "../../shared/types.h"
 
-void *qMalloc(size_t size) { return ::malloc(size); }
-
 enum ObjectCategory
 {
     DefaultObject   = 0x0,
