@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#164 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1993,7 +1993,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     if ( !isActive() )
 	return;
 
-    bool nat_xf = qt_winver == WV_NT && txop >= TxScale;
+    bool nat_xf = ( qt_winver == WV_NT && txop >= TxScale ) ||
+                  ( txop == TxScale );
+
     if ( len < 0 )
 	len = str.length();
     if ( len == 0 )				// empty string
@@ -2012,7 +2014,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		return;
 	}
 	if ( txop >= TxScale && !nat_xf ) {
-	    // Draw scaled, rotated and shared text on Windows 95, 98
+	    // Draw rotated and sheared text on Windows 95, 98
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
