@@ -1212,15 +1212,18 @@ void QSplitter::setSizes( QValueList<int> list )
     while ( s && it != list.end() ) {
 	if ( !s->isHandle ) {
 	    s->sizer = QMAX( *it, 0 );
+	    int smartMinSize = pick( qSmartMinSize(s->wid) );
 	    // Make sure that we reset the collapsed state.
 	    if ( s->sizer == 0 ) {
-		if ( collapsible(s) && pick(qSmartMinSize(s->wid)) > 0 ) {
+		if ( collapsible(s) && smartMinSize > 0 ) {
 		    s->wid->move( -1, -1 );
 		} else {
-		    s->sizer = pick( qSmartMinSize(s->wid) );
+		    s->sizer = smartMinSize;
 		    s->wid->move( 0, 0 );
 		}
 	    } else {
+		if ( s->sizer < smartMinSize )
+		    s->sizer = smartMinSize;
 		s->wid->move( 0, 0 );
 	    }
 	    ++it;
