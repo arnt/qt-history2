@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#305 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#306 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2263,26 +2263,27 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    QRect br( r.x(), r.y(), fm.width( parStr ), fm.height() );
 	    *brect = br;
 	}
+
+	int w = fm.width( parStr );
+	int h = fm.height();
+	int xoff = r.x();
+	int yoff = r.y() + fm.ascent();
+
+	if ( tf & Qt::AlignBottom )
+	    yoff += r.height() - h;
+	else if ( tf & Qt::AlignVCenter )
+	    yoff += ( r.height() - h ) / 2;
+	if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && parStr.isRightToLeft() )
+	    tf |= Qt::AlignRight;
+	if ( tf & Qt::AlignRight )
+	    xoff += r.width() - w;
+	else if ( tf & Qt::AlignHCenter )
+	    xoff += ( r.width() - w ) / 2;
+
+	if ( brect )
+	    brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
+
 	if ( painter ) {
-	    int w = fm.width( parStr );
-	    int h = fm.height();
-	    int xoff = r.x();
-	    int yoff = r.y() + fm.ascent();
-
-	    if ( tf & Qt::AlignBottom )
-		yoff += r.height() - h;
-	    else if ( tf & Qt::AlignVCenter )
-		yoff += ( r.height() - h ) / 2;
-	    if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && parStr.isRightToLeft() )
-		tf |= Qt::AlignRight;
-	    if ( tf & Qt::AlignRight )
-		xoff += r.width() - w;
-	    else if ( tf & Qt::AlignHCenter )
-		xoff += ( r.width() - w ) / 2;
-
-	    if ( brect )
-		brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
-	
 	    QRegion reg;
 	    if ( painter->hasClipping() ) {
 		reg = painter->clipRegion();
