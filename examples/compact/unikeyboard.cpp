@@ -189,8 +189,9 @@ void UniScrollview::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 
 UniKeyboard::UniKeyboard(QWidget* parent, const char* name, int f )
-    : QWidget( parent, name, f )
+    : QFrame( parent, name, f )
 {
+    setFrameStyle( Box | Sunken );
     sv = new UniScrollview( this );
     cb = new QComboBox( FALSE, this );
     currentBlock = 0;
@@ -203,8 +204,9 @@ UniKeyboard::UniKeyboard(QWidget* parent, const char* name, int f )
 
 void UniKeyboard::resizeEvent(QResizeEvent *)
 {
-    cb->resize( width(), cb->sizeHint().height() );
-    sv->setGeometry( 0, cb->height(), width(), height()-cb->height() );
+    int d = frameWidth();
+    cb->setGeometry( d, d, width()-2*d, cb->sizeHint().height() );
+    sv->setGeometry( d, cb->height()+d, width()-2*d, height()-cb->height()-2*d );
 }
 
 void UniKeyboard::svMove( int /*x*/, int y )
@@ -212,7 +214,7 @@ void UniKeyboard::svMove( int /*x*/, int y )
     int cs = sv->cellSize();
     int u = ((y+cs-1)/cs) * nw;
     int i = currentBlock;
-    while ( blockMap[i].start > u ) {
+    while ( i > 0 && blockMap[i].start > u ) {
        i--;
     }
     while ( blockMap[i+1].name && blockMap[i+1].start < u ) {

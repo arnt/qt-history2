@@ -20,7 +20,7 @@ private:
 };
 
 
-class UniKeyboard : public QWidget 
+class UniKeyboard : public QFrame
 {
 Q_OBJECT
 public:
