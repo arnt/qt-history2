@@ -1757,11 +1757,6 @@ void QWidget::setWindowState(uint newstate)
 		    }
 		}
 	    } else {
-		ZoomWindow((WindowPtr)hd, inZoomIn, false);
-		if(QTLWExtra *tlextra = topData()) {
-		    if(tlextra->normalGeometry.width() < 0)
-			clearWState(WState_Resized);
-		}
 		Rect bounds;
 		ZoomWindow((WindowPtr)hd, inZoomIn, false);
 		GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
