@@ -8,6 +8,7 @@
 #include <qapplication.h>
 #include <qtextview.h>
 #include <qregexp.h>
+#include "../../tools/designer/plugins/designerinterface.h"
 
 /* 
  *  Constructs a LibraryInspector which is a child of 'parent', with the 
@@ -62,20 +63,29 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 	details->setText( text );
 	return;
     }
-    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( intMatch );
 
-    if ( intID == "QPlugInInterface" ) {
-	QPlugInInterface *piface = (QPlugInInterface*)iface;
-	text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->name() );
-	text += QString("<tr><td><b>Description:</b></td><td>%1</td></tr>").arg( piface->description() );
-	text += QString("<tr><td><b>Author:</b></td><td>%1</td></tr>").arg( piface->author() );
-	text += QString("<tr><td><b>Version:</b></td><td>%1</td></tr>").arg( piface->version() );
-    }
+    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( intMatch );
     if ( iface ) {
-	text += QString("<tr><td><b>Interface:</b></td><td>%1</td></tr>").arg( iface->name() );
+	if ( intMatch.match( "QPlugInInterface" ) ) {
+	    QPlugInInterface *piface = (QPlugInInterface*)iface;
+	    text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->name() );
+	    text += QString("<tr><td><b>Description:</b></td><td>%1</td></tr>").arg( piface->description() );
+	    text += QString("<tr><td><b>Author:</b></td><td>%1</td></tr>").arg( piface->author() );
+	    text += QString("<tr><td><b>Version:</b></td><td>%1</td></tr>").arg( piface->version() );
+	} else if ( intMatch.match( "WidgetInterface" ) ) {
+	    text += QString("<tr><td><b>Widgets</b></td><td>%1</td></tr>").arg( ((WidgetInterface*)iface)->featureList().join("<br>") );
+	} else if ( intMatch.match( "ActionInterface" ) ) {
+	    text += QString("<tr><td><b>Actions</b></td><td>%1</td></tr>").arg( ((ActionInterface*)iface)->featureList().join("<br>") );
+	} else if ( intMatch.match( "FilterInterface" ) ) {
+	    text += QString("<tr><td><b>Filters</b></td><td>%1</td></tr>").arg( ((FilterInterface*)iface)->featureList().join("<br>") );
+	}
+    }
+    text += QString("<tr><td><b>Debug info:</b></td><td>");
+    if ( iface ) {
+	text += QString("%1</td></tr>").arg( iface->name() );
 	iface->release();
     } else {
-	text += QString("<tr><td><b>Interface:</b></td><td>%1</td></tr>").arg( "<i>Can't create interface</i>" );
+	text += QString("%1</td></tr>").arg( "<i>Can't create interface</i>" );
     }
     text += "</table>";
     details->setText( text );
