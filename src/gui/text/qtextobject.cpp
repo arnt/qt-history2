@@ -1055,7 +1055,8 @@ QString QTextFragment::text() const
     QString buffer = p->buffer();
     int f = n;
     while (f != ne) {
-        result += QString(buffer.constData() + p->fragmentMap().position(f), p->fragmentMap().size(f));
+        const QTextFragmentData * const frag = p->fragmentMap().fragment(f);
+        result += QString(buffer.constData() + frag->stringPosition, frag->size);
         f = p->fragmentMap().next(f);
     }
     return result;
