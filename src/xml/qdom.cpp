@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#63 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#64 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5356,8 +5356,12 @@ QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentTypePrivate* dt )
     : QDomNodePrivate( 0 )
 {
     impl = new QDomImplementationPrivate();
-    type = dt;
-    type->ref();
+    if ( dt != 0 ) {
+	type = dt;
+	type->ref();
+    } else {
+	type = new QDomDocumentTypePrivate( this, this );
+    }
 
     if ( !docName )
 	docName = new QString( "#document" );
