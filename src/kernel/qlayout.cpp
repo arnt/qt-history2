@@ -786,7 +786,7 @@ QRect QGridLayoutData::cellGeometry( int row, int col ) const
 class QGridLayoutDataIterator : public QGLayoutIterator
 {
 public:
-    inline QGridLayoutDataIterator( QGridLayoutData *d ) : data(d) { ref = 1; toFirst(); }
+    inline QGridLayoutDataIterator( QGridLayoutData *d ) : data(d) { toFirst(); }
     inline uint count() const { return data->count(); }
     inline QLayoutItem *current() {
 	if ( multi ) {
@@ -1462,7 +1462,7 @@ public:
 class QBoxLayoutIterator : public QGLayoutIterator
 {
 public:
-    inline QBoxLayoutIterator(QBoxLayoutData *d) : data(d), idx(0) { ref = 1; }
+    inline QBoxLayoutIterator(QBoxLayoutData *d) : data(d), idx(0) { }
     inline QLayoutItem *current() {
 	if ( idx >= int(data->list.count()) )
 	    return 0;

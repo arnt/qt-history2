@@ -46,11 +46,12 @@ class QWidget;
 class Q_GUI_EXPORT QGLayoutIterator
 {
 public:
+    QAtomic ref;
+    inline QGLayoutIterator() { ref = 1; }
     virtual ~QGLayoutIterator();
     virtual QLayoutItem *next() = 0;
     virtual QLayoutItem *current() = 0;
     virtual QLayoutItem *takeCurrent() = 0;
-    QAtomic ref;
 };
 
 class Q_GUI_EXPORT QLayoutIterator
