@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -266,7 +266,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
     fi->setFormType( FormItem::Widget );
     fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     fi->setDragEnabled( FALSE );
-    fi = new FormItem( templateView, tr( "Mainwindow" ) );
+    fi = new FormItem( templateView, tr( "Main Window" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::MainWindow );
     fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
