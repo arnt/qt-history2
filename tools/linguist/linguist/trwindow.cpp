@@ -1099,25 +1099,42 @@ void TrWindow::about()
 
     QDialog about( this, 0, TRUE );
     about.setCaption( tr("Qt Linguist") );
+    QBoxLayout * layout = new QVBoxLayout( &about );
+    layout->setSpacing( 6 );
+    layout->setMargin( 11 );
 
     QLabel * splash = new QLabel( &about );
-    splash->setFrameStyle( QFrame::Panel | QFrame::Raised );
+    splash->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
     splash->setPixmap( pixmap );
     splash->setFixedSize( pixmap.width(), pixmap.height() );
+    layout->addWidget( splash );
 
-    QLabel * copyright = new QLabel( tr("Version 1.0 beta\n"
-			     "Copyright (c) 2000-2001 Trolltech AS"), &about );
+    QLabel * version = new QLabel( tr("Version 1.0"), &about );
+    version->setAlignment( QLabel::AlignCenter );
+    layout->addWidget( version );
+
+    QLabel * copyright = new QLabel( tr("Copyright (C) 2000-2001 Trolltech AS"),
+    				     &about );
     copyright->setAlignment( QLabel::AlignCenter );
+    layout->addWidget( copyright );
 
+    QSpacerItem* spacer = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    layout->addItem( spacer );
+
+    QBoxLayout * hlayout = new QHBoxLayout;
+    hlayout->setSpacing( 6 );
+    hlayout->setMargin( 0 );
+    QSpacerItem * lspacer = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    hlayout->addItem( lspacer );
     QPushButton * ok = new QPushButton( tr("OK"), &about, "ok about" );
+    ok->setAutoDefault( TRUE );
     ok->setDefault( TRUE );
-    about.setFocusProxy( ok );
-    connect( ok, SIGNAL(clicked()), &about, SLOT(accept()) );
+    hlayout->addWidget( ok );
+    QSpacerItem * rspacer = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    hlayout->addItem( rspacer );
+    layout->addLayout( hlayout );
 
-    QGridLayout * vlay = new QGridLayout( &about, 3, 3, 11, 6 );
-    vlay->addMultiCellWidget( splash, 0, 0, 0, 2 );
-    vlay->addMultiCellWidget( copyright, 1, 1, 0, 2 );
-    vlay->addWidget( ok, 2, 1 );
+    connect( ok, SIGNAL(clicked()), &about, SLOT(accept()) );
 
     about.exec();
 }

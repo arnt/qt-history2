@@ -17,9 +17,6 @@
     <property name="caption">
         <string>Qt Designer</string>
     </property>
-    <property name="sizeGripEnabled">
-        <bool>true</bool>
-    </property>
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
