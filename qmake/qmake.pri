@@ -2,7 +2,7 @@ CONFIG += depend_includepath
 
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
-DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES QT_NODLL QT_NO_THREAD
+DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES
 
 #qmake code
 SOURCES+= project.cpp property.cpp main.cpp generators/makefile.cpp \
@@ -25,6 +25,7 @@ HEADERS+= project.h property.h generators/makefile.h \
 	  generators/xmloutput.h
 
 bootstrap { #Qt code
+   DEFINES+=QT_NODLL QT_NO_THREAD
    SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
             qtextstream.cpp qiodevice.cpp qglobal.cpp \
 	    qbytearray.cpp qbytearraymatcher.cpp \
