@@ -50,7 +50,7 @@ public:
     QSimpleRichText( const QString& text, const QFont& fnt,
 		     const QString& context = QString::null, const QStyleSheet* sheet = 0);
     QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context,  const QStyleSheet* sheet, 
+		     const QString& context,  const QStyleSheet* sheet,
 		     const QMimeSourceFactory* factory, int verticalBreak = -1,
 		     const QColor& linkColor = Qt::blue, bool linkUnderline = TRUE );
     ~QSimpleRichText();
@@ -63,15 +63,11 @@ public:
     void adjustSize();
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
-	       const QPalette& pal, const QBrush* paper = 0) const;
-
-    void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
 
     QString context() const;
     QString anchorAt( const QPoint& pos ) const;
-    QString anchor( QPainter* p, const QPoint& pos ); // remove in 3.0
-    
+
     bool inText( const QPoint& pos ) const;
 
 private:

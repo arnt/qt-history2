@@ -70,9 +70,6 @@ public:
     void setPaper( const QBrush& pap);
     QBrush paper() const;
 
-    void setPaperColorGroup( const QColorGroup& colgrp);
-    QColorGroup paperColorGroup() const;
-
     void setLinkColor( const QColor& );
     QColor linkColor() const;
 
@@ -94,6 +91,7 @@ public:
     QString documentTitle() const;
 
     void scrollToAnchor( const QString& name );
+    QString anchorAt(const QPoint& pos);
 
 public slots:
     virtual void undo();

@@ -1,5 +1,6 @@
 #include "qsimplerichtext.h"
 #include "qrichtext_p.h"
+#include "qapplication.h"
 
 class QSimpleRichTextData
 {
@@ -27,7 +28,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords( d->doc ) );
     d->doc->setDefaultFont( fnt );
-    d->doc->flow()->pagesize = verticalBreak;
+    d->doc->flow()->setPageSize( verticalBreak );
     d->doc->setVerticalBreak( TRUE );
     d->doc->setStyleSheet( sheet );
     d->doc->setMimeSourceFactory( factory );
@@ -57,8 +58,7 @@ int QSimpleRichText::width() const
 
 int QSimpleRichText::widthUsed() const
 {
-    ASSERT( 0 );
-    return 0;
+    return d->doc->widthUsed();
 }
 
 int QSimpleRichText::height() const
@@ -66,22 +66,36 @@ int QSimpleRichText::height() const
     return d->doc->height();
 }
 
-void QSimpleRichText::adjustSize()
+static uint int_sqrt(uint n)
 {
-    ASSERT( 0 );
+    uint h, p= 0, q= 1, r= n;
+    ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
+    while ( q <= n )
+	q <<= 2;
+    while ( q != 1 ) {
+	q >>= 2;
+	h= p + q;
+	p >>= 1;
+	if ( r >= h ) {
+	    p += q;
+	    r -= h;
+	}
+    }
+    return p;
 }
 
-void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
-			    const QPalette& pal, const QBrush* paper ) const
+void QSimpleRichText::adjustSize()
 {
-    ASSERT( 0 );
+    int mw = QApplication::desktop()->width();
+    int w = mw;
+    d->doc->doLayout( 0,w );
+    w = int_sqrt( (5*d->doc->height()) / (3*d->doc->widthUsed() ) );
+    d->doc->doLayout( 0, QMIN( w, mw) );
 
-    Q_UNUSED( p ); // #### use them
-    Q_UNUSED( x );
-    Q_UNUSED( y );
-    Q_CONST_UNUSED( clipRegion );
-    Q_CONST_UNUSED( pal );
-    Q_UNUSED( paper );
+    if ( w*3 < 5*d->doc->height() ) {
+	w = int_sqrt(6*d->doc->height()/3*d->doc->widthUsed() );
+	d->doc->doLayout( 0,QMIN(w, mw ) );
+    }
 }
 
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
@@ -100,34 +114,22 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegio
 
 QString QSimpleRichText::context() const
 {
-    ASSERT( 0 );
-    return QString::null;
+    return d->doc->context();
 }
 
 QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 {
-    ASSERT( 0 );
-
-    Q_CONST_UNUSED( pos ); // ### use iz
-
-    return QString::null;
-}
-
-QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
-{
-    ASSERT( 0 );
-
-    Q_UNUSED( p ); // ### use them
-    Q_CONST_UNUSED( pos );
-
-    return QString::null;
+    QTextCursor c( d->doc );
+    c.place( pos, d->doc->firstParag() );
+    return c.parag()->at( c.index() )->format()->anchorHref();
 }
 
 bool QSimpleRichText::inText( const QPoint& pos ) const
 {
-    ASSERT( 0 );
-
-    Q_CONST_UNUSED( pos ); // #### use it
-
-    return FALSE;
+    if ( pos.y()  > d->doc->height() )
+	return FALSE;
+    QTextCursor c( d->doc );
+    c.place( pos, d->doc->firstParag() );
+    return c.totalOffsetX() + c.parag()->at( c.index() )->x + 
+	c.parag()->at( c.index() )->format()->width( c.parag()->at( c.index() )->c ) > pos.x();
 }

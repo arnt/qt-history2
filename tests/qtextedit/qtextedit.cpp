@@ -754,61 +754,9 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
     if ( !c )
 	c = cursor;
 
+    c->restoreState();
     QTextParag *s = doc->firstParag();
-    QRect r;
-    while ( s ) {
-	r = s->rect();
-	r.setWidth( contentsWidth() );
-	if ( r.contains( pos ) )
-	    break;
-	s = s->next();
-    }
-
-    if ( !s )
-	return;
-
-    c->setParag( s );
-    int y = s->rect().y();
-    int lines = s->lines();
-    QTextString::Char *chr = 0, *c2;
-    int index;
-    int i = 0;
-    int cy;
-    int ch=0;
-    for ( ; i < lines; ++i ) {
-	chr = s->lineStartOfLine( i, &index );
-	cy = s->lineY( i );
-	ch = s->lineHeight( i );
-	if ( !chr )
-	    return;
-	if ( pos.y() >= y + cy && pos.y() <= y + cy + ch )
-	    break;
-    }
-
-    c2 = chr;
-    i = index;
-    int x = s->rect().x(), last = index;
-    int lastw = 0;
-    int h = ch;
-    int bl;
-    int cw;
-    while ( TRUE ) {
-	if ( c2->lineStart )
-	    h = s->lineHeightOfChar( i, &bl, &cy );
-	last = i;
-	cw = c2->width();
-	if ( pos.x() >= x + c2->x - lastw && pos.x() <= x + c2->x + cw / 2 &&
-	     pos.y() >= y + cy && pos.y() <= y + cy + h )
-	    break;
-	lastw = cw / 2;
-	i++;
-	if ( i < s->length() )
-	    c2 = s->at( i );
-	else
-	    break;
-    }
-
-    c->setIndex( last );
+    c->place( pos,  s );
 }
 
 void QTextEdit::formatMore()
@@ -835,10 +783,10 @@ void QTextEdit::formatMore()
 	    lastBottom = -1;
     }
 
-    if ( bottom > contentsHeight() && !cursor->document()->parent() ) // ####### (should do something for nested stuff)
-	resizeContents( contentsWidth(), QMAX( doc->flow()->height, bottom ) );
-    else if ( lastBottom != -1 && lastBottom < contentsHeight() && !cursor->document()->parent() ) // ####### (should do something for nested stuff)
-	resizeContents( contentsWidth(), QMAX( doc->flow()->height, lastBottom ) );
+    if ( bottom > contentsHeight() && !cursor->document()->parent() )
+	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
+    else if ( lastBottom != -1 && lastBottom < contentsHeight() && !cursor->document()->parent() )
+	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
 
     if ( lastFormatted )
 	formatTimer->start( interval, TRUE );
@@ -1276,11 +1224,13 @@ QString QTextEdit::text( int parag, bool formatted ) const
 
 void QTextEdit::setText( const QString &txt, const QString &context, bool tabify )
 {
+    lastFormatted = 0;
     doc->setText( txt, context, tabify );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
     emit textChanged();
+    formatMore();
 }
 
 QString QTextEdit::fileName() const
@@ -1572,6 +1522,8 @@ void QTextEdit::setStyleSheet( const QStyleSheet* styleSheet )
 void QTextEdit::setPaper( const QBrush& pap )
 {
     doc->setPaper( new QBrush( pap ) );
+    viewport()->setBackgroundColor( pap.color() );
+    viewport()->update();
 }
 
 QBrush QTextEdit::paper() const
@@ -1579,18 +1531,6 @@ QBrush QTextEdit::paper() const
     if ( doc->paper() )
 	return *doc->paper();
     return QBrush();
-}
-
-void QTextEdit::setPaperColorGroup( const QColorGroup& colgrp )
-{
-    Q_CONST_UNUSED( colgrp );
-    ASSERT( 0 );
-}
-
-QColorGroup QTextEdit::paperColorGroup() const
-{
-    ASSERT( 0 );
-    return colorGroup();
 }
 
 void QTextEdit::setLinkColor( const QColor &c )
@@ -1625,16 +1565,20 @@ const QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
 
 int QTextEdit::heightForWidth( int w ) const
 {
-    Q_UNUSED( w );
-    ASSERT( 0 );
-    // ##### make copy of document, do doc->doLayout() and return its height
-    return 0;
+    int oldw = doc->width();
+    doc->doLayout( 0, w );
+    return doc->height();
+    doc->setWidth( oldw );
+    doc->invalidate();
+    ( (QTextEdit*)this )->formatMore();
 }
 
 void QTextEdit::append( const QString& text )
 {
-    Q_CONST_UNUSED( text );
-    ASSERT( 0 );
+    QTextCursor oldc( *cursor );
+    cursor->gotoEnd();
+    insert( text, FALSE, TRUE );
+    *cursor = oldc;
 }
 
 bool QTextEdit::hasSelectedText() const
@@ -1720,4 +1664,11 @@ void QTextEdit::scrollToAnchor( const QString& name )
 	}
 	p = p->next();
     }
+}
+
+QString QTextEdit::anchorAt( const QPoint& pos )
+{
+    QTextCursor c( doc );
+    placeCursor( pos, &c );
+    return c.parag()->at( c.index() )->format()->anchorHref();
 }

@@ -81,7 +81,6 @@ protected:
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
-    QString anchorAt(const QPoint& pos); // public in 3.0
     QTextBrowserData *d;
 
 private:	// Disabled copy constructor and operator=

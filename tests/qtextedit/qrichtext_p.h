@@ -53,7 +53,7 @@ public:
 
     QTextParag *parag() const;
     int index() const;
-    void setParag( QTextParag *s );
+    void setParag( QTextParag *s, bool restore = TRUE );
 
     void gotoLeft();
     void gotoRight();
@@ -76,7 +76,7 @@ public:
     bool atParagStart();
     bool atParagEnd();
 
-    void setIndex( int i );
+    void setIndex( int i, bool restore = TRUE );
 
     bool checkParens();
     void checkIndex();
@@ -87,7 +87,10 @@ public:
     QTextParag *topParag() const { return parags.isEmpty() ? string : parags.first(); }
     int totalOffsetX() const;
     int totalOffsetY() const;
-
+    
+    void place( const QPoint &pos, QTextParag *s );
+    void restoreState();
+    
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
 
@@ -98,7 +101,7 @@ private:
     void pop();
     void processNesting( Operation op );
     void invalidateNested();
-    void restoreState();
+    void gotoIntoNested( const QPoint &globalPos );
 
     QTextParag *string;
     QTextDocument *doc;
@@ -203,7 +206,7 @@ class QTextDocument
     friend class QTextCursor;
     friend class QTextEdit;
     friend class QTextParag;
-    
+
 public:
     enum SelectionIds {
 	Standard = 0,
@@ -229,7 +232,9 @@ public:
 
     void setText( const QString &text, const QString &context, bool tabify = FALSE );
     void load( const QString &fn, bool tabify = FALSE );
-
+    QMap<QString, QString> attributes() const { return attribs; }
+    void setAttributes( const QMap<QString, QString> &attr ) { attribs = attr; }
+    
     void save( const QString &fn = QString::null, bool untabify = FALSE );
     QString fileName() const;
     QString text( bool untabify = FALSE ) const;
@@ -238,9 +243,12 @@ public:
     int x() const;
     int y() const;
     int width() const;
+    int widthUsed() const;
     int height() const;
     void setWidth( int w );
-
+    int minimumWidth() const;
+    bool setMinimumWidth( int w, QTextParag *parag );
+    
     QTextParag *firstParag() const;
     QTextParag *lastParag() const;
     void setFirstParag( QTextParag *p );
@@ -348,7 +356,7 @@ public:
     QString plainText( QTextParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
 
     bool focusNextPrevChild( bool next );
-    
+
 private:
     void clear();
     QPixmap *bufferPixmap( const QSize &s );
@@ -375,7 +383,7 @@ private:
 	int start, len;
 	QString href;
     };
-    
+
     int cx, cy, cw;
     QTextParag *fParag, *lParag;
     QTextSyntaxHighlighter *syntaxHighlighte;
@@ -404,11 +412,13 @@ private:
     QPixmap *buf_pixmap;
     bool nextDoubleBuffered;
     Focus focusIndicator;
-    
+    int minw;
+    QTextParag *minwParag;
     const QStyleSheet* sheet_;
     const QMimeSourceFactory* factory_;
     QString contxt;
-
+    QMap<QString, QString> attribs;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -712,7 +722,7 @@ protected:
 class QTextFormat
 {
     friend class QTextFormatCollection;
-    
+
 public:
     enum Flags {
 	Bold = 1,
@@ -812,7 +822,8 @@ public:
     virtual void invalidate() {};
 
     virtual bool isNested() const { return FALSE; }
-
+    virtual int minimumWidth() const { return 0; }
+    
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
@@ -820,6 +831,9 @@ public:
 
     virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd )
+    }
+    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
     }
     virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
 	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
@@ -871,12 +885,17 @@ private:
 
 class QTextFlow
 {
+    friend class QTextDocument;
+    friend class QTextTableCell;
+    
 public:
     QTextFlow();
     ~QTextFlow();
 
     void setWidth( int w );
-
+    void setPageSize( int ps ) { pagesize = ps; }
+    int pageSize() const { return pagesize; }
+    
     int adjustLMargin( int yp, int margin, int space );
     int adjustRMargin( int yp, int margin, int space );
 
@@ -885,16 +904,15 @@ public:
     void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
     void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
 
-    int width;
-    int widthUsed;
-    int height;
-
-    int pagesize;
-
     bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
     void updateHeight( QTextCustomItem *i );
 
 private:
+    int width;
+    int height;
+
+    int pagesize;
+
     QList<QTextCustomItem> leftItems;
     QList<QTextCustomItem> rightItems;
 
@@ -977,11 +995,14 @@ public:
     QString anchorAt( QPainter* p, int x, int y );
 
     virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
     virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
     virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
     virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
     virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
+    int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
+    
 private:
     QGridLayout* layout;
     QList<QTextTableCell> cells;
@@ -997,6 +1018,7 @@ private:
     int outerborder;
     int stretch;
     int innerborder;
+    int lastX, lastY;
 
     int currCell;
 
@@ -1047,9 +1069,10 @@ inline int QTextCursor::index() const
     return idx;
 }
 
-inline void QTextCursor::setIndex( int i )
+inline void QTextCursor::setIndex( int i, bool restore )
 {
-    restoreState();
+    if ( restore )
+	restoreState();
     tmpIndex = -1;
     idx = i;
 }
@@ -1069,9 +1092,10 @@ inline bool QTextCursor::checkParens()
     return FALSE;
 }
 
-inline void QTextCursor::setParag( QTextParag *s )
+inline void QTextCursor::setParag( QTextParag *s, bool restore )
 {
-    restoreState();
+    if ( restore )
+	restoreState();
     idx = 0;
     string = s;
     tmpIndex = -1;
@@ -1097,7 +1121,7 @@ inline int QTextDocument::y() const
 
 inline int QTextDocument::width() const
 {
-    return cw;
+    return QMAX( cw, flow_->width );
 }
 
 inline int QTextDocument::height() const
@@ -1129,8 +1153,13 @@ inline void QTextDocument::setLastParag( QTextParag *p )
 
 inline void QTextDocument::setWidth( int w )
 {
-    cw = w;
-    flow_->setWidth( w );
+    cw = QMAX( w, minw );
+    flow_->setWidth( cw );
+}
+
+inline int QTextDocument::minimumWidth() const
+{
+    return minw;
 }
 
 inline QTextSyntaxHighlighter *QTextDocument::syntaxHighlighter() const

@@ -195,6 +195,18 @@ int QTextCursor::totalOffsetY() const
     return yoff;
 }
 
+void QTextCursor::gotoIntoNested( const QPoint &globalPos )
+{
+    push();
+    ox = 0;
+    int bl, y;
+    string->lineHeightOfChar( idx, &bl, &y );
+    oy = y + string->rect().y();
+    nested = TRUE;
+    QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
+    string->at( idx )->customItem()->enterAt( doc, string, idx, ox, oy, p );
+}
+
 void QTextCursor::invalidateNested()
 {
     if ( nested ) {
@@ -309,6 +321,72 @@ void QTextCursor::restoreState()
 {
     while ( !indices.isEmpty() )
 	pop();
+}
+
+void QTextCursor::place( const QPoint &pos, QTextParag *s )
+{
+    QRect r;
+    while ( s ) {
+	r = s->rect();
+	r.setWidth( doc->width() );
+	if ( r.contains( pos ) )
+	    break;
+	s = s->next();
+    }
+
+    if ( !s )
+	return;
+
+    setParag( s, FALSE );
+    int y = s->rect().y();
+    int lines = s->lines();
+    QTextString::Char *chr = 0, *c2;
+    int index;
+    int i = 0;
+    int cy;
+    int ch;
+    for ( ; i < lines; ++i ) {
+	chr = s->lineStartOfLine( i, &index );
+	cy = s->lineY( i );
+	ch = s->lineHeight( i );
+	if ( !chr )
+	    return;
+	if ( pos.y() >= y + cy && pos.y() <= y + cy + ch )
+	    break;
+    }
+
+    c2 = chr;
+    i = index;
+    int x = s->rect().x(), last = index;
+    int lastw = 0;
+    int h = ch;
+    int bl;
+    int cw;
+    while ( TRUE ) {
+	if ( c2->lineStart )
+	    h = s->lineHeightOfChar( i, &bl, &cy );
+	last = i;
+	cw = c2->width();
+	if ( c2->isCustom && c2->customItem()->isNested() )
+	    cw *= 2;
+	if ( pos.x() >= x + c2->x - lastw && pos.x() <= x + c2->x + cw / 2 &&
+	     pos.y() >= y + cy && pos.y() <= y + cy + h )
+	    break;
+	lastw = cw / 2;
+	i++;
+	if ( i < s->length() )
+	    c2 = s->at( i );
+	else
+	    break;
+    }
+
+    setIndex( last, FALSE );
+
+    if ( parag()->at( last )->isCustom && parag()->at( last )->customItem()->isNested() ) {
+	gotoIntoNested( pos );
+	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
+	place( p, document()->firstParag() );
+    }
 }
 
 void QTextCursor::processNesting( Operation op )
@@ -898,7 +976,9 @@ QTextDocument::QTextDocument( QTextDocument *p )
     filename = QString::null;
     pages = FALSE;
     focusIndicator.parag = 0;
-
+    minw = 0;
+    minwParag = 0;
+    
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
@@ -944,6 +1024,31 @@ void QTextDocument::clear()
 	fParag = p;
     }
     fParag = 0;
+}
+
+int QTextDocument::widthUsed() const
+{
+    QTextParag *p = fParag;
+    int w = 0;
+    while ( p ) {
+	w = QMAX( w, p->rect().width() );
+	p = p->next();
+    }
+    return w;
+}
+
+bool QTextDocument::setMinimumWidth( int, QTextParag * )
+{
+    // ########## implemente minimum width stuff properly
+    return FALSE;
+    //     if ( w <= minw && parag != minwParag )
+// 	return FALSE;
+
+//     qDebug( "new minw: %d", w );
+    
+//     minw = w;
+//     minwParag = parag;
+//     return TRUE;
 }
 
 void QTextDocument::setPlainText( const QString &text, bool tabify )
@@ -2062,14 +2167,14 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
     }
 
     parag = lastParag();
-    if ( parag->rect().y() + parag->rect().height() < flow()->height ) {
+    if ( parag->rect().y() + parag->rect().height() < height() ) {
 	p->fillRect( 0, parag->rect().y() + parag->rect().height(), width(),
-		     flow()->height - ( parag->rect().y() + parag->rect().height() ),
+		     height() - ( parag->rect().y() + parag->rect().height() ),
 		     cg.brush( QColorGroup::Base ) );
 	if ( !flow()->isEmpty() ) {
 	    QRect cr( cx, cy, cw, ch );
 	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), width(),
-				      flow()->height - ( parag->rect().y() + parag->rect().height() ) ) );
+				      height() - ( parag->rect().y() + parag->rect().height() ) ) );
 	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg );
 	}
     }
@@ -3021,6 +3126,7 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start )
 	}
 	
 	if ( c->isCustom && c->customItem()->ownLine() ) {
+// 	    doc->setMinimumWidth( c->customItem()->minimumWidth(), parag ); #### needed for minimumWidth stuff
 	    x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 	    w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 	    c->customItem()->width = dw;
@@ -3128,6 +3234,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start )
 	}
 	
 	if ( c->isCustom && c->customItem()->ownLine() ) {
+// 	    doc->setMinimumWidth( c->customItem()->minimumWidth(), parag ); ##### needed for minimum width stuff
 	    x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 	    w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 	    c->customItem()->width = dw;
@@ -4136,7 +4243,7 @@ QString QTextDocument::parseCloseTag( const QString& doc, int& pos )
 
 QTextFlow::QTextFlow()
 {
-    width = widthUsed = height = pagesize = 0;
+    width = height = pagesize = 0;
     leftItems.setAutoDelete( FALSE );
     rightItems.setAutoDelete( FALSE );
 }
@@ -4149,7 +4256,6 @@ void QTextFlow::setWidth( int w )
 {
     height = 0;
     width = w;
-    widthUsed = 0;
 }
 
 int QTextFlow::adjustLMargin( int yp, int margin, int space )
@@ -4174,12 +4280,8 @@ int QTextFlow::adjustRMargin( int yp, int margin, int space )
     return margin;
 }
 
-void QTextFlow::adjustFlow( int &yp, int w, int h, bool pages )
+void QTextFlow::adjustFlow( int &yp, int , int h, bool pages )
 {
-    if ( w > widthUsed )
-	widthUsed = w;
-
-
     if ( pages && pagesize > 0 ) { // check pages
 	int ty = yp;
 	int yinpage = ty % pagesize;
@@ -4192,7 +4294,6 @@ void QTextFlow::adjustFlow( int &yp, int w, int h, bool pages )
 
     if ( yp + h > height )
 	height = yp + h;
-
 }
 
 void QTextFlow::unregisterFloatingItem( QTextCustomItem* item )
@@ -4305,7 +4406,7 @@ void QTextTable::adjustToPainter( QPainter* p)
 
 void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
 {
-    if ( flow->pagesize <= 0 )
+    if ( flow->pageSize() <= 0 )
 	return;
     int shift = 0;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
@@ -4332,6 +4433,9 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	y = ypos;
     }
 
+    lastX = x;
+    lastY = y;
+    
     painter = p;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( cx < 0 && cy < 0 ||
@@ -4420,6 +4524,33 @@ void QTextTable::enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &
 	currCell = cells.count();
 	prev( doc, parag, idx, ox, oy );
     }
+}
+
+void QTextTable::enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
+{
+    currCell = -1;
+    for ( int i = 0; i < (int)cells.count(); ++i ) {
+	QTextTableCell *cell = cells.at( i );
+	if ( cell->geometry().x() <= pos.x() &&
+	     cell->geometry().y() <= pos.y() &&
+	     cell->geometry().x() + cell->geometry().width() >= pos.x() &&
+	     cell->geometry().y() + cell->geometry().height() >= pos.y() ) {
+	    currCell = i;
+	    break;
+	}
+    }
+    
+    if ( currCell == -1 ) {
+	QTextCustomItem::enterAt( doc, parag, idx, ox, oy, pos );
+	return;
+    }
+    
+    QTextTableCell *cell = cells.at( currCell );
+    doc = cell->richText();
+    parag = doc->firstParag();
+    idx = 0;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y() + outerborder;
 }
 
 void QTextTable::next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -4668,9 +4799,9 @@ void QTextTableCell::adjustToPainter()
 	return;
 
     richtext->doLayout(painter(), QWIDGETSIZE_MAX );
-    maxw = richtext->flow()->widthUsed + 6;
+    maxw = richtext->widthUsed() + 6;
     richtext->doLayout(painter(), 0 );
-    minw = richtext->flow()->widthUsed;
+    minw = richtext->widthUsed();
 }
 
 QPainter* QTextTableCell::painter() const

@@ -186,20 +186,17 @@ void QTextBrowser::setSource(const QString& name)
 		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
 	    }
 	}
-#if 0 // ##################
-	
  	if ( isVisible() ) {
  	    QString firstTag = txt.left( txt.find('>' )+1 );
- 	    QRichText* tmp = new QRichText( firstTag, QApplication::font() );
- 	    static QString s_type = QString::fromLatin1("type");
+ 	    QTextDocument* tmp = new QTextDocument( 0 );
+	    tmp->setRichText( firstTag, context() );
+ 	    static QString s_type = QString::fromLatin1("type"); // ####### stuff in html parser needed for that
  	    static QString s_detail = QString::fromLatin1("detail");
 	    bool doReturn = FALSE;
  	    if ( tmp->attributes().contains(s_type)
 		 && tmp->attributes()[s_type] == s_detail )
 		doReturn = TRUE;
-	    QTextFormatCollection* formats = tmp->formats;
 	    delete tmp;
-	    delete formats; //#### fix inheritance structure in rich text
 	    if ( doReturn ) {
  		popupDetail( txt, d->lastClick );
 #ifndef QT_NO_CURSOR
@@ -208,7 +205,6 @@ void QTextBrowser::setSource(const QString& name)
  		return;
  	    }
  	}
-#endif
 	
 	d->curmain = url;
 	dosettext = TRUE;
@@ -362,15 +358,6 @@ void QTextBrowser::keyPressEvent( QKeyEvent * e )
     }
     QTextView::keyPressEvent(e);
 }
-
-
-QString QTextBrowser::anchorAt(const QPoint& pos)
-{
-#if 0 // #########
-    return richText().anchorAt( QPoint(contentsX(), contentsY() ) + pos );
-#endif
-}
-
 
 class QTextDetailPopup : public QWidget
 {
