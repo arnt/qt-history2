@@ -1790,27 +1790,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//finally send the event to the widget if its not the popup
 	if ( widget && widget != popupwidget ) {
-	    if(ekind == kEventMouseDown) {
+	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
+		if(popupwidget) //guess we hide the popup...
+		    popupwidget->hide();
+
 		QWidget* w = widget;
 		while ( w->focusProxy() )
 		    w = w->focusProxy();
-		if(QWidget *tlw = w->topLevelWidget()) {
-		    tlw->raise();
-		    if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
-		       (tlw->isModal() || !tlw->isDialog()))
-			app->setActiveWindow(tlw);
+		if(ekind == kEventMouseDown) {
+		    if(QWidget *tlw = w->topLevelWidget()) {
+			tlw->raise();
+			if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
+			   (tlw->isModal() || !tlw->isDialog()))
+			    app->setActiveWindow(tlw);
+		    }
 		}
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		int fp = (ekind == kEventMouseDown) ? QWidget::ClickFocus : QWidget::WheelFocus;
+		if ( w->focusPolicy() & fp) {
 		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    } else if(ekind == kEventMouseWheelMoved) {
-		QWidget* w = widget;
-		while( w->focusProxy() )
-		    w = w->focusProxy();
-		if( w->focusPolicy() & QWidget::WheelFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse );
 		    w->setFocus();
 		    QFocusEvent::resetReason();
 		}
