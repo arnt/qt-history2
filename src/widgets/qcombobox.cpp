@@ -1279,7 +1279,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( !d->ed ) {
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    if ( item ) {
-		int itemh = item->height( d->listBox() );
+		// we calculate the QListBoxTexts height (ignoring strut)
+		int itemh = d->listBox()->fontMetrics().lineSpacing() + 2;
 		p.translate( re.x(), re.y() + (re.height() - itemh)/2  );
 		item->paint( &p );
 	    }
