@@ -945,7 +945,8 @@ void Configure::generateMakefiles()
 	    QStringList args;
 	    switch( projectType( projectName ) ) {
 	    case ProjectType::Subdirs:
-		continue;
+		qmakeTemplate = "subdirs";
+		break;
 	    case ProjectType::App:
 		qmakeTemplate = "vcapp";
 		break;
@@ -968,9 +969,11 @@ void Configure::generateMakefiles()
 		cout << "For " << projectName.latin1() << endl;
 
 	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-	    if( int r = system( args.join( " " ).latin1() ) ) {
-		cout << "Qmake failed, return code " << r  << endl << endl;
-		dictionary[ "DONE" ] = "yes";
+	    if ( !( qmakeTemplate == "subdirs" && makefileName.right( 4 ) == ".dsp" ) ) {
+		if( int r = system( args.join( " " ).latin1() ) ) {
+		    cout << "Qmake failed, return code " << r  << endl << endl;
+		    dictionary[ "DONE" ] = "yes";
+		}
 	    }
 
 	}
