@@ -54,7 +54,7 @@ QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
 }
 
 QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
-                                     const QItemOptions &options, const QModelIndex &item) const
+                                     const QItemOptions &options, const QModelIndex &item)
 {
     if (item.type() != QModelIndex::View)
         return 0;

@@ -18,7 +18,7 @@ public:
     // editing
     QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
     QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
-                          const QItemOptions &options, const QModelIndex &item) const;
+                          const QItemOptions &options, const QModelIndex &item);
     void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
     void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;

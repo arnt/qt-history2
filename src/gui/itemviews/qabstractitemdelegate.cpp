@@ -57,7 +57,7 @@ QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelInde
 }
 
 QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *, const QItemOptions&,
-                                             const QModelIndex &) const
+                                             const QModelIndex &)
 {
     return 0;
 }
