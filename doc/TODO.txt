@@ -168,6 +168,9 @@ XML Query mechanism (rms?)
 Extending existing functionality
 --------------------------------
 
+QAction
+    QAction should remove itself from widgets it has been added to when deleted.
+
 Action/Mainwindow editor (Reggie)
     Actioneditor for QMainWindow so that one can drag'n'drop
     actions in a special mode between the actin editor (which shows
