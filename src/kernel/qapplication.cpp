@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#258 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#259 $
 **
 ** Implementation of QApplication class
 **
@@ -860,7 +860,8 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
+	    if ( ( !className  || w->inherits( className ) ) && // that fit with classname
+		!w->testWFlags(WType_Desktop) // (except desktop)
 		 && !w->testWState(WState_PaletteFixed) ) {// (and except fixed palettes)
 		w->setPalette( QApplication::palette( w ) );
 	    }
@@ -943,7 +944,8 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
+	    if ( ( !className  || w->inherits( className ) ) && // that fit with classname
+		 !w->testWFlags(WType_Desktop) // (except desktop)
 		 && !w->testWState(WState_FontFixed) ) // (and except fixed fonts)
 		w->setFont( QApplication::font( w ) );
 	}
@@ -1172,7 +1174,7 @@ void QApplication::closeAllWindows()
 
   This signal is emitted when the user has closed the last remaining
   top level window.
-  
+
   The signal is very useful when your application has many top level
   widgets but no main widget. You can then connect it to the quit() slot.
 
