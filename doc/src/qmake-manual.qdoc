@@ -2,36 +2,37 @@
     \page qmake-manual.html
     \title qmake Manual
 
-    \c qmake is a tool created by Trolltech to write makefiles for
-    different compilers and platforms.
+    \c qmake is an tool from Trolltech that helps simplify the build
+    process for development project across different platforms.  \c qmake
+    automates the generation of Makefiles so that only a few lines of
+    information are needed to create each Makefile. \c qmake can be used for
+    any software project, whether it is written in Qt or not.
 
-    Writing makefiles by hand can be difficult and error prone, especially
-    if several makefiles are required for different compiler and platform
-    combinations. With \c qmake, developers create a simple single
-    project file and run \c qmake to generate the appropriate
-    makefiles. \c qmake takes care of all the compiler and platform
-    dependencies, freeing developers to focus on their code. Trolltech
-    uses \c qmake as the primary build tool for the Qt library, and for
-    the tools supplied with Qt.
-
-    \c qmake also takes care of Qt's special requirements, automatically
-    including build rules for \link moc.html moc\endlink and \c uic.
+    \c qmake generates a Makefile based on the information in a project
+    file.  Project files are created by the developer, and are usually
+    simple, but more sophisticated project files can be created for
+    complex projects.
+    \c qmake contains additional features to support development with Qt,
+    automatically including build rules for \link moc.html moc\endlink
+    and \c uic.
+    \c qmake can also generate projects for Microsoft Visual studio
+    without requiring the developer to change the project file.
 
     Table of contents:
 
     \list
-    \o \l{qmake-installation.html}{Installing qmake}
+    \o \l{qmake-installing.html}{Installing qmake}
+    \o \l{qmake-using.html}{Using qmake}
     \o \l{qmake-quickguide.html}{The Ten-Minute Guide to Using qmake}
     \o \l{qmake-tutorial.html}{qmake Tutorial}
-    \o \l{qmake-concepts.html}{qmake's Concepts}
+    \o \l{qmake-project-files.html}{Project Files}
     \o \l{qmake-advancedconcepts.html}{qmake's Advanced Concepts}
-    \o \l{qmake-precompiledheaders.html}{Using Precompiled Headers}
     \o \l{qmake-commandreference.html}{qmake Command Reference}
     \endlist
 */
 
 /*!
-    \page qmake-installation.html
+    \page qmake-installing.html
     \title Installing qmake
 
     \c qmake is built by default when Qt is built.  
@@ -43,6 +44,34 @@
 
     Before building Qt manually the following environment variables must
     be set:
+
+    \c QTDIR must be set to where Qt is (or will be) installed.
+    For example, \c {c:\\qt} and \c {\\local\\qt} 
+
+    \section2 Configuring qmake
+
+    Before \c qmake can be used to build Makefiles, the QMAKESPEC
+    environment variable must be set to the platform-compiler combination
+    that is being used on the system.  The QMAKESPEC environment variable
+    tells qmake where to look to find platform and compiler specific
+    information.  This ensures that the right libraries are used, and that
+    the generated Makefile uses the correct syntax.  A list of the
+    currently supported platform-compiler combinations can be found in
+    qt/mkspecs.  Just set your environment variable to one of the
+    directories listed.
+
+    For example, if you are using Microsoft Visual Studio on Windows, then
+    you would set the QMAKESPEC environment variable to \c win32-msvc.
+    If you are using gcc on Solaris then you would set your QMAKESPEC
+    environment variable to \c solaris-g++.
+
+    Inside each of the directories in qt/mkspecs, there is a \c qmake.conf
+    file which contains the platform and compiler specific information.
+    These settings are applied to any project that is built using \c
+    qmake and should not be modified unless you're an expert. For example,
+    if all your applications had to link against a particular library, you
+    might add this information to the relevant \c qmake.conf file.
+
 
     \list
     \i \c QMAKESPEC must be set to the platform and compiler
@@ -61,7 +90,7 @@
         bsdi-g++     hpux-o64   linux-icc     qnx-g++     tru64-cxx    win32-msvc 
         dgux-g++     hurd-g++   linux-kcc     reliant-64  tru64-g++    win32-watc
         freebsd-g++  irix-64    macx-pbuilder reliant-cds ultrix-g++   win32-visa    
-        hpux-acc     irix-g++   macx-g++      sco-g++     unixware-g        	
+        hpux-acc     irix-g++   macx-g++      sco-g++     unixware-g            
         hpux-acc     irix-n32   solaris-64    unixware7-cc 
     \endcode
 
@@ -73,9 +102,7 @@
         linux-freebsd-g++  linux-ipaq-g++     linux-solaris-g++  qnx-rtp-g++
     \endcode
 
-    \i \c QTDIR must be set to where Qt is (or will be) installed.
-    For example, \c {c:\\qt} and \c {\\local\\qt} 
-    \endlist
+    \section2 Building qmake
 
     Once the environment variables are set go into the qmake directory, \c
     $QTDIR/qmake, e.g. \c{C:\\qt\\qmake}. Now run \c make or \c nmake
@@ -85,425 +112,13 @@
 */
 
 /*!
-    \page qmake-quickguide.html
-    \title The Ten-Minute Guide to Using qmake
-
-    \section1 Creating a Project File
-
-    \c qmake uses information stored in project (.pro) files to determine
-    what should go in the makefiles it generates.
-
-    A basic project file contains information about the application. It
-    declares the resources that are required to build the application,
-    such as the files used to compile the application, any user interface
-    descriptions, and which configuration settings to use.
-
-    Here's a simple example project file:
-
-    \code
-        SOURCES = hello.cpp
-        HEADERS = hello.h
-        CONFIG += qt warn_on release
-    \endcode
-
-    We'll provide a brief line-by-line explanation, deferring the detail
-    until later on in the manual.
-
-    \code
-        SOURCES = hello.cpp
-    \endcode
-
-    This line specifies the source files that implement the application. In this
-    case there is just one file, \c hello.cpp. Most applications require
-    multiple files; this situation is dealt with by listing all the files
-    on the same line space separated, like this:
-
-    \code
-        SOURCES = hello.cpp main.cpp
-    \endcode
-
-    Alternatively, each file can be listed on a separate line, by escaping
-    the newlines, like this:
-
-    \code
-        SOURCES = hello.cpp \
-                  main.cpp
-    \endcode
-
-    A more verbose approach is to list each file separately, like this:
-
-    \code
-        SOURCES += hello.cpp
-        SOURCES += main.cpp
-    \endcode
-
-    This approach uses "+=" rather than "=" which is safer, because it
-    always adds a new file to the existing list rather than replacing the
-    list.
-
-    The HEADERS line is used to specify the header files created for use
-    by the application, e.g. 
-
-    \code 
-        HEADERS += hello.h
-    \endcode
-
-    Any of the approaches used to list source files may be used for header
-    files.
-
-    The CONFIG line is used to give \c qmake information about the
-    application's configuration.
-
-    \code 
-        CONFIG += qt warn_on release
-    \endcode
-
-    The "+=" is used here, because we add our configuration options to any
-    that are already present. This is safer than using "=" which replaces
-    all options with just those specified.
-
-    The \c qt part of the CONFIG line tells \c qmake that the application
-    is built using Qt.  This means that \c qmake will link against the Qt
-    libraries when linking and add in the neccesary include paths for
-    compiling.
-
-    The \c warn_on part of the CONFIG line tells \c qmake that it should
-    set the compiler flags so that warnings are output.
-
-    The \c release part of the CONFIG line tells \c qmake that the
-    application must be built as a release application. During
-    development, programmers may prefer to replace \c release with \c
-    debug, which is discussed later.
-
-    \omit
-    The last line in the project file is the TARGET line:
-
-    \code
-        TARGET = hello
-    \endcode
-
-    The target line simply specifies what the name of the target should be
-    for the application.  You shouldn't put an extension here because \c
-    qmake will do this for you.
-    \endomit
-
-    Project files are plain text (i.e. use an editor like notepad, vim
-    or xemacs) and must be saved with a \c .pro extension. The name of the
-    application's executable will be the same as the project file's name,
-    but with an extension appropriate to the platform. For example, a
-    project file called \c hello.pro will produce \c hello.exe on Windows
-    and \c hello on Unix.
-
-    \section1 Generating a Makefile
-
-    When you have created your project file it is very easy to generate a
-    makefile, all you need to do is go to where you have created your
-    project file and type:
-
-    Makefiles are generated from the \c .pro files like this:
-
-    \code
-        qmake -o Makefile hello.pro 
-    \endcode
-
-    For Visual Studio users, \c qmake can also generate \c .dsp files, for
-    example:
-
-    \code
-        qmake -t vcapp -o hello.dsp hello.pro
-    \endcode
-*/
-
-/*!
-    \page qmake-tutorial.html
-    \title qmake Tutorial
-
-    This tutorial teaches you how to use \c qmake.  We recommend that
-    you read the \c qmake user guide after completing this tutorial.
-
-    \section1 Starting off Simple
-
-    Let's assume that you have just finished a basic implementation of
-    your application, and you have created the following files:
-
-    \list
-    \i hello.cpp
-    \i hello.h
-    \i main.cpp
-    \endlist
-
-    You will find these files in \c {qt/qmake/examples/tutorial}.  The
-    only other thing you know about the setup of the application is that
-    it's written in Qt.  First, using your favorite plain text editor,
-    create a file called \c hello.pro in \c {qt/qmake/tutorial}.  The
-    first thing you need to do is add the lines that tell \c qmake about
-    the source and header files that are part of your development project.  
-
-    We'll add the source files to the project file first.  To do this you
-    need to use the SOURCES variable.  Just start a new line with \c
-    {SOURCES +=} and put hello.cpp after it.  You should have something
-    like:
-
-    \code
-        SOURCES += hello.cpp
-    \endcode
-
-    We repeat this for each source file in the project, until we end up
-    with:
-
-    \code
-        SOURCES += hello.cpp
-        SOURCES += main.cpp
-    \endcode
-
-    If you prefer to use a Make-like syntax, with all the files listed in
-    one go you can use the newline escaping like this:
-
-    \code
-        SOURCES = hello.cpp \
-                  main.cpp
-    \endcode
-
-    Now that the source files are listed in the project file, the header
-    files must be added. These are added in exactly the same way as source
-    files, except that the variable name is HEADERS:
-
-    Once you have done this, your project file should look something like
-    this:
-
-    \code
-        HEADERS += hello.h
-        SOURCES += hello.cpp 
-        SOURCES += main.cpp 
-    \endcode
-
-    The target name is set automatically; it is the same as the project
-    file, but with the suffix appropriate to the platform. For example, if
-    the project file is called \c hello.pro, the target will be \c hello.exe
-    on Windows and \c hello on Unix. If you want to use a different name
-    you can set it in the project file:
-
-    \code
-        TARGET = helloworld
-    \endcode
-
-    The final step is to set the \c CONFIG variable. Since this is a Qt
-    application, we need to put \c qt on the CONFIG line so that \c qmake
-    will add the relevant libraries to be linked against and ensure that
-    build lines for \c moc and \c uic are included in the makefile.
-
-    The finished project file should look like this:
-
-    \code
-        CONFIG += qt
-        HEADERS += hello.h
-        SOURCES += hello.cpp
-        SOURCES += main.cpp 
-    \endcode
-
-    You can now use \c qmake to generate a makefile for your application.
-    On the command line, in your application directory, type:
-
-    \code
-        qmake -o Makefile hello.pro
-    \endcode
-
-    Then type \c make or \c nmake depending on the compiler you use.  
-
-    \section1 Making an Application Debuggable
-
-    The release version of an application doesn't contain any debugging
-    symbols or other debuggin information. During development it is useful
-    to produce a debugging version of the application that has the
-    relevant information. This is easily achieved by adding \c debug to the
-    CONFIG variable in the project file.
-
-    For example:
-
-    \code
-        CONFIG += qt debug
-        HEADERS += hello.h
-        SOURCES += hello.cpp
-        SOURCES += main.cpp 
-    \endcode
-
-    Use \c qmake as before to generate a makefile and you will be able to
-    debug your application.
-
-    \section1 Adding Platform-Specific Source Files
-
-    After a few hours of coding, you might have made a start on the
-    platform specific part of your application, and decided to keep the
-    platform dependent code separate.  So you now have two new files to
-    include into your project file - \c hellowin.cpp and \c
-    hellounix.cpp.  We can't just add these to the \c SOURCES
-    variable since this will put both files in the makefile.  So what we
-    need to do here is to use a scope which will be processed depending on
-    which platform \c qmake is run on.
-
-    A simple scope which will add in the platform dependent file for
-    Windows looks like this:
-
-    \code
-        win32 {
-            SOURCES += hellowin.cpp
-        }
-    \endcode
-
-    So if \c qmake is run on Windows, it will add \c hellowin.cpp to the
-    list of source files.  If \c qmake is run on any other platform, it
-    will simply ignore it.  Now all that is left to be done is to create a
-    scope for the unix dependent file.
-
-    When you have done that, your project file should now look
-    something like this:
-
-    \code
-        CONFIG += qt debug
-        HEADERS += hello.h
-        SOURCES += hello.cpp
-        SOURCES += main.cpp 
-        win32 {
-            SOURCES += hellowin.cpp
-        }
-        unix {
-            SOURCES += hellounix.cpp
-        }
-    \endcode
-
-    Use \c qmake as before to generate a makefile.  
-
-    \section1 Stopping qmake If a File Doesn't Exist
-
-    You may not want to create a makefile if a certain file doesn't exist.
-    We can check if a file exists by using the exists() function.  We can
-    stop \c qmake from processing by using the error() function.  This
-    works in the same way as scopes.  Simply replace the scope condition
-    with the function. A check for a main.cpp file looks like this:
-
-    \code
-        !exists( main.cpp ) {
-            error( "No main.cpp file found" )
-        }
-    \endcode
-
-    The "!" is used to negate the test, i.e. \c{exists( main.cpp )} is
-    true if the file exists and \c{!exists( main.cpp )} is true if the
-    file doesn't exist.
-
-    \code
-        CONFIG += qt debug
-        HEADERS += hello.h
-        SOURCES += hello.cpp
-        SOURCES += main.cpp 
-        win32 {
-            SOURCES += hellowin.cpp
-        }
-        unix {
-            SOURCES += hellounix.cpp
-        }
-        !exists( main.cpp ) {
-            error( "No main.cpp file found" )
-        }
-    \endcode
-
-    Use \c qmake as before to generate a makefile.  If you rename \c
-    main.cpp temporarily, you will see the message and \c qmake will stop
-    processing.
-
-    \section1 Checking for More than One Condition
-
-    Suppose you use Windows and you want to be able to see the qDebug()
-    statements when you run your application on the command line.  Unless
-    you build your application with the console setting, you won't see the
-    output.  We can easily put \c console on the CONFIG line so that on
-    Windows the makefile will have this setting.  But let's say that we
-    only want to add the CONFIG line if we are running on Windows \c and when
-    \c debug is already on the CONFIG line.  This requires using two
-    nested scopes; just create one scope, then create the other inside
-    that one.  Put the settings to be processed inside the last scope,
-    like this:
-
-    \code
-        win32 {
-            debug {
-                CONFIG += console
-            }
-        }
-    \endcode
-
-    Nested scopes can be joined together using colons, so the final
-    project file looks like this:
-
-    \code
-        CONFIG += qt debug
-        HEADERS += hello.h
-        SOURCES += hello.cpp
-        SOURCES += main.cpp 
-        win32 {
-            SOURCES += hellowin.cpp
-        }
-        unix {
-            SOURCES += hellounix.cpp
-        }
-        !exists( main.cpp ) {
-            error( "No main.cpp file found" )
-        }
-        win32:debug {
-            CONFIG += console
-        }
-    \endcode
-
-
-    That's it!  You have now completed the tutorial for \c qmake, and are
-    ready to write project files for your development projects.
-*/
-
-/*!
-    \page qmake-concepts.html
-    \title qmake's Concepts
-
-    \c qmake is an easy-to-use tool from Trolltech that creates makefiles
-    for development projects across different platforms.  \c qmake
-    simplifies the generation of makefiles so that only a few lines of
-    information are needed to create a makefile.  \c qmake can be used for
-    any software project whether it is written in Qt or not, although it
-    also contains additional features to support Qt development.
-
-    \c qmake generates a makefile based on the information in a project
-    file.  Project files are created by the developer. Project files are
-    usually simple, but can be quite sophisticated if required.
-    \c qmake can also generate projects for Microsoft Visual studio
-    without having to change the project file.  
-
-    \section1 The QMAKESPEC Environment Variable
-
-    Before \c qmake can be used to build makefiles, the QMAKESPEC
-    environment variable must be set to the platform-compiler combination
-    that is being used on the system.  The QMAKESPEC environment variable
-    tells qmake where to look to find platform and compiler specific
-    information.  This ensures that the right libraries are used, and that
-    the generated makefile uses the correct syntax.  A list of the
-    currently supported platform-compiler combinations can be found in
-    qt/mkspecs.  Just set your environment variable to one of the
-    directories listed.
-
-    For example, if you are using Microsoft Visual Studio on Windows, then
-    you would set the QMAKESPEC environment variable to \c win32-msvc.
-    If you are using gcc on Solaris then you would set your QMAKESPEC
-    environment variable to \c solaris-g++.
-
-    Inside each of the directories in qt/mkspecs, there is a \c qmake.conf
-    file which contains the platform and compiler specific information.
-    These settings are applied to any project that is built using \c
-    qmake and should not be modified unless you're an expert. For example,
-    if all your applications had to link against a particular library, you
-    might add this information to the relevant \c qmake.conf file.
+    \page qmake-using.html
+    \title Using qmake
 
     \section1 Project Files (\c .pro)
 
     A project file is used to tell \c qmake the details it needs to know
-    about creating a makefile for the application.  For instance, a list
+    about creating a Makefile for the application.  For instance, a list
     of source files and header files that should be put into the project
     file; any application specific configuration, such as an extra library
     that should be linked against, or an extra include path.
@@ -515,23 +130,23 @@
 
     \section2 Project Template
 
-    The template variable tells \c qmake what sort of makefile should be
+    The template variable tells \c qmake what sort of Makefile should be
     generated for the application. The following choices are available:
 
     \list
-    \i app - Creates a makefile that builds an application.  This is the
+    \i app - Creates a Makefile that builds an application.  This is the
     default, so if a template is not specified, this is used.
-    \i lib - Creates a makefile that builds a library.
+    \i lib - Creates a Makefile that builds a library.
     \i vcapp - Creates a Visual Studio Project file which builds an application.
     \i vclib - Creates a Visual Studio Project file which builds a library.
-    \i subdirs - This is a special template which creates a makefile which
-    will go into the specified directories and create a makefile for the
+    \i subdirs - This is a special template which creates a Makefile which
+    will go into the specified directories and create a Makefile for the
     project file and call make on it.
     \endlist
 
     \section2 The \c app Template
 
-    The \c app template tells \c qmake to generate a makefile that will build
+    The \c app template tells \c qmake to generate a Makefile that will build
     an application.  When using this template the following \c qmake
     system variables are recognized.  You should use these in your .pro
     file to specify information about your application.
@@ -579,7 +194,7 @@
 
     \section2 The \c lib Template
 
-    The \c lib template tells \c qmake to generate a makefile that will
+    The \c lib template tells \c qmake to generate a Makefile that will
     build a library.  When using this template, in addition to the system variables
     mentioned above for the \c app template the \c VERSION variable is
     supported.  You should use these in your .pro file to specify
@@ -591,8 +206,8 @@
 
     \section2 The \c subdirs Template
 
-    The \c subdirs template tells qmake to generate a makefile that will go
-    into the specified subdirectories and generate a makefile for the
+    The \c subdirs template tells qmake to generate a Makefile that will go
+    into the specified subdirectories and generate a Makefile for the
     project file in the directory and call make on it.
 
     The only system variable that is recognised for this template is the
@@ -703,7 +318,7 @@
     The \c qmake project files we've seen up to now have been very simple,
     just a list of \c{name = value} and \c{name += value} lines. \c qmake
     provides a lot more power, for example you can use a single project
-    file to produce makefiles for multiple platforms.
+    file to produce Makefiles for multiple platforms.
 
     \section1 Operators
 
@@ -734,7 +349,7 @@
     \endcode
 
     This appends QT_DLL to the list of pre-processor defines to be put in the
-    makefile.
+    Makefile.
 
     \section2 The \c -= Operator
 
@@ -746,7 +361,7 @@
     \endcode
 
     This removes QT_DLL from the list of pre-processor defines to be put
-    in the makefile.
+    in the Makefile.
 
     \section2 The \c *= Operator
 
@@ -780,11 +395,11 @@
 
     \code
         win32 {
-	    DEFINES += QT_DLL
+        DEFINES += QT_DLL
         }
     \endcode
 
-    The above code will add the QT_DLL define to the makefile if \c qmake
+    The above code will add the QT_DLL define to the Makefile if \c qmake
     is used on a Windows platform.  If \c qmake is used on a different
     platform than Windows, the define will be ignored. You may also perform
     single line conditionals/assignments with qmake like this:
@@ -799,7 +414,7 @@
 
     \code
         !win32 {
-	    DEFINES += QT_DLL
+        DEFINES += QT_DLL
         }
     \endcode
 
@@ -812,16 +427,16 @@
     the configuration for a project without losing all the custom settings
     that might be needed for a specific configuration.  Since it is
     possible to put your own values on the CONFIG line, this provides you
-    with a very powerful configuration tool for your makefiles. For
+    with a very powerful configuration tool for your Makefiles. For
     example:
 
     \code
         CONFIG += qt warn_on debug
         debug {
-	    TARGET = myappdebug
+        TARGET = myappdebug
         }
         release {
-	    TARGET = myapp
+        TARGET = myapp
         }
     \endcode
 
@@ -838,9 +453,9 @@
 
     \code
         win32 {
-	    thread {
-	        DEFINES += QT_THREAD_SUPPORT
-	    }
+        thread {
+            DEFINES += QT_THREAD_SUPPORT
+        }
         }
     \endcode
 
@@ -849,7 +464,7 @@
 
     \code
         win32:thread {
-	    DEFINES += QT_THREAD_SUPPORT
+        DEFINES += QT_THREAD_SUPPORT
         }
     \endcode
 
@@ -860,11 +475,11 @@
 
     \code
         win32:thread {
-	    DEFINES += QT_THREAD_SUPPORT
+        DEFINES += QT_THREAD_SUPPORT
         } else:debug {
-	    DEFINES += QT_NOTHREAD_DEBUG
+        DEFINES += QT_NOTHREAD_DEBUG
         } else {
-	    message("Unknown configuration")
+        message("Unknown configuration")
         }
     \endcode
 
@@ -1015,7 +630,7 @@
 
     \code
         contains(CONFIG, thread) {
-	    DEFINES += QT_THREAD_SUPPORT
+        DEFINES += QT_THREAD_SUPPORT
         }
     \endcode
 
@@ -1031,7 +646,7 @@
 
     \code
         count( DEFINES, 5 ) {
-	    CONFIG += debug
+        CONFIG += debug
         }
     \endcode
 
@@ -1054,7 +669,7 @@
 
     \code
         exists( /local/qt/qmake/main.cpp ) {
-	    SOURCES += main.cpp
+        SOURCES += main.cpp
         }
     \endcode
 
@@ -1084,7 +699,7 @@
 
     \code
         isEmpty( CONFIG ) {
-	    CONFIG += qt warn_on debug
+        CONFIG += qt warn_on debug
         }
     \endcode
 
@@ -1106,8 +721,8 @@
 
     \code
         system( ls /bin ) {
-	    SOURCES += bin/main.cpp
-	    HEADERS += bin/main.h
+        SOURCES += bin/main.cpp
+        HEADERS += bin/main.h
         }
     \endcode
 
@@ -1209,20 +824,20 @@
     \section3 Example: \c stable.h
 
     \code
-	// Add C includes here
+    // Add C includes here
 
-	#if defined __cplusplus
-	// Add C++ includes here
-	#include <stdlib>
-	#include <iostream>
-	#include <vector>
-	#include <qapplication.h> // Qt includes
-	#include <qpushbutton.h>
-	#include <qlabel.h>
-	#include "thirdparty/include/libmain.h"
-	#include "my_stable_class.h"
-	...
-	#endif
+    #if defined __cplusplus
+    // Add C++ includes here
+    #include <stdlib>
+    #include <iostream>
+    #include <vector>
+    #include <qapplication.h> // Qt includes
+    #include <qpushbutton.h>
+    #include <qlabel.h>
+    #include "thirdparty/include/libmain.h"
+    #include "my_stable_class.h"
+    ...
+    #endif
     \endcode
 
     Note that a precompiled header file needs to separate C includes from
@@ -1252,7 +867,7 @@
 
     \code
         precompile_header:!isEmpty(PRECOMPILED_HEADER) {
-	    DEFINES += USING_PCH
+        DEFINES += USING_PCH
         }
     \endcode
 
@@ -1316,7 +931,7 @@
 
     This reference is a detailed index of all command line options,
     configurations and internal variables used by the cross-platform
-    makefile generation utility \c qmake.
+    Makefile generation utility \c qmake.
 
     In addition to the variables and functions described in the following
     sections, \c qmake project files may also include comments. 
@@ -1337,30 +952,30 @@
 
     \list
     \i \c -o file \BR
-	    \c qmake output will be directed to \e file. if this argument
-	    is not specified, then \c qmake will try to guess a suitable name.  If '-' is
-	    specified, output is directed to stdout. 
+        \c qmake output will be directed to \e file. if this argument
+        is not specified, then \c qmake will try to guess a suitable name.  If '-' is
+        specified, output is directed to stdout. 
     \i \c -unix \BR
-	    \c qmake will run in unix mode.  In this mode, Unix file
-	    naming and path conventions will be used, additionally testing for unix 
-	    (as a scope) will succeed. This is the default mode on all Unices. 
+        \c qmake will run in unix mode.  In this mode, Unix file
+        naming and path conventions will be used, additionally testing for unix 
+        (as a scope) will succeed. This is the default mode on all Unices. 
     \i \c -macx \BR
-	    \c qmake will run in Mac OS X mode.  In this mode, Unix file
-	    naming and path conventions will be used, additionally testing for macx
-	    (as a scope) will succeed. This is the default mode on Mac OS X. 
+        \c qmake will run in Mac OS X mode.  In this mode, Unix file
+        naming and path conventions will be used, additionally testing for macx
+        (as a scope) will succeed. This is the default mode on Mac OS X. 
     \i \c -win32 \BR
-	    \c qmake will run in win32 mode.  In this mode, Windows file naming and path
-	    conventions will be used, additionally testing for win32 (as a scope) will succeed. 
-	    This is the default mode on Windows.
+        \c qmake will run in win32 mode.  In this mode, Windows file naming and path
+        conventions will be used, additionally testing for win32 (as a scope) will succeed. 
+        This is the default mode on Windows.
     \i \c -d \BR
-	    \c qmake will output (hopefully) useful debugging information.
+        \c qmake will output (hopefully) useful debugging information.
     \i \c -t tmpl \BR
-	    \c qmake will override any set TEMPLATE variables with tmpl, but only
-	    \e after the .pro file has been processed.
+        \c qmake will override any set TEMPLATE variables with tmpl, but only
+        \e after the .pro file has been processed.
     \i \c -tp prefix \BR
-	    \c qmake will add the prefix to the TEMPLATE variable.
+        \c qmake will add the prefix to the TEMPLATE variable.
     \i \c -help \BR
-	    \c qmake will go over these features and give some useful help.
+        \c qmake will go over these features and give some useful help.
     \endlist
 
     There are also warning options that can help to find problems in your
@@ -1381,27 +996,26 @@
           multiple times, if a file cannot be found, etc.
     \endlist
 
-    \c qmake supports two different modes of operation. The first mode,
-    which is the default is makefile generation.  In this mode, \c qmake
-    will take a .pro file and turn it into a makefile.  Creating makefiles
+    \c qmake supports two different modes of operation: In the default mode,
+    \c qmake will use the description in a .pro file to generate a Makefile.  Creating Makefiles
     is covered by this reference guide, there is another mode which
     generates .pro files.
 
     To toggle between these modes you must specify in the first argument
     what mode you want to use.  If no mode is specified, \c qmake will
-    assume you want makefile mode.  The available modes are:
+    assume you want Makefile mode.  The available modes are:
 
     \list
     \i \c -makefile \BR
-	    \c qmake output will be a makefile (\link #MakefileMode Makefile mode \endlink).
+        \c qmake output will be a Makefile (\link #MakefileMode Makefile mode \endlink).
     \i \c -project \BR
-	    \c qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
+        \c qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
     \endlist
 
     \target MakefileMode
     \section3 Makefile Mode
 
-    In Makefile mode \c qmake will generate a makefile. Additionally you may
+    In Makefile mode \c qmake will generate a Makefile. Additionally you may
     supply the following arguments in this mode:
 
     \list
@@ -1409,13 +1023,13 @@
             \c qmake will process assignments given on the commandline after
             the specified files.
     \i \c -nocache \BR
-	    \c qmake will ignore the .qmake.cache file.
+        \c qmake will ignore the .qmake.cache file.
     \i \c -nodepend \BR
-	    \c qmake will not generate any dependency information.
+        \c qmake will not generate any dependency information.
     \i \c -cache file \BR
-	    \c qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
+        \c qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
     \i \c -spec spec \BR
-	    \c qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
+        \c qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
     \endlist
 
     The \c files argument can be a list of one or more project files, separated
@@ -1446,8 +1060,8 @@
     \i \c -r \BR
             \c qmake will look through supplied directories recursively
     \i \c -nopwd \BR
-	    \c qmake will not look in your current working directory for
-	    source code and only use the specified \c files
+        \c qmake will not look in your current working directory for
+        source code and only use the specified \c files
     \endlist
 
     The \c files argument can be a list of files or directories.  If a
@@ -1535,9 +1149,9 @@
 
     \list
     \i flat - When using the vcapp template this will put all the source files into the source group and 
-	    the header files into the header group regardless of what directory they reside in.  Turning this
-	    option off will group the files within the source/header group depending on the directory they 
-	    reside.  This is turned on by default.
+        the header files into the header group regardless of what directory they reside in.  Turning this
+        option off will group the files within the source/header group depending on the directory they 
+        reside.  This is turned on by default.
     \endlist
 
     The \c CONFIG variable will also be checked when resolving
@@ -1549,8 +1163,8 @@
         CONFIG += qt console newstuff
         ...
         newstuff {
-	        SOURCES += new.cpp
-	        HEADERS += new.h
+            SOURCES += new.cpp
+            HEADERS += new.h
         }
     \endcode
 
@@ -1641,7 +1255,7 @@
 
     \code
         FORMS = mydialog.ui \
-	        mywidget.ui \
+            mywidget.ui \
                 myconfig.ui
     \endcode
 
@@ -1752,7 +1366,7 @@
 
     This is a special variable processed by \c qmake.  If the
     contents of this variable do not appear in CONFIG by the time this
-    variable is assigned, then a minimal makefile will be generated that
+    variable is assigned, then a minimal Makefile will be generated that
     states what dependencies (the values assigned to REQUIRES) are
     missing.
 
@@ -1767,8 +1381,8 @@
 
     \code
         SOURCES = myclass.cpp \
-	          login.cpp \
-	          mainwindow.cpp
+              login.cpp \
+              mainwindow.cpp
     \endcode
 
     See also \link #HEADERS HEADERS \endlink
@@ -1784,7 +1398,7 @@
 
     \code
         SUBDIRS = kernel \
-	          tools
+              tools
     \endcode
 
 
@@ -1813,9 +1427,9 @@
     generating the project.  The allowed values are:
 
     \list
-    \i app - Creates a makefile for building applications (the default)
-    \i lib - Creates a makefile for building libraries
-    \i subdirs - Creates a makefile for building targets in subdirectories
+    \i app - Creates a Makefile for building applications (the default)
+    \i lib - Creates a Makefile for building libraries
+    \i subdirs - Creates a Makefile for building targets in subdirectories
     \i vcapp - \e {win32 only}  Creates an application project file for
     Visual Studio
     \i vclib - \e {win32 only}  Creates a library project file for Visual
@@ -1922,7 +1536,7 @@
     \target MAKEFILE
     \section3 MAKEFILE
 
-    This variable specifies the name of the makefile which
+    This variable specifies the name of the Makefile which
     \c qmake should use when outputting the dependency information
     for building a project.  The value of this variable is typically
     handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
@@ -1931,8 +1545,8 @@
     \target MAKEFILE_GENERATOR
     \section3 MAKEFILE_GENERATOR
 
-    This variable contains the name of the makefile generator to use
-    when generating a makefile.  The value of this variable is typically
+    This variable contains the name of the Makefile generator to use
+    when generating a Makefile.  The value of this variable is typically
     handled internally by \c qmake and rarely needs to be modified.
 
 
@@ -1975,7 +1589,7 @@
     \section3 QMAKE
 
     This variable contains the name of the \c qmake program
-    itself and is placed in generated makefiles.  The value of this
+    itself and is placed in generated Makefiles.  The value of this
     variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
     modified.
 
@@ -1985,7 +1599,7 @@
     \section3 QMAKESPEC
 
     This variable contains the name of the \c qmake
-    configuration to use when generating makefiles.  The value of this
+    configuration to use when generating Makefiles.  The value of this
     variable is typically handled by \c qmake and rarely needs to be modified.
     Use the \link #QMAKESPEC QMAKESPEC \endlink environment variable instead.
 
@@ -2291,7 +1905,7 @@
     \target QMAKE_FILETAGS
     \section3 QMAKE_FILETAGS
 
-    This variable contains the file tags needed to be entered into the makefile, such as SOURCES
+    This variable contains the file tags needed to be entered into the Makefile, such as SOURCES
     and HEADERS.  The value of this variable is typically handled by \c qmake or 
     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -2770,7 +2384,7 @@
 
     \section3 QMAKE_MAKEFILE
 
-    This variable contains the name of the makefile to create. The
+    This variable contains the name of the Makefile to create. The
     value of this variable is typically handled by \c qmake or
      \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -3052,7 +2666,7 @@
         OPTIONS = standard custom
         !include( options.pri ) {
             message( "No custom build options specified" )
-	    OPTIONS -= custom
+        OPTIONS -= custom
         }
     \endcode
 
@@ -3081,10 +2695,10 @@
 
     \code
         contains( drivers, network ) {
-	        # drivers contains 'network'
-	        message( "Configuring for network build..." )
-	        HEADERS += network.h
-	        SOURCES += network.cpp
+            # drivers contains 'network'
+            message( "Configuring for network build..." )
+            HEADERS += network.h
+            SOURCES += network.cpp
         }
     \endcode
 
@@ -3100,7 +2714,7 @@
     \code
         MYVAR = one two three
         count( MYVAR, 3 ) {
-	        # always true
+            # always true
         }
     \endcode
 
@@ -3229,7 +2843,7 @@
     \section2 QMAKESPEC
 
     \c qmake requires a platform and compiler description file which
-    contains many default values used to generate appropriate makefiles.
+    contains many default values used to generate appropriate Makefiles.
     The standard Qt distribution comes with many of these files, located
     in the \c mkspecs subdirectory of the Qt installation.
 
@@ -3342,14 +2956,14 @@
     to your list of DEFINES as well as LIBS. Once \c qmake has processed
     this file, it will then look through the newly introduced LIBS and
     find their dependent .prl files, and continue until all libraries have
-    been resolved. At this point the makefile is created as usual, and the
+    been resolved. At this point the Makefile is created as usual, and the
     libraries are linked explicity against your program.
 
     The internals of the .prl file are left closed so they can easily
     change later. It is not designed to be changed by hand however, and
     should only be created by \c qmake - these .prl files should also not
     be transfered from operating system to operating system as they may be
-    platform dependent (like a makefile).
+    platform dependent (like a Makefile).
 
     \target Extensions
     \section2 File Extensions
@@ -3377,7 +2991,7 @@
     \endlist
 
     All the above accept just the first value, so you must assign to it one value that
-    will be used through your makefile. There are two variables that accept a list of values, 
+    will be used through your Makefile. There are two variables that accept a list of values, 
     they are:
 
     \list
