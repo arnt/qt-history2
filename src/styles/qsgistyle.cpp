@@ -251,6 +251,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
             }
         }
         break;
+
     case QEvent::MouseButtonRelease:
         {
             if ( widget->inherits("QSlider") )
@@ -264,28 +265,25 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
             }
         }
         break;
+
     case QEvent::MouseMove:
-        {
-	    hotWidget = widget;
-            QMouseEvent* me = (QMouseEvent*) e;
-            mousePos = me->pos();
-            if ( widget->inherits("QScrollBar") || widget->inherits("QSlider") ) {
-                repaintByMouseMove = me->button() == NoButton;
-                widget->repaint( FALSE );
-                repaintByMouseMove = FALSE;
-            }
-        }
+	hotWidget = widget;
+        mousePos = ((QMouseEvent*)e)->pos();
+	widget->repaint( FALSE );
         break;
+
     case QEvent::Enter:
         hotWidget = widget;
         widget->repaint( FALSE );
         break;
+
     case QEvent::Leave:
         if ( widget == hotWidget) {
             hotWidget = 0;
             widget->repaint( FALSE );
         }
         break;
+
     default:
         break;
     }
@@ -316,7 +314,7 @@ int QSGIStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_IndicatorWidth:
     case PM_IndicatorHeight:
-	return 20;
+	return 12;
 
     case PM_ExclusiveIndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
@@ -394,20 +392,17 @@ static void drawPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 static void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
-			  const QColorGroup &g, bool sunken,
-			  int /*lineWidth*/, int /*midLineWidth*/ )
+			  const QColorGroup &g )
 {
     QPen oldPen = p->pen();
 
     p->setPen( g.midlight() );
     p->drawLine( x1, y1, x2, y2 );
-    if (sunken) {
-	p->setPen( g.shadow() );
-	if ( y2-y1 < x2-x1 )
-	    p->drawLine( x1, y1+1, x2, y2+1 );
-	else
-	    p->drawLine( x1+1, y1, x2+1, y2 );
-    }
+    p->setPen( g.shadow() );
+    if ( y2-y1 < x2-x1 )
+	p->drawLine( x1, y1+1, x2, y2+1 );
+    else
+	p->drawLine( x1+1, y1, x2+1, y2 );
 
     p->setPen( oldPen );
 }
@@ -493,12 +488,27 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     const int h = r.height();
     const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
     const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
+    const bool hot = ( flags & Style_MouseOver ) && r.contains( mousePos );
+    if ( hot )
+        qDebug( "Hot Primitive!" );
 
     switch ( pe ) {
     case PE_ButtonCommand:
-	drawPanel( p, x, y, w, h, cg, sunken, pixelMetric( PM_DefaultFrameWidth ),
-		   ( sunken ? &cg.brush( QColorGroup::Mid ) :
-			      &cg.brush( QColorGroup::Button ) ));
+	{
+	    QBrush fill;
+	    if ( hot ) {
+		if ( sunken )
+		    fill = cg.brush( QColorGroup::Dark );
+		else
+		    fill = cg.brush( QColorGroup::Midlight );
+	    } else if ( sunken ) {
+		fill = cg.brush( QColorGroup::Mid );
+	    } else {
+		fill = cg.brush( QColorGroup::Button );
+	    }
+
+	    drawPanel( p, x, y, w, h, cg, sunken, defaultFrameWidth, &fill );
+	}
 	break;
 
     case PE_PanelPopup:
@@ -555,16 +565,9 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Indicator:
 	{
-	    QPen oldPen = p->pen();
-
-	    p->fillRect( x, y, w, h, cg.brush( QColorGroup::Background ) );
-
 	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, data );
-
 	    if ( !(flags & QStyle::Style_Off) )
 		drawPrimitive( PE_CheckMark, p, r, cg, flags, data );
-
-	    p->setPen( oldPen );
 	}
 	break;
 
@@ -635,7 +638,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    p->translate( x, y );
 
 	    p->setPen( cg.button() );
-	    p->setBrush( cg.button() );
+	    p->setBrush( hot ? cg.midlight() : cg.button() );
 	    QPointArray a;
 	    a.setPoints( 4, 5,0, 11,6, 6,11, 0,5);
 	    p->drawPolygon( a );
@@ -643,7 +646,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( cg.dark() );
 	    p->drawLine( 0,5, 5,0 );
 	    p->drawLine( 6,0, 11,5 );
-	    p->setPen( flags & Style_Down ? cg.light() : cg.dark().dark(200) );
+	    p->setPen( flags & Style_Down ? cg.light() : cg.dark() );
 	    p->drawLine( 11,6, 6,11 );
 	    p->drawLine( 5,11, 0,6 );
 	    p->drawLine( 2,7, 5,10 );
@@ -706,22 +709,65 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_ScrollBarSubLine:
+	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
 		      p, r, cg, Style_Enabled | flags);
 	break;
 
     case PE_ScrollBarAddLine:
+	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
 		      p, r, cg, Style_Enabled | flags);
 	break;
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage:
-	p->fillRect(r, cg.brush(QColorGroup::Mid));
+	if ( r.isValid() )
+	    qDrawShadePanel( p, x, y, w, h, cg, FALSE, 1, hot ? &cg.brush( QColorGroup::Midlight ) : &cg.brush( QColorGroup::Button ) );
 	break;
 
     case PE_ScrollBarSlider:
-	drawPrimitive(PE_ButtonBevel, p, r, cg, Style_Enabled | Style_Raised);
+	{
+	    drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Enabled | Style_Raised);
+	    if ( flags & Style_Horizontal ) {
+		const int sliderM =  r.y() + r.width() / 2;
+		drawSeparator( p, sliderM-5, r.y()+2, sliderM-5, r.y()+r.height()-3, cg );
+		drawSeparator( p, sliderM-1, r.y()+2, sliderM-1, r.y()+r.height()-3, cg );
+		drawSeparator( p, sliderM+3, r.y()+2, sliderM+3, r.y()+r.height()-3, cg );
+	    } else {
+		const int sliderM =  r.y() + r.height() / 2;
+		drawSeparator( p, r.x()+2, sliderM-5, r.x()+r.width()-3, sliderM-5, cg );
+		drawSeparator( p, r.x()+2, sliderM-1, r.x()+r.width()-3, sliderM-1, cg );
+		drawSeparator( p, r.x()+2, sliderM+3, r.x()+r.width()-3, sliderM+3, cg );
+	    }
+	}
+
+	break;
+
+    case PE_Splitter:
+	{
+	    const int motifOffset = 10;
+	    int sw = pixelMetric( PM_SplitterWidth );
+	    if ( flags & Style_Horizontal ) {
+		int xPos = x + w/2;
+		int kPos = motifOffset;
+		int kSize = sw - 2;
+
+		qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
+			xPos, h, cg );
+
+		drawPrimitive( PE_ButtonBevel, p, QRect(xPos-sw/2+1, kPos, kSize, kSize+1), cg, flags, data );
+		qDrawShadeLine( p, xPos+2, 0, xPos, kPos, cg );
+	    } else {
+		int yPos = y + h/2;
+		int kPos = w - motifOffset - sw;
+		int kSize = sw - 2;
+
+		qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
+		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), cg, flags, data );
+		qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, cg );
+	    }	
+	}
 	break;
 
     default:
@@ -739,6 +785,11 @@ void QSGIStyle::drawControl( ControlElement element,
 		  SFlags flags,
 		  void **data ) const
 {
+    if ( widget == hotWidget ) {
+	flags |= Style_MouseOver;
+	qDebug( "Hot Control" );
+    }
+
     switch ( element ) {
     case CE_PushButton:
 	{
@@ -957,6 +1008,10 @@ void QSGIStyle::drawControl( ControlElement element,
 	}
 	break;
 
+    case CE_CheckBox:
+	QMotifStyle::drawControl( element, p, widget, r, cg, flags, data );
+	break;
+
     default:
 	QMotifStyle::drawControl( element, p, widget, r, cg, flags, data );
 	break;
@@ -974,6 +1029,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 			 SCFlags subActive,
 			 void **data ) const
 {
+    if ( widget == hotWidget ) {
+	flags |= Style_MouseOver;
+	qDebug( "Hot ComplexControl" );
+    }
+
     switch ( control ) {
     case CC_Slider:
 	{
@@ -985,17 +1045,19 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 						  data);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
-		qDrawShadePanel( p, groove, cg, TRUE, 2,
-				 &cg.brush( QColorGroup::Mid ) );
+		QRect grooveTop = groove;
+		grooveTop.addCoords( 1, 1, -1, -1 );
+		qDrawShadePanel( p, groove, cg, TRUE, 2, &cg.brush( QColorGroup::Mid ) );
+		drawPrimitive( PE_ButtonCommand, p, grooveTop, cg, flags, data );
 
 		if ( slider->hasFocus() ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, cg );
+		    drawPrimitive( PE_FocusRect, p, fr, cg, flags );
 		}
 	    }
 
 	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
-		drawPrimitive( PE_ButtonBevel, p, handle, cg );
+		drawPrimitive( PE_ButtonBevel, p, handle, cg, flags );
 
 		if ( slider->orientation() == Horizontal ) {
 		    QCOORD mid = handle.x() + handle.width() / 2;
@@ -1043,14 +1105,32 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
     case CC_ScrollBar:
 	{
-	    if (sub == (SC_ScrollBarAddLine | SC_ScrollBarSubLine | SC_ScrollBarAddPage |
-			SC_ScrollBarSubPage | SC_ScrollBarFirst | SC_ScrollBarLast |
-			SC_ScrollBarSlider))
+	    if ( sub & SC_ScrollBarGroove ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarGroove, data ), widget );
 		qDrawShadePanel(p, widget->rect(), cg, TRUE,
-				pixelMetric(PM_DefaultFrameWidth, widget),
-				&cg.brush(QColorGroup::Mid));
-	    QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags, sub,
-					     subActive, data);
+  				pixelMetric(PM_DefaultFrameWidth, widget),
+  				&cg.brush(QColorGroup::Mid));
+	    }
+	    if ( sub & SC_ScrollBarAddLine ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddLine, data ), widget );
+		drawPrimitive( PE_ScrollBarAddLine, p, er, cg, flags, data );
+	    }
+	    if ( sub & SC_ScrollBarSubLine ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubLine, data ), widget );
+		drawPrimitive( PE_ScrollBarSubLine, p, er, cg, flags, data );
+	    }
+	    if ( sub & SC_ScrollBarAddPage ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, data ), widget );
+		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags, data );
+	    }
+	    if ( sub & SC_ScrollBarSubPage ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, data ), widget );
+		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags, data );
+	    }
+	    if ( sub & SC_ScrollBarSlider ) {
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
+		drawPrimitive( PE_ScrollBarSlider, p, er, cg, flags, data );
+	    }
 	}
 	break;
 
@@ -1156,330 +1236,6 @@ QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
         QRect r( comboButtonRect( x, y, w, h ) );
         qDrawShadePanel( p, QRect( r.x()-1, r.y()-1, r.width()+2, r.height()+2 ),
                          g, TRUE, 1, &fill );
-    }
-}
-
-
-#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
-#define VERTICAL        !HORIZONTAL
-#define SGI_BORDER      1
-#define SLIDER_MIN      9 //### motif says 6 but that's too small
-#define ADD_LINE_ACTIVE ( activeControl == AddLine )
-#define SUB_LINE_ACTIVE ( activeControl == SubLine )
-
-/*!\reimp
- *
-void QSGIStyle::scrollBarMetrics( const QScrollBar* sb,
-                                  int &sliderMin, int &sliderMax,
-                                  int &sliderLength, int&buttonDim ) const
-{
-    int maxLength;
-    int b = SGI_BORDER;
-    int length = HORIZONTAL ? sb->width()  : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( length > ( extent - b*2 - 1 )*2 + b*2 )
-        buttonDim = extent - b*2;
-    else
-        buttonDim = ( length - b*2 )/2 - 1;
-
-    sliderMin = b + buttonDim;
-    maxLength  = length - b*2 - buttonDim*2;
-
-    if ( sb->maxValue() == sb->minValue() ) {
-        sliderLength = maxLength;
-    } else {
-        sliderLength = (sb->pageStep()*maxLength)/
-                       (sb->maxValue()-sb->minValue()+sb->pageStep());
-        uint range = sb->maxValue()-sb->minValue();
-        if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
-            sliderLength = SLIDER_MIN;
-        if ( sliderLength > maxLength )
-            sliderLength = maxLength;
-    }
-    sliderMax = sliderMin + maxLength - sliderLength;
-}
-
-static QRect scrollerStartOldPos(1, -1, 1, -1);
-static bool scrollerMoving = FALSE;
-
-/*!
-    Draws scroll bar controls in SGI-like style.
-*
-void
-QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-                                  int sliderStart, uint controls, uint activeControl )
-{
-    ( (QScrollBar*)sb )->setBackgroundMode( QWidget::PaletteButton );
-    QColorGroup g = sb->colorGroup();
-
-    QColor lazyButton;
-    lazyButton = QApplication::palette().active().button();
-
-    int sliderMin, sliderMax, sliderLength, buttonDim;
-    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-    if ( sliderStart > sliderMax )
-        sliderStart = sliderMax;
-
-    int b = SGI_BORDER;
-    int dimB = buttonDim;
-    QRect addB;
-    QRect subB;
-    QRect addPageR;
-    QRect subPageR;
-    QRect sliderR;
-    int addX, addY, subX, subY, sliderM;
-    int length = HORIZONTAL ? sb->width() : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( HORIZONTAL ) {
-        subY = addY = ( extent - dimB ) / 2;
-        subX = b;
-        addX = length - dimB - b;
-    } else {
-        subX = addX = ( extent - dimB ) / 2;
-        subY = b;
-        addY = length - dimB - b;
-    }
-
-    subB.setRect( subX,subY,dimB,dimB );
-    addB.setRect( addX,addY,dimB,dimB );
-
-    int sliderEnd = sliderStart + sliderLength;
-    int sliderW = extent - b*2;
-    if ( HORIZONTAL ) {
-        subPageR.setRect( subB.right() + 1, b,
-                          sliderStart - subB.right() - 1 , sliderW );
-        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-    } else {
-        subPageR.setRect( b, subB.bottom() + 1, sliderW,
-                          sliderStart - subB.bottom() - 1 );
-        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-    }
-    sliderM = sliderStart + sliderLength / 2;
-
-    bool isScrollBarUpToDate = FALSE;
-
-    if ( repaintByMouseMove ) {
-        if ( addB.contains( mousePos ) ) {
-            isScrollBarUpToDate = ( activeScrollBarElement == AddLine );
-            activeScrollBarElement = AddLine;
-        } else if ( subB.contains( mousePos )) {
-            isScrollBarUpToDate = ( activeScrollBarElement == SubLine );
-            activeScrollBarElement = SubLine;
-        } else if ( sliderR.contains( mousePos )) {
-            isScrollBarUpToDate = ( activeScrollBarElement == Slider );
-            activeScrollBarElement = Slider;
-        } else {
-            activeScrollBarElement = 0;
-        }
-    } else
-    {
-        activeScrollBarElement = 0;
-    }
-
-    if ( !isScrollBarUpToDate )
-    {
-        QBrush fill( lazyButton );
-        if ( controls & AddLine && addB.isValid() ) {
-            drawButton( p, addB.x(), addB.y(),
-                        addB.width(), addB.height(), g, FALSE,
-                        (deviceUnderMouse == p->device()
-                        && addB.contains(mousePos)
-                        && !ADD_LINE_ACTIVE ) ?
-                            &g.brush( QColorGroup::Midlight ) : &fill );
-            drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-                       ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-                       addB.width()-4, addB.height()-4, g, TRUE );
-        }
-        if ( controls & SubLine && subB.isValid() ) {
-            drawButton( p, subB.x(), subB.y(),
-                        subB.width(), subB.height(), g, FALSE,
-                        (deviceUnderMouse == p->device()
-                        && subB.contains(mousePos)
-                        && !SUB_LINE_ACTIVE ) ?
-                            &g.brush( QColorGroup::Midlight ) : &fill );
-            drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-                       SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-                       subB.width()-4, subB.height()-4, g, TRUE );
-        }
-
-        if (sb->backgroundPixmap() )
-            fill = QBrush( g.mid(), *sb->backgroundPixmap() );
-
-        if ( scrollerMoving )
-            p->setClipRegion( QRegion(subPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-
-        if ( controls & SubPage && subPageR.isValid() )
-            qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
-
-        if ( scrollerMoving )
-            p->setClipRegion( QRegion(addPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-
-        if ( controls & AddPage && addPageR.isValid() )
-            qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
-
-        if ( activeControl & Slider) {
-            if ( scrollerMoving) {
-                p->setClipRegion( QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-                qDrawShadePanel( p, scrollerStartOldPos, g, TRUE, 2, &g.brush( QColorGroup::Dark) );
-            } else {
-                scrollerStartOldPos = sliderR;
-                scrollerMoving = TRUE;
-            }
-        }
-
-        if ( controls & Slider && sliderR.isValid() ) {
-            if ( scrollerMoving && activeControl != Slider ) {
-                p->setClipping( FALSE );
-                scrollerMoving = FALSE;
-                qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
-                qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
-            }
-
-            QRegion lineRegion( sliderR );
-            if ( sliderLength >= 20 ) {
-                if ( HORIZONTAL ) {
-                    lineRegion -= QRegion( sliderM-4, sliderR.y()+2, 0, sliderR.height()-5 );
-                    lineRegion -= QRegion( sliderM, sliderR.y()+2, 0, sliderR.height()-5 );
-                    lineRegion -= QRegion( sliderM+4, sliderR.y()+2, 0, sliderR.height()-5 );
-                } else {
-                    lineRegion -= QRegion( sliderR.x()+2, sliderM-4, sliderR.width()-5, 0 );
-                    lineRegion -= QRegion( sliderR.x()+2, sliderM, sliderR.width()-5, 0 );
-                    lineRegion -= QRegion( sliderR.x()+2, sliderM+4, sliderR.width()-5, 0 );
-                }
-            }
-
-            p->setClipRegion( lineRegion );
-
-            QPoint bo = p->brushOrigin();
-            p->setBrushOrigin(sliderR.topLeft());
-            if ( sliderR.isValid() ) {
-                if ( deviceUnderMouse == p->device() && sliderR.contains(mousePos))
-                    drawBevelButton( p, sliderR.x(), sliderR.y(),
-                                 sliderR.width(), sliderR.height(), g,
-                                 FALSE, &g.brush( QColorGroup::Midlight ) );
-                else
-                    drawBevelButton( p, sliderR.x(), sliderR.y(),
-                                 sliderR.width(), sliderR.height(), g );
-
-                if (sliderLength >= 20 ) {
-                    p->setClipping( FALSE );
-
-                    if ( HORIZONTAL ) {
-                        drawSeparator( p, sliderM-5, sliderR.y()+2, sliderM-5, sliderR.y()+sliderR.height()-3, g );
-                        drawSeparator( p, sliderM-1, sliderR.y()+2, sliderM-1, sliderR.y()+sliderR.height()-3, g );
-                        drawSeparator( p, sliderM+3, sliderR.y()+2, sliderM+3, sliderR.y()+sliderR.height()-3, g );
-                    } else {
-                        drawSeparator( p, sliderR.x()+2, sliderM-5, sliderR.x()+sliderR.width()-3, sliderM-5, g );
-                        drawSeparator( p, sliderR.x()+2, sliderM-1, sliderR.x()+sliderR.width()-3, sliderM-1, g );
-                        drawSeparator( p, sliderR.x()+2, sliderM+3, sliderR.x()+sliderR.width()-3, sliderM+3, g );
-                    }
-                }
-            }
-            p->setBrushOrigin(bo);
-        }
-    }
-
-    p->setClipping( FALSE );
-}
-
-/*!
-    Draws the sliding element of a slider-widget.
-*
-void
-QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
-                 Orientation orient, bool tickAbove, bool tickBelow )
-{
-    QRect sliderR( x, y, w-1, h-1 );
-    if ( sliderMoving ) {
-        if ( sliderLastPosition.slider == (QWidget*)p->device() ) {
-            if ( !sliderLastPosition.pos.isValid() ) {
-                sliderLastPosition.pos= sliderR;
-            } else {
-                p->setClipRegion( QRegion(sliderLastPosition.pos ) - QRegion(sliderR) );
-                qDrawShadePanel( p, sliderLastPosition.pos, g, TRUE, 2, &g.brush( QColorGroup::Dark) );
-            }
-        }
-    } else
-        sliderLastPosition.pos = QRect( 1, -1, 1, -1 );
-
-    if ( repaintByMouseMove) {
-        bool aboutToBeActive = sliderR.contains( mousePos );
-        if ( sliderHandleActive == aboutToBeActive )
-            return;
-
-        sliderHandleActive = aboutToBeActive;
-    }
-
-    p->setClipping( FALSE );
-    if ( deviceUnderMouse == p->device() && sliderR.contains( mousePos ) )
-        drawBevelButton( p, x, y, w-1, h-1, g, FALSE, &g.brush( QColorGroup::Midlight ) );
-    else
-        drawBevelButton( p, x, y, w-1, h-1, g, FALSE );
-
-    if ( orient == Horizontal ) {
-        QCOORD mid = x + w / 2 - 2;
-        drawSeparator( p, mid,  y+2 , mid,  y + h - 4, g );
-    } else {
-        QCOORD mid = y +h / 2;
-        drawSeparator( p, x+2, mid,  x + w - 4, mid, g );
-    }
-}
-
-
-/*!
-    Draws the groove of a slider-widget.
-*
-void
-QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
-                 const QColorGroup& g, QCOORD, Orientation )
-{
-    if ( repaintByMouseMove)
-        return;
-
-    if ( sliderLastPosition.slider == p->device() ) {
-        if ( sliderMoving && sliderLastPosition.pos.isValid() )
-            p->setClipRegion( QRegion( x,y,w,h )
-                - QRegion( sliderLastPosition.pos ) );
-    }
-
-    qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
-    drawButton( p, x+1, y+1, w-2, h-2, g );
-
-    p->setClipping( FALSE );
-}
-
-/*! \reimp
-*
-void
-QSGIStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
-                               const QColorGroup& g, Orientation orient )
-{
-    const int motifOffset = 10;
-    int sw = splitterWidth();
-    if ( orient == Horizontal ) {
-        int xPos = x + w/2;
-        int kPos = motifOffset;
-        int kSize = sw - 2;
-
-        qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
-                xPos, h, g );
-        drawBevelButton( p, xPos-sw/2+1, kPos,
-                kSize, kSize+2, g,  FALSE, &g.brush( QColorGroup::Button ));
-        qDrawShadeLine( p, xPos+2, 0, xPos, kPos, g );
-    } else {
-        int yPos = y + h/2;
-        int kPos = w - motifOffset - sw;
-        int kSize = sw - 2;
-
-        qDrawShadeLine( p, 0, yPos, kPos, yPos, g );
-        drawBevelButton( p, kPos, yPos-sw/2+1,
-                kSize+2, kSize, g, FALSE, &g.brush( QColorGroup::Button ));
-        qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, g );
     }
 }
 
