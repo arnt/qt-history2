@@ -63,23 +63,23 @@ int main( int argc, char ** argv )
 
     QSplitter *s2 = new QSplitter( QSplitter::Horizontal, s1, "top" );
 
-    Test *t1 = new Test( s2 );
+    Test *t1 = new Test( s2, "topLeft" );
     t1->setBackgroundColor( Qt::blue.light( 180 ) );
     t1->setMinimumSize( 50, 0 );
 
-    Test *t2 = new Test( s2 );
+    Test *t2 = new Test( s2, "topRight" );
     t2->setBackgroundColor( Qt::green.light( 180 ) );
     s2->setResizeMode( t2, QSplitter::KeepSize );
     s2->moveToFirst( t2 );
 
     QSplitter *s3 = new QSplitter( QSplitter::Horizontal,  s1, "bottom" );
 
-    Test *t3 = new Test( s3 );
+    Test *t3 = new Test( s3, "bottomLeft" );
     t3->setBackgroundColor( Qt::red );
-    Test *t4 = new Test( s3 );
+    Test *t4 = new Test( s3, "bottomMiddle" );
     t4->setBackgroundColor( Qt::white );
 
-    Test *t5 = new Test( s3 );
+    Test *t5 = new Test( s3, "bottomRight" );
     t5->setMaximumHeight( 250 );
     t5->setMinimumSize( 80, 50 );
     t5->setBackgroundColor( Qt::yellow );
