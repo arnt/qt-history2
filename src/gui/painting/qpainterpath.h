@@ -110,6 +110,7 @@ class Q_GUI_EXPORT QPainterPathStroker
     Q_DECLARE_PRIVATE(QPainterPathStroker)
 public:
     QPainterPathStroker();
+    ~QPainterPathStroker();
 
     void setWidth(float width);
     float width() const;

@@ -975,6 +975,9 @@ QPainterPathStroker::QPainterPathStroker()
 {
 }
 
+QPainterPathStroker::~QPainterPathStroker()
+{ delete d_ptr; }
+
 QPolygon qt_reversed_polygon(const QPolygon &p)
 {
     QPolygon rev;
