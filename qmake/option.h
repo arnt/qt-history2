@@ -61,8 +61,16 @@ struct Option
     static QString pro_ext;
     static QString res_ext;
     static char field_sep;
+
+    enum CmdLineFlags {
+        QMAKE_CMDLINE_SUCCESS       = 0x00,
+        QMAKE_CMDLINE_SHOW_USAGE    = 0x01,
+        QMAKE_CMDLINE_BAIL          = 0x02,
+        QMAKE_CMDLINE_ERROR         = 0x04
+    };
+
     //both of these must be called..
-    static bool init(int argc=0, char **argv=0); //parse cmdline
+    static int init(int argc=0, char **argv=0); //parse cmdline
     static bool postProcessProject(QMakeProject *);
 
     enum StringFixFlags {

@@ -155,11 +155,6 @@ bool usage(const char *a0)
     return false;
 }
 
-enum {
-    QMAKE_CMDLINE_SUCCESS,
-    QMAKE_CMDLINE_SHOW_USAGE,
-    QMAKE_CMDLINE_BAIL
-};
 int
 Option::parseCommandLine(int argc, char **argv, int skip)
 {
@@ -214,14 +209,14 @@ Option::parseCommandLine(int argc, char **argv, int skip)
 #ifdef QMAKE_OPENSOURCE_VERSION
                 fprintf(stderr, "Qmake is Open Source software from Trolltech AS.\n");
 #endif
-                return QMAKE_CMDLINE_BAIL;
+                return Option::QMAKE_CMDLINE_BAIL;
             } else if(opt == "qtconfig") {
                 extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
                 qt_set_library_config_file(Option::qtconfig_commandline = argv[++x]);
             } else if(opt == "show_qtconfig") {
                 show_qtconfig = true;
             } else if(opt == "h" || opt == "help") {
-                return QMAKE_CMDLINE_SHOW_USAGE;
+                return Option::QMAKE_CMDLINE_SHOW_USAGE;
             } else if(opt == "Wall") {
                 Option::warn_level |= WarnAll;
             } else if(opt == "Wparser") {
@@ -256,14 +251,14 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                         Option::mkfile::qmakespec_commandline = argv[x];
                     } else {
                         fprintf(stderr, "***Unknown option -%s\n", opt.toLatin1().constData());
-                        return QMAKE_CMDLINE_SHOW_USAGE;
+                        return Option::QMAKE_CMDLINE_SHOW_USAGE | Option::QMAKE_CMDLINE_ERROR;
                     }
                 } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
                     if(opt == "nopwd") {
                         Option::projfile::do_pwd = false;
                     } else {
                         fprintf(stderr, "***Unknown option -%s\n", opt.toLatin1().constData());
-                        return QMAKE_CMDLINE_SHOW_USAGE;
+                        return Option::QMAKE_CMDLINE_SHOW_USAGE | Option::QMAKE_CMDLINE_ERROR;
                     }
                 }
             }
@@ -291,8 +286,9 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                     else
                         handled = false;
                 }
-                if(!handled)
-                    return QMAKE_CMDLINE_SHOW_USAGE;
+                if(!handled) {
+                    return Option::QMAKE_CMDLINE_SHOW_USAGE | Option::QMAKE_CMDLINE_ERROR;
+                }
             }
         }
     }
@@ -341,17 +337,17 @@ Option::parseCommandLine(int argc, char **argv, int skip)
     }
     if(!QLibraryInfo::configuration()) {
         fprintf(stderr, "Unable to find a Qt configuration.\n");
-        return QMAKE_CMDLINE_BAIL;
+        return Option::QMAKE_CMDLINE_BAIL | Option::QMAKE_CMDLINE_ERROR;
     }
     debug_msg(1, "Using Qt/configuration: %s\n",
               QLibraryInfo::configuration()->fileName().toLatin1().constData());
     if(show_qtconfig)
         fprintf(stdout, "Using configuration: %s\n",
                 QLibraryInfo::configuration()->fileName().toLatin1().constData());
-    return QMAKE_CMDLINE_SUCCESS;
+    return Option::QMAKE_CMDLINE_SUCCESS;
 }
 
-bool
+int
 Option::init(int argc, char **argv)
 {
     Option::cpp_moc_mod = "";
@@ -455,8 +451,12 @@ Option::init(int argc, char **argv)
     }
     if(argc && argv) {
         int ret = parseCommandLine(argc, argv, 1);
-        if(ret != QMAKE_CMDLINE_SUCCESS)
-            return ret == QMAKE_CMDLINE_SHOW_USAGE ? usage(argv[0]) : false;
+        if(ret != Option::QMAKE_CMDLINE_SUCCESS) {
+            if ((ret & Option::QMAKE_CMDLINE_SHOW_USAGE) != 0)
+                usage(argv[0]);
+            return ret;
+            //return ret == QMAKE_CMDLINE_SHOW_USAGE ? usage(argv[0]) : false;
+        }
     }
 
     //last chance for defaults
@@ -477,8 +477,10 @@ Option::init(int argc, char **argv)
                     Option::mkfile::project_files.append(pwd + "/" + profiles[0]);
             }
 #ifndef QT_BUILD_QMAKE_LIBRARY
-            if(Option::mkfile::project_files.isEmpty())
-                return usage(argv[0]);
+            if(Option::mkfile::project_files.isEmpty()) {
+                usage(argv[0]);
+                return Option::QMAKE_CMDLINE_ERROR;
+            }
 #endif
         }
     }
@@ -495,7 +497,7 @@ Option::init(int argc, char **argv)
             Option::dir_sep = "/";
         Option::obj_ext = ".o";
     }
-    return true;
+    return QMAKE_CMDLINE_SUCCESS;
 }
 
 bool Option::postProcessProject(QMakeProject *project)

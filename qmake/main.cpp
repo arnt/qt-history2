@@ -53,8 +53,12 @@ bool qmake_setpwd(const QString &p)
 int main(int argc, char **argv)
 {
     // parse command line
-    if(!Option::init(argc, argv))
+    int ret = Option::init(argc, argv);
+    if(ret != Option::QMAKE_CMDLINE_SUCCESS) {
+        if ((ret & Option::QMAKE_CMDLINE_ERROR) != 0)
+            return 1;
         return 0;
+    }
 
     QString oldpwd = qmake_getpwd();
 #ifdef Q_WS_WIN
