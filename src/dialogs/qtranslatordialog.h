@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#4 $
 **
 ** Definition of QTranslatorDialog class
 **
@@ -68,36 +68,5 @@ public:
     QAppTranslator( QWidget * parent=0, const char* name = 0 );
     ~QAppTranslator();
 };
-
-//this file wil be renamed, and probably put in its own file
-class QMessageParser
-{
-public:
-    QMessageParser();
-
-    virtual ~QMessageParser();
-    void parse( const QString &filename, const QCString& scope = "PO" );
-protected:
-    virtual void add( const char*, const char*, const QString& );
-private:
-    enum State { Initial, AfterKey, Error };
-
-    void parse();
-
-    const char *stateStr( State );
-    const char *tokenStr( int token );
-    void error( int token, QString );
-
-    State state;
-    QMessageLexer *lex;
-    QString fileName;
-    QCString scope;
-    QCString key;
-    QString trans;
-
-};
-
-
-
 
 #endif // QTRANSLATORDIALOG_H
