@@ -1083,7 +1083,7 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
     QTreeWidgetItem *item = new QTreeWidgetItem();
     *item = *this; // copy the data
     for (int i = 0; i < children.count(); ++i) // recursivly clone children
-        item->children[i] = children.at(i)->clone();
+        item->children.append(children.at(i)->clone());
     return item;
 }
 
