@@ -528,7 +528,7 @@ void Workspace::update()
 // 	if ( i )
 // 	    i->repaint();
 //     } else if ( obj->inherits( "SourceEditor" ) ) {
-// 	WorkspaceItem *i = findItem( (SourceFile*)( (SourceEditor*)obj )->object() );
+// 	WorkspaceItem *i = findItem( ( (SourceEditor*)obj )->sourceFile() );
 // 	if ( i )
 // 	    i->repaint();
 //     }
