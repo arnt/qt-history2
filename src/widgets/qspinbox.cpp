@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#19 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -17,6 +17,10 @@
 #include "qbitmap.h"
 #include "qlined.h"
 #include "qvalidator.h"
+
+static double multipliers[9] = { 1.0, 0.1, 0.01,
+				 0.001, 0.0001, 0.00001,
+				 0.000001, 0.0000001, 0.00000001 };
 
 /*! \class QSpinBox qspinbox.h
 
@@ -48,6 +52,7 @@
 
 struct QSpinBoxData {
     QDoubleValidator * v;
+    double previousSelectedValue;
 };
 
 
@@ -60,7 +65,6 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 {
     d = 0; // not used
     wrap = FALSE;
-    setFocusPolicy( TabFocus );
 
     up = new QPushButton( this, "up" );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -82,7 +86,12 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 
     connect( up, SIGNAL(pressed()), SLOT(next()) );
     connect( down, SIGNAL(pressed()), SLOT(prev()) );
-    connect( vi, SIGNAL(returnPressed()), SLOT(textChanged()) );
+    connect( vi, SIGNAL(textChanged(const char *)),
+	     SLOT(textChanged()) );
+
+    vi->installEventFilter( this );
+
+    setFocusPolicy( TabFocus );
 }
 
 
@@ -119,7 +128,6 @@ void QSpinBox::setRange( double bottom, double top, int decimals )
     }
     if ( vi && d->v != vi->validator() )
 	vi->setValidator( d->v );
-    enableButtons();
 }
 
 
@@ -132,7 +140,7 @@ void QSpinBox::setRange( double bottom, double top, int decimals )
 void QSpinBox::setWrapping( bool w )
 {
     wrap = w;
-    enableButtons();
+    newValue();
 }
 
 /*!  \fn bool QSpinBox::wrapping() const
@@ -148,10 +156,19 @@ void QSpinBox::setWrapping( bool w )
 double QSpinBox::current() const
 {
     bool ok = FALSE;
-    double result = QString( vi->text() ).toDouble( &ok );
+    double result = QString( text() ).toDouble( &ok );
     return ok ? result : 0;
 }
 
+
+/*!  Returns the last valid text of the spin box, or "" if the spin box
+  never has contained any valid text.
+*/
+
+const char * QSpinBox::text() const
+{ //### should return 0?
+    return pv.isNull() ? "" : (const char *)pv;
+}
 
 /*!  Moves the spin box to the next value.  This is the same as
   clicking on the pointing-up button, and can be used for e.g.
@@ -166,19 +183,15 @@ void QSpinBox::next()
 	return;
 
     bool ok;
-    double c = QString(vi->text()).toDouble( &ok );
+    double c = QString(text()).toDouble( &ok );
 
-    double step = 1;
-    for( int n = d->v->decimals(); n>0; n-- )
-	step = step * 0.1;
-
-    c += step;
+    c += multipliers[QMIN(d->v->decimals(),8)];
 
     QString s;
     if ( d->v->decimals() )
 	s.sprintf( "%.*f", d->v->decimals(), c );
     else
-	s.sprintf( "%f", c );
+	s.sprintf( "%d", (int)c );
 
     if ( s.toDouble( &ok ) > d->v->top() )
 	c = wrapping() ? d->v->bottom() : d->v->top();
@@ -200,19 +213,15 @@ void QSpinBox::prev()
 	return;
 
     bool ok;
-    double c = QString(vi->text()).toDouble( &ok );
+    double c = QString(text()).toDouble( &ok );
 
-    double step = 1;
-    for( int n = d->v->decimals(); n>0; n-- )
-	step = step * 0.1;
-
-    c += step;
+    c -= multipliers[QMIN(d->v->decimals(),8)];
 
     QString s;
     if ( d->v->decimals() )
 	s.sprintf( "%.*f", d->v->decimals(), c );
     else
-	s.sprintf( "%f", c );
+	s.sprintf( "%d", (int)c );
 
     if ( s.toDouble( &ok ) < d->v->bottom() )
 	c = wrapping() ? d->v->top(): d->v->bottom();
@@ -235,9 +244,8 @@ void QSpinBox::setCurrent( double value )
     if ( d->v->decimals() )
 	s.sprintf( "%.*f", d->v->decimals(), value );
     else
-	s.sprintf( "%f", value );
+	s.sprintf( "%d", (int)value );
     vi->setText( s );
-    enableButtons();
 }
 
 
@@ -270,7 +278,7 @@ QSize QSpinBox::sizeHint() const
 	if ( d->v->decimals() )
 	    s.sprintf( "%.*f", d->v->decimals(), m );
 	else
-	    s.sprintf( "%f", m );
+	    s.sprintf( "%d", (int)m );
     }
     w = fm.width( s );
     
@@ -290,18 +298,25 @@ QSize QSpinBox::sizeHint() const
 
 bool QSpinBox::eventFilter( QObject * o, QEvent * e )
 {
-    if ( o != vi || e->type() != Event_KeyPress )
+    if ( o != vi )
 	return FALSE;
 
-    QKeyEvent * k = (QKeyEvent *)e;
-    if ( k->key() == Key_Up ) {
-	next();
-	k->accept();
-	return TRUE;
-    } else if ( k->key() == Key_Down ) {
-	prev();
-	k->accept();
-	return TRUE;
+    if ( e->type() == Event_FocusOut &&
+	 !pv.isNull() &&
+	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable )
+	// return to last valid choice on focus change
+	vi->setText( pv );
+    else if ( e->type() == Event_KeyPress ) {
+	QKeyEvent * k = (QKeyEvent *)e;
+	if ( k->key() == Key_Up ) {
+	    next();
+	    k->accept();
+	    return TRUE;
+	} else if ( k->key() == Key_Down ) {
+	    prev();
+	    k->accept();
+	    return TRUE;
+	}
     }
     return FALSE;
 }
@@ -365,29 +380,58 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 }
 
 
-/*!  Set the up and down buttons to enabled or disabled state, as
-  appropriate.
-*/
+/*!  Set focus to point at the line editor. */
 
-void QSpinBox::enableButtons()
+void QSpinBox::focusInEvent( QFocusEvent * )
 {
-    up->setEnabled( wrapping() || (d && current() < d->v->top()) );
-    down->setEnabled( wrapping() || (d && current() > d->v->bottom()) );
+    vi->setFocus();
 }
 
 
-/*!  This virtual slot does nothing at present but may be used in the
-  future.
+/*!  This slot calls newValue() whenever the spinbox contains a new
+  and acceptable value.
 */
 
 void QSpinBox::textChanged()
 {
-    // nothing
+    if ( vi->validator() &&
+	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable )
+	return;
+
+    QString s = vi->text();
+    if ( pv.isNull() || s != pv ) {
+	pv = s;
+	newValue();
+    }
+};
+
+
+/*! This virtual function is called whenever the spinbox contains a
+  new acceptable value.  This implementation simply emits the
+  selected() signal; most reimplementation can probably be as simple.
+*/
+
+
+void QSpinBox::newValue()
+{    
+    double value = current();
+    // the documentation simplifies - it's possible that two different
+    // strings turn into the same double, and we guard against that.
+    if ( !d || d->previousSelectedValue == value )
+	return;
+
+    d->previousSelectedValue = value;
+    up->setEnabled( wrapping() || value < d->v->top() );
+    down->setEnabled( wrapping() || value > d->v->bottom() );
+    emit selected( value );
 }
 
 
 /*!  Sets the validator for user input to \a v.  The default is to use
-  a suitable QDoubleValidator.
+  a suitable QDoubleValidator.  Note that next(), prev(), current(),
+  setCurrent() and setRange() all depend on the default validator, so
+  if you reimplement this function, you probably need to reimplement
+  at least next() and prev() too.
 */
 
 void QSpinBox::setValidator( QValidator * v )

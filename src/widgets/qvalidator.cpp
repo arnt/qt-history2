@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#8 $
 **
 ** C++ file skeleton
 **
@@ -12,7 +12,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#8 $");
 
 
 /*!  \class QValidator qvalidator.h
@@ -25,8 +25,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#7 $");
   The class includes two virtual functions, isValid() and fixup().
 
   isValid() is pure virtual, so it must be implemented by every
-  subclass.  It returns TRUE or FALSE depending on whether its
-  argument is valid (for the class' definition of valid).
+  subclass.  It returns Invalid, Valid or Acceptable depending on
+  whether its argument is valid (for the class' definition of valid).
 
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
@@ -55,10 +55,13 @@ QValidator::~QValidator()
 }
 
 
-/*! \fn bool QValidator::isValid( const char * input )
+/*! \fn QValidator::State QValidator::isValid( const char * input )
 
-  This pure virtual function returns TRUE if \a input is valid
-  according to this validator's rules, and FALSE else.
+  This pure virtual function returns \c Invalid if \a input is valid
+  according to this validator's rules, \c Valid if it is likely that a
+  little more editing will make the input acceptable (e.g. the user
+  types '4' into a widget which accepts 10-99) and \a Acceptable if
+  the input is completely acceptable.
 */
 
 
@@ -134,19 +137,26 @@ QIntValidator::~QIntValidator()
 }
 
 
-/*!  Returns TRUE if \a input contains a number in the legal range.
+/*!  Returns \a Acceptable if \a input contains a number in the legal
+  range, \a Valid if it contains another integer, and \a Invalid if \a
+  input is not an integer.
 */
 
-bool QIntValidator::isValid( const char * input )
+QValidator::State QIntValidator::isValid( const char * input )
 {
     bool ok;
     QString s( input );
     long int tmp = s.toLong( &ok );
-    return ok && tmp >= b && tmp <= t;
+    if ( !ok )
+	return QValidator::Invalid;
+    else if ( tmp < b || tmp > t )
+	return QValidator::Valid;
+    else
+	return QValidator::Acceptable;
 }
 
 
-/*!  Sets the validator to accept only number from \a botton up to an
+/*!  Sets the validator to accept only number from \a bottom up to an
   including \a top.
 */
 
@@ -227,17 +237,23 @@ QDoubleValidator::~QDoubleValidator()
 }
 
 
-/*!  Returns TRUE if \a input contains a number in the legal range and
-  format.
+/*!  Returns \a Acceptable if \a input contains a number in the legal
+  range and format, \a Valid if it contains another, and \a Invalid if
+  \a input is not a number.
 */
 
-bool QDoubleValidator::isValid( const char * input )
+QValidator::State QDoubleValidator::isValid( const char * input )
 {
     bool ok;
     QString s( input );
     double tmp = s.toDouble( &ok );
     // check the number of decimals here!
-    return ok && tmp >= b && tmp <= t;
+    if ( !ok )
+	return QValidator::Invalid;
+    else if ( tmp < b || tmp > t )
+	return QValidator::Valid;
+    else
+	return QValidator::Acceptable;
 }
 
 

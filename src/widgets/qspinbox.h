@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#10 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#11 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -30,6 +30,7 @@ public:
     virtual void setRange( double bottom, double top, int decimals=0 );
 
     double current() const;
+    const char * text() const;
 
     virtual void setWrapping( bool w );
     bool wrapping() const { return wrap; }
@@ -48,19 +49,21 @@ signals:
 protected:
     bool eventFilter( QObject *, QEvent * );
     void resizeEvent( QResizeEvent * );
+    void focusInEvent( QFocusEvent * );
 
     void setValidator( QValidator * );
     QPushButton * upButton();
     QPushButton * downButton();
     QLineEdit * editor();
 
+    virtual void newValue();
+
 protected slots:
-    virtual void textChanged();
+    void textChanged();
 
 private:
-    void enableButtons();
-
     struct QSpinBoxData * d;
+    QString pv;
     QPushButton * up;
     QPushButton * down;
     QLineEdit * vi;

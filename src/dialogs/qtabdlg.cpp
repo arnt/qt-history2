@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#45 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#46 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#46 $");
 
 
 /*!
@@ -191,12 +191,11 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 	     this, SIGNAL(applyButtonPressed()) );
     connect( d->ok, SIGNAL(clicked()),
 	     this, SLOT(accept()) );
-    setFont( QFont( "helvetica" ) );
 }
 
 
 /*!
-  Destroys the tab view and all its children.
+  Destroys the tab dialog.
 */
 
 QTabDialog::~QTabDialog()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#6 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#7 $
 **
 ** Definition of 
 **
@@ -21,7 +21,9 @@ public:
     QValidator( QWidget * parent, const char * name = 0 );
     ~QValidator();
 
-    virtual bool isValid( const char * ) = 0;
+    enum State { Invalid, Valid, Acceptable };
+
+    virtual State isValid( const char * ) = 0;
     virtual void fixup( QString & );
 };
 
@@ -35,7 +37,7 @@ public:
 		   QWidget * parent, const char * name = 0 );
     ~QIntValidator();
 
-    bool isValid( const char * );
+    QValidator::State isValid( const char * );
 
     virtual void setRange( int bottom, int top );
 
@@ -56,7 +58,7 @@ public:
 		      QWidget * parent, const char * name = 0 );
     ~QDoubleValidator();
 
-    bool isValid( const char * );
+    QValidator::State isValid( const char * );
 
     virtual void setRange( double bottom, double top, int decimals = 0 );
 
