@@ -592,10 +592,6 @@ void QGenericComboBox::popup()
 
 void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
-    qDebug(QString("currentChanged: old: %1 %2, current: %3,%4, has %5")
-           .arg(old.row()).arg(old.column())
-           .arg(current.row()).arg(current.column())
-           .arg(model()->parent(old).isValid() ? " parent" : " no parent").latin1());
     if (d->lineEdit)
         d->lineEdit->setText(model()->data(q->currentItem(), QAbstractItemModel::Edit)
                              .toString());
