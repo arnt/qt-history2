@@ -756,7 +756,7 @@ MakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 	    where = project->first("QMAKE_INTERNAL_PRL_LIBS");
 	QStringList &out = project->variables()[where];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	    if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
+	    if( out.findIndex((*it)) == -1)
 		out.append((*it));
 	}
     } else if(var == "QMAKE_PRL_DEFINES") {
