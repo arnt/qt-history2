@@ -737,19 +737,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     // now do the operation
     if(op == "~=") {
-        if(vallist.count() != 1) {
-            qmake_error_msg("~= operator only accepts one right hand paramater ('" +
-                            s + "')");
-            return false;
-        }
-        QString val(vallist.first());
-        if(val.length() < 4 || val.at(0) != 's') {
+        if(vals.length() < 4 || vals.at(0) != 's') {
             qmake_error_msg("~= operator only can handle s/// function ('" +
                             s + "')");
             return false;
         }
-        QChar sep = val.at(1);
-        QStringList func = val.split(sep);
+        QChar sep = vals.at(1);
+        QStringList func = vals.split(sep);
         if(func.count() < 3 || func.count() > 4) {
             qmake_error_msg("~= operator only can handle s/// function ('" +
                 s + "')");
@@ -761,8 +755,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             case_sense = func[3].indexOf('i') == -1;
         }
         QRegExp regexp(func[1], case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
-        for(QStringList::Iterator varit = varlist.begin();
-            varit != varlist.end(); ++varit) {
+        for(QStringList::Iterator varit = varlist.begin(); varit != varlist.end(); ++varit) {
             if((*varit).contains(regexp)) {
                 (*varit) = (*varit).replace(regexp, func[2]);
                 if(!global)
