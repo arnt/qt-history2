@@ -128,7 +128,7 @@ QStyle *QStyleFactory::create( const QString& key )
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
     if ( style == "windowsxp" )
-	return new QWindowsXPStyle;
+	ret = new QWindowsXPStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIF
