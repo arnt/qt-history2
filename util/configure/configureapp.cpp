@@ -931,7 +931,7 @@ void Configure::displayConfig()
 
 void Configure::buildQmake()
 {
-    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ) {
+    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||  dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     } else {
