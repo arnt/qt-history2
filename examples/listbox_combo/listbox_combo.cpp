@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#4 $
+** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -108,11 +108,11 @@ void ListBoxCombo::slotLeft2Right()
             // ...and it is a text item...
             if ( !item->text().isEmpty() )
                 // ...insert an item with the same text into the second ListBox
-                lb2->insertItem( new QListBoxText( item->text() ), lb2->item( 0 ) );
+                lb2->insertItem( new QListBoxText( item->text() ), -1 );
             // ...and if it is a pixmap item...
             else if ( item->pixmap() )
                 // ...insert an item with the same pixmap into the second ListBox
-                lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), lb2->item( 0 ) );
+                lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), -1 );
         }
     }
 }
