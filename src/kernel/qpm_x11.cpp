@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#101 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#101 $");
 
 
 /*****************************************************************************
@@ -652,7 +652,8 @@ QImage QPixmap::convertToImage() const
 
 
 /*!
-  \fn bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
+  \fn bool QPixmap::convertFromImage( const QImage &image, ColorMode mode,
+    DitherMode dmode )
   Converts an image and sets this pixmap. Returns TRUE if successful.
 
   The \e mode argument specifies whether the resulting pixmap should be
@@ -677,13 +678,18 @@ QImage QPixmap::convertToImage() const
   If \e image has more colors than the number of available colors, we
   try to pick the most important colors.
 
+  If the image has an alpha buffer, \e dmode determines how this is
+  converted to a mask. QImage::createAlphaMask explains this in detail.
+
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
 
-  \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth()
+  \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
+    hasAlphaBuffer()
 */
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
+    DitherMode dmode )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -770,7 +776,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.createAlphaMask();
+	    m = image.createAlphaMask( dmode );
 	    setMask( m );
 	}
 	return TRUE;
@@ -1043,11 +1049,21 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
     if ( image.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = image.createAlphaMask();
+	m = image.createAlphaMask( dmode );
 	setMask( m );
     }
 
     return TRUE;
+}
+
+/*!
+  \override bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
+  The Threshold dithering method is used.
+*/
+
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+{
+    return convertFromImage( img, mode, Threshold );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#102 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#102 $");
 
 
 /*!
@@ -905,7 +905,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 	    *b2++ = gray[*p++];
     } else {					// 32 bit image
 	while ( p < end ) {
-	    *b2++ = qGray(*p);
+	    *b2++ = qGray(*(uint*)p);
 	    p += 4;
 	}
     }
@@ -922,7 +922,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 		    *b2++ = gray[*p++];
 	    } else {				// 24 bit image
 		while ( p < end ) {
-		    *b2++ = qGray(*p);
+		    *b2++ = qGray(*(uint*)p);
 		    p += 4;
 		}
 	    }
@@ -1043,12 +1043,18 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
   is disabled.
 
-  If \a dither is TRUE, this function uses the Floyd-Steinberg dithering
-  algorithm to create the mask. It gives accurate results but is somewhat
-  slow. If \a dither is FALSE, this function avoids dithering and instead
-  interprets all alpha values from 127 and below as transparent and values
-  from 128 and above as opaque. It is much faster than dithering and
-  usually sufficient when reading images with transparent colors.
+  If \a dither is QPixmap::Threshold, this function avoids dithering
+  and instead interprets all alpha values from 127 and below as
+  transparent and values from 128 and above as opaque. It is much
+  faster than dithering and may be sufficient when reading images with
+  transparent colors.  
+
+  If \a dither is QPixmap::Bayer this function uses Bayer's ordered
+  dithering algorithm to create the mask. This is relatively fast.  
+
+  If \a dither is QPixmap::Floyd this function uses the Floyd-Steinberg
+  dithering algorithm to create the mask. It gives accurate results but
+  is somewhat slow.  
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
@@ -1056,7 +1062,7 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   \sa setAlphaBuffer()
 */
 
-QImage QImage::createAlphaMask( bool dither ) const
+QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
 {
     if ( isNull() || !hasAlphaBuffer() ) {
 	QImage nullImage;
@@ -1068,78 +1074,172 @@ QImage QImage::createAlphaMask( bool dither ) const
     }
 
     int i;
-    if ( !dither ) {				// simple quantization
-	QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
-	mask1.setColor( 0, 0xffffff );
-	mask1.setColor( 1, 0 );
-	mask1.fill( 0 );
-	if ( depth() == 32 ) {
-	    for ( i=0; i<height(); i++ ) {
-		uint  *p = (uint *)scanLine(i);
-		uint  *end = p + width();
-		uchar *m = mask1.scanLine(i);
-		int bit = 7;
-		while ( p < end ) {
-		    if ( (*p++ >> 24) & 0x80 )
-			*m |= 1 << bit;
-		    if ( bit == 0 ) {
-			m++;
-			bit = 7;
-		    } else {
-			bit--;
+    switch ( dmode ) {
+     case QPixmap::Threshold:	    // simple quantization
+	{
+	    QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
+	    mask1.setColor( 0, 0xffffff );
+	    mask1.setColor( 1, 0 );
+	    mask1.fill( 0 );
+	    if ( depth() == 32 ) {
+		for ( i=0; i<height(); i++ ) {
+		    uint  *p = (uint *)scanLine(i);
+		    uint  *end = p + width();
+		    uchar *m = mask1.scanLine(i);
+		    int bit = 7;
+		    while ( p < end ) {
+			if ( (*p++ >> 24) & 0x80 )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		}
+	    } else if ( depth() == 8 ) {
+		uchar c[256];
+		for ( i=0; i<numColors(); i++ )
+		    c[i] = (color(i) >> 24) & 0x80;
+		for ( i=0; i<height(); i++ ) {
+		    uchar *p = scanLine(i);
+		    uchar *end = p + width();
+		    uchar *m = mask1.scanLine(i);
+		    int bit = 7;
+		    while ( p < end ) {
+			if ( c[*p++] )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
 		    }
 		}
 	    }
-	} else if ( depth() == 8 ) {
-	    uchar c[256];
-	    for ( i=0; i<numColors(); i++ )
-		c[i] = (color(i) >> 24) & 0x80;
-	    for ( i=0; i<height(); i++ ) {
-		uchar *p = scanLine(i);
-		uchar *end = p + width();
-		uchar *m = mask1.scanLine(i);
-		int bit = 7;
-		while ( p < end ) {
-		    if ( c[*p++] )
-			*m |= 1 << bit;
-		    if ( bit == 0 ) {
-			m++;
-			bit = 7;
-		    } else {
-			bit--;
-		    }
-		}
-	    }
+	    return mask1;
 	}
-	return mask1;
+    break; case QPixmap::Bayer:
+	{
+	    static uint bm[16][16];
+	    static int init=0;
+	    if (!init) {
+		// Build a Bayer Matrix for dithering
+
+		init = 1;
+		int n, i, j;
+
+		bm[0][0]=0;
+                bm[1][0]=2;
+                bm[0][1]=3;
+                bm[1][1]=1;
+
+		for (n=2; n<16; n*=2) {
+		    for (i=0; i<n; i++) {
+			for (j=0; j<n; j++) {
+			    bm[i][j]*=4;
+			    bm[i+n][j]=bm[i][j]+2;
+			    bm[i][j+n]=bm[i][j]+3;
+			    bm[i+n][j+n]=bm[i][j]+1;
+			}
+		    }
+                }
+
+		// Force black to black
+		bm[0][0]=1;
+	    }
+
+	    QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
+	    mask1.setColor( 0, 0xffffff );
+	    mask1.setColor( 1, 0 );
+	    mask1.fill( 0 );
+	    if ( depth() == 32 ) {
+		for ( i=0; i<height(); i++ ) {
+		    uint  *p = (uint *)scanLine(i);
+		    uint  *end = p + width();
+		    uchar *m = mask1.scanLine(i);
+		    int bit = 7;
+		    int j = 0;
+		    while ( p < end ) {
+			if ( (*p++ >> 24) >= bm[j++&15][i&15] )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		}
+	    } else if ( depth() == 8 ) {
+		uchar c[256];
+		for ( i=0; i<numColors(); i++ )
+		    c[i] = (color(i) >> 24);
+		for ( i=0; i<height(); i++ ) {
+		    uchar *p = scanLine(i);
+		    uchar *end = p + width();
+		    uchar *m = mask1.scanLine(i);
+		    int bit = 7;
+		    int j = 0;
+		    while ( p < end ) {
+			if ( c[*p++] >= bm[j++&15][i&15] )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		}
+	    }
+	    return mask1;
+	}
+    break; case QPixmap::Floyd:
+	{
+	    QImage mask8( width(), height(), 8, 256 );
+	    for ( i=0; i<256; i++ )
+		mask8.data->ctbl[i] = qRgb(255-i,255-i,255-i);
+	    if ( depth() == 32 ) {
+		for ( i=0; i<height(); i++ ) {
+		    uint  *p = (uint *)scanLine(i);
+		    uint  *end = p + width();
+		    uchar *m = mask8.scanLine(i);
+		    while ( p < end )
+			*m++ = (uchar)(*p++ >> 24);
+		}
+	    } else if ( depth() == 8 ) {
+		uchar c[256];
+		for ( i=0; i<numColors(); i++ )
+		    c[i] = (uchar)(color(i) >> 24);
+		for ( i=0; i<height(); i++ ) {
+		    uchar *p = scanLine(i);
+		    uchar *end = p + width();
+		    uchar *m = mask8.scanLine(i);
+		    while ( p < end )
+			*m++ = c[*p++];
+		}
+	    }
+	    QImage mask1;
+	    dither_image( &mask8, &mask1 );
+	    return mask1;
+	}
     }
 
-    QImage mask8( width(), height(), 8, 256 );
-    for ( i=0; i<256; i++ )
-	mask8.data->ctbl[i] = qGray(i,i,i);
-    if ( depth() == 32 ) {
-	for ( i=0; i<height(); i++ ) {
-	    uint  *p = (uint *)scanLine(i);
-	    uint  *end = p + width();
-	    uchar *m = mask8.scanLine(i);
-	    while ( p < end )
-		*m++ = (uchar)(*p++ >> 24);
-	}
-    } else if ( depth() == 8 ) {
-	uchar c[256];
-	for ( i=0; i<numColors(); i++ )
-	    c[i] = (uchar)(color(i) >> 24);
-	for ( i=0; i<height(); i++ ) {
-	    uchar *p = scanLine(i);
-	    uchar *end = p + width();
-	    uchar *m = mask8.scanLine(i);
-	    while ( p < end )
-		*m++ = c[*p++];
-	}
-    }
-    QImage mask1;
-    dither_image( &mask8, &mask1 );
-    return mask1;
+    fatal("Bad DitherMode to QImage::createAlphaMask");
+    QImage dummy;
+    return dummy;
+}
+
+/*!
+    Obsolete.  Use createAlphaMask(QPixmap::DitherMode) instead.
+*/
+
+QImage QImage::createAlphaMask( bool dither ) const
+{
+    return createAlphaMask( dither ? QPixmap::Threshold : QPixmap::Floyd );
 }
 
 
@@ -1623,8 +1723,8 @@ static QImageHandler *get_image_handler( const char *format )
     QImageIO::defineIOHandler( "GIF",
 			       "^GIF[0-9][0-9][a-z]",
 			       0,
-			       read_gif_image,
-			       write_gif_image );
+			       readGIF,
+			       writeGIF );
   \endcode
 */
 
