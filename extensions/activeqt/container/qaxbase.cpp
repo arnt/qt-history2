@@ -1636,6 +1636,8 @@ QMetaObject *QAxBase::metaObject() const
 			    if ( ptype != "void" ) {
 				prop->t = new char[ptype.length()+1];
 				prop->t = qstrcpy( (char*)prop->t, ptype );
+
+				prop->flags |= QVariant::nameToType( prop->t ) << 24;
 			    } else {
 				prop->t = 0;
 			    }
@@ -1843,6 +1845,9 @@ QMetaObject *QAxBase::metaObject() const
 
 			prop->t = new char[variableType.length()+1];
 			prop->t = qstrcpy( (char*)prop->t, variableType );
+
+			prop->flags |= QVariant::nameToType( prop->t ) << 24;
+
 			prop->n = new char[variableName.length()+1];
 			prop->n = qstrcpy( (char*)prop->n, variableName );
 
