@@ -113,13 +113,14 @@ public:
 	if ( plugin->load() ) {
 	    QStringList iFaces = plugin->interfaceList();
 	    for ( QStringList::Iterator i = iFaces.begin(); i != iFaces.end(); ++i ) {
-		Type *iFace = (Type*)plugin->queryInterface( *i );
+		QUnknownInterface *iFace = plugin->queryInterface( *i );
 		if ( iFace && iFace->interfaceID() == Type::interfaceID() ) {
-		    QStringList al = iFace->featureList();
+		    Type* typedIFace = (Type*)iFace;
+		    QStringList al = typedIFace->featureList();
 		    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
 			useful = TRUE;
 			if ( !plugDict[*a] ) {
-			    plugDict.insert( *a, iFace );
+			    plugDict.insert( *a, typedIFace );
 			    emit featureAdded( *a );
 			}
 #ifdef CHECK_RANGE
@@ -127,6 +128,8 @@ public:
 			    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
 #endif
 		    }
+		} else {
+		    delete iFace;
 		}
 	    }
 	}
@@ -135,7 +138,7 @@ public:
 	    libDict.replace( plugin->library(), plugin );
 	    return plugin;
 	} else {
-	    delete plugin;
+//	    delete plugin;
 	    return 0;
 	}	
     }
