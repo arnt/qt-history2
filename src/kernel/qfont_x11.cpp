@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#11 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#11 $";
 #endif
 
 
@@ -485,7 +485,7 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 				  tokens[Spacing],
 				  tokens[CharsetRegistry],
 				  tokens[CharsetEncoding] );
-		best.name = (const char *)bestName;
+		best.name = bestName.data();
 #if defined(DEBUG_FONT)
 		debug( "*** Scaled a font: [%s]", best.name );
 #endif
