@@ -177,6 +177,7 @@ public:
     QUrl url() const;
 
 public slots:
+    void done( int );
     void setDir( const QString& );
     void setUrl( const QUrlOperator &url );
     void setFilter( const QString& );

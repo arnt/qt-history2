@@ -3881,6 +3881,27 @@ QFileDialog::Mode QFileDialog::mode() const
     return d->mode;
 }
 
+/*! \reimp
+*/
+
+void QFileDialog::done( int i )
+{
+    if ( i == QDialog::Accepted && (d->mode == ExistingFile || d->mode == ExistingFiles) ) {
+	    QStringList files = selectedFiles();
+	    for ( uint f = 0; f < files.count(); f++ ) {
+		QString file = files[f];
+		if ( file.isNull() )
+		    continue;
+		if ( !QFile::exists( file ) ) {
+		    QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
+		    return;
+		}
+	    }
+    }
+
+    QDialog::done( i );
+}
+
 /*!
   Sets the viewmode of the filedialog. You can choose between
   Detail, List.
