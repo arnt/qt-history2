@@ -11,6 +11,13 @@ PRECOMPILED_HEADER = ../core/global/qt_pch.h
 HEADERS += qftp.h \
            qhttp.h \
            qhostaddress.h \
+           qsocketlayer.h \
+           qsocketlayer_p.h \
+           qabstractsocket.h \
+           qabstractsocket_p.h \
+           qtcpsocket.h \
+           qudpsocket.h \
+           qtcpserver.h \
            qserversocket.h \
            qsocket.h \
            qsocketdevice.h \
@@ -22,14 +29,19 @@ HEADERS += qftp.h \
 SOURCES	= qftp.cpp \
           qhttp.cpp \
           qhostaddress.cpp \
+          qsocketlayer.cpp \
+          qabstractsocket.cpp \
+          qtcpsocket.cpp \
+          qudpsocket.cpp \
+          qtcpserver.cpp \
           qserversocket.cpp \
           qsocket.cpp \
           qsocketdevice.cpp \
           qdns.cpp \
           qurlinfo.cpp
 
-unix:SOURCES += qdns_unix.cpp qsocketdevice_unix.cpp
-win32:SOURCES += qdns_win.cpp qsocketdevice_win.cpp
+unix:SOURCES += qdns_unix.cpp qsocketdevice_unix.cpp qsocketlayer_unix.cpp
+win32:SOURCES += qdns_win.cpp qsocketdevice_win.cpp qsocketlayer_win.cpp
 
 mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 
