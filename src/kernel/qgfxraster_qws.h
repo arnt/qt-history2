@@ -47,11 +47,6 @@
 #include "qregion.h"
 #endif // QT_H
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
 //===========================================================================
 // Utility macros and functions
 

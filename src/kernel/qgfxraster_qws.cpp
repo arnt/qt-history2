@@ -39,7 +39,7 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 
-#include <limits.h>
+#include <math.h>
 
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
