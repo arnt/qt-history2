@@ -131,7 +131,8 @@ void QViewportPrivate::init()
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
     viewport = new QViewportHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
-    QApplication::sendEvent(viewport, new QEvent(QEvent::User));
+    QEvent userEvent(QEvent::User);
+    QApplication::sendEvent(viewport, &userEvent);
 }
 
 void QViewportPrivate::layoutChildren()

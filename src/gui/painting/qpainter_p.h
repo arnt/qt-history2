@@ -30,10 +30,7 @@ public:
     QPainterState(const QPainterState *s) {
         font = s->font;
         deviceFont = s->deviceFont;
-        if (s->pfont)
-            pfont = new QFont(*s->pfont);
-        else
-            pfont = 0;
+        pfont = s->pfont ? new QFont(*s->pfont) : 0;
         pen = QPen(s->pen);
         brush = QBrush(s->brush);
         bgOrigin = s->bgOrigin;
@@ -60,6 +57,10 @@ public:
         vw = s->vw;
         vh = s->vh;
         painter = s->painter;
+    }
+
+    ~QPainterState() {
+            delete pfont;
     }
 
     QPoint bgOrigin;
