@@ -570,11 +570,11 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, c
 }
 
 void
-QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
+QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                   Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
-    if(pixmap.isNull())
+    if(pm.isNull())
         return;
 
     setupQDPort();
@@ -583,7 +583,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
 
     //setup port
     ::RGBColor f;
-    if(pixmap.depth() == 1) {
+    if(pm.depth() == 1) {
         f.red = d->current.pen.color().red()*256;
         f.green = d->current.pen.color().green()*256;
         f.blue = d->current.pen.color().blue()*256;
@@ -595,22 +595,32 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
     RGBBackColor(&f);
 
     //get pixmap bits
-    const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pixmap));
+    const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pm));
     const QPixmap *srcmask=0;
     if(mode == Qt::ComposePixmap) {
-        if(pixmap.data->alphapm)
-            srcmask = pixmap.data->alphapm;
+        if(pm.data->alphapm)
+            srcmask = pm.data->alphapm;
         else
-            srcmask = pixmap.mask();
-    } else if(mode == Qt::CopyPixmap && pixmap.mask() && !pixmap.isQBitmap()) {
+            srcmask = pm.mask();
+    } else if(mode == Qt::CopyPixmap) {
         if(d->pdev->devType() == QInternal::Pixmap) {
             QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-            QBitmap bm(dst->size(), true);
-            QPainter p(&bm);
-            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, *pixmap.mask(), sr, Qt::CopyPixmap);
-            dst->setMask(bm);
+            if(pm.mask() && !pm.isQBitmap()) {
+                QBitmap bm(dst->size(), true);
+                QPainter p(&bm);
+                if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                    p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+                p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+                dst->setMask(bm);
+            }
+            if(pm.data->alphapm) {
+                if(!dst->data->alphapm) {
+                    dst->data->alphapm = new QPixmap(dst->size());
+                    dst->data->alphapm->fill(qRgba(255, 255, 255, 0));
+                }
+                QPainter p(dst->data->alphapm);
+                p.drawPixmap(r, *pm.data->alphapm, sr, Qt::CopyPixmap);
+            }
         }
     }
 
@@ -643,7 +653,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
     if(srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
-            QPixmap tmppix(qRound(r.width()), qRound(r.height()), pixmap.depth());
+            QPixmap tmppix(qRound(r.width()), qRound(r.height()), pm.depth());
             Rect pixr;
             SetRect(&pixr, 0, 0, qRound(r.width()), qRound(r.height()));
             const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
@@ -1494,15 +1504,25 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
-    if(mode == Qt::CopyPixmap && pm.mask() && !pm.isQBitmap()) {
+    if(mode == Qt::CopyPixmap) {
         if(d->pdev->devType() == QInternal::Pixmap) {
             QPixmap *dst = static_cast<QPixmap*>(d->pdev);
-            QBitmap bm(dst->size(), true);
-            QPainter p(&bm);
-            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
-                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
-            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
-            dst->setMask(bm);
+            if(pm.mask() && !pm.isQBitmap()) {
+                QBitmap bm(dst->size(), true);
+                QPainter p(&bm);
+                if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                    p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+                p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+                dst->setMask(bm);
+            }
+            if(pm.data->alphapm) {
+                if(!dst->data->alphapm) {
+                    dst->data->alphapm = new QPixmap(dst->size());
+                    dst->data->alphapm->fill(qRgba(255, 255, 255, 0));
+                }
+                QPainter p(dst->data->alphapm);
+                p.drawPixmap(r, *pm.data->alphapm, sr, Qt::CopyPixmap);
+            }
         }
     }
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();

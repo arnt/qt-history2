@@ -478,17 +478,6 @@ QPixmapData::~QPixmapData()
     }
 }
 
-void QPixmapData::copyAlpha(const QPixmapData *data)
-{
-    if(!alphapm)
-        return;
-    alphapm = new QPixmap(data->alphapm->width(), data->alphapm->height(),
-                          data->alphapm->depth());
-    QPainter painter(alphapm);
-    painter.drawPixmap(QPoint(0, 0), *data->alphapm, Qt::CopyPixmapNoMask);
-    painter.end();
-}
-
 QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     if (mode == Qt::SmoothTransformation) {
