@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#11 $
 **
 ** Implementation of QStringList
 **
@@ -26,37 +26,6 @@
 #include "qstringlist.h"
 #include "qdatastream.h"
 #include "qtl.h"
-
-/*
-QDataStream &operator>>( QDataStream& s, QStringList& l )
-{
-  l.clear();
-
-  Q_UINT32 c;
-  s >> c;
-  for( uint i = 0; i < c; ++i )
-  {
-    QString tmp;
-    s >> tmp;
-    l.append( tmp );
-  }
-
-  return s;
-}
-
-QDataStream &operator<<( QDataStream& s, const QStringList& l )
-{
-  s << (Q_UINT32)l.count();
-
-  QStringList::ConstIterator it = l.begin();
-  for( ; it != l.end(); ++it )
-  {
-    s << *it;
-  }
-
-  return s;
-}
-*/
 
 /*!
   \class QStringList qstringlist.h

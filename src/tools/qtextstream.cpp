@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#113 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#114 $
 **
 ** Implementation of QTextStream class
 **
@@ -1837,7 +1837,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   \class QTextOStream qtextstream.h
-  \brief A convenience class for input streams.
+  \brief A convenience class for output streams.
 
   For simple tasks, code should be simple.  Hence this
   class is a shorthand to avoid passing the \e mode argument
@@ -1848,8 +1848,6 @@ QTextStream &reset( QTextStream &s )
     QString result;
     QTextOStream(result) << "pi = " << 3.14;
 \endcode
-
-  \sa QTextOStream
 */
 
 /*!
