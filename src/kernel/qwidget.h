@@ -545,10 +545,12 @@ private slots:
 
 private:
     void	 setFontSys( QFont *f = 0 );
+#if defined(Q_WS_X11)
     void	 createInputContext();
     void	 destroyInputContext();
     void	 resetInputContext();
     void	 focusInputContext();
+#endif
 
 #ifndef QT_NO_LAYOUT
     void 	 setLayout( QLayout *l );
