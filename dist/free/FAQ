@@ -1,22 +1,22 @@
                        Frequently Asked Questions
 
 
-1:  Will Qt continue to be free?
+1:  What kind of licenses exist for Qt?
 
-    A: We will continue to release free versions for the X Window System,
-       and they will be free for non-commercial purposes.
+    A: The Qt toolkit is available under two different licenses: 
+       The professional license, and the free license for developing free
+       software for the X platform.	
 
-2:  What kind of licenses exist for Qt?
-
-    A: The Qt toolkit is available under several licenses; the free license
-       for X, a license for shareware developers for X and a fully-fledged
-       professional license.
-
-3:  What are the differences between the professional and free versions of Qt?
+2:  What are the differences between the professional and free versions of Qt?
 
     A: You can write commercial software using the professional license.
        The library itself is the same. You also get 1 year of free support
        when you buy a professional license.
+
+3:  Will you continue to have a free license?
+
+    A: We will continue to release free versions for non-commercial purposes
+       on the X Window System.
 
 4:  Can I write software for internal use in my company/organization using
     the free license?
@@ -44,7 +44,7 @@
 
 8:  I don't want to give away my source. What do I do?
 
-    A: Then you need a shareware or professional license.
+    A: Then you need a professional license.
 
 9:  Can I charge for my application?
 
@@ -67,14 +67,19 @@
 
 11: Who is Troll Tech and what are your future plans?
 
-    A: Troll Tech consists of four talented, hard-working programmers who
-       work day and night to improve Qt, and enjoy it. We started the
-       company in 1994, but parts of Qt were written for earlier
-       projects. The first line of code was written in 1992.
+    A: Troll Tech is a company based in Oslo, the capital of Norway. Our
+       business idea is to develop and market our multi-platform, superior
+       quality, GUI toolkit: Qt.
 
-       Our income comes from selling Qt licenses and from a development
-       contract with a customer; we develop code based on Qt for the
-       Norwegian division of NCR (previously AT&T).
+       Troll Tech was founded in 1994. However, the core team of
+       designers at Troll Tech started developing Qt already in
+       1992. Ever since then, Qt has steadily expanded and improved. Qt is
+       currently used in hundreds of software development projects world wide.
+
+       In addition to Qt development and support, Troll Tech engages on a
+       consultancy basis in a large-scale software development project. The
+       project, which naturally is based on Qt, is run by the Norwegian
+       division of NCR (previously AT&T).
 
 12: Can I use Qt's classes without writing a graphical user interface?
 

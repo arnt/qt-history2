@@ -4,11 +4,11 @@ developing graphical user interface (GUI) applications using C++.
 Troll Tech is proud to release a free version of Qt for the X Window
 System.
 
-This release, Qt 1.2, is free for free software development on all
+This release, Qt 1.2, is free only for development of free software on all
 operating systems that support the X Window System. It includes the
 complete Qt source code for X and makefiles for Linux, Solaris, SunOS,
-FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO,HP-UX and AIX. New platforms
-may be added in the future.
+FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO,HP-UX and AIX. New platforms may
+be added in the future.
 
 Qt has excellent documentation: around 500 pages of postscript and fully
 cross-referenced online html documentation. See it on the web:
@@ -43,7 +43,6 @@ Qt is available under several licenses:
 
 	- for commercial use
 	- for use with free software (X only)
-	- for shareware developers (X only)
 
 Note that the toolkit is the same, only the licenses differ.
 

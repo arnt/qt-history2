@@ -1,11 +1,14 @@
 Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface (GUI) applications using C++.
 
-This release, Qt 1.2, is free for free software development on all
-operating systems that support the X Window System. It includes the
-complete Qt source code for X and makefiles for Linux, Solaris, SunOS,
-FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO,HP-UX and AIX. New platforms
-may be added in the future.
+This release, Qt 1.2, is free only for development of free software for
+the X Window System. If you are using Qt for developing commercial or
+other non-free software, you must have a professional license. Please see
+http://www.troll.no/pricing.html for how to obtain this.
+
+This release includes the complete Qt source code for X and makefiles
+for Linux, Solaris, SunOS, FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO,HP-UX
+and AIX. New platforms may be added in the future.
 
 Qt has excellent documentation: around 500 pages of postscript and fully
 cross-referenced online html documentation. See it on the web:
@@ -40,7 +43,6 @@ Qt is available under several licenses:
 
 	- for commercial use
 	- for use with free software (X only)
-	- for shareware developers (X only)
 
 Note that the toolkit is the same, only the licenses differ.
 
@@ -122,7 +124,7 @@ libraries) provided that you accept the terms above, and in addition that:
   - Your components' documentation includes the following text:
 	[Your package] requires the Qt library, which is copyright
 	Troll Tech AS.	Freely distributable programs may generally
-	use Qt for free, see [README.QT] for details.
+	use Qt for free, see [LICENSE] for details.
   - README.QT is distributed along with your components.
   - Qt is not distributed as an integral part of your components.
 

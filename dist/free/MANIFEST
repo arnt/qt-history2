@@ -15,7 +15,7 @@ examples	Qt example programs
 html		Qt documentation in HTML format
 include		Qt include files
 lib		Place for the Qt library
-makefiles	Qt makefile templates
 man		Qt documentation in manpage format
+opengl		Source code and examples on Qt support for OpenGL 3D library
 src		Qt source code
 tutorial	Source code for the Qt tutorial
