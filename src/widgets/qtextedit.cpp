@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QTextEdit class
 **
@@ -2134,7 +2134,7 @@ void QTextEdit::removeParagraph( int para )
   If there is no operation to undo, e.g. there is no undo step in the
   undo/redo history, nothing happens.
 
-  \sa undoAvaliable() redo() undoDepth()
+  \sa undoAvailable() redo() undoDepth()
 */
 
 void QTextEdit::undo()
@@ -2175,7 +2175,7 @@ void QTextEdit::undo()
   If there is no operation to redo, e.g. there is no redo step in the
   undo/redo history, nothing happens.
 
-  \sa redoAvaliable() undo() undoDepth()
+  \sa redoAvailable() undo() undoDepth()
 */
 
 void QTextEdit::redo()
