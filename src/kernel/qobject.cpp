@@ -2015,7 +2015,7 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
     Note that the signal is emitted by the QObject destructor, so
     the object's virtual table is already degenerated at this point,
     and it is not safe to call any functions on the object emitting
-    the signal.
+    the signal. This signal can not be blocked.
 
     All the objects's children are destroyed immediately after this
     signal is emitted.
@@ -2025,7 +2025,7 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
     \overload QObject::destroyed( QObject* obj)
 
     This signal is emitted immediately before the object \a obj is
-    destroyed.
+    destroyed, and can not be blocked.
 
     All the objects's children are destroyed immediately after this
     signal is emitted.
