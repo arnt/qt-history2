@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#299 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#300 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2783,7 +2783,7 @@ int QListBox::itemHeight( int index ) const
     if ( index >= (int)count() || index < 0 )
 	return 0;
     int r = index % numRows();
-    return d->columnPos[r+1] - d->columnPos[r];
+    return d->rowPos[r+1] - d->rowPos[r];
 }
 
 
