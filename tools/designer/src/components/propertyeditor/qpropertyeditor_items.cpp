@@ -31,7 +31,6 @@
 #include <limits.h>
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
-using namespace I;
 
 // -------------------------------------------------------------------------
 bool AbstractPropertyGroup::dirty() const
@@ -40,12 +39,12 @@ bool AbstractPropertyGroup::dirty() const
         if (propertyAt(i)->dirty())
             return true;
 
-    return Property::dirty();
+    return IProperty::dirty();
 }
 
 void AbstractPropertyGroup::setDirty(bool b)
 {
-    Property::setDirty(b);
+    IProperty::setDirty(b);
 
     for (int i=0; i<propertyCount(); ++i)
         propertyAt(i)->setDirty(b);
@@ -99,11 +98,11 @@ void BoolProperty::updateValue(QWidget *editor)
 PointProperty::PointProperty(const QPoint &value, const QString &name)
     : AbstractPropertyGroup(name)
 {
-    I::Property *px = new IntProperty(value.x(), QLatin1String("x"));
+    IProperty *px = new IntProperty(value.x(), QLatin1String("x"));
     px->setFake(true);
     px->setParent(this);
 
-    I::Property *py = new IntProperty(value.y(), QLatin1String("y"));
+    IProperty *py = new IntProperty(value.y(), QLatin1String("y"));
     py->setFake(true);
     py->setParent(this);
 
@@ -134,18 +133,18 @@ PropertyCollection::~PropertyCollection()
     qDeleteAll(m_properties);
 }
 
-void PropertyCollection::addProperty(I::Property *property)
+void PropertyCollection::addProperty(IProperty *property)
 {
     property->setParent(this);
     m_properties.append(property);
 }
 
-void PropertyCollection::removeProperty(I::Property *property)
+void PropertyCollection::removeProperty(IProperty *property)
 {
     Q_UNUSED(property);
 }
 
-int PropertyCollection::indexOf(I::Property *property) const
+int PropertyCollection::indexOf(IProperty *property) const
 {
     return m_properties.indexOf(property);
 }
@@ -155,7 +154,7 @@ int PropertyCollection::propertyCount() const
     return m_properties.size();
 }
 
-I::Property *PropertyCollection::propertyAt(int index) const
+IProperty *PropertyCollection::propertyAt(int index) const
 {
     return m_properties.at(index);
 }
@@ -488,7 +487,7 @@ FontProperty::FontProperty(const QFont &value, const QString &name)
     if (index == -1)
         index = 0;
 
-    I::Property *i = 0;
+    IProperty *i = 0;
     i = new ListProperty(fonts, index, QLatin1String("Family"));
     i->setFake(true);
     i->setParent(this);
@@ -699,7 +698,7 @@ SizePolicyProperty::SizePolicyProperty(const QSizePolicy &value, const QString &
     QStringList lst;
     lst << "Fixed" << "Minimum" << "Maximum" << "Preferred" << "MinimumExpanding" << "Expanding" << "Ignored";
 
-    I::Property *i = 0;
+    IProperty *i = 0;
     i = new ListProperty(lst, size_type_to_int(value.horizontalData()), QLatin1String("hSizeType"));
     i->setFake(true);
     i->setParent(this);

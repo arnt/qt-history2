@@ -25,7 +25,7 @@ Model::~Model()
 {
 }
 
-void Model::setInitialInput(I::Property *initialInput)
+void Model::setInitialInput(IProperty *initialInput)
 {
     Q_ASSERT(initialInput);
 
@@ -56,14 +56,14 @@ int Model::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return 1;
 
-    if (I::Property *p = privateData(parent)) {
-        return (p->kind() == I::Property_Group)
-            ? static_cast<I::PropertyGroup*>(p)->propertyCount()
+    if (IProperty *p = privateData(parent)) {
+        return (p->kind() == IProperty::Property_Group)
+            ? static_cast<IPropertyGroup*>(p)->propertyCount()
             : 0;
     }
 
-    return (m_initialInput->kind() == I::Property_Group)
-        ? static_cast<I::PropertyGroup*>(m_initialInput)->propertyCount()
+    return (m_initialInput->kind() == IProperty::Property_Group)
+        ? static_cast<IPropertyGroup*>(m_initialInput)->propertyCount()
         : 0;
 }
 
@@ -76,7 +76,7 @@ int Model::columnCount(const QModelIndex &parent) const
 
 bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (I::Property *property = privateData(index)) {
+    if (IProperty *property = privateData(index)) {
 
         if (role == EditRole) {
             property->setValue(value);
@@ -107,7 +107,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     if (!privateData(index))
         return QVariant();
 
-    I::Property *o = privateData(index);
+    IProperty *o = privateData(index);
     switch (index.column()) {  // ### cleanup
         case 0:
             switch (role) {
@@ -151,14 +151,14 @@ QString Model::columnText(int col) const
     }
 }
 
-void Model::refresh(I::Property *property)
+void Model::refresh(IProperty *property)
 {
     QModelIndex index0 = indexOf(property, 0);
     QModelIndex index1 = indexOf(property, 1);
     emit dataChanged(index0, index1);
 }
 
-void Model::propertyAdded(I::Property *property)
+void Model::propertyAdded(IProperty *property)
 {
     QModelIndex p = parent(indexOf(property));
     int r = rowCount(p);

@@ -19,7 +19,7 @@
 #include <abstractformeditor.h>
 #include <abstractpropertyeditor.h>
 
-#include <QPropertyEditor>
+#include <qpropertyeditor.h>
 #include <QPointer>
 
 class DomProperty;
@@ -42,23 +42,23 @@ public:
     { return m_object; }
 
 private slots:
-    void firePropertyChanged(I::Property *property);
+    void firePropertyChanged(IProperty *property);
 
 private:
-    I::Property *propertyByName(I::Property *p, const QString &name);
-    void clearDirty(I::Property *p);
-    
+    IProperty *propertyByName(IProperty *p, const QString &name);
+    void clearDirty(IProperty *p);
+
     static void createPropertySheet(PropertyCollection *root,
             QExtensionManager *m,
             QObject *object);
-        
-    static I::Property *createSpecialProperty(const QVariant &value, 
+
+    static IProperty *createSpecialProperty(const QVariant &value,
             const QString &name);
 
 private:
     AbstractFormEditor *m_core;
     QPropertyEditor::View *m_editor;
-    I::PropertyGroup *m_properties;
+    IPropertyGroup *m_properties;
     QPointer<QObject> m_object;
 };
 

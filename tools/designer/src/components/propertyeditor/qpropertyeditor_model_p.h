@@ -27,35 +27,35 @@ public:
     Model(QObject *parent = 0);
     ~Model();
 
-    inline I::Property *initialInput() const
+    inline IProperty *initialInput() const
     { return m_initialInput; }
 
-    inline QModelIndex indexOf(I::Property *property, int column = 0) const
+    inline QModelIndex indexOf(IProperty *property, int column = 0) const
     {
         if (property == m_initialInput)
             return createIndex(0, column, m_initialInput);
 
-        I::Property *parent = parentOf(property);
-        if (!parent || parent->kind() != I::Property_Group)
+        IProperty *parent = parentOf(property);
+        if (!parent || parent->kind() != IProperty::Property_Group)
             return QModelIndex();
 
-        int row = static_cast<I::PropertyGroup*>(parent)->indexOf(property);
+        int row = static_cast<IPropertyGroup*>(parent)->indexOf(property);
         return createIndex(row, column, property);
     }
 
-    inline I::Property *privateData(const QModelIndex &index) const
-    { return static_cast<I::Property*>(index.data()); }
+    inline IProperty *privateData(const QModelIndex &index) const
+    { return static_cast<IProperty*>(index.data()); }
 
     ItemFlags flags(const QModelIndex &index) const;
 
 signals:
-    void propertyChanged(I::Property *property);
+    void propertyChanged(IProperty *property);
 
 public slots:
-    void setInitialInput(I::Property *initialInput);
-    void propertyAdded(I::Property *property);
+    void setInitialInput(IProperty *initialInput);
+    void propertyAdded(IProperty *property);
     void propertyRemoved(const QModelIndex &index);
-    void refresh(I::Property *property);
+    void refresh(IProperty *property);
     void refresh();
 
 public:
@@ -82,27 +82,27 @@ public:
 protected:
     QString columnText(int column) const;
 
-    inline I::Property *childAt(I::Property *parent, int pos) const
+    inline IProperty *childAt(IProperty *parent, int pos) const
     {
-        if (parent && parent->kind() == I::Property_Group)
-            return static_cast<I::PropertyGroup*>(parent)->propertyAt(pos);
+        if (parent && parent->kind() == IProperty::Property_Group)
+            return static_cast<IPropertyGroup*>(parent)->propertyAt(pos);
 
         return 0;
     }
 
-    inline I::Property *parentOf(I::Property *property) const
+    inline IProperty *parentOf(IProperty *property) const
     { return property ? property->parent() : 0; }
 
-    static I::PropertyGroup *toPropertyGroup(I::Property *property)
+    static IPropertyGroup *toPropertyGroup(IProperty *property)
     {
-        if (!property || property->kind() != I::Property_Group)
+        if (!property || property->kind() != IProperty::Property_Group)
             return 0;
 
-        return static_cast<I::PropertyGroup*>(property);
+        return static_cast<IPropertyGroup*>(property);
     }
 
 private:
-    I::Property *m_initialInput;
+    IProperty *m_initialInput;
 };
 
 } // namespace QPropertyEditor

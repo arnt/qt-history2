@@ -43,8 +43,8 @@ View::View(QWidget *parent)
     connect(this, SIGNAL(doubleClicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
             this, SLOT(open(const QModelIndex&)));
 
-    connect(m_model, SIGNAL(propertyChanged(I::Property*)),
-            this, SIGNAL(propertyChanged(I::Property*)));
+    connect(m_model, SIGNAL(propertyChanged(IProperty*)),
+            this, SIGNAL(propertyChanged(IProperty*)));
 }
 
 View::~View()
@@ -61,7 +61,7 @@ void View::setReadOnly(bool readOnly)
     m_itemDelegate->setReadOnly(readOnly);
 }
 
-void View::setInitialInput(I::Property *initialInput)
+void View::setInitialInput(IProperty *initialInput)
 {
     if (!initialInput)
         initialInput = dummy_collection();
@@ -85,7 +85,7 @@ void View::setInitialInput(I::Property *initialInput)
 }
 
 
-I::Property *View::initialInput() const
+IProperty *View::initialInput() const
 {
     return m_model->initialInput();
 }
@@ -95,7 +95,7 @@ void View::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex 
     QStyleOptionViewItem opt = viewOptions();
     QStyleOptionViewItem option = opt;
 
-    I::Property *property = static_cast<const Model*>(model())->privateData(index);
+    IProperty *property = static_cast<const Model*>(model())->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }

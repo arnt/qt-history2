@@ -32,17 +32,17 @@ public:
     View(QWidget *parent = 0);
     ~View();
 
-    I::Property *initialInput() const;
+    IProperty *initialInput() const;
     bool isReadOnly() const;
 
     inline Model *editorModel() const
     { return m_model; }
 
 signals:
-    void propertyChanged(I::Property *property);
+    void propertyChanged(IProperty *property);
 
 public slots:
-    void setInitialInput(I::Property *initialInput);
+    void setInitialInput(IProperty *initialInput);
     void setReadOnly(bool readOnly);
 
 protected:

@@ -26,7 +26,7 @@
 using namespace QPropertyEditor;
 
 // ### remove me
-I::Property *PropertyEditor::createSpecialProperty(const QVariant &value, 
+IProperty *PropertyEditor::createSpecialProperty(const QVariant &value,
         const QString &name)
 {
     if (name == QLatin1String("alignment"))
@@ -48,9 +48,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root,
         QString pname = sheet->propertyName(i);
         QVariant value = sheet->property(i);
 
-        I::Property *p = 0;
+        IProperty *p = 0;
         EnumType e;
-        FlagType f;        
+        FlagType f;
         if (qVariantGet(value, f, "FlagType")) {
             p = new FlagsProperty(f.items, f.value.toInt(), pname);
         } else if (qVariantGet(value, e, "EnumType")) {
@@ -147,14 +147,14 @@ PropertyEditor::PropertyEditor(AbstractFormEditor *core,
     m_editor = new QPropertyEditor::View(this);
     lay->addWidget(m_editor);
 
-    connect(m_editor, SIGNAL(propertyChanged(I::Property*)),
-        this, SLOT(firePropertyChanged(I::Property*)));
+    connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
+        this, SLOT(firePropertyChanged(IProperty*)));
 }
 
 PropertyEditor::~PropertyEditor()
 {
 }
-    
+
 bool PropertyEditor::isReadOnly() const
 {
     return m_editor->isReadOnly();
@@ -170,14 +170,14 @@ AbstractFormEditor *PropertyEditor::core() const
     return m_core;
 }
 
-I::Property *PropertyEditor::propertyByName(I::Property *p, const QString &name)
+IProperty *PropertyEditor::propertyByName(IProperty *p, const QString &name)
 {
-    if (p->kind() == I::Property_Normal)
+    if (p->kind() == IProperty::Property_Normal)
         return p->propertyName() == name ? p : 0;
 
-    I::PropertyGroup *g = static_cast<I::PropertyGroup*>(p);
+    IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
     for (int i=0; i<g->propertyCount(); ++i)
-        if (I::Property *c = propertyByName(g->propertyAt(i), name))
+        if (IProperty *c = propertyByName(g->propertyAt(i), name))
             return c;
 
     return 0;
@@ -187,29 +187,29 @@ void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value
 {
     if (isReadOnly())
         return;
-        
-    if (I::Property *p = propertyByName(m_editor->initialInput(), name)) {
+
+    if (IProperty *p = propertyByName(m_editor->initialInput(), name)) {
         p->setValue(value);
         m_editor->editorModel()->refresh(p);
     }
 }
 
-void PropertyEditor::firePropertyChanged(I::Property *p)
+void PropertyEditor::firePropertyChanged(IProperty *p)
 {
     if (isReadOnly())
         return;
-        
+
     emit propertyChanged(p->propertyName(), p->value());
 }
 
-void PropertyEditor::clearDirty(I::Property *p)
+void PropertyEditor::clearDirty(IProperty *p)
 {
     p->setDirty(false);
 
-    if (p->kind() == I::Property_Normal)
+    if (p->kind() == IProperty::Property_Normal)
         return;
 
-    I::PropertyGroup *g = static_cast<I::PropertyGroup*>(p);
+    IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
     for (int i=0; i<g->propertyCount(); ++i)
         clearDirty(g->propertyAt(i));
 }
@@ -223,7 +223,7 @@ void PropertyEditor::setObject(QObject *object)
 
     delete m_properties;
     m_properties = 0;
-    
+
     if (m_object) {
         PropertyCollection *collection = new PropertyCollection("<root>");
         createPropertySheet(collection, core()->extensionManager(), object);

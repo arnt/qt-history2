@@ -28,81 +28,79 @@
 class QWidget;
 class QComboBox;
 
-namespace I
+struct QT_PROPERTYEDITOR_EXPORT IProperty
 {
-    enum PropertyKind
+    enum Kind
     {
         Property_Normal,
         Property_Group
 
-        // ### more
+    // ### more
     };
 
-    struct Property
-    {
-        inline Property()
-            : m_parent(0), m_changed(0), m_dirty(0), m_fake(0) {}
+    inline IProperty()
+        : m_parent(0), m_changed(0), m_dirty(0), m_fake(0) {}
 
-        virtual ~Property() {}
+    virtual ~IProperty() {}
 
-        // ### pure
-        bool changed() const { return m_changed; }
-        void setChanged(bool b) { m_changed = b; m_dirty = b; }
+    // ### pure
+    bool changed() const { return m_changed; }
+    void setChanged(bool b) { m_changed = b; m_dirty = b; }
 
-        virtual bool dirty() const { return m_dirty; }
-        virtual void setDirty(bool b) { m_dirty = b; }
+    virtual bool dirty() const { return m_dirty; }
+    virtual void setDirty(bool b) { m_dirty = b; }
 
-        bool isFake() const { return m_fake; }
-        void setFake(bool b) { m_fake = b; }
+    bool isFake() const { return m_fake; }
+    void setFake(bool b) { m_fake = b; }
 
-        virtual PropertyKind kind() const = 0;
+    virtual IProperty::Kind kind() const = 0;
 
-        virtual I::Property *parent() const { return m_parent; }
-        virtual void setParent(I::Property *parent) { m_parent = parent; }
+    virtual IProperty *parent() const { return m_parent; }
+    virtual void setParent(IProperty *parent) { m_parent = parent; }
 
-        virtual QString propertyName() const = 0;
+    virtual QString propertyName() const = 0;
 
-        virtual QVariant value() const = 0;
-        virtual void setValue(const QVariant &value) = 0;
+    virtual QVariant value() const = 0;
+    virtual void setValue(const QVariant &value) = 0;
 
-        virtual QString toString() const = 0;
-        virtual QVariant decoration() const = 0;
+    virtual QString toString() const = 0;
+    virtual QVariant decoration() const = 0;
 
-        virtual bool hasEditor() const = 0;
-        virtual QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver) = 0;
+    virtual bool hasEditor() const = 0;
+    virtual QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver) = 0;
 
-        virtual void updateEditorContents(QWidget *editor) { Q_UNUSED(editor); } // ### pure??
-        virtual void updateValue(QWidget *editor) { Q_UNUSED(editor); }
+    // ### pure
+    virtual void updateEditorContents(QWidget *editor) { Q_UNUSED(editor); }
+    virtual void updateValue(QWidget *editor) { Q_UNUSED(editor); }
 
-        virtual bool hasExternalEditor() const = 0;
-        virtual QWidget *createExternalEditor(QWidget *parent) = 0;
+    virtual bool hasExternalEditor() const = 0;
+    virtual QWidget *createExternalEditor(QWidget *parent) = 0;
 
-    protected:
-        I::Property *m_parent;
-        uint m_changed : 1;
-        uint m_dirty : 1;
-        uint m_fake : 1;
-    };
+protected:
+    IProperty *m_parent;
+    uint m_changed : 1;
+    uint m_dirty : 1;
+    uint m_fake : 1;
+};
 
-    struct PropertyGroup: public Property
-    {
-        virtual int indexOf(I::Property *property) const = 0;
-        virtual int propertyCount() const = 0;
-        virtual Property *propertyAt(int index) const = 0;
-    };
-}
+struct QT_PROPERTYEDITOR_EXPORT IPropertyGroup: public IProperty
+{
+    virtual int indexOf(IProperty *property) const = 0;
+    virtual int propertyCount() const = 0;
+    virtual IProperty *propertyAt(int index) const = 0;
+};
 
 template <typename T>
-class QT_PROPERTYEDITOR_EXPORT AbstractProperty: public I::Property
+class QT_PROPERTYEDITOR_EXPORT AbstractProperty: public IProperty
 {
 public:
     AbstractProperty(const T &value, const QString &name)
         : m_value(value), m_name(name) {}
 
-    I::PropertyKind kind() const { return I::Property_Normal; }
+    IProperty::Kind kind() const { return IProperty::Property_Normal; }
 
 //
-// I::Property Interface
+// IProperty Interface
 //
     QVariant decoration() const { return QVariant(); }
     QString propertyName() const { return m_name; }
@@ -117,7 +115,7 @@ protected:
     QString m_name;
 };
 
-class QT_PROPERTYEDITOR_EXPORT AbstractPropertyGroup: public I::PropertyGroup
+class QT_PROPERTYEDITOR_EXPORT AbstractPropertyGroup: public IPropertyGroup
 {
 public:
     AbstractPropertyGroup(const QString &name)
@@ -126,24 +124,27 @@ public:
     ~AbstractPropertyGroup()
     { qDeleteAll(m_properties); }
 
-    I::PropertyKind kind() const { return I::Property_Group; }
+    IProperty::Kind kind() const { return Property_Group; }
 
 //
-// I::PropertyGroup Interface
+// IPropertyGroup Interface
 //
-    int indexOf(I::Property *property) const { return m_properties.indexOf(property); }
+    int indexOf(IProperty *property) const { return m_properties.indexOf(property); }
     int propertyCount() const { return m_properties.size(); }
-    I::Property *propertyAt(int index) const { return m_properties.at(index); }
+    IProperty *propertyAt(int index) const { return m_properties.at(index); }
 
 //
-// I::Property Interface
+// IProperty Interface
 //
     bool dirty() const;
     void setDirty(bool b);
 
-    QString propertyName() const { return m_name; }
+    inline QString propertyName() const
+    { return m_name; }
 
-    QVariant decoration() const { return QVariant(); }
+    inline QVariant decoration() const
+    { return QVariant(); }
+
     QString toString() const
     {
         QString text = QLatin1String("[");
@@ -156,7 +157,9 @@ public:
         return text;
     }
 
-    bool hasEditor() const { return false; }
+    inline bool hasEditor() const
+    { return false; }
+
     QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver)
     {
         Q_UNUSED(parent);
@@ -165,34 +168,38 @@ public:
         return 0;
     }
 
-    bool hasExternalEditor() const { return false; }
-    QWidget *createExternalEditor(QWidget *parent) { Q_UNUSED(parent); return 0; }
+    inline bool hasExternalEditor() const
+    { return false; }
+
+    QWidget *createExternalEditor(QWidget *parent)
+    { Q_UNUSED(parent); return 0; }
 
 protected:
     QString m_name;
-    QList<I::Property*> m_properties;
+    QList<IProperty*> m_properties;
 };
 
-class QT_PROPERTYEDITOR_EXPORT PropertyCollection: public I::PropertyGroup
+class QT_PROPERTYEDITOR_EXPORT PropertyCollection: public IPropertyGroup
 {
 public:
     PropertyCollection(const QString &name);
     ~PropertyCollection();
 
-    I::PropertyKind kind() const { return I::Property_Group; }
+    inline IProperty::Kind kind() const
+    { return Property_Group; }
 
-    void addProperty(I::Property *property);
-    void removeProperty(I::Property *property);
+    void addProperty(IProperty *property);
+    void removeProperty(IProperty *property);
 
 //
-// I::PropertyGroup Interface
+// IPropertyGroup Interface
 //
-    int indexOf(I::Property *property) const;
+    int indexOf(IProperty *property) const;
     int propertyCount() const;
-    I::Property *propertyAt(int index) const;
+    IProperty *propertyAt(int index) const;
 
 //
-// I::Property Interface
+// IProperty Interface
 //
     QString propertyName() const;
 
@@ -210,7 +217,7 @@ public:
 
 private:
     QString m_name;
-    QList<I::Property*> m_properties;
+    QList<IProperty*> m_properties;
 };
 
 class QT_PROPERTYEDITOR_EXPORT IntProperty: public AbstractProperty<int>

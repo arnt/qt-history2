@@ -70,7 +70,7 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
     QStyleOptionViewItem option = opt;
 
     const QAbstractItemModel *model = index.model();
-    I::Property *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const Model*>(model)->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
@@ -95,7 +95,7 @@ QSize Delegate::sizeHint(const QStyleOptionViewItem &opt,
     QStyleOptionViewItem option = opt;
 
     const QAbstractItemModel *model = index.model();
-    I::Property *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const Model*>(model)->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
@@ -124,7 +124,7 @@ QWidget *Delegate::editor(QWidget *parent,
     Q_UNUSED(option);
 
     const QAbstractItemModel *model = index.model();
-    I::Property *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const Model*>(model)->privateData(index);
     if (!isReadOnly() && property && property->hasEditor()) { // ### always true
         QWidget *editor = property->createEditor(parent, this, SLOT(sync()));
         Q_ASSERT(editor);
@@ -140,7 +140,7 @@ void Delegate::setEditorData(QWidget *editor,
                              const QModelIndex &index) const
 {
     const QAbstractItemModel *model = index.model();
-    I::Property *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const Model*>(model)->privateData(index);
     if (property && property->hasEditor()) {
         property->updateEditorContents(editor);
     }
@@ -150,7 +150,7 @@ void Delegate::setModelData(QWidget *editor,
                             QAbstractItemModel *model,
                             const QModelIndex &index) const
 {
-    if (I::Property *property = static_cast<const Model*>(model)->privateData(index)) {
+    if (IProperty *property = static_cast<const Model*>(model)->privateData(index)) {
         property->updateValue(editor);
         model->setData(index, property->value(), Model::EditRole);
     }
