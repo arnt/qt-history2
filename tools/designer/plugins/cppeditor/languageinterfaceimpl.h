@@ -38,6 +38,7 @@ public:
     QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const;
     void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface );
     QString createArguments( const QStringList &args );
+    QString createEmptyFunction();
 
 private:
     ulong ref;

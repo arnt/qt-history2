@@ -206,3 +206,8 @@ QString LanguageInterfaceImpl::createArguments( const QStringList &args )
     }
     return s;
 }
+
+QString LanguageInterfaceImpl::createEmptyFunction()
+{
+    return "{\n\n}";
+}

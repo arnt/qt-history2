@@ -90,7 +90,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 	if ( bit != bodies.end() )
 	    txt += "\n" + *bit + "\n\n";
 	else
-	    txt += "\n{\n    \n}\n\n";
+	    txt += "\n" + lIface->createEmptyFunction() + "\n\n";
     }
     return txt;
 }
