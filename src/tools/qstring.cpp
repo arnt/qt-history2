@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#430 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#431 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12393,11 +12393,11 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 
   <b>Note for C programmers</b>
 
-    Due to C++'s type system and the fact that QString is implicitly
-    shared, QStrings may be treated like ints or other simple base types.
-    For example:
+  Due to C++'s type system and the fact that QString is implicitly
+  shared, QStrings may be treated like ints or other simple base types.
+  For example:
 
-    \code
+  \code
     QString boolToString( bool b )
     {
 	QString result;
@@ -12407,28 +12407,28 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 	    result = "False";
 	return result;
     }
-    \endcode
+  \endcode
 
-    The variable, result, is an auto variable allocated on the stack.
-    When return is called, because we're returning by value, The copy
-    constructor is called and a copy of the string is returned. (No
-    actual copying takes place thanks to the implicit sharing, see
-    below.)
+  The variable, result, is an auto variable allocated on the stack.
+  When return is called, because we're returning by value, The copy
+  constructor is called and a copy of the string is returned. (No
+  actual copying takes place thanks to the implicit sharing, see
+  below.)
 
-    Throughout Qt's source code you will encounter QString usages like this:
-    \code
+  Throughout Qt's source code you will encounter QString usages like this:
+  \code
     QString func( const QString& input )
     {
 	QString output = input;
 	// process output
 	return output;
     }
-    \endcode
+  \endcode
 
-    The 'copying' of input to output is almost as fast as copying a
-    pointer because behind the scenes copying is achieved by
-    incrementing a reference count. QString operates on a copy-on-write
-    basis, only copying if an instance is actually changed.
+  The 'copying' of input to output is almost as fast as copying a
+  pointer because behind the scenes copying is achieved by
+  incrementing a reference count. QString operates on a copy-on-write
+  basis, only copying if an instance is actually changed.
 
   \sa QChar QCString QByteArray QConstString
 */
@@ -12710,13 +12710,14 @@ QString &QString::operator=( const char *str )
 /*!
   \fn bool QString::isNull() const
 
-  \code
-    QString a;          // a.unicode() == 0,  a.length() == 0
-    a.isNull();         // TRUE, because a.unicode() == 0
-  \endcode
-
   Returns TRUE if the string is null.
   A null string is always empty.
+
+  \code
+    QString a;          // a.unicode() == 0, a.length() == 0
+    a.isNull();         // TRUE, because a.unicode() == 0
+    a.isEmpty();        // TRUE
+  \endcode
 
   \sa isEmpty(), length()
 */
@@ -12724,13 +12725,18 @@ QString &QString::operator=( const char *str )
 /*!
   \fn bool QString::isEmpty() const
 
-  \code
-    QString string("");
-    string.isEmpty();     // returns TRUE
-  \endcode
-
   Returns TRUE if the string is empty, i.e., if length() == 0.
-  An empty string is not always a null string.
+  Thus, null strings are empty strings.
+
+  \code
+    QString a( "" );
+    a.isEmpty();        // TRUE
+    a.isNull();         // FALSE
+
+    QString b;
+    b.isEmpty();        // TRUE
+    b.isNull();         // TRUE
+  \endcode
 
   \sa isNull(), length()
 */
@@ -12746,17 +12752,17 @@ QString &QString::operator=( const char *str )
 */
 
 /*!
-  \code
-    QString s = "truncate this string";
-    s.truncate( 5 );                            // s == "trunc"
-  \endcode
-
   If \a newLen is less than the length of the string, then the string
   is truncated at position \a newLen.  Otherwise nothing will happen.
 
   In Qt 1.x, it was possible to "truncate" a string to a longer
   length.  This is no longer possible; use setLength() if you need to
   extend the length of a string.
+
+  \code
+    QString s = "truncate this string";
+    s.truncate( 5 );                            // s == "trunc"
+  \endcode
 
   \sa setLength()
 */
@@ -12768,7 +12774,6 @@ void QString::truncate( uint newLen )
 }
 
 /*!
-
   Ensures that at least \a newLen characters are allocated to the string,
   and sets the length of the string to \a newLen.  Any new space allocated
   contains arbitrary data.
@@ -12786,15 +12791,15 @@ void QString::truncate( uint newLen )
   \code
     QString result;
     int resultLength = 0;
-    result.setLength( size ) // allocate some space
+    result.setLength( newLen ) // allocate some space
     while ( ... ) {
 	result[resultLength++] = ... // fill (part of) the space with data
     }
     result.truncate[resultLength]; // and get rid of the undefined junk
   \endcode
 
-  (Note that if size is an underestimate, the worst that'll
-  happen is that the loop will slow down.)
+  If \a newLen is an underestimate, the worst that will
+  happen is that the loop will slow down.
 
   \sa truncate(), isNull(), isEmpty(), length()
 */
@@ -12821,14 +12826,6 @@ void QString::setLength( uint newLen )
 }
 
 /*!
-  \code
-    QString firstName("Joe");
-    QString lastName("Bloggs");
-    QString fullName;
-    fullName = QString("First name is '%1', last name is '%2'").arg(firstName).arg(lastName);
-
-    // fullName == First name is 'Joe', last name is 'Bloggs'
-  \endcode
 
   This function will return a string that replaces the lowest occurrence of
   \c %i (\c i being '1' or '2' or ... or '9') with \a a.
@@ -12838,12 +12835,14 @@ void QString::setLength( uint newLen )
   whereas a negative value will produce left-aligned text.
 
   \code
-    QString firstName("Joe");
-    QString lastName("Bloggs");
+    QString firstName( "Joe" );
+    QString lastName( "Bloggs" );
     QString fullName;
-    fullName = QString("First name is '%1', last name is '%2'").arg(firstName, -10).arg(lastName, 10);
+    fullName = QString( "First name is '%1', last name is '%2'" )
+	       .arg( firstName )
+	       .arg( lastName );
 
-    // First name is 'Joe         ',last name is     'Bloggs'
+    // fullName == First name is 'Joe', last name is 'Bloggs'
   \endcode
 
   \warning If you use arg() to construct "real" sentences like the one shown
@@ -12893,62 +12892,61 @@ QString QString::arg( const QString& a, int fieldwidth ) const
 
 /*! \overload
 
-  \code
-    QString str;
-    str = QString("Decimal 63 is %1 in hexadecimal").arg( 63, 0, 16 );
-
-    // str == "Decimal 63 is 3f in hexadecimal"
-  \endcode
-
   The \a fieldwidth value specifies the minimum amount of space that
   \a a is padded to.  A positive value will produce a right-aligned number,
   whereas a negative value will produce a left-aligned number.
 
-  \a a is expressed in base \a base, which is base 10 (decimal) by
-  default and must be in the range 2-36, inclusive.
+  \a a is expressed in base \a base, which is 10 by default and
+  must be between 2 and 36.
+
+  \code
+    QString str;
+    str = QString( "Decimal 63 is %1 in hexadecimal" )
+	  .arg( 63, 0, 16 );
+    // str == "Decimal 63 is 3f in hexadecimal"
+  \endcode
 */
-QString QString::arg(long a, int fieldwidth, int base) const
+QString QString::arg( long a, int fieldwidth, int base ) const
 {
-    return arg( QString::number( a, base ), fieldwidth );
+    return arg( QString::number(a, base), fieldwidth );
 }
 
 /*! \overload
 
-  \a a is expressed in base \a base, which is decimal by
-  default and must be in the range 2-36, inclusive.
+  \a a is expressed in base \a base, which is 10 by
+  default and must be between 2 and 36.
 */
-QString QString::arg(ulong a, int fieldwidth, int base) const
+QString QString::arg( ulong a, int fieldwidth, int base ) const
 {
-    return arg( QString::number( a, base ), fieldwidth );
+    return arg( QString::number(a, base), fieldwidth );
 }
 
 /*!
-  \overload QString QString::arg(int a, int fieldwidth, int base) const
+  \overload QString QString::arg( int a, int fieldwidth, int base ) const
 
-  \a a is expressed in base \a base, which is decimal by
-  default and must be in the range 2-36, inclusive.
-
+  \a a is expressed in base \a base, which is 10 by
+  default and must be between 2 and 36.
 */
 
 /*!
-  \overload QString QString::arg(uint a, int fieldwidth, int base) const
+  \overload QString QString::arg( uint a, int fieldwidth, int base ) const
 
-  \a a is expressed in base \a base, which is decimal by
-  default and must be in the range 2-36, inclusive.
+  \a a is expressed in base \a base, which is 10 by
+  default and must be between 2 and 36.
 */
 
 /*!
-  \overload QString QString::arg(short a, int fieldwidth, int base) const
+  \overload QString QString::arg( short a, int fieldwidth, int base ) const
 
-  \a a is expressed in base \a base, which is decimal by
-  default and must be in the range 2-36, inclusive.
+  \a a is expressed in base \a base, which is 10 by
+  default and must be between 2 and 36.
 */
 
 /*!
-  \overload QString QString::arg(ushort a, int fieldwidth, int base) const
+  \overload QString QString::arg( ushort a, int fieldwidth, int base ) const
 
-  \a a is expressed in base \a base, which is decimal by
-  default and must be in the range 2-36, inclusive.
+  \a a is expressed in base \a base, which is 10 by
+  default and must be between 2 and 36.
 */
 
 
@@ -12956,7 +12954,7 @@ QString QString::arg(ulong a, int fieldwidth, int base) const
 
   \a a is assumed to be in the Latin1 character set.
 */
-QString QString::arg(char a, int fieldwidth) const
+QString QString::arg( char a, int fieldwidth ) const
 {
     QString c;
     c += a;
@@ -12965,7 +12963,7 @@ QString QString::arg(char a, int fieldwidth) const
 
 /*! \overload
 */
-QString QString::arg(QChar a, int fieldwidth) const
+QString QString::arg( QChar a, int fieldwidth ) const
 {
     QString c;
     c += a;
@@ -12990,13 +12988,12 @@ QString QString::arg(QChar a, int fieldwidth) const
 
   \code
     double d = 12.34;
-    QString ds = QString("'E' format, precision 3, gives %1").arg(d, 0, 'E', 3);
-
+    QString ds = QString( "'E' format, precision 3, gives %1" )
+		 .arg( d, 0, 'E', 3 );
     // ds == "1.234E+001"
   \endcode
-
 */
-QString QString::arg(double a, int fieldwidth, char fmt, int prec) const
+QString QString::arg( double a, int fieldwidth, char fmt, int prec ) const
 {
     return arg( QString::number( a, fmt, prec ), fieldwidth );
 }
@@ -13005,7 +13002,7 @@ QString QString::arg(double a, int fieldwidth, char fmt, int prec) const
 /*!
   Just 1-digit arguments.
 */
-bool QString::findArg(int& pos, int& len) const
+bool QString::findArg( int& pos, int& len ) const
 {
     char lowest=0;
     for (uint i=0; i<length(); i++) {
@@ -13042,7 +13039,7 @@ static QCleanupHandler<QRegExp> qt_regexp_cleanup;
     QString str;
     QString s = ...;
     int x = ...;
-    QTextOStream(&str) << s << " : " << x;
+    QTextOStream( &str ) << s << " : " << x;
   \endcode
 
   For \link QObject::tr() translations,\endlink especially if the
@@ -13071,7 +13068,7 @@ QString &QString::sprintf( const char* cformat, ... )
     if (!escape) {
 	escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
 #if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
-	qt_regexp_cleanup.add(escape);
+	qt_regexp_cleanup.add( escape );
 #endif
     }
     QString result;
@@ -13171,17 +13168,17 @@ QString &QString::sprintf( const char* cformat, ... )
 	      case 'e': case 'E': case 'f': case 'g': case 'G': {
 		double value = va_arg(ap, double);
 		switch (params) {
-		  case 0: ::sprintf( out, in, value ); break;
-		  case 1: ::sprintf( out, in, width, value ); break;
-		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+		case 0: ::sprintf( out, in, value ); break;
+		case 1: ::sprintf( out, in, width, value ); break;
+		case 2: ::sprintf( out, in, width, decimals, value ); break;
 		}
 	      } break;
 	      case 'p': {
 		void* value = va_arg(ap, void*);
 		switch ( params ) {
-		  case 0: ::sprintf( out, in, value ); break;
-		  case 1: ::sprintf( out, in, width, value ); break;
-		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+		case 0: ::sprintf( out, in, value ); break;
+		case 1: ::sprintf( out, in, width, value ); break;
+		case 2: ::sprintf( out, in, width, decimals, value ); break;
 		}
 	      } break;
 	    }
@@ -13197,15 +13194,15 @@ QString &QString::sprintf( const char* cformat, ... )
 #endif
 
 /*!
-  \code
-    QString str;
-    str.fill('g', 5);      // string == "gggggg"
-  \endcode
-
   Fills the string with \a len characters of value \a c, and returns a
   reference to the string.
 
-  If \a len is negative, the current string length is used.
+  If \a len is negative (the default), the current string length is used.
+
+  \code
+    QString str;
+    str.fill( 'g', 5 );      // string == "gggggg"
+  \endcode
 */
 
 QString& QString::fill( QChar c, int len )
@@ -13317,7 +13314,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
-		return -1;
+		break;
 	    hthis += uthis[i + lstr].cell();
 	    hthis -= uthis[i].cell();
 	    i++;
@@ -13332,15 +13329,13 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
-		return -1;
+		break;
 	    hthis += uthis[i + lstr].lower().cell();
 	    hthis -= uthis[i].lower().cell();
 	    i++;
 	}
     }
-#if defined(Q_SPURIOUS_NON_VOID_WARNING)
     return -1;
-#endif
 }
 
 /*!
@@ -13357,11 +13352,6 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 /*! \overload
 
-  \code
-    QString string("bananas");
-    int i = string.findRev( 'a' );      // i == 5
-  \endcode
-
   Finds the first occurrence of the character \a c, starting at
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
@@ -13372,6 +13362,10 @@ int QString::find( const QString& str, int index, bool cs ) const
   If \a cs is TRUE then the search is case sensitive.  If \a cs is
   FALSE then the search is case insensitive.
 
+  \code
+    QString string( "bananas" );
+    int i = string.findRev( 'a' );      // i == 5
+  \endcode
 */
 
 int QString::findRev( QChar c, int index, bool cs ) const
@@ -13382,11 +13376,6 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
 /*! \overload
 
-  \code
-    QString string("bananas");
-    int i = string.findRev( "ana" );      // i == 3
-  \endcode
-
   Finds the first occurrence of the string \a str, starting at
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
@@ -13396,6 +13385,11 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
   If \a cs is TRUE then the search is case sensitive.  If \a cs is
   FALSE then the search is case insensitive.
+
+  \code
+    QString string("bananas");
+    int i = string.findRev( "ana" );      // i == 3
+  \endcode
 */
 
 int QString::findRev( const QString& str, int index, bool cs ) const
@@ -13429,7 +13423,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return i;
 	    if ( i == 0 )
-		return -1;
+		break;
 	    i--;
 	    hthis -= uthis[i + lstr].cell();
 	    hthis += uthis[i].cell();
@@ -13444,28 +13438,26 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return i;
 	    if ( i == 0 )
-		return -1;
+		break;
 	    i--;
 	    hthis -= uthis[i + lstr].lower().cell();
 	    hthis += uthis[i].lower().cell();
 	}
     }
-#if defined(Q_SPURIOUS_NON_VOID_WARNING)
     return -1;
-#endif
 }
 
 
 /*!
-  \code
-    QString string("Trolltech and Qt");
-    int i = string.contains( 't', FALSE );  // i == 3
-  \endcode
-
   Returns the number of times the character \a c occurs in the string.
 
   If \a cs is TRUE then the match is case sensitive.  If \a cs is FALSE, then the
   match is case insensitive.
+
+  \code
+    QString string( "Trolltech and Qt" );
+    int i = string.contains( 't', FALSE );  // i == 3
+  \endcode
 */
 
 int QString::contains( QChar c, bool cs ) const
@@ -13527,8 +13519,8 @@ int QString::contains( const char* str, bool cs ) const
   instances of "ana" in "bananas".
 
   \code
-    QString str("bananas");
-    int i = str.contains("ana");    // i == 2
+    QString str( "bananas" );
+    int i = str.contains( "ana" );  // i == 2
   \endcode
 
   \sa findRev()
@@ -13557,19 +13549,16 @@ int QString::contains( const QString &str, bool cs ) const
 }
 
 /*!
-
-  \code
-    QString s = "Pineapple";
-    QString t = s.left( 4 );    // t == "Pine"
-  \endcode
-
   Returns a substring that contains the \a len leftmost characters
   of the string.
 
   The whole string is returned if \a len exceeds the length of the
   string.
 
-
+  \code
+    QString s = "Pineapple";
+    QString t = s.left( 4 );    // t == "Pine"
+  \endcode
 
   \sa right(), mid(), isEmpty()
 */
@@ -13591,17 +13580,16 @@ QString QString::left( uint len ) const
 }
 
 /*!
-
-  \code
-    QString string("Pineapple");
-    QString t = string.right( 5 );   // t == "apple"
-  \endcode
-
   Returns a string that contains the \a len rightmost characters
   of the string.
 
   If \a len is greater than the length of the string then the whole
   string is returned.
+
+  \code
+    QString string( "Pineapple" );
+    QString t = string.right( 5 );   // t == "apple"
+  \endcode
 
   \sa left(), mid(), isEmpty()
 */
@@ -13624,12 +13612,6 @@ QString QString::right( uint len ) const
 }
 
 /*!
-
-  \code
-    QString s = "Five pineapples";
-    QString t = s.mid( 5, 4 );                  // t == "pine"
-  \endcode
-
   Returns a string that contains the \a len characters of this
   string, starting at position \a index.
 
@@ -13637,6 +13619,10 @@ QString QString::right( uint len ) const
   of range.  Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
+  \code
+    QString s( "Five pineapples" );
+    QString t = s.mid( 5, 4 );                  // t == "pine"
+  \endcode
 
   \sa left(), right()
 */
@@ -13662,12 +13648,6 @@ QString QString::mid( uint index, uint len ) const
 }
 
 /*!
-
-  \code
-    QString s("apple");
-    QString t = s.leftJustify(8, '.');          // t == "apple..."
-  \endcode
-
   Returns a string of length \a width that contains this
   string padded by the \a fill character.
 
@@ -13677,6 +13657,11 @@ QString QString::mid( uint index, uint len ) const
   If \a truncate is TRUE and the length of the string is more than \a width,
   then any characters in a copy of the string after length \a width are
   removed, and the copy is returned.
+
+  \code
+    QString s( "apple" );
+    QString t = s.leftJustify( 8, '.' );        // t == "apple..."
+  \endcode
 
   \sa rightJustify()
 */
@@ -13703,11 +13688,6 @@ QString QString::leftJustify( uint width, QChar fill, bool truncate ) const
 }
 
 /*!
-  \code
-    QString string("apple");
-    QString t = string.rightJustify(8, '.');          // t == "...apple"
-  \endcode
-
   Returns a string of length \a width that contains the \a fill character
   followed by the string.
 
@@ -13716,6 +13696,11 @@ QString QString::leftJustify( uint width, QChar fill, bool truncate ) const
 
   If \a truncate is TRUE and the length of the string is more than \a width,
   then the resulting string is truncated at position \a width.
+
+  \code
+    QString string( "apple" );
+    QString t = string.rightJustify( 8, '.' );  // t == "...apple"
+  \endcode
 
   \sa leftJustify()
 */
@@ -13742,13 +13727,12 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
 }
 
 /*!
+  Returns a string that is the string converted to lowercase.
 
   \code
-    QString string("TROlltECH");
+    QString string( "TROlltECH" );
     str = string.lower();   // str == "trolltech"
   \endcode
-
-  Returns a string that is the string converted to lowercase.
 
   \sa upper()
 */
@@ -13771,12 +13755,12 @@ QString QString::lower() const
 }
 
 /*!
+  Returns a string that is the string converted to uppercase.
+
   \code
-    QString string("TeXt");
+    QString string( "TeXt" );
     str = string.upper();     // t == "TEXT"
   \endcode
-
-  Returns a string that is the string converted to uppercase.
 
   \sa lower()
 */
@@ -13800,17 +13784,17 @@ QString QString::upper() const
 
 
 /*!
-  \code
-    QString string = "   white space   ";
-    QString s = string.stripWhiteSpace();            // s == "white space"
-  \endcode
-
   Returns a string that has whitespace removed from the start and the end.
 
   Whitespace means any character for which QChar::isSpace() returns
   TRUE. This includes UNICODE characters with decimal values 9 (TAB),
   10 (LF), 11 (VT), 12 (FF), 13 (CR) and 32 (Space), and may also
   include other Unicode characters.
+
+  \code
+    QString string = "   white space   ";
+    QString s = string.stripWhiteSpace();       // s == "white space"
+  \endcode
 
   \sa simplifyWhiteSpace()
 */
@@ -13843,17 +13827,18 @@ QString QString::stripWhiteSpace() const
 
 
 /*!
-  \code
-    QString string = "  lots\t of\nwhite    space ";
-    QString t = string.simplifyWhiteSpace();         // t == "lots of white space"
-  \endcode
-
   Returns a string that has whitespace removed from the start and the end
   of the string, and any sequence of internal whitespace is replaced with a single space.
 
   Whitespace means any character for which QChar::isSpace() returns
   TRUE. This includes UNICODE characters with decimal values9 (TAB),
   10 (LF), 11 (VT), 12 (FF), 13 (CR), and 32 (Space).
+
+  \code
+    QString string = "  lots\t of\nwhite    space ";
+    QString t = string.simplifyWhiteSpace();
+    // t == "lots of white space"
+  \endcode
 
   \sa stripWhiteSpace()
 */
@@ -13886,17 +13871,17 @@ QString QString::simplifyWhiteSpace() const
 
 
 /*!
-
-  \code
-    QString string("I like fish");
-    str = string.insert( 2, "don't ");     // str == "I don't like fish"
-  \endcode
-
   Inserts \a s into the string before position \a index.
 
   If \a index is beyond the end of the string, the string is extended with
   spaces to length \a index and \a s is then appended and returns a
   reference to the string.
+
+  \code
+    QString string( "I like fish" );
+    str = string.insert( 2, "don't " );
+    // str == "I don't like fish"
+  \endcode
 
   \sa remove(), replace()
 */
@@ -13969,14 +13954,15 @@ QString &QString::insert( uint index, QChar c ) // insert char
 /*!
   \fn QString &QString::prepend( const QString &s )
 
-  \code
-    QString string = "42";
-    string.prepend("The answer is");    // string == "The answer is 42"
-  \endcode
-
   Inserts \a s at the beginning of the string and returns a reference to the string.
 
   Equivalent to insert(0, \a s).
+
+  \code
+    QString string = "42";
+    string.prepend( "The answer is " );
+    // string == "The answer is 42"
+  \endcode
 
   \sa insert()
 */
@@ -14003,11 +13989,6 @@ QString &QString::insert( uint index, QChar c ) // insert char
 
 
 /*!
-  \code
-    QString string("Montreal");
-    string.remove( 1, 4 );      // string == "Meal"
-  \endcode
-
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
@@ -14015,6 +13996,10 @@ QString &QString::insert( uint index, QChar c ) // insert char
   \a index is within the string, but \a index plus \a len is beyond the
   end of the string, the string is truncated at position \a index.
 
+  \code
+    QString string( "Montreal" );
+    string.remove( 1, 4 );      // string == "Meal"
+  \endcode
 
   \sa insert(), replace()
 */
@@ -14036,11 +14021,6 @@ QString &QString::remove( uint index, uint len )
 }
 
 /*!
-  \code
-    QString string("Say yes!");
-    string = string.replace( 4, 3, "NO" );                    // string == "Say NO!"
-  \endcode
-
   Replaces \a len characters starting at position \a index from the
   string with \a s, and returns a reference to the string.
 
@@ -14050,6 +14030,11 @@ QString &QString::remove( uint index, uint len )
   is truncated at position \a index, then \a s is appended at the
   end.
 
+  \code
+    QString string( "Say yes!" );
+    string = string.replace( 4, 3, "NO" );
+    // string == "Say NO!"
+  \endcode
 
   \sa insert(), remove()
 */
@@ -14094,11 +14079,6 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 #ifndef QT_NO_REGEXP
 /*!
-  \code
-    QString string("bananas");
-    int i = string.find( QRegExp("an"), 0 );     // i == 1
-  \endcode
-
   Finds the first occurrence of the constant regular expression \a
   rx, starting at position \a index. If \a index is -1, the search
   starts at the last character; if -2, at the next to last character
@@ -14106,6 +14086,11 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
   Returns the position of the first occurrence of \a rx or -1 if
   \a rx was not found.
+
+  \code
+    QString string( "bananas" );
+    int i = string.find( QRegExp("an"), 0 );    // i == 1
+  \endcode
 
   \sa findRev() replace() contains()
 */
@@ -14117,11 +14102,6 @@ int QString::find( const QRegExp &rx, int index ) const
 
 /*! \overload
 
-  \code
-    QString string( "bananas" );
-    int i = string.findRev( QRegExp("an") );      // i == 3
-  \endcode
-
   Finds the first occurrence of the regexp \a rx, starting at
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
@@ -14129,6 +14109,11 @@ int QString::find( const QRegExp &rx, int index ) const
   backwards.)
 
   Returns the position of \a rx or -1 if \a rx could not be found.
+
+  \code
+    QString string( "bananas" );
+    int i = string.findRev( QRegExp("an") );      // i == 3
+  \endcode
 
   \sa find()
 */
@@ -14171,13 +14156,13 @@ int QString::contains( const QRegExp &rx ) const
 
 /*! \overload
 
+  Replaces every occurrence of the regexp \a rx in the string with \a str.
+  Returns a reference to the string.
+
   \code
     QString string = "banana";
     string = string.replace( QRegExp("an"), "" ); // string == "ba"
   \endcode
-
-  Replaces every occurrence of the regexp \a rx in the string with \a str.
-  Returns a reference to the string.
 
   \sa find() findRev()
 */
@@ -14212,11 +14197,13 @@ static bool ok_in_base( QChar c, int base )
 			   || (c >= 'A' && c < char('A'+base-10));
 }
 
-/*! Returns the string converted to a \c long value to the base \a base.
+/*! Returns the string converted to a \c long
+  value to the base \a base, which is 10 by default and must
+  be between 2 and 36.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 
   \sa number()
 */
@@ -14224,7 +14211,7 @@ static bool ok_in_base( QChar c, int base )
 long QString::toLong( bool *ok, int base ) const
 {
     const QChar *p = unicode();
-    long val=0;
+    long val = 0;
     int l = length();
     const long max_mult = INT_MAX / base;
     bool is_ok = FALSE;
@@ -14256,9 +14243,10 @@ long QString::toLong( bool *ok, int base ) const
 	    else
 		dv = *p - 'A' + 10;
 	}
-	if ( val > max_mult || (val == max_mult && dv > (INT_MAX%base)+neg) )
+	if ( val > max_mult ||
+	    (val == max_mult && dv > (INT_MAX % base) + neg) )
 	    goto bye;
-	val = base*val + dv;
+	val = base * val + dv;
 	p++;
     }
     if ( neg )
@@ -14274,11 +14262,12 @@ bye:
 }
 
 /*! Returns the string converted to an \c {unsigned long}
-  value to the base \a base.
+  value to the base \a base, which is 10 by default and must
+  be between 2 and 36.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 
   \sa number()
 */
@@ -14286,9 +14275,9 @@ bye:
 ulong QString::toULong( bool *ok, int base ) const
 {
     const QChar *p = unicode();
-    ulong val=0;
+    ulong val = 0;
     int l = length();
-    const ulong max_mult = 429496729;           // UINT_MAX/10, rounded down
+    const ulong max_mult = UINT_MAX / base;
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
@@ -14311,9 +14300,9 @@ ulong QString::toULong( bool *ok, int base ) const
 	    else
 		dv = *p - 'A' + 10;
 	}
-	if ( val > max_mult || (val == max_mult && dv > (UINT_MAX%base)) )
+	if ( val > max_mult || (val == max_mult && dv > UINT_MAX % base) )
 	    goto bye;
-	val = base*val + dv;
+	val = base * val + dv;
 	p++;
     }
 
@@ -14328,11 +14317,12 @@ bye:
 }
 
 /*! Returns the string converted to a \c short value to the
-  base \a base.
+  base \a base, which is 10 by default and must
+  be between 2 and 36.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 */
 
 short QString::toShort( bool *ok, int base ) const
@@ -14346,11 +14336,12 @@ short QString::toShort( bool *ok, int base ) const
 }
 
 /*! Returns the string converted to an \c {unsigned short} value
-  to the base \a base.
+  to the base \a base, which is 10 by default and must
+  be between 2 and 36.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 */
 
 ushort QString::toUShort( bool *ok, int base ) const
@@ -14365,19 +14356,20 @@ ushort QString::toUShort( bool *ok, int base ) const
 
 
 /*!
+  Returns the string converted to an \c int value to the base
+  \a base, which is 10 by default and must
+  be between 2 and 36.
+
+  If \a *ok is nonnull, and is TRUE then there have been no errors
+  in the conversion.  If \a *ok is nonnull, and is FALSE, then the
+  string is not a number at all or it has invalid characters at the end.
+
   \code
     QString str( "FF" );
     bool ok;
     int hex = str.toInt( &ok, 16 );     // hex == 255, ok == TRUE
     int dec = str.toInt( &ok, 10 );     // dec == 0, ok == FALSE
   \endcode
-
-  Returns the string converted to an \c int value to the base
-  \a base.
-
-  If \a *ok is nonnull, and is TRUE then there have been no errors
-  in the conversion.  If \a *ok is nonnull, and is FALSE, then the
-  string is not a number at all or it has invalid characters at the end.
 
   \sa number()
 */
@@ -14388,11 +14380,12 @@ int QString::toInt( bool *ok, int base ) const
 }
 
 /*! Returns the string converted to an \c{unsigned int} value
-  to the base \a base.
+  to the base \a base, which is 10 by default and must
+  be between 2 and 36.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 
   \sa number()
 */
@@ -14403,17 +14396,16 @@ uint QString::toUInt( bool *ok, int base ) const
 }
 
 /*!
+  Returns the string converted to a \c double value.
+
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
+
   \code
     QString string( "1234.56" );
     double a = string.toDouble();   // a == 1234.56
   \endcode
-
-  Returns the string converted to a \c double value.
-
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be an arbitrary double value and *ok is set to FALSE
-  if ok is nonnull.
 
   \sa number()
 */
@@ -14431,9 +14423,9 @@ double QString::toDouble( bool *ok ) const
 
 /*! Returns the string converted to a \c float value.
 
-  If \a ok is nonnull, and no conversion error occurred then \a *ok
-  is set to TRUE.  In the event of a conversion error the number
-  returned will be an arbitrary float value  and *ok is set to FALSE if ok is nonnull.
+  If a conversion error occurs, \a *ok is set to FALSE (unless \a ok
+  is null, the default) and 0 is returned. Otherwise, \a *ok is set
+  to true.
 
   \sa number()
 */
@@ -14445,16 +14437,15 @@ float QString::toFloat( bool *ok ) const
 
 
 /*!
+  Sets the string to the printed value of \a n in base \a base and
+  returns a reference to the string.
+
+  The base is 10 by default and must be between 2 and 36.
+
   \code
     QString string;
     string = string.setNum( 1234 );     // string == "1234"
   \endcode
-
-  Sets the string to the printed value of \a n and returns a
-  reference to the string.
-
-  The value is converted to base \a base (default is decimal).
-  The base must be in the range 2 to 36.
 */
 
 QString &QString::setNum( long n, int base )
@@ -14498,11 +14489,10 @@ QString &QString::setNum( long n, int base )
 
 /*! \overload
 
-  Sets the string to the printed value of \a n and
+  Sets the string to the printed value of \a n in base \a base and
   returns a reference to the string.
 
-  The value is converted to base \a base (default is decimal).
-  The base must be in the range 2 to 36.
+  The base is 10 by default and must be between 2 and 36.
 */
 
 QString &QString::setNum( ulong n, int base )
@@ -14528,29 +14518,37 @@ QString &QString::setNum( ulong n, int base )
 /*! \fn QString &QString::setNum( int n, int base )
   \overload
 
-  Sets the string to the printed value of \a n to the base \a base
-  and returns a reference to the string.
+  Sets the string to the printed value of \a n in base \a base and
+  returns a reference to the string.
+
+  The base is 10 by default and must be between 2 and 36.
 */
 
 /*! \fn QString &QString::setNum( uint n, int base )
   \overload
 
-  Sets the string to the printed value of \a n to the
-  base \a base and returns a reference to the string.
+  Sets the string to the printed value of \a n in base \a base and
+  returns a reference to the string.
+
+  The base is 10 by default and must be between 2 and 36.
 */
 
 /*! \fn QString &QString::setNum( short n, int base )
   \overload
 
-  Sets the string to the printed value of \a n to the base \a base
-  and returns a reference to the string.
+  Sets the string to the printed value of \a n in base \a base and
+  returns a reference to the string.
+
+  The base is 10 by default and must be between 2 and 36.
 */
 
 /*! \fn QString &QString::setNum( ushort n, int base )
   \overload
 
-  Sets the string to the printed value of \a n to the
-  base \a base and returns a reference to the string.
+  Sets the string to the printed value of \a n in base \a base and
+  returns a reference to the string.
+
+  The base is 10 by default and must be between 2 and 36.
 */
 
 /*! \overload
@@ -14559,7 +14557,7 @@ QString &QString::setNum( ulong n, int base )
   with precision \a prec, and returns a reference to the
   string.
 
-  The format, \a f, can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg() for
+  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See arg() for
   an explanation of the formats.
 */
 
@@ -14600,20 +14598,21 @@ QString &QString::setNum( double n, char f, int prec )
   with precision \a prec, and returns a reference to the
   string.
 
-  The format, \a f, can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg() for
+  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See arg() for
   an explanation of the formats.
 */
 
 
 /*!
+  A convenience function that returns a string equivilant of the number
+  \a n to base \a base, which is 10 by default and must
+  be between 2 and 36.
+
   \code
     long a = 63;
     QString str = QString::number( a, 16 );             // str == "3f"
     QString str = QString::number( a, 16 ).upper();     // str == "3F"
   \endcode
-
-  A convenience function that returns a string equivilant of the number
-  \a n to base \a base.
 
   \sa setNum()
 */
@@ -14649,7 +14648,8 @@ QString QString::number( int n, int base )
 /*! \overload
 
   A convenience factory function that returns a string representation
-  of the number \a n to the base \a base.
+  of the number \a n to the base \a base, which is 10 by default and must
+  be between 2 and 36.
 
   \sa setNum()
  */
@@ -14665,21 +14665,21 @@ QString QString::number( uint n, int base )
   Argument \a n is formatted according to the \a f format specified,
   which is \c g by default, and can be any of the following:
 
-  <ul>
-  <li> \c e - format as [-]9.9e[+|-]999
-  <li> \c E - format as [-]9.9E[+|-]999
-  <li> \c f - format as [-]9.9
-  <li> \c g - use \e or \f format, whichever is the most concise
-  <li> \c G - use \E or \f format, whichever is the most concise
-  </ul>
+  \list
+  \i \c e - format as [-]9.9e[+|-]999
+  \i \c E - format as [-]9.9E[+|-]999
+  \i \c f - format as [-]9.9
+  \i \c g - use \e or \f format, whichever is the most concise
+  \i \c G - use \E or \f format, whichever is the most concise
+  \endlist
 
-    In all cases the number of digits after the decimal point is equal
-    to the precision specified in \a prec.
+  In all cases the number of digits after the decimal point is equal
+  to the precision specified in \a prec.
 
   \code
     double d = 12.34;
-    QString ds = QString("'E' format, precision 3, gives %1").arg(d, 0, 'E', 3);
-
+    QString ds = QString( "'E' format, precision 3, gives %1" )
+		 .arg( d, 0, 'E', 3 );
     // ds == "1.234E+001"
   \endcode
 
@@ -14728,31 +14728,31 @@ void QString::setExpand( uint index, QChar c )
   \fn bool QString::operator!() const
   Returns TRUE if it is a null string; otherwise FALSE.
 
-\code
-  QString name = getName();
-  if ( !name )
-    name = "Rodney";
-\endcode
+  \code
+    QString name = getName();
+    if ( !name )
+	name = "Rodney";
+  \endcode
 
   Note that if you say
 
-\code
-  QString name = getName();
-  if ( name )
-    doSomethingWith(name);
-\endcode
+  \code
+    QString name = getName();
+    if ( name )
+	doSomethingWith(name);
+  \endcode
 
-  It will call <tt>operator const char*()</tt>, which is inefficent;
+  It will call "operator const char*()", which is inefficent;
   you may wish to define the macro QT_NO_ASCII_CAST when writing code
-  which you wish to remain strictly Unicode-clean.
+  which you wish to remain Unicode-clean.
 
   When you want the above semantics, use:
 
-\code
-  QString name = getName();
-  if ( !name.isNull() )
-    doSomethingWith(name);
-\endcode
+  \code
+    QString name = getName();
+    if ( !name.isNull() )
+	doSomethingWith(name);
+  \endcode
 */
 
 
@@ -14760,13 +14760,13 @@ void QString::setExpand( uint index, QChar c )
   \fn QString& QString::append( const QString& str )
   Appends \a str to the string and returns a reference to the result.
 
-\code
+  \code
     string = "Test";
     string.append( "ing" );        // string == "Testing"
-\endcode
+  \endcode
 
   Equivalent to operator+=().
- */
+*/
 
 /*! \fn QString& QString::append( char ch )
   \overload
@@ -14887,7 +14887,8 @@ QCString QString::utf8() const
   \a utf8 then it will use the length of \a utf8.
 
   \code
-    QString str = QString::fromUtf8( "123456789", 5 );   // str == "12345"
+    QString str = QString::fromUtf8( "123456789", 5 );
+    // str == "12345"
   \endcode
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
@@ -14912,7 +14913,8 @@ QString QString::fromUtf8( const char* utf8, int len )
   a QString from Latin-1 text using this function.
 
   \code
-    QString str = QString::fromLatin1( "123456789", 5 );   // str == "12345"
+    QString str = QString::fromLatin1( "123456789", 5 );
+    // str == "12345"
   \endcode
 
 */
@@ -14981,7 +14983,8 @@ QCString QString::local8Bit() const
   \a local8Bit then it will use the length of \a local8Bit.
 
   \code
-    QString str = QString::fromLocal8Bit( "123456789", 5 );   // str == "12345"
+    QString str = QString::fromLocal8Bit( "123456789", 5 );
+    // str == "12345"
   \endcode
 
   \a local8Bit is assumed to be encoded in a locale-specific format.
@@ -15038,17 +15041,17 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 /*!
   \fn QChar QString::at( uint ) const
 
-  \code
-    QString string("abcdefgh");
-    QChar ch = string.at( 4 );   // ch == 'e'
-  \endcode
-
   Returns the character at index \a i, or 0 if \a i is beyond the length
   of the string.
 
-  Note: If the QString is not const (i.e. const QString) or const& (i.e.
-  const QString &), then the non-const overload of at() will be used instead.
+  \code
+    const QString string( "abcdefgh" );
+    QChar ch = string.at( 4 );
+    // ch == 'e'
+  \endcode
 
+  If the QString is not const (i.e. const QString) or const& (i.e.
+  const QString &), then the non-const overload of at() will be used instead.
 */
 
 /*!
@@ -15064,15 +15067,15 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 /*!
   \fn QChar& QString::ref(uint i)
 
-  \code
-    QString string("ABCDEF");
-    QChar ch = string.ref(3);   // ch == 'C'
-  \endcode
-
   Returns the QChar at index \a i by reference, expanding the string with
   QChar::null if necessary.  The resulting reference can be assigned to, or
   otherwise used immediately, but becomes invalid once furher modifications
   are made to the string.
+
+  \code
+    QString string("ABCDEF");
+    QChar ch = string.ref(3);   // ch == 'C'
+  \endcode
 
   \sa constref()
 */
@@ -15286,12 +15289,6 @@ bool QString::isRightToLeft() const
 
 /*! \fn int QString::compare( const QString & s1, const QString & s2 )
 
-  \code
-    int a = QString::compare( "def", "abc" );   // a > 0
-    int b = QString::compare( "abc", "def" );   // b < 0
-    int c = QString::compare(" abc", "abc" );   // c == 0
-  \endcode
-
   Lexically compares \a s1 with \a s2 and returns an integer less
   than, equal to, or greater than zero if \a s1 is less than, equal
   to, or greater than \a s2.
@@ -15300,6 +15297,12 @@ bool QString::isRightToLeft() const
   of the characters and is very fast, but is not what a human would
   expect. Consider sorting user-interface strings with
   QString::localeAwareCompare().
+
+  \code
+    int a = QString::compare( "def", "abc" );   // a > 0
+    int b = QString::compare( "abc", "def" );   // b < 0
+    int c = QString::compare(" abc", "abc" );   // c == 0
+  \endcode
 */
 
 /*! \overload
@@ -15324,8 +15327,8 @@ int QString::compare( const QString& s ) const
   platform-dependent manner. Use this function to present sorted
   lists of strings to the user.
 
-  \bug This function is not really implemented yet. For the moment,
-  it is only a synonym for QString::compare().
+  \bug This function is only implemented on Windows. Elsewhere,
+  it is a synonym for QString::compare().
 
   \sa QString::compare() QTextCodec::locale()
 */
@@ -15788,13 +15791,13 @@ QConstString::~QConstString()
 */
 
 /*!
+  Returns TRUE if the string starts with \a s; otherwise it returns
+  FALSE.
+
   \code
     QString string("Bananas");
     bool a = string.startsWith("Ban");      //  a == TRUE
   \endcode
-
-  Returns TRUE if the string starts with \a s; otherwise it returns
-  FALSE.
 
   \sa endsWith()
 */
@@ -15973,6 +15976,12 @@ public:
 };
 
 /*!
+  Returns an integer between 0 (dissimilar) and 15 (very similar)
+  depending on  how similar the string is to \a target.
+
+  This function is efficient, but its results might change in future
+  versions of Qt as the algorithm evolves.
+
   \code
     QString string( "color" );
     a = string.similarityWith( "color" );        // a == 15
@@ -15980,12 +15989,6 @@ public:
     a = string.similarityWith( "flavor" );       // a == 4
     a = string.similarityWith( "dahlia" );       // a == 0
   \endcode
-
-  Returns an integer between 0 (dissimilar) and 15 (very similar)
-  depending on  how similar the string is to \a target.
-
-  This function is efficient, but its results might change in future
-  versions of Qt as the algorithm evolves.
 */
 int QString::similarityWith( const QString& target ) const
 {
@@ -16007,7 +16010,6 @@ int QString::similarityWith( const QString& target ) const
 */
 const void* qt_winTchar(const QString& str, bool addnul)
 {
-
 #ifdef UNICODE
     static uint buflen = 256;
     static TCHAR *buf = new TCHAR[buflen];
