@@ -5,7 +5,7 @@
 ClipWindow::ClipWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    clipboard = qApp->clipboard();
+    clipboard = QApplication::clipboard();
 
     QWidget *centralWidget = new QWidget(this);
     QWidget *currentItem = new QWidget(centralWidget);
@@ -17,6 +17,8 @@ ClipWindow::ClipWindow(QWidget *parent)
     previousItems = new QListWidget(centralWidget);
 
     connect(clipboard, SIGNAL(dataChanged()), this, SLOT(updateClipboard()));
+    connect(mimeTypeCombo, SIGNAL(activated(const QString &)),
+            this, SLOT(updateData(const QString &)));
 
     QVBoxLayout *currentLayout = new QVBoxLayout(currentItem);
     currentLayout->addWidget(mimeTypeLabel);
@@ -36,12 +38,19 @@ ClipWindow::ClipWindow(QWidget *parent)
 void ClipWindow::updateClipboard()
 {
     QStringList formats = clipboard->mimeData()->formats();
-    QByteArray data = clipboard->mimeData()->data(formats[0]);
 
     mimeTypeCombo->clear();
     mimeTypeCombo->insertStringList(formats);
-    dataInfoLabel->setText(tr("%1 bytes").arg(data.size()));
 
+    int size = clipboard->mimeData()->data(formats[0]).size();
     QListWidgetItem *newItem = new QListWidgetItem(previousItems);
-    newItem->setText(tr("%1 (%2 bytes)").arg(formats[0]).arg(data.size()));
+    newItem->setText(tr("%1 (%2 bytes)").arg(formats[0]).arg(size));
+
+    updateData(formats[0]);
+}
+
+void ClipWindow::updateData(const QString &format)
+{
+    QByteArray data = clipboard->mimeData()->data(format);
+    dataInfoLabel->setText(tr("%1 bytes").arg(data.size()));
 }

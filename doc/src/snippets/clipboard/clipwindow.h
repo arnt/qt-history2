@@ -8,6 +8,7 @@ class QComboBox;
 class QLabel;
 class QListWidget;
 class QMimeData;
+class QTextBrowser;
 class QWidget;
 
 class ClipWindow : public QMainWindow
@@ -19,6 +20,7 @@ public:
 
 public slots:
     void updateClipboard();
+    void updateData(const QString &format);
 
 private:
     int currentItem;
@@ -26,6 +28,7 @@ private:
     QComboBox *mimeTypeCombo;
     QLabel *dataInfoLabel;
     QListWidget *previousItems;
+    QTextBrowser *textBrowser;
 };
 
 #endif
