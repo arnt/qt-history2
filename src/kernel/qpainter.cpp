@@ -1458,6 +1458,7 @@ void QPainter::resetXForm()
     wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
+    setViewXForm( FALSE );
 }
 
 static const int TxNone      = 0;		// transformation codes
