@@ -865,7 +865,7 @@ static bool block_set_alignment = false;
 */
 
 Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
-    : Q3ScrollView(parent, name, Qt::WStaticContents),
+    : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();

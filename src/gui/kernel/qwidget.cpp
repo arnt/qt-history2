@@ -772,8 +772,6 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.winid = 0;
     data.widget_attributes = 0;
 #ifdef QT_COMPAT
-    if (f & Qt::WNoAutoErase)
-        q->setAttribute(Qt::WA_NoBackground);
     if (f & Qt::WStaticContents)
         q->setAttribute(Qt::WA_StaticContents);
     if (f & Qt::WDestructiveClose)
