@@ -1175,58 +1175,62 @@ static QCString setLocaleForCharSet(QFont::CharSet charset)
     case QFont::Set_Ja:
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(2) == "ja") return (const char *) 0;
-	
+	    if (oldlocale.left(2) == "ja")
+		return (const char *) 0;
+
 	    const char *locales[] =
 	    { "ja", "ja_JP", "ja_JP.EUC", "ja_JP.sjis", "ja_JP.ujis", "ja_JP.PCK",
 		  "ja_JP.UTF-8", "ja_JP.SJIS", "ja_JP.Shift_JIS", 0 };
-	
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	
+
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
+		i++;
+
 	    break;
 	}
-	
+
     case QFont::Set_Ko:
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
-	    if (oldlocale.left(2) == "ko") return (const char *) 0;
-	
-	    const char *locales[] =
-	    { "ko", "ko_KR", "ko_KR.EUC", 0 };
-	
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-		
+	    if (oldlocale.left(2) == "ko")
+		return (const char *) 0;
+
+	    const char *locales[] = { "ko", "ko_KR", "ko_KR.EUC", 0 };
+
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
+		i++;
+
 	    break;
 	}
-	
+
     case QFont::Set_Zh: // assume GBK and/or EUC
     case QFont::Set_GBK: // assume GBK and/or EUC
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(2) == "zh") return (const char *) 0;
-	
+
 	    const char *locales[] =
 	    { "zh", "zh_CN", "zh.GBK", "zh_CN.GBK", "zh_CN.GB2312", "zh_CN.EUC", 0 };
-	
-	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	
+
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL)
+		i++;
+
 	    break;
 	}
-	
+
     case QFont::Set_Zh_TW: // assume Big5 and/or EUC
     case QFont::Set_Big5: // assume Big5 and/or EUC
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(5) == "zh_TW") return (const char *) 0;
-	
+
 	    const char *locales[] =
-	    { "zh_TW.Big5", "zh_TW.BIG5", "zh_TW", "zh_TW.EUC", 0 };
-	
+	    { "zh_TW", "zh_TW.BIG5", "zh_TW.Big5", "zh_TW.EUC", 0 };
+
 	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	
+
 	    break;
 	}
-	
+
     case QFont::Set_Th_TH:
     default:
 	;
@@ -1316,7 +1320,7 @@ void QFont::load() const
 		    qFatal( "QFont::load: Internal error" );
 #endif
 	    }
-	
+
 	    d->fin->set = s;
 	    // [not cached]
 	    initFontInfo();
@@ -1919,7 +1923,7 @@ void *QFontMetrics::fontStruct() const
     if ( painter ) {
 	painter->cfont.handle();
 	// ### printer font metrics hack
-	if ( painter->device() && 0 &&
+	if ( painter->device() &&
 	     painter->device()->devType() == QInternal::Printer &&
 	     painter->cfont.pointSize() < 48 ) {
 	    if ( painter->cfont.d->printerHackFont == 0 ) {
@@ -1972,18 +1976,21 @@ int QFontMetrics::printerAdjusted(int val) const
 {
     if ( painter && painter->device() &&
 	 painter->device()->devType() == QInternal::Printer) {
-	painter->cfont.handle();
+	(void)fontStruct();
 	// ### printer font metrics hack
-	if ( painter->device() &&
-	     painter->device()->devType() == QInternal::Printer &&
-	     painter->cfont.d->printerHackFont ) {
+	if ( painter->cfont.d->printerHackFont ) {
 	    painter->cfont.d->printerHackFont->handle();
-	    val = val * painter->cfont.pointSize() / 64;
+	    val = val 
+		  * painter->cfont.pointSize()	// to target size
+		  * 75				// to 75dpi
+		  / 64 				// from hack size
+		  / QPaintDevice::x11AppDpiY(); // from screen resolution
+	} else {
+	    val = val 
+		  * 75				// to 75dpi
+		  / QPaintDevice::x11AppDpiY(); // from screen resolution
 	}
 	return val;
-	// this was wrong.
-	//int res = QPaintDevice::x11AppDpiY();
-	// return ( val * 72 + 36 ) / res; // PostScript is 72dpi
     } else {
 	return val;
     }
