@@ -181,6 +181,7 @@ void MainWindow::fileLoad()
     }
 
     QAxWidget *container = new QAxWidget(workspace);
+    workspace->addWindow(container);
     
     QDataStream d(&file);
     d >> *container;
@@ -260,8 +261,9 @@ void MainWindow::fileNew()
     QAxSelect select(this);
     if (select.exec()) {
         QAxWidget *container = new QAxWidget(workspace, Qt::WDestructiveClose);
-	container->setObjectName(container->windowTitle().latin1());
+	container->setObjectName(container->windowTitle());
         container->setControl(select.clsid());
+        workspace->addWindow(container);
 	container->show();
     }
     updateGUI();
