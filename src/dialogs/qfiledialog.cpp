@@ -4833,8 +4833,6 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	else
 	    d->cdToParent->setEnabled( TRUE );
 	d->mimeTypeTimer->stop();
-	if ( !d->url.isLocalFile() )
-	    qApp->processEvents();
 	d->sortedList.clear();
 	d->pendingItems.clear();
 	d->moreFiles->clearSelection();
