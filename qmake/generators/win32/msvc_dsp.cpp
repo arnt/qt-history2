@@ -414,6 +414,16 @@ DspMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
+
+    project->variables()["MSVCDSP_VER"] = "6.00";
+    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
+
+    if(!project->isActiveConfig("incremental")) {
+	project->variables()["MSVCDSP_LIBS"].append(QString("/incremental:no"));
+	if ( project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt" )
+	    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /Zi";
+    }
+    
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
@@ -427,9 +437,8 @@ DspMakefileGenerator::init()
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
+
     MakefileGenerator::init();
-    project->variables()["MSVCDSP_VER"] = "6.00";
-    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
     QString msvcdsp_project = Option::output.name();
     msvcdsp_project = msvcdsp_project.right( msvcdsp_project.length() - msvcdsp_project.findRev( "\\" ) - 1 );
     msvcdsp_project = msvcdsp_project.left( msvcdsp_project.findRev( "." ) );
@@ -460,13 +469,11 @@ DspMakefileGenerator::init()
             project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
         }
     }
-    project->variables()["MSVCDSP_LIBS"] = project->variables()["QMAKE_LIBS"];
+    project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I "," /I ","") +
 						   " /I " + Option::mkfile::qmakespec);
 
-    if(!project->isActiveConfig("incremental")) 
-	project->variables()["MSVCDSP_LIBS"].append(QString("/incremental:no"));
 
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
