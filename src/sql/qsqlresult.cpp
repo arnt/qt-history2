@@ -51,7 +51,7 @@ public:
 
 /*! \class QSqlResult qsqlresult.h
 
-  \brief QSqlResult provides an abstract interface for accessing data from SQL databases
+  \brief This class provides an abstract interface for accessing data from SQL databases
 
   \module sql
 
@@ -129,7 +129,7 @@ bool QSqlResult::isValid() const
 }
 
 /*! \fn bool QSqlResult::isNull( int i )
-  Returns TRUE if the field at position \a i is null, otherwise returns FALSE.
+  Returns TRUE if the field at position \a i is NULL, otherwise returns FALSE.
 */
 
 
@@ -231,7 +231,7 @@ QSqlError QSqlResult::lastError() const
 
     Returns the data for field \a i (zero-based) as a QVariant.  This
     function is only called if the result is in an active state and is
-    positioned on a valid record and the field \a i is non-negative.
+    positioned on a valid record and \a i is non-negative.
     Derived classes must reimplement this function and return the value
     of field \a i, or QVariant() if it cannot be determined.
 

@@ -42,12 +42,12 @@
 
 /*!
     \class QSqlIndex qsqlindex.h
-    \brief Manipulate and describe QSqlCursor and QSqlDatabase indexes.
+    \brief This class provides functions to manipulate and describe QSqlCursor and QSqlDatabase indexes.
 
     \module sql
 
      This class is used to describe and manipulate QSqlCursor and
-     QSqlDatabase indexes.  An index refers to only one table or view in
+     QSqlDatabase indexes.  An index refers to a single table or view in
      a database.  Information about the fields that comprise the index
      can be used to generate SQL statements, or to affect the behavior
      of a \l QSqlCursor object.
@@ -224,7 +224,7 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
   cursor \a cursor.  The field descriptions should be in the same format
   that toStringList() produces, for example, a surname field in the
   people table might be in one of these forms: "surname", "surname
-  DESC", "people.surname ASC".
+  DESC" or "people.surname ASC".
 
   \sa toStringList()
 

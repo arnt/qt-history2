@@ -51,7 +51,8 @@ QSqlResultShared::~QSqlResultShared()
 
 /*! \class QSqlQuery qsqlquery.h
 
-    \brief Executes and manipulates SQL queries.
+    \brief This class provides a means of executing and manipulating SQL
+    statements
 
     \module sql
 
@@ -62,7 +63,7 @@ QSqlResultShared::~QSqlResultShared()
     UPDATE and \c DELETE, and also DDL (data definition language)
     statements, e.g. <tt>CREATE TABLE</tt>.  It can also be used to
     execute database-specific commands which are not standard SQL
-    (e..g, 'SET DATESTYLE=ISO' for PostgreSQL).
+    (e.g. <tt>SET DATESTYLE=ISO</tt> for PostgreSQL).
 
     Successfully executed SQL statements set the query to an active
     state (isActive() returns TRUE) otherwise the query is set to an
@@ -131,8 +132,8 @@ QSqlQuery::QSqlQuery( const QSqlQuery& other )
 }
 
 /*!  Creates a QSqlQuery object using the SQL \a query and the
-  database \a db.  If \a db is 0, (the default), the default application
-  database is used.
+  database \a db.  If \a db is 0, (the default), the application's
+  default database is used.
 
   \sa QSqlDatabase
 
@@ -183,10 +184,10 @@ bool QSqlQuery::isNull( int field ) const
 }
 
 /*! Executes the SQL \a query.  Returns TRUE if the query was
-    successful and the query is not active, otherwise returns FALSE
-    and the query becomes inactive.  The \a query string must use
-    standard SQL syntax, or syntax appropriate for the SQL database
-    being queried.
+    successful sets the query state to active, otherwise returns FALSE
+    and the query becomes inactive.  The \a query string must use 
+    syntax appropriate for the SQL database being queried, for example,
+    standard SQL.
 
     After the query is executed, the query is positioned on an invalid
     record, and must be navigated to a valid record before data values
@@ -225,7 +226,7 @@ bool QSqlQuery::exec ( const QString& query )
     <tt>SELECT *</tt> is not recommended because the order of the
     fields in the query is undefined.
 
-    An invalid QVariant is returned if field \a i does not exist, or if
+    An invalid QVariant is returned if field \a i does not exist, if
     the query is inactive, or if the query is positioned on an invalid
     record.
 

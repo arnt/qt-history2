@@ -123,7 +123,8 @@ QSqlRecordShared::~QSqlRecordShared()
 
 /*!
     \class QSqlRecord qsqlfield.h
-    \brief A set of database fields.
+    \brief This class encapsulates a database record, i.e. a set of
+    database fields.
 
     \module sql
 
@@ -210,6 +211,10 @@ QSqlRecord::~QSqlRecord()
   record.  If field \a i does not exist the resultant behaviour is
   undefined.
 
+  This function should be used with QSqlQuerys. When working with a
+  QSqlCursor the value(const QString&) overload which uses field names
+  is more appropriate.
+
 */
 
 QVariant QSqlRecord::value( int i ) const
@@ -219,7 +224,8 @@ QVariant QSqlRecord::value( int i ) const
 
 /*!  Returns the value of the field named \a name in the record.
     If field \a name does not exist the resultant behaviour is
-    undefined.
+    undefined. 
+
 */
 
 QVariant  QSqlRecord::value( const QString& name ) const
@@ -245,7 +251,7 @@ QString QSqlRecord::fieldName( int i ) const
 
 /*!  Returns the position of the field named \a name within the
   record, or -1 if it cannot be found.  Field names are not
-  case-sensitive.
+  case-sensitive. 
 
 */
 
@@ -280,8 +286,7 @@ QSqlField* QSqlRecord::field( int i )
 
 /*!  Returns a pointer to the field with name \a name within the
   record, or 0 if it cannot be found.  Field names are not
-  case-sensitive.
-
+  case-sensitive. 
 */
 
 QSqlField* QSqlRecord::field( const QString& name )
@@ -372,7 +377,7 @@ bool QSqlRecord::isEmpty() const
 
 
 /*!  Returns TRUE if there is a field in the record called \a name,
-    otherwise returns FALSE.
+    otherwise returns FALSE. 
 
 */
 

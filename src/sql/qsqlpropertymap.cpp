@@ -208,7 +208,7 @@ void QSqlPropertyMap::insert( const QString & classname,
 
 /*!
 
-  Removes a classname/property pair from the map.
+  Removes \a classname's classname/property pair from the map.
 
 */
 void QSqlPropertyMap::remove( const QString & classname )
@@ -237,7 +237,7 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
   Replaces the global default property map with \a map. All QDataTable and
   QSqlForm instantiations will use this new map for inserting and
   extracting values to and from editors. <em>QSqlPropertyMap takes
-  ownership of map, and destroys it when it is no longer needed. </em>
+  ownership of \a map, and destroys it when it is no longer needed. </em>
 */
 void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
 {
