@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 
     QApplication a( argc, argv );
 
-    TabDialog tabdialog( 0, "tabdialog", QString( argc < 2 ? "." : argv[1] ) );
+    TabDialog tabdialog( 0, QString( argc < 2 ? "." : argv[1] ) );
     tabdialog.resize( 450, 350 );
     tabdialog.setWindowTitle( "Qt Example - Tabbed Dialog" );
     a.setMainWidget( &tabdialog );

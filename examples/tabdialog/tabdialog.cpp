@@ -16,14 +16,14 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qdatetime.h>
-#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qcheckbox.h>
-#include <qlistbox.h>
 #include <qapplication.h>
 
-TabDialog::TabDialog( QWidget *parent, const char *name, const QString &_filename )
-    : QTabDialog( parent, name ), filename( _filename ), fileinfo( filename )
+TabDialog::TabDialog( QWidget *parent, const QString &_filename )
+    : QTabWidget(parent), filename( _filename ), fileinfo( filename )
 {
+    //setTabPosition(QTabWidget::Bottom);
     setupTab1();
     setupTab2();
     setupTab3();
@@ -41,7 +41,7 @@ void TabDialog::setupTab1()
     fname->setFocus();
 
     (void)new QLabel( "Path:", tab1 );
-    QLabel *path = new QLabel( fileinfo.dirPath( TRUE ), tab1 );
+    QLabel *path = new QLabel( "foo", tab1);
     path->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
     (void)new QLabel( "Size:", tab1 );
@@ -62,10 +62,11 @@ void TabDialog::setupTab1()
 
 void TabDialog::setupTab2()
 {
+    //setTabShape(QTabWidget::Triangular);
     QVBox *tab2 = new QVBox( this );
     tab2->setMargin( 5 );
 
-    QButtonGroup *bg = new QButtonGroup( 1, QGroupBox::Horizontal, "Permissions", tab2 );
+    QGroupBox *bg = new QGroupBox("Permissions", tab2);
 
     QCheckBox *readable = new QCheckBox( "Readable", bg );
     if ( fileinfo.isReadable() )
@@ -79,7 +80,7 @@ void TabDialog::setupTab2()
     if ( fileinfo.isExecutable() )
         executable->setChecked( TRUE );
 
-    QButtonGroup *bg2 = new QButtonGroup( 2, QGroupBox::Horizontal, "Owner", tab2 );
+    QGroupBox *bg2 = new QGroupBox("Owner", tab2 );
 
     (void)new QLabel( "Owner", bg2 );
     QLabel *owner = new QLabel( fileinfo.owner(), bg2 );
@@ -100,14 +101,16 @@ void TabDialog::setupTab3()
     
     (void)new QLabel( QString( "Open %1 with:" ).arg( filename ), tab3 );
 
+    /*
     QListBox *prgs = new QListBox( tab3 );
     for ( unsigned int i = 0; i < 30; i++ ) {
         QString prg = QString( "Application %1" ).arg( i );
         prgs->insertItem( prg );
     }
     prgs->setCurrentItem( 3 );
+    */
 
-    (void)new QCheckBox( QString( "Open files with the extension '%1' always with this application" ).arg( fileinfo.extension() ), tab3 );
+    (void)new QCheckBox( QString( "Open files with the extension '%1' always with this application" ).arg( "blah" ), tab3 );
 
     addTab( tab3, "Applications" );
 }

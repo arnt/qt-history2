@@ -13,16 +13,16 @@
 #ifndef TABDIALOG_H
 #define TABDIALOG_H
 
-#include <qtabdialog.h>
+#include <qtabwidget.h>
 #include <qstring.h>
 #include <qfileinfo.h>
 
-class TabDialog : public QTabDialog
+class TabDialog : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    TabDialog( QWidget *parent, const char *name, const QString &_filename );
+    TabDialog( QWidget *parent, const QString &_filename );
 
 protected:
     QString filename;
