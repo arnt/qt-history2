@@ -227,8 +227,8 @@ static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
-    "QMap<QString,QCoreVariant>",
-    "QList<QCoreVariant>",
+    "QCoreVariantMap",
+    "QCoreVariantList",
     "QString",
     "QStringList",
     "QFont",
@@ -272,6 +272,11 @@ int qvariant_nameToType(const char* name)
     if (name) {
 	if ( strcmp(name, "QCString") == 0 )
 	    name = "QByteArray";
+	else if ( strcmp(name, "QVariantMap") == 0 )
+	    name = "QCoreVariantMap";
+	else if ( strcmp(name, "QVariantList") == 0 )
+	    name = "QCoreVariantList";
+
 	for (int i = 1; i < ntypes; i++) {
 	    if (!strcmp(type_map[i], name))
 		return i;
