@@ -14,8 +14,8 @@
 #ifndef QDNS_H
 #define QDNS_H
 
-#include <qlist.h>
-#include <qhostaddress.h>
+#include <QtCore/qlist.h>
+#include <QtNetwork/qhostaddress.h>
 
 class QString;
 class QObject;
