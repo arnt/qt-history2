@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#173 $
 **
 ** Definition of QIconView widget class
 **
@@ -3373,8 +3373,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    emit itemRightPressed( item );
 	else
 	    emit viewportRightPressed();
-    } else if ( e->button() == MidButton ) {
-	emit mouseButtonPressed( 1, item, e->globalPos() );
     }
 }
 
