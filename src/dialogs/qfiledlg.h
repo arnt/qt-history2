@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#25 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#26 $
 **
 ** Definition of QFileDialog class
 **
@@ -83,6 +83,8 @@ public:
 public slots:
     void setDir( const char * );
     void setFilter( const char * );
+    void setFilters( const char ** );
+    void setFilters( const QStrList & );
 
 signals:
     void fileHighlighted( const char * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#95 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#96 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,6 +27,7 @@
 #include "qvector.h"
 #include "qkeycode.h"
 #include "qregexp.h"
+#include "qstrlist.h"
 
 #include <time.h>
 
@@ -1883,4 +1884,48 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	fileNameEditDone();
     }
     return FALSE;
+}
+
+
+/*!  Sets this file dialog to offer \a types in the File Type combo
+  box.  \a types must be a null-terminated list of strings; each
+  string must be in the format described in the documentation for
+  setFilter().
+  
+  \sa setFilter()
+*/
+
+void QFileDialog::setFilters( const char ** types )
+{
+    if ( !types || !*types )
+	return;
+
+    d->types->clear();
+    while( types && *types ) {
+	d->types->insertItem( *types );
+	types++;
+    }
+    d->types->setCurrentItem( 0 );
+    setFilter( d->types->text( 0 ) );
+}
+
+
+/*! \overload void QFileDialog::setFilters( const QStrList & )
+*/
+
+void QFileDialog::setFilters( const QStrList & types )
+{
+    if ( types.count() < 1 )
+	return;
+    
+    d->types->clear();
+    QStrListIterator it( types );
+    it.toFirst();
+    const char * t;
+    while( (t=it.current()) != 0 ) {
+	++it;
+	d->types->insertItem( t );
+    }
+    d->types->setCurrentItem( 0 );
+    setFilter( d->types->text( 0 ) );
 }
