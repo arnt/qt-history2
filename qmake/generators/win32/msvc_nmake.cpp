@@ -544,7 +544,6 @@ NmakeMakefileGenerator::init()
 
     QString version = QStringList::split('.', project->first("VERSION")).join("");
     if(project->isActiveConfig("dll")) {
-	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".lib");
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
     }
     if(project->isActiveConfig("debug")) {
