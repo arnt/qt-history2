@@ -10,11 +10,11 @@ with some custom dialogs to facilitate some of the user interaction.
 
 \section1 The Color Tool Application
 
-\img colortool1.png The Color Tool application
+\img qd-colortool1.png The Color Tool application
 
 The \c colortool application is a multiplatform application that
 allows users to create, edit and save lists of colors. Each color has
-a user defined name. 
+a user defined name and an RGB (Red, Green Blue) value. 
 
 This application presents the user with a view of a set of colors and
 their names. We will provide two views (using a \Class QWidgetStack)
@@ -28,7 +28,7 @@ beneath.
 The application will read and write files in the format used by the X
 Consortium for the \File rgb.txt file. This will allow our users to
 create their own color files and to load, edit and save \File rgb.txt
-files.
+format files.
 
 We will provide a simple search option so that users can quickly
 locate a color: this is particularly useful when hundreds or thousands
@@ -58,7 +58,7 @@ When \QD starts it shows the New/Open dialog. (If you prefer the old
 behaviour, check the "Don't show this dialog in the future" checkbox.)
 We'll just click \CANCEL to skip past it.
 
-\img qd-newopen.png New/Open Dialog
+\img qd-newopen-dlg.png New/Open Dialog
 
 \index Exiting Qt Designer
 \index Getting Help
@@ -213,7 +213,7 @@ main widget to the main window.
 
 Click \Menu File|New to invoke the \Widget{New File} dialog, click
 "Main Window" to create a main window form, then click \OK. A new
-\Class QMainWindow form will be created and the \Window{Main Window
+\Class QMainWindow form will be created and the \Widget{Main Window
 Wizard} will pop up.
 
 \section2 Using the Main Window Wizard
@@ -367,7 +367,7 @@ from the \Menu Edit menu).
 
 \endsidebar
 
-\section2 Dealing with the Details
+\section2 Setting Properties
 
 Click the form. This will make all the form's properties appear in the
 Property Editor. Change the form's \Property name to "MainForm" and
@@ -477,8 +477,248 @@ Click \Menu{File|Save} to save the form as \File mainform.ui.
 The form can now be previewed by clicking \Menu{Preview|Preview Form}
 (or press \Key Ctrl+T).
 
-\section3 Adding Custom Actions
+\section2 Adding Custom Actions
 
+We want to provide the user with actions that are specific to our
+application. We want to provide the ability to switch between the two
+views we will be offering, and allow the user to add colors and set
+their preferred options. We'll prepare the way by creating a new menu
+for the view options and by adding a separator to the toolbar. 
 
+Right click the form's menu bar to pop up its context menu, then click
+the \Menu{Add Menu Item} option. This creates a new menu item called
+"Menu" to the right of the existing menu bar items. Click "Menu" and
+drag it to the left of the "Help" menu and release it there. (A
+vertical red line indicates its position.) Right click "Menu", the
+click \Menu{Rename Menu Item}. Change its name to "\&View".
+
+We could create a new toolbar for the view menu items, but instead
+we'll put a separator at the end of the existing toolbar and add the
+view options after the separator. (Alternatively we could have created
+an entirely new toolbar. See \l{Creating and Populating Toolbars} for
+more information on doing this.) Right click the right-most toolbar
+button ("Find"), the click \Menu{Insert Separator}.
+
+Now we'll create our form's custom actions.
+
+\sidebar Creating and Populating Toolbars
+
+\index Creating Toolbars
+\index Adding!Toolbars
+\index Toolbars, Creating
+A new toolbar is created by right clicking on the menu bar (or to the
+right of the existing toolbar(s)) then clicking \Menu{Add Toolbar}.
+Toolbar. The new toolbar is empty and is visible only by its
+\e{toolbar handle}. (Toolbar handle's are usually represented as a
+gray area containing either two thick vertical lines or with many
+small pits).
+
+\img qd-chapmainwin-toolbarhandle.png
+\caption Toolbar Handle
+
+\index Actions and Action Groups!Adding to a Toolbar
+\index Separator!Toolbar button
+\index Adding!Actions and Action Groups to a Toolbar
+\index Adding!Toolbar Separators
+Actions are added to toolbars simply by dragging them from the Action
+Editor to the toolbar, and dropping them on the toolbar in the
+position we want them. (The position is indicated by a vertical red
+line.)
+
+\img qd-chapmainwin-toolbarhandle2.png
+\caption Dragging the Action Group to the Toolbar
+
+\img qd-chapmainwin-toolbaractiongroup1.png
+\caption Populating the Toolbar with an Action Group
+
+All the actions in an action group are added to a toolbar in one go,
+simply by dragging the action group from the Action Editor and
+dropping it on the toolbar.
+
+Since toolbar buttons normally only show an image, all actions that
+are to be used in toolbars should have their \Property{iconSet}
+property set to a suitable image.
+
+\index Separator!Toolbar button
+\index Deleting!Toolbar Separators
+\index Deleting!Toolbars
+Toolbar buttons and separators (usually represented as indented
+vertical gray lines), can be dragged and dropped into new positions in
+the toolbar at any time. Separators can be inserted by right clicking
+a toolbar button and clicking Insert Separator. Toolbar buttons and
+separators can be deleted by right clicking them and clicking Delete
+Item. Toolbars can be deleted by right clicking their toolbar handle
+and clicking Delete Toolbar.
+
+\index Previewing!Toolbars
+If you preview an application you'll find that all the toolbars can be
+dragged to different docking points (top, left, right and bottom of a
+\Class QMainWindow or subclass), or dragged out of the application as
+independent tool windows. 
+
+\img qd-chapmainwin-previewing.png
+\caption Toolbar with all the Actions Added
+
+\section3 Adding Widgets to the Toolbar
+
+\index Toolbars!Adding Widgets
+\index Widgets!Adding to Toolbars
+\index Adding!Widgets
+Sometimes a simple button is insufficient for our needs. For example,
+if we wanted the user to be able to choose a font name and font size
+from the toolbar we might want to provide a direct means rather than
+having a toolbar button launch a font dialog.
+
+\index Widgets!ComboBox
+\index Widgets!SpinBox
+\index Separator!Toolbar button
+It is perfectly feasible to add \Widget{ComboBox}es and
+\Widget{SpinBox}es to toolbars. For example, a \Widget{ComboBox} could
+be used to list the available font names and the \Widget{SpinBox} used
+to select a font size.
+
+\img qd-chapmainwin-addwidg.png
+\caption Adding Widgets to the Toolbar
+
+Although you can put any widget into a toolbar we recommend that
+widgets which can be associated with an action should \e not be added
+to the toolbar directly. For these widgets, i.e. menu items, toolbar
+buttons and lists of items, you should create an action (drop down
+action for a list of items), associate the action with the widget, and
+add the action to the toolbar. Widgets that can sensibly be inserted
+directly into a toolbar are \Widget {ComboBox}es, \Widget {SpinBox}es
+and \Widget {Line Edit}s.
+
+\endsidebar
+
+\section3 Adding the Options Action
+
+Right click the first action in the Action Editor, then click
+\Menu{New Action}. The Property Editor now shows the new action's
+properties. Change the action's name to "optionsAction". Click the
+ellipsis button on the \Property{iconSet} property to pop up the
+\Widget{Choose an Image} dialog. Click the \Button{Add...} button to pop
+up the \Widget{Choose Images...} file selection dialog. Navigate to
+\c{qt/tools/designer/pics/small}; click the \c{tabwidget.png} image,
+then click \Button{Open}. The \c{tabwidget.png} image now appears
+highlighted in the \Widget{Choose an Image} dialog; click \OK to use
+it. Change the \Property{text} property to "Options" and change the
+\Property{menuText} property to "\&Options...".
+
+Click the optionsAction in the Action Editor and drag it to the Edit
+menu. The Edit menu will pop up; drag the optionsAction down the menu
+(a horizontal red line indicates its position), and drop it at the end
+after the "Find" option.
+
+The options action ought to be visually separated from the other Edit
+menu options. Click the form's Edit menu, then right click the
+"Find" option, then click \Menu{Insert Separator}.
+
+We'll connect and code this action later.
+
+\section3 Adding the Add Action
+
+Right click the first action in the Action Editor, then click
+\Menu{New Action}. Change the action's \Property{name} property to
+"editAddAction". Change its \Property{iconSet} property to
+\c{widgetstack.png}. (Click the \Property{iconSet} property's ellipsis
+button, click \Button{Add...}, click \c{widgetstack.png}, then click
+\Button{Open}, then click \OK.) Change the \Property{text} property to
+"Add" and the \Property{menuText} property to "\&Add...". Change the
+\Property{accel} property to "Ctrl+A".
+
+Click the editAddAction and drag it to be the first item in the Edit
+menu. (Drag it to the edit menu and drop it when the horizontal red
+line is above the "Cut" menu option.)
+
+Since we also want to make this option available from the toolbar,
+click the editAddAction again, and this time drag it to the toolbar.
+Drop it to the left of the scissors (Cut) toolbar button. (A
+horizontal red line indicates its position during the drag.)
+
+\section4 Tidying Up
+
+We're going to use "Cut" for deleting colors, so we'll change the
+user-visible name to "Delete" to make its meaning clearer. Click the
+editCutAction in the Action Editor to make its properties appear in
+the Property Editor. Change its \Property{text} property to "Delete"
+and change its \Property{menuText} property to "\&Delete".
+
+A side-effect of the above change is that \Key Alt+C (originally used
+for "Cut") is now unused. Click the editCopyAction action in the
+Action Editor, and change its \Property{menuText} property to "\&Copy".
+
+We can always check to see if there are any accelerator conflicts by
+clicking \Menu{Edit|Check Accelerators} (or \Key{Alt+R}).
+
+\section3 Adding An Action Group
+
+We want to provide the user with a choice of views, but since they can
+only use one view at a time we need to ensure that the menu options
+and toolbar buttons they use to switch between views always stay in
+sync. We don't have to write any code to achieve this: we simply put
+the relevant actions in an action group and let Qt take care of the
+details.
+
+Right click an action in the Action Editor, then click \Menu{New
+Action Group}. The action group's properties are now showing in the
+Property Editor. Change the action group's \Property{name} property to
+"viewActionGroup", and change its \Property{text} property to "View".
+We want the action group to be \e{exclusive}, i.e. for only one of its
+actions to be "on" at any one time; but there's no need to set the
+\Property{exclusive} property since it defaults to True which is what
+we want.
+
+We'll now create the view actions. The process is virtually the same
+as for actions that are not in an action group; the only difference is
+that when we right click to pop up the context menu, we \e must right
+click the relevant action group, not just anything in the Action
+Editor.
+
+Right click the viewActionGroup, then click \Menu{New Action}. Change
+this action's \Property{name} property to "viewTableAction". Set its
+\Property{toggleAction} property to True and set its \Property{on}
+property to True. We want it to be a toggle action because either the
+user is using this view (it is "on") or another one (it is "off"). We
+set this action to "on" because it will be the default view. Change
+its \Property{iconSet} property to \c{table.png}. (Click the
+\Property{iconSet} property's ellipsis button, click \Button{Add..},
+click \c{table.png}, then click \Button{Open}, then click \OK.) Change
+the \Property{text} property to "View Table" and the
+\Property{menuText} property to "View \&Table". Change the
+\Property{toolTip} property to "View Table (Ctrl+T)", and set the
+\Property{accel} property to "Ctrl+T".
+
+Right click the viewActionGroup, then click \Menu{New Action}. Change
+this action's \Property{name} property to "viewIconsAction". Set its
+\Property{toggleAction} property to True. Change its
+\Property{iconSet} property to \c{iconview.png}. Change the
+\Property{text} property to "View Icons" and the \Property{menuText}
+property to "View \&Icons". Change the \Property{toolTip} property to
+"View Icons (Ctrl+I)", and set the \Property{accel} property to
+"Ctrl+I".
+
+\section4 Using an Action Group
+
+Now that we've created the view actions we need to make them available
+to the user.
+
+Click the viewActionGroup action group in the Action Editor, and drag
+it to the View menu; drop it on this menu (when the horizontal red
+line appears beneath the View menu). Because we dragged the action
+group, \e all its actions (in our case the viewTableAction and
+viewIconsAction) are added to the relevant menu. We'll also make the
+view actions available on the toolbar. Click the viewActionGroup once
+again, and drag it to the toolbar; drop it the right of the separator
+at the far right of the toolbar, and drop it on the toolbar's edge.
+(Again, a vertical red line will indicate the position.)
+
+Don't forget that you can preview to see things in action with
+\Key{Ctrl+T}, and to click \Menu{File|Save} (or press \Key{Ctrl+S})
+regularly! If you preview now you will find that if you click the view
+toolbar buttons and menu options that both the toolbar buttons and the
+menu items automatically stay in sync.
+
+\section1 Creating the Main Widget
 
 

@@ -142,8 +142,8 @@
 	easy access as toolbar buttons, and also shows the names of
 	the widgets and takes up less space.
 
-	\i QWidgetStack is now available as a container widget. The new
-	example demonstrates its use.
+	\i \Class QWidgetStack is now available as a container widget.
+	The new example demonstrates its use.
 
 	\i \c .ui.h files may now contain arbitrary C++, including \c const
 	definitions, \c{#include}s, plain functions, etc.
