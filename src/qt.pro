@@ -145,7 +145,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
 		  $$TOOLS_H/qregexp.h \
-		  $$TOOLS_H/qtlcodec.h \
+		  $$TOOLS_H/qrtlcodec.h \
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qstack.h \
