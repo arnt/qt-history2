@@ -110,6 +110,34 @@ QClientInterface* QPlugInInterface::requestClientInterface( const QCString& requ
 }
 
 /*!
+  \class QCleanUpHandler
+
+  \brief Provides a save class for memory cleanup.
+*/
+
+/*!
+  \fn QCleanUpHandler::~QCleanUpHandler()
+  
+  This destructor will delete all handled objects.
+*/
+
+/*!
+  \fn void QCleanUpHandler::addCleanUp( Type* object )
+
+  Adds an object to the list that will be destroyed upon
+  destruction of the cleanup handler itself.
+*/
+
+/*!
+  \fn bool QCleanUpHandler::clean()
+
+  Return TRUE if there are any undeleted objects this handler
+  has to care about.
+  This is quite useful for plugins that do not want to be unloaded
+  until all memory allocated in the library's scope has been freed.
+*/
+
+/*!
   \class QPlugIn qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
