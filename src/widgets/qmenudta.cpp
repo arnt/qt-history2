@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#7 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#7 $";
 #endif
 
 
@@ -89,6 +89,8 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
     }
     if ( index < 0 )				// append
 	index = mitems->count();
+    if ( popup && popup->parentMenu )		// popup already in use
+	return;
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id == -1 ? index : id;
