@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#66 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#66 $");
 
 
 #if QT_VERSION == 200
@@ -236,6 +236,15 @@ void QLabel::setText( const char *text )
 	updateLabel();
     } 
 }
+
+
+/*!  Clears the label.  Equivalent with setText( "" ). */
+
+void QLabel::clear()
+{
+    setText( "" );
+}
+
 
 /*!
   \fn QPixmap *QLabel::pixmap() const

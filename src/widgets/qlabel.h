@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#31 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#32 $
 **
 ** Definition of QLabel widget class
 **
@@ -48,6 +48,7 @@ public slots:
     void	setMovie( const QMovie & );
     void	setNum( int );
     void	setNum( double );
+    void	clear();
 
 protected:
     void	drawContents( QPainter * );
