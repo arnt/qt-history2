@@ -58,6 +58,14 @@ inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 # undef accept
 #endif
 
+// Solaris redefines bind to __xnet_bind when _XOPEN_SOURCE_EXTENDED is
+// defined.  This breaks our sources.
+inline int qt_socket_bind(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+{ return ::bind(s, addr, addrlen); }
+#if defined(bind)
+# undef bind
+#endif
+
 // Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
 inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
