@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#37 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -696,11 +696,15 @@ QSize QHeader::sizeHint() const
 {
     QFontMetrics fm( font() );
     if ( orient == Horizontal )
-	return QSize( cellSize( count()-1 ) + cellPos( count()-1 ),
+	return QSize( count() > 0
+		      ? cellSize( count()-1 ) + cellPos( count()-1 )
+		      : -1,
 		      fm.lineSpacing() + 6 );
     else
 	return QSize( fm.lineSpacing() + 6,
-		      cellSize( count()-1 ) + cellPos( count()-1 ) );
+		      count() > 0
+		      ? cellSize( count()-1 ) + cellPos( count()-1 )
+		      : -1 );
 }
 
 
