@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#9 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#10 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -21,6 +21,7 @@
 #include <qstylefactory.h>
 #include <qaction.h>
 #include <qsignalmapper.h>
+#include <qdict.h>
 
 class CategoryItem : public QListBoxItem {
 public:
@@ -116,9 +117,23 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QStringList list = QStyleFactory::styles();
     list.sort();
+    QDict<int> stylesDict;
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	QString style = *it;
-	QAction *a = new QAction( style, QIconSet(), "&"+style, 0, ag, 0, ag->isExclusive() );
+	QString styleAccel = style;
+	if ( stylesDict[styleAccel.left(1)] ) {
+	    for ( uint i = 0; i < styleAccel.length(); i++ ) {
+		if ( !stylesDict[styleAccel.mid( i, 1 )] ) {
+		    stylesDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
+		    styleAccel = styleAccel.insert( i, '&' );
+		    break;
+		}
+	    }   
+	} else {
+	    stylesDict.insert(styleAccel.left(1), (const int *)1);
+	    styleAccel = "&"+styleAccel;
+	}
+	QAction *a = new QAction( style, QIconSet(), styleAccel, 0, ag, 0, ag->isExclusive() );
 	connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
 	styleMapper->setMapping( a, a->text() );
     }
