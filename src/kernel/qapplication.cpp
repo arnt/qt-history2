@@ -1000,8 +1000,10 @@ QApplication::~QApplication()
     delete translators;
 #endif
 
+#ifndef QT_NO_DRAGANDDROP
     extern QDragManager *qt_dnd_manager;
     delete qt_dnd_manager;
+#endif
 
     qt_cleanup();
 
