@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#6 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#7 $
 **
 ** Definition of QBuffer class
 **
@@ -31,9 +31,9 @@ public:
     void  close();
     void  flush();
 
-    uint  size() const { return a.size(); }
-    int   at()	 const { return index; }
-    bool  at( uint );
+    uint  size() const;
+    int   at()	 const;
+    bool  at( int );
 
     int	  readBlock( char *p, uint );
     int	  writeBlock( const char *p, uint );
@@ -50,6 +50,13 @@ private:
     uint  a_len;
     uint  a_inc;
 };
+
+
+inline uint QBuffer::size() const
+{ return a.size(); }
+
+inline int QBuffer::at() const
+{ return index; }
 
 
 #endif // QBUFFER_H

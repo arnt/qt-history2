@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#19 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -182,11 +182,11 @@ void QBuffer::flush()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the buffer index to \e n. Returns TRUE if successful, otherwise FALSE.
+  Sets the buffer index to \e pos. Returns TRUE if successful, otherwise FALSE.
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QBuffer::at( uint n )
+bool QBuffer::at( int pos )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {
@@ -194,13 +194,13 @@ bool QBuffer::at( uint n )
 	return FALSE;
     }
 #endif
-    if ( (uint)n > a_len ) {
+    if ( (uint)pos > a_len ) {
 #if defined(CHECK_RANGE)
-	warning( "QBuffer::at: Index %d out of range", n );
+	warning( "QBuffer::at: Index %d out of range", pos );
 #endif
 	return FALSE;
     }
-    index = n;
+    index = pos;
     return TRUE;
 }
 

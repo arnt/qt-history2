@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#11 $
+** $Id: //depot/qt/main/src/tools/qfile.h#12 $
 **
 ** Definition of QFile class
 **
@@ -41,7 +41,7 @@ public:
 
     uint	size()	const;
     int		at()	const;
-    bool	at( uint );
+    bool	at( int );
     bool	atEnd() const;
 
     int		readBlock( char *data, uint len );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#22 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#22 $")
 
 
 /*----------------------------------------------------------------------------
@@ -350,19 +350,19 @@ int QIODevice::at() const
 }
 
 /*----------------------------------------------------------------------------
-  Virtual function that sets the I/O device index to \e n.
+  Virtual function that sets the I/O device index to \e pos.
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QIODevice::at( uint n )
+bool QIODevice::at( int pos )
 {
 #if defined(CHECK_RANGE)
-    if ( n > size() ) {
-	warning( "QIODevice::at: Index %d out of range", n );
+    if ( (uint)pos > size() ) {
+	warning( "QIODevice::at: Index %d out of range", pos );
 	return FALSE;
     }
 #endif
-    index = n;
+    index = pos;
     return TRUE;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#10 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#11 $
 **
 ** Definition of QIODevice class
 **
@@ -93,7 +93,7 @@ public:
 
     virtual uint size()	  const = 0;
     virtual int  at()	  const;
-    virtual bool at( uint );
+    virtual bool at( int );
     virtual bool atEnd()  const;
     bool	 reset() { return at(0); }
 

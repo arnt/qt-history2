@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#34 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -472,7 +472,7 @@ uint QFile::size() const
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the file index to \e n.	Returns TRUE if successful, otherwise FALSE.
+  Sets the file index to \e pos. Returns TRUE if successful, otherwise FALSE.
 
   Example:
   \code
@@ -487,7 +487,7 @@ uint QFile::size() const
   \sa size()
  ----------------------------------------------------------------------------*/
 
-bool QFile::at( uint n )
+bool QFile::at( int pos )
 {
     if ( !isOpen() ) {
 #if defined(CHECK_STATE)
@@ -497,18 +497,17 @@ bool QFile::at( uint n )
     }
     bool ok = TRUE;
     if ( isRaw() ) {				// raw file
-	if ( LSEEK(fd, n, SEEK_SET) == -1 )
+	if ( LSEEK(fd, pos, SEEK_SET) == -1 )
 	    ok = FALSE;
-    }
-    else {					// buffered file
-	if ( fseek(fh, n, SEEK_SET) != 0 )
+    } else {					// buffered file
+	if ( fseek(fh, pos, SEEK_SET) != 0 )
 	    ok = FALSE;
     }
     if ( ok )
-	index = n;
+	index = pos;
 #if defined(CHECK_RANGE)
     else
-	warning( "QFile::at: Cannot set file position %d", n );
+	warning( "QFile::at: Cannot set file position %d", pos );
 #endif
     return ok;
 }
