@@ -373,8 +373,7 @@ void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )
 }
 
 
-/*
-*/
+//===========================================================================
 
 QVFbScreen::QVFbScreen( int display_id ) : QScreen( display_id )
 {
@@ -387,12 +386,13 @@ QVFbScreen::~QVFbScreen()
 
 static int QVFb_dummy;
 
-bool QVFbScreen::connect( const QString & )
+bool QVFbScreen::connect( const QString &displaySpec )
 {
-//    optype = &QVFb_dummy;
-//    lastop = &QVFb_dummy;
     screen_optype=&QVFb_dummy;
     screen_lastop=&QVFb_dummy;
+
+    if ( displaySpec.find( ":Gray" ) >= 0 )
+	grayscale = TRUE;
 
     key_t key = ftok( QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b' );
 
@@ -447,27 +447,26 @@ void QVFbScreen::disconnect()
 
 bool QVFbScreen::initDevice()
 {
-//    optype = &QVFb_dummy;
     if(d==8) {
 	screencols=256;
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	// Build greyscale palette
-	for(int loopc=0;loopc<256;loopc++) {
-	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
-	}
-#else
-	// 6x6x6 216 color cube
-	int idx = 0;
-	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
-	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
-		for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-		    screenclut[idx]=qRgb( ir, ig, ib );
-		    idx++;
+	if ( grayscale ) {
+	    // Build greyscale palette
+	    for(int loopc=0;loopc<256;loopc++) {
+		screenclut[loopc]=qRgb(loopc,loopc,loopc);
+	    }
+	} else {
+	    // 6x6x6 216 color cube
+	    int idx = 0;
+	    for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
+		for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
+		    for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
+			screenclut[idx]=qRgb( ir, ig, ib );
+			idx++;
+		    }
 		}
 	    }
+	    screencols=idx;
 	}
-	screencols=idx;
-#endif
 	memcpy( hdr->clut, screenclut, sizeof( QRgb ) * screencols );
 	hdr->numcols = screencols;
     } else if ( d == 4 ) {
@@ -548,13 +547,6 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 	    ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
-    } else if (d==8) {
-	if ( bytes == qt_screen->base() )
-	    ret = new QGfxVFb<8,0>(bytes,w,h);
-	else
-	    ret = new QGfxRaster<8,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if (d==8) {
 	if ( bytes == qt_screen->base() )
 	    ret = new QGfxVFb<8,0>(bytes,w,h);

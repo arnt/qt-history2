@@ -127,6 +127,12 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_VNC
 
+	contains( gfx-drivers, vga16 ) {
+		HEADERS += $$KERNEL_H/qgfxvga16_qws.h
+		SOURCES += $$KERNEL_CPP/qgfxvga16_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_VGA16
+
 	contains( gfx-drivers, transformed ) {
 		HEADERS += $$KERNEL_H/qgfxtransformed_qws.h
 		SOURCES += $$KERNEL_CPP/qgfxtransformed_qws.cpp

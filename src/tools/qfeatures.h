@@ -80,11 +80,8 @@
 // 4-bit greyscale
 //#define QT_NO_QWS_DEPTH_4
 
-// 8-bit color
+// 8-bit color/grayscale
 //#define QT_NO_QWS_DEPTH_8
-
-// 8-bit grayscale
-//#define QT_NO_QWS_DEPTH_8GRAYSCALE
 
 // Favour code size over graphics speed
 //#define QT_NO_QWS_GFX_SPEED

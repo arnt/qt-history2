@@ -136,6 +136,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	return FALSE;
     }
 
+    grayscale = vinfo.grayscale;
     d=vinfo.bits_per_pixel;
     lstep=finfo.line_length;
     int xoff = vinfo.xoffset;
@@ -292,6 +293,7 @@ bool QLinuxFbScreen::initDevice()
     startupw=vinfo.xres;
     startuph=vinfo.yres;
     startupd=vinfo.bits_per_pixel;
+    grayscale = vinfo.grayscale;
 
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
 	qFatal("Error reading fixed information in card init");
@@ -370,39 +372,40 @@ bool QLinuxFbScreen::initDevice()
 		}
 	    }
 	} else {
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	    // Build greyscale palette
-	    unsigned int i;
-	    for(i=0;i<256;i++) {
-		ushort val = (i << 8) | i;
-		cmap.red[i] = val;
-		cmap.green[i] = val;
-		cmap.blue[i] = val;
-		cmap.transp[i] = 0;
-		screenclut[i] = qRgb(i,i,i);
-	    }
-#else
-	    // 6x6x6 216 color cube
-	    int idx = 0;
-	    for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
-		for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
-		    for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-			cmap.red[idx] = (ir << 8)|ir;
-			cmap.green[idx] = (ig << 8)|ig;
-			cmap.blue[idx] = (ib << 8)|ib;
-			cmap.transp[idx] = 0;
-			screenclut[idx]=qRgb( ir, ig, ib );
-			idx++;
+	    if ( grayscale ) {
+		// Build greyscale palette
+		unsigned int i;
+		for(i=0;i<screencols;i++) {
+		    int bval = screencols == 256 ? i : (i << 4);
+		    ushort val = (bval << 8) | bval;
+		    cmap.red[i] = bval;
+		    cmap.green[i] = bval;
+		    cmap.blue[i] = bval;
+		    cmap.transp[i] = 0;
+		    screenclut[i] = qRgb(bval,bval,bval);
+		}
+	    } else {
+		// 6x6x6 216 color cube
+		int idx = 0;
+		for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
+		    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
+			for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
+			    cmap.red[idx] = (ir << 8)|ir;
+			    cmap.green[idx] = (ig << 8)|ig;
+			    cmap.blue[idx] = (ib << 8)|ib;
+			    cmap.transp[idx] = 0;
+			    screenclut[idx]=qRgb( ir, ig, ib );
+			    idx++;
+			}
 		    }
 		}
+		// Fill in rest with 0
+		for ( int loopc=0; loopc<40; loopc++ ) {
+		    screenclut[idx]=0;
+		    idx++;
+		}
+		screencols=idx;
 	    }
-	    // Fill in rest with 0
-	    for ( int loopc=0; loopc<40; loopc++ ) {
-		screenclut[idx]=0;
-		idx++;
-	    }
-	    screencols=idx;
-#endif
 	}
 
 	ioctl(fd,FBIOPUTCMAP,&cmap);

@@ -169,11 +169,7 @@ uint QColor::alloc()
 	return d.d32.pix |= 0xff000000;
      } default: {
 	GET
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	return d.d8.pix=qGray(r,g,b);
-#else
 	return d.d8.pix=qt_screen->alloc(r,g,b);
-#endif
       }
     }
 }

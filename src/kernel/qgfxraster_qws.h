@@ -52,6 +52,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+//===========================================================================
+// Utility macros and functions
+
 #if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
 # define GFX_START(r) bool swc_do_save=FALSE; \
 		    if(is_screen_gfx && gfx_swcursor) { \
@@ -95,6 +98,76 @@ typedef unsigned int PackType;
 typedef long long PackType;
 # endif
 
+
+
+#define GET_MASKED(rev) \
+		    if( amonolittletest ) { \
+			if(amonobitval & 0x1) { \
+			    masked=FALSE; \
+			} \
+			amonobitval=amonobitval >> 1; \
+		    } else { \
+			if(amonobitval & 0x80) { \
+			    masked=FALSE; \
+			} \
+			amonobitval=amonobitval << 1; \
+			amonobitval=amonobitval & 0xff; \
+		    } \
+		    if(amonobitcount<7) { \
+			amonobitcount++; \
+		    } else { \
+			amonobitcount=0; \
+			if (rev) maskp--; \
+			else maskp++; \
+			amonobitval=*maskp; \
+		    } \
+
+
+/*
+  Finds a pointer to pixel (\a x, \a y) in a bitmap that
+  is \a w pixels wide and stored in \a base. \a is_bigendian determines
+  endianness. \a linestep is the bitmap's linestep in bytes, \a
+  rev is true if this is being used for a reverse blt.
+
+  \a astat returns the bit number within the byte
+  \a ahold holds the \c monobitval which is the byte pre-shifted
+           to match the algorithm using this function
+
+  This is used by blt() to set up the pointer to the mask for
+  Little/BigEndianMask alpha types.
+*/
+GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
+					       int w, int linestep, int &astat,
+					       unsigned char &ahold,
+					       bool is_bigendian, bool rev)
+{
+    int nbits;
+    int nbytes;
+
+    if ( rev ) {
+	is_bigendian = !is_bigendian;
+	nbits = 7 - (x+w) % 8;
+       	nbytes = (x+w) / 8;
+    } else {
+	nbits = x % 8;
+       	nbytes = x / 8;
+    }
+
+    astat=nbits;
+
+    unsigned char *ret = base + (y*linestep) + nbytes;
+
+    ahold=*ret;
+    if(is_bigendian) {
+	ahold=ahold << nbits;
+    } else {
+	ahold=ahold >> nbits;
+    }
+
+    return ret;
+}
+
+//===========================================================================
 
 class QGfxRasterBase : public QGfx {
 

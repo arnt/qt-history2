@@ -58,32 +58,12 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
-// VGA16 code does not compile on sparc
-#if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
-#define QT_NO_QWS_VGA_16
-#endif
-
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
 
-// The VGA16 driver requires the qt_screen->alloc() GFX_8BPP_PIXEL macro,
-// but this slows down alpha blending a little in 8-bit modes, so we need
-// a back-door to still use simple allocation to avoid very slow blitting.
-//
-#ifndef QT_NO_QWS_VGA_16
-# define QT_NEED_SIMPLE_ALLOC
-# define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
-# define GFX_8BPP_PIXEL_CURSOR(r,g,b)   qt_screen->alloc(r,g,b)
-#else
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-# define GFX_8BPP_PIXEL(r,g,b)		qGray((r),(g),(b))
-# define GFX_8BPP_PIXEL_CURSOR          GFX_8BPP_PIXEL
-#else
-# define GFX_8BPP_PIXEL(r,g,b)		(((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
-# define GFX_8BPP_PIXEL_CURSOR          GFX_8BPP_PIXEL
-#endif
-#endif
+#define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
+#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	qt_screen->alloc(r,g,b)
 
 #define MASK4BPP(x) (0xf0 >> (x))
 
@@ -646,15 +626,13 @@ void QScreenCursor::drawCursor()
 	return;
     }
 #endif
-#if !defined(QT_NO_QWS_DEPTH_8GRAYSCALE) || !defined(QT_NO_QWS_DEPTH_8)
+#if !defined(QT_NO_QWS_DEPTH_8)
     if (depth == 8) {
 	unsigned char *dptr = (unsigned char *)dest;
         unsigned int srcval;
 	int av,r,g,b;
 	QRgb * screenclut=qt_screen->clut();
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=TRUE;
-#endif
 	for (int row = startRow; row < endRow; row++)
 	{
 	    for (int col = startCol; col < endCol; col++)
@@ -688,9 +666,7 @@ void QScreenCursor::drawCursor()
 	    srcptr += data->width;
 	    dptr += linestep;
 	}
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
-#endif
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
@@ -845,7 +821,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
 
     src_little_endian=TRUE;
-#if !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_8GRAYSCALE)
+#if !defined(QT_NO_QWS_DEPTH_8)
     // default color map
     setClut( gfx_screen->clut(), gfx_screen->numCols() );
 #endif
@@ -1767,13 +1743,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 #endif
     } else if(sdepth==8) {
 	unsigned char val=*((*srcdata));
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	if(src_normal_palette) {
 	    ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
 	} else {
-#else
-	if(TRUE) {
-#endif
 	    ret = srcclut[val];
 	}
 	(*srcdata)++;
@@ -1882,12 +1854,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
     } else if(sdepth==8) {
 	unsigned char val=*((*srcdata));
 	QRgb hold;
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	if(src_normal_palette) {
 	    hold = val*0x010101;
-	} else
-#endif
-	{
+	} else {
 	    hold=srcclut[val];
 	}
 	ret=qt_convRgbTo16(hold);
@@ -1986,13 +1955,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	r=(hold & 0xff0000) >> 16;
 	g=(hold & 0x00ff00) >> 8;
 	b=(hold & 0x0000ff);
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=TRUE;
-#endif
 	ret = GFX_8BPP_PIXEL(r,g,b);
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
-#endif
 	(*srcdata)+=4;
     } else if(sdepth==16) {
 	unsigned int r,g,b;
@@ -2000,13 +1965,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	r=((hold & (0x1f << 11)) >> 11) << 3;
 	g=((hold & (0x3f << 5)) >> 5) << 2;
 	b=(hold & 0x1f) << 3;
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=TRUE;
-#endif
 	ret = GFX_8BPP_PIXEL(r,g,b);
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
-#endif
 	(*srcdata)+=2;
     } else if ( sdepth == 4 ) {
 	ret = monobitval & 0x0f;
@@ -2181,13 +2142,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 	g=(hold & 0x00ff00) >> 8;
 	b=(hold & 0x0000ff);
 	(*srcdata)+=4;
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=TRUE;
-#endif
 	ret = GFX_8BPP_PIXEL(r,g,b);
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
-#endif
     } else {
 	qDebug("get_value_1(): Unsupported source depth %d!",sdepth);
 	ret=0;
@@ -3396,29 +3353,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
     }
 }
 
-#define GET_MASKED(rev) \
-		    if( amonolittletest ) { \
-			if(amonobitval & 0x1) { \
-			    masked=FALSE; \
-			} \
-			amonobitval=amonobitval >> 1; \
-		    } else { \
-			if(amonobitval & 0x80) { \
-			    masked=FALSE; \
-			} \
-			amonobitval=amonobitval << 1; \
-			amonobitval=amonobitval & 0xff; \
-		    } \
-		    if(amonobitcount<7) { \
-			amonobitcount++; \
-		    } else { \
-			amonobitcount=0; \
-			if (rev) maskp--; \
-			else maskp++; \
-			amonobitval=*maskp; \
-		    } \
-
-
 /*!
 \fn void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 						    unsigned char *l,
@@ -4254,11 +4188,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
         for(loopc=0;loopc<w;loopc++) {
 	    int val = *tempptr++;
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	    alphabuf[loopc] = (val << 16) | (val << 8) | val;
-#else
 	    alphabuf[loopc] = clut[val];
-#endif
 	}
 
 	// Now blend with source data
@@ -4272,9 +4202,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    QRgb mytmp=clut[srccol];
 	    srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
 	}
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=TRUE;
-#endif
 	for(loopc=0;loopc<w;loopc++) {
 	    int r,g,b;
 	    if(srctype==SourceImage)
@@ -4316,9 +4244,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    }
 	    myptr++;
 	}
-#ifdef QT_NEED_SIMPLE_ALLOC
 	simple_8bpp_alloc=FALSE;
-#endif
     } else if ( depth == 4 ) {
         // First read in the destination line
 	unsigned char *myptr = l;
@@ -4977,58 +4903,6 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 
-#ifndef QT_QDOC
-static GFX_INLINE
-#endif
-
-/*!
-  \relates QGfxRaster
-
-  \internal
-
-  Finds a pointer to pixel (\a x, \a y) in a bitmap that
-  is \a w pixels wide and stored in \a base. \a is_bigendian determines
-  endianness. \a linestep is the bitmap's linestep in bytes, \a
-  rev is true if this is being used for a reverse blt.
-
-  \a astat returns the bit number within the byte
-  \a ahold holds the \c monobitval which is the byte pre-shifted
-           to match the algorithm using this function
-
-  This is used by blt() to set up the pointer to the mask for
-  Little/BigEndianMask alpha types.
-*/
-unsigned char * find_pointer(unsigned char * base,int x,int y,
-					       int w, int linestep, int &astat,
-					       unsigned char &ahold,
-					       bool is_bigendian, bool rev)
-{
-    int nbits;
-    int nbytes;
-
-    if ( rev ) {
-	is_bigendian = !is_bigendian;
-	nbits = 7 - (x+w) % 8;
-       	nbytes = (x+w) / 8;
-    } else {
-	nbits = x % 8;
-       	nbytes = x / 8;
-    }
-
-    astat=nbits;
-
-    unsigned char *ret = base + (y*linestep) + nbytes;
-
-    ahold=*ret;
-    if(is_bigendian) {
-	ahold=ahold << nbits;
-    } else {
-	ahold=ahold >> nbits;
-    }
-
-    return ret;
-}
-
 static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int y,
 						int w, int linestep, int &astat,
 						unsigned char &ahold, bool rev )
@@ -5083,7 +4957,6 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     GFX_START(QRect(QMIN(rx+xoffs,sx+xoffs), QMIN(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
 
     srcbits=buffer;
-    src_normal_palette = TRUE;
     srclinestep=linestep();
     srcdepth=depth;
     srcwidth=w;
@@ -5093,6 +4966,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     srctype=SourceImage;
     setAlphaType(IgnoreAlpha);
     setSourceWidgetOffset( xoffs, yoffs );
+    src_normal_palette = TRUE;
     blt(rx,ry,w,h,sx,sy);
 
     GFX_END
@@ -5744,6 +5618,7 @@ QScreen::QScreen( int display_id )
     displayId = display_id;
     initted=FALSE;
     entryp=0;
+    grayscale = FALSE;
 }
 
 /*!
@@ -5798,6 +5673,8 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 {
     int ret = 0;
     if ( d == 8 ) {
+	if ( grayscale )
+	    return qGray( r, g, b );
 	// First we look to see if we match a default color
 	QRgb myrgb=qRgb(r,g,b);
 	int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
@@ -5916,10 +5793,6 @@ bool QScreen::supportsDepth(int d) const
     } else if(d==8) {
 	return TRUE;
 #endif
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-    } else if(d==8) {
-	return TRUE;
-#endif
 #ifndef QT_NO_QWS_DEPTH_24
     } else if(d==24) {
 	return TRUE;
@@ -5958,10 +5831,6 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 	ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
-    } else if(d==8) {
-	ret = new QGfxRaster<8,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
@@ -6036,10 +5905,6 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxmatrox_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_VGA_16)
-# include "qgfxvga16_qws.cpp"
-#endif
-
 #if !defined(QT_NO_QWS_REPEATER)
 #include "qgfxrepeater_qws.cpp"
 #endif
@@ -6061,9 +5926,6 @@ struct DriverTable
 #endif
 #if !defined(QT_NO_QWS_REPEATER)
     { "Repeater", qt_get_screen_repeater, 0 },
-#endif
-#if !defined(QT_NO_QWS_VGA_16)
-    { "VGA16", qt_get_screen_vga16, 0 },
 #endif
 #if !defined(QT_NO_QWS_VOODOO3)
     { "Voodoo3", qt_get_screen_voodoo3, 1 },
@@ -6103,11 +5965,11 @@ QScreen *qt_lookup_screen( int display_id, QString driver )
 /*
 Given a display_id (number of the Qt/Embedded server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
-A structure DriverTable contains a list of different screen types
-and functions which can return them; qt_get_screen looks up the type
-in that table using the spec and calls the appropriate function.
-People writing new graphics drivers should hook their own
-QScreen-descendant-returning function into the DriverTable.
+The QGfxDriverFactory is queried for a suitable driver and, if found,
+asked to create a driver.
+People writing new graphics drivers should either hook their own
+QScreen-descendant into QGfxDriverFactory or use the QGfxDriverPlugin
+to make a dynamically loadable driver.
 */
 
 QScreen *qt_get_screen( int display_id, const char *spec )
@@ -6118,12 +5980,15 @@ QScreen *qt_get_screen( int display_id, const char *spec )
     if ( colon >= 0 )
 	driver.truncate( colon );
 
+    bool foundDriver = FALSE;
+
     QStringList driverList = QGfxDriverFactory::keys();
     QStringList::Iterator it;
     for ( it = driverList.begin(); it != driverList.end(); ++it ) {
 	if ( driver.isEmpty() || QString( *it ) == driver ) {
 	    qt_screen = QGfxDriverFactory::create( *it, display_id );
 	    if ( qt_screen ) {
+		foundDriver = TRUE;
 		if ( qt_screen->connect( spec ) ) {
 		    return qt_screen;
 		} else {
@@ -6136,6 +6001,8 @@ QScreen *qt_get_screen( int display_id, const char *spec )
 
     if ( driver.isNull() )
 	qFatal( "No suitable driver found" );
+    else if ( foundDriver )
+	qFatal( "%s driver not found", driver.latin1() );
     else
 	qFatal( "%s driver cannot connect", driver.latin1() );
 

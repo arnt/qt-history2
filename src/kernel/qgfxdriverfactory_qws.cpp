@@ -43,6 +43,7 @@
 #include "qgfxmach64_qws.h"
 #include "qgfxvfb_qws.h"
 #include "qgfxvnc_qws.h"
+#include "qgfxvga16_qws.h"
 #include "qgfxshadowfb_qws.h"
 #include <stdlib.h>
 
@@ -121,6 +122,10 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     if ( driver == "vnc" )
 	return new QVNCScreen( displayId );
 #endif
+#ifndef QT_NO_QWS_VGA16
+    if ( driver == "vga16" )
+	return new QVga16Screen( displayId );
+#endif
 #ifndef QT_NO_QWS_SHADOWFB
     if ( driver == "shadowfb" )
 	return new QShadowFbScreen( displayId );
@@ -179,6 +184,10 @@ QStringList QGfxDriverFactory::keys()
 #ifndef QT_NO_QWS_VNC
     if ( !list.contains( "VNC" ) )
 	list << "VNC";
+#endif
+#ifndef QT_NO_QWS_VGA16
+    if ( !list.contains( "VGA16" ) )
+	list << "VGA16";
 #endif
 #ifndef QT_NO_QWS_SHADOWFB
     if ( !list.contains( "ShadowFb" ) )

@@ -245,7 +245,6 @@ public:
     virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
     virtual int transformOrientation() const;
     virtual bool isTransformed() const;
-
     virtual bool isInterlaced() const;
 
     virtual void setDirty( const QRect& );
@@ -287,6 +286,7 @@ protected:
     int h;
     int d;
     int pixeltype;
+    bool grayscale;
 
     int dw;
     int dh;

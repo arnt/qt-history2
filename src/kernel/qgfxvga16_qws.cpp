@@ -31,9 +31,14 @@
 **********************************************************************/
 
 #include "qapplication.h"
+
+#ifndef QT_NO_QWS_VGA16
+
 #include "qregexp.h"
+#include "qpen.h"
+#include "qpaintdevicemetrics.h"
 #include "qgfxraster_qws.h"
-#include "qgfxlinuxfb_qws.h"
+#include "qgfxvga16_qws.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +55,10 @@
 #ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#endif
+
+#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#include <linux/fb.h>
 #endif
 
 
@@ -1840,32 +1849,6 @@ void QGfxVga16::tiledBlt( int rx,int ry,int w,int h )
 }
 
 
-class QVga16Screen : public QLinuxFbScreen {
-
-public:
-
-    QVga16Screen( int display_id );
-    virtual ~QVga16Screen();
-    virtual bool connect( const QString &spec );
-    virtual bool initDevice();
-    virtual int initCursor(void*, bool);
-    virtual void shutdownDevice();
-    virtual bool useOffscreen() { return true; }
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual int alloc(unsigned int, unsigned int, unsigned int);
-    int pixmapDepth() const { return 8; }
-
-protected:
-
-    virtual int pixmapOffsetAlignment() { return 128; }
-    virtual int pixmapLinestepAlignment() { return 128; }
-
-private:
-
-    int	shmId;
-
-};
-
 
 QVga16Screen::QVga16Screen( int display_id )
     : QLinuxFbScreen( display_id )
@@ -1873,7 +1856,10 @@ QVga16Screen::QVga16Screen( int display_id )
     BEGIN_PROFILING
 }
 
-static int VGA16DummyOpType;
+bool QVga16Screen::useOffscreen() { return true; }
+int QVga16Screen::pixmapDepth() const { return 8; }
+int QVga16Screen::pixmapOffsetAlignment() { return 128; }
+int QVga16Screen::pixmapLinestepAlignment() { return 128; }
 
 bool QVga16Screen::connect( const QString &displaySpec )
 {
@@ -1894,8 +1880,6 @@ bool QVga16Screen::connect( const QString &displaySpec )
 	
     if ( !QLinuxFbScreen::connect( displaySpec ) )
 	return FALSE;
-
-    optype = &VGA16DummyOpType;
 
     if (-1 == ioperm (0x3c0, 0x20, 1)) {
 	qDebug( "IO permissions problem (for VGA16 you need to run as root)\n" );
@@ -1971,7 +1955,6 @@ bool QVga16Screen::initDevice()
     BEGIN_PROFILING
 
     QLinuxFbScreen::initDevice();
-    optype = &VGA16DummyOpType;
     
     // turn off the blinking cursor
     write(1, "\033[?25l", 6);
@@ -2071,12 +2054,6 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 }
 
 
-extern "C" QScreen * qt_get_screen_vga16( int display_id )
-{
-    BEGIN_PROFILING
-    return new QVga16Screen( display_id );
-}
-
 #ifndef QT_NO_QWS_CURSOR
 
 
@@ -2171,4 +2148,5 @@ void QVga16Cursor::drawCursor(QRect &r)
 
 #endif // QT_NO_QWS_CURSOR
 
+#endif // QT_NO_QWS_VGA16
 

@@ -416,10 +416,6 @@ QGfx *QQnxScreen::createGfx(unsigned char *bytes, int w, int h, int d, int lines
 	} else if(d==8) {
 	    ret = new QQnxFbGfx<8,0>();
 #endif
-#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	} else if(d==8) {
-	    ret = new QQnxFbGfx<8,0>();
-#endif
 #ifndef QT_NO_QWS_DEPTH_24
 	} else if(d==24) {
 	    ret = new QQnxFbGfx<24,0>();
