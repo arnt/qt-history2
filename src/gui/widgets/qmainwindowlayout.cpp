@@ -445,11 +445,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // at this point the space for the tool bars have been shaved off
     // the main rect, continue laying out each tool bar line
 
-    const int tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent)
-			+ 16 // ## size of extension - get this from somewhere else
-			+ qt_cast<QToolBar *>(tb_layout_info.at(0).at(0).item->widget())->frameWidth() * 2
-			+ qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
-			+ qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->spacing() * 3;
+    int tb_fill = 0;
+    if (tb_layout_info.size() != 0) {
+	tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent)
+		  + 16 // ## size of extension - get this from somewhere else
+		  + qt_cast<QToolBar *>(tb_layout_info.at(0).at(0).item->widget())->frameWidth() * 2
+		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
+		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->spacing() * 3;
+    }
 
     for (int k = 0; k < tb_layout_info.size(); ++k) {
 	int num_tbs = tb_layout_info.at(k).size();
