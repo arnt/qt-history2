@@ -61,6 +61,7 @@ public:
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
     {
 	*this = other;
+        ref = 1;
     }
     ~QSqlRecordPrivate() {};
     QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
