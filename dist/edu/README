@@ -2,19 +2,7 @@
 Getting Started with Qt/Windows Educational Edition
 ===================================================
 
-We at Trolltech would first like to welcome you to the world of Qt
-programming!
-
-This Qt/Windows Educational Edition has the following limitations compared
-to the full Qt/Windows Professional and Enterprise Editions:
-
-* The Qt source code is not included. Instead, the Qt library is provided
-pre-compiled.
-
-* The library is pre-built as a dynamic, multi-threaded library without
-debugging information.
-
-* GIF support is disabled
+Welcome to the world of Qt programming!
 
 
 Updating Visual Studio
@@ -122,6 +110,21 @@ header files (e.g. stdio.h or windows.h), you must set the INCLUDE and LIB
 environment variables to contain the paths of the compiler's header files
 and library files. For Microsoft Visual C++ users, the vcvars32.bat file
 takes care of this.
+
+
+Limitations
+-----------
+
+This Qt/Windows Educational Edition has the following limitations compared
+to the full Qt/Windows Professional and Enterprise Editions:
+
+* The Qt source code is not included. Instead, the Qt library is provided
+pre-compiled.
+
+* The library is pre-built as a dynamic, multi-threaded library without
+debugging information.
+
+* GIF support is disabled
 
 
 Reporting Bugs, Mailing List and Support
