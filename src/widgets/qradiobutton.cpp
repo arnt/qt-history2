@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#11 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#11 $";
 #endif
 
 
@@ -100,7 +100,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QPixMap *pm = findPixmap( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
-	if ( label() ) {				// draw text extra
+	if ( label() ) {			// draw text extra
 	    p->pen().setColor( foregroundColor() );
 	    p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(),
 			 label() );
@@ -221,7 +221,7 @@ void QRadioButton::drawButton( QPainter *paint )
     }
     else if ( gs == MotifStyle ) {		// Motif radio button
 	static QCOOT inner_pts[] =		// used for filling diamond
-	    { 3,6, 6,2, 10,4, 6,10 };
+	    { 2,6, 6,2, 10,6, 6,10 };
 	static QCOOT top_pts[] =		// top (^) of diamond
 	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
 	static QCOOT bottom_pts[] =		// bottom (V) of diamond
