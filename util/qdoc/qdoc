@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#154 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#155 $
 #
 # this is a massive hack, written very quickly
 #
@@ -322,7 +322,7 @@ sub handlecodeincludes {
 	    $basefile = $edir . "/" . $arg
 		if ( !defined($basefile) && -f ($edir . "/" . $arg) )
 	}
-	die "unable to fin $arg, stopped" if ( !defined( $basefile ) );
+	die "unable to find $arg, stopped" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	$slash = $/;
@@ -941,7 +941,7 @@ remains with ", $company, "
 		if ( !defined($fqfilename) && -f ($edir . "/" . $filename) )
 	}
 
-	die "unable to fin $filename, stopped" if ( !defined( $fqfilename ) );
+	die "unable to find $filename, stopped" if ( !defined( $fqfilename ) );
 	open(F, "expand < $fqfilename |")
 	    || die "can't open $filename for reading";
 	$htmlfilename = $filename;
