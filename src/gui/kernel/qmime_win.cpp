@@ -772,7 +772,7 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
 }
 
 
-
+#ifndef QT_NO_IMAGEIO_BMP
 class QWindowsMimeImage : public QWindowsMime
 {
 public:
@@ -780,7 +780,7 @@ public:
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
     QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const;
-
+    
     // for converting to Qt
     bool canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const;
     QVariant convertToMime(const QString &mime, IDataObject *pDataObj, QVariant::Type preferredType) const;
@@ -791,65 +791,40 @@ public:
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (!qvariant_cast<QPixmap>(mimeData->imageData()).isNull()
-        && mimeType.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ofmts = QImageWriter::supportedImageFormats();
-        for (int i = 0; i < ofmts.count(); ++i) {
-            if (qstricmp(ofmts.at(i),mimeType.toLatin1().data()+6)==0) {
-                formatetcs += setCf(CF_DIB);
-                break;
-            }
-        }
-    }
+    if (mimeData->hasImage() && mimeType == "application/x-qt-image")
+        formatetcs += setCf(CF_DIB);
     return formatetcs;
 }
 
 QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 {
     if (getCf(formatetc) == CF_DIB)
-        return "image/bmp";
-    else
-        return QString();
+        return "application/x-qt-image";
+    return QString();
 }
 
 bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    bool haveDecoder = false;
-    if (mimeType.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ifmts = QImageReader::supportedImageFormats();
-        for (int i = 0; i < ifmts.count(); ++i) {
-            if (qstricmp(ifmts.at(i),mimeType.toLatin1().data()+6)==0) {
-                haveDecoder = true;
-                break;
-            }
-        }
-    }
-
-    return haveDecoder && canGetData(CF_DIB, pDataObj);
+    return mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj);
 }
 
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
-    return getCf(formatetc) == CF_DIB && !qvariant_cast<QPixmap>(mimeData->imageData()).isNull();
+    return getCf(formatetc) == CF_DIB && mimeData->hasImage();
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
     if (!canConvertFromMime(formatetc, mimeData))
         return false;
-#ifndef QT_NO_IMAGEIO_BMP
-    QVariant v = mimeData->imageData();
-    QImage img = qvariant_cast<QImage>(v);
+    QImage img = qvariant_cast<QImage>(mimeData->imageData());
     if (img.isNull())
         return false;
     QByteArray ba;
-    QBuffer iod(&ba);
-    iod.open(QIODevice::WriteOnly);
-    QDataStream s(&iod);
+    QDataStream s(&ba, QIODevice::WriteOnly);
     s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
     if (qt_write_dib(s, img))
         return setData(ba, pmedium);
-#endif
     return false;
 }
 
@@ -857,23 +832,19 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, IDataObject *
 {
     Q_UNUSED(preferredType);
     QVariant result;
-#ifndef QT_NO_IMAGEIO_BMP
     if (canConvertToMime(mimeType, pDataObj)) {
         QImage img;
         QByteArray data = getData(CF_DIB, pDataObj);
-        QBuffer iod(&data);
-        iod.open(QIODevice::ReadOnly);
-        QDataStream s(&iod);
+        QDataStream s(&data, QIODevice::ReadOnly);
         s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
         if (qt_read_dib(s, img)) { // ##### encaps "-14"
             result = img;
         }
     }
-#endif
     // Failed
     return result;
 }
-
+#endif
 
 class QBuiltInMimes : public QWindowsMime
 {
@@ -906,17 +877,8 @@ QBuiltInMimes::QBuiltInMimes()
     inFormats.insert(QWindowsMime::registerMimeType("text/html"), "text/html");
     outFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
     inFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
-
-    QList<QByteArray> ifmts = QImageWriter::supportedImageFormats();
-    for (int i=0; i<ifmts.count(); ++i) {
-        QString imgformat = QLatin1String("image/") + ifmts.at(i).toLower();
-        outFormats.insert(QWindowsMime::registerMimeType(imgformat), imgformat);
-    }
-    ifmts = QImageReader::supportedImageFormats();
-    for (int i=0; i<ifmts.count(); ++i) {
-        QString imgformat = QLatin1String("image/") + ifmts.at(i).toLower();
-        inFormats.insert(QWindowsMime::registerMimeType(imgformat), imgformat);
-    }
+    outFormats.insert(QWindowsMime::registerMimeType("application/x-qt-image"), "application/x-qt-image");
+    inFormats.insert(QWindowsMime::registerMimeType("application/x-qt-image"), "application/x-qt-image");
 }
 
 bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
@@ -964,6 +926,10 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
             r[byteLength] = 0;
             r[byteLength+1] = 0;
             data = r;
+        } else if (outFormats.value(getCf(formatetc)) == "application/x-qt-image") {
+            QImage image = qvariant_cast<QImage>(mimeData->imageData());
+            QDataStream ds(&data, QIODevice::WriteOnly);
+            ds << image;
         } else {
             data = mimeData->data(outFormats.value(getCf(formatetc)));
         }
@@ -998,6 +964,11 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, IDataObject *pDat
             if (mimeType == "text/html" && preferredType == QVariant::String) {
                 // text/html is in wide chars on windows (compatible with mozillia)
                 val = QString::fromUtf16((const unsigned short *)data.data());
+            } else if (mimeType == "application/x-qt-image") {
+                QDataStream ds(&data, QIODevice::ReadOnly);
+                QImage image;
+                ds >> image;
+                val = image;
             } else {
                 val = data; // it should be enough to return the data and let QMimeData do the rest.
             }
@@ -1118,7 +1089,9 @@ void QWindowsMimeList::init()
         new QLastResortMimes;
         new QWindowsMimeText;
         new QWindowsMimeURI;
+#ifndef QT_NO_IMAGEIO_BMP
         new QWindowsMimeImage;
+#endif
         new QWindowsMimeHtml;
         new QBuiltInMimes;
     }

@@ -246,12 +246,7 @@ void QMimeData::setImageData(const QVariant &image)
 */
 bool QMimeData::hasImage() const
 {
-    QStringList available = formats();
-    for (int i=0; i<available.size(); i++) {
-        if (available.at(i) == QLatin1String("application/x-qt-image"))
-            return true;
-    }
-    return false;
+    return hasFormat("application/x-qt-image");
 }
 
 /*!
