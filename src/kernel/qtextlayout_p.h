@@ -26,7 +26,7 @@ class Q_EXPORT QTextItem
 {
 public:
     inline QTextItem() : item(0), engine(0) {}
-    inline bool isValid() const { return engine; }
+    inline bool isValid() const { return (bool)engine; }
 
     QRect rect() const;
     int x() const;

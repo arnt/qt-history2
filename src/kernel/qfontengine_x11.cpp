@@ -303,7 +303,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
     }
 
     if ( _codec ) {
-	bool haveNbsp = false;
+	bool haveNbsp = FALSE;
 	for ( int i = 0; i < len; i++ )
 	    if ( str[i].unicode() == 0xa0 ) {
 		haveNbsp = TRUE;
