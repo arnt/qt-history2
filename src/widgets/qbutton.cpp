@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#2 $
 **
 ** Implementation of QButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940206
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#2 $";
 #endif
 
 
@@ -40,10 +40,8 @@ bool QButton::acceptPixmap( int w, int h )	// accept pixmap
     long size = w*h;
     if ( size > 5000 )				// will be slow
 	return FALSE;
-    if ( pmsize + size > 80000 ) {
-	debug("QButton: Pixmap cache not recommended");
+    if ( pmsize + size > 80000 )		// limit reached
 	return FALSE;
-    }
     return TRUE;
 }
 
@@ -59,15 +57,12 @@ void QButton::savePixmap( const char *key, const QPixMap *pm )
 	CHECK_PTR( pmdict );
 	qAddCleanupRoutine( delPixmaps );
     }
-    debug( "QButton: Insert pixmap %s", key );
     pmdict->insert( key, pm );			// insert into dict
     pmsize += pm->size().width()*pm->size().height();
 }
 
 void QButton::delPixmaps()			// delete all pixmaps
 {
-    debug( "QButton: Deleting pixmaps, total size = %ld", pmsize );
-    pmdict->statistics();
     pmdict->setAutoDelete( TRUE );
     pmdict->clear();
     delete pmdict;
