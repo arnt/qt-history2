@@ -684,6 +684,7 @@ void QFontPrivate::load()
 	    QMacSetFontInfo fi(this);
 	    GetFontInfo(fin->info);
 	}
+	actual.dirty = TRUE;
     }
     if(actual.dirty) {
 	actual = request;
