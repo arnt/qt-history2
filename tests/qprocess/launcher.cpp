@@ -37,10 +37,10 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
      setFont( QFont( "monofonto", 22 ) );
 
     // set images for later use in the info text
-    for ( i=0; images[i].label!=0; i++ ) {
-	QMimeSourceFactory::defaultFactory()
-	    ->setImage( QString(images[i].label), QString(images[i].file) );
-    }
+//    for ( i=0; images[i].label!=0; i++ ) {
+//	QMimeSourceFactory::defaultFactory()
+//	    ->setImage( QString(images[i].label), QString(images[i].file) );
+//    }
 
     // layout stuff
     QVBox* vb;
@@ -103,16 +103,18 @@ void Launcher::nextInfo()
 void Launcher::run( const char*path, const char* cmd )
 {
     QStringList list = QStringList::split( QChar(' '), cmd );
+
+    QDir p( baseDir );
+    p.cd( path );
+    p.cd( suffixDir );
+    if ( list.count() > 0 )
+	list[0] = p.absFilePath( list[0 ]);
 // ###
 //    QString command = list.first();
 //    list.remove( list.begin() );
 //    QProcess proc( p.absFilePath(command), list );
     list.append( "-style" );
     list.append( "windows" );
-
-    QDir p( baseDir );
-    p.cd( path );
-    p.cd( suffixDir );
 
     QProcess proc( list );
 
