@@ -21,7 +21,7 @@ Server::Server(QWidget *parent)
         return;
     }
 
-    statusLabel->setText(tr("The server is running on port %1")
+    statusLabel->setText(tr("The server is running on port %1.")
                          .arg(tcpServer->serverPort()));
 
     fortunes << tr("You've been leading a dog's life. Stay off the furniture.")

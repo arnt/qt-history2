@@ -13,7 +13,7 @@ public:
 
 signals:
     void newFortune(const QString &fortune);
-    void error(int socketError, const QString &errorStr);
+    void error(int socketError, const QString &message);
 
 private:
     QString hostName;

@@ -20,15 +20,17 @@ private slots:
     void requestNewFortune();
     void showFortune(const QString &fortune);
     void displayError(int socketError, const QString &message);
+    void enableGetFortuneButton();
 
 private:
-    QLabel *portLabel;
     QLabel *hostLabel;
-    QLineEdit *portLineEdit;
+    QLabel *portLabel;
     QLineEdit *hostLineEdit;
+    QLineEdit *portLineEdit;
     QLabel *statusLabel;
     QPushButton *getFortuneButton;
     QPushButton *quitButton;
+
     Thread thread;
     QString currentFortune;
 };

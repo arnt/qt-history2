@@ -6,20 +6,31 @@
 Client::Client(QWidget *parent)
     : QDialog(parent)
 {
-    hostLabel = new QLabel(tr("Host name:"), this);
-    portLabel = new QLabel(tr("Port:"), this);
+    hostLabel = new QLabel(tr("&Host name:"), this);
+    portLabel = new QLabel(tr("&Port:"), this);
 
     hostLineEdit = new QLineEdit("Localhost", this);
     portLineEdit = new QLineEdit(this);
     portLineEdit->setValidator(new QIntValidator(1, 65535, this));
 
-    statusLabel = new QLabel(this);
+    hostLabel->setBuddy(hostLineEdit);
+    portLabel->setBuddy(portLineEdit);
 
-    getFortuneButton = new QPushButton(tr("&Get Fortune"), this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    statusLabel = new QLabel(tr("You are about to receive a fortune. "
+                                "Please click Get Fortune."), this);
+
+    getFortuneButton = new QPushButton(tr("Get Fortune"), this);
+    getFortuneButton->setDefault(true);
+    getFortuneButton->setEnabled(false);
+
+    quitButton = new QPushButton(tr("Quit"), this);
 
     tcpSocket = new QTcpSocket(this);
 
+    connect(hostLineEdit, SIGNAL(textChanged(const QString &)),
+            this, SLOT(enableGetFortuneButton()));
+    connect(portLineEdit, SIGNAL(textChanged(const QString &)),
+            this, SLOT(enableGetFortuneButton()));
     connect(getFortuneButton, SIGNAL(clicked()),
             this, SLOT(requestNewFortune()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -36,21 +47,15 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(hostLineEdit, 0, 1);
     mainLayout->addWidget(portLabel, 1, 0);
     mainLayout->addWidget(portLineEdit, 1, 1);
-    mainLayout->addWidget(statusLabel, 2, 0);
+    mainLayout->addWidget(statusLabel, 2, 0, 1, 2);
     mainLayout->addLayout(buttonLayout, 3, 0, 1, 2);
 
-    setWindowTitle(tr("Fortune client"));
+    setWindowTitle(tr("Fortune Client"));
+    portLineEdit->setFocus();
 }
 
 void Client::requestNewFortune()
 {
-    if (hostLineEdit->text().isEmpty() || portLineEdit->text().isEmpty()) {
-        QMessageBox::information(this, tr("Fortune Client"),
-                                 tr("Enter the host name and the port of the "
-                                    "fortune server."));
-        return;
-    }
-
     blockSize = 0;
     tcpSocket->connectToHost(hostLineEdit->text(),
                              portLineEdit->text().toInt());
@@ -104,4 +109,10 @@ void Client::displayError(int socketError)
                                  tr("The following error occurred: %1.")
                                  .arg(tcpSocket->errorString()));
     }
+}
+
+void Client::enableGetFortuneButton()
+{
+    getFortuneButton->setEnabled(!hostLineEdit->text().isEmpty()
+                                 && !portLineEdit->text().isEmpty());
 }

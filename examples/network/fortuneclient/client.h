@@ -15,22 +15,24 @@ class Client : public QDialog
 public:
     Client(QWidget *parent = 0);
 
-public slots:
+private slots:
     void requestNewFortune();
     void readFortune();
     void displayError(int socketError);
+    void enableGetFortuneButton();
 
 private:
-    int blockSize;
-    QLabel *portLabel;
     QLabel *hostLabel;
-    QLineEdit *portLineEdit;
+    QLabel *portLabel;
     QLineEdit *hostLineEdit;
+    QLineEdit *portLineEdit;
     QLabel *statusLabel;
     QPushButton *getFortuneButton;
     QPushButton *quitButton;
+
     QTcpSocket *tcpSocket;
     QString currentFortune;
+    int blockSize;
 };
 
 #endif
