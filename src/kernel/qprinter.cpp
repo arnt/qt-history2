@@ -550,13 +550,15 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
 /*!
   \fn int QPrinter::minPage() const
-  Returns the min-page setting.	 The default value is 0.
+  Returns the min-page setting, i.e. the lowest pagenumber a user
+  is allowed to choose.	 The default value is 0.
   \sa maxPage(), setMinMax()
 */
 
 /*!
   \fn int QPrinter::maxPage() const
-  Returns the max-page setting.	 The default value is 0.
+  Returns the max-page setting. A user can't choose a higher pagenumber
+  than maxPage() when he or she selects a printrange. The default value is 0.
   \sa minPage(), setMinMax()
 */
 
