@@ -45,6 +45,10 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
 #endif
 #ifndef QT_NO_OPENGL
+    QGLFormat f = QGLFormat::defaultFormat();
+    f.setSampleBuffers(true);
+    f.setStencil(true);
+    QGLFormat::setDefaultFormat(f);
     if (QGLFormat::hasOpenGL())
 	viewer.addDemoWidget("OpenGL Painter", new GLPainter, "glpainter.cpp");
 #endif
