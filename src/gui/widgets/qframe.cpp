@@ -105,6 +105,13 @@ QFramePrivate::QFramePrivate()
     sunken like those in Windows 95. Specifying this shape sets
     the line width to 2 pixels. WinPanel is provided for compatibility.
     For GUI style independence we recommend using StyledPanel instead.
+
+    \omitvalue GroupBoxPanel
+    \omitvalue ToolBarPanel
+    \omitvalue MenuBarPanel
+    \omitvalue PopupPanel
+    \omitvalue LineEditPanel
+    \omitvalue TabWidgetPanel
     \omitvalue MShape
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
