@@ -1407,8 +1407,8 @@ private:
     uint litem : 1; // whether the paragraph is a list item
     uint rtext : 1; // whether the paragraph needs rich text margin
     int align : 4;
-    int invalid : 12;
     uint /*QStyleSheetItem::ListStyle*/ lstyle : 4;
+    int invalid;
     int state, id;
     QTextString *str;
     QMap<int, QTextParagraphSelection> *mSelections;
