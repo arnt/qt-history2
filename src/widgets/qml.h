@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#16 $
+** $Id: //depot/qt/main/src/widgets/qml.h#17 $
 **
 ** Definition of QML classes
 **
@@ -34,11 +34,10 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-/*
-  Gives moc syntac error
+// MOC_SKIP_BEGIN
 template class Q_EXPORT QDict<QPixmap>;
 template class Q_EXPORT QDict<QString>;
-*/
+// MOC_SKIP_END
 #endif
 
 class Q_EXPORT QMLProvider : public QObject
@@ -69,8 +68,6 @@ private:
     QString searchPath;
     QString absoluteFilename( const QString&) const;
 };
-
-
 
 
 #endif // QML_H
