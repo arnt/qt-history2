@@ -531,7 +531,7 @@ void QPushButtonPrivate::popupPressed()
     bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight)
+    if (tb && (tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight))
         horizontal = false;
 #endif
     QRect rect = q->rect();
