@@ -5533,8 +5533,7 @@ void QTextEdit::sync()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	QFontMetrics fm( QScrollView::font() );
-	resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
-			fm.descent() );
+	resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1 );
     } else
 #endif
     {
@@ -5963,8 +5962,7 @@ void QTextEdit::optimSetText( const QString &str )
 		d->od->maxLineWidth = lWidth;
 	}
     }
-    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
-		    fm.descent() );
+    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1 );
     repaintContents();
     emit textChanged();
 }
@@ -6191,8 +6189,7 @@ void QTextEdit::optimAppend( const QString &str )
     bool scrollToEnd = contentsY() >= QABS( contentsHeight() - visibleHeight() -
 		       ( horizontalScrollBar()->isVisible() ?
 			 horizontalScrollBar()->height() : 0 ) );
-    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
- 		    fm.descent() );
+    resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1 );
     if ( scrollToEnd ) {
 	updateScrollBars();
 	ensureVisible( 0, contentsHeight(), 1, 1 );
