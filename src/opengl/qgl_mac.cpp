@@ -200,9 +200,9 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     }
 
     if(d->glFormat.sampleBuffers()) {
-        attribs[cnt++] = AGL_SAMPLE_BUFFERS;
+        attribs[cnt++] = AGL_SAMPLE_BUFFERS_ARB;
         attribs[cnt++] = 1;
-        attribs[cnt++] = AGL_SAMPLES;
+        attribs[cnt++] = AGL_SAMPLES_ARB;
         attribs[cnt++] = d->glFormat.samples() == -1 ? 4 : d->glFormat.samples();
     }
 
