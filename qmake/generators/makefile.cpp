@@ -454,7 +454,7 @@ MakefileGenerator::init()
 			    for(QStringList::Iterator vpath_it = vpath.begin();
 				vpath_it != vpath.end(); ++vpath_it) {
 				QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-				if(QFile::exists(real_dir + Option::dir_sep + (*val_it))) {
+				if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
 				    QString dir = (*vpath_it);
 				    if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
 					dir += Option::dir_sep;

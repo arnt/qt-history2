@@ -275,7 +275,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		if(fdirs.isEmpty())
 		    fdirs.append("/System/Library/Frameworks/");
 		for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
-		    if(QFile::exists((*fit) + Option::dir_sep + (*it) + ".framework")) {
+		    if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
 			--it;
 			it = tmp.remove(it);
 			remove = TRUE;

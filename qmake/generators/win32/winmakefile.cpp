@@ -56,7 +56,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
     unsigned int subLevels;
     unsigned int i;
-    t << "MAKEFILE=	" <<( project->isEmpty("MAKEFILE") ? QString("Makefile") : var("MAKEFILE")) << endl;
+    if(!project->isEmpty("MAKEFILE"))
+	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
@@ -107,7 +108,9 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    if( lastSeparator ) {
 		subdir = subdir.mid( lastSeparator + 1 );
 	    }
-	    t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << buildArgs() << "\n\t"
+	    t << "$(QMAKE) " << subdir << ".pro" 
+	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
+	      << " " << buildArgs() << "\n\t"
 	      << "@cd ..";
 	    for( i = 1; i < subLevels; i++ ) {
 		t << "\\..";
