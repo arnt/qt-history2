@@ -9,7 +9,7 @@ const int redrawWait = 50;
 
 GLControlWidget::GLControlWidget( QWidget *parent, const char *name, QGLWidget *share, WFlags f )
 : QGLWidget( parent, name, share, f ),
-  xRot(0),yRot(0),zRot(0),xTrans(0),yTrans(0),zTrans(-10.0),scale(5.0), animation(TRUE), delay( 50 )
+  xRot(0),yRot(0),zRot(0),xTrans(0),yTrans(0),zTrans(-10.0),scale(5.0), animation(TRUE), wasAnimated(FALSE), delay( 50 )
 {
     setCursor( pointingHandCursor  );
     timer = new QTimer( this );
@@ -146,6 +146,21 @@ void GLControlWidget::mouseDoubleClickEvent( QMouseEvent * )
 	timer->stop();
 }
 
+void GLControlWidget::showEvent( QShowEvent *e )
+{
+    if ( wasAnimated && !timer->isActive() )
+	timer->start( delay );
+
+    QGLWidget::showEvent( e );
+}
+
+void GLControlWidget::hideEvent( QHideEvent *e )
+{
+    wasAnimated = timer->isActive();
+    timer->stop();
+    QGLWidget::hideEvent( e );
+}
+
 void GLControlWidget::animate()
 {
 }
@@ -154,6 +169,8 @@ void GLControlWidget::setAnimationDelay( int ms )
 {
     timer->stop();
     delay = ms;
-    if ( animation )
+    if ( animation ) {
+	wasAnimated = TRUE;
 	timer->start( delay );
+    }
 }

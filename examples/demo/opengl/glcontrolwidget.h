@@ -34,6 +34,9 @@ protected:
     void		mouseDoubleClickEvent( QMouseEvent * );
     void		wheelEvent( QWheelEvent * );
 
+    void		showEvent( QShowEvent * );
+    void		hideEvent( QHideEvent * );
+
     GLfloat xRot, yRot, zRot;
     GLfloat xTrans, yTrans, zTrans;
     GLfloat scale;
@@ -43,6 +46,7 @@ protected slots:
     virtual void	animate();
 
 private:
+    bool wasAnimated;
     QPoint oldPos;
     QTimer* timer;
     int delay;
