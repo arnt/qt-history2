@@ -14,7 +14,6 @@
 
 #include "qtimer.h"
 #include "qsignal.h"
-#include "qobjectlist.h"
 #include "qevent.h"
 
 /*!
@@ -292,9 +291,15 @@ void QTimer::singleShot( int msec, QObject *receiver, const char *member )
     if ( !sst_list )
 	sst_init();
     // search the list for a free ss timer we could reuse
-    QSingleShotTimer *sst = (QSingleShotTimer*)sst_list->first();
-    while ( sst && sst->isActive() )
-        sst = (QSingleShotTimer*)sst_list->next();
+    QSingleShotTimer *sst = 0;
+    for (int i = 0; i < sst_list->size(); ++i) {
+	QSingleShotTimer *t = static_cast<QSingleShotTimer *>(sst_list->at(i));
+	if (!t->isActive()) {
+	    sst = t;
+	    break;
+	}
+    }
+
     // create a new one if not successful
     if ( !sst ) {
 	sst = new QSingleShotTimer;

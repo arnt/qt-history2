@@ -17,7 +17,6 @@
 #include "../kernel/qlayoutengine_p.h"
 #ifndef QT_NO_WIDGETSTACK
 
-#include "qobjectlist.h"
 #include "qfocusdata.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
@@ -129,7 +128,7 @@ QWidgetStack::~QWidgetStack()
     you pass -2 a unique negative integer will be generated. No widget
     has an ID of -1. Returns the ID or -1 on failure (e.g. \w is 0).
 
-    If you pass an id that is already used, then a unique negative 
+    If you pass an id that is already used, then a unique negative
     integer will be generated to prevent two widgets having the same
     id.
 
@@ -220,16 +219,16 @@ void QWidgetStack::raiseWidget( int id )
 
 static bool isChildOf( QWidget* child, QWidget *parent )
 {
-    const QObjectList *list = parent->children();
-    if ( !child || !list )
+    if ( !child )
 	return FALSE;
-    QObjectListIterator it(*list);
-    QObject *obj;
-    while ( (obj = it.current()) ) {
-	++it;
-	if ( !obj->isWidgetType() || ((QWidget *)obj)->isTopLevel() )
+    QObjectList list = parent->children();
+    for (int i = 0; i < list.size(); ++i) {
+	QObject *obj = list.at(i);
+	if (!obj->isWidgetType())
 	    continue;
-	QWidget *widget = (QWidget *)obj;
+	QWidget *widget = static_cast<QWidget *>(obj);
+	if (!widget->isTopLevel())
+	    continue;
 	if ( widget == child || isChildOf( child, widget ) )
 	    return TRUE;
     }
@@ -309,14 +308,11 @@ void QWidgetStack::raiseWidget( QWidget *w )
 
     topWidget = w;
 
-    const QObjectList * c = children();
-    QObjectListIterator it( *c );
-    QObject * o;
-
-    while( (o=it.current()) != 0 ) {
-	++it;
+    QObjectList c = children();
+    for (int i = 0; i < c.size(); ++i) {
+	QObject * o = c.at(i);
 	if ( o->isWidgetType() && o != w && o != invisible )
-	    ((QWidget *)o)->hide();
+	    static_cast<QWidget *>(o)->hide();
     }
 
     w->setGeometry( invisible->geometry() );
@@ -365,20 +361,17 @@ void QWidgetStack::show()
     //  Reimplemented in order to set the children's geometries
     //  appropriately and to pick the first widget as topWidget if no
     //  topwidget was defined
-    if ( !isVisible() && children() ) {
-	const QObjectList * c = children();
-	QObjectListIterator it( *c );
-	QObject * o;
-
-	while( (o=it.current()) != 0 ) {
-	    ++it;
+    QObjectList c = children();
+    if ( !isVisible() && !c.isEmpty() ) {
+	for (int i = 0; i < c.size(); ++i) {
+	    QObject * o = c.at(i);
 	    if ( o->isWidgetType() ) {
 		if ( !topWidget && o != invisible )
-		    topWidget = (QWidget*)o;
+		    topWidget = static_cast<QWidget*>(o);
 		if ( o == topWidget )
-		    ((QWidget *)o)->show();
+		    static_cast<QWidget *>(o)->show();
 		else
-		    ((QWidget *)o)->hide();
+		    static_cast<QWidget *>(o)->hide();
 	    }
 	}
 	setChildGeometries();

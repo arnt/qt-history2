@@ -22,7 +22,6 @@
 #include "qimage.h"
 #include "qapplication.h"
 #include "qstyle.h"
-#include "qobjectlist.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -957,20 +956,18 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
     }
 #ifndef QT_NO_ACCEL
     if ( !( e->state() & AltButton ) ) {
-	QObjectList *list = queryList( "QPushButton" );
-	QObjectListIterator it( *list );
-	QPushButton *pb;
-	while ( (pb = (QPushButton*)it.current()) ) {
-	    int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);
-	    int acc = pb->accel() & ~(MODIFIER_MASK|UNICODE_ACCEL);
-	    if ( key && acc && acc == key ) {
-		delete list;
-		emit pb->animateClick();
-		return;
+	QObjectList list = queryList( "QPushButton" );
+	int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+	if (key) {
+	    for (int i = 0; i < list.size(); ++i) {
+		QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+		int acc = pb->accel() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+		if ( acc == key ) {
+		    emit pb->animateClick();
+		    return;
+		}
 	    }
-	    ++it;
 	}
-	delete list;
     }
 #endif
     QDialog::keyPressEvent( e );

@@ -22,7 +22,6 @@
 #include "qcursor.h"
 #include "qlayout.h"
 #include "qframe.h"
-#include "qobjectlist.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qtoolbutton.h"
@@ -385,15 +384,12 @@ void QToolBar::setOrientation( Orientation o )
 {
     QDockWindow::setOrientation( o );
     d->extension->setOrientation( o );
-    QObjectList *childs = queryList( "QToolBarSeparator" );
-    if ( childs ) {
-        QObject *ob = 0;
-	for ( ob = childs->first(); ob; ob = childs->next() ) {
-	    QToolBarSeparator* w = (QToolBarSeparator*)ob;
+    QObjectList childs = children();
+    for (int i = 0; i < childs.size(); ++i) {
+	QToolBarSeparator* w = qt_cast<QToolBarSeparator*>(childs.at(i));
+	if (w)
 	    w->setOrientation( o );
-        }
     }
-    delete childs;
 }
 
 /*!
@@ -409,18 +405,14 @@ void QToolBar::addSeparator()
     \reimp
 */
 
-void QToolBar::styleChange( QStyle& )
+void QToolBar::styleChange( QStyle &s )
 {
-    QObjectList *childs = queryList( "QWidget" );
-    if ( childs ) {
-        QObject *ob = 0;
-	for ( ob = childs->first(); ob; ob = childs->next() ) {
-	    QWidget *w = (QWidget*)ob;
-            if ( qt_cast<QToolButton*>(w) || qt_cast<QToolBarSeparator*>(w) )
-                w->setStyle( &style() );
-        }
+    QObjectList childs = children();
+    for (int i = 0; i < childs.size(); ++i) {
+	QObject *o = childs.at(i);
+	if ( qt_cast<QToolButton*>(o) || qt_cast<QToolBarSeparator*>(o) )
+	    static_cast<QWidget *>(o)->setStyle(&s);
     }
-    delete childs;
 }
 
 /*!
@@ -547,14 +539,10 @@ QString QToolBar::label() const
 
 void QToolBar::clear()
 {
-    if ( !children() )
-	return;
-    QObjectListIterator it( *children() );
-    QObject * obj;
-    while( (obj=it.current()) != 0 ) {
-	++it;
-	if ( obj->isWidgetType() &&
-	     qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 )
+    QObjectList childs = children();
+    for (int i = 0; i < childs.size(); ++i) {
+	QObject *obj = childs.at(i);
+	if ( obj->isWidgetType() && qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 )
 	    delete obj;
     }
 }
@@ -586,19 +574,18 @@ void QToolBar::createPopup()
     d->extensionPopup->clear();
     d->extensionSubMenues.clear();
 
-    QObjectList *childlist = queryList( "QWidget", 0, FALSE, TRUE );
-    QObjectListIterator it( *childlist );
+    QObjectList childlist = queryList( "QWidget", 0, FALSE, TRUE );
     bool hide = FALSE;
     bool doHide = FALSE;
     int id;
-    while ( it.current() ) {
-        int j = 2;
-        if ( !it.current()->isWidgetType() || it.current() == d->extension->button() ||
-	    qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
-	    ++it;
+    for (int i = 0; i < childlist.size(); ++i) {
+	QObject *obj = childlist.at(i);
+        if ( !obj->isWidgetType() || obj == d->extension->button() ||
+	    qstrcmp( "qt_dockwidget_internal", obj->name() ) == 0 ) {
 	    continue;
 	}
-	QWidget *w = (QWidget*)it.current();
+        int j = 2;
+	QWidget *w = (QWidget*)obj;
 	if ( qt_cast<QComboBox*>(w) )
 	    j = 1;
 	hide = FALSE;
@@ -678,9 +665,7 @@ void QToolBar::createPopup()
 #endif //QT_NO_COMBOBOX
 	    }
 	}
-        ++it;
     }
-    delete childlist;
 }
 
 

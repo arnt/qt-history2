@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_TABDIALOG
 
-#include "qobjectlist.h"
 #include "qtabbar.h"
 #include "qtabwidget.h"
 #include "qpushbutton.h"
@@ -530,22 +529,16 @@ bool QTabDialog::isTabEnabled( const char* name ) const
 {
     if ( !name )
 	return FALSE;
-    QObjectList * l
-	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w ) {
-		bool enabled = d->tw->isTabEnabled( w );
-		delete l;
-		return enabled;
-	    }
+    QObjectList l = this->queryList( "QWidget", name, FALSE, TRUE );
+    if ( !l.isEmpty() ) {
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject *o = l.at(i);
+	    if (!o->isWidgetType())
+		continue;
+	    QWidget *w = static_cast<QWidget *>(o);
+	    return d->tw->isTabEnabled( w );
 	}
     }
-    delete l;
     return FALSE;
 }
 
@@ -573,18 +566,14 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 {
     if ( !name )
 	return;
-    QObjectList * l
-	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    if ( l && l->first() ) {
-	QObjectListIterator it(*l);
-	QObject *o;
-	while( (o = it.current()) ) {
-	    ++it;
+    QObjectList l = this->queryList( "QWidget", name, FALSE, TRUE );
+    if ( !l.isEmpty() ) {
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject *o = l.at(i);
 	    if( o->isWidgetType() )
-		d->tw->setTabEnabled( (QWidget*)o, enable );
+		d->tw->setTabEnabled( static_cast<QWidget*>(o), enable );
 	}
     }
-    delete l;
 }
 
 

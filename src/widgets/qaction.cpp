@@ -25,7 +25,6 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
-#include "qobjectlist.h"
 
 
 /*!
@@ -1031,12 +1030,11 @@ void QAction::showStatusText( const QString& text )
 	par = par->parent();
     }
     if ( !bar && lpar ) {
-	QObjectList *l = lpar->queryList( "QStatusBar" );
-	if ( !l )
+	QObjectList l = lpar->queryList( "QStatusBar" );
+	if ( l.isEmpty() )
 	    return;
 	// #### hopefully the last one is the one of the mainwindow...
-	bar = (QStatusBar*)l->last();
-	delete l;
+	bar = static_cast<QStatusBar*>(l.at(l.size()-1));
     }
     if ( bar ) {
 	if ( text.isEmpty() )

@@ -44,7 +44,6 @@
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
-#include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qbitarray.h"

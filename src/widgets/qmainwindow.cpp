@@ -17,7 +17,6 @@
 
 #include "qtimer.h"
 #include "qlayout.h"
-#include "qobjectlist.h"
 #include "qintdict.h"
 #include "qapplication.h"
 #include "qptrlist.h"
@@ -296,18 +295,15 @@ public:
 
 protected:
     void paintEvent( QPaintEvent *e ) {
-	if ( !children() || children()->isEmpty() )
+	QObjectList childs = children();
+	if ( childs.isEmpty() )
 	    return;
 	QPainter p( this );
 	p.setClipRegion( e->rect() );
 	p.fillRect( e->rect(), colorGroup().brush( QColorGroup::Background ) );
 	int x = 0;
-	int i = -1;
-	QObjectListIterator it( *children() );
-	QObject *o;
-	while ( ( o = it.current() ) ) {
-	    ++it;
-	    ++i;
+	for (int i = 0; i < childs.size(); ++i) {
+	    QObject *o = childs.at(i);
 	    QDockWindow *dw = qt_cast<QDockWindow*>(o);
 	    if ( !dw || !dw->isVisible() )
 		continue;
@@ -325,7 +321,8 @@ protected:
 
     void mousePressEvent( QMouseEvent *e ) {
 	pressed = TRUE;
-	if ( !children() || children()->isEmpty() )
+	QObjectList childs = children();
+	if ( childs.isEmpty() )
 	    return;
 	mouseMoveEvent( e );
 	pressedHandle = -1;
@@ -338,18 +335,15 @@ protected:
     }
 
     void mouseMoveEvent( QMouseEvent *e ) {
-	if ( !children() || children()->isEmpty() )
+	QObjectList childs = children();
+	if ( childs.isEmpty() )
 	    return;
 	if ( !pressed )
 	    return;
 	int x = 0;
-	int i = -1;
 	if ( e->y() >= 0 && e->y() <= height() ) {
-	    QObjectListIterator it( *children() );
-	    QObject *o;
-	    while ( ( o = it.current() ) ) {
-		++it;
-		++i;
+	    for (int i = 0; i < childs.size(); ++i) {
+		QObject *o = childs.at(i);
 		QDockWindow *dw = qt_cast<QDockWindow*>(o);
 		if ( !dw || !dw->isVisible() )
 		    continue;
@@ -373,11 +367,12 @@ protected:
 	pressed = FALSE;
 	if ( pressedHandle == -1 )
 	    return;
-	if ( !children() || children()->isEmpty() )
+	QObjectList childs = children();
+	if ( childs.isEmpty() )
 	    return;
 	if ( e->button() == LeftButton ) {
 	    if ( e->y() >= 0 && e->y() <= height() ) {
-		QObject *o = ( (QObjectList*)children() )->at( pressedHandle );
+		QObject *o = childs.at( pressedHandle );
 		QDockWindow *dw = qt_cast<QDockWindow*>(o);
 		if ( dw ) {
 		    dw->show();
@@ -400,25 +395,22 @@ protected:
 
     void updateState() {
 	bool visible = TRUE;
-	if ( !children() || children()->isEmpty() ) {
-	    visible = FALSE;
-	} else {
-	    QObjectListIterator it( *children() );
-	    QObject *o;
-	    while ( ( o = it.current() ) ) {
-		++it;
-		QDockWindow *dw = qt_cast<QDockWindow*>(o);
-		if ( !dw )
-		    continue;
-		if ( dw->isHidden() ) {
-		    visible = FALSE;
-		    continue;
-		}
-		if ( !dw->isVisible() )
-		    continue;
-		visible = TRUE;
-		break;
+	QObjectList childs = children();
+	if ( childs.isEmpty() )
+	    return;
+	for (int i = 0; i < childs.size(); ++i) {
+	    QObject *o = childs.at(i);
+	    QDockWindow *dw = qt_cast<QDockWindow*>(o);
+	    if ( !dw )
+		continue;
+	    if ( dw->isHidden() ) {
+		visible = FALSE;
+		continue;
 	    }
+	    if ( !dw->isVisible() )
+		continue;
+	    visible = TRUE;
+	    break;
 	}
 
 	if ( visible )
@@ -455,13 +447,12 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 	return;
     QHideDock *dock = (QHideDock*)parentWidget();
 
-    if ( !dock->children() || dock->children()->isEmpty() )
+    QObjectList dchilds = dock->children();
+    if ( dchilds.isEmpty() )
 	return;
-    QObjectListIterator it( *dock->children() );
-    QObject *o;
     int x = 0;
-    while ( ( o = it.current() ) ) {
-	++it;
+    for (int i = 0; i < dchilds.size(); ++i) {
+	QObject *o = dchilds.at(i);
 	QDockWindow *dw = qt_cast<QDockWindow*>(o);
 	if ( !dw || !dw->isVisible() )
 	    continue;
@@ -925,16 +916,14 @@ QMenuBar * QMainWindow::menuBar() const
     if ( d->mb )
 	return d->mb;
 
-    QObjectList * l
-	= ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
+    QObjectList l = queryList( "QMenuBar", 0, FALSE, FALSE );
     QMenuBar * b;
-    if ( l && l->count() ) {
-	b = (QMenuBar *)l->first();
+    if ( l.size() ) {
+	b = static_cast<QMenuBar *>(l.at(0));
     } else {
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
 	b->show();
     }
-    delete l;
     d->mb = b;
     d->mb->installEventFilter( this );
     ((QMainWindow *)this)->triggerLayout();
@@ -988,16 +977,14 @@ QStatusBar * QMainWindow::statusBar() const
     if ( d->sb )
 	return d->sb;
 
-    QObjectList * l
-	= ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
+    QObjectList l = queryList( "QStatusBar", 0, FALSE, FALSE );
     QStatusBar * s;
-    if ( l && l->count() ) {
-	s = (QStatusBar *)l->first();
+    if ( l.size() ) {
+	s = (QStatusBar *)l.at(0);
     } else {
 	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
 	s->show();
     }
-    delete l;
     ((QMainWindow *)this)->setStatusBar( s );
     ((QMainWindow *)this)->triggerLayout( TRUE );
     return s;
@@ -1398,20 +1385,16 @@ void QMainWindow::setUpLayout()
 #ifndef QT_NO_MENUBAR
     if ( !d->mb ) {
 	// slightly evil hack here.  reconsider this
-	QObjectList * l
-	    = ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
-	if ( l && l->count() )
+	QObjectList l = queryList( "QMenuBar", 0, FALSE, FALSE );
+	if ( l.size() )
 	    d->mb = menuBar();
-	delete l;
     }
 #endif
     if ( !d->sb ) {
 	// as above.
-	QObjectList * l
-	    = ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
-	if ( l && l->count() )
+	QObjectList l = queryList( "QStatusBar", 0, FALSE, FALSE );
+	if ( l.size() )
 	    d->sb = statusBar();
-	delete l;
     }
 
     QLayout::ResizeMode tll_rm = minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize;
@@ -1469,15 +1452,12 @@ void QMainWindow::show()
 void QMainWindow::hide()
 {
     if ( isVisible() ) {
-	QObjectList *list = queryList( "QDockWindow" );
-	QObjectListIterator it( *list );
-	while ( it.current() ) {
-	    QDockWindow *dw = (QDockWindow*)it.current();
-	    ++it;
-	    if ( dw->isTopLevel() && dw->isVisible() )
+	QObjectList list = queryList( "QDockWindow" );
+	for (int i = 0; i < list.size(); ++i) {
+	    QDockWindow *dw = qt_cast<QDockWindow*>(list.at(i));
+	    if ( dw && dw->isTopLevel() && dw->isVisible() )
 		dw->hide();
 	}
-	delete list;
     }
 
     QWidget::hide();
@@ -1670,14 +1650,9 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
     d->ubp = enable;
     emit pixmapSizeChanged( enable );
 
-    QObjectList *l = queryList( "QLayout" );
-    if ( !l || !l->first() ) {
-	delete l;
-	return;
-    }
-    for ( QLayout *lay = (QLayout*)l->first(); lay; lay = (QLayout*)l->next() )
-	    lay->activate();
-    delete l;
+    QObjectList l = queryList( "QLayout" );
+    for (int i = 0; i < l.size(); ++i)
+	    static_cast<QLayout *>(l.at(i))->activate();
 }
 
 /*!
@@ -1709,14 +1684,9 @@ void QMainWindow::setUsesTextLabel( bool enable )
     d->utl = enable;
     emit usesTextLabelChanged( enable );
 
-    QObjectList *l = queryList( "QLayout" );
-    if ( !l || !l->first() ) {
-	delete l;
-	return;
-    }
-    for ( QLayout *lay = (QLayout*)l->first(); lay; lay = (QLayout*)l->next() )
-	    lay->activate();
-    delete l;
+    QObjectList l = queryList( "QLayout" );
+    for (int i = 0; i < l.size(); ++i)
+	    static_cast<QLayout *>(l.at(i))->activate();
 }
 
 
@@ -1915,16 +1885,11 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     }
     return lst;
     case DockMinimized: {
-	if ( d->hideDock->children() ) {
-	    QObjectListIterator it( *d->hideDock->children() );
-	    QObject *o;
-	    while ( ( o = it.current() ) ) {
-		++it;
-		QDockWindow *dw = qt_cast<QDockWindow*>(o);
-		if ( !dw )
-		    continue;
+	QObjectList childs = d->hideDock->children();
+	for (int i = 0; i < childs.size(); ++i) {
+	    QDockWindow *dw = qt_cast<QDockWindow*>(childs.at(i));
+	    if ( dw )
 		lst.append( dw );
-	    }
 	}
     }
     return lst;
@@ -1950,12 +1915,9 @@ QPtrList<QDockWindow> QMainWindow::dockWindows() const
 void QMainWindow::setDockWindowsMovable( bool enable )
 {
     d->movable = enable;
-    QObjectList *l = queryList( "QDockWindow" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() )
-	    ( (QDockWindow*)o )->setMovingEnabled( enable );
-    }
-    delete l;
+    QObjectList l = queryList( "QDockWindow" );
+    for (int i = 0; i < l.size(); ++i)
+	static_cast<QDockWindow*>(l.at(i))->setMovingEnabled( enable );
 }
 
 /*!
@@ -1987,12 +1949,9 @@ bool QMainWindow::dockWindowsMovable() const
 void QMainWindow::setOpaqueMoving( bool b )
 {
     d->opaque = b;
-    QObjectList *l = queryList( "QDockWindow" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() )
-	    ( (QDockWindow*)o )->setOpaqueMoving( b );
-    }
-    delete l;
+    QObjectList l = queryList( "QDockWindow" );
+    for (int i = 0; i < l.size(); ++i)
+	static_cast<QDockWindow*>(l.at(i))->setOpaqueMoving( b );
 }
 
 /*!
@@ -2109,12 +2068,10 @@ void QMainWindow::setDockMenuEnabled( bool b )
 
 QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
 {
-    QObjectList *l = queryList( "QDockWindow" );
+    QObjectList l = queryList( "QDockWindow" );
 
-    if ( !l || l->isEmpty() )
+    if (l.isEmpty())
 	return 0;
-
-    delete l;
 
     QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this, "qt_customize_menu" );
     menu->setCheckable( TRUE );
@@ -2145,15 +2102,13 @@ void QMainWindow::menuAboutToShow()
 
     DockWindows dockWindows = *it;
 
-    QObjectList *l = queryList( "QDockWindow" );
+    QObjectList l = queryList( "QDockWindow" );
 
     bool empty = TRUE;
-    if ( l && !l->isEmpty() ) {
-
-	QObject *o = 0;
+    if (!l.isEmpty()) {
 	if ( dockWindows == AllDockWindows || dockWindows == NoToolBars ) {
-	    for ( o = l->first(); o; o = l->next() ) {
-		QDockWindow *dw = (QDockWindow*)o;
+	    for (int i = 0; i < l.size(); ++i) {
+		QDockWindow *dw = (QDockWindow*)l.at(i);
 		if ( !appropriate( dw ) || qt_cast<QToolBar*>(dw) || !dockMainWindow( dw ) )
 		    continue;
 		QString label = dw->caption();
@@ -2171,8 +2126,8 @@ void QMainWindow::menuAboutToShow()
 
 #ifndef QT_NO_TOOLBAR
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
-	    for ( o = l->first(); o; o = l->next() ) {
-		QToolBar *tb = qt_cast<QToolBar*>(o);
+	    for (int i = 0; i < l.size(); ++i) {
+		QToolBar *tb = qt_cast<QToolBar*>(l.at(i));
 		if ( !tb || !appropriate(tb) || !dockMainWindow(tb) )
 		    continue;
 		QString label = tb->label();
@@ -2186,8 +2141,6 @@ void QMainWindow::menuAboutToShow()
 #endif
 
     }
-
-    delete l;
 
     if ( !empty )
 	menu->insertSeparator();

@@ -22,7 +22,6 @@
 #include "qdict.h"
 #include "qguardedptr.h"
 #include "qdragobject.h"
-#include "qobjectlist.h"
 #include "qcursor.h"
 
 #include "qt_x11_p.h"
@@ -433,12 +432,11 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 	if ( ((QExtraWidget*)w)->extraData() &&
 	     ((QExtraWidget*)w)->extraData()->xDndProxy != 0 )
 	    break; // stop searching for widgets under the mouse cursor if found widget is a proxy.
-	if ( w->children() ) {
-	    QObjectListIterator it( *w->children() );
-	    it.toLast();
-	    QObject * o;
-	    while( (o=it.current()) ) {
-		--it;
+	QObjectList children = w->children();
+	if ( !children.isEmpty() ) {
+	    for( int i = children.size(); i > 0; ) {
+		--i;
+		QObject * o = children[i];
 		if ( o->isWidgetType() &&
 		     ((QWidget*)o)->isVisible() &&
 		     ((QWidget*)o)->geometry().contains( p ) &&

@@ -56,7 +56,6 @@
 #include "qprogressbar.h"
 #include "qfile.h"
 #include "qcstring.h"
-#include "qobjectlist.h"
 #include "qcheckbox.h"
 #include "qsplitter.h"
 #include "qmap.h"
@@ -2505,10 +2504,9 @@ void QFileDialog::init()
 	     this, SLOT(setDir(const QString&)) );
 
     d->paths->installEventFilter( this );
-    QObjectList *ol = d->paths->queryList( "QLineEdit" );
-    if ( ol && ol->first() )
-	( (QLineEdit*)ol->first() )->installEventFilter( this );
-    delete ol;
+    QObjectList ol = d->paths->queryList( "QLineEdit" );
+    if (ol.size())
+	ol.at(0)->installEventFilter( this );
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );

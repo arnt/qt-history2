@@ -12,15 +12,11 @@
 **
 ****************************************************************************/
 
+#include "qobject_p.h"
 #include "qvariant.h"
 #include "qapplication.h"
-#include "qobject.h"
-#include "qobjectlist.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
-#include "qptrvector.h"
-#include "qobjectlist.h"
-#include "qguardedptr.h"
 
 #ifdef QT_THREAD_SUPPORT
 #include <qmutex.h>
@@ -30,61 +26,9 @@
 #include <ctype.h>
 #include <limits.h>
 
+
 #define GUARDED_SIGNAL INT_MIN
 
-struct QObjectPrivate
-{
-    QObjectPrivate()
-	:connections(0),
-	 senders(0)
-	{
-#ifndef QT_NO_USERDATA
-	    userData.setAutoDelete(true);
-#endif
-	}
-#ifndef QT_NO_USERDATA
-    QPtrVector<QObjectUserData> userData; // #### use new container
-#endif
-
-    // signal connections
-    struct Connections {
-	int count;
-	struct Connection{
-	    int signal;
-	    union {
-		QObject *receiver;
-		QObject **guarded;
-	    };
-	    int member;
-	} connections[1];
-    };
-    Connections *connections;
-    void addConnection(int signal, QObject *receiver, int member);
-    Connections::Connection *findConnection(int signal, int &i);
-    void removeReceiver(QObject *receiver);
-
-    // slot connections
-    struct Senders
-    {
-	int ref;
-	QObject *current;
-	int count;
-	struct Sender {
-	    int ref;
-	    QObject * sender;
-	};
-	Sender *senders;
-	Sender stack[1];
-    };
-    Senders *senders;
-    void refSender(QObject *sender);
-    void derefSender(QObject *sender);
-    void removeSender(QObject *sender);
-
-    static QObject *setCurrentSender(Senders *senders, QObject *sender);
-    static void resetCurrentSender(Senders *senders, QObject *sender);
-    static void derefSenders(Senders *senders);
-};
 
 /*!\internal
  */
@@ -254,62 +198,15 @@ bool  qKillTimer( QObject *obj );
 
 void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 {
-    const QObjectList *list = parent->children();
-    if ( list ) {
-	QObjectListIterator it( *list );
-	QObject *obj;
-	while ( (obj = it.current()) ) {
-	    ++it;
-	    if ( qstrcmp(name,obj->name()) == 0 &&
-		 obj->inherits(type) )
+    QObjectList list = parent->children();
+    if ( !list.isEmpty() ) {
+	for (int i = 0; i < list.size(); ++i) {
+	    QObject *obj = list.at(i);
+	    if ( qstrcmp(name,obj->name()) == 0 && obj->inherits(type) )
 		return obj;
 	}
     }
     return 0;
-}
-
-static QObjectList* object_trees = 0;
-
-#ifdef QT_THREAD_SUPPORT
-static QMutex *obj_trees_mutex = 0;
-#endif
-
-static void cleanup_object_trees()
-{
-    delete object_trees;
-    object_trees = 0;
-#ifdef QT_THREAD_SUPPORT
-    delete obj_trees_mutex;
-    obj_trees_mutex = 0;
-#endif
-}
-
-static void ensure_object_trees()
-{
-    object_trees = new QObjectList;
-    qAddPostRoutine( cleanup_object_trees );
-}
-
-static void insert_tree( QObject* obj )
-{
-#ifdef QT_THREAD_SUPPORT
-    if ( !obj_trees_mutex )
-	obj_trees_mutex = new QMutex();
-    QMutexLocker locker( obj_trees_mutex );
-#endif
-    if ( !object_trees )
-	ensure_object_trees();
-    object_trees->insert(0, obj );
-}
-
-static void remove_tree( QObject* obj )
-{
-    if ( object_trees ) {
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( obj_trees_mutex );
-#endif
-	object_trees->removeRef( obj );
-    }
 }
 
 
@@ -345,20 +242,13 @@ QObject::QObject( QObject *parent, const char *name )
     pendTimer( FALSE ),				// no timers yet
     blockSig( FALSE ),      			// not blocking signals
     wasDeleted( FALSE ),       			// double-delete catcher
-    isTree( FALSE ), 				// no tree yet
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by insertChild()
-    childObjects( 0 ), 				// no children yet
-    eventFilters( 0 ), 				// no filters installed
     postedEvents( 0 ), 				// no events posted
     d( new QObjectPrivate )
 {
-    if ( parent ) {				// add object to parent
+    if ( parent )				// add object to parent
 	parent->insertChild( this );
-    } else {
-	insert_tree( this );
-	isTree = TRUE;
-    }
 }
 
 
@@ -409,10 +299,6 @@ QObject::~QObject()
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     QApplication::removePostedEvents( this );
-    if ( isTree ) {
-	remove_tree( this );		// remove from global root list
-	isTree = FALSE;
-    }
     if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
 
@@ -439,20 +325,11 @@ QObject::~QObject()
 	d->connections = 0;
     }
 
-    if ( eventFilters ) {
-	delete eventFilters;
-	eventFilters = 0;
-    }
-    if ( childObjects ) {			// delete children objects
-	QObject *obj;
-	QObjectListIterator it(*childObjects);
-	while ( (obj=it.current()) ) {
-	    ++it;
-	    obj->parentObj = 0;
-	    childObjects->removeRef( obj );
-	    delete obj;
-	}
-	delete childObjects;
+    d->eventFilters.clear();
+
+    if ( !d->children.isEmpty() ) {			// delete children objects
+	d->children.setAutoDelete(TRUE);
+	d->children.clear();
     }
 
     delete d;
@@ -601,26 +478,23 @@ const char * QObject::name( const char * defaultName ) const
     them, use queryList().
 */
 QObject* QObject::child( const char *objName, const char *inheritsClass,
-			 bool recursiveSearch )
+			 bool recursiveSearch ) const
 {
-    const QObjectList *list = children();
-    if ( !list )
+    if ( d->children.isEmpty() )
 	return 0;
 
     bool onlyWidgets = ( inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
-    QObjectListIterator it( *list );
-    QObject *obj;
-    while ( ( obj = it.current() ) ) {
-	++it;
+    for (int i = 0; i < d->children.size(); ++i) {
+	QObject *obj = d->children.at(i);
 	if ( onlyWidgets ) {
 	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
-		break;
+		return obj;
 	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
-	    break;
+	    return obj;
 	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
-	    break;
+	    return obj;
     }
-    return obj;
+    return 0;
 }
 
 /*!
@@ -661,10 +535,6 @@ bool QObject::event( QEvent *e )
     if ( e == 0 )
 	qWarning( "QObject::event: Null events are not permitted" );
 #endif
-    if ( eventFilters ) {			// try filters
-	if ( activate_filters(e) )		// stopped by a filter
-	    return TRUE;
-    }
 
     switch ( e->type() ) {
     case QEvent::Timer:
@@ -814,30 +684,6 @@ bool QObject::eventFilter( QObject * /* watched */, QEvent * /* e */ )
     return FALSE;
 }
 
-
-/*!
-  \internal
-  Activates all event filters for this object.
-  This function is normally called from QObject::event() or QWidget::event().
-*/
-
-bool QObject::activate_filters( QEvent *e )
-{
-    if ( !eventFilters )			// no event filter
-	return FALSE;
-    QObjectListIterator it( *eventFilters );
-    register QObject *obj = it.current();
-    while ( obj ) {				// send to all filters
-	++it;					//   until one returns TRUE
-	if ( obj->eventFilter(this,e) ) {
-	    return TRUE;
-	}
-	obj = it.current();
-    }
-    return FALSE;				// don't do anything with it
-}
-
-
 /*!
     \fn bool QObject::signalsBlocked() const
 
@@ -946,34 +792,16 @@ void QObject::killTimer( int id )
     qKillTimer( id );
 }
 
-/*!
-    Kills all timers that this object has started.
-
-    \warning Using this function can cause hard-to-find bugs: it kills
-    timers started by sub- and superclasses as well as those started
-    by you, which is often not what you want. We recommend using a
-    QTimer or perhaps killTimer().
-
-    \sa timerEvent(), startTimer(), killTimer()
-*/
-
-void QObject::killTimers()
-{
-    qKillTimer( this );
-}
-
-static void objSearch( QObjectList *result,
-		       QObjectList *list,
+static void objSearch( QObjectList &result,
+		       const QObjectList &list,
 		       const char  *inheritsClass,
 		       bool onlyWidgets,
 		       const char  *objName,
 		       QRegExp	   *rx,
 		       bool	    recurse )
 {
-    if ( !list || list->isEmpty() )		// nothing to search
-	return;
-    QObject *obj = list->first();
-    while ( obj ) {
+    for (int i = 0; i < list.size(); ++i) {
+	QObject *obj = list.at(i);
 	bool ok = TRUE;
 	if ( onlyWidgets )
 	    ok = obj->isWidgetType();
@@ -988,11 +816,13 @@ static void objSearch( QObjectList *result,
 #endif
 	}
 	if ( ok )				// match!
-	    result->append( obj );
-	if ( recurse && obj->children() )
-	    objSearch( result, (QObjectList *)obj->children(), inheritsClass,
-		       onlyWidgets, objName, rx, recurse );
-	obj = list->next();
+	    result.append( obj );
+	if ( recurse ) {
+	    QObjectList clist = obj->children();
+	    if (!clist.isEmpty() )
+		objSearch( result, clist, inheritsClass,
+			   onlyWidgets, objName, rx, recurse );
+	}
     }
 }
 
@@ -1005,8 +835,6 @@ static void objSearch( QObjectList *result,
 */
 
 /*!
-    \fn const QObjectList *QObject::children() const
-
     Returns a list of child objects, or 0 if this object has no
     children.
 
@@ -1026,25 +854,11 @@ static void objSearch( QObjectList *result,
 
     \sa child(), queryList(), parent(), insertChild(), removeChild()
 */
-
-
-/*!
-    Returns a pointer to the list of all object trees (their root
-    objects), or 0 if there are no objects.
-
-    The QObjectList class is defined in the \c qobjectlist.h header
-    file.
-
-    The most recent root object created is the \link QPtrList::first()
-    first\endlink object in the list and the first root object added
-    is the \link QPtrList::last() last\endlink object in the list.
-
-    \sa children(), parent(), insertChild(), removeChild()
-*/
-const QObjectList *QObject::objectTrees()
+QObjectList QObject::children() const
 {
-    return object_trees;
+    return d->children;
 }
+
 
 
 /*!
@@ -1097,24 +911,21 @@ const QObjectList *QObject::objectTrees()
     \sa child() children(), parent(), inherits(), name(), QRegExp
 */
 
-QObjectList *QObject::queryList( const char *inheritsClass,
-				 const char *objName,
-				 bool regexpMatch,
-				 bool recursiveSearch ) const
+QObjectList QObject::queryList( const char *inheritsClass,
+				const char *objName,
+				bool regexpMatch,
+				bool recursiveSearch ) const
 {
-    QObjectList *list = new QObjectList;
-    Q_CHECK_PTR( list );
+    QObjectList list;
     bool onlyWidgets = ( inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0 );
 #ifndef QT_NO_REGEXP
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx(QString::fromLatin1(objName));
-	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
-		   0, &rx, recursiveSearch );
+	objSearch( list, d->children, inheritsClass, onlyWidgets, 0, &rx, recursiveSearch );
     } else
 #endif
-	{
-	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
-		   objName, 0, recursiveSearch );
+    {
+	objSearch( list, d->children, inheritsClass, onlyWidgets, objName, 0, recursiveSearch );
     }
     return list;
 }
@@ -1133,10 +944,6 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 
 void QObject::insertChild( QObject *obj )
 {
-    if ( obj->isTree ) {
-	remove_tree( obj );
-	obj->isTree = FALSE;
-    }
     if ( obj->parentObj && obj->parentObj != this ) {
 #if defined(QT_CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
@@ -1146,10 +953,7 @@ void QObject::insertChild( QObject *obj )
 	obj->parentObj->removeChild( obj );
     }
 
-    if ( !childObjects ) {
-	childObjects = new QObjectList;
-	Q_CHECK_PTR( childObjects );
-    } else if ( obj->parentObj == this ) {
+    if ( obj->parentObj == this ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QObject::insertChild: Object %s::%s already in list",
 		 obj->className(), obj->name( "unnamed" ) );
@@ -1157,7 +961,7 @@ void QObject::insertChild( QObject *obj )
 	return;
     }
     obj->parentObj = this;
-    childObjects->append( obj );
+    d->children.append( obj );
 
     QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );
     QApplication::postEvent( this, e );
@@ -1175,16 +979,8 @@ void QObject::insertChild( QObject *obj )
 
 void QObject::removeChild( QObject *obj )
 {
-    if ( childObjects && childObjects->removeRef(obj) ) {
+    if (d->children.remove(obj)) {
 	obj->parentObj = 0;
-	if ( !obj->wasDeleted ) {
-	    insert_tree( obj );			// it's a root object now
-	    obj->isTree = TRUE;
-	}
-	if ( childObjects->isEmpty() ) {
-	    delete childObjects;		// last child removed
-	    childObjects = 0;			// reset children list
-	}
 
 	// remove events must be sent, not posted!!!
 	QChildEvent ce( QEvent::ChildRemoved, obj );
@@ -1257,20 +1053,13 @@ void QObject::removeChild( QObject *obj )
 
 void QObject::installEventFilter( const QObject *obj )
 {
-    if ( !obj )
+    if (!obj)
 	return;
-    if ( eventFilters ) {
-	int c = eventFilters->findRef( obj );
-	if ( c >= 0 )
-	    eventFilters->take( c );
-	disconnect( obj, SIGNAL(destroyed(QObject*)),
-		    this, SLOT(cleanupEventFilter(QObject*)) );
-    } else {
-	eventFilters = new QObjectList;
-	Q_CHECK_PTR( eventFilters );
-    }
-    eventFilters->insert( 0, obj );
-    connect( obj, SIGNAL(destroyed(QObject*)), this, SLOT(cleanupEventFilter(QObject*)) );
+    QObject *o = const_cast<QObject *>(obj);
+    bool found = d->eventFilters.remove(o);
+    d->eventFilters.prepend(o);
+    if (!found)
+	connect( obj, SIGNAL(destroyed(QObject*)), this, SLOT(cleanupEventFilter(QObject*)) );
 }
 
 /*!
@@ -1288,14 +1077,10 @@ void QObject::installEventFilter( const QObject *obj )
 
 void QObject::removeEventFilter( const QObject *obj )
 {
-    if ( eventFilters && eventFilters->removeRef(obj) ) {
-	if ( eventFilters->isEmpty() ) {	// last event filter removed
-	    delete eventFilters;
-	    eventFilters = 0;			// reset event filter list
-	}
+    QObject *o = const_cast<QObject *>(obj);
+    if (d->eventFilters.remove(o))
 	disconnect( obj,  SIGNAL(destroyed(QObject*)),
 		    this, SLOT(cleanupEventFilter(QObject*)) );
-    }
 }
 
 
@@ -2215,13 +2000,10 @@ static void dumpRecursive( int level, QObject *object )
 	}
 	qDebug( "%s%s::%s %s", (const char*)buf, object->className(), name,
 	    flags.latin1() );
-	if ( object->children() ) {
-	    QObjectListIterator it(*object->children());
-	    QObject * c;
-	    while ( (c=it.current()) != 0 ) {
-		++it;
-		dumpRecursive( level+1, c );
-	    }
+	QObjectList children = object->children();
+	if ( !children.isEmpty() ) {
+	    for (int i = 0; i < children.size(); ++i)
+		dumpRecursive( level+1, children.at(i) );
 	}
     }
 #else

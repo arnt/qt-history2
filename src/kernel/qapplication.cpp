@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#include "qobjectlist.h"
 #include "qapplication.h"
+#include "qobject_p.h"
 #include "qeventloop.h"
 #include "qeventloop_p.h"
 #include "qwidget.h"
@@ -2502,11 +2502,17 @@ bool QApplication::event( QEvent *e )
  */
 bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 {
-    if ( eventFilters ) {
-	QObjectListIterator it( *eventFilters );
-	register QObject *obj;
-	while ( (obj=it.current()) != 0 ) {	// send to all filters
-	    ++it;				//   until one returns TRUE
+    // send to all application event filters
+    for (int i = 0; i < d->eventFilters.size(); ++i) {
+	register QObject *obj = d->eventFilters.at(i);
+	if ( obj->eventFilter(receiver,e) )
+	    return TRUE;
+    }
+
+    if (receiver != this) {
+	// send to all event filters on the object
+	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+	    register QObject *obj = receiver->d->eventFilters.at(i);
 	    if ( obj->eventFilter(receiver,e) )
 		return TRUE;
 	}

@@ -14,7 +14,6 @@
 
 #include "qdesktopwidget.h"
 #include "qapplication.h"
-#include "qobjectlist.h"
 #include "qt_x11_p.h"
 
 // defined in qwidget_x11.cpp
@@ -46,8 +45,11 @@ QSingleDesktopWidget::QSingleDesktopWidget()
 
 QSingleDesktopWidget::~QSingleDesktopWidget()
 {
-    while ( children() )
-        removeChild( children()->getFirst() );
+    QObjectList childs = children();
+    for (int i = childs.size(); i > 0 ; ) {
+	--i;
+        removeChild( childs.at(i) );
+    }
 }
 
 

@@ -13,8 +13,8 @@
 ****************************************************************************/
 
 
-#include "qobjectlist.h"
 #include "qwidget.h"
+#include "qwidget_p.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
@@ -885,18 +885,8 @@ QWidget::~QWidget()
 	hide();
 
     // A parent widget must destroy all its children before destroying itself
-    if ( childObjects ) {			// delete children objects
-	QObjectListIterator it(*childObjects);
-	QObject *obj;
-	while ( (obj=it.current()) ) {
-	    ++it;
-	    obj->parentObj = 0;
-	    childObjects->removeRef( obj );
-	    delete obj;
-	}
-	delete childObjects;
-	childObjects = 0;
-    }
+    d->children.setAutoDelete(true);
+    d->children.clear();
 
     QApplication::removePostedEvents( this );
     if ( extra )
@@ -1453,15 +1443,10 @@ void QWidget::setEnabled( bool enable )
 	    clearWState( WState_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( !enable );
-	    if ( children() ) {
-		QObjectListIterator it( *children() );
-		QWidget *w;
-		while( (w = (QWidget *)it.current()) != 0 ) {
-		    ++it;
-		    if ( w->isWidgetType() &&
-			 !w->testWState( WState_ForceDisabled ) )
+	    for (int i = 0; i < d->children.size(); ++i) {
+		QWidget *w = static_cast<QWidget *>(d->children.at(i));
+		if ( w->isWidgetType() && !w->testWState( WState_ForceDisabled ) )
 			w->setEnabled( TRUE );
-		}
 	    }
 	}
     } else {
@@ -1473,15 +1458,11 @@ void QWidget::setEnabled( bool enable )
 	    setWState( WState_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( !enable );
-	    if ( children() ) {
-		QObjectListIterator it( *children() );
-		QWidget *w;
-		while( (w = (QWidget *)it.current()) != 0 ) {
-		    ++it;
-		    if ( w->isWidgetType() && w->isEnabled() ) {
-			w->setEnabled( FALSE );
-			w->clearWState( WState_ForceDisabled );
-		    }
+	    for (int i = 0; i < d->children.size(); ++i) {
+		QWidget *w = static_cast<QWidget *>(d->children.at(i));
+		if ( w->isWidgetType() && w->isEnabled() ) {
+		    w->setEnabled( FALSE );
+		    w->clearWState( WState_ForceDisabled );
 		}
 	    }
 	}
@@ -1800,12 +1781,8 @@ QPoint QWidget::pos() const
 QRect QWidget::childrenRect() const
 {
     QRect r( 0, 0, 0, 0 );
-    if ( !children() )
-	return r;
-    QObjectListIterator it( *children() );
-    QObject *obj;
-    while ( (obj = it.current()) ) {
-	++it;
+    for (int i = 0; i < d->children.size(); ++i) {
+	QObject *obj = d->children.at(i);
 	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
@@ -1824,12 +1801,8 @@ QRect QWidget::childrenRect() const
 QRegion QWidget::childrenRegion() const
 {
     QRegion r;
-    if ( !children() )
-	return r;
-    QObjectListIterator it( *children() );		// iterate over all children
-    QObject *obj;
-    while ( (obj=it.current()) ) {
-	++it;
+    for (int i = 0; i < d->children.size(); ++i) {
+	QObject *obj = d->children.at(i);
 	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
@@ -2653,14 +2626,12 @@ void QWidget::setPalette( const QPalette &palette )
     setBackgroundFromMode();
     QEvent ev( QEvent::PaletteChange );
     QApplication::sendEvent( this, &ev );
-    if ( children() ) {
+    if ( !d->children.isEmpty() ) {
 	QEvent e( QEvent::ParentPaletteChange );
-	QObjectListIterator it( *children() );
-	QWidget *w;
-	while( (w=(QWidget *)it.current()) != 0 ) {
-	    ++it;
-	    if ( w->isWidgetType() )
-		QApplication::sendEvent( w, &e );
+	for (int i = 0; i < d->children.size(); ++i) {
+	    QObject *o = d->children.at(i);
+	    if ( o->isWidgetType() )
+		QApplication::sendEvent( o, &e );
 	}
     }
     paletteChange( old );
@@ -2733,14 +2704,12 @@ void QWidget::setFont( const QFont &font )
     // make sure the font set on this widget is associated with the correct screen
     fnt.x11SetScreen( x11Screen() );
 #endif
-    if ( children() ) {
+    if ( !d->children.isEmpty() ) {
 	QEvent e( QEvent::ParentFontChange );
-	QObjectListIterator it( *children() );
-	QWidget *w;
-	while( (w=(QWidget *)it.current()) != 0 ) {
-	    ++it;
-	    if ( w->isWidgetType() )
-		QApplication::sendEvent( w, &e );
+	for (int i = 0; i < d->children.size(); ++i) {
+	    QObject *o = d->children.at(i);
+	    if ( o->isWidgetType() )
+		QApplication::sendEvent( o, &e );
 	}
     }
     if ( hasFocus() )
@@ -3371,10 +3340,9 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
     // so that second is inserted after that last child, and the
     // focus order within first is (more likely to be) preserved.
     if ( first->focusProxy() ) {
-	QObjectList *l = first->queryList( "QWidget" );
-	if ( l && l->count() )
-	    first = (QWidget*)l->last();
-	delete l;
+	QObjectList l = first->queryList( "QWidget" );
+	if ( l.size() )
+	    first = static_cast<QWidget*>(l.last());
     }
     while ( first->focusProxy() )
 	first = first->focusProxy();
@@ -3484,16 +3452,13 @@ static void qt_update_bg_recursive( QWidget *widget )
     if ( !widget || widget->isHidden() || widget->backgroundOrigin() == QWidget::WidgetOrigin || !widget->backgroundPixmap() )
 	return;
 
-    const QObjectList *lst = widget->children();
+    QObjectList lst = widget->children();
 
-    if ( lst ) {
-	QObjectListIterator it( *lst );
-	QWidget *widget;
-	while ( (widget = (QWidget*)it.current()) ) {
-	    ++it;
-	    if ( widget->isWidgetType() && !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) )
-		    qt_update_bg_recursive( widget );
-	}
+    for (int i = 0; i < lst.size(); ++i) {
+	QWidget *widget = static_cast<QWidget *>(lst.at(i));
+	if (widget->isWidgetType() && !widget->isHidden() && !widget->isTopLevel()
+	    && !widget->testWFlags(Qt::WSubWindow))
+	    qt_update_bg_recursive( widget );
     }
     QApplication::postEvent( widget, new QPaintEvent( widget->clipRegion(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
 }
@@ -3873,55 +3838,43 @@ void QWidget::setHidden( bool hide )
 
 void QWidget::showChildren(bool spontaneous)
 {
-     if (children()) {
-	QObjectListIterator it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while (it) {
-	    object = it.current();
-	    ++it;
-	    if (!object->isWidgetType())
-		continue;
-	    widget = (QWidget*)object;
-	    if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-		continue;
-	    if (spontaneous) {
-		widget->showChildren(true);
-		QShowEvent e;
-		QApplication::sendSpontaneousEvent(widget, &e);
-	    } else {
-		if (widget->testWState(WState_ExplicitShowHide))
-		    widget->internalShow(false);
-		else
-		    widget->show();
-	    }
+    for (int i = 0; i < d->children.size(); ++i) {
+	register QObject *object = d->children.at(i);
+	if (!object->isWidgetType())
+	    continue;
+	QWidget *widget = static_cast<QWidget*>(object);
+	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
+	    continue;
+	if (spontaneous) {
+	    widget->showChildren(true);
+	    QShowEvent e;
+	    QApplication::sendSpontaneousEvent(widget, &e);
+	} else {
+	    if (widget->testWState(WState_ExplicitShowHide))
+		widget->internalShow(false);
+	    else
+		widget->show();
 	}
-     }
+    }
 }
 
 void QWidget::hideChildren(bool spontaneous)
 {
-     if (children()) {
-	QObjectListIterator it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while (it) {
-	    object = it.current();
-	    ++it;
-	    if (object->isWidgetType()) {
-		widget = (QWidget*)object;
-		if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-		    continue;
-		if (!spontaneous)
-		    widget->clearWState(WState_Visible);
-		widget->hideChildren(spontaneous);
-		QHideEvent e;
-		if (spontaneous)
-		    QApplication::sendSpontaneousEvent(widget, &e);
-		else
-		    QApplication::sendEvent(widget, &e);
-	    }
-	}
+    for (int i = 0; i < d->children.size(); ++i) {
+	register QObject *object = d->children.at(i);
+	if (!object->isWidgetType())
+	    continue;
+	QWidget *widget = static_cast<QWidget*>(object);
+	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
+	    continue;
+	if (!spontaneous)
+	    widget->clearWState(WState_Visible);
+	widget->hideChildren(spontaneous);
+	QHideEvent e;
+	if (spontaneous)
+	    QApplication::sendSpontaneousEvent(widget, &e);
+	else
+	    QApplication::sendEvent(widget, &e);
     }
 }
 
@@ -4599,16 +4552,12 @@ bool QWidget::event( QEvent *e )
 	case QEvent::WindowActivate:
 	case QEvent::WindowDeactivate:
 	    windowActivationChange( e->type() != QEvent::WindowActivate );
-	    if ( children() ) {
-		QObjectListIterator it( *children() );
-		QObject *o;
-		while( ( o = it.current() ) != 0 ) {
-		    ++it;
-		    if ( o->isWidgetType() &&
-			 ((QWidget*)o)->isVisible() &&
-			 !((QWidget*)o)->isTopLevel() )
-			QApplication::sendEvent( o, e );
-		}
+	    for (int i = 0; i < d->children.size(); ++i) {
+		QObject *o = d->children.at(i);
+		if (o->isWidgetType()
+		    && static_cast<QWidget*>(o)->isVisible()
+		    && !static_cast<QWidget*>(o)->isTopLevel())
+		    QApplication::sendEvent( o, e );
 	    }
 	    break;
 
@@ -4616,13 +4565,9 @@ bool QWidget::event( QEvent *e )
 	    languageChange();
 	    // fall through
 	case QEvent::LocaleChange:
-	    if ( children() ) {
-		QObjectListIterator it( *children() );
-		QObject *o;
-		while( ( o = it.current() ) != 0 ) {
-		    ++it;
-		    QApplication::sendEvent( o, e );
-		}
+	    for (int i = 0; i < d->children.size(); ++i) {
+		QObject *o = d->children.at(i);
+		QApplication::sendEvent( o, e );
 	    }
 	    update();
 	    break;
@@ -4635,17 +4580,14 @@ bool QWidget::event( QEvent *e )
 		    hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
 		layout()->activate();
 	    } else {
-		QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
-		QObjectListIterator lit( *llist );
-		QLayout *lay;
-		while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
-		    ++lit;
+		QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
+		for (int i = 0; i < llist.size(); ++i) {
+		    QObject *lay = static_cast<QLayout *>(llist.at(i));
 		    QHBoxLayout *hbox = ::qt_cast<QHBoxLayout*>(lay);
 		    if ( hbox )
 			hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
 		    lay->activate();
 		}
-		delete llist;
 	    }
 	    update();
 	    break;
@@ -5571,20 +5513,17 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
 {
     if ( !rect().contains( x, y ) )
 	return 0;
-    if ( children() ) {
-	QObjectListIterator it( *children() );
-	it.toLast();
-	QWidget *w, *t;
-	while( (w=(QWidget *)it.current()) != 0 ) {
-	    --it;
-	    if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
-		if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
-		    return t;
-	    }
+    for (int i = d->children.size(); i > 0 ; ) {
+	--i;
+	QWidget *w = static_cast<QWidget *>(d->children.at(i));
+	QWidget *t;
+	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
+	    if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
+		return t;
 	}
     }
     if ( includeThis )
-	return (QWidget*)this;
+	return const_cast<QWidget*>(this);
     return 0;
 }
 

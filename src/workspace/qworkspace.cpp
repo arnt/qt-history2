@@ -16,7 +16,6 @@
 #ifndef QT_NO_WORKSPACE
 #include "qapplication.h"
 #include "../widgets/qtitlebar_p.h"
-#include "qobjectlist.h"
 #include "qlayout.h"
 #include "qtoolbutton.h"
 #include "qlabel.h"
@@ -926,16 +925,11 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
 {
     QWidgetList windows;
     if ( order == StackingOrder ) {
-	const QObjectList *cl = children();
-	if ( cl ) {
-	    QObjectListIterator it( *cl );
-	    while (it.current()) {
-		QObject *o = it.current();
-		++it;
-		QWorkspaceChild *c = qt_cast<QWorkspaceChild*>(o);
-		if (c && c->windowWidget())
-		    windows.append(c->windowWidget());
-	    }
+	QObjectList cl = children();
+	for (int i = 0; i < cl.size(); ++i) {
+	    QWorkspaceChild *c = qt_cast<QWorkspaceChild*>(cl.at(i));
+	    if (c && c->windowWidget())
+		windows.append(c->windowWidget());
 	}
     } else {
 	QPtrListIterator<QWorkspaceChild> it( d->windows );
@@ -1082,25 +1076,17 @@ void QWorkspace::showMaximizeControls()
 
     // Do a breadth-first search first on every parent,
     QWidget* w = parentWidget();
-    QObjectList * l = 0;
-    while ( !l && w ) {
+    QObjectList l;
+    while ( l.isEmpty() && w ) {
 	l = w->queryList( "QMenuBar", 0, FALSE, FALSE );
 	w = w->parentWidget();
-	if ( l && !l->count() ) {
-	    delete l;
-	    l = 0;
-	}
     }
 
     // and query recursively if nothing is found.
-    if ( !l || !l->count() ) {
-	if ( l )
-	    delete l;
+    if ( !l.size() )
 	l = topLevelWidget()->queryList( "QMenuBar", 0, 0, TRUE );
-    }
-    if ( l && l->count() )
-	b = (QMenuBar *)l->first();
-    delete l;
+    if ( l.size() )
+	b = (QMenuBar *)l.at(0);
 
     if ( !b )
 	return;
@@ -1964,27 +1950,32 @@ bool QWorkspaceChild::focusNextPrevChild( bool next )
     }
 
     if ( candidate ) {
-	QObjectList *ol = queryList();
-	bool ischild = ol->findRef( candidate ) != -1;
-	delete ol;
+	bool ischild = FALSE;
+	QObject *o = candidate;
+	while (o) {
+	    if (o == this) {
+		ischild = true;
+		break;
+	    }
+	    o = o->parent();
+	}
 	if ( !ischild ) {
 	    startingPoint = f->home();
 	    QWidget *nw = next ? f->prev() : f->next();
-	    QObjectList *ol2 = queryList();
+	    QObjectList ol2 = queryList();
 	    QWidget *lastValid = 0;
 	    candidate = startingPoint;
 	    while ( nw != startingPoint ) {
 		if ( ( candidate->focusPolicy() & TabFocus ) == TabFocus
 		    && candidate->isEnabled() &&!candidate->focusProxy() && candidate->isVisible() )
 		    lastValid = candidate;
-		if ( ol2->findRef( nw ) == -1 ) {
+		if ( ol2.findIndex( nw ) == -1 ) {
 		    candidate = lastValid;
 		    break;
 		}
 		candidate = nw;
 		nw = next ? f->prev() : f->next();
 	    }
-	    delete ol2;
 	}
     }
 
@@ -2073,13 +2064,14 @@ void QWorkspaceChild::setActive( bool b )
 	iconw->setActive( act );
     repaint( FALSE );
 
-    QObjectList* ol = childWidget->queryList( "QWidget" );
+    QObjectList ol = childWidget->queryList( "QWidget" );
     if ( act ) {
-	QObject *o;
-	for ( o = ol->first(); o; o = ol->next() )
+	for (int i = 0; i < ol.size(); ++i) {
+	    QObject *o = ol.at(i);
 	    o->removeEventFilter( this );
+	}
 	if ( !hasFocus ) {
-	    if ( lastfocusw && ol->contains( lastfocusw ) &&
+	    if ( lastfocusw && ol.contains( lastfocusw ) &&
 		 lastfocusw->focusPolicy() != NoFocus ) {
 		// this is a bug if lastfocusw has been deleted, a new
 		// widget has been created, and the new one is a child
@@ -2090,23 +2082,24 @@ void QWorkspaceChild::setActive( bool b )
 		childWidget->setFocus();
 	    } else {
 		// find something, anything, that accepts focus, and use that.
-		o = ol->first();
-		while( o && ((QWidget*)o)->focusPolicy() == NoFocus )
-		    o = ol->next();
-		if ( o )
-		    ((QWidget*)o)->setFocus();
+		for (int i = 0; i < ol.size(); ++i) {
+		    QObject *o = ol.at(i);
+		    if( o->isWidgetType() && ((QWidget*)o)->focusPolicy() != NoFocus ) {
+			((QWidget*)o)->setFocus();
+			break;
+		    }
+		}
 	    }
 	}
     } else {
 	if ( isChildOf( focusWidget(), childWidget ) )
 	    lastfocusw = focusWidget();
-	QObject * o;
-	for ( o = ol->first(); o; o = ol->next() ) {
+	for (int i = 0; i < ol.size(); ++i) {
+	    QObject *o = ol.at(i);
 	    o->removeEventFilter( this );
 	    o->installEventFilter( this );
 	}
     }
-    delete ol;
 }
 
 bool QWorkspaceChild::isActive() const

@@ -16,10 +16,9 @@
 #define QOBJECTCLEANUPHANDLER_H
 
 #ifndef QT_H
+#include "qlist.h"
 #include "qobject.h"
 #endif // QT_H
-
-class QObjectList;
 
 class Q_EXPORT QObjectCleanupHandler : public QObject
 {
@@ -35,7 +34,8 @@ public:
     void clear();
 
 private:
-    QObjectList *cleanupObjects;
+    // ### move into d pointer
+    QObjectList cleanupObjects;
 
 private slots:
     void objectDestroyed( QObject * );

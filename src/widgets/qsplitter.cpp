@@ -21,7 +21,6 @@
 #include "qbitmap.h"
 #include "qdrawutil.h"
 #include "qvector.h"
-#include "qobjectlist.h"
 #include "qpainter.h"
 #include "qptrlist.h"
 #include "qstyle.h"
@@ -1086,19 +1085,14 @@ QSize QSplitter::sizeHint() const
     constPolish();
     int l = 0;
     int t = 0;
-    if ( children() ) {
-	const QObjectList * c = children();
-	QObjectListIterator it( *c );
-	QObject * o;
-
-	while( (o = it.current()) != 0 ) {
-	    ++it;
-	    if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
-		QSize s = ((QWidget*)o)->sizeHint();
-		if ( s.isValid() ) {
-		    l += pick( s );
-		    t = QMAX( t, trans( s ) );
-		}
+    QObjectList childs = children();
+    for (int i = 0; i < childs.size(); ++i) {
+	QObject * o = childs.at(i);
+	if ( o->isWidgetType() && !static_cast<QWidget*>(o)->isHidden() ) {
+	    QSize s = static_cast<QWidget*>(o)->sizeHint();
+	    if ( s.isValid() ) {
+		l += pick( s );
+		t = QMAX( t, trans( s ) );
 	    }
 	}
     }
@@ -1115,19 +1109,14 @@ QSize QSplitter::minimumSizeHint() const
     constPolish();
     int l = 0;
     int t = 0;
-    if ( children() ) {
-	const QObjectList * c = children();
-	QObjectListIterator it( *c );
-	QObject * o;
-
-	while ( (o = it.current()) != 0 ) {
-	    ++it;
-	    if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
-		QSize s = qSmartMinSize( (QWidget*)o );
-		if ( s.isValid() ) {
-		    l += pick( s );
-		    t = QMAX( t, trans( s ) );
-		}
+    QObjectList childs = children();
+    for (int i = 0; i < childs.size(); ++i) {
+	QObject * o = childs.at(i);
+	if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
+	    QSize s = qSmartMinSize( (QWidget*)o );
+	    if ( s.isValid() ) {
+		l += pick( s );
+		t = QMAX( t, trans( s ) );
 	    }
 	}
     }

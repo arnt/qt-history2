@@ -22,7 +22,6 @@
 #include <qscrollview.h>
 #include <qpainter.h>
 #include <qstyle.h>
-#include <qobjectlist.h>
 #include <qapplication.h>
 #include <qwidgetlist.h>
 #include <qlayout.h>
@@ -38,8 +37,10 @@
 static QWidget *real_page( QWidget *pg )
 {
     QScrollView *sv = (QScrollView*)pg;
-    return (!sv || !sv->viewport()->children()) ? 0 :
-	    (QWidget*)sv->viewport()->children()->getFirst();
+    if (!sv)
+	return 0;
+    QObjectList children = sv->viewport()->children();
+    return children.isEmpty() ? 0 : (QWidget*)children.at(0);
 }
 
 static QWidget *internal_page( QWidget *pg, const QWidget *tb )
@@ -115,11 +116,10 @@ void QToolBoxPrivate::updatePageBackgroundMode()
 {
     if ( pageBackgroundMode == Qt::NoBackground || !currentPage )
 	return;
-    QObjectList *l =
-	((QScrollView*)currentPage)->viewport()->queryList( "QWidget" );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	QWidget *w = (QWidget*)o;
-	if ( w->backgroundMode() == pageBackgroundMode )
+    QObjectList l = ((QScrollView*)currentPage)->viewport()->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QWidget *w = static_cast<QWidget*>(l.at(i));
+	if ( !w->isWidgetType() || w->backgroundMode() == pageBackgroundMode )
 	    continue;
 	w->setBackgroundMode( pageBackgroundMode );
 	w->update();

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qobjectcleanuphandler.h"
-#include "qobjectlist.h"
+#include "qlist.h"
 
 /*!
     \class QObjectCleanupHandler qobjectcleanuphandler.h
@@ -72,8 +72,9 @@
     Constructs an empty QObjectCleanupHandler.
 */
 QObjectCleanupHandler::QObjectCleanupHandler()
-: QObject(), cleanupObjects( 0 )
+: QObject()
 {
+    cleanupObjects.setAutoDelete( TRUE );
 }
 
 /*!
@@ -94,12 +95,8 @@ QObject* QObjectCleanupHandler::add( QObject* object )
     if ( !object )
 	return 0;
 
-    if ( !cleanupObjects ) {
-	cleanupObjects = new QObjectList;
- 	cleanupObjects->setAutoDelete( TRUE );
-    }
     connect( object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)) );
-    cleanupObjects->insert( 0, object );
+    cleanupObjects.insert( 0, object );
     return object;
 }
 
@@ -109,10 +106,8 @@ QObject* QObjectCleanupHandler::add( QObject* object )
 */
 void QObjectCleanupHandler::remove( QObject *object )
 {
-    if ( !cleanupObjects )
-	return;
-    if ( cleanupObjects->findRef( object ) >= 0 ) {
-	(void) cleanupObjects->take();
+    if ( cleanupObjects.indexOf( object ) >= 0 ) {
+	(void) cleanupObjects.take(object);
 	disconnect( object, SIGNAL(destroyed( QObject* )), this, SLOT(objectDestroyed( QObject* )) );
     }
 }
@@ -123,7 +118,7 @@ void QObjectCleanupHandler::remove( QObject *object )
 */
 bool QObjectCleanupHandler::isEmpty() const
 {
-    return cleanupObjects ? cleanupObjects->isEmpty() : TRUE;
+    return cleanupObjects.isEmpty();
 }
 
 /*!
@@ -132,17 +127,12 @@ bool QObjectCleanupHandler::isEmpty() const
 */
 void QObjectCleanupHandler::clear()
 {
-    delete cleanupObjects;
-    cleanupObjects = 0;
+    cleanupObjects.clear();
 }
 
 void QObjectCleanupHandler::objectDestroyed( QObject*object )
 {
-    if ( cleanupObjects )
-	cleanupObjects->setAutoDelete( FALSE );
-
+    cleanupObjects.setAutoDelete( FALSE );
     remove( object );
-
-    if ( cleanupObjects )
-	cleanupObjects->setAutoDelete( TRUE );
+    cleanupObjects.setAutoDelete( TRUE );
 }

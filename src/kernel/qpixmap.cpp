@@ -20,7 +20,6 @@
 #include "qpainter.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
-#include "qobjectlist.h"
 #include "qapplication.h"
 #include <private/qinternal_p.h>
 #include "qmime.h"
@@ -1067,13 +1066,11 @@ static QPixmap grabChildWidgets( QWidget * w )
     if ( w->testWFlags( Qt::WRepaintNoErase ) )
 	w->repaint( FALSE );
 
-    const QObjectList * children = w->children();
-    if ( children ) {
+    const QObjectList children = w->children();
+    if ( !children.isEmpty() ) {
 	QPainter p( &res );
-	QObjectListIterator it( *children );
-	QObject * child;
-	while( (child=it.current()) != 0 ) {
-	    ++it;
+	for (int i = 0; i < children.size(); ++i) {
+	    QObject *child = children.at(i);
 	    if ( child->isWidgetType() &&
 		 !((QWidget *)child)->isHidden() &&
 		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {

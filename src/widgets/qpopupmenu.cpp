@@ -23,7 +23,6 @@
 #include "qpixmapcache.h"
 #include "qtimer.h"
 #include "qwhatsthis.h"
-#include "qobjectlist.h"
 #include "qguardedptr.h"
 #include "qeffects_p.h"
 #include "qcursor.h"

@@ -19,7 +19,6 @@
 #include "qpushbutton.h"
 #include "qfocusdata.h"
 #include "qapplication.h"
-#include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
@@ -256,13 +255,10 @@ QDialog::~QDialog()
 void QDialog::setDefault( QPushButton *pushButton )
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList *list = queryList( "QPushButton" );
-    Q_ASSERT(list);
-    QObjectListIterator it( *list );
-    QPushButton *pb;
+    QObjectList list = queryList( "QPushButton" );
     bool hasMain = FALSE;
-    while ( (pb = (QPushButton*)it.current()) ) {
-	++it;
+    for (int i = 0; i < list.size(); ++i) {
+	QPushButton *pb = static_cast<QPushButton *>(list.at(i));
 	if ( pb->topLevelWidget() != this )
 	    continue;
 	if ( pb == d->mainDef )
@@ -274,7 +270,6 @@ void QDialog::setDefault( QPushButton *pushButton )
 	d->mainDef->setDefault( TRUE );
     if (!hasMain)
 	d->mainDef = pushButton;
-    delete list;
 #endif
 }
 
@@ -286,14 +281,11 @@ void QDialog::setDefault( QPushButton *pushButton )
 void QDialog::hideDefault()
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList *list = queryList( "QPushButton" );
-    QObjectListIterator it( *list );
-    QPushButton *pb;
-    while ( (pb = (QPushButton*)it.current()) ) {
-	++it;
+    QObjectList list = queryList( "QPushButton" );
+    for (int i = 0; i < list.size(); ++i) {
+	QPushButton *pb = static_cast<QPushButton *>(list.at(i));
 	pb->setDefault( FALSE );
     }
-    delete list;
 #endif
 }
 
@@ -469,20 +461,15 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	case Key_Enter:
 	case Key_Return: {
 #ifndef QT_NO_PUSHBUTTON
-	    QObjectList *list = queryList( "QPushButton" );
-	    QObjectListIterator it( *list );
-	    QPushButton *pb;
-	    while ( (pb = (QPushButton*)it.current()) ) {
+	    QObjectList list = queryList( "QPushButton" );
+	    for (int i = 0; i < list.size(); ++i) {
+		QPushButton *pb = static_cast<QPushButton *>(list.at(i));
 		if ( pb->isDefault() && pb->isVisible() ) {
-		    delete list;
-		    if ( pb->isEnabled() ) {
+		    if ( pb->isEnabled() )
 			emit pb->clicked();
-		    }
 		    return;
 		}
-		++it;
 	    }
-	    delete list;
 #endif
 	}
 	break;

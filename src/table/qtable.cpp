@@ -27,7 +27,6 @@
 #include "qcursor.h"
 #include "qapplication.h"
 #include "qtimer.h"
-#include "qobjectlist.h"
 #include "qiconset.h"
 #include "qcombobox.h"
 #include "qcheckbox.h"
@@ -670,7 +669,7 @@ QString QTableItem::content() const
     }
     return text();
 }
-	
+
 /*!
     This virtual function is used to paint the contents of an item
     using the painter \a p in the rectangular area \a cr using the
@@ -1993,6 +1992,14 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 void QTable::init( int rows, int cols )
 {
+    // Enable clipper and set background mode
+    enableClipper( TRUE );
+
+    viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( WheelFocus );
+
+    viewport()->setBackgroundMode( PaletteBase );
+
 #ifndef QT_NO_DRAGANDDROP
     setDragAutoScroll( FALSE );
 #endif
@@ -2014,13 +2021,6 @@ void QTable::init( int rows, int cols )
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
 
-    // Enable clipper and set background mode
-    enableClipper( TRUE );
-
-    viewport()->setFocusProxy( this );
-    viewport()->setFocusPolicy( WheelFocus );
-
-    viewport()->setBackgroundMode( PaletteBase );
     setBackgroundMode( PaletteBackground, PaletteBase );
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -3461,7 +3461,7 @@ void QTable::selectRow( int row )
 #ifndef QT_NO_SQL_VIEW_WIDGETS
     if ( qt_cast<QDataTable*>(this) || selectionMode() == SingleRow ) {
 	setCurrentCell( row, currentColumn() );
-    } else 
+    } else
 #endif
     {
 	QTableSelection sel( row, 0, row, numCols() - 1 );
@@ -3850,10 +3850,10 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 
 bool QTable::eventFilter( QObject *o, QEvent *e )
 {
-    QWidget *editorWidget = cellWidget( editRow, editCol );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	QTableItem *itm = item( curRow, curCol );
+	QWidget *editorWidget = cellWidget( editRow, editCol );
 
 	if ( isEditing() && editorWidget && o == editorWidget ) {
 	    itm = item( editRow, editCol );
@@ -3919,8 +3919,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	} else {
-	    QObjectList *l = viewport()->queryList( "QWidget" );
-	    if ( l && l->find( o ) != -1 ) {
+	    QObjectList l = viewport()->queryList( "QWidget" );
+	    if ( l.findIndex(o) != -1 ) {
 		QKeyEvent *ke = (QKeyEvent*)e;
 		if ( ( ke->state() & ControlButton ) == ControlButton ||
 		     ( ke->key() != Key_Left && ke->key() != Key_Right &&
@@ -3931,11 +3931,11 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		keyPressEvent( (QKeyEvent*)e );
 		return TRUE;
 	    }
-	    delete l;
 	}
 
 	} break;
-    case QEvent::FocusOut:
+    case QEvent::FocusOut: {
+	QWidget *editorWidget = cellWidget( editRow, editCol );
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
 	    QTableItem *itm = item( editRow, editCol );
 	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
@@ -3944,6 +3944,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
+    }
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	if ( o == this || o == viewport() ) {
@@ -4979,7 +4980,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 	updateCell( row, col );
 	return;
     }
-    
+
     QTableItem *i = item( row, col );
     QString oldContent;
     if ( i ) {
@@ -4987,7 +4988,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
         if ( replace )
 	    clearCell( row, col );
     }
-    
+
     setCellContentFromEditor( row, col );
 
     if ( row == editRow && col == editCol )

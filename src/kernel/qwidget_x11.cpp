@@ -12,13 +12,14 @@
 **
 ****************************************************************************/
 
+#include "qwidget.h"
+#include "qwidget_p.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qnamespace.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qobjectlist.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qdatetime.h"
@@ -595,15 +596,12 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
-	if ( children() ) {
-	    QObjectListIterator it(*children());
-	    register QObject *obj;
-	    while ( (obj=it.current()) ) {	// destroy all widget children
-		++it;
-		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(destroySubWindows,
-					     destroySubWindows);
-	    }
+	QObjectList childs = children();
+	for (int i = 0; i < childs.size(); ++i) { // destroy all widget children
+	    register QObject *obj = childs.at(i);
+	    if ( obj->isWidgetType() )
+		static_cast<QWidget*>(obj)->destroy(destroySubWindows,
+						    destroySubWindows);
 	}
 	if ( mouseGrb == this )
 	    releaseMouse();
@@ -703,24 +701,20 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState(WState_Hidden);
 
-    const QObjectList *chlist = children();
-    if ( chlist ) {				// reparent children
-	QObjectListIterator it( *chlist );
-	QObject *obj;
-	while ( (obj=it.current()) ) {
-	    if ( obj->isWidgetType() ) {
-		QWidget *w = (QWidget *)obj;
-		if ( !w->isTopLevel() ) {
-		    XReparentWindow( x11Display(), w->winId(), winId(),
-				     w->geometry().x(), w->geometry().y() );
-		} else if ( w->isPopup()
-			    || w->testWFlags(WStyle_DialogBorder)
-			    || w->testWFlags(WType_Dialog)
-			    || w->testWFlags(WStyle_Tool) ) {
-		    XSetTransientForHint( x11Display(), w->winId(), winId() );
-		}
+    QObjectList chlist = children();
+    for (int i = 0; i < chlist.size(); ++i) { // reparent children
+	QObject *obj = chlist.at(i);
+	if ( obj->isWidgetType() ) {
+	    QWidget *w = (QWidget *)obj;
+	    if ( !w->isTopLevel() ) {
+		XReparentWindow( x11Display(), w->winId(), winId(),
+				 w->geometry().x(), w->geometry().y() );
+	    } else if ( w->isPopup()
+			|| w->testWFlags(WStyle_DialogBorder)
+			|| w->testWFlags(WType_Dialog)
+			|| w->testWFlags(WStyle_Tool) ) {
+		XSetTransientForHint( x11Display(), w->winId(), winId() );
 	    }
-	    ++it;
 	}
     }
     qPRCreate( this, old_winid );
@@ -1731,8 +1725,10 @@ void QWidget::showNormal()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->append( p->childObjects->take() );
+    if ( p && p->d->children.findIndex(this) >= 0 ) {
+	p->d->children.remove(this);
+	p->d->children.append(this);
+    }
     XRaiseWindow( x11Display(), winId() );
 }
 
@@ -1748,8 +1744,10 @@ void QWidget::raise()
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->insert( 0, p->childObjects->take() );
+    if ( p && p->d->children.findIndex(this) >= 0 ) {
+	p->d->children.remove(this);
+	p->d->children.prepend(this);
+    }
     XLowerWindow( x11Display(), winId() );
 }
 
@@ -1766,9 +1764,9 @@ void QWidget::stackUnder( QWidget* w)
     QWidget *p = parentWidget();
     if ( !w || isTopLevel() || p != w->parentWidget() || this == w )
 	return;
-    if ( p && p->childObjects && p->childObjects->findRef(w) >= 0 && p->childObjects->findRef(this) >= 0 ) {
-	p->childObjects->take();
-	p->childObjects->insert( p->childObjects->findRef(w), this );
+    if ( p && p->d->children.findIndex(w) >= 0 && p->d->children.findIndex(this) >= 0 ) {
+	p->d->children.remove(this);
+	p->d->children.insert(p->d->children.findIndex(w), this);
     }
     Window stack[2];
     stack[0] = w->winId();;
@@ -2105,7 +2103,7 @@ void QWidget::scroll( int dx, int dy )
 */
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
-    if ( testWState( WState_BlockUpdates ) && !children() )
+    if ( testWState( WState_BlockUpdates ) && d->children.isEmpty() )
 	return;
     bool valid_rect = r.isValid();
     bool just_update = QABS( dx ) > width() || QABS( dy ) > height();
@@ -2144,17 +2142,14 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	XSetGraphicsExposures( dpy, gc, False );
     }
 
-    if ( !valid_rect && children() ) {	// scroll children
+    if ( !valid_rect && !d->children.isEmpty() ) {	// scroll children
 	QPoint pd( dx, dy );
-	QObjectListIterator it(*children());
-	register QObject *object;
-	while ( it ) {				// move all children
-	    object = it.current();
+	for (int i = 0; i < d->children.size(); ++i) { // move all children
+	    register QObject *object = d->children.at(i);
 	    if ( object->isWidgetType() ) {
-		QWidget *w = (QWidget *)object;
+		QWidget *w = static_cast<QWidget *>(object);
 		w->move( w->pos() + pd );
 	    }
-	    ++it;
 	}
     }
 
@@ -2296,25 +2291,17 @@ void QWidget::deleteTLSysExtra()
 void QWidget::checkChildrenDnd()
 {
     QWidget *widget = this;
-    const QObjectList *children;
-    const QObject *object;
-    const QWidget *child;
-    while (widget && ! widget->isDesktop()) {
+    while (widget && !widget->isDesktop()) {
 	// note: this isn't done for the desktop widget
-
 	bool children_use_dnd = FALSE;
-	children = widget->children();
-	if ( children ) {
-	    QObjectListIterator it(*children);
-	    while ( (object = it.current()) ) {
-		++it;
-		if ( object->isWidgetType() ) {
-		    child = (const QWidget *) object;
-		    children_use_dnd = (children_use_dnd ||
-					child->acceptDrops() ||
-					(child->extra &&
-					 child->extra->children_use_dnd));
-		}
+	for (int i = 0; i < widget->d->children.size(); ++i) {
+	    const QObject *object = widget->d->children.at(i);
+	    if ( object->isWidgetType() ) {
+		const QWidget *child = static_cast<const QWidget *>(object);
+		children_use_dnd = (children_use_dnd ||
+				    child->acceptDrops() ||
+				    (child->extra &&
+				     child->extra->children_use_dnd));
 	    }
 	}
 

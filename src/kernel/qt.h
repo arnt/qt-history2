@@ -141,7 +141,6 @@
 #include <qobjectcleanuphandler.h>
 #include "qsqlfield.h"
 #include <qobjectdict.h>
-#include <qobjectlist.h>
 #include "qheader.h"
 #include <qpaintdevicemetrics.h>
 #include "qpointarray.h"

@@ -33,11 +33,12 @@ struct QObjectPrivate;
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
 #endif
-class QObjectList;
 class QEvent;
 class QTimerEvent;
 class QChildEvent;
 class QCustomEvent;
+template<typename T>class QList;
+typedef QList<QObject *> QObjectList;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -63,25 +64,21 @@ public:
 
     virtual void setName(const char *name);
     bool isWidgetType()	  const { return isWidget; }
-    bool highPriority()	  const { return FALSE; }
 
     bool signalsBlocked()  const { return blockSig; }
     bool blockSignals(bool b);
 
     int startTimer(int interval);
     void killTimer(int id);
-    void killTimers();
 
     QObject *child(const char *objName, const char *inheritsClass = 0,
-		   bool recursiveSearch = true); //### const in 4.0
-    const QObjectList *children() const { return childObjects; }
+		   bool recursiveSearch = true) const;
+    QObjectList children() const;
 
-    static const QObjectList *objectTrees();
-
-    QObjectList *queryList(const char *inheritsClass = 0,
-			   const char *objName = 0,
-			   bool regexpMatch = true,
-			   bool recursiveSearch = true) const;
+    QObjectList queryList(const char *inheritsClass = 0,
+			  const char *objName = 0,
+			  bool regexpMatch = true,
+			  bool recursiveSearch = true) const;
 
     virtual void insertChild(QObject *);
     virtual void removeChild(QObject *);
@@ -127,10 +124,10 @@ public slots:
     void deleteLater();
 
 private slots:
+    // ### replace by QGuardedPtr
     void cleanupEventFilter(QObject*);
 
 protected:
-    bool activate_filters(QEvent *);
     const QObject *sender();
     int receivers(const char* signal ) const;
 
@@ -162,12 +159,10 @@ private:
     uint pendTimer : 1;
     uint blockSig : 1;
     uint wasDeleted : 1;
-    uint isTree : 1;
+    uint unused : 27;
 
     const char *objname;
     QObject *parentObj;
-    QObjectList *childObjects;
-    QObjectList *eventFilters;
     QPostEventList *postedEvents;
     QObjectPrivate *d;
 

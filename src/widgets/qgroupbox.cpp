@@ -20,7 +20,6 @@
 #include "qaccel.h"
 #include "qradiobutton.h"
 #include "qfocusdata.h"
-#include "qobjectlist.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qstyle.h"
@@ -534,17 +533,16 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
     vbox->addLayout( grid );
 
     // Add all children
-    if ( children() ) {
-	QObjectListIterator it( *children() );
-	QWidget *w;
-	while( (w=(QWidget *)it.current()) != 0 ) {
-	    ++it;
-	    if ( w->isWidgetType()
+    QObjectList childs = children();
+    if ( !childs.isEmpty() ) {
+	for (int i = 0; i < childs.size(); ++i) {
+	    QObject *o = childs.at(i);
+	    if ( o->isWidgetType()
 #ifndef QT_NO_CHECKBOX
-		 && w != d->checkbox
+		 && o != d->checkbox
 #endif
 		 )
-		insertWid( w );
+		insertWid( static_cast<QWidget *>(o) );
 	}
     }
 }
@@ -862,18 +860,17 @@ void QGroupBox::setChecked( bool b )
 */
 void QGroupBox::setChildrenEnabled( bool b )
 {
-    if ( !children() )
+    QObjectList childs = children();
+    if ( childs.isEmpty() )
 	return;
-    QObjectListIterator it( *children() );
-    QObject *o;
-    while( (o = it.current()) ) {
-	++it;
+    for (int i = 0; i < childs.size(); ++i) {
+	QObject *o = childs.at(i);
 	if ( o->isWidgetType()
 #ifndef QT_NO_CHECKBOX
 	     && o != d->checkbox
 #endif
 	     ) {
-	    QWidget *w = (QWidget*)o;
+	    QWidget *w = static_cast<QWidget *>(o);
 	    if ( b ) {
 		if ( !w->testWState( WState_ForceDisabled ) )
 		    w->setEnabled( TRUE );

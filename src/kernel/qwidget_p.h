@@ -15,7 +15,6 @@
 #ifndef QWIDGET_P_H
 #define QWIDGET_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -28,8 +27,11 @@
 //
 //
 
-#ifndef QT_H
-#endif // QT_H 
+#include "qobject_p.h"
+
+class QWidgetPrivate : public QObjectPrivate
+{
+};
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 extern int qt_widget_tlw_gravity;

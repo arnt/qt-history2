@@ -48,7 +48,6 @@ kernel {
  		  $$KERNEL_H/qobjectcleanuphandler.h \
 		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobjectdict.h \
-		  $$KERNEL_H/qobjectlist.h \
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpainter.h \
