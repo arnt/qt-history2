@@ -1028,7 +1028,7 @@ QGroupBox * QPrintDialog::setupPaper()
     tll->addSpacing( 12 );
 
     d->pageSize = QPrinter::A4;
-    
+
     // page orientation
     d->orientationCombo = new QComboBox( FALSE, g );
     tll->addWidget( d->orientationCombo );
@@ -1049,7 +1049,7 @@ QGroupBox * QPrintDialog::setupPaper()
     int n;
     for( n=0; n<QPrinter::NPageSize; n++ )
 	d->indexToPageSize[n] = QPrinter::A4;
-    
+
     isc( d, tr( "A0 (841 x 1189 mm)" ), QPrinter::A0 );
     isc( d, tr( "A1 (594 x 841 mm)" ), QPrinter::A1 );
     isc( d, tr( "A2 (420 x 594 mm)" ), QPrinter::A2 );
@@ -1081,69 +1081,6 @@ QGroupBox * QPrintDialog::setupPaper()
     isc( d, tr( "Letter (8.5x11 inches, 216x279 mm)" ), QPrinter::Letter );
     isc( d, tr( "Tabloid (279 x 432 mm)" ), QPrinter::Tabloid );
     isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ), QPrinter::Comm10E );
-
-#if 0
-    d->sizeCombo->insertItem( tr( "A4 (210x297 mm, 8.26x11.7 inches)" ), 
-			      QPrinter::A4 );
-    d->sizeCombo->insertItem( tr( "B5 (182x257 mm, 7.17x10.13 inches)" ), 
-			      QPrinter::B5 );
-    d->sizeCombo->insertItem( tr( "Letter (8.5x11 inches, 216x279 mm)" ),
-			      QPrinter::Letter );
-    d->sizeCombo->insertItem( tr( "Legal (8.5x14 inches, 216x356 mm)" ),
-			      QPrinter::Legal );
-    d->sizeCombo->insertItem( tr( "Executive (7.5x10 inches, 191x254 mm)" ),
-			      QPrinter::Executive );
-    d->sizeCombo->insertItem( tr( "A0 (841 x 1189 mm)" ),
-			      QPrinter::A0 );
-    d->sizeCombo->insertItem( tr( "A1 (594 x 841 mm)" ),
-			      QPrinter::A1 );
-    d->sizeCombo->insertItem( tr( "A2 (420 x 594 mm)" ),
-			      QPrinter::A2 );
-    d->sizeCombo->insertItem( tr( "A3 (297 x 420 mm)" ),
-			      QPrinter::A3 );
-    d->sizeCombo->insertItem( tr( "A5 (148 x 210 mm)" ),
-			      QPrinter::A5 );
-    d->sizeCombo->insertItem( tr( "A6 (105 x 148 mm)" ),
-			      QPrinter::A6 );
-    d->sizeCombo->insertItem( tr( "A7 (74 x 105 mm)" ),
-			      QPrinter::A7 );
-    d->sizeCombo->insertItem( tr( "A8 (52 x 74 mm)" ),
-			      QPrinter::A8 );
-    d->sizeCombo->insertItem( tr( "A9 (37 x 52 mm)" ),
-			      QPrinter::A9 );
-    d->sizeCombo->insertItem( tr( "B0 (1030 x 1456 mm)" ),
-			      QPrinter::B0 );
-    d->sizeCombo->insertItem( tr( "B1 (728 x 1030 mm)" ),
-			      QPrinter::B1 );
-    d->sizeCombo->insertItem( tr( "B2 (515 x 728 mm)" ),
-			      QPrinter::B2 );
-    d->sizeCombo->insertItem( tr( "B3 (364 x 515 mm)" ),
-			      QPrinter::B3 );
-    d->sizeCombo->insertItem( tr( "B4 (257 x 364 mm)" ),
-			      QPrinter::B4 );
-    d->sizeCombo->insertItem( tr( "B6 (128 x 182 mm)" ),
-			      QPrinter::B5 );
-    d->sizeCombo->insertItem( tr( "B7 (91 x 128 mm)" ),
-			      QPrinter::B7 );
-    d->sizeCombo->insertItem( tr( "B8 (64 x 91 mm)" ),
-			      QPrinter::B8 );
-    d->sizeCombo->insertItem( tr( "B9 (45 x 64 mm)" ),
-			      QPrinter::B9 );
-    d->sizeCombo->insertItem( tr( "B10 (32 x 45 mm)" ),
-			      QPrinter::B10 );
-    d->sizeCombo->insertItem( tr( "C5E (163 x 229 mm)" ),
-			      QPrinter::C5E );
-    d->sizeCombo->insertItem( tr( "US Common #10 Envelope (105 x 241 mm)" ),
-			      QPrinter::Comm10E );
-    d->sizeCombo->insertItem( tr( "DLE (110 x 220 mm)" ),
-			      QPrinter::DLE );
-    d->sizeCombo->insertItem( tr( "Folio (210 x 330 mm)" ),
-			      QPrinter::Folio );
-    d->sizeCombo->insertItem( tr( "Ledger (432 x 279 mm)" ),
-			      QPrinter::Ledger );
-    d->sizeCombo->insertItem( tr( "Tabloid (279 x 432 mm)" ),
-			      QPrinter::Tabloid );
-#endif
 
     connect( d->sizeCombo, SIGNAL( activated( int ) ),
 	     this, SLOT( paperSizeSelected( int ) ) );
@@ -1333,7 +1270,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 
 	// page size
 	int n = 0;
-	while( n < QPrinter::NPageSize && 
+	while( n < QPrinter::NPageSize &&
 	       d->indexToPageSize[n] != p->pageSize() )
 	    n++;
 	d->sizeCombo->setCurrentItem( n );
