@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#52 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#52 $")
 
 
 declare(QListM, QLBItem);
@@ -136,6 +136,7 @@ QListBox::QListBox( QWidget *parent, const char *name )
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
 	    setLineWidth( 1 );
     }
+    setAcceptFocus( TRUE );
 }
 
 /*----------------------------------------------------------------------------

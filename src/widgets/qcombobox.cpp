@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#29 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#29 $")
 
 /*!
   \class QComboBox qcombo.h
@@ -111,6 +111,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->autoresize = FALSE;
     connect( d->popup, SIGNAL(activated(int))  ,SLOT(internalActivate(int)) );
     connect( d->popup, SIGNAL(highlighted(int)),SLOT(internalHighlight(int)) );
+    setAcceptFocus( TRUE );
 }
 
 /*!
@@ -575,7 +576,8 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent * )
 
 
 /*!
-  Handles key press events for the combo box.
+  Handles key press events for the combo box.  Only Enter and Return
+  are accepted.
 */
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
@@ -583,9 +585,11 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
 	case Key_Return:
 	case Key_Enter:
+	    accept();
 	    popup();
 	    break;
 	default:
+	    ignore();
 	    break;
     }
 }
