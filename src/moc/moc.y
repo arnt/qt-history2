@@ -2906,7 +2906,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "    else\n" );
     fprintf( out, "\treturn QString::fromLatin1( s );\n");
     fprintf( out, "}\n" );
-    fprintf( out, "#ifdef QT_NO_TRANSLATION_UTF8\n" );
+    fprintf( out, "#ifndef QT_NO_TRANSLATION_UTF8\n" );
     fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    if ( qApp )\n" );
