@@ -290,7 +290,7 @@ public:
     */
 
     inline QT_COMPAT void insert(const QString &text)
-    { cursor().insertText(text); }
+    { insertPlainText(text); }
 
 #endif
 };
