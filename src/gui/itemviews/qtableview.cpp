@@ -235,7 +235,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                             this, SLOT(columnIndexChanged(int,int,int)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+        QObject::disconnect(d->horizontalHeader, SIGNAL(sectionPressed(int,Qt::ButtonState)),
                             this, SLOT(selectColumn(int,Qt::ButtonState)));
         QObject::disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                             this, SLOT(resizeColumnToContents(int)));
@@ -249,7 +249,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                      this, SLOT(columnIndexChanged(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->horizontalHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+    QObject::connect(d->horizontalHeader, SIGNAL(sectionPressed(int,Qt::ButtonState)),
                      this, SLOT(selectColumn(int,Qt::ButtonState)));
     QObject::connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
@@ -269,7 +269,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                             this, SLOT(rowIndexChanged(int,int,int)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(rowCountChanged(int,int)));
-        QObject::disconnect(d->verticalHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+        QObject::disconnect(d->verticalHeader, SIGNAL(sectionPressed(int,Qt::ButtonState)),
                             this, SLOT(selectRow(int,Qt::ButtonState)));
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                             this, SLOT(resizeRowToContents(int)));
@@ -283,7 +283,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
                      this, SLOT(rowIndexChanged(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->verticalHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+    QObject::connect(d->verticalHeader, SIGNAL(sectionPressed(int,Qt::ButtonState)),
                      this, SLOT(selectRow(int,Qt::ButtonState)));
     QObject::connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeRowToContents(int)));

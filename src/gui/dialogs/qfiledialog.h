@@ -174,7 +174,7 @@ protected slots:
     void useFilter(const QString &filter);
     void setCurrentDir(const QString &path);
     void populateContextMenu(QMenu *menu, const QModelIndex &index) const;
-    void headerClicked(int section);
+    void headerPressed(int section);
     void renameCurrent();
     void deleteCurrent();
     void reload();

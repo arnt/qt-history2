@@ -95,6 +95,7 @@ public slots:
 signals:
     void sectionIndexChanged(int section, int oldIndex, int newIndex);
     void sectionSizeChanged(int section, int oldSize, int newSize);
+    void sectionPressed(int section, Qt::ButtonState state);
     void sectionClicked(int section, Qt::ButtonState state);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int section, Qt::ButtonState state);

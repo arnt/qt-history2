@@ -1210,7 +1210,7 @@ void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) con
     The \a{section}-th column header in the files list was clicked.
 */
 
-void QFileDialog::headerClicked(int section)
+void QFileDialog::headerPressed(int section)
 {
     int spec = -1;
     switch (section) {
@@ -1456,8 +1456,8 @@ void QFileDialogPrivate::setup(const QString &directory,
                      q, SLOT(deletePressed(const QModelIndex&)));
     QObject::connect(tview, SIGNAL(deletePressed(const QModelIndex&)),
                      q, SLOT(deletePressed(const QModelIndex&)));
-    QObject::connect(tview->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
-                     q, SLOT(headerClicked(int)));
+    QObject::connect(tview->header(), SIGNAL(sectionPressed(int, Qt::ButtonState)),
+                     q, SLOT(headerPressed(int)));
 
     // labels
     grid->addWidget(new QLabel(tr("Look in:"), q), 0, 0);

@@ -744,7 +744,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         while (handle > -1 && isSectionHidden(handle)) handle--;
         if (handle == -1) {
             int sec = sectionAt(pos + offset());
-            emit sectionClicked(sec, e->state());
+            emit sectionPressed(sec, e->state());
             return;
         } else if (resizeMode(handle) == Interactive) {
             d->state = QHeaderViewPrivate::ResizeSection;
@@ -795,10 +795,6 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
                 setCursor(Qt::ArrowCursor);
             return;
         }
-
-        case QHeaderViewPrivate::SelectSection:
-            //qDebug("SelectSection is not implemented");
-            break; // FIXME: not implemented
     }
 }
 
@@ -806,7 +802,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
   \reimp
 */
 
-void QHeaderView::mouseReleaseEvent(QMouseEvent *)
+void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 {
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
@@ -815,13 +811,13 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *)
         d->updateSectionIndicator();
         d->viewport->releaseMouse();
         break;
-    case QHeaderViewPrivate::NoState:
-        break;
+    case QHeaderViewPrivate::NoState: {
+        int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+        int sec = sectionAt(pos + offset());
+        emit sectionClicked(sec, e->state());
+        break; }
     case QHeaderViewPrivate::ResizeSection:
         d->viewport->releaseMouse();
-        break;
-    case QHeaderViewPrivate::SelectSection:
-        qDebug("SelectSection is not implemented");
         break;
     }
     d->state = QHeaderViewPrivate::NoState;

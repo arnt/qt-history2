@@ -42,7 +42,7 @@ public:
     inline bool reverse() const
         { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
 
-    enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
+    enum State { NoState, ResizeSection, MoveSection } state;
 
     int offset;
     Qt::Orientation orientation;
