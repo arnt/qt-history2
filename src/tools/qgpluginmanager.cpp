@@ -257,16 +257,26 @@ static int similarity( const QString& s1, const QString& s2 )
 */
 
 /*!
-  \fn QPluginManager::QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+  \fn QPluginManager::QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QPluginManager for interfaces \a id that will load all shared library files in \a path,
-  setting the default policy to \a pol. If \a cs is, FALSE the manager will handle feature strings case insensitive.
+  Creates an QPluginManager for interfaces \a id that will load all shared library files in the \a paths + \a suffix.
+  The default policy is set to \a pol. If \a cs is FALSE the manager will handle feature strings case insensitive.
 
   \warning
   Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
   to be handled with care and documented very well.
 
   The \a pol parameter is propagated to the QLibrary object created for each library.
+
+  \sa QApplication::libraryPaths()
+*/
+
+
+/*!
+  \overload QPluginManager::QPluginManager( const QUuid &id, const QString &file, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+
+  Creates an QPluginManager for interfaces \a id that will load the shared library \a file. The default policy is set to \a pol. 
+  If \a cs is FALSE the manager will handle feature strings case insensitive.
 */
 
 /*!
@@ -275,7 +285,7 @@ static int similarity( const QString& s1, const QString& s2 )
   Calls addLibrary for all shared library files in \a path.
   The current library policy will be used for all new QLibrary objects.
 
-  \sa addLibrary(), setDefaultPolicy()
+  \sa addLibrary(), setDefaultPolicy(), QApplication::libraryPaths()
 */
 
 /*!

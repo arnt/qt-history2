@@ -49,11 +49,19 @@ template<class Type>
 class Q_EXPORT QPluginManager : public QGPluginManager
 {
 public:
-    QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+    QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: QGPluginManager( id, pol, cs )
     {
-	if ( !path.isEmpty() )
-	    addLibraryPath( path );
+	for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
+	    QString path = *it;
+	    addLibraryPath( path + suffix );
+	}
+    }
+
+    QPluginManager( const QUuid &id, const QString &file, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+	: QGPluginManager( id, pol, cs )
+    {
+	addLibrary( file );
     }
 
     QLibrary* addLibrary( const QString& file )

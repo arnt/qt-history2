@@ -66,15 +66,9 @@ QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
 {
     manager =
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
-						   QString::null,
+						   QApplication::libraryPaths(), "/codecs",
 						   QLibrary::Delayed, FALSE);
 
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-	manager->addLibraryPath(*it + "/codecs");
-	it++;
-    }
 }
 
 
@@ -96,13 +90,11 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
     if (! instance)
 	instance = new QTextCodecFactoryPrivate;
 
-    QTextCodecFactoryInterface *iface = 0;
+    QInterfacePtr<QTextCodecFactoryInterface> iface;
     QTextCodecFactoryPrivate::manager->queryInterface(name, &iface );
 
-    if (iface) {
+    if (iface)
 	codec = iface->createForName(name);
-	iface->release();
-    }
 
 #endif // QT_NO_COMPONENT
 
@@ -119,13 +111,11 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
     if (! instance)
 	instance = new QTextCodecFactoryPrivate;
 
-    QTextCodecFactoryInterface *iface = 0;
+    QInterfacePtr<QTextCodecFactoryInterface> iface;
     QTextCodecFactoryPrivate::manager->queryInterface("MIB-" + QString::number(mib), &iface );
 
-    if (iface) {
+    if (iface)
 	codec = iface->createForMib(mib);
-	iface->release();
-    }
 
 #endif // QT_NO_COMPONENT
 

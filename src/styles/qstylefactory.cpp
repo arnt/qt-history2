@@ -74,14 +74,7 @@ QPluginManager<QStyleFactoryInterface> *QStyleFactoryPrivate::manager = 0;
 QStyleFactoryPrivate::QStyleFactoryPrivate()
 : QObject( qApp )
 {
-    manager = new QPluginManager<QStyleFactoryInterface>( IID_QStyleFactory, QString::null, QLibrary::Delayed, FALSE );
-
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-        manager->addLibraryPath(*it + "/styles");
-        it++;
-    }
+    manager = new QPluginManager<QStyleFactoryInterface>( IID_QStyleFactory, QApplication::libraryPaths(), "/styles", QLibrary::Delayed, FALSE );
 }
 
 QStyleFactoryPrivate::~QStyleFactoryPrivate()
@@ -160,14 +153,12 @@ QStyle *QStyleFactory::create( const QString& s )
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
 
-    QStyleFactoryInterface *iface = 0;
+    QInterfacePtr<QStyleFactoryInterface> iface;
     QStyleFactoryPrivate::manager->queryInterface( style, &iface );
 
-    if ( iface ) {
-	QStyle *st = iface->create( style );
-	iface->release();
-	return st;
-    }
+    if ( iface )
+	return iface->create( style );
+
 #endif
     return 0;
 }
