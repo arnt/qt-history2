@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#80 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#81 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -3228,13 +3228,15 @@ bool QXmlSimpleReader::parseContent()
 		stringClear();
 		break;
 	    case CDS2:
+		// ### the comparision will break incremental parsing
 		if (c != ']') {
 		    stringAddC( ']' );
 		}
 		break;
 	    case CDS3:
 		// test if this skipping was legal
-		if        ( c == '>' ) {
+		// ### the comparision will break incremental parsing
+		if ( c == '>' ) {
 		    // the end of the CDSect
 		    if ( lexicalHnd ) {
 			if ( !lexicalHnd->startCDATA() ) {
@@ -3254,6 +3256,7 @@ bool QXmlSimpleReader::parseContent()
 			    return FALSE;
 			}
 		    }
+		// ### the comparision will break incremental parsing
 		} else if (c == ']') {
 		    // three or more ']'
 		    stringAddC( ']' );
@@ -3297,6 +3300,10 @@ bool QXmlSimpleReader::parseContent()
 	state = table[state][input];
 
 	switch ( state ) {
+	    case Init:
+		// skip the ending '>' of a CDATASection
+		next();
+		break;
 	    case ChD:
 		// on first call: clear string
 		if ( !charDataRead ) {
@@ -3662,6 +3669,7 @@ bool QXmlSimpleReader::parsePI()
 		break;
 	    case Qm:
 		// test if the skipping was legal
+		// ### the comparision will break incremental parsing
 		if ( c != '>' ) {
 		    stringAddC( '?' );
 		}
@@ -5967,6 +5975,7 @@ bool QXmlSimpleReader::parseComment()
 		break;
 	    case Com2:
 		// if next character is not a dash than don't skip it
+		// ### the comparision will break incremental parsing
 		if ( c != '-' ) {
 		    stringAddC( '-' );
 		}
