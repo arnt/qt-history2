@@ -34,9 +34,10 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
+static int screen = -1;
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose )
+    : QMainWindow( QApplication::desktop( screen ++), "example application main window", WDestructiveClose )
 {
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
@@ -59,7 +60,7 @@ ApplicationWindow::ApplicationWindow()
 	= new QToolButton( printIcon, "Print File", QString::null,
 			   this, SLOT(print()), fileTools, "print file" );
 
-    
+
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     const char * fileOpenText = "<p><img source=\"fileopen\"> "
@@ -102,7 +103,7 @@ ApplicationWindow::ApplicationWindow()
 
     id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
-    
+
     file->insertSeparator();
 
     id = file->insertItem( printIcon, "&Print",
@@ -220,7 +221,7 @@ void ApplicationWindow::print()
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	if( !p.begin( printer ) )               // paint on printer 
+	if( !p.begin( printer ) )               // paint on printer
 	    return;				
 
 	p.setFont( e->font() );

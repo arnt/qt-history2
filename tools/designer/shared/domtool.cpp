@@ -197,7 +197,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 	v = QVariant( sp );
     } else if ( e.tagName() == "cursor" ) {
 	v = QVariant( QCursor( e.firstChild().toText().data().toInt() ) );
-    } else if ( e.tagName() == "stringlist" ) { 
+    } else if ( e.tagName() == "stringlist" ) {
 	QStringList lst;
 	QDomElement n;
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
@@ -265,3 +265,88 @@ bool DomTool::hasAttribute( const QDomElement& e, const QString& name )
     }
     return FALSE;
 }
+
+static bool toBool( const QString& s )
+{
+    return s == "true" || s.toInt() != 0;
+}
+
+/*!
+  Convert Qt 2.x format to Qt 3.0 format if necessary
+*/
+void DomTool::fixDocument( QDomDocument& doc )
+{
+    QDomElement e;
+    QDomNode n;
+    QDomNodeList nl;
+    int i = 0;
+
+    e = doc.firstChild().toElement();
+    if ( e.tagName() != "UI" )
+	return;
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
+	return;
+    
+    e.setAttribute( "version", 3.0 );
+    
+    e.setAttribute("stdsetdef", 1 );
+    nl = doc.elementsByTagName( "property" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "name" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "name", name );
+	    e.removeChild( n2 );
+	}
+	bool stdset = toBool( e.attribute( "stdset" ) );
+	if ( stdset || name == "toolTip" || name == "whatsThis" ||
+	     name == "buddy" ||
+	     e.parentNode().toElement().tagName() == "item" ||
+	     e.parentNode().toElement().tagName() == "spacer" ||
+	     e.parentNode().toElement().tagName() == "column"
+	     )
+	    e.removeAttribute( "stdset" );
+	else
+	    e.setAttribute( "stdset", 0 );
+    }
+
+    nl = doc.elementsByTagName( "attribute" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "name" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "name", name );
+	    e.removeChild( n2 );
+	}
+    }
+
+    nl = doc.elementsByTagName( "image" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "name" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "name", name );
+	    e.removeChild( n2 );
+	}
+    }
+
+    nl = doc.elementsByTagName( "widget" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "class" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "class", name );
+	    e.removeChild( n2 );
+	}
+    }
+
+}
+

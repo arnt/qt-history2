@@ -88,7 +88,7 @@ private:
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
 
-    QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0 );
+    QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
     void createColumn( const QDomElement &e, QWidget *widget );
@@ -122,7 +122,7 @@ private:
     QStringList metaForwards;
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;
-    
+
 };
 
 #endif

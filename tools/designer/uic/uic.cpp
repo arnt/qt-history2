@@ -65,66 +65,6 @@ static QString mkStdSet( const QString& prop )
 }
 
 
-// convert Qt 2.x format to Qt 3.0 format
-static void fixDocument( QDomDocument& doc )
-{
-    QDomElement e;
-    QDomNode n;
-    QDomNodeList nl;
-    int i = 0;
-
-    e = doc.firstChild().toElement();
-    if ( e.tagName() != "UI" )
-	return;
-    e.setAttribute("stdsetdef", 1 );
-    nl = doc.elementsByTagName( "property" );
-    for ( i = 0; i <  (int) nl.length(); i++ ) {
-	e = nl.item(i).toElement();
-	QString name;
-	QDomElement n2 = e.firstChild().toElement();
-	if ( n2.tagName() == "name" ) {
-	    name = n2.firstChild().toText().data();
-	    e.setAttribute( "name", name );
-	    e.removeChild( n2 );
-	}
-	bool stdset = toBool( e.attribute( "stdset" ) );
-	if ( stdset || name == "toolTip" || name == "whatsThis" ||
-	     name == "buddy" ||
-	     e.parentNode().toElement().tagName() == "item" ||
-	     e.parentNode().toElement().tagName() == "spacer" ||
-	     e.parentNode().toElement().tagName() == "column"
-	     )
-	    e.removeAttribute( "stdset" );
-	else
-	    e.setAttribute( "stdset", 0 );
-    }
-
-    nl = doc.elementsByTagName( "attribute" );
-    for ( i = 0; i <  (int) nl.length(); i++ ) {
-	e = nl.item(i).toElement();
-	QString name;
-	QDomElement n2 = e.firstChild().toElement();
-	if ( n2.tagName() == "name" ) {
-	    name = n2.firstChild().toText().data();
-	    e.setAttribute( "name", name );
-	    e.removeChild( n2 );
-	}
-    }
-
-    nl = doc.elementsByTagName( "widget" );
-    for ( i = 0; i <  (int) nl.length(); i++ ) {
-	e = nl.item(i).toElement();
-	QString name;
-	QDomElement n2 = e.firstChild().toElement();
-	if ( n2.tagName() == "class" ) {
-	    name = n2.firstChild().toText().data();
-	    e.setAttribute( "class", name );
-	    e.removeChild( n2 );
-	}
-    }
-
-}
-
 
 /*!
   \class Uic uic.h
@@ -248,7 +188,7 @@ QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
     QDomElement n;
     QDomElement n1;
     int child = 0;
-    // database info is a stringlist stored in this order    
+    // database info is a stringlist stored in this order
     if ( tag == "connection" )
 	child = 0;
     else if ( tag == "table" )
@@ -258,12 +198,12 @@ QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
     else
 	return QString::null;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  
-	     && n.toElement().attribute("name") == "database" 
+	if ( n.tagName() == "property"
+	     && n.toElement().attribute("name") == "database"
 	     && n.firstChild().toElement().tagName() == "stringlist" ) {
 	    // find correct stringlist entry
 	    QDomElement n1 = n.firstChild().firstChild().toElement();
-	    for ( int i = 0; i < child && !n1.isNull(); ++i ) 
+	    for ( int i = 0; i < child && !n1.isNull(); ++i )
 		n1 = n1.nextSibling().toElement();
 	    if ( n1.isNull() ) {
 		return QString::null;
@@ -746,11 +686,12 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( n.tagName()  == "images" ) {
 		nl = n.elementsByTagName( "image" );
 		for ( i = 0; i < (int) nl.length(); i++ ) {
-		    QDomElement tmp = nl.item(i).firstChild().toElement();
-		    QString img = registerObject( tmp.firstChild().toText().data() );
+		    QString img = registerObject(  nl.item(i).toElement().attribute( "name" ) );
 		    if ( !requiredImages.contains( img ) )
 			continue;
-		    tmp = tmp.nextSibling().toElement();
+		    QDomElement tmp = nl.item(i).firstChild().toElement();
+		    if ( tmp.tagName() != "data" )
+			continue;
 		    QString format = tmp.attribute("format", "PNG" );
 		    QString data = tmp.firstChild().toText().data();
 		    if ( format == "XPM.GZ" ) {
@@ -893,7 +834,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( value.isEmpty() )
 		continue;
 	    if ( prop == "name" ) {
-		if ( dbAware ) 
+		if ( dbAware )
 		    out << "    if ( !name() )" << endl;
 		else
 		    out << "    if ( !name )" << endl;
@@ -2553,8 +2494,8 @@ int main( int argc, char * argv[] )
     if ( !doc.setContent( &file ) )
 	qFatal( "uic: Failed to parse %s\n", fileName );
 
-    fixDocument( doc );
-    
+    DomTool::fixDocument( doc );
+
     if ( fix ) {
 	out << doc.toString();
 	return 0;

@@ -147,6 +147,8 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
     if ( !doc.setContent( dev ) ) {
 	return FALSE;
     }
+    
+    DomTool::fixDocument( doc );
 
     if ( !previewMode ) {
 	toplevel = formwindow = new FormWindow( mainwindow->workSpace(), 0 );
@@ -207,7 +209,9 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 	images = *imgs;
     if ( !customWidgets.isNull() )
 	loadCustomWidgets( customWidgets, this );
-    if ( !createObject( firstWidget, !previewMode ? formwindow : 0, 0) )
+    
+    if ( !createObject( firstWidget, !previewMode ? formwindow : 0, 0, 
+			firstWidget.attribute("class", "QWidget") ) )
 	return FALSE;
 
     if ( !connections.isNull() )
@@ -329,6 +333,8 @@ void Resource::paste( const QString &cb, QWidget *parent )
     buf.open( IO_ReadOnly );
     QDomDocument doc;
     doc.setContent( &buf );
+    
+    DomTool::fixDocument( doc );
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
@@ -352,7 +358,7 @@ void Resource::paste( const QString &cb, QWidget *parent )
     formwindow->clearSelection( FALSE );
     while ( !firstWidget.isNull() ) {
 	if ( firstWidget.tagName() == "widget" ) {
-	    QWidget *w = (QWidget*)createObject( firstWidget, parent, 0 );
+	    QWidget *w = (QWidget*)createObject( firstWidget, parent, 0, firstWidget.attribute( "class", "QWidget" ) );
 	    if ( !w )
 		continue;
 	    widgets.append( w );
@@ -951,7 +957,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	indent++;
 	if ( !lst.isEmpty() ) {	
 	    for ( i = 0; i < lst.count(); ++i )
-		ts << makeIndent( indent ) << "<string>" << entitize( lst[ i ] ) << "</string>" << endl;		    
+		ts << makeIndent( indent ) << "<string>" << entitize( lst[ i ] ) << "</string>" << endl;		
 	}
 	indent--;
 	ts << makeIndent( indent ) << "</stringlist>" << endl;
@@ -982,7 +988,7 @@ void Resource::saveColor( QTextStream &ts, int indent, const QColor &c )
     ts << makeIndent( indent ) << "<blue>" << QString::number( c.blue() ) << "</blue>" << endl;
 }
 
-QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout* layout )
+QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout* layout, const QString& classNameArg )
 {
     lastItem = 0;
     QDomElement n = e.firstChild().toElement();
@@ -997,65 +1003,65 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	rowspan = 1;
     if ( colspan < 1 )
 	colspan = 1;
-    while ( !n.isNull() ) {
-	if ( n.tagName() == "class" ) {
-	    QString className = n.firstChild().toText().data();
-	    if ( previewMode && !layout && className  == "QLayoutWidget" )
-		className = "QWidget";
-	    if ( previewMode && layout && className == "QLayoutWidget" ) {
-		// hide layout widgets in preview mode
-		w = parent;
-	    } else {
-		obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
-		if ( !obj )
-		    return 0;
-		if ( !mainContainerSet ) {
-		    if ( formwindow && !previewMode )
-			formwindow->setMainContainer( (QWidget*)obj );
-		    mainContainerSet = TRUE;
-		}
-		if ( !obj ) {
-		    n = n.firstChild().toElement();
-		    continue;
-		}
-		w = (QWidget*)obj;
-		if ( layout ) {
-		    switch ( WidgetFactory::layoutType( layout ) ) {
-		    case WidgetFactory::HBox:
-			( (QHBoxLayout*)layout )->addWidget( w );
-			break;
-		    case WidgetFactory::VBox:
-			( (QVBoxLayout*)layout )->addWidget( w );
-			break;
-		    case WidgetFactory::Grid:
-			( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
-									      col, col + colspan - 1 );
-			break;
-		    default:
-			break;
-		    }
-		}
-
-		if ( !toplevel )
-		    toplevel = w;
-		layout = 0;
-
-		if ( w && formwindow ) {
-		    if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits( "QWizard" ) ) )
-			formwindow->insertWidget( w, pasting );
-		    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
-			MetaDataBase::addEntry( w );
-		}
-
-		if ( style )
-		    w->setStyle( style );
-		if ( pal )
-		    w->setPalette( *pal );
+    
+    QString className = classNameArg;
+    
+    if ( !className.isNull() ) {
+	if ( previewMode && !layout && className  == "QLayoutWidget" )
+	    className = "QWidget";
+	if ( previewMode && layout && className == "QLayoutWidget" ) {
+	    // hide layout widgets in preview mode
+	    w = parent;
+	} else {
+	    obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
+	    if ( !obj )
+		return 0;
+	    if ( !mainContainerSet ) {
+		if ( formwindow && !previewMode )
+		    formwindow->setMainContainer( (QWidget*)obj );
+		mainContainerSet = TRUE;
 	    }
-	} else if ( n.tagName() == "spacer" ) {
+	    w = (QWidget*)obj;
+	    if ( layout ) {
+		switch ( WidgetFactory::layoutType( layout ) ) {
+		case WidgetFactory::HBox:
+		    ( (QHBoxLayout*)layout )->addWidget( w );
+		    break;
+		case WidgetFactory::VBox:
+		    ( (QVBoxLayout*)layout )->addWidget( w );
+		    break;
+		case WidgetFactory::Grid:
+		    ( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
+									  col, col + colspan - 1 );
+		    break;
+		default:
+		    break;
+		}
+	    }
+
+	    if ( !toplevel )
+		toplevel = w;
+	    layout = 0;
+
+	    if ( w && formwindow ) {
+		if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits( "QWizard" ) ) )
+		    formwindow->insertWidget( w, pasting );
+		else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
+		    MetaDataBase::addEntry( w );
+	    }
+
+	    if ( style )
+		w->setStyle( style );
+	    if ( pal )
+		w->setPalette( *pal );
+	}
+    }
+    
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, w, layout, Qt::Horizontal );
 	} else if ( n.tagName() == "widget" ) {
-	    createObject( n, w, layout );
+	    createObject( n, w, layout, n.attribute( "class", "QWidget" ) );
 	} else if ( n.tagName() == "hbox" ) {
 	    QLayout *parentLayout = layout;
 	    if ( previewMode && layout && layout->inherits( "QGridLayout" ) )
@@ -1090,23 +1096,16 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		( (QDesignerGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
  	} else if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && obj ) {
-		setObjectProperty( obj, n2.firstChild().toText().data(), n2.nextSibling().toElement() );
-	    }
+	    setObjectProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "attribute" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-
-		if ( parent->inherits( "QTabWidget" ) ) {
-		    if ( attrib == "title" )
-			( (QTabWidget*)parent )->insertTab( (QWidget*)obj, v.toString() );
-		} else if ( parent->inherits( "QWizard" ) ) {
-		    if ( attrib == "title" )
-			( (QWizard*)parent )->addPage( (QWidget*)obj, v.toString() );
-		}
+	    QString attrib = n.attribute( "name" );
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( parent->inherits( "QTabWidget" ) ) {
+		if ( attrib == "title" )
+		    ( (QTabWidget*)parent )->insertTab( (QWidget*)obj, v.toString() );
+	    } else if ( parent->inherits( "QWizard" ) ) {
+		if ( attrib == "title" )
+		    ( (QWizard*)parent )->addPage( (QWidget*)obj, v.toString() );
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    createItem( n, w );
@@ -1131,20 +1130,17 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	bool clickable = TRUE, resizeable = TRUE;
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
-		QDomElement n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "name" ) {
-		    QString attrib = n2.firstChild().toText().data();
-		    QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		    if ( attrib == "text" )
-			txt = v.toString();
-		    else if ( attrib == "pixmap" ) {
-			pix = loadPixmap( n2.nextSibling().toElement() );
-			hasPixmap = TRUE;
-		    } else if ( attrib == "clickable" )
-			clickable = v.toBool();
-		    else if ( attrib == "resizeable" )
-			resizeable = v.toBool();
-		}
+		QString attrib = n.attribute( "name" );
+		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+		if ( attrib == "text" )
+		    txt = v.toString();
+		else if ( attrib == "pixmap" ) {
+		    pix = loadPixmap( n.firstChild().toElement().toElement() );
+		    hasPixmap = TRUE;
+		} else if ( attrib == "clickable" )
+		    clickable = v.toBool();
+		else if ( attrib == "resizeable" )
+		    resizeable = v.toBool();
 	    }
 	    n = n.nextSibling().toElement();
 	}
@@ -1166,16 +1162,13 @@ void Resource::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool 
     hasPixmap = FALSE;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		if ( attrib == "text" )
-		    txt = v.toString();
-		else if ( attrib == "pixmap" ) {
-		    pix = loadPixmap( n2.nextSibling().toElement() );
-		    hasPixmap = TRUE;
-		}
+	    QString attrib = n.attribute( "name" );
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		txt = v.toString();
+	    else if ( attrib == "pixmap" ) {
+		pix = loadPixmap( n.firstChild().toElement() );
+		hasPixmap = TRUE;
 	    }
 	}
 	n = n.nextSibling().toElement();
@@ -1225,20 +1218,17 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 	    item = new QListViewItem( lv, lastItem );
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
-		QDomElement n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "name" ) {
-		    QString attrib = n2.firstChild().toText().data();
-		    QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		    if ( attrib == "text" )
-			textes << v.toString();
-		    else if ( attrib == "pixmap" ) {
-			QString s = v.toString();
-			if ( s.isEmpty() ) {
-			    pixmaps << QPixmap();
-			} else {
-			    pix = loadPixmap( n2.nextSibling().toElement() );
-			    pixmaps << pix;
-			}
+		QString attrib = n.attribute( "name" );
+		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+		if ( attrib == "text" )
+		    textes << v.toString();
+		else if ( attrib == "pixmap" ) {
+		    QString s = v.toString();
+		    if ( s.isEmpty() ) {
+			pixmaps << QPixmap();
+		    } else {
+			pix = loadPixmap( n.firstChild().toElement() );
+			pixmaps << pix;
 		    }
 		}
 	    } else if ( n.tagName() == "item" ) {
@@ -1275,11 +1265,8 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	spacer->setOrientation( o );
 	spacer->setAutoResize( FALSE );
 	while ( !n.isNull() ) {
-	    if ( n.tagName() == "property" ) {
-		QDomElement n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "name" )
-		    setObjectProperty( spacer, n2.firstChild().toText().data(), n2.nextSibling().toElement() );
-	    }
+	    if ( n.tagName() == "property" )
+		setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
 	    n = n.nextSibling().toElement();
 	}
 	spacer->setAutoResize( TRUE );
@@ -1299,30 +1286,28 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
-		QDomElement n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "name" ) {
-		    if ( n2.firstChild().toText().data() == "orientation" ) {
-			if ( n2.nextSibling().firstChild().toText().data() == "Horizontal" )
-			    orient = Qt::Horizontal;
-			else
-			    orient = Qt::Vertical;
-		    } else if ( n2.firstChild().toText().data() == "sizeType" ) {
-			if ( n2.nextSibling().firstChild().toText().data() == "Fixed" )
+		QString prop = n.attribute( "name" );
+		if ( prop == "orientation" ) {
+		    if ( n.firstChild().firstChild().toText().data() == "Horizontal" )
+			orient = Qt::Horizontal;
+		    else
+			orient = Qt::Vertical;
+		} else if ( prop == "sizeType" ) {
+			if ( n.firstChild().firstChild().toText().data() == "Fixed" )
 			    sizeType = QSizePolicy::Fixed;
-			else if ( n2.nextSibling().firstChild().toText().data() == "Minimum" )
+			else if ( n.firstChild().firstChild().toText().data() == "Minimum" )
 			    sizeType = QSizePolicy::Minimum;
-			else if ( n2.nextSibling().firstChild().toText().data() == "Maximum" )
+			else if ( n.firstChild().firstChild().toText().data() == "Maximum" )
 			    sizeType = QSizePolicy::Maximum;
-			else if ( n2.nextSibling().firstChild().toText().data() == "Preferred" )
+			else if ( n.firstChild().firstChild().toText().data() == "Preferred" )
 			    sizeType = QSizePolicy::Preferred;
-			else if ( n2.nextSibling().firstChild().toText().data() == "MinimumExpanding" )
+			else if ( n.firstChild().firstChild().toText().data() == "MinimumExpanding" )
 			    sizeType = QSizePolicy::MinimumExpanding;
-			else if ( n2.nextSibling().firstChild().toText().data() == "Expanding" )
+			else if ( n.firstChild().firstChild().toText().data() == "Expanding" )
 			    sizeType = QSizePolicy::Expanding;
-		    } else if ( n2.firstChild().toText().data() == "sizeHint" ) {
-			w = n2.nextSibling().firstChild().firstChild().toText().data().toInt();
-			h = n2.nextSibling().firstChild().nextSibling().firstChild().toText().data().toInt();
-		    }
+		} else if ( prop == "sizeHint" ) {
+		    w = n.firstChild().firstChild().firstChild().toText().data().toInt();
+		    h = n.firstChild().firstChild().nextSibling().firstChild().toText().data().toInt();
 		}
 	    }
 	    n = n.nextSibling().toElement();
@@ -1590,12 +1575,11 @@ void Resource::loadImageCollection( const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     while ( !n.isNull() ) {
 	if ( n.tagName() == "image" ) {
-	    QDomElement n2 = n.firstChild().toElement();
 	    Image img;
+	    img.name =  n.attribute( "name" );
+	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
-		if ( n2.tagName() == "name" )
-		    img.name = n2.firstChild().toText().data();
-		else if ( n2.tagName() == "data" )
+		if ( n2.tagName() == "data" )
 		    img.img = loadImageData( n2 );
 		n2 = n2.nextSibling().toElement();
 	    }

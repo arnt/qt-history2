@@ -35,7 +35,7 @@ public:
     static QVariant readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue );
     static bool hasAttribute( const QDomElement& e, const QString& name );
     static QColor readColor( const QDomElement &e );
-
+    static void fixDocument( QDomDocument& );
 };
 
 
