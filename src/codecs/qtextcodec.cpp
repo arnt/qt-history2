@@ -211,7 +211,8 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   own codec classes (\link #subclassing see later\endlink).
 
   The supported encodings are:
-    \list
+  \list
+  \i Latin1
   \i Big5 -- Chinese
   \i Big5-HKSCS -- Chinese
   \i eucJP -- Japanese
