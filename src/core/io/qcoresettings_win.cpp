@@ -67,7 +67,11 @@ static QString keyName(const QString &rKey)
     int idx = rKey.lastIndexOf(QLatin1Char('\\'));
     if (idx == -1)
         return rKey;
-    return rKey.mid(idx + 1);
+
+    QString res(rKey.mid(idx + 1));
+    if (res == "Default" || res == ".")
+        res = "";
+    return res;
 }
 
 static QString escapedKey(QString uKey)
