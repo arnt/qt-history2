@@ -24,6 +24,7 @@
 #include <qtextstream.h>
 #include <qdatetime.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 void    embedData( const QByteArray &input, QFile *output );
 QString convertFileNameToCIdentifier( const char * );
@@ -53,6 +54,10 @@ int main( int argc, char **argv )
     list.setAutoDelete( TRUE );
 
   // Embed data for all input files
+
+    long l = random();
+    cout << "#ifndef _" << l << endl;
+    cout << "#define _" << l << endl;
 
     for ( int i=1; i<argc; i++ ) {
 	QFile f( argv[i] );
@@ -90,7 +95,7 @@ int main( int argc, char **argv )
   // Generate summery
 
     if ( list.count() > 0 ) {
-	cout << "struct {\n    unsigned int         size;";
+	cout << "struct Embed {\n    unsigned int         size;";
 	cout << "\n    const unsigned char *data;";
 	cout << "\n    const char          *name;\n} embed_vec[] = {\n";
 	Embed *e = list.first();
@@ -101,6 +106,8 @@ int main( int argc, char **argv )
 	}
 	cout << "    { 0, 0 }\n};\n";
     }
+    
+    cout << "#endif" << endl;
 
     return 0;
 }
@@ -110,10 +117,10 @@ QString convertFileNameToCIdentifier( const char *s )
 {
     QString r = s;
     int len = r.length();
-    if ( len > 0 && !isalpha(r[0]) )
+    if ( len > 0 && !isalpha( (char)r[0].latin1() ) )
 	r[0] = '_';
     for ( int i=1; i<len; i++ ) {
-	if ( !isalnum(r[i]) )
+	if ( !isalnum( (char)r[i].latin1() ) )
 	    r[i] = '_';
     }
     return r;
