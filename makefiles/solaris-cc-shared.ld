@@ -1,5 +1,5 @@
 	-rm -f ../lib/libqt.so.$(VERSION)
-	$(CC) -G -o libqt.so.$(VERSION) \
+	$(CC) -G -h libqt.so.1 -o libqt.so.$(VERSION) \
 		$(OBJECTS) $(METAOBJ) -L/usr/openwin/lib -lX11
 	mv libqt.so.$(VERSION) ../lib
 	-rm -f ../lib/libqt.so
