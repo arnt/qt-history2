@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#150 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#151 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -81,6 +81,7 @@ class QWidgetListIt;
 
 typedef void * HANDLE;
 typedef int WId;
+typedef void * MSG;
 
 #endif
 
