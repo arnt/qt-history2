@@ -168,7 +168,43 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
-SOURCES		= \
+
+win32:SOURCES  = kernel/qapplication_win.cpp \
+		  kernel/qclipboard_win.cpp \
+		  kernel/qcolor_win.cpp \
+		  kernel/qcursor_win.cpp \
+		  kernel/qdnd_win.cpp \
+		  kernel/qfont_win.cpp \
+		  kernel/qpicture_win.cpp \
+		  kernel/qpixmap_win.cpp \
+		  kernel/qprinter_win.cpp \
+		  kernel/qpaintdevice_win.cpp \
+		  kernel/qpainter_win.cpp \
+		  kernel/qregion_win.cpp \
+		  kernel/qwidget_win.cpp
+
+win32:SOURCES  += kernel/qole_win.c
+
+unix:SOURCES   = kernel/qapplication_x11.cpp \
+		  kernel/qclipboard_x11.cpp \
+		  kernel/qcolor_x11.cpp \
+		  kernel/qcursor_x11.cpp \
+		  kernel/qdnd_x11.cpp \
+		  kernel/qfont_x11.cpp \
+		  kernel/qpicture_x11.cpp \
+		  kernel/qpixmap_x11.cpp \
+		  kernel/qprinter_x11.cpp \
+		  kernel/qpaintdevice_x11.cpp \
+		  kernel/qpainter_x11.cpp \
+		  kernel/qregion_x11.cpp \
+		  kernel/qwidget_x11.cpp
+
+unix:SOURCES   += dialogs/qprintdialog.cpp \
+		  kernel/qpsprinter.cpp \
+		  kernel/qnpsupport.cpp \
+		  kernel/qwidgetcreate_x11.cpp
+
+SOURCES		+= \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
 		  tools/qcollection.cpp \
@@ -282,43 +318,8 @@ SOURCES		= \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp
 
-win32:SOURCES  += kernel/qapplication_win.cpp \
-		  kernel/qclipboard_win.cpp \
-		  kernel/qcolor_win.cpp \
-		  kernel/qcursor_win.cpp \
-		  kernel/qdnd_win.cpp \
-		  kernel/qfont_win.cpp \
-		  kernel/qpicture_win.cpp \
-		  kernel/qpixmap_win.cpp \
-		  kernel/qprinter_win.cpp \
-		  kernel/qpaintdevice_win.cpp \
-		  kernel/qpainter_win.cpp \
-		  kernel/qregion_win.cpp \
-		  kernel/qwidget_win.cpp
-
-win32:SOURCES  += kernel/qole_win.c
-
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h
-
-unix:SOURCES   += kernel/qapplication_x11.cpp \
-		  kernel/qclipboard_x11.cpp \
-		  kernel/qcolor_x11.cpp \
-		  kernel/qcursor_x11.cpp \
-		  kernel/qdnd_x11.cpp \
-		  kernel/qfont_x11.cpp \
-		  kernel/qpicture_x11.cpp \
-		  kernel/qpixmap_x11.cpp \
-		  kernel/qprinter_x11.cpp \
-		  kernel/qpaintdevice_x11.cpp \
-		  kernel/qpainter_x11.cpp \
-		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp
-
-unix:SOURCES   += dialogs/qprintdialog.cpp \
-		  kernel/qpsprinter.cpp \
-		  kernel/qnpsupport.cpp \
-		  kernel/qwidgetcreate_x11.cpp
 
 TARGET		= qt
 VERSION		= 2.00
