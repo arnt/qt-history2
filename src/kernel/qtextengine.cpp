@@ -116,7 +116,7 @@ static QChar::Direction basicDirection( const QString &str )
 }
 
 
-static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir ) 
+static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir )
 {
     QScriptItemArray &items = engine->items;
     const QChar *text = engine->string.unicode();
@@ -209,8 +209,6 @@ static fAppendItems appendItems = qAppendItems;
 // creates the next QScript items.
 static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 {
-    QScriptItemArray &items = engine->items;
-
     BidiControl control( rightToLeft );
     if ( mode & QTextEngine::SingleLine )
 	control.singleLine = TRUE;
@@ -825,7 +823,7 @@ void QTextEngine::splitItem( int item, int pos )
 
 	int w = 0;
 	const advance_t *a = advances(&oldItem);
-	for(int j = 0; j < breakGlyph; ++j) 
+	for(int j = 0; j < breakGlyph; ++j)
 	    w += *(a++);
 
 	newItem.width = oldItem.width - w;
