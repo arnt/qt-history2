@@ -8,7 +8,6 @@ class QComboBox;
 class QLabel;
 class QListWidget;
 class QMimeData;
-class QTextBrowser;
 class QWidget;
 
 class ClipWindow : public QMainWindow
@@ -28,7 +27,6 @@ private:
     QComboBox *mimeTypeCombo;
     QLabel *dataInfoLabel;
     QListWidget *previousItems;
-    QTextBrowser *textBrowser;
 };
 
 #endif
