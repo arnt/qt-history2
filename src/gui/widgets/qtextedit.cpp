@@ -1304,6 +1304,12 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         return;
     }
 
+    // schedule a repaint of the region of the cursor, as when we move it we
+    // want to make sure the old cursor disappears (not noticable when moving
+    // only a few pixels but noticable when jumping between cells in tables for
+    // example)
+    d->update(d->cursorUpdateRect());
+
     bool updateCurrentFormat = true;
 
     if (d->cursorMoveKeyEvent(e))
