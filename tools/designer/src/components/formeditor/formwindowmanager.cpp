@@ -765,6 +765,9 @@ void FormWindowManager::endDrag(const QPoint &pos)
 
     Q_ASSERT(!m_drag_item_list.isEmpty());
 
+    foreach (AbstractDnDItem *item, m_drag_item_list)
+        item->decoration()->hide();
+
     if (m_last_form_under_mouse != 0 &&
             m_last_form_under_mouse->hasFeature(AbstractFormWindow::EditFeature)) {
         FormWindow *form = qobject_cast<FormWindow*>(m_last_form_under_mouse);
