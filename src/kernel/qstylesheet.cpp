@@ -435,7 +435,7 @@ void QStyleSheetItem::setFontFamily( const QString& fam)
 }
 
 
-/*!
+/*!\obsolete
   Returns the number of columns for this style.
 
   \sa setNumberOfColumns(), displayMode(), setDisplayMode()
@@ -447,7 +447,7 @@ int QStyleSheetItem::numberOfColumns() const
 }
 
 
-/*!
+/*!\obsolete
   Sets the number of columns for this style.  Elements in the style
   are divided into columns.
 
@@ -706,8 +706,13 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
   follow. With QSimpleRichText it is possible to use the rich text
   renderer for custom widgets as well.
 
-  The default QStyleSheet object has the following style bindings:
-
+  The default QStyleSheet object has the following style bindings,
+  sorted by structuring bindings, anchors, character style bindings
+  (i.e. inline styles), special elements like horizontal lines or
+  images and other tags. In addition, rich text supports simple HTML
+  tables.
+  
+  The structuring tags are:
   <ul>
     <li>\c &lt;qt&gt;...&lt;/qt&gt;
 	- A Qt rich text document. It understands the following attributes
@@ -732,90 +737,84 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c link
 	- The link color, for example \c link="green"
 	</ul>
-
+    <li>\c &lt;h1&gt;...&lt;/h1&gt;
+	- A top-level heading.
+    <li>\c &lt;h2&gt;...&lt;/h2&gt;
+	- A sub-level heading.
+    <li>\c &lt;h3&gt;...&lt;/h3&gt;
+	- A sub-sub-level heading.
+    <li>\c &lt;p&gt;...&lt;/p&gt;
+	- A left-aligned paragraph. Adjust the alignment with
+	the  \c align attribute. Possible values are
+	\c left, \c right and \c center.
+    <li>\c &lt;center&gt;...&lt;/center&gt;
+	- A centered paragraph.
+    <li>\c &lt;blockquote&gt;...&lt;/blockquote&gt;
+	- An indented paragraph, useful for quotes.
+    <li>\c &lt;ul&gt;...&lt;/ul&gt;
+	- An un-ordered list. You can also pass a type argument to
+	define the bullet style. The default is \c type=disc,  other
+	types are \c circle and \c square.
+    <li>\c &lt;ol&gt;...&lt;/ol&gt;
+	- An ordered list. You can also pass a type argument to define
+	the enumeration label style. The default is \c type="1", other
+	types are \c "a" and \c "A".
+    <li>\c &lt;li&gt;...&lt;/li&gt;
+	- A list item. This tag can only be used within the context of 
+	\c ol or \c ul.
+    <li>\c &lt;pre&gt;...&lt;/pre&gt;
+	- For larger junks of code. Whitespaces in the contents are preserved.
+	For small bits of code, use the inline-style \c code.
+   </ul>
+   
+   Anchors and links are done with a single tag:
+   <ul>
     <li>\c &lt;a&gt;...&lt;/a&gt;
 	- An anchor or link. The reference target is defined in the
-	\c href attribute of the tag as in \c&lt;a \c href="target.qml"&gt;...&lt;/a&gt;.
+	\c href attribute of the tag as in \c &lt;a \c href="target.qml"&gt;...&lt;/a&gt;.
 	You can also specify an additional anchor within the specified target document, for
 	example \c &lt;a \c href="target.qml#123"&gt;...&lt;/a&gt;.  If
 	\c a is meant to be an anchor, the reference source is given in
 	the \c name attribute.
-
+  </ul>
+   
+   The default character style bindings are:
+   <ul>
+    <li>\c &lt;em&gt;...&lt;/em&gt;
+	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
+    <li>\c &lt;strong&gt;...&lt;/strong&gt;
+	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold).
+    <li>\c &lt;b&gt;...&lt;/b&gt;
+	- Bold font style.
+    <li>\c &lt;u&gt;...&lt;/u&gt;
+	- Underlined font style.
+    <li>\c &lt;big&gt;...&lt;/big&gt;
+	- A larger font size.
+    <li>\c &lt;small&gt;...&lt;/small&gt;
+	- A smaller font size.
+    <li>\c &lt;large&gt;...&lt;/large&gt;
+	- Large font size.
     <li>\c &lt;font&gt;...&lt;/font&gt;
-	- Customizes the font size and text color. The tag understands two attributes:
+	- Customizes the font size, family  and text color. The tag understands 
+	the following  attributes:
 	<ul>
 	<li> \c color
 	- the text color, for example \c color="red" or \c color="#FF0000".
 	<li> \c size
 	- the logical size of the font. Logical sizes 1 to 7 are supported.
 	 The value may either be absolute, for example
-	\c size=3, or relative. In the latter case, the sizes are simply added.
+	\c size=3, or relative like \c size=-2. In the latter case, the sizes 
+	are simply added.
 	<li> \c face
-	- the family of the font, for example \c face=times
+	- the family of the font, for example \c face=times.
 	</ul>
-	
-    <li>\c &lt;em&gt;...&lt;/em&gt;
-	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
-
-    <li>\c &lt;strong&gt;...&lt;/strong&gt;
-	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold)
-
-    <li>\c &lt;big&gt;...&lt;/big&gt;
-	- A larger font size.
-
-    <li>\c &lt;small&gt;...&lt;/small&gt;
-	- A smaller font size.
-	
     <li>\c &lt;code&gt;...&lt;/code&gt;
-	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter)
-
-    <li>\c &lt;pre&gt;...&lt;/pre&gt;
-	- For larger junks of code. Whitespaces in the contents are preserved.
-
-    <li>\c &lt;large&gt;...&lt;/large&gt;
-	- Large font size.
-
-    <li>\c &lt;b&gt;...&lt;/b&gt;
-    - style->setFontWeight( QFont::Bold);
-	Bold font style.
-
-    <li>\c &lt;h1&gt;...&lt;/h1&gt;
-	- A top-level heading.
-
-    <li>\c &lt;h2&gt;...&lt;/h2&gt;
-	- A sub-level heading.
-
-    <li>\c &lt;h3&gt;...&lt;/h3&gt;
-	- A sub-sub-level heading.
-
-    <li>\c &lt;p&gt;...&lt;/p&gt;
-	- A paragraph.
-
-    <li>\c &lt;center&gt;...&lt;/center&gt;
-	- A centered paragraph.
-
-    <li>\c &lt;blockquote&gt;...&lt;/blockquote&gt;
-	- An indented paragraph, useful for quotes.
-
-    <li>\c &lt;multicol \c cols=\a n \c &gt;...&lt;/multicol&gt;
-	- Multicol display with \a n columns
-
-    <li>\c &lt;twocolumn&gt;...&lt;/twocolumn&gt;
-	- Two-column display.
-
-    <li>\c &lt;ul&gt;...&lt;/ul&gt;
-	- An un-ordered list. You can also pass a type argument to
-	define the bullet style. The default is \c type=disc,  other
-	types are \c circle and \c square.
-
-    <li>\c &lt;ol&gt;...&lt;/ol&gt;
-	- An ordered list. You can also pass a type argument to define
-	the enumeration label style. The default is \c type="1", other
-	types are \c "a" and \c "A".
-
-    <li>\c &lt;li&gt;...&lt;/li&gt;
-	- A list item.
-
+	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For 
+	larger junks of code, use the block-tag \c pre.
+   </ul>
+   
+   Special elements are:
+   <ul>
     <li>\c &lt;img/&gt;
 	- An image. The image name for the mime source
 	factory  is given in the source attribute, for example
@@ -823,13 +822,76 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	understands the attributes \c width and \c height that determine
 	the size of the image. If the pixmap does not fit to the specified
 	size, it will be scaled automatically ( by using QImage::smoothScale() ).
-
-    <li>\c &lt;br/&gt;
-	- A line break
 	
+	The \c align attribute determines where the image is
+	placed. Per default, an image is placed inline, just like a
+	normal character. Specify \c left or \c right to place the
+	image at the respective side.
     <li>\c &lt;hr/&gt;
 	- A horizonal line
+    <li>\c &lt;br/&gt;
+	- A line break
   </ul>
+  
+  Other tags not in any of the above cathegories are:
+  <ul>
+  <li>\c &lt;nobr&gt;...&lt;/nobr&gt;
+	- No break. Prevents word wrap.
+  </ul>
+
+  In addition, rich text supports simple HTML tables. The model is
+  simple: A table consists of a set of rows where each row contains
+  some number of cells. Cells are either data cells or header cells,
+  depending on their content. Usually a cell fills one rectangle in
+  the table grid. It may, however, also span several rows, columns or
+  both.
+  
+ <ul>
+   <li>\c &lt;table&gt;...&lt;/table&gt;
+   - A table definition. 
+     The default table is frameless. Specify the boolean attribute 
+     \c border to get a frame.
+     
+     Other attributes are:
+	<ul>
+	<li>\c bgcolor
+	- The background color
+	<li> \c width
+	- The table width. This is either absolute in pixels or relative 
+	in percent of the column width, for example \c width=80%
+	<li> \c border
+	- The width of the table border. The default is 0 (= no border).
+	<li> \c cellspacing
+	- Additional space around the table cells. The default is 2.
+	<li> \c cellpadding
+	- Additinal space around the contents of table cells. Default is 1.
+	</ul>
+   <li>\c &lt;tr&gt;...&lt;/tr&gt;
+   - A table row. Understands the attribute
+	<ul>
+	<li>\c bgcolor
+	- The background color
+	</ul>
+   <li>\c &lt;td&gt;...&lt;/td&gt;
+   - A table data cell. Understands the attributes
+	<ul>
+	<li>\c bgcolor
+	- The background color
+	<li> \c width
+	- The cell width. This is either absolute in pixels or relative 
+	in percent of the entire table width, for example \c width=50%
+	<li> \c colspan
+	- Defines how many columns this cell spans. The default is 1.
+	<li> \c rowspan
+	- Defines how many rows this cell spans. The default is 1.
+	<li> \c align
+	- Alignment, possible values are \c left, \c right and \c center. The 
+	default is left-aligned.
+	</ul>
+   <li>\c &lt;th&gt;...&lt;/th&gt;
+   - A table header cell. Like \c td but defaults to center-alignment
+     and a bold font.
+   </ul>
 */
 
 /*!
@@ -954,8 +1016,6 @@ void QStyleSheet::init()
     new QStyleSheetItem(this, QString::fromLatin1("br"));
     new QStyleSheetItem(this, QString::fromLatin1("hr"));
 
-    style = new QStyleSheetItem( this, QString::fromLatin1("table") );
-    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style = new QStyleSheetItem( this, QString::fromLatin1("pre") );
     style->setFontFamily( QString::fromLatin1("courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
@@ -964,24 +1024,20 @@ void QStyleSheet::init()
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginAll, 8 );
     
-    
-     style = new QStyleSheetItem(this, "head");
+     style = new QStyleSheetItem( this, "head" );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
-     // Implement definition lists:
-     style = new QStyleSheetItem(this, "dl");
+     style = new QStyleSheetItem( this, "dl" );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-     style = new QStyleSheetItem(this, "dt");
+     style = new QStyleSheetItem( this, "dt" );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style->setContexts("dl");
-     style = new QStyleSheetItem(this, "dd");
+     style = new QStyleSheetItem( this, "dd" );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style->setMargin(QStyleSheetItem::MarginLeft, 30);
      style->setContexts("dt");
-     // Implement underlined text:
-     style = new QStyleSheetItem(this, "u");
-     style->setFontUnderline(true);
-     // Implement no-break: XXX apparently doesn't work!!!
-     style = new QStyleSheetItem(this, "nobr");
+     style = new QStyleSheetItem( this, "u" );
+     style->setFontUnderline( TRUE);
+     style = new QStyleSheetItem( this, "nobr" );
      style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
 }
 
