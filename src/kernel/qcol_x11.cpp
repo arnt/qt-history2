@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#24 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#24 $";
 #endif
 
 
@@ -60,11 +60,6 @@ void qt_reset_color_avail()			// OOPS: called from event loop
 // --------------------------------------------------------------------------
 // QColor special member functions
 //
-
-inline ulong _RGB( uint r, uint g, uint b )
-{
-    return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16);
-}
 
 static int highest_bit( ulong v )
 {
@@ -186,7 +181,7 @@ QColor::QColor( const QColor &c )		// copy color
 void QColor::alloc()				// allocate color
 {
     if ( (rgb & RGB_INVALID) || !colorDict ) {	// invalid color or state
-	rgb = _RGB( 0, 0, 0 );
+	rgb = QRGB( 0, 0, 0 );
 	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
 	return;
     }
@@ -293,7 +288,7 @@ void QColor::setRGB( int r, int g, int b )	// set RGB value
 	return;
     }
 #endif
-    rgb = _RGB(r,g,b);
+    rgb = QRGB(r,g,b);
     if ( lazyAlloc() || !g_cmap )
 	rgb |= RGB_DIRTY;			// alloc later
     else
