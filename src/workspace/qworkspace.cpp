@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#82 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#83 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -116,7 +116,7 @@
   If you want your users to be able to work with document windows
   larger than the actual workspace, set the scrollBarsEnabled property
   to TRUE.
-  
+
   In case the top-level window contains a menu bar and a document
   minimize, restore and close buttons from the document window's frame
   to the workspace window's menu bar. It then inserts a window operations
@@ -1922,6 +1922,8 @@ void QWorkspace::updateScrollbars()
 	if ( !child->isHidden() )
 	    r = r.unite( child->geometry() );
     }
+    d->vbar->blockSignals( TRUE );
+    d->hbar->blockSignals( TRUE );
     d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - d->hbar->width() );
     d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - d->vbar->width()  );
 
@@ -1939,6 +1941,8 @@ void QWorkspace::updateScrollbars()
 	d->vbar->show();
 	d->hbar->show();
     }
+    d->vbar->blockSignals( FALSE );
+    d->hbar->blockSignals( FALSE );
 }
 
 void QWorkspace::scrollBarChanged()
