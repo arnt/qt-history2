@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#27 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#27 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -449,7 +449,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    bmh->biHeight	  = native ? -h : h;
+    bmh->biHeight	  = -h;
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
@@ -483,7 +483,6 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 		*p++ = b[0];
 		b += 3;
 	    }
-
 	}
     }
 
