@@ -591,17 +591,15 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 {
     if(QApplication::closingDown())
 	return;
-    if(QMacBlockingFunction::blocking()) { //nah, let's do it "later"
-	if(glcx) {
-	    if(!dblbuf) {
-		glcx->fixBufferRect();
-	    } else if(gl_pix && gl_pix->size() != size()) {
-		aglSetDrawable((AGLContext)glcx->cx, NULL);
-		gl_pix->resize(size());
-		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
-		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
-				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-	    }
+    if(glcx && QMacBlockingFunction::blocking()) { //nah, let's do it "later"
+	if(!dblbuf) {
+	    glcx->fixBufferRect();
+	} else if(gl_pix && gl_pix->size() != size()) {
+	    aglSetDrawable((AGLContext)glcx->cx, NULL);
+	    gl_pix->resize(size());
+	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
+	    aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
+			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 	}
 	pending_fix = TRUE;
 	return;
