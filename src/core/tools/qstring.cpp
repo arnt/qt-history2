@@ -759,6 +759,8 @@ void QString::resize(int size)
 */
 
 /*!
+    \fn void QString::reserve(int size)
+
     Attempts to allocate memory for at least \a size characters. If
     you know in advance how large the string will be, you can call
     this function, and if you resize the string often you are likely
@@ -789,12 +791,6 @@ void QString::resize(int size)
     \sa squeeze(), capacity()
 */
 
-void QString::reserve(int size)
-{
-    if (d->ref != 1 || size > d->alloc)
-        realloc(size);
-}
-
 /*!
     \fn void QString::squeeze()
 
@@ -812,20 +808,21 @@ void QString::realloc(int alloc)
     if (d->ref != 1 || d->data != d->array) {
         Data *x = static_cast<Data *>(qMalloc(sizeof(Data) + alloc * sizeof(QChar)));
         *x = *d;
-        x->data = x->array;
-        ::memcpy(x->data, d->data, (qMin(alloc, d->alloc) + 1) * sizeof(QChar));
+        if (alloc < x->size)
+            x->size = alloc;
+        ::memcpy(x->array, d->data, x->size * sizeof(QChar));
+        x->array[x->size] = QChar::null;
         x->c = 0;
         x->cache = 0;
         x->ref = 1;
-        x->alloc = alloc;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             free(x);
     } else {
-        d = (Data*) qRealloc(d, sizeof(Data)+alloc*sizeof(QChar));
-        d->alloc = alloc;
-        d->data = d->array;
+        d = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc * sizeof(QChar)));
     }
+    d->alloc = alloc;
+    d->data = d->array;
 }
 
 void QString::realloc()

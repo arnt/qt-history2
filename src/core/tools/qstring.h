@@ -66,7 +66,7 @@ public:
     void truncate(int maxSize);
 
     int capacity() const;
-    void reserve(int size);
+    inline void reserve(int size) { if (d->ref != 1 || size > d->alloc) realloc(size); }
     inline void squeeze() { if (d->size < d->alloc) realloc(); }
 
     inline const QChar *unicode() const;
