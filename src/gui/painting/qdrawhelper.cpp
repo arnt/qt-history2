@@ -56,10 +56,10 @@ static void blend_transformed_bilinear(ARGB *target, const QSpan *span, qreal ix
         int y1_offset = y1 * image_width;
         int y2_offset = y1_offset + image_width;
 
-        ARGB tl = (x1_out | y1_out) ? 0 : image_bits[y1_offset + x1];
-        ARGB tr = (x2_out | y1_out) ? 0 : image_bits[y1_offset + x2];
-        ARGB bl = (x1_out | y2_out) ? 0 : image_bits[y2_offset + x1];
-        ARGB br = (x2_out | y2_out) ? 0 : image_bits[y2_offset + x2];
+        ARGB tl = (x1_out | y1_out) ? ARGB(0) : image_bits[y1_offset + x1];
+        ARGB tr = (x2_out | y1_out) ? ARGB(0) : image_bits[y1_offset + x2];
+        ARGB bl = (x1_out | y2_out) ? ARGB(0) : image_bits[y2_offset + x1];
+        ARGB br = (x2_out | y2_out) ? ARGB(0) : image_bits[y2_offset + x2];
 
         ARGB xtop((tl.a * idistx + tr.a * distx) >> 8,
                   (tl.r * idistx + tr.r * distx) >> 8,
@@ -177,7 +177,7 @@ static void blend_transformed(ARGB *target, const QSpan *span,
 
         int y_offset = py * image_width;
 
-        ARGB pixel = (x_out | y_out) ? 0 : image_bits[y_offset + px];
+        ARGB pixel = (x_out | y_out) ? ARGB(0) : image_bits[y_offset + px];
 
         qt_blend_pixel(pixel, target, span->coverage);
         x += fdx;
