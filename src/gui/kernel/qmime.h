@@ -82,24 +82,68 @@ public:
     QWindowsMime();
     virtual ~QWindowsMime();
 
+
+    // intrenal for converting to Qt
+    static QWindowsMime *converterToMime(const QString &mimeType, struct IDataObject *pDataObj);
+    static QStringList allMimesForFormats(struct IDataObject *pDataObj);
+    
+    // intrenal for converting from Qt
+    static QWindowsMime *converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData);
+    static QVector<FORMATETC> allFormatsForMime(const QMimeData *mimeData);
+    
+
+    // for converting from Qt
+    virtual bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const = 0;
+    virtual bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const = 0;
+    virtual QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const = 0;
+    
+
+    // for converting to Qt
+    virtual bool canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const = 0;
+    virtual QVariant convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const = 0;
+    virtual QString mimeForFormat(const FORMATETC &formatetc) const = 0;
+    
+protected:
+    // helpers for using global memory
+    inline int getCf(const FORMATETC &formatetc) const { return formatetc.cfFormat; } 
+    inline FORMATETC setCf(int cf) const 
+    { 
+      FORMATETC formatic;
+      formatic.cfFormat = cf;
+      formatic.dwAspect = DVASPECT_CONTENT;
+      formatic.lindex = -1;
+      formatic.ptd =  NULL;
+      formatic.tymed = TYMED_HGLOBAL;
+      return formatic; 
+    }
+    bool setData(const QByteArray &data, STGMEDIUM * pmedium) const;
+    QByteArray getData(int cf, struct IDataObject * pDataObj) const;
+    bool canGetData(int cf, struct IDataObject * pDataObj) const;
+
+public:
+
+
     static void initialize();
+    static int registerMimeType(const QString &mime);
+
+
+    //old
 
     static QList<QWindowsMime*> all();
     static QWindowsMime* convertor(const QString &mime, int cf);
-    static QString cfToMime(int cf);
+    
+    static QString cfToMime(int) { return QString();}
 
-    static int registerMimeType(const QString &mime);
-
-    virtual QString convertorName()=0;
-    virtual int countCf()=0;
-    virtual int cf(int index)=0;
-    virtual bool canConvert(const QString &mime, int cf)=0;
-    virtual QString mimeFor(int cf)=0;
-    virtual int cfFor(const QString &mime)=0;
-    virtual QByteArray convertToMime(const QByteArray &data, const QString &mime, int cf)=0;
-    virtual QByteArray convertFromMime(const QByteArray &data, const QString &mime, int cf)=0;
+    
+    virtual QString convertorName() { return QString(); };
+    virtual int countCf() { return 0; };
+    virtual int cf(int index) { return 0; };
+    virtual bool canConvert(const QString &mime, int cf) { return false; };
+    
+    virtual int cfFor(const QString &mime) { return 0; };
+    virtual QByteArray convertToMime(const QByteArray &data, const QString &mime, int cf) { return QByteArray(); };
+    virtual QByteArray convertFromMime(const QByteArray &data, const QString &mime, int cf) { return QByteArray();};
 };
-
 #endif
 #if defined(Q_WS_MAC)
 

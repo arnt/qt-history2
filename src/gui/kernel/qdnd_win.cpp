@@ -74,111 +74,6 @@ DWORD translateToWinDragEffects(QDrag::DropActions action)
 }
 
 
-// Returns a LPFORMATETC enumerating all CF's that ms can be produced.
-static
-LPFORMATETC allFormats(int& n)
-{
-    n = 0;
-    QWindowsMime* wm;
-    QList<QWindowsMime*> mimes = QWindowsMime::all();
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        n += wm->countCf();
-    }
-
-    LPFORMATETC fmtetc = new FORMATETC[n];
-
-    int i = 0;
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        int t = wm->countCf();
-        for (int j=0; j<t; j++) {
-            fmtetc[i].cfFormat = wm->cf(j);
-            fmtetc[i].dwAspect = DVASPECT_CONTENT;
-            fmtetc[i].tymed = TYMED_HGLOBAL;
-            fmtetc[i].ptd = NULL;
-            fmtetc[i].lindex = -1;
-            i++;
-        }
-    }
-
-    Q_ASSERT(n==i);
-    return fmtetc;
-}
-
-// Returns a LPFORMATETC enumerating the CF's that ms can be produced
-// from type \a mime.
-static
-LPFORMATETC someFormats(const QString &mime, int& n)
-{
-    n = 0;
-    QWindowsMime* wm;
-    QList<QWindowsMime*> mimes = QWindowsMime::all();
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        if (wm->cfFor(mime)) n += wm->countCf();
-    }
-
-    LPFORMATETC fmtetc = new FORMATETC[n];
-
-    int i = 0;
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        if (wm->cfFor(mime)) {
-            int t = wm->countCf();
-            for (int j=0; j<t; j++) {
-                fmtetc[i].cfFormat = wm->cf(j);
-                fmtetc[i].dwAspect = DVASPECT_CONTENT;
-                fmtetc[i].tymed = TYMED_HGLOBAL;
-                fmtetc[i].ptd = NULL;
-                fmtetc[i].lindex = -1;
-                i++;
-            }
-        }
-    }
-
-    Q_ASSERT(n==i);
-    return fmtetc;
-}
-
-
-// Returns a LPFORMATETC enumerating the CF's that ms can produce
-// (after being converted).
-static
-LPFORMATETC someFormats(const QMimeData* ms, int& n)
-{
-    n = 0;
-    QWindowsMime* wm;
-    QList<QWindowsMime*> mimes = QWindowsMime::all();
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        n += wm->countCf();
-    }
-
-    LPFORMATETC fmtetc = new FORMATETC[n]; // Bigger than needed
-
-    int i = 0;
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        wm = mimes[pos];
-        int t = wm->countCf();
-        for (int j=0; j<t; j++) {
-            if (ms->hasFormat(wm->mimeFor(wm->cf(j)).latin1())) {
-                fmtetc[i].cfFormat = wm->cf(j);
-                fmtetc[i].dwAspect = DVASPECT_CONTENT;
-                fmtetc[i].tymed = TYMED_HGLOBAL;
-                fmtetc[i].ptd = NULL;
-                fmtetc[i].lindex = -1;
-                i++;
-            }
-        }
-    }
-    n = i;
-
-    return fmtetc;
-}
-
-
-
 class QOleDropSource : public IDropSource
 {
 public:
@@ -423,34 +318,13 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 #ifdef QDND_DEBUG
     qDebug("QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)");
 #endif
-    pmedium->tymed = 0;
-    pmedium->pUnkForRelease = NULL;
-    pmedium->hGlobal = NULL;
-    
-    if (pformatetc->dwAspect & DVASPECT_CONTENT && pformatetc->tymed & TYMED_HGLOBAL) {
-        if (pformatetc->cfFormat == CF_TEXT) {
-            HGLOBAL hData = GlobalAlloc(0, data->text().length() + 1);
-            if (!hData) {
-                return ResultFromScode(E_OUTOFMEMORY);
-            }
-            void* out = GlobalLock(hData);
-            memcpy(out, data->text().latin1(), data->text().length() + 1);
-            GlobalUnlock(hData);
-            pmedium->tymed = TYMED_HGLOBAL;
-            pmedium->hGlobal = hData;
-            return ResultFromScode(S_OK);
-        } else if (pformatetc->cfFormat == CF_PREFEREDDROPEFFECT) {
-            HGLOBAL hData = GlobalAlloc(0, sizeof(DWORD));
-            DWORD * val = (DWORD*)GlobalLock(hData);
-            *val = DROPEFFECT_COPY;
-            GlobalUnlock(hData);
-            pmedium->tymed = TYMED_HGLOBAL;
-            pmedium->hGlobal = hData;
-            return ResultFromScode(S_OK);
-        }
-    }
-    return ResultFromScode(DATA_E_FORMATETC);
-    
+
+    QWindowsMime *converter = QWindowsMime::converterFromMime(*pformatetc, data);
+
+    if (converter && converter->convertFromMime(*pformatetc, data, pmedium))
+        return ResultFromScode(S_OK);
+    else
+        return ResultFromScode(DATA_E_FORMATETC);
 }
 
 STDMETHODIMP
@@ -465,12 +339,8 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 #ifdef QDND_DEBUG
     qDebug("QOleDataObject::QueryGetData(LPFORMATETC pformatetc)");
 #endif
-    if (pformatetc->dwAspect & DVASPECT_CONTENT &&
-        pformatetc->tymed & TYMED_HGLOBAL &&
-        (pformatetc->cfFormat == CF_TEXT || 
-	     pformatetc->cfFormat == CF_PREFEREDDROPEFFECT)) {
+    if (QWindowsMime::converterFromMime(*pformatetc, data))
         return ResultFromScode(S_OK);
-    }
     return ResultFromScode(S_FALSE);
 }
 
@@ -498,26 +368,12 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
     qDebug("QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)");
 #endif
     SCODE sc = S_OK;
-    ///### just text for now
-    FORMATETC fmtetc[2];
-    if (dwDirection == DATADIR_GET) {
-        fmtetc[0].cfFormat = CF_TEXT;
-        fmtetc[0].dwAspect = DVASPECT_CONTENT;
-        fmtetc[0].lindex = -1;
-        fmtetc[0].ptd =  NULL;
-        fmtetc[0].tymed = TYMED_HGLOBAL;
-        fmtetc[1].cfFormat = CF_PREFEREDDROPEFFECT;
-	    fmtetc[1].dwAspect = DVASPECT_CONTENT;
-	    fmtetc[1].lindex = -1;
-	    fmtetc[1].ptd =  NULL;
-	    fmtetc[1].tymed = TYMED_HGLOBAL;
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(2, fmtetc);
-        if (*ppenumFormatEtc == NULL)
-            sc = E_OUTOFMEMORY;
-    } else {
-        sc = E_INVALIDARG;
-    }
     
+    QVector<FORMATETC> fmtetcs = QWindowsMime::allFormatsForMime(data);
+    *ppenumFormatEtc = OleStdEnumFmtEtc_Create(fmtetcs.size(), fmtetcs.data());
+    if (*ppenumFormatEtc == NULL)
+        sc = E_OUTOFMEMORY;
+
     return ResultFromScode(sc);
 }
 
@@ -733,109 +589,37 @@ bool QDropData::hasFormat(const QString &mimeType) const
     if (!currentDataObject) // Sanity
         return false;
 
-    int n;
-    FORMATETC *fmtetc = someFormats(mimeType,n);
-    bool does = false;
-    for (int i=0; i<n && !does; i++) {
-        int cf = fmtetc[i].cfFormat;
-        QWindowsMime* wm = QWindowsMime::convertor(mimeType,cf);
-        if (wm && NOERROR == currentDataObject->QueryGetData(fmtetc+i))
-            does = true;
-    }
-    delete [] fmtetc;
-    return does;
-    
-    return false;
+    return QWindowsMime::converterToMime(mimeType, currentDataObject) != 0;
 }
-
 
 QStringList QDropData::formats() const
 {
-    
     QStringList fmts;
     if (!currentDataObject) // Sanity
         return fmts;
 
-    int n;
-    LPFORMATETC fmtetc = allFormats(n);
-    for (int i=0; i<n; i++) {
-        // Does the drag source provide this format that we accept?
-        if (NOERROR == currentDataObject->QueryGetData(fmtetc+i))
-            fmts.append(QWindowsMime::cfToMime(fmtetc[i].cfFormat));
-    }
-    delete [] fmtetc;
-
-    return fmts;
+    fmts = QWindowsMime::allMimesForFormats(currentDataObject);
     
-    return QStringList();
+    return fmts;
 }
 
-QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
+
+QVariant QDropData::retrieveData(const QString &format, QVariant::Type type) const
 {
-        QByteArray result;
+    QByteArray result;
 
     if (!currentDataObject) // Sanity
         return result;
 
-#ifdef USE_FORMATENUM // doesn't work yet
-    LPENUMFORMATETC FAR fmtenum;
-    HRESULT hr = currentDataObject->EnumFormatEtc(DATADIR_GET, &fmtenum);
 
-    if (hr == NOERROR) {
-        FORMATETC fmtetc;
-        ULONG i=0;
-        while (NOERROR==fmtenum->Next(i, &fmtetc, &i) && i) {
-            int cf = fmtetc.cfFormat;
-            QWindowsMime* wm = QWindowsMime::convertor(format, cf);
-            STGMEDIUM medium;
-            HGLOBAL hText;
-            HRESULT hr;
+    QWindowsMime *converter = QWindowsMime::converterToMime(format, currentDataObject);
 
-            fmtetc.ptd = NULL;
-            fmtetc.dwAspect = DVASPECT_CONTENT;
-            fmtetc.lindex = -1;
-            fmtetc.tymed = TYMED_HGLOBAL;
-
-            hr = current_dropobj->GetData(&fmtetc, &medium);
-            if (!FAILED(hr)) {
-                hText = medium.hGlobal;
-                char* d = (char*)GlobalLock(hText);
-                int len = GlobalSize(medium.hGlobal);
-                QByteArray r;
-                r.setRawData(d,len);
-                QByteArray tr = wm->convertToMime(r,format,cf);
-                tr.detach();
-                r.resetRawData(d,len);
-                GlobalUnlock(hText);
-                ReleaseStgMedium(&medium);
-                return tr;
-            }
-        }
-    }
-#else
-
-    int n;
-    FORMATETC *fmtetc = someFormats(format,n);
-    for (int i=0; i<n && result.isNull(); i++) {
-        int cf = fmtetc[i].cfFormat;
-        QWindowsMime* wm = QWindowsMime::convertor(format,cf);
-        if (wm) {
-            STGMEDIUM medium;
-            HRESULT hr = currentDataObject->GetData(fmtetc+i, &medium);
-            if (!FAILED(hr)) {
-                HGLOBAL hText = medium.hGlobal;
-                const QByteArray r = QByteArray::fromRawData((char*)GlobalLock(hText), GlobalSize(hText));
-                result = wm->convertToMime(r,format,cf);
-		result.detach(); // insure that we no longer reference the global data.
-                GlobalUnlock(hText);
-                ReleaseStgMedium(&medium);
-            }
-        }
-    }
-    delete [] fmtetc;
-#endif
-    return result;
+    if (converter)
+        return converter->convertToMime(format, type, currentDataObject);
+    else
+        return QVariant();
 }
+
 
 QDrag::DropAction QDragManager::drag(QDrag *o)
 
@@ -1061,26 +845,5 @@ void QDragManager::drop()
 
 #endif // QT_NO_DRAGANDDROP
 
-/*
-class QMimeConverter : QObject
-{
-public:
-    void setMimeData(QMimeData *mimeData);
-protected:
-    DO getWinDataObject() { return mimeData->windataObject};
-    
-   QMimeData data;
-};
 
-class QMimeData
-{
 
-public:
-    QMimeConverter * converterFor(QString format);
-
-protected:
-    static void registerConverter(QMimeConverter *);
-    
-    DO *windataObject;
-}
-*/
