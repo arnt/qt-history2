@@ -103,7 +103,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 
     m_treeWidget->clear();
 
-    if (!fw)
+    if (!fw || !fw->mainContainer())
         return;
 
     AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
