@@ -979,7 +979,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     focusIndicator.parag = 0;
     minw = 0;
     minwParag = 0;
-    
+
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
@@ -1046,7 +1046,7 @@ bool QTextDocument::setMinimumWidth( int, QTextParag * )
 // 	return FALSE;
 
 //     qDebug( "new minw: %d", w );
-    
+
 //     minw = w;
 //     minwParag = parag;
 //     return TRUE;
@@ -2287,6 +2287,8 @@ bool QTextDocument::focusNextPrevChild( bool next )
 
 QTextString::QTextString()
 {
+    textChanged = FALSE;
+    bidi = TRUE;
 }
 
 void QTextString::insert( int index, const QString &s, QTextFormat *f )
@@ -2302,6 +2304,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].lineStart = 0;
 	data[ (int)index + i ].d = 0;
 	data[ (int)index + i ].isCustom = 0;
+	data[ (int)index + i ].rightToLeft = 0;
 #if defined(_WS_X11_)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
@@ -2314,6 +2317,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].setFormat( f );
     }
     cache.insert( index, s );
+    textChanged = TRUE;
 }
 
 void QTextString::insert( int index, Char *c )
@@ -2328,15 +2332,18 @@ void QTextString::insert( int index, Char *c )
     data[ (int)index ].setFormat( c->format() );
     data[ (int)index ].x = 0;
     data[ (int)index ].lineStart = 0;
+    data[ (int)index ].rightToLeft = 0;
     data[ (int)index ].d = 0;
     data[ (int)index ].isCustom = 0;
     cache.insert( index, QString::null );
+    textChanged = TRUE;
 }
 
 void QTextString::truncate( int index )
 {
     data.truncate( index );
     cache.truncate( index );
+    textChanged = TRUE;
 }
 
 void QTextString::remove( int index, int len )
@@ -2345,6 +2352,7 @@ void QTextString::remove( int index, int len )
 	     sizeof( Char ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
     cache.remove( index, len );
+    textChanged = TRUE;
 }
 
 void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
@@ -2579,6 +2587,7 @@ void QTextParag::format( int start, bool doMove )
     firstFormat = FALSE;
     changed = TRUE;
     invalid = -1;
+    string()->setTextChanged( FALSE );
 }
 
 int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
@@ -2723,7 +2732,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int bw = 0;
     int cy = 0;
     int curx = -1, cury, curh;
-	
+    bool lastDirection = 0;
+    
     int selectionStarts[ doc->numSelections ];
     int selectionEnds[ doc->numSelections ];
     if ( drawSelections ) {
@@ -2796,7 +2806,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	// if something (format, etc.) changed, draw what we have so far
-	if ( lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
+	if ( lastDirection != chr->rightToLeft ||
+	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
@@ -2828,6 +2839,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    bw += cw;
 	}
 	lastBaseLine = baseLine;
+	lastDirection = chr->rightToLeft;
     }
 	
     // if we are through thg parag, but still have some stuff left to draw, draw it now
@@ -4436,7 +4448,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 
     lastX = x;
     lastY = y;
-    
+
     painter = p;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( cx < 0 && cy < 0 ||
@@ -4540,12 +4552,12 @@ void QTextTable::enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int
 	    break;
 	}
     }
-    
+
     if ( currCell == -1 ) {
 	QTextCustomItem::enterAt( doc, parag, idx, ox, oy, pos );
 	return;
     }
-    
+
     QTextTableCell *cell = cells.at( currCell );
     doc = cell->richText();
     parag = doc->firstParag();
@@ -4837,5 +4849,60 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     else
 	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (bool)c, c );
     painter()->restore();
+}
+
+
+static QChar::Direction basicDirection(const QTextString &text)
+{
+    int pos = 0;
+    while( pos < text.length() ) {
+	switch( text.at(pos).c.direction() )
+	{
+	case QChar::DirL:
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    return QChar::DirL;
+	case QChar::DirR:
+	case QChar::DirAL:
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    return QChar::DirR;
+	default:
+	    break;
+	}
+	++pos;
+    }
+    return QChar::DirL;
+}
+
+
+/* a small helper class used internally to resolve Bidi embedding levels.
+   Each line of text caches the embedding level at the start of the line for faster
+   relayouting
+*/
+QTextBidiContext::QTextBidiContext(unsigned char l, QChar::Direction e, QTextBidiContext *p, bool o)
+    : level(l) , override(o), dir(e)
+{
+    if(p) {
+	p->ref();
+	parent = p;
+    }
+    count = 0;
+}
+
+QTextBidiContext::~QTextBidiContext()
+{
+    if(parent) parent->deref();
+}
+
+void QTextBidiContext::ref() const
+{
+    count++;
+}
+
+void QTextBidiContext::deref() const
+{
+    count--;
+    if(count <= 0) delete this;
 }
 

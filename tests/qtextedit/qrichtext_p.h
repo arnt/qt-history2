@@ -41,8 +41,20 @@ class QTextFormatCollection;
 class QStyleSheetItem;
 class QTextCustomItem;
 class QTextFlow;
+class QTextBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+struct QTextBidiStatus {
+    QTextBidiStatus() {
+	eor = QChar::DirON;
+	lastStrong = QChar::DirON;
+	last = QChar:: DirON;
+    }
+    QChar::Direction eor 		: 5;
+    QChar::Direction lastStrong 	: 5;
+    QChar::Direction last		: 5;
+};
 
 class QTextCursor
 {
@@ -435,6 +447,7 @@ public:
 	QChar c;
 	uint lineStart : 1;
 	uint isCustom : 1;
+	uint rightToLeft : 1;
 	int x;
 	int width() const;
 	int height() const;
@@ -473,10 +486,17 @@ public:
 
     void setFormat( int index, QTextFormat *f, bool useCollection );
 
+    void setTextChanged( bool b ) { textChanged = b; }
+    void setBidi( bool b ) { bidi = b; }
+    bool isTextChanged() const { return textChanged; }
+    bool isBidi() const { return bidi; }
+    
 private:
     QArray<Char> data;
     QString cache;
-
+    uint textChanged : 1;
+    uint bidi : 1;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -488,6 +508,8 @@ public:
 	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ) {}
 	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ) {}
 	ushort y, baseLine, h;
+	QTextBidiContext *context;
+	QTextBidiStatus status;
     };
 
     struct Paren {
@@ -1025,6 +1047,25 @@ private:
     Placement place;
 };
 
+
+class QTextBidiContext {
+public:
+    QTextBidiContext(unsigned char level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = false);
+    ~QTextBidiContext();
+
+    void ref() const;
+    void deref() const;
+
+    unsigned char level;
+    bool override : 1;
+    QChar::Direction dir : 5;
+
+    QTextBidiContext *parent;
+
+
+    // refcounting....
+    mutable int count;
+};
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
