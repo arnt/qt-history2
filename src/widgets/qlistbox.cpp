@@ -1,7 +1,7 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#7 $
 **
-** Implementation of QListBox class
+** Implementation of QListBox widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941121
@@ -17,12 +17,13 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#7 $";
 #endif
 
 #include "qstring.h"
 
-class QGhostString : public QString
+
+class QGhostString : public QString		// internal class
 {
 public:
     QGhostString( const char *str )
@@ -34,7 +35,7 @@ public:
 
 declare(QListM, QLBItem);
 
-class QLBItemList : public QListM(QLBItem)
+class QLBItemList : public QListM(QLBItem)	// internal class
 {
     int compareItems( GCI i1, GCI i2);
 };
@@ -47,7 +48,7 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
         return 1;
 }
 
-inline bool checkInsertIndex( const char *method, int count , int *index )
+static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
     if ( *index > count ) {
 #if defined(CHECK_RANGE)
@@ -60,7 +61,7 @@ inline bool checkInsertIndex( const char *method, int count , int *index )
     return TRUE;
 }
 
-inline bool checkIndex( const char *method, int count , int index )
+static inline bool checkIndex( const char *method, int count, int index )
 {
     if ( index >= count ) {
 #if defined(CHECK_RANGE)
@@ -75,16 +76,21 @@ inline bool checkIndex( const char *method, int count , int index )
 QListBox::QListBox( QWidget *parent, const char *name )
     : QTableWidget( parent, name )
 {
+    initMetaObject();
     copyStrings   = TRUE;
-    init();
-}
-
-QListBox::QListBox( bool strCpy, QWidget *parent, const char *name )
-    : QTableWidget( parent, name )
-{
+    doDrag        = TRUE;
+    doAutoScroll  = TRUE;
+    current       = -1;
+    isTiming      = FALSE;
+    stringsOnly   = TRUE;
+    ownerDrawn    = FALSE;
     itemList      = new QLBItemList;
-    copyStrings   = strCpy;
-    init();
+    setCellWidth( 100 );			// setup table params
+    setCellHeight( 16 );
+    setNumCols( 1 );
+    setAutoVerScrollBar( TRUE );
+    setClipCellPainting( FALSE );
+    setCutCellsVer( TRUE );
 }
 
 QListBox::~QListBox()
@@ -627,25 +633,6 @@ void QListBox::updateNumRows()
 
 void QListBox::init()
 {
-    initMetaObject();
-
-    QFontMetrics fm = fontMetrics();
-
-    doDrag        = TRUE;
-    doAutoScroll  = TRUE;
-    current       = -1;
-    isTiming      = FALSE;
-    stringsOnly   = TRUE;
-    ownerDrawn    = FALSE;
-    itemList      = new QLBItemList;
-
-    setCellWidth( 100 );
-//    setCellHeight( fm.height() + 4 );
-    setCellHeight( 16 );
-    setNumCols( 1 );
-    setAutoVerScrollBar( TRUE );
-    setClipCellPainting( FALSE );
-    setCutCellsVer( TRUE );
 
 }
 

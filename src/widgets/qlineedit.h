@@ -1,7 +1,7 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#5 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#6 $
 **
-** Definition of QLineEdit class
+** Definition of QLineEdit widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
@@ -42,7 +42,6 @@ protected:
     void    resizeEvent( QResizeEvent * );
 
 private:
-    void    init();
     void    paint( bool frame = FALSE );
     void    pixmapPaint();
     void    paintText( QPainter *, const QSize &, bool frame = FALSE );

@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#10 $
 **
-** Implementation of QLineEdit class
+** Implementation of QLineEdit widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
 **
-** Copyright (c) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (c) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#10 $";
 #endif
 
 
@@ -30,7 +30,7 @@ static const int blinkTime = 500;
 
 
 static uint xPosToCursorPos( char *s, const QFontMetrics &fm, 
-                             uint xPos, uint width )
+			     uint xPos, uint width )
 {
     char	 *tmp;
     int		  dist;
@@ -65,11 +65,7 @@ static uint showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
-    init();
-}
-
-void QLineEdit::init()
-{
+    initMetaObject();
     pm		= 0;
     cursorPos	= 0;
     offset	= 0;
@@ -299,7 +295,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 			   backgroundColor().dark(),
 			   backgroundColor().light() );
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
-		    sz.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
+		    sz.width()	- LEFT_MARGIN - RIGHT_MARGIN + 1,
 		    sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
 
     int tDispWidth = sz.width() - LEFT_MARGIN - RIGHT_MARGIN;
