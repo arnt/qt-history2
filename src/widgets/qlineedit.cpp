@@ -671,7 +671,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
+#if defined(Q_WS_X11)
 	    home( e->state() & ShiftButton );
+#else
+	    selectAll();
+#endif	
 	    break;
 	case Key_B:
 	    cursorForward( e->state() & ShiftButton, -1 );
