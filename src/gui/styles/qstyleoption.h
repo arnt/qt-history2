@@ -132,7 +132,7 @@ public:
     QRect selectedTabRect;
 
     QStyleOptionTabBarBase();
-    QStyleOptionTabBarBase(const QStyleOptionTabWidgetFrame &other) : QStyleOption(Version, Type) { *this = other; }
+    QStyleOptionTabBarBase(const QStyleOptionTabBarBase &other) : QStyleOption(Version, Type) { *this = other; }
 
 protected:
     QStyleOptionTabBarBase(int version);
