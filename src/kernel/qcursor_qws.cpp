@@ -92,7 +92,7 @@ QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 }
 
 
-bool initialized = FALSE;
+static bool initialized = FALSE;
 
 void QCursor::cleanup()
 {
