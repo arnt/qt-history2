@@ -877,7 +877,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     else if ( *pdwEffect & DROPEFFECT_LINK )
 	de.setAction( QDropEvent::Link );
 
-    de.acceptAction(TRUE);
+    de.acceptAction(FALSE);
     de.accept(FALSE);
 
     QApplication::sendEvent( widget, &de );
@@ -894,7 +894,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 
     if ( pt.x == last_pt.x && pt.y == last_pt.y &&
 	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
-	if (!acceptact)
+	if (!acceptact&&!acceptfmt)
 	    *pdwEffect = DROPEFFECT_NONE;
 	return NOERROR;
     }
@@ -915,8 +915,10 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    if (!acceptact)
+    if (!acceptact&&!acceptfmt)
 	*pdwEffect = DROPEFFECT_NONE;
+    else if (!acceptact)
+	*pdwEffect = DROPEFFECT_COPY;
     else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
