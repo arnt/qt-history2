@@ -226,11 +226,13 @@ void QDir::readDirEntries( const QString &nameFilter,
 	delete [] si;
     }
 
+    // mutable bitflags not supported by xlC - use that pointer instead.
+    QDir *that = const_cast<QDir*>(this);
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
 	 nameFilter == nameFilt )
-	dirty = FALSE;
+	that->dirty = FALSE;
     else
-	dirty = TRUE;
+	that->dirty = TRUE;
 }
 
 QFileInfoList QDir::drives()
