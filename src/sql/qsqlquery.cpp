@@ -194,14 +194,16 @@ void QSqlResultShared::slotResultDestroyed()
     \endcode
 
     <b>Binding values to a stored procedure</b>
-    This code calls a stored procedure named TestOut that returns the
-    integer value 42 in its out parameter.
+    This code calls a stored procedure called \c AsciiToInt(), passing
+    it a character through its in parameter, and taking its result in
+    the out parameter.
     \code
     QSqlQuery query;
-    query.prepare( "call TestOut(?)" );
-    query.bindValue( 0, 0, QSql::Out );
+    query.prepare( "call AsciiToInt(?, ?)" );
+    query.bindValue( 0, "A" );
+    query.bindValue( 1, 0, QSql::Out );
     query.exec();
-    int i = query.boundValue( 0 ).toInt(); // i is 42.
+    int i = query.boundValue( 1 ).toInt(); // i is 65.
     \endcode
 
     \sa QSqlDatabase QSqlCursor QVariant
