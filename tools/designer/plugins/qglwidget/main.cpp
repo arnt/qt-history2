@@ -9,7 +9,7 @@ class OpenGLWidgetInterface : public WidgetInterface
 public:
     OpenGLWidgetInterface();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -100,21 +100,19 @@ bool OpenGLWidgetInterface::isContainer( const QString& ) const
     return FALSE;
 }
 
-QUnknownInterface *OpenGLWidgetInterface::queryInterface( const QUuid& uuid )
+QRESULT OpenGLWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
+    *iface = 0;
 
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_WidgetInterface )
-	iface = (WidgetInterface*)this;
+	*iface = (WidgetInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long OpenGLWidgetInterface::addRef()
