@@ -982,9 +982,14 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    QChildEvent *c = (QChildEvent*)e;
 	    if ( c->child()->isWidgetType() ) {
 		QWidget *w = (QWidget*)c->child();
-		addItem( new QWidgetItem( w ) );
-		QEvent *lh = new QEvent( QEvent::LayoutHint );
-		QApplication::postEvent( o, lh );
+		if ( !w->isTopLevel() ) {
+		    if ( w->inherits( "QMenuBar" ) )
+			menubar = (QMenuBar*)w;
+		    else
+			addItem( new QWidgetItem( w ) );
+		    QEvent *lh = new QEvent( QEvent::LayoutHint );
+		    QApplication::postEvent( o, lh );
+		}
 	    }
 	}
 	break;
