@@ -1057,7 +1057,7 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 	break;
     }
 
-    if ( top->parentWidget() == 0 && (block_event || paint_event) )
+    if ( !top->parentWidget() && (block_event || paint_event) )
 	top->raise();
 
     return !block_event;
@@ -1170,9 +1170,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 	}
 
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
-	    return 0;
-
 	//figure out which widget to send it to
 	if( ekind != kEventMouseDown && qt_button_down )
 	    widget = qt_button_down;
@@ -1180,6 +1177,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    widget = mac_mouse_grabber;
 	else
 	    widget = QApplication::widgetAt( where.h, where.v, true );
+
+	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
+	    return 1;
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
+	    return 0;
 
 	mouse_button_state = after_state;
 	switch(ekind) {
@@ -1214,9 +1216,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	//finally send the event to the widget if its not the popup
 	if ( widget && widget != popupwidget ) {
-	    if ( app_do_modal && !qt_try_modal(widget, event) )
-		return 1;
-
 	    if(ekind == kEventMouseDown) {
 		QWidget* w = widget;
 		while ( w->focusProxy() )
@@ -1293,7 +1292,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 
 #ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar first..
-	char upchr = toupper(chr);
 	if(etype == QEvent::KeyPress) {
 	    MenuRef menu;
 	    MenuItemIndex idx;
