@@ -173,8 +173,8 @@ QByteArray QLatin15Codec::convertFromUnicode(const QChar *in, int length, Conver
                 c = replacement;
                 ++invalid;
             }
-            d[i] = (char)c;
         }
+        d[i] = (char)c;
     }
     if (state) {
         state->remainingChars = 0;
