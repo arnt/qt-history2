@@ -269,8 +269,7 @@ void QDesktopWidgetPrivate::cleanup()
     the size of the virtual desktop; otherwise this widget will have
     the size of the primary screen.
 
-    Instead of using QDesktopWidget directly, use
-    QAppliation::desktop().
+    Instead of using QDesktopWidget directly, use QApplication::desktop().
 */
 QDesktopWidget::QDesktopWidget()
     : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
