@@ -886,6 +886,15 @@ const QItemSelection QItemSelectionModel::selection() const
 {
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);
+    int i = 0;
+    // make sure we have no invalid ranges
+    // ###  should probably be handled more generic somewhere else
+    while (i<selected.count()) {
+        if (selected.at(i).isValid())
+            ++i;
+        else
+            (selected.removeAt(i));
+    }
     return selected;
 }
 
