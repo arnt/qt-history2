@@ -22,6 +22,8 @@ public:
     QWindowsXPStyle();
     ~QWindowsXPStyle();
 
+    void unPolish( QApplication* );
+    void polish( QApplication* );
     void polish( QWidget* );
     void unPolish( QWidget* );
 

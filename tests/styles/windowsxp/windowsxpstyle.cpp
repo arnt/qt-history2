@@ -41,8 +41,19 @@ public:
     QWindowsXPStylePrivate()
 	: hotWidget( 0 ), hotTab( 0 ), hotSpot( -1, -1 )
     {
-	if ( qWinVersion() != Qt::WV_XP )
+	init();
+    }
+    ~QWindowsXPStylePrivate()
+    {
+	cleanup();
+    }
+
+    void init()
+    {
+	if ( qWinVersion() != Qt::WV_XP ) {
+	    use_xp = FALSE;
 	    init_xp = TRUE;
+	}
 
         if ( !init_xp ) {
 	    init_xp = TRUE;
@@ -51,11 +62,12 @@ public:
 	if ( use_xp )
 	    ref++;
     }
-    ~QWindowsXPStylePrivate()
+
+    void cleanup()
     {
+	init_xp = FALSE;
 	if ( use_xp ) {
-	    if ( !--ref ) {
-		init_xp = FALSE;
+	    if ( !--ref ) {		
 		use_xp  = FALSE;
 		delete limboWidget;
 		limboWidget = 0;
@@ -203,8 +215,25 @@ QWindowsXPStyle::~QWindowsXPStyle()
     delete d;
 }
 
+void QWindowsXPStyle::unPolish( QApplication *app )
+{
+    d->cleanup();
+    QWindowsStyle::unPolish( app );
+}
+
+void QWindowsXPStyle::polish( QApplication *app )
+{
+    d->init();
+    QWindowsStyle::polish( app );
+}
+
 void QWindowsXPStyle::polish( QWidget *widget )
 {
+    if ( !use_xp ) {
+	QWindowsStyle::polish( widget );
+	return;
+    }
+
     if ( widget->inherits( "QButton" ) ) {
 	widget->installEventFilter( this );
     } else if ( widget->inherits( "QTabBar" ) ) {
@@ -240,11 +269,22 @@ void QWindowsXPStyle::polish( QWidget *widget )
 void QWindowsXPStyle::unPolish( QWidget *widget )
 {
     widget->removeEventFilter( this );
+    if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
+	SetWindowRgn( widget->winId(), 0, TRUE );
+	if ( widget->isMinimized() ) {
+	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
+	}
+    } else if ( widget->inherits( "QWorkspaceChild" ) ) {
+	SetWindowRgn( widget->winId(), 0, TRUE );
+    }
     QWindowsStyle::unPolish( widget );
 }
 
 void QWindowsXPStyle::updateRegion( QWidget *widget )
 {
+    if ( !use_xp )
+	return;
+
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	if ( widget->isMinimized() ) {
 	    XPThemeData theme( widget, 0, L"WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
@@ -1385,25 +1425,6 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    break;
 	}
 #endif //QT_NO_LISTVIEW
-/*
-	{
-	    if (opt.isDefault())
-		break;
-
-	    QListViewItem *item = opt.listViewItem(),
-			 *child = item->firstChild();
-
-	    if ( sub & SC_ListViewBranch ) {
-		XPThemeData theme( w, L"LISTVIEW" );
-		theme.rec = r;
-		partId = TVP_BRANCH;
-		theme.drawBackground( partId, stateId );
-	    }
-	    if ( sub & SC_ListViewExpand ) {
-	    }
-	}
-	break;
-	*/
 
     default:
 	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
@@ -1557,6 +1578,9 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
 			   const QStyleOption& opt,
 			   QStyleHintReturn* returnData ) const
 {
+    if ( !use_xp )
+	return QWindowsStyle::styleHint( stylehint, widget, opt, returnData );
+
     switch ( stylehint ) {
     case SH_TitleBar_NoBorder:
 	return 1;

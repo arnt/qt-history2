@@ -49,6 +49,7 @@
 #include "qlibrary.h"
 #include "qt_windows.h"
 #include <private/qinternal_p.h>
+#include "qstyle.h"
 
 #include <windowsx.h>
 #include <limits.h>
@@ -112,6 +113,9 @@ static void initWinTabFunctions();	// resolve the WINTAB api functions
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
+#endif
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED                 0x031A
 #endif
 
 
@@ -302,6 +306,7 @@ public:
 	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		                          int numPackets );
 #endif
+    void	repolishStyle( QStyle &style ) { styleChange( style ); }
 
 };
 
@@ -1846,6 +1851,45 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( QApplication::desktopSettingsAware() )
 	    qt_set_windows_resources();
 	break;
+
+    case WM_THEMECHANGED:
+	if ( qApp ) {
+	    qApp->style().unPolish( qApp );
+
+	    QWidgetList *list = qApp->allWidgets();
+	    if ( !qApp->closingDown() ) {		
+		QWidgetListIt it( *list );
+		register QETWidget *w;
+		while ( (w=(QETWidget*)it.current()) ) {		// for all widgets...
+		    ++it;
+		    if ( !w->testWFlags(Qt::WType_Desktop) ) {	// except desktop
+			if ( w->testWState(Qt::WState_Polished) )
+			    qApp->style().unPolish(w);		// repolish
+		    }
+		}
+	    }
+
+	    qApp->style().polish( qApp );
+
+	    if ( !qApp->closingDown() ) {
+		QWidgetListIt it( *list );
+		register QETWidget *w;
+		while ( (w=(QETWidget*)it.current()) ) {	// for all widgets...
+		    ++it;
+		    if ( !w->testWFlags(Qt::WType_Desktop) ) {	// except desktop
+			if ( w->testWState(Qt::WState_Polished) )
+			    qApp->style().polish(w);		// repolish
+			w->repolishStyle( qApp->style() );
+			if ( w->isVisible() ){
+			    w->update();
+			}
+		    }
+		}
+	    }
+	    delete list;
+	}
+	break;
+
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:

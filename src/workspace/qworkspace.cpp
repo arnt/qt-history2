@@ -188,6 +188,7 @@ protected:
     bool focusNextPrevChild( bool );
 
     void drawFrame( QPainter * );
+    void styleChange( QStyle & );
 
 private:
     QWidget* childWidget;
@@ -2284,6 +2285,21 @@ void QWorkspaceChild::drawFrame( QPainter *p )
 	flags |= QStyle::Style_Active;
 
     style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
+}
+
+void QWorkspaceChild::styleChange( QStyle & )
+{
+    resizeEvent( 0 );
+    if ( iconw ) {
+	QVBox *vbox = (QVBox*)iconw->parentWidget()->qt_cast( "QVBox" );
+	Q_ASSERT(vbox);
+	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) ) {
+	    vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	    vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
+	} else {
+	    vbox->resize( 196, 20 );
+	}
+    }
 }
 
 static bool isChildOf( QWidget * child, QWidget * parent )
