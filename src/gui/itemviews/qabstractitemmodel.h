@@ -174,7 +174,7 @@ public:
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
-                              const QModelIndex &parent);
+                              int row, const QModelIndex &parent);
     virtual QDrag::DropActions supportedDropActions() const;
 
     virtual bool insertRows(int row, const QModelIndex &parent, int count);

@@ -1064,30 +1064,37 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     e->ignore();
 
     QModelIndex index = itemAt(e->pos());
+    index = model()->sibling(index.row(), 0, index);
 
     if (d->canDecode(e)) {
         if (index.isValid()) {
             // update the drag indicator geometry
-            static const int margin = 2;
             QRect rect = itemViewportRect(index);
+            rect.setRight(d->viewport->width());
             QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
-            if (e->pos().y() - rect.top() < margin) {
+            switch (d->position(e->pos(), rect, 2)) {
+            case QAbstractItemViewPrivate::Above: {
                 QRect geometry(global.left(), global.top() - 2, global.width(), 4);
                 if (geometry != d->dropIndicator->geometry())
                     d->dropIndicator->setGeometry(geometry);
-            } else if (rect.bottom() - e->pos().y() < margin) {
+                break; }
+            case QAbstractItemViewPrivate::Below: {
                 QRect geometry(global.left(), global.bottom() - 1, global.width(), 4);
                 if (geometry != d->dropIndicator->geometry())
                     d->dropIndicator->setGeometry(geometry);
-            } else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
-                if (global != d->dropIndicator->geometry()) {
-                    d->dropIndicator->setGeometry(global);
-                    QRegion top(0, 0, rect.width(), 3);
-                    QRegion left(0, 0, 3, rect.height());
-                    QRegion bottom(0, rect.height() - 3, rect.width(), 3);
-                    QRegion right(rect.width() - 3, 0, 3, rect.height());
-                    d->dropIndicator->setMask(top + left + bottom + right);
+                break; }
+            case QAbstractItemViewPrivate::On: {
+                if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
+                    if (global != d->dropIndicator->geometry()) {
+                        d->dropIndicator->setGeometry(global);
+                        QRegion top(0, 0, rect.width(), 3);
+                        QRegion left(0, 0, 3, rect.height());
+                        QRegion bottom(0, rect.height() - 3, rect.width(), 3);
+                        QRegion right(rect.width() - 3, 0, 3, rect.height());
+                        d->dropIndicator->setMask(top + left + bottom + right);
+                    }
                 }
+                break; }
             }
             if (!d->dropIndicator->isVisible()) {
                 d->dropIndicator->show();
@@ -1123,10 +1130,36 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 */
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
-    QModelIndex index = itemAt(e->pos());
+    QPoint pos;
+    QModelIndex index;
+    // if we drop on the viewport
+    if (d->viewport->rect().contains(e->pos())) {
+        QPoint center = d->dropIndicator->geometry().center();
+        pos = d->viewport->mapFromGlobal(center);
+        index = itemAt(pos);
+        index = model()->sibling(index.row(), 0, index);
+    }
+    // if we are allowed to do the drop
     if (model()->supportedDropActions() & e->proposedAction()) {
-        QModelIndex parent = index.isValid() ? index : root();
-        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), parent))
+        // find the parent index and the row to drop after
+        int row = -1; // prepend
+        if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled
+            || model()->flags(index.parent()) & QAbstractItemModel::ItemIsDropEnabled) {
+            switch(d->position(pos, itemViewportRect(index), 2)) {
+            case QAbstractItemViewPrivate::Above:
+                row = index.row() - 1;
+                index = index.parent();
+                break;
+            case QAbstractItemViewPrivate::Below:
+                row = index.row();
+                index = index.parent();
+                break;
+            case QAbstractItemViewPrivate::On:
+                row = model()->rowCount(index); // append
+                break;
+            }
+        }
+        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), row, index))
             e->acceptProposedAction();
     }
     stopAutoScroll();
@@ -1905,12 +1938,13 @@ void QAbstractItemView::doAutoScroll()
         horizontalScrollBar()->setValue(horizontalValue - d->autoScrollCount);
     else if (area.right() - pos.x() < margin)
         horizontalScrollBar()->setValue(horizontalValue + d->autoScrollCount);
-
-    // if nothing changed or we are no longer dragging, stop scrolling
+    // if nothing changed, stop scrolling
     bool verticalUnchanged = (verticalValue == verticalScrollBar()->value());
     bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
-    if ((verticalUnchanged && horizontalUnchanged) || (state() != DraggingState))
+    if (verticalUnchanged && horizontalUnchanged)
         stopAutoScroll();
+    else
+        d->dropIndicator->hide();
 }
 
 /*!

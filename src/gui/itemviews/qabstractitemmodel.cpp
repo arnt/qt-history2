@@ -855,29 +855,35 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
-                                      const QModelIndex &parent)
+                                      int row, const QModelIndex &parent)
 {
-//     Q_UNUSED(data);
-     Q_UNUSED(action);
-//     Q_UNUSED(parent);
+    // check if the action is supported
+    if (action != QDrag::CopyAction)
+        return false;
+    // check if the format is supported
     QString format = mimeTypes().at(0);
     if (!data->hasFormat(format))
         return false;
+    // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    int row = rowCount(parent);
     int count, role;
     QVariant value;
     QModelIndex idx;
     while (!stream.atEnd()) {
-        insertRows(row, parent, 1); // append row
-        idx = index(row, 0, parent); // only insert in col 0
-        stream >> count;
-        for (int i = 0; i < count; ++i) {
-            stream >> role;
-            stream >> value;
-            setData(idx, role, value);
+        insertRows(row, parent, 1);
+        int column = 0;
+        while (!stream.atEnd() && column < columnCount(parent)) {
+            idx = index(row, column, parent); // only insert in col 0
+            stream >> count;
+            for (int i = 0; i < count; ++i) {
+                stream >> role;
+                stream >> value;
+                setData(idx, role, value);
+            }
+            ++column;
         }
+        ++row;
     }
     return true;
 }

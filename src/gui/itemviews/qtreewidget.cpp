@@ -36,9 +36,9 @@ public:
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QTreeWidgetItem *item, int column) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex::Null) const;
+    int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent = QModelIndex::Null) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
@@ -47,8 +47,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
-    bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
-    bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
+                      int row, const QModelIndex &parent);
+    QDrag::DropActions supportedDropActions() const;
+    
+    bool insertRows(int row, const QModelIndex &parent, int count);
+    bool removeRows(int row, const QModelIndex &parent, int count);
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
@@ -342,6 +348,33 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
     return false;
 }
 
+QStringList QTreeModel::mimeTypes() const
+{
+    QStringList types;
+    types << "application/x-qtreemodeldatalist";
+    return types;
+}
+
+QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
+{
+    // FIXME: we need some way of finding the out if we are dnd'ing internally or not
+    return QAbstractItemModel::mimeData(indexes);
+}
+
+bool QTreeModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+                              int row, const QModelIndex &parent)
+{
+    // FIXME: just do copy for now
+    //qDebug() << "dropping data in row" << row << "action" << action;
+    return QAbstractItemModel::dropMimeData(data, action, row, parent);
+}
+
+QDrag::DropActions QTreeModel::supportedDropActions() const
+{
+    // the move action is only effective when dragging and dropping internally
+    return QDrag::CopyAction;// | QDrag::MoveAction;
+}
+
 /*!
   \internal
 
@@ -404,11 +437,10 @@ bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return QAbstractItemModel::ItemIsDropEnabled; // can drop on the viewport
     QTreeWidgetItem *itm = item(index);
-    if (itm)
-        return itm->flags();
-    return 0;
+    Q_ASSERT(itm);
+    return itm->flags();
 }
 
 /*!
@@ -857,7 +889,8 @@ void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *item)
 QTreeWidgetItem::QTreeWidgetItem()
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
 }
 
@@ -871,7 +904,8 @@ QTreeWidgetItem::QTreeWidgetItem()
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
     : view(view), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (view) {
         model = ::qt_cast<QTreeModel*>(view->model());
@@ -892,7 +926,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (view) {
         model = ::qt_cast<QTreeModel*>(view->model());
@@ -911,7 +946,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (parent)
         parent->appendChild(this);
@@ -927,7 +963,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled
+                |QAbstractItemModel::ItemIsDragEnabled)
 {
     if (parent) {
         int i = parent->indexOfChild(after);
@@ -1338,6 +1375,7 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
+
     connect(this, SIGNAL(pressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
             SLOT(emitPressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(clicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
@@ -1364,7 +1402,11 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
-    connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)), this, SLOT(sortItems(int)));
+    connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            this, SLOT(sortItems(int)));
+
+    d->viewport->setAcceptDrops(true);
+    setDraggableItems(true);
 }
 
 /*!
@@ -1627,8 +1669,8 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount();
-    QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
+    int hits = d->model()->rowCount(QModelIndex::Null);
+    QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items << d->model()->item(indexes.at(i));

@@ -676,10 +676,10 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
     can decode drop event \a e.
 */
 
-bool QDirModel::dropMimeData(const QMimeData *data,
-                             QDrag::DropAction action,
-                             const QModelIndex &parent)
+bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+                             int row, const QModelIndex &parent)
 {
+    Q_UNUSED(row);
     if (!parent.isValid()) {
         qWarning("decode: the parent index is invalid");
         return false;
@@ -718,8 +718,6 @@ bool QDirModel::dropMimeData(const QMimeData *data,
     default:
         return false;
     }
-
-    return false;
 
     p->children = d->children(p);
     d->restorePersistentIndexes();

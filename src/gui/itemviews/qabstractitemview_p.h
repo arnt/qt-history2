@@ -63,6 +63,14 @@ public:
         return false;
     }
 
+    enum Position { Above, Below, On };
+
+    inline Position position(const QPoint &pos, const QRect &rect, int margin) const {
+        if (pos.y() - rect.top() < margin) return Above;
+        if (rect.bottom() - pos.y() < margin) return Below;
+        return On;
+    }
+
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;
