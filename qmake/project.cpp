@@ -43,6 +43,7 @@ struct parser_info {
 struct ParsableBlock
 {
     ParsableBlock() { }
+    virtual ~ParsableBlock() { }
 
     struct Parse {
         QString text;

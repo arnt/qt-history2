@@ -191,6 +191,12 @@ MakefileGenerator::initOutPaths()
     QDir::current().cd(currentDir);
 }
 
+QMakeProject 
+*MakefileGenerator::projectFile() const
+{
+    return project;
+}
+
 void
 MakefileGenerator::setProjectFile(QMakeProject *p)
 {

@@ -34,6 +34,7 @@ public:
     virtual ~MetaMakefileGenerator() { clearBuilds(); }
 
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
+    static MakefileGenerator *createMakefileGenerator(QMakeProject *proj);
     virtual bool write(const QString &);
 
 private:
@@ -41,7 +42,6 @@ private:
     MetaMakefileGenerator(QMakeProject *p) : init_flag(false) { project = p; }
 
     MakefileGenerator *processBuild(const QString &);
-    MakefileGenerator *createMakefileGenerator(QMakeProject *proj);
 };
 
 #endif /* __METAMAKEFILE_H__ */

@@ -116,6 +116,7 @@ protected:
 public:
     MakefileGenerator();
     virtual ~MakefileGenerator();
+    QMakeProject *projectFile() const;
     void setProjectFile(QMakeProject *p);
 
     static MakefileGenerator *create(QMakeProject *);
