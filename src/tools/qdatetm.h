@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#16 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#17 $
 **
 ** Definition of date and time classes
 **
@@ -61,9 +61,10 @@ public:
 protected:
     static uint  greg2jul( int y, int m, int d );
     static void	 jul2greg( uint jd, int &y, int &m, int &d );
-    uint  	 jd;
+private:
     static const char *monthNames[];
     static const char *weekdayNames[];
+    uint  	 jd;
     friend class QDateTime;
     friend QDataStream &operator<<( QDataStream &, const QDate & );
     friend QDataStream &operator>>( QDataStream &, QDate & );
@@ -114,7 +115,6 @@ public:
 private:
     static bool currentTime( QTime * );
 
-protected:
     uint   ds;
     friend class QDateTime;
     friend QDataStream &operator<<( QDataStream &, const QTime & );
