@@ -3218,19 +3218,22 @@ static void initWinTabFunctions()
 {
     if (!qt_is_gui_used)
         return;
+
     QLibrary library("wintab32");
     library.setAutoUnload(false);
-    QT_WA({
-        ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
-        ptrWTGet = (PtrWTGet)library.resolve("WTGetW");
-    } , {
-        ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoA");
-        ptrWTGet = (PtrWTGet)library.resolve("WTGetA");
-    });
+    if (library.load()) {
+        QT_WA({
+            ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
+            ptrWTGet = (PtrWTGet)library.resolve("WTGetW");
+        } , {
+            ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoA");
+            ptrWTGet = (PtrWTGet)library.resolve("WTGetA");
+        });
 
-    ptrWTEnable = (PtrWTEnable)library.resolve("WTEnable");
-    ptrWTOverlap = (PtrWTEnable)library.resolve("WTOverlap");
-    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve("WTPacketsGet");
+        ptrWTEnable = (PtrWTEnable)library.resolve("WTEnable");
+        ptrWTOverlap = (PtrWTEnable)library.resolve("WTOverlap");
+        ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve("WTPacketsGet");
+    }
 }
 
 static bool isModifierKey(int code)
