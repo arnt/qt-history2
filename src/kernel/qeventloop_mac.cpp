@@ -345,10 +345,13 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
     int n_act = 0;
 #ifdef Q_OS_MACX
     bool first = TRUE;
+    int maxCount = timerList->count();
     timeval currentTime;
     TimerInfo *begin = 0;
     register TimerInfo *t;
     for ( ;; ) {
+	if ( ! maxCount )
+	    break;
 	getTime(currentTime);			// get current time
 	if(first) {
 	    if(currentTime < watchtime)	// clock was turned back
@@ -376,8 +379,12 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
 	    insertTimer(t);			// relink timer
 	    if(t->u.qt_timer.interval.tv_usec > 0 || t->u.qt_timer.interval.tv_sec > 0)
 		n_act++;
+	    else
+		maxCount--;
 	    QTimerEvent e(t->id);
 	    QApplication::sendEvent(t->obj, &e);	// send event
+	    if ( timerList->findRef( begin ) == -1 )
+		begin = 0;
 	}
     }
 #endif

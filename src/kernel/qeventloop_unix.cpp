@@ -519,11 +519,13 @@ int QEventLoop::activateTimers()
 	return 0;
     bool first = TRUE;
     timeval currentTime;
-    int n_act = 0;
+    int n_act = 0, maxCount = timerList->count();
     TimerInfo *begin = 0;
     register TimerInfo *t;
 
     for ( ;; ) {
+	if ( ! maxCount )
+	    break;
 	getTime( currentTime );			// get current time
 	if ( first ) {
 	    if ( currentTime < watchtime )	// clock was turned back
@@ -549,8 +551,12 @@ int QEventLoop::activateTimers()
 	insertTimer( t );			// relink timer
 	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
 	    n_act++;
+	else
+	    maxCount--;
 	QTimerEvent e( t->id );
 	QApplication::sendEvent( t->obj, &e );	// send event
+	if ( timerList->findRef( begin ) == -1 )
+	    begin = 0;
     }
     return n_act;
 }
