@@ -1098,6 +1098,10 @@ bool QActionGroup::addTo( QWidget* w )
  */
 bool QActionGroup::removeFrom( QWidget* w )
 {
+    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	it.current()->removeFrom( w );
+    }
+
     if ( w->inherits( "QToolBar" ) ) {
 	QListIterator<QComboBox> cb( d->comboboxes );
 	while( cb.current() ) {
@@ -1122,9 +1126,6 @@ bool QActionGroup::removeFrom( QWidget* w )
 	}
     }
 
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	it.current()->removeFrom( w );
-    }
     return TRUE;
 }
 
