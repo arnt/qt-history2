@@ -93,8 +93,8 @@ QSql::QSql( QSqlResult * r )
     d = new QSqlResultShared( r );
 }
 
-/*!  
-  
+/*!
+
   Creates a QSql object using the SQL query \a query and which uses
   database \a databaseName.
 
@@ -481,7 +481,6 @@ bool QSql::checkDetach()
 {
     if ( d->count > 1 ) {
 	QString sql = d->sqlResult->sql;
-	qDebug("QSql::checkDetach():" + sql );
 	*this = driver()->createResult();
 	setQuery( sql );
 	return TRUE;

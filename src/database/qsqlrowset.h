@@ -22,6 +22,7 @@ class Q_EXPORT QSqlRowset : public QSqlFieldList, public QSql
 public:
     QSqlRowset( const QString & name = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlRowset( const QSqlRowset & s );
+    ~QSqlRowset();
     QSqlRowset& operator=( const QSqlRowset & s );
 
     QVariant& operator[]( int i );

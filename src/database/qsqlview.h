@@ -18,6 +18,7 @@ public:
     QSqlView( const QString & name, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlView( const QSqlView & s );
     QSqlView& operator=( const QSqlView& s );
+    ~QSqlView();
 
     QSqlIndex     primaryIndex() const;
     int           insert();

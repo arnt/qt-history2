@@ -29,6 +29,10 @@ QSqlRowset::QSqlRowset( const QString & name, const QString& databaseName )
 	*this = driver()->fields( nm );
 }
 
+QSqlRowset::~QSqlRowset()
+{
+}
+
 /*!
   Sets the rowset equal to \a s.
 
@@ -49,6 +53,7 @@ QSqlRowset& QSqlRowset::operator=( const QSqlRowset & s )
 QSqlRowset::QSqlRowset( const QSqlRowset & s )
     : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), nm( s.nm )
 {
+
 }
 
 /*!
@@ -59,7 +64,7 @@ QSqlRowset::QSqlRowset( const QSqlRowset & s )
 void QSqlRowset::setName( const QString& name )
 {
     nm = name;
-    *this = driver()->fields( name );    
+    *this = driver()->fields( name );
 }
 
 /*!
@@ -190,7 +195,9 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 */
 bool QSqlRowset::query( const QString & str )
 {
-    qDebug( "\n### SQL: " + str );
+#ifdef CHECK_RANGE    
+    qDebug( "\n### ROWSET SQL: " + str );
+#endif    
     setQuery( str );
     return isActive();
 }

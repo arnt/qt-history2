@@ -26,6 +26,11 @@ QSqlView::QSqlView( const QSqlView & s )
 
 }
 
+QSqlView::~QSqlView()
+{
+
+}
+
 /*!
   Sets the view equal to \a s.
 
