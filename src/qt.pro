@@ -134,6 +134,7 @@ dialogs:HEADERS	+= $$DIALOGS_H/qcolordialog.h \
 kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
+		  $$KERNEL_H/qapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \

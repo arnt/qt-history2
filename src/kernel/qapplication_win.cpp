@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#402 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#403 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"

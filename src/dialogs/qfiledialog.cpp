@@ -2843,9 +2843,7 @@ void QFileDialog::rereadDir()
   This signal is emitted when the user has selected a new directory.
 */
 
-// Defined in qapplication.cpp:
-void qt_enter_modal( QWidget* );
-void qt_leave_modal( QWidget* );
+#include "../kernel/qapplication_p.h"
 
 /*!
   Opens a modal file dialog and returns the name of the file to be

@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
@@ -52,10 +53,7 @@
 
 // NOT REVISED
 
-void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
-void qt_leave_modal( QWidget * );		// --- "" ---
-bool qt_modal_state();				// --- "" ---
-void qt_insert_sip( QWidget*, int, int );	// --- "" ---
+void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---
 bool qt_wstate_iconified( WId );		// --- "" ---
 void qt_updated_rootinfo();

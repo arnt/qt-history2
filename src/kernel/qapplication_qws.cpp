@@ -34,6 +34,7 @@
 
 #include "qglobal.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qwidget.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"

@@ -45,6 +45,7 @@
 #include "qfocusdata.h"
 #include "qpixmap.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qbrush.h"
 #include "qlayout.h"
 #if defined(_WS_WIN_)
@@ -3222,11 +3223,6 @@ static bool noMoreToplevels()
     }
     return widget == 0;
 }
-
-
-void qt_enter_modal( QWidget * );		// defined in qapp_xxx.cpp
-void qt_leave_modal( QWidget * );		// --- "" ---
-bool qt_modal_state();				// --- "" ---
 
 
 /*!

@@ -1,4 +1,5 @@
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qt_mac.h"
 #include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
@@ -839,5 +840,3 @@ int QApplication::doubleClickInterval()
 }
 
 QObject * qt_clipboard=0;
-
-

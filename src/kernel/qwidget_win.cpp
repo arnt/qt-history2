@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qwidgetlist.h"
@@ -49,9 +50,6 @@ extern Qt::WindowsVersion qt_winver;
 #endif
 
 const char* qt_reg_winclass( int );		// defined in qapplication_win.cpp
-void	    qt_enter_modal( QWidget * );
-void	    qt_leave_modal( QWidget * );
-bool	    qt_modal_state();
 void	    qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
 
