@@ -13493,8 +13493,8 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     are concerned.
 
 
-    \value SectionIncludeLeadingSeps
-    \value SectionIncludeTrailingSeps
+    \value SectionIncludeLeadingSep
+    \value SectionIncludeTrailingSep
 
 
     \value SectionCaseInsensitiveSeps Compare the separator
@@ -13601,7 +13601,7 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 	if(begin > uc + n || begin < uc)
 	    return QString();
     }
-    if(match && !(flags & SectionIncludeLeadingSeps))
+    if(match && !(flags & SectionIncludeLeadingSep))
 	begin++;
     if(begin > uc + n || begin < uc)
 	return QString();
