@@ -15,10 +15,8 @@
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include "qdecorationkde2_qws.h"
-
-#ifndef QT_NO_STYLE
-#define QT_NO_STYLE // ##### this file uses old style API
-#endif
+#include "qstyle.h"
+#include "qstyleoption.h"
 
 #if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
 
@@ -31,243 +29,190 @@ QDecorationKDE2::~QDecorationKDE2()
 {
 }
 
-/*
-    If rect is empty, no frame is added. (a hack, really)
-*/
-QRegion QDecorationKDE2::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
+int QDecorationKDE2::titleBarHeight(const QWidget *widget)
 {
-    int titleHeight = getTitleHeight(widget);
-//  int titleWidth = getTitleWidth(widget);
-//  int bw = rect.isEmpty() ? 0 : BORDER_WIDTH;
-    QRegion region;
+    QStyleOptionTitleBar opt;
+    opt.subControls = QStyle::SC_TitleBarLabel
+                      | QStyle::SC_TitleBarSysMenu
+                      | QStyle::SC_TitleBarMinButton
+                      | QStyle::SC_TitleBarMaxButton
+                      | QStyle::SC_TitleBarCloseButton;
+    opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+    opt.direction = QApplication::layoutDirection();
+    opt.text = widget->windowTitle();
+    opt.icon = widget->windowIcon();
+    opt.rect = widget->rect();
 
-    switch (type) {
-        case Maximize: {
-            QRect r(rect.right() - 2*titleHeight, rect.top() - titleHeight,
-                            titleHeight, titleHeight);
-            if (r.left() > rect.left() + titleHeight)
-                    region = r;
-            break;
+    QStyle *style = QApplication::style();
+    if (!style)
+        return 18;
+
+    return style->pixelMetric(QStyle::PM_TitleBarHeight, &opt, widget);
+}
+
+bool QDecorationKDE2::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+                            DecorationState state)
+{
+    if (decorationRegion == None)
+        return false;
+
+    const QPalette pal = widget->palette();
+    QRegion oldClipRegion = painter->clipRegion();
+
+    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
+    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
+    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
+    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
+    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
+    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+    int  titleHeight = titleBarHeight(widget);
+
+    bool paintAll = (DecorationRegion(decorationRegion) == All);
+    bool handled = false;
+
+    QStyle *style = QApplication::style();
+
+    if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
+        painter->save();
+        if (hasTitle) { // reduce flicker
+            QRect rect(widget->rect());
+            QRect r(rect.left(), rect.top() - titleHeight,
+                    rect.width(), titleHeight);
+            painter->setClipRegion(oldClipRegion - r);
         }
-        case Minimize: {
-            QRect r(rect.right() - 3*titleHeight, rect.top() - titleHeight,
-                            titleHeight, titleHeight);
-            if (r.left() > rect.left() + titleHeight)
-                    region = r;
-            break;
-        }
-        case Menu:
-        case Close:
-        case All:
-        case Title:
-        case Top:
-        case Left:
-        case Right:
-        case Bottom:
-        case TopLeft:
-        case TopRight:
-        case BottomLeft:
-        case BottomRight:
-        default:
-            region = QDecorationKDE2::region(widget, rect, type);
-            break;
+        QRect br = QDecoration::region(widget).boundingRect();
+
+        QStyleOptionFrame opt;
+        opt.palette = pal;
+        opt.rect = br;
+        opt.lineWidth = 2;
+        style->drawPrimitive(QStyle::PE_PanelMenuBar, &opt, painter, widget);
+        painter->restore();
+
+        decorationRegion &= (~Borders);
+        handled |= true;
     }
 
+    if (hasTitle) {
+        painter->save();
+
+        QStyleOptionTitleBar opt;
+        opt.subControls = (decorationRegion & Title
+                              ? QStyle::SC_TitleBarLabel : QStyle::SubControl(0))
+                          | (decorationRegion & Menu
+                              ? QStyle::SC_TitleBarSysMenu : QStyle::SubControl(0))
+                          | (decorationRegion & Help
+                              ? QStyle::SC_TitleBarContextHelpButton : QStyle::SubControl(0))
+                          | (decorationRegion & Minimize
+                              ? QStyle::SC_TitleBarMinButton : QStyle::SubControl(0))
+                          | (decorationRegion & Maximize
+                              ? QStyle::SC_TitleBarMaxButton : QStyle::SubControl(0))
+                          | (decorationRegion & Close
+                              ? QStyle::SC_TitleBarCloseButton : QStyle::SubControl(0));
+        opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+        opt.text = widget->windowTitle();
+        opt.palette = pal;
+        opt.rect = QRect(widget->rect().x(), -titleHeight, widget->rect().width(), titleHeight);
+
+        // If we're not painting all, then lets clip to only those who are not painted
+        if (!paintAll) {
+            const QRect widgetRect = widget->rect();
+            QRegion newClip = opt.rect;
+            if (!(decorationRegion & Menu) && hasSysMenu)
+                newClip -= region(widget, widgetRect, Menu);
+            if (!(decorationRegion & Title) && hasTitle)
+                newClip -= region(widget, widgetRect, Title);
+            if (!(decorationRegion & Help) && hasContextHelp)
+                newClip -= region(widget, widgetRect, Help);
+            if (!(decorationRegion & Minimize) && hasMinimize)
+                newClip -= region(widget, widgetRect, Minimize);
+            if (!(decorationRegion & Maximize) && hasMaximize)
+                newClip -= region(widget, widgetRect, Maximize);
+            if (!(decorationRegion & Close))
+                newClip -= region(widget, widgetRect, Close);
+            painter->setClipRegion(newClip);
+        }
+
+        if (state == Pressed)
+            opt.activeSubControls = opt.subControls;
+
+        painter->setFont(widget->font());
+        style->drawComplexControl(QStyle::CC_TitleBar, &opt, painter, widget);
+        painter->restore();
+
+        decorationRegion &= ~(Title | Menu | Help | Minimize | Maximize | Close);
+        handled |= true;
+    }
+
+    return handled;
+}
+
+QRegion QDecorationKDE2::region(const QWidget *widget, const QRect &rect, int decorationRegion)
+{
+    int titleHeight = titleBarHeight(widget);
+    QRect inside(rect.x(), rect.top() - titleHeight, rect.width(), titleHeight);
+
+    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
+    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
+    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
+    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+
+    QStyleOptionTitleBar opt;
+    opt.subControls = QStyle::SC_TitleBarLabel
+                      | QStyle::SC_TitleBarSysMenu
+                      | QStyle::SC_TitleBarMinButton
+                      | QStyle::SC_TitleBarMaxButton
+                      | QStyle::SC_TitleBarCloseButton;
+    opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+    opt.direction = QApplication::layoutDirection();
+    opt.text = widget->windowTitle();
+    opt.icon = widget->windowIcon();
+    opt.rect = inside;
+
+    QStyle *style = QApplication::style();
+
+    QRegion region;
+    switch (decorationRegion) {
+        case Title:
+            region =
+                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel, widget));
+            break;
+        case Menu:
+            if (hasSysMenu)
+            region =
+                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarSysMenu, widget));
+            break;
+        case Help:
+            if (hasContextHelp)
+            region =
+                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarContextHelpButton, widget));
+            break;
+        case Minimize:
+            if (hasMinimize)
+            region =
+                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarMinButton, widget));
+            break;
+        case Normalize:
+        case Maximize:
+            if (hasMaximize)
+            region =
+                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarMaxButton, widget));
+            break;
+       case Close:
+            region
+                = QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                    QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarCloseButton, widget));
+            break;
+
+        default:
+            region = QDecorationDefault::region(widget, rect, decorationRegion);
+    }
     return region;
 }
-
-void QDecorationKDE2::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
-                                   DecoreState state)
-{
-    if (item == None)
-        return;
-
-    if (item == All) {
-        paintItem(painter, widget, Border, state);
-        paintItem(painter, widget, Title, state);
-        paintItem(painter, widget, Menu, state);
-        paintItem(painter, widget, Help, state);
-        paintItem(painter, widget, Minimize, state);
-        paintItem(painter, widget, Maximize, state);
-        paintItem(painter, widget, Normalize, state);
-        paintItem(painter, widget, Close, state);
-        return;
-    }
-
-    switch(item) {
-    case Border:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Border - NYI!");
-        break;
-    }
-    case Title:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Title - NYI!");
-        break;
-    }
-    case Menu:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Menu - NYI!");
-        break;
-    }
-    case Help:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Help - NYI!");
-        break;
-    }
-    case Minimize:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Minimize - NYI!");
-        break;
-    }
-    case Maximize:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Maximize - NYI!");
-        break;
-    }
-    case Normalize:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Normalize - NYI!");
-        break;
-    }
-    case Close:
-    {
-        qWarning("QDecorationKDE2::paintEvent(): Close - NYI!");
-        break;
-    }
-    }
-}
-
-#if 0
-void QDecorationKDE2::paint(QPainter *painter, const QWidget *widget)
-{
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-
-    int titleHeight = getTitleHeight(widget);
-    int titleWidth = getTitleWidth(widget);
-
-    QRect rect(widget->rect());
-
-    // Border rect
-    QRect br(rect.left() - BORDER_WIDTH,
-                rect.top() - BORDER_WIDTH - titleHeight,
-                rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
-
-    // title bar rect
-    QRect tr;
-    tr = QRect(titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
-
-    QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
-
-#ifndef QT_NO_PALETTE
-    //QPalette pal = QApplication::palette();
-    QPalette pal = widget->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
-
-#if !defined(QT_NO_STYLE)
-    style.drawPanel(painter, br.x(), br.y(), br.width(),
-                    br.height() - 4, pal, false, 2,
-                    &pal.brush(QPalette::Background));
-#elif !defined(QT_NO_DRAWUTIL)
-    qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-                  br.height() - 4, pal, false,
-                  &pal.brush(QPalette::Background));
-#endif
-
-    painter->setClipRegion(oldClip);
-
-    if (titleWidth > 0) {
-        QBrush titleBrush;
-        QPen   titlePen;
-        int    titleLeft = titleHeight + 4;
-
-        if (widget == qApp->activeWindow()) {
-            titleBrush = pal.brush(QPalette::Highlight);
-            titlePen   = pal.color(QPalette::HighlightedText);
-        } else {
-            titleBrush = pal.brush(QPalette::Background);
-            titlePen   = pal.color(QPalette::Text);
-        }
-
-#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
-
-        {
-
-#if !defined(QT_NO_STYLE)
-            style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-                            pal, true, 1, &titleBrush);
-#elif !defined(QT_NO_DRAWUTIL)
-            qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-                            pal, true, &titleBrush);
-#endif
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-            painter->setPen(titlePen);
-            painter->setFont(widget->font());
-            painter->drawText(titleLeft, -titleHeight,
-                            titleWidth-5, titleHeight - 1,
-                            Qt::AlignVCenter, widget->windowTitle());
-#endif
-            return;
-        }
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-        painter->setPen(titlePen);
-        painter->setFont(widget->font());
-        painter->drawText(titleLeft, -titleHeight,
-                        rect.width() - titleHeight - 10, titleHeight-1,
-                        Qt::AlignVCenter, widget->windowTitle());
-#endif
-    }
-
-#endif //QT_NO_PALETTE
-
-}
-
-void QDecorationKDE2::paintButton(QPainter *painter, const QWidget *w,
-                        QDecoration::Region type, int state)
-{
-#ifndef QT_NO_PALETTE
-#ifndef QT_NO_STYLE
-    QStyle &style = QApplication::style();
-#endif
-    QPalette pal = w->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
-
-    QRect brect(region(w, w->rect(), type).boundingRect());
-
-    int xoff=2;
-    int yoff=2;
-
-    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
-
-    {
-
-        if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#if !defined(QT_NO_STYLE)
-            style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
-                        brect.height()-1, pal, true,
-                        &pal.brush(QPalette::Background));
-#elif !defined(QT_NO_DRAWUTIL)
-            qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
-                        brect.height()-1, pal, true,
-                        &pal.brush(QPalette::Background));
-#endif
-            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, pm);
-        } else {
-            painter->fillRect(brect.x(), brect.y(), brect.width()-1,
-                        brect.height()-1, pal.brush(QPalette::Background));
-            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, pm);
-        }
-    }
-
-#endif
-
-}
-#endif // 0 ---------------------------------------------------------------------------
 
 #endif // QT_NO_QWS_DECORATION_KDE2

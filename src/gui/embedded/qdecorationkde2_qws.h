@@ -24,19 +24,10 @@ public:
     QDecorationKDE2();
     virtual ~QDecorationKDE2();
 
-    virtual QRegion region(const QWidget *, const QRect &rect, DecorItem);
-    virtual void paintItem(QPainter *, const QWidget *, DecorItem item = All,
-                           DecoreState state = Normal);
-protected:
-/*
-    virtual int getTitleWidth(const QWidget *);
-    virtual int getTitleHeight(const QWidget *);
-    virtual const char **menuPixmap();
-    virtual const char **closePixmap();
-    virtual const char **minimizePixmap();
-    virtual const char **maximizePixmap();
-    virtual const char **normalizePixmap();
-*/
+    QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion = All);
+    bool paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
+               DecorationState state = Normal);
+    int titleBarHeight(const QWidget *widget);
 };
 
 #endif // QT_NO_QWS_DECORATION_KDE2
