@@ -208,13 +208,13 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();
 
-    m->insertItem(QObject::tr("&Restore"), (int)Normalize);
-    m->insertItem(QObject::tr("&Move"), (int)Title);
-    m->insertItem(QObject::tr("&Size"), (int)BottomRight);
-    m->insertItem(QObject::tr("Mi&nimize"), (int)Minimize);
-    m->insertItem(QObject::tr("Ma&ximize"), (int)Maximize);
+    m->insertItem( qApp->translate("QWSDecoration", "&Restore"), (int)Normalize );
+    m->insertItem( qApp->translate("QWSDecoration", "&Move"), (int)Title );
+    m->insertItem( qApp->translate("QWSDecoration", "&Size"), (int)BottomRight );
+    m->insertItem( qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize );
+    m->insertItem( qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize );
     m->insertSeparator();
-    m->insertItem(QObject::tr("Close"), (int)Close);
+    m->insertItem( qApp->translate("QWSDecoration", "Close"), (int)Close );
 
     return m;
 }
