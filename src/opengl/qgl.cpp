@@ -48,8 +48,9 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 #endif
 
 /*!
-    \class QGL
-    \brief The QGL class is a namespace for miscellaneous identifiers
+    \namespace QGL
+
+    \brief The QGL namespace contains miscellaneous identifiers used
     in the Qt OpenGL module.
 
 \if defined(commercial)
@@ -58,24 +59,32 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
     \module OpenGL
     \ingroup multimedia
-
-
-    Normally you can ignore this class. QGLWidget and the other
-    OpenGL
-    \footnote
-        OpenGL is a trademark of Silicon Graphics, Inc. in the
-        United States and other countries.
-    \endfootnote
-    module classes inherit it, so when you make your
-    own QGLWidget subclass you can use the identifiers in the QGL
-    namespace without qualification.
-
-    However, you may occasionally find yourself in situations where you
-    need to refer to these identifiers from outside the QGL namespace's
-    scope, e.g. in static functions. In such cases, simply write e.g. \c
-    QGL::DoubleBuffer instead of just \c DoubleBuffer.
 */
 
+/*!
+    \enum QGL::FormatOption
+
+    This enum specifies the format options.
+
+    \value DoubleBuffer
+    \value DepthBuffer
+    \value Rgba
+    \value AlphaChannel
+    \value AccumBuffer
+    \value StencilBuffer
+    \value StereoBuffers
+    \value DirectRendering
+    \value HasOverlay
+    \value SingleBuffer
+    \value NoDepthBuffer
+    \value ColorIndex
+    \value NoAlphaChannel
+    \value NoAccumBuffer
+    \value NoStencilBuffer
+    \value NoStereoBuffers
+    \value IndirectRendering
+    \value NoOverlay
+*/
 
 /*****************************************************************************
   QGLFormat implementation
@@ -112,7 +121,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     alpha buffer, accumulation buffer and the stencil buffer with the
     functions: setDepthBufferSize(), setAlphaBufferSize(),
     setAccumBufferSize() and setStencilBufferSize().
-    
+
     Note that even if you specify that you prefer a 32 bit depth
     buffer (e.g. with setDepthBufferSize(32)), the format that is
     chosen may not have a 32 bit depth buffer, even if there is a
@@ -120,7 +129,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     this is how the system dependant picking algorithms work on the
     different platforms, and some format options may have higher
     precedence than others.
-    
+
     You create and tell a QGLFormat object what rendering options you
     want from an OpenGL
     \footnote
@@ -192,7 +201,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 QGLFormat::QGLFormat()
 {
     d = new QGLFormatPrivate;
-    d->opts = DoubleBuffer | DepthBuffer | Rgba | DirectRendering;
+    d->opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
     d->pln = 0;
     d->depthSize = d->alphaSize = d->stencilSize = d->accumSize = 1;
 }
@@ -233,10 +242,10 @@ QGLFormat::QGLFormat()
     \sa defaultFormat(), setOption()
 */
 
-QGLFormat::QGLFormat(GLFormatOptions options, int plane)
+QGLFormat::QGLFormat(QGL::FormatOptions options, int plane)
 {
     d = new QGLFormatPrivate;
-    GLFormatOptions newOpts = options;
+    QGL::FormatOptions newOpts = options;
     d->opts = defaultFormat().d->opts;
     d->opts |= (newOpts & 0xffff);
     d->opts &= ~(newOpts >> 16);
@@ -294,7 +303,7 @@ QGLFormat::~QGLFormat()
 
 void QGLFormat::setDoubleBuffer(bool enable)
 {
-    setOption(enable ? DoubleBuffer : SingleBuffer);
+    setOption(enable ? QGL::DoubleBuffer : QGL::SingleBuffer);
 }
 
 
@@ -324,7 +333,7 @@ void QGLFormat::setDoubleBuffer(bool enable)
 
 void QGLFormat::setDepth(bool enable)
 {
-    setOption(enable ? DepthBuffer : NoDepthBuffer);
+    setOption(enable ? QGL::DepthBuffer : QGL::NoDepthBuffer);
 }
 
 
@@ -355,7 +364,7 @@ void QGLFormat::setDepth(bool enable)
 
 void QGLFormat::setRgba(bool enable)
 {
-    setOption(enable ? Rgba : ColorIndex);
+    setOption(enable ? QGL::Rgba : QGL::ColorIndex);
 }
 
 
@@ -383,7 +392,7 @@ void QGLFormat::setRgba(bool enable)
 
 void QGLFormat::setAlpha(bool enable)
 {
-    setOption(enable ? AlphaChannel : NoAlphaChannel);
+    setOption(enable ? QGL::AlphaChannel : QGL::NoAlphaChannel);
 }
 
 
@@ -410,7 +419,7 @@ void QGLFormat::setAlpha(bool enable)
 
 void QGLFormat::setAccum(bool enable)
 {
-    setOption(enable ? AccumBuffer : NoAccumBuffer);
+    setOption(enable ? QGL::AccumBuffer : QGL::NoAccumBuffer);
 }
 
 
@@ -437,7 +446,7 @@ void QGLFormat::setAccum(bool enable)
 
 void QGLFormat::setStencil(bool enable)
 {
-    setOption(enable ? StencilBuffer: NoStencilBuffer);
+    setOption(enable ? QGL::StencilBuffer: QGL::NoStencilBuffer);
 }
 
 
@@ -464,7 +473,7 @@ void QGLFormat::setStencil(bool enable)
 
 void QGLFormat::setStereo(bool enable)
 {
-    setOption(enable ? StereoBuffers : NoStereoBuffers);
+    setOption(enable ? QGL::StereoBuffers : QGL::NoStereoBuffers);
 }
 
 
@@ -494,7 +503,7 @@ void QGLFormat::setStereo(bool enable)
 
 void QGLFormat::setDirectRendering(bool enable)
 {
-    setOption(enable ? DirectRendering : IndirectRendering);
+    setOption(enable ? QGL::DirectRendering : QGL::IndirectRendering);
 }
 
 
@@ -521,7 +530,7 @@ void QGLFormat::setDirectRendering(bool enable)
 
 void QGLFormat::setOverlay(bool enable)
 {
-    setOption(enable ? HasOverlay : NoOverlay);
+    setOption(enable ? QGL::HasOverlay : QGL::NoOverlay);
 }
 
 /*!
@@ -560,7 +569,7 @@ void QGLFormat::setPlane(int plane)
     \sa testOption()
 */
 
-void QGLFormat::setOption(GLFormatOptions opt)
+void QGLFormat::setOption(QGL::FormatOptions opt)
 {
     if (opt & 0xffff)
         d->opts |= opt;
@@ -576,7 +585,7 @@ void QGLFormat::setOption(GLFormatOptions opt)
     \sa setOption()
 */
 
-bool QGLFormat::testOption(GLFormatOptions opt) const
+bool QGLFormat::testOption(QGL::FormatOptions opt) const
 {
     if (opt & 0xffff)
        return (d->opts & opt) != 0;
@@ -739,7 +748,7 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 {
     if (!qgl_default_overlay_format) {
         qgl_default_overlay_format = new QGLFormat;
-        qgl_default_overlay_format->d->opts = DirectRendering;
+        qgl_default_overlay_format->d->opts = QGL::DirectRendering;
         qgl_default_overlay_format->d->pln = 1;
         qgl_cleanup_format.add(&qgl_default_overlay_format);
     }
@@ -2974,27 +2983,3 @@ programming. If you're new to the subject a good starting point is
 
 */
 
-/*!
-    \enum QGL::FormatOption
-
-    This enum specifies the format options.
-
-    \value DoubleBuffer
-    \value DepthBuffer
-    \value Rgba
-    \value AlphaChannel
-    \value AccumBuffer
-    \value StencilBuffer
-    \value StereoBuffers
-    \value DirectRendering
-    \value HasOverlay
-    \value SingleBuffer
-    \value NoDepthBuffer
-    \value ColorIndex
-    \value NoAlphaChannel
-    \value NoAccumBuffer
-    \value NoStencilBuffer
-    \value NoStereoBuffers
-    \value IndirectRendering
-    \value NoOverlay
-*/

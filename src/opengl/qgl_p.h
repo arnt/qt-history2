@@ -29,7 +29,7 @@ class QMacWindowChangeEvent;
 class QGLFormatPrivate
 {
 public:
-    QGL::GLFormatOptions opts;
+    QGL::FormatOptions opts;
     int pln;
     int depthSize;
     int accumSize;

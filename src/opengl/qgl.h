@@ -51,10 +51,9 @@ class QGLWidgetPrivate;
 class QGLContextPrivate;
 
 // Namespace class:
-class Q_OPENGL_EXPORT QGL
+namespace QGL
 {
-public:
-    enum GLFormatOption {
+    enum FormatOption {
         DoubleBuffer            = 0x0001,
         DepthBuffer             = 0x0002,
         Rgba                    = 0x0004,
@@ -64,29 +63,29 @@ public:
         StereoBuffers           = 0x0040,
         DirectRendering         = 0x0080,
         HasOverlay              = 0x0100,
-        SingleBuffer            = DoubleBuffer  << 16,
-        NoDepthBuffer           = DepthBuffer   << 16,
-        ColorIndex              = Rgba          << 16,
-        NoAlphaChannel          = AlphaChannel  << 16,
-        NoAccumBuffer           = AccumBuffer   << 16,
-        NoStencilBuffer         = StencilBuffer << 16,
-        NoStereoBuffers         = StereoBuffers << 16,
+        SingleBuffer            = DoubleBuffer    << 16,
+        NoDepthBuffer           = DepthBuffer     << 16,
+        ColorIndex              = Rgba            << 16,
+        NoAlphaChannel          = AlphaChannel    << 16,
+        NoAccumBuffer           = AccumBuffer     << 16,
+        NoStencilBuffer         = StencilBuffer   << 16,
+        NoStereoBuffers         = StereoBuffers   << 16,
         IndirectRendering       = DirectRendering << 16,
-        NoOverlay               = HasOverlay << 16
+        NoOverlay               = HasOverlay      << 16
     };
-    Q_DECLARE_FLAGS(GLFormatOptions, GLFormatOption)
+    Q_DECLARE_FLAGS(FormatOptions, FormatOption)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QGL::GLFormatOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGL::FormatOptions)
 
 
 class QGLFormatPrivate;
 
-class Q_OPENGL_EXPORT QGLFormat : public QGL
+class Q_OPENGL_EXPORT QGLFormat
 {
 public:
     QGLFormat();
-    QGLFormat(GLFormatOptions options, int plane = 0);
+    QGLFormat(QGL::FormatOptions options, int plane = 0);
     QGLFormat(const QGLFormat &other);
     QGLFormat operator=(const QGLFormat &other);
     ~QGLFormat();
@@ -125,8 +124,8 @@ public:
     int plane() const;
     void setPlane(int plane);
 
-    void setOption(GLFormatOptions opt);
-    bool testOption(GLFormatOptions opt) const;
+    void setOption(QGL::FormatOptions opt);
+    bool testOption(QGL::FormatOptions opt) const;
 
     static QGLFormat defaultFormat();
     static void setDefaultFormat(const QGLFormat& f);
@@ -136,20 +135,18 @@ public:
 
     static bool hasOpenGL();
     static bool hasOpenGLOverlays();
-
-    friend Q_OPENGL_EXPORT bool operator==(const QGLFormat&,
-                                             const QGLFormat&);
-    friend Q_OPENGL_EXPORT bool operator!=(const QGLFormat&,
-                                             const QGLFormat&);
 private:
     QGLFormatPrivate *d;
+
+    friend Q_OPENGL_EXPORT bool operator==(const QGLFormat&, const QGLFormat&);
+    friend Q_OPENGL_EXPORT bool operator!=(const QGLFormat&, const QGLFormat&);
 };
 
 
 Q_OPENGL_EXPORT bool operator==(const QGLFormat&, const QGLFormat&);
 Q_OPENGL_EXPORT bool operator!=(const QGLFormat&, const QGLFormat&);
 
-class Q_OPENGL_EXPORT QGLContext : public QGL
+class Q_OPENGL_EXPORT QGLContext
 {
     Q_DECLARE_PRIVATE(QGLContext)
 public:
@@ -227,7 +224,7 @@ private:
 };
 
 
-class Q_OPENGL_EXPORT QGLWidget : public QWidget, public QGL
+class Q_OPENGL_EXPORT QGLWidget : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGLWidget)
@@ -333,46 +330,46 @@ private:
 
 inline bool QGLFormat::doubleBuffer() const
 {
-    return testOption(DoubleBuffer);
+    return testOption(QGL::DoubleBuffer);
 }
 
 inline bool QGLFormat::depth() const
 {
-    return testOption(DepthBuffer);
+    return testOption(QGL::DepthBuffer);
 }
 
 inline bool QGLFormat::rgba() const
 {
-    return testOption(Rgba);
+    return testOption(QGL::Rgba);
 }
 
 inline bool QGLFormat::alpha() const
 {
-    return testOption(AlphaChannel);
+    return testOption(QGL::AlphaChannel);
 }
 
 inline bool QGLFormat::accum() const
 {
-    return testOption(AccumBuffer);
+    return testOption(QGL::AccumBuffer);
 }
 
 inline bool QGLFormat::stencil() const
 {
-    return testOption(StencilBuffer);
+    return testOption(QGL::StencilBuffer);
 }
 
 inline bool QGLFormat::stereo() const
 {
-    return testOption(StereoBuffers);
+    return testOption(QGL::StereoBuffers);
 }
 
 inline bool QGLFormat::directRendering() const
 {
-    return testOption(DirectRendering);
+    return testOption(QGL::DirectRendering);
 }
 
 inline bool QGLFormat::hasOverlay() const
 {
-    return testOption(HasOverlay);
+    return testOption(QGL::HasOverlay);
 }
 #endif
