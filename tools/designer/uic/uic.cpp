@@ -154,7 +154,7 @@ QString Uic::getFormClassName( const QDomElement& e )
 	if ( n.tagName() == "class" ) {
 	    QString s = n.firstChild().toText().data();
 	    int i;
-	    while ( ( i = s.find(' ' )) != -1  )
+	    while ( ( i = s.find(' ' )) != -1 )
 		s[i] = '_';
 	    cn = s;
 	}
@@ -200,7 +200,7 @@ QString Uic::getLayoutName( const QDomElement& e )
     QDomElement p = e.parentNode().toElement();
     QString tail = QString::null;
 
-    if (getClassName(p) != "QLayoutWidget")
+    if ( getClassName(p) != "QLayoutWidget" )
 	tail = "Layout";
 
     QDomElement n = getObjectProperty( p, "name" );
@@ -240,12 +240,12 @@ QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
 
 void Uic::registerLayouts( const QDomElement &e )
 {
-    if (layouts.contains(e.tagName()))
+    if ( layouts.contains(e.tagName()) )
 	createObjectDecl(e);
 
     QDomNodeList nl = e.childNodes();
-    for (int i = 0; i < (int) nl.length(); ++i)
-	registerLayouts(nl.item(i).toElement());
+    for ( int i = 0; i < (int) nl.length(); ++i )
+	registerLayouts( nl.item(i).toElement() );
 }
 
 
@@ -311,7 +311,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		if ( value.isEmpty() )
 		    continue;
 		if ( stdset )
-		    out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
+		    out << indent << objName << "->" << mkStdSet( prop ) << "( " << value << " );" << endl;
 		else
 		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    } else if ( !subActionsDone && ( n2.tagName() == "actiongroup" || n2.tagName() == "action" ) ) {
@@ -897,7 +897,7 @@ bool Uic::isObjectRegistered( const QString& name )
 QStringList Uic::unique( const QStringList& list )
 {
     QStringList result;
-    if (list.isEmpty() )
+    if ( list.isEmpty() )
 	return result;
     QStringList l = list;
     l.sort();
@@ -1158,7 +1158,7 @@ int main( int argc, char * argv[] )
 		fix = TRUE;
 	    }
 	} else {
-	    if ( fileName)		// can handle only one file
+	    if ( fileName )		// can handle only one file
 		error	 = "Too many input files specified";
 	    else
 		fileName = argv[n];
@@ -1196,7 +1196,7 @@ int main( int argc, char * argv[] )
 	qFatal( "uic: Could not open file '%s' ", fileName );
 
     QFile fileOut;
-    if (outputFile ) {
+    if ( outputFile ) {
 	fileOut.setName( outputFile );
 	if (!fileOut.open( IO_WriteOnly ) )
 	    qFatal( "uic: Could not open output file '%s'", outputFile );

@@ -180,9 +180,9 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( prop == "geometry" ) {
 		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
 	    } else {
-		if ( stdset ) {
+		if ( stdset )
 		    out << indent << objName << "->" << mkStdSet( prop ) << "( " << value << " );" << endl;
-		} else
+		else
 		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
 	} else if ( n.tagName() == "item" ) {
@@ -426,7 +426,8 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
 	v = "int( ";
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QStringList::Iterator it = lst.begin(); // work around EDG bug
+	for ( ; it != lst.end(); ++it ) {
 	    v += objClass + "::" + *it;
 	    if ( it != lst.fromLast() )
 		v += " | ";
