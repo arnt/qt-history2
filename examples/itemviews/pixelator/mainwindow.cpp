@@ -14,7 +14,7 @@ MainWindow::MainWindow()
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
     setCentralWidget(view);
-    
+
     QMenu *fileMenu = new QMenu(tr("&File"), this);
     QAction *openAction = fileMenu->addAction(tr("&Open"));
     openAction->setShortcut(QKeySequence(tr("Ctrl+O")));
@@ -46,7 +46,7 @@ void MainWindow::chooseImage()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Choose an image"), "", "*");
-    
+
     if (!fileName.isEmpty())
         openImage(fileName);
 }
@@ -74,14 +74,23 @@ void MainWindow::openImage(const QString &fileName)
 
 void MainWindow::printImage()
 {
+    if (model->rowCount(QModelIndex::Null)*model->columnCount(QModelIndex::Null)
+        > 90000) {
+        int answer = QMessageBox::question(this, tr("Large Image Size"),
+            tr("The printed image may be very large. Are you sure that "
+               "you want to print it?"),
+            QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::No)
+            return;
+    }
+
     QPrinter printer;
-    //printer.setColorMode(QPrinter::GrayScale);
-    
+
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
-    
+
     if (dlg->exec() != QDialog::Accepted)
         return;
-    
+
     QPainter painter;
     painter.begin(&printer);
 
