@@ -2340,7 +2340,7 @@ void QListBox::setSelected( int index, bool select )
 
 void QListBox::setSelected( QListBoxItem * item, bool select )
 {
-    if ( !item || item->s == select || d->selectionMode == NoSelection )
+    if ( !item || (bool)item->s == select || d->selectionMode == NoSelection )
 	return;
 
     bool emitHighlighted = FALSE;
