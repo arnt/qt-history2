@@ -285,7 +285,7 @@ OutputIterator, but in backwards fashion, for example:
 \endcode
 
 <a name="qMakePair"></a>Another template function is qMakePair().
-This is a convenience function which is used for creating QPair<>
+This is a convenience function which is used for creating QPair\<\>
 objects.  For example:
 
 \code

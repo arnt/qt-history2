@@ -46,15 +46,15 @@
   \ingroup shared
   
   QPair is a Qt implementation of an STL-like pair.  It
-  can be used in your application if the standard pair<> is not
+  can be used in your application if the standard pair\<\> is not
   available.  
 
-  QPair<T1,T2> defines a template instance to create
-  a pair of values that contains two values of type T1 and T2.. Please
+  QPair\<T1, T2\> defines a template instance to create
+  a pair of values that contains two values of type T1 and T2. Please
   note that QPair does not store pointers to the two elements; it
   holds a copy of every member. This is why these
-  kinds of classes are called "value based"; QPtrList and QDict are
-  "pointer based".
+  kinds of classes are called \e {value based}; QPtrList and QDict are
+  \e {pointer based}.
 
   QPair holds one copy of type T1 and one copy of type T2, but does
   not provide iterators to access these elements.  Rather, the two
@@ -65,27 +65,26 @@
 
   Some classes cannot be used within a QPair - for example, all classes
   derived from QObject and thus all classes that implement widgets.
-  Only values can be used in a QPair. To qualify as a value the class
+  Only "values" can be used in a QPair. To qualify as a value the class
   must provide:
 
-  <ul>
-  <li>A copy constructor
-  <li>An assignment operator
-  <li>A default constructor, i.e., a constructor that does not take any arguments.
-  </ul>
+  \list
+  \i A copy constructor
+  \i An assignment operator
+  \i A constructor that takes no argument
+  \endlist
 
   Note that C++ defaults to field-by-field assignment operators and
   copy constructors if no explicit version is supplied. In many cases
   this is sufficient.
 
-  QPair uses an STL-like syntax to manipulate and address the
-  objects it contains.  See <a href="qtl.html">this document</a> for
+  QPair uses an STL-like syntax to manipulate and address the objects
+  it contains.  See the \link qtl.html QTL documentation\endlink for
   more information.
 
   Functions that need to return two values can use a QPair.  The
-  <a href="qtl.h#qMakePair">qMakePair()</a> convenience function can
+  \link qtl.html#qMakePair qMakePair()\endlink convenience function can
   be used to easily create QPair objects.
-
 */
 
 /*! \enum QPair::first_type
@@ -104,15 +103,7 @@
 	Constructs a pair and initializes the \c first element with t1
 	and the \c second element with t2.
 
-	\sa qMakePair
-*/
-
-/*! \fn QPair::first
-	The \c first element in the pair.
-*/
-
-/*! \fn QPair::second
-	The \c second element in the pair.
+	\sa qMakePair()
 */
 
 /*! \fn bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
@@ -124,8 +115,6 @@
 	Returns TRUE if \a x is less than \a y.  \a x is less than \a y if 
 	x.first is less than y.first, or if x.second is less than
 	y.second and x.first is the same as y.first.
+
+	For example, (0, 1) < (0, 4) and (0, 4) < (1, 0).
 */
-
-
-
-
