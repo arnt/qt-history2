@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= progressbar.h
 SOURCES		= main.cpp \
 		  progressbar.cpp
+QT	+= compat
