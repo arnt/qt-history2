@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#26 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#27 $
 **
 ** Definition of QMenuData class
 **
@@ -136,7 +136,7 @@ protected:
     int		   actItem;
     QMenuItemList *mitems;
     QMenuData	  *parentMenu;
-    uint	   isPopup	: 1;
+    uint	   isPopupMenu	: 1;
     uint	   isMenuBar	: 1;
     uint	   badSize	: 1;
     uint	   mouseBtDn	: 1;

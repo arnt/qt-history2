@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#49 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#49 $")
 
 
 /*!
@@ -340,7 +340,7 @@ void QMenuBar::show()
 	}
 	if ( mi->popup() ) {
 	    mi->popup()->updateAccel( this );
-	    if ( mi->popup()->isDisabled() )
+	    if ( !mi->popup()->isEnabled() )
 		mi->popup()->enableAccel( FALSE );
 	}
     }

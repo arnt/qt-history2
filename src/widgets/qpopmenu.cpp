@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#63 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#63 $")
 
 
 // Mac style parameters
@@ -119,7 +119,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     if ( parent != 0 )
 	warning( "QPopupMenu: Parent must be null" );
 #endif
-    isPopup	  = TRUE;
+    isPopupMenu	  = TRUE;
     selfItem	  = 0;
     autoaccel	  = 0;
     accelDisabled = FALSE;
@@ -299,7 +299,7 @@ void QPopupMenu::setFirstItemActive()
 void QPopupMenu::hideAllPopups()
 {
     register QMenuData *top = this;		// find top level popup
-    while ( top->parentMenu && top->parentMenu->isPopup )
+    while ( top->parentMenu && top->parentMenu->isPopupMenu )
 	top = top->parentMenu;
     ((QPopupMenu*)top)->hide();			// cascade from top level
 }
