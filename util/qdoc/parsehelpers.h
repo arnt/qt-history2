@@ -89,29 +89,21 @@ struct XmlSection
     ~XmlSection() { delete subsections; }
 
     XmlSection& operator=( const XmlSection& other ) {
-	delete subsections;
+	QValueList<XmlSection> *oldSubsections = subsections;
 	if ( other.subsections == 0 ) {
 	    subsections = 0;
 	} else {
 	    subsections = new QValueList<XmlSection>( *other.subsections );
 	}
+	delete oldSubsections;
 	title = other.title;
 	ref = other.ref;
 	keywords = other.keywords;
 	return *this;
     }
-
-    bool operator>( const XmlSection& other ) {
-	return title > other.title;
-    }
-
-    bool operator<=( const XmlSection& other ) {
-	return !operator>(other);
-    }
 };
 
-inline bool operator<( const XmlSection& s1, const XmlSection& s2 )
-{
+inline bool operator<( const XmlSection& s1, const XmlSection& s2 ) {
     int delta = s1.title.lower().compare( s2.title.lower() );
     if ( delta == 0 ) {
 	delta = s1.title.compare( s2.title );
@@ -121,10 +113,31 @@ inline bool operator<( const XmlSection& s1, const XmlSection& s2 )
     return delta < 0;
 }
 
+inline bool operator>( const XmlSection& s1, const XmlSection& s2 ) {
+    return s2 < s1;
+}
+
+inline bool operator<=( const XmlSection& s1, const XmlSection& s2 ) {
+    return !( s2 < s1 );
+}
+
+inline bool operator>=( const XmlSection& s1, const XmlSection& s2 ) {
+    return !( s1 < s2 );
+}
+
+inline bool operator==( const XmlSection& s1, const XmlSection& s2 ) {
+    return &s1 == &s2;
+}
+
+inline bool operator!=( const XmlSection& s1, const XmlSection& s2 ) {
+    return !( s1 == s2 );
+}
+
 class BinaryWriter;
 
 void appendXmlSubSection( XmlSection *xmlSect, const XmlSection& sub );
-void sortXmlSubSections( XmlSection *xmlSect );
+void appendXmlSubSections( XmlSection *xmlSect,
+			   const QValueList<XmlSection>& subs );
 void generateXmlSubSections( QString indent, BinaryWriter& out,
 			     const XmlSection& sect );
 void generateXmlSections( const XmlSection& rootSect, const QString& fileName,

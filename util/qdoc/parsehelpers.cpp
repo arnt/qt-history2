@@ -191,17 +191,18 @@ void appendXmlSubSection( XmlSection *xmlSect, const XmlSection& sub )
     xmlSect->subsections->append( sub );
 }
 
-void sortXmlSubSections( XmlSection *xmlSect )
+void appendXmlSubSections( XmlSection *xmlSect,
+			   const QValueList<XmlSection>& subs )
 {
-    if ( xmlSect->subsections != 0 )
-	qHeapSort( *xmlSect->subsections );
+    if ( xmlSect->subsections == 0 )
+	xmlSect->subsections = new QValueList<XmlSection>;
+    *xmlSect->subsections += subs;
 }
 
 void generateXmlSubSections( QString indent, BinaryWriter& out,
 			     const XmlSection& sect )
 {
     if ( sect.subsections ) {
-	indent += "    ";
 	QValueList<XmlSection>::ConstIterator ss = sect.subsections->begin();
 	while ( ss != sect.subsections->end() ) {
 	    out.puts( indent + "<section ref=\"" + htmlProtect( (*ss).ref, FALSE ) +
@@ -210,9 +211,20 @@ void generateXmlSubSections( QString indent, BinaryWriter& out,
 		out.puts( "/>\n" );
 	    } else {
 		out.puts( ">\n" );
-		// output the keyword
+		QString indentIndent = indent + "    ";
+		QValueList<QPair<QString, QString> >::ConstIterator k =
+			(*ss).keywords.begin();
+		while ( k != (*ss).keywords.end() ) {
+		    out.puts( indentIndent + "<keyword ref=\"" );
+		    out.puts( (*k).second );
+		    out.puts( "\">" );
+		    out.puts( htmlProtect((*k).first) );
+		    out.puts( "</keyword>\n" );
+		    ++k;
+		}
+
 		if ( (*ss).subsections != 0 )
-		    generateXmlSubSections( indent, out, *ss );
+		    generateXmlSubSections( indentIndent, out, *ss );
 		out.puts( indent + "</section>\n" );
 	    }
 	    ++ss;

@@ -332,6 +332,11 @@ void DocEmitter::emitHtml() const
     Doc::setGroupMap( grmap );
     Doc::setClassHierarchy( chierarchy );
 
+    XmlSection rootSection;
+    QValueList<XmlSection> classSections;
+    QValueList<XmlSection> exampleSections;
+    QValueList<XmlSection> otherSections;
+
     /*
       Generate the verbatim header files.
     */
@@ -350,8 +355,6 @@ void DocEmitter::emitHtml() const
 	++s;
     }
 
-    XmlSection rootSection;
-
     /*
       Examples are generated first, so that the documentation can link
       to them.
@@ -368,10 +371,13 @@ void DocEmitter::emitHtml() const
 		out.setHeading( (*ex)->title() );
 	    (*ex)->printHtml( out );
 
+	    QString fn = QStringList::split( '/', (*ex)->fileName() ).last();
+
 	    XmlSection exampleSection;
 	    exampleSection.title = out.heading();
 	    exampleSection.ref = htmlFileName;
-	    appendXmlSubSection( &rootSection, exampleSection );
+	    exampleSection.keywords.append( qMakePair(fn, htmlFileName) );
+	    exampleSections.append( exampleSection );
 	}
 	++ex;
     }
@@ -409,7 +415,7 @@ void DocEmitter::emitHtml() const
 		    appendXmlSubSection( &classSection, headerSection );
 		}
 
-		appendXmlSubSection( &rootSection, classSection );
+		classSections.append( classSection );
 	    }
 	}
 	++child;
@@ -463,6 +469,11 @@ void DocEmitter::emitHtml() const
 			++c;
 		    }
 		    out.putsMeta( Doc::htmlNormalList(list) );
+
+		    XmlSection defgroupSection;
+		    defgroupSection.title = out.heading();
+		    defgroupSection.ref = htmlFileName;
+		    otherSections.append( defgroupSection );
 		}
 		++def;
 		++groupies;
@@ -478,6 +489,11 @@ void DocEmitter::emitHtml() const
 	    HtmlWriter out( (*pa)->location(), htmlFileName );
 	    out.setHeading( (*pa)->title() );
 	    (*pa)->printHtml( out );
+
+	    XmlSection pageSection;
+	    pageSection.title = out.heading();
+	    pageSection.ref = htmlFileName;
+	    otherSections.append( pageSection );
 	}
 	++pa;
     }
@@ -579,9 +595,36 @@ void DocEmitter::emitHtml() const
     /*
       Write the <product>.xml file for Assistant.
     */
+    qHeapSort( classSections );
+    qHeapSort( otherSections );
+    qHeapSort( exampleSections );
+    appendXmlSubSections( &rootSection, classSections );
+    appendXmlSubSections( &rootSection, otherSections );
+    appendXmlSubSections( &rootSection, exampleSections );
+
+    if ( lmap.count() > 1 ) {
+	QMap<QString, QValueList<QPair<QString, QString> > > keywordMap;
+	QMap<QString, StringSet>::ConstIterator ell = lmap.begin();
+	while ( ell != lmap.end() ) {
+	    QString keyword = ell.key();
+	    StringSet::ConstIterator s = (*ell).begin();
+	    while ( s != (*ell).end() ) {
+		QString link = *s;
+		QString ref = QStringList::split( "#", link ).first();
+		keywordMap[ref].append( qMakePair(keyword, link) );
+		++s;
+	    }
+	    ++ell;
+	}
+	QValueList<XmlSection>::Iterator ss = rootSection.subsections->begin();
+	while ( ss != rootSection.subsections->end() ) {
+	    (*ss).keywords += keywordMap[(*ss).ref];
+	    ++ss;
+	}
+    }
+
     rootSection.title = config->product() + " Reference Documentation";
     rootSection.ref = "index.html";
-    sortXmlSubSections( &rootSection );
     generateXmlSections( rootSection, config->product().lower() + ".xml",
 			 config->product().lower() + "/reference" );
 }
