@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#106 $
 **
 ** Implementation of QLabel widget class
 **
@@ -194,10 +194,10 @@ void QLabel::init()
 
 /*!
   \fn QString QLabel::text() const
-  
+
   Returns the label text. This may be either plain text or a QML
   document.
-  
+
   \sa setText(), setQML()
 */
 
@@ -532,7 +532,10 @@ QSize QLabel::sizeHint() const
 
 QSizePolicy QLabel::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    if ( isqml )
+	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE );
+    else
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 }
 
 
@@ -831,7 +834,7 @@ int QLabel::heightForWidth(int w) const
 {
     if (isqml && qmlDoc ) {
 	QPainter p( this );
-	QRect cr = contentsRect();
+	w -= 2*frameWidth();
 	int m = margin();
 	if ( m < 0 ) {
 	    if ( frameWidth() > 0 )
@@ -839,18 +842,20 @@ int QLabel::heightForWidth(int w) const
 	    else
 		m = 0;
 	}
+	int add = 0;
 	if ( m > 0 ) {
 	    if ( align & AlignLeft )
-		cr.setLeft( cr.left() + m );
+		w -= m;
 	    if ( align & AlignRight )
-		cr.setRight( cr.right() - m );
+		w -= m;
 	    if ( align & AlignTop )
-		cr.setTop( cr.top() + m );
+		add = m;
 	    if ( align & AlignBottom )
-		cr.setBottom( cr.bottom() - m );
+		add = m;
 	}
-	qmlDoc->setWidth(&p, cr.width());
-	return qmlDoc->height() + 2*frameWidth() + m;
+	qmlDoc->setWidth(&p, w);
+	debug("height for %d is %d", w + 2*frameWidth(), qmlDoc->height()+2*frameWidth()+add);
+	return qmlDoc->height() + 2*frameWidth() + add;
     }
     return QWidget::heightForWidth(w);
 }
