@@ -726,7 +726,7 @@ void QSettingsPrivate::sysRemoveSearchPath(QSettings::System s, const QString &p
     QString p = path;
     if (p[0] != '/')
         p = "/" + p;
-    sysd->paths.remove(p);
+    sysd->paths.removeAll(p);
 }
 
 #endif //QT_NO_SETTINGS

@@ -232,7 +232,7 @@ void MingwMakefileGenerator::processQtConfig()
             }
 
             // QMAKE_LIBS_QT_ENTRY should be first on the link line as it needs qt
-            project->variables()["QMAKE_LIBS"].remove(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
+            project->variables()["QMAKE_LIBS"].removeAll(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
             project->variables()["QMAKE_LIBS"].prepend(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
         }
     }
