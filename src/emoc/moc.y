@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#1 $
+** $Id: //depot/qt/main/src/emoc/moc.y#2 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -979,6 +979,9 @@ extern "C" int hack_isatty( int )
 
 #include "lex.yy.c"
 
+// HACK
+#include "properties.cpp"
+
 struct Property
 {
   Property() { setfunc = 0; getfunc = 0; getSpec = '?'; setSpec = '?'; }
@@ -1891,10 +1894,50 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.1 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.2 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
+
+    /**
+      * Torbens incredible hack until Qt 3.0 is released. I am doing
+      * this with protest only!
+      */
+    int ti = 0;
+    while( ti >= 0 && TorbensHack[ti] != 0 )
+    {
+      const char* tp = TorbensHack[ti];
+      if ( *tp == '+' && strcmp( TorbensHack[ti+1], className.data() ) == 0 )
+      {
+	ti += 2;
+	Q_BUILDERdetected = TRUE;
+	Q_BUILDERcomment = TorbensHack[ti++];
+	Q_BUILDERpixmap = TorbensHack[ti++];
+	Q_INSPECTORclass = TorbensHack[ti++];
+	printf("comm=%s pix=%s class=%s\n",Q_BUILDERcomment.data(), Q_BUILDERpixmap.data(),
+	       Q_INSPECTORclass.data() );
+	while( TorbensHack[ti] != 0 && TorbensHack[ti][0] != '+' )
+	{
+	  tmpFunc->type = TorbensHack[ti++];
+	  tmpFunc->name = TorbensHack[ti++];
+	  tmpFunc->qualifier = TorbensHack[ti++];
+	  printf("ret=%s name=%s qual=%s\n",tmpFunc->type.data(),tmpFunc->name.data(),tmpFunc->qualifier.data());
+	  while( TorbensHack[ti][0] != ')' )
+	  {
+	    printf("Argument %s\n",(char*)TorbensHack[ti]);
+	    tmpFunc->args = addArg( new Argument( (char*)TorbensHack[ti++], "" ) );
+	  }
+	  ++ti;
+
+	  addMember( 'p' );
+	}
+	// we are done
+	ti = -1;
+      }
+      else
+	++ti;
+    }
+    // End of hack
 
     if ( skipClass )				// don't generate for class
 	return;
