@@ -73,18 +73,31 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
 
     QIconViewItem *iitem;
     iitem = new QIconViewItem( iconView, "Copy", loadPixmap( "editcopy.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Cut", loadPixmap( "editcut.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Paste", loadPixmap( "editpaste.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Raise", loadPixmap( "editraise.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Lower", loadPixmap( "editlower.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "New", loadPixmap( "filenew.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Load", loadPixmap( "fileopen.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Save", loadPixmap( "filesave.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Undo", loadPixmap( "undo.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Redo", loadPixmap( "redo.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Delete", loadPixmap( "editdelete.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Help", loadPixmap( "help.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
     iitem = new QIconViewItem( iconView, "Home", loadPixmap( "home.xpm" ) );
+    iitem->setRenameEnabled( TRUE );
 
     listView->addColumn( "Actions", 200 );
     QListViewItem *litem;
