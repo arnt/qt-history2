@@ -208,7 +208,12 @@ public:
     inline int cursorToX(int cPos, Edge edge = Leading) const { return cursorToX(&cPos, edge); }
     int xToCursor(int x, CursorPosition = BetweenCharacters) const;
 
-    void layout(int width);
+    enum BreakMode {
+        BreakPixels,
+        BreakGlyphs
+    };
+
+    void layout(int width, BreakMode mode = BreakPixels);
     void setPosition(const QPoint &pos);
 
     int from() const;

@@ -667,8 +667,14 @@ int QTextLine::textWidth() const
   layout the line with a width of \a width. The line is filled from
   it's starting position with as many character as fit into the line.
 */
-void QTextLine::layout(int width)
+void QTextLine::layout(int width, BreakMode mode)
 {
+    int maxGlyphs = INT_MAX;
+    if (mode == BreakGlyphs) {
+        maxGlyphs = width;
+        width = INT_MAX >> 6;
+    }
+
     QScriptLine &line = eng->lines[i];
     line.width = width;
     line.length = 0;
@@ -696,6 +702,7 @@ void QTextLine::layout(int width)
     }
 
     Q26Dot6 minw, spacew;
+    int glyphCount = 0;
 
 //     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width.toInt());
 
@@ -711,7 +718,7 @@ void QTextLine::layout(int width)
             if (eng->docLayout)
                 eng->docLayout->layoutObject(QTextInlineObject(item, eng), format);
             if (line.length && !(eng->textFlags & Qt::SingleLine)) {
-                if (line.textWidth + current.width > line.width)
+                if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
             }
 
@@ -722,6 +729,7 @@ void QTextLine::layout(int width)
             line.textWidth += current.width;
 
             ++item;
+            ++glyphCount;
             continue;
         }
 
@@ -752,6 +760,7 @@ void QTextLine::layout(int width)
 
                     Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
 
+                    ++glyphCount;
                 } while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
                 minw = qMax(tmpw, minw);
             }
@@ -769,14 +778,16 @@ void QTextLine::layout(int width)
                     ++gp;
                 } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
 
+                ++glyphCount;
                 Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
-
             }
 
 //             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
 //                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
-            if (line.length && tmpw.value() && line.textWidth + tmpw > line.width && !(eng->textFlags & Qt::SingleLine))
+            if (line.length && tmpw.value() 
+                && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
+                && !(eng->textFlags & Qt::SingleLine))
                 goto found;
 
             line.textWidth += tmpw;
