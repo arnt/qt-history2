@@ -155,7 +155,7 @@ int QEventLoop::registerTimer(int interval, QObject *obj)
     }
     d->timerVec.append(t);                        // store in timer vector
     d->timerDict.insert(t->id, t);                // store in dict
-    return t->ind;                              // return index in vector
+    return t->ind + 1;                              // return index in vector
 }
 
 bool QEventLoop::unregisterTimer(int ind)
@@ -165,7 +165,7 @@ bool QEventLoop::unregisterTimer(int ind)
 
     TimerInfo *t = 0;
     for (int i=0; i<d->timerVec.size(); ++i) {
-        if (d->timerVec.at(i)->ind == ind) {
+        if (d->timerVec.at(i)->ind == ind-1) {
             t = d->timerVec.at(i);
             break;
         }
