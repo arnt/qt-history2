@@ -6765,7 +6765,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 bool QTextDocument::eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp )
 {
     int old_pos = pos;
-    while (pos < length && doc[pos].isSpace() && ( includeNbsp || (doc[pos] != QChar::nbsp ) ) )
+    while (pos < length && doc[pos].isSpace() && ( includeNbsp || (doc[pos] != QChar( QChar::nbsp ) ) ) )
 	pos++;
     return old_pos < pos;
 }
@@ -7157,7 +7157,7 @@ QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleShe
     if (c == '<' )
 	return QChar::null;
 
-    if ( c.isSpace() && c != QChar::nbsp ) {
+    if ( c.isSpace() && c != QChar( QChar::nbsp ) ) {
 	if ( wsm == QStyleSheetItem::WhiteSpacePre ) {
 	    if ( c == '\n' )
 		return QChar_linesep;
@@ -7165,7 +7165,7 @@ QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleShe
 		return c;
 	} else { // non-pre mode: collapse whitespace except nbsp
 	    while ( pos< length &&
-		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp )
+		    doc[pos].isSpace()  && doc[pos] != QChar( QChar::nbsp ) )
 		pos++;
 	    if ( wsm == QStyleSheetItem::WhiteSpaceNoWrap )
 		return QChar::nbsp;

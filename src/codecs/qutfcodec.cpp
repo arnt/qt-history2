@@ -148,7 +148,7 @@ public:
 			    *qch++ = QChar(low);
 			    headerDone = TRUE;
 			} else {
-			    if (headerDone || QChar(uc) != QChar::byteOrderMark)
+			    if ( headerDone || QChar(uc) != QChar( QChar::byteOrderMark ) )
 				*qch++ = uc;
 			    headerDone = TRUE;
 			}
