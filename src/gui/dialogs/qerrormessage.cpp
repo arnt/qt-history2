@@ -69,33 +69,33 @@ QSize QErrorMessageTextView::sizeHint() const
 
 /*! \class QErrorMessage
 
-  \brief The QErrorMessage class provides an error message display dialog.
+    \brief The QErrorMessage class provides an error message display dialog.
 
-  \ingroup dialogs
-  \ingroup misc
+    \ingroup dialogs
+    \ingroup misc
 
-This is basically a QLabel and a "show this message again" checkbox which
-remembers what not to show.
+    This is basically a QLabel and a "show this message again" checkbox which
+    remembers what not to show.
 
-There are two ways to use this class:
-\list 1
-\i For production applications. In this context the class can be used to
-display messages which you don't need the user to see more than once. To use
-QErrorMessage like this, you create the dialog in the usual way and call the
-message() slot, or connect signals to it.
+    There are two ways to use this class:
+    \list 1
+    \i For production applications. In this context the class can be used to
+    display messages which you don't need the user to see more than once. To use
+    QErrorMessage like this, you create the dialog in the usual way and call the
+    showMessage() slot, or connect signals to it.
 
-\i For developers. In this context the static qtHandler() installs
-a message handler using qInstallMsgHandler() and creates a QErrorMessage
-that displays qDebug(), qWarning() and qFatal() messages.
-\endlist
+    \i For developers. In this context the static qtHandler() installs
+    a message handler using qInstallMsgHandler() and creates a QErrorMessage
+    that displays qDebug(), qWarning() and qFatal() messages.
+    \endlist
 
-In both cases QErrorMessage will queue pending messages, and display
-them (or not) in order, as soon as the user presses Enter or clicks OK
-after seeing each message.
+    In both cases QErrorMessage will queue pending messages, and display
+    them (or not) in order, as soon as the user presses Enter or clicks OK
+    after seeing each message.
 
-\img qerrormessage.png
+    \img qerrormessage.png
 
-\sa QMessageBox QStatusBar::showMessage()
+    \sa QMessageBox QStatusBar::showMessage()
 */
 
 static QErrorMessage * qtMessageHandler = 0;
@@ -203,9 +203,10 @@ void QErrorMessage::done(int a)
 }
 
 
-/*!  Returns a pointer to a QErrorMessage object that outputs the
-default Qt messages.  This function creates such an object, if there
-isn't one already.
+/*!
+    Returns a pointer to a QErrorMessage object that outputs the
+    default Qt messages. This function creates such an object, if there
+    isn't one already.
 */
 
 QErrorMessage * QErrorMessage::qtHandler()
@@ -238,18 +239,18 @@ bool QErrorMessagePrivate::nextPending()
 }
 
 
-/*! Shows message \a m and returns immediately.  If the user has requested
-  that \a m not be shown, this function does nothing.
+/*! Shows message \a message and returns immediately. This function does
+    nothing if the user has requested that \a message should not be shown again.
 
-  Normally, \a m is shown at once, but if there are pending messages,
-  \a m is queued for later display.
+    Normally, \a message is shown at once, but if there are pending messages,
+    \a message is queued for later display.
 */
 
-void QErrorMessage::message(const QString & m)
+void QErrorMessage::showMessage(const QString & message)
 {
-    if (d->doNotShow.contains(m))
+    if (d->doNotShow.contains(message))
         return;
-    d->pending.append(m);
+    d->pending.append(message);
     if (!isVisible() && d->nextPending())
         show();
 }

@@ -31,7 +31,10 @@ public:
     static QErrorMessage * qtHandler();
 
 public slots:
-    void message(const QString &);
+    void showMessage(const QString &message);
+#ifdef QT_COMPAT
+    inline QT_COMPAT void message(const QString &text) { showMessage(text); }
+#endif
 
 protected:
     void done(int);
