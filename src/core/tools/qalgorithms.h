@@ -120,12 +120,16 @@ void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
 template <typename BiIterator, typename T>
 void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
 {
+    if (begin == end)
+        return;
     qBubbleSort(begin, end, qLess<T>);
 }
 
 template <typename BiIterator>
 void qBubbleSort(BiIterator begin, BiIterator end)
 {
+    if (begin == end)
+        return;
     qBubbleSortHelper(begin, end, *begin);
 }
 
@@ -204,6 +208,8 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, T, LessThan lessThan)
 template <typename BiIterator, typename T>
 void qHeapSortHelper(BiIterator begin, BiIterator end, T dummy)
 {
+    if (begin == end)
+        return;
     // Don't pass qLess<T> directly (compile workaround for MSVC)
     bool (*qLessFunction)(const T &a, const T &b) = qLess<T>;
     qHeapSortHelper(begin, end, dummy, qLessFunction);
@@ -212,18 +218,24 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, T dummy)
 template <typename BiIterator, typename LessThan>
 void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
+    if (begin == end)
+        return;
     qHeapSortHelper(begin, end, *begin, lessThan);
 }
 
 template <typename BiIterator>
 void qHeapSort(BiIterator begin, BiIterator end)
 {
+    if (begin == end)
+        return;
     qHeapSortHelper(begin, end, *begin);
 }
 
 template <typename Container>
 void qHeapSort(Container &c)
 {
+    if (c.isEmpty())
+        return;
     qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
