@@ -42,13 +42,6 @@
 */
 
 /*!
-  \fn QTextTableCell::QTextTableCell(const QTextTablePrivate *p, int f)
-
-  \internal
- */
-
-
-/*!
     Returns the cell's character format.
 */
 QTextCharFormat QTextTableCell::format() const
@@ -164,6 +157,11 @@ int QTextTableCell::lastPosition() const
 }
 
 
+/*!
+    Returns a frame iterator pointing to the beginning of the table's cell.
+
+    \sa end()
+*/
 QTextFrame::iterator QTextTableCell::begin() const
 {
     QTextDocumentPrivate *p = table->docHandle();
@@ -172,6 +170,11 @@ QTextFrame::iterator QTextTableCell::begin() const
     return QTextFrame::iterator(const_cast<QTextTable *>(table), b, b, e);
 }
 
+/*!
+    Returns a frame iterator pointing to the end of the table's cell.
+
+    \sa begin()
+*/
 QTextFrame::iterator QTextTableCell::end() const
 {
     QTextDocumentPrivate *p = table->docHandle();
