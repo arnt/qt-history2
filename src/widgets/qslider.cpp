@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#28 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#28 $");
 
 
 static const int motifBorder = 2;
@@ -931,7 +931,7 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
     p->setPen( colorGroup().foreground() );
     int v = minValue();
     int fudge = slideLength() / 2 - 1;
-    while ( v <= maxValue() ) {
+    while ( v <= maxValue() + 1 ) {
 	int pos = positionFromValue( v ) + fudge;
 	if ( orient == Horizontal )
 	    p->drawLine( pos, d, pos, d + w );
