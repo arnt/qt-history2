@@ -470,6 +470,7 @@ void QSlider::wheelEvent( QWheelEvent * e){
 	return;
     setValue( value() + int(offset) );
     offset -= int(offset);
+    e->accept();
 }
 
 
