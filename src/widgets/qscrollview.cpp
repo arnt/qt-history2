@@ -61,18 +61,6 @@ struct QSVChildRec {
     {
     }
 
-    void moveBy(QScrollView* sv, int dx, int dy, QWidget* clipped_viewport)
-    {
-        moveTo( sv, x+dx, y+dy, clipped_viewport );
-    }
-    void moveTo(QScrollView* sv, int xx, int yy, QWidget* clipped_viewport)
-    {
-        if ( x != xx || y != yy ) {
-            x = xx;
-            y = yy;
-            hideOrShow(sv,clipped_viewport);
-        }
-    }
     void hideOrShow(QScrollView* sv, QWidget* clipped_viewport)
     {
         if ( clipped_viewport ) {
@@ -90,6 +78,18 @@ struct QSVChildRec {
         } else {
             child->move(x-sv->contentsX(), y-sv->contentsY());
         }
+    }
+    void moveTo(QScrollView* sv, int xx, int yy, QWidget* clipped_viewport)
+    {
+        if ( x != xx || y != yy ) {
+            x = xx;
+            y = yy;
+            hideOrShow(sv,clipped_viewport);
+        }
+    }
+    void moveBy(QScrollView* sv, int dx, int dy, QWidget* clipped_viewport)
+    {
+        moveTo( sv, x+dx, y+dy, clipped_viewport );
     }
     QWidget* child;
     int x, y;
@@ -151,10 +151,7 @@ public:
 	static_bg = FALSE;
 	fake_scroll = FALSE;
     }
-    ~QScrollViewData()
-    {
-        deleteAll();
-    }
+    ~QScrollViewData();
 
     QSVChildRec* rec(QWidget* w) { return childDict.find(w); }
     QSVChildRec* ancestorRec(QWidget* w)
@@ -330,6 +327,12 @@ public:
     // in a resizeEvent() and thus don't want to flash scrollbars
     bool inresize;
 };
+
+inline QScrollViewData::~QScrollViewData()
+{
+    deleteAll();
+}
+
 
 /*!
 \class QScrollView qscrollview.h

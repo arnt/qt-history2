@@ -60,9 +60,9 @@
 #ifndef QT_NO_LAYOUT
 struct QLayoutStruct
 {
-    void init() { stretch = 0; initParameters(); }
     void initParameters() { minimumSize = sizeHint = 0;
     maximumSize = QWIDGETSIZE_MAX; expansive = FALSE; empty = TRUE; }
+    void init() { stretch = 0; initParameters(); }
     //permanent storage:
     int stretch;
     //parameters:

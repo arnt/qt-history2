@@ -70,6 +70,7 @@ struct UndoRedoInfo {
     UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
 	text = QString::null; index = -1;
     }
+    bool valid() const { return !text.isEmpty() && index >= 0; }
     void clear( bool force = FALSE ) {
 	if ( valid() || force ) {
 	    QTextString s;
@@ -82,7 +83,6 @@ struct UndoRedoInfo {
 	text = QString::null;
 	index = -1;
     }
-    bool valid() const { return !text.isEmpty() && index >= 0; }
 
     QString text;
     int index;
@@ -122,6 +122,24 @@ struct QLineEditPrivate {
 	delete parag;
 	delete cursor;
     }
+    QString displayText() const
+    {
+	QString res;
+
+	switch( mode ) {
+	    case QLineEdit::Normal:
+		res = parag->string()->toString();
+		res.remove( res.length() - 1, 1 );
+		break;
+	    case QLineEdit::NoEcho:
+		res = QString::fromLatin1("");
+		break;
+	    case QLineEdit::Password:
+		res.fill( '*', parag->length() -1);
+		break;
+	}
+	return res;
+    }
     void getTextObjects( QTextParag **p, QTextCursor **c )
     {
 	if ( mode == QLineEdit::Password ) {
@@ -143,24 +161,6 @@ struct QLineEditPrivate {
 	    delete *p;
 	    delete *c;
 	}
-    }
-    QString displayText() const
-    {
-	QString res;
-
-	switch( mode ) {
-	    case QLineEdit::Normal:
-		res = parag->string()->toString();
-		res.remove( res.length() - 1, 1 );
-		break;
-	    case QLineEdit::NoEcho:
-		res = QString::fromLatin1("");
-		break;
-	    case QLineEdit::Password:
-		res.fill( '*', parag->length() -1);
-		break;
-	}
-	return res;
     }
 
     void checkUndoRedoInfo( UndoRedoInfo::Type t ) {
@@ -463,8 +463,8 @@ void QLineEdit::deselect()
 /*! \property QLineEdit::text
     \brief the text in the line
 
-  Setting this property clears the selection and moves the cursor to the end
-  of the line.
+  Setting this property clears the selection, moves the cursor to the end
+  of the line and resets the edited property to FALSE.
 
   The text is truncated to maxLength() length.
 */

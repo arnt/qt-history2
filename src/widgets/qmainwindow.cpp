@@ -418,15 +418,6 @@ protected:
 	repaint( FALSE );
     }
 
-    void childEvent( QChildEvent *e ) {
-	QWidget::childEvent( e );
-	if ( e->type() == QEvent::ChildInserted )
-	    e->child()->installEventFilter( this );
-	else
-	    e->child()->removeEventFilter( this );
-	updateState();
-    }
-
     bool eventFilter( QObject *o, QEvent *e ) {
 	if ( o == this || !o->isWidgetType() )
 	    return QWidget::eventFilter( o, e );
@@ -465,6 +456,15 @@ protected:
 	    hide();
 	win->triggerLayout( FALSE );
 	update();
+    }
+
+    void childEvent( QChildEvent *e ) {
+	QWidget::childEvent( e );
+	if ( e->type() == QEvent::ChildInserted )
+	    e->child()->installEventFilter( this );
+	else
+	    e->child()->removeEventFilter( this );
+	updateState();
     }
 
 private:

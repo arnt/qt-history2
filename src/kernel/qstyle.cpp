@@ -1567,7 +1567,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_ScrollBar_StopMouseOverSlider stops paging when slider reaches mouse
 
-    \value SH_BlinkCursorWhenTextSelected whether should cursor blink when text is selected
+    \value SH_BlinkCursorWhenTextSelected whether cursor should blink when text is selected
+
+    \value SH_RichText_FullWidthSelection whether richtext selections should 
+           extend the full width of the document.
 
     \value SH_CustomBase  base value for custom ControlElements.  All values above
            this are reserved for custom use.  Therefore, custom values must be

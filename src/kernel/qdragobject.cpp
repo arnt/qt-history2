@@ -536,11 +536,8 @@ const char * staticCharset(int i)
 
 class QTextDragPrivate {
 public:
-    QTextDragPrivate()
-    {
-	setSubType("plain");
-    }
-
+    QTextDragPrivate();
+    
     enum { nfmt=4 };
 
     QString txt;
@@ -561,6 +558,11 @@ public:
 	}
     }
 };
+
+inline QTextDragPrivate::QTextDragPrivate()
+{
+    setSubType("plain");
+}
 
 /*!  Sets the MIME subtype of the text being dragged to \a st. The default subtype
   is "plain", so the default MIME type of the text is "text/plain".  You

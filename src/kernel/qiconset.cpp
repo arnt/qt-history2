@@ -49,7 +49,6 @@
 class QIconSetPrivate: public QShared
 {
 public:
-    QIconSetPrivate() { instantiated = TRUE; }
     struct Variant {
 	Variant(): pm(0), generated(0) {}
 	~Variant()
@@ -67,6 +66,8 @@ public:
 	QPixmap * pm;
 	bool generated;
     };
+
+    QIconSetPrivate() { instantiated = TRUE; }
     Variant vsmall;
     Variant vlarge;
     Variant smallActive;

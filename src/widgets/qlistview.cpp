@@ -116,10 +116,6 @@ struct QListViewPrivate
 	int col;
 	bool asc;
 
-	bool operator<( const SortableItem& i ) const { return cmp( i ) < 0; }
-	bool operator<=( const SortableItem& i ) const { return cmp( i ) <= 0; }
-	bool operator>( const SortableItem& i ) const { return cmp( i ) > 0; }
-
 	int cmp( const SortableItem& i ) const {
 	    int diff = item->compare( i.item, col, asc );
 	    if ( diff == 0 && numCols != 1 ) {
@@ -133,6 +129,9 @@ struct QListViewPrivate
 	    }
 	    return diff;
 	}
+	bool operator<( const SortableItem& i ) const { return cmp( i ) < 0; }
+	bool operator<=( const SortableItem& i ) const { return cmp( i ) <= 0; }
+	bool operator>( const SortableItem& i ) const { return cmp( i ) > 0; }
     };
 
     class ItemColumnInfo {

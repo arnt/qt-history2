@@ -561,6 +561,9 @@ public:
 	//bool - blink cursort with selected text
 	SH_BlinkCursorWhenTextSelected,
 
+	//bool - richtext selections extend the full width of the docuemnt
+	SH_RichText_FullWidthSelection,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

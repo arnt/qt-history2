@@ -803,7 +803,7 @@ QRect QGridLayoutData::cellGeometry( int row, int col ) const
 class QGridLayoutDataIterator : public QGLayoutIterator
 {
 public:
-    QGridLayoutDataIterator( QGridLayoutData *d ) : data( d ) { toFirst(); }
+    QGridLayoutDataIterator( QGridLayoutData *d );
     uint count() const { return data->count(); }
     QLayoutItem *current() {
 	if ( multi ) {
@@ -847,6 +847,12 @@ private:
     bool multi;
     int idx;
 };
+
+inline QGridLayoutDataIterator::QGridLayoutDataIterator( QGridLayoutData *d ) 
+    : data( d ) 
+{ 
+    toFirst(); 
+}
 
 /*!
   \class QGridLayout

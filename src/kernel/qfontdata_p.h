@@ -218,47 +218,12 @@ public:
 
 
 public:
-    QFontPrivate()
-	: QShared(), exactMatch(FALSE), lineWidth(1)
-    {
 
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
-	fin = 0;
-#endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_X11)
-	x11Screen = QPaintDevice::x11AppScreen();
-#endif // Q_WS_X11
-	paintdevice = 0;
-    }
-
-    QFontPrivate(const QFontPrivate &fp)
-	: QShared(), request(fp.request), actual(fp.actual),
-	  exactMatch(fp.exactMatch), lineWidth(1)
-    {
-	Q_ASSERT(!fp.paintdevice);
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
-	fin = 0;
-#endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_X11)
-	x11Screen = fp.x11Screen;
-#endif // Q_WS_X11
-	paintdevice = 0;
-    }
-
-    QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd )
-	: QShared(), request(fp.request), actual(fp.actual),
-	  exactMatch(fp.exactMatch), lineWidth(1)
-    {
-
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
-	fin = 0;
-#endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_X11)
-	x11Screen = pd->x11Screen();
-#endif // Q_WS_X11
-	paintdevice = pd;
-    }
-
+    QFontPrivate();
+    QFontPrivate(const QFontPrivate &fp);
+    QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd );
+    ~QFontPrivate();
+    
     // requested font
     QFontDef request;
     // actual font
@@ -443,10 +408,6 @@ public:
     QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
-    ~QFontPrivate() {
-	if( fin )
-	    fin->deref();
-    }
     void load();
     void initFontInfo();
     HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );
@@ -457,7 +418,6 @@ public:
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_QWS
-    ~QFontPrivate();
     void load();
     QFontStruct *fin;
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
@@ -465,10 +425,6 @@ public:
 #endif
 
 #if defined( Q_WS_MAC )
-    ~QFontPrivate() {
-	if( fin && fin->deref() )
-	    delete fin;
-    }
     void macSetFont(QPaintDevice *);
     void drawText( int x, int y, QString s, int len );
     void computeLineWidth();
@@ -478,5 +434,59 @@ public:
 
 };
 
+inline QFontPrivate::QFontPrivate()
+    : QShared(), exactMatch(FALSE), lineWidth(1)
+{
+
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+    fin = 0;
+#endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_X11)
+    x11Screen = QPaintDevice::x11AppScreen();
+#endif // Q_WS_X11
+    paintdevice = 0;
+}
+
+inline QFontPrivate::QFontPrivate(const QFontPrivate &fp)
+    : QShared(), request(fp.request), actual(fp.actual),
+exactMatch(fp.exactMatch), lineWidth(1)
+{
+    Q_ASSERT(!fp.paintdevice);
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+    fin = 0;
+#endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_X11)
+    x11Screen = fp.x11Screen;
+#endif // Q_WS_X11
+    paintdevice = 0;
+}
+
+inline QFontPrivate::QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd )
+    : QShared(), request(fp.request), actual(fp.actual),
+exactMatch(fp.exactMatch), lineWidth(1)
+{
+
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+    fin = 0;
+#endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_X11)
+    x11Screen = pd->x11Screen();
+#endif // Q_WS_X11
+    paintdevice = pd;
+}
+
+#ifndef Q_WS_QWS
+inline QFontPrivate::~QFontPrivate()
+{
+#if defined(Q_WS_WIN)
+    if( fin )
+	fin->deref();
+#endif
+#if defined(Q_WS_MAC)
+    if( fin && fin->deref() )
+	delete fin;
+#endif
+}
+#endif
 
 #endif // QFONTDATA_P_H

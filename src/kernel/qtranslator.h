@@ -80,9 +80,9 @@ public:
     { return !operator==( m ); }
     bool operator<( const QTranslatorMessage& m ) const;
     bool operator<=( const QTranslatorMessage& m ) const
-    { return !operator>( m ); }
+    { return !m.operator<( *this ); }
     bool operator>( const QTranslatorMessage& m ) const
-    { return this->operator<( m ); }
+    { return m.operator<( *this ); }
     bool operator>=( const QTranslatorMessage& m ) const
     { return !operator<( m ); }
 

@@ -372,7 +372,7 @@ class Q_EXPORT QTextCommandHistory
 {
 public:
     QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
-    virtual ~QTextCommandHistory() { clear(); }
+    virtual ~QTextCommandHistory();
 
     void clear() { history.clear(); current = -1; }
 
@@ -394,6 +394,11 @@ private:
     int current, steps;
 
 };
+
+inline QTextCommandHistory::~QTextCommandHistory()
+{ 
+    clear(); 
+}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1284,7 +1289,7 @@ public:
     bool isFullWidth() const { return fullWidth; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextTableCell *tableCell() const { return hasdoc ? document()->tableCell () : 0;; }
+    QTextTableCell *tableCell() const;
 #endif
 
     QBrush *background() const;
@@ -1312,7 +1317,7 @@ public:
     void addCommand( QTextCommand *cmd );
     QTextCursor *undo( QTextCursor *c = 0 );
     QTextCursor *redo( QTextCursor *c  = 0 );
-    QTextCommandHistory *commands() const { return hasdoc ? document()->commands() : pseudoDocument()->commandHistory; }
+    QTextCommandHistory *commands() const;
     virtual void copyParagData( QTextParag *parag );
 
     void setBreakable( bool b ) { breakable = b; }
@@ -1991,15 +1996,6 @@ inline bool QTextParag::hasChanged() const
     return changed;
 }
 
-inline void QTextParag::setChanged( bool b, bool recursive )
-{
-    changed = b;
-    if ( recursive ) {
-	if ( document() && document()->parentParag() )
-	    document()->parentParag()->setChanged( b, recursive );
-    }
-}
-
 inline void QTextParag::setBackgroundColor( const QColor & c )
 {
     delete bgcol;
@@ -2092,6 +2088,18 @@ inline QTextParagPseudoDocument *QTextParag::pseudoDocument() const
 	return 0;
     return (QTextParagPseudoDocument*) docOrPseudo;
 }
+
+
+inline QTextTableCell *QTextParag::tableCell() const 
+{ 
+    return hasdoc ? document()->tableCell () : 0; 
+}
+
+inline QTextCommandHistory *QTextParag::commands() const 
+{ 
+    return hasdoc ? document()->commands() : pseudoDocument()->commandHistory; 
+}
+
 
 inline void QTextParag::setAlignment( int a )
 {

@@ -191,7 +191,7 @@ class QCDict : public QGDict
 public:
     QCDict( uint size, uint kt, bool caseSensitive, bool copyKeys )
 	: QGDict( size, (KeyType)kt, caseSensitive, copyKeys ) {}
-    ~QCDict() { clear(); }
+    ~QCDict();
 
     void clear() { QGDict::clear(); }
 
@@ -230,6 +230,10 @@ private:
 	{ if ( del_item ) { QCacheItem *d = (QCacheItem*)item; delete d; } }
 };
 
+inline QCDict::~QCDict() 
+{ 
+    clear(); 
+}
 
 /*****************************************************************************
   QGDict member functions
