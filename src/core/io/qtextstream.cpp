@@ -948,7 +948,7 @@ QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QLatin1String(s, len));
+        d->str->append(QString::fromLatin1(s, len));
         return *this;
     }
     //from device
@@ -961,7 +961,7 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QLatin1String(p, len));
+        d->str->append(QString::fromLatin1(p, len));
         return *q;
     }
 
