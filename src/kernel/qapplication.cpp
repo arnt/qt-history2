@@ -296,16 +296,16 @@ void qt_create_std_palette()
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
-    QColorGroup std_nor( Qt::black, standardLightGray,
+    QColorGroup std_act( Qt::black, standardLightGray,
 			 light, dark, Qt::gray,
 			 Qt::black, Qt::white );
     QColorGroup std_dis( Qt::darkGray, standardLightGray,
 			 light, dark, Qt::gray,
-			 Qt::darkGray, std_nor.background() );
-    QColorGroup std_act( Qt::black, standardLightGray,
-			 light, dark, Qt::gray,
-			 Qt::black, Qt::white );
-    qt_std_pal = new QPalette( std_nor, std_dis, std_act );
+			 Qt::darkGray, std_act.background() );
+    QColorGroup std_inact( Qt::black, standardLightGray,
+			   light, dark, Qt::gray,
+			   Qt::black, Qt::white );
+    qt_std_pal = new QPalette( std_act, std_dis, std_inact );
 }
 
 static void qt_fix_tooltips()

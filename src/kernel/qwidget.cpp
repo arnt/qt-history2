@@ -3267,11 +3267,11 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 void QWidget::polish()
 {
     if ( !testWState(WState_Polished) ) {
-	if ( !own_font && QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
+	if ( !own_font && !QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
 	    setFont( QApplication::font( this ) );
 	    own_font = FALSE;
 	}
-	if ( !own_palette && QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
+	if ( !own_palette && !QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
 	    setPalette( QApplication::palette( this ) );
 	    own_palette = FALSE;
 	}

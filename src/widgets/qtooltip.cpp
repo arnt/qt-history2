@@ -39,8 +39,6 @@ static inline QRect entireWidget()
 		  2*QWIDGETSIZE_MAX, 2*QWIDGETSIZE_MAX );
 }
 
-static bool use_style_override=FALSE;
-
 // Internal class - don't touch
 
 class QTipLabel : public QLabel
@@ -54,10 +52,6 @@ public:
 	setMargin(1);
 	setIndent(0);
 	setAutoMask( FALSE );
-	if ( use_style_override ) {
-	    setFont( QToolTip::font() );
-	    setPalette( QToolTip::palette(), TRUE );
-	}
 	setFrameStyle( QFrame::Plain | QFrame::Box );
 	setLineWidth( 1 );
 	setAlignment( AlignLeft | AlignTop );
@@ -597,31 +591,12 @@ void QTipManager::hideTip()
   Global settings for tool tips.
 */
 
-QFont	    *QToolTip::ttFont    = 0;
-QPalette    *QToolTip::ttPalette = 0;
-
-
-void QToolTip::initialize()
+void QToolTip::initialize() // ## remove 3.0
 {
-    if ( ttFont )				// already initialized
-	return;
-
-    qAddPostRoutine( cleanup );
-
-    QTipLabel t("");
-    ttFont = new QFont(QApplication::font(&t));
-    ttPalette = new QPalette(QApplication::palette(&t));
-
-    use_style_override = TRUE;
 }
 
-
-void QToolTip::cleanup()
+void QToolTip::cleanup() // ## remove 3.0
 {
-    delete ttFont;
-    ttFont = 0;
-    delete ttPalette;
-    ttPalette = 0;
 }
 
 
@@ -632,9 +607,8 @@ void QToolTip::cleanup()
 
 QFont QToolTip::font()
 {
-    if ( !ttFont )
-	initialize();
-    return *ttFont;
+    QTipLabel l("");
+    return QApplication::font( &l );
 }
 
 
@@ -645,10 +619,7 @@ QFont QToolTip::font()
 
 void QToolTip::setFont( const QFont &font )
 {
-    if ( !ttFont )
-	initialize();
-    *ttFont = font;
-    use_style_override = TRUE;
+    QApplication::setFont( font, TRUE, "QTipLabel" );
 }
 
 
@@ -659,9 +630,8 @@ void QToolTip::setFont( const QFont &font )
 
 QPalette QToolTip::palette()
 {
-    if ( !ttPalette )
-	initialize();
-    return *ttPalette;
+    QTipLabel l("");
+    return QApplication::palette( &l );
 }
 
 
@@ -672,10 +642,7 @@ QPalette QToolTip::palette()
 
 void QToolTip::setPalette( const QPalette &palette )
 {
-    if ( !ttPalette )
-	initialize();
-    *ttPalette = palette;
-    use_style_override = TRUE;
+    QApplication::setPalette( palette, TRUE, "QTipLabel" );
 }
 
 /*!
