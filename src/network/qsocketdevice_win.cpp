@@ -391,7 +391,7 @@ bool QSocketDevice::listen( int backlog )
 int QSocketDevice::accept()
 {
     if ( !isValid() )
-	return FALSE;
+	return -1;
     struct sockaddr a;
     SOCKLEN_T l = sizeof(struct sockaddr);
     int s = ::accept( fd, (struct sockaddr*)&a, &l );
