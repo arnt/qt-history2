@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#25 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -30,7 +30,8 @@
 #include "qlabel.h"
 #include "qvbox.h"
 
-#if defined(_OS_WIN32_)
+#if defined(_WS_WIN_)
+#include "qt_windows.h"
 const bool win32 = TRUE;
 #define TITLEBAR_HEIGHT 18
 #define TITLEBAR_SEPARATION 2
@@ -127,7 +128,7 @@ static const char * normalize_xpm[] = {
 "................"};
 
 
-#else // !_OS_WIN32_
+#else // !_WS_WIN_
 
 const bool win32 = FALSE;
 #define TITLEBAR_HEIGHT 18
@@ -227,7 +228,7 @@ static const char * normalize_xpm[] = {
 "                ",
 "                "};
 
-#endif // !_OS_WIN32_
+#endif // !_WS_WIN_
 
 
 
@@ -424,7 +425,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     topLevelWidget()->installEventFilter( this );
 
-}	
+}
 
 /*!
   Destructor.
@@ -444,7 +445,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder )
 	      || d->icons.contains( w ) )
 	    return; 	    // nothing to do
-	
+
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	d->windows.append( child );
 	place( child );
@@ -460,7 +461,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    }
 	    if( e->child() == d->active )
 		d->active = 0;
-	
+
 	    if (  !d->windows.isEmpty() ) {
 		if ( e->child() == d->maxClient  ) {
 		    d->maxClient = 0;
@@ -590,12 +591,12 @@ void QWorkspace::layoutIcons()
     int x = 0;
     int y = height();
     for (QWidget* w = d->icons.first(); w ; w = d->icons.next() ) {
-	
+
 	if ( x > 0 && x + w->width() > width() ){
 	    x = 0;
 	    y -= w->height();
 	}
-	
+
 	w->move(x, y-w->height());
 	x = w->geometry().right();
     }
@@ -612,7 +613,7 @@ void QWorkspace::minimizeClient( QWidget* w)
 	    d->maxClient = 0;
 	    hideMaxHandles();
 	}
-	
+
     }
 }
 
@@ -650,7 +651,7 @@ void QWorkspace::maximizeClient( QWidget* w)
 	    d->maxClient = c;
 	    d->maxRestore = r;
 	}
-	
+
 	activateClient( w);
 	showMaxHandles();
     }
@@ -712,7 +713,7 @@ void QWorkspace::showMaxHandles()
 	closeB->setIconSet( QPixmap( close_xpm ) );
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActive() ) );
-	
+
 	if ( win32 ) {
 	    restoreB->setAutoRaise( FALSE );
 	    closeB->setAutoRaise( FALSE );
@@ -848,7 +849,7 @@ void QWorkspaceChildTitleBar::mouseMoveEvent( QMouseEvent * e)
 	if ( p.y() > workspace->height() )
 	    p.ry() = workspace->height();
     }
-	
+
     QPoint pp = p - moveOffset;
 
     parentWidget()->move( pp );
@@ -875,7 +876,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	     || e->type() == QEvent::MouseMove) {
 	    QMouseEvent* me = (QMouseEvent*) e;
 	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->button(), me->state() );
-	
+
 	    if (e->type() == QEvent::MouseButtonPress )
 		mousePressEvent( &ne );
 	    else if (e->type() == QEvent::MouseButtonRelease )
@@ -1100,7 +1101,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    titlebar->setIcon( pm );
 	}
 	break;
-#endif		
+#endif
     case QEvent::LayoutHint:
 	//layout()->activate();
 	break;
@@ -1118,7 +1119,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     default:
 	break;
     }
-    	
+
     return FALSE;
 }
 
@@ -1183,6 +1184,8 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	return;
     }
 
+    if ( testWState(WState_ConfigPending) )
+	return;
 
     QPoint p = parentWidget()->mapFromGlobal( e->globalPos() );
 
@@ -1196,7 +1199,7 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	if ( p.y() > parentWidget()->height() )
 	    p.ry() = parentWidget()->height();
     }
-	
+
 
     QPoint pp = p - moveOffset;
     QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() +1 ),
@@ -1238,6 +1241,13 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
     default:
 	break;
     }
+
+#ifdef _WS_WIN_
+    MSG msg;
+    while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
+      ;
+#endif
+    QApplication::syncX();
 }
 
 void QWorkspaceChild::enterEvent( QEvent * )
@@ -1276,7 +1286,7 @@ void QWorkspaceChild::setActive( bool b)
 	    ( (QWorkSpaceChildProtectedWidget*)clientw)->reasonableFocus();
 	}
 	delete ol;
-	
+
     }
     else {
 	QObjectList* ol = clientw->queryList( "QWidget" );
