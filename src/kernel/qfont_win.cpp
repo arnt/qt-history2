@@ -478,7 +478,10 @@ int QFontMetrics::width( QChar ch ) const
     if ( ch.category() == QChar::Mark_NonSpacing )
 	return 0;
 
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
@@ -486,20 +489,16 @@ int QFontMetrics::width( QChar ch ) const
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
 
-    SIZE s = {0,0};
-    wchar_t tc = ch.unicode();
-    BOOL res = GetTextExtentPoint32W( engine->dc(), &tc, 1, &s );
+    glyph_t glyphs[8];
+    advance_t advances[8];
+
+    int nglyphs = 7;
+    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
 
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
 
-#ifndef QT_NO_DEBUG
-    if ( !res )
-	qSystemWarning( "QFontMetrics::width: GetTextExtentPoint32 failed" );
-#endif
-    if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	s.cx -= TMX.tmOverhang;
-    return s.cx;
+    return advances[0];
 }
 
 
