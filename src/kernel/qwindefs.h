@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#11 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -191,7 +191,7 @@ typedef ulong WFlags;
 #define WWin_AltCreate	0x00010000		// widget flags for Windows
 #define WWin_AltClass	0x00020000
 
-#define WEtc_MouMove	0x01000000		// misc widget flags
+#define WEtc_MouseMove	0x01000000		// misc widget flags
 #define WEtc_InConfig	0x02000000
 
 
