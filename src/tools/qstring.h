@@ -394,9 +394,7 @@ public:
     ~QString();
 
     QString    &operator=( const QString & );   // impl-shared copy
-#ifndef QT_NO_CAST_ASCII
     QString    &operator=( const char * );      // deep copy
-#endif
 #ifndef QT_NO_STL
     QString    &operator=( const std::string& );     // deep copy
 #endif
