@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#158 $
 **
 ** Implementation of QMenuBar class
 **
@@ -340,8 +340,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-	    actItem = 0;
-	    setFocus();
+	    windowsaltactive = FALSE; // trigger update
+	    setWindowsAltMode( TRUE, 0 );
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
@@ -1103,8 +1103,6 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 		setUpdatesEnabled( TRUE );
 	    }
 	}
-	if ( index == actItem ) // work around setActItem overoptimization
-	    actItem = -1;
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
@@ -1115,8 +1113,6 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 	    }
 	    windowsaltactive = 0;
 	}
-	if ( index == actItem ) // work around setActItem overoptimization
-	    actItem = -1;
 	setActItem( index, FALSE );
     }
 }
@@ -1173,9 +1169,8 @@ bool QMenuBar::customWhatsThis() const
 
 /*!\reimp
  */
-void QMenuBar::focusOutEvent( QFocusEvent * e )
+void QMenuBar::focusOutEvent( QFocusEvent * )
 {
     if ( windowsaltactive )
 	setWindowsAltMode( FALSE, -1 );
-    QWidget::focusOutEvent( e );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#530 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#531 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2079,6 +2079,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
     }
     return 0;
 }
+
 
 /*!
   Returns
