@@ -122,7 +122,7 @@ sub find_exports {
 	}
 	if($definition && $definition =~ /$EXPORT_SYMBOL /) {
 	    if($definition =~ m/^ *typedef/) {
-	    } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +$EXPORT_SYMBOL +([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
+	    } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +$EXPORT_SYMBOL +([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
 		my $symbol = $3;
 		$symbol =~ s/[<>+=*!-]/?/g;
 		#print "2) hmm $symbol *********** $definition\n";
