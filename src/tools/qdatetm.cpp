@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#28 $
 **
 ** Implementation of date and time classes
 **
@@ -26,7 +26,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#28 $";
 #endif
 
 
@@ -627,7 +627,11 @@ long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
 
 
 #if defined(_OS_SUN_)
+#if defined(__SVR4)
+extern "C" int gettimeofday( struct timeval *, void * );
+#else
 extern "C" int gettimeofday( struct timeval * );
+#endif
 #endif
 
 /*----------------------------------------------------------------------------
