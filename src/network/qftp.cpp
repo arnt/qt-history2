@@ -62,33 +62,32 @@
 //#define QFTPDTP_DEBUG
 
 /*!
-  \class QFtp qftp.h
+    \class QFtp qftp.h
+    \brief The QFtp class provides an implementation of the FTP protocol.
+
     \ingroup io
-  \brief The QFtp class provides an implementation of the FTP protocol.
+    \module network
 
-  \module network
+    This class is derived from QNetworkProtocol. QFtp is not normally
+    used directly, but rather through a QUrlOperator, for example:
 
-  This class is derived from QNetworkProtocol. QFtp is not
-  normally used directly, but rather through a QUrlOperator, for
-  example:
+    \code
+    QUrlOperator op( "ftp://ftp.trolltech.com" );
+    op.listChildren(); // Asks the server to provide a directory listing
+    \endcode
 
-  \code
-  QUrlOperator op( "ftp://ftp.trolltech.com" );
-  op.listChildren(); // Asks the server to provide a directory listing
-  \endcode
+    This code will only work if the QFtp class is registered; to
+    register the class, you must call qInitNetworkProtocols() before
+    using a QUrlOperator with QFtp.
 
-  This code will only work if the QFtp class is registered; to register the
-  class, you must call qInitNetworkProtocols() before using a QUrlOperator
-  with QFtp.
+    If you really need to use QFtp directly, don't forget to set its
+    QUrlOperator with setUrl().
 
-  If you really need to use QFtp directly, don't forget
-  to set its QUrlOperator with setUrl().
-
-  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 /*!
-  Constructs a QFtp object.
+    Constructs a QFtp object.
 */
 
 QFtp::QFtp()
@@ -1653,7 +1652,7 @@ bool QFtp::checkConnection( QNetworkOperation * )
 }
 
 /*!
-  Closes the command and data connections to the FTP server
+    Closes the command and data connections to the FTP server
 */
 
 void QFtp::closeInternal()
@@ -1683,9 +1682,9 @@ int QFtp::supportedOperations() const
 }
 
 /*! \internal
-  Parses the string, \a buffer, which is one line of a directory listing
-  which came from the FTP server, and sets the values which have been
-  parsed to the url info object, \a info.
+    Parses the string, \a buffer, which is one line of a directory
+    listing which came from the FTP server, and sets the values which
+    have been parsed to the url info object, \a info.
 */
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
@@ -1727,9 +1726,9 @@ void QFtp::closed()
 }
 
 /*!  \internal
-  If data has arrived on the command socket, this slot is called. The
-  function looks at the data and passes it on to the function which can
-  handle it
+    If data has arrived on the command socket, this slot is called.
+    The function looks at the data and passes it on to an appropriate
+    handler function.
 */
 
 void QFtp::readyRead()
@@ -2097,8 +2096,9 @@ void QFtp::dataHostFound()
 }
 
 /*!  \internal
-  Some operations require a data connection to the server. If this connection
-  could be opened, this function handles the data connection.
+    Some operations require a data connection to the server. If this
+    connection could be opened, this function handles the data
+    connection.
 */
 
 void QFtp::dataConnected()
@@ -2159,7 +2159,7 @@ void QFtp::dataConnected()
 }
 
 /*!  \internal
-  This function is called when the data connection has been closed.
+    This function is called when the data connection has been closed.
 */
 
 void QFtp::dataClosed()
@@ -2185,7 +2185,7 @@ void QFtp::dataClosed()
 }
 
 /*!  \internal
-  This function is called when new data arrived on the data socket.
+    This function is called when new data has arrived on the data socket.
 */
 
 void QFtp::dataReadyRead()
@@ -2241,8 +2241,8 @@ void QFtp::dataReadyRead()
 }
 
 /*!  \internal
-  This function is called, when \a nbytes have been successfully written
-  to the data socket.
+    This function is called when \a nbytes have been successfully
+    written to the data socket.
 */
 
 void QFtp::dataBytesWritten( int nbytes )
