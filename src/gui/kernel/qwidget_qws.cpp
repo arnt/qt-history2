@@ -121,6 +121,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     isSettingGeometry = false;
     data.overlapping_children = -1;
 
+#if 0
+    // we don't have a "Drawer" window type
+    if (type == Qt::Drawer) {
+        type = Qt::Widget;
+        flags &= ~Qt::WindowType_Mask;
+    }
+#endif
+
     bool topLevel = q->isWindow();
     bool popup = (q->windowType() == Qt::Popup);
     bool dialog = (q->windowType() == Qt::Dialog);

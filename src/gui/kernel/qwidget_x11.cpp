@@ -300,11 +300,17 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
+
+    // X11 doesn't have a "Drawer" window type
+    if (type == Qt::Drawer) {
+        type = Qt::Widget;
+        flags &= ~Qt::WindowType_Mask;
+    }
+
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
                    || type == Qt::Sheet
-                   || type == Qt::Drawer
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);

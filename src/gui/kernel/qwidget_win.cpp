@@ -93,6 +93,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
 
+    // Windows doesn't have a "Drawer" window type
+    if (type == Qt::Drawer) {
+        type = Qt::Widget;
+        flags &= ~Qt::WindowType_Mask;
+    }
+
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
