@@ -151,7 +151,8 @@ protected:
     int drawActionGroup( QPainter & p, QActionGroup * g, int x, int y );
     int drawSeparator( QPainter & p, const int y );
     void drawArrow( QPainter & p, const int y );
-    void drawWinFocusRect( QPainter & p, int y );
+    void drawToggle( QPainter & p, const int y );
+    void drawWinFocusRect( QPainter & p, const int y );
 
     QSize contentsSize();
     int itemSize( QPainter & p, PopupMenuEditorItem * i );

@@ -1197,8 +1197,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 		showCurrentItemMenu();		
 	    }
 	}
-	case Qt::Key_Escape:
-	    
+	case Qt::Key_Escape:   
 	    lineEdit->hide();
 	    setFocus();
 	    break;	    
@@ -1210,6 +1209,19 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 {
     QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
+    
+    if ( a->isToggleAction() && a->isOn() ) {
+	const int b = icon.isNull() ? borderSize * 2 : borderSize; 
+	p.moveTo( iconWidth - b, y );
+	p.setPen( "white" );
+	p.lineTo( iconWidth - b, y + iconWidth - b );
+	p.lineTo( b, y + iconWidth - b );
+	p.setPen( "black" );
+	p.lineTo( b, y );
+	p.lineTo( iconWidth - b, y );
+	drawToggle( p, y );
+    }
+	
     p.drawPixmap( x + ( iconWidth - icon.width() ) / 2,
 		  y + ( iconWidth - icon.height() ) / 2,
 		  icon );
@@ -1258,10 +1270,11 @@ int PopupMenuEditor::drawSeparator( QPainter & p, const int y )
 
 void PopupMenuEditor::drawArrow( QPainter & p, const int y )
 {
-    int my = y + itemHeight / 2;
-    int mx = width() - borderSize - arrowWidth / 2;
+    const int my = y + itemHeight / 2;
+    const int mx = width() - borderSize - arrowWidth / 2;
 
     QPointArray a; // FIXME: use bitmap
+    
     a.setPoints( 20,
 		 mx - 2, my - 4,
 		 mx - 2, my - 3,
@@ -1286,8 +1299,65 @@ void PopupMenuEditor::drawArrow( QPainter & p, const int y )
 
 		 mx + 1, my - 1,
 		 mx + 1, my );
-    
+
     p.drawPoints( a );
+}
+
+void PopupMenuEditor::drawToggle( QPainter & p, const int y )
+{
+    const int my = y + itemHeight / 2;
+    const int mx = borderSize + iconWidth / 2;
+
+    QPointArray a; // FIXME: use bitmap
+        a.setPoints( 21,
+		 
+		     mx - 3, my - 1,
+		     mx - 3, my,
+		     mx - 3, my + 1,
+		     
+		     mx - 2, my,
+		     mx - 2, my + 1,
+		     mx - 2, my + 2,
+		 
+		     mx - 1, my + 1,
+		     mx - 1, my + 2,
+		     mx - 1, my + 3,
+
+		     mx, my,
+		     mx, my + 1,
+		     mx, my + 2,
+
+		     mx + 1, my - 1,
+		     mx + 1, my,
+		     mx + 1, my + 1,
+
+		     mx + 2, my - 2,
+		     mx + 2, my - 1,
+		     mx + 2, my,
+
+		     mx + 3, my - 3,
+		     mx + 3, my - 2,
+		     mx + 3, my - 1 );
+    
+    p.drawPoints( a );   
+}
+
+void PopupMenuEditor::drawWinFocusRect( QPainter & p, const int y )
+{
+    if ( currentIndex < itemList.count() &&
+	 itemList.at( currentIndex )->isSeparator() ) {
+	p.drawWinFocusRect( borderSize, y, width() - borderSize * 2, separatorHeight );
+	return;
+    }
+    if ( currentField == 0 ) {
+	p.drawWinFocusRect( borderSize, y + 1, iconWidth, itemHeight - 2 );
+    } else if ( currentField == 1 ) {
+	p.drawWinFocusRect( borderSize + iconWidth, y + 1, textWidth, itemHeight - 2 );
+    } else if ( currentField == 2 ) {
+	p.drawWinFocusRect( borderSize + iconWidth + textWidth +
+			    borderSize * 2, y + 1, acceleratorWidth, itemHeight - 2 );
+    }
+    
 }
 
 void PopupMenuEditor::drawPopup( QPainter & p )
@@ -1360,24 +1430,6 @@ void PopupMenuEditor::drawItems( QPainter & p )
 	    drawWinFocusRect( p, sy );
 	}
     }
-}
-
-void PopupMenuEditor::drawWinFocusRect( QPainter & p, int y )
-{
-    if ( currentIndex < itemList.count() &&
-	 itemList.at( currentIndex )->isSeparator() ) {
-	p.drawWinFocusRect( borderSize, y, width() - borderSize * 2, separatorHeight );
-	return;
-    }
-    if ( currentField == 0 ) {
-	p.drawWinFocusRect( borderSize, y + 1, iconWidth, itemHeight - 2 );
-    } else if ( currentField == 1 ) {
-	p.drawWinFocusRect( borderSize + iconWidth, y + 1, textWidth, itemHeight - 2 );
-    } else if ( currentField == 2 ) {
-	p.drawWinFocusRect( borderSize + iconWidth + textWidth +
-			    borderSize * 2, y + 1, acceleratorWidth, itemHeight - 2 );
-    }
-    
 }
 
 QSize PopupMenuEditor::contentsSize()
