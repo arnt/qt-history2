@@ -45,9 +45,8 @@ void SqlFormWizard::connectionSelected( const QString &c )
     listBoxTable->insertStringList( proIface->databaseTableList( c ) );
 }
 
-void SqlFormWizard::tableSelected( const QString &t )
+void SqlFormWizard::tableSelected( const QString & )
 {
-    //setNextEnabled( databasePage, !t.isEmpty() );
     autoPopulate( TRUE );
 }
 
