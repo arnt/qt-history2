@@ -387,7 +387,7 @@ Q_ULONG QFile::size() const
 }
 
 /*!
-  \fn int QFile::at() const
+  \fn Q_ULONG QFile::at() const
   Returns the file index.
   \sa size()
 */

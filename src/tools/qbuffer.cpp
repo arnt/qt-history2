@@ -235,12 +235,12 @@ void QBuffer::flush()
 
 
 /*!
-  \fn int QBuffer::at() const
+  \fn Q_ULONG QBuffer::at() const
   \reimp
 */
 
 /*!
-  \fn uint QBuffer::size() const
+  \fn Q_ULONG QBuffer::size() const
   \reimp
 */
 
