@@ -758,6 +758,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  opt_property_candidates
 			| ENUM_IN_CLASS { BEGIN QT_DEF; }
 			  enum_in_class_tail { BEGIN IN_CLASS;}
+			  opt_semicolons
 			;
 
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
@@ -953,7 +954,7 @@ signal_or_slot:		type_and_name fct_decl opt_semicolons
 			| type_and_name opt_bitfield ','member_declarator_list
 			  ';' opt_semicolons
 				{ func_warn("Variable as signal or slot."); }
-			| enum_specifier  ';' opt_semicolons
+			| enum_specifier opt_identifier ';' opt_semicolons
 				{ func_warn("Enum declaration as signal or"
 					    " slot."); }
                         | USING complete_class_name ';' opt_semicolons
@@ -1005,20 +1006,15 @@ enum_tail:		  IDENTIFIER '{'   enum_list
 				  }
 				}
 			| '{'   enum_list
-			  '}'   opt_enum_name
+			  '}'   { tmpEnum->clear();}
 			;
 
-opt_enum_name:		  /* empty */	{ BEGIN QT_DEF; tmpEnum->clear(); }
-			| IDENTIFIER	{ BEGIN QT_DEF;
-					  if ( tmpAccessPerm == _PUBLIC) {
-					      tmpEnum->name = $1;
-					      addEnum();
-					  }
-					}
+opt_identifier:		  /* empty */
+			| IDENTIFIER
 			;
 
 enum_in_class_tail:	  IDENTIFIER IDENTIFIER
-			| enum_tail
+			| enum_tail opt_identifier
 			;
 
 enum_list:		  /* empty */
@@ -2025,7 +2021,7 @@ int generateClassInfos()
     if ( displayWarnings && !Q_OBJECTdetected )
 	moc_err("The declaration of the class \"%s\" contains class infos"
 		" but no Q_OBJECT macro!", className.data());
-    
+
     fprintf( out, "    QClassInfo* classinfo_tbl = QMetaObject::new_classinfo( %i );\n", infos.count() );
 	
     int i = 0;
