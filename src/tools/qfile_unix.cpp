@@ -375,7 +375,7 @@ bool QFile::open( int m, int f )
   \sa at()
 */
 
-Q_ULONG QFile::size() const
+QIODevice::Offset QFile::size() const
 {
     QT_STATBUF st;
     if ( isOpen() ) {
@@ -387,7 +387,7 @@ Q_ULONG QFile::size() const
 }
 
 /*!
-  \fn Q_ULONG QFile::at() const
+  \fn QIODevice::Offset QFile::at() const
   Returns the file index.
   \sa size()
 */
@@ -411,7 +411,7 @@ Q_ULONG QFile::size() const
   \sa size(), open()
 */
 
-bool QFile::at( Q_ULONG pos )
+bool QFile::at( Offset pos )
 {
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -612,3 +612,4 @@ void QFile::close()
 
     return;
 }
+

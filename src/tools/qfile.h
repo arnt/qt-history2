@@ -76,9 +76,9 @@ public:
     void	close();
     void	flush();
 
-    Q_ULONG	size()	const;
-    Q_ULONG	at()	const;
-    bool	at( Q_ULONG );
+    Offset	size() const;
+    Offset	at() const;
+    bool	at( Offset );
     bool	atEnd() const;
 
     Q_LONG	readBlock( char *data, Q_ULONG len );
@@ -98,7 +98,7 @@ protected:
     QString	fn;
     FILE       *fh;
     int		fd;
-    Q_ULONG	length;
+    Offset	length;
     bool	ext_f;
     void * 	d;
 
@@ -117,7 +117,7 @@ private:	// Disabled copy constructor and operator=
 inline QString QFile::name() const
 { return fn; }
 
-inline Q_ULONG QFile::at() const
+inline QIODevice::Offset QFile::at() const
 { return ioIndex; }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#38 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#39 $
 **
 ** Implementation of QSocket class.
 **
@@ -721,9 +721,9 @@ void QSocket::flush()
   (like bytesAvailable()).
 */
 
-Q_ULONG QSocket::size() const
+QIODevice::Offset QSocket::size() const
 {
-    return bytesAvailable();
+    return (Offset)bytesAvailable();
 }
 
 
@@ -732,7 +732,7 @@ Q_ULONG QSocket::size() const
   device, the current read index is always zero.
 */
 
-Q_ULONG QSocket::at() const
+QIODevice::Offset QSocket::at() const
 {
     return 0;
 }
@@ -744,11 +744,11 @@ Q_ULONG QSocket::at() const
   data.
 */
 
-bool QSocket::at( Q_ULONG index )
+bool QSocket::at( Offset index )
 {
     if ( index > d->rsize )
 	return FALSE;
-    consumeReadBuf( index, 0 );			// throw away data 0..index-1
+    consumeReadBuf( (Q_ULONG)index, 0 );			// throw away data 0..index-1
     return TRUE;
 }
 

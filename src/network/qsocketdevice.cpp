@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#11 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#12 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -266,9 +266,7 @@ void QSocketDevice::flush()
 
   The size is meaningless for a socket, therefore this function returns 0.
 */
-// ### This behaviour is not consistent with QSocket::size(). Maybe we should
-// fix that?
-Q_ULONG QSocketDevice::size() const
+QIODevice::Offset QSocketDevice::size() const
 {
     return 0;
 }
@@ -279,7 +277,7 @@ Q_ULONG QSocketDevice::size() const
   The read/write index is meaningless for a socket, therefore
   this function returns 0.
 */
-Q_ULONG QSocketDevice::at() const
+QIODevice::Offset QSocketDevice::at() const
 {
     return 0;
 }
@@ -290,7 +288,7 @@ Q_ULONG QSocketDevice::at() const
   The read/write index is meaningless for a socket, therefore
   this function does nothing and returns TRUE.
 */
-bool QSocketDevice::at( Q_ULONG )
+bool QSocketDevice::at( Offset )
 {
     return TRUE;
 }
@@ -500,3 +498,4 @@ void QSocketDevice::setError( Error err )
     e = err;
 }
 #endif //QT_NO_NETWORK
+

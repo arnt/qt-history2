@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#7 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#8 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -68,9 +68,9 @@ public:
     void	 flush();
 
     // Implementation of QIODevice abstract virtual functions
-    Q_ULONG	 size() const;
-    Q_ULONG	 at() const;
-    bool	 at( Q_ULONG );
+    Offset	 size() const;
+    Offset	 at() const;
+    bool	 at( Offset );
     bool	 atEnd() const;
 
     bool	 blocking() const;

@@ -41,6 +41,9 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qcstring.h"
+#ifdef QT_LARGE_FILE_SUPPORT
+#include "qplatformdefs.h"
+#endif
 #endif // QT_H
 
 
@@ -83,11 +86,17 @@
 #define IO_ConnectError		5		// cannot connect to device
 #define IO_AbortError		6		// abort error
 #define IO_TimeOutError		7		// time out
-#define IO_UnspecifiedError		8		// unspecified error
+#define IO_UnspecifiedError	8		// unspecified error
 
-class Q_EXPORT QIODevice					// IO device class
+class Q_EXPORT QIODevice			// IO device class
 {
 public:
+#ifdef QT_LARGE_FILE_SUPPORT
+    typedef off_t Offset;
+#else
+    typedef Q_ULONG Offset;
+#endif
+
     QIODevice();
     virtual ~QIODevice();
 
@@ -116,9 +125,9 @@ public:
     virtual void close() = 0;
     virtual void flush() = 0;
 
-    virtual Q_ULONG size()  const = 0;
-    virtual Q_ULONG at()  const;
-    virtual bool at( Q_ULONG );
+    virtual Offset size()  const = 0;
+    virtual Offset at()  const;
+    virtual bool at( Offset );
     virtual bool atEnd()  const;
     bool	 reset() { return at(0); }
 
@@ -138,7 +147,7 @@ protected:
     void	 setMode( int );
     void	 setState( int );
     void	 setStatus( int );
-    Q_ULONG	 ioIndex;
+    Offset	 ioIndex;
 
 private:
     int		 ioMode;

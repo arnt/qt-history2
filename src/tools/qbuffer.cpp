@@ -235,12 +235,12 @@ void QBuffer::flush()
 
 
 /*!
-  \fn Q_ULONG QBuffer::at() const
+  \fn QIODevice::Offset QBuffer::at() const
   \reimp
 */
 
 /*!
-  \fn Q_ULONG QBuffer::size() const
+  \fn QIODevice::Offset QBuffer::size() const
   \reimp
 */
 
@@ -248,7 +248,7 @@ void QBuffer::flush()
   \reimp
 */
 
-bool QBuffer::at( Q_ULONG pos )
+bool QBuffer::at( Offset pos )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
@@ -475,3 +475,4 @@ int QBuffer::ungetch( int ch )
     }
     return ch;
 }
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#13 $
+** $Id: //depot/qt/main/src/network/qsocket.h#14 $
 **
 ** Definition of QSocket class.
 **
@@ -82,9 +82,9 @@ public:
     bool	 open( int mode );
     void	 close();
     void	 flush();
-    Q_ULONG	 size() const;
-    Q_ULONG	 at() const;
-    bool	 at( Q_ULONG );
+    Offset	 size() const;
+    Offset	 at() const;
+    bool	 at( Offset );
     bool	 atEnd() const;
 
     Q_ULONG	 bytesAvailable() const;
@@ -100,7 +100,7 @@ public:
     int		 ungetch(int);
 
     bool	 canReadLine() const;
-    virtual QString	 readLine();
+    virtual	 QString readLine();
 
     Q_UINT16	 port() const;
     Q_UINT16	 peerPort() const;

@@ -456,7 +456,7 @@ void QIODevice::setStatus( int s )
 
 
 /*!
-  \fn uint QIODevice::size() const
+  \fn QIODevice::Offset QIODevice::size() const
   Virtual function that returns the size of the I/O device.
   \sa at()
 */
@@ -469,7 +469,7 @@ void QIODevice::setStatus( int s )
   \sa size()
 */
 
-Q_ULONG QIODevice::at() const
+QIODevice::Offset QIODevice::at() const
 {
     return ioIndex;
 }
@@ -479,7 +479,7 @@ Q_ULONG QIODevice::at() const
   \sa size()
 */
 
-bool QIODevice::at( Q_ULONG pos )
+bool QIODevice::at( Offset pos )
 {
 #if defined(QT_CHECK_RANGE)
     if ( (uint)pos > size() ) {
@@ -534,7 +534,7 @@ QByteArray QIODevice::readAll()
 {
     if ( isDirectAccess() ) {
 	// we now the size
-	int n = size()-at();
+	int n = size()-at(); // ### fix for 64-bit or large files?
 	QByteArray ba(size()-at());
 	char* c = ba.data();
 	while ( n ) {

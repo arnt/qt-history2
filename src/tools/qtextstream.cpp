@@ -263,9 +263,9 @@ public:
     bool  open( int m );
     void  close();
     void  flush();
-    Q_ULONG  size() const;
-    Q_ULONG  at()   const;
-    bool  at( Q_ULONG pos );
+    Offset  size() const;
+    Offset  at()   const;
+    bool  at( Offset pos );
     Q_LONG readBlock( char *p, Q_ULONG len );
     Q_LONG writeBlock( const char *p, Q_ULONG len );
     int   getch();
@@ -330,17 +330,17 @@ void QStringBuffer::flush()
 {
 }
 
-Q_ULONG QStringBuffer::size() const
+QIODevice::Offset QStringBuffer::size() const
 {
     return s ? s->length()*sizeof(QChar) : 0;
 }
 
-Q_ULONG  QStringBuffer::at()   const
+QIODevice::Offset  QStringBuffer::at()   const
 {
     return ioIndex;
 }
 
-bool QStringBuffer::at( Q_ULONG pos )
+bool QStringBuffer::at( Offset pos )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {

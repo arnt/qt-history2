@@ -58,9 +58,9 @@ public:
     void  close();
     void  flush();
 
-    Q_ULONG  size() const;
-    Q_ULONG  at()	 const;
-    bool  at( Q_ULONG );
+    Offset size() const;
+    Offset at() const;
+    bool  at( Offset );
 
     Q_LONG	  readBlock( char *p, Q_ULONG );
     Q_LONG	  writeBlock( const char *p, Q_ULONG );
@@ -90,10 +90,10 @@ private:	// Disabled copy constructor and operator=
 inline QByteArray QBuffer::buffer() const
 { return a; }
 
-inline Q_ULONG QBuffer::size() const
-{ return a.size(); }
+inline QIODevice::Offset QBuffer::size() const
+{ return (Offset)a.size(); }
 
-inline Q_ULONG QBuffer::at() const
+inline QIODevice::Offset QBuffer::at() const
 { return ioIndex; }
 
 
