@@ -304,10 +304,9 @@ which radio button is checked. Save the form as 'creditformbase.ui' (press
 \index Subclassing
 Although we intend our dialog to be used within an application it is
 useful to create a test harness so that we can develop and test it
-stand-alone. Right click the 'Source Files' entry in the Files window
-then click \Menu{Add new source file to project}. This will invoke the
-\Dialog{Save As} dialog; enter 'main.cpp' and click \Button Save. In
-the editor window that pops up, enter the following code:
+stand-alone. Click \Menu{File|New} to invoke the 'New File' dialog,
+then click 'C++ Source', then click \OK. In the editor window that
+pops up, enter the following code:
 \code
 #include <qapplication.h>
 #include "creditformbase.h"
