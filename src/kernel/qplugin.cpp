@@ -389,10 +389,7 @@ bool QPlugIn::loadInterface()
 	return FALSE;
     info = infoProc();
 
-    if ( !info )
-	return FALSE;
-
-    return info->initialize( appInterface );
+    return info != 0;
 }
 
 /*!
