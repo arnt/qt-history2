@@ -125,6 +125,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 {
     setWindowTitle(tr("Qt Paint Engine Demo"));
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+    layout->setMargin(0);
 
     QSplitter *horSplit = new QSplitter(Qt::Horizontal, this);
 
@@ -135,7 +136,6 @@ DemoViewer::DemoViewer(QWidget *parent)
     QBoxLayout *glayout = new QBoxLayout(QBoxLayout::TopToBottom, categories);
     listView = new QGenericListView(categories);
     glayout->addWidget(listView);
-    glayout->setMargin(6);
 
     layout->addWidget(horSplit);
 
@@ -144,7 +144,6 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     QGroupBox *opts = new QGroupBox("Options", vbox);
     QBoxLayout *props = new QBoxLayout(QBoxLayout::TopToBottom, opts);
-    props->setMargin(6);
 
     antialias = new QCheckBox(tr("Antialiasing"), opts);
     alpha = new QCheckBox(tr("Alphablended primitives"), opts);
