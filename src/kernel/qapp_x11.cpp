@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#188 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#187 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#188 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1213,9 +1213,9 @@ bool QApplication::processNextEvent( bool canWait )
 		    event.xmotion.time : event.xbutton.time;
 		if ( widget->isEnabled() ) {
 		    if ( event.type == ButtonPress &&
-			 event.xbutton.button == Button1 )
-			if ( widget->focusPolicy() & QWidget::ClickFocus )
-			    widget->setFocus();
+			 event.xbutton.button == Button1 &&
+			 (widget->focusPolicy() & QWidget::ClickFocus) )
+			widget->setFocus();
 		    widget->translateMouseEvent( &event );
 		}
 		break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#66 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#66 $");
 
 
 /*!
@@ -82,7 +82,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     irects    = 0;
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
-    move( 0, 0 );
+
     QFontMetrics fm = fontMetrics();
     int gs = style();
     int h;
@@ -90,22 +90,23 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	h = 2 + fm.height() + motifItemVMargin + 2*motifBarFrame;
     } else {
 	h =  motifBarFrame + motifBarVMargin + fm.height() 
-	     + motifItemVMargin + 2*motifBarFrame + 2*motifItemFrame;
+	    + motifItemVMargin + 2*motifBarFrame + 2*motifItemFrame;
     }
 
+    move( 0, 0 );
     resize( width(), h );
 
     switch ( gs ) {
-    case WindowsStyle:
-	setFrameStyle( QFrame::NoFrame );
-	setMouseTracking( TRUE );
-	break;
-    case MotifStyle:
-	setFrameStyle( QFrame::Panel | QFrame::Raised );
-	setLineWidth( motifBarFrame );
-	break;
-    default:
-	break;
+	case WindowsStyle:
+	    setFrameStyle( QFrame::NoFrame );
+	    setMouseTracking( TRUE );
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	    setLineWidth( motifBarFrame );
+	    break;
+	default:
+	    break;
     }
 }
 
@@ -535,7 +536,7 @@ void QMenuBar::drawContents( QPainter *p )
 	QRect r = irects[i];
 	if ( gs == WindowsStyle ) {
 	    p->fillRect( r, i == actItem ? darkBlue : g.background() );
-	} else { // MotifStyle
+	} else {	// MotifStyle
 	    if ( i == actItem )				// active item frame
 		qDrawShadePanel( p, r, g, FALSE, motifItemFrame );
 	    else					// incognito frame

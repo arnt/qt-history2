@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#156 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#155 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#156 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1108,16 +1108,10 @@ void QWidget::setMinimumSize( int w, int h )
     createExtra();
     extra->minw = w;
     extra->minh = h;
-    int cw = crect.width();
-    int ch = crect.height();
-    if ( isVisible() ) {
-	if ( cw < w && ch < h )
-	    resize( w, h );
-	else if ( cw < w )
-	    resize( w, ch );
-	else if ( ch < h )
-	    resize( cw, h );
-    } 
+    int minw = QMAX(w,crect.width());
+    int minh = QMAX(h,crect.height());
+    if ( isVisible() && (minw > w || minh > h) )
+	resize( minw, minh );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
@@ -1128,6 +1122,7 @@ void QWidget::setMinimumSize( int w, int h )
 /*!
   \overload void QWidget::setMaximumSize( const QSize &size )
 */
+
 /*!
   Sets the maximum size of the widget to \e w by \e h pixels.
 
@@ -1148,16 +1143,10 @@ void QWidget::setMaximumSize( int w, int h )
     createExtra();
     extra->maxw = w;
     extra->maxh = h;
-    int cw = crect.width();
-    int ch = crect.height();
-    if ( isVisible() ) {
-	if ( cw > w && ch > h )
-	    resize( w, h );
-	else if ( cw > w )
-	    resize( w, ch );
-	else if ( ch > h )
-	    resize( cw, h );
-    } 
+    int maxw = QMIN(w,crect.width());
+    int maxh = QMIN(h,crect.height());
+    if ( isVisible() && (maxw < w || maxh < h) )
+	resize( maxw, maxh );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#153 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#152 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#153 $");
 
 
 /*!
@@ -34,220 +34,180 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#152 $");
   rectangular, and they are sorted in a Z-order.  A widget is clipped
   by its parent and by the widgets in front of it.
 
-  A widget without a parent, called a top-level widget, is a window
-  with a frame and a title bar (though it is also possible to create
-  top level widgets without such decoration).  A widget with a parent
-  is a child window in its parent.  You usually cannot distinguish a
-  child widget from its parent visually.
+  A widget without a parent, called a top-level widget, is a
+  window with a frame and a title bar (though it is also possible to
+  create top level widgets without such decoration).  A widget with a
+  parent is a child window in its parent.  You usually cannot distinguish
+  a child widget from its parent visually.
 
-  QWidget has many member functions, but many of them have little
+  QWidget has many member functions, but some of them have little
   direct functionality - for example it has a font but never uses it
   itself. There are many subclasses which provide real functionality,
   as diverse as QPushButton, QListBox and QTabDialog.
 
-  QWidget offers two APIs: The public functions, for mamipulating state
-  which is common to all or many of the subclasses, and the protected
-  event handlers, which constitute the interface towards the user.
-  (The constructor and a few static functions do not belong in either
-  group.)
+  <strong>Groups of functions:</strong>
+  <ul>
 
+  <li> Window functions:
+	show(),
+	hide(),
+	raise(),
+	lower(),
+	close().
 
+  <li> Top level windows:
+	caption(),
+	setCaption(),
+	icon(),
+	setIcon(),
+	iconText(),
+	setIconText(),
+	isActiveWindow(),
+	setActiveWindow(),
+	iconify().
 
-  <strong>Publics:</strong> The public interface mostly consists of
-  access functions.  Here are the main groups: <ul>
+  <li> Window contents:
+	update(),
+	repaint(),
+	erase(),
+	drawRect(),
+	scroll().
 
   <li> Geometry:
+	move(),
+	resize(),
+	setGeometry(),
+	pos(),
+	size(),
+	rect(),
+	x(),
+	y(),
+	width(),
+	height(),
+	frameGeometry(),
+	geometry(),
+	childrenRect(),
+	sizeHint(),
+	adjustSize(),
+	mapFromGlobal(),
+	mapFromParent()
+	mapToGlobal(),
+	mapToParent(),
+	maximumSize(),
+	minimumSize(),
+	sizeIncrement(),
+	setMaximumSize(),
+	setMinimumSize(),
+	setSizeIncrement(),
+	setFixedSize().
 
-move(),
-resize(),
-setCRect(),
-setFRect(),
-setGeometry(),
+  <li> Mode:
+	isVisible()
+	isDesktop(),
+	isEnabled(),
+	isModal(),
+	isPopup(),
+	isTopLevel(),
+	setEnabled(),
+	hasMouseTracking(),
+	setMouseTracking(),
+	isUpdatesEnabled(),
+	setUpdatesEnabled().
 
-pos(),
-size(),
-rect(),
-x(),
-y(),
-width(),
-height(),
-frameGeometry(),
-geometry(),
+  <li> Look and feel:
+	style(),
+	setStyle(),
+	cursor(),
+	setCursor()
+	font(),
+	setFont(),
+	palette(),
+	setPalette(),
+	backgroundColor(),
+	foregroundColor(),
+	setBackgroundColor(),
+	backgroundPixmap(),
+	setBackgroundPixmap(),
+	colorGroup(),
+	fontMetrics(),
+	fontInfo().
 
-sizeHint(),
-adjustSize(),
+  <li> Keyboard focus functions:
+	isFocusEnabled(),
+	setFocusPolicy(),
+	focusPolicy(),
+	hasFocus(),
+	setFocus(),
+	clearFocus().
 
-mapFromGlobal(),
-mapFromParent()
-mapToGlobal(),
-mapToParent(),
+  <li> Mouse and keyboard grabbing:
+	grabMouse(),
+	releaseMouse(),
+	grabKeyboard(),
+	releaseKeyboard(),
+	mouseGrabber(),
+	keyboardGrabber().
 
-maximumSize(),
-minimumSize(),
-sizeIncrement(),
-setMaximumSize(),
-setMinimumSize(),
-setSizeIncrement(),
-setFixedSize(),
+  <li> Event handlers:
+	event(),
+	mousePressEvent(),
+	mouseReleaseEvent(),
+	mouseDoubleClickEvent(),
+	mouseMoveEvent(),
+	keyPressEvent(),
+	keyReleaseEvent(),
+	focusInEvent(),
+	focusOutEvent(),
+	enterEvent(),
+	leaveEvent(),
+	paintEvent(),
+	moveEvent(),
+	resizeEvent(),
+	closeEvent().
 
+  <li> Change handlers:
+	backgroundColorChange(),
+	backgroundPixmapChange(),
+	enabledChange(),
+	fontChange(),
+	paletteChange(),
+	styleChange().
 
-<li> Mode:
+  <li> System functions:
+	parentWidget(),
+	topLevelWidget(),
+	recreate(),
+	winId(),
+	find(),
+	metric().
 
-isDesktop(),
-isEnabled(),
-isModal(),
-isPopup(),
-isTopLevel(),
-setEnabled(),
+  <li> Internal kernel functions:
+	setFRect(),
+	setCRect(),
+	focusNextPrevChild(),
+	wmapper(),
+	clearWFlags(),
+	getWFlags(),
+	setWFlags(),
+	testWFlags().
+  </ul>
 
-isVisible()
-show(),
-hide(),
-
-isFocusEnabled(),
-setFocusPolicy(),
-focusPolicy(),
-hasFocus(),
-setFocus(),
-clearFocus(),
-
-hasMouseTracking(),
-setMouseTracking(),
-
-isUpdatesEnabled(),
-setUpdatesEnabled(),
-
-<li> Look and feel:
-
-style(),
-setStyle(),
-
-cursor(),
-setCursor()
-
-font(),
-setFont(),
-
-palette(),
-setPalette(),
-
-backgroundColor(),
-foregroundColor(),
-setBackgroundColor(),
-
-backgroundPixmap(),
-setBackgroundPixmap(),
-
-colorGroup(),
-
-fontMetrics(),
-fontInfo(),
-
-<li> Event handlers:
-
-closeEvent(),
-enterEvent(),
-focusInEvent(),
-focusOutEvent(),
-keyPressEvent(),
-keyReleaseEvent(),
-leaveEvent(),
-mouseDoubleClickEvent(),
-mouseMoveEvent(),
-mousePressEvent(),
-mouseReleaseEvent(),
-moveEvent(),
-paintEvent(),
-resizeEvent(),
-
-and last but not least event().
-
-<li> Change handlers:
-
-backgroundColorChange(),
-backgroundPixmapChange(),
-enabledChange(),
-fontChange(),
-paletteChange(),
-styleChange(),
-
-<li> Top level Window functions:
-
-caption(),
-setCaption(),
-
-icon(),
-setIcon(),
-
-iconText(),
-setIconText(),
-
-isActiveWindow(),
-setActiveWindow(),
-
-iconify()
-
-
-<li> Convenience:
-
-childrenRect(),
-drawText(),
-erase(),
-scroll(),
-
-<li> User communication:
-
-grabMouse(),
-releaseMouse(),
-grabKeyboard(),
-releaseKeyboard(),
-clearFocus(),
-raise(),
-show().
-
-<li> System functions:
-parentWidget(),
-topLevelWidget(),
-
-recreate(),
-focusNextPrevChild(),
-winId(),
-wmapper(),
-find(),
-metric(),
-
-mouseGrabber(),
-keyboardGrabber(),
-
-clearWFlags(),
-getWFlags(),
-setWFlags(),
-testWFlags(),
-
-<li> Misc:
-update(),
-repaint(),
-close(),
-
-lower(),
-raise(),
-
-</ul>
-
-  <strong>Constructor:</strong> Every widget's constructor accepts two
-  or three standard arguments: <ul><li><code>QWidget * parent =
-  0</code> is the parent of the new widget.  If it is 0, the new
-  widget will be a top-level window.  If not, it will be a child of \e
-  parent, and be constrained by \e parent's geometry.  <li><code>const
-  char * name = 0</code> is the widget name of the new widget.  The
-  widget name is little used at the moment - the dumpObjectTree()
-  debugging function uses it, and you can access it using name().  It
-  will become more important when our visual GUI builder is ready (you
-  can name a a widget in the builder, and connect() to it by name in
-  your code).  <li><code>WFlags f = 0</code> (where available) sets
+  <strong>Constructor:</strong> Every widget's constructor accepts two or
+  three standard arguments:
+  <ul>
+  <li><code>QWidget *parent = 0</code> is the parent of the new widget.
+  If it is 0, the new widget will be a top-level window.  If not, it will
+  be a child of \e parent, and be constrained by \e parent's geometry.
+  <li><code>const char *name = 0</code> is the widget name of the new
+  widget.  The widget name is little used at the moment - the
+  dumpObjectTree() debugging function uses it, and you can access it using
+  name().  It will become more important when our visual GUI builder is
+  ready (you can name a a widget in the builder, and connect() to it by
+  name in your code).  <li><code>WFlags f = 0</code> (where available) sets
   the <a href="#widgetflags">widget flags;</a> the default is good for
-  almost all widgets, but to get e.g. top-level widgets without a
-  window system frame you must use special flags. </ul>
+  almost all widgets, but to get e.g. top-level widgets without a window
+  system frame you must use special flags.
+  </ul>
 
   <strong>Subclassing QWidget:</strong> The tictac/tictac.cpp example
   program is good example of a simple widget.  It contains a few event
@@ -258,18 +218,17 @@ raise(),
   applications.
 
   You will need to supply the content for your widgets yourself, but
-  here's a brief run-down of the events, starting with the most common
+  here is a brief run-down of the events, starting with the most common
   ones: <ul>
 
-  <li> paintEvent() - which is called whenever the widget needs to be
+  <li> paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
   paintEvent().  You are guaranteed to receive a paint event
   immediately after every resize events, and at once when the widget
   is first shown.
 
-  <li> resizeEvent() - which is called whenever the widget's size is
-  changed.
+  <li> resizeEvent() - called when the widget has been resized.
 
   <li> mousePressEvent() - called when a mouse button is pressed.
   There are six mouse-related events, mouse press and mouse release
@@ -286,15 +245,19 @@ raise(),
   while the mouse button is held down, that popup steals the mouse
   events at once.
 
-  <li> mouseDoubleClickEvent() - not quite as obvious as it might
-  seem.  If the user double-clicks, the widget receives a mouse press
-  event (perhaps a mouse move event or two if he/she doens't hold the
-  mouse quite steady), a mouse release event, another mouse press
-  event, and finally this event.  It is \e not \e possible to
-  distinguish a click from a double click until you've seen whether
-  the second click arrives.  (This is one reason why most GUI books
-  recommend that double clicks be an extension of single clicks,
-  rather than a different action.) </ul>
+  <li> mouseDoubleClickEvent() - not quite as obvious as it might seem.
+  If the user double-clicks, the widget receives a mouse press event
+  (perhaps a mouse move event or two if he/she does not hold the mouse
+  quite steady), a mouse release event and finally this event.  It is \e
+  not \e possible to distinguish a click from a double click until you've
+  seen whether the second click arrives.  (This is one reason why most GUI
+  books recommend that double clicks be an extension of single clicks,
+  rather than a different action.)
+  </ul>
+
+  If your widget only contains child widgets, you probably do not need to
+  implement any event handlers (except resizeEvent() for custom layout
+  management).
 
   Widgets that accept keyboard input need to reimplement a few more
   event handlers: <ul>
@@ -303,19 +266,20 @@ raise(),
   when a key has been held down long enough for it to auto-repeat.
 
   <li> focusInEvent() - called when the widget gains keyboard focus
-  (assuming you have called setFocusPolicy(), of course).  Well
+  (assuming you have called setFocusPolicy(), of course). Well
   written widgets indicate that they own the keyboard focus in a clear
   but discreet way.
 
   <li> focusOutEvent() - called when the widget loses keyboard
-  focus. </ul>
+  focus.
+  </ul>
 
   Some widgets will need to reimplement some more obscure event
   handlers, too: <ul>
 
   <li> mouseMoveEvent() - called whenever the mouse moves while a
   button is held down.  This is useful for e.g. dragging.  If you call
-  setMouseTracking( TRUE ), you get mouse move events even when no
+  setMouseTracking(TRUE), you get mouse move events even when no
   buttons are held down.  (Note that applications which make use of
   mouse tracking are often not very useful on low-bandwidth X
   connections.)
@@ -332,15 +296,14 @@ raise(),
   <li> leaveEvent() - called when the mouse leaves the widget's screen
   space.
 
-  <li> moveEvent() - called when the widget moves, relative to its
-  parent.  This is usually because the user has moved and/or resized
-  the top-level window, and the effects have trickle down to your
-  widget.
+  <li> moveEvent() - called when the widget has been moved relative to its
+  parent.
 
   <li> closeEvent() - called when the widget is about to be closed
   (using hide(), or because the parent widget is about to be closed.)
   You can't do anything to stop it, but you can close down
-  gracefully. </ul>
+  gracefully.
+  </ul>
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
@@ -1429,7 +1392,7 @@ void QWidget::setFocus()
 	QApplication::sendEvent( w, &out );
     }
     w = topLevelWidget();
-    while ( w->focusChild ) {		// reset focus chain
+    while ( w->focusChild ) {			// reset focus chain
 	QWidget *fc =  w->focusChild;
 	w->focusChild = 0;
 	w = fc;
@@ -1437,8 +1400,7 @@ void QWidget::setFocus()
     w = this;
     QWidget *p;
     while ( (p=w->parentWidget()) && !w->testWFlags(WType_TopLevel) ) {
-	// build new focus chain
-	p->focusChild = w;
+	p->focusChild = w;			// build new focus chain
 	w = p;
     }
     if ( sameTLW || isActiveWindow() ) {	// set active focus
@@ -1515,7 +1477,7 @@ bool QWidget::focusNextPrevChild( bool next )
 	    return FALSE;
 	if ( it.current()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)it.current();
-	    if ( w->focusPolicy() & TabFocus && w->isEnabled() ) {
+	    if ( (w->focusPolicy() & TabFocus) && w->isEnabled() ) {
 		w->setFocus();
 		return TRUE;
 	    }
@@ -1570,13 +1532,17 @@ void QWidget::setCRect( const QRect &r )
 
 /*!
   \fn bool QWidget::isFocusEnabled() const
-  Returns TRUE if the widget accepts keyboard focus events, or FALSE if
-  it does not.
 
-  Focus events are initially disabled.
-  You need to enable focus events for a widget if it processes keyboard
-  events. This is normally done from the widget's constructor.
-  For instance, the QLineEdit constructor calls setFocusPolicy(StrongFocus).
+  Returns TRUE if the widget accepts keyboard focus, or FALSE if it does
+  not.
+
+  Keyboard focus is initially disabled (i.e. focusPolicy() ==
+  \c QWidget::NoFocus).
+
+  You must enable keyboard focus for a widget if it processes keyboard
+  events. This is normally done from the widget's constructor.  For
+  instance, the QLineEdit constructor calls
+  setFocusPolicy(\c QWidget::StrongFocus).
 
   \sa setFocusPolicy(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
@@ -1585,27 +1551,34 @@ void QWidget::setCRect( const QRect &r )
 /*!
   \fn QWidget::FocusPolicy QWidget::focusPolicy() const
 
-  Returns \c TabFocus if the widget accepts focus by tabbing, \c ClickFocus
-  if the widget accepts focus by clicking, \c StrongFocus if it accepts both
-  and \c NoFocus if it accepts neither. 
+  Returns \c QWidget::TabFocus if the widget accepts focus by tabbing, \c
+  QWidget::ClickFocus if the widget accepts focus by clicking, \c
+  QWidget::StrongFocus if it accepts both and \c QWidget::NoFocus if it
+  does not accept focus at all.
 
   \sa isFocusEnabled(), setFocusPolicy(), focusInEvent(), focusOutEvent(), 
   keyPressEvent(), keyReleaseEvent(), isEnabled()
 */
 
-
 /*!
-  Enables or disables the keyboard input focus events for the widget.
+  Enables or disables the keyboard focus for the widget.
 
-  Focus events are initially disabled.
-  You need to enable focus events for a widget if it processes keyboard
-  events. This is normally done from the widget's constructor.
-  For instance, the QLineEdit constructor calls setFocusPolicy(StrongFocus).
+  The keyboard focus is initially disabled (i.e. \e policy ==
+  \c QWidget::NoFocus).
 
-  If \a policy is \c TabFocus  the widget accepts focus by tabbing, 
-  \c ClickFocus it accepts focus by clicking, \c StrongFocus it accepts both
-  and \c NoFocus it does not accept focus.
+  You must enable keyboard focus for a widget if it processes keyboard
+  events. This is normally done from the widget's constructor.  For
+  instance, the QLineEdit constructor calls
+  setFocusPolicy(\c QWidget::StrongFocus).
 
+  The \e policy can be:
+  <ul>
+  <li> \c QWidget::TabFocus, the widget accepts focus by tabbing.
+  <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
+  <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
+  and clicking.
+  <li> \c QWidget::NoFocus, the widget should not accept focus.
+  </ul>
 
   \sa isFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
@@ -1626,13 +1599,10 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 
 void QWidget::setAcceptFocus( bool enable )
 {
-    if ( enable ) {
-	setWFlags( WState_TabToFocus );
-	setWFlags( WState_ClickToFocus );
-    } else {
-	clearWFlags( WState_TabToFocus );
-	clearWFlags( WState_ClickToFocus );
-    }
+    if ( enable )
+	setWFlags( WState_TabToFocus | WState_ClickToFocus );
+    else
+	clearWFlags( WState_TabToFocus | WState_ClickToFocus );
 }
 
 

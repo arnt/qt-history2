@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#85 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#86 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -270,5 +270,6 @@ const int ShowPrefix	= 0x0200;
 const int WordBreak	= 0x0400;
 const int GrayText	= 0x0800;
 const int DontPrint	= 0x1000;		// internal
+
 
 #endif // QWINDEFS_H
