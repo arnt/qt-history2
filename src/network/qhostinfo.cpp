@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qdns.h"
-#include "qdns_p.h"
+#include "qhostinfo.h"
+#include "qhostinfo_p.h"
 
 #include <qabstracteventdispatcher.h>
 #include <private/qunicodetables_p.h>
@@ -30,50 +30,50 @@
 #  include <unistd.h>
 #endif
 
-Q_GLOBAL_STATIC(QDnsAgent, agent)
+Q_GLOBAL_STATIC(QHostInfoAgent, agent)
 
-//#define QDNS_DEBUG
+//#define QHOSTINFO_DEBUG
 
 /*!         
-    \class QDns
+    \class QHostInfo
 
-    \brief The QDns class provides static functions for host name lookups
+    \brief The QHostInfo class provides static functions for host name lookups
     via standard Domain Name System services.
     \reentrant
 
     \module network
     \ingroup io
 
-    QDns uses the lookup mechanisms provided by the operating system
+    QHostInfo uses the lookup mechanisms provided by the operating system
     to find the IP addresses of a host name. It provides two static
     convenience functions, one that works asynchronously and emits a
     signal once the host is found, and one that blocks.
 
     To look up a host's IP address asynchronously, call
-    getHostByName(), which takes the host name and a slot signature as
+    lookupHost(), which takes the host name and a slot signature as
     arguments. The lookup is asynchronous by default. If Qt is built
     without thread support, this function blocks until the lookup has
     finished.
 
     \code
-        QDns::getHostByName("www.example.com", this, SLOT(printResults(const QDnsHostInfo &)));
+        QHostInfo::lookupHost("www.example.com", this, SLOT(printResults(const QHostInfo &)));
     \endcode
 
     The slot is invoked once the results are ready.
 
-    If you want a blocking lookup use the overloaded getHostByName()
+    If you want a blocking lookup use the overloaded lookupHost()
     that takes a single string argument (the hostname).
 
-    QDns supports Internationalized Domain Names (IDNs) through the
+    QHostInfo supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
 
-    \sa QDnsHostInfo \link http://ietf.org/rfc/rfc3492 RFC 3492\endlink
+    \sa QHostInfo \link http://ietf.org/rfc/rfc3492 RFC 3492\endlink
 */
 
 /*!
     Looks up the hostname (IP address) \a name. When the result of the
     lookup is ready, the slot or signal \a member in \a receiver is
-    called with a QDnsHostInfo argument. The QDnsHostInfo object can
+    called with a QHostInfo argument. The QHostInfo object can
     then be inspected to get the results of the lookup.
 
     Example:
@@ -81,16 +81,16 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     The lookup is performed by a single function call:
 
     \code
-        QDns::getHostByName("www.trolltech.com", this, SLOT(lookedUp(const QDnsHostInfo &)));
+        QHostInfo::lookupHost("www.trolltech.com", this, SLOT(lookedUp(const QHostInfo &)));
     \endcode
 
     The implementation of the slot prints basic information about the
     addresses returned by the lookup, or reports an error if it failed:
 
     \code
-        void MyWidget::lookedUp(const QDnsHostInfo &host)
+        void MyWidget::lookedUp(const QHostInfo &host)
         {
-            if (host.error() != QDnsHostInfo::NoError) {
+            if (host.error() != QHostInfo::NoError) {
                 qDebug() << "Lookup failed:" << host.errorString();
                 return;
             }
@@ -101,35 +101,36 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
         }
     \endcode
 */
-void QDns::getHostByName(const QString &name, QObject *receiver,
-                              const char *member)
+void QHostInfo::lookupHost(const QString &name, QObject *receiver,
+                           const char *member)
 {
-#if defined QDNS_DEBUG
-    qDebug("QDns::getHostByName(\"%s\", %p, %s)", name.latin1(), receiver, member ? member + 1 : 0);
+#if defined QHOSTINFO_DEBUG
+    qDebug("QHostInfo::lookupHost(\"%s\", %p, %s)",
+           name.toLatin1().constData(), receiver, member ? member + 1 : 0);
 #endif
     if (!QAbstractEventDispatcher::instance(QThread::currentThread())) {
-        qWarning("QDns::getHostByName() called with no event dispatcher");
+        qWarning("QHostInfo::lookupHost() called with no event dispatcher");
         return;
     }
 
-    qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
+    qRegisterMetaType<QHostInfo>("QHostInfo");
 
     // Don't start a thread if we don't have to do any lookup.
     QHostAddress addr;
     if (addr.setAddress(name)) {
         if (!member || !member[0]) {
-            qWarning("QDns::getHostByName() called with invalid slot [%s]", member);
+            qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
             return;
         }
 
         QByteArray arr(member + 1);
         if (!arr.contains('(')) {
-            qWarning("QDns::getHostByName() called with invalid slot [%s]", member);
+            qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
             return;
         }
 
-        QDnsHostInfo info;
-        info.d->addrs << addr;
+        QHostInfo info;
+        info.setAddresses(QList<QHostAddress>() << addr);
         arr.resize(arr.indexOf('('));
 
         // To mimic the same behavior that the lookup would have if it was not
@@ -141,8 +142,8 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #else
                          Qt::DirectConnection,
 #endif
-                         QGenericArgument("QDnsHostInfo", &info))) {
-            qWarning("QDns::getHostByName() called with invalid slot (qInvokeMetaMember failed)");
+                         QGenericArgument("QHostInfo", &info))) {
+            qWarning("QHostInfo::lookupHost() called with invalid slot (qInvokeMetaMember failed)");
         }
         return;
     }
@@ -163,12 +164,12 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
-    QDnsAgent *agent = ::agent();
+    QHostInfoAgent *agent = ::agent();
 
-    QDnsResult *result = new QDnsResult;
-    QObject::connect(result, SIGNAL(resultsReady(const QDnsHostInfo &)),
+    QHostInfoResult *result = new QHostInfoResult;
+    QObject::connect(result, SIGNAL(resultsReady(const QHostInfo &)),
                      receiver, member);
-    QObject::connect(result, SIGNAL(resultsReady(const QDnsHostInfo &)),
+    QObject::connect(result, SIGNAL(resultsReady(const QHostInfo &)),
                      result, SLOT(deleteLater()));
     agent->addHostName(lookup, result);
 
@@ -191,17 +192,17 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     of the program is suspended until the results of the lookup are
     ready. Returns the result of the lookup.
 */
-QDnsHostInfo QDns::getHostByName(const QString &name)
+QHostInfo QHostInfo::fromName(const QString &name)
 {
-#if defined QDNS_DEBUG
-    qDebug("QDns::getHostByName(\"%s\")", name.latin1());
+#if defined QHOSTINFO_DEBUG
+    qDebug("QHostInfo::fromName(\"%s\")",name.toLatin1().constData());
 #endif
 
     // If the address string is an IP address, don't do a lookup.
     QHostAddress addr;
     if (addr.setAddress(name)) {
-        QDnsHostInfo info;
-        info.d->addrs << addr;
+        QHostInfo info;
+        info.setAddresses(QList<QHostAddress>() << addr);
         return info;
     }
 
@@ -217,19 +218,19 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
         lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
-    return QDnsAgent::getHostByName(lookup);
+    return QHostInfoAgent::fromName(lookup);
 }
 
 /*!
     \internal
     Pops a query off the queries list, performs a blocking call to
-    QDnsAgent::getHostByName(), and emits the resultsReady()
+    QHostInfoAgent::lookupHost(), and emits the resultsReady()
     signal. This process repeats until the queries list is empty.
 */
-void QDnsAgent::run()
+void QHostInfoAgent::run()
 {
     forever {
-        QDnsQuery *query;
+        QHostInfoQuery *query;
         {
             // the queries list is shared between threads. lock all
             // access to it.
@@ -241,25 +242,26 @@ void QDnsAgent::run()
             query = queries.takeFirst();
         }
 
-#if defined(QDNS_DEBUG)
-        qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, query->hostName.latin1());
+#if defined(QHOSTINFO_DEBUG)
+        qDebug("QHostInfoAgent::run(%p): looking up \"%s\"", this,
+               query->hostName.toLatin1().constData());
 #endif
 
-        query->object->emitResultsReady(getHostByName(query->hostName));
+        query->object->emitResultsReady(fromName(query->hostName));
         query->object = 0;
         delete query;
     }
 }
 
-/*! \class QDnsHostInfo
-    \brief The QDnsHostInfo class provides information about a host name lookup.
+/*! \class QHostInfo
+    \brief The QHostInfo class provides information about a host name lookup.
     \reentrant
 
     \module network
     \ingroup io
 
-    A QDnsHostInfo is passed to the slot invoked by
-    QDns::getHostByName(). It contains the result of the lookup.
+    A QHostInfo is passed to the slot invoked by
+    QHostInfo::lookupHost(). It contains the result of the lookup.
 
     host() returns the host name that was looked up. Call addresses()
     to get the list of IP addresses for the host.
@@ -268,11 +270,11 @@ void QDnsAgent::run()
     occurred. errorString() gives a human-readable description of the
     lookup error.
 
-    \sa QDns
+    \sa QHostInfo
 */
 
 /*!
-    \enum QDnsHostInfo::Error
+    \enum QHostInfo::Error
 
     \value NoError The lookup was successful.
     \value HostNotFound No IP addresses were found for the host.
@@ -282,17 +284,17 @@ void QDnsAgent::run()
 /*!
     Constructs an empty host info object.
 */
-QDnsHostInfo::QDnsHostInfo()
-    : d(new QDnsHostInfoPrivate)
+QHostInfo::QHostInfo()
+    : d(new QHostInfoPrivate)
 {
 }
 
 /*!
     Copy constructor. Copies the data of \a hostInfo.
 */
-QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &hostInfo)
+QHostInfo::QHostInfo(const QHostInfo &hostInfo)
 {
-    QDnsHostInfoPrivate *x = new QDnsHostInfoPrivate;
+    QHostInfoPrivate *x = new QHostInfoPrivate;
     *x = *hostInfo.d;
     x = qAtomicSetPtr(&d, x);
 }
@@ -301,9 +303,9 @@ QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &hostInfo)
     Assigns the data of the \a hostInfo object to this host info object,
     and returns a reference to it.
 */
-QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
+QHostInfo &QHostInfo::operator =(const QHostInfo &hostInfo)
 {
-    QDnsHostInfoPrivate *x = new QDnsHostInfoPrivate;
+    QHostInfoPrivate *x = new QHostInfoPrivate;
     *x = *hostInfo.d;
     x = qAtomicSetPtr(&d, x);
     delete x;
@@ -314,7 +316,7 @@ QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
 /*!
     Destroys the host info object.
 */
-QDnsHostInfo::~QDnsHostInfo()
+QHostInfo::~QHostInfo()
 {
     delete d;
 }
@@ -325,28 +327,43 @@ QDnsHostInfo::~QDnsHostInfo()
 
     \sa host()
 */
-QList<QHostAddress> QDnsHostInfo::addresses() const
+QList<QHostAddress> QHostInfo::addresses() const
 {
     return d->addrs;
+}
+
+void QHostInfo::setAddresses(const QList<QHostAddress> &addresses)
+{
+    d->addrs = addresses;
 }
 
 /*!
     Returns the name of the host whose IP addresses were looked up.
 */
-QString QDnsHostInfo::host() const
+QString QHostInfo::hostName() const
 {
     return d->hostName;
+}
+
+void QHostInfo::setHostName(const QString &hostName)
+{
+    d->hostName = hostName;
 }
 
 /*!
     If the host name lookup failed, this function returns the type of
     error that occurred; otherwise NoError is returned.
 
-    \sa QDnsHostInfo::Error errorString()
+    \sa QHostInfo::Error errorString()
 */
-QDnsHostInfo::Error QDnsHostInfo::error() const
+QHostInfo::HostInfoError QHostInfo::error() const
 {
     return d->err;
+}
+
+void QHostInfo::setError(HostInfoError error)
+{
+    d->err = error;
 }
 
 /*!
@@ -355,13 +372,18 @@ QDnsHostInfo::Error QDnsHostInfo::error() const
 
     \sa error()
 */
-QString QDnsHostInfo::errorString() const
+QString QHostInfo::errorString() const
 {
     return d->errorStr;
 }
 
+void QHostInfo::setErrorString(const QString &str)
+{
+    d->errorStr = str;
+}
+
 /*!
-    \fn QString QDns::getHostName()
+    \fn QString QHostInfo::getHostName()
 
     Returns the host name of this machine.
 */

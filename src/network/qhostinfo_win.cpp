@@ -13,7 +13,7 @@
 
 #include <winsock2.h>
 
-#include "qdns_p.h"
+#include "qhostinfo_p.h"
 #include "qsocketlayer_p.h"
 #include <ws2tcpip.h>
 #include <qlibrary.h>
@@ -22,7 +22,7 @@
 #include <qmutex.h>
 #include <qsignal.h>
 
-// #define QDNS_DEBUG
+// #define QHOSTINFO_DEBUG
 
 // Older SDKs do not include the addrinfo struct declaration, so we
 // include a copy of it here.
@@ -53,21 +53,21 @@ void resolveLibrary()
 
 /*
     Performs a blocking call to gethostbyname or getaddrinfo, stores
-    the results in a QDnsHostInfo structure and emits the
+    the results in a QHostInfo structure and emits the
     resultsReady() signal.
 */
-QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
+QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 {
     QWindowsSockInit winSock;
 
     if (!local_getaddrinfo)
         resolveLibrary();
 
-    QDnsHostInfo results;
-    results.d->hostName = hostName;
+    QHostInfo results;
+    results.setHostName(hostName);
 
-#if defined(QDNS_DEBUG)
-    qDebug("QDnsAgent::run(%p): looking up \"%s\" (IPv6 support is %s)",
+#if defined(QHOSTINFO_DEBUG)
+    qDebug("QHostInfoAgent::fromName(%p): looking up \"%s\" (IPv6 support is %s)",
            this, hostName.toLatin1().constData(),
            (local_getaddrinfo && local_freeaddrinfo) ? "enabled" : "disabled");
 #endif
@@ -79,48 +79,45 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         qt_addrinfo *res;
         int err = local_getaddrinfo(hostName.toLatin1().constData(), 0, 0, &res);
         if (err == 0) {
+            QList<QHostAddress> addresses;
             for (qt_addrinfo *p = res; p != 0; p = p->ai_next) {
                 switch (p->ai_family) {
                 case AF_INET: {
                     QHostAddress addr;
 		    addr.setAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
-                    if (!results.d->addrs.contains(addr))
-                        results.d->addrs.prepend(addr);
+                    if (!addresses.contains(addr))
+                        addresses.prepend(addr);
                 }
                     break;
                 case AF_INET6: {
                     QHostAddress addr;
 		    addr.setAddress(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
-                    if (!results.d->addrs.contains(addr))
-                        results.d->addrs.append(addr);
+                    if (!addresses.contains(addr))
+                        addresses.append(addr);
                 }
                     break;
                 default:
-                    results.d->err = QDnsHostInfo::UnknownError;
-                    results.d->errorStr = "Unknown address type";
-                    break;
+                    results.setError(QHostInfo::UnknownError);
+                    results.setErrorString(tr("Unknown address type"));
                 }
             }
-            local_freeaddrinfo(res);
-        } else if (err == WSAHOST_NOT_FOUND) {
-            results.d->err = QDnsHostInfo::HostNotFound;
-            results.d->errorStr = tr("Host not found");
+            results.setAddresses(addresses);
         } else {
-            results.d->err = QDnsHostInfo::UnknownError;
-            results.d->errorStr = tr("Unknown error");
+            results.setError(QHostInfo::UnknownError);
+            results.setErrorString(tr("Unknown error"));
             // Get the error messages returned by getaddrinfo's gai_strerror
             QT_WA( {
                 typedef char *(*gai_strerrorWProto)(int);
                 gai_strerrorWProto local_gai_strerrorW;
                 local_gai_strerrorW = (gai_strerrorWProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorW");
                 if (local_gai_strerrorW)
-                    results.d->errorStr = QString::fromUtf16((ushort *) local_gai_strerrorW(err));
+                    results.setErrorString(QString::fromUtf16((ushort *) local_gai_strerrorW(err)));
             } , {
                 typedef char *(*gai_strerrorAProto)(int);
                 gai_strerrorAProto local_gai_strerrorA;
                 local_gai_strerrorA = (gai_strerrorAProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorA");
                 if (local_gai_strerrorA)
-                    results.d->errorStr = QString::fromLocal8Bit(local_gai_strerrorA(err));
+                    results.setErrorString(QString::fromLocal8Bit(local_gai_strerrorA(err)));
             } );
         }
     } else {
@@ -128,47 +125,50 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         hostent *ent = gethostbyname(hostName.toLatin1().constData());
         if (ent) {
             char **p;
+            QList<QHostAddress> addresses;
             switch (ent->h_addrtype) {
             case AF_INET:
                 for (p = ent->h_addr_list; *p != 0; p++) {
                     long *ip4Addr = (long *) *p;
 		    QHostAddress temp;
 		    temp.setAddress(ntohl(*ip4Addr));
-                    results.d->addrs << temp;
+                    addresses << temp;
                 }
                 break;
             default:
-                results.d->err = QDnsHostInfo::UnknownError;
-                results.d->errorStr = tr("Unknown address type");
+                results.setError(QHostInfo::UnknownError);
+                results.setErrorString(tr("Unknown address type"));
                 break;
             }
+            results.setAddresses(addresses);
         } else if (WSAGetLastError() == 11001) {
-            results.d->errorStr = tr("Host not found");
-            results.d->err = QDnsHostInfo::HostNotFound;
+            results.setErrorString(tr("Host not found"));
+            results.setError(QHostInfo::HostNotFound);
         } else {
-            results.d->errorStr = tr("Unknown error");
-            results.d->err = QDnsHostInfo::UnknownError;
+            results.setErrorString(tr("Unknown error"));
+            results.setError(QHostInfo::UnknownError);
         }
     }
 
-#if defined(QDNS_DEBUG)
-    if (results.d->err != QDnsHostInfo::NoError) {
-        qDebug("QDnsAgent::run(%p): error (%s)",
-               this, results.d->errorStr.toLatin1().constData());
+#if defined(QHOSTINFO_DEBUG)
+    if (results.error() != QHostInfo::NoError) {
+        qDebug("QHostInfoAgent::run(%p): error (%s)",
+               this, results.errorString().toLatin1().constData());
     } else {
         QString tmp;
-        for (int i = 0; i < results.d->addrs.count(); ++i) {
+        QList<QHostAddress> addresses = results.addresses();
+        for (int i = 0; i < addresses.count(); ++i) {
             if (i != 0) tmp += ", ";
-            tmp += results.d->addrs.at(i).toString();
+            tmp += addresses.at(i).toString();
         }
-        qDebug("QDnsAgent::run(%p): found %i entries: {%s}",
-               this, results.d->addrs.count(), tmp.toLatin1().constData());
+        qDebug("QHostInfoAgent::run(%p): found %i entries: {%s}",
+               this, addresses.count(), tmp.toLatin1().constData());
     }
 #endif
     return results;
 }
 
-QString QDns::getHostName()
+QString QHostInfo::getHostName()
 {
     QSocketLayer bust; // makes sure WSAStartup was callled
 

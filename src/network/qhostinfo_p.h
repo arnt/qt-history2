@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#ifndef QDNS_P_H
-#define QDNS_P_H
+#ifndef QHOSTINFO_P_H
+#define QHOSTINFO_P_H
 
 #include <qcoreapplication.h>
 #include <private/qcoreapplication_p.h>
-#include "qdns.h"
+#include "qhostinfo.h"
 #include <qmutex.h>
 #include <qwaitcondition.h>
 #include <qobject.h>
@@ -24,55 +24,55 @@
 
 #if !defined QT_NO_THREAD
 #include <qthread.h>
-#    define QDnsAgentBase QThread
+#    define QHostInfoAgentBase QThread
 #else
-#    define QDnsAgentBase QObject
+#    define QHostInfoAgentBase QObject
 #endif
 
-class QDnsResult : public QObject
+class QHostInfoResult : public QObject
 {
     Q_OBJECT
 public:
-    inline void emitResultsReady(const QDnsHostInfo &info)
+    inline void emitResultsReady(const QHostInfo &info)
     {
         emit resultsReady(info);
     }
 signals:
-    void resultsReady(const QDnsHostInfo &info);
+    void resultsReady(const QHostInfo &info);
 };
 
-struct QDnsQuery
+struct QHostInfoQuery
 {
-    inline QDnsQuery() : object(0) {}
-    inline ~QDnsQuery() { delete object; }
-    inline QDnsQuery(const QString &name, QDnsResult *result)
+    inline QHostInfoQuery() : object(0) {}
+    inline ~QHostInfoQuery() { delete object; }
+    inline QHostInfoQuery(const QString &name, QHostInfoResult *result)
         : hostName(name), object(result) {}
 
     QString hostName;
-    QDnsResult *object;
+    QHostInfoResult *object;
 };
 
-class QDnsAgent : public QDnsAgentBase
+class QHostInfoAgent : public QHostInfoAgentBase
 {
     Q_OBJECT
 public:
-    inline QDnsAgent()
+    inline QHostInfoAgent()
     {
         connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
         connect(QCoreApplication::instance(), SIGNAL(destroyed(QObject *)), this, SLOT(cleanup()));
         QCoreApplicationPrivate::moveToMainThread(this);
         quit = false;
     }
-    inline ~QDnsAgent()
+    inline ~QHostInfoAgent()
     { cleanup(); }
 
     void run();
-    static QDnsHostInfo getHostByName(const QString &hostName);
+    static QHostInfo fromName(const QString &hostName);
 
-    inline void addHostName(const QString &name, QDnsResult *result)
+    inline void addHostName(const QString &name, QHostInfoResult *result)
     {
         QMutexLocker locker(&mutex);
-        queries << new QDnsQuery(name, result);
+        queries << new QHostInfoQuery(name, result);
         cond.wakeOne();
     }
 
@@ -89,25 +89,25 @@ public slots:
     }
 
 private:
-    QList<QDnsQuery *> queries;
+    QList<QHostInfoQuery *> queries;
     QMutex mutex;
     QWaitCondition cond;
     bool quit;
 };
 
-class QDnsHostInfoPrivate
+class QHostInfoPrivate
 {
 public:
-    inline QDnsHostInfoPrivate()
-        : err(QDnsHostInfo::NoError),
-          errorStr(QT_TRANSLATE_NOOP("QDnsHostInfo", "Unknown error"))
+    inline QHostInfoPrivate()
+        : err(QHostInfo::NoError),
+          errorStr(QT_TRANSLATE_NOOP("QHostInfo", "Unknown error"))
     {
     }
 
-    QDnsHostInfo::Error err;
+    QHostInfo::HostInfoError err;
     QString errorStr;
     QList<QHostAddress> addrs;
     QString hostName;
 };
 
-#endif // QDNS_P_H
+#endif // QHOSTINFO_P_H

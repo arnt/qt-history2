@@ -11,46 +11,47 @@
 **
 ****************************************************************************/
 
-#ifndef QDNS_H
-#define QDNS_H
+#ifndef QHOSTINFO_H
+#define QHOSTINFO_H
 
 #include <QtCore/qlist.h>
 #include <QtNetwork/qhostaddress.h>
 
 class QObject;
-class QDnsHostInfo;
 
-class Q_NETWORK_EXPORT QDns
+class QHostInfoPrivate;
+class Q_NETWORK_EXPORT QHostInfo
 {
 public:
-    static void getHostByName(const QString &name, QObject *receiver, const char *member);
-    static QDnsHostInfo getHostByName(const QString &name);
-    static QString getHostName();
-};
+    enum HostInfoError {
+        NoError,
+        HostNotFound,
+        UnknownError
+    };
 
-class QDnsHostInfoPrivate;
-class Q_NETWORK_EXPORT QDnsHostInfo
-{
-public:
-    QDnsHostInfo();
-    QDnsHostInfo(const QDnsHostInfo &d);
-    QDnsHostInfo &operator=(const QDnsHostInfo &d);
-    ~QDnsHostInfo();
+    QHostInfo();
+    QHostInfo(const QHostInfo &d);
+    QHostInfo &operator=(const QHostInfo &d);
+    ~QHostInfo();
 
-    QString host() const;
+    QString hostName() const;
+    void setHostName(const QString &name);    
+
     QList<QHostAddress> addresses() const;
+    void setAddresses(const QList<QHostAddress> &addresses);
 
-    enum Error { NoError, HostNotFound, UnknownError };
+    HostInfoError error() const;
+    void setError(HostInfoError error);
 
-    Error error() const;
     QString errorString() const;
+    void setErrorString(const QString &errorString);
 
-    friend class QDnsAgent;
-    friend void QDns::getHostByName(const QString &, QObject *, const char *);
-    friend QDnsHostInfo QDns::getHostByName(const QString &);
+    static void lookupHost(const QString &name, QObject *receiver, const char *member);
+    static QHostInfo fromName(const QString &name);
+    static QString getHostName();
 
 private:
-    QDnsHostInfoPrivate *d;
+    QHostInfoPrivate *d;
 };
 
-#endif // QDNS_H
+#endif // QHOSTINFO_H
