@@ -675,6 +675,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     detach();
 
     QTextLayout layout(text, f);
+    layout.setCacheEnabled(true);
     QTextEngine *eng = layout.engine();
     layout.beginLayout();
     QTextLine line = layout.createLine();
