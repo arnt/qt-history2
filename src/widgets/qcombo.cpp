@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#68 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#68 $");
 
 
 /*!
@@ -214,6 +214,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     if ( style() == WindowsStyle ) {
 	d->listBox           = new QListBox( 0, 0, WType_Popup );
 	d->listBox->setAutoScrollBar( FALSE );
+	d->listBox->setBottomScrollBar( FALSE );
+	d->listBox->setAutoBottomScrollBar( FALSE );
 	d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
 	d->listBox->setLineWidth( 1 );
 	d->listBox->resize( 100, 10 );
@@ -262,6 +264,8 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d = new QComboData;
     d->listBox = new QListBox( 0, 0, WType_Popup );
     d->listBox->setAutoScrollBar( FALSE );
+    d->listBox->setBottomScrollBar( FALSE );
+    d->listBox->setAutoBottomScrollBar( FALSE );
     d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox->setLineWidth( 1 );
     d->listBox->resize( 100, 10 );
