@@ -135,7 +135,16 @@ struct Q_EXPORT QUuid
 
     bool operator==( const GUID &guid ) const
     {
-	return !memcmp( this, &guid, sizeof(QUuid) );
+	uint i;
+	if ( data1 != guid.Data1 || data2 != guid.Data2 || 
+	     data3 != guid.Data3 )
+	    return FALSE;
+
+	for( i = 0; i < 8; i++ )
+	    if ( data4[i] != guid.Data4[i] )
+		return FALSE;
+	
+	return TRUE;
     }
 
     bool operator!=( const GUID &guid ) const
