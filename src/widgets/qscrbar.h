@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#15 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#16 $
 **
 ** Definition of QScrollBar class
 **
@@ -21,7 +21,7 @@ class QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:
-    enum Orientation{ Horizontal, Vertical };
+    enum Orientation { Horizontal, Vertical };
 
     QScrollBar( QWidget *parent=0, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent=0, const char *name=0 );
@@ -31,7 +31,7 @@ public:
 
     void	setOrientation( Orientation );
     Orientation orientation() const;
-    void	setTracking( bool t );
+    void	setTracking( bool enable );
     bool	tracking() const;
 
     virtual void setPalette( const QPalette & );
@@ -57,7 +57,7 @@ protected:
     void	mouseReleaseEvent( QMouseEvent *e );
     void	mouseMoveEvent( QMouseEvent *e );
 
-    void	valueChange();	       // virtual functions from QRangeControl
+    void	valueChange();
     void	stepChange();
     void	rangeChange();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#24 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#24 $";
 #endif
 
 
@@ -25,7 +25,7 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
 {
     int x2=x1+w-1, y2=y1+h-1;
     QPointArray a;
-    QPen   pen   = p->pen();
+    QPen   pen	 = p->pen();
     QBrush brush = p->brush();
     p->setBrush( NoBrush );
     a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
@@ -50,7 +50,50 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
 \brief The QScrollBar widget class provides a vertical or horizontal scroll
 bar.
 
-The documentation of the QScrollBar class will be completed later.
+The documentation for the QScrollBar class will be completed later.
+*/
+
+
+/*!
+\fn void QScrollBar::valueChanged( long value )
+This signal is emitted when the scroll bar value is changed, with the
+new scroll bar value as an argument.
+*/
+
+/*!
+\fn void QScrollBar::sliderPressed()
+This signal is emitted when the user presses the slider with the mouse.
+*/
+
+/*!
+\fn void QScrollBar::sliderMoved( long value )
+This signal is emitted when the slider is dragged, with the
+new scroll bar value as an argument.
+*/
+
+/*!
+\fn void QScrollBar::sliderReleased()
+This signal is emitted when the user releases the slider with the mouse.
+*/
+
+/*!
+\fn void QScrollBar::nextLine()
+This signal is emitted when the scroll bar scrolls one line down/right.
+*/
+
+/*!
+\fn void QScrollBar::previousLine()
+This signal is emitted when the scroll bar scrolls one line up/left.
+*/
+
+/*!
+\fn void QScrollBar::nextPage()
+This signal is emitted when the scroll bar scrolls one page down/right.
+*/
+
+/*!
+\fn void QScrollBar::previousPage()
+This signal is emitted when the scroll bar scrolls one page up/left.
 */
 
 
@@ -90,27 +133,55 @@ const int repeatTime	= 100;
 #define SLIDER_MIN	6
 
 
+/*!
+Constructs a vertical scroll bar.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+    : QWidget( parent, name )
 {
     orient = Vertical;
     init();
 }
 
-QScrollBar::QScrollBar( Orientation o, QWidget *parent, const char *name )
-	: QWidget( parent, name )
+/*!
+Constructs a scroll bar.
+
+The \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
+			const char *name )
+    : QWidget( parent, name )
 {
-    orient = o;
+    orient = orientation;
     init();
 }
 
+/*!
+Constructs a scroll bar.
+
+\arg \e minVal is the minimum scroll bar value.
+\arg \e maxVal is the maximum scroll bar value.
+\arg \e lineStep is the line step value.
+\arg \e pageStep is the page step value.
+\arg \e value is the initial value.
+\arg \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
 QScrollBar::QScrollBar( long minVal, long maxVal, long lineStep, long pageStep,
-			long value,  Orientation o,
+			long value,  Orientation orientation,
 			QWidget *parent, const char *name )
-	: QWidget( parent, name ),
-	  QRangeControl( minVal, maxVal, lineStep, pageStep, value )
+    : QWidget( parent, name ),
+      QRangeControl( minVal, maxVal, lineStep, pageStep, value )
 {
-    orient = o;
+    orient = orientation;
     init();
 }
 
@@ -125,6 +196,46 @@ void QScrollBar::init()
 }
 
 
+/*!
+Sets the scroll bar orientation.  The \e orientation must be
+QScrollBar::Vertical or QScrollBar::Horizontal.
+\sa orientation().
+*/
+
+void QScrollBar::setOrientation( Orientation orientation )
+{
+    orient = orientation;
+    update();
+}
+
+/*!
+\fn Orientation QScrollBar::orientation() const
+Returns the scroll bar orientation; QScrollBar::Vertical or
+QScrollBar::Horizontal.
+\sa setOrientation().
+*/
+
+/*!
+\fn void QScrollBar::setTracking( bool enable )
+Enables scroll bar tracking if \e enable is TRUE, or disables tracking
+if \e enable is FALSE.
+
+If tracking is enabled, the scroll bar emits the valueChanged() signal
+whenever the slider is dragged.
+If tracking is disabled, the scroll bar emits the valueChanged() signal
+not before the user relases the mouse button.
+
+\sa tracking().
+*/
+
+
+/*!
+Reimplements the virtual function QWidget::setPalette().
+
+Sets the palette for both the combo box button and the
+combo box popup list.
+*/
+
 void QScrollBar::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
@@ -133,12 +244,10 @@ void QScrollBar::setPalette( const QPalette &p )
 }
 
 
-void QScrollBar::setOrientation( Orientation o )
-{
-    orient = o;
-    update();
-}
-
+/*!
+\internal
+Implements the virtual QRangeControl function.
+*/
 
 void QScrollBar::valueChange()
 {
@@ -149,10 +258,20 @@ void QScrollBar::valueChange()
     emit valueChanged(value());
 }
 
+/*!
+\internal
+Implements the virtual QRangeControl function.
+*/
+
 void QScrollBar::stepChange()
 {
     rangeChange();
 }
+
+/*!
+\internal
+Implements the virtual QRangeControl function.
+*/
 
 void QScrollBar::rangeChange()
 {
@@ -166,25 +285,37 @@ void QScrollBar::timerEvent( QTimerEvent * )
     if ( !isTiming )
 	return;
     if ( !thresholdReached ) {
-	thresholdReached = TRUE;  // control has been pressed for a time
-	killTimers();		  // kill the threshold time timer
-	startTimer( repeatTime );   // and start repeating
+	thresholdReached = TRUE;	// control has been pressed for a time
+	killTimers();			// kill the threshold time timer
+	startTimer( repeatTime );	//   and start repeating
     }
     if ( clickedAt )
 	PRIV->action( (ScrollControl) pressedControl );
 }
 
 
+/*!
+Handles key press events for the scroll bar.
+*/
+
 void QScrollBar::keyPressEvent( QKeyEvent * )
 {
 }
 
+
+/*!
+Handles resize events for the scroll bar.
+*/
 
 void QScrollBar::resizeEvent( QResizeEvent * )
 {
     positionSliderFromValue();
 }
 
+
+/*!
+Handles paint events for the scroll bar.
+*/
 
 void QScrollBar::paintEvent( QPaintEvent * )
 {
@@ -198,6 +329,10 @@ void QScrollBar::paintEvent( QPaintEvent * )
 }
 
 
+/*!
+Handles mouse press events for the scroll bar.
+*/
+
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
@@ -206,23 +341,27 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     pressedControl = PRIV->pointOver( e->pos() );
     switch( pressedControl ) {
 	case SLIDER:
-		 clickOffset = ( HORIZONTAL ? e->pos().x() : e->pos().y() )
-			       - sliderPos;
-                 slidePreviousVal = value();
-                 emit sliderPressed();
-		 break;
+	    clickOffset = ( HORIZONTAL ? e->pos().x() : e->pos().y() )
+			    - sliderPos;
+	    slidePreviousVal = value();
+	    emit sliderPressed();
+	    break;
 	case NONE:
-		 break;
+	    break;
 	default:
-		 PRIV->drawControls( pressedControl, pressedControl );
-		 PRIV->action( (ScrollControl) pressedControl );
-		 thresholdReached = FALSE; // wait before starting repeat
-		 startTimer(thresholdTime);
-		 isTiming = TRUE;
-		 break;
+	    PRIV->drawControls( pressedControl, pressedControl );
+	    PRIV->action( (ScrollControl) pressedControl );
+	    thresholdReached = FALSE;	// wait before starting repeat
+	    startTimer(thresholdTime);
+	    isTiming = TRUE;
+	    break;
     }
 }
 
+
+/*!
+Handles mouse release events for the scroll bar.
+*/
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -238,7 +377,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     switch( tmp ) {
 	case SLIDER: // Set value directly, we know we don't have to redraw.
 	    directSetValue( calculateValueFromSlider() );
-            emit sliderReleased();
+	    emit sliderReleased();
 	    if ( value() != previousValue() )
 		emit valueChanged( value() );
 	    break;
@@ -251,6 +390,10 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     }
 }
 
+
+/*!
+Handles mouse move events for the scroll bar.
+*/
 
 void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
@@ -268,18 +411,32 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	    newSliderPos = sliderMax;
 	if ( newSliderPos != sliderPos ) {
 	    long newVal = PRIV->sliderPosToRangeValue(newSliderPos);
-            if ( newVal != slidePreviousVal )
-                emit sliderMoved( newVal );
+	    if ( newVal != slidePreviousVal )
+		emit sliderMoved( newVal );
 	    if ( track && newVal != value() ) {
 		directSetValue( newVal ); // Set directly, painting done below
 		emit valueChanged( value() );
 	    }
-            slidePreviousVal = newVal;
+	    slidePreviousVal = newVal;
 	    sliderPos = newSliderPos;
 	    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 	}
     }
 }
+
+
+/*!
+\fn int QScrollBar::sliderStart() const
+Returns the pixel position where the scroll bar slider starts.
+
+It is equivalent to sliderRect().y() for vertical
+scroll bars or sliderRect().x() for horizontal scroll bars.
+*/
+
+/*!
+Returns the scroll bar slider rectangle.
+\sa sliderStart().
+*/
 
 QRect QScrollBar::sliderRect() const
 {
@@ -288,11 +445,11 @@ QRect QScrollBar::sliderRect() const
     int b = style() == MotifStyle ? MOTIF_BORDER : 0;
 
     if ( HORIZONTAL )
-        return QRect( sliderStart(), b,
-                      sliderLength, height() - b*2 );
+	return QRect( sliderStart(), b,
+		      sliderLength, height() - b*2 );
     else
-        return QRect( b, sliderStart(),
-                      width() - b*2, sliderLength );
+	return QRect( b, sliderStart(),
+		      width() - b*2, sliderLength );
 }
 
 void QScrollBar::positionSliderFromValue()
@@ -400,19 +557,19 @@ void QScrollBar_Private::action( ScrollControl control )
 {
     switch( control ) {
 	case ADD_LINE:
-            emit nextLine();
+	    emit nextLine();
 	    addLine();
 	    break;
 	case SUB_LINE:
-            emit previousLine();
+	    emit previousLine();
 	    subtractLine();
 	    break;
 	case ADD_PAGE:
-            emit nextPage();
+	    emit nextPage();
 	    addPage();
 	    break;
 	case SUB_PAGE:
-            emit previousPage();
+	    emit previousPage();
 	    subtractPage();
 	    break;
 #if defined(CHECK_RANGE)
@@ -421,6 +578,7 @@ void QScrollBar_Private::action( ScrollControl control )
 #endif
     }
 }
+
 
 void QScrollBar_Private::drawControls(uint controls, uint activeControl) const
 {
@@ -549,7 +707,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 			   const QColorGroup &g )
 {
     QPointArray arrow;				// arrow polygon
-    int  dim = QMIN(w,h);
+    int	 dim = QMIN(w,h);
 
     if ( dim == 3 ) {
 	QPen savePen = p->pen();
@@ -566,7 +724,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 	aw = awidth[dim-4];
     else
 	aw = dim/3 + 1;
-    debug( "aw = %d, %d", aw, dim );	// !!! debug
+//    debug( "aw = %d, %d", aw, dim );	// !!! debug
 
     switch ( type ) {
 	case UpArrow:
@@ -610,11 +768,11 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
-    Q2DMatrix   matrix;				// xform matrix
+    Q2DMatrix	matrix;				// xform matrix
     bool vertical = type == UpArrow || type == DownArrow;
     bool horizontal = !vertical;
-    int  dim = w < h ? w : h;
-    int  colspec = 0x0000;			// color specification array
+    int	 dim = w < h ? w : h;
+    int	 colspec = 0x0000;			// color specification array
 
     if ( dim < 2 )				// too small arrow
 	return;
