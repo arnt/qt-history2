@@ -154,7 +154,7 @@ void MainForm::readyReadStderr()
 	    QString( "%1: %2" ).arg(
 		    process.arguments().join( " " ) ).arg(
 		    process.readLineStderr() );
-	errorView->setText( errorString );
+	errorView->append( errorString );
     }
 }
 
@@ -207,6 +207,7 @@ void MainForm::processExited()
 			itFrom++;
 		    }
 		}
+		errorView->append( QString("%1 changes found\n").arg(changes->childCount()) );
 		QApplication::restoreOverrideCursor();
 		QApplication::restoreOverrideCursor();
 	    }
