@@ -59,12 +59,12 @@ void set_winapp_name()
     }
 }
 
-Q_CORE_EXPORT const char *qAppFileName()                // get application file name
+Q_CORE_EXPORT QString qAppFileName()                // get application file name
 {
     return appFileName;
 }
 
-Q_CORE_EXPORT const char *qAppName()                        // get application name
+Q_CORE_EXPORT QString qAppName()                        // get application name
 {
     if (!appName[0])
         set_winapp_name();

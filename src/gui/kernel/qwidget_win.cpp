@@ -136,7 +136,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     QString title;
     const TCHAR *ttitle = 0;
 #endif
-    const char *title95 = 0;
+    QByteArray title95;
     int         style = WS_CHILD;
     int         exsty = WS_EX_NOPARENTNOTIFY;
 
@@ -208,10 +208,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if (testWFlags(Qt::WStyle_Title)) {
         QT_WA({
-            title = isTopLevel() ? QString::fromLocal8Bit(qAppName()) : objectName();
+            title = isTopLevel() ? qAppName() : objectName();
             ttitle = (TCHAR*)title.utf16();
         } , {
-            title95 = isTopLevel() ? qAppName() : objectName().toLatin1();
+            title95 = isTopLevel() ? qAppName().toLocal8Bit() : objectName().toLatin1();
         });
     }
 
