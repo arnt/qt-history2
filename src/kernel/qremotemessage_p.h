@@ -50,9 +50,12 @@
 //
 //
 
+
+
 #ifndef QT_H
-#include "qpixmap.h"
+#include "qstring.h"
 #endif // QT_H
+
 
 #ifndef QT_NO_REMOTE
 
@@ -63,25 +66,25 @@ class Q_EXPORT QRemoteMessage
 {
 public:
     QRemoteMessage();
-    QRemoteMessage(const QString &eventName, const QString &eventInfo);
-    QRemoteMessage(const QString &eventName, const QString &eventInfo, const QPixmap *pixmap);
-    QRemoteMessage(const QString &eventName, const QString &eventInfo, const QByteArray *array);
+    QRemoteMessage( const QString &event, const QString &message );
+//    QRemoteMessage( const QString &eventName, const QString &eventInfo, const QPixmap *pixmap );
+    QRemoteMessage( const QString &event, const QString &message, const QByteArray *data );
     virtual ~QRemoteMessage();
 	
-    virtual void send(QSocket *socket);
-    virtual void reply(QSocket *socket, const QString &result);
-    virtual bool receive(QSocket *socket);
+    virtual void send( QSocket *socket );
+    virtual void reply( QSocket *socket, const QString &result );
+    virtual bool receive( QSocket *socket );
 
-    bool hasPixmap() const;
-    bool getPixmap(QPixmap *&pixmap);
+//    bool hasPixmap() const;
+//    bool getPixmap(QPixmap *&pixmap);
 
-    bool hasByteArray() const;
-    bool getByteArray(QByteArray *&byteArray);
+    bool hasData() const;
+    bool getData( QByteArray *&data );
 
     uint messageId() const;
     bool isReply() const;
     QString result() const;
-    QString msgType() const;
+    QString event() const;
     QString message() const;
 
     void reset();
@@ -99,9 +102,9 @@ protected:
     uint	msg_id;
     short	is_reply;
     QString	retvalue;
-    QString	msg_type;
+    QString	msg_event;
     QString	msg;
-    QPixmap	internal_pixmap;
+//    QPixmap	internal_pixmap;
     QByteArray	internal_bytearray;
 };
 

@@ -43,28 +43,14 @@
 #include <qsocketdevice.h>
 
 /*!
-  \class QRemoteMessage qtestmessage.h
+  \class QRemoteMessage qremotemessage.h
   \brief The QRemoteMessage class is used for exchanging messages between a
   Qt application and it's remote control.
 
   \internal
 
-  A typical use of such a remote functionality
-  is testing. Hence the msg_type QRemoteMessage.
-
   \mainclass
   \ingroup io
-
-\section1 Detailed description
-
-\section2 Groups of functions:
-  \list
-
-  \i Construction:
-	QTestApplication(),
-	~QTestApplication().
-
-  \endlist
 */
 
 uint QRemoteMessage::next_msg_id = 1;
@@ -83,54 +69,55 @@ QRemoteMessage::QRemoteMessage()
 /*!
    \internal
 
-    Constructs a message based on msg_type \a msgType and \a message.
+    Constructs a message based on msg_event \a event and \a message.
 */
 
-QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message)
+QRemoteMessage::QRemoteMessage(const QString &event, const QString &message)
 {
     reset();
 
     // Prepare the struct
     msg_id = next_msg_id++;
-    msg_type = msgType;
+    msg_event = event;
     msg = message;
 }
 
-/*!
+/*
    \internal
 
-    Constructs a message based on msg_type \a msgType, \a message and \a pixmap.
+    Constructs a message based on msg_event \a event, \a message and \a pixmap.
 */
-
-QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message, const QPixmap *pixmap)
+/*
+QRemoteMessage::QRemoteMessage(const QString &event, const QString &message, const QPixmap *pixmap)
 {
     reset();
 
     // Prepare the struct
     msg_id = next_msg_id++;
-    msg_type = msgType;
+    msg_event = event;
     msg = message;
     if (pixmap != 0) {
 	internal_pixmap = *pixmap;
     }
 }
+*/
 
 /*!
    \internal
 
-    Constructs a message based on msg_type \a msgType, \a message and \a byteArray.
+    Constructs a message based on msg_event \a event, \a message and \a data.
 */
 
-QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message, const QByteArray *byteArray)
+QRemoteMessage::QRemoteMessage(const QString &event, const QString &message, const QByteArray *data)
 {
     reset();
 
     // Prepare the struct
     msg_id = next_msg_id++;
-    msg_type = msgType;
+    msg_event = event;
     msg = message;
-    if (byteArray != 0) {
-	internal_bytearray = *byteArray;
+    if (data != 0) {
+	internal_bytearray = *data;
     }
 }
 
@@ -158,9 +145,9 @@ void QRemoteMessage::reset()
     msg_id = 0;
     is_reply = FALSE;
     retvalue = "";
-    msg_type = "";
+    msg_event = "";
     msg = "";
-    internal_pixmap.resize(0,0);
+//    internal_pixmap.resize(0,0);
     internal_bytearray.resize(0);
     primary_data_read = FALSE;
 }
@@ -208,7 +195,7 @@ void QRemoteMessage::send(QSocket *socket)
 	return;
     }
 
-    Q_ASSERT(msg_type != "" && !msg_type.isNull());
+    Q_ASSERT(msg_event != "" && !msg_event.isNull());
 
     magic_id = magicId();
 
@@ -220,9 +207,10 @@ void QRemoteMessage::send(QSocket *socket)
     tmp << msg_id;
     tmp << is_reply;
     tmp << retvalue;
-    tmp << msg_type;
+    tmp << msg_event;
     tmp << msg;
 
+/*
     Q_UINT8 hasPixmap;
     if (!internal_pixmap.isNull())
 	hasPixmap = 1;
@@ -231,6 +219,7 @@ void QRemoteMessage::send(QSocket *socket)
     tmp << hasPixmap;
     if (hasPixmap != 0)
 	tmp << internal_pixmap;
+*/
 
     Q_UINT8 hasbyteArray;
     if (!internal_bytearray.isNull())
@@ -258,8 +247,8 @@ void QRemoteMessage::send(QSocket *socket)
 
 void QRemoteMessage::reply(QSocket *socket, const QString &result)
 {
-    internal_pixmap.resize(0,0);
-    msg_type = "Reply";
+//    internal_pixmap.resize(0,0);
+    msg_event = "Reply";
     msg = "";
 
     retvalue = result;
@@ -298,21 +287,19 @@ bool QRemoteMessage::receive(QSocket *socket)
 	Q_ASSERT((is_reply >= 0) && (is_reply <= 1));
 
 	tmp >> retvalue;
-	tmp >> msg_type;
+	tmp >> msg_event;
 	tmp >> msg;
 
+/*
 	Q_UINT8 hasPixmap;
 	tmp >> hasPixmap;
-	// ### can't work
-	//Q_ASSERT((hasPixmap >= 0) && (hasPixmap <= 1));
 	internal_pixmap.resize(0,0);
 	if (hasPixmap == 1)
 		tmp >> internal_pixmap;
+*/
 
 	Q_UINT8 hasbyteArray;
 	tmp >> hasbyteArray;
-	// ### can't work
-	//Q_ASSERT((hasbyteArray >= 0) && (hasbyteArray <= 1));
 	internal_bytearray.resize(0);
 	if (hasbyteArray == 1)
 	    tmp >> internal_bytearray;
@@ -325,23 +312,23 @@ bool QRemoteMessage::receive(QSocket *socket)
     return FALSE;
 }
 
-/*!
+/*
    \internal
 
     Returns TRUE if the message contains a valid pixmap; otherwise
     returns FALSE.
 */
-
+/*
 bool QRemoteMessage::hasPixmap() const
 {
     return !internal_pixmap.isNull();
 }
-
-/*!
+*/
+/*
     Returns the \a pixmap contained in the message.
     Returns TRUE if the message contains a valid pixmap.
 */
-
+/*
 bool QRemoteMessage::getPixmap(QPixmap *&pixmap)
 {
     if (!internal_pixmap.isNull()) {
@@ -353,6 +340,7 @@ bool QRemoteMessage::getPixmap(QPixmap *&pixmap)
 	return FALSE;
     }
 }
+*/
 
 /*!
    \internal
@@ -361,7 +349,7 @@ bool QRemoteMessage::getPixmap(QPixmap *&pixmap)
     returns FALSE.
 */
 
-bool QRemoteMessage::hasByteArray() const
+bool QRemoteMessage::hasData() const
 {
     return !internal_bytearray.isNull();
 }
@@ -369,15 +357,15 @@ bool QRemoteMessage::hasByteArray() const
 /*!
   \internal
 
-    Returns the \a byteArray contained in the message.
-    Returns TRUE if the byteArray is valid; otherwise returns FALSE.
+    Returns the \a data contained in the message.
+    Returns TRUE if the data is valid; otherwise returns FALSE.
 */
 
-bool QRemoteMessage::getByteArray(QByteArray *&byteArray)
+bool QRemoteMessage::getData(QByteArray *&data)
 {
     if (!internal_bytearray.isNull()) {
 
-	byteArray = &internal_bytearray;
+	data = &internal_bytearray;
 	return TRUE;
     } else {
 
@@ -436,12 +424,12 @@ QString QRemoteMessage::result() const
 /*!
   \internal
 
-    Returns the type of the message.
+    Returns the event description of the message.
 */
 
-QString QRemoteMessage::msgType() const
+QString QRemoteMessage::event() const
 {
-    return msg_type;
+    return msg_event;
 }
 
 #endif //QT_NO_REMOTE
