@@ -97,7 +97,7 @@ int QTextDocumentFragmentPrivate::appendFragment(QTextDocumentPrivate *priv, int
     if (nextBlock.position() == pos + 1)
         blockIdx = formatCollection.indexForFormat(nextBlock.blockFormat());
 
-    appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy),
+    appendText(QString(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy),
                charFormatIndex, blockIdx);
     return charsToCopy;
 }
@@ -140,7 +140,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         else
             formatIdx = defaultCharFormat;
 
-        QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
+        QString text(localBuffer.constData() + f.position, f.size);
 
         if (blockFormatIdx == -2) {
             destPieceTable->insert(cursor.position(), text, formatIdx);

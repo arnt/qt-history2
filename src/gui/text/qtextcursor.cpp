@@ -920,7 +920,7 @@ static void getText(QString &text, QTextDocumentPrivate *priv, const QString &do
         const int offsetInFragment = qMax(0, pos - fragIt.position());
         const int len = qMin(int(frag->size - offsetInFragment), end - pos);
 
-        text += QString::fromRawData(docText.constData() + frag->stringPosition + offsetInFragment, len);
+        text += QString(docText.constData() + frag->stringPosition + offsetInFragment, len);
         pos += len;
     }
 }

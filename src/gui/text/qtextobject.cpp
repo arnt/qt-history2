@@ -792,7 +792,7 @@ QString QTextBlock::text() const
     QTextDocumentPrivate::FragmentIterator end = p->find(pos + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
         const QTextFragmentData * const frag = it.value();
-        text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
+        text += QString(buffer.constData() + frag->stringPosition, frag->size);
     }
 
     return text;
@@ -1054,7 +1054,7 @@ QString QTextFragment::text() const
     QString buffer = p->buffer();
     int f = n;
     while (f != ne) {
-        result += QString::fromRawData(buffer.constData() + p->fragmentMap().position(f), p->fragmentMap().size(f));
+        result += QString(buffer.constData() + p->fragmentMap().position(f), p->fragmentMap().size(f));
         f = p->fragmentMap().next(f);
     }
     return result;
