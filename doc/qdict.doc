@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 1.4 1995/12/18 19:10:18 hanord Exp $
+** $Id: qdict.doc,v 1.5 1995/12/20 22:01:51 hanord Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -60,11 +60,11 @@
   \endcode
 
   The dictionary in our example maps \c char* keys to \c char* items.
-  Note that the mapping is case insensitive (set in the constructor).
-  QDict implements the \link operator[] [] operator\endlink to lookup
-  an item.
+  Note that the mapping is case insensitive (set in the
+  \link QDict::QDict() constructor).  QDict implements the \link
+  operator[] [] operator\endlink to lookup an item.
 
-  A QListIterator can also be instantiated through a macro expansion, but this
+  A QDict can also be instantiated through a macro expansion, but this
   is necessary only for compilers that do not support templates. See the
   \link collection.html collection classes documentation\endlink
   for a general discussion on template-based versus macro-based collections.
@@ -135,7 +135,7 @@
   is to delete the item if auto-deletion is enabled.
 
   \sa QDictIterator, QIntDict,
-      \link collection.html collection classes\endlink
+      \link collection.html Collection Classes\endlink
  ----------------------------------------------------------------------------*/
 
 
@@ -215,7 +215,7 @@
   The key does not have to be a unique dictionary key.  If multiple items
   are inserted with the same key, only the last item will be visible.
 
-  Null items are not permitted.
+  Null items are not allowed.
 
   \sa replace()
  ----------------------------------------------------------------------------*/
@@ -226,7 +226,7 @@
 
   If the item does not already exist, it will be inserted.
 
-  Null items are not permitted.
+  Null items are not allowed.
 
   Equivalent to:
   \code
@@ -301,8 +301,6 @@
   If there are two or more items with equal keys, then the last inserted
   of these will be found.
 
-  Case sensitivity can be specified in the constructor.
-
   Equivalent to the [] operator.
 
   \sa operator[]
@@ -317,8 +315,6 @@
 
   If there are two or more items with equal keys, then the last inserted
   of these will be found.
-
-  Case sensitivity can be specified in the constructor.
 
   Equivalent to the find() function.
 
@@ -379,18 +375,18 @@
   Note that the traversal order is arbitrary, you are not guaranteed the
   order above.
 
-  A QListIterator can also be instantiated through a macro expansion, but this
+  A QDictIterator can also be instantiated through a macro expansion, but this
   is necessary only for compilers that do not support templates. See the
   \link collection.html collection classes documentation\endlink
   for a general discussion on template-based versus macro-based collections.
 
   Multiple iterators may independently traverse the same dictionary.
   A QDict knows about all iterators that are operating on the dictionary.
-  When an item is removed from the dictionary, the QDict update all iterators
-  that are referring to the removed item to point to the next item in the
+  When an item is removed from the dictionary, QDict update all iterators
+  that are referring the removed item to point to the next item in the
   traversing order.
 
-  \sa QDict, \link collection.html collection classes\endlink
+  \sa QDict, \link collection.html Collection Classes\endlink
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
