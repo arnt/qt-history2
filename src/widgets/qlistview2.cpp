@@ -5842,8 +5842,8 @@ void QCheckListItem::setState( ToggleState s )
 
 void QCheckListItem::setState( ToggleState s, bool update)
 {
-    if ( !isTristate() && ( s == NoChange ) )
-	return;
+//     if ( !isTristate() && ( s == NoChange ) )
+// 	return;
 
     if ( s == state() )
 	return;
@@ -5855,11 +5855,10 @@ void QCheckListItem::setState( ToggleState s, bool update)
  	     && ((QCheckListItem*)parent())->type() == CheckBoxController )
  	    ((QCheckListItem*)parent())->updateController();
     } else if ( myType == CheckBoxController ) {
-	d->currentState = s;
 	if ( s == NoChange) {
 	    restoreState();
-	    if ( state() != NoChange )
-		setState( On );
+ 	    if ( state() != NoChange )
+ 		setState( On );
 	} else {
 	    QListViewItem *item = firstChild();
 	    while( item ) {
@@ -5867,19 +5866,25 @@ void QCheckListItem::setState( ToggleState s, bool update)
 		     ( ((QCheckListItem*)item)->type() == CheckBox ||
 		       ((QCheckListItem*)item)->type() == CheckBoxController ) ) {
 		    QCheckListItem *checkItem = (QCheckListItem*)item;
-		    if ( checkItem->type() == CheckBox ) {
-			checkItem->d->currentState = s;
-			checkItem->stateChange( checkItem->d->currentState );
-			checkItem->repaint();
-		    } else {
-			checkItem->setState( s , FALSE );
-		    }
+		    checkItem->setState( s, FALSE );
+// 		    if ( checkItem->type() == CheckBox ) {
+//  			checkItem->d->currentState = s;
+//  			checkItem->stateChange( checkItem->d->currentState );
+//  			checkItem->repaint();
+// 		    } else {
+// 			checkItem->setState( s , FALSE );
+// 		    }
 		}
 		item = item->nextSibling();
 	    }
-	    if ( update )
-		updateController();
-	    stateChange( d->currentState );
+	    if ( update ) {
+		// update but don't store
+		updateController( FALSE );
+	    } else {
+		d->currentState = s;
+		stateChange( d->currentState );
+	    }
+
 	}
     } else if ( myType == RadioButton ) {
 	if ( s == On ) {
@@ -5989,35 +5994,6 @@ void QCheckListItem::setOn( bool b  )
 	setState( On );
     else
 	setState( Off );
-//     if ( ( b ? On : Off ) == state() )
-// 	return;
-//     if ( myType == CheckBox ) {
-// 	b ? d->currentState = On : d->currentState = Off;
-// 	stateChange( b );
-//     } else if ( myType == CheckBoxController ) {
-// 	b ? d->currentState = On : d->currentState = Off;
-// 	QListViewItem *item = firstChild();
-// 	while( item ) {
-// 	    if ( item->rtti() == 1 )
-// 		((QCheckListItem*)item)->setOn( b );
-// 	    item = item->nextSibling();
-//         }
-// 	stateChange( b );
-//     } else if ( myType == RadioButton ) {
-// 	if ( b ) {
-// 	    if ( d->exclusive && d->exclusive->d->exclusive != this )
-// 		d->exclusive->turnOffChild();
-// 	    d->currentState = On;
-// 	    if ( d->exclusive )
-// 		d->exclusive->d->exclusive = this;
-// 	} else {
-// 	    if ( d->exclusive && d->exclusive->d->exclusive == this )
-// 		d->exclusive->d->exclusive = 0;
-// 	    d->currentState = Off;
-// 	}
-// 	stateChange( b );
-//     }
-//     repaint();
 }
 
 
@@ -6059,7 +6035,7 @@ void QCheckListItem::restoreState()
 		((QCheckListItem*)item)->restoreState();
 	    item = item->nextSibling();
 	}
-	updateController();
+	updateController( FALSE );
     }
 	break;
     default:
@@ -6094,27 +6070,26 @@ void QCheckListItem::updateController( bool store )
 	    } else {
 		if ( theState != checkItem->state() ) {
 		    // if any of the states of the CheckBoxes differ, we set the CheckBoxController state to NoChange
-		    if ( isTristate() ) {
-			if ( state() != NoChange ) {
-			    if ( store )
-				updateStoredState();
-			    d->currentState = NoChange;
-			    stateChange( state() );
-			    if ( controller )
-				// we don't want the parent to store when changes happen in child controller
-				controller->updateController( FALSE );
-			    repaint();
+//		    if ( isTristate() ) {
+		    if ( state() != NoChange ) {
+			if ( store )
+			    updateStoredState();
+			d->currentState = NoChange;
+			stateChange( state() );
+			if ( controller )
+			    controller->updateController( store );
+			repaint();
 			}
 			// if tristate is not enabled we set it to off
-		    } else {
-			if ( state() != Off ) {
-			    d->currentState = Off;
-			    stateChange( state() );
-			    if ( controller )
-				controller->updateController();
-			    repaint();
-			}
-		    }
+// 		    } else {
+// 			if ( state() != Off ) {
+// 			    d->currentState = Off;
+// 			    stateChange( state() );
+// 			    if ( controller )
+// 				controller->updateController();
+// 			    repaint();
+// 			}
+// 		    }
 		    return;
 		}
 	    }
@@ -6125,7 +6100,7 @@ void QCheckListItem::updateController( bool store )
 	d->currentState = theState;
 	stateChange( theState );
 	if ( controller )
-	    controller->updateController();
+	    controller->updateController( store );
 	repaint();
     }
 }
@@ -6138,7 +6113,6 @@ void QCheckListItem::updateStoredState()
 {
     if ( myType != CheckBoxController )
 	return;
-    qDebug( "updating stored state for: " + text() );
 
     QListViewItem *item = firstChild();
     while( item ) {
@@ -6151,6 +6125,7 @@ void QCheckListItem::updateStoredState()
 	}
 	item = item->nextSibling();
     }
+    qDebug( "updated stored state for: " + text() );
 }
 
 
@@ -6225,12 +6200,16 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	parentControl = TRUE;
 
     int styleflags = QStyle::Style_Default;
-    if ( state() == On )
+    if ( state() == On ) {
 	styleflags |= QStyle::Style_On;
-    else if ( state() == NoChange )
-	styleflags |= QStyle::Style_NoChange;
-    else
+    } else if ( state() == NoChange ) {
+	if ( myType == CheckBoxController && !isTristate() )
+	    styleflags |= QStyle::Style_Off;
+	else
+	    styleflags |= QStyle::Style_NoChange;
+    } else {
 	styleflags |= QStyle::Style_Off;
+    }
     if ( isSelected() )
 	styleflags |= QStyle::Style_Selected;
     if ( isEnabled() && lv->isEnabled() )
