@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#57 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#56 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#57 $";
 #endif
 
 /*!
@@ -971,7 +971,7 @@ mouse press events for the widget.
 
 The default implementation does nothing.
 
-\sa mousePressEvent() and event().
+\sa mouseReleaseEvent() and event().
 */
 
 void QWidget::mousePressEvent( QMouseEvent * )
