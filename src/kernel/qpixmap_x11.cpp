@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#65 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -10,6 +10,8 @@
 **
 *****************************************************************************/
 
+// Uncomment the next line to enable the MIT Shared Memory extention
+// #define MITSHM
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
@@ -20,17 +22,111 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#ifdef MITSHM
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <X11/extensions/XShm.h>
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#65 $")
+
+
+/*****************************************************************************
+  MIT Shared Memory Extension support: makes xForm noticeably faster.
+ *****************************************************************************/
+
+#if defined(MITSHM)
+
+static bool	       xshminit = FALSE;
+static XShmSegmentInfo xshminfo;
+static XImage	      *xshmimg = 0;
+static Pixmap	       xshmpm  = 0;
+
+static void qt_cleanup_mitshm()
+{
+    if ( xshmimg == 0 )
+	return;
+    Display *dpy = qt_xdisplay();
+    if ( xshmpm ) {
+	XFreePixmap( dpy, xshmpm );
+	xshmpm = 0;
+    }
+    XShmDetach( dpy, &xshminfo );
+    XDestroyImage( xshmimg );
+    xshmimg = 0;
+    shmdt( xshminfo.shmaddr );
+    shmctl( xshminfo.shmid, IPC_RMID, 0 );
+}
+
+bool qt_create_mitshm_buffer( int w, int h )
+{
+    static int major, minor;
+    static Bool pixmaps_ok;
+    Display *dpy = qt_xdisplay();
+    int scr 	 = qt_xscreen();
+    int dd	 = DefaultDepth(dpy,scr);
+    Visual *vis  = DefaultVisual(dpy,scr);
+
+    if ( xshminit ) {
+	qt_cleanup_mitshm();
+    }
+    else {
+	if ( !XShmQueryVersion(dpy, &major, &minor, &pixmaps_ok) )
+	    return FALSE;			// MIT Shm not supported
+	qAddPostRoutine( qt_cleanup_mitshm );
+	xshminit = TRUE;
+    }
+
+    xshmimg = XShmCreateImage( dpy, vis, dd, ZPixmap, 0, &xshminfo, w, h );
+    if ( !xshmimg )
+	return FALSE;
+
+    bool ok;
+    xshminfo.shmid = shmget( IPC_PRIVATE,
+			     xshmimg->bytes_per_line * xshmimg->height,
+			     IPC_CREAT | 0777 );
+    ok = xshminfo.shmid != -1;
+    if ( ok ) {
+	xshminfo.shmaddr = xshmimg->data = shmat( xshminfo.shmid, 0, 0 );
+	ok = xshminfo.shmaddr != 0;
+    }
+    xshminfo.readOnly = FALSE;
+    if ( ok )
+	ok = XShmAttach( dpy, &xshminfo );
+    if ( !ok ) {
+	XDestroyImage( xshmimg );
+	if ( xshminfo.shmaddr )
+	    shmdt( xshminfo.shmaddr );
+	if ( xshminfo.shmid != -1 )
+	    shmctl( xshminfo.shmid, IPC_RMID, 0 );
+	return FALSE;
+	    
+    }
+    if ( pixmaps_ok )
+	xshmpm = XShmCreatePixmap( dpy, DefaultRootWindow(dpy), xshmimg->data,
+				   &xshminfo, w, h, dd );
+
+    return TRUE;
+}
+
+#else
+
+bool qt_create_mitshm_buffer( int, int )
+{
+    return FALSE;
+}
+
+#endif // MITSHM
 
 
 /*****************************************************************************
   Internal functions
  *****************************************************************************/
 
+extern char *qt_get_bitflip_array();		// defined in qimage.cpp
+
 static uchar *flip_bits( uchar *bits, int len ) // flip bits in bitmap
 {
-    extern char *qt_get_bitflip_array();	// defined in qimage.cpp
     register uchar *p = bits;
     uchar *end = p + len;
     uchar *newdata = new uchar[len];
@@ -365,8 +461,8 @@ long QPixmap::metric( int m ) const		// get metric information
 
 
 /*----------------------------------------------------------------------------
-  Converts the pixmap to an image. Returns a null image if the
-  operation failed.
+  Converts the pixmap to an image. Returns a null image if the operation
+  failed.
 
   If the pixmap has 1 bit depth, the returned image will also be 1
   bits deep.  If the pixmap has 2-8 bit depth, the returned image
@@ -389,14 +485,14 @@ QImage QPixmap::convertToImage() const
 	return image;
     }
 
-    int	    scr	   = qt_xscreen();
-    Visual *visual = DefaultVisual(dpy,scr);
-    bool    trucol = visual->c_class == TrueColor;
-    XImage *xi = 0;				// get pixmap data from server
     int	    w  = width();
     int	    h  = height();
     int	    d  = depth();
     bool    mono = d == 1;
+    int	    scr	   = qt_xscreen();
+    Visual *visual = DefaultVisual(dpy,scr);
+    bool    trucol = (visual->c_class == TrueColor) && !mono;
+    XImage *xi = 0;				// get pixmap data from server
 
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
 	d = 8;					//   2..8 ==> 8
@@ -434,7 +530,7 @@ QImage QPixmap::convertToImage() const
 	int  blue_shift	 = highest_bit( blue_mask )  - 7;
 	int  r, g, b;
 
-	uchar *dst = image.bits();
+	uchar *dst;
 	uchar *src;
 	ulong  pixel;
 	int    bppc = xi->bits_per_pixel;
@@ -443,6 +539,7 @@ QImage QPixmap::convertToImage() const
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
+	    dst = image.scanLine( y );
 	    src = (uchar *)xi->data + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
 		switch ( bppc ) {
@@ -482,7 +579,8 @@ QImage QPixmap::convertToImage() const
 			y = h;
 			pixel = 0;		// eliminate compiler warning
 #if defined(CHECK_RANGE)
-			warning( "QPixmap::convertToImage: Invalid depth" );
+			warning( "QPixmap::convertToImage: Invalid depth %d",
+				 bppc );
 #endif
 		}
 		if ( red_shift > 0 )
@@ -505,7 +603,7 @@ QImage QPixmap::convertToImage() const
     }
     else if ( xi->bits_per_pixel == d ) {	// compatible depth
 	char *xidata = xi->data;		// copy each scanline
-	int bpl = image.bytesPerLine();
+	int bpl = QMIN(image.bytesPerLine(),xi->bytes_per_line);
 	for ( int y=0; y<h; y++ ) {
 	    memcpy( image.scanLine(y), xidata, bpl );
 	    xidata += xi->bytes_per_line;
@@ -528,24 +626,25 @@ QImage QPixmap::convertToImage() const
     }
     else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
+	uchar *end;
 	uchar  use[256];			// pixel-in-use table
 	uchar  pix[256];			// pixel translation table
 	int    ncols, i;
 	memset( use, 0, 256 );
 	memset( pix, 0, 256 );
-	p = image.bits();  i = image.numBytes();
-	while ( i-- )				// what pixels are used?
-	    use[*p++] = 1;
+	p = image.bits() - 1;
+	end = p + image.numBytes();
+	while ( ++p < end )			// what pixels are used?
+	    use[*p] = 1;
 	ncols = 0;
 	for ( i=0; i<256; i++ ) {		// build translation table
 	    if ( use[i] )
 		pix[i] = ncols++;
 	}
-	p = image.bits();  i = image.numBytes();
-	while ( i-- ) {				// translate pixels
+	p = image.bits() - 1;
+	end = p + image.numBytes();
+	while ( ++p < end )			// translate pixels
 	    *p = pix[*p];
-	    p++;
-	}
 	Colormap cmap	= DefaultColormap( dpy, scr );
 	int	 ncells = DisplayCells( dpy, scr );
 	XColor *carr = new XColor[ncells];
@@ -657,18 +756,41 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     if ( d == 1 ) {				// 1 bit pixmap (bitmap)
 	if ( hd )				// delete old X pixmap
 	    XFreePixmap( dpy, hd );
-	char *bits;
-	uchar *flipped_bits;
-	if ( image.bitOrder() == QImage::BigEndian ) {
-	    flipped_bits = flip_bits( image.bits(), image.numBytes() );
-	    bits = (char *)flipped_bits;
+	char  *bits;
+	uchar *tmp_bits;
+	int    bpl = (w+7)/8;
+	int    ibpl = image.bytesPerLine();
+	if ( image.bitOrder() == QImage::BigEndian || bpl != ibpl ) {
+	    tmp_bits = new uchar[bpl*h];
+	    bits = (char *)tmp_bits;
+	    uchar *p, *b, *end;
+	    int y;
+	    if ( image.bitOrder() == QImage::BigEndian ) {
+		uchar *f = (uchar *)qt_get_bitflip_array();
+		b = tmp_bits;
+		for ( y=0; y<h; y++ ) {
+		    p = image.scanLine( y );
+		    end = p + bpl;
+		    while ( p < end )
+			*b++ = f[*p++];
+		}
+	    }
+	    else {				// just copy
+		b = tmp_bits;
+		p = image.scanLine( 0 );
+		for ( y=0; y<h; y++ ) {
+		    memcpy( b, p, bpl );
+		    b += bpl;
+		    p += ibpl;
+		}
+	    }
 	}
 	else {
 	    bits = (char *)image.bits();
-	    flipped_bits = 0;
+	    tmp_bits = 0;
 	}
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
-	delete [] flipped_bits;
+	delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 	if ( data->optim )
 	    data->dirty = FALSE;
@@ -708,7 +830,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	CHECK_PTR( xi );
 	newbits = (uchar *)malloc( xi->bytes_per_line*h );
-	uchar *src = image.bits();
+	uchar *src;
 	uchar *dst;
 	ulong  pixel;
 	int    bppc = xi->bits_per_pixel;
@@ -717,6 +839,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
+	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
 		if ( d8 )
@@ -894,7 +1017,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     }
 
     if ( !xi ) {				// X image not created
-	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 8, 0 );
+	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	if ( xi->bits_per_pixel == 16 ) {	// convert 8 bpp ==> 16 bpp
 	    ushort *p2;
 	    int	    p2inc = xi->bytes_per_line/sizeof(ushort);
@@ -1064,6 +1187,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int	   sbpl;				// bytes per line in original
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
+    int	   y;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
@@ -1093,18 +1217,20 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
-	QPointArray a( QRect(0,0,ws,hs) );
-	a = mat.map( a );
-	QRect r = a.boundingRect().normalize();
-	h = r.height();
-	w = r.width();
-    }
-    else {					// no rotation/shearing
+    if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
+	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
+	    return *this;			// identity matrix
 	h = qRound( mat.m22()*hs );
 	w = qRound( mat.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
+    }
+    else {					// rotation or shearing
+	QPointArray a( QRect(0,0,ws,hs) );
+	a = mat.map( a );
+	QRect r = a.boundingRect().normalize();
+	w = r.width();
+	h = r.height();
     }
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
@@ -1115,6 +1241,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
 
+#if defined(MITSHM)
+    bool use_mitshm = xshmimg && !depth1 &&
+		      xshmimg->width >= w && xshmimg->height >= h;
+#endif
     XImage *xi = 0;				// get bitmap data from server
     if ( data->optim ) {
 	if ( !data->dirty )
@@ -1125,7 +1255,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
     }
     if ( !xi )
-	xi = XGetImage( xDisplay(), handle(), 0, 0, ws, hs, AllPlanes,
+	xi = XGetImage( display(), handle(), 0, 0, ws, hs, AllPlanes,
 			depth1 ? XYPixmap : ZPixmap );
 
     if ( !xi ) {				// error, return null pixmap
@@ -1143,14 +1273,27 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     else
 	dbpl = (((w*bpp)/8 + 3)/4)*4;
     dbytes = dbpl*h;
-    dptr   = (uchar *)malloc( dbytes );		// create buffer for bits
-    CHECK_PTR( dptr );
-    if ( depth1 )				// fill with zeros
-	memset( dptr, 0, dbytes );
-    else if ( bpp == 8 )			// fill with background color
-	memset( dptr, white.pixel(), dbytes );
-    else
-	memset( dptr, 0xff, dbytes );
+
+#if defined(MITSHM)
+    if ( use_mitshm ) {
+	dptr = (uchar *)xshmimg->data;
+	uchar fillbyte = bpp == 8 ? white.pixel() : 0xff;
+	for ( y=0; y<h; y++ )
+	    memset( dptr + y*xshmimg->bytes_per_line, fillbyte, dbpl );
+    }
+    else {
+#endif
+	dptr = (uchar *)malloc( dbytes );	// create buffer for bits
+	CHECK_PTR( dptr );
+	if ( depth1 )				// fill with zeros
+	    memset( dptr, 0, dbytes );
+	else if ( bpp == 8 )			// fill with background color
+	    memset( dptr, white.pixel(), dbytes );
+	else
+	    memset( dptr, 0xff, dbytes );
+#if defined(MITSHM)
+    }
+#endif
 
 // #define DEBUG_XIMAGE
 #if defined(DEBUG_XIMAGE)
@@ -1173,17 +1316,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int m22 = qRound((double)mat.m22()*65536.0);
     int dx  = qRound((double)mat.dx() *65536.0);
     int dy  = qRound((double)mat.dy() *65536.0);
-#if 0
-    dx += (dx > 0) ? 32767 : -32768;		// gives error when scaling
-    dy += (dy > 0) ? 32767 : -32768;
-#endif
+
     int	  m21ydx = dx + (xi->xoffset<<16), m22ydy = dy;
     ulong trigx, trigy;
     ulong maxws = ws<<16, maxhs=hs<<16;
     uchar *p	= dptr;
-    int	  maxx;
+    int	  x, maxx;
     int	  p_inc;
-    int	  cntx;
     bool  msbfirst = xi->bitmap_bit_order == MSBFirst;
 
     if ( depth1 ) {
@@ -1193,17 +1332,20 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     else {
 	maxx = w;
 	p_inc = dbpl - (maxx*bpp)/8;
+#if defined(MITSHM)
+	if ( use_mitshm )
+	    p_inc = xshmimg->bytes_per_line - (maxx*bpp)/8;
+#endif
     }
 
-    for ( int y=0; y<h; y++ ) {			// for each target scanline
+    for ( y=0; y<h; y++ ) {			// for each target scanline
 	trigx = m21ydx;
 	trigy = m22ydy;
-	cntx = maxx;
-	int x;
+	uchar *maxp = p + dbpl;
 	if ( !depth1 ) {
 	    switch ( bpp ) {
 		case 8:				// 8 bpp transform
-		while ( cntx-- ) {
+		while ( p < maxp ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
 		    trigx += m11;
@@ -1213,7 +1355,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		break;
 
 		case 16:			// 16 bpp transform
-		while ( cntx-- ) {
+		while ( p < maxp ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
 						     ((trigx>>16)<<1)));
@@ -1226,9 +1368,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		case 24: {			// 24 bpp transform
 		uchar *p2;
-		while ( cntx-- ) {
+		while ( p < maxp ) {
 		    if ( trigx < maxws && trigy < maxhs ) {
-			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)<<2);
+			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
 			p[0] = p2[0];
 			p[1] = p2[1];
 			p[2] = p2[2];
@@ -1241,10 +1383,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		break;
 
 		case 32:			// 32 bpp transform
-		while ( cntx-- ) {
+		while ( p < maxp ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*((ulong*)p) = *((ulong *)(sptr+sbpl*(trigy>>16) +
-						   ((trigx>>16)<<3)));
+						   ((trigx>>16)<<2)));
 		    trigx += m11;
 		    trigy += m12;
 		    p += 4;
@@ -1261,7 +1403,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    }
 	}
 	else if ( msbfirst ) {
-	    while ( cntx-- ) {			// for each target bit
+	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
 		    x = trigx >> 16;					      \
@@ -1283,7 +1425,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    }
 	}
 	else {
-	    while ( cntx-- ) {			// for each target bit
+	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
 		    x = trigx >> 16;					      \
@@ -1328,15 +1470,24 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
     else {
-	int scr = qt_xscreen();
-	int dd	= DefaultDepth(dpy,scr);
-	GC  gc	= qt_xget_readonly_gc();
-	xi = XCreateImage( dpy, DefaultVisual(dpy,scr), dd, ZPixmap, 0,
-			   (char *)dptr, w, h, 32, 0 );
-	QPixmap pm( w, h, dd );
-	pm.data->bitmap = data->bitmap;
-	XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
-	XDestroyImage( xi );
+	GC gc = qt_xget_readonly_gc();
+	QPixmap pm( w, h );
+	pm.data->uninit = FALSE;
+#if defined(MITSHM)
+	if ( use_mitshm ) {
+	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
+	}
+	else {
+#endif
+	    int scr = qt_xscreen();
+	    int dd  = DefaultDepth(dpy,scr);
+	    xi = XCreateImage( dpy, DefaultVisual(dpy,scr), dd, ZPixmap, 0,
+			       (char *)dptr, w, h, 32, 0 );
+	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
+	    XDestroyImage( xi );
+#if defined(MITSHM)
+	}
+#endif
 	if ( data->mask )			// xform mask, too
 	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
