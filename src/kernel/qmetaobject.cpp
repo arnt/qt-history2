@@ -85,12 +85,10 @@
   kept in a single instance of QMetaObject per class.
 
   In general, you will not have to use this class directly in any
-  application program. Most of the class members and functions are
-  internal; <strong>do not use them</strong>.
+  application program. However, if you write meta applications such
+  as scripting engines or GUI builders, you might find these
+  functions useful:
 
-  Some functions, however, are marked as public API and may make sense
-  for certain "meta" applications such as scripting engines or GUI
-  builders:
   \list
   \i className() to get the name of a class.
   \i superClassName() to get the name of the superclass.
@@ -141,7 +139,7 @@ public:
 class Q_EXPORT QMemberDict : public QAsciiDict<const QMetaData>
 {
 public:
-    QMemberDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
+    QMemberDict( int size = 17, bool cs = TRUE, bool ck = TRUE ) :
 	QAsciiDict<const QMetaData>(size,cs,ck) {}
     QMemberDict( const QMemberDict &dict ) : QAsciiDict<const QMetaData>(dict) {}
     ~QMemberDict() { clear(); }
@@ -149,14 +147,13 @@ public:
     { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
 
-// THIS IS NECESSARY FOR MSVC (delete of const datatype not defined)
-// IRIX, IBM and other older compilers don't grok that.
+// this is necessary for MSVC (delete of const datatype not defined)
+// IRIX, IBM and other older compilers don't grok that
 #if defined(Q_CC_MSVC)
 template<> inline void QAsciiDict<const QMetaData>::deleteItem( Item )
 {
 }
 #endif
-
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,
