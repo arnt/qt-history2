@@ -48,9 +48,13 @@ public:
     void   setRgb( QRgb rgb );
     inline void getRgb( int *r, int *g, int *b ) const;
 
+    void setRgba(int r, int g, int b, int a);
+    inline void getRgba(int *r, int *g, int *b, int *a) const;
+
     int	   red()    const;
     int	   green()  const;
     int	   blue()   const;
+    int    alpha()  const;
 
     void   setHsv( int h, int s, int v );
     void   getHsv( int *h, int *s, int *v ) const;
@@ -153,6 +157,9 @@ inline QRgb QColor::rgb() const
 inline void QColor::getRgb( int *r, int *g, int *b ) const
 { *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
 
+inline void QColor::getRgba(int *r, int *g, int *b, int *a) const
+{ getRgb(r, g, b); *a = qAlpha(d.argb); }
+
 #ifdef QT_COMPAT
 inline void QColor::rgb( int *r, int *g, int *b ) const
 { *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
@@ -166,6 +173,9 @@ inline int QColor::green() const
 
 inline int QColor::blue() const
 { return qBlue(d.argb); }
+
+inline int QColor::alpha() const
+{ return qAlpha(d.argb); }
 
 inline bool QColor::isValid() const
 {

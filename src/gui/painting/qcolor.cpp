@@ -605,6 +605,30 @@ void QColor::setRgb( int r, int g, int b )
     }
 }
 
+/*!
+    Sets the RGBA value to \a r, \a g, \a b, \a a. The arguments, \a r, \a g, \a b
+     and \a a must all be in the range 0..255. If any of them are
+    outside the legal range, the color is not changed.
+
+    \sa rgba(), setRgb(), setHsv()
+*/
+
+void QColor::setRgba( int r, int g, int b, int a )
+{
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 || (uint)a > 255 ) {
+	qWarning( "QColor::setRgba: RGBA parameter(s) out of range" );
+	return;
+    }
+    d.argb = qRgba( r, g, b, a );
+    if ( colormodel == d8 ) {
+	d.d8.invalid = FALSE;
+	d.d8.direct = FALSE;
+	d.d8.dirty = TRUE;
+    } else {
+	d.d32.pix = Dirt;
+    }
+}
+
 
 /*!
     \overload
