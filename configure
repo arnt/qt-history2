@@ -230,6 +230,9 @@ QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 # parse command line arguments
 #-------------------------------------------------------------------------------
 
+# QTDIR may be set and point to an old or system-wide Qt installation
+unset QTDIR
+
 # initalize internal variables
 CFG_LAZY_DEPS_ALLOWED=no
 CFG_EXCEPTION_SUPPORT=unspecified
