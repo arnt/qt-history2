@@ -433,10 +433,11 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     t << "DIST          = " << varList("DISTFILES") << endl;
     t << "TARGET        = ";
-    if(!project->variables()["DESTDIR"].isEmpty())
-        t << varGlue("TARGET", project->first("DESTDIR"),"",project->first("TARGET_EXT"));
+    if(!project->isEmpty("DESTDIR"))
+        t << project->first("DESTDIR") 
+	  << project->first("TARGET") << project->first("TARGET_EXT");
     else
-        t << project->variables()["TARGET"].value(0) << project->variables()["TARGET_EXT"].value(0);
+        t << project->first("TARGET") << project->first("TARGET_EXT");
     t << endl << endl;
 
     t << "####### Implicit rules" << endl << endl;
