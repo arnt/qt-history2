@@ -189,8 +189,10 @@ FormListItem *FormList::findItem( FormWindow *fw )
 void FormList::closed( FormWindow *fw )
 {
     FormListItem *i = findItem( fw );
-    if ( i )
-	delete i;
+    if ( i ) {
+	i->setFormWindow( 0 );
+	i->repaint();
+    }
 }
 
 void FormList::resizeEvent( QResizeEvent *e )
