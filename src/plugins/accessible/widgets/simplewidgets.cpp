@@ -400,7 +400,7 @@ QString QAccessibleDisplay::text(Text t, int child) const
         break;
     case Value:
         if (qt_cast<QProgressBar*>(object()))
-            str = QString::number(qt_cast<QProgressBar*>(object())->progress());
+            str = QString::number(qt_cast<QProgressBar*>(object())->value());
         break;
     default:
         break;
