@@ -18,6 +18,7 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QString menuText READ menuText WRITE setMenuText )
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
+    Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
     Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
     Q_PROPERTY( int accel READ accel WRITE setAccel )
 
@@ -37,6 +38,8 @@ public:
     QString menuText() const;
     virtual void setToolTip( const QString& );
     QString toolTip() const;
+    virtual void setStatusTip( const QString& );
+    QString statusTip() const;
     virtual void setWhatsThis( const QString& );
     QString whatsThis() const;
     virtual void setAccel( int key );
@@ -60,6 +63,8 @@ private slots:
     void internalActivation();
     void toolButtonToggled( bool );
     void objectDestroyed();
+    void menuStatusText( int id );
+    void clearStatusText();
 
 private:
     void init(); 

@@ -6,6 +6,7 @@
 #include <qtoolbutton.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <qstatusbar.h>
 
 
 /*!
@@ -59,6 +60,7 @@ public:
     QString text;
     QString menutext;
     QString tooltip;
+    QString statustip;
     QString whatsthis;
     int key;
     QAccel* accel;
@@ -66,6 +68,7 @@ public:
     uint enabled : 1;
     uint toggleaction :1;
     uint on : 1;
+    QToolTipGroup* tipGroup;
 
 
     struct MenuItem {
@@ -91,12 +94,14 @@ QActionPrivate::QActionPrivate()
     toggleaction  = 0;
     on = 0;
     menuitems.setAutoDelete( TRUE );
+    tipGroup = new QToolTipGroup( 0 );
 }
 
 QActionPrivate::~QActionPrivate()
 {
     delete accel;
     delete iconset;
+    delete tipGroup;
 }
 
 
@@ -147,13 +152,14 @@ void QActionPrivate::update( Update upd )
 	    QToolTip::remove( btn );
 	    if ( !tooltip.isNull() ) {
 		if ( !tooltip.isEmpty() )
-		    QToolTip::add( btn, tooltip );
+		    QToolTip::add( btn, tooltip, tipGroup, statustip.isNull() ? tooltip : statustip );
 	    } else if ( !text.isEmpty() ) {
 		if ( accel )
 		    QToolTip::add( btn, text + 
-			" (" + QAccel::keyToString( accel->key( accelid )) + ")");
+			" (" + QAccel::keyToString( accel->key( accelid )) + ")" , 
+			tipGroup, statustip.isNull() ? tooltip : statustip );
 		else 
-		    QToolTip::add( btn, text );
+		    QToolTip::add( btn, text, tipGroup, statustip.isNull() ? tooltip : statustip );
 	    }
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
@@ -304,7 +310,6 @@ void QAction::setMenuText( const QString& text )
     d->update();
 }
 
-
 /*!
   Returns the text used for menu items.
 
@@ -330,19 +335,47 @@ void QAction::setToolTip( const QString& tip )
     d->update();
 }
 
-
 /*!
   Returns the current tool tip.
 
-  If no tool tip has been defined yet, this is the same as text().
+  If no tool tip has been defined yet, it returns text 
+  and a hotkey hint.
 
-  \sa setToolTip()
- */
+  \sa setToolTip(), text()
+*/
 QString QAction::toolTip() const
 {
-    if ( d->tooltip.isNull() )
+    if ( d->tooltip.isNull() ) {
+	if ( d->accel )
+	    return text() + " (" + QAccel::keyToString( d->accel->key( d->accelid )) + ")";
 	return d->text;
+    }
     return d->tooltip;
+}
+
+/*!
+  Sets the status tip to \a tip.
+
+  \sa statusTip()
+*/
+void QAction::setStatusTip( const QString& tip )
+{
+    d->statustip = tip;
+    d->update();
+}
+
+/*!
+  Returns the current status tip.
+
+  If not status tip has been defined yet, this is the same as toolTip()
+
+  \sa setStatusTip(), toolTip()
+*/
+QString QAction::statusTip() const
+{
+    if ( d->statustip.isNull() )
+	return toolTip();
+    return d->statustip;
 }
 
 /*!
@@ -539,6 +572,15 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
+
+	if ( parent()->inherits( "QMainWindow" ) 
+	    && ((QMainWindow*)parent())->statusBar() ) {
+	    QStatusBar* s = ((QMainWindow*)parent())->statusBar();
+
+	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), s, SLOT(message(const QString&)) );
+	    connect( d->tipGroup, SIGNAL(removeTip()), s, SLOT(clear()) );
+	}
+
 	
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
@@ -551,6 +593,18 @@ bool QAction::addTo( QWidget* w )
 	d->menuitems.append( mi );
 	d->update( QActionPrivate::State );
 	d->update( QActionPrivate::Everything );
+	w->topLevelWidget()->className();
+	QObject* par = 0;
+	if ( parent() ) {
+	    if ( parent()->inherits( "QActionGroup" ) )
+		par = parent()->parent();
+	    else
+		par = parent();
+	}
+	if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() ) {
+	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
+	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	}
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -558,6 +612,49 @@ bool QAction::addTo( QWidget* w )
     return TRUE;
 }
 
+/*!
+  Sets the status message to the menuitem's status text, or 
+  to the tooltip, if there is no status text.
+*/
+void QAction::menuStatusText( int id )
+{
+    QObject* par = 0;
+    if ( parent() ) {
+	if ( parent()->inherits( "QActionGroup" ) )
+	    par = parent()->parent();
+	else
+	    par = parent();
+    }
+    if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() ) {
+    	QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
+	QActionPrivate::MenuItem* mi;
+	while ( ( mi = it.current() ) ) {
+	    ++it;
+	    if ( mi->id == id ) {
+		QStatusBar* s = ((QMainWindow*)par)->statusBar();
+		if ( !statusTip().isEmpty() )
+		    s->message( statusTip() );
+		break;
+	    }
+	}
+    }
+}
+
+/*!
+  Clears the status text.
+*/
+void QAction::clearStatusText()
+{
+    QObject* par = 0;
+    if ( parent() ) {
+	if ( parent()->inherits( "QActionGroup" ) )
+	    par = parent()->parent();
+	else
+	    par = parent();
+    }
+    if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() )
+	((QMainWindow*)par)->statusBar()->clear();
+}
 
 /*!
   Removes the action from widget \a w
@@ -577,6 +674,7 @@ bool QAction::removeFrom( QWidget* w )
 	    if ( btn->parentWidget() == w ) {
 		d->toolbuttons.removeRef( btn );
 		delete btn;
+		// no need to disconnect from statusbar
 	    }
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
@@ -587,6 +685,8 @@ bool QAction::removeFrom( QWidget* w )
 	    if ( mi->popup == w ) {
 		mi->popup->removeItem( mi->id );
 		d->menuitems.removeRef( mi );
+		disconnect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText(int)) );
+		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText(int)) );
 	    }
 	}
     } else {
