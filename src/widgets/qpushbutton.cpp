@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#92 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#92 $");
 
 
 /*!
@@ -315,9 +315,6 @@ void QPushButton::drawButton( QPainter *paint )
     bool	updated = ( isDown() != (bool)lastDown ||
 			    lastDef != defButton ||
 			    isEnabled() != (bool)lastEnabled);
-    QColor	fillcol = gs==MotifStyle && 
-			  isToggleButton() &&
-			  isOn() ? g.mid() : g.background();
 
     int		x1, y1, x2, y2;
 
@@ -327,7 +324,7 @@ void QPushButton::drawButton( QPainter *paint )
     int h = y2 + 1;
 
     p->setPen( g.foreground() );
-    p->setBrush( QBrush(fillcol,NoBrush) );
+    p->setBrush( QBrush(g.background(),NoBrush) );
 
     if ( gs == WindowsStyle ) {		// Windows push button
 	if ( isDown() ) {
@@ -365,17 +362,17 @@ void QPushButton::drawButton( QPainter *paint )
 	    x2 -= extraMotifWidth/2;
 	    y2 -= extraMotifHeight/2;
 	}
-	QBrush fill( fillcol );
-	if ( isDown() ) {
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
-			     updated ? &fill : 0 );
-	} else if ( isToggleButton() && isOn() ) {
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
-			     updated ? &fill : 0 );
-	} else {
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, 2,
-			     updated ? &fill : 0 );
-	}
+
+	QBrush fill;
+	if ( isDown() )
+	    fill = QBrush( g.mid() );
+	else if ( isOn() )
+	    fill = QBrush( g.mid(), Dense4Pattern );
+	else
+	    fill = QBrush( g.background() );
+
+	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() || isDown(),
+			 2, &fill );
     }
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
