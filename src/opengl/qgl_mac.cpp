@@ -39,118 +39,6 @@
 #include <qtimer.h>
 #include <qapplication.h>
 
-#include "qgl_mac_p.h"
-#ifdef QT_DLOPEN_OPENGL
-#include "qlibrary.h"
-
-extern "C" {
-    _glCallLists qt_glCallLists;
-    _glClearColor qt_glClearColor;
-    _glClearIndex qt_glClearIndex;
-    _glColor3ub qt_glColor3ub;
-    _glDeleteLists qt_glDeleteLists;
-    _glDrawBuffer qt_glDrawBuffer;
-    _glFlush qt_glFlush;
-    _glIndexi qt_glIndexi;
-    _glListBase qt_glListBase;
-    _glLoadIdentity qt_glLoadIdentity;
-    _glMatrixMode qt_glMatrixMode;
-    _glOrtho qt_glOrtho;
-    _glPopAttrib qt_glPopAttrib;
-    _glPopMatrix qt_glPopMatrix;
-    _glPushAttrib qt_glPushAttrib;
-    _glPushMatrix qt_glPushMatrix;
-    _glRasterPos2i qt_glRasterPos2i;
-    _glRasterPos3d qt_glRasterPos3d;
-    _glReadPixels qt_glReadPixels;
-    _glViewport qt_glViewport;
-
-    _aglChoosePixelFormat qt_aglChoosePixelFormat;
-    _aglCreateContext qt_aglCreateContext;
-    _aglDescribePixelFormat qt_aglDescribePixelFormat;
-    _aglDestroyContext qt_aglDestroyContext;
-    _aglDestroyPixelFormat qt_aglDestroyPixelFormat;
-    _aglDisable qt_aglDisable;
-    _aglEnable qt_aglEnable;
-    _aglGetCurrentContext qt_aglGetCurrentContext;
-    _aglGetError qt_aglGetError;
-    _aglIsEnabled qt_aglIsEnabled;
-    _aglNextPixelFormat qt_aglNextPixelFormat;
-    _aglSetCurrentContext qt_aglSetCurrentContext;
-    _aglSetDrawable qt_aglSetDrawable;
-    _aglSetInteger qt_aglSetInteger;
-    _aglSetOffScreen qt_aglSetOffScreen;
-    _aglSwapBuffers qt_aglSwapBuffers;
-    _aglUpdateContext qt_aglUpdateContext;
-    _aglUseFont qt_aglUseFont;
-}; // extern "C"
-
-bool qt_resolve_gl_symbols(bool fatal)
-{
-    static bool gl_syms_resolved = false;
-    if (gl_syms_resolved)
-	return true;
-
-    QLibrary gl("/System/Library/Frameworks/OpenGL.framework/OpenGL");
-    QLibrary agl("/System/Library/Frameworks/AGL.framework/AGL");
-    gl.setAutoUnload(false);
-    agl.setAutoUnload(false);
-
-    qt_glCallLists = (_glCallLists) gl.resolve("glCallLists");
-
-    if (!qt_glCallLists) { // if this fails the rest will surely fail
-	if (fatal)
-	    qFatal("Unable to resolve GL/AGL symbols - please check your OpenGL installation.");
-	return false;
-    }
-
-    qt_glClearColor = (_glClearColor) gl.resolve("glClearColor");
-    qt_glClearIndex = (_glClearIndex) gl.resolve("glClearIndex");
-    qt_glColor3ub = (_glColor3ub) gl.resolve("glColor3ub");
-    qt_glDeleteLists = (_glDeleteLists) gl.resolve("glDeleteLists");
-    qt_glDrawBuffer = (_glDrawBuffer) gl.resolve("glDrawBuffer");
-    qt_glFlush = (_glFlush) gl.resolve("glFlush");
-    qt_glIndexi = (_glIndexi) gl.resolve("glIndexi");
-    qt_glListBase = (_glListBase) gl.resolve("glListBase");
-    qt_glLoadIdentity = (_glLoadIdentity) gl.resolve("glLoadIdentity");
-    qt_glMatrixMode = (_glMatrixMode) gl.resolve("glMatrixMode");
-    qt_glOrtho = (_glOrtho) gl.resolve("glOrtho");
-    qt_glPopAttrib = (_glPopAttrib) gl.resolve("glPopAttrib");
-    qt_glPopMatrix = (_glPopMatrix) gl.resolve("glPopMatrix");
-    qt_glPushAttrib = (_glPushAttrib) gl.resolve("glPushAttrib");
-    qt_glPushMatrix = (_glPushMatrix) gl.resolve("glPushMatrix");
-    qt_glRasterPos2i = (_glRasterPos2i) gl.resolve("glRasterPos2i");
-    qt_glRasterPos3d = (_glRasterPos3d) gl.resolve("glRasterPos3d");
-    qt_glReadPixels = (_glReadPixels) gl.resolve("glReadPixels");
-    qt_glViewport = (_glViewport) gl.resolve("glViewport");
-
-    qt_aglChoosePixelFormat = (_aglChoosePixelFormat) agl.resolve("aglChoosePixelFormat");
-    qt_aglCreateContext = (_aglCreateContext) agl.resolve("aglCreateContext");
-    qt_aglDescribePixelFormat = (_aglDescribePixelFormat) agl.resolve("aglDescribePixelFormat");
-    qt_aglDestroyContext = (_aglDestroyContext) agl.resolve("aglDestroyContext");
-    qt_aglDestroyPixelFormat = (_aglDestroyPixelFormat) agl.resolve("aglDestroyPixelFormat");
-    qt_aglDisable = (_aglDisable) agl.resolve("aglDisable");
-    qt_aglEnable = (_aglEnable) agl.resolve("aglEnable");
-    qt_aglGetCurrentContext = (_aglGetCurrentContext) agl.resolve("aglGetCurrentContext");
-    qt_aglGetError = (_aglGetError) agl.resolve("aglGetError");
-    qt_aglIsEnabled = (_aglIsEnabled) agl.resolve("aglIsEnabled");
-    qt_aglNextPixelFormat = (_aglNextPixelFormat) agl.resolve("aglNextPixelFormat");
-    qt_aglSetCurrentContext = (_aglSetCurrentContext) agl.resolve("aglSetCurrentContext");
-    qt_aglSetDrawable = (_aglSetDrawable) agl.resolve("aglSetDrawable");
-    qt_aglSetInteger = (_aglSetInteger) agl.resolve("aglSetInteger");
-    qt_aglSetOffScreen = (_aglSetOffScreen) agl.resolve("aglSetOffScreen") ;
-    qt_aglSwapBuffers = (_aglSwapBuffers) agl.resolve("aglSwapBuffers");
-    qt_aglUpdateContext = (_aglUpdateContext) agl.resolve("aglUpdateContext");
-    qt_aglUseFont = (_aglUseFont) agl.resolve("aglUseFont");
-
-    gl_syms_resolved = true;
-    return true;
-}
-#endif // QT_DLOPEN_OPENGL
-
-
-
-
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
  *****************************************************************************/
@@ -473,8 +361,6 @@ void QGLWidgetPrivate::macWidgetChangedWindow()
 
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
-    qt_resolve_gl_symbols();
-
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
     d->clp_serial = 0;
