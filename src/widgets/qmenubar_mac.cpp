@@ -612,6 +612,7 @@ void QMenuBar::macUpdateMenuBar()
 	    InvalMenuBar();
 	}
 	return;
+    }
     QWidget *w = qApp->activeWindow();
     if(!w) {
 	WindowClass c;
@@ -640,6 +641,7 @@ void QMenuBar::macUpdateMenuBar()
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
 		return;
+	    first = FALSE;
 	    activeMenuBar = mb;
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
 		mb->mac_d->dirty = 0;
@@ -651,7 +653,7 @@ void QMenuBar::macUpdateMenuBar()
 	    }
 	} else {
 	    if(!first || !w || 
-		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup) ) {
+		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup))) {
 	    	first = FALSE;
 		ClearMenuBar();
 		InvalMenuBar();
