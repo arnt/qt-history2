@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#undef QT_NO_QWS_SHADOWFB
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
 // Fine! But could you please explain what actually happens here?
@@ -6101,7 +6102,7 @@ struct DriverTable
 #endif
 #if !defined(QT_NO_QWS_LINUXFB)
     { "ShadowFb", qt_get_screen_shadowfb, 0 },
-#endif    
+#endif
 #if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee, 0 },
 #endif

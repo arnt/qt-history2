@@ -177,6 +177,8 @@ bool QShadowFbScreen::connect( const QString &displaySpec )
 
     real_screen=data;
     data=(uchar *)malloc(size);
+
+    to_update=QRect(0,0,w,h);
     
     return true;
 }
@@ -185,7 +187,7 @@ void QShadowFbScreen::disconnect()
 {
     free(data);
     data=real_screen;
-    
+
     QLinuxFbScreen::disconnect();
 }
 
@@ -223,7 +225,7 @@ void QShadowFbScreen::restore()
     QLinuxFbScreen::restore();
 }
 
-QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, 
+QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d,
 				  int linestep)
 {
     if(bytes==base()) {
@@ -282,7 +284,7 @@ void QShadowFbScreen::setDirty( const QRect& r )
 void QShadowFbScreen::checkUpdate()
 {
     QArray<QRect> rectlist=to_update.rects();
-    for(int loopc=0;loopc<rectlist.size();loopc++) {
+    for(unsigned int loopc=0;loopc<rectlist.size();loopc++) {
 	QRect& r=rectlist[loopc];
 	for(int loopc2=r.top();loopc2<=r.bottom();loopc2++) {
 	    int offset=( lstep*loopc2 )+( ( r.left() *d )/8 );
