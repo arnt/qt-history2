@@ -102,7 +102,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
     if (parentItem == rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->row(), index.column(), parentItem);
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const
