@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-**
 ** Implementation of QSettings class
 **
 ** Created : 2000.06.26
@@ -46,20 +45,29 @@
 
 /*!
   \class QSettings qsettings.h
-  \brief The QSettings class handles the loading/saving of application
-  settings.
+  \brief The QSettings class provides persistent application settings.
 
   \ingroup misc
 
-  QSettings provides a platform independant way to load and save settings
+  QSettings provides a platform independent way to load and save settings
   for applications.
 
-  QSettings stores data internally using a tree structure.  It uses QVariant
-  everywhere, making the API extermely simple and flexible.  Data is stored
-  in the tree using a \e key.  The \e key is a slash ( / ) delimited string,
-  similar to UNIX file paths.  The key must begin with a slash, and must not
-  end with a slash.
+  Settings are organized in a tree. Each node is a QVariant, and all
+  nodes are indexed by strings.  readEntry(), writeEntry() and
+  removeEntry() all work on QString keys and QVariant data.
 
+  The key is a Unicode string, similar to UNIX file paths.  The key
+  must begin with a slash, must not end with a slash and must not
+  contain "//".
+
+  The object can be writable or read-only. Read-only is the default,
+  and is useful e.g. for system-wide and for an application's default
+  settings.  Writable settings are, of course, well-suited for user
+  settings.
+
+  QSettings can chain together multiple settings objects. For example,
+  the user's setting ... blah... blah.
+  
   It is possible to "chain" multiple QSettings together to allow searching
   in multiple objects by specifying an \e override.  For example, if you
   need to search system wide-defaults, per-application defaults and
@@ -2218,8 +2226,9 @@ public:
 /*!
   Construct a QSettings object.
 
-  The object is modifiable if \a writable is TRUE.  Calls to readEntry() will
-  be passed to \a override if \a override is non-zero.
+  The object is modifiable if \a writable is specified and TRUE (the
+  default is FALSE), and uses \a override as read override if \a
+  override is specified and non-null (the default is null).
 
   \sa setWritable(), setOverride()
  */
@@ -2230,17 +2239,16 @@ QSettings::QSettings( bool writable, QSettings *override )
 }
 
 
-/*!
-  Destroys the QSettings object.
+/*!  Destroys the QSettings object. Note that this does not write any
+  changes to path().
 */
 QSettings::~QSettings() {
     delete d;
 }
 
 
-/*!
-  Returns TRUE if modifications to the settings are allowed ( with
-  removeEntry() and writeEntry() ), and returns FALSE if not.
+/*!  Returns TRUE if modifications to the settings are allowed (with
+  removeEntry() and writeEntry()), and FALSE otherwise.
 
   \sa setWritable()
 */
@@ -2249,10 +2257,10 @@ bool QSettings::writable() const {
 }
 
 
-/*!
-  Allows the modifications to the settings if \a writable is TRUE,
-  and disallows them if \a writable is FALSE.
-
+/*! Makes the object's settings writable if \a writable is TRUE, or
+  read-only if \a writable is FALSE. Initially the object is
+  read-only.
+  
   \sa writable()
 */
 void QSettings::setWritable( bool writable ) {
@@ -2260,8 +2268,7 @@ void QSettings::setWritable( bool writable ) {
 }
 
 
-/*!
-  Returns the override settings for the object, and returns zero
+/*!  Returns the override settings for the object, or a null pointer
   if there is no override set.
 
   \sa setOverride(), readEntry()
@@ -2271,11 +2278,8 @@ const QSettings *QSettings::override() const {
 }
 
 
-/*
-  Sets the override settings object to \a override.  Pass \a override
-  as zero to disable the use of override settings.
-
-  See readEntry() for more information on how override settings work.
+/*!  Sets the override settings object to \a override, or removes any
+  override if \a override is null.
 
   \sa override(), readEntry()
 */
@@ -2284,10 +2288,9 @@ void QSettings::setOverride( QSettings *override ) {
 }
 
 
-/*!
-  Returns the file name where the settings are stored for the specified
-  \a system.
-
+/*!  Returns the file name where settings are stored when the
+  application runs on \a system.
+  
   \sa setPath()
 */
 const QString &QSettings::path( System system ) const {
@@ -2304,27 +2307,37 @@ const QString &QSettings::path( System system ) const {
   For example:
 
   \code
-  QSettings settings;
-
-  settings.setPath(QSettings::Unix,    "/opt/mysoft/etc/myapp.rc");
-  settings.setPath(QSettings::Windows, "C:\Program Files\MySoft\MyApp.rc");
+    QSettings s;
+    // ...
+    s.setPath( QSettings::Unix, "/opt/mysoft/etc/myapp.rc" );
+    s.setPath( QSettings::Windows,"C:\\Program Files\\MySoft\\MyApp.rc" );
   \endcode
 
   As Qt is ported to more operating systems, the System enum will be
-  extended to include these systems.  Including support in your application
-  will only require the addition of another line similar to the above.
+  extended to cover these systems.  Including support in your
+  application will only require the addition of another setPath()
+  call.
 
-  \sa path()
+  There is no default path; if your application has not set a path for
+  a given system, settings will never be written to disk on that system.
+  
+  \sa path() System
  */
-void QSettings::setPath( System system, const QString &path ) {
+void QSettings::setPath( System system, const QString &path )
+{
     d->pathMap[system] = path;
 }
 
 
+
+// ### document error cases. may also need an error enum or
+// similar. document lack of transaction semantics.
+
 /*!
   Writes the settings to the location returned by QSettings::path().
 
-  Call this method to save changes to the settings.
+  Qt never calls this function. We recommend that you call it before
+  your application exits, deletes the QSettings object or similar.
 
   \sa path(), setPath()
 */
@@ -2436,14 +2449,17 @@ void QSettings::write()
 }
 
 
-/*!
-  Writes the entry specified by \a key with \a value.
+/*!  Writes the entry specified by \a key with \a value, replacing any
+  previous setting.
+
+  If the object is not writable, \a value is invalid or there is a
+  different error, the object is left unchanged.
 
   \sa readEntry(), removeEntry()
 */
 void QSettings::writeEntry(const QString &key, const QVariant &value)
 {
-    if (! writable()) {
+    if (! writable()) { /// ### value.isValid() blah
 
 #ifdef Q_CHECK_STATE
 	qWarning("QSettings::writeEntry: object is not writable");
@@ -2684,9 +2700,9 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 }
 
 
-/*!
-  Reads the entry specified by \a key, and returns a QVariant holding
-  the data.  If \a key could not be found, and invalid QVariant is returned.
+/*!  Reads the entry specified by \a key, and returns a QVariant
+  holding the data.  If \a key does not exist or an error occurs
+  readEntry() returns an invalid QVariant.
 
   \sa writeEntry(), removeEntry(), QVariant::isValid()
 */
