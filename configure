@@ -1092,6 +1092,8 @@ LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsuser=$License
 LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsprod=$Products" "\\0"`
 
 cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
+#include <qglobal.h>
+
 /* Install paths from configure */
 static const char QT_INSTALL_PREFIX      [256] = "$INSTALL_PREFIX_STR";
 static const char QT_INSTALL_BINS        [256] = "$INSTALL_BINS_STR";
