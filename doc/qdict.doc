@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.7 1999/01/28 15:40:38 warwick Exp $
+** $Id: qdict.doc,v 2.8 1999/03/04 12:48:57 warwick Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -232,7 +232,7 @@
 */
 
 /*!
-  \fn void QDict::insert( const char *key, const type *item )
+  \fn void QDict::insert( const QString& key, const type *item )
   Inserts the \e key with the \e item into the dictionary.
 
   The key does not have to be a unique dictionary key.  If multiple items
@@ -244,7 +244,13 @@
 */
 
 /*!
-  \fn void QDict::replace( const char *key, const type *item )
+  \fn void QDict::insert( const char *key, const type *item )
+
+  Same as QDict::insert( const QString& key, const type *item ).
+*/
+
+/*!
+  \fn void QDict::replace( const QString& key, const type *item )
   Replaces an item which has a key equal to \e key with \e item.
 
   If the item does not already exist, it will be inserted.
@@ -267,7 +273,13 @@
 */
 
 /*!
-  \fn bool QDict::remove( const char *key )
+  \fn void QDict::replace( const char *key, const type *item )
+
+  Same as QDict::replace( const QString& key, const type *item ).
+*/
+
+/*!
+  \fn bool QDict::remove( const QString& key )
   Removes the item associated with \e key from the dictionary.
   Returns TRUE if successful, or FALSE if the key does not exist in the
   dictionary.
@@ -285,7 +297,13 @@
 */
 
 /*!
-  \fn type *QDict::take( const char *key )
+  \fn bool QDict::remove( const char *key )
+
+  Same as remove( const QString& )
+*/
+
+/*!
+  \fn type *QDict::take( const QString& key )
   Takes the item associated with \e key out of the dictionary without
   deleting it (even if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled).
@@ -303,6 +321,12 @@
 */
 
 /*!
+  \fn type *QDict::take( const char *key )
+
+  Same as QDict::take( const QString& key )
+*/
+
+/*!
   \fn void QDict::clear()
 
   Removes all items from the dictionary.
@@ -316,7 +340,7 @@
 */
 
 /*!
-  \fn type *QDict::find( const char *key ) const
+  \fn type *QDict::find( const QString& key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -331,7 +355,13 @@
 */
 
 /*!
-  \fn type *QDict::operator[]( const char *key ) const
+  \fn type *QDict::find( const char *key ) const
+
+  Same as QDict::find( const QString& key ) const.
+*/
+
+/*!
+  \fn type *QDict::operator[]( const QString& key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -343,6 +373,12 @@
   Equivalent to the find() function.
 
   \sa find()
+*/
+
+/*!
+  \fn type *QDict::operator[]( const char *key ) const
+
+  Same as QDict::operator[]( const QString& key ) const.
 */
 
 /*!
@@ -457,7 +493,7 @@
 */
 
 /*!
-  \fn const char *QDictIterator::currentKey() const
+  \fn QString QDictIterator::currentKey() const
   Returns a pointer to the key for the current iterator item.
 */
 
