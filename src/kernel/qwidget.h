@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#216 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#217 $
 **
 ** Definition of QWidget class
 **
@@ -36,7 +36,6 @@
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qstyle.h"
-//#include "qabstractlayout.h"
 #include "qsizepolicy.h"
 #endif // QT_H
 
@@ -285,9 +284,9 @@ public:
 
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
-    
+
     // whats this help
-    
+
     virtual bool customWhatsThis() const;
 				
 public:
@@ -614,6 +613,7 @@ struct QTLWExtra {
     void    *xic;				// XIM Input Context
 #endif
 };
+
 
 struct QWExtra {
     short    minw, minh;			// minimum size
