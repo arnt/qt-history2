@@ -32,6 +32,7 @@
 #include <qsimplerichtext.h>
 #include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>
+#include <qwhatsthis.h>
 
 #include <qprinter.h>
 #include <qprintdialog.h>
@@ -725,6 +726,6 @@ void MainWindow::on_actionClose_triggered()
 
 void MainWindow::on_actionHelpWhatsThis_triggered()
 {
-    whatsThis();
+    QWhatsThis::enterWhatsThisMode();
 }
 
