@@ -72,7 +72,7 @@ public:
     FormList *formlist() const;
     PropertyEditor *propertyeditor() const;
     ActionEditor *actioneditor() const;
-    
+
     void resetTool();
     int currentTool() const;
 
@@ -108,8 +108,8 @@ public:
     QString templatePath() const { return templPath; }
 
 public slots:
-    void showProperties( QWidget *w );
-    void updateProperties( QWidget *w );
+    void showProperties( QObject *w );
+    void updateProperties( QObject *w );
     void showDialogHelp();
 
 signals:
@@ -177,7 +177,7 @@ private slots:
     void hierarchyViewHidden();
     void formListHidden();
     void actionEditorHidden();
-    
+
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
 
@@ -285,7 +285,7 @@ private:
     QString templPath;
     QInterfaceManager<ActionInterface>* actionPluginManager;
     ActionEditor *actionEditor;
-    
+
 };
 
 #endif

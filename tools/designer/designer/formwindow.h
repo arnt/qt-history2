@@ -103,8 +103,8 @@ public:
     virtual void updateChildSelections( QWidget *w );
     virtual void raiseChildSelections( QWidget *w );
 
-    virtual void emitUpdateProperties( QWidget *w );
-    virtual void emitShowProperties( QWidget *w = 0 );
+    virtual void emitUpdateProperties( QObject *w );
+    virtual void emitShowProperties( QObject *w = 0 );
     virtual void emitSelectionChanged();
 
     virtual void setPropertyShowingBlocked( bool b );
@@ -141,7 +141,7 @@ public:
 
     virtual bool hasInsertedChildren( QWidget *w ) const;
 
-    virtual QWidget *currentWidget() const { return propertyWidget; }
+    virtual QWidget *currentWidget() const { return propertyWidget && propertyWidget->isWidgetType() ? (QWidget*)propertyWidget : 0; } // #####
     virtual bool unify( QObject *w, QString &s, bool changeIt );
 
     virtual bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
@@ -161,14 +161,16 @@ public:
 
     void setToolFixed() { toolFixed = TRUE; }
 
+    void setActiveObject( QObject *o );
+    
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
     virtual void visibilityChanged();
 
 signals:
-    void showProperties( QWidget *w );
-    void updateProperties( QWidget *w );
+    void showProperties( QObject *w );
+    void updateProperties( QObject *w );
     void undoRedoChanged( bool undoAvailable, bool redoAvailable,
 			  const QString &undoCmd, const QString &redoCmd );
     void selectionChanged();
@@ -236,7 +238,8 @@ private:
     QPoint oldPressPos, origPressPos;
     CommandHistory commands;
     QMap<ulong, QPoint> moving;
-    QWidget *insertParent, *propertyWidget;
+    QWidget *insertParent;
+    QObject *propertyWidget;
     QLabel *sizePreviewLabel;
     QTimer *checkSelectionsTimer;
     QPtrDict<QWidget> insertedWidgets;

@@ -19,6 +19,9 @@
 **********************************************************************/
 
 #include "actioneditorimpl.h"
+#include "formwindow.h"
+#include "metadatabase.h"
+
 #include <qaction.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -46,9 +49,8 @@ private:
 };
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
-    : ActionEditorBase( parent, name, fl ), currentAction( 0 )
+    : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )
 {
-    enableAll( FALSE );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -57,108 +59,28 @@ void ActionEditor::closeEvent( QCloseEvent *e )
     e->accept();
 }
 
-void ActionEditor::accelChanged( const QString & )
-{
-}
-
-void ActionEditor::connectionsClicked()
-{
-}
-
 void ActionEditor::currentActionChanged( QListViewItem *i )
 {
-    if ( !i ) {
-	enableAll( FALSE );
-	return;
-    }
-    enableAll( TRUE );
-
-    updateEditors( ( (ActionItem*)i )->action() );
     currentAction = ( (ActionItem*)i )->action();
+    if ( formWindow )
+	formWindow->setActiveObject( currentAction );
 }
 
 void ActionEditor::deleteAction()
 {
 }
 
-void ActionEditor::enabledChanged( bool )
-{
-}
-
-void ActionEditor::menuTextChanged( const QString & )
-{
-}
-
-void ActionEditor::nameChanged( const QString &s )
-{
-    if ( !currentAction || !listActions->currentItem() )
-	return;
-    currentAction->setName( s );
-    listActions->currentItem()->setText( 0, s );
-}
-
 void ActionEditor::newAction()
 {
     ActionItem *i = new ActionItem( listActions, FALSE );
+    MetaDataBase::addEntry( i->action() );
     i->setText( 0, tr( "Action" ) );
     i->action()->setName( tr( "Action" ) );
     i->action()->setText( tr( "Action" ) );
     listActions->setCurrentItem( i );
 }
 
-void ActionEditor::onChanged( bool )
+void ActionEditor::setFormWindow( FormWindow *fw )
 {
-}
-
-void ActionEditor::statusTipChanged( const QString & )
-{
-}
-
-void ActionEditor::textChanged( const QString & )
-{
-}
-
-void ActionEditor::toggleChanged( bool )
-{
-}
-
-void ActionEditor::toolTipChanged( const QString & )
-{
-}
-
-void ActionEditor::whatsThisChanged( const QString & )
-{
-}
-
-void ActionEditor::chooseIcon()
-{
-}
-
-void ActionEditor::enableAll( bool enable )
-{
-    editAccel->setEnabled( enable );
-    editStatusTip->setEnabled( enable );
-    editText->setEnabled( enable );
-    editName->setEnabled( enable );
-    labelIcon->setEnabled( enable );
-    buttonIcon->setEnabled( enable );
-    editToolTip->setEnabled( enable );
-    editMenuText->setEnabled( enable );
-    editWhatsThis->setEnabled( enable );
-    listActions->setEnabled( enable );
-    checkToggle->setEnabled( enable );
-    checkOn->setEnabled( enable );
-    checkEnabled->setEnabled( enable );
-    buttonConnections->setEnabled( enable );
-}
-
-void ActionEditor::updateEditors( QAction *a )
-{
-    //editAccel->setText( a->accel() );
-    editStatusTip->setText( a->statusTip() );
-    editText->setText( a->text() );
-    editName->setText( a->name() );
-    editToolTip->setText( a->toolTip() );
-    editMenuText->setText( a->menuText() );
-    editWhatsThis->setText( a->whatsThis() );
+    formWindow = fw;
 }

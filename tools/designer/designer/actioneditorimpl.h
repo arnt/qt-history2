@@ -24,6 +24,7 @@
 #include "actioneditor.h"
 
 class QAction;
+class FormWindow;
 
 class ActionEditor : public ActionEditorBase
 {
@@ -31,37 +32,23 @@ class ActionEditor : public ActionEditorBase
 
 public:
     ActionEditor( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
-
+    void setFormWindow( FormWindow *fw );
+    
 protected:
     void closeEvent( QCloseEvent *e );
 
 protected slots:
-    void accelChanged( const QString & );
-    void connectionsClicked();
     void currentActionChanged( QListViewItem * );
     void deleteAction();
-    void enabledChanged( bool );
-    void menuTextChanged( const QString & );
-    void nameChanged( const QString & );
     void newAction();
-    void onChanged( bool );
-    void statusTipChanged( const QString & );
-    void textChanged( const QString & );
-    void toggleChanged( bool );
-    void toolTipChanged( const QString & );
-    void whatsThisChanged( const QString & );
-    void chooseIcon();
 
 signals:
     void hidden();
 
 private:
-    void enableAll( bool enable );
-    void updateEditors( QAction *a );
-    
-private:
     QAction *currentAction;
-
+    FormWindow *formWindow;
+    
 };
 
 #endif // ACTIONEDITOR_H

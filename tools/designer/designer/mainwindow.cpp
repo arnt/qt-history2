@@ -1977,8 +1977,13 @@ void MainWindow::helpAboutQt()
     QMessageBox::aboutQt( this, "Qt Designer" );
 }
 
-void MainWindow::showProperties( QWidget *w )
+void MainWindow::showProperties( QObject *o )
 {
+    if ( !o->isWidgetType() ) { // ###### QObject stuff todo
+	propertyEditor->setWidget( o, lastActiveFormWindow );
+	return;
+    }
+    QWidget *w = (QWidget*)o;
     setupHierarchyView();
     FormWindow *fw = (FormWindow*)isAFormWindowChild( w );
     if ( fw ) {
@@ -1998,7 +2003,7 @@ void MainWindow::resetTool()
     actionPointerTool->setOn( TRUE );
 }
 
-void MainWindow::updateProperties( QWidget * )
+void MainWindow::updateProperties( QObject * )
 {
     if ( propertyEditor )
 	propertyEditor->refetchData();
@@ -2230,10 +2235,10 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 			       "<p>You can have several forms open, and all open forms are listed "
 			       "in the <b>Form List</b>.") );
 
-    connect( fw, SIGNAL( showProperties( QWidget * ) ),
- 	     this, SLOT( showProperties( QWidget * ) ) );
-    connect( fw, SIGNAL( updateProperties( QWidget * ) ),
- 	     this, SLOT( updateProperties( QWidget * ) ) );
+    connect( fw, SIGNAL( showProperties( QObject * ) ),
+ 	     this, SLOT( showProperties( QObject * ) ) );
+    connect( fw, SIGNAL( updateProperties( QObject * ) ),
+ 	     this, SLOT( updateProperties( QObject * ) ) );
     connect( this, SIGNAL( currentToolChanged() ),
 	     fw, SLOT( currentToolChanged() ) );
     connect( fw, SIGNAL( selectionChanged() ),
@@ -2305,6 +2310,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	}
 	formlist()->activeFormChanged( (FormWindow*)w );
 	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
+	actionEditor->setFormWindow( lastActiveFormWindow );
     } else if ( w == propertyEditor ) {
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
