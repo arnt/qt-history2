@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#56 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -290,7 +290,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    qDrawTransparentPixmap( dst_dc, td == QInternal::Pixmap,
 				    dx, dy, src_pm, mask,
 				    sx, sy, sw, sh, &src_pm->data->maskpm );
-	    if ( src_pm->data->opt != QPixmap::BestOptim ) {
+	    if ( src_pm->optimization() != QPixmap::BestOptim ) {
 		delete src_pm->data->maskpm;
 		src_pm->data->maskpm = 0;
 	    }

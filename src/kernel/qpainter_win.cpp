@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#126 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -824,7 +824,7 @@ bool QPainter::end()
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
-	if ( pm->isOptimized() )
+	if ( pm->optimization() != QPixmap::NoOptim )
 	    pm->allocMemDC();
     }
 
@@ -1941,7 +1941,7 @@ static QString gen_xbm_key( const QWMatrix &m, const QFont &font,
     QString s = str;
     s.truncate( len );
     QString fd = font.key();
-    QString k( len + 100 + fd.length() );
+    QString k;
     k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s,
 	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
 	       (const char *)fd );

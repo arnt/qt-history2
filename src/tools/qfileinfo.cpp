@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#45 $
 **
 ** Implementation of QFileInfo class
 **
@@ -651,7 +651,7 @@ QString QFileInfo::owner() const
     passwd *pw = getpwuid( ownerId() );
     return pw ? pw->pw_name : 0;
 #else
-    return 0;
+    return QString::null;
 #endif
 }
 
@@ -694,7 +694,7 @@ QString QFileInfo::group() const
     struct group *gr = getgrgid( groupId() );
     return gr ? gr->gr_name : 0;
 #else
-    return 0;
+    return QString::null;
 #endif
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#240 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -275,7 +275,7 @@ static void qt_set_windows_resources()
     messageFont.setPointSize(int(mps+0.5));
 
     if (messageFont != QFont::defaultFont()) {
- 	QApplication::setFont( menuFont, TRUE, "QMessageBoxLabel");
+ 	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
     }
 
     // same technique could apply to set the statusbar or tooltip
