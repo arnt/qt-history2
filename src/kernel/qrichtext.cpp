@@ -6524,7 +6524,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 
     if ( border ) {
 	cellspacing += 2;
-	innerborder += 1;
+// 	innerborder += 1;
     }
 
     us_ib = innerborder;
@@ -6677,19 +6677,21 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
 	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg, selected );
 	    if ( border ) {
-		QRect r( x+outerborder+cell->geometry().x() - us_ib,
-			 y+outerborder+cell->geometry().y() - us_ib,
-			 cell->geometry().width() + 2 * us_ib,
-			 cell->geometry().height() + 2 * us_ib );
-		int s = cellspacing;
+		QRect r( x+outerborder+cell->geometry().x() - innerborder,
+			 y+outerborder+cell->geometry().y() - innerborder,
+			 cell->geometry().width() + 2 * innerborder,
+			 cell->geometry().height() + 2 * innerborder );
 		if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
-		    qDrawPlainRect( p, r, cg.text(), us_ib );
+		    qDrawPlainRect( p, r, cg.text(), innerborder );
 		} else {
-		    p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
-		    p->fillRect( r.right(), r.top(), s, r.height(), cg.button() );
-		    p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
-		    p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
-		    qDrawShadePanel( p, r, cg, TRUE, us_ib );
+		    int s =  QMAX( cellspacing-2*innerborder, 0);
+		    if ( s ) {
+			p->fillRect( r.left()-s, r.top(), s+1, r.height(), cg.button() );
+			p->fillRect( r.right(), r.top(), s+1, r.height(), cg.button() );
+			p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
+			p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
+		    }
+		    qDrawShadePanel( p, r, cg, TRUE, innerborder );
 		}
 	    }
 	}
@@ -6697,14 +6699,16 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     if ( border ) {
 	QRect r ( x, y, width, height );
 	if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
-	    qDrawPlainRect( p, QRect(QMAX( 0, r.x()+1 ), QMAX( 0, r.y()+1 ), QMAX( r.width()-2, 0 ), QMAX( 0, r.height()-2 ) ), cg.text(), us_b );
+	    qDrawPlainRect( p, QRect(QMAX( 0, r.x()+1 ), QMAX( 0, r.y()+1 ), QMAX( r.width()-2, 0 ), QMAX( 0, r.height()-2 ) ), cg.text(), border );
 	} else {
-	    int s = border;
-	    p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
-	    p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
-	    p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
-	    p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
-	    qDrawShadePanel( p, r, cg, FALSE, us_b );
+	    int s = border+QMAX( cellspacing-2*innerborder, 0);
+	    if ( s ) {
+		p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.left(), r.top(), r.width(), s, cg.button() ); 	
+		p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
+	    }
+	    qDrawShadePanel( p, r, cg, FALSE, border );
 	}
     }
 
@@ -6799,14 +6803,17 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 	QTextTableCell *cell = cells.at( i );
 	if ( !cell )
 	    continue;
-	if ( cell->geometry().x() - innerborder <= pos.x() &&
-	     cell->geometry().x() + cell->geometry().width() + innerborder >= pos.x() ) {
+	QRect r( outerborder+cell->geometry().x(),
+		 outerborder+cell->geometry().y(),
+		 cell->geometry().width(),
+		 cell->geometry().height() );
+	
+	if ( r.left() <= pos.x() && r.right() >= pos.x() ) { 
 	    if ( cell->geometry().y() > lastY ) {
 		lastCell = i;
 		lastY = cell->geometry().y();
 	    }
-	    if ( cell->geometry().y() - innerborder <= pos.y() &&
-		 cell->geometry().y() + cell->geometry().height() + innerborder + outerborder >= pos.y() ) {
+	    if ( r.top() <= pos.y() && r.bottom() >= pos.y() ) {
 		currCell.insert( c, i );
 		break;
 	    }
