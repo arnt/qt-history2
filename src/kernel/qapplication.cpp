@@ -2243,23 +2243,29 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
-	// if this is a child remove event and the child insert hasn't been
-	// dispatched yet, kill that insert
-	QPostEventList * l = receiver->postedEvents;
-	QObject * c = ((QChildEvent*)e)->child();
-	QPostEvent * pe;
-	l->first();
-	while( ( pe = l->current()) != 0 ) {
-	    if ( pe->event && pe->receiver == receiver &&
-		 pe->event->type() == QEvent::ChildInserted &&
-		 ((QChildEvent*)pe->event)->child() == c ) {
-		pe->event->posted = FALSE;
-		delete pe->event;
-		pe->event = 0;
-		l->remove();
-		continue;
+	// the QObject destructor calls QObject::removeChild, which calls
+	// QApplication::sendEvent() directly.  this can happen while the event
+	// loop is in the middle of posting events, and when we get here, we may
+	// not have any more posted events for this object.
+	if ( receiver->postedEvents ) {
+	    // if this is a child remove event and the child insert
+	    // hasn't been dispatched yet, kill that insert
+	    QPostEventList * l = receiver->postedEvents;
+	    QObject * c = ((QChildEvent*)e)->child();
+	    QPostEvent * pe;
+	    l->first();
+	    while( ( pe = l->current()) != 0 ) {
+		if ( pe->event && pe->receiver == receiver &&
+		     pe->event->type() == QEvent::ChildInserted &&
+		     ((QChildEvent*)pe->event)->child() == c ) {
+		    pe->event->posted = FALSE;
+		    delete pe->event;
+		    pe->event = 0;
+		    l->remove();
+		    continue;
+		}
+		l->next();
 	    }
-	    l->next();
 	}
     }
 
