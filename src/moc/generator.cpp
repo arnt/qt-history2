@@ -92,6 +92,10 @@ int qvariant_nameToType(const char* name)
             if (!strcmp(type_map[i], name))
                 return i;
         }
+
+        // usertype
+        if (QByteArray(name).endsWith('*'))
+            return ntypes;
     }
     return 0;
 }
@@ -614,7 +618,7 @@ void Generator::generateMetacall()
                 else if (p.gspec == PropertyDef::ReferenceSpec)
                     fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
                             propindex, p.read.constData());
-                else if (isVariantType(p.type))
+                else if (isVariantType(p.type) || p.type.endsWith('*'))
                     fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
                             propindex, p.type.constData(), p.read.constData());
                 else
