@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <sstream>
 #include <stdio.h>
 #include <QString>
 #include <QFile>
@@ -113,7 +113,7 @@ int main(int argc, char**argv)
     rulesFileName="rules.xml";
     rulesFilePath=findRulesFile(rulesFileName, argv[0]);
     if (rulesFilePath.isEmpty()) {
-        printf("Error: Could not find rules.xml file\n");
+        cout <<"Error: Could not find " << rulesFileName.latin1() << " file" << endl);
         return 0;
     } else {
         cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).latin1() <<endl;
@@ -126,11 +126,17 @@ int main(int argc, char**argv)
     else
         retval = fileMode(in);
 
-    Logger::instance()->print(Logger::instance()->cronologicalReport());
+  
+    QStringList report = Logger::instance()->cronologicalReport();
     QString logFileName =  "portinglog.txt";
-//    printf("Writing log to %s\n", logFileName.latin1());
-//    Logger::instance()->writeToFile(logFileName, Logger::instance()->cronologicalReport());
-
+    cout << "Writing log to " << logFileName.latin1() << endl;
+    //get a platform independent line separator
+    std::stringstream newLine;
+    newLine << endl;
+    QString qNewLine(newLine.str());
+    //write log file
+    FileWriter().writeFile(logFileName, report.join(qNewLine).latin1());
+       
     Logger::deleteInstance();
     return retval;
 }
