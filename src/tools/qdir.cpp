@@ -388,12 +388,15 @@ QString QDir::absFilePath( const QString &fileName,
 	    if ( qt_winunicode ) {
 		TCHAR buf[PATH_MAX];
 		::_tgetdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
-		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) ) + "/" + fileName.right(fileName.length()-2);
+		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) );
 	    } else {
 		char buf[PATH_MAX];
 		::_getdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
 		tmp = buf;
 	    }
+	    if ( !tmp.endsWith("\\") )
+		tmp += "\\";
+	    tmp += fileName.right( fileName.length() - 2 );
 	    int x;
 	    for ( x = 0; x < (int) tmp.length(); x++ ) {
 		if ( tmp[x] == '\\' )
