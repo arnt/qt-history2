@@ -828,7 +828,8 @@ MakefileGenerator::init()
 				  QString::null };
 	    depHeuristics.clear();
 	    bool write_cache = FALSE, read_cache = QFile::exists(cache_file);
-	    for(int x = 0; sources[x] != QString::null; x++) {
+	    int x;
+	    for(x = 0; sources[x] != QString::null; x++) {
 		QStringList vpath, &l = v[sources[x]];
 		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		    if(!(*val_it).isEmpty()) {
@@ -891,7 +892,7 @@ MakefileGenerator::init()
 		    }
 		}
 	    }
-	    for(int x = 0; sources[x] != QString::null; x++) {
+	    for(x = 0; sources[x] != QString::null; x++) {
 	        QStringList &l = v[sources[x]];
 	        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		    QString fixed_file(fileFixify((*val_it)));
