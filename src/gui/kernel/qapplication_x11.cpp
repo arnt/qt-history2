@@ -3246,7 +3246,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     if (sm_blockUserInput) // block user interaction during session management
         return true;
 
-    static int x_root_save = -1, y_root_save = -1;
     if (event->type == MotionNotify) { // mouse move
         if (event->xmotion.root != RootWindow(X11->display, x11Info().screen()) &&
             ! qt_xdnd_dragging)
@@ -3290,9 +3289,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         pos.rx() = xevent->xcrossing.x;
         pos.ry() = xevent->xcrossing.y;
         pos = d->mapFromWS(pos);
-        if (xevent->xcrossing.x_root == x_root_save
-            && xevent->xcrossing.y_root == y_root_save)
-            return false;
         globalPos.rx() = xevent->xcrossing.x_root;
         globalPos.ry() = xevent->xcrossing.y_root;
         buttons = translateMouseButtons(xevent->xcrossing.state);
@@ -3441,7 +3437,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             break;                                // nothing for mouse move
         }
 
-        Display* dpy = X11->display; // store display, send() may destroy us
         int oldOpenPopupCount = openPopupCount;
 
         // deliver event
@@ -3483,19 +3478,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (releaseAfter) {
             qt_button_down = 0;
             qt_popup_down = 0;
-        }
-
-        if (!qApp->inPopupMode()) {
-            if (type != QEvent::MouseButtonRelease && !buttons &&
-                QWidget::find((WId)mouseActWindow)) {
-                manualGrab = true;                // need to manually grab
-                XGrabPointer(dpy, mouseActWindow, False,
-                             (uint)(ButtonPressMask | ButtonReleaseMask |
-                                    ButtonMotionMask |
-                                    EnterWindowMask | LeaveWindowMask),
-                             GrabModeAsync, GrabModeAsync,
-                             XNone, XNone, CurrentTime);
-            }
         }
 
     } else {
