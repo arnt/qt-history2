@@ -279,6 +279,16 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
 		  (fs->max_bounds.width * cache_cost / 8));
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
+
+#if 1
+    // Server side transformations do not seem to work correctly for
+    // all types of fonts (for example, it works for bdf/pcf fonts,
+    // but not for ttf).  It also seems to be extermely server
+    // dependent.  The best thing is to just disable server side
+    // transformations until either server support matures or we
+    // figure out a better way to do it.
+    xlfd_transformations = XlfdTrUnsupported;
+#else
     xlfd_transformations = XlfdTrUnknown;
 
     // Hummingbird's Exceed X server will substitute 'fixed' for any
@@ -286,6 +296,7 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
     // we should never try to use xlfd transformations with it
     if (strstr(ServerVendor(QPaintDevice::x11AppDisplay()), "Hummingbird"))
 	xlfd_transformations = XlfdTrUnsupported;
+#endif
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
@@ -1556,6 +1567,50 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     XftFont *fnt = _font;
     bool transform = FALSE;
     if ( p->txop >= QPainter::TxScale ) {
+	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
+	    Qt::HANDLE hd = p->device()->handle();
+	    GC gc = p->gc;
+
+	    // font doesn't support transformations, need to do it by hand
+            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
+            int w=bbox.width(), h=bbox.height();
+            int aw = w, ah = h;
+            int tx=-bbox.x(), ty=-bbox.y();    // text position
+            QWMatrix mat1 = p->xmat;
+	    if ( aw == 0 || ah == 0 )
+		return;
+	    double rx = (double)w / (double)aw;
+	    double ry = (double)h / (double)ah;
+            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
+	    QBitmap *wx_bm;
+	    { 	        // no such cached bitmap
+                QBitmap bm( aw, ah, TRUE );     // create bitmap
+                QPainter paint;
+                paint.begin( &bm );             // draw text in bitmap
+                draw( &paint, 0, si->ascent, engine, si, textFlags );
+                paint.end();
+                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+                if ( wx_bm->isNull() ) {
+                    delete wx_bm;               // nothing to draw
+                    return;
+                }
+            }
+            double fx=x, fy=y - si->ascent, nfx, nfy;
+            mat1.map( fx,fy, &nfx,&nfy );
+            double tfx=tx, tfy=ty, dx, dy;
+            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+            x = qRound(nfx-dx);
+            y = qRound(nfy-dy);
+            XSetFillStyle( dpy, gc, FillStippled );
+            XSetStipple( dpy, gc, wx_bm->handle() );
+            XSetTSOrigin( dpy, gc, x, y );
+            XFillRectangle( dpy, hd, gc, x, y, wx_bm->width(), wx_bm->height() );
+            XSetTSOrigin( dpy, gc, 0, 0 );
+            XSetFillStyle( dpy, gc, FillSolid );
+	    delete wx_bm;
+	    return;
+	}
+
 	XftPattern *pattern = XftPatternDuplicate( _pattern );
 	XftMatrix *mat = 0;
 	XftPatternGetMatrix( pattern, XFT_MATRIX, 0, &mat );
