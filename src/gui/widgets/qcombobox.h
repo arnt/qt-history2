@@ -38,6 +38,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(InsertionPolicy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
+    Q_PROPERTY(bool autoHide READ autoHide WRITE setAutoHide)
 
 public:
 
@@ -66,6 +67,9 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
+
+    bool autoHide() const;
+    void setAutoHide(bool enable);
 
     bool contains(const QString &text) const;
     virtual int findItem(const QString &text, QAbstractItemModel::MatchFlags flags = QAbstractItemModel::MatchDefault) const;

@@ -156,7 +156,8 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
         if (list->rect().contains(m->pos())) {
-            hide();
+            if (qt_cast<QComboBox*>(parentWidget())->autoHide())
+                hide();
             emit itemSelected(list->currentItem());
         }
         break;
@@ -176,7 +177,8 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        hide();
+        if (qt_cast<QComboBox*>(parentWidget())->autoHide())
+            hide();
         emit itemSelected(list->currentItem());
         break;
     case Qt::Key_Down:
@@ -675,6 +677,21 @@ bool QComboBox::duplicatesEnabled() const
 void QComboBox::setDuplicatesEnabled(bool enable)
 {
     d->duplicatesEnabled = enable;
+}
+
+/*!
+    \property QComboBox::autoHide
+    \brief whether the combobox hides the popup listbox when an item is activated
+*/
+
+bool QComboBox::autoHide() const
+{
+    return d->autoHide;
+}
+
+void QComboBox::setAutoHide(bool enable)
+{
+    d->autoHide = enable;
 }
 
 /*!

@@ -234,6 +234,7 @@ public:
           insertionPolicy(QComboBox::AtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
+          autoHide(true),
           arrowDown(false),
           sizeLimit(10),
           maxCount(INT_MAX),
@@ -257,6 +258,7 @@ public:
     QComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;
+    bool autoHide;
     bool arrowDown;
     int sizeLimit;
     int maxCount;
