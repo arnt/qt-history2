@@ -97,7 +97,6 @@ static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3);
 static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)	(((c) >= 0x80) && ((c) <= 0xfd))
-#define	QValidChar(u)	((u) ? QChar(u) : QChar(QChar::replacement))
 
 /*! \reimp */
 int QTsciiCodec::mibEnum() const
@@ -155,7 +154,7 @@ QString QTsciiCodec::toUnicode(const char* chars, int len) const
 	    uint *p = s;
 	    while ( u-- ) {
 		uint c = *p++;
-		result += QValidChar(c);
+		result += c ? QChar(c) : QChar(QChar::replacement);
 	    }
 	} else {
 	    // Invalid
