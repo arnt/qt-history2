@@ -21,6 +21,8 @@
 #include <qtextedit.h>
 #include <qfiledialog.h>
 
+#include <q3workspace.h>
+
 QAxObject *ax_mainWindow = 0;
 
 static Q3TextEdit *debuglog = 0;
@@ -42,7 +44,7 @@ void MainWindow::init()
     debuglog = logDebug;
     oldDebugHandler = qInstallMsgHandler(redirectDebugOutput);
     QHBoxLayout *layout = new QHBoxLayout(Workbase);
-    workspace = new QWorkspace(Workbase);
+    workspace = new Q3Workspace(Workbase);
     layout->addWidget(workspace);
     connect(workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(windowActivated(QWidget*)));
 }

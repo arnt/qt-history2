@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include <qworkspace.h>
+#include <q3workspace.h>
 
 void AmbientProperties::init()
 {
@@ -36,8 +36,7 @@ void AmbientProperties::backColor()
     QPalette p = backSample->palette(); p.setColor(backSample->backgroundRole(), c); backSample->setPalette(p);
     p = container->palette(); p.setColor(container->backgroundRole(), c); container->setPalette(p);
 
-    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
-    if ( ws ) {
+    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);
@@ -52,8 +51,7 @@ void AmbientProperties::foreColor()
     QPalette p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
     p = container->palette(); p.setColor(container->foregroundRole(), c); container->setPalette(p);
 
-    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
-    if ( ws ) {
+    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);
@@ -71,8 +69,7 @@ void AmbientProperties::pickFont()
     fontSample->setFont( f );
     container->setFont( f );
 
-    QWorkspace *ws = (QWorkspace*)container->qt_metacast( "QWorkspace" );
-    if ( ws ) {
+    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);
