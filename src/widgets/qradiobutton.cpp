@@ -216,7 +216,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	kf |= 4;
     QTextOStream os(&pmkey);
     os << "$qt_radio_" << style().className() << "_"
-			 << palette().serialNumber() << "_" << kf;
+       << palette().serialNumber() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	drawButtonLabel( p );
@@ -244,14 +244,13 @@ void QRadioButton::drawButton( QPainter *paint )
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
-	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
-	    QBitmap bm( pm->size() );
-	    bm.fill( color0 );
-	    pmpaint.begin( &bm );
-	    style().drawExclusiveIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
-	    pmpaint.end();
-	    pm->setMask( bm );
-	}
+	QBitmap bm( pm->size() );
+	bm.fill( color0 );
+	pmpaint.begin( &bm );
+	style().drawExclusiveIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+	pmpaint.end();
+	pm->setMask( bm );
+
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
 	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
