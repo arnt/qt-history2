@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#31 $
 **
 ** Implementation of QDir class
 **
@@ -28,7 +28,7 @@
 #define chdir _chdir2
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#31 $");
 
 
 #if defined(_OS_FATFS_)
@@ -1100,8 +1100,8 @@ QString QDir::rootDirPath()
 #if defined(_OS_FATFS_)
     QString d( "c:/" );
 #elif defined(_OS_OS2EMX_)
-    char dir[4];
-    _abspath( dir, "/", _MAX_PATH );
+    char dir[5];
+    _abspath( dir, "//", _MAX_PATH );
     QString d( dir );
 #elif defined(UNIX)
     QString d( "/" );
