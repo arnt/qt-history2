@@ -1346,7 +1346,7 @@ int QRegExpEngine::createState(int bref)
 
 void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<int> &to)
 {
-    for (int i = 0; i < (int) from.size(); i++) {
+    for (int i = 0; i < from.size(); i++) {
 	State *st = s[from[i]];
 	mergeInto(&st->outs, to);
     }
@@ -1355,14 +1355,14 @@ void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<in
 #ifndef QT_NO_REGEXP_CAPTURE
 void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<int> &to, int atom)
 {
-    for (int i = 0; i < (int) from.size(); i++) {
+    for (int i = 0; i < from.size(); i++) {
 	State *st = s[from[i]];
 	QVector<int> oldOuts = st->outs;
 	mergeInto(&st->outs, to);
 	if (f[atom].capture >= 0) {
 	    if (st->reenter == 0)
 		st->reenter = new QMap<int, int>;
-	    for (int j = 0; j < (int) to.size(); j++) {
+	    for (int j = 0; j < to.size(); j++) {
 		if (!st->reenter->contains(to[j]) &&
 		     qBinaryFind(oldOuts.begin(), oldOuts.end(), to[j]) == oldOuts.end())
 		    st->reenter->insert(to[j], atom);
@@ -1496,7 +1496,7 @@ void QRegExpEngine::dump() const
 	} else {
 	    qDebug("    match 0x%.4x", m);
 	}
-	for (j = 0; j < (int) s[i]->outs.size(); j++) {
+	for (j = 0; j < s[i]->outs.size(); j++) {
 	    int next = s[i]->outs[j];
 	    qDebug("    -> %d", next);
 	    if (s[i]->reenter != 0 && s[i]->reenter->contains(next))
@@ -1513,7 +1513,7 @@ void QRegExpEngine::dump() const
     }
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
-    for (i = 0; i < (int) aa.size(); i++)
+    for (i = 0; i < aa.size(); i++)
 	qDebug("  Anchor alternation 0x%.8x: 0x%.8x 0x%.9x", i, aa[i].a, aa[i].b);
 #endif
 }
@@ -1563,7 +1563,7 @@ int QRegExpEngine::setupState(int match)
 */
 int QRegExpEngine::startAtom(bool capture)
 {
-    if ((nf & (nf + 1)) == 0 && nf + 1 >= (int) f.size())
+    if ((nf & (nf + 1)) == 0 && nf + 1 >= f.size())
 	f.resize((nf + 1) << 1);
     f[nf].parent = cf;
     cf = nf++;
@@ -1646,7 +1646,7 @@ bool QRegExpEngine::testAnchor(int i, int a, const int *capBegin)
 #ifndef QT_NO_REGEXP_LOOKAHEAD
     if ((a & Anchor_LookaheadMask) != 0) {
 	QString cstr((QChar *) mmIn + mmPos + i, mmLen - mmPos - i);
-	for (j = 0; j < (int) ahead.size(); j++) {
+	for (j = 0; j < ahead.size(); j++) {
 	    if ((a & (Anchor_FirstLookahead << j)) != 0) {
 		QVector<int> captured;
 		ahead[j]->eng->match(cstr, 0, true, true, mmCaretPos - mmPos - i, captured);
@@ -2204,9 +2204,9 @@ bool QRegExpEngine::CharClass::in(QChar ch) const
 	return n;
 #endif
 
-    if (c != 0 && (c & (1 << (int) ch.category())) != 0)
+    if (c != 0 && (c & (1 << (int)ch.category())) != 0)
 	return !n;
-    for (int i = 0; i < (int) r.size(); i++) {
+    for (int i = 0; i < r.size(); i++) {
 	if (ch.unicode() >= r[i].from && ch.unicode() <= r[i].to)
 	    return !n;
     }
@@ -2222,7 +2222,7 @@ void QRegExpEngine::CharClass::dump() const
     if (c != 0)
 	qDebug("      categories 0x%.8x", c);
 #endif
-    for (i = 0; i < (int) r.size(); i++)
+    for (i = 0; i < r.size(); i++)
 	qDebug("      0x%.4x through 0x%.4x", r[i].from, r[i].to);
 }
 #endif
@@ -2314,7 +2314,7 @@ void QRegExpEngine::Box::cat(const Box &b)
     if (minl == 0) {
 	mergeInto(&lanchors, b.lanchors);
 	if (skipanchors != 0) {
-	    for (int i = 0; i < (int) b.ls.size(); i++) {
+	    for (int i = 0; i < b.ls.size(); i++) {
 		int a = eng->anchorConcatenation(lanchors.value(b.ls[i], 0), skipanchors);
 		lanchors.insert(b.ls[i], a);
 	    }
@@ -2324,7 +2324,7 @@ void QRegExpEngine::Box::cat(const Box &b)
     if (b.minl == 0) {
 	mergeInto(&ranchors, b.ranchors);
 	if (b.skipanchors != 0) {
-	    for (int i = 0; i < (int) rs.size(); i++) {
+	    for (int i = 0; i < rs.size(); i++) {
 		int a = eng->anchorConcatenation(ranchors.value(rs[i], 0), b.skipanchors);
 		ranchors.insert(rs[i], a);
 	    }
@@ -2349,10 +2349,10 @@ void QRegExpEngine::Box::cat(const Box &b)
 	}
     }
 
-    if ((int) leftStr.length() == maxl)
+    if (leftStr.length() == maxl)
 	leftStr += b.leftStr;
 
-    if ((int) b.rightStr.length() == b.maxl) {
+    if (b.rightStr.length() == b.maxl) {
 	rightStr += b.rightStr;
     } else {
 	rightStr = b.rightStr;
@@ -2440,7 +2440,7 @@ void QRegExpEngine::Box::opt()
 void QRegExpEngine::Box::catAnchor(int a)
 {
     if (a != 0) {
-	for (int i = 0; i < (int) rs.size(); i++) {
+	for (int i = 0; i < rs.size(); i++) {
 	    a = eng->anchorConcatenation(ranchors.value(rs[i], 0), a);
 	    ranchors.insert(rs[i], a);
 	}
@@ -2486,14 +2486,14 @@ void QRegExpEngine::Box::dump() const
     int i;
     qDebug("Box of at least %d character%s", minl, minl == 1 ? "" : "s");
     qDebug("  Left states:");
-    for (i = 0; i < (int) ls.size(); i++) {
+    for (i = 0; i < ls.size(); i++) {
 	if (lanchors.value(ls[i], 0) == 0)
 	    qDebug("    %d", ls[i]);
 	else
 	    qDebug("    %d [anchors 0x%.8x]", ls[i], lanchors[ls[i]]);
     }
     qDebug("  Right states:");
-    for (i = 0; i < (int) rs.size(); i++) {
+    for (i = 0; i < rs.size(); i++) {
 	if (ranchors.value(rs[i], 0) == 0)
 	    qDebug("    %d", rs[i]);
 	else
@@ -2505,8 +2505,8 @@ void QRegExpEngine::Box::dump() const
 
 void QRegExpEngine::Box::addAnchorsToEngine(const Box &to) const
 {
-    for (int i = 0; i < (int) to.ls.size(); i++) {
-	for (int j = 0; j < (int) rs.size(); j++) {
+    for (int i = 0; i < to.ls.size(); i++) {
+	for (int j = 0; j < rs.size(); j++) {
 	    int a = eng->anchorConcatenation(ranchors.value(rs[j], 0),
 					     to.lanchors.value(to.ls[i], 0));
 	    eng->addAnchors(rs[j], to.ls[i], a);
@@ -3551,7 +3551,7 @@ bool QRegExp::exactMatch(const QString &str) const
 {
     prepareEngineForMatch(priv, str);
     priv->eng->match(str, 0, priv->min, true, 0, priv->captured);
-    if (priv->captured[1] == (int) str.length()) {
+    if (priv->captured[1] == str.length()) {
 	return true;
     } else {
 	priv->captured[0] = 0;
@@ -3628,7 +3628,7 @@ int QRegExp::searchRev(const QString &str, int offset, CaretMode caretMode) cons
     prepareEngineForMatch(priv, str);
     if (offset < 0)
 	offset += str.length();
-    if (offset < 0 || offset > (int) str.length()) {
+    if (offset < 0 || offset > str.length()) {
 	priv->captured.detach();
 	priv->captured.fill(-1);
 	return -1;
@@ -3723,7 +3723,7 @@ int QRegExp::numCaptures() const
 QStringList QRegExp::capturedTexts()
 {
     if (priv->capturedCache.isEmpty()) {
-	for (int i = 0; i < (int) priv->captured.size(); i += 2) {
+	for (int i = 0; i < priv->captured.size(); i += 2) {
 	    QString m;
 	    if (priv->captured[i + 1] == 0)
 		m = QString::fromLatin1("");
@@ -3780,7 +3780,7 @@ QStringList QRegExp::capturedTexts()
 */
 QString QRegExp::cap(int nth)
 {
-    if (nth < 0 || nth >= (int) priv->captured.size() / 2) {
+    if (nth < 0 || nth >= priv->captured.size() / 2) {
 	return QString::null;
     } else {
 	return capturedTexts()[nth];
@@ -3809,7 +3809,7 @@ QString QRegExp::cap(int nth)
 */
 int QRegExp::pos(int nth)
 {
-    if (nth < 0 || nth >= (int) priv->captured.size() / 2)
+    if (nth < 0 || nth >= priv->captured.size() / 2)
 	return -1;
     else
 	return priv->captured[2 * nth];
@@ -3855,7 +3855,7 @@ QString QRegExp::escape(const QString &str)
     QString quoted = str;
     int i = 0;
 
-    while (i < (int) quoted.length()) {
+    while (i < quoted.length()) {
 	if (strchr(meta, quoted[i].latin1()) != 0)
 	    quoted.insert(i++, "\\");
 	i++;
