@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#66 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -3038,7 +3038,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 				- yPos ) );
     if ( autoUpdate() ) {
 	for (int ul = 0; ul <= nlines; ++ul )
-	    updateCell( line + ul, 0, TRUE );
+	    updateCell( line + ul, 0, FALSE );
     }
 }
 
