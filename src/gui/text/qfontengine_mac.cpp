@@ -58,7 +58,7 @@ struct QATSUStyle {
 //Mac (ATSUI) engine
 QFontEngineMac::QFontEngineMac() : QFontEngine(), mTextLayout(0), internal_fi(0), familyref(0)
 {
-    memset(widthCache, '\0', widthCacheSize);
+    memset(widthCache, 0, sizeof(widthCache));
 }
 
 QFontEngineMac::~QFontEngineMac()
