@@ -3,7 +3,7 @@ CONFIG		+= qt warn_on release
 SOURCES		= qwidgetfactory.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/domtool.cpp \
-		  ../integration/kdevelop/kdewidgets.cpp \
+		  ../integration/kdevelop/kdewidgets.cpp
 HEADERS		= qwidgetfactory.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \

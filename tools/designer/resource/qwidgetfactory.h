@@ -8,6 +8,7 @@
 #include "qimage.h"
 #include "qpixmap.h"
 #include "qvaluelist.h"
+#include "qmap.h"
 #endif // QT_H
 
 class QWidget;
@@ -31,7 +32,7 @@ private:
     void loadImageCollection( const QDomElement &e );
     void loadConnections( const QDomElement &e, QObject *connector );
     void loadTabOrder( const QDomElement &e );
-    QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout );
+    QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
     QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type );
     LayoutType layoutType( QLayout *l ) const;
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
@@ -56,7 +57,9 @@ private:
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
-
+    QMap<QString, QString> dbControls;
+    QMap<QString, QStringList> dbTables;
+    
 };
 
 #endif
