@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#151 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1789,7 +1789,6 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   <li> \c ExpandTabs expands tabulators.
   <li> \c ShowPrefix displays "&x" as "x" underlined.
   <li> \c WordBreak breaks the text to fit the rectangle.
-  <li> \c GrayText grays out the text.
   </ul>
 
   Horizontal alignment defaults to AlignLeft and vertical alignment
@@ -1914,7 +1913,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 #define ENCCHAR(x) (((x).cell << LO_SHIFT) | ((x).row << HI_SHIFT))
 #define DECCHAR(x) QChar(((x)&LO)>>LO_SHIFT,((x)&HI)>>HI_SHIFT)
 #define ISPRINT(x) ((x).row || (x).cell>' ')
-// ##### should use (unicode) QChar::isPrint() -- WWA to AG
+    // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
@@ -2160,22 +2159,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     QPainter *pp;
     QPixmap *pm;
 
-    if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
-	// #### NOTE: will not work with too-big-to-fit unclipped text.
-	mask = new QBitmap( w, fheight );
-	CHECK_PTR( mask );
-	pp = new QPainter( mask );
-	pp->setBrush( Dense4Pattern );
-	pp->setBackgroundMode( TransparentMode );
-	pp->setPen( color1 );
-	CHECK_PTR( pp );
-	pm = new QPixmap( w, fheight );
-	CHECK_PTR( pm );
-    } else {
-	mask = 0;
-	pp = 0;
-	pm = 0;
-    }
+    mask = 0;
+    pp = 0;
+    pm = 0;
 
     yp += fascent;
 
@@ -2195,7 +2181,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    xc = w - tw + fm.minRightBearing();
 	} else if ( (tf & AlignHCenter) == AlignHCenter ) {
 	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
-		     - fm.minLeftBearing();
+		 - fm.minLeftBearing();
 	} else {
 	    xc = -fm.minLeftBearing();
 	}
@@ -2215,8 +2201,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 				      color1 );
 		    else
 			painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
-				  CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
-				  painter->cpen.color() );
+					   CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
+					   painter->cpen.color() );
 		}
 		chunk += DECCHAR(*cp);
 		++cp;
