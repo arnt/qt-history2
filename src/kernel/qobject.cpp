@@ -52,6 +52,7 @@
 
 #include <ctype.h>
 
+
 #ifndef QT_NO_USERDATA
 class QObjectPrivate : public QPtrVector<QObjectUserData>
 {

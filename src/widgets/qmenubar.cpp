@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QMenuBar class
 **
 ** Created : 941209
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -49,13 +49,13 @@
 #include "qguardedptr.h"
 #include "qlayout.h"
 #include "qcleanuphandler.h"
-#include <ctype.h>
 #include "../kernel/qinternal_p.h"
 #include "qstyle.h"
 #include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+#include <ctype.h>
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp

@@ -57,6 +57,11 @@
 # undef truncate
 #endif
 
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
+#endif
+
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qcolor_p.h"

@@ -87,15 +87,5 @@
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 
-// SCO OpenServer curiously redefines raise() to kill().
-// This breaks our sources.
-// However Qt doesn't use the raise() function from <signal.h>,
-// so we may undefine this macro here, although it would be better
-// to redefine it in all files that implictly include <signal.h>
-// and use QWidget::raise().
-#if defined(raise)
-# undef raise
-#endif
-
 
 #endif // QPLATFORMDEFS_H
