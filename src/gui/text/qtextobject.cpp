@@ -341,7 +341,7 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
                 }
             }
         }
-        cb = map.prev(cb);
+        cb = map.previous(cb);
     }
  end:
     return *this;
@@ -543,7 +543,7 @@ QTextBlock QTextBlock::previous() const
     if (!p)
         return QTextBlock();
 
-    return QTextBlock(p, p->blockMap().prev(n));
+    return QTextBlock(p, p->blockMap().previous(n));
 }
 
 
@@ -571,12 +571,12 @@ QTextBlock::iterator QTextBlock::iterator::operator++()
 
 QTextBlock::iterator QTextBlock::iterator::operator--()
 {
-    int ne = p->fragmentMap().prev(n);
+    int ne = p->fragmentMap().previous(n);
     int formatIndex = p->fragmentMap().fragment(n)->format;
     int prev = ne;
     do {
         ne = prev;
-        prev = p->fragmentMap().prev(ne);
+        prev = p->fragmentMap().previous(ne);
     } while (ne != b && p->fragmentMap().fragment(prev)->format == formatIndex);
     n = ne;
     return *this;

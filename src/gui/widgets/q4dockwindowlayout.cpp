@@ -618,7 +618,7 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 	// at this point, the iterator is just before 'sep'
 
 	// get info for 'sep->prev' and move to just after sep->prev
-	Q4DockWindowLayoutInfo &info1 = b_it.prev(); // move to just after previous separator
+	Q4DockWindowLayoutInfo &info1 = b_it.previous(); // move to just after previous separator
 
 	(void)f_it.next(); // move to before sep->next
 
@@ -684,11 +684,11 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 
 	    VDEBUG("remaining above: %d", remain);
 
-	    if (b_it.hasPrev()) {
+	    if (b_it.hasPrevious()) {
 		while (remain != 0) {
 		    // (void)b_it.prev(); // skip separator
 
-		    Q4DockWindowLayoutInfo &b_info = b_it.prev();
+		    Q4DockWindowLayoutInfo &b_info = b_it.previous();
 
 		    // add delta from current size of sep->next
 		    x = b_info.cur_size;
@@ -701,7 +701,7 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 
 		    VDEBUG("  done, new %4d old %4d remaining %d", b_info.cur_size, x, remain);
 
-		    if (!b_it.hasPrev()) break; // at the beginning
+		    if (!b_it.hasPrevious()) break; // at the beginning
 		}
 	    }
 

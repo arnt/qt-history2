@@ -73,7 +73,7 @@ struct Q_CORE_EXPORT QHashData
     void free();
     Node *firstNode();
     static Node *nextNode(Node *node);
-    static Node *prevNode(Node *node);
+    static Node *previousNode(Node *node);
 
     static QHashData shared_null;
 };
@@ -222,12 +222,12 @@ public:
             return r;
         }
         inline iterator operator--() {
-            i = QHashData::prevNode(i);
+            i = QHashData::previousNode(i);
             return *this;
         }
         inline iterator operator--(int) {
             iterator r = *this;
-            i = QHashData::prevNode(i);
+            i = QHashData::previousNode(i);
             return r;
         }
         inline iterator operator+(int j) const
@@ -272,12 +272,12 @@ public:
             return r;
         }
         inline const_iterator operator--() {
-            i = QHashData::prevNode(i);
+            i = QHashData::previousNode(i);
             return *this;
         }
         inline const_iterator operator--(int) {
             iterator r = *this;
-            i = QHashData::prevNode(i);
+            i = QHashData::previousNode(i);
             return r;
         }
         inline const_iterator operator+(int j) const

@@ -642,7 +642,10 @@ public:
 
         Key_MediaPlay  = 0x01000080,
         Key_MediaStop  = 0x01000081,
-        Key_MediaPrev  = 0x01000082,
+        Key_MediaPrevious  = 0x01000082,
+#ifdef QT_COMPAT
+        Key_MediaPrev  = Key_MediaPrevious,
+#endif
         Key_MediaNext  = 0x01000083,
         Key_MediaRecord = 0x01000084,
 

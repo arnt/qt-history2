@@ -125,7 +125,7 @@ public:
     }
 
     uint next(uint n) const;
-    uint prev(uint n) const;
+    uint previous(uint n) const;
 
     inline uint root() const {
         Q_ASSERT(!head->root || !fragment(head->root)->parent);
@@ -185,7 +185,7 @@ public:
             return *this;
         }
         Iterator& operator--() {
-            n = pt->data.prev(n);
+            n = pt->data.previous(n);
             return *this;
         }
 
@@ -224,7 +224,7 @@ public:
             return *this;
         }
         ConstIterator& operator--() {
-            n = pt->data.prev(n);
+            n = pt->data.previous(n);
             return *this;
         }
     };
@@ -281,7 +281,7 @@ public:
     }
     inline uint position(uint node) const { return data.position(node); }
     inline uint next(uint n) const { return data.next(n); }
-    inline uint prev(uint n) const { return data.prev(n); }
+    inline uint previous(uint n) const { return data.previous(n); }
     inline uint size(uint node) const { return data.size(node); }
     inline void setSize(uint node, int new_size)
     { data.setSize(node, new_size);

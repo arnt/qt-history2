@@ -105,15 +105,6 @@ void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
             ++it;
 }
 
-
-void QAbstractTextDocumentLayout::invalidate(const QRect & /* r */)
-{
-}
-
-void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
-{
-}
-
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
     QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();

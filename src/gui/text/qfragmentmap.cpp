@@ -146,7 +146,7 @@ uint QFragmentMapData::next(uint n) const {
     return n;
 }
 
-uint QFragmentMapData::prev(uint n) const {
+uint QFragmentMapData::previous(uint n) const {
     if (!n)
         return maximum(root());
 
@@ -303,7 +303,7 @@ void QFragmentMapData::rebalance(uint x)
 
 uint QFragmentMapData::erase_single(uint z)
 {
-    uint w = prev(z);
+    uint w = previous(z);
     uint y = z;
     uint x;
     uint p;

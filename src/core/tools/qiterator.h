@@ -25,12 +25,12 @@ public: \
     inline bool hasNext() const { return i != c.constEnd(); } \
     inline const T &next() { return *i++; } \
     inline const T &peekNext() const { return *i; } \
-    inline bool hasPrev() const { return i != c.constBegin(); } \
-    inline const T &prev() { return *--i; } \
-    inline const T &peekPrev() const { const_iterator p = i; return *--p; } \
+    inline bool hasPrevious() const { return i != c.constBegin(); } \
+    inline const T &previous() { return *--i; } \
+    inline const T &peekPrevious() const { const_iterator p = i; return *--p; } \
     inline bool findNext(const T &t) \
     { while (i != c->constEnd()) if (*i++ == t) return true; return false; } \
-    inline bool findPrev(const T &t) \
+    inline bool findPrevious(const T &t) \
     { while (i != c->constBegin()) if (*(--i) == t) return true; \
       return false;  } \
 }; \
@@ -52,9 +52,9 @@ public: \
     inline bool hasNext() const { return c->constEnd() != i; } \
     inline T &next() { n = i++; return *n; } \
     inline T &peekNext() const { return *i; } \
-    inline bool hasPrev() const { return c->constBegin() != i; } \
-    inline T &prev() { n = --i; return *n; } \
-    inline T &peekPrev() const { iterator p = i; return *--p; } \
+    inline bool hasPrevious() const { return c->constBegin() != i; } \
+    inline T &previous() { n = --i; return *n; } \
+    inline T &peekPrevious() const { iterator p = i; return *--p; } \
     inline void remove() \
     { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } } \
     inline void setValue(const T &t) const { if (c->constEnd() != n) *n = t; } \
@@ -62,7 +62,7 @@ public: \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
     { while (c->constEnd() != (n = i)) if (*i++ == t) return true; return false; } \
-    inline bool findPrev(const T &t) \
+    inline bool findPrevious(const T &t) \
     { while (c->constBegin() != i) if (*(n = --i) == t) return true; \
       n = c->end(); return false;  } \
 };
@@ -87,14 +87,14 @@ public: \
     inline bool hasNext() const { return i != c.constEnd(); } \
     inline Item next() { n = i++; return n; } \
     inline Item peekNext() const { return i; } \
-    inline bool hasPrev() const { return i != c.constBegin(); } \
-    inline Item prev() { n = --i; return n; } \
-    inline Item peekPrev() const { const_iterator p = i; return --p; } \
+    inline bool hasPrevious() const { return i != c.constBegin(); } \
+    inline Item previous() { n = --i; return n; } \
+    inline Item peekPrevious() const { const_iterator p = i; return --p; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findNext(const T &t) \
     { while ((n = i) != c.constEnd()) if (*i++ == t) return true; return false; } \
-    inline bool findPrev(const T &t) \
+    inline bool findPrevious(const T &t) \
     { while (i != c.constBegin()) if (*(n = --i) == t) return true; \
       n = c.constEnd(); return false; } \
     inline bool findNextKey(const Key &key) \
@@ -114,7 +114,7 @@ public: \
             return true; \
         } \
     } \
-    inline bool findPrevKey(const Key &key) \
+    inline bool findPreviousKey(const Key &key) \
     { \
         if (i == c.constEnd()) { \
             n = i = c.find(key); \
@@ -155,9 +155,9 @@ public: \
     inline bool hasNext() const { return i != c->constEnd(); } \
     inline Item next() { n = i++; return n; } \
     inline Item peekNext() const { return i; } \
-    inline bool hasPrev() const { return i != c->constBegin(); } \
-    inline Item prev() const { n = --i; return n; } \
-    inline Item peekPrev() const { iterator p = i; return --p; } \
+    inline bool hasPrevious() const { return i != c->constBegin(); } \
+    inline Item previous() const { n = --i; return n; } \
+    inline Item peekPrevious() const { iterator p = i; return --p; } \
     inline void remove() \
     { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
     inline void setValue(const T &t) { if (n != c->constEnd()) *n = t; } \
@@ -165,13 +165,13 @@ public: \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findNext(const T &t) \
     { while ((n = i) != c->constEnd()) if (*i++ == t) return true; return false; } \
-    inline bool findPrev(const T &t) \
+    inline bool findPrevious(const T &t) \
     { while (i != c->constBegin()) if (*(n = --i) == t) return true; \
       n = c->end(); return false; } \
     inline bool findNextKey(const Key &key) \
     { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findNextKey(key); } \
-    inline bool findPrevKey(const Key &key) \
-    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findPrevKey(key); } \
+    inline bool findPreviousKey(const Key &key) \
+    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findPreviousKey(key); } \
 };
 
 #endif // QITERATOR_H

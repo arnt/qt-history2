@@ -150,7 +150,7 @@ QHashData::Node *QHashData::nextNode(Node *node)
     return e;
 }
 
-QHashData::Node *QHashData::prevNode(Node *node)
+QHashData::Node *QHashData::previousNode(Node *node)
 {
     union {
         Node *e;

@@ -151,7 +151,8 @@ private:
     friend class QTextEditPrivate;
     QTextEditPrivate *d;
 
-    Q_PRIVATE_SLOT(void trippleClickTimeout());
+    Q_PRIVATE_SLOT(void trippleClickTimeout())
+    Q_PRIVATE_SLOT(void update(const QRect &r))
 #if defined(Q_DISABLE_COPY)
     QTextEdit(const QTextEdit &);
     QTextEdit &operator=(const QTextEdit &);

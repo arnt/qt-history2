@@ -181,7 +181,7 @@ void QTextDocumentPrivate::insert_string(int pos, uint strPos, uint length, int 
     QTextFragmentData *X = fragments.fragment(x);
     X->format = format;
     X->stringPosition = strPos;
-    uint w = fragments.prev(x);
+    uint w = fragments.previous(x);
     if (w)
         unite(w);
 
@@ -412,7 +412,7 @@ void QTextDocumentPrivate::remove(int pos, int length, UndoCommand::Operation op
         } else {
 //  	    qDebug("remove_block at %d", key);
             Q_ASSERT(X->size == 1 && isValidBlockSeparator(text.at(X->stringPosition)));
-            b = blocks.prev(b);
+            b = blocks.previous(b);
             c.command = blocks.size(b) == 1 ? UndoCommand::BlockDeleted : UndoCommand::BlockRemoved;
             w = remove_block(key, &c.blockFormat, UndoCommand::BlockAdded, op);
         }

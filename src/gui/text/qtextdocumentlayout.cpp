@@ -592,7 +592,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
 {
     Q_ASSERT(data(f)->dirty);
-    qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
+//     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
     QTextFrameData *fd = data(f);
     QTextFrameFormat fformat = f->format();
@@ -619,7 +619,6 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
                 width = pd ? pd->contentsWidth : pageSize.width();
             }
         }
-        qDebug("available width = %d pd=%p", width, pd);
         fd->contentsWidth = width - 2*(fd->margin + fd->border);
 
         int height = fformat.height();
@@ -893,6 +892,7 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
     markFrames(document()->rootFrame(), from, from + length);
 
     d->layoutFrame(document()->rootFrame(), from, from + length);
+    emit update();
 }
 
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const

@@ -57,13 +57,12 @@ public:
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 
-    void invalidate(const QRect &r);
-    void invalidate(const QRegion &r);
-
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
 
     const QTextDocument *document() const;
+signals:
+    void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
 
 private slots:
     void handlerDestroyed(QObject *obj);

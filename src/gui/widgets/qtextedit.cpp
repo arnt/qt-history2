@@ -112,7 +112,10 @@ public:
         : doc(new QTextDocument(ed)), cursorOn(false), cursor(doc), q(ed), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false), trippleClickTimerActive(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0)
-    { }
+    {
+        QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
+    }
+
     inline ~QTextEditPrivate()
     { delete doc; }
 
@@ -138,6 +141,7 @@ public:
     void placeCursor(const QPoint &pos);
 
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+    inline void update(const QRect &r) { q->viewport()->update(r); }
 
     void selectionChanged();
 
@@ -375,16 +379,6 @@ QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) c
 
     QTextDocumentPrivate *pt = doc->docHandle();
     return QTextBlock(pt, pt->blockMap().findNode(docPos));
-}
-
-static int blockNr(QTextBlock block)
-{
-    int nr = -1;
-
-    for (; block.isValid(); block = block.previous())
-        ++nr;
-
-    return nr;
 }
 
 QTextEdit::QTextEdit( QWidget *parent,  const char * name )
@@ -877,7 +871,6 @@ void QTextEdit::contentsMouseMoveEvent(QMouseEvent *ev)
     }
 
     d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
-
     viewport()->update();
 }
 
@@ -979,8 +972,6 @@ void QTextEdit::contentsDropEvent(QDropEvent *ev)
     ev->acceptAction();
 
     d->placeCursor(ev->pos());
-    viewport()->update();
-
     d->paste(ev);
 }
 
@@ -1288,6 +1279,16 @@ Qt::TextFormat QTextEdit::textFormat() const
 }
 
 /*
+static int blockNr(QTextBlock block)
+{
+    int nr = -1;
+
+    for (; block.isValid(); block = block.previous())
+        ++nr;
+
+    return nr;
+}
+
 QTextBlock QTextEdit::blockAt(int blockNr) const
 {
     QTextBlock block = d->doc->rootFrame()->begin().currentBlock();
