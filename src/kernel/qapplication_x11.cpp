@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#40 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#40 $";
 #endif
 
 
@@ -49,6 +49,8 @@ static char    *appDpyName = 0;			// X11 display name
 static bool	appSync = FALSE;		// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
+static GC	app_gc1 = 0;			// read-only GC
+static GC	app_gc2 = 0;			// temporary GC
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
@@ -244,6 +246,11 @@ int main( int argc, char **argv )
     QColor::cleanup();
     cleanupTimers();
 
+    if ( app_gc1 )
+	XFreeGC( appDpy, app_gc1 );
+    if ( app_gc2 )
+	XFreeGC( appDpy, app_gc2 );
+
     XCloseDisplay( appDpy );			// close X display
 
 #if defined(DEBUG)
@@ -316,10 +323,16 @@ Window qXRootWin()				// get X root window
 
 GC qXGetReadOnlyGC()				// get read-only GC
 {
-    static GC gc = 0;
-    if ( !gc )
-	gc = XCreateGC( appDpy, appRootWin, 0, 0 );
-    return gc;
+    if ( !app_gc1 )
+	app_gc1 = XCreateGC( appDpy, appRootWin, 0, 0 );
+    return app_gc1;
+}
+
+GC qXGetTempGC()				// get use'n throw GC
+{
+    if ( !app_gc2 )
+	app_gc2 = XCreateGC( appDpy, appRootWin, 0, 0 );
+    return app_gc2;
 }
 
 QWidget *QApplication::desktop()
