@@ -49,6 +49,7 @@
 #include <qlayout.h>
 #include <qmainwindow.h>
 #include <qtimer.h>
+#include <qtooltip.h>
 
 #if defined( Q_WS_MAC )
 #define MAC_DRAG_HACK
@@ -1519,6 +1520,12 @@ void QDockWindow::setCaption( const QString &s )
 {
     titleBar->setText( s );
     QFrame::setCaption( s );
+    QToolTip::remove( horHandle );
+    QToolTip::remove( verHandle );
+    if ( !s.isEmpty() ) {
+	QToolTip::add( horHandle, s );
+	QToolTip::add( verHandle, s );
+    }
 }
 
 void QDockWindow::updateSplitterVisibility( bool visible )
