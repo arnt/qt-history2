@@ -60,8 +60,11 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
                 // add the QTextBeginningOfFrame
                 int cellPos = cell.firstPosition();
                 appendFragment(priv, cellPos-1, cellPos, objectIndex);
-                // add the contents
-                appendFragments(priv, cellPos, cell.lastPosition());
+                // nothing to add for empty cells
+                if (cell.lastPosition() > cellPos) {
+                    // add the contents
+                    appendFragments(priv, cellPos, cell.lastPosition());
+                }
             }
         }
 
