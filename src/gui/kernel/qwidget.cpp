@@ -3641,8 +3641,8 @@ QSize QWidget::contentsMarginSize() const
     constructor. For instance, the QLineEdit constructor calls
     setFocusPolicy(Qt::StrongFocus).
 
-    \sa focusEnabled focusInEvent() focusOutEvent() keyPressEvent()
-        keyReleaseEvent() enabled
+    \sa focusEnabled, focusInEvent(), focusOutEvent(), keyPressEvent(),
+        keyReleaseEvent(), enabled
 */
 
 Qt::FocusPolicy QWidget::focusPolicy() const
