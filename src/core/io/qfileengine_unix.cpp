@@ -126,7 +126,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
     const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
     const bool doFiles    = (filterSpec & QDir::Files) != 0;
-    const bool noSymLinks = (filterSpec & QDir::NoSymLinks) != 0;
+    const bool doSymLinks = (filterSpec & QDir::NoSymLinks) == 0;
     const bool doReadable = (filterSpec & QDir::Readable) != 0;
     const bool doWritable = (filterSpec & QDir::Writable) != 0;
     const bool doExecable = (filterSpec & QDir::Executable) != 0;
@@ -167,9 +167,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         Q_UNUSED(filters);
 #endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
-              (doSystem && (!fi.isFile() && !fi.isDir()))) {
-            if(noSymLinks && fi.isSymLink())
-                continue;
+              (doSystem && (!fi.isFile() && !fi.isDir())) ||
+              (doSymLinks && fi.isSymLink())) {
             if((filterSpec & QDir::RWEMask) != 0)
                 if((doReadable && !fi.isReadable()) ||
                      (doWritable && !fi.isWritable()) ||
