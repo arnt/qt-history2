@@ -549,7 +549,7 @@ int QSocketDevice::accept()
   amount of data on the socket is to read it using readBlock().
   QSocket has workarounds to deal with this problem.
 */
-int QSocketDevice::bytesAvailable() const
+Q_LONG QSocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -578,7 +578,7 @@ int QSocketDevice::bytesAvailable() const
 
   \sa bytesAvailable()
 */
-int QSocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;

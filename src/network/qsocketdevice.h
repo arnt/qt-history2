@@ -95,8 +95,8 @@ public:
     virtual bool listen( int backlog );
     virtual int	 accept();
 
-    int		 bytesAvailable() const;
-    int		 waitForMore( int msecs, bool *timeout=0 ) const;
+    Q_LONG	 bytesAvailable() const;
+    Q_LONG	 waitForMore( int msecs, bool *timeout=0 ) const;
     Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
     Q_LONG	 writeBlock( const char *data, Q_ULONG len );
     virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,

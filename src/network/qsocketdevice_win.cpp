@@ -456,7 +456,7 @@ int QSocketDevice::accept()
 }
 
 
-int QSocketDevice::bytesAvailable() const
+Q_LONG QSocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -467,7 +467,7 @@ int QSocketDevice::bytesAvailable() const
 }
 
 
-int QSocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
