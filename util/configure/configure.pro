@@ -8,7 +8,7 @@ HEADERS += $(QTDIR)/src/tools/qgvector.h $(QTDIR)/src/tools/qdatastream.h $(QTDI
 HEADERS += $(QTDIR)/src/tools/qgarray.h $(QTDIR)/src/tools/qglobal.h $(QTDIR)/src/tools/qptrcollection.h
 HEADERS += $(QTDIR)/src/tools/qbuffer.h $(QTDIR)/src/tools/qstringlist.h $(QTDIR)/src/tools/qcstring.h
 HEADERS += $(QTDIR)/src/tools/qtextstream.h $(QTDIR)/src/tools/qdatetime.h $(QTDIR)/src/codecs/qtextcodec.h
-HEADERS += $(QTDIR)/src/tools/qmap.h
+HEADERS += $(QTDIR)/src/tools/qmap.h $(QTDIR)/src/tools/qlibrary.h
 
 SOURCES	 = main.cpp configureapp.cpp
 SOURCES	+= $(QTDIR)/src/tools/qdir.cpp $(QTDIR)/src/tools/qdir_win.cpp $(QTDIR)/src/tools/qstring.cpp
@@ -20,6 +20,7 @@ SOURCES += $(QTDIR)/src/tools/qgarray.cpp $(QTDIR)/src/tools/qglobal.cpp $(QTDIR
 SOURCES += $(QTDIR)/src/tools/qbuffer.cpp $(QTDIR)/src/tools/qstringlist.cpp $(QTDIR)/src/tools/qcstring.cpp
 SOURCES += $(QTDIR)/src/tools/qtextstream.cpp $(QTDIR)/src/tools/qdatetime.cpp $(QTDIR)/src/codecs/qtextcodec.cpp
 SOURCES += $(QTDIR)/src/tools/qmap.cpp
+SOURCES += $(QTDIR)/src/tools/qlibrary.cpp $(QTDIR)/src/tools/qlibrary_win.cpp
 INCLUDEPATH = $(QTDIR)/include/ $(QTDIR)/src/tools/
 INTERFACES=
 TARGET=configure
