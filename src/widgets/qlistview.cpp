@@ -7778,7 +7778,7 @@ bool QListView::selectRange( QListViewItem *newItem, QListViewItem *oldItem, QLi
 QListViewItem *QListView::findItem( const QString& text, int column,
 				    StringComparison compare ) const
 {
-    if ( text.isEmpty() )
+    if (text.isEmpty() && !(compare & ExactMatch))
 	return 0;
 
     if ( compare == CaseSensitive || compare == 0 )
