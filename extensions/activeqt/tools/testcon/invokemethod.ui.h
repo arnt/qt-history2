@@ -46,48 +46,25 @@ void InvokeMethod::methodSelected( const QString &method )
     listParameters->clear();
     listParameters->setSorting( -1 );
     const QMetaObject *mo = activex->metaObject();
-/*
-    const QMetaData *data = mo->slot( mo->findSlot( method, FALSE ), TRUE );
-    const QUMethod *slot = data ? data->method : 0;
-    if ( !slot )
-	return;
+    const QMetaMember slot = mo->slot(mo->indexOfSlot(method.latin1()));
+    QString signature = slot.signature();
+    signature = signature.mid(signature.indexOf('(') + 1);
+    signature.truncate(signature.length()-1);
 
-    for ( int p = slot->count-1; p >= 0; --p ) {
-	const QUParameter *param = slot->parameters + p;
-	if ( !param )
-	    continue;
-	QListViewItem *item = 0;
-	if ( param->inOut != QUParameter::Out ) {
-	    item = new QListViewItem( listParameters );
-	    QString pname = param->name ? param->name : "<unnamed>";
-	    item->setText( 0, pname );
-	}
-	QString ptype;
-	if ( !param->type ) {
-	    ptype = "<unknown type>";
-	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-	    ptype = (const char*)param->typeExtra;
-	} else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    ptype = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
-	} else if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
-	    ptype = param->type->desc();
-	} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
-	    QUEnum *uEnum = (QUEnum*)param->typeExtra;
-	    ptype = uEnum->name;
-	} else {
-	    ptype = param->type->desc();
-	}
-	if ( !item ) {
-	    editReturn->setText( ptype );
-	} else {
-	    item->setText( 1, ptype );
-	}
+    QStringList pnames = QString(slot.parameters()).split(',');
+    QStringList ptypes = signature.split(",");
+
+    for (int p = ptypes.count()-1; p >= 0; --p ) {
+	QString ptype(ptypes.at(p));
+	QString pname(pnames.at(p));
+	if (pname.isEmpty())
+	    pname = QString("<unnamed %1>").arg(p);	
+	QListViewItem *item = new QListViewItem(listParameters, pname, ptype);
     }
 
-    if ( slot->count ) {
+    if (listParameters->firstChild())
 	listParameters->setCurrentItem( listParameters->firstChild() );
-    }
-*/
+    editReturn->setText(slot.type());
 }
 
 void InvokeMethod::parameterSelected( QListViewItem *item )
