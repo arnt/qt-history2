@@ -10,6 +10,7 @@
 #include <qsqleditorfactory.h>
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
+#include <qregexp.h>
 
 #include "../designerinterface.h"
 
@@ -152,7 +153,9 @@ void SqlFormWizard::accept()
 
     DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
     DesignerMetaDatabaseInterface *mdbIface = (DesignerMetaDatabaseInterface*)appIface->queryInterface( IID_DesignerMetaDatabaseInterface );
-    if ( !widget || !proIface || !mdbIface ) {
+    DesignerWidgetFactoryInterface *wfIface = (DesignerWidgetFactoryInterface*)appIface->queryInterface( IID_DesignerWidgetFactoryInteface );
+    DesignerFormInterface *fIface = (DesignerFormInterface*)appIface->queryInterface( IID_DesignerFormInterface );
+    if ( !widget || !proIface || !mdbIface || !wfIface || !fIface ) {
 	SqlFormWizardBase::accept();
 	return;
     }
@@ -173,42 +176,47 @@ void SqlFormWizard::accept()
 
     QSqlEditorFactory * f = QSqlEditorFactory::defaultFactory();
 
+    QWidget * editorDummy;
     QWidget * editor;
     QLabel * label;
-    QVBoxLayout * vb = new QVBoxLayout( widget );
-    QGridLayout * g  = new QGridLayout( vb );
-    g->setMargin( 5 );
-    g->setSpacing( 3 );
+
     int visibleFields = listBoxSelectedField->count();
-
-    if( columns < 1 ) columns = 1;
-
     int numPerColumn = visibleFields / columns;
     if( (visibleFields % columns) > 0)
 	numPerColumn++;
 
-    int col = 0, currentCol = 0;
+    int row = 0, col = 0;
+    const int SPACING = 25;
 
     for( uint j = 0; j < listBoxSelectedField->count(); j++ ){
-	if( col >= numPerColumn ){
-	    col = 0;
-	    currentCol += 2;
-	}
 
 	QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
 	if ( !field )
 	    continue;
 
-	label = new QLabel( field->name(), widget ); //## make pretty?
-	g->addWidget( label, col, currentCol );
+	QString labelName = field->name();
+	labelName = labelName.mid(0,1).upper() + labelName.mid(1);
+	labelName.replace( QRegExp("_"), " " );
+	label = (QLabel*)wfIface->create( "QLabel", widget, QString( "label" + field->name() ) );
+	label->setText( labelName );
+	label->setGeometry( col+SPACING, row+SPACING, SPACING*3, SPACING );
+	mdbIface->setPropertyChanged( label, "text", TRUE );
+	mdbIface->setPropertyChanged( label, "geometry", TRUE );
+	fIface->addWidget( label );
 
-	editor = f->createEditor( widget, field );
-	g->addWidget( editor, col, currentCol + 1 );
-	col++;
+	editorDummy = f->createEditor( widget, field );
+	editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + field->name()) );
+	delete editorDummy;
+	editor->setGeometry( col+SPACING, row+SPACING, SPACING*3, SPACING );
+	mdbIface->setPropertyChanged( editor, "geometry", TRUE );
+	fIface->addWidget( editor );
+
+	row += 25;
+
     }
+
 
     proIface->closeDatabase( editConnection->text() );
 
     SqlFormWizardBase::accept();
-
 }
