@@ -145,7 +145,9 @@
     obtained when painting on the printer will match more or less
     exactly the visible output on the screen. It is the easiest to
     use, as font metrics on the screen and on the printer are the
-    same. This is the default value.
+    same. This is the default value. ScreenResolution will produce a
+    lower quality output than HighResolution and should only be used
+    for drafts.
 
     \value PrinterResolution Use the physical resolution of the
     printer on Windows. On Unix, set the postscript resolution to 72
