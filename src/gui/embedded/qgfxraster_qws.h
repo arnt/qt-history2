@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qpen.h"
 #include "qbrush.h"
 #include "qimage.h"
@@ -317,11 +318,11 @@ protected:
     volatile int * gfx_optype;
 
     SourceType srctype;
-    PixelType srcpixeltype;
+    QScreen::PixelType srcpixeltype;
     unsigned char * srcbits;
     unsigned char * const buffer;
 
-    PixelType pixeltype;
+    QScreen::PixelType pixeltype;
     int width;
     int height;
     int xoffs;

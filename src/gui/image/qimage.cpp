@@ -38,6 +38,7 @@
 
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #endif
 
 #if defined(Q_WS_X11)

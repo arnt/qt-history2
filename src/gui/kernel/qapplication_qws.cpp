@@ -40,7 +40,7 @@
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsproperty_qws.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qcopchannel_qws.h"
 #include "private/qlock_p.h"
 #include "qmemorymanager_qws.h"

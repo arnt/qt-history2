@@ -13,6 +13,7 @@ embedded {
 		    embedded/qgfxraster_qws.h \
 		    embedded/qlock_p.h \
 		    embedded/qmemorymanager_qws.h \
+		    embedded/qscreen_qws.h \
 		    embedded/qwindowsystem_qws.h \
 		    embedded/qwsbeosdecoration_qws.h \
 		    embedded/qwscommand_qws.h \

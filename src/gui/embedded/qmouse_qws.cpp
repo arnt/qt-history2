@@ -14,7 +14,7 @@
 
 #include "qmouse_qws.h"
 #include "qwindowsystem_qws.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qapplication.h"
 #include "qtextstream.h"
 #include "qfile.h"

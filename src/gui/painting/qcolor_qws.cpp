@@ -17,7 +17,7 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qgfx_qws.h"
+#include <qscreen_qws.h>
 #include "qwsdisplay_qws.h"
 
 /*****************************************************************************
@@ -139,7 +139,7 @@ uint QColor::alloc(int /*screen*/)
         const int blue_mask  = 0x0000ff;
         const int tg = g << green_shift;
 #ifndef QT_NO_QWS_DEPTH_32_BGR
-        if (qt_screen->pixelType() == QGfx::BGRPixel) {
+        if (qt_screen->pixelType() == QScreen::BGRPixel) {
             const int tb = b << red_shift;
             d.d32.pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
         } else

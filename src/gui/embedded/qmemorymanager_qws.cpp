@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 #include "qmemorymanager_qws.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qpaintdevice.h"
 #include <private/qfontdata_p.h>
 #include "qfile.h"
@@ -33,8 +33,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #endif
-
-#include "qgfx_qws.h"
 
 #if 0
 #define FM_SMOOTH 1

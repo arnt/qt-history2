@@ -31,6 +31,7 @@
 
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"

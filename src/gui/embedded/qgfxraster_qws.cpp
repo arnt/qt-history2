@@ -436,7 +436,7 @@ void QScreenCursor::saveUnder()
         gfxunder->srcdepth = gfx->bitDepth();
         gfxunder->srcbits = gfx->buffer;
         gfxunder->srctype = QGfx::SourceImage;
-        gfxunder->srcpixeltype = QGfx::NormalPixel;
+        gfxunder->srcpixeltype = QScreen::NormalPixel;
         gfxunder->srcwidth = qt_screen->width();
         gfxunder->srcheight = qt_screen->height();
         gfxunder->setSourceWidgetOffset(0, 0);
@@ -833,7 +833,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     gfx_screencursor=qt_screencursor;
     gfx_swcursor=qt_sw_cursor;
 #endif
-    srcpixeltype = pixeltype = NormalPixel;
+    srcpixeltype = pixeltype = QScreen::NormalPixel;
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
     height=h;
@@ -2301,7 +2301,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
         abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);
     srctype=SourceImage;
-    srcpixeltype=NormalPixel;
+    srcpixeltype=QScreen::NormalPixel;
     setAlphaType(IgnoreAlpha);
     if (p->devType() == QInternal::Widget) {
         QWidget * w=(QWidget *)p;
@@ -2349,7 +2349,7 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QImage * i)
 {
     srctype=SourceImage;
-    srcpixeltype=NormalPixel;
+    srcpixeltype=QScreen::NormalPixel;
     srclinestep=i->bytesPerLine();
     srcdepth=i->depth();
     if(srcdepth==0)
@@ -2372,7 +2372,7 @@ void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
                                        int d,QRgb * clut,int numcols)
 {
     srctype=SourceImage;
-    srcpixeltype=NormalPixel;
+    srcpixeltype=QScreen::NormalPixel;
     srclinestep=l;
     srcdepth=d;
     srcbits=c;
@@ -5787,7 +5787,7 @@ screen. Offscreen memory is only used by the accelerated drivers.
 
 QScreen::QScreen(int display_id)
 {
-    pixeltype=QGfx::NormalPixel;
+    pixeltype=NormalPixel;
     data = 0;
     displayId = display_id;
     initted=false;
@@ -5834,9 +5834,8 @@ QGfx * QScreen::screenGfx()
 }
 
 /*!
-  \fn int QScreen::pixelType() const
-  Returns an integer (taking the same values as QGfx::PixelType)
-  that specifies the pixel storage format of the screen.
+  \fn PixelType QScreen::pixelType() const
+  Returns  the pixel storage format of the screen.
  */
 
 /*!

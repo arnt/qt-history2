@@ -22,6 +22,7 @@
 #include "qpainter.h"
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qhash.h"
 #include <stdlib.h>
 #include <limits.h>

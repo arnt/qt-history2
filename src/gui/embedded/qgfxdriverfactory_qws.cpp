@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QGfxDriverFactory class.
+** implementation of QGfxDriverFactory class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -14,6 +14,7 @@
 
 #include "qgfxdriverfactory_qws.h"
 
+#include "qscreen_qws.h"
 #include "qapplication.h"
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxtransformed_qws.h"

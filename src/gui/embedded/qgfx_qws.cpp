@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #include <stdio.h>
 #ifdef QT_LOADABLE_MODULES

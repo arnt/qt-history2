@@ -14,7 +14,7 @@
 
 #include "qcursor.h"
 #include "qbitmap.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qapplication.h"
 #include "qwindowsystem_qws.h"
 #include "qwscursor_qws.h"
@@ -512,7 +512,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 #endif
 }
 
-// ### now we're really silly
+// now we're really silly
 void QWSCursor::createDropShadow(int dropx, int dropy)
 {
 #if !defined(QT_NO_QWS_CURSOR) && !defined(QT_NO_QWS_ALPHA_CURSOR)

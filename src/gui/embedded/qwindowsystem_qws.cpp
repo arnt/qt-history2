@@ -27,6 +27,7 @@
 #include "qimage.h"
 #include "qcursor.h"
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
 #include "qwsregionmanager_qws.h"
