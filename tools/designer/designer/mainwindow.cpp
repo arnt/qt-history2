@@ -2379,6 +2379,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 		c.connection = conn->name;
 		c.tables = conn->tables;
 		c.fields = conn->fields;
+		dbConnections.append( c );
 	    }
 	}
 	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), dbConnections );
