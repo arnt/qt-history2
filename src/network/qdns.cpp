@@ -87,14 +87,14 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     \code
         void MyWidget::lookedUp(const QDnsHostInfo &host)
         {
-            if (host.error() != QDns::NoError) {
-                qDebug("Lookup failed: %s", host.errorString().latin1());
+            if (host.error() != QDnsHostInfo::NoError) {
+                qDebug() << "Lookup failed:" << host.errorString();
                 return;
             }
 
             QList<QHostAddress> addresses = host.addresses();
             for (int i = 0; i < addresses.count(); ++i)
-                qDebug("Got address: %s", addresses.at(i).toString().latin1());
+                qDebug() << "Got address:" << addresses.at(i).toString();
         }
     \endcode
 */

@@ -2454,7 +2454,7 @@ QBoxLayout::Direction QBoxLayout::direction() const
 
     The simplest use of the class is like this:
     \code
-        QBoxLayout * l = new QHBoxLayout(widget);
+        QHBoxLayout * l = new QHBoxLayout(widget);
         l->addWidget(existingChildOfWidget);
         l->addWidget(anotherChildOfWidget);
     \endcode
