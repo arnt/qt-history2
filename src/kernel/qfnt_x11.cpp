@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#21 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#21 $";
 #endif
 
 // #define DEBUG_FONT
@@ -984,6 +984,29 @@ int QFontMetrics::width( const char *str, int len ) const
     return XTextWidth( f.d->xfd->f, str, len );
 }
 
+QRect QFontMetrics::boundingRect( const char *str, int len ) const
+{
+    if ( DIRTY_METRICS )
+        f.loadFont();
+    if ( len < 0 )
+        len = strlen( str );
+    XFontStruct *fs = f.d->xfd->f;
+    int direction;
+    int ascent;
+    int descent;
+    XCharStruct overall;
+
+    XTextExtents( fs, str, len, &direction, &ascent, &descent, &overall );
+    int startX = overall.lbearing >= 0 ? -1 : overall.lbearing - 1;
+    int width;
+    if ( overall.rbearing < overall.width )
+        width =  overall.width - startX + 1;
+    else
+        width =  overall.rbearing - startX + 1;
+    return QRect( startX, -overall.ascent - 1, width, 
+                  overall.descent  + overall.ascent   + 3 );
+}
+
 int QFontMetrics::maxWidth() const
 {
     if ( DIRTY_METRICS )
@@ -1011,6 +1034,7 @@ int QFontMetrics::lineWidth() const
         f.loadFont();
     return f.d->lineW;
 }
+
 
 // --------------------------------------------------------------------------
 // QFontInfo member functions
@@ -1070,8 +1094,8 @@ void QFont::updateFontInfo() const
         d->act.pointSize = ( 2*d->act.pointSize*atoi(tokens[ResolutionY]) + 1 )
                           / ( 75 * 2 );  // adjust actual pointsize
     }
+    d->act.underline = d->req.underline;
+    d->act.strikeOut = d->req.strikeOut;
     d->act.rawMode = FALSE;
     d->act.dirty   = FALSE;
 }
-
-
