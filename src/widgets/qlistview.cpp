@@ -732,6 +732,12 @@ void QListViewItem::startRename( int col )
     if ( !lv )
 	return;
 
+    if ( lv->d->timer->isActive() ) {
+	// make sure that pending calculations get finished
+	lv->d->timer->stop();
+	lv->updateContents();
+    }
+
     if ( lv->currentItem() && lv->currentItem()->renameBox ) {
 	if ( lv->d->defRenameAction == QListView::Reject )
 	    lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
