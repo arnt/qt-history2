@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#29 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -259,7 +259,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	//       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
-    
+
     XClientMessageEvent response;
     response.type = ClientMessage;
     response.window = qt_xdnd_dragsource_xid;
@@ -299,7 +299,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     response.data.l[2] = answerRect.x() << 16 + answerRect.y();
     response.data.l[2] = answerRect.width() << 16 + answerRect.height();
-    
+
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
     if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response );
@@ -632,12 +632,14 @@ void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
 
 
 /*!  Returns a string describing one of the available data types for
-  this drag.  Common examples are "text/plain" and "image/gif".
+  this drag.  Common examples are "text/plain" and "image/gif".  If \a
+  n is less than zero or greater than the number of available data
+  types, format() returns 0.
 
-  If \a n is less than zero or greater than the number of available
-  data types, format() returns 0.
+  This function is provided mainly for debugging.  Most drop targets
+  are probably better off using provides().
 
-  \sa data()
+  \sa data() provides()
 */
 
 const char * QDragMoveEvent::format( int n )
@@ -658,9 +660,7 @@ const char * QDragMoveEvent::format( int n )
 /*!  Returns TRUE if this drag object provides format \a mimeType or
   FALSE if it does not.
 
-  This function is provided for drop sites that accept only one mime
-  types.  Drop sites that accept more than one mime type are probably
-  better off using format().
+  \sa data()
 */
 
 bool QDragMoveEvent::provides( const char * mimeType )
@@ -680,31 +680,26 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 {
     if ( !req || !qt_xdnd_drag_types )
 	return;
+    XEvent evt;
+    evt.xselection.type = SelectionNotify;
+    evt.xselection.display = req->display;
+    evt.xselection.requestor = req->requestor;
+    evt.xselection.selection = req->selection;
+    evt.xselection.target = req->target;
+    evt.xselection.property = None;
+    evt.xselection.time = req->time;
     QString * format = qt_xdnd_drag_types->find( req->target );
-    if ( format && qt_xdnd_source_object ) {
-	XEvent evt;
-	evt.xselection.type = SelectionNotify;
-	evt.xselection.display = req->display;
-	evt.xselection.requestor = req->requestor;
-	evt.xselection.selection = req->selection;
-	evt.xselection.target = req->target;
-	evt.xselection.property = None;
-	evt.xselection.time = req->time;
-	QDragObject * o = qt_xdnd_source_object;
-	while( o && !o->provides(*format) )
-	    o = o->alternative();
-	if ( o ) {
-	    QByteArray a = o->encodedData(*format);
-	    XChangeProperty ( qt_xdisplay(), req->requestor, req->property,
-			      req->target, 8,
-			      PropModeReplace,
-			      (unsigned char *)a.data(),
-			      a.size() );
-	}
-	// ### this can die if req->requestor crashes at the wrong
-	// ### moment
-	XSendEvent( qt_xdisplay(), req->requestor, False, 0, &evt );
+    if ( format && qt_xdnd_source_object &&
+	 qt_xdnd_source_object->provides( *format ) ) {
+	QByteArray a = qt_xdnd_source_object->encodedData(*format);
+	XChangeProperty ( qt_xdisplay(), req->requestor, req->property,
+			  req->target, 8, PropModeReplace,
+			  (unsigned char *)a.data(), a.size() );
+	evt.xselection.property = req->property;
     }
+    // ### this can die if req->requestor crashes at the wrong
+    // ### moment
+    XSendEvent( qt_xdisplay(), req->requestor, False, 0, &evt );
 }
 
 /*
@@ -718,15 +713,14 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 static QByteArray qt_xdnd_obtain_data( const char * format )
 {
     QByteArray result;
+    
+    debug( "want <%s>", format );
 
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
 	 QWidget::find( qt_xdnd_dragsource_xid ) ) {
 	QDragObject * o = qt_xdnd_source_object;
-	while( o && result.isNull() ) {
-	    if ( o->provides( format ) )
-		result = o->encodedData(format);
-	    o = o->alternative();
-	}
+	if ( o->provides( format ) )
+	    result = o->encodedData(format);
 	return result;
     }
 
@@ -762,7 +756,9 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 				    qt_xdnd_current_widget->winId(),
 				    qt_xdnd_selection, TRUE,
 				    &result, 0, &type, 0 ) ) {
-	    if ( type == qt_incr_atom ) {
+	    if ( type == None ) {
+		return result;
+	    } else if ( type == qt_incr_atom ) {
 		int nbytes = result.size() >= 4 ? *((int*)result.data()) : 0;
 		result = qt_xclb_read_incremental_property( qt_xdnd_current_widget->x11Display(),
 							    qt_xdnd_current_widget->winId(),

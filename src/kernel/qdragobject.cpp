@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#27 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -22,9 +22,8 @@
 // the name space
 
 struct QDragData {
-    QDragData(): autoDelete( TRUE ), next( 0 ) {}
+    QDragData(): autoDelete( TRUE ) {}
     bool autoDelete;
-    QDragObject * next;
 };
 
 
@@ -170,31 +169,6 @@ QWidget * QDragObject::source()
 	return (QWidget *)parent();
     else
 	return 0;
-}
-
-
-/*!
-  Allows another QDragObject to be linked to this one
-  as an alternative representation of the data.
-
-  Subclasses of QDragObject should \e not use this - it is
-  provided for the application programmer (if a subclass used
-  it, the application programmer might well replace it!)
-*/
-void QDragObject::setAlternative( QDragObject * next )
-{
-    d->next = next;
-}
-
-
-/*!
-  Returns the currently set alternative QDragObject.
-
-  \sa setAlternative()
-*/
-QDragObject * QDragObject::alternative() const
-{
-    return d->next;
 }
 
 

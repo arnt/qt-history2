@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#13 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#14 $
 **
 ** Definition of QDragObject
 **
@@ -37,9 +37,6 @@ public:
     virtual QByteArray encodedData(const char*) const=0;
 
     QWidget * source();
-
-    virtual void setAlternative( QDragObject * );
-    QDragObject * alternative() const;
 
 private:
     QDragData * d;
