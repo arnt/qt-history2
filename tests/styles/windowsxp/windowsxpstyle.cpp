@@ -503,6 +503,35 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     DrawThemeBackground( theme.handle(), p->handle(), theme.partId, theme.stateId, &theme.rect(), 0 );
 }
 
+static int qPositionFromValue( const QRangeControl * rc, int logical_val,
+			       int span )
+{
+    if ( span <= 0 || logical_val < rc->minValue() ||
+	 rc->maxValue() <= rc->minValue() )
+	return 0;
+    if ( logical_val > rc->maxValue() )
+	return span;
+
+    uint range = rc->maxValue() - rc->minValue();
+    uint p = logical_val - rc->minValue();
+
+    if ( range > (uint)INT_MAX/4096 ) {
+	const int scale = 4096*2;
+	return ( (p/scale) * span ) / (range/scale);
+	// ### the above line is probably not 100% correct
+	// ### but fixing it isn't worth the extreme pain...
+    } else if ( range > (uint)span ) {
+	return (2*p*span + range) / (2*range);
+    } else {
+	uint div = span / range;
+	uint mod = span % range;
+	return p*div + (2*p*mod + range) / (2*range);
+    }
+    //equiv. to (p*span)/range + 0.5
+    // no overflow because of this implicit assumption:
+    // span <= 4096
+}
+
 void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 					 QPainter* p,
 					 const QWidget* w,
@@ -717,14 +746,14 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = 4; // no TRS_DISABLED
 		    else
 			stateId = TRS_NORMAL;
-		    theme.rec.addCoords( 0, 5, 0, -5 );
+		    theme.rec = QRect( 0, theme.rec.center().y() - 2, sl->width(), 4 );
 		} else {
 		    partId = TKP_TRACKVERT;
 		    if ( !w->isEnabled() )
 			stateId = 4; // no TRVS_DISABLED
 		    else
 			stateId = TRVS_NORMAL;
-		    theme.rec.addCoords( 5, 0, -5, 0 );
+		    theme.rec = QRect( theme.rec.center().x() - 2, 0, theme.rec.center().x(), 4 );
 		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		tickreg -= theme.rec;
@@ -732,22 +761,60 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_SliderTickmarks ) {
 		p->setClipRegion( tickreg );
 		p->fillRect( sl->rect(), cg.brush( QColorGroup::Background ) );
-		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderTickmarks, data );		
-		if ( sl->orientation() == Horizontal ) {
-		    partId = TKP_TICS;
-		    if ( !w->isEnabled() )
-			stateId = 4; // no TSS_DISABLED
-		    else
-			stateId = TSS_NORMAL;
-		} else {
-		    partId = TKP_TICSVERT;
-		    if ( !w->isEnabled() )
-			stateId = 4; // no TSVS_DISABLED
-		    else
-			stateId = TSVS_NORMAL;
+
+		int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+		int ticks = sl->tickmarks();
+		int thickness = pixelMetric( PM_SliderControlThickness, sl );
+		int len = pixelMetric( PM_SliderLength, sl );
+		int available = pixelMetric( PM_SliderSpaceAvailable, sl );
+		int interval = sl->tickInterval();
+
+		if ( interval <= 0 ) {
+		    interval = sl->lineStep();
+		    if ( qPositionFromValue( sl, interval, available ) -
+			 qPositionFromValue( sl, 0, available ) < 3 )
+			interval = sl->pageStep();
 		}
 
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		int fudge = len / 2;
+		int pos;
+
+		if ( !interval )
+		    interval = 1;
+		int v = sl->minValue();
+
+		if ( sl->orientation() == Horizontal ) {
+		    partId = TKP_TICS;
+		    stateId = TSS_NORMAL;
+		    while ( v <= sl->maxValue() + 1 ) {
+			pos = qPositionFromValue( sl, v, available ) + fudge;
+			if ( ticks & QSlider::Above ) {
+			    theme.rec.setCoords( pos, 0, pos, tickOffset-2 );
+			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+			}
+			if ( ticks & QSlider::Below ) {
+			    theme.rec.setCoords( pos, tickOffset+thickness+1, pos, tickOffset+thickness+1+available-2 );
+			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+			}
+
+			v += interval;
+		    }
+		} else {
+		    partId = TKP_TICSVERT;
+		    stateId = TSVS_NORMAL;
+		    while ( v <= sl->maxValue() + 1 ) {
+			pos = qPositionFromValue( sl, v, available ) + fudge;
+			if ( ticks & QSlider::Left ) {
+			    theme.rec.setCoords( 0, pos, tickOffset-2, pos );
+			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+			}
+			if ( ticks & QSlider::Right ) {
+			    theme.rec.setCoords( tickOffset+thickness+1, pos, tickOffset+thickness+1 + available-2, pos );
+			    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+			}
+			v += interval;
+		    }
+		}
 		p->setClipping( FALSE );
 	    }
 	    if ( sub & SC_SliderHandle ) {
@@ -989,6 +1056,9 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	return QWindowsStyle::pixelMetric( metric, widget );
     
     switch ( metric ) {
+    case PM_SliderThickness:
+	return 25;
+	
     default:
 	return QWindowsStyle::pixelMetric( metric, widget );
     }
