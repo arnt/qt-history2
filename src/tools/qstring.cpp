@@ -645,14 +645,7 @@ QChar::Decomposition QChar::decompositionTag() const
 */
 unsigned char QChar::combiningClass() const
 {
-#ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = QUnicodeTables::combining_info[row()];
-    if ( !rowp )
-	return 0;
-    return *(rowp+cell());
-#else
-    return 0;
-#endif
+    return ::combiningClass( *this );
 }
 
 

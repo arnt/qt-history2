@@ -130,5 +130,23 @@ inline QChar::Joining joining( const QChar &ch )
 #endif
 }
 
+inline bool isMark( const QChar &ch )
+{
+    QChar::Category c = ::category( ch );
+    return c >= QChar::Mark_NonSpacing && c <= QChar::Mark_Enclosing;
+}
+
+inline unsigned char combiningClass( const QChar &ch )
+{
+#ifndef QT_NO_UNICODETABLES
+    const Q_UINT8 *rowp = QUnicodeTables::combining_info[ch.row()];
+    if ( !rowp )
+	return 0;
+    return *(rowp+ch.cell());
+#else
+    return 0;
+#endif
+}
+
 
 #endif
