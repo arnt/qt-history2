@@ -62,6 +62,8 @@ public:
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
+    inline bool operator!() const { return p.isEmpty(); }
+
     void clear();
     const T &at(int i) const;
     const T &operator[](int i) const;

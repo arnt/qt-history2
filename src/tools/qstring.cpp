@@ -81,6 +81,7 @@ static int ucstrnicmp(const QChar *a, const QChar *b, int l)
     return ::lower(*a).unicode() - ::lower(*b).unicode();
 }
 
+QString::Null QString::null;
 
 
 /*!
@@ -2135,6 +2136,11 @@ bool operator==(const QString &s1, const char *s2)
 {
     if (!s2)
 	return (s1 == QString());
+
+#ifndef QT_NO_TEXTCODEC
+    if ( QTextCodec::codecForCStrings() )
+	return (s1 == QString::fromAscii(s2));
+#endif
 
     int len = s1.length();
     const QChar *uc = s1.unicode();

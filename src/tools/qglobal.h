@@ -954,21 +954,13 @@ Q_EXPORT const char *qInstallPathTranslations();
 #endif // __cplusplus
 
 
-#ifndef QT_NO_QBOOL
 class QBool
 {
     bool b;
 public:
     inline explicit QBool(bool b):b(b){};
     inline operator bool() const {return b;}
-    inline bool operator!() const {return !b;}
 };
-inline bool operator==(QBool b1, QBool b2) { return (bool)b1 == (bool)b2; }
-inline bool operator!=(QBool b1, QBool b2) { return (bool)b1 != (bool)b2; }
-#else
-typedef bool QBool;
-#endif // QT_NO_QBOOL
-
 
 // compilers which follow outdated template instantiation rules
 // require a class to have a comparison operator to exist when

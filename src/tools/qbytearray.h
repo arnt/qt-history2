@@ -50,7 +50,6 @@ Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 
 Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 
-
 class QByteRef;
 class QString;
 class QDataStream;
@@ -74,12 +73,16 @@ public:
     bool isEmpty() const;
     void resize(int size);
 
+    bool operator!() const;
+
     QByteArray &fill(char c, int size = -1);
 
     void reserve(int size);
     int capacity() const;
 
-    operator const char*() const;
+
+    operator const char *() const;
+    operator const void *() const;
     char *data();
     const char *data() const;
     const char *constData() const;
@@ -103,8 +106,9 @@ public:
     QBool contains(char c) const;
     QBool contains(const char *a) const;
     QBool contains(const QByteArray &a) const;
-    int count(const QByteArray &a) const;
     int count(char c) const;
+    int count(const char *a) const;
+    int count(const QByteArray &a) const;
 
     QByteArray left(int len)  const;
     QByteArray right(int len) const;
@@ -152,10 +156,13 @@ public:
     void push_back(char c);
     void push_back(const char *c);
     void push_back(const QByteArray &a);
+    void push_front(char c);
+    void push_front(const char *c);
+    void push_front(const QByteArray &a);
 
     // compatibility
 #ifndef QT_NO_COMPAT
-    QByteArray(int size, char c = '\0');
+    explicit QByteArray(int size, char c = '\0');
     inline bool isNull() const
     { return d == &shared_null; }
     inline int count() const
@@ -213,8 +220,13 @@ inline const char QByteArray::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const char QByteArray::operator[](uint i) const
 { Q_ASSERT(i < (uint)size()); return d->data[i]; }
-inline bool QByteArray::isEmpty() const { return d->size == 0; }
-inline QByteArray::operator const char*() const
+inline bool QByteArray::isEmpty() const
+{ return d->size == 0; }
+inline bool QByteArray::operator!() const
+{ return d->size == 0; }
+inline QByteArray::operator const char *() const
+{ return d->data; }
+inline QByteArray::operator const void *() const
 { return d->data; }
 inline char *QByteArray::data()
 { detach(); return d->data; }
@@ -292,6 +304,12 @@ inline void QByteArray::push_back(const char *c)
 { append(c); }
 inline void QByteArray::push_back(const QByteArray &a)
 { append(a); }
+inline void QByteArray::push_front(char c)
+{ prepend(c); }
+inline void QByteArray::push_front(const char *c)
+{ prepend(c); }
+inline void QByteArray::push_front(const QByteArray &a)
+{ prepend(a); }
 inline QBool QByteArray::contains(const QByteArray &a) const
 { return QBool(find(a) != -1); }
 inline QBool QByteArray::contains(char c) const

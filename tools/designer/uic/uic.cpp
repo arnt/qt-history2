@@ -73,7 +73,7 @@ QString Uic::fixString( const QString &str, bool encode )
 QString Uic::trcall( const QString& sourceText, const QString& comment )
 {
     if ( sourceText.isEmpty() && comment.isEmpty() )
-	return "QString::null";
+	return "QString()";
 
     QString t = trmacro;
     bool encode = FALSE;

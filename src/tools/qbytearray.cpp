@@ -822,7 +822,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 		int insertstart = indices[pos] + pos*(al-bl);
 		int moveto = insertstart + al;
 		memmove( d + moveto, d + movestart, (moveend - movestart) );
-		if ( after )
+		if ( !!after )
 		    memcpy( d + insertstart, after, al );
 		moveend = movestart - bl;
 	    }
@@ -957,15 +957,6 @@ int QByteArray::findRev(const QByteArray& a, int i) const
 
 }
 
-int QByteArray::count(const QByteArray& a) const
-{
-    int num = 0;
-    int i = -1;
-    while ((i = find(a, i+1)) != -1)
-	++num;
-    return num;
-}
-
 int QByteArray::count(char c) const
 {
     int num = 0;
@@ -974,6 +965,24 @@ int QByteArray::count(char c) const
     while (i != b)
 	if (*--i == c)
 	    ++num;
+    return num;
+}
+
+int QByteArray::count(const char *a) const
+{
+    int num = 0;
+    int i = -1;
+    while ((i = find(a, i+1)) != -1)
+	++num;
+    return num;
+}
+
+int QByteArray::count(const QByteArray& a) const
+{
+    int num = 0;
+    int i = -1;
+    while ((i = find(a, i+1)) != -1)
+	++num;
     return num;
 }
 

@@ -1986,7 +1986,7 @@ void QHttp::slotReadyRead()
 		    // read data
 		    uint toRead = QMIN( (Q_LONG)n, d->chunkedSize );
 		    if ( !arr )
-			arr = new QByteArray( 0 );
+			arr = new QByteArray;
 		    uint oldArrSize = arr->size();
 		    arr->resize( oldArrSize + toRead );
 		    Q_LONG read = d->socket.readBlock( arr->data()+oldArrSize, toRead );

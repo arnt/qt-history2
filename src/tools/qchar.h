@@ -17,8 +17,8 @@ class Q_EXPORT QChar {
 public:
     QChar();
 #ifndef QT_NO_CAST_FROM_ASCII
-    explicit QChar(char c);
-    explicit QChar(uchar c);
+    QChar(char c);
+    QChar(uchar c);
 #endif
     QChar(uchar c, uchar r);
 #ifdef Q_QDOC
@@ -199,6 +199,9 @@ public:
     friend bool operator<=(QChar c, int ch);
 
 private:
+#ifdef QT_NO_CAST_TO_ASCII
+    operator char() const;
+#endif
     ushort ucs;
 } Q_PACKED;
 

@@ -985,9 +985,9 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
     d->args[ 0 ] = arg0;
     d->args[ 1 ] = arg1;
     d->args[ 2 ] = arg2;
-    d->rawArgs[ 0 ] = QByteArray( 0 );
-    d->rawArgs[ 1 ] = QByteArray( 0 );
-    d->rawArgs[ 2 ] = QByteArray( 0 );
+    d->rawArgs[ 0 ] = QByteArray();
+    d->rawArgs[ 1 ] = QByteArray();
+    d->rawArgs[ 2 ] = QByteArray();
     d->protocolDetail = QString::null;
     d->errorCode = (int)QNetworkProtocol::NoError;
 }

@@ -679,7 +679,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
     // when moving up to 4 the QDataStream version remained at 3
     s.setVersion( formatMajor != 4 ? formatMajor : 3 );
     if ( c ==  PdcBegin ) {			// begin; write header
-	QByteArray empty( 0 );
+	QByteArray empty;
 	pictb.setBuffer( empty );		// reset byte array in buffer
 	pictb.open( IO_WriteOnly );
 	s.writeRawBytes( mfhdr_tag, 4 );

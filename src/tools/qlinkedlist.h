@@ -39,6 +39,8 @@ public:
     { if ( d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
+    inline bool operator!() const { return d->size == 0; }
+
     void clear();
 
     void append(const T &);

@@ -31,6 +31,8 @@ public:
     bool isEmpty() const;
     void resize(int size);
 
+    bool operator!() const;
+
     QString &fill(QChar c, int size = -1);
     void truncate(int maxSize);
 
@@ -66,6 +68,12 @@ public:
     QString arg(char a, int fieldWidth = 0) const;
     QString arg(QChar a, int fieldWidth = 0) const;
     QString arg(const QString &a, int fieldWidth = 0) const;
+#ifndef QT_NO_CAST_FROM_ASCII
+    inline QString arg(const QByteArray &a, int fieldWidth = 0) const
+    { return arg( QString(a), fieldWidth); }
+    inline QString arg(const char *s, int fieldWidth = 0) const
+    { return arg( QString::fromAscii(s), fieldWidth); }
+#endif
     QString arg(const QString &a1, const QString &a2) const;
     QString arg(const QString &a1, const QString &a2, const QString &a3) const;
     QString arg(const QString &a1, const QString &a2, const QString &a3,  const QString &a4) const;
@@ -106,7 +114,7 @@ public:
     };
     QString section(QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
     QString section(char sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
-#ifndef QT_NO_CAST_ASCII
+#ifndef QT_NO_CAST_FROM_ASCII
     QString section(const char *in_sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
 #endif
     QString section(const QString &in_sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
@@ -221,8 +229,6 @@ public:
     inline QString &operator=(const QByteArray &a)
     { return operator=(a.constData()); }
     QString &append(const char *s);
-    inline QString &append(char c)
-    { return append(QChar(c)); }
     inline QString &append(const QByteArray &a)
     { return append(a.constData()); }
     QString &prepend(const char *s);
@@ -232,13 +238,11 @@ public:
     { return prepend(a.constData()); }
     inline QString &operator+=(const char *s)
     { return append(s); }
-    inline QString &operator+=(char c)
-    { return append(QChar(c)); }
     inline QString &operator+=(const QByteArray &a)
     { return append(a); }
 #endif
 #ifndef QT_NO_CAST_TO_ASCII
-    inline operator const char*() const { return ascii(); }
+    inline operator const char *() const { return ascii(); }
 #endif
 
     typedef QChar *Iterator;
@@ -276,11 +280,10 @@ public:
 
     // compatibility
 #ifndef QT_NO_COMPAT
-    enum Null { null };
-    inline QString(Null): d(&shared_null) { ++d->ref; }
-    inline QString &operator=(Null) { *this = QString(); return *this; }
+    static struct Null {} null;
+    inline QString(const Null &): d(&shared_null) { ++d->ref; }
+    inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
-    inline bool operator!() const { return d == &shared_null; }
     inline void setLength(int nl) { resize(nl); }
     inline QString copy() const { return *this; }
     inline QString &insert(int i, const QChar *uc, int len)
@@ -341,6 +344,9 @@ public:
     bool isRightToLeft() const { if ( d->dirty ) updateProperties(); return (bool)d->righttoleft; }
 
 private:
+#ifdef QT_NO_CAST_TO_ASCII
+    operator const char *() const;
+#endif
     struct Data {
 	QAtomic ref;
 	int alloc, size;
@@ -386,6 +392,8 @@ inline const QChar QString::operator[](int i) const
 inline const QChar QString::operator[](uint i) const
 { Q_ASSERT(i < (uint)size()); return d->data[i]; }
 inline bool QString::isEmpty() const
+{ return d->size == 0; }
+inline bool QString::operator!() const
 { return d->size == 0; }
 inline const QChar *QString::unicode() const
 { return (const QChar*) d->data; }
@@ -454,7 +462,7 @@ inline QString QString::section(QChar sep, int start, int end, int flags) const
 { return section(QString(sep), start, end, flags); }
 inline QString QString::section(char sep, int start, int end, int flags) const
 { return section(QChar(sep), start, end, flags); }
-#ifndef QT_NO_CAST_ASCII
+#ifndef QT_NO_CAST_FROM_ASCII
 inline QString QString::section(const char *in_sep, int start, int end, int flags) const
 { return section(QString(in_sep), start, end, flags); }
 #endif
@@ -550,7 +558,7 @@ Q_EXPORT bool operator<=(const QString &s1, const QString &s2);
 Q_EXPORT bool operator==(const QString &s1, const QString &s2);
 Q_EXPORT bool operator>(const QString &s1, const QString &s2);
 Q_EXPORT bool operator>=(const QString &s1, const QString &s2);
-#ifndef QT_NO_CAST_TO_ASCII
+#ifndef QT_NO_CAST_FROM_ASCII
 Q_EXPORT bool operator==(const QString &s1, const char *s2);
 inline bool operator==(const char *s1, const QString &s2) { return (s2 == s1); }
 inline bool operator!=(const QString &s1, const char *s2) { return !(s1==s2); }
