@@ -333,7 +333,7 @@ void QRingBuffer::free(int bytes)
 
     for (;;) {
         int nextBlockSize = nextDataBlockSize();
-        if (bytes <= nextBlockSize) {
+        if (bytes < nextBlockSize) {
             head += bytes;
             if (head == tail && tailBuffer == 0)
                 head = tail = 0;
@@ -1590,9 +1590,10 @@ QByteArray QAbstractSocket::readAll()
     tmp.resize(d->readBuffer.size());
     int readSoFar = 0;
     while (!d->readBuffer.isEmpty()) {
-        memcpy(tmp.data() + readSoFar, d->readBuffer.readPointer(), d->readBuffer.nextDataBlockSize());
-        readSoFar += d->readBuffer.nextDataBlockSize();
-        d->readBuffer.free(d->readBuffer.nextDataBlockSize());
+        int nextSize = d->readBuffer.nextDataBlockSize();
+        memcpy(tmp.data() + readSoFar, d->readBuffer.readPointer(), nextSize);
+        readSoFar += nextSize;
+        d->readBuffer.free(nextSize);
     }
     return tmp;
 }
