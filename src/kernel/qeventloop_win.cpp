@@ -244,50 +244,6 @@ static void sn_cleanup()
     }
 }
 
-struct q_table_item
-{
-    int msg;
-    const char *name;
-};
-
-static q_table_item qws_names[] = {
-    { 0x0001, "WM_CREATE" },
-    { 0x0002, "WM_DESTROY" },
-    { 0x0003, "WM_MOVE" },
-    { 0x0005, "WM_SIZE" },
-    { 0x0006, "WM_ACTIVATE" },
-    { 0x0007, "WM_SETFOCUS" },
-    { 0x0008, "WM_KILLFOCUS" },
-    { 0x001c, "WM_ACTIVATEAPP" },
-    { 0x0018, "WM_SHOWWINDOW" },
-    { 0x001f, "WM_SETCURSOR" },
-    { 0x0024, "WM_GETMINMAXINFO" },
-    { 0x0046, "WM_WINDOWPOSCHANGING" },
-    { 0x0047, "WM_WINDOWPOSCHANGED" },
-    { 0x007f, "WM_GETICON" },
-    { 0x0081, "WM_NCCREATE" },
-    { 0x0082, "WM_NCDESTROY" },
-    { 0x0083, "WM_CALCSIZE" },
-    { 0x0086, "WM_NCACTIVATE" },
-    { 0x0100, "WM_KEYDOWN" },
-    { 0x0101, "WM_KEYUP" },
-    { 0x0102, "WM_CHAR" },
-    { 0x0104, "WM_SYSKEYDOWN" },
-    { 0x0105, "WM_SYSKEYUP" },
-    { 0x0281, "WM_IME_SETCONTEXT" },
-    { 0x0282, "WM_IME_NOTIFY" },
-    { 0, 0 }
-};
-
-static const char *mapMessageName(int msg)
-{
-    for (int i=0; qws_names[i].msg; ++i) {
-	if (qws_names[i].msg == msg)
-	    return qws_names[i].name;
-    }
-    return "-";
-}
-
 static void sn_init()
 {
     if ( sn_win )
@@ -343,8 +299,7 @@ void QEventLoop::cleanup()
 		continue;
 	}
     }
-    // cleanup the common parts of the event loop
-    sn_cleanup();
+    // Socket notifier cleanup handled by qAddPostRoutine in sn_init();
 }
 
 void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
