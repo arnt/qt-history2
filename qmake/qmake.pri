@@ -33,6 +33,8 @@ bootstrap { #Qt code
         qbytearraymatcher.cpp \
         qchar.cpp \
         qcorevariant.cpp \
+        qcoresettings.cpp \
+        qcoresettings_win.cpp \
         qdatastream.cpp \
         qdatetime.cpp \
         qdir.cpp \
@@ -63,6 +65,7 @@ bootstrap { #Qt code
         qbytearraymatcher.h \
         qchar.h \
         qcorevariant.h \
+        qcoresettings.h \
         qdatastream.h \
         qdatetime.h \
         qdir.h \
