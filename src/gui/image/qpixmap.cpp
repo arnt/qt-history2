@@ -41,60 +41,6 @@
 #endif
 
 /*!
-    \class QPixmap
-    \brief The QPixmap class is an off-screen, pixel-based paint device.
-
-    \ingroup multimedia
-    \ingroup shared
-    \mainclass
-
-    QPixmap is one of the three classes Qt provides for dealing with
-    images, the others being QImage and QPicture. QPixmap is designed
-    and optimized for drawing on screen; QImage is designed for I/O
-    and for direct pixel access; QPicture provides a scalable,
-    vectorial picture. There are (slow) functions to convert between
-    QImage and QPixmap: toImage() and fromImage(). There's also a
-    QIcon class that stores various versions of an icon.
-
-    A common way to create a pixmap is to use the constructor that
-    takes a file name. For example:
-
-    \code
-        label->setPixmap(QPixmap("paste.png"));
-    \endcode
-
-    The file name can be either refer to an actual file on disk or to
-    one of the application's embedded resources. See the
-    \l{resources.html}{Resource System} overview for details on how
-    to embed images and other resource files in the application's
-    executable.
-
-    Pixel data in a pixmap is internal and is managed by the
-    underlying window system. Pixels can be accessed only through
-    QPainter functions and by converting the QPixmap to a QImage.
-
-    You can easily display a QPixmap on the screen using QLabel or
-    one of QAbstractButton's subclasses (such as QPushButton and
-    QToolButton). QLabel has a \l{QLabel::pixmap}{pixmap} property,
-    whereas QAbstractButton has an \l{QLabel::icon}{icon} property.
-
-    The QPixmap class uses \l{shclass.html}{implicit sharing}, so you
-    can pass QPixmap objects around by value.
-
-    You can retrieve the width(), height(), depth(), and size() of a
-    pixmap. The enclosing rectangle can be determined with rect().
-    Pixmaps can be filled with fill() and resized with resize(). You
-    can create and set a mask with createHeuristicMask() and setMask().
-    Use selfMask() to see if the pixmap is identical to its mask.
-
-    In addition to loading a pixmap from file using load() you can
-    also loadFromData(). You can obtain a transformed version of the
-    pixmap using transform().
-
-    \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
-*/
-
-/*!
     \enum QPixmap::ColorMode
 
     \compat
@@ -1164,3 +1110,57 @@ QPixmap QPixmap::scaledToHeight(int h) const
 }
 
 #endif // !Q_WS_WIN
+
+/*!
+    \class QPixmap
+    \brief The QPixmap class is an off-screen, pixel-based paint device.
+
+    \ingroup multimedia
+    \ingroup shared
+    \mainclass
+
+    QPixmap is one of the three classes Qt provides for dealing with
+    images, the others being QImage and QPicture. QPixmap is designed
+    and optimized for drawing on screen; QImage is designed for I/O
+    and for direct pixel access; QPicture provides a scalable,
+    vectorial picture. There are (slow) functions to convert between
+    QImage and QPixmap: toImage() and fromImage(). There's also a
+    QIcon class that stores various versions of an icon.
+
+    A common way to create a pixmap is to use the constructor that
+    takes a file name. For example:
+
+    \code
+        label->setPixmap(QPixmap("paste.png"));
+    \endcode
+
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
+
+    Pixel data in a pixmap is internal and is managed by the
+    underlying window system. Pixels can be accessed only through
+    QPainter functions and by converting the QPixmap to a QImage.
+
+    You can easily display a QPixmap on the screen using QLabel or
+    one of QAbstractButton's subclasses (such as QPushButton and
+    QToolButton). QLabel has a \l{QLabel::pixmap}{pixmap} property,
+    whereas QAbstractButton has an \l{QLabel::icon}{icon} property.
+
+    The QPixmap class uses \l{shclass.html}{implicit sharing}, so you
+    can pass QPixmap objects around by value.
+
+    You can retrieve the width(), height(), depth(), and size() of a
+    pixmap. The enclosing rectangle can be determined with rect().
+    Pixmaps can be filled with fill() and resized with resize(). You
+    can create and set a mask with createHeuristicMask() and setMask().
+    Use selfMask() to see if the pixmap is identical to its mask.
+
+    In addition to loading a pixmap from file using load() you can
+    also loadFromData(). You can obtain a transformed version of the
+    pixmap using transform().
+
+    \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
+*/
