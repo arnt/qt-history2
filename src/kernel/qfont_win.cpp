@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#56 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -513,8 +513,8 @@ int QFontMetrics::descent() const
 bool QFontMetrics::inFont(char ch) const
 {
     TEXTMETRIC *f = TM;
-    return (uint)(uchar)ch >= f->tmFirstChar
-        && (uint)(uchar)ch <= f->tmLastChar;
+    return (uint)(uchar)ch >= (uint)f->tmFirstChar
+        && (uint)(uchar)ch <= (uint)f->tmLastChar;
 }
 
 
