@@ -3,7 +3,7 @@
 undef $/;
 
 @lines;
-$output = $ARGV[ 0 ];
+$output = shift;
 
 while ( <ARGV> ) {
   while (/.*<title.*>([^<]*)<\/title>.*/g ) {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#216 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#217 $
 #
 # this is a massive hack, written very quickly
 #
@@ -327,7 +327,7 @@ sub handlecodeincludes {
 	    $basefile = $edir . "/" . $arg
 		if ( !defined($basefile) && -f ($edir . "/" . $arg) )
 	}
-	die "unable to find $arg, stopped" if ( !defined( $basefile ) );
+	die "unable to find $arg, stopped. (searched ".join(", ",@exampledirs).")" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	#print "including code from $basefile\n";
