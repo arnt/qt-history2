@@ -1059,15 +1059,6 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
     const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
     if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child)
         widget = QWidget::find((WId)child);
-    if(widget && widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
-        QWidget *transp = widget;
-        transp->hide();
-        if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child)
-            widget = QWidget::find((WId)child);
-        else
-            widget = 0;
-        transp->show();
-    }
     return widget;
 }
 
