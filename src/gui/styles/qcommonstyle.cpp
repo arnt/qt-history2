@@ -19,6 +19,7 @@
 #include "private/qdialogbuttons_p.h"
 #include "q3menubar.h"
 #include "qapplication.h"
+#include "qbitmap.h"
 #include "qcheckbox.h"
 #include "qdockarea.h"
 #include "qdrawutil.h"

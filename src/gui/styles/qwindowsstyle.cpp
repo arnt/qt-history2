@@ -18,6 +18,7 @@
 
 #include "q3menubar.h"
 #include "qapplication.h"
+#include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qcombobox.h"
 #include "qdockwindow.h"
