@@ -678,6 +678,7 @@ void QSqlTable::insertCurrent()
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
+	emit beforeInsert( d->editBuffer );
 	b = d->cursor->insert();
 	QApplication::restoreOverrideCursor();
 	if ( !b || !d->cursor->isActive() )
@@ -743,6 +744,7 @@ void QSqlTable::updateCurrent()
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
+	emit beforeUpdate( d->editBuffer );	
 	b = d->cursor->update();
 	QApplication::restoreOverrideCursor();
 	if ( !b || !d->cursor->isActive() )
@@ -798,6 +800,7 @@ void QSqlTable::deleteCurrent()
     switch ( conf ) {
     case Yes:
 	QApplication::setOverrideCursor( Qt::waitCursor );
+	emit beforeDelete( d->editBuffer );
 	b = d->cursor->del();
 	QApplication::restoreOverrideCursor();
 	if ( !b )

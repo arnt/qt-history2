@@ -101,6 +101,9 @@ signals:
     void         currentChanged( const QSqlRecord* record );
     void         beginInsert( QSqlRecord* buf );
     void         beginUpdate( QSqlRecord* buf );
+    void         beforeInsert( QSqlRecord* buf );
+    void         beforeUpdate( QSqlRecord* buf );    
+    void         beforeDelete( QSqlRecord* buf );    
 
 public slots:
     void 	 find( const QString & str, bool caseSensitive,
