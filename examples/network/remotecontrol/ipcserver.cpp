@@ -25,9 +25,9 @@ private slots:
     void read()
     {
 	Q_ULONG bytesAvail = bytesAvailable();
-	QDataStream ds( this );
 	for ( ;; ) {
 	    if ( packetSize == 0 ) {
+		QDataStream ds( this );
 		if ( bytesAvail < 4 )
 		    return;
 		ds >> packetSize;
@@ -39,12 +39,12 @@ private slots:
 		// read too much or too less
 		QByteArray ba( packetSize );
 		readBlock( ba.data(), packetSize );
-		QDataStream ds2( ba, IO_ReadOnly );
-
-		QVariant variant;
-		ds2 >> variant;
 		bytesAvail -= packetSize;
 		packetSize = 0;
+
+		QVariant variant;
+		QDataStream ds( ba, IO_ReadOnly );
+		ds >> variant;
 		switch ( variant.type() ) {
 		    case QVariant::String:
 			emit receivedText( variant.toString() );
