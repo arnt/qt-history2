@@ -4353,7 +4353,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Polish: {
-	polishEvent(e); //duplicated from QObject::event()!? ### 
+	QObject::event(e);
 	qApp->polish(this);
 	if ( !testAttribute(QWidget::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
 	    d->resolveFont();
