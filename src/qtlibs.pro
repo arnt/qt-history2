@@ -5,7 +5,7 @@ CONFIG += ordered
 !qt_one_lib:SUBDIRS += qcore.pro 
 
 #must be built second!
-SUBDIRS += qt_gui.pro
+SUBDIRS += qgui.pro
 
 #can be built in any order..
 win32:SUBDIRS += qtmain.pro 
