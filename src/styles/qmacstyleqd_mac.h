@@ -31,7 +31,7 @@ class QPalette;
 
 class QMacStyleQDPrivate;
 
-class Q_GUI_EXPORT_STYLE_MAC QMacStyleQD : public QCommonStyle
+class Q_GUI_EXPORT_STYLE_MAC QMacStyleQD : public QWindowsStyle
 {
     Q_OBJECT
 public:

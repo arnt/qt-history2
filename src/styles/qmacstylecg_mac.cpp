@@ -47,7 +47,7 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 QRegion qt_mac_convert_mac_region(HIShapeRef); //qregion_mac.cpp
 
 //HITheme QMacStyle
-QMacStyleCG::QMacStyleCG() : QCommonStyle()
+QMacStyleCG::QMacStyleCG() : QWindowsStyle()
 {
 
 }
@@ -59,17 +59,17 @@ QMacStyleCG::~QMacStyleCG()
 
 void QMacStyleCG::polish(QWidget *w)
 {
-    QCommonStyle::polish(w);
+    QWindowsStyle::polish(w);
 }
 
 void QMacStyleCG::unPolish(QWidget *w)
 {
-    QCommonStyle::unPolish(w);
+    QWindowsStyle::unPolish(w);
 }
 
 void QMacStyleCG::polish(QApplication *app)
 {
-    QCommonStyle::polish(app);
+    QWindowsStyle::polish(app);
 }
 
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
@@ -145,7 +145,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
     case PE_FocusRect:
 	break;     //This is not used because of the QAquaFocusWidget thingie..
     default:
-	QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
     }
 }
@@ -179,7 +179,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 		          kHIThemeOrientationNormal, 0);
 	break; }
     default:
-	QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
+	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
 }
 
@@ -187,7 +187,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter* p, const 
 				     const QRect& r, const QPalette& pal, SFlags flags, SCFlags sub,
 				     SCFlags subActive, const QStyleOption &opt) const
 {
-    QCommonStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+    QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
 }
 
 int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
@@ -219,7 +219,7 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	GetThemeMetric(tm, &ret);
 	break; }
     default:
-	ret = QCommonStyle::pixelMetric(metric, widget);
+	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
     }
     return ret;
@@ -229,36 +229,36 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget *widget,
 					  SubControl sc, const QStyleOption &opt) const
 {
-    return QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
+    return QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
 }
 
 QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
 {
-    return QCommonStyle::subRect(sr, widget);
+    return QWindowsStyle::subRect(sr, widget);
 }
 
 QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QWidget *widget,
 						const QPoint &pos, const QStyleOption &opt) const
 {
-    return QCommonStyle::querySubControl(control, widget, pos, opt);
+    return QWindowsStyle::querySubControl(control, widget, pos, opt);
 }
 
 int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,
 		       QStyleHintReturn *ret) const
 {
-    return QCommonStyle::styleHint(sh, widget, opt, ret);
+    return QWindowsStyle::styleHint(sh, widget, opt, ret);
 }
 
 QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *w,
 				    const QSize &contentsSize, const QStyleOption &opt) const
 {
-    return QCommonStyle::sizeFromContents(contents, w, contentsSize, opt);
+    return QWindowsStyle::sizeFromContents(contents, w, contentsSize, opt);
 }
 
 QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
 				 const QStyleOption &opt) const
 {
-    return QCommonStyle::stylePixmap(sp, widget, opt);
+    return QWindowsStyle::stylePixmap(sp, widget, opt);
 }
 
 QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,

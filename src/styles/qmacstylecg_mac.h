@@ -19,7 +19,7 @@ class QPalette;
 
 class QMacStyleCGPrivate;
 
-class Q_GUI_EXPORT_STYLE_MAC QMacStyleCG : public QCommonStyle
+class Q_GUI_EXPORT_STYLE_MAC QMacStyleCG : public QWindowsStyle
 {
 public:
     QMacStyleCG();
