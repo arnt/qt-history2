@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#403 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#404 $
 **
 ** Implementation of QWidget class
 **
@@ -2764,6 +2764,27 @@ void QWidget::show()
 {
     if ( testWState(WState_Visible) )
 	return;
+
+    if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {				// show all widget children
+	    object = it.current();		//   (except popups and other toplevels)
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->testWState(WState_ForceHide) && !widget->isTopLevel() )
+		    widget->show();
+	    }
+	}
+    }
+
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    if ( parentWidget() )
+	QApplication::sendPostedEvents( parentWidget(), 
+					QEvent::ChildInserted );
+    
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	QSize s = sizeHint();
 	QSizePolicy::ExpandData exp;
@@ -2793,26 +2814,9 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    if ( parentWidget() )
-	QApplication::sendPostedEvents( parentWidget(),
-					QEvent::ChildInserted );
+
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
-    if ( children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups and other toplevels)
-	    ++it;
-	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
-		if ( !widget->testWState(WState_ForceHide) && !widget->isTopLevel() )
-		    widget->show();
-	    }
-	}
-    }
     if ( testWFlags(WStyle_Tool) ) {
 	raise();
     } else if ( testWFlags(WType_TopLevel) && !isPopup() ) {
@@ -2825,6 +2829,7 @@ void QWidget::show()
 	setWState(WState_Polished);
 	setBackgroundFromMode();
     }
+
 
     bool sendLayoutHint = testWState( WState_ForceHide ) && !isTopLevel();
 
@@ -2842,6 +2847,7 @@ void QWidget::show()
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 }
+
 
 
 /*!

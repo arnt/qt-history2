@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#354 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#355 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -332,7 +332,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    delete xd;
 	}
     }
-    
+
     if ( topLevel ) {
 	// declare the widget's object name as window role
 	XChangeProperty( dpy, id,
@@ -1167,7 +1167,7 @@ void QWidget::showWindow()
     // temporarily set it to noBackground for flickerfreeness.  this
     // will be corrected by the MapNotify handler.
     if ( !extra || (BackgroundMode)extra->bg_mode != NoBackground )
-	XSetWindowBackgroundPixmap( x11Display(), winId(), 0 ); 
+	XSetWindowBackgroundPixmap( x11Display(), winId(), 0 );
     XMapWindow( x11Display(), winId() );
 }
 
@@ -1385,7 +1385,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    if ( !testWFlags(WResizeNoErase) )
+	    if ( !testWFlags(WResizeNoErase) && isVisibleToTLW() )
 		repaint( TRUE );
 	}
     } else {
