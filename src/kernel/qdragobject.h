@@ -234,6 +234,7 @@ private:
     friend class QDragObject;
     friend class QDragMoveEvent;
     friend class QDropEvent;
+    friend class QApplication;
 
     bool eventFilter( QObject *, QEvent * );
     void timerEvent( QTimerEvent* );

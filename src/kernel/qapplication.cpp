@@ -48,6 +48,7 @@
 #include "qtranslator.h"
 #include "qtextcodec.h"
 #include "qsessionmanager.h"
+#include "qdragobject.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qstyle.h"
@@ -998,6 +999,9 @@ QApplication::~QApplication()
 #ifndef QT_NO_TRANSLATION
     delete translators;
 #endif
+
+    extern QDragManager *qt_dnd_manager;
+    delete qt_dnd_manager;
 
     qt_cleanup();
 

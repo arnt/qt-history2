@@ -252,7 +252,7 @@ static const char * const link_xpm[] = {
 #ifndef QT_NO_DRAGANDDROP
 
 // the universe's only drag manager
-Q_EXPORT QDragManager * qt_dnd_manager = 0;
+QDragManager * qt_dnd_manager = 0;
 
 
 QDragManager::QDragManager()
@@ -334,7 +334,7 @@ QDragObject::~QDragObject()
 
     \warning We have seen problems with drag cursors on different
     graphics hardware and driver software on Windows. Setting the
-    graphics acceleration in the display settings down one tick solved 
+    graphics acceleration in the display settings down one tick solved
     the problems in all cases.
 */
 void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
@@ -1382,7 +1382,7 @@ QCString QUriDrag::localFileToUri(const QString& filename)
 	hostname[256] = '\0';
 	r.prepend( QString::fromLatin1( hostname ) );
     }
-#endif    
+#endif
     return unicodeUriToUri(QString("file://" + r));
 }
 
@@ -1446,7 +1446,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
             }
         }
 #endif
-	if ( local ) {	
+	if ( local ) {
 	    file = uriToUnicodeUri(uri);
 	    if ( uri[1] == '/' ) {
 		file.remove(0,1);
