@@ -152,8 +152,70 @@ struct QLineEditPrivate : public Qt
     void remove( int pos );
 
     inline void separate() { separator = TRUE; }
-    void undo( int until = -1 );
-    void redo();
+    inline void undo( int until = -1 ) {
+	if ( !isUndoAvailable() )
+	    return;
+	deselect();
+	while ( undoState && undoState > until ) {
+	    Command& cmd = history[--undoState];
+	    switch ( cmd.type ) {
+	    case Insert:
+		text.remove( cmd.pos, 1);
+		cursor = cmd.pos;
+		break;
+	    case Remove:
+	    case RemoveSelection:
+		text.insert( cmd.pos, cmd.c );
+		cursor = cmd.pos + 1;
+		break;
+	    case Delete:
+	    case DeleteSelection:
+		text.insert( cmd.pos, cmd.c );
+		cursor = cmd.pos;
+		break;
+	    case Separator:
+		continue;
+	    }
+	    if ( until < 0 && undoState ) {
+		Command& next = history[undoState-1];
+		if ( next.type != cmd.type && next.type < RemoveSelection
+		     && !( cmd.type >= RemoveSelection && next.type != Separator ) )
+		    break;
+	    }
+	}
+	modified = ( undoState != 0 );
+	textDirty = TRUE;
+    }
+    inline void redo() {
+	if ( !isRedoAvailable() )
+	    return;
+	deselect();
+	while ( undoState < (int)history.size() ) {
+	    Command& cmd = history[undoState++];
+	    switch ( cmd.type ) {
+	    case Insert:
+		text.insert( cmd.pos, cmd.c );
+		cursor = cmd.pos + 1;
+		break;
+	    case Remove:
+	    case Delete:
+	    case RemoveSelection:
+	    case DeleteSelection:
+		text.remove( cmd.pos, 1 );
+		cursor = cmd.pos;
+		break;
+	    case Separator:
+		continue;
+	    }
+	    if ( undoState < (int)history.size() ) {
+		Command& next = history[undoState];
+		if ( next.type != cmd.type && cmd.type < RemoveSelection
+		     && !( next.type >= RemoveSelection && cmd.type != Separator ) )
+		    break;
+	    }
+	}
+	textDirty = TRUE;
+    }
     inline bool isUndoAvailable() const { return !readOnly && undoState; }
     inline bool isRedoAvailable() const { return !readOnly && undoState < (int)history.size(); }
 
@@ -2317,73 +2379,6 @@ void QLineEditPrivate::addCommand( const Command& cmd )
     }
     separator = FALSE;
     history[ undoState++ ] = cmd;
-}
-
-inline void QLineEditPrivate::undo( int until ) {
-    if ( !isUndoAvailable() )
-	return;
-    deselect();
-    while ( undoState && undoState > until ) {
-	Command& cmd = history[--undoState];
-	switch ( cmd.type ) {
-	case Insert:
-	    text.remove( cmd.pos, 1);
-	    cursor = cmd.pos;
-	    break;
-	case Remove:
-	case RemoveSelection:
-	    text.insert( cmd.pos, cmd.c );
-	    cursor = cmd.pos + 1;
-	    break;
-	case Delete:
-	case DeleteSelection:
-	    text.insert( cmd.pos, cmd.c );
-	    cursor = cmd.pos;
-	    break;
-	case Separator:
-	    continue;
-	}
-	if ( until < 0 && undoState ) {
-	    Command& next = history[undoState-1];
-	    if ( next.type != cmd.type && next.type < RemoveSelection
-		&& !( cmd.type >= RemoveSelection && next.type != Separator ) )
-		break;
-	}
-    }
-    modified = ( undoState != 0 );
-    textDirty = TRUE;
-}
-
-
-inline void QLineEditPrivate::redo() {
-    if ( !isRedoAvailable() )
-	return;
-    deselect();
-    while ( undoState < (int)history.size() ) {
-	Command& cmd = history[undoState++];
-	switch ( cmd.type ) {
-	case Insert:
-	    text.insert( cmd.pos, cmd.c );
-	    cursor = cmd.pos + 1;
-		    break;
-	case Remove:
-	case Delete:
-	case RemoveSelection:
-	case DeleteSelection:
-	    text.remove( cmd.pos, 1 );
-	    cursor = cmd.pos;
-	    break;
-	case Separator:
-	    continue;
-	}
-	if ( undoState < (int)history.size() ) {
-	    Command& next = history[undoState];
-	    if ( next.type != cmd.type && cmd.type < RemoveSelection
-		 && !( next.type >= RemoveSelection && cmd.type != Separator ) )
-		break;
-	}
-    }
-    textDirty = TRUE;
 }
 
 void QLineEditPrivate::insert( const QString& s )
