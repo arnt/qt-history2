@@ -59,6 +59,11 @@ public:
                                       const QModelIndex &index) const;
 
     // events for non-widget editors
+#if !defined(Q_NO_USING_KEYWORD)
+    using QObject::event;
+#else
+    inline bool event(QEvent *e) { return QObject::event(e); }
+#endif
     virtual bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
 signals:
