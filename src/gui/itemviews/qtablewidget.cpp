@@ -142,12 +142,12 @@ bool QTableModel::removeRows(int row, const QModelIndex &, int count)
         table.remove(qMax(i, 0), count * columnCount());
         vertical.remove(row, count);
         // update persistent model indexes
-        for (int i = 0; i < persistentIndexesCount(); ++i) {
-            QModelIndex idx = persistentIndexAt(i);
+        for (int j = 0; j < persistentIndexesCount(); ++j) {
+            QModelIndex idx = persistentIndexAt(j);
             if (idx.row() >= vertical.count())
-                setPersistentIndex(i, QModelIndex::Null);
+                setPersistentIndex(j, QModelIndex::Null);
             else if (idx.row() >= row)
-                setPersistentIndex(i, index(idx.row() - count, idx.column()));
+                setPersistentIndex(j, index(idx.row() - count, idx.column()));
         }
         return true;
     }
