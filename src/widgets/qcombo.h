@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#13 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#14 $
 **
 ** Definition of QComboBox class
 **
@@ -37,6 +37,7 @@ public:
 			{ clear(); insertStrList(list,0); }
     void	setStrList( const char **strings, int numStrings=-1 )
 			{ clear(); insertStrList(strings,numStrings,0); }
+    const char *string( int index ) const  { return text(index); }
 #endif
 
     void	insertItem( const char *text, int index=-1 );
