@@ -454,7 +454,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     }
 
     QStyle::SCFlags under_mouse = QStyle::SC_None;
-    if( autoRaise() && hasMouse() && !d->pressed ) {
+    if( autoRaise() && hasMouse() ) {
 	QPoint p(mapFromGlobal(QCursor::pos()));
 	under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p);
 	ctrls ^= under_mouse;
@@ -471,7 +471,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
 				   colorGroup(),
 				   QStyle::Style_MouseOver | 
 				   (isEnabled() ? QStyle::Style_Enabled : 0),
-				   under_mouse, 0);
+				   under_mouse, d->buttonDown);
 }
 
 void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
