@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#165 $
 **
 ** Implementation of QApplication class
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qapplication.h"
-#include "qbuilder.h"
+#include "qdeveloper.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidget.h"
@@ -109,8 +109,8 @@ QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
-static bool makebuilder = FALSE;	// application builder needed?
-static QBuilder* builder = 0;		// application builder
+static bool makeqdevel = FALSE;		// developer tool needed?
+static QDeveloper* qdevel = 0;		// developer tool
 
 
 int	 QApplication::app_cspec = QApplication::NormalColor;
@@ -157,8 +157,8 @@ void process_cmdline( int* argcptr, char ** argv )
 	    continue;
 	}
 	Q1String arg = argv[i];
-	if ( arg == "-builder" || arg == "-qdebug") {
-	    makebuilder = !makebuilder;
+	if ( arg == "-qdevel" || arg == "-qdebug") {
+	    makeqdevel = !makeqdevel;
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
 	    qApp->setStyle( new QWindowsStyle );
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
@@ -211,7 +211,7 @@ void process_cmdline( int* argcptr, char ** argv )
   <ul>
   <li> \c -style= \e style, sets the application GUI style. Possible values
        are \c motif, \c windows, and \c platinum.
-  <li> \c -builder activates the Application Builder window, which allows
+  <li> \c -qdevel activates the Application Builder window, which allows
        run-time inspection of the program.
   </ul>
 
@@ -316,9 +316,9 @@ void QApplication::initialize( int argc, char **argv )
 
     // no longer starting up .....
 
-    if ( makebuilder ) {
-	builder = new QBuilder;
-	builder->show();
+    if ( makeqdevel ) {
+	qdevel = new QDeveloper;
+	qdevel->show();
     }
 }
 
@@ -1040,13 +1040,13 @@ int QApplication::doubleClickInterval()
 
 
 /*!
-  Tells the builder, if any, about a new top-level widget.
+  Tells the -qdevel widget, if any, about a new top-level widget.
 */
 
 void QApplication::noteTopLevel( QWidget* tlw )
 {
-    if ( builder )
-	builder->addTopLevelWidget(tlw);
+    if ( qdevel )
+	qdevel->addTopLevelWidget(tlw);
 }
 
 
