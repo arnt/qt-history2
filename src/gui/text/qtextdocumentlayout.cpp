@@ -814,7 +814,6 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     if (variableCols > 0) {
         // minWidths array is filled with zero at this point
 
-        int sharedWidth = totalWidth / variableCols;
         for (int i = 0; i < columns; ++i)
             if (constraints.at(i) == QTextTableFormat::VariableLength) {
                 for (int row = 0; row < rows; ++row) {
