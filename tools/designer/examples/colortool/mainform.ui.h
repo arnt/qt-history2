@@ -80,8 +80,7 @@ void MainForm::populate()
 	    colorTable->setText( row, COL_HEX, color.name().upper() );
 	    if ( m_show_web ) {
 		QCheckTableItem *item = new QCheckTableItem( colorTable, "" );
-		item->setChecked(
-		    isWebColor( color.red(), color.green(), color.blue() ) );
+		item->setChecked( isWebColor( color ) );
 		colorTable->setItem( row, COL_WEB, item );
 	    }
 	    row++;
@@ -134,13 +133,13 @@ void MainForm::fileNew()
 
 void MainForm::fileOpen()
 {
-    if ( !okToClear() )
+    if ( ! okToClear() )
 	return;
 
     QString filename = QFileDialog::getOpenFileName(
 			    QString::null, "Colors (*.txt)", this,
 			    "file open", "Color Tool -- File Open" );
-    if ( !filename.isEmpty() )
+    if ( ! filename.isEmpty() )
 	load( filename );
     else
 	statusBar()->message( "File Open abandoned", 2000 );
@@ -156,7 +155,7 @@ void MainForm::fileSave()
     QFile file( m_filename );
     if ( file.open( IO_WriteOnly ) ) {
 	QTextStream stream( &file );
-	if ( !m_comments.isEmpty() )
+	if ( ! m_comments.isEmpty() )
 	    stream << m_comments.join( "\n" ) << "\n";
 	QMap<QString,QColor>::Iterator it;
 	for ( it = m_colors.begin(); it != m_colors.end(); ++it ) {
@@ -185,7 +184,7 @@ void MainForm::fileSaveAs()
     QString filename = QFileDialog::getSaveFileName(
 			    QString::null, "Colors (*.txt)", this,
 			    "file save as", "Color Tool -- File Save As" );
-    if ( !filename.isEmpty() ) {
+    if ( ! filename.isEmpty() ) {
 	int ans = 0;
 	if ( QFile::exists( filename ) )
 	    ans = QMessageBox::warning(
@@ -213,7 +212,7 @@ void MainForm::load( const QString& filename )
 			      arg( filename ) );
 	QTextStream stream( &file );
 	QString line;
-	while ( !stream.eof() ) {
+	while ( ! stream.eof() ) {
 	    line = stream.readLine();
 	    if ( regex.search( line ) == -1 )
 		m_comments += line;
@@ -229,9 +228,9 @@ void MainForm::load( const QString& filename )
 	statusBar()->message( QString( "Loaded '%1'" ).
 				arg( m_filename ), 3000 );
 	QWidget *visible = colorWidgetStack->visibleWidget();
-	m_icons_dirty = !(m_table_dirty = visible == tablePage);
+	m_icons_dirty = ! ( m_table_dirty = ( visible == tablePage ) );
 	populate();
-	m_icons_dirty = !(m_table_dirty = visible != tablePage);
+	m_icons_dirty = ! ( m_table_dirty = ( visible != tablePage ) );
 	m_changed = FALSE;
     }
     else
@@ -291,7 +290,7 @@ void MainForm::editCut()
 	QIconViewItem *item = colorIconView->currentItem();
 	name = item->text();
 	QIconViewItem *current = item->nextItem();
-	if ( !current )
+	if ( ! current )
 	    current = item->prevItem();
 	delete item;
 	if ( current )
@@ -300,7 +299,7 @@ void MainForm::editCut()
 	m_table_dirty = TRUE;
     }
 
-    if ( !name.isNull() ) {
+    if ( ! name.isNull() ) {
 	m_colors.remove( name );
 	m_changed = TRUE;
 	statusBar()->message( QString( "Deleted '%1'" ).arg( name ), 5000 );
@@ -322,7 +321,7 @@ void MainForm::editCopy()
 	QIconViewItem *item = colorIconView->currentItem();
 	text = item->text();
     }
-    if ( !text.isNull() ) {
+    if ( ! text.isNull() ) {
 	QColor color = m_colors[text];
 	switch ( m_clip_as ) {
 	    case CLIP_AS_HEX: text = color.name(); break;
@@ -341,7 +340,7 @@ void MainForm::editCopy()
 
 void MainForm::editFind()
 {
-    if ( !findForm ) {
+    if ( ! findForm ) {
 	findForm = new FindForm( this );
 	connect( findForm, SIGNAL( lookfor(const QString&) ),
 		 this, SLOT( lookfor(const QString&) ) );
@@ -367,7 +366,7 @@ void MainForm::lookfor( const QString& text )
 		found = TRUE;
 		break;
 	}
-	if ( !found )
+	if ( ! found )
 	    colorTable->setCurrentCell( row, 0 );
 
     }
@@ -380,10 +379,10 @@ void MainForm::lookfor( const QString& text )
 		found = TRUE;
 		break;
 	    }
-	if ( !found && start )
+	if ( ! found && start )
 	    colorIconView->setCurrentItem( start );
     }
-    if ( !found ) {
+    if ( ! found ) {
 	statusBar()->message( QString( "Could not find '%1' after here" ).
 			      arg( text ) );
 	findForm->notfound();
@@ -428,7 +427,7 @@ void MainForm::changedColor( const QString& name )
 			  arg( name ).
 			  arg( color.name().upper() ).
 			  arg( r ).arg( g ).arg( b ).
-			  arg( isWebColor( r, g, b ) ? " web" : "" ).
+			  arg( isWebColor( color ) ? " web" : "" ).
 			  arg( r / 255.0, 1, 'f', 3 ).
 			  arg( g / 255.0, 1, 'f', 3 ).
 			  arg( b / 255.0, 1, 'f', 3 )
@@ -444,8 +443,12 @@ void MainForm::changeView(QAction* action)
 	colorWidgetStack->raiseWidget( iconsPage );
 }
 
-bool MainForm::isWebColor( int r, int g, int b )
+bool MainForm::isWebColor( QColor color )
 {
+    int r = color.red();
+    int g = color.green();
+    int b = color.blue();
+
     return ( ( r ==   0 || r ==  51 || r == 102 ||
 	       r == 153 || r == 204 || r == 255 ) &&
 	     ( g ==   0 || g ==  51 || g == 102 ||
@@ -458,7 +461,7 @@ bool MainForm::isWebColor( int r, int g, int b )
 void MainForm::editAdd()
 {
     QColor color = white;
-    if ( !m_colors.isEmpty() ) {
+    if ( ! m_colors.isEmpty() ) {
 	QWidget *visible = colorWidgetStack->visibleWidget();
 	if ( visible == tablePage )
 	    color = colorTable->text( colorTable->currentRow(),
@@ -485,8 +488,7 @@ void MainForm::editAdd()
 	    colorTable->setText( row, COL_HEX, color.name().upper() );
 	    if ( m_show_web ) {
 		QCheckTableItem *item = new QCheckTableItem( colorTable, "" );
-		item->setChecked(
-		    isWebColor( color.red(), color.green(), color.blue() ) );
+		item->setChecked( isWebColor( color ) );
 		colorTable->setItem( row, COL_WEB, item );
 	    }
 	    colorTable->setCurrentCell( row, colorTable->currentColumn() );
@@ -539,7 +541,7 @@ void MainForm::loadSettings()
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
     m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX );
     m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", TRUE );
-    if ( !settings.readBoolEntry( APP_KEY + "View", TRUE ) )
+    if ( ! settings.readBoolEntry( APP_KEY + "View", TRUE ) )
 	colorWidgetStack->raiseWidget( iconsPage );
 
     resize( windowWidth, windowHeight );

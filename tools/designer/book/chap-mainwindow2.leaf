@@ -865,6 +865,19 @@ global clipboard, so add "QClipboard *clipboard;". Finally add
 "QStringList m_comments;". This is used for loading and saving color
 files and is explained later.
 
+You should now have the following variables:
+\list
+\i QMap\<QString,QColor\> m_colors;
+\i bool m_changed;
+\i QString m_filename;
+\i bool m_table_dirty;
+\i bool m_icons_dirty;
+\i bool m_show_web;
+\i int m_clip_as;
+\i QClipboard clipboard;
+\i QStringList m_comments;
+\endlist
+
 Press \Key Enter, to confirm the last variable, then click
 \CLOSE to close the dialog. All the variables now appear in
 Object Explorer's Members tab.
@@ -880,6 +893,12 @@ Add the following forward declarations: "class QString;" and "class
 QColor;". Close the dialog and the forward declarations appear in
 Object Explorer.
 
+You should now have the following forward declarations:
+\list
+\i class QString;
+\i class QColor;
+\endlist
+
 \section3 Adding Includes
 
 Our form will also need some included files. Includes may be added in
@@ -894,6 +913,15 @@ swatches), so add "qpainter.h" too, then close the dialog.
 When entering include files you can include double quotes or angle
 brackets if you wish; if you don't use either \QD will put in double
 quotes automatically.
+
+You should now have added the following includes (in implementation):
+\list
+\i "qcolor.h"
+\i "qstring.h"
+\i "qapplication.h"
+\i "qclipboard.h"
+\i "qpainter.h"
+\endlist
 
 \section2 Signals and Slots Connections
 
@@ -1279,6 +1307,12 @@ Object Explorer's Members tab and add a "qstatusbar.h" to the
 Implementation)", click \Menu{New}, enter "qstatusbar.h" then press
 \Key Enter.)
 
+You should now have added the following declaration to your includes
+(in implementation):
+\list
+\i "qstatusbar.h"
+\endlist
+
 Try saving (press \Key Ctrl+S), making and running the application.
 Move to different colors and see the status bar indicating the color
 you are on. (If it doesn't build see the \l{Troubleshooting} section.)
@@ -1345,6 +1379,12 @@ Since we're using a \l QMessageBox we need to include the relevant
 header. (Right click "Includes (in Implementation)", then click
 \Menu{New}. Type "qmessagebox.h" and press \Key Enter.)
 
+You should now have added the following declaration to your includes
+(in implementation):
+\list
+\i "qmessagebox.h"
+\endlist
+
 \section3 fileOpen()
 
 \quotefile colortool/mainform.ui.h
@@ -1361,6 +1401,12 @@ got the filename we attempt to load the file.
 Since we're using a \l QFileDialog we need to include the relevant
 header. (Right click "Includes (in Implementation)", then click
 \Menu{New}. Type "qfiledialog.h" and press \Key Enter.)
+
+You should now have added the following declaration to your includes
+(in implementation):
+\list
+\i "qfiledialog.h"
+\endlist
 
 \section3 load()
 
@@ -1415,6 +1461,13 @@ Since we're using \l QFile and \l QRegExp we need to include the
 relevant headers. (Right click "Includes (in Implementation)", then
 click \Menu{New}. Type "qfile.h" and press \Key Enter. Repeat this
 process to add "qregexp.h".)
+
+You should now have added the following declarations to your includes
+(in implementation):
+\list
+\i "qfile.h"
+\i "qregexp.h"
+\endlist
 
 \sidebar The Regular Expression
 

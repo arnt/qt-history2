@@ -405,12 +405,16 @@ Includes (in Implementation)} dialog. Click \Button{Add} then enter
 "qcolordialog.h". Click \Button{Add} again, and enter "qlabel.h".
 Similarly add "qlineedit.h". We also need to include the header for
 the form we've just created, so add "colornameform.h", and since it is
-our last entry press \Key Enter, then click \CLOSE Click
-\Button{Add} then enter "qcolordialog.h". Click \Button{Add} again,
-and enter "qlabel.h". Similarly add "qlineedit.h". We also need to
-include the header for the form we've just created, so add
-"colornameform.h", and since it is our last entry press \Key Enter,
-then click \CLOSE.
+our last entry press \Key Enter, then click \CLOSE. 
+
+You should now have added the following declarations to your includes
+(in implementation):
+\list
+\i "qcolordialog.h"
+\i "qlabel.h"
+\i "qlineedit.h"
+\i "colornameform.h"
+\endlist
 
 Now we're ready to enter the \Func{editAdd()} slot's code. Click
 "mainform.ui.h" in the Project Overview to invoke the code editor.
@@ -635,9 +639,21 @@ Add "findform.h" to "Includes (in Declaration)". (Click Object
 Explorer's Members tab, right click "Includes (in Declaration)", click
 \Menu{New}, enter "findform.h", then press \Key Enter.)
 
+You should now have added the following declaration to your includes
+(in declaration):
+\list
+\i "findform.h"
+\endlist
+
 In the class variables add "FindForm *findForm;". (Right click "Class
 Variables", click \Menu{New}, enter "FindForm *findForm;", then press
 \Key Enter.)
+
+You should now have added the following variable to your class
+variables:
+\list
+\i FindForm *findform;
+\endlist
 
 Uncomment the line \c{findForm = 0;} in the \Func{init()} function.
 
@@ -836,6 +852,14 @@ click \Button{Add} again and enter "qradiobutton.h"; click
 \Button{Add} again and enter "qcheckbox.h". Press \Key Enter, then
 click \CLOSE.)
 
+You should now have added the following declarations to your includes
+(in implementation):
+\list
+\i "optionsform.h"
+\i "qcheckbox.h"
+\i "qradiobutton.h"
+\endlist
+
 Now the user can change options to suit their own preferences. But
 these option settings will be lost when they exit the application.
 We'll finish off by adding functions to load and save the user's
@@ -854,6 +878,12 @@ and rc files on Unix). Add the "qsettings.h" header to the includes in
 implementation. (Click Object Explorer's Members tab, right click
 "Includes (in Implementation)", click \Menu{New}, enter "qsettings.h",
 then press \Key Enter.)
+
+You should now have added the following declaration to your includes
+(in implementation):
+\list
+\i "qsettings.h"
+\endlist
 
 \section2 saveSettings()
 

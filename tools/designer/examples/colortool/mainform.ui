@@ -574,7 +574,7 @@
     <function type="slot">changedIconColor( QIconViewItem * item )</function>
     <function type="function">changedColor( const QString &amp; name )</function>
     <function type="slot">changeView( QAction * action )</function>
-    <function type="function" returnType="bool">isWebColor( int r, int g, int b )</function>
+    <function type="function" returnType="bool">isWebColor( QColor color )</function>
     <function type="slot">editAdd()</function>
     <function type="slot">editOptions()</function>
     <function type="function">loadSettings()</function>

@@ -19,8 +19,8 @@ void ColorNameForm::setColors( const QMap<QString,QColor>& colors )
 void ColorNameForm::validate()
 {
     QString name = colorLineEdit->text();
-    if ( !name.isEmpty() &&
-	 (m_colors.isEmpty() || !m_colors.contains( name ) ) )
+    if ( ! name.isEmpty() &&
+	 ( m_colors.isEmpty() || ! m_colors.contains( name ) ) )
 	accept();
     else
 	colorLineEdit->selectAll();
