@@ -1551,7 +1551,10 @@ void MetaObjectGenerator::readFuncInfo()
 		    returnType = ptype;
 		    paramTypes[0] = returnType;
 		} else {
-		    prototype += constRefify( ptype );
+		    if ( ptype.startsWith("const ") && pdesc.wParamFlags&PARAMFLAG_FOUT )
+			prototype += ptype.mid( 6 );
+		    else
+			prototype += constRefify( ptype );
 		    if ( optional )
 			ptype += "=0";
 		    paramTypes << ptype;
