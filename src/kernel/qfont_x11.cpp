@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#106 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1138,9 +1138,9 @@ int QFontMetrics::lineSpacing() const
 
   <img src=bearings.gif align=right>
   Some of the metrics are described in the image to the right.
-  The tall green rectangle covers the logical width() of a character.
+  The tall dark rectangle covers the logical width() of a character.
   The shorter
-  yellow rectangles cover the
+  pale rectangles cover the
   \link QFontMetrics::leftBearing() left\endlink and
   \link QFontMetrics::rightBearing() right\endlink bearings
   of the characters.  Notice that the bearings of "f" in this particular
