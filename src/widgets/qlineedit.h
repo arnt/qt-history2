@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#17 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#18 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -39,6 +39,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
+    void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
@@ -60,15 +61,18 @@ private:
     void	del();
     void	home( bool mark );
     void	end( bool mark );
+    void	markWord( int pos );
+    int		lastCharVisible() const;
+    int		minMark() const;
+    int		maxMark() const;
 
     QString	tbuf;
     QPixmap    *pm;
     int		cursorPos;
     int		offset;
     int		maxLen;
-    int         markStart;
-    int         markBegin;
-    int         markEnd;
+    int         markAnchor;
+    int         markDrag;
     bool	cursorOn;
     bool	dragScrolling;
     bool	scrollingLeft;
