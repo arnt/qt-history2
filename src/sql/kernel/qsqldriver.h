@@ -83,6 +83,8 @@ protected:
     virtual void setOpenError(bool e);
     virtual void setLastError(const QSqlError& e);
 
+    virtual void virtual_hook(int id, void *data);
+
 private:
     Q_DISABLE_COPY(QSqlDriver)
 };

@@ -788,3 +788,9 @@ QCoreVariant QSqlResult::lastInsertId() const
     return QCoreVariant();
 }
 
+/*! \internal
+*/
+void QSqlResult::virtual_hook(int, void *)
+{
+}
+

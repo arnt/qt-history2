@@ -559,3 +559,10 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 
     Use the other formatValue() overload instead.
 */
+
+/*! \internal
+*/
+void QSqlDriver::virtual_hook(int, void *)
+{
+}
+

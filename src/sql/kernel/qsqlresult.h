@@ -29,7 +29,6 @@ class QSqlResultPrivate;
 class Q_SQL_EXPORT QSqlResult
 {
 friend class QSqlQuery;
-friend class QSqlAsyncQuery;
 friend class QSqlResultPrivate;
 public:
     virtual ~QSqlResult();
@@ -94,6 +93,8 @@ protected:
     virtual int numRowsAffected() = 0;
     virtual QSqlRecord record() const;
     virtual QCoreVariant lastInsertId() const;
+
+    virtual void virtual_hook(int id, void *data);
 
 private:
     QSqlResultPrivate* d;
