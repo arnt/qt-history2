@@ -2259,47 +2259,37 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
 	if ( force_bitmap || (txop >= TxScale && !nat_xf) ) {
 	    // Draw rotated and sheared text on Windows 95, 98
-	    const QFontMetrics & fm = fontMetrics();
-	    QFontInfo	 fi = fontInfo();
+	    const QFontMetrics &fm = fontMetrics();
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
-	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
+	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-	    QFont dfont( *font );
-	    QWMatrix mat2;
-	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
-		double pixSize = font->pixelSize();
-		if ( pixSize == -1 )
-		    pixSize = font->pointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 72;
-		int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
-		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
-		dfont.setPointSize( newSize );
-		QFontMetrics fm2( dfont );
-		QRect abbox = fm2.boundingRect( str, len );
-		aw = abbox.width();
-		ah = abbox.height();
-		tx = -abbox.x();
-		ty = -abbox.y();	// text position - off-by-one?
-		if ( aw == 0 || ah == 0 )
-		    return;
-		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
-		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
-		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
-	    } else {
-		mat2 = QPixmap::trueMatrix( mat1, w, h );
-		aw = w;
-		ah = h;
-	    }
-	    bool empty = aw == 0 || ah == 0;
+	    QFont dfont( cfont );
+	    float pixSize = cfont.pixelSize();
+	    if ( pixSize == -1 ) 
+		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
+	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
+	    newSize = QMAX( 6, QMIN( newSize, 256 ) ); // empirical values
+	    dfont.setPixelSize( newSize );
+	    QFontMetrics fm2( dfont );
+	    QRect abbox = fm2.boundingRect( str, len );
+	    aw = abbox.width();
+	    ah = abbox.height();
+	    tx = -abbox.x();
+	    ty = -abbox.y();        // text position - off-by-one?
+	    if ( aw == 0 || ah == 0 )
+		return;
+	    double rx = (double)w / (double)aw;
+	    double ry = (double)h / (double)ah;
+	    QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
 	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
 	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 	    bool create_new_bm = wx_bm == 0;
-	    if ( create_new_bm && !empty ) {	// no such cached bitmap
+	    if ( create_new_bm ) { 	        // no such cached bitmap
 		QBitmap bm( aw, ah, TRUE, QPixmap::MemoryOptim );
-		QFont pmFont( dfont );
 		QPainter paint;
-		paint.begin( &bm );		// draw text in bitmap
+		paint.begin( &bm );             // draw text in bitmap
 		if ( pdev->devType() == QInternal::Printer ) {
 		    // Adjust for the difference in lpi of pixmap vs. printer
 		    int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
@@ -2311,10 +2301,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		    int pmlpy = GetDeviceCaps(paint.hdc, LOGPIXELSY);
 		    if ( prlpy && pmlpy && !vxfScale ) {	// Sanity
 			float nfs = fs * (float)prlpy / (float)pmlpy;
-			pmFont.setPointSizeFloat( nfs );
+			dfont.setPointSizeFloat( nfs );
 		    }
 		}
-		paint.setFont( pmFont );
+		paint.setFont( dfont );
 		paint.drawText( tx, ty, str, pos, len, dir );
 		paint.end();
 		if ( txop >= TxScale )
@@ -2322,10 +2312,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		else
 		    wx_bm = new QBitmap( bm );
 		if ( wx_bm->isNull() ) {
-		    delete wx_bm;		// nothing to draw
+		    delete wx_bm;               // nothing to draw
 		    return;
 		}
-	    }
+            }
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		int fx = x;
 		int fy = y - fm.ascent();
@@ -2348,8 +2338,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		setPen( oldPen );
 		setBrush( oldBrush );
 	    }
-	    if ( empty )
-		return;
 	    double fx=x, fy=y, nfx, nfy;
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    double tfx=tx, tfy=ty, dx, dy;
