@@ -1523,7 +1523,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
 	if ( w->testWState(WState_OwnCursor) &&
-	     ( !amw || w->topLevelWidget() == amw ) )	//   set a cursor
+	     ( !amw || !w->isVisible() || w->topLevelWidget() == amw ) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
