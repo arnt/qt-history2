@@ -40,6 +40,7 @@
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qapplication.h"
+#include "qstyle.h"
 
 #include <ctype.h>
 

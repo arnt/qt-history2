@@ -48,6 +48,7 @@
 #include "qsessionmanager.h"
 #include "qclipboard.h"
 #include "qcursor.h"
+#include "qstyle.h"
 #include "qstylefactory.h"
 #include "qcomponentfactory.h"
 #include <stdlib.h>

@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qstyle.h"
-#include "qpushbutton.h" // compile!
 #endif // QT_H
 
 #ifndef QT_NO_STYLE
@@ -48,75 +47,74 @@
 class Q_EXPORT QCommonStyle: public QStyle
 {
     Q_OBJECT
-private:
+
+public:
     QCommonStyle();
     ~QCommonStyle();
 
-    friend class QMotifStyle;
-    friend class QWindowsStyle;
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			SFlags flags = Style_Default,
+			void **data = 0 ) const;
 
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      SFlags how = Style_Default,
+		      void **data = 0 ) const;
 
-public:
-    virtual void drawPrimitive( PrimitiveElement pe,
-				QPainter *p,
-				const QRect &r,
-				const QColorGroup &cg,
-				SFlags flags = Style_Default,
-				void **data = 0 ) const;
+    void drawControlMask( ControlElement element,
+			  QPainter *p,
+			  const QWidget *widget,
+			  const QRect &r,
+			  void **data = 0 ) const;
 
-    virtual void drawControl( ControlElement element,
-			      QPainter *p,
-			      const QWidget *widget,
-			      const QRect &r,
-			      const QColorGroup &cg,
-			      SFlags how = Style_Default,
-			      void **data = 0 ) const;
-    virtual void drawControlMask( ControlElement element,
-				  QPainter *p,
+    QRect subRect( SubRect r, const QWidget *widget ) const;
+
+    void drawComplexControl( ComplexControl control,
+			     QPainter *p,
+			     const QWidget *widget,
+			     const QRect &r,
+			     const QColorGroup &cg,
+			     SFlags how = Style_Default,
+			     SCFlags sub = SC_All,
+			     SCFlags subActive = SC_None,
+			     void **data = 0 ) const;
+
+    void drawComplexControlMask( ComplexControl control,
+				 QPainter *p,
+				 const QWidget *widget,
+				 const QRect &r,
+				 void **data = 0 ) const;
+
+    QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
-				  const QRect &r,
+				  SubControl sc,
 				  void **data = 0 ) const;
 
-    virtual QRect subRect( SubRect r, const QWidget *widget ) const;
+    SubControl querySubControl( ComplexControl control,
+				const QWidget *widget,
+				const QPoint &pos,
+				void **data = 0 ) const;
 
-    virtual void drawComplexControl( ComplexControl control,
-				     QPainter *p,
-				     const QWidget *widget,
-				     const QRect &r,
-				     const QColorGroup &cg,
-				     SFlags how = Style_Default,
-				     SCFlags sub = SC_All,
-				     SCFlags subActive = SC_None,
-				     void **data = 0 ) const;
-    virtual void drawComplexControlMask( ComplexControl control,
-					 QPainter *p,
-					 const QWidget *widget,
-					 const QRect &r,
-					 void **data = 0 ) const;
+    int pixelMetric( PixelMetric m, const QWidget *widget = 0 ) const;
 
-    virtual QRect querySubControlMetrics( ComplexControl control,
-					  const QWidget *widget,
-					  SubControl sc,
-					  void **data = 0 ) const;
-    virtual SubControl querySubControl( ComplexControl control,
-					const QWidget *widget,
-					const QPoint &pos,
-					void **data = 0 ) const;
+    QSize sizeFromContents( ContentsType s,
+			    const QWidget *widget,
+			    const QSize &contentsSize,
+			    void **data = 0 ) const;
 
-    virtual int pixelMetric( PixelMetric m, const QWidget *widget = 0 ) const;
+    int styleHint( StyleHint sh,
+		   const QWidget *widget = 0,
+		   void ***returnData = 0 ) const;
 
-    virtual QSize sizeFromContents( ContentsType s,
-				    const QWidget *widget,
-				    const QSize &contentsSize,
-				    void **data = 0 ) const;
-
-    virtual int styleHint( StyleHint sh,
-			   const QWidget *widget = 0,
-			   void ***returnData = 0 ) const;
-
-    virtual QPixmap stylePixmap( StylePixmap sp,
-				 const QWidget *widget = 0,
-				 void **data = 0 ) const;
+    QPixmap stylePixmap( StylePixmap sp,
+			 const QWidget *widget = 0,
+			 void **data = 0 ) const;
 
 
 private:

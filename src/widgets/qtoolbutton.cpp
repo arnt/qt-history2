@@ -43,6 +43,7 @@
 #include "qpixmap.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "qstyle.h"
 #include "qmainwindow.h"
 #include "qtooltip.h"
 #include "qtoolbar.h"

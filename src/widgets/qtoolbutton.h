@@ -49,6 +49,7 @@
 
 class QToolButtonPrivate;
 class QToolBar;
+class QPopupMenu;
 
 class Q_EXPORT QToolButton : public QButton
 {

@@ -48,11 +48,11 @@
 #include "qintdict.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qapplication.h"
 #include "qtoolbutton.h"
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
+#include "qstyle.h"
 
 static const char * arrow_v_xpm[] = {
     "7 9 3 1",

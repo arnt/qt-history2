@@ -44,6 +44,7 @@
 #include "qptrlist.h"
 #include "qmemarray.h"
 #include "qobjectlist.h"
+#include "qstyle.h"
 #include "qapplication.h" //sendPostedEvents
 
 class QSplitterHandle : public QWidget

@@ -51,6 +51,7 @@
 #include "qcleanuphandler.h"
 #include <ctype.h>
 #include "../kernel/qinternal_p.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

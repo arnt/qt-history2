@@ -39,8 +39,8 @@
 #ifndef QT_NO_PROGRESSBAR
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qapplication.h"
 #include "qpixmap.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

@@ -43,6 +43,7 @@
 #include "qwidgetstack.h"
 #include "qbitmap.h"
 #include "qaccel.h"
+#include "qstyle.h"
 
 /*!
   \class QTabWidget qtabwidget.h

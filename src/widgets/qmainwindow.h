@@ -52,6 +52,7 @@ class QStatusBar;
 class QToolTipGroup;
 class QMainWindowPrivate;
 class QMainWindowLayout;
+class QPopupMenu;
 
 class Q_EXPORT QMainWindow: public QWidget
 {

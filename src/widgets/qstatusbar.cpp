@@ -43,7 +43,7 @@
 #include "qpainter.h"
 #include "qtimer.h"
 #include "qdrawutil.h"
-#include "qapplication.h"
+#include "qstyle.h"
 #include "qsizegrip.h"
 
 /*!

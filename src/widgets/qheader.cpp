@@ -43,6 +43,7 @@
 #include "qbitarray.h"
 #include "qptrvector.h"
 #include "qapplication.h"
+#include "qstyle.h"
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;

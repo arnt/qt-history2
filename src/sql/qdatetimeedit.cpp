@@ -46,6 +46,7 @@
 #include "qapplication.h"
 #include "qvaluelist.h"
 #include "qstring.h"
+#include "qstyle.h"
 
 #include "math.h" // floor()
 

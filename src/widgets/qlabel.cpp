@@ -49,6 +49,7 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 #include "qlineedit.h"
+#include "qstyle.h"
 
 class QLabelPrivate
 {

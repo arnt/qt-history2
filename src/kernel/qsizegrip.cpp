@@ -41,7 +41,7 @@
 
 #include "qpainter.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
+#include "qstyle.h"
 
 #if defined(Q_WS_X11)
 #include "qt_x11.h"

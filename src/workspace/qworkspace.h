@@ -48,6 +48,7 @@
 class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
+class QPopupMenu;
 
 class Q_EXPORT QWorkspace : public QWidget
 {

@@ -1920,11 +1920,11 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	case 1:
 	    return QTitleBar::tr("System");
 	case 3:
-	    if ( titleBar()->window->isMinimized() )
+	    if ( titleBar()->window()->isMinimized() )
 		return QTitleBar::tr("Restore up");
 	    return QTitleBar::tr("Minimize");
 	case 4:
-	    if ( titleBar()->window->isMaximized() )
+	    if ( titleBar()->window()->isMaximized() )
 		return QTitleBar::tr("Restore down");	
 	    return QTitleBar::tr("Maximize");
 	case 5:
@@ -1935,7 +1935,7 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	break;
     case Value:
 	if ( !control || control == 2 )
-	    return titleBar()->window->caption();
+	    return titleBar()->window()->caption();
 	break;
     case DefaultAction:
 	if ( control > 2 )
@@ -1946,11 +1946,11 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	case 1:
 	    return QTitleBar::tr("Contains commands to manipulate the window");
 	case 3:
-	    if ( titleBar()->window->isMinimized() )
+	    if ( titleBar()->window()->isMinimized() )
 		return QTitleBar::tr("Puts a minimized back to normal");
 	    return QTitleBar::tr("Moves the window out of the way");
 	case 4:
-	    if ( titleBar()->window->isMaximized() )
+	    if ( titleBar()->window()->isMaximized() )
 		return QTitleBar::tr("Puts a maximized window back to normal");
 	    return QTitleBar::tr("Makes the window full screen");
 	case 5:
@@ -1990,19 +1990,19 @@ bool QAccessibleTitleBar::doDefaultAction( int control )
 {
     switch ( control ) {
     case 3:
-	if ( titleBar()->window->isMinimized() )
-	    titleBar()->window->showNormal();
+	if ( titleBar()->window()->isMinimized() )
+	    titleBar()->window()->showNormal();
 	else 
-	    titleBar()->window->showMinimized();
+	    titleBar()->window()->showMinimized();
 	return TRUE;
     case 4:
-	if ( titleBar()->window->isMaximized() )
-	    titleBar()->window->showNormal();
+	if ( titleBar()->window()->isMaximized() )
+	    titleBar()->window()->showNormal();
 	else 
-	    titleBar()->window->showMaximized();
+	    titleBar()->window()->showMaximized();
 	return TRUE;
     case 5:
-	titleBar()->window->close();
+	titleBar()->window()->close();
 	return TRUE;
     default:
 	break;

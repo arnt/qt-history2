@@ -50,6 +50,7 @@
 #include "qguardedptr.h"
 #include "qeffects_p.h"
 #include "qcursor.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

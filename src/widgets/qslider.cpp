@@ -42,6 +42,7 @@
 #include "qtimer.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

@@ -1286,7 +1286,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
 	    QPixmap left;
-	    if(tb->window)
+	    if(tb->window())
 		qAquaPixmap( "win_act_left_controls", left );
 	    else
 		qAquaPixmap( "win_act_left", left );
@@ -1300,9 +1300,9 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->drawTiledPixmap( left.width(), 0, tb->width() - left.width() - right.width(),
 				    mid.height(), mid );
 		p->drawPixmap(tb->width() - right.width(), 0, right);
-		p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
+		p->setPen( tb->isActive() || !tb->window() ? tb->atextc : tb->itextc );
 		p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(),
-			    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->cuttext );
+			    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->visibleText() );
 	    }
 	}
 	break; }

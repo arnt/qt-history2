@@ -45,6 +45,7 @@
 
 #ifndef QT_NO_PUSHBUTTON
 class QPushButtonPrivate;
+class QPopupMenu;
 
 class Q_EXPORT QPushButton : public QButton
 {

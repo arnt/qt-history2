@@ -38,7 +38,7 @@
 
 #include "qrect.h"
 #include "qtimer.h"
-#include "qapplication.h"
+#include "qstyle.h"
 #include "qpainter.h"
 
 static uint theButton = 0;

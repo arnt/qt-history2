@@ -49,6 +49,7 @@
 #include "qpopupmenu.h"
 #include "qstringlist.h"
 #include "qguardedptr.h"
+#include "qstyle.h"
 #include <ctype.h>
 #include <private/qrichtext_p.h>
 #include <private/qinternal_p.h>

@@ -46,7 +46,6 @@
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
-#include "qstyle.h"
 #include "qsizepolicy.h"
 #endif // QT_H
 
@@ -56,6 +55,7 @@ struct QTLWExtra;
 class QFocusData;
 class QCursor;
 class QWSRegionManager;
+class QStyle;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {

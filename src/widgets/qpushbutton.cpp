@@ -48,6 +48,7 @@
 #include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
 #include "qtoolbar.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

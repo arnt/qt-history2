@@ -41,7 +41,6 @@
 
 #include "qmenubar.h"
 #include "qapplication.h"
-#include "../kernel/qapplication_p.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
@@ -1279,9 +1278,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 
 	    if ( controls & SC_TitleBarLabel ) {
-		QColor left = titlebar->act || !titlebar->window ?
+		QColor left = titlebar->isActive() || !titlebar->window() ?
 			      titlebar->aleftc : titlebar->ileftc;
-		QColor right = titlebar->act || !titlebar->window ?
+		QColor right = titlebar->isActive() || !titlebar->window() ?
 			       titlebar->arightc : titlebar->irightc;
 		if ( left != right ) {
 		    double rS = left.red();
@@ -1306,12 +1305,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		QRect ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel );
 
-		p->setPen( titlebar->act || !titlebar->window ? titlebar->atextc : titlebar->itextc );
+		p->setPen( titlebar->isActive() || !titlebar->window() ? titlebar->atextc : titlebar->itextc );
 		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
-			    AlignAuto | AlignVCenter | SingleLine, titlebar->cuttext );
+			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
 
-	    if (titlebar->window) {
+	    if ( titlebar->window() ) {
 		QRect ir;
 		bool down = FALSE;
 		int xoff = 0, yoff = 0;
@@ -1385,9 +1384,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		}
 
 		if ( controls & SC_TitleBarSysMenu ) {
-		    if ( !titlebar->pixmap.isNull() ) {
+		    if ( titlebar->icon() ) {
 			ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
-			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &titlebar->pixmap, QString::null );
+			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, titlebar->icon(), QString::null );
 		    }
 		}
 	    }
@@ -1788,19 +1787,19 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    const QTitleBar *titlebar = (QTitleBar*)widget;
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window ) { 
-			if ( titlebar->window->testWFlags( WStyle_Tool ) ) {
-			    if ( titlebar->window->testWFlags( WStyle_SysMenu ) )
+		    if( titlebar->window() ) { 
+			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
+			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window->testWFlags( WStyle_MinMax ) )
+			    if ( titlebar->window()->testWFlags( WStyle_MinMax ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			} else {
-			    if ( titlebar->window->testWFlags( WStyle_SysMenu ) )
+			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0, 
 					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window->testWFlags( WStyle_Minimize ) )
+			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
 				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
-			    else if ( titlebar->window->testWFlags( WStyle_Maximize ) )
+			    else if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			}
 		    }
@@ -1901,14 +1900,14 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 		ctrl <<= 1;
 	    }
-	    if ( titlebar->window ) {
-		if ( ret == SC_TitleBarMaxButton && titlebar->window->testWFlags( WStyle_Tool ) ) {
-		    if ( titlebar->window->isMinimized() )
+	    if ( titlebar->window() ) {
+		if ( ret == SC_TitleBarMaxButton && titlebar->window()->testWFlags( WStyle_Tool ) ) {
+		    if ( titlebar->window()->isMinimized() )
 			ret = SC_TitleBarUnshadeButton;
 		    else
 			ret = SC_TitleBarShadeButton;
-		} else if ( ret == SC_TitleBarMinButton && !titlebar->window->testWFlags( WStyle_Tool ) ) {
-		    if ( titlebar->window->isMinimized() )
+		} else if ( ret == SC_TitleBarMinButton && !titlebar->window()->testWFlags( WStyle_Tool ) ) {
+		    if ( titlebar->window()->isMinimized() )
 			ret = QStyle::SC_TitleBarNormalButton;
 		}
 	    }

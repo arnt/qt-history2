@@ -50,6 +50,7 @@
 #include "qlayout.h"
 #include "qstylefactory.h"
 #include "qcleanuphandler.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

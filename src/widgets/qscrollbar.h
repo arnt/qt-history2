@@ -43,6 +43,7 @@ class QTimer;
 #ifndef QT_H
 #include "qwidget.h"
 #include "qrangecontrol.h"
+#include "qstyle.h"
 #endif // QT_H
 
 #ifndef QT_NO_SCROLLBAR

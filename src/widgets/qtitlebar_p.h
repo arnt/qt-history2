@@ -55,12 +55,13 @@
 #ifndef QT_H
 #include "qbutton.h"
 #include "qlabel.h"
-#include "qpixmap.h"
 #endif // QT_H
 
 #if !defined(QT_NO_TITLEBAR)
 
 class QToolTip;
+class QTitleBarPrivate;
+class QPixmap;
 
 class Q_EXPORT QTitleBar : public QWidget
 {
@@ -72,10 +73,12 @@ public:
 
     bool isActive() const;
     QString text() const { return txt; }
+    QString visibleText() const { return cuttext; }
+    QWidget *window() const;
 
     QSize sizeHint() const;
 
-    static QPixmap titleButtonPixmap( int button, bool down );
+    QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
 
 public slots:
     void setActive( bool );
@@ -106,17 +109,11 @@ protected:
 
 private:
     void cutText();
-    void getColors();
-    QStyle::SCFlags buttonDown;
-    QPoint moveOffset;
-    QToolTip *toolTip;
+    void readColors();
 
-public:
-    bool act		    :1;
-    QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
+    QTitleBarPrivate *d;
+
     QString txt, cuttext;
-    QPixmap pixmap;
-    QWidget* window;
 };
 
 #endif

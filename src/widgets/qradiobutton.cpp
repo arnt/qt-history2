@@ -45,6 +45,7 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#include "qstyle.h"
 
 /*!
   \class QRadioButton qradiobutton.h

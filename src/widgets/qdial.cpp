@@ -45,6 +45,7 @@
 #include "qapplication.h"
 #include "qregion.h"
 #include "qbitmap.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

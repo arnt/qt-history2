@@ -44,6 +44,7 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
+#include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

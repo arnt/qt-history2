@@ -38,7 +38,6 @@
 #define QSTYLE_H
 
 #ifndef QT_H
-#include "qwindowdefs.h"
 #include "qobject.h"
 #endif // QT_H
 
@@ -52,11 +51,8 @@ class Q_EXPORT QStyle: public QObject
 {
     Q_OBJECT
 
-private:
-    QStyle();
-    friend class QCommonStyle;
-
 public:
+    QStyle();
     virtual ~QStyle();
 
     // New QStyle API - most of these should probably be pure virtual

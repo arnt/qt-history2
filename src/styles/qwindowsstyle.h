@@ -56,7 +56,7 @@ class Q_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
     Q_OBJECT
 public:
     QWindowsStyle();
-    virtual ~QWindowsStyle();
+    ~QWindowsStyle();
 
     virtual void polishPopupMenu( QPopupMenu* );
 

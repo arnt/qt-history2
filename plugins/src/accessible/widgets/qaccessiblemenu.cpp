@@ -2,6 +2,7 @@
 
 #include <qpopupmenu.h>
 #include <qmenubar.h>
+#include <qstyle.h>
 
 class MyPopupMenu : public QPopupMenu
 {
