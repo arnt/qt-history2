@@ -414,7 +414,9 @@ MainWindow::MainWindow()
 
     QSettings settings;
     QString currentstyle = settings.readEntry("/qt/style");
-    if (! currentstyle.isNull()) {
+    if (currentstyle.isNull())
+	currentstyle = QApplication::style().className();
+    {
 	int s = 0;
 	QStringList::Iterator git = gstyles.begin();
 	while (git != gstyles.end()) {
@@ -424,7 +426,30 @@ MainWindow::MainWindow()
 	    git++;
 	}
 
-	gstylecombo->setCurrentItem(s);
+	if (s < gstylecombo->count()) {
+	    gstylecombo->setCurrentItem(s);
+	} else {
+	    // no predefined style, try to find the closest match
+	    // class names usually contain the name of the style, so we
+	    // iterate over the items in the combobox, and use the one whose
+	    // name is contained in the classname of the style
+	    s = 0;
+	    git = gstyles.begin();
+	    while (git != gstyles.end()) {
+		if (currentstyle.contains(*git))
+		    break;
+		s++;
+		git++;
+	    }
+
+	    if (s < gstylecombo->count()) {
+		gstylecombo->setCurrentItem(s);
+	    } else {
+		// we give up
+		gstylecombo->insertItem("Unknown");
+		gstylecombo->setCurrentItem(gstylecombo->count() - 1);
+	    }
+	}
     }
 
     buttonMainColor->setColor(palette().color(QPalette::Active,
