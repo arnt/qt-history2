@@ -456,12 +456,12 @@ QUnknownInterface* QLibrary::load()
 		if ( libPol != Manual )
 		    d->startTimer();
 	    }
-	}
+	} else {
 #if QT_DEBUG_COMPONTENT == 2
-	else {
 	    qDebug( "%s: No interface implemented.", libfile.latin1() );
-	}
 #endif
+	    unload();
+	}
     }
 #if QT_DEBUG_COMPONENT == 2
     else {
@@ -501,43 +501,44 @@ bool QLibrary::isLoaded() const
 */
 bool QLibrary::unload( bool force )
 {
-    if ( !d->pHnd || !entry )
+    if ( !d->pHnd )
 	return TRUE;
 
-    QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
-    if ( piface ) {
-	piface->cleanup();
+    if ( entry ) {
+	QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
+	if ( piface ) {
+	    piface->cleanup();
 
-	bool can = piface->canUnload();
-	piface->release();
-	if ( !can ) {
+	    bool can = piface->canUnload();
+	    piface->release();
+	    if ( !can ) {
 #if QT_DEBUG_COMPONENT == 2
-	    qDebug( "%s refuses to be unloaded!", libfile.latin1() );
+		qDebug( "%s refuses to be unloaded!", libfile.latin1() );
 #endif
-	    if ( !force )
-		return FALSE;
+		if ( !force )
+		    return FALSE;
+	    }
 	}
-    }
 
-    if ( entry->release() ) {
+	if ( entry->release() ) {
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
-	qDebug( "%s is still in use!", libfile.latin1() );
+	    qDebug( "%s is still in use!", libfile.latin1() );
 #endif
-	if ( force )
-	    delete entry;
-	else {
-	    entry->addRef();
-	    return FALSE;
+	    if ( force )
+		delete entry;
+	    else {
+		entry->addRef();
+		return FALSE;
+	    }
 	}
-    }
-    d->killTimer();
+	d->killTimer();
 
-    entry = 0;
+	entry = 0;
+    }
 
     if ( !qt_free_library( d->pHnd ) )
     {
 #if QT_DEBUG_COMPONENT == 2
-
 	qDebug( "%s could not be unloaded.", libfile.latin1() );
 #endif
 	return FALSE;
