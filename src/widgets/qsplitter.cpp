@@ -729,53 +729,77 @@ int QSplitter::adjustPos( int p, int id )
 void QSplitter::doResize()
 {
     QRect r = contentsRect();
-    int i;
     int n = data->list.count();
     QMemArray<QLayoutStruct> a( n );
+    int numAutoWithStretch = 0;
+    int numAutoWithoutStretch = 0;
 
-    for ( i = 0; i < n; i++ ) {
-	a[i].init();
-	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->wid->isHidden() ) {
-	    a[i].maximumSize = 0;
-	} else if ( s->isSplitter ) {
-	    a[i].sizeHint = a[i].minimumSize = a[i].maximumSize = s->sizer;
-	    a[i].empty = FALSE;
-	} else {
-	    ResizeMode mode = s->mode;
-	    int stretch = 1;
+    for ( int pass = 0; pass < 2; pass++ ) {
+	for ( int i = 0; i < n; i++ ) {
+	    a[i].init();
+	    QSplitterLayoutStruct *s = data->list.at( i );
+	    if ( s->wid->isHidden() ) {
+		a[i].maximumSize = 0;
+	    } else if ( s->isSplitter ) {
+		a[i].sizeHint = a[i].minimumSize = a[i].maximumSize = s->sizer;
+		a[i].empty = FALSE;
+	    } else {
+		ResizeMode mode = s->mode;
+		int stretch = 1;
 
-	    if ( mode == Auto ) {
-		QSizePolicy p = s->wid->sizePolicy();
-		stretch = pick( QSize(p.horStretch(), p.verStretch()) );
-		mode = ( stretch > 0 ) ? Stretch : KeepSize;
-	    }
+		if ( mode == Auto ) {
+		    QSizePolicy p = s->wid->sizePolicy();
+		    int sizePolicyStretch =
+			    pick( QSize(p.horStretch(), p.verStretch()) );
+		    if ( sizePolicyStretch > 0 ) {
+			mode = Stretch;
+			stretch = sizePolicyStretch;
+			numAutoWithStretch++;
+		    } else {
+			/*
+			  Do things differently on the second pass,
+			  if there's one. A second pass is necessary
+			  if it was found out during the first pass
+			  that all Auto items are KeepSize items. In
+			  that case, we make them all Stretch items
+			  instead, for a more Qt 3.0-compatible
+			  behavior.
+			*/
+			mode = ( pass == 0 ) ? KeepSize : Stretch;
+			numAutoWithoutStretch++;
+		    }
+		}
 
-	    a[i].minimumSize = pick( s->wid->minimumSize() );
-	    a[i].maximumSize = pick( qSmartMaxSize(s->wid) );
-	    a[i].empty = FALSE;
+		a[i].minimumSize = pick( s->wid->minimumSize() );
+		a[i].maximumSize = pick( qSmartMaxSize(s->wid) );
+		a[i].empty = FALSE;
 
-	    if ( mode == Stretch ) {
-		/*
-		  We divide per 8 to avoid problems caused by
-		  limitations in the layout engine code. You can
-		  still run into problems if you set an abnormally
-		  high stretch value in the QSizePolicy or if you
-		  use a 5120 x 4096 monitor.
-		*/
-		a[i].stretch = stretch * ( 1 + s->sizer / 8 );
-		a[i].sizeHint = a[i].minimumSize;
-	    } else if ( mode == KeepSize ) {
-		a[i].sizeHint = s->sizer;
-	    } else { // mode == FollowSizeHint
-		a[i].sizeHint = pick( s->wid->sizeHint() );
+		if ( mode == Stretch ) {
+		    /*
+		      We divide per 8 to avoid problems caused by
+		      limitations in the layout engine code. You can
+		      still run into problems if you set an abnormally
+		      high stretch value in the QSizePolicy or if you
+		      use a 5120 x 4096 monitor.
+		    */
+		    a[i].stretch = stretch * ( 1 + s->sizer / 8 );
+		    a[i].sizeHint = a[i].minimumSize;
+		} else if ( mode == KeepSize ) {
+		    a[i].sizeHint = s->sizer;
+		} else { // mode == FollowSizeHint
+		    a[i].sizeHint = pick( s->wid->sizeHint() );
+		}
 	    }
 	}
+
+	// no need for a second pass
+	if ( numAutoWithStretch > 0 || numAutoWithoutStretch == 0 )
+	    break;
     }
 
     qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
 
-    for ( i = 0; i < n; i++ ) {
+    for ( int i = 0; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	setG( s->wid, a[i].pos, a[i].size );
     }
