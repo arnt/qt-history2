@@ -1078,8 +1078,14 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 
     QModelIndex buddy = model()->buddy(index);
     QModelIndex edit = buddy.isValid() ? buddy : index;
-    if (edit.isValid() && d->shouldEdit(action, edit) && d->requestEditor(action, event, edit))
-        d->state = Editing;
+    if (edit.isValid() && d->shouldEdit(action, edit)) {
+        QWidget *editor = d->requestEditor(action, event, edit);
+        if (editor) {
+            d->state = Editing;
+            editor->show();
+            editor->setFocus();
+        }
+    }
 
     return d->state == Editing;
 }
@@ -1304,7 +1310,7 @@ int QAbstractItemView::columnSizeHint(int column) const
 }
 
 /*!
-    Sets \a editor as the persisten editor for the item at the given
+    Sets \a editor as the persistent editor for the item at the given
     \a index. If \a editor is 0 and no previous persistent editor has
     been set for the \a index, the editor will be created by the
     delegate.
@@ -1363,7 +1369,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     if (topLeft.row() == bottomRight.row() && topLeft.isValid()) {
         QModelIndex current = currentItem();
         QPersistentModelIndex persistent(topLeft, model());
-        if (d->editors.contains(persistent)) { // FIXME: update all editors
+        if (d->editors.contains(persistent)) { // FIXME: update all persistent editors
             itemDelegate()->setEditorData(d->editors.value(persistent), d->model, current);
         } else {
             QRect tl = itemViewportRect(topLeft);
@@ -1709,7 +1715,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
         return true;
     if (delegate && delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return true;
-    return d->editors.contains(QPersistentModelIndex(index, model));
+    return d->editors.contains(QPersistentModelIndex(index, model)); // persistent editor
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
@@ -1742,13 +1748,9 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         d->editors.insert(persistent, editor);
     }
 
-    if (editor) {
-        editor->show();
-        editor->setFocus();
-        if (event && (action == QAbstractItemDelegate::AnyKeyPressed
-                      || event->type() == QEvent::MouseButtonPress))
-            QApplication::sendEvent(editor, event);
-    }
+    if (editor && event && (action == QAbstractItemDelegate::AnyKeyPressed
+                            || event->type() == QEvent::MouseButtonPress))
+        QApplication::sendEvent(editor, event);
 
     return editor;
 }
