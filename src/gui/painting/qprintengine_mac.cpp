@@ -293,17 +293,23 @@ QRect QMacPrintEngine::paperRect() const
 {
     QRect r;
     PMRect macrect;
-    if (PMGetAdjustedPaperRect(d->format, &macrect) == noErr)
+    if (PMGetAdjustedPaperRect(d->format, &macrect) == noErr) {
         r.setCoords((int)macrect.left, (int)macrect.top, (int)macrect.right, (int)macrect.bottom);
+        r.moveBy(-r.x(), -r.y());
+    }
+    
     return r;
 }
 
 QRect QMacPrintEngine::pageRect() const
 {
     QRect r;
-    PMRect macrect;
-    if (PMGetAdjustedPageRect(d->format, &macrect) == noErr)
-        r.setCoords((int)macrect.left, (int)macrect.top, (int)macrect.right, (int)macrect.bottom);
+    PMRect macrect, macpaper;
+    if (PMGetAdjustedPageRect(d->format, &macrect) == noErr
+        && PMGetAdjustedPaperRect(d->format, &macpaper) == noErr) {
+        r.setCoords(int(macrect.left), int(macrect.top), int(macrect.right), int(macrect.bottom));
+        r.moveBy(int(-macpaper.left), int(-macpaper.top));
+    }
     return r;
 }
 
@@ -486,11 +492,10 @@ bool QMacPrintEnginePrivate::newPage_helper()
     CGContextScaleCTM(hd, 1, -1);
     CGContextTranslateCTM(hd, 0, -paper.height());
     if (ret) {
-        if (fullPage) {
-            CGContextTranslateCTM(hd, page.x() - paper.x(), page.y() - paper.y());
-        } else {
+        if (fullPage)
+            CGContextTranslateCTM(hd, paper.x() - page.x(), paper.y() - page.y());
+        else
             CGContextTranslateCTM(hd, 0, 0);
-        }
     }
     return ret;
 }
