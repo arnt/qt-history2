@@ -95,7 +95,13 @@ MDialog::MDialog()
 #endif
 
 
-#if 0
+#if 1
+    id =  mb->insertItem("Gulp");
+    id =  mb->insertItem("Resp");
+    id =  mb->insertItem("Hets");
+    id =  mb->insertItem("Tens");
+    id =  mb->insertItem("Tijs");
+    id =  mb->insertItem("Tufs");
     mb->insertSeparator();
     id =  mb->insertItem("Help");
 #endif
