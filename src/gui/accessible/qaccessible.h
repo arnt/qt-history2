@@ -98,7 +98,10 @@ public:
         Invisible        = 0x00008000,
         Offscreen        = 0x00010000,
         Sizeable        = 0x00020000,
-        Moveable        = 0x00040000,
+        Movable         = 0x00040000,
+#ifdef QT_COMPAT
+        Moveable        = Movable,
+#endif
         SelfVoicing        = 0x00080000,
         Focusable        = 0x00100000,
         Selectable        = 0x00200000,

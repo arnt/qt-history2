@@ -102,7 +102,7 @@ int QAccessibleHeader::state(int child) const
     if (header()->resizeMode(section) != QGenericHeader::Custom)
         state |= Sizeable;
     if (child && header()->isMovable())
-        state |= Moveable;
+        state |= Movable;
     return state;
 }
 

@@ -1896,7 +1896,7 @@ void Q3MainWindow::setDockWindowsMovable(bool enable)
     windows from one Q3MainWindow dock area to another, including the
     \c TearOff area (i.e. where the dock window floats freely as a
     window in its own right), and the \c Minimized area (where only
-    the dock window's handle is shown below the menu bar). Moveable
+    the dock window's handle is shown below the menu bar). Movable
     dock windows can also be moved within Q3MainWindow dock areas, i.e.
     to rearrange them within a dock area.
 

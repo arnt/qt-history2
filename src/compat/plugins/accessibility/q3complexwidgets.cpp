@@ -80,7 +80,7 @@ int Q3AccessibleHeader::state(int child) const
     if (header()->isResizeEnabled(section))
         state |= Sizeable;
     if (child && header()->isMovingEnabled())
-        state |= Moveable;
+        state |= Movable;
     return state;
 }
 

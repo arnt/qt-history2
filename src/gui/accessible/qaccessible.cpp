@@ -98,7 +98,8 @@
     \value Marqueed         The object displays scrolling contents, e.g. a log view.
     \value Mixed            The state of the object is not determined, e.g. a tri-state check box that is neither checked nor unchecked.
     \value Modal            The object blocks input from other objects.
-    \value Moveable         The object can be moved.
+    \value Movable          The object can be moved.
+    \value Moveable         Obsolete, use \c Movable instead.
     \value MultiSelectable  The object supports multiple selected items.
     \value Normal           The normal state.
     \value Offscreen        The object is clipped by the visible area. Objects that are off screen are also invisible.

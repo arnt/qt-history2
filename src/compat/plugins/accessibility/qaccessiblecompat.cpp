@@ -360,7 +360,7 @@ int QAccessibleIconView::state(int child) const
             state |= Selected;
     }
     if (iconView()->itemsMovable())
-        state |= Moveable;
+        state |= Movable;
     if (iconView()->focusPolicy() != Qt::NoFocus) {
         state |= Focusable;
         if (item == iconView()->currentItem())
