@@ -41,29 +41,50 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_formActions = new QActionGroup(this);
     m_formActions->setExclusive(false);
 
-    m_newFormAction = new QAction(this);
+
+//
+// file actions
+//
+    m_newFormAction = new QAction(tr("&New Form..."), this);
+    m_newFormAction->setShortcut(tr("CTRL+N"));
     m_fileActions->addAction(m_newFormAction);
 
-    m_openFormAction = new QAction(this);
+    m_openFormAction = new QAction(tr("&Open Form..."), this);
+    m_openFormAction->setShortcut(tr("CTRL+O"));
     m_fileActions->addAction(m_openFormAction);
 
-    m_saveFormAction = new QAction(this);
+    m_fileActions->addSeparator();
+
+    m_saveFormAction = new QAction(tr("&Save Form"), this);
+    m_saveFormAction->setShortcut(tr("CTRL+S"));
     m_fileActions->addAction(m_saveFormAction);
 
-    m_saveFormAsAction = new QAction(this);
+    m_saveFormAsAction = new QAction(tr("Save Form &As..."), this);
     m_fileActions->addAction(m_saveFormAsAction);
 
-    m_closeFormAction = new QAction(this);
+    m_fileActions->addSeparator();
+
+    m_closeFormAction = new QAction(tr("&Close Form"), this);
+    m_closeFormAction->setShortcut(tr("CTRL+W"));
     m_fileActions->addAction(m_closeFormAction);
 
-    m_quitAction = new QAction(this);
+    m_fileActions->addSeparator();
+
+    m_quitAction = new QAction(tr("&Quit"), this);
     m_fileActions->addAction(m_quitAction);
 
+//
+// edit actions
+//
     m_undoAction = QtUndoManager::manager()->createUndoAction(this);
+    m_undoAction->setShortcut(tr("CTRL+Z"));
     m_editActions->addAction(m_undoAction);
 
     m_redoAction = QtUndoManager::manager()->createRedoAction(this);
+    m_redoAction->setShortcut(tr("CTRL+SHIFT+Z"));
     m_editActions->addAction(m_redoAction);
+
+    m_editActions->addSeparator();
 
     m_cutAction = formWindowManager->actionCut();
     m_editActions->addAction(m_cutAction);
@@ -77,15 +98,20 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_deleteAction = formWindowManager->actionDelete();
     m_editActions->addAction(m_deleteAction);
 
+    m_selectAllAction = formWindowManager->actionSelectAll();
+    m_editActions->addAction(m_selectAllAction);
+
+    m_editActions->addSeparator();
+
     m_sendToBackAction = formWindowManager->actionLower();
     m_editActions->addAction(m_sendToBackAction);
 
     m_bringToFrontAction = formWindowManager->actionRaise();
     m_editActions->addAction(m_bringToFrontAction);
 
-    m_selectAllAction = formWindowManager->actionSelectAll();
-    m_editActions->addAction(m_selectAllAction);
-
+//
+// form actions
+//
     m_layoutHorizontallyAction = formWindowManager->actionHorizontalLayout();
     m_formActions->addAction(m_layoutHorizontallyAction);
 
@@ -107,7 +133,10 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_adjustSizeAction = formWindowManager->actionAdjustSize();
     m_formActions->addAction(m_adjustSizeAction);
 
-    m_previewFormAction = new QAction(this);
+    m_formActions->addSeparator();
+
+    m_previewFormAction = new QAction(tr("&Preview"), this);
+    m_previewFormAction->setShortcut(tr("CTRL+R"));
     m_formActions->addAction(m_previewFormAction);
 }
 
