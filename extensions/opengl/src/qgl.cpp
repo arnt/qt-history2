@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#25 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#26 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -675,7 +675,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( pixelFormatId != 0 ) {
 	if ( SetPixelFormat(dc, pixelFormatId, &pfd) ) {
 	    rc = wglCreateContext( dc );
-	    success = TRUE;
+	    success = ( rc != NULL );
 	} else {
 #if 0
 	    LPVOID lpMsgBuf;
@@ -691,10 +691,12 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
     if ( success && shareContext && shareContext->isValid() )
 	success = wglShareLists( shareContext->rc, rc );
+    /*
     if ( win ) {
 	ReleaseDC( win, dc );
 	dc = 0;
     }
+    */
     if ( !success ) {
 	rc = 0;
 	dc = 0;
