@@ -1285,41 +1285,8 @@ bool MainWindow::fileSaveAs()
 
 void MainWindow::fileSaveAll()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	e->save();
-	e->setModified( FALSE );
-	if ( e->sourceFile() && e == qWorkspace()->activeWindow() ) {
-	    statusBar()->message( tr( "Save source file %1").arg( e->sourceFile()->fileName() ) );
-	    e->sourceFile()->save();
-	}
-    }
-
-    QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( !w->inherits( "FormWindow" ) )
-	    continue;
-	FormWindow *fw = (FormWindow*)w;
-	if ( !fw->fileName().isEmpty() ) {
-	    statusBar()->message( tr( "Save form %1").arg( fw->fileName() ) );
-	    QApplication::setOverrideCursor( WaitCursor );
-	    bool mini = fw->parentWidget()->isMinimized() || fw->isMinimized();
-	    if ( mini )
-		fw->showNormal();
-	    formWindow()->formFile()->save( formWindow()->fileName() );
-	    if ( mini )
-		fw->showMinimized();
-	    QApplication::restoreOverrideCursor();
-	} else {
-	    bool mini = fw->parentWidget()->isMinimized() || fw->isMinimized();
-	    if ( mini )
-		fw->showNormal();
-	    fw->setFocus();
-	    fileSaveAs();
-	    if ( mini )
-		fw->showMinimized();
-	}
-	qApp->processEvents();
-    }
+    for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
+	(*it)->save();
 }
 
 static bool inSaveAllTemp = FALSE;
