@@ -510,10 +510,6 @@ void SetupWizardImpl::showPageConfig()
 
     optionSelected( 0 );
 #else
-    // First make sure that the current license information is saved
-    if( !globalInformation.reconfig() ) {
-	writeLicense( QDir::homeDirPath() + "/.qt-license" );
-    }
 
     prepareEnvironment();
 

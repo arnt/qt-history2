@@ -958,6 +958,8 @@ void SetupWizardImpl::configDone()
 	    args << "sub-tutorial";
 	if ( optionsPage->installExamples->isChecked() )
 	    args << "sub-examples";
+	if ( optionsPage->installExtensions->isChecked() )
+	    args << "sub-extensions";
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
@@ -1051,6 +1053,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     } else if( newPage == licenseAgreementPage ) {
 	readLicenseAgreement();
     } else if( newPage == optionsPage ) {
+	showPageOptions();
     } else if( newPage == foldersPage ) {
 	showPageFolders();
     } else if( newPage == configPage ) {
@@ -1097,6 +1100,31 @@ void SetupWizardImpl::showPageLicense()
 				     );
     }
     licenseChanged();
+}
+
+void SetupWizardImpl::showPageOptions()
+{
+    // First make sure that the current license information is saved
+    if( !globalInformation.reconfig() ) {
+	writeLicense( QDir::homeDirPath() + "/.qt-license" );
+    }
+
+    // ### unsupported
+    optionsPage->installDocs->hide();
+
+    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
+    optionsPage->installExtensions->setChecked( enterprise );
+    optionsPage->installExtensions->setEnabled( enterprise );
+
+#if defined(EVAL) || defined(EDU)
+    optionsPage->installDocs->setEnabled( FALSE );
+    optionsPage->installExamples->setEnabled( FALSE );
+    optionsPage->installTutorials->setEnabled( FALSE );
+    optionsPage->installExtensions->setChecked( FALSE );
+    optionsPage->installExtensions->setEnabled( FALSE );
+    optionsPage->sysMsvc->setEnabled( FALSE );
+    optionsPage->sysBorland->setEnabled( FALSE );
+#endif
 }
 
 void SetupWizardImpl::showPageFolders()

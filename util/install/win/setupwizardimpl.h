@@ -68,6 +68,7 @@ private slots:
 
 private:
     void showPageLicense();
+    void showPageOptions();
     void showPageFolders();
     void showPageConfig();
     void showPageProgress();

@@ -135,7 +135,6 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
 OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     : OptionsPage( parent, name, fl )
 {
-    installDocs->hide();
 #if defined(Q_OS_WIN32)
     installPath->setText(
 	    QString( "C:\\Qt\\" ) +
@@ -156,11 +155,6 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" )
 	    );
     sysGroup->hide();
-#endif
-#if defined(EVAL) || defined(EDU)
-    installDocs->setEnabled( FALSE );
-    sysMsvc->setEnabled( FALSE );
-    sysBorland->setEnabled( FALSE );
 #endif
 }
 

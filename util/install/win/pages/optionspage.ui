@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>449</width>
-            <height>279</height>
+            <height>303</height>
         </rect>
     </property>
     <property name="caption">
@@ -144,6 +144,17 @@
                             </property>
                             <property name="text">
                                 <string>Install T&amp;utorials</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>installExtensions</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Install E&amp;xtensions</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
