@@ -909,6 +909,7 @@ static uchar *pat_tbl[] = {
 	    if (del) delete pm;
 	}
 	pm = cbrush.data->pixmap;
+	pm->x11SetScreen( scrn );
 	if ( pm->depth() == 1 ) {
 	    XSetStipple( dpy, gc_brush, pm->handle() );
 	    s = bg_mode == TransparentMode ? FillStippled : FillOpaqueStippled;
