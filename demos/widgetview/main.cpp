@@ -1,0 +1,76 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of an example program for Qt.
+** EDITIONS: NOLIMITS
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <QtGui>
+
+
+class Grid : public QWidget
+{
+public:
+    Grid(QWidget *parent = 0):QWidget(parent){}
+
+    QSize sizeHint() const { return QSize(128000, 128000); }
+
+    void paintEvent(QPaintEvent *e) {
+        QPainter p(this);
+        for (int y = e->rect().top() - e->rect().top() % 128; y <= e->rect().bottom(); y += 128) {
+            p.drawLine(e->rect().left(), y, e->rect().right(), y);
+            for (int x = e->rect().left() - e->rect().left() % 128; x <= e->rect().right(); x += 128) {
+                p.drawLine(x, y, x, y + 128);
+                p.drawText(x, y, 128, 128, Qt::AlignCenter, QString("%1/%2").arg(x).arg(y));
+            }
+        }
+    }
+
+    void mousePressEvent(QMouseEvent *e) {
+        QPushButton *button = new QPushButton(this);
+        button->setText(QString("%1/%2").arg(e->x()).arg(e->y()));
+        button->move(e->pos() - button->rect().center());
+        button->show();
+    }
+
+};
+
+
+int main( int argc, char ** argv ) {
+    QApplication a( argc, argv );
+    QWidgetView *view = new QWidgetView;
+    view->setWindowTitle( "Qt Demo - WidgetView" );
+
+    Grid *grid = new Grid;
+    view->setWidget(grid);
+    grid->setPalette(Qt::green);
+
+    Grid *iframe = new Grid(view->widget());
+    iframe->setPalette(Qt::magenta);
+    iframe->setGeometry(256, 256, 512, 66560);
+
+    QLabel * label = new QLabel(view->widget());
+    label->setPalette(Qt::yellow);
+    label->setAlignment(Qt::AlignCenter | Qt::TextWordBreak);
+    label->setText(
+        "This is an example for QWidgetView. "
+        "It shows that Qt breaks the 16-bit limit of the operation system for child widgets. "
+        "The green grid is one big widget that is 128000 x 128000 pixels large. It contains "
+        "a magenta child widget that itself is 66560 pixels high. Click anywhere "
+        "to add small child widgets.");
+    label->setFrameStyle(QFrame::Box);
+    label->setMargin(8);
+    QFont font;
+    font.setPointSize(24);
+    label->setFont(font);
+
+    view->show();
+
+    a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
+    return a.exec();
+}
