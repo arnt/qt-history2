@@ -253,11 +253,10 @@ void QSettingsPrivate::update()
 
 void QSettingsPrivate::requestUpdate()
 {
-    Q_Q(QSettings);
-
     if (!pendingChanges) {
         pendingChanges = true;
 #ifndef QT_NO_QOBJECT
+        Q_Q(QSettings);
         QCoreApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
 #else
         update();
