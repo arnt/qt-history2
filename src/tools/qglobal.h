@@ -243,7 +243,7 @@
 
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
-#  ifdef Q_OS_QNX4
+#  if defined(Q_OS_QNX4)
 /* compiler flags */
 #    define Q_TYPENAME
 #    define Q_NO_BOOL_TYPE
@@ -492,7 +492,7 @@
 #  define Q_WS_PM
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(Q_OS_UNIX)
-#  ifdef QWS
+#  if defined(QWS)
 #    define Q_WS_QWS
 #  elif defined(Q_OS_MACX)
 #    define Q_WS_MACX
@@ -556,9 +556,11 @@ const bool FALSE = 0;
 const bool TRUE = !0;
 #endif
 #if defined(__WATCOMC__)
-#ifdef Q_OS_QNX4
+#  if defined(Q_OS_QNX4)
 const bool false = FALSE;
 const bool true = TRUE;
+#  endif
+#endif
 
 
 //
@@ -656,7 +658,7 @@ class QDataStream;
 // Some platform specific stuff
 //
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 extern bool qt_winunicode;
 #endif
 
@@ -718,7 +720,7 @@ extern bool qt_winunicode;
 # define QT_NO_SQL
 #endif
 
-#ifdef Q_WS_MAC9
+#if defined(Q_WS_MAC9)
 //No need for menu merging
 #  ifndef QMAC_QMENUBAR_NO_MERGE
 #    define QMAC_QMENUBAR_NO_MERGE
@@ -731,7 +733,7 @@ extern bool qt_winunicode;
 #    define QMAC_QMENUBAR_NO_EVENT
 #  endif
 #endif
-#ifdef Q_WS_MACX //for no nobody uses quartz, just putting in first level hooks
+#if defined(Q_WS_MACX) //for no nobody uses quartz, just putting in first level hooks
 #  ifndef QMAC_NO_QUARTZ
 #    define QMAC_NO_QUARTZ
 #  endif
