@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#116 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#116 $");
 
 
 /*****************************************************************************
@@ -1015,7 +1015,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_SYSKEYUP:
 	case WM_CHAR: {
 	    QWidget *g = QWidget::keyboardGrabber();
-	    if ( g )
+	    if ( popupWidgets )
+		widget = (QETWidget*)popupWidgets->last();
+	    else if ( g )
 		widget = (QETWidget*)g;
 	    else if ( qApp->focusWidget() )
 		widget = (QETWidget*)qApp->focusWidget();
@@ -1291,10 +1293,8 @@ void qt_open_popup( QWidget *popup )
 	CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 && !qt_nograb() ) {
+    if ( popupWidgets->count() == 1 && !qt_nograb() )
 	setAutoCapture( popup->winId() );	// grab mouse/keyboard
-	popup->grabKeyboard();
-    }
 }
 
 void qt_close_popup( QWidget *popup )
@@ -1306,10 +1306,8 @@ void qt_close_popup( QWidget *popup )
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	if ( !qt_nograb() ) {			// grabbing not disabled
+	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	    popup->releaseKeyboard();
-	}
     }
 }
 
@@ -1894,6 +1892,7 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
 	    if ( !rec ) {
 #if defined(DEBUG)
+		// ### 1.3 remove this message
 		warning( "Qt: Got KEYUP without KEYDOWN" );
 #endif
 	    } else {
