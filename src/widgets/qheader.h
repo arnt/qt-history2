@@ -199,6 +199,8 @@ inline QHeader::Orientation QHeader::orientation() const
 inline void QHeader::setTracking( bool enable ) { trackingIsOn = enable; }
 inline bool QHeader::tracking() const { return trackingIsOn; }
 
+extern Q_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
+
 #endif // QT_NO_HEADER
 
 #endif // QHEADER_H
