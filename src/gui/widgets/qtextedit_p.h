@@ -142,6 +142,7 @@ public:
     QString anchorToScrollToWhenVisible;
 
     QTextCursor focusIndicator;
+    QTextCursor cursorOnDoubleClick;
 };
 
 #endif // QTEXTEDIT_P_H

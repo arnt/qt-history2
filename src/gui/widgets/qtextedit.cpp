@@ -1566,6 +1566,9 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
     Q_D(QTextEdit);
+
+    d->cursorOnDoubleClick = QTextCursor();
+
     if (!(ev->button() & Qt::LeftButton))
         return;
 
@@ -1620,8 +1623,10 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
     Q_D(QTextEdit);
-    if (!(ev->buttons() & Qt::LeftButton)
-        || !d->mousePressed)
+    if (!(ev->buttons() & Qt::LeftButton))
+        return;
+
+    if (!(d->mousePressed || d->cursorOnDoubleClick.hasSelection()))
         return;
 
     if (d->mightStartDrag) {
@@ -1633,11 +1638,72 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
         return;
     }
 
-    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), Qt::FuzzyHit);
-    if (cursorPos == -1)
+    const QPoint mousePos = d->translateCoordinates(ev->pos());
+    const qReal mouseX = qReal(mousePos.x());
+
+    int newCursorPos = d->doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
+    if (newCursorPos == -1)
         return;
 
-    d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
+    if (d->cursorOnDoubleClick.hasSelection()) {
+
+        // if inside the initial selected word keep that
+        if (newCursorPos >= d->cursorOnDoubleClick.selectionStart()
+            && newCursorPos <= d->cursorOnDoubleClick.selectionEnd()) {
+            setTextCursor(d->cursorOnDoubleClick);
+            return;
+        }
+
+        QTextCursor curs = d->cursorOnDoubleClick;
+        curs.setPosition(newCursorPos, QTextCursor::KeepAnchor);
+
+        if (!curs.movePosition(QTextCursor::StartOfWord))
+            goto quit;
+        const int wordStartPos = curs.position();
+
+        const int blockPos = curs.block().position();
+        const QPointF blockCoordinates = curs.block().layout()->position()
+                                         + d->doc->documentLayout()->frameBoundingRect(curs.currentFrame()).topLeft();
+
+        QTextLine line = currentTextLine(curs);
+        if (!line.isValid())
+            goto quit;
+
+        const qReal wordStartX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+
+        if (!curs.movePosition(QTextCursor::EndOfWord))
+            goto quit;
+        const int wordEndPos = curs.position();
+
+        const QTextLine otherLine = currentTextLine(curs);
+        if (otherLine.from() != line.from()
+            || wordEndPos == wordStartPos)
+            goto quit;
+
+        const qReal wordEndX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+
+        if (mouseX < wordStartX || mouseX > wordEndX)
+            goto quit;
+
+        // keep the already selected word even when moving to the left
+        // (#39164)
+        if (newCursorPos < d->cursorOnDoubleClick.position())
+            d->cursor.setPosition(d->cursorOnDoubleClick.selectionEnd());
+        else
+            d->cursor.setPosition(d->cursorOnDoubleClick.selectionStart());
+
+        const qReal differenceToStart = mouseX - wordStartX;
+        const qReal differenceToEnd = wordEndX - mouseX;
+
+        if (differenceToStart < differenceToEnd)
+            newCursorPos = wordStartPos;
+        else
+            newCursorPos = wordEndPos;
+    }
+
+    d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
+quit:
+
     d->updateCurrentCharFormatAndSelection();
     d->viewport->update();
 }
@@ -1647,6 +1713,9 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
     Q_D(QTextEdit);
+
+    d->cursorOnDoubleClick = QTextCursor();
+
     if (d->mightStartDrag) {
         d->mousePressed = false;
         d->setCursorPosition(ev->pos());
@@ -1689,6 +1758,8 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
         d->setClipboardSelection();
         d->viewport->update();
     }
+
+    d->cursorOnDoubleClick = d->cursor;
 
     d->trippleClickPoint = ev->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
