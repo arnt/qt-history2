@@ -2245,9 +2245,24 @@ echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "GIF support ......... $CFG_GIF"
-echo "MNG support ......... $CFG_MNG ($CFG_LIBMNG)"
-echo "JPEG support ........ $CFG_JPEG ($CFG_LIBJPEG)"
-echo "PNG support ......... $CFG_PNG ($CFG_LIBPNG)"
+if [ "$CFG_MNG" = "no" ]
+then
+    echo "MNG support ......... $CFG_MNG"
+else
+    echo "MNG support ......... $CFG_MNG ($CFG_LIBMNG)"
+fi
+if [ "$CFG_JPEG" = "no" ]
+then
+    echo "JPEG support ........ $CFG_JPEG"
+else
+    echo "JPEG support ........ $CFG_JPEG ($CFG_LIBJPEG)"
+fi
+if [ "$CFG_PNG" = "no" ]
+then
+    echo "PNG support ......... $CFG_PNG"
+else
+    echo "PNG support ......... $CFG_PNG ($CFG_LIBPNG)"
+fi
 if [ "$QWS_PLATFORM" != "yes" ]
 then
     if echo $MODULES | grep opengl >/dev/null
