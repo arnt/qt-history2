@@ -59,7 +59,7 @@ bool qt_file_access( const QString& fn, int t )
     if ( fn.isEmpty() )
 	return FALSE;
     if ( qt_winunicode )
-	return _taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
+	return ::_taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     else
 	return ACCESS(qt_win95Name(fn), t) == 0;
 }
@@ -74,7 +74,7 @@ bool QFile::remove( const QString &fileName )
     }
     // use standard ANSI remove
     if ( qt_winunicode )
-	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
+	return ::_tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
     else
 	return ::remove(qt_win95Name(fileName)) == 0;
 }
@@ -185,7 +185,7 @@ bool QFile::open( int m )
 		tperm2[1] = perm2[1];
 		tperm2[2] = perm2[2];
 		tperm2[3] = perm2[3];
-		fh = _tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
+		fh = ::_tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
 	    } else {
 		fh = fopen(qt_win95Name(fn),
 			    perm2 );
@@ -284,7 +284,7 @@ uint QFile::size() const
 	FSTAT( fh ? FILENO(fh) : fd, &st );
     } else {
 	if ( qt_winunicode ) {
-	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)&st);
+	    ::_tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)&st);
 	} else {
 	    STAT(qt_win95Name(fn), &st);
 	}
