@@ -42,12 +42,10 @@
   \class QTextEdit qtextedit.h
   \brief A sophisticated single-page rich text editor.
   \ingroup basic
-  \ingroup helpsystem
-  \ingroup editor
 
   QTextEdit is an advanced WYSIWYG editor supporting rich text
-  formatting. It is optimized to be able to handle large text
-  documents and response quickly to user input.
+  formatting. It is optimized to handle large text
+  documents and responds quickly to user input.
 
   QTextEdit extends QTextView with keyboard and mouse handling for
   user input and functions to set/get/modify formatting, text, etc.
