@@ -37,7 +37,7 @@
 
 #include "qcommonstyle.h"
 
-#if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
+#ifndef QT_NO_STYLE
 
 #define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"

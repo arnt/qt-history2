@@ -42,7 +42,7 @@
 #include "qstyle.h"
 #endif // QT_H
 
-#if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
+#ifndef QT_NO_STYLE
 
 class Q_EXPORT QCommonStyle: public QStyle
 {
@@ -88,6 +88,6 @@ private:	// Disabled copy constructor and operator=
 
 
 
-#endif // !QT_NO_STYLE_MOTIF && !QT_NO_STYLE_WINDOWS
+#endif // QT_NO_STYLE
 
 #endif // QCOMMONSTYLE_H
