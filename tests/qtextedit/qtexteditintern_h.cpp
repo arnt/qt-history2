@@ -157,11 +157,11 @@ public:
 
     enum Bullet {
 	FilledCircle,
-	FilledSquare, 
+	FilledSquare,
 	OutlinedCircle,
 	OutlinedSquare
     };
-    
+
     QTextEditDocument( const QString &fn, bool tabify );
 
     int x() const;
@@ -343,12 +343,12 @@ public:
 	BulletList,
 	EnumList
     };
-    
+
     QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds = TRUE );
 
     Type type() const;
     void setType( Type t );
-    
+
     QTextEditString *string() const;
     QTextEditString::Char *at( int i ) const; // maybe remove later
     int length() const; // maybe remove later
@@ -416,7 +416,7 @@ public:
     int leftIndent() const;
     int listDepth() const;
     void setListDepth( int d );
-    
+
 private:
     struct Selection {
 	int start, end;
@@ -438,7 +438,7 @@ private:
     Type typ;
     int left;
     int depth;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -733,12 +733,13 @@ inline QTextEditFormat::QTextEditFormat( const QFont &f, const QColor &c )
 
 inline QTextEditFormat::QTextEditFormat( const QTextEditFormat &f )
 {
-    fn =f.fn;
+    fn = f.fn;
     col = f.col;
     fm = f.fm;
     leftBearing = f.leftBearing;
     rightBearing = f.rightBearing;
-    widths = f.widths;
+    for ( int i = 0; i < 65536; ++i )
+	widths[ i ] = f.widths[ i ];
     hei = f.hei;
     asc = f.asc;
     dsc = f.dsc;
