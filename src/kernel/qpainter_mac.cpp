@@ -1549,21 +1549,14 @@ QPoint QPainter::pos() const
     return QPoint(penx, peny);
 }
 
-/* mac specific hackery */
 //#define TRY_CACHE 
 #ifdef TRY_CACHE
-static GWorldPtr lworld = NULL;
-static GDHandle lhandle = NULL;
+CGrafPtr lgraf = NULL;
 #endif
 void QPainter::initPaintDevice(bool force) {
 #ifdef TRY_CACHE
-    GWorldPtr world;
-    GDHandle handle;
-    if(!force) {
-	GetGWorld(&world, &handle);
-	if(world == lworld && handle == lhandle) 
-	    return;
-    }
+    if(!force && lgraf == GetQDGlobalsThePort()) 
+	return;
 #endif
     
     clippedreg = QRegion(); //empty
@@ -1611,9 +1604,7 @@ void QPainter::initPaintDevice(bool force) {
 
 #ifdef TRY_CACHE
     //save it
-    GetGWorld(&world, &handle);
-    lworld = world;
-    lhandle = handle;
+    lgraf = GetQDGlobalsThePort();
 #endif
 }
 
