@@ -3632,17 +3632,17 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
     li_tm = li_bm = 0;
     QStyleSheetItem* item = s->item( "ol" );
     if ( item ) {
-	list_tm = item->margin( QStyleSheetItem::MarginTop );
-	list_bm = item->margin( QStyleSheetItem::MarginBottom );
-	list_lm = item->margin( QStyleSheetItem::MarginLeft );
+	list_tm = QMAX(0,item->margin( QStyleSheetItem::MarginTop ));
+	list_bm = QMAX(0,item->margin( QStyleSheetItem::MarginBottom ));
+	list_lm = QMAX(0,item->margin( QStyleSheetItem::MarginLeft ));
     }
     if ( (item = s->item( "li" ) ) ) {
-	li_tm = item->margin( QStyleSheetItem::MarginTop );
-	li_bm = item->margin( QStyleSheetItem::MarginBottom );
+	li_tm = QMAX(0,item->margin( QStyleSheetItem::MarginTop ));
+	li_bm = QMAX(0,item->margin( QStyleSheetItem::MarginBottom ));
     }
     if ( (item = s->item( "p" ) ) ) {
-	par_tm = item->margin( QStyleSheetItem::MarginTop );
-	par_bm = item->margin( QStyleSheetItem::MarginBottom );
+	par_tm = QMAX(0,item->margin( QStyleSheetItem::MarginTop ));
+	par_bm = QMAX(0,item->margin( QStyleSheetItem::MarginBottom ));
     }
 }
 
