@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#18 $
 **
 ** Implementation of QDir class
 **
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#18 $")
 
 
 #if !defined(PATH_MAX)
@@ -84,11 +84,11 @@ static void convertSeparators( char * )
 
   Example:
   \code
-    QDir d = QDir::root();			// UNIX: "/"
-    if ( !d.cd("tmp") ) {			// UNIX: "/tmp"
+    QDir d = QDir::root();			// "/"
+    if ( !d.cd("tmp") ) {			// "/tmp"
 	warning( "Cannot find the \"/tmp\" directory" );
     } else {
-	QFile f( d.filePath("ex1.txt") );	// UNIX: "/tmp/ex1.txt"
+	QFile f( d.filePath("ex1.txt") );	// "/tmp/ex1.txt"
 	if ( !f.open(IO_ReadWrite) )
 	    warning( "Cannot create the file %s", f.name() );
     }
@@ -812,7 +812,7 @@ bool QDir::exists() const
 
 bool QDir::isRoot() const
 {
-    return dPath == "/";		// UNIX test only ###
+    return dPath == "/";
 }
 
 /*----------------------------------------------------------------------------
@@ -1049,7 +1049,7 @@ QString QDir::currentDirPath()
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
 		convertSeparators( currentName.data() );
-		// forcecwd = FALSE;   ###
+		// forcecwd = FALSE;   ### caching removed, not safe
 	    } else {
 		warning( "QDir::currentDirPath: getcwd() failed" );
 		currentName = 0;

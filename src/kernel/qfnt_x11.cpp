@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#57 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#57 $")
 
 
 static const int fontFields = 14;
@@ -216,7 +216,7 @@ QFont::QFont( bool )				// create default font
 {
     init();
     d->req.family  = "fixed";
-    d->req.pointSize = 12*10;			// approximate point size, hack
+    d->req.pointSize = 12*10;
     d->req.weight    = QFont::Normal;
     d->req.rawMode = TRUE;
 }
@@ -385,7 +385,7 @@ void QFont::updateFontInfo() const
 
     d->act.family      = tokens[Family];
     d->act.pointSize   = atoi( tokens[PointSize] );
-    d->act.styleHint   = QFont::AnyStyle;	// ###
+    d->act.styleHint   = QFont::AnyStyle;    // ### any until we match families
 
     if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 &&
 	 strcmp( tokens[CharsetEncoding], "1"	    ) == 0 )
@@ -492,10 +492,10 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
     char *tokens[fontFields];
     bool   exactMatch = TRUE;
     int	   score      = 0;
-    *scalable	   = FALSE;
-    *polymorphic   = FALSE;
-    *weightDiff	   = 0;
-    *pointSizeDiff = 0;
+    *scalable	      = FALSE;
+    *polymorphic      = FALSE;
+    *weightDiff	      = 0;
+    *pointSizeDiff    = 0;
 
     strcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
     if ( !parseXFontName( buffer, tokens ) )

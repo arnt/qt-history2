@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#35 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -57,7 +57,6 @@ struct QComboData
     uint	autoresize : 1;
 };
 
-// ### dereferences buttonW without checking
 static bool getMetrics( int width, int height,
 			int *dist, int *buttonW, int *buttonH )
 {
