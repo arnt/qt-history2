@@ -50,6 +50,12 @@
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
 
     ##### These may still need replacing
+    if ( !Project("TMAKE_RUN_CC") ) {
+	Project('TMAKE_RUN_CC = $(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src');
+    }
+    if ( !Project("TMAKE_RUN_CC_IMP") ) {
+	Project('TMAKE_RUN_CC_IMP = $(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<');
+    }
     if ( !Project("TMAKE_RUN_CXX") ) {
 	Project('TMAKE_RUN_CXX = $(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src');
     }
@@ -139,7 +145,7 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 .c.o:
-	#$ Expand("TMAKE_RUN_CXX_IMP");
+	#$ Expand("TMAKE_RUN_CC_IMP");
 
 ####### Build rules
 
