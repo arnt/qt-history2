@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#16 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#17 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#17 $");
 
 
 #if defined(_CC_MSVC_)
@@ -539,10 +539,10 @@ void QGLContext::setFormat( const QGLFormat &format )
 
 
 /*!
-  \fn bool QGLContext::isValid() const Returns TRUE if the
-  characteristics specified in the \link setFormat() display
-  format\endlink could be fulfilled by the OpenGL driver/Window
-  System.
+  \fn bool QGLContext::isValid() const
+  Returns TRUE if the characteristics specified in the \link setFormat()
+  display format\endlink could be fulfilled by the OpenGL driver/window
+  system.
 */
 
 /*!
