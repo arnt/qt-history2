@@ -1051,7 +1051,7 @@ bool QImageDrag::canDecode( const QMimeSource* e ) {
     while ( fileFormats.current()) {
 	QByteArray format(fileFormats.current());
 	QByteArray type = "image/" + format.lower();
-	if ( e->provides(type.data()))
+	if ( e->provides(type))
 	    return TRUE;
 	fileFormats.next();
     }
@@ -1085,8 +1085,8 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 	fileFormats.next();
 
        	QByteArray type = "image/" + format.lower();
-	if ( ! e->provides( type.data() ) ) continue;
-	payload = e->encodedData( type.data() );
+	if ( ! e->provides( type ) ) continue;
+	payload = e->encodedData( type );
 	if ( !payload.isEmpty() )
 	    break;
     }
@@ -1286,8 +1286,8 @@ void QUriDrag::setUris( QStrList uris )
     for ( const char* s = uris.first(); s; s = uris.next() ) {
 	int l = qstrlen(s);
 	a.resize(c+l+2);
-	memcpy(a.detach()+c,s,l);
-	memcpy(a.detach()+c+l,"\r\n",2);
+	memcpy(a.data()+c,s,l);
+	memcpy(a.data()+c+l,"\r\n",2);
 	c+=l+2;
     }
     a.resize(c+1);
@@ -1319,7 +1319,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 	l.clear();
 	l.setAutoDelete(TRUE);
 	uint c=0;
-	const char* d = payload.data();
+	const char* d = payload;
 	while (c < payload.size() && d[c]) {
 	    uint f = c;
 	    // Find line end
@@ -1660,7 +1660,7 @@ void QColorDrag::setColor( const QColor &col )
     rgba[ 1 ] = col.green() * 0xFF;
     rgba[ 2 ] = col.blue()  * 0xFF;
     rgba[ 3 ] = 0xFFFF; // Alpha not supported yet.
-    memcpy( data.detach(), rgba, sizeof( rgba) );
+    memcpy( data.data(), rgba, sizeof( rgba) );
     setEncodedData( data );
 }
 
@@ -1685,7 +1685,7 @@ bool QColorDrag::decode( QMimeSource *e, QColor &col )
     ushort rgba[ 4 ];
     if( data.size() != sizeof( rgba ) )
 	return FALSE;
-    memcpy( rgba, data.data(), sizeof( rgba ) );
+    memcpy( rgba, data.constData(), sizeof( rgba ) );
     col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
     return TRUE;
 }

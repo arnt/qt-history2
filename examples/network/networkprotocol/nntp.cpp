@@ -159,7 +159,7 @@ void Nntp::readyRead()
     // read the new data from the socket
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
-    commandSocket->readBlock( s.detach(), commandSocket->bytesAvailable() );
+    commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 
     if ( !url() )
 	return;

@@ -545,7 +545,7 @@ bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen )
 {
     char *tokens[NFontFields];
     QByteArray buffer = xlfd;
-    if ( ! parseXFontName(buffer.detach(), tokens) )
+    if ( ! parseXFontName(buffer.data(), tokens) )
 	return FALSE;
 
     fd->family = QString::fromLatin1(tokens[Family]);
@@ -679,7 +679,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
     xlfd_pattern += xlfd_for_id( encoding_id );
 
     char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
-				  xlfd_pattern.data(),
+				  xlfd_pattern,
 				  0xffff, &fontCount );
     // qDebug("requesting xlfd='%s', got %d fonts", xlfd_pattern.data(), fontCount );
 
@@ -954,7 +954,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
 	void *map;
 	// qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
-	int fd = open( family->fontFilename.data(), O_RDONLY );
+	int fd = open( family->fontFilename, O_RDONLY );
 	size_t pagesize = getpagesize();
 	off_t offset = 0;
 	size_t length = (8192 / pagesize + 1) * pagesize;
@@ -1265,13 +1265,13 @@ QFontEngine *loadEngine( QFont::Script script,
 {
     if ( fp && fp->rawMode ) {
 	QByteArray xlfd = request.family.toLatin1();
-	qDebug( "Loading XLFD (rawmode) '%s'", xlfd.data() );
+	qDebug( "Loading XLFD (rawmode) '%s'", xlfd.constData() );
 
 	XFontStruct *xfs;
-	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
+	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd ) ) )
 	    return 0;
 
-	QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd.data(), 0 );
+	QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd, 0 );
 	if ( ! qt_fillFontDef( xfs, &fe->fontDef, QPaintDevice::x11AppScreen() ) &&
 	     ! qt_fillFontDef( xlfd, &fe->fontDef, QPaintDevice::x11AppScreen() ) )
 	    fe->fontDef = QFontDef();
@@ -1445,7 +1445,7 @@ QFontEngine *loadEngine( QFont::Script script,
 #endif // FONT_MATCH_DEBUG
 
     XFontStruct *xfs;
-    if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
+    if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd ) ) )
 	return 0;
 
     QFontEngine *fe = 0;
@@ -1453,7 +1453,7 @@ QFontEngine *loadEngine( QFont::Script script,
     switch ( script ) {
     case QFont::Latin:
 	if ( ! forced_encoding ) {
-	    fe = new QFontEngineLatinXLFD( xfs, xlfd.data(), mib );
+	    fe = new QFontEngineLatinXLFD( xfs, xlfd, mib );
 	    break;
 	}
 
@@ -1464,7 +1464,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	// }
 
     default:
-	fe = new QFontEngineXLFD( xfs, xlfd.data(), mib );
+	fe = new QFontEngineXLFD( xfs, xlfd, mib );
 	break;
     }
 

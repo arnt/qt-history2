@@ -63,7 +63,7 @@
 QBitArray::QBitArray(int size, bool val)
 {
     d.resize(1 + (size+7)/8);
-    uchar* c = (uchar*)d.detach();
+    uchar* c = (uchar*)d.data();
     memset(c, val ? 0xff : 0, d.size());
     *c = d.size()*8 - size;
     if (val && size && size%8)
@@ -89,7 +89,7 @@ void QBitArray::resize(int size)
 {
     int s = d.size();
     d.resize(1 + (size+7)/8);
-    uchar* c = (uchar*)d.detach();
+    uchar* c = (uchar*)d.data();
     memset(c + s, 0, d.size() - s);
     *c = d.size()*8 - size;
 }
@@ -193,8 +193,8 @@ void QBitArray::resize(int size)
 QBitArray &QBitArray::operator&=(const QBitArray &a)
 {
     resize(QMAX(size(), a.size()));
-    uchar *a1 = (uchar *)d.detach()+1;
-    const uchar *a2 = (const uchar *)a.d.data()+1;
+    uchar *a1 = (uchar *)d.data()+1;
+    const uchar *a2 = (const uchar *)a.d.constData() + 1;
     int n = QMIN(d.size(), a.d.size()) - 1;
     int p = QMAX(d.size(), a.d.size()) - 1 - n;
     while (n-- > 0)
@@ -224,8 +224,8 @@ QBitArray &QBitArray::operator&=(const QBitArray &a)
 QBitArray &QBitArray::operator|=(const QBitArray &a)
 {
     resize(QMAX(size(), a.size()));
-    uchar *a1 = (uchar *)d.detach()+1;
-    const uchar *a2 = (const uchar *)a.d.data()+1;
+    uchar *a1 = (uchar *)d.data()+1;
+    const uchar *a2 = (const uchar *)a.d.constData()+1;
     int n = QMIN(d.size(), a.d.size()) - 1;
     while (n-- > 0)
 	*a1++ |= *a2++;
@@ -252,8 +252,8 @@ QBitArray &QBitArray::operator|=(const QBitArray &a)
 QBitArray &QBitArray::operator^=(const QBitArray &a)
 {
     resize(QMAX(size(), a.size()));
-    uchar *a1 = (uchar *)d.detach();
-    const uchar *a2 = (const uchar *)a.d.data();
+    uchar *a1 = (uchar *)d.data();
+    const uchar *a2 = (const uchar *)a.d.constData();
     int n = QMIN(d.size(), a.d.size()) - 1;
     while (n-- > 0)
 	*a1++ ^= *a2++;
@@ -275,8 +275,8 @@ QBitArray QBitArray::operator~() const
 {
     int sz = size();
     QBitArray a(sz);
-    const uchar *a1 = (const uchar *)d.data() + 1;
-    uchar *a2 = (uchar *)a.d.detach() + 1;
+    const uchar *a1 = (const uchar *)d.constData() + 1;
+    uchar *a2 = (uchar *)a.d.data() + 1;
     int n = d.size() - 1;
     while (n--)
 	*a2++ = ~*a1++;
@@ -400,7 +400,7 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
     Q_UINT32 len = a.size();
     s << len;					// write size of array
     if ( len > 0 )				// write data
-	s.writeRawBytes( a.d.data(), a.d.size() );
+	s.writeRawBytes( a.d, a.d.size() );
     return s;
 }
 
@@ -424,7 +424,7 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
 	len = 0;
     }
     if ( len > 0 )				// read data
-	s.readRawBytes( a.d.detach(), a.d.size() );
+	s.readRawBytes( a.d.data(), a.d.size() );
     return s;
 }
 #endif

@@ -82,7 +82,7 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
  	ch++;
     }
     *cursor = 0;
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (const uchar*)rstr.constData();
     ((QByteArray&)rstr).resize(lenInOut+1);
     return rstr;
 }
@@ -247,15 +247,15 @@ public:
 	if ( headerdone ) {
 	    lenInOut = uc.length()*sizeof(QChar);
 	    QByteArray d(lenInOut);
-	    memcpy(d.detach(),uc.unicode(),lenInOut);
+	    memcpy(d.data(),uc.unicode(),lenInOut);
 	    return d;
 	} else {
 	    headerdone = TRUE;
 	    lenInOut = (1+uc.length())*sizeof(QChar);
 	    QByteArray d(lenInOut);
 	    QChar bom(QChar::byteOrderMark);
-	    memcpy(d.detach(),&bom,sizeof(QChar));
-	    memcpy(d.detach()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
+	    memcpy(d.data(),&bom,sizeof(QChar));
+	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
 	    return d;
 	}
     }

@@ -313,7 +313,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 	    } else {
 		QString pr;
-		if ( printer_name )
+		if ( !printer_name.isEmpty() )
 		    pr = printer_name;
 		QApplication::flushX();
 		int fds[2];
@@ -374,8 +374,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 		    closeAllOpenFds();
 
-		    if ( print_prog ) {
-		        if ( option_string )
+		    if ( !print_prog.isEmpty() ) {
+		        if ( !option_string.isEmpty() )
 		            pr.prepend( option_string );
 			else
 		            pr.prepend( QString::fromLatin1( "-P" ) );
@@ -388,15 +388,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			QString lprhack;
 			const char * lparg = 0;
 			QString lphack;
-			if ( pr || option_string ) {
+			if ( !pr.isEmpty() || !option_string.isEmpty() ) {
 			    lprhack = pr;
-			    if ( option_string )
+			    if ( !option_string.isEmpty() )
 				lprhack.prepend( option_string );
 			    else
 				lprhack.prepend( QString::fromLatin1( "-P" ) );
 			    lprarg = lprhack.ascii();
 			    lphack = pr;
-			    if ( option_string )
+			    if ( !option_string.isEmpty() )
 				lphack.prepend( option_string );
 			    else
 				lphack.prepend( QString::fromLatin1( "-d" ) );

@@ -280,7 +280,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	int blockSize = calcBlockSize( f.size() );
 	if ( (int)f.size() < blockSize ) {
 	    s.resize( f.size() );
-	    f.readBlock( s.detach(), f.size() );
+	    f.readBlock( s.data(), f.size() );
 	    emit data( s, op );
 	    emit dataTransferProgress( f.size(), f.size(), op );
 #ifdef QLOCALFS_DEBUG
@@ -293,13 +293,13 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 		if ( operationInProgress() != op )
 		    return;
 		if ( remaining >= blockSize ) {
-		    f.readBlock( s.detach(), blockSize );
+		    f.readBlock( s.data(), blockSize );
 		    emit data( s, op );
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= blockSize;
 		} else {
 		    s.resize( remaining );
-		    f.readBlock( s.detach(), remaining );
+		    f.readBlock( s.data(), remaining );
 		    emit data( s, op );
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;
@@ -343,21 +343,21 @@ void QLocalFs::operationPut( QNetworkOperation *op )
     emit dataTransferProgress( 0, ba.size(), op );
     int blockSize = calcBlockSize( ba.size() );
     if ( (int)ba.size() < blockSize ) {
-	f.writeBlock( ba.data(), ba.size() );
+	f.writeBlock( ba, ba.size() );
 	emit dataTransferProgress( ba.size(), ba.size(), op );
     } else {
 	int i = 0;
 	while ( i + blockSize < (int)ba.size() - 1 ) {
 	    if ( operationInProgress() != op )
 		return;
-	    f.writeBlock( &ba.data()[ i ], blockSize );
+	    f.writeBlock( &ba.constData()[ i ], blockSize );
 	    f.flush();
 	    emit dataTransferProgress( i + blockSize, ba.size(), op );
 	    i += blockSize;
 	    qApp->processEvents();
 	}
 	if ( i < (int)ba.size() - 1 )
-	    f.writeBlock( &ba.data()[ i ], ba.size() - i );
+	    f.writeBlock( &ba.constData()[ i ], ba.size() - i );
 	emit dataTransferProgress( ba.size(), ba.size(), op );
     }
     op->setState( StDone );

@@ -547,15 +547,15 @@ bool QTranslator::do_load( const uchar *data, int len )
 
 	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
 	    d->contextArray = new QByteArray;
-	    d->contextArray->setRawData( array.data() + s.device()->at(),
+	    d->contextArray->setRawData( array.constData() + s.device()->at(),
 					 blockLen );
 	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
-	    d->offsetArray->setRawData( array.data() + s.device()->at(),
+	    d->offsetArray->setRawData( array.constData() + s.device()->at(),
 					blockLen );
 	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
 	    d->messageArray = new QByteArray;
-	    d->messageArray->setRawData( array.data() + s.device()->at(),
+	    d->messageArray->setRawData( array.constData() + s.device()->at(),
 					 blockLen );
 	}
 
@@ -601,19 +601,19 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 	    tag = (Q_UINT8) QTranslatorPrivate::Hashes;
 	    Q_UINT32 oas = (Q_UINT32) d->offsetArray->size();
 	    s << tag << oas;
-	    s.writeRawBytes( d->offsetArray->data(), oas );
+	    s.writeRawBytes( *d->offsetArray, oas );
 	}
 	if ( d->messageArray != 0 ) {
 	    tag = (Q_UINT8) QTranslatorPrivate::Messages;
 	    Q_UINT32 mas = (Q_UINT32) d->messageArray->size();
 	    s << tag << mas;
-	    s.writeRawBytes( d->messageArray->data(), mas );
+	    s.writeRawBytes( *d->messageArray, mas );
 	}
 	if ( d->contextArray != 0 ) {
 	    tag = (Q_UINT8) QTranslatorPrivate::Contexts;
 	    Q_UINT32 cas = (Q_UINT32) d->contextArray->size();
 	    s << tag << cas;
-	    s.writeRawBytes( d->contextArray->data(), cas );
+	    s.writeRawBytes( *d->contextArray, cas );
 	}
 	return TRUE;
     }
@@ -641,19 +641,19 @@ void QTranslator::clear()
     }
 
     if ( d->messageArray ) {
-	d->messageArray->resetRawData( d->messageArray->data(),
+	d->messageArray->resetRawData( *d->messageArray,
 				       d->messageArray->size() );
 	delete d->messageArray;
 	d->messageArray = 0;
     }
     if ( d->offsetArray ) {
-	d->offsetArray->resetRawData( d->offsetArray->data(),
+	d->offsetArray->resetRawData( *d->offsetArray,
 				      d->offsetArray->size() );
 	delete d->offsetArray;
 	d->offsetArray = 0;
     }
     if ( d->contextArray ) {
-	d->contextArray->resetRawData( d->contextArray->data(),
+	d->contextArray->resetRawData( *d->contextArray,
 				       d->contextArray->size() );
 	delete d->contextArray;
 	d->contextArray = 0;
@@ -1006,18 +1006,18 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     for ( ;; ) {
 	Q_UINT32 h = elfHash( QByteArray(sourceText) + comment );
 
-	char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
+	char *r = (char *) bsearch( &h, *d->offsetArray, numItems,
 				    2 * sizeof(Q_UINT32),
 				    systemBigEndian ? cmp_uint32_big
 				    : cmp_uint32_little );
 	if ( r != 0 ) {
 	    // go back on equal key
-	    while ( r != d->offsetArray->data() &&
+	    while ( r != *d->offsetArray &&
 		    cmp_uint32_big(r - 8, r) == 0 )
 		r -= 8;
 
 	    QDataStream s( *d->offsetArray, IO_ReadOnly );
-	    s.device()->at( r - d->offsetArray->data() );
+	    s.device()->at( r - *d->offsetArray );
 
 	    Q_UINT32 rh, ro;
 	    s >> rh >> ro;

@@ -383,7 +383,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    // need a transformed font from the server
 	    QCString xlfd_transformed = _name;
 	    int field = 0;
-	    const char *data = xlfd_transformed.data();
+	    const char *data = xlfd_transformed;
 	    int pos = 0;
 	    while ( field < 7 ) {
 		if ( data[pos] == '-' )
@@ -436,7 +436,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
 		x_font_load_error = FALSE;
 		XErrorHandler old_handler = XSetErrorHandler( x_font_errorhandler );
-		font_id = XLoadFont( dpy, xlfd_transformed.data() );
+		font_id = XLoadFont( dpy, xlfd_transformed );
 		XSync( dpy, FALSE );
 		XSetErrorHandler( old_handler );
 		if ( x_font_load_error ) {

@@ -63,7 +63,7 @@ static int numberLength( const char *s )
 static QCString zeroKey( const char *key )
 {
     QCString zeroed( strlen(key) + 1 );
-    char *z = zeroed.detach();
+    char *z = zeroed.data();
     int i = 0, j = 0;
     int len;
     bool metSomething = FALSE;

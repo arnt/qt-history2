@@ -87,7 +87,7 @@ void Editor::load( const QString &fn )
 	return;
     QCString txt;
     txt.resize( f.size() );
-    f.readBlock( txt.detach(), f.size() );
+    f.readBlock( txt.data(), f.size() );
     QString s( QString::fromLatin1( txt ) );
     setText( s );
 }

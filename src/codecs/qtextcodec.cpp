@@ -727,7 +727,7 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 	qWarning( "QTextCodec: using KOI8-R, probe failed (%02x %02x %s)",
 		  koi8r, latin5, i );
     }
-    setlocale( LC_CTYPE, origlocale.data() );
+    setlocale( LC_CTYPE, origlocale );
 
     return ru_RU_codec;
 }
@@ -1001,7 +1001,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
     int l = a.size();
     l = QMIN( l, len );
-    return toUnicode( a.data(), l );
+    return toUnicode( a.constData(), l );
 }
 
 /*!
@@ -1009,10 +1009,10 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 
     \a a contains the source characters.
 */
+// #### move to header
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
-    int l = a.size();
-    return toUnicode( a.data(), l );
+    return toUnicode( a.constData(), a.size() );
 }
 
 /*!
@@ -2466,7 +2466,7 @@ QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
     QByteArray r( len+1 );
-    char *d = r.detach();
+    char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
     while ( i < len ) {
@@ -2670,7 +2670,7 @@ QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
     QByteArray r( len+1 );
-    char *d = r.detach();
+    char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
     while ( i < len ) {

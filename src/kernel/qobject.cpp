@@ -192,7 +192,7 @@ static inline bool isSpace( char x )
 static QByteArray qt_rmWS( const char *s )
 {
     QByteArray result( qstrlen(s)+1 );
-    char *d = result.detach();
+    char *d = result.data();
     char last = 0;
     while( *s && isSpace(*s) )			// skip leading space
 	s++;
@@ -205,7 +205,7 @@ static QByteArray qt_rmWS( const char *s )
 	    last = *d++ = ' ';
     }
     *d = '\0';
-    result.truncate( (int)(d - result.data()) );
+    result.truncate( (int)(d - result.constData()) );
     int void_pos = result.find("(void)");
     if ( void_pos >= 0 )
 	result.remove( void_pos+1, (uint)strlen("void") );
@@ -583,7 +583,7 @@ bool QObject::inherits( const char *clname ) const
     return metaObject()->inherits( clname );
 }
 
-/*! 
+/*!
     \internal
 
     Returns TRUE if \a object inherits \a superClass within
@@ -593,7 +593,7 @@ bool QObject::inherits( const char *clname ) const
 */
 void *qt_inheritedBy( QMetaObject *superClass, const QObject *object )
 {
-    if (!object) 
+    if (!object)
 	return 0;
     register QMetaObject *mo = object->metaObject();
     while (mo) {
@@ -1499,7 +1499,7 @@ static void err_info_about_candidates( int code,
 	    break;
 	}
 	if ( rm ) {
-	    qWarning("QObject::%s:  Candidate: %s", func, newname.data());
+	    qWarning("QObject::%s:  Candidate: %s", func, newname.constData());
 	}
     }
 }
@@ -1966,7 +1966,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     int membcode = -1;
     if ( member ) {
 	member_name = qt_rmWS( member );
-	member = member_name.data();
+	member = member_name;
 	membcode = member[0] - '0';
 #if defined(QT_CHECK_RANGE)
 	if ( !check_member_code( membcode, r, member, "disconnect" ) )
@@ -2000,7 +2000,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    return FALSE;
     } else {					// specific signal
 	signal_name = qt_rmWS( signal );
-	signal = signal_name.data();
+	signal = signal_name;
 #if defined(QT_CHECK_RANGE)
 	if ( !check_signal_macro( s, signal, "disconnect", "unbind" ) )
 	    return FALSE;
@@ -2578,7 +2578,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 		    keys.append( (*it).stripWhiteSpace().latin1() );
 		v = QVariant( p->keysToValue( keys ) );
 	    } else {
-		v = QVariant( p->keyToValue( value.toByteArray().data() ) );
+		v = QVariant( p->keyToValue( value.toByteArray() ) );
 	    }
 	} else if ( v.type() != QVariant::Int && v.type() != QVariant::UInt ) {
 	    return FALSE;

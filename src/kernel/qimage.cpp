@@ -3452,7 +3452,7 @@ bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
 */
 bool QImage::loadFromData( QByteArray buf, const char *format )
 {
-    return loadFromData( (const uchar *)(buf.data()), buf.size(), format );
+    return loadFromData( (const uchar *)buf.constData(), buf.size(), format );
 }
 
 /*!
@@ -5591,7 +5591,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
     if ( iio ) {
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
-	d->readLine( buf.detach(), buf.size() );	// "/* XPM */"
+	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
 	if ( buf.find("/* XPM") != 0 )
 	    return;					// bad magic
     } else if ( !source ) {
@@ -5636,7 +5636,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	    i = sbuf.find( " m " );
 	if ( i < 0 ) {
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QImage: XPM color specification is missing: %s", buf.data());
+	    qWarning( "QImage: XPM color specification is missing: %s", buf.constData());
 #endif
 	    return;	// no c/g/g4/m specification at all
 	}

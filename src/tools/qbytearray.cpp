@@ -746,7 +746,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     const int bl = before.d->size;
     const int al = after.d->size;
     int len = d->size;
-    char *d = detach();
+    char *d = data();
 
     if ( bl == al ) {
 	if ( bl ) {
@@ -833,7 +833,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 QByteArray &QByteArray::replace(char before, char after)
 {
     if (d->size) {
-	char *i = detach();
+	char *i = data();
 	char *e = i + d->size;
 	for (; i != e; ++i)
 	    if (*i == before)
@@ -845,9 +845,7 @@ QByteArray &QByteArray::replace(char before, char after)
 
 bool operator==(const QByteArray &a1, const QByteArray &a2)
 {
-    return (a1.size() == a2.size()) &&
-	(memcmp((char*)a1.data(),(char*)a2.data(),
-		a1.size())==0);
+    return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0);
 }
 
 int QByteArray::find(char c, int i) const
@@ -895,8 +893,8 @@ int QByteArray::find(const QByteArray& a, int i) const
     if (sl == 1)
 	return find(*a.d->data, i);
     const char *needle = a.d->data;
-    const char *haystack = data() + i;
-    const char *end = data() + (l-sl);
+    const char *haystack = d->data + i;
+    const char *end = d->data + (l-sl);
     const uint sl_minus_1 = sl-1;
     uint hashNeedle = 0, hashHaystack = 0;
     int idx;
@@ -1032,7 +1030,7 @@ QByteArray QByteArray::mid(int i, int len) const
 QByteArray QByteArray::lower() const
 {
     QByteArray s(*this);
-    register char *p = s.detach();
+    register char *p = s.data();
     if ( p ) {
 	while ( *p ) {
 	    *p = tolower( (uchar) *p );
@@ -1058,7 +1056,7 @@ QByteArray QByteArray::lower() const
 QByteArray QByteArray::upper() const
 {
     QByteArray s(*this);
-    register char *p = s.detach();
+    register char *p = s.data();
     if ( p ) {
 	while ( *p ) {
 	    *p = toupper(*p);
@@ -1081,7 +1079,7 @@ QByteArray QByteArray::upper() const
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {
-    return s.writeBytes( a.data(), a.size() );
+    return s.writeBytes( a, a.size() );
 }
 
 /*!
@@ -1109,7 +1107,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 	len = 0;
     }
     if ( len > 0 )				// not null array
-	s.readRawBytes( a.detach(), (uint)len );
+	s.readRawBytes( a.data(), (uint)len );
     return s;
 }
 

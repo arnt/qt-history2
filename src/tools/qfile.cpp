@@ -406,9 +406,9 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 Q_LONG QFile::readLine( QString& s, Q_ULONG maxlen )
 {
     QByteArray ba(maxlen);
-    Q_LONG l = readLine(ba.detach(),maxlen);
+    Q_LONG l = readLine(ba.data(),maxlen);
     if ( l >= 0 )
-	s = QString::fromLatin1(ba.data(), l);
+	s = QString::fromLatin1(ba, l);
     return l;
 }
 

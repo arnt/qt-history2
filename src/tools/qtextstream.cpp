@@ -259,7 +259,7 @@ inline char *QCircularBuffer::alloc(uint size)
 	off -= buf[start_buff].size() - start_off;
     else
 	off += start_off;
-    return buf[curr_buff].detach()+off;
+    return buf[curr_buff].data()+off;
 }
 inline char *QCircularBuffer::take(uint size, uint *real_size)
 {
@@ -269,7 +269,7 @@ inline char *QCircularBuffer::take(uint size, uint *real_size)
     }
     if(real_size)
 	*real_size = QMIN(size, buf[start_buff].size() - start_off);
-    return buf[start_buff].detach()+start_off;
+    return buf[start_buff].data()+start_off;
 }
 
 inline void QCircularBuffer::free(uint size)
@@ -911,8 +911,8 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 		    if((end_flags & 0x0F) == TS_EOL) {
 			if(*it == '\n')
 			    end = 1;
-			else if(used_len+1 <= buffer_len && 
-				*it == '\r' && *(it+1) == '\n') 
+			else if(used_len+1 <= buffer_len &&
+				*it == '\r' && *(it+1) == '\n')
 			    end = 2;
 			if(end_flags & TS_MOD_NOT)
 			    end = !end;
@@ -952,7 +952,7 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 			    else
 				n = QChar(buffer_data[i+2],
 					  buffer_data[i+3]);
-			    if(n == '\n') 
+			    if(n == '\n')
 				end = 2;
 			    if(end_flags & TS_MOD_NOT)
 				end = !end;
@@ -2086,7 +2086,7 @@ QTextStream &QTextStream::operator<<( const char* s )
 
 QTextStream &QTextStream::operator<<( const QByteArray & s )
 {
-    return operator<<(s.data());
+    return operator<<(s.constData());
 }
 
 /*!

@@ -171,16 +171,16 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
 	// qUncompress() expects the first 4 bytes to be the expected length of
 	// the uncompressed data
 	QByteArray dataTmp( data.size() + 4 );
-	memcpy( dataTmp.detach()+4, data.data(), data.size() );
+	memcpy( dataTmp.data()+4, data, data.size() );
 	dataTmp[0] = ( len & 0xff000000 ) >> 24;
 	dataTmp[1] = ( len & 0x00ff0000 ) >> 16;
 	dataTmp[2] = ( len & 0x0000ff00 ) >> 8;
 	dataTmp[3] = ( len & 0x000000ff );
 	QByteArray baunzip = qUncompress( dataTmp );
 	len = baunzip.size();
-	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
+	img.loadFromData( (const uchar*)baunzip.constData(), len, "XPM" );
     } else {
-	img.loadFromData( (const uchar*)data.data(), data.size(), format );
+	img.loadFromData( (const uchar*)data.constData(), data.size(), format );
     }
     return img;
 }
@@ -521,7 +521,7 @@ void QWidgetFactory::unpackByteArray( QDataStream& in, QByteArray& array )
     Q_UINT32 size;
     unpackUInt32( in, size );
     array.resize( size );
-    in.readRawBytes( array.detach(), size );
+    in.readRawBytes( array.data(), size );
 }
 
 void QWidgetFactory::unpackCString( const UibStrTable& strings, QDataStream& in,
@@ -2105,7 +2105,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    conn.slot = NormalizeObject::normalizeSignalSlot( conn.slot );
 
 	    if ( !conn.sender || !conn.receiver ) {
-		n = n.nextSibling().toElement(); 
+		n = n.nextSibling().toElement();
 		continue;
 	    }
 

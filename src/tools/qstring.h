@@ -39,7 +39,12 @@ public:
     void squeeze();
 
     const QChar *unicode() const;
-    QChar *detach();
+    operator const QChar*() const;
+    QChar *data();
+    const QChar *data() const;
+    const QChar *constData() const;
+
+    void detach();
     bool isDetached() const;
     void clear();
 
@@ -209,27 +214,27 @@ public:
 #ifndef QT_NO_CAST_FROM_ASCII
     QString(const char *);
     inline QString(const QByteArray &a):d(&shared_null)
-    { ++d->ref; *this = fromAscii(a.data(), a.size()); }
+    { ++d->ref; *this = fromAscii(a, a.size()); }
     QString &operator=(const char  *);
     inline QString &operator=(char c) { return operator=(QChar(c)); }
     inline QString &operator=(const QByteArray &a)
-    { return operator=(a.data()); }
+    { return operator=(a.constData()); }
     QString &append(const char *s);
     inline QString &append(char c)
     { return append(QChar(c)); }
     inline QString &append(const QByteArray &a)
-    { return append(a.data()); }
+    { return append(a); }
     QString &prepend(const char *s);
     inline QString &prepend(char c)
     { return prepend(QChar(c)); }
     inline QString &prepend(const QByteArray &a)
-    { return append(a.data()); }
+    { return append(a); }
     inline QString &operator+=(const char *s)
     { return append(s); }
     inline QString &operator+=(char c)
     { return append(QChar(c)); }
     inline QString &operator+=(const QByteArray &a)
-    { return append(a.data()); }
+    { return append(a); }
 #endif
 #ifndef QT_NO_CAST_TO_ASCII
     inline operator const char*() const { return ascii(); }
@@ -369,10 +374,18 @@ inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline const QChar *QString::unicode() const
 { return (const QChar*) d->data; }
+inline QString::operator const QChar*() const
+{ return (const QChar*) d->data; }
+inline const QChar *QString::data() const
+{ return (const QChar*) d->data; }
+inline QChar *QString::data()
+{ detach(); return (QChar*) d->data; }
+inline const QChar *QString::constData() const
+{ return (const QChar*) d->data; }
 inline const ushort *QString::ucs2() const
 { d->data[d->size] = 0; return d->data; } //###
-inline QChar *QString::detach()
-{ if (d->ref != 1 || d->data != d->array) realloc(); return (QChar*) d->data; }
+inline void QString::detach()
+{ if (d->ref != 1 || d->data != d->array) realloc(); }
 inline bool QString::isDetached() const
 { return d->ref == 1; }
 inline QString &QString::operator=(const QString & a)
@@ -500,13 +513,13 @@ inline QCharRef QString::operator[](int i)
 inline QCharRef QString::operator[](uint i)
 { return QCharRef(*this, i); }
 inline QString::Iterator QString::begin()
-{ return detach(); }
+{ detach(); return (QChar*) d->data; }
 inline QString::ConstIterator QString::begin() const
 { return (const QChar*)d->data; }
 inline QString::ConstIterator QString::constBegin() const
 { return (const QChar*)d->data; }
 inline QString::Iterator QString::end()
-{ return detach() + d->size; }
+{ detach(); return (QChar*) d->data + d->size; }
 inline QString::ConstIterator QString::end() const
 { return (const QChar*)d->data + d->size; }
 inline QString::ConstIterator QString::constEnd() const

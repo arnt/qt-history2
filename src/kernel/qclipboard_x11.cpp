@@ -458,7 +458,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 		bytes_left = 0;
 	    }
 
-	    memcpy(buffer->detach() + buffer_offset, data, length);
+	    memcpy(buffer->data() + buffer_offset, data, length);
 	    buffer_offset += length;
 
 	    XFree( (char*)data );
@@ -480,7 +480,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 		 count && list_ret ) {
 		offset = strlen( list_ret[0] );
 		buffer->resize( offset + ( nullterm ? 1 : 0 ) );
-		memcpy( buffer->detach(), list_ret[0], offset );
+		memcpy( buffer->data(), list_ret[0], offset );
 	    }
  	    if (list_ret) XFreeStringList(list_ret);
  	}
@@ -553,7 +553,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 			length = buf.size() - offset;
 		    }
 		}
-		memcpy( buf.detach()+offset, tmp_buf.data(), length );
+		memcpy( buf.data()+offset, tmp_buf.constData(), length );
 		tmp_buf.resize( 0 );
 		offset += length;
 	    }
@@ -598,7 +598,7 @@ static void qt_xclb_send_incremental_property(Display *dpy, const Window window,
 #endif
 
 	XChangeProperty(dpy, window, property, xtarget, xformat,
-			PropModeReplace, (uchar *) data.data() + offset, xfer);
+			PropModeReplace, (uchar *) data.constData() + offset, xfer);
 	XFlush(dpy);
 
 	offset += xfer;
@@ -633,7 +633,7 @@ static void qt_xclb_send_incremental_property(Display *dpy, const Window window,
 #endif
 
 	    XChangeProperty(dpy, window, property, xtarget, xformat,
-			    PropModeReplace, (uchar *) data.data(), 0);
+			    PropModeReplace, (uchar *) data.constData(), 0);
 	    finished = TRUE;
 	}
     }
@@ -842,7 +842,7 @@ bool QClipboard::event( QEvent *e )
 					  FALSE, &multi_data, 0, 0, 0, 0)) {
 		    nmulti = multi_data.size()/sizeof(*multi);
 		    multi = new AtomPair[nmulti];
-		    memcpy(multi,multi_data.data(),multi_data.size());
+		    memcpy(multi,multi_data.constData(),multi_data.size());
 		}
 		imulti = 0;
 	    }
@@ -965,7 +965,7 @@ bool QClipboard::event( QEvent *e )
 			data.resize(newSize);
 			if (data.size() == newSize)
 			    data[data.size() - 1] = '\0';
-			char *list[] = { data.detach(), NULL };
+			char *list[] = { data.data(), NULL };
 
 			XICCEncodingStyle style;
 			if ( target == xa_compound_text )

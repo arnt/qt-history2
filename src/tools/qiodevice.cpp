@@ -629,7 +629,7 @@ QByteArray QIODevice::readAll()
 	int n = size()-at(); // ### fix for 64-bit or large files?
 	int totalRead = 0;
 	QByteArray ba( n );
-	char* c = ba.detach();
+	char* c = ba.data();
 	while ( n ) {
 	    int r = readBlock( c, n );
 	    if ( r < 0 )
@@ -652,7 +652,7 @@ QByteArray QIODevice::readAll()
 	QByteArray ba;
 	while ( !atEnd() ) {
 	    ba.resize( nread + blocksize );
-	    int r = readBlock( ba.detach()+nread, blocksize );
+	    int r = readBlock( ba.data()+nread, blocksize );
 	    if ( r < 0 )
 		return QByteArray();
 	    nread += r;
@@ -683,7 +683,7 @@ QByteArray QIODevice::readAll()
 */
 Q_LONG QIODevice::writeBlock( const QByteArray& data )
 {
-    return writeBlock( data.data(), data.size() );
+    return writeBlock( data, data.size() );
 }
 
 /*!

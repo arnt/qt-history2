@@ -86,8 +86,10 @@ public:
     int capacity() const;
 
     operator const char*() const;
+    char *data();
     const char *data() const;
-    char *detach();
+    const char *constData() const;
+    void detach();
     bool isDetached() const;
     void clear();
 
@@ -219,10 +221,14 @@ inline const char QByteArray::operator[](uint i) const
 inline bool QByteArray::isEmpty() const { return d->size == 0; }
 inline QByteArray::operator const char*() const
 { return d->data; }
+inline char *QByteArray::data()
+{ detach(); return d->data; }
 inline const char *QByteArray::data() const
 { return d->data; }
-inline char *QByteArray::detach()
-{ if (d->ref != 1 || d->data != d->array) realloc(d->size); return d->data; }
+inline const char *QByteArray::constData() const
+{ return d->data; }
+inline void QByteArray::detach()
+{ if (d->ref != 1 || d->data != d->array) realloc(d->size); }
 inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
 inline QByteArray::~QByteArray()
@@ -268,13 +274,13 @@ inline QByteRef QByteArray::operator[](int i)
 inline QByteRef QByteArray::operator[](uint i)
 { return QByteRef(*this, i); }
 inline QByteArray::Iterator QByteArray::begin()
-{ return detach(); }
+{ detach(); return d->data; }
 inline QByteArray::ConstIterator QByteArray::begin() const
 { return d->data; }
 inline QByteArray::ConstIterator QByteArray::constBegin() const
 { return d->data; }
 inline QByteArray::Iterator QByteArray::end()
-{ return detach() + d->size; }
+{ detach(); return d->data + d->size; }
 inline QByteArray::ConstIterator QByteArray::end() const
 { return d->data + d->size; }
 inline QByteArray::ConstIterator QByteArray::constEnd() const
@@ -305,40 +311,39 @@ inline QByteArray &QByteArray::operator=(const QByteArray & a)
 
 bool operator==(const QByteArray &a1, const QByteArray &a2);
 inline bool operator==(const QByteArray &a1, const char *a2)
-{ return a2 ? strcmp(a1.data(),a2) == 0 : a1.isEmpty(); }
+{ return a2 ? strcmp(a1,a2) == 0 : a1.isEmpty(); }
 inline bool operator==(const char *a1, const QByteArray &a2)
-{ return a1 ? strcmp(a1,a2.data()) == 0 : a2.isEmpty(); }
+{ return a1 ? strcmp(a1,a2) == 0 : a2.isEmpty(); }
 inline bool operator!=(const QByteArray &a1, const QByteArray &a2)
 { return !(a1==a2); }
 inline bool operator!=(const QByteArray &a1, const char *a2)
-{ return a2 ? strcmp(a1.data(),a2) != 0 : !a1.isEmpty(); }
+{ return a2 ? strcmp(a1,a2) != 0 : !a1.isEmpty(); }
 inline bool operator!=(const char *a1, const QByteArray &a2)
-{ return a1 ? strcmp(a1,a2.data()) != 0 : !a2.isEmpty(); }
+{ return a1 ? strcmp(a1,a2) != 0 : !a2.isEmpty(); }
 inline bool operator<(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1.data(), a2.data()) < 0; }
+{ return strcmp(a1, a2) < 0; }
  inline bool operator<(const QByteArray &a1, const char *a2)
-{ return qstrcmp(a1.data(), a2) < 0; }
+{ return qstrcmp(a1, a2) < 0; }
 inline bool operator<(const char *a1, const QByteArray &a2)
-{ return qstrcmp(a1, a2.data()) < 0; }
+{ return qstrcmp(a1, a2) < 0; }
 inline bool operator<=(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1.data(), a2.data()) <= 0; }
+{ return strcmp(a1, a2) <= 0; }
 inline bool operator<=(const QByteArray &a1, const char *a2)
-{ return qstrcmp(a1.data(), a2) <= 0; }
+{ return qstrcmp(a1, a2) <= 0; }
 inline bool operator<=(const char *a1, const QByteArray &a2)
-{ return qstrcmp(a1, a2.data()) <= 0; }
+{ return qstrcmp(a1, a2) <= 0; }
 inline bool operator>(const QByteArray &a1, const QByteArray &a2)
-
-{ return strcmp(a1.data(), a2.data()) > 0; }
+{ return strcmp(a1, a2) > 0; }
 inline bool operator>(const QByteArray &a1, const char *a2)
-{ return qstrcmp(a1.data(), a2) > 0; }
+{ return qstrcmp(a1, a2) > 0; }
 inline bool operator>(const char *a1, const QByteArray &a2)
-{ return qstrcmp(a1, a2.data()) > 0; }
+{ return qstrcmp(a1, a2) > 0; }
 inline bool operator>=(const QByteArray &a1, const QByteArray &a2)
-{ return strcmp(a1.data(), a2.data()) >= 0; }
+{ return strcmp(a1, a2) >= 0; }
 inline bool operator>=(const QByteArray &a1, const char *a2)
-{ return qstrcmp(a1.data(), a2) >= 0; }
+{ return qstrcmp(a1, a2) >= 0; }
 inline bool operator>=(const char *a1, const QByteArray &a2)
-{ return qstrcmp(a1, a2.data()) >= 0; }
+{ return qstrcmp(a1, a2) >= 0; }
 inline const QByteArray operator+(const QByteArray &a1, const QByteArray &a2)
 { return QByteArray(a1) += a2; }
 inline const QByteArray operator+(const QByteArray &a1, const char *a2)
@@ -372,9 +377,9 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 Q_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
 Q_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
 Q_EXPORT inline QByteArray qCompress( const QByteArray& data)
-{ return qCompress( (const uchar*)data.data(), data.size() ); }
+{ return qCompress( (const uchar*)data.constData(), data.size() ); }
 Q_EXPORT inline QByteArray qUncompress( const QByteArray& data )
-{ return qUncompress( (const uchar*)data.data(), data.size() ); }
+{ return qUncompress( (const uchar*)data.constData(), data.size() ); }
 #endif
 
 // Q_DECLARE_SHARED_MOVABLE(QByteArray)

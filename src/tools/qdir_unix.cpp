@@ -76,7 +76,7 @@ QString QDir::canonicalPath() const
 	char tmp[PATH_MAX+1];
 	// need the cast for old solaris versions of realpath that doesn't take
 	// a const char*.
-	if( ::realpath( (char*)QFile::encodeName( dPath ).data(), tmp ) )
+	if( ::realpath( QFile::encodeName( dPath ).data(), tmp ) )
 	    r = QFile::decodeName( QByteArray(tmp) );
 	slashify( r );
 

@@ -1434,7 +1434,7 @@ void qt_x11_create_wm_client_leader()
 	XChangeProperty( QPaintDevice::x11AppDisplay(),
 			 qt_x11_wm_client_leader, qt_sm_client_id,
 			 XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)session.detach(), session.size() );
+			 (unsigned char *)session.data(), session.size() );
     }
 }
 
@@ -4942,7 +4942,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
 	if ( !mb ) {
 	    count = XLookupString( &xkeyevent,
-				   chars.detach(), chars.size(), &key, 0 );
+				   chars.data(), chars.size(), &key, 0 );
 	}
 	if ( count && !keycode ) {
 	    keycode = composingKeycode;

@@ -286,7 +286,7 @@ void QFont::initialize()
 	    QFontPrivate::defaultScript = cs;
     }
 
-    setlocale( LC_TIME, oldlctime.data() );
+    setlocale( LC_TIME, oldlctime );
 }
 
 /*! \internal

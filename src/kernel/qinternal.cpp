@@ -669,7 +669,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - _index;
 	    if ( sink ) {
-		memcpy( sink, a->data()+_index, len );
+		memcpy( sink, a->constData()+_index, len );
 		sink += len;
 	    }
 	    nbytes -= len;
@@ -680,7 +680,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 	} else {
 	    // Here we skip only a part of the first byte array
 	    if ( sink )
-		memcpy( sink, a->data()+_index, nbytes );
+		memcpy( sink, a->constData()+_index, nbytes );
 	    _index += nbytes;
 	    break;
 	}
@@ -708,18 +708,18 @@ bool QMembuf::scanNewline( QByteArray *store )
 	    a = buf->first();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
-	    p = a->detach() + _index;
+	    p = a->data() + _index;
 	    n = a->size() - _index;
 	} else {
 	    a = buf->next();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
-	    p = a->detach();
+	    p = a->data();
 	    n = a->size();
 	}
 	if ( store ) {
 	    while ( n-- > 0 ) {
-		*(store->detach()+i) = *p;
+		*(store->data()+i) = *p;
 		if ( ++i == (int)store->size() )
 		    store->resize( store->size() < 256
 				   ? 1024 : store->size()*4 );
@@ -728,7 +728,7 @@ bool QMembuf::scanNewline( QByteArray *store )
 			store->resize( i );
 			return FALSE;
 		    case '\n':
-			*(store->detach()+i) = '\0';
+			*(store->data()+i) = '\0';
 			store->resize( i );
 			return TRUE;
 		}

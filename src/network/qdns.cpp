@@ -1003,7 +1003,7 @@ void QDnsManager::retransmit()
 void QDnsManager::answer()
 {
     QByteArray a( 16383 ); // large enough for anything, one suspects
-    int r = socket->readBlock( a.detach(), a.size() );
+    int r = socket->readBlock( a.data(), a.size() );
 #if defined(QDNS_DEBUG)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
 	   socket->peerAddress().toString().ascii(), socket->peerPort() );
@@ -1172,7 +1172,7 @@ void QDnsManager::transmitQuery( int i )
 	return;
     }
 
-    socket->writeBlock( p.data(), pp, *ns->at( q->step % ns->count() ), 53 );
+    socket->writeBlock( p, pp, *ns->at( q->step % ns->count() ), 53 );
 #if defined(QDNS_DEBUG)
     qDebug( "issuing query 0x%04x (%d) about %s type %d to %s",
 	    q->id, q->step, q->l.ascii(), q->t,
@@ -1185,7 +1185,7 @@ void QDnsManager::transmitQuery( int i )
 	p[2] = 0;
 	QHostAddress * server;
 	while( (server=ns->next()) != 0 ) {
-	    socket->writeBlock( p.data(), pp, *server, 53 );
+	    socket->writeBlock( p, pp, *server, 53 );
 #if defined(QDNS_DEBUG)
 	    qDebug( "copying query to %s", server->toString().ascii() );
 #endif

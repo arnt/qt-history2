@@ -1235,7 +1235,7 @@ void QUrl::decode( QString& url )
     }
     newUrl.resize( newlen );
 
-    url = QString::fromUtf8(newUrl.data());
+    url = QString::fromUtf8(newUrl);
 }
 
 

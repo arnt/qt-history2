@@ -1089,7 +1089,7 @@ void QXmlInputSource::fetchData()
 	    const int bufsize = 512;
 	    while ( !inputStream->device()->atEnd() ) {
 		rawData.resize( nread + bufsize );
-		nread += inputStream->device()->readBlock( rawData.detach()+nread, bufsize );
+		nread += inputStream->device()->readBlock( rawData.data()+nread, bufsize );
 	    }
 	    rawData.resize( nread );
 	}
@@ -1132,7 +1132,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 	    return QString::null;
 
 	encMapper = codec->makeDecoder();
-	QString input = encMapper->toUnicode( data.data(), data.size() );
+	QString input = encMapper->toUnicode( data, data.size() );
 	// ### unexpected EOF? (for incremental parsing)
 	// starts the document with an XML declaration?
 	if ( input.find("<?xml") == 0 ) {
@@ -1162,12 +1162,12 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 		}
 		delete encMapper;
 		encMapper = codec->makeDecoder();
-		return encMapper->toUnicode( data.data(), data.size() );
+		return encMapper->toUnicode( data, data.size() );
 	    }
 	}
 	return input;
     }
-    return encMapper->toUnicode( data.data(), data.size() );
+    return encMapper->toUnicode( data, data.size() );
 }
 
 

@@ -122,7 +122,7 @@ inline int UibStrTable::insertString( const QString& str )
 inline void UibStrTable::readBlock( QDataStream& in, int size )
 {
     table.resize( start + size );
-    in.readRawBytes( table.detach() + start, size );
+    in.readRawBytes( table.data() + start, size );
 }
 
 inline QString UibStrTable::asString( int offset ) const
@@ -146,7 +146,7 @@ inline const char *UibStrTable::asCString( int offset ) const
 inline QByteArray UibStrTable::block() const
 {
     QByteArray block;
-    block.duplicate( table.data() + start, table.size() - start );
+    block.duplicate( table.constData() + start, table.size() - start );
     return block;
 }
 

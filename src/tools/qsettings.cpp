@@ -1052,7 +1052,7 @@ bool QSettings::sync()
 
 #ifdef QT_CHECK_STATE
 		qWarning( "QSettings::sync: error writing file '%s'",
-			  QFile::encodeName( filename ).data() );
+			  QFile::encodeName( filename ).constData() );
 #endif // QT_CHECK_STATE
 
 		success = FALSE;

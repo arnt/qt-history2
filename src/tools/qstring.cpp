@@ -750,7 +750,7 @@ QString& QString::replace(QChar c, const QString & after, QString::CaseSensitivi
 QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs)
 { CLEAR_ASCII_CACHE(d)
     if (d->size) {
-	QChar *i = detach();
+	QChar *i = data();
 	QChar *e = i + d->size;
 	if (cs == CaseSensitive) {
 	    for (; i != e; ++i)
@@ -1357,7 +1357,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
 	    index += adjust;
 	QString newstring;
 	newstring.reserve(newlen + 1);
-	QChar *newuc = newstring.detach();
+	QChar *newuc = newstring.data();
 	QChar *uc = newuc;
 	int copystart = 0;
 	uint i = 0;
@@ -2212,7 +2212,7 @@ QByteArray QString::toLatin1() const
 	    ba->resize(d->size);
 	    const ushort *i = d->data;
 	    const ushort *e = d->data + d->size;
-	    uchar *s = (uchar*) ba->detach();
+	    uchar *s = (uchar*) ba->data();
 	    while (i != e) {
 		*s++ = (*i>0xff) ? '?' : (uchar) *i;
 		++i;
@@ -2305,7 +2305,7 @@ QByteArray QString::toUtf8() const
 		}
 		ch++;
 	    }
-	    ba->resize(cursor - (uchar*)ba->data());
+	    ba->resize(cursor - (uchar*)ba->constData());
 	}
     }
     return *ba;
@@ -2357,7 +2357,7 @@ QByteArray qt_winQString2MB( const QString& s, int uclen )
     QByteArray mb(4096);
     int len;
     while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
-		mb.detach(), mb.size()-1, 0, &used_def)) )
+		mb.data(), mb.size()-1, 0, &used_def)) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
@@ -3274,7 +3274,7 @@ QString QString::lower() const
 	    while (l) {
 		if (*p != ::lower(*p)) {
 		    QString s(*this);
-		    p = (QChar*)s.detach() + (p - (QChar*)d->data);
+		    p = (QChar*)s.data() + (p - (QChar*)d->data);
 		    while (l) {
 			*p = ::lower(*p);
 			l--;
@@ -3310,7 +3310,7 @@ QString QString::upper() const
 	    while (l) {
 		if (*p != ::upper(*p)) {
 		    QString s(*this);
-		    p = s.detach() + (p - (QChar*)d->data);
+		    p = s.data() + (p - (QChar*)d->data);
 		    while (l) {
 			*p = ::upper(*p);
 			l--;
@@ -4624,7 +4624,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	} else if ( bytes > 0 ) {                       // not empty
 	    int byteOrder = s.byteOrder();
 	    str.setLength( bytes/2 );
-	    QChar* ch = str.detach();
+	    QChar* ch = str.data();
 	    static const uint auto_size = 1024;
 	    char t[auto_size];
 	    char *b;

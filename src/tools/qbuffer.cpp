@@ -330,7 +330,7 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
             len = b.size() - ioIndex;
         }
     }
-    memcpy( p, b.data()+ioIndex, len );
+    memcpy( p, b.constData()+ioIndex, len );
     ioIndex += len;
     return len;
 }
@@ -385,7 +385,7 @@ Q_LONG QBuffer::writeBlock( const char *ptr, Q_ULONG len )
             return -1;
         }
     }
-    memcpy( p->detach()+ioIndex, ptr, len );
+    memcpy( p->data()+ioIndex, ptr, len );
     ioIndex += len;
     END_BUFFER_WRITE;
     return len;
@@ -417,7 +417,7 @@ Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
     if ( maxlen == 0 )
         return 0;
     Q_ULONG start = ioIndex;
-    const char *d = b.data() + ioIndex;
+    const char *d = b.constData() + ioIndex;
     maxlen--;                                   // make room for 0-terminator
     if ( b.size() - ioIndex < maxlen )
         maxlen = b.size() - ioIndex;
@@ -426,7 +426,7 @@ Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
             break;
     }
     *p = '\0';
-    ioIndex = d - b.data();
+    ioIndex = d - b.constData();
     return ioIndex - start;
 }
 
@@ -451,7 +451,7 @@ int QBuffer::getch()
         setStatus( IO_ReadError );
         return -1;
     }
-    return uchar(*(b.data()+ioIndex++));
+    return uchar(*(b.constData()+ioIndex++));
 }
 
 /*!
@@ -487,7 +487,7 @@ int QBuffer::putch( int ch )
             return -1;                          // write error
 	}
     } else {
-        *(p->detach() + ioIndex++) = (char)ch;
+        *(p->data() + ioIndex++) = (char)ch;
     }
     END_BUFFER_WRITE;
     return ch;

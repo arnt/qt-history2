@@ -1055,7 +1055,7 @@ void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 	QByteArray &s = put->raw( 1 );
 	int size = s.size();
 	s.resize( size + data_.size() );
-	memcpy( s.detach() + size, data_.data(), data_.size() );
+	memcpy( s.data() + size, data_.constData(), data_.size() );
     }
     emit data( data_, op );
 }

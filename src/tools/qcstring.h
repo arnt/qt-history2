@@ -117,7 +117,6 @@ public:
 
     bool	setExpand( uint index, char c );
 
-		operator const char *() const;
 };
 
 
@@ -152,79 +151,76 @@ inline QCString &QCString::setNum( uint n )
 inline QCString &QCString::setNum( float n, char f, int prec )
 { return setNum((double)n,f,prec); }
 
-inline QCString::operator const char *() const
-{ return (const char *)data(); }
-
 
 /*****************************************************************************
   QCString non-member operators
  *****************************************************************************/
 
 Q_EXPORT inline bool operator==( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(), s2.data() ) == 0; }
+{ return qstrcmp( s1, s2 ) == 0; }
 
 Q_EXPORT inline bool operator==( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) == 0; }
+{ return qstrcmp( s1, s2 ) == 0; }
 
 Q_EXPORT inline bool operator==( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) == 0; }
+{ return qstrcmp( s1, s2 ) == 0; }
 
 Q_EXPORT inline bool operator!=( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(), s2.data() ) != 0; }
+{ return qstrcmp( s1, s2 ) != 0; }
 
 Q_EXPORT inline bool operator!=( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) != 0; }
+{ return qstrcmp( s1, s2 ) != 0; }
 
 Q_EXPORT inline bool operator!=( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) != 0; }
+{ return qstrcmp( s1, s2 ) != 0; }
 
 Q_EXPORT inline bool operator<( const QCString &s1, const QCString& s2 )
-{ return qstrcmp( s1.data(), s2.data() ) < 0; }
+{ return qstrcmp( s1, s2 ) < 0; }
 
 Q_EXPORT inline bool operator<( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) < 0; }
+{ return qstrcmp( s1, s2 ) < 0; }
 
 Q_EXPORT inline bool operator<( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) < 0; }
+{ return qstrcmp( s1, s2 ) < 0; }
 
 Q_EXPORT inline bool operator<=( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(), s2.data() ) <= 0; }
+{ return qstrcmp( s1, s2 ) <= 0; }
 
 Q_EXPORT inline bool operator<=( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) <= 0; }
+{ return qstrcmp( s1, s2 ) <= 0; }
 
 Q_EXPORT inline bool operator<=( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) <= 0; }
+{ return qstrcmp( s1, s2 ) <= 0; }
 
 Q_EXPORT inline bool operator>( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(), s2.data() ) > 0; }
+{ return qstrcmp( s1, s2 ) > 0; }
 
 Q_EXPORT inline bool operator>( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) > 0; }
+{ return qstrcmp( s1, s2 ) > 0; }
 
 Q_EXPORT inline bool operator>( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) > 0; }
+{ return qstrcmp( s1, s2 ) > 0; }
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const QCString& s2 )
-{ return qstrcmp( s1.data(), s2.data() ) >= 0; }
+{ return qstrcmp( s1, s2 ) >= 0; }
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
-{ return qstrcmp( s1.data(), s2 ) >= 0; }
+{ return qstrcmp( s1, s2 ) >= 0; }
 
 Q_EXPORT inline bool operator>=( const char *s1, const QCString &s2 )
-{ return qstrcmp( s1, s2.data() ) >= 0; }
+{ return qstrcmp( s1, s2 ) >= 0; }
 
 Q_EXPORT inline const QCString operator+( const QCString &s1,
 					  const QCString &s2 )
 {
-    QCString tmp( s1.data() );
+    QCString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
 Q_EXPORT inline const QCString operator+( const QCString &s1, const char *s2 )
 {
-    QCString tmp( s1.data() );
+    QCString tmp( s1 );
     tmp += s2;
     return tmp;
 }
@@ -238,7 +234,7 @@ Q_EXPORT inline const QCString operator+( const char *s1, const QCString &s2 )
 
 Q_EXPORT inline const QCString operator+( const QCString &s1, char c2 )
 {
-    QCString tmp( s1.data() );
+    QCString tmp( s1 );
     tmp += c2;
     return tmp;
 }

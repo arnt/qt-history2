@@ -199,7 +199,7 @@ inline void QMembuf::clear()
 { buf->clear(); _size=0; _index=0; }
 
 inline QByteArray QMembuf::readAll()
-{ QByteArray ba(_size); consumeBytes(_size,ba.detach()); return ba; }
+{ QByteArray ba(_size); consumeBytes(_size,ba.data()); return ba; }
 
 inline bool QMembuf::canReadLine() const
 { return ((QMembuf*)this)->scanNewline( 0 ); }

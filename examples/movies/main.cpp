@@ -244,7 +244,7 @@ MovieStarter::MovieStarter(const char *dir)
 
 void MovieStarter::startMovie(const QString& filename)
 {
-    if ( filename ) // Start a new movie - have it delete when closed.
+    if ( !filename.isEmpty() ) // Start a new movie - have it delete when closed.
 	(new MoviePlayer( filename, QMovie(filename), 0, 0,
 			       WDestructiveClose))->show();
 }

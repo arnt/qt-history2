@@ -978,8 +978,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 			    int conversion_flags )
 {
-    return loadFromData( (const uchar *)(buf.data()), buf.size(),
-			 format, conversion_flags );
+    return loadFromData( (const uchar *)buf.constData(), buf.size(), format, conversion_flags );
 }
 
 

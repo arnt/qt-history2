@@ -109,7 +109,7 @@ inline uint QPicture::size() const
 
 inline const char* QPicture::data() const
 {
-    return d->pictb.buffer().data();
+    return d->pictb.buffer();
 }
 
 /*****************************************************************************

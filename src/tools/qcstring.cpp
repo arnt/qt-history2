@@ -304,8 +304,8 @@ QCString &QCString::sprintf( const char *format, ... )
     va_start( ap, format );
     if ( size() < 256 )
 	resize( 256 );		// make string big enough
-    vsprintf( detach(), format, ap );
-    resize( qstrlen(data()) );
+    vsprintf( data(), format, ap );
+    resize( qstrlen(constData()) );
     va_end( ap );
     return *this;
 }
@@ -342,12 +342,12 @@ QCString &QCString::sprintf( const char *format, ... )
 QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 {
     QCString result;
-    int len = qstrlen(data());
+    int len = qstrlen(constData());
     int padlen = width - len;
     if ( padlen > 0 ) {
 	result.resize( len+padlen );
-	memcpy( result.detach(), data(), len );
-	memset( result.detach()+len, fill, padlen );
+	memcpy( result.data(), constData(), len );
+	memset( result.data()+len, fill, padlen );
     } else {
 	if ( truncate )
 	    result = left( width );
@@ -377,12 +377,12 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
 {
     QCString result;
-    int len = qstrlen(data());
+    int len = qstrlen(constData());
     int padlen = width - len;
     if ( padlen > 0 ) {
 	result.resize( len+padlen );
-	memset( result.detach(), fill, padlen );
-	memcpy( result.detach()+padlen, data(), len );
+	memset( result.data(), fill, padlen );
+	memcpy( result.data()+padlen, constData(), len );
     } else {
 	if ( truncate )
 	    result = left( width );
@@ -407,7 +407,7 @@ QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
 QCString QCString::lower() const
 {
     QCString s = *this;
-    register char *p = s.detach();
+    register char *p = s.data();
     if ( p ) {
 	while ( *p ) {
 	    *p = tolower( (uchar) *p );
@@ -433,7 +433,7 @@ QCString QCString::lower() const
 QCString QCString::upper() const
 {
     QCString s = *this;
-    register char *p = s.detach();
+    register char *p = s.data();
     if ( p ) {
 	while ( *p ) {
 	    *p = toupper(*p);
@@ -465,13 +465,13 @@ QCString QCString::stripWhiteSpace() const
     if ( isEmpty() )				// nothing to do
 	return copy();
 
-    register const char *s = data();
+    register const char *s = constData();
     QCString result = s;
     int reslen = result.length();
     if ( !isspace((uchar) s[0]) && !isspace((uchar) s[reslen-1]) )
 	return result;				// returns a copy
 
-    s = result.detach();
+    s = result.data();
     int start = 0;
     int end = reslen - 1;
     while ( isspace((uchar) s[start]) )		// skip white space from start
@@ -483,7 +483,7 @@ QCString QCString::stripWhiteSpace() const
     while ( end && isspace((uchar) s[end]) )	// skip white space from end
 	end--;
     end -= start - 1;
-    memmove( result.detach(), &s[start], end );
+    memmove( result.data(), &s[start], end );
     result.resize( end );
     return result;
 }
@@ -510,8 +510,8 @@ QCString QCString::simplifyWhiteSpace() const
     if ( isEmpty() )				// nothing to do
 	return copy();
     QCString result( size() );
-    const char *from = data();
-    char *to	= result.detach();
+    const char *from = constData();
+    char *to	= result.data();
     char *first = to;
     for ( ;; ) {
 	while ( isspace((uchar) *from) )
@@ -526,7 +526,7 @@ QCString QCString::simplifyWhiteSpace() const
     if ( to > first && *(to-1) == 0x20 )
 	to--;
     *to = '\0';
-    result.resize( (int)(to - result.data()) );
+    result.resize( (int)(to - result.constData()) );
     return result;
 }
 
@@ -542,7 +542,7 @@ QCString QCString::simplifyWhiteSpace() const
 
 long QCString::toLong( bool *ok ) const
 {
-    const char *p = data();
+    const char *p = constData();
     long val=0;
     const long max_mult = 214748364;
     bool is_ok = FALSE;
@@ -586,7 +586,7 @@ bye:
 
 ulong QCString::toULong( bool *ok ) const
 {
-    const char *p = data();
+    const char *p = constData();
     ulong val=0;
     const ulong max_mult = 429496729;
     bool is_ok = FALSE;
@@ -683,9 +683,9 @@ uint QCString::toUInt( bool *ok ) const
 double QCString::toDouble( bool *ok ) const
 {
     char *end;
-    double val = strtod( data() ? data() : "", &end );
+    double val = strtod( constData() ? constData() : "", &end );
     if ( ok )
-	*ok = ( data() && *data() && ( end == 0 || *end == '\0' ) );
+	*ok = ( constData() && *constData() && ( end == 0 || *end == '\0' ) );
     return val;
 }
 
@@ -716,7 +716,7 @@ float QCString::toFloat( bool *ok ) const
 
 QCString &QCString::setNum( long n )
 {
-    detach();
+    data();
     char buf[20];
     register char *p = &buf[19];
     bool neg;
@@ -746,7 +746,7 @@ QCString &QCString::setNum( long n )
 
 QCString &QCString::setNum( ulong n )
 {
-    detach();
+    data();
     char buf[20];
     register char *p = &buf[19];
     *p = '\0';
@@ -840,9 +840,9 @@ bool QCString::setExpand( uint index, char c )
     if ( index >= oldlen ) {
 	resize( index+1 );
 	if ( index > oldlen )
-	    memset( detach() + oldlen, ' ', index - oldlen );
+	    memset( data() + oldlen, ' ', index - oldlen );
     }
-    *(detach() + index) = c;
+    *(data() + index) = c;
     return TRUE;
 }
 

@@ -217,7 +217,7 @@ QByteArray QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
 
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
     return rstr;
 }
@@ -587,7 +587,7 @@ QByteArray QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
 
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
     return rstr;
 }
@@ -786,7 +786,7 @@ QByteArray QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
 
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
     return rstr;
 }

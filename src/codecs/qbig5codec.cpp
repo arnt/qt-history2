@@ -216,7 +216,7 @@ QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	    *cursor++ = '?';  // unknown char
 	}
     }
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
     return rstr;
 }
@@ -499,7 +499,7 @@ QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	    *cursor++ = '?';  // unknown char
 	}
     }
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
     return rstr;
 }

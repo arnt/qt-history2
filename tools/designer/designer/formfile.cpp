@@ -177,7 +177,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 		QFile f2( fn );
 		if ( f2.open( IO_WriteOnly | IO_Translate ) ) {
 		    QCString data( f.size() );
-		    f.readBlock( data.detach(), f.size() );
+		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
 		} else {
 		    QMessageBox::warning( MainWindow::self, "Save", "The file " +
@@ -200,7 +200,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 		QFile f2( fn );
 		if ( f2.open( IO_WriteOnly | IO_Translate) ) {
 		    QCString data( f.size() );
-		    f.readBlock( data.detach(), f.size() );
+		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
 		} else if ( qApp->type() != QApplication::Tty ) {
 		    QMessageBox::warning( MainWindow::self, "Save", "The file " +

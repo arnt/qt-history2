@@ -343,7 +343,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
 	return FALSE;
     }
 
-    dev->writeBlock( d->pictb.buffer().data(), d->pictb.buffer().size() );
+    dev->writeBlock( d->pictb.buffer(), d->pictb.buffer().size() );
     return TRUE;
 }
 
@@ -732,7 +732,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	}
 	s << (Q_UINT32)trecs;			// write number of records
 	pictb.at( cs_start );
-	Q_UINT16 cs = (Q_UINT16)qChecksum( buf.data()+data_start, pos-data_start );
+	Q_UINT16 cs = (Q_UINT16)qChecksum( buf.constData()+data_start, pos-data_start );
 	s << cs;				// write checksum
 	pictb.close();
 	return TRUE;
@@ -899,7 +899,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	s << (Q_UINT32)0;				// extend the buffer
 	pictb.at(pos - 1);			// position to right index
 	s << (Q_UINT8)255;			// indicate 32-bit length
-	char *p = pictb.buffer().detach();
+	char *p = pictb.buffer().data();
 	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
 	s << (Q_UINT32)length;
 	newpos += 4;
@@ -1002,7 +1002,7 @@ QPicture QPicture::copy() const
 {
     QPicture p;
     QByteArray a( size() );
-    memcpy( a.detach(), data(), size() );
+    memcpy( a.data(), data(), size() );
     p.d->pictb.setBuffer( a );			// set byte array in buffer
     if ( d->pictb.isOpen() ) {			// copy buffer state
 	p.d->pictb.open( d->pictb.mode() );
@@ -1119,7 +1119,7 @@ bool QPicture::QPicturePrivate::checkFormat()
     Q_UINT16 cs,ccs;
     QByteArray buf = pictb.buffer();	// pointer to data
     s >> cs;				// read checksum
-    ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
+    ccs = qChecksum( buf.constData() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
@@ -1183,8 +1183,7 @@ QDataStream &operator<<( QDataStream &s, const QPicture &r )
     if ( size == 0 )
 	return s;
     // just write the whole buffer to the stream
-    return s.writeRawBytes ( r.d->pictb.buffer().data(),
-			     r.d->pictb.buffer().size() );
+    return s.writeRawBytes ( r.d->pictb.buffer(), r.d->pictb.buffer().size() );
 }
 
 /*!
@@ -1206,7 +1205,7 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     QByteArray data;
     if ( len > 0 ) {
 	data.resize(len);
-	s.readRawBytes( data.detach(), len );
+	s.readRawBytes( data.data(), len );
     }
 
     r.d->pictb.setBuffer( data );

@@ -348,7 +348,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 #endif // USE_MMAP
 	// try reading the data into memory instead
 	data = file.readAll();
-	filedata = data.detach();
+	filedata = data.data();
 	fdlen = data.size();
 #ifdef USE_MMAP
     }

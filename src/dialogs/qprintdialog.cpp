@@ -660,7 +660,7 @@ static void parseSpoolInterface( QListView * printers )
 	QString hostPrinterKey( QString::fromLatin1("HOSTPRINTER=") );
 
 	while ( !configFile.atEnd() &&
-		(configFile.readLine(line.detach(), 1024)) > 0 ) {
+		(configFile.readLine(line.data(), 1024)) > 0 ) {
 	    QString uline = line;
 	    if ( uline.startsWith( typeKey )  ) {
 		printerType = line.mid( nameKey.length() );
@@ -1271,7 +1271,7 @@ void isc( QPrintDialogPrivate * d,
 	  const QString & text,
 	  QPrinter::PageSize ps )
 {
-    if ( d && text && ps < QPrinter::NPageSize ) {
+    if ( d && !text.isEmpty() && ps < QPrinter::NPageSize ) {
 	d->sizeCombo->insertItem( text, -1 );
 	int index = d->sizeCombo->count()-1;
 	if ( index >= 0 && index < QPrinter::NPageSize )

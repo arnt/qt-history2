@@ -1691,7 +1691,7 @@ int main( int argc, char **argv )
 		} else {
 		    g->qtPath = opt.data()+1;
 		}
-		replace(g->qtPath.detach(),'\\','/');
+		replace(g->qtPath.data(),'\\','/');
 		if ( g->qtPath.right(1) != "/" )
 		    g->qtPath += '/';
 	    } else if ( opt == "v" ) {		// version number
@@ -2124,7 +2124,7 @@ inline bool isSpace( char x )
 static QCString rmWS( const char *src )
 {
     QCString result( qstrlen(src)+1 );
-    char *d = result.detach();
+    char *d = result.data();
     char *s = (char *)src;
     char last = 0;
     while( *s && isSpace(*s) )			// skip leading space
@@ -3370,7 +3370,7 @@ void generateClass()		      // generate C++ source code for a class
 
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
-		QCString type = it.current()->type.copy(); // detach on purpose
+		QCString type = it.current()->type;
 		if ( it.current()->oredEnum )
 		    type = it.current()->enumsettype;
 		if ( type == "uint" )

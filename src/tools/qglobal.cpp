@@ -745,8 +745,8 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     QByteArray s( obj );
     s += "::";
     s += oldfunc;
-    if ( obsoleteDict->find(s.data()) == 0 ) {
-	obsoleteDict->insert( s.data(), (int*)1 );	// anything different from 0
+    if ( obsoleteDict->find(s) == 0 ) {
+	obsoleteDict->insert( s, (int*)1 );	// anything different from 0
 	return TRUE;
     }
     return FALSE;

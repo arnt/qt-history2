@@ -542,7 +542,7 @@ void QFtpDTP::socketReadyRead()
     } else {
 	if ( !is_ba && data.dev ) {
 	    QByteArray ba( socket.bytesAvailable() );
-	    Q_LONG bytesRead = socket.readBlock( ba.detach(), ba.size() );
+	    Q_LONG bytesRead = socket.readBlock( ba.data(), ba.size() );
 	    if ( bytesRead < 0 ) {
 		// ### error handling
 		return;

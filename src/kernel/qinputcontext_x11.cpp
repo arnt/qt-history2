@@ -490,12 +490,12 @@ int QInputContext::lookupString(XKeyEvent *event, QByteArray &chars,
 
 #if !defined(QT_NO_XIM)
     if (qt_xim && ic) {
-	count = XmbLookupString((XIC) ic, event, chars.detach(),
+	count = XmbLookupString((XIC) ic, event, chars.data(),
 				chars.size(), key, status);
 
 	if ((*status) == XBufferOverflow ) {
 	    chars.resize(count + 1);
-	    count = XmbLookupString((XIC) ic, event, chars.detach(),
+	    count = XmbLookupString((XIC) ic, event, chars.data(),
 				    chars.size(), key, status);
 	}
     }

@@ -2048,7 +2048,7 @@ private:
     QMemArray<ushort> glyph2uni; // to speed up lookups
     bool           defective; // if we can't process this file
 
-    BYTE*   getTable(const char *);
+    const BYTE*   getTable(const char *);
     void uni2glyphSetup();
     unsigned short unicode_for_glyph(int glyphindex);
     unsigned short glyph_for_unicode(unsigned short unicode);
@@ -2075,9 +2075,9 @@ private:
     void subsetGlyph(int charindex,bool* glyphset);
 
     void charproc(int charindex, QTextStream& s, bool *glyphSet);
-    BYTE* charprocFindGlyphData(int charindex);
-    void charprocComposite(BYTE *glyph, QTextStream& s, bool *glyphSet);
-    void charprocLoad(BYTE *glyph, charproc_data* cd);
+    const BYTE* charprocFindGlyphData(int charindex);
+    void charprocComposite(const BYTE *glyph, QTextStream& s, bool *glyphSet);
+    void charprocLoad(const BYTE *glyph, charproc_data* cd);
 
     int target_type;                      /* 42 or 3 */
 
@@ -2094,12 +2094,12 @@ private:
     Fixed TTVersion;                      /* Truetype version number from offset table */
     Fixed MfrRevision;                    /* Revision number of this font */
 
-    BYTE *offset_table;           /* Offset table in memory */
-    BYTE *post_table;                     /* 'post' table in memory */
+    const BYTE *offset_table;           /* Offset table in memory */
+    const BYTE *post_table;                     /* 'post' table in memory */
 
-    BYTE *loca_table;                     /* 'loca' table in memory */
-    BYTE *glyf_table;                     /* 'glyf' table in memory */
-    BYTE *hmtx_table;                     /* 'hmtx' table in memory */
+    const BYTE *loca_table;                     /* 'loca' table in memory */
+    const BYTE *glyf_table;                     /* 'glyf' table in memory */
+    const BYTE *hmtx_table;                     /* 'hmtx' table in memory */
 
     USHORT numberOfHMetrics;
     int unitsPerEm;                       /* unitsPerEm converted to int */
@@ -2112,7 +2112,7 @@ private:
 };
 
 
-static ULONG getULONG(BYTE *p)
+static ULONG getULONG(const BYTE *p)
 {
   int x;
   ULONG val=0;
@@ -2125,7 +2125,7 @@ static ULONG getULONG(BYTE *p)
   return val;
 }
 
-static USHORT getUSHORT(BYTE *p)
+static USHORT getUSHORT(const BYTE *p)
 {
   int x;
   USHORT val=0;
@@ -2138,7 +2138,7 @@ static USHORT getUSHORT(BYTE *p)
   return val;
 }
 
-static Fixed getFixed(BYTE *s)
+static Fixed getFixed(const BYTE *s)
 {
   Fixed val={0,0};
 
@@ -2148,9 +2148,9 @@ static Fixed getFixed(BYTE *s)
   return val;
 }
 
-static FWord getFWord(BYTE* s)  { return (FWord)  getUSHORT(s); }
-static uFWord getuFWord(BYTE* s) { return (uFWord) getUSHORT(s); }
-static SHORT getSHORT(BYTE* s)  { return (SHORT)  getUSHORT(s); }
+static FWord getFWord(const BYTE* s)  { return (FWord)  getUSHORT(s); }
+static uFWord getuFWord(const BYTE* s) { return (uFWord) getUSHORT(s); }
+static SHORT getSHORT(const BYTE* s)  { return (SHORT)  getUSHORT(s); }
 
 #if 0
 static const char * const Apple_CharStrings[]={
@@ -2200,7 +2200,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
   data = d;
   defective = FALSE;
 
-  BYTE *ptr;
+  const BYTE *ptr;
 
   target_type = 3;  // will work on any printer
   //target_type = 42; // works with gs, faster, better quality
@@ -2216,7 +2216,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
       qWarning("The value of QT_TTFTOPS must be 42 or 3");
   }
 #endif
-  offset_table = (unsigned char*) data.data(); /* first 12 bytes */
+  offset_table = (const BYTE *)data.constData(); /* first 12 bytes */
 
   /* Determine how many directory entries there are. */
   numTables = getUSHORT( offset_table + 4 );
@@ -2261,7 +2261,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
   Copyright = "No copyright notice";
   Trademark = "No trademark notice";
 
-  BYTE* table_ptr = getTable("name");           /* pointer to table */
+  const BYTE* table_ptr = getTable("name");           /* pointer to table */
   if ( !table_ptr ) {
       defective = TRUE;
       qDebug("couldn't find name table" );
@@ -2270,7 +2270,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
   int numrecords = getUSHORT( table_ptr + 2 );  /* number of names */
   char* strings = (char *)table_ptr + getUSHORT( table_ptr + 4 ); /* start of string storage */
 
-  BYTE* ptr2 = table_ptr + 6;
+  const BYTE* ptr2 = table_ptr + 6;
   for(int x=0; x < numrecords; x++,ptr2+=12) {
       int platform = getUSHORT(ptr2);
     //int encoding = getUSHORT(ptr2+2);
@@ -2319,7 +2319,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
       }
   }
 #endif
-  BYTE *maxp = getTable("maxp");
+  const BYTE *maxp = getTable("maxp");
   if ( !maxp ) {
       defective = TRUE;
       qDebug("no maxp table in font");
@@ -2567,8 +2567,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     /* we are generating the CharStrings. */
     if(target_type == 3)
     {
-        BYTE *ptr;                        /* We need only one value */
-        ptr = getTable("hhea");
+        const BYTE *ptr = getTable("hhea");
         numberOfHMetrics = getUSHORT(ptr + 34);
 
         loca_table = getTable("loca");
@@ -2748,9 +2747,9 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << "%%EndFont\n";
 }
 
-BYTE* QPSPrinterFontTTF::getTable(const char* name)
+const BYTE* QPSPrinterFontTTF::getTable(const char* name)
 {
-    BYTE *ptr;
+    const BYTE *ptr;
     int x;
 
     /* We must search the table directory. */
@@ -2760,7 +2759,7 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
         if( strncmp((const char *)ptr,name,4) == 0 ) {
             ULONG offset;
             //ULONG length;
-            BYTE *table;
+            const BYTE *table;
 
             offset = getULONG( ptr + 8 );
             //length = getULONG( ptr + 12 );
@@ -2784,7 +2783,7 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   glyph2uni.resize(65536);
   for (i=0; i<65536; i++) glyph2uni[i] = 0x0000;
 
-  unsigned char* cmap = getTable("cmap");
+  const BYTE* cmap = getTable("cmap");
   int pos = 0;
 
   //USHORT version = getUSHORT(cmap + pos);
@@ -2828,10 +2827,10 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   pos += 2;
   pos += 2;
 
-  unsigned char* endcode    = cmap + offset + 14;
-  unsigned char* startcode  = cmap + offset + 16 + 2*segcount;
-  unsigned char* iddelta    = cmap + offset + 16 + 4*segcount;
-  unsigned char* idrangeoff = cmap + offset + 16 + 6*segcount;
+  const BYTE* endcode    = cmap + offset + 14;
+  const BYTE* startcode  = cmap + offset + 16 + 2*segcount;
+  const BYTE* iddelta    = cmap + offset + 16 + 4*segcount;
+  const BYTE* idrangeoff = cmap + offset + 16 + 6*segcount;
   //unsigned char* glyphid    = cmap + offset + 16 + 8*segcount;
   for (i=0; i<segcount; i++) {
     USHORT endcode_i    = getUSHORT(endcode   +2*i);
@@ -3534,7 +3533,7 @@ static void PSConvert(QTextStream& s, charproc_data* cd)
 ** The pointer "glyph" should point 10 bytes into
 ** the glyph data.
 */
-void QPSPrinterFontTTF::charprocLoad(BYTE *glyph, charproc_data* cd)
+void QPSPrinterFontTTF::charprocLoad(const BYTE *glyph, charproc_data* cd)
 {
   int x;
   BYTE c, ct;
@@ -3646,7 +3645,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
   //printf("subsetting %s ==> ",glyphName(charindex).latin1());
 
   /* Get a pointer to the data. */
-  BYTE* glyph = charprocFindGlyphData( charindex );
+  const BYTE* glyph = charprocFindGlyphData( charindex );
 
   /* If the character is blank, it has no bounding box, */
   /* otherwise read the bounding box. */
@@ -3699,7 +3698,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
 /*
 ** Emmit PostScript code for a composite character.
 */
-void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s, bool *glyphSet)
+void QPSPrinterFontTTF::charprocComposite(const BYTE *glyph, QTextStream& s, bool *glyphSet)
 {
   USHORT flags;
   USHORT glyphIndex;
@@ -3808,7 +3807,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s, bool *gly
 /*
 ** Return a pointer to a specific glyph's data.
 */
-BYTE* QPSPrinterFontTTF::charprocFindGlyphData(int charindex)
+const BYTE* QPSPrinterFontTTF::charprocFindGlyphData(int charindex)
 {
   ULONG off;
   ULONG length;
@@ -3845,7 +3844,7 @@ void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s, bool *glyphSet )
 #endif
 
   /* Get a pointer to the data. */
-  BYTE* glyph = charprocFindGlyphData( charindex );
+  const BYTE* glyph = charprocFindGlyphData( charindex );
 
   /* If the character is blank, it has no bounding box, */
   /* otherwise read the bounding box. */
@@ -3926,7 +3925,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFontEngine *f, QByteArray& d)
   data = d;
 
   int pos = 0;
-  const char* p = data.data();
+  const char* p = data.constData();
   QString fontname;
 
   if (p[ pos ] != '%' || p[ pos+1 ] != '!') { // PFA marker
@@ -3950,7 +3949,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFontEngine *f, QByteArray& d)
 void QPSPrinterFontPFA::download(QTextStream& s, bool global)
 {
     //qDebug("downloading pfa font %s", psname.latin1() );
-  char* p = data.detach();
+  char* p = data.data();
 
   emitPSFontNameList( s, psname, replacementList );
   s << "% Font resource\n";
@@ -3978,7 +3977,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFontEngine *f, QByteArray& d)
   int pos = 0;
   int len;
   //  int typ;
-  unsigned char* p = (unsigned char*) data.data();
+  const BYTE* p = (const BYTE *)data.constData();
   QString fontname;
 
   if (p[ pos ] != 0x80) { // PFB marker
@@ -4011,7 +4010,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFontEngine *f, QByteArray& d)
 void QPSPrinterFontPFB::download(QTextStream& s, bool global)
 {
     //qDebug("downloading pfb font %s", psname.latin1() );
-  unsigned char* p = (unsigned char*) data.data();
+  const BYTE* p = (const BYTE *)data.constData();
   int pos;
   int len;
   int typ;
@@ -4922,13 +4921,13 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 	    data = QByteArray( fontfile.size() );
 
 	    fontfile.open(IO_Raw | IO_ReadOnly);
-	    fontfile.readBlock(data.detach(), fontfile.size());
+	    fontfile.readBlock(data.data(), fontfile.size());
 	    fontfile.close();
 	}
     }
 
     if (!data.isNull() && data.size() > 0) {
-        unsigned char* d = (unsigned char *)data.data();
+        const BYTE* d = (const BYTE *)data.constData();
         if (d[0] == 0x80 && d[6] == '%' && d[7] == '!' && d[8] == 'P' && d[9] == 'S' )
             type = PFB;
         else if (d[0] == '%' && d[1] == '!' && d[2] == 'P' && d[3] == 'S')
@@ -5886,12 +5885,12 @@ void QPSPrinterPrivate::emitHeader( bool finished )
           it.current()->download(outStream,TRUE); // true means its global
           ++it;
                 }
-        outStream.writeRawBytes( fontBuffer->buffer().data(),
+        outStream.writeRawBytes( fontBuffer->buffer(),
                               fontBuffer->buffer().size() );
     }
     outStream << "%%EndSetup\n";
 
-    outStream.writeRawBytes( buffer->buffer().data(),
+    outStream.writeRawBytes( buffer->buffer(),
                           buffer->buffer().size() );
 
     delete buffer;
@@ -6048,7 +6047,7 @@ void QPSPrinterPrivate::flushPage( bool last )
     }
     outStream  << "%%EndPageSetup\n";
     if ( pageBuffer )
-	outStream.writeRawBytes( pageBuffer->buffer().data(),
+	outStream.writeRawBytes( pageBuffer->buffer(),
 				 pageBuffer->buffer().size() );
     outStream << "\nQP\n";
     pageCount++;

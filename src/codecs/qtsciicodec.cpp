@@ -134,7 +134,7 @@ QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
 	*cursor++ = j;
     }
-    lenInOut = cursor - (uchar*)rstr.data();
+    lenInOut = cursor - (const uchar*)rstr.constData();
     *cursor = 0;
     return rstr;
 }

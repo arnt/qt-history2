@@ -980,7 +980,7 @@ qstring_to_xtp( const QString& s )
     if ( mapper ) {
 	QByteArray mapped = mapper->fromUnicode(s);
 	char* tl[2];
-	tl[0] = mapped.detach();
+	tl[0] = mapped.data();
 	tl[1] = 0;
 	errCode = XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
 					     tl, 1, XStdICCTextStyle, &tp );
