@@ -246,6 +246,18 @@ accordingly.
 MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
 contains 'three two three'.
 
+\section2 system( program_and_args )
+
+This will return the stdout/stderr of the program executed, and parse it as
+normally expected. You can use this to interrogate information about the
+platform for example.
+
+\code
+  UNAME = $$system(uname -s)
+  contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
+}
+\endocode
+
 \section1 Test Functions
 
 \e qmake provides built-in functions that perform simple, yet powerful

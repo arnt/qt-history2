@@ -71,6 +71,30 @@ static QString varMap(const QString &x)
     return ret;
 }
 
+static QStringList split_arg_list(const QString &params)
+{
+    QStringList args;
+    int last = 0, parens = 0;
+    QChar quote = 0;
+    for(int x = 0; x < (int)params.length(); x++) {
+	if(params[x] == ')') {
+	    parens--;
+	} else if(params[x] == '(') {
+	    parens++;
+	} else if(params[x] == quote) {
+	    quote = 0;
+	} else if(params[x] == '\'' || params[x] == '"') {
+	    quote = params[x];
+	} else if(!parens && !quote && params[x] == ',') {
+	    args << params.mid(last, x - last);
+	    last = x+1;
+	}
+    }
+    if(last != (int)params.length())
+	args << params.mid(last);
+    return args;
+}
+
 QMakeProject::QMakeProject()
 {
 }
@@ -578,33 +602,24 @@ QMakeProject::isActiveConfig(const QString &x)
 bool
 QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, QStringList> &place)
 {
-    QStringList args;
-    int last = 0;
-    QChar quote = 0;
-    for(int x = 0; x < (int)params.length(); x++) {
-	if(params[x] == quote) {
-	    quote = 0;
-	} else if(params[x] == '\'' || params[x] == '"') {
-	    quote = params[x];
-	} else if(!quote && params[x] == ',') {
-	    args << params.mid(last, x - last);
-	    last = x+1;
-	}
-    }
-    if(last != (int)params.length())
-	args << params.mid(last);
+    QStringList args = split_arg_list(params);
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
 	QString tmp = (*arit).stripWhiteSpace();
 	if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
 	    tmp = tmp.mid(1, tmp.length() - 2);
-	(*arit) = tmp.stripWhiteSpace();
     }
     return doProjectTest(func.stripWhiteSpace(), args, place);
 }
 
 bool
-QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
+QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStringList> &place)
 {
+    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+	(*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
+	doVariableReplace((*arit), place);
+    }
+    debug_msg(1, "Running project test: %s( %s )", func.latin1(), args.join("::").latin1());
+
     if(func == "requires") {
 	return doProjectCheckReqs(args, place);
     } else if(func == "exists") {
@@ -641,7 +656,13 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 		    parser.line_no);
 	    return FALSE;
 	}
-	return vars[args[0]].findIndex(args[1]) != -1;
+	QRegExp regx(args[1]);
+	QStringList &l = place[args[0]];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(regx.exactMatch((*it))) 
+		return TRUE;
+	}
+	return FALSE;
     } else if(func == "infile") {
 	if(args.count() < 2 || args.count() > 3) {
 	    fprintf(stderr, "%s:%d: infile(file, var, val) requires at least 2 arguments.\n",
@@ -670,10 +691,18 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    QDir::setCurrent(oldpwd);
 	    return FALSE;
 	}
-	if(args.count() == 2 || proj.isEmpty(args[1]))
-	    ret = FALSE;
-	else
-	    ret = (proj.values(args[1]).findIndex(args[2]) != -1);
+	if(args.count() == 2) {
+	    ret = !proj.isEmpty(args[1]);
+	} else {
+	    QRegExp regx(args[2]);
+	    QStringList &l = proj.values(args[1]);
+	    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+		if(regx.exactMatch((*it))) {
+		    ret = TRUE;
+		    break;
+		}
+	    }
+	}
 	QDir::setCurrent(oldpwd);
 	return ret;
     } else if(func == "count") {
@@ -796,9 +825,12 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    if(x == 2) {//environment
 		replacement = getenv(reg_var.cap(1));
 	    } else if(x == 0 || x == 3) { //function
-		QStringList args = QStringList::split(',', reg_var.cap(2));
-		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+		QStringList args = split_arg_list(reg_var.cap(2));
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
 		    (*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
+		    doVariableReplace((*arit), place);
+		}
+		debug_msg(1, "Running function: %s( %s )", reg_var.cap(1).latin1(), args.join("::").latin1());
 		if(reg_var.cap(1).lower() == "member") {
 		    if(args.count() < 1 || args.count() > 2) {
 			fprintf(stderr, "%s:%d: member(var, place) requires two arguments.\n",
@@ -811,6 +843,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			if(var.count() >= pos)
 			    replacement = var[pos];
 		    }
+		} else if(reg_var.cap(1).lower() == "list") {
+		    static int x = 0;
+		    replacement.sprintf("QMAKE_INTERNAL_TMP_VAR_%d", x++);
+		    (*((QMap<QString, QStringList>*)&place))[replacement] = args;
 		} else if(reg_var.cap(1).lower() == "join") {
 		    if(args.count() < 1 || args.count() > 4) {
 			fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
@@ -854,6 +890,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    int read_in = fread(buff, 1, 255, proc);
 			    if(!read_in)
 				break;
+			    for(int i = 0; i < read_in; i++) {
+				if(buff[i] == '\n' || buff[i] == '\t')
+				    buff[i] = ' ';
+			    }
 			    buff[read_in] = '\0';
 			    replacement += buff;
 			}
@@ -869,7 +909,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    replacement = place[varMap(reg_var.cap(1))].join(" ");
 	    }
 	    debug_msg(2, "Project parser: %d (%s) :: %s -> %s", x, str.latin1(),
-		   reg_var.cap(0).latin1(), replacement.latin1());
+		      reg_var.capturedTexts().join("::").latin1(), replacement.latin1());
 	    str.replace(rep, reg_var.matchedLength(), replacement);
 	}
     }

@@ -1,3 +1,7 @@
+1.03a -
+
+  New function $$system() to extract the value of a shell call.
+
 1.02a -
 
   Dependancy / Mocable caching. qmake can cache these expensive operations with qmake_cache
