@@ -68,7 +68,6 @@ static QTextCursor* richTextExportEnd = 0;
 
 class QTextFormatCollection;
 
-static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
 const int border_tolerance = 2;
 
 #ifdef Q_WS_WIN
@@ -4929,15 +4928,9 @@ QTextFormatCollection *QTextParagraph::formatCollection() const
 {
     if ( hasdoc )
 	return document()->formatCollection();
-    if ( !qFormatCollectionDict )
-	qFormatCollectionDict = new QPtrDict<QTextFormatCollection>;
-
-    QTextFormatCollection *fc = qFormatCollectionDict->find( (void*)paintdevice );
-    if ( !fc ) {
-	fc = new QTextFormatCollection;
-	qFormatCollectionDict->replace( (void*)paintdevice, fc );
+    QTextFormatCollection* fc = &pseudoDocument()->collection;
+    if ( paintdevice != fc->paintDevice() )
 	fc->setPaintDevice( paintdevice );
-    }
     return fc;
 }
 

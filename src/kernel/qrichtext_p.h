@@ -1143,17 +1143,7 @@ public:
     virtual void join( QTextParagraphData * );
 };
 
-class Q_EXPORT QTextParagraphPseudoDocument
-{
-public:
-    QTextParagraphPseudoDocument();
-    ~QTextParagraphPseudoDocument();
-    QRect docRect;
-    QTextFormatter *pFormatter;
-    QTextCommandHistory *commandHistory;
-    int minw;
-    int wused;
-};
+class QTextParagraphPseudoDocument;
 
 class QSyntaxHighlighter;
 
@@ -1628,6 +1618,19 @@ private:
     int cflags;
 
     QPaintDevice *paintdevice;
+};
+
+class Q_EXPORT QTextParagraphPseudoDocument
+{
+public:
+    QTextParagraphPseudoDocument();
+    ~QTextParagraphPseudoDocument();
+    QRect docRect;
+    QTextFormatter *pFormatter;
+    QTextCommandHistory *commandHistory;
+    int minw;
+    int wused;
+    QTextFormatCollection collection;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
