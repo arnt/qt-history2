@@ -133,6 +133,11 @@ class QObject::QObjectPrivate
   All Qt widgets inherit QObject. The convenience function
   isWidgetType() returns whether an object is actually a widget.  It
   is much faster than inherits( "QWidget" ).
+
+    Some QObject functions, e.g. children(), objectTrees() and
+    queryList() return a QObjectList. A QObjectList is a QPtrList of
+    QObjects. QObjectLists support the same operations as QPtrLists and
+    have an iterator class, QObjectListIt.
 */
 
 
@@ -2266,3 +2271,6 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
 }
 
 #endif
+
+
+
