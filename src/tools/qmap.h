@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#23 $
+** $Id: //depot/qt/main/src/tools/qmap.h#24 $
 **
 ** Definition of QMap class
 **
@@ -578,7 +578,7 @@ QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 template<class Key, class T>
 QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << m.count();
-    QMap<Key,T>::ConstIterator it = m.begin();
+    QMapConstIterator<Key,T> it = m.begin();
     for( ; it != m.end(); ++it )
 	s << it.key() << it.data();
     return s;
