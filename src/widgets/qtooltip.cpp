@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#30 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#30 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.24 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.25 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -724,7 +724,7 @@ void QToolTip::clear()
   Returns the tool tip group this QToolTip is a member of, of 0 if it
   isn't a member of any group.
 
-  The tool tip group is the object responsible relaying contact
+  The tool tip group is the object responsible for relaying contact
   betweeen tool tips and a status bar or something else which can show
   a longer help text.
 
@@ -738,9 +738,9 @@ void QToolTip::clear()
   \brief The QToolTipGroup class provides a way to group tool tips
   into natural groups.
 
-  Tool tips can display \e two texts, the one in the tip an optionally
-  another one, typically in a status bar.  QTooTipGroup provides a way
-  to link tool tips to this status bar.
+  Tool tips can display \e two texts, the one in the tip and
+  optionally another one, typically in a status bar.  QTooTipGroup
+  provides a way to link tool tips to this status bar.
 
   QToolTipGroup has practically no API, it is only used as an argument
   to QToolTip's member functions, for example like this:
