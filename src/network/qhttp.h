@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.h#16 $
+** $Id: //depot/qt/main/src/network/qhttp.h#17 $
 **
 ** Definition of QHtpp and related classes.
 **
@@ -54,7 +54,7 @@ class QHttpReplyHeader;
 class QHttpClient;
 class QHttpPrivate;
 
-class QHttp : public QNetworkProtocol
+class Q_EXPORT QHttp : public QNetworkProtocol
 {
     Q_OBJECT
 
