@@ -3743,7 +3743,7 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
 void QFileDialog::fileNameEditDone()
 {
     QUrlInfo f( d->url, nameEdit->text() );
-    if ( mode() != ExistingFiles ) {
+    if ( mode() != QFileDialog::ExistingFiles ) {
 	QUrlOperator u( d->url, QFileDialogPrivate::encodeFileName( nameEdit->text() ) );
 	trySetSelection( f.isDir(), u, FALSE );
 	if ( d->preview && d->preview->isVisible() ) {
@@ -4237,7 +4237,7 @@ void QFileDialog::setMode( Mode newMode )
 	}
 	rereadDir();
 	QUrlInfo f( d->url, "." );
-	trySetSelection( f.isDir(), d->url, TRUE );
+	trySetSelection( f.isDir(), d->url, FALSE );
     }
 
     QString okt;
