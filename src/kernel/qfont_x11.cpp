@@ -1782,7 +1782,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		resy = atoi(tokens[ResolutionY]);
 	    }
 	    pSize = (int)pixelSize( request, paintdevice );
-	    qDebug("requesting font with %d pixels", pSize );
+	    //qDebug("requesting font with %d pixels", pSize );
 
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
