@@ -86,6 +86,7 @@ public:
     void setFileName( const QString& fileName ) { fnam = fileName; }
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }
+    void setPreliminary( bool preliminary ) { prel = preliminary; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
     void setKeywords( const StringSet& keywords ) { kwords = keywords; }
     void setGroups( const StringSet& groups ) { gr = groups; }
@@ -102,6 +103,7 @@ public:
     const QString& fileName() const { return fnam; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
+    bool preliminary() const { return prel; }
     QString htmlSeeAlso() const;
     const StringSet& groups() const { return gr; }
     const StringSet& dependsOn() const { return deps; }
@@ -130,6 +132,7 @@ private:
     QStringList sa;
     bool inter;
     bool obs;
+    bool prel;
     QString q;
     StringSet kwords;
     StringSet gr;

@@ -663,6 +663,13 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.setSubHeading( QString("[obsolete]") );
 
     if ( classDoc() != 0 ) {
+	if ( classDoc()->preliminary() )
+	    out.putsMeta( "<p><center><font color=\"red\"><b>The API for this"
+			  " class is under development and is subject to"
+			  " change.</b><br>\n"
+			  " We do not recommend the use of this class for"
+			  " production work at this time.</font></center>\n" );
+
 	out.putsMeta( "<p>" );
 	out.putsMeta( classDoc()->brief() );
 	out.puts( "\n" );

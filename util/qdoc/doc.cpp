@@ -471,6 +471,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     StringSet documentedParams, documentedValues;
     QStringList seeAlso, important, footnotes;
     bool obsolete = FALSE;
+    bool preliminary = FALSE;
     int base;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -905,8 +906,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "omit" );
 		end = yyIn.find( QString("\\endomit"), yyPos );
 		if ( end == -1 )
-		    end = yyIn.length();
-		yyPos = end;
+		    yyPos = yyIn.length();
+		else
+		    yyPos = end + 8;
 		break;
 	    case hash( 'o', 8 ):
 		if ( command.length() != 8 )
@@ -1016,6 +1018,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		enterWalkthroughSnippet();
 		yyOut += QString( "\\printuntil " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
+		break;
+	    case hash( 'p', 11 ):
+		consume( "preliminary" );
+		preliminary = TRUE;
+		if ( kindIs != Doc::Class ) {
+		    // classes are taken care of elsewhere
+		    yyOut += QString( "<p><b>This %1 is under development and"
+				      " is subject to change.</b>\n" )
+				.arg( what(kindIs) );
+		    metNL = TRUE;
+		}
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -1290,6 +1303,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     }
     doc->setInternal( internal );
     doc->setObsolete( obsolete );
+    doc->setPreliminary( preliminary );
     doc->setSeeAlso( seeAlso );
     doc->setKeywords( keywords );
     doc->setGroups( groups );
@@ -2032,7 +2046,7 @@ QString Doc::htmlExtensionList()
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText,
 	  const QString& name, const QString& whatsThis )
     : html( htmlText ), ki( kind ), lo( loc ), nam( name ), whats( whatsThis ),
-      inter( FALSE ), obs( FALSE )
+      inter( FALSE ), obs( FALSE ), prel( FALSE )
 {
 }
 
