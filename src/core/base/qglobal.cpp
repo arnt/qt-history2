@@ -164,7 +164,7 @@ unsigned char *p_str(const char * c, int len=-1)
 
 unsigned char * p_str(const QString &s)
 {
-    return p_str(s, s.length());
+    return p_str(s.latin1(), s.length());
 }
 
 int qMacVersion()
