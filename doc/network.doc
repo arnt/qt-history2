@@ -33,6 +33,11 @@
 **
 **********************************************************************/
 
+/*
+    The text here is due to be replaced by networking.doc, once that's
+    ready.
+*/
+
 /*!
 \page network.html
 
@@ -46,37 +51,36 @@ This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 \section1 Introduction
 
 The network module offers classes to make network programming easier
-and portable. Basically there are three sets of classes, first very
-basic classes like \l QSocket, \l QServerSocket, \l QDns, etc. which
-allow to work in a portable way with TCP/IP sockets. In addition,
+and portable. Essentially, there are three sets of classes, first low
+level classes like \l QSocket, \l QServerSocket, \l QDns, etc. which
+allow you to work in a portable way with TCP/IP sockets. In addition,
 there are classes like \l QNetworkProtocol, \l QNetworkOperation in
 the Qt base library, which provide an abstract layer for implementing
 network protocols and \c QUrlOperator which operates on such network
 protocols. Finally the third set of network classes are the passive
-ones, namely \c QUrl and \c QUrlInfo which do URL parsing and similar
-stuff.
+ones, specifically \c QUrl and \c QUrlInfo which do URL parsing and
+similar.
 
-The first set of classes (\l QSocket, \l QServerSocket, \l QDns, \l QFtp, etc.)
-are included in the "network" module of Qt.
+The first set of classes (\l QSocket, \l QServerSocket, \l QDns, \l
+QFtp, etc.) are included in Qt's "network" module.
 
 The QSocket classes are not directly related to the QNetwork classes,
 but QSocket should and will be used for implementing network
-protocols, which are directly related to the QNetwork
-classes. E.g. the QFtp class (implementation of the FTP protocol) uses
+protocols, which are directly related to the QNetwork classes. For
+example, the QFtp class (which implements the FTP protocol) uses
 QSockets. But QSockets don't need to be used for protocol
 implementations, e.g. QLocalFs (which is an implementation of the
-local filesystem as network protocol) uses QDir and no QSocket. Using
-QNetworkProtocols you can implement everything which fits into a
-hierarchical structure and can be accessed using URLs. This could be
-e.g. a protocol which can read pictures from a digital camera using a
-serial connection.
+local filesystem as network protocol) uses QDir and doesn't use
+QSocket. Using QNetworkProtocols you can implement everything which
+fits into a hierarchical structure and can be accessed using URLs.
+This could be, for example, a protocol which can read pictures from a
+digital camera using a serial connection.
 
 
+\section1 Working Network Protocol independently with QUrlOperator and QNetworkOperation
 
-\section1 Working Network Protocol independent with QUrlOperator and QNetworkOperation
-
-To just use existing network protocol implementations and operate on
-URLs using them is quite easy. E.g. downloading a file from an FTP
+It is quite easy to just use existing network protocol implementations
+and operate on URLs. For example, downloading a file from an FTP
 server to the local filesystem can be done with following code:
 
 \code
@@ -84,49 +88,56 @@ server to the local filesystem can be done with following code:
     op.copy( "ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz", "file:/tmp", FALSE );
 \endcode
 
-And that's all! Of course an implementation of the FTP protocol has to be available
-and registered for doing that. More information on that later.
+And that's all! Of course an implementation of the FTP protocol has to
+be available and registered for doing that. More information on that
+later.
 
-You can also do stuff like creating directories, removing files, renaming, etc. E.g. to
-create a folder on a private FTP account do
+You can also do things like creating directories, removing files,
+renaming, etc. For example, to create a folder on a private FTP
+account do
 
 \code
     QUrlOperator op( "ftp://username:password@host.domain.no/home/username" );
     op.mkdir( "New Directory" );
 \endcode
 
-That's it again. To see all available operations, look at the \c QUrlOperator class
+To see all available operations, look at the \c QUrlOperator class
 documentation.
 
-Now as everything works asynchronous, the function call for an operation returns
-before the operation has been processed. So you don't get a return value which
-tells you something about failure or success. The return value always is a pointer
-to a \c QNetworkOperation.
+Since networking works asynchronously, the function call for an
+operation will normally return before the operation has been
+completed. This means that the function cannot return a value
+indicating failure or success. Instead, the return value always is a
+pointer to a \c QNetworkOperation, and this object stores
+all the information about the operation.
 
-In this \c QNetworkOperation all information about the operation is stored.
-There is e.g. a method of \c QNetworkOperation which returns the state of
-this operation. Using that you can find out all the time in which state the operation
-currently is. Also you get the arguments you passed to the \c QUrlOperator
-method, the type of the operation and some more stuff from this \c QNetworkOperation
-object. For more details see the class documentation of \c QNetworkOperation.
+For example, \c QNetworkOperation has a method which returns
+the state of this operation. Using that you can find out all the time
+in which state the operation currently is. Also you get the arguments
+you passed to the \c QUrlOperator method, the type of the operation
+and some more stuff from this \c QNetworkOperation object. For more
+details see the class documentation of \c QNetworkOperation.
 
-Now, later you get signals emitted by the \c QUrlOperator, which inform you about the process
-of the operations. As you can call many methods which operate on a URL of one
-\c QUrlOperator, it queues up all these operations. So you can't know which operation
-the \c QUrlOperator just processes. Because of this you get in each signal as the last argument
-a pointer to the \c QNetworkOperation object which is just processed and from which this
-signal comes.
+Now, later you get signals emitted by the \c QUrlOperator, which
+inform you about the process of the operations. As you can call many
+methods which operate on a URL of one \c QUrlOperator, it queues up
+all these operations. So you can't know which operation the \c
+QUrlOperator just processes. Because of this you get in each signal as
+the last argument a pointer to the \c QNetworkOperation object which
+is just processed and from which this signal comes.
 
-Some of these operations send a \c start() signal at the beginning (depending if it makes
-sense or not), then some of them send some signals during processing the operation,
-and \e all operations send a \c finished() signal after they are done. Now, finished
-could mean that the operation has been successfully finished or that it failed. To find
-that out you can use the \c QNetworkOperation pointer you got with the \c finished()
-signal. If \c QNetworkOperation::state() equals \c QNetworkProtocol::StDone the
-operation finished successful, if it is \c QNetworkProtocol::StFailed the operation failed.
+Some of these operations send a \c start() signal at the beginning
+(depending if it makes sense or not), then some of them send some
+signals during processing the operation, and \e all operations send a
+\c finished() signal after they are done. Now, finished could mean
+that the operation has been successfully finished or that it failed.
+To find that out you can use the \c QNetworkOperation pointer you got
+with the \c finished() signal. If \c QNetworkOperation::state() equals
+\c QNetworkProtocol::StDone the operation finished successful, if it
+is \c QNetworkProtocol::StFailed the operation failed.
 
-Now, a slot which you connected to the \c QUrlOperator::finished( QNetworkOperation * )
-signal could look like this
+Now, a slot which you connected to the \c QUrlOperator::finished(
+QNetworkOperation * ) signal could look like this
 
 \code
 

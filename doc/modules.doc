@@ -40,10 +40,9 @@
 When you install Qt, certain modules are built into the library. For
 the Qt Enterprise Edition, Qt Evaluation Edition and Qt Free Edition
 this is all modules. For Qt Professional Edition, the base modules
-are available -
-the \e{tools}, \e{kernel}, \e{widgets}, \e{dialog},
-\e{iconview}, and \e{workspace} modules.
-Trolltech does not currently offer modules for sale individually.
+are available: the \e{tools}, \e{kernel}, \e{widgets}, \e{dialog},
+\e{iconview}, and \e{workspace} modules. Trolltech does not currently
+offer modules for sale individually.
 
 All modules may be used only under the terms of the licenses associated
 with each Edition.
@@ -71,10 +70,10 @@ with each Edition.
 
 \title IconView Module
 
-The icon view module provides a powerful visualization widget dubbed
+The icon view module provides a powerful visualization widget called
 \l QIconView. API and feature-wise it is similar to \l QListView and
 \l QListBox. It contains optionally labelled pixmap items that the user
-can select, drag around, rename, delete and more.
+can select, drag around, rename, delete, etc.
 
 <center><a href="qiconview.html"><img src="qiconview-w.png" alt="Screenshot of QIconVIew"></a></center>
 
@@ -87,7 +86,7 @@ details.
 \title Workspace Module
 
 The workspace module provides a workspace window that can contain
-decorated document windows for Multi Document Interfaces (MDI).
+decorated document windows for Multiple Document Interfaces (MDI).
 
 It is implemented in a single class \l QWorkspace.
 

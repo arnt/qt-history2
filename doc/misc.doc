@@ -38,24 +38,24 @@
 
 Qt is a multiplatform C++ GUI application framework. It provides
 application developers with all the functionality needed to build
-state-of-the-art graphical user interfaces. Qt is fully
-object-oriented, easily extensible, and allows true component
+applications with state-of-the-art graphical user interfaces. Qt is
+fully object-oriented, easily extensible, and allows true component
 programming.
 
-Since its commercial introduction in early
-1996, Qt has formed the basis of many thousands of successful
-applications worldwide. Qt is also the basis of the popular
-\link http://www.kde.org/ KDE \endlink Linux
-desktop environment, a standard component of all major Linux distributions.
+Since its commercial introduction in early 1996, Qt has formed the
+basis of many thousands of successful applications worldwide. Qt is
+also the basis of the popular \link http://www.kde.org/ KDE \endlink
+Linux desktop environment, a standard component of all major Linux
+distributions.
 
 Qt is supported on the following platforms:
 
 \list
- \i <b>MS/Windows</b> - 95, 98, NT 4.0, ME, and 2000
- \i <b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
+ \i <b>MS/Windows</b> -- 95, 98, NT 4.0, ME, and 2000
+ \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
 	    IBM AIX, SGI IRIX and a wide range of others
- \i <b>Macintosh</b> - Mac OS X
- \i <b>Embedded</b> - Linux platforms with framebuffer support.
+ \i <b>Macintosh</b> -- Mac OS X
+ \i <b>Embedded</b> -- Linux platforms with framebuffer support.
 \endlist
 
 Qt is a product of \link troll.html Trolltech\endlink.
@@ -63,28 +63,27 @@ Qt is a product of \link troll.html Trolltech\endlink.
 Qt is released in different \link editions.html editions\endlink:
 
 <dl>
-<dd><b>Qt Enterprise \link editions.html Edition\endlink</b> and <b>Qt Professional \link editions.html Edition\endlink</b>
-provide for commercial software development.
-They permits traditional commercial software
-distribution and includes free upgrades and Technical Support
-Service. For the latest prices, please see the Trolltech web site,
-\link http://www.trolltech.com/pricing.html Pricing and Availability\endlink
-page, or contact \link mailto:sales@trolltech.com sales@trolltech.com\endlink.
-The Enterprise Edition offers \link modules.html extended modules
-\endlink over the Professional Edition.
+<dd><b>Qt Enterprise \link editions.html Edition\endlink</b> and <b>Qt
+Professional \link editions.html Edition\endlink</b> provide for
+commercial software development. They permit traditional commercial
+software distribution and include free upgrades and Technical Support.
+For the latest prices, please see the Trolltech web site,
+\link http://www.trolltech.com/pricing.html Pricing and
+Availability\endlink page, or contact \link mailto:sales@trolltech.com
+sales@trolltech.com\endlink. The Enterprise Edition offers additional \link
+modules.html modules \endlink compared to the Professional Edition.
 
-<dd><b>Qt Free \link editions.html Edition\endlink</b> is the Unix/X11 version of Qt
-available for development of \e {Free and Open Source software}
-only. It is provided free of charge under the terms of both the
-\link license.html Q Public License\endlink and the
-\link gpl.html GNU General Public License\endlink.
-The latest version is available for
-\link http://www.trolltech.com/dl/qtfree-dl.html download\endlink.
+<dd><b>Qt Free \link editions.html Edition\endlink</b> is the Unix/X11
+version of Qt available for development of \e {Free and Open Source
+software} only. It is provided free of charge under the terms of both
+the \link license.html Q Public License\endlink and the \link gpl.html
+GNU General Public License\endlink. The latest version is available
+for \link http://www.trolltech.com/dl/qtfree-dl.html download\endlink.
 
-<dd><b>Qt/Embedded Free \link editions.html Edition\endlink</b> is the Embedded version of Qt
-available for development of \e {Free software}
-only. It is provided free of charge under the terms of the
-\link gpl.html GNU General Public License\endlink.
+<dd><b>Qt/Embedded Free \link editions.html Edition\endlink</b> is the
+Embedded version of Qt available for development of \e {Free software}
+only. It is provided free of charge under the terms of the \link
+gpl.html GNU General Public License\endlink.
 
 </dl>
 */
@@ -312,7 +311,7 @@ X Input Focus to a widget's top level window.
 \title How to Report A Bug
 
 If you think you have found a bug in Qt, we would like to hear
-about it so we can fix it.
+about it so that we can fix it.
 
 Before reporting a bug, please check the
 \link http://www.trolltech.com/developer/faqs/ FAQs\endlink and
@@ -894,7 +893,7 @@ services.
 
 Our flagship product is
 \link http://www.trolltech.com/products/qt.html Qt\endlink, the
-multi-platform, C++ Graphical User Interfaces toolkit. Qt enables you
+multi-platform, C++ Graphical User Interface toolkit. Qt enables you
 to build professional, efficient, portable and maintainable GUI
 applications quickly and easily.
 
@@ -918,9 +917,9 @@ most qualified developers and designers themselves.
 Trolltech was founded in 1994. The core team of designers at
 Trolltech started developing Qt in 1992, and since then Qt has
 steadily expanded and improved. The first commercial version of Qt
-was in 1995. Since then, Trolltech has experienced rapid growth, and
-Qt is currently used in hundreds of successful software development
-projects world wide.
+was released in 1995. Since then, Trolltech has experienced rapid
+growth, and Qt is currently used in thousands of successful software
+development projects world wide.
 
 \section1 Contact Information
 
@@ -1008,11 +1007,11 @@ pages provide information about how to secure your server.
 Trolltech operates several mailing lists for Qt users including
 \c qt-announce, \c qt-interest and \c snapshot-users.
 
-See \l{http://www.trolltech.com/developer/mailinglists/}.
+See \l{http://lists.trolltech.com}.
 
 \section1 qt-announce
 
-The subscribers to this mailing list receives all official Trolltech
+The subscribers to this mailing list receive all official Trolltech
 announcements when new versions of Qt and other Trolltech products
 are released, and other Trolltech announcements of general interest.
 
@@ -1085,12 +1084,12 @@ ensure the mailing lists are virtually free from spam.</small>
 \title Books about GUI
 
 This is not a comprehensive list of books, there are many other
-books worth buying.  This is just a few GUI/UI books that don't gather
-dust in our shelves.
+books worth buying. Here we mention just a few GUI/UI books that don't
+gather dust in our shelves.
 
 <b>Programming with Qt</b> by Kalle Dalheimer, ISBN 1-56592-588-2
 is a simple introduction to programming with Qt.  For those wanting
-something more than our short tutorial, this is it.
+something more than our short tutorials, this is it.
 \link http://www.amazon.com/exec/obidos/ASIN/1565925882/trolltech/t 
 (Read more or buy it.)\endlink
 
@@ -1170,7 +1169,7 @@ links, Amazon.com gives about 15% of the purchase price to
 Qt contains a little code that is not under the \link license.html
 QPL\endlink, the \link gpl.html GPL\endlink, or the Qt Commercial
 License Agreement, but rather under specific highly permissive
-license from the original authors. This page lists the licenses used
+licenses from the original authors. This page lists the licenses used
 for that code, names the authors, and links to the points where it is
 used.
 
@@ -1195,12 +1194,14 @@ geometry.  Some of these functions operate on the pure client area
 window frame. The differentiation is done in a way that covers the
 most common usage transparently.
 
-<dl>
-  <dt><strong>Including the window frame:</strong>
-  <dd>x(), y(), frameGeometry(), pos() and move()
-  <dt><strong>Excluding the window frame:</strong>
-  <dd> geometry(), width(), height(), rect() and size()
-</dl>
+\table
+\row
+\i <strong>Including the window frame:
+\i x(), y(), frameGeometry(), pos() and move()
+\row
+\i <strong>Excluding the window frame:</strong>
+\i geometry(), width(), height(), rect() and size()
+\endtable
 
 Note that the distinction only matters for decorated top-level
 widgets. For all child widgets, the frame geometry is equal to the
@@ -1213,7 +1214,7 @@ This diagram shows most of the functions in use:
 
 On Unix/X11, a window does not have a frame until the window manager
 decorates it. This happens asynchronously at some point in time after
-calling show() and the first paint event the window receives - or it
+calling show() and the first paint event the window receives: or it
 does not happen at all. Bear in mind that X11 is policy-free (others
 call it flexible). Thus you cannot make any safe assumption about the
 decoration frame your window will get. Basic rule: there's always one
@@ -1233,18 +1234,18 @@ and clever code that works on a wide range of window managers that
 exist today. Don't be surprised if you find one where frameGeometry()
 returns bogus results though.
 
-X11 also does not provide a way to maximize a window. The
-showMaximized() function in Qt therefore has to emulate the
-feature. Its result depends totally on the result of frameGeometry()
-and the capability of the window manager to do proper window
-placement, both of which cannot be guaranteed.
+Nore does X11 provide a way to maximize a window. The showMaximized()
+function in Qt therefore has to emulate the feature. Its result
+depends on the result of frameGeometry() and the capability of the
+window manager to do proper window placement, neither of which can be
+guaranteed.
 
 \section1 Restoring a Window's Geometry
 
 A common task in modern applications is to restore a window's geometry
 in a later session. On Windows, this is basically storing the result
 of geometry() and calling setGeometry() in the next session before
-doing show(). On X11, this won't work because an invisible window
+calling show(). On X11, this won't work because an invisible window
 doesn't have a frame yet. The window manager would decorate the window
 later. When this happens, the window shifts towards the bottom/right
 corner of the screen depending on the size of the decoration frame. X
