@@ -874,10 +874,11 @@ MakefileGenerator::init()
 					continue;
 				    } else {
 					for(int i = 0; i < (int)d.count(); i++) {
+					    QString file = fileFixify(dir + d[i], real_dir);
 					    if(i == (int)d.count() - 1)
-						(*val_it) = dir + d[i];
+						(*val_it) = file;
 					    else
-						l.insert(val_it, dir + d[i]);
+						l.insert(val_it, file);
 					}
 				    }
 				} else {
