@@ -107,14 +107,6 @@ Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 Display *QPaintDevice::x_appdisplay = 0;
 int	 QPaintDevice::x_appscreen;
 
-int	  QPaintDevice::x_appdepth;
-int	  QPaintDevice::x_appcells;
-Qt::HANDLE  QPaintDevice::x_approotwindow;
-Qt::HANDLE  QPaintDevice::x_appcolormap;
-bool	  QPaintDevice::x_appdefcolormap;
-void	 *QPaintDevice::x_appvisual;
-bool	  QPaintDevice::x_appdefvisual;
-
 // ### in 4.0, remove the above, and use the below
 int	 *QPaintDevice::x_appdepth_arr;
 int	 *QPaintDevice::x_appcells_arr;
@@ -323,16 +315,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
     application (X11 only). Using this function is not portable.
 */
 
-/*!
-    \overload
-    \fn int QPaintDevice::x11AppDepth()
-
-    Returns the depth for the default screen of the X display global
-    to the application (X11 only). Using this function is not
-    portable.
-
-    \sa QPixmap::defaultDepth()
-*/
 
 /*!
     \fn int QPaintDevice::x11AppCells()
@@ -398,7 +380,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn int QPaintDevice::x11AppCells( int screen )
 
     Returns the number of entries in the colormap for screen \a screen
@@ -409,7 +390,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn HANDLE QPaintDevice::x11AppRootWindow( int screen )
 
     Returns the root window for screen \a screen of the X display
@@ -418,7 +398,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn HANDLE QPaintDevice::x11AppColormap( int screen )
 
     Returns the colormap for screen \a screen of the X display global
@@ -429,7 +408,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn bool QPaintDevice::x11AppDefaultColormap( int screen )
 
     Returns the default colormap for screen \a screen of the X display
@@ -440,7 +418,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn void* QPaintDevice::x11AppVisual( int screen )
 
     Returns the Visual for screen \a screen of the X display global to
@@ -448,7 +425,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn bool QPaintDevice::x11AppDefaultVisual( int screen )
 
     Returns TRUE if the Visual used is the default for screen
@@ -567,22 +543,6 @@ void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
 }
 
 /*!
-    \overload
-
-    Sets the value returned by x11AppDpiX() to \a dpi for the default
-    screen. The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-
-*/
-// ### REMOVE 4.0
-void QPaintDevice::x11SetAppDpiX( int dpi )
-{
-    QPaintDevice::x11SetAppDpiX( dpi, -1 );
-}
-
-/*!
     Sets the value returned by x11AppDpiY() to \a dpi for screen
     \a screen. The default is determined by the display configuration.
     Changing this value will alter the scaling of fonts and many other
@@ -603,20 +563,6 @@ void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
     dpisY[ screen ] = dpi;
 }
 
-/*!
-    \overload
-
-    Sets the value returned by x11AppDpiY() to \a dpi for the default
-    screen.  The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-*/
-// ### REMOVE 4.0
-void QPaintDevice::x11SetAppDpiY( int dpi )
-{
-    QPaintDevice::x11SetAppDpiY( dpi, -1 );
-}
 
 /*!
     Returns the horizontal DPI of the X display (X11 only) for screen
@@ -639,19 +585,6 @@ int QPaintDevice::x11AppDpiX(int screen)
 }
 
 /*!
-    \overload
-
-    Returns the horizontal DPI of the X display (X11 only) for the
-    default screen. Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
-    Using this function is not portable.
-*/
-int QPaintDevice::x11AppDpiX()
-{
-    return QPaintDevice::x11AppDpiX( -1 );
-}
-
-/*!
     Returns the vertical DPI of the X11 display (X11 only) for screen
     \a screen.  Using this function is not portable. See
     QPaintDeviceMetrics for portable access to related information.
@@ -669,21 +602,6 @@ int QPaintDevice::x11AppDpiY( int screen )
     if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
 	return 0;
     return dpisY[ screen ];
-}
-
-/*!
-    \overload
-
-    Returns the vertical DPI of the X11 display (X11 only) for the
-    default screen.  Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
-    Using this function is not portable.
-
-    \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
-*/
-int QPaintDevice::x11AppDpiY()
-{
-    return QPaintDevice::x11AppDpiY( -1 );
 }
 
 /*!
