@@ -262,9 +262,9 @@ int QDialog::exec()
 
 
 /*!
-  Closes the dialog and sets the result code to \e r.
+  Hides the dialog and sets the result code to \e r.
 
-  Equivalent to calling close(), then setResult(\e r ).
+  Equivalent to calling hide(), then setResult(\e r ).
 
   This function is very useful for modal dialogs. It leaves the local
   event loop and returns from the exec() or show() function.
@@ -280,12 +280,12 @@ int QDialog::exec()
 
 void QDialog::done( int r )
 {
-    close();
+    hide();
     setResult( r );
 }
 
 /*!
-  Closes the dialog and sets the result code to \c Accepted.
+  Hides the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
 */
@@ -296,7 +296,7 @@ void QDialog::accept()
 }
 
 /*!
-  Closes the dialog and sets the result code to \c Rejected.
+  Hides the dialog and sets the result code to \c Rejected.
 
   Equivalent to done(Rejected);
 */
@@ -374,15 +374,12 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     }
 }
 
-/*!
-  Calls setResult( Rejected ) if it is a modal dialog, or accepts the close
-  event if it is a modeless dialog.
+/*!\reimp
 */
-
 void QDialog::closeEvent( QCloseEvent *e )
 {
     e->accept();
-    setResult( Rejected );
+    reject();
 }
 
 
