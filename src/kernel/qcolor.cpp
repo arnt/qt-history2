@@ -176,18 +176,24 @@ QColor::ColorModel QColor::colormodel = d32;
  */
 QColor::QColor(Qt::GlobalColor color)
 {
-    switch (color) {
-#ifdef Q_WS_X11
+#define QRGB(r, g, b) \
+    ((0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff))
+#define QRGBA(r, g, b, a) \
+    ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff)
+
+    static QRgb global_colors[] = {
+#if defined Q_WS_X11
 	// HACK: we need a way to recognize color0 and color1 uniquely, so
 	// that we can use color0 and color1 with fixed pixel values on
 	// all screens
-    case Qt::color0: setRgb(qRgba(255,255,255,1)); break;
-    case Qt::color1: setRgb(qRgba(  0,  0,  0,1)); break;
+	QRGBA(  0,   0,   0, 1), // color0
+	QRGBA(255, 255, 255, 1), // color1
 #else
-    case Qt::color0: setRgb(255,255,255); setPixel(COLOR0_PIX); break;
-    case Qt::color1: setRgb(  0,  0,  0); setPixel(COLOR1_PIX); break;
-#endif // Q_WS_X11
-
+	QRGB(  0,   0,   0), // color0
+	QRGB(255, 255, 255), // color1
+#endif
+	QRGB(  0,   0,   0), // black
+	QRGB(255, 255, 255), // white
 	/*
 	 * From the "The Palette Manager: How and Why" by Ron Gery,
 	 * March 23, 1992, archived on MSDN:
@@ -207,24 +213,32 @@ QColor::QColor(Qt::GlobalColor color)
 	 * The 20 reserved entries have indices in [0,9] and
 	 * [246,255]. We reuse 17 of them.
 	 */
-    case Qt::black:       setRgb(   0,   0,   0 ); break; // index 0     black
-    case Qt::white:       setRgb( 255, 255, 255 ); break; // index 255   white
-    case Qt::darkGray:    setRgb( 128, 128, 128 ); break; // index 248   medium gray
-    case Qt::gray:        setRgb( 160, 160, 164 ); break; // index 247   light gray
-    case Qt::lightGray:   setRgb( 192, 192, 192 ); break; // index 7     light gray
-    case Qt::red:         setRgb( 255,   0,   0 ); break; // index 249   red
-    case Qt::green:       setRgb(   0, 255,   0 ); break; // index 250   green
-    case Qt::blue:        setRgb(   0,   0, 255 ); break; // index 252   blue
-    case Qt::cyan:        setRgb(   0, 255, 255 ); break; // index 254   cyan
-    case Qt::magenta:     setRgb( 255,   0, 255 ); break; // index 253   magenta
-    case Qt::yellow:      setRgb( 255, 255,   0 ); break; // index 251   yellow
-    case Qt::darkRed:     setRgb( 128,   0,   0 ); break; // index 1     dark red
-    case Qt::darkGreen:   setRgb(   0, 128,   0 ); break; // index 2     dark green
-    case Qt::darkBlue:    setRgb(   0,   0, 128 ); break; // index 4     dark blue
-    case Qt::darkCyan:    setRgb(   0, 128, 128 ); break; // index 6     dark cyan
-    case Qt::darkMagenta: setRgb( 128,   0, 128 ); break; // index 5     dark magenta
-    case Qt::darkYellow:  setRgb( 128, 128,   0 ); break; // index 3     dark yellow
-    }
+	QRGB(128, 128, 128), // index 248   medium gray
+	QRGB(160, 160, 164), // index 247   light gray
+	QRGB(192, 192, 192), // index 7     light gray
+	QRGB(255,   0,   0), // index 249   red
+	QRGB(  0, 255,   0), // index 250   green
+	QRGB(  0,   0, 255), // index 252   blue
+	QRGB(  0, 255, 255), // index 254   cyan
+	QRGB(255,   0, 255), // index 253   magenta
+	QRGB(255, 255,   0), // index 251   yellow
+	QRGB(128,   0,   0), // index 1     dark red
+	QRGB(  0, 128,   0), // index 2     dark green
+	QRGB(  0,   0, 128), // index 4     dark blue
+	QRGB(  0, 128, 128), // index 6     dark cyan
+	QRGB(128,   0, 128), // index 5     dark magenta
+	QRGB(128, 128,   0)  // index 3     dark yellow
+    };
+#undef QRGB
+#undef QRGBA
+
+    setRgb(global_colors[color]);
+#if !defined(Q_WS_X11)
+    if (color == Qt::color0)
+	setPixel(COLOR0_PIX);
+    else if (color == Qt::color1)
+	setPixel(COLOR1_PIX);
+#endif
 }
 
 
