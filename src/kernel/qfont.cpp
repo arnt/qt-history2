@@ -1021,7 +1021,7 @@ bool QFont::exactMatch() const
 */
 bool QFont::operator==( const QFont &f ) const
 {
-    return f.d == d || f.key() == key();
+    return f.d == d || ( d->paintdevice == f.d->paintdevice && f.key() == key() );
 }
 
 
