@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#57 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#57 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -134,7 +134,7 @@ int QDate::month() const
 
 /*!
   Returns the day of the month (1..31) for this date.
-  \sa year(), month(), weekday()
+  \sa year(), month(), dayOfWeek()
 */
 
 int QDate::day() const
