@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#101 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#101 $");
 
 
 const int Unsorted = 16383;
@@ -1401,6 +1401,12 @@ void QListView::buildDrawableList() const
     // scrolling
     int cy = contentsY();
     int ch = ((QListView *)this)->viewport()->height();
+    // ### hack to help sizeHint().  if not visible, assume that we'll
+    // ### use 200 pixels rather than whatever QSrollView.  this lets
+    // ### sizeHint() base its width on a more realistic number of
+    // ### items.
+    if ( !isVisible() && ch < 200 )
+	ch = 200;
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
 
@@ -1602,13 +1608,11 @@ int QListView::columnWidth( int c ) const
    <li> \c Manual - the column width does not change automatically
    <li> \c Maximum - the column is automatically sized according to the
 	    widths of all items in the column.
-	    ##### doesn't shrink back yet when items shrink or close
-	    ##### that could be a different mode.
-	    ##### to do it, need same caching mech as totalHeight().
-	    ##### that would also allow...
-            ##### <li> \c Visible - the column is automatically sized according to the
-			    widths of all \e visible items in the column.
-  </ul>
+   </ul>
+
+   \bug doesn't shrink back yet when items shrink or close
+
+   </ul>
 
   \sa QListViewItem::width()
 */
@@ -3205,6 +3209,20 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 
 QSize QListView::sizeHint() const
 {
+    if ( !isVisibleToTLW() &&
+	 !d->drawables ||
+	 d->drawables->isEmpty() ) {
+	// force the column widths to sanity, if possible
+	buildDrawableList();
+
+	QListViewPrivate::DrawableItem * c = d->drawables->first();
+
+	while( c && c->i ) {
+	    c->i->setup();
+	    c = d->drawables->next();
+	}
+    }
+
     QSize s( d->h->sizeHint() );
     QListViewItem * l = d->r;
     while( l && !l->height() )
