@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#320 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#321 $
 **
 ** Implementation of QListBox widget class
 **
@@ -787,15 +787,14 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! \fn void QListBox::pressed( QListBoxItem *item, const QPoint &pnt, int c )
+/*! \fn void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted whenever the user presses the mouse button
   on a listbox.
   \a item is the pointer to the listbox item onto which the user pressed the
   mouse button or NULL, if the user didn't press the mouse on an item.
-  \a pnt is the position of the mouse cursor, and \a c the
-  column into which the mouse cursor was when the user pressed the mouse
-  button.
+  \a pnt is the position of the mouse cursor where the mouse cursor was 
+  when the user pressed the mouse button.
 
   Note that you may not delete any QListBoxItem objects in slots
   connected to this signal.
@@ -811,13 +810,12 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt, int c )
+/*! \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted whenever the user clicks (moues pressed + mouse released)
   into the listbox.
   \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
-  \a pnt is the position where the user
-  has clicked, and \a c the column into which the user clicked.
+  \a pnt is the position where the user has clicked.
 
   Note that you may not delete any QListBoxItem objects in slots
   connected to this signal.
@@ -837,26 +835,25 @@ QListBox::~QListBox()
   argument is currentItem().
 */
 
-/*! \fn void QListBox::rightButtonClicked( QListBoxItem *, const QPoint&, int )
+/*! \fn void QListBox::rightButtonClicked( QListBoxItem *, const QPoint& )
 
   This signal is emitted when the right button is clicked (ie. when
   it's released).  The arguments are the relevant QListBoxItem (may
-  be 0), the point in global coordinates and the relevant column (or -1 if the
-  click was outside the list).
+  be 0) and the point in global coordinates.
 */
 
 
-/*! \fn void QListBox::rightButtonPressed (QListBoxItem *, const QPoint &, int)
+/*! \fn void QListBox::rightButtonPressed (QListBoxItem *, const QPoint & )
 
   This signal is emitted when the right button is pressed.  Then
-  arguments are the relevant QListBoxItem (may be 0), the point in
-  global coordinates and the relevant column.
+  arguments are the relevant QListBoxItem (may be 0) and the point in
+  global coordinates.
 */
 
 /*!
   \fn void QListBox::selectionChanged()
 
-  This signal is emitted when the selection set of a 
+  This signal is emitted when the selection set of a
   listbox changes. This signal is emitted in each selection mode
   If the user selects five items by drag-selecting,
   QListBox tries to emit just one selectionChanged() signal, so the
@@ -2257,7 +2254,7 @@ void QListBox::clearSelection()
   is TRUE, note that it's to be sent out at some later time.
 */
 
-void QListBox::emitChangedSignal( bool lazy ) 
+void QListBox::emitChangedSignal( bool lazy )
 {
     if ( changedListBox && (!lazy || changedListBox != this) ) {
 	emit changedListBox->selectionChanged();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#354 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#355 $
 **
 ** Implementation of QListView widget class
 **
@@ -3766,7 +3766,8 @@ int QListView::itemMargin() const
 
   This signal is emitted when the right button is pressed.  Then
   arguments are the relevant QListViewItem (may be 0), the point in
-  global coordinates and the relevant column.
+  global coordinates and the relevant column (or -1 if the
+  click was outside the list).
 */
 
 /*!  Reimplemented to let the list view items update themselves.  \a s
