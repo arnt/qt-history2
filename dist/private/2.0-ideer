@@ -67,6 +67,9 @@ Use "top" and "bottom" logical color names rather than "light" and
  "dark" physical names. THEN, use Motif's algorithm for setting those
   colours (it's not just "lighter" and "darker", see -bg white and -bg black)
 Support for Multiple X11 displays.  Tricky.  Not very useful.
+Completely rework "modality".
+    - Remove "parent widget is window to centre wrt if modal"
+	- add real "widget to centre wrt" functionality.
 
 
 GERMAN THINGS:
