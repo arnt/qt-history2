@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#85 $
 **
 ** Implementation of QMenuData class
 **
@@ -1091,7 +1091,7 @@ int QMenuData::indexOf( int id ) const
 
 int QMenuData::idAt( int index ) const
 {
-    return index < (int)mitems->count() ?
+    return index < (int)mitems->count() && index >= 0 ?
 	   mitems->at(index)->id() : -1;
 }
 
