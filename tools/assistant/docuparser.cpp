@@ -27,7 +27,7 @@ bool DocuParser::startElement( const QString &, const QString &,
 			       const QString &qname, 
 			       const QXmlAttributes &attr )
 {
-    if( qname == "DOC" && state == StateInit ) {
+    if( qname == "DCF" && state == StateInit ) {
 	state = StateContent;
 	contentRef = attr.value( "ref" );
 	title = attr.value( "title" );

@@ -311,7 +311,7 @@ The format of the documentation content file is described in the
 following section.
 
 
-\section2 Documentation Content file format
+\section2 Documentation Content File format
 
 The file must contain the documentation's table of contents and all
 important keywords for the index. Furthermore, it should inherit a
@@ -322,8 +322,8 @@ An example of a content file with all available tags is shown below:
 \c demodoc.xml
 
 \code
-<!DOCTYPE DOC>
-<DOC ref="demo.html" category="qt/development" title="Development Demo Handbook">
+<!DOCTYPE DCF>
+<DCF ref="demo.html" category="qt/development" title="Development Demo Handbook">
 <section ref="./chap1/chap1.html" title="Chapter1">
     <section ref="./chap1/section1.html" title="Section1">
 	<keyword ref="./chap1/section1.html#foo">foo</keyword>
@@ -342,7 +342,7 @@ An example of a content file with all available tags is shown below:
     <keyword ref="./chap2/chap2.html#foo">foo</keyword>
     <section ref="./chap2/section1.html" title="Section1"/>
 </section>
-</DOC>
+</DCF>
 \endcode
 
 Sections may be nested as deeply as necessary. All references should

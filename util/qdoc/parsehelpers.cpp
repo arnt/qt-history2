@@ -223,14 +223,14 @@ void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
 {
     BinaryWriter out( fileName );
 
-    out.puts( "<!DOCTYPE DOC>\n" );
-    out.puts( "<DOC ref=\"" + htmlProtect(rootSect.ref, FALSE) +
+    out.puts( "<!DOCTYPE DCF>\n" );
+    out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE) +
 	      "\" category=\"" + htmlProtect(category, FALSE) + "\" title=\"" +
 	      htmlProtect(rootSect.title, FALSE) + "\">\n" );
 
     generateXmlSubSections( "", out, rootSect );
 
-    out.puts( "</DOC>\n" );
+    out.puts( "</DCF>\n" );
 }
 
 void skipSpaces( const QString& in, int& pos )
