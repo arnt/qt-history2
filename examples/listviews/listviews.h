@@ -19,9 +19,9 @@
 #include <qlist.h>
 #include <qdatetime.h>
 
-#include <qlistview.h>
+#include <q3listview.h>
 
-class QListView;
+class Q3ListView;
 class QLabel;
 class QPainter;
 class QColorGroup;
@@ -93,7 +93,7 @@ public:
     QString folderName() { return fName; }
 
     Message *firstMessage() { lstIt = lstMessages.begin(); return *lstIt; }
-    Message *nextMessage() { if(lstIt == lstMessages.end()) return 0; ++lstIt; return *lstIt; }
+    Message *nextMessage() { ++lstIt; if(lstIt == lstMessages.end()) return 0;  return *lstIt; }
 
 protected:
     QString fName;
@@ -104,10 +104,10 @@ protected:
 
 // -----------------------------------------------------------------
 
-class FolderListItem : public QListViewItem
+class FolderListItem : public Q3ListViewItem
 {
 public:
-    FolderListItem( QListView *parent, Folder *f );
+    FolderListItem( Q3ListView *parent, Folder *f );
     FolderListItem( FolderListItem *parent, Folder *f );
 
     void insertSubFolders( const QObjectList &lst );
@@ -121,10 +121,10 @@ protected:
 
 // -----------------------------------------------------------------
 
-class MessageListItem : public QListViewItem
+class MessageListItem : public Q3ListViewItem
 {
 public:
-    MessageListItem( QListView *parent, Message *m );
+    MessageListItem( Q3ListView *parent, Message *m );
 
     virtual void paintCell( QPainter *p, const QPalette &pal,
 			    int column, int width, int alignment );
@@ -151,16 +151,16 @@ protected:
     void initFolder( Folder *folder, unsigned int &count );
     void setupFolders();
 
-    QListView *messages, *folders;
+    Q3ListView *messages, *folders;
     QLabel *message;
     QPopupMenu* menu;
 
     QList<Folder*> lstFolders;
 
 protected slots:
-    void slotFolderChanged( QListViewItem* );
+    void slotFolderChanged( Q3ListViewItem* );
     void slotMessageChanged();
-    void slotRMB( QListViewItem*, const QPoint &, int );
+    void slotRMB( Q3ListViewItem*, const QPoint &, int );
 
 };
 

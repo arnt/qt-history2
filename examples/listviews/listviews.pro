@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= listviews.h
 SOURCES		= listviews.cpp \
 		  main.cpp
+QT	+= compat

@@ -16,7 +16,7 @@
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qpopupmenu.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qregexp.h>
 
 // -----------------------------------------------------------------
@@ -52,8 +52,8 @@ Folder::~Folder()
 
 // -----------------------------------------------------------------
 
-FolderListItem::FolderListItem( QListView *parent, Folder *f )
-    : QListViewItem( parent )
+FolderListItem::FolderListItem( Q3ListView *parent, Folder *f )
+    : Q3ListViewItem( parent )
 {
     myFolder = f;
     setText( 0, f->folderName() );
@@ -63,7 +63,7 @@ FolderListItem::FolderListItem( QListView *parent, Folder *f )
 }
 
 FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
-    : QListViewItem( parent )
+    : Q3ListViewItem( parent )
 {
     myFolder = f;
 
@@ -83,8 +83,8 @@ void FolderListItem::insertSubFolders( const QObjectList &lst )
 
 // -----------------------------------------------------------------
 
-MessageListItem::MessageListItem( QListView *parent, Message *m )
-    : QListViewItem( parent )
+MessageListItem::MessageListItem( Q3ListView *parent, Message *m )
+    : Q3ListViewItem( parent )
 {
     myMessage = m;
     setText( 0, myMessage->header().sender() );
@@ -101,7 +101,7 @@ void MessageListItem::paintCell( QPainter *p, const QPalette &pal,
     if ( myMessage->state() == Message::Unread )
 	_pal.setColor( QPalette::Text, Qt::red );
 
-    QListViewItem::paintCell( p, _pal, column, width, alignment );
+    Q3ListViewItem::paintCell( p, _pal, column, width, alignment );
 
     _pal.setColor( QPalette::Text, c );
 }
@@ -112,7 +112,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     : QSplitter( Qt::Horizontal, parent, name )
 {
 
-    folders = new QListView( this );
+    folders = new Q3ListView( this );
     folders->header()->setClickEnabled( FALSE );
     folders->addColumn( "Folder" );
 
@@ -124,7 +124,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
 
     QSplitter *vsplitter = new QSplitter( Qt::Vertical, this );
 
-    messages = new QListView( vsplitter );
+    messages = new Q3ListView( vsplitter );
     messages->addColumn( "Sender" );
     messages->addColumn( "Subject" );
     messages->addColumn( "Date" );
@@ -134,22 +134,22 @@ ListViews::ListViews( QWidget *parent, const char *name )
     menu = new QPopupMenu( messages );
     for( int i = 1; i <= 10; i++ )
 	menu->insertItem( QString( "Context Item %1" ).arg( i ) );
-    connect(messages, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ),
-	    this, SLOT( slotRMB( QListViewItem *, const QPoint &, int ) ) );
+    connect(messages, SIGNAL( contextMenuRequested( Q3ListViewItem *, const QPoint& , int ) ),
+	    this, SLOT( slotRMB( Q3ListViewItem *, const QPoint &, int ) ) );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
     message = new QLabel( vsplitter );
     message->setAlignment( Qt::AlignTop );
     message->setBackgroundRole( QPalette::Base );
 
-    connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ),
-	     this, SLOT( slotFolderChanged( QListViewItem* ) ) );
+    connect( folders, SIGNAL( selectionChanged( Q3ListViewItem* ) ),
+	     this, SLOT( slotFolderChanged( Q3ListViewItem* ) ) );
     connect( messages, SIGNAL( selectionChanged() ),
 	     this, SLOT( slotMessageChanged() ) );
-    connect( messages, SIGNAL( currentChanged( QListViewItem * ) ),
+    connect( messages, SIGNAL( currentChanged( Q3ListViewItem * ) ),
 	     this, SLOT( slotMessageChanged() ) );
 
-    messages->setSelectionMode( QListView::Extended );
+    messages->setSelectionMode( Q3ListView::Extended );
     // some preparations
     folders->firstChild()->setOpen( TRUE );
     folders->firstChild()->firstChild()->setOpen( TRUE );
@@ -205,7 +205,7 @@ void ListViews::initFolder( Folder *folder, unsigned int &count )
 
 	QString body;
 	body = QString( "This is the message number %1 of this application, \n"
-			"which shows how to use QListViews, QListViewItems, \n"
+			"which shows how to use Q3ListViews, Q3ListViewItems, \n"
 			"QSplitters and so on. The code should show how easy\n"
 			"this can be done in Qt." ).arg( count );
 	Message *msg = new Message( mh, body );
@@ -220,14 +220,14 @@ void ListViews::setupFolders()
 	(void)new FolderListItem( folders, (*it) );
 }
 
-void ListViews::slotRMB( QListViewItem* Item, const QPoint & point, int )
+void ListViews::slotRMB( Q3ListViewItem* Item, const QPoint & point, int )
 {
     if( Item )
 	menu->popup( point );
 }
 
 
-void ListViews::slotFolderChanged( QListViewItem *i )
+void ListViews::slotFolderChanged( Q3ListViewItem *i )
 {
     if ( !i )
 	return;
@@ -237,13 +237,13 @@ void ListViews::slotFolderChanged( QListViewItem *i )
     FolderListItem *item = ( FolderListItem* )i;
 
     Folder *folder = item->folder();
-    for ( Message* msg = folder->firstMessage(); msg; msg = folder->nextMessage() ) 
+    for ( Message* msg = folder->firstMessage(); msg; msg = folder->nextMessage() )
 	(void)new MessageListItem( messages, msg );
 }
 
 void ListViews::slotMessageChanged()
 {
-    QListViewItem *i = messages->currentItem();
+    Q3ListViewItem *i = messages->currentItem();
     if ( !i )
 	return;
 
