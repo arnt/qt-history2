@@ -308,10 +308,10 @@ EOF
 done
 
 echo 'none: '
-echo '	echo Available platforms:'
+echo '	@echo Available platforms:'
 for a in ../makefiles/*[a-z] ; do
     PLATFORM=`basename $a`
-    echo '	 echo "	"' ${PLATFORM}
+    echo '	 @echo "	"' ${PLATFORM}
 done
 
-echo '	echo Send mail to qt-info@troll.no for info about other platforms'
+echo '	@echo Send mail to qt-info@troll.no for info about other platforms'
