@@ -1,9 +1,0 @@
-This example demonstrates how to use some of the classes in the SQL
-module.
-
-To be able to run the example application, you will need to connect to
-a Postgres v6.x database. You have to modify the main.cpp file, and
-replace the database name, user name and password, and the hostname
-with your own parameters. The pingpong.sql file contains the SQL
-statements that are used to set up the tables in the pingpong
-database.
