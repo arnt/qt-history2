@@ -113,9 +113,7 @@ static void exitHandler( int )
 #if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void crashHandler()
 #else
-#if 0
 static void crashHandler( int )
-#endif
 {
     if ( MainWindow::self )
 	MainWindow::self->saveAllTemp();
