@@ -71,8 +71,6 @@ void Main::makeConnection()
     output->insertLine( QString( "Asking about user " ) + user );
 
     *s << user << "\r\n";
-
-    dumpObjectTree();
 }
 
 
