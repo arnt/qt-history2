@@ -2,6 +2,7 @@
 # it is very hard to make qmake build this, when qmake is the thing it builds,
 #once you are boot strapped though, the qmake.pro will offer better coverage of a
 #platform than either of the generic makefiles
+
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
 CONFIG += console
@@ -61,7 +62,7 @@ exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
 VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/core/tools \
          $$QT_SOURCE_TREE/src/core/kernel \
-         $$QT_SOURCE_TREE/src/core/library \
+         $$QT_SOURCE_TREE/src/core/plugin \
 	 $$QT_SOURCE_TREE/src/core/io 
 
 unix {
