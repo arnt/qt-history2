@@ -62,7 +62,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 
 #include <errno.h>
 
-static inline QSocketDevice::Family
+static inline QSocketDevice::Protocol
 qt_socket_getportaddr( QSocketDevice *that, struct sockaddr *sa,
 		       Q_UINT16 *port, QHostAddress *addr )
 {
@@ -95,7 +95,7 @@ void QSocketDevice::init()
 }
 
 
-void QSocketDevice::initFd( Family *family )
+void QSocketDevice::initFd( Protocol *protocol )
 {
     if (fd != -1) {
 #if !defined (QT_NO_IPV6)
@@ -104,10 +104,10 @@ void QSocketDevice::initFd( Family *family )
 	if ( getsockname(fd, (struct sockaddr *)&ss, &sslen) == 0 ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
-		    *family = Ipv4;
+		    *protocol = Ipv4;
 		    break;
 		case AF_INET6:
-		    *family = Ipv6;
+		    *protocol = Ipv6;
 		    break;
 		default:
 		    qWarning("Unable to initialize invalid socket");
@@ -115,7 +115,7 @@ void QSocketDevice::initFd( Family *family )
 	    }
 	}
 #else
-	*family = Ipv4;
+	*protocol = Ipv4;
 #endif
     }
 }
@@ -130,7 +130,7 @@ void QSocketDevice::initFd( Family *family )
 int QSocketDevice::createNewSocket()
 {
 #if !defined(QT_NO_IPV6)
-    int s = qt_socket_socket( family() == Ipv4 ? AF_INET : AF_INET6,
+    int s = qt_socket_socket( protocol() == Ipv4 ? AF_INET : AF_INET6,
 			      t == Datagram ? SOCK_DGRAM : SOCK_STREAM, 0 );
 #else
     int s = qt_socket_socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
@@ -231,8 +231,6 @@ void QSocketDevice::setBlocking( bool enable )
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::setBlocking( %d )", enable );
 #endif
-    if ( !isValid() )
-	return;
     int tmp = ::fcntl( socket(), F_GETFL, 0);
     if ( tmp >= 0 )
 	tmp = ::fcntl( socket(), F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY) );
@@ -267,8 +265,6 @@ void QSocketDevice::setBlocking( bool enable )
 */
 int QSocketDevice::option( Option opt ) const
 {
-    if ( !isValid() )
-	return -1;
     int n = -1;
     int v = -1;
     switch ( opt ) {
@@ -317,8 +313,6 @@ int QSocketDevice::option( Option opt ) const
 */
 void QSocketDevice::setOption( Option opt, int v )
 {
-    if ( !isValid() )
-	return;
     int n = -1; // for really, really bad compilers
     switch ( opt ) {
     case Broadcast:
@@ -366,9 +360,9 @@ void QSocketDevice::setOption( Option opt, int v )
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( addr.isIp6Addr() )
-	setFamily( Ipv6 );
+	setProtocol( Ipv6 );
     else if ( addr.isIp4Addr() )
-	setFamily( Ipv4 );
+	setProtocol( Ipv4 );
 
     struct sockaddr_in a4;
 
@@ -384,7 +378,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	Q_IPV6ADDR ip6 = addr.ip6Addr();
 	memcpy( &a6.sin6_addr.s6_addr, &ip6, sizeof(ip6) );
 
-	setFamily( Ipv6 );
+	setProtocol( Ipv6 );
 	aalen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
     } else
@@ -401,7 +395,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( addr.ip4Addr() );
 
-	setFamily(Ipv4);
+	setProtocol(Ipv4);
 	aalen = sizeof(a4);
 	aa = (struct sockaddr *)&a4;
     }
@@ -461,9 +455,9 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( address.isIp6Addr() )
-	setFamily( Ipv6 );
+	setProtocol( Ipv6 );
     else if ( address.isIp4Addr() )
-	setFamily( Ipv4 );
+	setProtocol( Ipv4 );
 
     int r;
 #if !defined(QT_NO_IPV6)
@@ -476,7 +470,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	a6.sin6_port = htons( port );
 	Q_IPV6ADDR tmp = address.ip6Addr();
 	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
-	setFamily( Ipv6 );
+	setProtocol( Ipv6 );
 
 	r = qt_socket_bind( socket(), (struct sockaddr *)&a6, sizeof(a6) );
     } else
@@ -492,7 +486,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	a4.sin_family = AF_INET;
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( address.ip4Addr() );
-	setFamily( Ipv4 );
+	setProtocol( Ipv4 );
 
 	r = qt_socket_bind( socket(), (struct sockaddr*)&a4, sizeof(a4) );
     }
@@ -747,7 +741,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    r = ::recvfrom( socket(), data, maxlen, 0,
 			    (struct sockaddr *)&aa, &sz );
 
-	    setFamily( qt_socket_getportaddr(this, (struct sockaddr *)&aa,
+	    setProtocol( qt_socket_getportaddr(this, (struct sockaddr *)&aa,
 					     &pp, &pa) );
 
 	} else {
@@ -918,7 +912,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	slen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
 
-	setFamily( Ipv6 );
+	setProtocol( Ipv6 );
     } else
 #endif
     {
@@ -935,7 +929,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	slen = sizeof(a4);
 	aa = (struct sockaddr *)&a4;
 
-	setFamily( Ipv4 );
+	setProtocol( Ipv4 );
     }
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
@@ -1003,11 +997,11 @@ void QSocketDevice::fetchConnectionParameters()
     QT_SOCKLEN_T sz;
     sz = sizeof( sa );
     if ( !::getsockname( socket(), (struct sockaddr *)(&sa), &sz ) )
-	setFamily( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
+	setProtocol( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
 
     sz = sizeof( sa );
     if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) )
-	setFamily( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
+	setProtocol( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
 }
 
 

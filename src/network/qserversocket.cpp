@@ -133,7 +133,8 @@ bool QServerSocket::ok() const
  */
 void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
-    d->s = new QSocketDevice;
+    d->s = new QSocketDevice( QSocketDevice::Stream, address.isIp4Addr()
+			      ? QSocketDevice::Ipv4 : QSocketDevice::Ipv6, 0 );
 #if !defined(Q_OS_WIN32)
     // Under Unix, we want to be able to use the port, even if a socket on the
     // same address-port is in TIME_WAIT. Under Windows this is possible anyway

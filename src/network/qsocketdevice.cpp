@@ -26,11 +26,11 @@ class QSocketDevicePrivate
 public:
     QSocketDevicePrivate();
 
-    QSocketDevice::Family family;
+    QSocketDevice::Protocol protocol;
 };
 
 QSocketDevicePrivate::QSocketDevicePrivate()
-    : family(QSocketDevice::Auto)
+    : protocol(QSocketDevice::Auto)
 {
 }
 
@@ -54,12 +54,18 @@ QSocketDevicePrivate::QSocketDevicePrivate()
     The essential purpose of the class is to provide a QIODevice that
     works on sockets, wrapped in a platform-independent API.
 
+    When calling connect() or bind(), QSocketDevice detects the
+    protocol family (Ipv4, Ipv6) automatically. Passing the protocol
+    family to QSocketDevice's constructor or to setSocket() forces
+    creation of a socket device of a specific protocol. If not set, the
+    protocol will be detected at the first call to connect() or bind().
+
     \sa QSocket, QSocketNotifier, QHostAddress
 */
 
 
 /*!
-    \enum QSocketDevice::Family
+    \enum QSocketDevice::Protocol
 
     \value Auto
     \value Ipv4
@@ -129,7 +135,7 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 	   this, socket, type );
 #endif
     init();
-    initFd(&d->family);
+    initFd(&d->protocol);
 }
 
 /*!
@@ -159,12 +165,12 @@ QSocketDevice::QSocketDevice( Type type )
     reliable, connection-oriented TCP socket, or \c
     QSocketDevice::Datagram for an unreliable UDP socket.
 
-    The \a family indicates whether the socket should be of type Ipv4
+    The \a protocol indicates whether the socket should be of type Ipv4
     or Ipv6. (The \a dummy integer is for internal use.)
 
     \sa blocking()
 */
-QSocketDevice::QSocketDevice( Type type, Family family, int )
+QSocketDevice::QSocketDevice( Type type, Protocol protocol, int )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
       d(new QSocketDevicePrivate())
 {
@@ -173,7 +179,7 @@ QSocketDevice::QSocketDevice( Type type, Family family, int )
 	    this, type );
 #endif
     init();
-    d->family = family;
+    d->protocol = protocol;
 }
 
 /*!
@@ -220,18 +226,18 @@ QSocketDevice::Type QSocketDevice::type() const
     Returns the socket type, which is one of \c Auto, \c Ipv4, or \c
     Ipv6.
 */
-QSocketDevice::Family QSocketDevice::family() const
+QSocketDevice::Protocol QSocketDevice::protocol() const
 {
-    return d->family;
+    return d->protocol;
 }
 
 /*!
-    Sets the socket type. The \a family must be one of \c Auto, \c
+    Sets the socket type. The \a protocol must be one of \c Auto, \c
     Ipv4, or \c Ipv6.
 */
-void QSocketDevice::setFamily( Family family )
+void QSocketDevice::setProtocol( Protocol protocol )
 {
-    d->family = family;
+    d->protocol = protocol;
 }
 
 /*!
