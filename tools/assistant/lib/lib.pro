@@ -8,7 +8,9 @@ HEADERS         += $(QT_SOURCE_TREE)/include/qassistantclient.h
 win32:CONFIG	+= static
 win32:CONFIG	-= dll
 
+DEFINES		+= QT_INTERNAL_NETWORK
 include( ../../../src/qt_professional.pri )
+
 DESTDIR		= ../../../lib
 
 unix {

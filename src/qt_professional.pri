@@ -75,6 +75,21 @@
 	DEFINES     *= QT_MODULE_CANVAS
 }
 
+!table:contains( DEFINES, QT_INTERNAL_TABLE ) {
+	CONFIG += table
+	TABLE_CPP = $$QT_SOURCE_TREE/src/table
+	win32 {
+		WIN_ALL_H = $$QT_SOURCE_TREE/include
+		TABLE_H = $$WIN_ALL_H
+	}
+	unix {
+		TABLE_H = $$TABLE_CPP
+	}
+	INCLUDEPATH += $$QT_SOURCE_TREE/src/table
+	include( $$QT_SOURCE_TREE/src/table/qt_table.pri )
+	DEFINES     *= QT_MODULE_TABLE
+}
+
 contains(QT_PRODUCT,qt-professional) {
 	DEFINES     *= QT_LICENSE_PROFESSIONAL
 }
