@@ -59,15 +59,13 @@ public:
 
 public slots:
     virtual void    setChecked( bool check );
-    
+
 protected:
     bool    hitButton( const QPoint & ) const;
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
 
     void    resizeEvent( QResizeEvent* );
-
-    void    updateMask();
 
 private:
     void    init();

@@ -70,7 +70,6 @@ protected:
     void    resizeEvent( QResizeEvent* );
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
-    void    updateMask();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

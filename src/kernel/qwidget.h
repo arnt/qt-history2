@@ -95,6 +95,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QBrush backgroundBrush READ backgroundBrush )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette  STORED ownPalette )
+    Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool ownPalette READ ownPalette )
     Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont STORED ownFont )
     Q_PROPERTY( bool ownFont READ ownFont )
@@ -122,7 +123,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
-    Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:
@@ -928,7 +928,7 @@ struct Q_EXPORT QWExtra {
     uint ctx_children_clipped:1;
 #endif
     uint has_dirty_area:1;
-#endif    
+#endif
     uint bg_origin : 2;
 #if defined(Q_WS_X11)
     uint children_use_dnd : 1;
