@@ -88,7 +88,7 @@ static const char* const type_map[ntypes] =
     "QPen",
     "Q_LONGLONG",
     "Q_ULONGLONG",
-    "QChar"
+    "QChar",
     "QUrl"
 };
 
