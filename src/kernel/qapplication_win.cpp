@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#323 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#324 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -316,7 +316,7 @@ static void qt_show_system_menu( QWidget* tlw)
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
 // Palette handling
-extern QPalette *qt_std_pal = 0;
+extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
 
 static void qt_set_windows_resources()
@@ -392,8 +392,7 @@ static void qt_set_windows_resources()
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
-    palref = pal;
-
+    
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
@@ -540,7 +539,7 @@ void qt_init( int *argcptr, char **argv )
     if ( !qt_std_pal )
 	qt_create_std_palette();
     if ( QApplication::desktopSettingsAware() )
-	qt_set_windows_resources( *qt_std_pal );
+	qt_set_windows_resources( /* *qt_std_pal */ );
 
 }
 
