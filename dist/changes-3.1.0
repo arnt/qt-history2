@@ -14,6 +14,10 @@
 	valueChanged() signals after the value has been changed.
 
 
+- QTabWidget
+        Enable shortcuts Ctrl-Tab and Shift-Ctrl-Tab to cycle through pages.
+
+
 ****************************************************************************
 *		    Qt/Embedded-specific changes		           *
 ****************************************************************************
