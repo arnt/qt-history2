@@ -109,11 +109,13 @@
     any time, the peer can close the connection, and data transfer
     will then stop immediately.
 
-    By default, QTcpSocket works asynchronously and emits signals to
-    report status changes and errors, just like QHttp and QFtp. You
-    can write data to the socket using QTcpSocket::write(), and read
-    data using QTcpSocket::read(). QTcpSocket represents two
-    independent streams of data: one for reading and one for writing.
+    QTcpSocket works asynchronously and emits signals to report status
+    changes and errors, just like QHttp and QFtp. It relies on the
+    event loop to detect incoming data and to automatically flush
+    outgoing data. You can write data to the socket using
+    QTcpSocket::write(), and read data using
+    QTcpSocket::read(). QTcpSocket represents two independent streams
+    of data: one for reading and one for writing.
 
     Since QTcpSocket inherits QIODevice, you can use it with
     QTextStream and QDataStream. When reading from a QTcpSocket, you
@@ -128,37 +130,28 @@
     QTcpServer::nextPendingConnection() to accept the connection and
     use the returned QTcpSocket to communicate with the client.
 
-    QTcpSocket can be set to operate like a synchronous QIODevice
-    (like QFile) by calling QTcpSocket::setBlocking(true). Signals
-    are emitted as usual, but certain functions like
-    QTcpSocket::connectToHost(), QTcpSocket::read(), and
-    QTcpSocket::write() will suspend the thread in which they are
-    running until the operation finishes. If the thread is the GUI
-    thread, the user interface will potentially freeze. For this
-    reason, QTcpSocket should only be used synchronously from a
-    non-GUI thread or in a non-GUI application.
+    Although most of its functions work asynchronously, it's possible
+    to use QTcpSocket synchronously (i.e., blocking). The trick is to
+    call QTcpSocket's waitFor...() functions, which suspend the
+    calling thread until a signal has been emitted. For example, after
+    calling the non-blocking QTcpSocket::connectToHost() function,
+    call QTcpSocket::waitForConnected() to block the thread until the
+    \l{QTcpSocket::connected()}{connected()} signal has been emitted.
 
-    QTcpSocket and QTcpServer can be used without an event loop. In
-    addition, the classes are \l{reentrant}, meaning that distinct
-    instances of the classes can be used simultaneously in different
-    threads.
+    Synchronous sockets often lead to code with a simpler control
+    flow. The main disadvantage of the waitFor...() approach is that
+    events won't be processed while a waitFor...() function is
+    blocked. If used in the GUI thread, this might freeze the
+    application's user interface. For this reason, we recommend that
+    you use synchronous sockets only in non-GUI threads. When used
+    synchronously, QTcpSocket doesn't require an event loop.
 
-    Note that without an event loop, Qt is unable to notify
-    QTcpSocket of incoming data, and QTcpSocket is unable to
-    automatically flush outgoing data. Calling
-    QTcpSocket::setBlocking(true) is the best way to avoid these
-    problems. The alternative is to fall QTcpSocket::flush() whenever
-    QTcpSocket::bytesToWrite() returns a non-zero value. You must
-    then also call QTcpSocket::flush() manually to write data to the
-    socket, and QTcpSocket::waitForReadyRead() to get the
-    QTcpSocket::readyRead() signal.
-
-    The \l network/fortuneclient and \l network/fortuneserver
-    examples show how to use QTcpSocket and QTcpServer to write TCP
-    client-server applications. See also \l
-    network/blockingfortuneclient for an example on how to use a
-    synchronous QTcpSocket in a separate thread, without using an
-    event loop.
+    The \l{network/fortuneclient}{Fortune Client} and
+    \l{network/fortuneserver}{Fortune Server} examples show how to use
+    QTcpSocket and QTcpServer to write TCP client-server
+    applications. See also \l{network/blockingfortuneclient}{Blocking
+    Fortune Client} for an example on how to use a synchronous
+    QTcpSocket in a separate thread, without using an event loop.
 
     \section1 Using UDP with QUdpSocket
 
