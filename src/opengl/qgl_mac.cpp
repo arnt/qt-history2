@@ -69,39 +69,42 @@ bool QGLFormat::hasOpenGLOverlays()
 }
 
 
+#define d d_func()
+#define q q_func()
+
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
-    cx = NULL;
-    vi = chooseMacVisual(GetMainDevice());
-    if(!vi)
+    d->cx = NULL;
+    d->vi = chooseMacVisual(GetMainDevice());
+    if(!d->vi)
         return false;
 
-    AGLPixelFormat fmt = (AGLPixelFormat)vi;
+    AGLPixelFormat fmt = (AGLPixelFormat)d->vi;
     GLint res;
     aglDescribePixelFormat(fmt, AGL_LEVEL, &res);
-    glFormat.setPlane(res);
+    d->glFormat.setPlane(res);
     if(deviceIsPixmap())
         res = 0;
     else
         aglDescribePixelFormat(fmt, AGL_DOUBLEBUFFER, &res);
-    glFormat.setDoubleBuffer(res);
+    d->glFormat.setDoubleBuffer(res);
     aglDescribePixelFormat(fmt, AGL_DEPTH_SIZE, &res);
-    glFormat.setDepth(res);
+    d->glFormat.setDepth(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
-    glFormat.setRgba(res);
+    d->glFormat.setRgba(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
-    glFormat.setAlpha(res);
+    d->glFormat.setAlpha(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
-    glFormat.setAccum(res);
+    d->glFormat.setAccum(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
-    glFormat.setStencil(res);
+    d->glFormat.setStencil(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
-    glFormat.setStereo(res);
+    d->glFormat.setStereo(res);
 
-    if(shareContext && (!shareContext->isValid() || !shareContext->cx)) {
+    if(shareContext && (!shareContext->isValid() || !shareContext->d->cx)) {
         qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
         shareContext = 0;
     }
@@ -109,11 +112,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // sharing between rgba and color-index will give wrong colors
     if(shareContext && (format().rgba() != shareContext->format().rgba()))
         shareContext = 0;
-    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
+    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->d->cx : NULL));
     if(!ctx) {
         GLenum err = aglGetError();
         if(err == AGL_BAD_MATCH || err == AGL_BAD_CONTEXT) {
-            if(shareContext && shareContext->cx) {
+            if(shareContext && shareContext->d->cx) {
                 qWarning("QOpenGL: context sharing mismatch!");
                 if(!(ctx = aglCreateContext(fmt, NULL)))
                     return false;
@@ -125,8 +128,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             return false;
         }
     }
-    cx = ctx;
-    d->sharing = shareContext && shareContext->cx;
+    d->cx = ctx;
+    d->sharing = shareContext && shareContext->d->cx;
     return true;
 }
 
@@ -150,30 +153,30 @@ void *QGLContext::chooseMacVisual(GDHandle device)
         attribs[cnt++] = AGL_PIXEL_SIZE;
         attribs[cnt++] = ((QPixmap*)d->paintDevice)->depth();
     }
-    if(glFormat.stereo())
+    if(d->glFormat.stereo())
         attribs[cnt++] = AGL_STEREO;
     {
         attribs[cnt++] = AGL_RGBA;
         attribs[cnt++] = AGL_DEPTH_SIZE;
         attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 32;
     }
-    if(glFormat.alpha()) {
+    if(d->glFormat.alpha()) {
         attribs[cnt++] = AGL_ALPHA_SIZE;
         attribs[cnt++] = 8;
     }
-    if(glFormat.stencil()) {
+    if(d->glFormat.stencil()) {
         attribs[cnt++] = AGL_STENCIL_SIZE;
         attribs[cnt++] = 4;
     }
     {
         attribs[cnt++] = AGL_LEVEL;
-        attribs[cnt++] = glFormat.plane();
+        attribs[cnt++] = d->glFormat.plane();
     }
 
     if(deviceIsPixmap()) {
         attribs[cnt++] = AGL_OFFSCREEN;
     } else {
-        if(glFormat.doubleBuffer())
+        if(d->glFormat.doubleBuffer())
             attribs[cnt++] = AGL_DOUBLEBUFFER;
 //        attribs[cnt++] = AGL_ACCELERATED;
     }
@@ -207,12 +210,12 @@ void QGLContext::reset()
 {
     if(!d->valid)
         return;
-    if(cx)
-        aglDestroyContext((AGLContext)cx);
-    cx = 0;
-    if(vi)
-        aglDestroyPixelFormat((AGLPixelFormat)vi);
-    vi = 0;
+    if(d->cx)
+        aglDestroyContext((AGLContext)d->cx);
+    d->cx = 0;
+    if(d->vi)
+        aglDestroyPixelFormat((AGLPixelFormat)d->vi);
+    d->vi = 0;
     d->crWin = false;
     d->sharing = false;
     d->valid = false;
@@ -227,7 +230,7 @@ void QGLContext::makeCurrent()
         return;
     }
 
-    aglSetCurrentContext((AGLContext)cx);
+    aglSetCurrentContext((AGLContext)d->cx);
     currentCtx = this;
 }
 
@@ -275,7 +278,7 @@ void QGLContext::updatePaintDevice()
 #endif
 
         //update drawable
-        aglSetDrawable((AGLContext)cx, GetWindowPort(window));
+        aglSetDrawable((AGLContext)d->cx, GetWindowPort(window));
 
         if(!w->isTopLevel()) {
             QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
@@ -286,40 +289,40 @@ void QGLContext::updatePaintDevice()
                 qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
 #endif
             //update the clip
-            if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
-                aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
+            if(!aglIsEnabled((AGLContext)d->cx, AGL_BUFFER_RECT))
+                aglEnable((AGLContext)d->cx, AGL_BUFFER_RECT);
             if(clp.isEmpty()) {
                 GLint offs[4] = { 0, 0, 0, 0 };
-                aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
-                if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
-                    aglDisable((AGLContext)cx, AGL_CLIP_REGION);
+                aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
+                if(aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
+                    aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
             } else {
                 QPoint wpos = posInWindow(w);
                 const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()),
                                         w->width(), w->height() };
-                aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
-                aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
-                if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
-                    aglEnable((AGLContext)cx, AGL_CLIP_REGION);
+                aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
+                aglSetInteger((AGLContext)d->cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
+                if(!aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
+                    aglEnable((AGLContext)d->cx, AGL_CLIP_REGION);
             }
         }
     } else if(d->paintDevice->devType() == QInternal::Pixmap) {
         QPixmap *pm = (QPixmap *)d->paintDevice;
         PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
-        aglSetOffScreen((AGLContext)cx, pm->width(), pm->height(),
+        aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
                         GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
         GLint offs[4] = { 0, pm->height(), pm->width(), pm->height() };
-        aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
-        aglDisable((AGLContext)cx, AGL_CLIP_REGION);
+        aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
+        aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
     } else {
         qWarning("not sure how to render opengl on this device!!");
     }
-    aglUpdateContext((AGLContext)cx);
+    aglUpdateContext((AGLContext)d->cx);
 }
 
 void QGLContext::doneCurrent()
 {
-    if(aglGetCurrentContext() != (AGLContext) cx)
+    if(aglGetCurrentContext() != (AGLContext) d->cx)
         return;
     currentCtx = 0;
     aglSetCurrentContext(NULL);
@@ -330,7 +333,7 @@ void QGLContext::swapBuffers() const
 {
     if(!d->valid)
         return;
-    aglSwapBuffers((AGLContext)cx);
+    aglSwapBuffers((AGLContext)d->cx);
 }
 
 QColor QGLContext::overlayTransparentColor() const
@@ -370,7 +373,7 @@ uint QGLContext::colorIndex(const QColor&c) const
             vals[1] = c.red();
             vals[2] = c.green();
             vals[3] = c.blue();
-            aglSetInteger((AGLContext)cx, AGL_COLORMAP_ENTRY, vals);
+            aglSetInteger((AGLContext)d->cx, AGL_COLORMAP_ENTRY, vals);
         }
     }
     return (uint)(ret == -1 ? 0 : ret);
@@ -389,7 +392,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
     short fnum;
     GetFNum(name, &fnum);
-    aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
+    aglUseFont((AGLContext) d->cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 
 static CFBundleRef qt_getOpenGLBundle()
@@ -425,9 +428,6 @@ void *QGLContext::getProcAddress(const QString &proc) const
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
-
-#define d d_func()
-#define q q_func()
 
 /****************************************************************************
   Hacks to glue AGL to an HIView
@@ -503,7 +503,7 @@ void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
         if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
             delete d->olcx;
             d->olcx = 0;
-            d->glcx->glFormat.setOverlay(false);
+            d->glcx->d->glFormat.setOverlay(false);
         }
     }
 }
@@ -527,7 +527,7 @@ void QGLWidget::resizeEvent(QResizeEvent *)
     makeCurrent();
     if(!d->glcx->initialized())
         glInit();
-    aglUpdateContext((AGLContext)d->glcx->cx);
+    aglUpdateContext((AGLContext)d->glcx->d->cx);
     resizeGL(width(), height());
 
     if(d->olcx) {
