@@ -1498,8 +1498,8 @@ void Configure::generateMakefiles()
 	int i = 0;
 #if !defined(EVAL)
 	QStringList qtProjects;
-	qtProjects << "winmain" << "moc" << "core" << "gui" << "canvas" << "network"
-		   << "opengl" << "sql" << "xml" << "src";
+	qtProjects << "winmain" << "moc" << "core" << "gui" << "network"
+		   << "opengl" << "sql" << "xml" << "compat" << "src";
 	for (i=0;i<qtProjects.size();++i) {
 	    QString qtProject = qtProjects.at(i);
 	    QString dir;
