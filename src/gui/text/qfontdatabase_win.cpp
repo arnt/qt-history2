@@ -678,7 +678,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     QPaintDevice *paintdevice = fp->paintdevice;
 
     HDC hdc;
-    if (paintdevice) {
+    if (paintdevice && paintdevice->devType() != QInternal::Widget) {
         hdc = qt_winHDC(paintdevice);
     } else if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
         hdc = GetDC(0);
