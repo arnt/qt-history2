@@ -239,7 +239,7 @@ QTextFormatCommand::QTextFormatCommand( QTextDocument *d, int sid, int sidx, int
 					const QArray<QTextStringChar> &old, QTextFormat *f, int fl )
     : QTextCommand( d ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
 {
-    format->addRef();
+    format = d->formatCollection()->format( f );
     for ( int j = 0; j < (int)oldFormats.size(); ++j ) {
 	if ( oldFormats[ j ].format() )
 	    oldFormats[ j ].format()->addRef();
