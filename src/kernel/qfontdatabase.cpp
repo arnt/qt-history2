@@ -265,7 +265,7 @@ struct QtFontFamily
     int count;
     QtFontFoundry **foundries;
 
-    unsigned char scripts[QFont::NScripts];
+    unsigned char scripts[QFont::LastPrivateScript];
 
     QtFontFoundry *foundry( const QString &f, bool = FALSE );
 };

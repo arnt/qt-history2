@@ -389,26 +389,14 @@ QFontEngineData::~QFontEngineData()
 	   people. This script encodes the 256 eight-dot patterns with
 	   the 64 six-dot patterns as a subset.
 
+    \value Tagalog,
+    \value Hanunoo,
+    \value Buhid,
+    \value Tagbanwa,
+
+    \value KatakanaHalfWidth,
 
     \value Unicode includes all the above scripts.
-
-    The values below are provided for completeness and must \e not be
-    used in user programs.
-
-    \value HanX11 For internal use only.
-    \value LatinBasic For internal use only.
-    \value LatinExtendedA_2 For internal use only.
-    \value LatinExtendedA_3 For internal use only.
-    \value LatinExtendedA_4 For internal use only.
-    \value LatinExtendedA_14 For internal use only.
-    \value LatinExtendedA_15 For internal use only.
-    \value KatakanaHalfWidth For internal use only.
-
-    \value LastPrivateScript For internal use only.
-
-    \value NScripts For internal use only.
-    \value NoScript For internal use only.
-    \value UnknownScript For internal use only.
 */
 
 /*! \internal

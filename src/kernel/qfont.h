@@ -260,28 +260,24 @@ public:
 	Buhid,
 	Tagbanwa,
 
-	KatakanaHalfWidth,		// from JIS X 0201
+	KatakanaHalfWidth,
 	// End
+#if !defined(Q_QDOC)
 	NScripts,
 	UnknownScript = NScripts,
 
 	NoScript,
 
 	// ----------------------------------------
-	// Dear User, you can see values > Unicode,
+	// Dear User, you can see values > NScript,
 	// but they are internal - do not touch.
 
-       	// only used on X11 to get some char displayed for all of the Han area.
-	HanX11,
-
-	LatinBasic = Latin,             // from ISO-8859-1
-	LatinExtendedA_2 = HanX11 + 1,  // from ISO-8859-2
-	LatinExtendedA_3,               // from ISO-8859-3
-	LatinExtendedA_4,               // from ISO-8859-4
-	LatinExtendedA_14,              // from ISO-8859-14
-	LatinExtendedA_15,              // from ISO-8859-15
+	Han_Japanese,
+	Han_SimplifiedChinese,
+	Han_TraditionalChinese,
 
 	LastPrivateScript
+#endif
     };
 
     QString defaultFamily() const;
