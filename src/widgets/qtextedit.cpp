@@ -3235,6 +3235,9 @@ void QTextEdit::getCursorPosition( int *para, int *index ) const
   Uses the selection settings of selection \a selNum. If \a selNum is 0,
   this is the default selection.
 
+  The cursor is moved to the end of the selection, if \a selNum is 0,
+  otherwise the cursor position remains unchanged.
+
   \sa getSelection() selectedText
 */
 
@@ -3261,6 +3264,7 @@ void QTextEdit::setSelection( int paraFrom, int indexFrom,
 
     drawCursor( FALSE );
     QTextCursor c = *cursor;
+    QTextCursor oldCursor = *cursor;
     c.setParag( p1 );
     c.setIndex( indexFrom );
     cursor->setParag( p2 );
@@ -3269,6 +3273,8 @@ void QTextEdit::setSelection( int paraFrom, int indexFrom,
     doc->setSelectionEnd( selNum, cursor );
     repaintChanged();
     ensureCursorVisible();
+    if ( selNum != QTextDocument::Standard )
+	*cursor = oldCursor;
     drawCursor( TRUE );
 }
 
