@@ -583,8 +583,10 @@ double QDial::notchTarget() const
 
 void QDial::setNotchesVisible(bool visible)
 {
-    d->showNotches = visible;
-    update();
+    // d->showNotches = visible;
+    // update();
+    // ### fix after beta2
+    Q_UNUSED(visible);
 }
 
 /*!
