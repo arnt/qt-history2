@@ -7,6 +7,7 @@ LEXSOURCES	= moc.l
 YACCSOURCES	= moc.y
 INCLUDEPATH	= ../../include ../tools .
 DEPENDPATH	= ../../include ../tools .
+LIBS		=
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
 SOURCES		= ../tools/qbuffer.cpp	    \

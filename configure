@@ -908,7 +908,7 @@ then
    # Add freetype2 include path
    if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.inc ]
    then
-       I_FLAGS="$IFLAGS -I`cat $x11tests/xfreetype.inc`"
+       QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $x11tests/xfreetype.inc`\""
    fi
    rm -f $x11tests/xfreetype.inc
    # Add XftFreetype specific config options
@@ -1422,7 +1422,7 @@ then
 	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
 	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
 	# up as a dependency if libXft isn't a shared library, so we have to add
-	# libfreetype as well as libXft to the program/lib link command
+	# libfreetype as well as libXt to the program/lib link command
 	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXft -lfreetype\""
     fi
 fi
