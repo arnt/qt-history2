@@ -361,8 +361,9 @@ QCoreApplication::~QCoreApplication()
     QThread::cleanup();
 
     mainData()->eventDispatcher = 0;
-    QCoreApplicationPrivate::eventDispatcher->closingDown();
-    QCoreApplicationPrivate::eventDispatcher = 0;
+    if (d->eventDispatcher)
+        d->eventDispatcher->closingDown();
+    d->eventDispatcher = 0;
 }
 
 /*!
