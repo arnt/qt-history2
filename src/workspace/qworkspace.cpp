@@ -856,7 +856,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	}
     }
 
-    bool ishidden = w->isVisible();
+    bool ishidden = w->isHidden();
     QSize olds(w->size());
     if(w->place() == QDockWindow::InDock) 
 	w->undock();
@@ -1016,7 +1016,6 @@ void QWorkspace::showEvent( QShowEvent *e )
 /*! \reimp */
 void QWorkspace::hideEvent( QHideEvent * )
 {
-
     if ( !isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	hideMaximizeControls();
 }

@@ -528,7 +528,7 @@ static QSize qt_aqua_size_constraints(QWidget *widg, AquaSize sz)
 {
     QSize ret(-1, -1);
     const int shadow_height = 3;
-    if(sz == AquaSizeUnknown) {
+    if(sz != AquaSizeSmall && sz != AquaSizeLarge) {
 	qDebug("Not sure how to return this..");
 	return ret;
     }
@@ -583,8 +583,8 @@ static QSize qt_aqua_size_constraints(QWidget *widg, AquaSize sz)
 	else 
 	    ret = QSize(-1, 17);
 #endif
-    } else if(widg->inherits("QToolButton") && widg->parentWidget() && 
-	      widg->parentWidget()->inherits("QToolBar")) {
+    } else if(widg->inherits("QToolButton") && !((QToolButton*)widg)->usesTextLabel() &&
+	      widg->parentWidget() && widg->parentWidget()->inherits("QToolBar")) {
 	if(sz == AquaSizeSmall)
 	    ret = QSize(20, 20);
     } else if(widg->inherits("QSlider")) {
