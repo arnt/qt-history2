@@ -146,8 +146,6 @@ void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
 
 QTextParag *QTextDocument::paragAt( int i ) const
 {
-    // ### some paragraphs might return invalid ids when they are
-    // dirty. Can we do format here?
     QTextParag* p = curParag;
     if ( !p || p->paragId() > i )
 	p = fParag;
@@ -155,10 +153,6 @@ QTextParag *QTextDocument::paragAt( int i ) const
 	p = p->next();
     ((QTextDocument*)this)->curParag = p;
     return p;
-}
-
-QTextFormat::~QTextFormat()
-{
 }
 
 QTextFormat::QTextFormat()
@@ -382,6 +376,7 @@ void QTextFormat::updateStyle()
 	fn.setItalic( item->fontItalic() );
     if ( !( different & Underline ) && item->definesFontUnderline() )
 	fn.setUnderline( item->fontUnderline() );
+    generateKey();
     update();
 
 }

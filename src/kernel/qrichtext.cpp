@@ -886,10 +886,10 @@ void QTextCursor::gotoNextLetter()
 	QTextParag *s = string->next();
 	while ( s && !s->isVisible() )
 	    s = s->next();
-	if ( s ) {
+        if ( s ) {
 	    string = s;
 	    idx = 0;
-	}
+        }
     } else {
 	if ( nested ) {
 	    pop();
@@ -1341,7 +1341,14 @@ void QTextCursor::setDocument( QTextDocument *d )
 QTextDocument::QTextDocument( QTextDocument *p )
     : par( p ), parParag( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
 {
-    fCollection = p ? p->fCollection : new QTextFormatCollection;
+    fCollection = new QTextFormatCollection;
+    init();
+}
+
+QTextDocument::QTextDocument( QTextDocument *p, QTextFormatCollection *f )
+    : par( p ), parParag( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
+{
+    fCollection = f;
     init();
 }
 
@@ -1363,7 +1370,8 @@ void QTextDocument::init()
     preferRichText = FALSE;
     pages = FALSE;
     focusIndicator.parag = 0;
-    minw = wused = 0;
+    minw = 0;
+    wused = 0;
     minwParag = curParag = 0;
     align = AlignAuto;
     nSelections = 1;
@@ -1414,10 +1422,9 @@ QTextDocument::~QTextDocument()
     clear();
     delete commandHistory;
     delete flow_;
-    if ( !par || pFormatter != par->pFormatter )
-	delete pFormatter;
     if ( !par )
-	delete fCollection;
+	delete pFormatter;
+    delete fCollection;
     delete pProcessor;
     delete buf_pixmap;
     delete indenter;
@@ -1439,8 +1446,6 @@ void QTextDocument::clear( bool createEmptyParag )
     if ( createEmptyParag )
 	fParag = lParag = createParag( this );
     selections.clear();
-    if ( !par )
-	fCollection->clearAnchorFormats();
 }
 
 int QTextDocument::widthUsed() const
@@ -1825,12 +1830,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    QTextFormat *f = p->at( p->length() - 1 )->format();
 			    if ( f && !f->isAnchor() ) {
 				// this does not go through the format collection...
-				QTextFormat* a = fCollection->createFormat( *f );
-				a->anchor_name = attr[ "name" ];
-				a->update();
-				f = fCollection->format( a );
-				delete a; // so delete it here
+				f = fCollection->createFormat( *f );
+				f->anchor_name = attr[ "name" ];
+				f->update();
 				p->setFormat( p->length() - 1, 1, f, TRUE, QTextFormat::Format );
+				// ... so delete it
+				delete f;
 			    }
 			}
 		    }
@@ -2790,29 +2795,20 @@ void QTextDocument::doLayout( QPainter *p, int w )
     flow_->setWidth( w );
     cw = w;
     vw = w;
-    if ( p ) {
-	fCollection->setPainter( p );
-	QTextParag *parag = fParag;
-	while ( parag ) {
-	    parag->invalidate( 0 );
-	    parag->setPainter( p, TRUE );
-	    parag->format();
-	    parag = parag->next();
-	}
+    fCollection->setPainter( p );
+    QTextParag *parag = fParag;
+    while ( parag ) {
+	parag->invalidate( 0 );
+	parag->setPainter( p, TRUE );
+	parag->format();
+	parag = parag->next();
+    }
 
-	fCollection->setPainter( 0 );
-	parag = fParag;
-	while ( parag ) {
-	    parag->setPainter( 0, FALSE );
-	    parag = parag->next();
-	}
-    } else {
-	QTextParag *parag = fParag;
-	while ( parag ) {
-	    parag->invalidate( 0 );
-	    parag->format();
-	    parag = parag->next();
-	}
+    fCollection->setPainter( 0 );
+    parag = fParag;
+    while ( parag ) {
+	parag->setPainter( 0, FALSE );
+	parag = parag->next();
     }
 }
 
@@ -2993,9 +2989,9 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	lastFormatted = parag;
 	if ( !parag->isValid() )
 	    parag->format();
-	
+
 	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) &&
-	    !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
+	     !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	    QRect pr( parag->rect() );
 	    pr.setWidth( parag->document()->width() );
 	    if ( pr.intersects( QRect( cx, cy, cw, ch ) ) )
@@ -3008,7 +3004,7 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    continue;
 	}
 
-	if ( !parag->hasChanged() && onlyChanged && 
+	if ( !parag->hasChanged() && onlyChanged &&
 	     !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	    parag = parag->next();
 	    continue;
@@ -3495,8 +3491,6 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
     if ( !s )
 	return;
     sheet_ = s;
-    if ( par )
-	return;
     fCollection->setStyleSheet( s );
     updateStyles();
 }
@@ -3504,26 +3498,26 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
 void QTextDocument::updateStyles()
 {
     invalidate();
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->invalidate();
     if ( par )
 	underlLinks = par->underlLinks;
     fCollection->updateStyles();
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->updateStyles();
 }
 
 void QTextDocument::updateFontSizes( int base )
 {
-    invalidate();
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->invalidate();
+	d->updateFontSizes( base );
+    invalidate();
     fCollection->updateFontSizes( base );
 }
 
 void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
 {
-    invalidate();
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->invalidate();
+	d->updateFontAttributes( f, old );
+    invalidate();
     fCollection->updateFontAttributes( f, old );
 }
 
@@ -3698,14 +3692,15 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 QTextParag::~QTextParag()
 {
     delete str;
-    if ( hasdoc && p == document()->minwParag ) {
-	document()->minwParag = 0;
-	document()->minw = 0;
-    }
-    if ( hasdoc && p == document()->curParag ) {
-	document()->curParag = 0;
-    }
-    if ( !hasdoc ) {
+    if ( hasdoc ) {
+	register QTextDocument *doc = document();
+	if ( p == doc->minwParag ) {
+	    doc->minwParag = 0;
+	    doc->minw = 0;
+	}
+	if ( p == doc->curParag )
+	    doc->curParag = 0;
+    } else {
 	delete pseudoDocument();
     }
     if ( tArray )
@@ -3714,11 +3709,16 @@ QTextParag::~QTextParag()
     QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
     for ( ; it != lineStarts.end(); ++it )
 	delete *it;
-    if ( mSelections ) delete mSelections;
-    if ( mFloatingItems ) delete mFloatingItems;
-    if ( mStyleSheetItemsVec ) delete mStyleSheetItemsVec;
-    if ( p ) p->setNext( n );
-    if ( n ) n->setPrev( p );
+    if ( mSelections )
+	delete mSelections;
+    if ( mFloatingItems )
+	delete mFloatingItems;
+    if ( mStyleSheetItemsVec )
+	delete mStyleSheetItemsVec;
+    if ( p )
+	p->setNext( n );
+    if ( n )
+	n->setPrev( p );
 }
 
 void QTextParag::setNext( QTextParag *s )
@@ -5753,22 +5753,15 @@ QTextFormatCollection::QTextFormatCollection()
 {
     defFormat = new QTextFormat( QApplication::font(),
 				 QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
-    defFormat->collection = this;
-    cKey.insert( defFormat->key(), defFormat );
     lastFormat = cres = 0;
     cflags = -1;
+    cKey.setAutoDelete( TRUE );
     cachedFormat = 0;
 }
 
 QTextFormatCollection::~QTextFormatCollection()
 {
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *f;
-    while ( ( f = it.current() ) ) {
-	++it;
-	delete f;
-    }
-    cKey.clear();
+    delete defFormat;
 }
 
 void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
@@ -5801,7 +5794,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	lastFormat->addRef();
 	return lastFormat;
     }
-    
+
     if ( f == lastFormat || ( lastFormat && f->key() == lastFormat->key() ) ) {
 #ifdef DEBUG_COLLECTION
 	qDebug( "need '%s', good case!", f->key().latin1() );
@@ -5810,17 +5803,16 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
- // #### disabled, because if this format is not in the
+#if 0 // #### disabled, because if this format is not in the
  // formatcollection, it doesn't get the painter through
  // QTextFormatCollection::setPainter() which breaks printing on
  // windows
     if ( f->isAnchor() ) {
 	lastFormat = createFormat( *f );
-	lastFormat->collection = this;
-	lastFormat->addRef();
-	anchors.append( lastFormat );
+	lastFormat->collection = 0;
 	return lastFormat;
     }
+#endif
 
     QTextFormat *fm = cKey.find( f->key() );
     if ( fm ) {
@@ -5832,10 +5824,8 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
-    if ( f->key() == defFormat->key() ) {
-	defFormat->addRef();
+    if ( f->key() == defFormat->key() )
 	return defFormat;
-    }
 
 #ifdef DEBUG_COLLECTION
     qDebug( "need '%s', worst case!", f->key().latin1() );
@@ -5920,10 +5910,8 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
 	return cachedFormat;
     }
 
-    if ( key == defFormat->key() ) {
-	defFormat->addRef();
+    if ( key == defFormat->key() )
 	return defFormat;
-    }
 
     cachedFormat = createFormat( f, c );
     cachedFormat->collection = this;
@@ -5944,10 +5932,7 @@ void QTextFormatCollection::remove( QTextFormat *f )
 	cres = 0;
     if ( cachedFormat == f )
 	cachedFormat = 0;
-    if ( !f->isAnchor() && f != defFormat )
-	cKey.remove( f->key() );
-    if ( f != defFormat )
-	delete f;
+    cKey.remove( f->key() );
 }
 
 void QTextFormatCollection::setPainter( QPainter *p )
@@ -5973,35 +5958,6 @@ void QTextFormatCollection::debug()
 #endif
 }
 
-
-// the keys in cKey have changed, rebuild the hashtable
-void QTextFormatCollection::updateKeys()
-{
-    if ( cKey.isEmpty() )
-	return;
-    QTextFormat** formats = new QTextFormat*[  cKey.count() + 1];
-    QTextFormat **f = formats;
-    QDictIterator<QTextFormat> it( cKey );
-    while ( ( *f = it.current() ) ) {
-	++it;
-	++f;
-    }
-    cKey.clear();
-    for ( f = formats; *f; f++ )
-	cKey.insert( (*f)->key(), *f );
-
-}
-
-
-void QTextFormatCollection::clearAnchorFormats()
-{
-    QTextFormat *f;
-    for ( f = anchors.first(); f; f = anchors.next() )
-	f->removeRef();
-    anchors.clear();
-    lastFormat = 0;
-}
-
 void QTextFormatCollection::updateStyles()
 {
     QDictIterator<QTextFormat> it( cKey );
@@ -6010,9 +5966,6 @@ void QTextFormatCollection::updateStyles()
 	++it;
 	f->updateStyle();
     }
-    for ( f = anchors.first(); f; f = anchors.next() )
-	f->updateStyle();
-    updateKeys();
 }
 
 void QTextFormatCollection::updateFontSizes( int base )
@@ -6026,56 +5979,47 @@ void QTextFormatCollection::updateFontSizes( int base )
 	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
 	f->update();
     }
-    for ( f = anchors.first(); f; f = anchors.next() ) {
-	f->stdPointSize = base;
-	f->fn.setPointSize( f->stdPointSize );
-	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
-	f->update();
-    }
-    updateKeys();
+    f = defFormat;
+    f->stdPointSize = base;
+    f->fn.setPointSize( f->stdPointSize );
+    styleSheet()->scaleFont( f->fn, f->logicalFontSize );
+    f->update();
 }
 
-void QTextFormatCollection::updateFontAttributes( const QFont &font, const QFont &old )
+void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &old )
 {
     QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *f;
-    bool needUpdateKeys = FALSE;
-    while ( ( f = it.current() ) ) {
+    QTextFormat *fm;
+    while ( ( fm = it.current() ) ) {
 	++it;
-	if ( f->fn.family() == old.family() &&
-	     f->fn.weight() == old.weight() &&
-	     f->fn.italic() == old.italic() &&
-	     f->fn.underline() == old.underline() ) {
-	    f->fn.setFamily( font.family() );
-	    f->fn.setWeight( font.weight() );
-	    f->fn.setItalic( font.italic() );
-	    f->fn.setUnderline( font.underline() );
-	    needUpdateKeys = TRUE;
-	    f->update();
+	if ( fm->fn.family() == old.family() &&
+	     fm->fn.weight() == old.weight() &&
+	     fm->fn.italic() == old.italic() &&
+	     fm->fn.underline() == old.underline() ) {
+	    fm->fn.setFamily( f.family() );
+	    fm->fn.setWeight( f.weight() );
+	    fm->fn.setItalic( f.italic() );
+	    fm->fn.setUnderline( f.underline() );
+	    fm->update();
 	}
     }
-    for ( f = anchors.first(); f; f = anchors.next() ) {
-	if ( f->fn.family() == old.family() &&
-	     f->fn.weight() == old.weight() &&
-	     f->fn.italic() == old.italic() &&
-	     f->fn.underline() == old.underline() ) {
-	    f->fn.setFamily( font.family() );
-	    f->fn.setWeight( font.weight() );
-	    f->fn.setItalic( font.italic() );
-	    f->fn.setUnderline( font.underline() );
-	    needUpdateKeys = TRUE;
-	    f->update();
-	}
+    fm = defFormat;
+    if ( fm->fn.family() == old.family() &&
+	 fm->fn.weight() == old.weight() &&
+	 fm->fn.italic() == old.italic() &&
+	 fm->fn.underline() == old.underline() ) {
+	fm->fn.setFamily( f.family() );
+	fm->fn.setWeight( f.weight() );
+	fm->fn.setItalic( f.italic() );
+	fm->fn.setUnderline( f.underline() );
+	fm->update();
     }
-    if ( needUpdateKeys )
-	updateKeys();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void QTextFormat::setBold( bool b )
 {
-    Q_ASSERT ( collection == 0 );
     if ( b == fn.bold() )
 	return;
     fn.setBold( b );
@@ -6084,7 +6028,6 @@ void QTextFormat::setBold( bool b )
 
 void QTextFormat::setMisspelled( bool b )
 {
-    Q_ASSERT ( collection == 0 );
     if ( b == (bool)missp )
 	return;
     missp = b;
@@ -6093,7 +6036,6 @@ void QTextFormat::setMisspelled( bool b )
 
 void QTextFormat::setVAlign( VerticalAlignment a )
 {
-    Q_ASSERT ( collection == 0 );
     if ( a == ha )
 	return;
     ha = a;
@@ -6102,7 +6044,6 @@ void QTextFormat::setVAlign( VerticalAlignment a )
 
 void QTextFormat::setItalic( bool b )
 {
-    Q_ASSERT ( collection == 0 );
     if ( b == fn.italic() )
 	return;
     fn.setItalic( b );
@@ -6111,7 +6052,6 @@ void QTextFormat::setItalic( bool b )
 
 void QTextFormat::setUnderline( bool b )
 {
-    Q_ASSERT ( collection == 0 );
     if ( b == fn.underline() )
 	return;
     fn.setUnderline( b );
@@ -6120,7 +6060,6 @@ void QTextFormat::setUnderline( bool b )
 
 void QTextFormat::setFamily( const QString &f )
 {
-    Q_ASSERT ( collection == 0 );
     if ( f == fn.family() )
 	return;
     fn.setFamily( f );
@@ -6129,7 +6068,6 @@ void QTextFormat::setFamily( const QString &f )
 
 void QTextFormat::setPointSize( int s )
 {
-    Q_ASSERT ( collection == 0 );
     if ( s == fn.pointSize() )
 	return;
     fn.setPointSize( s );
@@ -6138,7 +6076,6 @@ void QTextFormat::setPointSize( int s )
 
 void QTextFormat::setFont( const QFont &f )
 {
-    Q_ASSERT ( collection == 0 );
     if ( f == fn && !k.isEmpty() )
 	return;
     fn = f;
@@ -6147,7 +6084,6 @@ void QTextFormat::setFont( const QFont &f )
 
 void QTextFormat::setColor( const QColor &c )
 {
-    Q_ASSERT ( collection == 0 );
     if ( c == col )
 	return;
     col = c;
@@ -6344,6 +6280,8 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	}
     }
 
+    if ( fn != format.fn || changed || col != format.col ) // slight performance improvement
+	format.generateKey();
     format.update();
     return format;
 }
@@ -7882,6 +7820,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
+    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
     richtext->setRichText( doc, context );
     rowspan_ = 1;
     colspan_ = 1;
@@ -7935,6 +7874,7 @@ QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
     richtext->setTableCell( this );
     richtext->setFormatter( table->parent->formatter() );
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
+    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
     richtext->setRichText( "<html></html>", QString::null );
     rowspan_ = 1;
     colspan_ = 1;
