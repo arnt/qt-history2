@@ -14,7 +14,7 @@
 #define COMMAND_PAGE                Doc::alias( "page" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
-#define COMMAND_QUICKIFIED          Doc::alias( "quickified" )
+#define COMMAND_QUICKIFY            Doc::alias( "quickify" )
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
@@ -195,7 +195,7 @@ qDebug( "Quickifying '%s'", className.latin1() );
 
 Set<QString> QsCodeParser::otherMetaCommands()
 {
-    return commonMetaCommands() << COMMAND_QUICKIFIED << COMMAND_REPLACE;
+    return commonMetaCommands() << COMMAND_QUICKIFY << COMMAND_REPLACE;
 }
 
 ClassNode *QsCodeParser::tryClass( const QString& className )
@@ -581,11 +581,11 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 
 void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 {
-    QRegExp quickifiedCommand( "\\\\" + COMMAND_QUICKIFIED +
+    QRegExp quickifiedCommand( "\\\\" + COMMAND_QUICKIFY +
 			       "([^\n]*)(?:\n|$)" );
 
     if ( doc.metaCommandsUsed() != 0 &&
-	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFIED) ) {
+	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFY) ) {
 	QString source = doc.source();
 	int pos = source.find( quickifiedCommand );
 	if ( pos != -1 ) {

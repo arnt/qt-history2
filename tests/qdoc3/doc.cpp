@@ -226,8 +226,7 @@ private:
     static QString untabifyEtc( const QString& str );
     static int indentLevel( const QString& str );
     static QString unindent( int level, const QString& str );
-    static int pseudoEditDistance( const QString& actual,
-				   const QString& expected );
+    static int editDistance( const QString& actual, const QString& expected );
 
     QValueStack<int> openedInputs;
 
@@ -786,7 +785,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 
     Set<QString>::ConstIterator c = commandSet.begin();
     while ( c != commandSet.end() ) {
-	int delta = pseudoEditDistance( str, *c );
+	int delta = editDistance( str, *c );
 	if ( delta < deltaBest ) {
 	    deltaBest = delta;
 	    numBest = 1;
@@ -1579,8 +1578,7 @@ QString DocParser::unindent( int level, const QString& str )
     return t;
 }
 
-int DocParser::pseudoEditDistance( const QString& actual,
-				   const QString& expected )
+int DocParser::editDistance( const QString& actual, const QString& expected )
 {
 #define D( i, j ) d[(i) * n + (j)]
     int i;
@@ -1607,12 +1605,6 @@ int DocParser::pseudoEditDistance( const QString& actual,
 	}
     }
     result = D( m - 1, n - 1 );
-    /*
-      Handle common mistake: \quickify instead of \quickified.
-    */
-    if ( result == 3 && m == n - 2 && actual.endsWith("y") &&
-	 expected.endsWith("ied") )
-	result = 1;
     delete[] d;
     return result;
 #undef D
