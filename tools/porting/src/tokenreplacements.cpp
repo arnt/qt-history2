@@ -128,6 +128,8 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                     QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
                     if(newTokenScope == scopeText){
                         //the old and new scopes are equal, replace name part only
+                        if (tokenText == newTokenName) //names are equal, no need to do anything
+                            return true;
                         makeLogEntry("ScopedReplace", tokenText + " -> " + newTokenName, tokenStream);
                         textReplacements.insert(newTokenName, token.position, tokenText.size());
                         return true;
