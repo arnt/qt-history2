@@ -7,7 +7,7 @@
 
 #include <stdarg.h>
 
-#include "configuration.h"
+#include "config.h"
 #include "htmlwriter.h"
 #include "messages.h"
 

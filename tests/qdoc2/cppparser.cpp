@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "binarywriter.h"
-#include "configuration.h"
+#include "config.h"
 #include "decl.h"
 #include "doc.h"
 #include "messages.h"
@@ -22,21 +22,21 @@
 
 /*
   What is parsing?  Even though source files and header files are written in the
-  same language (C++), qdoc distinguishes them.  It first reads the header files using a parser that looks for declarations and class definitions.
-  Then it reads the source files using another parser that looks for
-  slashasterbang comments.  Both parsers have much in common, but they are also
-  quite different.  For that reason, they are tangled here in one file, with
-  some shared parts.
+  same language (C++), qdoc distinguishes them.  It first reads the header files
+  using a parser that looks for declarations and class definitions.  Then it
+  reads the source files using another parser that looks for slashasterbang
+  comments.  Both parsers have much in common, but they are also quite
+  different.  For that reason, they are tangled here in one file.
 
-  The parser is quite peculiar.  It looks like a typical recursive-descent
-  parser (supposedly one of the least maintainable and most hard to read parsing
-  techniques).  However, most of this beast has nothing to do with Standard C++
-  grammar.  It parses something that could be called Intuitive C.  It is quite
-  gross in the details, and will try to parse anything that starts with 'class'
-  as a class definition, until it meets something that doesn't fit.  What does
-  the parser do then?  If your answer is backtrack, you're wrong.  It just looks
-  for something to hold on and goes on, without ever emitting a warning about
-  syntax.
+  The two parsers are quite peculiar.  They look like typical recursive-descent
+  parsers (supposedly one of the least maintainable and most hard to read
+  parsing techniques).  However, these beasts have very little to do with
+  Standard C++.  They parse something that could be called Intuitive C++, or
+  ad hoc C++.  They are quite gross in the details.  The header parser will try
+  to parse anything that starts with 'class' as a class definition, until it
+  meets something that doesn't fit.  What does it do then?  If your answer is
+  backtrack, you're wrong.  It just looks for something to hold on and goes on,
+  without ever emitting a warning about syntax.
 */
 
 /*
@@ -100,8 +100,8 @@ static bool matchTemplateHeader()
 
 /*
   Tries to match a data type and possibly a variable name.  The variable name
-  belongs here because of cases such as 'char *xpm[]' and 'int (*f)( int )'.
-  The inventors of C are to blame for these inside-out declarations.
+  belongs here because of cases such as 'char *xpm[]' and 'int (*f)(int)'.  The
+  inventors of C are to blame for these inside-out declarations.
 */
 static bool matchDataType( CodeChunk *type, QString *var = 0 )
 {
@@ -110,28 +110,35 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
     if ( varComment == 0 )
 	varComment = new QRegExp( QString("/\\*\\s([a-zA-Z_0-9]+)\\s\\*/") );
 
+    /*
+      This code is really hard to follow... sorry.  The loop is there to match
+      Alpha::Beta::Gamma::...::Omega.
+    */
     while ( TRUE ) {
 	bool virgin = TRUE;
 
 	if ( yyTok != Tok_Ident ) {
 	    /*
-	      If 'operator' follows, take anything to account for
-	      'Foo::operator int()'.
+	      There is special processing for 'Foo::operator int()' and such
+	      elsewhere.  This is the only case where we return something with a
+	      trailing gulbrandsen ('Foo::').
 	    */
 	    if ( yyTok == Tok_operator )
 		return TRUE;
 
+	    /*
+	      People may write 'const unsigned short' or
+	      'short unsigned const' or any other permutation.
+	    */
 	    while ( match(Tok_const) || match(Tok_volatile) )
 		type->append( yyTokenizer->previousLexeme() );
-
-	    if ( match(Tok_signed) || match(Tok_unsigned) ) {
+	    while ( match(Tok_signed) || match(Tok_unsigned) ||
+		    match(Tok_short) || match(Tok_long) ) {
 		type->append( yyTokenizer->previousLexeme() );
 		virgin = FALSE;
 	    }
-	    if ( match(Tok_short) || match(Tok_long) ) {
+	    while ( match(Tok_const) || match(Tok_volatile) )
 		type->append( yyTokenizer->previousLexeme() );
-		virgin = FALSE;
-	    }
 
 	    if ( match(Tok_Tilde) )
 		type->append( yyTokenizer->previousLexeme() );
@@ -165,7 +172,10 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 
     if ( match(Tok_LeftParenAster) ) {
 	/*
-	  A function pointer.
+	  A function pointer.  This would be rather hard to handle without a
+	  tokenizer hack, because a type can be followed with a left parenthesis
+	  in some cases (e.g., 'operator int()').  The tokenizer recognizes '(*'
+	  as a single token.
 	*/
 	type->append( yyTokenizer->previousLexeme() );
 	type->appendHotspot();
@@ -184,7 +194,8 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 	    type->append( yyTokenizer->previousLexeme() );
     } else {
 	/*
-	  The common case.
+	  The common case:  Look for an optional identifier, then for some
+	  array brackets.
 	*/
 	type->appendHotspot();
 
@@ -256,6 +267,9 @@ static bool matchFunctionDecl( Decl *context )
 
     bool gotFullName = FALSE;
 
+    /*
+      Here is the complicated hack for 'Foo::operator int()'.
+    */
     if ( yyTok == Tok_operator &&
 	 (returnType.isEmpty() ||
 	  returnType.toString().right(2) == QString("::")) ) {
@@ -471,7 +485,7 @@ static bool matchTypedefDecl( Decl *context )
     return TRUE;
 }
 
-bool matchProperty( ClassDecl *classDecl )
+static bool matchProperty( ClassDecl *classDecl )
 {
     if ( !match(Tok_Q_PROPERTY) && !match(Tok_Q_OVERRIDE) )
 	return FALSE;
@@ -615,7 +629,7 @@ void parseCppHeaderFile( Steering *steering, const QString& filePath )
   The third part of the file constitutes the C++ source file parser proper.
 */
 
-void matchDocsAndStuff( Steering *steering )
+static void matchDocsAndStuff( Steering *steering )
 {
     while ( yyTok != Tok_Eoi ) {
 	if ( yyTok == Tok_Doc ) {

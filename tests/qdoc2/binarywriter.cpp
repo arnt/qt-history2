@@ -5,7 +5,7 @@
 #include <qfile.h>
 
 #include "binarywriter.h"
-#include "configuration.h"
+#include "config.h"
 #include "messages.h"
 
 BinaryWriter::BinaryWriter( const QString& fileName )

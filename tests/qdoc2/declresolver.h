@@ -14,6 +14,10 @@
 class Decl;
 class ClassDecl;
 
+/*
+  The DeclResolver class is a Resolver that resolves identifiers using a Decl
+  tree.
+*/
 class DeclResolver : public Resolver
 {
 public:

@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "configuration.h"
+#include "config.h"
 #include "messages.h"
 #include "tokenizer.h"
 
@@ -38,10 +38,6 @@ static int hashKword( const char *s, int len )
 {
     return ( ((uchar) s[0]) + (((uchar) s[2]) << 5) +
 	     (((uchar) s[len - 1]) << 3) ) % KwordHashTableSize;
-}
-
-Tokenizer::~Tokenizer()
-{
 }
 
 int Tokenizer::getToken()
@@ -132,6 +128,13 @@ int Tokenizer::getToken()
 	    case '(':
 		yyCh = getChar();
 		yyParenDepth++;
+		if ( isspace(yyCh) ) {
+		    do {
+			yyCh = getChar();
+		    } while ( isspace(yyCh) );
+		    yyLexLen = 1;
+		    yyLex[1] = '\0';
+		}
 		if ( yyCh == '*' ) {
 		    yyCh = getChar();
 		    return Tok_LeftParenAster;
@@ -423,8 +426,8 @@ int Tokenizer::getTokenAfterPreprocessor()
 	  #else
 
       the skipping stack contains, from bottom to top, FALSE TRUE TRUE (assuming
-      0 is false and 1 is true).  If at least one entry of the stack is TRUE, the
-      tokens are skipped.
+      0 is false and 1 is true).  If at least one entry of the stack is TRUE,
+      the tokens are skipped.
 
       This mechanism is simple and unreadable.
     */

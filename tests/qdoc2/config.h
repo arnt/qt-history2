@@ -1,18 +1,18 @@
 /*
-  configuration.h
+  config.h
 */
 
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
 
-class Configuration
+class Config
 {
 public:
-    Configuration( int argc, char **argv );
+    Config( int argc, char **argv );
 
     void setVersion( const QString& version );
 
@@ -49,8 +49,8 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    Configuration( const Configuration& );
-    Configuration& operator=( const Configuration& );
+    Config( const Config& );
+    Config& operator=( const Config& );
 #endif
 
     bool matchLine( QString *key, QStringList *val );
@@ -93,6 +93,6 @@ private:
     QString membersDotHtml;
 };
 
-extern Configuration *config;
+extern Config *config;
 
 #endif

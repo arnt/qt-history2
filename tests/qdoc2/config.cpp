@@ -1,5 +1,5 @@
 /*
-  configuration.cpp
+  config.cpp
 */
 
 #include <qdir.h>
@@ -12,10 +12,10 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include "configuration.h"
+#include "config.h"
 #include "messages.h"
 
-Configuration *config;
+Config *config;
 
 static bool isCSym( QChar ch )
 {
@@ -89,7 +89,7 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 	rx->setPattern( t );
 }
 
-Configuration::Configuration( int argc, char **argv )
+Config::Config( int argc, char **argv )
     : maxSame( 100 ), maxAll( 2000 ), wlevel( 2 ), bas( "" ), modshort( "" ),
       modlong( "" ), co( "" ), vers( "" ), verssym( "" ), posth( "" ),
       foot( "" ), addr( "" ), styl( "" ), falsesym( QChar('0') ),
@@ -320,7 +320,7 @@ Configuration::Configuration( int argc, char **argv )
     yyIn = QString::null;
 }
 
-void Configuration::setVersion( const QString& version )
+void Config::setVersion( const QString& version )
 {
     if ( vers.isEmpty() ) {
 	vers = version;
@@ -328,7 +328,7 @@ void Configuration::setVersion( const QString& version )
     }
 }
 
-QString Configuration::verbatimHref( const QString& sourceFileName ) const
+QString Config::verbatimHref( const QString& sourceFileName ) const
 {
     QString t = sourceFileName;
     t.replace( QRegExp(QString("[./]")), QChar('-') );
@@ -336,23 +336,23 @@ QString Configuration::verbatimHref( const QString& sourceFileName ) const
     return t;
 }
 
-QString Configuration::classRefHref( const QString& className ) const
+QString Config::classRefHref( const QString& className ) const
 {
     return className.lower() + dotHtml;
 }
 
-QString Configuration::classMembersHref( const QString& className ) const
+QString Config::classMembersHref( const QString& className ) const
 {
     return className.lower() + membersDotHtml;
 }
 
-QString Configuration::defgroupHref( const QString& groupName ) const
+QString Config::defgroupHref( const QString& groupName ) const
 {
     return groupName.lower() + dotHtml;
 }
 
-QString Configuration::findDepth( const QString& name,
-				  const QStringList& dirList ) const
+QString Config::findDepth( const QString& name,
+			   const QStringList& dirList ) const
 {
     QStringList::ConstIterator s;
     QString filePath;
@@ -367,22 +367,22 @@ QString Configuration::findDepth( const QString& name,
     return QString::null;
 }
 
-bool Configuration::isTrue( const QString& condition ) const
+bool Config::isTrue( const QString& condition ) const
 {
     return !falsesym.match( condition );
 }
 
-bool Configuration::isDef( const QString& symbol ) const
+bool Config::isDef( const QString& symbol ) const
 {
     return defsym.match( symbol );
 }
 
-bool Configuration::processClass( const QString& className ) const
+bool Config::processClass( const QString& className ) const
 {
     return onlysym.match( className );
 }
 
-bool Configuration::matchLine( QString *key, QStringList *val )
+bool Config::matchLine( QString *key, QStringList *val )
 {
     static QRegExp *keyX = 0;
     static QRegExp *valXOrY = 0;
@@ -429,7 +429,7 @@ bool Configuration::matchLine( QString *key, QStringList *val )
     return FALSE;
 }
 
-void Configuration::showHelp()
+void Config::showHelp()
 {
     /*
       The output is meant to look like that of gcc.
@@ -457,7 +457,7 @@ void Configuration::showHelp()
     exit( EXIT_SUCCESS );
 }
 
-void Configuration::showHelpShort()
+void Config::showHelpShort()
 {
     printf( "Usage: qdoc [options] [qdoc.conf]\n"
 	    "Short options:\n"
@@ -480,7 +480,7 @@ void Configuration::showHelpShort()
     exit( EXIT_SUCCESS );
 }
 
-void Configuration::showVersion()
+void Config::showVersion()
 {
     printf( "qdoc version 1.90\n" );
     exit( EXIT_SUCCESS );

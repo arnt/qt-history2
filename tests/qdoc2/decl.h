@@ -25,7 +25,7 @@ public:
 
     static QString anchor( const QString& name );
 
-    virtual ~Decl();
+    virtual ~Decl() { }
 
     void setDoc( Doc *doc );
     void setCurrentChildAccess( Access access ) { cura = access; }

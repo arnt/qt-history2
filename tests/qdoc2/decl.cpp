@@ -7,7 +7,7 @@
 #include <qtl.h>
 #include <qvaluestack.h>
 
-#include "configuration.h"
+#include "config.h"
 #include "decl.h"
 #include "english.h"
 #include "htmlwriter.h"
@@ -254,10 +254,6 @@ QString Decl::anchor( const QString& name )
     } else {
 	return name;
     }
-}
-
-Decl::~Decl()
-{
 }
 
 void Decl::setDoc( Doc *doc )

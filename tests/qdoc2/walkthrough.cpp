@@ -8,7 +8,7 @@
 #include <qtextstream.h>
 
 #include "codeprocessor.h"
-#include "configuration.h"
+#include "config.h"
 #include "messages.h"
 #include "walkthrough.h"
 

@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#include "configuration.h"
+#include "config.h"
 #include "messages.h"
 #include "steering.h"
 
@@ -52,7 +52,7 @@ static void applyDepth( void (*apply)(Steering *, const QString&),
 
 int main( int argc, char **argv )
 {
-    config = new Configuration( argc, argv );
+    config = new Config( argc, argv );
     Steering steering;
 
     if ( config->outputDir().isEmpty() ) {

@@ -46,7 +46,7 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
 class Tokenizer
 {
 public:
-    virtual ~Tokenizer();
+    virtual ~Tokenizer() { }
 
     int getToken();
 

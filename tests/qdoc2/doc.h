@@ -41,7 +41,7 @@ public:
     static QString htmlClassHierarchy();
 
     Doc( Kind kind, const Location& loc, const QString& htmlText );
-    virtual ~Doc();
+    virtual ~Doc() { }
 
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }

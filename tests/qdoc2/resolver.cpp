@@ -4,11 +4,29 @@
 
 #include "resolver.h"
 
+static QString *opParenParen = 0;
+static QString *aHrefEq = 0;
+static QString *rAngle = 0;
+static QString *slashA = 0;
+
+Resolver::Resolver()
+{
+    if ( opParenParen == 0 ) {
+	opParenParen = new QString( "operator()" );
+	aHrefEq = new QString( "<a href=" );
+	rAngle = new QString( ">" );
+	slashA = new QString( "</a>" );
+    }
+}
+
 QString Resolver::resolve( const QString& /* name */ ) const
 {
     return QString::null;
 }
 
+/*
+  By default, functions are resolved as anything else.
+*/
 QString Resolver::resolvefn( const QString& name ) const
 {
     return resolve( name );
@@ -21,32 +39,27 @@ void Resolver::compare( const Location& /* loc */, const QString& /* link */,
 
 QString Resolver::href( const QString& name, const QString& text ) const
 {
-    // ### useful?
-    static QString *opParenParen = 0;
-    static QString *aHrefEq = 0;
-    static QString *rAngle = 0;
-    static QString *slashA = 0;
-
-    if ( opParenParen == 0 ) {
-	opParenParen = new QString( "operator()" );
-	aHrefEq = new QString( "<a href=" );
-	rAngle = new QString( ">" );
-	slashA = new QString( "</a>" );
-    }
-
     int k = name.find( QChar('(') );
-    if ( k == -1 || name.right(10) == *opParenParen )
+    if ( k == -1 || (name.length() >= 10 &&
+		     name[name.length() - 3] == QChar('r') &&
+		     name.right(10) == *opParenParen) )
 	k = name.length();
 
-    QString left = text;
+    QString left;
     QString right;
     QString link;
 
-    if ( left.isEmpty() ) {
+    if ( text.isEmpty() ) {
 	left = name.left( k );
 	right = name.mid( k );
+    } else {
+	left = text;
     }
-    link = resolve( name.left(k) );
+
+    if ( k < name.length() )
+	link = resolvefn( name.left(k) );
+    else
+	link = resolve( name );
 
     if ( link.isEmpty() )
 	return left + right;

@@ -12,7 +12,7 @@
 
 #include "binarywriter.h"
 #include "codeprocessor.h"
-#include "configuration.h"
+#include "config.h"
 #include "doc.h"
 #include "english.h"
 #include "htmlwriter.h"
@@ -1311,10 +1311,6 @@ QString Doc::htmlClassHierarchy()
 
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
     : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE )
-{
-}
-
-Doc::~Doc()
 {
 }
 

@@ -2,7 +2,7 @@
   english.cpp
 */
 
-#include "configuration.h"
+#include "config.h"
 #include "english.h"
 
 /*

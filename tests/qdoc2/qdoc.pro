@@ -8,7 +8,7 @@ OBJECTS_DIR	= .
 HEADERS		= binarywriter.h \
 		  codechunk.h \
 		  codeprocessor.h \
-		  configuration.h \
+		  config.h \
 		  decl.h \
 		  declresolver.h \
 		  doc.h \
@@ -27,7 +27,7 @@ HEADERS		= binarywriter.h \
 SOURCES		= binarywriter.cpp \
 		  codechunk.cpp \
 		  codeprocessor.cpp \
-		  configuration.cpp \
+		  config.cpp \
 		  cppparser.cpp \
 		  decl.cpp \
 		  declresolver.cpp \

@@ -7,7 +7,7 @@
 #include <qtextstream.h>
 
 #include "binarywriter.h"
-#include "configuration.h"
+#include "config.h"
 #include "declresolver.h"
 #include "doc.h"
 #include "htmlwriter.h"

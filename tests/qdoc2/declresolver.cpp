@@ -2,7 +2,7 @@
   declresolver.cpp
 */
 
-#include "configuration.h"
+#include "config.h"
 #include "decl.h"
 #include "declresolver.h"
 #include "messages.h"
@@ -32,7 +32,7 @@ QString DeclResolver::resolve( const QString& name ) const
 	QString t;
 	if ( y->relatesContext() != (Decl *) c )
 	    t = config->classRefHref( y->relatesContext()->fullName() );
-	return t + QChar('#') + y->anchor();
+	return t + QChar( '#' ) + y->anchor();
     }
 }
 
