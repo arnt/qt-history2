@@ -546,13 +546,11 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     qDebug("QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
 
-   /* //### ?????
-       if (!qt_tryModalHelper(widget)) {
+    if (!qt_tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
-    */
-
+    
     QDragManager *manager = QDragManager::self();
     manager->dropData->currentDataObject = pDataObj;
     manager->dropData->currentDataObject->AddRef();
@@ -585,12 +583,11 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     qDebug("QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
     
-     /* //### ?????
-       if (!qt_tryModalHelper(widget)) {
+    if (!qt_tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
-    */
+
     QPoint tmpPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y)); 
     // see if we should compress this event
     if ((tmpPoint == lastPoint || answerRect.contains(tmpPoint)) && lastKeyState == grfKeyState) {
@@ -622,8 +619,10 @@ QOleDropTarget::DragLeave()
 #ifdef QDND_DEBUG
     qDebug("QOleDropTarget::DragLeave()");
 #endif
- //   if (!qt_tryModalHelper(widget))
-  //      return NOERROR;
+ 
+    if (!qt_tryModalHelper(widget)) {
+        return NOERROR;
+    }
 
     QDragLeaveEvent e;
     QApplication::sendEvent(widget, &e);
@@ -645,10 +644,11 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 #ifdef QDND_DEBUG
     qDebug("QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
-   // if (!qt_tryModalHelper(widget)) {
-   //     *pdwEffect = DROPEFFECT_NONE;
-   //     return NOERROR;
-   // }
+   
+    if (!qt_tryModalHelper(widget)) {
+        *pdwEffect = DROPEFFECT_NONE;
+        return NOERROR;
+    }
 
     lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
     lastKeyState = grfKeyState;
