@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#4 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#4 $";
 #endif
 
 
@@ -122,7 +122,7 @@ void QAccel::disable()
 
 /*!
 \fn bool QAccel::isDisabled() const
-Returns TRUE is the accelerator is disabled.
+Returns TRUE is the accelerator is disabled (grayed out, if you wish).
 */
 
 
@@ -132,17 +132,16 @@ Inserts an accelerator item.
 \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
 \arg \e id is the accelerator item id.
 
-If \e id is negative, then the item will
-be assigned an identifer which is the number of accelerator items already
-defined.
-\code{{
+If \e id is negative, then the item will be assigned an identifer (the
+number of accelerator items already defined, at present).
+
+\code
 QAccel *a = new QAccel( mainView );	\/ mainView is a top level widget
 a->insertItem( Key_P | CTRL, 200 );	\/ Ctrl+P to print document
 a->insertItem( Key_X | ALT , 201 );	\/ Alt+X  to quit
 a->insertItem( Key_D );			\/ gets id 2
 a->insertItem( Key_P | CTRL | SHIFT );	\/ gets id 3
-}}
-*/
+\endcode */
 
 void QAccel::insertItem( long key, int id )
 {
@@ -183,10 +182,10 @@ int QAccel::findKey( long key ) const
 }
 
 
-/*!
-Returns TRUE if the accelerator items with the identifier \e id is disabled.
-Returns FALSE if the item is enabled or cannot be found.
-*/
+/*!  Returns TRUE if the accelerator items with the identifier \e id
+  is disabled (grayed out, except that accelerator items aren't
+  actually visible).  Returns FALSE if the item is enabled or cannot
+  be found. */
 
 bool QAccel::isItemDisabled( int id ) const
 {
@@ -225,15 +224,15 @@ Disables the accelerator items with the identifier \e id.
 
 
 /*!
-Connects an accelerator item to a function another object.
+Connects an accelerator item to a function in another object.
 
 \arg \e id is the accelerator item id.
 \arg \e receiver is the object to receive a signal.
 \arg \e member is a slot or signal function in the receiver.
 
-\code{{
+\code
 a->connectItem( 201, mainView, SLOT(quit()) );
-}}
+\endcode
 
 */
 
@@ -251,9 +250,8 @@ bool QAccel::connectItem( int id, const QObject *receiver,
     return FALSE;
 }
 
-/*!
-Disconnects an accelerator item from a function in another object.
-*/
+/*!  Disconnects an accelerator item from a function in another
+  object.  \sa connectItem(). */
 
 bool QAccel::disconnectItem( int id, const QObject *receiver,
 			     const char *member )
