@@ -3591,7 +3591,6 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 		property( editor->widget()->metaObject()->findProperty( "alignment" ) );
 	    align &= ~AlignVertical_Mask;
 	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
-	    l.remove( "AlignAuto" );
 	    l.remove( "WordBreak" );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
