@@ -341,7 +341,9 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     if ( data->list.count() > 0 ) {
 	s = new QSplitterLayoutStruct;
 	s->mode = KeepSize;
-	newHandle = new QSplitterHandle( orientation(), this, "qt_splithandle" );
+	QString tmp = "qt_splithandle_";
+	tmp += w->name();
+	newHandle = new QSplitterHandle( orientation(), this, tmp );
 	s->wid = newHandle;
 	newHandle->setId(data->list.count());
 	s->isSplitter = TRUE;
