@@ -29,7 +29,7 @@
   lenght to form a hash value.
 
   check() and consume() compare variable 'command' with a target
-  string.  If they are not equal, break.  If they are equal,
+  string. If they are not equal, break. If they are equal,
   consume(), but not check(), removes the '\command' from the text.
 */
 
@@ -121,7 +121,7 @@ static QString processBackslashes( const QString& str )
 }
 
 /*
-  This function is imperfect.  If sophisticated '\keyword's are needed, it can
+  This function is imperfect. If sophisticated '\keyword's are needed, it can
   always be changed.
  */
 static QString indexAnchor( const QString& str )
@@ -134,8 +134,8 @@ static QString indexAnchor( const QString& str )
 
 /*
   This function makes sure no two automatic links for the same identifier are
-  too close to each other.  It returns TRUE if it's OK to have a new link to
-  name, otherwise FALSE.  It also updates offsetMap.
+  too close to each other. It returns TRUE if it's OK to have a new link to
+  name, otherwise FALSE. It also updates offsetMap.
 
   The criterion is that two automatic links to the same place should be
   separated by at least 1009 characters.
@@ -160,7 +160,7 @@ static void skipSpaces( const QString& in, int& pos )
 }
 
 /*
-  This function is highly magical.  It tries to somehow reproduce the old qdoc's
+  This function is highly magical. It tries to somehow reproduce the old qdoc's
   behavior.
 */
 static void skipSpacesOrNL( const QString& in, int& pos )
@@ -238,16 +238,16 @@ static QString getArgument( const QString& in, int& pos )
     int begin = pos;
 
     /*
-      Typically, an argument ends at the next white-space.  However, braces can
+      Typically, an argument ends at the next white-space. However, braces can
       be used to group words:
 
 	  {a few words}
 
-      Also, opening and closing parentheses have to match.  Thus,
+      Also, opening and closing parentheses have to match. Thus,
 
 	  printf( "%d\n", x )
 
-      is an argument too, although it contains spaces.  Finally, trailing
+      is an argument too, although it contains spaces. Finally, trailing
       punctuation is not included in an argument.
     */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
@@ -289,7 +289,7 @@ static QString getArgument( const QString& in, int& pos )
 
 /*
   The DocParser class is an internal class that implements the first pass of
-  doc parsing.  (See Doc::finalHtml() for the second pass.)
+  doc parsing. (See Doc::finalHtml() for the second pass.)
 */
 class DocParser
 {
@@ -350,7 +350,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
-    QString title, heading, prototype, relates, x;
+    QString enumPrefix, title, heading, prototype, relates, x;
     StringSet groups, headers, parameters, keywords;
     QStringList seeAlso, important, anamesToPrepend;
     bool obsolete = FALSE;
@@ -361,8 +361,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool internal = FALSE;
     bool overloads = FALSE;
     int numBugs = 0;
+    bool inValue = FALSE;
     bool metNL = FALSE; // never met N.L.
     int begin, end;
+    int k;
 
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
@@ -385,19 +387,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 	    /*
 	      We use poor man's hashing to identify the qdoc commands (e.g.,
-	      '\a', '\class', '\enum').  These commands are not frequent enough
+	      '\a', '\class', '\enum'). These commands are not frequent enough
 	      to justify advanced techniques, and it turns out that we can let
 	      the C++ compiler do the job for us by means of a mega-switch and
 	      simple hashing.
 
 	      If you have to insert a new command to qdoc, here's one of the
-	      two places to do it.  In the unlikely event that you have a hash
+	      two places to do it. In the unlikely event that you have a hash
 	      collision (that is, two commands start with the same letter and
 	      have the same length), handle it like '\endcode', '\endlink', and
 	      '\example' below.
 
 	      A second pass of processing will take care of the last-minute
-	      details.  See Doc::finalHtml().
+	      details. See Doc::finalHtml().
 	    */
 
 	    int h = hash( command[0].unicode(), command.length() );
@@ -435,6 +437,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			 "Command '\\arg' is not supported, use '\\a'" );
 		break;
 	    case hash( 'b', 3 ):
+		// see also \value
 		consume( "bug" );
 		if ( numBugs == 0 ) {
 		    stopPreOutput();
@@ -537,6 +540,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'e', 4 ):
 		consume( "enum" );
 		enumName = getWord( yyIn, yyPos );
+		k = enumName.findRev( QString("::") );
+		if ( k != -1 )
+		    enumPrefix = enumName.left( k + 2 );
 		skipRestOfLine( yyIn, yyPos );
 		setKind( Doc::Enum, command );
 		break;
@@ -643,9 +649,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 		/*
 		  The <a name="..."> for '\page's is put right here, because a
-		  page can contain many topics.  Otherwise, no new
-		  <a name="..."> is created; the link given by setLink() is
-		  used.
+		  page can contain many topics. Otherwise, no new <a name="...">
+		  is created; the link given by setLink() is used.
 		*/
 		if ( kindIs == Doc::Page )
 		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
@@ -817,6 +822,37 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		startPreOutput();
 		yyOut += QString( "\\printuntil" );
 		break;
+	    case hash( 'v', 5 ):
+		// see also \bug
+		consume( "value" );
+		if ( enumName.isEmpty() ) {
+		    warning( 2, location(), "Unexpected command '\\value'" );
+		    break;
+		}
+
+		if ( !inValue ) {
+		    stopPreOutput();
+		    yyOut += QString( "<ul>\n" );
+		    inValue = TRUE;
+		}
+		yyOut += QString( "<li>" );
+		x = getWord( yyIn, yyPos );
+		k = x.findRev( QString("::") );
+		if ( k != -1 ) {
+		    if ( x.left(k + 2) == enumPrefix )
+			warning( 3, location(),
+				 "Redundant '%s' in enum '\\value'",
+				 enumPrefix.latin1() );
+		    else
+			warning( 2, location(),
+				 "Contradictory '%s' in enum '\\value'",
+				 x.left(k + 2).latin1() );
+		    x = x.mid( k + 2 );
+		}
+		yyOut += QString( "<tt>" );
+		yyOut += enumPrefix + x;
+		yyOut += QString( "</tt> - " );
+		break;
 	    case hash( 'w', 7 ):
 		consume( "warning" );
 		yyOut += QString( "<b>Warning:</b>" );
@@ -848,6 +884,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		ch = yyIn[yyPos++];
 		if ( metNL && ch == QChar('\n') && !somethingAhead() ) {
 		    stopPreOutput();
+		    if ( inValue ) {
+			yyOut += QString( "</ul>" );
+			inValue = FALSE;
+		    }
 		    if ( briefEnd == INT_MAX )
 			briefEnd = yyOut.length();
 		    yyOut += QString( "<p>" );
@@ -856,7 +896,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    }
 	}
     }
-    if ( numBugs > 0 )
+    if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
 
     yyOut += QChar( '\n' );
@@ -889,9 +929,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 	if ( !extName.isEmpty() )
 	    yyOut.prepend( QString("<p> This class is defined in the"
-		    " <b>Qt %1 Extension</b>, which can be found in the"
-		    " <tt>qt/extensions</tt> directory.  It is not included in"
-		    " the main Qt API.\n<p>").arg(extName) );
+		    " <b>%1 %2 Extension</b>, which can be found in the"
+		    " <tt>qt/extensions</tt> directory. It is not included in"
+		    " the main %3 API.\n<p>")
+		    .arg(config->product())
+		    .arg(extName)
+		    .arg(config->product()) );
 
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
 			    headers, important );
@@ -1023,7 +1066,8 @@ bool DocParser::somethingAhead()
     skipSpaces( yyIn, yyPos );
     if ( yyPos < yyLen - 4 ) {
 	QString lookahead = yyIn.mid( yyPos, 4 );
-	if ( lookahead == QString("<li>") || lookahead == QString("\\bug") )
+	if ( lookahead == QString("<li>") || lookahead == QString("\\bug")
+	     || lookahead == QString("\\val") )
 	    something = TRUE;
     }
     yyPos = inPos0;
@@ -1183,9 +1227,9 @@ QString Doc::htmlClassList()
 	return html;
 
     /*
-      First, find out the common prefix of all classes.  For Qt, the prefix is
-      Q.  It can easily be derived from the first and last classes in
-      alphabetical order (QAccel and QXtWidget in Qt 2.1).
+      First, find out the common prefix of all classes. For Qt, the prefix is Q.
+      It can easily be derived from the first and last classes in alphabetical
+      order (QAccel and QXtWidget in Qt 2.1).
     */
     int commonPrefixLen = 0;
     QString first = clist.begin().key();
@@ -1198,12 +1242,12 @@ QString Doc::htmlClassList()
 	commonPrefixLen++;
 
     /*
-      Now, divide the data into 27 paragraphs: A, B, ..., Z, misc.  QAccel will
-      fall in paragraph 0 (A) and QXtWidget in paragraph 23 (X).  This is the
+      Now, divide the data into 27 paragraphs: A, B, ..., Z, misc. QAccel will
+      fall in paragraph 0 (A) and QXtWidget in paragraph 23 (X). This is the
       only place where we assume that NumParagraphs is 27.
 
-      Each paragraph is a QMap<QString, QString>.  The entry for QAccel is the
-      pair (accel, QAccel).  The entry for QNPlugin is (nplugin, QNPlugin*).
+      Each paragraph is a QMap<QString, QString>. The entry for QAccel is the
+      pair (accel, QAccel). The entry for QNPlugin is (nplugin, QNPlugin*).
     */
     QMap<QString, QString> paragraph[NumParagraphs];
     QString paragraphName[NumParagraphs];
@@ -1225,11 +1269,11 @@ QString Doc::htmlClassList()
     }
 
     /*
-      Each paragraph j has a size: paragraph[j].count().  In the discussion, we
+      Each paragraph j has a size: paragraph[j].count(). In the discussion, we
       will assume paragraphs 0 to 5 will have sizes 3, 1, 4, 1, 5, 9,
       respectively.
 
-      We now want to compute the paragraph offset.  Paragraphs 0 to 6 start at
+      We now want to compute the paragraph offset. Paragraphs 0 to 6 start at
       offsets 0, 3, 4, 8, 9, 14, 23, respectively.
     */
     int paragraphOffset[NumParagraphs + 1];
@@ -1240,16 +1284,16 @@ QString Doc::htmlClassList()
 	paragraphOffset[j + 1] = paragraphOffset[j] + paragraph[j].count();
 
     /*
-      Here comes the dynamic programming algorithm that does the job.  The
-      number of columns is fixed (NumColumns).  We want to minimize the number
-      of rows of the biggest column (the cost).  We will build two tables,
+      Here comes the dynamic programming algorithm that does the job. The
+      number of columns is fixed (NumColumns). We want to minimize the number
+      of rows of the biggest column (the cost). We will build two tables,
       prevEnd and numRows, such that the following condition holds:  When
       paragraphs 0, 1, ..., j in i columns, column (i - 1) should end with
-      paragraph prevEnd[i][j].  Furthermore, numRows[i][j] should give the
+      paragraph prevEnd[i][j]. Furthermore, numRows[i][j] should give the
       number of rows of the biggest column.
 
       For column 0, there is no previous column, so prevEnd[0][j] is
-      artificially set to -1.  This value is highly magical, as it allows other
+      artificially set to -1. This value is highly magical, as it allows other
       computations to work well; -2 wouldn't do.
 
       If only one paragraph (paragraph 0) is split among i columns, it is
@@ -1270,7 +1314,7 @@ QString Doc::htmlClassList()
     }
 
     /*
-      Everything is, at last, set up properly for the real work.  For any
+      Everything is, at last, set up properly for the real work. For any
       (i columns, j paragraphs) pair, we never use information on the right or
       below in the prevEnd and numRows matrices, as this information is not
       filled in yet.
@@ -1280,14 +1324,14 @@ QString Doc::htmlClassList()
 	    /*
 	      Let's concentrate on a single (i columns, j paragraphs) pair; that
 	      is, how to break j paragraphs into i columns and minimize the
-	      number of rows.  We already know how to solve the related
+	      number of rows. We already know how to solve the related
 	      (i columns, j - 1 paragraphs) problem: end column i - 1 at
-	      prevEnd[i][j - 1].  If we add one paragraph, it might turn out
-	      that prevEnd[i][j - 1] is also the right place to end column
-	      i - 1.  But maybe column prevEnd[i][j - 1] + 1 is a better place,
-	      or maybe prevEnd[i][j - 1] + 2, or even column j - 1.  We'll try
-	      them in order, but we'll stop as soon as the situation is not
-	      improving anymore.
+	      prevEnd[i][j - 1]. If we add one paragraph, it might turn out that
+	      prevEnd[i][j - 1] is also the right place to end column i - 1.
+	      But maybe column prevEnd[i][j - 1] + 1 is a better place, or
+	      prevEnd[i][j - 1] + 2, or even column j - 1. We'll try them in
+	      order, but we'll stop as soon as the situation is not improving
+	      anymore.
 	    */
 	    numRows[i][j] = INT_MAX;
 
@@ -1314,8 +1358,8 @@ QString Doc::htmlClassList()
 
     /*
       Finally, start at prevEnd[NumColumns - 1][NumParagraphs - 1] and find our
-      way back home.  The information we derive is put into firstOffset, which
-      tells where each column should start.  We also initialize currentOffset,
+      way back home. The information we derive is put into firstOffset, which
+      tells where each column should start. We also initialize currentOffset,
       currentParagraphNo, and prevParagraphNo by the same occasion; they will be
       useful later.
     */
@@ -1337,7 +1381,7 @@ QString Doc::htmlClassList()
 
     /*
       At this point, Professor Bellman leaves us and Finn Arild Aasheim comes
-      in.  Seriously, we have to generate all columns in parallel.  The offset
+      in. Seriously, we have to generate all columns in parallel. The offset
       array guides us.
     */
     html += QString( "<table>\n" );
@@ -1380,7 +1424,7 @@ QString Doc::htmlClassList()
 QString Doc::htmlAnnotatedClassList()
 {
     /*
-      We fight hard just to go through the QMap in case-insensitive order.  In
+      We fight hard just to go through the QMap in case-insensitive order. In
       Qt, this gets class Qt among the t's and Quebec among the u's.
     */
     StringSet cset;
@@ -1516,8 +1560,8 @@ void Doc::setLink( const QString& link, const QString& title )
 
     /*
       Rainer M. Schmid suggested that auto-referential links should be removed
-      automatically from '\sa'.  This is to ease his typing if f1() refers to
-      f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2().  He then
+      automatically from '\sa'. This is to ease his typing if f1() refers to
+      f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2(). He then
       copies and pastes '\sa f1() f2() f3()'.
      */
     if ( !sa.isEmpty() ) {
@@ -1583,8 +1627,8 @@ void Doc::printHtml( HtmlWriter& out ) const
     out.putsMeta( t.latin1() );
     if ( config->supervisor() && !lnk.isEmpty() ) {
 	/*
-	  This does not belong here.  It's an easy solution to problems caused
-	  by '\important'.
+	  This does not belong here. It's an easy solution to problems caused by
+	  '\important'.
 	*/
 	QString fileName = lnk;
 	int k = fileName.find( QChar('#') );
@@ -1836,7 +1880,7 @@ QString Doc::finalHtml() const
     }
 
     /*
-      Time to add some automatic hrefs.  Add links to class names and to
+      Time to add some automatic hrefs. Add links to class names and to
       '\keyword's.
     */
     if ( megaRegExp != 0 ) {
@@ -1844,7 +1888,7 @@ QString Doc::finalHtml() const
 	while ( (k = megaRegExp->search(yyOut, k)) != -1 ) {
 	    /*
 	      Make sure we didn't match a '<pre>...</pre>' thingy, but rather
-	      skip over it.  (See the construction of megaRegExp.)
+	      skip over it. (See the construction of megaRegExp.)
 	    */
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();

@@ -345,6 +345,9 @@
     <a href="#defgroup">\\defgroup</a>. A given class may belong to
     many groups. Specifying groups is strongly recommended.
 
+    \\ingroup can be used to group <a href="#page">\\page</a>s as
+    well, but this is rarer.
+
     See also the <a href="#class">\\class</a> entry for an example.
 
    <p><li><a name="obsolete"></a>
@@ -835,14 +838,12 @@
     </ul>
 
    <p><li><a name="extensionlist"></a>
-    <b>\\extensionlist</b> expands to "* Extension classes of
-    \e {X}<sub>1</sub>, \e {X}<sub>2</sub>, ...,
-    \e {X}<sub>\e {n}</sub>.", where each \e {X}<sub>\e {i}</sub> is
-    the name of an extension.
-
-    If NSPlugin and Xt/Motif are specified using
-    <a href="#extension">\\extension</a> elsewhere, the command
-    expands to "* Extension classes of NSPlugin and Xt/Motif."
+    <b>\\extensionlist</b> expands to "* Extension classes of \e
+    {X}<sub>1</sub>, \e {X}<sub>2</sub>, ... and \e {X}<sub>\e {n}</sub>.",
+    where each \e {X}<sub>\e {i}</sub> is the name of an extension. If NSPlugin
+    and Xt/Motif are specified using <a href="#extension">\\extension</a>
+    elsewhere, the command expands to "* Extension classes of NSPlugin and
+    Xt/Motif."
 
    <p><li><a name="functionindex"></a>
     <b>\\functionindex</b> expands to an alphabetized index of all
@@ -900,7 +901,7 @@
     /*!
       ... \\link QPie::setAngle() QPie::setAngle()\\endlink
     *&#47;</pre>
-    to use \\l as you see them.
+    as you see them.
 
    <p><li><a name="note"></a>
     <b>\\note</b> expands to "Note:". qdoc knows about it only because
@@ -1056,7 +1057,8 @@
     qt-interest archive and more" part of class documentation pages.
 
    <p><li><a name="ADDRESS"></a>
-    <b>ADDRESS</b>
+    <b>ADDRESS</b> is some HTML stuff that ends up at the bottom of
+    all generated HTML files (below the footer, if any).
     
     In Qt, this is used for the copyright notice at the bottom of
     every page.
@@ -1220,8 +1222,8 @@
    <p><li><a name="--define"></a>
     <b>--define</b> (cf. <a href="#DEFINE">DEFINE</a>) defines
     preprocessor symbols to guide qdoc. You can write
-    "--define=DEBUG,QDOC" to define the preprocessor symbols DEBUG and
-    QDOC. You can use regular expression, but beware of special
+    "--define=DEBUG,GUBED" to define the preprocessor symbols DEBUG
+    and GUBED. You can use regular expression, but beware of special
     characters of your command interpreter.
 
    <p><li><a name="--false"></a>
