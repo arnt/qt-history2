@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-// #define DEBUG_XBASE 1
-// #define VERBOSE_DEBUG_XBASE
+//#define DEBUG_XBASE 1
+//#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -311,8 +311,8 @@ bool FileDriver::open()
     /* open all associated indexes */
     QFileInfo fi( env->path() + "/" + name() );
     QString basename = fi.baseName();
-    QDir dir;
-    QStringList indexList = dir.entryList( env->path() + "/" + basename + "*.ndx", QDir::Files );
+    QDir dir( env->path() );
+    QStringList indexList = dir.entryList(  basename + "*.ndx", QDir::Files );
     d->indexes.resize( indexList.count() );
     for ( uint i = 0; i < indexList.count(); ++i ) {
 	xbNdx* idx = new xbNdx( &d->file );
@@ -323,6 +323,8 @@ bool FileDriver::open()
 	}
 #ifdef DEBUG_XBASE
 	env->output() << env->path() + "/" + indexList[i].latin1() << " index opened..." << flush;
+	if ( idx->UniqueIndex() )
+	    env->output() << "(unique)" << flush;
 #endif
 	d->indexes.insert( i, idx );
     }
@@ -365,7 +367,7 @@ QStringList FileDriver::primaryIndex()
 	if ( d->indexes[i]->UniqueIndex() ) { /* first unique index */
 	    char buf[XB_MAX_NDX_NODE_SIZE];
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
-	    idx = QStringList::split( QString( buf ), "+" );
+	    idx = QStringList::split( "+", QString( buf ) );
 	    break;
 	}
     }
@@ -1021,6 +1023,8 @@ bool FileDriver::createIndex( const localsql::List& data, bool unique )
 	/* create the index on disk */
 #ifdef DEBUG_XBASE
 	env->output() << "creating index..." << flush;
+	if ( unique )
+	    env->output() << "(unique)" << flush;
 #endif
 	xbNdx* idx = new xbNdx( &d->file );
 	d->indexes.resize( d->indexes.size()+1 );

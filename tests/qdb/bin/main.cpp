@@ -190,13 +190,11 @@ int main( int argc, char** argv )
 	    idx.GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    QString output = indexnames[i] + ": " + buf;
 	    if ( rebuildindexes ) {
-		qDebug( "reindexing " + output );
 		if ( idx.ReIndex() != XB_NO_ERROR )
 		    output = "...FAILED";
 		else
 		    output = "...done";
 	    }
-	    qDebug( output );
 	    idx.CloseIndex();
 	}
 	return 0;
@@ -234,9 +232,17 @@ int main( int argc, char** argv )
 		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
 		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
 	}
+	QStringList priIdxDesc = driver->primaryIndex();
+	QString priIdx;
+	if ( priIdxDesc.count() )
+	     priIdx = priIdxDesc.join( "+" );
+	if ( priIdx.length() )
+	    outstream << "primary index: " << priIdx << endl;
 	QStringList idx = driver->indexNames();
-	for ( i = 0; i < idx.count(); ++i )
-	    outstream << "index: " << idx[i] << endl;
+	for ( i = 0; i < idx.count(); ++i ) {
+	    if ( idx[i] != priIdx )
+		outstream << "index: " << idx[i] << endl;
+	}
 	outstream << "records in table:" << driver->size() << endl;
 	return 0;
     }
