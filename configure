@@ -261,7 +261,7 @@ QMAKE_PROJECTS=
 QMAKE_IGNORE_PROJECTS=
 OPT_CONCURRENT=0
 OPT_SHADOW=maybe
-CONFIG_FAST=no
+OPT_FAST=no
 OPT_VERBOSE=no
 OPT_HELP=
 
@@ -734,7 +734,7 @@ while [ -n "$1" ]; do
 	;;
     fast)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CONFIG_FAST=yes
+	    OPT_FAST=yes
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -2465,7 +2465,7 @@ EOF
     [ -f .projects.1 ] && cat .projects.1 >>.projects
     [ -f .projects.2 ] && cat .projects.2 >>.projects
     rm -f .projects.1 .projects.2
-    if [ -f .projects.3 ] && [ "$CONFIG_FAST" = "no" ]; then
+    if [ -f .projects.3 ] && [ "$OPT_FAST" = "no" ]; then
   cat .projects.3 >>.projects
   rm -f .projects.3
     fi
