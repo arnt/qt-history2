@@ -39,16 +39,6 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
 		    QPainter* painter);
 
-static inline QRect fix_rect(QPainterState *ps, const QRect &r)
-{
-    QRect rect = r.normalize();
-    if (ps->pen.style() == Qt::NoPen) {
-	rect.setRight(rect.right() + 1);
-	rect.setBottom(rect.bottom() + 1);
-    }
-    return rect;
-}
-
 QPainter::QPainter()
 {
     d = new QPainterPrivate;
@@ -491,7 +481,7 @@ void QPainter::drawRect(const QRect &r)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -547,7 +537,7 @@ void QPainter::drawWinFocusRect(const QRect &r)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -571,7 +561,7 @@ void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -710,7 +700,7 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -759,7 +749,7 @@ void QPainter::drawEllipse(const QRect &r)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -780,7 +770,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
@@ -807,7 +797,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 	if ( a < 0 ) a += (360*16);
     }
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
@@ -833,7 +823,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 	return;
     dgc->updateState(ds);
 
-    QRect rect = fix_rect(ds, r);
+    QRect rect = r.normalize();
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
