@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#458 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#459 $
 **
 ** Implementation of QWidget class
 **
@@ -2919,21 +2919,6 @@ void QWidget::show()
 
     setWState( WState_Visible );
 
-     if ( children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups and other toplevels)
-	    ++it;
-	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
-		if ( !widget->testWState(WState_ForceHide) && !widget->isTopLevel() )
-		    widget->show();
-	    }
-	}
-    }
-
      QApplication::sendPostedEvents( this, QEvent::ChildInserted );
      if ( parentWidget() )
 	 QApplication::sendPostedEvents( parentWidget(),
@@ -2983,6 +2968,21 @@ void QWidget::show()
 
     if ( !testWState(WState_Polished) )
 	polish();
+
+     if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {				// show all widget children
+	    object = it.current();		//   (except popups and other toplevels)
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->testWState(WState_ForceHide) && !widget->isTopLevel() )
+		    widget->show();
+	    }
+	}
+    }
 
     bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
 
@@ -4414,7 +4414,7 @@ bool QWidget::setConfiguration( const QDomElement& element )
 	    }
 	}
     }
-    
+
     if ( !QObject::setConfiguration( element ) )
 	return FALSE;
 
