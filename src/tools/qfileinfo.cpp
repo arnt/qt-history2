@@ -513,9 +513,3 @@ bool QFileInfo::convertToAbs()
 	fn = absFilePath();
     return QDir::isRelativePath( fn );
 }
-
-
-/*!
-  Returns TRUE if we are pointing to a file or a symbolic link to a file.
-  \sa isDir(), isSymLink()
-*/
