@@ -911,6 +911,8 @@ void QVariant::create(int type, const void *copy)
 }
 
 
+QVariant::QVariant(int typeOrUserType, const void *v)
+{ create(typeOrUserType, v); d.is_null = false; }
 QVariant::QVariant(const QFont &val) { create(Font, &val); }
 QVariant::QVariant(const QPixmap &val) { create(Pixmap, &val); }
 
