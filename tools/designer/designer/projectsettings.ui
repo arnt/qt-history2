@@ -64,7 +64,7 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel" row="1" column="0">
+                    <widget class="QLabel" row="0" column="0">
                         <property name="name">
                             <cstring>TextLabel1_2</cstring>
                         </property>
@@ -75,7 +75,7 @@
                             <cstring>editProjectFile</cstring>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="1" column="1">
+                    <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
                             <cstring>Layout1</cstring>
                         </property>
@@ -104,7 +104,7 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLabel" row="2" column="0">
+                    <widget class="QLabel" row="1" column="0">
                         <property name="name">
                             <cstring>TextLabel1_3</cstring>
                         </property>
@@ -115,7 +115,7 @@
                             <cstring>comboLanguage</cstring>
                         </property>
                     </widget>
-                    <widget class="QComboBox" row="2" column="1">
+                    <widget class="QComboBox" row="1" column="1">
                         <property name="name">
                             <cstring>comboLanguage</cstring>
                         </property>
@@ -123,12 +123,12 @@
                             <bool>false</bool>
                         </property>
                     </widget>
-                    <widget class="QTextEdit" row="4" column="1" rowspan="2" colspan="1">
+                    <widget class="QTextEdit" row="2" column="1" rowspan="2" colspan="1">
                         <property name="name">
                             <cstring>editProjectDescription</cstring>
                         </property>
                     </widget>
-                    <spacer row="5" column="0">
+                    <spacer row="3" column="0">
                         <property name="name">
                             <cstring>Spacer1</cstring>
                         </property>
@@ -145,7 +145,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLabel" row="4" column="0">
+                    <widget class="QLabel" row="2" column="0">
                         <property name="name">
                             <cstring>TextLabel2</cstring>
                         </property>
@@ -154,20 +154,6 @@
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>editProjectDescription</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="3" column="1">
-                        <property name="name">
-                            <cstring>checkCreateSource</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Always create additional .ui.h source file</string>
-                        </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>&lt;p&gt;&lt;b&gt;Always create extra source file&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Normally the C++ source file (formfile.ui.h) with the code for a form is only created, if the user edits the code of the custom slots of the form in the Qt Designer. If this check is on, a C++ source file for a form with stubs for the custom slots is also created, if the user doesn't edit the sources of the form in the Qt Designer.&lt;/p&gt;
-&lt;p&gt;This is useful to edit the code of the custom slots of a form in a different editor (by editing this C++ source file), without the need to subclass from the generated source by uic.&lt;/p&gt;
-&lt;p&gt;A change to this setting becomes active for each form after saving the form once&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </grid>
@@ -443,7 +429,6 @@
     <tabstop>tabWidget</tabstop>
     <tabstop>editProjectFile</tabstop>
     <tabstop>comboLanguage</tabstop>
-    <tabstop>checkCreateSource</tabstop>
     <tabstop>editProjectDescription</tabstop>
     <tabstop>listInterfaces</tabstop>
     <tabstop>PushButton5</tabstop>

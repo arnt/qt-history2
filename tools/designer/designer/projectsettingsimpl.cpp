@@ -37,7 +37,6 @@
 #include <qlistview.h>
 #include <qobjectlist.h>
 #include <qheader.h>
-#include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 
@@ -77,12 +76,12 @@ static QPixmap *filePixmap = 0;
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
 {
-    
+
     PushButton5->hide();
     PushButton4->hide();
     listInterfaces->hide();
     TextLabel3->hide();
-    
+
     if ( !filePixmap )
 	filePixmap = new QPixmap( file_xpm );
     editProjectFile->setFocus();
@@ -114,9 +113,6 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 	    break;
 	}
     }
-
-    checkCreateSource->setChecked( pro->customSetting( "CPP_ALWAYS_CREATE_SOURCE" ) == "TRUE" );
-    checkCreateSource->setEnabled( comboLanguage->currentText() == "C++" );
 }
 
 /*
@@ -153,10 +149,6 @@ void ProjectSettings::okClicked()
     project->setDescription( editProjectDescription->text() );
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
-    QString flag = "FALSE";
-    if ( checkCreateSource->isChecked() )
-	flag = "TRUE";
-    project->setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", flag );
     project->setModified( TRUE );
     accept();
 }
@@ -186,9 +178,8 @@ void ProjectSettings::removeProject()
     fillFilesList();
     */
 }
-void ProjectSettings::languageChanged( const QString &lang )
+void ProjectSettings::languageChanged( const QString & )
 {
-    checkCreateSource->setEnabled( lang == "C++" );
 }
 
 void ProjectSettings::addProject()
