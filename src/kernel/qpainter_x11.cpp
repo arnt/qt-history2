@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#27 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#27 $";
 #endif
 
 
@@ -1901,6 +1901,21 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
+	    if ( cfont.underline() || cfont.strikeOut() ) {
+		int lw = cfont.lineWidth();
+		QFontMetrics fm( cfont );
+		int tw = fm.width( str, len );
+		QPen   save_pen   = cpen;
+		QBrush save_brush = cbrush;
+		cpen   = QPen( NoPen );
+		cbrush = QBrush( save_pen.color() );
+		if ( cfont.underline() )	// draw underline effect
+		    drawRect( x, y+cfont.underlinePos(), tw, lw );
+		if ( cfont.strikeOut() )	// draw strikeout effect
+		    drawRect( x, y+cfont.strikeOutPos(), tw, lw );
+		setPen( save_pen );
+		setBrush( save_brush );
+	    }
 	    drawPixMap( x, y, *draw_bm );	// draw bitmap!
 	    flags = tmpf;
 	    XSetClipMask( dpy, gc, 0 );
@@ -1915,6 +1930,17 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	}
 	if ( testf(VxF) )
 	    VXFORM_P( x, y );
+    }
+    if ( cfont.underline() || cfont.strikeOut() ) {
+	int lw = cfont.lineWidth();
+	QFontMetrics fm( cfont );
+	int tw = fm.width( str, len );
+	if ( cfont.underline() )		// draw underline effect
+	    XFillRectangle( dpy, hd, gc, x, y+cfont.underlinePos(),
+			    tw, lw );
+	if ( cfont.strikeOut() )		// draw strikeout effect
+	    XFillRectangle( dpy, hd, gc, x, y+cfont.strikeOutPos(),
+			    tw, lw );
     }
     if ( bg_mode == TransparentMode )
 	XDrawString( dpy, hd, gc, x, y, str, len );
