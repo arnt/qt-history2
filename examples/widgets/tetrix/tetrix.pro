@@ -1,4 +1,3 @@
-CONFIG += debug ###
 HEADERS         += tetrixboard.h \
                    tetrixpiece.h \
                    tetrixwindow.h

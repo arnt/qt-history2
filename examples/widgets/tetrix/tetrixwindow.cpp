@@ -33,10 +33,10 @@ TetrixWindow::TetrixWindow()
             linesLcd, SLOT(display(int)));
 
     board->setGeometry(150, 20, 152, 332);
-    nextPieceLabel->setGeometry(50, 40, 78, 94);
-    scoreLcd->setGeometry(330, 40, 178, 93);
-    levelLcd->setGeometry(50, 160, 78, 93);
-    linesLcd->setGeometry(330, 160, 178, 93);
+    nextPieceLabel->setGeometry(50, 40, 78, 90);
+    scoreLcd->setGeometry(330, 40, 178, 90);
+    levelLcd->setGeometry(50, 160, 78, 90);
+    linesLcd->setGeometry(330, 160, 178, 90);
     startButton->setGeometry(46, 288, 90, 30);
     quitButton->setGeometry(370, 265, 90, 30);
     pauseButton->setGeometry(370, 310, 90, 30);
