@@ -18,7 +18,7 @@
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
 #include <qsignalmapper.h>
-#include <qmemorymanager_qws.h>
+#include <stdlib.h>
 
 #if defined(UNIX)
 #include <unistd.h>
