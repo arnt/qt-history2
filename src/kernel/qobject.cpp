@@ -505,15 +505,25 @@ bool QObject::inherits( const char *clname ) const
     return meta? meta->inherits( clname ) : FALSE;
 }
 
-/*!
-  Returns a list of all super classes. If \e includeThis is TRUE
-  then the most derived class name of this object is added, too.
-  The most derived classes appear first in the list. That means that
-  QObject is always the last entry in the list.
+
+#if QT_VERSION >= 290
+#error "remove superClasses now."
+#endif
+
+/*! \obsolete
+
+  This function is misleadingly named, and cannot be implemented in a
+  way that fulfils its name.  someQWidget->superClasses() should have
+  returned QPaintDevice and QObject, obviously.  And it never can, so
+  let us kill the function.
+
+  Oh, and the return type was wrong, too.  QStringList not QStrList.
 */
 
 QStringList QObject::superClasses( bool includeThis ) const
 {
+    qObsolete( "QObject", "superClasses" ); // Arnt killed it.  RIP.
+
     QStringList lst;
 
     QMetaObject *meta = queryMetaObject();
@@ -2114,7 +2124,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
 
     switch ( value.type()  ) {
-	
+
     case QVariant::String:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoString m;
@@ -2129,7 +2139,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::CString:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCString m;
@@ -2149,7 +2159,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Font:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoFont m;
@@ -2224,7 +2234,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Color:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColor m;
@@ -2239,7 +2249,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Palette:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPalette m;
@@ -2254,7 +2264,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::ColorGroup:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m;
@@ -2269,7 +2279,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m;
@@ -2284,7 +2294,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Int:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoInt m;
@@ -2447,7 +2457,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Font:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoFont m;
@@ -2471,7 +2481,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Pixmap:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoPixmap m;
@@ -2495,7 +2505,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Brush:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBrush m;
@@ -2543,7 +2553,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Size:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoSize m;
@@ -2567,7 +2577,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Color:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColor m;
@@ -2615,7 +2625,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::ColorGroup:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m;
@@ -2687,7 +2697,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Double:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDouble m;
@@ -2711,7 +2721,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	
+
     case QVariant::Bool:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBool m;
