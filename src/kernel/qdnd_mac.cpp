@@ -40,21 +40,29 @@
 #include "qbitmap.h"
 #include "qt_mac.h"
 #include "qpainter.h"
+#include "qcursor.h"
 
 struct QMacDndExtra {
     QWidget *widget;
     bool acceptfmt;
     bool acceptact;
-    bool received;
     int ref;
-    QDropEvent::Action mode;
 };
 
-bool qt_mac_in_drag = FALSE;
 //internal globals
+bool qt_mac_in_drag = FALSE;
+static bool drag_received = FALSE;
+static QDragObject::DragMode set_drag_mode; //passed in drag mode
+static QDropEvent::Action current_drag_action; //current active drag action
 static QDragObject *global_src = 0;
 static QWidget *current_drag_widget = 0;
 static DragReference current_dropobj = 0;
+//cursors
+static QCursor *noDropCursor = 0;
+static QCursor *moveCursor = 0;
+static QCursor *copyCursor = 0;
+static QCursor *linkCursor = 0;
+//default pixmap
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
 static const char* default_pm[] = {
@@ -79,6 +87,33 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 						  void *handlerRefCon, DragReference theDrag );
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra );
 void qt_macdnd_register( QWidget *widget, QWExtra *extra );
+
+static void qt_mac_dnd_cleanup()
+{
+    delete noDropCursor;
+    noDropCursor = NULL;
+    delete moveCursor;
+    moveCursor = NULL;
+    delete copyCursor;
+    copyCursor = NULL;
+    delete linkCursor;
+    linkCursor = NULL;
+}
+
+void updateDragMode() {
+    if(0 && set_drag_mode == QDragObject::DragDefault) { 
+	//how do we get the keyboard mode? FIXME
+    } else {
+	if(set_drag_mode == QDragObject::DragMove)
+	    current_drag_action = QDropEvent::Move;
+	else if(set_drag_mode == QDragObject::DragLink)
+	    current_drag_action = QDropEvent::Link;
+	else if(set_drag_mode == QDragObject::DragCopy)
+	    current_drag_action = QDropEvent::Copy;
+	else
+	    qDebug("not sure how to handle..");
+    }
+}
 
 bool QDropEvent::provides( const char *fmt ) const
 {
@@ -354,16 +389,14 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     dragRegion.translate(boundsPoint.h, boundsPoint.v);
 #endif
 
+    drag_received = FALSE;
     qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register( widget,  widget->extraData());
-    widget->extraData()->macDndExtra->received = FALSE;
-    if (mode == QDragObject::DragCopy)
-	widget->extraData()->macDndExtra->mode = QDropEvent::Copy;
-    else
-	widget->extraData()->macDndExtra->mode = QDropEvent::Move;
+    set_drag_mode = mode;
+    updateDragMode();
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
     int tid = startTimer( 1 );
@@ -372,9 +405,8 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     killTimer( tid );
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
-    return ((result == noErr)  &&
-            (widget->extraData()->macDndExtra->mode == QDropEvent::Copy) &&
-	    widget->extraData()->macDndExtra->acceptact);
+    return ((result == noErr)  && drag_received &&
+            (current_drag_action == QDropEvent::Move) && widget->extraData()->macDndExtra->acceptact);
 }
 
 void QDragManager::updatePixmap()
@@ -383,8 +415,8 @@ void QDragManager::updatePixmap()
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
+    updateDragMode();
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
-    macDndExtra->received = TRUE;
     current_dropobj = theDrag;
     Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
@@ -394,10 +426,11 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     if(!widget)
 	return 1;
     QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
-    de.setAction( macDndExtra->mode );
+    de.setAction(current_drag_action);
     QApplication::sendEvent( widget, &de );
     macDndExtra->acceptact = de.isActionAccepted();
-    return (macDndExtra->acceptfmt = de.isAccepted()) ? noErr : dragNotAcceptedErr;
+    macDndExtra->acceptfmt = de.isAccepted();
+    return (drag_received = macDndExtra->acceptfmt) ? noErr : dragNotAcceptedErr;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 
@@ -419,12 +452,15 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 						  void *handlerRefCon, DragReference theDrag )
 {
     if(theMessage != kDragTrackingEnterWindow && theMessage != kDragTrackingLeaveWindow &&
-       theMessage != kDragTrackingInWindow)
+       theMessage != kDragTrackingInWindow) {
 	return 1;
-    if(!theDrag) {
+    } else if(!theDrag) {
 	qDebug( "DragReference null %s %d", __FILE__, __LINE__ );
 	return 1;
+    } else if(qt_mac_in_drag && drag_received) { //ignore these
+	return 0;
     }
+    updateDragMode();
     Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
     if(!mouse.h && !mouse.v)
@@ -435,13 +471,26 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     while ( widget && (!widget->acceptDrops()) )
 	widget = widget->parentWidget(TRUE);
 
+    if ( !noDropCursor ) {
+	noDropCursor = new QCursor( QCursor::ForbiddenCursor );
+#if 0 //need to make our own cursors, FIXME!
+	if ( !pm_cursor[0].isNull() )
+	    moveCursor = new QCursor(pm_cursor[0], 0,0);
+	if ( !pm_cursor[1].isNull() )
+	    copyCursor = new QCursor(pm_cursor[1], 0,0);
+	if ( !pm_cursor[2].isNull() )
+	    linkCursor = new QCursor(pm_cursor[2], 0,0);
+#endif
+	qAddPostRoutine( qt_mac_dnd_cleanup );
+    }
+    QCursor *cursor = noDropCursor;
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
-	de.setAction( macDndExtra->mode  );
+	de.setAction(current_drag_action);
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
-    } else if(!macDndExtra->received) {
+    } else { 
 	if ( current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) || 
 				     (widget != current_drag_widget))) {
 	    macDndExtra->acceptfmt = FALSE;
@@ -451,17 +500,25 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	    current_drag_widget = 0;
 	}
 	if ( widget ) {
+	    if(current_drag_action == QDropEvent::Move)
+		cursor = moveCursor;
+	    else if(current_drag_action == QDropEvent::Copy)
+		cursor = copyCursor;
+	    else if(current_drag_action == QDropEvent::Link)
+		cursor = linkCursor;
 	    current_dropobj = theDrag;
 	    if(widget != current_drag_widget) {
 		QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
+		de.setAction(current_drag_action);
 		QApplication::sendEvent(widget, &de );
 		macDndExtra->acceptfmt = de.isAccepted();
 		macDndExtra->acceptact = de.isActionAccepted();
 		current_drag_widget = widget;
 	    }
-	}
+	} 
     }
-
+    if(cursor)
+	qt_mac_set_cursor(cursor, &mouse);
     if(qGlobalPostedEventsCount()) {
 	QApplication::sendPostedEvents();
 	QApplication::flush();
