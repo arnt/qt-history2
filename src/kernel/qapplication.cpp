@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#120 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#120 $");
 
 
 /*!
@@ -49,9 +49,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#119 $");
     }
   \endcode
 
-  <strong>Important</strong><br>
-  Notice that the QApplication object must  be created before any widget can
-  be defined!
+  <strong>Important</strong><br> Notice that the QApplication object must
+  be created before any window-system functionality of Qt is used, this
+  includes widgets, colors, fonts etc.
 
   Note also that for X11, setMainWidget() may change the main widget
   according to the \e -geometry option.	 To preserve this functionality,
