@@ -108,7 +108,7 @@ protected:
     void styleChange( QStyle& );
     ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb,
 			      int &ipos, QToolBar *&covering );
-    void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, bool after  );
+    void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, int ipos );
 
 private:
     QMainWindowPrivate * d;

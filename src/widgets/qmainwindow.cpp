@@ -150,10 +150,11 @@ public:
 	QValueList<int> disabledDocks;
 	QMainWindow::ToolBarDock oldDock;
 	int oldIndex;
+	
     };
 	
     typedef QList<ToolBar> ToolBarDock;
-    enum InsertPos { Before, After, TotalAfter };
+    enum InsertPos { Before, After, TotalAfter, Above, Below };
 
     QMainWindowPrivate()
 	:  tornOff(0), unmanaged(0), hidden( 0 ),
@@ -1018,7 +1019,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
   that window to this.
 */
 
-void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *relative, bool after  )
+void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *relative, int ipos )
 {
     if ( !toolBar )
 	return;
@@ -1040,6 +1041,11 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 
     QMainWindowPrivate::ToolBar * ct;
     ct = d->takeToolBarFromDock( toolBar );
+    Qt::Orientation o;
+    if ( edge == QMainWindow::Top || edge == QMainWindow::Bottom )
+	o = Qt::Horizontal;
+    else
+	o = Qt::Vertical;
 
     bool recalc = FALSE;
     if ( ct ) {
@@ -1086,21 +1092,72 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	} else {
 	    QMainWindowPrivate::ToolBar *t = dl->first();
 	    int i = 0;
-	    for ( ; t; t = dl->next(), ++i ) {
-		if ( t->t == relative )
-		    break;
+	    if ( ipos != QMainWindowPrivate::Above && ipos != QMainWindowPrivate::Below ) {
+		for ( ; t; t = dl->next(), ++i ) {
+		    if ( t->t == relative )
+			break;
+		}
+		if ( ipos == QMainWindowPrivate::After || ipos == QMainWindowPrivate::TotalAfter )
+		    ++i;
+	    } else if ( ipos == QMainWindowPrivate::Below ) {
+		if ( o == Qt::Horizontal ) {
+		    int ry;
+		    bool doIt = FALSE;
+		    for ( ; t; t = dl->next(), ++i ) {
+			if ( t->t == relative ) {
+			    ry = t->t->y();
+			    doIt = TRUE;
+			}
+			if ( doIt && t->t->y() > ry ) {
+			    break;
+			}
+		    }
+		} else {
+		    // #### make Above/Below (which is more a Left/Roght here) for vertical docks working
+		}
+	    } else if ( ipos == QMainWindowPrivate::Above ) {
+		if ( o == Qt::Horizontal ) {
+		    int ry;
+		    bool doIt = FALSE;
+		    t = dl->last();
+		    i = dl->count();
+		    for ( ; t; t = dl->prev(), --i ) {
+			if ( t->t == relative ) {
+			    ry = t->t->y();
+			    doIt = TRUE;
+			}
+			if ( doIt && t->t->y() < ry ) {
+			    break;
+			}
+		    }
+		} else {
+		    // #### make Above/Below (which is more a Left/Roght here) for vertical docks working
+		}
 	    }
-	    if ( after )
-		++i;
+	
 	    if ( i > (int)dl->count() )
 		i = dl->count();
 	    dl->insert( i, ct );
-	    if ( !after && (int)dl->count() > i + 1 && dl->at( i + 1 )->nl ) {
+	    bool after = ipos == QMainWindowPrivate::After || ipos == QMainWindowPrivate::TotalAfter;
+	    if ( ipos == QMainWindowPrivate::Before && 
+		 (int)dl->count() > i + 1 && dl->at( i + 1 )->nl ) {
 		dl->at( i + 1 )->nl = FALSE;
 		dl->at( i )->nl = TRUE;
 	    }
 	    if ( after && ct->nl )
 		ct->nl = FALSE;
+	    if ( ipos == QMainWindowPrivate::Below ) {
+		dl->at( i )->nl = TRUE;
+		if ( (int)dl->count() > i + 1 ) {
+		    dl->at( i + 1 )->nl = TRUE;
+		}
+	    }
+	    if ( ipos == QMainWindowPrivate::Above ) {
+		dl->at( i )->nl = TRUE;
+		if ( (int)dl->count() > i + 1 ) {
+		    dl->at( i + 1 )->nl = TRUE;
+		}
+	    }
 	}
 	if ( edge != Hidden ) {
 	    ct->oldDock = edge;
@@ -1173,7 +1230,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
     if ( nl && tt )
 	tt->nl = nl;
     if ( !dl ) {
-	moveToolBar( toolBar, edge, (QToolBar*)0, TRUE );
+	moveToolBar( toolBar, edge, (QToolBar*)0, QMainWindowPrivate::After );
     } else {
 	QMainWindowPrivate::ToolBar *tb = 0;
 	if ( index >= (int)dl->count() )
@@ -1181,9 +1238,9 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	else
 	    tb = dl->at( index );
 	if ( !tb )
-	    moveToolBar( toolBar, edge, (QToolBar*)0, TRUE );
+	    moveToolBar( toolBar, edge, (QToolBar*)0, QMainWindowPrivate::After );
 	else
-	    moveToolBar( toolBar, edge, tb->t, FALSE );
+	    moveToolBar( toolBar, edge, tb->t, QMainWindowPrivate::Before );
     }
 }
 
@@ -1208,7 +1265,8 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
 
 static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::ToolBarDock *dock,
 							const QPoint &pos,
-							 QMainWindowPrivate::InsertPos &ipos )
+							 QMainWindowPrivate::InsertPos &ipos,
+							 Qt::Orientation o )
 {
     if ( !dock )
 	return 0;
@@ -1216,15 +1274,21 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
     if ( !t )
 	return 0;
 
-    if ( t->t->orientation() == Qt::Horizontal ) {
+    if ( o == Qt::Horizontal ) {
 	while ( t ) {
 	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() )
 		maybe = t;
 	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
-		if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
-		    if ( pos.x() < t->t->x() + t->t->width() / 2 )
+		if ( pos.y() < t->t->y() + t->t->height() / 3 ) {
+		    ipos = QMainWindowPrivate::Above;
+		    return t;
+		} else if ( pos.y() > t->t->y() + t->t->height() - t->t->height() / 3 ) {
+		    ipos = QMainWindowPrivate::Below;
+		    return t;
+		} else if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
+		    if ( pos.x() < t->t->x() + t->t->width() / 2 ) {
 			ipos = QMainWindowPrivate::Before;
-		    else {
+		    } else {
 			tmp = dock->next();
 			if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) &&
 			     t->t->stretchMode() != QToolBar::FullWidth )
@@ -1258,13 +1322,14 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	}
     } else {
 	while ( t ) {
+	    // #### make Above/Below (which is more a Left/Roght here) for vertical docks working
 	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() )
 		maybe = t;
 	    if ( QRect( t->t->pos(), t->t->size() ).contains( pos ) ) {
 		if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
-		    if ( pos.y() < t->t->y() + t->t->height() / 2 )
+		    if ( pos.y() < t->t->y() + t->t->height() / 2 ) {
 			ipos = QMainWindowPrivate::Before;
-		    else {
+		    } else {
 			tmp = dock->next();
 			if ( !tmp || tmp->nl )
 			    ipos = QMainWindowPrivate::TotalAfter;
@@ -1704,7 +1769,8 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 
     // find the toolbar which will be the relative toolbar for the moved one
     QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos,
-							  (QMainWindowPrivate::InsertPos&)ipos );
+							  (QMainWindowPrivate::InsertPos&)ipos,
+							  o );
     covering = 0;
 
     // calc width and height of the tb depending on the orientation it _would_ have
@@ -1720,19 +1786,23 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
     if ( o == Qt::Horizontal ) {
-	if ( w > ms && ipos != QMainWindowPrivate::TotalAfter )
-	    w = ms; // #### should be calced somehow
-	if ( t && t->t )
-	    QMIN( w, h = t->t->height() );
-	else if ( o != tb->orientation() )
-	    h = QMIN( h, 30 );
+	if ( ipos != QMainWindowPrivate::Below && ipos != QMainWindowPrivate::Above ) {
+	    if ( w > ms && ipos != QMainWindowPrivate::TotalAfter )
+		w = ms; // #### should be calced somehow
+	    if ( t && t->t )
+		QMIN( w, h = t->t->height() );
+	    else if ( o != tb->orientation() )
+		h = QMIN( h, 30 );
+	}
     } else {
-	if ( h > ms && ipos != QMainWindowPrivate::TotalAfter )
-	    h = ms; // #### should be calced somehow
-	if ( t && t->t )
-	    w = QMIN( w, t->t->width() );
-	else if ( o != tb->orientation() )
-	    w = QMIN( w, 30 );
+	if ( ipos != QMainWindowPrivate::Below && ipos != QMainWindowPrivate::Above ) {
+	    if ( h > ms && ipos != QMainWindowPrivate::TotalAfter )
+		h = ms; // #### should be calced somehow
+	    if ( t && t->t )
+		w = QMIN( w, t->t->width() );
+	    else if ( o != tb->orientation() )
+		w = QMIN( w, 30 );
+	}
     }
 
     // if a relative toolbar for the moving one was found
@@ -1770,6 +1840,24 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, h );
 		else
 		    r = QRect( t->t->x(), t->t->y() + t->t->height(), w, h );
+	    } break;
+	    case QMainWindowPrivate::Below: {
+		hasRect = TRUE;
+		if ( o == Qt::Horizontal )
+		    r = QRect( 0, t->t->y() + t->t->height() - h / 2, w, h );
+		else
+		    // #### make Above/Below (which is more a Left/Roght here) for vertical docks working
+		    ; // ######
+		
+	    } break;
+	    case QMainWindowPrivate::Above: {
+		hasRect = TRUE;
+		if ( o == Qt::Horizontal )
+		    r = QRect( 0, t->t->y() - h / 2, w, h );
+		else
+		    // #### make Above/Below (which is more a Left/Roght here) for vertical docks working
+		    ; // ######
+		
 	    } break;
 	}
 	}
@@ -2050,7 +2138,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    ToolBarDock dock = d->oldDock;
 	    if ( dock != Unmanaged && isDockEnabled( dock ) &&
 		 isDockEnabled( t, dock ) )
-		moveToolBar( t, dock, covering, ipos != QMainWindowPrivate::Before );
+		moveToolBar( t, dock, covering, ipos );
 	} else { // ... or hide it if it was only a click
 	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
 		moveToolBar( t, Hidden );
