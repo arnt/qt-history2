@@ -565,8 +565,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         }
         if (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
             const float tx = newMatrix.tx, ty = newMatrix.ty;
-            newMatrix = CGAffineTransformTranslate(newMatrix, tx, ty);
-            x -= qRound(tx);
+            newMatrix = CGAffineTransformTranslate(newMatrix, -tx, ty);
+            x += qRound(tx);
             y -= qRound(ty);
             transform = true;
         }
