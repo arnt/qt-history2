@@ -401,6 +401,12 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	r = nullText();
     else {
 	switch ( field->type() ) {
+	case QVariant::UInt:
+	    r = QString::number( field->value().toUInt() );
+	    break;
+	case QVariant::Int:
+	    r = QString::number( field->value().toInt() );
+	    break;
 	case QVariant::Date:
 	    if ( field->value().toDate().isValid() )
 		r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
