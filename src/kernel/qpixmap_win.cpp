@@ -559,6 +559,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = ncols;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+    bool doAlloc = ( QApplication::colorSpec() == QApplication::CustomColor
+		     && QColor::hPal() );
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
 	QRgb	 c = image.color(i);
@@ -566,6 +568,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	r->rgbGreen = qGreen( c );
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
+	if ( doAlloc ) {
+	    QColor cl( c );
+	    cl.alloc();
+	}
     }
 
     HDC dc;

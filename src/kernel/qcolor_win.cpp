@@ -37,6 +37,11 @@ inline COLORREF qrgb2colorref(QRgb rgb)
     return RGB(qRed(rgb),qGreen(rgb),qBlue(rgb));
 }
 
+inline QRgb colorref2qrgb(COLORREF ref)
+{
+    // Note: doesn't work for palette refs
+    return qRgb( GetRValue(ref), GetGValue(ref), GetBValue(ref) );
+}
 
 int QColor::maxColors()
 {
@@ -145,14 +150,27 @@ void QColor::initialize()
 	  0,255,255,  0,  63,255,255,  0, 104,255,255,  0, 139,255,255,  0,
 	171,255,255,  0, 200,255,255,  0, 229,255,255,  0, 255,255,255,  0 } };
 
-    hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
+    static struct {
+	WORD	     palVersion;
+	WORD	     palNumEntries;
+	BYTE         palPalEntries[8];
+    } bwpalette = {
+	0x300,
+	2,
+	{ 0,  0,  0,  0,  255,  255,  255,  0 }
+    };
+
+    if ( QApplication::colorSpec() == QApplication::ManyColor )
+	hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
+    else // CustomColor
+	hpal = CreatePalette( (LOGPALETTE*)&bwpalette );
 
     ((QColor*)(&Qt::black))->alloc();
     ((QColor*)(&Qt::white))->alloc();
 
     HDC dc = qt_display_dc();			// update global DC
     SelectPalette( dc, hpal, FALSE );
-    RealizePalette(dc );
+    RealizePalette( dc );
 }
 
 
@@ -191,12 +209,39 @@ uint QColor::alloc()
 	pix = 0;
     } else {
 	rgbVal &= RGB_MASK;
-	pix = hpal ? PALETTEINDEX(GetNearestPaletteIndex(hpal,qrgb2colorref(rgbVal))) :
-	    qrgb2colorref(rgbVal);
+	pix = qrgb2colorref( rgbVal );
+	if ( hpal ) {
+	    int idx = GetNearestPaletteIndex( hpal, pix );
+	    pix = PALETTEINDEX( idx );
+	    if ( QApplication::colorSpec() == QApplication::CustomColor ) {
+		static int numPalEntries = 2;
+		if ( numPalEntries < 256 ) {
+		    PALETTEENTRY fe;
+		    GetPaletteEntries( hpal, idx, 1, &fe );
+		    QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue );
+		    if ( fc != rgbVal ) {	// Color not found in palette
+			numPalEntries++;
+			ResizePalette( hpal, numPalEntries );
+			PALETTEENTRY ne;
+			ne.peRed = qRed( rgbVal );
+			ne.peGreen = qGreen( rgbVal );
+			ne.peBlue = qBlue( rgbVal );
+			ne.peFlags = 0;
+			SetPaletteEntries( hpal, numPalEntries-1, 1, &ne );
+			pix = PALETTEINDEX( numPalEntries-1 );
+
+			HDC dc = qt_display_dc();
+			UnrealizeObject( hpal );
+			SelectPalette( dc, hpal, FALSE );
+			RealizePalette( dc );
+		    }
+		}
+	    }
+	}
     }
+
     return pix;
 }
-
 
 /****************************************************************************
 ** Color lookup based on a name.  The color names have been borrowed from X.

@@ -809,32 +809,28 @@ int QApplication::colorSpec()
 /*!
   Sets the color specification for the application to \a spec.
 
-  The color specification controls how your application allocates
-  colors. You must set the color specification before you create the
-  QApplication object.
+  The color specification controls how your application allocates colors
+  whn run on a display with a limited amount of colors, i.e. 8 bit / 256
+  color displays.
+
+  The color specification must be set before you create the QApplication
+  object.
 
   The choices are:
   <ul>
   <li> \c QApplication::NormalColor.
-    This is the default color allocation strategy.  Use this choice if
+    This is the default color allocation strategy. Use this choice if
     your application uses buttons, menus, texts and pixmaps with few
-    colors.  With this choice, the application allocates system global
-    colors.  This work fine for most applications under X11, but on
-    Windows machines it can cause dithering of non-standard colours in
-    256-color mode.
-
+    colors. With this choice, the application uses system global
+    colors. This works fine for most applications under X11, but on
+    Windows machines it may cause dithering of non-standard colours.
   <li> \c QApplication::CustomColor.
     Use this choice if your application needs a small number of custom
-    colors.  This choice only makes a difference on Windows - the
-    application gets more colors when it is active, but the background
-    windows look less good.  Under X11 this is the same as \c
-    NormalColor. Under Windows, Qt creates a Windows palette if the
-    display supports 256 colors.
-
+    colors. On X11, this choice is the same as NormalColor. On Windows, Qt
+    creates a Windows palette, and allocates colors in it on demand.
   <li> \c QApplication::ManyColor.
     Use this choice if your application is very color hungry
     (e.g. it wants thousands of colors).
-    Under Windows, this is currently the same as \c CustomColor.
     Under X11 the effect is: <ul>
       <li> For 256-color displays which have at best a 256 color true color
 	    visual, the default visual is used, and colors are allocated
@@ -849,9 +845,13 @@ int QApplication::colorSpec()
 	    servers have this feature, for example.  They provide an 8
 	    bit visual by default but can deliver true color when
 	    asked.
-
     </ul>
+    On Windows, Qt creates a Windows palette, and fills it with a color cube.
   </ul>
+
+  Be aware that the CustomColor and ManyColor choices may lead to colormap
+  flashing: The foreground application gets (most) of the available
+  colors, while the background windows will look less good.
 
   Example:
   \code
@@ -874,8 +874,7 @@ int QApplication::colorSpec()
   The color cube used by Qt are all those colors with red, green, and blue
   components of either 0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
 
-  \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
-*/
+  \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext() */
 
 void QApplication::setColorSpec( int spec )
 {
