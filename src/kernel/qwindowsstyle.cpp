@@ -27,11 +27,8 @@ QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QWindowsStyle::drawIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
@@ -65,11 +62,8 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QWindowsStyle::drawFocusRect( QPainter* p,
 			      const QRect& r, const QColorGroup &, const QColor* bg)
@@ -138,11 +132,8 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-*/
 void
 QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		const QColorGroup &g, bool sunken,
@@ -151,11 +142,8 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     qDrawWinPanel(p, x, y, w, h, g, sunken, fill);
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
@@ -209,11 +197,8 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QSize
 QWindowsStyle::indicatorSize() const
 {
@@ -222,11 +207,8 @@ QWindowsStyle::indicatorSize() const
 
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
@@ -289,11 +271,6 @@ QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int
 
 
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 QSize
 QWindowsStyle::exclusiveIndicatorSize() const
 {
@@ -318,11 +295,6 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 }
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -330,11 +302,6 @@ void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void
 QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
@@ -393,22 +360,12 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 }
 
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void QWindowsStyle::getButtonShift( int &x, int &y)
 {
     x = 1;
     y = 1;
 }
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool sunken ,
 				     bool /* editable */,
@@ -422,21 +379,11 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 }
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
     return QRect(x+2, y+2, w-4-16, h-4);
 }
 
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
     return QRect(x+3, y+3, w-6-16, h-6);
@@ -448,11 +395,6 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 #define MOTIF_BORDER	2
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int&buttonDim )
 {
     int maxLength;
@@ -483,11 +425,6 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int 
 }
 
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
 void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
@@ -828,12 +765,6 @@ void QWindowsStyle::drawSliderGroove( QPainter *p,
     }
 
 }
-/*!
-  Reimplementation from QStyle to emulate the Windows typical jump
-  back when dragging controls.
-
-  \sa QStyle
-  */
 int QWindowsStyle::maximumSliderDragDistance() const
 {
     return 20;

@@ -26,11 +26,8 @@ QPlatinumStyle::QPlatinumStyle()
 {
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::polish( QApplication* app)
 {
     oldPalette = *app->palette();
@@ -53,11 +50,8 @@ void QPlatinumStyle::polish( QApplication* app)
 
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::unPolish( QApplication* app)
 {
     app->setPalette(oldPalette, TRUE);
@@ -209,11 +203,8 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     p->setPen(oldPen);
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h){
     return QRect(x+1, y+1, w-2, h-2);
 }
@@ -229,11 +220,8 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2)
     return QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv );
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -375,11 +363,8 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
@@ -433,11 +418,8 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	p->setBrush( NoBrush );
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
     QRect r = btn->rect();
@@ -477,11 +459,8 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 #define MOTIF_BORDER	2
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int& buttonDim )
 {
     int maxLength;
@@ -517,11 +496,8 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
 
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 					      const QColorGroup &g, bool horizontal, const QBrush* fill)
 {
@@ -589,11 +565,8 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
         if ( !sb->rect().contains( p ) )
@@ -631,11 +604,8 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
 */
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
@@ -794,11 +764,8 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawIndicator( QPainter* p,
 				    int x, int y, int w, int h, const QColorGroup &g,
 				    bool on , bool down, bool /*enabled */ )
@@ -852,11 +819,8 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
 
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QPlatinumStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on)
 {
@@ -870,11 +834,8 @@ QPlatinumStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool
     }
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QSize
 QPlatinumStyle::indicatorSize() const
 {
@@ -884,11 +845,8 @@ QPlatinumStyle::indicatorSize() const
 
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
@@ -960,22 +918,16 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     }
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QSize
 QPlatinumStyle::exclusiveIndicatorSize() const
 {
     return QSize(18,18);
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				      const QColorGroup &g, bool /* sunken */,
 				      bool editable,
@@ -1126,31 +1078,27 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h){
     return QRect(x+4, y+4, w-8-16, h-8);
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
     return QRect(x+5, y+5, w-10-16, h-10);
 }
 
 
+/*! \reimp */
 int QPlatinumStyle::sliderLength() const
 {
     return 17;
 }
 
+/*! \reimp */
 void QPlatinumStyle::drawSlider( QPainter *p,
 				 int x, int y, int w, int h,
 				 const QColorGroup &g,
@@ -1202,6 +1150,7 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 }
 
 
+/*! \reimp */
 void QPlatinumStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD c,

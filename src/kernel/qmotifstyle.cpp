@@ -25,15 +25,12 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 {
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::polish( QApplication* app)
 {
     oldPalette = *app->palette();
-    
+
     // force the ugly motif way of highlighting *sigh*
     QColorGroup normal = app->palette()->normal();
     QColorGroup disabled = app->palette()->disabled();
@@ -61,21 +58,15 @@ void QMotifStyle::polish( QApplication* app)
     // is constructed.... #####
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::unPolish( QApplication* app)
 {
     app->setPalette(oldPalette, TRUE);
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 
 void QMotifStyle::drawIndicator( QPainter* p,
 				 int x, int y, int w, int h, const QColorGroup &g,
@@ -87,11 +78,8 @@ void QMotifStyle::drawIndicator( QPainter* p,
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QSize
 QMotifStyle::indicatorSize() const
 {
@@ -99,11 +87,8 @@ QMotifStyle::indicatorSize() const
 }
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
@@ -150,11 +135,8 @@ QMotifStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bo
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 QSize
 QMotifStyle::exclusiveIndicatorSize() const
 {
@@ -164,11 +146,8 @@ QMotifStyle::exclusiveIndicatorSize() const
 
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
@@ -304,11 +283,8 @@ void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 		     defaultFrameWidth(), fill?fill:(sunken?&g.fillMid():&g.fillButton()));
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -316,11 +292,8 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QMotifStyle::drawFocusRect( QPainter* p,
 			    const QRect& r, const QColorGroup &/*g */, const QColor* col)
@@ -332,11 +305,8 @@ QMotifStyle::drawFocusRect( QPainter* p,
     p->drawRect( r );
 }
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void
 QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
@@ -390,11 +360,8 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int &buttonDim )
 {
     int maxLength;
@@ -425,11 +392,8 @@ void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &s
 }
 
 
-/*!
-  Reimplementation from QStyle
+/*! \reimp */
 
-  \sa QStyle
-  */
 void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
