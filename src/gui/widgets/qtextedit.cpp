@@ -1821,7 +1821,9 @@ void QTextEdit::append(const QString &text)
     cursor.movePosition(QTextCursor::End);
     cursor.insertBlock();
     if (f == Qt::PlainText) {
-        cursor.insertText(text);
+        QString txt = text;
+        txt.replace('\n', QChar::ParagraphSeparator);
+        cursor.insertText(txt);
     } else {
         QTextDocumentFragment frag = QTextDocumentFragment::fromHTML(text);
         cursor.insertFragment(frag);
