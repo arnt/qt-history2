@@ -100,3 +100,5 @@ QMsDev
       suboptimal (exposes implementation detail, which changes if I revise
       a class to use UIC), so I just changed to use [MyFormBase,MyForm]
       in all my .UI forms." (support/arc-07/15878)
+
+Adjust align hack in proerty editor to new alignment flags (Reggie) #####
