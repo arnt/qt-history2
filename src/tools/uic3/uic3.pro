@@ -15,7 +15,6 @@ INCLUDEPATH += .
 HEADERS += ui3reader.h \
            parser.h \
            domtool.h \
-           globaldefs.h \
            widgetinfo.h
 
 SOURCES += main.cpp \

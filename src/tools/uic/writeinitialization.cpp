@@ -16,6 +16,7 @@
 #include "utils.h"
 #include "uic.h"
 #include "databaseinfo.h"
+#include "globaldefs.h"
 
 #include <qtextstream.h>
 #include <qdebug.h>
@@ -371,7 +372,6 @@ void WriteInitialization::accept(DomActionGroup *node)
         varName = driver->findOrInsertActionGroup(m_actionGroupChain.top());
 
     output << option.indent << actionName << " = new QActionGroup(" << varName << ");\n";
-    output << option.indent << actionName << "->setExclusive(false);\n";
     writeProperties(actionName, "QActionGroup", node->elementProperty());
 
     m_actionGroupChain.push(node);
@@ -708,8 +708,8 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
 void WriteInitialization::accept(DomLayoutDefault *node)
 {
-    m_defaultMargin = 6; // ### use globaldefs
-    m_defaultSpacing = 11;
+    m_defaultMargin = BOXLAYOUT_DEFAULT_MARGIN;
+    m_defaultSpacing = BOXLAYOUT_DEFAULT_SPACING;
 
     if (!node)
         return;

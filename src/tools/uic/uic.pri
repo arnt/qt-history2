@@ -15,7 +15,8 @@ HEADERS += $$PWD/uic.h \
            $$PWD/writeicondata.h \
            $$PWD/databaseinfo.h \
            $$PWD/customwidgetsinfo.h \
-           $$PWD/blockingprocess.h
+           $$PWD/blockingprocess.h \
+           $$PWD/globaldefs.h
 
 SOURCES += $$PWD/uic.cpp \
            $$PWD/treewalker.cpp \
