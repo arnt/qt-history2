@@ -273,21 +273,21 @@
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <limits.h>
 #include <private/qcomplextext_p.h>
-#include "../kernel/qlayoutengine_p.h"
-#include "../widgets/qeffects_p.h"
-#include "../kernel/qfontdata_p.h"
-#include "../kernel/qinternal_p.h"
-#include "../kernel/qremotecontrol_p.h"
-#include "../kernel/qremotemessage_p.h"
-#include "../sql/qsqlmanager_p.h"
-#include "../kernel/qcomplextext_p.h"
-#include "../xml/qsvgdevice_p.h"
-#include "../codecs/qfontcodecs_p.h"
-#include "../kernel/qpsprinter_p.h"
-#include "../widgets/qtitlebar_p.h"
-#include "../kernel/qrichtext_p.h"
-#include "../widgets/qwidgetresizehandler_p.h"
-#include "../tools/qlibrary_p.h"
+#include <private/qlayoutengine_p.h>
+#include <private/qeffects_p.h>
+#include <private/qfontdata_p.h>
+#include <private/qinternal_p.h>
+#include <private/qremotecontrol_p.h>
+#include <private/qremotemessage_p.h>
+#include <private/qsqlmanager_p.h>
+#include <private/qcomplextext_p.h>
+#include <private/qsvgdevice_p.h>
+#include <private/qfontcodecs_p.h>
+#include <private/qpsprinter_p.h>
+#include <private/qtitlebar_p.h>
+#include <private/qrichtext_p.h>
+#include <private/qwidgetresizehandler_p.h>
+#include <private/qlibrary_p.h>
 #endif // Private headers
 
 
