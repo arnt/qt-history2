@@ -384,9 +384,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
 
     topDockWnd = new QDockWindow(parent, Qt::DockWindowAreaTop);
     topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
-    topDockWnd->setClosable(true);
-    topDockWnd->setMovable(true);
-    topDockWnd->setFloatable(true);
+    topDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
 
     srcTextList = new Q3ListView(topDockWnd);
@@ -423,9 +421,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
 
     bottomDockWnd = new QDockWindow(parent, Qt::DockWindowAreaBottom);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
-    bottomDockWnd->setClosable(true);
-    bottomDockWnd->setMovable(true);
-    bottomDockWnd->setFloatable(true);
+    bottomDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
     QWidget *w = new QWidget(bottomDockWnd);

@@ -176,9 +176,7 @@ TrWindow::TrWindow()
     QDockWindow *dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
 
     dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
-    dwScope->setClosable(true);
-    dwScope->setMovable(true);
-    dwScope->setFloatable(true);
+    dwScope->setFeatures(QDockWindow::AllDockWindowFeatures);
     dwScope->setWindowTitle(tr("Context"));
 
     lv = new Q3ListView(dwScope);
@@ -1427,7 +1425,7 @@ void TrWindow::setupMenuBar()
     doneAndNextAct = translationp->addAction(loadPixmap("doneandnext.png"), tr("Done and &Next"),
                                  this, SLOT(doneAndNext()));
     doneAndNextAct->setShortcut(QKeySequence("Ctrl+Enter"));
-    
+
     doneAndNextAlt = new QAction(this);
     doneAndNextAlt->setShortcut(QKeySequence("Ctrl+Return"));
     connect( doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()) );
