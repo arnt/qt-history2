@@ -56,7 +56,8 @@ QTextOption::QTextOption(const QTextOption &o)
       design(o.design),
       unused(o.unused),
       f(o.f),
-      tab(o.tab)
+      tab(o.tab),
+      d(0)
 {
     if (o.d)
         d = new QTextOptionPrivate(*o.d);
