@@ -2094,6 +2094,18 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		it.toFirst();
 	    }
 	}
+	if ( !found ) {
+	    for ( QAction *a = actions.first(); a; a = actions.next() ) {
+		if ( a != w &&
+		     qstrcmp( a->name(), s.latin1() ) == 0 ) {
+		    found = TRUE;
+		    if ( !changeIt )
+			break;
+		    s = orig + "_" + QString::number( ++num );
+		    it.toFirst();
+		}
+	    }
+	}
     }
 
     if ( !found )

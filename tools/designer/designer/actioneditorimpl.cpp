@@ -41,7 +41,7 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     listActions->addColumn( tr( "Actions" ) );
     setEnabled( FALSE );
     buttonConnect->setEnabled( FALSE );
-    
+
     QPopupMenu *popup = new QPopupMenu( this );
     popup->insertItem( tr( "New &Action" ), this, SLOT( newAction() ) );
     popup->insertItem( tr( "New Action &Group" ), this, SLOT( newActionGroup() ) );
@@ -89,7 +89,7 @@ void ActionEditor::deleteAction()
 	}
 	++it;
     }
-    
+
     if ( formWindow )
 	formWindow->setActiveObject( formWindow->mainContainer() );
 }
@@ -102,16 +102,18 @@ void ActionEditor::newAction()
 	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
-    
+
     ActionItem *i = 0;
     if ( actionParent )
 	i = new ActionItem( actionParent );
     else
 	i = new ActionItem( listActions, FALSE );
     MetaDataBase::addEntry( i->action() );
-    i->setText( 0, tr( "Action" ) );
-    i->action()->setName( tr( "Action" ) );
-    i->action()->setText( tr( "Action" ) );
+    QString n = "Action";
+    formWindow->unify( i->action(), n, TRUE );
+    i->setText( 0, n );
+    i->action()->setName( n );
+    i->action()->setText( i->action()->name() );
     listActions->setCurrentItem( i );
     if ( !actionParent )
 	formWindow->actionList().append( i->action() );
@@ -125,7 +127,7 @@ void ActionEditor::newActionGroup()
 	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
-    
+
     ActionItem *i = 0;
     if ( actionParent )
 	i = new ActionItem( actionParent, TRUE );
@@ -133,9 +135,11 @@ void ActionEditor::newActionGroup()
 	i = new ActionItem( listActions, TRUE );
 
     MetaDataBase::addEntry( i->actionGroup() );
-    i->setText( 0, tr( "ActionGroup" ) );
-    i->actionGroup()->setName( tr( "ActionGroup" ) );
-    i->actionGroup()->setText( tr( "ActionGroup" ) );
+    QString n = "ActionGroup";
+    formWindow->unify( i->action(), n, TRUE );
+    i->setText( 0, n );
+    i->actionGroup()->setName( n );
+    i->actionGroup()->setText( i->actionGroup()->name() );
     listActions->setCurrentItem( i );
     i->setOpen( TRUE );
     if ( !actionParent )
