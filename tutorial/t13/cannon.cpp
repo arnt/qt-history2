@@ -7,6 +7,7 @@
 #include "cannon.h"
 #include <qpainter.h>
 #include <qpixmap.h>
+#include <qdatetm.h>
 #include <qfont.h>
 
 #include <math.h>
@@ -42,8 +43,6 @@ void CannonField::setForce( int newton )
 {
     if ( newton < 0 )
 	newton = 0;
-    if ( newton > 50 )
-	newton = 50;
     if ( f == newton )
 	return;
     f = newton;
@@ -61,6 +60,20 @@ void CannonField::shoot()
     startTimer( 50 );
 }
 
+void  CannonField::newTarget()
+{
+    static bool first_time = TRUE;
+    if ( first_time ) {
+	first_time = FALSE;
+	QTime midnight( 0, 0, 0 );
+	srand( midnight.secsTo(QTime::currentTime()) );
+    }
+    erase( targetRect() );
+    target = QPoint( 200 + rand() % 190,
+		     10  + rand() % 255 );
+    repaint( targetRect() );
+}
+
 void CannonField::setGameOver()
 {
     if ( gameEnded )
@@ -75,7 +88,6 @@ void CannonField::restartGame()
 {    
     if ( shooting )
 	stopShooting();
-    newTarget();
     gameEnded = FALSE;
     repaint();
 }
@@ -85,13 +97,10 @@ void CannonField::timerEvent( QTimerEvent * )
     erase( shotRect() );
     timerCount++;
 
-    QRect shotR   = shotRect();
+    QRect shotR = shotRect();
 
     if ( shotR.intersects( targetRect() ) ) {
-	erase( targetRect() );
 	stopShooting();
-	newTarget();
-	repaint( targetRect(), FALSE );
 	emit hit();	
 	return;
     }
@@ -196,12 +205,6 @@ QRect CannonField::shotRect() const
 QRect CannonField::targetRect() const
 {
     QRect r( 0, 0, 20, 10 );
-    r.setCenter( target );
+    r.setCenter( QPoint(target.x(),height() - 1 - target.y()) );
     return r;
-}
-
-void  CannonField::newTarget()
-{
-    target = QPoint( 200 + random() % ( width() - 200 - 10), 
-                      35 + random() % (height() - 35  - 10) );
 }

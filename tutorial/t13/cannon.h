@@ -24,6 +24,7 @@ public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
     void  shoot();
+    void  newTarget();
     void  setGameOver();
     void  restartGame();
 signals:
@@ -42,7 +43,6 @@ private:
     QRect cannonRect() const;
     QRect shotRect() const;
     QRect targetRect() const;
-    void  newTarget();
 
     int   ang;
     int   f;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.3 1995/12/20 11:02:40 hanord Exp $
+** $Id: tutorial.doc,v 1.4 1995/12/20 15:55:45 hanord Exp $
 **
 ** Tutorial
 **
@@ -10,7 +10,7 @@
 /*! \page tutorial.html
 
 <title>
-Qt tutorial - Introduction
+Qt Tutorial - Introduction
 </title></head><body>
 
 <h1>The 14 Steps</h1>
@@ -39,7 +39,7 @@ Each chapter explains what
 /*! \page t1.html
 
 <title>
-Qt tutorial - Chapter 1
+Qt Tutorial - Chapter 1
 </title></head><body>
 
 <h1>Chapter 1: Hello, World!</h1>
@@ -156,7 +156,7 @@ You may now go on to \link t2.html chapter two. \endlink
 /*! \page t2.html
 
 <title>
-Qt tutorial - Chapter 2
+Qt Tutorial - Chapter 2
 </title></head><body>
 
 <h1>Chapter 2: Calling it Quits</h1>
@@ -242,7 +242,7 @@ You may now go on to \link t3.html chapter three. \endlink
 /*! \page t3.html
 
 <title>
-Qt tutorial - Chapter 3
+Qt Tutorial - Chapter 3
 </title></head><body>
 
 <h1>Chapter 3: Family Values</h1>
@@ -322,7 +322,7 @@ You may now go on to \link t4.html chapter four. \endlink
 /*! \page t4.html
 
 <title>
-Qt tutorial - Chapter 4
+Qt Tutorial - Chapter 4
 </title></head><body>
 
 <h1>Chapter 4: Let There Be Widgets</h1>
@@ -431,7 +431,7 @@ You may now go on to \link t5.html chapter five. \endlink
 /*! \page t5.html
 
 <title>
-Qt tutorial - Chapter 5
+Qt Tutorial - Chapter 5
 </title></head><body>
 
 <h1>Chapter 5: Lego</h1>
@@ -565,7 +565,7 @@ You may now go on to \link t6.html chapter six. \endlink
 /*! \page t6.html
 
 <title>
-Qt tutorial - Chapter 6
+Qt Tutorial - Chapter 6
 </title></head><body>
 
 <h1>Chapter 6: Lego Galore!</h1>
@@ -658,7 +658,7 @@ You may now go on to \link t7.html chapter seven. \endlink
 /*! \page t7.html
 
 <title>
-Qt tutorial - Chapter 7
+Qt Tutorial - Chapter 7
 </title></head><body>
 
 <h1>Chapter 7: One Thing Leads to Another</h1>
@@ -822,7 +822,7 @@ You may now go on to \link t8.html chapter seven. \endlink
 /*! \page t8.html
 
 <title>
-Qt tutorial - Chapter 8
+Qt Tutorial - Chapter 8
 </title></head><body>
 
 <h1>Chapter 8: Preparing for Battle</h1>
@@ -1052,7 +1052,7 @@ You may now go on to \link t9.html chapter nine. \endlink
 /*! \page t9.html
 
 <title>
-Qt tutorial - Chapter 9
+Qt Tutorial - Chapter 9
 </title></head><body>
 
 <h1>Chapter 9: With Cannon You Can</h1>
@@ -1191,7 +1191,7 @@ You may now go on to \link t10.html chapter ten. \endlink
 /*! \page t10.html
 
 <title>
-Qt tutorial - Chapter 10
+Qt Tutorial - Chapter 10
 </title></head><body>
 
 <h1>Chapter 10: Smooth as Silk</h1>
@@ -1389,7 +1389,7 @@ You may now go on to \link t11.html chapter eleven. \endlink
 /*! \page t11.html
 
 <title>
-Qt tutorial - Chapter 11
+Qt Tutorial - Chapter 11
 </title></head><body>
 
 <h1>Chapter 11: Giving It a Shot</h1>
@@ -1609,7 +1609,7 @@ You may now go on to \link t12.html chapter twelve. \endlink
 /*! \page t12.html
 
 <title>
-Qt tutorial - Chapter 12
+Qt Tutorial - Chapter 12
 </title></head><body>
 
 <h1>Chapter 12: Something To Die For</h1>
@@ -1733,6 +1733,12 @@ it contains a target.
 
 \dontinclude t12/cannon.h
 
+\skip slots
+\skip newTarget
+\line newTarget
+
+This slot creates a target at a new position.
+
 \skip signals
 \until missed
 
@@ -1750,11 +1756,6 @@ This private function paints the target.
 
 This private function returns the enclosing rectangle of the target.
 
-\skip newTarget
-\line newTarget
-
-This private function creates a target at a new position.
-
 \skip target
 \line target
 
@@ -1765,131 +1766,379 @@ This private variable contains the center point of the target.
 
 \dontinclude t12/cannon.cpp
 
-\skip include
-\skip math
-\line math
+\skip qdatetm
+\line qdatetm
 
-We include the math library because we need the sin() and cos() functions.
+We include the QDate, QTime and QDateTime class definitions.
 
-\skip ::CannonField
-\until }
+\skip stdlib
+\line stdlib
 
-We initialize our new private variables.
+We include the stdlib library because we need the rand() function.
 
-\skip ::shot
-\until startTimer
+\skip newTarget
+\line newTarget
+
+This line has been added to the constructor. It creates a "random"
+position for the target. In fact, the newTarget() function will try to
+paint the target.  Since we are in a constructor, the CannonField widget
+is invisible.  Qt guarantees that no harm is done when painting a hidden
+widget.
+
+\skip ::newTarget
+\until height
 \line }
 
-This function shoots a shot unless a shot is in the air. The \c timerCount
-is reset to zero.  The \c shoot_ang and \c shoot_f are set to the current
-cannon angle and force. \c shooting is set to TRUE to indicate that a shot
-is in the air. Finally we start timer events.
+This private function creates a target center point at a new "random"
+position.
 
-Calling \link QObject::startTimer() startTimer()\endlink will make Qt send
-us \link QObject::timerEvent() timer events\endlink at regular intervals.
-In this case, we want timer events every 50 milliseconds.
+We use the rand() function to fetch random integers.  The rand() function
+normally returns the same series of numbers each time you run a program.
+To avoid this, we must set a random seed the first time this function
+is called. The random seed must also be random in order to avoid equal 
+random number series.  The solution is to use the number of seconds that
+have passed since midnight as a pseudo-random value.
+
+First we create a static bool local variable.  A static variable like
+this one is guaranteed to keep its value between calls to the function.
+
+The if test will only succeed the first time this function is called,
+because we set \c first_time to FALSE.
+
+Then we create the QTime object \c midnight which represents the time
+00:00:00. Next, we fetch the number of seconds from midnight until now
+and use it as a random seed.
+
+Finally, we calculate the target's center point. We keep it withing
+the rectangle (x=200,y=35,width=190,height=255), i.e. the possible
+x and y values are x = 200..390 and y = 35..290.
+
+By experimentation, we have found this to always be in reach of the shot.
+
+Note that rand() return a random integer >= 0.
+
 
 \skip ::timerEvent
-\until repaint
-\line }
+\until QRect
 
-The timerEvent() function is an event handler that receives timer events
-from Qt.  In our case, it is called every 50 milliseconds when a shot is
-in the air.
+This part of the timer event has not changed from the previous chapter.
 
-First we erase the old shot. Note that this is not strictly necessary the
-first time the timerEvent() is called after a shot has been fired (but it
-does no harm).  The \c shotRect() function (explained below) returns the
-enclosing rectangle of the shot at the current position.
+\skip targetRect
+\until }
 
-Then we increment the \c timerCount, which has the effect of moving the
-shot one step along its trajectory.
+This \c if statement checks if the shot rectangle intersects the target
+rectangle.  If it does, the shot has hit the target (ouchh!).  We stop
+shooting and emit the hit() signal to tell the outside world that a target
+was destroyed and return.
 
-Next, we fetch the new shot rectangle.
+Note that we could have created a new target on the spot, but since the
+CannonField is a component, we leave such decisions to the user of the
+component.
 
-If the shot has moved beyond the right or bottom edge of the widget, we
-stop shooting and return.
+\skip shotR
+\until }
 
-If not, we paint the new shot by repainting the portion of the widget that
-contains the shot.  The FALSE argument indicates that the specified
-rectangle should not be erased before a paint event is sent to the widget.
+This \c if statement is the same as in the previous chapter, except that
+it now emits the missed() signal to tell the outside world about the
+failure.
+
+\skip repaint
+\until }
+
+No changes here.
 
 \skip ::paintEvent
-\until end
-\line }
+\skip targetRect
+\line updateR
+\line paintTarget
 
-This paint event function is basically the same as the one in the
-previous chapter. The only difference is that we also paint the shot
-if necessary.
+These two lines have been added to the paintEvent() to paint the
+target if necessary.
 
-\skip ::stopShooting
-\until killTimers
-\line }
+\skip ::paintTarget
+\until }
 
-Peace...  This private function stops a shot in mid-air.  First it resets
-the \c shooting variable, then it \link QObject::killTimers() kills all
-timer events\endlink for this widget.  It is also possible to \link
-QObject::killTimer() kill a single timer\endlink.
+This private function paints the target; a rectangle filled with red and
+with a black outline.
 
-\skip ::paintShot
-\until drawRect
-\line }
+\skip ::targetRect
+\until }
 
-This private function paints the shot by drawing a black filled rectangle.
+This private function returns the enclosing rectangle of the target.
+Remember from newTarget() the \c target point uses y coordinate 0 at the
+bottom of the widget.  We calculate the point in widget coordinates before
+we call \link QRect::setCenter() setCenter()\endlink.
 
-\skip ::shotRect
-\until return
-\line }
-
-This private function calculates the center point of the shot and returns
-the enclosing rectangle of the shot.  It uses the initial cannon force and
-angle in addition to \c timerCount, which increases when time passes.
-
-The formula used is the classical Newtonian formula for frictionless
-movement in a gravity field.  For simplicity, we've chosen to disregard
-any Einsteinian effects.
-
-We calculate the center point in a coordinate system where y coordinates
-increase upwards.  After we have calculated the center point, we construct
-a QRect with size 6x6 and move its center point to the point calculated
-above. In the same operation, we convert the point into the widget's
-coodinate system (see \link coordsys.html The Coordinate System\endlink).
-
+The reason we have chosen this coordinate mapping is to fix the distance
+between the target and the bottom of the widget.  Remember that the widget
+can be resized by the user or the program at any time.
 
 <h3>main.cpp</h3>
 
 \dontinclude t12/main.cpp
 
-\skip class
-\until };
-
-The only addition is the shoot button.
+There are no new members in the MyWidget class, but we have slightly
+changed the constructor to set the new LCDRange text labels.
 
 \skip ::MyWidget
-\skip shoot
-\until setFont
+\skip angle
+\line ANGLE
 
-We create and set up the shoot button exactly like we did with the quit
-button.  Note that the first argument to the constructor is the button
-text and the third is the widget's name.
+We set the angle text label to "ANGLE".
 
-\skip connect
-\line connect
 
-Connects the clicked() signal of the shoot button to the shoot() slot
-of the CannonField.
+\skip force
+\line FORCE
+
+We set the force text label to "FORCE".
+
+Note that we have not changed the position or the size of the LCDRanges.
+The QLCDNumber in LCDRange will become a bit smaller to make room for the
+label.  MyWidget doesn't care about that, because it uses LCDRange as a
+component and trust that it will show its value in the best way possible.
 
 
 <h2>Behavior</h2>
 
-The cannon can shoot, but there's nothing to shoot at.
+The cannon can shoot at a target and automatically creates a new target
+when one has been hit.
 
 
 <h2>Excercises</h2>
 
-Make the size of the cannon barrel be dependent on the force.
+Make a cheat button that when pressed makes the CannonField display
+the shot trajectory for 5 seconds.
 
-Put the cannon in the bottom right corner.
+Make a moving target.
+
+Make it possible to have several shots in the air at the same time.
+Hint: make a Shot object.
+
+You may now go on to \link t13.html chapter thirteen. \endlink
+
+*/
+
+
+------------------------------------------------------------------------------
+
+
+/*! \page t13.html
+
+<title>
+Qt Tutorial - Chapter 13
+</title></head><body>
+
+<h1>Chapter 13: Game Over</h1>
+
+<img src=t13.gif>
+
+In this example we give MyWidget a new name; GameBoard and added some
+slots.  We put the definition in gamebrd.h and the implementation in
+gamebrd.cpp.
+
+The CannonField now has a game over state.
+
+<ul>
+<li> \link t13/lcdrange.h lcdrange.h \endlink contains the LCDRange
+class definition
+<li> \link t13/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+implementation
+<li> \link t13/cannon.h cannon.h \endlink contains the CannonField
+class definition
+<li> \link t13/cannon.cpp cannon.cpp \endlink contains the CannonField
+implementation
+<li> \link t13/gamebrd.h gamebrd.h \endlink contains the GameBoard
+class definition
+<li> \link t13/gamebrd.cpp gamebrd.cpp \endlink contains the GameBoard
+implementation
+<li> \link t13/main.cpp main.cpp \endlink contains main.
+<li> \link t13/Makefile Makefile \endlink contains some rules for
+generating the metaobject information necessary for <a
+href=metaobjects.html>signal/slot creation.</a>
+</ul>
+
+<h2>Line by Line Walk-Through</h2>
+
+
+<h3>cannon.h</h3>
+
+The CannonField now has a game over state and a few new slots/functions.
+
+\dontinclude t13/cannon.h
+
+\skip gameOver
+\line gameOver
+
+This function returns TRUE if the game is over, or FALSE if a game
+is going on.
+
+\skip newTarget
+\until restartGame
+
+Here are two new slots; setGameOver() and restartGame().
+In addition, the private function newTarget() has become a slot, to
+give the outside world better control of the game.
+
+\skip gameEnded
+\line gameEnded
+
+This private variable contains the game state. TRUE means that the
+game is over, and FALSE means that a game is going on.
+
+<h3>cannon.cpp</h3>
+
+\dontinclude t13/cannon.cpp
+
+\skip qfont
+\line qfont
+
+We include the QFont class definition.
+
+\skip ::CannonField
+\skip gameEnded
+\line gameEnded
+
+This line has been added to the constructor. Initially, the game is not
+over.
+
+\skip ::setGameOver
+\until }
+
+This slot ends the game. It must be called from outside CannonField,
+because this widget does not know when to end the game.  This is is an
+important design principle in component programming.  We choose to
+make the component as flexible as possible to make it usable for
+different games with different rules.
+
+If the game has already been ended, we return immediately.  If a game is
+going on, we stop the shot, set the game over flag and repaint the widget.
+
+\skip ::restartGame
+\until }
+
+This slot starts a new game.
+
+\skip ::paintEvent
+
+
+This part of the timer event has not changed from the previous chapter.
+
+\skip targetRect
+\until }
+
+This if statement checks if the shot rectangle intersects the target
+rectangle.  If it does, the shot has hit the target (ouchh!).  First we
+erase the target, then we stop the shot, create a new target position and
+paint the new target.  Finally we emit the hit() signal to tell the
+outside world that a target was destroyed and return.
+
+\skip shotR
+\until }
+
+This if statement is the same as in the previous chapter, except that
+it now emits the missed() signal to tell the outside world about the
+failure.
+
+\skip repaint
+\until }
+
+No changes here.
+
+\skip ::paintEvent
+\skip targetRect
+\line updateR
+\line paintTarget
+
+These two lines have been added to the paintEvent() to paint the
+target if necessary.
+
+\skip ::paintTarget
+\until }
+
+This private function paints the target; a rectangle filled with red and
+with a black outline.
+
+\skip ::targetRect
+\until }
+
+This private function returns the enclosing rectangle of the target.
+
+\skip ::newTarget
+\until height
+\line }
+
+This slot creates a target center point at a new "random" position.
+
+We use the rand() function to fetch random integers.  The rand() function
+always returns the same series of numbers, and this would make the target
+appear on the same aposition each time you run the program.  To avoid
+this, we set a random seed the first time this function is called. The
+random seed must also be random, in order to avoid equal random number
+series.  The solution is to use the number of seconds that have passed
+since midnight as a pseudo-random value.
+
+First we create a static bool local variable.  A static variable like this
+one is guaranteed to keep its value between calls to the function.
+
+The if test will only succeed the first time this function is called,
+because we set \c first_time to FALSE inside the \c if block.
+
+Then we create the QTime object \c midnight which represents the time
+00:00:00. Next, we fetch the number of seconds from midnight until now
+and use it as a random seed.
+
+See the documentation of QDate, QTime and QDateTime for more information
+on date and time support.
+
+Finally, we calculate the target's center point. We keep it withing the
+rectangle (x=200,y=35,width=290,height=310) (i.e. the possible x and y
+values are x = 200..490 and y = 35..345) in a coordinate system where we
+put y position 0 at the bottom edge of the widget and let y values
+increase upwards.  X is as normal, with 0 at the left edge and with x
+increasing to the right.
+
+Note that rand() return a random integer >= 0.
+
+
+<h3>main.cpp</h3>
+
+\dontinclude t13/main.cpp
+
+There are no new members in the MyWidget class, but we have slightly
+changed the constructor to set the new LCDRange text labels.
+
+\skip ::MyWidget
+\skip angle
+\line ANGLE
+
+We set the angle text label to "ANGLE".
+
+
+\skip force
+\line FORCE
+
+We set the force text label to "FORCE".
+
+Note that we have not changed the position or the size of the LCDRanges.
+The QLCDNumber in LCDRange will become a bit smaller to make room for the
+label.  MyWidget doesn't care about that, because it uses LCDRange as a
+component and trust that it will show its value in the best way possible.
+
+
+<h2>Behavior</h2>
+
+The cannon can shoot at a target and automatically creates a new target
+when one has been hit.
+
+
+<h2>Excercises</h2>
+
+Make a cheat button that when pressed makes the CannonField display
+the shot trajectory for 5 seconds.
+
+Make a moving target.
+
+Make it possible to have several shots in the air at the same time.
 
 You may now go on to \link t13.html chapter thirteen. \endlink
 
@@ -1915,7 +2164,7 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 /*! \page t.html
 
 <title>
-Qt tutorial - Chapter 
+Qt Tutorial - Chapter 
 </title></head><body>
 
 <h1>Chapter : </h1>
@@ -1974,7 +2223,7 @@ You may now go on to \link t7.html chapter seven. \endlink
 /*! \page t13.html
 
 <title>
-Qt tutorial - Chapter 13
+Qt Tutorial - Chapter 13
 </title></head><body>
 
 <h1>Chapter 13: Game Over</h1>

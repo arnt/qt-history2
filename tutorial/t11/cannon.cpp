@@ -38,8 +38,6 @@ void CannonField::setForce( int newton )
 {
     if ( newton < 0 )
 	newton = 0;
-    if ( newton > 50 )
-	newton = 50;
     if ( f == newton )
 	return;
     f = newton;

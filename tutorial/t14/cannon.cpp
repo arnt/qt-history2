@@ -50,6 +50,24 @@ void CannonField::setForce( int newton )
 	return;
     f = newton;
     emit forceChanged( f );
+    const bool cheat = TRUE;
+    if ( cheat ) {
+	update();
+	QRect r;
+	QPainter p;
+	p.begin( this );
+	timerCount = 0;
+	shoot_ang = ang;
+	shoot_f = f;
+	p.setPen( red );
+	do {
+	    r = shotRect();
+	    p.drawPoint( r.center() );
+	    timerCount++;
+	} while ( r.x() < width() );
+	timerCount = 0;
+	p.end();
+    }
 }
 
 void CannonField::shoot()
