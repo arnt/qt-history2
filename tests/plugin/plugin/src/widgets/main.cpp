@@ -30,7 +30,7 @@ public:
     QStringList featureList();
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
 
-    QCleanUpHandler<QWidget>* widgets;
+    QGuardedCleanUpHandler<QWidget>* widgets;
 };
 
 TestInterface::TestInterface()
@@ -44,7 +44,7 @@ TestInterface::~TestInterface()
 bool TestInterface::connectNotify( QApplication* theApp )
 {
     qDebug("Widget-Plugin: I've been loaded by %p", theApp );
-    widgets = new QCleanUpHandler<QWidget>();
+    widgets = new QGuardedCleanUpHandler<QWidget>();
     return TRUE;
 }
 
