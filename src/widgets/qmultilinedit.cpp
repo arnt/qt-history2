@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#125 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1540,22 +1540,10 @@ void QMultiLineEdit::end( bool mark )
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
     mlData->isHandlingEvent = TRUE;
-    if ( m->button() == MidButton ) {
-	if ( hasMarkedText() ) {
-#if defined(_WS_X11_)
-	    copyText();		// copy-and-paste to self
-#elif defined(_WS_WIN_)
-	    if ( style() == MotifStyle )
-		copyText();
-#endif
-	    turnMarkOff();
-	}
-    }
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
 	dragScrolling = FALSE;
     }
-    textDirty = FALSE;
     wordMark = FALSE;
     int newY = findRow( m->pos().y() );
     if ( newY < 0 )
@@ -1565,7 +1553,9 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     cursorX = xPosToCursorPos( *getString( newY ), fm,
 			       m->pos().x() - BORDER + xOffset(),
 			       cellWidth() - 2 * BORDER );
-    if ( m->button() ==  LeftButton ) {
+    if ( m->button() == MidButton ||
+	 m->button() == LeftButton)
+    {
 	dragMarking    = TRUE;
 	curXPos        = 0;
 	markAnchorX    = cursorX;
@@ -1578,10 +1568,6 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	    mlData->isHandlingEvent = FALSE;
 	    return;
 	}	
-    }
-
-    if ( m->button() == MidButton ||
-	 m->button() == LeftButton) {
 	if ( cursorY != newY ) {
 	    int oldY = cursorY;
 	    cursorY = newY;
@@ -1589,20 +1575,6 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	}
 	updateCell( cursorY, 0, FALSE );		// ###
     }
-    if ( readOnly ) {
-	mlData->isHandlingEvent = FALSE;
-    	return;
-    }
-    if ( m->button() == MidButton ) {
-#if defined(_WS_X11_)
-	paste();		// Will repaint the cursor line.
-#else
-	if ( style() == MotifStyle )
-	    paste();
-#endif
-    }
-    if ( textDirty )
-	emit textChanged();
     mlData->isHandlingEvent = FALSE;
 }
 
@@ -1669,7 +1641,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 /*!
   Handles mouse release events.
 */
-void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
+void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
@@ -1677,6 +1649,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
     }
     wordMark = FALSE;
     dragMarking   = FALSE;
+    textDirty = FALSE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
 #if defined(_WS_X11_)
@@ -1686,6 +1659,18 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
     else if ( style() == MotifStyle )
 	copyText();
 #endif
+
+    if ( e->button() == MidButton ) {
+#if defined(_WS_X11_)
+	paste();		// Will repaint the cursor line.
+#else
+	if ( style() == MotifStyle )
+	    paste();
+#endif
+    }
+
+    if ( !readOnly && textDirty )
+	emit textChanged();
 }
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#173 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -699,21 +699,12 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
-    killTimers();
     d->inDoubleClick = FALSE;
     int margin = frame() ? 4 : 2;
     cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 					  e->pos().x() - margin - alignOffset,
 					  width() - 2*margin );
-    if ( e->button() == MidButton ) {
-#if defined(_WS_X11_)
-	insert( QApplication::clipboard()->text() );
-#else
-	if ( style() == MotifStyle )
-	    insert( QApplication::clipboard()->text() );
-#endif
-	return;
-    } else if ( hasMarkedText() &&
+    if ( hasMarkedText() &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
 		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
@@ -744,6 +735,9 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( !(e->state() & LeftButton) )
+	return;
+
     int margin = frame() ? 4 : 2;
 
     if ( e->pos().x() < margin || e->pos().x() > width() - margin ) {
@@ -794,6 +788,17 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     if ( style() == MotifStyle && hasMarkedText() && echoMode() == Normal )
 	copyText();
 #endif
+
+    if ( e->button() == MidButton ) {
+#if defined(_WS_X11_)
+	insert( QApplication::clipboard()->text() );
+#else
+	if ( style() == MotifStyle )
+	    insert( QApplication::clipboard()->text() );
+#endif
+	return;
+    }
+
     if ( dragScrolling )
 	dragScrolling = FALSE;
     if ( e->button() != LeftButton )
