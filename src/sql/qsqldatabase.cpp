@@ -438,7 +438,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 	    it++;
 	}
 	QSqlDriverFactoryInterface *iface = 0;
-	d->plugIns->queryInterface( type, (QUnknownInterface**)&iface );
+	d->plugIns->queryInterface( type, &iface );
 	if( iface ){
 	    d->driver = iface->create( type );
 	    iface->release();

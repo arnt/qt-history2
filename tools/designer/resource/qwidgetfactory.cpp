@@ -321,9 +321,9 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    QStringList langs = languageInterfaceManager->featureList();
 	    for ( QStringList::Iterator lit = langs.begin(); lit != langs.end(); ++lit ) {
 		EventInterface *eventInterface = 0;
-		eventInterfaceManager->queryInterface( *lit, (QUnknownInterface**) &eventInterface );
+		eventInterfaceManager->queryInterface( *lit, &eventInterface );
 		InterpreterInterface *interpreterInterface = 0;
-		interpreterInterfaceManager->queryInterface( *lit, (QUnknownInterface**) &interpreterInterface );
+		interpreterInterfaceManager->queryInterface( *lit, &interpreterInterface );
 		if ( eventInterface && interpreterInterface ) {
 		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
 		    if ( fit != widgetFactory->languageFunctions.end() ) {
@@ -536,7 +536,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	}
     }
     WidgetInterface *iface = 0;
-    widgetInterfaceManager->queryInterface( className, (QUnknownInterface**) &iface );
+    widgetInterfaceManager->queryInterface( className, &iface );
     if ( iface ) {
 	w = iface->create( className, parent, name );
 	iface->release();
@@ -1527,7 +1527,7 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 	    QMap<QString, QString>::Iterator it = languageSlots.find( ident );
 	    if ( it != languageSlots.end() ) {
 		InterpreterInterface *interpreterInterface = 0;
-		interpreterInterfaceManager->queryInterface( *it, (QUnknownInterface**) &interpreterInterface );
+		interpreterInterfaceManager->queryInterface( *it, &interpreterInterface );
 		Functions *funcs = 0;
 		QMap<QString, Functions*>::Iterator fit = languageFunctions.find( *it );
 		if ( fit == languageFunctions.end() ) {

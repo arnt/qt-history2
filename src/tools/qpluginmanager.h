@@ -39,11 +39,7 @@
 #define QPLUGINMANAGER_H
 
 #ifndef QT_H
-#include "qlibrary.h"
-#include "qcom.h"
-#include "qdict.h"
-#include "qmap.h"
-#include "qdir.h"
+#include "qgpluginmanager.h"
 #include "qstringlist.h"
 #endif // QT_H
 
@@ -52,41 +48,12 @@
 #define QT_DEBUG_COMPONENT
 
 template<class Type>
-class Q_EXPORT QPluginManager
+class Q_EXPORT QPluginManager : public QGPluginManager
 {
 public:
     QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
-	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
+	: QGPluginManager( id, path, pol, cs )
     {
-	// Every QLibrary object is destroyed on destruction of the manager
-	libDict.setAutoDelete( TRUE );
-	if ( !path.isEmpty() )
-	    addLibraryPath( path );
-    }
-
-    void addLibraryPath( const QString& path )
-    {
-	if ( !QDir( path ).exists( ".", TRUE ) )
-	    return;
-	
-#if defined(Q_OS_WIN32)
-	QString filter = "dll";
-#elif defined(Q_OS_UNIX)
-	QString filter = "so";
-#elif defined(Q_OS_MACX)
-	QString filter = "dylib";
-#endif
-	QStringList plugins = QDir(path).entryList( "*." + filter );
-	for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
-	    QString lib = path + "/" + *p;
-	    lib = lib.left( lib.length() - filter.length() - 1 );
-	    libList.append( lib );
-
-	    if ( defPol == QLibrary::Immediately ) {
-		if ( !addLibrary( lib ) )
-		    libList.remove( lib );
-	    }
-	}
     }
 
     QLibrary* addLibrary( const QString& file )
@@ -176,7 +143,7 @@ public:
 	if ( iFace ) {
 	    QFeatureListInterface *fliFace = 0;
 	    QComponentInterface *cpiFace = 0;
-	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&iFace );
+	    iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&iFace );
 	    if ( !fliFace )
 		plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace ) {
@@ -186,7 +153,7 @@ public:
 	    }
 	    QStringList fl;
 	    if ( fliFace )
-		fl = iFace->featureList();
+		fl = fliFace->featureList();
 	    else if ( cpiFace )
 		fl << cpiFace->name();
 
@@ -206,98 +173,14 @@ public:
 	return unloaded;
     }
 
-    void setDefaultPolicy( QLibrary::Policy pol )
-    {
-	defPol = pol;
-    }
-
-    QLibrary::Policy defaultPolicy() const
-    {
-	return defPol;
-    }
-
-    QLibrary* library( const QString& feature ) const
-    {
-	if ( feature.isEmpty() )
-	    return 0;
-
-	// We already have a QLibrary object for this feature
-	QLibrary *library = 0;
-	if ( ( library = plugDict[feature] ) )
-	    return library;
-
-	// Find the filename that matches the feature request best
-	QMap<int, QStringList> map;
-	QStringList::ConstIterator it = libList.begin();
-	int best = 0;
-	int worst = 15;
-	while ( it != libList.end() ) {
-	    QString lib = *it;
-	    lib = lib.right( lib.length() - lib.findRev( "/" ) - 1 );
-	    lib = lib.left( lib.findRev( "." ) );
-	    int s = feature.similarityWith( lib );
-	    if ( s < worst )
-		worst = s;
-	    if ( s > best )
-		best = s;
-	    map[s].append( *it );
-	    ++it;
-	}
-
-	// Start with the best match to get the library object
-	QPluginManager<Type> *that = (QPluginManager<Type>*)this;
-	for ( int s = best; s >= worst; --s ) {
-	    QStringList group = map[s];
-	    QStringList::Iterator git = group.begin();
-	    while ( git != group.end() ) {
-		QString lib = *git;
-		++git;
-		if ( that->addLibrary( lib ) && ( library = plugDict[feature] ) )
-		    return library;
-	    }
-	}
-
-	return 0;
-    }
-
-    QRESULT queryInterface(const QString& feature, QUnknownInterface** iface) const
+    QRESULT queryInterface(const QString& feature, Type** iface) const
     {
 	QLibrary* plugin = 0;
 	plugin = library( feature );
 
 	if ( plugin )
-	    plugin->queryInterface( interfaceId, iface );
+	    plugin->queryInterface( interfaceId, (QUnknownInterface**)iface );
     }
-
-    QStringList featureList() const
-    {
-	// Make sure that all libraries have been loaded once.
-	QPluginManager<Type> *that = (QPluginManager<Type>*)this;
-	QStringList::ConstIterator it = libList.begin();
-	while ( it != libList.end() ) {
-	    QString lib = *it;
-	    ++it;
-	    that->addLibrary( lib );
-	}
-
-	QStringList list;
-	QDictIterator<QLibrary> pit( plugDict );
-	while( pit.current() ) {
-	    list << pit.currentKey();
-	    ++pit;
-	}
-
-	return list;
-    }
-
-private:
-    QUuid interfaceId;
-    QDict<QLibrary> plugDict;	    // Dict to match feature with library
-    QDict<QLibrary> libDict;	    // Dict to match library file with library
-    QStringList libList;
-
-    QLibrary::Policy defPol;
-    uint casesens : 1;
 };
 
 #endif //QT_NO_COMPONENT

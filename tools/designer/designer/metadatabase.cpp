@@ -1063,7 +1063,7 @@ QMap<QString, QString> MetaDataBase::columnFields( QObject *o )
 
 bool MetaDataBase::hasEvents( const QString &lang )
 {
-    QUnknownInterface* iface = 0;
+    EventInterface* iface = 0;
     eventInterfaceManager->queryInterface( lang, &iface );
     if ( iface )
 	iface->release();
@@ -1092,7 +1092,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, con
     if ( !eventInterfaceManager || langList.count() == 1 )
 	return QValueList<MetaDataBase::EventDescription>();
     EventInterface *iface = 0;
-    eventInterfaceManager->queryInterface( lang, (QUnknownInterface**) &iface );
+    eventInterfaceManager->queryInterface( lang, &iface );
     QValueList<MetaDataBase::EventDescription> list;
     if ( !iface )
 	return list;
@@ -1348,7 +1348,7 @@ QString MetaDataBase::normalizeSlot( const QString &s )
 LanguageInterface *MetaDataBase::languageInterface( const QString &lang )
 {
     LanguageInterface* iface = 0;
-    languageInterfaceManager->queryInterface( lang, (QUnknownInterface**) &iface );
+    languageInterfaceManager->queryInterface( lang, &iface );
     return iface;
 }
 

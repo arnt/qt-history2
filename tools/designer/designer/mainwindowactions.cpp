@@ -1135,7 +1135,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 		}
 
 		ImportFilterInterface* iface = 0;
-		manager.queryInterface( filter, (QUnknownInterface**)&iface );
+		manager.queryInterface( filter, &iface );
 		if ( !iface ) {
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
@@ -1618,7 +1618,7 @@ void MainWindow::editSource( bool /*resetSame*/ )
     }
     if ( !editor ) {
 	EditorInterface *eIface = 0;
-	editorPluginManager->queryInterface( lang, (QUnknownInterface**)&eIface );
+	editorPluginManager->queryInterface( lang, &eIface );
 	if ( !eIface )
 	    return;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
@@ -1654,7 +1654,7 @@ void MainWindow::editSource( SourceFile *f )
     }
     if ( !editor ) {
 	EditorInterface *eIface = 0;
-	editorPluginManager->queryInterface( lang, (QUnknownInterface**)&eIface );
+	editorPluginManager->queryInterface( lang, &eIface );
 	if ( !eIface )
 	    return;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );

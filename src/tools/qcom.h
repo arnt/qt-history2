@@ -107,6 +107,7 @@ public:
     operator T*() const { return iface; }
 
     QUnknownInterface** operator &() const { return (QUnknownInterface**)&iface; }
+    T** operator &() { return &iface; }
 
 private:
     T* iface;

@@ -833,7 +833,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return w;
 
     WidgetInterface *iface = 0;
-    widgetManager()->queryInterface( className, (QUnknownInterface**)&iface );
+    widgetManager()->queryInterface( className, &iface );
     if ( !iface )
 	return 0;
 

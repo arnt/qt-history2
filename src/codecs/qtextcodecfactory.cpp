@@ -105,7 +105,7 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
 	instance = new QTextCodecFactoryPrivate;
 
     QTextCodecFactoryInterface *iface = 0;
-    QTextCodecFactoryPrivate::manager->queryInterface(name, (QUnknownInterface**)&iface );
+    QTextCodecFactoryPrivate::manager->queryInterface(name, &iface );
 
     if (iface) {
 	codec = iface->createForName(name);
@@ -128,7 +128,7 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
 	instance = new QTextCodecFactoryPrivate;
 
     QTextCodecFactoryInterface *iface = 0;
-    QTextCodecFactoryPrivate::manager->queryInterface("MIB-" + QString::number(mib), (QUnknownInterface**)&iface );
+    QTextCodecFactoryPrivate::manager->queryInterface("MIB-" + QString::number(mib), &iface );
 
     if (iface) {
 	codec = iface->createForMib(mib);
