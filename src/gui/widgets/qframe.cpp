@@ -112,7 +112,7 @@ QFramePrivate::QFramePrivate()
     \omitvalue PopupPanel
     \omitvalue LineEditPanel
     \omitvalue TabWidgetPanel
-    \omitvalue MShape
+    \omitvalue Shape_Mask
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
     the lineWidth() and the midLineWidth() to create the total result.
@@ -136,7 +136,7 @@ QFramePrivate::QFramePrivate()
     \value Sunken the frame and contents appear sunken; draws a 3D
     sunken line using the light and dark colors of the current color
     group
-    \omitvalue MShadow
+    \omitvalue Shadow_Mask
 
     Shadow interacts with QFrame::Shape, the lineWidth() and the
     midLineWidth(). See the picture of the frames in the main class
@@ -205,12 +205,12 @@ int QFrame::frameStyle() const
 
 QFrame::Shape QFrame::frameShape() const
 {
-    return (Shape) (d->frameStyle & MShape);
+    return (Shape) (d->frameStyle & Shape_Mask);
 }
 
 void QFrame::setFrameShape(QFrame::Shape s)
 {
-    setFrameStyle((d->frameStyle & MShadow) | s);
+    setFrameStyle((d->frameStyle & Shadow_Mask) | s);
 }
 
 
@@ -222,12 +222,12 @@ void QFrame::setFrameShape(QFrame::Shape s)
 */
 QFrame::Shadow QFrame::frameShadow() const
 {
-    return (Shadow) (d->frameStyle & MShadow);
+    return (Shadow) (d->frameStyle & Shadow_Mask);
 }
 
 void QFrame::setFrameShadow(QFrame::Shadow s)
 {
-    setFrameStyle((d->frameStyle & MShape) | s);
+    setFrameStyle((d->frameStyle & Shape_Mask) | s);
 }
 
 /*!
@@ -251,7 +251,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
 void QFrame::setFrameStyle(int style)
 {
     if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
-        switch (style & MShape) {
+        switch (style & Shape_Mask) {
         case HLine:
             setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
             break;
@@ -259,12 +259,13 @@ void QFrame::setFrameStyle(int style)
             setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
             break;
         default:
-            if ((d->frameStyle & MShape) == HLine || (d->frameStyle & MShape) == VLine)
+            if ((d->frameStyle & Shape_Mask) == HLine || (d->frameStyle & Shape_Mask) == VLine)
                 setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         }
         setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
     d->frameStyle = (short)style;
+    update();
     d->updateFrameWidth();
 }
 
@@ -321,8 +322,8 @@ void QFramePrivate::updateFrameWidth()
 {
     QRect fr = q->frameRect();
 
-    int frameShape  = frameStyle & QFrame::MShape;
-    int frameShadow = frameStyle & QFrame::MShadow;
+    int frameShape  = frameStyle & QFrame::Shape_Mask;
+    int frameShadow = frameStyle & QFrame::Shadow_Mask;
 
     frameWidth = -1;
 
@@ -426,7 +427,7 @@ QSize QFrame::sizeHint() const
     //   Returns a size hint for the frame - for HLine and VLine
     //   shapes, this is stretchable one way and 3 pixels wide the
     //   other.  For other shapes, QWidget::sizeHint() is used.
-    switch (d->frameStyle & MShape) {
+    switch (d->frameStyle & Shape_Mask) {
     case HLine:
         return QSize(-1,3);
     case VLine:
@@ -455,8 +456,8 @@ void QFrame::drawFrame(QPainter *p)
     QPoint      p1, p2;
     QStyleOptionFrame opt;
     opt.init(this);
-    int frameShape  = d->frameStyle & QFrame::MShape;
-    int frameShadow = d->frameStyle & QFrame::MShadow;
+    int frameShape  = d->frameStyle & QFrame::Shape_Mask;
+    int frameShadow = d->frameStyle & QFrame::Shadow_Mask;
 
     int lw = 0;
     int mlw = 0;

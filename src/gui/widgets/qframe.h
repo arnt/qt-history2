@@ -48,24 +48,30 @@ public:
         WinPanel = 0x0003, // rectangular panel (Windows)
         HLine = 0x0004, // horizontal line
         VLine = 0x0005, // vertical line
-        StyledPanel = 0x0006, // rectangular panel depending on the GUI style
+        StyledPanel = 0x0006 // rectangular panel depending on the GUI style
 
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
-        PopupPanel = StyledPanel, // rectangular panel depending on the GUI style
+        ,PopupPanel = StyledPanel, // rectangular panel depending on the GUI style
         MenuBarPanel = StyledPanel,
         ToolBarPanel = StyledPanel,
         LineEditPanel = StyledPanel,
         TabWidgetPanel = StyledPanel,
-        GroupBoxPanel = StyledPanel,
+        GroupBoxPanel = StyledPanel
 #endif
-
-        MShape = 0x000f // mask for the shape
     };
     enum Shadow {
         Plain = 0x0010, // plain line
         Raised = 0x0020, // raised shadow effect
-        Sunken = 0x0030, // sunken shadow effect
-        MShadow = 0x00f0 // mask for the shadow
+        Sunken = 0x0030 // sunken shadow effect
+    };
+
+    enum {
+        Shadow_Mask = 0x00f0, // mask for the shadow
+        Shape_Mask = 0x000f // mask for the shape
+#if defined(QT3_SUPPORT)
+        ,MShadow = Shadow_Mask,
+        MShape = Shape_Mask
+#endif
     };
 
     Shape frameShape() const;
