@@ -43,7 +43,7 @@
 #include "qt_windows.h"
 #endif
 
-#define RANGE 16
+#define RANGE 4
 
 static bool resizeHorizontalDirectionFixed = FALSE;
 static bool resizeVerticalDirectionFixed = FALSE;
@@ -55,25 +55,39 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
     active = TRUE;
-    widget->installEventFilter( this );
+    qApp->installEventFilter( this );
+}
+
+static QWidget *childOf( QWidget *w, QWidget *child )
+{
+    while ( child ) {
+	if ( child == w )
+	    return child;
+	child = child->parentWidget();
+    }
+    return 0;
 }
 
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
-    if ( !o || !ee || !active )
-	return QObject::eventFilter( o, ee );
+    if ( !o || !ee || !active || !o->isWidgetType() )
+	return qApp->eventFilter( o, ee );
 
+    QWidget *w = childOf( widget, (QWidget*)o );
+    if ( !w )
+	return qApp->eventFilter( o, ee );
+    
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
-    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonPress: {
 	if ( e->button() == LeftButton ) {
 	    emit activate();
-	    mouseMoveEvent( (QMouseEvent*)e );
+	    mouseMoveEvent( e );
 	    buttonDown = TRUE;
 	    moveOffset = e->pos();
 	    invertedMoveOffset = widget->rect().bottomRight() - e->pos();
 	}
-	break;
+    } break;
     case QEvent::MouseButtonRelease:
 	if ( e->button() == LeftButton ) {
 	    buttonDown = FALSE;
@@ -82,36 +96,37 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    widget->setCursor( arrowCursor );
 	}
 	break;
-    case QEvent::MouseMove:
-	mouseMoveEvent( (QMouseEvent*)e );
-	break;
+    case QEvent::MouseMove: {
+	mouseMoveEvent( e );
+    } break;
     case QEvent::KeyPress:
 	keyPressEvent( (QKeyEvent*)e );
 	break;
     default:
 	break;
     }
-    return QObject::eventFilter( o, ee );
+    return qApp->eventFilter( o, ee );
 }
 
 void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 {
+    QPoint pos = widget->mapFromGlobal( e->globalPos() );
     if ( !buttonDown ) {
-	if ( e->pos().y() <= RANGE && e->pos().x() <= RANGE)
+	if ( pos.y() <= RANGE && pos.x() <= RANGE)
 	    mode = TopLeft;
-	else if ( e->pos().y() >= widget->height()-RANGE && e->pos().x() >= widget->width()-RANGE)
+	else if ( pos.y() >= widget->height()-RANGE && pos.x() >= widget->width()-RANGE)
 	    mode = BottomRight;
-	else if ( e->pos().y() >= widget->height()-RANGE && e->pos().x() <= RANGE)
+	else if ( pos.y() >= widget->height()-RANGE && pos.x() <= RANGE)
 	    mode = BottomLeft;
-	else if ( e->pos().y() <= RANGE && e->pos().x() >= widget->width()-RANGE)
+	else if ( pos.y() <= RANGE && pos.x() >= widget->width()-RANGE)
 	    mode = TopRight;
-	else if ( e->pos().y() <= RANGE )
+	else if ( pos.y() <= RANGE )
 	    mode = Top;
-	else if ( e->pos().y() >= widget->height()-RANGE )
+	else if ( pos.y() >= widget->height()-RANGE )
 	    mode = Bottom;
-	else if ( e->pos().x() <= RANGE )
+	else if ( pos.x() <= RANGE )
 	    mode = Left;
-	else if (  e->pos().x() >= widget->width()-RANGE )
+	else if (  pos.x() >= widget->width()-RANGE )
 	    mode = Right;
 	else
 	    mode = Center;
