@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#94 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#95 $
 **
 ** Implementation of QMessageBox class
 **
@@ -400,9 +400,14 @@ static const char *mb_texts[] = {
 };
 
 
-QString QMessageBox::defaultOk()
+/*!
+  This function simply returns the text "OK", translated with tr().
+  It is needed because some compilers do not understand tr("OK") as
+  a default argument.
+*/
+QString QMessageBoxOkText()
 {
-    return tr(mb_texts[1]);
+    return QMessageBox::tr(mb_texts[1]);
 }
 
 
