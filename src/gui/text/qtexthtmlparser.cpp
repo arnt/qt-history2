@@ -666,6 +666,11 @@ void QTextHtmlParser::parseTag()
 
     if (node->wsm != QTextHtmlParserNode::WhiteSpacePre)
         eatSpace();
+
+    if (node->mayNotHaveChildren()) {
+        newNode(node->parent);
+        resolveNode();
+    }
 }
 
 // parses a tag beginning with "/"
