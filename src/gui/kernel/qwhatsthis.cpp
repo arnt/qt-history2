@@ -30,7 +30,8 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qtooltip.h"
-#include "qsimplerichtext.h"
+#include "qtextdocument.h"
+#include "../text/qtextdocumentlayout_p.h"
 #include "qstylesheet.h"
 #include "qtoolbutton.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -147,7 +148,7 @@ private:
     bool pressed;
     QString text;
 #ifndef QT_NO_RICHTEXT
-    QSimpleRichText* doc;
+    QTextDocument* doc;
 #endif
     QString anchor;
 };
@@ -178,9 +179,12 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
     doc = 0;
     if (QStyleSheet::mightBeRichText(text)) {
         QFont f = QApplication::font(this);
-        doc = new QSimpleRichText(text, f);
-        doc->adjustSize();
-        r.setRect(0, 0, doc->width(), doc->height());
+        doc = new QTextDocument();
+        doc->enableUndoRedo(false);
+        doc->setHtml(text);
+        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
+        layout->adjustSize();
+        r.setRect(0, 0, layout->widthUsed(), layout->totalHeight());
     }
     else
 #endif
@@ -218,7 +222,7 @@ void QWhatsThat::mousePressEvent(QMouseEvent* e)
 {
     pressed = true;
     if (e->button() == LeftButton && rect().contains(e->pos())) {
-#ifndef QT_NO_RICHTEXT
+#if 0 // ############# ndef QT_NO_RICHTEXT
         if (doc)
             anchor = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
 #endif
@@ -231,7 +235,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 {
     if (!pressed)
         return;
-#ifndef QT_NO_RICHTEXT
+#if 0 // ######### ndef QT_NO_RICHTEXT
     if (widget && e->button() == LeftButton && doc && rect().contains(e->pos())) {
         QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
@@ -250,7 +254,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 
 void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 {
-#ifndef QT_NO_RICHTEXT
+#if 0 // ################### ndef QT_NO_RICHTEXT
 #ifndef QT_NO_CURSOR
     if (!doc)
         return;
@@ -313,7 +317,13 @@ void QWhatsThat::paintEvent(QPaintEvent*)
 
 #ifndef QT_NO_RICHTEXT
     if (doc) {
-        doc->draw(&p, r.x(), r.y(), r, palette(), 0);
+        p.translate(r.x(), r.y());
+        QRect rect = r;
+        rect.moveBy(-r.x(), -r.y());
+        p.setClipRect(rect);
+        QAbstractTextDocumentLayout::PaintContext context;
+        context.textColorFromPalette = true;
+        doc->documentLayout()->draw(&p, context);
     }
     else
 #endif
