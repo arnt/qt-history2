@@ -8,6 +8,41 @@
 #include "qabstractsocket.h"
 #include "qsocketlayer.h"
 
+class QSlidingWindowBuffer
+{
+public:
+    QSlidingWindowBuffer();
+
+    Q_LLONG readFromFront(char *data, Q_LLONG maxLength);
+    Q_LLONG writeToEnd(const char *data, Q_LLONG length);
+
+    Q_LLONG size() const;
+
+    Q_LLONG maximumSize() const;
+    void setMaximumSize(Q_LLONG size);
+
+    QByteArray readAll();
+    bool contains(char character) const;
+    int indexOf(char character) const;
+
+    QByteArray left(int len);
+    inline void remove(int bytes) { readFromFront(0, bytes); }
+    inline bool isEmpty() const { return size() == 0; }
+
+    void clear();
+
+protected:
+    void swapBuffers();
+
+private:
+    QByteArray buffers[2];
+    int head;
+    int tail;
+    Q_LLONG maximumBufferSize;
+    QByteArray *tailBuffer;
+    QByteArray *headBuffer;
+};
+
 class QAbstractSocketPrivate : public QIODevicePrivate
 {
     Q_DECLARE_PUBLIC(QAbstractSocket);
@@ -42,7 +77,7 @@ public:
     bool readFromSocket();
 
     Q_LLONG readBufferMaxSize;
-    QByteArray readBuffer;
+    QSlidingWindowBuffer readBuffer;
     QByteArray writeBuffer;
 
     bool isBuffered;

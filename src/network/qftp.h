@@ -120,7 +120,7 @@ signals:
     void stateChanged(int);
     void listInfo(const QUrlInfo&);
     void readyRead();
-    void dataTransferProgress(int, int);
+    void dataTransferProgress(Q_LLONG, Q_LLONG);
     void rawCommandReply(int, const QString&);
 
     void commandStarted(int);
