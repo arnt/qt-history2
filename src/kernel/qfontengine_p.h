@@ -106,7 +106,6 @@ public:
     short lbearing;
     short rbearing;
 #endif // Q_WS_WIN
-
 };
 #elif defined( Q_WS_QWS )
 class QGfx;
@@ -237,6 +236,8 @@ public:
     int descent() const;
     int leading() const;
     int maxCharWidth() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -253,6 +254,8 @@ private:
     FT_Face _face;
     QOpenType *_openType;
     int _cmap;
+    short lbearing;
+    short rbearing;
 };
 #endif
 
@@ -275,6 +278,8 @@ public:
     int descent() const;
     int leading() const;
     int maxCharWidth() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -293,6 +298,8 @@ private:
     QTextCodec *_codec;
     float _scale; // needed for printing, to correctly scale font metrics for bitmap fonts
     int _cmap;
+    short lbearing;
+    short rbearing;
 };
 
 class QScriptItem;

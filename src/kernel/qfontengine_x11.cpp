@@ -13,6 +13,8 @@
 #include "qfont.h"
 #include "qtextengine_p.h"
 
+#include <limits.h>
+
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
 
@@ -241,6 +243,8 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, const char 
 		  fs->max_char_or_byte2 - fs->min_char_or_byte2);
     cache_cost = ((fs->max_bounds.ascent + fs->max_bounds.descent) *
 		  (fs->max_bounds.width * cache_cost / 8));
+    lbearing = SHRT_MIN;
+    rbearing = SHRT_MIN;
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
@@ -433,6 +437,58 @@ int QFontEngineXLFD::maxCharWidth() const
     return (int)(_fs->max_bounds.width*_scale);
 }
 
+
+// Loads the font for the specified script
+static inline int maxIndex(XFontStruct *f) {
+    return (((f->max_byte1 - f->min_byte1) *
+	     (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)) +
+	    f->max_char_or_byte2 - f->min_char_or_byte2);
+}
+
+int QFontEngineXLFD::minLeftBearing() const
+{
+    if ( lbearing == SHRT_MIN ) {
+	if ( _fs->per_char ) {
+	    XCharStruct *cs = _fs->per_char;
+	    int nc = maxIndex(_fs) + 1;
+	    int mx = cs->lbearing;
+
+	    for (int c = 1; c < nc; c++) {
+		int nmx = cs[c].lbearing;
+
+		if (nmx < mx)
+		    mx = nmx;
+	    }
+
+	    ((QFontEngineXLFD *)this)->lbearing = mx;
+	} else
+	    ((QFontEngineXLFD *)this)->lbearing = _fs->min_bounds.lbearing;
+    }
+    return (int) (lbearing*_scale);
+}
+
+int QFontEngineXLFD::minRightBearing() const
+{
+    if ( rbearing == SHRT_MIN ) {
+	if ( _fs->per_char ) {
+	    XCharStruct *cs = _fs->per_char;
+	    int nc = maxIndex(_fs) + 1;
+	    int mx = cs->rbearing;
+
+	    for (int c = 1; c < nc; c++) {
+		int nmx = cs[c].rbearing;
+
+		if (nmx < mx)
+		    mx = nmx;
+	    }
+
+	    ((QFontEngineXLFD *)this)->rbearing = mx;
+	} else
+	    ((QFontEngineXLFD *)this)->rbearing = _fs->min_bounds.rbearing;
+    }
+    return (int) (rbearing*_scale);
+}
+
 int QFontEngineXLFD::cmap() const
 {
     return _cmap;
@@ -566,6 +622,8 @@ QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
 	 ! antialiased ) {
 	cache_cost /= 8;
     }
+    lbearing = SHRT_MIN;
+    rbearing = SHRT_MIN;
 }
 
 QFontEngineXft::~QFontEngineXft()
@@ -771,6 +829,18 @@ int QFontEngineXft::leading() const
 int QFontEngineXft::maxCharWidth() const
 {
     return _font->max_advance_width;
+}
+
+int QFontEngineXft::minLeftBearing() const
+{
+    // ### fix for Xft2
+    return 0;
+}
+
+int QFontEngineXft::minRightBearing() const
+{
+    // ### fix for Xft2
+    return 0;
 }
 
 int QFontEngineXft::cmap() const

@@ -728,7 +728,7 @@ int QFontMetrics::minLeftBearing() const
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return 0; // ### fix this calculation
+    return engine->minLeftBearing();
 }
 
 /*!
@@ -748,7 +748,7 @@ int QFontMetrics::minRightBearing() const
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return 0; // ### fix this calculation
+    return engine->minRightBearing();
 }
 
 /*!
