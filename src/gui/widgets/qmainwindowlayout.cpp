@@ -313,7 +313,8 @@ QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
             Qt::Horizontal, // BOTTOM
         };
 
-        l = new QDockWindowLayout(this, area, orientations[pos]);
+        l = new QDockWindowLayout(area, orientations[pos]);
+        l->setParent(this);
         l->setObjectName(objectName() + "_dockWindowLayout" + QString::number(area, 16));
 
         info.item = l;
@@ -1195,10 +1196,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 }
 
 void QMainWindowLayout::addItem(QLayoutItem *item)
-{
-    Q_UNUSED(item);
-    Q_ASSERT_X(item->layout(), "QMainWindowLayout::addItem", "internal error");
-}
+{ qWarning("QMainWindowLayout: please use the public QMainWindow API instead."); }
 
 QSize QMainWindowLayout::sizeHint() const
 {

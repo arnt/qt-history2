@@ -61,7 +61,7 @@ public:
     QList<QDockWindowLayoutInfo> layout_info;
     QList<QDockWindowLayoutInfo> *save_layout_info;
 
-    QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o);
+    QDockWindowLayout(Qt::DockWindowArea a, Qt::Orientation o);
     ~QDockWindowLayout();
 
     enum { // sentinel values used to validate state data

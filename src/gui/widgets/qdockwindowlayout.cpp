@@ -75,8 +75,8 @@ public:
     QRect rect;
 };
 
-QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o)
-    : QLayout(layout), area(a), orientation(o), save_layout_info(0),
+QDockWindowLayout::QDockWindowLayout(Qt::DockWindowArea a, Qt::Orientation o)
+    : QLayout(0), area(a), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 
@@ -86,7 +86,6 @@ QDockWindowLayout::~QDockWindowLayout()
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep)
             delete info.item->widget();
-        delete info.item;
     }
 }
 
@@ -176,7 +175,8 @@ bool QDockWindowLayout::restoreState(QDataStream &stream)
 
         case Marker:
             {
-                QDockWindowLayout *layout = new QDockWindowLayout(this, area, orientation);
+                QDockWindowLayout *layout = new QDockWindowLayout(area, orientation);
+                layout->setParent(this);
                 QDockWindowLayoutInfo &info = insert(-1, layout);
                 stream >> info.cur_pos;
                 stream >> info.cur_size;
@@ -1151,7 +1151,8 @@ void QDockWindowLayout::extend(QDockWindow *dockwindow, Qt::Orientation directio
         Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
         relayout_type = QInternal::RelayoutDropped;
 
-        QDockWindowLayout *nestedLayout = new QDockWindowLayout(this, area, orientation);
+        QDockWindowLayout *nestedLayout = new QDockWindowLayout(area, orientation);
+        nestedLayout->setParent(this);
         nestedLayout->setObjectName(objectName() + QLatin1String("_nestedCopy"));
 
         for (int i = 0; i < layout_info.count(); ++i) {
@@ -1195,8 +1196,8 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
 
     // create a nested window dock in place of the current widget
     QDockWindowLayout *nestedLayout =
-        new QDockWindowLayout(this, area,
-                              orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+        new QDockWindowLayout(area, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+    nestedLayout->setParent(this);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
     insert(which / 2, nestedLayout).cur_size = save_size;
     invalidate();
