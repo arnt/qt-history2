@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#363 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#364 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1410,10 +1410,8 @@ QString QFileDialogPrivate::File::text( int column ) const
 	char a[256];
 	time_t t1 = epoch.secsTo( info.lastModified() );
 	struct tm * t2 = ::localtime( &t1 );
-#if !defined(_WS_WIN_)
 	if ( t2 && t2->tm_hour != info.lastModified().time().hour() )
 	    t2->tm_hour = info.lastModified().time().hour();
-#endif
 	// use a static const char here, so that egcs will not see
 	// the formatting string and give an incorrect warning.
 	if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
@@ -3821,7 +3819,16 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	d->paths->setCurrentItem( i );
 	d->last = 0;
 	d->hadDotDot = FALSE;
+	bool isRoot = FALSE;
+#if defined( UNIX )
 	if ( d->url.path() == "/" )
+	    isRoot = TRUE;
+#elif defined (_OS_FATFS_)
+	if ( d->url.path().length() == 3 &&
+	     d->url->path().left( 2 ) == ":/" )
+	    isRoot = TRUE;
+#endif
+	if ( isRoot )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
