@@ -1643,7 +1643,7 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     treeView->setRoot(index);
     treeView->resizeColumnToContents(0);
     selections->blockSignals(block);
-    selections->setCurrentIndex(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
+    selections->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectCurrent);
 }
 
 QModelIndex QFileDialogPrivate::root() const
