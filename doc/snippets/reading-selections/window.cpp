@@ -40,18 +40,14 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *actionMenu = new QMenu(tr("&Actions"), this);
     QAction *fillAction = actionMenu->addAction(tr("&Fill selection"));
     QAction *clearAction = actionMenu->addAction(tr("&Clear selection"));
+    QAction *selectAllAction = actionMenu->addAction(tr("&Select all"));
     menuBar()->addMenu(actionMenu);
 
     connect(fillAction, SIGNAL(triggered()), this, SLOT(fillSelection()));
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clearSelection()));
+    connect(selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
 
     selectionModel = table->selectionModel();
-    connect(selectionModel,
-        SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-        this, SLOT(updateSelection(const QItemSelection &, const QItemSelection &)));
-    connect(selectionModel,
-        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-        this, SLOT(changeCurrent(const QModelIndex &, const QModelIndex &)));
 
     statusBar();
     setCenterWidget(table);
@@ -75,4 +71,15 @@ void MainWindow::clearSelection()
 
     foreach(index, indices)
         model->setData(index, QAbstractItemModel::EditRole, "");
+}
+
+void MainWindow::selectAll()
+{
+    QModelIndex parent = QModelIndex();
+    QModelIndex topLeft = model->index(0, 0, parent, QModelIndex::View);
+    QModelIndex bottomRight = model->index(model->rowCount(parent)-1,
+        model->columnCount(parent)-1, parent, QModelIndex::View);
+
+    QItemSelection selection(topLeft, bottomRight, model);
+    selectionModel->select(selection, QItemSelectionModel::Select);
 }

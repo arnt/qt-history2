@@ -28,6 +28,7 @@ public:
 private slots:
     void fillSelection();
     void clearSelection();
+    void selectAll();
 
 private:
     QAbstractItemModel *model;
