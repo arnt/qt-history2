@@ -383,15 +383,15 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 
-    QTextFrame *rootFrame = doc->rootFrame();
-    QTextFrameFormat ffmt = rootFrame->frameFormat();
-    ffmt.setMargin(4);
-    rootFrame->setFrameFormat(ffmt);
-
     if (!fragment.isEmpty()) {
         cursor.movePosition(QTextCursor::Start);
         cursor.insertFragment(fragment);
     }
+
+    QTextFrame *rootFrame = doc->rootFrame();
+    QTextFrameFormat ffmt = rootFrame->frameFormat();
+    ffmt.setMargin(4);
+    rootFrame->setFrameFormat(ffmt);
 
     doc->setUndoRedoEnabled(!q->isReadOnly());
     cursor.movePosition(QTextCursor::Start);
