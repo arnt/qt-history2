@@ -46,17 +46,12 @@
 int line_count;
 extern "C" int yyerror(const char *);
 
-/* pro file */
-extern QMakeProject *g_proj;
-extern FILE *yyin;
-extern "C" int yyparse();
-
 QMakeProject::QMakeProject()
 {
 }
 
 bool
-QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
+QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
 
@@ -91,7 +86,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
 		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) 
 		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-		test = doProjectTest(func, args);
+		test = doProjectTest(func, args, place);
 	    }
 	    else test = isActiveConfig(scope.stripWhiteSpace()); 
 
@@ -99,7 +94,8 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 		test = !test;
 	    if(!test) {
 		if(Option::debug_level)
-		    printf("Project Parser: %d : Test (%s) failed.\n", line_count, scope.latin1());
+		    printf("Project Parser: %s:%d : Test (%s) failed.\n", file.latin1(), line_count, 
+			   scope.latin1());
 		return TRUE;
 	    }
 	}
@@ -129,7 +125,8 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
     if(Option::debug_level)
-	printf("Project Parser: %d :%s: :%s: (%s)\n", line_count, var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
+	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count, 
+	       var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
     if(op == "=")
@@ -166,7 +163,7 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 		s += " ";		
 	    }
 	    else {
-		if(!(ret = parse(s, place)))
+		if(!(ret = parse(file, s, place)))
 		    break;
 		s = "";
 	    }
@@ -230,7 +227,7 @@ QMakeProject::read(const char *project)
 	}
 	cfile = project;
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
-	    if(!parse((*it), base_vars)) {
+	    if(!parse("(internal)", (*it), base_vars)) {
 		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
 		return FALSE;
 	    }
@@ -273,7 +270,7 @@ QMakeProject::isActiveConfig(const QString &x)
 }
 
 bool
-QMakeProject::doProjectTest(QString func, const QStringList &args)
+QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
 {
     if(func == "system") {
 	if(args.count() != 1) {
@@ -288,6 +285,21 @@ QMakeProject::doProjectTest(QString func, const QStringList &args)
 	}
 	return vars[args[0]].findIndex(args[1]) != -1;
 	    
+    } else if(func == "include") {
+	QString file = args.first();
+	file.replace(QRegExp("\""), "");
+	if(Option::debug_level) 
+	    printf("Project Parser: Including file %s.\n", file.latin1());
+	int l = line_count;
+	bool r = read(file.latin1(), place);
+	line_count = l;
+	return r;
+    } else if(func == "error") {
+	printf("Project Error: %s\n", args.first().latin1());
+	exit(2);
+    } else if(func == "message") {
+	printf("Project Message: %s\n", args.first().latin1());
+	return TRUE;
     } else {
 	fprintf(stderr, "Unknown test function: %s\n", func.latin1());
     }

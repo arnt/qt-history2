@@ -46,8 +46,8 @@ class QMakeProject
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars, cache;
     bool read(const char *file, QMap<QString, QStringList> &place);
-    bool parse(QString text, QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, const QStringList &args);
+    bool parse(QString file, QString text, QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place);
     void doProjectCheckReqs(const QStringList &deps);
 
 public:
