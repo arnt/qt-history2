@@ -1592,7 +1592,8 @@ void QMacStylePrivate::HIThemePolish(QApplication *app)
 #endif
 }
 
-void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect, const ThemeButtonKind bkind,
+void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect,
+                                                    const ThemeButtonKind bkind,
                                                     const ThemeButtonDrawInfo &bdi, QPainter *p,
                                                     const QStyleOption *opt) const
 {
@@ -1601,7 +1602,7 @@ void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect, const T
         x = cmb->rect.x() + (cmb->editable ? 0 : 2);
         y = cmb->rect.y() + (cmb->editable ? 0 : 2);
         width = macRect.right - macRect.left;
-        height = macRect.bottom - macRect.top;
+        height = macRect.bottom - macRect.top + cmb->editable ? 2 : 0;
     } else {
         x = opt->rect.x();
         y = opt->rect.y();
@@ -1647,26 +1648,40 @@ void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect, const T
 }
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
-                                                     QPainter *p, const QStyleOption *) const
+void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect,
+                                                     const HIThemeButtonDrawInfo &bdi,
+                                                     QPainter *p, const QStyleOption *opt) const
 {
-    int width = int(macRect.size.width);
-    int height = int(macRect.size.height);
+
+    int xoff = 0,
+        yoff = 0,
+        extraWidth = 0,
+        extraHeight = 0,
+        finalyoff = 0;
+    if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
+        yoff = combo->editable ? 3 : 2;
+        extraWidth = 1;
+        extraHeight = yoff;
+    } else if (bdi.kind == kThemeCheckBox) {
+        extraHeight = 1;
+        finalyoff = -1;
+    }
+
+    int width = int(macRect.size.width) + extraWidth;
+    int height = int(macRect.size.height) + extraHeight;
 
     QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi.kind) + QLatin1Char('_')
                   + QString::number(bdi.value) + QLatin1Char('_') + QString::number(width)
                   + QLatin1Char('_') + QString::number(height);
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
-        QCFType<CGColorSpaceRef> colorspace = CGColorSpaceCreateDeviceRGB();
-        int width = int(macRect.size.width);
-        int height = int(macRect.size.height);
         int bytesPerLine = width * 4;
         int size = bytesPerLine * height;
         void *data = calloc(1, size);
+        QCFType<CGColorSpaceRef> colorspace = CGColorSpaceCreateDeviceRGB();
         QCFType<CGContextRef> cg2 = CGBitmapContextCreate(data, width, height, 8, bytesPerLine,
                                                           colorspace, kCGImageAlphaPremultipliedFirst);
-        HIRect newRect = CGRectMake(0, 0, macRect.size.width, macRect.size.height);
+        HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
         HIThemeDrawButton(&newRect, &bdi, cg2, kHIThemeOrientationInverted, 0);
         QImage img(width, height, 32);
         for (int y = 0; y < height; ++y) {
@@ -1695,7 +1710,7 @@ void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect, cons
         pm = img;
         QPixmapCache::insert(key, pm);
     }
-    p->drawPixmap(int(macRect.origin.x), int(macRect.origin.y), width, height, pm);
+    p->drawPixmap(int(macRect.origin.x), int(macRect.origin.y) + finalyoff, width, height, pm);
 }
 #endif
 
