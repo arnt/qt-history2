@@ -127,7 +127,7 @@ public:
     QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos, 
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  const QPair<int,int> &uId);
+                  Qt::KeyboardModifiers keyState, const QPair<int,int> &uId);
     inline int pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
@@ -148,12 +148,14 @@ public:
     inline int minHiResY() const { return mHiResMinY; }
     inline int maxHiResX() const { return mHiResMaxX; }
     inline int maxHiResY() const { return mHiResMaxY; }
+    inline Qt::KeyboardModifiers modifiers() const { return mKeyState; }
         
 protected:
     QPoint mPos, mGPos, mHiResPos;
     int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
     int mDev, mPress, mXT, mYT, mType, mPhy;
     int mMinPressure, mMaxPressure;
+    Qt::KeyboardModifiers mKeyState;
 };
 
 

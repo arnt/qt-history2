@@ -1555,7 +1555,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos, 
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  const QPair<int,int> &uId)
+                  Qt::KeyboardModifiers keyState, const QPair<int,int> &uId)
     : QInputEvent(t),
       mPos(pos),
       mGPos(globalPos),
@@ -1571,7 +1571,8 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
       mType(uId.first),
       mPhy(uId.second),
       mMinPressure(minPressure),
-      mMaxPressure(maxPressure)
+      mMaxPressure(maxPressure),
+      mKeyState(keyState)
 {
 }
 

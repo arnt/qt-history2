@@ -2897,7 +2897,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(), tablet->hiResPos(),
                             tablet->minHiResX(), tablet->maxHiResX(), tablet->minHiResY(), tablet->maxHiResY(),
                             tablet->device(), tablet->pressure(), tablet->minPressure(), tablet->maxPressure(),
-                            tablet->xTilt(), tablet->yTilt(), tablet->uniqueId());
+                            tablet->xTilt(), tablet->yTilt(), tablet->modifiers(), tablet->uniqueId());
             te.spont = e->spontaneous();
             res = notify_helper(w, w == receiver ? tablet : &te);
             e->spont = false;

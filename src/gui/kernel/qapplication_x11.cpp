@@ -3790,6 +3790,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     const XDeviceMotionEvent *motion = 0;
     XDeviceButtonEvent *button = 0;
     QEvent::Type t;
+    int state = 0;
 
     if (ev->type == tablet->xinput_motion) {
         motion = (const XDeviceMotionEvent*)ev;
@@ -3817,24 +3818,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             t = QEvent::TabletRelease;
         }
         button = (XDeviceButtonEvent*)ev;
-/*
-        qDebug("\n\nXInput Button Event");
-        qDebug("serial:\t%d", button->serial);
-        qDebug("send_event:\t%d", button->send_event);
-        qDebug("display:\t%p", button->display);
-        qDebug("window:\t%d", button->window);
-        qDebug("deviceID:\t%d", button->deviceid);
-        qDebug("root:\t%d", button->root);
-        qDebug("subwindot:\t%d", button->subwindow);
-        qDebug("x:\t%d", button->x);
-        qDebug("y:\t%d", button->y);
-        qDebug("x_root:\t%d", button->x_root);
-        qDebug("y_root:\t%d", button->y_root);
-        qDebug("state:\t%d", button->state);
-        qDebug("button:\t%d", button->button);
-        qDebug("same_screen:\t%d", button->same_screen);
-        qDebug("time:\t%d", button->time);
-*/
+        
         global = QPoint(button->x_root, button->y_root);
         curr = QPoint(button->x, button->y);
     }
@@ -3885,6 +3869,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         const TabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {
             deviceType = t.deviceType;
+            qDebug() << ((XDevice*)t.device)->device_id;
             break;
         }
     }    
@@ -3894,18 +3879,21 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
         hiRes = QPoint(motion->axis_data[0], motion->axis_data[1]);
+        state = translateButtonState(motion->state);
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
         pressure = button->axis_data[2];
         hiRes = QPoint(button->axis_data[0], button->axis_data[1]);
+        state = translateButtonState(button->state);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
     tId.first = tId.second = -1;
 #endif
 
     QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
-                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt, tId);
+                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt, 
+                    Qt::KeyboardModifiers(state), tId);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }
