@@ -72,10 +72,10 @@ bool QFile::remove( const QString &fileName )
 #endif
 
 /*!
-  Opens the file specified by the file name currently set, using the mode \e m.
+  Opens the file specified by the file name currently set, using the mode \a m.
   Returns TRUE if successful, otherwise FALSE.
 
-  The mode parameter \e m must be a combination of the following flags:
+  The mode parameter \a m must be a combination of the following flags:
   <ul>
   <li>\c IO_Raw specified raw (non-buffered) file access.
   <li>\c IO_ReadOnly opens the file in read-only mode.
@@ -96,7 +96,7 @@ bool QFile::remove( const QString &fileName )
   data at a time.
 
   <strong>Important:</strong> When working with buffered files, data may
-  not be written to the file at once. Call \link flush() flush\endlink
+  not be written to the file at once. Call flush()
   to make sure the data is really written.
 
   \warning We have experienced problems with some C libraries when a buffered
@@ -257,7 +257,7 @@ bool QFile::open( int m )
 }
 
 /*!
-  Opens a file in the mode \e m using an existing file handle \e f.
+  Opens a file in the mode \a m using an existing file handle \a f.
   Returns TRUE if successful, otherwise FALSE.
 
   Example:
@@ -276,7 +276,7 @@ bool QFile::open( int m )
   When a QFile is opened using this function, close() does not actually
   close the file, only flushes it.
 
-  \warning If \e f is \c stdin, \c stdout, \c stderr, you may not
+  \warning If \a f is \c stdin, \c stdout, \c stderr, you may not
   be able to seek.  See QIODevice::isSequentialAccess() for more
   information.
 
@@ -320,13 +320,13 @@ bool QFile::open( int m, FILE *f )
 }
 
 /*!
-  Opens a file in the mode \e m using an existing file descriptor \e f.
+  Opens a file in the mode \a m using an existing file descriptor \a f.
   Returns TRUE if successful, otherwise FALSE.
 
   When a QFile is opened using this function, close() does not actually
   close the file.
 
-  \warning If \e f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
+  \warning If \a f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
   be able to seek. size() is set to \c INT_MAX (in limits.h).
 
   \sa close()
@@ -393,7 +393,7 @@ Q_ULONG QFile::size() const
 */
 
 /*!
-  Sets the file index to \e pos. Returns TRUE if successful, otherwise FALSE.
+  Sets the file index to \a pos. Returns TRUE if successful, otherwise FALSE.
 
   Example:
   \code
@@ -405,7 +405,7 @@ Q_ULONG QFile::size() const
     f.close();
   \endcode
 
-  \warning The result is undefined if the file was \link open() opened\endlink
+  \warning The result is undefined if the file was open()'ed
   using the \c IO_Append specifier.
 
   \sa size(), open()
@@ -421,22 +421,22 @@ bool QFile::at( Q_ULONG pos )
     }
     bool ok;
     if ( isRaw() ) {				// raw file
-	pos = (int)QT_LSEEK(fd, pos, SEEK_SET);
-	ok = pos != -1;
+	pos = (long int) QT_LSEEK( fd, pos, SEEK_SET );
+	ok = ( (long int) pos != -1 );
     } else {					// buffered file
-	ok = fseek(fh, pos, SEEK_SET) == 0;
+	ok = ( fseek(fh, pos, SEEK_SET) == 0 );
     }
     if ( ok )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
-	qWarning( "QFile::at: Cannot set file position %d", pos );
+	qWarning( "QFile::at: Cannot set file position %ld", pos );
 #endif
     return ok;
 }
 
 /*!
-  Reads at most \e len bytes from the file into \e p and returns the
+  Reads at most \a len bytes from the file into \a p and returns the
   number of bytes actually read.
 
   Returns -1 if a serious error occurred.
@@ -502,7 +502,7 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 
 /*! \reimp
 
-  Writes \e len bytes from \e p to the file and returns the number of
+  Writes \a len bytes from \a p to the file and returns the number of
   bytes actually written.
 
   Returns -1 if a serious error occurred.
