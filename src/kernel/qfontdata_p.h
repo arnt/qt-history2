@@ -68,24 +68,6 @@ struct QFontDef
     {
     }
 
-    QFontDef( const QFontDef &other )
-	: family( other.family ),
-	  family_hash( other.family_hash ),
-	  addStyle( other.addStyle ),
-	  pointSize( other.pointSize ),
-	  pixelSize( other.pixelSize ),
-	  styleHint( other.styleHint ),
-	  styleStrategy( other.styleStrategy ),
-	  weight( other.weight ),
-	  italic( other.italic ),
-	  underline( other.underline ),
-	  strikeOut( other.strikeOut ),
-	  fixedPitch( other.fixedPitch ),
-	  stretch( other.stretch ),
-	  mask( other.mask & RawMode )
-    {
-    }
-
     QString family;
     uint family_hash;
 
@@ -165,40 +147,39 @@ struct QFontDef
 
     inline void resolve( const QFontDef &other )
     {
-	if ( ( mask & Complete ) == Complete )
-	    return;
+	if ( ( mask & Complete ) == Complete ) return;
 
 	// assign the unset-bits with the set-bits of the other font def
-	if ( ! ( mask & Family ) && ( other.mask & Family ) )
+	if ( ! ( mask & Family ) )
 	    family = other.family;
 
-	if ( ! ( mask & Size ) && ( other.mask & Size ) ) {
+	if ( ! ( mask & Size ) ) {
 	    pointSize = other.pointSize;
 	    pixelSize = other.pixelSize;
 	}
 
-	if ( ! ( mask & StyleHint ) && ( other.mask & StyleHint ) )
+	if ( ! ( mask & StyleHint ) )
 	    styleHint = other.styleHint;
 
-	if ( ! ( mask & StyleStrategy ) && ( other.mask & StyleStrategy ) )
+	if ( ! ( mask & StyleStrategy ) )
 	    styleStrategy = other.styleStrategy;
 
-	if ( ! ( mask & Weight ) && ( other.mask & Weight ) )
+	if ( ! ( mask & Weight ) )
 	    weight = other.weight;
 
-	if ( ! ( mask & Italic ) && ( other.mask & Italic ) )
+	if ( ! ( mask & Italic ) )
 	    italic = other.italic;
 
-	if ( ! ( mask & Underline ) && ( other.mask & Underline ) )
+	if ( ! ( mask & Underline ) )
 	    underline = other.underline;
 
-	if ( ! ( mask & StrikeOut ) && ( other.mask & StrikeOut ) )
+	if ( ! ( mask & StrikeOut ) )
 	    strikeOut = other.strikeOut;
 
-	if ( ! ( mask & FixedPitch ) && ( other.mask & FixedPitch ) )
+	if ( ! ( mask & FixedPitch ) )
 	    fixedPitch = other.fixedPitch;
 
-	if ( ! ( mask & Stretch ) && ( other.mask & Stretch ) )
+	if ( ! ( mask & Stretch ) )
 	    stretch = other.stretch;
     }
 };
