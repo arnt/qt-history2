@@ -38,7 +38,6 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
-
 #define QT_VERSION       300
 #define QT_VERSION_STR   "3.0.0-beta3"
 
@@ -366,6 +365,7 @@
 
 #define Q_DISABLE_COPY
 
+#if defined(__cplusplus)
 
 //
 // Useful type definitions for Qt
@@ -761,5 +761,7 @@ Q_EXPORT void qObsolete( const char *message );
 #define Q_NAME name = 0
 #define Q_PARENT parent = 0
 #endif
+
+#endif // __cplusplus
 
 #endif // QGLOBAL_H
