@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#33 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#34 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -35,19 +35,19 @@ class QGDictIterator;
 class QGDItList;
 
 
-class QBucket					// internal dict node
+class QBucketPrivate					// internal dict node
 {
 public:
     char   *getKey()		{ return key; }
     char   *setKey( char *k )	{ return key = k; }
     QCollection::Item getData() { return data; }
     QCollection::Item setData( QCollection::Item d ) { return data = d; }
-    QBucket *getNext()		{ return next; }
-    void    setNext( QBucket *n){ next = n; }
+    QBucketPrivate *getNext()		{ return next; }
+    void    setNext( QBucketPrivate *n){ next = n; }
 private:
     char   *key;
     QCollection::Item	    data;
-    QBucket *next;
+    QBucketPrivate *next;
 };
 
 
@@ -88,14 +88,14 @@ protected:
     virtual QDataStream &write( QDataStream &, Item ) const;
 
 private:
-    QBucket   **vec;
+    QBucketPrivate   **vec;
     uint	vlen;
     uint	numItems;
     uint	cases	: 1;
     uint	copyk	: 1;
     uint	triv	: 1;
     QGDItList  *iterators;
-    QBucket    *unlink( const char *, Item item = 0 );
+    QBucketPrivate    *unlink( const char *, Item item = 0 );
     void        init( uint );
 };
 
@@ -124,7 +124,7 @@ protected:
     QGDict     *dict;
 
 private:
-    QBucket    *curNode;
+    QBucketPrivate    *curNode;
     uint	curIndex;
 };
 

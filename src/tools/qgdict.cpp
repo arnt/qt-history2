@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#73 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -154,9 +154,9 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 
 void QGDict::init( uint len )
 {
-    vec = new QBucket *[vlen = len];		// allocate hash table
+    vec = new QBucketPrivate *[vlen = len];		// allocate hash table
     CHECK_PTR( vec );
-    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
+    memset( (char*)vec, 0, vlen*sizeof(QBucketPrivate*) );
     numItems = 0;
     iterators = 0;
 
@@ -239,7 +239,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
 
 QCollection::Item QGDict::look( const char *key, Item d, int op )
 {
-    register QBucket *n;
+    register QBucketPrivate *n;
     int	 index;
     if ( triv ) {				// key is a long/ptr
 	index = (int)((unsigned long)(key) % vlen);	// simple hash
@@ -265,7 +265,7 @@ QCollection::Item QGDict::look( const char *key, Item d, int op )
 	if ( vec[index] != 0 )			// maybe something there
 	    remove( key );
     }
-    QBucket *node = new QBucket;		// insert new node
+    QBucketPrivate *node = new QBucketPrivate;		// insert new node
     CHECK_PTR( node );
     if ( !node )				// no memory
 	return 0;
@@ -290,7 +290,7 @@ QCollection::Item QGDict::look( const char *key, Item d, int op )
 void QGDict::resize( uint newsize )
 {
     // Save old information
-    QBucket   **old_vec = vec;
+    QBucketPrivate   **old_vec = vec;
     uint	old_vlen = vlen;
     QGDItList  *old_iterators = iterators;
     bool	old_copyk = copyk;
@@ -300,10 +300,10 @@ void QGDict::resize( uint newsize )
 
     // Reinsert every item from vec, deleting vec as we go
     for ( uint index = 0; index < old_vlen; index++ ) {
-	QBucket *n=old_vec[index];
+	QBucketPrivate *n=old_vec[index];
 	while ( n ) {
 	    look( n->getKey(), n->getData(), op_insert );
-	    QBucket *t=n->getNext();
+	    QBucketPrivate *t=n->getNext();
 	    delete n;
 	    n = t;
 	}
@@ -330,12 +330,12 @@ void QGDict::resize( uint newsize )
   data pointer, if it is set).
 */
 
-QBucket *QGDict::unlink( const char *key, Item d )
+QBucketPrivate *QGDict::unlink( const char *key, Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
-    register QBucket *n;
-    QBucket *prev = 0;
+    register QBucketPrivate *n;
+    QBucketPrivate *prev = 0;
     int index;
     if ( triv )
 	index = (int)(long(key) % vlen);
@@ -378,7 +378,7 @@ QBucket *QGDict::unlink( const char *key, Item d )
 
 bool QGDict::remove( const char *key )
 {
-    register QBucket *n = unlink( key );
+    register QBucketPrivate *n = unlink( key );
     if ( n ) {
 	if ( copyk )
 	    delete [] n->getKey();
@@ -396,7 +396,7 @@ bool QGDict::remove( const char *key )
 
 bool QGDict::removeItem( const char *key, Item item )
 {
-    register QBucket *n = unlink( key, item );
+    register QBucketPrivate *n = unlink( key, item );
     if ( n ) {
 	if ( copyk )
 	    delete [] n->getKey();
@@ -413,7 +413,7 @@ bool QGDict::removeItem( const char *key, Item item )
 
 QCollection::Item QGDict::take( const char *key )
 {
-    register QBucket *n = unlink( key );
+    register QBucketPrivate *n = unlink( key );
     Item tmp;
     if ( n ) {
 	tmp = n->getData();
@@ -436,7 +436,7 @@ void QGDict::clear()
 {
     if ( !numItems )
 	return;
-    register QBucket *n;
+    register QBucketPrivate *n;
     numItems = 0;				// disable remove() function
     for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
 	if ( vec[j] ) {
@@ -445,7 +445,7 @@ void QGDict::clear()
 	    while ( n ) {
 		if ( copyk )
 		    delete [] n->getKey();
-		QBucket *next = n->getNext();
+		QBucketPrivate *next = n->getNext();
 		deleteItem( n->getData() );
 		delete n;
 		n = next;
@@ -484,7 +484,7 @@ void QGDict::statistics() const
     ideal = (float)count()/(2.0*size())*(count()+2.0*size()-1);
     uint i = 0;
     while ( i<size() ) {
-	QBucket *n = vec[i];
+	QBucketPrivate *n = vec[i];
 	int b = 0;
 	while ( n ) {				// count number of buckets
 	    b++;
@@ -565,7 +565,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
     s << count();				// write number of items
     uint i = 0;
     while ( i<size() ) {
-	QBucket *n = vec[i];
+	QBucketPrivate *n = vec[i];
 	while ( n ) {				// write all buckets
 	    if ( triv )
 		s << (Q_UINT32)(long)n->getKey(); // write key as 32-bit int
@@ -685,7 +685,7 @@ QCollection::Item QGDictIterator::toFirst()
 	return 0;
     }
     register uint i = 0;
-    register QBucket **v = dict->vec;
+    register QBucketPrivate **v = dict->vec;
     while ( !(*v++) )
 	i++;
     curNode = dict->vec[i];
@@ -732,7 +732,7 @@ QCollection::Item QGDictIterator::operator++()
     curNode = curNode->getNext();
     if ( !curNode ) {				// no next bucket
 	register uint i = curIndex + 1;		// look from next vec element
-	register QBucket **v = &dict->vec[i];
+	register QBucketPrivate **v = &dict->vec[i];
 	while ( i < dict->size() && !(*v++) )
 	    i++;
 	if ( i == dict->size() ) {		// nothing found
