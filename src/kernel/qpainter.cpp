@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#59 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#59 $")
 
 
 /*!
@@ -149,7 +149,9 @@ void QPainter::save()				// save/push painter state
     ps->bgm   = bg_mode;
     ps->rop   = rop;
     ps->bro   = bro;
-    ps->pu    = pu;
+#if 0
+    ps->pu    = pu;				// !!!not used
+#endif
     ps->wr    = QRect( wx, wy, ww, wh );
     ps->vr    = QRect( vx, vy, vw, vh );
     ps->wm    = wxmat;
@@ -179,7 +181,7 @@ void QPainter::restore()			// restore/pop painter state
 #endif
 	return;
     }
-    register QPState *ps = pss->top();
+    register QPState *ps = pss->pop();
     if ( ps->font != cfont )
 	setFont( ps->font );
     if ( ps->pen != cpen )
@@ -192,8 +194,10 @@ void QPainter::restore()			// restore/pop painter state
 	setBackgroundMode( (BGMode)ps->bgm );
     if ( ps->rop != rop )
 	setRasterOp( (RasterOp)ps->rop );
-    if ( ps->pu != pu )
+#if 0
+    if ( ps->pu != pu )				// !!!not used
 	pu = ps->pu;
+#endif
     QRect wr( wx, wy, ww, wh );
     QRect vr( vx, vy, vw, vh );
     if ( ps->wr != wr )
@@ -212,7 +216,11 @@ void QPainter::restore()			// restore/pop painter state
 	setClipping( ps->clip );
     tabstops = ps->ts;
     tabarray = ps->ta;
-    pss->pop();
+    delete ps;
+    if ( pss->isEmpty() ) {
+	delete pss;
+	ps_stack = 0;
+    }
 }
 
 
