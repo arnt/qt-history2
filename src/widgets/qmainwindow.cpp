@@ -1203,11 +1203,12 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 #endif
     moveDockWindow( dockWindow, edge );
     dockWindow->setNewLine( newLine );
-    if ( d->dockWindows.find( dockWindow ) == -1 )
+    if ( d->dockWindows.find( dockWindow ) == -1 ) {
 	d->dockWindows.append( dockWindow );
-    connect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
-	     this, SLOT( slotPlaceChanged() ) );
-    dockWindow->installEventFilter( this );
+	connect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
+		 this, SLOT( slotPlaceChanged() ) );
+	dockWindow->installEventFilter( this );
+    }
     dockWindow->setOpaqueMoving( d->opaque );
 }
 
