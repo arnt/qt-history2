@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>314</width>
-            <height>337</height>
+            <width>271</width>
+            <height>334</height>
         </rect>
     </property>
     <property name="caption">
@@ -60,37 +60,6 @@
                 </widget>
             </hbox>
         </widget>
-        <spacer row="2" column="0">
-            <property name="name">
-                <cstring>spacer2</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>31</width>
-                    <height>20</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLabel" row="0" column="0">
-            <property name="name">
-                <cstring>textLabel1</cstring>
-            </property>
-            <property name="text">
-                <string>&lt;p&gt;
-This example demonstrates how to use Qt Assistant as help 
-system for your own application. When run for the first time
-the example documentation will not yet be installed. This is
-done when pressing the 'Install Example Documentation' button
-below. 
-&lt;/p&gt;</string>
-            </property>
-        </widget>
         <widget class="QFrame" row="1" column="0">
             <property name="name">
                 <cstring>frame5</cstring>
@@ -99,7 +68,7 @@ below.
                 <enum>StyledPanel</enum>
             </property>
             <property name="frameShadow">
-                <enum>Plain</enum>
+                <enum>Sunken</enum>
             </property>
             <grid>
                 <property name="name">
@@ -195,6 +164,43 @@ below.
                 </widget>
             </grid>
         </widget>
+        <widget class="QTextEdit" row="0" column="0">
+            <property name="name">
+                <cstring>textEdit1</cstring>
+            </property>
+            <property name="text">
+                <string>&lt;p&gt;
+This example demonstrates how to use Qt Assistant as help 
+system for your own application. When run for the first time
+the example documentation will not yet be installed. This is
+done when pressing the 'Install Example Documentation' button
+below. 
+&lt;/p&gt;</string>
+            </property>
+            <property name="wordWrap">
+                <enum>WidgetWidth</enum>
+            </property>
+            <property name="readOnly">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <spacer row="2" column="0">
+            <property name="name">
+                <cstring>spacer2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>31</width>
+                    <height>30</height>
+                </size>
+            </property>
+        </spacer>
     </grid>
 </widget>
 <connections>
