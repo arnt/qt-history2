@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#4 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qtablevw.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qtablevw.cpp#4 $";
 #endif
 
 
@@ -977,17 +977,18 @@ bool QTableView::colIsVisible( int col ) const
   bottom left corner between the two scrollbars with an empty widget.
  ----------------------------------------------------------------------------*/
 
-void QTableView::coverCornerSquare( bool b )
+void QTableView::coverCornerSquare( bool enable )
 {
-    coveringCornerSquare = b;
-    if ( !cornerSquare ) {
+    coveringCornerSquare = enable;
+    if ( !cornerSquare && enable ) {
 	cornerSquare = new CornerSquare( this );
+	CHECK_PTR( cornerSquare );
 	cornerSquare->setGeometry( maxViewX() + frameWidth() + 2 ,
 				   maxViewY() + frameWidth() + 2,
 				   sbDim, sbDim );
     }
-    if ( doUpdate ) {
-	if ( b )
+    if ( doUpdate && cornerSquare ) {
+	if ( enable )
 	    cornerSquare->show();
 	else
 	    cornerSquare->hide();
