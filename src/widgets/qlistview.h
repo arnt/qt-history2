@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#32 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#33 $
 **
 ** Definition of QListView widget class
 **
@@ -48,6 +48,9 @@ public:
     int height() const { return ownHeight; }
     virtual void invalidateHeight();
     int totalHeight() const;
+    virtual int width( const QFontMetrics&, int column) const;
+    void widthChanged(int column=-1) const;
+    int depth() const;
 
     virtual const char * text( int ) const;
 
@@ -128,7 +131,17 @@ public:
     virtual void insertItem( QListViewItem * );
     virtual void clear();
 
+    // Deprecate!
     virtual void setColumn( const char * label, int size, int column=-1 );
+
+    virtual void addColumn( const char * label, int size = -1);
+    virtual void setColumnText( int column, const char * label );
+    const char* columnText( int column ) const;
+    virtual void setColumnWidth( int column, int width );
+    int columnWidth( int column ) const;
+    enum WidthMode { Fixed, Maximum };
+    virtual void setColumnWidthMode( int column, WidthMode );
+    WidthMode columnWidthMode( int column ) const;
 
     void show();
 
@@ -208,6 +221,7 @@ private slots:
 private:
     void buildDrawableList() const;
     void reconfigureItems();
+    void widthChanged(const QListViewItem*, int c);
 
     QListViewPrivate * d;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#71 $
 **
 ** Implementation of QListView widget class
 **
@@ -21,11 +21,12 @@
 #include "qkeycode.h"
 #include "qdatetm.h"
 #include "qptrdict.h"
+#include "qvector.h"
 
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#71 $");
 
 
 const int Unsorted = 32767;
@@ -96,8 +97,14 @@ struct QListViewPrivate
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
 
-    // sort column and order
-    int column;
+    // Per-column structure for information not in the QHeader
+    struct Column {
+	QListView::WidthMode wmode;
+    };
+    QVector<Column> column;
+
+    // sort column and order   #### may need to move to QHeader [subclass]
+    int sortcolumn;
     bool ascending;
 
     // suggested height for the items
@@ -514,11 +521,12 @@ void QListViewItem::setOpen( bool o )
   object, and whenever the font, GUI style or colors of the list view
   change.
 
-  The default sets the item's height.
+  The default calls widthChanged() and sets the item's height.
 */
 
 void QListViewItem::setup()
 {
+    widthChanged();
     setHeight( listView()->d->fontMetricsHeight );
 }
 
@@ -686,14 +694,18 @@ const char * QListViewItem::text( int column ) const
   \sa paintBranches(), QListView::drawContentsOffset()
 */
 
+#define QLVI_MARGIN 2    // Shouldn't ALL items use this?
+
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			       int column, int width ) const
 {
+    // Change width() if you change this.
+
     if ( !p )
 	return;
 
     QListView *lv = listView();
-    int r = 2;
+    int r = QLVI_MARGIN;
     QPixmap * icon = 0; // ### temporary! to be replaced with an array
 
     p->fillRect( 0, 0, width, height(), cg.base() );
@@ -701,6 +713,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( icon && !column ) {
 	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
 	r += icon->width();
+	fatal("I bet you forgot to change width()");
     }
 
     const char * t = text( column );
@@ -711,20 +724,42 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( isSelected() &&
 	     (column==0 || listView()->allColumnsShowFocus()) ) {
 	    if ( listView()->style() == WindowsStyle ) {
-		p->fillRect( r-2, 0, width - r + 2, height(),
-			     QApplication::winStyleHighlightColor() );
+		p->fillRect( r - QLVI_MARGIN, 0, width - r + QLVI_MARGIN,
+			    height(), QApplication::winStyleHighlightColor() );
 		p->setPen( white ); // ###
 	    } else {
-		p->fillRect( r-2, 0, width - r + 2, height(), cg.text() );
+		p->fillRect( r - QLVI_MARGIN, 0, width - r
+				+ QLVI_MARGIN, height(), cg.text() );
 		p->setPen( cg.base() );
 	    }
 	} else {
 	    p->setPen( cg.text() );
 	}
 
-	// should do the ellipsis thing here
-	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
+	// should do the ellipsis thing in drawText()
+	p->drawText( r, 0, width-QLVI_MARGIN-r, height(),
+	    AlignLeft + AlignVCenter, t );
     }
+}
+
+/*!
+  Returns the number of pixels of width required to draw column \a c
+  using the metrics \a fm without cropping.
+  The list view containing this item may use
+  this information, depending on the QListView::WidthMode settings
+  for the column.
+
+  The default implementation returns the width of the bounding
+  rectangle of the text of column \a c.
+
+  \sa listView() widthChanged() QListView::setColumnWidthMode()
+*/
+int QListViewItem::width(const QFontMetrics& fm, int c) const
+{
+    return -fm.minLeftBearing()
+	   +fm.width(text(c))
+	   -fm.minRightBearing() + QLVI_MARGIN * 2;
+    // #### add pixmap width
 }
 
 
@@ -1013,7 +1048,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
     d->multi = 0;
-    d->column = 0;
+    d->sortcolumn = 0;
     d->ascending = TRUE;
     d->allColumnsShowFocus = FALSE;
     d->fontMetricsHeight = fontMetrics().height();
@@ -1258,8 +1293,8 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 
 void QListView::buildDrawableList() const
 {
-    if ( (int)d->r->lsc != d->column || (bool)d->r->lso != d->ascending )
-	d->r->sortChildItems( d->column, d->ascending );
+    if ( (int)d->r->lsc != d->sortcolumn || (bool)d->r->lso != d->ascending )
+	d->r->sortChildItems( d->sortcolumn, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
     stack.push( new QListViewPrivate::Pending( ((int)d->rootIsExpandable)-1,
@@ -1407,18 +1442,98 @@ void QListView::clear()
 }
 
 
-/*!  Sets the header for column \a column to be labelled \a label and
-  be \a size pixels wide.  If \a column is negative (as it is by
-  default) setColumn() adds a new column at the right end of the
-  widget. */
-
+/*! DEPRECATED.  See addColumn().  */
 void QListView::setColumn( const char * label, int size, int column )
 {
     if ( column < 0 )
-	d->h->setCellSize( d->h->addLabel( label ), size );
+	addColumn( label, column );
     else
 	d->h->setLabel( column, label, size );
 }
+
+/*!
+  Adds a new column at the right end of the
+  widget, with the header \a label.
+  If \a width is negative, the new column will have
+  WidthMode Maximum, otherwise it will be Fixed at
+  \a width pixels wide.
+
+  \sa setColumnText() setColumnWidth() setColumnWidthMode()
+*/
+void QListView::addColumn( const char * label, int width )
+{
+    int c = d->h->addLabel( label, width );
+    d->column.resize( c+1 );
+    d->column.insert( c, new QListViewPrivate::Column );
+    d->column[c]->wmode = width >=0 ? Fixed : Maximum;
+}
+
+/*!
+  Sets the heading text of column \a column to \a label.
+*/
+void QListView::setColumnText( int column, const char * label )
+{
+    ASSERT( column < d->h->count() );
+    d->h->setLabel( column, label );
+}
+
+/*!
+  Sets the width of column \a column to \a w pixels.  Note that
+  if the column has a WidthMode other than Fixed, this width
+  setting may be subsequently overridden.
+*/
+void QListView::setColumnWidth( int column, int w )
+{
+    ASSERT( column < d->h->count() );
+    d->h->setCellSize( column, w );
+    d->h->update(); // ##### paul, QHeader::setCellSize should do this.
+}
+
+/*!
+  Returns the text for the heading of column \a c.
+*/
+const char* QListView::columnText( int c ) const
+{
+    return d->h->label(c);
+}
+
+/*!
+  Returns the width of the heading of column \a c.
+*/
+int QListView::columnWidth( int c ) const
+{
+    return d->h->cellSize(c);
+}
+
+/*!
+  Sets column \c to behave according to \a mode, which is one of:
+
+\define QListView::WidthMode
+
+  <ul>
+   <li> \c Fixed - the column width does not change automatically
+   <li> \c Maximum - the column is automatically sized according to the
+	    widths of all items in the column.
+	    ##### doesn't shrink back yet when items shrink or close
+	    ##### that could be a different mode.
+	    ##### to do it, need same caching mech as totalHeight().
+	    ##### that would also allow...
+            ##### <li> \c Visible - the column is automatically sized according to the
+			    widths of all \e visible items in the column.
+  </ul>
+
+  \sa QListViewItem::width()
+*/
+void QListView::setColumnWidthMode( int c, WidthMode mode )
+{
+    d->column[c]->wmode = mode;
+}
+
+QListView::WidthMode QListView::columnWidthMode( int c ) const
+{
+    return d->column[c]->wmode;
+}
+
 
 
 /*!  Reimplemented to set the correct background mode and viewed area
@@ -1591,6 +1706,14 @@ QListView * QListViewItem::listView() const
     return parentItem ? parentItem->listView() : 0;
 }
 
+/*!
+  Returns the depth of this item.
+*/
+int QListViewItem::depth() const
+{
+    return parentItem ? parentItem->depth()+1 : -1; // -1 == the hidden root
+}
+
 
 /*!  Returns a pointer to the item immediately above this item on the
   screen.  This is usually the item's closest older sibling, but may
@@ -1711,6 +1834,20 @@ const QListViewItem* QListViewItem::firstChild () const
   Returns the height of this item in pixels.  This does not include
   the height of any children; totalHeight() returns that.
 */
+
+/*!
+  Call this function when the value of width() may have changed
+  for column \a c.  Normally, you should call this if text(c) changes.
+  Passing -1 for \a c indicates all columns may have changed.
+  For efficiency, you should do this if more than one
+  call to widthChanged() is required.
+
+  \sa width()
+*/
+void QListViewItem::widthChanged(int c) const
+{
+    listView()->widthChanged(this, c);
+}
 
 /*! \fn void QListView::selectionChanged()
 
@@ -2299,11 +2436,11 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
 void QListView::setSorting( int column, bool ascending )
 {
-    if ( d->column == column && d->ascending == ascending )
+    if ( d->sortcolumn == column && d->ascending == ascending )
 	return;
 
     d->ascending = ascending;
-    d->column = column;
+    d->sortcolumn = column;
     triggerUpdate();
 }
 
@@ -2374,6 +2511,38 @@ void QListView::reconfigureItems()
     d->r->setOpen( TRUE );
 }
 
+/*!
+  Ensures the width mode of column \a c is updated according
+  to the width of \a item.
+*/
+void QListView::widthChanged(const QListViewItem* item, int c)
+{
+    ASSERT( c < d->h->count() );
+
+    if ( c < 0 ) {
+	// Can we stop early?
+	int col = 0;
+	while ( col < d->h->count() && d->column[col]->wmode == Fixed )
+	    col++;
+	if ( col == d->h->count() )
+	    return; // All have mode Fixed
+    }
+
+    if ( c < 0 || d->column[c]->wmode == Maximum ) {
+	QFontMetrics fm = fontMetrics();
+	int col = c < 0 ? 0 : c;
+	int indent = treeStepSize() * item->depth();
+	do {
+	    int w = item->width( fm, col ) + indent;
+	    if ( w > columnWidth(col) )
+		setColumnWidth( col, w );
+	    if ( c >= 0 )
+		break; // Only one
+	    indent = 0; // Only col 0 has indent
+	    col++;
+	} while ( col < d->h->count() );
+    }
+}
 
 /*!  Sets this list view to assume that the items show focus and
   selection state using all of their columns if \a enable is TRUE, or
