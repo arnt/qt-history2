@@ -801,7 +801,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     else
 	pal = parentWidget()->palette();
 #endif
-    if(isTopLevel() || !parentWidget() || !parentWidget()->ownPalette())
+    if(isTopLevel() || !parentWidget() || !parentWidget()->ownFont())
 	fnt = QApplication::font(this);
     else
 	fnt = parentWidget()->font();
