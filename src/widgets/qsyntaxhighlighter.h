@@ -49,7 +49,7 @@ class QSyntaxHighlighterInternal;
 class QSyntaxHighlighterPrivate;
 class QTextParagraph;
 
-class QSyntaxHighlighter : public Qt
+class Q_EXPORT QSyntaxHighlighter : public Qt
 {
     friend class QSyntaxHighlighterInternal;
 
