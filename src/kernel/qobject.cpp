@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#2 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include "qview.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#2 $";
 #endif
 
 
@@ -76,6 +76,11 @@ int QObject::startTimer( long interval )	// start timer events
 void QObject::killTimer( int id )		// kill timer events
 {
     qKillTimer( id );
+}
+
+void QObject::killTimers()			// kill all timers for object
+{
+    qKillTimer( this );
 }
 
 

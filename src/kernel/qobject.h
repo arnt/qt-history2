@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#1 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#2 $
 **
 ** Definition of QObject class
 **
@@ -37,6 +37,7 @@ public:
 
     int	    startTimer( long interval );	// start timer events
     void    killTimer( int id );		// kill timer event
+    void    killTimers();			// kill all timers for object
 
 protected:
     QObject	*parent() const { return parentObj; }
