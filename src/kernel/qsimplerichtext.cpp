@@ -289,7 +289,7 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegio
 	reg = r;
     }
     if ( paper )
-	d->doc->setPaper( paper );
+	d->doc->setPaper( new QBrush( *paper ) );
     QColorGroup g = cg;
     if ( d->doc->paper() )
 	g.setBrush( QColorGroup::Base, *d->doc->paper() );

@@ -1264,6 +1264,7 @@ QTextDocument::~QTextDocument()
     delete pProcessor;
     delete buf_pixmap;
     delete indenter;
+    delete backBrush;
     if ( tArray )
 	delete [] tArray;
 }

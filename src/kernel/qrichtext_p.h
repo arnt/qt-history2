@@ -784,8 +784,8 @@ public:
     void setUnderlineLinks( bool b ) { underlLinks = b; }
     bool underlineLinks() const { return underlLinks; }
 
-    void setPaper( const QBrush *brush ) { backBrush = brush; }
-    const QBrush *paper() { return backBrush; }
+    void setPaper( QBrush *brush ) { if ( backBrush ) delete backBrush; backBrush = brush; }
+    QBrush *paper() const { return backBrush; }
 
     void doLayout( QPainter *p, int w );
     void draw( QPainter *p, const QRegion &reg, const QColorGroup &cg, const QBrush *paper = 0 );
@@ -882,7 +882,7 @@ private:
     QTextCursor *tmpCursor;
     bool underlLinks;
     QColor linkC;
-    const QBrush *backBrush;
+    QBrush *backBrush;
     QPixmap *buf_pixmap;
     bool nextDoubleBuffered;
     Focus focusIndicator;
