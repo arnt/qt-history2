@@ -12,21 +12,18 @@ class QLabel;
 class QSplitter;
 class QSqlForm;
 
-class DatabaseWgt : public QFrame
+class DatabaseFrontEnd : public QFrame
 {
     Q_OBJECT
 public:
-    DatabaseWgt( QWidget * parent, const char * name = 0 );
-
-    QSqlTable * invoiceTable, * customerTable;
-    QLabel    * customerInfo;
-    QSplitter * vSplitter, * hSplitter;
-
+    DatabaseFrontEnd( QWidget * parent, const char * name = 0 );
+    
 public slots:
     void insertCustomer();
     void updateCustomer();
     void deleteCustomer();
-
+    void updateCustomerInfo( const QSqlRecord * );
+    
     void insertInvoice();
     void updateInvoice();
     void deleteInvoice();
@@ -35,6 +32,14 @@ public slots:
 protected:
     void init();
     void resizeEvent( QResizeEvent * );
+
+private:
+    QSqlTable * invoiceTable, * customerTable;
+    QLabel    * customerInfo;
+    QSplitter * vSplitter, * hSplitter;
+
+    CustomerCursor customerCr;
+    InvoiceCursor invoiceCr;
 };
 
 class DatabaseApp : public QMainWindow
@@ -47,15 +52,8 @@ protected:
     void init();
 
 protected slots:
-    void updateCustomerInfo( const QSqlRecord * );
     void createDB();
     void dropDB();
-
-private:
-    DatabaseWgt * d;
-
-    CustomerCursor customerCr;
-    InvoiceCursor invoiceCr;
 };
 
 #endif // DATABASEAPP_H
