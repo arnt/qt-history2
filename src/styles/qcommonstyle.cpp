@@ -230,12 +230,6 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
 }
 
 /*! \reimp */
-void QCommonStyle::drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool /*permanent*/ )
-{
-    qDrawShadeRect( p, x, y, w, h, g, TRUE, 1, 0, 0 );
-}
-
-/*! \reimp */
 void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
     p->save();
@@ -296,6 +290,15 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  void *data ) const
 {
     switch (op) {
+    case PO_HeaderSection:
+	drawPrimitive(PO_ButtonBevel, p, r, cg,
+		      flags & CStyle_Selected ? PStyle_Sunken : PStyle_Default);
+	break;
+
+    case PO_StatusBarSection:
+	qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE, 1, 0, 0 );
+	break;
+
     case PO_ButtonCommand:
     case PO_ButtonBevel:
     case PO_ButtonTool:
@@ -872,11 +875,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       void *data ) const
 {
     switch (control) {
-    case CC_Header: {
-	drawPrimitive(PO_ButtonBevel, p, r, cg,
-		      flags & CStyle_Selected ? PStyle_Sunken : PStyle_Default);
-	break; }
-
     case CC_ToolButton: {
 	QToolButton *toolbutton = (QToolButton *) widget;
 	void **sdata = (void **) data;

@@ -129,7 +129,10 @@ public:
 	PO_PanelMenuBar,
 	PO_PanelDockWindow,
 
-	PO_TabBarBase
+	PO_TabBarBase,
+
+	PO_HeaderSection,
+	PO_StatusBarSection
 
         /*
 	  PO_CheckMark,
@@ -243,7 +246,6 @@ public:
 	CC_ToolButton,
 	CC_TitleBar,
 	CC_ListView,
-	CC_Header
 	/*
 	  CC_MenuItem,
 	*/
@@ -288,10 +290,7 @@ public:
 
 	SC_ListView              =      0x00000001,
 	SC_ListViewBranch        =      0x00000002,
-	SC_ListViewExpand        =      0x00000004,
-
-	SC_Header                =      0x00000001,
-	SC_HeaderSection         =      0x00000002
+	SC_ListViewExpand        =      0x00000004
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -317,15 +316,6 @@ public:
 					 const QWidget *widget,
 					 const QRect &r,
 					 void *data = 0 ) const = 0;
-    virtual void drawSubControl( SCFlags subCtrl,
-				 QPainter* p,
-				 const QWidget* w,
-				 const QRect& r,
-				 const QColorGroup& cg,
-				 CFlags flags = CStyle_Default,
-				 SCFlags subActive = SC_None,
-				 void* data = 0 ) const = 0;
-
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
@@ -519,8 +509,6 @@ public:
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;
     virtual void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb ) = 0;
 
-    // statusbar
-    virtual void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent ) = 0;
     virtual void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
 
     // progressbar

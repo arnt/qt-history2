@@ -4997,8 +4997,8 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( sectionState( index ) != Selected ) {
 	QHeader::paintSection( p, index, fr );
     } else {
-	style().drawComplexControl( QStyle::CC_Header, p, this, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-				    colorGroup(), QStyle::CStyle_Selected );
+	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+			       colorGroup(), QStyle::PStyle_Sunken );
 	paintSectionLabel( p, index, fr );
     }
 }

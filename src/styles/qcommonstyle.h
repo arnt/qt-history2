@@ -130,8 +130,6 @@ public:
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );
     void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb );
 
-    // statusbar
-    void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent );
     void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
 private:        // Disabled copy constructor and operator=
