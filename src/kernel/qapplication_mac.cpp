@@ -70,6 +70,9 @@
 #include "qmenubar.h"
 #endif
 
+//#define DEBUG_KEY_MAPS
+//#define DEBUG_MOUSE_MAPS
+
 #define QMAC_SPEAK_TO_ME
 #ifdef QMAC_SPEAK_TO_ME
 #include "qvariant.h"
@@ -885,7 +888,6 @@ bool QApplication::processNextEvent( bool  )
 }
 
 /* key maps */
-//#define DEBUG_KEY_MAPS
 #ifdef DEBUG_KEY_MAPS
 #define MAP_KEY(x) x, #x
 #else
@@ -1235,8 +1237,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     case kEventClassMouse:
     {
 	if( (ekind == kEventMouseDown && mouse_button_state ) ||
-	    (ekind == kEventMouseUp && !mouse_button_state) )
+	    (ekind == kEventMouseUp && !mouse_button_state) ) {
+#ifdef DEBUG_MOUSE_MAPS
+	    qDebug("Dropping mouse event..");
+#endif
 	    return 0;
+	}
 
 	QEvent::Type etype = QEvent::None;
 
@@ -1332,6 +1338,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		special_close = TRUE;
 	}
 
+	mouse_button_state = after_state;
 	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
 	    return 0;
 
@@ -1351,7 +1358,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
 	    return 1;
 
-	mouse_button_state = after_state;
 	switch(ekind) {
 	case kEventMouseDragged:
 	case kEventMouseMoved:
@@ -1411,7 +1417,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 
-#if 0
+#ifdef DEBUG_MOUSE_MAPS
 	    char *desc = NULL;
 	    switch(ekind) {
 	    case kEventMouseDown: desc = "MouseButtonPress"; break;
