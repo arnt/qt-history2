@@ -291,6 +291,45 @@ sub fixPaths {
 }
 
 ######################################################################
+# Syntax:  fileContents(filename)
+# Params:  filename, string, filename of file to return contents
+#
+# Purpose: Returns the contents of a file as a string.
+#          Returns empty string if file doens't exist, and dies if it
+#          does exist but we cannot get read access.
+######################################################################
+sub fileContents {
+    my ($filename) = @_;
+    my $filecontents = "";
+    if (-e $filename) {
+        open(I, "< $filename") || die "Could not open $filename for reading, read block?";
+        local $/;
+        binmode I;
+        $filecontents = <I>;
+        close I;
+    }
+    return $filecontents;
+}
+
+######################################################################
+# Syntax:  fileCompare(file1, file2)
+# Params:  file1, string, filename of first file
+#          file2, string, filename of second file
+#
+# Purpose: Determines if files are equal, and which one is newer.
+#          Returns 0 if files are equal no matter the timestamp, -1
+#          if file1 is newer, 1 if file2 is newer.
+######################################################################
+sub fileCompare {
+    my ($file1, $file2) = @_;
+    my $file1contents = fileContents($file1);
+    my $file2contents = fileContents($file2);
+    if (! -e $file1) { return 1; }
+    if (! -e $file2) { return -1; }
+    return $file1contents ne $file2contents ? (stat("$file2"))[9] <=> (stat("$file1"))[9] : 0;
+}
+
+######################################################################
 # Syntax:  symlinkFile(file,ifile)
 # Params:  file, string, filename to create "symlink" for
 #          ifile, string, destination name of symlink
@@ -328,7 +367,7 @@ sub symlinkFile
             binmode I;
             $ifilecontents = <I>;
             close I;
-            $copy = (stat($ifile))[9] <=> (stat($file))[9];
+            $copy = fileCompare($file, $ifile);
             $knowdiff = 0,
         } else {
             $copy = -1;
@@ -338,14 +377,14 @@ sub symlinkFile
 
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
         if ( $copy > 0 ) {
-            open(O, "> " . $file) || die "Could not open $file for writing";
+            open(O, "> " . $file) || die "Could not open $file for writing (no write persmission?)";
             local $/;
             binmode O;
             print O $ifilecontents;
             close O;
             print "$file written\n";
         } elsif ( $copy < 0 ) {
-            open(O, "> " . $ifile) || die "Could not open $ifile for writing";
+            open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write persmission?)";
             local $/;
             binmode O;
             print O $filecontents;
@@ -658,7 +697,6 @@ foreach (@modules_to_sync) {
 }
 
 if(!$isunix) {
-    unlink "$basedir/Makefile";
     symlinkFile("$basedir/dist/win/Makefile", "$basedir/Makefile");
     symlinkFile("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++");
 }
