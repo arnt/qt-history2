@@ -10,6 +10,3 @@ have been removed:
     libmng/Unix - ?
 
 Some patches are applied from time to time.
-
-Qt applications assume that these libraries exist, and Qt cannot be
-compiled unless these libraries are installed on the system.
