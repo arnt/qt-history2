@@ -1180,22 +1180,18 @@ QObjectList QObject::queryList( const char *inheritsClass,
 
 QObject *QObject::findChild(const char *name) const
 {
-    return static_cast<QObject *>(findChild_helper(name, ((QObject *)0)->staticMetaObject));
+    return findChild(name);
 }
 
 QObjectList QObject::findChildren(const char *name) const
 {
-    QList<QObject *> list;
-    findChildren_helper(name, 0, ((QObject *)0)->staticMetaObject, reinterpret_cast<QList<void *>*>(&list));
-    return list;
+    return findChildren(name);
 }
 
 #ifndef QT_NO_REGEXP
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
-    QList<QObject *> list;
-    findChildren_helper(0, &re, ((QObject *)0)->staticMetaObject, reinterpret_cast<QList<void*>*>(&list));
-    return list;
+    return findChildren(re);
 }
 #endif
 

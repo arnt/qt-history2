@@ -96,9 +96,17 @@ public:
     // MOC_SKIP_BEGIN
 #ifndef QT_MOC_CPP
     template<typename T>
-    T findChild(const char *name, T* = 0) const;
+    T findChild(const char *name, T* = 0) const
+    { return static_cast<T>(findChild_helper(name, ((T)0)->staticMetaObject)); }
+
     template<typename T>
-    QList<T> findChildren(const char *name, T* = 0) const;
+    QList<T> findChildren(const char *name, T* = 0) const
+    {
+	QList<T> list;
+	findChildren_helper(name, 0, ((T)0)->staticMetaObject,
+			    reinterpret_cast<QList<void *>*>(&list));
+	return list;
+    }
 #endif //QT_MOC_CPP
     // MOC_SKIP_END    
 #ifndef QT_NO_REGEXP
@@ -106,7 +114,13 @@ public:
     // MOC_SKIP_BEGIN
 #ifndef QT_MOC_CPP
     template<typename T>
-    QList<T> findChildren(const QRegExp &re, T* = 0) const;
+    QList<T> findChildren(const QRegExp &re, T* = 0) const
+    {
+	QList<T> list;
+	findChildren_helper(0, &re, ((T)0)->staticMetaObject,
+			    reinterpret_cast<QList<void*>*>(&list));
+	return list;
+    }
 #endif
     // MOC_SKIP_END
 #endif
@@ -270,31 +284,6 @@ template <typename T>
 inline T qt_cast(const QObject *object)
 { return (T) ((T)0)->staticMetaObject.cast(object); }
 
-template<typename T>
-T QObject::findChild(const char *name, T *) const
-{
-    return static_cast<T>(findChild_helper(name, ((T)0)->staticMetaObject));
-}
-
-#ifndef QT_NO_REGEXP
-template<typename T>
-QList<T> QObject::findChildren(const QRegExp &re, T *) const
-{
-    QList<T> list;
-    findChildren_helper(0, &re, ((T)0)->staticMetaObject,
-		        reinterpret_cast<QList<void*>*>(&list));
-    return list;
-}
-#endif
-
-template<typename T>
-QList<T> QObject::findChildren(const char *name, T *) const
-{
-    QList<T> list;
-    findChildren_helper(name, 0, ((T)0)->staticMetaObject,
-		        reinterpret_cast<QList<void *>*>(&list));
-    return list;
-}
 
 #define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
