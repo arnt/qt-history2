@@ -119,7 +119,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel )
     Q_PROPERTY( QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel )
     Q_PROPERTY( QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel )
-    Q_PROPERTY( double windowTransparency READ windowTransparency WRITE setWindowTransparency DESIGNABLE false)
+    Q_PROPERTY( double windowOpacity READ windowOpacity WRITE setWindowOpacity DESIGNABLE false)
     Q_PROPERTY( bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
     Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
@@ -249,8 +249,8 @@ public:
     void setWindowRole(const QString &);
     QString windowRole() const;
 
-    void setWindowTransparency(double level);
-    double windowTransparency() const;
+    void setWindowOpacity(double level);
+    double windowOpacity() const;
 
     bool isWindowModified() const;
     void setWindowModified(bool);
