@@ -28,7 +28,7 @@ void QExtensionManager::registerExtensions(ExtensionFactory *factory, const QStr
     if (!m_extensions.contains(iid))
         m_extensions.insert(iid, QList<ExtensionFactory*>());
     
-    m_extensions[iid].append(factory);
+    m_extensions[iid].prepend(factory);
 }
 
 void QExtensionManager::unregisterExtensions(ExtensionFactory *factory, const QString &iid)
