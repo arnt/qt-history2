@@ -70,6 +70,28 @@
     then that fixed amount is returned. For variable lengths zero is returned.
 */
 
+/*!
+    \fn bool QTextLength::operator==(const QTextLength &other) const
+
+    Returns true if this text length is the same as the \a other text
+    length.
+*/
+
+/*!
+    \fn bool QTextLength::operator!=(const QTextLength &other) const
+
+    Returns true if this text length is different from the \a other text
+    length.
+*/
+
+/*!
+    \enum QTextLength::Type
+
+    \value VariableLength
+    \value FixedLength
+    \value PercentageLength
+*/
+
 QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
 {
     return stream << Q_INT32(length.lengthType) << length.fixedValueOrPercentage;
@@ -469,6 +491,8 @@ uint QTextFormatPrivate::recalcHash() const
     \value String
     \value FormatObject
     \value IntList
+    \value Length
+    \value LengthVector
 */
 
 /*!
@@ -526,8 +550,7 @@ uint QTextFormatPrivate::recalcHash() const
     \value FramePadding
     \value Width
     \value Height
-    \value TableColumnConstraints
-    \value TableColumnConstraintValues
+    \value TableColumnWidthConstraints
     \value TableCellSpacing
     \value TableCellPadding
     \value TableBackgroundColor
@@ -2002,7 +2025,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextTableFormat::setColumnWidthConstraints(const QVector<QTextLength> &constraints)
 
-    Sets the column width constraints for the table.
+    Sets the column width \a constraints for the table.
 
     \sa columnWidthConstraints()
 */
