@@ -504,7 +504,7 @@
 </customwidgets>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
+        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b722ddac1741fc04c5a3201e6615f43085390f22febbb65dd6666dd821dda36996b552b0df6d4055e2d937fdcd82bd361da8f3ab6ddf87e3fa23a431e01e98cb99901a2c6c1ff78bcbf19fe372713275ed6908f441ab51300617649108624641d22a9427c21a192405241a256e08e4850311172a3b95d87159742e98ef09bda403e03271f6a5bc663e9d8214279afd05eaa048f11e242f753c27bb21ee9cef4afc00c1c26728</data>
     </image>
 </images>
 <connections>
@@ -581,6 +581,15 @@
         <slot>fractalize()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>RadioButton1</tabstop>
+    <tabstop>RadioButton1_2</tabstop>
+    <tabstop>RadioButton1_3</tabstop>
+    <tabstop>RadioButton1_3_2</tabstop>
+    <tabstop>fractalize_btn_2</tabstop>
+    <tabstop>reset_btn</tabstop>
+    <tabstop>animate_btn</tabstop>
+</tabstops>
 <includes>
     <include location="local" impldecl="in implementation">gllandscapeviewer.ui.h</include>
 </includes>
