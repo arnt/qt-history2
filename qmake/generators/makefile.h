@@ -62,6 +62,7 @@ protected:
     void setMocAware(bool o) { moc_aware = o; }
     bool mocAware() const { return moc_aware; }
 
+    bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
     virtual void init();
 

@@ -46,7 +46,7 @@ class QMakeProject
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars;
     bool parse(QString text);
-
+    bool doProjectTest(QString func, const QStringList &args);
 public:
     QMakeProject();
 

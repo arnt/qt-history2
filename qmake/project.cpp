@@ -66,10 +66,12 @@ QMakeProject::QMakeProject()
 	    if(s.right(1) == "\\")
 		s.truncate(s.length() - 1);
 	    else {
-		parse(s);
+		if(!parse(s))
+		    break;
 		s = "";
 	    }
 	}
+	qfile.close();
     }
     for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it)
 	parse((*it));
@@ -81,7 +83,8 @@ QMakeProject::parse(QString t)
 {
     QString s = t.simplifyWhiteSpace();
 
-    if(s[0] == '#' || s.isEmpty()) /* comment || blank_line */
+    s.replace(QRegExp("#.*$"), ""); /* bye comments */
+    if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
     int equals = s.find('=');
@@ -96,32 +99,52 @@ QMakeProject::parse(QString t)
     const char *d = s.latin1();
     SKIP_WS(d);
     while(*d && *d != '+' && *d != '-' && *d != '=') {
-	var += *d;
 	if(*d == ':') {
-	    scope = var;
+	    scope = var.stripWhiteSpace();
 	    var = "";
 
-	    if(!isActiveConfig(scope.stripWhiteSpace()))
+	    int lparen = scope.find('(');
+	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
+		int rparen = scope.find(')', lparen);
+		if(rparen == -1) {
+		    QCString error;
+		    error.sprintf("Function missing right paren: %s", scope.latin1());
+		    yyerror(error);
+		    return FALSE;
+		}
+		QString func = scope.left(lparen);
+		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) 
+		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
+		if(!doProjectTest(func, args)) {
+		    if(Option::debug_level)
+			printf("Project Parser: Test (%s) has failed.\n", scope.latin1());
+		    return TRUE;
+		}
+	    }
+	    else if(!isActiveConfig(scope.stripWhiteSpace())) {
+		if(Option::debug_level)
+		    printf("Project Parser: Scope (%s) is not in scope.\n", scope.latin1());
 		return TRUE;
+	    }
 	}
+	else var += *d;
 	d++;
     }
     QStringList &varlist = vars[var.stripWhiteSpace()];
 
+    if(!*d)
+	return FALSE;
     SKIP_WS(d);
     for( ; *d && op.find('=') == -1; op += *(d++));
     op.replace(QRegExp("\\s"), "");
 
     SKIP_WS(d);
-    if(!*d)
-	return FALSE;
-
     val = QStringList::split(' ', d);
 #undef SKIP_WS
 
     if(Option::debug_level)
-	printf("Config Parser: %s -> %s %s (%s)\n", scope.isEmpty() ? "NoScope" : scope.latin1(), 
-	       var.latin1(), op.latin1(), val.join(" :: ").latin1());
+	printf("Project Parser: %s %s (%s)\n", var.latin1(), op.latin1(), val.join(" :: ").latin1());
 
     if(op == "=")
 	varlist.clear();
@@ -145,6 +168,9 @@ QMakeProject::parse(QString t)
 	    else
 		(*valit).replace(rep, torep.length(), l.first());
 	}
+	if((*valit).isEmpty())
+	    continue;
+
 	if(op == "=" || op == "+=")
 	    varlist.append((*valit));
 	else if(op == "-=")
@@ -156,15 +182,24 @@ QMakeProject::parse(QString t)
 bool
 QMakeProject::read(const char *project)
 {
-    vars.clear();
+    vars = base_vars; /* start with the base */
     
     /* parse project file */
     if(Option::debug_level)
 	printf("Project file: reading %s\n", project);
 
-    vars = base_vars; /* start with the base */
+    pfile = project;
+    if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
+	pfile += ".pro";
+
+    bool ret = FALSE;
     QFile qfile(pfile = project);
-    if ( qfile.open(IO_ReadOnly) ) {
+    if ( (ret = qfile.open(IO_ReadOnly)) ) {
+	QString projname = project;
+	projname.replace(QRegExp("\\.pro$"), "");
+	vars["PROJECT"].append(projname);
+	vars["TARGET"].append(projname);
+
 	QTextStream t( &qfile );
 	QString s;
 	line_count = 0;
@@ -174,13 +209,14 @@ QMakeProject::read(const char *project)
 	    if(s.right(1) == "\\")
 		s.truncate(s.length() - 1);
 	    else {
-		parse(s);
+		if(!(ret = parse(s)))
+		    break;
 		s = "";
 	    }
 	}
+	qfile.close();
     }
-
-    return TRUE;
+    return ret;
 }
 
 bool
@@ -195,4 +231,24 @@ QMakeProject::isActiveConfig(const QString &x)
     return vars["CONFIG"].findIndex(x) != -1;
 }
 
-
+bool
+QMakeProject::doProjectTest(QString func, const QStringList &args)
+{
+    if(func == "system") {
+	if(args.count() != 1) {
+	    fprintf(stderr, "%d: runTest(exec) requires one argument.\n", line_count);
+	    return FALSE;
+	}
+	return system(args.first().latin1()) == 0;
+    } else if(func == "contains") {
+	if(args.count() != 2) {
+	    fprintf(stderr, "%d: contains(var, val) requires two argument.\n", line_count);
+	    return FALSE;
+	}
+	return vars[args[0]].findIndex(args[1]) != -1;
+	    
+    } else {
+	fprintf(stderr, "Unknown test function: %s\n", func.latin1());
+    }
+    return FALSE;
+}

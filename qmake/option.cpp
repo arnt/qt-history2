@@ -37,12 +37,14 @@
 
 #include "option.h"
 #include <stdlib.h>
+#include <qdir.h>
 
 QString Option::ui_ext;
 QString Option::h_ext;
 QString Option::moc_ext;
 QString Option::cpp_ext;
 QString Option::obj_ext;
+QString Option::dir_sep;
 #ifdef WIN32
 Option::QMODE Option::mode = Option::WIN_MODE;
 #else
@@ -63,8 +65,8 @@ bool usage(const char *a0)
 	   "Options:\n"
 	   "\t-nodepend\tDon't generate dependency information\n"
 	   "\t-o file\tWrite output to file\n"
-	   "\t-unix\tSet initial config of unix\n"
-	   "\t-win32\tSet initial config of win32\n"
+	   "\t-unix\tRun in unix mode\n"
+	   "\t-win32\tRun in win32 mode\n"
 	   "\t-mkspec file\tUse file as spec\n"
 	    "\t-d\tIncrease debug level\n", a0);
     return FALSE;
@@ -120,9 +122,28 @@ Option::parseCommandLine(int argc, char **argv)
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
-    if(Option::mode == Option::WIN_MODE)
+    if(Option::mode == Option::WIN_MODE) {
+	Option::dir_sep = "\\";
 	Option::obj_ext =  ".obj";
-    else 
+    } else {
+	Option::dir_sep = "/";
 	Option::obj_ext = ".o";
+    }
     return TRUE;
+}
+
+QString 
+Option::fixPathToTargetOS(QString in)
+{
+    return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
+}
+
+QString
+Option::fixPathToLocalOS(QString in)
+{
+#ifdef WIN32
+    return in.replace(QRegExp("/"), "\\");
+#else
+    return in.replace(QRegExp("\\"), "/");
+#endif
 }

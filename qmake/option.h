@@ -48,6 +48,7 @@ struct Option
     static QString moc_ext;
     static QString cpp_ext;
     static QString obj_ext;
+    static QString dir_sep;
 
     enum QMODE { UNIX_MODE, WIN_MODE };
     static QMODE mode;
@@ -60,6 +61,9 @@ struct Option
 
     static int debug_level;
     static bool parseCommandLine(int argc, char **argv);
+
+    static QString fixPathToLocalOS(QString in);
+    static QString fixPathToTargetOS(QString in);
 };
 
 #endif /* __OPTION_H__ */

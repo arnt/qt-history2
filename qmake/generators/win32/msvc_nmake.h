@@ -44,7 +44,6 @@
 class NmakeMakefileGenerator : public MakefileGenerator
 {
     bool init_flag;
-    void writeHeader(QTextStream &);	
     void writeNmakeParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);

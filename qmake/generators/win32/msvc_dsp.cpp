@@ -82,7 +82,8 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
 
-		    if ( project->isActiveConfig("moc") && (*it).right(strlen(Option::moc_ext)) == Option::moc_ext) {
+		    if ( project->isActiveConfig("moc") && 
+			 (*it).right(strlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -284,13 +285,13 @@ DspMakefileGenerator::init()
 	setMocAware(TRUE);
     }
     project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
-    project->variables()["TMAKE_FILETAGS"] += QStringList::split(
-	"HEADERS SOURCES DEF_FILE RC_FILE TARGET TMAKE_LIBS DESTDIR DLLDESTDIR", " ");
+    project->variables()["TMAKE_FILETAGS"] += QStringList::split(' ',
+	"HEADERS SOURCES DEF_FILE RC_FILE TARGET TMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
     QStringList &l = project->variables()["TMAKE_FILETAGS"];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    QDir::cleanDirPath((*inner));
+	    (*inner) = Option::fixPathToTargetOS((*inner));
     }
     MakefileGenerator::init();
 #if 0 //FIXME?
@@ -339,7 +340,7 @@ DspMakefileGenerator::init()
     }
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first() +  "\\");
-	QDir::cleanDirPath(project->variables()["TARGET"].first());
+	Option::fixPathToTargetOS(project->variables()["TARGET"].first());
 	project->variables()["MSVCDSP_TARGET"].append(
 	    QString("/out:\"") + project->variables()["TARGET"].first() + "\"");
 	if ( project->isActiveConfig("dll") ) {

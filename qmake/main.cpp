@@ -72,6 +72,7 @@ main(int argc, char **argv)
 	}
 
 	/* dump make file */
+	bool made = FALSE;
 	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first();
 	if(gen.isEmpty()) {
 	    fprintf(stderr, "No generator specified in config file.\n");
@@ -79,23 +80,26 @@ main(int argc, char **argv)
 	}
 	else if(gen == "UNIX") {
 	    UnixMakefileGenerator mkfile(&proj);
-	    mkfile.write();
+	    made = mkfile.write();
 	}
 	else if(gen == "DSP") {
 	    DspMakefileGenerator mkfile(&proj);
-	    mkfile.write();
+	    made = mkfile.write();
 	}
 	else if(gen == "BMAKE") {
 	    BorlandMakefileGenerator mkfile(&proj);
-	    mkfile.write();
+	    made = mkfile.write();
 	}
 	else if(gen == "NMAKE") {
 	    NmakeMakefileGenerator mkfile(&proj);
-	    mkfile.write();
+	    made = mkfile.write();
 	}
 	else {
 	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
 	    return 666;
+	}
+	if(!made) {
+	    fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
 	}
 
 	/* debugging */

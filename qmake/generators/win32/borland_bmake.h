@@ -44,8 +44,8 @@
 class BorlandMakefileGenerator : public MakefileGenerator
 {
     bool init_flag;
-    void writeHeader(QTextStream &);	
     void writeBorlandParts(QTextStream &);
+    void writeSubdirs(QTextStream &);
 
     bool writeMakefile(QTextStream &);
     void init();
