@@ -79,30 +79,36 @@ QSocketDevice::QSocketDevice( Type type, bool )
 	    this, type );
 #endif
     init();
-    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
-    if ( s < 0 ) {
+    int s = ::socket( AF_INET, (type == Datagram ? SOCK_DGRAM : SOCK_STREAM), 0 );
+    if ( s == INVALID_SOCKET ) {
 	// leave fd at -1 but set the type
 	t = type;
-	switch( errno ) {
-	case WSAEPROTONOSUPPORT:
-	    e = Bug; // 0 is supposed to work for both types
-	    break;
-	case WSAEMFILE:
-	    e = NoFiles; // special case for this
-	    break;
-	case WSAEACCES:
-	    e = Inaccessible;
-	    break;
-	case WSAENOBUFS:
-//	case WSAENOMEM:
-	    e = NoResources;
-	    break;
-	case WSAEINVAL:
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
+	switch( WSAGetLastError() ) {
+	    // rms
+	    case WSANOTINITIALISED:
+		break;
+	    case WSAENETDOWN:
+		break;
+	    case WSAEAFNOSUPPORT:
+		break;
+	    case WSAEINPROGRESS:
+		break;
+	    case WSAEMFILE:
+		e = NoFiles; // special case for this
+		break;
+	    case WSAENOBUFS:
+		e = NoResources;
+		break;
+	    case WSAEPROTONOSUPPORT:
+		e = Bug; // 0 is supposed to work for both types
+		break;
+	    case WSAEPROTOTYPE:
+		break;
+	    case WSAESOCKTNOSUPPORT :
+		break;
+	    default:
+		e = UnknownError;
+		break;
 	}
     } else {
 	setSocket( s, type );
@@ -116,7 +122,7 @@ void QSocketDevice::close()
 	return;
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-    ::closesocket( fd );
+    ::closesocket( fd ); // ### do we need error handling here?
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
 #endif
@@ -150,36 +156,46 @@ int QSocketDevice::option( Option opt ) const
     int n = -1;
     int v = -1;
     switch ( opt ) {
-    case Broadcast:
-	n = SO_BROADCAST;
-	break;
-    case ReceiveBuffer:
-	n = SO_RCVBUF;
-	break;
-    case ReuseAddress:
-	n = SO_REUSEADDR;
-	break;
-    case SendBuffer:
-	n = SO_SNDBUF;
-	break;
+	case Broadcast:
+	    n = SO_BROADCAST;
+	    break;
+	case ReceiveBuffer:
+	    n = SO_RCVBUF;
+	    break;
+	case ReuseAddress:
+	    n = SO_REUSEADDR;
+	    break;
+	case SendBuffer:
+	    n = SO_SNDBUF;
+	    break;
     }
     if ( n != -1 ) {
 	SOCKLEN_T len = sizeof(v);
 	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
-	if ( r >= 0 )
+	if ( r != SOCKET_ERROR )
 	    return v;
 	if ( !e ) {
-	    switch( errno ) {
-	    case WSAEBADF:
-	    case WSAENOTSOCK:
-		e = Impossible;
-		break;
-	    case WSAEFAULT:
-		e = Bug;
-		break;
-	    default:
-		e = UnknownError;
-		break;
+	    switch( WSAGetLastError() ) {
+		// rms
+		case WSANOTINITIALISED:
+		    break;
+		case WSAENETDOWN:
+		    break;
+		case WSAEFAULT:
+		    e = Bug;
+		    break;
+		case WSAEINPROGRESS:
+		    break;
+		case WSAEINVAL:
+		    break;
+		case WSAENOPROTOOPT:
+		    break;
+		case WSAENOTSOCK:
+		    e = Impossible;
+		    break;
+		default:
+		    e = UnknownError;
+		    break;
 	    }
 	}
 	return -1;
@@ -194,34 +210,48 @@ void QSocketDevice::setOption( Option opt, int v )
 	return;
     int n = -1; // for really, really bad compilers
     switch ( opt ) {
-    case Broadcast:
-	n = SO_BROADCAST;
-	break;
-    case ReceiveBuffer:
-	n = SO_RCVBUF;
-	break;
-    case ReuseAddress:
-	n = SO_REUSEADDR;
-	break;
-    case SendBuffer:
-	n = SO_SNDBUF;
-	break;
-    default:
-	return;
-    }
-    if ( ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
-	 e == NoError ) {
-	switch( errno ) {
-	case WSAEBADF:
-	case WSAENOTSOCK:
-	    e = Impossible;
+	case Broadcast:
+	    n = SO_BROADCAST;
 	    break;
-	case WSAEFAULT:
-	    e = Bug;
+	case ReceiveBuffer:
+	    n = SO_RCVBUF;
+	    break;
+	case ReuseAddress:
+	    n = SO_REUSEADDR;
+	    break;
+	case SendBuffer:
+	    n = SO_SNDBUF;
 	    break;
 	default:
-	    e = UnknownError;
-	    break;
+	    return;
+    }
+    int r = ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v) );
+    if ( r == SOCKET_ERROR && e == NoError ) {
+	switch( WSAGetLastError() ) {
+	    // rms
+	    case WSANOTINITIALISED:
+		break;
+	    case WSAENETDOWN:
+		break;
+	    case WSAEFAULT:
+		e = Bug;
+		break;
+	    case WSAEINPROGRESS:
+		break;
+	    case WSAEINVAL:
+		break;
+	    case WSAENETRESET:
+		break;
+	    case WSAENOPROTOOPT:
+		break;
+	    case WSAENOTCONN:
+		break;
+	    case WSAENOTSOCK:
+		e = Impossible;
+		break;
+	    default:
+		e = UnknownError;
+		break;
 	}
     }
 }
@@ -238,13 +268,57 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     a.sin_port = htons( port );
     a.sin_addr.s_addr = htonl( addr.ip4Addr() );
 
-    int r = ::connect( fd, (struct sockaddr*)&a,
-		       sizeof(struct sockaddr_in) );
+    int r = ::connect( fd, (struct sockaddr*)&a, sizeof(struct sockaddr_in) );
     if ( r == SOCKET_ERROR )
+    {
+	switch( WSAGetLastError() ) {
+	    // rms
+	    case WSANOTINITIALISED:
+		break;
+	    case WSAENETDOWN:
+		break;
+	    case WSAEADDRINUSE:
+		break;
+	    case WSAEINTR:
+		break;
+	    case WSAEINPROGRESS:
+		break;
+	    case WSAEALREADY:
+		break;
+	    case WSAEADDRNOTAVAIL:
+		break;
+	    case WSAEAFNOSUPPORT:
+		break;
+	    case WSAECONNREFUSED:
+		break;
+	    case WSAEFAULT:
+		break;
+	    case WSAEINVAL:
+		break;
+	    case WSAEISCONN:
+		break;
+	    case WSAENETUNREACH:
+		break;
+	    case WSAENOBUFS:
+		break;
+	    case WSAENOTSOCK:
+		break;
+	    case WSAETIMEDOUT:
+		break;
+	    case WSAEWOULDBLOCK:
+		break;
+	    case WSAEACCES:
+		break;
+	    default:
+		e = UnknownError;
+		break;
+	}
 	return FALSE;
+    }
     fetchConnectionParameters();
     return TRUE;
 }
+
 
 bool QSocketDevice::connect( const QString & )
 {
@@ -265,38 +339,43 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     a.sin_addr.s_addr = htonl( address.ip4Addr() );
 
     int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
-    if ( r < 0 ) {
-	switch( r ) {
-	case WSAEINVAL:
-	    e = AlreadyBound;
-	    break;
-	case WSAEACCES:
-	    e = Inaccessible;
-	    break;
-//	case WSAENOMEM:
-	    e = NoResources;
-	    break;
-	case WSAEFAULT: // a was illegal
-	case WSAENAMETOOLONG: // sz was wrong
-	    e = Bug;
-	    break;
-	case WSAEBADF: // AF_UNIX only
-	case WSAENOTSOCK: // AF_UNIX only
-//	case WSAEROFS: // AF_UNIX only
-//	case WSAENOENT: // AF_UNIX only
-//	case WSAENOTDIR: // AF_UNIX only
-	case WSAELOOP: // AF_UNIX only
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
+    if ( r == SOCKET_ERROR ) {
+	switch( WSAGetLastError() ) {
+	    // rms
+	    case WSANOTINITIALISED:
+		break;
+	    case WSAENETDOWN:
+		break;
+	    case WSAEACCES:
+		e = Inaccessible;
+		break;
+	    case WSAEADDRINUSE:
+		break;
+	    case WSAEADDRNOTAVAIL:
+		break;
+	    case WSAEFAULT:
+		e = Bug;
+		break;
+	    case WSAEINPROGRESS:
+		break;
+	    case WSAEINVAL:
+		e = AlreadyBound;
+		break;
+	    case WSAENOBUFS:
+		break;
+	    case WSAENOTSOCK:
+		e = Impossible;
+		break;
+	    default:
+		e = UnknownError;
+		break;
 	}
 	return FALSE;
     }
     fetchConnectionParameters();
     return TRUE;
 }
+
 
 bool QSocketDevice::bind( const QString& )
 {
@@ -325,41 +404,43 @@ int QSocketDevice::accept()
     SOCKLEN_T l = sizeof(struct sockaddr);
     int s = ::accept( fd, (struct sockaddr*)&a, &l );
     // we'll blithely throw away the stuff accept() wrote to a
-    if ( s < 0 && e == NoError ) {
-	switch( errno ) {
-	case WSAEPROTOTYPE:
-	case WSAENOPROTOOPT:
-	case WSAEHOSTDOWN:
-	case WSAEOPNOTSUPP:
-	    //case ENONET:
-	case WSAEHOSTUNREACH:
-	case WSAENETDOWN:
-	case WSAENETUNREACH:
-	case WSAETIMEDOUT:
-	    // in all these cases, an error happened during connection
-	    // setup.  we're not interested in what happened, so we
-	    // just treat it like the client-closed-quickly case.
-//	case WSAEPERM:
-	    // firewalling wouldn't let us accept.  we treat it like
-	    // the client-closed-quickly case.
-//	case WSAEAGAIN:
-	    // the client closed the connection before we got around
-	    // to accept()ing it.
-	    break;
-	case WSAEBADF:
-	case WSAENOTSOCK:
-	    e = Impossible;
-	    break;
-	case WSAEFAULT:
-	    e = Bug;
-	    break;
-//	case WSAENOMEM:
-	case WSAENOBUFS:
-	    e = NoResources;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
+    if ( s == INVALID_SOCKET && e == NoError ) {
+	switch( WSAGetLastError() ) {
+	    // rms
+	    case WSANOTINITIALISED:
+		break;
+	    case WSAENETDOWN:
+		// in all these cases, an error happened during connection
+		// setup.  we're not interested in what happened, so we
+		// just treat it like the client-closed-quickly case.
+		break;
+	    case WSAEFAULT:
+		e = Bug;
+		break;
+	    case WSAEINTR:
+		break;
+	    case WSAEINPROGRESS:
+		break;
+	    case WSAEINVAL:
+		break;
+	    case WSAEMFILE:
+		break;
+	    case WSAENOBUFS:
+		e = NoResources;
+		break;
+	    case WSAENOTSOCK:
+		e = Impossible;
+		break;
+	    case WSAEOPNOTSUPP:
+		// in all these cases, an error happened during connection
+		// setup.  we're not interested in what happened, so we
+		// just treat it like the client-closed-quickly case.
+		break;
+	    case WSAEWOULDBLOCK:
+		break;
+	    default:
+		e = UnknownError;
+		break;
 	}
     }
     return s;
@@ -414,39 +495,67 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	    memset( &a, 0, sizeof(a) );
 	    SOCKLEN_T sz;
 	    sz = sizeof( a );
-	    r = ::recvfrom( fd, data, maxlen, 0,
-			    (struct sockaddr *)&a, &sz );
+	    r = ::recvfrom( fd, data, maxlen, 0, (struct sockaddr *)&a, &sz );
 	    pp = ntohs( a.sin_port );
 	    pa = QHostAddress( ntohl( a.sin_addr.s_addr ) );
 	} else {
 	    r = ::recv( fd, data, maxlen, 0 );
 	}
 	done = TRUE;
+#if 0
 	if ( r >= 0 || errno == EAGAIN ) {
 	    // nothing
 	} else if ( errno == EINTR ) {
 	    done = FALSE;
 	} else if ( e == NoError ) {
-	    switch( errno ) {
-//	    case WSAEIO:
-//	    case WSAEISDIR:
-	    case WSAEBADF:
-	    case WSAEINVAL:
-	    case WSAEFAULT:
-	    case WSAENOTCONN:
-	    case WSAENOTSOCK:
-		e = Impossible;
-		break;
-		//case ENONET:
-	    case WSAEHOSTUNREACH:
-	    case WSAENETDOWN:
-	    case WSAENETUNREACH:
-	    case WSAETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    default:
-		e = UnknownError;
-		break;
+#endif
+	if ( r == SOCKET_ERROR && e == NoError ) {
+	    switch( WSAGetLastError() ) {
+		// rms
+		// the following errors are only from ::recv() and not from ::recvfrom()
+		case WSANOTINITIALISED:
+		    break;
+		case WSAENETDOWN:
+		    e = NetworkFailure;
+		    break;
+		case WSAEFAULT:
+		    e = Impossible;
+		    break;
+		case WSAENOTCONN:
+		    e = Impossible;
+		    break;
+		case WSAEINTR:
+		    break;
+		case WSAEINPROGRESS:
+		    break;
+		case WSAENETRESET:
+		    break;
+		case WSAENOTSOCK:
+		    e = Impossible;
+		    break;
+		case WSAEOPNOTSUPP:
+		    break;
+		case WSAESHUTDOWN:
+		    break;
+		case WSAEWOULDBLOCK:
+		    break;
+		case WSAEMSGSIZE:
+		    break;
+		case WSAEINVAL:
+		    e = Impossible;
+		    break;
+		case WSAECONNABORTED:
+		    break;
+		case WSAETIMEDOUT:
+		    e = NetworkFailure;
+		    break;
+		case WSAECONNRESET:
+		    break;
+		case WSAEISCONN:
+		    break;
+		default:
+		    e = UnknownError;
+		    break;
 	    }
 	}
     }
@@ -485,32 +594,53 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     while ( !done ) {
 	r = ::send( fd, data, len, 0 );
 	done = TRUE;
-	if ( r < 0 && e == NoError ) {//&& errno != WSAEAGAIN ) {
-	    switch( errno ) {
-	    case WSAEINTR: // signal - call read() or whatever again
-		done = FALSE;
-		break;
-//	    case WSAENOSPC:
-//	    case WSAEPIPE:
-//	    case WSAEIO:
-//	    case WSAEISDIR:
-	    case WSAEBADF:
-	    case WSAEINVAL:
-	    case WSAEFAULT:
-	    case WSAENOTCONN:
-	    case WSAENOTSOCK:
-		e = Impossible;
-		break;
-		//case ENONET:
-	    case WSAEHOSTUNREACH:
-	    case WSAENETDOWN:
-	    case WSAENETUNREACH:
-	    case WSAETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    default:
-		e = UnknownError;
-		break;
+	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
+	    switch( WSAGetLastError() ) {
+		// rms
+		case WSANOTINITIALISED:
+		    break;
+		case WSAENETDOWN:
+		    e = NetworkFailure;
+		    break;
+		case WSAEACCES:
+		    break;
+		case WSAEINTR:
+		    done = FALSE;
+		    break;
+		case WSAEINPROGRESS:
+		    break;
+		case WSAEFAULT:
+		    break;
+		case WSAENETRESET:
+		    break;
+		case WSAENOBUFS:
+		    break;
+		case WSAENOTCONN:
+		    e = Impossible;
+		    break;
+		case WSAENOTSOCK:
+		    e = Impossible;
+		    break;
+		case WSAEOPNOTSUPP:
+		    break;
+		case WSAESHUTDOWN:
+		    break;
+		case WSAEWOULDBLOCK:
+		    break;
+		case WSAEMSGSIZE:
+		    break;
+		case WSAEHOSTUNREACH:
+		    break;
+		case WSAEINVAL:
+		    e = Impossible;
+		    break;
+		case WSAECONNABORTED:
+		    break;
+		case WSAECONNRESET:
+		    break;
+		default:
+		    e = UnknownError;
+		    break;
 	    }
 	}
     }
@@ -566,32 +696,65 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	r = ::sendto( fd, data, len, 0,
 		      (struct sockaddr *)(&a), sizeof(sockaddr_in) );
 	done = TRUE;
-	if ( r < 0 && e != EAGAIN && e == NoError ) {
-	    switch( errno ) {
-	    case WSAEINTR: // signal - call read() or whatever again
-		done = FALSE;
-		break;
-//	    case WSAENOSPC:
-//	    case WSAEPIPE:
-//	    case WSAEIO:
-//	    case WSAEISDIR:
-	    case WSAEBADF:
-	    case WSAEINVAL:
-	    case WSAEFAULT:
-	    case WSAENOTCONN:
-	    case WSAENOTSOCK:
-		e = Impossible;
-		break;
-		//case ENONET:
-	    case WSAEHOSTUNREACH:
-	    case WSAENETDOWN:
-	    case WSAENETUNREACH:
-	    case WSAETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    default:
-		e = UnknownError;
-		break;
+	if ( r == SOCKET_ERROR && e == NoError ) {//&& e != EAGAIN ) {
+	    switch( WSAGetLastError() ) {
+		// rms
+		case WSANOTINITIALISED:
+		    break;
+		case WSAENETDOWN:
+		    e = NetworkFailure;
+		    break;
+		case WSAEACCES:
+		    break;
+		case WSAEINVAL:
+		    e = Impossible;
+		    break;
+		case WSAEINTR:
+		    done = FALSE;
+		    break;
+		case WSAEINPROGRESS:
+		    break;
+		case WSAEFAULT:
+		    break;
+		case WSAENETRESET:
+		    break;
+		case WSAENOBUFS:
+		    break;
+		case WSAENOTCONN:
+		    e = Impossible;
+		    break;
+		case WSAENOTSOCK:
+		    e = Impossible;
+		    break;
+		case WSAEOPNOTSUPP:
+		    break;
+		case WSAESHUTDOWN:
+		    break;
+		case WSAEWOULDBLOCK:
+		    break;
+		case WSAEMSGSIZE:
+		    break;
+		case WSAEHOSTUNREACH:
+		    break;
+		case WSAECONNABORTED:
+		    break;
+		case WSAECONNRESET:
+		    break;
+		case WSAEADDRNOTAVAIL:
+		    break;
+		case WSAEAFNOSUPPORT:
+		    break;
+		case WSAEDESTADDRREQ:
+		    break;
+		case WSAENETUNREACH:
+		    e = NetworkFailure;
+		    break;
+		case WSAETIMEDOUT:
+		    e = NetworkFailure;
+		    break;
+		default:
+		    e = UnknownError;
+		    break;
 	    }
 	}
     }
