@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#33 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#34 $
 **
 ** Definition of QListBox widget class
 **
@@ -43,8 +43,7 @@ public:
     virtual int width( const QListBox * ) const = 0;
 
 protected:
-    virtual void paint( QPainter *, QSize, const QColorGroup &, GUIStyle,
-			bool selected, bool focus ) = 0;
+    virtual void paint( QPainter * ) = 0;
     void setText( const char *text ) { txt = text; }
 
 private:
@@ -57,20 +56,18 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class QListBoxString : public QListBoxItem
+class QListBoxText : public QListBoxItem
 {	
     Q_OBJECT
 public:
-    QListBoxString( const char * = 0 );
-   ~QListBoxString();
-protected:
-    void paint( QPainter *, QSize, const QColorGroup &, GUIStyle,
-		bool selected, bool focus );
+    QListBoxText( const char * = 0 );
+    ~QListBoxText();
+    void paint( QPainter * );
     int height( const QListBox * ) const;
     int width( const QListBox * ) const; 
 private:	// Disabled copy constructor and operator=
-    QListBoxString( const QListBoxString & ) {}
-    QListBoxString &operator=( const QListBoxString & ) { return *this; }
+    QListBoxText( const QListBoxText & ) {}
+    QListBoxText &operator=( const QListBoxText & ) { return *this; }
 };
 
 
@@ -82,10 +79,10 @@ public:
    ~QListBoxPixmap();
     const QPixmap *pixmap() const { return &pm; }
 protected:
-    void paint( QPainter *, QSize, const QColorGroup &, GUIStyle,
-		bool selected, bool focus );
+    void paint( QPainter * );
     int height( const QListBox * ) const;
     int width( const QListBox * ) const;
+
 private:
     QPixmap pm;
 private:	// Disabled copy constructor and operator=
