@@ -908,8 +908,10 @@ int QCString::find( char c, int index, bool cs ) const
     return d ? (int)(d - data()) : -1;
 }
 
-// macro used in ::find() and ::findRev(), undefined later
-#define  REHASH( a, h ) (((h)-(a<<(sl_minus_1)))<<1)
+#define REHASH( a ) \
+    if ( sl_minus_1 < sizeof(uint) * CHAR_BIT ) \
+	hashHaystack -= (a) << sl_minus_1; \
+    hashHaystack <<= 1
 
 /*!
     \overload
@@ -928,11 +930,11 @@ int QCString::find( char c, int index, bool cs ) const
 
 int QCString::find( const char *str, int index, bool cs ) const
 {
-    if ( (uint)index >= size() )		// index outside string
+    if ( (uint)index >= size() )
 	return -1;
-    if ( !str )					// no search string
+    if ( !str )
 	return -1;
-    if ( !*str )				// zero-length search string
+    if ( !*str )
 	return index;
     const uint l = length();
     const uint sl = qstrlen( str );
@@ -943,7 +945,7 @@ int QCString::find( const char *str, int index, bool cs ) const
 	return find( *str, index, cs );
 
     /*
-      see QString::find for details.
+      See QString::find() for details.
     */
     const char* needle = str;
     const char* haystack = data() + index;
@@ -960,10 +962,11 @@ int QCString::find( const char *str, int index, bool cs ) const
 
 	while ( haystack <= end ) {
 	    hashHaystack += *(haystack+sl_minus_1);
- 	    if ( hashHaystack == hashNeedle  && *needle == *haystack && qstrncmp( needle, haystack, sl ) == 0 )
+ 	    if ( hashHaystack == hashNeedle  && *needle == *haystack
+		 && qstrncmp( needle, haystack, sl ) == 0 )
 		return haystack - data();
 
-	    hashHaystack = REHASH( *haystack, hashHaystack );
+	    REHASH( *haystack );
 	    ++haystack;
 	}
     } else {
@@ -977,16 +980,17 @@ int QCString::find( const char *str, int index, bool cs ) const
 
 	while ( haystack <= end ) {
 	    hashHaystack += tolower(*(haystack+sl_minus_1));
-	    if ( hashHaystack == hashNeedle && qstrnicmp( needle, haystack, sl ) == 0 )
+	    if ( hashHaystack == hashNeedle
+		 && qstrnicmp( needle, haystack, sl ) == 0 )
 		return haystack - data();
 
-	    hashHaystack = REHASH( tolower( *haystack ),
-				   hashHaystack );
+	    REHASH( tolower(*haystack) );
 	    ++haystack;
 	}
     }
     return -1;
 }
+
 
 /*!
     Finds the first occurrence of the character \a c, starting at
@@ -1004,17 +1008,15 @@ int QCString::findRev( char c, int index, bool cs ) const
 {
     register const char *b = data();
     register const char *d;
-    if ( index < 0 ) {				// neg index ==> start from end
+    if ( index < 0 )
 	index = length();
-    }
-    if ( (uint)index >= size() ) {		// index out of bounds
+    if ( (uint)index >= size() )
 	return -1;
-    }
-    d = b+index;
-    if ( cs ) {					// case sensitive
+    d = b + index;
+    if ( cs ) {
 	while ( d >= b && *d != c )
 	    d--;
-    } else {					// case insensitive
+    } else {
 	c = tolower( (uchar) c );
 	while ( d >= b && tolower((uchar) *d) != c )
 	    d--;
@@ -1074,7 +1076,7 @@ int QCString::findRev( const char *str, int index, bool cs ) const
  	    if ( hashHaystack == hashNeedle  && qstrncmp( needle, haystack, sl ) == 0 )
 		return haystack-data();
 	    --haystack;
-	    hashHaystack = REHASH( *(haystack+sl), hashHaystack );
+	    REHASH( *(haystack+sl) );
 	}
     } else {
 	for ( i = 0; i < sl; ++i ) {
@@ -1087,7 +1089,7 @@ int QCString::findRev( const char *str, int index, bool cs ) const
 	    if ( hashHaystack == hashNeedle && qstrnicmp( needle, haystack, sl ) == 0 )
 		return haystack-data();
 	    --haystack;
-	    hashHaystack = REHASH( tolower( *(haystack+sl) ), hashHaystack );
+	    REHASH( tolower(*(haystack+sl)) );
 	}
     }
     return -1;
