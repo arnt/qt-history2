@@ -3,3 +3,4 @@
 \row \o QIconSet \o QIcon
 \row \o QVBox \o QVBoxWidget
 \row \o QWMatrix \o QMatrix
+\row \o QGuardedPtr \o QPointer
