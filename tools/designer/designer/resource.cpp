@@ -1957,9 +1957,9 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
     QStringList forwards = MetaDataBase::forwards( formwindow );
     QStringList vars = MetaDataBase::variables( formwindow );
     for ( QStringList::Iterator it2 = forwards.begin(); it2 != forwards.end(); ++it2 )
-	ts << makeIndent( indent ) << "<forward>" << *it2 << "</forward>" << endl;
+	ts << makeIndent( indent ) << "<forward>" << entitize( *it2 ) << "</forward>" << endl;
     for ( QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3 )
-	ts << makeIndent( indent ) << "<variable>" << *it3 << "</variable>" << endl;
+	ts << makeIndent( indent ) << "<variable>" << entitize( *it3 ) << "</variable>" << endl;
     if ( formwindow && !formwindow->savePixmapInline() )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
 }
