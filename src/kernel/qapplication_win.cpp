@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#546 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#547 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1672,7 +1672,8 @@ extern uint qGlobalPostedEventsCount();
 
 bool QApplication::hasPendingEvents()
 {
-    return qGlobalPostedEventsCount() || winPeekMessage( NULL, NULL, 0, 0, PM_NOREMOVE | PM_NOYIELD );
+    MSG msg;
+    return qGlobalPostedEventsCount() || winPeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE );
 }
 
 void QApplication::wakeUpGuiThread()
