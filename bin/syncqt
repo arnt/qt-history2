@@ -717,7 +717,3 @@ foreach (@modules_to_sync) {
         }
     }
 }
-
-if(!$isunix) {
-    symlinkFile("$basedir/dist/win/Makefile", "$basedir/Makefile");
-}
