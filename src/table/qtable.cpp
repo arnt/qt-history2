@@ -5518,7 +5518,9 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
     QHeader::mousePressEvent( e );
     mousePressed = TRUE;
     pressPos = real_pos( e->pos(), orientation() );
-    startPos = -1;
+    // not if holding shift!
+    if ( ( e->state() & ShiftButton ) != ShiftButton )
+	startPos = -1;
     setCaching( TRUE );
     resizedSection = -1;
 #ifdef QT_NO_CURSOR
