@@ -521,7 +521,7 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
         return;
     }
 
-    int x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
+    float x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
     bool plot_pixel = false;
     plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     if (plot_pixel) {
@@ -588,7 +588,7 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
         d->gdiplusEngine->drawRect(r);
         return;
     }
-    int w = r.width(), h = r.height();
+    float w = r.width(), h = r.height();
 
     if (!d->advancedMode) {
         ++w;
@@ -610,7 +610,7 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
     if (outlineOnly) {
         if (d->penStyle != Qt::NoPen) {
             SelectObject(d->hdc, stock_nullBrush);
-            Rectangle(d->hdc, r.x(), r.y(), r.x() + w, r.y() + h);
+            Rectangle(d->hdc, qRound(r.x()), qRound(r.y()), qRound(r.x() + w), qRound(r.y() + h));
             SelectObject(d->hdc, d->hbrush);
         }
         return;
@@ -618,10 +618,10 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
 
     if (d->nocolBrush) {
         COLORREF old = SetTextColor(d->hdc, d->bColor);
-        Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
+        Rectangle(d->hdc, qRound(r.x()), qRound(r.y()), qRound(r.x()+w), qRound(r.y()+h));
         SetTextColor(d->hdc, old);
     } else {
-        Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
+        Rectangle(d->hdc, qRound(r.x()), qRound(r.y()), qRound(r.x()+w), qRound(r.y()+h));
     }
 }
 
@@ -638,7 +638,7 @@ void QWin32PaintEngine::drawPoint(const QPointF &p)
 
     if (d->penStyle != Qt::NoPen)
 #ifndef Q_OS_TEMP
-        SetPixelV(d->hdc, p.x(), p.y(), d->pColor);
+        SetPixelV(d->hdc, qRound(p.x()), qRound(p.y()), d->pColor);
 #else
         SetPixel(d->hdc, p.x(), p.y(), d->pColor);
 #endif
@@ -682,7 +682,9 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         reduction = 1;
     }
 
-    Ellipse(d->hdc, r.x(), r.y(), r.x() + r.width() - reduction, r.y() + r.height() - reduction);
+    Ellipse(d->hdc, qRound(r.x()), qRound(r.y()),
+            qRound(r.x() + r.width() - reduction),
+            qRound(r.y() + r.height() - reduction));
 
     // Restore the state and delete the temporary pen.
     if (d->penStyle == Qt::NoPen)
@@ -851,18 +853,20 @@ void QWin32PaintEngine::cleanup()
 }
 
 
-void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
+void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &pixmap, const QRectF &srf,
                                    Qt::PixmapDrawingMode mode)
 {
 #if defined QT_DEBUG_DRAW
     printf(" - QWin32PaintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
            "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
-           r.x(), r.y(), r.width(), r.height(),
+           rf.x(), rf.y(), rf.width(), rf.height(),
            pixmap.width(), pixmap.height(),
-           sr.x(), sr.y(), sr.width(), sr.height(),
+           srf.x(), srf.y(), srf.width(), srf.height(),
            mode);
 #endif
 
+    QRect r = rf.toRect();
+    QRect sr = srf.toRect();
 
     Q_ASSERT(isActive());
 
@@ -875,9 +879,9 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
 
     if (d->pen.color().alpha() != 255 && pixmap.isQBitmap()) {
         QRegion region(*static_cast<const QBitmap*>(&pixmap));
-        region.translate(r.x(), r.y());
+        region.translate(qRound(r.x()), qRound(r.y()));
         updateClipRegion(region, Qt::IntersectClip);
-        d->fillAlpha(r.toRect(), d->pen.color());
+        d->fillAlpha(r, d->pen.color());
         setDirty(DirtyClip);
         return;
     }
@@ -912,9 +916,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
             QBitmap bm(sr.width(), sr.height());
             {
                 QPainter p(&bm);
-                p.drawPixmap(QRectF(0, 0, sr.width(), sr.height()).toRect(),
-                             tmpbm, sr.toRect(),
-                             Qt::CopyPixmapNoMask);
+                p.drawPixmap(QRectF(0, 0, srf.width(), srf.height()).toRect(),
+                             tmpbm, sr, Qt::CopyPixmapNoMask);
             }
             QMatrix xform = QMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
@@ -995,7 +998,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
         // rotation + scale + translation
         scale = sqrt(state->matrix.m11()*state->matrix.m22()
                       - state->matrix.m12()*state->matrix.m21());
-        angle = 1800*acos(state->matrix.m11()/scale)/M_PI;
+        angle = qRound(1800*acos(state->matrix.m11()/scale)/M_PI);
         if (state->matrix.m12() < 0)
             angle = 3600 - angle;
 
@@ -1048,7 +1051,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
     }
 #endif
 
-    int xo = x;
+    int xo = qRound(x);
 
     if (!(ti.flags & QTextItem::RightToLeft)) {
         // hack to get symbol fonts working on Win95. See also QFontEngine constructor
@@ -1064,23 +1067,23 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
             }
         } else {
             bool haveOffsets = false;
-            int w = 0;
+            float w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
                 if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0) {
                     haveOffsets = true;
                     break;
                 }
-                w += qRound(glyphs[i].advance.x());
+                w += glyphs[i].advance.x();
             }
 
             if (haveOffsets || transform) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
-                    int xp = x + qRound(glyphs->offset.x());
-                    int yp = y + qRound(glyphs->offset.y());
+                    float xp = x + glyphs->offset.x();
+                    float yp = y + glyphs->offset.y();
                     if (transform)
                         state->painter->matrix().map(xp, yp, &xp, &yp);
-                    ExtTextOutW(d->hdc, xp, yp, options, 0, &chr, 1, 0);
+                    ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
                     x += qRound(glyphs->advance.x());
                     glyphs++;
                 }
@@ -1091,8 +1094,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
                     g[i] = glyphs[i].glyph;
                 // fast path
                 ExtTextOutW(d->hdc,
-                            x + qRound(glyphs->offset.x()),
-                            y + qRound(glyphs->offset.y()),
+                            qRound(x + glyphs->offset.x()),
+                            qRound(y + glyphs->offset.y()),
                             options, 0, g.data(), ti.num_glyphs, 0);
                 x += w;
             }
@@ -1102,12 +1105,12 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
         for(int i = 0; i < ti.num_glyphs; i++) {
             glyphs--;
             wchar_t chr = glyphs->glyph;
-            int xp = x + qRound(glyphs->offset.x());
-            int yp = y + qRound(glyphs->offset.y());
+            float xp = x + glyphs->offset.x();
+            float yp = y + glyphs->offset.y();
             if (transform)
                 state->painter->matrix().map(xp, yp, &xp, &yp);
-            ExtTextOutW(d->hdc, xp, yp, options, 0, &chr, 1, 0);
-            x += qRound(glyphs->advance.x());
+            ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
+            x += glyphs->advance.x();
         }
     }
 
@@ -1116,8 +1119,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
 
     if (ti.flags & (QTextItem::Overline)) {
         int lw = qRound(fe->lineThickness());
-        int yp = y - qRound(fe->ascent()) -1;
-        Rectangle(d->hdc, xo, yp, x, yp + lw);
+        int yp = qRound(y - fe->ascent() - 1);
+        Rectangle(d->hdc, xo, yp, qRound(x), yp + lw);
 
     }
 
@@ -1212,7 +1215,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
     else
 #endif
     {
-        d->hpen = CreatePen(s, pen.width(), d->pColor);
+        d->hpen = CreatePen(s, qRound(pen.width()), d->pColor);
     }
 
 set:
@@ -1399,7 +1402,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
         }
     }
 #endif
-    SetBrushOrgEx(d->hdc, bgOrigin.x(), bgOrigin.y(), 0);
+    SetBrushOrgEx(d->hdc, qRound(bgOrigin.x()), qRound(bgOrigin.y()), 0);
     SelectObject(d->hdc, d->hbrush);
 
     if (hbrush_old) {
@@ -1641,8 +1644,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     gstart -= rect.topLeft();
     gstop -= rect.topLeft();
 
-    int dx = gstop.x() - gstart.x();
-    int dy = gstop.y() - gstart.y();
+    int dx = qRound(gstop.x() - gstart.x());
+    int dy = qRound(gstop.y() - gstart.y());
 
     int rw = rect.width();
     int rh = rect.height();
@@ -1658,8 +1661,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
         // Note: This might be outside the target rect, but that is ok.
         int xtop1, xtop2, xbot1, xbot2;
         if (dy == 0) {
-            xtop1 = xbot1 = gstart.x();
-            xtop2 = xbot2 = gstop.x();
+            xtop1 = xbot1 = qRound(gstart.x());
+            xtop2 = xbot2 = qRound(gstop.x());
         } else {
             double gamma = double(dx) / double(-dy);
             xtop1 = qRound((-gstart.y() + gamma * gstart.x() ) / gamma);
@@ -1710,8 +1713,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
         }
         int yleft1, yleft2, yright1, yright2;
         if (dx == 0) {
-            yleft1 = yright1 = gstart.y();
-            yleft2 = yright2 = gstop.y();
+            yleft1 = yright1 = qRound(gstart.y());
+            yleft2 = yright2 = qRound(gstop.y());
         } else {
             double gamma = double(dy) / double(-dx);
             yleft1 = qRound((-gstart.x() + gamma * gstart.y()) / gamma);
@@ -1809,13 +1812,13 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
             MoveToEx(hdc, qRound(elm.x), qRound(elm.y), 0);
             break;
         case QPainterPath::LineToElement:
-            LineTo(hdc, elm.x, elm.y);
+            LineTo(hdc, qRound(elm.x), qRound(elm.y));
             break;
         case QPainterPath::CurveToElement: {
             POINT pts[3] = {
-                { elm.x, elm.y },
-                { path.elementAt(i+1).x, path.elementAt(i+1).y },
-                { path.elementAt(i+2).x, path.elementAt(i+2).y }
+                { qRound(elm.x), qRound(elm.y) },
+                { qRound(path.elementAt(i+1).x), qRound(path.elementAt(i+1).y) },
+                { qRound(path.elementAt(i+2).x), qRound(path.elementAt(i+2).y) }
             };
             i+=2;
             PolyBezierTo(hdc, pts, 3);

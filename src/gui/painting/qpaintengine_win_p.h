@@ -234,7 +234,7 @@ public:
 
     Qt::PenStyle penStyle;
     Qt::BrushStyle brushStyle;
-    int pWidth;
+    float pWidth;
     COLORREF pColor;
     COLORREF bColor;
     QBrush brush;
