@@ -29,7 +29,6 @@ void PackageClient::startCopy()
 	qFatal( "couldn't open %s", filename.latin1() );
     QByteArray ba( f.size() );
     f.readBlock( ba.data(), f.size() );
-    qDebug( "write %d", f.size() );
     int s = f.size();
     writeBlock( (char*)&s, 4 );
     writeBlock( ba.data(), ba.size() );
