@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#225 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2476,4 +2476,17 @@ void QListBox::showEvent( QShowEvent * )
     d->ignoreMoves = FALSE;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
+}
+
+/*!
+  Returns the vertical pixel-coordinate in \e *yPos, of the list box
+  item at position \e index in the list.  Returns FALSE if the item is
+  outside the visible area.
+*/
+bool QListBox::itemYPos( int index, int *yPos ) const
+{
+    QListBoxItem* i = item(index);
+    if ( !i ) return FALSE;
+    if ( yPos ) *yPos = i->y;
+    return TRUE;
 }

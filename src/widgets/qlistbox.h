@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#82 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#83 $
 **
 ** Definition of QListBox widget class
 **
@@ -119,7 +119,6 @@ public:
     LayoutMode rowMode() const;
 
     int numColumns() const;
-    int	numCols() const { return numColumns(); } // for QTableView users
     int numRows() const;
 
     bool variableWidth() const;
@@ -130,7 +129,7 @@ public:
 
     void viewportPaintEvent( QPaintEvent * );
 
-#if 1 // obsolete, provided for source compatibility
+#ifndef QT_NO_COMPAT // obsolete, provided for source compatibility
     bool dragSelect() const { return TRUE; }
     void setDragSelect( bool ) {}
     bool autoScroll() const { return TRUE; }
@@ -148,13 +147,18 @@ public:
     bool autoUpdate() const { return TRUE; }
     void setAutoUpdate( bool ) {}
     void setFixedVisibleLines( int lines ) { setRowMode( lines ); }
-    int findItem( int yPos ) const {return index(itemAt(QPoint(0,yPos)));}
     void inSort( const QListBoxItem * );
     void inSort( const char *text );
+    int cellHeight( int i ) const { return itemHeight(i); }
+    int cellHeight() const { return itemHeight(); }
+    int cellWidth() const { return maxItemWidth(); }
+    int cellWidth(int i) const { ASSERT(i==0); return maxItemWidth(); }
+    int	numCols() const { return numColumns(); }
 #endif
 
     int itemHeight( int index = 0 ) const;
     QListBoxItem * itemAt( QPoint ) const;
+
 
 public slots:
     virtual void clearSelection();
@@ -199,6 +203,11 @@ protected:
 
     void updateVector();
     void doLayout() const;
+
+#ifndef QT_NO_COMPAT // obsolete, provided for source compatibility
+    bool itemYPos( int index, int *yPos ) const;
+    int findItem( int yPos ) const {return index(itemAt(QPoint(0,yPos)));}
+#endif
 
 private slots:
     void refreshSlot();
