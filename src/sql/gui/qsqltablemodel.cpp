@@ -349,6 +349,10 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
     return QSqlQueryModel::data(item, role);
 }
 
+/*!
+    Returns the header data for the given \a role in the \a section of the
+    header with the specified \a orientation.
+*/
 QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role)
 {
     if (orientation == Qt::Vertical) {
@@ -516,6 +520,10 @@ bool QSqlTableModel::insertRow(const QSqlRecord &values)
     return d->exec(stmt, prepStatement, rec);
 }
 
+/*!
+    Deletes the given \a row in the model. Returns true if the row was
+    deleted; otherwise returns false.
+*/
 bool QSqlTableModel::deleteRow(int row)
 {
     emit beforeDelete(row);

@@ -258,7 +258,7 @@ QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
 }
 
 /*!
-    ####
+    Constructs a host address object with the IPv6 address \a ip6Addr.
 */
 QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
     : d(new QHostAddressPrivate)

@@ -105,8 +105,11 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 }
 
 /*!
-  Returns the data for the item at position \a idx for the role \a role.
-  Returns an invalid variant if \a idx is out of bounds.
+  \fn QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
+
+  Returns the data stored under the given \a role for the item referred to
+  by \a index.
+  Returns an invalid variant if \a index is out of bounds.
  */
 QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 {
@@ -120,12 +123,15 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 }
 
 /*!
-    Sets the data for the item \a index for the role \a role to \a value.
-    Depending on the edit strategy, the value might be applied to the database at once or
-    cached in the model.
+    \fn bool QSqlRelationalTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 
-    Returns true if the value could be set or false on error, for example if \a index is
-    out of bounds.
+    Sets the data for the \a role in the item with the specified \a index
+    to the \a value given.
+    Depending on the edit strategy, the value might be applied to the database at
+    once, or it may be cached in the model.
+
+    Returns true if the value could be set, or false on error (for example, if
+    \a index is out of bounds).
 
     For relational columns, \a value has to be the index, not the display value.
 

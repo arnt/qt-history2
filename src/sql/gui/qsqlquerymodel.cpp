@@ -154,6 +154,10 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
     return d->query.value(dItem.column());
 }
 
+/*!
+    Returns the header data for the given \a role in the \a section of the
+    header with the specified \a orientation.
+*/
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
@@ -231,12 +235,11 @@ void QSqlQueryModel::clear()
 }
 
 /*!
-    This function is used to set the caption for the horizontal
-    header of a column to \a value.
+    Sets the caption for the header with the given \a orientation to the
+    specified \a value.
 
-    It returns true if \a role is \c QAbstractItemModel::DisplayRole and \a
-    index is of type \c QModelIndex::HorizontalHeader and points to a
-    valid column; otherwise returns false.
+    It returns true if \a role is \c QAbstractItemModel::DisplayRole and
+    the \a section refers to a valid section; otherwise returns false.
 
     Note that this function cannot be used to modify values in the
     database since the model is read-only.
