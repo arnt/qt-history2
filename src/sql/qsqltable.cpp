@@ -54,12 +54,6 @@
 //     }
 // }
 
-enum {
-    IdInsert,
-    IdUpdate,
-    IdDelete
-};
-
 class QSqlTablePrivate
 {
 public:
@@ -420,10 +414,10 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case QEvent::FocusOut: {
-	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode != QSqlTable::None) && !d->continuousEdit) {
-	    setCurrentCell( r, c );
-	    endEdit( r, c, TRUE, FALSE );
-	    return TRUE;
+	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode == QSqlTable::Insert) && !d->continuousEdit) {
+ 	    setCurrentCell( r, c );
+ 	    endEdit( r, c, TRUE, FALSE );
+ 	    return TRUE;
 	}
 	break;
     }
@@ -466,6 +460,11 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	return;
     }
     if ( e->button() == RightButton && d->mode == QSqlTable::None ) {
+	enum {
+	    IdInsert,
+	    IdUpdate,
+	    IdDelete
+	};
 	QPopupMenu *popup = new QPopupMenu( this );
 	int id[ 3 ];
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
@@ -611,7 +610,6 @@ bool QSqlTable::beginInsert()
     if ( row < 0 || numRows() < 1 )
 	row = 0;
     setNumRows( d->insertPreRows + 1 );
-    ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
     d->editBuffer = d->cursor->insertBuffer();
     emit beginInsert( d->editBuffer );
@@ -644,12 +642,14 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
     if ( !d->cursor || isReadOnly() )
 	return 0;
-    ensureCellVisible( row, col );
-    setCurrentSelection( row, col );
+    setCurrentCell( row, col );
     d->mode = QSqlTable::Update;
-    d->editBuffer = d->cursor->updateBuffer();
-    emit beginUpdate( d->editBuffer );
-    return QTable::beginEdit( row, col, replace );
+    if ( d->cursor->seek( row ) ) {
+	d->editBuffer = d->cursor->updateBuffer();
+	emit beginUpdate( d->editBuffer );
+	return QTable::beginEdit( row, col, replace );
+    }
+    return 0;
 }
 
 /*!  For an editable table, issues an insert on the current cursor using
@@ -744,7 +744,7 @@ void QSqlTable::updateCurrent()
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	emit beforeUpdate( d->editBuffer );	
+	emit beforeUpdate( d->editBuffer );
 	b = d->cursor->update();
 	QApplication::restoreOverrideCursor();
 	if ( !b || !d->cursor->isActive() )
@@ -752,7 +752,7 @@ void QSqlTable::updateCurrent()
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endUpdate();
 	refresh( d->cursor, idx );
-	setCurrentSelection( currentRow(), currentColumn() );
+	setCurrentCell( currentRow(), currentColumn() );
 	break;
     }
     case No:
@@ -806,7 +806,7 @@ void QSqlTable::deleteCurrent()
 	if ( !b )
 	    handleError( d->cursor->lastError() );
 	refresh( d->cursor );
-	setCurrentSelection( currentRow(), currentColumn() );
+	setCurrentCell( currentRow(), currentColumn() );
 	updateRow( currentRow() );
 	break;
     case No:
@@ -970,7 +970,6 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
 			tmp  = str.lower();
 		    }
 		    if( text.contains( tmp ) ){
-			ensureCellVisible( row, i );
 			setCurrentCell( row, i );
 			col = i;
 			found = TRUE;
@@ -1395,7 +1394,7 @@ void QSqlTable::setSize( const QSqlCursor* sql )
   columns are automatically created based upon the fields in the \a
   cursor record.  If the \a cursor is read only, the table becomes
   read only.  The table adopts the cursor's driver's definition
-  representin NULL values as strings.
+  representing NULL values as strings.
 
   \sa isReadOnly() setReadOnly() QSqlDriver::nullText()
 
