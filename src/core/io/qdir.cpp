@@ -1564,7 +1564,7 @@ QDir::cleanDirPath(const QString &in)
             bool eaten = false;
             if(i < len - 1 && p[i+1] == '.') {
                 int dotcount = 1;
-                if(i <= len - 2 && p[i+2] == '.') 
+                if(i < len - 2 && p[i+2] == '.') 
                     dotcount++;
                 if(i == len - dotcount - 1) {
                     if(last == -1) {
