@@ -23,7 +23,7 @@ QString QCFString::cfstring2qstring(CFStringRef str)
         return QString(reinterpret_cast<const QChar *>(chars), length);
 
     QVarLengthArray<UniChar> buffer(length);
-    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
+    CFStringGetCharacters(str, CFRangeMake(0, length), buffer.data());
     return QString(reinterpret_cast<const QChar *>(buffer.constData()), length);
 }
 
