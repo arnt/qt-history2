@@ -18,7 +18,7 @@ QMAKE_CFLAGS_RELEASE	= +K3
 QMAKE_CFLAGS_DEBUG	= +K0
 QMAKE_CFLAGS_SHLIB	= -fPIC
 QMAKE_CFLAGS_YACC	= --diag_supress 111,177
-QMAKE_CFLAGS_THREAD	= --thread_safe -D_REENTRANT
+QMAKE_CFLAGS_THREAD	= --thread_safe
 
 QMAKE_CXX		= $$QMAKE_CC
 QMAKE_CXXFLAGS		= --display_error_number --backend -pipe
