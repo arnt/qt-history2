@@ -1443,7 +1443,8 @@ QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
 		   GCCaps(CoordTransform
 			  | PenWidthTransform
 			  | PatternTransform
-			  | PixmapTransform))
+			  | PixmapTransform
+			  | LinearGradientSupport))
 
 {
     d->pdev = dev;
@@ -1705,7 +1706,7 @@ void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
     }
     if (d->usePen) {
 	d->graphics->DrawPie(d->pen, r.x(), r.y(),
-			     r.width()-subtract, r.height()-substract,
+			     r.width()-subtract, r.height()-subtract,
 			     -a/16.0, -alen/16.0);
     }
 }
