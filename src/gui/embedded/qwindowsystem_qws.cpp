@@ -1642,8 +1642,12 @@ void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 */
 void QWSServer::sendPropertyNotifyEvent(int property, int state)
 {
-    for (ClientIterator it = clientMap.begin(); it != clientMap.end(); ++it)
-        (*it)->sendPropertyNotifyEvent(property, state);
+    ClientIterator it = clientMap.begin();
+    while (it != clientMap.end()) {
+        QWSClient *cl = *it;
+        ++it;
+        cl->sendPropertyNotifyEvent(property, state);
+    }
 }
 #endif
 
