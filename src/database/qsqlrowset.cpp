@@ -122,8 +122,11 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 {
     QString str= "select " + toString( nm );
     str += " from " + nm;
-    if ( !filter.isNull() && filter != "*" )
+    if ( !filter.isNull() && filter != "*" ) {
+	ftr = filter;
 	str += " where " + filter;
+    } else
+	ftr = QString::null;
     if ( sort.count() > 0 )
 	str += " order by " + sort.toString( nm );
     str += ";";
