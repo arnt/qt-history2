@@ -387,8 +387,11 @@ void QAbstractSpinBox::stepBy(int steps)
     }
     v = d->bound(v + (d->singlestep * steps), d->value, steps);
     d->setValue(v, EmitIfChanged);
-    d->edit->setSelection(d->prefix.length(), d->edit->displayText().length()
-                          - d->prefix.length() - d->suffix.length());
+    if (!d->specialValue())
+        d->edit->setSelection(d->prefix.length(), d->edit->displayText().length()
+                              - d->prefix.length() - d->suffix.length());
+    else
+        d->edit->selectAll();
 }
 
 /*!
@@ -544,7 +547,10 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         d->refresh(AlwaysEmit);
-        d->edit->setSelection(d->prefix.length(), d->edit->displayText().length() - d->prefix.length() - d->suffix.length());
+        if (!d->specialValue())
+            d->edit->setSelection(d->prefix.length(), d->edit->displayText().length() - d->prefix.length() - d->suffix.length());
+        else
+            d->edit->selectAll();
         break;
 
     case Qt::Key_Z:
@@ -861,7 +867,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
 
 void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-    if (!ignorecursorpositionchanged) {
+    if (!ignorecursorpositionchanged && !specialValue()) {
         ignorecursorpositionchanged = true;
 
         bool allowSelection = true;
@@ -1181,8 +1187,9 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     const QString newText = specialValue() ? specialvaluetext : prefix + mapValueToText(value) + suffix;
     const bool sb = e->blockSignals(true);
     e->setText(newText);
-
-    cursor = qMin(qMax(cursor, prefix.length()), edit->displayText().length() - suffix.length());
+    
+    if (!specialValue())
+        cursor = qMin(qMax(cursor, prefix.length()), edit->displayText().length() - suffix.length());
     if (sellength > 0) {
         e->setSelection(cursor, sellength);
     } else {
