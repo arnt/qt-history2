@@ -478,12 +478,16 @@ inline bool QWidgetMapper::remove( WId id )
 // helper function - borland needs it.
 static QPalette default_palette( QWidget *parent )
 {
+    while ( parent && parent->palettePropagation() == QWidget::NoChildren )
+	parent = parent->parentWidget();
     return parent ? parent->palette()           // use parent's palette
 	   : QApplication::palette();
 }
 // helper function - borland needs it.
 static QFont default_font( QWidget *parent )
 {
+    while ( parent && parent->fontPropagation() == QWidget::NoChildren )
+	parent = parent->parentWidget();
     return parent ? parent->font()           // use parent's font
 	   : QApplication::font();
 }
