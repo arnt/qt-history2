@@ -21,9 +21,9 @@ public:
 
     bool isEmpty() const;
 
-    int getchar();
-    void putchar(char c);
-    void ungetchar(char c);
+    int getChar();
+    void putChar(char c);
+    void ungetChar(char c);
 
     int size() const;
     void clear();

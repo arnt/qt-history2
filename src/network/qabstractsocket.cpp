@@ -314,7 +314,7 @@ void QRingBuffer::truncate(int bytes)
     Returns and removes the first character in the buffer. Returns -1
     if the buffer is empty.
 */
-int QRingBuffer::getchar()
+int QRingBuffer::getChar()
 {
     if (isEmpty())
         return -1;
@@ -326,7 +326,7 @@ int QRingBuffer::getchar()
 /*! \internal
     Appends the character \a c to the end of the buffer.
 */
-void QRingBuffer::putchar(char c)
+void QRingBuffer::putChar(char c)
 {
     char *ptr = reserve(1);
     *ptr = c;
@@ -335,7 +335,7 @@ void QRingBuffer::putchar(char c)
 /*! \internal
     Prepends the character \a c to the front of the buffer.
 */
-void QRingBuffer::ungetchar(char c)
+void QRingBuffer::ungetChar(char c)
 {
     --head;
     if (head < 0) {
@@ -1457,14 +1457,14 @@ bool QAbstractSocket::seek(Q_LLONG off)
 */
 int QAbstractSocket::getch()
 {
-    return d->readBuffer.getchar();
+    return d->readBuffer.getChar();
 }
 
 /*! \reimp
 */
 int QAbstractSocket::ungetch(int character)
 {
-    d->readBuffer.ungetchar((char) character);
+    d->readBuffer.ungetChar((char) character);
     return character;
 }
 
@@ -1472,7 +1472,7 @@ int QAbstractSocket::ungetch(int character)
 */
 int QAbstractSocket::putch(int character)
 {
-    d->writeBuffer.putchar(character);
+    d->writeBuffer.putChar(character);
     return character;
 }
 
