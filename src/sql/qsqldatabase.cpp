@@ -215,10 +215,13 @@ bool QSqlDatabaseManager::contains( const QString& name )
 }
 
 
-/*!  Adds a database to the SQL connection manager.  The database
-  connection is referred to by \a name.  A pointer to the newly added
-  database connection is returned.
-
+/*!  Adds a database to the SQL connection manager. The database
+  connection is referred to by \a name. A pointer to the newly added
+  database connection is returned. This function will only return 0 if
+  it is called before a QApplication object has been instantiated.
+  Use the output of drivers() to determine whether a particular driver
+  is available or not.
+  
   \sa QSqlDatabase database()
 
 */
