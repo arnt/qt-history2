@@ -18,6 +18,7 @@ BRANCH=auto
 OUT_TREE=`pwd`
 LOCAL_TREE=
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
+QPKG_PATH=$QTDIR/util/install/package/package
 QMAKE_PATH=$QTDIR/bin/qmake
 MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
@@ -29,6 +30,7 @@ DO_X11=yes
 DO_MAC=yes
 DO_EMBEDDED=yes
 DO_US=yes
+DO_PKG=no
 #other
 DO_QMAKE=no
 DO_GZIP=auto
@@ -145,6 +147,11 @@ while [ -n "$1" ]; do
 	VAR=qmake_path
 	VAL=$1
 	;;
+   -qpkg)
+        shift
+	VAR=qpkg_path
+	VAL=$1
+	;;
    -qdoc)
 	shift
 	VAR=qdoc_path
@@ -178,12 +185,14 @@ while [ -n "$1" ]; do
    commercial) DO_COMMERCIAL=$VAL ;;
    free)DO_FREE=$VAL;;
    #platforms
+   pkg)  DO_PKG=$VAL  ;;
    us)  DO_US=$VAL  ;;
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
+   qpkg_path)  QPKG_PATH=$VAL  ;;
    qmake_path) QMAKE_PATH=$VAL ;;
    qdoc_path) QDOC_PATH=$VAL;;
    outdir) OUT_TREE=$VAL;;
@@ -265,6 +274,17 @@ if [ "x$DO_DOC" = "xyes" ]; then
 	echo "Cannot find qdoc source, hopefully you have made sure it is up-to-date"
     fi
     [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
+fi
+if [ "x$DO_PKG" = "xyes" ]; then
+    QPKG_SRC="`dirname $QPKG_PATH`"
+    QPKG_SRC=`dirname $QPKG_SRC`
+    if [ -d  "$QPKG_SRC" ]; then
+	status "Building qpkg.."
+    	(cd "$QPKG_SRC"; make qmake; make >/dev/null ) || die "Cannot build qpkg (${QPKG_SRC})"
+    else
+	echo "Cannot find qpkg source, hopefully you have made sure it is up-to-date"
+    fi
+    [ ! -x "$QPKG_PATH" ] && die "qpkg not found, failed (${QPKG_PATH})"
 fi
 rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
 [ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
@@ -898,6 +918,10 @@ for plat in mac win x11 embedded; do
 	    status "Binary files..."
 	    { for a in $binfiles; do echo $a; done ; } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
 	fi
+        if [ "x$DO_PKG" = "xyes" ]; then
+           status "CD Package..."
+	   $QPKG_PATH -o "$OUT_TREE/${PLATNAME}" "${PLATNAME}"
+        fi
 	)
 	status "" "-1"
 
