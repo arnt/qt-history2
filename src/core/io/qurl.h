@@ -8,7 +8,7 @@
 class QByteArray;
 class QUrlPrivate;
 
-class QUrl
+class Q_CORE_EXPORT QUrl
 {
 public:
     QUrl(const QString &url = QString::null);
