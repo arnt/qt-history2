@@ -277,6 +277,11 @@ public:
     { setProperty(ObjectType, type); }
     inline int objectType() const
     { return intProperty(ObjectType); }
+
+    inline void setFloatPosition(FloatPosition f)
+    { setProperty(Float, (int)f); }
+    inline FloatPosition floatPosition() const
+    { return (FloatPosition)intProperty(Float, FloatNone); }
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
@@ -425,11 +430,6 @@ public:
     { setProperty(ImageHeight, height); }
     inline int height() const
     { return intProperty(ImageHeight); }
-
-    inline void setFloatPosition(FloatPosition f)
-    { setProperty(Float, (int)f); }
-    inline FloatPosition floatPosition() const
-    { return (FloatPosition)intProperty(Float, FloatNone); }
 };
 
 #endif

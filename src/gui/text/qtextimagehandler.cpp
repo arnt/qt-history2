@@ -53,7 +53,7 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 {
 }
 
-QSize QTextImageHandler::intrinsicSize(QTextObject, const QTextFormat &format)
+QSize QTextImageHandler::intrinsicSize(const QTextFormat &format)
 {
     QTextImageFormat imageFormat = format.toImageFormat();
 
@@ -61,16 +61,11 @@ QSize QTextImageHandler::intrinsicSize(QTextObject, const QTextFormat &format)
     return pixmap.size();
 }
 
-void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
+void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, const QTextFormat &format)
 {
     QTextImageFormat imageFormat = format.toImageFormat();
     QPixmap pixmap = getPixmap(imageFormat);
 
     p->drawPixmap(rect, pixmap);
-
-    if (selType == QTextLayout::Highlight && item.engine()->pal) {
-        QBrush brush(item.engine()->pal->highlight(), QBrush::Dense4Pattern);
-        p->fillRect(rect, brush);
-    }
 }
 

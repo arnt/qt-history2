@@ -17,8 +17,8 @@ class QTextImageHandler : public QObject,
 public:
     QTextImageHandler(QObject *parent = 0);
 
-    virtual QSize intrinsicSize(QTextObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *p, const QRect &rect, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType);
+    virtual QSize intrinsicSize(const QTextFormat &format);
+    virtual void drawObject(QPainter *p, const QRect &rect, const QTextFormat &format);
 };
 
 #endif // QTEXTIMAGEHANDLER_P_H

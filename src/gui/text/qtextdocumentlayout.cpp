@@ -50,15 +50,18 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout);
 public:
-#if 0
     struct Float {
-        // document position
-        int from;
+        int pos;
         int length;
+        QTextBlockIterator block;
+        QTextFormat format;
 
         QRect rect;
+        bool operator==(const Float &other) { return (pos == other.pos && block == other.block); }
     };
+    QList<Float> floats;
 
+#if 0
     struct Page {
         QTextBlockIterator first;
         QTextBlockIterator last;
@@ -68,6 +71,8 @@ public:
 
     QSize pageSize;
     bool pagedLayout;
+    mutable QTextBlockIterator currentBlock;
+    int currentYPos;
 
     void drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                              QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
@@ -76,7 +81,9 @@ public:
     int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
     void relayoutDocument();
-    void layoutBlock(const QTextBlockIterator block, const QPoint &p, int width);
+    void layoutBlock(const QTextBlockIterator block);
+
+    void floatMargins(int *left, int *right);
 };
 
 #define d d_func()
@@ -202,6 +209,7 @@ void QTextDocumentLayoutPrivate::drawListItem(QPainter *painter, const QAbstract
 void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextBlockIterator bl) const
 {
+    currentBlock = bl;
     const QTextLayout *tl = bl.layout();
     QTextBlockFormat blockFormat = bl.blockFormat();
 
@@ -249,9 +257,8 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
-    QPoint pos(0, 0);
+    currentYPos = 0;
     QTextBlockIterator it = q->begin();
-    int width = pageSize.width();
     while (!it.atEnd()) {
         // check if we are at a table
 //         QTextTableFormat fmt = it.blockFormat().tableFormat();
@@ -259,41 +266,66 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 //             it = layoutTable(it, &pos, width);
 //         } else
         {
-            layoutBlock(it, pos, width);
-            pos.setY(it.layout()->rect().bottom());
+            layoutBlock(it);
             ++it;
         }
     }
 }
 
-void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl, const QPoint &p, int width)
+void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
+    currentBlock = bl;
 
     tl->setTextFlags(blockFormat.alignment()|Qt::IncludeTrailingSpaces|Qt::WordBreak);
     tl->useDesignMetrics(true);
 //     tl.enableKerning(true);
 
-    int x = blockFormat.leftMargin() + indent(bl);
-    int y = blockFormat.topMargin();
+    int cy = currentYPos;
+    currentYPos += blockFormat.topMargin();
 
-    const int lw = width - blockFormat.rightMargin() - x;
+    int l = blockFormat.leftMargin() + indent(bl);
+    int r = d->pageSize.width() - blockFormat.rightMargin();
 
     int from = 0;
     int len = tl->text().length();
     if (len) {
         while (from < len) {
-            QTextLine l = tl->createLine(from, y, x, x + lw);
-            y += l.ascent() + l.descent() + 1;
-            from += l.length();
+            int left, right;
+            floatMargins(&left, &right);
+            left = qMax(left, l);
+            right = qMax(right, r);
+            QTextLine line = tl->createLine(from, currentYPos-cy, left, right-left);
+            currentYPos += line.ascent() + line.descent() + 1;
+            from += line.length();
         }
     } else {
-        tl->createLine(0, y, x, x + lw);
+        tl->createLine(0, currentYPos, l, r - l);
     }
-    tl->setPosition(p);
+    tl->setPosition(QPoint(0, cy));
+
+    currentYPos += blockFormat.bottomMargin();
 }
 
+void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
+{
+    *left = 0;
+    *right = d->pageSize.width();
+    for (int i = 0; i < floats.size(); ++i) {
+        const Float &f = floats.at(i);
+        if (f.rect.y() < currentYPos && f.rect.bottom() > currentYPos) {
+            QTextCharFormat format = f.format.toCharFormat();
+            if (format.isValid()) {
+                QTextFormat::FloatPosition pos = format.floatPosition();
+                if (pos == QTextFormat::FloatLeft)
+                    *left = qMax(*left, f.rect.right());
+                else
+                    *right = qMin(*right, f.rect.left());
+            }
+        }
+    }
+}
 
 
 
@@ -317,21 +349,19 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
     QTextBlockIterator it = findBlock(from);
     QTextBlockIterator end = findBlock(from + length - 1);
     ++end;
-    QPoint pos;
-
+    d->currentYPos = 0;
     if (it != begin()) {
         QTextBlockIterator prev = it;
         --prev;
-        pos = prev.layout()->rect().bottomLeft();
+        d->currentYPos = prev.layout()->rect().bottom();
     }
 
     bool move = false;
     while (it != end) {
 //         qDebug("layouting block at pos %d", it.position());
         int old_bottom = it.layout()->rect().bottom();
-        d->layoutBlock(it, pos, d->pageSize.width());
+        d->layoutBlock(it);
         int bottom = it.layout()->rect().bottom();
-        pos.setY(bottom);
         move = (old_bottom != bottom);
         ++it;
     }
@@ -339,8 +369,8 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
         end = this->end();
         while (it != end) {
 //             qDebug("moving block at pos %d", it.position());
-            it.layout()->setPosition(pos);
-            pos.setY(it.layout()->rect().bottom());
+            it.layout()->setPosition(QPoint(0, d->currentYPos));
+            d->currentYPos += it.layout()->rect().bottom();
             ++it;
         }
     }
@@ -365,6 +395,67 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
     }
     return -1;
 }
+
+void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
+{
+    QTextCharFormat f = format.toCharFormat();
+    Q_ASSERT(f.isValid());
+    QTextObjectHandler handler = d->handlers.value(f.objectType());
+    if (!handler.component)
+        return;
+    QTextFormat::FloatPosition pos = f.floatPosition();
+
+    QSize s = handler.iface->intrinsicSize(format);
+
+    item.setDescent(0);
+    QSize inlineSize = (pos == QTextFormat::FloatNone ? s : QSize());
+    item.setWidth(inlineSize.width());
+    item.setAscent(inlineSize.height());
+
+    if (pos == QTextFormat::FloatNone)
+        return;
+
+    QTextDocumentLayoutPrivate::Float fl;
+    fl.pos = item.at();
+    fl.length = 1;
+    fl.block = d->currentBlock;
+    fl.format = format;
+
+    fl.rect = QRect((pos == QTextFormat::FloatLeft ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
+                    s.width(), s.height());
+
+    int i = d->floats.indexOf(fl);
+    if (i < 0) {
+        d->floats.append(fl);
+    } else {
+        d->floats.replace(i, fl);
+    }
+
+    item.setWidth(0);
+    item.setAscent(0);
+}
+
+void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,
+                                     const QTextFormat &format, QTextLayout::SelectionType selType)
+{
+    QTextCharFormat f = format.toCharFormat();
+    Q_ASSERT(f.isValid());
+    QTextFormat::FloatPosition pos = f.floatPosition();
+    QRect r = rect;
+    if (pos != QTextFormat::FloatNone) {
+        int pos = item.at();
+        for (int i = 0; i < d->floats.size(); ++i) {
+            const QTextDocumentLayoutPrivate::Float &f = d->floats.at(i);
+            if (f.pos == pos && d->currentBlock == f.block) {
+                r = f.rect;
+                break;
+            }
+        }
+    }
+
+    QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
+}
+
 
 int QTextDocumentLayout::totalHeight() const
 {

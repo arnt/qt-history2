@@ -68,9 +68,8 @@ private slots:
 class QTextObjectInterface
 {
 public:
-    virtual QSize intrinsicSize(QTextObject object, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QRect &rect, QTextObject object, const QTextFormat &format,
-                            QTextLayout::SelectionType selection) = 0;
+    virtual QSize intrinsicSize(const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRect &rect, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface)
 

@@ -1,6 +1,7 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qtextformat.h>
 #include "qtextpiecetable_p.h"
+#include "qtextengine_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"
 #define d d_func()
@@ -66,7 +67,7 @@ void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextForm
     if (!handler.component)
         return;
 
-    QSize s = handler.iface->intrinsicSize(item, format);
+    QSize s = handler.iface->intrinsicSize(format);
     item.setWidth(s.width());
     item.setAscent(s.height());
     item.setDescent(0);
@@ -80,7 +81,12 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
-    handler.iface->drawObject(p, rect, item, format, selType);
+    handler.iface->drawObject(p, rect, format);
+
+    if (selType == QTextLayout::Highlight && item.engine()->pal) {
+        QBrush brush(item.engine()->pal->highlight(), QBrush::Dense4Pattern);
+        p->fillRect(rect, brush);
+    }
 }
 
 void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
