@@ -24,9 +24,9 @@
 
 static const QString::CaseSensitivity CaseSensitiveFS =
 #if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
-    QString::CaseSensitive;
-#else
     QString::CaseInsensitive;
+#else
+    QString::CaseSensitive;
 #endif
 
 
