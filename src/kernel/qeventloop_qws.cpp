@@ -251,12 +251,11 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	    if ( ! d->sn_vec[i].list )
 		continue;
 
-	    QPtrList<QSockNot> *list = d->sn_vec[i].list;
-	    QSockNot *sn = list->first();
-	    while ( sn ) {
+	    QList<QSockNot *> &list = d->sn_vec[i].list;
+	    for (int i = 0; i < list.size(); ++i) {
+		QSockNot *sn = list.at(i);
 		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) )
 		    setSocketNotifierPending( sn->obj );
-		sn = list->next();
 	    }
 	}
 

@@ -88,25 +88,20 @@ public:
     CFSocketRef socknot;
     CFRunLoopSourceRef event_source;
 };
-QSockNotType::QSockNotType()  : list(0)
+QSockNotType::QSockNotType()
 {
+    list.setAutoDelete(true);
     FD_ZERO(&select_fds);
     FD_ZERO(&enabled_fds);
     FD_ZERO(&pending_fds);
 }
 
-QSockNotType::~QSockNotType()
-{
-    if(list)
-	delete list;
-    list = 0;
-}
 QSockNot::~QSockNot()
 {
     if(mac_d) {
-	if(mac_d->socknot) 
+	if(mac_d->socknot)
 	    CFRelease(mac_d->socknot);
-	if(mac_d->event_source) 
+	if(mac_d->event_source)
 	    CFRelease(mac_d->event_source);
     }
 }
@@ -528,8 +523,9 @@ void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
      for(int i=0; i<3; i++) {
 	if(!eloop->d->sn_vec[i].list)
 	    continue;
-	QPtrList<QSockNot> *list = eloop->d->sn_vec[i].list;
-	for(QSockNot *sn = list->first(); sn; sn = list->next()) {
+	QList<QSockNot *> &list = eloop->d->sn_vec[i].list;
+	for(int i = 0; i < list.size(); ++i) {
+	    QSockNot *sn = list.at(i);
 	    if(sn->fd == sock && sn->obj->type() == type)
 		eloop->setSocketNotifierPending(sn->obj);
 	}
@@ -612,12 +608,11 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	    if(!d->sn_vec[i].list)
 		continue;
 
-	    QPtrList<QSockNot> *list = d->sn_vec[i].list;
-	    QSockNot *sn = list->first();
-	    while(sn) {
+	    QList<QSockNot *> &list = d->sn_vec[i].list;
+	    for (int i = 0; i < list.size(); ++i) {
+		QSockNot *sn = list->at(i);
 		if(FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
 		    setSocketNotifierPending(sn->obj);
-		sn = list->next();
 	    }
 	}
 	return activateSocketNotifiers();
@@ -636,39 +631,27 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 	return;
     }
 
-    QPtrList<QSockNot>  *list = d->sn_vec[type].list;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
     fd_set *fds  = &d->sn_vec[type].enabled_fds;
-    QSockNot *sn;
 
-    if(!list) {
-	// create new list, the QSockNotType destructor will delete it for us
-	list = new QPtrList<QSockNot>;
-	list->setAutoDelete(TRUE);
-	d->sn_vec[type].list = list;
-    }
-
-    sn = new QSockNot;
+    QSockNot *sn = new QSockNot;
     sn->mac_d = 0;
     sn->obj = notifier;
     sn->fd = sockfd;
     sn->queue = &d->sn_vec[type].pending_fds;
 
-    if(list->isEmpty()) {
-	list->insert(0, sn);
-    } else {				// sort list by fd, decreasing
-	QSockNot *p = list->first();
-	while(p && p->fd > sockfd)
-	    p = list->next();
-	if(p && p->fd == sockfd) {
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	QSockNot *p = list.at(i);
+	if (p->fd < sockfd )
+	    break;
+	if ( p->fd == sockfd ) {
 	    static const char *t[] = { "read", "write", "exception" };
-	    qWarning("Qt: QSocketNotifier: Multiple socket notifiers for "
-		      "same socket %d and type %s", sockfd, t[type]);
+	    qWarning( "QSocketNotifier: Multiple socket notifiers for "
+		      "same socket %d and type %s", sockfd, t[type] );
 	}
-	if(p)
-	    list->insert(list->at(), sn);
-	else
-	    list->append(sn);
     }
+    list.insert( i, sn );
 
     FD_SET(sockfd, fds);
     d->sn_highest = QMAX(d->sn_highest, sockfd);
@@ -685,13 +668,13 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 		delete sn->mac_d;
 		sn->mac_d = NULL;
 	    } else {
-		CFSocketSetSocketFlags(sn->mac_d->socknot, 
+		CFSocketSetSocketFlags(sn->mac_d->socknot,
 					kCFSocketAutomaticallyReenableReadCallBack|kCFSocketAutomaticallyReenableWriteCallBack);
 		sn->mac_d->event_source = CFSocketCreateRunLoopSource(NULL, sn->mac_d->socknot, 0);
 		CFRunLoopAddSource(CFRunLoopGetCurrent(), sn->mac_d->event_source, kCFRunLoopCommonModes);
 		create_timer = FALSE;
 	    }
-	} 
+	}
 	if(create_timer && !d->select_timer) {
 	    if(!mac_select_timerUPP) {
 		mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
@@ -714,16 +697,19 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 	return;
     }
 
-    QPtrList<QSockNot> *list = d->sn_vec[type].list;
-    fd_set *fds  =  &d->sn_vec[type].enabled_fds;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
+    fd_set *fds = &d->sn_vec[type].enabled_fds;
+
     QSockNot *sn;
-    if(!list)
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	sn = list->at(i);
+	if(sn->obj == notifier && sn->fd == sockfd)
+	    break;
+    }
+    if(i == list.size()) // not found
 	return;
-    sn = list->first();
-    while(sn && !(sn->obj == notifier && sn->fd == sockfd))
-	sn = list->next();
-    if(!sn) // not found
-	return;
+
     FD_CLR(sockfd, fds);			// clear fd bit
     FD_CLR(sockfd, sn->queue);
     d->sn_pending_list.removeRef(sn);		// remove from activation list
@@ -752,11 +738,8 @@ int QEventLoop::activateSocketNotifiers()
     // activate entries
     int n_act = 0;
     QEvent event(QEvent::SockAct);
-    QPtrListIterator<QSockNot> it(d->sn_pending_list);
-    QSockNot *sn;
-    while((sn=it.current())) {
-	++it;
-	d->sn_pending_list.removeRef(sn);
+    while (!d->sn_pending_list.isEmpty()) {
+	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	if(FD_ISSET(sn->fd, sn->queue)) {
 	    FD_CLR(sn->fd, sn->queue);
 	    QApplication::sendEvent(sn->obj, &event);
@@ -775,14 +758,15 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
 	return;
     }
 
-    QPtrList<QSockNot> *list = d->sn_vec[type].list;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
     QSockNot *sn;
-    if(!list)
-	return;
-    sn = list->first();
-    while(sn && !(sn->obj == notifier && sn->fd == sockfd))
-	sn = list->next();
-    if(!sn) // not found
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	sn = list.at(i);
+	if (sn->obj == notifier && sn->fd == sockfd)
+	    break;
+    }
+    if(i == list.size()) // not found
 	return;
 
     // We choose a random activation order to be more fair under high load.
@@ -876,7 +860,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->unlock();
 #endif
-#if defined( QMAC_USE_APPLICATION_EVENT_LOOP ) 
+#if defined( QMAC_USE_APPLICATION_EVENT_LOOP )
 	RunApplicationEventLoop();
 #else
 	while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);

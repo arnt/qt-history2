@@ -319,19 +319,13 @@ bool qKillTimer( QObject *obj )
  Socket notifier type
  *****************************************************************************/
 QSockNotType::QSockNotType()
-    : list( 0 )
 {
+    list.setAutoDelete(true);
     FD_ZERO( &select_fds );
     FD_ZERO( &enabled_fds );
     FD_ZERO( &pending_fds );
 }
 
-QSockNotType::~QSockNotType()
-{
-    if ( list )
-	delete list;
-    list = 0;
-}
 
 /*****************************************************************************
  QEventLoop implementations for UNIX
@@ -345,38 +339,27 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    QPtrList<QSockNot>  *list = d->sn_vec[type].list;
+    QList<QSockNot *>  &list = d->sn_vec[type].list;
     fd_set *fds  = &d->sn_vec[type].enabled_fds;
     QSockNot *sn;
-
-    if ( ! list ) {
-	// create new list, the QSockNotType destructor will delete it for us
-	list = new QPtrList<QSockNot>;
-	list->setAutoDelete( TRUE );
-	d->sn_vec[type].list = list;
-    }
 
     sn = new QSockNot;
     sn->obj = notifier;
     sn->fd = sockfd;
     sn->queue = &d->sn_vec[type].pending_fds;
 
-    if ( list->isEmpty() ) {
-	list->insert( 0, sn );
-    } else {				// sort list by fd, decreasing
-	QSockNot *p = list->first();
-	while ( p && p->fd > sockfd )
-	    p = list->next();
-	if ( p && p->fd == sockfd ) {
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	QSockNot *p = list.at(i);
+	if (p->fd < sockfd )
+	    break;
+	if ( p->fd == sockfd ) {
 	    static const char *t[] = { "read", "write", "exception" };
 	    qWarning( "QSocketNotifier: Multiple socket notifiers for "
 		      "same socket %d and type %s", sockfd, t[type] );
 	}
-	if ( p )
-	    list->insert( list->at(), sn );
-	else
-	    list->append( sn );
     }
+    list.insert( i, sn );
 
     FD_SET( sockfd, fds );
     d->sn_highest = QMAX( d->sn_highest, sockfd );
@@ -391,28 +374,29 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    QPtrList<QSockNot> *list = d->sn_vec[type].list;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
     fd_set *fds  =  &d->sn_vec[type].enabled_fds;
     QSockNot *sn;
-    if ( ! list )
-	return;
-    sn = list->first();
-    while ( sn && !(sn->obj == notifier && sn->fd == sockfd) )
-	sn = list->next();
-    if ( !sn ) // not found
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	sn = list.at(i);
+	if(sn->obj == notifier && sn->fd == sockfd)
+	    break;
+    }
+    if (i == list.size()) // not found
 	return;
 
     FD_CLR( sockfd, fds );			// clear fd bit
     FD_CLR( sockfd, sn->queue );
-    d->sn_pending_list.removeRef( sn );		// remove from activation list
-    list->remove();				// remove notifier found above
+    d->sn_pending_list.remove(sn);		// remove from activation list
+    list.removeAt(i);				// remove notifier found above
 
     if ( d->sn_highest == sockfd ) {		// find highest fd
 	d->sn_highest = -1;
 	for ( int i=0; i<3; i++ ) {
-	    if ( d->sn_vec[i].list && ! d->sn_vec[i].list->isEmpty() )
+	    if ( !d->sn_vec[i].list.isEmpty() )
 		d->sn_highest = QMAX( d->sn_highest,  // list is fd-sorted
-				      d->sn_vec[i].list->getFirst()->fd );
+				      d->sn_vec[i].list.first()->fd );
 	}
     }
 }
@@ -426,16 +410,16 @@ void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
 	return;
     }
 
-    QPtrList<QSockNot> *list = d->sn_vec[type].list;
+    QList<QSockNot *> &list = d->sn_vec[type].list;
     QSockNot *sn;
-    if ( ! list )
-	return;
-    sn = list->first();
-    while ( sn && !(sn->obj == notifier && sn->fd == sockfd) )
-	sn = list->next();
-    if ( ! sn ) { // not found
-	return;
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+	sn = list.at(i);
+	if(sn->obj == notifier && sn->fd == sockfd)
+	    break;
     }
+    if ( i == list.size() ) // not found
+	return;
 
     // We choose a random activation order to be more fair under high load.
     // If a constant order is used and a peer early in the list can
@@ -538,11 +522,8 @@ int QEventLoop::activateSocketNotifiers()
     // activate entries
     int n_act = 0;
     QEvent event( QEvent::SockAct );
-    QPtrListIterator<QSockNot> it( d->sn_pending_list );
-    QSockNot *sn;
-    while ( (sn=it.current()) ) {
-	++it;
-	d->sn_pending_list.removeRef( sn );
+    while (!d->sn_pending_list.isEmpty()) {
+	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	if ( FD_ISSET(sn->fd, sn->queue) ) {
 	    FD_CLR( sn->fd, sn->queue );
 	    QApplication::sendEvent( sn->obj, &event );

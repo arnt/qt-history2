@@ -44,7 +44,7 @@ class QMacSockNotPrivate;
 #endif
 
 #if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
-#include "qptrlist.h"
+#include "list.h"
 #endif // Q_OS_UNIX || Q_WS_WIN
 
 #include "qobject_p.h"
@@ -65,9 +65,8 @@ class QSockNotType
 {
 public:
     QSockNotType();
-    ~QSockNotType();
 
-    QPtrList<QSockNot> *list;
+    QList<QSockNot *> list;
     fd_set select_fds;
     fd_set enabled_fds;
     fd_set pending_fds;
@@ -117,7 +116,7 @@ public:
     int thread_pipe[2];
 
     // pending socket notifiers list
-    QPtrList<QSockNot> sn_pending_list;
+    QList<QSockNot *> sn_pending_list;
     // highest fd for all socket notifiers
     int sn_highest;
     // 3 socket notifier types - read, write and exception
@@ -126,7 +125,7 @@ public:
 
 #ifdef Q_WS_WIN
     // pending socket notifiers list
-    QPtrList<QSockNot> sn_pending_list;
+    QList<QSockNot *> sn_pending_list;
 #endif // Q_WS_WIN
 
 };

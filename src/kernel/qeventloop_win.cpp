@@ -678,11 +678,8 @@ int QEventLoop::activateSocketNotifiers()
 
     int n_act = 0;
     QEvent event( QEvent::SockAct );
-    QPtrListIterator<QSockNot> it( d->sn_pending_list );
-    QSockNot *sn;
-    while ( (sn=it.current()) ) {
-	++it;
-	d->sn_pending_list.removeRef( sn );
+    while (!d->sn_pending_list.isEmpty()) {
+	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	QApplication::sendEvent( sn->obj, &event );
 	n_act++;
     }
