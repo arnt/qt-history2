@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#163 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -921,16 +921,9 @@ void QComboBox::resizeEvent( QResizeEvent *e )
     if ( d->ed ) {
 	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     }
-    if ( style() == WindowsStyle ) {
-	updateResizedBorder( e, 2 );
-	int w = width()-style().comboButtonRect(0,0,width(), height()).right() + 3;
-	update( w-xw, 0, width()-w+xw, height() );
-    } else {
-	updateResizedBorder( e, 3 );
-	update( 2, 2, width()-4, height()-4 );
-    }
     if ( autoMask())
 	updateMask();
+    repaint(rect());
 }
 
 
