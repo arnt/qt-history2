@@ -227,18 +227,22 @@ public:
 	WMacNoSheet             = 0x00000000,
         WMacDrawer              = 0x00000000,
 #endif
-	WGroupLeader 		= 0x02000000,
-	WShowModal 	       	= 0x04000000,
+	WGroupLeader		= 0x02000000,
+	WShowModal		= 0x04000000,
 	WNoMousePropagation	= 0x08000000,
 	WSubWindow              = 0x10000000,
+#if defined(Q_WS_X11)
+        WStyle_Splash           = 0x20000000,
+#else
 	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WMacNoSheet |
-				  WStyle_Tool | WX11BypassWM | WWinOwnDC,
-	WNoAutoErase 		= WRepaintNoErase | WResizeNoErase
+				  WStyle_Tool | WWinOwnDC,
+#endif
+	WNoAutoErase		= WRepaintNoErase | WResizeNoErase
 #ifndef QT_NO_COMPAT
 	,
 	WNorthWestGravity	= WStaticContents,
 	WType_Modal		= WType_Dialog | WShowModal,
-	WStyle_Dialog 		= WType_Dialog,
+	WStyle_Dialog		= WType_Dialog,
 	WStyle_NoBorderEx	= WStyle_NoBorder
 #endif
     };

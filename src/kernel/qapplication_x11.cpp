@@ -258,6 +258,7 @@ Atom            qt_net_wm_window_type   = 0;
 Atom            qt_net_wm_window_type_normal	= 0;
 Atom            qt_net_wm_window_type_dialog	= 0;
 Atom            qt_net_wm_window_type_toolbar	= 0;
+Atom            qt_net_wm_window_type_splash    = 0;
 Atom            qt_net_wm_window_type_override	= 0;	// KDE extension
 Atom		qt_net_wm_frame_strut		= 0;	// KDE extension
 Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
@@ -1913,6 +1914,8 @@ void qt_init_internal( int *argcptr, char **argv,
 			    &qt_net_wm_window_type_dialog );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_TOOLBAR",
 			    &qt_net_wm_window_type_toolbar );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_SPLASH",
+			    &qt_net_wm_window_type_splash );
 	qt_x11_intern_atom( "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE",
 			    &qt_net_wm_window_type_override );
 	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );

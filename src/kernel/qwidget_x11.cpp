@@ -115,6 +115,7 @@ extern Atom qt_net_wm_window_type;
 extern Atom qt_net_wm_window_type_normal;
 extern Atom qt_net_wm_window_type_dialog;
 extern Atom qt_net_wm_window_type_toolbar;
+extern Atom qt_net_wm_window_type_splash;
 extern Atom qt_net_wm_window_type_override;
 extern Atom qt_net_wm_pid;
 extern Atom qt_enlightenment_desktop;
@@ -224,7 +225,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWFlags( WType_TopLevel );
 
     // these are top-level, too
-    if ( dialog || popup || desktop )
+    if ( dialog || popup || desktop || testWFlags(WStyle_Splash))
 	setWFlags( WType_TopLevel );
 
     // a popup stays on top
@@ -387,6 +388,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if (topLevel && ! (desktop || popup)) {
 	ulong wsa_mask = 0;
 
+	if ( testWFlags(WStyle_Splash) ) {
+            if ( qt_net_supports(qt_net_wm_window_type_splash) ) {
+                clearWFlags( WX11BypassWM );
+                net_wintypes[curr_wintype++] = qt_net_wm_window_type_splash;
+	    } else {
+		setWFlags( WX11BypassWM | WStyle_Tool | WStyle_NoBorder );
+	    }
+        }
 	if (testWFlags(WStyle_Customize)) {
 	    mwmhints.decorations = 0L;
 	    mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
