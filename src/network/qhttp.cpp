@@ -1807,12 +1807,14 @@ void QHttp::sendRequest()
     }
 
     killIdleTimer();
-    setState( QHttp::Connecting );
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
     if ( d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection ) {
 	d->socket.connectToHost( d->hostname, d->port );
+	setState( QHttp::Connecting );
+    } else {
+        slotConnected();
     }
 
 }
@@ -1857,7 +1859,7 @@ void QHttp::slotClosed()
 
     if ( d->state == Reading ) {
 	if ( d->response.hasKey( "content-length" ) ) {
-	    // We got Content-Length, so did we get all bytes ?
+	    // We got Content-Length, so did we get all bytes?
 	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
 		finishedWithError( tr("Wrong content length"), WrongContentLength );
 	    }
@@ -2071,7 +2073,7 @@ void QHttp::slotReadyRead()
 		    delete arr;
 		    d->bytesDone += n;
 #if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone );
+		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%d bytes done)", n, d->bytesDone );
 #endif
 		    if ( d->response.hasContentLength() )
 			emit dataReadProgress( d->bytesDone, d->response.contentLength() );
@@ -2081,7 +2083,7 @@ void QHttp::slotReadyRead()
 		    d->rba.append( arr );
 		    d->rsize += n;
 #if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone + bytesAvailable() );
+		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable() );
 #endif
 		    if ( d->response.hasContentLength() )
 			emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
