@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void qt_event_send_clipboard_changed(); //qapplication_mac.cpp
+
 static ScrapRef scrap = NULL;
 static QWidget * owner = 0;
 
@@ -205,14 +207,12 @@ void QClipboard::clear(Mode mode)
     ClearCurrentScrap();
 }
 
-
 void QClipboard::ownerDestroyed()
 {
     owner = NULL;
     clipboardData()->clear();
     emit dataChanged();
 }
-
 
 static int clipWatcherId = -1;
 
@@ -222,30 +222,31 @@ void QClipboard::connectNotify(const char *signal)
 	clipWatcherId = startTimer(100);
 }
 
-
 bool QClipboard::event(QEvent *e)
 {
-    QTimerEvent *te = 0;
-    if(clipWatcherId != -1  && e->type() == QEvent::Timer) {
-	te = (QTimerEvent *)e;
-	if(te->timerId() != clipWatcherId)
-	    te = 0;
-	if(te && !receivers(SIGNAL(dataChanged()))) {
-	    killTimer(clipWatcherId);
-	    clipWatcherId = -1;
-	    te = 0;
+    bool check_clip = FALSE;
+    if(e->type() == QEvent::Clipboard) {
+	check_clip = TRUE;
+    } else if(clipWatcherId != -1  && e->type() == QEvent::Timer) {
+	QTimerEvent *te = (QTimerEvent *)e;
+	if(te->timerId() == clipWatcherId) {
+	    if(!receivers(SIGNAL(dataChanged()))) {
+		killTimer(clipWatcherId);
+		clipWatcherId = -1;
+	    } else {
+		check_clip = TRUE;
+	    }
 	}
     }
-    if(e->type() != QEvent::Clipboard && !te)
-	return QObject::event(e);
-
-    if(hasScrapChanged()) {
+    if(check_clip && hasScrapChanged()) {
+#if 0
+	qDebug("%s: got a change..", QTime::currentTime().toString().latin1());
+#endif
 	clipboardData()->clear();
 	emit dataChanged();
     }
-    return TRUE;
+    return QObject::event(e);
 }
-
 
 QMimeSource* QClipboard::data(Mode mode) const
 {
@@ -268,6 +269,9 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
     ClearCurrentScrap();
     hasScrapChanged();
 
+#if 0
+    qDebug("%s: starting a put..", QTime::currentTime().toString().latin1());
+#endif
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_CLIP);
     const char* mime;
     for (int i = 0; (mime = src->format(i)); i++) {
@@ -277,10 +281,16 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
 		for (int j = 0; j < c->countFlavors(); j++) {
 		    uint flav = c->flavor(j);
 		    if(c->canConvert(mime, flav)) {
+#if 0
+			qDebug("%s: writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
+#endif
 			QList<QByteArray> md = c->convertFromMime(src->encodedData(mime), mime, flav);
 			if(md.count() > 1)
 			    qWarning("QClipBoard: cannot handle multiple byte array conversions..");
 			PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());
+#if 0
+			qDebug("%s: done writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
+#endif
 		    }
 		}
 	    }
@@ -290,6 +300,10 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
     PutScrapFlavor(scrap, qt_mac_mime_type, 0, 0, NULL);
     emit dataChanged();
+#if 0
+    qDebug("%s: finished a put..", QTime::currentTime().toString().latin1());
+#endif
+    qt_event_send_clipboard_changed();
 }
 
 bool QClipboard::supportsSelection() const
@@ -301,7 +315,6 @@ bool QClipboard::ownsSelection() const
 {
     return FALSE;
 }
-
 
 bool QClipboard::ownsClipboard() const
 {

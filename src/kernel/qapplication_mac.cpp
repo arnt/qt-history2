@@ -477,6 +477,8 @@ void qt_mac_update_os_settings()
 // internal Qt types
 const UInt32 kEventClassQt = 'cute';
 enum {
+    //AE types
+    typeAEClipboardChanged = 1,
     //types
     typeQWidget = 1,  /* QWidget *  */
     typeMacTimerInfo = 2, /* MacTimerInfo * */
@@ -682,6 +684,17 @@ void qt_event_request_menubarupdate()
     ReleaseEvent(request_menubarupdate_pending);
 }
 #endif
+
+void qt_event_send_clipboard_changed()
+{
+#if 0
+    AppleEvent ae;
+    if(AECreateAppleEvent(kEventClassQt, typeAEClipboardChanged, 0, kAutoGenerateReturnID, kAnyTransactionID, &ae) != noErr)
+	qDebug("Can't happen!!");
+    AppleEvent reply;
+    AESend(&ae, &reply,  kAENoReply, kAENormalPriority, kAEDefaultTimeout, 0, 0);
+#endif
+}
 
 static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestTimer },

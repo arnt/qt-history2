@@ -101,6 +101,8 @@ private:
 #ifdef USE_INTERNET_CONFIG
     ICInstance internet_config;
     long mime_registry_version;
+#else
+    bool mime_registry_loaded;
 #endif
     QMap<QString, int> mime_registry;
     int registerMimeType(const char *mime);
@@ -110,6 +112,8 @@ public:
     QMacMimeAnyMime() : QMacMime(MIME_QT_CONVERTOR|MIME_ALL) { 
 #ifdef USE_INTERNET_CONFIG
 	internet_config = NULL; 
+#else
+	mime_registry_loaded = FALSE;
 #endif
     }
     ~QMacMimeAnyMime() { 
@@ -232,6 +236,13 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 #else
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
+#if 0
+    if(mime_registry_loaded)
+	return TRUE;
+    qDebug("reading mime..");
+#endif
+
+    mime_registry_loaded = TRUE;
     QSettings mime_settings;
     mime_settings.setPath("MimeRegistry", "qt");
     mime_registry.clear();
