@@ -11,7 +11,7 @@ class QPlugInInterface
     friend class QPlugIn;
     friend class QApplicationInterface;
 public:
-    QPlugInInterface(): cIfaces( 53 ) 
+    QPlugInInterface(): cIfaces( 53 )
     {
 	cIfaces.setAutoDelete( TRUE );
     }
@@ -25,7 +25,7 @@ public:
     virtual QString author() { return QString::null; }
 
     virtual QStringList featureList() { return QStringList(); }
-    
+
     virtual QCString queryPlugInInterface() const = 0;
     virtual QStrList queryInterfaceList() const
     {
@@ -40,6 +40,7 @@ protected:
 
     virtual void connectNotify( const QCString& iface )
     {
+	Q_CONST_UNUSED(iface);
     }
 
 private:
