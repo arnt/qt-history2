@@ -327,6 +327,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 #else
     dblbuf = 1;
 #endif
+
     glcx_dblbuf = 2;
     clp_serial = 0;
     macInternalDoubleBuffer(FALSE); //just get things going
@@ -481,9 +482,22 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 {
 #if !defined(QMAC_OPENGL_DOUBLEBUFFER)
     bool need_fix = FALSE;
-    if(isTopLevel() && (!children() || children()->isEmpty())) {
+    if(isTopLevel()) {
 	dblbuf = 0;
-	clp_serial = 0;
+	if(clippedSerial() != clp_serial && children()) {
+	    QRect myrect(rect());
+            register QObject *obj;
+            for(QObjectListIt it(*children()); (obj = it.current()); ++it) {
+                if(obj->isWidgetType()) {
+		    QWidget *w = (QWidget*)obj;
+		    if(!w->isTopLevel() && myrect.intersects(QRect(w->pos(), w->size()))) {
+			dblbuf = 1;
+			break;
+		    }
+		}
+	    }
+	    clp_serial = clippedSerial();
+        }
     } else if(clippedSerial() != clp_serial) {
 	QRegion rgn = clippedRegion();
 	clp_serial = clippedSerial();
