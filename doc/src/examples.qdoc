@@ -51,6 +51,7 @@
 
     \list
     \o \l{mainwindows/application}{Application}\raisedaster
+    \o \l{mainwindows/mdi}{MDI}
     \o \l{mainwindows/menus}{Menus}
     \o \l{mainwindows/recentfiles}{Recent Files}
     \o \l{mainwindows/sdi}{SDI}

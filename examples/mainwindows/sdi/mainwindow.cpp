@@ -70,7 +70,7 @@ bool MainWindow::saveAs()
 void MainWindow::about()
 {
    QMessageBox::about(this, tr("About SDI"),
-            tr("The <b>SDI</b> example demonstrates how to write single"
+            tr("The <b>SDI</b> example demonstrates how to write single "
                "document interface applications using Qt."));
 }
 
@@ -175,7 +175,7 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-    statusBar()->showMessage("Ready");
+    statusBar()->showMessage(tr("Ready"));
 }
 
 void MainWindow::readSettings()

@@ -25,7 +25,8 @@
     of applications. The \l{mainwindows/recentfiles}{Recent Files}
     example shows how to implement this. Furthermore, this example
     can only load one file at a time. The \l{mainwindows/sdi}{SDI}
-    example shows how to lift these restrictions.
+    and \l{mainwindows/mdi}{MDI} examples shows how to lift these
+    restrictions.
 
     \section1 MainWindow Class Definition
 
