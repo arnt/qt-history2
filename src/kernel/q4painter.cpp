@@ -266,10 +266,8 @@ void QPainter::setClipping( bool enable )
 
 QRegion QPainter::clipRegion(CoordinateMode m) const
 {
-    if (m == CoordPainter && (ds->VxF || ds->WxF)) {
-	QRegion rt(ds->clipRegion);
-	return ds->matrix.invert() * rt;
-    }
+    if (m == CoordPainter && (ds->VxF || ds->WxF))
+	return ds->matrix.invert() * ds->clipRegion;
     return ds->clipRegion;
 }
 
@@ -282,12 +280,10 @@ void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inli
 void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
     Q_ASSERT(dgc);
-    if (m == CoordPainter && (ds->VxF || ds->WxF)) {
-	QRegion rt(ds->matrix * r);
-	ds->clipRegion = rt;
-    } else {
+    if (m == CoordPainter && (ds->VxF || ds->WxF))
+	ds->clipRegion = ds->matrix * r;
+    else
 	ds->clipRegion = r;
-    }
     ds->clipEnabled = true;
     if (dgc)
 	dgc->setDirty(QAbstractGC::DirtyClip);
