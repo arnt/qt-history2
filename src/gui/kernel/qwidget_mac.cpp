@@ -1363,6 +1363,14 @@ void QWidget::show_sys()
             OpenDrawer(window, kWindowEdgeDefault, true);
         } else {
             ShowHide(window, true);        //now actually show it
+            for (int i = 0; i < d->children.size(); ++i) {
+                register QObject *object = d->children.at(i);
+                if (!object->isWidgetType())
+                    continue;
+                QWidget *widget = static_cast<QWidget*>(object);
+                if (qt_mac_is_macdrawer(widget) && !widget->testWState(WState_Hidden)) 
+                    widget->show_helper();
+            }
         }
         if(windowState() & WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);

@@ -790,7 +790,13 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (!q->isDesktop())
         updateSystemBackground();
     if (q->isTopLevel()) {
+#ifdef Q_WS_MAC
+        extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+        if(!qt_mac_is_macdrawer(q)) //special case
+            q->setWState(Qt::WState_Hidden);
+#else
         q->setWState(Qt::WState_Hidden);
+#endif
         createTLExtra();
     } else {
         // propagate enabled state
@@ -3903,17 +3909,8 @@ void QWidget::showChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() ) {
-#if defined( Q_WS_MAC ) && 0
-            extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
-            extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
-            if(!qt_mac_is_macsheet(this) && !qt_mac_is_macdrawer(this))
-                continue;
-            qDebug("go on my son..");
-#else
+        if (widget->isTopLevel() ) 
             continue;
-#endif
-        }
         if (widget->testWState(WState_Hidden))
             continue;
         if (spontaneous) {
