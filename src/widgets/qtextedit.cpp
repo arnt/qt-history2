@@ -6976,14 +6976,14 @@ void QTextEdit::polishEvent(QEvent*)
 }
 
 /*!
-    Sets the maximum number of lines a QTextEdit can hold in LogText
-    mode. -1 is used to specify an unlimited amount of lines (the
-    default).
+    Sets the maximum number of lines a QTextEdit can hold in \c LogText
+    mode to \a limit. Pass -1 to signify an unlimited amount of lines
+    (the default).
 
-    Never use formatting tags that span more than one line when a
-    max size is set. When lines are removed from the top of the buffer it
-    may result in an unbalanced tag pair, i.e. the left formatting tag
-    is removed before the right one.
+    \warning Never use formatting tags that span more than one line
+    when a maximum size is set. When lines are removed from the top of
+    the buffer it may result in an unbalanced tag pair, i.e. the left
+    formatting tag is removed before the right one.
  */
 void QTextEdit::setMaxLogLines( int limit )
 {
@@ -6995,9 +6995,9 @@ void QTextEdit::setMaxLogLines( int limit )
 }
 
 /*!
-    Returns the maximum number of lines QTextEdit can hold in LogText
-    mode. By default the number of lines is not limited, i.e. it is
-    set to -1.
+    Returns the maximum number of lines QTextEdit can hold in \c
+    LogText mode. By default the number of lines is unlimited, which
+    is signified by a value of -1.
  */
 int QTextEdit::maxLogLines() const
 {
