@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Wed Oct 11 15:22:44 CEST 2000
+** Generated : Thu Oct 12 14:54:55 CEST 2000
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -15,7 +15,7 @@
 
 #ifndef QT_H
 #define QT_H
-#include <qglobal.h>
+#include "qglobal.h"
 #include <qfeatures.h>
 #include "qshared.h"
 #include "qobjectdefs.h"
@@ -25,7 +25,7 @@
 #include "qarray.h"
 #include "qcstring.h"
 #include "qnamespace.h"
-#include "qstring.h"
+#include <qstring.h>
 #include "qwindowdefs.h"
 #include <qpoint.h>
 #include "qiodevice.h"
@@ -44,21 +44,21 @@
 #include "qsizepolicy.h"
 #include "qstyle.h"
 #include "qvaluelist.h"
-#include "qstringlist.h"
-#include "qmap.h"
-#include "qvariant.h"
+#include <qdict.h>
+#include <qmap.h>
+#include <qstringlist.h>
+#include <qvariant.h>
 #include "qcommonstyle.h"
 #include "qdatastream.h"
 #include "qwindowsstyle.h"
 #include "qpaintdevice.h"
 #include "qrangecontrol.h"
 #include "qbrush.h"
-#include "qdict.h"
 #include "qdatetime.h"
 #include "qhostaddress.h"
 #include "qfontmetrics.h"
 #include "qpalette.h"
-#include "qwidget.h"
+#include <qwidget.h>
 #include "qstrlist.h"
 #include <qdrawutil.h>
 #include <qdropsite.h>
@@ -68,10 +68,10 @@
 #include <qclipboard.h>
 #include "qgroupbox.h"
 #include <stdio.h>
-#include "qfile.h"
+#include <qfile.h>
 #include "qfileinfo.h"
 #include <qwidgetlist.h>
-#include "qpen.h"
+#include <qpen.h>
 #include "qdialog.h"
 #include <qcolordialog.h>
 #include "qpixmap.h"
@@ -110,7 +110,7 @@
 #include <qlcdnumber.h>
 #include <qinputdialog.h>
 #include "qpointarray.h"
-#include <qscrollview.h>
+#include "qscrollview.h"
 #include <qlistview.h>
 #include "qnetworkprotocol.h"
 #include "qdockwindow.h"
@@ -183,24 +183,6 @@
 #include <qsound.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
-#include "qsqlconnection.h"
-#include "qsqlerror.h"
-#include "qsqlfield.h"
-#include "qsql.h"
-#include "qcomponentinterface.h"
-#include "qsqldriverinterface.h"
-#include <qsqleditor.h>
-#include "qsqleditorfactory.h"
-#include "qsqlindex.h"
-#include "qsqldatabase.h"
-#include "qsqlpropertymanager.h"
-#include "qsqlfieldmapper.h"
-#include <qsqldriver.h>
-#include "qsqlrowset.h"
-#include <qsqlresult.h>
-#include "qsqlview.h"
-#include "qtable.h"
-#include <qsqlform.h>
 #include <qstack.h>
 #include <qstatusbar.h>
 #include "qtimer.h"
@@ -211,12 +193,12 @@
 #include <qstylesheet.h>
 #include "qpainter.h"
 #include <qtabdialog.h>
-#include <qsqltable.h>
+#include <qtable.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
 #include "qtextview.h"
 #include <qbig5codec.h>
-#include "qtextstream.h"
+#include <qtextstream.h>
 #include <qtextbrowser.h>
 #include <qthread.h>
 #include <qasyncio.h>
@@ -233,7 +215,7 @@
 #include <qvalidator.h>
 #include <qfontdatabase.h>
 #include <qvaluestack.h>
-#include "qinterfacemanager.h"
+#include <qcomponentinterface.h>
 #include <qvbox.h>
 #include <qvbuttongroup.h>
 #include <qsignalslotimp.h>
@@ -250,7 +232,7 @@
 #include <qtabbar.h>
 #include <qworkspace.h>
 #include <qxml.h>
-#include <qsqldriverplugin.h>
+#include <qinterfacemanager.h>
 
 #ifdef _WS_QWS_
 #include <qfontmanager_qws.h>
@@ -260,14 +242,14 @@
 #include <qfontfactoryttf_qws.h>
 #include <qlock_qws.h>
 #include "qmemorymanager_qws.h"
-#include <qgfx_qws.h>
-#include <qwsdisplay_qws.h>
+#include "qgfx_qws.h"
+#include "qwsdisplay_qws.h"
 #include <qwssocket_qws.h>
 #include "qwsutils_qws.h"
 #include "qwscommand_qws.h"
 #include <qwscursor_qws.h>
 #include <qgfxraster_qws.h>
-#include <qwsevent_qws.h>
+#include "qwsevent_qws.h"
 #include <qwsmanager_qws.h>
 #include <qwsmouse_qws.h>
 #include "qwsproperty_qws.h"
