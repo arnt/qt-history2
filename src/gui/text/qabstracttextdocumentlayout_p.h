@@ -19,6 +19,7 @@
 
 struct QTextObjectHandler
 {
+    QTextObjectHandler() : iface(0) {}
     QTextObjectInterface *iface;
     QPointer<QObject> component;
 };
