@@ -89,6 +89,7 @@ public:
     int preeditLength;
     uint ensureCursorVisibleInShowEvent : 1;
     uint allowTabs : 1;
+    QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
@@ -839,6 +840,11 @@ bool QTextEdit::event( QEvent *e )
 	    }
 	}
     }
+
+    if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+	sync();
+	ensureCursorVisible();
+	d->ensureCursorVisibleInShowEvent = FALSE;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( !d->optimMode && e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
 #else
@@ -847,6 +853,10 @@ bool QTextEdit::event( QEvent *e )
 	sync();
 	ensureCursorVisible();
 	d->ensureCursorVisibleInShowEvent = FALSE;
+    }
+    if ( e->type() == QEvent::Show && !d->scrollToAnchor.isEmpty() ) {
+	    scrollToAnchor( d->scrollToAnchor );
+	    d->scrollToAnchor = QString::null;
     }
     return QWidget::event( e );
 }
@@ -3119,6 +3129,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
     emit textChanged();
     formatMore();
     updateCurrentFormat();
+    d->scrollToAnchor = QString::null;
 }
 
 /*!
@@ -4002,6 +4013,10 @@ void QTextEdit::makeParagVisible( QTextParag *p )
 
 void QTextEdit::scrollToAnchor( const QString& name )
 {
+    if ( !isVisible() ) {
+	d->scrollToAnchor = name;
+	return;
+    }
     if ( name.isEmpty() )
 	return;
     sync();

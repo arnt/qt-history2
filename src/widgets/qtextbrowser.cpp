@@ -257,7 +257,7 @@ void QTextBrowser::setSource(const QString& name)
     if ( dosettext )
 	QTextEdit::setText( txt, url );
 
-    if ( isVisible() && !mark.isEmpty() )
+    if ( !mark.isEmpty() )
 	scrollToAnchor( mark );
     else
 	setContentsPos( 0, 0 );
