@@ -1167,6 +1167,7 @@ void QSocket::sn_read( bool force )
     if ( !force && QSocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
 	return;
     QSocketPrivate::sn_read_alreadyCalled.append( this );
+    d->rsn->setEnabled( FALSE );
 
     char buf[4096];
     int  nbytes = d->socket->bytesAvailable();
@@ -1178,11 +1179,13 @@ void QSocket::sn_read( bool force )
 	    tryConnection();
 	} else {
 	    // nothing to do, nothing to care about
+	    d->rsn->setEnabled( TRUE );
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
     }
     if ( state() == Idle ) {
+	d->rsn->setEnabled( TRUE );
 	QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	return;
     }
@@ -1201,12 +1204,14 @@ void QSocket::sn_read( bool force )
 #endif
 	    d->connectionClosed();
 	    emit connectionClosed();
+	    d->rsn->setEnabled( TRUE );
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	} else {
 	    if ( nread < 0 ) {
 		if ( d->socket->error() == QSocketDevice::NoError ) {
 		    // all is fine
+		    d->rsn->setEnabled( TRUE );
 		    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		    return;
 		}
@@ -1216,6 +1221,7 @@ void QSocket::sn_read( bool force )
 		if (d->rsn)
 		    d->rsn->setEnabled( FALSE );
 		emit error( ErrSocketRead );
+		d->rsn->setEnabled( TRUE );
 		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
@@ -1249,6 +1255,7 @@ void QSocket::sn_read( bool force )
 	} else if ( nread < 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
+		d->rsn->setEnabled( TRUE );
 		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
@@ -1259,6 +1266,7 @@ void QSocket::sn_read( bool force )
 	    if (d->rsn)
 		d->rsn->setEnabled( FALSE );
 	    emit error( ErrSocketRead );
+	    d->rsn->setEnabled( TRUE );
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
@@ -1274,6 +1282,7 @@ void QSocket::sn_read( bool force )
     if ( !force )
 	emit readyRead();
 
+    d->rsn->setEnabled( TRUE );
     QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 }
 
