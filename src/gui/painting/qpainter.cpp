@@ -253,6 +253,10 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input)
     stroker.setCapStyle(state->pen.capStyle());
     stroker.setJoinStyle(state->pen.joinStyle());
 
+    // Increase the threshold based on the width and the scale factor of the matrix.
+    if (txop > TxTranslate)
+        stroker.setCurveThreshold(width / (2 * 10 * state->matrix.m11() * state->matrix.m22()));
+
     QPainterPath stroke = stroker.createStroke(path);
 
     if (txop > TxNone)
