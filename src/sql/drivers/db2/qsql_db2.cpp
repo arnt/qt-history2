@@ -37,7 +37,6 @@
 #define UNICODE
 #endif
 
-#include <sqlcli.h>
 #include <sqlcli1.h>
 
 static const int COLNAMESIZE = 255;
@@ -1458,4 +1457,14 @@ QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	default:
 	    return QSqlDriver::formatValue( field, trimStrings );
     }
+}
+
+SQLHANDLE QDB2Driver::environment()
+{
+    return d->hEnv;
+}
+
+SQLHANDLE QDB2Driver::connection()
+{
+    return d->hDbc;
 }

@@ -39,6 +39,15 @@
 #include "qsqlrecord.h"
 #include "qsqldriver.h"
 
+#ifndef UNICODE
+#define QT_UNDEF_UNICODE
+#define UNICODE
+#endif
+#include <sqlcli.h>
+#ifdef QT_UNDEF_UNICODE
+#undef UNICODE
+#undef QT_UNDEF_UNICODE
+#endif
 
 class QDB2Driver;
 class QDB2DriverPrivate;
@@ -87,6 +96,8 @@ public:
     bool commitTransaction();
     bool rollbackTransaction();
     QString formatValue( const QSqlField* field, bool trimStrings ) const;
+    SQLHANDLE environment();
+    SQLHANDLE connection();
     
 private:
     bool setAutoCommit( bool autoCommit );
