@@ -322,16 +322,17 @@ nextfile:
 
 class ProjectBuilderSources
 {
-    QString key, group;
+    QString key, group, compiler;
 public:
-    ProjectBuilderSources(const QString &key, const QString &group=QString());
+    ProjectBuilderSources(const QString &key, const QString &group=QString(), const QString &compiler=QString());
     QStringList files(QMakeProject *project) const;
     inline QString keyName() const { return key; }
     inline QString groupName() const { return group; }
+    inline QString compilerName() const { return compiler; }
 };
 
-ProjectBuilderSources::ProjectBuilderSources(const QString &k,
-                                             const QString &g) : key(k), group(g)
+ProjectBuilderSources::ProjectBuilderSources(const QString &k, const QString &g,
+                                             const QString &c) : key(k), group(g), compiler(c)
 {
     if(group.isNull()) {
         if(k == "SOURCES")
@@ -435,8 +436,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             for(int input = 0; input < inputs.size(); ++input) {
                 if(project->isEmpty(inputs.at(input)))
                     continue;
+                bool duplicate = false;
+                for(int i = 0; i < sources.size(); ++i) {
+                    if(sources.at(i).keyName() == inputs.at(input)) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if(duplicate)
+                    continue;
                 sources.append(ProjectBuilderSources(inputs.at(input),
-                                                     QString("Sources [") + name + "]"));
+                                                     QString("Sources [") + name + "]", (*it)));
             }
         }
     }
@@ -454,7 +464,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             QString file = files[f];
             if(file.length() >= 2 && (file[0] == '"' || file[0] == '\'') && file[(int) file.length()-1] == file[0])
                 file = file.mid(1, file.length()-2);
-            if(file.endsWith(Option::cpp_moc_ext) || file.endsWith(Option::prl_ext))
+            if(!sources.at(source).compilerName().isNull() &&
+               !verifyExtraCompiler(sources.at(source).compilerName(), file))
+                continue;
+            if(file.endsWith(Option::prl_ext))
                 continue;
 
             bool in_root = true;
