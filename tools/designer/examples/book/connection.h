@@ -7,11 +7,13 @@
 ** program may be used, distributed and modified without limitation.
 **
 *****************************************************************************/
+
+// Add your own connection parameters here
 #define DB_BOOKS_DRIVER "QMYSQL3"
-#define DB_BOOKS 	"testdb"
-#define DB_BOOKS_USER 	"troll"
-#define DB_BOOKS_PASSWD "trond"
-#define DB_BOOKS_HOST 	"iceblink.troll.no"
+#define DB_BOOKS 	""
+#define DB_BOOKS_USER 	""
+#define DB_BOOKS_PASSWD ""
+#define DB_BOOKS_HOST 	""
 
 bool createConnections();
 
