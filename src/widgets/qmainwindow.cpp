@@ -640,6 +640,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     connect( d->rightDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
     d->hideDock = new QHideDock( this );
+    d->hideDock->installEventFilter( this );
 }
 
 
@@ -1173,9 +1174,8 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	d->tll->activate();
     }
 
-    if ( e->type() == QEvent::MouseButtonPress &&
-	 o->inherits( "QDockWindow" ) && d->dockMenu &&
-	 hasDockWindow( (QDockWindow*)o ) ) {
+    if ( e->type() == QEvent::MouseButtonPress && d->dockMenu &&
+	 ( ( o->inherits( "QDockWindow" ) && hasDockWindow( (QDockWindow*)o ) ) || o == d->hideDock ) ) {
 	if ( ( (QMouseEvent*)e )->button() == RightButton ) {
 	    if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) )
 		return TRUE;
