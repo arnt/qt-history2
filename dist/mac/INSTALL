@@ -90,9 +90,10 @@
     If you built Qt using the -static option, your executables will contain the
     Qt library and can be run from Finder automatically. Otherwise, your
     executables will need to use the Qt library on your system. You can acheive
-    this by using symbolic links. In the examples below, if you've built a
-    debug version of the Qt libraries, add _debug to the end of the library
-    name, (example libQtCore_debug.4.dylib instead of libQtCore.4.dylib.)
+    this by using symbolic links. In the examples below, if you've only built a
+    debug version of the Qt libraries, you just need to do the links for the
+    libraries that end with _debug (example libQtCore_debug.4.dylib instead of
+    libQtCore.4.dylib.)
 
     We recommend making these symbolic links:
 
@@ -103,6 +104,14 @@
     ln -sf $QTDIR/lib/libQtOpenGL.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtXml.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQt3Compat.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtCore_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtGui_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtSql_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtXml_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQt3Compat_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
     case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
@@ -119,6 +128,14 @@
     ln -sf $QTDIR/lib/libQtOpenGL.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtXml.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQt3Compat.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtCore_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtGui_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtSql_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtXml_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQt3Compat_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib $HOME/lib
 
     Note: you can also achieve similar functionality by adding your
     DYLD_LIBRARY_PATH to the GUI's environment.
