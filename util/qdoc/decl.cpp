@@ -125,13 +125,14 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	    QValueList<Decl *> by = (*m)->reimplementedBy();
 	    if ( !by.isEmpty() ) {
+
 		/*
 		  We don't want totally uninteresting
 		  reimplementations in this list.
 		*/
 		QValueList<Decl *>::ConstIterator r;
 		r = by.begin();
-		while( r != by.end() ) {
+		while ( r != by.end() ) {
 		    Decl *d = *r;
 		    ++r;
 		    if ( d->internal() )
@@ -341,7 +342,9 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
 
 	child = children().begin();
 	while ( child != children().end() ) {
-	    if ( (*child)->doc() != 0 || !omitUndocumented ) {
+	    if ( !omitUndocumented ||
+		 ((*child)->doc() != 0 && (config->isInternal() ||
+					  !(*child)->internal())) ) {
 		QString name = (*child)->name();
 		if ( (*child)->kind() == Function )
 		    name += parenParen;
@@ -353,7 +356,9 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
 
     child = children().begin();
     while ( child != children().end() ) {
-	if ( (*child)->doc() != 0 || !omitUndocumented )
+	if ( !omitUndocumented ||
+	     ((*child)->doc() != 0 && (config->isInternal() ||
+				      !(*child)->internal())) )
 	    (*child)->buildPlainSymbolTables( omitUndocumented );
 	++child;
     }
@@ -586,14 +591,15 @@ void ClassDecl::buildPlainSymbolTables( bool omitUndocumented )
 	ch = c->children().begin();
 	while ( ch != c->children().end() ) {
 	    QString name = (*ch)->name();
-	    bool omit = ( omitUndocumented && (*ch)->doc() == 0 );
+	    bool omit = ( omitUndocumented && (*ch)->doc() == 0 ) ||
+			( !config->isInternal() && (*ch)->internal() );
 
 	    if ( (*ch)->kind() == Decl::Function ) {
 		FunctionDecl *funcDecl = (FunctionDecl *) *ch;
-		if ( c != this &&
-		     (funcDecl->isConstructor() || funcDecl->isDestructor()) )
-		    omit = TRUE;
-		else if ( funcDecl->overloadNumber() > 1 )
+		if ( (c != this &&
+		      (funcDecl->isConstructor() ||
+		       funcDecl->isDestructor())) ||
+		     funcDecl->overloadNumber() > 1 )
 		    omit = TRUE;
 		else
 		    name += parenParen;

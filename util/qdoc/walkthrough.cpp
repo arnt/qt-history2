@@ -20,6 +20,37 @@ static QString classPart( const QString& link )
 	return link.left( k );
 }
 
+/*
+  Transforms 'int x = 3 + 4' into 'int x=3+4'. A white space is kept
+  between 'int' and 'x' because it is meaningful in C++.
+*/
+static QString killWhiteSpace( const QString& s )
+{
+    QString t;
+    enum { Normal, MetAlnum, MetSpace } state = Normal;
+
+    for ( int i = 0; i < (int) s.length(); i++ ) {
+	if ( s[i].isSpace() ) {
+	    if ( state == MetAlnum )
+		state = MetSpace;
+	} else {
+	    if ( s[i].isLetterOrNumber() ) {
+		if ( state == Normal ) {
+		    state = MetAlnum;
+		} else {
+		    if ( state == MetSpace )
+			t += QChar( ' ' );
+		    state = Normal;
+		}
+	    } else {
+		state = Normal;
+	    }
+	    t += s[i];
+	}
+    }
+    return t;
+}
+
 static QString stripTrailingBlankLine( const QString& s )
 {
     if ( s.right(2) == QString("\n\n") )
@@ -295,7 +326,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 			    const QString& command )
 {
-    QString subs = substr.simplifyWhiteSpace();
+    QString subs = killWhiteSpace( substr );
     QString s;
 
     if ( walkloc.filePath().isEmpty() ) {
@@ -312,14 +343,14 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 		     walkloc.shortFilePath().latin1() );
 	    shutUp = TRUE;
 	}
-    } else if ( plainlines.first().simplifyWhiteSpace().find(subs) == -1 ) {
+    } else if ( killWhiteSpace(plainlines.first()).find(subs) == -1 ) {
 	if ( !shutUp ) {
 	    warning( 2, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
 		     command.latin1(), subs.latin1(), walkloc.lineNum(),
 		     walkloc.shortFilePath().latin1() );
 	    warning( 2, walkloc,
 		     "Text '%s' does not contain '%s' (see line %d of '%s')",
-		     plainlines.first().simplifyWhiteSpace().latin1(),
+		     killWhiteSpace(plainlines.first()).latin1(),
 		     subs.latin1(),
 		     docLoc.lineNum(), docLoc.shortFilePath().latin1() );
 	    shutUp = TRUE;
@@ -333,7 +364,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 			  const QString& command )
 {
-    QString subs = substr.simplifyWhiteSpace();
+    QString subs = killWhiteSpace( substr );
     QString s;
 
     if ( walkloc.filePath().isEmpty() ) {
@@ -344,7 +375,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
     }
 
     while ( !plainlines.isEmpty() ) {
-	if ( plainlines.first().simplifyWhiteSpace().find(subs) != -1 )
+	if ( killWhiteSpace(plainlines.first()).find(subs) != -1 )
 	    return stripTrailingBlankLine( s );
 	s += getNextLine( docLoc );
     }

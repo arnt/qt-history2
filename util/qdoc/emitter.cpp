@@ -21,7 +21,7 @@ static QString protect( const QString& str, QChar metaCh )
       '\\ is not \|' or, in C++ notation, "\\\\ is not \\|".
     */
     QString t = str;
-    t.replace( QRegExp(QChar('\\')), QString("\\\\") );
+    t.replace( QRegExp(QString("\\\\")), QString("\\\\") );
     t.replace( QRegExp(QString("\\") + metaCh), QString("\\") + metaCh );
     return t;
 }
