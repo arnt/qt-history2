@@ -2939,8 +2939,8 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif
 
 
-#define word0(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 0 : 1]
-#define word1(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 1 : 0]
+#define word0(x) ((volatile ULong *)&x)[QSysInfo::ByteOrder == QSysInfo::BigEndian ? 0 : 1]
+#define word1(x) ((volatile ULong *)&x)[QSysInfo::ByteOrder == QSysInfo::BigEndian ? 1 : 0]
 
 /* The following definition of Storeinc is appropriate for MIPS processors.
  * An alternative that might be better on some machines is
