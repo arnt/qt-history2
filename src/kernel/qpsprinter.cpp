@@ -5702,7 +5702,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )
             outStream << mleft*scale << " "
-                   << mtop*scale << " translate\n";
+                   << mbottom*scale << " translate\n";
         else
             outStream << mtop*scale << " "
                    << mleft*scale << " translate\n";
