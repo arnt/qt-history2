@@ -907,6 +907,7 @@ void MainWindow::setupWindowActions()
     actionWindowPropertyEditor->addTo( windowMenu );
     actionWindowHierarchyView->addTo( windowMenu );
     actionWindowFormList->addTo( windowMenu );
+    actionWindowActionEditor->addTo( windowMenu );
     QWidgetList windows = workspace->windowList();
     if ( windows.count() && formWindow() )
 	windowMenu->insertSeparator();
