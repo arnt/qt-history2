@@ -96,11 +96,10 @@ public:
     QComboBox *orientation;
 };
 
-#define d d_func()
-
 QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPageSetupDialog(*(new QPageSetupDialogPrivate), printer, parent)
 {
+    Q_D(QPageSetupDialog);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(11);
     layout->setSpacing(6);
@@ -178,6 +177,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
 int QPageSetupDialog::exec()
 {
+    Q_D(QPageSetupDialog);
     int ret = QDialog::exec();
     if (ret == Accepted) {
         // Read out the data

@@ -71,12 +71,10 @@ public:
     bool forceHide;
 };
 
-#define d d_func()
-#define q q_func()
-
 void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
                                   int min, int max)
 {
+    Q_Q(QProgressDialog);
     label = new QLabel(labelText, q);
     int align = q->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, q);
     label->setAlignment(Qt::Alignment(align));
@@ -93,6 +91,7 @@ void QProgressDialogPrivate::init(const QString &labelText, const QString &cance
 
 void QProgressDialogPrivate::layout()
 {
+    Q_Q(QProgressDialog);
     int sp = spacing;
     int mtb = margin_tb;
     int mlr = qMin(q->width() / 10, margin_lr);
@@ -264,6 +263,7 @@ void QProgressDialogPrivate::layout()
 QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
     : QDialog(*(new QProgressDialogPrivate), parent, f)
 {
+    Q_D(QProgressDialog);
     d->init(QString::fromLatin1(""), tr("Cancel"), 0, 100);
 }
 
@@ -295,6 +295,7 @@ QProgressDialog::QProgressDialog(const QString &labelText,
                                   QWidget *parent, Qt::WFlags f)
     : QDialog(*(new QProgressDialogPrivate), parent, f)
 {
+    Q_D(QProgressDialog);
     d->init(labelText, cancelButtonText, minimum, maximum);
 }
 
@@ -327,6 +328,7 @@ QProgressDialog::~QProgressDialog()
 
 void QProgressDialog::setLabel(QLabel *label)
 {
+    Q_D(QProgressDialog);
     delete d->label;
     d->label = label;
     if (label) {
@@ -353,6 +355,7 @@ void QProgressDialog::setLabel(QLabel *label)
 
 QString QProgressDialog::labelText() const
 {
+    Q_D(const QProgressDialog);
     if (d->label)
         return d->label->text();
     return QString::null;
@@ -360,6 +363,7 @@ QString QProgressDialog::labelText() const
 
 void QProgressDialog::setLabelText(const QString &text)
 {
+    Q_D(QProgressDialog);
     if (d->label) {
         d->label->setText(text);
         int w = qMax(isVisible() ? width() : 0, sizeHint().width());
@@ -380,6 +384,7 @@ void QProgressDialog::setLabelText(const QString &text)
 
 void QProgressDialog::setCancelButton(QPushButton *cancelButton)
 {
+    Q_D(QProgressDialog);
     delete d->cancel;
     d->cancel = cancelButton;
     if (cancelButton) {
@@ -405,6 +410,7 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
 
 void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
 {
+    Q_D(QProgressDialog);
     if (!cancelButtonText.isNull()) {
         if (d->cancel)
             d->cancel->setText(cancelButtonText);
@@ -428,6 +434,7 @@ void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
 
 void QProgressDialog::setBar(QProgressBar *bar)
 {
+    Q_D(QProgressDialog);
 #ifndef QT_NO_DEBUG
     if (value() > 0)
         qWarning("QProgressDialog::setBar: Cannot set a new progress bar "
@@ -450,6 +457,7 @@ void QProgressDialog::setBar(QProgressBar *bar)
 
 bool QProgressDialog::wasCanceled() const
 {
+    Q_D(const QProgressDialog);
     return d->cancellation_flag;
 }
 
@@ -465,11 +473,13 @@ bool QProgressDialog::wasCanceled() const
 
 int QProgressDialog::maximum() const
 {
+    Q_D(const QProgressDialog);
     return d->bar->maximum();
 }
 
 void QProgressDialog::setMaximum(int maximum)
 {
+    Q_D(QProgressDialog);
     d->bar->setMaximum(maximum);
 }
 
@@ -484,11 +494,13 @@ void QProgressDialog::setMaximum(int maximum)
 
 int QProgressDialog::minimum() const
 {
+    Q_D(const QProgressDialog);
     return d->bar->minimum();
 }
 
 void QProgressDialog::setMinimum(int minimum)
 {
+    Q_D(QProgressDialog);
     d->bar->setMinimum(minimum);
 }
 
@@ -506,6 +518,7 @@ void QProgressDialog::setMinimum(int minimum)
 */
 void QProgressDialog::setRange(int minimum, int maximum)
 {
+    Q_D(QProgressDialog);
     d->bar->setRange(minimum, maximum);
 }
 
@@ -519,6 +532,7 @@ void QProgressDialog::setRange(int minimum, int maximum)
 
 void QProgressDialog::reset()
 {
+    Q_D(QProgressDialog);
 #ifndef QT_NO_CURSOR
     if (value() >= 0) {
         if (parentWidget())
@@ -541,6 +555,7 @@ void QProgressDialog::reset()
 
 void QProgressDialog::cancel()
 {
+    Q_D(QProgressDialog);
     d->forceHide = true;
     reset();
     d->forceHide = false;
@@ -550,6 +565,7 @@ void QProgressDialog::cancel()
 
 int QProgressDialog::value() const
 {
+    Q_D(const QProgressDialog);
     return d->bar->value();
 }
 
@@ -572,6 +588,7 @@ int QProgressDialog::value() const
 */
 void QProgressDialog::setValue(int progress)
 {
+    Q_D(QProgressDialog);
     if (progress == d->bar->value() ||
          d->bar->value() == -1 && progress == d->bar->maximum())
         return;
@@ -630,6 +647,7 @@ void QProgressDialog::setValue(int progress)
 
 QSize QProgressDialog::sizeHint() const
 {
+    Q_D(const QProgressDialog);
     QSize sh = d->label->sizeHint();
     QSize bh = d->bar->sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
@@ -642,6 +660,7 @@ QSize QProgressDialog::sizeHint() const
 */
 void QProgressDialog::resizeEvent(QResizeEvent *)
 {
+    Q_D(QProgressDialog);
     d->layout();
 }
 
@@ -650,6 +669,7 @@ void QProgressDialog::resizeEvent(QResizeEvent *)
 */
 void QProgressDialog::changeEvent(QEvent *ev)
 {
+    Q_D(QProgressDialog);
     if(ev->type() == QEvent::StyleChange)
         d->layout();
     QDialog::changeEvent(ev);
@@ -671,6 +691,7 @@ void QProgressDialog::changeEvent(QEvent *ev)
 */
 void QProgressDialog::setMinimumDuration(int ms)
 {
+    Q_D(QProgressDialog);
     d->showTime = ms;
     if (d->bar->value() == 0) {
         d->forceTimer->stop();
@@ -680,6 +701,7 @@ void QProgressDialog::setMinimumDuration(int ms)
 
 int QProgressDialog::minimumDuration() const
 {
+    Q_D(const QProgressDialog);
     return d->showTime;
 }
 
@@ -705,11 +727,13 @@ void QProgressDialog::closeEvent(QCloseEvent *e)
 
 void QProgressDialog::setAutoReset(bool b)
 {
+    Q_D(QProgressDialog);
     d->autoReset = b;
 }
 
 bool QProgressDialog::autoReset() const
 {
+    Q_D(const QProgressDialog);
     return d->autoReset;
 }
 
@@ -724,11 +748,13 @@ bool QProgressDialog::autoReset() const
 
 void QProgressDialog::setAutoClose(bool b)
 {
+    Q_D(QProgressDialog);
     d->autoClose = b;
 }
 
 bool QProgressDialog::autoClose() const
 {
+    Q_D(const QProgressDialog);
     return d->autoClose;
 }
 
@@ -738,6 +764,7 @@ bool QProgressDialog::autoClose() const
 
 void QProgressDialog::showEvent(QShowEvent *e)
 {
+    Q_D(QProgressDialog);
     QDialog::showEvent(e);
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
     int h = qMax(isVisible() ? height() : 0, sizeHint().height());
@@ -754,6 +781,7 @@ void QProgressDialog::showEvent(QShowEvent *e)
 
 void QProgressDialog::forceShow()
 {
+    Q_D(QProgressDialog);
     if (d->shown_once || d->cancellation_flag)
         return;
 

@@ -44,9 +44,6 @@ public:
     bool nextPending();
 };
 
-#define d d_func()
-#define q q_func()
-
 class QErrorMessageTextView : public QTextEdit
 {
 public:
@@ -153,6 +150,7 @@ void jump(QtMsgType t, const char * m)
 QErrorMessage::QErrorMessage(QWidget * parent)
     : QDialog(*new QErrorMessagePrivate, parent)
 {
+    Q_D(QErrorMessage);
     QGridLayout * grid = new QGridLayout(this);
     grid->setMargin(11);
     grid->setSpacing(6);
@@ -195,6 +193,7 @@ QErrorMessage::~QErrorMessage()
 
 void QErrorMessage::done(int a)
 {
+    Q_D(QErrorMessage);
     if (!d->again->isChecked())
         d->doNotShow.insert(d->errors->toPlainText(), 0);
     if (!d->nextPending()) {
@@ -250,6 +249,7 @@ bool QErrorMessagePrivate::nextPending()
 
 void QErrorMessage::showMessage(const QString & message)
 {
+    Q_D(QErrorMessage);
     if (d->doNotShow.contains(message))
         return;
     d->pending.append(message);

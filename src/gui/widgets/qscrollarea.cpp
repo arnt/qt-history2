@@ -28,10 +28,6 @@ public:
     bool resizable;
 };
 
-#define d d_func()
-#define q q_func()
-
-
 /*!
     \class QScrollArea
     \brief The QScrollArea class provides a scrolling view onto another widget.
@@ -64,6 +60,7 @@ public:
 QScrollArea::QScrollArea(QWidget *parent)
     :QAbstractScrollArea(*new QScrollAreaPrivate,parent)
 {
+    Q_D(QScrollArea);
     d->viewport->setAttribute(Qt::WA_SetBackgroundRole, false);
     d->vbar->setSingleStep(20);
     d->hbar->setSingleStep(20);
@@ -81,6 +78,7 @@ QScrollArea::~QScrollArea()
 
 void QScrollAreaPrivate::updateScrollBars()
 {
+    Q_Q(QScrollArea);
     if (!widget)
         return;
     QSize p = viewport->size();
@@ -96,10 +94,10 @@ void QScrollAreaPrivate::updateScrollBars()
         widget->resize(p.expandedTo(min).boundedTo(max));
     QSize v = widget->size();
 
-    d->hbar->setRange(0, v.width() - p.width());
-    d->hbar->setPageStep(p.width());
-    d->vbar->setRange(0, v.height() - p.height());
-    d->vbar->setPageStep(p.height());
+    hbar->setRange(0, v.width() - p.width());
+    hbar->setPageStep(p.width());
+    vbar->setRange(0, v.height() - p.height());
+    vbar->setPageStep(p.height());
 }
 
 /*!
@@ -110,6 +108,7 @@ void QScrollAreaPrivate::updateScrollBars()
 
 QWidget *QScrollArea::widget() const
 {
+    Q_D(const QScrollArea);
     return d->widget;
 }
 
@@ -123,6 +122,7 @@ QWidget *QScrollArea::widget() const
 */
 void QScrollArea::setWidget(QWidget *w)
 {
+    Q_D(QScrollArea);
     if (w == d->widget || !w)
         return;
 
@@ -148,6 +148,7 @@ void QScrollArea::setWidget(QWidget *w)
  */
 QWidget *QScrollArea::takeWidget()
 {
+    Q_D(QScrollArea);
     QWidget *w = d->widget;
     d->widget = 0;
     if (w)
@@ -159,6 +160,7 @@ QWidget *QScrollArea::takeWidget()
  */
 bool QScrollArea::event(QEvent *e)
 {
+    Q_D(QScrollArea);
     if (e->type() == QEvent::StyleChange) {
         d->updateScrollBars();
     }
@@ -170,6 +172,7 @@ bool QScrollArea::event(QEvent *e)
  */
 bool QScrollArea::eventFilter(QObject *o, QEvent *e)
 {
+    Q_D(QScrollArea);
     if (o == d->widget && e->type() == QEvent::Resize)
         d->updateScrollBars();
     return false;
@@ -179,6 +182,7 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
  */
 void QScrollArea::resizeEvent(QResizeEvent *)
 {
+    Q_D(QScrollArea);
     d->updateScrollBars();
 }
 
@@ -187,6 +191,7 @@ void QScrollArea::resizeEvent(QResizeEvent *)
  */
 void QScrollArea::scrollContentsBy(int, int)
 {
+    Q_D(QScrollArea);
     if (!d->widget)
         return;
     d->widget->move(-d->hbar->value(), -d->vbar->value());
@@ -208,11 +213,13 @@ void QScrollArea::scrollContentsBy(int, int)
 */
 bool QScrollArea::widgetResizable() const
 {
+    Q_D(const QScrollArea);
     return d->resizable;
 }
 
 void QScrollArea::setWidgetResizable(bool resizable)
 {
+    Q_D(QScrollArea);
     d->resizable = resizable;
     updateGeometry();
 }
@@ -221,6 +228,7 @@ void QScrollArea::setWidgetResizable(bool resizable)
  */
 QSize QScrollArea::sizeHint() const
 {
+    Q_D(const QScrollArea);
     int f = 2 * d->frameWidth;
     QSize sz(f, f);
     int h = fontMetrics().height();
@@ -244,6 +252,7 @@ QSize QScrollArea::sizeHint() const
  */
 bool QScrollArea::focusNextPrevChild(bool next)
 {
+    Q_D(QScrollArea);
     if (QWidget::focusNextPrevChild(next)) {
         if (QWidget *fw = focusWidget()) {
             if (d->widget && fw != d->widget && d->widget->isAncestorOf(fw)) {

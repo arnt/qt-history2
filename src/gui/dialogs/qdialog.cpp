@@ -171,9 +171,6 @@
   property is enabled. By default, the size grip is disabled.
 */
 
-#define d d_func()
-#define q q_func()
-
 
 /*!
   Constructs a dialog with parent \a parent.
@@ -241,21 +238,22 @@ QDialog::~QDialog()
 */
 void QDialogPrivate::setDefault(QPushButton *pushButton)
 {
+    Q_Q(QDialog);
     bool hasMain = false;
     QList<QPushButton*> list = qFindChildren<QPushButton*>(q);
     for (int i=0; i<list.size(); ++i) {
         QPushButton *pb = list.at(i);
         if (pb->window() == q) {
-            if (pb == d->mainDef)
+            if (pb == mainDef)
                 hasMain = true;
             if (pb != pushButton)
                 pb->setDefault(false);
         }
     }
     if (!pushButton && hasMain)
-        d->mainDef->setDefault(true);
+        mainDef->setDefault(true);
     if (!hasMain)
-        d->mainDef = pushButton;
+        mainDef = pushButton;
 }
 
 /*!
@@ -265,7 +263,7 @@ void QDialogPrivate::setDefault(QPushButton *pushButton)
 */
 void QDialogPrivate::setMainDefault(QPushButton *pushButton)
 {
-    d->mainDef = 0;
+    mainDef = 0;
     setDefault(pushButton);
 }
 
@@ -276,6 +274,7 @@ void QDialogPrivate::setMainDefault(QPushButton *pushButton)
  */
 void QDialogPrivate::hideDefault()
 {
+    Q_Q(QDialog);
     QList<QPushButton*> list = qFindChildren<QPushButton*>(q);
     for (int i=0; i<list.size(); ++i) {
         list.at(i)->setDefault(false);
@@ -334,6 +333,7 @@ void QDialog::hideSpecial()
 */
 int QDialog::result() const
 {
+    Q_D(const QDialog);
     return d->rescode;
 }
 
@@ -344,6 +344,7 @@ int QDialog::result() const
 */
 void QDialog::setResult(int r)
 {
+    Q_D(QDialog);
     d->rescode = r;
 }
 
@@ -361,6 +362,7 @@ void QDialog::setResult(int r)
 
 int QDialog::exec()
 {
+    Q_D(QDialog);
     if (d->eventLoop) {
         qWarning("QDialog::exec: Recursive call detected");
         return -1;
@@ -404,6 +406,7 @@ int QDialog::exec()
 
 void QDialog::done(int r)
 {
+    Q_D(QDialog);
     hide();
     setResult(r);
     d->close_helper(QWidgetPrivate::CloseNoEvent);
@@ -576,6 +579,7 @@ bool QDialog::event(QEvent *e)
 
 void QDialog::setVisible(bool visible)
 {
+    Q_D(QDialog);
     if (visible) {
         if (isVisible())
             return;
@@ -741,6 +745,7 @@ void QDialog::adjustPosition(QWidget* w)
 */
 void QDialog::setOrientation(Qt::Orientation orientation)
 {
+    Q_D(QDialog);
     d->orientation = orientation;
 }
 
@@ -751,6 +756,7 @@ void QDialog::setOrientation(Qt::Orientation orientation)
 */
 Qt::Orientation QDialog::orientation() const
 {
+    Q_D(const QDialog);
     return d->orientation;
 }
 
@@ -766,6 +772,7 @@ Qt::Orientation QDialog::orientation() const
  */
 void QDialog::setExtension(QWidget* extension)
 {
+    Q_D(QDialog);
     delete d->extension;
     d->extension = extension;
 
@@ -785,6 +792,7 @@ void QDialog::setExtension(QWidget* extension)
  */
 QWidget* QDialog::extension() const
 {
+    Q_D(const QDialog);
     return d->extension;
 }
 
@@ -802,6 +810,7 @@ QWidget* QDialog::extension() const
  */
 void QDialog::showExtension(bool showIt)
 {
+    Q_D(QDialog);
     d->doShowExtension = showIt;
     if (!d->extension)
         return;
@@ -848,6 +857,7 @@ void QDialog::showExtension(bool showIt)
 /*! \reimp */
 QSize QDialog::sizeHint() const
 {
+    Q_D(const QDialog);
     if (d->extension)
         if (d->orientation == Qt::Horizontal)
             return QSize(QWidget::sizeHint().width(),
@@ -863,6 +873,7 @@ QSize QDialog::sizeHint() const
 /*! \reimp */
 QSize QDialog::minimumSizeHint() const
 {
+    Q_D(const QDialog);
     if (d->extension)
         if (d->orientation == Qt::Horizontal)
             return QSize(QWidget::minimumSizeHint().width(),
@@ -896,6 +907,7 @@ void QDialog::setModal(bool modal)
 bool QDialog::isSizeGripEnabled() const
 {
 #ifndef QT_NO_SIZEGRIP
+    Q_D(const QDialog);
     return !!d->resizer;
 #else
     return false;
@@ -906,6 +918,7 @@ bool QDialog::isSizeGripEnabled() const
 void QDialog::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP
+    Q_D(QDialog);
     if (!enabled != !d->resizer) {
         if (enabled) {
             d->resizer = new QSizeGrip(this);
@@ -931,6 +944,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 void QDialog::resizeEvent(QResizeEvent *)
 {
 #ifndef QT_NO_SIZEGRIP
+    Q_D(QDialog);
     if (d->resizer) {
         if (isRightToLeft())
             d->resizer->move(rect().bottomLeft() -d->resizer->rect().bottomLeft());

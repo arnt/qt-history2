@@ -16,9 +16,6 @@
 #include <qsize.h>
 #include <qstringlist.h>
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QProxyModel
     \brief The QProxyModel class provides support for filtering and sorting data
@@ -37,6 +34,7 @@
 QProxyModel::QProxyModel(QObject *parent)
     : QAbstractItemModel(*new QProxyModelPrivate, parent)
 {
+    Q_D(QProxyModel);
     setModel(&d->empty);
     disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
@@ -47,6 +45,7 @@ QProxyModel::QProxyModel(QObject *parent)
 QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
+    Q_D(QProxyModel);
     setModel(&d->empty);
     disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
@@ -63,6 +62,7 @@ QProxyModel::~QProxyModel()
 */
 void QProxyModel::setModel(QAbstractItemModel *model)
 {
+    Q_D(QProxyModel);
     if (d->model && d->model != &d->empty) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
@@ -105,6 +105,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
 */
 QAbstractItemModel *QProxyModel::model() const
 {
+    Q_D(const QProxyModel);
     return d->model;
 }
 
@@ -115,6 +116,7 @@ QAbstractItemModel *QProxyModel::model() const
 */
 QModelIndex QProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
+    Q_D(const QProxyModel);
     return d->model->index(row, column, parent);    
 }
 
@@ -124,6 +126,7 @@ QModelIndex QProxyModel::index(int row, int column, const QModelIndex &parent) c
 */
 QModelIndex QProxyModel::parent(const QModelIndex &child) const
 {
+    Q_D(const QProxyModel);
     return d->model->parent(child);
 }
 
@@ -134,6 +137,7 @@ QModelIndex QProxyModel::parent(const QModelIndex &child) const
 */
 int QProxyModel::rowCount(const QModelIndex &parent) const
 {
+    Q_D(const QProxyModel);
     return d->model->rowCount(parent);
 }
 
@@ -144,6 +148,7 @@ int QProxyModel::rowCount(const QModelIndex &parent) const
 */
 int QProxyModel::columnCount(const QModelIndex &parent) const
 {
+    Q_D(const QProxyModel);
     return d->model->columnCount(parent);
 }
 
@@ -155,6 +160,7 @@ int QProxyModel::columnCount(const QModelIndex &parent) const
 */
 bool QProxyModel::hasChildren(const QModelIndex &parent) const
 {
+    Q_D(const QProxyModel);
     return d->model->hasChildren(parent);
 }
 
@@ -164,6 +170,7 @@ bool QProxyModel::hasChildren(const QModelIndex &parent) const
 */
 QVariant QProxyModel::data(const QModelIndex &index, int role) const
 {
+    Q_D(const QProxyModel);
     return d->model->data(index, role);
 }
 
@@ -178,6 +185,7 @@ QVariant QProxyModel::data(const QModelIndex &index, int role) const
 */
 bool QProxyModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_D(const QProxyModel);
     return d->model->setData(index, value, role);
 }
 
@@ -187,6 +195,7 @@ bool QProxyModel::setData(const QModelIndex &index, const QVariant &value, int r
 */
 QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_D(const QProxyModel);
     return d->model->headerData(section, orientation, role);
 }
 
@@ -199,27 +208,32 @@ QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int r
 bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
                                 const QVariant &value, int role)
 {
+    Q_D(const QProxyModel);
     return d->model->setHeaderData(section, orientation, value, role);
 }
 
 QStringList QProxyModel::mimeTypes() const
 {
+    Q_D(const QProxyModel);
     return d->model->mimeTypes();
 }
 
 QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
 {
+    Q_D(const QProxyModel);
     return d->model->mimeData(indexes);
 }
 
 bool QProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                int row, const QModelIndex &parent)
 {
+    Q_D(const QProxyModel);
     return d->model->dropMimeData(data, action, row, parent);
 }
 
 Qt::DropActions QProxyModel::supportedDropActions() const
 {
+    Q_D(const QProxyModel);
     return d->model->supportedDropActions();
 }
 
@@ -235,6 +249,7 @@ Qt::DropActions QProxyModel::supportedDropActions() const
     \sa QAbstractItemModel::insertRows()*/
 bool QProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    Q_D(const QProxyModel);
     return d->model->insertRows(row, count, parent);
 }
 
@@ -251,6 +266,7 @@ bool QProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 */
 bool QProxyModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(const QProxyModel);
     return d->model->insertColumns(column, count, parent);
 }
 
@@ -262,6 +278,7 @@ bool QProxyModel::insertColumns(int column, int count, const QModelIndex &parent
 */
 void QProxyModel::fetchMore(const QModelIndex &parent)
 {
+    Q_D(const QProxyModel);
     d->model->fetchMore(parent);
 }
 
@@ -272,6 +289,7 @@ void QProxyModel::fetchMore(const QModelIndex &parent)
 */
 Qt::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 {
+    Q_D(const QProxyModel);
     return d->model->flags(index);
 }
 
@@ -283,6 +301,7 @@ Qt::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 */
 void QProxyModel::sort(int column, Qt::SortOrder order)
 {
+    Q_D(QProxyModel);
     d->model->sort(column, order);
 }
 
@@ -300,6 +319,7 @@ QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
                                    const QVariant &value,
                                    int hits, QAbstractItemModel::MatchFlags flags) const
 {
+    Q_D(const QProxyModel);
     return d->model->match(start, role, value, hits, flags);
 }
 
@@ -308,6 +328,7 @@ QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
 */
 QSize QProxyModel::span(const QModelIndex &index) const
 {
+    Q_D(const QProxyModel);
     return d->model->span(index);
 }
 
@@ -315,6 +336,7 @@ QSize QProxyModel::span(const QModelIndex &index) const
  */
 bool QProxyModel::submit()
 {
+    Q_D(QProxyModel);
     return d->model->submit();
 }
 
@@ -322,6 +344,7 @@ bool QProxyModel::submit()
  */
 void QProxyModel::revert()
 {
+    Q_D(QProxyModel);
     d->model->revert();
 }
 

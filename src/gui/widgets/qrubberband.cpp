@@ -34,10 +34,9 @@ public:
     void updateMask();
 };
 
-#define d d_func()
-#define q q_func()
 QStyleOption QRubberBandPrivate::getStyleOption() const
 {
+    Q_Q(const QRubberBand);
     QStyleOption opt(0);
     opt.rect = rect;
     opt.palette = q->palette();
@@ -86,6 +85,7 @@ QStyleOption QRubberBandPrivate::getStyleOption() const
 QRubberBand::QRubberBand(Shape s, QWidget *p) :
     QWidget(*new QRubberBandPrivate, p, Qt::ToolTip)
 {
+    Q_D(QRubberBand);
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);
 #ifdef Q_WS_MAC
@@ -114,11 +114,13 @@ QRubberBand::~QRubberBand()
 */
 QRubberBand::Shape QRubberBand::shape() const
 {
+    Q_D(const QRubberBand);
     return d->shape;
 }
 
 void QRubberBandPrivate::updateMask()
 {
+    Q_Q(QRubberBand);
     QStyleHintReturnMask mask;
     QStyleOption opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask))
@@ -130,6 +132,7 @@ void QRubberBandPrivate::updateMask()
 */
 void QRubberBand::paintEvent(QPaintEvent *)
 {
+    Q_D(QRubberBand);
     QStylePainter painter(this);
     painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
 }
@@ -139,6 +142,7 @@ void QRubberBand::paintEvent(QPaintEvent *)
 */
 void QRubberBand::changeEvent(QEvent *)
 {
+    Q_D(QRubberBand);
     d->updateMask();
 }
 
@@ -188,6 +192,7 @@ void QRubberBand::changeEvent(QEvent *)
 */
 void QRubberBand::setGeometry(const QRect &geom)
 {
+    Q_D(QRubberBand);
 #if 1
     QRect mygeom = geom;
     d->rect = QRect(0, 0, mygeom.width(), mygeom.height());

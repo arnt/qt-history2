@@ -54,9 +54,6 @@ public:
     }
 };
 
-#define d d_func()
-#define q q_func()
-
 QInputDialogPrivate::QInputDialogPrivate()
     : QDialogPrivate(),
       label(0),
@@ -69,6 +66,7 @@ QInputDialogPrivate::QInputDialogPrivate()
 
 void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 {
+    Q_Q(QInputDialog);
     QVBoxLayout *vbox = new QVBoxLayout(q);
     vbox->setMargin(6);
     vbox->setSpacing(6);
@@ -94,16 +92,16 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     hbox->setSpacing(6);
     vbox->addLayout(hbox, Qt::AlignRight);
 
-    d->ok = new QPushButton(q->tr("OK"), q);
-    d->ok->setDefault(true);
+    ok = new QPushButton(q->tr("OK"), q);
+    ok->setDefault(true);
     QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
 
-    QSize bs = d->ok->sizeHint().expandedTo(cancel->sizeHint());
-    d->ok->setFixedSize(bs);
+    QSize bs = ok->sizeHint().expandedTo(cancel->sizeHint());
+    ok->setFixedSize(bs);
     cancel->setFixedSize(bs);
 
     hbox->addStretch();
-    hbox->addWidget(d->ok);
+    hbox->addWidget(ok);
     hbox->addWidget(cancel);
 
     QObject::connect(lineEdit, SIGNAL(returnPressed()), q, SLOT(tryAccept()));
@@ -183,6 +181,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WFlags f)
     : QDialog(*new QInputDialogPrivate, parent, f)
 {
+    Q_D(QInputDialog);
     d->init(label, type);
 }
 
@@ -204,6 +203,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
                             const char* name, bool modal, Type type, Qt::WFlags f)
     : QDialog(*new QInputDialogPrivate, parent, f)
 {
+    Q_D(QInputDialog);
     d->init(label, type);
     setModal(modal);
     setObjectName(name);
@@ -216,6 +216,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
 
 QLineEdit *QInputDialog::lineEdit() const
 {
+    Q_D(const QInputDialog);
     return d->lineEdit;
 }
 
@@ -225,6 +226,7 @@ QLineEdit *QInputDialog::lineEdit() const
 
 QSpinBox *QInputDialog::spinBox() const
 {
+    Q_D(const QInputDialog);
     return d->spinBox;
 }
 
@@ -234,6 +236,7 @@ QSpinBox *QInputDialog::spinBox() const
 
 QComboBox *QInputDialog::comboBox() const
 {
+    Q_D(const QInputDialog);
     return d->comboBox;
 }
 
@@ -243,6 +246,7 @@ QComboBox *QInputDialog::comboBox() const
 
 QComboBox *QInputDialog::editableComboBox() const
 {
+    Q_D(const QInputDialog);
     return d->editComboBox;
 }
 
@@ -252,6 +256,7 @@ QComboBox *QInputDialog::editableComboBox() const
 
 void QInputDialog::setType(Type t)
 {
+    Q_D(QInputDialog);
     QWidget *input = 0;
     switch (t) {
     case LineEdit:
@@ -286,6 +291,7 @@ void QInputDialog::setType(Type t)
 
 QInputDialog::Type QInputDialog::type() const
 {
+    Q_D(const QInputDialog);
     return d->type;
 }
 
@@ -528,6 +534,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &caption, const QSt
 
 void QInputDialog::textChanged(const QString &s)
 {
+    Q_D(QInputDialog);
     bool on = true;
 
     if (d->lineEdit->validator()) {
@@ -547,6 +554,7 @@ void QInputDialog::textChanged(const QString &s)
 
 void QInputDialog::tryAccept()
 {
+    Q_D(QInputDialog);
     if (!d->lineEdit->text().isEmpty())
         accept();
 }

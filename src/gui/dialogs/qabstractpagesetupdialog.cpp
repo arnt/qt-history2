@@ -14,12 +14,10 @@
 #include "qabstractpagesetupdialog.h"
 #include "qabstractpagesetupdialog_p.h"
 
-#define d d_func()
-#define q q_func()
-
 QAbstractPageSetupDialog::QAbstractPageSetupDialog(QPrinter *printer, QWidget *parent)
     : QDialog(*(new QAbstractPageSetupDialogPrivate), parent)
 {
+    Q_D(QAbstractPageSetupDialog);
     d->printer = printer;
 }
 
@@ -27,10 +25,12 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QAbstractPageSetupDialogPriva
                                                    QPrinter *printer, QWidget *parent)
     : QDialog(ptr, parent)
 {
+    Q_D(QAbstractPageSetupDialog);
     d->printer = printer;
 }
 
 QPrinter *QAbstractPageSetupDialog::printer()
 {
+    Q_D(QAbstractPageSetupDialog);
     return d->printer;
 }

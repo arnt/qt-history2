@@ -45,9 +45,6 @@ public:
     QItemEditorFactory *f;
 };
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QItemDelegate
 
@@ -219,6 +216,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
+    Q_D(const QItemDelegate);
     QVariant v = index.model()->data(index, Qt::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
@@ -234,6 +232,7 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
+    Q_D(const QItemDelegate);
     Q_ASSERT(model);
     QVariant::Type t = model->data(index, Qt::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
@@ -270,6 +269,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 */
 QItemEditorFactory *QItemDelegate::itemEditorFactory() const
 {
+    Q_D(const QItemDelegate);
     return d->f;
 }
 
@@ -280,6 +280,7 @@ QItemEditorFactory *QItemDelegate::itemEditorFactory() const
 */
 void QItemDelegate::setItemEditorFactory(QItemEditorFactory *factory)
 {
+    Q_D(QItemDelegate);
     d->f = factory;
 }
 
