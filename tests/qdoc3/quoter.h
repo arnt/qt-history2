@@ -6,6 +6,7 @@
 #define QUOTER_H
 
 #include <qregexp.h>
+#include <qstringlist.h>
 
 #include "location.h"
 

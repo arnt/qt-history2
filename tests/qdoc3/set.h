@@ -159,9 +159,6 @@ public:
     QMap<T, int> map;
     QList<T> list;
 
-    bool ensure_constructed()
-    { if (map.ensure_constructed()) return true; return list.ensure_constructed(); }
-
 private:
     void toMap() const {
 	if ( !list.isEmpty() ) {

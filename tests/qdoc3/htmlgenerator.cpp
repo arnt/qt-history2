@@ -428,7 +428,6 @@ void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
 
 void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marker)
 {
-qDebug("Generate class '%s'", classe->name().ascii());
     QList<Section> sections;
     QList<Section>::ConstIterator s;
 
@@ -510,7 +509,6 @@ qDebug("Generate class '%s'", classe->name().ascii());
 	++s;
     }
     generateFooter( classe );
-qDebug("  DONE");
 }
 
 void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )

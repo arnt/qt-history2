@@ -17,8 +17,8 @@
 #include "text.h"
 #include "tokenizer.h"
 
-static Set<QString> null_Set_QString;
-static QList<Text> null_QList_Text;
+Q_GLOBAL_STATIC(Set<QString>, null_Set_QString)
+Q_GLOBAL_STATIC(QList<Text>, null_QList_Text)
 
 struct Macro
 {
@@ -121,9 +121,13 @@ static struct {
     { 0, 0, 0 }
 };
 
-static QMap<QString, QString> aliasMap;
-static QHash<QString, int> commandHash;
-static QHash<QString, Macro> macroHash;
+typedef QMap<QString, QString> QMap_QString_QString;
+typedef QHash<QString, int> QHash_QString_int;
+typedef QHash<QString, Macro> QHash_QString_Macro;
+
+Q_GLOBAL_STATIC(QMap_QString_QString, aliasMap)
+Q_GLOBAL_STATIC(QHash_QString_int, commandHash)
+Q_GLOBAL_STATIC(QHash_QString_Macro, macroHash)
 
 class DocPrivateExtra
 {
@@ -174,8 +178,6 @@ public:
 DocPrivate::DocPrivate(const Location &location, const QString &source)
     : loc(location), src(source), hasLegalese(false), hasSectioningUnits(false), extra(0)
 {
-    null_Set_QString.ensure_constructed();
-    null_QList_Text.ensure_constructed();
 }
 
 DocPrivate::~DocPrivate()
@@ -349,7 +351,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 		}
 	    } else {
-		int command = commandHash.value(commandStr, UNKNOWN_COMMAND);
+		int command = commandHash()->value(commandStr, UNKNOWN_COMMAND);
 
 		switch ( command ) {
 		case CMD_A:
@@ -837,8 +839,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    if ( metaCommandSet.contains(commandStr) ) {
 			priv->metaCommandSet.insert( commandStr );
 			priv->metaCommandMap[commandStr].append(getRestOfLine());
-		    } else if (macroHash.contains(commandStr)) {
-			const Macro &macro = macroHash.value(commandStr);
+		    } else if (macroHash()->contains(commandStr)) {
+			const Macro &macro = macroHash()->value(commandStr);
 			int numPendingFi = 0;
 			QMap<QString, QString>::ConstIterator d = macro.otherDefs.begin();
 			while ( d != macro.otherDefs.end() ) {
@@ -944,10 +946,10 @@ QString DocParser::detailsUnknownCommand(const Set<QString> &metaCommandSet, con
 	i++;
     }
 
-    if ( aliasMap.contains(str) )
+    if (aliasMap()->contains(str))
 	return tr( "The command '\\%1' was renamed '\\%2' by the configuration"
 		   " file. Use the new name." )
-	       .arg(str).arg(aliasMap[str]);
+	       .arg(str).arg((*aliasMap())[str]);
 
     QString best = nearestName( str, commandSet );
     if ( best.isEmpty() ) {
@@ -1927,22 +1929,22 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 
 const Set<QString> &Doc::parameterNames() const
 {
-    return priv == 0 ? null_Set_QString : priv->params;
+    return priv == 0 ? *null_Set_QString() : priv->params;
 }
 
 const Set<QString> &Doc::enumItemNames() const
 {
-    return priv == 0 ? null_Set_QString : priv->enumItemSet;
+    return priv == 0 ? *null_Set_QString() : priv->enumItemSet;
 }
 
 const Set<QString> &Doc::omitEnumItemNames() const
 {
-    return priv == 0 ? null_Set_QString : priv->omitEnumItemSet;
+    return priv == 0 ? *null_Set_QString() : priv->omitEnumItemSet;
 }
 
 const Set<QString> &Doc::metaCommandsUsed() const
 {
-    return priv == 0 ? null_Set_QString : priv->metaCommandSet;
+    return priv == 0 ? *null_Set_QString() : priv->metaCommandSet;
 }
 
 QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
@@ -1956,7 +1958,7 @@ QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
 
 const QList<Text> &Doc::alsoList() const
 {
-    return priv == 0 ? null_QList_Text : priv->alsoList;
+    return priv == 0 ? *null_QList_Text() : priv->alsoList;
 }
 
 bool Doc::hasTableOfContents() const
@@ -1980,9 +1982,6 @@ void Doc::initialize( const Config& config )
 
     QMap<QString, QString> reverseAliasMap;
 
-    aliasMap.ensure_constructed();
-    commandHash.ensure_constructed();
-
     Set<QString> commands = config.subVars( CONFIG_ALIAS );
     Set<QString>::ConstIterator c = commands.begin();
     while ( c != commands.end() ) {
@@ -1996,21 +1995,19 @@ void Doc::initialize( const Config& config )
 	} else {
 	    reverseAliasMap.insert( alias, *c );
 	}
-	aliasMap.insert(*c, alias);
+	aliasMap()->insert(*c, alias);
 	++c;
     }
 
     int i = 0;
     while ( cmds[i].english ) {
 	cmds[i].alias = alias( cmds[i].english );
-	commandHash.insert(cmds[i].alias, cmds[i].no);
+	commandHash()->insert(cmds[i].alias, cmds[i].no);
 
 	if ( cmds[i].no != i )
 	    Location::internalError( tr("command %1 missing").arg(i) );
 	i++;
     }
-
-    macroHash.ensure_constructed();
 
     Set<QString> macroNames = config.subVars( CONFIG_MACRO );
     Set<QString>::ConstIterator n = macroNames.begin();
@@ -2058,7 +2055,7 @@ void Doc::initialize( const Config& config )
 	}
 
 	if (macro.numParams != -1)
-	    macroHash.insert(*n, macro);
+	    macroHash()->insert(*n, macro);
 	++n;
     }
 }
@@ -2069,14 +2066,14 @@ void Doc::terminate()
     DocParser::exampleDirs.clear();
     DocParser::sourceFiles.clear();
     DocParser::sourceDirs.clear();
-    aliasMap.clear();
-    commandHash.clear();
-    macroHash.clear();
+    aliasMap()->clear();
+    commandHash()->clear();
+    macroHash()->clear();
 }
 
 QString Doc::alias(const QString &english)
 {
-    return aliasMap.value(english, english);
+    return aliasMap()->value(english, english);
 }
 
 void Doc::trimCStyleComment( Location& location, QString& str )

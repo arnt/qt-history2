@@ -2,8 +2,7 @@ include(compat.qdoc)
 
 project			= Qt
 language		= Cpp
-headerdirs		= $QTDIR/include \
-			  $QTDIR/src/attic
+headerdirs		= $QTDIR/src
 sourcedirs		= $QTDIR/src \
 			  $QTDIR/doc
 sources.fileextensions	= "*.cpp *.doc"
