@@ -639,8 +639,13 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
     int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
 
-    int qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
-    int qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+    int qtProps = 0;
+    int qtSlots = 0;
+
+    if (o && o->isWidgetType()) {
+	qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+	qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+    }
 
     QString classID = qAxFactory()->classID( className ).toString().upper();
     if (QUuid(classID).isNull())

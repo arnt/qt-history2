@@ -1637,8 +1637,13 @@ void QAxServerBase::readMetaData()
 	proplist = new QIntDict<QMetaProperty>;
 	proplist2 = new QMap<int,DISPID>;
 
-	int qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
-	int qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+	int qtProps = 0;
+	int qtSlots = 0;
+
+	if (theObject->isWidgetType()) {
+	    qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+	    qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+	}
 
 	const QMetaObject *mo = qt.object->metaObject();
 	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
