@@ -131,15 +131,29 @@ void Distributor::checkLibData()
 	const char *key;
 	QCString value;
 	bool done;
-    } steps[] = {
-	{ "qt_nstpath=", QCString(), FALSE },
-	{ "qt_binpath=", QCString(), FALSE },
-	{ "qt_docpath=", QCString(), FALSE },
-	{ "qt_hdrpath=", QCString(), FALSE },
-	{ "qt_libpath=", QCString(), FALSE },
-	{ "qt_plgpath=", QCString(), FALSE },
-	{ "qt_datpath=", QCString(), FALSE }
-    };
+    } steps[7];
+
+    steps[0].key = "qt_nstpath=";
+    steps[0].done = FALSE;
+
+    steps[1].key = "qt_binpath=";
+    steps[1].done = FALSE;
+
+    steps[2].key = "qt_docpath=";
+    steps[2].done = FALSE;
+
+    steps[3].key = "qt_hdrpath=";
+    steps[3].done = FALSE;
+
+    steps[4].key = "qt_libpath=";
+    steps[4].done = FALSE;
+
+    steps[5].key = "qt_plgpath=";
+    steps[5].done = FALSE;
+
+    steps[6].key = "qt_datpath=";
+    steps[6].done = FALSE;
+
     uint completed = 0;
     uint total_steps = sizeof(steps) / sizeof(step);
 
@@ -263,15 +277,36 @@ void Distributor::accept()
 	const char *key;
 	QCString value;
 	bool done;
-    } steps[] = {
-	{ "qt_nstpath=", QFile::encodeName( prefixPath->text() ), FALSE },
-	{ "qt_binpath=", QFile::encodeName( binPath->text()    ), FALSE },
-	{ "qt_docpath=", QFile::encodeName( docPath->text()    ), FALSE },
-	{ "qt_hdrpath=", QFile::encodeName( hdrPath->text()    ), FALSE },
-	{ "qt_libpath=", QFile::encodeName( libPath->text()    ), FALSE },
-	{ "qt_plgpath=", QFile::encodeName( plgPath->text()    ), FALSE },
-	{ "qt_datpath=", QFile::encodeName( datPath->text()    ), FALSE }
-    };
+    } steps[7];
+
+    steps[0].key = "qt_nstpath=";
+    steps[0].value = QFile::encodeName( prefixPath->text() );
+    steps[0].done = FALSE;
+
+    steps[1].key = "qt_binpath=";
+    steps[1].value = QFile::encodeName( binPath->text() );
+    steps[1].done = FALSE;
+
+    steps[2].key = "qt_docpath=";
+    steps[2].value = QFile::encodeName( docPath->text() );
+    steps[2].done = FALSE;
+
+    steps[3].key = "qt_hdrpath=";
+    steps[3].value = QFile::encodeName( hdrPath->text() );
+    steps[3].done = FALSE;
+
+    steps[4].key = "qt_libpath=";
+    steps[4].value = QFile::encodeName( libPath->text() );
+    steps[4].done = FALSE;
+
+    steps[5].key = "qt_plgpath=";
+    steps[5].value = QFile::encodeName( plgPath->text() );
+    steps[5].done = FALSE;
+
+    steps[6].key = "qt_datpath=";
+    steps[6].value = QFile::encodeName( datPath->text() );
+    steps[6].done = FALSE;
+
     uint completed = 0;
     uint total_steps = sizeof(steps) / sizeof(step);
 
