@@ -332,6 +332,14 @@ QPainter
     A customer asked for a QPainter::fillRect() overload that will take a QPoint and a
     QSize.  Personally I think that it's pointless, but I'll add it all the same.
 
+QListViewItem
+   Make the renameBox QLineEdit protected so that a validator can be set on the lineedit to 
+   validate the item.
+
+QTime/QDate et al
+   A customer (Uni-X) asked us to make the date and time values be stored platform and timezone 
+   independently when streaming.  See support/arc-20/40239 for more.
+
 New functionality
 -----------------
 
