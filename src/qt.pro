@@ -117,6 +117,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
+		  $$KERNEL_H/qxml.h \
+		  $$KERNEL_H/qdom.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -217,8 +219,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
-          $$WIDGETS_H/qiconview.h \
-          $$WIDGETS_H/qdial.h
+	          $$WIDGETS_H/qiconview.h \
+        	  $$WIDGETS_H/qdial.h
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
@@ -287,6 +289,8 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
+		  kernel/qxml.cpp \
+		  kernel/qdom.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
@@ -390,8 +394,8 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
-          widgets/qiconview.cpp \
-          widgets/qdial.cpp \
+	          widgets/qiconview.cpp \
+        	  widgets/qdial.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
