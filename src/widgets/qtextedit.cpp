@@ -3481,7 +3481,8 @@ void QTextEdit::append( const QString &text )
     if ( f == PlainText ) {
 	QTextCursor oldc( *cursor );
 	ensureFormatted( doc->lastParag() );
-	bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight();
+	bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight() -
+			   ( horizontalScrollBar()->isVisible() ? horizontalScrollBar()->height() : 0 );
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = TRUE;
 	cursor->gotoEnd();
