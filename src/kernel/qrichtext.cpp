@@ -3779,7 +3779,7 @@ void QTextParag::move( int &dy )
 
 void QTextParag::format( int start, bool doMove )
 {
-    if ( str->length() == 0 || !formatter() )
+    if ( !str || str->length() == 0 || !formatter() )
 	return;
 
     if ( doc &&

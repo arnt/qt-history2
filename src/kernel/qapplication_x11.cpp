@@ -2450,7 +2450,8 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
 #if defined(QT_CHECK_STATE)
-    if ( mainWidget && mainWidget->parentWidget() )
+    if ( mainWidget && mainWidget->parentWidget() &&
+	 ! mainWidget->parentWidget()->isDesktop() )
 	qWarning( "QApplication::setMainWidget(): New main widget (%s/%s) "
 		  "has a parent!",
 		  mainWidget->className(), mainWidget->name() );
