@@ -41,7 +41,8 @@ HEADERS += qdesigner_widget.h \
            default_container.h \
            layoutdecoration.h \
            default_layoutdecoration.h \
-           pixmapcache.h
+           pixmapcache.h \
+           taskmenu.h
 
 SOURCES += qdesigner_widget.cpp \
            qdesigner_tabwidget.cpp \
@@ -65,7 +66,8 @@ SOURCES += qdesigner_widget.cpp \
            spacer_propertysheet.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
-           pixmapcache.cpp
+           pixmapcache.cpp \
+           taskmenu.cpp
 
 view3d {
     HEADERS += view3d.h
