@@ -38,7 +38,7 @@ The Qt template library contains the following classes:
 <li> \l QMapIterator and \l QMapConstIterator iterators for QMap.
 <li> \l QValueList a linked list
 <li> \l QValueListIterator and \l QValueListConstIterator iterators for QValueList.
-<li> \l QStringList a list of strings
+<li> \l QStringList a list of strings, derived from QValueList.
 <li> \l QValueStack a stack
 <li> \l QArray a dynamic array
 </ul>
@@ -61,12 +61,12 @@ domain. QList, like all other QCollection based containers, provides
 more sanity checking.
 
 If you have objects that implement value semantics, use the Qt
-template library.  Value semantics require at least 
+template library.  Value semantics require at least
 <ul>
-<li>a copy cnstructor, 
-<li>an assignment operator and 
+<li>a copy cnstructor,
+<li>an assignment operator and
 <ku> a default constructor, i.e. a
-constructor that does not take any arguments. 
+constructor that does not take any arguments.
 </ul>
 Note that a fast copy constructor is absolutely crucial for the
 overall performance of the container since many copy operations are
@@ -228,9 +228,9 @@ standard C++ array with qCopy():
 
 <h2> Streaming </h2>
 
-All containers can be be serialized with the respective streaming
-operators. Here is an example. It assumes that \c str is some
-QDataStream:
+All Qt containers, apart from QArray, can be serialized with the
+streaming operators. Here is an example. It assumes that \c str is
+some QDataStream:
 
 \code
 	QValueList<QRect> l;
@@ -245,6 +245,6 @@ The container can be read in again like this:
 	str >> l;
 \endcode
 
-The same applies to QStringList and QMap.
+The same applies to QStringList, QValueStack and QMap.
 
 */
