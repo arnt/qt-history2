@@ -21,10 +21,17 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeNmakeParts(QTextStream &);
-    QStringList &findDependencies(const QString &file);
 
     bool writeMakefile(QTextStream &);
     void init();
+
+protected:
+    QStringList &findDependencies(const QString &file);
+    QString var(const QString &value, const QString &src = QString::null, const QString &obj = QString::null );
+    QString precompcpp;
+    QString pch;
+    bool usePCH;
+    bool deletePCHcpp;
 
 public:
     NmakeMakefileGenerator(QMakeProject *p);

@@ -55,7 +55,7 @@ QStringList
 {
     QStringList &aList = MakefileGenerator::findDependencies(file);
     if (!project->variables()["PRECOMPH"].isEmpty())
-	aList.append(project->first("PCH"));
+	aList.append(pch);
     return aList;
 }
 
@@ -167,23 +167,17 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << " " << (*cppit);
     t << endl << endl;
 
-    bool usePCH = !project->variables()["PRECOMPH"].isEmpty();
-    QString precomph = project->first("PRECOMPH");
-    QString precompcpp = project->variables()["PRECOMPCPP"].join(" "); // Can be more than one .cpp file
-    QString pch = precomph; pch.replace(".h", ".pch");
-    bool deletePCHcpp = precompcpp.isEmpty();
+    if ( project->variables()["PRECOMPCPP"].size() > 1 )
+	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPCPP, only first one used" );
+    precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
+    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
+    pch = QString(precomph).replace(".h", ".pch");
+    usePCH = !precomph.isEmpty();
+    deletePCHcpp = precompcpp.isEmpty();
     if (usePCH) {
-	// Add PCH to project (used in findDependencies)
-	project->variables()["PCH"] += pch;
 	// Add PCH to cleanup
 	project->variables()["QMAKE_CLEAN"] += pch;
-	// Manipulate rules to use precompiled header
-	project->variables()["QMAKE_RUN_CC"]		= QStringList::split(' ', project->variables()["QMAKE_RUN_CC"].join(" ").replace("-c", "-c -Yu" + precomph));
-	project->variables()["QMAKE_RUN_CC_IMP"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CC_IMP"].join(" ").replace("-c", "-c -Yu" + precomph));
-	project->variables()["QMAKE_RUN_CC_IMP_BATCH"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CC_IMP_BATCH"].join(" ").replace("-c", "-c -Yu" + precomph));
-	project->variables()["QMAKE_RUN_CXX"]		= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX"].join(" ").replace("-c", "-c -Yu" + precomph));
-	project->variables()["QMAKE_RUN_CXX_IMP"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX_IMP"].join(" ").replace("-c", "-c -Yu" + precomph));
-	project->variables()["QMAKE_RUN_CXX_IMP_BATCH"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX_IMP_BATCH"].join(" ").replace("-c", "-c -Yu" + precomph));
+	// Add cleanup stage for generated file
 	if(deletePCHcpp) {
 	    precompcpp = project->first("TARGET") + "_pch";
 	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
@@ -199,12 +193,14 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
 	QDict<void> source_directories;
 	source_directories.insert(".", (void*)1);
-	if(!project->isEmpty("MOC_DIR"))
-	    source_directories.insert(project->first("MOC_DIR"), (void*)1);
-	if(!project->isEmpty("UI_SOURCES_DIR"))
-	    source_directories.insert(project->first("UI_SOURCES_DIR"), (void*)1);
-	else if(!project->isEmpty("UI_DIR"))
-	    source_directories.insert(project->first("UI_DIR"), (void*)1);
+	QString directories[] = { QString("MOC_DIR"), QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString::null };
+	for(int y = 0; !directories[y].isNull(); y++) {
+	    QString dirTemp = project->first(directories[y]);
+	    if (dirTemp.endsWith("\\")) 
+		dirTemp.truncate(dirTemp.length()-1);
+	    if(!dirTemp.isEmpty())
+		source_directories.insert(dirTemp, (void*)1);
+	}
 	QString srcs[] = { QString("SOURCES"), QString("UICIMPLS"), QString("SRCMOC"), QString::null };
 	for(int x = 0; !srcs[x].isNull(); x++) {
 	    QStringList &l = project->variables()[srcs[x]];
@@ -223,9 +219,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-		  << var("QMAKE_RUN_CXX_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
+		  << var("QMAKE_RUN_CXX_IMP_BATCH", it.currentKey(), var("OBJECTS_DIR")).replace(QRegExp( "\\$@" ), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
 	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-	      << var("QMAKE_RUN_CC_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
+	      << var("QMAKE_RUN_CC_IMP_BATCH", it.currentKey(), var("OBJECTS_DIR")).replace(QRegExp( "\\$@" ), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
@@ -379,12 +375,41 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     // precompiled header
     if(usePCH) {
-	t << pch << ": " << precomph << " " << precompcpp << "\n\t" << "$(CXX) -c -Yc" << precomph << " $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
+	QString realPrecompH = fileFixify(precomph, 
+					  QFileInfo(precompcpp).dirPath(TRUE), 
+					  QDir::currentDirPath(), 
+					  TRUE);
+	QString precompRule = QString("-c -Yc%1 /Fp%2").arg(realPrecompH).arg(pch);
+	t << pch << ": " << precomph << " " << precompcpp << "\n\t" << "$(CXX) " + precompRule +" $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
 	if (deletePCHcpp)
-	    t << precompcpp << ":\n\t" << "@echo #include \"" << precomph << "\" > " << precompcpp << endl << endl;
+	    t << precompcpp << ":\n\t" << "@echo #include \"" << realPrecompH << "\" > " << precompcpp << endl << endl;
     }
 }
 
+QString
+NmakeMakefileGenerator::var(const QString &value, const QString &src, const QString &obj)
+{
+    if (usePCH
+	&& (value == "QMAKE_RUN_CXX"
+	||  value == "QMAKE_RUN_CXX_IMP"
+	||  value == "QMAKE_RUN_CXX_IMP_BATCH"))
+    {
+	QFileInfo srcInfo(src);
+	QString precompRule = QString("-c -Yu%1 /Fp%2")
+	    .arg((src.isEmpty()?precomph
+			       :fileFixify(precomph, 
+					   (srcInfo.isDir()?srcInfo.absFilePath():srcInfo.dirPath(TRUE)), 
+					   QDir::currentDirPath(), 
+					   TRUE)))
+	    .arg(pch);
+	QString p = MakefileGenerator::var(value);
+	p.replace("-c", precompRule);
+	return p;
+    }
+
+    // Normal val    
+    return MakefileGenerator::var(value);
+}
 
 void
 NmakeMakefileGenerator::init()

@@ -47,6 +47,8 @@ protected:
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
+    // Used for adding PCH stages for NMake
+    QString precomph;
 
 protected:
 
@@ -102,7 +104,7 @@ protected:
     void setProcessedDependencies(const QString &file, bool b);
     bool processedDependencies(const QString &file);
 
-    QString var(const QString &var);
+    virtual QString var(const QString &var, const QString &src = QString::null, const QString &obj = QString::null );
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
     QString val(const QStringList &varList);

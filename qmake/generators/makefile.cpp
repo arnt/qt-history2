@@ -1488,7 +1488,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    }
 	}
 	if (!use_implicit_rule && !project->isEmpty(comp)) {
-	    QString p = var(comp);
+	    QString p = var(comp, (*sit), (*oit));
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
@@ -1546,7 +1546,13 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	if ( k != -1 )
 	    mildDecl = mildDecl.mid( k + 1 );
 	t << impl << ": " << decl << " " << (*it) << " " << deps << "\n\t"
-	  << "$(UIC) " << (*it) << " -i " << mildDecl << " -o " << impl << endl << endl;
+	  << "$(UIC)";
+	if (!precomph.isEmpty()) {
+	    t << " -pch "
+	    // Correct precomph path, based on moc implementation output
+	    << fileFixify(precomph, QFileInfo(impl).dirPath(TRUE), QDir::currentDirPath());
+	}
+	t << " " << (*it) << " -i " << mildDecl << " -o " << impl << endl << endl;
     }
 }
 
@@ -1573,7 +1579,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	    }
 	}
 	if (!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
-	    QString p = var("QMAKE_RUN_CXX");
+	    QString p = var("QMAKE_RUN_CXX", (*sit), (*oit));
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
@@ -1620,8 +1626,13 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 		
 	    } else {
 	    t << m << ": " << deps << "\n\t"
-	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
+	      << "$(MOC)";
+	    if (!precomph.isEmpty()) {
+		t << " -pch "
+		// Correct precomph path, based on moc implementation output
+		<< fileFixify(precomph, QFileInfo(m).dirPath(TRUE), QDir::currentDirPath());
 	    }
+	    t << " " << (*it) << " -o " << m << endl << endl;
 	}
     }
 }
@@ -1918,7 +1929,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 }
 
 QString
-MakefileGenerator::var(const QString &var)
+MakefileGenerator::var(const QString &var, const QString &, const QString &)
 {
     return val(project->variables()[var]);
 }
