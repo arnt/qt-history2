@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#2 $
 **
 ** Implementation of QWindow class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwindow.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwindow.cpp#2 $";
 #endif
 
 
@@ -28,7 +28,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwindow.cpp#1 $";
 
 
 /*!
-  Constructs a window names \e name, which will be a child widget of
+  Constructs a window named \e name, which will be a child widget of
   \e parent.
 
   The widget flags \e f should normally be set to zero unless you know what you

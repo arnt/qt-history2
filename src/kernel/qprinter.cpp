@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#12 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#12 $";
 #endif
 
 
@@ -34,9 +34,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#11 $";
   badly broken.
 
   Font support is limited to Times, Helvetica, Courier and Symbol, and
-  will be for "a few weeks" (which is a quote from Adobe's FTP server
-  about AFM file availability) and font metrics even for these four
-  fonts can be inaccurate.
+  will be for "a few weeks" (which is a six-month old quote from
+  Adobe's FTP server about AFM file availability) and font metrics
+  even for these four fonts can be inaccurate.
 
   Drawing graphics on a printer is almost identical to drawing graphics
   in a widget or a pixmap.  The only difference is that the programmer
