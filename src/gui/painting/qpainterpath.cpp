@@ -401,6 +401,8 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
         case Qt::RoundJoin:
             sp->curveTo(isect, isect, ml.start());
             break;
+        default:
+            break;
         }
     }
     return type;

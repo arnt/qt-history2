@@ -207,6 +207,8 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         x = new QCursorData;
         x->ref = 1;
         x->id = ++nextCursorId;
+    } else {
+        x = d;
     }
     d = x;
     x->bm  = new QBitmap(bitmap);

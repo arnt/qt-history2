@@ -147,7 +147,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     QGlyphLayout *glyphs = si.glyphs;
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
-        pState->painter->fillRect(x+br.x, y+br.y, br.width, br.height,
+        pState->painter->fillRect(x + int(br.x), y + int(br.y), int(br.width), int(br.height),
                                   pState->painter->background().color());
     }
 
@@ -165,7 +165,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         for(int i = 0; i < si.num_glyphs; i++) {
             glyphs--;
             w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-            x += glyphs->advance.x();
+            x += int(glyphs->advance.x());
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
@@ -219,7 +219,7 @@ void
 QFontEngineMac::calculateCost()
 {
     // don't know how to get the number of glyphs from the font so default to 1024
-    cache_cost = (ascent() + descent() + 1) * maxCharWidth() * 1024;
+    cache_cost = uint((ascent() + descent() + 1) * maxCharWidth() * 1024);
 }
 
 //Create a cacheable ATSUStyle

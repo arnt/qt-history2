@@ -1498,7 +1498,7 @@ void QPainter::drawRect(const QRect &r)
     }
 
     if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        rect.moveBy(d->state->matrix.dx(), d->state->matrix.dy());
+        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     d->engine->drawRect(rect);
 }
@@ -1911,7 +1911,7 @@ void QPainter::drawEllipse(const QRect &r)
     }
 
     if ((d->state->txop == TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        rect.moveBy(d->state->matrix.dx(), d->state->matrix.dy());
+        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
@@ -2195,7 +2195,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     }
 
     if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa.translate(d->state->matrix.dx(), d->state->matrix.dy());
+        pa.translate(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
 }
@@ -2667,8 +2667,8 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     }
 
     if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        x += d->state->matrix.dx();
-        y += d->state->matrix.dy();
+        x += int(d->state->matrix.dx());
+        y += int(d->state->matrix.dy());
     }
 
     d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
