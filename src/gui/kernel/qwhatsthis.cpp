@@ -605,7 +605,7 @@ bool QWhatsThis::inWhatsThisMode()
     switches back to normal mode; otherwise it does nothing.
 
     When leaving "What's this?" mode, a QEvent of type
-    Qt::EnterWhatsThisMode is sent to all toplevel widgets.
+    Qt::LeaveWhatsThisMode is sent to all toplevel widgets.
 
     \sa enterWhatsThisMode() inWhatsThisMode()
 */
