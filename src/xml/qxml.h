@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#19 $
+** $Id: //depot/qt/main/src/xml/qxml.h#20 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -331,18 +331,18 @@ private:
     bool parseMisc();
     bool parseContent();
 
-    bool parsePI(bool xmldecl=FALSE);
+    bool parsePI();
     bool parseDoctype();
     bool parseComment();
 
-    bool parseName( bool useRef=FALSE );
+    bool parseName();
     bool parseNmtoken();
     bool parseAttribute();
-    bool parseReference( bool &charDataRead, EntityRecognitionContext context );
-    bool processReference( bool &charDataRead, EntityRecognitionContext context );
+    bool parseReference();
+    bool processReference();
 
-    bool parseExternalID( bool allowPublicID = FALSE );
-    bool parsePEReference( EntityRecognitionContext context );
+    bool parseExternalID();
+    bool parsePEReference();
     bool parseMarkupdecl();
     bool parseAttlistDecl();
     bool parseAttType();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#37 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#38 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1810,9 +1810,23 @@ bool QXmlDefaultHandler::externalEntityDecl( const QString&, const QString&, con
 class QXmlSimpleReaderPrivate
 {
 private:
-    // constructor
+    // functions
     QXmlSimpleReaderPrivate()
-    { }
+    {
+	parseStack = 0;
+    }
+
+    ~QXmlSimpleReaderPrivate()
+    {
+	delete parseStack;
+    }
+    
+    void initIncrementalParsing()
+    {
+	delete parseStack;
+	parseStack = new QStack<ParseState>;
+	parseStack->setAutoDelete( TRUE );
+    }
 
     // used to determine if elements are correctly nested
     QValueStack<QString> tags;
@@ -1867,6 +1881,23 @@ private:
 
     // error string
     QString error;
+
+    // arguments for parse functions (this is needed to allow incremental
+    // parsing)
+    bool parsePI_xmldecl;
+    bool parseName_useRef;
+    bool parseReference_charDataRead;
+    QXmlSimpleReader::EntityRecognitionContext parseReference_context;
+    bool parseExternalID_allowPublicID;
+    QXmlSimpleReader::EntityRecognitionContext parsePEReference_context;
+    QString parseString_s;
+
+    // for incremental parsing
+    struct ParseState {
+	bool (QXmlSimpleReader::*function) ();
+	int state;
+    };
+    QStack<ParseState> *parseStack;
 
     // friend declarations
     friend class QXmlSimpleReader;
@@ -2281,9 +2312,12 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 */
 // ### How to detect when end is reached? (If incremental is TRUE, the
 // returned TRUE doesn't mean that parsing is finished!)
-bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool /*incremental*/ )
+bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
 {
     init( input );
+    if ( incremental ) {
+	d->initIncrementalParsing();
+    }
     // call the handler
     if ( contentHnd ) {
 	contentHnd->setDocumentLocator( d->locator );
@@ -2346,8 +2380,11 @@ parseError:
 
   \sa parse()
 */
-bool QXmlSimpleReader::parseContinue( const QXmlInputSource& /*input*/ )
+bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
 {
+    if ( d->parseStack == 0 ) {
+	return parse( input, TRUE );
+    }
     return FALSE;
 }
 
@@ -2441,7 +2478,8 @@ bool QXmlSimpleReader::parseProlog()
 		parseOk = parseComment();
 		break;
 	    case PI:
-		parseOk = parsePI( xmldecl_possible );
+		d->parsePI_xmldecl = xmldecl_possible;
+		parseOk = parsePI();
 		break;
 	}
 	// no input is read after this
@@ -2590,6 +2628,7 @@ bool QXmlSimpleReader::parseElement()
 	// in some cases do special actions depending on state
 	switch ( state ) {
 	    case ReadName:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws1:
@@ -2623,6 +2662,7 @@ bool QXmlSimpleReader::parseElement()
 		break;
 	    case ETagBegin2:
 		// get the name of the tag
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case EmptyTag:
@@ -2970,10 +3010,14 @@ bool QXmlSimpleReader::parseContent()
 		if ( !charDataRead) {
 		    // reference may be CharData; so clear string to be safe
 		    stringClear();
-		    parseOk = parseReference( charDataRead, InContent );
+		    d->parseReference_charDataRead = charDataRead;
+		    d->parseReference_context = InContent;
+		    parseOk = parseReference();
 		} else {
 		    bool tmp;
-		    parseOk = parseReference( tmp, InContent );
+		    d->parseReference_charDataRead = tmp;
+		    d->parseReference_context = InContent;
+		    parseOk = parseReference();
 		}
 		break;
 	    case Lt:
@@ -2993,6 +3037,7 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	    case PI:
+		d->parsePI_xmldecl = FALSE;
 		parseOk = parsePI();
 		break;
 	    case Elem:
@@ -3191,6 +3236,7 @@ bool QXmlSimpleReader::parseMisc()
 		next();
 		break;
 	    case PI:
+		d->parsePI_xmldecl = FALSE;
 		parseOk = parsePI();
 		break;
 	    case Comment:
@@ -3252,7 +3298,7 @@ parseError:
   If this funktion was successful, the head-position is on the first
   character after the PI.
 */
-bool QXmlSimpleReader::parsePI( bool xmldecl )
+bool QXmlSimpleReader::parsePI()
 {
     const signed char Init             =  0;
     const signed char QmI              =  1; // ? was read
@@ -3330,6 +3376,7 @@ bool QXmlSimpleReader::parsePI( bool xmldecl )
 		next();
 		break;
 	    case Name:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws1:
@@ -3379,7 +3426,7 @@ bool QXmlSimpleReader::parsePI( bool xmldecl )
 		// test what name was read and determine the next state
 		// (not very beautiful, I admit)
 		if ( name().lower() == "xml" ) {
-		    if ( xmldecl && name()=="xml" ) {
+		    if ( d->parsePI_xmldecl && name()=="xml" ) {
 			state = XMLDecl;
 		    } else {
 			d->error = XMLERR_INVALIDNAMEFORPI;
@@ -3566,16 +3613,19 @@ bool QXmlSimpleReader::parseDoctype()
 		eat_ws();
 		break;
 	    case Doctype2:
+		d->parseName_useRef = FALSE;
 		parseName();
 		break;
 	    case Sys:
+		d->parseExternalID_allowPublicID = FALSE;
 		parseOk = parseExternalID();
 		break;
 	    case MP:
 		next_eat_ws();
 		break;
 	    case PER:
-		parseOk = parsePEReference( InDTD );
+		d->parsePEReference_context = InDTD;
+		parseOk = parsePEReference();
 		break;
 	    case Mup:
 		parseOk = parseMarkupdecl();
@@ -3662,7 +3712,7 @@ parseError:
 
   If allowPublicID is TRUE parse ExternalID [75] or PublicID [83].
 */
-bool QXmlSimpleReader::parseExternalID( bool allowPublicID )
+bool QXmlSimpleReader::parseExternalID()
 {
     // some init-stuff
     d->systemId = QString::null;
@@ -3801,7 +3851,7 @@ bool QXmlSimpleReader::parseExternalID( bool allowPublicID )
 		}
 		break;
 	    case PDone:
-		if ( allowPublicID ) {
+		if ( d->parseExternalID_allowPublicID ) {
 		    d->publicId = string();
 		    return TRUE;
 		} else {
@@ -3904,6 +3954,7 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		next();
 		break;
 	    case Qm:
+		d->parsePI_xmldecl = FALSE;
 		parseOk = parsePI();
 		break;
 	    case Dash:
@@ -3990,7 +4041,7 @@ parseError:
 /*
   Parse a PEReference [69]
 */
-bool QXmlSimpleReader::parsePEReference( EntityRecognitionContext context )
+bool QXmlSimpleReader::parsePEReference()
 {
     const signed char Init             = 0;
     const signed char Next             = 1;
@@ -4036,7 +4087,8 @@ bool QXmlSimpleReader::parsePEReference( EntityRecognitionContext context )
 		next();
 		break;
 	    case Name:
-		parseOk = parseName( TRUE );
+		d->parseName_useRef = TRUE;
+		parseOk = parseName();
 		break;
 	    case Done:
 		next();
@@ -4058,12 +4110,12 @@ bool QXmlSimpleReader::parsePEReference( EntityRecognitionContext context )
 			}
 		    }
 		} else {
-		    if ( context == InEntityValue ) {
+		    if ( d->parsePEReference_context == InEntityValue ) {
 			// Included in literal
 			xmlRef = d->parameterEntities.find( ref() )
 			    .data().replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" )
 			    + xmlRef;
-		    } else if ( context == InDTD ) {
+		    } else if ( d->parsePEReference_context == InDTD ) {
 			// Included as PE
 			xmlRef = QString(" ") +
 			    d->parameterEntities.find( ref() ).data() +
@@ -4183,9 +4235,11 @@ bool QXmlSimpleReader::parseAttlistDecl()
 		eat_ws();
 		break;
 	    case Name:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Attdef:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Atttype:
@@ -4438,6 +4492,7 @@ bool QXmlSimpleReader::parseAttType()
 		next_eat_ws();
 		break;
 	    case NOName:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case NO4:
@@ -4603,7 +4658,9 @@ bool QXmlSimpleReader::parseAttValue()
 		break;
 	    case DqRef:
 	    case SqRef:
-		parseOk = parseReference( tmp, InAttributeValue );
+		d->parseReference_charDataRead = tmp;
+		d->parseReference_context = InAttributeValue;
+		parseOk = parseReference();
 		break;
 	    case DqC:
 	    case SqC:
@@ -4752,6 +4809,7 @@ bool QXmlSimpleReader::parseElementDecl()
 		eat_ws();
 		break;
 	    case Nam:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws2:
@@ -4779,6 +4837,7 @@ bool QXmlSimpleReader::parseElementDecl()
 		next_eat_ws();
 		break;
 	    case MixN2:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case MixN3:
@@ -4924,13 +4983,15 @@ bool QXmlSimpleReader::parseNotationDecl()
 		eat_ws();
 		break;
 	    case Nam:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws2:
 		eat_ws();
 		break;
 	    case ExtID:
-		parseOk = parseExternalID( TRUE );
+		d->parseExternalID_allowPublicID = TRUE;
+		parseOk = parseExternalID();
 		break;
 	    case Ws3:
 		eat_ws();
@@ -5066,6 +5127,7 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		next_eat_ws();
 		break;
 	    case Name:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Done:
@@ -5196,6 +5258,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		eat_ws();
 		break;
 	    case Name:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws2:
@@ -5205,6 +5268,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		parseOk = parseEntityValue();
 		break;
 	    case ExtID:
+		d->parseExternalID_allowPublicID = FALSE;
 		parseOk = parseExternalID();
 		break;
 	    case Ws3:
@@ -5217,7 +5281,8 @@ bool QXmlSimpleReader::parseEntityDecl()
 		eat_ws();
 		break;
 	    case NNam:
-		parseOk = parseName( TRUE );
+		d->parseName_useRef = TRUE;
+		parseOk = parseName();
 		break;
 	    case PEDec:
 		next();
@@ -5226,6 +5291,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		eat_ws();
 		break;
 	    case PENam:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws7:
@@ -5235,6 +5301,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		parseOk = parseEntityValue();
 		break;
 	    case PEEID:
+		d->parseExternalID_allowPublicID = FALSE;
 		parseOk = parseExternalID();
 		break;
 	    case WsE:
@@ -5442,11 +5509,14 @@ bool QXmlSimpleReader::parseEntityValue()
 		break;
 	    case DqPER:
 	    case SqPER:
-		parseOk = parsePEReference( InEntityValue );
+		d->parsePEReference_context = InEntityValue;
+		parseOk = parsePEReference();
 		break;
 	    case DqRef:
 	    case SqRef:
-		parseOk = parseReference( tmp, InEntityValue );
+		d->parseReference_charDataRead = tmp;
+		d->parseReference_context = InEntityValue;
+		parseOk = parseReference();
 		break;
 	    case Done:
 		next();
@@ -5646,6 +5716,7 @@ bool QXmlSimpleReader::parseAttribute()
 	// do some actions according to state
 	switch ( state ) {
 	    case PName:
+		d->parseName_useRef = FALSE;
 		parseOk = parseName();
 		break;
 	    case Ws:
@@ -5689,7 +5760,7 @@ parseError:
 /*
   Parse a Name [5] and store the name in name or ref (if useRef is TRUE).
 */
-bool QXmlSimpleReader::parseName( bool useRef )
+bool QXmlSimpleReader::parseName()
 {
     const signed char Init             = 0;
     const signed char Name1            = 1; // parse first signed character of the name
@@ -5731,7 +5802,7 @@ bool QXmlSimpleReader::parseName( bool useRef )
 	// do some actions according to state
 	switch ( state ) {
 	    case Name1:
-		if ( useRef ) {
+		if ( d->parseName_useRef ) {
 		    refClear();
 		    refAddC();
 		} else {
@@ -5741,7 +5812,7 @@ bool QXmlSimpleReader::parseName( bool useRef )
 		next();
 		break;
 	    case Name:
-		if ( useRef ) {
+		if ( d->parseName_useRef ) {
 		    refAddC();
 		} else {
 		    nameAddC();
@@ -5845,7 +5916,7 @@ parseError:
   charachter(s) which the reference mapped to are inserted at the reference
   position. The head stands on the first character of the replacement).
 */
-bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionContext context )
+bool QXmlSimpleReader::parseReference()
 {
     // temporary variables
     uint tmp;
@@ -5936,7 +6007,8 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 		break;
 	    case Name:
 		// read the name into the ref
-		parseName( TRUE );
+		d->parseName_useRef = TRUE;
+		parseName();
 		break;
 	    case DoneD:
 		tmp = ref().toUInt( &ok, 10 );
@@ -5946,7 +6018,7 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 		    d->error = XMLERR_ERRORPARSINGREFERENCE;
 		    goto parseError;
 		}
-		charDataRead = TRUE;
+		d->parseReference_charDataRead = TRUE;
 		next();
 		break;
 	    case DoneH:
@@ -5957,11 +6029,11 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 		    d->error = XMLERR_ERRORPARSINGREFERENCE;
 		    goto parseError;
 		}
-		charDataRead = TRUE;
+		d->parseReference_charDataRead = TRUE;
 		next();
 		break;
 	    case DoneN:
-		if ( !processReference( charDataRead, context ) )
+		if ( !processReference() )
 		    goto parseError;
 		next();
 		break;
@@ -5990,70 +6062,70 @@ parseError:
 /*
   Helper function for parseReference()
 */
-bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionContext context )
+bool QXmlSimpleReader::processReference()
 {
     QString reference = ref();
     if ( reference == "amp" ) {
-	if ( context == InEntityValue ) {
+	if ( d->parseReference_context == InEntityValue ) {
 	    // Bypassed
 	    stringAddC( '&' ); stringAddC( 'a' ); stringAddC( 'm' ); stringAddC( 'p' ); stringAddC( ';' );
 	} else {
 	    // Included or Included in literal
 	    stringAddC( '&' );
 	}
-	charDataRead = TRUE;
+	d->parseReference_charDataRead = TRUE;
     } else if ( reference == "lt" ) {
-	if ( context == InEntityValue ) {
+	if ( d->parseReference_context == InEntityValue ) {
 	    // Bypassed
 	    stringAddC( '&' ); stringAddC( 'l' ); stringAddC( 't' ); stringAddC( ';' );
 	} else {
 	    // Included or Included in literal
 	    stringAddC( '<' );
 	}
-	charDataRead = TRUE;
+	d->parseReference_charDataRead = TRUE;
     } else if ( reference == "gt" ) {
-	if ( context == InEntityValue ) {
+	if ( d->parseReference_context == InEntityValue ) {
 	    // Bypassed
 	    stringAddC( '&' ); stringAddC( 'g' ); stringAddC( 't' ); stringAddC( ';' );
 	} else {
 	    // Included or Included in literal
 	    stringAddC( '>' );
 	}
-	charDataRead = TRUE;
+	d->parseReference_charDataRead = TRUE;
     } else if ( reference == "apos" ) {
-	if ( context == InEntityValue ) {
+	if ( d->parseReference_context == InEntityValue ) {
 	    // Bypassed
 	    stringAddC( '&' ); stringAddC( 'a' ); stringAddC( 'p' ); stringAddC( 'o' ); stringAddC( 's' ); stringAddC( ';' );
 	} else {
 	    // Included or Included in literal
 	    stringAddC( '\'' );
 	}
-	charDataRead = TRUE;
+	d->parseReference_charDataRead = TRUE;
     } else if ( reference == "quot" ) {
-	if ( context == InEntityValue ) {
+	if ( d->parseReference_context == InEntityValue ) {
 	    // Bypassed
 	    stringAddC( '&' ); stringAddC( 'q' ); stringAddC( 'u' ); stringAddC( 'o' ); stringAddC( 't' ); stringAddC( ';' );
 	} else {
 	    // Included or Included in literal
 	    stringAddC( '"' );
 	}
-	charDataRead = TRUE;
+	d->parseReference_charDataRead = TRUE;
     } else {
 	QMap<QString,QString>::Iterator it;
 	it = d->entities.find( reference );
 	if ( it != d->entities.end() ) {
 	    // "Internal General"
-	    switch ( context ) {
+	    switch ( d->parseReference_context ) {
 		case InContent:
 		    // Included
 		    xmlRef = it.data() + xmlRef;
-		    charDataRead = FALSE;
+		    d->parseReference_charDataRead = FALSE;
 		    break;
 		case InAttributeValue:
 		    // Included in literal
 		    xmlRef = it.data().replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" )
 			+ xmlRef;
-		    charDataRead = FALSE;
+		    d->parseReference_charDataRead = FALSE;
 		    break;
 		case InEntityValue:
 		    {
@@ -6063,13 +6135,13 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 			    stringAddC( reference[i] );
 			}
 			stringAddC( ';');
-			charDataRead = TRUE;
+			d->parseReference_charDataRead = TRUE;
 		    }
 		    break;
 		case InDTD:
 		    // Forbidden
 		    d->error = XMLERR_INTERNALGENERALENTITYINDTD;
-		    charDataRead = FALSE;
+		    d->parseReference_charDataRead = FALSE;
 		    break;
 	    }
 	} else {
@@ -6078,14 +6150,14 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 	    if ( itExtern == d->externEntities.end() ) {
 		// entity not declared
 		// ### check this case for conformance
-		if ( context == InEntityValue ) {
+		if ( d->parseReference_context == InEntityValue ) {
 		    // Bypassed
 		    stringAddC( '&' );
 		    for ( int i=0; i<(int)reference.length(); i++ ) {
 			stringAddC( reference[i] );
 		    }
 		    stringAddC( ';');
-		    charDataRead = TRUE;
+		    d->parseReference_charDataRead = TRUE;
 		} else {
 		    if ( contentHnd ) {
 			if ( !contentHnd->skippedEntity( reference ) ) {
@@ -6096,7 +6168,7 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 		}
 	    } else if ( (*itExtern).notation.isNull() ) {
 		// "External Parsed General"
-		switch ( context ) {
+		switch ( d->parseReference_context ) {
 		    case InContent:
 			// Included if validating
 			if ( contentHnd ) {
@@ -6105,12 +6177,12 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 				return FALSE; // error
 			    }
 			}
-			charDataRead = FALSE;
+			d->parseReference_charDataRead = FALSE;
 			break;
 		    case InAttributeValue:
 			// Forbidden
 			d->error = XMLERR_EXTERNALGENERALENTITYINAV;
-			charDataRead = FALSE;
+			d->parseReference_charDataRead = FALSE;
 			break;
 		    case InEntityValue:
 			{
@@ -6120,13 +6192,13 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 				stringAddC( reference[i] );
 			    }
 			    stringAddC( ';');
-			    charDataRead = TRUE;
+			    d->parseReference_charDataRead = TRUE;
 			}
 			break;
 		    case InDTD:
 			// Forbidden
 			d->error = XMLERR_EXTERNALGENERALENTITYINDTD;
-			charDataRead = FALSE;
+			d->parseReference_charDataRead = FALSE;
 			break;
 		}
 	    } else {
@@ -6134,7 +6206,7 @@ bool QXmlSimpleReader::processReference( bool &charDataRead, EntityRecognitionCo
 		// ### notify for "Occurs as Attribute Value" missing (but this is no refence, anyway)
 		// Forbidden
 		d->error = XMLERR_UNPARSEDENTITYREFERENCE;
-		charDataRead = FALSE;
+		d->parseReference_charDataRead = FALSE;
 		return FALSE; // error
 	    }
 	}
