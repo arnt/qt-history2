@@ -257,7 +257,6 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     : QFrame( parent, name, WType_Popup  | WRepaintNoErase )
 {
     isPopupMenu	  = TRUE;
-    parentMenu	  = 0;
     selfItem	  = 0;
 #ifndef QT_NO_ACCEL
     autoaccel	  = 0;
@@ -296,9 +295,6 @@ QPopupMenu::~QPopupMenu()
     }
 
     delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
-
-    if ( parentMenu )
-	parentMenu->removePopup( this );	// remove from parent menu
 
     preventAnimation = FALSE;
 }
@@ -416,23 +412,16 @@ void QPopupMenu::performDelayedChanges()
 	performDelayedStateChanged();
 }
 
-
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = this;			// set parent menu
-    connect( popup, SIGNAL(activatedRedirect(int)),
-	     SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(highlightedRedirect(int)),
-	     SLOT(subHighlighted(int)) );
+    connect( popup, SIGNAL(destroyed(QObject*)),
+	     this, SLOT(popupDestroyed(QObject*)) );
 }
 
 void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = 0;
-    popup->disconnect( SIGNAL(activatedRedirect(int)), this,
-		       SLOT(subActivated(int)) );
-    popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
-		       SLOT(subHighlighted(int)) );
+    disconnect( popup, SIGNAL(destroyed(QObject*)),
+		this, SLOT(popupDestroyed(QObject*)) );
 }
 
 
@@ -464,11 +453,6 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if ( isVisible() || !isEnabled() )
 	return;
 
-    if (parentMenu && parentMenu->actItem == -1){
-	//reuse
-	parentMenu->menuDelPopup( this );
-	parentMenu = 0;
-    }
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
 
@@ -633,23 +617,13 @@ void QPopupMenu::accelDestroyed()		// accel about to be deleted
 }
 #endif //QT_NO_ACCEL
 
+void QPopupMenu::popupDestroyed( QObject *o )
+{
+    removePopup( (QPopupMenu*)o );
+}
+
 void QPopupMenu::actSig( int id, bool inwhatsthis )
 {
-    bool sync = FALSE;
-    QPopupMenu * p = this;
-    while( p && !sync ) {
-	if ( p == syncMenu )
-	    sync = TRUE;
-	else if ( p->parentMenu && p->parentMenu->isPopupMenu )
-	    p = (QPopupMenu*)(p->parentMenu);
-	else
-	    p = 0;
-    }
-    if ( sync && qApp ) {
-	qApp->exit_loop();
-	syncMenu = 0;
-    }
-
     if ( !inwhatsthis ) {
 	emit activated( id );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -784,11 +758,13 @@ bool QPopupMenu::tryMouseEvent( QPopupMenu *p, QMouseEvent * e)
 
 void QPopupMenu::byeMenuBar()
 {
-    hideAllPopups();
 #ifndef QT_NO_MENUBAR
     register QMenuData *top = this;		// find top level
     while ( top->parentMenu )
 	top = top->parentMenu;
+#endif
+    hideAllPopups();
+#ifndef QT_NO_MENUBAR
     if ( top->isMenuBar )
 	((QMenuBar *)top)->goodbye();
 #endif
@@ -1130,9 +1106,6 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    QPopupMenu* popup = mi->popup();
 	    if (!popup->avoid_circularity) {
 		popup->avoid_circularity = 1;
-		if (popup->parentMenu)
-		    popup->parentMenu->menuDelPopup(popup);
-		menuInsPopup(popup);
 		popup->updateAccel( parent );
 		popup->avoid_circularity = 0;
 	    }
@@ -1216,6 +1189,11 @@ void QPopupMenu::hide()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuEnd );
 #endif
+    if ( parentMenu ) {
+	disconnect( SIGNAL(activatedRedirect(int)) );
+	disconnect( SIGNAL(highlightedRedirect(int)) );
+ 	parentMenu = 0;
+    }
     hidePopups();
     QWidget::hide();
 }
@@ -1363,7 +1341,6 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
 
 void QPopupMenu::closeEvent( QCloseEvent * e) {
     e->accept();
-    hide();
     byeMenuBar();
 }
 
@@ -1591,11 +1568,14 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    return;
 	}
 	// just hide one
-	hide();
+	{
+	    QMenuData* p = parentMenu;
+	    hide();
 #ifndef QT_NO_MENUBAR
-  	if ( parentMenu && parentMenu->isMenuBar )
-	    ((QMenuBar*) parentMenu)->goodbye( TRUE );
+	    if ( p && p->isMenuBar )
+		((QMenuBar*) p)->goodbye( TRUE );
 #endif
+	}
 	break;
 
     case Key_Left:
@@ -1845,12 +1825,12 @@ void QPopupMenu::subMenuTimer() {
     if ( popup->isVisible() )
 	return;
 
-    if (popup->parentMenu != this ){
-	// reuse
-	if (popup->parentMenu)
-	    popup->parentMenu->menuDelPopup(popup);
-	menuInsPopup(popup);
-    }
+    Q_ASSERT( popup->parentMenu == 0 );
+    popup->parentMenu = this;			// set parent menu
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
 
     emit popup->aboutToShow();
     supressAboutToShow = TRUE;
@@ -2316,10 +2296,11 @@ void QPopupMenu::activateItemAt( int index )
 	if ( tornOff ) {
 	    close();
 	} else {
+	    QMenuData* p = parentMenu;
 	    hide();
 #ifndef QT_NO_MENUBAR
-	    if ( parentMenu && parentMenu->isMenuBar )
-		((QMenuBar*) parentMenu)->goodbye( TRUE );
+	    if ( p && p->isMenuBar )
+		((QMenuBar*) p)->goodbye( TRUE );
 #endif
 	}
     }

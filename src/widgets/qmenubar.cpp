@@ -135,7 +135,7 @@ static bool inMenu = FALSE;
     QMenuBar on Qt/Mac is a wrapper for using the system-wide
     menubar. However, if you have multiple menubars in one dialog the
     outermost menubar (normally inside a widget with \l
-    WType_TopLevel) will be used for the global menubar. 
+    WType_TopLevel) will be used for the global menubar.
 
     Qt/Mac also provides a menubar merging feature, with this your
     QMenubar will be brought closer to conforming to accepted Mac OS X
@@ -147,12 +147,12 @@ static bool inMenu = FALSE;
 
     \table
     \header \i String matches \i Placement \i Notes
-    \row \i about.* \i Application Menu | About <application name> 
+    \row \i about.* \i Application Menu | About <application name>
          \i If this entry is not found no About item will appear in the Application Menu
     \row \i config, options, setup, settings, preferences \i Application Menu | Settings
          \i If this entry is not found the Settings item will be disabled
     \row \i quit, exit \i Application Menu | Quit <application name>
-         \i If this entry is not found a default Quit item will be created to call 
+         \i If this entry is not found a default Quit item will be created to call
 	    QApplication::quit()
     \endtable
 
@@ -456,20 +456,14 @@ void QMenuBar::performDelayedChanges()
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = this;			// set parent menu
-    connect( popup, SIGNAL(activatedRedirect(int)),
-	     SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(highlightedRedirect(int)),
-	     SLOT(subHighlighted(int)) );
+    connect( popup, SIGNAL(destroyed(QObject*)),
+	     this, SLOT(popupDestroyed(QObject*)) );
 }
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = 0;
-    popup->disconnect( SIGNAL(activatedRedirect(int)), this,
-		       SLOT(subActivated(int)) );
-    popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
-		       SLOT(subHighlighted(int)) );
+    disconnect( popup, SIGNAL(destroyed(QObject*)),
+		this, SLOT(popupDestroyed(QObject*)) );
 }
 
 void QMenuBar::frameChanged()
@@ -640,6 +634,11 @@ void QMenuBar::accelDestroyed()
 }
 #endif
 
+void QMenuBar::popupDestroyed( QObject *o )
+{
+    removePopup( (QPopupMenu*)o );
+}
+
 bool QMenuBar::tryMouseEvent( QPopupMenu *, QMouseEvent *e )
 {
     QPoint pos = mapFromGlobal( e->globalPos() );
@@ -716,12 +715,12 @@ void QMenuBar::openActPopup()
     if ( popup->isVisible() )
 	return;
 
-    if (popup->parentMenu != this ){
-	// reuse
-	if (popup->parentMenu)
-	    popup->parentMenu->menuDelPopup(popup);
-	menuInsPopup(popup);
-    }
+    Q_ASSERT( popup->parentMenu == 0 );
+    popup->parentMenu = this;			// set parent menu
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
 
     popup->snapToMouse = FALSE;
     popup->popup( pos );
@@ -1427,11 +1426,7 @@ void QMenuBar::setupAccelerators()
 	    }
 	}
 	if ( mi->popup() ) {
-	    // reuse
 	    QPopupMenu* popup = mi->popup();
-	    if (popup->parentMenu)
-		popup->parentMenu->menuDelPopup(popup);
-	    menuInsPopup(popup);
 	    popup->updateAccel( this );
 	    if ( !popup->isEnabled() )
 		popup->enableAccel( FALSE );

@@ -117,6 +117,7 @@ private slots:
     void	accelActivated( int itemId );
     void	accelDestroyed();
 #endif
+    void	popupDestroyed( QObject* );
     void 	performDelayedChanges();
 
 private:

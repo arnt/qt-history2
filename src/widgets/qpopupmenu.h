@@ -121,12 +121,13 @@ private slots:
     void	accelActivated( int itemId );
     void	accelDestroyed();
 #endif
+    void	popupDestroyed( QObject* );
     void	modalActivation( int );
 
     void	subMenuTimer();
     void	allowAnimation();
     void     toggleTearOff();
-    
+
     void        performDelayedChanges();
 
 private:

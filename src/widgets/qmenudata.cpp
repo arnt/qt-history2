@@ -179,14 +179,6 @@ QMenuData::QMenuData()
 
 QMenuData::~QMenuData()
 {
-#ifndef QT_NO_POPUPMENU
-    register QMenuItem *mi = mitems->first();
-    while ( mi ) {
-	if ( mi->popup_menu )			// reset parent pointer for all
-	    mi->popup_menu->parentMenu = 0;	//   child menus
-	mi = mitems->next();
-    }
-#endif
     delete mitems;				// delete menu item list
     delete d;
 }
@@ -317,8 +309,10 @@ void QMenuData::removePopup( QPopupMenu *popup )
 {
     int index = 0;
     QMenuItem *mi = findPopup( popup, &index );
-    if ( mi )
+    if ( mi ) {
+	mi->popup_menu = 0;
 	removeItemAt( index );
+    }
 }
 
 
@@ -1146,9 +1140,14 @@ QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
 	++it;
 #ifndef QT_NO_POPUPMENU
 	if ( mi->popup_menu ) {
-	    mi = mi->popup_menu->findItem( id, parent );
-	    if ( mi )				// found item
-		return mi;
+	    QPopupMenu *p = mi->popup_menu;
+	    if (!p->avoid_circularity) {
+		p->avoid_circularity = 1;
+		mi = mi->popup_menu->findItem( id, parent );
+		p->avoid_circularity = 0;
+		if ( mi )				// found item
+		    return mi;
+	    }
 	}
 #endif
     }
