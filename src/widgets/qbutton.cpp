@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#59 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,8 +16,9 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#59 $");
 
+static const int autoRepeatPeriod = 200;
 
 /*!
   \class QButton qbutton.h
@@ -232,6 +233,27 @@ void QButton::setAutoResize( bool enable )
     }
 }
 
+
+/*!  Turns on auto-repeat for the button if \a enable is TRUE, and
+  turns it off if it is FALSE.
+
+  When auto-repeat is enabled, the clicked() signal is emitted at
+  regular intervals while the buttons \link isDown() is down. \endlink
+
+  setAutoRepeat() has no effect for \link setToggleButton() toggle
+  buttons. \endlink
+
+  \sa isDown() autoRepeat() clicked()
+*/
+
+void QButton::setAutoRepeat( bool enable )
+{
+    repeat = (uint)enable;
+    if ( mlbDown )
+	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
+}
+
+
 /*!
   \fn bool QButton::isDown() const
   Returns TRUE if the button pressed down, or FALSE if it is standing up.
@@ -362,6 +384,9 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	buttonDown = TRUE;
 	repaint( FALSE );
 	emit pressed();
+	if ( autoRepeat() )
+	    QTimer::singleShot( autoRepeatPeriod,
+				this, SLOT(autoRepeatSlot()) );
     }
 }
 
@@ -468,7 +493,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	    timer = CHILD(this,QTimer,"timer");
 	    if ( timer ) {
 		timer->stop();
-		timer->start( 200, TRUE );
+		timer->start( autoRepeatPeriod, TRUE );
 	    }
 	    return;
 	} else {
@@ -476,7 +501,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	    timer = new QTimer( this, "timer" );
 	    CHECK_PTR( timer );
 	    connect( timer, SIGNAL(timeout()), SLOT(timerSlot()) );
-	    timer->start( 200, TRUE );
+	    timer->start( autoRepeatPeriod, TRUE );
 	}
 	buttonDown = TRUE;
 	repaint( FALSE );
@@ -505,5 +530,18 @@ void QButton::timerSlot()
     if ( toggleBt )
 	emit toggled( buttonOn );
     emit released();
+    emit clicked();
+}
+
+
+/*!
+  Emits a clicked() signal if autoRepeat() is on.
+*/
+
+void QButton::autoRepeatSlot()
+{
+    if ( !mlbDown )
+	return;
+    QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
     emit clicked();
 }

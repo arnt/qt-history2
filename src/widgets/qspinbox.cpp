@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#7 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -41,6 +41,8 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     down = new QPushButton( this, "down" );
     up->setFocusPolicy( QWidget::NoFocus );
     down->setFocusPolicy( QWidget::NoFocus );
+    up->setAutoRepeat( TRUE );
+    down->setAutoRepeat( TRUE );
     doResize( size() ); // ### work around kernel bug
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
