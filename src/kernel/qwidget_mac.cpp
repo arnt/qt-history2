@@ -117,8 +117,11 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     }
     for(int i = 0; i < (int)rs.size(); i++) {
 	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
-	qDebug("%c %d %d %d %d", 
-	       wrect.contains(srect) ? '*' : (wrect.intersects(srect) ? '-' : '?'),
+	// * == Completely inside the widget, - == intersects, ? == completely unrelated
+	qDebug("%c(%c) %d %d %d %d", 
+	       !wrect.intersects(srect) ? '?' : (wrect.contains(srect) ? '*' : '-'),
+	       !w->clippedRegion().contains(srect) ? '?' : 
+	       (!QRegion(w->clippedRegion() ^ srect).isEmpty() ? '*' : '-'),
 	       srect.x(), srect.y(), srect.width(), srect.height());
     }
 }
@@ -183,7 +186,7 @@ enum paint_children_ops {
     PC_NoErase = 0x08,
     PC_Later = 0x10
 };
-bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
+bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 {
     if(qApp->closingDown() || qApp->startingUp() || !p || !p->isVisible() || r.isEmpty())
 	return FALSE;
@@ -205,7 +208,7 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
 		    r -= wr;
 		    wr.translate(-(point.x() + w->x()), -(point.y() + w->y()));
 		    qt_paint_children(w, wr, ops);
-		    if(r.isEmpty())
+		    if(r.isEmpty()) 
 			return TRUE;
 		}
 	    }
@@ -218,12 +221,16 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
     if((ops & PC_NoPaint)) {
 	if(ops & PC_Later)
 	   qDebug("Cannot use PC_NoPaint with PC_Later!");
-	if(erase)
+	if(erase) {
+#ifdef DEBUG_WNDW_RGN
+	    debug_wndw_rgn("**paint_children1", p, r, TRUE, TRUE);
+#endif
 	    p->erase(r);
+	}
     } else {
 	if(ops & PC_Now) {
 #ifdef DEBUG_WNDW_RGN
-	    debug_wndw_rgn("**paint_children1", p, r, TRUE, TRUE);
+	    debug_wndw_rgn("**paint_children2", p, r, TRUE, TRUE);
 #endif
 	    p->repaint(r, erase);
 	} else {
@@ -232,7 +239,7 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
             else if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
 #ifdef DEBUG_WNDW_RGN
-                debug_wndw_rgn("**paint_children2", p, r, TRUE, TRUE);
+                debug_wndw_rgn("**paint_children3", p, r, TRUE, TRUE);
 #endif
 		p->repaint(r, erase);
 	    } else if(erase) {
@@ -240,10 +247,14 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
 		p->erase(r);
 	    }
 	    if(!painted) {
-		QRegion pa(r);
-		pa.translate(point.x(), point.y());
-		p->update(pa.boundingRect()); //last try
+#ifdef DEBUG_WNDW_RGN
+                debug_wndw_rgn("**paint_children4", p, r, TRUE, TRUE);
+#endif
+		p->update(r); //last try
 	    } else if(p->extra && p->extra->has_dirty_area) {
+#ifdef DEBUG_WNDW_RGN
+                debug_wndw_rgn("**paint_children5", p, r, TRUE, TRUE);
+#endif
 		qt_event_request_updates(p, r, TRUE);
 	    }
 	}
@@ -307,7 +318,7 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find((WId)id);
-    if (qMacVersion() == Qt::MV_JAGUAR) {
+    if(qMacVersion() == Qt::MV_JAGUAR) {
 	switch(wcode) {
 	case kWindowOpaqueRgn:
 	case kWindowStructureRgn: {
@@ -544,7 +555,7 @@ bool qt_mac_is_macsheet(QWidget *w)
 #if defined(Q_WS_MACX)
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible() &&
+       w->parentWidget()->topLevelWidget()->isVisible() && 
        (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
 	return TRUE;
 #else
@@ -556,7 +567,7 @@ bool qt_mac_is_macsheet(QWidget *w)
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
-void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
+void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 {
     window_event = NULL;
     own_id = 0;
@@ -605,7 +616,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    setWFlags(WStyle_StaysOnTop);
     }
     if(!testWFlags(WStyle_Customize) && !(desktop || popup))
-	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
+	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
     if(desktop) {                            // desktop widget
 	dialog = popup = FALSE;                  // force these flags off
@@ -767,7 +778,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
 #ifdef Q_WS_MACX
-	if(dialog && !parentWidget())
+	if(!grp && dialog && !parentWidget())
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
@@ -843,7 +854,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if(children()) {
             QObjectListIt it(*children());
             register QObject *obj;
-            while ((obj=it.current())) {      // destroy all widget children
+            while((obj=it.current())) {      // destroy all widget children
                 ++it;
                 if(obj->isWidgetType())
                     ((QWidget*)obj)->destroy(destroySubWindows, destroySubWindows);
@@ -946,7 +957,7 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     //reparent children
     if(QObjectList	*chldn = queryList()) {
 	QObjectListIt it(*chldn);
-	for (QObject *obj; (obj=it.current()); ++it) {
+	for(QObject *obj; (obj=it.current()); ++it) {
 	    if(obj->inherits("QAccel"))
 		((QAccel*)obj)->repairEventFilter();
 	    if(obj->isWidgetType()) {
@@ -1045,7 +1056,7 @@ void QWidget::setBackgroundPixmapDirect(const QPixmap &pixmap)
     } else {
 	QPixmap pm = pixmap;
 //	pm.setMask(QBitmap());
-	if (!pixmap.isNull()) {
+	if(!pixmap.isNull()) {
 	    if(pm.depth() == 1 && QPixmap::defaultDepth() > 1) {
 		pm = QPixmap(pixmap.size());
 		bitBlt(&pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height());
@@ -1095,7 +1106,7 @@ void QWidget::setCursor(const QCursor &cursor)
 void QWidget::unsetCursor()
 {
     if(!isTopLevel()) {
-	if (extra) {
+	if(extra) {
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
@@ -1262,7 +1273,9 @@ void QWidget::update(int x, int y, int w, int h)
 	if(w && h) {
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
-	    debug_wndw_rgn("update1", this, r);
+#ifdef DEBUG_WNDW_RGN
+	    debug_wndw_rgn("update1", this, r, FALSE, TRUE);
+#endif
 	}
     }
 }
@@ -1271,7 +1284,9 @@ void QWidget::update(const QRegion &rgn)
 {
     if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isNull()) {
 	qt_event_request_updates(this, rgn);
-	debug_wndw_rgn("update2", this, rgn);
+#ifdef DEBUG_WNDW_RGN
+	debug_wndw_rgn("update2", this, rgn, FALSE, TRUE);
+#endif
     }
 }
 
@@ -1464,7 +1479,7 @@ void QWidget::showNormal()
 	return;
     if(isTopLevel()) {
 	if(topData()->fullscreen) {
-	    reparent( 0, topData()->savedFlags, QPoint(0,0) );
+	    reparent(0, topData()->savedFlags, QPoint(0,0));
 	    setGeometry(topData()->normalGeometry);
 	} else {
 	    Rect bounds;
@@ -1473,7 +1488,7 @@ void QWidget::showNormal()
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
 	}
     }
-    if ( extra && extra->topextra )
+    if(extra && extra->topextra)
 	extra->topextra->fullscreen = 0;
     dirtyClippedRegion(TRUE);
     show();
@@ -1519,7 +1534,7 @@ void QWidget::lower()
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
-	if (p->childObjects && p->childObjects->findRef(this) >= 0)
+	if(p->childObjects && p->childObjects->findRef(this) >= 0)
 	    p->childObjects->insert(0, p->childObjects->take());
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
@@ -1532,7 +1547,7 @@ void QWidget::lower()
 
 void QWidget::stackUnder(QWidget *w)
 {
-    if (!w || isTopLevel() || isDesktop())
+    if(!w || isTopLevel() || isDesktop())
 	return;
 
     QWidget *p = parentWidget();
@@ -1591,7 +1606,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     QRect  r(x, y, w, h);
     dirtyClippedRegion(FALSE);
     crect = r;
-    if (!isTopLevel() && size() == olds && oldp == pos())
+    if(!isTopLevel() && size() == olds && oldp == pos())
 	return;
     dirtyClippedRegion(TRUE);
 
@@ -1611,9 +1626,9 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
     if(isMove || isResize) {
 	if(!isVisible()) {
-	    if (isResize)
+	    if(isResize)
 		QApplication::postEvent(this, new QResizeEvent(size(), olds));
-	    if (isMove && oldp != pos())
+	    if(isMove && oldp != pos())
 		QApplication::postEvent(this, new QMoveEvent(pos(), oldp));
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
@@ -1645,7 +1660,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 			p = this;
 		    QMacSavedPortInfo pi(p, bltregion);
 		    unclippedBitBlt(p, pos().x(), pos().y(), p, oldp.x(), oldp.y(),
-				    olds.width(), olds.height(), Qt::CopyROP,TRUE,TRUE);
+				    olds.width(), olds.height(), Qt::CopyROP, TRUE, TRUE);
 		}
 	    }
 	    if((!newreg_empty || !oldreg_empty) &&
@@ -1661,7 +1676,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 	    }
 	    //Do these last, as they may cause an event which paints, and messes up
 	    //what we blt above
-	    if (isResize) { //send the resize event..
+	    if(isResize) { //send the resize event..
 		QResizeEvent e(size(), olds);
 		QApplication::sendEvent(this, &e);
 	    }
@@ -1676,7 +1691,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 void QWidget::setMinimumSize(int minw, int minh)
 {
 #if defined(QT_CHECK_RANGE)
-    if (minw < 0 || minh < 0)
+    if(minw < 0 || minh < 0)
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
@@ -1713,7 +1728,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     }
 #endif
     createExtra();
-    if (extra->maxw == maxw && extra->maxh == maxh)
+    if(extra->maxw == maxw && extra->maxh == maxh)
 	return;
     extra->maxw = maxw;
     extra->maxh = maxh;
@@ -1823,18 +1838,19 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     dirtyClippedRegion(TRUE);
     if(!valid_rect && children()) {	// scroll children
 	QPoint pd(dx, dy);
-	QObjectListIt it(*children());
-	register QObject *object;
-	while (it) {				// move all children
-	    object = it.current();
-	    if(object->isWidgetType()) {
-		QWidget *w = (QWidget *)object;
-		QPoint oldp = w->pos();
+	QWidgetList moved;
+	register QObject *o;
+	for(QObjectListIt it(*children()); (o=it.current()); ++it) { //first move all children
+	    if(o->isWidgetType()) {
+		QWidget *w = (QWidget*)o;
 		w->crect = QRect(w->pos() + pd, w->size());
-		QMoveEvent e(w->crect.topLeft(), oldp);
-		QApplication::sendEvent(w, &e);
+		moved.append(w);
 	    }
-	    ++it;
+	}
+        //now send move events (do not do this in the above loop, breaks QAquaFocusWidget)
+	for(QWidget *w = moved.first(); w; w = moved.next()) { 
+	    QMoveEvent e(w->pos(), w->pos() - pd);
+	    QApplication::sendEvent(w, &e);
 	}
     }
 
@@ -1854,12 +1870,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
 void QWidget::drawText(int x, int y, const QString &str)
 {
-    if(testWState(WState_Visible)) {
-	QPainter paint;
-	paint.begin(this);
-	paint.drawText(x, y, str);
-	paint.end();
-    }
+    if(!testWState(WState_Visible)) 
+	return;
+    QPainter paint(this);
+    paint.drawText(x, y, str);
 }
 
 int QWidget::metric(int m) const
@@ -2074,7 +2088,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
 	    QObjectListIt it(*chldn);
-	    for(QObject *obj; (obj = it.current()); ++it ) {
+	    for(QObject *obj; (obj = it.current()); ++it) {
 		if(obj->isWidgetType() && !obj->wasDeleted) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(!w->isTopLevel() && w->isVisible())
@@ -2106,7 +2120,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 			    w->setRegionDirty(TRUE);
 			    if(QObjectList *chldn2 = w->queryList()) {
 				QObjectListIt it2(*chldn2);
-				for(QObject *obj; (obj = it2.current()); ++it2 ) {
+				for(QObject *obj; (obj = it2.current()); ++it2) {
 				    if(obj->isWidgetType() && !obj->wasDeleted) {
 					QWidget *w = (QWidget *)(*it2);
 					/* this relies on something that may change in the future
