@@ -1166,8 +1166,13 @@ void QGfxRasterBase::update_clip()
     _XRegion* wr = (_XRegion*) widgetrgn.handle();
     _XRegion* cr = (_XRegion*) cliprgn.handle();
 
-    if ( wr->numRects==1 && (!regionClip || cr->numRects==1) )
-    {
+    if ( wr->numRects==0) {
+	// Widget not visible
+	ncliprect = 0;
+	delete [] cliprect;
+	cliprect = 0;
+	clipbounds = QRect();
+    } else if ( wr->numRects==1 && (!regionClip || cr->numRects==1) ) {
 	// fastpath: just simple rectangles (90% of cases)
 	QRect setrgn;
 
@@ -1354,6 +1359,8 @@ void QGfxRasterBase::setAlphaSource(int i,int i2,int i3,int i4)
 
 void QGfxRasterBase::drawGlyphs(QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs )
 {
+    if (!ncliprect)
+	return;
     // Clipping can be handled by blt
     // Offset is handled by blt
 
@@ -2641,6 +2648,8 @@ offset, stored in the variables xoffs and yoffs.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPoint( int x, int y )
 {
+    if (!ncliprect)
+	return;
     if(cpen.style()==NoPen)
 	return;
     x += xoffs;
@@ -2668,6 +2677,8 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
 {
+    if (!ncliprect)
+	return;
     if(cpen.style()==NoPen)
 	return;
     usePen();
@@ -2706,7 +2717,9 @@ Draw a line in the current pen style from \a x1 \a y1 to \a x2 \a y2
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 {
-    if(cpen.style()==NoPen)
+    if (!ncliprect)
+	return;
+    if (cpen.style()==NoPen)
 	return;
 
     if (cpen.width() > 1) {
@@ -4457,6 +4470,8 @@ Draw a filled rectangle in the current brush color from \a rx,\a ry to \a w,
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 {
+    if (!ncliprect)
+	return;
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     if((*gfx_optype))
@@ -4886,6 +4901,8 @@ starting from \a index in the array.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
 {
+    if (!ncliprect)
+	return;
     if(cpen.style()==NoPen)
 	return;
     if (cpen.width() > 1) {
@@ -4988,6 +5005,8 @@ or the even-odd (alternative) fill algorithm.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
 {
+    if (!ncliprect)
+	return;
     useBrush();
     GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
@@ -5139,7 +5158,7 @@ are its source coordinates and \a w and \a h are its width and height.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 {
-    if (!w || !h)
+    if (!w || !h || !ncliprect)
 	return;
 
     int dy = sy - ry;
