@@ -504,7 +504,7 @@ void QButton::setAccel( const QKeySequence& key )
 #ifndef QT_NO_ACCEL
     if ( d && d->a )
 	d->a->clear();
-    if ( !key )
+    if ( !(int)key )
 	return;
     ensureData();
     if ( !d->a )
