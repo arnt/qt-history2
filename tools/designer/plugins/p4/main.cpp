@@ -1,5 +1,6 @@
-#define Q_UUIDIMPL
-#include "../designerinterface.h"
+#include <designerinterface.h>
+#include <actioninterface.h>
+
 #include "p4.h"
 
 #include <qcleanuphandler.h>
