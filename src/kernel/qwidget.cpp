@@ -3201,9 +3201,7 @@ void QWidget::show()
 
     if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	raise();
-    }
-
-    if ( testWFlags(WType_TopLevel) && !isPopup() && qstrcmp(name(),"toolTipTip")!=0 ) {
+    } else if ( testWFlags(WType_TopLevel) ) {
 	while ( QApplication::activePopupWidget() )
 	    QApplication::activePopupWidget()->hide();
     }
