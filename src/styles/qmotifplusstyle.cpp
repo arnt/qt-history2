@@ -57,14 +57,14 @@
 struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
-        : hoverWidget(0), hovering(FALSE), sliderActive(FALSE),
-          scrollbarElement(0), ref(1), hoverPalette(0)
+        : hoverWidget(0), hovering(FALSE), sliderActive(FALSE), mousePressed(FALSE),
+          scrollbarElement(0), lastElement(0), ref(1), hoverPalette(0)
     { ; }
 
     QGuardedPtr<QWidget> hoverWidget;
     QPalette oldpalette, prelight_palette;
-    bool hovering, sliderActive;
-    int scrollbarElement, ref;
+    bool hovering, sliderActive, mousePressed;
+    int scrollbarElement, lastElement, ref;
     QPoint mousePos;
     QPalette *hoverPalette;
 };
@@ -1012,25 +1012,166 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
 
 /*! \reimp */
+void QMotifPlusStyle::drawComplexControl(ComplexControl control,
+			    QPainter *p,
+			    const QWidget *widget,
+			    const QRect &r,
+			    const QColorGroup &cg,
+			    SFlags how,
+			    SCFlags controls,
+			    SCFlags active,
+			    void **data ) const
+{
+    switch (control) {
+    case CC_ScrollBar:
+	{
+	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
+	    QRect addline, subline, addpage, subpage, slider, first, last;
+	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+
+	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
+	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
+	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
+	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
+	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
+	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   data);
+	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    data);
+
+	    bool skipUpdate = FALSE;
+	    if (singleton->hovering) {
+		if (addline.contains(singleton->mousePos)) {
+		    skipUpdate =
+			(singleton->scrollbarElement == SC_ScrollBarAddLine);
+		    singleton->scrollbarElement = SC_ScrollBarAddLine;
+		} else if (subline.contains(singleton->mousePos)) {
+		    skipUpdate =
+			(singleton->scrollbarElement == SC_ScrollBarSubLine);
+		    singleton->scrollbarElement = SC_ScrollBarSubLine;
+		} else if (slider.contains(singleton->mousePos)) {
+		    skipUpdate =
+			(singleton->scrollbarElement == SC_ScrollBarSlider);
+		    singleton->scrollbarElement = SC_ScrollBarSlider;
+		} else {
+		    skipUpdate =
+			(singleton->scrollbarElement == 0);
+		    singleton->scrollbarElement = 0;
+		}
+	    } else
+		singleton->scrollbarElement = 0;
+
+	    if (skipUpdate && singleton->scrollbarElement == singleton->lastElement)
+		break;
+
+	    singleton->lastElement = singleton->scrollbarElement;
+
+	    if (controls == (SC_ScrollBarAddLine | SC_ScrollBarSubLine |
+			     SC_ScrollBarAddPage | SC_ScrollBarSubPage |
+			     SC_ScrollBarFirst | SC_ScrollBarLast | SC_ScrollBarSlider))
+		drawMotifPlusShade(p, widget->rect(), cg, TRUE,
+				   &cg.brush(QColorGroup::Mid));
+
+	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
+		drawPrimitive(PE_ScrollBarSubLine, p, subline,
+			      ((active == SC_ScrollBarSubLine ||
+				singleton->scrollbarElement == SC_ScrollBarSubLine) ?
+			       singleton->prelight_palette.active(): cg),
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarSubLine) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
+		drawPrimitive(PE_ScrollBarAddLine, p, addline,
+			      ((active == SC_ScrollBarAddLine ||
+				singleton->scrollbarElement == SC_ScrollBarAddLine) ?
+			       singleton->prelight_palette.active(): cg),
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarAddLine) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
+		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarSubPage) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
+		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarAddPage) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarFirst) && first.isValid())
+		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarFirst) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarLast) && last.isValid())
+		drawPrimitive(PE_ScrollBarLast, p, last, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarLast) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
+		drawPrimitive(PE_ScrollBarSlider, p, slider,
+			      ((active == SC_ScrollBarSlider ||
+				singleton->scrollbarElement == SC_ScrollBarSlider) ?
+			       singleton->prelight_palette.active(): cg),
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((active == SC_ScrollBarSlider) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : Style_Vertical));
+
+		// ### perhaps this should not be able to accept focus if maxedOut?
+		if (scrollbar->hasFocus()) {
+		    QRect fr(slider.x() + 2, slider.y() + 2,
+			     slider.width() - 5, slider.height() - 5);
+		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
+		}
+	    }
+
+	    break;
+	}
+
+    default:
+	QMotifStyle::drawComplexControl(control, p, widget, r, cg, how,
+					controls, active, data);
+    }
+}
+
+
+/*! \reimp */
 bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 {
     switch(event->type()) {
     case QEvent::MouseButtonPress:
         {
-            if (object->inherits("QSlider"))
-                singleton->sliderActive = TRUE;
+	    singleton->mousePressed = TRUE;
 
+            if (! object->inherits("QSlider"))
+		break;
+
+	    singleton->sliderActive = TRUE;
             break;
         }
 
     case QEvent::MouseButtonRelease:
         {
-            if (object->inherits("QSlider")) {
-                singleton->sliderActive = FALSE;
-                ((QWidget *) object)->repaint(FALSE);
-            }
+	    singleton->mousePressed = FALSE;
 
-            break;
+            if (! object->inherits("QSlider"))
+		break;
+
+	    singleton->mousePressed = FALSE;
+	    ((QWidget *) object)->repaint(FALSE);
+	    break;
         }
 
     case QEvent::Enter:
@@ -1039,27 +1180,29 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		break;
 
 	    singleton->hoverWidget = (QWidget *) object;
-	    if (singleton->hoverWidget->isEnabled()) {
-		if (object->inherits("QScrollBar") ||
-		    object->inherits("QSlider")) {
-		    singleton->hoverWidget->update(); // repaint(FALSE);
-		} else if (object->inherits("QPushButton")) {
-		    QPalette pal = singleton->hoverWidget->palette();
-
-		    if (singleton->hoverWidget->ownPalette())
-			singleton->hoverPalette = new QPalette(pal);
-
-		    pal.setColor(QPalette::Active, QColorGroup::Button,
-				 singleton->prelight_palette.color(QPalette::Active,
-								   QColorGroup::Button));
-		    pal.setColor(QPalette::Inactive, QColorGroup::Button,
-				 singleton->prelight_palette.color(QPalette::Inactive,
-								   QColorGroup::Button));
-		    singleton->hoverWidget->setPalette(pal);
-		} else
-		    singleton->hoverWidget->setPalette(singleton->prelight_palette);
-	    } else
+	    if (! singleton->hoverWidget->isEnabled()) {
 		singleton->hoverWidget = 0;
+		break;
+	    }
+
+	    if (object->inherits("QScrollBar") ||
+		object->inherits("QSlider")) {
+		singleton->hoverWidget->repaint(FALSE);
+	    } else if (object->inherits("QPushButton")) {
+		QPalette pal = singleton->hoverWidget->palette();
+
+		if (singleton->hoverWidget->ownPalette())
+		    singleton->hoverPalette = new QPalette(pal);
+
+		pal.setColor(QPalette::Active, QColorGroup::Button,
+			     singleton->prelight_palette.color(QPalette::Active,
+							       QColorGroup::Button));
+		pal.setColor(QPalette::Inactive, QColorGroup::Button,
+			     singleton->prelight_palette.color(QPalette::Inactive,
+							       QColorGroup::Button));
+		singleton->hoverWidget->setPalette(pal);
+	    } else
+		singleton->hoverWidget->setPalette(singleton->prelight_palette);
 
 	    break;
 	}
@@ -1079,7 +1222,6 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
 	    singleton->hoverWidget = 0;
 
-
 	    break;
 	}
 
@@ -1089,12 +1231,13 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		object != singleton->hoverWidget)
 		break;
 
-	    if (object->inherits("QScrollBar") ||
-		object->inherits("QSlider")) {
-		singleton->mousePos = ((QMouseEvent *) event)->pos();
-		singleton->hovering
-		    = (((QMouseEvent *) event)->button() == NoButton);
-		singleton->hoverWidget->update(); // repaint(FALSE);
+	    if (! object->inherits("QScrollBar") && ! object->inherits("QSlider"))
+		break;
+
+	    singleton->mousePos = ((QMouseEvent *) event)->pos();
+	    if (! singleton->mousePressed) {
+		singleton->hovering = TRUE;
+		singleton->hoverWidget->repaint(FALSE);
 		singleton->hovering = FALSE;
 	    }
 
@@ -1256,23 +1399,23 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 //         sliderR .setRect( b, sliderStart, sliderW, sliderLength );
 //     }
 
-//     bool scrollbarUpdate = FALSE;
+//     bool skipUpdate = FALSE;
 //     if (singleton->hovering) {
 //         if (addB.contains(singleton->mousePos)) {
-//             scrollbarUpdate = (singleton->scrollbarElement == AddLine);
+//             skipUpdate = (singleton->scrollbarElement == AddLine);
 //             singleton->scrollbarElement = AddLine;
 //         } else if (subB.contains(singleton->mousePos)) {
-//             scrollbarUpdate = (singleton->scrollbarElement == SubLine);
+//             skipUpdate = (singleton->scrollbarElement == SubLine);
 //             singleton->scrollbarElement = SubLine;
 //         } else if (sliderR.contains(singleton->mousePos)) {
-//             scrollbarUpdate = (singleton->scrollbarElement == Slider);
+//             skipUpdate = (singleton->scrollbarElement == Slider);
 //             singleton->scrollbarElement = Slider;
 //         } else
 //             singleton->scrollbarElement = 0;
 //     } else
 //         singleton->scrollbarElement = 0;
 
-//     if (scrollbarUpdate) return;
+//     if (skipUpdate) return;
 
 //     if ( controls == ( AddLine | SubLine | AddPage | SubPage |
 //                        Slider | First | Last ) )

@@ -86,6 +86,16 @@ public:
 
     QRect subRect(SubRect r, const QWidget *widget) const;
 
+    void drawComplexControl(ComplexControl control,
+			    QPainter *p,
+			    const QWidget *widget,
+			    const QRect &r,
+			    const QColorGroup &cg,
+			    SFlags how = Style_Default,
+			    SCFlags controls = SC_All,
+			    SCFlags active = SC_None,
+			    void **data = 0 ) const;
+
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     /*
