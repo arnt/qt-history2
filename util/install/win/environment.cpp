@@ -60,7 +60,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
     }
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
+	    TCHAR *varNameT = (TCHAR*)qt_winTchar( varName, TRUE );
 	    int size = GetEnvironmentVariableW( varNameT, 0, 0 );
 	    if ( size == 0 )
 		return QString::null;
@@ -144,7 +144,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
-	    SetEnvironmentVariableW( varNameT, varName.ucs2() );
+	    SetEnvironmentVariableW( varNameT, varValue.ucs2() );
 	    delete varNameT;
 	} else {
 	    SetEnvironmentVariableA( varName.local8Bit(), varValue.local8Bit() );
