@@ -36,6 +36,7 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qvaluelist.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
