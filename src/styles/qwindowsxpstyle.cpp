@@ -2172,7 +2172,7 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
 
     case SH_LineEdit_PasswordCharacter:
 	{
-	    QFontMetrics &fm = widget->fontMetrics();
+	    const QFontMetrics &fm = widget->fontMetrics();
 	    if ( fm.inFont( QChar(0x25CF) ) )
 		return 0x25CF;
 	    else if ( fm.inFont( QChar(0x2022) ) )
