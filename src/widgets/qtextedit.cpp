@@ -3837,32 +3837,37 @@ void QTextEdit::append( const QString &text )
 	else
 	    f = PlainText;
     }
-    if ( f == PlainText ) {
-	QTextCursor oldc( *cursor );
-	ensureFormatted( doc->lastParag() );
-	bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight() -
-			   ( horizontalScrollBar()->isVisible() ? horizontalScrollBar()->height() : 0 );
-	cursor->gotoEnd();
-	if ( cursor->index() > 0 )
-	    cursor->splitAndInsertEmptyParag();
-	QTextCursor oldCursor2 = *cursor;
-  	cursor->insert( text, TRUE );
-	if ( doc->useFormatCollection() && currentFormat != cursor->parag()->at( cursor->index() )->format() ) {
+
+    drawCursor( FALSE );
+    QTextCursor oldc( *cursor );
+    ensureFormatted( doc->lastParag() );
+    bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight() -
+			   ( horizontalScrollBar()->isVisible() ?
+			     horizontalScrollBar()->height() : 0 );
+    cursor->gotoEnd();
+    if ( cursor->index() > 0 )
+	cursor->splitAndInsertEmptyParag();
+    QTextCursor oldCursor2 = *cursor;
+  	
+    if ( f == Qt::PlainText ) {
+	cursor->insert( text, TRUE );
+	if ( doc->useFormatCollection() &&
+	     currentFormat != cursor->parag()->at( cursor->index() )->format() ) {
 	    doc->setSelectionStart( QTextDocument::Temp, &oldCursor2 );
 	    doc->setSelectionEnd( QTextDocument::Temp, cursor );
 	    doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
 	    doc->removeSelection( QTextDocument::Temp );
 	}
-	formatMore();
-	repaintChanged();
-	if ( scrollToEnd )
-	    ensureCursorVisible();
-	drawCursor( TRUE );
- 	*cursor = oldc;
-    } else if ( f == RichText ) {
+    } else {
 	doc->setRichTextInternal( text );
-	repaintChanged();
     }
+    formatMore();
+    repaintChanged();
+    if ( scrollToEnd )
+	ensureCursorVisible();
+    *cursor = oldc;
+    if ( !isReadOnly() )
+	cursorVisible = TRUE;
     setModified();
     emit textChanged();
 }
