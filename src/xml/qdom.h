@@ -326,8 +326,10 @@ public:
     bool isDocument() const;
 
     // Qt extensions
-    QString toString() const;
-    QCString toCString() const;
+    QString toString() const; // ### Qt 4: merge the two overloads
+    QString toString( int ) const;
+    QCString toCString() const; // ### Qt 4: merge the two overloads
+    QCString toCString( int ) const;
 
 private:
     QDomDocument( QDomDocumentPrivate* );

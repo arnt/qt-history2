@@ -6088,7 +6088,19 @@ QString QDomDocument::toString() const
 {
     QString str;
     QTextStream s( str, IO_WriteOnly );
-    s << *this;
+    save( s, 1 );
+
+    return str;
+}
+
+/*!
+  This function uses \a indent as the amount of space to indent subelements.
+*/
+QString QDomDocument::toString( int indent ) const
+{
+    QString str;
+    QTextStream s( str, IO_WriteOnly );
+    save( s, indent );
 
     return str;
 }
@@ -6104,6 +6116,16 @@ QCString QDomDocument::toCString() const
     // ### if there is an encoding specified in the xml declaration, this
     // encoding declaration should be changed to utf8
     return toString().utf8();
+}
+
+/*!
+  This function uses \a indent as the amount of space to indent subelements.
+*/
+QCString QDomDocument::toCString( int indent ) const
+{
+    // ### if there is an encoding specified in the xml declaration, this
+    // encoding declaration should be changed to utf8
+    return toString( indent ).utf8();
 }
 
 
