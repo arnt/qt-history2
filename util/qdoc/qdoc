@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#134 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#135 $
 #
 # this is a massive hack, written very quickly
 #
@@ -281,6 +281,13 @@ sub preprocessdocs {
 	$doc{$url} =~ s@\\relate[ds]\s+(\w+)@
 	    $relations{$1} .= " " . $url;
 	    $home{$url} = $1;
+	    sprintf("");
+	@egsx;
+    }
+
+    foreach $url ( sort keys %type ) {
+	$doc{$url} =~ s@\\define\s+(\S+)@
+	    $anchor{$1} = $url;
 	    sprintf("");
 	@egsx;
     }
@@ -647,7 +654,7 @@ sub writepages {
 
 	open(O, "> $outputdir/$file") ||
 	    die "can't open $outputdir/$file";
-	print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">", $doc, "\n";
+	print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
 	if (defined($classes{$file})) {
 	    $p = "<p>Classes:<ul plain>\n";
 	    $e = "";
