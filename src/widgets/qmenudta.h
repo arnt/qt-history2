@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#2 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#3 $
 **
 ** Definition of QMenuData class
 **
@@ -97,7 +97,7 @@ public:
     bool	isItemChecked( int id ) const;
     void	setItemChecked( int id, bool check );
     void	checkItem( int id )		{ setItemChecked( id, TRUE ); }
-    void	unckeckItem( int id )		{ setItemChecked( id, FALSE );}
+    void	uncheckItem( int id )		{ setItemChecked( id, FALSE );}
 
     int		indexOf( int id ) const;	// get index of specified item
     int		idAt( int index ) const;	// get id of item at index
