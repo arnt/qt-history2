@@ -26,52 +26,58 @@
 #define q q_func()
 
 /*!
-  \class QGenericTreeView qgenerictreeview.h
+    \class QGenericTreeView qgenerictreeview.h
+    \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
 
-  \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
+    \ingroup model-view
 
-  \ingroup model-view
+    QGenericTreeView implements a tree representation of a
+    QAbstractItemView working on a QAbstractItemModel. This class is
+    used to provide standard hierarchical lists that were previously
+    provided by the \c QListView class, but using the more flexible
+    approach provided Qt's model-view architecture.
 
-  QGenericTreeView implements a tree representation of a QAbstractItemView
-  working on a QAbstractItemModel. This class is used to provide standard
-  hierarchical lists that were previously provided by the \c QListView
-  class, but using the more flexible approach provided Qt's model-view
-  architecture.
+    It is simple to construct a tree view displaying data from a
+    model. In the following example, the contents of a directory are
+    supplied by a QDirModel and displayed as a tree:
 
-  It is simple to construct a tree view displaying data from a model. In
-  the following example, the contents of a directory are supplied by a
-  QDirModel and displayed as a tree:
+    \code
+        QDirModel *model = new QDirModel(QDir(), parent);
+        QGenericTreeView *tree = new QGenericTreeView(parent);
+        tree->setModel(model);
+    \endcode
 
-  \code
-    QDirModel *model = new QDirModel(QDir(), parent);
-    QGenericTreeView *tree = new QGenericTreeView(model, parent);
-  \endcode
+    The model-view architecture ensures that the contents of the tree
+    view are updated automatically as the model changes.
 
-  The model-view architecture ensures that the contents of the tree view
-  are updated as the model changes.
+    Items that have children can be in an expanded (children are
+    visible) or collapsed (children are hidden) state. When this state
+    changes a collapsed() or expanded() signal is emitted with the
+    model index of the relevant item.
 
+    The amount of indentation used to indicate levels of hierarchy is
+    controlled by the \l indentation property.
 
+    \omit
+    Describe the opening/closing concept if not covered elsewhere.
+    \endomit
 
-  \omit
-  Describe the opening/closing concept if not covered elsewhere.
-  \endomit
-
-  \sa \link model-view-programming.html Model/View Programming\endlink
-      QAbstractItemModel QAbstractItemView
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemModel QAbstractItemView
 */
 
 
 /*!
   \fn void QGenericTreeView::expanded(const QModelIndex &index)
 
-  This signal is emitted when the item given by \a index is expanded.
+  This signal is emitted when the item specified by \a index is expanded.
 */
 
 
 /*!
   \fn void QGenericTreeView::collapsed(const QModelIndex &index)
-  
-  This signal is emitted when the item given by \a index is collapsed.
+
+  This signal is emitted when the item specified by \a index is collapsed.
 */
 
 /*!
@@ -636,10 +642,6 @@ QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
     int vi = d->viewIndex(index);
     return d->modelIndex(d->below(vi));
 }
-
-/*!
-  \reimpl
-*/
 
 QSize QGenericTreeView::sizeHint() const
 {
