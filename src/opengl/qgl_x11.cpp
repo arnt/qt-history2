@@ -587,7 +587,8 @@ QColor QGLContext::overlayTransparentColor() const
 		col.pixel = trans_colors[i].color;
 		col.red = col.green = col.blue = 0;
 		col.flags = 0;
-		XQueryColor( d->paintDevice->x11Display(), d->paintDevice->x11Colormap(), &col );
+		Display *dpy = d->paintDevice->x11Display();
+		XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) vi), &col);
 		uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
 		uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
 		uchar b = (uchar)((col.blue / 65535.0) * 255.0 + 0.5);
