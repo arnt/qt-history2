@@ -1,6 +1,5 @@
 /****************************************************************************
-/****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#10 $
 **
 ** Implementation of QFontDialog
 **
@@ -23,7 +22,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#10 $");
 
 
 struct QFontDialogPrivate
