@@ -44,7 +44,7 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
 	const char *key;
 	char *value;
 	bool done;
-    } steps[7];
+    } steps[8];
 
     steps[0].key = "qt_nstpath=";
     steps[0].value = const_cast<char *>(qtPath);
@@ -83,6 +83,12 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
     steps[6].key = "qt_datpath=";
     steps[6].value = const_cast<char *>(qtPath);
     steps[6].done = false;
+
+    steps[7].key = "qt_trnpath=";
+    steps[7].value = new char[strlen(qtPath) + 13];
+    strcpy(steps[7].value, qtPath);
+    strcat(steps[7].value, "\\translations");
+    steps[7].done = false;
 
     uint completed = 0;
     uint total_steps = sizeof(steps) / sizeof(step);
@@ -151,7 +157,7 @@ void BinPatch::checkLibData(const char *fileName)
     struct step {
 	const char *key;
 	bool done;
-    } steps[7];
+    } steps[8];
 
     steps[0].key = "qt_nstpath=";
     steps[0].done = false;
@@ -173,6 +179,9 @@ void BinPatch::checkLibData(const char *fileName)
 
     steps[6].key = "qt_datpath=";
     steps[6].done = false;
+
+    steps[7].key = "qt_trnpath=";
+    steps[7].done = false;
 
     uint completed = 0;
     uint total_steps = sizeof(steps) / sizeof(step);
