@@ -1065,7 +1065,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                     pm_dc, sr.x(), sr.y()+pm_offset,
                     mask->hbm(), sr.x(), sr.y()+pm_offset,
-                    MAKEROP4(0x00aa0000, ropCodes[qt_map_rop_for_bitmaps(d->rasterOp)]));
+                    MAKEROP4(0x00aa0000, qt_rop_codes_blt[d->rasterOp]));
         }
     } else {
         if (stretch)
