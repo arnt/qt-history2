@@ -2348,8 +2348,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
     if ( testf(ExtDev) ) {
-	// ### FIXME
-	return;
+	QPDevCmdParam param[2];
+	QPoint p(x, y);
+	param[0].point = &p;
+	param[1].textItem = &ti;
+	bool retval = pdev->cmd(QPaintDevice::PdcDrawTextItem, this, param);
+	if ( !retval || !hdc )
+	    return;
     }
 
     QTextEngine *engine = ti.engine;
