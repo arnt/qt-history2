@@ -88,6 +88,8 @@ public:
 
 private:
 
+    unsigned int getRop(RasterOp r);
+
     unsigned char * voodoo_regbase;
 
     bool checkSourceDest();
@@ -95,6 +97,49 @@ private:
     void do_scissors(QRect &);
 
 };
+
+// Oops, all these except CopyROP are wrong because they don't seem
+// to be documented!
+
+template<const int depth,const int type>
+inline unsigned int QGfxVoodoo<depth,type>::getRop(RasterOp r)
+{
+  if(r==CopyROP) {
+    return 0xcc;
+  } else if(r==OrROP) {
+    return 0xe;
+  } else if(r==XorROP) {
+    return 0x6;
+  } else if(r==NotAndROP) {
+    return 0x4;
+  } else if(r==NotCopyROP) {
+    return 0x3;
+  } else if(r==NotOrROP) {
+    return 0xd;
+  } else if(r==NotXorROP) {
+    return 0x9;
+  } else if(r==AndROP) {
+    return 0x8;
+  } else if(r==NotROP) {
+    return 0x5;
+  } else if(r==ClearROP) {
+    return 0x0;
+  } else if(r==SetROP) {
+    return 0xf;
+  } else if(r==NopROP) {
+    return 0xa;
+  } else if(r==AndNotROP) {
+    return 0x2;
+  } else if(r==OrNotROP) {
+    return 0xb;
+  } else if(r==NandROP) {
+    return 0x7;
+  } else if(r==NorROP) {
+    return 0x1;
+  } else {
+
+  }
+}
 
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
@@ -275,8 +320,8 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 	return;
     }
 
-    // Only handle 'norma' rectangles
-    if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
+    // Only handle 'normal' rectangles
+    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
@@ -308,13 +353,13 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     int x3,y3,x4,y4;
 
-    if((*gfx_lastop)!=LASTOP_RECT) {
+    if(true /*(*gfx_lastop)!=LASTOP_RECT*/) {
 	wait_for_fifo(2);
 	regw(SRCFORMAT,3 << 16);
 	// With the Voodoo 3 you write the command code into COMMAND
 	// and then write parameters (usually x/y coordinates of some sort)
 	// into LAUNCHAREA to kick off the operation
-	regw(COMMAND,0x5 | (0xcc << 24));
+	regw(COMMAND,0x5 | (getRop(myrop) << 24));
     }
 
     (*gfx_optype)=1;
@@ -574,7 +619,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	GFX_START(cursRect)
 
 	wait_for_fifo(4);
-	regw(COMMAND,0x2 | (0xcc << 24));
+	regw(COMMAND,0x2 | (getRop(myrop) << 24));
 	regw(SRCSIZE,sw | (sh << 16));
 	regw(DSTSIZE,w | (h << 16));
 	regw(DSTXY,xp | (yp << 16));
@@ -605,7 +650,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-    if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine
+    if(ncliprect<1 || cpen.style()!=SolidLine
        || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || true) {
 	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
 	return;
@@ -654,7 +699,7 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
     
     wait_for_fifo(1);
-    regw(COMMAND,0x6 | (0xcc << 24));
+    regw(COMMAND,0x6 | getRop(myrop));
     
     for(loopc=0;loopc<ncliprect;loopc++) {
       do_scissors(cliprect[loopc]);
