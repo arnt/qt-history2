@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#192 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#191 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#192 $");
 
 
 /*!
@@ -1781,43 +1781,42 @@ QFocusData * QWidget::focusData( bool create )
 
 
 /*!
-  Sets the destination widget when Tab is pressed to \a next, i.e. if
-  the user presses Tab while this widget has focus, Qt gives the
-  keyboard focus to \a next.
+  Moves the \a second widget around the ring of focus widgets
+  so that keyboard focus moves from \a first widget to \a second
+  widget when Tab is pressed.
 
-  Note that the tab destination of \a next is changed, so you can do
-  this:
-
-  \code
-    a->setTabDestination( b ); // a to b
-    b->setTabDestination( c ); // a to b to c
-    c->setTabDestination( d ); // a to b to c to d
-  \endcode
-
-  But you can not do this:
+  Note that since the tab order of the \e second
+  widget is changed, you should order a chain like this:
 
   \code
-    c->setTabDestination( d ); // c to d
-    a->setTabDestination( b ); // a to b AND c to d
-    b->setTabDestination( c ); // a to b to c, but not c to d
+    setTabOrder(a, b ); // a to b
+    setTabOrder(b, c ); // a to b to c
+    setTabOrder(c, d ); // a to b to c to d
   \endcode
 
+  not like this:
+
+  \code
+    setTabOrder(c, d); // c to d
+    setTabOrder(a, b); // a to b AND c to d
+    setTabOrder(b, c); // a to b to c, but not c to d
+  \endcode
 */
-void QWidget::setTabDestination( QWidget *next )
+void QWidget::setTabOrder( QWidget* first, QWidget *second )
 {
-    if ( !next )
+    if ( !first || !second )
 	return;
 
-    QFocusData *f = focusData( TRUE );
-    bool focusThere = (f->it.current() == next );
-    f->focusWidgets.removeRef( next );
-    if ( f->focusWidgets.findRef( this ) >= 0 )
-	f->focusWidgets.insert( f->focusWidgets.at() + 1, next );
+    QFocusData *f = first->focusData( TRUE );
+    bool focusThere = (f->it.current() == second );
+    f->focusWidgets.removeRef( second );
+    if ( f->focusWidgets.findRef( first ) >= 0 )
+	f->focusWidgets.insert( f->focusWidgets.at() + 1, second );
     else
-	f->focusWidgets.append( next );
+	f->focusWidgets.append( second );
     if ( focusThere ) { // reset iterator so tab will work appropriately
 	f->it.toFirst();
-	while( f->it.current() && f->it.current() != next )
+	while( f->it.current() && f->it.current() != second )
 	    ++f->it;
     }
 }

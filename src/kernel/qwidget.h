@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#118 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#119 $
 **
 ** Definition of QWidget class
 **
@@ -135,7 +135,7 @@ public:
     bool	 hasFocus() const;
     void	 setFocus();
     void	 clearFocus();
-    void 	 setTabDestination( QWidget * );
+    static void  setTabOrder( QWidget *, QWidget * );
 
   // Grab functions
 

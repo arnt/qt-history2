@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#43 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#43 $");
 
 
 /*!
@@ -656,18 +656,18 @@ void QTabDialog::setSizes()
     // fiddle the tab chain so the buttons are in their natural order
     QWidget * w = d->ok;
     if ( d->db ) {
-	w->setTabDestination( d->db );
+	setTabOrder( w, d->db );
 	w = d->db;
     }
     if ( d->ab ) {
-	w->setTabDestination( d->ab );
+	setTabOrder( w, d->ab );
 	w = d->ab;
     }
     if ( d->cb ) {
-	w->setTabDestination( d->cb );
+	setTabOrder( w, d->cb );
 	w = d->cb;
     }
-    w->setTabDestination( d->tabs );
+    setTabOrder( w, d->tabs );
 }
 
 
