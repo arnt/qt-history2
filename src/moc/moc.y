@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#117 $
+** $Id: //depot/qt/main/src/moc/moc.y#118 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -249,7 +249,7 @@ named_namespace_def:      NAMESPACE
                           '}'                { leaveNameSpace();
 			                       selectOutsideClassState();
                                              }
-                        ; 
+                        ;
 
 unnamed_namespace_def:    NAMESPACE          { enterNameSpace(); }
                           '{'                { BEGIN IN_NAMESPACE; }
@@ -257,7 +257,7 @@ unnamed_namespace_def:    NAMESPACE          { enterNameSpace(); }
                           '}'                { leaveNameSpace();
   			                       selectOutsideClassState();
 			                     }
-                        ; 
+                        ;
 
 namespace_body:           declaration_seq
                         ;
@@ -1042,10 +1042,6 @@ QCString combinePath( const char *infile, const char *outfile )
     QCString b = outfile; replace(b.data(),'\\','/');
     a = a.stripWhiteSpace();
     b = b.stripWhiteSpace();
-#if !defined(UNIX)
-    a = a.lower();
-    b = b.lower();
-#endif
     QCString r;
     int i = 0;
     int ncommondirs = 0;
@@ -1064,11 +1060,7 @@ QCString combinePath( const char *infile, const char *outfile )
 	a = &a[i];
 	b = &b[i];
     } else {
-#if defined(UNIX)
-	if ( a[0] == '/' )
-#else
 	if ( (a[0] == '/') || (isalpha(a[0]) && a[1] == ':') )
-#endif
 	    return a;
 	b = &b[i];
     }
@@ -1150,7 +1142,7 @@ QCString nameQualifier()
     for( ; (tmp = iter.current()) ; ++iter ) {
 	if ( !tmp->name.isNull() ) {  // If not unnamed namespace
 	    qualifier += tmp->name;
-	    qualifier += "::"; 
+	    qualifier += "::";
 	}
     }
     return qualifier;
@@ -1404,7 +1396,7 @@ QCString qualifiedClassName()
 {
     QCString tmp = nameQualifier();
     tmp += className;
-    return tmp;    
+    return tmp;
 }
 
 QCString qualifiedSuperclassName()
@@ -1450,7 +1442,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
     }
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    m%d_t%d v%d_%d = Q_AMPERSAND %s::%s;\n",
-		 num, list->at(), num, list->at(), 
+		 num, list->at(), num, list->at(),
 		 (const char*)qualifiedClassName(), (const char*)f->name);
     if ( list->count() )
 	fprintf(out,"    QMetaData *%s_tbl = QMetaObject::new_metadata(%d);\n",
@@ -1469,7 +1461,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.51 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.52 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
