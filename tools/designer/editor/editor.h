@@ -23,6 +23,7 @@
 
 #include <qtextedit.h>
 #include "dlldefs.h"
+#include <qrichtext_p.h>
 
 struct Config;
 class ParenMatcher;
@@ -33,6 +34,11 @@ class EDITOR_EXPORT Editor : public QTextEdit
     Q_OBJECT
 
 public:
+    enum Selection {
+	Error = QTextDocument::Selection4,
+	Step = QTextDocument::Selection5
+    };
+
     Editor( const QString &fn, QWidget *parent, const char *name );
     virtual void load( const QString &fn );
     virtual void save( const QString &fn );
@@ -44,6 +50,13 @@ public:
     virtual void configChanged();
 
     Config *config() { return cfg; }
+
+    void setErrorSelection( int line );
+    void setStepSelection( int line );
+    void clearSelections();
+
+signals:
+    void clearErrorMarker();
 
 private slots:
     void cursorPosChanged( QTextCursor *c );

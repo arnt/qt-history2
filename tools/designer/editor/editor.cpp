@@ -39,12 +39,18 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     connect( this, SIGNAL( cursorPositionChanged( QTextCursor * ) ),
 	     this, SLOT( cursorPosChanged( QTextCursor * ) ) );
     cfg = new Config;
+    document()->setSelectionColor( Error, red );
+    document()->setSelectionColor( Step, yellow );
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )
 {
-    if ( parenMatcher->match( c ) )
+    bool r = document()->removeSelection( Error );
+    r = document()->removeSelection( Step ) || r;
+    if ( parenMatcher->match( c ) || r )
 	repaintChanged();
+    if ( r )
+	emit clearErrorMarker();
 }
 
 void Editor::load( const QString &fn )
@@ -71,3 +77,30 @@ void Editor::configChanged()
     document()->invalidate();
     viewport()->repaint( FALSE );
 }
+
+void Editor::setErrorSelection( int line )
+{
+    QTextParag *p = document()->paragAt( line );
+    if ( !p )
+	return;
+    QTextCursor c( document() );
+    c.setParag( p );
+    c.setIndex( 0 );
+    document()->setSelectionStart( Error, &c );
+    c.gotoEnd();
+    document()->setSelectionEnd( Error, &c );
+}
+
+void Editor::setStepSelection( int line )
+{
+    QTextParag *p = document()->paragAt( line );
+    if ( !p )
+	return;
+    QTextCursor c( document() );
+    c.setParag( p );
+    c.setIndex( 0 );
+    document()->setSelectionStart( Step, &c );
+    c.gotoEnd();
+    document()->setSelectionEnd( Step, &c );
+}
+

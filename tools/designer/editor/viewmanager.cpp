@@ -52,6 +52,8 @@ void ViewManager::addView( QWidget *view )
 	     markerWidget, SLOT( doRepaint() ) );
     connect( (Editor*)curView, SIGNAL( textChanged() ),
 	     markerWidget, SLOT( doRepaint() ) );
+    connect( (Editor*)curView, SIGNAL( clearErrorMarker() ),
+	     this, SLOT( clearErrorMarker() ) );
 }
 
 QWidget *ViewManager::currentView() const
@@ -80,6 +82,7 @@ void ViewManager::setError( int line )
 	paragData->marker = ParagData::Error;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
+	( (Editor*)curView )->setErrorSelection( line );
 	( (Editor*)curView )->setCursorPosition( line, 0 );
 	( (Editor*)curView )->viewport()->setFocus();
     }
@@ -88,5 +91,17 @@ void ViewManager::setError( int line )
 void ViewManager::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
+    markerWidget->doRepaint();
+}
+
+void ViewManager::clearErrorMarker()
+{
+    qDebug( "here" );
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    while ( p ) {
+	if ( p->extraData() )
+	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
+	p = p->next();
+    }
     markerWidget->doRepaint();
 }

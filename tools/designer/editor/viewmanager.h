@@ -41,6 +41,9 @@ public:
 
     void setError( int line );
 
+protected slots:
+    void clearErrorMarker();
+
 protected:
     void childEvent( QChildEvent *e );
     void resizeEvent( QResizeEvent *e );
