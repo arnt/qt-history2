@@ -888,8 +888,8 @@ bool QPixmap::save(const QString &fileName, const char *format, int quality) con
     QByteArray:
     \code
     QPixmap pixmap;
-    QByteArray ba;
-    QBuffer buffer(ba);
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
     buffer.open(QIODevice::WriteOnly);
     pixmap.save(&buffer, "PNG"); // writes pixmap into ba in PNG format
     \endcode

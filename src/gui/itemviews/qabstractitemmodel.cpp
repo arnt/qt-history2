@@ -343,7 +343,8 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     immediately and then discarded. If you need to keep a model index
     over time use a QPersistentModelIndex.
 
-    A model index has a row() and a column()
+    A model index has a parent(), a row(), and a column(). The parent refers
+    to the model containing the item that corresponds to the model index.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QPersistentModelIndex QAbstractItemModel
 */
@@ -425,6 +426,16 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     Returns a pointer to the model containing the item that this index
     refers to.
+*/
+
+/*!
+    \fn QModelIndex::QModelIndex sibling(int row, int column) const
+    \internal
+
+    Returns the sibling of the model index that is stored in the given
+    \a row and \a column of the parent model.
+
+    \sa parent()
 */
 
 /*!
