@@ -90,15 +90,15 @@ void DatabaseWgt::init()
     label->resize( fm.width("Customer information" ), label->height() );
     vb2->addWidget( label );
 
-    customerInfo = new QLabel( f2 );
-    customerInfo->setText( "Customer info goes here!" );
-    customerInfo->resize( fm.width("Customer info goes here!" ),
- 		      customerInfo->height() );
-    customerInfo->setFont( QFont( "fixed" ) );
-    customerInfo->setAutoResize( TRUE );
-    customerInfo->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
-					      QSizePolicy::Fixed ) );
-    vb2->addWidget( customerInfo );
+    customer = new QLabel( f2 );
+    customer->setText( "Customer info goes here!" );
+    customer->resize( fm.width( customer->text() ),
+ 		      customer->height() );
+    customer->setFont( QFont( "fixed" ) );
+    customer->setAutoResize( TRUE );
+    customer->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
+					  QSizePolicy::Fixed ) );
+    vb2->addWidget( customer );
 
     //
     // Third area - invoice table
@@ -266,6 +266,8 @@ void DatabaseApp::init()
     d->customerTable->setCursor( &customerCr );
     connect( d->customerTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateCustomerInfo( const QSqlRecord * ) ) );
+    QSqlRecord r = d->customers->currentFieldSelection();
+    updateCustomerInfo( &r );
 
     // Set up the invoice table
     d->invoiceTable->setConfirmEdits( TRUE );
@@ -275,29 +277,23 @@ void DatabaseApp::init()
 
 void DatabaseApp::updateCustomerInfo( const QSqlRecord * fields )
 {
-    static int row = d->customerTable->currentRow();
     QString cap;
 
-    if( row != d->customerTable->currentRow() ){
-	// Compile the customer information into a string and display it
-	for ( uint i = 0; i < fields->count(); ++i ) {
-	    const QSqlField * f  = fields->field(i);
-	    if( f->isVisible() )
-		cap += f->displayLabel().leftJustify(15) + ": " +
-		       f->value().toString().rightJustify(20) + "\n";
-	}
-
-
-	d->customerInfo->setText( cap );
-	d->customerInfo->setMinimumSize( 0, d->customerInfo->height() );
-
-	// Only show the invoice(s) for a particular customer
-	// Use the customer id to filter the invoice cursor
-	invoiceCr.select( "customerid = " +
-			  fields->field(0)->value().toString() );
-	d->invoiceTable->refresh();
+    // Compile the customer information into a string and display it
+    for ( uint i = 0; i < fields->count(); ++i ) {
+	const QSqlField * f  = fields->field(i);
+	if( f->isVisible() )
+	    cap += f->displayLabel().leftJustify(15) + ": " +
+		   f->value().toString().rightJustify(20) + "\n";
     }
-    row = d->customerTable->currentRow();
+
+    d->customer->setText( cap );
+    d->customer->setMinimumSize( 0, d->customer->height() );
+
+    // Only show the invoice(s) for a particular customer
+    // Use the customer id to filter the invoice cursor
+    invoiceCr.select( "customerid = " + fields->value( "id" ).toString() );
+    d->invoices->refresh();
 }
 
 void DatabaseApp::createDB()
