@@ -574,7 +574,7 @@ QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
     }
     if ( len < 0 )
 	return qt_winMB2QString( chars );
-    QByteArray s(chars,len+1);
+    QByteArray s(chars,len);
     return qt_winMB2QString(s);
 }
 
@@ -958,10 +958,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
     QByteArray a;
     if( len < 0 )
 	len = str.length() - pos;
-    a = fromUnicode( str.mid(pos, len) );
-    if( a.size() > 0 && ((char)a[(int)a.size() - 1]) == '\0' )
-	a.resize( a.size() - 1 );
-    return a;
+    return fromUnicode( str.mid(pos, len) );
 }
 
 /*!
@@ -1399,7 +1396,8 @@ public:
 	if (lenInOut > (int)uc.length())
 	    lenInOut = uc.length();
 	int rlen = lenInOut*max_bytes_per_char;
-	QByteArray rstr(rlen);
+	QByteArray rstr;
+	rstr.reserve(rlen);
 	char* cursor = rstr.data();
 	char* s=0;
 	int l = lenInOut;
@@ -1427,8 +1425,8 @@ public:
 		lout++;
 	    }
 	}
-	*cursor = 0;
 	lenInOut = lout;
+	rstr.resize(cursor - rstr.data());
 	return rstr;
     }
 };
@@ -2284,7 +2282,7 @@ QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len+1 );
+    QByteArray r( len );
     int i = len;
     int u;
     const QChar* ucp = uc.unicode();
@@ -2299,7 +2297,6 @@ QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	rp++;
 	ucp++;
     }
-    r[len] = 0;
     return r;
 }
 
@@ -2454,7 +2451,7 @@ QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len+1 );
+    QByteArray r( len );
     char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
@@ -2463,7 +2460,6 @@ QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 	i++;
 	ch++;
     }
-    r[len] = 0;
     return r;
 }
 
@@ -2658,7 +2654,7 @@ QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len+1 );
+    QByteArray r( len );
     char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
@@ -2667,7 +2663,6 @@ QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 	i++;
 	ch++;
     }
-    r[len] = 0;
     return r;
 }
 
