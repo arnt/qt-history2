@@ -100,7 +100,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
-    bool scope_failed = FALSE, else_line = FALSE;
+    bool scope_failed = FALSE, else_line = FALSE, or_op=FALSE;
     int parens = 0, scope_count=0;
     while(*d && *d != '=') {
 	if((*d == '+' || *d == '-' || *d == '*' || *d == '~')) {
@@ -122,15 +122,15 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	else if ( *d == ')' )
 	    --parens;
 
-	if(!parens && (*d == ':' || *d == '{' || *d == ')')) {
+	if(!parens && (*d == ':' || *d == '{' || *d == ')' || *d == '|')) {
 	    scope_count++;
 	    scope = var.stripWhiteSpace();
 	    if ( *d == ')' )
 		scope += *d; /* need this */
 	    var = "";
 
-	    bool test = FALSE;
-	    if(scope.lower() == "else" || scope == "|") {
+	    bool test = scope_failed;
+	    if(scope.lower() == "else") {
 		if(scope_count != 1 || test_status == TestNone) {
 		    qmake_error_msg("Unexpected " + scope + " ('" + s + "')");
 		    return FALSE;
@@ -146,8 +146,8 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 		if(invert_test)
 		    comp_scope = comp_scope.right(comp_scope.length()-1);
 		int lparen = comp_scope.find('(');
-		if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
-		    if(!scope_failed) {
+		if(or_op || !scope_failed) {
+		    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
 			int rparen = comp_scope.findRev(')');
 			if(rparen == -1) {
 			    QCString error;
@@ -164,18 +164,19 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 			    test_status = (test ? TestFound : TestSeek);
 			    return TRUE;  /* assume we are done */
 			}
+		    } else {
+			test = isActiveConfig(comp_scope.stripWhiteSpace());
 		    }
-		} else {
-		    test = isActiveConfig(comp_scope.stripWhiteSpace());
+		    if(invert_test)
+			test = !test;
 		}
-		if(invert_test)
-		    test = !test;
 	    }
-	    if(!test && !scope_failed) {
+	    if(!test && !scope_failed) 
 		debug_msg(1, "Project Parser: %s:%d : Test (%s) failed.", parser.file.latin1(), 
 			  parser.line_no, scope.latin1());
-		scope_failed = TRUE;
-	    }
+	    if(test == or_op)
+		scope_failed = !test;
+	    or_op = (*d == '|');
 	    if(*d == '{') { /* scoping block */
 		if(!scope_failed)
 		    scope_flag |= (0x01 << (++scope_block));
@@ -592,7 +593,7 @@ QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, Q
 	    tmp = tmp.mid(1, tmp.length() - 2);
 	(*arit) = tmp.stripWhiteSpace();
     }
-    return doProjectTest(func, args, place);
+    return doProjectTest(func.stripWhiteSpace(), args, place);
 }
 
 bool
