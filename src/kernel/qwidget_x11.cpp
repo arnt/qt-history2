@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#323 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#324 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -999,7 +999,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (widget_flags & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -1027,9 +1027,10 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
   \sa update(), paintEvent(), setUpdatesEnabled(), erase()
 */
+
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
-    if ( (widget_flags & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
 	if ( erase )
 	    this->erase(reg);
 	QPaintEvent e( reg );

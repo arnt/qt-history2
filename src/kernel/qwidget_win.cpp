@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#172 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -63,9 +63,9 @@ extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if ( testWFlags(WState_Created) && window == 0 )
+    if ( testWState(QWS_Created) && window == 0 )
 	return;
-    setWFlags( WState_Created );		// set created flag
+    setWState( QWS_Created );			// set created flag
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -164,10 +164,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWFlags(WStyle_Title) )
 	title = qAppName();
 
-	// The WState_Creates flag is checked by translateConfigEvent()
-        // in qapplication_win.cpp. We switch it off temporarily to avoid move
+	// The QWS_Created flag is checked by translateConfigEvent() in
+        // qapplication_win.cpp. We switch it off temporarily to avoid move
         // and resize events during creation
-    clearWFlags( WState_Created );
+    clearWState( QWS_Created );
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow )
@@ -210,7 +210,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( desktop ) {
-	setWFlags( WState_Visible );
+	setWState( QWS_Visible );
     } else {
 	RECT  fr, cr;
 	POINT pt;
@@ -252,14 +252,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
     }
 
-    setWFlags( WState_Created );		// accept move/resize events
+    setWState( QWS_Created );			// accept move/resize events
     hdc = 0;					// no display context
 
     if ( window ) {				// got window from outside
 	if ( IsWindowVisible(window) )
-	    setWFlags( WState_Visible );
+	    setWState( QWS_Visible );
 	else
-	    clearWFlags( WState_Visible );
+	    clearWState( QWS_Visible );
     }
 
     if ( destroyw ) {
@@ -270,8 +270,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
-    if ( testWFlags(WState_Created) ) {
-	clearWFlags( WState_Created );
+    if ( testWState(QWS_Created) ) {
+	clearWState( QWS_Created );
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *obj;
@@ -322,8 +322,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
-    flags = f;
-    clearWFlags( WState_Created | WState_Visible );
+    widget_flags = f;
+    clearWState( QWS_Created | QWS_Visible );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -446,7 +446,7 @@ void QWidget::setCursor( const QCursor &cursor )
 	createExtra();
 	extra->curs = new QCursor(cursor);
     }
-    setWFlags( WState_OwnCursor );
+    setWState( QWS_OwnCursor );
     qt_set_cursor( this, QWidget::cursor() );
 }
 
@@ -457,7 +457,7 @@ void QWidget::unsetCursor()
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
-	clearWFlags( WState_OwnCursor );
+	clearWState( QWS_OwnCursor );
 	qt_set_cursor( this, cursor() );
     }
 }
@@ -638,14 +638,14 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible )
 	InvalidateRect( winId(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( w && h &&
-	 (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	 (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
 	RECT r;
 	r.left = x;
 	r.top  = y;
@@ -664,7 +664,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -678,7 +678,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
 	QPaintEvent e( reg );
 	if ( erase )
 	    this->erase( reg );
@@ -700,8 +700,8 @@ void QWidget::showWindow()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     else
 	ShowWindow( winId(), SW_SHOW );
-    setWFlags( WState_Visible );
-    clearWFlags( WState_ForceHide );
+    setWState( QWS_Visible );
+    clearWState( QWS_ForceHide );
 
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
@@ -784,7 +784,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds( size() );
     if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
-    if ( testWFlags(WState_ConfigPending) ) {	// processing config event
+    if ( testWState(QWS_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
 	if ( extra && extra->topextra ) {
@@ -794,9 +794,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    h += fs.height() - crect.height();
 	}
 	setFRect( QRect(x,y,w,h) );
-	setWFlags( WState_ConfigPending );
+	setWState( QWS_ConfigPending );
 	MoveWindow( winId(), x, y, w, h, TRUE );
-	clearWFlags( WState_ConfigPending );
+	clearWState( QWS_ConfigPending );
     }
 
 }
@@ -906,7 +906,7 @@ void QWidget::scroll( int dx, int dy )
 
 void QWidget::drawText( int x, int y, const QString &str )
 {
-    if ( testWFlags(WState_Visible) ) {
+    if ( testWState(QWS_Visible) ) {
 	QPainter paint;
 	paint.begin( this );
 	paint.drawText( x, y, str );
