@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#242 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#241 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#242 $");
 
 
 /*!
@@ -2477,15 +2477,8 @@ void QWidget::show()
 	    QApplication::activePopupWidget()->hide();
     }
 
-    QShowEvent e(FALSE);
-    QApplication::sendEvent( this, &e );
-
     showWindow();
-#if !defined(_WS_WIN_)
-    // The Windows implementation does this in showWindow()
-    setWFlags( WState_Visible );
-    clearWFlags( WState_DoHide );
-#endif
+
     if ( testWFlags(WType_Modal) )
 	qt_enter_modal( this );
     else if ( testWFlags(WType_Popup) )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#240 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -31,7 +31,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#239 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#240 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1046,6 +1046,12 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::showWindow()
 {
+    setWFlags( WState_Visible );
+    clearWFlags( WState_DoHide );
+
+    QShowEvent e(FALSE);
+    QApplication::sendEvent( this, &e );
+
     XMapWindow( dpy, winId() );
 }
 

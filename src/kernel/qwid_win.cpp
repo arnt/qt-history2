@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#104 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -28,7 +28,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#104 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -691,6 +691,10 @@ void QWidget::showWindow()
 	ShowWindow( winId(), SW_SHOW );
     setWFlags( WState_Visible );
     clearWFlags( WState_DoHide );
+
+    QShowEvent e(FALSE);
+    QApplication::sendEvent( this, &e );
+
     UpdateWindow( winId() );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#20 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#20 $");
 
 /*! \class QMainWindow qmainwindow.h
 
@@ -348,15 +348,19 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const char * label,
     if ( edge == Top ) {
 	dl = d->top;
 	toolBar->setOrientation( QToolBar::Horizontal );
+	toolBar->installEventFilter( this );
     } else if ( edge == Left ) {
 	dl = d->left;
 	toolBar->setOrientation( QToolBar::Vertical );
+	toolBar->installEventFilter( this );
     } else if ( edge == Bottom ) {
 	dl = d->bottom;
 	toolBar->setOrientation( QToolBar::Horizontal );
+	toolBar->installEventFilter( this );
     } else if ( edge == Right ) {
 	dl = d->right;
 	toolBar->setOrientation( QToolBar::Vertical );
+	toolBar->installEventFilter( this );
     } else if ( edge == TornOff ) {
 	dl = d->tornOff;
     } else if ( edge == Unmanaged ) {
@@ -415,9 +419,12 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				bool justify,
 				GUIStyle style )
 {
-    bool moreThanOneRow = FALSE;
     if ( !dock || dock->isEmpty() )
 	return;
+
+    bool moreThanOneRow = FALSE;
+    bool anyToolBars = FALSE;
+
     dock->first();
     while ( dock->next() ) {
 	if ( dock->current()->nl ) {
@@ -445,10 +452,13 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    toolBarRowLayout = new QBoxLayout( direction );
 	    dockLayout->addLayout( toolBarRowLayout, 0 );
 	}
-	toolBarRowLayout->addWidget( t->t, 0 );
+	if ( !t->t->testWFlags( WState_DoHide ) ) {
+	    toolBarRowLayout->addWidget( t->t, 0 );
+	    anyToolBars = TRUE;
+	}
     } while ( (t=dock->next()) != 0 );
 
-    if ( !toolBarRowLayout )
+    if ( !anyToolBars || !toolBarRowLayout )
 	return;
 
     if ( style == MotifStyle )
@@ -552,7 +562,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
     if ( e->type() == Event_Show || e->type() == Event_Hide )
 	triggerLayout();
-    return QWidget::eventFilter(o,e);
+    return QWidget::eventFilter( o, e );
 }
 
 /*!
