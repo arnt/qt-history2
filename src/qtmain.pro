@@ -1,18 +1,19 @@
+# Additional Qt project file for qtmain lib on Windows
 TEMPLATE	= lib
-CONFIG		+= qt staticlib warn_on release
-win32:SOURCES	= kernel/qtmain_win.cpp
-DEFINES		+= QT_DLL
 TARGET		= qtmain
 VERSION		= 3.0.0
-DESTDIR		= ../lib
+DESTDIR		= $$QMAKE_LIBDIR_QT
 
-win32:TMAKE_CFLAGS     += -DUNICODE
-win32:TMAKE_CXXFLAGS   += -DUNICODE
+CONFIG		+= qt staticlib warn_on release
+CONFIG		-= dll
 
-win32:MOC_DIR	  = tmp
-win32:OBJECTS_DIR = tmp
-
-win32:DEPENDPATH = ../include
-
-#win32:TMAKE_CFLAGS     += -MT
-#win32:TMAKE_CXXFLAGS   += -MT
+win32 {
+	SOURCES		= kernel/qtmain_win.cpp
+	CONFIG		+= png zlib
+	CONFIG		-= jpeg
+	DEFINES		+= UNICODE
+	INCLUDEPATH	+= tmp
+	MOC_DIR		= tmp
+	OBJECTS_DIR	= tmp
+}
+win32-borland:INCLUDEPATH += kernel
