@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#27 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#27 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -30,9 +30,10 @@ void	    qt_open_popup( QWidget * );
 void	    qt_close_popup( QWidget * );
 
 
-// --------------------------------------------------------------------------
-// QWidget member functions
-//
+/*****************************************************************************
+  QWidget member functions
+ *****************************************************************************/
+
 
 bool QWidget::create()				// create widget
 {
@@ -44,16 +45,18 @@ bool QWidget::create()				// create widget
 	setWFlags( WType_Overlap );		// overlapping widget
 
     QWidget *parent = parentWidget();
-    bool   overlap = testWFlags( WType_Overlap );
-    bool   popup   = testWFlags( WType_Popup );
-    bool   modal   = testWFlags( WType_Modal );
-    bool   desktop = testWFlags( WType_Desktop );
-    HANDLE parentwin = parentWidget() ? parentWidget()->id() : 0;
+    bool   overlap = testWFlags(WType_Overlap);
+    bool   popup   = testWFlags(WType_Popup);
+    bool   modal   = testWFlags(WType_Modal);
+    bool   desktop = testWFlags(WType_Desktop);
+    HANDLE appinst = qWinAppInst();
     const char *wcln = qt_reg_winclass( popup ? 1 : 0 );
+    HANDLE parentw;
     WId	   id;
+
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal ) {				// modal windows overlap
+    if ( modal || popup ) {			// these are overlapping, too
 	overlap = TRUE;
 	setWFlags( WType_Overlap );
     }
@@ -65,6 +68,8 @@ bool QWidget::create()				// create widget
 	crect = frect;
 	overlap = popup = FALSE;		// force these flags off
     }
+
+    parentw = (!overlap && parent) ? parent->id() : 0;
 
     char *title = 0;
     DWORD style = WS_CHILD;
@@ -110,18 +115,21 @@ bool QWidget::create()				// create widget
 	    set_id( id );
     }
     else if ( overlap ) {			// create overlapped widget
-	if ( modal )
+	if ( popup )
+	    id = CreateWindowEx( WS_EX_TOOLWINDOW, wcln, title, style,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 CW_USEDEFAULT, CW_USEDEFAULT,
+				 parentw, 0, appinst, 0 );
+	else if ( modal )
 	    id = CreateWindowEx( WS_EX_DLGMODALFRAME, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 parentwin, 0,
-				 qWinAppInst(), 0 );
+				 parentw, 0, appinst, 0 );
 	else
 	    id = CreateWindow(	 wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 parentwin, 0,
-				 qWinAppInst(), 0 );
+				 parentw, 0, appinst, 0 );
 	set_id( id );
 	if ( popup ) {
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100,
@@ -132,9 +140,8 @@ bool QWidget::create()				// create widget
 	int x, y, w, h;
 	x = y = 10;
 	w = h = 40;
-	id = CreateWindow( wcln, title, style,
-			   x, y, w, h,
-			   parentwin, NULL, qWinAppInst(), NULL );
+	id = CreateWindow( wcln, title, style, x, y, w, h,
+			   parentw, NULL, appinst, NULL );
 	set_id( id );
     }
 
@@ -158,7 +165,8 @@ bool QWidget::create()				// create widget
     return TRUE;
 }
 
-bool QWidget::destroy()				// destroy widget
+
+bool QWidget::destroy()
 {
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
@@ -223,13 +231,11 @@ void QWidget::setBackgroundColor( const QColor &color )
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
-    if ( backgroundColorChange(old) )
-	repaint();
+    backgroundColorChange( old );
 }
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    debug( "QWidget::setBackgroundPixmap: Not implemented" );
     QPixmap old;
     if ( extra && extra->bg_pix )
 	old = *extra->bg_pix;
@@ -246,8 +252,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pixmap );
     }
-    if ( backgroundPixmapChange(old) )
-	repaint();
+    backgroundPixmapChange( old );
 }
 
 
@@ -299,7 +304,6 @@ QCursor *qt_grab_cursor()
 {
     return mouseGrbCur;
 }
-
 
 
 LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
@@ -359,7 +363,7 @@ void QWidget::grabKeyboard()
 	keyboardGrb = this;
     }
 }
-    
+
 void QWidget::releaseKeyboard()
 {
     if ( !qt_nograb() && keyboardGrb == this )
@@ -443,20 +447,20 @@ bool QWidget::enableUpdates( bool enable )
 
 void QWidget::update()
 {
-    if ( !testWFlags(WState_NoUpdates) )
+    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible )
 	InvalidateRect( id(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( !testWFlags(WNoUpdates) ) {
+    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
 	RECT r;
 	r.left = x;
 	r.top  = y;
 	if ( w < 0 )
 	    r.right = crect.width();
 	else
-	    rect.right = x + w;
+	    r.right = x + w;
 	if ( h < 0 )
 	    r.bottom = crect.height();
 	else
@@ -468,7 +472,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( !testWFlags(WNoUpdates) ) {
+    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
