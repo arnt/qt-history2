@@ -1032,7 +1032,7 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
             current += QBezier(QPointF(elements.at(i-1).x, elements.at(i-1).y) * matrix,
                                QPointF(e.x, e.y) * matrix,
                                QPointF(elements.at(i+1).x, elements.at(i+1).y) * matrix,
-                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygonF();
+                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygon();
             i+=2;
             break;
         case QPainterPath::CurveToDataElement:
@@ -1399,7 +1399,7 @@ void QPainterPathStrokerPrivate::strokeCurve(int elmi,
                    in.elementAt(elmi).x,   in.elementAt(elmi).y,
                    in.elementAt(elmi+1).x, in.elementAt(elmi+1).y,
                    in.elementAt(elmi+2).x, in.elementAt(elmi+2).y);
-    QPolygonF segments = bezier.toPolygonF();
+    QPolygonF segments = bezier.toPolygon();
 
     strokeLine(QLineF(segments.at(0), segments.at(1)), path, NormalJoin);
     for (int i=2; i<segments.size(); ++i)

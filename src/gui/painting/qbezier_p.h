@@ -38,7 +38,7 @@ public:
 
     inline QPointF pointAt(float t) const;
 
-    QPolygonF toPolygonF() const;
+    QPolygonF toPolygon() const;
 
 private:
     void init();
