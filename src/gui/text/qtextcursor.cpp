@@ -571,7 +571,7 @@ QTextCursor::QTextCursor(const QTextBlock &block)
 QTextCursor::QTextCursor(QTextDocumentPrivate *p, int pos)
     : d(new QTextCursorPrivate(p))
 {
-    d->anchor = d->position = pos;
+    d->adjusted_anchor = d->anchor = d->position = pos;
 
     d->setX();
 }
