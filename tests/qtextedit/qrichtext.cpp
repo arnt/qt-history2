@@ -671,8 +671,11 @@ void QTextCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	s->setAlignment( string->alignment() );
 	s->remove( 0, 1 );
 	s->append( str, TRUE );
-	for ( uint i = 0; i < str.length(); ++i )
+	for ( uint i = 0; i < str.length(); ++i ) {
 	    s->setFormat( i, 1, string->at( idx + i )->format(), TRUE );
+	    if ( string->at( idx + i )->isCustom )
+		s->at( i )->setCustomItem( string->at( idx + i )->customItem() );
+	}	 
 	string->truncate( idx );
 	if ( ind ) {
 	    int oi, ni;
