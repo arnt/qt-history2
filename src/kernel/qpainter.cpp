@@ -3011,9 +3011,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	}
 	if ( brect ) {
 	    *brect = paragRect;
-	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
 	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft || isRightToLeft )
-		brect->setLeft( brect->left() + parag->leftGap());
+		brect->setLeft( brect->right() + 1 - parag->pseudoDocument()->wused );
+	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
 	    brect->moveBy( xoff, yoff );
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	    qDebug("par: %d/%d", brect->width(), brect->height() );
