@@ -2709,14 +2709,14 @@ void MainWindow::writeConfig()
     config.writeEntry( "FormList", actionWindowFormList->isOn() );
 
     QList<QToolBar> tbl;
-    ToolBarDock da[] = { Left, Right, Top, Bottom, Minimized };
+    ToolBarDock da[] = { Left, Right, Top, Bottom, Minimized, TornOff };
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
     QMap< QString, int > eos;
     int j = 0;
     int i;
-    for ( i = 0; i < 5; ++i ) {
+    for ( i = 0; i < 6; ++i ) {
 	tbl = toolBars( da[ i ] );
 	QToolBar *tb = tbl.first();
 	while ( tb ) {
@@ -2942,8 +2942,9 @@ void MainWindow::readConfig()
 		if ( tb->label() == n )
 		    break;
 	    }
-	    if ( tb )
-		moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit, *eit );
+	    if ( !tb )
+		continue;
+	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit, *eit );
 	}
 	delete l;
     }

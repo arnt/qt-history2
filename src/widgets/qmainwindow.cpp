@@ -935,7 +935,6 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 	d->leftDock->moveDockWindow( dockWindow );
 	break;
     case TornOff:
-	dockWindow->removeFromDock( FALSE );
 	dockWindow->undock();
 	break;
     case Minimized:
@@ -977,7 +976,6 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
 	d->leftDock->moveDockWindow( dockWindow, index );
 	break;
     case TornOff:
-	dockWindow->removeFromDock( FALSE );
 	dockWindow->undock();
 	break;
     case Minimized:
@@ -1456,7 +1454,7 @@ QList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     case Right:
 	return d->rightDock->dockWindowList();
     case TornOff: {
-	for ( QDockWindow *w = d->dockWindows.first(); w; w = d->dockWindows.last() ) {
+	for ( QDockWindow *w = d->dockWindows.first(); w; w = d->dockWindows.next() ) {
 	    if ( !w->area() && w->place() == QDockWindow::OutsideDock )
 		lst.append( w );
 	}
