@@ -1398,6 +1398,7 @@ bool qt_dnd_enable(QWidget* w, bool on)
 
     The widget should use data() to extract the data in an appropriate
     format.
+
 */
 
 
