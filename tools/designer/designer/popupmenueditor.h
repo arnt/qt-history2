@@ -171,6 +171,7 @@ protected:
     
     int snapToItem( int y );
     void dropInPlace( PopupMenuEditorItem * i, int y );
+    void dropInPlace( QActionGroup * g, int y );
 
     void safeDec();
     void safeInc();

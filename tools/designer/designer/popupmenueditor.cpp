@@ -858,14 +858,10 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	if ( e->provides( "application/x-designer-actiongroup" ) ) {
 	    QString s( e->encodedData( "application/x-designer-actiongroup" ) );
 	    QActionGroup * g = (QDesignerActionGroup*)s.toLong();
-	    if ( g->usesDropDown() ) {
+	    if ( g->usesDropDown() )
 		i = new PopupMenuEditorItem( g, this );
-	    } else {
-		QObjectList l = *g->children();
-		for ( QAction *a = (QAction *)l.last(); a; a = (QAction *)l.prev() )
-		    dropInPlace( new PopupMenuEditorItem( a, this ), e->pos().y() );
-		i = 0;
-	    }
+	    else
+		dropInPlace( g, e->pos().y() );
 	} else if ( e->provides( "application/x-designer-actions" ) ) {
 	    QString s( e->encodedData( "application/x-designer-actions" ) );
 	    QAction * a = (QDesignerAction*)s.toLong();
@@ -1229,6 +1225,17 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
     currentIndex = idx;
+}
+
+void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
+{
+    QObjectList l = *g->children();
+    for ( QAction *a = (QAction *)l.last(); a; a = (QAction *)l.prev() ) {
+	if ( a->inherits( "ActionGroup" ) )
+	    dropInPlace( (QActionGroup *)a, y );
+	else
+	    dropInPlace( new PopupMenuEditorItem( a, this ), y );
+    }
 }
 
 void PopupMenuEditor::safeDec()
