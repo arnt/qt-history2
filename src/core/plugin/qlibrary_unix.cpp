@@ -69,6 +69,12 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else // POSIX
 #include <dlfcn.h>
 
+static const char *qdlerror()
+{
+    const char *err = dlerror();
+    return err ? err : "";
+}
+
 bool QLibraryPrivate::load_sys()
 {
     QFileInfo fi(fileName);
@@ -110,8 +116,10 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
 #if defined(QT_DEBUG_COMPONENT)
-    if (!pHnd)
-        qWarning("QLibrary: Cannot load '%s' :%s", QFile::encodeName(fileName).constData(), dlerror());
+    if (!pHnd) {
+        qWarning("QLibrary: Cannot load '%s' :%s", QFile::encodeName(fileName).constData(),
+                 qdlerror());
+    }
 #endif
     return (pHnd != 0);
 }
@@ -119,7 +127,8 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
-        qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(), dlerror());
+        qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
+                 qdlerror());
         return false;
     }
     return true;
