@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#26 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#27 $
 **
 ** Implementation of QFileDialog class
 **
@@ -568,7 +568,7 @@ void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListBox::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
-    if ( e->button() == RightButton && currentItem() != -1 ) {
+    if ( e->button() == RightButton ) {
 	QListBoxItem *i = item( currentItem() );
 	if ( !itemRect( i ).contains( e->pos() ) )
 	    setSelected( i, FALSE );
@@ -1975,7 +1975,7 @@ void QFileDialog::setDir( const QString & pathstr )
 #endif
 
     setUrl( dr );
-    
+
 //     if ( !QFileInfo( dr ).isDir() && QFileInfo( dr ).fileName() != ".." )
 // 	dr = QFileInfo( dr ).dirPath();
 //     d->url = dr;
