@@ -1437,14 +1437,14 @@ QDomNodePrivate* QDomNodePrivate::appendChild( QDomNodePrivate* newChild )
 
 QDomDocumentPrivate* QDomNodePrivate::ownerDocument()
 {
-    if ( hasParent ) {
-	QDomNodePrivate* p = this;
-	while ( p && !p->isDocument() )
-	    p = p->parent();
-
-	return (QDomDocumentPrivate*)p;
+    QDomNodePrivate* p = this;
+    while ( p && !p->isDocument() ) {
+	if ( !p->hasParent )
+	    return (QDomDocumentPrivate*)p->ownerNode;
+	p = p->parent();
     }
-    return (QDomDocumentPrivate*)ownerNode;
+
+    return (QDomDocumentPrivate*)p;
 }
 
 QDomNodePrivate* QDomNodePrivate::cloneNode( bool deep )
