@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#287 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#288 $
 **
 ** Implementation of QListView widget class
 **
@@ -2609,6 +2609,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
+    emit clicked( i );
+    
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
 	int x1 = vp.x() +

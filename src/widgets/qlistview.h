@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#93 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#94 $
 **
 ** Definition of QListView widget class
 **
@@ -246,7 +246,8 @@ signals:
     void selectionChanged();
     void selectionChanged( QListViewItem * );
     void currentChanged( QListViewItem * );
-
+    void clicked( QListViewItem * );
+    
     void doubleClicked( QListViewItem * );
     void returnPressed( QListViewItem * );
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
