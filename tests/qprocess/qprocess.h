@@ -62,7 +62,8 @@ private:
     pid_t pid;
     ssize_t stdinBufRead;
 #endif
-    int exitStat;
+    bool exitValuesCalculated;
+    int  exitStat;
     bool exitNormal;
 
     friend class QProcess;
@@ -116,7 +117,7 @@ private:
 
 private:
 #if defined( _WS_WIN_ )
-    QByteArray readStdout( ulong bytes = 0 );
+    QByteArray readStddev( HANDLE dev, ulong bytes = 0 );
 #endif
 
 private slots:

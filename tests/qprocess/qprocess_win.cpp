@@ -40,6 +40,7 @@ QProcessPrivate::QProcessPrivate( QProcess *proc )
 		proc, SLOT(timeout()) );
     }
 
+    exitValuesCalculated = FALSE;
     exitStat = 0;
     exitNormal = FALSE;
 }
@@ -300,21 +301,34 @@ bool QProcess::start()
     }
 }
 
-
 bool QProcess::hangUp()
 {
-    return TRUE;
+    // ### how to do it?
+    return FALSE;
 }
 
 bool QProcess::kill()
 {
-    TerminateProcess( d->pid.hProcess, 0 );
-    return TRUE;
+    return ( TerminateProcess( d->pid.hProcess, 0 ) != 0 );
 }
 
 bool QProcess::isRunning()
 {
-    return TRUE;
+    if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
+	// compute the exit values
+	if ( !d->exitValuesCalculated ) {
+	    DWORD exitCode;
+	    if ( GetExitCodeProcess( d->pid.hProcess, &exitCode ) ) {
+		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
+		    d->exitNormal = TRUE;
+		    d->exitStat = exitCode;
+		}
+	    }
+	}
+	return FALSE;
+    } else {
+        return TRUE;
+    }
 }
 
 void QProcess::dataStdin( const QByteArray& buf )
@@ -332,7 +346,6 @@ void QProcess::dataStdin( const QByteArray& buf )
 	socketWrite( 0 );
     }
 }
-
 
 void QProcess::closeStdin( )
 {
@@ -352,7 +365,6 @@ void QProcess::closeStdin( )
     }
 }
 
-
 void QProcess::socketRead( int fd )
 {
 #if defined ( RMS_USE_SOCKETS )
@@ -361,24 +373,40 @@ void QProcess::socketRead( int fd )
     } else
 #endif
     {
+	// fd == 1: stdout, fd == 2: stderr
+	HANDLE dev;
+	if ( fd == 1 ) {
+	    dev = d->pipeStdout[0];
+	} else if ( fd == 2 ) {
+	    dev = d->pipeStderr[0];
+	} else {
+	    return;
+	}
 	// get the number of bytes that are waiting to be read
 	unsigned long i, r;
 	char dummy;
-	PeekNamedPipe( d->pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 );
 	if ( i > 0 ) {
-	    QByteArray buffer=readStdout();
+	    QByteArray buffer=readStddev( dev, i );
 	    int sz = buffer.size();
 	    if ( sz == 0 )
 		return;
-	    emit dataStdout( buffer );
+	    if ( fd == 1 ) {
+		emit dataStdout( buffer );
+	    } else {
+		emit dataStderr( buffer );
+	    }
 	    buffer.resize( sz+1 );
 	    buffer[ sz ] = 0;
 	    QString str( buffer );
-	    emit dataStdout( str );
+	    if ( fd == 1 ) {
+		emit dataStdout( str );
+	    } else {
+		emit dataStderr( str );
+	    }
 	}
     }
 }
-
 
 void QProcess::socketWrite( int fd )
 {
@@ -443,15 +471,18 @@ void QProcess::socketWrite( int fd )
 void QProcess::timeout()
 {
 //    socketWrite( 0 );
-    socketRead( 0 );
-    if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
+    socketRead( 1 ); // try stdout
+    socketRead( 2 ); // try stderr
+
+    // is process running?
+    if ( !isRunning() ) {
 	d->lookup->stop();
 	emit processExited();
     }
 }
 
 // non-blocking read on the pipe
-QByteArray QProcess::readStdout( ulong bytes )
+QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
 {
 #if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
@@ -468,8 +499,7 @@ QByteArray QProcess::readStdout( ulong bytes )
 	if ( bytes == 0 ) {
 	    // get the number of bytes that are waiting to be read
 	    char dummy;
-	    if ( !PeekNamedPipe( d->pipeStdout[0], &dummy, 1, &r, &i, 0 ) ) {
-//		emit processExited();
+	    if ( !PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 ) ) {
 		i = 0;
 	    }
 	} else {
@@ -478,7 +508,7 @@ QByteArray QProcess::readStdout( ulong bytes )
 	// and read it!
 	QByteArray readBuffer( i );
 	if ( i > 0 ) {
-	    ReadFile( d->pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	    ReadFile( dev, readBuffer.data(), i, &r, 0 );
 	    if ( r != i ) {
 		readBuffer.resize( r );
 	    }

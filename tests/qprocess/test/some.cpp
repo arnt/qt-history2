@@ -32,6 +32,7 @@ int main( int argc, char **argv )
 
     QLineEdit *in = new QLineEdit( &vb );
     QLabel *out = new QLabel( &vb );
+    QLabel *err = new QLabel( &vb );
     QRadioButton *radio = new QRadioButton( "Process Exited", &vb );
     QPushButton *close = new QPushButton( "Close Stdin", &vb );
 
@@ -39,8 +40,11 @@ int main( int argc, char **argv )
 	    &proc, SLOT(dataStdin(const QString&)) );
     QObject::connect( close, SIGNAL(clicked()),
 	    &proc, SLOT(closeStdin()) );
+
     QObject::connect( &proc, SIGNAL(dataStdout(const QString&)),
 	    out, SLOT(setText(const QString&)) );
+    QObject::connect( &proc, SIGNAL(dataStderr(const QString&)),
+	    err, SLOT(setText(const QString&)) );
     QObject::connect( &proc, SIGNAL(processExited()),
 	    radio, SLOT(toggle()) );
 

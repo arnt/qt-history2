@@ -127,7 +127,11 @@ void QProcess::setWorkingDirectory( const QDir& dir )
 */
 bool QProcess::normalExit()
 {
-    return d->exitNormal;
+    // isRunning() has the side effect that it determines the exit status!
+    if ( isRunning() )
+	return FALSE;
+    else
+	return d->exitNormal;
 }
 
 /*!
@@ -136,7 +140,11 @@ bool QProcess::normalExit()
 */
 int QProcess::exitStatus()
 {
-    return d->exitStat;
+    // isRunning() has the side effect that it determines the exit status!
+    if ( isRunning() )
+	return 0;
+    else
+	return d->exitStat;
 }
 
 
