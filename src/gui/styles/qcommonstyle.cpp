@@ -1580,6 +1580,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                                          - twf->rightCornerWidgetSize.width(), 0));
                     break;
                 }
+                r.setWidth(qMin(r.width(), twf->rect.width()));
                 r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedSouth:
@@ -1600,6 +1601,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 }
+                r.setWidth(qMin(r.width(), twf->rect.width()));
                 r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedEast:
@@ -1620,6 +1622,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
+                r.setHeight(qMin(r.height(), twf->rect.height()));
                 break;
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
@@ -1636,6 +1639,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
+                r.setHeight(qMin(r.height(), twf->rect.height()));
                 break;
             }
         }
