@@ -5133,26 +5133,23 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     paintRegion |= paintRect;
     d->invalidated_region = QRegion();
 
-    bool   merging_okay = !testWFlags(Qt::WPaintClever);
-    if (merging_okay) {
-        // WARNING: this is O(number_of_events * number_of_matching_events)
-        while (XCheckIfEvent(x11Info()->display(),&xevent,isPaintOrScrollDoneEvent,
-                              (XPointer)&info) &&
-                !qt_x11EventFilter(&xevent)  &&
-                !x11Event(&xevent)) // send event through filter
-        {
-            if (xevent.type == Expose || xevent.type == GraphicsExpose) {
-                QRect exposure(xevent.xexpose.x,
-                               xevent.xexpose.y,
-                               xevent.xexpose.width,
-                               xevent.xexpose.height);
-                if (translateBySips(this, exposure))
-                    should_clip = true;
-                exposure = d->mapFromWS(exposure);
-                paintRegion = paintRegion.unite(exposure);
-            } else {
-                translateScrollDoneEvent(&xevent);
-            }
+    // WARNING: this is O(number_of_events * number_of_matching_events)
+    while (XCheckIfEvent(x11Info()->display(),&xevent,isPaintOrScrollDoneEvent,
+                         (XPointer)&info) &&
+           !qt_x11EventFilter(&xevent)  &&
+           !x11Event(&xevent)) // send event through filter
+    {
+        if (xevent.type == Expose || xevent.type == GraphicsExpose) {
+            QRect exposure(xevent.xexpose.x,
+                           xevent.xexpose.y,
+                           xevent.xexpose.width,
+                           xevent.xexpose.height);
+            if (translateBySips(this, exposure))
+                should_clip = true;
+            exposure = d->mapFromWS(exposure);
+            paintRegion = paintRegion.unite(exposure);
+        } else {
+            translateScrollDoneEvent(&xevent);
         }
     }
 
