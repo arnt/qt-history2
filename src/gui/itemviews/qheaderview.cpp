@@ -428,8 +428,10 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 
 void QHeaderView::moveSection(int from, int to)
 {
-    if (from == to)
+    if (from == to) {
+        updateSection(visualIndex(from));
         return;
+    }
 
     // if we haven't moved anything previously, initialize the indices array
     int count = d->sections.count();
@@ -1225,7 +1227,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
             d->section = d->target = -1;
             d->updateSectionIndicator(d->section, pos);
             break;
-        }
+        } // not moving
     case QHeaderViewPrivate::NoState:
         if (d->clickableSections) {
             updateSection(d->pressed);
