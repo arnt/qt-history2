@@ -190,8 +190,9 @@
      USLC - SCO UnixWare C++
      CDS - Reliant C++
      KAI - KAI C++
-     HIGHC - MetaWare High C/C++
      INTEL - Intel C++
+     HIGHC - MetaWare High C/C++
+     PGI - Portland Group C++
 
    Should be sorted most to least authoritative.
 */
@@ -323,6 +324,9 @@
 /* Using the `using' keyword avoids Intel C++ warnings */
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
+/* The Portland Group compiler is based on EDG and does define __EDG__ */
+#    elif defined(__PGI)
+#      define Q_CC_PGI
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_EDG
