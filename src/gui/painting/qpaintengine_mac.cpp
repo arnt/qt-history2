@@ -50,8 +50,8 @@ extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
-extern const uchar *qt_patternForBrush(int); // qbrush.cpp
-extern QPixmap qt_pixmapForBrush(int); // qbrush.cpp
+extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
+extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
 
 // paintevent magic to provide Windows semantics on Qt/Mac
 class paintevent_item
@@ -828,7 +828,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
         if (!d->brush_style_pix)
             d->brush_style_pix = new QPixmap(8, 8);
-        d->brush_style_pix->setMask(qt_pixmapForBrush(bs));
+        d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
     } else { //unset
         d->brush_style_pix = 0;
@@ -971,7 +971,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         if (pat->bs != Qt::CustomPattern) {
             w = h = 8;
             CGDataProviderRef provider
-                = CGDataProviderCreateWithData(0, qt_patternForBrush(pat->bs), w * h, 0);
+                = CGDataProviderCreateWithData(0, qt_patternForBrush(pat->bs, false), w * h, 0);
             pat->image = CGImageMaskCreate(w, h, 1, 1, w / 8, provider, 0, false);
             CGDataProviderRelease(provider);
         } else {

@@ -239,7 +239,7 @@ void QWSPaintEngine::updatePen(QPainterState *ps)
 }
 
 
-QPixmap qt_pixmapForBrush(int brushStyle); //in qbrush.cpp
+QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 
 void QWSPaintEngine::updateBrush(QPainterState *ps)
@@ -248,7 +248,7 @@ void QWSPaintEngine::updateBrush(QPainterState *ps)
         return;
     int bs=ps->brush.style();
     if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
-            QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs));
+            QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs, false));
             d->gfx->setBrushPixmap(pm);
     } else {
         d->gfx->setBrushPixmap(ps->brush.pixmap());

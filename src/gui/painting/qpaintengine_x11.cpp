@@ -871,7 +871,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
                        s, cp, jn);
 }
 
-QPixmap qt_pixmapForBrush(int brushStyle); //in qbrush.cpp
+QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 void QX11PaintEngine::updateBrush(QPainterState *ps)
 {
@@ -949,7 +949,7 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
         if (bs == CustomPattern)
             pm = *d->cbrush.pixmap();
         else
-            pm = qt_pixmapForBrush(bs);
+            pm = qt_pixmapForBrush(bs, false);
         pm.x11SetScreen(d->scrn);
         if (pm.depth() == 1) {
             XSetStipple(d->dpy, d->gc_brush, pm.handle());
