@@ -433,6 +433,13 @@ QCanvasSprite and QCanvasText. You can subclass to create your own
 canvas items; QCanvasPolygonalItem is the most common base class used
 for this purpose.
 
+Items appear on the canvas after their \link QCanvasItem::show()
+show()\endlink function has been called (or \link
+QCanvasItem::setVisible() setVisible(TRUE)\endlink), and \e after
+update() has been called. The canvas only shows items that are \link
+QCanvasItem::setVisible() visible\endlink, and then only if \l update()
+is called.
+
 Although a canvas may appear to be similar to a widget with child
 widgets, there are several notable differences:
 
@@ -1770,6 +1777,12 @@ or QCanvasText.
 Canvas items are added to a canvas by constructing them and passing the
 canvas to the canvas item's constructor. An item can be moved to a
 different canvas using setCanvas().
+
+Items appear on the canvas after their \link show() show()\endlink
+function has been called (or \link setVisible()
+setVisible(TRUE)\endlink), and \e after update() has been called. The
+canvas only shows items that are \link setVisible() visible\endlink,
+and then only if \l update() is called.
 
 A QCanvasItem object can be moved in the x(), y() and z() dimensions
 using functions such as move(), moveBy(), setX(), setY() and setZ(). A

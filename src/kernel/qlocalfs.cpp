@@ -49,35 +49,34 @@
 
 
 /*!
-  \class QLocalFs qlocalfs.h
-  \brief The QLocalFs class is an implementation of a QNetworkProtocol that works
-  on the local file system.
+    \class QLocalFs qlocalfs.h
+    \brief The QLocalFs class is an implementation of a
+    QNetworkProtocol that works on the local file system.
 
-  \ingroup io
+    \module network
 
-  \module network
+    \ingroup io
 
-  This class is derived from QNetworkProtocol. QLocalFs is not
-  normally used directly, but rather through a QUrlOperator, for
-  example:
+    This class is derived from QNetworkProtocol. QLocalFs is not
+    normally used directly, but rather through a QUrlOperator, for
+    example:
+    \code
+    QUrlOperator op( "file:///tmp" );
+    op.listChildren(); // Asks the server to provide a directory listing
+    \endcode
 
-  \code
-  QUrlOperator op( "file:///tmp" );
-  op.listChildren(); // Asks the server to provide a directory listing
-  \endcode
+    This code will only work if the QLocalFs class is registered; to
+    register the class, you must call qInitNetworkProtocols() before
+    using a QUrlOperator with QLocalFs.
 
-  This code will only work if the QLocalFs class is registered; to register the
-  class, you must call qInitNetworkProtocols() before using a QUrlOperator
-  with QLocalFs.
+    If you really need to use QLocalFs directly, don't forget
+    to set its QUrlOperator with setUrl().
 
-  If you really need to use QLocalFs directly, don't forget
-  to set its QUrlOperator with setUrl().
-
-  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 /*!
-  Constructor.
+    Constructor.
 */
 
 QLocalFs::QLocalFs()
@@ -86,7 +85,7 @@ QLocalFs::QLocalFs()
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationListChildren( QNetworkOperation *op )
@@ -135,7 +134,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationMkDir( QNetworkOperation *op )
@@ -166,7 +165,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationRemove( QNetworkOperation *op )
@@ -200,7 +199,7 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationRename( QNetworkOperation *op )
@@ -227,7 +226,7 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationGet( QNetworkOperation *op )
@@ -293,7 +292,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QLocalFs::operationPut( QNetworkOperation *op )
@@ -341,7 +340,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 int QLocalFs::supportedOperations() const
@@ -350,7 +349,7 @@ int QLocalFs::supportedOperations() const
 }
 
 /*!
-  \internal
+    \internal
 */
 
 int QLocalFs::calcBlockSize( int totalSize ) const

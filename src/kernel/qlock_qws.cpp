@@ -76,28 +76,32 @@ public:
 #endif
 
 /*!
-  \class QLock qlock_qws.h
-  \ingroup qws
-  \ingroup io
-  \brief The QLock class is a wrapper round a System V shared semaphore.
+    \class QLock qlock_qws.h
+    \brief The QLock class is a wrapper for a System V shared semaphore.
 
-  It is used by Qt/Embedded for synchronizing access to the graphics
-  card and shared memory region between processes.
+    \ingroup qws
+    \ingroup io
+
+    It is used by Qt/Embedded for synchronizing access to the graphics
+    card and shared memory region between processes.
 */
-/*! \enum QLock::Type
+
+/*!
+    \enum QLock::Type
 
     \value Read
     \value Write
 */
 
 /*!
-  \fn QLock::QLock( const QString &filename, char id, bool create )
-  Creates a lock. \a filename is the file path of the Unix-domain
-  socket the Qt/Embedded client is using. \a id is the name of the
-  particular lock to be created on that socket. If \a create is TRUE
-  the lock is to be created (as the Qt/Embedded server does); if \a
-  create is FALSE the lock should exist already (as the Qt/Embedded
-  client expects).
+    \fn QLock::QLock( const QString &filename, char id, bool create )
+
+    Creates a lock. \a filename is the file path of the Unix-domain
+    socket the Qt/Embedded client is using. \a id is the name of the
+    particular lock to be created on that socket. If \a create is TRUE
+    the lock is to be created (as the Qt/Embedded server does); if \a
+    create is FALSE the lock should exist already (as the Qt/Embedded
+    client expects).
 */
 
 QLock::QLock( const QString &filename, char id, bool create )
@@ -135,8 +139,9 @@ QLock::QLock( const QString &filename, char id, bool create )
 }
 
 /*!
-\fn QLock::~QLock()
-Destroys a lock
+    \fn QLock::~QLock()
+
+    Destroys a lock
 */
 
 QLock::~QLock()
@@ -156,9 +161,10 @@ QLock::~QLock()
 }
 
 /*!
-\fn bool QLock::isValid() const
-Returns TRUE if the lock constructor was succesful; returns FALSE if
-the lock could not be created or was not available to connect to.
+    \fn bool QLock::isValid() const
+
+    Returns TRUE if the lock constructor was succesful; returns FALSE if
+    the lock could not be created or was not available to connect to.
 */
 
 bool QLock::isValid() const
@@ -171,14 +177,15 @@ bool QLock::isValid() const
 }
 
 /*!
-  Locks the semaphore with a lock of type \a t. Locks can either be
-  Read or Write. If a lock is Read, attempts to lock by other
-  processes as Read will succeed, Write attempts will block until the
-  lock is unlocked. If locked as Write, all attempts to lock by other
-  processes will block until the lock is unlocked. Locks are stacked:
-  i.e. a given QLock can be locked multiple times by the same
-  process without blocking, and will only be unlocked after a
-  corresponding number of unlock() calls.
+    Locks the semaphore with a lock of type \a t. Locks can either be
+    \c Read or \c Write. If a lock is \c Read, attempts by other
+    processes to obtain \c Read locks will succeed, and \c Write
+    attempts will block until the lock is unlocked. If locked as \c
+    Write, all attempts to lock by other processes will block until
+    the lock is unlocked. Locks are stacked: i.e. a given QLock can be
+    locked multiple times by the same process without blocking, and
+    will only be unlocked after a corresponding number of unlock()
+    calls.
 */
 
 void QLock::lock( Type t )
@@ -220,9 +227,11 @@ void QLock::lock( Type t )
 }
 
 /*!
-\fn void QLock::unlock()
-Unlocks the semaphore. If other processes were blocking waiting to lock()
-the semaphore, one of them will wake up and succeed in lock()ing.
+    \fn void QLock::unlock()
+
+    Unlocks the semaphore. If other processes were blocking waiting to
+    lock() the semaphore, one of them will wake up and succeed in
+    lock()ing.
 */
 
 void QLock::unlock()
@@ -260,9 +269,10 @@ void QLock::unlock()
 }
 
 /*!
-\fn bool QLock::locked() const
-Returns TRUE if the lock is currently held by the current process;
-otherwise returns FALSE.
+    \fn bool QLock::locked() const
+
+    Returns TRUE if the lock is currently held by the current process;
+    otherwise returns FALSE.
 */
 
 bool QLock::locked() const

@@ -1018,7 +1018,8 @@ void QMessageBox::showEvent( QShowEvent *e )
   If you don't want all three buttons, set the last button, or last two
   buttons to QMessageBox::NoButton.
 
-  Returns the index of the button that was clicked.
+  Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.) of
+  the button that was clicked.
 
   If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
@@ -1061,8 +1062,8 @@ int QMessageBox::information( QWidget *parent,
   If you don't want all three buttons, set the last button, or last two
   buttons to QMessageBox::NoButton.
 
-  Returns the button type that was clicked, for example,
-  QMessageBox::Ok.
+  Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.) of
+  the button that was clicked.
 
   If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
@@ -1105,7 +1106,8 @@ int QMessageBox::warning( QWidget *parent,
   If you don't want all three buttons, set the last button, or last two
   buttons to QMessageBox::NoButton.
 
-  Returns the index of the button that was clicked.
+  Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.) of
+  the button that was clicked.
 
   If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
