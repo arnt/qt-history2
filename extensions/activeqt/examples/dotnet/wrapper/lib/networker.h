@@ -6,20 +6,20 @@
 using namespace System;
 
 class Worker;
+class Dispatcher;
 
 // .NET class
-namespace worker
+public __gc class netWorker
 {
-    public __gc class netWorker
-    {
-    public:
-	netWorker();
-	~netWorker();
+public:
+    netWorker();
+    ~netWorker();
 
-	__property void set_StatusString(String *string);
-	__property String *get_StatusString();
+    __property String *get_StatusString();
+    __property void set_StatusString(String *string);
 
-    private:
-	Worker *workerObject;
-    };
-}
+    __event void statusStringChanged(String *args);
+
+private:
+    Worker *workerObject;
+};

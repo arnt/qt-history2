@@ -4,23 +4,32 @@ namespace WrapperApp
 {
 	class App
 	{
+		void Run()
+		{
+			netWorker worker = new netWorker();
+
+			worker.statusStringChanged += new netWorker.__Delegate_statusStringChanged(onStatusStringChanged);
+
+			System.Console.Out.WriteLine(worker.StatusString);
+
+			System.Console.Out.WriteLine("Working cycle begins...");
+			worker.StatusString = "Working";
+			worker.StatusString = "Lunch Break";
+			worker.StatusString = "Working";
+			worker.StatusString = "Idle";
+			System.Console.Out.WriteLine("Working cycle ends...");
+		}
+
+		private void onStatusStringChanged(string str)
+		{
+			System.Console.Out.WriteLine(str);
+		}
+
 		[STAThread]
 		static void Main(string[] args)
 		{
-			worker.netWorker worker = new worker.netWorker();
-			System.Console.Out.WriteLine(worker.StatusString);
-			System.Console.Out.WriteLine("Working cycle begins...");
-
-			worker.StatusString = "Working";
-			System.Console.Out.WriteLine(worker.StatusString);
-			worker.StatusString = "Lunch Break";
-			System.Console.Out.WriteLine(worker.StatusString);
-			worker.StatusString = "Working";
-			System.Console.Out.WriteLine(worker.StatusString);
-			worker.StatusString = "Idle";
-			System.Console.Out.WriteLine(worker.StatusString);
-
-			System.Console.Out.WriteLine("Working cycle ends...");
+			App app = new App();
+			app.Run();
 		}
 	}
 }

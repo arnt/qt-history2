@@ -119,6 +119,27 @@
 			</File>
 			<File
 				RelativePath="worker.h">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="$(QTDIR)\bin\moc.exe $(InputName).h -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="$(QTDIR)\bin\moc.exe $(InputName).h -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated MOC"
+			Filter="">
+			<File
+				RelativePath="moc_worker.cpp">
 			</File>
 		</Filter>
 	</Files>

@@ -9,6 +9,7 @@ Worker::Worker()
 void Worker::setStatusString(const QString &string)
 {
     status = string;
+    emit statusStringChanged(status);
 }
 
 QString Worker::statusString() const
