@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.6 1997/02/26 14:42:58 hanord Exp $
+** $Id: tutorial.doc,v 2.7 1997/02/27 15:13:38 paul Exp $
 **
 ** Tutorial
 **
@@ -588,9 +588,10 @@ scroll bar to the top of the LCD number less a 5 pixel border.
 Remember from the constructor that we have positioned the LCD number
 below the quit button.
 
-Auto-placement of widgets like we do here is tedious. A future version
-of Qt will include geometry management classes that will make this job
-easier. Stay tuned!
+Auto-placement of widgets like we do here is tedious. Qt includes
+geometry management classes that make this job easier.  The classes are
+QBoxLayout and QGridLayout. Later versions of this tutorial will include
+chapters on geometry management. Stay tuned!
 
 
 <h2>Behavior</h2>
