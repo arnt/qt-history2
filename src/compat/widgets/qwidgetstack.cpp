@@ -231,6 +231,12 @@ void QWidgetStack::raiseWidget(QWidget *w)
         return;
     }
 
+    if (w->maximumSize().width() < d->invisible->width()
+        || w->maximumSize().height() < d->invisible->height())
+        d->invisible->setAttribute(WA_NoSystemBackground, false);
+    else if (d->invisible->testAttribute(WA_NoSystemBackground))
+        d->invisible->setAttribute(WA_NoSystemBackground, true);
+
     if (d->invisible->isHidden()) {
         d->invisible->setGeometry(contentsRect());
         d->invisible->lower();
