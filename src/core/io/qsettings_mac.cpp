@@ -139,6 +139,8 @@ search_keys::search_keys(QString path, QString key, const char *where)
 #else
     QString oldkey = key, oldpath = path;
 #endif
+    while(key.right(1) == "/")
+	key.truncate(key.length() -1);
     qi = path;
     qk = key;
     while(qk.startsWith("/"))
@@ -156,6 +158,7 @@ search_keys::search_keys(QString path, QString key, const char *where)
         qi = qi.mid(1);
     qt_mac_unfix_key(qi);
     qi.replace('/', ".");
+    qi.replace("..", ".");
     if(qt_mac_settings_base)
         qi.prepend(*qt_mac_settings_base);
 
@@ -199,16 +202,13 @@ struct {
     CFStringRef user;
     CFStringRef host;
 } scopes[] = {
-    { kCFPreferencesAnyUser, kCFPreferencesCurrentHost },
-    { kCFPreferencesCurrentUser, kCFPreferencesAnyHost },
+    { kCFPreferencesAnyUser, kCFPreferencesCurrentHost }, //global
+    { kCFPreferencesCurrentUser, kCFPreferencesAnyHost }, //local
     { NULL, NULL }
 };
 
 bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool global)
 {
-    while(key.right(1) == "/")
-        key.truncate(key.length() -1);
-
     bool ret = false;
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
         search_keys k(searchPaths.at(i), key, "writeEntry");
@@ -230,7 +230,7 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 {
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
         search_keys k(searchPaths.at(i), key, "readEntry");
-        for(int scope = (global ? 0 : 1); scopes[scope].user; scope++) {
+	for(int scope = (global ? 0 : 1); scope >= 0; scope--) { //try local, then global (unless global == true, then just global)
             if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), scopes[scope].user, scopes[scope].host))
                 return ret;
         }
@@ -243,7 +243,7 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
     QStringList ret;
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
         search_keys k(searchPaths.at(i), key, subkey ? "subkeyList" : "entryList");
-        for(int scope = (global ? 0 : 1); scopes[scope].user; scope++) {
+	for(int scope = (global ? 0 : 1); scope >= 0; scope--) { //try local, then global (unless global == true, then just global)
             if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope].user, scopes[scope].host)) {
                 QString qk = cfstring2qstring(k.key());
                 for(CFIndex i = 0, cnt = CFArrayGetCount(cfa); i < cnt; i++) {
@@ -315,7 +315,6 @@ void QSettingsPrivate::sysInsertSearchPath(QSettings::System s, const QString &p
         return;
     }
 
-
     QString realpath = path;
     while(realpath.right(1) == "/")
         realpath.truncate(realpath.length() -1);
@@ -343,6 +342,8 @@ bool QSettingsPrivate::sysReadBoolEntry(const QString &key, bool def, bool *ok) 
     }
     if(CFPropertyListRef r = sysd->readEntry(key, globalScope)) {
         if(CFGetTypeID(r) == CFBooleanGetTypeID()) {
+            if(ok)
+                *ok = TRUE;
             bool ret = false;
             if(CFEqual((CFBooleanRef)r, kCFBooleanTrue))
                 ret = true;
