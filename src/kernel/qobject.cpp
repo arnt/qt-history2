@@ -516,53 +516,35 @@ bool QObject::inherits( const char *clname ) const
 }
 
 /*!
-  \fn const char *QObject::name() const
+  \property QObject::name
 
-  Returns the name of this object. If the object does not have a name,
-  it will return "unnamed", so printf() (used in qDebug()) will
-  not be asked to output a null pointer.  If you want a null pointer
-  to be returned for unnamed objects, you can call name( 0 ).
+  \brief the name of this object
+
+  You can find an object by name (and type) using child(), and more
+  than one using queryList().
+
+  The object name is set by the constructor or by the setName()
+  function. The object name is not very useful in the current version
+  of Qt, but will become increasingly important in the future.
+
+  If the object does not have a name, the getter function name() returns
+  "unnamed", so printf() (used in qDebug()) will not be asked to output a null
+  pointer. If you want a null pointer to be returned for unnamed objects, you
+  can call name( 0 ).
 
   \code
     qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
 	    name(), newPrecision );
   \endcode
 
-  The object name is set by the constructor or by the setName()
-  function.  The object name is not very useful in the current version
-  of Qt, but will become increasingly important in the future.
-
-  You can find an object by name (and type) using child(), and more
-  than one using queryList().
-
-  \sa setName(), className(), child(), queryList()
+  \sa className(), child(), queryList()
 */
+
 const char * QObject::name() const
 {
     // If you change the name here, the builder will be broken
     return objname ? objname : "unnamed";
 }
-
-/*!
-  Returns the name of this object, or \a defaultName if the object
-  does not have a name.
-*/
-
-const char * QObject::name( const char * defaultName ) const
-{
-    return objname ? objname : defaultName;
-}
-
-
-/*!
-  Sets the name of this object to \a name.  The default name is the
-  one assigned by the constructor.
-
-  You can find an object by name (and type) using child(), and more
-  than one using queryList().
-
-  \sa name(), className(), queryList(), child()
-*/
 
 void QObject::setName( const char *name )
 {
@@ -570,6 +552,19 @@ void QObject::setName( const char *name )
 	delete [] (char*) objname;
     objname = name ? qstrdup(name) : 0;
 }
+
+/*!
+  Returns the name of this object, or \a defaultName if the object
+  does not have a name.
+
+  \sa name
+*/
+
+const char * QObject::name( const char * defaultName ) const
+{
+    return objname ? objname : defaultName;
+}
+
 
 /*!  Searches the children and optinally grandchildren of this object,
   and returns a child that is named \a objName that inherits \a
