@@ -791,6 +791,37 @@ QTextLine QTextLayout::findLine(int pos) const
 }
 
 
+static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
+			  const QRect &rect, const QTextLine &line, const QPoint &pos)
+{
+    p->save();
+    p->setClipRect(rect, QPainter::CoordPainter);
+    QColor bg;
+    QColor text;
+    switch(type) {
+    case QTextLayout::Highlight:
+	bg = pal->highlight();
+	text = pal->highlightedText();
+	break;
+    case QTextLayout::ImText:
+	int h1, s1, v1, h2, s2, v2;
+	pal->color( QPalette::Base ).getHsv( &h1, &s1, &v1 );
+	pal->color( QPalette::Background ).getHsv( &h2, &s2, &v2 );
+	bg.setHsv( h1, s1, ( v1 + v2 ) / 2 );
+	break;
+    case QTextLayout::ImSelection:
+	bg = pal->text();
+	text = pal->background();
+	break;
+    }
+    p->fillRect(rect, bg);
+    if (text.isValid())
+	p->setPen(text);
+    line.draw(p, pos.x(), pos.y());
+    p->restore();
+    return;
+}
+
 
 void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Selection *selections, int nSelections, const QRect &cr) const
 {
@@ -827,12 +858,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 						   pos.y() + sl.y),
 					    QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
 						   pos.y() + sl.y + sl.ascent + sl.descent));
-		    p->save();
-		    p->setClipRect(highlight, QPainter::CoordPainter);
-		    p->fillRect(highlight, d->pal->highlight());
-		    p->setPen(d->pal->highlightedText());
-		    l.draw(p, pos.x(), pos.y());
-		    p->restore();
+		    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos);
 		}
 	    }
 	}
@@ -895,7 +921,7 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions )
+void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions ) const
 {
     const QScriptLine &line = eng->lines[i];
 

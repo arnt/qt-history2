@@ -113,7 +113,7 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw(QPainter *p, int x, int y, int *underlinePositions = 0);
+    void draw(QPainter *p, int x, int y, int *underlinePositions = 0) const;
 
 private:
     friend class QTextLayout;
@@ -203,8 +203,9 @@ public:
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
 
     enum SelectionType {
-	Underline = -1,
-	Highlight = -2
+	Highlight = -1,
+	ImText = -2,
+	ImSelection = -3
     };
     class Selection {
 	int f;
@@ -217,6 +218,8 @@ public:
 	inline int from() const { return f; }
 	inline int length() const { return l; }
 	inline int type() const { return t; }
+	inline void setRange(int from, int length) { f = from; l = length; }
+	inline void setType(SelectionType type) { t = type; }
     };
 
     enum { NoCursor = -1 };
