@@ -36,7 +36,7 @@ QPixmap *QTextEdit::bufferPixmap( const QSize &s )
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
-      doc( new QTextDocument ), undoRedoInfo( doc )
+      doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
 }
@@ -168,18 +168,21 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
 	
 	parag->setChanged( FALSE );
-	QSize s( parag->rect().size() );
-	if ( s.width() > doubleBuffer->width() ||
-	     s.height() > doubleBuffer->height() ) {
+	QRect ir( parag->rect() );
+	ir = ir.intersect( QRect( cx, cy, cw, ch ) );
+	if ( ir.width() > doubleBuffer->width() ||
+	     ir.height() > doubleBuffer->height() ) {
 	    if ( painter.isActive() )
 		painter.end();
-	    doubleBuffer = bufferPixmap( s );
+	    doubleBuffer = bufferPixmap( ir.size() );
 	    painter.begin( doubleBuffer );
 	}
-	painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
+	painter.fillRect( QRect( 0, 0, ir.width(), ir.height() ),
 			  colorGroup().color( QColorGroup::Base ) );
 	
-	parag->paint( painter, colorGroup(), drawCur ? cursor : 0, TRUE );
+	painter.translate( -( ir.x() - parag->rect().x() ),
+			   -( ir.y() - parag->rect().y() ) );
+	parag->paint( painter, colorGroup(), drawCur ? cursor : 0, TRUE, cx, cy, cw, ch );
 	if ( !doc->flow()->isEmpty() ) {
 	    painter.saveWorldMatrix();
 	    painter.translate( 0, -parag->rect().y() );
@@ -189,11 +192,13 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    painter.restoreWorldMatrix();
 	}
 	
-	p->drawPixmap( parag->rect().topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), s ) );
+	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
 	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
 	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
 			 ( contentsX() + contentsWidth() ) - ( parag->rect().x() + parag->rect().width() ),
 			 parag->rect().height(), colorGroup().brush( QColorGroup::Base ) );
+	painter.translate( ( ir.x() - parag->rect().x() ),
+			   ( ir.y() - parag->rect().y() ) );
 	parag = parag->next();
     }
 
@@ -209,7 +214,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    doc->flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), colorGroup() );
 	}
     }
-    
+
     cursorVisible = TRUE;
 }
 
@@ -540,6 +545,9 @@ void QTextEdit::resizeEvent( QResizeEvent *e )
 
 void QTextEdit::ensureCursorVisible()
 {
+    if ( cursor->document()->parent() ) // ####### (should do something for nested stuff)
+	return;
+
     lastFormatted = cursor->parag();
     formatMore();
     QTextString::Char *chr = cursor->parag()->at( cursor->index() );
@@ -563,6 +571,7 @@ void QTextEdit::drawCursor( bool visible )
     QPainter p;
     p.begin( viewport() );
     p.translate( -contentsX(), -contentsY() );
+    p.translate( cursor->offsetX(), cursor->offsetY() );
 
     cursor->parag()->format();
     QSize s( cursor->parag()->rect().size() );
@@ -603,14 +612,25 @@ void QTextEdit::drawCursor( bool visible )
 	}
     }
 	
-    if ( fill )
-	painter.fillRect( chr->x, y, cw, h,
-			  colorGroup().color( QColorGroup::Base ) );
+    if ( fill ) {
+	if ( cursor->parag()->tableCell() && cursor->parag()->tableCell()->backGround() )
+	    painter.fillRect( chr->x, y, cw, h,
+			      *cursor->parag()->tableCell()->backGround() );
+	else
+	    painter.fillRect( chr->x, y, cw, h,
+			      colorGroup().color( QColorGroup::Base ) );
+    }
 
     if ( chr->c != '\t' ) {
 	QRegion reg;
 	if ( !chr->isCustom ) {
 	    painter.drawText( chr->x, y + bl, chr->c );
+	    if ( chr->format()->isMisspelled() ) {
+		painter.save();
+		painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
+		painter.drawLine( chr->x, y + bl + 1, chr->x + chr->format()->width( chr->c ), y + bl + 1 );
+		painter.restore();
+	    }
 	} else {
 	    if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline )
 		chr->customItem()->draw( &painter, chr->x, y, -1, -1, -1, -1, colorGroup() );
@@ -885,9 +905,8 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 
 void QTextEdit::formatMore()
 {
-    if ( !lastFormatted ) {
+    if ( !lastFormatted )
 	return;
-    }
 
     int bottom = contentsHeight();
     int lastBottom = -1;
@@ -908,16 +927,15 @@ void QTextEdit::formatMore()
 	    lastBottom = -1;
     }
 
-    if ( bottom > contentsHeight() )
+    if ( bottom > contentsHeight() && !cursor->document()->parent() ) // ####### (should do something for nested stuff)
 	resizeContents( contentsWidth(), QMAX( doc->flow()->height, bottom ) );
-    else if ( lastBottom != -1 && lastBottom < contentsHeight() )
+    else if ( lastBottom != -1 && lastBottom < contentsHeight() && !cursor->document()->parent() ) // ####### (should do something for nested stuff)
 	resizeContents( contentsWidth(), QMAX( doc->flow()->height, lastBottom ) );
 
-    if ( lastFormatted ) {
+    if ( lastFormatted )
 	formatTimer->start( interval, TRUE );
-    } else {
+    else
 	interval = QMAX( 0, interval );
-    }
 }
 
 void QTextEdit::doResize()
@@ -1064,7 +1082,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
 		    cursor->parag()->prev() : cursor->parag();
     int idx = cursor->index();
     cursor->insert( txt, checkNewLine );
-    if ( !doc->syntaxHighlighter() )
+    if ( doc->useFormatCollection() )
 	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
 		
     if ( indent && ( txt == "{" || txt == "}" ) )
@@ -1192,6 +1210,10 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
     if ( currentFormat && currentFormat->key() != f->key() ) {
 	currentFormat->removeRef();
 	currentFormat = doc->formatCollection()->format( f );
+	if ( currentFormat->isMisspelled() ) {
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
     }
@@ -1258,10 +1280,14 @@ void QTextEdit::updateCurrentFormat()
     int i = cursor->index();
     if ( i > 0 )
 	--i;
-    if ( currentFormat->key() != cursor->parag()->at( i )->format()->key() && !doc->syntaxHighlighter() ) {
+    if ( currentFormat->key() != cursor->parag()->at( i )->format()->key() && doc->useFormatCollection() ) {
 	if ( currentFormat )
 	    currentFormat->removeRef();
 	currentFormat = doc->formatCollection()->format( cursor->parag()->at( i )->format() );
+	if ( currentFormat->isMisspelled() ) {
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
     }
