@@ -1136,11 +1136,11 @@ void NETRootInfo::update(unsigned long dirty) {
 	    }
 
     if (dirty & WorkArea)
-	if (XGetWindowProperty(p->display, p->root, net_active_window, 0l,
+	if (XGetWindowProperty(p->display, p->root, net_workarea, 0l,
 			       (p->number_of_desktops * 4), False, XA_CARDINAL,
 			       &type_ret, &format_ret, &nitems_ret, &unused,
 			       &data_ret)
-	    == Success)
+	    == Success) 
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == (p->number_of_desktops * 4)) {
@@ -1156,6 +1156,7 @@ void NETRootInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
+    
 
     if (dirty & SupportingWMCheck)
 	if (XGetWindowProperty(p->display, p->root, net_supporting_wm_check,
@@ -1219,8 +1220,16 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->state = Unknown;
     p->type = Unknown;
     p->name = (char *) 0;
+    p->visible_name = (char *) 0;
     p->desktop = p->pid = p->handled_icons = 0;
     p->managed = False;
+    p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
+    
+    // ##### TODO: Brad, that is slightly bad. It makes it impossible
+    // (roundtrip!)  to have temporay NETWinInfo objects that were
+    // only used to check event() for dirty stuff. Idea: mark wmstate
+    // as dirty somewhere else if pr equals 0 and get it only when we
+    // really need it (i.e. basically on setting something).
     p->properties = pr | INTERNAL_XAWMState;
     p->icon_count = 0;
 
@@ -1552,7 +1561,7 @@ void NETWinInfo::update(unsigned long dirty) {
 	    == Success)
 	    if (data_ret) {
 		if (type_ret == xa_wm_state && format_ret == 32 &&
-		    nitems_ret == 2) {
+		    nitems_ret == 1) {
 		    CARD32 *state = (CARD32 *) data_ret;
 		    if (*state != WithdrawnState ) p->managed = True;
 
@@ -1595,8 +1604,11 @@ void NETWinInfo::update(unsigned long dirty) {
 	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
-		    nitems_ret == 1)
+		    nitems_ret == 1) {
 		    p->desktop = *((CARD32 *) data_ret) + 1;
+		    if ( p->desktop == 0 )
+			p->desktop = OnAllDesktops;
+		}
 
 		XFree(data_ret);
 	    }

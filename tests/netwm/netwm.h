@@ -82,12 +82,12 @@ public:
     inline CARD32 numberOfDesktops() const;
     inline CARD32 currentDesktop() const;
     inline Window activeWindow() const;
-    
+
     // This function takes the pass XEvent and returns an ORed list of NETRootInfo
     // properties that have changed.  The new information will be read
     // immediately by the class.
     unsigned long event(XEvent *);
-    
+
     void closeWindowRequest(Window);
 
 
@@ -137,7 +137,7 @@ public:
     void setName(const char * /* name */);
     void setVisibleName(const char * /* visible name */);
 
-    enum { OnAllDesktops = 0xFFFFFF };
+    static const CARD32 OnAllDesktops = (CARD32) -1;
     void setDesktop(CARD32 /* desktop */);
     void setPid(CARD32 /* pid */);
     void setHandledIcons(Bool /* handled */);
