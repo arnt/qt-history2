@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#40 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -22,13 +22,13 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#40 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
 static char *ps_header =
 "%\n"
-"% $Id: //depot/qt/main/src/kernel/qpsprn.cpp#39 $\n"
+"% $Id: //depot/qt/main/src/kernel/qpsprn.cpp#40 $\n"
 "%\n"
 "% Postscript routines for QPSPrinter class\n"
 "%\n"
@@ -697,7 +697,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 			    f->pointSize(), f->pointSize() );
 	fontName.sprintf( "/F%d", ++fontNameNumber );
 	*s << fontName << fontMatrix << ps << "] MF\n";
-	fontNames->insert( key, &(fontName.copy()) );
+	fontNames->insert( key, new QString( fontName ) );
     }
     *s << fontName << " SF\n";
 
