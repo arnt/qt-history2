@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#103 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#104 $
 **
 ** Definition of QStyle class
 **
@@ -204,12 +204,12 @@ public:
 
 	SR_RadioButtonIndicator,
 	SR_RadioButtonContents,
-	SR_RadioButtonFocusRect
+	SR_RadioButtonFocusRect,
 
 	SR_ComboBoxFocusRect,
-	
+
 	SR_SliderFocusRect
-	
+
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#165 $
 **
 ** Implementation of QRadioButton class
 **
@@ -177,7 +177,7 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter *p = paint;
-    QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
+    QRect irect = style().subRect(QStyle::SR_RadioButtonIndicator, this);
     const QColorGroup &cg = colorGroup();
 
 #ifndef QT_NO_TEXTSTREAM
@@ -211,6 +211,7 @@ void QRadioButton::drawButton( QPainter *paint )
     if ( use_pm ) {
 	pm = new QPixmap( irect.size() );	// create new pixmap
 	Q_CHECK_PTR( pm );
+	pm->fill(cg.background());
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
 	wx = irect.x();				// save x,y coords
