@@ -30,3 +30,63 @@ void ActionEditor::closeEvent( QCloseEvent *e )
     emit hidden();
     e->accept();
 }
+
+void ActionEditor::accelChanged( const QString & )
+{
+}
+
+void ActionEditor::connectionsClicked()
+{
+}
+
+void ActionEditor::currentActionChanged( QListViewItem * )
+{
+}
+
+void ActionEditor::deleteAction()
+{
+}
+
+void ActionEditor::enabledChanged( bool )
+{
+}
+
+void ActionEditor::menuTextChanged( const QString & )
+{
+}
+
+void ActionEditor::nameChanged( const QString & )
+{
+}
+
+void ActionEditor::newAction()
+{
+}
+
+void ActionEditor::onChanged( bool )
+{
+}
+
+void ActionEditor::statusTipChanged( const QString & )
+{
+}
+
+void ActionEditor::textChanged( const QString & )
+{
+}
+
+void ActionEditor::toggleChanged( bool )
+{
+}
+
+void ActionEditor::toolTipChanged( const QString & )
+{
+}
+
+void ActionEditor::whatsThisChanged( const QString & )
+{
+}
+
+void ActionEditor::chooseIcon()
+{
+}

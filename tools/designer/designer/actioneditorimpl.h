@@ -33,9 +33,26 @@ public:
 protected:
     void closeEvent( QCloseEvent *e );
 
+protected slots:
+    void accelChanged( const QString & );
+    void connectionsClicked();
+    void currentActionChanged( QListViewItem * );
+    void deleteAction();
+    void enabledChanged( bool );
+    void menuTextChanged( const QString & );
+    void nameChanged( const QString & );
+    void newAction();
+    void onChanged( bool );
+    void statusTipChanged( const QString & );
+    void textChanged( const QString & );
+    void toggleChanged( bool );
+    void toolTipChanged( const QString & );
+    void whatsThisChanged( const QString & );
+    void chooseIcon();
+
 signals:
     void hidden();
-    
+
 };
 
 #endif // ACTIONEDITOR_H
