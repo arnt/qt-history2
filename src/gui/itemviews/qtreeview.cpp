@@ -132,7 +132,8 @@ QTreeView::~QTreeView()
 */
 void QTreeView::setModel(QAbstractItemModel *model)
 {
-    reset();
+    d->opened.clear();
+    d->items.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
 }
