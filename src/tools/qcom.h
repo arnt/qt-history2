@@ -113,8 +113,17 @@ public:
 
     operator T*() const { return iface; }
 
-    QUnknownInterface** operator &() const { return (QUnknownInterface**)&iface; }
-    T** operator &() { return &iface; }
+    QUnknownInterface** operator &() const { 
+	if( iface ) 
+	    iface->release();
+	return (QUnknownInterface**)&iface; 
+    }
+
+    T** operator &() { 
+	if ( iface )
+	    iface->release();
+	return &iface; 
+    }
 
 private:
     T* iface;
