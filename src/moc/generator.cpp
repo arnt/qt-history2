@@ -294,7 +294,7 @@ void Generator::generateCode()
     for (i = 0; i < cdef->interfaceList.size(); ++i) {
         const QList<QByteArray> &iface = cdef->interfaceList.at(i);
         for (int j = 0; j < iface.size(); ++j) {
-            fprintf(out, "    if (!strcmp(_clname, %s::iid()))\n\treturn ", iface.at(j).constData());
+            fprintf(out, "    if (!strcmp(_clname, %s_iid))\n\treturn ", iface.at(j).constData());
             for (int k = j; k >= 0; --k)
                 fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
             fprintf(out, "const_cast<%s*>(this)%s;\n",
