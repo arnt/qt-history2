@@ -38,7 +38,12 @@ public:
     }
     void insertWidget( int r, int c, QWidget *w ) { widgets.replace( indexOf( r, c ), w );  }
     QWidget *cellWidget( int r, int c ) const { return widgets.find( indexOf( r, c ) ); }
-    void clearCellWidget( int r, int c ) { widgets.remove( indexOf( r, c ) ); }
+    void clearCellWidget( int r, int c )
+    {
+	QWidget *w = widgets.take( indexOf( r, c ) );
+	if ( w )
+	    w->deleteLater();
+    }
 
 private:
     QIntDict<QTableItem> items;
