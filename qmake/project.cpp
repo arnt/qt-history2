@@ -311,50 +311,16 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(QString project, QString pwd)
 {
-    QString cachefile;
     if(cfile.isEmpty()) {
 	/* parse the cache */
-	if(Option::mkfile::do_cache) {
-	    cachefile = Option::mkfile::cachefile;
-	    if(cachefile.find(QDir::separator()) == -1) {
-		/* find the cache file, otherwise return false */
-		QString start_dir;
-		if(pwd.isEmpty())
-		    start_dir = QDir::currentDirPath();
-		else
-		    start_dir = pwd;
-
-		QString dir = QDir::convertSeparators(start_dir);
-		QString ofile = Option::output.name();
-		if(ofile.findRev(Option::dir_sep) != -1) {
-		    dir = ofile.left(ofile.findRev(Option::dir_sep));
-		    if(QDir::isRelativePath(dir))
-			dir.prepend(QDir::convertSeparators(start_dir) + QDir::separator());
-		}
-
-		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::mkfile::cachefile))) {
-		    dir = dir.left(dir.findRev(QDir::separator()));
-		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
-			cachefile = "";
-			break;
-		    }
-		    if(Option::mkfile::cachefile_depth == -1)
-			Option::mkfile::cachefile_depth = 1;
-		    else
-			Option::mkfile::cachefile_depth++;
-		}
-
-	    }
-	    Option::mkfile::cachefile = cachefile;
-	    if(!cachefile.isEmpty()) {
-		read(cachefile, cache);
-		if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
-		    Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
-	    }
+	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
+	    read(Option::mkfile::cachefile, cache);
+	    if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
+		Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
 	}
 
 	/* parse mkspec */
-	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty()) {
+	if(Option::mkfile::qmakespec.isEmpty()) {
 	    fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
 	    return FALSE;
 	}
@@ -363,20 +329,21 @@ QMakeProject::read(QString project, QString pwd)
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
+	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) + 
+					      QDir::separator() + "mkspecs" + QDir::separator());
 	}
 	QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
 	debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
-
 	if(!read(spec, base_vars)) {
 	    fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.latin1());
 	    return FALSE;
 	}
-	if(!cachefile.isEmpty()) {
-	    debug_msg(1, "QMAKECACHE file: reading %s", cachefile.latin1());
-	    read(cachefile, base_vars);
+	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
+	    debug_msg(1, "QMAKECACHE file: reading %s", Option::mkfile::cachefile.latin1());
+	    read(Option::mkfile::cachefile, base_vars);
 	}
 
+	/* commandline */
 	cfile = project;
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
 	    if(!parse("(internal)", (*it), base_vars)) {
