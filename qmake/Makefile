@@ -1,3 +1,24 @@
+!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
+CFLAGS	    =	/c /Fo$@ \
+		/W3 /Zi /nologo /GX \
+		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
+		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
+LFLAGS	    =	/DEBUG
+LIBS	    =	ole32.lib
+LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
+!ELSE
+CXX	    =	bcc32
+CFLAGS	    =	-c -o$@ \
+		-tWR -w -O2 \
+		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
+		-DQT_NO_CODECS -DQT_LITE_COMPONENT -DQT_NODLL
+LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
+LIBS	    =	import32.lib cw32i.lib
+LINKQMAKE   =	ilink32 $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
+ADDCLEAN    =	qmake.tds
+!ENDIF
+
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
 	winmakefile.obj projectgenerator.obj metrowerks_xml.obj
@@ -8,67 +29,13 @@ QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring
 	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qtextcodec.obj
 
 
-!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
-CFLAGS	=	/c /Fo$@ \
-		/W3 /Zi /nologo /GX /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
-		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
-LFLAGS	=	/DEBUG
-LIBS	=	ole32.lib
-LINKQMAKE =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
-!ELSE
-CXX	=	bcc32
-CFLAGS	=	-c -o$@ \
-		-tWR -w -O2 -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL \
-		-I. -Igenerators -Igenerators\unix -Igenerators\win32  -I$(QTDIR)\include -I$(QTDIR)\src\tools
-LINK	=	ilink32
-LFLAGS	=	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
-LIBS	=	import32.lib cw32i.lib
-LINKQMAKE =	$(LINK) $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
-!ENDIF
-
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
 	-copy qmake.exe $(QTDIR)\bin\qmake.exe
 
 clean::
-	-del project.obj
-	-del main.obj
-	-del makefile.obj 
-	-del unixmake.obj
-	-del borland_bmake.obj
-	-del msvc_nmake.obj
-	-del msvc_dsp.obj
-	-del option.obj
-	-del winmakefile.obj
-	-del projectgenerator.obj
-	-del metrowerks_xml.obj
-	-del qstring.obj
-	-del qtextstream.obj
-	-del qiodevice.obj
-	-del qglobal.obj
-	-del qgdict.obj
-	-del qcstring.obj
-	-del qdatastream.obj
-	-del qgarray.obj
-	-del qbuffer.obj
-	-del qglist.obj
-	-del qptrcollection.obj
-	-del qfile.obj
-	-del qfile_win.obj
-	-del qregexp.obj
-	-del qgvector.obj
-	-del qgcache.obj
-	-del qbitarray.obj
-	-del qdir.obj
-	-del qfileinfo_win.obj
-	-del qdir_win.obj
-	-del qfileinfo.obj
-	-del qdatetime.obj
-	-del qstringlist.obj
-	-del qmap.obj
-	-del qlibrary.obj
-	-del qtextcodec.obj
+	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
 
 distclean:: clean
 	-del qmake 
