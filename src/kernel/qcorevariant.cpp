@@ -2290,6 +2290,7 @@ bool QCoreVariant::isNull() const
     return handler->isNull(d);
 }
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 {
@@ -2351,6 +2352,7 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
     dbg.nospace() << ')';
     return dbg.space();
 }
+#endif
 #endif
 
 #endif //QT_NO_VARIANT

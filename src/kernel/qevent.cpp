@@ -1945,7 +1945,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
   Use QDropEvent::encodedData().
 */
 
-
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, QEvent *e) {
 
@@ -2022,4 +2022,5 @@ QDebug operator<<(QDebug dbg, QEvent *e) {
     dbg.nospace() << 'Q' << n << "Event(" << (void *)e << ')';
     return dbg.space();
 }
+#endif
 #endif

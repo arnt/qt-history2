@@ -18,6 +18,7 @@
 
 #ifndef QT_NO_SQL
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
@@ -25,6 +26,7 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
 		     "\", \"" << s.databaseText() << "\")";
     return dbg.space();
 }
+#endif
 #endif
 
 /*!

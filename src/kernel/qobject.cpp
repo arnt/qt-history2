@@ -2669,6 +2669,7 @@ QObjectUserData* QObject::userData( uint id ) const
     is required.
 */
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, QObject *o) {
     if (!o)
@@ -2679,4 +2680,5 @@ QDebug operator<<(QDebug dbg, QObject *o) {
     dbg << ')';
     return dbg.space();
 }
+#endif
 #endif
