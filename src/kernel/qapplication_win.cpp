@@ -1887,7 +1887,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !widget )				// don't know this widget
 	goto do_default;
 
-    if ( message == WM_MOUSEACTIVATE && widget->inherits( "QDockWindow" ) )
+    if ( message == WM_MOUSEACTIVATE && widget->isTopLevel() && widget->inherits( "QDockWindow" ) )
 	return MA_NOACTIVATE;
 
     if ( app_do_modal )	{			// modal event handling
