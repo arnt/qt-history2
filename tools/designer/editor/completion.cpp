@@ -158,7 +158,7 @@ EditorCompletion::~EditorCompletion()
 
 void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument *, bool strict )
 {
-    QChar key( s[ 0 ] );
+    QChar key = s.length() ? s[ 0 ] : QChar();
     QMap<QChar, QStringList>::Iterator it = completionMap.find( key );
     if ( it == completionMap.end() ) {
 	completionMap.insert( key, QStringList( s ) );
