@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#102 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#102 $");
 
 
 /*!
@@ -209,7 +209,7 @@ void QMenuBar::menuInsPopup( QPopupMenu *popup )
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = this;
+    popup->parentMenu = 0;
     popup->disconnect( SIGNAL(activatedRedirect(int)), this,
 		       SLOT(subActivated(int)) );
     popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
