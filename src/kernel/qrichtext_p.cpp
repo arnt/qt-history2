@@ -334,6 +334,14 @@ int QTextFormat::descent() const
     return pntr->fontMetrics().descent();
 }
 
+int QTextFormat::leading() const
+{
+    if ( !pntr || !pntr->isActive() )
+	return fm.leading();
+    pntr->setFont( fn );
+    return pntr->fontMetrics().leading();
+}
+
 void QTextFormat::generateKey()
 {
     k = QString::null;

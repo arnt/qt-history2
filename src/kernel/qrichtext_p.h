@@ -1521,6 +1521,7 @@ public:
     int height() const;
     int ascent() const;
     int descent() const;
+    int leading() const;
     bool useLinkColor() const;
 
     void setBold( bool b );

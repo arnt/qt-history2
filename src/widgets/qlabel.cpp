@@ -588,8 +588,6 @@ QSize QLabel::sizeForWidth( int w ) const
 		br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
 	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
 	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
-	// adjust so "Yes" and "yes" will have the same height
-	br.setHeight( QMAX( br.height(), fm.lineSpacing() ) );
     }
     int wid = br.width() + hm + 2*fw;
     int hei = br.height() + vm + 2*fw;

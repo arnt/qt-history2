@@ -2798,14 +2798,16 @@ void qt_format_text( const QFont& font, const QRect &r,
 	}
 	int xoff = 0;
 	int yoff = 0;
+	QRect paragRect = parag->rect();
+	paragRect.addCoords( 0, 0, 0, -parag->at( 0 )->format()->leading() );
 	if ( painter || brect ) {
 	    if ( tf & Qt::AlignBottom )
-		yoff += r.height() - parag->rect().height();
+		yoff += r.height() - paragRect.height();
 	    else if ( tf & Qt::AlignVCenter )
-		yoff += (r.height() - parag->rect().height())/2;
+		yoff += (r.height() - paragRect.height())/2;
 	}
 	if ( brect ) {
-	    *brect = parag->rect();
+	    *brect = paragRect;
 	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
 	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
 		brect->setLeft( brect->left() + parag->leftGap());
@@ -2828,7 +2830,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 
 	    QColorGroup cg;
 #if defined(QT_FORMAT_TEXT_DEBUG)
-	    QRect parRect = parag->rect();
+	    QRect parRect = paragRect;
 	    qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif
 
@@ -2847,6 +2849,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 		restoreClipping = TRUE;
 		painter->setClipRegion( reg );
 	    }
+	    yoff -= (parag->at( 0 )->format()->leading() + 1) / 2;
 	    painter->translate( xoff, yoff );
 	    parag->paint( *painter, cg );
 	    painter->translate( -xoff, -yoff );
