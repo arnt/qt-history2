@@ -175,7 +175,7 @@ in order to match the setup on your system.
 For example, when building the MySQL plugin on Unix:
 
 \code
-cd $QTDIR/plugins/src/sqlmodules/mysql
+cd $QTDIR/plugins/src/sqldrivers/mysql
 qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysqlclient" mysql.pro 
 make
 \endcode
@@ -183,7 +183,7 @@ make
 To do the same thing on Windows:
 
 \code
-cd c:\qt\plugins\src\sqlmodules\mysql
+cd c:\qt\plugins\src\sqldrivers\mysql
 qmake -o Makefile "INCLUDEPATH=c:\path\to\mysql\include" "LIBS=c:\path\to\mysql\lib\libmysql.lib" mysql.pro 
 nmake
 \endcode
@@ -201,11 +201,11 @@ See the readme files for the driver you want to compile.  These
 files are located in the source directory for the specific driver,
 e.g. for the MySQL driver on Unix:
 
-\code $QTDIR/plugins/src/sqlmodules/mysql/README \endcode
+\code $QTDIR/plugins/src/sqldrivers/mysql/README \endcode
 
 And on windows:
 
-\code c:\qt\plugins\src\sqlmodules\mysql\README \endcode
+\code c:\qt\plugins\src\sqldrivers\mysql\README \endcode
 
 
 \target Connecting_to_Databases
