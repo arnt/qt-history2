@@ -45,9 +45,6 @@ public:
     LightStyle();
     virtual ~LightStyle();
 
-    void polish(QApplication *app);
-    void unPolish(QApplication *app);
-
     void drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QColorGroup &,
 		       SFlags = Style_Default,
 		       const QStyleOption & = QStyleOption::Default ) const;
