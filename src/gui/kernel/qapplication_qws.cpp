@@ -69,7 +69,6 @@
 #endif
 #endif
 
-#include <private/qpaintengine_qws_p.h>
 #include "qeventdispatcher_qws_p.h"
 
 #include <stdlib.h>
@@ -1593,7 +1592,6 @@ static void init_display()
 #ifndef QT_NO_CURSOR
     QCursorData::initialize();
 #endif
-    QWSPaintEngine::initialize();
 
     qApp->setObjectName(appName);
 
@@ -1776,7 +1774,6 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 void qt_cleanup()
 {
     QPixmapCache::clear();
-    QWSPaintEngine::cleanup();
 #ifndef QT_NO_CURSOR
     QCursorData::cleanup();
 #endif

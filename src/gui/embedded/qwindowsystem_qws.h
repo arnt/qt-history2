@@ -30,7 +30,6 @@ struct QWSWindowData;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
-class QWSPaintEngine;
 class QWSServerData;
 class QWSSocket;
 class QWSServerSocket;
@@ -150,7 +149,7 @@ private:
 
 class QWSMouseHandler;
 struct QWSCommandStruct;
-
+class QGfx;
 class QWSServer : public QObject
 {
     friend class QCopChannel;
@@ -409,7 +408,7 @@ private:
     uchar* sharedram;
     int ramlen;
 
-    QWSPaintEngine *paintEngine;
+    QGfx *gfx;
 
     ClientMap clientMap;
 #ifndef QT_NO_QWS_PROPERTIES

@@ -33,11 +33,6 @@
 #include <qpaintengine.h>
 #endif
 
-#ifdef Q_WS_QWS
-#include <private/qpaintengine_qws_p.h>
-#include "qscreen_qws.h"
-#endif
-
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
 #pragma message disable narrowptr
 #endif

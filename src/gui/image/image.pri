@@ -36,11 +36,11 @@ SOURCES += \
 	image/qiconengineplugin.cpp \
 	image/qmovie.cpp
 
-!win32:SOURCES += image/qpixmap.cpp
+!embedded:!win32:SOURCES += image/qpixmap.cpp
 win32:SOURCES += image/qpixmap_win.cpp image/qpixmap_raster.cpp
 unix:x11:SOURCES += image/qpixmap_x11.cpp
 !embedded:!x11:mac:SOURCES += image/qpixmap_mac.cpp
-embedded:SOURCES += image/qpixmap_qws.cpp
+embedded:SOURCES += image/qpixmap_qws.cpp image/qpixmap_raster.cpp
 
 # Built-in image format support
 HEADERS += \

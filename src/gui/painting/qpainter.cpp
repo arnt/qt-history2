@@ -32,9 +32,6 @@
 #include <private/qpainterpath_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
-#ifdef Q_WS_QWS
-#include <private/qpixmap_p.h>
-#endif
 // QtCore
 #include <qdebug.h>
 
@@ -3030,9 +3027,6 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
             // ### CompositionMode to Source
             p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh));
             p.end();
-#if defined(Q_WS_QWS)
-            source.data->hasAlpha = pm.data->hasAlpha;
-#endif
         } else {
             source = pm;
         }

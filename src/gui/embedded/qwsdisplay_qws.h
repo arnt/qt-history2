@@ -29,7 +29,7 @@ class QWSMouseEvent;
 class QWSQCopMessageEvent;
 
 class QVariant;
-
+class QGfx;
 class QWSWindowInfo
 {
 
@@ -53,6 +53,7 @@ public:
 
     bool eventPending() const;
     QWSEvent *getEvent();
+    QGfx * screenGfx();
     QWSRegionManager *regionManager() const;
 
     uchar* frameBuffer() const;

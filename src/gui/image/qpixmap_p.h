@@ -31,7 +31,7 @@
 #endif
 
 
-#if defined Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
@@ -45,7 +45,7 @@ struct QPixmapData { // internal pixmap data
     QImage createBitmapImage(int w, int h);
 };
 
-#else // non windows
+#else // non raster
 
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
@@ -80,13 +80,6 @@ struct QPixmapData { // internal pixmap data
     uint nbytes;
     CGImageRef cg_data;
     GWorldPtr qd_data, qd_alpha;
-#elif defined(Q_WS_QWS)
-    int id;
-    QRgb *clut;
-    int numcols;
-    int rw;
-    int rh;
-    bool hasAlpha;
 #endif
     QPaintEngine *paintEngine;
 #if !defined(Q_WS_MAC)

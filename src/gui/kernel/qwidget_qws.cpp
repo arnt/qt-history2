@@ -31,8 +31,6 @@
 #include <private/qwsmanager_p.h>
 #include "qwsregionmanager_qws.h"
 
-#include <private/qpaintengine_qws_p.h> //### this one goes away very soon
-
 #include <qgfxraster_qws.h>
 
 
@@ -608,6 +606,14 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
     gfx->setAlphaType(QGfx::IgnoreAlpha);
 
     gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
+
+#if 0
+    static int i=0;
+    QString fn = QString("screen_%1.png").arg(i);
+    buf->save(fn, "PNG");
+    qDebug() << "bltToScreen" << i << fn << globalrgn;
+    ++i;
+#endif
 }
 
 
@@ -660,17 +666,8 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint globalPos = mapToGlobal(QPoint(0,0));
     globalrgn.translate(globalPos);
 
-//    QRegion repaintRgn = globalrgn;
-//    repaintRgn.translate(-globalPos);
-//    d->doPaint(repaintRgn);
-
     window()->d->paintHierarchy(globalrgn); //optimizable...
-
     window()->d->bltToScreen(globalrgn);
-
-    //@@@ should not be necessary...
-//###    if (testAttribute(Qt::WA_ContentsPropagated))
-//###        d->updatePropagatedBackground(&rgn);
 }
 
 /*
@@ -757,7 +754,6 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 void QWidgetPrivate::show_sys()
 {
     if (q->isWindow()) {
-//        updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
         QRegion r = localRequestedRegion();
         r.translate(data.crect.topLeft());
 #ifndef QT_NO_QWS_MANAGER
@@ -775,8 +771,6 @@ void QWidgetPrivate::show_sys()
                                      (q->windowFlags() & Qt::WindowStaysOnTopHint) ? 1 : 0, true);
 
     } else if (!q->window()->data->in_show) {
-//        updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
-
         q->update(); //#####@@@@@@
     }
 }
@@ -796,7 +790,6 @@ void QWidgetPrivate::hide_sys()
             p->update(q->geometry()); //@@@ ???
         }
     }
-//    updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
 }
 
 

@@ -18,10 +18,6 @@
 #include "qapplication.h"
 #include "qwsdisplay_qws.h"
 
-//#### HACK:
-#include <private/qpainter_p.h>
-#include <private/qpaintengine_qws_p.h>
-
 QPaintDevice::QPaintDevice(uint devflags)
 {
     if (!qApp) {                                // global constructor

@@ -25,7 +25,7 @@
 #include "qpolygon.h"
 #include "qimage.h"
 #include "qcursor.h"
-#include <private/qpaintengine_qws_p.h>
+#include "qgfx_qws.h"
 #include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
@@ -1455,14 +1455,12 @@ void QWSServer::beginDisplayReconfigure()
 */
 void QWSServer::endDisplayReconfigure()
 {
-    qwsServer->paintEngine->end();
-    delete qwsServer->paintEngine;
+    delete qwsServer->gfx;
     qt_screen->connect(QString::null);
     qwsServer->swidth = qt_screen->deviceWidth();
     qwsServer->sheight = qt_screen->deviceHeight();
     qwsServer->screenRegion = QRegion(0, 0, qwsServer->swidth, qwsServer->sheight);
-    qwsServer->paintEngine = qt_screen->createPaintEngine();
-    qwsServer->paintEngine->begin(qt_screen);
+    qwsServer->gfx = qt_screen->screenGfx();
     QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
@@ -1482,8 +1480,8 @@ void QWSServer::resetEngine()
     qt_screencursor->hide();
     qt_screencursor->show();
 #endif
-    paintEngine->end();
-    paintEngine->begin(qt_screen);
+    delete qwsServer->gfx;
+    qwsServer->gfx = qt_screen->screenGfx();
 }
 
 
@@ -2255,10 +2253,10 @@ void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 
     QRect br(cr.boundingRect());
     br = qt_screen->mapFromDevice(br, s);
-    paintEngine->setClipDeviceRegion(cr);
-    paintEngine->scroll(br.x(), br.y(), br.width(), br.height(),
+    gfx->setClipDeviceRegion(cr);
+    gfx->scroll(br.x(), br.y(), br.width(), br.height(),
                  br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()));
-    paintEngine->setClipDeviceRegion(screenRegion);
+    gfx->setClipDeviceRegion(screenRegion);
 #ifndef QT_NO_PALETTE
     clearRegion(exposed, qApp->palette().color(QPalette::Active, QPalette::Background));
 #endif
@@ -2604,14 +2602,12 @@ void QWSServer::openDisplay()
     rgnMan = qt_fbdpy->regionManager();
     swidth = qt_screen->deviceWidth();
     sheight = qt_screen->deviceHeight();
-    paintEngine = qt_screen->createPaintEngine();
-    qwsServer->paintEngine->begin(qt_screen);
+    gfx = qt_screen->screenGfx();
 }
 
 void QWSServer::closeDisplay()
 {
-    paintEngine->end();
-    delete paintEngine;
+    delete gfx;
     qt_screen->shutdownDevice();
 }
 
@@ -2623,18 +2619,23 @@ void QWSServer::paintBackground(const QRegion &rr)
 {
     if (bgImage && bgImage->isNull())
         return;
-    if (!rr.isEmpty()) {
+    QRegion r = rr;
+    if (!r.isEmpty()) {
         Q_ASSERT (qt_fbdpy);
 
-        paintEngine->setClipDeviceRegion(rr);
-        QRect br(rr.boundingRect());
+        r = qt_screen->mapFromDevice(r, QSize(swidth, sheight));
+
+        gfx->setClipDeviceRegion(r);
+        QRect br(r.boundingRect());
         if (!bgImage) {
-            paintEngine->updateBrush(QBrush(*bgColor), QPoint());
-            paintEngine->fillRect(br.x(), br.y(), br.width(), br.height());
+            gfx->setBrush(QBrush(*bgColor));
+            gfx->fillRect(br.x(), br.y(), br.width(), br.height());
         } else {
-            paintEngine->tiledBlt(*bgImage, br.x(), br.y(), br.width(), br.height(), br.x(), br.y());
+            gfx->setSource(bgImage);
+            gfx->setBrushOrigin(0, 0);
+            gfx->tiledBlt(br.x(), br.y(), br.width(), br.height());
         }
-        paintEngine->setClipDeviceRegion(screenRegion);
+        gfx->setClipDeviceRegion(screenRegion);
     }
 }
 
@@ -2642,12 +2643,12 @@ void QWSServer::clearRegion(const QRegion &r, const QColor &c)
 {
     if (!r.isEmpty()) {
         Q_ASSERT (qt_fbdpy);
-        paintEngine->updateBrush(QBrush(c), QPoint());
+        gfx->setBrush(QBrush(c));
         QSize s(swidth, sheight);
         QVector<QRect> a = r.rects();
         for (int i = 0; i < (int)a.count(); i++) {
             QRect r = qt_screen->mapFromDevice(a[i], s);
-            paintEngine->fillRect(r.x(), r.y(), r.width(), r.height());
+            gfx->fillRect(r.x(), r.y(), r.width(), r.height());
         }
     }
 }

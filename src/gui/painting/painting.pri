@@ -108,11 +108,7 @@ unix:SOURCES += painting/qregion_unix.cpp
 
 
 embedded {
-	HEADERS += \
-		painting/qpaintengine_qws_p.h
-
 	SOURCES += \
 		painting/qcolormap_qws.cpp \
-		painting/qpaintdevice_qws.cpp \
-		painting/qpaintengine_qws.cpp
+		painting/qpaintdevice_qws.cpp 
 }
