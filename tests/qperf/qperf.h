@@ -16,6 +16,11 @@
 
 
 /*
+  Outputs a message to stderr, compatible with printf.
+*/
+void output( const char *, ... );
+
+/*
   This pseudo-random routine is far from perfect in giving random-like
   numbers, but it is pretty fast, which is more important for our tests.
 */
@@ -42,6 +47,12 @@ QPaintDevice *qperf_paintDevice();
   Returns the output paint device. This is normally a 640x480 widget,
 */
 QPainter *qperf_painter();
+
+/*
+  Returns the max number of colors and array of colors.
+*/
+int     qperf_maxColors();
+QColor *qperf_colors();
 
 /*
   Return the image format and image extension.

@@ -8,21 +8,29 @@
 #if defined(_OS_WIN32_)
 #include <conio.h>
 #endif
+#include <stdarg.h>
 
 
-#if QT_VERSION < 200
-#define qDebug debug
-#endif
+void output( const char *msg, ... )
+{
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    vfprintf( stderr, msg, ap );
+    va_end( ap );
+    fprintf( stderr, "\n" );		// add newline
+}
 
 
-int max_iter = 0;
-int max_time = 1000;
+static int max_iter = 0;
+static int max_time = 1000;
 
-bool        dblbuf = FALSE;
-QWidget    *widget;
-QPixmap    *pixmap;
-QPainter   *painter = 0;
-const char *image_format = "BMP";
+static bool        dblbuf = FALSE;
+static QWidget    *widget;
+static QPixmap    *pixmap;
+static QPainter   *painter = 0;
+static int	   max_colors = 1;
+static QColor	  *colors = 0;
+static const char *image_format = "BMP";
 
 
 QPaintDevice *qperf_paintDevice()
@@ -36,6 +44,16 @@ QPaintDevice *qperf_paintDevice()
 QPainter *qperf_painter()
 {
     return painter;
+}
+
+int qperf_maxColors()
+{
+    return max_colors;
+}
+
+QColor *qperf_colors()
+{
+    return colors;
 }
 
 QString qperf_imageFormat()
@@ -93,7 +111,7 @@ void run_test( const char *funcName )
 {
     QPerfEntry *e = perf_dict->find(funcName);
     if ( !e ) {
-	qDebug( "qperf: No such test '%s'", funcName );
+	output( "qperf: No such test '%s'", funcName );
 	return;
     }
     QPerfEntry *p = e;
@@ -151,30 +169,31 @@ void run_test( const char *funcName )
 
 void usage()
 {
-    qDebug( "qperf [options] <tests>" );
+    output( "qperf [options] <tests>" );
     // print options
-    qDebug( "\nOptions:" );
-    qDebug( "    -db                       Set/toggle double buffering" );
-    qDebug( "    -i  <iterations>          Set max # iterations (approx)" );
-    qDebug( "    -if <image format>        Set image format for saving images" );
-    qDebug( "    -p                        Pause after program is finished" );
-    qDebug( "    -po <no|normal|best>      Set default pixmap optimization" );
-    qDebug( "    -r  <region type>         Set painter clipping region" );
-    qDebug( "                                none, rect, rects, polygon, ellipse" );
-    qDebug( "    -t  <milliseconds>        Set max time to run test (approx)");
-    qDebug( "    -w  <95|98|nt>            Set Windows version" );
-    qDebug( "    -xf <xform type>          Set painter transformation:" );
-    qDebug( "                                none, translate, scale, rotate" );
-    qDebug( "Tests:" );
+    output( "\nOptions:" );
+    output( "    -c  <numcolors>           Use colors for painter tests" );
+    output( "    -db                       Set/toggle double buffering" );
+    output( "    -i  <iterations>          Set max # iterations (approx)" );
+    output( "    -if <image format>        Set image format for saving images" );
+    output( "    -p                        Pause after program is finished" );
+    output( "    -po <no|normal|best>      Set default pixmap optimization" );
+    output( "    -r  <region type>         Set painter clipping region" );
+    output( "                                none, rect, rects, polygon, ellipse" );
+    output( "    -t  <milliseconds>        Set max time to run test (approx)");
+    output( "    -w  <95|98|nt>            Set Windows version" );
+    output( "    -xf <xform type>          Set painter transformation:" );
+    output( "                                none, translate, scale, rotate" );
+    output( "Tests:" );
     QPerfEntry *t;
     QPerfListIt it(*perf_list);
     while ( (t=it.current()) ) {
 	++it;
 	while ( t->funcName ) {
 	    if ( t->group )
-		qDebug( "  %-27s %s", t->funcName, t->description );
+		output( "  %-27s %s", t->funcName, t->description );
 	    else
-		qDebug( "    %-25s %s", t->funcName, t->description );
+		output( "    %-25s %s", t->funcName, t->description );
 	    ++t;
 	}
     }
@@ -212,6 +231,14 @@ const char *painter_clip  = 0;
 
 void setupPainter()
 {
+    if ( colors )
+	delete [] colors;
+    colors = new QColor[max_colors];
+    colors[0] = Qt::black;
+    int i;
+    for ( i=1; i<max_colors; i++ ) {
+	colors[i] = QColor(qrnd(255),qrnd(255),qrnd(255));
+    }
     if ( painter )
 	painter->end();
     else
@@ -228,7 +255,7 @@ void setupPainter()
 	    painter->rotate( 90 );
 	    painter->translate( 0, -480 );
 	} else {
-	    qDebug( "qperf: Bad xform argument %s", painter_xform );
+	    output( "qperf: Bad xform argument %s", painter_xform );
 	}
     }
     if ( painter_clip ) {
@@ -257,7 +284,7 @@ void setupPainter()
 				    subtract(QRegion(220,140,200,200,
 						     QRegion::Ellipse)) );
 	} else {
-	    qDebug( "qperf: Bad clipping argument %s", painter_clip );
+	    output( "qperf: Bad clipping argument %s", painter_clip );
 	}
     }
 }
@@ -285,7 +312,9 @@ int main( int argc, char **argv )
 	char *a = argv[i++];
 	if ( a[0] == '-' ) {			// parse options
 	    a = &a[1];
-	    if ( strcmp(a,"db") == 0 ) {	// toggle double buffering
+	    if ( strcmp(a,"c") == 0 ) {		// use random colors
+		max_colors = atoi(argv[i++]);
+	    } else if ( strcmp(a,"db") == 0 ) {	// toggle double buffering
 		dblbuf = !dblbuf;
 		dirtyPainter = TRUE;
 	    } else if ( strcmp(a,"i") == 0 ) {	// set max iterations
@@ -304,7 +333,7 @@ int main( int argc, char **argv )
 		} else if ( strcmp(a,"best") == 0 ) {
 		    QPixmap::setDefaultOptimization( QPixmap::BestOptim );
 		} else {
-		    qDebug("Invalid pixmap optimization setting");
+		    output("Invalid pixmap optimization setting");
 		}
 	    } else if ( strcmp(a,"r") == 0 ) {	// set clip region
 		dirtyPainter = TRUE;
@@ -322,7 +351,7 @@ int main( int argc, char **argv )
 		} else if ( strcmp(a,"nt") == 0 ) {
 		    qt_winver = Qt::WV_NT;
 		} else {
-		    qDebug("Invalid Windows version setting");
+		    output("Invalid Windows version setting");
 		}
 #endif
 	    } else if ( strcmp(a,"xf") == 0 ) {	// set painter xform
@@ -343,12 +372,14 @@ int main( int argc, char **argv )
 	painter->end();
 	delete painter;
     }
+    if ( colors )
+	delete [] colors;
     delete widget;
     delete pixmap;
     delete perf_dict;
     delete perf_list;
     if ( pause ) {
-	qDebug("Press a key to continue...");
+	output("Press a key to continue...");
 #if defined(_OS_WIN32_)
 	getch();
 #else
