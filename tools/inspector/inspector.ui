@@ -1,10 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>InspectorBase</class>
-<include location="local" impldecl="in implementation">cppparser.h</include>
-<include location="local" impldecl="in implementation">quuiddefs.h</include>
-<include location="local" impldecl="in implementation">qfiledialog.h</include>
-<include location="local" impldecl="in implementation">qlibrary.h</include>
+<include location="local" impldecl="in implementation">qregexp.h</include>
 <include location="local" impldecl="in implementation">qcomponentinterface.h</include>
+<include location="local" impldecl="in implementation">qlibrary.h</include>
+<include location="local" impldecl="in implementation">qfiledialog.h</include>
+<include location="local" impldecl="in implementation">quuiddefs.h</include>
+<include location="local" impldecl="in implementation">cppparser.h</include>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>InspectorBase</cstring>
@@ -13,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>741</width>
-            <height>629</height>
+            <width>716</width>
+            <height>627</height>
         </rect>
     </property>
     <property name="caption">
@@ -102,6 +103,9 @@
                         <bool>true</bool>
                     </property>
                     <property name="showSortIndicator">
+                        <bool>true</bool>
+                    </property>
+                    <property name="rootIsDecorated">
                         <bool>true</bool>
                     </property>
                 </widget>
@@ -193,6 +197,7 @@
 <menubar>
     <item text="&amp;File" name="PopupMenu_2">
         <action name="actionFileOpen"/>
+        <action name="actionRefresh"/>
         <separator/>
         <action name="fileLoadHeader"/>
         <separator/>
@@ -212,10 +217,13 @@
             <cstring>actionFileOpen</cstring>
         </property>
         <property name="text">
-            <string>Open</string>
+            <string>Open Library</string>
         </property>
         <property name="menuText">
-            <string>&amp;Open...</string>
+            <string>&amp;Open Library...</string>
+        </property>
+        <property name="statusTip">
+            <string>Opens a library and shows implemented interfaces</string>
         </property>
         <property name="accel">
             <number>272629839</number>
@@ -242,6 +250,15 @@
         <property name="text">
             <string>Refresh</string>
         </property>
+        <property name="menuText">
+            <string>&amp;Refresh</string>
+        </property>
+        <property name="statusTip">
+            <string>Re-queries the selected libraries</string>
+        </property>
+        <property name="accel">
+            <number>272629842</number>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -249,6 +266,12 @@
         </property>
         <property name="text">
             <string>Load Header</string>
+        </property>
+        <property name="menuText">
+            <string>Load &amp;Header</string>
+        </property>
+        <property name="accel">
+            <number>272629832</number>
         </property>
     </action>
 </actions>
@@ -291,12 +314,6 @@
     </connection>
     <connection>
         <sender>interfaceList</sender>
-        <signal>currentChanged(QListViewItem*)</signal>
-        <receiver>InspectorBase</receiver>
-        <slot>interfaceSelected(QListViewItem*)</slot>
-    </connection>
-    <connection>
-        <sender>interfaceList</sender>
         <signal>selectionChanged(QListViewItem*)</signal>
         <receiver>InspectorBase</receiver>
         <slot>interfaceSelected(QListViewItem*)</slot>
@@ -319,6 +336,7 @@
         <receiver>InspectorBase</receiver>
         <slot>loadHeader()</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">fileExit()</slot>
     <slot access="protected" language="C++">fileOpen()</slot>
@@ -327,13 +345,15 @@
     <slot access="protected" language="C++">loadHeader()</slot>
     <slot access="protected" language="C++">refresh()</slot>
     <slot access="protected" language="C++">removeInterface()</slot>
-    <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">inameChanged( const QString &amp;name )</slot>
     <slot access="protected" language="C++">interfaceSelected( QListViewItem *item )</slot>
     <slot access="protected" language="C++">iuuidChanged( const QString &amp;uuid )</slot>
     <slot access="public" language="C++">testInterfaces( QListViewItem *fileItem )</slot>
 </connections>
 <functions>
+    <function name="init()" >{
+    interfaceList-&gt;setCurrentItem( 0 );    
+}</function>
     <function name="destroy()" >{
     
 }</function>
@@ -386,6 +406,15 @@
 	    ++it;
 	    
 	    QListViewItem *item = new QListViewItem( interfaceList, iface.name(), iface.uuid() );
+	    QStringList functions = iface.functionList();
+	    QStringList::Iterator function = functions.begin();
+	    while ( function != functions.end() ) {
+		QString f = *function;
+		f.replace( QRegExp( "\\\t" ), " " );
+		QListViewItem *fitem = new QListViewItem( item, f );
+		fitem-&gt;setSelectable( FALSE );
+		++function;
+	    }
 	    interfaceList-&gt;setCurrentItem( item );
 	    interfaceSelected( item );
 	}
@@ -410,9 +439,6 @@
 }</function>
     <function name="removeInterface()" >{
     delete interfaceList-&gt;currentItem();
-}</function>
-    <function name="init()" >{
-    interfaceList-&gt;setCurrentItem( 0 );    
 }</function>
     <function name="inameChanged(const QString&amp;)" >{
     QListViewItem *item = interfaceList-&gt;currentItem(); 
