@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#236 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#235 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#236 $");
 
 
 /*****************************************************************************
@@ -882,10 +882,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
-	updateFont();
     }
-    updatePen();
-    updateBrush();
     return TRUE;
 }
 
