@@ -104,7 +104,9 @@ public:
     static QString escape( const QString& str );
 
 private:
-    void compile( bool caseSensitive );
+    void prepareEngine() const;
+    void prepareEngineForMatch( const QString& str ) const;
+    void invalidateEngine();
 
     static int caretIndex( int offset, CaretMode caretMode );
 
