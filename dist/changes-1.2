@@ -27,6 +27,14 @@ incorrectly aligned.
 none
 
 
+
+****************************************************************************
+* 			Deprecated functions				   *
+****************************************************************************
+
+QApplication::setColorMode() and colorMode() will be obsoleted. Use
+setColorSpec() and colorSpec() instead.
+
 ****************************************************************************
 * 			     New classes				   *
 ****************************************************************************
@@ -38,15 +46,35 @@ QSpinBox provides a spin box, sometimes called up-down widget, little
 arrows widget or spin button.
 
 
+QGLWidget...
+
 ****************************************************************************
 *		       Other changes from 1.1 to 1.2			   *
 ****************************************************************************
 
+QApplication::setColorSpec() can specify private colormaps or
+non-default visuals
+
+QButton	setAutoRepeat
+
+QComboBox::currentText()
+
 QImage  XPM can now be read/written
+	Alpha channel
+	reasonableMask()
 
 QLCDNumber::setSegmentStyle()
+
+QLineEdit::setFrame(), frame(), setEchoMode()
+
+QPainter	new constructor  flush() ?
+
+QPixmap::selfMask
+
+QTabDialog::setOKButton()
 
 Workarounds for Watcom C++.
 
 qChecksum() instead of qchecksum.
 
+qDrawItem
