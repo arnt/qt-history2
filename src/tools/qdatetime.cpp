@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#125 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#126 $
 **
 ** Implementation of date and time classes
 **
@@ -71,9 +71,15 @@ static const char * const qt_monthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
+static const char * const qt_longMonthNames[] = {
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December" };
+
 static const char * const qt_weekdayNames[] = {
     "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
+static const char * const qt_longWeekdayNames[] = {
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
 /*****************************************************************************
   QDate member functions
@@ -103,7 +109,8 @@ static const char * const qt_weekdayNames[] = {
   The year(), month(), and day() functions provide access to the year,
   month, and day numbers. Also, dayOfWeek() and dayOfYear() functions
   are provided. The same information is provided in textual format by
-  the toString(), dayName(), and monthName() functions.
+  the toString(), dayName(), dayNameLong(), monthName() and monthNameLong()
+  functions.
 
   QDate provides a full set of operators to compare two QDate
   objects where smaller means earlier and larger means later.
@@ -272,7 +279,7 @@ int QDate::daysInYear() const
 
   1 = "Jan", 2 = "Feb", ... 12 = "Dec"
 
-  \sa toString(), dayName()
+  \sa toString(), monthNameLong(), dayName(), dayNameLong()
 */
 
 QString QDate::monthName( int month ) const
@@ -288,11 +295,32 @@ QString QDate::monthName( int month ) const
 }
 
 /*!
+  Returns the long name of the \a month.
+
+  1 = "January", 2 = "February", ... 12 = "December"
+
+  \sa toString(), monthName(), dayName(), dayNameLong()
+*/
+
+QString QDate::monthNameLong( int month ) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( month < 1 || month > 12 ) {
+	qWarning( "QDate::monthNameLong: Parameter out ouf range." );
+	month = 1;
+    }
+#endif
+    // ### Remove the fromLatin1 during localization
+    return QString::fromLatin1(qt_longMonthNames[month-1]);
+}
+
+
+/*!
   Returns the name of the \a weekday.
 
   1 = "Mon", 2 = "Tue", ... 7 = "Sun"
 
-  \sa toString(), monthName()
+  \sa toString(), monthName(), monthNameLong(), dayNameLong()
 */
 
 QString QDate::dayName( int weekday ) const
@@ -305,6 +333,26 @@ QString QDate::dayName( int weekday ) const
 #endif
     // ### Remove the fromLatin1 during localization
     return QString::fromLatin1(qt_weekdayNames[weekday-1]);
+}
+
+/*!
+  Returns the long name of the \a weekday.
+
+  1 = "Monday", 2 = "Tuesday", ... 7 = "Sunday"
+
+  \sa toString(), dayName(), monthName(), monthNameLong()
+*/
+
+QString QDate::dayNameLong( int weekday ) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( weekday < 1 || weekday > 7 ) {
+	qWarning( "QDate::dayNameLong: Parameter out of range." );
+	weekday = 1;
+    }
+#endif
+    // ### Remove the fromLatin1 during localization
+    return QString::fromLatin1(qt_longWeekdayNames[weekday-1]);
 }
 
 #ifndef QT_NO_SPRINTF

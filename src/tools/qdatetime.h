@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#47 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#48 $
 **
 ** Definition of date and time classes
 **
@@ -67,6 +67,8 @@ public:
 
     virtual QString monthName( int month ) const;
     virtual QString dayName( int weekday ) const;
+    virtual QString monthNameLong( int month ) const;
+    virtual QString dayNameLong( int weekday ) const;
 
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
