@@ -418,36 +418,24 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen( x11Screen() );
 #endif // Q_WS_X11
+
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
-#if defined(Q_WS_X11)
-    x11SetDefaultScreen( old );
-#endif // Q_WS_X11
+
     if ( !pm.isNull() ) {			// copy the bitmap
 #if defined(Q_WS_X11)
 	pm.cloneX11Data( this );
-#endif
-#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
-	QPixmap* save_alpha = data->alphapm;
-	data->alphapm = 0;
-#endif // !QT_NO_XFTFREETYPE
-	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
-#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
-	data->alphapm = save_alpha;
-#endif // Q_WS_X11 && !QT_NO_XFTFREETYPE
-	if ( !ignoreMask ) {
-#if defined(Q_WS_MAC)
-	    if(data->alphapm)
-		qt_mac_copy_alpha_pixmap(&pm, this);
-	    else
-#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
-	    if ( data->alphapm )
-		qt_x11_copy_alpha_pixmap(&pm, this);
-	    else
-#endif // Q_WS_X11 && !QT_NO_XFTFREETYPE
-		if ( data->mask )		// copy the mask
-		    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
-	}
+#endif // Q_WS_X11
+
+	if ( ignoreMask )
+	    bitBlt( &pm, 0, 0, this, 0, 0, data->w, data->h, Qt::CopyROP, TRUE );
+	else
+	    copyBlt( &pm, 0, 0, this, 0, 0, data->w, data->h );
     }
+
+#if defined(Q_WS_X11)
+    x11SetDefaultScreen( old );
+#endif // Q_WS_X11
+
     return pm;
 }
 
@@ -471,22 +459,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
 	      pixmap.data->bitmap, pixmap.data->optim );
 	data->uninit = FALSE;
-	if ( !isNull() ) {
-	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
-		    CopyROP, TRUE );
-#if defined(Q_WS_MAC)
-	    if ( pixmap.data->alphapm )
-		qt_mac_copy_alpha_pixmap(this, &pixmap);
-	    else
-#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
-	    if ( pixmap.data->alphapm )
-		qt_x11_copy_alpha_pixmap(this, &pixmap);
-	    else
-#endif
-		if ( pixmap.mask() )
-		    setMask( pixmap.data->selfmask ? *((QBitmap*)(this))
-			                           : *pixmap.mask() );
-	}
+	if ( !isNull() )
+	    copyBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height() );
 	pixmap.data->deref();
     } else {
 	data = pixmap.data;

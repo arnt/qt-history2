@@ -387,28 +387,8 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
         lines.convertFromImage( img );
     }
 
-    bitBlt(&mypixmap, area.left(), area.top(),
-	   &lines, off.x(), off.y(), area.width(), area.height(),
-	   CopyROP, !bg.isValid());
-
-    if (!bg.isValid() && gimg.hasAlphaBuffer() && lines.mask()) {
-	bitBlt(&mymask, area.left(), area.top(),
-	       lines.mask(), 0, 0, area.width(),
-	       area.height(),
-	       CopyROP, TRUE);
-	mypixmap.setMask(mymask);
-    }
-
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
-    extern bool qt_use_xrender;
-    // in qpixmap_x11.cpp
-    extern void qt_x11_blit_alpha_pixmap(QPixmap *, int, int,
-					 const QPixmap *, int = 0, int = 0,
-					 int = -1, int = -1);
-     if ( qt_use_xrender )
-	qt_x11_blit_alpha_pixmap(&mypixmap, area.left(), area.top(),
-				 &lines, off.x(), off.y(), area.width(), area.height());
-#endif
+    copyBlt( &mypixmap, area.left(), area.top(),
+	     &lines, off.x(), off.y(), area.width(), area.height() );
 
 #ifdef Q_WS_QWS
     if(display_widget) {
