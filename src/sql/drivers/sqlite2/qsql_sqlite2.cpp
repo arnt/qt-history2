@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsql_sqlite.h"
+#include "qsql_sqlite2.h"
 
 #include <qcorevariant.h>
 #include <qdatetime.h>
