@@ -780,14 +780,14 @@ int QTextLine::xToCursor( int xpos, CursorPosition cpos ) const
 
     Q26Dot6 x(xpos);
 
-    int lineEnd = line.from + line.length;
+    int line_length = line.length;
     // don't draw trailing spaces or take them into the layout.
-    const QCharAttributes *attributes = eng->attributes();
-    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
-	--lineEnd;
+    const QCharAttributes *a = eng->attributes() + line.from;
+    while (line_length && a[line_length-1].whiteSpace)
+	--line_length;
 
     int firstItem = eng->findItem(line.from);
-    int lastItem = eng->findItem(lineEnd - 1);
+    int lastItem = eng->findItem(line.from + line_length - 1);
     int nItems = lastItem-firstItem+1;
 
     x -= line.x;
@@ -808,45 +808,81 @@ int QTextLine::xToCursor( int xpos, CursorPosition cpos ) const
     int gl_after = 0;
     int it_before = 0;
     int it_after = 0;
-    Q26Dot6 x_before(0xffff);
-    Q26Dot6 x_after(0xffff);
+    Q26Dot6 x_before(0xffffff);
+    Q26Dot6 x_after(0xffffff);
 
 
     for (int i = 0; i < nItems; ++i) {
 	int item = visualOrder[i]+firstItem;
 	QScriptItem &si = eng->items[item];
+	int item_length = eng->length(item);
 
 	if ( si.isTab || si.isObject ) {
 	    x -= si.width;
 	    continue;
 	}
-	int start = qMax(line.from, si.position);
-	int end = qMin(lineEnd, si.position + eng->length(item));
+	int start = qMax(line.from - si.position, 0);
+	int end = qMin(line.from + line_length - si.position, item_length);
 
 	unsigned short *logClusters = eng->logClusters(&si);
 
-	int gs = logClusters[start-si.position];
-	int ge = logClusters[end-si.position-1];
-
+	int gs = logClusters[start];
+	int ge = (end == item_length ? si.num_glyphs : logClusters[end]) - 1;
 	QGlyphLayout *glyphs = eng->glyphs(&si);
 
-	while (1) {
-	    if (glyphs[gs].attributes.clusterStart) {
-		if (x > 0) {
-		    gl_before = gs;
-		    it_before = item;
-		    x_before = x;
-		} else {
-		    gl_after = gs;
-		    it_after = item;
-		    x_after = -x;
-		    goto end;
-		}
+	if (si.analysis.bidiLevel %2) {
+	    Q26Dot6 item_width;
+	    int g = gs;
+	    while (g <= ge) {
+		item_width += glyphs[g].advance.x + Q26Dot6(glyphs[g].space_18d6, F26Dot6);
+		++g;
 	    }
-	    if (gs > ge)
-		break;
-	    x -= glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
-	    ++gs;
+
+	    x -= item_width;
+	    if (x > 0) {
+		gl_before = gs;
+		it_before = item;
+		x_before = x;
+		continue;
+	    }
+
+	    while (1) {
+		if (glyphs[gs].attributes.clusterStart) {
+		    if (x < 0) {
+			gl_after = gs;
+			it_after = item;
+			x_after = -x;
+		    } else {
+			gl_before = gs;
+			it_before = item;
+			x_before = x;
+			goto end;
+		    }
+		}
+		if (gs > ge)
+		    Q_ASSERT(false);
+		x += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+		++gs;
+	    }
+	} else {
+	    while (1) {
+		if (glyphs[gs].attributes.clusterStart) {
+		    if (x > 0) {
+			gl_before = gs;
+			it_before = item;
+			x_before = x;
+		    } else {
+			gl_after = gs;
+			it_after = item;
+			x_after = -x;
+			goto end;
+		    }
+		}
+		if (gs > ge)
+		    break;
+		x -= glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+		++gs;
+	    }
 	}
     }
 
