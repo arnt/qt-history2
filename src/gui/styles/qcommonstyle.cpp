@@ -1038,7 +1038,6 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                                           header->state & Style_Enabled ? QIcon::Normal
                                                                         : QIcon::Disabled);
                 int pixw = pixmap.width();
-                int pixh = pixmap.height();
                 // "pixh - 1" because of tricky integer division
                 drawItem(p, rect, header->iconAlignment, header->palette,
                          (header->state & Style_Enabled)
