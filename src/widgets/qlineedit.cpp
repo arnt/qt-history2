@@ -1025,7 +1025,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
 
     QPopupMenu *popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
-		 e->globalPos() + QPoint( width() / 2, height() / 2 );
+		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
     int r = popup->exec( pos );
     delete popup;
 
