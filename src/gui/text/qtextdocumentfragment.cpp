@@ -206,8 +206,8 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
 
 /*!
     \class QTextDocumentFragment qtextdocumentfragment.h
-    \brief The QTextDocumentFragment class represents a piece of rich
-    text formatted text.
+    \brief The QTextDocumentFragment class represents a piece of
+    formatted text.
 
     \ingroup text
 
