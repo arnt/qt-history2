@@ -9,6 +9,7 @@
 #include <qwidget.h>
 
 #include <qt_windows.h>
+#include <initguid.h>
 #include <activscp.h>
 #include "..\shared\types.h"
 
