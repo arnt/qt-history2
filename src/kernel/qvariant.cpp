@@ -2885,9 +2885,11 @@ bool QVariant::operator==( const QVariant &v ) const
 	    return FALSE;
 	QMap<QString, QVariant>::ConstIterator it = v.toMap().begin();
 	QMap<QString, QVariant>::ConstIterator it2 = toMap().begin();
-	for ( ; it != v.toMap().end(); ++it ) {
+	while ( it != v.toMap().end() ) {
 	    if ( *it != *it2 )
 		return FALSE;
+	    ++it;
+	    ++it2;
 	}
 	return TRUE;
     }
