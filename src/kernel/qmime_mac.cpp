@@ -31,6 +31,8 @@
 static QList<QMacMime*> mimes;
 
 //functions
+QCString p2qstring(const unsigned char *); //qglobal.cpp
+unsigned char * p_str(const QString &s); //qglobal.cpp
 OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
 
 /*!
@@ -90,15 +92,31 @@ QMacMime::~QMacMime()
 	mimes.remove(this);
 }
 
+//#define USE_INTERNET_CONFIG
+
 ScrapFlavorType qt_mac_mime_type = 'CUTE';
 class QMacMimeAnyMime : public QMacMime {
 private:
+#ifdef USE_INTERNET_CONFIG
+    ICInstance internet_config;
+    long mime_registry_version;
+#endif
     QMap<QString, int> mime_registry;
     int registerMimeType(const char *mime);
     bool loadMimeRegistry();
 
 public:
-    QMacMimeAnyMime() : QMacMime(MIME_QT_CONVERTOR|MIME_ALL) { }
+    QMacMimeAnyMime() : QMacMime(MIME_QT_CONVERTOR|MIME_ALL) { 
+#ifdef USE_INTERNET_CONFIG
+	internet_config = NULL; 
+#endif
+    }
+    ~QMacMimeAnyMime() { 
+#ifdef USE_INTERNET_CONFIG
+	if(internet_config) 
+	    ICStop(internet_config); 
+#endif
+    }
     int		countFlavors();
     const char* convertorName();
     int		flavor(int index);
@@ -109,6 +127,108 @@ public:
     QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
+#ifdef USE_INTERNET_CONFIG
+bool QMacMimeAnyMime::loadMimeRegistry()
+{
+    if(!internet_config) { //need to start
+	ICStart(&internet_config, 'CUTE');
+	ICGetSeed(internet_config, &mime_registry_version);
+    } else { //do we need to do anything?
+	long mt;
+	ICGetSeed(internet_config, &mt);
+	if(mt == mime_registry_version)
+	    return TRUE;
+	mime_registry_version = mt;
+	mime_registry.clear();
+    }
+
+    //start parsing
+    ICBegin(internet_config, icReadOnlyPerm);
+    Handle hdl = NewHandle(0);
+    ICAttr attr = kICAttrNoChange;
+    ICFindPrefHandle(internet_config, p_str("Mapping"), &attr, hdl);
+
+    //get count
+    long count;
+    ICCountMapEntries(internet_config, hdl, &count);
+
+    //enumerate all entries
+    ICMapEntry entry;
+    for(int i = 0; i < count; i++) {
+	long pos;
+	ICGetIndMapEntry(internet_config, hdl, i, &pos, &entry);
+	QString mime = p2qstring(entry.MIMEType);
+	if(!mime.isEmpty()) 
+	    mime_registry.insert(mime, entry.fileType);
+    }
+
+    //cleanup
+    DisposeHandle(hdl);
+    ICEnd(internet_config);
+    return TRUE;
+}
+
+inline static void qt_mac_copy_to_str255(const QString &qstr, unsigned char *pstr)
+{
+    int length = qstr.length();
+    Q_ASSERT(length < 255);
+    pstr[0] = (uchar)length;
+    memcpy(pstr+1, qstr.latin1(), length);
+}
+
+int QMacMimeAnyMime::registerMimeType(const char *mime)
+{
+    if(!mime_registry.contains(mime)) {
+	if(!loadMimeRegistry()) {
+	    qWarning("That shouldn't happen!");
+	    return 0;
+	}
+	if(!mime_registry.contains(mime)) {
+	    for(int ret = 'QT00';  TRUE; ret++) {
+		bool found = FALSE;
+		for(QMapIterator<QString, int> it = mime_registry.begin(); it != mime_registry.end(); ++it) {
+		    if(it.data() == ret) {
+			found = TRUE;
+			break;
+		    }
+		}
+		if(!found) {
+		    //create the entry
+		    ICMapEntry entry;
+		    memset(&entry, '\0', sizeof(entry));
+		    entry.fixedLength = kICMapFixedLength;
+		    entry.fileType = ret;
+		    entry.postCreator = entry.fileCreator = 'CUTE';
+		    entry.flags = kICMapBinaryMask;
+		    qt_mac_copy_to_str255("Qt Library", entry.creatorAppName);
+		    qt_mac_copy_to_str255("Qt Library", entry.postAppName);
+		    qt_mac_copy_to_str255(mime, entry.MIMEType);
+		    qt_mac_copy_to_str255(QString("Qt Library mime mapping (%1)").arg(mime), entry.postAppName);
+
+		    //insert into the config
+		    ICBegin(internet_config, icReadWritePerm);
+		    Handle hdl = NewHandle(0);
+		    ICAttr attr;
+		    ICFindPrefHandle(internet_config, p_str("Mapping"), &attr, hdl);
+		    
+		    ICAddMapEntry(internet_config, hdl, &entry);
+		    ICSetPrefHandle(internet_config, p_str("Mapping"), attr, hdl);
+		    mime_registry.insert(mime, ret);
+
+		    //cleanup
+		    ICEnd(internet_config);
+		    ICGetSeed(internet_config, &mime_registry_version); //get new seed since we manually update
+		    DisposeHandle(hdl);
+		    return ret;
+		}
+	    }
+	    qWarning("This cannot really happen!!!");
+	    return 0;
+	}
+    }
+    return mime_registry[mime];
+}
+#else
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
     QSettings mime_settings;
@@ -140,6 +260,7 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 	    return 0;
 	}
 	if(!mime_registry.contains(mime)) {
+	    qDebug("inserting %s", mime);
 	    QSettings mime_settings;
 	    mime_settings.setPath("MimeRegistry", "qt");
 	    mime_settings.beginGroup("/mimetypes/");
@@ -154,6 +275,8 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
     }
     return mime_registry[mime];
 }
+
+#endif
 
 int QMacMimeAnyMime::countFlavors()
 {
