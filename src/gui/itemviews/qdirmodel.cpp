@@ -1,6 +1,7 @@
 #include "qdirmodel.h"
 #include <qvector.h>
 #include <qobject.h>
+#include <qdragobject.h>
 #include <private/qobject_p.h>
 
 /* XPM */
@@ -599,6 +600,29 @@ bool QDirModel::remove(const QModelIndex &index)
         d->tree = d->children(0);
 
     return true;
+}
+
+bool QDirModel::canDecode(QMimeSource *src) const
+{
+    return QUriDrag::canDecode(src);
+}
+
+bool QDirModel::decode(QMimeSource *src)
+{
+    QStringList files;
+    if (!QUriDrag::decodeLocalFiles(src, files))
+        return false;
+    // FIXME: do something with these files
+    return true;
+}
+
+QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
+{
+    QList<QByteArray> uris;
+    QList<QModelIndex>::const_iterator it = indices.begin();
+    for (; it != indices.end(); ++it)
+        uris.append(QUriDrag::localFileToUri(path(*it)));
+    return new QUriDrag(uris, dragSource);
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const

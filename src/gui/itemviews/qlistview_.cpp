@@ -153,7 +153,7 @@ class QListView_Private : public QGenericListViewPrivate
     Q_DECLARE_PUBLIC(QListView_)
 public:
     QListView_Private() : QGenericListViewPrivate() {}
-    inline QListModel *model() const { return ::qt_cast<QListModel*>(q->model()); }
+    inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
 };
 
 #define d d_func()

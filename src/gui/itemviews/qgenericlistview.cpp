@@ -490,14 +490,12 @@ QDragObject *QGenericListView::dragObject()
 {
     // This function does the same thing as in QAbstractItemView,
     //  plus adding viewitems to the draggedItems list. We need these items to draw the drag items
-    QItemViewDragObject *dragObject = new QItemViewDragObject(this);
     QModelIndexList items = selectionModel()->selectedItems();
-    dragObject->set(items);
     QModelIndexList::ConstIterator it = items.begin();
     for (; it != items.end(); ++it)
         if (model()->isDragEnabled(*it))
             d->draggedItems.push_back(*it);
-    return dragObject;
+    return model()->dragObject(items, this);
 }
 
 void QGenericListView::startDrag()

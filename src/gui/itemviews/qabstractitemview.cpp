@@ -13,47 +13,6 @@
 #define d d_func()
 #define q q_func()
 
-
-QItemViewDragObject::QItemViewDragObject(QAbstractItemView *dragSource)
-    : QDragObject(*(new QItemViewDragObjectPrivate), dragSource)
-{
-    d->model = dragSource->model();
-}
-
-QItemViewDragObject::~QItemViewDragObject()
-{
-}
-
-void QItemViewDragObject::append(QModelIndex &item)
-{
-    d->items.append(item);
-}
-
-void QItemViewDragObject::set(QModelIndexList &items)
-{
-    d->items = items;
-}
-
-const char *QItemViewDragObject::format(int i) const
-{
-    return d->model->format(i);
-}
-
-bool QItemViewDragObject::canDecode(QMimeSource *src) const
-{
-    return d->model->canDecode(src);
-}
-
-QByteArray QItemViewDragObject::encodedData(const char *mime) const
-{
-    return d->model->encodedData(mime, d->items);
-}
-
-bool QItemViewDragObject::decode(QMimeSource *src) const
-{
-    return d->model->decode(src);
-}
-
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
@@ -807,10 +766,8 @@ bool QAbstractItemView::supportsDragAndDrop() const
 
 QDragObject *QAbstractItemView::dragObject()
 {
-    QItemViewDragObject *dragObject = new QItemViewDragObject(this);
     QModelIndexList items = d->selectionModel->selectedItems();
-    dragObject->set(items);
-    return dragObject;
+    return model()->dragObject(items, this);
 }
 
 void QAbstractItemView::startDrag()

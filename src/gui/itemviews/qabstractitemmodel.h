@@ -9,8 +9,6 @@
 #include <qmap.h>
 #endif
 
-class QAbstractItemModel;
-
 class Q_GUI_EXPORT QModelIndex
 {
 public:
@@ -41,8 +39,8 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 typedef QList<QModelIndex> QModelIndexList;
 typedef QList<QCoreVariant> QCoreVariantList;
 
-class QItemModel;
-class QModelItem;
+class QWidget;
+class QDragObject;
 class QObjectPrivate;
 
 class Q_GUI_EXPORT QAbstractItemModel : public QObject
@@ -78,10 +76,9 @@ public:
     virtual int columnCount(const QModelIndex &parent = 0) const = 0;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
-    virtual const char *format(int i) const;
-    virtual QByteArray encodedData(const char *mime, const QModelIndexList &indices) const;
     virtual bool canDecode(QMimeSource *src) const;
     virtual bool decode(QMimeSource *src);
+    virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = Display) const = 0;
     virtual bool setData(const QModelIndex &index, int role, const QVariant &value);

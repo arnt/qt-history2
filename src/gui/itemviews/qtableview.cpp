@@ -343,7 +343,7 @@ class QTableViewPrivate : public QGenericTableViewPrivate
     Q_DECLARE_PUBLIC(QTableView)
 public:
     QTableViewPrivate() : QGenericTableViewPrivate() {}
-    inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q->model()); }
+    inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
 };
 
 #define d d_func()

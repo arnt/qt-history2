@@ -226,8 +226,7 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
 
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
-        // bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
-        bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
+        //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
         // FIXME: use alignRight and RTL
         QRect arrowRect;
         int height = options->itemRect.height();
@@ -363,7 +362,7 @@ void QGenericHeader::initializeSections(int start, int end)
     emit sectionCountChanged(oldCount, count());
     d->viewport->update();
 }
-
+/*
 void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex parent = model()->parent(topLeft);
@@ -378,7 +377,7 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
         QModelIndex item = (orientation() == Vertical ?
                             model()->index(sec, 0, 0, type) :
                             model()->index(0, sec, 0, type));
-        if (d->sections.at(idx).mode == Content) { // resize the section to fit the new content
+        if (d->sections.at(idx).mode == Custom) { // resize the section to fit the new content
             QItemOptions options;
             getViewOptions(&options);
             int hint = 0;
@@ -396,7 +395,7 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
     }
     QAbstractItemView::contentsChanged(topLeft, bottomRight);
 }
-
+*/
 void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     if (topLeft.isValid() && bottomRight.isValid()) {
@@ -420,7 +419,6 @@ void QGenericHeader::contentsRemoved(const QModelIndex &parent,
 void QGenericHeader::ensureItemVisible(const QModelIndex &)
 {
     // this should only update the scrollvalue, and only if the item is not visible
-
 //     if (orientation() == Horizontal)
 //         setOffset(sectionPosition(index.column()));
 //     else
@@ -452,8 +450,8 @@ void QGenericHeader::resizeSections()
         }
         if (mode == Interactive)
             secSize = sectionSize(secs[i].section);
-        else //if (mode == QGenericHeader::Content)
-        secSize = sectionSizeHint(secs[i].section); // FIXME: get the size of the section from the contents
+        else //if (mode == QGenericHeader::Custom)
+            secSize = sectionSizeHint(secs[i].section); // FIXME: get the size of the section from the contents
         section_sizes.append(secSize);
         stretchSize -= secSize;
     }
@@ -524,7 +522,7 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QGenericHeaderPrivate::NoState: {
-            int hx = pos + offset();
+            //int hx = pos + offset();
             int handle = d->sectionHandleAt(pos + offset());
             if (handle != -1 && resizeMode(handle) == Interactive)
                 setCursor(orientation() == Horizontal ? SplitHCursor : SplitVCursor);
@@ -539,7 +537,7 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void QGenericHeader::mouseReleaseEvent(QMouseEvent * /* e */)
+void QGenericHeader::mouseReleaseEvent(QMouseEvent *)
 {
     // ### Unused variable:
     // int pos = orientation() == Horizontal ? e->x() : e->y();

@@ -314,7 +314,7 @@ class QTreeViewPrivate : public QGenericTreeViewPrivate
     Q_DECLARE_PUBLIC(QTreeView)
 public:
     QTreeViewPrivate() : QGenericTreeViewPrivate() {}
-    inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q->model()); }
+    inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
 };
 
 #define d d_func()
@@ -325,7 +325,6 @@ public:
 
   \brief Tree view implementation using the QTreeModel by default
 */
-
 
 QTreeView::QTreeView(QWidget *parent)
     : QGenericTreeView(*new QGenericTreeViewPrivate(), new QTreeModel(), parent)

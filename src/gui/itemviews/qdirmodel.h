@@ -73,6 +73,10 @@ public:
     bool rmdir(const QModelIndex &index);
     bool remove(const QModelIndex &index);
 
+    bool canDecode(QMimeSource *src) const;
+    bool decode(QMimeSource *src);
+    QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
+
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);
     void init(const QDir &directory);

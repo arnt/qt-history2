@@ -1,6 +1,103 @@
 #include "qabstractitemmodel.h"
+#include <qdragobject.h>
 #include <qdatastream.h>
 #include <qdebug.h>
+
+class QAbstractItemModelDrag : public QDragObject
+{
+public:
+    QAbstractItemModelDrag(const QModelIndexList &indices, QAbstractItemModel *model, QWidget *dragSource);
+    ~QAbstractItemModelDrag();
+
+    const char *format(int i) const;
+    bool provides(const char *mime) const;
+    QByteArray encodedData(const char *mime) const;
+
+    static bool canDecode(QMimeSource *src);
+    static bool decode(QMimeSource *src, QAbstractItemModel *model);
+
+    static const char *format();
+
+    QAbstractItemModel *model;
+    QModelIndexList indices;
+};
+
+QAbstractItemModelDrag::QAbstractItemModelDrag(const QModelIndexList &indices,
+                                               QAbstractItemModel *model,
+                                               QWidget *dragSource)
+    : QDragObject(dragSource), model(model), indices(indices)
+{
+}
+
+QAbstractItemModelDrag::~QAbstractItemModelDrag()
+{
+}
+
+const char *QAbstractItemModelDrag::format(int i) const
+{
+    if (i == 0)
+        return format();
+    return 0;
+}
+
+bool QAbstractItemModelDrag::provides(const char *mime) const
+{
+    return QString(mime) == QString(format());
+}
+
+QByteArray QAbstractItemModelDrag::encodedData(const char *mime) const
+{
+    if (indices.count() <= 0 || !provides(mime))
+        return QByteArray();
+
+    QByteArray encoded;
+    QDataStream stream(&encoded, IO_WriteOnly);
+    QModelIndexList::ConstIterator it = indices.begin();
+    for (; it != indices.end(); ++it) {
+        QMap<int, QVariant> roles = model->itemData((*it));
+        for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
+            stream << r.key() << r.value();
+        stream << -1;
+    }
+    return encoded;
+}
+
+bool QAbstractItemModelDrag::canDecode(QMimeSource *src)
+{
+    return src->provides(format());
+}
+
+bool QAbstractItemModelDrag::decode(QMimeSource *src, QAbstractItemModel *model)
+{
+    if (!canDecode(src))
+        return false;
+
+    QByteArray encoded = src->encodedData(format());
+    QDataStream stream(&encoded, IO_ReadOnly);
+    bool newItem = true;
+    int role;
+    QVariant variantData;
+    QModelIndex insertedItem;
+    while (!stream.atEnd()) {
+        stream >> role;
+        if (role > -1) {
+//            if (newItem) {
+                //insertedItem = insertRow();
+                newItem = false;
+//            }
+            stream >> variantData;
+            model->setData(insertedItem, role, variantData);
+        } else {
+            newItem = true;
+        }
+    }
+    return true;
+}
+
+const char *QAbstractItemModelDrag::format()
+{
+    return "application/x-qabstractodeldatalist";
+}
 
 /*!
   \class QModelIndex qgenericitemmodel.h
@@ -66,60 +163,19 @@ void QAbstractItemModel::fetchMore()
     // do nothing
 }
 
-const char *QAbstractItemModel::format(int i) const
-{
-    if (i == 0)
-        return "application/x-qgenericmodeldatalist";
-    return 0;
-}
-
-QByteArray QAbstractItemModel::encodedData(const char *mime, const QModelIndexList &indices) const
-{
-    if (indices.count() <= 0 || QString(mime) != format(0))
-        return QByteArray();
-
-    QByteArray encoded;
-    QDataStream stream(&encoded, IO_WriteOnly);
-    QModelIndexList::ConstIterator it = indices.begin();
-    for (; it != indices.end(); ++it) {
-        QMap<int, QVariant> roles = itemData((*it));
-        for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
-            stream << r.key() << r.value();
-        stream << -1;
-    }
-    return encoded;
-}
-
 bool QAbstractItemModel::canDecode(QMimeSource *src) const
 {
-    return src->provides(format(0));
+    return QAbstractItemModelDrag::canDecode(src);
 }
 
 bool QAbstractItemModel::decode(QMimeSource *src)
 {
-    if (!canDecode(src))
-        return false;
+    return QAbstractItemModelDrag::decode(src, this);
+}
 
-    QByteArray encoded = src->encodedData(format(0));
-    QDataStream stream(&encoded, IO_ReadOnly);
-    bool newItem = true;
-    int role;
-    QVariant variantData;
-    QModelIndex insertedItem;
-    while (!stream.atEnd()) {
-        stream >> role;
-        if (role > -1) {
-//            if (newItem) {
-                //insertedItem = insertRow();
-                newItem = false;
-//            }
-            stream >> variantData;
-            setData(insertedItem, role, variantData);
-        } else {
-            newItem = true;
-        }
-    }
-    return true;
+QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
+{
+    return new QAbstractItemModelDrag(indices, this, dragSource);
 }
 
 /*!

@@ -153,22 +153,4 @@ private slots:
     void fetchMore();
 };
 
-class QItemViewDragObjectPrivate;
-
-class QItemViewDragObject : public QDragObject
-{
-    Q_DECLARE_PRIVATE(QItemViewDragObject)
-public:
-    QItemViewDragObject(QAbstractItemView *dragSource);
-    ~QItemViewDragObject();
-
-    void append(QModelIndex &item);
-    void set(QModelIndexList &itemss);
-
-    const char *format(int i) const;
-    bool canDecode(QMimeSource *src) const;
-    QByteArray encodedData(const char *mime) const;
-    bool decode(QMimeSource *src) const;
-};
-
 #endif /* QABSTRACTITEMVIEW_H */

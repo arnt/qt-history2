@@ -18,7 +18,7 @@ public:
     {
         Interactive, // don't change the size (let the user decide)
         Stretch, // fill available visible space
-        Content // set size to fit the content
+        Custom // let somebody else do the resize
     };
 
     QGenericHeader(QAbstractItemModel *model, Orientation orientation, QWidget *parent = 0);
@@ -70,13 +70,14 @@ signals:
     void sectionClicked(int section, ButtonState state);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int section, ButtonState state);
+    void sectionAutoResize(int section, ResizeMode mode);
 
 protected slots:
     void updateSection(int section);
     void resizeSections();
 
 protected:
-    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+//    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void ensureItemVisible(const QModelIndex &index);
