@@ -253,7 +253,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
-	if ( old_winid && testWFlags(WType_TopLevel) ) {
+	if ( old_winid && isTopLevel() && mytop == this ) {
 	    DisposeWindow( (WindowPtr)old_winid );
 	    setWinId( 0 );
 	}
