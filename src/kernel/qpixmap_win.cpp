@@ -516,11 +516,12 @@ QImage QPixmap::convertToImage() const
 	    } else if ( alphaByte == 255 ) {
 		p += 4;
 	    } else {
-		*p = ( (int)(*p) * 255 ) / alphaByte;
+		uchar alphaByte2 = alphaByte / 2;
+		*p = ( (int)(*p) * 255 + alphaByte2 ) / alphaByte;
 		++p;
-		*p = ( (int)(*p) * 255 ) / alphaByte;
+		*p = ( (int)(*p) * 255 + alphaByte2 ) / alphaByte;
 		++p;
-		*p = ( (int)(*p) * 255 ) / alphaByte;
+		*p = ( (int)(*p) * 255 + alphaByte2 ) / alphaByte;
 		++p;
 		++p;
 	    }
@@ -819,9 +820,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    b += 4;
 		    p += 4;
 		} else {
-		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
-		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
-		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
+		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
+		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
+		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
 		    b++;
 		    p++;
 		}
