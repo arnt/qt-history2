@@ -547,7 +547,7 @@ QString QProcess::readLineStderr()
     this signal is emitted immediately.
 
     This signal is especially useful if you want to know when you can
-    safely delete the QProcess object when you are not intrested in
+    safely delete the QProcess object when you are not interested in
     reading from standard output or standard error.
 
     \sa launch() QObject::deleteLater()

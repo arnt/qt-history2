@@ -1366,7 +1366,7 @@ void QProcess::setWroteStdinConnected( bool value )
     be used together with platform specific system calls.
 
     Under Unix the return value is the PID of the process, or -1 if no
-    process is belongs to this object.
+    process belongs to this object.
 
     Under Windows it is a pointer to the \c PROCESS_INFORMATION
     struct, or 0 if no process is belongs to this object.
