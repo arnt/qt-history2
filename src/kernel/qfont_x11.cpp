@@ -284,12 +284,12 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
     float pSize;
     if ( fd.pointSize == -1 ) {
 	if ( paintdevice )
-	    pSize = fd.pixelSize * 10 *
-		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
+	    pSize = fd.pixelSize * 720. /
+		    QPaintDeviceMetrics( paintdevice ).logicalDpiY();
 	else if (QPaintDevice::x11AppDpiY( scr ) == 75)
 	    pSize = fd.pixelSize * 10;
 	else
-	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY( scr ) / 72.;
+	    pSize = fd.pixelSize * 720. / QPaintDevice::x11AppDpiY( scr );
     } else {
 	pSize = fd.pointSize;
     }
