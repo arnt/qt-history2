@@ -69,22 +69,38 @@ public:
 /*****************************************************************************
   Private data
  *****************************************************************************/
-class QCoreGraphicsCPrivate
+class QCoreGraphicsGCPrivate
 {
 public:
-    QQuickDrawGCPrivate() : {
+    QCoreGraphicsGCPrivate() {
+	hd = 0;
+	pdev = 0;
+	unclipped = 0;
 	brush_style_pix = 0;
-	offx = d->offy = 0;
+	offx = offy = 0;
 	fill_pattern = 0;
 	fill_colorspace = 0;
     }
 
+    struct {
+	QPen pen;
+	QBrush brush;
+	struct {
+	    QPoint origin;
+	    Qt::BGMode mode;
+	    QColor color;
+	} bg;
+    } current;
+
+    CGContextRef hd;
     int offx, offy;
+    uint unclipped : 1;
+    QPaintDevice *pdev;
     QPixmap *brush_style_pix;
     CGPatternRef fill_pattern;
     CGColorSpaceRef fill_colorspace;
 
-    inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
+    inline void mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
 	if(outx)
 	    *outx = inx;
 	if(outy)
@@ -96,12 +112,12 @@ public:
 		*outy += offy;
 	}
     }
-    inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p, bool global=false) {
-	cg_mac_point(inx, iny, &p->x, &p->y, global);
+    inline void mac_point(const int &inx, const int &iny, CGPoint *p, bool global=false) {
+	mac_point(inx, iny, &p->x, &p->y, global);
     }
-    inline void cg_mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct, bool global=false) {
+    inline void mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct, bool global=false) {
 	*rct = CGRectMake(0, 0, inw, inh);
-	cg_mac_point(inx, iny, &rct->origin, global);
+	mac_point(inx, iny, &rct->origin, global);
     }
 };
 #endif

@@ -56,8 +56,8 @@ class paintevent_item
     QRegion clipRegion;
 public:
     paintevent_item(QPaintDevice *d, QRegion r, QWidget *c) : clippedTo(c), dev(d), clipRegion(r) { }
-    inline bool operator==(QPaintDevice *rhs) const { return rhs == dev; }
-    inline bool operator!=(QPaintDevice *rhs) const { return !(this->operator==(rhs)); }
+    inline bool operator==(const QPaintDevice *rhs) const { return rhs == dev; }
+    inline bool operator!=(const QPaintDevice *rhs) const { return !(this->operator==(rhs)); }
     inline QWidget *clip() const { return clippedTo; }
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
@@ -997,9 +997,11 @@ void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 }
 
 #ifdef USE_CORE_GRAPHICS
+
 /*****************************************************************************
-  QCoreGraphicsGC member functions
+  QCoreGraphicsGC utility functions
  *****************************************************************************/
+
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
 
 struct QMacPattern {
@@ -1071,31 +1073,100 @@ static void qt_mac_dispose_pattern(void *info)
     pat = NULL;
 }
 
-static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
+static inline bool qt_mac_update_cg(QCoreGraphicsGCPrivate *paint_d)
 {
     CGContextRef ret = 0;
-    if(pdev->devType() == QInternal::Widget)
-	ret = (CGContextRef)((QWidget*)pdev)->macCGHandle(!paint_d->unclipped);
+    if(paint_d->pdev->devType() == QInternal::Widget)
+	ret = (CGContextRef)((QWidget*)paint_d->pdev)->macCGHandle(!paint_d->unclipped);
     else
-	ret = (CGContextRef)pdev->macCGHandle();
+	ret = (CGContextRef)paint_d->pdev->macCGHandle();
     //apply paint event region (in global coords)
     if(paintevent_item *pevent = qt_mac_get_paintevent()) {
-	if((*pevent) == pdev)
+	if((*pevent) == paint_d->pdev)
 	    qt_mac_clip_cg_handle(ret, pevent->region(), QPoint(0, 0), true);
     }
-    return ret;
+    paint_d->hd = ret;
+    return ret != 0;
 }
 
-begin()
+/*****************************************************************************
+  QCoreGraphicsGC member functions
+ *****************************************************************************/
+
+QCoreGraphicsGC::QCoreGraphicsGC(const QPaintDevice *pdev)
 {
+    d = new QCoreGraphicsGCPrivate;
+    d->pdev = const_cast<QPaintDevice*>(pdev);
+}
+
+QCoreGraphicsGC::~QCoreGraphicsGC()
+{
+    delete d;
+}
+
+bool
+QCoreGraphicsGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+{
+    if(isActive()) {                         // already active painting
+        qWarning( "QQuickDrawGC::begin: Painter is already active."
+                  "\n\tYou must end() the painter before a second begin()" );
+	return false;
+    }
+    if(pdev->devType() == QInternal::Widget &&
+       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+	qWarning("QQuickDrawGC::begin: Widget painting can only begin as a "
+		 "result of a paintEvent");
+//	return false;
+    }
+
+    d->pdev = const_cast<QPaintDevice*>(pdev);
+    if(qt_mac_update_cg(d)) // get handle to drawable
+	CGContextRetain((CGContextRef)d->hd);
+    setActive(true);
+    assignf(IsActive | DirtyFont);
+
+    if(d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
+	((QPixmap*)d->pdev)->detach();             // will modify it
+
     d->fill_pattern = 0;
-    hd = qt_mac_get_cg(pdev, d); // get handle to drawable
-    if(hd)
-	CGContextRetain((CGContextRef)hd);
+    d->offx = d->offy = 0;
+
+    if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
+	QWidget *w = (QWidget*)d->pdev;
+	{ //offset painting in widget relative the tld
+	    QPoint wp(posInWindow(w));
+	    d->offx = wp.x();
+	    d->offy = wp.y();
+	}
+	if(!unclipped)
+	    unclipped = (bool)w->testWFlags(WPaintUnclipped);
+
+	if(w->isDesktop()) {
+	    if(!unclipped)
+		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
+	    ShowWindow((WindowPtr)w->handle());
+	}
+    } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
+	QPixmap *pm = (QPixmap*)d->pdev;
+	if(pm->isNull()) {
+	    qWarning("QPainter::begin: Cannot paint null pixmap");
+	    end();
+	    return false;
+	}
+    }
+    d->unclipped = unclipped;
+
+    updateXForm(state);
+    updateBrush(state);
+    updatePen(state);
+    updateClipRegion(state);
+    return true;
 }
 
-end()
+bool
+QCoreGraphicsGC::end()
 {
+    setActive(false);
     if(d->fill_pattern) {
         CGPatternRelease(d->fill_pattern);
 	d->fill_pattern = 0;
@@ -1104,69 +1175,122 @@ end()
 	CGColorSpaceRelease(d->fill_colorspace);
 	d->fill_colorspace = 0;
     }
-}
-
-destructor()
-{
-    if(hd) {
-	CGContextSynchronize((CGContextRef)hd);
-	if(CFGetRetainCount(hd) == 1)
-	    CGContextFlush((CGContextRef)hd);
-	CGContextRelease((CGContextRef)hd);
-	hd = 0;
+    if(d->hd) {
+	CGContextSynchronize((CGContextRef)d->hd);
+	if(CFGetRetainCount(d->hd) == 1)
+	    CGContextFlush((CGContextRef)d->hd);
+	CGContextRelease((CGContextRef)d->hd);
+	d->hd = 0;
     }
+    if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
+	HideWindow((WindowPtr)d->pdev->handle());
+    d->pdev = 0;
+    return true;
 }
 
-updatePen()
+void
+QCoreGraphicsGC::updatePen(QPainterState *ps)
 {
+    Q_ASSERT(isActive());
+    d->current.pen = ps->pen;
+
     float *lengths = NULL;
     int count = 0;
-    if(d->current.pen.style() == DashLine) {
+    if(ps->pen.style() == DashLine) {
 	static float inner_lengths[] = { 3, 1 };
 	lengths = inner_lengths;
 	count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(d->current.pen.style() == DotLine) {
+    } else if(ps->pen.style() == DotLine) {
 	static float inner_lengths[] = { 1, 1 };
 	lengths = inner_lengths;
 	count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(d->current.pen.style() == DashDotLine) {
+    } else if(ps->pen.style() == DashDotLine) {
 	static float inner_lengths[] = { 3, 1, 1, 1 };
 	lengths = inner_lengths;
 	count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(d->current.pen.style() == DashDotDotLine) {
+    } else if(ps->pen.style() == DashDotDotLine) {
 	static float inner_lengths[] = { 3, 1, 1, 1, 1, 1 };
 	lengths = inner_lengths;
 	count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
     }
-    CGContextSetLineDash((CGContextRef)hd, 0, lengths, count);
+    CGContextSetLineDash((CGContextRef)d->hd, 0, lengths, count);
 
     CGLineCap cglinecap = kCGLineCapButt;
-    if(d->current.pen.capStyle() == SquareCap)
+    if(ps->pen.capStyle() == SquareCap)
 	cglinecap = kCGLineCapSquare;
-    else if(d->current.pen.capStyle() == RoundCap)
+    else if(ps->pen.capStyle() == RoundCap)
 	cglinecap = kCGLineCapRound;
-    CGContextSetLineCap((CGContextRef)hd, cglinecap);
+    CGContextSetLineCap((CGContextRef)d->hd, cglinecap);
 
-    CGContextSetLineWidth((CGContextRef)hd, d->current.pen.width() < 1 ? 1 : d->current.pen.width());
+    CGContextSetLineWidth((CGContextRef)d->hd, ps->pen.width() < 1 ? 1 : ps->pen.width());
 
-    const QColor &col = d->current.pen.color();
-    CGContextSetRGBStrokeColor((CGContextRef)hd, qt_mac_convert_color_to_cg(col.red()),
+    const QColor &col = ps->pen.color();
+    CGContextSetRGBStrokeColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
 			       qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
 
     CGLineJoin cglinejoin = kCGLineJoinMiter;
-    if(d->current.pen.joinStyle() == BevelJoin)
+    if(ps->pen.joinStyle() == BevelJoin)
 	cglinejoin = kCGLineJoinBevel;
-    else if(d->current.pen.joinStyle() == RoundJoin)
+    else if(ps->pen.joinStyle() == RoundJoin)
 	cglinejoin = kCGLineJoinRound;
-    CGContextSetLineJoin((CGContextRef)hd, cglinejoin);
+    CGContextSetLineJoin((CGContextRef)d->hd, cglinejoin);
 }
 
-updateBrush()
+void
+QCoreGraphicsGC::updateBrush(QPainterState *ps)
 {
-    const QColor &col = d->current.brush.color();
-    CGContextSetRGBFillColor((CGContextRef)hd, qt_mac_convert_color_to_cg(col.red()),
+    Q_ASSERT(isActive());
+    d->current.brush = ps->brush;
+
+    static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+    static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static uchar dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static uchar dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+    static uchar dense5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+    static uchar dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static uchar dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static uchar hor_pat[] = {			// horizontal pattern
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    static uchar ver_pat[] = {			// vertical pattern
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+    static uchar cross_pat[] = {			// cross pattern
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+    static uchar bdiag_pat[] = {			// backward diagonal pattern
+	0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04, 0x02, 0x02, 0x01, 0x01,
+	0x80, 0x80, 0x40, 0x40, 0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04,
+	0x02, 0x02, 0x01, 0x01, 0x80, 0x80, 0x40, 0x40 };
+    static uchar fdiag_pat[] = {			// forward diagonal pattern
+	0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10, 0x20, 0x20, 0x40, 0x40,
+	0x80, 0x80, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10,
+	0x20, 0x20, 0x40, 0x40, 0x80, 0x80, 0x01, 0x01 };
+    static uchar dcross_pat[] = {			// diagonal cross pattern
+	0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
+	0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
+	0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
+    static uchar *pat_tbl[] = {
+	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
+	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
+
+    const QColor &col = ps->brush.color();
+    CGContextSetRGBFillColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
 			       qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
 
+    int bs = ps->brush.style();
     if(bs != SolidPattern && bs != NoBrush) {
 	if(d->fill_pattern)
 	    CGPatternRelease(d->fill_pattern);
@@ -1179,7 +1303,7 @@ updateBrush()
 	qpattern->im = 0;
 	if(bs == CustomPattern) {
 	    qpattern->as_mask = false;
-	    qpattern->pixmap = new QPixmap(*d->current.brush.pixmap());
+	    qpattern->pixmap = new QPixmap(*ps->brush.pixmap());
 	    width = qpattern->pixmap->width();
 	    height = qpattern->pixmap->height();
 	} else {
@@ -1200,78 +1324,160 @@ updateBrush()
 	callbks.version = 0;
 	callbks.drawPattern = qt_mac_draw_pattern;
 	callbks.releaseInfo = qt_mac_dispose_pattern;
-	d->fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
+	d->fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)d->hd), width, height,
 						  kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
-	CGContextSetFillColorSpace((CGContextRef)hd, d->fill_colorspace);
+	CGContextSetFillColorSpace((CGContextRef)d->hd, d->fill_colorspace);
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
-	CGContextSetFillPattern((CGContextRef)hd, d->fill_pattern, &tmp_float);
+	CGContextSetFillPattern((CGContextRef)d->hd, d->fill_pattern, &tmp_float);
     }
 }
 
-updateClip()
+void
+QCoreGraphicsGC::updateFont(QPainterState *ps)
 {
+    Q_ASSERT(isActive());
+    //TBD
+}
+
+void 
+QCoreGraphicsGC::updateRasterOp(QPainterState *ps)
+{
+    Q_ASSERT(isActive());
+    if(ps->rasterOp != CopyROP)
+	qDebug("Cannot support any raster ops other than Copy!");
+}
+
+void 
+QCoreGraphicsGC::updateBackground(QPainterState *ps)
+{
+    Q_ASSERT(isActive());
+    d->current.bg.origin = ps->bgOrigin;
+    d->current.bg.mode = ps->bgMode;
+    d->current.bg.color = ps->bgColor;
+}
+
+void 
+QCoreGraphicsGC::updateXForm(QPainterState *ps)
+{
+    Q_ASSERT(isActive());
+}
+
+void
+QCoreGraphicsGC::updateClipRegion(QPainterState *ps)
+{
+    Q_ASSERT(isActive());
+
     bool old_clipon = testf(ClipOn);
     if(ps->clipEnabled)
 	setf(ClipOn);
     else
 	clearf(ClipOn);
 
-    if(hd) {
-	if(b || b != old_clipon) { //reset the clip
-	    CGContextRelease((CGContextRef)hd);
-	    hd = qt_mac_get_cg(pdev, d);
-	    if(hd)
-		CGContextRetain((CGContextRef)hd);
+    if(d->hd) {
+	if(ps->clipEnabled || ps->clipEnabled != old_clipon) { //reset the clip
+	    CGContextRelease((CGContextRef)d->hd);
+	    if(qt_mac_update_cg(d))
+		CGContextRetain((CGContextRef)d->hd);
 	}
-	if(hd && b)
-	    qt_mac_clip_cg_handle((CGContextRef)hd, d->current.clip, QPoint(d->offx, d->offy), true);
+	if(d->hd && ps->clipEnabled)
+	    qt_mac_clip_cg_handle((CGContextRef)d->hd, ps->clipRegion, QPoint(d->offx, d->offy), true);
     }
 }
 
-drawLine()
+void 
+QCoreGraphicsGC::setRasterOp(RasterOp r)
 {
+    Q_ASSERT(isActive());
+    if(r != CopyROP)
+	qDebug("Cannot support any raster ops other than Copy!");
+}
+
+void 
+QCoreGraphicsGC::drawLine(int x1, int y1, int x2, int y2)
+{
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
     d->mac_point(x1, y1, &cg_x, &cg_y);
-    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
     d->mac_point(x2, y2, &cg_x, &cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
-    CGContextStrokePath((CGContextRef)hd);
+    CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    CGContextStrokePath((CGContextRef)d->hd);
 }
 
-drawRect()
+void 
+QCoreGraphicsGC::drawRect(int x, int y, int w, int h)
 {
+    Q_ASSERT(isActive());
+
     CGRect mac_rect;
     d->mac_rect(x, y, w, h, &mac_rect);
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddRect((CGContextRef)hd, mac_rect);
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddRect((CGContextRef)d->hd, mac_rect);
     if(d->current.brush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
+	CGContextFillPath((CGContextRef)d->hd);
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
 }
 
-drawPoint()
+void 
+QCoreGraphicsGC::drawPoint(int x, int y)
 {
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
-    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
-    CGContextStrokePath((CGContextRef)hd);
+    CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    CGContextAddLineToPoint((CGContextRef)d->hd, cg_x+1, cg_y);
+    CGContextStrokePath((CGContextRef)d->hd);
 }
 
-drawPoints()
+void 
+QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
     for(int i=0; i<npoints; i++) {
 	d->mac_point(pa[index+i].x(), pa[index+i].y(), &cg_x, &cg_y);
-	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
+	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x+1, cg_y);
+	CGContextStrokePath((CGContextRef)d->hd);
     }
 }
 
-drawRoundRect()
+void 
+QCoreGraphicsGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor)
 {
+    Q_ASSERT(isActive());
+
+    //save
+    QPainterState old_state = *state;
+
+    //setup
+    if(xorPaint) 
+	qWarning("cannot support xor painting!");
+    if(qGray(d->current.bg.color.rgb()) < 128)
+	state->pen = QPen(white);
+    else
+	state->pen = QPen(black);
+    state->pen.setStyle(DashLine);
+    updatePen(state);
+
+    //draw
+    if(d->current.pen.style() != NoPen)
+	drawRect(x, y, w, h);
+
+    //restore
+    *state = old_state;
+    updatePen(state);
+}
+
+void 
+QCoreGraphicsGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+{
+    Q_ASSERT(isActive());
+
     // I need to test how close this is to other platforms, I only rolled this without testing --Sam
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
@@ -1286,38 +1492,20 @@ drawRoundRect()
     CGPathAddLineToPoint(path, 0, cg_x+xRnd, cg_y+h);                          //bottom
     CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y+h, cg_x, cg_y+(h-yRnd));     //bottom left
     CGPathAddLineToPoint(path, 0, cg_x, cg_y+yRnd);                            //left
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddPath((CGContextRef)hd, path);
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddPath((CGContextRef)d->hd, path);
     if(d->current.brush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
+	CGContextFillPath((CGContextRef)d->hd);
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
     CGPathRelease(path);
 }
 
-drawPolyInternal()
+void 
+QCoreGraphicsGC::drawEllipse(int x, int y, int w, int h)
 {
-    Q_UNUSED(inset);
+    Q_ASSERT(isActive());
 
-    float cg_x, cg_y;
-    d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
-    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-    for(int x = 1; x < a.size(); x++) {
-	d->mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
-    }
-    if(close) {
-	d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
-    }
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
-}
-
-drawElippse()
-{
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
@@ -1325,17 +1513,86 @@ drawElippse()
     float cg_x, cg_y;
     d->mac_point(x, y, &cg_x, &cg_y);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, 0, 360, false);
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddPath((CGContextRef)hd, path);
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddPath((CGContextRef)d->hd, path);
     if(d->current.brush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
+	CGContextFillPath((CGContextRef)d->hd);
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
     CGPathRelease(path);
 }
 
-drawChord()
+void 
+QCoreGraphicsGC::drawArc(int x, int y, int w, int h, int a, int alen)
 {
+    Q_ASSERT(isActive());
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h)
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
+    float cg_x, cg_y;
+    d->mac_point(x, y, &cg_x, &cg_y);
+    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddPath((CGContextRef)d->hd, path);
+    if(d->current.pen.style() != NoPen)
+	CGContextStrokePath((CGContextRef)d->hd);
+    CGPathRelease(path);
+}
+
+void 
+QCoreGraphicsGC::drawPie(int x, int y, int w, int h, int a, int alen)
+{
+    Q_ASSERT(isActive());
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h)
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
+    float cg_x, cg_y;
+    d->mac_point(x, y, &cg_x, &cg_y);
+    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
+    CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddPath((CGContextRef)d->hd, path);
+    if(d->current.brush.style() != NoBrush)
+	CGContextFillPath((CGContextRef)d->hd);
+    if(d->current.pen.style() != NoPen)
+	CGContextStrokePath((CGContextRef)d->hd);
+    CGPathRelease(path);
+}
+
+void 
+QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
+{
+    Q_ASSERT(isActive());
+
+    float cg_x, cg_y;
+    d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    for(int x = 1; x < a.size(); x++) {
+	d->mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    }
+    if(close) {
+	d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    }
+    if(d->current.brush.style() != NoBrush)
+	CGContextFillPath((CGContextRef)d->hd);
+    if(d->current.pen.style() != NoPen)
+	CGContextStrokePath((CGContextRef)d->hd);
+}
+
+void 
+QCoreGraphicsGC::drawChord(int x, int y, int w, int h, int a, int alen)
+{
+    Q_ASSERT(isActive());
+
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h)
@@ -1346,17 +1603,20 @@ drawChord()
     //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddPath((CGContextRef)hd, path);
+    CGContextBeginPath((CGContextRef)d->hd);
+    CGContextAddPath((CGContextRef)d->hd, path);
     if(d->current.brush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
+	CGContextFillPath((CGContextRef)d->hd);
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
     CGPathRelease(path);
 }
 
-drawLineSegments()
+void 
+QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
     int  x1, y1, x2, y2;
     uint i = index;
@@ -1364,44 +1624,85 @@ drawLineSegments()
 	pa.point(i++, &x1, &y1);
 	pa.point(i++, &x2, &y2);
 	d->mac_point(x1, y1, &cg_x, &cg_y);
-	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+	CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
 	d->mac_point(x2, y2, &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
+	CGContextStrokePath((CGContextRef)d->hd);
     }
 }
 
-drawPolyLine()
+void 
+QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
-    d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
-    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
-    for(int x = 1; x < a.size(); x++) {
-	d->mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
-	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
+    d->mac_point(pa[0].x(), pa[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
+    for(int x = 1; x < pa.size(); x++) {
+	d->mac_point(pa[x].x(), pa[x].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
     }
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
 }
 
-drawCubicBezier()
+void 
+QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+
+    QPointArray pa;
+    if(index != 0 || npoints != (int)a.size()) {
+	pa = QPointArray(npoints);
+	for(int i=0; i<npoints; i++)
+	    pa.setPoint(i, a.point(index+i));
+	index = 0;
+    } else {
+	pa = a;
+    }
+    drawPolyInternal(pa, true);
+}
+
+
+#ifndef QT_NO_BEZIER
+void 
+QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
+{
+    Q_ASSERT(isActive());
+
     float cg_x, cg_y;
-    d->mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
-    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    d->mac_point(pa[0].x(), pa[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
     float c1_x, c1_y, c2_x, c2_y;
-    d->mac_point(a[1].x(), a[1].y(), &c1_x, &c1_y);
-    d->mac_point(a[2].x(), a[2].y(), &c2_x, &c2_y);
-    d->mac_point(a[3].x(), a[3].y(), &cg_x, &cg_y);
-    CGContextAddCurveToPoint((CGContextRef)hd, c1_x, c1_y, c2_x, c2_y, cg_x, cg_y);
+    d->mac_point(pa[1].x(), pa[1].y(), &c1_x, &c1_y);
+    d->mac_point(pa[2].x(), pa[2].y(), &c2_x, &c2_y);
+    d->mac_point(pa[3].x(), pa[3].y(), &cg_x, &cg_y);
+    CGContextAddCurveToPoint((CGContextRef)d->hd, c1_x, c1_y, c2_x, c2_y, cg_x, cg_y);
     if(d->current.pen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
+	CGContextStrokePath((CGContextRef)d->hd);
+}
+#endif
+
+void 
+QCoreGraphicsGC::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
+{
+    qDebug("Must implement drawPixmap!!");
 }
 
-drawTiledPixmap()
+void 
+QCoreGraphicsGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
+    qDebug("Must implement drawTextItem!!");
+}
+
+void 
+QCoreGraphicsGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim)
+{
+    Q_ASSERT(isActive());
+
     //save the old state
-    CGContextSaveGState((CGContextRef)hd);
+    CGContextSaveGState((CGContextRef)d->hd);
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->im = 0;
@@ -1412,59 +1713,22 @@ drawTiledPixmap()
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
-    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
+    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)d->hd), width, height,
 					      kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
-    CGContextSetFillColorSpace((CGContextRef)hd, cs);
+    CGContextSetFillColorSpace((CGContextRef)d->hd, cs);
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
-    CGContextSetFillPattern((CGContextRef)hd, pat, &tmp_float);
-    CGContextSetPatternPhase((CGContextRef)hd, CGSizeMake(-sx, -sy));
+    CGContextSetFillPattern((CGContextRef)d->hd, pat, &tmp_float);
+    CGContextSetPatternPhase((CGContextRef)d->hd, CGSizeMake(-sx, -sy));
     //fill the rectangle
     CGRect mac_rect;
-    d->cg_mac_rect(x, y, w, h, &mac_rect);
-    CGContextFillRect((CGContextRef)hd, mac_rect);
+    d->mac_rect(x, y, w, h, &mac_rect);
+    CGContextFillRect((CGContextRef)d->hd, mac_rect);
     //restore the state
-    CGContextRestoreGState((CGContextRef)hd);
+    CGContextRestoreGState((CGContextRef)d->hd);
     //cleanup
     CGColorSpaceRelease(cs);
     CGPatternRelease(pat);
 }
 
-drawPie()
-{
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(w != h)
-	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
-    float cg_x, cg_y;
-    d->cg_mac_point(x, y, &cg_x, &cg_y);
-    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
-    CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
-    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddPath((CGContextRef)hd, path);
-    if(cbrush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
-    CGPathRelease(path);
-}
-
-drawArc()
-{
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(w != h)
-	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
-    float cg_x, cg_y;
-    d->cg_mac_point(x, y, &cg_x, &cg_y);
-    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
-    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath((CGContextRef)hd);
-    CGContextAddPath((CGContextRef)hd, path);
-    if(cpen.style() != NoPen)
-	CGContextStrokePath((CGContextRef)hd);
-    CGPathRelease(path);
-}
 #endif

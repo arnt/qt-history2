@@ -16,6 +16,9 @@
 #define QGC_MAC_H
 #include "qabstractgc.h"
 #include "qshared.h"
+#ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
+# include "qt_mac.h"
+#endif
 
 class QQuickDrawGCPrivate;
 class QPainterState;
@@ -127,7 +130,6 @@ public:
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
-
     void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh);
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags);
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
