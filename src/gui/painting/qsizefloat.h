@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSIZE_H
-#define QSIZE_H
+#ifndef QSIZEFLOAT_H
+#define QSIZEFLOAT_H
 
 #ifndef QT_H
 #include "qwindowdefs.h"
