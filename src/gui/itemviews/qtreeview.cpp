@@ -93,7 +93,8 @@
 QTreeView::QTreeView(QWidget *parent)
     : QAbstractItemView(*new QTreeViewPrivate, parent)
 {
-    initialize();
+    Q_D(QTreeView);
+    d->initialize();
 }
 
 /*!
@@ -102,7 +103,8 @@ QTreeView::QTreeView(QWidget *parent)
 QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
-    initialize();
+    Q_D(QTreeView);
+    d->initialize();
 }
 
 /*!
@@ -110,20 +112,6 @@ QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
 */
 QTreeView::~QTreeView()
 {
-}
-
-/*!
-  \internal
-*/
-void QTreeView::initialize()
-{
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::SingleSelection);
-
-    QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
-    header->setMovable(true);
-    header->setStretchLastSection(true);
-    setHeader(header);
 }
 
 /*!
@@ -1294,6 +1282,18 @@ bool QTreeView::isIndexHidden(const QModelIndex &index) const
 /*
   private implementation
 */
+void QTreeViewPrivate::initialize()
+{
+    Q_Q(QTreeView);
+    q->setSelectionBehavior(QAbstractItemView::SelectRows);
+    q->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    QHeaderView *header = new QHeaderView(Qt::Horizontal, q);
+    header->setMovable(true);
+    header->setStretchLastSection(true);
+    q->setHeader(header);
+}
+
 void QTreeViewPrivate::expand(int i)
 {
     Q_Q(QTreeView);

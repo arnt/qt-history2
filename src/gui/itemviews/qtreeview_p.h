@@ -48,6 +48,7 @@ public:
           uniformRowHeights(false), rootDecoration(true), reexpand(-1) { }
 
     ~QTreeViewPrivate() {}
+    void initialize();
 
     void expand(int item);
     void collapse(int item);

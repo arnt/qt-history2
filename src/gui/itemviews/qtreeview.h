@@ -89,7 +89,6 @@ protected slots:
 
 protected:
     QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);
-    void initialize();
     void scrollContentsBy(int dx, int dy);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
