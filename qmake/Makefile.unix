@@ -3,11 +3,11 @@ OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_ds
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
-	qcollection.o qfile.o qfile_unix.o qtextcodec.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
+	qcollection.o qfile.o qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
-	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_LITE_COMPONENT -I@QMAKEPATH@
+	-I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -I@QMAKEPATH@
 LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
@@ -63,9 +63,6 @@ qfile.o: @REL_QTDIR@/src/tools/qfile.cpp
 
 qfile_unix.o: @REL_QTDIR@/src/tools/qfile_unix.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile_unix.cpp
-
-qtextcodec.o: @REL_QTDIR@/src/codecs/qtextcodec.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/codecs/qtextcodec.cpp
 
 qregexp.o: @REL_QTDIR@/src/tools/qregexp.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qregexp.cpp
