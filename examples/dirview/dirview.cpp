@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/dirview.cpp#3 $
+** $Id: //depot/qt/main/examples/dirview/dirview.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -480,6 +480,7 @@ void DirectoryView::contentsMousePressEvent( QMouseEvent* e )
 void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 {
     if ( mousePressed && (e->pos() - presspos).manhattanLength() > 4 ) {
+	mousePressed = FALSE;
         QListViewItem *item = itemAt( contentsToViewport(presspos) );
         if ( item ) {
             QString source = fullPath(item);
