@@ -1,3 +1,4 @@
+GUID 		= {d66037ce-f323-4415-acb4-55906466ca57}
 TEMPLATE	= subdirs
 SUBDIRS		= linguist \
 		  tutorial/tt1 \

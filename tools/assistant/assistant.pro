@@ -1,3 +1,13 @@
+GUID 	 = {14e97d81-47c3-478d-b3c5-8e6026e9ab5f}
+TEMPLATE = app
+LANGUAGE = C++
+TARGET	 = assistant
+
+CONFIG	+= qt warn_off
+
+PROJECTNAME	= Assistant
+DESTDIR		= ../../bin
+
 SOURCES	+= main.cpp \
 	helpwindow.cpp \
 	topicchooserimpl.cpp \
@@ -19,7 +29,6 @@ HEADERS	+= helpwindow.h \
         config.h \
 	assistantapplication.h
 
-TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES	+= QT_INTERNAL_NETWORK
@@ -27,11 +36,9 @@ else:QCONFIG += network
 !xml: DEFINES		+= QT_INTERNAL_XML
 else:QCONFIG += xml
 include( ../../src/qt_professional.pri )
-DESTDIR	= ../../bin
 
 win32:RC_FILE = assistant.rc
 mac:RC_FILE = assistant.icns
-
 
 target.path = $$bins.path
 INSTALLS += target
@@ -40,13 +47,11 @@ assistanttranslations.files = *.qm
 assistanttranslations.path = $$translations.path
 INSTALLS += assistanttranslations
 
-PROJECTNAME	= Assistant
-
 TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts
 
 unix:!zlib:LIBS	+= -lz
-	
+
 FORMS	= mainwindow.ui \
 	topicchooser.ui \
 	finddialog.ui \
@@ -72,7 +77,3 @@ IMAGES	= images/editcopy.png \
 	images/addtab.png \
 	images/closetab.png \
 	images/d_closetab.png
-	
-TEMPLATE = app
-CONFIG	+= qt warn_off
-LANGUAGE = C++

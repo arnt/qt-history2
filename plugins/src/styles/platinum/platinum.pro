@@ -1,8 +1,11 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {852f12e8-2563-47e7-9a4a-7670da6a8342}
+TEMPLATE = lib
+TARGET	 = qplatinumstyle
+
+CONFIG  += qt warn_off release plugin
+DESTDIR  = ../../../styles
 
 HEADERS		= ../../../../include/qplatinumstyle.h
-
 SOURCES		= main.cpp \
 		  ../../../../src/styles/qplatinumstyle.cpp
 
@@ -13,10 +16,6 @@ SOURCES		= main.cpp \
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
-
-TARGET		= qplatinumstyle
-DESTDIR		= ../../../styles
-
 
 target.path += $$plugins.path/styles
 INSTALLS += target

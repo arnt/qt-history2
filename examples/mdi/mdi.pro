@@ -1,8 +1,12 @@
-QTDIR_build:REQUIRES        = workspace full-config
+GUID 		= {826ddfe6-a4a8-44da-89e4-7967766aa5f7}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= application.h 
-SOURCES		= application.cpp \
-		  main.cpp 
 TARGET		= mdi
-DEPENDPATH=../../include
+
+CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES        = workspace full-config
+
+HEADERS		= application.h
+SOURCES		= application.cpp \
+		  main.cpp

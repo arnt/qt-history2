@@ -1,7 +1,11 @@
+GUID 		= {19648f4a-51e2-4b85-9750-980293e876f0}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= 
-SOURCES		= layout.cpp
 TARGET		= layout
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=large-config
+
+CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= large-config
+
+HEADERS		=
+SOURCES		= layout.cpp

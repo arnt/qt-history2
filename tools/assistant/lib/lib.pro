@@ -1,12 +1,15 @@
+GUID 		= {499e909c-2474-44b1-b51c-c2ade7331b97}
 TEMPLATE        = lib
 TARGET		= qassistantclient
 VERSION		= 1.0
-CONFIG		+= qt warn_on release 
+
+CONFIG		+= qt warn_on release
+CONFIG		+= staticlib
+CONFIG		-= dll
+
 SOURCES		= qassistantclient.cpp
 HEADERS         += $$QT_SOURCE_TREE/include/qassistantclient.h
 
-CONFIG += staticlib
-CONFIG	-= dll
 
 !network:DEFINES += QT_INTERNAL_NETWORK
 else:QCONFIG += network

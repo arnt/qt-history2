@@ -1,4 +1,6 @@
+GUID 		= {1e205852-681d-40f3-811d-df139f2c0de4}
 TEMPLATE	= subdirs
-SUBDIRS		= simple-qfont-demo
-CONFIG += ordered
 
+CONFIG 		+= ordered
+
+SUBDIRS		= simple-qfont-demo

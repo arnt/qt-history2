@@ -1,17 +1,16 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {d20d78eb-798e-4f59-8aa0-7311fa19e85e}
+TEMPLATE = lib
+TARGET	 = qwindowsstyle
+
+CONFIG  += qt warn_off release plugin
+DESTDIR	 = ../../../styles
 
 HEADERS		= ../../../../include/qwindowsstyle.h
-
 SOURCES		= main.cpp \
 		  ../../../../src/styles/qwindowsstyle.cpp
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
-
-TARGET		= qwindowsstyle
-DESTDIR		= ../../../styles
-
 
 target.path += $$plugins.path/styles
 INSTALLS += target

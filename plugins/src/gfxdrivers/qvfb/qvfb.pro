@@ -1,17 +1,17 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {b0af524f-b4fc-40c2-bdd5-0652a30fdc31}
+TEMPLATE = lib
+TARGET	 = qgfxvfb
 
-HEADERS		= ../../../../include/qgfxvfb_qws.h 
+CONFIG  += qt warn_off release plugin
+DESTDIR	 = ../../../gfxdrivers
 
+DEFINES	-= QT_NO_QWS_VFB
+unix:OBJECTS_DIR = .obj
+
+HEADERS		= ../../../../include/qgfxvfb_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxvfb_qws.cpp 
-
-unix:OBJECTS_DIR	= .obj
-
-TARGET		= qgfxvfb
-DESTDIR		= ../../../gfxdrivers
-DEFINES		-= QT_NO_QWS_VFB
+		  ../../../../src/embedded/qgfxvfb_qws.cpp
 
 
 target.path += $$plugins.path/gfxdrivers
-INSTALLS 	+= target
+INSTALLS += target

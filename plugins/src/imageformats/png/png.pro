@@ -1,9 +1,12 @@
+GUID 	 = {0f7e8475-fd4a-45f6-b925-43207c75706f}
 TEMPLATE = lib
+TARGET  += qpng
+
 CONFIG += qt plugin
-TARGET += qpng
-VERSION = 1.0.0
-QTDIR_build:REQUIRES = !no-png !png
 DESTDIR = ../../../imageformats
+VERSION = 1.0.0
+
+QTDIR_build:REQUIRES = !no-png !png
 
 SOURCES += main.cpp
 

@@ -1,9 +1,9 @@
-TEMPLATE    =	app
-CONFIG+=	qt warn_on release
+GUID 	 = {6d77830f-cc86-475c-9291-2d3d6ba7ecd7}
+TEMPLATE = app
 
-HEADERS	    =	main.h
+CONFIG  += qt warn_on release
 
-SOURCES	    =	main.cpp 
-QTDIR_build:REQUIRES=full-config
+QTDIR_build:REQUIRES = full-config
 
-
+HEADERS	 = main.h
+SOURCES	 = main.cpp

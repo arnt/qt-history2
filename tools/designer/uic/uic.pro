@@ -1,3 +1,4 @@
+GUID 		= {e2eb1d97-82bd-4015-8716-920f5c3d3d35}
 TEMPLATE	= app
 CONFIG		+= qt console warn_on release professional
 HEADERS	= uic.h \

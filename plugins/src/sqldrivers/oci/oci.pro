@@ -1,13 +1,18 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_on release plugin
+GUID 	 = {f4f4f446-b804-4f69-b19e-ee26ffeb3b86}
+TEMPLATE = lib
+TARGET	 = qsqloci
+
+CONFIG  += qt warn_on release plugin
+DESTDIR	 = ../../../sqldrivers
+
 HEADERS		= ../../../../src/sql/drivers/oci/qsql_oci.h
 SOURCES		= main.cpp \
-		  ../../../../src/sql/drivers/oci/qsql_oci.cpp 
+		  ../../../../src/sql/drivers/oci/qsql_oci.cpp
 
 win32 {
 	OBJECTS_DIR	= obj
 	LIBS	*= oci.lib
-#	win32-msvc: { 
+#	win32-msvc: {
 #		LIBS *= delayimp.lib
 #		QMAKE_LFLAGS += /DELAYLOAD:oci.dll
 #	}
@@ -29,10 +34,6 @@ macx {
 }
 
 QTDIR_build:REQUIRES	= sql
-
-DESTDIR		= ../../../sqldrivers
-TARGET		= qsqloci
-
 
 target.path += $$plugins.path/sqldrivers
 INSTALLS += target

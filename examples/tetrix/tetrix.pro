@@ -1,5 +1,12 @@
+GUID 		= {89f911f6-6f75-4c74-9947-d5d18ff4977f}
 TEMPLATE	= app
+TARGET		= tetrix
+
 CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= small-config
+
 HEADERS		= gtetrix.h \
 		  qdragapp.h \
 		  qtetrix.h \
@@ -11,6 +18,3 @@ SOURCES		= gtetrix.cpp \
 		  qtetrixb.cpp \
 		  tetrix.cpp \
 		  tpiece.cpp
-TARGET		= tetrix
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=small-config

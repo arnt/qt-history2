@@ -1,16 +1,17 @@
-TEMPLATE        = lib
-CONFIG          += qt warn_on plugin
-QTDIR_build:REQUIRES	= !bigcodecs
+GUID 	 = {fdc72441-9cbf-41e7-b2fd-365599493185}
+TEMPLATE = lib
+TARGET   = qtwcodecs
 
-HEADERS         = ../../../../include/qbig5codec.h \
-		  ../../../../include/private/qfontcodecs_p.h
+CONFIG  += qt warn_on plugin
+DESTDIR  = ../../../codecs
 
-SOURCES         = ../../../../src/codecs/qbig5codec.cpp \
-		  ../../../../src/codecs/qfonttwcodec.cpp \
-		  main.cpp
+QTDIR_build:REQUIRES = !bigcodecs
 
-TARGET          = qtwcodecs
-DESTDIR         = ../../../codecs
+HEADERS  = ../../../../include/qbig5codec.h \
+	   ../../../../include/private/qfontcodecs_p.h
+SOURCES  = ../../../../src/codecs/qbig5codec.cpp \
+	   ../../../../src/codecs/qfonttwcodec.cpp \
+	   main.cpp
 
 
 target.path += $$plugins.path/codecs

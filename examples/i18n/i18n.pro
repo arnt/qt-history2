@@ -1,9 +1,15 @@
+GUID 		= {27183557-4a14-4b18-ad15-d7bba689e5fa}
 TEMPLATE	= app
+TARGET		= i18n
+
 CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= full-config
+
 HEADERS		= mywidget.h
 SOURCES		= main.cpp \
 		  mywidget.cpp
-TARGET		= i18n
 TRANSLATIONS	= mywidget_cs.ts \
 		  mywidget_de.ts \
 		  mywidget_el.ts \
@@ -16,5 +22,3 @@ TRANSLATIONS	= mywidget_cs.ts \
 		  mywidget_no.ts \
 		  mywidget_ru.ts \
 		  mywidget_zh.ts
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=full-config

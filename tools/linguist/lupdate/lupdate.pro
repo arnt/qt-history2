@@ -1,3 +1,4 @@
+GUID 		= {60f2912a-12a8-463e-96e8-cc04b0b64a7a}
 TEMPLATE	= app
 CONFIG		+= qt warn_on console
 HEADERS		= ../shared/metatranslator.h \

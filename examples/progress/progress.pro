@@ -1,7 +1,11 @@
+GUID 		= {4aa9b436-03df-44c2-90c9-e570dd2b8b18}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= 
-SOURCES		= progress.cpp
 TARGET		= progress
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=full-config
+
+CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= full-config
+
+HEADERS		=
+SOURCES		= progress.cpp

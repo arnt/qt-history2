@@ -1,7 +1,9 @@
+GUID 		= {4a82c5d2-4e99-4b05-b2ca-f940ea1cfcae}
 TEMPLATE 	= app
-DESTDIR		= $$QT_BUILD_TREE/bin
 TARGET		= designer
+
 CONFIG 		-= moc
+DESTDIR		= $$QT_BUILD_TREE/bin
 
 SOURCES		+= main.cpp
 INCLUDEPATH	+= ../designer

@@ -1,9 +1,11 @@
+GUID 		= {e6b63ae4-d5d9-47de-bcaa-c59984903201}
 TEMPLATE	= lib
+
 CONFIG		+= qt warn_on staticlib qmake_cache
 CONFIG 		-= dll
 !force_static:!win32:contains(QT_PRODUCT,qt-internal) {
    CONFIG          -= staticlib
-   CONFIG          += dll 
+   CONFIG          += dll
 }
 
 TARGET	= designercore

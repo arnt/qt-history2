@@ -1,8 +1,11 @@
-SOURCES	+= main.cpp
+GUID 		= {f51133eb-4168-40a9-a16a-6aa9409f39ce}
+TEMPLATE	= app
+LANGUAGE	= C++
 TARGET		= distributor
 
-FORMS	= distributor.ui
-TEMPLATE	=app
-CONFIG	+= qt warn_on
-LANGUAGE	= C++
-QTDIR_build:REQUIRES=full-config
+CONFIG		+= qt warn_on
+
+QTDIR_build:REQUIRES	= full-config
+
+SOURCES		+= main.cpp
+FORMS		= distributor.ui

@@ -1,3 +1,4 @@
+GUID 		= {4054f3d4-7caa-4382-a68b-9dd7aa84380d}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
 HEADERS		= glade2ui.h

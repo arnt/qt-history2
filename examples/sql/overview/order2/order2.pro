@@ -1,7 +1,11 @@
+GUID 		= {61388ca7-fc7a-42be-8d36-e5e0c5383d29}
 TEMPLATE	= app
-QCONFIG += sql
+
+QCONFIG		+= sql
 CONFIG		+= qt warn_on release
-HEADERS		= 
+DEPENDPATH	= ../../../include
+
+REQUIRES	= full-config
+
+HEADERS		=
 SOURCES		= main.cpp ../connection.cpp
-DEPENDPATH	=../../../include
-QTDIR_build:REQUIRES=full-config

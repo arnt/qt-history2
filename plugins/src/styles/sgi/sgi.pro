@@ -1,10 +1,13 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {cd6a5416-76b3-484e-96d3-d2e91d2c8e1e}
+TEMPLATE = lib
+TARGET	 = qsgistyle
 
-HEADERS		= ../../../../include/qsgistyle.h 
+CONFIG  += qt warn_off release plugin
+DESTDIR	 = ../../../styles
 
+HEADERS		= ../../../../include/qsgistyle.h
 SOURCES		= main.cpp \
-		  ../../../../src/styles/qsgistyle.cpp 
+		  ../../../../src/styles/qsgistyle.cpp
 
 !contains(styles, motif) {
 	HEADERS += ../../../../include/qmotifstyle.h
@@ -13,10 +16,6 @@ SOURCES		= main.cpp \
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
-
-TARGET		= qsgistyle
-DESTDIR		= ../../../styles
-
 
 target.path += $$plugins.path/styles
 INSTALLS += target

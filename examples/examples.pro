@@ -1,8 +1,9 @@
-TEMPLATE    =	subdirs
+GUID	 = {840b1975-44b7-4cbb-b6df-5c39c3cd6a2d}
+TEMPLATE = subdirs
 
 unix:!embedded:!mac:CONFIG += x11
 
-SUBDIRS	=	aclock \
+SUBDIRS	 =	aclock \
 		action \
 		action/toggleaction \
 		addressbook \

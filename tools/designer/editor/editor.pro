@@ -1,3 +1,4 @@
+GUID 		= {19098bbe-685c-45de-b58e-a4909329ca9d}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on staticlib
 CONFIG		-= dll
@@ -23,7 +24,7 @@ SOURCES		= editor.cpp \
 		  yyindent.cpp
 
 FORMS		= preferences.ui
-		
+
 TARGET		= editor
 DESTDIR		= ../../../lib
 VERSION		= 1.0.0

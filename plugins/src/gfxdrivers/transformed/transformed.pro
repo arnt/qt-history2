@@ -1,17 +1,17 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {79291524-969e-42b0-ab96-a82d4360875a}
+TEMPLATE = lib
+TARGET	 = qgfxtransformed
 
-HEADERS		= ../../../../include/qgfxtransformed_qws.h 
+CONFIG  += qt warn_off release plugin
+DESTDIR	 = ../../../gfxdrivers
 
+DEFINES	-= QT_NO_QWS_TRANSFORMED
+unix:OBJECTS_DIR = .obj
+
+HEADERS		= ../../../../include/qgfxtransformed_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxtransformed_qws.cpp 
+		  ../../../../src/embedded/qgfxtransformed_qws.cpp
 
-unix:OBJECTS_DIR	= .obj
-
-TARGET		= qgfxtransformed
-DESTDIR		= ../../../gfxdrivers
-DEFINES		-= QT_NO_QWS_TRANSFORMED
 
 target.path=$$plugins.path/gfxdrivers
-
 INSTALLS += target

@@ -1,16 +1,14 @@
+GUID 	 = {217299cd-9a9a-49b3-953b-5cacca348314}
 TEMPLATE = lib
-CONFIG -= dll
-CONFIG += qt release x11 staticlib
-contains(QT_PRODUCT,qt-internal) {
-	CONFIG -= staticlib
-	CONFIG += dll
-}
+TARGET 	 = qmotif
 
-TARGET = qmotif
+CONFIG  -= dll
+CONFIG  += qt release x11 staticlib
+DESTDIR  = ../../../lib
+VERSION  = 0.0.0
+LIBS    += -lXm -lXt
+
 DESTINCDIR = ../../../include
-DESTDIR = ../../../lib
-VERSION = 0.0.0
-LIBS += -lXm -lXt
 
 contains( QT_PRODUCT, qt-(enterprise|internal|eval) ) {
     HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h qxtwidget.h

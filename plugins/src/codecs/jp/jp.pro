@@ -1,5 +1,10 @@
-TEMPLATE	= lib
-CONFIG		+= qt warn_on plugin
+GUID 	 = {1f137ed1-bc44-44e6-b130-fd8d8d336dff}
+TEMPLATE = lib
+TARGET	 = qjpcodecs
+
+CONFIG	+= qt warn_on plugin
+DESTDIR	 = ../../../codecs
+
 QTDIR_build:REQUIRES	= !bigcodecs
 
 HEADERS		= ../../../../include/qeucjpcodec.h \
@@ -14,9 +19,6 @@ SOURCES		= ../../../../src/codecs/qeucjpcodec.cpp \
 		  ../../../../src/codecs/qjpunicode.cpp \
 		  ../../../../src/codecs/qfontjpcodec.cpp \
 		  main.cpp
-
-TARGET		= qjpcodecs
-DESTDIR		= ../../../codecs
 
 
 target.path += $$plugins.path/codecs

@@ -1,3 +1,4 @@
+GUID 	 = {ecccd5bb-8305-4430-9715-4b70de90f597}
 TEMPLATE = app
 CONFIG += qt
 HEADERS = ../environment.h uninstallimpl.h

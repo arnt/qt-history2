@@ -1,8 +1,11 @@
-TEMPLATE  = lib
-CONFIG   += qt dll plugin
-TARGET   += qtwidgets
-VERSION   = 1.0.0
-DESTDIR   = ../../../accessible
+GUID 	 = {18b63e30-29e9-497b-99ea-cb9283cac28b}
+TEMPLATE = lib
+TARGET  += qtwidgets
+
+CONFIG  += qt dll plugin
+DESTDIR  = ../../../accessible
+VERSION  = 1.0.0
+
 QTDIR_build:REQUIRES += accessibility
 
 SOURCES  += main.cpp \

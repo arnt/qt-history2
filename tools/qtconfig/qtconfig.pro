@@ -1,18 +1,18 @@
-SOURCES	+= colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp 
-HEADERS	+= colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h 
+GUID 	 = {0adfd13c-4563-474a-85d2-29d69e7f753f}
+TEMPLATE = app
+CONFIG	+= qt warn_on
+LANGUAGE = C++
 
+SOURCES	+= colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp
+HEADERS	+= colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h
+FORMS	= mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui
+IMAGES	= images/appicon.png
+
+PROJECTNAME	= Qt Configuration
 TARGET		= qtconfig
 DESTDIR		= ../../bin
 
-PROJECTNAME	= Qt Configuration
-
 target.path=$$bins.path
 INSTALLS	+= target
-
-FORMS	= mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui 
-IMAGES	= images/appicon.png
-TEMPLATE	=app
-CONFIG	+= qt warn_on
 INCLUDEPATH	+= .
-DBFILE	= qtconfig.db
-LANGUAGE	= C++
+DBFILE		 = qtconfig.db

@@ -1,10 +1,12 @@
-TEMPLATE	= app
-CONFIG		+= qt opengl warn_off release activeqt
-TARGET		= openglax
-HEADERS		= glbox.h \
-		  globjwin.h
-SOURCES		= glbox.cpp \
-		  globjwin.cpp \
-		  main.cpp
+GUID 	 = {a2407a6e-4030-4b93-a52d-35d517086eb3}
+TEMPLATE = app
+TARGET	 = openglax
 
-RC_FILE	    = ../../control/qaxserver.rc
+CONFIG	+= qt opengl warn_off release activeqt
+
+HEADERS	 = glbox.h \
+	   globjwin.h
+SOURCES	 = glbox.cpp \
+	   globjwin.cpp \
+	   main.cpp
+RC_FILE	 = ../../control/qaxserver.rc

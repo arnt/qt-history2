@@ -1,6 +1,7 @@
+GUID 		= {391f43e1-129f-44a5-87ad-42e1ac195851}
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-DEFINES += QWS
+DEFINES 	+= QWS
 LIBS		= -lqnetwork
 INCLUDEPATH	= $$QT_SOURCE_TREE/extensions/network/src \
                   $$QT_SOURCE_TREE/include \

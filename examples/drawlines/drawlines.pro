@@ -1,7 +1,11 @@
+GUID 		= {309e989c-3c1c-4449-8e7e-7209f130b88d}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= 
-SOURCES		= connect.cpp
 TARGET		= drawlines
-DEPENDPATH=../../include
+
+CONFIG		+= qt warn_on release
+DEPENDPATH 	= ../../include
+
 QTDIR_build:REQUIRES=
+
+HEADERS		=
+SOURCES		= connect.cpp

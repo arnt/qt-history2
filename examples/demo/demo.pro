@@ -1,5 +1,17 @@
+GUID 		= {6fcad536-7041-487e-88cb-bdc77ccc0f80}
 TEMPLATE 	= app
+TARGET		= demo
+
 CONFIG		+= qt warn_off release
+unix:LIBS	+= -lm
+!iconview: DEFINES  += QT_INTERNAL_ICONVIEW
+!workspace: DEFINES += QT_INTERNAL_WORKSPACE
+!canvas: DEFINES    += QT_INTERNAL_CANVAS
+INCLUDEPATH	+= .
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= full-config nocrosscompiler
+
 HEADERS		= frame.h \
 		  categoryinterface.h \
 		  qthumbwheel.h \
@@ -28,78 +40,66 @@ SOURCES		= frame.cpp \
 
 FORMS		= dnd/dndbase.ui
 
-!iconview: DEFINES  += QT_INTERNAL_ICONVIEW
-!workspace: DEFINES += QT_INTERNAL_WORKSPACE
-!canvas: DEFINES    += QT_INTERNAL_CANVAS
-
 include( ../../src/qt_professional.pri )
 
 canvas {
-	HEADERS += graph.h \
+    HEADERS 	+=graph.h \
 		  qasteroids/toplevel.h \
 		  qasteroids/view.h \
 		  qasteroids/ledmeter.h
-	SOURCES += graph.cpp \
+    SOURCES 	+=graph.cpp \
 		  qasteroids/toplevel.cpp \
 		  qasteroids/view.cpp \
 		  qasteroids/ledmeter.cpp
 }
 
 opengl {
-	QCONFIG += opengl
+    HEADERS 	+=opengl/glworkspace.h \
+		  opengl/glcontrolwidget.h \
+		  opengl/gltexobj.h \
+		  opengl/glbox.h \
+		  opengl/glgear.h \
+		  opengl/gllandscape.h \
+		  opengl/fbm.h \
+		  opengl/glinfo.h \
+		  opengl/glinfotext.h
+    SOURCES 	+=opengl/glworkspace.cpp \
+	 	  opengl/glcontrolwidget.cpp \
+		  opengl/gltexobj.cpp \
+		  opengl/glbox.cpp \
+		  opengl/glgear.cpp \
+		  opengl/gllandscape.cpp \
+		  opengl/fbm.c
+    win32 {
+	SOURCES +=opengl/glinfo_win.cpp
+    } mac {
+	SOURCES +=opengl/glinfo_mac.cpp
+	LIBS 	+=-framework Carbon
+    } else:unix {
+	SOURCES +=opengl/glinfo_x11.cpp
+    }
 
-	HEADERS += opengl/glworkspace.h \
-		   opengl/glcontrolwidget.h \
-		   opengl/gltexobj.h \
-		   opengl/glbox.h \
-		   opengl/glgear.h \
-		   opengl/gllandscape.h \
-		   opengl/fbm.h \
-		   opengl/glinfo.h \
-		   opengl/glinfotext.h
-	SOURCES += opengl/glworkspace.cpp \
-	 	   opengl/glcontrolwidget.cpp \
-		   opengl/gltexobj.cpp \
-		   opengl/glbox.cpp \
-		   opengl/glgear.cpp \
-		   opengl/gllandscape.cpp \
-		   opengl/fbm.c
-	win32 {
-          SOURCES += opengl/glinfo_win.cpp
-	} mac {
-          SOURCES += opengl/glinfo_mac.cpp
-          LIBS += -framework Carbon
-	} else:unix {
-          SOURCES += opengl/glinfo_x11.cpp
-        }
-
-	FORMS += opengl/printpreview.ui \
-		      opengl/gllandscapeviewer.ui
+    FORMS 	+=opengl/printpreview.ui \
+		  opengl/gllandscapeviewer.ui
 }
 
 sql {
-	QCONFIG += sql
+    FORMS 	+=sql/connect.ui \
+		  sql/sqlex.ui
+    QCONFIG	+= sql
 
-	HEADERS += sql/sqlsyntaxhighlighter.h
-	SOURCES += sql/sqlsyntaxhighlighter.cpp
-	FORMS += sql/connect.ui \
-		      sql/sqlex.ui
+    HEADERS	+= sql/sqlsyntaxhighlighter.h
+    SOURCES	+= sql/sqlsyntaxhighlighter.cpp
 }
 
 table {
-	FORMS += widgets/widgetsbase.ui
+    FORMS 	+=widgets/widgetsbase.ui
 }
 
 !table {
-	FORMS += widgets/widgetsbase_pro.ui
+    FORMS 	+=widgets/widgetsbase_pro.ui
 }
 
 TRANSLATIONS	= translations/demo_de.ts \
 		  translations/demo_fr.ts \
 		  translations/demo_iw.ts
-
-TARGET		= demo
-INCLUDEPATH	+= .
-DEPENDPATH	= ../../include
-unix:LIBS	+= -lm
-QTDIR_build:REQUIRES	= full-config nocrosscompiler

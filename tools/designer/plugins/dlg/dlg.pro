@@ -1,3 +1,4 @@
+GUID 		= {b6834557-bc00-493d-ac84-df68248a5fbc}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
 HEADERS		= dlg2ui.h

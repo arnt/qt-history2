@@ -1,6 +1,9 @@
+GUID 		= {61a6d945-0914-42a5-8c75-4450b690db5d}
 TEMPLATE	= app
-CONFIG		+= qt release
-HEADERS		= 
-SOURCES		= editor.cpp
-LIBS		= -lqxt -lXm -lXt
 TARGET		= editor
+
+CONFIG	       += qt release
+LIBS		= -lqxt -lXm -lXt
+
+HEADERS		=
+SOURCES		= editor.cpp

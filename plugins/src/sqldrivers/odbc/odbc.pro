@@ -1,8 +1,11 @@
-TEMPLATE	= lib
-CONFIG+= qt plugin
+GUID 	 = {2d01fa2e-5564-489d-9b3e-eb2444f71b8e}
+TEMPLATE = lib
+TARGET	 = qsqlodbc
 
-HEADERS		= ../../../../src/sql/drivers/odbc/qsql_odbc.h 
+CONFIG  += qt plugin
+DESTDIR	 = ../../../sqldrivers
 
+HEADERS		= ../../../../src/sql/drivers/odbc/qsql_odbc.h
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/odbc/qsql_odbc.cpp
 
@@ -26,10 +29,6 @@ win32 {
 }
 
 QTDIR_build:REQUIRES	= sql
-
-TARGET		= qsqlodbc
-DESTDIR		= ../../../sqldrivers
-
 
 target.path += $$plugins.path/sqldrivers
 INSTALLS += target

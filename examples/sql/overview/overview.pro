@@ -1,6 +1,34 @@
-TEMPLATE	= subdirs
-QCONFIG += sql
-SUBDIRS		= basicbrowsing   basicdatamanip  create_connections  delete      form1  insert   navigating  order2        retrieve1  subclass1  subclass3  subclass5  table2  table4 \
-		  basicbrowsing2  connect1        custom1             extract  form2  insert2  order1   retrieve2  subclass2  subclass4  table1     table3  update
-CONFIG += ordered
-QTDIR_build:REQUIRES=full-config
+GUID 	 = {f9f9bf89-fc83-47ad-b3e9-c69db71e140b}
+TEMPLATE = subdirs
+
+CONFIG 	+= ordered
+
+QTDIR_build:REQUIRES = full-config
+
+SUBDIRS	 = basicbrowsing \
+	   basicbrowsing2 \
+	   basicdatamanip \
+	   connect1 \
+	   create_connections \
+	   custom1 \
+	   delete \
+	   extract \
+	   form1 \
+	   form2 \
+	   insert \
+	   insert2 \
+	   navigating \
+	   order1 \
+	   order2 \
+	   retrieve1 \
+	   retrieve2 \
+	   subclass1 \
+	   subclass2 \
+	   subclass3 \
+	   subclass4 \
+	   subclass5 \
+	   table1 \
+	   table2 \
+	   table3 \
+	   table4 \
+	   update

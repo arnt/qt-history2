@@ -1,7 +1,12 @@
+GUID 		= {3e75489d-79f3-4179-85bf-4a1edceffad3}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= 
-SOURCES		= cursor.cpp
 TARGET		= cursor
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=small-config
+
+CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= small-config
+
+HEADERS		=
+SOURCES		= cursor.cpp
+

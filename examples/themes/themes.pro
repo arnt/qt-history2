@@ -1,5 +1,12 @@
+GUID 		= {d3206dca-c883-4662-927f-8f27a9f0fe9d}
 TEMPLATE	= app
+TARGET		= themes
+
 CONFIG		+= qt warn_on release no_batch
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= full-config
+
 HEADERS		= themes.h \
 		  ../buttongroups/buttongroups.h \
 		  ../lineedits/lineedits.h \
@@ -23,6 +30,4 @@ SOURCES		= themes.cpp \
 		  wood.cpp \
 		  metal.cpp
 
-TARGET		= themes
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=full-config
+

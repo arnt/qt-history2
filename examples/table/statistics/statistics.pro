@@ -1,7 +1,11 @@
+GUID 		= {fdcda7c7-123c-447f-a7a1-eca948e7abad}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS	= statistics.h
-SOURCES	= statistics.cpp main.cpp
 TARGET		= statistics
+
+CONFIG		+= qt warn_on release
 DEPENDPATH	= ../../include
-QTDIR_build:REQUIRES=table full-config
+
+QTDIR_build:REQUIRES 	= table full-config
+
+HEADERS		= statistics.h
+SOURCES		= statistics.cpp main.cpp

@@ -1,4 +1,5 @@
-TEMPLATE	= subdirs
+GUID 	    = {be4c0844-619d-4b8a-bd1b-4aac1c6a5093}
+TEMPLATE    = subdirs
 PLUGIN_DIRS = wizards \
 	      cppeditor \
 	      dlg \

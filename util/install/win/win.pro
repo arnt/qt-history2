@@ -1,3 +1,4 @@
+GUID		= {77dedef8-25f2-4fed-b78e-890abe884385}
 TEMPLATE	= app
 CONFIG		+= windows qt
 

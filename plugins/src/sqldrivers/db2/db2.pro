@@ -1,8 +1,11 @@
-TEMPLATE	= lib
-CONFIG		+= qt plugin
+GUID 	 = {2fe4f5d3-70e6-426e-a0cb-857e80c22a32}
+TEMPLATE = lib
+TARGET	 = qsqldb2
 
-HEADERS		= ../../../../src/sql/drivers/db2/qsql_db2.h 
+CONFIG	+= qt plugin
+DESTDIR	 = ../../../sqldrivers
 
+HEADERS		= ../../../../src/sql/drivers/db2/qsql_db2.h
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/db2/qsql_db2.cpp
 
@@ -15,14 +18,10 @@ unix {
 win32 {
 	!contains( LIBS, .*db2.* ) {
 		LIBS *= db2cli.lib
-	}	
+	}
 }
 
 QTDIR_build:REQUIRES	= sql
-
-TARGET		= qsqldb2
-DESTDIR		= ../../../sqldrivers
-
 
 target.path	+= $$plugins.path/sqldrivers
 INSTALLS	+= target

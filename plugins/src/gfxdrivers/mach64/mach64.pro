@@ -1,16 +1,16 @@
-TEMPLATE	= lib
-CONFIG+= qt warn_off release plugin
+GUID 	 = {f71be864-28b1-425d-a2a7-a4c7ada4d22a}
+TEMPLATE = lib
+TARGET	 = qgfxmach64
 
-HEADERS		= ../../../../include/qgfxmach64_qws.h 
+CONFIG  += qt warn_off release plugin
+DESTDIR	 = ../../../gfxdrivers
 
+DEFINES	-= QT_NO_QWS_MACH64
+unix:OBJECTS_DIR = .obj
+
+HEADERS		= ../../../../include/qgfxmach64_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxmach64_qws.cpp 
-
-unix:OBJECTS_DIR	= .obj
-
-TARGET		= qgfxmach64
-DESTDIR		= ../../../gfxdrivers
-DEFINES		-= QT_NO_QWS_MACH64
+		  ../../../../src/embedded/qgfxmach64_qws.cpp
 
 
 target.path += $$plugins.path/gfxdrivers

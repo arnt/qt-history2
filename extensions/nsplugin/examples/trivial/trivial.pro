@@ -1,10 +1,13 @@
-TEMPLATE	= lib
-CONFIG		+= qt dll release
-HEADERS		= 
-SOURCES		= trivial.cpp
-unix:LIBS	+= -lXt
-LIBS	+= -lqnp
-DEF_FILE	= trivial.def
-RC_FILE		= trivial.rc
+GUID 	 	= {ee430114-1a03-433b-a5a5-3589eafefba2}
+TEMPLATE 	= lib
 TARGET      	= trivial
 win32:TARGET	= nptrivial
+
+CONFIG	       += qt dll release
+LIBS	       += -lqnp
+unix:LIBS      += -lXt
+
+HEADERS		=
+SOURCES		= trivial.cpp
+DEF_FILE	= trivial.def
+RC_FILE		= trivial.rc

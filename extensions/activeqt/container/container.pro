@@ -1,8 +1,10 @@
-TEMPLATE        = lib
-CONFIG          += qt warn_on
+GUID 	 = {06389a79-2706-4f91-9fbd-8db657ffecd0}
+TEMPLATE = lib
+TARGET   = qaxcontainer
 
-DESTDIR         = $$QT_BUILD_TREE/lib
-TARGET          = qaxcontainer
+CONFIG  += qt warn_on
+DESTDIR  = $$QT_BUILD_TREE/lib
+
 INCLUDEPATH     += $$QT_SOURCE_TREE/tools/designer/interfaces
 
 contains( QT_PRODUCT, qt-internal) {

@@ -1,8 +1,11 @@
-QTDIR_build:REQUIRES        = thread
+GUID 		= {be5b7ad8-c8b7-4776-b7f9-2cfdb9b22402}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release thread
-HEADERS		= 
-SOURCES		= main.cpp
-INTERFACES	= 
 TARGET		= semaphores
-QTDIR_build:REQUIRES=full-config
+
+CONFIG		+= qt warn_on release thread
+
+QTDIR_build:REQUIRES        = thread full-config
+
+HEADERS		=
+SOURCES		= main.cpp
+INTERFACES	=

@@ -1,7 +1,9 @@
-SOURCES	+= vcr.cpp main.cpp 
-HEADERS	+= vcr.h 
+GUID 	 = {c1a94f19-05b2-4726-b4fe-d591a72d2372}
+TEMPLATE = app
+LANGUAGE = C++
 TARGET   = vcr
-TEMPLATE	=app
+
 CONFIG	+= qt warn_on release
-DBFILE	= vcr.db
-LANGUAGE	= C++
+SOURCES	+= vcr.cpp main.cpp
+HEADERS	+= vcr.h
+DBFILE	 = vcr.db

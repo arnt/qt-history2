@@ -1,8 +1,9 @@
-CONFIG += staticlib 
+GUID 	 = {b137d679-7729-4265-9648-24b72bdfc115}
+TEMPLATE = lib
+CONFIG += staticlib
 CONFIG += qt x11
 CONFIG -= dll
 TARGET = arq
-TEMPLATE = lib
 
 SOURCES += qarchive.cpp ../keygen/keyinfo.cpp
 HEADERS += qarchive.h

@@ -1,8 +1,11 @@
-TEMPLATE    = lib
-CONFIG      += qt warn_off staticlib
-TARGET      = qaxserver
-DEFINES	   += QAX_SERVER
+GUID 	 = {9ffafcf3-43b1-4d6e-a443-731d7c30c86b}
+TEMPLATE = lib
+TARGET   = qaxserver
 
+CONFIG  += qt warn_off staticlib
+DESTDIR  = $$QT_BUILD_TREE\lib
+
+DEFINES	+= QAX_SERVER
 
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
@@ -27,5 +30,3 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  qaxmain.cpp \
 		  ../shared/types.cpp
 }
-
-DESTDIR     = $$QT_BUILD_TREE\lib

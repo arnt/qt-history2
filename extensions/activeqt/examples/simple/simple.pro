@@ -1,6 +1,8 @@
-TEMPLATE    = app
-CONFIG	    += qt warn_off activeqt
-TARGET	    = simpleax
-SOURCES	    = main.cpp
+GUID 	 = {52fc781e-5325-4698-af9e-16ce320ffa20}
+TEMPLATE = app
+TARGET	 = simpleax
 
-RC_FILE	    = ../../control/qaxserver.rc
+CONFIG	+= qt warn_off activeqt
+
+SOURCES	 = main.cpp
+RC_FILE	 = ../../control/qaxserver.rc

@@ -1,7 +1,11 @@
+GUID 		= {9d75537e-e5cd-42c8-83be-4f75ae1f87fd}
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-HEADERS		= 
-SOURCES		= drawdemo.cpp
 TARGET		= drawdemo
-DEPENDPATH=../../include
-QTDIR_build:REQUIRES=full-config
+
+CONFIG		+= qt warn_on release
+DEPENDPATH	= ../../include
+
+QTDIR_build:REQUIRES	= full-config
+
+HEADERS		=
+SOURCES		= drawdemo.cpp
