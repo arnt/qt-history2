@@ -1531,7 +1531,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			b[x] = trans;
 		    if (!(bit >>= 1)) {
 			bit = 0x80;
-			while (*++m == 0xff && x<w) // skip chunks
+			while ( x<w && *++m == 0xff ) // skip chunks
 			    x+=8;
 		    }
 		}
