@@ -1028,14 +1028,14 @@ template <typename T> class QTypeInfo { public:
 // specialize a specific type
 enum {  Q_COMPLEX_TYPE = 1, Q_PRIMITIVE_TYPE = 0, Q_STATIC_TYPE = 2, Q_MOVABLE_TYPE = 0 };
 #define Q_DECLARE_TYPEINFO(TYPE, FLAGS) \
- template <> inline void qInit(TYPE &) { } \
- template <> inline void qDelete(TYPE &) { } \
- template <> class QTypeInfo<TYPE> { public: \
-    enum { isComplex = ((FLAGS & Q_COMPLEX_TYPE) == Q_COMPLEX_TYPE), \
-           isStatic  = ((FLAGS & Q_STATIC_TYPE)  == Q_STATIC_TYPE),\
-           isLarge   = (sizeof(TYPE)<=sizeof(void*)), \
-           isPointer = false }; \
- }
+    inline void qInit(TYPE &) { } \
+    inline void qDelete(TYPE &) { } \
+    template <> class QTypeInfo<TYPE> { public: \
+	enum { isComplex = ((FLAGS & Q_COMPLEX_TYPE) == Q_COMPLEX_TYPE), \
+	    isStatic  = ((FLAGS & Q_STATIC_TYPE)  == Q_STATIC_TYPE),\
+	    isLarge   = (sizeof(TYPE)<=sizeof(void*)), \
+	    isPointer = false }; \
+    }
 
 #ifdef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
@@ -1053,18 +1053,18 @@ enum {  Q_COMPLEX_TYPE = 1, Q_PRIMITIVE_TYPE = 0, Q_STATIC_TYPE = 2, Q_MOVABLE_T
       Q_DECLARE_TYPEINFO_POINTER(MyType)
 */
 #define Q_DECLARE_TYPEINFO_POINTER(TYPE) \
- template <> inline void qInit(TYPE &t) { t = 0; } \
- template <> inline void qDelete(TYPE &t) { delete t; } \
- template <> class QTypeInfo<TYPE> { public: \
-    enum { isComplex = false, \
-           isStatic  = false, \
-           isLarge   = false, \
-           isPointer = true }; \
- }
+    inline void qInit(TYPE &t) { t = 0; } \
+    inline void qDelete(TYPE &t) { delete t; } \
+    template <> class QTypeInfo<TYPE> { public: \
+	enum { isComplex = false, \
+	       isStatic  = false, \
+	       isLarge   = false, \
+	       isPointer = true }; \
+    }
 
 // provide a catch-all for void * and const void *
 // NOTE: qDelete(void *) and qDelete(const void *) specializations are declared further below
-template <> inline void qInit(void *&t) { t = 0; }
+inline void qInit(void *&t) { t = 0; }
 template <> class QTypeInfo<void*> { public:
     enum { isComplex = false,
 	   isStatic  = false,
@@ -1072,7 +1072,7 @@ template <> class QTypeInfo<void*> { public:
 	   isPointer = true };
 };
 
-template <> inline void qInit(const void *&t) { t = 0; }
+inline void qInit(const void *&t) { t = 0; }
 template <> class QTypeInfo<const void*> { public:
     enum { isComplex = false,
 	   isStatic  = false,
@@ -1101,7 +1101,7 @@ template <typename T> class QTypeInfo<T*> { public:
 
 // shared type specialization
 #define Q_DECLARE_SHARED(T) \
- template<> inline bool qIsDetached(T &t) {  return t.isDetached(); }
+    template<> inline bool qIsDetached(T &t) {  return t.isDetached(); }
 
 /*
   QTypeInfo primitive specializations
@@ -1143,6 +1143,7 @@ Q_DECLARE_TYPEINFO_POINTER(unsigned char *);
 Q_DECLARE_TYPEINFO_POINTER(bool *);
 Q_DECLARE_TYPEINFO_POINTER(float *);
 Q_DECLARE_TYPEINFO_POINTER(double *);
+/*
 Q_DECLARE_TYPEINFO_POINTER(const long *);
 Q_DECLARE_TYPEINFO_POINTER(const int *);
 Q_DECLARE_TYPEINFO_POINTER(const short *);
@@ -1154,7 +1155,7 @@ Q_DECLARE_TYPEINFO_POINTER(const unsigned char *);
 Q_DECLARE_TYPEINFO_POINTER(const bool *);
 Q_DECLARE_TYPEINFO_POINTER(const float *);
 Q_DECLARE_TYPEINFO_POINTER(const double *);
-
+*/
 // void* and const void* are special, since deleting them is undefined
 template <> inline void qDelete(const void *&) { }
 template <> inline void qDelete(void *&) { }
