@@ -1096,12 +1096,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
             return false;
         }
     }
-
-    // ### Handled by QPainter...
-//     updateXForm(state);
-//     updateBrush(state);
-//     updatePen(state);
-//     updateClipRegion(state);
     return true;
 }
 
@@ -1264,6 +1258,7 @@ void
 QCoreGraphicsPaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     Q_ASSERT(isActive());
+    d->current.rop = rop;
     if(rop != CopyROP)
         qt_mac_cg_no_rasterop();
 }
@@ -1297,11 +1292,12 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipE
 {
     Q_ASSERT(isActive());
     bool old_clipEnabled = testf(ClipOn);
-    if(clipEnabled)
+    if(clipEnabled) {
+        d->current.clip = clipRegion;
         setf(ClipOn);
-    else
+    } else {
         clearf(ClipOn);
-    QQuickDrawPaintEngine::setClippedRegionInternal(const_cast<QRegion *>(&clipRegion)); //compat
+    }
     if(clipEnabled || old_clipEnabled)
         setupCGClip(clipEnabled ? &clipRegion : 0);
 }

@@ -82,16 +82,7 @@ public:
         textAntialiasingEnabled = 1;
     }
 
-    //state info
-    struct {
-        QPen pen;
-        QBrush brush;
-        struct {
-            QPoint origin;
-            Qt::BGMode mode;
-            QBrush brush;
-        } bg;
-    } current;
+    //state info (shared with QD)
 
     //cg strucutres
     CGContextRef hd;

@@ -42,7 +42,7 @@ void QMacStyleQDPainter::setport()
         mpe = (QQuickDrawPaintEngine*)d->engine;
     if(mpe) {
         mpe->updateState(d->state);
-        if(mpe->type() == QPaintEngine::CoreGraphics) {
+        if(mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
         } else {
             QRegion rgn;

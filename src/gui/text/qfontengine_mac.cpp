@@ -134,6 +134,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     }
     if(p->type() == QPaintEngine::QuickDraw) {
         QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
+        mgc->updateState(pState);
         mgc->setupQDPort(false, 0, 0);
         mgc->setupQDFont();
     }
