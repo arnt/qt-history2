@@ -90,8 +90,8 @@ png {
 		  3rdparty/libpng/pngwtran.c \
 		  3rdparty/libpng/pngwutil.c 
 }
-!png:LIBS += -lpng
-
+!no-png:!png:LIBS += -lpng
+no-png:DEFINES += QT_NO_IMAGEIO_PNG
 #zlib support
 zlib {
 	INCLUDEPATH       += 3rdparty/zlib
@@ -110,7 +110,7 @@ zlib {
 		  3rdparty/zlib/uncompr.c \
 		  3rdparty/zlib/zutil.c
 }
-!zlib:LIBS += -lz
+!no-zlib:!zlib:LIBS += -lz
 
 #use Qt gif
 gif:DEFINES += QT_BUILTIN_GIF_READER

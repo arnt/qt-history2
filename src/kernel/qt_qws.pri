@@ -2,12 +2,9 @@
 
 embedded {
 	CONFIG -= opengl
-	CONFIG	+= png zlib
 	CONFIG -= jpeg
 	CONFIG -= x11
 	LIBS -= -dl
-	SUBLIBS += freetype png mng z
-	jpeg:SUBLIBS += jpeg
 
 	HEADERS += $$STYLES_H/qcompactstyle.h \
 		    $$KERNEL_H/qcopchannel_qws.h \
@@ -111,19 +108,9 @@ embedded {
 		3rdparty/freetype/include \
 		3rdparty/freetype/builds/unix
 
+	!ft:DEFINES += QT_NO_FREETYPE
+
 	PRECOMPH=$(QTDIR)/src/kernel/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
-	MAKELIBz = $(MAKE) -C 3rdparty/zlib -f Makefile$$DASHCROSS; \
-			cp 3rdparty/zlib/libz.a tmp
-	MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 CONFIG_MK=config$$DASHCROSS.mk OBJ_DIR=../../tmp \
-			    ../../tmp/libfreetype.a
-	MAKELIBpng = $(MAKE) -C 3rdparty/libpng \
-			    -f scripts/makefile.linux$$DASHCROSS; \
-			    cp 3rdparty/libpng/libpng.a tmp
-	MAKELIBmng = $(MAKE) -C 3rdparty/libmng \
-			    -f makefiles/makefile.linux$$DASHCROSS; \
-			    cp 3rdparty/libmng/libmng.a tmp
-	MAKELIBjpeg = $(MAKE) -C 3rdparty/jpeglib -f makefile.unix$$DASHCROSS; \
-			    cp 3rdparty/jpeglib/libjpeg.a tmp
 }
 

@@ -17,10 +17,10 @@
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_XBM
 #define QT_NO_IMAGEIO_XPM
-#define QT_NO_IMAGEIO_PNG
+//#define QT_NO_IMAGEIO_PNG //done by configure -no-png
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
-#define QT_NO_FREETYPE
+//#define QT_NO_FREETYPE //done by configure -no-freetype
 #define QT_NO_BDF
 #define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION

@@ -148,7 +148,9 @@
 /*!
   Dynamic module linking
 */
-# define QT_NO_COMPONENT
+# ifndef QT_NO_COMPONENT
+#  define QT_NO_COMPONENT
+# endif
 #endif
 
 #if  defined(QT_NO_DIR)
@@ -996,7 +998,9 @@
     /*!
 	Aqua style
     */
-# define QT_NO_STYLE_AQUA
+# if !defined(QT_NO_STYLE_AQUA)
+#  define QT_NO_STYLE_AQUA
+# endif
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS)
