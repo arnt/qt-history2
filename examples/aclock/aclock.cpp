@@ -14,6 +14,8 @@
 #include <qtimer.h>
 #include <qpainter.h>
 #include <qbitmap.h>
+#include <qevent.h>
+#include <qdesktopwidget.h>
 
 //
 // Constructs an analog clock widget that uses an internal QTimer.
