@@ -558,8 +558,49 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 	QToolTip::add( this, newLabel );
 }
 
+/*!
+  Sets the icon that is used when the button
+  is in on-state.
+  
+  \sa setIconSet
+*/
+void QToolButton::setOnIconSet( const QIconSet& set )
+{
+    setIconSet( set, TRUE );
+}
 
+/*!
+  Sets the icon that is used when the button
+  is in off-state.
+  
+  \sa setIconSet
+*/
+void QToolButton::setOffIconSet( const QIconSet& set )
+{
+    setIconSet( set, FALSE );
+}
 
+/*!
+  Returns the icon set which is used if the toolbutton
+  is in on-state.
+  
+  \sa iconSet()
+*/
+QIconSet QToolButton::onIconSet() const
+{
+    return iconSet( TRUE );
+}
+
+/*!
+  Returns the icon set which is used if the toolbutton
+  is in off-state.
+  
+  \sa iconSet()
+*/
+QIconSet QToolButton::offIconSet( ) const
+{
+    return iconSet( FALSE );
+}
 
 
 /*!  Sets this tool button to display the icons in \a set.
