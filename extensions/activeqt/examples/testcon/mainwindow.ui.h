@@ -16,11 +16,6 @@
 #include "docuwindow.h"
 #include <qlabel.h>
 
-IDispatch *create_object_wrapper( QObject *o )
-{
-    return 0;
-}
-
 void MainWindow::changeProperties()
 {
     QAxWidget *container = 0;

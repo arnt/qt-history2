@@ -1,20 +1,32 @@
 /****************************************************************************
+** $Id: $
 **
-** Implementation of the Qt Designer integration plugin.
+** Implementation of the Qt Designer integration plugin
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Active Qt integration.
-** EDITIONS: ENTERPRISE
+**
+** Licensees holding valid Qt Enterprise Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
-
-#ifdef QT_PLUGIN
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include <qwidgetplugin.h>
+#include <qaxwidget.h>
 #include <qdialog.h>
 #include <qlayout.h>
 #include <qlistbox.h>
@@ -31,8 +43,7 @@
 #include <ocidl.h> 
 #include <olectl.h>
 
-#include "qaxwidget.h"
-#include "qactivexselect.h"
+#include "../container/qactivexselect.h"
 
 
 /* XPM */
@@ -447,5 +458,3 @@ Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( QActiveXPlugin )
 }
-
-#endif // QT_PLUGIN

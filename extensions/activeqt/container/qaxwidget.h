@@ -18,7 +18,7 @@
 
 class QAxHostWindow;
 
-class QAX_EXPORT QAxWidget : public QWidget, public QAxBase
+class QAxWidget : public QWidget, public QAxBase
 {
 public:
     QMetaObject *metaObject() const;

@@ -15,6 +15,7 @@
 
 #include <qsettings.h>
 #include <qapplication.h>
+#include <designerinterface.h>
 #include <qt_windows.h>
 
 class ListBoxText : public QListBoxText

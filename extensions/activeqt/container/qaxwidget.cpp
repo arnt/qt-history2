@@ -286,7 +286,7 @@ private:
 };
 
 // The filter procedure listening to user interaction on the control
-LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
     static bool reentrant = FALSE;
     static bool ignoreNext = FALSE;
@@ -1423,10 +1423,10 @@ bool QAxWidget::createHostWindow( bool initialized )
     if ( !hhook ) {
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	    hhook = SetWindowsHookEx( WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId() );
 	else
 #endif
-	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	    hhook = SetWindowsHookExA( WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId() );
     }
     ++hhookref;
     container->hostWidget()->resize( size() );

@@ -3650,9 +3650,3 @@ QVariant QAxBase::asVariant() const
     the help file, and the help context ID in brackets, e.g. "filename [id]".
 */
 
-//### dummy implementation to avoid linking errors
-IDispatch *create_object_wrapper( QObject * )
-{
-    return 0;
-}
-

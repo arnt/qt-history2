@@ -2,9 +2,9 @@ TEMPLATE        = lib
 CONFIG          += qt warn_on
 
 DESTDIR         = $$QT_BUILD_TREE/lib
-DLLDESTDIR      = $$QT_BUILD_TREE/bin
 TARGET          = qaxcontainer
 INCLUDEPATH     += $$QT_SOURCE_TREE/tools/designer/interfaces
+DEFINES		+= QAX_CONTAINER
 
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
@@ -27,10 +27,4 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		      ../shared/types.cpp
 
     FORMS           = qactivexselect.ui
-
-    shared {
-	CONFIG      += plugin
-	SOURCES     += plugin.cpp
-	DLLDESTDIR  += $$QT_BUILD_TREE/plugins/designer
-    }
 }

@@ -20,7 +20,7 @@
 #include "qaxbase.h"
 #include <qobject.h>
 
-class QAX_EXPORT QAxObject : public QObject, public QAxBase
+class QAxObject : public QObject, public QAxBase
 {
     friend class QAxEventSink;
 public:

@@ -958,11 +958,12 @@
     enter the \c container subdirectory and run \c qmake to generate the
     makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
     to build the library. The library \c qaxcontainer.lib will be linked 
-    into \c QTDIR/lib. If you build a shared library (i.e. when Qt is a 
-    shared library) the \c qaxcontainer.dll will be copied into 
-    \c QTDIR/bin and into the \link designer-manual.book Qt
-    Designer\endlink plugin directory.
-    
+    into \c QTDIR/lib.
+
+    If you have a shared configuration of Qt enter the \c plugin subdirectory
+    and run \c qmake and your make tool to build a plugin that integrates the
+    QAxWidget class into \link designer-manual.book Qt Designer\endlink.
+
     \section1 Using the library
 
     To build Qt applications that can host COM objects and ActiveX controls
@@ -976,14 +977,11 @@
 
     \section2 Distributing QAxContainer applications
 
-    If the Qt library is build statically the QAxContainer library
-    will also be static, and you don't need to redistribute any
-    binaries except the application executable (and of course
-    the ActiveX server binary if necessary).
-
-    To distribute your application when Qt and QAxContainer are
-    shared DLLs provide both DLLs either in the system path, or
-    in the same directory as the application's executable.
+    The QAxContainer library is static, so there is no need to redistribute
+    any additional files when using this module. Note however that the
+    the ActiveX server binaries you are using might not be installed on the
+    target system, so you have to ship them with your package and register
+    them during the installation process of your application.
 
     \section1 Accessing the object API
 

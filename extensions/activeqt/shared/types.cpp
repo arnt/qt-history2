@@ -1430,9 +1430,11 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		var.punkVal = (IUnknown*)ptrvalue;
 		if ( ptrvalue )
 		    var.punkVal->AddRef();
+#ifndef QAX_CONTAINER
 	    } else if ( QMetaObject::metaObject( vartype ) ) {
 		var.vt = VT_DISPATCH;
 		var.pdispVal = ptrvalue ? create_object_wrapper( (QObject*)ptrvalue ) : 0;
+#endif
 	    }
 	} else {
 	    vartype = param->type->desc();

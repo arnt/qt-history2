@@ -17,16 +17,6 @@
 #ifndef QAXBASE_H
 #define QAXBASE_H
 
-#if defined(QT_DLL)
-#if defined(QT_PLUGIN)
-#define QAX_EXPORT __declspec(dllexport)
-#else
-#define QAX_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QAX_EXPORT
-#endif
-
 #include <qvariant.h>
 #include <qobject.h>
 
@@ -36,7 +26,7 @@ class QAxEventSink;
 class QAxObject;
 class QAxBasePrivate;
 
-class QAX_EXPORT QAxBase
+class QAxBase
 {
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
