@@ -1959,20 +1959,26 @@ QMetaObject *QAxBase::metaObject() const
 	    ULONG c = 1;
 	    IConnectionPoint *cpoint = 0;
 	    epoints->Reset();
+	    QValueList<QUuid> cpointlist;
 	    do {
 		if ( cpoint ) cpoint->Release();
-		IConnectionPoint *oldcpoint = cpoint;
 		cpoint = 0;
 		HRESULT hres = epoints->Next( c, &cpoint, &c );
-		if ( !c || cpoint == oldcpoint )
+		if ( !c )
 		    break;
 
 		IID conniid;
 		cpoint->GetConnectionInterface( &conniid );
+		// workaround for typelibrary bug of Word.Application
+		QUuid connuuid( conniid );
+		if ( cpointlist.contains( connuuid ) )
+		    break;
+		else
+		    cpointlist.append( connuuid );
+
 #ifndef QAX_NO_CLASSINFO
 		if ( d->useClassInfo ) {
-  		    QUuid uuid( conniid );
-  		    QString uuidstr = uuid.toString().upper();
+  		    QString uuidstr = connuuid.toString().upper();
   		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
   		    static eventcount = 0;
   		    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
