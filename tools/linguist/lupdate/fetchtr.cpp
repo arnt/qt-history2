@@ -57,9 +57,9 @@ static QMap<QCString, int> lacks_Q_OBJECT;
 
 enum { Tok_Eof, Tok_class, Tok_namespace, Tok_return, Tok_tr,
        Tok_trUtf8, Tok_translate, Tok_Q_OBJECT, Tok_Ident,
-       Tok_Comment, Tok_String, Tok_Colon, Tok_Gulbrandsen,
-       Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen, Tok_RightParen,
-       Tok_Comma, Tok_Semicolon };
+       Tok_Comment, Tok_String, Tok_Arrow, Tok_Colon,
+       Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
+       Tok_RightParen, Tok_Comma, Tok_Semicolon };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -267,6 +267,13 @@ static int getToken()
 		} else {
 		    yyCh = getChar();
 		    return Tok_String;
+		}
+		break;
+	    case '-':
+		yyCh = getChar();
+		if ( yyCh == '>' ) {
+		    yyCh = getChar();
+		    return Tok_Arrow;
 		}
 		break;
 	    case ':':
@@ -512,6 +519,12 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		}
 	    }
 	    yyTok = getToken();
+	    break;
+	case Tok_Arrow:
+	    yyTok = getToken();
+	    if ( yyTok == Tok_tr || yyTok == Tok_trUtf8 )
+		qWarning( "%s:%d: Cannot invoke tr() like this",
+			  (const char *) yyFileName, yyLineNo );
 	    break;
 	case Tok_Gulbrandsen:
 	    // at top level?
