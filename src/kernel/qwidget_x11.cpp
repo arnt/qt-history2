@@ -2327,6 +2327,7 @@ void QWidget::updateFrameStrut()
 {
     if (! isTopLevel() || ! isVisible() || isDesktop()) {
 	fleft = fright = ftop = fbottom = 0;
+	fstrut_dirty = isVisible();
 	return;
     }
 

@@ -275,11 +275,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    fleft = crect.left() - fr.left;
 	    fbottom = fr.bottom - crect.bottom();
 	    fright = fr.right - crect.right();
+	    fstrut_dirty = FALSE;
 
 	    createTLExtra();
  	} else {
 	    crect.setCoords( cr.left, cr.top, cr.right, cr.bottom );
 	    ftop = fleft = fbottom = fright = 0;
+	    fstrut_dirty = FALSE;
 	    // in case extra data already exists (eg. reparent()).  Set it.
 	}
     }
@@ -1272,11 +1274,12 @@ void QWidget::setName( const char *name )
 
 void QWidget::updateFrameStrut()
 {
-    if ( !fstrut_dirty || !isVisible() || isDesktop() )
-        return;
+    if ( !isVisible() )
+	return;
 
-    if ( !isTopLevel() ) {
+    if ( !isTopLevel() || isDesktop() ) {
 	fleft = fright = ftop = fbottom = 0;
+	fstrut_dirty = FALSE;
 	return;
     }
 
@@ -1297,5 +1300,5 @@ void QWidget::updateFrameStrut()
     fbottom = fr.bottom - crect.bottom();
     fright = fr.right - crect.right();
 
-    fstrut_dirty = 0;
+    fstrut_dirty = FALSE;
 }
