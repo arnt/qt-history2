@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#309 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#310 $
 **
 ** Implementation of QFileDialog class
 **
@@ -67,7 +67,7 @@
 #endif
 
 // see comment near use of this variable
-static const char * egcsWorkaround = "%x  %X";
+//static const char * egcsWorkaround = "%x  %X";
 
 static QFileIconProvider * fileIconProvider = 0;
 
@@ -1782,7 +1782,7 @@ void QFileDialog::init()
 	resize( 420, 236 );
     } else {
 	QSize s( files->sizeHint() );
-	s = QSize( s.width() + 400, s.height() + 82 );
+	s = QSize( s.width() + 300, s.height() + 82 );
 
 	if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
 	    s.setWidth( QApplication::desktop()->width() * 2 / 3 );
