@@ -14,26 +14,44 @@
 #include <qtimer.h>
 #include <qapplication.h>
 
+/*
+  As the Qt Network Architecture works on hirarchical structures, it's
+  not useful for each implementation of a network protocol. Such an example
+  is sending mails via SMTP. As this is one of the simplest protocols, and has
+  nothing todo with hirachical structures, you just need a socket and write some 
+  stuff to it. Here is an implementation of the SMTP protocol using QSocket and 
+  nothing else of the Qt network Architecture is used.
+*/
+
 Smtp::Smtp( const QString &server_, int port_,
 	    const QString &from_, const QString &to_, const QString &subject_,
 	    const QString &cc_, const QString &bcc_, const QString &message_ )
     : server( server_ ), from( from_ ), to( to_ ), subject( subject_ ),
       cc( cc_ ), bcc( bcc_ ), message( message_ ), port( port_ )
 {
+    // create socket and connect to some signals
     socket = new QSocket( this );
     connect ( socket, SIGNAL( readyRead() ),
 	      this, SLOT( readyRead() ) );
     connect ( socket, SIGNAL( connected() ),
 	      this, SLOT( connected() ) );
 
+    // connect to SMTP server
     socket->connectToHost( server, port );
+
+    // To know what we have to write at which time, the
+    // protocol is implemented as state machine. Set the state
+    // to Init at the beginning.
     state = Init;
 }
 
 void Smtp::connected()
 {
+    // Connection is up - send greetings to the server
     QString cmd = "HELO " + server + "\r\n";
     socket->writeBlock( cmd, cmd.length() );
+    
+    // Next state
     state = Mail;
 }
 
@@ -43,6 +61,9 @@ void Smtp::readyRead()
     s.resize( socket->bytesAvailable() );
     socket->readBlock( s.data(), socket->bytesAvailable() );
 
+    // something has been came back, so do what the
+    // state tells us...
+    
     QString cmd;
     if ( state == Mail ) {
 	cmd = "MAIL FROM:" + from + "\r\n";
@@ -84,10 +105,17 @@ void Smtp::readyRead()
     } else if ( state == Close ) {
 	socket->close();
 	emit finished();
+	// delete myself in 1 ms
 	QTimer::singleShot( 1, this, SLOT( deleteMe() ) );
     }
+    
+    // chage state to the next one
     state++;
-    if ( state == From || state == To || state == Subject || 
+    
+    // if the state is one of these, nothing will come back from
+    // the server, so we need to call this slot manually, but
+    // to avoid blocking the app, process some events before
+    if ( state == From || state == To || state == Subject ||
 	 state == Cc || state == Bcc || state == Message ) {
 	qApp->processEvents();
 	readyRead();
