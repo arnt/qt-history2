@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#52 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#52 $")
 
 
 /*
@@ -672,7 +672,7 @@ bool QPixmap::convertFromImage( const QImage &img )
     XImage *xi	   = 0;
     bool    trucol = visual->c_class == TrueColor;
     int	    nbytes = image.numBytes();
-    uchar  *newbits;
+    uchar  *newbits= 0;
     register uchar *p;
 
     if ( trucol ) {				// truecolor display
