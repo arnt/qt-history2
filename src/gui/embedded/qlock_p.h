@@ -50,12 +50,12 @@ private:
 
 // Nice class for ensuring the lock is released.
 // Just create one on the stack and the lock is automatically released
-// when QLockHolder is destructed.
-class QLockHolder
+// when QLockHandle is destructed.
+class QLockHandle
 {
 public:
-    QLockHolder(QLock *l, QLock::Type type) : qlock(l) { qlock->lock(type); }
-    ~QLockHolder() { if (locked()) qlock->unlock(); }
+    QLockHandle(QLock *l, QLock::Type type) : qlock(l) { qlock->lock(type); }
+    ~QLockHandle() { if (locked()) qlock->unlock(); }
 
     void lock(QLock::Type type) { qlock->lock(type); }
     void unlock() { qlock->unlock(); }
