@@ -1808,7 +1808,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName().local8Bit(), className(), QWIDGETSIZE_MAX,
+                 objectName().local8Bit(), metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
         maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -1816,7 +1816,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw < 0 || maxh < 0) {
         qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName().local8Bit(), className(), maxw, maxh);
+                 objectName().local8Bit(), metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }
@@ -2023,17 +2023,16 @@ double QWidget::windowOpacity() const
 
 static QSingleCleanupHandler<QPaintEngine> qt_paintengine_cleanup_handler;
 static QPaintEngine *qt_widget_paintengine = 0;
-
 QPaintEngine *QWidget::engine() const
 {
-    if(!d->paintEngine) {
+    if (!qt_widget_paintengine) {
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
-            const_cast<QWidget *>(this)->d->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
+            qt_widget_paintengine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
         else
 #endif
-            const_cast<QWidget *>(this)->d->paintEngine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
+            qt_widget_paintengine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
-    return d->paintEngine;
+    return qt_widget_paintengine;
 }
-
