@@ -23,7 +23,7 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 	    if ( ( me->state() & ControlButton ) == ControlButton ) {
 		curEditor->viewport()->setCursor( pointingHandCursor );
 		QTextCursor c( curEditor->document() );
-		curEditor->placeCursor( me->pos(), &c );
+		curEditor->placeCursor( curEditor->viewportToContents( me->pos() ), &c );
 		QTextCursor from, to;
 		if ( oldHighlightedParag ) {
 		    oldHighlightedParag->setEndState( -1 );
@@ -45,7 +45,8 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	    break;
-	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonPress: {
+	    bool killEvent = !lastWord.isEmpty();
 	    if ( !lastWord.isEmpty() )
 		showHelp( lastWord );
 	    lastWord = "";
@@ -56,7 +57,9 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		curEditor->repaintChanged();
 	    }
 	    oldHighlightedParag = 0;
-	    break;
+	    if ( killEvent )
+		return TRUE;
+	} break;
 	case QEvent::KeyRelease:
 	    lastWord = "";
 	    ke = (QKeyEvent*)e;
