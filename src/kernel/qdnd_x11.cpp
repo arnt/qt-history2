@@ -251,7 +251,7 @@ static const char* const default_pm[] = {
 };
 
 class QShapedPixmapWidget : public QWidget {
-    QPixmap pixmap;
+    
 public:
     QShapedPixmapWidget(int screen = -1) :
 	QWidget(QApplication::desktop()->screen( screen ),
@@ -261,18 +261,13 @@ public:
 
     void setPixmap(QPixmap pm)
     {
-	pixmap = pm;
-	if ( pixmap.mask() ) {
-	    setMask( *pixmap.mask() );
+	if ( pm.mask() ) {
+	    setMask( *pm.mask() );
 	} else {
 	    clearMask();
 	}
 	resize(pm.width(),pm.height());
-    }
-
-    void paintEvent(QPaintEvent*)
-    {
-	bitBlt(this,0,0,&pixmap);
+	setErasePixmap(pm);
     }
 };
 
