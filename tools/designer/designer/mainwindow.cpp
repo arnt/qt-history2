@@ -1090,7 +1090,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::Enter:
     case QEvent::Leave:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) || o->inherits( "QDesignerMenuBar" ) )
 	    break;
 	return TRUE;
     case QEvent::Resize:
