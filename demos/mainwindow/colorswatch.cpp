@@ -162,10 +162,20 @@ void ColorSwatch::polishEvent(QEvent *)
         allowBottomAction->setEnabled(area != Qt::DockWindowAreaBottom);
     }
 
+    leftAction->blockSignals(true);
+    rightAction->blockSignals(true);
+    topAction->blockSignals(true);
+    bottomAction->blockSignals(true);
+
     leftAction->setChecked(area == Qt::DockWindowAreaLeft);
     rightAction->setChecked(area == Qt::DockWindowAreaRight);
     topAction->setChecked(area == Qt::DockWindowAreaTop);
     bottomAction->setChecked(area == Qt::DockWindowAreaBottom);
+
+    leftAction->blockSignals(false);
+    rightAction->blockSignals(false);
+    topAction->blockSignals(false);
+    bottomAction->blockSignals(false);
 
     if (areaActions->isEnabled()) {
         leftAction->setEnabled(areas & Qt::DockWindowAreaLeft);
