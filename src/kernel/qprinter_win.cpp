@@ -48,6 +48,31 @@ QPrinter::QPrinter()
     to_edge	= FALSE;
     viewOffsetDone = FALSE;
     painter     = 0;
+    
+    if ( qt_winver == Qt::WV_NT ) {
+	PRINTDLG pd;
+	memset( &pd, 0, sizeof(PRINTDLG) );
+	pd.lStructSize = sizeof(PRINTDLG);
+	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
+	if ( PrintDlg( &pd ) != 0 )
+	    hdc	= pd.hDC;
+	if ( pd.hDevMode )
+	    GlobalFree( pd.hDevMode );
+	if ( pd.hDevNames )
+	    GlobalFree( pd.hDevNames );
+    }
+    else {
+	PRINTDLGA pd;
+	memset( &pd, 0, sizeof(PRINTDLGA) );
+	pd.lStructSize = sizeof(PRINTDLGA);
+	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
+	if ( PrintDlgA( &pd ) != 0 )
+	    hdc	= pd.hDC;
+	if ( pd.hDevMode )
+	    GlobalFree( pd.hDevMode );
+	if ( pd.hDevNames )
+	    GlobalFree( pd.hDevNames );
+    }
 }
 
 QPrinter::~QPrinter()
