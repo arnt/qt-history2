@@ -48,9 +48,11 @@
 
 class QSocketNotifier;
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
 #include <qptrlist.h>
+#endif // Q_OS_UNIX || Q_WS_WIN
 
+#if defined(Q_OS_UNIX)
 struct QSockNot
 {
     QSocketNotifier *obj;
@@ -72,6 +74,12 @@ public:
 };
 #endif // Q_OS_UNIX
 
+#if defined(Q_WS_WIN)
+struct QSockNot {
+    QSocketNotifier *obj;
+    int fd;
+};
+#endif // Q_WS_WIN
 
 class QEventLoopPrivate
 {
@@ -113,6 +121,12 @@ public:
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
 #endif
+
+#ifdef Q_WS_WIN
+    // pending socket notifiers list
+    QPtrList<QSockNot> sn_pending_list;
+#endif // Q_WS_WIN
+
 };
 
 #endif // QEVENTLOOP_P_H

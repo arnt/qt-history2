@@ -371,11 +371,6 @@ bool qKillTimer( QObject *obj )
   for select() through the internal function qt_set_socket_handler().
  *****************************************************************************/
 
-struct QSockNot {
-    QObject *obj;
-    int	     fd;
-};
-
 typedef QIntDict<QSockNot> QSNDict;
 
 static QSNDict *sn_read	  = 0;
@@ -422,8 +417,7 @@ void qt_sn_activate_fd( int sockfd, int type )
     QSNDict  *dict = *sn_vec[type];
     QSockNot *sn   = dict ? dict->find(sockfd) : 0;
     if ( sn ) {
-	QEvent event( QEvent::SockAct );
-	QApplication::sendEvent( sn->obj, &event );
+	QApplication::eventLoop()->setSocketNotifierPending( sn->obj );
     }
 }
 
@@ -440,6 +434,7 @@ void QEventLoop::cleanup()
 {
     // cleanup the common parts of the event loop
     cleanupTimers();
+    sn_cleanup();
 }
 
 void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
@@ -478,17 +473,12 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 
 #ifndef Q_OS_TEMP
     int sn_event = 0;
-    switch ( type ) {
-    case QSocketNotifier::Read:
+    if ( sn_read && sn_read->find(sockfd) )
 	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
-	break;
-    case QSocketNotifier::Write:
+    if ( sn_write && sn_write->find(sockfd) )
 	sn_event |= FD_WRITE | FD_CONNECT;
-	break;
-    case QSocketNotifier::Exception:
+    if ( sn_except && sn_except->find(sockfd) )
 	sn_event |= FD_OOB;
-	break;
-    }
     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
     // This is a BoundsChecker bug and not a Qt bug
     WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
@@ -532,15 +522,15 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	return;
 
 #ifndef Q_OS_TEMP // ### This probably needs fixing
-	    int sn_event = 0;
+    int sn_event = 0;
     if ( sn_read && sn_read->find(sockfd) )
 	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
     if ( sn_write && sn_write->find(sockfd) )
 	sn_event |= FD_WRITE | FD_CONNECT;
     if ( sn_except && sn_except->find(sockfd) )
 	sn_event |= FD_OOB;
-  // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
-  // This is a BoundsChecker bug and not a Qt bug
+    // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
+    // This is a BoundsChecker bug and not a Qt bug
     WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
 #else
 /*
@@ -559,6 +549,27 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 #endif
 
 
+}
+
+void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
+{
+    int sockfd = notifier->socket();
+    int type = notifier->type();
+    if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QSocketNotifier: Internal error" );
+#endif
+	return;
+    }
+
+    QSNDict  *dict = *sn_vec[type];
+    QSockNot *sn   = dict ? dict->find(sockfd) : 0;
+    if ( !sn )
+	return;
+
+    if ( d->sn_pending_list.findRef( sn ) >= 0 )
+	return;
+    d->sn_pending_list.append( sn );
 }
 
 bool QEventLoop::hasPendingEvents() const
@@ -623,6 +634,9 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	DispatchMessageA( &msg );		// send to QtWndProc
     } );
 
+    if ( !(flags & ExcludeSocketNotifiers ) )
+	activateSocketNotifiers();
+
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
     QApplication::sendPostedEvents();
@@ -634,4 +648,33 @@ void QEventLoop::wakeUp()
 {
     if ( GetCurrentThreadId() != qt_gui_thread )
 	PostThreadMessageA( qt_gui_thread, WM_NULL, 0, 0 );
+}
+
+int QEventLoop::timeToWait() const
+{
+    return -1;
+}
+
+int QEventLoop::activateTimers()
+{
+    return 0;
+}
+
+int QEventLoop::activateSocketNotifiers()
+{
+    if ( d->sn_pending_list.isEmpty() )
+	return 0; // nothing to do
+
+    int n_act = 0;
+    QEvent event( QEvent::SockAct );
+    QPtrListIterator<QSockNot> it( d->sn_pending_list );
+    QSockNot *sn;
+    while ( (sn=it.current()) ) {
+	++it;
+	d->sn_pending_list.removeRef( sn );
+	QApplication::sendEvent( sn->obj, &event );
+	n_act++;
+    }
+
+    return n_act;
 }
