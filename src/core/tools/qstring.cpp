@@ -5334,12 +5334,12 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 /*!
   Normalizes the string to the Unicode normalization form
  */
-QString QString::normalize(QString::NormalizationForm form)
+QString QString::normalized(QString::NormalizationForm form) const
 {
     return QUnicodeTables::normalize(*this, form);
 }
 
-QString QString::normalize(QString::NormalizationForm form, QChar::UnicodeVersion version)
+QString QString::normalized(QString::NormalizationForm form, QChar::UnicodeVersion version) const
 {
     return QUnicodeTables::normalize(*this, form, version);
 }

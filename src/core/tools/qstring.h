@@ -213,8 +213,8 @@ public:
         NormalizationForm_KD,
         NormalizationForm_KC
     };
-    QString normalize(NormalizationForm mode);
-    QString normalize(NormalizationForm mode, QChar::UnicodeVersion version);
+    QString normalized(NormalizationForm mode) const;
+    QString normalized(NormalizationForm mode, QChar::UnicodeVersion version) const;
 
     const ushort *utf16() const;
 
