@@ -474,14 +474,14 @@ QWSUsbKeyboardHandler::QWSUsbKeyboardHandler() : QWSKeyboardHandler()
     } else {
 	printf("Opened USB %s\n",terminalName.latin1());
     }
-    
+
     if ( kbdFD >= 0 ) {
 	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
 	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
-    
+
     }
-    
+
 }
 
 QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
@@ -507,8 +507,6 @@ void QWSUsbKeyboardHandler::readKeyboardData()
 
     unsigned char buf[81];
 
-    qDebug("USB read data");
-    
     int n = read(kbdFD, buf, 16 );
     if ( n != 16 )
 	return;
@@ -794,7 +792,7 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
     server = this;
 
     QWSKeyboardHandler *handler = 0;
-    
+
     if ( spec == "Buttons" ) {
 	handler = new QWSVr41xxButtonsHandler();
     } else if ( spec == "QVFbKeyboard" ) {
