@@ -40,10 +40,10 @@
 \title Walkthrough: Using SAX2 features with the Qt XML classes
 
 This document assumes that you are familiar with \link xml.html#namespaces 
-namespaces \endlink in XML and the concept of a \link xml-sax.html SAX2 
+namespaces \endlink in XML and the concept of a \link xml.html#sax2 SAX2 
 parser \endlink.
 If features of SAX2 readers are new to you please read 
-\link xml-sax.html#features the feature section \endlink of the SAX2 document.
+\link xml.html#sax2Features the feature section \endlink of the SAX2 document.
 
 As a novice to the Qt XML classes it is advisable to have a look at the
 \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough \endlink before
@@ -100,7 +100,7 @@ and thus influence how the XML data are read.
 \printline container
 
 Now let's think about presenting the output: As described in the
-\link xml-sax.html#features Qt SAX2 documentation \endlink
+\link xml.html#sax2Features Qt SAX2 documentation \endlink
 there are three valid combinations of \e
 http://xml.org/sax/features/namespace-prefixes
 and \e http://xml.org/sax/features/namespaces: TRUE/TRUE, TRUE/FALSE and

@@ -384,7 +384,7 @@ public:
   use is for subclasses of QXmlReader which want to provide namespace
   support.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 
 /*!
@@ -630,7 +630,7 @@ void QXmlNamespaceSupport::reset()
   Returns the index of the attribute (starting with 0) or -1 if it wasn't
   found.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 int QXmlAttributes::index( const QString& qName ) const
 {
@@ -647,7 +647,7 @@ int QXmlAttributes::index( const QString& qName ) const
   Returns the index of the attribute (starting with 0) or -1 if it wasn't
   found.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 {
@@ -676,7 +676,7 @@ int QXmlAttributes::length() const
   Looks up an attribute's local name for the index \a index (starting with 0).
   If no namespace processing is done, the local name is a null string.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::localName( int index ) const
 {
@@ -687,7 +687,7 @@ QString QXmlAttributes::localName( int index ) const
   Looks up an attribute's XML 1.0 qualified name for the index \a index
   (starting with 0).
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::qName( int index ) const
 {
@@ -699,7 +699,7 @@ QString QXmlAttributes::qName( int index ) const
   0). If no namespace processing is done or if the attribute has no namespace,
   the namespace URI is a null string.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::uri( int index ) const
 {
@@ -752,7 +752,7 @@ QString QXmlAttributes::value( int index ) const
 /*!  \overload
   Looks up an attribute's value for the qualified name \a qName.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::value( const QString& qName ) const
 {
@@ -768,7 +768,7 @@ QString QXmlAttributes::value( const QString& qName ) const
   \a uri specifies the namespace URI, or an empty string if the name has no
   namespace URI. \a localName specifies the attribute's local name.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::value( const QString& uri, const QString& localName ) const
 {
@@ -1150,7 +1150,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   interface; subclassing from this class is very convenient if you want only be
   informed of some parsing events.
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1214,7 +1214,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   an error. The reader uses the function errorString() to get the error
   message that is used for reporting the error.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 
   \sa endPrefixMapping()
 */
@@ -1228,7 +1228,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   an error. The reader uses the function errorString() to get the error
   message that is used for reporting the error.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 
   \sa startPrefixMapping()
 */
@@ -1258,7 +1258,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   an error. The reader uses the function errorString() to get the error
   message that is used for reporting the error.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 
   \sa endElement()
 */
@@ -1273,7 +1273,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   an error. The reader uses the function errorString() to get the error
   message that is used for reporting the error.
 
-  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
+  See also the \link xml.html#sax2Namespaces namespace description\endlink.
 
   \sa startElement()
 */
@@ -1354,7 +1354,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
   You can set the error handler with QXmlReader::setErrorHandler().
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlLexicalHandler
@@ -1417,7 +1417,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   recommendation requires processors to report: notation and unparsed entity
   declarations.
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDeclHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1467,7 +1467,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   entities, it must implement this interface and register it with
   QXmlReader::setEntityResolver().
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
   QXmlLexicalHandler
@@ -1517,7 +1517,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
   This interface is designed after the SAX2 extension LexicalHandler.
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler
@@ -1643,7 +1643,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
   This interface is designed after the SAX2 extension DeclHandler.
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1715,7 +1715,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   the handler classes (most of the time: do nothing). Normally this is the
   class you subclass for implementing your customized handler.
 
-  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
+  See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler QXmlLexicalHandler
@@ -2096,7 +2096,7 @@ private:
   readers with different properties available (e.g. a validating parser).
 
   The design of the XML classes follow the
-  <a href="http://www.megginson.com/SAX/">SAX2 java interface</a>.
+  \link http://www.megginson.com/SAX/ SAX2 java interface\endlink.
   It was adopted to fit into the Qt naming conventions; so it should be very
   easy for anybody who has worked with SAX2 to get started with the Qt XML
   classes.
@@ -2301,7 +2301,7 @@ private:
   <li> \e http://trolltech.com/xml/features/report-start-end-entity FALSE
   </ul>
 
-  More information about features can be found in the \link xml-sax.html#features
+  More information about features can be found in the \link xml.html#sax2Features
   Qt SAX2 overview. \endlink
 
   \sa setFeature()

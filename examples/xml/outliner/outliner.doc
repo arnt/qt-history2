@@ -9,7 +9,7 @@ $Id: $
   \title Outliner to show use of DOM
  
   This example presents a small outliner program to show the basic usage of
-  the \link xml-dom.html DOM classes \endlink. The format of the outlines
+  the \link xml.html#dom DOM classes \endlink. The format of the outlines
   is the OPML format as described in http://www.opml.org/spec.
 
   This example shows how to load a DOM tree from an XML file and how to
