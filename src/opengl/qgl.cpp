@@ -1192,6 +1192,12 @@ QGLWidget::~QGLWidget()
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
+#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
+    if(gl_pix) {
+	delete gl_pix;
+	gl_pix = NULL;
+    }
+#endif
 }
 
 
@@ -1270,6 +1276,10 @@ bool QGLWidget::isSharing() const
 
 void QGLWidget::makeCurrent()
 {
+#ifdef QMAC_OPENGL_DOUBLEBUFFER
+    if(!gl_pix) 
+	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height()) ));
+#endif
     glcx->makeCurrent();
 }
 
@@ -1288,6 +1298,10 @@ void QGLWidget::makeCurrent()
 void QGLWidget::swapBuffers()
 {
     glcx->swapBuffers();
+#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
+    if(gl_pix)
+	bitBlt(this, 0, 0, gl_pix);
+#endif
 }
 
 

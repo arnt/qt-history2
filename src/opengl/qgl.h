@@ -57,6 +57,9 @@ Q_EXPORT inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_MAC)
+#ifndef QMAC_OPENGL_DOUBLEBUFFER
+#define QMAC_OPENGL_DOUBLEBUFFER
+#endif
 # include <gl.h>
 # include <glu.h>
 #else
@@ -335,6 +338,10 @@ private:	// Disabled copy constructor and operator=
 
 #ifdef Q_WS_MAC
 private:
+#ifdef QMAC_OPENGL_DOUBLEBUFFER
+    QPaintDevice *gl_pix;
+    QGLFormat req_format;
+#endif
     friend class QWidget;
     void fixReparented();
     void fixBufferRect();

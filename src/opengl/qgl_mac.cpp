@@ -78,7 +78,10 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     GLint res;
     aglDescribePixelFormat( fmt, AGL_LEVEL, &res );
     glFormat.setPlane( res );
-    aglDescribePixelFormat( fmt, AGL_DOUBLEBUFFER, &res );
+    if(deviceIsPixmap())
+	res = 1;
+    else
+	aglDescribePixelFormat( fmt, AGL_DOUBLEBUFFER, &res );
     glFormat.setDoubleBuffer( res );
     aglDescribePixelFormat( fmt, AGL_DEPTH_SIZE, &res );
     glFormat.setDepth( res );
@@ -105,10 +108,18 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	shareContext = 0;
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
     if((cx = (void *)ctx)) {
-	if(deviceIsPixmap()) 
-	    aglSetDrawable(ctx, (GWorldPtr)d->paintDevice->handle());
-	else 
+#ifdef ONE_PIXEL_LOCK
+	if(deviceIsPixmap()) {
+	    QPixmap *pm = (QPixmap *)d->paintDevice;
+	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
+	    aglSetOffScreen(ctx, pm->width(), pm->height(), 
+			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+#else
+#error "Not ready to handle that case, tror jeg!"
+#endif	    
+	} else {
 	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
+	}
 	return TRUE;
     }
     return FALSE;
@@ -131,19 +142,9 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 {
     GLint attribs[20], cnt=0;
     if ( deviceIsPixmap() ) {
-	attribs[cnt++] = AGL_OFFSCREEN;
-    } else {
-	if ( glFormat.doubleBuffer() ) 
-	    attribs[cnt++] = AGL_DOUBLEBUFFER;
-
-#if 0
-	attribs[cnt++] = AGL_RENDERER_ID;
-	attribs[cnt++] = AGL_RENDERER_GENERIC_ID;
-#else
-	attribs[cnt++] = AGL_ACCELERATED;
-#endif
-    }
-
+	attribs[cnt++] = AGL_PIXEL_SIZE;
+	attribs[cnt++] = ((QPixmap*)d->paintDevice)->depth();
+    } 
     if ( glFormat.stereo() )
 	attribs[cnt++] = AGL_STEREO;
     if ( glFormat.rgba() ) {
@@ -151,9 +152,6 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 32;
     } else {
-	attribs[cnt++] = AGL_PIXEL_SIZE;
-	attribs[cnt++] = 8;
-
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = 8;
     }
@@ -165,13 +163,20 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = AGL_STENCIL_SIZE;
 	attribs[cnt++] = 4;
     }
+    if ( deviceIsPixmap() ) {
+	attribs[cnt++] = AGL_OFFSCREEN;
+    } else {
+	if ( glFormat.doubleBuffer() ) 
+	    attribs[cnt++] = AGL_DOUBLEBUFFER;
+	attribs[cnt++] = AGL_ACCELERATED;
+    }
 
     attribs[cnt] = AGL_NONE;
     AGLPixelFormat fmt;
     if(deviceIsPixmap() || !device)
 	fmt = aglChoosePixelFormat(NULL, 0, attribs);
     else 
-	fmt = aglChoosePixelFormat( &device, 1, attribs);
+	fmt = aglChoosePixelFormat( NULL, 0, attribs);
     if(!fmt) {
 	GLenum err = aglGetError();
 	qDebug("got an error tex: %d", (int)err);
@@ -182,8 +187,9 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	int x = 0;
 	for( AGLPixelFormat fmt2 = fmt; fmt2; fmt2 = aglNextPixelFormat(fmt2) ) {
 	    aglDescribePixelFormat( fmt2, AGL_RENDERER_ID, &res );
-	    qDebug("%d) %d %d %d", x++, (int)res, 
-		   (int)AGL_RENDERER_GENERIC_ID, (int)AGL_RENDERER_ATI_ID);
+	    GLint res2;
+	    aglDescribePixelFormat( fmt2, AGL_ACCELERATED, &res2 );
+	    qDebug("%d) 0x%xd 0x%x %d", x++, (int)res, (int)AGL_RENDERER_GENERIC_ID, (int)res2);
 	}
     }
 #endif
@@ -207,6 +213,18 @@ void QGLContext::reset()
     d->initDone = FALSE;
 }
 
+#if 0
+	//cleanup
+	glcx->doneCurrent();
+
+	delete gl_pix;
+	//reset
+	gl_pix = new QPixmap(width(), height());
+	PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)((QPixmap*)gl_pix)->handle());
+	aglSetOffScreen((AGLContext)glcx->cx, width(), height(), 
+			GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+#endif
+
 void QGLContext::makeCurrent()
 {
     if ( !d->valid ) {
@@ -216,7 +234,6 @@ void QGLContext::makeCurrent()
 	return;
     }
 
-    QMacSavedPortInfo::setPaintDevice(d->paintDevice);
     aglSetCurrentContext((AGLContext)cx);
     fixBufferRect();
     aglUpdateContext((AGLContext)cx);
@@ -225,7 +242,6 @@ void QGLContext::makeCurrent()
 
 void QGLContext::fixBufferRect() 
 {
-#if 1
     if(d->paintDevice->devType() == QInternal::Widget) {
 	if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
 	   aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
@@ -243,7 +259,6 @@ void QGLContext::fixBufferRect()
 	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	}
     }
-#endif
 }
 
 void QGLContext::doneCurrent()
@@ -251,7 +266,6 @@ void QGLContext::doneCurrent()
     if ( currentCtx != this )
 	return;
     currentCtx = 0;
-    QMacSavedPortInfo::setPaintDevice(d->paintDevice);
     aglSetCurrentContext(NULL);
 }
 
@@ -314,7 +328,13 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 {
     glcx = 0;
     autoSwap = TRUE;
-    setContext( new QGLContext( format, this), shareWidget ? shareWidget->context() : NULL );
+#ifdef QMAC_OPENGL_DOUBLEBUFFER
+    gl_pix = NULL;
+    req_format = format;
+    makeCurrent();
+#else
+    setContext( new QGLContext( format, this ), shareWidget ? shareWidget->context() : NULL );
+#endif
     setBackgroundMode( NoBackground );
 
     if ( isValid() && this->format().hasOverlay() ) {
@@ -342,7 +362,9 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 
 void QGLWidget::fixReparented()
 {
+#ifndef QMAC_OPENGL_DOUBLEBUFFER
     setContext( new QGLContext( glcx->requestedFormat(), this ) );
+#endif
 }
 
 void QGLWidget::setMouseTracking( bool enable )
@@ -355,6 +377,13 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 {
     if ( !isValid() )
 	return;
+#ifdef QMAC_OPENGL_DOUBLEBUFFER
+    if(gl_pix) {
+	aglSetDrawable((AGLContext)glcx->cx, NULL);
+	delete gl_pix;
+	gl_pix = NULL;
+    }
+#endif
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -410,7 +439,12 @@ void QGLWidget::setContext( QGLContext *context,
 #endif
 	return;
     }
-    if ( !context->deviceIsPixmap() && context->device() != this ) {
+#ifdef QMAC_OPENGL_DOUBLEBUFFER
+    const QPaintDevice *me = gl_pix;
+#else
+    const QPaintDevice *me = this;
+#endif
+    if ( !context->deviceIsPixmap() && context->device() != me ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif
