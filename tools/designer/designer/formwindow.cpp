@@ -2307,6 +2307,8 @@ void FormWindow::setMainContainer( QWidget *w )
     bool resetPropertyWidget = isMainContainer( propertyWidget );
     if ( mContainer )
 	insertedWidgets.remove( mContainer );
+    if ( propertyWidget == mContainer )
+	propertyWidget = 0;
     delete mContainer;
     mContainer = w;
     insertedWidgets.insert( mContainer, mContainer );
@@ -2316,7 +2318,7 @@ void FormWindow::setMainContainer( QWidget *w )
     if ( resetPropertyWidget ) {
 	QObject *opw = propertyWidget;
 	propertyWidget = mContainer;
-	if ( opw->isWidgetType() )
+	if ( opw && opw->isWidgetType() )
 	    repaintSelection( (QWidget*)opw );
     }
 }
