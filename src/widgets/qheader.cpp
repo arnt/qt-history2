@@ -554,7 +554,7 @@ void QHeader::handleColumnMove( int fromIdx, int toIdx )
     emit moved( fromIdx, toIdx );
     emit indexChange( s, fromIdx, toIdx );
 }
-		
+
 /*!
   \reimp
 */
@@ -1070,8 +1070,11 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 	}
 	bound.setWidth( w );
     }
+    int arrowWidth = 0;
+    if ( d->sortColumn == section )
+	arrowWidth = ( ( orient == Qt::Horizontal ? height() : width() ) / 2 ) + 8;
     int height = QMAX( bound.height() + 2, ih ) + 4;
-    int width = bound.width() + QH_MARGIN * 4 + iw;
+    int width = bound.width() + QH_MARGIN * 4 + iw + arrowWidth;
     return QSize( width, height );
 }
 
@@ -1201,7 +1204,7 @@ QSize QHeader::sizeHint() const
 	for ( int i = 0; i < count(); i++ )
 	    height += d->sizes[i];
     }
-    return (style().sizeFromContents(QStyle::CT_Header, this, 
+    return (style().sizeFromContents(QStyle::CT_Header, this,
 				     QSize(width, height)).expandedTo(QApplication::globalStrut()));
 }
 
@@ -1415,9 +1418,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
     //pass in some hint about the sort indicator if it is used
     if(d->sortColumn != section)
-	flags |= QStyle::Style_Off; 
+	flags |= QStyle::Style_Off;
     else if(!d->sortDirection)
-	flags |= QStyle::Style_Up; 
+	flags |= QStyle::Style_Up;
     if(isEnabled())
 	flags |= QStyle::Style_Enabled;
     if(isClickEnabled(section)) {
@@ -1526,8 +1529,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int ew = 0;
 
     if ( style().styleHint( QStyle::SH_Header_ArrowAlignment, this ) & AlignRight )
-	ew = fr.width() - tw - pw - arrowWidth - 8;
-    if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
+	ew = fr.width() - tw - 8;
+    if ( d->sortColumn == section && tw <= fr.width() ) {
 	if ( reverse() ) {
 	    tw = fr.width() - tw;
 	    ew = fr.width() - ew - tw;
@@ -1540,7 +1543,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	else
 	    flags |= QStyle::Style_Up;
 	style().drawPrimitive( QStyle::PE_HeaderArrow, p,
-			       QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
+			       QRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight),
 			       colorGroup(), flags );
     }
 }
