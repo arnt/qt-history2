@@ -6,4 +6,4 @@ TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= extension.db
 LANGUAGE	= C++
-REQUIRES = nocrosscompiler
+REQUIRES = full-config nocrosscompiler
