@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#9 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#10 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -19,6 +19,8 @@
 #define QASYNCIMAGEIO_H
 
 #include "qimage.h"
+
+
 
 class QImageConsumer {
 public:
@@ -68,7 +70,6 @@ private:
     QImageDecoderPrivate *d;
 };
 
-static const int max_lzw_bits=12;
 
 class QGIFDecoder : public QImageFormatDecoder {
 public:
@@ -126,6 +127,8 @@ private:
     int accum;
     int bitcount;
 
+    enum { max_lzw_bits=12 }; // (poor-compiler's static const int)
+
     int code_size, clear_code, end_code, max_code_size, max_code;
     int firstcode, oldcode, incode;
     short table[2][1<< max_lzw_bits];
@@ -139,4 +142,5 @@ private:
     void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
 
-#endif
+
+#endif // QASYNCIMAGEIO_H

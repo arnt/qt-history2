@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#16 $
 **
-** Implementation of movie classes
+** Implementation of asynchronous image/movie loading classes
 **
 ** Created : 970617
 **
@@ -400,9 +400,9 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
       case RestoreImage: {
 	uchar** line = img.jumpTable();
 	preserve_trans = FALSE;
-	for (int y=top; y<=bottom; y++) {
-	    memcpy(line[y]+left,
-		backingstore.scanLine(y-top),
+	for (int ln=top; ln<=bottom; ln++) {
+	    memcpy(line[ln]+left,
+		backingstore.scanLine(ln-top),
 		right-left+1);
 	}
 	if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
@@ -529,7 +529,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		    ncols = gncols;
 		}
 		frame++;
-//printf(" %dx%d+%d+%d, %slcmap, %sinterlace, %d lncols\n",width,height,left,top,lcmap?"":"!",interlace?"":"!",lncols);
 		if ( frame == 0 ) {
 		    if ( left || top || width!=swidth || height!=sheight ) {
 			// Not full-size image - erase with bg or transparent
@@ -553,9 +552,9 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 						  height),
 					     8,1);
 		    }
-		    for (int y=0; y<height; y++) {
-			memcpy(backingstore.scanLine(y),
-			       line[top+y]+left, width);
+		    for (int ln=0; ln<height; ln++) {
+			memcpy(backingstore.scanLine(ln),
+			       line[top+ln]+left, width);
 		    }
 		}
 
@@ -770,7 +769,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
 		bool havetrans=hold[1]&0x1;
 		int newtrans=havetrans ? hold[4] : -1;
-//printf("%d disposal, %d delay, %d trans\n",disposal,delay,newtrans);
 		if (newtrans >= ncols) {
 		    // Ignore invalid transparency.
 		    newtrans=-1;
@@ -830,12 +828,12 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
     return initial-length;
 }
 
-void QGIFDecoder::fillRect(QImage& img, int x, int y, int w, int h, uchar col)
+void QGIFDecoder::fillRect(QImage& img, int col, int row, int w, int h, uchar color)
 {
     if (w>0) {
-	uchar** line = img.jumpTable() + y;
+	uchar** line = img.jumpTable() + row;
 	for (int j=0; j<h; j++) {
-	    memset(line[j]+x, col, w);
+	    memset(line[j]+col, color, w);
 	}
     }
 }

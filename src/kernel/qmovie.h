@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#6 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#7 $
 **
 ** Definition of movie classes
 **
@@ -21,18 +21,18 @@ class QMoviePrivate;
 class QMovie {
 public:
     QMovie();
-    QMovie(const char* srcfile, int bufsize=1024);
+    QMovie(const char* filename, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
 
-    const QMovie& operator=(const QMovie&);
+    QMovie& operator=(const QMovie&);
 
     const QColor& backgroundColor() const;
     void setBackgroundColor(const QColor&);
 
     const QRect& getValidRect() const;
-    const QPixmap& currentFrame() const;
+    const QPixmap& framePixmap() const;
 
     bool isNull() const;
 
@@ -52,18 +52,18 @@ public:
     void setSpeed(int);
 
     void connectResize(QObject* receiver, const char* member);
-    void disconnectResize(QObject* receiver, const char* member=0);
+    void disconnectResize(QObject* receiver, const char* member);
 
     void connectUpdate(QObject* receiver, const char* member);
-    void disconnectUpdate(QObject* receiver, const char* member=0);
+    void disconnectUpdate(QObject* receiver, const char* member);
 
-    enum {  SourceEmpty=-2,
-	    UnrecognizedFormat=-1,
-	    Paused=1,
-	    EndOfFrame=2,
-	    EndOfLoop=3,
-	    EndOfMovie=4,
-	    SpeedChanged=5 } Status;
+    enum Status { SourceEmpty=-2,
+	          UnrecognizedFormat=-1,
+	          Paused=1,
+	          EndOfFrame=2,
+	          EndOfLoop=3,
+	          EndOfMovie=4,
+	          SpeedChanged=5 };
     void connectStatus(QObject* receiver, const char* member);
     void disconnectStatus(QObject* receiver, const char* member=0);
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#18 $
 **
 ** Implementation of movie classes
 **
@@ -28,7 +28,7 @@
   \class QMovie qmovie.h
   \brief Incrementally loads an animation or image, signalling as it progresses.
 
-  A QMovie provides a QPixmap as the currentFrame(), and connections can
+  A QMovie provides a QPixmap as the framePixmap(), and connections can
   be made via connectResize() and connectUpdate() to receive notification
   of size and pixmap changes.  All decoding is driven by
   the normal event processing mechanisms.
@@ -64,304 +64,44 @@ class QMoviePrivate : public QObject, public QShared,
 
 public: // for QMovie
 
-    QMoviePrivate()
-    {
-	buffer = 0;
-	pump = 0;
-	source = 0;
-	decoder = 0;
-	init(FALSE);
-    }
+    // Creates a null QMoviePrivate
+    QMoviePrivate();
 
-    QMoviePrivate(QDataSource* src, QMovie* tht, int bufsize) :
-	that(tht),
-	buf_size(bufsize),
-	frametimer(this)
-    {
-	pump = new QDataPump(src, this);
-	QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
-	source = src;
-	buffer = 0;
-	decoder = 0;
-	speed = 100;
-	init(TRUE);
-    }
+    // NOTE:  The ownership of the QDataSource is transferred to the QMoviePrivate
+    QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize);
 
-    virtual ~QMoviePrivate()
-    {
-	delete buffer;
-	delete pump;
-	delete decoder;
-    }
+    virtual ~QMoviePrivate();
 
-    bool isNull() const { return !pump; }
+    bool isNull() const;
 
-    void init(bool nonnull)
-    {
-	buf_usage = buf_r = buf_w = 0;
-	delete buffer;
-	buffer = nonnull ? new uchar[buf_size] : 0;
-
-	delete decoder;
-	decoder = nonnull ? new QImageDecoder(this) : 0;
-
-	waitingForFrameTick = FALSE;
-	stepping = -1;
-	framenumber = 0;
-	frameperiod = -1;
-	frametimer.stop();
-	lasttimerinterval = -1;
-	changed_area.setRect(0,0,-1,-1);
-	valid_area = changed_area;
-	loop = -1;
-	error = 0;
-	empty = TRUE;
-    }
-
-    void flushBuffer()
-    {
-	while (buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
-	    int used = decoder->decode(buffer + buf_r,
-			    QMIN(buf_usage, buf_size - buf_r));
-	    if (used<=0) {
-		error = 1;
-		emit dataStatus(QMovie::UnrecognizedFormat);
-		break;
-	    }
-	    buf_r = (buf_r + used)%buf_size;
-	    buf_usage -= used;
-	}
-	maybeReady();
-    }
-
-    void updatePixmapFromImage()
-    {
-	if (changed_area.isEmpty()) return;
-
-	// Create temporary QImage to hold the part we want
-	const QImage& gimg = decoder->image();
-	QImage img(changed_area.size(), 8, gimg.numColors());
-	img.setAlphaBuffer(gimg.hasAlphaBuffer());
-
-	// Copy color map.
-	memcpy(img.colorTable(), gimg.colorTable(),
-	    sizeof(QRgb)*gimg.numColors());
-
-	// Copy pixels.
-	const int t = changed_area.top();
-	const int b = changed_area.bottom();
-	const int l = changed_area.left();
-	const int w = changed_area.width();
-	const int h = changed_area.height();
-	for (int y=t; y<=b; y++) {
-	    memcpy(img.scanLine(y-t), gimg.scanLine(y)+l, w);
-	}
-
-	// Resize to size of image
-	if (mypixmap.width() != gimg.width() || mypixmap.height() != gimg.height())
-	    mypixmap.resize(gimg.width(), gimg.height());
-
-	if (bg.isValid()) {
-	    QPainter p;
-	    p.begin(&mypixmap);
-	    p.fillRect(l, t, w, h, bg);
-	    p.end();
-	} else {
-	    if (gimg.hasAlphaBuffer()) {
-		// Resize to size of image
-		if (mymask.isNull()) {
-		    mymask.resize(gimg.width(), gimg.height());
-		    mymask.fill(color1);
-		}
-	    }
-	    mypixmap.setMask(QBitmap()); // Remove reference to my mask
-	}
-
-	// Convert to pixmap and paste that onto myself
-	QPixmap lines;
-	lines.convertFromImage(img);
-	bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid());
-
-	if (!bg.isValid() && gimg.hasAlphaBuffer()) {
-	    bitBlt(&mymask, l, t, lines.mask(), 0, 0, w, h, CopyROP, TRUE);
-	    mypixmap.setMask(mymask);
-	}
-    }
-
-    void showChanges()
-    {
-	if (changed_area.isValid()) {
-	    updatePixmapFromImage();
-
-	    valid_area = valid_area.unite(changed_area);
-	    emit areaChanged(changed_area);
-
-	    changed_area.setWidth(-1); // make empty
-	}
-    }
+    // Initialize, possibly to the null state
+    void init(bool fully);
+    void flushBuffer();
+    void updatePixmapFromImage();
+    void showChanges();
 
     // This as QImageConsumer
-
-    bool changed(const QRect& rect)
-    {
-	if (!frametimer.isActive()) frametimer.start(0);
-	changed_area = changed_area.unite(rect);
-	return TRUE;
-    }
-
-    bool end()
-    {
-	return TRUE; // Not that it will do anything.
-    }
-
-    bool frameDone()
-    {
-	if (stepping > 0) {
-	    stepping--;
-	    if (!stepping) {
-		frametimer.stop();
-		emit dataStatus( QMovie::Paused );
-	    }
-	} else {
-	    waitingForFrameTick = TRUE;
-	    restartTimer();
-	}
-	showChanges();
-	emit dataStatus(QMovie::EndOfFrame);
-	framenumber++;
-	return FALSE;
-    }
-
-    void restartTimer()
-    {
-	if (speed > 0) {
-	    int i = frameperiod >= 0 ? frameperiod * 100/speed : 0;
-	    if ( i != lasttimerinterval || !frametimer.isActive() ) {
-		lasttimerinterval = i;
-		frametimer.start( i );
-	    }
-	} else {
-	    frametimer.stop();
-	}
-    }
-
-    bool setLooping(int l)
-    {
-	if (loop == -1) { // Only if we don't already know how many loops!
-	    if (source->rewindable()) {
-		source->enableRewind(TRUE);
-		loop = l;
-	    } else {
-		// Cannot loop from this source
-		loop = -2;
-	    }
-	}
-
-	return TRUE;
-    }
-
-    bool setFramePeriod(int milliseconds)
-    {
-	// Animation:  only show complete frame
-	frameperiod = milliseconds;
-	if (stepping<0 && frameperiod >= 0) restartTimer();
-	return TRUE;
-    }
-
-    bool setSize(int w, int h)
-    {
-	if (mypixmap.width() != w || mypixmap.height() != h) {
-	    mypixmap.resize(w, h);
-	    emit sizeChanged(QSize(w, h));
-	}
-	return TRUE;
-    }
-
+    bool changed(const QRect& rect);
+    bool end();
+    bool frameDone();
+    void restartTimer();
+    bool setLooping(int l);
+    bool setFramePeriod(int milliseconds);
+    bool setSize(int w, int h);
 
     // This as QDataSink
+    int readyToReceive();
+    void receive(const uchar* b, int count);
+    void eof();
+    void pause();
 
-    int readyToReceive()
-    {
-	return (waitingForFrameTick || !stepping || buf_usage || error)
-	    ? 0 : buf_size;
-    }
-
-    void receive(const uchar* b, int count)
-    {
-	if ( count ) empty = FALSE;
-
-	while (count && !waitingForFrameTick && stepping != 0) {
-	    int used = decoder->decode(b, count);
-	    if (used<=0) {
-		error = 1;
-		emit dataStatus(QMovie::UnrecognizedFormat);
-		break;
-	    }
-	    b+=used;
-	    count-=used;
-	}
-
-	// Append unused to buffer
-	while (count--) {
-	    buffer[buf_w] = *b++;
-	    buf_w = (buf_w+1)%buf_size;
-	    buf_usage++;
-	}
-    }
-
-    void eof()
-    {
-	if ( empty )
-	    emit dataStatus(QMovie::SourceEmpty);
-
-	emit dataStatus(QMovie::EndOfLoop);
-
-	if (loop >= 0) {
-	    if (loop) {
-		loop--;
-		if (!loop) return;
-	    }
-	    delete decoder;
-	    decoder = new QImageDecoder(this);
-	    source->rewind();
-	    framenumber = 0;
-	} else {
-	    delete decoder;
-	    decoder = 0;
-	    delete buffer;
-	    buffer = 0;
-	    emit dataStatus(QMovie::EndOfMovie);
-	}
-    }
-
-    void pause()
-    {
-	if ( stepping ) {
-	    stepping = 0;
-	    frametimer.stop();
-	    emit dataStatus( QMovie::Paused );
-	}
-    }
 signals:
     void sizeChanged(const QSize&);
     void areaChanged(const QRect&);
     void dataStatus(int);
 
 public slots:
-    void refresh()
-    {
-	if (frameperiod < 0 && loop == -1) {
-	    // Only show changes if probably not an animation
-	    showChanges();
-	}
-
-	if (!buf_usage) {
-	    frametimer.stop();
-	}
-
-	waitingForFrameTick = FALSE;
-	flushBuffer();
-    }
+    void refresh();
 
 public:
     QMovie *that;
@@ -394,6 +134,307 @@ public:
     bool empty;
 };
 
+QMoviePrivate::QMoviePrivate()
+{
+    buffer = 0;
+    pump = 0;
+    source = 0;
+    decoder = 0;
+    init(FALSE);
+}
+
+// NOTE:  The ownership of the QDataSource is transferred to the QMoviePrivate
+QMoviePrivate::QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize) :
+    that(movie),
+    buf_size(bufsize),
+    frametimer(this)
+{
+    pump = new QDataPump(src, this);
+    QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
+    source = src;
+    buffer = 0;
+    decoder = 0;
+    speed = 100;
+    init(TRUE);
+}
+
+QMoviePrivate::~QMoviePrivate()
+{
+    delete buffer;
+    delete pump;
+    delete decoder;
+    delete source;
+}
+
+bool QMoviePrivate::isNull() const
+{
+    return !pump;
+}
+
+// Initialize.  Only actually allocate any space if \a fully is TRUE,
+// otherwise, just enough to be a valid null QMoviePrivate.
+void QMoviePrivate::init(bool fully)
+{
+    buf_usage = buf_r = buf_w = 0;
+    delete buffer;
+    buffer = fully ? new uchar[buf_size] : 0;
+
+    delete decoder;
+    decoder = fully ? new QImageDecoder(this) : 0;
+
+    waitingForFrameTick = FALSE;
+    stepping = -1;
+    framenumber = 0;
+    frameperiod = -1;
+    frametimer.stop();
+    lasttimerinterval = -1;
+    changed_area.setRect(0,0,-1,-1);
+    valid_area = changed_area;
+    loop = -1;
+    error = 0;
+    empty = TRUE;
+}
+
+void QMoviePrivate::flushBuffer()
+{
+    while (buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
+	int used = decoder->decode(buffer + buf_r,
+			QMIN(buf_usage, buf_size - buf_r));
+	if (used<=0) {
+	    error = 1;
+	    emit dataStatus(QMovie::UnrecognizedFormat);
+	    break;
+	}
+	buf_r = (buf_r + used)%buf_size;
+	buf_usage -= used;
+    }
+    maybeReady();
+}
+
+void QMoviePrivate::updatePixmapFromImage()
+{
+    if (changed_area.isEmpty()) return;
+
+    // Create temporary QImage to hold the part we want
+    const QImage& gimg = decoder->image();
+    QImage img(changed_area.size(), 8, gimg.numColors());
+    img.setAlphaBuffer(gimg.hasAlphaBuffer());
+
+    // Copy color map.
+    memcpy(img.colorTable(), gimg.colorTable(),
+	sizeof(QRgb)*gimg.numColors());
+
+    // Copy pixels.
+    const int t = changed_area.top();
+    const int b = changed_area.bottom();
+    const int l = changed_area.left();
+    const int w = changed_area.width();
+    const int h = changed_area.height();
+    for (int y=t; y<=b; y++) {
+	memcpy(img.scanLine(y-t), gimg.scanLine(y)+l, w);
+    }
+
+    // Resize to size of image
+    if (mypixmap.width() != gimg.width() || mypixmap.height() != gimg.height())
+	mypixmap.resize(gimg.width(), gimg.height());
+
+    if (bg.isValid()) {
+	QPainter p;
+	p.begin(&mypixmap);
+	p.fillRect(l, t, w, h, bg);
+	p.end();
+    } else {
+	if (gimg.hasAlphaBuffer()) {
+	    // Resize to size of image
+	    if (mymask.isNull()) {
+		mymask.resize(gimg.width(), gimg.height());
+		mymask.fill(color1);
+	    }
+	}
+	mypixmap.setMask(QBitmap()); // Remove reference to my mask
+    }
+
+    // Convert to pixmap and paste that onto myself
+    QPixmap lines;
+    lines.convertFromImage(img);
+    bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid());
+
+    if (!bg.isValid() && gimg.hasAlphaBuffer()) {
+	bitBlt(&mymask, l, t, lines.mask(), 0, 0, w, h, CopyROP, TRUE);
+	mypixmap.setMask(mymask);
+    }
+}
+
+void QMoviePrivate::showChanges()
+{
+    if (changed_area.isValid()) {
+	updatePixmapFromImage();
+
+	valid_area = valid_area.unite(changed_area);
+	emit areaChanged(changed_area);
+
+	changed_area.setWidth(-1); // make empty
+    }
+}
+
+// QMoviePrivate as QImageConsumer
+bool QMoviePrivate::changed(const QRect& rect)
+{
+    if (!frametimer.isActive()) frametimer.start(0);
+    changed_area = changed_area.unite(rect);
+    return TRUE;
+}
+
+bool QMoviePrivate::end()
+{
+    return TRUE; // Not that it will do anything.
+}
+
+bool QMoviePrivate::frameDone()
+{
+    if (stepping > 0) {
+	stepping--;
+	if (!stepping) {
+	    frametimer.stop();
+	    emit dataStatus( QMovie::Paused );
+	}
+    } else {
+	waitingForFrameTick = TRUE;
+	restartTimer();
+    }
+    showChanges();
+    emit dataStatus(QMovie::EndOfFrame);
+    framenumber++;
+    return FALSE;
+}
+
+void QMoviePrivate::restartTimer()
+{
+    if (speed > 0) {
+	int i = frameperiod >= 0 ? frameperiod * 100/speed : 0;
+	if ( i != lasttimerinterval || !frametimer.isActive() ) {
+	    lasttimerinterval = i;
+	    frametimer.start( i );
+	}
+    } else {
+	frametimer.stop();
+    }
+}
+
+bool QMoviePrivate::setLooping(int nloops)
+{
+    if (loop == -1) { // Only if we don't already know how many loops!
+	if (source->rewindable()) {
+	    source->enableRewind(TRUE);
+	    loop = nloops;
+	} else {
+	    // Cannot loop from this source
+	    loop = -2;
+	}
+    }
+
+    return TRUE;
+}
+
+bool QMoviePrivate::setFramePeriod(int milliseconds)
+{
+    // Animation:  only show complete frame
+    frameperiod = milliseconds;
+    if (stepping<0 && frameperiod >= 0) restartTimer();
+    return TRUE;
+}
+
+bool QMoviePrivate::setSize(int w, int h)
+{
+    if (mypixmap.width() != w || mypixmap.height() != h) {
+	mypixmap.resize(w, h);
+	emit sizeChanged(QSize(w, h));
+    }
+    return TRUE;
+}
+
+
+// QMoviePrivate as QDataSink
+
+int QMoviePrivate::readyToReceive()
+{
+    return (waitingForFrameTick || !stepping || buf_usage || error)
+	? 0 : buf_size;
+}
+
+void QMoviePrivate::receive(const uchar* b, int count)
+{
+    if ( count ) empty = FALSE;
+
+    while (count && !waitingForFrameTick && stepping != 0) {
+	int used = decoder->decode(b, count);
+	if (used<=0) {
+	    error = 1;
+	    emit dataStatus(QMovie::UnrecognizedFormat);
+	    break;
+	}
+	b+=used;
+	count-=used;
+    }
+
+    // Append unused to buffer
+    while (count--) {
+	buffer[buf_w] = *b++;
+	buf_w = (buf_w+1)%buf_size;
+	buf_usage++;
+    }
+}
+
+void QMoviePrivate::eof()
+{
+    if ( empty )
+	emit dataStatus(QMovie::SourceEmpty);
+
+    emit dataStatus(QMovie::EndOfLoop);
+
+    if (loop >= 0) {
+	if (loop) {
+	    loop--;
+	    if (!loop) return;
+	}
+	delete decoder;
+	decoder = new QImageDecoder(this);
+	source->rewind();
+	framenumber = 0;
+    } else {
+	delete decoder;
+	decoder = 0;
+	delete buffer;
+	buffer = 0;
+	emit dataStatus(QMovie::EndOfMovie);
+    }
+}
+
+void QMoviePrivate::pause()
+{
+    if ( stepping ) {
+	stepping = 0;
+	frametimer.stop();
+	emit dataStatus( QMovie::Paused );
+    }
+}
+
+void QMoviePrivate::refresh()
+{
+    if (frameperiod < 0 && loop == -1) {
+	// Only show changes if probably not an animation
+	showChanges();
+    }
+
+    if (!buf_usage) {
+	frametimer.stop();
+    }
+
+    waitingForFrameTick = FALSE;
+    flushBuffer();
+}
+
+///////////////// End of QMoviePrivate /////////////////
 
 
 
@@ -485,7 +526,7 @@ bool QMovie::isNull() const
   Makes this movie use the same data as another movie.
   QMovies use explicit sharing.
 */
-const QMovie& QMovie::operator=(const QMovie& movie)
+QMovie& QMovie::operator=(const QMovie& movie)
 {
     movie.d->ref();
     if (d->deref()) delete d;
@@ -525,9 +566,9 @@ const QRect& QMovie::getValidRect() const
 /*!
   Returns the current frame of the movie.  It is not generally useful to
   keep a copy of this pixmap.  Better to keep a copy of the QMovie and
-  get the currentFrame() only when needed for drawing.
+  get the framePixmap() only when needed for drawing.
 */
-const QPixmap& QMovie::currentFrame() const
+const QPixmap& QMovie::framePixmap() const
 {
     return d->mypixmap;
 }
@@ -694,7 +735,7 @@ void QMovie::disconnectResize(QObject* receiver, const char* member)
 
 /*!
   Connects the given member, of type \code void member(const QRect&) \endcode
-  such that it is signalled when an area of the currentFrame() has
+  such that it is signalled when an area of the framePixmap() has
   changed since the previous frame.
 
   Note that due to the explicit sharing of QMovie objects, these connections
@@ -764,7 +805,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.17 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.18 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
