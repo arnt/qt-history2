@@ -3824,8 +3824,12 @@ void QScreen::restore()
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret;
-    if(d==1) {
+    if ( FALSE ) {
+	//Just to simplify the ifdeffery
+#ifndef QT_NO_QWS_DEPTH_1
+    } else if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
