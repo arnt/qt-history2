@@ -1863,9 +1863,10 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    w += 20 - maxpmw;
 	if(checkable || maxpmw > 0)
 	    w += 2;
-	w += 12;
-	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox"))
-	    w = QMAX(w, widget->parentWidget()->width() - 20);
+	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox") && widget->parentWidget()->isVisible())
+	    w = QMAX(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(), SC_ComboBoxEditField).width());
+	else
+	    w += 12;
 	sz = QSize(w, h);
 	break; }
     case CT_PushButton:
