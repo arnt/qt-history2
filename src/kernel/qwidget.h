@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#8 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#9 $
 **
 ** Definition of QWidget class
 **
@@ -38,9 +38,8 @@ public:
 
   // GUI style setting
 
-    GuiStyle guiStyle() const { return gui; }	// get widget GUI style
-    void     setGuiStyle( GuiStyle );		// set widget GUI style
-    static void setGlobalGuiStyle( GuiStyle );	// set global GUI style
+    GUIStyle style() const;			// get widget GUI style
+    void     setStyle( GUIStyle );		// set widget GUI style
 
   // Widget control functions
 
@@ -57,6 +56,9 @@ public:
     int	     clientHeight()	const	{ return rect.height(); }
     QRect    clientRect()	const	{ return QRect(0,0,rect.width(),
 						       rect.height()); }
+    void     setMinimumSize( int w, int h );
+    void     setMaximumSize( int w, int h );
+    void     setSizeIncrement( int w, int h );
 
   // Widget coordinate mapping
 
@@ -158,6 +160,7 @@ private:
     void     set_id( WId );			// set widget id
     bool     create();				// create widget
     bool     destroy();				// destroy widget
+    void     createExtra();			// create extra data
     WId	     ident;				// widget identifier
     WFlags   flags;				// widget flags
     QRect    rect;				// widget geometry
@@ -166,8 +169,7 @@ private:
     QColor   fg_col;				// foreground color
     QFont    fnt;				// widget font
     QCursor  curs;				// widget cursor
-    GuiStyle gui;				// gui style
-    static GuiStyle ggui;			// global GUI style
+    QWExtra *extra;				// extra widget data
     static void createMapper();			// create widget mapper
     static void destroyMapper();		// destroy widget mapper
     static QWidgetMapper *mapper;		// maps identifier to widget
