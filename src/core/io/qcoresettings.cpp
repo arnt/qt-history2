@@ -1407,13 +1407,15 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     the heap (i.e. using \c new). Constructing and destroying a
     QCoreSettings object is very fast.
 
-    If you use QCoreSettings from many places in your application,
-    you might want to specify the organization domain name and the
-    product name using QCoreApplication::setProductInfo() and use the
+    If you use QCoreSettings from many places in your application, you
+    might want to specify the organization domain name and the
+    application name using QCoreApplication::setOrganizationDomain()
+    and QCoreApplication::setApplicationName(), and then use the
     default QCoreSettings constructor:
 
     \code
-        qApp->setProductInfo("software.org", "DataMill");
+        QCoreSettings::setOrganizationDomain("software.org");
+        QCoreSettings::setApplicationName("DataMill");
         ...
         QCoreSettings settings;
     \endcode
@@ -1832,7 +1834,8 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
 /*!
     Constructs a QCoreSettings object for accessing settings of the
     application and organization set previously with a call to
-    QCoreApplication::setProductInfo().
+    QCoreApplication::setOrganizationDomain() and
+    QCoreApplication::setApplicationName().
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
 
@@ -1845,18 +1848,20 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
     is equivalent to
 
     \code
-        qApp->setProductInfo("www.technopro.co.jp", "Facturo-Pro");
+        QApplication::setOrganizationDomain("www.technopro.co.jp");
+        QApplication::setApplicationName("Facturo-Pro");
         QCoreSettings settings;
     \endcode
 
-    If QApplication::setProductInfo() has not been previously called,
+    If QApplication::setOrganizationDomain() and
+    QApplication::setApplicationName() has not been previously called,
     the QCoreSettings object will not be able to read or write any
     settings, and status() will return \c AccessError.
 */
 QCoreSettings::QCoreSettings(QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
-                                            QCoreApplication::instance()->organization(),
-                                            QCoreApplication::instance()->application(),
+                                            QCoreApplication::organizationDomain(),
+                                            QCoreApplication::applicationName(),
                                             QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
                 parent)
 {
@@ -1873,7 +1878,7 @@ QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
 QCoreSettings::QCoreSettings(const QString &organization, const QString &application)
     : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                          organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::variantToStringCoreImpl,
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
     d_ptr->q_ptr = this;
@@ -1882,7 +1887,7 @@ QCoreSettings::QCoreSettings(const QString &organization, const QString &applica
 QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
                              const QString &application)
     : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::variantToStringCoreImpl,
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
     d_ptr->q_ptr = this;
@@ -1891,7 +1896,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organizatio
 QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
                              const QString &organization, const QString &application)
     : d_ptr(QCoreSettingsPrivate::create(format, scope, organization, application,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::variantToStringCoreImpl,
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
     d_ptr->q_ptr = this;
@@ -1899,7 +1904,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
 QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
     : d_ptr(QCoreSettingsPrivate::create(fileName, format,
-                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::variantToStringCoreImpl,
                                          QCoreSettingsPrivate::stringToVariantCoreImpl))
 {
     d_ptr->q_ptr = this;

@@ -1696,7 +1696,7 @@ QWidgetList QApplication::allWidgets()
   \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
 */
 
-QWidget *QApplication::focusWidget() const
+QWidget *QApplication::focusWidget()
 {
     return QApplicationPrivate::focus_widget;
 }
@@ -1716,7 +1716,7 @@ void QApplication::setFocusWidget(QWidget *focus)
   \sa QWidget::setFocus(), QWidget::hasFocus(), focusWidget()
 */
 
-QWidget *QApplication::activeWindow() const
+QWidget *QApplication::activeWindow()
 {
     return QApplicationPrivate::active_window;
 }
@@ -2550,6 +2550,23 @@ QCursor *QApplication::overrideCursor()
 {
     return qApp->d->cursor_list.isEmpty() ? 0 : &qApp->d->cursor_list.first();
 }
+
+/*!
+  Changes the currently active application override cursor to \a cursor.
+
+  This function has no effect if setOverrideCursor() wasn't called.
+
+    \sa setOverrideCursor() overrideCursor() restoreOverrideCursor() changeOverrideCursor() QWidget::setCursor()
+ */
+void QApplication::changeOverrideCursor(const QCursor &cursor)
+{
+    if (qApp->d->cursor_list.isEmpty())
+        return;
+    qApp->d->cursor_list.removeFirst();
+    setOverrideCursor(cursor);
+}
+
+
 #endif
 
 /*! \reimp

@@ -882,13 +882,9 @@ typedef QList<QCursor*> QCursorList;
 
 static QCursorList *cursorStack = 0;
 
-void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
+void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    if (replace && !qApp->d->cursor_list.isEmpty())
-        qApp->d->cursor_list.replace(0, cursor);
-    else
-        qApp->d->cursor_list.prepend(cursor);
-
+    qApp->d->cursor_list.prepend(cursor);
     SetCursor(qApp->d->cursor_list.first().handle());
 }
 
@@ -1849,7 +1845,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                     if ( !dispatch) {
                         QWidget *hittest = QApplication::widgetAt(cpos);
                         dispatch = !hittest || hittest->winId() != curWin;
-                    }                    
+                    }
                     if (!dispatch) {
                         HRGN hrgn = CreateRectRgn(0,0,0,0);
                         if (GetWindowRgn(curWin, hrgn) != ERROR) {

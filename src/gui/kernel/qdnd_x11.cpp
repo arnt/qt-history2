@@ -908,7 +908,7 @@ void QDragManager::updateCursor()
     }
 #ifndef QT_NO_CURSOR
     if (c)
-        qApp->setOverrideCursor(*c, true);
+        qApp->changeOverrideCursor(*c);
 #endif
 }
 

@@ -1881,12 +1881,9 @@ void QApplication::setMainWidget(QWidget *mainWidget)
   QApplication cursor stack
  *****************************************************************************/
 #ifndef QT_NO_CURSOR
-void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
+void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    if (replace && !qApp->d->cursor_list.isEmpty())
-        qApp->d->cursor_list.replace(0, cursor);
-    else
-        qApp->d->cursor_list.prepend(cursor);
+    qApp->d->cursor_list.prepend(cursor);
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)

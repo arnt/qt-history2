@@ -157,12 +157,8 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format, QObject
 */
 QSettings::QSettings(QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
-                                                 QCoreApplication::instance() ? 
-                                                 QCoreApplication::instance()->organization() 
-                                                 : QString::null,
-                                                 QCoreApplication::instance() ? 
-                                                 QCoreApplication::instance()->application() 
-                                                 : QString::null,
+                                                 QCoreApplication::organizationDomain(),
+                                                 QCoreApplication::applicationName(),
                                                  variantToStringGuiImpl,
                                                  stringToVariantGuiImpl), parent)
 {

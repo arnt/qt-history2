@@ -1004,7 +1004,7 @@ extern QWidget * mac_keyboard_grabber;
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
-    if (QApplicationPrivate::main_widget && windowIcon().isNull() 
+    if (QApplicationPrivate::main_widget && windowIcon().isNull()
 	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
         setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
@@ -1014,12 +1014,9 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 /*****************************************************************************
   QApplication cursor stack
  *****************************************************************************/
-void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
+void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    if (replace && !qApp->d->cursor_list.isEmpty())
-        qApp->d->cursor_list.replace(0, cursor);
-    else
-        qApp->d->cursor_list.prepend(cursor);
+    qApp->d->cursor_list.prepend(cursor);
 
     if(qApp && qApp->activeWindow()) {
         Point mouse_pos;
@@ -1103,7 +1100,7 @@ static mac_enum_mapper modifier_symbols[] = {
     { optionKey, MAP_MAC_ENUM(Qt::AltButton) },
     { rightOptionKey, MAP_MAC_ENUM(Qt::AltButton) },
     { kEventKeyModifierNumLockMask, MAP_MAC_ENUM(Qt::Keypad) },
-    { 0, MAP_MAC_ENUM(0) } 
+    { 0, MAP_MAC_ENUM(0) }
 };
 static Qt::KeyboardModifiers get_modifiers(int keys, bool from_mouse=false)
 {
@@ -1136,7 +1133,7 @@ static mac_enum_mapper mouse_symbols[] = {
     { kEventMouseButtonPrimary, MAP_MAC_ENUM(Qt::LeftButton) },
     { kEventMouseButtonSecondary, MAP_MAC_ENUM(Qt::RightButton) },
     { kEventMouseButtonTertiary, MAP_MAC_ENUM(Qt::MidButton) },
-    { 0, MAP_MAC_ENUM(0) } 
+    { 0, MAP_MAC_ENUM(0) }
 };
 static Qt::MouseButtons get_buttons(int buttons)
 {
@@ -1239,7 +1236,7 @@ static mac_enum_mapper keyscan_symbols[] = { //real scan codes
     { 109, MAP_MAC_ENUM(Qt::Key_F10) },
     { 103, MAP_MAC_ENUM(Qt::Key_F11) },
     { 111, MAP_MAC_ENUM(Qt::Key_F12) },
-    {   0, MAP_MAC_ENUM(0) } 
+    {   0, MAP_MAC_ENUM(0) }
 };
 
 static int get_key(int modif, int key, int scan)
@@ -1408,7 +1405,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             LocalToGlobal(&p);
             np = QPoint(p.h, p.v);
         }
-        if(np != op) 
+        if(np != op)
             widget->data->crect = QRect(np, widget->data->crect.size());
         break; }
     case inGrow: {
@@ -1735,7 +1732,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #endif
         QEvent::Type etype = QEvent::None;
         Qt::KeyboardModifiers modifiers;
-        { 
+        {
             UInt32 mac_modifiers;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(mac_modifiers), 0, &mac_modifiers);
@@ -1894,7 +1891,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QPair<int,int> uId((int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1);
                 QPoint p(where.h, where.v);
                 QPoint plocal(widget->mapFromGlobal(p));
-                QTabletEvent e(t, plocal, p, p, 0, 0, 0, 0,  dev, pressure, 0, 0, 
+                QTabletEvent e(t, plocal, p, p, 0, 0, 0, 0,  dev, pressure, 0, 0,
                                tiltX, tiltY, modifiers, uId);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())
@@ -1998,9 +1995,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(etype == QEvent::MouseButtonDblClick)
                 event_desc = "Double Click";
             qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d 0x%08x 0x%08x %d)", p.x(), p.y(),
-                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, 
+                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget,
                    widget ? widget->objectName().local8Bit() : "*Unknown*",
-                   widget ? widget->metaObject()->className() : "*Unknown*", 
+                   widget ? widget->metaObject()->className() : "*Unknown*",
                    button, (int)buttons, (int)modifiers, wheel_delta);
 #endif
         } else {
@@ -2117,14 +2114,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         break;
     case kEventClassKeyboard: {
         // unfortunatly modifiers changed event looks quite different, so I have a separate
-        // code path 
-        if(ekind == kEventRawKeyModifiersChanged) { 
+        // code path
+        if(ekind == kEventRawKeyModifiersChanged) {
             //figure out changed modifiers, wish Apple would just send a delta
             UInt32 modifiers;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(modifiers), 0, &modifiers);
             static UInt32 cachedModifiers = 0;
-            UInt32 lastModifiers = cachedModifiers, 
+            UInt32 lastModifiers = cachedModifiers,
                 changedModifiers = lastModifiers ^ modifiers;
             cachedModifiers = modifiers;
 
@@ -2205,9 +2202,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //get mac mapping
         static UInt32 tmp_unused_state = 0L;
         char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-                                           (GetCurrentEventKeyModifiers() & 
+                                           (GetCurrentEventKeyModifiers() &
                                             (kEventKeyModifierNumLockMask|shiftKey|
-                                             rightShiftKey|alphaLock)) | keycode, 
+                                             rightShiftKey|alphaLock)) | keycode,
                                            &tmp_unused_state);
         if(!translatedChar) {
             if(CallNextEventHandler(er, event) == noErr)
@@ -2659,7 +2656,7 @@ void QApplication::closePopup(QWidget *popup)
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
     }
-    if(popup == qt_button_down) 
+    if(popup == qt_button_down)
         qt_button_down = 0;
     if(QApplicationPrivate::popupWidgets->isEmpty()) {  // this was the last popup
         popupCloseDownMode = true;                      // control mouse events
@@ -2947,7 +2944,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         }
         settings.endGroup();
     }
-    
+
     settings.endGroup();
     return true;
 }

@@ -376,7 +376,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     instance = this;
     qApp->installEventFilter(this);
-    QApplication::setOverrideCursor(Qt::WhatsThisCursor, false);
+    QApplication::setOverrideCursor(Qt::WhatsThisCursor);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
 #endif

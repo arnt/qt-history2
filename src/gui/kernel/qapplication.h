@@ -82,7 +82,8 @@ public:
 
 #ifndef QT_NO_CURSOR
     static QCursor *overrideCursor();
-    static void setOverrideCursor(const QCursor &, bool replace=false);
+    static void setOverrideCursor(const QCursor &);
+    static void changeOverrideCursor(const QCursor &);
     static void restoreOverrideCursor();
 #endif
 #ifndef QT_NO_PALETTE
@@ -113,8 +114,8 @@ public:
 #ifndef QT_NO_CLIPBOARD
     static QClipboard *clipboard();
 #endif
-    QWidget *focusWidget() const;
-    QWidget *activeWindow() const;
+    static QWidget *focusWidget();
+    static QWidget *activeWindow();
 
     static QWidget *widgetAt(int x, int y);
     static inline QWidget *widgetAt(const QPoint &p) { return widgetAt(p.x(), p.y()); }
@@ -223,6 +224,8 @@ protected:
 
 #ifdef QT_COMPAT
 public:
+    inline static  QT_COMPAT void setOverrideCursor(const QCursor &cursor, bool replace)
+        { if (replace) changeOverrideCursor(cursor); else setOverrideCursor(cursor); }
     inline static QT_COMPAT bool hasGlobalMouseTracking() {return true;}
     inline static QT_COMPAT void setGlobalMouseTracking(bool) {};
     inline static QT_COMPAT void flushX() { flush(); }
@@ -274,9 +277,8 @@ private:
     bool inPopupMode() const;
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);
-
-public:
     void setFocusWidget(QWidget *focus);
+public:
     void setActiveWindow(QWidget* act);
 
 private:

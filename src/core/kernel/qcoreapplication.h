@@ -35,6 +35,9 @@ class QStringList;
 class Q_CORE_EXPORT QCoreApplication : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString applicationName READ applicationName WRITE setApplicationName)
+    Q_PROPERTY(QString organizationDomain READ organizationDomain WRITE setOrganizationDomain)
+
     Q_DECLARE_PRIVATE(QCoreApplication)
 public:
     QCoreApplication(int &argc, char **argv);
@@ -44,14 +47,15 @@ public:
     int argc() const;
     char **argv() const;
 
-    void setProductInfo(const QString &organization, const QString &application = QString());
-    QString organization() const;
-    QString application() const;
+    static void setOrganizationDomain(const QString &organization);
+    static QString organizationDomain();
+    static void setApplicationName(const QString &application);
+    static QString applicationName();
 
     static QCoreApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 
-    virtual int exec();
+    int exec();
     void processEvents();
     void processEvents(int maxtime);
     void processOneEvent();

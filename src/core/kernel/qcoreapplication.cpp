@@ -134,7 +134,7 @@ void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver,
         // QCoreApplication::sendEvent() directly.  this can happen while the event
         // loop is in the middle of posting events, and when we get here, we may
         // not have any more posted events for this object.
-        
+
         // if this is a child remove event and the child insert
         // hasn't been dispatched yet, kill that insert
         for (int i = 0; i < data->postEventList.size(); ++i) {
@@ -762,7 +762,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     // iterate over the posted event list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
-    
+
     int n = data->postEventList.size();
     int j = 0;
 
@@ -1209,43 +1209,49 @@ char **QCoreApplication::argv() const
     return d->argv;
 }
 
+
 /*!
-    Sets the name of this \a application and the Internet domain of the \a organization
-    which wrote it.
+  \property QCoreApplication::organizationDomain
+    \brief the Internet domain of the organization that wrote this application
 
-    These values are used by the QSettings class when it is constructed using the
-    empty constructor. This saves having to repeat this information each time a
-    QSettings object is created.
+    The value is used by the QSettings class when it is constructed
+    using the empty constructor. This saves having to repeat this
+    information each time a QSettings object is created.
 
-    \sa QSettings, organization(), application()
+    \sa applicationName
 */
-void QCoreApplication::setProductInfo(const QString &organization,
-                                        const QString &application)
+void QCoreApplication::setOrganizationDomain(const QString &organization)
 {
-    d->organization = organization;
-    d->application = application;
+    self->d->organization = organization;
+}
+
+QString QCoreApplication::organizationDomain()
+{
+    return self ? self->d->organization : QString();
 }
 
 /*!
-    Returns the Internet domain of the organization that wrote this
-    application.
+  \property QCoreApplication::applicationName
+    \brief the name of this application
 
-    \sa setProductInfo(), application()
+    The value is used by the QSettings class when it is constructed
+    using the empty constructor. This saves having to repeat this
+    information each time a QSettings object is created.
+
+    \sa organizationDomain
 */
-QString QCoreApplication::organization() const
+void QCoreApplication::setApplicationName(const QString &application)
 {
-    return d->organization;
+    self->d->application = application;
 }
 
-/*!
-    Returns the name of this application.
 
-    \sa setProductInfo(), organization()
-*/
-QString QCoreApplication::application() const
+QString QCoreApplication::applicationName()
 {
-    return d->application;
+    return self ? self->d->application : QString();
 }
+
+
 
 #ifndef QT_NO_COMPONENT
 

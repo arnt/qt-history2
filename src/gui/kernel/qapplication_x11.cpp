@@ -2195,14 +2195,11 @@ extern void qt_x11_enforce_cursor(QWidget * w);
 
     Application cursors are stored on an internal stack.
     setOverrideCursor() pushes the cursor onto the stack, and
-    restoreOverrideCursor() pops the active cursor off the stack.
-    Every setOverrideCursor() must eventually be followed by a
-    corresponding restoreOverrideCursor(), otherwise the stack will
-    never be emptied.
-
-    If \a replace is true, the new cursor will replace the last
-    override cursor (the stack keeps its depth). If \a replace is
-    false, the new stack is pushed onto the top of the stack.
+    restoreOverrideCursor() pops the active cursor off the
+    stack. changeOverrideCursor() changes the curently active
+    application override cursor. Every setOverrideCursor() must
+    eventually be followed by a corresponding restoreOverrideCursor(),
+    otherwise the stack will never be emptied.
 
     Example:
     \code
@@ -2211,15 +2208,12 @@ extern void qt_x11_enforce_cursor(QWidget * w);
         QApplication::restoreOverrideCursor();
     \endcode
 
-    \sa overrideCursor(), restoreOverrideCursor(), QWidget::setCursor()
+    \sa overrideCursor() restoreOverrideCursor() changeOverrideCursor() QWidget::setCursor()
 */
 
-void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
+void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    if (replace && !qApp->d->cursor_list.isEmpty())
-        qApp->d->cursor_list.replace(0, cursor);
-    else
-        qApp->d->cursor_list.prepend(cursor);
+    qApp->d->cursor_list.prepend(cursor);
 
     for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
         register QWidget *w = *it;
