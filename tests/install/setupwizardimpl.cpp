@@ -215,11 +215,74 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
     }
 }
 
-void SetupWizardImpl::integratorDone()
+void SetupWizardImpl::doFinalIntegration()
 {
     QString dirName, examplesName, tutorialsName;
     bool common( folderGroups->currentItem() == 1 );
 
+    switch( sysID ) {
+    case MSVC:
+	{
+	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+
+	    if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
+		QTextStream instream( &autoexp );
+		QString existingAutoexp;
+
+		instream >> existingAutoexp;
+		if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
+		    autoexp.close();
+		    if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
+			QTextStream outstream( &autoexp );
+			outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
+		    }
+		}
+		if( autoexp.isOpen() )
+		    autoexp.close();
+	    }
+	}
+	break;
+    }
+    /*
+    ** Set up our icon folder and populate it with shortcuts.
+    ** Then move to the next page.
+    */
+    dirName = shell.createFolder( folderPath->text(), common );
+    shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
+    shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
+    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
+    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
+    if( int( qWinVersion() ) & int( WV_DOS_based ) )
+	shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
+
+    if( installTutorials->isChecked() ) {
+	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
+	installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
+    }
+    if( installExamples->isChecked() ) {
+	examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
+	installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
+    }
+    /*
+    ** Then record the installation in the registry, and set up the uninstallation
+    */
+    QStringList uninstaller;
+    uninstaller << shell.windowsFolderName + "\\quninstall.exe";
+    uninstaller << installPath->text();
+
+    if( common )
+	uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+    else
+	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+
+    uninstaller << DISTVER;
+
+    QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
+
+}
+
+void SetupWizardImpl::integratorDone()
+{
     if( !integrator.normalExit() )
 	logOutput( "The integration process failed.\n", true );
     else {
@@ -230,65 +293,7 @@ void SetupWizardImpl::integratorDone()
 	** We still have some more items to do in order to finish all the
 	** integration stuff.
 	*/
-	switch( sysID ) {
-	case MSVC:
-	    {
-		QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
-
-		if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
-		    QTextStream instream( &autoexp );
-		    QString existingAutoexp;
-
-		    instream >> existingAutoexp;
-		    if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
-			autoexp.close();
-			if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
-			    QTextStream outstream( &autoexp );
-			    outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
-			}
-		    }
-		    if( autoexp.isOpen() )
-			autoexp.close();
-		}
-	    }
-	    break;
-	}
-	/*
-	** Set up our icon folder and populate it with shortcuts.
-	** Then move to the next page.
-	*/
-	dirName = shell.createFolder( folderPath->text(), common );
-	shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
-	shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
-	shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
-	shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
-	if( int( qWinVersion() ) & int( WV_DOS_based ) )
-	    shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
-
-	if( installTutorials->isChecked() ) {
-	    tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
-	    installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
-	}
-	if( installExamples->isChecked() ) {
-	    examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
-	    installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
-	}
-	/*
-	** Then record the installation in the registry, and set up the uninstallation
-	*/
-	QStringList uninstaller;
-	uninstaller << shell.windowsFolderName + "\\quninstall.exe";
-	uninstaller << installPath->text();
-
-	if( common )
-	    uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
-	else
-	    uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
-
-	uninstaller << DISTVER;
-
-	QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
-
+	doFinalIntegration();
 	setNextEnabled( buildPage, true );
     }
 }
@@ -427,9 +432,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    }
 
 	    vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
-	    msDevDir = vsCommonDir + "\\MSDev98";
+		msDevDir = QEnvironment::getFSFileName( vsCommonDir + "\\MSDev98" );
 	    QEnvironment::putEnv( "MSDevDir", msDevDir, envSpec );
-	    msVCDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
+		msVCDir = QEnvironment::getFSFileName( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine ) );
 	    QEnvironment::putEnv( "MSVCDir", msVCDir, envSpec );
 	    if( int( qWinVersion() ) & int( WV_NT_based ) )
 		osDir = "WINNT";
@@ -469,28 +474,31 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
 	QStringList path;
+	QString qtDir = QEnvironment::getFSFileName( installPath->text() );
 
+	createDir( installPath->text() );
+	
 	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
-	if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
-	    path.prepend( installPath->text() + "\\lib" );
-	if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
-	    path.prepend( installPath->text() + "\\bin" );
+	if( path.findIndex( qtDir + "\\lib" ) == -1 )
+	    path.prepend( qtDir + "\\lib" );
+	if( path.findIndex( qtDir + "\\bin" ) == -1 )
+	    path.prepend( qtDir + "\\bin" );
 	QEnvironment::putEnv( "PATH", path.join( ";" ) );
 
 	if( qtDirCheck->isChecked() ) {
-	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 
 	    path.clear();
 	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
-	    if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
-		path.prepend( "%QTDIR%\\lib" );
-	    if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
-		path.prepend( "%QTDIR%\\bin" );
+	    if( path.findIndex( qtDir + "\\lib" ) == -1 )
+		path.prepend( qtDir + "\\lib" );
+	    if( path.findIndex( qtDir + "\\bin" ) == -1 )
+		path.prepend( qtDir + "\\bin" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
 	}
 	else {
-	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv );
+	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv );
 	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
 	}
 
@@ -738,7 +746,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 		outFile.close();
 	    }
-	    integratorDone();
+	    doFinalIntegration();
 	    showPage( finishPage );
 	}
     }

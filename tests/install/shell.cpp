@@ -227,7 +227,8 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
     if( shortcutName.right( 4 ) != ".lnk" )
 	shortcutName += ".lnk";
 
-    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+    folderName = QEnvironment::getFSFileName( folderName );
+    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
         IShellLinkW* link;
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {

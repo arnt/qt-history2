@@ -4,6 +4,8 @@
 #include <qnamespace.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qfileinfo.h>
+#include <qdir.h>
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
@@ -236,4 +238,20 @@ QString QEnvironment::getTempPath()
 QString QEnvironment::getLastError()
 {
     return strerror( errno );
+}
+
+QString QEnvironment::getFSFileName( const QString& fileName )
+{
+    QByteArray buffer( MAX_PATH );
+    QString tmp( fileName );
+    
+    GetVolumeInformationA( fileName.left( fileName.find( '\\' ) + 1 ).latin1(), NULL, NULL, NULL, NULL, NULL, buffer.data(), buffer.size() );
+    if( QString( buffer.data() ) != "NTFS" ) {
+	DWORD dw;
+
+	dw = GetShortPathNameA( fileName.latin1(), (char*)buffer.data(), buffer.size() );
+	if( dw > 0 )
+	    tmp = buffer.data();
+    }
+    return tmp;
 }

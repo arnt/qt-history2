@@ -74,7 +74,7 @@ private:
     void updateOutputDisplay( QProcess* proc );
     void updateErrorDisplay( QProcess* proc );
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
-
+    void doFinalIntegration();
     enum {
 	MSVC = 0,
 	Borland = 1,

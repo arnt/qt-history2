@@ -10,6 +10,7 @@ public:
     static bool removeUninstall( QString displayName );
     static QString getTempPath();
     static QString getLastError();
+    static QString getFSFileName( const QString& fileName );
 
     enum {
 	LocalEnv = 1,
