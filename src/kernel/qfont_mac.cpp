@@ -8,15 +8,15 @@
 #include "qutfcodec.h"
 #include "qt_mac.h"
 #include "qpaintdevice.h"
+#include "qpainter.h"
 
 extern const unsigned char * p_str(const char * c);
 
 class QFontInternal {
-
 public:
-
+    FontInfo info;;
+    short fnum;
     int psize;
-
 };
 
 int QFontMetrics::lineSpacing() const
@@ -29,25 +29,22 @@ int QFontMetrics::lineWidth() const
     return 1;
 }
 
+#undef FI
+#define FI (painter ? painter->cfont.d->fin->info : fin->info)
+
 int QFontMetrics::leading() const
 {
-    FontInfo fi;
-    GetFontInfo(&fi);
-    return fi.leading;
+    return FI.leading;
 }
 
 int QFontMetrics::ascent() const
 {
-    FontInfo fi;
-    GetFontInfo(&fi);
-    return fi.ascent;
+    return FI.ascent+2; //2?? fixme!
 }
 
 int QFontMetrics::descent() const
 {
-    FontInfo fi;
-    GetFontInfo(&fi);
-    return fi.descent;
+    return FI.descent; //2?? fixme!
 }
 
 int char_widths[256];
@@ -87,9 +84,7 @@ int QFontMetrics::width(const QString &s,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-    FontInfo fi;
-    GetFontInfo(&fi);
-    return fi.widMax;
+    return FI.widMax;
 }
 
 int QFontMetrics::height() const
@@ -130,9 +125,8 @@ int QFontMetrics::underlinePos() const
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    if(len<1) {
+    if(len<1) 
 	len=str.length();
-    }
     return QRect(0,0,len*maxWidth(),height());  // Temporary
 }
 
@@ -146,18 +140,18 @@ Qt::HANDLE QFont::handle() const
 
 void QFont::macSetFont(QPaintDevice *v)
 {
-    if(v) {
-	if(!v->paintingActive()) {
-	    qDebug("I was really hoping it would never come to this...");
-	    ASSERT(0); //we need to figure out if this can really happen
-	}
-	//v->lockPort();
-	TextSize(pointSize());
-	short fnum;
-	GetFNum(p_str(family().ascii()),&fnum);
-	TextFont(fnum);
-	//v->unlockPort();
+    if(v && !v->paintingActive()) {
+	qDebug("I was really hoping it would never come to this...");
+	ASSERT(0); //we need to figure out if this can really happen
     }
+
+    TextSize(pointSize());
+    short fnum;
+    GetFNum(p_str(family().ascii()),&fnum);
+    TextFont(fnum);
+
+    if(d && d->fin)
+	d->fin->fnum = fnum;
 }
 
 void QFont::load() const
@@ -165,6 +159,9 @@ void QFont::load() const
     d->req.dirty=FALSE;
     d->fin=new QFontInternal;
     d->fin->psize=pointSize();
+    ((QFont *)this)->macSetFont(NULL);
+    GetFontInfo(&d->fin->info);
+
     // Our 'handle' is actually a structure with the information needed to load
     // the font into the current grafport
 }
