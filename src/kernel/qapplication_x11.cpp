@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#70 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#69 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#70 $";
 #endif
 
 
@@ -928,7 +928,7 @@ void qt_leave_modal( QWidget *widget )		// leave modal state
 static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
     bool     block_event  = FALSE;
-    bool     expose_event = FALSE;;
+    bool     expose_event = FALSE;
     QWidget *modal = 0;
 
     switch ( event->type ) {
@@ -948,15 +948,15 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     if ( widget->testFlag(WType_Modal) )	// widget is modal
 	modal = widget;
     else {					// widget is not modal
-	while ( TRUE ) {			// find overlapped parent...
+	while ( widget ) {			// find overlap/popup parent
+	    if ( widget->testFlag(WType_Popup) )// popups are ok
+		return TRUE;
 	    if ( widget->testFlag(WType_Overlap) )
 		break;
 	    widget = widget->parentWidget();
-	    if ( !widget )
-		break;
 	}
 	if ( widget && widget->testFlag(WType_Modal) )
-	    modal = widget;			// ...that is modal
+	    modal = widget;			// overlapped modal parent
     }
 
     ASSERT( modal_stack && modal_stack->getFirst() );
