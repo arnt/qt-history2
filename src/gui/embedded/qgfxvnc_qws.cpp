@@ -51,8 +51,8 @@ public:
         x = _x; y = _y; w = _w; h = _h;
     }
 
-    void read(QSocket *s);
-    void write(QSocket *s);
+    void read(QTcpSocket *s);
+    void write(QTcpSocket *s);
 
     Q_UINT16 x;
     Q_UINT16 y;
@@ -65,8 +65,8 @@ class QRfbPixelFormat
 public:
     static int size() { return 16; }
 
-    void read(QSocket *s);
-    void write(QSocket *s);
+    void read(QTcpSocket *s);
+    void write(QTcpSocket *s);
 
     int bitsPerPixel;
     int depth;
@@ -89,8 +89,8 @@ public:
     int size() const { return QRfbPixelFormat::size() + 8 + strlen(name); }
     void setName(const char *n);
 
-    void read(QSocket *s);
-    void write(QSocket *s);
+    void read(QTcpSocket *s);
+    void write(QTcpSocket *s);
 
     Q_UINT16 width;
     Q_UINT16 height;
@@ -101,7 +101,7 @@ public:
 class QRfbSetEncodings
 {
 public:
-    bool read(QSocket *s);
+    bool read(QTcpSocket *s);
 
     Q_UINT16 count;
 };
@@ -109,7 +109,7 @@ public:
 class QRfbFrameBufferUpdateRequest
 {
 public:
-    bool read(QSocket *s);
+    bool read(QTcpSocket *s);
 
     char incremental;
     QRfbRect rect;
@@ -118,7 +118,7 @@ public:
 class QRfbKeyEvent
 {
 public:
-    bool read(QSocket *s);
+    bool read(QTcpSocket *s);
 
     char down;
     int  keycode;
@@ -128,7 +128,7 @@ public:
 class QRfbPointerEvent
 {
 public:
-    bool read(QSocket *s);
+    bool read(QTcpSocket *s);
 
     uint buttons;
     Q_UINT16 x;
@@ -138,21 +138,19 @@ public:
 class QRfbClientCutText
 {
 public:
-    bool read(QSocket *s);
+    bool read(QTcpSocket *s);
 
     Q_UINT32 length;
 };
 
 
-class QVNCServer : public QServerSocket
+class QVNCServer : public QObject
 {
     Q_OBJECT
 public:
     QVNCServer();
     QVNCServer(int id);
     ~QVNCServer();
-
-    virtual void newConnection(int socket);
 
     enum ClientMsg { SetPixelFormat = 0,
                      FixColourMapEntries = 1,
@@ -178,14 +176,17 @@ private:
     void sendRaw();
 
 private slots:
+    void newConnection();
     void readClient();
     void checkUpdate();
     void discardClient();
 
 private:
+    void init(uint port);
     enum ClientState { Protocol, Init, Connected };
     QTimer *timer;
-    QSocket *client;
+    QTcpServer *serverSocket;
+    QTcpSocket *client;
     ClientState state;
     Q_UINT8 msgType;
     bool handleMsg;
@@ -243,32 +244,32 @@ static struct {
 
 /*
  */
-void QRfbRect::read(QSocket *s)
+void QRfbRect::read(QTcpSocket *s)
 {
     Q_UINT16 buf[4];
-    s->readBlock((char*)buf, 8);
+    s->read((char*)buf, 8);
     x = ntohs(buf[0]);
     y = ntohs(buf[1]);
     w = ntohs(buf[2]);
     h = ntohs(buf[3]);
 }
 
-void QRfbRect::write(QSocket *s)
+void QRfbRect::write(QTcpSocket *s)
 {
     Q_UINT16 buf[4];
     buf[0] = htons(x);
     buf[1] = htons(y);
     buf[2] = htons(w);
     buf[3] = htons(h);
-    s->writeBlock((char*)buf, 8);
+    s->write((char*)buf, 8);
 }
 
 /*
  */
-void QRfbPixelFormat::read(QSocket *s)
+void QRfbPixelFormat::read(QTcpSocket *s)
 {
     char buf[16];
-    s->readBlock(buf, 16);
+    s->read(buf, 16);
     bitsPerPixel = buf[0];
     depth = buf[1];
     bigEndian = buf[2];
@@ -291,7 +292,7 @@ void QRfbPixelFormat::read(QSocket *s)
     blueShift = buf[12];
 }
 
-void QRfbPixelFormat::write(QSocket *s)
+void QRfbPixelFormat::write(QTcpSocket *s)
 {
     char buf[16];
     buf[0] = bitsPerPixel;
@@ -314,7 +315,7 @@ void QRfbPixelFormat::write(QSocket *s)
     buf[10] = redShift;
     buf[11] = greenShift;
     buf[12] = blueShift;
-    s->writeBlock(buf, 16);
+    s->write(buf, 16);
 }
 
 
@@ -327,46 +328,46 @@ void QRfbServerInit::setName(const char *n)
     strcpy(name, n);
 }
 
-void QRfbServerInit::read(QSocket *s)
+void QRfbServerInit::read(QTcpSocket *s)
 {
-    s->readBlock((char *)&width, 2);
+    s->read((char *)&width, 2);
     width = ntohs(width);
-    s->readBlock((char *)&height, 2);
+    s->read((char *)&height, 2);
     height = ntohs(height);
     format.read(s);
 
     Q_UINT32 len;
-    s->readBlock((char *)&len, 4);
+    s->read((char *)&len, 4);
     len = ntohl(len);
 
     name = new char [len + 1];
-    s->readBlock(name, len);
+    s->read(name, len);
     name[len] = '\0';
 }
 
-void QRfbServerInit::write(QSocket *s)
+void QRfbServerInit::write(QTcpSocket *s)
 {
     Q_UINT16 t = htons(width);
-    s->writeBlock((char *)&t, 2);
+    s->write((char *)&t, 2);
     t = htons(height);
-    s->writeBlock((char *)&t, 2);
+    s->write((char *)&t, 2);
     format.write(s);
     Q_UINT32 len = strlen(name);
     len = htonl(len);
-    s->writeBlock((char *)&len, 4);
-    s->writeBlock(name, strlen(name));
+    s->write((char *)&len, 4);
+    s->write(name, strlen(name));
 }
 
 /*
  */
-bool QRfbSetEncodings::read(QSocket *s)
+bool QRfbSetEncodings::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 3)
         return false;
 
     char tmp;
-    s->readBlock(&tmp, 1);        // padding
-    s->readBlock((char *)&count, 2);
+    s->read(&tmp, 1);        // padding
+    s->read((char *)&count, 2);
     count = ntohs(count);
 
     return true;
@@ -374,12 +375,12 @@ bool QRfbSetEncodings::read(QSocket *s)
 
 /*
  */
-bool QRfbFrameBufferUpdateRequest::read(QSocket *s)
+bool QRfbFrameBufferUpdateRequest::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 9)
         return false;
 
-    s->readBlock(&incremental, 1);
+    s->read(&incremental, 1);
     rect.read(s);
 
     return true;
@@ -387,17 +388,17 @@ bool QRfbFrameBufferUpdateRequest::read(QSocket *s)
 
 /*
  */
-bool QRfbKeyEvent::read(QSocket *s)
+bool QRfbKeyEvent::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 7)
         return false;
 
-    s->readBlock(&down, 1);
+    s->read(&down, 1);
     Q_UINT16 tmp;
-    s->readBlock((char *)&tmp, 2);  // padding
+    s->read((char *)&tmp, 2);  // padding
 
     Q_UINT32 key;
-    s->readBlock((char *)&key, 4);
+    s->read((char *)&key, 4);
     key = ntohl(key);
 
     unicode = 0;
@@ -423,13 +424,13 @@ bool QRfbKeyEvent::read(QSocket *s)
 
 /*
  */
-bool QRfbPointerEvent::read(QSocket *s)
+bool QRfbPointerEvent::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 5)
         return false;
 
     char buttonMask;
-    s->readBlock(&buttonMask, 1);
+    s->read(&buttonMask, 1);
     buttons = 0;
     if (buttonMask & 1)
         buttons |= Qt::LeftButton;
@@ -439,9 +440,9 @@ bool QRfbPointerEvent::read(QSocket *s)
         buttons |= Qt::RightButton;
 
     Q_UINT16 tmp;
-    s->readBlock((char *)&tmp, 2);
+    s->read((char *)&tmp, 2);
     x = ntohs(tmp);
-    s->readBlock((char *)&tmp, 2);
+    s->read((char *)&tmp, 2);
     y = ntohs(tmp);
 
     return true;
@@ -449,14 +450,14 @@ bool QRfbPointerEvent::read(QSocket *s)
 
 /*
  */
-bool QRfbClientCutText::read(QSocket *s)
+bool QRfbClientCutText::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 7)
         return false;
 
     char tmp[3];
-    s->readBlock(tmp, 3);        // padding
-    s->readBlock((char *)&length, 4);
+    s->read(tmp, 3);        // padding
+    s->read((char *)&length, 4);
     length = ntohl(length);
 
     return true;
@@ -467,22 +468,19 @@ bool QRfbClientCutText::read(QSocket *s)
 /*
  */
 QVNCServer::QVNCServer()
-    : QServerSocket((Q_UINT16)5900)
 {
-    qDebug("QVNCServer created");
-    handleMsg = false;
-    client = 0;
-    encodingsPending = 0;
-    cutTextPending = 0;
-    keymod = 0;
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
+    init(5900);
 }
 
 QVNCServer::QVNCServer(int id)
-    : QServerSocket((Q_UINT16)(5900 + id))
+{
+    init(5900 + id);
+}
+
+void QVNCServer::init(uint port)
 {
     qDebug("QVNCServer created");
+
     handleMsg = false;
     client = 0;
     encodingsPending = 0;
@@ -490,6 +488,9 @@ QVNCServer::QVNCServer(int id)
     keymod = 0;
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
+    serverSocket = new QTcpServer(this);
+    serverSocket->listen(port);
+    connect(serverSocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
 }
 
 QVNCServer::~QVNCServer()
@@ -497,18 +498,17 @@ QVNCServer::~QVNCServer()
     discardClient();
 }
 
-void QVNCServer::newConnection(int socket)
+void QVNCServer::newConnection()
 {
     qDebug("new connection");
     if (client) {
         qDebug("Killing old client");
         delete client;
     }
-    client = new QSocket(this);
+    client = serverSocket->nextPendingConnection();
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
     connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
-    connect(client,SIGNAL(connectionClosed()),this,SLOT(discardClient()));
-    client->setSocket(socket);
+    connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
     handleMsg = false;
     encodingsPending = 0;
     cutTextPending = 0;
@@ -518,7 +518,7 @@ void QVNCServer::newConnection(int socket)
 
     // send protocol version
     char *proto = "RFB 003.003\n";
-    client->writeBlock(proto, 12);
+    client->write(proto, 12);
     state = Protocol;
 }
 
@@ -528,12 +528,12 @@ void QVNCServer::readClient()
         case Protocol:
             if (client->bytesAvailable() >= 12) {
                 char proto[13];
-                client->readBlock(proto, 12);
+                client->read(proto, 12);
                 proto[12] = '\0';
                 qDebug("Client protocol version %s", proto);
                 // No authentication
                 Q_UINT32 auth = htonl(1);
-                client->writeBlock((char *) &auth, sizeof(auth));
+                client->write((char *) &auth, sizeof(auth));
                 state = Init;
             }
             break;
@@ -541,7 +541,7 @@ void QVNCServer::readClient()
         case Init:
             if (client->bytesAvailable() >= 1) {
                 Q_UINT8 shared;
-                client->readBlock((char *) &shared, 1);
+                client->read((char *) &shared, 1);
                 qDebug("Read client init message");
 
                 // Server Init msg
@@ -616,7 +616,7 @@ void QVNCServer::readClient()
         case Connected:
             do {
                 if (!handleMsg) {
-                    client->readBlock((char *)&msgType, 1);
+                    client->read((char *)&msgType, 1);
                     handleMsg = true;
                 }
                 if (handleMsg) {
@@ -657,7 +657,7 @@ void QVNCServer::setPixelFormat()
 {
     if (client->bytesAvailable() >= 19) {
         char buf[3];
-        client->readBlock(buf, 3); // just padding
+        client->read(buf, 3); // just padding
         pixelFormat.read(client);
         qDebug("Want format: %d %d %d %d %d %d %d %d %d %d",
             (int)pixelFormat.bitsPerPixel,
@@ -693,7 +693,7 @@ void QVNCServer::setEncodings()
                                 encodingsPending * sizeof(Q_UINT32)) {
         for (int i = 0; i < encodingsPending; i++) {
             Q_UINT32 enc;
-            client->readBlock((char *)&enc, sizeof(Q_UINT32));
+            client->read((char *)&enc, sizeof(Q_UINT32));
             enc = ntohl(enc);
             if (enc == 5)
                 supportHextile = true;
@@ -764,7 +764,7 @@ void QVNCServer::clientCutText()
 
     if (cutTextPending && client->bytesAvailable() >= cutTextPending) {
         char *text = new char [cutTextPending+1];
-        client->readBlock(text, cutTextPending);
+        client->read(text, cutTextPending);
         delete [] text;
         cutTextPending = 0;
         handleMsg = false;
@@ -889,10 +889,10 @@ void QVNCServer::sendHextile()
     }
 
     char tmp = 0;
-    client->writeBlock(&tmp, 1); // msg type
-    client->writeBlock(&tmp, 1); // padding
+    client->write(&tmp, 1); // msg type
+    client->write(&tmp, 1); // padding
     count = htons(count);
-    client->writeBlock((char *)&count, 2);
+    client->write((char *)&count, 2);
 
     if (qvnc_screen->hdr->dirty) {
         QRfbRect rect;
@@ -910,7 +910,7 @@ void QVNCServer::sendHextile()
                     rect.write(client);
 
                     Q_UINT32 encoding = htonl(5);        // hextile encoding
-                    client->writeBlock((char *)&encoding, 4);
+                    client->write((char *)&encoding, 4);
 
                     // grab screen memory
                     uchar *sptr = screendata;
@@ -928,19 +928,19 @@ void QVNCServer::sendHextile()
                         // This area is a single color
                         qDebug("Send empty block");
                         Q_UINT8 subenc = 2; // BackgroundSpecified subencoding
-                        client->writeBlock((char *)&subenc, 1);
+                        client->write((char *)&subenc, 1);
                         int pixel;
                         pixel = getPixel(&sptr);
-                        client->writeBlock((char *)&pixel, pixelFormat.bitsPerPixel/8);
+                        client->write((char *)&pixel, pixelFormat.bitsPerPixel/8);
                     } else {
                         Q_UINT8 subenc = 1; // Raw subencoding
-                        client->writeBlock((char *)&subenc, 1);
+                        client->write((char *)&subenc, 1);
                         int pixel;
                         for (int i = rect.y; i < rect.y+rect.h; i++) {
                             nibble = 0;
                             for (int j = 0; j < rect.w; j++) {
                                 pixel = getPixel(&sptr);
-                                client->writeBlock((char *)&pixel, pixelFormat.bitsPerPixel/8);
+                                client->write((char *)&pixel, pixelFormat.bitsPerPixel/8);
                             }
                         }
                     }
@@ -983,10 +983,10 @@ void QVNCServer::sendRaw()
     }
 
     char tmp = 0;
-    client->writeBlock(&tmp, 1); // msg type
-    client->writeBlock(&tmp, 1); // padding
+    client->write(&tmp, 1); // msg type
+    client->write(&tmp, 1); // padding
     Q_UINT16 count = htons(rgn.rects().count());
-    client->writeBlock((char *)&count, 2);
+    client->write((char *)&count, 2);
 
     if (rgn.rects().count()) {
         for (unsigned int idx = 0; idx < rgn.rects().count(); idx++) {
@@ -998,7 +998,7 @@ void QVNCServer::sendRaw()
             rect.write(client);
 
             Q_UINT32 encoding = htonl(0);        // raw encoding
-            client->writeBlock((char *)&encoding, 4);
+            client->write((char *)&encoding, 4);
 
             int pixel;
             for (int i = rect.y; i < rect.y+rect.h; i++) {
@@ -1007,7 +1007,7 @@ void QVNCServer::sendRaw()
                 nibble = rect.x & 1;
                 for (int j = 0; j < rect.w; j++) {
                     pixel = getPixel(&data);
-                    client->writeBlock((char *)&pixel, pixelFormat.bitsPerPixel/8);
+                    client->write((char *)&pixel, pixelFormat.bitsPerPixel/8);
                 }
             }
         }
