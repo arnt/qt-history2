@@ -485,6 +485,13 @@
     #define QT_NO_DIALOGS
 #endif
 
+#if defined(QT_NO_STYLE_WINDOWS)
+    /*!
+	Compact Windows style
+    */
+    #define QT_NO_STYLE_COMPACT
+#endif
+
 #if defined(QT_NO_STYLE_MOTIF)
     /*!
 	CDE style

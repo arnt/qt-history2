@@ -32,6 +32,7 @@
 #include "qptrdict.h"
 
 #include "qwindowsstyle.h"
+#include "qcompactstyle.h"
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
@@ -605,7 +606,7 @@ void QApplication::initialize( int argc, char **argv )
 #ifndef QT_NO_STYLE
     if (!app_style) {
 
-// Somewhat complicated compile-time search for default style
+// Compile-time search for default style
 //
 #if defined(_WS_WIN_) && !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
@@ -615,6 +616,8 @@ void QApplication::initialize( int argc, char **argv )
 	app_style = new QMotifStyle; // default style for X Windows
 #elif defined(_WS_MAC_) && !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
+#elif defined(_WS_QWS_) && !defined(QT_NO_STYLE_COMPACT)
+	app_style = new QCompactStyle; // default style for small devices
 #elif !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
 #elif !defined(QT_NO_STYLE_MOTIF)

@@ -38,6 +38,11 @@ class Q_EXPORT QCompactStyle : public QWindowsStyle
 public:
     QCompactStyle();
     virtual ~QCompactStyle();
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*, const QFontMetrics& );
+    int popupMenuItemHeight( bool checkable, QMenuItem*, const QFontMetrics& );
+    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+				       const QPalette& pal,
+				       bool act, bool enabled, int x, int y, int w, int h);
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
