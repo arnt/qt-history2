@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#27 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -623,6 +623,7 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
 	    m += x > y ? x : y;
 	}
     }
+    if ( m == 0 ) m = 1; // ### Paul was here! 
     QPointArray p( m );				// p = Bezier point array
     register QPointData *pd = p.data();
     if ( n == 2 ) {				// 3 control points
