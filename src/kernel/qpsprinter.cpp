@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#68 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1832,7 +1832,7 @@ static void wordwrap( QString & s )
 	    s[op++] = s[ip++];
 	}
     }
-    s[op] = '\0';
+    s.truncate( op );
 }
 
 
@@ -2586,8 +2586,8 @@ void QPSPrinter::emitHeader( bool finished )
 	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
 	stream << " EPSF-3.0\n%%BoundingBox: "
 	       << d->boundingBox.left() << " "
-	       << m.height() - d->boundingBox.bottom() << " "
-	       << d->boundingBox.right() << " "
+	       << m.height() - d->boundingBox.bottom() - 1 << " "
+	       << d->boundingBox.right() + 1 << " "
 	       << m.height() - d->boundingBox.top();
     }
     stream << "\n%%Creator: " << creator
