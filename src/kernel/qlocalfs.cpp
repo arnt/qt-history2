@@ -216,7 +216,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
     QByteArray s;
     emit dataTransferProgress( 0, f.size(), op );
     int blockSize = calcBlockSize( f.size() );
-    if ( f.size() < blockSize ) {
+    if ( (int)f.size() < blockSize ) {
 	s.resize( f.size() );
 	f.readBlock( s.data(), f.size() );
 	emit data( s, op );
@@ -279,7 +279,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
     QByteArray ba( op->rawArg( 1 ) );
     emit dataTransferProgress( 0, ba.size(), op );
     int blockSize = calcBlockSize( ba.size() );
-    if ( ba.size() < blockSize ) {
+    if ( (int)ba.size() < blockSize ) {
 	f.writeBlock( ba.data(), ba.size() );
 	emit dataTransferProgress( ba.size(), ba.size(), op );
     } else {
