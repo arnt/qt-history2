@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#137 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1408,12 +1408,6 @@ taller than sizeHint() says.
   width of the widget (for example, a QLabel with automatic word-breaking).
 */
 
-#if defined(__GNUC__) && __GNUC__ == 2 && __GNUC_MINOR__ == 96
-
-QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
-    : data( hor | (ver<<HSize) | (hfw ? (1<<2*HSize) : 0) ) {}
-
-#endif
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
 Returns the horizontal component of the size policy.
@@ -1423,6 +1417,7 @@ Returns the horizontal component of the size policy.
 /*! \fn QSizePolicy::SizeType QSizePolicy::verData() const
 Returns the vertical component of the size policy.
 */
+
 
 /*! \fn bool QSizePolicy::mayShrinkHorizontally() const
 Returns TRUE if the widget can sensibly be narrower than its sizeHint().
@@ -1779,5 +1774,6 @@ bool QLayout::isEnabled() const
 {
     return enabled;
 }
+
 
 #endif //QT_NO_LAYOUT
