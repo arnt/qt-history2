@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#478 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#479 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -285,7 +285,7 @@ extern Atom qt_xdnd_selection;
 
 
 // paintevent clipping magic
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
 
@@ -3723,7 +3723,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
-    qt_set_paintevent_clipping( this, paintRegion); 
+    qt_set_paintevent_clipping( this, paintRegion);
     QApplication::sendEvent( this, &e );
     qt_clear_paintevent_clipping();
     clearWState( WState_InPaintEvent );
@@ -3773,15 +3773,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-    {
-	XEvent otherEvent;
-	while ( XCheckTypedWindowEvent(x11Display(),winId(),ConfigureNotify,&otherEvent) ) {
-	    if ( qApp->x11EventFilter(&otherEvent) )
-		break;
-	    newSize.setWidth( otherEvent.xconfigure.width );
-	    newSize.setHeight( otherEvent.xconfigure.height );
-	}
-
+    XEvent otherEvent;
+    while ( XCheckTypedWindowEvent(x11Display(),winId(),ConfigureNotify,&otherEvent) ) {
+	if ( qApp->x11EventFilter(&otherEvent) )
+	    break;
+	newSize.setWidth( otherEvent.xconfigure.width );
+	newSize.setHeight( otherEvent.xconfigure.height );
     }
 
     Display *dpy = x11Display();
