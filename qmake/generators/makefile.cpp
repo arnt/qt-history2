@@ -1745,7 +1745,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 
         //qmake it
         if(!(*it)->profile.isEmpty()) {
-            QString out, in = (*it)->profile;
+            QString out, in = fileFixify((*it)->directory + Option::dir_sep + (*it)->profile);
             if((*it)->makefile != "$(MAKEFILE)")
                 out = " -o " + (*it)->makefile;
             if(in.startsWith((*it)->directory + Option::dir_sep))
