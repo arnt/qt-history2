@@ -887,12 +887,22 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	optionSelected( 0 );
 	setInstallStep( 5 );
+
     } else if( newPage == progressPage ) {
 	saveSettings();
 	int totalSize = 0;
 	QFileInfo fi;
 	totalRead = 0;
 	bool copySuccessful = true;
+
+	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
+	QStringList paths = QStringList::split( ";", QEnvironment::getEnv( "PATH" ) );
+	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
+		QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
+														  "is present in the PATH environment variable.\n"
+														  "The installation can't continue.", "Yes", QString::null, QString::null, 0, 1 );
+		return;
+	}
 
 	setInstallStep( 6 );
 	if( !filesCopied ) {
@@ -1205,11 +1215,10 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 
     QCheckListItem *item = (QCheckListItem*)i;
     if ( item->type() != QCheckListItem::RadioButton )
-	return;
+		return;
+	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
-    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
-
-    if ( item->text(0) == "Static" && item->isOn() ) {
+	if ( item->text(0) == "Static" && item->isOn() ) {
 	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
 				  "or plugins if you select the static build of the Qt library.\n"
 				  "New features, e.g souce code editing in Qt Designer, will not "
@@ -1218,90 +1227,90 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 				  "to use all or new features, e.g. new styles.\n\n"
 				  "Are you sure you want to build a static Qt library?",
 				  "No, I want to use the cool new stuff", "Yes" ) ) {
-	    item->setOn( false );
-	    if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
+		item->setOn( false );
+		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
 		item->setOn( true );
 		configList->setCurrentItem( item );
-	    }
+		}
 	} else {
-	    if ( accOn->isOn() ) {
+		if ( accOn->isOn() ) {
 		accOn->setOn( false );
 		accOff->setOn( true );
-	    }
-	    if ( bigCodecsOff->isOn() ) {
+		}
+		if ( bigCodecsOff->isOn() ) {
 		bigCodecsOn->setOn( true );
 		bigCodecsOff->setOn( false );
-	    }
-	    if ( mngPlugin->isOn() ) {
+		}
+		if ( mngPlugin->isOn() ) {
 		mngDirect->setOn( true );
 		mngPlugin->setOn( false );
-	    }
-	    if ( pngPlugin->isOn() ) {
+		}
+		if ( pngPlugin->isOn() ) {
 		pngDirect->setOn( true );
 		pngPlugin->setOn( false );
-	    }
-	    if ( jpegPlugin->isOn() ) {
+		}
+		if ( jpegPlugin->isOn() ) {
 		jpegDirect->setOn( true );
 		jpegPlugin->setOn( false );
-	    }
-	    if ( sgiPlugin->isOn() ) {
+		}
+		if ( sgiPlugin->isOn() ) {
 		sgiPlugin->setOn( false );
 		sgiDirect->setOn( true );
-	    }
-	    if ( cdePlugin->isOn() ) {
+		}
+		if ( cdePlugin->isOn() ) {
 		cdePlugin->setOn( false );
 		cdeDirect->setOn( true );
-	    }
-	    if ( motifplusPlugin->isOn() ) {
+		}
+		if ( motifplusPlugin->isOn() ) {
 		motifplusPlugin->setOn( false );
 		motifplusDirect->setOn( true );
-	    }
-	    if ( platinumPlugin->isOn() ) {
+		}
+		if ( platinumPlugin->isOn() ) {
 		platinumPlugin->setOn( false );
 		platinumDirect->setOn( true );
-	    }
-	    if ( enterprise ) {
+		}
+		if ( enterprise ) {
 		if ( mysqlPlugin->isOn() ) {
-		    mysqlPlugin->setOn( false );
-		    mysqlDirect->setOn( true );
+			mysqlPlugin->setOn( false );
+			mysqlDirect->setOn( true );
 		}
 		if ( ociPlugin->isOn() ) {
-		    ociPlugin->setOn( false );
-		    ociDirect->setOn( true );
+			ociPlugin->setOn( false );
+			ociDirect->setOn( true );
 		}
 		if ( odbcPlugin->isOn() ) {
-		    odbcPlugin->setOn( false );
-		    odbcDirect->setOn( true );
+			odbcPlugin->setOn( false );
+			odbcDirect->setOn( true );
 		}
 		if ( psqlPlugin->isOn() ) {
-		    psqlPlugin->setOn( false );
-		    psqlDirect->setOn( true );
+			psqlPlugin->setOn( false );
+			psqlDirect->setOn( true );
 		}
 		if ( tdsPlugin->isOn() ) {
-		    tdsPlugin->setOn( false );
-		    tdsDirect->setOn( true );
+			tdsPlugin->setOn( false );
+			tdsDirect->setOn( true );
 		}
-	    }
+		}
 
-	    accOn->setEnabled( false );
-	    bigCodecsOff->setEnabled( false );
-	    mngPlugin->setEnabled( false );
-	    pngPlugin->setEnabled( false );
-	    jpegPlugin->setEnabled( false );
-	    sgiPlugin->setEnabled( false );
-	    cdePlugin->setEnabled( false );
-	    motifplusPlugin->setEnabled( false );
-	    platinumPlugin->setEnabled( false );
-	    if ( enterprise ) {
+		accOn->setEnabled( false );
+		bigCodecsOff->setEnabled( false );
+		mngPlugin->setEnabled( false );
+		pngPlugin->setEnabled( false );
+		jpegPlugin->setEnabled( false );
+		sgiPlugin->setEnabled( false );
+		cdePlugin->setEnabled( false );
+		motifplusPlugin->setEnabled( false );
+		platinumPlugin->setEnabled( false );
+		if ( enterprise ) {
 		mysqlPlugin->setEnabled( false );
 		ociPlugin->setEnabled( false );
 		odbcPlugin->setEnabled( false );
 		psqlPlugin->setEnabled( false );
 		tdsPlugin->setEnabled( false );
-	    }
+		}
 	}
 	return;
-    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
+	} else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	accOn->setEnabled( true );
 	bigCodecsOff->setEnabled( true );
 	mngPlugin->setEnabled( true );
@@ -1312,13 +1321,13 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	motifplusPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
 	if ( enterprise ) {
-	    mysqlPlugin->setEnabled( true );
-	    ociPlugin->setEnabled( true );
-	    odbcPlugin->setEnabled( true );
-	    psqlPlugin->setEnabled( true );
-	    tdsPlugin->setEnabled( true );
+		mysqlPlugin->setEnabled( true );
+		ociPlugin->setEnabled( true );
+		odbcPlugin->setEnabled( true );
+		psqlPlugin->setEnabled( true );
+		tdsPlugin->setEnabled( true );
 	}
-    }
+	}
 }
 
 void SetupWizardImpl::optionSelected( QListViewItem *i )
@@ -1331,7 +1340,24 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
-    if ( i->text(0) == "Required" ) {
+	if( ( i == mysqlDirect ) || ( i == mysqlPlugin ) )
+		if( !findFileInPaths( "libmysql.lib", QEnvironment::getEnv( "LIB" ) ) )
+			QMessageBox::warning( this, "Client libraries needed", "The MySQL driver may not build and link properly because\n"
+																   "the client libraries were not found in the LIB environment variable paths." );
+	if( ( i == ociDirect ) || ( i == ociPlugin ) )
+		if( !findFileInPaths( "oci.lib", QEnvironment::getEnv( "LIB" ) ) )
+			QMessageBox::warning( this, "Client libraries needed", "The OCI driver may not build and link properly because\n"
+																   "the client libraries were not found in the LIB environment variable paths." );
+	if( ( i == odbcDirect ) || ( i == odbcPlugin ) )
+		if( !findFileInPaths( "odbc32.lib", QEnvironment::getEnv( "LIB" ) ) )
+			QMessageBox::warning( this, "Client libraries needed", "The ODBC driver may not build and link properly because\n"
+																   "the client libraries were not found in the LIB environment variable paths." );
+	if( ( i == psqlDirect ) || ( i == psqlPlugin ) )
+		if( !findFileInPaths( "libpqdll.lib", QEnvironment::getEnv( "LIB" ) ) )
+			QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
+																	   "the client libraries were not found in the LIB environment variable paths." );
+    
+	if ( i->text(0) == "Required" ) {
 	explainOption->setText( tr("These modules are a necessary part of the Qt library. "
 				   "They can not be disabled.") );
     } else if ( i->parent() && i->parent()->text(0) == "Required" ) {
@@ -1802,4 +1828,14 @@ void SetupWizardImpl::clickedLicenseFile()
     if( !licensePath.isEmpty() )
 	readLicense( licensePath );
 
+}
+
+bool SetupWizardImpl::findFileInPaths( QString fileName, QStringList paths )
+{
+	QDir d;
+	for( QStringList::Iterator it = paths.begin(); it != paths.end(); ++it ) {
+		if( d.exists( (*it) + "\\" + fileName ) )
+			return true;
+	}
+	return false;
 }

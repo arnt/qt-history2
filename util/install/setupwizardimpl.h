@@ -54,13 +54,14 @@ protected slots:
     virtual void readIntegratorOutput();
     virtual void readIntegratorError();
     virtual void timerFired();
-
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );
     void configPageChanged();
 //    virtual void envDone();
 
 private:
+	bool findFileInPaths( QString fileName, QStringList paths );
+
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
 #else
