@@ -60,11 +60,8 @@ public:
     QT_COMPAT_CONSTRUCTOR QTextBrowser(QWidget *parent, const char *name);
 #endif
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTextBrowser(const QTextBrowser &);
-    QTextBrowser& operator=(const QTextBrowser &);
-#endif
+private:
+    Q_DISABLE_COPY(QTextBrowser)
 };
 
 #endif // QTEXTBROWSER_H

@@ -1042,8 +1042,7 @@ public:
 
     enum SettingsScope {
         UserScope,
-        SystemScope,
-        GlobalScope = SystemScope
+        SystemScope
     };
 
     // "handle" type for system objects. Documented as \internal in

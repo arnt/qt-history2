@@ -37,22 +37,22 @@ public:
     { setValue(key, value); return isWritable(); }
     inline QT_COMPAT bool writeEntry(const QString &key, const QStringList &value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, const QStringList &value, QChar sep)
-    { setValue(key, value.join(QString(sep))); return isWritable(); }
+    inline QT_COMPAT bool writeEntry(const QString &key, const QStringList &value, QChar separator)
+    { setValue(key, value.join(QString(separator))); return isWritable(); }
     inline QT_COMPAT QStringList readListEntry(const QString &key, bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key).toStringList();
     }
-    inline QT_COMPAT QStringList readListEntry(const QString &key, QChar sep, bool *ok = 0)
+    inline QT_COMPAT QStringList readListEntry(const QString &key, QChar separator, bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         QString str = value(key).toString();
         if (str.isEmpty())
             return QStringList();
-        return str.split(sep);
+        return str.split(separator);
     }
     inline QT_COMPAT QString readEntry(const QString &key, const QString &defaultValue = QString(),
                                        bool *ok = 0)
@@ -94,8 +94,8 @@ public:
     {
         QObject *parent = this->parent();
         this->~QSettings();
-        new (this) QSettings(scope == Global ? Qt::GlobalScope : Qt::UserScope,
-                                organization, application, parent);
+        new (this) QSettings(scope == Global ? Qt::SystemScope : Qt::UserScope,
+                             organization, application, parent);
     }
     inline QT_COMPAT void resetGroup()
     {
@@ -125,10 +125,7 @@ public:
 #endif
 
 private:
-#ifdef Q_DISABLE_COPY
-    QSettings(const QSettings &);
-    QSettings &operator=(const QSettings &);
-#endif
+    Q_DISABLE_COPY(QSettings)
 };
 
 #endif // QSETTINGS_H

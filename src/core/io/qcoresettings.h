@@ -73,10 +73,7 @@ protected:
     bool event(QEvent *event);
 
 private:
-#ifdef Q_DISABLE_COPY
-    QCoreSettings(const QCoreSettings &);
-    QCoreSettings &operator=(const QCoreSettings &);
-#endif
+    Q_DISABLE_COPY(QCoreSettings)
 };
 
 #endif // QCORESETTINGS_H

@@ -33,8 +33,8 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 /*
     QConfFile objects are explicitly shared within the application.
     This ensures that modification to the settings done through one
-    QSettings object are immediately reflected in other setting
-    objects of the same application.
+    QCoreSettings or QSettings object are immediately reflected in
+    other setting objects of the same application.
 */
 
 typedef QHash<QString, QConfFile *> ConfFileHash;
@@ -174,14 +174,14 @@ void QCoreSettingsPrivate::setStreamingFunctions(VariantToStringFunc vts,
 
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
 QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                    Qt::SettingsScope scope,
-                                                    const QString &organization,
-                                                    const QString &application,
-                                                    VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
+                                                   Qt::SettingsScope scope,
+                                                   const QString &organization,
+                                                   const QString &application,
+                                                   VariantToStringFunc vts,
+                                                   StringToVariantFunc stv)
 {
     QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
-                                                                organization, application);
+                                                               organization, application);
     p->setStreamingFunctions(vts, stv);
     p->init();
     return p;
@@ -190,9 +190,9 @@ QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
 
 #if !defined(Q_OS_WIN)
 QCoreSettingsPrivate *QCoreSettingsPrivate::create(const QString &fileName,
-                                                    Qt::SettingsFormat format,
-                                                    VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
+                                                   Qt::SettingsFormat format,
+                                                   VariantToStringFunc vts,
+                                                   StringToVariantFunc stv)
 {
     QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(fileName, format);
     p->setStreamingFunctions(vts, stv);
@@ -737,9 +737,9 @@ static QString userIniPath()
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
-                                                    Qt::SettingsScope scope,
-                                                    const QString &organization,
-                                                    const QString &application)
+                                                   Qt::SettingsScope scope,
+                                                   const QString &organization,
+                                                   const QString &application)
 {
     int i;
     this->format = format;
@@ -775,7 +775,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
-                                                    Qt::SettingsFormat format)
+                                                   Qt::SettingsFormat format)
 {
     confFiles[0] = QConfFile::fromName(fileName);
     for (int i = 1; i < NumConfFiles; ++i)
@@ -1356,9 +1356,6 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     return device.status() == QIODevice::Ok;
 }
 
-// ************************************************************************
-// QCoreSettings
-
 /*! \class QCoreSettings
     \brief The QCoreSettings class provides persistent platform-independent application settings.
 
@@ -1369,13 +1366,18 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     Users normally expect an application to remember its settings
     (window sizes and positions, options, etc.) across sessions. This
     information is often stored in the system registry on Windows,
-    and in XML preferences files on Mac OS X. On X11, in
-    the absense of a standard, many applications (including the KDE
-    applications) use .ini text files.
+    and in XML preferences files on Mac OS X. On X11, in the absense
+    of a standard, many applications (including the KDE applications)
+    use .ini text files.
 
     QCoreSettings is an abstraction around these technologies,
     enabling you to save and restore application settings in a
     portable manner.
+
+    If your application links against the QtGui library, you can use
+    QSettings rather than QCoreSettings. QSettings's API is based on
+    QVariant instead of QCoreVariant, which allows you to save
+    GUI-related types such as QRect, QSize, and QColor.
 
     \tableofcontents section1
 
@@ -1383,23 +1385,36 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     When creating a QCoreSettings object, you must pass the domain
     name of your company or organization as well as the name of your
-    application. For example:
+    application. For example, if your product is called DataMill and
+    you own the software.org Internet domain name, you would
+    construct the QCoreSettings object as follows:
 
     \code
         QCoreSettings settings("software.org", "DataMill");
     \endcode
 
     QCoreSettings objects can be created either on the stack or on
-    the heap (using \c new). Constructing and destroying a
+    the heap (i.e. using \c new). Constructing and destroying a
     QCoreSettings object is very fast.
 
-    QCoreSettings stores settings. Each setting consists of a QString
-    that identifies the key and a QCoreVariant that stores the data
-    associated with key. To write a setting, use setValue(). For
-    example:
+    If you use QCoreSettings from many places in your application,
+    you might want to specify the organization domain name and the
+    product name using QCoreApplication::setProductInfo() and use the
+    default QCoreSettings constructor:
 
     \code
-        settings.setValue("wrap margin", 68);
+        qApp->setProductInfo("software.org", "DataMill");
+        ...
+        QCoreSettings settings;
+    \endcode
+
+    QCoreSettings stores settings. Each setting consists of a QString
+    that specifies the setting's name (the \e key) and a QCoreVariant
+    that stores the data associated with the key. To write a setting,
+    use setValue(). For example:
+
+    \code
+        settings.setValue("wrapMargin", 68);
     \endcode
 
     If there already exists a setting with the same key, the existing
@@ -1410,7 +1425,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     You can get a setting's value back using value():
 
     \code
-        int margin = settings.value("wrap margin").toInt();
+        int margin = settings.value("wrapMargin").toInt();
     \endcode
 
     If there is no setting with the specified name, QCoreSettings
@@ -1419,7 +1434,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     argument to value():
 
     \code
-        int margin = settings.value("wrap margin", 80).toInt();
+        int margin = settings.value("wrapMargin", 80).toInt();
     \endcode
 
     To test whether a given key exists, call contains(). To remove
@@ -1427,18 +1442,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     list of all keys, call allKeys(). To remove all keys, call
     clear().
 
-    If your application links against the QtGui library, you can use
-    QSettings rather than QCoreSettings. QSettings's API is based on
-    QVariant instead of QCoreVariant, which allows you to save
-    GUI-related types such as QRect, QSize, and QColor.
-
     \section1 Key Syntax
 
-    The keys can contain any Unicode characters. The Windows registry
-    and .ini files use case-insensitive keys, whereas the Carbon
-    Preferences API on Mac OS X uses case-sensitive keys. To avoid
-    portability problems, we recommend that you follow these two
-    rules:
+    Setting keys can contain any Unicode characters. The Windows
+    registry and .ini files use case-insensitive keys, whereas the
+    Carbon Preferences API on Mac OS X uses case-sensitive keys. To
+    avoid portability problems, follow these two simple rules:
 
     \list 1
     \i Always refer to the same key using the same case. For example,
@@ -1475,8 +1484,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         settings.endGroup();
     \endcode
 
-    If a group is set using beginGroup(), allKeys() returns only the
-    keys relative to that group. Groups can be set recursively.
+    If a group is set using beginGroup(), the behavior of most
+    functions changes consequently. Groups can be set recursively.
+
+    In addition to groups, QCoreSettings also supports an "array"
+    concept. See beginReadArray() and beginWriteArray() for details.
 
     \section1 Fallback Mechanism
 
@@ -1495,11 +1507,13 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     On Unix with X11, these locations are the following files:
 
     \list 1
-    \i \c{$HOME/.qt/org.software.DataMill}
-    \i \c{$HOME/.qt/org.software}
-    \i \c{/opt/.qt/org.software.DataMill}
-    \i \c{/opt/.qt/org.software}
+    \i \c{$HOME/.qt4/software.org/DataMill.ini}
+    \i \c{$HOME/.qt4/software.org.ini}
+    \i \c{$QTDIR/.qt4/software.org/DataMill.ini}
+    \i \c{$QTDIR/.qt4/software.org.ini}
     \endlist
+
+    ($QTDIR is the location where Qt is installed.)
 
     On Mac OS X versions 10.2 and 10.3, these files are used:
 
@@ -1528,10 +1542,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     Although keys from all four locations are available for reading,
     only the first file (the user-specific location for the
-    application at hand) is accessible for writing. If you want to
-    write to any of the other files, you need to omit the application
-    name and/or specify Qt::SystemScope (as opposed to Qt::UserScope,
-    the default).
+    application at hand) is accessible for writing. To write to any
+    of the other files, omit the application name and/or specify
+    Qt::SystemScope (as opposed to Qt::UserScope, the default).
 
     Let's see with an example:
 
@@ -1543,10 +1556,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \endcode
 
     The table below summarizes which QCoreSettings objects access
-    which location. "X" means that the location is the main location
-    associated to the QCoreSettings object and is used both for
-    reading and for writing; "o" means that the location is used as a
-    fallback when reading.
+    which location. "\bold{X}" means that the location is the main
+    location associated to the QCoreSettings object and is used both
+    for reading and for writing; "o" means that the location is used
+    as a fallback when reading.
 
     \table
     \header \i Locations               \i \c{obj1} \i \c{obj2} \i \c{obj3} \i \c{obj4}
@@ -1591,39 +1604,44 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                                Qt::NativeFormat);
     \endcode
 
-    On X11, Qt::IniFormat and Qt::NativeFormat are synonyms.
+    On X11, Qt::IniFormat and Qt::NativeFormat have the same meaning.
 
     \section1 Restoring the State of a GUI Application
 
-    In the following example, we will use QSettings to save and
-    restore the geometry of an application's main window.
+    QCoreSettings is often used to store the state of a GUI
+    application. The following example will illustrate how to use we
+    will use QCoreSettings (actually, QSettings) to save and restore
+    the geometry of an application's main window.
 
     \code
-        void MainWindow::readSettings()
-        {
-            QSettings settings("www.moosetech.co.uk", "Clipper");
-            settings.beginGroup("MainWindow");
-            resize(settings.value("size", QSize(400, 400)));
-            move(settings.value("pos", QPoint(200, 200)));
-            settings.endGroup("MainWindow");
-        }
-
         void MainWindow::writeSettings()
         {
-            QSettings settings("www.moosetech.co.uk", "Clipper");
+            QSettings settings("www.moose-soft.co.uk", "Clipper");
+
             settings.beginGroup("MainWindow");
             settings.setValue("size", size());
             settings.setValue("pos", pos());
             settings.endGroup("MainWindow");
         }
+
+        void MainWindow::readSettings()
+        {
+            QSettings settings("www.moose-soft.co.uk", "Clipper");
+
+            settings.beginGroup("MainWindow");
+            resize(settings.value("size", QSize(400, 400)));
+            move(settings.value("pos", QPoint(200, 200)));
+            settings.endGroup("MainWindow");
+        }
     \endcode
 
-    (See \l{Window Geometry} for a discussion on why it is necessary
-    to call resize() and move() rather than setGeometry() to restore
-    a window's geometry.)
+    See \l{Window Geometry} for a discussion on why it is better to
+    call resize() and move() rather than setGeometry() to restore a
+    window's geometry.
 
-    These functions need to be called from the main window's
-    constructor and close event handler as follows:
+    The readSettings() and writeSettings() functions need to be
+    called from the main window's constructor and close event handler
+    as follows:
 
     \code
         MainWindow::MainWindow(QWidget *parent)
@@ -1635,9 +1653,17 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
         void MainWindow::closeEvent(QCloseEvent *event)
         {
-            writeSettings();
+            if (userReallyWantsToQuit()) {
+                writeSettings();
+                event->accept();
+            } else {
+                event->ignore();
+            }
         }
     \endcode
+
+    See the \c gui/application example provided in Qt's \c example
+    directory for a self-contained example that uses QSettings.
 
     \section1 Accessing Settings from Multiple Threads or Processes Simultaneously
 
@@ -1650,29 +1676,45 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     any other QCoreSettings object that operates on the same location
     and that lives in the same process.
 
-    QCoreSettings can safely be used from different processes (i.e.
-    different instances of your application running at the same time
-    or different applications altogether) to read and write to the
-    same system locations. It uses a smart merging algorithm to
-    ensure data integrity. Changes performed by another process
+    QCoreSettings can safely be used from different processes (which
+    can be different instances of your application running at the
+    same time or different applications altogether) to read and write
+    to the same system locations. It uses a smart merging algorithm
+    to ensure data integrity. Changes performed by another process
     aren't visible in the current process until sync() is called.
 
     \section1 Platform-Specific Notes
 
-    The Windows system registry has the following limitations: a
-    subkey may not exceed 255 characters, an entry's value may not
-    exceed 16,383 characters, and all the values of a key may not
-    exceed 65,535 characters.
+    While QCoreSettings attempts to smooth over the differences
+    between the different supported platforms, there are still a few
+    differences that you should be aware of when porting your
+    application:
 
-    On Mac OS X, allKeys() will return some extra keys for global
-    settings that apply to \e all applications. These keys can be
-    read using value() but cannot be change, only shadowed. These
-    settings usually have carefully chosen names such as
-    "AppleDoubleClick" and "###" that are unlikely to clash with your
-    application's settings. If you want to hide these global
-    settings, call setFallbackEnabled(false).
+    \list
+    \i  The Windows system registry has the following limitations: a
+        subkey may not exceed 255 characters, an entry's value may not
+        exceed 16,383 characters, and all the values of a key may not
+        exceed 65,535 characters.
+
+    \i  On Mac OS X, allKeys() will return some extra keys for global
+        settings that apply to \e all applications. These keys can be
+        read using value() but cannot be change, only shadowed. You
+        can hide these global settings by calling
+        setFallbackEnabled(false).
+    \endlist
 
     \sa QSettings, QSessionManager
+*/
+
+/*! \enum QCoreSettings::Status
+
+    The following status values are possible:
+
+    \value NoError  No error occurred.
+    \value AccessError  An access error occurred (e.g. trying to write to a read-only file).
+    \value FormatError  A format error occurred (e.g. loading a malformed .ini file).
+
+    \sa status()
 */
 
 /*!
@@ -1687,14 +1729,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
 
-    \sa \l{Locations for Storing Settings}
+    \sa {Locations for Storing Settings}
 */
 QCoreSettings::QCoreSettings(const QString &organization, const QString &application,
-                                QObject *parent)
+                             QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
                                             organization, application,
                                             QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
-                parent)
+              parent)
 {
 }
 
@@ -1703,26 +1745,23 @@ QCoreSettings::QCoreSettings(const QString &organization, const QString &applica
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If the scope is Qt::UserScope, the QCoreSettings object searches
+    If \a scope is Qt::UserScope, the QCoreSettings object searches
     user-specific settings first, before it seaches system-wide
-    settings as a fallback. If the scope is Qt::SystemScope, the
-    QCoreSettings object ignores user-specific settings and provides
-    access to system-wide settings.
+    settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
+    Qt::SystemScope, the QCoreSettings object ignores user-specific
+    settings and provides access to system-wide settings.
 
-    The format is Qt::NativeFormat.
+    The storage format is always Qt::NativeFormat.
 
     If no application name is given, the QCoreSettings object will
-    access the organization-wide file(s) only.
-
-    \sa {Locations for Storing Settings}
-
+    only access the organization-wide
+    \l{Locations for Storing Settings}{locations}.
 */
 QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
-                                const QString &application,
-                                QObject *parent)
+                             const QString &application, QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
                                             QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
-                parent)
+              parent)
 {
 }
 
@@ -1731,27 +1770,26 @@ QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organizatio
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If the scope is Qt::UserScope, the QCoreSettings object searches
+    If \a scope is Qt::UserScope, the QCoreSettings object searches
     user-specific settings first, before it seaches system-wide
-    settings as a fallback. If the scope is Qt::SystemScope, the
-    QCoreSettings object ignores user-specific settings and provides
-    access to system-wide settings.
+    settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
+    Qt::SystemScope, the QCoreSettings object ignores user-specific
+    settings and provides access to system-wide settings.
 
-    If the format is Qt::NativeFormat, the native API is used for
-    writing settings. If the format is Qt::IniFormat, the .ini format
+    If \a format is Qt::NativeFormat, the native API is used for
+    storing settings. If \a format is Qt::IniFormat, the .ini format
     is used.
 
     If no application name is given, the QCoreSettings object will
-    access the organization-wide file(s) only.
-
-    \sa {Locations for Storing Settings}
+    only access the organization-wide
+    \l{Locations for Storing Settings}{locations}.
 */
 QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                                const QString &organization, const QString &application,
-                                QObject *parent)
+                             const QString &organization, const QString &application,
+                             QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(format, scope, organization, application,
                                             QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
-                parent)
+              parent)
 {
 }
 
@@ -1760,48 +1798,49 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
     stored in the file called \a fileName, with parent \a parent. If
     the file doesn't already exist, it is created.
 
-    If the format is Qt::NativeFormat, the meaning of \a fileName
+    If \a format is Qt::NativeFormat, the meaning of \a fileName
     depends on the platform. On Unix/X11, \a fileName is the name of
     an .ini file. On Mac OS X, \a fileName is the name of a .plist
     file. On Windows, \a fileName is a path in the system registry.
 
-    If the format is Qt::IniFormat, \a fileName is the name of an
-    .ini file.
+    If \a format is Qt::IniFormat, \a fileName is the name of an .ini
+    file.
 
-    \sa {Locations for Storing Settings}
+    \sa path()
 */
 QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
-                                QObject *parent)
+                             QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(fileName, format,
                                             QCoreSettingsPrivate::variantToStringCoreImpl, QCoreSettingsPrivate::stringToVariantCoreImpl),
-                parent)
+              parent)
 {
 }
 
 #ifndef QT_BUILD_QMAKE
-// qmake doesn't link against qcoreapplication, which this ctor needs
+// qmake doesn't link against QCoreApplication, which this constructor needs
 /*!
     Constructs a QCoreSettings object for accessing settings of the
     application and organization set previously with a call to
-    QApplication::setProductInfo().
+    QCoreApplication::setProductInfo().
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
 
-    The following code:
+    The code
+
     \code
         QCoreSettings settings("www.technopro.co.uk", "Facturo-Pro");
     \endcode
-    is equivalent to:
+
+    is equivalent to
+
     \code
         qApp->setProductInfo("www.technopro.co.uk", "Facturo-Pro");
         QCoreSettings settings;
     \endcode
 
     If QApplication::setProductInfo() has not been previously called,
-    the QSettings object will not be able to read or write any settings,
-    and status() will return AccessError.
-
-    \sa \l{Locations for Storing Settings}
+    the QCoreSettings object will not be able to read or write any
+    settings, and status() will return \c AccessError.
 */
 QCoreSettings::QCoreSettings(QObject *parent)
     : QObject(*QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
@@ -1814,7 +1853,10 @@ QCoreSettings::QCoreSettings(QObject *parent)
 #endif
 
 /*!
-    Destroys the QCoreSettings object.
+    Destroys the QCoreSettings object. Any unsaved changes will be
+    written to permanent storage at that point.
+
+    \sa sync()
 */
 QCoreSettings::~QCoreSettings()
 {
@@ -1831,10 +1873,10 @@ QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
 }
 
 /*!
-    Removes all entries in the settings file associated to this
+    Removes all entries in the primary location associated to this
     QCoreSettings object.
 
-    Entries in fallback files are not removed.
+    Entries in \l{Fallback Mechanism}{fallback} locations are not removed.
 
     \sa remove(), setFallbacksEnabled()
 */
@@ -1845,20 +1887,36 @@ void QCoreSettings::clear()
 }
 
 /*!
+    Writes any unsaved changes to permanent storage, and reloads any
+    settings that have been changed in the meantime by another
+    application.
 
+    Unless you use QCoreSettings as a communication mechanism between
+    different processes, you normally don't need to call this
+    function.
 */
 void QCoreSettings::sync()
 {
     d->sync();
 }
 
+/*!
+    Returns the path where settings written using this QCoreSettings
+    object are stored.
+
+    On Windows, if format() is Qt::NativeFormat, the return value is
+    a system registry path, not a file path.
+
+    \sa isWritable()
+*/
 QString QCoreSettings::path() const
 {
     return d->path();
 }
 
 /*!
-
+    Returns a status code indicating the first error that was met by
+    QCoreSettings, or \c QCoreSettings::NoError if no error occurred.
 */
 QCoreSettings::Status QCoreSettings::status() const
 {
@@ -1866,6 +1924,37 @@ QCoreSettings::Status QCoreSettings::status() const
 }
 
 /*!
+    Appends \a prefix to the current group.
+
+    The current group is automatically prepended to all keys
+    specified to QCoreSettings. In addition, query functions such as
+    childGroups(), childKeys(), and allKeys() are based on the group.
+    By default, no group is set.
+
+    Groups are useful to avoid typing in the same setting paths over
+    and over. For example:
+
+    \code
+        settings.beginGroup("mainwindow");
+        settings.setValue("size", win->size());
+        settings.setValue("fullScreen", win->isFullScreen());
+        settings.endGroup();
+
+        settings.beginGroup("outputpanel");
+        settings.setValue("visible", panel->isVisible());
+        settings.endGroup();
+    \endcode
+
+    This will set the value of three settings:
+
+    \list
+    \i \c mainwindow/size
+    \i \c mainwindow/fullScreen
+    \i \c outputpanel/visible
+    \endlist
+
+    Call endGroup() to reset the current group to what it was before
+    the corresponding beginGroup() call. Groups can be nested.
 
     \sa endGroup(), group()
 */
@@ -1875,6 +1964,24 @@ void QCoreSettings::beginGroup(const QString &prefix)
 }
 
 /*!
+    Resets the group to what it was before the corresponding
+    beginGroup() call.
+
+    Example:
+
+    \code
+        settings.beginGroup("alpha");
+        // settings.group() == "alpha"
+
+        settings.beginGroup("beta");
+        // settings.group() == "alpha/beta"
+
+        settings.endGroup();
+        // settings.group() == "alpha"
+
+        settings.endGroup();
+        // settings.group() == ""
+    \endcode
 
     \sa beginGroup(), group()
 */
@@ -1895,6 +2002,7 @@ void QCoreSettings::endGroup()
 }
 
 /*!
+    Returns the current group.
 
     \sa beginGroup(), endGroup()
 */
@@ -1904,6 +2012,32 @@ QString QCoreSettings::group() const
 }
 
 /*!
+    Adds \a prefix to the current group and starts reading from an
+    array. Returns the size of the array.
+
+    Example:
+
+    \code
+        struct Login {
+            QString userName;
+            QString password;
+        };
+        QList<Login> logins;
+        ...
+
+        QCoreSettings settings;
+        int size = settings.beginReadArray("logins");
+        for (int i = 0; i < size; ++i) {
+            settings.setArrayIndex(i);
+            Login login;
+            login.userName = settings.value("userName");
+            login.password = settings.value("password");
+            logins.append(login);
+        }
+        settings.endArray();
+    \endcode
+
+    Use beginWriteArray() to write the array in the first place.
 
     \sa beginWriteArray(), endArray(), setArrayIndex()
 */
@@ -1914,6 +2048,46 @@ int QCoreSettings::beginReadArray(const QString &prefix)
 }
 
 /*!
+    Adds \a prefix to the current group and starts writing an array
+    of size \a size. If \a size is -1 (the default), it is automatically
+    determined based on the indices of the entries written.
+
+    If you have many occurrences of a certain set of keys, you can
+    use arrays to make your life easier. For example, let's suppose
+    that you want to save a variable-length list of user names and
+    passwords. You could then write:
+
+    \code
+        struct Login {
+            QString userName;
+            QString password;
+        };
+        QList<Login> logins;
+        ...
+
+        QCoreSettings settings;
+        settings.beginWriteArray("logins");
+        for (int i = 0; i < logins.size(); ++i) {
+            settings.setArrayIndex(i);
+            settings.setValue("userName", list.at(i).userName);
+            settings.setValue("password", list.at(i).password);
+        }
+        settings.endArray();
+    \endcode
+
+    The generated keys will have the form
+
+    \list
+    \i \c logins/1/userName
+    \i \c logins/1/password
+    \i \c logins/2/userName
+    \i \c logins/2/password
+    \i \c logins/3/userName
+    \i \c logins/3/password
+    \i ...
+    \endlist
+
+    To read back an array, use beginReadArray().
 
     \sa beginReadArray(), endArray(), setArrayIndex()
 */
@@ -1928,6 +2102,8 @@ void QCoreSettings::beginWriteArray(const QString &prefix, int size)
 }
 
 /*!
+    Closes the array that was started using beginReadArray() or
+    beginWriteArray().
 
     \sa beginReadArray(), beginWriteArray()
 */
@@ -1952,8 +2128,12 @@ void QCoreSettings::endArray()
 }
 
 /*!
+    Sets the current array index to \a i. Calls to functions such as
+    setValue(), value(), remove(), and contains() will operate on the
+    array entry at that index.
 
-    \sa beginReadArray(), beginWriteArray()
+    You must call beginReadArray() or beginWriteArray() before you
+    can call this function.
 */
 void QCoreSettings::setArrayIndex(int i)
 {
@@ -1969,25 +2149,118 @@ void QCoreSettings::setArrayIndex(int i)
 }
 
 /*!
+    Returns a list of all keys, including subkeys, that can be read
+    using the QCoreSettings object.
 
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("fridge/color", Qt::white);
+        settings.setValue("fridge/size", QSize(32, 96));
+        settings.setValue("sofa", true);
+        settings.setValue("tv", false);
+
+        QStringList keys = settings.allKeys();
+        // keys: ["fridge/color", "fridge/size", "sofa", "tv"]
+    \endcode
+
+    If a group is set using beginGroup(), only the keys in the group
+    are returned, without the group prefix:
+
+    \code
+        settings.beginGroup("fridge");
+        keys = settings.allKeys();
+        // keys: ["color", "size"]
+    \endcode
+
+    \sa childGroups(), childKeys()
 */
 QStringList QCoreSettings::allKeys() const
 {
     return d->children(d->groupPrefix, QCoreSettingsPrivate::AllKeys);
 }
 
+/*!
+    Returns a list of all top-level keys that can be read using the
+    QCoreSettings object.
+
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("fridge/color", Qt::white);
+        settings.setValue("fridge/size", QSize(32, 96));
+        settings.setValue("sofa", true);
+        settings.setValue("tv", false);
+
+        QStringList keys = settings.childKeys();
+        // keys: ["sofa", "tv"]
+    \endcode
+
+    If a group is set using beginGroup(), the top-level keys in that
+    group are returned, without the group prefix:
+
+    \code
+        settings.beginGroup("fridge");
+        keys = settings.childKeys();
+        // keys: ["color", "size"]
+    \endcode
+
+    You can navigate through the entire setting hierarchy using
+    childKeys() and childGroups() recursively.
+
+    \sa childGroups(), allKeys()
+*/
 QStringList QCoreSettings::childKeys() const
 {
     return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildKeys);
 }
 
+/*!
+    Returns a list of all key top-level groups that contain keys that
+    can be read using the QCoreSettings object.
+
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("fridge/color", Qt::white);
+        settings.setValue("fridge/size", QSize(32, 96));
+        settings.setValue("sofa", true);
+        settings.setValue("tv", false);
+
+        QStringList groups = settings.childGroups();
+        // group: ["fridge"]
+    \endcode
+
+    If a group is set using beginGroup(), the first-level keys in
+    that group are returned, without the group prefix.
+
+    \code
+        settings.beginGroup("fridge");
+        groups = settings.childGroups();
+        // groups: []
+    \endcode
+
+    You can navigate through the entire setting hierarchy using
+    childKeys() and childGroups() recursively.
+
+    \sa childKeys(), allKeys()
+*/
 QStringList QCoreSettings::childGroups() const
 {
     return d->children(d->groupPrefix, QCoreSettingsPrivate::ChildGroups);
 }
 
 /*!
+    Returns true if settings can be written using this QCoreSettings
+    object; returns false otherwise.
 
+    One reason why isWritable() might return false is if
+    QCoreSettings operates on a read-only file.
+
+    \sa path(), status()
 */
 bool QCoreSettings::isWritable() const
 {
@@ -1995,7 +2268,22 @@ bool QCoreSettings::isWritable() const
 }
 
 /*!
+    Sets the value of setting \a key to \a value.
 
+    If the key already exists, the previous value is overwritten.
+
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("interval", 30);
+        settings.value("interval").toInt();     // returns 30
+
+        settings.setValue("interval", 6.55);
+        settings.value("interval").toDouble();  // returns 6.55
+    \endcode
+
+    \sa value(), remove(), contains()
 */
 void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 {
@@ -2005,7 +2293,27 @@ void QCoreSettings::setValue(const QString &key, const QCoreVariant &value)
 }
 
 /*!
+    Removes the setting \a key and any sub-settings of \a key.
 
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("ape");
+        settings.setValue("monkey", 1);
+        settings.setValue("monkey/sea", 2);
+        settings.setValue("monkey/doe", 4);
+
+        settings.remove("monkey");
+        QStringList keys = settings.allKeys();
+        // keys: ["ape"]
+    \endcode
+
+    Be aware that if one of the \l{Fallback Mechanism}{fallback
+    locations} contains a setting with the same key, that setting
+    will be visible after calling remove().
+
+    \sa setValue(), value(), contains()
 */
 void QCoreSettings::remove(const QString &key)
 {
@@ -2028,7 +2336,13 @@ void QCoreSettings::remove(const QString &key)
 }
 
 /*!
+    Returns true if there exists a setting called \a key; returns
+    false otherwise.
 
+    If a group is set using beginGroup(), \a key is taken to be
+    relative to that group.
+
+    \sa value(), setValue()
 */
 bool QCoreSettings::contains(const QString &key) const
 {
@@ -2037,7 +2351,11 @@ bool QCoreSettings::contains(const QString &key) const
 }
 
 /*!
+    Sets whether fallbacks are enabled to \a b.
 
+    By default, fallbacks are enabled.
+
+    \sa fallbacksEnabled(), {Fallback Mechanism}
 */
 void QCoreSettings::setFallbacksEnabled(bool b)
 {
@@ -2045,7 +2363,11 @@ void QCoreSettings::setFallbacksEnabled(bool b)
 }
 
 /*!
+    Returns true if fallbacks are enabled; returns false otherwise.
 
+    By default, fallbacks are enabled.
+
+    \sa setFallbacksEnabled(), {Fallback Mechanism}
 */
 bool QCoreSettings::fallbacksEnabled() const
 {
@@ -2066,7 +2388,23 @@ bool QCoreSettings::event(QEvent *event)
 }
 
 /*!
+    Returns the value for setting \a key. If the setting doesn't
+    exist, returns \a defaultValue.
 
+    If no default value is specified, a default QCoreVariant is
+    returned.
+
+    Example:
+
+    \code
+        QCoreSettings settings;
+        settings.setValue("snake", 58);
+        settings.value("snake", 1024).toInt();  // returns 58
+        settings.value("zebra", 1024).toInt();  // returns 1024
+        settings.value("zebra").toInt();        // returns 0
+    \endcode
+
+    \sa setValue(), contains(), remove()
 */
 QCoreVariant QCoreSettings::value(const QString &key, const QCoreVariant &defaultValue) const
 {
