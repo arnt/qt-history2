@@ -1365,8 +1365,8 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
     } else {
 	QTextCursor c1 = *d->cursor;
 	QTextCursor c2 = *d->cursor;
-	c1.gotoPreviousWord();
-	c2.gotoNextWord();
+	c1.gotoPreviousWord( TRUE );
+	c2.gotoNextWord( TRUE );
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;

@@ -288,8 +288,8 @@ public:
     void gotoEnd();
     void gotoPageUp( int visibleHeight );
     void gotoPageDown( int visibleHeight );
-    void gotoNextWord();
-    void gotoPreviousWord();
+    void gotoNextWord( bool onlySpace = FALSE );
+    void gotoPreviousWord( bool onlySpace = FALSE );
     void gotoWordLeft();
     void gotoWordRight();
 

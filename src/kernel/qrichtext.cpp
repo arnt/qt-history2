@@ -1015,7 +1015,19 @@ void QTextCursor::gotoWordLeft()
 	gotoPreviousWord();
 }
 
-void QTextCursor::gotoPreviousWord()
+static bool is_seperator( const QChar &c, bool onlySpace )
+{
+    if ( onlySpace )
+	return c.isSpace();
+    return c.isSpace() ||
+	c == '\t' ||
+	c == '.' ||
+	c == ',' ||
+	c == ':' ||
+	c == ';';
+}
+
+void QTextCursor::gotoPreviousWord( bool onlySpace )
 {
     gotoPreviousLetter();
     tmpIndex = -1;
@@ -1024,35 +1036,31 @@ void QTextCursor::gotoPreviousWord()
     if ( idx == ((int)s->length()-1) )
 	return;
     for ( int i = idx; i >= 0; --i ) {
-	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
-	     s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';' ) {
+	if ( is_seperator( s->at( i ).c, onlySpace ) ) {
 	    if ( !allowSame )
 		continue;
 	    idx = i + 1;
 	    return;
 	}
-	if ( !allowSame && !( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
-			      s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';'  ) )
+	if ( !allowSame && !is_seperator( s->at( i ).c, onlySpace ) )
 	    allowSame = TRUE;
     }
     idx = 0;
 }
 
-void QTextCursor::gotoNextWord()
+void QTextCursor::gotoNextWord( bool onlySpace )
 {
     tmpIndex = -1;
     QTextString *s = para->string();
     bool allowSame = FALSE;
     for ( int i = idx; i < (int)s->length(); ++i ) {
-	if ( ! (s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
-	     s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';') ) {
+	if ( !is_seperator( s->at( i ).c, onlySpace ) ) {
 	    if ( !allowSame )
 		continue;
 	    idx = i;
 	    return;
 	}
-	if ( !allowSame && ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
-	    s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';'  ) )
+	if ( !allowSame && is_seperator( s->at( i ).c, onlySpace ) )
 	    allowSame = TRUE;
 
     }
