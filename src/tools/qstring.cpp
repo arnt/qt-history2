@@ -12480,8 +12480,6 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   as the 'target' string.
 
   \value CaseSensitive The strings must match case sensitively.
-
-
   \value ExactMatch The target and search strings must match exactly.
   \value BeginsWith The target string begins with the search string.
   \value EndsWith The target string ends with the search string.
@@ -13496,17 +13494,14 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     separators are not included, and the separator is compared case
     sensitively.
 
-
     \value SectionSkipEmpty Treat empty fields as if they don't exist,
-    i.e. they are not considered as far as \e start and \e count
-    are concerned.
-
+    i.e. they are not considered as far as \e start and \e end are
+    oncerned.
 
     \value SectionIncludeLeadingSep Include the leading separator (if
     any) in the result string.
     \value SectionIncludeTrailingSep Include the trailing separator
     (if any) in the result string.
-
 
     \value SectionCaseInsensitiveSeps Compare the separator
     case-insensitively.
@@ -14220,7 +14215,7 @@ QString QString::stripWhiteSpace() const
   of the string, and any sequence of internal whitespace is replaced with a single space.
 
   Whitespace means any character for which QChar::isSpace() returns
-  TRUE. This includes UNICODE characters with decimal values9 (TAB),
+  TRUE. This includes UNICODE characters with decimal values 9 (TAB),
   10 (LF), 11 (VT), 12 (FF), 13 (CR), and 32 (Space).
 
   \code
