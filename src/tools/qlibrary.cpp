@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#13 $
 **
 ** Implementation of QLibrary class
 **
@@ -115,12 +115,12 @@ public slots:
 	if ( !libIface->canUnload() )
 	    return;
 
-    #if QT_DEBUG_COMPONENT == 1
+#if QT_DEBUG_COMPONENT == 1
 	if ( library->unload() )
 	    qDebug( "%s has been automatically unloaded", library->library().latin1() );
-    #else
+#else
 	library->unload();
-    #endif
+#endif
     }
 
 private:

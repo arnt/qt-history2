@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#55 $
 **
 ** QThread class for windows
 **
@@ -225,14 +225,14 @@ void QNonRecursiveMutexPrivate::lock()
 	switch ( WaitForSingleObject( handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
 	case WAIT_FAILED:
-    #ifdef QT_CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Mutex lock failure" );
-    #endif
+#endif
 	    break;
 	case WAIT_ABANDONED:
-    #ifdef QT_CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning( "Thread terminated while locking mutex!" );
-    #endif
+#endif
 	    // Fall through
 	default:
 	    protect.enter();
@@ -481,9 +481,9 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     d->s.leave();
     if ( lastWaiter ) {
 	if ( !ResetEvent ( d->handle ) ) {
-    #ifdef QT_CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition could not be reset" );
-    #endif
+#endif
 	}
     }
     switch ( result ) {
@@ -508,9 +508,9 @@ void QWaitCondition::wakeOne()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
 	if ( !SetEvent( d->single ) ) {
-    #ifdef QT_CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
-    #endif
+#endif
 	}
     }
     d->s.leave();
@@ -522,9 +522,9 @@ void QWaitCondition::wakeAll()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
 	if ( !PulseEvent( d->handle ) ) {
-    #ifdef QT_CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition could not be set" );
-    #endif
+#endif
 	}
     }
     d->s.leave();
