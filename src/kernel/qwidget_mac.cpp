@@ -424,9 +424,8 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
-
     if ( widget ) {
-#ifdef Q_WS_MAC9
+#if defined( Q_WS_MAC9 ) || 1
 	/* this is the right way to do this, and it works very well on mac
 	   9, however macosx is not calling this with the proper region, as
 	   some of the area (usually offscreen) isn't actually processed
@@ -440,6 +439,12 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    reg.translate(-px.h, -px.v);
 	}
 #else
+	//this is the solution to weird things on demo example (white areas), need
+	//to examine why this happens FIXME!
+	Q_UNUSED(rgn);
+	QRegion reg(0, 0, widget->width(), widget->height());
+#endif
+#if defined( Q_WS_MACX )
 	//Clear a nobackground widget to make it transparent
 	if(widget->backgroundMode() == Qt::NoBackground) {
 	    CGContextRef ctx;
@@ -449,11 +454,6 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    CGContextFlush(ctx);
 	    CGContextRelease(ctx);
 	}
-
-	//this is the solution to weird things on demo example (white areas), need
-	//to examine why this happens FIXME!
-	Q_UNUSED(rgn);
-	QRegion reg(0, 0, widget->width(), widget->height());
 #endif
 	qt_paint_children(widget, reg, PC_Now | PC_ForceErase);
     }
@@ -1571,23 +1571,6 @@ void QWidget::erase( const QRegion& reg )
     if ( backgroundMode() == NoBackground || isDesktop() )
 	return;
     QRect rr(reg.boundingRect());
-
-    int xoff = 0;
-    int yoff = 0;
-    if ( !isTopLevel() ) {
-	if( backgroundOrigin() == QWidget::ParentOrigin ) {
-	    xoff = x();
-	    yoff = y();
-	} else if(backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QWidget *topl = this;
-	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
-		topl = topl->parentWidget(TRUE);
-	    QPoint p = mapTo( topl, QPoint(0,0) );
-	    xoff = p.x();
-	    yoff = p.y();
-	}
-    }
-
     bool unclipped = testWFlags( WPaintUnclipped );
     clearWFlags( WPaintUnclipped );
     QPainter p( this );
@@ -1597,6 +1580,20 @@ void QWidget::erase( const QRegion& reg )
     p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
+	    int xoff = 0,  yoff = 0;
+	    if ( !isTopLevel() ) {
+		if( backgroundOrigin() == QWidget::ParentOrigin ) {
+		    xoff = x();
+		    yoff = y();
+		} else if(backgroundOrigin() == QWidget::WindowOrigin ) {
+		    QWidget *topl = this;
+		    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
+			topl = topl->parentWidget(TRUE);
+		    QPoint p = mapTo( topl, QPoint(0,0) );
+		    xoff = p.x();
+		    yoff = p.y();
+		}
+	    }
 	    QPoint point(rr.x()+(xoff%extra->bg_pix->width()), rr.y()+(yoff%extra->bg_pix->height()));
 	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
 	}
