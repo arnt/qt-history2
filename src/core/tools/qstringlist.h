@@ -51,6 +51,7 @@ public:
 
     QStringList find(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
     QStringList find(const QRegExp &rx) const;
+    QBool contains(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
 
     QStringList &replace(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
     QStringList &replace(const QRegExp &rx, const QString &after);

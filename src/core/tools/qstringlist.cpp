@@ -297,6 +297,22 @@ QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) c
     return res;
 }
 
+/*!
+    Returns true if the list contains the string \a str.
+    Does a case insensitive search if \a cs is QString::CaseSensitive,
+    otherwise the search will be case insensitive.
+ */
+QBool QStringList::contains(const QString &str,
+                            QString::CaseSensitivity cs) const
+{
+    QStringMatcher matcher(str, cs);
+    for (int i = 0; i < size(); ++i) {
+        if (matcher.indexIn(at(i)) != -1)
+            return QBool(true);
+    }
+    return QBool(false);
+}
+
 #ifndef QT_NO_REGEXP
 /*!
     \overload
