@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#11 $
 **
 ** Implementation of QTextCodec class
 **
@@ -673,6 +673,7 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
   The parser recognises the following lines:
 \code
    &lt;code_set_name&gt; <i>name</i>
+   &lt;escape_char&gt; <i>character</i>
    % alias <i>alias</i>
    CHARMAP
    &lt;<i>token</i>&gt; /x<i>hexbyte</i> &lt;U<i>unicode</i>&gt; ...
