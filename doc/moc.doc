@@ -529,18 +529,18 @@ executed when the signal is emitted:
 \code
    [...]
    public slots:
-       void MyWidget::setLocation (pair<int,int> location);
+       void MyWidget::setLocation (pair&lt;int,int&gt; location);
 
    [...]
    public signals:
-       void MyObject::moved (pair<int,int> location);
+       void MyObject::moved (pair&lt;int,int&gt; location);
 \endcode
 
 However, you can work around this limitation by explicitly typedef'ing
 the parameter types, like this:
 
 \code
-   typedef pair<int,int> IntPair;	
+   typedef pair&lt;int,int&gt; IntPair;	
    [...]
    public slots:
        void MyWidget::setLocation (IntPair location);
