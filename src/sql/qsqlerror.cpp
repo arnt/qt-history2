@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qsqlerror.h"
-#include "qmessagebox.h"
 #include "qdebug.h"
 
 #ifndef QT_NO_SQL
