@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#33 $
 **
 ** Implementation of QTextCodec class
 **
@@ -51,10 +51,18 @@ static bool destroying_is_ok; // starts out as 0
 
 void QTextCodec::deleteAllCodecs()
 {
-    destroying_is_ok = TRUE;
-    delete all;
-    destroying_is_ok = FALSE;
+    QList<QTextCodec> * ball = all;
     all = 0;
+    if ( ball ) {
+	destroying_is_ok = TRUE;
+	delete ball;
+	if ( all ) { // try -once- more if some were created...
+	    ball = all;
+	    all = 0;
+	    delete ball;
+	}
+	destroying_is_ok = FALSE;
+    }
 }
 
 
