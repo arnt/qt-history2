@@ -169,5 +169,5 @@ contains(sql-drivers, sqlite) {
  
         HEADERS +=      drivers/sqlite/qsql_sqlite.h
         SOURCES +=      drivers/sqlite/qsql_sqlite.cpp
-        DEFINES +=      QT_ SQL_SQLITE
+        DEFINES +=      QT_SQL_SQLITE
 }
