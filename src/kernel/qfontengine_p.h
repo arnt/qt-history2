@@ -79,7 +79,7 @@ public:
     virtual Type type() const = 0;
 
     QFontDef fontDef;
-    int cache_cost;
+    uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
 
 #ifdef Q_WS_WIN
