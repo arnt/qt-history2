@@ -5,9 +5,9 @@
 
     Templates are a builtin mechanism in C++ that allows the compiler to
     generate code on the fly, depending on the type of the arguments
-    passed. As such templates are highly interesting to a framework
-    creator like Trolltech, and we do use advanced templates many places
-    in Qt. There are, however, limitations. There are things that you can
+    passed. As such, templates are highly interesting to a framework
+    creator like Trolltech, and we do use advanced templates in many places
+    in Qt. However, there are limitations: There are things that you can
     easily express with templates, and there are things that are
     impossible to express with templates. A generic vector container class
     is easily expressible, even with partial specialisation for pointer
