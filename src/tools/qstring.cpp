@@ -13228,9 +13228,8 @@ void QString::real_detach()
 void QString::deref()
 {
     if ( d->deref() ) {
-	if ( d == shared_null )
-	    shared_null = 0;
-	delete d;
+	if ( d != shared_null )
+	    delete d;
 	d = 0; // helps debugging
     }
 }
