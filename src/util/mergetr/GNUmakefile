@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/util/mergetr/GNUmakefile#1 $
+# $Id: //depot/qt/main/src/util/mergetr/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = msgmerge
+PROJECT = mergetr
 
 include $(QTDIR)/GNUmakefile.inc
