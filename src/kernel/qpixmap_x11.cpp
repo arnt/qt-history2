@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#12 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#12 $";
 #endif
 
 
@@ -1039,19 +1039,17 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    float xx = (float)ws;
-    float yy = (float)hs;
-    matrix.map( 0.0, 0.0, &x1, &y1 );
-    matrix.map(  xx, 0.0, &x2, &y2 );
-    matrix.map(  xx,  yy, &x3, &y3 );
-    matrix.map( 0.0,  yy, &x4, &y4 );
+    int x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    matrix.map(   0,  0, &x1, &y1 );
+    matrix.map(  ws,  0, &x2, &y2 );
+    matrix.map(  ws, hs, &x3, &y3 );
+    matrix.map(   0, hs, &x4, &y4 );
 
-    float ymin = y1;				// lowest y value
+    int ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    float xmin = x1;				// lowest x value
+    int xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
@@ -1059,10 +1057,10 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    int h13 = d2i_round( QABS(y3-y1) );
-    int w13 = d2i_round( QABS(x3-x1) );
-    int h24 = d2i_round( QABS(y4-y2) );
-    int w24 = d2i_round( QABS(x4-x2) );
+    int h13 = QABS(y3-y1);
+    int w13 = QABS(x3-x1);
+    int h24 = QABS(y4-y2);
+    int w24 = QABS(x4-x2);
     h = QMAX(h13,h24);				// size of target pixmap
     w = QMAX(w13,w24);
 
@@ -1307,19 +1305,17 @@ from the original pixmap into the new pixmap.
 
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
 {						// get true wxform matrix
-    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    float x = (float)w;
-    float y = (float)h;
-    matrix.map( 0.0, 0.0, &x1, &y1 );
-    matrix.map(   x, 0.0, &x2, &y2 );
-    matrix.map(   x,   y, &x3, &y3 );
-    matrix.map( 0.0,   y, &x4, &y4 );
+    int x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    matrix.map( 0, 0, &x1, &y1 );
+    matrix.map( w, 0, &x2, &y2 );
+    matrix.map( w, h, &x3, &y3 );
+    matrix.map( 0, h, &x4, &y4 );
 
-    float ymin = y1;				// lowest y value
+    int ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    float xmin = x1;				// lowest x value
+    int xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#82 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#81 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#82 $";
 #endif
 
 
@@ -2614,7 +2614,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		    return;
 		}
 	    }
-	    WXFORM_P( x, y );
+	    WXFORM_P(x,y);
 	    int dx, dy;
 	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
 	    x -= dx;  y -= dy;
