@@ -67,6 +67,7 @@
 #ifndef QT_NO_TABLE
 #include <qtable.h>
 #endif
+#include <qmessagebox.h>
 
 static QString makeIndent( int indent )
 {
@@ -1474,8 +1475,13 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
     // ### TODO loading for custom container widgets without pages
     if ( !className.isNull() ) {
 	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
-	if ( !obj )
+	if ( !obj ) {
+	    QMessageBox::critical( MainWindow::self, MainWindow::tr( "Loading File" ),
+				   MainWindow::tr( "Error loading %1.\n"
+						   "The widget %2 couldn't be created" ).
+				   arg( currFileName ).arg( className ) );
 	    return 0;
+	}
 	if ( !mainContainerSet ) {
 	    if ( formwindow )
 		formwindow->setMainContainer( (QWidget*)obj );
@@ -1495,7 +1501,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    case WidgetFactory::Grid:
 		( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
 								      col, col + colspan - 1 );
-		break;
+	 	break;
 	    default:
 		break;
 	    }
