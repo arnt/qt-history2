@@ -109,6 +109,9 @@ public:
     virtual int memoryNeeded(const QString&);
     virtual int sharedRamSize(void *);
 
+    virtual void haltUpdates();
+    virtual void resumeUpdates();
+
 private:
 
     uchar * real_screen;

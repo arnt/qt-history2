@@ -11,6 +11,9 @@
 #include <linux/fb.h>
 #endif
 
+#define QT_SHADOWFB_TIMER_INTERVAL 20     
+// Update screen every 20 milliseconds, or 50 times a second
+
 #ifndef QT_NO_QWS_CURSOR
 
 QShadowScreenCursor::QShadowScreenCursor() : QScreenCursor()
@@ -154,7 +157,7 @@ QShadowTimerHandler::QShadowTimerHandler(QShadowFbScreen * s)
     : QObject(0,0)
 {
     screen=s;
-    startTimer(20);   // About 50Hz
+    startTimer(QT_SHADOWFB_TIMER_INTERVAL);
 }
 
 void QShadowTimerHandler::timerEvent(QTimerEvent *)
@@ -268,7 +271,7 @@ QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d,
 	ret = 0; // silence gcc
     }
     ret->setLineStep(linestep);
-    return ret;	
+    return ret;
     } else {
 	return QLinuxFbScreen::createGfx(bytes,w,h,d,linestep);
     }
@@ -311,7 +314,7 @@ void QShadowFbScreen::doUpdate()
 }
 
 int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
-{	
+{
     // This is fairly ugly but I'm not sure how else to handle it
 
     int myfd;
@@ -357,6 +360,16 @@ int QShadowFbScreen::sharedRamSize(void * end)
     data=shadow_screen;
     int ret=QLinuxFbScreen::sharedRamSize((void *)shadow_screen);
     return ret+size;
+}
+
+void QShadowFbScreen::haltUpdates()
+{
+    timer->killTimers();
+}
+
+void QShadowFbScreen::resumeUpdates()
+{
+    timer->startTimer(QT_SHADOWFB_TIMER_INTERVAL);
 }
 
 #endif
