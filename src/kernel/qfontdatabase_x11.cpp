@@ -53,8 +53,6 @@ extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scre
 #define QPaintDevice QX11GC
 #endif
 
-extern bool qt_has_xft;
-
 static inline void capitalize ( char *s )
 {
     bool space = TRUE;
@@ -1103,7 +1101,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 static void load( const QString &family = QString::null, int script = -1 )
 {
 #ifdef QT_XFT2
-    if (qt_has_xft)
+    if (X11->has_xft)
 	return;
 #endif
 
@@ -1222,7 +1220,7 @@ static void initializeDb()
 
 #ifdef QFONTDATABASE_DEBUG
 #ifndef QT_XFT2
-    if (!qt_has_xft)
+    if (!X11->has_xft)
 #endif
     // load everything at startup in debug mode.
     loadXlfds( 0,  -1 );
@@ -1523,7 +1521,7 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 
 static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
-    if (!qt_has_xft)
+    if (!X11->has_xft)
 	return 0;
 
     QStringList family_list = QStringList::split(QChar(','), fp->request.family);
