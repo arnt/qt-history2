@@ -148,6 +148,11 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     if ( f.isEmpty() ) {
 	return QString::null;
     }
+    
+    if ( dt && !dt->isValid() )
+	return QString::null;
+    if ( dd && !dd->isValid() )
+	return QString::null;
 
     bool ap = ( f.contains( "AP" ) || f.contains( "ap" ) );
 
@@ -685,10 +690,14 @@ QString QDate::longDayName( int weekday )
     If \a f is \c Qt::LocalDate, the string format depends on the
     locale settings of the system.
 
+    If the date is an invalid date, then QString::null will be returned.
+  
     \sa shortDayName(), shortMonthName()
 */
 QString QDate::toString( Qt::DateFormat f ) const
 {
+    if ( !isValid() )
+	return QString::null;
     int y, m, d;
     julianToGregorian( jd, y, m, d );
     switch ( f ) {
@@ -783,6 +792,8 @@ QString QDate::toString( Qt::DateFormat f ) const
     \row \i dd.MM.yyyy	  \i11 20.07.1969
     \row \i ddd MMMM d yy \i11 Sun July 20 69
     \endtable
+
+    If the date is an invalid date, then QString::null will be returned.
 
     \sa QDateTime::toString() QTime::toString()
 
@@ -1346,10 +1357,15 @@ int QTime::msec() const
 
     If \a f is Qt::LocalDate, the string format depends on the locale
     settings of the system.
+
+    If the time is an invalid time, then QString::null will be returned.
 */
 
 QString QTime::toString( Qt::DateFormat f ) const
 {
+    if ( !isValid() )
+	return QString::null;
+
     switch ( f ) {
     case Qt::LocalDate:
 	{
@@ -1424,6 +1440,8 @@ QString QTime::toString( Qt::DateFormat f ) const
     \row \i hh:mm:ss.zzz    \i11 14:13:09.042
     \row \i h:m:s ap	    \i11 2:13:9 pm
     \endtable
+
+    If the time is an invalid time, then QString::null will be returned.
 
     \sa QDate::toString() QDateTime::toString()
 */
@@ -2049,13 +2067,17 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
     If \a f is \c Qt::LocalDate, the string format depends on the
     locale settings of the system.
 
-    If the format \a f is invalid, toString() returns a null string.
+    If the format \a f is invalid or the datetime is invalid, toString() 
+    returns a null string.
 
     \sa QDate::toString() QTime::toString()
 */
 
 QString QDateTime::toString( Qt::DateFormat f ) const
 {
+    if ( !isValid() )
+	return QString::null;
+    
     if ( f == Qt::ISODate ) {
 	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
     }
@@ -2162,6 +2184,8 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     \row \i hh:mm:ss.zzz    \i11 14:13:09.042
     \row \i h:m:s ap	    \i11 2:13:9 pm
     \endtable
+
+    If the datetime is an invalid datetime, then QString::null will be returned.
 
     \sa QDate::toString() QTime::toString()
 */
