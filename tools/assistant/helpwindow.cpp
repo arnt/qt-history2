@@ -22,6 +22,16 @@ void HelpWindow::setSource( const QString &name )
 
 	QTextBrowser::setSource( name );
     } else {
+#if 1
+	QUrl u( context(), name.mid( 2 ) );
+	if ( !u.isLocalFile() ) {
+	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
+							      "%1" ).arg( name.mid( 2 ) ) );
+	    return;	
+	}
+
+	QTextBrowser::setSource( name.mid( 2 ) );
+#else
 	QString txt;
 	const QMimeSource* m = mimeSourceFactory()->data( name.mid( 2 ).left( name.mid( 2 ).find( '#' ) ), context() );
 	if ( !m || !QTextDrag::decode( m, txt ) ) {
@@ -45,6 +55,7 @@ void HelpWindow::setSource( const QString &name )
 	QUrl u( name.mid( 2 ) );
 	if ( !u.ref().isEmpty() )
 	    scrollToAnchor( u.ref() );
+#endif
     }
 }
 
