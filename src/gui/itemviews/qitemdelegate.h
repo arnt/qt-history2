@@ -74,7 +74,8 @@ protected:
     QRect check(const QStyleOptionViewItem &option, const QVariant &variant) const;
 
     bool eventFilter(QObject *object, QEvent *event);
-    bool editorEvent(QEvent *event, const QStyleOptionViewItem &option, const QModelIndex &index);
+    bool editorEvent(QEvent *event, QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option, const QModelIndex &index);
 
 private:
     Q_DECLARE_PRIVATE(QItemDelegate)

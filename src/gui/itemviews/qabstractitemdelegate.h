@@ -65,6 +65,7 @@ public:
 
     // for non-widget editors
     virtual bool editorEvent(QEvent *event,
+                             QAbstractItemModel *model,
                              const QStyleOptionViewItem &option,
                              const QModelIndex &index);
 

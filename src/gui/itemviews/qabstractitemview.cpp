@@ -1383,7 +1383,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     options.rect = itemViewportRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
-    if (event && itemDelegate()->editorEvent(event, options, buddy))
+    if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
         return true; // the delegate handled the event
 
     if (!d->shouldEdit(trigger, buddy))

@@ -655,19 +655,16 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 */
 
 bool QItemDelegate::editorEvent(QEvent *event,
+                                QAbstractItemModel *model,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index)
 {
-    bool typeOk = event && (event->type() == QEvent::MouseButtonPress
-                            || event->type() == QEvent::MouseButtonDblClick);
-    if (!typeOk || index.column() != 0)
-        return false;
-
-    // FIXME: make model an argument, so we don't have to const cast
-    QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
+    Q_ASSERT(event);
     Q_ASSERT(model);
 
-    // check if the item is checkable
+    if (event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseButtonDblClick)
+        return false;
+
     if ((model->flags(index) & QAbstractItemModel::ItemIsCheckable) == 0)
         return false;
 
