@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#25 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -218,9 +218,8 @@ QDragObject * QDragObject::alternative() const
 
 QTextDragObject::QTextDragObject( const char * text,
 				  QWidget * parent, const char * name )
-    : QStoredDragObject( parent, name )
+    : QStoredDragObject( "text/plain", parent, name )
 {
-    setFormat( "text/plain" );
     setText( text );
 }
 
@@ -230,9 +229,8 @@ QTextDragObject::QTextDragObject( const char * text,
 */
 
 QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
-    : QStoredDragObject( parent, name )
+    : QStoredDragObject( "text/plain", parent, name )
 {
-    setFormat( "text/plain" );
 }
 
 
@@ -357,10 +355,17 @@ QByteArray QImageDragObject::encodedData(const char* fmt) const
   When a block of data only has one representation, you can use
   a QStoredDragObject to hold it.
 */
-QStoredDragObject::QStoredDragObject( QWidget * dragSource, const char * name ) :
+
+/*!
+  Constructs a QStoredDragObject.  The parameters are passed
+  to the QDragObject constructor, and the format is set to \a format.
+*/
+QStoredDragObject::QStoredDragObject( const char* format, QWidget * dragSource, const char * name ) :
     QDragObject(dragSource,name)
 {
     d = new QStoredDragData();
+    if ( format )
+	setFormat(format);
 }
 
 /*!
