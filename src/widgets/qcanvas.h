@@ -48,8 +48,7 @@ class QCanvasItemExtra;
 class Q_EXPORT QCanvasItem : public Qt
 {
 public:
-    QCanvasItem();
-    QCanvasItem(QCanvas*);
+    QCanvasItem(QCanvas* canvas=0);
     virtual ~QCanvasItem();
 
     double x() const { return myx; }
@@ -319,11 +318,7 @@ private:
 class Q_EXPORT QCanvasSprite : public QCanvasItem
 {
 public:
-    QCanvasSprite(QCanvas*);
-    QCanvasSprite(QCanvasPixmapArray*,QCanvas*);
-
-    QCanvasSprite();
-    QCanvasSprite(QCanvasPixmapArray*);
+    QCanvasSprite(QCanvasPixmapArray* array=0, QCanvas* canvas=0);
 
     void setSequence(QCanvasPixmapArray* seq);
 
@@ -382,8 +377,7 @@ class QPolygonalProcessor;
 class Q_EXPORT QCanvasPolygonalItem : public QCanvasItem
 {
 public:
-    QCanvasPolygonalItem(QCanvas*);
-    QCanvasPolygonalItem();
+    QCanvasPolygonalItem(QCanvas* canvas=0);
     virtual ~QCanvasPolygonalItem();
 
     bool collidesWith( const QCanvasItem* ) const;
@@ -427,13 +421,9 @@ class Q_EXPORT QCanvasRectangle : public QCanvasPolygonalItem
     int w, h;
 
 public:
-    QCanvasRectangle(QCanvas*);
-    QCanvasRectangle(const QRect&, QCanvas*);
-    QCanvasRectangle(int x, int y, int width, int height, QCanvas*);
-
-    QCanvasRectangle();
-    QCanvasRectangle(const QRect&);
-    QCanvasRectangle(int x, int y, int width, int height);
+    QCanvasRectangle(QCanvas* canvas=0);
+    QCanvasRectangle(const QRect&, QCanvas* canvas=0);
+    QCanvasRectangle(int x, int y, int width, int height, QCanvas* canvas=0);
 
     ~QCanvasRectangle();
 
@@ -465,8 +455,7 @@ class Q_EXPORT QCanvasPolygon : public QCanvasPolygonalItem
     QPointArray poly;
 
 public:
-    QCanvasPolygon(QCanvas*);
-    QCanvasPolygon();
+    QCanvasPolygon(QCanvas* canvas=0);
     ~QCanvasPolygon();
     void setPoints(QPointArray);
     QPointArray points() const;
@@ -482,8 +471,7 @@ protected:
 class Q_EXPORT QCanvasLine : public QCanvasPolygonalItem
 {
 public:
-    QCanvasLine(QCanvas*);
-    QCanvasLine();
+    QCanvasLine(QCanvas* canvas=0);
     ~QCanvasLine();
     void setPoints(int x1, int y1, int x2, int y2);
 
@@ -505,10 +493,9 @@ class Q_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
     int a1, a2;
 
 public:
-    QCanvasEllipse(QCanvas*);
+    QCanvasEllipse(QCanvas* canvas=0);
     QCanvasEllipse(int width, int height, QCanvas* canvas=0);
-    QCanvasEllipse(int width, int height, int startangle, int angle, QCanvas* canvas);
-    QCanvasEllipse();
+    QCanvasEllipse(int width, int height, int startangle, int angle, QCanvas* canvas=0);
 
     ~QCanvasEllipse();
 
@@ -541,13 +528,9 @@ class QCanvasTextExtra;
 class Q_EXPORT QCanvasText : public QCanvasItem
 {
 public:
-    QCanvasText(QCanvas*);
-    QCanvasText(const QString&, QCanvas*);
-    QCanvasText(const QString&, QFont, QCanvas*);
-
-    QCanvasText();
-    QCanvasText(const QString&);
-    QCanvasText(const QString&, QFont);
+    QCanvasText(QCanvas* canvas=0);
+    QCanvasText(const QString&, QCanvas* canvas=0);
+    QCanvasText(const QString&, QFont, QCanvas* canvas=0);
 
     virtual ~QCanvasText();
 

@@ -1290,26 +1290,6 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 }
 
 /*!
-Constructs a QCanvasItem.
-
-\sa setCanvas(QCanvas*)
-*/
-QCanvasItem::QCanvasItem() :
-    cnv(0),
-    myx(0),myy(0),myz(0)
-{
-    ani=0;
-    vis=1;
-    sel=0;
-    ena=0;
-    act=0;
-
-    ext = 0;
-    if (cnv) cnv->addItem(this);
-}
-
-
-/*!
 Destructs the QCanvasItem.  It is removed from its canvas.
 */
 QCanvasItem::~QCanvasItem()
@@ -2641,16 +2621,6 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a QCanvasPolygonalItem.
-  Derived classes should call addToChunks()
-  in their constructor once numAreaPoints() and getAreaPoints() are valid.
-*/
-QCanvasPolygonalItem::QCanvasPolygonalItem()
-{
-    wind=0;
-}
-
-/*!
   Destruct the QCanvasPolygonalItem.  Derived classes \e must remove the area
   from any chunks, as this destructor cannot call the virtual methods
   required to do so.  That is, they must call hide() in their
@@ -2931,15 +2901,6 @@ QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a pointless polygon.
-  You should call setPoints() before
-  using it further.
-*/
-QCanvasPolygon::QCanvasPolygon()
-{
-}
-
-/*!
   Destructs the polygon.
 */
 QCanvasPolygon::~QCanvasPolygon()
@@ -3037,16 +2998,6 @@ QCanvasLine::QCanvasLine(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a line from (0,0) to (0,0).
-
-  \sa setPoints().
-*/
-QCanvasLine::QCanvasLine()
-{
-    x1 = y1 = x2 = y2 = 0;
-}
-
-/*!
   Destroys the line, removing it from its canvas.
 */
 QCanvasLine::~QCanvasLine()
@@ -3136,29 +3087,10 @@ QCanvasRectangle::QCanvasRectangle(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a rectangle (0,0,32,32).
-*/
-QCanvasRectangle::QCanvasRectangle() :
-    w(32), h(32)
-{
-    addToChunks();
-}
-
-/*!
   Constructs a rectangle positioned and sized by \a r on \a canvas.
 */
 QCanvasRectangle::QCanvasRectangle(const QRect& r, QCanvas* canvas) :
     QCanvasPolygonalItem(canvas),
-    w(r.width()), h(r.height())
-{
-    move(r.x(),r.y());
-    addToChunks();
-}
-
-/*!
-  Constructs a rectangle positioned and sized by \a r.
-*/
-QCanvasRectangle::QCanvasRectangle(const QRect& r) :
     w(r.width()), h(r.height())
 {
     move(r.x(),r.y());
@@ -3172,17 +3104,6 @@ QCanvasRectangle::QCanvasRectangle(const QRect& r) :
 QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
 	QCanvas* canvas) :
     QCanvasPolygonalItem(canvas),
-    w(width), h(height)
-{
-    move(x,y);
-    addToChunks();
-}
-
-/*!
-  Constructs a rectangle with position \a x, \a y
-  and size \a width by \a height.
-*/
-QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height) :
     w(width), h(height)
 {
     move(x,y);
@@ -3273,16 +3194,6 @@ void QCanvasRectangle::drawShape(QPainter & p)
 */
 QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas),
-    w(32), h(32),
-    a1(0), a2(360*16)
-{
-    addToChunks();
-}
-
-/*!
-  Constructs a 32x32 ellipse, centered at (0,0).
-*/
-QCanvasEllipse::QCanvasEllipse() :
     w(32), h(32),
     a1(0), a2(360*16)
 {
@@ -3429,15 +3340,6 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a QCanvasText with the text "<text>".
-*/
-QCanvasText::QCanvasText() :
-    text("<text>"), flags(0)
-{
-    setRect();
-}
-
-/*!
   Constructs a QCanvasText with the text \a t, on \a canvas.
 
   The text should not contain newlines.
@@ -3450,35 +3352,12 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 }
 
 /*!
-  Constructs a QCanvasText with the text \a t.
-
-  The text should not contain newlines.
-*/
-QCanvasText::QCanvasText(const QString& t) :
-    text(t), flags(0)
-{
-    setRect();
-}
-
-/*!
   Constructs a QCanvasText with the text \a t and font \a f, on \a canvas.
 
   The text should not contain newlines.
 */
 QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
     QCanvasItem(canvas),
-    text(t), flags(0),
-    font(f)
-{
-    setRect();
-}
-
-/*!
-  Constructs a QCanvasText with the text \a t and font \a f.
-
-  The text should not contain newlines.
-*/
-QCanvasText::QCanvasText(const QString& t, QFont f) :
     text(t), flags(0),
     font(f)
 {
@@ -3732,51 +3611,12 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
     frm(0),
     images(a)
 {
-    show();
-    addToChunks();
+    if ( images ) {
+	show();
+	addToChunks();
+    }
 }
 
-/*!
-Creates a QCanvasSprite which uses images from the given array.
-
-The sprite in initially at (0,0), using frame 0.
-*/
-QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a) :
-    frm(0),
-    images(a)
-{
-    show();
-    addToChunks();
-}
-
-/*!
-Creates a QCanvasSprite without defining its image array.
-
-The sprite in initially at (0,0) on \a canvas, using frame 0.
-
-Note that you must call setSequence(QCanvasPixmapArray*) before
-doing anything else with the sprite.
-*/
-QCanvasSprite::QCanvasSprite(QCanvas* canvas) :
-    QCanvasItem(canvas),
-    frm(0),
-    images(0)
-{
-}
-
-/*!
-Create a QCanvasSprite without defining its image array.
-
-The sprite in initially at (0,0) on, using frame 0.
-
-Note that you must call setSequence(QCanvasPixmapArray*) before
-doing anything else with the sprite.
-*/
-QCanvasSprite::QCanvasSprite() :
-    frm(0),
-    images(0)
-{
-}
 
 /*!
 \fn void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
