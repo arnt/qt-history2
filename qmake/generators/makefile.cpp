@@ -885,10 +885,11 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			QString file = dir[x];
 			if(file == "." || file == "..") //blah
 			    continue;
+			file = dirstr + file;
 			fileFixify(file);
 			QFileInfo fi(file);
 			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-				  " " + dirstr + file + " " + dst + "\n\t";
+				  " " + fi.filePath() + " " + dst + "\n\t";
 		    }
 		}
  	    }
@@ -897,7 +898,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  	tmp = project->variables()[(*it) + ".extra"];
  	if(!tmp.isEmpty()) {
 	    do_default = FALSE;
- 	    if(!target.isEmpty())
+	    if(!target.isEmpty())
  		target += "\n\t";
  	    target += tmp.join(" ");
  	}

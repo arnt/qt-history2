@@ -19,8 +19,8 @@ qmake: $(OBJS) $(QOBJS)
 
 install: qmake
 	[ -d @QT_INSTALL_BINS@ ] || mkdir -p @QT_INSTALL_BINS@
-	cp @OUT_QTDIR@/bin/qmake @QT_INSTALL_BINS@
-	cp -r @REL_QTDIR@/mkspecs @QT_INSTALL_PREFIX@
+	cp -f @OUT_QTDIR@/bin/qmake @QT_INSTALL_BINS@
+	cp -r -f @REL_QTDIR@/mkspecs @QT_INSTALL_PREFIX@
 
 clean::
 	rm -f $(OBJS) $(QOBJS)
