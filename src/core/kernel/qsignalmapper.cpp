@@ -175,8 +175,11 @@ QObject *QSignalMapper::mapping(int id) const
 
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
     while (i != d->hash.end()) {
-        if (i->has_int && i->int_id == id)
-            return const_cast<QObject*>(i.key());
+        if (i->has_int && i->int_id == id) {
+	    // a const_cast would be best, but certain versions of aCC
+	    // claim that it can not be used on volatile pointers.
+            return (QObject *)i.key();
+	}
         ++i;
     }
     return 0;
@@ -191,8 +194,11 @@ QObject *QSignalMapper::mapping(const QString &id) const
 
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
     while (i != d->hash.end()) {
-        if (i->has_str && i->str_id == id)
-            return const_cast<QObject*>(i.key());
+        if (i->has_str && i->str_id == id) {
+	    // a const_cast would be best, but certain versions of aCC
+	    // claim that it can not be used on volatile pointers.
+            return (QObject *)i.key();
+	}
         ++i;
     }
     return 0;
