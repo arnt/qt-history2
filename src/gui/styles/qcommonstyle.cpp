@@ -2785,6 +2785,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 32;
         break;
 
+    case PM_ToolTipLabelFrameWidth:
+        ret = 1;
+        break;
     default:
         ret = 0;
         break;
@@ -2976,7 +2979,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = true;
         break;
 
-    case SH_TipLabel_Opacity:
+    case SH_ToolTipLabel_Opacity:
         ret = 255;
         break;
 

@@ -23,6 +23,7 @@
 #include <qtimer.h>
 #include <qtooltip.h>
 #include <private/qeffects_p.h>
+#include <qdebug.h>
 
 /*!
     \class QToolTip
@@ -76,17 +77,23 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
 {
     delete instance;
     instance = this;
-    setMargin(1);
+    setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
     setFrameStyle(QFrame::NoFrame);
-    setLineWidth(1);
-    setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    setIndent(0);
+    setAlignment(Qt::AlignLeft);
+    setIndent(1);
     ensurePolished();
     setText(text);
-    adjustSize();
+
+    QFontMetrics fm(font());
+    QSize extra(1, 0);
+    // Make it look good with the default ToolTip font on Mac, which has a small descent.
+    if (fm.descent() == 2 && fm.ascent() >= 11)
+        ++extra.rheight();
+
+    resize(sizeHint() + extra);
     qApp->installEventFilter(this);
     hideTimer.start(10000, this);
-    setWindowOpacity(style()->styleHint(QStyle::SH_TipLabel_Opacity, 0, this) / 255.0);
+    setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
     // No resources for this yet (unlike on Windows).
     QPalette pal(Qt::black, QColor(255,255,220),
                   QColor(96,96,96), Qt::black, Qt::black,
@@ -99,7 +106,6 @@ void QTipLabel::paintEvent(QPaintEvent *ev)
     QStylePainter p(this);
     QStyleOptionFrame opt;
     opt.init(this);
-    opt.lineWidth = 1;
     p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
     p.end();
 

@@ -430,6 +430,9 @@ public:
         PM_FocusFrameVMargin,
         PM_FocusFrameHMargin,
 
+        PM_ToolTipLabelFrameWidth,
+
+
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000
     };
@@ -513,9 +516,9 @@ public:
         SH_SpinBox_KeyPressAutoRepeatRate,
         SH_SpinBox_ClickAutoRepeatRate,
         SH_Menu_FillScreenWithScroll,
-        SH_TipLabel_Opacity,
+        SH_ToolTipLabel_Opacity,
         SH_DrawMenuBarSeparator,
-        SH_TitlebarModifyNotification,
+        SH_TitleBarModifyNotification,
         SH_Button_FocusPolicy,
         SH_MenuBar_DismissOnSecondClick,
         SH_MessageBox_UseBorderForButtonSpacing,

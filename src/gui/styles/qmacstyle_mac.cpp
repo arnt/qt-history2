@@ -4841,6 +4841,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_MenuPanelWidth:
         ret = 0;
         break;
+    case PM_ToolTipLabelFrameWidth:
+        ret = 0;
+        break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -4935,7 +4938,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_UnderlineShortcut:
         ret = false;
         break;
-    case SH_TipLabel_Opacity:
+    case SH_ToolTipLabel_Opacity:
         ret = 242; // About 95%
         break;
     case SH_Button_FocusPolicy:
