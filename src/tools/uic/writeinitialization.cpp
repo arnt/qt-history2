@@ -617,14 +617,20 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
         case DomProperty::SizePolicy: {
             DomSizePolicy *sp = p->elementSizePolicy();
-            propertyValue = QString::fromLatin1("QSizePolicy((QSizePolicy::SizeType)%1, "
-                                    "(QSizePolicy::SizeType)%2, %3, %4, "
-                                    "%5->sizePolicy().hasHeightForWidth())")
+            QString spName = driver->unique(QLatin1String("sizePolicy"));
+            output << option.indent << "QSizePolicy " << spName << QString::fromLatin1(
+                "((QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2);\n")
                             .arg(sp->elementHSizeType())
-                            .arg(sp->elementVSizeType())
-                            .arg(sp->elementHorStretch())
-                            .arg(sp->elementVerStretch())
-                            .arg(varName);
+                            .arg(sp->elementVSizeType());
+            output << option.indent << spName << ".setHorizontalStretch("
+                << sp->elementHorStretch() << ");\n";
+            output << option.indent << spName << ".setVerticalStretch("
+                << sp->elementVerStretch() << ");\n";
+            output << option.indent << spName << QString::fromLatin1(
+                ".setHeightForWidth(%1->sizePolicy().hasHeightForWidth());\n")
+                .arg(varName);
+
+            propertyValue = spName;
             break;
         }
         case DomProperty::Size: {
