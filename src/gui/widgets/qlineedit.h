@@ -46,6 +46,7 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_PROPERTY(bool redoAvailable READ isRedoAvailable)
     Q_PROPERTY(QString inputMask READ inputMask WRITE setInputMask)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
+    Q_PROPERTY(bool contextMenuEnabled READ contextMenuEnabled WRITE setContextMenuEnabled)
 
 public:
     QLineEdit(QWidget* parent=0);
@@ -114,6 +115,9 @@ public:
     void setInputMask(const QString &inputMask);
     bool hasAcceptableInput() const;
 
+    void setContextMenuEnabled(bool enabled);
+    bool contextMenuEnabled() const;
+
 public slots:
     void setText(const QString &);
     void clear();
@@ -161,7 +165,9 @@ protected:
 #endif
 
     void inputMethodEvent(QInputMethodEvent *);
+public:
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
+protected:
 
 public:
 #ifdef QT_COMPAT

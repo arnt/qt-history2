@@ -325,8 +325,6 @@ public:
         WA_PendingUpdate,
         WA_InvalidSize,
         WA_MacMetalStyle, //mac only
-        WA_CompositeParent,
-        WA_CompositeChild,
         WA_CustomWhatsThis,
         WA_LayoutOnEntireRect,
         WA_OutsideWSRange,

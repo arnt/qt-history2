@@ -30,14 +30,14 @@ class Q_GUI_EXPORT QInputEvent : public QEvent
 {
 public:
     QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
-    inline bool isAccepted() const { return accpt; }
-    inline void accept() { accpt = TRUE; }
-    inline void ignore() { accpt = FALSE; }
+    inline bool isAccepted() const { return m_accept; }
+    inline void accept() { m_accept = true; }
+    inline void ignore() { m_accept = false; }
     inline Qt::KeyboardModifiers modifiers() const {return modState; }
 protected:
     Qt::KeyboardModifiers modState;
 private:
-    bool accpt;
+    bool m_accept;
 };
 
 
@@ -158,12 +158,12 @@ class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 public:
     QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
               const QString& text = QString::null,
-              bool autorep = FALSE, ushort count = 1);
+              bool autorep = false, ushort count = 1);
     int key() const   { return k; }
 #ifdef QT_COMPAT
     inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
                                            int modifiers, const QString& text = QString::null,
-                                           bool autorep = FALSE, ushort count = 1)
+                                           bool autorep = false, ushort count = 1)
         : QInputEvent(type, (Qt::KeyboardModifiers)modifiers), txt(text), k(key),
           c(count), autor(autorep)
     {
@@ -214,8 +214,8 @@ public:
     QPaintEvent(const QRect &paintRect);
     QPaintEvent(const QRegion &paintRegion, const QRect &paintRect);
 
-    inline const QRect &rect() const { return rec; }
-    inline const QRegion &region() const { return reg; }
+    inline const QRect &rect() const { return m_rect; }
+    inline const QRegion &region() const { return m_region; }
 
 #ifdef QT_COMPAT
     inline QT_COMPAT bool erased() const { return true; }
@@ -224,8 +224,8 @@ public:
 protected:
     friend class QApplication;
     friend class QCoreApplication;
-    QRect rec;
-    QRegion reg;
+    QRect m_rect;
+    QRegion m_region;
 };
 
 
@@ -265,10 +265,15 @@ protected:
 };
 
 
-class Q_GUI_EXPORT QCloseEvent : public QInputEvent
+class Q_GUI_EXPORT QCloseEvent : public QEvent
 {
 public:
     QCloseEvent();
+    inline bool isAccepted() const { return m_accept; }
+    inline void accept() { m_accept = true; }
+    inline void ignore() { m_accept = false; }
+private:
+    bool m_accept;
 };
 
 
@@ -276,11 +281,11 @@ class Q_GUI_EXPORT QIconDragEvent : public QEvent
 {
 public:
     QIconDragEvent();
-    inline bool isAccepted() const { return accpt; }
-    inline void accept() { accpt = TRUE; }
-    inline void ignore() { accpt = FALSE; }
+    inline bool isAccepted() const { return m_accept; }
+    inline void accept() { m_accept = true; }
+    inline void ignore() { m_accept = false; }
 protected:
-    bool accpt;
+    bool m_accept;
 };
 
 
@@ -356,13 +361,14 @@ class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
 public:
     QDropEvent(const QPoint& pos, const QMimeData *data, Type typ = Drop);
     inline const QPoint &pos() const { return p; }
-    inline bool isAccepted() const { return accpt || accptact; }
-    inline void accept(bool y = TRUE) { accpt = y; }
-    inline void ignore() { accpt = FALSE; }
+    inline bool isAccepted() const { return m_accept || m_acceptact; }
+    inline void accept(bool y = true) { m_accept = y; }
+    inline void ignore() { m_accept = false; }
 
     enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
-    inline bool isActionAccepted() const { return accptact; }
-    inline void acceptAction(bool y = TRUE)  { accptact = y; }
+    inline bool isActionAccepted() const { return m_acceptact; }
+    inline void acceptAction(bool y = true)  { m_acceptact = y; }
+    
     inline void setAction(Action a) { act = uint(a); }
     inline Action action() const { return Action(act); }
 
@@ -381,8 +387,8 @@ public:
 protected:
     QPoint p;
     uint act : 8;
-    uint accpt : 1;
-    uint accptact : 1;
+    uint m_accept : 1;
+    uint m_acceptact : 1;
     uint resv : 5;
     const QMimeData *mdata;
 };
@@ -396,8 +402,8 @@ public:
     inline void accept(bool y = true) { QDropEvent::accept(y); }
     inline void ignore() { QDropEvent::ignore(); }
 
-    inline void accept(const QRect & r) { accpt = TRUE; rect = r; }
-    inline void ignore(const QRect & r) { accpt = FALSE; rect = r; }
+    inline void accept(const QRect & r) { m_accept = true; rect = r; }
+    inline void ignore(const QRect & r) { m_accept = false; rect = r; }
 
 protected:
     QRect rect;

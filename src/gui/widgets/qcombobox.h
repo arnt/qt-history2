@@ -165,6 +165,9 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    void inputMethodEvent(QInputMethodEvent *);
+    QVariant inputMethodQuery(Qt::InputMethodQuery);
 
 private:
     Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))

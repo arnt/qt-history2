@@ -8,6 +8,7 @@ Window::Window()
 
     QLabel *echoLabel = new QLabel(tr("Mode:"), echoGroup);
     QComboBox *echoComboBox = new QComboBox(echoGroup);
+    echoComboBox->setEditable(true);
     echoComboBox->insertItem(tr("Normal"));
     echoComboBox->insertItem(tr("Password"));
     echoComboBox->insertItem(tr("No Echo"));
@@ -114,8 +115,6 @@ void Window::slotEchoChanged(int index)
     	    echoLineEdit->setEchoMode(QLineEdit::NoEcho);
             break;
         }
-
-    echoLineEdit->setFocus();
 }
 
 void Window::slotValidatorChanged(int index)
@@ -135,7 +134,6 @@ void Window::slotValidatorChanged(int index)
     }
 
     validatorLineEdit->setText("");
-    validatorLineEdit->setFocus();
 }
 
 void Window::slotAlignmentChanged(int index)
@@ -151,8 +149,6 @@ void Window::slotAlignmentChanged(int index)
     	    alignmentLineEdit->setAlignment(Qt::AlignRight);
             break;
         }
-
-    alignmentLineEdit->setFocus();
 }
 
 void Window::slotInputMaskChanged(int index)
@@ -173,8 +169,6 @@ void Window::slotInputMaskChanged(int index)
             inputMaskLineEdit->setInputMask(">AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;#");
             break;
     }
-
-    inputMaskLineEdit->setFocus();
 }
 
 void Window::slotAccessChanged(int index)
@@ -187,6 +181,4 @@ void Window::slotAccessChanged(int index)
         accessLineEdit->setReadOnly(true);
         break;
     }
-
-    accessLineEdit->setFocus();
 }

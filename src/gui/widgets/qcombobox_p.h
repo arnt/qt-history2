@@ -95,7 +95,6 @@ public slots:
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
-    void keyPressEvent(QKeyEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void hideEvent(QHideEvent *e);
 

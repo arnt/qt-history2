@@ -917,6 +917,26 @@ void QLineEdit::setDragEnabled(bool b)
 }
 
 /*!
+    \property QLineEdit::contextMenuEnabled
+    \brief whether the lineedit has a context menu or not
+
+     By default, the line edit shows a context menu. If this property
+     is set to false, the line edit ignores context menu events. This
+     is useful when the line edit is embedded into another widget that
+     want to handle the QWidget::contextMenuEvent() itself.
+*/
+
+bool QLineEdit::contextMenuEnabled() const
+{
+    return d->contextMenuEnabled;
+}
+
+void QLineEdit::setContextMenuEnabled(bool enabled)
+{
+    d->contextMenuEnabled = enabled;
+}
+
+/*!
     \property QLineEdit::acceptableInput
     \brief whether the input satisfies the inputMask and the
     validator.
@@ -1366,6 +1386,7 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 
 void QLineEdit::keyPressEvent(QKeyEvent * e)
 {
+    qDebug() << "QLineEdit::keyPressEvent";
     d->setCursorVisible(true);
     if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
         const QValidator * v = d->validator;
@@ -1948,6 +1969,10 @@ void QLineEditPrivate::drag()
 */
 void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 {
+    if (!d->contextMenuEnabled) {
+        e->ignore();
+        return;
+    }
 #ifndef QT_NO_POPUPMENU
 #ifndef QT_NO_IM
     if (d->composeMode())
@@ -1956,9 +1981,7 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
     d->separate();
 
     QMenu *popup = createPopupMenu();
-    QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
-                 mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
-    popup->exec(pos);
+    popup->exec(e->globalPos());
     delete popup;
 #endif //QT_NO_POPUPMENU
 }

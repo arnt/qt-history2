@@ -34,7 +34,7 @@
     \internal
 */
 QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
-    : QEvent(type), modState(modifiers), accpt(true)
+    : QEvent(type), modState(modifiers), m_accept(true)
 {}
 
 /*!
@@ -1002,7 +1002,7 @@ void QFocusEvent::resetReason()
     be updated. The region is specified by \a paintRegion.
 */
 QPaintEvent::QPaintEvent(const QRegion& paintRegion)
-    : QEvent(Paint), rec(paintRegion.boundingRect()), reg(paintRegion)
+    : QEvent(Paint), m_rect(paintRegion.boundingRect()), m_region(paintRegion)
 {}
 
 /*!
@@ -1010,17 +1010,17 @@ QPaintEvent::QPaintEvent(const QRegion& paintRegion)
     to be updated. The region is specified by \a paintRect.
 */
 QPaintEvent::QPaintEvent(const QRect &paintRect)
-    : QEvent(Paint), rec(paintRect),reg(paintRect)
+    : QEvent(Paint), m_rect(paintRect),m_region(paintRect)
 {}
 
 /*!
-    Constructs a paint event object with both a \a region and
-    a \a rectangle, both of which represent the area of the
-    widget that needs to be updated.
+    Constructs a paint event object with both a \a paintRegion and a
+    \a paintRect, both of which represent the area of the widget that
+    needs to be updated.
 
 */
-QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &rectangle)
-    : QEvent(Paint), rec(rectangle), reg(paintRegion)
+QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &paintRect)
+    : QEvent(Paint), m_rect(paintRect), m_region(paintRegion)
 {}
 
 /*!
@@ -1183,7 +1183,7 @@ QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
     \sa accept()
 */
 QCloseEvent::QCloseEvent()
-    : QInputEvent(Close)
+    : QEvent(Close), m_accept(true)
 {}
 
 /*!
@@ -1210,7 +1210,7 @@ QCloseEvent::QCloseEvent()
     \sa accept()
 */
 QIconDragEvent::QIconDragEvent()
-    : QEvent(IconDrag), accpt(FALSE)
+    : QEvent(IconDrag), m_accept(false)
 {}
 
 /*!
@@ -1829,7 +1829,7 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type ty
     a drop at the given \a point in a widget.
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
-    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0), mdata(data)
+    : QEvent(typ), p(pos), act(0), m_accept(0), m_acceptact(0), resv(0), mdata(data)
 {}
 
 
@@ -2275,7 +2275,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
                 break;
             }
             dbg.nospace() << "QKeyEvent("  << n
-                        << ", " << ke->key()
+                          << ", " << hex << ke->key()
                         << ", " << hex << (int)ke->modifiers()
                         << ", \"" << ke->text()
                         << "\", " << ke->isAutoRepeat()

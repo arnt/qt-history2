@@ -23,9 +23,15 @@
 #include <qlayout.h>
 #include <qscrollbar.h>
 #include <private/qcombobox_p.h>
-
 #define d d_func()
 #define q q_func()
+
+class QComboBoxLineEdit : public QLineEdit
+{
+public:
+    bool forwardEvent(QEvent *e) { return event(e); }
+};
+
 
 /*!
     \internal
@@ -42,10 +48,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     Q_ASSERT(list);
     list->setParent(this);
     list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    list->installEventFilter(this);
     list->viewport()->installEventFilter(this);
-    setFocusProxy(list);
-    list->setAttribute(Qt::WA_CompositeChild);
-    setAttribute(Qt::WA_CompositeParent);
     QStyleOptionComboBox opt;
     opt.init(parent);
     if (QComboBox *cmb = qt_cast<QComboBox *>(parent))
@@ -62,7 +66,6 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setLineWidth(0);
     list->setSpacing(0);
     list->setBeginEditActions(QAbstractItemView::NeverEdit);
-    list->setFocusPolicy(Qt::StrongFocus);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
@@ -160,6 +163,26 @@ QListView *ListViewContainer::listView() const
 bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
+    case QEvent::KeyPress:
+        switch (static_cast<QKeyEvent*>(e)->key()) {
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            if (qt_cast<QComboBox*>(parentWidget())->autoHide())
+                hide();
+            emit itemSelected(list->currentIndex());
+            return true;
+        case Qt::Key_Down:
+            if (!(static_cast<QKeyEvent*>(e)->modifiers() & Qt::AltModifier))
+                break;
+            // fall through
+        case Qt::Key_F4:
+        case Qt::Key_Escape:
+            hide();
+            return true;
+        default:
+            break;
+        }
+    break;
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
         if (list->rect().contains(m->pos())) {
@@ -175,32 +198,6 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
     return QFrame::eventFilter(o, e);
 }
 
-/*!
-    \internal
-*/
-
-void ListViewContainer::keyPressEvent(QKeyEvent *e)
-{
-    switch (e->key()) {
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-        if (qt_cast<QComboBox*>(parentWidget())->autoHide())
-            hide();
-        emit itemSelected(list->currentIndex());
-        return;
-    case Qt::Key_Down:
-        if (!(e->modifiers() & Qt::AltModifier))
-            break;
-    case Qt::Key_F4:
-    case Qt::Key_Escape:
-        hide();
-        return;
-    default:
-        break;
-    }
-    e->ignore();
-}
-
 
 /*!
     \internal
@@ -209,10 +206,6 @@ void ListViewContainer::hideEvent(QHideEvent *)
 {
     emit containerDisappearing();
 }
-
-/*!
-    \internal
-*/
 
 void ListViewContainer::mousePressEvent(QMouseEvent *e)
 {
@@ -235,6 +228,8 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
     }
     QFrame::mousePressEvent(e);
 }
+
+
 
 /*!
     \enum QComboBox::InsertionPolicy
@@ -808,9 +803,8 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     connect(d->lineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(textChanged(QString)));
     d->lineEdit->setFrame(false);
-    d->lineEdit->setAttribute(Qt::WA_CompositeChild);
-    setAttribute(Qt::WA_CompositeParent);
-    setFocusProxy(d->lineEdit);
+    d->lineEdit->setContextMenuEnabled(false);
+    d->lineEdit->setFocusProxy(this);
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();
 
@@ -1225,6 +1219,7 @@ void QComboBox::popup()
     listView()->ensureItemVisible(listView()->currentIndex());
     d->container->raise();
     d->container->show();
+    listView()->setFocus();
 }
 
 /*!
@@ -1310,18 +1305,22 @@ void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
     \reimp
 */
 
-void QComboBox::focusInEvent(QFocusEvent *)
+void QComboBox::focusInEvent(QFocusEvent *e)
 {
     update();
+    if (d->lineEdit)
+        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
 }
 
 /*!
     \reimp
 */
 
-void QComboBox::focusOutEvent(QFocusEvent *)
+void QComboBox::focusOutEvent(QFocusEvent *e)
 {
     update();
+    if (d->lineEdit)
+        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
 }
 
 /*! \reimp */
@@ -1439,18 +1438,16 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 
 void QComboBox::keyPressEvent(QKeyEvent *e)
 {
-    int newRow = -1;
-    QModelIndex newIndex;
+    int newRow = currentItem();
     switch (e->key()) {
     case Qt::Key_Delete:
     case Qt::Key_Backspace:
         // skip autoCompletion if Delete or Backspace has been pressed
         d->skipCompletion = true;
-        e->ignore();
-        return;
+        break;
     case Qt::Key_PageUp:
     case Qt::Key_Up:
-        newRow = currentItem() - 1;
+        --newRow;
         break;
     case Qt::Key_Down:
         if (e->modifiers() & Qt::AltModifier) {
@@ -1459,55 +1456,84 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         }
         // fall through
     case Qt::Key_PageDown:
-        newRow = currentItem() + 1;
+        ++newRow;
         break;
     case Qt::Key_Home:
-        if (isEditable()) {
+        if (d->lineEdit) {
             e->ignore();
             return;
         }
         newRow = 0;
         break;
     case Qt::Key_End:
-        if (isEditable()) {
-            e->ignore();
-            return;
-        }
-        newRow = d->model->rowCount(root()) - 1;
+        if (!d->lineEdit)
+            newRow = d->model->rowCount(root()) - 1;
         break;
     case Qt::Key_F4:
-        if (!e->modifiers())
+        if (!e->modifiers()) {
             popup();
-        else
-            e->ignore();
-        return;
+            return;
+        }
+        break;
     case Qt::Key_Space:
-        if (isEditable())
-            e->ignore();
-        else
+        if (!d->lineEdit) {
             popup();
-        return;
+            return;
+        }
     case Qt::Key_Enter:
     case Qt::Key_Return:
     case Qt::Key_Escape:
-        e->ignore();
-        return;
-    default:
-        if (e->text().isEmpty() || isEditable()) {
+        if (!d->lineEdit)
             e->ignore();
-            return;
-        }
-        // use keyboardSearch from the listView so we do not duplicate code
-        listView()->setCurrentIndex(d->currentIndex);
-        listView()->keyboardSearch(e->text());
-        if (listView()->currentIndex().isValid()
-            && listView()->currentIndex() != d->currentIndex)
-            newRow = listView()->currentIndex().row();
         break;
+    default:
+        if (!d->lineEdit && !e->text().isEmpty()) {
+            // use keyboardSearch from the listView so we do not duplicate code
+            listView()->setCurrentIndex(d->currentIndex);
+            listView()->keyboardSearch(e->text());
+            if (listView()->currentIndex().isValid()
+                && listView()->currentIndex() != d->currentIndex)
+                newRow = listView()->currentIndex().row();
+        }
     }
-    e->accept();
-    setCurrentItem(newRow);
+
+    if (newRow != currentItem())
+        setCurrentItem(newRow);
+    else if (d->lineEdit)
+        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
 }
+
+
+/*!
+    \reimp
+*/
+
+void QComboBox::keyReleaseEvent(QKeyEvent *e)
+{
+    if (d->lineEdit)
+        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+
+}
+
+/*!
+    \reimp
+*/
+void QComboBox::inputMethodEvent(QInputMethodEvent *e)
+{
+    if (d->lineEdit)
+        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+}
+
+/*!
+    \reimp
+*/
+QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query)
+{
+    if (d->lineEdit)
+        return d->lineEdit->inputMethodQuery(query);
+    return QWidget::inputMethodQuery(query);
+}
+
 
 /*!
     \fn bool QComboBox::editable() const
@@ -1551,3 +1577,4 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 
 
 #include "moc_qcombobox.cpp"
+

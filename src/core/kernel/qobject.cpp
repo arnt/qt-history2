@@ -168,7 +168,7 @@ void QConnectionList::addConnection(QObject *sender, int signal,
                                     QObject *receiver, int member,
                                     int type, int *types)
 {
-    QConnection c = { sender, signal, receiver, member, type, types };
+    QConnection c = { sender, signal, {receiver}, member, type, types };
     int at;
     if (unusedConnections.isEmpty() || invariant != 0) {
         // append new connection
@@ -787,7 +787,7 @@ bool QObject::event(QEvent *e)
     switch (e->type()) {
     case QEvent::Timer:
         timerEvent((QTimerEvent*)e);
-        return true;
+        break;
 
     case QEvent::ChildAdded:
     case QEvent::ChildPolished:
@@ -796,11 +796,11 @@ bool QObject::event(QEvent *e)
 #endif
     case QEvent::ChildRemoved:
         childEvent((QChildEvent*)e);
-        return true;
+        break;
 
     case QEvent::DeferredDelete:
         delete this;
-        return true;
+        break;
 
     case QEvent::MetaCall: {
         QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
@@ -819,17 +819,17 @@ bool QObject::event(QEvent *e)
 #endif
         if (d)
             d->currentSender = previousSender;
-        return true;
+        break;
     }
 
     default:
         if (e->type() >= QEvent::User) {
             customEvent((QCustomEvent*) e);
-            return true;
+            break;
         }
-        break;
+        return false;
     }
-    return false;
+    return true;
 }
 
 /*!
