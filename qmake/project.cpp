@@ -177,11 +177,7 @@ bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
-    int hash_mark = -1;
-    if (s[0] == '#')
-	hash_mark = 0;
-    else
-	hash_mark = s.find(QRegExp("[^\\\\]#")); // Allow escaping of #'s
+    int hash_mark = s.find("#");
     if(hash_mark != -1) //good bye comments
 	s = s.left(hash_mark);
     if(s.isEmpty()) /* blank_line */
@@ -464,7 +460,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	    line = t.readLine().stripWhiteSpace();
 	    int prelen = line.length();
 
-	    int hash_mark = line.find(QRegExp("[^\\\\]#")); // Allow escaping of #'s
+	    int hash_mark = line.find("#");
 	    if(hash_mark != -1) //good bye comments
 		line = line.left(hash_mark);
 	    if(!line.isEmpty() && line.right(1) == "\\") {
@@ -1142,7 +1138,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "";
 	    else if(val == "LITERAL_WHITESPACE")
 		replacement = "\t";
-	    else if(val == "PWD")
+	    else if(val == "LITERAL_DOLLAR")
+		replacement = "$";
+	    else if(val == "LITERAL_HASH")
+		replacement = "#";
+	    else if(val == "PWD") 
 		replacement = QDir::currentDirPath();
 	    else
 		replacement = place[varMap(val)].join(" ");
