@@ -215,26 +215,26 @@ void QBitArray::resize(int size)
 /*!
     \overload
 
-    Sets bits at index positions \a first to (and including) \a last
+    Sets bits at index positions \a begin up to and excluding \a end
     to \a value.
 
-    \a first and \a last must be a valid index position in the bit
-    array (i.e., 0 <= \a first < size() and 0 <= \a last < size()).
+    \a begin and \a end must be a valid index position in the bit
+    array (i.e., 0 <= \a begin <= size() and 0 <= \a end <= size()).
 */
 
-void QBitArray::fill(bool value, int first, int last)
+void QBitArray::fill(bool value, int begin, int end)
 {
-    while (first <= last && first & 0x7)
-        setBit(first++, value);
-    int len = last - first + 1;
+    while (begin < end && begin & 0x7)
+        setBit(begin++, value);
+    int len = end - begin;
     if (len <= 0)
         return;
     int s = len & ~0x7;
     uchar *c = (uchar*)d.data();
-    memset(c + (first >> 3) + 1, value ? 0xff : 0, s >> 3);
-    s += first;
-    while (s <= last)
-        setBit(s++, value);
+    memset(c + (begin >> 3) + 1, value ? 0xff : 0, s >> 3);
+    begin += s;
+    while (begin < end)
+        setBit(begin++, value);
 }
 
 /*! \fn bool QBitArray::isDetached() const

@@ -51,11 +51,10 @@ public:
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
 
     inline bool fill(bool val, int size = -1)
-        { *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
+        { *this = QBitArray((size < 0 ? this->size() : size), val); return true; }
+    void fill(bool val, int first, int last);
 
     inline void truncate(int pos) { if (pos < size()) resize(pos); }
-
-    void fill(bool val, int first, int last);
 
     inline bool ensure_constructed()
     { return d.ensure_constructed(); }
