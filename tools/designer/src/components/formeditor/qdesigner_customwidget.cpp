@@ -15,7 +15,7 @@
 #include "formwindow.h"
 
 #include <abstractformeditor.h>
-#include <widgetdatabase.h>
+#include "widgetdatabase.h"
 
 QDesignerCustomWidget::QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent)
     : QDesignerWidget(formWindow, parent),
