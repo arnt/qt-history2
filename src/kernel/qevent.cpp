@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#85 $
 **
 ** Implementation of event classes
 **
@@ -22,85 +22,8 @@
 *****************************************************************************/
 
 #include "qevent.h"
-#include <qcursor.h>
-
-void qRemovePostedEvent( QEvent * );		// defined in qapplication_xxx.cpp
-
-void QEvent::peErrMsg()				// posted event error message
-{
-#if defined(CHECK_STATE)
-    const char *n = 0;
-    switch ( t ) {				// convert type to msg string
-    case QEvent::Timer:
-	n = "Timer";
-	break;
-    case QEvent::MouseButtonPress:
-	n = "MouseButtonPress";
-	break;
-    case QEvent::MouseButtonRelease:
-	n = "MouseButtonRelease";
-	break;
-    case QEvent::MouseButtonDblClick:
-	n = "MouseButtonDblClick";
-	break;
-    case QEvent::MouseMove:
-	n = "MouseMove";
-	break;
-    case QEvent::Wheel:
-	n = "Wheel";
-	break;
-    case QEvent::KeyPress:
-	n = "KeyPress";
-	break;
-    case QEvent::KeyRelease:
-	n = "KeyRelease";
-	break;
-    case QEvent::FocusIn:
-	n = "FocusIn";
-	break;
-    case QEvent::FocusOut:
-	n = "FocusOut";
-	break;
-    case QEvent::Enter:
-	n = "Enter";
-	break;
-    case QEvent::Leave:
-	n = "Leave";
-	break;
-    case QEvent::Paint:
-	n = "Paint";
-	break;
-    case QEvent::Move:
-	n = "Move";
-	break;
-    case QEvent::Resize:
-	n = "Resize";
-	break;
-    case QEvent::Create:
-	n = "Create";
-	break;
-    case QEvent::Destroy:
-	n = "Destroy";
-	break;
-    case QEvent::Close:
-	n = "Close";
-	break;
-    case QEvent::Quit:
-	n = "Quit";
-	break;
-    default:
-	n = "<other>";
-	break;
-    }
-    if ( n )
-	warning( "QEvent: Posted event %s cannot be stack variable, ignored",
-		 n );
-    else
-	warning( "QEvent: Posted event %d cannot be stack variable, ignored",
-		 t );
-#endif
-    qRemovePostedEvent( this );
-}
+#include "qcursor.h"
+#include "qapplication.h"
 
 
 /*!
@@ -139,12 +62,6 @@ void QEvent::peErrMsg()				// posted event error message
   \fn QEvent::QEvent( Type type )
   Contructs an event object with a \a type. The file qevent.h lists
   all event types.
-*/
-
-/*!
-  \fn QEvent::~QEvent()
-  Destroys the event.  Reports an error if the event has been
-  \link QApplication::postEvent() posted. \endlink
 */
 
 /*!
@@ -507,7 +424,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 /*!
   \fn QString QKeyEvent::text() const
   Returns the Unicode text which this key generated.
-  
+
   \sa QWidget::setKeyCompression()
 */
 
@@ -1103,3 +1020,15 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   Use QDropEvent::encodedData().
 */
+
+
+/*!
+  Destroys the event.  Reports an error if the event is \link
+  QApplication::postEvent() posted \endlink for dispatch to an object.
+*/
+
+QEvent::~QEvent()
+{
+    if (posted)
+	QApplication::removePostedEvent( this );
+}

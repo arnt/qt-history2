@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#59 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#60 $
 **
 ** Definition of QObject class
 **
@@ -120,13 +120,12 @@ protected:
     static  void badSuperclassWarning( const char *className,
 				       const char *superclassName );
 
+private:
     uint	isSignal   : 1;
     uint	isWidget   : 1;
     uint	pendTimer  : 1;
     uint	pendEvent  : 1;
     uint	blockSig   : 1;
-
-private:
     uint	wasDeleted : 1;
 
     QMetaObject *queryMetaObject() const;

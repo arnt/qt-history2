@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#182 $
 **
 ** Implementation of QObject class
 **
@@ -233,7 +233,6 @@ bool  qKillTimer( int id );
 bool  qKillTimer( QObject *obj );
 
 void  qRemovePostedEvents( QObject* );
-bool  qRemovePostedChildEvent( QObject* );
 
 
 QMetaObject *QObject::metaObj = 0;
@@ -336,19 +335,6 @@ QObject::QObject( QObject *parent, const char *name )
 
 
 
-#if defined(DEBUG)
-static bool isGoodName( const char * s, bool l )
-{
-    if ( !s || !isalpha( *s ) )
-	return FALSE;
-    int n=1;
-    while ( s+n && n<40 && ( isalnum( s[n] ) || ( l && isspace( s[n] ) ) ) )
-	n++;
-    return n < 40 && s+n && !s[n];
-}
-#endif
-
-
 /*!
   Destroys the object and all its children objects.
 
@@ -365,15 +351,7 @@ QObject::~QObject()
 {
     if ( wasDeleted ) {
 #if defined(DEBUG)
-	debug( "Double QObject::delete.  Information follows, if available" );
-	if ( metaObj && isGoodName( metaObj->className(), FALSE ) )
-	    debug( "  class name: %s", metaObj->className() );
-	if ( parentObj && !parentObj->wasDeleted &&
-	     isGoodName( parentObj->objname, TRUE ) )
-	    debug( "  parent object name: %s", parentObj->objname );
-	if ( parentObj && parentObj->metaObj && 
-	     isGoodName( parentObj->metaObj->className(), FALSE ) )
-	    debug( "  parent class name: %s", parentObj->metaObj->className() );
+	debug( "Double QObject deletion detected." );
 #endif
 	return;
     }
@@ -384,8 +362,8 @@ QObject::~QObject()
     objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
-    if ( pendEvent )				// pending posted events
-	qRemovePostedEvents( this );
+    if ( pendEvent )
+	QApplication::removePostedEvents( this );
     if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
     register QObject *obj;
@@ -993,10 +971,10 @@ void QObject::removeChild( QObject *obj )
 	    childObjects = 0;			// reset children list
 	}
 
-	if ( !qRemovePostedChildEvent( obj ) ) {
-	    QChildEvent e( QEvent::ChildRemoved, obj );
-	    QApplication::sendEvent( this, &e );
-	}
+	// post a ChildRemoved trusting that the QApplication event
+	// optimization code will clean up
+	QApplication::postEvent( this, new QChildEvent( QEvent::ChildRemoved,
+							obj ) );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#222 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -88,7 +88,6 @@ static QVFuncList *postRList = 0;		// list of post routines
 
 static void	msgHandler( QtMsgType, const char* );
 
-static void	cleanupPostedEvents();
 static void     unregWinClasses();
 
 // Simpler timers are needed when Qt does not have the
@@ -450,7 +449,6 @@ void qt_init( int *argcptr, char **argv )
 
 void qt_cleanup()
 {
-    cleanupPostedEvents();			// remove list of posted events
     if ( postRList ) {
 	VFPTR f = (VFPTR)postRList->first();
 	while ( f ) {				// call post routines
@@ -732,204 +730,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 void QApplication::beep()
 {
     MessageBeep( MB_OK );
-}
-
-
-/*****************************************************************************
-  QApplication management of posted events
- *****************************************************************************/
-
-class QPEObject : public QObject		// trick to set/clear pendEvent
-{
-public:
-    void setPendEventFlag()	{ pendEvent = TRUE; }
-    void clearPendEventFlag()	{ pendEvent = FALSE; }
-};
-
-class QPEvent : public QEvent			// trick to set/clear posted
-{
-public:
-    QPEvent( Type type ) : QEvent( type ) {}
-    void setPostedFlag()	{ posted = TRUE; }
-    void clearPostedFlag()	{ posted = FALSE; }
-};
-
-struct QPostEvent {
-    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
-   ~QPostEvent()			{ delete event; }
-    QObject  *receiver;
-    QEvent   *event;
-};
-
-typedef QList<QPostEvent>	  QPostEventList;
-typedef QListIterator<QPostEvent> QPostEventListIt;
-static QPostEventList *postedEvents = 0;	// list of posted events
-
-
-void QApplication::postEvent( QObject *receiver, QEvent *event )
-{
-    if ( !postedEvents ) {			// create list
-	postedEvents = new QList<QPostEvent>;
-	CHECK_PTR( postedEvents );
-	postedEvents->setAutoDelete( TRUE );
-    }
-    if ( receiver == 0 ) {
-#if defined(CHECK_NULL)
-	warning( "QApplication::postEvent: Unexpeced null receiver" );
-#endif
-	return;
-    }
-    ((QPEObject*)receiver)->setPendEventFlag();
-    ((QPEvent*)event)->setPostedFlag();
-    postedEvents->append( new QPostEvent(receiver,event) );
-}
-
-
-void QApplication::sendPostedEvents( QObject *receiver, int event_type )
-{
-    // ### This is identical to X11 version.
-
-    if ( !postedEvents )
-	return;
-    QPostEventListIt it(*postedEvents);
-    QPostEvent *pe;
-
-    // For accumulating compressed events
-    QPoint oldpos, newpos;
-    QSize oldsize, newsize;
-    bool first=TRUE;
-
-    while ( (pe = it.current()) ) {
-	++it;
-	if ( pe->event
-	  && pe->receiver == receiver
-	  && pe->event->type() == event_type )
-	{
-	    postedEvents->take( postedEvents->findRef( pe ) );
-	    switch ( event_type ) {
-	      case QEvent::Move:
-		if ( first ) {
-		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
-		    first = FALSE;
-		}
-		newpos = ((QMoveEvent*)pe->event)->pos();
-		break;
-	      case QEvent::Resize:
-		if ( first ) {
-		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
-		    first = FALSE;
-		}
-		newsize = ((QResizeEvent*)pe->event)->size();
-		break;
-	      default:
-		sendEvent( receiver, pe->event );
-	    }
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    // We don't clearPendEventFlag - be conservative.
-	    delete pe;
-	}
-    }
-    if ( !first ) {
-	// Got one
-	switch ( event_type ) {
-	  case QEvent::Move:
-	    {
-		QMoveEvent e(newpos, oldpos);
-		sendEvent( receiver, &e );
-	    }
-	    break;
-	  case QEvent::Resize:
-	    {
-		QResizeEvent e(newsize, oldsize);
-		sendEvent( receiver, &e );
-	    }
-	    break;
-	  default:
-	    ; // Nothing
-	}
-    }
-}
-
-
-static void sendPostedEvents()			// transmit posted events
-{
-    if ( !postedEvents )
-	return;
-    QPostEventListIt it(*postedEvents);
-    QPostEvent *pe;
-    while ( (pe=it.current()) ) {
-	++it;
-	postedEvents->take( postedEvents->findRef( pe ) );
-	if ( pe->event ) {
-	    QApplication::sendEvent( pe->receiver, pe->event );
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
-	    if ( pe->event->type() == QEvent::ChildInserted ) {
-		((QPEObject*)(((QChildEvent*)(pe->event))->child()))
-		    ->clearPendEventFlag();
-	    }
-	}
-	delete pe;
-    }
-}
-
-
-void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
-{
-    if ( !postedEvents )
-	return;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->receiver == receiver ||
-	    pe->event->type() == QEvent::ChildInserted
-	    && ((QChildEvent*)(pe->event))->child() == receiver )
-	{
-    	    // remove this receiver
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    postedEvents->remove();
-	    pe = postedEvents->current();
-	} else {
-	    pe = postedEvents->next();
-	}
-    }
-}
-
-bool qRemovePostedChildEvent( QObject *child )
-{
-    if ( !postedEvents )
-	return FALSE;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->event->type() == QEvent::ChildInserted
-	    && ((QChildEvent*)(pe->event))->child() == child )
-	{
-    	    // remove this event
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    postedEvents->remove();
-	    return TRUE;
-	} else {
-	    pe = postedEvents->next();
-	}
-    }
-    return FALSE;
-}
-
-void qRemovePostedEvent( QEvent *event )	// remove event in list
-{
-    if ( !postedEvents )
-	return;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->event == event )		// make this event invalid
-	    pe->event = 0;			//   will not be sent!
-	pe = postedEvents->next();
-    }
-}
-
-static void cleanupPostedEvents()		// cleanup list
-{
-    delete postedEvents;
-    postedEvents = 0;
 }
 
 
@@ -1235,8 +1035,7 @@ bool QApplication::processNextEvent( bool canWait )
 {
     MSG	 msg;
 
-    if ( postedEvents && postedEvents->count() )
-	::sendPostedEvents();
+    sendPostedEvents();
 
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
@@ -1269,6 +1068,8 @@ bool QApplication::processNextEvent( bool canWait )
     DispatchMessage( &msg );			// send to QtWndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
+
+    sendPostedEvents();
 
     return TRUE;
 }
@@ -2152,7 +1953,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QApplication::sendEvent( popup, &e );
 	}
 	
-	if ( releaseAfter ) 
+	if ( releaseAfter )
 	    qt_button_down = 0;
 	
 	if ( type == QEvent::MouseButtonPress &&

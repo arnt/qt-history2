@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#180 $
 **
 ** Implementation of QApplication class
 **
@@ -1254,4 +1254,301 @@ QString QApplication::translate( const char * scope, const char * key ) const
     }
 
     return key;
+}
+
+
+/*****************************************************************************
+  QApplication management of posted events
+ *****************************************************************************/
+
+struct QPostEvent {
+    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
+   ~QPostEvent()			{ delete event; }
+    QObject  *receiver;
+    QEvent   *event;
+};
+
+typedef QList<QPostEvent> QPostEventList;
+typedef QListIterator<QPostEvent> QPostEventListIt;
+static QPostEventList *postedEvents = 0;	// list of posted events
+
+static void cleanupPostedEvents();
+
+/*!
+  Stores the event in a queue and returns immediately.
+
+  The event must be allocated on the heap, as it is deleted when the event
+  has been posted.
+
+  When control returns to the main event loop, all events that are
+  stored in the queue will be sent using the notify() function.
+
+  \sa sendEvent()
+*/
+
+void QApplication::postEvent( QObject *receiver, QEvent *event )
+{
+    if ( !postedEvents ) {			// create list
+	postedEvents = new QList<QPostEvent>;
+	CHECK_PTR( postedEvents );
+	postedEvents->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanupPostedEvents );
+    }
+    if ( receiver == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QApplication::postEvent: Unexpeced null receiver" );
+#endif
+	return;
+    }
+
+    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
+	// if this is a child remove event an the child insert hasn't been
+	// dispatched yet, kill that insert and return.
+	QObject * c = ((QChildEvent*)event)->child();
+	QPostEventListIt it( *postedEvents );
+	QPostEvent * pe;
+	while( ( pe = it.current()) != 0 ) {
+	    ++it;
+	    if ( pe->event && pe->receiver == receiver &&
+		 pe->event->type() == QEvent::ChildInserted &&
+		 ((QChildEvent*)pe->event)->child() == c ) {
+		postedEvents->take( postedEvents->findRef( pe ) );
+		pe->event->posted = FALSE;
+		delete pe;
+		delete event;
+		return;
+	    }
+	}
+    }
+    
+    receiver->pendEvent = TRUE;
+    event->posted = TRUE;
+    postedEvents->append( new QPostEvent(receiver,event) );
+}
+
+
+/*!  Dispatches all posted events. */
+void QApplication::sendPostedEvents()
+{
+    if ( !postedEvents )
+	return;
+    int abortAfter = 16*postedEvents->count();
+    QPostEventListIt it( * postedEvents );
+    QPostEvent *pe;
+    while ( (pe=it.current()) ) {
+	++it;
+	if ( pe->event &&
+	     ( pe->event->type() == QEvent::LayoutHint ||
+	       pe->event->type() == QEvent::ChildInserted ||
+	       pe->event->type() == QEvent::Move ||
+	       pe->event->type() == QEvent::Resize ) ) {
+	    // uglehack: get rid of this sort of event now, by calling
+	    // the more-specific function
+	    sendPostedEvents( pe->receiver, pe->event->type() );
+	} else {
+	    postedEvents->take( postedEvents->findRef( pe ) );
+	    QApplication::sendEvent( pe->receiver, pe->event );
+	    pe->event->posted = FALSE;
+	    delete pe;
+	}
+	if ( abortAfter-- < 1 )
+	    return; // if a posted events generates another, don't freeze.
+    }
+}
+
+
+/*!
+  Immediately dispatches all events which have been previously enqueued
+  with QApplication::postEvent() and which are for the object \a receiver
+  and have the \a event_type.
+
+  If \a receiver is 0, all objects get their events.  If \a event_type is
+  0, all types of events are dispatched.
+
+  Some event compression may occur.  Note that events from the
+  window system are \e not dispatched by this function.
+*/
+
+void QApplication::sendPostedEvents( QObject *receiver, int event_type )
+{
+    if ( !postedEvents )
+	return;
+    QPostEventListIt it(*postedEvents);
+    QPostEvent *pe;
+
+    // For accumulating compressed events
+    QPoint oldpos, newpos;
+    QSize oldsize, newsize;
+    bool first=TRUE;
+
+    while ( (pe = it.current()) ) {
+	++it;
+	
+	if ( pe->event && pe->receiver == receiver
+	     && pe->event->type() == event_type ) {
+	    postedEvents->take( postedEvents->findRef( pe ) );
+	    switch ( event_type ) {
+	    case QEvent::Move:
+		if ( first ) {
+		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
+		    first = FALSE;
+		}
+		newpos = ((QMoveEvent*)pe->event)->pos();
+		break;
+	    case QEvent::Resize:
+		if ( first ) {
+		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
+		    first = FALSE;
+		}
+		newsize = ((QResizeEvent*)pe->event)->size();
+		break;
+	    case QEvent::LayoutHint:
+		first = FALSE;
+		break;
+	    default:
+		sendEvent( receiver, pe->event );
+	    }
+	    pe->event->posted = FALSE;
+	    delete pe;
+	}
+    }
+
+    if ( !first ) {
+	if ( event_type == QEvent::LayoutHint ) {
+	    QEvent e( QEvent::LayoutHint );
+	    sendEvent( receiver, &e );
+	} else if ( event_type == QEvent::Move ) {
+	    QMoveEvent e(newpos, oldpos);
+	    sendEvent( receiver, &e );
+	} else if ( event_type == QEvent::Resize ) {
+	    QResizeEvent e(newsize, oldsize);
+	    sendEvent( receiver, &e );
+	}
+    }
+}
+
+
+static void cleanupPostedEvents()		// cleanup list
+{
+    delete postedEvents;
+    postedEvents = 0;
+}
+
+
+
+
+/*!  Removes all events posted using postEvent() for \a receiver.
+
+  The events are \e not dispatched, simply removed from the queue.
+  You should never need to call this function.
+*/
+
+void QApplication::removePostedEvents( QObject *receiver )
+{
+    if ( !postedEvents || !receiver || !receiver->pendEvent )
+	return;
+
+    QPostEventListIt it( *postedEvents );
+    QPostEvent * pe;
+    while( (pe = it.current()) != 0 ) {
+	++it;
+	if ( pe->receiver == receiver ) {
+	    postedEvents->take( postedEvents->findRef( pe ) );
+	    pe->event->posted = FALSE;
+	    delete pe;
+	}
+    }
+}
+
+
+/*!  Removes \a event from the queue of posted events, and emits a
+  warning message if appropriate.
+*/
+
+void QApplication::removePostedEvent( QEvent *  event )
+{
+    if ( !event || !event->posted || !postedEvents )
+	return;
+
+    QPostEventListIt it( *postedEvents );
+    QPostEvent * pe;
+    while( (pe = it.current()) != 0 ) {
+	++it;
+	if ( pe->event == event ) {
+	    postedEvents->take( postedEvents->findRef( pe ) );
+	    event->posted = FALSE;
+#if defined(DEBUG)
+	    const char *n = 0;
+	    switch ( event->type() ) {
+	    case QEvent::Timer:
+		n = "Timer";
+		break;
+	    case QEvent::MouseButtonPress:
+		n = "MouseButtonPress";
+		break;
+	    case QEvent::MouseButtonRelease:
+		n = "MouseButtonRelease";
+		break;
+	    case QEvent::MouseButtonDblClick:
+		n = "MouseButtonDblClick";
+		break;
+	    case QEvent::MouseMove:
+		n = "MouseMove";
+		break;
+	    case QEvent::Wheel:
+		n = "Wheel";
+		break;
+	    case QEvent::KeyPress:
+		n = "KeyPress";
+		break;
+	    case QEvent::KeyRelease:
+		n = "KeyRelease";
+		break;
+	    case QEvent::FocusIn:
+		n = "FocusIn";
+		break;
+	    case QEvent::FocusOut:
+		n = "FocusOut";
+		break;
+	    case QEvent::Enter:
+		n = "Enter";
+		break;
+	    case QEvent::Leave:
+		n = "Leave";
+		break;
+	    case QEvent::Paint:
+		n = "Paint";
+		break;
+	    case QEvent::Move:
+		n = "Move";
+		break;
+	    case QEvent::Resize:
+		n = "Resize";
+		break;
+	    case QEvent::Create:
+		n = "Create";
+		break;
+	    case QEvent::Destroy:
+		n = "Destroy";
+		break;
+	    case QEvent::Close:
+		n = "Close";
+		break;
+	    case QEvent::Quit:
+		n = "Quit";
+		break;
+	    default:
+		n = "<other>";
+		break;
+	    }
+	    warning( "QEvent: Warning: %s event deleted while posted to %s %s",
+		     n,
+		     pe->receiver ? pe->receiver->className() : "null ",
+		     pe->receiver ? pe->receiver->name() : "object" );
+	    // note the beautiful uglehack if !pe->receiver :)
+#endif
+	    delete pe;
+	    return;
+	}
+    }
 }

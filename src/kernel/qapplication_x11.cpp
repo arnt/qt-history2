@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#404 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#405 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -198,8 +198,6 @@ static bool	    popupGrabOk;
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
-
-static void	cleanupPostedEvents();
 
 static void	initTimers();
 static void	cleanupTimers();
@@ -867,7 +865,6 @@ void qt_init( Display *display )
 
 void qt_cleanup()
 {
-    cleanupPostedEvents();			// remove list of posted events
     if ( postRList ) {
 	VFPTR f = (VFPTR)postRList->first();
 	while ( f ) {				// call post routines
@@ -1489,232 +1486,6 @@ void QApplication::beep()
 
 
 /*****************************************************************************
-  QApplication management of posted events
- *****************************************************************************/
-
-class QPEObject : public QObject		// trick to set/clear pendEvent
-{
-public:
-    void setPendEventFlag()	{ pendEvent = TRUE; }
-};
-
-class QPEvent : public QEvent			// trick to set/clear posted
-{
-public:
-    QPEvent( Type type ) : QEvent( type ) {}
-    void setPostedFlag()	{ posted = TRUE; }
-    void clearPostedFlag()	{ posted = FALSE; }
-};
-
-struct QPostEvent {
-    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
-   ~QPostEvent()			{ delete event; }
-    QObject  *receiver;
-    QEvent   *event;
-};
-
-typedef QList<QPostEvent> QPostEventList;
-typedef QListIterator<QPostEvent> QPostEventListIt;
-static QPostEventList *postedEvents = 0;	// list of posted events
-
-
-/*!
-  Stores the event in a queue and returns immediately.
-
-  The event must be allocated on the heap, as it is deleted when the event
-  has been posted.
-
-  When control returns to the main event loop, all events that are
-  stored in the queue will be sent using the notify() function.
-
-  \sa sendEvent()
-*/
-
-void QApplication::postEvent( QObject *receiver, QEvent *event )
-{
-    if ( !postedEvents ) {			// create list
-	postedEvents = new QList<QPostEvent>;
-	CHECK_PTR( postedEvents );
-	postedEvents->setAutoDelete( TRUE );
-    }
-    if ( receiver == 0 ) {
-#if defined(CHECK_NULL)
-	warning( "QApplication::postEvent: Unexpeced null receiver" );
-#endif
-	return;
-    }
-    ((QPEObject*)receiver)->setPendEventFlag();
-    ((QPEvent*)event)->setPostedFlag();
-    postedEvents->append( new QPostEvent(receiver,event) );
-}
-
-void qt_x11SendPostedEvents()			// transmit posted events
-{
-    if ( !postedEvents )
-	return;
-    QPostEventListIt it(*postedEvents);
-    QPostEvent *pe;
-    while ( (pe=it.current()) ) {
-	++it;
-	postedEvents->take( postedEvents->findRef( pe ) );
-	if ( pe->event ) {
-	    if ( pe->event->type() == QEvent::LayoutHint ) {
-		// layout hints are idempotent and can cause quite
-		// expensive processing, so make sure to deliver just
-		// one per receiver.
-		QPostEventListIt it2( *postedEvents );
-		it2 = it;
-		++it2;
-		QPostEvent * pe2;
-		while ( (pe2=it2.current()) != 0 ) {
-		    ++it2;
-		    if ( pe2->event &&
-			 pe2->event->type() == QEvent::LayoutHint &&
-			 pe2->receiver == pe->receiver ) {
-			((QPEvent*)pe2->event)->clearPostedFlag();
-			postedEvents->removeRef( pe2 );
-		    }
-		}
-	    }
-	    QApplication::sendEvent( pe->receiver, pe->event );
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	}
-	delete pe;
-    }
-}
-
-
-/*!
-  Immediately dispatches all events which have been previously enqueued
-  with QApplication::postEvent() and which are for the object \a receiver
-  and have the \a event_type.
-
-  Some event compression may occur.  Note that events from the
-  window system are \e not dispatched by this function.
-*/
-void QApplication::sendPostedEvents( QObject *receiver, int event_type )
-{
-    if ( !postedEvents )
-	return;
-    QPostEventListIt it(*postedEvents);
-    QPostEvent *pe;
-
-    // For accumulating compressed events
-    QPoint oldpos, newpos;
-    QSize oldsize, newsize;
-    bool first=TRUE;
-
-    while ( (pe = it.current()) ) {
-	++it;
-	
-	if ( pe->event
-	     && pe->receiver == receiver
-	     && pe->event->type() == event_type )
-	    {
-		postedEvents->take( postedEvents->findRef( pe ) );
-		switch ( event_type ) {
-		case QEvent::Move:
-		    if ( first ) {
-			oldpos = ((QMoveEvent*)pe->event)->oldPos();
-			first = FALSE;
-		    }
-		    newpos = ((QMoveEvent*)pe->event)->pos();
-		    break;
-		case QEvent::Resize:
-		    if ( first ) {
-			oldsize = ((QResizeEvent*)pe->event)->oldSize();
-			first = FALSE;
-		    }
-		    newsize = ((QResizeEvent*)pe->event)->size();
-		    break;
-		default:
-		    sendEvent( receiver, pe->event );
-		}
-		((QPEvent*)pe->event)->clearPostedFlag();
-		delete pe;
-	    }
-    }
-    if ( !first ) {
-	// Got one
-	switch ( event_type ) {
-	case QEvent::Move:
-	    {
-		QMoveEvent e(newpos, oldpos);
-		sendEvent( receiver, &e );
-	    }
-	    break;
-	case QEvent::Resize:
-	    {
-		QResizeEvent e(newsize, oldsize);
-		sendEvent( receiver, &e );
-	    }
-	    break;
-	default:
-	    ; // Nothing
-	}
-    }
-}
-
-bool qRemovePostedChildEvent( QObject *child )
-{
-    if ( !postedEvents )
-	return FALSE;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->event->type() == QEvent::ChildInserted
-	    && ((QChildEvent*)(pe->event))->child() == child )
-	{
-    	    // remove this event
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    postedEvents->remove();
-	    return TRUE;
-	} else {
-	    pe = postedEvents->next();
-	}
-    }
-    return FALSE;
-}
-
-void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
-{
-    if ( !postedEvents )
-	return;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->receiver == receiver ||
-	    pe->event->type() == QEvent::ChildInserted
-	    && ((QChildEvent*)(pe->event))->child() == receiver )
-	{
-    	    // remove this receiver
-	    ((QPEvent*)pe->event)->clearPostedFlag();
-	    postedEvents->remove();
-	    pe = postedEvents->current();
-	} else {
-	    pe = postedEvents->next();
-	}
-    }
-}
-
-void qRemovePostedEvent( QEvent *event )	// remove event in list
-{
-    if ( !postedEvents )
-	return;
-    register QPostEvent *pe = postedEvents->first();
-    while ( pe ) {
-	if ( pe->event == event )		// make this event invalid
-	    pe->event = 0;			//   will not be sent!
-	pe = postedEvents->next();
-    }
-}
-
-static void cleanupPostedEvents()		// cleanup list
-{
-    delete postedEvents;
-    postedEvents = 0;
-}
-
-
-/*****************************************************************************
   Special lookup functions for windows that have been reparented recently
  *****************************************************************************/
 
@@ -1996,8 +1767,7 @@ bool QApplication::processNextEvent( bool canWait )
     XEvent event;
     int	   nevents = 0;
 
-    if ( postedEvents && postedEvents->count() )
-	qt_x11SendPostedEvents();
+    sendPostedEvents();
 
     while ( XPending(appDpy) ) {		// also flushes output buffer
 	if ( quit_now )				// quit between events
@@ -2012,9 +1782,11 @@ bool QApplication::processNextEvent( bool canWait )
     if ( quit_now || app_exit_loop )		// break immediately
 	return FALSE;
 
+    sendPostedEvents();
+
     static timeval zerotm;
     timeval *tm = qt_wait_timer();		// wait for timer or X event
-    if ( !canWait || postedEvents && postedEvents->count() ) {
+    if ( !canWait ) {
 	if ( !tm )
 	    tm = &zerotm;
 	tm->tv_sec  = 0;			// no time to wait

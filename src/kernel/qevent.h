@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#73 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#74 $
 **
 ** Definition of event classes
 **
@@ -75,15 +75,14 @@ public:
 	User = 1000				// first user event id
     };
 
-    QEvent( Type type )
-	: t(type), posted(FALSE) {}
-   ~QEvent()			{ if ( posted ) peErrMsg(); }
-    Type  type()	const	{ return t; }
+    QEvent( Type type ) : t(type), posted(FALSE) {}
+    virtual ~QEvent();
+    Type  type() const	{ return t; }
 protected:
     Type  t;
-    bool  posted;
 private:
-    void  peErrMsg();
+    bool  posted;
+    friend class QApplication;
 };
 
 

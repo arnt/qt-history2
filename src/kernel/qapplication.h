@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#99 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#100 $
 **
 ** Definition of QApplication class
 **
@@ -123,6 +123,9 @@ public:
 	{ return qApp->notify( receiver, event ); }
     static void	     postEvent( QObject *receiver, QEvent *event );
     static void	     sendPostedEvents( QObject *receiver, int event_type );
+    static void	     sendPostedEvents();
+
+    static void      removePostedEvents( QObject *receiver );
 
     virtual bool     notify( QObject *, QEvent * );
 
@@ -199,8 +202,11 @@ private:
     void	    openPopup( QWidget *popup );
     void	    noteTopLevel( QWidget* tlw );
 
+    static void	removePostedEvent( QEvent * );
+
     friend class QWidget;
     friend class QETWidget;
+    friend class QEvent;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
