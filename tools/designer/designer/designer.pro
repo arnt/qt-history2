@@ -110,7 +110,7 @@ include( ../../../src/qt_professional.pri )
 TARGET	= designer
 INCLUDEPATH	+= ../shared ../uilib ../../../src/3rdparty/zlib/
 DEPENDPATH	+= $(QTDIR)/include
-unix:LIBS	+= -L$(QTDIR)/lib -lqui
+unix:LIBS	+= -L$(QTDIR)/lib -lqui -lz
 win32:LIBS	+= $(QTDIR)/lib/qui.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
