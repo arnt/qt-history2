@@ -343,7 +343,6 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    } else {
 		return QString::null;
 	    }
-	    break;
 	}
     default:
     case Qt::TextDate:
@@ -355,7 +354,6 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    t.sprintf( " %d %d", d, y);
 	    buf += t;
 	    return buf;
-	    break;
 	}
     }
 }
