@@ -1152,7 +1152,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     }
 
     // and sort it.
-    qHeapSort( siblings, siblings+(nChildren-1) );
+    qHeapSort( siblings, siblings + nChildren );
 
     // build the linked list of siblings, in the appropriate
     // direction, and finally set this->childItem to the new top
