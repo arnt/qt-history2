@@ -28,20 +28,43 @@ typedef QValueList<MetaTranslatorMessage> TML;
 
 static void printUsage()
 {
-    qWarning( "Usage: lrelease [options] file.pro...\n"
+    fprintf( stderr, "Usage:\n"
+	      "    lrelease [ options ] project-file\n"
+	      "    lrelease [ options ] ts-files\n"
 	      "Options:\n"
-	      "    -help  Display this information and exits\n"
+	      "    -help  Display this information and exit\n"
 	      "    -verbose\n"
 	      "           Explain what is being done\n"
 	      "    -version\n"
-	      "           Display the version of lrelease and exits" );
+	      "           Display the version of lrelease and exit\n" );
+}
+
+static void releaseQmFile( const QString& tsFileName, bool verbose )
+{
+    MetaTranslator tor;
+    QString qmFileName = tsFileName;
+    qmFileName.replace( QRegExp(QString("\\.ts$")), QString::null );
+    qmFileName += QString( ".qm" );
+
+    if ( tor.load(tsFileName) ) {
+	if ( verbose )
+	    fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
+	if ( !tor.release(qmFileName, verbose) )
+	    fprintf( stderr,
+		     "lrelease warning: For some reason, I cannot save '%s'\n",
+		     qmFileName.latin1() );
+    } else {
+	fprintf( stderr,
+		 "lrelease warning: For some reason, I cannot load '%s'\n",
+		 tsFileName.latin1() );
+    }
 }
 
 int main( int argc, char **argv )
 {
     bool verbose = FALSE;
     bool metTranslations = FALSE;
-    int numProFiles = 0;
+    int numFiles = 0;
 
     for ( int i = 1; i < argc; i++ ) {
 	if ( qstrcmp(argv[i], "-help") == 0 ) {
@@ -51,15 +74,16 @@ int main( int argc, char **argv )
 	    verbose = TRUE;
 	    continue;
 	} else if ( qstrcmp(argv[i], "-version") == 0 ) {
-	    qWarning( "lrelease version %s", QT_VERSION_STR );
+	    fprintf( stderr, "lrelease version %s\n", QT_VERSION_STR );
 	    return 0;
 	}
 
-	numProFiles++;
+	numFiles++;
 	QFile f( argv[i] );
 	if ( !f.open(IO_ReadOnly) ) {
-	    qWarning( "lrelease error: Cannot open project file '%s': %s",
-		      argv[i], strerror(errno) );
+	    fprintf( stderr,
+		     "lrelease error: Cannot open file '%s': %s\n", argv[i],
+		     strerror(errno) );
 	    return 1;
 	}
 
@@ -67,42 +91,32 @@ int main( int argc, char **argv )
 	QString fullText = t.read();
 	f.close();
 
-	QMap<QString, QString> tagMap = proFileTagMap( fullText );
-	QMap<QString, QString>::Iterator it;
+	if ( fullText.find(QString("<!DOCTYPE TS>")) == -1 ) {
+	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
+	    QMap<QString, QString>::Iterator it;
 
-	for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-            QStringList toks = QStringList::split( QChar(' '), it.data() );
-	    QStringList::Iterator t;
+	    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+        	QStringList toks = QStringList::split( QChar(' '), it.data() );
+		QStringList::Iterator t;
 
-            for ( t = toks.begin(); t != toks.end(); ++t ) {
-		if ( it.key() == QString("TRANSLATIONS") ) {
-		    metTranslations = TRUE;
-
-		    MetaTranslator tor;
-		    QString f = *t;
-		    QString g = *t;
-		    g.replace( QRegExp(QString(".ts$")), QString("") );
-		    g += QString( ".qm" );
-
-		    if ( tor.load(f) ) {
-			if ( verbose )
-			    qWarning( "Updating '%s'...", g.latin1() );
-			if ( !tor.release(g, verbose) )
-			    qWarning( "lrelease warning: For some reason, I"
-				      " cannot save '%s'", g.latin1() );
-		    } else {
-			qWarning( "lrelease warning: For some reason, I"
-				  " cannot load '%s'", f.latin1() );
+        	for ( t = toks.begin(); t != toks.end(); ++t ) {
+		    if ( it.key() == QString("TRANSLATIONS") ) {
+			metTranslations = TRUE;
+			releaseQmFile( *t, verbose );
 		    }
 		}
 	    }
+	    if ( !metTranslations )
+		fprintf( stderr,
+			 "lrelease warning: Met no 'TRANSLATIONS' entry in"
+			 " project file '%s'\n",
+			 argv[i] );
+	} else {
+	    releaseQmFile( QString(argv[i]), verbose );
 	}
-	if ( !metTranslations )
-	    qWarning( "lrelease warning: Met no 'TRANSLATIONS' entry in"
-		      " project file '%s'", argv[i] );
     }
 
-    if ( numProFiles == 0 ) {
+    if ( numFiles == 0 ) {
 	printUsage();
 	return 1;
     }

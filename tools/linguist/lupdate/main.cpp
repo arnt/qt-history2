@@ -38,23 +38,60 @@ typedef QValueList<MetaTranslatorMessage> TML;
 
 static void printUsage()
 {
-    qWarning( "Usage: lupdate [options] file.pro...\n"
-	      "Options:\n"
-	      "    -help  Display this information and exits\n"
-	      "    -noobsolete\n"
-	      "           Drop all obsolete strings\n"
-	      "    -verbose\n"
-	      "           Explain what is being done\n"
-	      "    -version\n"
-	      "           Display the version of lupdate and exits" );
+    fprintf( stderr, "Usage:\n"
+	     "    lupdate [ options ] project-file\n"
+	     "    lupdate [ options ] source-files -ts ts-files\n"
+	     "Options:\n"
+	     "    -help  Display this information and exit\n"
+	     "    -noobsolete\n"
+	     "           Drop all obsolete strings\n"
+	     "    -verbose\n"
+	     "           Explain what is being done\n"
+	     "    -version\n"
+	     "           Display the version of lupdate and exit\n" );
+}
+
+static void updateTsFiles( const MetaTranslator& fetchedTor,
+			   const QStringList& tsFileNames, const QString& codec,
+			   bool noObsolete, bool verbose )
+{
+    QStringList::ConstIterator t = tsFileNames.begin();
+    while ( t != tsFileNames.end() ) {
+	MetaTranslator tor;
+	tor.load( *t );
+	if ( !codec.isEmpty() )
+	    tor.setCodec( codec );
+	if ( verbose )
+	    fprintf( stderr, "Updating '%s'...\n", (*t).latin1() );
+	merge( &tor, &fetchedTor, verbose );
+	if ( noObsolete )
+	    tor.stripObsoleteMessages();
+	tor.stripEmptyContexts();
+	if ( !tor.save(*t) )
+	    fprintf( stderr, "lupdate error: Cannot save '%s': %s\n",
+		     (*t).latin1(), strerror(errno) );
+	++t;
+    }
 }
 
 int main( int argc, char **argv )
 {
+    QString defaultContext( "@default" );
+    MetaTranslator fetchedTor;
+    QCString codec;
+    QStringList tsFileNames;
+
     bool verbose = FALSE;
     bool noObsolete = FALSE;
     bool metSomething = FALSE;
-    int numProFiles = 0;
+    int numFiles = 0;
+    bool standardSyntax = TRUE;
+    bool metTsFlag = FALSE;
+
+    for ( int i = 1; i < argc; i++ ) {
+	if ( qstrcmp(argv[i], "-ts") == 0 )
+	    standardSyntax = FALSE;
+    }
 
     for ( int i = 1; i < argc; i++ ) {
 	if ( qstrcmp(argv[i], "-help") == 0 ) {
@@ -67,80 +104,97 @@ int main( int argc, char **argv )
 	    verbose = TRUE;
 	    continue;
 	} else if ( qstrcmp(argv[i], "-version") == 0 ) {
-	    qWarning( "lupdate version %s", QT_VERSION_STR );
+	    fprintf( stderr, "lupdate version %s\n", QT_VERSION_STR );
 	    return 0;
+	} else if ( qstrcmp(argv[i], "-ts") == 0 ) {
+	    metTsFlag = TRUE;
+	    continue;
 	}
 
-	numProFiles++;
-	QFile f( argv[i] );
-	if ( !f.open(IO_ReadOnly) ) {
-	    qWarning( "lupdate error: Cannot open project file '%s': %s",
-		      argv[i], strerror(errno) );
-	    return 1;
+	numFiles++;
+
+	QString fullText;
+
+	if ( !metTsFlag ) {
+	    QFile f( argv[i] );
+	    if ( !f.open(IO_ReadOnly) ) {
+		fprintf( stderr, "lupdate error: Cannot open file '%s': %s\n",
+			 argv[i], strerror(errno) );
+		return 1;
+	    }
+
+	    QTextStream t( &f );
+	    fullText = t.read();
+	    f.close();
 	}
 
-	QTextStream t( &f );
-	QString fullText = t.read();
-	f.close();
+	if ( standardSyntax ) {
+	    fetchedTor = MetaTranslator();
+	    codec.truncate( 0 );
+	    tsFileNames.clear();
 
-	MetaTranslator fetchedTor;
-	QString defaultContext = "@default";
-	QCString codec;
-	QStringList translatorFiles;
-	QStringList::Iterator tf;
+	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
+	    QMap<QString, QString>::Iterator it;
 
-	QMap<QString, QString> tagMap = proFileTagMap( fullText );
-	QMap<QString, QString>::Iterator it;
+	    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+        	QStringList toks = QStringList::split( QChar(' '), it.data() );
+		QStringList::Iterator t;
 
-	for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-            QStringList toks = QStringList::split( QChar(' '), it.data() );
-	    QStringList::Iterator t;
-
-            for ( t = toks.begin(); t != toks.end(); ++t ) {
-                if ( it.key() == QString("HEADERS") ||
-                     it.key() == QString("SOURCES") ) {
-                    fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
-                    metSomething = TRUE;
-                } else if ( it.key() == QString("INTERFACES") ||
-			    it.key() == QString("FORMS") ) {
-                    fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
-		    fetchtr_cpp( *t + QString(".h"), &fetchedTor,
-				 defaultContext, FALSE );
-                    metSomething = TRUE;
-                } else if ( it.key() == QString("TRANSLATIONS") ) {
-                    translatorFiles.append( *t );
-                    metSomething = TRUE;
-                } else if ( it.key() == QString("CODEC") ) {
-                    codec = (*t).latin1();
-                }
+        	for ( t = toks.begin(); t != toks.end(); ++t ) {
+                    if ( it.key() == QString("HEADERS") ||
+                	 it.key() == QString("SOURCES") ) {
+                	fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
+                	metSomething = TRUE;
+                    } else if ( it.key() == QString("INTERFACES") ||
+				it.key() == QString("FORMS") ) {
+                	fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
+			fetchtr_cpp( *t + QString(".h"), &fetchedTor,
+				     defaultContext, FALSE );
+                	metSomething = TRUE;
+                    } else if ( it.key() == QString("TRANSLATIONS") ) {
+                	tsFileNames.append( *t );
+                	metSomething = TRUE;
+                    } else if ( it.key() == QString("CODEC") ) {
+                	codec = (*t).latin1();
+                    }
+        	}
             }
-        }
 
-	for ( tf = translatorFiles.begin(); tf != translatorFiles.end(); ++tf ) {
-	    MetaTranslator tor;
-	    tor.load( *tf );
-	    if ( !codec.isEmpty() )
-		tor.setCodec( codec );
-	    if ( verbose )
-		qWarning( "Updating '%s'...", (*tf).latin1() );
-	    merge( &tor, &fetchedTor, verbose );
-	    if ( noObsolete )
-		tor.stripObsoleteMessages();
-	    tor.stripEmptyContexts();
-	    if ( !tor.save(*tf) )
-		qWarning( "lupdate error: Cannot save '%s': %s", (*tf).latin1(),
-			  strerror(errno) );
-	}
-	if ( !metSomething ) {
-	    qWarning( "lupdate warning: File '%s' does not look like a project"
-		      " file", argv[i] );
-	} else if ( translatorFiles.isEmpty() ) {
-	    qWarning( "lupdate warning: Met no 'TRANSLATIONS' entry in project"
-		      " file '%s'", argv[i] );
+	    updateTsFiles( fetchedTor, tsFileNames, codec, noObsolete,
+			   verbose );
+
+	    if ( !metSomething ) {
+		fprintf( stderr,
+			 "lupdate warning: File '%s' does not look like a"
+			 " project file\n",
+			 argv[i] );
+	    } else if ( tsFileNames.isEmpty() ) {
+		fprintf( stderr,
+			 "lupdate warning: Met no 'TRANSLATIONS' entry in"
+			 " project file '%s'\n",
+			 argv[i] );
+	    }
+	} else {
+	    if ( metTsFlag ) {
+		tsFileNames.append( QString(argv[i]) );
+	    } else {
+		if ( fullText.find(QString("<!DOCTYPE UI>")) == -1 ) {
+        	    fetchtr_cpp( QString(argv[i]), &fetchedTor, defaultContext,
+				 TRUE );
+		} else {
+        	    fetchtr_ui( QString(argv[i]), &fetchedTor, defaultContext,
+				TRUE );
+		    fetchtr_cpp( QString(argv[i]) + QString(".h"), &fetchedTor,
+				 defaultContext, FALSE );
+		}
+	    }
 	}
     }
 
-    if ( numProFiles == 0 ) {
+    if ( !standardSyntax )
+	updateTsFiles( fetchedTor, tsFileNames, codec, noObsolete, verbose );
+
+    if ( numFiles == 0 ) {
 	printUsage();
 	return 1;
     }

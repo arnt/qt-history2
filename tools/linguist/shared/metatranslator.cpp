@@ -175,7 +175,7 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
 		     exception.lineNumber(), exception.columnNumber(),
 		     exception.message().latin1() );
 	if ( qApp == 0 )
-	    qWarning( "XML error: %s", msg.latin1() );
+	    fprintf( stderr, "XML error: %s\n", msg.latin1() );
 	else
 	    QMessageBox::information( qApp->mainWidget(),
 				      QObject::tr("Qt Linguist"), msg );
@@ -406,8 +406,9 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 
     bool saved = tor.save( filename, QTranslator::Stripped );
     if ( saved && verbose )
-	qWarning( " %d finished, %d unfinished and %d untranslated messages",
-		  finished, unfinished, untranslated );
+	fprintf( stderr,
+		 " %d finished, %d unfinished and %d untranslated messages\n",
+		 finished, unfinished, untranslated );
 		
     return saved;
 }

@@ -184,9 +184,10 @@ static int getToken()
 		    while ( !metAsterSlash ) {
 			yyCh = getChar();
 			if ( yyCh == EOF ) {
-			    qWarning( "%s: Unterminated C++ comment starting at"
-				      " line %d", (const char *) yyFileName,
-				      yyLineNo );
+			    fprintf( stderr,
+				     "%s: Unterminated C++ comment starting at"
+				     " line %d\n",
+				     (const char *) yyFileName, yyLineNo );
 			    yyComment[yyCommentLen] = '\0';
 			    return Tok_Comment;
 			}
@@ -250,8 +251,8 @@ static int getToken()
 		yyString[yyStringLen] = '\0';
 
 		if ( yyCh != '"' )
-		    qWarning( "%s: Unterminated C++ string on line %d",
-			      (const char *) yyFileName, yyLineNo );
+		    fprintf( stderr, "%s: Unterminated C++ string on line %d\n",
+			     (const char *) yyFileName, yyLineNo );
 
 		if ( yyCh == EOF ) {
 		    return Tok_Eof;
@@ -512,11 +513,15 @@ static void parse( MetaTranslator *tor, const char *initialContext,
     }
 
     if ( yyBraceDepth != 0 )
-	qWarning( "%s: Unbalanced braces in C++ code (or abuse of the C++"
-		  " preprocessor)", (const char *) yyFileName );
+	fprintf( stderr,
+		 "%s: Unbalanced braces in C++ code (or abuse of the C++"
+		  " preprocessor)\n",
+		  (const char *) yyFileName );
     if ( yyParenDepth != 0 )
-	qWarning( "%s: Unbalanced parentheses in C++ code (or abuse of the C++"
-		  " preprocessor)", (const char *) yyFileName );
+	fprintf( stderr,
+		 "%s: Unbalanced parentheses in C++ code (or abuse of the C++"
+		 " preprocessor)\n",
+		 (const char *) yyFileName );
 }
 
 void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
@@ -525,8 +530,9 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
     yyInFile = fopen( fileName, "r" );
     if ( yyInFile == 0 ) {
 	if ( mustExist )
-	    qWarning( "lupdate error: cannot open C++ source file '%s': %s",
-		      fileName, strerror(errno) );
+	    fprintf( stderr,
+		     "lupdate error: cannot open C++ source file '%s': %s\n",
+		     fileName, strerror(errno) );
 	return;
     }
 
@@ -624,7 +630,7 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
     msg.sprintf( "Parse error at line %d, column %d (%s).",
 		 exception.lineNumber(), exception.columnNumber(),
 		 exception.message().latin1() );
-    qWarning( "XML error: %s", msg.latin1() );
+    fprintf( stderr, "XML error: %s\n", msg.latin1() );
     return FALSE;
 }
 
@@ -644,8 +650,8 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
     QFile f( fileName );
     if ( !f.open(IO_ReadOnly) ) {
 	if ( mustExist )
-	    qWarning( "lupdate error: cannot open UI file '%s': %s", fileName,
-		      strerror(errno) );
+	    fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
+		     fileName, strerror(errno) );
 	return;
     }
 
@@ -661,7 +667,7 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
     reader.setErrorHandler( hand );
 
     if ( !reader.parse(in) )
-	qWarning( "%s: Parse error in UI file", fileName );
+	fprintf( stderr, "%s: Parse error in UI file\n", fileName );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
     delete hand;

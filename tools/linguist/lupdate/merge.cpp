@@ -105,6 +105,6 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
     applyNumberHeuristic( tor, verbose );
 
     if ( verbose )
-	qWarning( " %d known, %d new and %d obsoleted messages",
-		  known, neww, obsoleted );
+	fprintf( stderr, " %d known, %d new and %d obsoleted messages\n", known,
+		 neww, obsoleted );
 }

@@ -225,6 +225,6 @@ void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
 	}
     }
     if ( verbose && inserted != 0 )
-	qWarning( " number heuristic provided %d translation%s",
-		  inserted, inserted == 1 ? "" : "s" );
+	fprintf( stderr, " number heuristic provided %d translation%s\n",
+		 inserted, inserted == 1 ? "" : "s" );
 }

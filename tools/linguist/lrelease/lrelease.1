@@ -1,4 +1,4 @@
-.TH lrelease 1 "9 September 2001" "Trolltech AS" \" -*- nroff -*-
+.TH lrelease 1 "18 October 2001" "Trolltech AS" \" -*- nroff -*-
 .\"
 .\" Copyright 2001 Trolltech AS.  All rights reserved.
 .\"
@@ -9,13 +9,16 @@
 lrelease \- generate Qt message files from Qt Linguist translation files
 .SH SYNOPSIS
 .B lrelease
-[options] project-file
+.RI "[ " options " ] " project-file
+.br
+.B lrelease
+.RI "[ " options " ] " ts-files
 .SH DESCRIPTION
 This page documents the
 .B Qt Linguist Release
-tool for the Qt GUI application framework.
+tool for the Qt GUI toolkit.
 .B Lrelease
-reads a tmake/qmake project file (.pro file) and converts the
+reads a qmake/tmake project file (.pro file) and converts the
 translation files (.ts files) specified in it into Qt message files
 (.qm files) used by the application to translate.
 .PP
@@ -58,6 +61,15 @@ on this project file, the Qt message files gnomovision_dk.qm,
 gnomovision_fi.qm, gnomovision_no.qm and gnomovision_se.qm will be
 generated from gnomovision_dk.ts, gnomovision_fi.ts,
 gnomovision_no.ts and gnomovision_se.ts, respectively.
+.PP
+.B Lrelease
+can also be invoked with a list of .ts files to convert:
+.PP
+.in +4
+.nf
+lrelease gnomovision_*.ts
+.fi
+.in -4
 .SH "SEE ALSO"
 .BR lupdate (1)
 and
