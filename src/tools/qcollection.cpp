@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#22 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -47,8 +47,16 @@
 
 /*!
   \fn QCollection::QCollection()
-  Constructs a collection. The constructor is protected because QCollection
-  is an abstract class.
+
+  Constructs a collection. The constructor is protected because
+  QCollection is an abstract class.
+*/
+
+/*!
+  \fn QCollection::QCollection( const QCollection & source )
+
+  Constructs a copy of \a source with autoDelete() set to FALSE. The
+  constructor is protected because QCollection is an abstract class.
 */
 
 /*!

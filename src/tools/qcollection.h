@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#11 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#12 $
 **
 ** Definition of base class for all collection classes
 **
@@ -48,6 +48,7 @@ public:
 
 protected:
     QCollection() { del_item = FALSE; }		// no deletion of objects
+    QCollection(const QCollection &) { del_item = FALSE; }
     virtual ~QCollection() {}
 
     bool del_item;				// default FALSE
