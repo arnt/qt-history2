@@ -190,7 +190,7 @@ struct XPThemeData
 	    htheme = handleMap->operator[]( name );
 
         if ( !htheme ) {
-            htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), name.ucs2() );
+            htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), (TCHAR*)name.ucs2() );
 	    if ( htheme ) {
 		if ( !handleMap )
 		    handleMap = new QMap<QString, HTHEME>;
