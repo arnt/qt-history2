@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#1 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#2 $
 **
 ** Definition of QBuffer class
 **
@@ -13,11 +13,11 @@
 #ifndef QBUFFER_H
 #define QBUFFER_H
 
-#include "qstream.h"
+#include "qiodev.h"
 #include "qstring.h"
 
 
-class QBuffer : public QStream			// buffer class
+class QBuffer : public QIODevice		// buffer I/O device class
 {
 public:
     QBuffer();
@@ -27,16 +27,16 @@ public:
     QByteArray buffer() const { return a; }	// get buffer
     bool  setBuffer( QByteArray );		// set buffer
 
-    bool  open( int );				// open buffer in Stream_Mode
-    bool  close();				// close buffer
-    bool  flush();				// flush buffer
+    bool  open( int );				// open buffer
+    void  close();				// close buffer
+    void  flush();				// flush buffer
 
-    long  size();				// get buffer size
-    long  at()	{ return ptr; }			// get buffer pointer
-    bool  at( long );				// set buffer pointer
+    long  size() const { return a.size(); }	// get buffer size
+    long  at()	 const { return index; }	// get buffer index
+    bool  at( long );				// set buffer index
 
-    QStream& _read( char *p, uint len );	// read data from buffer
-    QStream& _write( const char *p, uint len ); // write data into buffer
+    int   readBlock( char *p, uint uint );
+    int   writeBlock( const char *p, uint uint );
 
     int	  getch();				// get next char
     int	  putch( int );				// put char

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#1 $
+** $Id: //depot/qt/main/src/tools/qfile.h#2 $
 **
 ** Definition of QFile class
 **
@@ -13,34 +13,41 @@
 #ifndef QFILE_H
 #define QFILE_H
 
-#include "qstream.h"
+#include "qiodev.h"
 #include "qstring.h"
 #include <stdio.h>
 
 
-class QFile : public QStream			// file class
+class QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();
     QFile( const char *fileName );
    ~QFile();
 
-    static bool exists( const char *fileName ); // test if file exists
+    char *fileName() const { return fn.data(); }// get file name
+    bool  setFileName( const char *fileName );	// set file name
 
-    bool  file( const char *fileName );		// set file name
+    static bool exists( const char *fileName ); // test if file exists
+    bool  exists()	  const;
+    bool  isRegular()     const;
+    bool  isDirectory()	  const;
+    bool  isSymLink()	  const;
+
     bool  remove( const char *fileName=0 );	// remove file
 
     bool  open( int );				// open file
     bool  open( int, FILE * );			// open file, using file handle
-    bool  close();				// close file
-    bool  flush();				// flush file
+    bool  open( int, int );			// open file, using file descr
+    void  close();				// close file
+    void  flush();				// flush file
 
-    long  size();				// get file size
-    long  at();					// get file pointer
+    long  size() const;				// get file size
+    long  at()   const;				// get file pointer
     bool  at( long );				// set file pointer
 
-    QStream& _read( char *p, uint len );	// read data from file
-    QStream& _write( const char *p, uint len ); // write data to file
+    int   readBlock( char *data, uint len );
+    int   writeBlock( const char *data, uint len );
 
     int	  getch();				// get next char
     int	  putch( int );				// put char
@@ -49,7 +56,12 @@ public:
 protected:
     QString  fn;				// file name
     FILE    *fh;				// file handle
+    int	     fd;				// file descriptor (raw)
     long     length;				// file length
+
+private:
+    void  init();   
+    long  get_stat( bool=FALSE ) const;
 };
 
 
