@@ -24,7 +24,7 @@ class QPainterPathPrivate
     Q_DECLARE_PUBLIC(QPainterPath);
 public:
     QPainterPathPrivate(QPainterPath *path) :
-        q_ptr(path), fillMode(QPainterPath::OddEven), cStart(0)
+        q_ptr(path), cStart(0), fillMode(QPainterPath::OddEven)
     {
     }
 

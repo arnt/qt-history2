@@ -862,8 +862,6 @@ QPolygon qt_reversed_polygon(const QPolygon &p)
 
 QPainterPath QPainterPathStroker::createStroke() const
 {
-    Q_UNUSED(penStyle);
-    Q_UNUSED(capStyle);
 #ifdef QPP_STROKE_DEBUG
     printf("QPainterPathPrivate::createStroke()\n");
 #endif
