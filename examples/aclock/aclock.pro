@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= aclock
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
