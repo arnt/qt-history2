@@ -89,19 +89,16 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
     switch (pe) {
     case PE_HeaderSection:
 	{
-	    // I don't know why, but for some reason the qheader is passed
-	    // sunken.  So flip the bits, to be consistent with the Bevel
-	    // Buttons..
-	    QColorGroup myCG = cg;
-	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
-	    myCG.setBrush( QColorGroup::Mid, fill );
+	    // adjust the sunken flag...
 	    if ( flags & Style_Sunken )
 		flags ^= Style_Sunken;
-	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
+	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, data );
 	    break;
 	}
     case PE_ButtonTool:
 	{
+	    // tool buttons don't change color when pushed in platinum,
+	    // so we need to make the mid and button color the same
 	    QColorGroup myCG = cg;
 	    QBrush fill;
 	
@@ -576,39 +573,43 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
     case PE_ScrollBarAddLine:
-	drawPrimitive( PE_ButtonBevel, p, r, cg,
-		       (flags & Style_Enabled) | ((flags & Style_Down)
-						  ? Style_Sunken
-						  : Style_Raised) );
-	p->setPen( cg.shadow() );
-	p->drawRect( r );
-	drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowRight
-			: PE_ArrowDown), p, QRect(r.x() + 2,
-						  r.y() + 2,
-						  r.width() - 4,
-						  r.height() - 4), cg, flags );
-	break;
-    case PE_ScrollBarSubLine:
-	drawPrimitive( PE_ButtonBevel, p, r, cg,
-		       (flags & Style_Enabled) | ((flags & Style_Down)
-						  ? Style_Sunken
-						  : Style_Raised) );
-	p->setPen( cg.shadow() );
-	p->drawRect( r );
-	drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowLeft
-			: PE_ArrowUp ), p, QRect(r.x() + 2,
-						   r.y() + 2,
-						   r.width() - 4,
-						   r.height() - 4),
-		       cg, flags );
-	break;
-    case PE_ScrollBarAddPage:
-    case PE_ScrollBarSubPage:
 	{
 	    QColorGroup myCG = cg;
-	    // shows a drawing error, comment for now...
-//  	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
-//  	    myCG.setBrush( QColorGroup::Mid, fill );
+	    drawPrimitive( PE_ButtonBevel, p, r, myCG,
+			   (flags & Style_Enabled) | ((flags & Style_Down)
+						      ? Style_Sunken
+						      : Style_Raised) );
+	    p->setPen( cg.shadow() );
+	    p->drawRect( r );
+	    drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowRight
+			    : PE_ArrowDown), p, QRect(r.x() + 2,
+						      r.y() + 2,
+						      r.width() - 4,
+						      r.height() - 4),
+			   myCG, flags );
+	    break;
+	}
+    case PE_ScrollBarSubLine:
+	{
+	    QColorGroup myCG = cg;
+	    drawPrimitive( PE_ButtonBevel, p, r, myCG,
+			   (flags & Style_Enabled) | ((flags & Style_Down)
+						      ? Style_Sunken
+						      : Style_Raised) );
+	    p->setPen( cg.shadow() );
+	    p->drawRect( r );
+	    drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowLeft
+			    : PE_ArrowUp ), p, QRect(r.x() + 2,
+						     r.y() + 2,
+						     r.width() - 4,
+						     r.height() - 4),
+			   myCG, flags );
+	    break;
+	}
+	case PE_ScrollBarAddPage:
+	case PE_ScrollBarSubPage:
+	{
+	    QColorGroup myCG = cg;
  	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {
 		p->fillRect( r, myCG.brush(QColorGroup::Mid) );
@@ -625,7 +626,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
 		    p->setPen( myCG.shadow());
 		    p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
-
+		
 		    p->setPen( myCG.mid().dark());
 		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 1,
 				 r.y() + 1 );
@@ -1091,7 +1092,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 			wi = 7;
 			he = slide->height();		
 		    }
-		    
+		
 		    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Dark ));
 		    // the dark side
 		    p->setPen( cg.dark() );
@@ -1313,9 +1314,9 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    case SC_ScrollBarSubPage:
 		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( 0, 0, sliderStart, sbextent );
+		    rect.setRect( 1, 0, sliderStart, sbextent );
 		else
-		    rect.setRect( 0, 0, sbextent, sliderStart );
+		    rect.setRect( 0, 1, sbextent, sliderStart );
 		break;
 	    case SC_ScrollBarAddPage:
 		if ( sb->orientation() == Qt::Horizontal )
@@ -1328,15 +1329,15 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    case SC_ScrollBarGroove:
 		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( 0, 0, sb->width() - sbextent * 2,
+		    rect.setRect( 1, 0, sb->width() - sbextent * 2,
 				  sb->height() );
 		else
-		    rect.setRect( 0, 0, sb->width(),
+		    rect.setRect( 0, 1, sb->width(),
 				  sb->height() - sbextent * 2 );
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							  sc, data );
+							      sc, data );
 		break;
 	    }
 	    break;
