@@ -701,7 +701,7 @@ foreach (@modules_to_sync) {
 
 			    #deal with the install file
 			    if($public_header) {
-				my $install_iheader = substr($iheader, length($current_dir)+1);
+				my $install_iheader = fixPaths($iheader, "$includedir/src/$lib");
 				foreach(@classes) {
 				    $install_classes .= " \\\n  \$\$quote(\"" .
 					(length($install_classes) ? "\\n\\t" : "") .
