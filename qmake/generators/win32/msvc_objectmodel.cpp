@@ -1642,7 +1642,7 @@ VCResourceCompilerTool::VCResourceCompilerTool()
         IgnoreStandardIncludePath(unset),
         ShowProgress(linkProgressNotSet)
 {
-    PreprocessorDefinitions = "NDEBUG";
+    PreprocessorDefinitions = QStringList("NDEBUG");
 }
 
 XmlOutput &operator<<(XmlOutput &xml, const VCResourceCompilerTool &tool)
@@ -1781,7 +1781,7 @@ void VCFilter::addMOCstage(const VCFilterFile &file, bool hdr)
     QString mocApp = Project->var("QMAKE_MOC");
     CustomBuildTool.CommandLine += (mocApp + " " + customMocArguments + " "
 				+ filename + " -o " + mocOutput);
-    CustomBuildTool.AdditionalDependencies = mocApp;
+    CustomBuildTool.AdditionalDependencies = QStringList(mocApp);
     CustomBuildTool.Outputs += mocOutput;
 }
 
@@ -1797,7 +1797,7 @@ void VCFilter::modifyPCHstage(QString str)
     // Setup PCH options
     CompilerTool.UsePrecompiledHeader     = (isCFile ? pchNone : pchCreateUsingSpecific);
     CompilerTool.PrecompiledHeaderThrough = "$(NOINHERIT)";
-    CompilerTool.ForcedIncludeFiles       = "$(NOINHERIT)";
+    CompilerTool.ForcedIncludeFiles       = QStringList("$(NOINHERIT)");
 }
 
 bool VCFilter::addExtraCompiler(const VCFilterFile &info)

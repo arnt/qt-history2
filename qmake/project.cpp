@@ -41,7 +41,7 @@ struct parser_info {
 
 static QString remove_quotes(QString arg)
 {
-    if(arg.size() >= 2 && 
+    if(arg.size() >= 2 &&
        (arg.at(0) == '\'' || arg.at(0) == '"') && arg.at(arg.length()-1) == arg.at(0))
         return arg.mid(1, arg.length()-2);
     return arg;
@@ -113,11 +113,11 @@ bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, QString &func
     p->variables()["ARGS"] = args;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
-        p->variables()[QString::number(i+1)] = args[i];
+        p->variables()[QString::number(i+1)] = QStringList(args[i]);
     }
     bool ret = ParsableBlock::eval(p);
     functionReturn = return_value;
-    for(int i = 0; i < va.count(); i++) 
+    for(int i = 0; i < va.count(); i++)
         p->variables()[QString::number(i+1)] = va[i];
     p->variables()["ARG_COUNT"] = args_old; //just to be carefull
 
@@ -174,9 +174,9 @@ bool IteratorBlock::exec(QMakeProject *p)
         if(!variable.isEmpty()) {
             va = p->variables()[variable];
             if(loop_forever)
-                p->variables()[variable] = QString::number(iterate_count);
+                p->variables()[variable] = QStringList(QString::number(iterate_count));
             else
-                p->variables()[variable] = (*it);
+                p->variables()[variable] = QStringList(*it);
         }
         //do the iterations
         bool succeed = true;
@@ -188,7 +188,7 @@ bool IteratorBlock::exec(QMakeProject *p)
             if(!succeed)
                 break;
         }
-        if(succeed) 
+        if(succeed)
             ret = ParsableBlock::eval(p);
         //restore the variable in the map
         if(!variable.isEmpty())
@@ -331,7 +331,7 @@ static QStringList split_arg_list(QString params)
             last = x+1;
         }
     }
-    for(int i = 0; i < args.count(); i++) 
+    for(int i = 0; i < args.count(); i++)
         args[i] = remove_quotes(args[i]);
     return args;
 }
@@ -525,7 +525,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         }
 
         if(quote) {
-            if(*d == quote) 
+            if(*d == quote)
                 quote = 0;
         } else if(*d == '(') {
             ++parens;
@@ -572,7 +572,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         }
                         QString func = comp_scope.left(lparen);
                         QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
-                        for(int i = 0; i < args.size(); ++i) 
+                        for(int i = 0; i < args.size(); ++i)
                             args[i] = remove_quotes(args[i].trimmed());
                         if(function) {
                             fprintf(stderr, "%s:%d: No tests can come after a function definition!\n",
@@ -632,7 +632,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             test = !invert_test;
                         } else if(func == "defineTest" || func == "defineReplace") {
                             if(!function_blocks.isEmpty()) {
-                                fprintf(stderr, 
+                                fprintf(stderr,
                                         "%s:%d: cannot define a function within another definition.\n",
                                         parser.file.latin1(), parser.line_no);
                                 return false;
@@ -912,7 +912,7 @@ QMakeProject::read(uchar cmd)
         base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
         base_vars["QMAKE_EXT_H"] = Option::h_ext;
         if(!Option::user_template_prefix.isEmpty())
-            base_vars["TEMPLATE_PREFIX"] = Option::user_template_prefix;
+            base_vars["TEMPLATE_PREFIX"] = QStringList(Option::user_template_prefix);
 
         if(cmd & ReadCache && Option::mkfile::do_cache) {        // parse the cache
             int cache_depth = -1;
@@ -932,7 +932,7 @@ QMakeProject::read(uchar cmd)
                 }
             } else {
                 QString abs_cache = QFileInfo(Option::mkfile::cachefile).absoluteDir().path();
-                if(Option::output_dir.startsWith(abs_cache)) 
+                if(Option::output_dir.startsWith(abs_cache))
                     cache_depth = Option::output_dir.mid(abs_cache.length()).count('/');
             }
             if(!qmake_cache.isEmpty()) {
@@ -1000,7 +1000,7 @@ QMakeProject::read(uchar cmd)
     vars = base_vars; // start with the base
 
     //get a default
-    if(pfile != "-" && vars["TARGET"].isEmpty()) 
+    if(pfile != "-" && vars["TARGET"].isEmpty())
         vars["TARGET"].append(QFileInfo(pfile).baseName());
 
     //before commandline
@@ -1057,7 +1057,7 @@ QMakeProject::read(uchar cmd)
         }
     }
 
-    if(pfile != "-" && vars["TARGET"].isEmpty()) 
+    if(pfile != "-" && vars["TARGET"].isEmpty())
         vars["TARGET"].append(QFileInfo(pfile).baseName());
 
     if(cmd & ReadConfigs && !Option::user_configs.isEmpty()) {
@@ -1295,7 +1295,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 #endif
             debug_msg(2, "Looking for feature '%s' in (%s)", file.latin1(), feature_roots.join("::").latin1());
             QFileInfo currentFile;
-            if(::parser.from_file) 
+            if(::parser.from_file)
                 currentFile = QFileInfo(::parser.file).canonicalFilePath();
             for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
                 QString prf((*it) + QDir::separator() + file);
@@ -1478,10 +1478,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(function_blocks.isEmpty()) {
             fprintf(stderr, "%s:%d unexpected return()\n",
                     parser.file.latin1(), parser.line_no);
-        } else { 
+        } else {
             FunctionBlock *f = function_blocks.top();
             f->cause_return = true;
-            if(args.count() >= 1) 
+            if(args.count() >= 1)
                 f->return_value = args[0];
         }
         return true;
@@ -1624,9 +1624,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         } else {
             bool ok;
             int val = ret.toInt(&ok);
-            if(ok) 
+            if(ok)
                 return val;
-            else 
+            else
                 return (ret.toLower() == "true");
         }
         return false;
@@ -2038,7 +2038,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     QStringList uniq;
                     const QStringList &var = place[varMap(arg_list.first())];
                     for(int i = 0; i < var.count(); i++) {
-                        if(!uniq.contains(var[i])) 
+                        if(!uniq.contains(var[i]))
                             uniq.append(var[i]);
                     }
                     replacement = uniq.join(" ");
@@ -2085,7 +2085,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             if(QFileInfo(fname).isDir()) {
                                 if(recursive)
                                     dirs.append(fname);
-                            } 
+                            }
                             if(regex.exactMatch(fname)) {
                                 if(!replacement.isEmpty())
                                     replacement += Option::field_sep;
@@ -2115,7 +2115,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     }
                 }
             } else if(FunctionBlock *defined = replaceFunctions[val]) {
-                defined->exec(this, args, replacement);
+                defined->exec(this, QStringList(args), replacement);
             } else {
                 fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
                         parser.file.latin1(), parser.line_no, val.latin1());

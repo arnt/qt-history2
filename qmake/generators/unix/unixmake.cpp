@@ -85,9 +85,9 @@ UnixMakefileGenerator::init()
             if(project->isEmpty("DESTDIR"))
                 project->values("DESTDIR").append("");
             else if(project->first("DESTDIR").right(1) != Option::dir_sep)
-                project->variables()["DESTDIR"] = project->first("DESTDIR") + Option::dir_sep;
-            project->variables()["DESTDIR"] = project->first("DESTDIR") + targ.left(slsh+1);
-            project->variables()["TARGET"] = targ.mid(slsh+1);
+                project->variables()["DESTDIR"] = QStringList(project->first("DESTDIR") + Option::dir_sep);
+            project->variables()["DESTDIR"] = QStringList(project->first("DESTDIR") + targ.left(slsh+1));
+            project->variables()["TARGET"] = QStringList(targ.mid(slsh+1));
         }
     }
 
@@ -180,8 +180,8 @@ UnixMakefileGenerator::init()
                         const QStringList &files = project->variables()[bundle_data[i] + ".files"];
                         QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
                                                                  "../" + project->first(bundle_data[i] + ".path"));
-                        for(int file = 0; file < files.count(); file++) 
-                            project->variables()["ALL_DEPS"] += path + Option::dir_sep + 
+                        for(int file = 0; file < files.count(); file++)
+                            project->variables()["ALL_DEPS"] += path + Option::dir_sep +
                                                                 QFileInfo(files[file]).fileName();
                     }
                 }

@@ -904,7 +904,7 @@ void UnixMakefileGenerator::init2()
     } else {
         project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
         if(project->isActiveConfig("compile_libtool"))
-            project->variables()["TARGET_la"] = project->first("DESTDIR") + "lib" + project->first("TARGET") + Option::libtool_ext;
+            project->variables()["TARGET_la"] = QStringList(project->first("DESTDIR") + "lib" + project->first("TARGET") + Option::libtool_ext);
 
         if (!project->variables()["QMAKE_AR_CMD"].isEmpty())
             project->variables()["QMAKE_AR_CMD"].first().replace("(TARGET)","(TARGETA)");

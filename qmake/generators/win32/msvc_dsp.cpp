@@ -413,7 +413,7 @@ DspMakefileGenerator::init()
         configurations << "Release" << "Debug";
     else
         configurations << "Debug" << "Release";
-        
+
 
 	// this should probably not be here, but I'm using it to wrap the .t files
     if(project->first("TEMPLATE") == "vcapp")
@@ -455,26 +455,26 @@ DspMakefileGenerator::init()
 
     if(project->isActiveConfig("debug")) {
         if(!project->first("OBJECTS_DIR").isEmpty())
-            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = project->first("OBJECTS_DIR");
+            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList(project->first("OBJECTS_DIR"));
         else
-            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = "Debug";
-        project->variables()["MSVCDSP_OBJECTSDIR_REL"] = "Release";
+            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList("Debug");
+        project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList("Release");
         if(!project->first("DESTDIR").isEmpty())
-            project->variables()["MSVCDSP_TARGETDIR_DBG"] = project->first("DESTDIR");
+            project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList(project->first("DESTDIR"));
         else
-            project->variables()["MSVCDSP_TARGETDIR_DBG"] = "Debug";
-        project->variables()["MSVCDSP_TARGETDIR_REL"] = "Release";
+            project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList("Debug");
+        project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList("Release");
     } else {
         if(!project->first("OBJECTS_DIR").isEmpty())
-            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = project->first("OBJECTS_DIR");
+            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList(project->first("OBJECTS_DIR"));
         else
-            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = "Release";
-        project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = "Debug";
+            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList("Release");
+        project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList("Debug");
         if(!project->first("DESTDIR").isEmpty())
-            project->variables()["MSVCDSP_TARGETDIR_REL"] = project->first("DESTDIR");
+            project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList(project->first("DESTDIR"));
         else
-            project->variables()["MSVCDSP_TARGETDIR_REL"] = "Release";
-        project->variables()["MSVCDSP_TARGETDIR_DBG"] = "Debug";
+            project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList("Release");
+        project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList("Debug");
     }
 
     fixTargetExt();
@@ -689,10 +689,10 @@ DspMakefileGenerator::init()
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
         // Add precompile compiler options
-        project->variables()["PRECOMPILED_FLAGS"]  = "/Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ";
+        project->variables()["PRECOMPILED_FLAGS"]  = QStringList("/Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ");
         // Return to variable pool
-        project->variables()["PRECOMPILED_OBJECT"] = precompObj;
-        project->variables()["PRECOMPILED_PCH"]    = precompPch;
+        project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
+        project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
     }
 }
 

@@ -156,8 +156,8 @@ void NmakeMakefileGenerator::init()
         // Add pch file to cleanup
         project->variables()["QMAKE_CLEAN"]          += precompPch;
         // Return to variable pool
-        project->variables()["PRECOMPILED_OBJECT"] = precompObj;
-        project->variables()["PRECOMPILED_PCH"]    = precompPch;
+        project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
+        project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
     }
 
     QString version = project->first("VERSION").replace(".", "");

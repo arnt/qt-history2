@@ -114,7 +114,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
         QStringList lst = it.value();
         if(lst.count() == 1 && (lst.first().startsWith("'") || lst.first().startsWith("\"")) &&
            lst.first().endsWith(QString(lst.first()[0])))
-            lst = lst.first().mid(1, lst.first().length() - 2);
+            lst = QStringList(lst.first().mid(1, lst.first().length() - 2));
         if(!vars.contains("QMAKE_PRL_TARGET") &&
            (it.key() == "dlname" || it.key() == "library_names" || it.key() == "old_library")) {
             QString dir = v["libdir"].first();

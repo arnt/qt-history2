@@ -158,7 +158,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                             //WRAPPER
                             t << "\t\t" << keyFor(pbxproj + "_WRAPPER") << " = {" << "\n"
                               << "\t\t\t" << "isa = PBXReferenceProxy;" << "\n";
-                            if(tmp_proj.first("TEMPLATE") == "app") 
+                            if(tmp_proj.first("TEMPLATE") == "app")
                                 t << "\t\t\t" << "fileType = wrapper.application;" << "\n"
                                   << "\t\t\t" << "path = " << tmp_proj.first("TARGET") << ".app;" << "\n";
                             else
@@ -202,7 +202,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                             //targetref
                             t << "\t\t" << keyFor(pbxproj + "_TARGETREF") << " = {" << "\n"
                               << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
-                              << "\t\t\t" << "name = \"" << tmp_proj.first("TARGET") 
+                              << "\t\t\t" << "name = \"" << tmp_proj.first("TARGET")
                               << " (from " << tmp_proj.first("TARGET") << projectSuffix() << ")\";" << "\n"
                               << "\t\t\t" << "targetProxy = " << container_proxy << ";" << "\n"
                               << "\t\t" << "};" << "\n";
@@ -396,7 +396,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             src_group = "Sources [qmake]";
 
         for(int i = 0; i < tmp.count(); i++) {
-            QStringList files = tmp[i];
+            QStringList files = QStringList(tmp[i]);
             bool buildable = true;
             if(srcs[src] == "FORMS") {
                 QString form_dot_h = tmp[i] + Option::h_ext.first();
@@ -837,7 +837,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t};\n";
     }
     //BUNDLE_DATA BUILDPHASE (copy)
-    if(!project->isEmpty("QMAKE_BUNDLE_DATA")) { 
+    if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
         QStringList bundle_file_refs;
         //all bundle data
         const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];

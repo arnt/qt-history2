@@ -279,10 +279,10 @@ bool VcprojGenerator::writeProjectMakefile()
 
         debug_msg(1, "Generator: MSVC.NET: Writing project file");
         VCProject mergedProject;
-        for (int i = 0; i < mergedProjects.count(); ++i) 
+        for (int i = 0; i < mergedProjects.count(); ++i)
             mergedProject.SingleProjects += mergedProjects.at(i)->vcProject;
-	if(mergedProjects.count() > 1 && 
-	   mergedProjects.at(0)->vcProject.Name == 
+	if(mergedProjects.count() > 1 &&
+	   mergedProjects.at(0)->vcProject.Name ==
 	   mergedProjects.at(1)->vcProject.Name)
 	    mergedProjects.at(0)->writePrlFile();
         mergedProject.Name = mergedProjects.at(0)->vcProject.Name;
@@ -332,7 +332,7 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
     }
 
     // Store GUID in variable-space
-    project->values("GUID") = uuid.toString().toUpper();
+    project->values("GUID") = QStringList(uuid.toString().toUpper());
     return uuid;
 }
 
@@ -573,8 +573,8 @@ void VcprojGenerator::init()
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
         // Return to variable pool
-        project->variables()["PRECOMPILED_OBJECT"] = precompObj;
-        project->variables()["PRECOMPILED_PCH"]    = precompPch;
+        project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
+        project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
     }
 
     // Add all input files for a custom compiler into a map for uniqueness,
@@ -586,7 +586,7 @@ void VcprojGenerator::init()
             QStringList fileList = project->variables().value(*iit);
             if (!fileList.isEmpty()) {
                 if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1)
-                    fileList = fileList.first();
+                    fileList = QStringList(fileList.first());
                 for(QStringList::ConstIterator fit = fileList.constBegin(); fit != fileList.constEnd(); ++fit) {
                     const QString &file = (*fit);
                     if (hasBuiltinCompiler(file))
@@ -730,7 +730,7 @@ void VcprojGenerator::initCompilerTool()
         conf.compiler.UsePrecompiledHeader     = pchUseUsingSpecific;
         conf.compiler.PrecompiledHeaderFile    = "$(IntDir)\\" + precompPch;
         conf.compiler.PrecompiledHeaderThrough = precompHFilename;
-        conf.compiler.ForcedIncludeFiles       = precompHFilename;
+        conf.compiler.ForcedIncludeFiles       = QStringList(precompHFilename);
         // Minimal build option triggers an Internal Compiler Error
         // when used in conjunction with /FI and /Yu, so remove it
         project->variables()["QMAKE_CFLAGS_DEBUG"].removeAll("-Gm");
@@ -1183,12 +1183,12 @@ void VcprojGenerator::initOld()
     project->variables()["MSVCPROJ_INCPATH"].append("/I" + specdir());
 
     QString dest;
-    project->variables()["MSVCPROJ_TARGET"] = project->first("TARGET");
+    project->variables()["MSVCPROJ_TARGET"] = QStringList(project->first("TARGET"));
     Option::fixPathToTargetOS(project->first("TARGET"));
     dest = project->first("TARGET") + project->first("TARGET_EXT");
     if(project->first("TARGET").startsWith("$(QTDIR)"))
         dest.replace(QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR"));
-    project->variables()["MSVCPROJ_TARGET"] = dest;
+    project->variables()["MSVCPROJ_TARGET"] = QStringList(dest);
 
     // DLL COPY ------------------------------------------------------
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {

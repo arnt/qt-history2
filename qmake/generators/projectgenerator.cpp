@@ -203,7 +203,7 @@ ProjectGenerator::init()
                 }
             }
         }
-        v["TEMPLATE_ASSIGN"] = "subdirs";
+        v["TEMPLATE_ASSIGN"] = QStringList("subdirs");
         return;
     }
 

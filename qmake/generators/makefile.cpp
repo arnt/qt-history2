@@ -116,7 +116,7 @@ MakefileGenerator::initOutPaths()
                     if(pwd.startsWith(cache_r) && !pwd.startsWith(root)) {
                         pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
                         if(QFile::exists(pwd))
-                            v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
+                            v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", QStringList(pwd));
                     }
                 }
             }
@@ -719,13 +719,13 @@ MakefileGenerator::writeProjectMakefile()
 
         //install
         t << "install: ";
-        for(it = targets.begin(); it != targets.end(); ++it) 
+        for(it = targets.begin(); it != targets.end(); ++it)
             t << (*it)->target << "-install ";
         t << endl;
 
         //uninstall
         t << "uninstall: ";
-        for(it = targets.begin(); it != targets.end(); ++it) 
+        for(it = targets.begin(); it != targets.end(); ++it)
             t << (*it)->target << "-uninstall ";
         t << endl;
     } else {
@@ -754,11 +754,11 @@ MakefileGenerator::write()
 void
 MakefileGenerator::writePrlFile()
 {
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || 
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
 	Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
        && project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()
        && project->isActiveConfig("create_prl")
-       && (project->first("TEMPLATE") == "lib" 
+       && (project->first("TEMPLATE") == "lib"
 	   || project->first("TEMPLATE") == "vclib")
        && !project->isActiveConfig("plugin")) { //write prl file
 
@@ -796,47 +796,37 @@ MakefileGenerator::usePlatformDir()
     QString slashPltDir = sep + pltDir;
 
     QString filePath = project->first("DESTDIR");
-    project->variables()["DESTDIR"] = filePath
-                                    + (filePath.isEmpty() ? pltDir : slashPltDir);
+    project->variables()["DESTDIR"] = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
 
     filePath = project->first("DLLDESTDIR");
-    project->variables()["DLLDESTDIR"] = filePath
-                                       + (filePath.isEmpty() ? pltDir : slashPltDir);
+    project->variables()["DLLDESTDIR"] = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
 
     filePath = project->first("OBJECTS_DIR");
-    project->variables()["OBJECTS_DIR"] = filePath
-                                        + (filePath.isEmpty() ? pltDir : slashPltDir);
+    project->variables()["OBJECTS_DIR"] = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
 
     filePath = project->first("QMAKE_LIBDIR_QT");
-    project->variables()["QMAKE_LIBDIR_QT"] = filePath
-                                            + (filePath.isEmpty() ? pltDir : slashPltDir);
+    project->variables()["QMAKE_LIBDIR_QT"] = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
 
     filePath = project->first("QMAKE_LIBS_QT");
     int fpi = filePath.lastIndexOf(sep);
     if(fpi == -1)
         project->variables()["QMAKE_LIBS_QT"].prepend(pltDir + sep);
     else
-        project->variables()["QMAKE_LIBS_QT"] = filePath.left(fpi)
-                                              + slashPltDir
-                                              + filePath.mid(fpi);
+        project->variables()["QMAKE_LIBS_QT"] = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
 
     filePath = project->first("QMAKE_LIBS_QT_THREAD");
     fpi = filePath.lastIndexOf(sep);
     if(fpi == -1)
         project->variables()["QMAKE_LIBS_QT_THREAD"].prepend(pltDir + sep);
     else
-        project->variables()["QMAKE_LIBS_QT_THREAD"] = filePath.left(fpi)
-                                                     + slashPltDir
-                                                     + filePath.mid(fpi);
+        project->variables()["QMAKE_LIBS_QT_THREAD"] = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
 
     filePath = project->first("QMAKE_LIBS_QT_ENTRY");
     fpi = filePath.lastIndexOf(sep);
     if(fpi == -1)
         project->variables()["QMAKE_LIBS_QT_ENTRY"].prepend(pltDir + sep);
     else
-        project->variables()["QMAKE_LIBS_QT_ENTRY"] = filePath.left(fpi)
-                                                    + slashPltDir
-                                                    + filePath.mid(fpi);
+        project->variables()["QMAKE_LIBS_QT_ENTRY"] = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
 }
 
 void
@@ -1409,7 +1399,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     inputs += " " + Option::fixPathToTargetOS((*input), false);
                     if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                         char buff[256];
-                        QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), 
+                        QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input),
                                                                         tmp_out);
                         dep_cmd = Option::fixPathToLocalOS(dep_cmd);
                         if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
@@ -1560,7 +1550,7 @@ QString MakefileGenerator::buildArgs()
 
     //configs
     for(QStringList::Iterator it = Option::user_configs.begin();
-        it != Option::user_configs.end(); ++it) 
+        it != Option::user_configs.end(); ++it)
         ret += " -config " + (*it);
     //arguments
     for(QStringList::Iterator it = Option::before_user_vars.begin();
@@ -1657,7 +1647,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         }
     }
     if(project->isActiveConfig("build_all"))
-        t << "first: all" << endl;    
+        t << "first: all" << endl;
     else
         t << "first: make_first" << endl;
     writeSubTargets(t, targets, true);
