@@ -40,8 +40,8 @@ public:
     Q4MenuAction *currentAction;
     Q4MenuAction *actionAt(QPoint p);
     void setFirstActionActive();
-    void setCurrentAction(Q4MenuAction *, bool =false, bool =false);
-    void popupAction(Q4MenuAction *, bool);
+    void setCurrentAction(Q4MenuAction *, int =-1, bool =false);
+    void popupAction(Q4MenuAction *, int, bool);
 
     //scrolling support
     struct Q4MenuScroller {

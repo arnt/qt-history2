@@ -1,6 +1,7 @@
 #include "qmenu.h"
 #include "qstyle.h"
 #include "qevent.h"
+#include "qtimer.h"
 #include "qpainter.h"
 #include "qtoolbar.h"
 #include "qapplication.h"
@@ -200,19 +201,22 @@ void Q4MenuPrivate::hideUpToMenuBar()
     setCurrentAction(0);
 }
 
-void Q4MenuPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
+void Q4MenuPrivate::popupAction(Q4MenuAction *action, int delay, bool activateFirst)
 {
     if(action && action->action->menu()) {
-	activeMenu = action->action->menu();
-	activeMenu->d->causedPopup = q;
-	if(activeMenu->parent() != q)
-	    activeMenu->setParent(q, activeMenu->getWFlags());
-	QPoint pos(q->width(), actionRect(action).top());
-	if(QApplication::reverseLayout())
-	    pos.setX(-activeMenu->sizeHint().width());
-	activeMenu->popup(q->mapToGlobal(pos));
+	if(!delay) {
+	    q->internalDelayedPopup();
+	} else {
+	    static QTimer *menuDelayTimer = 0;
+	    if(!menuDelayTimer) 
+		menuDelayTimer = new QTimer(qApp, "menu submenu timer");
+	    menuDelayTimer->disconnect(SIGNAL(timeout()));
+	    QObject::connect(menuDelayTimer, SIGNAL(timeout()), 
+			     q, SLOT(internalDelayedPopup()));
+	    menuDelayTimer->start(delay, true);
+	}
 	if(activateFirst)
-	    activeMenu->d->setFirstActionActive();
+	    action->action->menu()->d->setFirstActionActive();
     }
 }
 
@@ -234,7 +238,8 @@ void Q4MenuPrivate::setFirstActionActive()
     }
 }
 
-void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool activateFirst)
+// popup == -1 means do not popup, 0 means immediately, others mean use a timer
+void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, int popup, bool activateFirst)
 {
     d->tearoffHighlighted = 0;
     if(action == currentAction)
@@ -250,8 +255,8 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool acti
     currentAction = action;
     if(action && !action->action->isSeparator()) {
 	action->action->activate(QAction::Hover);
-	if(popup)
-	    popupAction(d->currentAction, activateFirst);
+	if(popup != -1)
+	    popupAction(d->currentAction, popup, activateFirst);
 	q->update(actionRect(action));
     }
 }
@@ -754,7 +759,7 @@ void Q4Menu::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
 
     Q4MenuAction *action = d->actionAt(e->pos());
-    d->setCurrentAction(action, true);
+    d->setCurrentAction(action, 20);
 }
 
 void Q4Menu::mouseReleaseEvent(QMouseEvent *e)
@@ -898,7 +903,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 
     case Key_Right:
 	if(d->currentAction && d->currentAction->action->isEnabled() && d->currentAction->action->menu()) {
-	    d->popupAction(d->currentAction, true);
+	    d->popupAction(d->currentAction, 0, true);
 	    key_consumed = true;
 	    break;
 	}
@@ -954,7 +959,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 	    if(!d->currentAction->action->isEnabled() && !whats_this_mode)
 		break;
 	    if(d->currentAction->action->menu()) {
-		d->popupAction(d->currentAction, true);
+		d->popupAction(d->currentAction, 20, true);
 	    } else {
 		d->currentAction->action->activate(QAction::Trigger);
 		d->hideUpToMenuBar();
@@ -1020,7 +1025,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 		    next_action = firstAfterCurrent;
 	    }
 	    if(next_action) {
-		d->setCurrentAction(next_action, true, true);
+		d->setCurrentAction(next_action, 20, true);
 		if(!next_action->action->menu()) {
 		    next_action->action->activate(QAction::Trigger);
 		    d->hideUpToMenuBar();
@@ -1041,7 +1046,7 @@ void Q4Menu::mouseMoveEvent(QMouseEvent *e)
     d->mouseDown = e->state() & LeftButton;
 
     Q4MenuAction *action = d->actionAt(e->pos());
-    d->setCurrentAction(action, true);
+    d->setCurrentAction(action, style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this));
 }
 
 void Q4Menu::leaveEvent(QEvent *)
@@ -1075,6 +1080,35 @@ void Q4Menu::actionEvent(QActionEvent *e)
 	d->tornPopup->syncWithMenu(this, e);
     d->itemsDirty = 1;
     update();
+}
+
+void Q4Menu::internalDelayedPopup()
+{
+    //setup
+    d->activeMenu = d->currentAction->action->menu();
+    d->activeMenu->d->causedPopup = this;
+    if(d->activeMenu->parent() != this)
+	d->activeMenu->setParent(this, d->activeMenu->getWFlags());
+
+    bool on_left = false;     //find "best" position
+    const QSize size(d->activeMenu->sizeHint());
+    if(QApplication::reverseLayout()) {
+	on_left = true;
+	Q4Menu *caused = qt_cast<Q4Menu*>(d->causedPopup);
+	if(caused && caused->x() < x() || x() - size.width() < 0)
+	    on_left = false;
+    } else {
+	Q4Menu *caused = qt_cast<Q4Menu*>(d->causedPopup);
+	if(caused && caused->x() > x() || 
+	   x() + width() + size.width() > QApplication::desktop()->width())
+	    on_left = true;
+    }
+
+    //do the popup
+    QPoint pos(width(), d->actionRect(d->currentAction).top());
+    if(on_left) 
+	pos.setX(-size.width());
+    d->activeMenu->popup(mapToGlobal(pos));
 }
 
 void Q4Menu::internalActionActivated()
@@ -1194,10 +1228,17 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 	if(activeMenu->parent() != q)
 	    activeMenu->setParent(q, activeMenu->getWFlags());
 	QRect adjustedActionRect = actionRect(action);
-	QPoint pos(adjustedActionRect.left(), adjustedActionRect.bottom());
-	if(QApplication::reverseLayout())
+	QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
+	if(QApplication::reverseLayout()) {
 	    pos.setX((pos.x()+adjustedActionRect.width())-activeMenu->sizeHint().width());
-	activeMenu->popup(q->mapToGlobal(pos));
+	    if(pos.x() < 0)
+		pos.setX(0);
+	} else {
+	    const int off = pos.x()+d->activeMenu->sizeHint().width() - QApplication::desktop()->width();
+	    if(off > 0)
+		pos.setX(qMax(0, pos.x()-off));
+	}
+	activeMenu->popup(pos);
 	if(activateFirst)
 	    activeMenu->d->setFirstActionActive();
 	q->update(actionRect(action));
