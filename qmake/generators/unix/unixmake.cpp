@@ -381,6 +381,14 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 			}
 		    }
 		} else {
+#if 1
+		    while(1) {
+			QStringList::Iterator idx = ret.find((*it));
+			if(idx == ret.end())
+			    break;
+			ret.remove(idx);
+		    }
+#endif
 		    ret.append((*it));
 		}
 	    } else /*if(QFile::exists((*it)))*/ {
