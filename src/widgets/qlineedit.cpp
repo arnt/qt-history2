@@ -921,6 +921,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	delete parag;
 	delete cursor;
     }
+    painter->fillRect( -1, 0, 1, height(), bg );
     painter->translate( -marg, 0 );
 }
 
