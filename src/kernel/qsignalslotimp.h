@@ -87,12 +87,12 @@ public:
     QSignalVec &operator=(const QSignalVec &dict)
 	{ return (QSignalVec&)QVector<QConnectionList>::operator=(dict); }
     QConnectionList* at( uint index ) const  {
-	return index >= size()? 0 : QVector::at(index);
+	return index >= size()? 0 : QVector<QConnectionList>::at(index);
     }
     bool  insert( uint index, const QConnectionList* d ) {
 	if (index >= size() )
 	    resize( 2*index + 1);
-	return QVector::insert(index, d);
+	return QVector<QConnectionList>::insert(index, d);
     }
 };
 
