@@ -56,6 +56,7 @@
 #include "qdragobject.h"
 #include "qlineedit.h"
 #include "qvbox.h"
+#include "qtooltip.h"
 
 const int Unsorted = 16383;
 
@@ -218,7 +219,51 @@ struct QListViewPrivate
     uint was_visible : 1;
     QListViewItem *startDragItem;
     QPoint dragStartPos;
+    bool toolTips;
+    QListViewToolTip *toolTip;
+
 };
+
+class QListViewToolTip : public QToolTip
+{
+public:
+    QListViewToolTip( QWidget *parent, QListView *lv );
+
+    void maybeTip( const QPoint &pos );
+
+private:
+    QListView *view;
+
+};
+
+QListViewToolTip::QListViewToolTip( QWidget *parent, QListView *lv )
+    : QToolTip( parent ), view( lv )
+{
+}
+
+void QListViewToolTip::maybeTip( const QPoint &pos )
+{
+    if ( !parentWidget() || !view || !view->showToolTips() )
+	return;
+
+    QListViewItem *item = view->itemAt( pos );
+    if ( !item || !item->columns )
+	return;
+    int col = view->header()->sectionAt( pos.x() );
+    QListViewPrivate::ItemColumnInfo *ci = 0;
+    while ( !ci ) {
+	    ci = (QListViewPrivate::ItemColumnInfo*)item->columns;
+	    for ( int i = 0; ci && ( i < col ); ++i )
+		ci = ci->next;
+    }
+
+    if ( !ci || !ci->truncated )
+	return;
+
+    QRect r = view->itemRect( item );
+    r.setLeft( view->header()->sectionPos( col ) );
+    tip( r, item->text( col ) );
+}
 
 // these should probably be in QListViewPrivate, for future thread safety
 static bool activatedByClick;
@@ -2112,6 +2157,8 @@ void QListView::init()
     d->useDoubleBuffer = FALSE;
     d->startDragItem = 0;
     d->was_visible = FALSE;
+    d->toolTips = TRUE;
+    d->toolTip = new QListViewToolTip( viewport(), this );
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -2180,6 +2227,21 @@ bool QListView::showSortIndicator() const
     return d->sortIndicator;
 }
 
+/*! If \a b is TRUE, tooltips are shows for truncated column textes,
+  else this is not the case. */
+
+void QListView::setShowToolTips( bool b )
+{
+    d->toolTips = b;
+}
+
+/* Returns whether tooltips are shown for truncated column textes. */
+
+bool QListView::showToolTips() const
+{
+    return d->toolTips;
+}
+
 /*!
   Destructs the list view, deleting all items in it, and frees up all
   allocated resources.
@@ -2205,6 +2267,8 @@ QListView::~QListView()
     d->drawables = 0;
     delete d->vci;
     d->vci = 0;
+    delete d->toolTip;
+    d->toolTip = 0;
     delete d;
     d = 0;
 }

@@ -57,10 +57,12 @@ class QListViewItemIterator;
 class QDragObject;
 class QMimeSource;
 class QLineEdit;
+class QListViewToolTip;
 
 class Q_EXPORT QListViewItem: public Qt
 {
     friend class QListViewItemIterator;
+    friend class QListViewToolTip;
 #if defined(Q_CC_MSVC)
     friend class QListViewItem;
 #endif
@@ -223,6 +225,7 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewItemIterator;
     friend class QListViewItem;
     friend class QCheckListItem;
+    friend class QListViewToolTip;
 
     Q_OBJECT
     Q_ENUMS( SelectionMode )
@@ -317,8 +320,10 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    void setShowSortIndicator( bool show );
+    virtual void setShowSortIndicator( bool show );
     bool showSortIndicator() const;
+    virtual void setShowToolTips( bool b );
+    bool showToolTips() const;
 
 public slots:
     virtual void invertSelection();

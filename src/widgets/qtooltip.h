@@ -45,6 +45,7 @@
 
 class QTipManager;
 class QIconViewToolTip;
+class QListViewToolTip;
 
 class Q_EXPORT QToolTipGroup: public QObject
 {
@@ -125,6 +126,7 @@ private:
 
     friend class QTipManager;
     friend class QIconViewToolTip;
+    friend class QListViewToolTip;
 };
 
 
