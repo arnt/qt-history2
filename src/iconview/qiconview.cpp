@@ -5641,7 +5641,8 @@ QSize QIconView::sizeHint() const
     if ( d->dirty && d->firstSizeHint ) {
 	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
 					      QMAX( 400, contentsHeight() ) );
-	( (QIconView*)this )->arrangeItemsInGrid( FALSE );
+	if ( autoArrange() )
+	    ( (QIconView*)this )->arrangeItemsInGrid( FALSE );
 	d->firstSizeHint = FALSE;
     }
 
@@ -5697,10 +5698,11 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	c = d->firstContainer;
     }
 
+    const QRect irect = item->rect();
     bool contains = FALSE;
     for (;;) {
-	if ( c->rect.intersects( item->rect() ) ) {
-	    contains = c->rect.contains( item->rect() );
+	if ( c->rect.intersects( irect ) ) {
+	    contains = c->rect.contains( irect );
 	    break;
 	}
 
@@ -5730,6 +5732,8 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	c->items.append( item );
 	item->d->container2 = c;
     }
+    if ( contentsWidth() < irect.right() || contentsHeight() < irect.bottom() )
+	resizeContents( irect.right(), irect.bottom() );
 }
 
 /*!
