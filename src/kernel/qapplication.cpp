@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#230 $
 **
 ** Implementation of QApplication class
 **
@@ -1934,6 +1934,9 @@ void QApplication::exit_loop()
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
+  
+  The session identifier is guaranteed to be unique for both different
+  applications and different instances of the same application.
 
 \sa isSessionRestored(), commitData(), saveState()
  */
@@ -2023,10 +2026,10 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   ordinary permission can be requested with allowsInteraction(). With
   allowsErrorInteraction(), applications can ask for a higher priority
   interaction permission in case an error occured.
-  
+
   Another important function is cancel(), which asks the session
   manager to cancel the shutdown process.
-  
+
   For sophisticated session managers as provided on Unix,
   QSessionManager offers further possibilites to finetune an
   application's session management behaviour: setRestartCommand(),
@@ -2084,7 +2087,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 	    // save document here
 	    break;
 	case 1: // no
-	    sm.release;
+	    sm.release();
 	    break;
 	default: // cancel
 	    sm.cancel();
@@ -2125,7 +2128,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Tells the session manager to cancel the shutdown
   process. Applications should not call this function without asking
   the user first.
-  
+
   \sa allowsInteraction(), allowsErrorInteraction()
 
  */
@@ -2174,21 +2177,48 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \sa setRestartHint()
  */
 
-/*! \fn     void QSessionManager::setRestartCommand( const QStringList& )
+/*! \fn     void QSessionManager::setRestartCommand( const QStringList& command)
 
+  If the session manager is capable of restoring sessions, it will
+  execute \a command in order to restore the application. The command
+  defaults to 
+  
+  \code
+               appname \c -session \e <session-identifier>
+  \endcode
+  
+  The \c -session options is mandatory, otherwise QApplication can not
+  tell whether it QApplication::isSessionRestored() or what the
+  QApplication::sessionId() is. If your application is very simply, it
+  may be possible to store the entire application state in additional
+  command line options. In general, this is a very bad idea, since
+  command lines are often limited to a few hundred bytes.  Instead,
+  use temporary files or a database for this purpose. By marking the
+  data with the unique sessionId(), you will be able to restore the
+  application in a future session.
+  
+  
+  \sa restartCommand(), setDiscardCommand(), setRestartHint()
  */
 
 /*! \fn     QStringList QSessionManager::restartCommand() const
 
+  Returns the currently set restart command.
+  
+  \sa setRestartCommand(), restartHint()
  */
 
 /*! \fn     void QSessionManager::setDiscardCommand( const QStringList& )
 
- */
+  \sa  discardCommand(), setRestartCommand()
+*/
+
 
 /*! \fn     QStringList QSessionManager::discardCommand() const
 
-
+  Returns the currently set discard command.
+  
+  \sa setDiscardCommand(), restartCommand(), setRestartCommand()
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QString& value )
