@@ -55,6 +55,8 @@ public:
     inline Type type() const { return QPaintEngine::OpenGL; }
 
 private:
+    void bindTextureFromCache(const QPixmap &pixmap);
+
 #if defined(Q_DISABLE_COPY)
     QOpenGLPaintEngine(const QOpenGLPaintEngine &);
     QOpenGLPaintEngine &operator=(const QOpenGLPaintEngine &);
