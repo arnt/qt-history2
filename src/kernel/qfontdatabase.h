@@ -50,9 +50,9 @@
 #ifndef QT_NO_FONTDATABASE
 
 class QFontStylePrivate; /* Don't touch! */
-class QtFontStyle;
-class QtFontFamily;
-class QtFontFoundry;
+struct QtFontStyle;
+struct QtFontFamily;
+struct QtFontFoundry;
 class QFontEngine;
 #ifdef Q_WS_QWS
 class QDiskFont;

@@ -77,7 +77,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int /*type*/, LPARAM /
 	else 
 	    styleKey.weight = QFont::Black;
 
-	QtFontFamily *family = db->scripts[script].family( familyName, TRUE );
+	QtFontFamily *family = db->family( familyName, TRUE );
 	QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 	style->smoothScalable = TRUE;
@@ -156,14 +156,8 @@ void QFontDatabase::createDatabase()
 #ifdef QFONTDATABASE_DEBUG
     // print the database
     for ( int i = 0; i < QFont::NScripts; i++ ) {
-	QtFontScript &script = db->scripts[i];
-	qDebug("Script %s", QFontDatabase::scriptName( (QFont::Script)i ).latin1() );
-	if ( !script.count ) {
-	    qDebug("    No fonts found!");
-	    continue;
-	}
-	for ( int f = 0; f < script.count; f++ ) {
-	    QtFontFamily *family = script.families[f];
+	for ( int f = 0; f < db->count; f++ ) {
+	    QtFontFamily *family = db->families[f];
 	    qDebug("    %s", family->name.latin1() );
 	    populate_database( family->name );
 
@@ -182,3 +176,7 @@ void QFontDatabase::createDatabase()
 
 }
 
+static inline void load(const QString &family = QString::null,  int = -1 ) 
+{
+    populate_database( family );
+}
