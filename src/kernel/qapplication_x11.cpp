@@ -5213,6 +5213,52 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 #ifndef XK_ISO_Left_Tab
 #define	XK_ISO_Left_Tab					0xFE20
 #endif
+
+// the next lines are taken from XFree > 4.0 (X11/XF86keysyms.h), defining some special
+// multimedia keys. They are included here as not every system has them.
+#define XF86XK_Standby		0x1008FF10
+#define XF86XK_AudioLowerVolume	0x1008FF11
+#define XF86XK_AudioMute	0x1008FF12
+#define XF86XK_AudioRaiseVolume	0x1008FF13
+#define XF86XK_AudioPlay	0x1008FF14
+#define XF86XK_AudioStop	0x1008FF15
+#define XF86XK_AudioPrev	0x1008FF16
+#define XF86XK_AudioNext	0x1008FF17
+#define XF86XK_HomePage		0x1008FF18
+#define XF86XK_Calculator	0x1008FF1D
+#define XF86XK_Mail		0x1008FF19
+#define XF86XK_Start		0x1008FF1A
+#define XF86XK_Search		0x1008FF1B
+#define XF86XK_AudioRecord	0x1008FF1C
+#define XF86XK_Back		0x1008FF26
+#define XF86XK_Forward		0x1008FF27
+#define XF86XK_Stop		0x1008FF28
+#define XF86XK_Refresh		0x1008FF29
+#define XF86XK_Favorites	0x1008FF30
+#define XF86XK_AudioPause	0x1008FF31
+#define XF86XK_AudioMedia	0x1008FF32
+#define XF86XK_MyComputer	0x1008FF33
+#define XF86XK_OpenURL		0x1008FF38
+#define XF86XK_Launch0		0x1008FF40
+#define XF86XK_Launch1		0x1008FF41
+#define XF86XK_Launch2		0x1008FF42
+#define XF86XK_Launch3		0x1008FF43
+#define XF86XK_Launch4		0x1008FF44
+#define XF86XK_Launch5		0x1008FF45
+#define XF86XK_Launch6		0x1008FF46
+#define XF86XK_Launch7		0x1008FF47
+#define XF86XK_Launch8		0x1008FF48
+#define XF86XK_Launch9		0x1008FF49
+#define XF86XK_LaunchA		0x1008FF4A
+#define XF86XK_LaunchB		0x1008FF4B
+#define XF86XK_LaunchC		0x1008FF4C
+#define XF86XK_LaunchD		0x1008FF4D
+#define XF86XK_LaunchE		0x1008FF4E
+#define XF86XK_LaunchF		0x1008FF4F
+// end of XF86keysyms.h
+
+
+
 static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Escape,		Qt::Key_Escape,		// misc keys
     XK_Tab,		Qt::Key_Tab,
@@ -5273,6 +5319,52 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Hyper_R,		Qt::Key_Hyper_R,
     XK_Help,		Qt::Key_Help,
     0x1000FF74,         Qt::Key_BackTab,     // hardcoded HP backtab
+
+    // Special multimedia keys
+    // currently only tested with MS internet keyboard
+
+    // browsing keys
+    XF86XK_Back,	Qt::Key_Back,
+    XF86XK_Forward,	Qt::Key_Forward,
+    XF86XK_Stop,	Qt::Key_Stop,
+    XF86XK_Refresh,	Qt::Key_Refresh,
+    XF86XK_Favorites,	Qt::Key_Favorites,
+    XF86XK_AudioMedia,	Qt::Key_LaunchMedia,
+    XF86XK_OpenURL,	Qt::Key_OpenUrl,
+    XF86XK_HomePage,	Qt::Key_HomePage,
+    XF86XK_Search,	Qt::Key_Search,
+
+    // media keys
+    XF86XK_AudioLowerVolume, Qt::Key_VolumeDown,
+    XF86XK_AudioMute,	Qt::Key_VolumeMute,
+    XF86XK_AudioRaiseVolume, Qt::Key_VolumeUp,
+    XF86XK_AudioPlay,	Qt::Key_MediaPlay,
+    XF86XK_AudioStop,	Qt::Key_MediaStop,
+    XF86XK_AudioPrev,	Qt::Key_MediaPrev,
+    XF86XK_AudioNext,	Qt::Key_MediaNext,
+    XF86XK_AudioRecord,	Qt::Key_MediaRecord,
+
+    // launch keys
+    XF86XK_Mail,	Qt::Key_LaunchMail,
+    XF86XK_MyComputer,	Qt::Key_Launch0,
+    XF86XK_Calculator,	Qt::Key_Launch1,
+    XF86XK_Standby, 	Qt::Key_Standby,
+
+    XF86XK_Launch0,	Qt::Key_Launch2,
+    XF86XK_Launch1,	Qt::Key_Launch3,
+    XF86XK_Launch2,	Qt::Key_Launch4,
+    XF86XK_Launch3,	Qt::Key_Launch5,
+    XF86XK_Launch4,	Qt::Key_Launch6,
+    XF86XK_Launch5,	Qt::Key_Launch7,
+    XF86XK_Launch6,	Qt::Key_Launch8,
+    XF86XK_Launch7,	Qt::Key_Launch9,
+    XF86XK_Launch8,	Qt::Key_LaunchA,
+    XF86XK_Launch9,	Qt::Key_LaunchB,
+    XF86XK_LaunchA,	Qt::Key_LaunchC,
+    XF86XK_LaunchB,	Qt::Key_LaunchD,
+    XF86XK_LaunchC,	Qt::Key_LaunchE,
+    XF86XK_LaunchD,	Qt::Key_LaunchF,
+
     0,			0
 };
 

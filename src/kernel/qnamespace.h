@@ -542,10 +542,13 @@ public:
 	Key_MediaStop  = 0x1081,
 	Key_MediaPrev  = 0x1082,
 	Key_MediaNext  = 0x1083,
+	Key_MediaRecord = 0x1084,
 
 	Key_HomePage  = 0x1090,
 	Key_Favorites  = 0x1091,
 	Key_Search  = 0x1092,
+	Key_Standby = 0x1093,
+	Key_OpenUrl = 0x1094,
 
 	Key_LaunchMail  = 0x10a0,
 	Key_LaunchMedia = 0x10a1,
