@@ -65,11 +65,12 @@ static void qt_mac_fix_key(QString &k) {
     while(k.length() && k[0] == '/')
 	k = k.mid(1);
     k.replace("//", "/");
+    QUrl::encode(k);
+    k.replace(".", "%2E"); //when a . is in a key, we need to url encode it..
     for(int i=0; i<(int)k.length(); i++) {
 	if(k[i] == '/')
 	    k[i] = MACKEY_SEP;
     }
-    QUrl::encode(k);
 #ifdef DEBUG_SETTINGS_KEYS
     qDebug("QSettings::fixed : %s -> %s", old_k.latin1(), k.latin1());
 #endif
@@ -79,6 +80,7 @@ static void qt_mac_unfix_key(QString &k) {
     QString old_k = k;
 #endif
     k.replace(".", "/");
+    k.replace("%2E", "."); //just to be sure
     QUrl::decode(k);
 #ifdef DEBUG_SETTINGS_KEYS
     qDebug("QSettings::unFixed : %s -> %s", old_k.latin1(), k.latin1());
