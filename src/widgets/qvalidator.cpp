@@ -185,19 +185,13 @@ void QValidator::fixup( QString & ) const
 
     \ingroup misc
 
-    The validate() function returns \c Acceptable, \c Intermediate or
-    \c Invalid. \c Acceptable means that the string is a valid integer
-    within the specified range. \c Intermediate means that the string
-    is a valid integer but is not within the specified range. \c
-    Invalid means that the string is not a valid integer.
-
     Example of use:
 
     \code
-    QValidator* validator = new QIntValidator( 0, 100, this );
+    QValidator* validator = new QIntValidator( 100, 999, this );
     QLineEdit* edit = new QLineEdit( this );
 
-    // the edit lineedit will only accept integers between 0 and 100
+    // the edit lineedit will only accept integers between 100 and 999 
     edit->setValidator( validator );
     \endcode
 
@@ -205,23 +199,28 @@ void QValidator::fixup( QString & ) const
     normally be associated with a widget as in the example above.
 
     \code
-    QString s;
-    QIntValidator v( 0, 100, this );
+    QString str;
+    int pos = 0;
+    QIntValidator v( 100, 999, this );
 
-    s = "10";
-    v.validate( s, 0 ); // returns Acceptable
-    s = "35";
-    v.validate( s, 0 ); // returns Acceptable
+    str = "1";
+    v.validate( str, pos );     // returns Intermediate
+    str = "12";
+    v.validate( str, pos );     // returns Intermediate
 
-    s = "105";
-    v.validate( s, 0 ); // returns Intermediate
+    str = "123";
+    v.validate( str, pos );     // returns Acceptable
+    str = "678";
+    v.validate( str, pos );     // returns Acceptable
 
-    s = "-763";
-    v.validate( s, 0 ); // returns Invalid
-    s = "abc";
-    v.validate( s, 0 ); // returns Invalid
-    s = "12v";
-    v.validate( s, 0 ); // returns Invalid
+    str = "1234";
+    v.validate( str, pos );     // returns Invalid
+    str = "-123";
+    v.validate( str, pos );     // returns Invalid
+    str = "abc";
+    v.validate( str, pos );     // returns Invalid
+    str = "12cm";
+    v.validate( str, pos );     // returns Invalid
     \endcode
 
     The minimum and maximum values are set in one call with setRange()
@@ -296,12 +295,16 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 	return Intermediate;
     bool ok;
     long entered = input.toLong( &ok );
-    if ( !ok || (entered < 0 && b >= 0) )
+    if ( !ok || (entered < 0 && b >= 0) ) {
 	return Invalid;
-    else if ( entered < b || entered > t )
-	return Intermediate;
-    else
+    } else if ( entered >= b && entered <= t ) {
 	return Acceptable;
+    } else {
+	if ( entered >= 0 )
+	    return ( entered > t ) ? Invalid : Intermediate;
+	else
+	    return ( entered < b ) ? Invalid : Intermediate;
+    }
 }
 
 
