@@ -364,7 +364,10 @@ QSGIStyle::drawArrow( QPainter *p, ArrowType type, bool /*down*/,
 QSize
 QSGIStyle::indicatorSize() const
 {
-    return QSize(20,20);
+    int strutW = QApplication::globalStrut().width() * 0.66;
+    int strutH = QApplication::globalStrut().height() * 0.66;
+
+    return QSize(20,20).expandedTo( QSize( strutW, strutH ) );
 }
 
 /*!
@@ -742,7 +745,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     if ( !isScrollBarUpToDate )
     {
 	QBrush fill( lazyButton );
-	if ( controls & AddLine ) {
+	if ( controls & AddLine && addB.isValid() ) {
 	    drawButton( p, addB.x(), addB.y(),
 			addB.width(), addB.height(), g, FALSE,
 			(deviceUnderMouse == p->device() 
@@ -753,7 +756,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 		       ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 		       addB.width()-4, addB.height()-4, g, TRUE );
 	}
-	if ( controls & SubLine ) {
+	if ( controls & SubLine && subB.isValid() ) {
 	    drawButton( p, subB.x(), subB.y(),
 			subB.width(), subB.height(), g, FALSE,
 			(deviceUnderMouse == p->device() 
@@ -771,13 +774,13 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 	if ( scrollerMoving )
 	    p->setClipRegion( QRegion(subPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
 
-	if ( controls & SubPage )
+	if ( controls & SubPage && subPageR.isValid() )
 	    qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
 
 	if ( scrollerMoving )
 	    p->setClipRegion( QRegion(addPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
 
-	if ( controls & AddPage )
+	if ( controls & AddPage && addPageR.isValid() )
 	    qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
 
 	if ( activeControl & Slider) {
@@ -790,7 +793,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 	    }
 	}
 
-	if ( controls & Slider) {
+	if ( controls & Slider && sliderR.isValid() ) {
 	    if ( scrollerMoving && activeControl != Slider ) {
 		p->setClipping( FALSE );
 		scrollerMoving = FALSE;
@@ -1020,8 +1023,9 @@ QSGIStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 
-static void drawSGIPrefix( QPainter *p, int x, int y, int w, int h, QString* miText )
+static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
 {
+    int fh = p->fontMetrics().height();
     if ( miText && (!!(*miText)) ) {
 	int amp = 0;
 	bool nextAmp = FALSE;
@@ -1036,9 +1040,9 @@ static void drawSGIPrefix( QPainter *p, int x, int y, int w, int h, QString* miT
 		
 		    uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
 
-		    p->drawLine( x+ulx, y+h-5, x+ulx+ulw, y+h-5 );
-		    p->drawLine( x+ulx, y+h-4, x+ulx+ulw/2, y+h-4 );
-		    p->drawLine( x+ulx, y+h-3, x+ulx+ulw/4, y+h-3 );
+		    p->drawLine( x+ulx, y, x+ulx+ulw, y );
+		    p->drawLine( x+ulx, y+1, x+ulx+ulw/2, y+1 );
+		    p->drawLine( x+ulx, y+2, x+ulx+ulw/4, y+2 );
 		}
 	    }
 	    amp++;
@@ -1151,8 +1155,11 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 			y+m, tab, h-2*m, text_flags, miText.mid( t+1 ) );
 	    miText = s.mid( 0, t );
 	}
+	QRect br = p->fontMetrics().boundingRect( x+xm, y+m, w-xm-tab+1, h-2*m, 
+		AlignVCenter|DontClip|SingleLine, mi->text() );
 
-	drawSGIPrefix( p, x+xm, y, w, mi->iconSet() ? h-m : h-m+2, &miText );
+	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(miText[0]), 
+		br.y()+br.height()+p->fontMetrics().underlinePos()-2, &miText );
 	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, miText, miText.length() );
     } else {
 	if ( mi->pixmap() ) {
@@ -1183,11 +1190,11 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 
     if ( !!mi->text() ) {
 	QString* text = new QString(mi->text());
-	int sw = p->fontMetrics().width( mi->text() );
-	int ls = w+1 - sw;
 	QRect br = p->fontMetrics().boundingRect( x, y-2, w+1, h, 
-		AlignCenter|DontClip|SingleLine, mi->text() );
-	drawSGIPrefix( p, x+ls/2+2, y-2, w+1, h, text );
+		AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text() );
+
+	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(*text[0]), 
+		br.y()+br.height()+p->fontMetrics().underlinePos()-2, text );
 	p->drawText( x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length() );
 	delete text;
     }
