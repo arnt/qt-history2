@@ -232,6 +232,7 @@ public:
     void actionTriggered();
 
     bool movable;
+    QSize old_size;
     Qt::ToolBarAreaFlags allowedAreas;
     Qt::ToolBarArea area;
     QToolBarHandle *handle;
@@ -513,18 +514,30 @@ void QToolBar::resizeEvent(QResizeEvent *)
     else
 	o = Qt::Vertical;
 
-    int i = 1; // tb handle is always the first item in the layout
+    // calculate the real size hint for the toolbar - even including
+    // hidden buttons/tb items
+    int i = 0;
+    QSize real_sh(0, 0);
+    while (layout()->itemAt(i))
+	real_sh += layout()->itemAt(i++)->widget()->sizeHint();
+    real_sh += QSize(layout()->spacing()*i + layout()->margin()*2,
+		     layout()->spacing()*i + layout()->margin()*2);
+
+    i = 1;  // tb handle is always the first item in the layout
+
+    // only consider the size of the extension if the tb is shrinking
+    // and the size is smaller than the real size hint
+    bool use_extension = (pick(o, size()) < pick(o, d->old_size)) || (pick(o, size()) < pick(o, real_sh));
     while (layout()->itemAt(i)) {
 	QWidget *w = layout()->itemAt(i)->widget();
-	if (!qt_cast<QToolBarExtension *>(w)) {
-	    if (pick(o, w->pos()) + pick(o, w->size())
-		> (pick(o, size()) - (d->extension->isShown() ? pick(o, d->extension->size()) : 0)))
-	    {
-		w->hide();
-		hidden.append(i-1);
-	    } else {
-		w->show();
-	    }
+	if (pick(o, w->pos()) + pick(o, w->size())
+	    >= (pick(o, size()) - ((use_extension && d->extension->isShown())
+				   ? pick(o, d->extension->size()) : 0)))
+	{
+	    w->hide();
+	    hidden.append(i-1);
+	} else {
+	    w->show();
 	}
 	++i;
     }
@@ -557,6 +570,7 @@ void QToolBar::resizeEvent(QResizeEvent *)
 	    d->extension->menu()->clear();
 	d->extension->hide();
     }
+    d->old_size = size();
 }
 
 #include "moc_qtoolbar.cpp"

@@ -512,7 +512,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    info.pos = QPoint(cur_pt + info.offset.x(), tb_rect[k].top());
 
 		if (pick_perp(where, info.offset) < 0) { // left/up motion
-		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) > prev_min) {
+		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) >= prev_min) {
 			// shrink the previous one and increase size of current with same
 			QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
