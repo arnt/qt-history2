@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+#include "qfile.h"
+
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64
@@ -48,8 +50,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #if defined(truncate)
 # undef truncate
 #endif
-
-#include "qfile.h"
 
 #include <errno.h>
 #include <limits.h>
