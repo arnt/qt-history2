@@ -120,7 +120,8 @@ Overviews
 <li><a href="qt4-scribe.html">Scribe: Text-Rendering Engine</a>
 <li><a href="qt4-mainwindow.html">Mainwindow</a>
 <li><a href="qt4-accessibility.html">Accessibility</a>
-<li><a href="qt4-sql.html">SQL</a>
+<li><a href="qt4-sql.html">SQL Module</a>
+<li><a href="qt4-network.html">Network Module</a>
 </ul>
 </td>
 <td valign="top">
