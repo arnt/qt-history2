@@ -972,10 +972,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 
 	// make sure image.color(0) == color0 (white) and image.color(1) == color1 (black)
-	if (image.color(0) == Qt::black.rgb() && image.color(1) == Qt::white.rgb()) {
+	const QRgb c0 = QColor(white).rgb();
+	const QRgb c1 = QColor(black).rgb();
+	if (image.color(0) == c1 && image.color(1) == c0) {
 	    image.invertPixels();
-	    image.setColor(0, Qt::white.rgb());
-	    image.setColor(1, Qt::black.rgb());
+	    image.setColor(0, c0);
+	    image.setColor(1, c1);
 	}
 
 	char  *bits;
