@@ -47,7 +47,7 @@ void ChangeProperties::on_listProperties_currentItemChanged(QTreeWidgetItem *cur
     valueLabel->setText(prop + " =");
 
     const QMetaObject *mo = activex->metaObject();
-    const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
+    const QMetaProperty property = mo->property(mo->indexOfProperty(prop.toLatin1()));
 
     valueLabel->setEnabled(property.isWritable());
     editValue->setEnabled(property.isWritable());
@@ -61,11 +61,11 @@ void ChangeProperties::on_buttonSet_clicked()
 	return;
     
     QString prop = item->text(0);
-    QVariant value = activex->property(prop.latin1());
+    QVariant value = activex->property(prop.toLatin1());
     QVariant::Type type = value.type();
     if (!value.isValid()) {
 	const QMetaObject *mo = activex->metaObject();
-	const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
+	const QMetaProperty property = mo->property(mo->indexOfProperty(prop.toLatin1()));
 	type = QVariant::nameToType(property.typeName());
     }
     switch (type) {
@@ -102,7 +102,7 @@ void ChangeProperties::on_buttonSet_clicked()
 	{
 	    QString fileName = editValue->text();
 	    if (fileName.isEmpty())
-		fileName = QFileDialog::getOpenFileName(QString::null, QString::null, this);
+		fileName = QFileDialog::getOpenFileName(this);
 	    QPixmap pm(fileName);
 	    if (pm.isNull())
 		return;
@@ -146,7 +146,7 @@ void ChangeProperties::on_buttonSet_clicked()
 	break;
     }
  
-    Q_ASSERT(activex->setProperty(prop.latin1(), value));
+    Q_ASSERT(activex->setProperty(prop.toLatin1(), value));
     setControl(activex);
     listProperties->setCurrentItem(listProperties->findItems(QRegExp(prop)).at(0));
 }
@@ -157,7 +157,7 @@ void ChangeProperties::on_listEditRequests_itemChanged(QTreeWidgetItem *item)
 	return;
 
     QString property = item->text(0);
-    activex->setPropertyWritable(property.latin1(), item->checkState(0) == Qt::Checked);
+    activex->setPropertyWritable(property.toLatin1(), item->checkState(0) == Qt::Checked);
 }
 
 

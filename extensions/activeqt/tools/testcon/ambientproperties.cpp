@@ -33,7 +33,7 @@ void AmbientProperties::setControl(QWidget *widget)
     p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
 
     fontSample->setFont( container->font() );
-    buttonEnabled->setOn( container->isEnabled() );
+    buttonEnabled->setChecked( container->isEnabled() );
     enabledSample->setEnabled( container->isEnabled() );
 }
 

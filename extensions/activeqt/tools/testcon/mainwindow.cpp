@@ -68,10 +68,10 @@ void MainWindow::on_actionFileNew_triggered()
 {
     QAxSelect select(this);
     if (select.exec()) {
-        QAxWidget *container = new QAxWidget(workspace, Qt::WDestructiveClose);
+        QAxWidget *container = new QAxWidget(workspace);
+        container->setAttribute(Qt::WA_DeleteOnClose);
         container->setControl(select.clsid());
 	container->setObjectName(container->windowTitle());
-        workspace->addWindow(container);
 	container->show();
     }
     updateGUI();
@@ -79,18 +79,17 @@ void MainWindow::on_actionFileNew_triggered()
 
 void MainWindow::on_actionFileLoad_triggered()
 {
-    QString fname = QFileDialog::getOpenFileName(QString::null, "*.qax", this);
+    QString fname = QFileDialog::getOpenFileName(this, "Load", QString(), "*.qax");
     if (fname.isEmpty())
 	return;
 
     QFile file(fname);
-    if (!file.open(IO_ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {
 	QMessageBox::information(this, "Error Loading File", QString("The file could not be opened for reading.\n%1").arg(fname));
 	return;
     }
 
     QAxWidget *container = new QAxWidget(workspace);
-    workspace->addWindow(container);
     
     QDataStream d(&file);
     d >> *container;
@@ -107,12 +106,12 @@ void MainWindow::on_actionFileSave_triggered()
     if (!container)
         return;
 
-    QString fname = QFileDialog::getSaveFileName(QString::null, "*.qax", this);
+    QString fname = QFileDialog::getSaveFileName(this, "Save", QString(), "*.qax");
     if (fname.isEmpty())
 	return;
 
     QFile file(fname);
-    if (!file.open(IO_WriteOnly)) {
+    if (!file.open(QIODevice::WriteOnly)) {
 	QMessageBox::information(this, "Error Saving File", QString("The file could not be opened for writing.\n%1").arg(fname));
 	return;
     }
@@ -199,7 +198,6 @@ void MainWindow::on_actionControlDocumentation_triggered()
 	return;
 
     DocuWindow *docwindow = new DocuWindow(docu, workspace, container);
-    workspace->addWindow(docwindow);
     docwindow->show();
 }
 
@@ -212,7 +210,8 @@ void MainWindow::on_actionControlPixmap_triggered()
 
     QPixmap pm = QPixmap::grabWidget(container);
 
-    QLabel *label = new QLabel(workspace, Qt::WDestructiveClose);
+    QLabel *label = new QLabel(workspace);
+    label->setAttribute(Qt::WA_DeleteOnClose);
     label->setPixmap(pm);
     label->setWindowTitle(container->windowTitle() + " - Pixmap");
 
@@ -237,7 +236,7 @@ void MainWindow::on_actionScriptingRun_triggered()
 
     bool ok = FALSE;
     QStringList macroList = scripts->functions(QAxScript::FunctionNames);
-    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, TRUE, &ok, this);
+    QString macro = QInputDialog::getItem(this, "Select Macro", "Macro:", macroList, 0, TRUE, &ok);
 
     if (!ok)
 	return;
@@ -251,8 +250,7 @@ void MainWindow::on_actionScriptingRun_triggered()
 void MainWindow::on_actionScriptingLoad_triggered()
 {
 #ifndef QT_NO_QAXSCRIPT
-    QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
-						this, "Open Script");
+    QString file = QFileDialog::getOpenFileName(this, "Open Script", QString(), QAxScriptManager::scriptFileFilter());
 
     if (file.isEmpty())
 	return;
@@ -336,7 +334,7 @@ void MainWindow::logPropertyChanged(const QString &prop)
     if (!container)
         return;
 
-    QVariant var = container->property(prop.latin1());
+    QVariant var = container->property(prop.toLatin1());
     logProperties->append(container->windowTitle() + ": Property Change: " + prop + " - { " + var.toString() + " }");
 }
 

@@ -21,6 +21,7 @@
 #include <qstatusbar.h>
 #include <qprinter.h>
 #include <qpainter.h>
+#include <qprintdialog.h>
 #include <qtextstream.h>
 
 static const char *filesave[] = {
@@ -77,13 +78,11 @@ DocuWindow::DocuWindow(const QString& docu, QWidget *parent, QWidget *source)
     setWindowTitle(source->windowTitle() + " - Documentation");
 
     browser = new QTextBrowser(this);
-    browser->setSource(docu);
-    browser->setText(docu);
+    browser->setHtml(docu);
 
     setCentralWidget(browser);
 
-    QToolBar *fileTools = new QToolBar(this, "file operations");
-    fileTools->setLabel("File");
+    QToolBar *fileTools = new QToolBar("File Operations", this);
     fileTools->addAction(QPixmap(filesave), "Save File", this, SLOT(save()));
     fileTools->addAction(QPixmap(fileprint), "Print", this, SLOT(print()));
 
@@ -93,15 +92,15 @@ DocuWindow::DocuWindow(const QString& docu, QWidget *parent, QWidget *source)
 
 void DocuWindow::save()
 {
-    QString filename = QFileDialog::getSaveFileName(QString::null, QString::null, this);
+    QString filename = QFileDialog::getSaveFileName(this);
 
     if (filename.isEmpty())
 	return;
 
-    QString text = browser->text();
+    QString text = browser->document()->toHtml();
     QFile f(filename);
-    if (!f.open(IO_WriteOnly)) {
-	statusBar()->message(QString("Could not write to %1").arg(filename), 2000);
+    if (!f.open(QIODevice::WriteOnly)) {
+	statusBar()->showMessage(QString("Could not write to %1").arg(filename), 2000);
 	return;
     }
 
@@ -109,18 +108,20 @@ void DocuWindow::save()
     t << text;
     f.close();
 
-    statusBar()->message(QString("File %1 saved").arg(filename), 2000);
+    statusBar()->showMessage(QString("File %1 saved").arg(filename), 2000);
 }
 
 void DocuWindow::print()
 {
     QPrinter printer;
     if (printer.printerName().isEmpty()) {
-	statusBar()->message(QString("No printer installed"), 2000);
+	statusBar()->showMessage(QString("No printer installed"), 2000);
 	return;
     }
-    if (!printer.setup(this)) {
-	statusBar()->message(QString("Printing aborted"), 2000);
+
+    QPrintDialog printDialog(&printer, this);
+    if (!printDialog.exec()) {
+	statusBar()->showMessage(QString("Printing aborted"), 2000);
 	return;
     }
 

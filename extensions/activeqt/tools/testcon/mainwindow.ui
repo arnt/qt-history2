@@ -252,7 +252,7 @@
       <property name="objectName" >
         <string notr="true" >Toolbar_2</string>
       </property>
-      <property name="label" >
+      <property name="windowTitle" >
         <string>Toolbar_2</string>
       </property>
       <addaction name="actionFileNew" />

@@ -27,6 +27,5 @@ int main( int argc, char **argv )
     MainWindow mw;
     mw.show();
 
-    app.setMainWidget( &mw );
     return app.exec();;
 }

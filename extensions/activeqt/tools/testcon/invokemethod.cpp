@@ -45,7 +45,7 @@ void InvokeMethod::setControl(QAxBase *ax)
 	for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
 	    const QMetaMember member = mo->member(i);
             if (member.memberType() == QMetaMember::Slot)
-	        comboMethods->insertItem(member.signature());
+	        comboMethods->addItem(member.signature());
 	}
         comboMethods->model()->sort(0);
 
@@ -67,7 +67,7 @@ void InvokeMethod::on_buttonInvoke_clicked()
 	QTreeWidgetItem *parameter = listParameters->topLevelItem(i);
 	vars << parameter->text(2);
     }
-    QVariant result = activex->dynamicCall(method, vars);
+    QVariant result = activex->dynamicCall(method.toLatin1(), vars);
 
     int v = 0;
     for (int i = 0; i < itemCount; ++i) {
@@ -87,7 +87,7 @@ void InvokeMethod::on_comboMethods_activated(const QString &method)
     listParameters->clear();
 
     const QMetaObject *mo = activex->metaObject();
-    const QMetaMember slot = mo->member(mo->indexOfSlot(method.latin1()));
+    const QMetaMember slot = mo->member(mo->indexOfSlot(method.toLatin1()));
     QString signature = slot.signature();
     signature = signature.mid(signature.indexOf('(') + 1);
     signature.truncate(signature.length()-1);
