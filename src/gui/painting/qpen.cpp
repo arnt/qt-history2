@@ -79,8 +79,10 @@
     \sa QPainter, QPainter::setPen()
 */
 
-class QPenData {
+class QPenPrivate {
 public:
+    void init(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
+
     QAtomic ref;
     qreal width;
     QBrush brush;
@@ -98,17 +100,16 @@ static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
 */
 
 
-void QPen::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle, Qt::PenCapStyle capStyle,
-                Qt::PenJoinStyle joinStyle)
+void QPenPrivate::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle,
+                       Qt::PenCapStyle capStyle, Qt::PenJoinStyle joinStyle)
 {
-    d = new QPenData;
-    d->ref = 1;
-    d->style = penStyle;
-    d->width = width;
-    d->brush = brush;
-    d->style = penStyle;
-    d->capStyle = capStyle;
-    d->joinStyle = joinStyle;
+    this->ref = 1;
+    this->style = penStyle;
+    this->width = width;
+    this->brush = brush;
+    this->style = penStyle;
+    this->capStyle = capStyle;
+    this->joinStyle = joinStyle;
 }
 
 /*!
@@ -118,7 +119,8 @@ void QPen::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle, Qt::Pen
 
 QPen::QPen()
 {
-    init(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+    d = new QPenPrivate;
+    d->init(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
 }
 
 /*!
@@ -129,7 +131,8 @@ QPen::QPen()
 
 QPen::QPen(Qt::PenStyle style)
 {
-    init(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
+    d = new QPenPrivate;
+    d->init(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
 }
 
 
@@ -141,7 +144,8 @@ QPen::QPen(Qt::PenStyle style)
 
 QPen::QPen(const QColor &color)
 {
-    init(color, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+    d = new QPenPrivate;
+    d->init(color, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
 }
 
 
@@ -155,7 +159,8 @@ QPen::QPen(const QColor &color)
 
 QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
 {
-    init(brush, width, s, c, j);
+    d = new QPenPrivate;
+    d->init(brush, width, s, c, j);
 }
 
 /*!
@@ -180,7 +185,7 @@ QPen::~QPen()
 }
 
 /*!
-    \fn QPen::detach()
+    \fn void QPen::detach()
     Detaches from shared pen data to make sure that this pen is the
     only one referring the data.
 
@@ -189,9 +194,12 @@ QPen::~QPen()
     single reference.
 */
 
-void QPen::detach_helper()
+void QPen::detach()
 {
-    QPenData *x = new QPenData;
+    if (d->ref == 1)
+        return;
+
+    QPenPrivate *x = new QPenPrivate;
     x->ref = 1;
     x->style = d->style;
     x->width = d->width;
@@ -477,17 +485,6 @@ bool QPen::operator==(const QPen &p) const
 bool QPen::isDetached()
 {
     return d->ref == 1;
-}
-
-/*!
-    \fn void QPen::detach()
-
-    \internal
-*/
-void QPen::detach()
-{
-    if (d->ref != 1)
-        detach_helper();
 }
 
 

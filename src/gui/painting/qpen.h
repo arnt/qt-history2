@@ -17,7 +17,7 @@
 #include "QtGui/qcolor.h"
 
 class QVariant;
-class QPenData;
+class QPenPrivate;
 class QBrush;
 
 class Q_GUI_EXPORT QPen
@@ -51,7 +51,7 @@ public:
 
     bool isSolid() const;
 
-    Qt::PenCapStyle        capStyle() const;
+    Qt::PenCapStyle capStyle() const;
     void setCapStyle(Qt::PenCapStyle pcs);
 
     Qt::PenJoinStyle joinStyle() const;
@@ -65,9 +65,7 @@ public:
 private:
     friend class QPainter;
     void detach();
-    void detach_helper();
-    void init(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
-    class QPenData *d;
+    class QPenPrivate *d;
 };
 Q_DECLARE_TYPEINFO(QPen, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QPen);
