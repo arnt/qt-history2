@@ -32,7 +32,7 @@ bool qt_notify_accessibility( QObject *o, int reason )
     if ( !w )
 	return FALSE;
 
-    NotifyWinEvent( reason, w->winId(), OBJID_WINDOW, CHILDID_SELF );
+    NotifyWinEvent( reason, w->winId(), OBJID_CLIENT, CHILDID_SELF );
 
     return TRUE;
 }
