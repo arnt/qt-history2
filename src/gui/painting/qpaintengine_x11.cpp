@@ -488,27 +488,45 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
  */
 
 QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
-    : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine)
+    : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine | SolidAlphaFill)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
     d->pdev = target;
     d->xinfo = 0;
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    d->xrender_pix = XCreatePixmap(d->dpy, d->hd, 128, 128, 32);
+    d->xrender_pict = XRenderCreatePicture(d->dpy, d->xrender_pix, XRenderFindStandardFormat(d->dpy, PictStandardARGB32), 0, 0);
+    XRenderPictureAttributes ra;
+    ra.repeat = true;
+    XRenderChangePicture(d->dpy, d->xrender_pict, CPRepeat, &ra);
+#endif
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
-    : QPaintEngine(dptr, DrawRects | UsesFontEngine)
+    : QPaintEngine(dptr, DrawRects | UsesFontEngine | SolidAlphaFill)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
     d->pdev = target;
     d->xinfo = 0;
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    d->xrender_pix = XCreatePixmap(d->dpy, d->hd, 128, 128, 32);
+    d->xrender_pict = XRenderCreatePicture(d->dpy, d->xrender_pix, XRenderFindStandardFormat(d->dpy, PictStandardARGB32), 0, 0);
+    XRenderPictureAttributes ra;
+    ra.repeat = true;
+    XRenderChangePicture(d->dpy, d->xrender_pict, CPRepeat, &ra);
+#endif
 }
 
 QX11PaintEngine::~QX11PaintEngine()
 {
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    XRenderFreePicture(d->dpy, d->xrender_pict);
+    XFreePixmap(d->dpy, d->xrender_pix);
+#endif
 }
 
 void QX11PaintEngine::initialize()
@@ -662,6 +680,30 @@ void QX11PaintEngine::drawRect(const QRect &r)
 {
     if (!isActive())
         return;
+
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+
+    if (pict) {
+	if (d->cbrush.style() != NoBrush) {
+	    if (d->cpen.style() == NoPen) {
+		XRenderColor xc;
+		QColor qc = d->cbrush.color();
+
+		xc.red = qc.red() << 8 | qc.red();
+		xc.green = qc.green() << 8 | qc.green();
+		xc.blue = qc.blue() << 8 | qc.blue();
+		xc.alpha = qc.alpha() << 8 | qc.alpha();
+
+		XRenderFillRectangle(d->dpy, PictOpSrc, d->xrender_pict, &xc, 0, 0, r.width(), r.height());
+		XRenderComposite(d->dpy, PictOpOver, d->xrender_pict, d->xrender_pict, pict,
+				 0, 0, 0, 0, r.x(), r.y(), r.width(), r.height());
+		return;
+	    }
+	}
+    }
+#endif // !QT_NO_XFT && !QT_NO_XRENDER
+
     if (d->cbrush.style() != NoBrush) {
         if (d->cpen.style() == NoPen) {
             XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
