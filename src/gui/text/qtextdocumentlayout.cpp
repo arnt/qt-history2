@@ -822,7 +822,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     QTextLayout *tl = bl.layout();
     currentBlock = bl;
 
-    tl->setTextFlags(blockFormat.alignment()|d->blockTextFlags);
+    int flags = d->blockTextFlags | blockFormat.alignment();
+    if (blockFormat.nonBreakableLines())
+        // QTextLine::layout still obeys QChar::LineSeparator in that mode
+        flags |= Qt::TextSingleLine;
+    tl->setTextFlags(flags);
+
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
     tl->clearLines();
