@@ -28,8 +28,8 @@ AnalogClock::AnalogClock( QWidget *parent, const char *name )
 
 void AnalogClock::mousePressEvent( QMouseEvent *e )
 {
-    if(isTopLevel())
-	clickPos = e->pos();
+    if(isTopLevel()) 
+	clickPos = e->pos() + QPoint(geometry().topLeft() - frameGeometry().topLeft());
 }
 
 void AnalogClock::mouseMoveEvent( QMouseEvent *e )
