@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#25 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#25 $");
 
 
 QTab::~QTab()
@@ -282,8 +282,9 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     }
 
-    if ( has_focus )
+    if ( !has_focus )
 	return;
+
     if ( style() == WindowsStyle )
 	p->drawWinFocusRect( br );
     else
