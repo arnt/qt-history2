@@ -783,7 +783,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 
-    t << ofile << ": " << project->projectFile() << " \\\n\t\t"
+    t << "qmake " << ofile << ": " << project->projectFile() << " \\\n\t\t"
       << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
       << "qmake " << project->projectFile();
     if (!ofile.isEmpty())
