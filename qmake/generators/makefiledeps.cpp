@@ -452,22 +452,19 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             bool exists = false;
             QMakeLocalFileName lfn(inc);
             if(QDir::isRelativePath(lfn.real())) {
-#if 0
-                QString dir /*= QFileInfo(file->file.local()).dirPath()*/;
-                if(QDir::isRelativePath(dir)) 
-                    dir.prepend(QDir::currentDirPath() + "/");
-#else
-                QString dir = QDir::currentDirPath();
-#endif
-                if(!dir.endsWith("/"))
-                    dir += "/";
                 if(try_local) {
+                    QString dir = QFileInfo(file->file.local()).dirPath();
+                    if(QDir::isRelativePath(dir)) 
+                        dir.prepend(QDir::currentDirPath() + "/");
+                    if(!dir.endsWith("/"))
+                        dir += "/";
                     QMakeLocalFileName f(dir + lfn.local());
-                    if(QFile::exists(lfn.real().latin1())) {
+                    if(QFile::exists(f.real())) {
                         lfn = fixPathForFile(f);
                         exists = true;
                     }
-                } else { //path lookup
+                } 
+                if(!exists) { //path lookup
                     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
                         QMakeLocalFileName f((*it).real() + Option::dir_sep + lfn.real());
                         if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode)) {
@@ -480,6 +477,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     lfn = findFileForDep(QMakeLocalFileName(inc));
                     exists = !lfn.isNull();
                 }
+            } else {
+                exists = QFile::exists(lfn.real());
             }
 
             SourceFile *dep = files->lookupFile(lfn);
@@ -488,7 +487,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 dep->file = lfn;
                 dep->exists = exists;
                 files->addFile(dep);
-            } else if(dep->exists != exists) {
+            } else if(dep->exists != exists) { //not really possible, but seems dangerous -Sam
                 warn_msg(WarnLogic, "%s is found to exist after not existing before!", 
                          lfn.local().latin1());
             }
