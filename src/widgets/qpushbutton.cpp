@@ -261,7 +261,7 @@ QPushButton::~QPushButton()
 
 void QPushButton::init()
 {
-    d = NULL;
+    d = 0;
     defButton = FALSE;
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
@@ -556,7 +556,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
  */
 void QPushButton::setPopup( QPopupMenu* popup )
 {
-    if ( !d ) 
+    if ( !d )
 	d = new QPushButtonPrivate;
     if ( popup && !d->popup )
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
@@ -569,7 +569,7 @@ void QPushButton::setPopup( QPopupMenu* popup )
 
 void QPushButton::setIconSet( const QIconSet& icon )
 {
-    if ( !d ) 
+    if ( !d )
 	d = new QPushButtonPrivate;
     if ( !icon.isNull() ) {
 	if ( d->iconset )
