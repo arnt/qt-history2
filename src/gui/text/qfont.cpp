@@ -23,9 +23,7 @@
 #include "qdatastream.h"
 #include "qapplication.h"
 #include "qstringlist.h"
-#ifdef Q_WS_MAC
 #include "qpaintdevicemetrics.h"
-#endif
 
 #include <private/qunicodetables_p.h>
 #include <private/qfontdata_p.h>
@@ -35,6 +33,7 @@
 
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
+extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
 
 // #define QFONTCACHE_DEBUG
@@ -107,24 +106,36 @@ bool QFontDef::exactMatch(const QFontDef &other) const
        );
 }
 
+static int defaultDpi()
+{
 
+    int dpi;
+#ifdef Q_WS_X11
+    dpi = QX11Info::appDpiY();
+#elif defined(Q_WS_WIN)
+    dpi = GetDeviceCaps(shared_dc,LOGPIXELSY);
+#elif defined(Q_WS_MAC)
+    short hr;
+    ScreenRes(&hr, &dpi);
+#elif defined(Q_WS_QWS)
+    dpi = 72;
+#endif // Q_WS_X11
 
+    return dpi;
+}
 
 QFontPrivate::QFontPrivate()
-    : engineData(0), paintdevice(0),
+    : engineData(0), dpi(defaultDpi()), screen(0),
       rawMode(false), underline(false), overline(false), strikeOut(false), kerning(false)
 {
     ref = 1;
 #ifdef Q_WS_X11
     screen = QX11Info::appScreen();
-#else
-    screen = 0;
-#endif // Q_WS_X11
+#endif
 }
 
 QFontPrivate::QFontPrivate(const QFontPrivate &other)
-    : request(other.request), engineData(0),
-      paintdevice(other.paintdevice), screen(other.screen),
+    : request(other.request), engineData(0), dpi(other.dpi), screen(other.screen),
       rawMode(other.rawMode), underline(other.underline), overline(other.overline),
       strikeOut(other.strikeOut), kerning(other.kerning)
 {
@@ -141,6 +152,8 @@ QFontPrivate::~QFontPrivate()
 void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 {
     Q_ASSERT(other != 0);
+
+    dpi = other->dpi;
 
     if ((mask & Complete) == Complete) return;
 
@@ -514,21 +527,37 @@ QFontEngineData::~QFontEngineData()
     \omitvalue LastPrivateScript
 */
 
-/*! \internal
-
-    Constructs a font for use on the paint device \a pd using the
-    specified font \a data.
+/*!
+  Constructs a font from \a font for use on the paint device \a pd.
 */
-QFont::QFont(QFontPrivate *data, QPaintDevice *pd)
+QFont::QFont(const QFont &font, QPaintDevice *pd)
     : resolve_mask(0)
 {
-    if (pd != data->paintdevice) {
-        d = new QFontPrivate(*data);
-        d->paintdevice = pd;
+    Q_ASSERT(pd != 0);
+    int dpi = QPaintDeviceMetrics(pd).logicalDpiY();
+#ifdef Q_WS_X11
+    const QX11Info *info = qt_x11Info(pd);
+    int screen = info ? info->screen() : 0;
+#else
+    const int screen = 0;
+#endif
+    if (font.d->dpi != dpi || font.d->screen != screen ) {
+        d = new QFontPrivate(*font.d);
+        d->dpi = dpi;
+        d->screen = screen;
     } else {
-        d = data;
+        d = font.d;
         ++d->ref;
     }
+}
+
+/*!
+  \internal
+*/
+QFont::QFont(QFontPrivate *data)
+{
+    d = data;
+    ++d->ref;
 }
 
 /*! \internal
@@ -1328,8 +1357,9 @@ bool QFont::rawMode() const
 */
 QFont QFont::resolve(const QFont &other) const
 {
-    if (*this == other && resolve_mask == other.resolve_mask
-        || resolve_mask == 0) {
+    if (*this == other
+        && (resolve_mask == other.resolve_mask || resolve_mask == 0)
+        && d->dpi == other.d->dpi) {
         QFont o = other;
         o.resolve_mask = resolve_mask;
         return o;
@@ -1861,22 +1891,29 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
 /*!
     Constructs a font metrics object for \a font.
 
-    The font must be screen-compatible, i.e. a font you use when
-    drawing text in \link QWidget widgets\endlink or \link QPixmap
-    pixmaps\endlink, not QPicture or QPrinter.
+    The font metrics will be screen-compatible, i.e. the metrics you
+    get if you use the font for drawing text on a \link QWidget
+    widgets\endlink or \link QPixmap pixmaps\endlink, not on a
+    QPicture or QPrinter.
 
     The font metrics object holds the information for the font that is
     passed in the constructor at the time it is created, and is not
     updated if the font's attributes are changed later.
 
-  Use QPainter::fontMetrics() to get the font metrics when painting.
-  This will give correct results also when painting on paint device
-  that is not screen-compatible.
+    Use QFontMetrics(const QFont &, QPaintDevice *) to get the font
+    metrics that are compatible with a certain paint device.
 */
 QFontMetrics::QFontMetrics(const QFont &font)
-    : d(font.d), painter(0), fscript(QFont::NoScript)
+    : d(font.d), fscript(QFont::NoScript)
 {
-    ++d->ref;
+    int dpi = defaultDpi();
+    if (font.d->dpi != dpi) {
+        d = new QFontPrivate(*font.d);
+        d->dpi = dpi;
+        d->screen = 0;
+    } else {
+        ++d->ref;
+    }
 }
 
 /*!
@@ -1886,47 +1923,56 @@ QFontMetrics::QFontMetrics(const QFont &font)
     script.
 */
 QFontMetrics::QFontMetrics(const QFont &font, QFont::Script script)
-    : d(font.d), painter(0), fscript(script)
+    : d(font.d), fscript(script)
 {
-    ++d->ref;
+    int dpi = defaultDpi();
+    if (font.d->dpi != dpi) {
+        d = new QFontPrivate(*font.d);
+        d->dpi = dpi;
+        d->screen = 0;
+    } else {
+        ++d->ref;
+    }
 }
 
-/*! \internal
+/*!
+    Constructs a font metrics object for \a font and \a paintdevice.
 
-  Constructs a font metrics object for the painter's font \a p.
+    The font metrics will be compatible with the paintdevice passed.
+    If the \a paintdevice is 0, the metrics will be screen-compatible,
+    ie. the metrics you get if you use the font for drawing text on a
+    \link QWidget widgets\endlink or \link QPixmap pixmaps\endlink,
+    not on a QPicture or QPrinter.
+
+    The font metrics object holds the information for the font that is
+    passed in the constructor at the time it is created, and is not
+    updated if the font's attributes are changed later.
 */
-QFontMetrics::QFontMetrics(const QPainter *p)
-    : painter ((QPainter *) p), fscript(QFont::NoScript)
+QFontMetrics::QFontMetrics(const QFont &f, QPaintDevice *paintdevice)
+    : fscript(QFont::NoScript)
 {
-#if defined(CHECK_STATE)
-    if (!painter->isActive())
-        qWarning("QFontMetrics: Get font metrics between QPainter::begin() "
-                  "and QPainter::end()");
+    int dpi = paintdevice ? QPaintDeviceMetrics(paintdevice).logicalDpiY() : defaultDpi();
+#ifdef Q_WS_X11
+    int screen = paintdevice ? qt_x11Info(paintdevice)->screen() : 0;
+#else
+    const int screen = 0;
 #endif
+    if (f.d->dpi != dpi || f.d->screen != screen ) {
+        d = new QFontPrivate(*f.d);
+        d->dpi = dpi;
+        d->screen = screen;
+    } else {
+        d = f.d;
+        ++d->ref;
+    }
 
-// ### check this: Q_Q3PAINTER stuff
-//     if (painter->testf(QPainter::DirtyFont))
-//         painter->updateFont();
-//     d = painter->pfont ? painter->pfont->d : painter->cfont.d;
-
-    d = painter->font().d;
-
-// ### check this: Q_Q3PAINTER stuff
-//     if (d->screen != p->scrn) {
-//         QFontPrivate *new_d = new QFontPrivate(*d);
-//         d = new_d;
-//         d->screen = p->scrn;
-//         d->count = 1;
-//     } else
-
-    ++d->ref;
 }
 
 /*!
     Constructs a copy of \a fm.
 */
 QFontMetrics::QFontMetrics(const QFontMetrics &fm)
-    : d(fm.d), painter(0),  fscript(fm.fscript)
+    : d(fm.d),  fscript(fm.fscript)
 {
     ++d->ref;
 }
@@ -1947,9 +1993,28 @@ QFontMetrics::~QFontMetrics()
 QFontMetrics &QFontMetrics::operator=(const QFontMetrics &fm)
 {
     qAtomicAssign(d, fm.d);
-    painter = fm.painter;
     return *this;
 }
+
+/*!
+  returns true if the two fontmetrics are equal.
+
+  Two font metrics are considered equal if they were constructed from the
+  same QFont and the paintdevices they were constructed for are considered
+  compatible.
+*/
+bool QFontMetrics::operator ==(const QFontMetrics &other)
+{
+    return d == other.d;
+}
+
+/*!
+  \fn bool QFontMetrics::operator !=(const QFontMetrics &other);
+
+  returns true if the two font metrics objects are not equal.
+
+  \sa operator==()
+*/
 
 /*!
     Returns the ascent of the font.
@@ -2383,8 +2448,7 @@ QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
 
     QRectF rb;
     QRectF r(x, y, w, h);
-    qt_format_text(QFont(d, d->paintdevice), r, flgs|Qt::TextDontPrint, str, len, &rb,
-                    tabstops, tabarray, tabarraylen, 0);
+    qt_format_text(QFont(d), r, flgs|Qt::TextDontPrint, str, len, &rb, tabstops, tabarray, tabarraylen, 0);
 
     return rb.toRect();
 }

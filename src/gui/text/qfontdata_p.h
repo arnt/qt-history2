@@ -71,8 +71,7 @@ struct QFontDef
     bool exactMatch(const QFontDef &other) const;
     bool operator==(const QFontDef &other) const
     {
-        return  pointSize == other.pointSize
-                    && pixelSize == other.pixelSize
+        return pixelSize == other.pixelSize
                     && weight == other.weight
                     && italic == other.italic
                     && stretch == other.stretch
@@ -152,7 +151,9 @@ public:
     QAtomic ref;
     QFontDef request;
     QFontEngineData *engineData;
+    // ##### so it continues compiling until the other platforms are fixed.
     QPaintDevice *paintdevice;
+    int dpi;
     int screen;
 
     uint rawMode    :  1;
@@ -196,7 +197,7 @@ public:
     // universal key structure.  QFontEngineDatas and QFontEngines are cached using
     // the same keys
     struct Key {
-        Key() : screen(0) { }
+        Key() : script(0), screen(0) { }
         Key(const QFontDef &d, QFont::Script c, int s = 0)
             : def(d), script(c), screen(s) { }
 

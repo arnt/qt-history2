@@ -27,6 +27,7 @@ class QRect;
 class QRegion;
 class QTextFormat;
 class QPalette;
+class QPainter;
 
 class Q_GUI_EXPORT QTextInlineObject
 {
@@ -61,7 +62,7 @@ private:
     QTextEngine *eng;
 };
 
-class QPainter;
+class QPaintDevice;
 class QTextFormatCollection;
 class QTextFormat;
 class QTextLine;
@@ -74,7 +75,7 @@ public:
     // does itemization
     QTextLayout();
     QTextLayout(const QString& string);
-    QTextLayout(const QString& string, QPainter *);
+    QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice);
     QTextLayout(const QString& string, const QFont& fnt);
     QTextLayout(const QTextBlock &b);
     ~QTextLayout();

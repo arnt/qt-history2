@@ -1155,13 +1155,13 @@ QFont QTextEngine::font(const QScriptItem &si) const
             fnt = fnt.resolve(docLayout->defaultFont());
         return fnt;
     }
-    return QFont(fp, 0);
+    return QFont(fp);
 }
 
 QFont QTextEngine::font() const
 {
     if (fnt)
-        return QFont(fnt, fnt->paintdevice);
+        return QFont(fnt);
     return QFont();
 }
 

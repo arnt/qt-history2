@@ -330,11 +330,11 @@ QTextLayout::QTextLayout(const QString& string)
     Constructs a text layout to lay out the given \a string.
 
     All the metric and layout calculations will be done in terms of
-    the painter, \a p.
+    the paint device, \a paintdevice.
 */
-QTextLayout::QTextLayout(const QString& string, QPainter *p)
+QTextLayout::QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice)
 {
-    QFontPrivate *f = p ? (p->font().d) : QApplication::font().d;
+    QFontPrivate *f = QFont(font, paintdevice).d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), f);
 }
 

@@ -321,10 +321,7 @@ QPainter*  Q3TextFormat::painter()
 void Q3TextFormat::applyFont(const QFont &f)
 {
     QFontMetrics fm(pntr->fontMetrics());
-    if (!pntr_fm
-        || pntr_fm->painter != pntr
-        || pntr_fm->d != fm.d
-        || !pntr->font().isCopyOf(f)) {
+    if (!pntr_fm || (*pntr_fm != fm)) {
         pntr->setFont(f);
         delete pntr_fm;
         pntr_fm = new QFontMetrics(pntr->fontMetrics());

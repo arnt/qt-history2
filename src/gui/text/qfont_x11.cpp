@@ -42,46 +42,33 @@
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
-double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
+double qt_pixelSize(double pointSize, int dpi)
 {
+    if (dpi == 75) // the stupid 75 dpi setting on X11
+        dpi = 72;
     if (pointSize < 0) return -1.;
-
-    double result = pointSize;
-    if (paintdevice && QPaintDeviceMetrics(paintdevice).logicalDpiY() != 75)
-        result *= QPaintDeviceMetrics(paintdevice).logicalDpiY() / 72.;
-    else if (QX11Info::appDpiY(scr) != 75)
-        result *= QX11Info::appDpiY(scr) / 72.;
-
-    return result;
+    return (pointSize * dpi) /72.;
 }
 
-double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
+double qt_pointSize(double pixelSize, int dpi)
 {
     if (pixelSize < 0) return -1.;
 
-    double result = pixelSize;
-    if (paintdevice && QPaintDeviceMetrics(paintdevice).logicalDpiY() != 75)
-        result *= 72. / QPaintDeviceMetrics(paintdevice).logicalDpiY();
-    else if (QX11Info::appDpiY(scr) != 75)
-        result *= 72. / QX11Info::appDpiY(scr);
-
-    return result;
+    if (dpi == 75) // the stupid 75 dpi setting on X11
+        dpi = 72;
+    return pixelSize * 72. / ((double) dpi);
 }
 
-static inline double pixelSize(const QFontDef &request, QPaintDevice *paintdevice,
-                                int scr)
+static inline double pixelSize(const QFontDef &request, int dpi)
 {
     return ((request.pointSize != -1) ?
-            qt_pixelSize(request.pointSize / 10., paintdevice, scr) :
-            (double)request.pixelSize);
+            qt_pixelSize(request.pointSize / 10., dpi) : (double)request.pixelSize);
 }
 
-static inline double pointSize(const QFontDef &request, QPaintDevice *paintdevice,
-                                int scr)
+static inline double pointSize(const QFontDef &request, int dpi)
 {
     return ((request.pixelSize != -1) ?
-            qt_pointSize(request.pixelSize, paintdevice, scr) * 10.:
-            (double)request.pointSize);
+            qt_pointSize(request.pixelSize, dpi) * 10.: (double)request.pointSize);
 }
 
 /*
@@ -313,7 +300,7 @@ void QFontPrivate::load(QFont::Script script)
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 
     QFontDef req = request;
-    req.pixelSize = qRound(pixelSize(req, paintdevice, screen));
+    req.pixelSize = qRound(pixelSize(req, dpi));
 
     // set the point size to 0 to get better caching
     req.pointSize = 0;
@@ -334,7 +321,7 @@ void QFontPrivate::load(QFont::Script script)
     }
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
-     req.pointSize = qRound(pointSize(request, paintdevice, screen));
+    req.pointSize = qRound(pointSize(request, dpi));
 
     // the cached engineData could have already loaded the engine we want
     if (engineData->engines[script]) return;
@@ -457,9 +444,9 @@ void QFont::setRawName(const QString &name)
     detach();
 
     // from qfontdatabase_x11.cpp
-    extern bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int screen);
+    extern bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi);
 
-    if (! qt_fillFontDef(qt_fixXLFD(name.toLatin1()), &d->request, d->screen)) {
+    if (!qt_fillFontDef(qt_fixXLFD(name.toLatin1()), &d->request, d->dpi)) {
         qWarning("QFont::setRawName(): Invalid XLFD: \"%s\"", name.latin1());
 
         setFamily(name);

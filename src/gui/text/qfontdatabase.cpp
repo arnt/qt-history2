@@ -922,11 +922,9 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             return fe;
         }
 
-        QFontCache::Key key(request, script,
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-                            (int)fp->paintdevice
-#else
-                            fp->screen
+        QFontCache::Key key(request, script
+#if defined(Q_WS_X11)
+                            , fp->screen
 #endif
             );
         fe = QFontCache::instance->findEngine(key);
@@ -1148,8 +1146,11 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
             if (best_style->smoothScalable)
                 fe->fontDef.pixelSize = request.pixelSize;
-            else if (best_style->bitmapScalable &&
-                     (request.styleStrategy & QFont::PreferMatch))
+            else if ((best_style->bitmapScalable && (request.styleStrategy & QFont::PreferMatch))
+#ifdef Q_WS_X11
+                      || fp->dpi != QX11Info::appDpiY(fp->screen)
+#endif
+                )
                 fe->fontDef.pixelSize = request.pixelSize;
             else
                 fe->fontDef.pixelSize = best_size->pixelSize;
@@ -1157,7 +1158,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             if (fp) {
 #if defined(Q_WS_X11)
                 fe->fontDef.pointSize =
-                    int(qt_pointSize(fe->fontDef.pixelSize, fp->paintdevice, fp->screen) * 10.);
+                    int(qt_pointSize(fe->fontDef.pixelSize, fp->dpi) * 10.);
 #elif defined(Q_WS_WIN)
                 fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
                                                 GetDeviceCaps(shared_dc,LOGPIXELSY));
@@ -1195,11 +1196,9 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             fe = new QFontEngineBox(request.pixelSize);
 
             if (fp) {
-                QFontCache::Key key(request, script,
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-                                    (int)fp->paintdevice
-#else
-                                    fp->screen
+                QFontCache::Key key(request, script
+#if defined(Q_WS_X11)
+                                    , fp->screen
 #endif
                     );
                 QFontCache::instance->insertEngine(key, fe);
@@ -1214,11 +1213,9 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 def.family = fp->request.family;
                 def.family = def.family.left(def.family.indexOf(','));
             }
-            QFontCache::Key key(def, script,
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-                                (int)fp->paintdevice
-#else
-                                fp->screen
+            QFontCache::Key key(def, script
+#if defined(Q_WS_X11)
+                                , fp->screen
 #endif
                 );
             QFontCache::instance->insertEngine(key, fe);
@@ -1242,11 +1239,9 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             fe = new QFontEngineBox(request.pixelSize);
 
             if (fp) {
-                QFontCache::Key key(request, script,
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-                                    (int)fp->paintdevice
-#else
-                                    fp->screen
+                QFontCache::Key key(request, script
+#if defined(Q_WS_X11)
+                                    , fp->screen
 #endif
                     );
                 QFontCache::instance->insertEngine(key, fe);
@@ -1626,6 +1621,13 @@ QList<int> QFontDatabase::pointSizes(const QString &family,
     QtFontFamily *fam = d->family(familyName);
     if (!fam) return sizes;
 
+
+#ifdef Q_WS_X11
+    int dpi = QX11Info::appDpiY();
+#else
+    const int dpi = 72; // embedded
+#endif
+
     for (int j = 0; j < fam->count; j++) {
         QtFontFoundry *foundry = fam->foundries[j];
         if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
@@ -1640,11 +1642,7 @@ QList<int> QFontDatabase::pointSizes(const QString &family,
                 const QtFontSize *size = style->pixelSizes + l;
 
                 if (size->pixelSize != 0 && size->pixelSize != USHRT_MAX) {
-#ifdef Q_WS_X11
-                    const uint pointSize = qRound(qt_pointSize(size->pixelSize, 0, -1));
-#else
-                    const uint pointSize = size->pixelSize; // embedded uses 72dpi
-#endif
+                    const uint pointSize = qRound(size->pixelSize * dpi / 72.);
                     if (! sizes.contains(pointSize))
                         sizes.append(pointSize);
                 }
@@ -1726,6 +1724,11 @@ QList<int> QFontDatabase::smoothSizes(const QString &family,
     if (!fam)
         return sizes;
 
+#ifdef Q_WS_X11
+    int dpi = QX11Info::appDpiY();
+#else
+    const int dpi = 72; // embedded
+#endif
     for (int j = 0; j < fam->count; j++) {
         QtFontFoundry *foundry = fam->foundries[j];
         if (foundryName.isEmpty() ||
@@ -1741,11 +1744,7 @@ QList<int> QFontDatabase::smoothSizes(const QString &family,
                 const QtFontSize *size = style->pixelSizes + l;
 
                 if (size->pixelSize != 0 && size->pixelSize != USHRT_MAX) {
-#ifdef Q_WS_X11
-                    const uint pointSize = qRound(qt_pointSize(size->pixelSize, 0, -1));
-#else
-                    const uint pointSize = size->pixelSize; // embedded uses 72dpi
-#endif
+                    const uint pointSize = qRound(size->pixelSize * dpi / 72.);
                     if (! sizes.contains(pointSize))
                         sizes.append(pointSize);
                 }

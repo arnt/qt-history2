@@ -69,6 +69,7 @@ public:
 
     QFont();
     QFont(const QString &family, int pointSize = -1, int weight = -1, bool italic = false);
+    QFont(const QFont &, QPaintDevice *pd);
     QFont(const QFont &);
     ~QFont();
 
@@ -277,7 +278,7 @@ protected:
     int deciPointSize() const;
 
 private:
-    QFont(QFontPrivate *, QPaintDevice *pd);
+    QFont(QFontPrivate *);
 
     void detach();
 

@@ -40,8 +40,8 @@
 #endif // QFONTDATABASE_DEBUG
 
 // from qfont_x11.cpp
-extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int screen);
-extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
+extern double qt_pointSize(double pixelSize, int dpi);
+extern double qt_pixelSize(double pointSize, int dpi);
 
 static inline void capitalize (char *s)
 {
@@ -570,7 +570,7 @@ static inline bool isFixedPitch(char **tokens)
   Returns true if the the given xlfd is valid.  The fields lbearing
   and rbearing are not given any values.
 */
-bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int screen)
+bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
 {
     char *tokens[NFontFields];
     QByteArray buffer = xlfd;
@@ -603,13 +603,12 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int screen)
     int r = atoi(tokens[ResolutionY]);
     fd->pixelSize = atoi(tokens[PixelSize]);
     // not "0" or "*", or required DPI
-    if (r && fd->pixelSize && QX11Info::appDpiY(screen) &&
-         r != QX11Info::appDpiY(screen)) {
+    if (r && fd->pixelSize && r != dpi) {
         // calculate actual pointsize for display DPI
-        fd->pointSize = qRound(qt_pointSize(fd->pixelSize, 0, screen) * 10.);
+        fd->pointSize = qRound(qt_pointSize(fd->pixelSize, dpi) * 10.);
     } else if (fd->pixelSize == 0 && fd->pointSize) {
         // calculate pixel size from pointsize/dpi
-        fd->pixelSize = qRound(qt_pixelSize(fd->pointSize / 10., 0, screen));
+        fd->pixelSize = qRound(qt_pixelSize(fd->pointSize / 10., dpi));
     }
 
     return true;
@@ -623,7 +622,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int screen)
   the XFontStruct.  The fields lbearing and rbearing are not given any
   values.
 */
-static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int screen)
+static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int dpi)
 {
     unsigned long value;
     if (fs && !XGetFontProperty(fs, XA_FONT, &value))
@@ -633,7 +632,7 @@ static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int screen)
     QByteArray xlfd(n);
     if (n)
         XFree(n);
-    return qt_fillFontDef(xlfd.toLower(), fd, screen);
+    return qt_fillFontDef(xlfd.toLower(), fd, dpi);
 }
 
 
@@ -1230,8 +1229,8 @@ QFontEngine *loadEngine(QFont::Script script,
             return 0;
 
         QFontEngine *fe = new QFontEngineXLFD(xfs, xlfd.data(), 0);
-        if (! qt_fillFontDef(xfs, &fe->fontDef, QX11Info::appScreen()) &&
-             ! qt_fillFontDef(xlfd, &fe->fontDef, QX11Info::appScreen()))
+        if (! qt_fillFontDef(xfs, &fe->fontDef, fp->dpi) &&
+             ! qt_fillFontDef(xlfd, &fe->fontDef, fp->dpi))
             fe->fontDef = QFontDef();
 
         return fe;
@@ -1302,8 +1301,7 @@ QFontEngine *loadEngine(QFont::Script script,
             return 0;
 
         QFontEngine *fe = new QFontEngineXft(xftfs, result, symbol ? 1 : 0);
-        if (fp->paintdevice
-            && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY()) {
+        if (fp->dpi != QX11Info::appDpiY(fp->screen)) {
             double px;
             FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
             scale = (double)request.pixelSize/px;
@@ -1340,8 +1338,7 @@ QFontEngine *loadEngine(QFont::Script script,
         scale = (double)px/(double)MAXFONTSIZE_XLFD;
         px = MAXFONTSIZE_XLFD;
     }
-    if (fp && fp->paintdevice
-        && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY())
+    if (fp && fp->dpi != QX11Info::appDpiY())
         scale = (double)request.pixelSize/(double)px;
 
     xlfd += QByteArray::number(px);
@@ -1558,8 +1555,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
             qDebug("couldn't open fontconfigs chosen font with Xft!!!");
         } else {
             fe = new QFontEngineXft(xftfs, result, 0);
-            if (fp->paintdevice
-                && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY()) {
+            if (fp->dpi != QX11Info::appDpiY()) {
                 double px;
                 FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
                 scale = request.pixelSize/px;

@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QFontMetrics
 {
 public:
     QFontMetrics(const QFont &);
+    QFontMetrics(const QFont &, QPaintDevice *pd);
     QFontMetrics(const QFont &, QFont::Script);
     QFontMetrics(const QFontMetrics &);
     ~QFontMetrics();
@@ -68,19 +69,17 @@ public:
     int                strikeOutPos()        const;
     int                lineWidth()        const;
 
+    bool operator ==(const QFontMetrics &other);
+    inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
 private:
-    QFontMetrics(const QPainter *);
-
     friend class QWidget;
     friend class QPainter;
-    friend class Q3TextFormat;
 #if defined(Q_WS_MAC)
     friend class QFontPrivate;
 #endif
 
     QFontPrivate  *d;
-    QPainter      *painter;
-    int                   fscript;
+    int fscript;
 };
 
 
