@@ -1,5 +1,5 @@
-#ifndef QSTYLEPLUGIN_H
-#define QSTYLEPLUGIN_H
+#ifndef QIMAGEFORMATPLUGIN_H
+#define QIMAGEFORMATPLUGIN_H
 
 #ifndef QT_H
 #include "qgplugin.h"
@@ -25,4 +25,4 @@ private:
     QImageFormatPluginPrivate *d;
 };
 
-#endif // QSTYLEPLUGIN_H
+#endif // QIMAGEFORMATPLUGIN_H

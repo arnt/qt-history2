@@ -63,4 +63,4 @@ private:
     QTextCodecPluginPrivate *d;
 };
 
-#endif // QSTYLEPLUGIN_H
+#endif // QTEXTCODECPLUGIN_H
