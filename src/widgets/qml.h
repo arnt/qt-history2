@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#10 $
+** $Id: //depot/qt/main/src/widgets/qml.h#11 $
 **
 ** Definition of QML classes
 **
@@ -143,12 +143,13 @@ public:
 
     QMLStyle* style( const QString& name);
     const QMLStyle* style( const QString& name) const;
-    
+
     void insert( QMLStyle* style);
 
     virtual QMLNode* tag( const QString& name,
 			  const QDict<QString>&attr,
-			  QMLProvider& provider ) const;
+			  QMLProvider& provider,
+			  bool emptyTag = FALSE) const;
 
 
 private:

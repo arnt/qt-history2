@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#33 $
 **
 ** Implementation of QML classes
 **
@@ -804,18 +804,21 @@ public:
 	new document in a small popup similar to QWhatsThis. Note that links
 	will not work in documents with \c &lt;qml \c type="detail" \c &gt;...&lt;/qml&gt;
 	<li> \c bgcolor
-	- The background color, for example bgcolor="yellow" or bgcolor="#0000FF"
+	- The background color, for example \c bgcolor="yellow" or \c bgcolor="#0000FF"
 	<li> \c bgpixmap
-	- The background pixmap, for example bgpixmap="granit.xpm". The pixmap name
+	- The background pixmap, for example \c bgpixmap="granit.xpm". The pixmap name
 	will be resolved by the default QMLProvider.
 	<li> \c text
-	- The default text color, for example text="red"
+	- The default text color, for example \c text="red"
 	</ul>
 
     <li>\c &lt;a&gt;...&lt;/a&gt;
 	- An anchor or link. The reference target is defined in the
-	\c href attribute of the tag as in &lt;a href="target.qml"&gt;...&lt;/a&gt;. If it is
-	an anchor, the reference source is given in the \c name attribute.
+	\c href attribute of the tag as in \c&lt;a \c href="target.qml"&gt;...&lt;/a&gt;. 
+	You can also specify an additional anchor within the specified target document, for
+	example \c &lt;a \c href="target.qml#123"&gt;...&lt;/a&gt;.  If
+	\c a is meant to be an anchor, the reference source is given in
+	the \c name attribute.
 
     <li>\c &lt;em&gt;...&lt;/em&gt;
 	- Emphasized. As default, this is the same as \c &lt;i&gt;...&lt;/i&gt; (Italic)
@@ -857,7 +860,7 @@ public:
     <li>\c &lt;blockquote&gt;...&lt;/blockquote&gt;
 	- An indented paragraph, useful for quotes.
 
-    <li>\c &lt;multicolumn cols=\a n &gt;...&lt;/multicolumn&gt;
+    <li>\c &lt;multicolumn \c cols=\a n \c &gt;...&lt;/multicolumn&gt;
 	- Multicolumn display with \a n columns
 
     <li>\c &lt;twocolumn&gt;...&lt;/twocolumn&gt;
@@ -865,8 +868,8 @@ public:
 
     <li>\c &lt;ul&gt;...&lt;/ul&gt;
 	- An un-ordered list. You can also pass a type argument to
-	define the bullet style. The default is \c ype="disc",  other
-	types are \c "circle" and \c "square".
+	define the bullet style. The default is \c type=disc,  other
+	types are \c circle and \c square.
 
     <li>\c &lt;ol&gt;...&lt;/ol&gt;
 	- An ordered list. You can also pass a type argument to define
@@ -876,14 +879,14 @@ public:
     <li>\c &lt;li&gt;...&lt;/li&gt;
 	- A list item.
 
-    <li>\c &lt;img&gt;
+    <li>\c &lt;img/&gt;
 	- An image. The image name for the provider is given in the
-	source attribute, for example \c &lt;img source="qt.xpm" &gt;
+	source attribute, for example \c &lt;img \c source="qt.xpm"/&gt;
 
-    <li>\c &lt;br&gt;
+    <li>\c &lt;br/&gt;
 	- A line break
 	
-    <li>\c &lt;hr&gt;
+    <li>\c &lt;hr/&gt;
 	- A horizonal line
   </ul>
 */
@@ -1073,15 +1076,16 @@ const QMLStyle* QMLStyleSheet::style( const QString& name) const
 */
 QMLNode* QMLStyleSheet::tag( const QString& name,
 			     const QDict<QString> &attr,
-			     QMLProvider& provider ) const
+			     QMLProvider& provider, bool emptyTag ) const
 {
     QMLStyle* style = styles[name];
     if ( !style ) {
       // HACK Torben warning( "QML Warning: unknown tag '%s'", name.ascii() );
+	//### todo warning message for empty tags that are not marked as empty
 	style = nullstyle;
     }
 
-    // first the empty tags
+    // first some known  tags
     if (style->name() == "img")
 	return new QMLImage(attr, provider);
     else if (style->name() == "hr")
@@ -1094,6 +1098,11 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     else if (style->name() == "multicol")
 	return new QMLMulticol( style, attr );
 
+    // empty tags
+    if ( emptyTag ) { // w know nothing about that, make a null node
+	return new QMLNode;
+    }
+    
     // process containers
     switch ( style->displayMode() ) {
     case QMLStyle::DisplayBlock:
@@ -1128,7 +1137,7 @@ private:
     bool eatSpace(const QString& doc, int& pos);
     bool eat(const QString& doc, int& pos, const QChar& c);
     bool lookAhead(const QString& doc, int& pos, const QChar& c);
-    QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr);
+    QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr, bool& emptyTag);
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
@@ -3044,7 +3053,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    }
 	    QDict<QString> attr;
 	    attr.setAutoDelete( TRUE );
-	    QString tagname = parseOpenTag(doc, pos, attr);
+	    bool emptyTag = FALSE;
+	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 	
 	    const QMLStyle* nstyle = sheet_->style(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
@@ -3243,7 +3253,8 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag, boo
     }
     else {
 	while( pos < int(doc.length()) &&
-	       ( !insideTag || doc[pos] != '>') && doc[pos] != '<'
+	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, "/>")) ) 
+	       && doc[pos] != '<'
 	       && doc[pos] != '='
 	       && !doc[pos].isSpace())  {
 	    if ( doc[pos] == '&')
@@ -3304,8 +3315,9 @@ bool QMLDocument::hasPrefix(const QString& doc, int pos, const QString& s)
 }
 
 QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
-				  QDict<QString> &attr)
+				  QDict<QString> &attr, bool& emptyTag)
 {
+    emptyTag = FALSE;
     pos++;
     QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos);
@@ -3337,7 +3349,7 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 	}
     }
 
-    while (valid && !lookAhead(doc, pos, '>') ) {
+    while (valid && !lookAhead(doc, pos, '>') && ! (emptyTag = hasPrefix(doc, pos, "/>") )) {
 	QString key = parseWord(doc, pos, TRUE, TRUE);
 	eatSpace(doc, pos);
 	if ( key.isEmpty()) {
@@ -3359,7 +3371,13 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 	eatSpace(doc, pos);
     }
 
-    eat(doc, pos, '>');
+    if (emptyTag) {
+	eat(doc, pos, '/');
+	eat(doc, pos, '>');
+    }
+    else
+	eat(doc, pos, '>');
+    
     return tag;
 }
 
