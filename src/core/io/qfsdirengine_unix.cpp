@@ -25,6 +25,7 @@
 
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define d d_func()
 #define q q_func()

@@ -24,6 +24,7 @@
 #define q q_func()
 
 #include <stdlib.h>
+#include <limits.h>
 
 bool
 QFSFileInfoEnginePrivate::doStat() const
