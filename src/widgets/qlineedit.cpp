@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#164 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1323,8 +1323,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 {
     QString t( newText );
     for ( uint i=0; i<t.length(); i++ ) {
-	if ( t[(int)i] < 32 )  // unprintable/linefeed becomes space
-	    t[(int)i] = 32;
+	if ( t[(int)i] < ' ' )  // unprintable/linefeed becomes space
+	    t[(int)i] = ' ';
     }
     if ( t.length() > (uint)maxLength() )
 	t.truncate( maxLength() );
@@ -1401,8 +1401,8 @@ void QLineEdit::insert( const QString &newText )
 	return;
 
     for ( uint i=0; i<t.length(); i++ ) {
-	if ( t[(int)i] < 32 )  // unprintable/linefeed becomes space
-	    t[(int)i] = 32;
+	if ( t[(int)i] < ' ' )  // unprintable/linefeed becomes space
+	    t[(int)i] = ' ';
     }
 
     QString test( tbuf.copy() );

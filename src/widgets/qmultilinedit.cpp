@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#113 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1856,8 +1856,8 @@ void QMultiLineEdit::paste()
 #endif
 
 	for (int i=0; (uint)i<t.length(); i++) {
-	    if ( t[i] < 32 && t[i] != '\n' && t[i] != '\t' )
-		t[i] = 32;
+	    if ( t[i] < ' ' && t[i] != '\n' && t[i] != '\t' )
+		t[i] = ' ';
 	}
 	insertAt( t, cursorY, cursorX );
 	markIsOn = FALSE;
