@@ -102,6 +102,9 @@ public:
     int n_cursor;
 
     QDropData *dropData;
+
+    void emitActionChanged(QDrag::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
+    void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
 private:
     static QDragManager *instance;
     Q_DISABLE_COPY(QDragManager)
