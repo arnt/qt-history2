@@ -23,8 +23,8 @@ diff -ur template/library/Makefile freebsd-shared/library/Makefile
  	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
  
  # VERSION - the version number of the shared library, where applicable
--VERSION=0.9.7
-+VERSION=0.907
+-VERSION=0.9.8
++VERSION=0.908
  
  # The main rule - please do not hardcode the version number here,
  # and please do not change it.  Until 1.0, Qt may not be forwards
