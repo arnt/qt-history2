@@ -107,6 +107,7 @@ public:
 
     int currentId() const;
     Command currentCommand() const;
+    State state() const;
 
 signals:
     void stateChanged( int );

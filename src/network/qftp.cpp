@@ -859,12 +859,15 @@ void QFtpPI::dtpConnectState( int s )
 class QFtpPrivate
 {
 public:
-    QFtpPrivate() : redirectConnectState(FALSE)
+    QFtpPrivate() :
+	close_waitForStateChange(FALSE),
+	state( QFtp::Unconnected )
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
     QPtrList<QFtpCommand> pending;
-    bool redirectConnectState;
+    bool close_waitForStateChange;
+    QFtp::State state;
 };
 
 static QPtrDict<QFtpPrivate> *d_ptr = 0;
@@ -959,7 +962,7 @@ void QFtp::init()
     QFtpPrivate *d = ::d( this );
 
     connect( &d->pi, SIGNAL(connectState(int)),
-	    SIGNAL(stateChanged(int)) );
+	    SLOT(piConnectState(int)) );
     connect( &d->pi, SIGNAL(finished( const QString& )),
 	    SLOT(piFinished( const QString& )) );
     connect( &d->pi, SIGNAL(error(const QString&)),
@@ -987,7 +990,7 @@ void QFtp::init()
   \value LoggedIn if a connection to the host exists and the user is logged in
   \value Closing if the connection is closing down, but is not yet closed
 
-  \sa stateChanged()
+  \sa stateChanged() state()
 */
 /*!
   \enum QFtp::Command
@@ -1002,7 +1005,7 @@ void QFtp::init()
   but it can also be emitted "spontaneous", e.g. when the server closes the
   connection unexpectedly.
 
-  \sa connectToHost() close() State
+  \sa connectToHost() close() state() State
 */
 /*!  \fn void QFtp::listInfo( const QUrlInfo &i );
   This signal is emitted for each directory entry the list() command can find.
@@ -1254,6 +1257,18 @@ QFtp::Command QFtp::currentCommand() const
     return c->command;
 }
 
+/*!
+  Returns the current state of the object. When the state changes, the
+  stateChanged() signal is emitted.
+
+  \sa State stateChanged()
+*/
+QFtp::State QFtp::state() const
+{
+    QFtpPrivate *d = ::d( this );
+    return d->state;
+}
+
 int QFtp::addCommand( QFtpCommand *cmd )
 {
     QFtpPrivate *d = ::d( this );
@@ -1284,7 +1299,8 @@ void QFtp::startNextCommand()
 		emit dataSize( c->data.ba->size() );
 	    }
 	} else if ( c->command == Close ) {
-	    emit stateChanged( QFtp::Closing );
+	    d->state = QFtp::Closing;
+	    emit stateChanged( d->state );
 	}
 	if ( !d->pi.sendCommands( c->rawCmds ) ) {
 	    // ### error handling (this case should not happen)
@@ -1304,18 +1320,8 @@ void QFtp::piFinished( const QString& )
 	// disconnect the SIGNAL-SIGNAL temporary to make sure that we
 	// don't get the finishedSuccess() signal before the stateChanged()
 	// signal.
-	if ( d->redirectConnectState ) {
-	    d->redirectConnectState = FALSE;
-	    connect( &d->pi, SIGNAL(connectState(int)),
-		    this, SIGNAL(stateChanged(int)) );
-	    disconnect( &d->pi, SIGNAL(connectState(int)),
-		    this, SLOT(piConnectState(int)) );
-	} else {
-	    d->redirectConnectState = TRUE;
-	    disconnect( &d->pi, SIGNAL(connectState(int)),
-		    this, SIGNAL(stateChanged(int)) );
-	    connect( &d->pi, SIGNAL(connectState(int)),
-		    this, SLOT(piConnectState(int)) );
+	if ( d->state != QFtp::Unconnected ) {
+	    d->close_waitForStateChange = TRUE;
 	    return;
 	}
     }
@@ -1349,9 +1355,13 @@ void QFtp::piError( const QString &text )
 
 void QFtp::piConnectState( int state )
 {
-    emit stateChanged( state );
-    if ( state == Unconnected )
+    QFtpPrivate *d = ::d( this );
+    d->state = (State)state;
+    emit stateChanged( d->state );
+    if ( d->close_waitForStateChange ) {
+	d->close_waitForStateChange = FALSE;
 	piFinished( tr( "Connection closed" ) );
+    }
 }
 
 //
