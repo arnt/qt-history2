@@ -13,6 +13,13 @@
 
 //#define QTEXTSTREAM_DEBUG
 
+/*! \class QTextStream
+
+    \brief The QTextCodec class .... DOCS PLEASE
+
+
+*/
+
 #include "qtextstream.h"
 
 #ifndef QT_NO_TEXTCODEC
@@ -1467,18 +1474,33 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 {
     QString tmp;
     switch (fieldFlags & QTextStream::basefield) {
-    case QTextStream::bin:
+    case QTextStream::bin: {
         tmp = (fieldFlags & QTextStream::uppercase) ? "0B" : "0b";
-        if (negative)
-            tmp.prepend(QLatin1Char('-'));
+        char binary[64];
+        int digits = 0;
+        while (number > 0) {
+            binary[digits++] = number & 1 ? 1 : 0;
+            number >>= 1;
+        }
+
+        // skip zeros
+        while (digits > 0 && binary[digits - 1] == 0)
+            --digits;
+
+        if (digits == 0) {
+            tmp += QLatin1Char('0');
+        } else {
+            for (int i = digits - 1; i >= 0; --i)
+                tmp += binary[i] ? QLatin1Char('1') : QLatin1Char('0');
+        }
         break;
+    }
     case QTextStream::hex: {
         // ### optim
         QString format;
         if (fieldFlags & QTextStream::showbase)
-            format += "0x";
-        format += QLatin1String("%ll");
-        format += (fieldFlags & QTextStream::uppercase) ? "X" : "x";
+            format += (fieldFlags & QTextStream::uppercase) ? "0X" : "0x";
+        format += QLatin1String("%llx");
 
         tmp.sprintf(format.toLatin1().constData(), number);
         break;
