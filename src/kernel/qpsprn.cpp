@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#51 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -220,8 +220,6 @@ static const char *ps_header[] = {
 "    GR",				// restore top of page state
 "    GS",				// save it back again
 "    defM SM",				// set coordsys (defensive progr.)
-"    0 0 PageW PageH ACR",		// set clipping to whole page
-"    clip NP",
 "} D",
 "",
 "/RRDict 6 dict def",
