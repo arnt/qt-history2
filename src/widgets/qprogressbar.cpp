@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#22 $
 **
 ** Implementation of QProgressBar class
 **
@@ -269,15 +269,17 @@ void QProgressBar::drawContents( QPainter *p )
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
 	    AlignRight | AlignVCenter, progress_str );
     } else {
-	int pw = bar.width() * progress_val / total_steps;
+	if (total_steps) { // Sanity check
+	    int pw = bar.width() * progress_val / total_steps;
 
-	p->setPen( colorGroup().base() );
-	p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
-	p->fillRect( bar, QApplication::winStyleHighlightColor() );
-	p->drawText( bar, AlignCenter, progress_str );
+	    p->setPen( colorGroup().base() );
+	    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
+	    p->fillRect( bar, QApplication::winStyleHighlightColor() );
+	    p->drawText( bar, AlignCenter, progress_str );
 
-	p->setPen( QApplication::winStyleHighlightColor() );
-	p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+	    p->setPen( QApplication::winStyleHighlightColor() );
+	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+	}
 	p->fillRect( bar, colorGroup().base() );
 	p->setPen( colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
