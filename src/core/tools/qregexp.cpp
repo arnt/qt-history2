@@ -20,8 +20,7 @@
 #include "qvector.h"
 #include "qstringlist.h"
 #include "qalgorithms.h"
-
-#include <private/qspinlock_p.h>
+#include "qmutex.h"
 
 #include <limits.h>
 
@@ -3141,35 +3140,36 @@ struct QRegExpPrivate
     QRegExpPrivate() : eng(0) { captured.fill(-1, 2); }
 };
 
-typedef QCache<QString, QRegExpEngine> EngineCache;
 #if !defined(QT_NO_REGEXP_OPTIM)
+typedef QCache<QString, QRegExpEngine> EngineCache;
 Q_GLOBAL_STATIC(EngineCache, globalEngineCache)
-#endif
+Q_GLOBAL_STATIC(QMutex, mutex)
+#endif // QT_NO_REGEXP_OPTIM
 
-static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
-                         Qt::CaseSensitivity cs, bool deref)
+static QRegExpEngine *refEngine(const QString &pattern, Qt::CaseSensitivity cs)
 {
 #if !defined(QT_NO_REGEXP_OPTIM)
     EngineCache *engineCache = globalEngineCache();
-#endif
-#if !defined(QT_NO_THREAD)
-    static QStaticSpinLock lock = 0;
-    QSpinLockLocker locker(lock);
-#endif
+    QMutexLocker locker(mutex());
 
-    if (!deref) {
-#if !defined(QT_NO_REGEXP_OPTIM)
-        eng = engineCache->take(pattern);
-        if (eng == 0 || eng->caseSensitivity() != cs) {
-            delete eng;
-        } else {
-            ++eng->ref;
-            return;
-        }
-#endif
-        eng = new QRegExpEngine(pattern, cs);
-        return;
+    QRegExpEngine *eng = engineCache->take(pattern);
+    if (eng == 0 || eng->caseSensitivity() != cs) {
+        delete eng;
+    } else {
+        ++eng->ref;
+        return eng;
     }
+#endif // QT_NO_REGEXP_OPTIM
+
+    return new QRegExpEngine(pattern, cs);
+}
+
+static void derefEngine(QRegExpEngine *eng, const QString &pattern)
+{
+#if !defined(QT_NO_REGEXP_OPTIM)
+    EngineCache *engineCache = globalEngineCache();
+    QMutexLocker locker(mutex());
+#endif // QT_NO_REGEXP_OPTIM
 
     if (!--eng->ref) {
 #if !defined(QT_NO_REGEXP_OPTIM)
@@ -3195,7 +3195,7 @@ static void prepareEngine(QRegExpPrivate *priv)
 #endif
             priv->rxpattern = priv->pattern.isNull() ? QLatin1String("") : priv->pattern;
 
-        regexpEngine(priv->eng, priv->rxpattern, priv->cs, false);
+        priv->eng = refEngine(priv->rxpattern, priv->cs);
         priv->captured.detach();
         priv->captured.fill(-1, 2 + 2 * priv->eng->numCaptures());
     }
@@ -3215,7 +3215,7 @@ static void prepareEngineForMatch(QRegExpPrivate *priv, const QString &str)
 static void invalidateEngine(QRegExpPrivate *priv)
 {
     if (priv->eng != 0) {
-        regexpEngine(priv->eng, priv->rxpattern, priv->cs, true);
+        derefEngine(priv->eng, priv->rxpattern);
         priv->rxpattern = QString();
         priv->eng = 0;
     }

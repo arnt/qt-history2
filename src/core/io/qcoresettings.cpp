@@ -23,6 +23,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qstring.h"
+#include "qmutex.h"
 
 #define d d_func()
 #define q q_func()
@@ -40,11 +41,11 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 typedef QHash<QString, QConfFile *> ConfFileHash;
 typedef QCache<QString, QConfFile> ConfFileCache;
 
-Q_GLOBAL_STATIC(QSpinLock, globalMutexFunc)
 Q_GLOBAL_STATIC(ConfFileHash, usedHashFunc)
 Q_GLOBAL_STATIC(ConfFileCache, unusedCacheFunc)
 
-static QSpinLock *globalSpinLock;
+Q_GLOBAL_STATIC(QMutex, mutex)
+
 static ConfFileHash *usedHash;
 static ConfFileCache *unusedCache;
 
@@ -81,11 +82,10 @@ QConfFile *QConfFile::fromName(const QString &fileName)
     QConfFile *confFile;
     QString absPath = QFileInfo(fileName).absoluteFilePath();
 
-    globalSpinLock = globalMutexFunc();
     usedHash = usedHashFunc();
     unusedCache = unusedCacheFunc();
 
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     if (!(confFile = usedHash->value(absPath))) {
         if ((confFile = unusedCache->take(absPath)))
@@ -100,10 +100,9 @@ QConfFile *QConfFile::fromName(const QString &fileName)
 
 void QConfFile::clearCache()
 {
-    globalSpinLock = globalMutexFunc();
     unusedCache = unusedCacheFunc();
 
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
     unusedCache->clear();
 }
 
@@ -381,7 +380,7 @@ void QCoreSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
     }
 }
 
-bool QCoreSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, 
+bool QCoreSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to,
                                             QString &result)
 {
     bool lowerCaseOnly = true;
@@ -762,7 +761,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
     }
 
     const char *extension = format == Qt::IniFormat ? ".ini" : ".conf";
-        
+
     QString appFile = org + QDir::separator() + application + QLatin1String(extension);
     QString orgFile = org + QLatin1String(extension);
 
@@ -796,7 +795,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
 
 QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
 {
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     for (int i = 0; i < NumConfFiles; ++i) {
         if (confFiles[i] && !--confFiles[i]->ref) {
@@ -823,7 +822,7 @@ void QConfFileSettingsPrivate::remove(const QString &key)
     QSettingsKey prefix(key + QLatin1Char('/'), cs);
 
     QConfFile *confFile = confFiles[spec];
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     SettingsKeyMap::iterator i = confFile->addedKeys.lowerBound(prefix);
     while (i != confFile->addedKeys.end() && i.key().startsWith(prefix))
@@ -849,7 +848,7 @@ void QConfFileSettingsPrivate::set(const QString &key, const QCoreVariant &value
     QSettingsKey theKey(key, cs);
 
     QConfFile *confFile = confFiles[spec];
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
     confFile->removedKeys.remove(theKey);
     confFile->addedKeys.insert(theKey, value);
 }
@@ -860,7 +859,7 @@ bool QConfFileSettingsPrivate::get(const QString &key, QCoreVariant *value) cons
     SettingsKeyMap::const_iterator j;
     bool found = false;
 
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     for (int i = 0; i < NumConfFiles; ++i) {
         if (QConfFile *confFile = confFiles[i]) {
@@ -894,7 +893,7 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
     QSettingsKey thePrefix(prefix, cs);
     int startPos = prefix.size();
 
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     for (int i = 0; i < NumConfFiles; ++i) {
         if (QConfFile *confFile = confFiles[i]) {
@@ -926,14 +925,14 @@ void QConfFileSettingsPrivate::clear()
     }
 
     QConfFile *confFile = confFiles[spec];
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
     confFile->addedKeys.clear();
     confFile->removedKeys = confFiles[spec]->originalKeys;
 }
 
 void QConfFileSettingsPrivate::sync()
 {
-    QSpinLockLocker locker(globalSpinLock);
+    QMutexLocker locker(mutex());
 
     // people probably won't be checking the status a whole lot, so in case of
     // error we just try to go on and make the best of it
