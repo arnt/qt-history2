@@ -31,7 +31,7 @@ QSqlDriver
    hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
    are therefore obsolete and have been removed.
 
-New functions:
+New function:
 	bool feature( QSqlDriver::DriverFeature ) const;
 
 Removed functions:
