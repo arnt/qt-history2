@@ -35,5 +35,7 @@
     The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
     WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input examples/activeqt/wrapper-demo.qdocinc
+    \quotefromfile examples/activeqt/wrapper-demo.qdocinc
+    \skipto <SCRIPT
+    \printto endraw
 */
