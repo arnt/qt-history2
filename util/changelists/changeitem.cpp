@@ -6,6 +6,12 @@ ChangeItem::ChangeItem( QListView *parent, int changeNr, const QString& date ) :
 {
 }
 
+ChangeItem::ChangeItem( QListViewItem *parent, int changeNr, const QString& date ) :
+    QListViewItem( parent, QString::number(changeNr), date ),
+    visited(FALSE)
+{
+}
+
 ChangeItem::~ChangeItem()
 {
 }

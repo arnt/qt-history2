@@ -10,7 +10,7 @@ class MainForm : public MainFormBase
     Q_OBJECT
 
 public:
-    MainForm();
+    MainForm(bool group=FALSE);
     ~MainForm();
 
 private slots:
@@ -28,10 +28,12 @@ private:
     void parseDescribe( const QString& );
     void setDescFilesDiff( const QString&, const QString&, const QString& );
 
+    bool grouped;
     QProcess process;
     QValueList<int> *changeListFrom;
     QValueList<int> *changeListTo;
     QMap<int,QString> *changeDateTo;
+    QMap<int,QString> *changeWhoTo;
 };
 
 #endif // MAINFORM_H

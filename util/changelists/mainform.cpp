@@ -37,9 +37,12 @@ public:
     }
 };
 
-MainForm::MainForm() :
-    changeListFrom(0), changeListTo(0), changeDateTo(0)
+MainForm::MainForm(bool g) :
+    grouped(g), changeListFrom(0), changeListTo(0), changeDateTo(0), changeWhoTo(0)
 {
+    if(grouped)
+	changes->setRootIsDecorated(TRUE);
+
     connect( quit, SIGNAL(clicked()), SLOT(close()) );
     connect( pathSelect, SIGNAL(clicked()), SLOT(selectPath()) );
     connect( goButton, SIGNAL(clicked()), SLOT(go()) );
@@ -83,9 +86,12 @@ void MainForm::startChanges( QString label )
     }
 
     QString file = path->currentText();
-    if ( file[(int)file.length()-1] != '/' )
-	file += "/";
-    file += "..." + label;
+    if(!file.contains("...")) {
+	if ( file[(int)file.length()-1] != '/' )
+	    file += "/";
+	file += "...";
+    }
+    file += label;
 
     args << "p4" << "changes" << file;
 
@@ -115,6 +121,9 @@ void MainForm::go()
 
 void MainForm::currentChanged( QListViewItem *li )
 {
+    if(li->rtti() != ChangeItem::changeRTTI())
+	return;
+
     if ( li == 0 ) {
 	parseDescribe( "" );
     } else {
@@ -208,14 +217,23 @@ void MainForm::processExited()
 		    eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
 		    changeDateTo->insert( labelInt, changesTmp.mid( sTmpPos, eTmpPos-sTmpPos ) );
 		}
+		if( changeWhoTo ) {
+		    sTmpPos = changesTmp.find( ' ', eTmpPos+1 );
+		    eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
+		    changeWhoTo->insert( labelInt, changesTmp.mid( sTmpPos, eTmpPos-sTmpPos ) );
+		}
 		sPos = ePos + 1;
 	    }
 
 	    if ( changeListTo == 0 ) {
 		changeListTo = new QValueList<int>;
 		changeDateTo = new QMap<int,QString>;
+		if(grouped) 
+		    changeWhoTo = new QMap<int, QString>;
 		startChanges( changesTo->currentText() );
 	    } else {
+		QDict<QListViewItem> roots;
+
 		changes->clear();
 		qHeapSort( *changeListFrom );
 		qHeapSort( *changeListTo );
@@ -225,13 +243,39 @@ void MainForm::processExited()
 		while ( !TO_AT_END ) {
 		    if ( FROM_AT_END ) {
 			while ( !TO_AT_END ) {
-			    changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
+			    bool added = FALSE;
+			    if(changeWhoTo && (*changeWhoTo).contains(*itTo)) {
+				QString who = (*changeWhoTo)[*itTo].section('@', 0, 0);
+				QListViewItem *root = roots[who];
+				if(!root) {
+				    roots.insert(who, root = new QListViewItem(changes, who));
+				    root->setOpen(TRUE);
+				}
+				if(root) {
+				    added = TRUE;
+				    (void) new ChangeItem( root, *itTo, (*changeDateTo)[*itTo] );
+				}
+			    }
+			    if(!added)
+				changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
 			    itTo++;
 			}
 			break;
 		    }
 		    while ( *itFrom > *itTo ) {
-			changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
+			bool added = FALSE;
+			if(changeWhoTo && (*changeWhoTo).contains(*itTo)) {
+			    QString who = (*changeWhoTo)[*itTo].section('@', 0, 0);
+			    QListViewItem *root = roots[who];
+			    if(!root)
+				roots.insert(who, root = new QListViewItem(changes, who));
+			    if(root) {
+				added = TRUE;
+				(void)new ChangeItem( root, *itTo, (*changeDateTo)[*itTo] );
+			    }
+			}
+			if(!added)
+			    changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
 			itTo++;
 			if ( TO_AT_END )
 			    break;
