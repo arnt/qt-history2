@@ -73,9 +73,9 @@ like this skeleton:
 \endcode
 
 <p> In addition to the signals and slots shown above, the moc also
-implements object properties as in the next skeleton. The Q_PROPERTY
-macro declares a property with a ( type, name, set function, get
-function ) quadrupel.
+implements object properties as in the next skeleton. The "Q_PROPERTY"
+macro declares an object property with a quadrupel <em>( type, name,
+set function, get function )</em>.
 
 \code
     class MyClass : public QObject
@@ -87,13 +87,13 @@ function ) quadrupel.
         ~MyClass();
 
         enum Priority { High, Low, VeryHigh, VeryLow };
-        setPriority( Priority );
+        void setPriority( Priority );
         Priority priority() const;
     };
 \endcode
 
-<p> Another macro  Q_CLASSINFO can be used to attach additional
-name/value-pairs to the classes meta object:
+<p> Another macro "Q_CLASSINFO" can be used to attach additional
+name/value-pairs to the classes' meta object:
 
 \code
     class MyClass : public QObject
@@ -107,7 +107,7 @@ name/value-pairs to the classes meta object:
     };
 \endcode
 
-<p> All concepts, signals and slots, properties and class
+<p> The three concepts, signals and slots, properties and class
 informations, can be combined.
 
 <p>The output produced by the moc must be compiled and linked, just as
@@ -240,7 +240,7 @@ more class declarations. You should then #include the meta object
 code in the .cpp
 file.  If both -i and -f are present, the last one wins.
 <dt> -nw <dd> Do not generate any warnings.  Discouraged.
-<dt> -nw <dd> Do not scan for enumeration declarations to be used by
+<dt> -ne <dd> Do not scan for enumeration declarations to be used by
 the property system. When using this option, enumeration values are no
 longer available as data-types for properties defined in your class or
 its subclasses. Use this option if the moc fails parsing your class
@@ -526,7 +526,7 @@ the parameter types, like this:
 This will work as expected.
 
 <h4>Properties needs to be declared before the public section that
-contains the respective set- and get-functions</h4>
+contains the respective set and get functions</h4>
 
 Declaring the first property within or after the public section that
 contains the respective set and get functions does not work as
@@ -536,10 +536,10 @@ Here is an example of the illegal syntax:
 \code
     class SomeClass : public QObject {
 	Q_OBJECT
+    public:
     [...]
-   public:
         Q_PROPERTY( Priority,  "Priority",  setPriority, priority ) // illegal
-        setPriority( Priority );
+        void setPriority( Priority );
         Priority priority() const;
     [...]
     };
@@ -551,10 +551,10 @@ beginning of the class declaration, right after Q_OBJECT:
 \code
     class SomeClass : public QObject {
 	Q_OBJECT
-                Q_PROPERTY( Priority,  "Priority",  setPriority, priority )
+        Q_PROPERTY( Priority,  "Priority",  setPriority, priority )
+    public:
     [...]
-   public:
-        setPriority( Priority );
+        void setPriority( Priority );
         Priority priority() const;
     [...]
     };
