@@ -81,7 +81,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     bool scope_failed = FALSE;
     while(*d && *d != '=') {
-	if((*d == '+' || *d == '-') && *(d+1) == '=')
+	if((*d == '+' || *d == '-' || *d == '*' || *d == '~') && *(d+1) == '=')
 	    break;
 	
 	if(*d == ':' || *d == '{' || *d == ')' ) {
@@ -175,16 +175,49 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	       var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
-    if(op == "=")
-	varlist.clear();
-    for(QStringList::Iterator valit = vallist.begin(); valit != vallist.end(); ++valit) {
-	if((*valit).isEmpty())
-	    continue;
-
-	if(op == "=" || op == "+=")
-	    varlist.append((*valit));
-	else if(op == "-=")
-	    varlist.remove((*valit));
+    if(op == "~=") {
+	if(vallist.count() != 1) {
+	    yyerror("~= operator only accepts one right hand paramater");
+	    return FALSE;
+	}
+	QString val(vallist.first());
+	if(val.length() < 4 || val.at(0) != 's') {
+	    yyerror("~= operator only can handle s/// function");
+	    return FALSE;
+	}
+	QChar sep = val.at(1);
+	QStringList func = QStringList::split(sep, val, TRUE);
+	if(func.count() < 3 || func.count() > 4) {
+	    yyerror("~= operator only can handle s/// function");
+	    return FALSE;
+	}
+	bool global = FALSE, case_sense = TRUE;
+	if(func.count() == 4) {
+	    global = func[3].find('g') != -1;
+	    case_sense = func[3].find('i') == -1;
+	}
+	QRegExp regexp(func[1], case_sense);
+	for(QStringList::Iterator varit = varlist.begin(); 
+	    varit != varlist.end(); ++varit) {
+	    if((*varit).contains(regexp)) {
+		(*varit) = (*varit).replace(regexp, func[2]);
+		if(!global)
+		    break;
+	    }
+	}
+    } else {
+	if(op == "=")
+	    varlist.clear();
+	for(QStringList::Iterator valit = vallist.begin(); 
+	    valit != vallist.end(); ++valit) {
+	    if((*valit).isEmpty())
+		continue;
+	    if((op == "+=" && !(*varlist.find((*valit)))) || 
+	       op == "=" || op == "*=")
+		varlist.append((*valit));
+	    else if(op == "-=")
+		varlist.remove((*valit));
+	}
     }
     if(var == "REQUIRES") /* special case to get communicated to backends! */
 	doProjectCheckReqs(vallist);

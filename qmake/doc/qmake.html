@@ -460,9 +460,11 @@ Most often you assign some value to a project variable, but you can
 also add to, remove from or replace parts of a project variable.<pre>
     A   = abc
     X   = xyz
-    A  += def			# A = abc def
+    A  += abc def		# A = abc def
     B   = $$A			# B = abc def
     B  -= abc			# B = def
+    B  *= abc def       # B = abc abc def
+    A  ~= s/ab[xc]/xyz/ # A = xyz def
 </pre>
 
 <p>

@@ -71,9 +71,9 @@ this there are several operators to work on a list of values for example:
   PIG+=snort      #$$PIG contains oink and snort
   OTHERPIG=eat    #$$OTHERPIG contains only eat
 
-As is evident the three operators (=, -=, and +=) can be used together to
-configure qmake to generate the proper makefiles, using $$ you can refer to
-another variable defined in Qmake.
+As is evident the five operators (~=, *=, =, -=, and +=) can be used
+together to configure qmake to generate the proper makefiles, using $$ you
+can refer to another variable defined in Qmake.
 
 Qmake will then internally use specially defined variables (as described in
 the variables section below) to generate makes files.
