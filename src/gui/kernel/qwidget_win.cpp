@@ -435,7 +435,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 
 void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
-    QWidget* oldtlw = topLevelWidget();
     WId old_winid = data->winid;
     // hide and reparent our own window away. Otherwise we might get
     // destroyed when emitting the child remove event below. See QWorkspace.
@@ -839,52 +838,79 @@ struct QWinDoubleBuffer
     int height;
 };
 
-static QWinDoubleBuffer *global_double_buffer = 0;
+static QWinDoubleBuffer *qt_global_double_buffer = 0;
+static bool qt_global_double_buffer_active = false;
+
+static void qt_discard_double_buffer(QWinDoubleBuffer **db)
+{
+    if (!*db)
+        return;
+
+    DeleteObject((*db)->hbm);
+    DeleteDC((*db)->hdc);
+
+    delete *db;
+    *db = 0;
+}
 
 void qt_discard_double_buffer()
 {
-    if (!global_double_buffer)
-        return;
-
-    DeleteObject(global_double_buffer->hbm);
-    DeleteDC(global_double_buffer->hdc);
-
-    delete global_double_buffer;
-    global_double_buffer = 0;
+    qt_discard_double_buffer(&qt_global_double_buffer);
 }
 
-static void qt_win_get_double_buffer(HDC *hdc, int width, int height)
+static QWinDoubleBuffer *qt_win_create_double_buffer(int width, int height)
+{
+    QWinDoubleBuffer *db = new QWinDoubleBuffer;
+    db->hdc = CreateCompatibleDC(qt_display_dc());
+    db->hbm = CreateCompatibleBitmap(qt_display_dc(), width, height);
+    db->width = width;
+    db->height = height;
+    Q_ASSERT(db->hdc);
+    Q_ASSERT(db->hbm);
+    bool success = SelectObject(db->hdc, db->hbm);
+    Q_ASSERT(success);
+    SelectClipRgn(db->hdc, 0);
+    return db;
+}
+
+static void qt_win_get_double_buffer(QWinDoubleBuffer **db, int width, int height)
 {
     // the db should consist of 128x128 chunks
     width  = qMin(((width / 128) + 1) * 128, (int)QWinDoubleBuffer::MaxWidth);
     height = qMin(((height / 128) + 1) * 128, (int)QWinDoubleBuffer::MaxHeight);
 
-    if (global_double_buffer) {
-        if (global_double_buffer->width >= width
-            && global_double_buffer->height >= height) {
-            *hdc = global_double_buffer->hdc;
-            SelectClipRgn(*hdc, 0);
+    if (qt_global_double_buffer_active) {
+        *db = qt_win_create_double_buffer(width, height);
+        return;
+    }
+
+    qt_global_double_buffer_active = true;
+
+    if (qt_global_double_buffer) {
+        if (qt_global_double_buffer->width >= width
+            && qt_global_double_buffer->height >= height) {
+            *db = qt_global_double_buffer;
+            SelectClipRgn((*db)->hdc, 0);
             return;
         }
 
-        width  = qMax(global_double_buffer->width,  width);
-        height = qMax(global_double_buffer->height, height);
+        width  = qMax(qt_global_double_buffer->width,  width);
+        height = qMax(qt_global_double_buffer->height, height);
 
-        qt_discard_double_buffer();
+        qt_discard_double_buffer(&qt_global_double_buffer);
     }
 
-    global_double_buffer = new QWinDoubleBuffer;
-    global_double_buffer->hdc = CreateCompatibleDC(qt_display_dc());
-    global_double_buffer->hbm = CreateCompatibleBitmap(qt_display_dc(), width, height);
-    global_double_buffer->width = width;
-    global_double_buffer->height = height;
-    Q_ASSERT(global_double_buffer->hdc);
-    Q_ASSERT(global_double_buffer->hbm);
-    bool success = SelectObject(global_double_buffer->hdc, global_double_buffer->hbm);
-    Q_ASSERT(success);
-    *hdc = global_double_buffer->hdc;
-    SelectClipRgn(*hdc, 0);
+    qt_global_double_buffer = qt_win_create_double_buffer(width, height);
+    *db = qt_global_double_buffer;
 };
+
+static void qt_win_release_double_buffer(QWinDoubleBuffer **db)
+{
+    if (*db != qt_global_double_buffer)
+        qt_discard_double_buffer(db);
+    else
+        qt_global_double_buffer_active = false;
+}
 
 extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int, QWidget *);
 
@@ -916,8 +942,10 @@ void QWidget::repaint(const QRegion& rgn)
 
     QPoint redirectionOffset;
 
+    QWinDoubleBuffer *qDoubleBuffer = 0;
     if (double_buffer) {
-        qt_win_get_double_buffer( (HDC*) &d->hd, br.width(), br.height());
+        qt_win_get_double_buffer( &qDoubleBuffer, br.width(), br.height());
+        d->hd = qDoubleBuffer->hdc;
         redirectionOffset = br.topLeft();
     } else {
         redirectionOffset = data->wrect.topLeft();
@@ -1021,6 +1049,9 @@ void QWidget::repaint(const QRegion& rgn)
 
         d->hd = old_dc;
 
+        qt_discard_double_buffer(&qDoubleBuffer);
+
+        // Start timer to kill global double buffer.
         if (!qApp->active_window) {
             extern int qt_double_buffer_timer;
             if (qt_double_buffer_timer)
