@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#32 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#32 $")
 
 
 /*----------------------------------------------------------------------------
@@ -109,27 +109,27 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
 void QColor::initglobals()
 {
     ginit = TRUE;
-    ((QColor*)(&color0))->pix    = 0;
-    ((QColor*)(&color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&color1))->pix    = 1;
-    ((QColor*)(&color1))->rgbVal = 0;
-    ((QColor*)(&black))		->setRgb(   0,	 0,   0 );
-    ((QColor*)(&white))		->setRgb( 255, 255, 255 );
-    ((QColor*)(&darkGray))	->setRgb( 128, 128, 128 );
-    ((QColor*)(&gray))		->setRgb( 160, 160, 160 );
-    ((QColor*)(&lightGray))	->setRgb( 192, 192, 192 );
-    ((QColor*)(&red))		->setRgb( 255,	 0,   0 );
-    ((QColor*)(&green))		->setRgb(   0, 255,   0 );
-    ((QColor*)(&blue))		->setRgb(   0,	0,  255 );
-    ((QColor*)(&cyan))		->setRgb(   0, 255, 255 );
-    ((QColor*)(&magenta))	->setRgb( 255,	0,  255 );
-    ((QColor*)(&yellow))	->setRgb( 255, 255,   0 );
-    ((QColor*)(&darkRed))	->setRgb( 128,	0,    0 );
-    ((QColor*)(&darkGreen))	->setRgb(   0, 128,   0 );
-    ((QColor*)(&darkBlue))	->setRgb(   0,	0,  128 );
-    ((QColor*)(&darkCyan))	->setRgb(   0, 128, 128 );
-    ((QColor*)(&darkMagenta))	->setRgb( 128,	0,  128 );
-    ((QColor*)(&darkYellow))	->setRgb( 128, 128,   0 );
+    ((QColor*)(&::color0))->pix    = 0;
+    ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
+    ((QColor*)(&::color1))->pix    = 1;
+    ((QColor*)(&::color1))->rgbVal = 0;
+    ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
+    ((QColor*)(&::white))	->setRgb( 255, 255, 255 );
+    ((QColor*)(&::darkGray))	->setRgb( 128, 128, 128 );
+    ((QColor*)(&::gray))	->setRgb( 160, 160, 160 );
+    ((QColor*)(&::lightGray))	->setRgb( 192, 192, 192 );
+    ((QColor*)(&::red))		->setRgb( 255,	 0,   0 );
+    ((QColor*)(&::green))	->setRgb(   0, 255,   0 );
+    ((QColor*)(&::blue))	->setRgb(   0,	0,  255 );
+    ((QColor*)(&::cyan))	->setRgb(   0, 255, 255 );
+    ((QColor*)(&::magenta))	->setRgb( 255,	0,  255 );
+    ((QColor*)(&::yellow))	->setRgb( 255, 255,   0 );
+    ((QColor*)(&::darkRed))	->setRgb( 128,	0,    0 );
+    ((QColor*)(&::darkGreen))	->setRgb(   0, 128,   0 );
+    ((QColor*)(&::darkBlue))	->setRgb(   0,	0,  128 );
+    ((QColor*)(&::darkCyan))	->setRgb(   0, 128, 128 );
+    ((QColor*)(&::darkMagenta))	->setRgb( 128,	0,  128 );
+    ((QColor*)(&::darkYellow))	->setRgb( 128, 128,   0 );
 }
 
 
