@@ -11,6 +11,7 @@ public:
 public slots:
     void bang();
 private:
+    void draw(QPainter&);
     QString line;
     int align;
 };

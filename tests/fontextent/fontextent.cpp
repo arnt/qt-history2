@@ -3,6 +3,7 @@
 #include <qapp.h>
 #include <qkeycode.h>
 #include <qlabel.h>
+#include <qprinter.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
@@ -38,6 +39,12 @@ void Main::keyPressEvent(QKeyEvent* ke)
 	l->resize(l->sizeHint());
 	l->setAlignment(align);
 	l->show();
+    } else if ( ke->key() == Key_P && ke->state()&AltButton ) {
+	QPrinter prn;
+	if (prn.setup(this)) {
+	    QPainter p(&prn);
+	    draw(p);
+	}
     } else {
 	line += ke->ascii();
     }
@@ -52,8 +59,12 @@ void Main::paintEvent(QPaintEvent* e)
 {
     QPainter p(this);
     p.setClipRect(e->rect());
+    draw(p);
+}
 
-    QFontMetrics fm = fontMetrics();
+void Main::draw(QPainter& p)
+{
+    QFontMetrics fm = p.fontMetrics();
     QRect br = fm.boundingRect(line);
     int w = width()/2;
     int h = height()/2;
@@ -84,6 +95,7 @@ void Main::paintEvent(QPaintEvent* e)
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
+    app.setFont(QFont("Times", 100, QFont::Normal, TRUE));
 
     Main m;
     m.show();
