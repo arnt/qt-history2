@@ -78,7 +78,6 @@ public:
     void replace(int i, const T &t);
     int remove(const T &t);
     void removeAt(int i);
-    int take(const T &t);
     T takeAt(int i);
     T takeFirst();
     T takeLast();
@@ -216,7 +215,6 @@ private:
 
     void node_construct(Node *n, const T &t);
     void node_destruct(Node *n);
-    void node_take(Node *n);
     void node_copy(Node *from, Node *to, Node *src);
     void node_destruct(Node *from, Node *to);
 };
@@ -237,13 +235,6 @@ Q_INLINE_TEMPLATE void QList<T>::node_construct(Node *n, const T &t)
 
 template <typename T>
 Q_INLINE_TEMPLATE void QList<T>::node_destruct(Node *n)
-{
-    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
-    else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE void QList<T>::node_take(Node *n)
 {
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
     else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
@@ -308,14 +299,14 @@ inline void QList<T>::removeAt(int i)
 template <typename T>
 inline T QList<T>::takeAt(int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::takeAt", "index out of range");
- detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_take(n);
+ detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_destruct(n);
  p.remove(i); return t; }
 template <typename T>
 inline T QList<T>::takeFirst()
-{ if (p.isEmpty()) { T t; qInit(t); return t; } else return takeAt(0); }
+{ T t = first(); removeFirst(); return t; }
 template <typename T>
 inline T QList<T>::takeLast()
-{ if (p.isEmpty()) { T t; qInit(t); return t; } else return takeAt(p.size()-1); }
+{ T t = last(); removeLast(); return t; }
 template <typename T>
 inline void QList<T>::append(const T &t)
 { detach();node_construct((Node*)p.append(), t); }
@@ -424,23 +415,6 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::remove(const T &t)
     while (i < p.size())
 	if ((n = (Node*)p.at(i))->t() == t) {
 	    node_destruct(n);
-	    p.remove(i);
-	    ++count;
-	} else {
-	    ++i;
-	}
-    return count;
-}
-
-template <typename T>
-Q_OUTOFLINE_TEMPLATE int QList<T>::take(const T &t)
-{
-    detach();
-    int count=0, i=0;
-    Node *n;
-    while (i < p.size())
-	if ((n = (Node*)p.at(i))->t() == t) {
-	    node_take(n);
 	    p.remove(i);
 	    ++count;
 	} else {
