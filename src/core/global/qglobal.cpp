@@ -374,17 +374,15 @@ void qFatal(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-    if (handler) {
 #if defined(QT_VSNPRINTF)
-        QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
 #else
-        vsprintf(buf, msg, ap);
+    vsprintf(buf, msg, ap);
 #endif
-        va_end(ap);
+    va_end(ap);
+    if (handler) {
         (*handler)(QtFatalMsg, buf);
     } else {
-        vsprintf(buf, msg, ap);                // ### is there no vsnprintf()?
-        va_end(ap);
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #else
@@ -470,13 +468,13 @@ void qSystemWarning(const char *msg, ...)
     buf.reserve(QT_BUFFER_LENGTH);
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-    if (handler) {
 #if defined(QT_VSNPRINTF)
-        int n = QT_VSNPRINTF(buf.data(), buf.capacity(), msg, ap);
+    int n = QT_VSNPRINTF(buf.data(), buf.capacity(), msg, ap);
 #else
-        int n = vsprintf(buf.data(), msg, ap);
+    int n = vsprintf(buf.data(), msg, ap);
 #endif
-        va_end(ap);
+    va_end(ap);
+    if (handler) {
         buf.resize(n);
         if (sys.size()) {
             buf += ": ";
@@ -484,8 +482,6 @@ void qSystemWarning(const char *msg, ...)
         }
         (*handler)(QtSystemMsg, buf);
     } else {
-        vsprintf(buf.data(), msg, ap);                // ### is there no vsnprintf()?
-        va_end(ap);
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #elif defined(Q_OS_TEMP)
@@ -743,17 +739,15 @@ void qDebug(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-    if (handler) {
 #if defined(QT_VSNPRINTF)
-        QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
 #else
-        vsprintf(buf, msg, ap);
+    vsprintf(buf, msg, ap);
 #endif
-        va_end(ap);
+    va_end(ap);
+    if (handler) {
         (*handler)(QtDebugMsg, buf);
     } else {
-        vsprintf(buf, msg, ap);                // ### is there no vsnprintf()?
-        va_end(ap);
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #elif defined(Q_OS_TEMP)
@@ -772,17 +766,15 @@ void qWarning(const char *msg, ...)
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
     bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
-    if (handler) {
 #if defined(QT_VSNPRINTF)
-        QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
 #else
-        vsprintf(buf, msg, ap);
+    vsprintf(buf, msg, ap);
 #endif
-        va_end(ap);
+    va_end(ap);
+    if (handler) {
         (*handler)(QtWarningMsg, buf);
     } else {
-        vsprintf(buf, msg, ap);                // ### is there no vsnprintf()?
-        va_end(ap);
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #else
