@@ -419,7 +419,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int cw = 0;
     QRect check;
     if (checkRect->isValid()) {
-        check.setRect(x, y, h, h);
+        check.setRect(x, y, checkRect->width() + textMargin * 2, h);
         cw = check.width();
         if (option.direction == Qt::LeftToRight)
             x += cw;
