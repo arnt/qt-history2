@@ -103,7 +103,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     int status = 
 	::mkdir( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 );
 #endif
-#if defined(Q_OS_SCO)
+#if defined(Q_OS_UNIXWARE)
     return status == 0 || errno == EEXIST;
 #else
     return status == 0;
