@@ -194,8 +194,10 @@ int main( int argc, char * argv[] )
     QFile fileOut;
     if ( !outputFile.isEmpty() ) {
 	fileOut.setName( outputFile );
-	if (!fileOut.open( IO_WriteOnly ) )
-	    qFatal( "uic: Could not open output file '%s'", outputFile.data() );
+	if (!fileOut.open( IO_WriteOnly ) ) {
+	    qWarning( "uic: Could not open output file '%s'", outputFile.data() );
+	    return 1;
+	}
     } else {
 	fileOut.open( IO_WriteOnly, stdout );
     }
@@ -210,14 +212,18 @@ int main( int argc, char * argv[] )
     out.setEncoding( QTextStream::UnicodeUTF8 );
 
     QFile file( fileName );
-    if ( !file.open( IO_ReadOnly ) )
-	qFatal( "uic: Could not open file '%s'", fileName );
+    if ( !file.open( IO_ReadOnly ) ) {
+	qWarning( "uic: Could not open file '%s'", fileName );
+	return 1;
+    }
 
     QDomDocument doc;
     QString errMsg;
     int errLine;
-    if ( !doc.setContent( &file, &errMsg, &errLine ) )
-	qFatal( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d"), fileName, errLine );
+    if ( !doc.setContent( &file, &errMsg, &errLine ) ) {
+	qWarning( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d"), fileName, errLine );
+	return 1;
+    }
 
     DomTool::fixDocument( doc );
 
