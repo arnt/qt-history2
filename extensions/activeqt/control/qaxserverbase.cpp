@@ -50,9 +50,8 @@ struct IAxServerBase : public IUnknown
 {
     virtual QObject *qObject() = 0;
     virtual QWidget *widget() = 0;
-    virtual void emitPropertyChanged( long dispId ) = 0;
-    virtual bool emitRequestPropertyChange( long dispId ) = 0;
-    virtual QIntDict<QMetaProperty> *propertyList() = 0;
+    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
+    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
 };
 
 // in qaxservermain.cpp
@@ -153,10 +152,9 @@ public:
 	return activeqt;
     }
 
-    void emitPropertyChanged( long dispId );
-    bool emitRequestPropertyChange( long dispId );
+    void emitPropertyChanged( const char*, long dispid = -1 );
+    bool emitRequestPropertyChange( const char*, long dispid = -1 );
     void readMetaData();
-    QIntDict<QMetaProperty> *propertyList();
 
 // IDispatch
     STDMETHOD(GetTypeInfoCount)(UINT* pctinfo);
@@ -279,6 +277,7 @@ private:
     unsigned stayTopLevel	:1;
     unsigned isInPlaceActive	:1;
     unsigned isUIActive		:1;
+    unsigned isBindable		:1;
     short freezeEvents;
 
     HWND m_hWnd;
@@ -729,6 +728,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     stayTopLevel	= FALSE;
     isInPlaceActive	= FALSE;
     isUIActive		= FALSE;
+    isBindable		= FALSE;
     freezeEvents = 0;
 
     sizeExtent.cx = 2500;
@@ -882,6 +882,7 @@ bool QAxServerBase::internalCreate()
     const QMetaObject *mo = activeqt->metaObject();
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
     if ( axb ) {
+	isBindable = TRUE;
 	// no addref; this is aggregated
 	axb->activex = this;
 	aggregatedObject = axb->createAggregate();
@@ -1371,14 +1372,6 @@ void QAxServerBase::readMetaData()
     }
 }
 
-/*!
-    Returns a list of properties.
-*/
-QIntDict<QMetaProperty>* QAxServerBase::propertyList()
-{
-    readMetaData();
-    return proplist;
-}
 
 /*!
     \internal
@@ -1609,7 +1602,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-bool QAxServerBase::emitRequestPropertyChange( long dispId )
+bool QAxServerBase::emitRequestPropertyChange( const char *property, long dispId )
 {
     IConnectionPoint *cpoint = 0;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -1622,7 +1615,19 @@ bool QAxServerBase::emitRequestPropertyChange( long dispId )
 	    CONNECTDATA c[1];
 	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
 	    if ( cc ) {
-		while ( cc ) {
+		if ( dispId == -1 ) {
+		    if ( !proplist )
+			readMetaData();
+
+		    QIntDictIterator <QMetaProperty> it( *proplist );
+		    while ( it.current() && dispId < 0 ) {
+			QMetaProperty *mp = it.current();
+			if ( !qstrcmp( property, mp->name() ) )
+			    dispId = it.currentKey();
+			++it;
+		    }
+		}
+		if ( dispId != -1 ) while ( cc ) {
 		    if ( c->pUnk ) {
 			IPropertyNotifySink *sink = 0;
 			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
@@ -1649,7 +1654,7 @@ bool QAxServerBase::emitRequestPropertyChange( long dispId )
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-void QAxServerBase::emitPropertyChanged( long dispId )
+void QAxServerBase::emitPropertyChanged( const char *property, long dispId )
 {
     IConnectionPoint *cpoint = 0;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -1662,7 +1667,18 @@ void QAxServerBase::emitPropertyChanged( long dispId )
 	    CONNECTDATA c[1];
 	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
 	    if ( cc ) {
-		while ( cc ) {
+		if ( dispId == -1 ) {
+		    if ( !proplist )
+			readMetaData();
+		    QIntDictIterator <QMetaProperty> it( *proplist );
+		    while ( it.current() && dispId < 0 ) {
+			QMetaProperty *mp = it.current();
+			if ( !qstrcmp( property, mp->name() ) )
+			    dispId = it.currentKey();
+			++it;
+		    }
+		}
+		if ( dispId != -1 ) while ( cc ) {
 		    if ( c->pUnk ) {
 			IPropertyNotifySink *sink = 0;
 			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
@@ -1872,7 +1888,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
 		return DISP_E_BADPARAMCOUNT;
 
-	    if ( !emitRequestPropertyChange( dispidMember ) )
+	    if ( isBindable && !emitRequestPropertyChange( property->name(), dispidMember ) )
 		break;
 
 	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
@@ -1887,7 +1903,8 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_TYPEMISMATCH;
 	    }
 	    
-	    emitPropertyChanged( dispidMember );
+	    if ( isBindable )
+		emitPropertyChanged( property->name(), dispidMember );
 	    res = S_OK;
 
 	    if ( m_spAdviseSink )
