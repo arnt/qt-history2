@@ -1218,7 +1218,7 @@ void QUrl::decode( QString& url )
     int i = 0;
     while ( i < oldlen ) {
 	uchar c = (uchar)curl[ i++ ];
-	if ( c == '%' ) {
+	if ( c == '%' && c < oldlen - 2 ) {
 	    c = hex_to_int( (uchar)curl[ i ] ) * 16 + hex_to_int( (uchar)curl[ i + 1 ] );
 	    i += 2;
 	}
