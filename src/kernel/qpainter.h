@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#50 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#51 $
 **
 ** Definition of QPainter class
 **
@@ -34,9 +34,6 @@ enum PaintUnit					// paint unit
 
 class QPainter					// painter class
 {
-friend class QFont;
-friend class QPen;
-friend class QBrush;
 public:
     QPainter();
    ~QPainter();
@@ -249,6 +246,8 @@ protected:
     HDC		hdc;				// device context
     HANDLE	hpen;				// current pen
     HANDLE	hbrush;				// current brush
+    uint	stockBrush	: 0;
+    uint	pixmapBrush	: 0;
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
     int		dh;				// device height
