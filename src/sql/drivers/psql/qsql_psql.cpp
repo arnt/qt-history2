@@ -635,16 +635,24 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
     t.setForwardOnly(true);
 
     if (type & QSql::Tables) {
-        t.exec("select relname from pg_class where (relkind = 'r') "
+        QString query("select relname from pg_class where (relkind = 'r') "
                 "and (relname !~ '^Inv') "
                 "and (relname !~ '^pg_') ");
+        if (pro >= QPSQLDriver::Version73)
+            query.append("and (relnamespace not in "
+                         "(select oid from pg_namespace where nspname = 'information_schema')) ");
+        t.exec(query);
         while (t.next())
             tl.append(t.value(0).toString());
     }
     if (type & QSql::Views) {
-        t.exec("select relname from pg_class where (relkind = 'v') "
+        QString query("select relname from pg_class where (relkind = 'v') "
                 "and (relname !~ '^Inv') "
                 "and (relname !~ '^pg_') ");
+        if (pro >= QPSQLDriver::Version73)
+            query.append("and (relnamespace not in "
+                         "(select oid from pg_namespace where nspname = 'information_schema')) ");
+        t.exec(query);
         while (t.next())
             tl.append(t.value(0).toString());
     }
