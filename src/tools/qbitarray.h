@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#8 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#9 $
 **
 ** Definition of QBitArray class
 **
@@ -29,7 +29,7 @@ private:
     uint    index;
 public:
     QBitVal( QBitArray *a, uint i ) : array(a), index(i) {}
-	    operator int();
+    operator int();
     QBitVal &operator=( const QBitVal &v );
     QBitVal &operator=( int v );
 };
