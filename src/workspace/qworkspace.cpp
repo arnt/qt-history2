@@ -1516,12 +1516,12 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     else
 	cs = childWidget->size();
 
+    int th = titlebar ? titlebar->sizeHint().height() : 0;
     if ( titlebar ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if( childWidget->icon() )
 	    titlebar->setIcon( *childWidget->icon() );
 #endif
-	int th = titlebar->sizeHint().height();
 	p = QPoint( contentsRect().x(),
 		    th + contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
@@ -1542,7 +1542,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
-    widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + 1 );
+    widgetResizeHandler->setExtraHeight( th + 1 );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
