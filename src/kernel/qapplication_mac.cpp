@@ -1627,7 +1627,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys & !controlKey);
 		QApplication::sendSpontaneousEvent(popupwidget, &cme);
 		was_context = cme.isAccepted();
 	    }
