@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#3 $
+** $Id: //depot/qt/main/src/tools/qlist.h#4 $
 **
 ** Definition of QList template/macro class
 **
@@ -86,7 +86,7 @@ class QListIteratorM(type) : public QGListIterator			      \
 public:									      \
     QListIteratorM(type)(const QListM(type) &l) :QGListIterator((QGList &)l){}\
    ~QListIteratorM(type)()    {}					      \
-    int	  count()   const     { return list->count(); }			      \
+    uint  count()   const     { return list->count(); }			      \
     bool  isEmpty() const     { return list->count() == 0; }		      \
     bool  atFirst() const     { return QGListIterator::atFirst(); }	      \
     bool  atLast()  const     { return QGListIterator::atLast(); }	      \
@@ -163,7 +163,7 @@ template<class type> class QListIteratorT : public QGListIterator
 public:
     QListIteratorT(const QListT<type> &l) :QGListIterator((QGList &)l) {}
    ~QListIteratorT()	      {}
-    int	  count()   const     { return list->count(); }
+    uint  count()   const     { return list->count(); }
     bool  isEmpty() const     { return list->count() == 0; }
     bool  atFirst() const     { return QGListIterator::atFirst(); }
     bool  atLast()  const     { return QGListIterator::atLast(); }
