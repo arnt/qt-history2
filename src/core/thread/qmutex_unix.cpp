@@ -286,7 +286,8 @@ void QMutex::unlock()
     pthread_mutex_unlock(&d->mutex2);
 }
 
-/*!
+/*! \fn bool QMutex::isLocked()
+
     Returns true if the mutex is locked by another thread; otherwise
     returns false.
 
@@ -296,16 +297,6 @@ void QMutex::unlock()
 
     \sa lock(), unlock()
 */
-bool QMutex::isLocked()
-{
-    if (! tryLock())
-        return false;
-    unlock();
-    return true;
-}
-
-
-
 
 /*!
     \class QMutexLocker qmutex.h

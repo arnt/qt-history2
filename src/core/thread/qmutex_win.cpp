@@ -97,11 +97,3 @@ void QMutex::unlock()
 	    SetEvent(d->event);
     }
 }
-
-bool QMutex::isLocked()
-{
-    if (!tryLock())
-	return false;
-    unlock();
-    return true;
-}

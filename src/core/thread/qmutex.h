@@ -37,7 +37,12 @@ public:
     bool tryLock();
     void unlock();
 
-    bool isLocked();
+    inline bool isLocked()
+    {
+	if (!tryLock()) return true;
+	unlock();
+	return false;
+    }
 
 private:
     QMutexPrivate * d;
