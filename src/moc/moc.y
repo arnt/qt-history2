@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#29 $
+** $Id: //depot/qt/main/src/moc/moc.y#30 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#30 $";
 #endif
 
 
@@ -62,7 +62,7 @@ declare(QList,Argument);
 
 class ArgList : public QList(Argument) {	// member function arg list
 public:
-    ArgList() { autoDelete(TRUE); }
+    ArgList() { setAutoDelete(TRUE); }
 };
 
 
@@ -81,7 +81,7 @@ declare(QList,Function);
 
 class FuncList : public QList(Function) {	// list of member functions
 public:
-    FuncList() { autoDelete(TRUE); }
+    FuncList() { setAutoDelete(TRUE); }
 };
 
 
@@ -576,9 +576,9 @@ void init()					// initialize
     errorControl = FALSE;
     skipClass = FALSE;
     skipFunc = FALSE;
-    methods.autoDelete( TRUE );
-    signals.autoDelete( TRUE );
-    slots.autoDelete( TRUE );
+    methods.setAutoDelete( TRUE );
+    signals.setAutoDelete( TRUE );
+    slots.setAutoDelete( TRUE );
 
     tmpArgList = new ArgList;
     CHECK_PTR( tmpArgList );
