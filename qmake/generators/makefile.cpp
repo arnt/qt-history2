@@ -1743,19 +1743,23 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     }
                 }
             }
+            for(int i = 0; i < inputs.size(); ) {
+                if(tmp_out == inputs.at(i))
+                    inputs.removeAt(i);
+                else
+                    ++i;
+            }
+            for(int i = 0; i < deps.size(); ) {
+                if(tmp_out == deps.at(i))
+                    deps.removeAt(i);
+                else
+                    ++i;
+            }
             if (inputs.isEmpty())
                 continue;
+
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out);
-            t << tmp_out << ": ";
-            for(int i = 0; i < inputs.size(); ++i) {
-                if(tmp_out != inputs.at(i))
-                    t << " " <<  inputs.at(i);
-            }
-            for(int i = 0; i < deps.size(); ++i) {
-                if(tmp_out != deps.at(i))
-                    t<< " " <<  deps.at(i);
-            }
-            t << "\n\t"
+            t << tmp_out << ": " << valList(inputs) << " " << valList(deps) << "\n\t"
               << cmd.replace("${QMAKE_FILE_IN}", inputs.join(" ")) << endl << endl;
             continue;
         }
@@ -1827,12 +1831,13 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 }
                 deps += inc_deps;
             }
-            t << out << ": " << in;
-            for(int i = 0; i < deps.size(); ++i) {
-                if(out != deps.at(i))
-                    t<< " " <<  deps.at(i);
+            for(int i = 0; i < deps.size(); ) {
+                if(out == deps.at(i))
+                    deps.removeAt(i);
+                else
+                    ++i;
             }
-            t << "\n\t"
+            t << out << ": " << valList(deps) << "\n\t"
               << cmd << endl << endl;
         }
     }
