@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#43 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -44,6 +44,7 @@
 #include "qlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
+#include "qcleanuphandler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -186,6 +187,8 @@ public:
     int sigchldFd[2];
 };
 
+QCleanupHandler<QProcessManager> qprocess_cleanup_procmanager;
+
 QProcessManager::QProcessManager()
 {
     procList = new QList<QProc>;
@@ -233,6 +236,8 @@ QProcessManager::QProcessManager()
     act.sa_flags = 0;
     if ( sigaction( SIGPIPE, &act, &oldactPipe ) != 0 )
 	qWarning( "Error installing SIGPIPE handler" );
+
+    qprocess_cleanup_procmanager.add( this );
 }
 
 QProcessManager::~QProcessManager()
@@ -276,6 +281,7 @@ void QProcessManager::remove( QProc *p )
     if ( procList->count() == 0 ) {
 	// ### this looks dangerous: do that better with a single shot timer
 	QProcessPrivate::procManager = 0;
+	qprocess_cleanup_procmanager.remove( this );
 	delete this;
     }
 }
