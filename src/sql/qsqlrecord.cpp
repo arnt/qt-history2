@@ -48,7 +48,7 @@ class QSqlRecordPrivate
 public:
     class info {
     public:
-	info() : nogen(FALSE),align(0),label(),visible(TRUE){}
+	info() : nogen(FALSE),align(Qt::AlignAuto),label(),visible(TRUE){}
 	~info() {}
 	info( const info& other )
 	    : field( other.field ), nogen( other.nogen ), align( other.align ), label( other.label ),
@@ -468,8 +468,8 @@ int QSqlRecord::alignment( const QString& name ) const
 {
     if ( !field( name ) )
 	return Qt::AlignLeft;
-
-    if ( !sh->d->fieldInfo( position( name ) ) ) {
+    if ( !sh->d->contains( position( name ) ) ||
+	 sh->d->fieldInfo( position( name ) )->align == Qt::AlignAuto ) {
 	 int af = 0;
 	 switch( field( name )->type() ) {
 	 case QVariant::String:
