@@ -49,6 +49,7 @@
  *****************************************************************************/
 static bool no_move_blt = false;
 static WId serial_id = 0;
+static WindowGroupRef qt_mac_stays_on_top_group = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
@@ -85,6 +86,40 @@ QPoint posInWindow(QWidget *w)
     if(QWidget *par = w->parentWidget()) 
 	ret = posInWindow(par) + w->pos();
     return ret;
+}
+
+static void qt_mac_release_stays_on_top_group()
+{
+    ReleaseWindowGroup(qt_mac_stays_on_top_group);
+    if(GetWindowGroupRetainCount(qt_mac_stays_on_top_group) == 1) { //only the global pointer exists
+	ReleaseWindowGroup(qt_mac_stays_on_top_group);
+	qt_mac_stays_on_top_group = 0;
+    }
+}
+
+/* Use this function instead of ReleaseWindowGroup, this will be sure to release the
+   stays on top window group (created with qt_mac_get_stays_on_top_group below) */
+static void qt_mac_release_window_group(WindowGroupRef group)
+{
+    if(group == qt_mac_stays_on_top_group)
+	qt_mac_release_stays_on_top_group();
+    else
+	ReleaseWindowGroup(group);
+}
+#define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
+
+/* We create one static stays on top window group so that all stays on top (aka popups) will
+   fall into the same group and be able to be raise()'d with releation to one another (from
+   within the same window group). */
+static WindowGroupRef qt_mac_get_stays_on_top_group()
+{
+    if(!qt_mac_stays_on_top_group) {
+	CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_stays_on_top_group);
+	SetWindowGroupLevel(qt_mac_stays_on_top_group, kCGMaximumWindowLevel);
+	SetWindowGroupParent(qt_mac_stays_on_top_group, GetWindowGroupOfClass(kAllWindowClasses));
+    }
+    RetainWindowGroup(qt_mac_stays_on_top_group);
+    return qt_mac_stays_on_top_group;
 }
 
 static inline const Rect *mac_rect(const QRect &qr)
@@ -713,7 +748,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = true;
 	setWFlags(WType_TopLevel);
 	if(popup)
-	    setWFlags(WStyle_Tool); // a popup is a tool window
+	    setWFlags(WStyle_Tool|WStyle_StaysOnTop); // a popup is a tool window
     }
     if(topLevel && parentWidget()) {
 	// if our parent has WStyle_StaysOnTop, so must we
@@ -916,10 +951,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    d->createTLExtra();
 	    if(d->topData()->group)
-		ReleaseWindowGroup(d->topData()->group);
-	    CreateWindowGroup(kWindowActivationScopeNone, &d->topData()->group);
-	    SetWindowGroupLevel(d->topData()->group, kCGMaximumWindowLevel);
-	    SetWindowGroupParent(d->topData()->group, GetWindowGroupOfClass(kAllWindowClasses));
+		qt_mac_release_window_group(d->topData()->group);
+	    d->topData()->group = qt_mac_get_stays_on_top_group();
 	    SetWindowGroup((WindowPtr)id, d->topData()->group);
 	} else if(grp) {
 	    SetWindowGroup((WindowPtr)id, grp);
@@ -2080,8 +2113,8 @@ void QWidgetPrivate::createTLSysExtra()
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    if(extra->topextra->group)
-	ReleaseWindowGroup(extra->topextra->group);
+    if(extra->topextra->group) 
+	qt_mac_release_window_group(extra->topextra->group);
 }
 
 bool QWidget::acceptDrops() const
