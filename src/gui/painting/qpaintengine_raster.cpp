@@ -1476,7 +1476,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
-    g = new ARGB[width*height];
+    m_buffer = new ARGB[width*height];
     memset(m_buffer, 255, width*height*sizeof(ARGB));
 }
 #elif defined(Q_WS_MAC)
