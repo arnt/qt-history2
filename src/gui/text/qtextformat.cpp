@@ -677,6 +677,9 @@ QList<QTextBlockIterator> QTextGroup::blockList() const
 QTextFrame::QTextFrame(QObject *parent)
     : QTextGroup(*new QTextFramePrivate, parent)
 {
+    d->fragment_start = 0;
+    d->fragment_end = 0;
+    d->parentFrame = 0;
 }
 
 QTextFrame::~QTextFrame()
