@@ -210,6 +210,8 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     myvrefnum=myspec.vRefNum;
     mydirid=myspec.parID;
     char mybuffer[4000];
+
+    char * myfind=myspec.name;
     
     HParamBlockRec params;
 
@@ -228,11 +230,9 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 
     myspec1.dirInfo.ioNamePtr=myfind;
     myspec1.dirInfo.ioFlAttrib=0;
-    myspec1.dirInfo.ioFlCrData=0;
     myspec1.dirInfo.ioDrDirID=mydirid;
     myspec2.dirInfo.ioNamePtr=0;
     myspec2.dirInfo.ioFlAttrib=0x10;
-    myspec2.dirInfo.ioFlCrDat=0;
     myspec2.dirInfo.ioDrDirID=mydirid;
     
     OSErr done;
@@ -240,7 +240,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     char namebuf[256];
     
     do {
-	done=PBGetCatInfo(&params,false);
+	done=PBGetCatInfo(&params.csParam,false);
 	if(done==noErr) {
 	    int loopc;
 	    for(loopc=0;loopc<params.csParam.ioActMatchCount;loopc++) {
