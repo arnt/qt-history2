@@ -20,7 +20,9 @@
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_QT)');
 	if ( Config("opengl") ) {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
-	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT_OPENGL)');
+	    if ( Project("TARGET") ne "qgl" ) {
+		Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT_OPENGL)');
+	    }
 	}
 	if ( Project("TARGET") ne "qt" ) {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
