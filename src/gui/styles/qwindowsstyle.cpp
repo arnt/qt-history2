@@ -2217,19 +2217,19 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
     case CC_Q3ListView:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
             int i;
-            if (lv->subControls & SC_ListView)
+            if (lv->subControls & SC_Q3ListView)
                 QCommonStyle::drawComplexControl(cc, lv, p, widget);
-            if (lv->subControls & (SC_ListViewBranch | SC_ListViewExpand)) {
+            if (lv->subControls & (SC_Q3ListViewBranch | SC_Q3ListViewExpand)) {
                 if (lv->items.isEmpty())
                     break;
-                QStyleOptionListViewItem item = lv->items.at(0);
+                QStyleOptionQ3ListViewItem item = lv->items.at(0);
                 int y = lv->rect.y();
                 int c;
                 int dotoffset = 0;
                 QPolygon dotlines;
-                if ((lv->activeSubControls & SC_All) && (lv->subControls & SC_ListViewExpand)) {
+                if ((lv->activeSubControls & SC_All) && (lv->subControls & SC_Q3ListViewExpand)) {
                     c = 2;
                     dotlines.resize(2);
                     dotlines[0] = QPoint(lv->rect.right(), lv->rect.top());
@@ -2243,7 +2243,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                     // skip the stuff above the exposed rectangle
                     for (i = 1; i < lv->items.size(); ++i) {
-                        QStyleOptionListViewItem child = lv->items.at(i);
+                        QStyleOptionQ3ListViewItem child = lv->items.at(i);
                         if (child.height + y > 0)
                             break;
                         y += child.totalHeight;
@@ -2252,10 +2252,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                     // paint stuff in the magical area
                     while (i < lv->items.size() && y < lv->rect.height()) {
-                        QStyleOptionListViewItem child = lv->items.at(i);
-                        if (child.features & QStyleOptionListViewItem::Visible) {
+                        QStyleOptionQ3ListViewItem child = lv->items.at(i);
+                        if (child.features & QStyleOptionQ3ListViewItem::Visible) {
                             int lh;
-                            if (!(item.features & QStyleOptionListViewItem::MultiLine))
+                            if (!(item.features & QStyleOptionQ3ListViewItem::MultiLine))
                                 lh = child.height;
                             else
                                 lh = p->fontMetrics().height() + 2 * lv->itemMargin;
@@ -2263,7 +2263,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                             if (lh % 2 > 0)
                                 ++lh;
                             linebot = y + lh / 2;
-                            if (child.features & QStyleOptionListViewItem::Expandable
+                            if (child.features & QStyleOptionQ3ListViewItem::Expandable
                                 || child.childCount > 0 && child.height > 0) {
                                 // needs a box
                                 p->setPen(lv->palette.mid().color());
@@ -2334,7 +2334,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
 
                 int line; // index into dotlines
-                if (lv->subControls & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
+                if (lv->subControls & SC_Q3ListViewBranch) for(line = 0; line < c; line += 2) {
                     // assumptions here: lines are horizontal or vertical.
                     // lines always start with the numerically lowest
                     // coordinate.

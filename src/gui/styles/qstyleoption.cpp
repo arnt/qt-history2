@@ -102,8 +102,8 @@
     \value SO_Slider \l QStyleOptionSlider
     \value SO_Frame \l QStyleOptionFrame
     \value SO_ProgressBar \l QStyleOptionProgressBar
-    \value SO_ListView \l QStyleOptionListView
-    \value SO_ListViewItem \l QStyleOptionListViewItem
+    \value SO_Q3ListView \l QStyleOptionQ3ListView
+    \value SO_Q3ListViewItem \l QStyleOptionQ3ListViewItem
     \value SO_Header \l QStyleOptionHeader
     \value SO_Q3DockWindow \l QStyleOptionQ3DockWindow
     \value SO_DockWindow \l QStyleOptionDockWindow
@@ -921,8 +921,8 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \class QStyleOptionListViewItem
-    \brief The QStyleOptionListViewItem class is used to describe an
+    \class QStyleOptionQ3ListViewItem
+    \brief The QStyleOptionQ3ListViewItem class is used to describe an
     item drawn in a Q3ListView.
 
     This is used by the compatibility Q3ListView to draw its items.
@@ -932,7 +932,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \enum QStyleOptionListViewItem::ListViewItemFeature
+    \enum QStyleOptionQ3ListViewItem::Q3ListViewItemFeature
 
     This enum describes the features a list view item can have.
 
@@ -947,12 +947,12 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    Constructs a QStyleOptionListViewItem. The members variables are
+    Constructs a QStyleOptionQ3ListViewItem. The members variables are
     initialized to default values.
 */
 
-QStyleOptionListViewItem::QStyleOptionListViewItem()
-    : QStyleOption(Version, SO_ListViewItem), features(None), height(0), totalHeight(0),
+QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem()
+    : QStyleOption(Version, SO_Q3ListViewItem), features(None), height(0), totalHeight(0),
       itemY(0), childCount(0)
 {
 }
@@ -960,15 +960,15 @@ QStyleOptionListViewItem::QStyleOptionListViewItem()
 /*!
     \internal
 */
-QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
-    : QStyleOption(version, SO_ListViewItem), features(None), height(0), totalHeight(0),
+QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
+    : QStyleOption(version, SO_Q3ListViewItem), features(None), height(0), totalHeight(0),
       itemY(0), childCount(0)
 {
 }
 
 
 /*!
-    \property QStyleOptionListViewItem::features
+    \property QStyleOptionQ3ListViewItem::features
     \brief The features for this item
 
     This variable is a bitwise OR of the features of the item.
@@ -977,7 +977,7 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionListViewItem::height
+    \property QStyleOptionQ3ListViewItem::height
     \brief The height of the item
 
     This doesn't include the height of the item's children.
@@ -986,27 +986,27 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionListViewItem::totalHeight
+    \property QStyleOptionQ3ListViewItem::totalHeight
     \brief The total height of the item, including its children
 
     \sa Q3ListViewItem::totalHeight()
 */
 
 /*!
-    \property QStyleOptionListViewItem::itemY
+    \property QStyleOptionQ3ListViewItem::itemY
     \brief The Y-coordinate for the item
 
     \sa Q3ListViewItem::itemY()
 */
 
 /*!
-    \property QStyleOptionListViewItem::childCount
+    \property QStyleOptionQ3ListViewItem::childCount
     \brief The number of children the item has.
 */
 
 /*!
-    \class QStyleOptionListView
-    \brief The QStyleOptionListView class is used to describe the
+    \class QStyleOptionQ3ListView
+    \brief The QStyleOptionQ3ListView class is used to describe the
     parameters for drawing a Q3ListView.
 
     The class is used for drawing the compat \l Q3ListView. It is not
@@ -1018,8 +1018,8 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
     initialized to default values.
 */
 
-QStyleOptionListView::QStyleOptionListView()
-    : QStyleOptionComplex(Version, SO_ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
+QStyleOptionQ3ListView::QStyleOptionQ3ListView()
+    : QStyleOptionComplex(Version, SO_Q3ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
       rootIsDecorated(false)
 {
 }
@@ -1027,8 +1027,8 @@ QStyleOptionListView::QStyleOptionListView()
 /*!
     \internal
 */
-QStyleOptionListView::QStyleOptionListView(int version)
-    : QStyleOptionComplex(version, SO_ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
+QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
+    : QStyleOptionComplex(version, SO_Q3ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
       rootIsDecorated(false)
 {
 }

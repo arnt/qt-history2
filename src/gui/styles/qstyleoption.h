@@ -27,10 +27,10 @@ public:
     enum OptionType {
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
-                      SO_DockWindow, SO_ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
+                      SO_DockWindow, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
-                      SO_ListView, SO_TitleBar,
+                      SO_Q3ListView, SO_TitleBar,
 
                       SO_CustomBase = 0xf00,
                       SO_ComplexCustomBase = 0xf000000
@@ -255,10 +255,10 @@ protected:
     QStyleOptionMenuItem(int version);
 };
 
-class Q_GUI_EXPORT QStyleOptionListViewItem : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionQ3ListViewItem : public QStyleOption
 {
 public:
-    enum { Type = SO_ListViewItem };
+    enum { Type = SO_Q3ListViewItem };
     enum { Version = 1 };
 
     enum ListViewItemFeature { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
@@ -271,7 +271,7 @@ public:
     int itemY;
     int childCount;
 
-    QStyleOptionListViewItem();
+    QStyleOptionQ3ListViewItem();
 
     QDOC_PROPERTY(ListViewItemFeatures features)
     QDOC_PROPERTY(int height)
@@ -280,10 +280,10 @@ public:
     QDOC_PROPERTY(int childCount)
 
 protected:
-    QStyleOptionListViewItem(int version);
+    QStyleOptionQ3ListViewItem(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionListViewItem::ListViewItemFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionQ3ListViewItem::ListViewItemFeatures);
 
 class Q_GUI_EXPORT QStyleOptionQ3DockWindow : public QStyleOption
 {
@@ -444,13 +444,13 @@ protected:
     QStyleOptionSpinBox(int version);
 };
 
-class Q_GUI_EXPORT QStyleOptionListView : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionQ3ListView : public QStyleOptionComplex
 {
 public:
-    enum { Type = SO_ListView };
+    enum { Type = SO_Q3ListView };
     enum { Version = 1 };
 
-    QList<QStyleOptionListViewItem> items;
+    QList<QStyleOptionQ3ListViewItem> items;
     QPalette viewportPalette;
     QPalette::ColorRole viewportBGRole;
     int sortColumn;
@@ -458,9 +458,9 @@ public:
     int treeStepSize;
     bool rootIsDecorated;
 
-    QStyleOptionListView();
+    QStyleOptionQ3ListView();
 
-    QDOC_PROPERTY(QList<QStyleOptionListViewItem> items)
+    QDOC_PROPERTY(QList<QStyleOptionQ3ListViewItem> items)
     QDOC_PROPERTY(QPalette viewportPalette)
     QDOC_PROPERTY(QPalette::ColorRole viewportBGRole)
     QDOC_PROPERTY(int sortColumn)
@@ -469,7 +469,7 @@ public:
     QDOC_PROPERTY(bool rootIsDecorated)
 
 protected:
-    QStyleOptionListView(int version);
+    QStyleOptionQ3ListView(int version);
 };
 
 class Q_GUI_EXPORT QStyleOptionToolButton : public QStyleOptionComplex

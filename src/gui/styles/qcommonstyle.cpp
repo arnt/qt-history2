@@ -470,7 +470,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->drawPixmap(opt->rect.topLeft(), QPixmap(check_list_controller_xpm));
         break;
     case PE_Q3CheckListExclusiveIndicator:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
             if (lv->items.isEmpty())
                 return;
             int x = lv->rect.x(),
@@ -524,10 +524,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
     case PE_Q3CheckListIndicator:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
             if(lv->items.isEmpty())
                 break;
-            QStyleOptionListViewItem item = lv->items.at(0);
+            QStyleOptionQ3ListViewItem item = lv->items.at(0);
             int x = lv->rect.x(),
                 y = lv->rect.y(),
                 w = lv->rect.width(),
@@ -539,7 +539,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text), 2));
             if (opt->state & State_Selected && !lv->rootIsDecorated
-                && !(item.features & QStyleOptionListViewItem::ParentControl)) {
+                && !(item.features & QStyleOptionQ3ListViewItem::ParentControl)) {
                 p->fillRect(0, 0, x + marg + w + 4, item.height,
                             lv->palette.brush(QPalette::Highlight));
                 if (item.state & State_Enabled)
@@ -1879,8 +1879,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         }
         break;
     case CC_Q3ListView:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->subControls & SC_ListView)
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
+            if (lv->subControls & SC_Q3ListView)
                 p->fillRect(lv->rect, lv->viewportPalette.brush(lv->viewportBGRole));
         }
         break;
@@ -2232,9 +2232,9 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         }
         break;
     case CC_Q3ListView:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
             if (pt.x() >= 0 && pt.x() < lv->treeStepSize)
-                sc = SC_ListViewExpand;
+                sc = SC_Q3ListViewExpand;
         }
         break;
     case CC_SpinBox:
@@ -2948,7 +2948,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = int(opt ? opt->palette.foreground().color().rgb() : 0);
         break;
 
-    case SH_ListViewExpand_SelectMouseType:
+    case SH_Q3ListViewExpand_SelectMouseType:
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonPress;
         break;

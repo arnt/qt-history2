@@ -308,9 +308,9 @@ public:
         SC_TitleBarUnshadeButton = 0x00000080,
         SC_TitleBarContextHelpButton = 0x00000100,
 
-        SC_ListView =              0x00000001,
-        SC_ListViewBranch =        0x00000002,
-        SC_ListViewExpand =        0x00000004,
+        SC_Q3ListView =            0x00000001,
+        SC_Q3ListViewBranch =      0x00000002,
+        SC_Q3ListViewExpand =      0x00000004,
 
         SC_All =                   0xffffffff
     };
@@ -485,7 +485,7 @@ public:
         SH_ToolBox_SelectedPageTitleBold,
         SH_TabBar_PreferNoArrows,
         SH_ScrollBar_LeftClickAbsolutePosition,
-        SH_ListViewExpand_SelectMouseType,
+        SH_Q3ListViewExpand_SelectMouseType,
         SH_UnderlineShortcut,
         SH_ScrollBar_BackgroundRole,
         SH_SpinBox_AnimateButton,
