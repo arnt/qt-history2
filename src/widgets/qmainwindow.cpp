@@ -1165,7 +1165,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl ) && !t->t->fullWidth() )
+			if ( ( !tmp || tmp->nl || tmp->t->fullWidth() ) && !t->t->fullWidth() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1174,7 +1174,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->y() > tmp->t->y() ) {
+		if ( !t || t->nl || t->t->y() > tmp->t->y() || t->t->fullWidth() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1190,7 +1190,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl ) && !t->t->fullWidth() )
+			if ( ( !tmp || tmp->nl || tmp->t->fullWidth() ) && !t->t->fullWidth() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1199,7 +1199,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->x() > tmp->t->x() ) {
+		if ( !t || t->nl || t->t->x() > tmp->t->x() || t->t->fullWidth() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1676,7 +1676,6 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	    w = t->t->width();
 	else if ( o != tb->orientation() )
 	    w = QMIN( w, 30 );
-	    
     }
 
     // if a relative toolbar for the moving one was found
