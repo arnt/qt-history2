@@ -13,10 +13,11 @@ class StructureParser: public QXmlDefaultHandler
 {
 public:
     StructureParser( QListView * );
-    bool startDocument();
     bool startElement( const QString&, const QString&, const QString& , 
                        const QXmlAttributes& );
     bool endElement( const QString&, const QString&, const QString& );
+
+    void setListView( QListView * );
 
 private:
     QStack<QListViewItem> stack;

@@ -23,22 +23,18 @@ int main( int argc, char **argv )
     QGrid * container = new QGrid( 3 );
 
     QListView * nameSpace = new QListView( container, "table_namespace" );    
-    StructureParser * handlerNamespace = new StructureParser( nameSpace );
-    reader.setContentHandler( handlerNamespace );
+    StructureParser * handler = new StructureParser( nameSpace );
+    reader.setContentHandler( handler );
     reader.parse( source );
 
     QListView * namespacePrefix = new QListView( container, "table_namespace_prefix" );    
-    StructureParser * handlerNamespacePrefix = new StructureParser( namespacePrefix );
-    reader.setContentHandler( handlerNamespacePrefix );
-    reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
+    handler->setListView( namespacePrefix );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     reader.parse( source );
 
     QListView * prefix = new QListView( container, "table_prefix");    
-    StructureParser * handlerPrefix = new StructureParser( prefix );
-    reader.setContentHandler( handlerPrefix );
+    handler->setListView( prefix );
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     reader.parse( source );
 
     QLabel * namespaceLabel = new QLabel( 

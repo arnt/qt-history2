@@ -10,15 +10,15 @@ $Id$
 StructureParser::StructureParser( QListView * t )
                 : QXmlDefaultHandler() 
 {
-    table = t;
-    table->setSorting( -1 ); // no sorting
-    table->addColumn( "Qualified name" );
-    table->addColumn( "Namespace" );
+    setListView( t );
 }
 
-bool StructureParser::startDocument()
+void StructureParser::setListView( QListView * t )
 {
-    return TRUE;
+    table = t;
+    table->setSorting( -1 );
+    table->addColumn( "Qualified name" );
+    table->addColumn( "Namespace" );
 }
 
 bool StructureParser::startElement( const QString& namespaceURI, const QString& , 
@@ -51,4 +51,3 @@ bool StructureParser::endElement( const QString&, const QString&, const QString&
     stack.pop();
     return TRUE;
 }
-
