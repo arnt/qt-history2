@@ -1,0 +1,10 @@
+\row \o QApplication::ColorMode \o QApplication::ColorSpec
+\row \o QFileInfo::PermissionSpec \o QFile::Permission
+\row \o QImage::ScaleMode \o Qt::AspectRatioMode
+\row \o QSize::ScaleMode \o Qt::AspectRatioMode
+\row \o QStyle::SCFlags \o QStyle::SubControls
+\row \o QStyle::SFlags \o QStyle::StyleFlags
+\row \o Qt::ButtonState \o Qt::KeyboardModifier
+\row \o Qt::MacintoshVersion \o QSysInfo::MacVersion
+\row \o Qt::TextFlags \o Qt::TextFlag
+\row \o Qt::WindowsVersion \o QSysInfo::WinVersion
