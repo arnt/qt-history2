@@ -179,8 +179,12 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
               << "</font></pre>\n";
         break;
     case Atom::FootnoteLeft:
+        // ### For now
+	out() << "<!-- ";
 	break;
     case Atom::FootnoteRight:
+        // ### For now
+	out() << "-->";
 	break;
     case Atom::FormatElse:
     case Atom::FormatEndif:

@@ -1,3 +1,4 @@
+  * Emit warnings when \sa fails
   * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * fix resolving \typedef Qt::HANDLE
   * make links within document work

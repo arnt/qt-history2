@@ -299,7 +299,7 @@ node->doc().body().dump();
             if (fake->subType() == FakeNode::File) {
                 Text text;
                 Quoter quoter;
-                Doc::quoteFromFile(fake->location(), quoter, fake->name());
+                Doc::quoteFromFile(fake->doc().location(), quoter, fake->name());
                 text << Atom(Atom::Code, quoter.quoteTo(fake->location(), "", ""));
                 generateText(text, fake, marker);
             }
