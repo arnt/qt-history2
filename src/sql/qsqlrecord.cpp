@@ -455,6 +455,29 @@ void QSqlRecord::setGenerated( int i, bool generated )
 }
 
 /*!
+    \internal
+    ### Remove in 4.0
+*/
+bool QSqlRecord::isNull( int i )
+{
+    checkDetach();
+    QSqlField* f = field( i );
+    if ( f ) {
+	return f->isNull();
+    }
+    return TRUE;
+}
+
+/*! 
+    \internal
+    ### Remove in 4.0
+*/
+bool QSqlRecord::isNull( const QString& name )
+{
+    return isNull( position( name ) );
+}
+
+/*!
     \overload
 
     Returns TRUE if the field \a i is NULL or if there is no field at
@@ -462,10 +485,9 @@ void QSqlRecord::setGenerated( int i, bool generated )
 
     \sa fieldName()
 */
-bool QSqlRecord::isNull( int i )
+bool QSqlRecord::isNull( int i ) const
 {
-    checkDetach();
-    QSqlField* f = field( i );
+    const QSqlField* f = field( i );
     if ( f ) {
 	return f->isNull();
     }
@@ -478,7 +500,7 @@ bool QSqlRecord::isNull( int i )
 
     \sa position()
 */
-bool QSqlRecord::isNull( const QString& name )
+bool QSqlRecord::isNull( const QString& name ) const
 {
     return isNull( position( name ) );
 }

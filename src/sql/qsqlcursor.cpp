@@ -1427,7 +1427,6 @@ QVariant QSqlCursor::value( int i ) const
 
 /*!
     \reimp
-    \overload
 
     Returns the value of the field called \a name.
 */
@@ -1445,12 +1444,32 @@ void QSqlCursor::append( const QSqlField& field )
     append( QSqlFieldInfo( field ) );
 }
 /*! \internal
-\overload
   cursors should be filled with QSqlFieldInfos...
 */
 void QSqlCursor::insert( int pos, const QSqlField& field )
 {
     insert( pos, QSqlFieldInfo( field ) );
+}
+
+/*!
+    Returns TRUE if the field \a i is NULL or if there is no field at
+    position \a i; otherwise returns FALSE.
+    
+    This is the same as calling QSqlRecord::isNull( \a i )
+*/
+bool QSqlCursor::isNull( int i ) const
+{
+    return QSqlRecord::isNull( i );
+}
+/*!
+    Returns TRUE if the field called \a name is NULL or if there is no
+    field called \a name; otherwise returns FALSE.
+
+    This is the same as calling QSqlRecord::isNull( \a name )
+*/
+bool QSqlCursor::isNull( const QString& name ) const
+{
+    return QSqlRecord::isNull( name );
 }
 
 /*! \reimp */

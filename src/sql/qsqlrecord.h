@@ -75,8 +75,10 @@ public:
     virtual void         setGenerated( int i, bool generated );
     virtual void         setNull( int i );
     virtual void         setNull( const QString& name );
-    bool                 isNull( int i );
-    bool                 isNull( const QString& name );
+    bool                 isNull( int i ); // remove in 4.0
+    bool                 isNull( const QString& name ); // remove in 4.0
+    bool                 isNull( int i ) const;
+    bool                 isNull( const QString& name ) const;
 
     int                  position( const QString& name ) const;
     QString              fieldName( int i ) const;
