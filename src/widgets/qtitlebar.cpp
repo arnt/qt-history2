@@ -133,7 +133,7 @@ class QTitleBarPrivate
 {
 public:
     QTitleBarPrivate()
-	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 ), pressed( 0 ), autoraise(0)
+	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 1 ), pressed( 0 ), autoraise(0)
     {
     }
 
