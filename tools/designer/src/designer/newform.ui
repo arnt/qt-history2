@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>346</width>
-    <height>352</height>
+    <width>394</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -36,8 +36,8 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>317</y>
-       <width>162</width>
+       <y>387</y>
+       <width>210</width>
        <height>26</height>
       </rect>
      </property>
@@ -59,8 +59,8 @@
      </property>
      <property name="geometry" >
       <rect>
-       <x>177</x>
-       <y>317</y>
+       <x>225</x>
+       <y>387</y>
        <width>77</width>
        <height>26</height>
       </rect>
@@ -77,8 +77,8 @@
      </property>
      <property name="geometry" >
       <rect>
-       <x>260</x>
-       <y>317</y>
+       <x>308</x>
+       <y>387</y>
        <width>77</width>
        <height>26</height>
       </rect>
@@ -99,8 +99,8 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>308</y>
-       <width>328</width>
+       <y>378</y>
+       <width>376</width>
        <height>3</height>
       </rect>
      </property>
@@ -121,9 +121,15 @@
       <rect>
        <x>9</x>
        <y>9</y>
-       <width>328</width>
-       <height>293</height>
+       <width>376</width>
+       <height>363</height>
       </rect>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>128</width>
+       <height>128</height>
+      </size>
      </property>
      <property name="rootIsDecorated" >
       <bool>false</bool>

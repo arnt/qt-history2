@@ -29,10 +29,12 @@ public:
 
     QDesignerWorkbench *workbench() const;
 
-
 private slots:
     void on_createButton_clicked();
     void on_closeButton_clicked();
+
+private:
+    QIcon formPreviewIcon(const QString &fileName);
 
 private:
     QDesignerWorkbench *m_workbench;

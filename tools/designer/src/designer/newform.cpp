@@ -15,11 +15,13 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 
+#include <qdesigner_formbuilder.h>
 #include <sheet_delegate.h>
 
 #include <abstractformwindow.h>
 
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtGui/QHeaderView>
 
 #include <QtCore/qdebug.h>
@@ -36,23 +38,24 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.setupUi(this);
     ui.treeWidget->setItemDelegate(new SheetDelegate(ui.treeWidget, this));
     ui.treeWidget->header()->hide();
+    ui.treeWidget->header()->setStretchLastSection(true);
 
     QTreeWidgetItem *trolltech = new QTreeWidgetItem(ui.treeWidget);
     trolltech->setText(0, tr("Trolltech"));
 
-    QTreeWidgetItem *item = 00;
+    QTreeWidgetItem *item = 0;
 
-    item = new QTreeWidgetItem(trolltech);
-    item->setText(0, tr("Dialog"));
-    item->setData(0, TemplateNameRole, QString::fromUtf8(":/trolltech/designer/templates/forms/dialog.ui"));
+    QStringList trolltechFormTemplates;
+    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/dialog.ui"));
+    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/mainwindow.ui"));
+    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/widget.ui"));
 
-    item = new QTreeWidgetItem(trolltech);
-    item->setText(0, tr("Main Window"));
-    item->setData(0, TemplateNameRole, QString::fromUtf8(":/trolltech/designer/templates/forms/mainwindow.ui"));
-
-    item = new QTreeWidgetItem(trolltech);
-    item->setText(0, tr("Widget"));
-    item->setData(0, TemplateNameRole, QString::fromUtf8(":/trolltech/designer/templates/forms/widget.ui"));
+    foreach (QString formTemplateName, trolltechFormTemplates) {
+        item = new QTreeWidgetItem(trolltech);
+        item->setText(0, QFileInfo(formTemplateName).baseName());
+        item->setData(0, TemplateNameRole, formTemplateName);
+        item->setIcon(0, formPreviewIcon(formTemplateName));
+    }
 
     ui.treeWidget->setItemOpen(trolltech, true);
 }
@@ -91,4 +94,34 @@ QDesignerWorkbench *NewForm::workbench() const
 {
     return m_workbench;
 }
+
+QIcon NewForm::formPreviewIcon(const QString &fileName)
+{
+    QFile f(fileName);
+    if (f.open(QFile::ReadOnly)) {
+        QDesignerFormBuilder formBuilder(workbench()->core());
+
+        QWidget *fake = new QWidget(0);
+        QWidget *widget = formBuilder.load(&f, fake);
+        QSize size = widget->size();
+        widget->setParent(fake, 0);
+        widget->resize(size);
+        widget->show();
+        f.close();
+
+        widget->ensurePolished();
+
+        QPixmap pix = QPixmap::grabWidget(widget);
+        QImage image = pix.toImage();
+        image.scale(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        pix = image;
+
+        delete fake;
+
+        return pix;
+    }
+
+    return QIcon();
+}
+
 
