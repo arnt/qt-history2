@@ -958,8 +958,9 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	/* Use some extra gunpowder to avoid some problems on 98 and ME.
-	   See task: 19052 */
+	   See task: 19052 and 23626 */
 	DWORD caps = DeviceCapabilities( (TCHAR*)printer_name.ucs2(), 0, DC_BINS, 0, 0 );
+	if( caps == DWORD( -1 ) ) caps = 0;
 	LPTSTR bins = new TCHAR[caps];
 	if( !DeviceCapabilities( (TCHAR*)printer_name.ucs2(), 0, DC_BINS, bins, 0 ) ) {
 	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
@@ -975,6 +976,7 @@ void QPrinter::writeDevmode( HANDLE hdm )
 		paper_source = Auto;
 	    }
 	}
+	delete [] bins;
     }
     D->needReinit = changeCount>0;
 #endif
@@ -1001,6 +1003,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, 0, 0 );
+	if( caps == DWORD( -1 ) ) caps = 0;
 	LPSTR bins = new char[caps];
 	if( !DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, bins, 0 ) ) {
 	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
@@ -1016,6 +1019,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 		paper_source = Auto;
 	    }
 	}
+	delete [] bins;
     }
     D->needReinit = changeCount>0;
 }
