@@ -3972,8 +3972,8 @@ void QListViewItem::widthChanged( int c ) const
     \c Single selection mode (normally after the screen update). The
     argument is the newly selected item.
 
-    The no argument overload of this signal is more useful in \c Multi
-    selection mode.
+    When in Multi selection mode, use the no argument overload of this
+    signal.
 
     \warning Do not delete any QListViewItem objects in slots
     connected to this signal.

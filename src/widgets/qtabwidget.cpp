@@ -76,12 +76,12 @@
     The position of the tabs is set with setTabPosition(), their shape
     with setTabShape(), and their margin with setMargin().
 
-    If you don't call addTab() the page you have created will not be
-    visible. Don't confuse the object name you supply to the QWidget
-    constructor and the tab label you supply to addTab(). addTab()
-    takes a name which indicates an accelerator and is meaningful and
-    descriptive to the user, whereas the widget name is used primarily
-    for debugging.
+    If you don't call addTab() and the QTabWidget is already visible,
+    then the page you have created will not be visible. visible. Don't
+    confuse the object name you supply to the QWidget constructor and
+    the tab label you supply to addTab(). addTab() takes a name which
+    indicates an accelerator and is meaningful and descriptive to the
+    user, whereas the widget name is used primarily for debugging.
 
     The signal currentChanged() is emitted when the user selects a
     page.
@@ -876,7 +876,7 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 		} else {
 		    page++;
 		    if ( page >= count() )
-			page = 0;		
+			page = 0;
 		}
 		setCurrentPage( page );
 		if ( !qApp->focusWidget() )
@@ -884,7 +884,7 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 		return TRUE;
 	    }
 	}
-	
+
     } else if ( o == d->stack ) {
 	if ( e->type() == QEvent::ChildRemoved
 	     && ( (QChildEvent*)e )->child()->isWidgetType() ) {
