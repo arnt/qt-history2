@@ -13,9 +13,6 @@
 
 // Started with from qapplication_x11.cpp,v 2.399 1999/10/22 14:39:33
 
-#define select                _qt_hide_select
-#define gettimeofday        _qt_hide_gettimeofday
-
 #include "qglobal.h"
 #include "qcursor.h"
 #include "qapplication.h"
@@ -132,10 +129,6 @@ static bool qws_regionRequest = false;
 #include "qdecorationfactory_qws.h"
 static QDecoration *qws_decoration = 0;
 #endif
-#undef gettimeofday
-extern "C" int gettimeofday(struct timeval *, struct timezone *);
-#undef select
-extern "C" int select(int, void *, void *, void *, struct timeval *);
 
 #if defined(QT_DEBUG)
 /*
