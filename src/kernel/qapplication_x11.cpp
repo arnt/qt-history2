@@ -3604,11 +3604,8 @@ void qt_enter_modal( QWidget *widget )
     }
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    QWidget *w = QWidget::find( (WId)curWin );
-    if ( w ) { // send synthetic leave event
-	QEvent e( QEvent::Leave );
-	QApplication::sendEvent( w, &e );
-    }
+    qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin) );
+    curWin = 0;
     ignoreNextMouseReleaseEvent = FALSE;
 }
 

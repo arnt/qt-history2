@@ -1075,7 +1075,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 #if defined (QT_CHECK_STATE)
 	if ( hTab == NULL )
 	    qWarning( "Failed to open the tablet" );
-#endif	
+#endif
     }
 #endif
 }
@@ -1509,13 +1509,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( app_do_modal )	{			// modal event handling
 	int ret = 0;
-	if ( !qt_try_modal(widget, &msg, ret ) ) {
-	    if ( message == WM_MOUSEMOVE && widget->winId() != curWin ) {
-		qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
-		curWin = widget->winId();
-	    }
+	if ( !qt_try_modal(widget, &msg, ret ) )
 	    return ret;
-	}
     }
 
     if ( widget->winEvent(&msg) )		// send through widget filter
@@ -2179,8 +2174,9 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     } else
 #endif
 	if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
-	 (type == WM_MOUSEWHEEL || type == (int)WM95_MOUSEWHEEL) ||
-	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST)
+	     type == WM_MOUSEWHEEL || type == (int)WM95_MOUSEWHEEL ||
+	     type == WM_MOUSELEAVE ||
+	     (type >= WM_KEYFIRST	&& type <= WM_KEYLAST)
 #ifndef Q_OS_TEMP
 			|| type == WM_NCMOUSEMOVE
 #endif
@@ -2475,7 +2471,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( curWin != winId() ) {		// new current window
 	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
-	    // We always have to set the tracking, since 
+	    // We always have to set the tracking, since
 	    // Windows detects more leaves than we do..
 	    TRACKMOUSEEVENT tme;
 	    tme.cbSize = sizeof(TRACKMOUSEEVENT);
