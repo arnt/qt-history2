@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#5 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#5 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -128,11 +128,16 @@ void QToolButton::setToggleButton( bool enable )
 QSize QToolButton::sizeHint() const
 {
     int w, h;
-
-    if ( usesBigPixmap() )
+    
+    if ( text() ) {
+	w = fontMetrics().width( text() );
+	h = fontMetrics().height(); // boundingRect()?
+    } else if ( usesBigPixmap() ) {
 	w = h = 32;
-    else
+    } else {
 	w = h = 16;
+    }
+    
     if ( usesTextLabel() ) {
 	h += 4 + fontMetrics().height();
 	int tw = fontMetrics().width( textLabel() );
@@ -152,7 +157,7 @@ QPixmap QToolButton::bigPixmap()
 {
     if ( !pixmap() )
 	return QPixmap();
-    
+
     if ( bpID == pixmap()->serialNumber() )
 	return sp;
 
@@ -185,7 +190,7 @@ QPixmap QToolButton::smallPixmap()
 	sp = *pixmap();
     } else {
 	QImage i( pixmap()->convertToImage() );
-	bp.convertFromImage( i.smoothScale( 16, 16 ) );
+	sp.convertFromImage( i.smoothScale( 16, 16 ) );
     }
     return sp;
 }
@@ -336,7 +341,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	y = height()/2 - (usesBigPixmap() ? 16 : 8);
 	if ( usesTextLabel() )
 	    y = y - fh/2 - 2;
-    
+
 	if ( usesBigPixmap() )
 	    qDrawItem( p, style(), x, y, 32, 32,
 		       AlignCenter + ShowPrefix,
