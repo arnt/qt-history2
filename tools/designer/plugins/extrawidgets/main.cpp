@@ -4,7 +4,6 @@
 #include <qcleanuphandler.h>
 
 #include <qcanvas.h>
-#include <qtable.h>
 
 class ExtraWidgetsInterface : public WidgetInterface
 {
@@ -56,7 +55,6 @@ QStringList ExtraWidgetsInterface::featureList()
     QStringList list;
 
     list << "QCanvasView";
-    list << "QTable";
 
     return list;
 }
@@ -68,10 +66,6 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
 	QCanvas* canvas = new QCanvas;
 	objects.addCleanUp( canvas );
 	w = new QCanvasView( canvas, parent, name );
-    } else if ( description == "QTable" ) {
-	w = new QTable( parent, name );
-    } else {
-	qWarning("Widget class %s not supported by this plugin!", description.latin1() );
     }
 
     objects.addCleanUp( w );
@@ -81,8 +75,6 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
 QString ExtraWidgetsInterface::group( const QString& description )
 {
     if ( description == "QCanvasView" )
-	return "Views";
-    else if ( description == "QTable" )
 	return "Views";
 
     return QString::null;
@@ -102,8 +94,6 @@ QString ExtraWidgetsInterface::toolTip( const QString& description )
 {
     if ( description == "QCanvasView" )
 	return "Canvas";
-    else if ( description == "QTable" )
-	return "Table";
 
     return QString::null;
 }
@@ -115,9 +105,6 @@ QString ExtraWidgetsInterface::whatsThis( const QString& description )
 
 bool ExtraWidgetsInterface::isContainer( const QString& description )
 { 
-    if ( description == "QWorkspace" )
-	return TRUE;
-    
     return FALSE;
 }
 
