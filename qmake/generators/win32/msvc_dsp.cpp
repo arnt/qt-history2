@@ -324,10 +324,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString fname = base;
 		    fname.replace(QRegExp("\\.ui"), "");
 		    int lbs = fname.findRev( "\\" );
-		    QString fpath;
+		    QString fpath; 
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );
-		    fname = fname.right( lbs );
+		    fname = fname.right( fname.length() - lbs + 1 );
 		
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())
