@@ -495,10 +495,8 @@ void VcprojGenerator::initConfiguration()
     DConf.Name += (DConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
 
     // Set definite values in both configurations
-    RConf.compiler.PreprocessorDefinitions.removeAll("_DEBUG");
     DConf.compiler.PreprocessorDefinitions.removeAll("NDEBUG");
     RConf.compiler.PreprocessorDefinitions += "NDEBUG";
-    DConf.compiler.PreprocessorDefinitions += "_DEBUG";
     RConf.linker.GenerateDebugInformation = _False;
     DConf.linker.GenerateDebugInformation = _True;
 
