@@ -428,7 +428,8 @@ QWSCommand* QWSClient::readMoreCommand()
 
 void QWSServer::processEventQueue()
 {
-    qwsServer->doClient( qwsServer->client[-1] );
+    if ( qwsServer )
+	qwsServer->doClient( qwsServer->client[-1] );
 }
 
 
@@ -1285,7 +1286,7 @@ void QWSServer::openMouse()
     }
 }
 
-QWSServer *QWSServer::qwsServer; //there can be only one
+QWSServer *QWSServer::qwsServer=0; //there can be only one
 
 void QWSServer::move_region( const QWSRegionMoveCommand *cmd )
 {
