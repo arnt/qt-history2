@@ -33,7 +33,7 @@
 
 class QMutexPrivate;
 
-class QMutex {
+class  Q_EXPORT QMutex {
 
   QMutexPrivate * d;
 
@@ -46,12 +46,12 @@ public:
 
 };
 
-class QThread {
+class  Q_EXPORT QThread {
 
 public:
 
   static int currentThread();
-  static void postEvent(QObject *,QEvent *);
+  static void postEvent( QObject *,QEvent * );
 
   QThread();
   virtual ~QThread();
