@@ -27,16 +27,16 @@ class Q_GUI_EXPORT QToolBar : public QFrame
     Q_DECLARE_PRIVATE(QToolBar)
     Q_OBJECT
 
-    Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
-    Q_PROPERTY(Qt::ToolBarAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
-    Q_PROPERTY(Qt::ToolBarArea area READ area WRITE setArea)
+    Q_PROPERTY(bool movable READ isMovable WRITE setMovable
+               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
+    Q_PROPERTY(Qt::ToolBarAreas allowedAreas READ allowedAreas WRITE setAllowedAreas
+               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation
+               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) == 0))
 
 public:
-    QToolBar(QMainWindow *parent);
+    QToolBar(QWidget *parent);
     ~QToolBar();
-
-    void setParent(QMainWindow *parent);
-    QMainWindow *mainWindow() const;
 
     void setMovable(bool movable = true);
     bool isMovable() const;
@@ -47,8 +47,8 @@ public:
     inline bool isDockable(Qt::ToolBarArea area)
     { return (allowedAreas() & area) == area; }
 
-    void setArea(Qt::ToolBarArea area, bool linebreak = false);
-    Qt::ToolBarArea area() const;
+    void setOrientation(Qt::Orientation orientation);
+    Qt::Orientation orientation() const;
 
     void clear();
 
@@ -83,7 +83,7 @@ public:
     QAction *toggleViewAction() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QToolBar(QWidget *parent, const char *name);
     inline QT_COMPAT void setLabel(const QString &label)
     { setWindowTitle(label); }
     inline QT_COMPAT QString label() const

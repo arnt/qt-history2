@@ -43,6 +43,18 @@ public:
     void setCorner(Qt::Corner corner, Qt::DockWindowArea area);
     Qt::DockWindowArea corner(Qt::Corner corner) const;
 
+    void addToolBar(QToolBar *toolbar, Qt::ToolBarArea area = Qt::ToolBarAreaTop);
+    void insertToolBar(QToolBar *before, QToolBar *toolbar,
+                       Qt::ToolBarArea area = Qt::ToolBarAreaTop);
+
+    void addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area = Qt::ToolBarAreaTop);
+    void insertToolBarBlock(QToolBar *before, QToolBar *toolbar,
+                            Qt::ToolBarArea area = Qt::ToolBarAreaTop);
+
+    void removeToolBar(QToolBar *toolbar);
+
+    Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
+
     void setDockWindowState(const QString &state);
     QString dockWindowState() const;
 

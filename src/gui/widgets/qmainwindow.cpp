@@ -138,8 +138,6 @@ void QMainWindow::setMenuBar(QMenuBar *menubar)
 	       "QMainWindow::setMenuBar()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->menuBar(),
 	       "QMainWindow::setMenuBar()", "menu bar already set");
-    Q_ASSERT_X(menubar->parentWidget() == this,
-	       "QMainWindow::setMenuBar()", "menu bar parent must be the main window");
     layout()->setMenuBar(menubar);
 }
 
@@ -171,8 +169,6 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
 	       "QMainWindow::setStatusBar()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->statusBar(),
 	       "QMainWindow::setStatusBar()", "status bar already set");
-    Q_ASSERT_X(statusbar->parentWidget() == this,
-	       "QMainWindow::setStatusBar()", "status bar parent must be the main window");
     d->layout->setStatusBar(statusbar);
 }
 
@@ -233,6 +229,79 @@ Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
 /*!
+    Adds the \a toolbar into the specified \a area in this main
+    window.  The \a toolbar is placed at the end of the current tool
+    bar block (i.e. line).
+
+    \sa insertToolBar() addToolBarBlock() insertToolBarBlock()
+*/
+void QMainWindow::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
+{
+    Q_ASSERT_X(toolbar->isDockable(area),
+               "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
+
+    d->layout->addToolBar(toolbar, area);
+
+    if (isVisible())
+        d->layout->relayout();
+}
+
+/*!
+    Inserts the \a toolbar into the specified \a area in this main
+    window.  The \a toolbar is placed before the toolbar \a before.
+
+    \sa insertToolBarBlock() addToolBar() addToolBarBlock()
+*/
+void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
+{
+    Q_ASSERT_X(false, "QMainWindow::insertToolBar", "unimplemented");
+}
+
+/*!
+    Starts a new block (i.e. a new line) of tool bars in the specified
+    \a area in this main window.  The \a toolbar is placed at the
+    beginning of the new line.
+
+    \sa addToolBar() insertToolBarBlock() insertToolBar()
+*/
+void QMainWindow::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
+{
+    Q_ASSERT_X(toolbar->isDockable(area),
+               "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
+
+    d->layout->addToolBarBlock(toolbar, area);
+
+    if (isVisible())
+        d->layout->relayout();
+}
+
+/*!
+    Starts a new block (i.e. a new line) of tool bars in the specified
+    \a area in this main window.  The \a toolbar is placed before the
+    toolbar \a before.
+
+    \sa insertToolBar() addToolBarBlock() addToolBar()
+ */
+void QMainWindow::insertToolBarBlock(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
+{
+    Q_ASSERT_X(false, "QMainWindow::insertToolBarBlock", "unimplemented");
+}
+
+/*!
+    Removes the \a toolbar from the main window.
+*/
+void QMainWindow::removeToolBar(QToolBar *toolbar)
+{ d->layout->removeWidget(toolbar); }
+
+/*!
+    Returns the tool bar area for \a toolbar.
+
+    \sa addToolBar() addToolBarBlock() Qt::ToolBarArea
+*/
+Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
+{ return d->layout->toolBarArea(toolbar); }
+
+/*!
     \internal
     Unimplemented: it should set the \a state for the dock window.
 */
@@ -281,7 +350,7 @@ bool QMainWindow::event(QEvent *event)
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
         for (int i = 0; i < toolbars.size(); ++i) {
             QToolBar *toolbar = toolbars.at(i);
-            Qt::ToolBarArea area = toolbar->area();
+            Qt::ToolBarArea area = toolBarArea(toolbar);
             if(toolbar->isVisible()) {
                 if (area == Qt::ToolBarAreaLeft || area == Qt::ToolBarAreaRight)
                     deltaW -= toolbar->width();

@@ -45,18 +45,20 @@
 void QToolBarPrivate::init()
 {
     q->setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setMargin(0);
+    layout->setAlignment(Qt::AlignLeft);
     layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, 0, q));
 
     handle = new QToolBarHandle(q);
     layout->addWidget(handle);
 
     extension = new QToolBarExtension(q);
+    extension->setOrientation(Qt::Horizontal);
     extension->hide();
 
-    q->setArea(Qt::ToolBarAreaTop);
 #ifdef Q_WS_MAC
     // Make sure that the window has the "toolbar" button.
     extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
@@ -172,10 +174,9 @@ int QToolBarPrivate::indexOf(QAction *action) const
 /*!
     Constructs a QToolBar with the given \a parent.
 */
-QToolBar::QToolBar(QMainWindow *parent)
-    : QFrame(*new QToolBarPrivate, parent)
+QToolBar::QToolBar(QWidget *parent)
+    : QFrame(*new QToolBarPrivate, parent, 0)
 {
-    Q_ASSERT_X(parent != 0, "QToolBar", "parent cannot be zero");
     d->init();
 }
 
@@ -183,10 +184,9 @@ QToolBar::QToolBar(QMainWindow *parent)
 /*! \obsolete
     Constructs a QToolBar with the given \a parent and \a name.
 */
-QToolBar::QToolBar(QMainWindow *parent, const char *name)
-    : QFrame(*new QToolBarPrivate, parent)
+QToolBar::QToolBar(QWidget *parent, const char *name)
+    : QFrame(*new QToolBarPrivate, parent, 0)
 {
-    Q_ASSERT_X(parent != 0, "QToolBar", "parent cannot be zero");
     d->init();
     setObjectName(name);
 }
@@ -210,22 +210,6 @@ QToolBar::~QToolBar()
 #endif
     }
 }
-
-/*!
-    Sets the main window for the tool bar to \a parent.
-
-    \sa mainWindow()
- */
-void QToolBar::setParent(QMainWindow *parent)
-{ QFrame::setParent(parent); }
-
-/*!
-    Returns the main window for the tool bar.
-
-    \sa setParent()
- */
-QMainWindow *QToolBar::mainWindow() const
-{ return qt_cast<QMainWindow *>(parentWidget()); }
 
 /*! \property QToolBar::movable
     \brief whether the user can move the tool bar either within the
@@ -257,56 +241,36 @@ void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
 Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }
 
-/*! \property QToolBar::area
-    \brief area where the tool bar is currently placed.
+/*! \property QToolBar::orientation
+    \brief orientation of the tool bar.
 
-    The default is \c Qt::ToolBarAreaTop.
+    The default is \c Qt::Horizontal.
+
+    Note: the orientation is updated automatically when the toolbar is
+    managed by QMainWindow.
 */
 
-void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
+void QToolBar::setOrientation(Qt::Orientation orientation)
 {
-    Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QToolBar::setArea", "specified 'area' is not an allowed area");
-
-    QMainWindow *mainwindow = qt_cast<QMainWindow *>(parentWidget());
-    Q_ASSERT(mainwindow != 0);
-    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(mainwindow->layout());
-    Q_ASSERT(mainwin_layout != 0);
-    mainwin_layout->add(this, area, linebreak);
-
-    int pos;
-    switch (area) {
-    case Qt::ToolBarAreaLeft:   pos = 0; break;
-    case Qt::ToolBarAreaRight:  pos = 1; break;
-    case Qt::ToolBarAreaTop:    pos = 2; break;
-    case Qt::ToolBarAreaBottom: pos = 3; break;
-    default:
-        Q_ASSERT(false);
-        break;
-    }
+    d->orientation = orientation;
 
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-    Q_ASSERT_X(box != 0, "QToolBar::setArea", "internal error");
+    Q_ASSERT_X(box != 0, "QToolBar::setOrientation", "internal error");
 
-    switch (pos) {
-    case 0: // Left
-    case 1: // Right
+    switch (d->orientation) {
+    case Qt::Vertical:
 	box->setDirection(QBoxLayout::TopToBottom);
-	box->setAlignment(Qt::AlignTop);
+        box->setAlignment(Qt::AlignTop);
 	d->extension->setOrientation(Qt::Vertical);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
 	break;
 
-    case 2: // Top
-    case 3: // Bottom
+    case Qt::Horizontal:
 	box->setDirection(QBoxLayout::LeftToRight);
-	box->setAlignment(Qt::AlignLeft);
+        box->setAlignment(Qt::AlignLeft);
 	d->extension->setOrientation(Qt::Horizontal);
 	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 	break;
-
-    default:
-	Q_ASSERT_X(false, "QToolBar::setArea", "internal error");
     }
 
     // change the orientation of any separators
@@ -328,14 +292,10 @@ void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 	QPoint p = d->handle->state->offset;
 	d->handle->state->offset = QPoint(p.y(), p.x());
     }
-    d->area = area;
-
-    if (mainwindow->isVisible())
-        mainwin_layout->relayout();
 }
 
-Qt::ToolBarArea QToolBar::area() const
-{ return d->area; }
+Qt::Orientation QToolBar::orientation() const
+{ return d->orientation; }
 
 /*!
     Removes all actions from the tool bar.
@@ -647,7 +607,7 @@ void QToolBar::actionEvent(QActionEvent *event)
     }
 }
 
- /*! \reimp */
+/*! \reimp */
 void QToolBar::changeEvent(QEvent *event)
 {
     switch (event->type()) {
@@ -783,6 +743,8 @@ bool QToolBar::event(QEvent *event)
     case QEvent::Hide:
         if (!event->spontaneous())
             d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        break;
+    default:
         break;
     }
     return QFrame::event(event);

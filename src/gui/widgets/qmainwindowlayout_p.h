@@ -50,8 +50,13 @@ class QMainWindowLayout : public QLayout
 
     QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
 
-    void add(QToolBar *toolbar, Qt::ToolBarArea area, bool linebreak);
-    void add(QToolBar *toolbar, int where, bool linebreak, const QPoint &offset = QPoint());
+    void addToolBar(QToolBar *toolbar, Qt::ToolBarArea area);
+    void addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area);
+
+    void addToolBar(QToolBar *toolbar, int where, bool linebreak = false,
+                    const QPoint &offset = QPoint());
+
+    Qt::ToolBarArea toolBarArea(QToolBar *toolbar);
 
     // QLayout interface
     void addItem(QLayoutItem *item);

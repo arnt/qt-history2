@@ -718,9 +718,9 @@ void QToolButtonPrivate::popupTimerDone()
     repeat = q->autoRepeat();
     q->setAutoRepeat(false);
     bool horizontal = true;
-#ifndef QT_NO_TOOLBAR
+#if !defined(QT_NO_TOOLBAR)
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && (tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight))
+    if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif
     QPoint p;

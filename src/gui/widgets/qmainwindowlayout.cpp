@@ -160,7 +160,10 @@ QStatusBar *QMainWindowLayout::statusBar() const
 { return statusbar ? qt_cast<QStatusBar *>(statusbar->widget()) : 0; }
 
 void QMainWindowLayout::setStatusBar(QStatusBar *sb)
-{ statusbar = new QWidgetItem(sb); }
+{
+    addChildWidget(sb);
+    statusbar = new QWidgetItem(sb);
+}
 
 QWidget *QMainWindowLayout::centralWidget() const
 { return layout_info[CENTER].item ? layout_info[CENTER].item->widget() : 0; }
@@ -204,12 +207,33 @@ QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
     return l;
 }
 
-void QMainWindowLayout::add(QToolBar *toolbar, Qt::ToolBarArea area, bool linebreak)
-{ add(toolbar, positionForArea(area), linebreak); }
+/*!
+    Adds \a toolbar to \a area, continuing the current line.
+*/
+void QMainWindowLayout::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
+{ addToolBar(toolbar, positionForArea(area)); }
 
-void QMainWindowLayout::add(QToolBar *toolbar, int where, bool linebreak, const QPoint &offset)
+/*!
+    Adds \a toolbar to \a area on a new line.
+*/
+void QMainWindowLayout::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
+{ addToolBar(toolbar, positionForArea(area), true); }
+
+void QMainWindowLayout::addToolBar(QToolBar *toolbar, int where, bool linebreak,
+                                   const QPoint &offset)
 {
     addChildWidget(toolbar);
+
+    switch (where) {
+    case TOP:
+    case BOTTOM:
+        toolbar->setOrientation(Qt::Horizontal);
+        break;
+    case LEFT:
+    case RIGHT:
+        toolbar->setOrientation(Qt::Vertical);
+        break;
+    }
 
     removeToolBarInfo(toolbar);
 
@@ -221,6 +245,19 @@ void QMainWindowLayout::add(QToolBar *toolbar, int where, bool linebreak, const 
     newinfo.is_dummy = false;
 
     placeToolBarInfo(newinfo);
+}
+
+Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar)
+{
+    for (int k = 0; k < tb_layout_info.size(); ++k) {
+	for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
+	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
+	    if (info.item->widget() == toolbar)
+                return static_cast<Qt::ToolBarArea>(areaForPosition(info.where));
+        }
+    }
+    Q_ASSERT_X(false, "QMainWindow::toolBarArea", "'toolbar' is not managed by this main window.");
+    return Qt::ToolBarAreaTop;
 }
 
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
@@ -481,7 +518,6 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     if (tb_layout_info.size() != 0) {
 	tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowHandleExtent)
 		  + 16 // ## size of extension - get this from somewhere else
-		  + qt_cast<QToolBar *>(tb_layout_info.at(0).at(0).item->widget())->frameWidth() * 2
 		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
 		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->spacing() * 3;
     }
@@ -1478,7 +1514,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 {
     POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
 
-    if (positionForArea(toolbar->area()) == where) {
+    if (positionForArea(toolBarArea(toolbar)) == where) {
 
 #ifdef TOOLBAR_DEBUG
 	TBDEBUG() << "###";
@@ -1558,8 +1594,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	    }
 	}
     } else { // changed area?
-	add(toolbar, where, false, offset);
-	toolbar->setArea(static_cast<Qt::ToolBarArea>(areaForPosition(where)));
+	addToolBar(toolbar, where, false, offset);
     }
     relayout();
 }

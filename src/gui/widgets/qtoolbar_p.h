@@ -68,7 +68,7 @@ class QToolBarPrivate : public QFramePrivate
 
 public:
     inline QToolBarPrivate()
-        : movable(true), allowedAreas(Qt::AllToolBarAreas), area(Qt::ToolBarAreaTop),
+        : movable(true), allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
           handle(0), extension(0), ignoreActionAddedEvent(false)
     { }
 
@@ -79,9 +79,10 @@ public:
     int indexOf(QAction *action) const;
 
     bool movable;
-    QSize old_size;
     Qt::ToolBarAreas allowedAreas;
-    Qt::ToolBarArea area;
+    Qt::Orientation orientation;
+
+    QSize old_size;
     QToolBarHandle *handle;
     QToolBarExtension *extension;
 
