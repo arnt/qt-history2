@@ -44,8 +44,9 @@ public:
 
     static QString keywords[];
 
-private:
     QTextFormat *format( int id );
+
+private:
     void addFormat( int id, QTextFormat *f );
     void removeFormat( int id );
 

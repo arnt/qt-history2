@@ -41,5 +41,6 @@ void CppEditor::configChanged()
     QMap<QString, ConfigStyle> styles = Config::readStyles( "/Software/Trolltech/CppEditor" );
     config()->styles = styles;
     ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
+    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * 8 );
     Editor::configChanged();
 }
