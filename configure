@@ -1587,62 +1587,76 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
     echo "Determining system architecture... ($UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE)"
 fi
 
-case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
-IRIX*:*:*)
-    ARCH=`uname -p`
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-        echo "    SGI ($ARCH)"
-    fi
-    ;;
-SunOS:5*:sun4*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    Sun SPARC (sparc)"
-    fi
-    ARCH=sparc
-    ;;
-Darwin:*:Power?Macintosh)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit Apple PowerPC (powerpc)"
-    fi
-    ARCH=powerpc
-    ;;
-AIX:*:00????????00)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-       echo "    64-bit IBM PowerPC (powerpc)"
-    fi
-    ARCH=powerpc
-    ;;
-HP-UX:*:9000*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    HP PA-RISC (parisc)"
-    fi
-    ARCH=parisc
-    ;;
-*:*:i?86)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit Intel 80x86 (i386)"
-    fi
-    ARCH=i386
-    ;;
-*:*:x86_64)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    64-bit AMD 80x86 (x86_64)"
-    fi
-    ARCH=x86_64
-    ;;
-*:*:ppc)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit PowerPC (powerpc)"
-    fi
-    ARCH=powerpc
-    ;;
-*:*:*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    Trying '$UNAME_MACHINE'..."
-    fi
-    ARCH="$UNAME_MACHINE"
-    ;;
-esac
+if [ "$PLATFORM" != "$XPLATFORM" -a "$CFG_EMBEDDED" != "no" ]; then
+    case "$CFG_EMBEDDED" in
+    x86)
+        ARCH=i386
+        ;;
+    ipaq|sharp)
+        ARCH=arm
+        ;;
+    *)
+        ARCH="$CFG_EMBEDDED"
+        ;;
+    esac
+else
+    case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
+    IRIX*:*:*)
+	ARCH=`uname -p`
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    SGI ($ARCH)"
+	fi
+	;;
+    SunOS:5*:sun4*)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    Sun SPARC (sparc)"
+	fi
+	ARCH=sparc
+	;;
+    Darwin:*:Power?Macintosh)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    32-bit Apple PowerPC (powerpc)"
+	fi
+	ARCH=powerpc
+	;;
+    AIX:*:00????????00)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    64-bit IBM PowerPC (powerpc)"
+	fi
+	ARCH=powerpc
+	;;
+    HP-UX:*:9000*)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    HP PA-RISC (parisc)"
+	fi
+	ARCH=parisc
+	;;
+    *:*:i?86)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    32-bit Intel 80x86 (i386)"
+	fi
+	ARCH=i386
+	;;
+    *:*:x86_64)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    64-bit AMD 80x86 (x86_64)"
+	fi
+	ARCH=x86_64
+	;;
+    *:*:ppc)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    32-bit PowerPC (powerpc)"
+	fi
+	ARCH=powerpc
+	;;
+    *:*:*)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    Trying '$UNAME_MACHINE'..."
+	fi
+	ARCH="$UNAME_MACHINE"
+	;;
+    esac
+fi
 
 if [ -d "$relpath/src/core/arch/$ARCH" ]; then
     if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -3942,7 +3956,7 @@ if [ "$ARCH" = "generic" ]; then
 cat <<EOF
 
 	NOTICE: Atomic operations are not yet supported for this
-	architecture ($UNAME_MACHINE).
+	architecture.
 
 	Qt will use the 'generic' architecture instead, which will use
 	non-atomic operations instead.  Applications that rely on atomic
