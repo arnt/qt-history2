@@ -217,7 +217,7 @@ QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Orientatio
     d->minimum = minValue;
     d->maximum = maxValue;
     d->pageStep = pageStep;
-    d->value = value;
+    d->position = d->value = value;
     d->orientation = orientation;
     d->init();
 }
