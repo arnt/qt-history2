@@ -179,6 +179,7 @@ private:
     Q_PRIVATE_SLOT(void trippleClickTimeout())
     Q_PRIVATE_SLOT(void update(const QRect &r))
     Q_PRIVATE_SLOT(void updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(void adjustScrollbars());
 #if defined(Q_DISABLE_COPY)
     QTextEdit(const QTextEdit &);
     QTextEdit &operator=(const QTextEdit &);
