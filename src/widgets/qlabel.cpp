@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#114 $
 **
 ** Implementation of QLabel widget class
 **
@@ -464,7 +464,7 @@ void QLabel::setAutoResize( bool enable )
 
 
 /*!
-  Returns the size that will be used if the width of the label is 
+  Returns the size that will be used if the width of the label is
   \a w. If \a w is -1, the sizeHint is returned.
 */
 
@@ -489,9 +489,18 @@ QSize QLabel::sizeForWidth( int w ) const
 	    qmlDoc->setWidth(&p, w);
 	    br = QRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
 	}
-    }
-    else {
-	br = p.boundingRect( 0,0, w<0 ? 1000 : w ,1000, alignment(), text() );
+    } else {
+	bool tryWidth = w < 0 && align&WordBreak;
+	QFontMetrics fm = fontMetrics();
+	if ( tryWidth)
+	    w = fm.width( 'x' ) * 80;
+	else if ( w < 0 )
+	    w = 2000;
+	br = p.boundingRect( 0,0, w ,2000, alignment(), text() );
+	if ( tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2 )
+	    	br = p.boundingRect( 0,0, w/2 ,2000, alignment(), text() );
+	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4)
+	    br = p.boundingRect( 0,0, w/4 ,2000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
 	int h = fontMetrics().lineSpacing();
 	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
@@ -504,10 +513,10 @@ QSize QLabel::sizeForWidth( int w ) const
 	else
 	    m = 0;
     }
-    int wid = br.width()	+ m + 2*fw;
+    int wid = br.width() + m + 2*fw;
     int hei = br.height() + m + 2*fw;
 
-    return QSize( wid, hei );    
+    return QSize( wid, hei );
 }
 
 
