@@ -40,6 +40,10 @@
 
 #include <qglobal.h>
 
+#ifndef QT_NO_IMAGEIO_JPEG
+
 void qInitJpegIO();
 
-#endif
+#endif // QT_NO_IMAGEIO_JPEG
+
+#endif // QJPEGIO_H

@@ -456,14 +456,11 @@ void write_jpeg_image(QImageIO* iio)
     delete row_pointer[0];
 }
 
-#endif
-
 void qInitJpegIO()
 {
-#ifndef QT_NO_IMAGEIO_JPEG
     // Not much to go on - just 3 bytes: 0xFF, M_SOI, 0xFF
     // Even the third is not strictly specified as required.
     QImageIO::defineIOHandler("JPEG", "^\377\330\377", 0, read_jpeg_image, write_jpeg_image);
-#endif
 }
 
+#endif
