@@ -4126,7 +4126,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
 */
 QString QTextEdit::anchorAt( const QPoint& pos ) 
 {
-    anchorAt(pos, AnchorHref);
+    return anchorAt(pos, AnchorHref);
 }
 
 /*! If there is an anchor at position \a pos (in contents coordinates), 
