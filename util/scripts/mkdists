@@ -670,7 +670,7 @@ sub public {
 
 	     # all c++ files under .../src/
 	     || $file =~ /(^|\/)src\/.*\.((cpp)|h|c|(pro))$/
-	     || ( $file =~ /(^|\/)src\/qt\.t$/ && $platform eq "qws" )
+	     || $file =~ /(^|\/)src\/qt\.t$/
 
 	     # include (empty)
 	     || $file eq "include"
@@ -693,9 +693,9 @@ sub public {
 	     # all c++, pro, qm, po and xpm files under examples
 	     || $file =~ /^examples\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any))$/
 	     # all the junk from mpegplay in the kiosk example
-	     || ( $file =~ /^examples\/kiosk\/.+$/ && $platform eq "qws")
+	     || $file =~ /^examples\/kiosk\/.+$/
 	     # all the launcher files
-	     || ( $file =~ /^examples\/launcher\/.*(\.im|\.pl|perpetual_launch|start_demo)$/ && $platform eq "qws")
+	     || $file =~ /^examples\/launcher\/.*(\.im|\.pl|perpetual_launch|start_demo)$/
 
 	     # the extensions
 	     || $file =~ /^extensions\/.*\/$/
@@ -720,7 +720,7 @@ sub public {
 	     || $file =~/src\/3rdparty\/$/
 	     || $file =~/src\/3rdparty\/.*README$/
 	     || $file =~/src\/3rdparty\/libpng\//
-	     || ( $file =~/src\/3rdparty\/freetype2\// && $platform eq "qws")
+	     || $file =~/src\/3rdparty\/freetype2\//
 	     || ( $file =~/src\/3rdparty\/zlib\// &&
 		  not $basename eq "Makefile" )
 	     # More  of nsplugin example
