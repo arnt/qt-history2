@@ -551,15 +551,10 @@ int QWindowsMimeUri::cf(int index)
 
 int QWindowsMimeUri::cfFor(const char* mime)
 {
-    return qstricmp(mime,"text/uri-list")==0;
-    
-    // ### Commented out below because even though it is correct
-    // because it breaks unicodeuris
-
-    /*if ( qstricmp(mime,"text/uri-list")==0 )
+    if ( qstricmp(mime,"text/uri-list")==0 )
 	return CF_HDROP;
     else
-	return 0;*/
+	return 0;
 }
 
 const char* QWindowsMimeUri::mimeFor(int cf)
