@@ -882,6 +882,9 @@ bool QAction::addTo( QWidget* w )
 	    ci->id = -1;
 	}
 	d->comboitems.append( ci );
+
+	d->update( QActionPrivate::State );
+	d->update( QActionPrivate::Everything );
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -1473,6 +1476,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    it.current()->addTo( menu );
 		    ++it;
 		}
+		d->update( this );
 		return TRUE;
 	    } else {
 		QComboBox *box = new QComboBox( FALSE, w, "qt_actiongroup_combo" );
@@ -1501,6 +1505,7 @@ bool QActionGroup::addTo( QWidget* w )
 		if ( foundOn )
 		    box->setCurrentItem( onIndex );
 		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
+		d->update( this );
 		return TRUE;
 	    }
 	}
