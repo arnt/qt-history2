@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#165 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#166 $
 **
 ** Implementation of QFileDialog class
 **
@@ -172,8 +172,6 @@ static QPixmap * detailViewIcon = 0;
 static QPixmap * multiColumnListViewIcon = 0;
 static QPixmap * cdToParentIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
-
-static QString * tmpString = 0;
 static QString * workingDirectory = 0;
 
 static void cleanup() {
@@ -189,17 +187,14 @@ static void cleanup() {
     cdToParentIcon = 0;
     delete fifteenTransparentPixels;
     fifteenTransparentPixels = 0;
-    delete tmpString;
-    tmpString = 0;
     delete workingDirectory;
     workingDirectory = 0;
 }
 
 
 static void makeVariables() {
-    if ( !tmpString ) {
+    if ( !openFolderIcon ) {
 	qAddPostRoutine( cleanup );
-	tmpString = new QString;
 	workingDirectory = new QString;
 	openFolderIcon = new QPixmap(open_xpm);
 	closedFolderIcon = new QPixmap(closed_xpm);
@@ -286,29 +281,26 @@ QString QFileDialogPrivate::File::text( int column ) const
 
     switch( column ) {
     case 0:
-	*tmpString = info.fileName();
-	break;
+	return info.fileName();
     case 1:
 	if ( info.isFile() )
-	    tmpString->sprintf( "%d", info.size() );
+	    return QString().sprintf( "%d", info.size() );
 	else
-	    *tmpString = "";
-	break;
+	    return "";
     case 2:
 	if ( info.isFile() && info.isSymLink() ) {
-	    *tmpString = d->symLinkToFile;
+	    return d->symLinkToFile;
 	} else if ( info.isFile() ) {
-	    *tmpString = d->file;
+	    return d->file;
 	} else if ( info.isDir() && info.isSymLink() ) {
-	    *tmpString = d->symLinkToDir;
+	    return d->symLinkToDir;
 	} else if ( info.isDir() ) {
-	    *tmpString = d->dir;
+	    return d->dir;
 	} else if ( info.isSymLink() ) {
-	    *tmpString = d->symLinkToSpecial;
+	    return d->symLinkToSpecial;
 	} else {
-	    *tmpString = d->special;
+	    return d->special;
 	}
-	break;
     case 3:
 	{
 	    QDateTime epoch;
@@ -319,22 +311,18 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    // use a static const char here, so that egcs will not see
 	    // the formatting string and give an incorrect warning.
 	    if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-		*tmpString = a;
+		return a;
 	    else
-		*tmpString = "????";
+		return "????";
 	}
-	break;
     case 4:
 	if ( info.isReadable() )
-	    *tmpString = info.isWritable() ? d->rw : d->ro;
+	    return info.isWritable() ? d->rw : d->ro;
 	else
-	    *tmpString = info.isWritable() ? d->wo : d->inaccessible;
-	break;
-    default:
-	*tmpString = "<--->";
+	    return info.isWritable() ? d->wo : d->inaccessible;
     }
 
-    return *tmpString;
+    return "<--->";
 }
 
 
@@ -359,18 +347,17 @@ QString QFileDialogPrivate::File::key( int column, bool ascending ) const
     char majorkey = ascending == info.isDir() ? '0' : '1';
 
     if ( info.fileName() == ".." ) {
-        *tmpString = ascending ? "0" : "a"; // a > 9
+        return ascending ? "0" : "a"; // a > 9
     } else if ( column == 1 ) {
-	tmpString->sprintf( "%c%08d", majorkey, info.size() );
+	return QString().sprintf( "%c%08d", majorkey, info.size() );
     } else if ( column == 3 ) {
-	tmpString->sprintf( "%c%08d",
+	return QString().sprintf( "%c%08d",
 			    majorkey, epoch.secsTo( info.lastModified() ) );
-    } else {
-	*tmpString = text( column );
-	tmpString->insert( 0, majorkey );
     }
 
-    return *tmpString;
+    QString t = text( column );
+    t.insert( 0, majorkey );
+    return t;
 }
 
 
