@@ -1850,8 +1850,7 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 		    setColumnReadOnly( numCols()-1, TRUE );
 	    }
 	}
-	if ( sqlCursor()->isReadOnly() )
-	    setReadOnly( TRUE );
+	setReadOnly( sqlCursor()->isReadOnly() );
 	if ( sqlCursor()->driver() && !d->nullTxtChanged )
 	    setNullText(sqlCursor()->driver()->nullText() );
 	setAutoDelete( autoDelete );
