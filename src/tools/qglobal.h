@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#78 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#79 $
 **
 ** Global type declarations and definitions
 **
@@ -30,7 +30,7 @@
 //   IRIX	- SGI Irix
 //   OSF	- OSF Unix
 //   BSDI	- BSDI Unix
-//   SCO     	- SCO of some sort
+//   SCO	- SCO of some sort
 //   AIX	- AIX Unix
 //   UNIX	- Any UNIX bsd/sysv system
 //
@@ -41,7 +41,7 @@
 #define _OS_MSDOS_
 #elif defined(OS2) || defined(_OS2) || defined(__OS2__)
 #define _OS_OS2_
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)
 #define _OS_SUN_
@@ -88,6 +88,7 @@
 //   MPW	- MPW C++
 //   MSVC	- Microsoft Visual C/C++
 //   BOR	- Borland/Turbo C++
+//   WAT	- Watcom C++
 //   GNU	- GNU C++
 //   EDG	- Edison Design Group C++
 //   OC		- CenterLine ObjectCenter C++
@@ -104,6 +105,8 @@
 #define _CC_MSVC_
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #define _CC_BOR_
+#elif defined(__WATCOMC__)
+#define _CC_WAT_
 #elif defined(__GNUC__)
 #define _CC_GNU_
 #elif defined(__xlC__)
@@ -293,6 +296,14 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 
 #if !defined(NOT_USED)
 #define NOT_USED(argument) argument=argument;
+#endif
+
+//
+// Avoid dead code
+//
+
+#if defined(_CC_EDG_) || defined(_CC_WAT_)
+#define NO_DEADCODE
 #endif
 
 //
