@@ -1004,6 +1004,20 @@ static bool qt_set_desktop_properties()
 	    }
 	}
 
+       	QString libpath = QApplication::settings()->readEntry("/qt/libraryPath");
+	if (! libpath.isNull() && ! libpath.isEmpty()) {
+	    QStringList pathlist(QStringList::split(":", libpath));
+
+	    QStringList::ConstIterator it = pathlist.begin();
+	    while (it != pathlist.end()) {
+		qDebug("QApplication: adding libpath %s", (*it).latin1());
+		QApplication::addLibraryPath(*it);
+		it++;
+	    }
+
+	    success = TRUE;
+	}
+
 	// read new QStyle
 	QString stylename = QApplication::settings()->readEntry("/qt/style");
 	if (! stylename.isNull() && ! stylename.isEmpty()) {
@@ -1095,24 +1109,12 @@ static bool qt_set_desktop_properties()
 	    success = TRUE;
 	}
 
-	QString libpath = QApplication::settings()->readEntry("/qt/libraryPath");
-	if (! libpath.isNull() && ! libpath.isEmpty()) {
-	    QStringList pathlist(QStringList::split(":", libpath));
-
-	    QStringList::ConstIterator it = pathlist.begin();
-	    while (it != pathlist.end()) {
-		QApplication::addLibraryPath(*it);
-		it++;
-	    }
-
-	    success = TRUE;
-	}
-
 	if (success) {
 	    QBuffer prop;
 	    QDataStream d(prop.buffer(), IO_WriteOnly);
 	    d << QApplication::palette()
 	      << QApplication::font()
+	      << libpath
 	      << stylename
 	      << QApplication::doubleClickInterval()
 	      << QApplication::cursorFlashTime()
@@ -1120,8 +1122,7 @@ static bool qt_set_desktop_properties()
 	      << colorspec
 	      << defaultcodec
 	      << QApplication::globalStrut()
-	      << effects
-	      << libpath;
+	      << effects;
 
 	    XChangeProperty(appDpy, appRootWin, qt_desktop_properties,
 			    qt_desktop_properties, 8, PropModeReplace,
@@ -1170,9 +1171,18 @@ static bool qt_set_desktop_properties()
 	    QApplication::setFont(font, TRUE);
 
 	if (! d.atEnd()) {
+	    QString libpath;
+	    d >> libpath;
+	    QStringList pathlist(QStringList::split(":", libpath));
+
+	    QStringList::ConstIterator it = pathlist.begin();
+	    while (it != pathlist.end())
+		QApplication::addLibraryPath(*it++);
+	}
+
+	if (! d.atEnd()) {
 	    QString stylename;
 	    d >> stylename;
-
 	    QStyle *style = QStyleFactory::create(stylename);
 	    if (style)
 		QApplication::setStyle(style);
@@ -1244,16 +1254,6 @@ static bool qt_set_desktop_properties()
 		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
 	    if ( e.contains("fadetooltip") )
 		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-	}
-
-	if (! d.atEnd()) {
-	    QString libpath;
-	    d >> libpath;
-	    QStringList pathlist(QStringList::split(":", libpath));
-
-	    QStringList::ConstIterator it = pathlist.begin();
-	    while (it != pathlist.end())
-		QApplication::addLibraryPath(*it++);
 	}
 
 	success = TRUE;
