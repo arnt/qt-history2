@@ -44,6 +44,10 @@
 #include "qt_x11.h"
 #include <X11/cursorfont.h>
 
+#ifndef QT_NO_XCURSOR
+#  include <X11/Xcursor/Xcursor.h>
+#endif // QT_NO_XCURSOR
+
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
 // use the ugly X11 cursors.
 
@@ -488,12 +492,36 @@ void QCursor::update() const
 	return;
     }
 
+#ifndef QT_NO_XCURSOR
+    static const char *cursorNames[] = {
+	"arrow",
+	"up_arrow",
+	"cross",
+	"wait",
+	"ibeam",
+	"size_ver",
+	"size_hor",
+	"size_bdiag",
+	"size_fdiag",
+	"size_all",
+	"split_v",
+	"split_h",
+	"pointing_hand",
+	"forbidden",
+	"whats_this"
+    };
+
+    d->hcurs = XcursorLibraryLoadCursor( dpy, cursorNames[d->cshape] );
+    if ( d->hcurs )
+	return;
+#endif // QT_NO_XCURSOR
+
     static uchar cur_blank_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-  // Non-standard X11 cursors are created from bitmaps
+    // Non-standard X11 cursors are created from bitmaps
 
 #ifndef QT_USE_APPROXIMATE_CURSORS
     static const uchar cur_ver_bits[] = {
@@ -581,30 +609,6 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar phand_bits[] = {
-	0x00, 0x00, 0x00, 0x00,	0xfe, 0x01, 0x00, 0x00,	0x01, 0x02, 0x00, 0x00,
-	0x7e, 0x04, 0x00, 0x00,	0x08, 0x08, 0x00, 0x00,	0x70, 0x08, 0x00, 0x00,
-	0x08, 0x08, 0x00, 0x00,	0x70, 0x14, 0x00, 0x00,	0x08, 0x22, 0x00, 0x00,
-	0x30, 0x41, 0x00, 0x00,	0xc0, 0x20, 0x00, 0x00,	0x40, 0x12, 0x00, 0x00,
-	0x80, 0x08, 0x00, 0x00,	0x00, 0x05, 0x00, 0x00,	0x00, 0x02, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00 };
-    static const uchar phandm_bits[] = {
-	0xfe, 0x01, 0x00, 0x00,	0xff, 0x03, 0x00, 0x00,	0xff, 0x07, 0x00, 0x00,
-	0xff, 0x0f, 0x00, 0x00,	0xfe, 0x1f, 0x00, 0x00,	0xf8, 0x1f, 0x00, 0x00,
-	0xfc, 0x1f, 0x00, 0x00,	0xf8, 0x3f, 0x00, 0x00,	0xfc, 0x7f, 0x00, 0x00,
-	0xf8, 0xff, 0x00, 0x00,	0xf0, 0x7f, 0x00, 0x00,	0xe0, 0x3f, 0x00, 0x00,
-	0xc0, 0x1f, 0x00, 0x00,	0x80, 0x0f, 0x00, 0x00,	0x00, 0x07, 0x00, 0x00,
-	0x00, 0x02, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00 };
     static const uchar whatsthis_bits[] = {
         0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x05, 0xf0, 0x07, 0x00,
         0x09, 0x18, 0x0e, 0x00, 0x11, 0x1c, 0x0e, 0x00, 0x21, 0x1c, 0x0e, 0x00,
@@ -632,7 +636,7 @@ void QCursor::update() const
 
     static const uchar * const cursor_bits32[] = {
 	vsplit_bits, vsplitm_bits, hsplit_bits, hsplitm_bits,
-	    phand_bits, phandm_bits, 0, 0, whatsthis_bits, whatsthism_bits
+	0, 0, 0, 0, whatsthis_bits, whatsthism_bits
     };
 
     static const uchar forbidden_bits[] = {
@@ -668,7 +672,7 @@ void QCursor::update() const
 	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 8, 8 );
 	return;
     }
-    if ( ( d->cshape >= SplitVCursor && d->cshape <= PointingHandCursor ) ||
+    if ( ( d->cshape >= SplitVCursor && d->cshape <= SplitHCursor ) ||
          d->cshape == WhatsThisCursor ) {
 	XColor bg, fg;
 	bg.red   = 255 << 8;
@@ -707,74 +711,70 @@ void QCursor::update() const
 
     uint sh;
     switch ( d->cshape ) {			// map Q cursor to X cursor
-	case ArrowCursor:
-	    sh = XC_left_ptr;
-	    break;
-	case UpArrowCursor:
-	    sh = XC_center_ptr;
-	    break;
-	case CrossCursor:
-	    sh = XC_crosshair;
-	    break;
-	case WaitCursor:
-	    sh = XC_watch;
-	    break;
-	case IbeamCursor:
-	    sh = XC_xterm;
-	    break;
-	case SizeAllCursor:
-	    sh = XC_fleur;
-	    break;
+    case ArrowCursor:
+	sh = XC_left_ptr;
+	break;
+    case UpArrowCursor:
+	sh = XC_center_ptr;
+	break;
+    case CrossCursor:
+	sh = XC_crosshair;
+	break;
+    case WaitCursor:
+	sh = XC_watch;
+	break;
+    case IbeamCursor:
+	sh = XC_xterm;
+	break;
+    case SizeAllCursor:
+	sh = XC_fleur;
+	break;
+    case PointingHandCursor:
+	sh = XC_hand2;
+	break;
 #ifdef QT_USE_APPROXIMATE_CURSORS
-	case SizeVerCursor:
-	    sh = XC_top_side;
-	    break;
-	case SizeHorCursor:
-	    sh = XC_right_side;
-	    break;
-	case SizeBDiagCursor:
-	    sh = XC_top_right_corner;
-	    break;
-	case SizeFDiagCursor:
-	    sh = XC_bottom_right_corner;
-	    break;
-	case BlankCursor:
-	    XColor bg, fg;
-	    bg.red   = 255 << 8;
-	    bg.green = 255 << 8;
-	    bg.blue  = 255 << 8;
-	    fg.red   = 0;
-	    fg.green = 0;
-	    fg.blue  = 0;
-	    d->pm  = XCreateBitmapFromData( dpy, rootwin,
-		(char *)cur_blank_bits, 16, 16 );
-	    d->pmm = XCreateBitmapFromData( dpy, rootwin,
-		(char *)cur_blank_bits, 16,16);
-	    d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg,
-		&bg, 8, 8 );
-	    return;
-	    break;
-	case SplitVCursor:
-	    sh = XC_sb_v_double_arrow;
-	    break;
-	case SplitHCursor:
-	    sh = XC_sb_h_double_arrow;
-	    break;
-	case PointingHandCursor:
-	    sh = XC_hand1;
-	    break;
-        case WhatsThisCursor:
-            sh = XC_question_arrow;
-            break;
-	case ForbiddenCursor:
-	    sh = XC_circle;
-	    break;
+    case SizeBDiagCursor:
+	sh = XC_top_right_corner;
+	break;
+    case SizeFDiagCursor:
+	sh = XC_bottom_right_corner;
+	break;
+    case BlankCursor:
+	XColor bg, fg;
+	bg.red   = 255 << 8;
+	bg.green = 255 << 8;
+	bg.blue  = 255 << 8;
+	fg.red   = 0;
+	fg.green = 0;
+	fg.blue  = 0;
+	d->pm  = XCreateBitmapFromData( dpy, rootwin,
+					(char *)cur_blank_bits, 16, 16 );
+	d->pmm = XCreateBitmapFromData( dpy, rootwin,
+					(char *)cur_blank_bits, 16,16);
+	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg,
+					&bg, 8, 8 );
+	return;
+	break;
+    case SizeVerCursor:
+    case SplitVCursor:
+	sh = XC_sb_v_double_arrow;
+	break;
+    case SizeHorCursor:
+    case SplitHCursor:
+	sh = XC_sb_h_double_arrow;
+	break;
+    case WhatsThisCursor:
+	sh = XC_question_arrow;
+	break;
+    case ForbiddenCursor:
+	sh = XC_circle;
+	break;
 #endif /* QT_USE_APPROXIMATE_CURSORS */
-	default:
+    default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
+	qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
 #endif
-	    return;
+	return;
     }
     d->hcurs = XCreateFontCursor( dpy, sh );
 }

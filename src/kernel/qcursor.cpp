@@ -79,6 +79,35 @@
 
     \sa QWidget \link guibooks.html#fowler GUI Design Handbook:
     Cursors\endlink
+
+    On X11, Qt supports the \link
+    http://www.xfree86.org/4.3.0/Xcursor.3.html Xcursor\endlink
+    library, which allows for full color icon themes.  The table below
+    shows the cursor name used for each Qt::CursorShape value.  If a
+    cursor cannot be found using the name shown below, a standard X11
+    cursor will be used instead. Note: X11 does not provide
+    appropriate cursors for all possible Qt::CursorShape values.  It
+    is possible that some cursors will be taken from the Xcursor
+    theme, while others will use an internal bitmap cursor.
+
+    \table
+    \header \i Qt::CursorShape Values   \i Cursor Names
+    \row \i Qt::ArrowCursor             \i arrow
+    \row \i Qt::UpArrowCursor           \i up_arrow
+    \row \i Qt::CrossCursor             \i cross
+    \row \i Qt::WaitCursor              \i wait
+    \row \i Qt::IbeamCursor             \i ibeam
+    \row \i Qt::SizeVerCursor           \i size_ver
+    \row \i Qt::SizeHorCursor           \i size_hor
+    \row \i Qt::SizeBDiagCursor         \i size_bdiag
+    \row \i Qt::SizeFDiagCursor         \i size_fdiag
+    \row \i Qt::SizeAllCursor           \i size_all
+    \row \i Qt::SplitVCursor            \i split_v
+    \row \i Qt::SplitHCursor            \i split_h
+    \row \i Qt::PointingHandCursor      \i pointing_hand
+    \row \i Qt::ForbiddenCursor         \i forbidden
+    \row \i Qt::WhatsThisCursor         \i whats_this
+    \endtable
 */
 
 /*!

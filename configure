@@ -253,6 +253,7 @@ CFG_JPEG=auto
 CFG_LIBJPEG=qt
 CFG_MNG=auto
 CFG_LIBMNG=qt
+CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
 CFG_FREETYPE=auto
@@ -331,7 +332,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -708,6 +709,13 @@ while [ "$#" -gt 0 ]; do
     big-codecs)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_BIG_CODECS="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    xcursor)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_XCURSOR="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1528,6 +1536,22 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     if echo $MODULES | grep opengl >/dev/null; then
 	$x11tests/opengl.test $XQMAKESPEC $CFG_THREAD $OPT_VERBOSE $L_FLAGS $I_FLAGS && MODULES=`echo $MODULES | sed -e 's/opengl//'`
     fi
+    # auto-detect Xcursor support
+    if [ "$CFG_XCURSOR" != "no" ]; then
+        if $x11tests/xcursor.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XCURSOR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "Xcursor support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+            else
+                CFG_XCURSOR=no
+            fi
+	else
+            CFG_XCURSOR=yes
+        fi
+    fi
     # auto-detect XRandR support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
 	if $x11tests/xrandr.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
@@ -1888,6 +1912,13 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	XFTY="*"
 	XFTN=" "
     fi
+    if [ "$CFG_XCURSOR" = "no" ]; then
+        XCY=" "
+        XCN="*"
+    else
+        XCY="*"
+        XCN=" "
+    fi
     if [ "$CFG_XRANDR" = "no" ]; then
         XZY=" "
         XZN="*"
@@ -1930,6 +1961,10 @@ Qt/X11 only:
  $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
  $XRY  -xinerama .......... Compile Xinerama support.
 			 Requires X11/extensions/Xinerama.h and libXinerama.
+
+ $XCN  -no-xcursor ........ Do not compile Xcursor support.
+ $XCY  -xcursor ........... Compile Xcursor support.
+                         Requires X11/Xcursor/Xcursor.h and libXcursor.
 
  $XZN  -no-xrandr ......... Do not compile XRandR (resize and rotate) support.
  $XZY  -xrandr ............ Compile XRandR support.
@@ -2518,6 +2553,10 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXinerama \$\$QMAKE_LIBS_X11\""
     fi
+    if [ "$CFG_XCURSOR" = "yes" ]; then
+        QMAKE_CONFIG="$QMAKE_CONFIG xcursor"
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXcursor \$\$QMAKE_LIBS_X11\""
+    fi
     if [ "$CFG_XRANDR" = "yes" ]; then
         QMAKE_CONFIG="$QMAKE_CONFIG xrandr"
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr \$\$QMAKE_LIBS_X11\""
@@ -2680,7 +2719,7 @@ esac
 #     bigcodecs
 #     tablet
 #
-#     X11     : xftnameunparse x11sm xinerama xrandr xrender xftfreetype xkb
+#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
 ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl"
@@ -2981,6 +3020,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Session management .. $CFG_SM"
     echo "Xinerama support .... $CFG_XINERAMA"
     echo "Tablet support ...... $CFG_TABLET"
+    echo "Xcursor support ..... $CFG_XCURSOR"
     echo "XRandR support ...... $CFG_XRANDR"
     echo "XRender support ..... $CFG_XRENDER"
     echo "Xft support ......... $CFG_FREETYPE"
