@@ -890,9 +890,6 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
 #ifdef Q_WS_MACX
-    if(isTopLevel())
-	ChangeWindowAttributes((WindowPtr)handle(),
-			       kWindowToolbarButtonAttribute, 0); //hide toolbars thingie
     d->opaque = TRUE;
 #else
     d->opaque = FALSE;
@@ -1238,6 +1235,10 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
 void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 			      Dock edge, bool newLine )
 {
+#ifdef Q_WS_MAC
+    if(isTopLevel() && edge == DockTop)
+	ChangeWindowAttributes((WindowPtr)handle(), kWindowToolbarButtonAttribute, 0);
+#endif
     moveDockWindow( dockWindow, edge );
     dockWindow->setNewLine( newLine );
     if ( d->dockWindows.find( dockWindow ) == -1 )
@@ -1400,6 +1401,11 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
 
 void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 {
+#ifdef Q_WS_MAC
+    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows( DockTop ).count()) 
+	ChangeWindowAttributes((WindowPtr)handle(), 0, kWindowToolbarButtonAttribute);
+#endif
+
     dockWindow->hide();
     d->dockWindows.removeRef( dockWindow );
     disconnect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
