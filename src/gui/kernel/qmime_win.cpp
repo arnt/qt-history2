@@ -27,6 +27,7 @@
 #include "qdnd_p.h"
 #include <shlobj.h>
 #include "qurl.h"
+#include "qvariant.h"
 #include "qregexp.h"
 #include "qtextdocument.h"
 #include "qdir.h"
@@ -790,7 +791,8 @@ public:
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (!mimeData->pixmap().isNull() && mimeType.startsWith(QLatin1String("image/"))) {
+    if (!qVariant_to<QPixmap>(mimeData->imageData()).isNull()
+        && mimeType.startsWith(QLatin1String("image/"))) {
         QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (qstricmp(ofmts.at(i),mimeType.toLatin1().data()+6)==0) {
@@ -828,7 +830,7 @@ bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, struct IDataOb
 
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
-    return getCf(formatetc) == CF_DIB && !mimeData->pixmap().isNull();
+    return getCf(formatetc) == CF_DIB && !qVariant_to<QPixmap>(mimeData->imageData()).isNull();
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const

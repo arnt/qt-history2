@@ -33,6 +33,8 @@ public:
 
 #if defined(Q_WS_WIN)
 
+#include "QtGui/qvariant.h"
+
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.
   Not need on X11, as the underlying protocol uses the MIME standard

@@ -34,7 +34,7 @@ public:
 
     bool hasFormat(const QString &mimetype) const;
     QStringList formats() const;
-    QVariant retrieveData(const QString &mimetype, QVariant::Type preferredType) const;
+    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type preferredType) const;
 };
 
 
@@ -67,7 +67,7 @@ QStringList QClipboardWatcher::formats() const
     return fmts;
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &mimeType, QVariant::Type type) const
+QCoreVariant QClipboardWatcher::retrieveData(const QString &mimeType, QCoreVariant::Type type) const
 {
     QVariant result;
     IDataObject * pDataObj = 0;

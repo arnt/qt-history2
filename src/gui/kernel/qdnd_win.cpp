@@ -758,7 +758,7 @@ QStringList QDropData::formats() const
     return fmts;
 }
 
-QVariant QDropData::retrieveData(const QString &mimeType, QVariant::Type type) const
+QCoreVariant QDropData::retrieveData(const QString &mimeType, QCoreVariant::Type type) const
 {
     QVariant result;
 
