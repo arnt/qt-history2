@@ -529,11 +529,11 @@ void QDnsAnswer::parse()
 #if defined(DEBUG_QDNS)
 	qDebug( "DNS Manager: saw NXDomain for %s", q->l.ascii() );
 #endif
-	// NXDomain.  cache that for... how long?
+	// NXDomain.  cache that for one minute.
 	rr = new QDnsRR( q->l );
 	rr->t = q->t;
-	rr->deleteTime = q->started + 300;
-	rr->expireTime = q->started + 300;
+	rr->deleteTime = q->started + 60;
+	rr->expireTime = q->started + 60;
 	rr->nxdomain = TRUE;
 	rr->current = TRUE;
 	rrs->append( rr );
@@ -671,9 +671,47 @@ void QDnsAnswer::parse()
 	rrs->next();
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
 	    used.insert( rr->target, (void*)42 );
-	if ( ( rr->t == QDns::A || rr->t == QDns::Aaaa ) && 
+	if ( ( rr->t == QDns::A || rr->t == QDns::Aaaa ) &&
 	     used.find( rr->domain->name() ) )
 	    rr->deleteTime = rr->expireTime;
+    }
+
+    // next, for each RR, delete any older RRs that are equal to it
+    rrs->first();
+    while( (rr=rrs->current()) != 0 ) {
+	rrs->next();
+	if ( rr && rr->domain && rr->domain->rrs ) {
+	    QList<QDnsRR> * drrs = rr->domain->rrs;
+	    drrs->first();
+	    QDnsRR * older;
+	    while( (older=drrs->current()) != 0 ) {
+		if ( older != rr &&
+		     older->t == rr->t && 
+		     older->nxdomain == rr->nxdomain &&
+		     older->address == rr->address &&
+		     older->target == rr->target &&
+		     older->priority == rr->priority &&
+		     older->weight == rr->weight &&
+		     older->port == rr->port &&
+		     older->text == rr->text ) {
+		    // well, it's equal, but it's not the same. so we kill it,
+		    // but use its expiry time.
+#if defined(DEBUG_QDNS)
+		    debug( "killing off old %d for %s, expire was %d",
+			   older->t, older->domain->name().latin1(),
+			   rr->expireTime );
+#endif
+		    older->t = QDns::None;
+		    rr->expireTime = QMAX( older->expireTime, rr->expireTime );
+		    rr->deleteTime = QMAX( older->deleteTime, rr->deleteTime );
+		    older->deleteTime = 0;
+#if defined(DEBUG_QDNS)
+		    debug( "    adjusted expire is %d", rr->expireTime );
+#endif
+		}
+		drrs->next();
+	    }
+	}
     }
 
 #if defined(DEBUG_QDNS)
@@ -796,7 +834,7 @@ QDnsManager::QDnsManager()
     globalManager = this;
 
     QTimer * sweepTimer = new QTimer( this );
-    sweepTimer->start( 1000 * 60 * 5 );
+    sweepTimer->start( 1000 * 60 * 3 );
     connect( sweepTimer, SIGNAL(timeout()),
 	     this, SLOT(cleanCache()) );
 
@@ -957,7 +995,7 @@ void QDnsManager::transmitQuery( QDnsQuery * query )
 {
     if ( !query )
 	return;
-	
+
     uint i = 0;
     while( i < queries.size() && queries[i] != 0 )
 	i++;
@@ -1081,7 +1119,7 @@ void QDnsManager::transmitQuery( int i )
     // seconds.  the graph becomes steep around that point, and the
     // number of errors rises... so it seems good to retry at that
     // point.
-    q->start( q->step <= ns->count() ? 600 : 1500, TRUE );
+    q->start( q->step < ns->count() ? 600 : 1500, TRUE );
 }
 
 
@@ -1181,6 +1219,26 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		    else
 			answer = TRUE;
 		    l->append( rr );
+		    if ( rr->deleteTime <= lastSweep ) {
+			// we're returning something that'll be
+			// deleted soon.  we assume that if the client
+			// wanted it twice, it'll want it again, so we
+			// ask the name server again right now.
+			QDnsQuery * query = new QDnsQuery;
+			query->started = now();
+			query->id = ++::id;
+			query->t = rr->t;
+			query->l = rr->domain->name();
+			// note that here, we don't bother about
+			// notification. but we do bother about
+			// timeouts: we make sure to use high timeouts
+			// and few tramsissions.
+			query->step = ns->count();
+			QObject::connect( query, SIGNAL(timeout()),
+					  QDnsManager::manager(),
+					  SLOT(retransmit()) );
+			QDnsManager::manager()->transmitQuery( query );
+		    }
 		}
 		d->rrs->next();
 	    }
@@ -1262,8 +1320,8 @@ void QDnsDomain::sweep()
 #endif
 	if ( rr->current == FALSE ||
 	     rr->t == QDns::None ||
-	     rr->deleteTime < lastSweep ||
-	     rr->expireTime < lastSweep )
+	     rr->deleteTime <= lastSweep ||
+	     rr->expireTime <= lastSweep )
 	    rrs->remove();
 	else
 	    rrs->next();
@@ -1916,7 +1974,7 @@ static void doResInit()
     res_close();
 #endif
 
-    
+
 
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
     if ( hosts.open( IO_ReadOnly ) ) {
