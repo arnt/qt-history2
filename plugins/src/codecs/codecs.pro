@@ -1,5 +1,5 @@
 TEMPLATE	= subdirs
 
 !bigcodecs {
-	SUBDIRS	+= ar cn jp kr tw
+	SUBDIRS	+= cn jp kr tw
 }
