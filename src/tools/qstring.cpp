@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#53 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#53 $")
 
 
 /*****************************************************************************
@@ -1138,13 +1138,14 @@ QString &QString::insert( uint index, char c )	// insert char
 QString &QString::remove( uint index, uint len )
 {
     uint olen = length();
-    if ( index + len > olen ) {			// range problems
-	if ( index >= olen )			// index outside string
-	    return *this;
-	len = olen - index;			// adjust len
+    if ( index + len >= olen ) {		// range problems
+	if ( index < olen )			// index ok
+	    resize( index+1 );
     }
-    memmove( data()+index, data()+index+len, olen-index+1 );
-    QByteArray::resize(size()-len);
+    else if ( len != 0 ) {
+	memmove( data()+index, data()+index+len, olen-index );
+	QByteArray::resize(size()-len);
+    }
     return *this;
 }
 
