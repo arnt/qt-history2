@@ -39,7 +39,7 @@ public:
 
 	populate();
 
-	connect( button, SIGNAL(clicked()), this, SLOT(invoke()) );
+	connect( button, SIGNAL(clicked()), activex, SLOT(clear()) );
 	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
 	connect( listview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(invoke(QListViewItem*)) );
 

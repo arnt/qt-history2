@@ -754,6 +754,9 @@ private:
     \brief The QActiveXBase class is an abstract class that provides properties and slots to initalize an ActiveX control.
 */
 
+static HHOOK hhook = 0;
+static int hhookref = 0;
+
 /*!
     Creates an empty QActiveXBase widget. 
     Use setControl() and initialize() to instantiate an ActiveX control.
@@ -813,6 +816,34 @@ void QActiveXBase::clear()
     }
 
     ctrl = QString(0);
+
+    if ( hhook ) {
+	if ( !--hhookref ) {
+	    UnhookWindowsHookEx( hhook );
+	    hhook = 0;
+	}
+    }
+}
+
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    static bool reentrant = FALSE;
+    if ( !reentrant && lParam ) {
+	reentrant = TRUE;
+	MSG msg = *(MSG*)lParam;
+	if ( msg.message != WM_PAINT ) {
+	    HWND hwnd = msg.hwnd;
+	    QWidget *widget = QWidget::find( hwnd );
+	    while ( !widget && hwnd ) {
+		hwnd = ::GetParent( hwnd );
+		widget = QWidget::find( hwnd );
+	    }
+	    if ( widget && widget->inherits( "QActiveX" ) )
+		::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
+	}
+	reentrant = FALSE;
+    }    
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
 /*!
@@ -832,6 +863,11 @@ void QActiveXBase::initialize()
 	_Module.Term();
 	CoUninitialize();
     }
+
+    if ( !hhook )
+	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+
+    ++hhookref;
 }
 
 /*!
