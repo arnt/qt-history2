@@ -49,9 +49,6 @@ public:
     uint flat : 1;
 };
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QPushButton qpushbutton.h
     \brief The QPushButton widget provides a command button.
@@ -209,6 +206,7 @@ public:
 QPushButton::QPushButton(QWidget *parent)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     d->init();
 }
 
@@ -220,6 +218,7 @@ QPushButton::QPushButton(QWidget *parent)
 QPushButton::QPushButton(const QString &text, QWidget *parent)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     d->init();
     setText(text);
 }
@@ -235,6 +234,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent)
 QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     d->init();
     setText(text);
     setIcon(icon);
@@ -250,14 +250,16 @@ QPushButton::~QPushButton()
 
 void QPushButtonPrivate::init()
 {
+    Q_Q(QPushButton);
 #ifndef QT_NO_DIALOG
-    d->autoDefault = (qobject_cast<QDialog*>(q->window()) != 0);
+    autoDefault = (qobject_cast<QDialog*>(q->window()) != 0);
 #endif
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
 QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 {
+    Q_Q(const QPushButton);
     QStyleOptionButton opt;
     opt.init(q);
     opt.features = QStyleOptionButton::None;
@@ -282,6 +284,7 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 
 void QPushButton::setAutoDefault(bool enable)
 {
+    Q_D(QPushButton);
     if (d->autoDefault == enable)
         return;
     d->autoDefault = enable;
@@ -291,19 +294,21 @@ void QPushButton::setAutoDefault(bool enable)
 
 bool QPushButton::autoDefault() const
 {
+    Q_D(const QPushButton);
     return d->autoDefault;
 }
 
 void QPushButton::setDefault(bool enable)
 {
+    Q_D(QPushButton);
     if (d->defaultButton == enable)
         return;
-    d->d->defaultButton = enable;
+    d->defaultButton = enable;
 #ifndef QT_NO_DIALOG
     if (d->defaultButton) {
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
-            dlg->d->setMainDefault(this);
+            dlg->d_func()->setMainDefault(this);
     }
 #endif
     update();
@@ -314,6 +319,7 @@ void QPushButton::setDefault(bool enable)
 
 bool QPushButton::isDefault() const
 {
+    Q_D(const QPushButton);
     return d->defaultButton;
 }
 
@@ -322,6 +328,7 @@ bool QPushButton::isDefault() const
 */
 QSize QPushButton::sizeHint() const
 {
+    Q_D(const QPushButton);
     ensurePolished();
 
     int w = 0, h = 0;
@@ -358,6 +365,7 @@ QSize QPushButton::sizeHint() const
 */
 void QPushButton::paintEvent(QPaintEvent *)
 {
+    Q_D(QPushButton);
     QStylePainter p(this);
     p.drawControl(QStyle::CE_PushButton, d->getStyleOption());
 }
@@ -366,6 +374,7 @@ void QPushButton::paintEvent(QPaintEvent *)
 /*! \reimp */
 void QPushButton::keyPressEvent(QKeyEvent *e)
 {
+    Q_D(QPushButton);
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
@@ -384,12 +393,13 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
 */
 void QPushButton::focusInEvent(QFocusEvent *e)
 {
+    Q_D(QPushButton);
     if (e->reason() != Qt::PopupFocusReason && d->autoDefault && !d->defaultButton) {
         d->defaultButton = true;
 #ifndef QT_NO_DIALOG
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
-            dlg->d->setDefault(this);
+            dlg->d_func()->setDefault(this);
 #endif
     }
     QAbstractButton::focusInEvent(e);
@@ -400,11 +410,12 @@ void QPushButton::focusInEvent(QFocusEvent *e)
 */
 void QPushButton::focusOutEvent(QFocusEvent *e)
 {
+    Q_D(QPushButton);
     if (e->reason() != Qt::PopupFocusReason && d->autoDefault && d->defaultButton) {
 #ifndef QT_NO_DIALOG
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
-            dlg->d->setDefault(0);
+            dlg->d_func()->setDefault(0);
         else
 #endif
             d->defaultButton = false;
@@ -427,6 +438,7 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 */
 void QPushButton::setMenu(QMenu* menu)
 {
+    Q_D(QPushButton);
     if (menu && !d->menu) {
         disconnect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
         connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
@@ -444,6 +456,7 @@ void QPushButton::setMenu(QMenu* menu)
 */
 QMenu* QPushButton::menu() const
 {
+    Q_D(const QPushButton);
     return d->menu;
 }
 
@@ -454,6 +467,7 @@ QMenu* QPushButton::menu() const
 */
 void QPushButton::showMenu()
 {
+    Q_D(QPushButton);
     if (!d || !d->menu)
         return;
     setDown(true);
@@ -462,6 +476,7 @@ void QPushButton::showMenu()
 
 void QPushButtonPrivate::popupPressed()
 {
+    Q_Q(QPushButton);
     if (!down || !menu)
         return;
 
@@ -497,6 +512,7 @@ void QPushButtonPrivate::popupPressed()
 
 void QPushButton::setFlat(bool flat)
 {
+    Q_D(QPushButton);
     if (d->flat == flat)
         return;
     d->flat = flat;
@@ -506,6 +522,7 @@ void QPushButton::setFlat(bool flat)
 
 bool QPushButton::isFlat() const
 {
+    Q_D(const QPushButton);
     return d->flat;
 }
 
@@ -517,6 +534,7 @@ bool QPushButton::isFlat() const
 QPushButton::QPushButton(QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     setObjectName(name);
     d->init();
 }
@@ -528,6 +546,7 @@ QPushButton::QPushButton(QWidget *parent, const char *name)
 QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     setObjectName(name);
     d->init();
     setText(text);
@@ -540,6 +559,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
 QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
+    Q_D(QPushButton);
     setObjectName(name);
     d->init();
     setText(text);
@@ -571,5 +591,6 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
     Use menu() instead.
 */
 
-
+#define d d_func()
 #include "moc_qpushbutton.cpp"
+#undef d

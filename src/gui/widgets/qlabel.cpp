@@ -69,10 +69,6 @@ public:
 #endif
 };
 
-#define d d_func()
-#define q q_func()
-
-
 /*!
     \class QLabel
     \brief The QLabel widget provides a text or image display.
@@ -155,6 +151,7 @@ public:
 
 const QPicture *QLabel::picture() const
 {
+    Q_D(const QLabel);
     return d->lpicture;
 }
 #endif
@@ -171,6 +168,7 @@ const QPicture *QLabel::picture() const
 QLabel::QLabel(QWidget *parent, Qt::WFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
+    Q_D(QLabel);
     d->init();
 }
 
@@ -185,6 +183,7 @@ QLabel::QLabel(QWidget *parent, Qt::WFlags f)
 QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
         : QFrame(*new QLabelPrivate(), parent, f)
 {
+    Q_D(QLabel);
     d->init();
     setText(text);
 }
@@ -203,6 +202,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
 QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
+    Q_D(QLabel);
     if (name)
         setObjectName(name);
     d->init();
@@ -222,6 +222,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
                 Qt::WFlags f)
         : QFrame(*new QLabelPrivate(), parent, f)
 {
+    Q_D(QLabel);
     if (name)
         setObjectName(name);
     d->init();
@@ -248,6 +249,7 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
                 QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
+    Q_D(QLabel);
     if (name)
         setObjectName(name);
     d->init();
@@ -262,12 +264,14 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
 
 QLabel::~QLabel()
 {
+    Q_D(QLabel);
     d->clearContents();
 }
 
 
 void QLabelPrivate::init()
 {
+    Q_Q(QLabel);
     lpixmap = 0;
 #ifndef QT_NO_MOVIE
     lmovie = 0;
@@ -318,6 +322,7 @@ void QLabelPrivate::init()
 
 void QLabel::setText(const QString &text)
 {
+    Q_D(QLabel);
     if (d->ltext == text)
         return;
     d->clearContents();
@@ -338,6 +343,7 @@ void QLabel::setText(const QString &text)
 
 QString QLabel::text() const
 {
+    Q_D(const QLabel);
     return d->ltext;
 }
 
@@ -347,6 +353,7 @@ QString QLabel::text() const
 
 void QLabel::clear()
 {
+    Q_D(QLabel);
     d->clearContents();
     d->updateLabel();
 }
@@ -362,6 +369,7 @@ void QLabel::clear()
 */
 void QLabel::setPixmap(const QPixmap &pixmap)
 {
+    Q_D(QLabel);
     if (!d->lpixmap || d->lpixmap->serialNumber() != pixmap.serialNumber()) {
         d->clearContents();
         d->lpixmap = new QPixmap(pixmap);
@@ -375,6 +383,7 @@ void QLabel::setPixmap(const QPixmap &pixmap)
 
 const QPixmap *QLabel::pixmap() const
 {
+    Q_D(const QLabel);
     return d->lpixmap;
 }
 
@@ -390,6 +399,7 @@ const QPixmap *QLabel::pixmap() const
 
 void QLabel::setPicture(const QPicture &picture)
 {
+    Q_D(QLabel);
     d->clearContents();
     d->lpicture = new QPicture(picture);
 
@@ -448,6 +458,7 @@ void QLabel::setNum(double num)
 
 void QLabel::setAlignment(Qt::Alignment alignment)
 {
+    Q_D(QLabel);
     if (alignment == (d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask)))
         return;
     d->align = (d->align & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask))
@@ -465,6 +476,7 @@ void QLabel::setAlignment(Qt::Alignment alignment)
 */
 void QLabel::setAlignment(int alignment)
 {
+    Q_D(QLabel);
     d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask|Qt::TextWordWrap);
 #ifndef QT_NO_ACCEL
     if (d->lbuddy)
@@ -476,6 +488,7 @@ void QLabel::setAlignment(int alignment)
 
 Qt::Alignment QLabel::alignment() const
 {
+    Q_D(const QLabel);
     return QFlag(d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask));
 }
 
@@ -489,6 +502,7 @@ Qt::Alignment QLabel::alignment() const
 */
 void QLabel::setWordWrap(bool on)
 {
+    Q_D(QLabel);
     if (on)
         d->align |= Qt::TextWordWrap;
     else
@@ -499,6 +513,7 @@ void QLabel::setWordWrap(bool on)
 
 bool QLabel::wordWrap() const
 {
+    Q_D(const QLabel);
     return d->align & Qt::TextWordWrap;
 }
 
@@ -522,12 +537,14 @@ bool QLabel::wordWrap() const
 
 void QLabel::setIndent(int indent)
 {
+    Q_D(QLabel);
     d->extraMargin = indent;
     d->updateLabel();
 }
 
 int QLabel::indent() const
 {
+    Q_D(const QLabel);
     return d->extraMargin;
 }
 
@@ -545,11 +562,13 @@ int QLabel::indent() const
 */
 int QLabel::margin() const
 {
+    Q_D(const QLabel);
     return d->margin;
 }
 
 void QLabel::setMargin(int margin)
 {
+    Q_D(QLabel);
     if (d->margin == margin)
         return;
     d->margin = margin;
@@ -562,6 +581,7 @@ void QLabel::setMargin(int margin)
 */
 QSize QLabelPrivate::sizeForWidth(int w) const
 {
+    Q_Q(const QLabel);
     QSize contentsMargin = q->contentsMarginSize();
     w -= contentsMargin.width();
     QRect br;
@@ -576,19 +596,19 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 #else
     const int mov = 0;
 #endif
-    int hextra = 2 * d->margin;
+    int hextra = 2 * margin;
     int vextra = hextra;
     QFontMetrics fm(q->fontMetrics());
     int xw = fm.width('x');
     if (!mov && !pix && !pic) {
         int m = extraMargin;
         if (m < 0 && frameWidth) // no indent, but we do have a frame
-            m = (xw / 2 - d->margin) * 2;
+            m = (xw / 2 - margin) * 2;
         if (m >= 0) {
-            int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(d->align));
+            int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
             if ((align & Qt::AlignLeft) || (align & Qt::AlignRight))
                 hextra += m;
-            if ((d->align & Qt::AlignTop) || (d->align & Qt::AlignBottom))
+            if ((align & Qt::AlignTop) || (align & Qt::AlignBottom))
                 vextra += m;
         }
     }
@@ -607,7 +627,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     else if (doc) {
         QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
-        if (d->align & Qt::TextWordWrap) {
+        if (align & Qt::TextWordWrap) {
             if (w > 0)
                 doc->setPageSize(QSize(w-hextra, INT_MAX));
             else
@@ -619,7 +639,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     }
 #endif
     else {
-        bool tryWidth = (w < 0) && (d->align & Qt::TextWordWrap);
+        bool tryWidth = (w < 0) && (align & Qt::TextWordWrap);
         if (tryWidth)
             w = xw * 80;
         else if (w < 0)
@@ -645,6 +665,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 
 int QLabel::heightForWidth(int w) const
 {
+    Q_D(const QLabel);
     if (
 #ifndef QT_NO_RICHTEXT
         d->doc ||
@@ -660,6 +681,7 @@ int QLabel::heightForWidth(int w) const
 */
 QSize QLabel::sizeHint() const
 {
+    Q_D(const QLabel);
     if (!d->valid_hints)
         (void) QLabel::minimumSizeHint();
     return d->sh;
@@ -671,6 +693,7 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
+    Q_D(const QLabel);
     if (d->valid_hints)
         return d->msh;
 
@@ -704,6 +727,7 @@ QSize QLabel::minimumSizeHint() const
 */
 bool QLabel::event(QEvent *e)
 {
+    Q_D(QLabel);
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
@@ -725,6 +749,7 @@ bool QLabel::event(QEvent *e)
 */
 void QLabel::paintEvent(QPaintEvent *)
 {
+    Q_D(QLabel);
     QStyle *style = QWidget::style();
     QPainter paint(this);
     drawFrame(&paint);
@@ -877,6 +902,7 @@ void QLabel::paintEvent(QPaintEvent *)
 
 void QLabelPrivate::updateLabel()
 {
+    Q_Q(QLabel);
     valid_hints = false;
     QSizePolicy policy = q->sizePolicy();
     bool wordWrap = align & Qt::TextWordWrap;
@@ -891,11 +917,11 @@ void QLabelPrivate::updateLabel()
         )
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(ltext));
 
-    if (d->doc) {
-        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(d->align));
+    if (doc) {
+        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
         int flags = (wordWrap? 0 : Qt::TextSingleLine) | align;
         flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
-        qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout())->setBlockTextFlags(flags);
+        qobject_cast<QTextDocumentLayout *>(doc->documentLayout())->setBlockTextFlags(flags);
     }
 
     q->updateGeometry();
@@ -939,6 +965,7 @@ void QLabelPrivate::updateLabel()
 
 void QLabel::setBuddy(QWidget *buddy)
 {
+    Q_D(QLabel);
     if (buddy)
         d->align |= Qt::TextShowMnemonic;
     else
@@ -958,6 +985,7 @@ void QLabel::setBuddy(QWidget *buddy)
 
 QWidget * QLabel::buddy() const
 {
+    Q_D(const QLabel);
     return d->lbuddy;
 }
 
@@ -965,6 +993,7 @@ QWidget * QLabel::buddy() const
 #ifndef QT_NO_MOVIE
 void QLabelPrivate::movieUpdated(const QRect& rect)
 {
+    Q_Q(QLabel);
     if (lmovie && lmovie->isValid()) {
         QRect r = q->contentsRect();
         r = q->style()->itemPixmapRect(r, align, lmovie->currentPixmap());
@@ -977,6 +1006,7 @@ void QLabelPrivate::movieUpdated(const QRect& rect)
 
 void QLabelPrivate::movieResized(const QSize& size)
 {
+    Q_Q(QLabel);
     valid_hints = false;
     movieUpdated(QRect(QPoint(0,0), size));
     q->updateGeometry();
@@ -995,6 +1025,7 @@ void QLabelPrivate::movieResized(const QSize& size)
 
 void QLabel::setMovie(QMovie *movie)
 {
+    Q_D(QLabel);
     d->clearContents();
 
     d->lmovie = movie;
@@ -1017,27 +1048,28 @@ void QLabel::setMovie(QMovie *movie)
 
 void QLabelPrivate::clearContents()
 {
+    Q_Q(QLabel);
 #ifndef QT_NO_RICHTEXT
     delete doc;
     doc = 0;
 #endif
 
-    delete d->lpixmap;
-    d->lpixmap = 0;
+    delete lpixmap;
+    lpixmap = 0;
 #ifndef QT_NO_PICTURE
     delete lpicture;
     lpicture = 0;
 #endif
-    delete d->img;
-    d->img = 0;
-    delete d->pix;
-    d->pix = 0;
+    delete img;
+    img = 0;
+    delete pix;
+    pix = 0;
 
-    d->ltext = QString::null;
+    ltext = QString::null;
     q->releaseShortcut(shortcutId);
     shortcutId = 0;
 #ifndef QT_NO_MOVIE
-    d->lmovie = 0;
+    lmovie = 0;
 #endif
 }
 
@@ -1053,6 +1085,7 @@ void QLabelPrivate::clearContents()
 
 QMovie *QLabel::movie() const
 {
+    Q_D(const QLabel);
     return d->lmovie;
 }
 
@@ -1079,11 +1112,13 @@ QMovie *QLabel::movie() const
 
 Qt::TextFormat QLabel::textFormat() const
 {
+    Q_D(const QLabel);
     return d->textformat;
 }
 
 void QLabel::setTextFormat(Qt::TextFormat format)
 {
+    Q_D(QLabel);
     if (format != d->textformat) {
         d->textformat = format;
         QString t = d->ltext;
@@ -1099,6 +1134,7 @@ void QLabel::setTextFormat(Qt::TextFormat format)
 */
 void QLabel::changeEvent(QEvent *ev)
 {
+    Q_D(QLabel);
     if(ev->type() == QEvent::FontChange) {
         if (!d->ltext.isEmpty()) {
 #ifndef QT_NO_RICHTEXT
@@ -1124,11 +1160,13 @@ void QLabel::changeEvent(QEvent *ev)
 */
 bool QLabel::hasScaledContents() const
 {
+    Q_D(const QLabel);
     return d->scaledcontents;
 }
 
 void QLabel::setScaledContents(bool enable)
 {
+    Q_D(QLabel);
     if ((bool)d->scaledcontents == enable)
         return;
     d->scaledcontents = enable;
@@ -1152,6 +1190,8 @@ void QLabel::setScaledContents(bool enable)
     rather than setAlignment(Qt::Alignment).
 */
 
+#define d d_func()
 #include "moc_qlabel.cpp"
+#undef d
 
 #endif // QT_NO_LABEL

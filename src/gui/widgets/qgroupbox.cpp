@@ -52,10 +52,6 @@ public:
     int topMargin;
 };
 
-#define d d_func()
-#define q q_func()
-
-
 /*!
     \class QGroupBox qgroupbox.h
     \brief The QGroupBox widget provides a group box frame with a title.
@@ -93,6 +89,7 @@ public:
 QGroupBox::QGroupBox(QWidget *parent)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
+    Q_D(QGroupBox);
     d->init();
 }
 
@@ -104,6 +101,7 @@ QGroupBox::QGroupBox(QWidget *parent)
 QGroupBox::QGroupBox(const QString &title, QWidget *parent)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
+    Q_D(QGroupBox);
     d->init();
     setTitle(title);
 }
@@ -127,6 +125,7 @@ void QGroupBoxPrivate::init()
 
 void QGroupBox::setTitle(const QString &title)
 {
+    Q_D(QGroupBox);
     if (d->title == title)                                // no change
         return;
     d->title = title;
@@ -165,6 +164,7 @@ void QGroupBox::setTitle(const QString &title)
 
 QString QGroupBox::title() const
 {
+    Q_D(const QGroupBox);
     return d->title;
 }
 
@@ -188,11 +188,13 @@ QString QGroupBox::title() const
 */
 Qt::Alignment QGroupBox::alignment() const
 {
+    Q_D(const QGroupBox);
     return QFlag(d->align);
 }
 
 void QGroupBox::setAlignment(int alignment)
 {
+    Q_D(QGroupBox);
     d->align = alignment;
     d->updateCheckBoxGeometry();
     update();
@@ -202,6 +204,7 @@ void QGroupBox::setAlignment(int alignment)
 */
 void QGroupBox::resizeEvent(QResizeEvent *e)
 {
+    Q_D(QGroupBox);
     QWidget::resizeEvent(e);
     d->updateCheckBoxGeometry();
 }
@@ -211,6 +214,7 @@ void QGroupBox::resizeEvent(QResizeEvent *e)
 
 void QGroupBox::paintEvent(QPaintEvent *event)
 {
+    Q_D(QGroupBox);
     QPainter paint(this);
 
     QRect frameRect = rect();
@@ -259,6 +263,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 /*! \reimp  */
 bool QGroupBox::event(QEvent *e)
 {
+    Q_D(QGroupBox);
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
@@ -272,6 +277,7 @@ bool QGroupBox::event(QEvent *e)
 /*!\reimp */
 void QGroupBox::childEvent(QChildEvent *c)
 {
+    Q_D(QGroupBox);
     if (c->type() != QEvent::ChildAdded || !c->child()->isWidgetType())
         return;
     QWidget *w = (QWidget*)c->child();
@@ -300,6 +306,7 @@ void QGroupBox::childEvent(QChildEvent *c)
 
 void QGroupBoxPrivate::fixFocus()
 {
+    Q_Q(QGroupBox);
     QWidget *fw = q->focusWidget();
     if (!fw) {
 #ifndef QT_NO_RADIOBUTTON
@@ -339,6 +346,7 @@ void QGroupBoxPrivate::fixFocus()
 */
 void QGroupBoxPrivate::calculateFrame()
 {
+    Q_Q(QGroupBox);
     int va = q->style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
 
     topMargin = 0;
@@ -356,7 +364,7 @@ void QGroupBoxPrivate::calculateFrame()
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
-    q->setContentsMargins(marg, d->topMargin + marg + 2, marg, marg);
+    q->setContentsMargins(marg, topMargin + marg + 2, marg, marg);
 }
 
 
@@ -365,6 +373,7 @@ void QGroupBoxPrivate::calculateFrame()
  */
 void QGroupBox::focusInEvent(QFocusEvent *)
 { // note no call to super
+    Q_D(QGroupBox);
     d->fixFocus();
 }
 
@@ -375,6 +384,7 @@ void QGroupBox::focusInEvent(QFocusEvent *)
 
 QSize QGroupBox::minimumSizeHint() const
 {
+    Q_D(const QGroupBox);
     QSize sh = QWidget::minimumSizeHint();
     QSize m((d->bFlat ? 0 : 2*8), 0);
     if (d->checkbox) {
@@ -400,11 +410,13 @@ QSize QGroupBox::minimumSizeHint() const
 */
 bool QGroupBox::isFlat() const
 {
+    Q_D(const QGroupBox);
     return d->bFlat;
 }
 
 void QGroupBox::setFlat(bool b)
 {
+    Q_D(QGroupBox);
     if ((bool)d->bFlat == b)
         return;
     d->bFlat = b;
@@ -427,6 +439,7 @@ void QGroupBox::setFlat(bool b)
 */
 void QGroupBox::setCheckable(bool b)
 {
+    Q_D(QGroupBox);
     if ((d->checkbox != 0) == b)
         return;
 
@@ -455,12 +468,14 @@ void QGroupBox::setCheckable(bool b)
 
 bool QGroupBox::isCheckable() const
 {
+    Q_D(const QGroupBox);
     return (d->checkbox != 0);
 }
 
 
 bool QGroupBox::isChecked() const
 {
+    Q_D(const QGroupBox);
     return d->checkbox && d->checkbox->isChecked();
 }
 
@@ -484,6 +499,7 @@ bool QGroupBox::isChecked() const
 */
 void QGroupBox::setChecked(bool b)
 {
+    Q_D(QGroupBox);
     if (d->checkbox)
         d->checkbox->setChecked(b);
 }
@@ -494,13 +510,14 @@ void QGroupBox::setChecked(bool b)
 */
 void QGroupBoxPrivate::setChildrenEnabled(bool b)
 {
+    Q_Q(QGroupBox);
     QObjectList childs = q->children();
     if (childs.isEmpty())
         return;
     for (int i = 0; i < childs.size(); ++i) {
         QObject *o = childs.at(i);
         if (o->isWidgetType()
-             && o != d->checkbox
+             && o != checkbox
            ) {
             QWidget *w = static_cast<QWidget *>(o);
             if (b) {
@@ -519,6 +536,7 @@ void QGroupBoxPrivate::setChildrenEnabled(bool b)
 /*! \reimp */
 void QGroupBox::changeEvent(QEvent *ev)
 {
+    Q_D(QGroupBox);
     if(ev->type() == QEvent::EnabledChange) {
         if (d->checkbox && isEnabled()) {
             // we are being enabled - disable children
@@ -537,12 +555,13 @@ void QGroupBox::changeEvent(QEvent *ev)
 */
 void QGroupBoxPrivate::updateCheckBoxGeometry()
 {
-    if (d->checkbox) {
-        QSize cbSize = d->checkbox->sizeHint();
+    Q_Q(QGroupBox);
+    if (checkbox) {
+        QSize cbSize = checkbox->sizeHint();
         int marg = bFlat ? 0 : (8 + q->fontMetrics().width(QLatin1Char(' ')));
         QRect rect = q->rect().adjusted(marg, 0, -marg, 0);
         QRect cbRect = QStyle::alignedRect(q->layoutDirection(), QFlag(this->align | Qt::AlignTop), cbSize, rect);
-        d->checkbox->setGeometry(cbRect);
+        checkbox->setGeometry(cbRect);
     }
 }
 
@@ -554,6 +573,7 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
 QGroupBox::QGroupBox(QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
+    Q_D(QGroupBox);
     setObjectName(name);
     d->init();
 }
@@ -565,12 +585,15 @@ QGroupBox::QGroupBox(QWidget *parent, const char *name)
 QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
+    Q_D(QGroupBox);
     setObjectName(name);
     d->init();
     setTitle(title);
 }
 #endif // QT3_SUPPORT
 
+#define d d_func()
 #include "moc_qgroupbox.cpp"
+#undef d
 
 #endif //QT_NO_GROUPBOX

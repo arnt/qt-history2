@@ -54,11 +54,6 @@ extern void qt_call_post_routines();
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"
-#define d d_func()
-#define q q_func()
-
-
-
 
 QApplication::Type qt_appType=QApplication::Tty;
 QApplicationPrivate *QApplicationPrivate::self = 0;
@@ -489,6 +484,7 @@ QWidgetList * qt_modal_stack=0;                // stack of modal widgets
 */
 void QApplicationPrivate::process_cmdline()
 {
+    Q_Q(QApplication);
     // process platform-indep command line
     if (!qt_is_gui_used || !argc)
         return;
@@ -518,8 +514,8 @@ void QApplicationPrivate::process_cmdline()
                 session_id = QString::fromLatin1(argv[i]);
                 int p = session_id.indexOf('_');
                 if (p >= 0) {
-                    session_key = d->session_id.mid(p +1);
-                    session_id = d->session_id.left(p);
+                    session_key = session_id.mid(p +1);
+                    session_id = session_id.left(p);
                 }
                 is_session_restored = true;
             }
@@ -622,7 +618,7 @@ void QApplicationPrivate::process_cmdline()
 
 QApplication::QApplication(int &argc, char **argv)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
-{ d->construct(); }
+{ Q_D(QApplication); d->construct(); }
 
 
 /*!
@@ -666,7 +662,7 @@ QApplication::QApplication(int &argc, char **argv)
 
 QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GUIenabled ? GuiClient : Tty))
-{ d->construct(); }
+{ Q_D(QApplication); d->construct(); }
 
 /*!
   Constructs an application object with \a argc command line arguments
@@ -678,7 +674,7 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
 */
 QApplication::QApplication(int &argc, char **argv, Type type)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, type))
-{ d->construct(); }
+{ Q_D(QApplication); d->construct(); }
 
 /*!
     \internal
@@ -715,6 +711,7 @@ static char *aargv[] = { (char*)"unknown", 0 };
 QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(aargc, aargv, GuiClient))
 {
+    Q_D(QApplication);
     qt_is_gui_used = true;
     // ... no command line.
 
@@ -746,6 +743,7 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
                            Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
 {
+    Q_D(QApplication);
     qt_is_gui_used = true;
 
     if (! dpy)
@@ -770,6 +768,7 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
 
 void QApplicationPrivate::initialize()
 {
+    Q_Q(QApplication);
     QWidgetPrivate::mapper = new QWidgetMapper;
     if (qt_appType != QApplication::Tty)
         (void) QApplication::style();  // trigger creation of application style
@@ -850,6 +849,7 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+    Q_D(QApplication);
 #ifndef QT_NO_CLIPBOARD
     // flush clipboard contents
     if (qt_clipboard) {
@@ -1819,6 +1819,7 @@ static bool qt_detectRTLLanguage()
 */
 bool QApplication::event(QEvent *e)
 {
+    Q_D(QApplication);
     if(e->type() == QEvent::Close) {
         QCloseEvent *ce = static_cast<QCloseEvent*>(e);
         ce->accept();
@@ -1975,7 +1976,7 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-	focusWidget()->d->unfocusInputContext();
+	focusWidget()->d_func()->unfocusInputContext();
         QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
     } else if (QApplicationPrivate::active_window) {
         QWidget *w = QApplicationPrivate::active_window->focusWidget();
@@ -2076,7 +2077,7 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
             if (w->testAttribute(Qt::WA_Hover)) {
                 Q_ASSERT(instance());
                 QHoverEvent he(QEvent::HoverLeave, QPoint(-1, -1), w->mapFromGlobal(QApplicationPrivate::instance()->hoverGlobalPos));
-                qApp->d->notify_helper(w, &he);
+                qApp->d_func()->notify_helper(w, &he);
             }
         }
     }
@@ -2088,7 +2089,7 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
             QApplication::sendEvent(w, &enterEvent);
             if (w->testAttribute(Qt::WA_Hover)) {
                 QHoverEvent he(QEvent::HoverEnter, w->mapFromGlobal(posEnter), QPoint(-1, -1));
-                qApp->d->notify_helper(w, &he);
+                qApp->d_func()->notify_helper(w, &he);
             }
         }
     }
@@ -2301,16 +2302,19 @@ Qt::MouseButtons QApplication::mouseButtons()
 #ifndef QT_NO_SESSIONMANAGER
 bool QApplication::isSessionRestored() const
 {
+    Q_D(const QApplication);
     return d->is_session_restored;
 }
 
 QString QApplication::sessionId() const
 {
+    Q_D(const QApplication);
     return d->session_id;
 }
 
 QString QApplication::sessionKey() const
 {
+    Q_D(const QApplication);
     return d->session_key;
 }
 #endif
@@ -2548,7 +2552,7 @@ Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 #ifndef QT_NO_CURSOR
 QCursor *QApplication::overrideCursor()
 {
-    return qApp->d->cursor_list.isEmpty() ? 0 : &qApp->d->cursor_list.first();
+    return qApp->d_func()->cursor_list.isEmpty() ? 0 : &qApp->d_func()->cursor_list.first();
 }
 
 /*!
@@ -2560,9 +2564,9 @@ QCursor *QApplication::overrideCursor()
  */
 void QApplication::changeOverrideCursor(const QCursor &cursor)
 {
-    if (qApp->d->cursor_list.isEmpty())
+    if (qApp->d_func()->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeFirst();
+    qApp->d_func()->cursor_list.removeFirst();
     setOverrideCursor(cursor);
 }
 
@@ -2603,6 +2607,7 @@ int QApplication::exec()
  */
 bool QApplication::notify(QObject *receiver, QEvent *e)
 {
+    Q_D(QApplication);
     // no events are delivered after ~QCoreApplication() has started
     if (QApplicationPrivate::is_app_closing)
         return true;
@@ -2615,7 +2620,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
-    if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
+    if (e->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
         d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
 #endif // QT3_SUPPORT
 
@@ -2706,7 +2711,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #endif
             if (key->type()==QEvent::KeyPress) {
                 // Try looking for a Shortcut before sending key events
-                if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
+                if (res = qApp->d_func()->shortcutMap.tryShortcutEvent(w, key))
                     return res;
                 qt_in_tab_key_event = (key->key() == Qt::Key_Backtab
                                        || key->key() == Qt::Key_Tab
@@ -2946,6 +2951,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 {
+    Q_Q(QApplication);
     // send to all application event filters
     for (int i = 0; i < eventFilters.size(); ++i) {
         register QObject *obj = eventFilters.at(i);
@@ -2962,7 +2968,7 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
         else if (e->type() == QEvent::Leave || e->type() == QEvent::DragLeave)
             widget->setAttribute(Qt::WA_UnderMouse, false);
 
-        if (QLayout *layout=widget->d->layout) {
+        if (QLayout *layout=widget->d_func()->layout) {
             layout->widgetEvent(e);
         }
 
@@ -2987,8 +2993,8 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 
     // send to all receiver event filters
     if (receiver != q) {
-        for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-            register QObject *obj = receiver->d->eventFilters.at(i);
+        for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
+            register QObject *obj = receiver->d_func()->eventFilters.at(i);
             if (obj && obj->eventFilter(receiver,e))
                 return true;
         }
@@ -3357,6 +3363,7 @@ QSessionManager* qt_session_manager_self = 0;
 QSessionManager::QSessionManager(QApplication * app, QString &id, QString &key)
     : QObject(*new QSessionManagerPrivate, app)
 {
+    Q_D(QSessionManager);
     setObjectName("qt_sessionmanager");
     qt_session_manager_self = this;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
@@ -3381,11 +3388,13 @@ QSessionManager::~QSessionManager()
 
 QString QSessionManager::sessionId() const
 {
+    Q_D(const QSessionManager);
     return d->sessionId;
 }
 
 QString QSessionManager::sessionKey() const
 {
+    Q_D(const QSessionManager);
     return d->sessionKey;
 }
 
@@ -3419,31 +3428,37 @@ void QSessionManager::cancel()
 
 void QSessionManager::setRestartHint(QSessionManager::RestartHint hint)
 {
+    Q_D(QSessionManager);
     d->restartHint = hint;
 }
 
 QSessionManager::RestartHint QSessionManager::restartHint() const
 {
+    Q_D(const QSessionManager);
     return d->restartHint;
 }
 
 void QSessionManager::setRestartCommand(const QStringList& command)
 {
+    Q_D(QSessionManager);
     d->restartCommand = command;
 }
 
 QStringList QSessionManager::restartCommand() const
 {
+    Q_D(const QSessionManager);
     return d->restartCommand;
 }
 
 void QSessionManager::setDiscardCommand(const QStringList& command)
 {
+    Q_D(QSessionManager);
     d->discardCommand = command;
 }
 
 QStringList QSessionManager::discardCommand() const
 {
+    Q_D(const QSessionManager);
     return d->discardCommand;
 }
 
@@ -3628,6 +3643,7 @@ void QApplicationPrivate::emitLastWindowClosed()
 */
 void QApplication::setInputContext(QInputContext *inputContext)
 {
+    Q_D(QApplication);
     if (d->inputContext)
         delete d->inputContext;
     d->inputContext = inputContext;
@@ -3635,12 +3651,13 @@ void QApplication::setInputContext(QInputContext *inputContext)
 
 QInputContext *QApplication::inputContext() const
 {
+    Q_D(const QApplication);
 #ifdef Q_WS_X11
     if (!X11)
         return 0;
     if (!d->inputContext) {
         QApplication *that = const_cast<QApplication *>(this);
-        that->d->inputContext = QInputContextFactory::create(X11->default_im, that);
+        that->d_func()->inputContext = QInputContextFactory::create(X11->default_im, that);
     }
 #endif
     return d->inputContext;

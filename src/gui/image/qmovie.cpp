@@ -159,9 +159,7 @@ public:
  */
 QMoviePrivate::QMoviePrivate(QMovie *qq)
 {
-    Q_Q(QMovie);
-    q = qq;
-
+    q_ptr = qq;
     reader = 0;
     movieState = QMovie::NotRunning;
     nextImageTimer.setSingleShot(true);
@@ -615,3 +613,4 @@ void QMovie::stop()
 
 #define d d_func()
 #include "moc_qmovie.cpp"
+#undef d
