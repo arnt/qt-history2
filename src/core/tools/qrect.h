@@ -14,8 +14,8 @@
 #ifndef QRECT_H
 #define QRECT_H
 
-#include "qsize.h"
-#include "qpoint.h"
+#include "QtCore/qsize.h"
+#include "QtCore/qpoint.h"
 
 #if defined(topLeft)
 #error "Macro definition of topLeft conflicts with QRect"

@@ -15,8 +15,8 @@
 #define Q3SOCKETDEVICE_H
 
 #ifndef QT_H
-#include "qiodevice.h"
-#include "qhostaddress.h" // int->QHostAddress conversion
+#include "QtCore/qiodevice.h"
+#include "QtNetwork/qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
 #ifndef QT_NO_NETWORK

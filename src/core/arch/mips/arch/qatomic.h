@@ -14,7 +14,7 @@
 #ifndef MIPS_QATOMIC_H
 #define MIPS_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);

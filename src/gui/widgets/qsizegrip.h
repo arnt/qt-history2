@@ -14,7 +14,7 @@
 #ifndef QSIZEGRIP_H
 #define QSIZEGRIP_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_SIZEGRIP
 

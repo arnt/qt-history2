@@ -14,10 +14,10 @@
 #ifndef QACTION_H
 #define QACTION_H
 
-#include "qicon.h"
-#include "qkeysequence.h"
-#include "qstring.h"
-#include "qwidget.h"
+#include "QtGui/qicon.h"
+#include "QtGui/qkeysequence.h"
+#include "QtCore/qstring.h"
+#include "QtGui/qwidget.h"
 
 class QMenu;
 class QActionGroup;
@@ -154,5 +154,5 @@ private:
     friend class QShortcutMap;
 };
 
-#include "qactiongroup.h" // ### remove after tech-preview 1
+#include "QtGui/qactiongroup.h" // ### remove after tech-preview 1
 #endif

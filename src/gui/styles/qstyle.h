@@ -14,10 +14,10 @@
 #ifndef QSTYLE_H
 #define QSTYLE_H
 
-#include "qobject.h"
-#include "qpixmap.h"
-#include "qrect.h"
-#include "qsize.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qpixmap.h"
+#include "QtCore/qrect.h"
+#include "QtCore/qsize.h"
 
 #ifndef QT_NO_STYLE
 

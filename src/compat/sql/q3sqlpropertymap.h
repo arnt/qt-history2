@@ -14,8 +14,8 @@
 #ifndef Q3SQLPROPERTYMAP_H
 #define Q3SQLPROPERTYMAP_H
 
-#include "qvariant.h"
-#include "qstring.h"
+#include "QtGui/qvariant.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_SQL_FORM
 

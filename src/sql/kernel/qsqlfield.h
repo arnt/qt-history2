@@ -14,8 +14,8 @@
 #ifndef QSQLFIELD_H
 #define QSQLFIELD_H
 
-#include "qcorevariant.h"
-#include "qstring.h"
+#include "QtCore/qcorevariant.h"
+#include "QtCore/qstring.h"
 
 class QSqlFieldPrivate;
 

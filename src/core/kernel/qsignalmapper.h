@@ -14,7 +14,7 @@
 #ifndef QSIGNALMAPPER_H
 #define QSIGNALMAPPER_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 #ifndef QT_NO_SIGNALMAPPER
 class QSignalMapperPrivate;

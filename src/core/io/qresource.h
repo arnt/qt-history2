@@ -14,7 +14,7 @@
 #ifndef QRESOURCE_H
 #define QRESOURCE_H
 
-#include <qlist.h>
+#include <QtCore/qlist.h>
 
 class QMetaResource;
 class QMetaResourcePrivate;

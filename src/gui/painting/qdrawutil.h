@@ -14,8 +14,8 @@
 #ifndef QDRAWUTIL_H
 #define QDRAWUTIL_H
 
-#include "qnamespace.h"
-#include "qstring.h" // char*->QString conversion
+#include "QtCore/qnamespace.h"
+#include "QtCore/qstring.h" // char*->QString conversion
 
 class QPainter;
 #ifndef QT_COMPAT

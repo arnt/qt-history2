@@ -14,7 +14,7 @@
 #ifndef QGFXVOODOODEFS_QWS_H
 #define QGFXVOODOODEFS_QWS_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 #define VOODOOSTATUS (0x000)
 #define INTCTRL (0x004+0x0100000)

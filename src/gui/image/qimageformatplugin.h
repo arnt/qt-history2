@@ -14,8 +14,8 @@
 #ifndef QIMAGEFORMATPLUGIN_H
 #define QIMAGEFORMATPLUGIN_H
 
-#include "qplugin.h"
-#include "qfactoryinterface.h"
+#include "QtCore/qplugin.h"
+#include "QtCore/qfactoryinterface.h"
 
 class QImageFormat;
 class QImage;

@@ -14,7 +14,7 @@
 #ifndef QSQLRECORD_H
 #define QSQLRECORD_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 class QSqlField;
 class QStringList;

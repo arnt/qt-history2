@@ -14,11 +14,11 @@
 #ifndef QAXFACTORY_H
 #define QAXFACTORY_H
 
-#include <qhash.h>
-#include <quuid.h>
-#include <qfactoryinterface.h>
-#include <qmetaobject.h>
-#include <qstringlist.h>
+#include <QtCore/qhash.h>
+#include <QtCore/quuid.h>
+#include <QtCore/qfactoryinterface.h>
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qstringlist.h>
 
 class QWidget;
 struct QMetaObject;

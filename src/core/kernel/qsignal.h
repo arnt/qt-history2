@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_QOBJECT
 
-#include "qobject.h"
-#include "qmetaobject.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qmetaobject.h"
 
 
 // internal helper class for QSignal

@@ -14,7 +14,7 @@
 #ifndef QFRAME_H
 #define QFRAME_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 class QFramePrivate;
 

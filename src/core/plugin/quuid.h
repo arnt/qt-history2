@@ -14,7 +14,7 @@
 #ifndef QUUID_H
 #define QUUID_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 #if defined(Q_OS_WIN32)
 #ifndef GUID_DEFINED

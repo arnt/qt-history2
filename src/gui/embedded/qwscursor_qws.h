@@ -14,7 +14,7 @@
 #ifndef QWSCURSOR_QWS_H
 #define QWSCURSOR_QWS_H
 
-#include "qimage.h"
+#include "QtGui/qimage.h"
 
 class QWSCursor
 {

@@ -14,8 +14,8 @@
 #ifndef Q3RANGECONTROL_H
 #define Q3RANGECONTROL_H
 
-#include "qglobal.h"
-#include "qwidget.h"
+#include "QtCore/qglobal.h"
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_RANGECONTROL
 

@@ -14,7 +14,7 @@
 #ifndef Q3GRIDVIEW_H
 #define Q3GRIDVIEW_H
 
-#include "q3scrollview.h"
+#include "Qt3Compat/q3scrollview.h"
 
 class Q3GridViewPrivate;
 

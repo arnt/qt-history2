@@ -14,8 +14,8 @@
 #ifndef Q3LISTBOX_H
 #define Q3LISTBOX_H
 
-#include "q3scrollview.h"
-#include "qpixmap.h"
+#include "Qt3Compat/q3scrollview.h"
+#include "QtGui/qpixmap.h"
 
 #ifndef QT_NO_LISTBOX
 

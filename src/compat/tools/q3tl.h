@@ -13,7 +13,7 @@
 #ifndef Q3TL_H
 #define Q3TL_H
 
-#include <qalgorithms.h>
+#include <QtCore/qalgorithms.h>
 
 
 template <typename BiIterator, typename LessThan>

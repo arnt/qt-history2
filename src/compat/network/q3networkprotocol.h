@@ -15,11 +15,11 @@
 #define Q3NETWORKPROTOCOL_H
 
 #ifndef QT_H
-#include "qurlinfo.h"
-#include "qstring.h"
-#include "q3dict.h"
-#include "qobject.h"
-#include "q3valuelist.h"
+#include "QtNetwork/qurlinfo.h"
+#include "QtCore/qstring.h"
+#include "Qt3Compat/q3dict.h"
+#include "QtCore/qobject.h"
+#include "Qt3Compat/q3valuelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL

@@ -14,7 +14,7 @@
 #ifndef QPAIR_H
 #define QPAIR_H
 
-#include "qdatastream.h"
+#include "QtCore/qdatastream.h"
 
 template <class T1, class T2>
 struct QPair

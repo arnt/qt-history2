@@ -14,10 +14,10 @@
 #ifndef QSQLDATABASE_H
 #define QSQLDATABASE_H
 
-#include "qstring.h"
-#include "qsql.h"
+#include "QtCore/qstring.h"
+#include "QtSql/qsql.h"
 #ifdef QT_COMPAT
-#include "qsqlrecord.h"
+#include "QtSql/qsqlrecord.h"
 #endif
 
 class QSqlError;

@@ -14,7 +14,7 @@
 #ifndef QMOUSEBUS_QWS_H
 #define QMOUSEBUS_QWS_H
 
-#include "qmouse_qws.h"
+#include "QtGui/qmouse_qws.h"
 
 #ifndef QT_NO_QWS_MOUSE_BUS
 

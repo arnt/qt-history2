@@ -14,7 +14,7 @@
 #ifndef QDRAG_H
 #define QDRAG_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 class QMimeData;
 class QDragPrivate;

@@ -14,7 +14,7 @@
 #ifndef QRUBBERBAND_H
 #define QRUBBERBAND_H
 
-#include <qwidget.h>
+#include <QtGui/qwidget.h>
 
 class QRubberBandPrivate;
 

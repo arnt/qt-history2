@@ -15,7 +15,7 @@
 #ifndef QDIAL_H
 #define QDIAL_H
 
-#include "qabstractslider.h"
+#include "QtGui/qabstractslider.h"
 
 #ifndef QT_NO_DIAL
 

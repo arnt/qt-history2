@@ -7,7 +7,7 @@
 #ifndef JRI_H
 #define JRI_H
 
-#include "jritypes.h"
+#include "QtNsPlugin/jritypes.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_VARIANT
 
-#include "qcorevariant.h"
-#include "qmap.h"
+#include "QtCore/qcorevariant.h"
+#include "QtCore/qmap.h"
 
 class QFont;
 class QPixmap;

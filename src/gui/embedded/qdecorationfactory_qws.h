@@ -14,7 +14,7 @@
 #ifndef QDECORATIONFACTORY_H
 #define QDECORATIONFACTORY_H
 
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 
 class QDecoration;
 

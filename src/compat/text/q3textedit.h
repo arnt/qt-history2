@@ -14,10 +14,10 @@
 #ifndef Q3TEXTEDIT_H
 #define Q3TEXTEDIT_H
 
-#include "q3scrollview.h"
-#include "q3stylesheet.h"
-#include "q3mimefactory.h"
-#include "qmap.h"
+#include "Qt3Compat/q3scrollview.h"
+#include "Qt3Compat/q3stylesheet.h"
+#include "Qt3Compat/q3mimefactory.h"
+#include "QtCore/qmap.h"
 
 #ifndef QT_NO_TEXTEDIT
 // uncomment below to enable optimization mode - also uncomment the

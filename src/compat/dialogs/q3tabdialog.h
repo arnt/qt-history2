@@ -14,8 +14,8 @@
 #ifndef Q3TABDIALOG_H
 #define Q3TABDIALOG_H
 
-#include "qdialog.h"
-#include "qicon.h"
+#include "QtGui/qdialog.h"
+#include "QtGui/qicon.h"
 
 class  QTabBar;
 class  QTab;

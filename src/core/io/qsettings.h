@@ -14,11 +14,11 @@
 #ifndef QSETTINGS_H
 #define QSETTINGS_H
 
-#include "qobject.h"
-#include "qcorevariant.h"
-#include "qstring.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qcorevariant.h"
+#include "QtCore/qstring.h"
 #ifdef QT_COMPAT
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 #endif
 
 #include <ctype.h>

@@ -14,7 +14,7 @@
 #ifndef QRGB_H
 #define QRGB_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 typedef unsigned int QRgb;                        // RGB triplet
 

@@ -14,7 +14,7 @@
 #ifndef Q3WIZARD_H
 #define Q3WIZARD_H
 
-#include "qdialog.h"
+#include "QtGui/qdialog.h"
 
 class QHBoxLayout;
 class Q3WizardPrivate;

@@ -14,9 +14,9 @@
 #ifndef QSQL_OCI_H
 #define QSQL_OCI_H
 
-#include <qsqlresult.h>
-#include <qsqldriver.h>
-#include <private/qsqlcachedresult_p.h>
+#include <QtSql/qsqlresult.h>
+#include <QtSql/qsqldriver.h>
+#include <QtSql/private/qsqlcachedresult_p.h>
 
 #include <oci.h>
 

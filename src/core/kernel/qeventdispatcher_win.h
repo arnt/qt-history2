@@ -14,8 +14,8 @@
 #ifndef QEVENTDISPATCHER_WIN_H
 #define QEVENTDISPATCHER_WIN_H
 
-#include "qabstracteventdispatcher.h"
-#include "qt_windows.h"
+#include "QtCore/qabstracteventdispatcher.h"
+#include "QtCore/qt_windows.h"
 
 class QWinEventNotifier;
 class QEventDispatcherWin32Private;

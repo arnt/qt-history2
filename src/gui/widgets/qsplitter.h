@@ -14,8 +14,8 @@
 #ifndef QSPLITTER_H
 #define QSPLITTER_H
 
-#include "qframe.h"
-#include "qsizepolicy.h"
+#include "QtGui/qframe.h"
+#include "QtGui/qsizepolicy.h"
 
 #ifndef QT_NO_SPLITTER
 

@@ -15,8 +15,8 @@
 #define Q3SOCKET_H
 
 #ifndef QT_H
-#include "qiodevice.h"
-#include "qhostaddress.h" // int->QHostAddress conversion
+#include "QtCore/qiodevice.h"
+#include "QtNetwork/qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
 class Q3SocketPrivate;

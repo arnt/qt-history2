@@ -14,11 +14,11 @@
 #ifndef QGFXREPEATER_QWS_H
 #define QGFXREPEATER_QWS_H
 
-#include "qgfx_qws.h"
+#include "QtGui/qgfx_qws.h"
 
 #ifndef QT_NO_QWS_REPEATER
 
-#include "qlist.h"
+#include "QtCore/qlist.h"
 
 class QScreenRec;
 

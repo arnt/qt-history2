@@ -14,7 +14,7 @@
 #ifndef Q3PTRCOLLECTION_H
 #define Q3PTRCOLLECTION_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class Q3GVector;
 class Q3GList;

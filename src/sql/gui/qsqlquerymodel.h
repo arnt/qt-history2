@@ -14,8 +14,8 @@
 #ifndef QSQLQUERYMODEL_H
 #define QSQLQUERYMODEL_H
 
-#include <qabstractitemmodel.h>
-#include <qsqldatabase.h>
+#include <QtGui/qabstractitemmodel.h>
+#include <QtSql/qsqldatabase.h>
 
 class QSqlQueryModelPrivate;
 class QSqlError;

@@ -14,7 +14,7 @@
 #ifndef Q3SEMAPHORE_H
 #define Q3SEMAPHORE_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class Q3SemaphorePrivate;
 

@@ -14,7 +14,7 @@
 #ifndef QCOMMONSTYLE_H
 #define QCOMMONSTYLE_H
 
-#include "qstyle.h"
+#include "QtGui/qstyle.h"
 
 #ifndef QT_NO_STYLE
 

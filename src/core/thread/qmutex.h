@@ -14,7 +14,7 @@
 #ifndef QMUTEX_H
 #define QMUTEX_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 #ifndef QT_NO_THREAD
 

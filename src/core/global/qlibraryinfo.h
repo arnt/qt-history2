@@ -14,7 +14,7 @@
 #ifndef __QLIBRARYINFO_H__
 #define __QLIBRARYINFO_H__
 
-#include <qstring.h>
+#include <QtCore/qstring.h>
 
 class Q_CORE_EXPORT QLibraryInfo
 {

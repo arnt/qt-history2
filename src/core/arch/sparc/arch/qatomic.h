@@ -14,7 +14,7 @@
 #ifndef SPARC_QATOMIC_H
 #define SPARC_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(_LP64)
 

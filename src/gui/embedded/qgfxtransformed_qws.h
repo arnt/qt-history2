@@ -14,7 +14,7 @@
 #ifndef QGFXTRANSFORMED_QWS_H
 #define QGFXTRANSFORMED_QWS_H
 
-#include "qscreen_qws.h"
+#include "QtGui/qscreen_qws.h"
 
 #ifndef QT_NO_QWS_TRANSFORMED
 
@@ -24,7 +24,7 @@
 //#define QT_TRANS_SCREEN_BASE  QVFbScreen
 //#define QT_TRANS_CURSOR_BASE   QVFbScreenCursor
 //#define QT_TRANS_GFX_BASE      QGfxVFb
-#include "qgfxlinuxfb_qws.h"
+#include "QtGui/qgfxlinuxfb_qws.h"
 
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {

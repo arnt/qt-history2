@@ -14,9 +14,9 @@
 #ifndef QTEXTCURSOR_H
 #define QTEXTCURSOR_H
 
-#include <qstring.h>
-#include <qshareddata.h>
-#include <qtextformat.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qshareddata.h>
+#include <QtGui/qtextformat.h>
 
 class QTextDocument;
 class QTextCursorPrivate;

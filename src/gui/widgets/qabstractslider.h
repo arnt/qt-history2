@@ -14,7 +14,7 @@
 #ifndef QABSTRACTSLIDER_H
 #define QABSTRACTSLIDER_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 class QAbstractSliderPrivate;
 

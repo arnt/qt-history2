@@ -14,7 +14,7 @@
 #ifndef QDECORATIONSTYLED_QWS_H
 #define QDECORATIONSTYLED_QWS_H
 
-#include "qdecorationdefault_qws.h"
+#include "QtGui/qdecorationdefault_qws.h"
 
 #if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
 

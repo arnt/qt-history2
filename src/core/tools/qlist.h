@@ -14,9 +14,9 @@
 #ifndef QLIST_H
 #define QLIST_H
 
-#include "qiterator.h"
-#include "qatomic.h"
-#include "qvector.h"
+#include "QtCore/qiterator.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qvector.h"
 
 struct Q_CORE_EXPORT QListData {
     struct Data {

@@ -14,7 +14,7 @@
 #ifndef QPROGRESSDIALOG_H
 #define QPROGRESSDIALOG_H
 
-#include "qdialog.h"
+#include "QtGui/qdialog.h"
 
 #ifndef QT_NO_PROGRESSDIALOG
 

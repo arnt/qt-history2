@@ -14,7 +14,7 @@
 #ifndef QLABEL_H
 #define QLABEL_H
 
-#include "qframe.h"
+#include "QtGui/qframe.h"
 
 #ifndef QT_NO_LABEL
 

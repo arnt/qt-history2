@@ -14,9 +14,9 @@
 #ifndef QTCPSERVER_H
 #define QTCPSERVER_H
 
-#include <qobject.h>
-#include <qabstractsocket.h>
-#include <qhostaddress.h>
+#include <QtCore/qobject.h>
+#include <QtNetwork/qabstractsocket.h>
+#include <QtNetwork/qhostaddress.h>
 
 class QTcpServerPrivate;
 class QTcpSocket;

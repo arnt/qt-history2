@@ -14,9 +14,9 @@
 #ifndef QABSTRACTBUTTON_H
 #define QABSTRACTBUTTON_H
 
-#include "qicon.h"
-#include "qkeysequence.h"
-#include "qwidget.h"
+#include "QtGui/qicon.h"
+#include "QtGui/qkeysequence.h"
+#include "QtGui/qwidget.h"
 
 class QButtonGroup;
 class QAbstractButtonPrivate;

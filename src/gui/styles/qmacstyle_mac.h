@@ -14,7 +14,7 @@
 #ifndef QMACSTYLE_MAC_H
 #define QMACSTYLE_MAC_H
 
-#include "qwindowsstyle.h"
+#include "QtGui/qwindowsstyle.h"
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 

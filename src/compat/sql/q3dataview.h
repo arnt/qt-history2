@@ -14,7 +14,7 @@
 #ifndef Q3DATAVIEW_H
 #define Q3DATAVIEW_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

@@ -27,11 +27,11 @@ class Q3ListBoxItem;
 class Q3FileDialogPrivate;
 class Q3FileDialogQFileListView;
 
-#include "qdir.h"
-#include "qdialog.h"
-#include "q3urloperator.h"
-#include "q3valuelist.h"
-#include "qurlinfo.h"
+#include "QtCore/qdir.h"
+#include "QtGui/qdialog.h"
+#include "Qt3Compat/q3urloperator.h"
+#include "Qt3Compat/q3valuelist.h"
+#include "QtNetwork/qurlinfo.h"
 
 #ifndef QT_NO_FILEDIALOG
 

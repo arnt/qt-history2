@@ -14,7 +14,7 @@
 #ifndef QMETATYPE_H
 #define QMETATYPE_H
 
-#include "qdatastream.h"
+#include "QtCore/qdatastream.h"
 
 #ifdef Bool
 #error qmetatype.h must be included before any header file that define Bool

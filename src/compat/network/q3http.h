@@ -15,10 +15,10 @@
 #define Q3HTTP_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "q3networkprotocol.h"
-#include "qmap.h"
-#include "qstringlist.h"
+#include "QtCore/qobject.h"
+#include "Qt3Compat/q3networkprotocol.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP

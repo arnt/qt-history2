@@ -14,9 +14,9 @@
 #ifndef Q3GCACHE_H
 #define Q3GCACHE_H
 
-#include "q3ptrcollection.h"
-#include "q3glist.h"
-#include "q3gdict.h"
+#include "Qt3Compat/q3ptrcollection.h"
+#include "Qt3Compat/q3glist.h"
+#include "Qt3Compat/q3gdict.h"
 
 
 class Q3CList;					// internal classes

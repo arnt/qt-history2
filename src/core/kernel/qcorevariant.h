@@ -14,10 +14,10 @@
 #ifndef QCOREVARIANT_H
 #define QCOREVARIANT_H
 
-#include "qatomic.h"
-#include "qbytearray.h"
-#include "qlist.h"
-#include "qmetatype.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qmetatype.h"
 
 #ifndef QT_NO_VARIANT
 class QBitArray;

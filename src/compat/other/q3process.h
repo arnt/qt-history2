@@ -15,9 +15,9 @@
 #define Q3PROCESS_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qstringlist.h"
-#include "qdir.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qstringlist.h"
+#include "QtCore/qdir.h"
 #endif // QT_H
 
 #ifndef QT_NO_PROCESS

@@ -14,8 +14,8 @@
 #ifndef QWINDOWDEFS_H
 #define QWINDOWDEFS_H
 
-#include "qobjectdefs.h"
-#include "qnamespace.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtCore/qnamespace.h"
 
 // Class forward definitions
 
@@ -99,7 +99,7 @@ typedef struct AEDesc AppleEvent;
 #endif // Q_WS_MAC
 
 #if defined(Q_WS_WIN)
-#include "qwindowdefs_win.h"
+#include "QtGui/qwindowdefs_win.h"
 #endif // Q_WS_WIN
 
 

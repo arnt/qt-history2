@@ -14,7 +14,7 @@
 #ifndef QRADIOBUTTON_H
 #define QRADIOBUTTON_H
 
-#include "qabstractbutton.h"
+#include "QtGui/qabstractbutton.h"
 
 #ifndef QT_NO_RADIOBUTTON
 

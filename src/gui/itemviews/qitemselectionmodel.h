@@ -14,8 +14,8 @@
 #ifndef QITEMSELECTIONMODEL_H
 #define QITEMSELECTIONMODEL_H
 
-#include <qlist.h>
-#include <qabstractitemmodel.h>
+#include <QtCore/qlist.h>
+#include <QtGui/qabstractitemmodel.h>
 
 class Q_GUI_EXPORT QItemSelectionRange
 {

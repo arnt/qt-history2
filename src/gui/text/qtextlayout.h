@@ -14,12 +14,12 @@
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
-#include "qstring.h"
-#include "qnamespace.h"
-#include "qrect.h"
-#include "qvector.h"
-#include "qcolor.h"
-#include "qobject.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qrect.h"
+#include "QtCore/qvector.h"
+#include "QtGui/qcolor.h"
+#include "QtCore/qobject.h"
 
 class QTextEngine;
 class QFont;

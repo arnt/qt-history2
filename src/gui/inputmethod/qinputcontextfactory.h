@@ -29,7 +29,7 @@
 #define QINPUTCONTEXTFACTORY_H
 
 #ifndef QT_H
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_IM

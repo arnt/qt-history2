@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_QOBJECT
 
-#include "qbasictimer.h" // conceptual inheritance
-#include "qobject.h"
+#include "QtCore/qbasictimer.h" // conceptual inheritance
+#include "QtCore/qobject.h"
 
 
 class Q_CORE_EXPORT QTimer : public QObject

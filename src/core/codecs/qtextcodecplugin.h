@@ -14,11 +14,11 @@
 #ifndef QTEXTCODECPLUGIN_H
 #define QTEXTCODECPLUGIN_H
 
-#include "qplugin.h"
-#include "qfactoryinterface.h"
+#include "QtCore/qplugin.h"
+#include "QtCore/qfactoryinterface.h"
 
-#include <qlist.h>
-#include <qbytearray.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qbytearray.h>
 
 class QTextCodec;
 

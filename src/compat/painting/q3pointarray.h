@@ -14,7 +14,7 @@
 #ifndef Q3POINTARRAY_H
 #define Q3POINTARRAY_H
 
-#include "qpolygon.h"
+#include "QtGui/qpolygon.h"
 
 class Q_COMPAT_EXPORT Q3PointArray : public QPolygon
 {

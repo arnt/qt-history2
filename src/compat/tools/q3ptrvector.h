@@ -14,7 +14,7 @@
 #ifndef Q3PTRVECTOR_H
 #define Q3PTRVECTOR_H
 
-#include "q3gvector.h"
+#include "Qt3Compat/q3gvector.h"
 
 template<class type>
 class Q3PtrVector

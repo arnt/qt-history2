@@ -14,7 +14,7 @@
 #ifndef Q3PTRSTACK_H
 #define Q3PTRSTACK_H
 
-#include "q3glist.h"
+#include "Qt3Compat/q3glist.h"
 
 template<class type>
 class Q3PtrStack : protected Q3GList

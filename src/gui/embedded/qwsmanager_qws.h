@@ -14,10 +14,10 @@
 #ifndef QWSMANAGER_QWS_H
 #define QWSMANAGER_QWS_H
 
-#include "qpixmap.h"
-#include "qobject.h"
-#include "qdecoration_qws.h"
-#include "qevent.h"
+#include "QtGui/qpixmap.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qdecoration_qws.h"
+#include "QtGui/qevent.h"
 
 #ifndef QT_NO_QWS_MANAGER
 
@@ -65,7 +65,7 @@ protected:
     void menu(const QPoint &);
 };
 
-#include "qdecorationdefault_qws.h"
+#include "QtGui/qdecorationdefault_qws.h"
 
 #endif // QT_NO_QWS_MANAGER
 

@@ -15,8 +15,8 @@
 #ifndef QHBOXWIDGET_H
 #define QHBOXWIDGET_H
 
-#include "qwidget.h"
-#include "qframe.h"
+#include "QtGui/qwidget.h"
+#include "QtGui/qframe.h"
 
 #ifndef QT_NO_HBOXWIDGET
 

@@ -14,10 +14,10 @@
 #ifndef QABSTRACTITEMVIEW_H
 #define QABSTRACTITEMVIEW_H
 
-#include <qviewport.h>
-#include <qabstractitemmodel.h>
-#include <qitemselectionmodel.h>
-#include <qabstractitemdelegate.h>
+#include <QtGui/qviewport.h>
+#include <QtGui/qabstractitemmodel.h>
+#include <QtGui/qitemselectionmodel.h>
+#include <QtGui/qabstractitemdelegate.h>
 
 class QMenu;
 class QDrag;

@@ -14,7 +14,7 @@
 #ifndef Q3PTRLIST_H
 #define Q3PTRLIST_H
 
-#include "q3glist.h"
+#include "Qt3Compat/q3glist.h"
 
 template<class type>
 class Q3PtrListStdIterator : public Q3GListStdIterator

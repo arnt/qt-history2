@@ -14,7 +14,7 @@
 #ifndef QPNGIO_H
 #define QPNGIO_H
 
-#include "qimage.h"
+#include "QtGui/qimage.h"
 
 #ifndef QT_NO_IMAGEIO_PNG
 

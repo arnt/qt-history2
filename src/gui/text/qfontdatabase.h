@@ -14,12 +14,12 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
-#include "qwindowdefs.h"
-#include "qstring.h"
-#include "qfont.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qstring.h"
+#include "QtGui/qfont.h"
 #ifdef QT_COMPAT
-#include "qstringlist.h"
-#include "qlist.h"
+#include "QtCore/qstringlist.h"
+#include "QtCore/qlist.h"
 #endif
 
 

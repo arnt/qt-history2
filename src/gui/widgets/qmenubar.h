@@ -14,7 +14,7 @@
 #ifndef QMENUBAR_H
 #define QMENUBAR_H
 
-#include "qmenu.h"
+#include "QtGui/qmenu.h"
 
 class QMenuBarPrivate;
 #ifdef QT_COMPAT

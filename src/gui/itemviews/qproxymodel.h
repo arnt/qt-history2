@@ -14,7 +14,7 @@
 #ifndef QPROXYMODEL_H
 #define QPROXYMODEL_H
 
-#include <qabstractitemmodel.h>
+#include <QtGui/qabstractitemmodel.h>
 
 class QProxyModelPrivate;
 

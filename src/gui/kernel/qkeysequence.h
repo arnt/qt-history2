@@ -14,8 +14,8 @@
 #ifndef QKEYSEQUENCE_H
 #define QKEYSEQUENCE_H
 
-#include "qnamespace.h"
-#include "qstring.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_ACCEL
 

@@ -14,7 +14,7 @@
 #ifndef QALGORITHMS_H
 #define QALGORITHMS_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 template <typename InputIterator, typename OutputIterator>
 inline OutputIterator qCopy(InputIterator begin, InputIterator end, OutputIterator dest)

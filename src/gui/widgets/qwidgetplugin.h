@@ -14,10 +14,10 @@
 #ifndef QWIDGETPLUGIN_H
 #define QWIDGETPLUGIN_H
 
-#include "qwindowdefs.h"
-#include "qfactoryinterface.h"
-#include "qstringlist.h"
-#include "qicon.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qfactoryinterface.h"
+#include "QtCore/qstringlist.h"
+#include "QtGui/qicon.h"
 
 struct QWidgetFactoryInterface : public QFactoryInterface
 {

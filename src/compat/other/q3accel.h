@@ -14,8 +14,8 @@
 #ifndef Q3ACCEL_H
 #define Q3ACCEL_H
 
-#include "qobject.h"
-#include "qkeysequence.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qkeysequence.h"
 
 class Q3AccelPrivate;
 

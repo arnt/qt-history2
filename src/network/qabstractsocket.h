@@ -14,8 +14,8 @@
 #ifndef QABSTRACTSOCKET_H
 #define QABSTRACTSOCKET_H
 
-#include <qiodevice.h>
-#include <qobject.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qobject.h>
 
 class QHostAddress;
 class QAbstractSocketPrivate;

@@ -14,8 +14,8 @@
 #ifndef QABSTRACTEVENTDISPATCHER_H
 #define QABSTRACTEVENTDISPATCHER_H
 
-#include "qobject.h"
-#include "qeventloop.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qeventloop.h"
 
 class QAbstractEventDispatcherPrivate;
 class QSocketNotifier;

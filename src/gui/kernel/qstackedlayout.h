@@ -14,7 +14,7 @@
 #ifndef QSTACKEDLAYOUT_H
 #define QSTACKEDLAYOUT_H
 
-#include <qlayout.h>
+#include <QtGui/qlayout.h>
 
 class QStackedLayoutPrivate;
 

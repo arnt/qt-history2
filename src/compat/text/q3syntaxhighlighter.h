@@ -14,9 +14,9 @@
 #ifndef Q3SYNTAXHIGHLIGHTER_H
 #define Q3SYNTAXHIGHLIGHTER_H
 
-#include "qfont.h"
-#include "qcolor.h"
-#include "qstring.h"
+#include "QtGui/qfont.h"
+#include "QtGui/qcolor.h"
+#include "QtCore/qstring.h"
 
 class Q3TextEdit;
 class Q3SyntaxHighlighterInternal;

@@ -14,8 +14,8 @@
 #ifndef QLISTWIDGET_H
 #define QLISTWIDGET_H
 
-#include <qlistview.h>
-#include <qlist.h>
+#include <QtGui/qlistview.h>
+#include <QtCore/qlist.h>
 
 class QListWidget;
 class QListModel;

@@ -14,7 +14,7 @@
 #ifndef Q3PAINTER_H
 #define Q3PAINTER_H
 
-#include "qpainter.h"
+#include "QtGui/qpainter.h"
 
 class Q_COMPAT_EXPORT Q3Painter : public QPainter
 {

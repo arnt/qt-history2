@@ -14,16 +14,16 @@
 #ifndef Q3ICONVIEW_H
 #define Q3ICONVIEW_H
 
-#include "q3scrollview.h"
-#include "qstring.h"
-#include "qrect.h"
-#include "qpoint.h"
-#include "qsize.h"
-#include "qfont.h" // QString->QFont conversion
-#include "q3dragobject.h"
-#include "qbitmap.h"
-#include "qpicture.h"
-#include "q3valuelist.h"
+#include "Qt3Compat/q3scrollview.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qrect.h"
+#include "QtCore/qpoint.h"
+#include "QtCore/qsize.h"
+#include "QtGui/qfont.h" // QString->QFont conversion
+#include "Qt3Compat/q3dragobject.h"
+#include "QtGui/qbitmap.h"
+#include "QtGui/qpicture.h"
+#include "Qt3Compat/q3valuelist.h"
 
 #ifndef QT_NO_ICONVIEW
 

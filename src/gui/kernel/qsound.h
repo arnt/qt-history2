@@ -13,7 +13,7 @@
 #ifndef QSOUND_H
 #define QSOUND_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 #ifndef QT_NO_SOUND
 

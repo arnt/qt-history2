@@ -14,10 +14,10 @@
 #ifndef QSTRING_H
 #define QSTRING_H
 
-#include "qchar.h"
-#include "qbytearray.h"
-#include "qatomic.h"
-#include "qnamespace.h"
+#include "QtCore/qchar.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qnamespace.h"
 
 
 #ifdef QT_INCLUDE_COMPAT

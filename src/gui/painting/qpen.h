@@ -14,7 +14,7 @@
 #ifndef QPEN_H
 #define QPEN_H
 
-#include "qcolor.h"
+#include "QtGui/qcolor.h"
 
 
 class Q_GUI_EXPORT QPen

@@ -14,7 +14,7 @@
 #ifndef QSTANDARDITEMMODEL_H
 #define QSTANDARDITEMMODEL_H
 
-#include <qabstractitemmodel.h>
+#include <QtGui/qabstractitemmodel.h>
 
 class QStandardItemModelPrivate;
 

@@ -14,7 +14,7 @@
 #ifndef Q3GROUPBOX_H
 #define Q3GROUPBOX_H
 
-#include "q3frame.h"
+#include "Qt3Compat/q3frame.h"
 
 class Q3Accel;
 class Q3GroupBoxPrivate;

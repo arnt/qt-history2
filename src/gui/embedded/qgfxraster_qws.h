@@ -14,7 +14,7 @@
 #ifndef QGFXRASTER_QWS_H
 #define QGFXRASTER_QWS_H
 
-#include "qgfxrasterbase_qws.h"
+#include "QtGui/qgfxrasterbase_qws.h"
 
 template <const int depth, const int type>
 class QGfxRaster : public QGfxRasterBase, protected QWSPolygonScanner {

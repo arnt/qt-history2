@@ -14,7 +14,7 @@
 #ifndef POWERPC_QATOMIC_H
 #define POWERPC_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(Q_CC_GNU)
 #ifdef __64BIT__

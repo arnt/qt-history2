@@ -14,7 +14,7 @@
 #ifndef QGIF_H
 #define QGIF_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 #ifndef QT_BUILTIN_GIF_READER
 #define QT_BUILTIN_GIF_READER 0

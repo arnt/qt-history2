@@ -14,7 +14,7 @@
 #ifndef QFILEENGINE_H
 #define QFILEENGINE_H
 
-#include "qdir.h"
+#include "QtCore/qdir.h"
 
 #ifdef open
 #error qfileengine.h must be included before any system header that defines open

@@ -14,13 +14,13 @@
 #ifndef Q3SQLRECORDINFO_H
 #define Q3SQLRECORDINFO_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 #ifndef QT_NO_SQL
 
-#include "q3valuelist.h"
-#include "qsqlrecord.h"
-#include "q3sqlfieldinfo.h"
+#include "Qt3Compat/q3valuelist.h"
+#include "QtSql/qsqlrecord.h"
+#include "Qt3Compat/q3sqlfieldinfo.h"
 
 /* Q3SqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.

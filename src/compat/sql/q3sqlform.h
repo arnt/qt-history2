@@ -14,8 +14,8 @@
 #ifndef Q3SQLFORM_H
 #define Q3SQLFORM_H
 
-#include "qobject.h"
-#include "qmap.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qmap.h"
 
 #ifndef QT_NO_SQL_FORM
 

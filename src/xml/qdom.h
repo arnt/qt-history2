@@ -14,7 +14,7 @@
 #ifndef QDOM_H
 #define QDOM_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_DOM
 

@@ -14,9 +14,9 @@
 #ifndef QMAP_H
 #define QMAP_H
 
-#include "qatomic.h"
-#include "qiterator.h"
-#include "qlist.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qiterator.h"
+#include "QtCore/qlist.h"
 
 #ifndef QT_NO_STL
 #include <iterator>

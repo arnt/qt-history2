@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_SQL
 
-#include "qglobal.h"
-#include "qsqlfield.h"
+#include "QtCore/qglobal.h"
+#include "QtSql/qsqlfield.h"
 
 /* Q3SqlFieldInfo Class
    obsoleted, use QSqlField instead

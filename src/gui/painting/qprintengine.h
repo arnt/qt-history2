@@ -14,7 +14,7 @@
 #ifndef QPRINTENGINE_H
 #define QPRINTENGINE_H
 
-#include "qprinter.h"
+#include "QtGui/qprinter.h"
 
 class QPrintEngine
 {

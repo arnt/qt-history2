@@ -14,13 +14,13 @@
 #ifndef Q3DATABROWSER_H
 #define Q3DATABROWSER_H
 
-#include "qwidget.h"
-#include "qstring.h"
-#include "qstringlist.h"
-#include "qsql.h"
-#include "qsqlindex.h"
-#include "q3sqlcursor.h"
-#include "qsqlerror.h"
+#include "QtGui/qwidget.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qstringlist.h"
+#include "QtSql/qsql.h"
+#include "QtSql/qsqlindex.h"
+#include "Qt3Compat/q3sqlcursor.h"
+#include "QtSql/qsqlerror.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

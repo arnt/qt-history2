@@ -14,11 +14,11 @@
 #ifndef QTEXTFORMAT_H
 #define QTEXTFORMAT_H
 
-#include <qcolor.h>
-#include <qshareddata.h>
-#include <qobject.h>
-#include <qfont.h>
-#include <qvariant.h>
+#include <QtGui/qcolor.h>
+#include <QtCore/qshareddata.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qfont.h>
+#include <QtGui/qvariant.h>
 
 class QString;
 

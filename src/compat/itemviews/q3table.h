@@ -14,15 +14,15 @@
 #ifndef Q3TABLE_H
 #define Q3TABLE_H
 
-#include "q3scrollview.h"
-#include "qpixmap.h"
-#include "q3ptrvector.h"
-#include "q3header.h"
-#include "q3memarray.h"
-#include "q3ptrlist.h"
-#include "q3shared.h"
-#include "q3intdict.h"
-#include "qstringlist.h"
+#include "Qt3Compat/q3scrollview.h"
+#include "QtGui/qpixmap.h"
+#include "Qt3Compat/q3ptrvector.h"
+#include "Qt3Compat/q3header.h"
+#include "Qt3Compat/q3memarray.h"
+#include "Qt3Compat/q3ptrlist.h"
+#include "Qt3Compat/q3shared.h"
+#include "Qt3Compat/q3intdict.h"
+#include "QtCore/qstringlist.h"
 
 class Q3TableHeader;
 class QValidator;

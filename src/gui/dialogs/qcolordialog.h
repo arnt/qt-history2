@@ -14,7 +14,7 @@
 #ifndef QCOLORDIALOG_H
 #define QCOLORDIALOG_H
 
-#include "qdialog.h"
+#include "QtGui/qdialog.h"
 
 #ifndef QT_NO_COLORDIALOG
 

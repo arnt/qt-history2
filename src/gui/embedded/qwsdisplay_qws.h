@@ -14,13 +14,13 @@
 #ifndef QWSDISPLAY_QWS_H
 #define QWSDISPLAY_QWS_H
 
-#include "qobject.h"
-#include "qbytearray.h"
-#include "qregion.h"
-#include "private/qlock_p.h"
-#include "qwindowdefs.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qbytearray.h"
+#include "QtGui/qregion.h"
+#include "QtGui/private/qlock_p.h"
+#include "QtGui/qwindowdefs.h"
 
-#include "qlist.h"
+#include "QtCore/qlist.h"
 
 // Class forward definitions
 class QWSRegionManager;

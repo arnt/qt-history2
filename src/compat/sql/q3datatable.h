@@ -14,14 +14,14 @@
 #ifndef Q3DATATABLE_H
 #define Q3DATATABLE_H
 
-#include "qstring.h"
-#include "qvariant.h"
-#include "q3table.h"
-#include "qsql.h"
-#include "q3sqlcursor.h"
-#include "qsqlindex.h"
-#include "q3sqleditorfactory.h"
-#include "qiconset.h"
+#include "QtCore/qstring.h"
+#include "QtGui/qvariant.h"
+#include "Qt3Compat/q3table.h"
+#include "QtSql/qsql.h"
+#include "Qt3Compat/q3sqlcursor.h"
+#include "QtSql/qsqlindex.h"
+#include "Qt3Compat/q3sqleditorfactory.h"
+#include "Qt3Compat/qiconset.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

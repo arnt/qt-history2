@@ -14,8 +14,8 @@
 #ifndef QTREEWIDGET_H
 #define QTREEWIDGET_H
 
-#include <qtreeview.h>
-#include <qlist.h>
+#include <QtGui/qtreeview.h>
+#include <QtCore/qlist.h>
 
 class QTreeWidget;
 class QTreeModel;

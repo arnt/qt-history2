@@ -14,8 +14,8 @@
 #ifndef Q3GDICT_H
 #define Q3GDICT_H
 
-#include "q3ptrcollection.h"
-#include "qstring.h"
+#include "Qt3Compat/q3ptrcollection.h"
+#include "QtCore/qstring.h"
 
 class Q3GDictIterator;
 class Q3GDItList;

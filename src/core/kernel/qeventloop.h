@@ -14,7 +14,7 @@
 #ifndef QEVENTLOOP_H
 #define QEVENTLOOP_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 class QEventLoopPrivate;
 

@@ -7,7 +7,7 @@
 #ifndef JRITYPES_H
 #define JRITYPES_H
 
-#include "jri_md.h"
+#include "QtNsPlugin/jri_md.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>

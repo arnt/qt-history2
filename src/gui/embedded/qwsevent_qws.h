@@ -14,9 +14,9 @@
 #ifndef QWSEVENT_QWS_H
 #define QWSEVENT_QWS_H
 
-#include "qwsutils_qws.h"
-#include "qwscommand_qws.h" //QWSProtocolItem lives there, for now
-#include "qrect.h"
+#include "QtGui/qwsutils_qws.h"
+#include "QtGui/qwscommand_qws.h" //QWSProtocolItem lives there, for now
+#include "QtCore/qrect.h"
 
 struct QWSMouseEvent;
 

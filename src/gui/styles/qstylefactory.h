@@ -14,7 +14,7 @@
 #ifndef QSTYLEFACTORY_H
 #define QSTYLEFACTORY_H
 
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 
 class QStyle;
 

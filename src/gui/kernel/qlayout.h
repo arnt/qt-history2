@@ -14,9 +14,9 @@
 #ifndef QLAYOUT_H
 #define QLAYOUT_H
 
-#include "qabstractlayout.h"
+#include "QtGui/qabstractlayout.h"
 #ifdef QT_INCLUDE_COMPAT
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 #endif
 
 #include <limits.h>

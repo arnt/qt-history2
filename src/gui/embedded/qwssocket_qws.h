@@ -14,8 +14,8 @@
 #ifndef QWSSOCKET_QWS_H
 #define QWSSOCKET_QWS_H
 
-#include "qtcpsocket.h"
-#include "qtcpserver.h"
+#include "QtNetwork/qtcpsocket.h"
+#include "QtNetwork/qtcpserver.h"
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 

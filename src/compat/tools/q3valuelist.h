@@ -14,10 +14,10 @@
 #ifndef Q3VALUELIST_H
 #define Q3VALUELIST_H
 
-#include "qalgorithms.h"
-#include "qdatastream.h"
-#include "qlinkedlist.h"
-#include "qlist.h"
+#include "QtCore/qalgorithms.h"
+#include "QtCore/qdatastream.h"
+#include "QtCore/qlinkedlist.h"
+#include "QtCore/qlist.h"
 
 #ifndef QT_NO_STL
 #include <iterator>

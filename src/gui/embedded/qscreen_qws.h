@@ -14,12 +14,12 @@
 #ifndef QSCREEN_QWS_H
 #define QSCREEN_QWS_H
 
-#include "qnamespace.h"
-#include "qpoint.h"
-#include "qrgb.h"
-#include "qrect.h"
-#include "qimage.h"
-#include "qregion.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qpoint.h"
+#include "QtGui/qrgb.h"
+#include "QtCore/qrect.h"
+#include "QtGui/qimage.h"
+#include "QtGui/qregion.h"
 
 class QScreenCursor;
 class QGfx;

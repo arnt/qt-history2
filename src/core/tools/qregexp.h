@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_REGEXP
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 struct QRegExpPrivate;
 class QStringList;

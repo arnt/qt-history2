@@ -14,11 +14,11 @@
 #ifndef QPROCESS_H
 #define QPROCESS_H
 
-#include <qiodevice.h>
-#include <qstringlist.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qstringlist.h>
 
 #if defined(Q_OS_WIN32)
-#include <qt_windows.h>
+#include <QtCore/qt_windows.h>
 typedef PROCESS_INFORMATION* Q_PID;
 #else
 typedef Q_LONG Q_PID;

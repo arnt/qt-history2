@@ -14,7 +14,7 @@
 #ifndef QSTACKEDWIDGET_H
 #define QSTACKEDWIDGET_H
 
-#include <qframe.h>
+#include <QtGui/qframe.h>
 
 class QStackedWidgetPrivate;
 

@@ -14,7 +14,7 @@
 #ifndef Q3ASCIIDICT_H
 #define Q3ASCIIDICT_H
 
-#include "q3gdict.h"
+#include "Qt3Compat/q3gdict.h"
 
 template<class type>
 class Q3AsciiDict

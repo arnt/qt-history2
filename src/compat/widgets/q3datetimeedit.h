@@ -14,9 +14,9 @@
 #ifndef Q3DATETIMEEDIT_H
 #define Q3DATETIMEEDIT_H
 
-#include "qwidget.h"
-#include "qstring.h"
-#include "qdatetime.h"
+#include "QtGui/qwidget.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qdatetime.h"
 
 #ifndef QT_NO_DATETIMEEDIT
 

@@ -14,7 +14,7 @@
 #ifndef QAXAGGREGATED_H
 #define QAXAGGREGATED_H
 
-#include <qobject.h>
+#include <QtCore/qobject.h>
 
 struct IUnknown;
 struct QUuid;

@@ -14,8 +14,8 @@
 #ifndef QTEXTBROWSER_H
 #define QTEXTBROWSER_H
 
-#include "qtextedit.h"
-#include <qurl.h>
+#include "QtGui/qtextedit.h"
+#include <QtCore/qurl.h>
 
 class QTextBrowserPrivate;
 

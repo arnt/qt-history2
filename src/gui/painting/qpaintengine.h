@@ -14,9 +14,9 @@
 #ifndef QPAINTENGINE_H
 #define QPAINTENGINE_H
 
-#include "qnamespace.h"
-#include "qobjectdefs.h"
-#include "qpainter.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtGui/qpainter.h"
 
 class QFontEngine;
 class QLineF;

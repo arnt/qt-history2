@@ -14,7 +14,7 @@
 #ifndef QWINDOWSSTYLE_H
 #define QWINDOWSSTYLE_H
 
-#include "qcommonstyle.h"
+#include "QtGui/qcommonstyle.h"
 
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 

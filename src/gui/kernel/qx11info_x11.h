@@ -14,7 +14,7 @@
 #ifndef QX11INFO_X11_H
 #define QX11INFO_X11_H
 
-#include "qnamespace.h"
+#include "QtCore/qnamespace.h"
 
 struct QX11InfoData;
 class QPaintDevice;

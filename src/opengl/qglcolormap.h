@@ -14,8 +14,8 @@
 #ifndef QGLCOLORMAP_H
 #define QGLCOLORMAP_H
 
-#include "qcolor.h"
-#include "qvector.h"
+#include "QtGui/qcolor.h"
+#include "QtCore/qvector.h"
 
 class Q_OPENGL_EXPORT QGLColormap
 {

@@ -13,7 +13,7 @@
 
 #ifndef QACTIONGROUP_H
 #define QACTIONGROUP_H
-#include "qaction.h"
+#include "QtGui/qaction.h"
 
 class QActionGroupPrivate;
 

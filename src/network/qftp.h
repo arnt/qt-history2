@@ -14,9 +14,9 @@
 #ifndef QFTP_H
 #define QFTP_H
 
-#include "qstring.h" // char*->QString conversion
-#include "qurlinfo.h"
-#include "qobject.h"
+#include "QtCore/qstring.h" // char*->QString conversion
+#include "QtNetwork/qurlinfo.h"
+#include "QtCore/qobject.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 

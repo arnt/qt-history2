@@ -14,7 +14,7 @@
 #ifndef QBITMAP_H
 #define QBITMAP_H
 
-#include "qpixmap.h"
+#include "QtGui/qpixmap.h"
 
 
 class Q_GUI_EXPORT QBitmap : public QPixmap

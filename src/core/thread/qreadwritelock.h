@@ -14,7 +14,7 @@
 #ifndef QREADWRITELOCK_H
 #define QREADWRITELOCK_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 #include <limits.h>
 
 struct QReadWriteLockPrivate;

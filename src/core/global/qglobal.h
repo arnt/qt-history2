@@ -27,7 +27,7 @@
 #define QT_VERSION 0x040000
 
 #if !defined(QT_BUILD_MOC)
-#include "qconfig.h"
+#include "QtCore/qconfig.h"
 #endif
 
 /*
@@ -854,7 +854,7 @@ class QDataStream;
 #  define QT_NO_COP
 #endif
 
-#  include "qfeatures.h"
+# include "QtCore/qfeatures.h"
 
 #ifndef Q_DECL_EXPORT
 #  ifdef Q_OS_WIN
@@ -1766,7 +1766,7 @@ Q_CORE_EXPORT char *qgetenv(const char *varName);
 inline int qIntCast(double f) { return int(f); }
 inline int qIntCast(float f) { return int(f); }
 #ifdef QT_USE_FIXED_POINT
-#include <qfixedpoint.h>
+#include <QtCore/qfixedpoint.h>
 typedef QFixedPoint qReal;
 #else
 typedef float qReal;

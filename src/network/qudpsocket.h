@@ -14,8 +14,8 @@
 #ifndef QUDPSOCKET_H
 #define QUDPSOCKET_H
 
-#include "qabstractsocket.h"
-#include "qhostaddress.h"
+#include "QtNetwork/qabstractsocket.h"
+#include "QtNetwork/qhostaddress.h"
 
 class QUdpSocketPrivate;
 

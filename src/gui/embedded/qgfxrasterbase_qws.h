@@ -14,13 +14,13 @@
 #ifndef QGFXRASTERBASE_QWS_H
 #define QGFXRASTERBASE_QWS_H
 
-#include "qgfx_qws.h"
-#include "qscreen_qws.h"
-#include "qpen.h"
-#include "qbrush.h"
-#include "qwsdisplay_qws.h"
-#include "qpolygonscanner_qws.h"
-#include "qregion.h"
+#include "QtGui/qgfx_qws.h"
+#include "QtGui/qscreen_qws.h"
+#include "QtGui/qpen.h"
+#include "QtGui/qbrush.h"
+#include "QtGui/qwsdisplay_qws.h"
+#include "QtGui/qpolygonscanner_qws.h"
+#include "QtGui/qregion.h"
 
 //===========================================================================
 // Utility macros and functions [start]

@@ -14,7 +14,7 @@
 #ifndef QWSUTILS_QWS_H
 #define QWSUTILS_QWS_H
 
-#include "qwssocket_qws.h"
+#include "QtGui/qwssocket_qws.h"
 
 /********************************************************************
  *

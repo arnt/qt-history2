@@ -14,8 +14,8 @@
 #ifndef QGFXDRIVERPLUGIN_QWS_H
 #define QGFXDRIVERPLUGIN_QWS_H
 
-#include "qplugin.h"
-#include "qfactoryinterface.h"
+#include "QtCore/qplugin.h"
+#include "QtCore/qfactoryinterface.h"
 
 #ifndef QT_NO_COMPONENT
 

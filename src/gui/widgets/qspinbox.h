@@ -14,7 +14,7 @@
 #ifndef QSPINBOX_H
 #define QSPINBOX_H
 
-#include <qabstractspinbox.h>
+#include <QtGui/qabstractspinbox.h>
 
 class QSpinBoxPrivate;
 class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox

@@ -14,7 +14,7 @@
 #ifndef Q3PAINTDEVICEMETRICS_H
 #define Q3PAINTDEVICEMETRICS_H
 
-#include "qpaintdevice.h"
+#include "QtGui/qpaintdevice.h"
 
 
 class Q_COMPAT_EXPORT Q3PaintDeviceMetrics                        // paint device metrics

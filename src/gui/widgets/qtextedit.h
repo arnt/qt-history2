@@ -14,14 +14,14 @@
 #ifndef QTEXTEDIT_H
 #define QTEXTEDIT_H
 
-#include <qviewport.h>
-#include <qtextdocument.h>
+#include <QtGui/qviewport.h>
+#include <QtGui/qtextdocument.h>
 
 #ifdef QT_COMPAT
-#include <qtextcursor.h>
-#include <qtextformat.h>
-#include <qtextobject.h>
-#include <qtextlayout.h>
+#include <QtGui/qtextcursor.h>
+#include <QtGui/qtextformat.h>
+#include <QtGui/qtextobject.h>
+#include <QtGui/qtextlayout.h>
 #endif
 
 class QTextCharFormat;

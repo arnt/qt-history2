@@ -14,10 +14,10 @@
 #ifndef QDIRMODEL_H
 #define QDIRMODEL_H
 
-#include <qabstractitemmodel.h>
-#include <qdir.h>
-#include <qfileinfo.h>
-#include <qicon.h>
+#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfileinfo.h>
+#include <QtGui/qicon.h>
 
 class QDirModelPrivate;
 class QFileIconProviderPrivate;

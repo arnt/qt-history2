@@ -1,7 +1,7 @@
 #ifndef PARISC_QATOMIC_H
 #define PARISC_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 extern "C" {
     Q_CORE_EXPORT void q_atomic_lock(int *lock);

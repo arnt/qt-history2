@@ -14,10 +14,10 @@
 #ifndef Q3STRLIST_H
 #define Q3STRLIST_H
 
-#include "qstring.h"
-#include "q3ptrlist.h"
-#include "qdatastream.h"
-#include "qlist.h"
+#include "QtCore/qstring.h"
+#include "Qt3Compat/q3ptrlist.h"
+#include "QtCore/qdatastream.h"
+#include "QtCore/qlist.h"
 
 #if defined(Q_QDOC)
 class Q3StrListIterator : public Q3PtrListIterator<char>

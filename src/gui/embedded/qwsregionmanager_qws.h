@@ -14,8 +14,8 @@
 #ifndef QWSREGIONMANAGER_QWS_H
 #define QWSREGIONMANAGER_QWS_H
 
-#include "qlist.h"
-#include "qregion.h"
+#include "QtCore/qlist.h"
+#include "QtGui/qregion.h"
 
 class QWSRegionHeader;
 class QWSRegionIndex;

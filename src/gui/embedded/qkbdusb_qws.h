@@ -14,7 +14,7 @@
 #ifndef QKBDUSB_QWS_H
 #define QKBDUSB_QWS_H
 
-#include "qkbdpc101_qws.h"
+#include "QtGui/qkbdpc101_qws.h"
 
 #ifndef QT_NO_QWS_KEYBOARD
 

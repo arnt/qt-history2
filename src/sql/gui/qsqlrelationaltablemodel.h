@@ -14,7 +14,7 @@
 #ifndef QSQLRELATIONALTABLEMODEL_H
 #define QSQLRELATIONALTABLEMODEL_H
 
-#include <qsqltablemodel.h>
+#include <QtSql/qsqltablemodel.h>
 
 class Q_SQL_EXPORT QSqlRelation
 {

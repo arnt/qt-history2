@@ -14,7 +14,7 @@
 #ifndef QMOUSEDRIVERFACTORY_QWS_H
 #define QMOUSEDRIVERFACTORY_QWS_H
 
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 
 class QString;
 class QWSMouseHandler;

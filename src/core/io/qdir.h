@@ -14,9 +14,9 @@
 #ifndef QDIR_H
 #define QDIR_H
 
-#include "qstring.h"
-#include "qfileinfo.h"
-#include "qstringlist.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qfileinfo.h"
+#include "QtCore/qstringlist.h"
 
 class QDirPrivate;
 

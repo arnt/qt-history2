@@ -15,11 +15,11 @@
 #define Q3DNS_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qhostaddress.h"
-#include "qsocketnotifier.h"
-#include "qstringlist.h"
-#include "q3valuelist.h"
+#include "QtCore/qobject.h"
+#include "QtNetwork/qhostaddress.h"
+#include "QtCore/qsocketnotifier.h"
+#include "QtCore/qstringlist.h"
+#include "Qt3Compat/q3valuelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_DNS

@@ -14,7 +14,7 @@
 #ifndef QOBJECTCLEANUPHANDLER_H
 #define QOBJECTCLEANUPHANDLER_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 
 class Q_CORE_EXPORT QObjectCleanupHandler : public QObject

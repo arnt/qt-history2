@@ -14,7 +14,7 @@
 #ifndef QDECORATIONHYDRO_QWS_H
 #define QDECORATIONHYDRO_QWS_H
 
-#include "qdecorationdefault_qws.h"
+#include "QtGui/qdecorationdefault_qws.h"
 
 #if !defined(QT_NO_QWS_DECORATION_HYDRO) || defined(QT_PLUGIN)
 

@@ -20,8 +20,8 @@
 #define Q_EXPORT_SQLDRIVER_DB2 Q_SQL_EXPORT
 #endif
 
-#include "qsqlresult.h"
-#include "qsqldriver.h"
+#include "QtSql/qsqlresult.h"
+#include "QtSql/qsqldriver.h"
 
 class QDB2Driver;
 class QDB2DriverPrivate;

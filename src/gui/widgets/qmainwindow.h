@@ -14,7 +14,7 @@
 #ifndef QMAINWINDOW_H
 #define QMAINWINDOW_H
 
-#include <qwidget.h>
+#include <QtGui/qwidget.h>
 
 class QDockWindow;
 class QMainWindowPrivate;

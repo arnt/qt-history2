@@ -14,11 +14,11 @@
 #ifndef Q3DOCKAREA_H
 #define Q3DOCKAREA_H
 
-#include "qwidget.h"
-#include "qlist.h"
-#include "q3dockwindow.h"
-#include "qlayout.h"
-#include "qpointer.h"
+#include "QtGui/qwidget.h"
+#include "QtCore/qlist.h"
+#include "Qt3Compat/q3dockwindow.h"
+#include "QtGui/qlayout.h"
+#include "QtCore/qpointer.h"
 
 #ifndef QT_NO_MAINWINDOW
 

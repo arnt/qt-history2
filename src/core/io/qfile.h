@@ -14,8 +14,8 @@
 #ifndef QFILE_H
 #define QFILE_H
 
-#include "qiodevice.h"
-#include "qstring.h"
+#include "QtCore/qiodevice.h"
+#include "QtCore/qstring.h"
 
 #include <stdio.h>
 

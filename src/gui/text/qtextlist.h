@@ -14,8 +14,8 @@
 #ifndef QTEXTLIST_H
 #define QTEXTLIST_H
 
-#include <qtextobject.h>
-#include <qobject.h>
+#include <QtGui/qtextobject.h>
+#include <QtCore/qobject.h>
 
 class QTextListPrivate;
 class QTextCursor;

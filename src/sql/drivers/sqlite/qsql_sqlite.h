@@ -14,11 +14,11 @@
 #ifndef QSQL_SQLITE_H
 #define QSQL_SQLITE_H
 
-#include <qsqldriver.h>
-#include <qsqlresult.h>
-#include <qsqlrecord.h>
-#include <qsqlindex.h>
-#include <private/qsqlcachedresult_p.h>
+#include <QtSql/qsqldriver.h>
+#include <QtSql/qsqlresult.h>
+#include <QtSql/qsqlrecord.h>
+#include <QtSql/qsqlindex.h>
+#include <QtSql/private/qsqlcachedresult_p.h>
 
 class QSQLiteDriverPrivate;
 class QSQLiteResultPrivate;

@@ -14,7 +14,7 @@
 #ifndef QMOUSEYOPY_QWS_H
 #define QMOUSEYOPY_QWS_H
 
-#include "qmouse_qws.h"
+#include "QtGui/qmouse_qws.h"
 
 #ifndef QT_NO_QWS_MOUSE_YOPY
 

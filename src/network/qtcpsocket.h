@@ -14,7 +14,7 @@
 #ifndef QTCPSOCKET_H
 #define QTCPSOCKET_H
 
-#include "qabstractsocket.h"
+#include "QtNetwork/qabstractsocket.h"
 
 class QTcpSocketPrivate;
 

@@ -14,7 +14,7 @@
 #ifndef QSQLRESULT_H
 #define QSQLRESULT_H
 
-#include "qsql.h"
+#include "QtSql/qsql.h"
 
 class QString;
 class QSqlRecord;

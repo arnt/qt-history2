@@ -14,7 +14,7 @@
 #ifndef QCLIPBOARD_H
 #define QCLIPBOARD_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 #ifndef QT_NO_CLIPBOARD
 

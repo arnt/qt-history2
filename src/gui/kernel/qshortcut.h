@@ -14,9 +14,9 @@
 #ifndef QSHORTCUT_H
 #define QSHORTCUT_H
 
-#include "qobject.h"
-#include "qwidget.h"
-#include "qkeysequence.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qwidget.h"
+#include "QtGui/qkeysequence.h"
 
 class QShortcutPrivate;
 class Q_GUI_EXPORT QShortcut : public QObject

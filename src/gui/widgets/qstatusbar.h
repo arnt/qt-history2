@@ -14,7 +14,7 @@
 #ifndef QSTATUSBAR_H
 #define QSTATUSBAR_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_STATUSBAR
 

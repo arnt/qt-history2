@@ -14,7 +14,7 @@
 #ifndef QVARLENGTHARRAY_H
 #define QVARLENGTHARRAY_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 template<class T, int Prealloc = 256>
 class QVarLengthArray

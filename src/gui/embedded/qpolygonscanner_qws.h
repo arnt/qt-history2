@@ -14,7 +14,7 @@
 #ifndef QPOLYGONSCANNER_H
 #define QPOLYGONSCANNER_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class QPolygon;
 class QPoint;

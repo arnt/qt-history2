@@ -14,7 +14,7 @@
 #ifndef QEVENTDISPATCHER_UNIX_H
 #define QEVENTDISPATCHER_UNIX_H
 
-#include "qabstracteventdispatcher.h"
+#include "QtCore/qabstracteventdispatcher.h"
 #include <sys/types.h>
 #include <sys/time.h>
 

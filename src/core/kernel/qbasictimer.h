@@ -14,7 +14,7 @@
 #ifndef QBASICTIMER_H
 #define QBASICTIMER_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class QObject;
 

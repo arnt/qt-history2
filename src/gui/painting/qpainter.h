@@ -14,20 +14,20 @@
 #ifndef QPAINTER_H
 #define QPAINTER_H
 
-#include "qnamespace.h"
-#include "qrect.h"
-#include "qpoint.h"
-#include "qpixmap.h"
-#include "qimage.h"
-#include "qtextoption.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qrect.h"
+#include "QtCore/qpoint.h"
+#include "QtGui/qpixmap.h"
+#include "QtGui/qimage.h"
+#include "QtGui/qtextoption.h"
 
 #ifndef QT_INCLUDE_COMPAT
-#include "qpolygon.h"
-#include "qpen.h"
-#include "qbrush.h"
-#include "qmatrix.h"
-#include "qfontinfo.h"
-#include "qfontmetrics.h"
+#include "QtGui/qpolygon.h"
+#include "QtGui/qpen.h"
+#include "QtGui/qbrush.h"
+#include "QtGui/qmatrix.h"
+#include "QtGui/qfontinfo.h"
+#include "QtGui/qfontmetrics.h"
 #endif
 
 class QBrush;

@@ -14,16 +14,16 @@
 #ifndef QCOREAPPLICATION_H
 #define QCOREAPPLICATION_H
 
-#include <qobject.h>
-#include <qcoreevent.h>
-#include <qeventloop.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qcoreevent.h>
+#include <QtCore/qeventloop.h>
 
 #ifdef QT_INCLUDE_COMPAT
-#include <qstringlist.h>
+#include <QtCore/qstringlist.h>
 #endif
 
 #ifdef Q_WS_WIN32
-# include <qt_windows.h>
+# include <QtCore/qt_windows.h>
 #endif
 
 class QCoreApplicationPrivate;

@@ -14,7 +14,7 @@
 #ifndef QDESKTOPWIDGET_H
 #define QDESKTOPWIDGET_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 class QApplication;
 class QDesktopWidgetPrivate;

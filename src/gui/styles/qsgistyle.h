@@ -14,9 +14,9 @@
 #ifndef QSGISTYLE_H
 #define QSGISTYLE_H
 
-#include "qmotifstyle.h"
-#include "qpointer.h"
-#include "qwidget.h"
+#include "QtGui/qmotifstyle.h"
+#include "QtCore/qpointer.h"
+#include "QtGui/qwidget.h"
 
 #if !defined(QT_NO_STYLE_SGI) || defined(QT_PLUGIN)
 

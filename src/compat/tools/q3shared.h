@@ -14,7 +14,7 @@
 #ifndef Q3SHARED_H
 #define Q3SHARED_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 struct Q_COMPAT_EXPORT Q3Shared
 {

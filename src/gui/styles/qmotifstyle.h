@@ -14,7 +14,7 @@
 #ifndef QMOTIFSTYLE_H
 #define QMOTIFSTYLE_H
 
-#include "qcommonstyle.h"
+#include "QtGui/qcommonstyle.h"
 
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 

@@ -14,8 +14,8 @@
 #ifndef QTEXTCODEC_H
 #define QTEXTCODEC_H
 
-#include "qstring.h"
-#include "qlist.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qlist.h"
 
 #ifndef QT_NO_TEXTCODEC
 

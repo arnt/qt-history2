@@ -14,7 +14,7 @@
 #ifndef QTEXTDOCUMENTFRAGMENT_H
 #define QTEXTDOCUMENTFRAGMENT_H
 
-#include <qstring.h>
+#include <QtCore/qstring.h>
 
 class QTextStream;
 class QTextDocument;

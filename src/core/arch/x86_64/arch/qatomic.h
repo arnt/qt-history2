@@ -14,7 +14,7 @@
 #ifndef X86_64_QATOMIC_H
 #define X86_64_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(Q_CC_GNU)
 

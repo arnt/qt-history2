@@ -14,9 +14,9 @@
 #ifndef QMEMORYMANAGER_QWS_H
 #define QMEMORYMANAGER_QWS_H
 
-#include "qstring.h"
-#include "qmap.h"
-#include <private/qtextengine_p.h>
+#include "QtCore/qstring.h"
+#include "QtCore/qmap.h"
+#include <QtGui/private/qtextengine_p.h>
 
 class QMemoryManagerPixmap {
     friend class QMemoryManager;

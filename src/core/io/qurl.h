@@ -14,9 +14,9 @@
 #ifndef QURL_H
 #define QURL_H
 
-#include <qobjectdefs.h>
-#include <qmap.h>
-#include <qstring.h>
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qstring.h>
 
 class QByteArray;
 class QUrlPrivate;

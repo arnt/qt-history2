@@ -14,11 +14,11 @@
 #ifndef QWSCOMMAND_QWS_H
 #define QWSCOMMAND_QWS_H
 
-#include "qbytearray.h"
-#include "qwsutils_qws.h"
+#include "QtCore/qbytearray.h"
+#include "QtGui/qwsutils_qws.h"
 
-#include "qfont.h"
-#include "qdatastream.h"
+#include "QtGui/qfont.h"
+#include "QtCore/qdatastream.h"
 
 #define QTE_PIPE "QtEmbedded-%1"
 

@@ -14,9 +14,9 @@
 #ifndef QSTYLEPAINTER_H
 #define QSTYLEPAINTER_H
 
-#include "qpainter.h"
-#include "qstyle.h"
-#include "qwidget.h"
+#include "QtGui/qpainter.h"
+#include "QtGui/qstyle.h"
+#include "QtGui/qwidget.h"
 
 class QStylePainter : public QPainter
 {

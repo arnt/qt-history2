@@ -14,7 +14,7 @@
 #ifndef ARM_QATOMIC_H
 #define ARM_QATOMIC_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 #ifdef Q_CC_GNU
 

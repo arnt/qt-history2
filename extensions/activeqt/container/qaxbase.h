@@ -18,10 +18,10 @@
 #ifndef QAXBASE_H
 #define QAXBASE_H
 
-#include <qdatastream.h>
-#include <qmap.h>
-#include <qobject.h>
-#include <qvariant.h>
+#include <QtCore/qdatastream.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qvariant.h>
 
 struct IUnknown;
 struct QUuid;

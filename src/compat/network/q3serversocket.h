@@ -15,9 +15,9 @@
 #define Q3SERVERSOCKET_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qhostaddress.h"
-#include "q3socketdevice.h" // ### remove or keep for users' convenience?
+#include "QtCore/qobject.h"
+#include "QtNetwork/qhostaddress.h"
+#include "Qt3Compat/q3socketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
 class Q3ServerSocketPrivate;

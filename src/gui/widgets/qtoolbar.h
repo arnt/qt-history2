@@ -14,7 +14,7 @@
 #ifndef QTOOLBAR_H
 #define QTOOLBAR_H
 
-#include <qwidget.h>
+#include <QtGui/qwidget.h>
 
 class QToolBarPrivate;
 

@@ -13,7 +13,7 @@
 #ifndef QWMATRIX_H
 #define QWMATRIX_H
 
-#include "qmatrix.h"
+#include "QtGui/qmatrix.h"
 
 #if defined(QT_COMPAT) && !defined(QT_NO_MATRIX)
 typedef QMatrix QWMatrix;

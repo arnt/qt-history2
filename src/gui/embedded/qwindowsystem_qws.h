@@ -14,17 +14,17 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
-#include "qbytearray.h"
-#include "qmap.h"
-#include "qdatetime.h"
-#include "qlist.h"
-#include "qimage.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qdatetime.h"
+#include "QtCore/qlist.h"
+#include "QtGui/qimage.h"
 
-#include "qwsproperty_qws.h"
-#include "qwsevent_qws.h"
-#include "qregion.h"
+#include "QtGui/qwsproperty_qws.h"
+#include "QtGui/qwsevent_qws.h"
+#include "QtGui/qregion.h"
 
-#include "qkbd_qws.h"
+#include "QtGui/qkbd_qws.h"
 
 struct QWSWindowData;
 struct SWCursorData;

@@ -14,7 +14,7 @@
 #ifndef QTEXTOPTION_H
 #define QTEXTOPTION_H
 
-#include <qnamespace.h>
+#include <QtCore/qnamespace.h>
 
 template <typename T> class QList;
 struct QTextOptionPrivate;

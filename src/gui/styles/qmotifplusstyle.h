@@ -15,7 +15,7 @@
 #define QMOTIFPLUSSTYLE_H
 
 
-#include "qmotifstyle.h"
+#include "QtGui/qmotifstyle.h"
 
 #if !defined(QT_NO_STYLE_MOTIFPLUS) || defined(QT_PLUGIN)
 

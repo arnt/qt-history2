@@ -14,8 +14,8 @@
 #ifndef QPRINTER_H
 #define QPRINTER_H
 
-#include "qpaintdevice.h"
-#include "qstring.h"
+#include "QtGui/qpaintdevice.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_PRINTER
 

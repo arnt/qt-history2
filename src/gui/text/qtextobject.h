@@ -14,8 +14,8 @@
 #ifndef QTEXTOBJECT_H
 #define QTEXTOBJECT_H
 
-#include <qobject.h>
-#include <qtextformat.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qtextformat.h>
 
 class QTextObjectPrivate;
 class QTextDocument;

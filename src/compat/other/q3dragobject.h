@@ -14,12 +14,12 @@
 #ifndef Q3DRAGOBJECT_H
 #define Q3DRAGOBJECT_H
 
-#include "qobject.h"
-#include "qcolor.h"
-#include "qmime.h"
-#include "qimage.h"
-#include "q3strlist.h"
-#include "qlist.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qcolor.h"
+#include "QtGui/qmime.h"
+#include "QtGui/qimage.h"
+#include "Qt3Compat/q3strlist.h"
+#include "QtCore/qlist.h"
 
 class QWidget;
 class Q3TextDragPrivate;

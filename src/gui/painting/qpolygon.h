@@ -14,9 +14,9 @@
 #ifndef QPOLYGON_H
 #define QPOLYGON_H
 
-#include "qvector.h"
-#include "qpoint.h"
-#include "qrect.h"
+#include "QtCore/qvector.h"
+#include "QtCore/qpoint.h"
+#include "QtCore/qrect.h"
 
 class QMatrix;
 class QRect;

@@ -14,7 +14,7 @@
 #ifndef QPIXMAPCACHE_H
 #define QPIXMAPCACHE_H
 
-#include "qpixmap.h"
+#include "QtGui/qpixmap.h"
 
 class Q_GUI_EXPORT QPixmapCache                                // global pixmap cache
 {

@@ -14,7 +14,7 @@
 #ifndef QSOCKETNOTIFIER_H
 #define QSOCKETNOTIFIER_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 
 class Q_CORE_EXPORT QSocketNotifier : public QObject

@@ -14,7 +14,7 @@
 #ifndef Q3POLYGONSCANNER_H
 #define Q3POLYGONSCANNER_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class Q3PointArray;
 class QPoint;

@@ -14,10 +14,10 @@
 #ifndef Q3MIMEFACTORY_H
 #define Q3MIMEFACTORY_H
 
-#include "qwindowdefs.h"
-#include "qstring.h"
-#include "qmap.h"
-#include "qpixmap.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qmap.h"
+#include "QtGui/qpixmap.h"
 
 #ifndef QT_NO_MIMEFACTORY
 

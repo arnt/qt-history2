@@ -14,9 +14,9 @@
 #ifndef QFILEDIALOG_H
 #define QFILEDIALOG_H
 
-#include <qdir.h>
-#include <qstring.h>
-#include <qdialog.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qdialog.h>
 
 class QMenu;
 class QModelIndex;

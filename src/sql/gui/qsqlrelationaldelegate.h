@@ -14,7 +14,7 @@
 #ifndef QSQLRELATIONALDELEGATE_H
 #define QSQLRELATIONALDELEGATE_H
 
-#include "qitemdelegate.h"
+#include "QtGui/qitemdelegate.h"
 
 class Q_SQL_EXPORT QSqlRelationalDelegate: public QItemDelegate
 {

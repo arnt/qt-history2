@@ -30,12 +30,12 @@
 
 #ifndef QT_NO_IM
 
-#include "qobject.h"
-#include "qglobal.h"
-#include "qevent.h"
-#include "qstring.h"
-#include "qlist.h"
-#include "qaction.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qglobal.h"
+#include "QtGui/qevent.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qlist.h"
+#include "QtGui/qaction.h"
 
 class QWidget;
 class QFont;

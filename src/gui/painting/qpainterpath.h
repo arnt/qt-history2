@@ -14,11 +14,11 @@
 #ifndef QPAINTERPATH_H
 #define QPAINTERPATH_H
 
-#include "qglobal.h"
-#include "qrect.h"
-#include "qline.h"
-#include "qvector.h"
-#include "qmatrix.h"
+#include "QtCore/qglobal.h"
+#include "QtCore/qrect.h"
+#include "QtGui/qline.h"
+#include "QtCore/qvector.h"
+#include "QtGui/qmatrix.h"
 
 
 class QFont;

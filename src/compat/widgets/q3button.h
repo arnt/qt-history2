@@ -14,7 +14,7 @@
 #ifndef Q3BUTTON_H
 #define Q3BUTTON_H
 
-#include "qabstractbutton.h"
+#include "QtGui/qabstractbutton.h"
 
 class Q3Button : public QAbstractButton
 {

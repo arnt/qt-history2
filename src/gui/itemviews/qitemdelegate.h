@@ -14,10 +14,10 @@
 #ifndef QITEMDELEGATE_H
 #define QITEMDELEGATE_H
 
-#include <qabstractitemdelegate.h>
-#include <qstring.h>
-#include <qpixmap.h>
-#include <qvariant.h>
+#include <QtGui/qabstractitemdelegate.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qpixmap.h>
+#include <QtGui/qvariant.h>
 
 class QItemDelegatePrivate;
 class QItemEditorFactory;

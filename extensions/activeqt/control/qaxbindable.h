@@ -14,7 +14,7 @@
 #ifndef QAXBINDABLE_H
 #define QAXBINDABLE_H
 
-#include <qwidget.h>
+#include <QtGui/qwidget.h>
 
 class QAxAggregated;
 struct IAxServerBase;

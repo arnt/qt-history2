@@ -14,7 +14,7 @@
 #ifndef QTHREAD_H
 #define QTHREAD_H
 
-#include <qobject.h>
+#include <QtCore/qobject.h>
 
 #include <limits.h>
 

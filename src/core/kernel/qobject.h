@@ -16,14 +16,14 @@
 
 #ifndef QT_NO_QOBJECT
 
-#include "qobjectdefs.h"
-#include "qnamespace.h"
-#include "qstring.h"
-#include "qbytearray.h"
-#include "qlist.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qlist.h"
 
 #ifdef QT_INCLUDE_COMPAT
-#include "qcoreevent.h"
+#include "QtCore/qcoreevent.h"
 #endif
 
 class QEvent;

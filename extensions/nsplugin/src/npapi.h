@@ -7,7 +7,7 @@
 #ifndef _NPAPI_H_
 #define _NPAPI_H_
 
-#include "jri.h"		/* Java Runtime Interface */
+#include "QtNsPlugin/jri.h" /Applications /Applications (Mac OS 9) /Desktop DB /Desktop DF /Desktop Folder /Developer /Library /Network /System /System Folder /User Guides And Information /Users /Volumes /automount /bin /config.tests /cores /dev /devnull /etc /in /mach /mach.sym /mach_kernel /private /sbin /sw /tmp /usr /var Java Runtime Interface installshield/ qtnsisext/
 
 
 /* XXX this needs to get out of here */

@@ -14,7 +14,7 @@
 #ifndef Q3FRAME_H
 #define Q3FRAME_H
 
-#include "qframe.h"
+#include "QtGui/qframe.h"
 
 class Q_COMPAT_EXPORT Q3Frame : public QFrame
 {

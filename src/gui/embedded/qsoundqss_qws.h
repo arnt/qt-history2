@@ -14,8 +14,8 @@
 #ifndef QSOUNDQSS_QWS_H
 #define QSOUNDQSS_QWS_H
 
-#include "qtcpserver.h"
-#include "qtcpsocket.h"
+#include "QtNetwork/qtcpserver.h"
+#include "QtNetwork/qtcpsocket.h"
 
 #ifndef QT_NO_SOUND
 

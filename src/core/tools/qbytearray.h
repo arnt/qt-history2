@@ -14,8 +14,8 @@
 #ifndef QBYTEARRAY_H
 #define QBYTEARRAY_H
 
-#include "qglobal.h"
-#include "qatomic.h"
+#include "QtCore/qglobal.h"
+#include "QtCore/qatomic.h"
 
 #include <string.h>
 #include <stdarg.h>

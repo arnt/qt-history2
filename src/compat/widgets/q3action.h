@@ -14,10 +14,10 @@
 #ifndef Q3ACTION_H
 #define Q3ACTION_H
 
-#include "qicon.h"
-#include "qkeysequence.h"
-#include "qobject.h"
-#include "qstring.h"
+#include "QtGui/qicon.h"
+#include "QtGui/qkeysequence.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_ACTION
 

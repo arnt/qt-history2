@@ -14,11 +14,11 @@
 #ifndef QABSTRACTTEXTDOCUMENTLAYOUT_H
 #define QABSTRACTTEXTDOCUMENTLAYOUT_H
 
-#include <qobject.h>
-#include <qtextlayout.h>
-#include <qtextdocument.h>
-#include <qtextcursor.h>
-#include <qpalette.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qtextlayout.h>
+#include <QtGui/qtextdocument.h>
+#include <QtGui/qtextcursor.h>
+#include <QtGui/qpalette.h>
 
 class QRect;
 class QRegion;

@@ -13,10 +13,10 @@
 #endif
 
 #ifndef _NPAPI_H_
-#include "npapi.h"
+#include "QtNsPlugin/npapi.h"
 #endif
 
-#include "jri.h"
+#include "QtNsPlugin/jri.h"
 
 /******************************************************************************************
    plug-in function table macros

@@ -14,8 +14,8 @@
 #ifndef QTABLEWIDGET_H
 #define QTABLEWIDGET_H
 
-#include <qtableview.h>
-#include <qlist.h>
+#include <QtGui/qtableview.h>
+#include <QtCore/qlist.h>
 
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {

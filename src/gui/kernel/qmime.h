@@ -14,8 +14,8 @@
 #ifndef QMIME_H
 #define QMIME_H
 
-#include "qobject.h"
-#include "qvariant.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qvariant.h"
 
 #if defined(Q_WS_WIN)
     #include <windows.h>

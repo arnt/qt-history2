@@ -14,7 +14,7 @@
 #ifndef QACCESSIBLEWIDGET_H
 #define QACCESSIBLEWIDGET_H
 
-#include "qaccessibleobject.h"
+#include "QtGui/qaccessibleobject.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 

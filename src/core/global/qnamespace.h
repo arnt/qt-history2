@@ -14,7 +14,7 @@
 #ifndef QNAMESPACE_H
 #define QNAMESPACE_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 
 #ifndef Q_MOC_RUN

@@ -14,7 +14,7 @@
 #ifndef QPLUGINLOADER_H
 #define QPLUGINLOADER_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 
 class QLibraryPrivate;

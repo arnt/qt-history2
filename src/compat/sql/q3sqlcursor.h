@@ -14,12 +14,12 @@
 #ifndef Q3SQLCURSOR_H
 #define Q3SQLCURSOR_H
 
-#include "qcorevariant.h"
-#include "qsqldatabase.h"
-#include "qsqlrecord.h"
-#include "qstringlist.h"
-#include "qsqlquery.h"
-#include "qsqlindex.h"
+#include "QtCore/qcorevariant.h"
+#include "QtSql/qsqldatabase.h"
+#include "QtSql/qsqlrecord.h"
+#include "QtCore/qstringlist.h"
+#include "QtSql/qsqlquery.h"
+#include "QtSql/qsqlindex.h"
 
 #ifndef QT_NO_SQL
 

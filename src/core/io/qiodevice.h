@@ -15,11 +15,11 @@
 #define QIODEVICE_H
 
 #ifndef QT_NO_QOBJECT
-#include <qobject.h>
+#include <QtCore/qobject.h>
 #endif
-#include <qstring.h>
+#include <QtCore/qstring.h>
 
-#include "qobjectdefs.h"
+#include "QtCore/qobjectdefs.h"
 
 #ifdef open
 #error qiodevice.h must be included before any system header that defines open

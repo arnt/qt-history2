@@ -15,7 +15,7 @@
 #ifndef QCDESTYLE_H
 #define QCDESTYLE_H
 
-#include "qmotifstyle.h"
+#include "QtGui/qmotifstyle.h"
 
 #if !defined(QT_NO_STYLE_CDE) || defined(QT_PLUGIN)
 

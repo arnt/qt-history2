@@ -14,8 +14,8 @@
 #ifndef QBUFFER_H
 #define QBUFFER_H
 
-#include "qiodevice.h"
-#include "qbytearray.h"
+#include "QtCore/qiodevice.h"
+#include "QtCore/qbytearray.h"
 
 class QObject;
 class QBufferPrivate;

@@ -27,7 +27,7 @@ class QWidget;
 class QImage;
 class QString;
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 class Q_GUI_EXPORT QMovie {
 public:

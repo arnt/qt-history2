@@ -14,7 +14,7 @@
 #ifndef Q3DEEPCOPY_H
 #define Q3DEEPCOPY_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 template <class T>
 class Q3DeepCopy

@@ -14,7 +14,7 @@
 #ifndef QAXSELECT_H
 #define QAXSELECT_H
 
-#include <qdialog.h>
+#include <QtGui/qdialog.h>
 #include "ui_qaxselect.h"
 
 class QAxSelect : public QDialog, private Ui::QAxSelect

@@ -14,7 +14,7 @@
 #ifndef QDOCKWINDOW_H
 #define QDOCKWINDOW_H
 
-#include <qframe.h>
+#include <QtGui/qframe.h>
 
 class QDockWindowLayout;
 class QDockWindowPrivate;

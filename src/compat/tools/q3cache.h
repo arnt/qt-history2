@@ -14,7 +14,7 @@
 #ifndef Q3CACHE_H
 #define Q3CACHE_H
 
-#include "q3gcache.h"
+#include "Qt3Compat/q3gcache.h"
 
 template<class type>
 class Q3Cache

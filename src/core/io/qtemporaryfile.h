@@ -14,8 +14,8 @@
 #ifndef QTEMPORARYFILE_H
 #define QTEMPORARYFILE_H
 
-#include <qiodevice.h>
-#include <qfile.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qfile.h>
 
 #ifdef open
 #error qtemporaryfile.h must be included before any system header that defines open

@@ -2671,8 +2671,10 @@ esac
 
 # symlink includes
 if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
-    [ "$Edition" = "troll" ] && QTDIR=$relpath perl $relpath/bin/syncqt -inc $relpath/include
-    [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath perl $relpath/bin/syncqt -inc $outpath/include
+    SYNCQT_OPTS=
+    [ "$Edition" = "troll" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
+    [ "$Edition" = "troll" ] &&  QTDIR=$relpath perl $relpath/bin/syncqt $SYNCQT_OPTS -inc $relpath/include
+    [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath perl $relpath/bin/syncqt $SYNCQT_OPTS -inc $outpath/include
 fi
 
 if [ "$OPT_SHADOW" = "yes" ]; then

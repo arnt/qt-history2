@@ -14,20 +14,20 @@
 #ifndef QAPPLICATION_H
 #define QAPPLICATION_H
 
-#include "qcoreapplication.h"
-#include "qwindowdefs.h"
-#include "qpoint.h"
-#include "qsize.h"
-#include "qcursor.h"
+#include "QtCore/qcoreapplication.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qpoint.h"
+#include "QtCore/qsize.h"
+#include "QtGui/qcursor.h"
 #ifdef QT_INCLUDE_COMPAT
-# include "qdesktopwidget.h"
+# include "QtGui/qdesktopwidget.h"
 #endif
 #ifdef QT_COMPAT
-# include "qwidget.h"
-# include "qpalette.h"
+# include "QtGui/qwidget.h"
+# include "QtGui/qpalette.h"
 #endif
 #ifdef Q_WS_QWS
-# include "qrgb.h"
+# include "QtGui/qrgb.h"
 #endif
 
 class QSessionManager;

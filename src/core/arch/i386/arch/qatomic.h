@@ -14,7 +14,7 @@
 #ifndef I386_QATOMIC_H
 #define I386_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(Q_CC_GNU) || defined(Q_CC_INTEL)
 

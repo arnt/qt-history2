@@ -14,7 +14,7 @@
 #ifndef Q3DROPSITE_H
 #define Q3DROPSITE_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 
 class QWidget;

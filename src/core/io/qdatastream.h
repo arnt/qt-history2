@@ -14,8 +14,8 @@
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
-#include "qiodevice.h"
-#include "qglobal.h"
+#include "QtCore/qiodevice.h"
+#include "QtCore/qglobal.h"
 
 class QByteArray;
 class QIODevice;

@@ -14,7 +14,7 @@
 #ifndef QABSTRACTPAGESETUPDIALOG_H
 #define QABSTRACTPAGESETUPDIALOG_H
 
-#include "qdialog.h"
+#include "QtGui/qdialog.h"
 
 class QAbstractPageSetupDialogPrivate;
 class QPrinter;

@@ -14,13 +14,13 @@
 #ifndef QGFX_QWS_H
 #define QGFX_QWS_H
 
-#include "qwidget.h"
-#include "qnamespace.h"
-#include "qimage.h"
-#include "qmemorymanager_qws.h"
-#include "qpoint.h"
+#include "QtGui/qwidget.h"
+#include "QtCore/qnamespace.h"
+#include "QtGui/qimage.h"
+#include "QtGui/qmemorymanager_qws.h"
+#include "QtCore/qpoint.h"
 
-#include <private/qtextengine_p.h>
+#include <QtGui/private/qtextengine_p.h>
 
 class QScreen;
 class QScreenCursor;

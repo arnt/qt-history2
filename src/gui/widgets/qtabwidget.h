@@ -14,8 +14,8 @@
 #ifndef QTABWIDGET_H
 #define QTABWIDGET_H
 
-#include "qwidget.h"
-#include "qicon.h"
+#include "QtGui/qwidget.h"
+#include "QtGui/qicon.h"
 
 #ifndef QT_NO_TABWIDGET
 

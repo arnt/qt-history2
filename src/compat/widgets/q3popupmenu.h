@@ -14,7 +14,7 @@
 #ifndef Q3POPUPMENU_H
 #define Q3POPUPMENU_H
 
-#include "qmenu.h"
+#include "QtGui/qmenu.h"
 
 class Q_COMPAT_EXPORT Q3PopupMenu : public QMenu
 {

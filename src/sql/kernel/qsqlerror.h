@@ -14,7 +14,7 @@
 #ifndef QSQLERROR_H
 #define QSQLERROR_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 class Q_SQL_EXPORT QSqlError
 {

@@ -14,9 +14,9 @@
 #ifndef QWHATSTHIS_H
 #define QWHATSTHIS_H
 
-#include "qobject.h"
-#include "qcursor.h"
-#include "qaction.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qcursor.h"
+#include "QtGui/qaction.h"
 
 #ifndef QT_NO_WHATSTHIS
 

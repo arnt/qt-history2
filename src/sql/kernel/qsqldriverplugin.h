@@ -14,8 +14,8 @@
 #ifndef QSQLDRIVERPLUGIN_H
 #define QSQLDRIVERPLUGIN_H
 
-#include "qplugin.h"
-#include "qfactoryinterface.h"
+#include "QtCore/qplugin.h"
+#include "QtCore/qfactoryinterface.h"
 
 class QSqlDriver;
 

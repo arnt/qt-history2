@@ -14,9 +14,9 @@
 #ifndef QITEMEDITORFACTORY_H
 #define QITEMEDITORFACTORY_H
 
-#include <qbytearray.h>
-#include <qhash.h>
-#include <qvariant.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qhash.h>
+#include <QtGui/qvariant.h>
 
 class QWidget;
 

@@ -14,9 +14,9 @@
 #ifndef QSQLINDEX_H
 #define QSQLINDEX_H
 
-#include "qstring.h"
-#include "qsqlrecord.h"
-#include "qlist.h"
+#include "QtCore/qstring.h"
+#include "QtSql/qsqlrecord.h"
+#include "QtCore/qlist.h"
 
 class Q_SQL_EXPORT QSqlIndex : public QSqlRecord
 {

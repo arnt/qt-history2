@@ -14,7 +14,7 @@
 #ifndef QTHREADSTORAGE_H
 #define QTHREADSTORAGE_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 class Q_CORE_EXPORT QThreadStorageData
 {

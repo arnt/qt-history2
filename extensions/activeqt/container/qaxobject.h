@@ -18,7 +18,7 @@
 #ifndef QAXOBJECT_H
 #define QAXOBJECT_H
 
-#include "qaxbase.h"
+#include "ActiveQt/qaxbase.h"
 
 class QAxObject : public QObject, public QAxBase
 {

@@ -14,9 +14,9 @@
 #ifndef QABSTRACTITEMMODEL_H
 #define QABSTRACTITEMMODEL_H
 
-#include <qobject.h>
-#include <qvariant.h>
-#include <qdrag.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qvariant.h>
+#include <QtGui/qdrag.h>
 
 class QAbstractItemModel;
 class QPersistentModelIndex;

@@ -14,7 +14,7 @@
 #ifndef QAXSCRIPT_H
 #define QAXSCRIPT_H
 
-#include <qaxobject.h>
+#include <ActiveQt/qaxobject.h>
 
 class QAxBase;
 class QAxScript;

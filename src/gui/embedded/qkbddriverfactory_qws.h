@@ -14,7 +14,7 @@
 #ifndef QKBDDRIVERFACTORY_QWS_H
 #define QKBDDRIVERFACTORY_QWS_H
 
-#include "qstringlist.h"
+#include "QtCore/qstringlist.h"
 
 class QString;
 class QWSKeyboardHandler;

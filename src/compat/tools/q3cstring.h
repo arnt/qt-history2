@@ -14,7 +14,7 @@
 #ifndef Q3CSTRING_H
 #define Q3CSTRING_H
 
-#include "qbytearray.h"
+#include "QtCore/qbytearray.h"
 
 /*****************************************************************************
   QCString class

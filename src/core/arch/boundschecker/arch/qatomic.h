@@ -14,7 +14,7 @@
 #ifndef BOUNDSCHECKER_QATOMIC_H
 #define BOUNDSCHECKER_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 __forceinline int q_atomic_xchg(int newval)
 {

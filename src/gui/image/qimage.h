@@ -14,9 +14,9 @@
 #ifndef QIMAGE_H
 #define QIMAGE_H
 
-#include "qrgb.h"
-#include "qrect.h"
-#include "qbytearray.h"
+#include "QtGui/qrgb.h"
+#include "QtCore/qrect.h"
+#include "QtCore/qbytearray.h"
 
 class QIODevice;
 class QStringList;

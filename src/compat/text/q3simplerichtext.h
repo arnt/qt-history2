@@ -14,10 +14,10 @@
 #ifndef Q3SIMPLERICHTEXT_H
 #define Q3SIMPLERICHTEXT_H
 
-#include "qnamespace.h"
-#include "qstring.h"
-#include "qregion.h"
-#include "qcolor.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qstring.h"
+#include "QtGui/qregion.h"
+#include "QtGui/qcolor.h"
 
 #ifndef QT_NO_RICHTEXT
 

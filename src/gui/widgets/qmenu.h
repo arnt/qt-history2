@@ -14,15 +14,15 @@
 #ifndef QMENU_H
 #define QMENU_H
 
-#include <qwidget.h>
-#include <qstring.h>
-#include <qicon.h>
-#include <qaction.h>
+#include <QtGui/qwidget.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qicon.h>
+#include <QtGui/qaction.h>
 
 class QMenuPrivate;
 #ifdef QT_COMPAT
 class QMenuItem;
-#include <qpixmap.h>
+#include <QtGui/qpixmap.h>
 #endif
 
 class Q_GUI_EXPORT QMenu : public QWidget

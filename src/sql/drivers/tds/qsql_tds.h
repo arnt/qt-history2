@@ -14,13 +14,13 @@
 #ifndef QSQL_TDS_H
 #define QSQL_TDS_H
 
-#include <qsqlresult.h>
-#include <qsqldriver.h>
-#include <private/qsqlcachedresult_p.h>
+#include <QtSql/qsqlresult.h>
+#include <QtSql/qsqldriver.h>
+#include <QtSql/private/qsqlcachedresult_p.h>
 
 #ifdef Q_OS_WIN32
 #define DBNTWIN32 // indicates 32bit windows dblib
-#include "qt_windows.h"
+#include "QtCore/qt_windows.h"
 #include <sqlfront.h>
 #include <sqldb.h>
 #define CS_PUBLIC

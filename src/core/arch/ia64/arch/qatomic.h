@@ -14,7 +14,7 @@
 #ifndef IA64_QATOMIC_H
 #define IA64_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(Q_CC_INTEL)
 

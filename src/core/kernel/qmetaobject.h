@@ -14,8 +14,8 @@
 #ifndef QMETAOBJECT_H
 #define QMETAOBJECT_H
 
-#include "qobjectdefs.h"
-#include "qcorevariant.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtCore/qcorevariant.h"
 
 template <typename T> class QList;
 

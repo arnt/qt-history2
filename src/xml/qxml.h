@@ -14,11 +14,11 @@
 #ifndef QXML_H
 #define QXML_H
 
-#include "qtextstream.h"
-#include "qfile.h"
-#include "qstring.h"
-#include "qstringlist.h"
-#include "qlist.h"
+#include "QtCore/qtextstream.h"
+#include "QtCore/qfile.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qstringlist.h"
+#include "QtCore/qlist.h"
 
 #ifndef QT_NO_XML
 

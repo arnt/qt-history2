@@ -17,8 +17,8 @@
 class QValidator;
 class QMenu;
 
-#include "qframe.h"
-#include "qstring.h"
+#include "QtGui/qframe.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_LINEEDIT
 

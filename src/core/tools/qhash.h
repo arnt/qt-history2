@@ -14,10 +14,10 @@
 #ifndef QHASH_H
 #define QHASH_H
 
-#include "qatomic.h"
-#include "qchar.h"
-#include "qiterator.h"
-#include "qlist.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qchar.h"
+#include "QtCore/qiterator.h"
+#include "QtCore/qlist.h"
 
 #ifndef QT_NO_STL
 #include <iterator>

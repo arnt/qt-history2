@@ -16,7 +16,7 @@
 
 
 #define VNCSCREEN_BASE QLinuxFbScreen
-#include "qgfxlinuxfb_qws.h"
+#include "QtGui/qgfxlinuxfb_qws.h"
 
 #ifndef QT_NO_QWS_VNC
 

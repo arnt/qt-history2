@@ -14,9 +14,9 @@
 #ifndef QREGION_H
 #define QREGION_H
 
-#include "qatomic.h"
-#include "qrect.h"
-#include "qwindowdefs.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qrect.h"
+#include "QtGui/qwindowdefs.h"
 
 template <class T> class QVector;
 

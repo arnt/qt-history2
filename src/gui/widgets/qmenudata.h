@@ -14,10 +14,10 @@
 #ifndef QMENUDATA_H
 #define QMENUDATA_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifdef QT_COMPAT
-#include <qaction.h>
+#include <QtGui/qaction.h>
 
 class QSignalEmitter;
 

@@ -14,8 +14,8 @@
 #ifndef QDATETIMEEDIT_H
 #define QDATETIMEEDIT_H
 
-#include <qdatetime.h>
-#include <qabstractspinbox.h>
+#include <QtCore/qdatetime.h>
+#include <QtGui/qabstractspinbox.h>
 
 class QDateTimeEditPrivate;
 class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox

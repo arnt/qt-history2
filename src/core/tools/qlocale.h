@@ -14,7 +14,7 @@
 #ifndef QLOCALE_H
 #define QLOCALE_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 struct QLocalePrivate;
 

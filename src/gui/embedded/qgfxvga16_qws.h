@@ -14,7 +14,7 @@
 #ifndef QGFXVGA16_QWS_H
 #define QGFXVGA16_QWS_H
 
-#include "qgfxlinuxfb_qws.h"
+#include "QtGui/qgfxlinuxfb_qws.h"
 
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)

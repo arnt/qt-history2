@@ -14,15 +14,15 @@
 #ifndef QEVENT_H
 #define QEVENT_H
 
-#include "qwindowdefs.h"
-#include "qobject.h"
-#include "qregion.h"
-#include "qnamespace.h"
-#include "qstring.h"
-#include "qkeysequence.h"
-#include "qcoreevent.h"
-#include "qmime.h"
-#include "qdrag.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qregion.h"
+#include "QtCore/qnamespace.h"
+#include "QtCore/qstring.h"
+#include "QtGui/qkeysequence.h"
+#include "QtCore/qcoreevent.h"
+#include "QtGui/qmime.h"
+#include "QtGui/qdrag.h"
 
 class QAction;
 

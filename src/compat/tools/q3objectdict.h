@@ -15,8 +15,8 @@
 #define Q3OBJECTDICT_H
 
 #ifndef QT_H
-#include "qmetaobject.h"
-#include "q3asciidict.h"
+#include "QtCore/qmetaobject.h"
+#include "Qt3Compat/q3asciidict.h"
 #endif // QT_H
 
 

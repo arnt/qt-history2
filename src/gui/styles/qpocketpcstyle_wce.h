@@ -15,8 +15,8 @@
 #define QPOCKETPCSTYLE_WCE_H
 //#ifndef QT_NO_STYLE_POCKETPC
 
-#include "qstyle.h"
-#include "qpalette.h"
+#include "QtGui/qstyle.h"
+#include "QtGui/qpalette.h"
 
 #if defined(QT_PLUGIN)
 #define Q_GUI_EXPORT_STYLE_POCKETPC

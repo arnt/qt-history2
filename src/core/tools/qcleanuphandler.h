@@ -14,7 +14,7 @@
 #ifndef QCLEANUPHANDLER_H
 #define QCLEANUPHANDLER_H
 
-#include <qlist.h>
+#include <QtCore/qlist.h>
 
 template<class T>
 class QCleanupHandler

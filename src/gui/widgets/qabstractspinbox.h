@@ -14,8 +14,8 @@
 #ifndef QABSTRACTSPINBOX_H
 #define QABSTRACTSPINBOX_H
 
-#include <qwidget.h>
-#include <qvalidator.h>
+#include <QtGui/qwidget.h>
+#include <QtGui/qvalidator.h>
 
 class QLineEdit;
 

@@ -14,8 +14,8 @@
 #ifndef QTOOLBOX_H
 #define QTOOLBOX_H
 
-#include <qframe.h>
-#include <qicon.h>
+#include <QtGui/qframe.h>
+#include <QtGui/qicon.h>
 
 #ifndef QT_NO_TOOLBOX
 

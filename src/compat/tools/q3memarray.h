@@ -14,8 +14,8 @@
 #ifndef Q3MEMARRAY_H
 #define Q3MEMARRAY_H
 
-#include "q3garray.h"
-#include "qvector.h"
+#include "Qt3Compat/q3garray.h"
+#include "QtCore/qvector.h"
 
 template<class type>
 class Q3MemArray : public Q3GArray

@@ -14,7 +14,7 @@
 #ifndef Q3WORKSPACE_H
 #define Q3WORKSPACE_H
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_WORKSPACE
 

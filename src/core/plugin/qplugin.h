@@ -14,8 +14,8 @@
 #ifndef QPLUGIN_H
 #define QPLUGIN_H
 
-#include <qobject.h>
-#include <qpointer.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qpointer.h>
 
 #ifndef Q_EXTERN_C
 #  ifdef __cplusplus

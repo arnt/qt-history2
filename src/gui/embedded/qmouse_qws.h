@@ -14,8 +14,8 @@
 #ifndef QMOUSE_QWS_H
 #define QMOUSE_QWS_H
 
-#include "qobject.h"
-#include "qpolygon.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qpolygon.h"
 
 class QWSPointerCalibrationData
 {

@@ -14,7 +14,7 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 
 namespace QSql
 {

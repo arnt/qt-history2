@@ -14,8 +14,8 @@
 #ifndef QPICTURE_H
 #define QPICTURE_H
 
-#include "qpaintdevice.h"
-#include "qstringlist.h"
+#include "QtGui/qpaintdevice.h"
+#include "QtCore/qstringlist.h"
 
 #ifndef QT_NO_PICTURE
 

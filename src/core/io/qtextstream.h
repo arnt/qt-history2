@@ -14,9 +14,9 @@
 #ifndef QTEXTSTREAM_H
 #define QTEXTSTREAM_H
 
-#include "qiodevice.h"
-#include "qstring.h"
-#include "qchar.h"
+#include "QtCore/qiodevice.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qchar.h"
 
 #include <stdio.h>
 

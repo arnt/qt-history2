@@ -14,7 +14,7 @@
 #ifndef QGFXMATROX_QWS_H
 #define QGFXMATROX_QWS_H
 
-#include "qgfxlinuxfb_qws.h"
+#include "QtGui/qgfxlinuxfb_qws.h"
 
 #ifndef QT_NO_QWS_MATROX
 

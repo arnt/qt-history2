@@ -14,8 +14,8 @@
 #ifndef QTRANSLATOR_H
 #define QTRANSLATOR_H
 
-#include "qobject.h"
-#include "qbytearray.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qbytearray.h"
 
 #ifndef QT_NO_TRANSLATION
 

@@ -13,10 +13,10 @@
 #ifndef QIMAGEIO_H
 #define QIMAGEIO_H
 
-#include <qglobal.h>
-#include <qimage.h>
-#include <qstring.h>
-#include <qstringlist.h>
+#include <QtCore/qglobal.h>
+#include <QtGui/qimage.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
 #ifndef QT_NO_IMAGEIO
 

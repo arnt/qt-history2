@@ -14,7 +14,7 @@
 #ifndef QSTRINGMATCHER_H
 #define QSTRINGMATCHER_H
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 class QStringMatcherPrivate;
 

@@ -14,12 +14,12 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
-#include "qwindowdefs.h"
+#include "QtGui/qwindowdefs.h"
 
 #ifndef QT_NO_FONTDIALOG
 
-#include "qdialog.h"
-#include "qfont.h"
+#include "QtGui/qdialog.h"
+#include "QtGui/qfont.h"
 
 class QFontDialogPrivate;
 

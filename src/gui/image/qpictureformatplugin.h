@@ -14,8 +14,8 @@
 #ifndef QPICTUREFORMATPLUGIN_H
 #define QPICTUREFORMATPLUGIN_H
 
-#include "qplugin.h"
-#include "qfactoryinterface.h"
+#include "QtCore/qplugin.h"
+#include "QtCore/qfactoryinterface.h"
 
 class QPicture;
 class QImage;

@@ -15,8 +15,8 @@
 #define Q3SIGNAL_H
 
 #ifndef QT_H
-#include "qvariant.h"
-#include "qobject.h"
+#include "QtGui/qvariant.h"
+#include "QtCore/qobject.h"
 #endif // QT_H
 
 

@@ -15,7 +15,7 @@
 #define QNP_H
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 #endif // QT_H
 
 

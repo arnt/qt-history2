@@ -14,7 +14,7 @@
 #ifndef QQUEUE_H
 #define QQUEUE_H
 
-#include "qlist.h"
+#include "QtCore/qlist.h"
 
 template <class T>
 class QQueue : public QList<T>

@@ -13,9 +13,9 @@
 
 #ifndef QDEBUG_H
 #define QDEBUG_H
-#include "qlist.h"
-#include "qtextstream.h"
-#include "qstring.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qtextstream.h"
+#include "QtCore/qstring.h"
 
 #if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM )
 class Q_CORE_EXPORT QDebug

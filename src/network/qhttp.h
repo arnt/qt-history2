@@ -14,9 +14,9 @@
 #ifndef QHTTP_H
 #define QHTTP_H
 
-#include "qobject.h"
-#include "qstringlist.h"
-#include "qmap.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qstringlist.h"
+#include "QtCore/qmap.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 

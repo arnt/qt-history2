@@ -14,10 +14,10 @@
 #ifndef QSESSIONMANAGER_H
 #define QSESSIONMANAGER_H
 
-#include "qobject.h"
-#include "qwindowdefs.h"
-#include "qstring.h"
-#include "qstringlist.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qstringlist.h"
 #ifndef QT_NO_SESSIONMANAGER
 
 class QSessionManagerPrivate;

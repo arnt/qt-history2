@@ -14,7 +14,7 @@
 #ifndef QCOPCHANNEL_QWS_H
 #define QCOPCHANNEL_QWS_H
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
 
 #ifndef QT_NO_COP
 

@@ -14,9 +14,9 @@
 #ifndef QGL_H
 #define QGL_H
 
-#include "qwidget.h"
-#include "qglcolormap.h"
-#include "qmap.h"
+#include "QtGui/qwidget.h"
+#include "QtOpenGL/qglcolormap.h"
+#include "QtCore/qmap.h"
 
 
 #ifdef QT_COMPAT
@@ -28,7 +28,7 @@ Q_OPENGL_EXPORT inline QT_COMPAT const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_WIN)
-# include "qt_windows.h"
+# include "QtCore/qt_windows.h"
 #endif
 
 #if defined(Q_WS_MAC)

@@ -14,12 +14,12 @@
 #ifndef QICON_H
 #define QICON_H
 
-#include "qglobal.h"
-#include "qsize.h"
+#include "QtCore/qglobal.h"
+#include "QtCore/qsize.h"
 
 #ifdef QT_INCLUDE_COMPAT
-#include "qobject.h"
-#include "qpixmap.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qpixmap.h"
 #endif
 
 #ifndef QT_NO_ICON

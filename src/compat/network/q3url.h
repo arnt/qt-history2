@@ -15,7 +15,7 @@
 #define Q3URL_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include "QtCore/qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_URL

@@ -14,9 +14,9 @@
 #ifndef QABSTRACTLAYOUT_H
 #define QABSTRACTLAYOUT_H
 
-#include "qobject.h"
-#include "qsizepolicy.h"
-#include "qrect.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qsizepolicy.h"
+#include "QtCore/qrect.h"
 
 #include "limits.h"
 

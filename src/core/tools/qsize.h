@@ -14,7 +14,7 @@
 #ifndef QSIZE_H
 #define QSIZE_H
 
-#include "qnamespace.h"
+#include "QtCore/qnamespace.h"
 
 class Q_CORE_EXPORT QSize
 {

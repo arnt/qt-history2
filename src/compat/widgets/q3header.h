@@ -14,9 +14,9 @@
 #ifndef Q3HEADER_H
 #define Q3HEADER_H
 
-#include "qicon.h"
-#include "qwidget.h"
-#include "qstring.h"
+#include "QtGui/qicon.h"
+#include "QtGui/qwidget.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_HEADER
 

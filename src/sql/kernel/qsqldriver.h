@@ -14,9 +14,9 @@
 #ifndef QSQLDRIVER_H
 #define QSQLDRIVER_H
 
-#include "qobject.h"
-#include "qstring.h"
-#include "qsqlquery.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qstring.h"
+#include "QtSql/qsqlquery.h"
 
 class QStringList;
 class QSqlDatabase;

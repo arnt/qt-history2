@@ -14,12 +14,12 @@
 #ifndef QMATRIX_H
 #define QMATRIX_H
 
-#include "qline.h"
-#include "qpoint.h"
-#include "qpolygon.h"
-#include "qrect.h"
-#include "qregion.h"
-#include "qwindowdefs.h"
+#include "QtGui/qline.h"
+#include "QtCore/qpoint.h"
+#include "QtGui/qpolygon.h"
+#include "QtCore/qrect.h"
+#include "QtGui/qregion.h"
+#include "QtGui/qwindowdefs.h"
 #ifndef QT_NO_MATRIX
 
 class QPainterPath;
@@ -123,7 +123,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 #endif // QT_NO_MATRIX
 
 #ifdef QT_COMPAT
-#include "qwmatrix.h"
+#include "QtGui/qwmatrix.h"
 #endif
 
 #endif // QMATRIX_H

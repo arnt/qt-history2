@@ -14,12 +14,12 @@
 #ifndef QSTYLEOPTION_H
 #define QSTYLEOPTION_H
 
-#include "qabstractspinbox.h"
-#include "qicon.h"
-#include "qslider.h"
-#include "qstyle.h"
-#include "qtabbar.h"
-#include "qtabwidget.h"
+#include "QtGui/qabstractspinbox.h"
+#include "QtGui/qicon.h"
+#include "QtGui/qslider.h"
+#include "QtGui/qstyle.h"
+#include "QtGui/qtabbar.h"
+#include "QtGui/qtabwidget.h"
 
 class Q_GUI_EXPORT QStyleOption
 {

@@ -14,7 +14,7 @@
 #ifndef QHEADERVIEW_H
 #define QHEADERVIEW_H
 
-#include <qabstractitemview.h>
+#include <QtGui/qabstractitemview.h>
 
 class QHeaderViewPrivate;
 

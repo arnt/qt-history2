@@ -14,13 +14,13 @@
 #ifndef Q3CANVAS_H
 #define Q3CANVAS_H
 
-#include "q3scrollview.h"
-#include "qpixmap.h"
-#include "q3ptrlist.h"
-#include "qbrush.h"
-#include "qpen.h"
-#include "q3valuelist.h"
-#include "q3pointarray.h"
+#include "Qt3Compat/q3scrollview.h"
+#include "QtGui/qpixmap.h"
+#include "Qt3Compat/q3ptrlist.h"
+#include "QtGui/qbrush.h"
+#include "QtGui/qpen.h"
+#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Compat/q3pointarray.h"
 
 class Q3CanvasSprite;
 class Q3CanvasPolygonalItem;

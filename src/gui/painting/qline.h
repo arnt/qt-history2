@@ -14,7 +14,7 @@
 #ifndef QLINE_H
 #define QLINE_H
 
-#include <qpoint.h>
+#include <QtCore/qpoint.h>
 
 class Q_GUI_EXPORT QLineF {
 public:

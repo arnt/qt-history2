@@ -14,11 +14,11 @@
 #ifndef QSQL_MYSQL_H
 #define QSQL_MYSQL_H
 
-#include <qsqldriver.h>
-#include <qsqlresult.h>
+#include <QtSql/qsqldriver.h>
+#include <QtSql/qsqlresult.h>
 
 #if defined (Q_OS_WIN32)
-#include <qt_windows.h>
+#include <QtCore/qt_windows.h>
 #endif
 
 #include <mysql.h>

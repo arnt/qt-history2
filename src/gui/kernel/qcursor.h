@@ -14,9 +14,9 @@
 #ifndef QCURSOR_H
 #define QCURSOR_H
 
-#include "qpoint.h"
-#include "qatomic.h"
-#include "qwindowdefs.h"
+#include "QtCore/qpoint.h"
+#include "QtCore/qatomic.h"
+#include "QtGui/qwindowdefs.h"
 
 /*
   ### The fake cursor has to go first with old qdoc.

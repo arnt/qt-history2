@@ -14,7 +14,7 @@
 #ifndef WINDOWS_QATOMIC_H
 #define WINDOWS_QATOMIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifndef Q_CC_GNU
 

@@ -14,7 +14,7 @@
 #ifndef QWINDOWSXPSTYLE_H
 #define QWINDOWSXPSTYLE_H
 
-#include "qwindowsstyle.h"
+#include "QtGui/qwindowsstyle.h"
 
 #if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 

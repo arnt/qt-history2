@@ -14,8 +14,8 @@
 #ifndef QHOSTADDRESS_H
 #define QHOSTADDRESS_H
 
-#include "qstring.h"
-#include "qabstractsocket.h"
+#include "QtCore/qstring.h"
+#include "QtNetwork/qabstractsocket.h"
 
 class QHostAddressPrivate;
 

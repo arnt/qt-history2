@@ -15,7 +15,7 @@
 #define Q3NETWORK_H
 
 #ifndef QT_H
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORK

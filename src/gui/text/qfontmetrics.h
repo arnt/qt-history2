@@ -14,9 +14,9 @@
 #ifndef QFONTMETRICS_H
 #define QFONTMETRICS_H
 
-#include "qfont.h"
+#include "QtGui/qfont.h"
 #ifndef QT_INCLUDE_COMPAT
-#include "qrect.h"
+#include "QtCore/qrect.h"
 #endif
 
 #ifdef Q_WS_QWS

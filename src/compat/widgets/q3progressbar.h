@@ -14,7 +14,7 @@
 #ifndef Q3PROGRESSBAR_H
 #define Q3PROGRESSBAR_H
 
-#include "qframe.h"
+#include "QtGui/qframe.h"
 
 #ifndef QT_NO_PROGRESSBAR
 

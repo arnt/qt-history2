@@ -4,7 +4,7 @@
 class QFixedPoint;
 
 #if !defined(Q_CORE_EXPORT)
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 #endif
 /* Fixed point class. emulates IEEE behaviour for infinity, doesn't have NaN */
 
