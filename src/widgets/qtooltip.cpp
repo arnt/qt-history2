@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#13 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -14,7 +14,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#13 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -38,7 +38,7 @@ QTipManager::QTipManager()
     tips = new QIntDict<QTipManager::Tip>( 313 );
     currentTip = 0;
     label = 0;
-    shown = FALSE;
+    dontShow = FALSE;
 
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
@@ -201,13 +201,22 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
     case Event_Paint:
 	// no processing at all
 	break;
+    case Event_MouseButtonPress:
+    case Event_MouseButtonRelease:
+    case Event_MouseButtonDblClick:
+    case Event_KeyPress:
+    case Event_KeyRelease:
+	// input - don't show a tip for this widget
+	hideTip();
+	dontShow = TRUE;
+	break;
     case Event_MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
 
 	    wakeUp.stop();
 	    if ( m->state() == 0 ) {
-		if ( shown )
+		if ( dontShow )
 		    return TRUE;
 		else if ( fallAsleep.isActive() )
 		    wakeUp.start( 100, TRUE );
@@ -224,9 +233,8 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
     case Event_Enter: // fall through
     case Event_Leave:
 	hideTip();
-	shown = FALSE;
+	dontShow = FALSE;
 	break;
-	
     default:
 	hideTip();
 	break;
@@ -264,7 +272,7 @@ void QTipManager::showTip()
     label->show();
     label->raise();
 
-    shown = TRUE;
+    dontShow = TRUE;
     fallAsleep.start( 4000, TRUE );
 
     if ( t->group && !t->groupText.isEmpty() ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#10 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#11 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -114,7 +114,7 @@ private:
     QPoint pos;
     QWidget * widget;
     QTipManager::Tip * currentTip;
-    bool shown;
+    bool dontShow;
 };
 
 
