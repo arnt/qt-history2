@@ -163,7 +163,8 @@ if [ "${platform}" = "win" ]; then
   find . -name Makefile | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
-  find qt -type f -a ! -name '*.exe' | xargs ${curdir}/unix_to_dos
+  find qt -type f -print | fmt -1 | \
+	egrep -v '\.(gif|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
