@@ -72,6 +72,7 @@ public:
     QStyleOption(QCheckListItem* i) : def(FALSE), cli(i) {}
     QStyleOption(Qt::ArrowType a) : def(FALSE), i1((int)a) {}
     QStyleOption( const QRect& r ) : def(FALSE), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
+    QStyleOption( QWidget *w ) : def(FALSE), p1((void*)w) {}
 
     bool isDefault() const { return def; }
 
@@ -93,6 +94,7 @@ public:
 
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
     QRect rect() const { return QRect( i1, i2, i3, i4 ); }
+    QWidget* widget() const { return (QWidget*)p1; }
 
 private:
     // NOTE: none of these components have constructors.

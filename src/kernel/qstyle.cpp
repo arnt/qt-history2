@@ -172,6 +172,12 @@ public:
 */
 
 /*!
+  \fn QStyleOption::QStyleOption( QWidget *w )
+
+  Pass a QWidget, \a w.
+*/
+
+/*!
     \fn bool QStyleOption::isDefault() const
 
     Returns TRUE if the option was constructed with the default
@@ -267,6 +273,13 @@ public:
     \fn QRect QStyleOption::rect() const
 
     Returns a rectangle if the appropriate constructor was called;
+    otherwise the return value is undefined.
+*/
+
+/*!
+    \fn QWidget* QStyleOption::widget() const
+
+    Returns a pointer to a widget if the appropriate constructor was called;
     otherwise the return value is undefined.
 */
 

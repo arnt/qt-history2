@@ -459,7 +459,8 @@ void QStatusBar::paintEvent( QPaintEvent * )
 		style().drawPrimitive( QStyle::PE_StatusBarSection, &p,
 				       QRect(item->w->x() - 1, item->w->y() - 1,
 					     item->w->width()+2, item->w->height()+2),
-				       colorGroup() );
+				       colorGroup(), QStyle::Style_Default,
+				       QStyleOption(item->w) );
 	    }
 	item = d->items.next();
     }
