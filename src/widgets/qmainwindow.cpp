@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#61 $
 **
 ** Implementation of QMainWindow class
 **
@@ -757,7 +757,7 @@ QSize QToolBoxLayout::minimumSize() const
     }
     s.setHeight(1);
     return s;
-}    
+}
 
 
 
@@ -942,9 +942,10 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 		o && ( d->moving || o->inherits( "QToolBar" ) ) ) {
 	moveToolBar( d->moving ? d->moving : (QToolBar *)o, (QMouseEvent *)e );
 	return TRUE;
-    }
+    } 
     return QWidget::eventFilter( o, e );
 }
+
 
 /*!
   Monitors events to ensure layout is updated.
@@ -986,6 +987,8 @@ void QMainWindow::childEvent( QChildEvent* e)
 
 bool QMainWindow::event( QEvent * e )
 {
+    if ( e->type() == QEvent::LayoutHint )
+	triggerLayout();
     return QWidget::event( e );
 }
 
