@@ -73,7 +73,7 @@ class Q_CORE_EXPORT QByteArray
 public:
     QByteArray();
     QByteArray(const char *);
-    QByteArray(const char*, int size);
+    QByteArray(const char *, int size);
     QByteArray(int size, char c);
     QByteArray(const QByteArray &);
     ~QByteArray();
@@ -91,7 +91,6 @@ public:
 
     void reserve(int size);
     int capacity() const;
-
 
     operator const char *() const;
     operator const void *() const;
@@ -220,7 +219,7 @@ private:
     static Data shared_null;
     static Data shared_empty;
     Data *d;
-    QByteArray(Data *dd) : d(dd) {}
+    QByteArray(Data *dd, int /* dummy */) : d(dd) {}
     void realloc(int alloc);
     void expand(int i);
     friend class QByteRef;
@@ -406,7 +405,6 @@ inline QByteArray &QByteArray::replace(char before, const char *after)
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { QConstByteArray cb(before, strlen(before)); QConstByteArray ca(after, strlen(after)); return replace(cb, ca); }
 
-
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
 Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
@@ -420,7 +418,6 @@ inline QByteArray qCompress(const QByteArray& data, int compressionLevel = -1)
 inline QByteArray qUncompress( const QByteArray& data )
 { return qUncompress( (const uchar*)data.constData(), data.size() ); }
 #endif
-
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QByteArray);

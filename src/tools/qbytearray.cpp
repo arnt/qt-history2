@@ -751,7 +751,7 @@ QByteArray::QByteArray(const char *s)
 	d = &shared_empty;
     } else {
 	int len = strlen(s);
-	d = (Data*) qMalloc(sizeof(Data)+len);
+	d = (Data *)qMalloc(sizeof(Data)+len);
 	if (!d) {
 	    d = &shared_null;
 	} else {
@@ -778,7 +778,7 @@ QByteArray::QByteArray(const char*s, int size)
    } else if (size <= 0) {
        d = &shared_empty;
    } else {
-       d = (Data*) qMalloc(sizeof(Data)+size);
+       d = (Data *)qMalloc(sizeof(Data)+size);
        if (!d) {
 	   d = &shared_null;
        } else {
@@ -804,7 +804,7 @@ QByteArray::QByteArray(int size, char c)
    if (size <= 0) {
 	d = &shared_null;
     } else {
-	d = (Data*) qMalloc(sizeof(Data)+size);
+	d = (Data *)qMalloc(sizeof(Data)+size);
 	if (!d) {
 	    d = &shared_null;
 	} else {
@@ -879,7 +879,7 @@ void QByteArray::realloc(int alloc)
 	x->data = x->array;
 	d = x;
     } else {
-	Data *x = (Data*) qMalloc(sizeof(Data)+alloc);
+	Data *x = (Data *)qMalloc(sizeof(Data)+alloc);
 	if (!x)
 	    return;
 	::memcpy(x, d, sizeof(Data)+qMin(alloc, d->alloc));
@@ -1663,12 +1663,14 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 
 QConstByteArray::QConstByteArray(const char *chars, int length)
-    : QByteArray((Data *)qMalloc(sizeof(Data))) {
+    : QByteArray((Data *)qMalloc(sizeof(Data)), 0)
+{
     d->ref = 1;
     d->alloc = d->size = length;
     d->data = chars ? (char *)chars : d->array;
     *d->array = '\0';
 }
+
 /*!
     Returns a byte array that has whitespace removed from the start
     and the end, and which has each sequence of internal whitespace
