@@ -31,6 +31,7 @@
 
 #include <qglobal.h>
 #include <qatomic.h>
+#include <qnamespace.h>
 
 #ifdef Q_OS_UNIX
 #  include <pthread.h>

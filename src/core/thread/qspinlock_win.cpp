@@ -1,5 +1,7 @@
 #include "qspinlock_p.h"
 
+#include "qt_windows.h"
+
 #ifndef QT_NO_THREAD
 void QSpinLockPrivate::initialize()
 {
