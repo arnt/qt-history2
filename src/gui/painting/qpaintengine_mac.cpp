@@ -12,22 +12,24 @@
 **
 ****************************************************************************/
 
-#include "qpaintengine_mac.h"
-#include "qwidget.h"
-#include "qbitmap.h"
-#include "qpixmapcache.h"
-#include "qfontdata_p.h"
-#include "qtextcodec.h"
-#include "qpaintdevicemetrics.h"
-#include "qpaintdevice.h"
-#include "qt_mac.h"
-#include <qtextcodec.h>
-#include <qstack.h>
+#include <qbitmap.h>
+#include <qpaintdevice.h>
+#include <qpaintdevicemetrics.h>
+#include <qpaintengine_mac.h>
+#include <qpixmapcache.h>
 #include <qprinter.h>
+#include <qstack.h>
+#include <qt_mac.h>
+#include <qtextcodec.h>
+#include <qtextcodec.h>
+#include <qwidget.h>
+
+#include <private/qfontdata_p.h>
+#include <private/qfontengine_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
-#include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>
+
 #include <string.h>
 
 /*****************************************************************************

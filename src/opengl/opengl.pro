@@ -19,8 +19,11 @@ opengl {
 		   qglcolormap.cpp \
 		   qpaintengine_opengl.cpp
 	x11:SOURCES += qgl_x11.cpp
-	else:mac:SOURCES += qgl_mac.cpp
-	else:win32:SOURCES += qgl_win.cpp
+	mac { 
+	    SOURCES += qgl_mac.cpp
+	    DEFINES += QMAC_ONE_PIXEL_LOCK
+	}
+	win32:SOURCES += qgl_win.cpp
 
 	dlopen_opengl:DEFINES += QT_DLOPEN_OPENGL
 }

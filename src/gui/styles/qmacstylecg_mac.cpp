@@ -2,14 +2,17 @@
 
 #if QT_MACOSX_VERSION >= 0x1030
 
-#include "qaquastyle_p.h"
-#include "qpaintdevice.h"
-#include "qpainter.h"
-#include "qpushbutton.h"
-#include "qpointer.h"
-#include "qpopupmenu.h"
-#include "qslider.h"
-#include "qt_mac.h"
+#include <qapplication.h>
+#include <qevent.h>
+#include <qpaintdevice.h>
+#include <qpainter.h>
+#include <qpushbutton.h>
+#include <qpointer.h>
+#include <qpopupmenu.h>
+#include <qslider.h>
+#include <qt_mac.h>
+
+#include <private/qaquastyle_p.h>
 
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 

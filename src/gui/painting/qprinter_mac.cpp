@@ -12,24 +12,24 @@
 **
 ****************************************************************************/
 
-#include "qprinter.h"
-
 #ifndef QT_NO_PRINTER
 
-#include "qapplication.h"
-#include "qapplication_p.h"
-#include "qdir.h"
-#include "qfile.h"
-#include "qfileinfo.h"
-#include "qmacstyle_mac.h"
-#include "qpaintdevicemetrics.h"
-#include "qpaintengine.h"
-#include "qprintdialog.h"
-#include "qprinter_p.h"
-#include "qprinter_p.h"
-#include "qpsprinter_p.h"
-#include "qstyle.h"
-#include "qt_mac.h"
+#include <qapplication.h>
+#include <qdir.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qmacstyle_mac.h>
+#include <qpaintdevicemetrics.h>
+#include <qpaintengine.h>
+#include <qprintdialog.h>
+#include <qprinter.h>
+#include <qstyle.h>
+#include <qt_mac.h>
+
+#include <private/qapplication_p.h>
+#include <private/qprinter_p.h>
+#include <private/qprinter_p.h>
+#include <private/qpsprinter_p.h>
 
 #include <stdlib.h>
 

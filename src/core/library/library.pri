@@ -22,8 +22,8 @@ win32 {
 }
 
 mac { 
-	SOURCES+=3rdparty/dlcompat/dlfcn.c
-	INCLUDEPATH+=3rdparty/dlcompat
+	SOURCES+=../3rdparty/dlcompat/dlfcn.c
+	INCLUDEPATH+=../3rdparty/dlcompat
 }
 
 unix {

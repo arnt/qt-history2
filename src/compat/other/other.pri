@@ -17,6 +17,6 @@ compat {
 		other/qnetworkprotocol.cpp \
 		../gui/dialogs/qfiledialog.cpp 
 	
-	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
-        !embedded:mac:SOURCES  += $$DIALOGS_CPP/qfiledialog_mac.cpp
+	win32:SOURCES += ../gui/dialogs/qfiledialog_win.cpp
+        !embedded:mac:SOURCES  += ../gui/dialogs/qfiledialog_mac.cpp
 }

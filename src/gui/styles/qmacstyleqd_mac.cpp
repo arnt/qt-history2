@@ -516,7 +516,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
     case PE_HeaderArrow:
 #ifndef QT_NO_TABLE
 	if (p && p->device() && p->device()->devType() == QInternal::Widget) {
-	    if (::qt_cast<QTable*>(((QWidget*)p->device())->parentWidget())) {
+	    if (static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
 		DrawThemePopupArrow(qt_glb_mac_rect(r, p),
 				    flags & Style_Up ? kThemeArrowDown : kThemeArrowUp,
 				    kThemeArrow9pt, tds, 0, 0);
@@ -535,7 +535,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
         // We can tell if something is selected by looking at the boldness of the font,
         // icky, but it does the job.
         if (p && p->device() && p->device()->devType() == QInternal::Widget) {
-            if (::qt_cast<QTable*>(((QWidget*)p->device())->parentWidget())) {
+	    if (static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
                 bkind = kThemeBevelButton;
                 if (p->font().bold())
                     flags |= Style_Sunken;
@@ -1051,7 +1051,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	// change the color to bright text if we are a table header and selected.
         const QColor *penColor = &pal.buttonText().color();
 #ifndef QT_NO_TABLE
-        if (::qt_cast<QTable *>(header->parentWidget()) && p->font().bold())
+        if (header->parentWidget()->inherits("QTable") && p->font().bold())
             penColor = &pal.color(QColorGroup::BrightText);
 #endif
         drawItem(p, textr, AlignVCenter, pal, how & Style_Enabled,

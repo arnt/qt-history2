@@ -21,8 +21,8 @@ x11|embedded|!macx-*:styles -= mac
 contains( styles, mac ) {
 	HEADERS += \
 		styles/qmacstyle_mac.h \
-		styles/qmacstyleqd_mac.h 
-#		styles/qmacstylecg_mac.h
+		styles/qmacstyleqd_mac.h \
+		styles/qmacstylecg_mac.h
 	SOURCES += \
 		styles/qmacstyle_mac.cpp \
 		styles/qmacstyleqd_mac.cpp \

@@ -38,7 +38,4 @@ compat {
 		  tools/qglist.cpp \
 		  tools/qgvector.cpp \
 		  tools/qptrcollection.cpp
-	
-	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
-        !embedded:mac:SOURCES  += $$DIALOGS_CPP/qfiledialog_mac.cpp
 }
