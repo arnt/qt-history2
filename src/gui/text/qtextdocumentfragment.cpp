@@ -228,7 +228,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 	int offset = qMax(0, pos - it.key());
 
 	int size = qMin(int(ptFragment->size - offset), endPos - pos);
-	int position = ptFragment->position + offset;
+	int position = ptFragment->stringPosition + offset;
 
 	usedFormats << ptFragment->format;
 	pos += size;

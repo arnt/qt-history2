@@ -100,7 +100,7 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
     uint x = fragments.insert_single(pos, length);
     QTextFragment *X = fragments.fragment(x);
     X->format = format;
-    X->position = strPos;
+    X->stringPosition = strPos;
     uint w = fragments.prev(x);
     if (w)
 	unite(w);
@@ -125,7 +125,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     uint x = fragments.insert_single(pos, 1);
     QTextFragment *X = fragments.fragment(x);
     X->format = format;
-    X->position = strPos;
+    X->stringPosition = strPos;
     uint w = fragments.prev(x);
     if (w)
 	unite(w);
@@ -174,7 +174,7 @@ int QTextPieceTable::remove_string(int pos, uint length)
 
     Q_ASSERT(blocks.size(b) > length);
     Q_ASSERT(x && fragments.key(x) == (uint)pos && fragments.size(x) == length);
-    Q_ASSERT(!text.mid(fragments.fragment(x)->position, length).contains(QTextParagraphSeparator));
+    Q_ASSERT(!text.mid(fragments.fragment(x)->stringPosition, length).contains(QTextParagraphSeparator));
 
     blocks.setSize(b, blocks.size(b)-length);
     return fragments.erase_single(x);
@@ -194,7 +194,7 @@ int QTextPieceTable::remove_block(int pos)
 
     Q_ASSERT(b && (int)blocks.key(b) == pos+1);
     Q_ASSERT(x && (int)fragments.key(x) == pos);
-    Q_ASSERT(text.at(fragments.fragment(x)->position) == QTextParagraphSeparator);
+    Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QTextParagraphSeparator);
 
     int size = blocks.size(b);
     int p = blocks.prev(b);
@@ -295,13 +295,13 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
 	QTextFragment *X = fragments.fragment(x);
 	UndoCommand c = { UndoCommand::Removed, true,
-			  op, X->format, X->position, key, { X->size } };
+			  op, X->format, X->stringPosition, key, { X->size } };
 
 	if (key+1 != blocks.key(b)) {
-	    Q_ASSERT(!text.mid(X->position, X->size).contains(QTextParagraphSeparator));
+	    Q_ASSERT(!text.mid(X->stringPosition, X->size).contains(QTextParagraphSeparator));
 	    w = remove_string(key, X->size);
 	} else {
-	    Q_ASSERT(X->size == 1 && text.at(X->position) == QTextParagraphSeparator);
+	    Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QTextParagraphSeparator);
 	    c.command = UndoCommand::BlockRemoved;
 	    w = remove_block(key);
 	}
@@ -467,7 +467,7 @@ bool QTextPieceTable::split(int pos)
 	    uint n = fragments.insert_single(pos, oldsize-(pos-k));
 	    X = fragments.fragment(x);
 	    QTextFragment *N = fragments.fragment(n);
-	    N->position = X->position + pos-k;
+	    N->stringPosition = X->stringPosition + pos-k;
 	    N->format = X->format;
 	    return true;
 	}
@@ -484,7 +484,7 @@ bool QTextPieceTable::unite(uint f)
     QTextFragment *ff = fragments.fragment(f);
     QTextFragment *nf = fragments.fragment(n);
 
-    if (nf->format == ff->format && (ff->position + (int)ff->size == nf->position)) {
+    if (nf->format == ff->format && (ff->stringPosition + (int)ff->size == nf->stringPosition)) {
 	fragments.setSize(f, ff->size + nf->size);
 	fragments.erase_single(n);
 	return true;
@@ -665,7 +665,7 @@ QString QTextPieceTable::plainText() const
     QString result;
     for (QTextPieceTable::FragmentIterator it = begin(); it != end(); ++it) {
 	const QTextFragment *f = *it;
-	result += QConstString(text.unicode() + f->position, f->size);
+	result += QConstString(text.unicode() + f->stringPosition, f->size);
     }
     // remove trailing block separator
     result.truncate(result.length()-1);

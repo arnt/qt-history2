@@ -106,7 +106,7 @@ QString QTextBlockIterator::blockText() const
     for (; it != e; ++it) {
 	const QTextFragment *fragment = it.value();
 
-	text += QConstString(buffer.unicode()+fragment->position, fragment->size);
+	text += QConstString(buffer.unicode()+fragment->stringPosition, fragment->size);
     }
 
     return text;

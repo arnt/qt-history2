@@ -36,7 +36,7 @@ public:
     inline void initialize() {}
     inline void invalidate() const {}
     inline void free() {}
-    int position;
+    int stringPosition;
     int format;
 };
 
