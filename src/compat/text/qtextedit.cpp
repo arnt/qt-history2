@@ -6207,7 +6207,7 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
 				    }
 				    break;
 				} else if ( !cur->leftTag ) {
-				    qWarning( "QTextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag, cur->line + 1 );
+				    qWarning( "QTextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag.latin1(), cur->line + 1 );
 				    return; // something is amiss - give up
 				}
 			    }
