@@ -1225,6 +1225,10 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
     return res;
 }
 
+/*!
+    \fn Q_DUMMY_COMPARISON_OPERATOR( QPixmap )
+    \internal
+*/
 
 /*!
     Returns the actual matrix used for transforming a pixmap with \a w

@@ -102,7 +102,9 @@ public:
     setUsesBigPixmap() and setUsesTextLabel(). When used inside a
     QToolBar in a QMainWindow, the button automatically adjusts to
     QMainWindow's settings (see QMainWindow::setUsesTextLabel() and
-    QMainWindow::setUsesBigPixmaps()).
+    QMainWindow::setUsesBigPixmaps()). The pixmap set on a QToolButton
+    will be set to 22x22 if it is bigger than this size. If
+    usesBigPixmap() is TRUE, then the pixmap will be set to 32x32.
 
     A tool button can offer additional choices in a popup menu. The
     feature is sometimes used with the "Back" button in a web browser.

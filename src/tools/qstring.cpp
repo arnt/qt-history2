@@ -3494,8 +3494,8 @@ QString &QString::insertHelper( uint index, const char *s, uint len )
 /*!
     \overload
 
-    Inserts the character in \a s into the string at position \a index
-    \a len number of times and returns a reference to the string.
+    Inserts the first \a len characters in \a s into the string at
+    position \a index and returns a reference to the string.
 */
 
 QString &QString::insert( uint index, const QChar* s, uint len )
