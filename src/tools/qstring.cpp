@@ -15766,6 +15766,12 @@ int QString::localeAwareCompare( const QString& s ) const
 	}
     }
 #endif
+#elif defined(Q_WS_X11)
+    // declared in <string.h>
+    int delta = strcoll( local8Bit(), s.local8Bit() );
+    if ( delta == 0 )
+	delta = ucstrcmp( *this, s );
+    return delta;
 #else
     return ucstrcmp( *this, s );
 #endif
