@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#542 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#543 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -355,8 +355,7 @@ extern "C" {
 
 static bool x11_ignore_badwindow;
 static bool x11_badwindow;
-
-
+    
     // starts to ignore bad window errors from X
 void qt_ignore_badwindow()
 {
@@ -380,6 +379,10 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 	    return 0;
 	if ( x11_ignore_badwindow )
 	    return 0;
+    }
+    else if ( err->error_code == BadMatch 
+	      && err->request_code == 42 /* X_SetInputFocus */ ) {
+	return 0;
     }
 
     char errstr[256];
