@@ -76,17 +76,23 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         return false;
     }
     *nglyphs = len;
-    for(int i = 0; i < len; i++) {
+    for (int i = 0; i < len; ++i) {
+        bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
+                          && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
         glyphs[i].glyph = str[i].unicode();
-        if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
+        if (!surrogate && str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
             int c = widthCache[str[i].unicode()];
             if(c == -777)
                 c = 0;
             glyphs[i].advance.rx() = c;
             glyphs[i].advance.ry() = 0;
         } else {
-            glyphs[i].advance.rx() = doTextTask(str+i, 0, 1, 1, WIDTH);
+            glyphs[i].advance.rx() = doTextTask(str+i, 0, surrogate ? 2 : 1, 1, WIDTH);
             glyphs[i].advance.ry() = 0;
+        }
+        if (surrogate) {
+            ++i;
+            glyphs[i].glyph = str[i].unicode();
         }
     }
     return true;

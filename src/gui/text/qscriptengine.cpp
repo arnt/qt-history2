@@ -215,6 +215,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     // honour the logClusters array if it exists.
     const QChar *uc = item->string->unicode() + item->from;
 
+#ifndef Q_WS_MAC
     int glyph_pos = 0;
     for (int i = 0; i < item->length; i++) {
         bool surrogate = (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < item->length-1
@@ -226,6 +227,14 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
         ++glyph_pos;
     }
     Q_ASSERT(glyph_pos == item->num_glyphs);
+#else
+    for (int i = 0; i < item->length; ++i) {
+        bool surrogate = i > 0 && (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00                          && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000);
+        logClusters[i] = surrogate ? i - 1 : i;
+
+    }
+    Q_ASSERT(item->num_glyphs == item->length);
+#endif
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
