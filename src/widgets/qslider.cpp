@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#5 $
 **
 ** Implementation of QSlider class
 **
@@ -13,7 +13,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#5 $");
 
 #define SLIDE_BORDER	2
 #define SLIDE_WIDTH	30
@@ -376,6 +376,12 @@ void QSlider::paintEvent( QPaintEvent * )
  */
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
+    resetState();
+    if ( e->button() == MidButton ) {
+	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	moveSlider( pos - SLIDE_WIDTH / 2 );
+	return;
+    }
     if ( e->button() != LeftButton )
 	return;
     QRect r = sliderRect();
@@ -405,6 +411,11 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( (e->state() & MidButton) ) { 		// middle button wins
+	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	moveSlider( pos - SLIDE_WIDTH / 2 );
+	return;	
+    }
     if ( !(e->state() & LeftButton) )
 	return;					// left mouse button is up
     if ( state != Dragging )
@@ -434,6 +445,43 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !(e->state() & LeftButton) )
 	return;					// left mouse button is up
+    resetState();
+}
+
+
+
+
+
+/*!
+  Moves the left (or top) edge of the slider to position 
+  \a pos.
+*/
+
+void QSlider::moveSlider( int pos )
+{
+        int  available = (orient == Horizontal) ? width() - SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
+	int oldPos = sliderPos;
+	sliderPos = QMIN( available, QMAX( 0, pos ) );
+	int newVal = valueFromPosition( sliderPos );
+	if ( sliderVal != newVal ) {
+	    sliderVal = newVal;
+	    emit sliderMoved( sliderVal );
+	}
+	if ( sliderVal != value() ) {
+	    directSetValue( sliderVal );
+	    emit valueChanged( sliderVal );
+	}
+	paintSlider( oldPos, sliderPos );
+
+}
+
+
+/*!
+  Resets all state information and kills my timer.
+*/
+
+void QSlider::resetState()
+{
     switch ( state ) {
     case TimingUp:
     case TimingDown:
@@ -445,13 +493,9 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 	break;
     }
     case None:
-	debug("QSlider::mouseReleaseEvent, not doing anything");
 	break;
     default:
-	warning("QSlider::mouseReleaseEvent, wrong state");
+	warning("QSlider: in wrong state");
     }
     state = None;
 }
-
-
-

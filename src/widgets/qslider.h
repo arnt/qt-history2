@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#3 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#4 $
 **
 ** Definition of QSlider class
 **
@@ -61,7 +61,9 @@ private:
     void	init();
     int		positionFromValue( int ) const;
     int		valueFromPosition( int ) const;
+    void	moveSlider( int );
     void	paintSlider( int, int );
+    void	resetState();
     bool	track;
 
     int		timerId;
