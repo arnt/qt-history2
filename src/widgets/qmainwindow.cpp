@@ -86,8 +86,26 @@
   classes) should draw small or large pixmaps (see QIconSet for more
   about that).
 
-  Toolbars can be dragged by the user into each enabled docking area.
+  Toolbars can be dragged by the user into each enabled docking area
+  and inside each docking area to change the order of the toolbars
+  there.
 
+  An application with multiple toolbars should always save the layout
+  of the toolbars (docking area and position there) and restore that
+  when loading the application again. To get the information about
+  the docking area and position for each toolbar, use the
+  findDockAndIndexOfToolbar() and toolBarsOnDock() methods. To move
+  the toolbar again to a position of a docking area when restoring, use one of the
+  moveToolBar() methods.
+  When saving and restoring this layout, you have to be careful to save
+  and restore it in the same order to make it working correctly. So, it's
+  suggested to get first the toolbars of each docking area with
+  toolBarsOnDock(). Then get all information of each of these toolbars with
+  findDockAndIndexOfToolbar() for each toolbar in each list and save
+  it in the order of the list you got from toolBarsOnDock().
+  When restoring the layout, create the toolbars exactly in the order in
+  which the infos are loaded.
+  
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
 
@@ -772,7 +790,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 
     if ( relative == toolBar )
 	return;
-    
+
     bool nl = FALSE;
     QValueList<int> dd;
     if ( toolBar->mw && toolBar->mw != this ) {
@@ -1732,7 +1750,7 @@ void QMainWindow::styleChange( QStyle& old )
 /*!
   Finds and gives back the \a dock and the \a index there of the toolbar \a tb. \a dock is
   set to the dock of the mainwindow in which \a tb is and \a index is set to the
-  position of the toolbar in this dock. If the toolbar has a new line, \a nl is set to TRUE, 
+  position of the toolbar in this dock. If the toolbar has a new line, \a nl is set to TRUE,
   else to FALSE.
 
   This method returns TRUE if the information could be found out, otherwise FALSE
@@ -1765,7 +1783,7 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
 
     index = td->findRef( t );
     nl = t->nl;
-    
+
     return TRUE;
 }
 
