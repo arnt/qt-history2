@@ -185,8 +185,10 @@ QString QMetaObject::trUtf8(const char *s, const char *c) const
 
 
 /*!
-    Returns the slot offset, i.e. the summarized number of slots in
-    all super classes.
+    Returns the slot offset for this class, i.e. the index position of
+    this class's first slot. The offset is the sum of all the slots in
+    the class's super classes (which is always positive since QObject
+    has the deleteLater() slot).
  */
 int QMetaObject::slotOffset() const
 {
@@ -200,8 +202,10 @@ int QMetaObject::slotOffset() const
 }
 
 /*!
-    Returns the signal offset, i.e. the summarized number of signals in
-    all super classes.
+    Returns the signal offset for this class, i.e. the index position
+    of this class's first signal. The offset is the sum of all the
+    signals in the class's super classes (which is always positive
+    since QObject has slots destroyed() and destroyed(QObject*)).
  */
 int QMetaObject::signalOffset() const
 {
@@ -215,8 +219,11 @@ int QMetaObject::signalOffset() const
 }
 
 /*!
-    Returns the enumerator offset, i.e. the summarized number of
-    enumerators in all super classes.
+    Returns the enumerator offset for this class, i.e. the index
+    position of this class's first enumerator. If the class has no
+    super classes with enumerators, the offset is 0, otherwise the
+    offset is the sum of all the enumerators in the class's super
+    classes.
  */
 int QMetaObject::enumeratorOffset() const
 {
@@ -230,8 +237,10 @@ int QMetaObject::enumeratorOffset() const
 }
 
 /*!
-    Returns the property offset, i.e. the summarized number of
-    properties in all super classes.
+    Returns the property offset for this class, i.e. the index
+    position of this class's first property. The offset is the sum of
+    all the properties in the class's super classes (which is always
+    positive since QObject has the name() property).
  */
 int QMetaObject::propertyOffset() const
 {
@@ -245,8 +254,11 @@ int QMetaObject::propertyOffset() const
 }
 
 /*!
-    Returns the class information offset, i.e. the summarized number
-    of items of class information in all super classes.
+    Returns the class information offset for this class, i.e. the
+    index position of this class's first class information item. If
+    the class has no super classes with class information, the offset
+    is 0, otherwise the offset is the sum of all the class information
+    items in the class's super classes.
  */
 int QMetaObject::classInfoOffset() const
 {
