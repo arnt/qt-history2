@@ -925,7 +925,7 @@ inline QString &QString::operator+=( const QByteArray &s )
 #endif
 
 #ifndef QT_NO_STL
-inline QString &operator=( const std::string& str ) 
+inline QString &QString::operator=( const std::string& str ) 
 { return operator=(str.c_str()); }
 inline QString &QString::operator+=( const std::string& s )
 { return operator+=(s.c_str()); }
