@@ -506,7 +506,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     index position.
 */
 
-
 /*!
     \fn bool QModelIndex::isValid() const
 
@@ -514,6 +513,14 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     false.
 */
 
+/*!
+    \fn const QAbstractItemModel *model() const
+
+    \internal
+
+    Returns a pointer to the model containing the item that this index
+    refers to.
+*/
 
 /*!
     \fn bool QModelIndex::operator==(const QModelIndex &other) const
@@ -599,9 +606,47 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
+    \fn bool QAbstractItemModel::insertColumn(int column, const QModelIndex &parent)
+
+    Inserts a single column before the given \a column in the child items of
+    the \a parent specified. Returns true if the column is inserted; otherwise
+    returns false.
+
+    \sa insertColumns() insertRow() removeColumn()
+*/
+
+/*!
+    \fn bool QAbstractItemModel::insertRow(int row, const QModelIndex &parent)
+
+    Inserts a single row before the given \a row in the child items of the
+    \a parent specified. Returns true if the row is inserted; otherwise
+    returns false.
+
+    \sa insertRows() insertColumn() removeRow()
+*/
+
+/*!
     \fn QModelIndex QAbstractItemModel::parent(const QModelIndex &index) const = 0
 
     Returns the parent of the model item with the given \a index.
+*/
+
+/*!
+    \fn bool QAbstractItemModel::removeColumn(int column, const QModelIndex &parent)
+
+    Removes the given \a column from the child items of the \a parent specified.
+    Returns true if the column is removed; otherwise returns false.
+
+    \sa removeColumns() removeRow() insertColumn()
+*/
+
+/*!
+    \fn bool QAbstractItemModel::removeRow(int row, const QModelIndex &parent)
+
+    Removes the given \a row from the child items of the \a parent specified.
+    Returns true if the row is removed; otherwise returns false.
+
+    \sa removeRows() removeColumn() insertRow()
 */
 
 /*!
@@ -1304,6 +1349,57 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractListModel
 
+*/
+
+/*!
+  \fn bool QAbstractTableModel::insertColumns(int column, int count)
+
+  Inserts \a count new columns in the model before position \a column. If \a
+  column is 0 the columns are prepended to the model, if \a column is
+  columnCount() the columns are appended to the model. The items in the column
+  will be children of the item represented by the \a parent index.
+  If \a parent has no children, a single row with \a count columns is inserted.
+  Returns true if the columns were successfully inserted; otherwise
+  returns false.
+
+  The base class implementation does nothing and returns false. If
+  you want to be able to insert columns you must reimplement this
+  function.
+*/
+
+/*!
+  \fn bool QAbstractTableModel::insertRows(int row, int count)
+
+  Inserts \a count rows in the model before position \a row. If \a row is 0 the
+  rows are prepended to the model, if \a row is rowCount() the rows are
+  appended to the model. The row will be a child of \a parent.
+  If \a parent has no children \a count rows with at least one column is inserted.
+  Returns true if the rows were successfully inserted; otherwise returns
+  false.
+
+  The base class implementation does nothing and returns false. If
+  you want to be able to insert rows you must reimplement this
+  function.
+*/
+
+/*!
+    \fn bool QAbstractTableModel::removeColumns(int column, int count)
+
+    Removes \a count columns starting with column \a column under parent
+    \a parent from the model.  Returns true if the columns were
+    successfully removed; otherwise returns false.
+
+    The base class implementation does nothing and returns false.
+*/
+
+/*!
+    \fn bool QAbstractTableModel::removeRows(int row, int count)
+
+    Removes \a count rows starting with row \a row under parent \a
+    parent from the model. Returns true if the rows were successfully
+    removed; otherwise returns false.
+
+    The base class implementation does nothing and returns false.
 */
 
 /*!
