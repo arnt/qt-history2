@@ -1018,13 +1018,6 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    arg.vt = VT_I4;
 	    arg.lVal = static_QUType_int.get( obj );
 	}
-    } else if ( QUType::isEqual( obj->type, &static_QUType_uint ) ) {
-	if ( byref && ( arg.vt == (VT_UINT|VT_BYREF) ) ) {
-	    *arg.puintVal = static_QUType_uint.get( obj );
-	} else {
-	    arg.vt = VT_UINT;
-	    arg.uintVal = static_QUType_uint.get( obj );
-	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
 	if ( byref && ( arg.vt == (VT_BSTR|VT_BYREF) ) ) {
 	    SysFreeString( *arg.pbstrVal );
@@ -1091,6 +1084,9 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		vart = value.type();
 
 	    switch( vart ) {
+	    case QVariant::UInt:
+		value = *(uint*)ptrvalue;
+		break;
 	    case QVariant::CString:
 		value = *(QCString*)ptrvalue;
 		break;
