@@ -15,6 +15,7 @@
 #define QDEBUG_H
 
 #include "QtCore/qlist.h"
+#include "QtCore/qmap.h"
 #include "QtCore/qtextstream.h"
 #include "QtCore/qstring.h"
 
@@ -83,6 +84,17 @@ inline QDebug operator<<(QDebug debug, const QList<T> &list)
     return debug;
 }
 
+template <class aKey, class aT>
+inline QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
+{
+    dbg << "QMap(";
+    for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
+         it != map.constEnd(); ++it) {
+        dbg << "(" << it.key() << "," << it.value() << ")";
+    }
+    dbg << ")";
+    return dbg;
+}
 
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
 inline Q_CORE_EXPORT QDebug qWarning() { return QDebug(QtWarningMsg); }
