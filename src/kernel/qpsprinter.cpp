@@ -5696,7 +5696,7 @@ static void emitBits( char *out, int & byte, int & bit,
     }
 }
 
-//#define DEBUG_COMPRESS
+#define DEBUG_COMPRESS
 #ifdef DEBUG_COMPRESS
 #include <qdatetime.h>
 #endif
@@ -5823,7 +5823,7 @@ QByteArray compress( const QImage & image, bool gray ) {
     int outLen = 256;
     int outOffset = 0;
     int outBit = 0;
-
+    
     /* we process pixels serially, emitting as necessary/possible. */
     while( index <= size ) {
         int bestCandidate = None;
@@ -6138,15 +6138,12 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, float h,
                             const QImage &img )
 {
-    if ( !w || !h ) return;
+    if ( !w || !h || img.isNull() ) return;
 
     int width  = img.width();
     int height = img.height();
     float scaleX = (float)width/w;
     float scaleY = (float)height/h;
-
-    if ( img.isNull() )
-        return;
 
     bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
 		img.allGray();
@@ -6166,39 +6163,34 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
             suby += subheight;
         }
     } else {
-
+	QByteArray out;
+	int size = 0;
+	const char *op;
+	const char *bits;
+	
+	if ( img.depth() == 1 ) {
+	    size = (width*height+7)/8;
+	    op = "image";
+	    bits = " 1[";
+            out = ::compress( img, TRUE );
+	} else if ( gray ) {
+	    size = width*height;
+	    op = "image";
+	    bits = " 8[";
+            out = ::compress( img.convertDepth( 8 ), TRUE );
+        } else {
+	    size = width*height*3;
+	    op = "QCI";
+	    bits = " 8[";
+	    out = ::compress( img, FALSE );
+        }
         if ( x || y )
             pageStream << x << " " << y << " TR\n";
-	if ( img.depth() == 1 ) {
-            pageStream << "/sl " << (width*height+7)/8 << " string d\n";
-            pageStream << "sl uc\n";
-            QByteArray out;
-            out = ::compress( img, TRUE );
-            ps_r7( pageStream, out, out.size() );
-            pageStream << "pop\n";
-            pageStream << width << ' ' << height << " 1[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}image\n";
-	} else if ( gray ) {
-            pageStream << "/sl " << width*height << " string d\n";
-            pageStream << "sl uc\n";
-            QByteArray out;
-            out = ::compress( img.convertDepth( 8 ), TRUE );
-            ps_r7( pageStream, out, out.size() );
-            pageStream << "pop\n";
-            pageStream << width << ' ' << height << " 8[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}image\n";
-        } else {
-            pageStream << "/sl " << width*3*height << " string d\n";
-            pageStream << "sl uc\n";
-            QByteArray out;
-            if ( img.depth() < 8 )
-                out = ::compress( img.convertDepth( 8 ), FALSE );
-            else if ( img.depth() > 8 && img.depth() < 24 )
-                out = ::compress( img.convertDepth( 24 ), FALSE );
-            else
-                out = ::compress( img, FALSE );
-            ps_r7( pageStream, out, out.size() );
-            pageStream << "pop\n";
-            pageStream << width << ' ' << height << " 8[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}QCI\n";
-        }
+	pageStream << "/sl " << size << " string d\n";
+	pageStream << "sl uc\n";
+	ps_r7( pageStream, out, out.size() );
+	pageStream << "pop\n";
+	pageStream << width << ' ' << height << bits << scaleX << " 0 0 " << scaleY << " 0 0]{sl}" << op << "\n";
         if ( x || y )
             pageStream << -x << " " << -y << " TR\n";
     }
