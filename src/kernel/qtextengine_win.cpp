@@ -633,16 +633,22 @@ void QTextEngine::shape( int item ) const
 	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
 	    script = scriptForWinLanguage( script_prop->langid );
 	    if ( script == QFont::Latin && script_prop->fAmbiguousCharSet ) {
-		// maybe some asian language
-		int i;
-		for( i = 0; i < 5; i++ ) {
-		    QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
-		    if ( fe->type() == QFontEngine::Box )
-			continue;
+		// either some asian language or something Uniscribe doesn't recognise
+		// we look at the first character to find out what it is
+		script = (QFont::Script)scriptForChar( string.unicode()[si.position].unicode() );
+		if ((script >= QFont::Han && script <= QFont::Yi) 
+		    || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
+		    // maybe some asian language
+		    int i;
+		    for( i = 0; i < 5; i++ ) {
+			QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
+			if ( fe->type() == QFontEngine::Box )
+			    continue;
 
-		    if ( fe->canRender( string.unicode()+from, len ) ) {
-			script = tryScripts[i];
-    			break;
+			if ( fe->canRender( string.unicode()+from, len ) ) {
+			    script = tryScripts[i];
+    			    break;
+			}
 		    }
 		}
 	    }

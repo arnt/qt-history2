@@ -162,6 +162,11 @@ void QFontPrivate::load( QFont::Script script )
 	subs_list += QFont::substitutes( *it );
     family_list += subs_list;
 
+    if(qt_winver & Qt::WV_DOS_based && req.family.lower() == "ms sans serif") {
+	// small hack for Dos based machines to get the right font for non
+	// latin text when using the default font.
+	family_list << "Arial" << "Tahoma" << "Verdana";
+    }
     // append the default fallback font for the specified script
     // family_list << ... ; ###########
 
