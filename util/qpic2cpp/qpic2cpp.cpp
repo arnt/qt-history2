@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#6 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#7 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
@@ -98,8 +98,8 @@ bool genCPlusPlus( QString fileName, QFile &file )
     while ( !s.device()->atEnd() ) {
 	s >> c;					// get command
 	s >> len;				// get param length
-	if ( c == PDC_DRAWLINESEGS || c == PDC_DRAWPOLYLINE ||
-	     c == PDC_DRAWPOLYGON ) {
+	if ( c == PdcDrawLineSegments || c == PdcDrawPolyline ||
+	     c == PdcDrawPolygon ) {
 	    s >> a;				// read point array
 	    printf( "    static QCOOT pa_data_%d[] = {\n\t", pa_count );
 	    for ( int i=0; i<a.size(); i++ ) {	// create C++ point array
@@ -114,103 +114,103 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	    printf( "    QPointArray pa_%d( pa_data_%d, %d );\n",
 		    pa_count, pa_count, a.size() );	    
 	}
-	if ( c != PDC_END )
+	if ( c != PdcEnd )
 	    printf( "    painter." );
 	switch ( c ) {
-	    case PDC_DRAWPOINT:
+	    case PdcDrawPoint:
 	        s >> p;
 	    	printf( "drawPoint( %d, %d );\n", p.x(), p.y() );
 	        break;
-	    case PDC_MOVETO:
+	    case PdcMoveTo:
 	        s >> p;
 	    	printf( "moveTo( %d, %d );\n", p.x(), p.y() );
 	        break;
-	    case PDC_LINETO:
+	    case PdcLineTo:
 	        s >> p;
 	    	printf( "lineTo( %d, %d );\n", p.x(), p.y() );
 		break;
-	    case PDC_DRAWLINE:
+	    case PdcDrawLine:
 	        s >> p >> p2;
 		printf( "drawLine( %d, %d, %d, %d );\n", p.x(), p.y(),
 			p2.x(), p2.y() );
 		break;
-	    case PDC_DRAWRECT:
+	    case PdcDrawRect:
 		s >> r;
 		printf( "drawRect( %d, %d, %d, %d );\n",
 		 	r.left(), r.top(), r.width(), r.height() );
 		break;
-	    case PDC_DRAWROUNDRECT:
+	    case PdcDrawRoundRect:
 		s >> r >> i1 >> i2;
 		printf( "drawRoundRect( %d, %d, %d, %d, %d, %d );\n",
 			r.left(), r.top(), r.width(), r.height(),
 		        i1, i2 );
 		break;
-	    case PDC_DRAWELLIPSE:
+	    case PdcDrawEllipse:
 		s >> r;
 		printf( "drawEllipse( %d, %d, %d, %d );\n",
 		 	r.left(), r.top(), r.width(), r.height() );
 		break;
-	    case PDC_DRAWARC:
+	    case PdcDrawArc:
 		s >> r >> i1 >> i2;
 		printf( "drawArc( %d, %d, %d, %d, %d, %d );\n",
 			r.left(), r.top(), r.width(), r.height(),
 		        i1, i2 );
 		break;
-	    case PDC_DRAWPIE:
+	    case PdcDrawPie:
 		s >> r >> i1 >> i2;
 		printf( "drawPie( %d, %d, %d, %d, %d, %d );\n",
 			r.left(), r.top(), r.width(), r.height(),
 		        i1, i2 );
 		break;
-	    case PDC_DRAWCHORD:
+	    case PdcDrawChord:
 		s >> r >> i1 >> i2;
 		printf( "drawChord( %d, %d, %d, %d, %d, %d );\n",
 			r.left(), r.top(), r.width(), r.height(),
 		        i1, i2 );
 		break;
-	    case PDC_DRAWLINESEGS:
+	    case PdcDrawLineSegments:
 		printf( "drawLineSegments( pa_%d );\n", pa_count++ );
 		break;
-	    case PDC_DRAWPOLYLINE:
+	    case PdcDrawPolyline:
 		printf( "drawPolyline( pa_%d );\n", pa_count++ );
 		break;
-	    case PDC_DRAWPOLYGON:
+	    case PdcDrawPolygon:
 		s >> i1;
 		printf( "drawPolygon( pa_%d, %d );\n", pa_count++, i1 );
 		break;
-	    case PDC_DRAWTEXT:
+	    case PdcDrawText:
 	        s >> p >> str;
 	        printf( "drawText( %d,%d, \"%s\" );\n", p.x(), p.y(),
 		        str );		
 	        delete str;
 	        break;
-	    case PDC_SETBKCOLOR:
+	    case PdcSetBkColor:
 	        s >> ul;
 		color.setRGB( ul );
 	        printf( "setBackgroundColor( QColor(%d,%d,%d) );\n",
 			color.red(), color.green(), color.blue() );
 	        break;
-	    case PDC_SETBKMODE:
+	    case PdcSetBkMode:
 	        s >> i1;
 	        printf( "setBackgroundMode( %d );\n", i1 );
 	        break;
-	    case PDC_SETROP:
+	    case PdcSetROP:
 		s >> i1;
 		printf( "setRasterOp( (RasterOp)%d );\n", i1 );
 		break;
-	    case PDC_SETPEN:
+	    case PdcSetPen:
 	        s >> i1 >> i2 >> ul;
 		color.setRGB( ul );
 	        printf( "setPen( QPen( QColor(%d,%d,%d), %d, (PenStyle)%d ) );\n",
 			color.red(), color.green(), color.blue(), i2, i1 );
 		break;
-	    case PDC_SETBRUSH:
+	    case PdcSetBrush:
 		s >> i1 >> ul;
 		color.setRGB( ul );
 		printf( "setBrush( QBrush( QColor(%d,%d,%d), (BrushStyle)%d ) );\n",
 			color.red(), color.green(), color.blue(), i1 );
 		break;
-	    case PDC_SETVXFORM:
+	    case PdcSetVXform:
 	        s >> i1;
 	        printf( "setViewXForm( %d );\n", i1 );
 	        break;
@@ -224,7 +224,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	        printf( "setTargetView( QRect(%d,%d,%d,%d) );\n",
 			r.left(), r.top(), r.width(), r.height() );
 	        break;
-	    case PDC_SETWXFORM:
+	    case PdcSetWXform:
 	        s >> i1;
 	        printf( "setWorldXForm( %d );\n", i1 );
 	        break;
@@ -236,7 +236,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	        }
 		break;
 
-	    case PDC_END:
+	    case PdcEnd:
 		break;
 	    default:
 		if ( len )			// skip unknown params
