@@ -42,12 +42,19 @@
 #define QGBKCODEC_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #include "qtextcodec.h"
 #endif // QT_H
 
 #ifndef QT_NO_BIG_CODECS
 
-class Q_EXPORT QGbkCodec : public QTextCodec {
+#if defined(QT_PLUGIN_CODECS_CN)
+#define Q_EXPORT_CODECS_CN
+#else
+#define Q_EXPORT_CODECS_CN Q_EXPORT
+#endif
+
+class Q_EXPORT_CODECS_CN QGbkCodec : public QTextCodec {
 public:
     QGbkCodec();
 
