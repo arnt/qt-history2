@@ -1,27 +1,25 @@
 TEMPLATE	= app
 CONFIG = console release qtinc yacc lex_included yacc_no_name_mangle
-DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
-		  QT_NO_STL QT_NO_COMPRESS
+DEFINES	       += QT_MOC QT_NO_CODECS QT_NO_TEXTCODEC \
+		  QT_LITE_UNICODE QT_NO_COMPONENT \
+		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM
 win32:DEFINES  += QT_NODLL
 INCLUDEPATH	+= $$QT_SOURCE_TREE/include ../tools .
 DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
 LIBS		=
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
-SOURCES		= ../tools/qbuffer.cpp	    \
-		  ../compat/qptrcollection.cpp  \
-		  ../compat/qcstring.cpp	    \
+SOURCES		= ../compat/qptrcollection.cpp  \
+		  ../tools/qbitarray.cpp	    \
 		  ../tools/qbytearray.cpp	    \
-		  ../tools/qdatastream.cpp  \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qfile.cpp	    \
 		  ../tools/qdir.cpp	    \
 		  ../tools/qfileinfo.cpp    \
-		  ../compat/qgarray.cpp	    \
 		  ../compat/qgdict.cpp	    \
 		  ../compat/qglist.cpp	    \
-		  ../tools/qglobal.cpp	    \
 		  ../compat/qgvector.cpp	    \
+		  ../tools/qglobal.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qlist.cpp	    \
 		  ../tools/qregexp.cpp	    \
@@ -29,12 +27,8 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qstring.cpp	    \
                   ../tools/qunicodetables.cpp \
 		  ../tools/qstringlist.cpp  \
-		  ../tools/qtextstream.cpp  \
-		  ../tools/qbitarray.cpp    \
-		  ../tools/qmap.cpp         \
-		  ../tools/qvector.cpp      \
-		  ../codecs/qtextcodec.cpp \
-		  ../codecs/qutfcodec.cpp
+		  ../tools/qmap.cpp        \ 
+		  ../tools/qvector.cpp     
 
 isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
     LEXSOURCES  = moc.l

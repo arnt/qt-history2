@@ -56,7 +56,6 @@
 void yyerror(const char *msg);
 
 #include "qplatformdefs.h"
-#include "qasciidict.h"
 #include "qdatetime.h"
 #include "qdict.h"
 #include "qfile.h"
