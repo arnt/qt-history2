@@ -652,14 +652,6 @@ protected:
     void		paintGL();
     void		resizeGL( int w, int h );
 
-    void		mousePressEvent( QMouseEvent* e );
-    void		mouseMoveEvent( QMouseEvent* e );
-    void		mouseReleaseEvent( QMouseEvent* e );
-    void		mouseDoubleClickEvent( QMouseEvent* e );
-    void		enterEvent( QEvent* );
-    void		leaveEvent( QEvent* );
-
-
 private:
     QGLWidget*		realWidget;
 
@@ -702,37 +694,6 @@ void QGLOverlayWidget::resizeGL( int w, int h )
 void QGLOverlayWidget::paintGL()
 {
     realWidget->paintOverlayGL();
-}
-
-
-void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::enterEvent( QEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::leaveEvent( QEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
 }
 
 #undef Bool

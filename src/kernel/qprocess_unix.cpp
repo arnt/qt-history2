@@ -971,64 +971,70 @@ void QProcess::socketRead( int fd )
 	return;
     }
 
-    // read data
-    oldSize = buffer->size();
-    buffer->resize( oldSize + bufsize );
-    n = ::read( fd, buffer->data()+oldSize, bufsize );
-    if ( n > 0 )
-	buffer->resize( oldSize + n );
-    else
-	buffer->resize( oldSize );
-    // eof or error?
-    if ( n == 0 || n == -1 ) {
-	if ( fd == d->proc->socketStdout ) {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
-#endif
-	    d->notifierStdout->setEnabled( FALSE );
-	    delete d->notifierStdout;
-	    d->notifierStdout = 0;
-	    ::close( d->proc->socketStdout );
-	    d->proc->socketStdout = 0;
-	    return;
-	} else if ( fd == d->proc->socketStderr ) {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
-#endif
-	    d->notifierStderr->setEnabled( FALSE );
-	    delete d->notifierStderr;
-	    d->notifierStderr = 0;
-	    ::close( d->proc->socketStderr );
-	    d->proc->socketStderr = 0;
-	    return;
-	}
-    }
-    // read all data that is available
-    while ( n == bufsize ) {
+    bool dataRead = FALSE;
+    fd_set fds;
+    struct timeval tv;
+    FD_ZERO( &fds );
+    FD_SET( fd, &fds );
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    while ( ::select( fd+1, &fds, 0, 0, &tv ) > 0 ) {
+	// prepare for the next round
+	FD_ZERO( &fds );
+	FD_SET( fd, &fds );
+	// read data
 	oldSize = buffer->size();
 	buffer->resize( oldSize + bufsize );
 	n = ::read( fd, buffer->data()+oldSize, bufsize );
-	if ( n > 0 )
+	if ( n > 0 ) {
 	    buffer->resize( oldSize + n );
-	else
+	    dataRead = TRUE;
+	} else {
 	    buffer->resize( oldSize );
+	}
+	// eof or error?
+	if ( n == 0 || n == -1 ) {
+	    if ( fd == d->proc->socketStdout ) {
+#if defined(QT_QPROCESS_DEBUG)
+		qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
+#endif
+		d->notifierStdout->setEnabled( FALSE );
+		delete d->notifierStdout;
+		d->notifierStdout = 0;
+		::close( d->proc->socketStdout );
+		d->proc->socketStdout = 0;
+		break;
+	    } else if ( fd == d->proc->socketStderr ) {
+#if defined(QT_QPROCESS_DEBUG)
+		qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
+#endif
+		d->notifierStderr->setEnabled( FALSE );
+		delete d->notifierStderr;
+		d->notifierStderr = 0;
+		::close( d->proc->socketStderr );
+		d->proc->socketStderr = 0;
+		break;
+	    }
+	}
     }
 
-    d->socketReadCalled = TRUE;
-    if ( fd == d->proc->socketStdout ) {
+    if ( dataRead ) {
+	d->socketReadCalled = TRUE;
+	if ( fd == d->proc->socketStdout ) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
-		buffer->size()-oldSize, fd );
+	    qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
+		    buffer->size()-oldSize, fd );
 #endif
-	emit readyReadStdout();
-    } else if ( fd == d->proc->socketStderr ) {
+	    emit readyReadStdout();
+	} else if ( fd == d->proc->socketStderr ) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
-		buffer->size()-oldSize, fd );
+	    qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
+		    buffer->size()-oldSize, fd );
 #endif
-	emit readyReadStderr();
+	    emit readyReadStderr();
+	}
+	d->socketReadCalled = FALSE;
     }
-    d->socketReadCalled = FALSE;
 }
 
 

@@ -58,23 +58,23 @@ opengl {
 		   opengl/gllandscape.cpp \
 		   opengl/fbm.c
 
-	INTERFACES += opengl/printpreview.ui \
+	FORMS += opengl/printpreview.ui \
 		      opengl/gllandscapeviewer.ui
 }
 
 sql {
-	INTERFACES += sql/book.ui \
+	FORMS += sql/book.ui \
 		      sql/editbook.ui \
 	              sql/connect.ui \
 		      sql/sqlex.ui
 }
 
 table {
-	INTERFACES += widgets/widgetsbase.ui
+	FORMS += widgets/widgetsbase.ui
 }
 
 !table {
-	INTERFACES += widgets/widgetsbase_pro.ui
+	FORMS += widgets/widgetsbase_pro.ui
 }
 
 TRANSLATIONS	= translations/demo_de.ts \

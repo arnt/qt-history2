@@ -3414,7 +3414,9 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 /*
   Returns TRUE if there's no non-withdrawn top level window left
-  (except the desktop, dialogs or popups); otherwise returns FALSE.
+  (except the desktop, popups, or dialogs with parents);
+  otherwise returns FALSE.
+
   This is an internal function used by QWidget::close() to decide
   whether to emit QApplication::lastWindowClosed() or not.
 */
@@ -3427,7 +3429,8 @@ static bool noMoreToplevels()
 	if ( !widget->isHidden()
 	     && !widget->isDesktop()
 	     && !widget->isPopup()
-	     && !widget->testWFlags( Qt::WType_Dialog) )
+	     && (!widget->testWFlags(Qt::WType_Dialog)
+		|| !widget->parentWidget()))
 	    break;
 	widget = list->next();
     }
