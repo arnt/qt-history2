@@ -132,10 +132,6 @@ static bool block_set_alignment = FALSE;
   This signal is always emitted when the contents of the view changed.
  */
 
-/*!  Constructs an empty QTextView with the standard \a parent and \a
-  name optional arguments.
-*/
-
 /*!  \fn void QTextView::selectionChanged()
 
   This signal is always emitted when the selection is changed.
@@ -1732,7 +1728,7 @@ QString QTextView::text( int parag ) const
   \sa text(), setTextFormat()
 */
 
-void QTextView::setText( const QString &txt, const QString &context )
+void QTextView::setText( const QString &text, const QString &context )
 {
     emitUndoAvailable( FALSE );
     emitRedoAvailable( FALSE );
@@ -1741,7 +1737,7 @@ void QTextView::setText( const QString &txt, const QString &context )
 
     lastFormatted = 0;
     cursor->restoreState();
-    doc->setText( txt, context );
+    doc->setText( text, context );
     doc->setMinimumWidth( -1, 0 );
     resizeContents( 0, 0 );
     cursor->setDocument( doc );
@@ -1902,9 +1898,9 @@ void QTextView::getSelection( int &parag_from, int &index_from,
   </ul>
 */
 
-void QTextView::setTextFormat( TextFormat f )
+void QTextView::setTextFormat( TextFormat format )
 {
-    doc->setTextFormat( f );
+    doc->setTextFormat( format );
 }
 
 /*!  Returns the current text format.
