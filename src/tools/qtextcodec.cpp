@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#55 $
 **
 ** Implementation of QTextCodec class
 **
@@ -32,6 +32,7 @@
 #include "qsjiscodec.h"
 #include "qeuckrcodec.h"
 #include "qkoi8codec.h"
+#include "qrtlcodec.h"
 #endif
 
 #include "qfile.h"
@@ -439,7 +440,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   Subclasses of QTextCodec must override this function.  It returns the
   MIBenum (see 
   <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets> 
-  the IANA character-sets encoding file</a>) for more information.  
+  the IANA character-sets encoding file</a> for more information).  
   It is important that each QTextCodec subclass return the correct unique
   value for this function.
 */
@@ -1168,7 +1169,7 @@ static struct {
 	0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F,
 	0x2116, 0x0451, 0x0452, 0x0453, 0x0454, 0x0455, 0x0456, 0x0457,
 	0x0458, 0x0459, 0x045A, 0x045B, 0x045C, 0x00A7, 0x045E, 0x045F } },
-    { "ISO 8859-6", 9,
+    { "ISO 8859-6-I", 82,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1202,7 +1203,7 @@ static struct {
 	0x03B8, 0x03B9, 0x03BA, 0x03BB, 0x03BC, 0x03BD, 0x03BE, 0x03BF,
 	0x03C0, 0x03C1, 0x03C2, 0x03C3, 0x03C4, 0x03C5, 0x03C6, 0x03C7,
 	0x03C8, 0x03C9, 0x03CA, 0x03CB, 0x03CC, 0x03CD, 0x03CE, 0xFFFD } },
-    { "ISO 8859-8", 11,
+    { "ISO 8859-8-I", 85,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1360,6 +1361,8 @@ static void setupBuiltinCodecs()
     (void)new QKoi8Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
+    (void)new QHebrewCodec;
+    (void)new QArabicCodec;
 }
 
 #else
