@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#21 $
 **
 ** Implementation of QFontDialog
 **
@@ -103,9 +103,42 @@ struct QFontDialogPrivate
 
 };
 
+/*
+  Work around bugs in layout.
+ */
 
-/*!  Creates a default font dialog.
+class ExpandingLineEdit : public QLineEdit
+{
+public:
+    ExpandingLineEdit( QWidget *parent, const char *name=0, bool fixedHeight )
+	: QLineEdit( parent, name ) { f = fixedHeight; }
+    QSizePolicy sizePolicy() const
+    {
+	    return QSizePolicy( QSizePolicy::Expanding,
+				f ? QSizePolicy::Fixed :
+				    QSizePolicy::Expanding  );
+    }
+    QSize sizeHint() const { QSize sz = QLineEdit::sizeHint();
+                             sz.setWidth( 20 );
+			     return sz; 
+                           }
+    bool f;
+};
 
+class ExpandingComboBox : public QComboBox
+{
+public:
+    ExpandingComboBox( bool b, QWidget *parent, const char *name=0 )
+	: QComboBox( b, parent, name ) {}
+    QSizePolicy sizePolicy() const
+	{
+	    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	}
+};
+
+
+/*!
+  Creates a default font dialog.
 */
 
 QFontDialog::QFontDialog( QWidget *parent, const char *name,
@@ -114,7 +147,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 {
     d = new QFontDialogPrivate;
     // grid
-    d->familyEdit = new QLineEdit( this, "font family I" );
+    d->familyEdit = new ExpandingLineEdit( this, "font family I", TRUE );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->setFocusPolicy( NoFocus );
@@ -125,7 +158,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
 
-    d->styleEdit = new QLineEdit( this, "font style I" );
+    d->styleEdit = new ExpandingLineEdit( this, "font style I", TRUE );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
     d->styleList->setFocusPolicy( NoFocus );
@@ -135,7 +168,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
 
-    d->sizeEdit = new QLineEdit( this, "font size I" );
+    d->sizeEdit = new ExpandingLineEdit( this, "font size I", TRUE );
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->setFocusPolicy( NoFocus );
@@ -153,27 +186,29 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->underline = new QCheckBox( d->effects, "underline on/off" );
     d->underline->setText( "&Underline" );
     d->color = new QComboBox( TRUE, d->effects, "pen color" );
+    d->color->setEnabled( FALSE );
     d->colorAccel
 	= new QLabel( d->color, "&Color", d->effects, "color label" );
     d->colorAccel->setMargin( 2 );
 
-    d->effectsLayout = new QBoxLayout( d->effects, QBoxLayout::Down, 8 );
+    d->effectsLayout = new QBoxLayout( d->effects, QBoxLayout::Down, 6, 0 );
     d->effectsLayout->addSpacing( 12 );
     d->effectsLayout->addWidget( d->strikeout, 0, AlignLeft );
+    d->effectsLayout->addSpacing( 2 );
     d->effectsLayout->addWidget( d->underline, 0, AlignLeft );
-    d->effectsLayout->addStretch( 2 );
+    //d->effectsLayout->addSpacing( 6 );
     d->effectsLayout->addWidget( d->colorAccel, 0, AlignLeft );
     d->effectsLayout->addWidget( d->color );
-    d->effectsLayout->addStretch( 2 );
+    //d->effectsLayout->addSpacing( 6 );
 
     // sample and script box
     QWidget * sampleStuff = new QWidget( this, "sample and more, wrapped up" );
 
     d->sample = new QGroupBox( sampleStuff, "sample text" );
     d->sample->setTitle( "Sample" );
-    d->sampleEdit = new QLineEdit( d->sample, "r/w sample text" );
+    d->sampleEdit = new ExpandingLineEdit( d->sample, "r/w sample text", FALSE );
     d->sampleEdit->setText( "AaBbYyZz" );
-    d->scriptCombo = new QComboBox( TRUE, sampleStuff, "font encoding" );
+    d->scriptCombo = new ExpandingComboBox( TRUE, sampleStuff, "font encoding" );
     d->scriptCombo->setFocusPolicy( StrongFocus );
     d->scriptAccel
 	= new QLabel( d->scriptCombo, "Scr&ipt", sampleStuff,"encoding label");
@@ -182,52 +217,14 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sampleLayout = new QBoxLayout( sampleStuff, QBoxLayout::Down, 0 );
     d->sampleLayout->addWidget( d->sample, 2 );
     d->sampleLayout->addSpacing( 5 );
-    d->sampleLayout->addStretch( 10 );
+    //    d->sampleLayout->addStretch( 10 );
     d->sampleLayout->addWidget( d->scriptAccel, 0, AlignLeft );
     d->sampleLayout->addWidget( d->scriptCombo, 0, AlignLeft );
 
     // layout for sampleEdit
-    d->sampleEditLayout = new QBoxLayout( d->sample, QBoxLayout::Down, 12 );
+    d->sampleEditLayout = new QBoxLayout( d->sample, QBoxLayout::Down, 12, 0 );
     d->sampleEditLayout->addSpacing( 6 );
-    d->sampleEditLayout->addWidget( d->sampleEdit );
-
-    // grid layout
-    QGridLayout * mainGrid = new QGridLayout( this, 5, 7, 0 );
-
-    mainGrid->addWidget( d->familyAccel, 0, 0 );
-    mainGrid->addWidget( d->familyEdit, 1, 0 );
-    mainGrid->addWidget( d->familyList, 2, 0 );
-
-    mainGrid->addWidget( d->styleAccel, 0, 2 );
-    mainGrid->addWidget( d->styleEdit, 1, 2 );
-    mainGrid->addWidget( d->styleList, 2, 2 );
-
-    mainGrid->addWidget( d->sizeAccel, 0, 4 );
-    mainGrid->addWidget( d->sizeEdit, 1, 4 );
-    mainGrid->addWidget( d->sizeList, 2, 4 );
-
-    mainGrid->addColSpacing( 1, 6 );
-    mainGrid->addColSpacing( 3, 6 );
-    mainGrid->addRowSpacing( 0,22 );
-
-    mainGrid->addWidget( d->effects, 4, 0 );
-
-    mainGrid->addMultiCellWidget( sampleStuff, 4, 4, 2, 4 );
-
-    QWidget *buttonBox = new QWidget( this, "button box" );
-    mainGrid->addMultiCellWidget( buttonBox, 1, 4, 6, 6 );
-
-    d->buttonLayout = new QBoxLayout( buttonBox, QBoxLayout::Down, 0 );
-
-    d->ok = new QPushButton( "OK", buttonBox, "accept font selection" );
-    connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
-    d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
-
-    d->buttonLayout->addSpacing( 6 );
-
-    d->cancel = new QPushButton( "Cancel", buttonBox, "cancel" );
-    connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
-    d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
+    d->sampleEditLayout->addWidget( d->sampleEdit, 42 );
 
     connect( d->familyList, SIGNAL(highlighted(const QString&)),
 	     SLOT(familyHighlighted(const QString&)) );
@@ -250,7 +247,60 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     connect( d->underline, SIGNAL(clicked()),
 	     SLOT(updateSample()) );
 
-    resize( 500, 300 );
+    updateFamilies();
+    QSize sz;
+    sz = d->familyList->sizeHint();
+    warning( "Xfamily(%i, %i)", sz.width(), sz.height() );
+    sz = d->styleList->sizeHint();
+    warning( "Xstyle(%i, %i)", sz.width(), sz.height() );
+    sz = d->sizeList->sizeHint();
+    warning( "Xsize(%i, %i)", sz.width(), sz.height() );
+
+    // grid layout
+    QGridLayout * mainGrid = new QGridLayout( this, 5, 7, 12, 0 );
+
+    mainGrid->addWidget( d->familyAccel, 0, 0 );
+    mainGrid->addWidget( d->familyEdit, 1, 0 );
+    mainGrid->addWidget( d->familyList, 2, 0 );
+
+    mainGrid->addWidget( d->styleAccel, 0, 2 );
+    mainGrid->addWidget( d->styleEdit, 1, 2 );
+    mainGrid->addWidget( d->styleList, 2, 2 );
+
+    mainGrid->addWidget( d->sizeAccel, 0, 4 );
+    mainGrid->addWidget( d->sizeEdit, 1, 4 );
+    mainGrid->addWidget( d->sizeList, 2, 4 );
+
+    mainGrid->setColStretch( 0, 38 );
+    mainGrid->setColStretch( 2, 24 );
+    mainGrid->setColStretch( 4, 10 );
+
+    mainGrid->addColSpacing( 1, 6 );
+    mainGrid->addColSpacing( 3, 6 );
+    mainGrid->addColSpacing( 5, 6 );
+
+    mainGrid->addRowSpacing( 3, 12 );
+
+    mainGrid->addWidget( d->effects, 4, 0 );
+
+    mainGrid->addMultiCellWidget( sampleStuff, 4, 4, 2, 4 );
+
+    QWidget *buttonBox = new QWidget( this, "button box" );
+    mainGrid->addMultiCellWidget( buttonBox, 1, 4, 6, 6 );
+
+    d->buttonLayout = new QBoxLayout( buttonBox, QBoxLayout::Down, 0 );
+
+    d->ok = new QPushButton( "OK", buttonBox, "accept font selection" );
+    connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
+    d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
+
+    d->buttonLayout->addSpacing( 6 );
+
+    d->cancel = new QPushButton( "Cancel", buttonBox, "cancel" );
+    connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
+    d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
+
+    resize( 500, 360 );
 
     d->familyEdit->installEventFilter( this );
     d->styleEdit->installEventFilter( this );
@@ -260,7 +310,6 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeList->installEventFilter( this );
 
     d->familyEdit->setFocus();
-    updateFamilies();
 }
 
 /*! Deletes the font dialog and frees up its storage. */
@@ -641,5 +690,4 @@ QFont QFontDialog::font() const
 void QFontDialog::updateSample()
 {
     d->sampleEdit->setFont( font() );
-    d->sampleEdit->resize( d->sampleEdit->sizeHint() );
 }
