@@ -261,6 +261,11 @@ public slots:
 	return sub;
     }
 
+    void throwException( int code, const QString &src, const QString &desc, const QString &context )
+    {
+	reportError( code, src, desc, context );
+    }
+
 signals:
     void unicodeChanged( const QString& );
     void unicodeRefSignal( QString& );
