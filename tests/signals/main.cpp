@@ -2,6 +2,9 @@
 #include <qdatetime.h>
 #include "main.h"
 
+/*This is a nifty comment 
+ */
+
 int main(int argc, char **argv)
 {
   QApplication a(argc, argv);

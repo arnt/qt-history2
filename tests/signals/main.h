@@ -1,28 +1,29 @@
 #include <qobject.h>
 
+/*another nifty comment*/
 // Some more junk. I bet you hate seeing this in the kjerub ;)
 
 class Sender : public QObject
 {
     Q_OBJECT
 public:
-    Sender( QObject *parent=0, const char *name=0 ) 
+    Sender( QObject *parent=0, const char *name=0 )
 	: QObject( parent, name ) {}
     ~Sender(){}
-    
-    void emitSignal() { 
-	emit signal1(); 
-	emit signal2(); 
-	emit signal3(); 
-	emit signal4(); 
-	emit signal5(); 
-	emit signal6(); 
-	emit signal7(); 
-	emit signal8(); 
-	emit signal9(); 
-	emit signal10(); 
+
+    void emitSignal() {
+	emit signal1();
+	emit signal2();
+	emit signal3();
+	emit signal4();
+	emit signal5();
+	emit signal6();
+	emit signal7();
+	emit signal8();
+	emit signal9();
+	emit signal10();
     }
-    
+
 signals:
     void signal1();
     void signal2();
@@ -43,7 +44,7 @@ public:
     Receiver( QObject *parent=0, const char *name=0 )
 	: QObject( parent, name ) {}
     ~Receiver() {}
-    
+
 public slots:
     void slot() { int b = 17; b += 20; b*=10;};
 };
