@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#13 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#14 $
 **
 ** Implementation of Network Extension Library
 **
@@ -243,20 +243,20 @@ void QFtp::readyRead()
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
     } else if ( s.left( 3 ) == "230" ) { // succesfully logged in
-	if ( !passiveMode ) {
-	    connectionReady = TRUE;
-	    passiveMode = TRUE;
-	    switch ( command ) {
-	    case List:
+	connectionReady = TRUE;
+	switch ( command ) {
+	case List: {
+	    if ( !passiveMode ) {
+		passiveMode = TRUE;
 		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-		break;
-	    case Mkdir: {
-		QString cmd( "MKD " + extraData + "\r\n" );
-		commandSocket->writeBlock( cmd, cmd.length() );
-	    } break;
-	    case None:
-		break;
 	    }
+	    } break;
+	case Mkdir: {
+	    QString cmd( "MKD " + extraData + "\r\n" );
+	    commandSocket->writeBlock( cmd, cmd.length() );
+	} break;
+	case None:
+	    break;
 	}
     } else if ( s.left( 3 ) == "227" ) { // open the data connection for LIST
 	int i = s.find( "(" );
