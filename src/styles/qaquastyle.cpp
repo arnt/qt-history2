@@ -1399,6 +1399,9 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ExclusiveIndicatorHeight:
 	ret = 17;
 	break;
+    case PM_ScrollBarExtent:
+	ret = 14;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
