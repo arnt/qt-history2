@@ -152,7 +152,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(dst->devType() == QInternal::Widget) {
 	
 	/* special case when you widget->widget blt */
-	if(src->devType() == QInternal::Widget) {
+	if(src != dst && src->devType() == QInternal::Widget) {
 	    qDebug("I don't really know if this will work, I'll need to find a test case FIXME! %s:%d",
 		   __FILE__, __LINE__);
 	    QPixmap tmppix(dw, dh, 32);
