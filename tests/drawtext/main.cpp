@@ -197,7 +197,7 @@ struct {
       QString::fromUtf8(
 	  "أوروبا, برمجيات الحاسوب + انترنيت : تصبح عالميا مع يونيكود تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من ")
     },
-    { "Devanagari",
+    { "Hindi",
       QString::fromUtf8(
 	  "            यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर             प्रदान करता है,             चाहे कोई भी प्लैटफॉर्म हो.")
     }
@@ -206,9 +206,12 @@ struct {
 
 const int loops = 1000;
 
+const int start = 0;
+const int end = nSamples;
+
 #define TEST( desc, loops, testfunc ) { \
     QString res = "    "; res += desc; \
-    for ( int test = 0; test < nSamples; test++ ) { \
+    for ( int test = start; test < end; test++ ) { \
 	QString str = samples[test].text; \
 	QString subres; \
 	fm.width( str ); \
@@ -243,13 +246,14 @@ static void timeSpeed()
 //     qDebug("string lengths are: latin=%d i18n=%d", latinString.length(), i18nString.length() );
 
     QString langs = "\t\t\t\t\t";
-    for ( int i = 0; i < nSamples; ++i ) {
+    for ( int i = start; i < end; ++i ) {
 	langs += samples[i].lang;
 	langs += "\t";
     }
     qDebug("%s", langs.latin1() );
 
     qDebug("Font Metrics:");
+
     TEST( "width, QChar\t\t", loops, {
 	const QChar *qch = str.unicode();
 	const QChar *ch = qch + str.length();
@@ -265,7 +269,6 @@ static void timeSpeed()
 	    fm.charWidth( str, ch-qch );
     } );
 #endif
-
 
     TEST( "width, QString\t\t", loops, {
 	fm.width( str );
