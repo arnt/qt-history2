@@ -186,8 +186,10 @@ public:
 #elif defined(_WS_QWS_)
     virtual bool     qwsEventFilter( QWSEvent * );
     int              qwsProcessEvent( QWSEvent* );
+#ifndef QT_NO_QWS_MANAGER
     static QWSDecorator &qwsDecorator();
     static void      qwsSetDecorator( QWSDecorator *);
+#endif
 #endif
 
 #if defined(_WS_WIN_)

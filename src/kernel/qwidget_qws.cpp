@@ -259,6 +259,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     }
 
     if ( topLevel ) {
+#ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WStyle_DialogBorder)
 	     || testWFlags(WStyle_NormalBorder))
 	{
@@ -268,6 +269,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    crect.moveBy( crect.x() - br.x(), crect.y() - br.y() );
 	    topData()->qwsManager = new QWSManager(this);
 	}
+#endif	
 	// declare the widget's object name as window role
 	// If we are session managed, inform the window manager about it
 	if ( extra && !extra->mask.isNull() ) {
@@ -694,9 +696,10 @@ void QWidget::showWindow()
     setAllocatedRegionDirty();
     if ( testWFlags(WType_TopLevel) ) {
 	QRegion r( req_region );
-	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+#ifndef QT_NO_QWS_MANAGER
+	if ( extra && extra->topextra && extra->topextra->qwsManager )
 	    r += extra->topextra->qwsManager->region();
-	}
+#endif
 	qwsDisplay()->requestRegion(winId(), r);
 	if ( !testWFlags(WStyle_Tool) )
 	    qwsDisplay()->requestFocus(winId(),TRUE);
@@ -748,9 +751,12 @@ void QWidget::showMaximized()
 {
     if ( testWFlags(WType_TopLevel) ) {
 	createTLExtra();
+#ifndef QT_NO_QWS_MANAGER
 	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
 	    extra->topextra->qwsManager->maximize();
-	} else {
+	} else 
+#endif
+	    {
 	    setGeometry( QApplication::desktop()->rect() );
 	}
     }
@@ -845,9 +851,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
 	if ( isVisible() ) {
 	    QRegion rgn( req_region );
-	    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+#ifndef QT_NO_QWS_MANAGER
+	    if ( extra && extra->topextra && extra->topextra->qwsManager )
 		rgn += extra->topextra->qwsManager->region();
-	    }
+#endif
 	    if ( isMove && !isResize && alloc_region_index >= 0 )
 		qwsDisplay()->moveRegion(winId(), x - oldp.x(), y - oldp.y());
 	    else
@@ -917,17 +924,20 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isMove ) {
 	    QMoveEvent e( r.topLeft(), oldp );
 	    QApplication::sendEvent( this, &e );
-	    if (extra && extra->topextra && extra->topextra->qwsManager) {
+#ifndef QT_NO_QWS_MANAGER
+	    if (extra && extra->topextra && extra->topextra->qwsManager) 
 		QApplication::sendEvent( extra->topextra->qwsManager, &e );
-	    }
+#endif	    
 	}
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
+#ifndef QT_NO_QWS_MANAGER
 	    if (extra && extra->topextra && extra->topextra->qwsManager) {
 		QResizeEvent e( r.size(), olds );
 		QApplication::sendEvent(topData()->qwsManager, &e);
 	    }
+#endif	    
 	    if ( !testWFlags( WNorthWestGravity ) ) {
 		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
 					!testWFlags(WResizeNoErase) ) );
@@ -945,11 +955,13 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		paint_children( this, tmp2 );
 	    }
 	}
+#ifndef QT_NO_QWS_MANAGER
 	if (isResize && extra && extra->topextra && extra->topextra->qwsManager) {
 	    QApplication::postEvent(topData()->qwsManager,
 				    new QPaintEvent(visibleRect(),
 				    !testWFlags(WResizeNoErase) ) );
 	}
+#endif	
     } else {
 	if ( isMove )
 	    QApplication::postEvent( this,
@@ -1302,8 +1314,10 @@ QRegion QWidget::paintableRegion() const
     QRegion r;
     if (isVisible()) {
 	r = allocatedRegion();
+#ifndef QT_NO_QWS_MANAGER
 	if (extra && extra->topextra)
 	    r += extra->topextra->decor_allocated_region;
+#endif
 	const QObjectList *c = children();
 	if ( c ) {
 	    QObjectListIt it(*c);
@@ -1342,9 +1356,10 @@ void QWidget::setMask( const QRegion& region )
     if ( isVisible() ) {
 	if ( isTopLevel() ) {
 	    QRegion rgn( req_region );
-	    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+#ifndef QT_NO_QWS_MANAGER
+	    if ( extra && extra->topextra && extra->topextra->qwsManager )
 		rgn += extra->topextra->qwsManager->region();
-	    }
+#endif
 	    qwsDisplay()->requestRegion(winId(), rgn);
 	} else {
 	//XXX
@@ -1400,9 +1415,10 @@ QGfx * QWidget::graphicsContext() const
     // Clip the window decoration for TL windows.
     // It is possible for these windows to draw on the wm decoration if
     // they change the clip region.  Bug or feature?
-    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+#ifndef QT_NO_QWS_MANAGER
+    if ( extra && extra->topextra && extra->topextra->qwsManager )
 	qgfx_qws->setClipRegion(rect());
-    }
+#endif
 
     return qgfx_qws;
 }

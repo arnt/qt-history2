@@ -804,7 +804,7 @@ struct QTLWExtra {
     uint     ussize : 1;                        // User defined size
     void    *xic;				// XIM Input Context
 #endif
-#if defined(_WS_QWS_)
+#if defined(_WS_QWS_) && !defined ( QT_NO_QWS_MANAGER )
     QRegion decor_allocated_region;		// decoration allocated region
     QWSManager *qwsManager;
 #endif

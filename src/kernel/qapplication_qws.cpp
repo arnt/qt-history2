@@ -108,9 +108,9 @@ bool qws_smoothfonts = TRUE;
 bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
-
+#ifndef QT_NO_QWS_MANAGER
 static QWSDecorator *qws_decorator = 0;
-
+#endif
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
@@ -859,9 +859,9 @@ static void init_display()
 #endif
     QPainter::initialize();
     QFontManager::initialize();
-
+#ifndef QT_NO_QWS_MANAGER
     qws_decorator = new QWSDefaultDecorator;
-
+#endif
 
     qApp->setName( appName );
 
@@ -1706,13 +1706,18 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		 event->asMouse()->simpleData.y_root);
 
 	QETWidget *w = (QETWidget*)QWidget::mouseGrabber();
+#ifndef QT_NO_QWS_MANAGER
 	if ( !w )
 	    w = (QETWidget*)QWSManager::grabbedMouse();
 	QWSManager *wm = widget->topData()->qwsManager;
-
+#endif
 	if (w) {
 	    widget = w;
-	} else if (!wm || !(wm->region().contains(p))) {
+	} else 
+#ifndef QT_NO_QWS_MANAGER
+	    if (!wm || !(wm->region().contains(p))) 
+#endif
+		{
 	    static int btnstate = 0;
 	    static QWidget *gw = 0;
 	    w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
@@ -1857,7 +1862,7 @@ bool QApplication::qwsEventFilter( QWSEvent * )
 {
     return FALSE;
 }
-
+#ifndef QT_NO_QWS_MANAGER
 QWSDecorator &QApplication::qwsDecorator()
 {
     return *qws_decorator;
@@ -1870,7 +1875,7 @@ void QApplication::qwsSetDecorator( QWSDecorator *d )
 	qws_decorator = d;
     }
 }
-
+#endif
 
 bool qt_modal_state()
 {
@@ -2542,11 +2547,14 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    }
 
 	    QMouseEvent e( type, pos, globalPos, button, state );
+#ifndef QT_NO_QWS_MANAGER
 	    if (widget->isTopLevel() && widget->topData()->qwsManager
 		&& (widget->topData()->qwsManager->region().contains(globalPos)
 		    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber())) ) {
 		QApplication::sendEvent( widget->topData()->qwsManager, &e );
-	    } else {
+	    } else 
+#endif
+		{
 		QApplication::sendEvent( widget, &e );
 	    }
 	}
@@ -2642,6 +2650,7 @@ void QETWidget::repaintHierarchy(QRegion r)
 
 void QETWidget::repaintDecoration(QRegion r)
 {
+#ifndef QT_NO_QWS_MANAGER
     if ( testWFlags(WType_TopLevel) && topData()->qwsManager) {
 	r &= topData()->qwsManager->region();
 	r.translate(-x(),-y());
@@ -2652,17 +2661,21 @@ void QETWidget::repaintDecoration(QRegion r)
 	qt_clear_paintevent_clipping();
 	clearWState( WState_InPaintEvent );
     }
+#endif    
 }
 
 
 void QETWidget::restrictRegion( QRegion r )
 {
     QRegion totalr = alloc_region;
+#ifndef QT_NO_QWS_MANAGER
     if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
 	totalr += topData()->decor_allocated_region;
 	totalr &= r;
 	topData()->decor_allocated_region = totalr & topData()->qwsManager->region();
-    } else {
+    } else
+#endif	
+	{
 	totalr &= r;
     }
 
@@ -2671,8 +2684,10 @@ void QETWidget::restrictRegion( QRegion r )
 
 void QETWidget::translateRegion( int dx, int dy )
 {
+#ifndef QT_NO_QWS_MANAGER
     if ( testWFlags(WType_TopLevel) && topData()->qwsManager )
 	topData()->decor_allocated_region.translate( dx, dy );
+#endif
     alloc_region.translate( dx, dy );
 }
 
@@ -2695,13 +2710,13 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	alloc_region_revision = revision;
 	QRegion newRegion = rgnMan->region( alloc_region_index );
 	QWSDisplay::ungrab();
-
+#ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
 	    QRegion mr(topData()->qwsManager->region());
 	    topData()->decor_allocated_region = newRegion & mr;
 	    newRegion -= mr;
 	}
-
+#endif
 	alloc_region = newRegion;
 
 	// set children's allocated region dirty

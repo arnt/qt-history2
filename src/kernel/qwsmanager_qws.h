@@ -22,6 +22,7 @@
 #include "qpixmap.h"
 #endif // QT_H
 
+#ifndef QT_NO_QWS_MANAGER
 class QPixmap;
 class QWidget;
 class QPopupMenu;
@@ -138,3 +139,4 @@ protected:
     virtual const QPixmap* pixmapFor(const QWidget*,QWSManager::Region,bool,int&,int&);
 };
 
+#endif //QT_NO_QWS_MANAGER

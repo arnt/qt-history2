@@ -1,3 +1,7 @@
+#include "qwsmanager_qws.h"
+
+#ifndef QT_NO_QWS_MANAGER
+
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qaccel.h"
@@ -10,7 +14,6 @@
 #include "qtimer.h"
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
-#include "qwsmanager_qws.h"
 
 #define CORNER_GRAB	16
 #define BORDER_WIDTH	4
@@ -1107,3 +1110,4 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
 #endif
 }
 
+#endif // QT_NO_QWS_MANAGER

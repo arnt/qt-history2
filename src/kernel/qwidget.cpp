@@ -920,7 +920,7 @@ void QWidget::createTLExtra()
 	x->uspos = 0;
 	x->ussize = 0;
 #endif
-#if defined(_WS_QWS_)
+#if defined(_WS_QWS_) && !defined(QT_NO_QWS_MANAGER)
 	x->decor_allocated_region = QRegion();
 	x->qwsManager = 0;
 #endif
@@ -973,7 +973,7 @@ void QWidget::deleteExtra()
 	    deleteTLSysExtra();
 	    delete extra->topextra->icon;
 	    delete extra->topextra->focusData;
-#if defined(_WS_QWS_)
+#if defined(_WS_QWS_) && !defined(QT_NO_QWS_MANAGER)
 	    delete extra->topextra->qwsManager;
 #endif
 	    delete extra->topextra;
