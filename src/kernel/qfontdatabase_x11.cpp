@@ -1304,7 +1304,6 @@ QFontEngine *loadEngine( QFont::Script script,
 	const char *stylehint_value = 0;
 	switch ( request.styleHint ) {
 	case QFont::SansSerif:
-	default:
 	    stylehint_value = "sans";
 	    break;
 	case QFont::Serif:
@@ -1313,8 +1312,11 @@ QFontEngine *loadEngine( QFont::Script script,
 	case QFont::TypeWriter:
 	    stylehint_value = "mono";
 	    break;
+	default:
+	    break;
 	}
-	XftPatternAddString( pattern, XFT_FAMILY, stylehint_value );
+	if (stylehint_value)
+	    XftPatternAddString( pattern, XFT_FAMILY, stylehint_value );
 
 	char pitch_value = ( encoding->pitch == 'c' ? XFT_CHARCELL :
 			     ( encoding->pitch == 'm' ? XFT_MONO : XFT_PROPORTIONAL ) );
