@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#7 $
 **
 ** Implementation of QPrinter class for Windows
 **
@@ -15,7 +15,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#7 $")
 
 
 // QPrinter states
@@ -141,37 +141,33 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 
 long QPrinter::metric( int m ) const
 {
-    long val;
-    PageSize s = pageSize();
-    ASSERT( s >= A4 && s <= Executive );
-    static int widths[]	 = { 559, 480, 576, 576, 504 };
-    static int heights[] = { 806, 693, 756, 972, 684 };
-    static int widthsMM[]  = { 210, 182, 216, 216, 191 };
-    static int heightsMM[] = { 297, 257, 279, 356, 254 };
+    if ( handle() == 0 )			// not ready
+	return 0;
+    int query = 0;
     switch ( m ) {
 	case PDM_WIDTH:
-	    val = widths[ s ];
+	    query = HORZRES;
 	    break;
 	case PDM_HEIGHT:
-	    val = heights[ s ];
+	    query = VERTRES;
 	    break;
 	case PDM_WIDTHMM:
-	    val = widthsMM[ s ];
+	    query = HORZSIZE;
 	    break;
 	case PDM_HEIGHTMM:
-	    val = heightsMM[ s ];
+	    query = VERTSIZE;
 	    break;
 	case PDM_NUMCOLORS:
-	    val = 16777216;
+	    query = NUMCOLORS;
 	    break;
 	case PDM_DEPTH:
-	    val = 24;
+	    query = PLANES;
 	    break;
 	default:
-	    val = 0;
 #if defined(CHECK_RANGE)
-	    warning( "QPixmap::metric: Invalid metric command" );
+	    warning( "QPrinter::metric: Invalid metric command" );
 #endif
+	    return 0;
     }
-    return val;
+    return GetDeviceCaps( handle(), query );
 }
