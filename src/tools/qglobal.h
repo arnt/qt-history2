@@ -61,15 +61,16 @@
 //   NETBSD	- NetBSD
 //   OPENBSD    - OpenBSD
 //   IRIX	- SGI Irix
-//   OSF	- OSF Unix / Digital Unix / Tru64
-//   BSDI	- BSDI Unix
+//   OSF	- Tru64 / Digital UNIX
+//   BSDI	- BSDi BSD/OS
 //   UNIXWARE	- SCO UnixWare
 //   SCO	- SCO of some sort
-//   AIX	- AIX Unix
+//   AIX	- AIX
 //   GNU	- GNU Hurd
-//   DGUX	- DG Unix
-//   DYNIX	- Dynix
-//   RELIANT	- Reliant Unix
+//   DGUX	- DG/UX
+//   DYNIX	- DYNIX/ptx
+//   RELIANT	- Reliant UNIX
+//   QNX	- QNX
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
