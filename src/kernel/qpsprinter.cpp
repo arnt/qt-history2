@@ -164,15 +164,12 @@ static const char * const ps_header[] = {
 "    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",         //   dash dot dot line
 "] d",
 
-"",//
-"",// Returns the line pattern (from pen style PSt).
-"",//
-"",// Argument:
-"",//   bool pattern
-"",//   true : draw pattern
-"",//   false: fill pattern
-"",//
-"",
+// Returns the line pattern (from pen style PSt).
+//
+// Argument:
+//   bool pattern
+//   true : draw pattern
+//   false: fill pattern
 "/GPS {",
 "  PSt 1 ge PSt 5 le and",                      // valid pen pattern?
 "    { { LArr PSt 1 sub 2 mul get }",           // draw pattern
@@ -711,18 +708,22 @@ static const char * const ps_header[] = {
 "  } ifelse",
 "  definefont pop",
 "} D",
-"",
+
+// the next three commands are for defining fonts. The first one
+// tries to find the most suitable printer font out of a fontlist.
 "/MF {",                                // newname encoding fontlist
 "  qtfindfont qtdefinefont",
 "} D",
 
-"/MSF {",                               // newname slant fontname (this is used for asian fonts, where we don't need an encoding)
+// used for asian fonts. We don't need an encoding, but we can simulate italic.
+"/MSF {",                               // newname slant fontname
 "  findfont exch",                      // newname font slant
 "  /slant exch d",                      // newname font
 "  [ 1 0 slant 1 0 0 ] makefont",
 "  definefont pop",
 "} D",
 
+// an embedded font. This is used for the base fonts of the composite font used later on.
 "/MFEmb {",                             // newname encoding fontname
 "  findfont dup length dict begin",
 "  {",
@@ -6115,7 +6116,7 @@ void QPSPrinter::newPageSetup( QPainter *paint )
     dirtyNewPage      = FALSE;
     d->pageFontNumber = d->headerFontNumber;
 
-    // Sivan: a restore undefines all the fonts that have been defined
+    // a restore undefines all the fonts that have been defined
     // inside the scope (normally within pages) and all the glyphs that
     // have been added in the scope.
 
@@ -6124,8 +6125,6 @@ void QPSPrinter::newPageSetup( QPainter *paint )
       it.current()->restore();
       ++it;
     }
-
-    // Sivan: end.
 }
 
 
