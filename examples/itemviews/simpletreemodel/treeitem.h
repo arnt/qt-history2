@@ -22,17 +22,18 @@ public:
     TreeItem(QStringList data, TreeItem *parent = 0);
     ~TreeItem();
 
-    void appendChildItem(TreeItem *child);
-    TreeItem *childItem(int i);
-    int childCount() const;
-    int childRow(TreeItem *child) const;
+    void appendChild(TreeItem *child);
 
+    TreeItem *child(int row);
+    int childCount() const;
     int columnCount() const;
-    int row() const;
     QVariant data(int column) const;
+    int row() const;
     TreeItem *parent();
 
 private:
+    int childRow(TreeItem *item) const;
+
     QList<TreeItem*> childItems;
     QStringList itemData;
     TreeItem *parentItem;

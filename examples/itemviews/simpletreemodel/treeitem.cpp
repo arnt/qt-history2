@@ -33,12 +33,12 @@ TreeItem::~TreeItem()
         delete *it;
 }
 
-void TreeItem::appendChildItem(TreeItem *item)
+void TreeItem::appendChild(TreeItem *item)
 {
     childItems.append(item);
 }
 
-TreeItem *TreeItem::childItem(int row)
+TreeItem *TreeItem::child(int row)
 {
     if (row >= 0 && row < childItems.count())
         return childItems[row];
@@ -51,9 +51,9 @@ int TreeItem::childCount() const
     return childItems.count();
 }
 
-int TreeItem::childRow(TreeItem *child) const
+int TreeItem::childRow(TreeItem *item) const
 {
-    return childItems.indexOf(child);
+    return childItems.indexOf(item);
 }
 
 int TreeItem::columnCount() const

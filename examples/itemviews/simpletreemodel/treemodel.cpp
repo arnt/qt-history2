@@ -64,7 +64,7 @@ void TreeModel::addModelData(const QStringList &lines, TreeItem *parent)
                 // unless the current parent has no children.
 
                 if (parents.last()->childCount() > 0) {
-                    parents << parents.last()->childItem(parents.last()->childCount()-1);
+                    parents << parents.last()->child(parents.last()->childCount()-1);
                     indentations << position;
                 }
             } else {
@@ -75,7 +75,7 @@ void TreeModel::addModelData(const QStringList &lines, TreeItem *parent)
             }
 
             // Append a new item to the current parent's list of children.
-            parents.last()->appendChildItem(new TreeItem(columnData, parents.last()));
+            parents.last()->appendChild(new TreeItem(columnData, parents.last()));
         }
 
         number++;
@@ -130,25 +130,25 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent)
     else
         parentItem = static_cast<TreeItem*>(parent.data());
 
-    TreeItem *childItem = parentItem->childItem(row);
+    TreeItem *childItem = parentItem->child(row);
     if (childItem)
         return createIndex(row, column, childItem);
     else
         return QModelIndex();
 }
 
-QModelIndex TreeModel::parent(const QModelIndex &child) const
+QModelIndex TreeModel::parent(const QModelIndex &index) const
 {
-    if (!child.isValid())
+    if (!index.isValid())
         return QModelIndex();
 
-    TreeItem *childItem = static_cast<TreeItem*>(child.data());
+    TreeItem *childItem = static_cast<TreeItem*>(index.data());
     TreeItem *parentItem = childItem->parent();
 
     if (parentItem == rootItem)
         return QModelIndex();
 
-    return createIndex(parentItem->row(), child.column(), parentItem);
+    return createIndex(parentItem->row(), index.column(), parentItem);
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const
