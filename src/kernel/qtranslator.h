@@ -81,7 +81,7 @@ class Q_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
 public:
-    QTranslator( QObject * parent, const char * name = 0 );
+    QTranslator( QObject * parent = 0, const char * name = 0 );
     ~QTranslator();
 
 #ifndef QT_NO_COMPAT
