@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#12 $
 **
 **  Splitter widget
 **
@@ -174,17 +174,35 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
 
   \ingroup realwidgets
 
-  A splitter lets the user control the size of two child widgets.
+  A splitter lets the user control the size of two child widgets by
+  dragging the boundary between the two children.
+  
+  You specify the two widgets to be managed using setFirstWidget() (to
+  set the left/top widget) and setSecondWidget().  
 
-  setFirstWidget() and setSecondWidget() specifies the two widgets.
+  In QSplitter the boundary can be either horizontal or vertical.  The
+  default is horizontal (the two children are side by site) and you
+  can use setOrientation( QSplitter::Vertical ) to set to to vertical.
 
- */
+  By default, both widgets can be as large or as small as the user
+  wishes.  You can set the current size using setRatio() (sets the two
+  widgets' relative size) or adjustPos() (sets the absolute size of
+  firstChild()), and you can limit the user's ability to resize the
+  widgets by calling setMinimumSize() and/or setMaximumSize() on the
+  children.
+
+  QSplitter normally resizes the two children only at the end of a
+  resize operation, but if you call setOpaqueResize( TRUE ), the
+  widgets are resized as often as possible.
+  
+  \sa QTabBar
+*/
 
 static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit risky
 
 /*!
   Creates a horizontal splitter.
-  */
+*/
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
     :QFrame(parent,name,WPaintUnclipped)
@@ -194,7 +212,7 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 }
 /*!
   Creates splitter with orientation \a o.
-  */
+*/
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
     :QFrame(parent,name,WPaintUnclipped)
@@ -204,21 +222,8 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 }
 
 
-/*
-QSplitter::setBorder2( int b )
-{
-    if ( bord == b )
-	return;
-
-    bord = b;
-    recalc();
-}
-
-*/
-
 void QSplitter::init()
 {
-
     ratio = -1;
     fixedWidget = 0;
     opaque = 0;
@@ -234,40 +239,53 @@ void QSplitter::init()
 	bord = 5;
 }
 
-/*!
-  Lets \a w be the left (or top) widget.
- */
+/*!  Sets \a w to be the left (or top) widget.
+  
+  If there is a firstWidget() already, that widget is hidden but not
+  deleted.
+  
+  \sa setSecondWidget() firstWidget()
+*/
 void QSplitter::setFirstWidget( QWidget *w ) {
+    if ( w && w == w1 )
+	return;
     if ( w1 )
 	w1->hide();
-    if ( w->parentWidget() != this ) {
+    if ( w && w->parentWidget() != this )
 	w->recreate( this, 0, QPoint(0,0) );
-    }
     w1 = w;
-    if ( w2 == w1 )
+    if ( w1 && w2 == w1 )
 	w2 = 0;
     recalc();
 }
 
 /*!
-  Lets \a w be the right (or bottom) widget.
- */
+  Sets \a w to be the right (or bottom) widget.
+  
+  If there is a secondWidget() already, that widget is hidden but not
+  deleted.
+
+  \sa setFirstWidget() secondWidget()
+*/
 void QSplitter::setSecondWidget( QWidget *w ) {
+    if ( w && w == w2 )
+	return;
     if ( w2 )
-	w1->hide();
-    if ( w->parentWidget() != this ) {
+	w2->hide();
+    if ( w && w->parentWidget() != this )
 	w->recreate( this, 0, QPoint(0,0) );
-    }
     w2 = w;
-    if ( w2 == w1 )
+    if ( w2 && w2 == w1 )
 	w1 = 0;
     recalc();
 }
 
-/*!
-  Sets the orientation to \a o.
-   \sa orientation()
- */
+/*!  Sets the orientation to \a o.  By default the orientation is
+  horizontal (the two widgets are side by side).
+  
+  \sa orientation()
+*/
+
 void QSplitter::setOrientation( Orientation o )
 {
     if ( orient == o )
@@ -282,7 +300,7 @@ void QSplitter::setOrientation( Orientation o )
 
    Returns the orientation (\c Horizontal or \c Vertical) of the splitter.
    \sa setOrientation()
-   */
+*/
 
 
 QCOORD QSplitter::r2p( int r ) const
@@ -308,7 +326,7 @@ int QSplitter::p2r( QCOORD p ) const
 /*!
   Reimplemented to provide childRemoveEvent(), childInsertEvent() and
   layoutHintEvent()  without breaking binary compatibility.
- */
+*/
 bool QSplitter::event( QEvent *e )
 {
     switch( e->type() ) {
@@ -342,7 +360,7 @@ void QSplitter::leaveEvent( QEvent * )
 
 /*!
   Tells the splitter that a child widget has been removed.
- */
+*/
 void QSplitter::childRemoveEvent( QChildEvent *c )
 {
     if ( c->child() == w1 ) {
@@ -356,7 +374,7 @@ void QSplitter::childRemoveEvent( QChildEvent *c )
 
 /*!
   Tells the splitter that a child widget has been inserted.
- */
+*/
 void QSplitter::childInsertEvent( QChildEvent * )
 {
 }
@@ -404,7 +422,7 @@ void QSplitter::moveTo( QPoint mp )
 /*!
   Draws the splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p.
- */
+*/
 void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
     static const int motifOffset = 10;
@@ -441,7 +459,7 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 
   Only has effect if both widgets are set.
 
- */
+*/
 void QSplitter::moveSplitter( QCOORD p )
 {
     if ( !w1 || !w2 )
@@ -615,8 +633,8 @@ void QSplitter::setRatio( float f )
 
 /*!
   Sets the size of widget number \a w to \a size. \a w must be 1 or 2.
-  The specified widget will have a fixed size.
-  The user can change the fixed size by adjusting  the splitter.
+  The specified widget will have a fixed size.  The user can change
+  the fixed size by adjusting the splitter.
 
   The widgets' minimum/maximum sizes, if any, have precedence over the size
   set.

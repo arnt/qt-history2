@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#8 $
 **
 ** Implementation of QIconSet class
 **
@@ -52,11 +52,38 @@ struct QIconSetPrivate: public QShared
   \ingroup misc
 
   QIconSet must be fed at least one icon, and can generate the other
-  variants from the ones it is fed, or use programmer-specified icons.
+  icons from the ones it is fed, or use programmer-specified icons.
+  
+  Using the icon or icons specified, QIconSet generates a set of six
+  icons: <ul>
+  <li> Small, normal
+  <li> Small, disabled
+  <li> Small, active
+  <li> Large, normal
+  <li> Large, disabled
+  <li> Large, active
+  </ul>
+  
+  You can set any of the icons using setPixmap() and when you retrieve
+  aone using pixmap(), QIconSet will compute and cache that from the
+  closest other icon.
+
+  The \c Disabled appearance is computed using a "shadow" algorithm
+  which produces results very similar to that used in of Microsoft
+  Windows 95.
+  
+  The \c Active appearance is identical to the \c Normal appearance
+  unless you use setPixmap() to set it to something special.
+
+  QIconSet provides a function, isGenerated(), that indicates whether
+  an icon was set by the application programmer or computed by
+  QIconSet itself.
+
+  In Qt 1.40 only QToolButton uses QIconSet.  In Qt 2.0 we will use it
+  in more classes, including the menu system.
   
   \sa QPixmap QLabel QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label.</a>
-
 */
 
 

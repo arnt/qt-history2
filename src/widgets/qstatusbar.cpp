@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#11 $
 **
 ** Implementation of QStatusBar class
 **
@@ -42,7 +42,26 @@
 
   </ul>
 
+  QStatusBar lets you display all three sorts of messages.
+  
+  To display a temporary message, you can call message(), or connect a
+  suitable signal to it.  To remove a temporary message, you can call
+  clear(), or connect a signal to it.
+  
+  There are two variants of message(), one which displays the message
+  until the next clear() or mesage(), and one which also has a time limit.
+
+  Normal and permanent messages are displayed by creating a widget
+  (typically a QLabel) and using addWidget() to add this widget to the
+  status bar.
+
+  Finally, in Windows style QStatusBar also provides a Windows
+  standard resize handle.  In the X11 version Qt 1.40 this resize
+  handle generally works differently than the one provided by the
+  system; we hope to reduce this difference in the future.
+
   \sa QToolBar QMainWindow QLabel
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui192.htm">Microsoft Style Guide,</a>
   <a href="guibooks.html#fowler">GUI Design Handbook: Status Bar.</a>
 */
 

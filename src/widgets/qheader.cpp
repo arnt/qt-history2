@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#39 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -83,7 +83,7 @@ static unsigned char vsplitm_bits[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
 
-struct QHeaderData 
+struct QHeaderData
 {
     QArray<QCOORD>	sizes;
     QArray<char*>	labels;
@@ -93,7 +93,7 @@ struct QHeaderData
     QBitArray           clicks;
     QBitArray           resize;
     bool		move;
-    
+
 };
 
 
@@ -101,15 +101,18 @@ struct QHeaderData
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
   \ingroup realwidgets
-
+  
   This is a table heading of the type used in a list view. It gives
   the user the opportunity to resize and move the columns (or rows for
-  vertical headings.)
+  vertical headings).
 
   This class can be used without a table view, if you need to control
   table-like structures.
 
   <img src=qheader-m.gif> <img src=qheader-w.gif>
+  
+  \sa QListView QTableView
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui181.htm">Microsoft Style Guide</a>
  */
 
 
@@ -205,9 +208,9 @@ int QHeader::cellPos( int i ) const
   Returns the number of sections in the header.
 */
 
-int QHeader::count() const 
-{ 
-    return data->labels.size() - 1; 
+int QHeader::count() const
+{
+    return data->labels.size() - 1;
 }
 
 
@@ -255,8 +258,8 @@ void QHeader::init( int n )
     state = Idle;
 
     data = new QHeaderData;
-    
-    
+
+
     data->sizes.resize(n+1);
     data->labels.resize(n+1);
     data->a2l.resize(n+1);
@@ -272,7 +275,7 @@ void QHeader::init( int n )
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
     data->move = TRUE;
-    
+
     setFrameStyle( QFrame::NoFrame );
 
     if ( orient == Horizontal ) {
@@ -508,7 +511,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	     c < pPos(i+1) + MINSIZE/2 ) {
 		handleIdx = i+1;
 		oldHIdxSize = cellSize( i );
-	    if ( data->resize.testBit(i) ) 
+	    if ( data->resize.testBit(i) )
 		state = Sliding;
 	    else
 		state = Blocked;
@@ -863,7 +866,7 @@ void QHeader::setCellSize( int i, int s )
 /*!
   Enable user resizing of column \a i if \a enable is TRUE, disable otherwise.
   If \a i is negative, resizing is enabled/disabled for all columns.
-  
+
   \sa setMovingEnabled(), setClickEnabled()
 */
 
@@ -878,9 +881,9 @@ void QHeader::setResizeEnabled( bool enable, int i )
 
 
 /*!
-    Enable the user to exchange  columns if \a enable is TRUE, 
+    Enable the user to exchange  columns if \a enable is TRUE,
     disable otherwise.
-  
+
   \sa setClickEnabled(), setResizeEnabled()
 */
 
@@ -893,9 +896,9 @@ void QHeader::setMovingEnabled( bool enable )
 /*!
   Enable clicking in column \a i if \a enable is TRUE, disable otherwise.
   If \a i is negative, clicking is enabled/disabled for all columns.
-  
+
   If enabled, the sectionClicked() signal is emitted when the user clicks.
-  
+
   \sa setMovingEnabled(), setResizeEnabled()
 */
 

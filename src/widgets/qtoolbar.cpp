@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#20 $
 **
 ** Implementation of QToolBar class
 **
@@ -27,11 +27,30 @@
   \ingroup realwidgets
   \ingroup application
 
-  Very simple, even.
+  To use QToolBar, you simply create a QToolBar as child of a
+  QMainWindow, create a number of QToolButton widgets (or other
+  widgets) in left to right (or top to bottom) order, call
+  addSeparator() when you want a separator, and that's all.
+  
+  The application/application.cpp example does precisely this.
+  
+  Each QToolBar lives in a \link QMainWindow dock \endlink in a
+  QMainWindow, and can optionally start a new line in its dock.  Tool
+  bars that start a new line are always positioned at the left end or
+  top of the tool bar dock; others are placed next to the previous
+  tool bar and word-wrapped as necessary.
+
+  The tool bar is able to arrange its buttons horizontally or
+  vertically (see setOrientation() for details) and draws the
+  appropriate frames around the tool button in Windows and Motif
+  style.  Generally, QMainWindow will set the orientation correctly
+  for you.
 
   \sa QToolButton QMainWindow
-  <a href="http://www.iarchitect.com/visual.htm">Isys on Visual Design,</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar</a>
+  <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design,</a>
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui192.htm">Microsoft Style Guide,</a>
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui196.htm">some common buttons (NB: read the license),</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar.</a>
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#23 $
 **
 ** Implementation of QMainWindow class
 **
@@ -36,6 +36,39 @@
   In addition, you need the large central widget, which you supply and
   tell QMainWindow about using setCentralWidget(), and perhaps a few
   tool bars, which you can add using addToolBar().
+  
+  The central widget is not touched by QMainWindow.  QMainWindow
+  manages its geometry, and that is all.  For example, the
+  application/application.cpp exmple (an editor) sets a QMultiLineEdit
+  to be the central widget.
+
+  QMainWindow automatically detects the creation of a menu bar or
+  status bar if you specify the QMainWindow as parent, or you can use
+  the provided menuBar() and statusBar() functions.  menuBar() and
+  statusBar() create a suitable widget if one doesn't exist, and
+  updates the window's layout to make space.
+
+  QMainWindow also provides a QToolTipGroup connected to the status
+  bar.  toolTipGroup() provides access to the QToolTipGroup, but there
+  is no way to set the tool tip group.
+
+  By default, QMainWindow only allows toolbars above the central
+  widget.  You can use setDockEnabled() to allow toolbars in other
+  docks (a \e dock is a place where toolbars can stay).  Currently,
+  only \c Top, \c Left, \c Right and \c Bottom are meaningful.
+  
+  Several functions let you change the appearance of a QMainWindow
+  globally: setRightJustification() determines whether QMainWindow
+  should ensure that the toolbars fill the available space,
+  setUsesBigPixmaps() determines whether QToolButton (and other
+  classes) should draw small or large pixmaps (see QIconSet for more
+  about that).
+
+  The current release of QMainWindow does not provide draggable
+  toolbars.  This feature is planned for inclusion in one of the next
+  releases.
+  
+  \sa QToolBar QStatusBar QMenuBar QToolTipGroup QDialog
 */
 
 class QMainWindowPrivate {

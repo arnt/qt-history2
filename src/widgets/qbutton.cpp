@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#110 $
 **
 ** Implementation of QButton widget class
 **
@@ -192,6 +192,7 @@ static int shortcutChar( const char *str )
   for a subclass of QButton unless you want to take over all drawing.
 
   \sa QButtonGroup
+  <a href="http://www.microsoft.com/win32dev/uiguide/uigui161.htm">Microsoft Style Guide</a>
 */
 
 
