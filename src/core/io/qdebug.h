@@ -17,8 +17,7 @@
 #include "qtextstream.h"
 #include "qstring.h"
 
-#ifndef QT_NO_DEBUG
-
+#if !defined( QT_NO_DEBUG ) && !defined( QT_NO_TEXTSTREAM )
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
@@ -88,8 +87,10 @@ public:
     inline QNoDebug(const QDebug &){}
     inline ~QNoDebug(){}
     template <typename T> inline QNoDebug &operator<<(const T &) { return *this; }
+#if !defined( QT_NO_TEXTSTREAM )
     inline QNoDebug &operator<<(QTSFUNC) { return *this; }
     inline QNoDebug &operator<<(QTSManip) { return *this; }
+#endif
     inline QNoDebug &space() { return *this; }
     inline QNoDebug &nospace() { return *this; }
     inline QNoDebug &maybeSpace() { return *this; }
