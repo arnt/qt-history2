@@ -5171,8 +5171,11 @@ void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool inv
 }
 
 /*! \reimp */
-void QTextEdit::windowActivationChange( bool )
+void QTextEdit::windowActivationChange( bool oldActive )
 {
+    if ( oldActive && scrollTimer )
+	scrollTimer->stop();    
+    
     if ( !isVisible() )
 	return;
 

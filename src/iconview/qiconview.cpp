@@ -6057,8 +6057,11 @@ void QIconView::drawContents( QPainter * )
 /*!
     \reimp
 */
-void QIconView::windowActivationChange( bool )
+void QIconView::windowActivationChange( bool oldActive )
 {
+    if ( oldActive && d->scrollTimer )
+	d->scrollTimer->stop();
+    
     if ( !isVisible() )
 	return;
 

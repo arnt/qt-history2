@@ -6764,8 +6764,11 @@ QListViewItem *QListView::findItem( const QString& text, int column,
 }
 
 /*! \reimp */
-void QListView::windowActivationChange( bool )
+void QListView::windowActivationChange( bool oldActive )
 {
+    if ( oldActive && d->scrollTimer )
+	d->scrollTimer->stop();
+    
     if ( !isVisible() )
 	return;
 

@@ -5853,8 +5853,11 @@ void QTable::startDrag()
 #endif
 
 /*! \reimp */
-void QTable::windowActivationChange( bool )
-{
+void QTable::windowActivationChange( bool oldActive )
+{    
+    if ( oldActive && autoScrollTimer )
+	autoScrollTimer->stop();
+    
     if ( !isVisible() )
 	return;
 

@@ -4530,8 +4530,11 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 }
 
 /*! \reimp */
-void QListBox::windowActivationChange( bool )
+void QListBox::windowActivationChange( bool oldActive )
 {
+    if ( oldActive && d->scrollTimer )
+	d->scrollTimer->stop();
+    
     if ( !isVisible() )
 	return;
 
