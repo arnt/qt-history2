@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#5 $
 **
 ** Implementation of QTimer class
 **
@@ -14,8 +14,16 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#5 $";
 #endif
+
+/*! \class QTimer qtimer.h
+
+  \brief The QTimer class provides millisecond timers.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 const int INV_TIMER = -1;			// invalid timer id
