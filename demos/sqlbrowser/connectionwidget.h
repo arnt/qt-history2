@@ -23,6 +23,8 @@ public:
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
 
+    bool isActiveConnection(const QModelIndex &index) const;
+
 public slots:
     void refresh();
 

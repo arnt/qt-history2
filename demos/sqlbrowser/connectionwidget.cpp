@@ -5,6 +5,31 @@
 #include <qgenerictreeview.h>
 #include <qlayout.h>
 
+#include <qitemdelegate.h>
+#include <qpainter.h>
+
+class ConnectionModelDelegate: public QItemDelegate
+{
+public:
+    ConnectionModelDelegate(QObject *parent): QItemDelegate(parent) {}
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                       const QAbstractItemModel *model, const QModelIndex &index) const
+    {
+        const ConnectionModel *cm = static_cast<const ConnectionModel *>(model);
+        if (cm->isActiveConnection(index)) {
+            QFont fnt = painter->font();
+            QFont boldFnt = fnt;
+            boldFnt.setBold(true);
+            painter->setFont(boldFnt);
+            QItemDelegate::paint(painter, option, model, index);
+            painter->setFont(fnt);
+        } else {
+            QItemDelegate::paint(painter, option, model, index);
+        }
+    }
+};
+
+
 ConnectionModel::ConnectionModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
@@ -23,6 +48,12 @@ int ConnectionModel::rowCount(const QModelIndex &parent) const
 int ConnectionModel::columnCount(const QModelIndex & /*parent*/) const
 {
     return 1;
+}
+
+bool ConnectionModel::isActiveConnection(const QModelIndex &index) const
+{
+    return index.row() == 0 && index.column() == 0 && !index.data()
+           && index.type() == QModelIndex::View;
 }
 
 bool ConnectionModel::hasChildren(const QModelIndex &parent) const
@@ -100,6 +131,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     tree = new QGenericTreeView(this);
+    tree->setItemDelegate(new ConnectionModelDelegate(this));
     model = new ConnectionModel(tree);
     tree->setModel(model);
     tree->header()->setResizeMode(QGenericHeader::Stretch);
