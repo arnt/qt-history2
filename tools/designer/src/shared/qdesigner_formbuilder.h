@@ -17,7 +17,7 @@
 #include "shared_global.h"
 
 #include <formbuilder.h>
-#include <QMap>
+#include <QtCore/QMap>
 
 class AbstractFormEditor;
 struct ICustomWidget;
@@ -30,7 +30,7 @@ public:
     QWidget *createWidgetFromContents(const QString &contents, QWidget *parentWidget = 0);
 
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget = 0)
-        { return FormBuilder::create(ui_widget, parentWidget); }
+    { return FormBuilder::create(ui_widget, parentWidget); }
 
     inline AbstractFormEditor *core() const
     { return m_core; }

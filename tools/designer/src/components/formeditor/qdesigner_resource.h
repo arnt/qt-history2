@@ -18,8 +18,8 @@
 
 #include <resource.h>
 
-#include <QHash>
-#include <QStack>
+#include <QtCore/QHash>
+#include <QtCore/QStack>
 
 class DomCustomWidgets;
 
@@ -30,6 +30,7 @@ class QDesignerTabWidget;
 class QDesignerStackedWidget;
 class QDesignerToolBox;
 class QLayoutWidget;
+
 struct IContainer;
 struct AbstractWidgetDataBaseItem;
 
@@ -43,6 +44,9 @@ public:
     DomUI *copy(const QList<QWidget*> &selection);
     QList<QWidget*> paste(DomUI *ui, QWidget *parentWidget);
     QList<QWidget*> paste(QIODevice *dev, QWidget *parentWidget);
+
+    inline AbstractFormEditor *core() const
+    { return m_core; }
 
 protected:
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
@@ -79,7 +83,7 @@ protected:
     DomWidget *saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget);
-    
+
     DomConnections *saveConnections();
     DomCustomWidgets *saveCustomWidgets();
     DomTabStops *saveTabStops();
@@ -87,10 +91,10 @@ protected:
     virtual QString saveComment();
 
     void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
-    
+
     void changeObjectName(QObject *o, QString name);
     static QString qtify(const QString &name);
-    
+
 private:
     FormWindow *m_formWindow;
     bool m_isMainWidget;

@@ -29,6 +29,7 @@
 // sdk
 #include <container.h>
 #include <propertysheet.h>
+#include <extrainfo.h>
 #include <qextensionmanager.h>
 #include <abstractwidgetfactory.h>
 #include <abstractmetadatabase.h>
@@ -86,6 +87,10 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
                            "it to Qt4's ui format.").arg(version),
                                QMessageBox::Ok, 0);
         return 0;
+    }
+
+    if (IExtraInfo *extra = qt_extension<IExtraInfo*>(core()->extensionManager(), m_formWindow)) {
+        extra->saveExtraInfo(ui, m_formWindow);
     }
 
     m_isMainWidget = true;
@@ -164,7 +169,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
-    
+
     QString className = ui_widget->attributeClass();
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
         // ### check if elementLayout.size() == 1
@@ -193,6 +198,10 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     foreach (DomAction *action, action_list)
         m_formWindow->actionList().append(createActionListElt(action));
 
+    if (IExtraInfo *extra = qt_extension<IExtraInfo*>(core()->extensionManager(), m_formWindow)) {
+        extra->loadExtraInfo(w, ui_widget);
+    }
+
     return w;
 }
 
@@ -206,6 +215,10 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
     if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(l))
         QLayoutSupport::createEmptyCells(gridLayout);
 
+    if (IExtraInfo *extra = qt_extension<IExtraInfo*>(core()->extensionManager(), layout)) {
+        extra->loadExtraInfo(layout, ui_layout);
+    }
+
     return l;
 }
 
@@ -213,7 +226,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
-    
+
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
@@ -261,7 +274,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
     } else {
         o->setObjectName(objName);
     }
-        
+
 }
 
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
@@ -309,15 +322,15 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     QWidget *w = m_core->widgetFactory()->createWidget(className, parentWidget);
     if (!w)
         return 0;
-        
+
     if (name.isEmpty()) {
         AbstractWidgetDataBase *db = m_core->widgetDataBase();
         if (AbstractWidgetDataBaseItem *item = db->item(db->indexOfObject(w)))
             name = qtify(item->name());
     }
-    
+
     changeObjectName(w, name);
-    
+
     IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget);
     if (!parentWidget || !container) {
         m_formWindow->manageWidget(w);
@@ -332,7 +345,7 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parent))
         parent = promoted->child();
-    
+
     QWidget *layoutBase = 0;
     QLayout *layout = qobject_cast<QLayout*>(parent);
 
@@ -434,6 +447,11 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
             w->setElementAction(dom_action_list);
     }
 
+
+    if (IExtraInfo *extra = qt_extension<IExtraInfo*>(core()->extensionManager(), widget)) {
+        extra->saveExtraInfo(w, widget);
+    }
+
     return w;
 }
 
@@ -451,6 +469,10 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, D
     if (m_internal_to_qlayout.contains(className))
         l->setAttributeClass(m_internal_to_qlayout.value(className));
     m_chain.pop();
+
+    if (IExtraInfo *extra = qt_extension<IExtraInfo*>(core()->extensionManager(), layout)) {
+        extra->saveExtraInfo(l, layout);
+    }
 
     return l;
 }

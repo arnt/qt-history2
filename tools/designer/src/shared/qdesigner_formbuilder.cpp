@@ -19,8 +19,8 @@
 #include <qextensionmanager.h>
 #include <abstractformeditor.h>
 
-#include <QBuffer>
-#include <QWidget>
+#include <QtCore/QBuffer>
+#include <QtGui/QWidget>
 
 QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
     : m_core(core)
