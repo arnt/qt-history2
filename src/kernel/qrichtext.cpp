@@ -1368,14 +1368,14 @@ struct Q_EXPORT Tag {
 #endif
 };
 
-#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
+#define NEWPAR       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar ); \
 		    hasNewPar = TRUE;  \
 		    QVector<QStyleSheetItem> vec( tags.count() ); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); 	\
 		    curpar->setStyleSheetItems( vec ); }while(FALSE)
-#define NEWPAROPEN(nstyle)       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
+#define NEWPAROPEN(nstyle)       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 )  { if ( !hasNewPar ) curpar = createParag( this, curpar ); \
 		    hasNewPar = TRUE;  \
 		    QVector<QStyleSheetItem> vec( tags.count()+1 ); \
 		    int i = 0; \
