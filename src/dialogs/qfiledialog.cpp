@@ -3752,6 +3752,10 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 
     if ( mode() == ExistingFiles ) {
 	detailViewSelectionChanged();
+        QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)files->currentItem())->info.name() );
+	QFileInfo fi( u.toString( FALSE, FALSE ) );
+	if ( !fi.isDir() )
+	    emit fileHighlighted( u.toString( FALSE, FALSE ) );
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 	if ( !i->i->isSelected() ) {
