@@ -14571,35 +14571,57 @@ int QString::contains( const QRegExp &rx ) const
     return count;
 }
 
-
 /*! \overload
 
   Replaces every occurrence of the regexp \a rx in the string with \a str.
-  Returns a reference to the string.
-
+  Returns a reference to the string. For example:
   \code
-    QString string = "banana";
-    string = string.replace( QRegExp("an"), "" ); // string == "ba"
+    QString t = "banana";
+    t.replace( QRegExp("an"), "" );
+    // t == "ba"
   \endcode
 
-  \sa find() findRev()
+  For regexps containing \link qregexp.html#capturing-text capturing
+  parentheses \endlink, occurrences of <b>\\1</b>, <b>\\2</b>, ...,
+  in \a str are replaced with \a{rx}.cap(1), cap(2), ...
+
+  \code
+    QString t = "A <i>bon mot</i>.";
+    t.replace( QRegExp("<i>([^<]*)</i>"), "\\emph{\\1}" );
+    // t == "A \\emph{bon mot}."
+  \endcode
+
+  \sa find(), findRev(), QRegExp::cap()
 */
 
 QString &QString::replace( const QRegExp &rx, const QString &str )
 {
-    QRegExp tx = rx;
+    QRegExp rx2 = rx;
+    QString str2 = str;
     int index = 0;
-    int slen  = str.length();
+    int lastCap = rx2.capturedTexts().count() - 1;
+
     while ( index < (int)length() ) {
-	index = tx.search( *this, index );
+	index = rx2.search( *this, index );
 	if ( index == -1 )
 	    break;
 
-	replace( index, tx.matchedLength(), str );
-	index += slen;
+	if ( lastCap > 0 ) {
+	    str2 = str;
+	    for ( int j = (int) str2.length() - 2; j >= 0; j-- ) {
+		if ( str2[j] == '\\' ) {
+		    int no = str2[j + 1].digitValue();
+		    if ( no > 0 && no <= lastCap )
+			str2.replace( j, 2, rx2.cap(no) );
+		}
+	    }
+	}
+
+	replace( index, rx2.matchedLength(), str2 );
+	index += str2.length();
 
 	// avoid infinite loop on 0-length matches (e.g., [a-z]*)
-	if ( tx.matchedLength() == 0 )
+	if ( rx2.matchedLength() == 0 )
 	    index++;
     }
     return *this;
