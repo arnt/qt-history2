@@ -8,6 +8,9 @@
 
 QList<QByteArray> Preprocessor::includes;
 Macros Preprocessor::macros;
+bool Preprocessor::onlyPreprocess = false;
+QByteArray Preprocessor::protocol;
+
 
 static inline bool hasNext(const Symbols &symbols, int i)
 { return (i < symbols.size()); }
@@ -567,6 +570,7 @@ static int evaluateCondition(const Macros &macros, const Symbol &symbol)
 
 static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Macros &macros)
 {
+    static int depth = 0;
     Symbols preprocessed;
     preprocessed.reserve(symbols.size());
     int i = 0;
@@ -604,6 +608,13 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             if (!file.open(IO_ReadOnly))
                 continue;
 
+            if (Preprocessor::onlyPreprocess) {
+                Preprocessor::protocol += "#";
+                Preprocessor::protocol += QByteArray(depth * 2, ' ');
+                Preprocessor::protocol += "include \"";
+                Preprocessor::protocol += include;
+                Preprocessor::protocol += "\"\n";
+            }
 //            qDebug("... include %s", include.constData());
             QByteArray input = file.readAll();
             file.close();
@@ -615,7 +626,9 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             // phase 2: tokenize for the preprocessor
             Symbols symbols = tokenize(phase1);
             // phase 3: preprocess conditions and substitute macros
+            ++depth;
             symbols = preprocess(include, symbols, macros);
+            --depth;
             continue;
         }
         case PP_DEFINE:
@@ -629,7 +642,15 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             const char *ident = data++;
             while (*data && is_ident_char(*data))
                 ++data;
-            macros[QByteArray(ident, data - ident)] = data;
+            QByteArray name(ident, data - ident);
+            macros[name] = data;
+            if (Preprocessor::onlyPreprocess) {
+                Preprocessor::protocol += "#";
+                Preprocessor::protocol += QByteArray(depth * 2, ' ');
+                Preprocessor::protocol += "define ";
+                Preprocessor::protocol += name;
+                Preprocessor::protocol += "\n";
+            }
             continue;
         }
         case PP_IDENTIFIER:

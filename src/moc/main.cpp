@@ -78,7 +78,6 @@ int main(int argc, char **argv)
 {
     bool autoInclude = true;
     Preprocessor::macros["Q_MOC_RUN"] = "";
-    bool onlyPreprocess = false;
     Moc moc;
     QByteArray filename;
     QByteArray output;
@@ -105,7 +104,7 @@ int main(int argc, char **argv)
                 output = opt.mid(1);
             break;
         case 'E': // only preprocessor
-            onlyPreprocess = true;
+            Preprocessor::onlyPreprocess = true;
             break;
         case 'i': // no #include statement
             if (more)
@@ -221,10 +220,8 @@ int main(int argc, char **argv)
     QByteArray input = Preprocessor::preprocessed(moc.filename, in);
     fclose(in);
 
-    if (onlyPreprocess) {
-        fprintf(out, "%s\n", input.constData());
-        return 0;
-    }
+    if (Preprocessor::onlyPreprocess)
+        goto step4;
 
     // 2. tokenize
     moc.symbols = Scanner::scan(input);
@@ -238,6 +235,7 @@ int main(int argc, char **argv)
     }
 
     // 4. and output meta object code
+ step4:
 
     if (output.size()) { // output file specified
         out = fopen(output.data(), "w"); // create output file
@@ -249,7 +247,11 @@ int main(int argc, char **argv)
         out = stdout;
     }
 
-    moc.generate(out);
+    if (Preprocessor::onlyPreprocess) {
+        fprintf(out, "%s%s\n", Preprocessor::protocol.constData(), input.constData());
+    } else {
+        moc.generate(out);
+    }
 
     if (output.size())
         fclose(out);
