@@ -469,8 +469,11 @@ void QDataStream::setByteOrder( int bo )
   QDataStream read functions
  *****************************************************************************/
 
+#ifdef Q_OS_HPUX
+#include <inttypes.h> // for __strtoll
+#endif
 
-static Q_INT32 read_int_ascii( QDataStream *s )
+static Q_INT64 read_int_ascii( QDataStream *s )
 {
     register int n = 0;
     char buf[40];
@@ -481,9 +484,17 @@ static Q_INT32 read_int_ascii( QDataStream *s )
 	n++;
     }
     buf[n] = '\0';
-    return atol( buf );
-}
 
+#ifdef Q_OS_WIN
+    return atoi64( buf );
+#elif defined(Q_OS_AIX)
+    return strtoll( buf, (char**)0, 10 );
+#elif defined(Q_OS_HPUX)
+    return __strtoll( buf, (char**)0, 10 );
+#else
+    return atoll( buf );			// C99 function
+#endif
+}
 
 /*!
     \overload QDataStream &QDataStream::operator>>( Q_UINT8 &i )
@@ -578,6 +589,37 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
     }
     return *this;
 }
+
+/*!
+    \overload
+
+    Reads a signed 64-bit integer from the stream into \a i, and
+    returns a reference to the stream.
+*/
+
+QDataStream &QDataStream::operator>>( Q_INT64 &i )
+{
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
+	i = read_int_ascii( this );
+    } else if ( noswap ) {			// no conversion needed
+	dev->readBlock( (char *)&i, 8 );
+    } else {					// swap bytes
+	uchar *p = (uchar *)(&i);
+	char b[8];
+	dev->readBlock( b, 8 );
+	*p++ = b[7];
+	*p++ = b[6];
+	*p++ = b[5];
+	*p++ = b[4];
+	*p++ = b[3];
+	*p++ = b[2];
+	*p++ = b[1];
+	*p   = b[0];
+    }
+    return *this;
+}
+
 
 /*!
     \overload QDataStream &QDataStream::operator>>( Q_ULONG &i )
@@ -860,6 +902,42 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
 	b[1] = *p++;
 	b[0] = *p;
 	dev->writeBlock( b, 4 );
+    }
+    return *this;
+}
+
+/*!
+    \overload
+
+    Writes a signed 64-bit integer, \a i, to the stream and returns a
+    reference to the stream.
+*/
+
+QDataStream &QDataStream::operator<<( Q_INT64 i )
+{
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
+	char buf[16];
+#ifdef Q_OS_WIN
+	sprintf( buf, "%I64d\n", i );
+#else
+	sprintf( buf, "%lld\n", i );
+#endif
+	dev->writeBlock( buf, strlen(buf) );
+    } else if ( noswap ) {			// no conversion needed
+	dev->writeBlock( (char *)&i, 8 );
+    } else {					// swap bytes
+	register uchar *p = (uchar *)(&i);
+	char b[8];
+	b[7] = *p++;
+	b[6] = *p++;
+	b[5] = *p++;
+	b[4] = *p++;
+	b[3] = *p++;
+	b[2] = *p++;
+	b[1] = *p++;
+	b[0] = *p;
+	dev->writeBlock( b, 8 );
     }
     return *this;
 }
