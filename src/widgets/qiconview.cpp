@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#4 $
 **
 ** Definition of QIconView widget class
 **
@@ -743,7 +743,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->newItems = 0;
     connect( d->insertTimer, SIGNAL( timeout() ),
              this, SLOT( itemsInserted() ) );
-    
+
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -753,7 +753,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setFocusPolicy( QWidget::StrongFocus );
     viewport()->setFocusPolicy( QWidget::StrongFocus );
 
-    setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
 }
 
@@ -805,19 +805,19 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 void QIconView::itemsInserted()
 {
     int w = 0, h = 0;
-    
+
     if ( d->newItems > 0 ) {
         QIconViewItem *item = d->lastItem;
         while ( d->newItems > 0 ) {
             insertInGrid( item );
             item->isReady = TRUE;
-            
+
             w = QMAX( w, item->x() + item->width() );
             h = QMAX( h, item->y() + item->height() );
             item = item->next;
             d->newItems--;
         }
-        resizeContents( QMAX( contentsWidth(), w ), 
+        resizeContents( QMAX( contentsWidth(), w ),
                         QMAX( contentsHeight(), h ) );
     }
 }
@@ -1598,9 +1598,9 @@ void QIconView::insertInGrid( QIconViewItem *item )
 
         if ( !isFirst )
             xpos = ( fact + 1 ) * d->rastX;
-        else    
+        else
             xpos = fact * d->rastX;
-        
+
         if ( xpos + d->rastX >= contentsWidth() ) {
             xpos = d->spacing;
             nextRow = TRUE;
