@@ -615,7 +615,9 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 QModelIndex QGenericTreeView::itemAt(int x, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
-    return model()->sibling(mi.row(), d->header->sectionAt(x), mi);
+    if (mi.isValid())
+        return model()->sibling(mi.row(), d->header->sectionAt(x), mi);
+    return QModelIndex();
 }
 
 /*!
@@ -1144,7 +1146,7 @@ void QGenericTreeViewPrivate::open(int i, bool update)
 {
     QModelIndex index = items.at(i).index;
 
-    if (model->hasChildren(index))
+    if (!model->hasChildren(index))
         return;
 
     opened.append(index);

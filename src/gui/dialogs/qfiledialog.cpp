@@ -1243,11 +1243,10 @@ void QFileDialogPrivate::setup()
     grid->setMargin(11);
     grid->setSpacing(6);
 
-    // model
-    QDir dir(QDir::root());
-    dir.setFilter(dir.filter() | QDir::AllDirs);
-    dir.setSorting(QDir::DirsFirst);
-    model = new QDirModel(dir, q);
+    // model    
+    model = new QDirModel(QString::null, q);
+    model->setFilter(model->filter() | QDir::AllDirs);
+    model->setSorting(QDir::DirsFirst);
     
     // views
     lview = new QGenericListView(q);

@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
     Q_DECLARE_PRIVATE(QDirModel)
 
 public:
-    QDirModel(QObject *parent = 0);
+    QDirModel(const QString &path = QString::null, QObject *parent = 0);
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
 
@@ -94,7 +94,6 @@ public:
 
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);
-    void init(const QDir &directory);
 };
 
 #endif //QDIRMODEL_H
