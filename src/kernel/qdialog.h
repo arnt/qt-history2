@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#7 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#8 $
 **
 ** Definition of QDialog class
 **
@@ -24,13 +24,14 @@ class QDialog : public QWindow			// dialog widget
 friend class QPushButton;
     Q_OBJECT
 public:
-    QDialog( QWidget *parent=0, const char *name=0, WFlags f=WType_Modal );
+    QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
+	     WFlags f=0 );
    ~QDialog();
 
     enum DialogCode { Rejected, Accepted };
 
     int		exec();
-    int		result() const		{ return rescode; }
+    int		result()  const	{ return rescode; }
 
     virtual void adjustSize();
 
