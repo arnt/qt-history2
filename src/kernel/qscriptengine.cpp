@@ -751,7 +751,7 @@ static inline int getShape( uchar cell, int shape )
 {
 #ifdef Q_OS_MAC
     // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
-    uint ch = ( cell != 0x49 ) 
+    uint ch = ( cell != 0x49 )
 	      ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
 	      : alefMaksura[shape] ;
 #else
@@ -930,9 +930,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	    openType->applyGSUBFeature(features[j]);
     }
 
-    // ### gpos positioning often fails for arabic. Our heuristics are better!
-    // use this instead of open type positioning
-//     openType->applyGPOSFeatures();
+    openType->applyGPOSFeatures();
     si->num_glyphs = 0;
     openType->appendTo(engine, si);
 
@@ -967,7 +965,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 {
     // ### disable open typ for arabic for now. It has some bigger trouble with
     // non spacing marks.
-#if 0 && defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {

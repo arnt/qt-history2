@@ -2183,7 +2183,6 @@ static const unsigned int supported_scripts [] = {
 //     FT_MAKE_TAG( 'j', 'a', 'm', 'o' ),
 };
 
-
 QOpenType::QOpenType( FT_Face _face )
     : face( _face ), gdef( 0 ), gsub( 0 ), gpos( 0 ), current_script( 0 )
 {
@@ -2347,23 +2346,20 @@ void QOpenType::init(glyph_t *glyphs, GlyphAttributes *glyphAttributes, int num_
 
     length = len;
 
+    Q_ASSERT(len == num_glyphs);
     memcpy(str->string, glyphs, num_glyphs*sizeof(unsigned short));
-    // map from log clusters.
-    int i = length - 1;
-    int j = num_glyphs;
-    while (j--) {
-	if (logClusters[i] > j)
-	    --i;
-	str->character_index[j] = i + char_offset;
-    }
+
+    for (int i = 0; i < num_glyphs; ++i)
+	str->character_index[i] = i;
+
 #ifdef OT_DEBUG
     qDebug("-----------------------------------------");
     qDebug("log clusters before shaping: char_offset = %d",  char_offset);
     for (int j = 0; j < length; j++)
 	qDebug("    log[%d] = %d", j, logClusters[j] );
     qDebug("original glyphs:");
-    for (i = 0; i < num_glyphs; ++i)
-	qDebug("   glyph=%4x char_index=%d", str->string[i], str->character_index[i]);
+    for (int i = 0; i < num_glyphs; ++i)
+	qDebug("   glyph=%4x char_index=%d mark: %d cmb: %d", str->string[i], str->character_index[i], glyphAttributes[i].mark, glyphAttributes[i].combiningClass);
 #endif
     str->length = num_glyphs;
     orig_nglyphs = num_glyphs;
@@ -2481,9 +2477,9 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 	int oldCi = 0;
 	for ( int i = 0; i < (int)str->length; i++ ) {
 	    int ci = str->character_index[i];
-	    glyphAttributes[i] = tmpAttributes[tmpLogClusters[ci]];
-	    // 	qDebug("   ci[%d] = %d mark=%d, cs=%d tmplc=%d",
-	    // 	       i, ci, glyphAttributes[i].mark, glyphAttributes[i].clusterStart,  tmpLogClusters[ci]);
+	    glyphAttributes[i] = tmpAttributes[ci];
+	    // 	qDebug("   ci[%d] = %d mark=%d, cmb=%d, cs=%d tmplc=%d",
+	    // 	       i, ci, glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart,  tmpLogClusters[ci]);
 	    if ( !glyphAttributes[i].mark && glyphAttributes[i].clusterStart && ci != oldCi ) {
 		for ( int j = oldCi; j < ci; j++ )
 		    logClusters[j] = clusterStart;
@@ -2503,6 +2499,7 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 	    advances[i] = 0;
 // 	    qDebug("   adv=%d", advances[i]);
     }
+    si->num_glyphs += str->length;
 
     // positioning code:
     if ( hasGPos && positioned) {
@@ -2547,13 +2544,11 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
     }
     qDebug("final glyphs:");
     for (int i = 0; i < (int)str->length; ++i)
-	qDebug("   glyph=%4x char_index=%d mark: %d, clusterStart: %d width=%d",
-	       glyphs[i], str->character_index[i], glyphAttributes[i].mark, glyphAttributes[i].clusterStart,
+	qDebug("   glyph=%4x char_index=%d mark: %d cmp: %d, clusterStart: %d width=%d",
+	       glyphs[i], str->character_index[i], glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart,
 	       advances[i]);
     qDebug("-----------------------------------------");
 #endif
-
-    si->num_glyphs += str->length;
 }
 
 #endif
