@@ -596,7 +596,7 @@ QKeySequence QAccel::shortcutKey( const QString &str )
 
    Creates an accelerator string for the key \a k.
    For instance CTRL+Key_O gives "Ctrl+O". The "Ctrl" etc.
-   are translated (using QObject::tr()) in the "QAccel" scope.
+   are translated (using QObject::tr()) in the "QAccel" context.
 
    The function is superfluous. Cast the QKeySequence \a k to a
    QString for the same effect.
@@ -611,7 +611,7 @@ QString QAccel::keyToString( QKeySequence k )
   Returns an accelerator code for the string \a s. For example
   "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'. The strings "Ctrl",
   "Shift", "Alt" are recognized, as well as their translated
-  equivalents in the "QAccel" scope (using QObject::tr()). Returns 0
+  equivalents in the "QAccel" context (using QObject::tr()). Returns 0
   if \a s is not recognized.
 
   This function is typically used with \link QObject::tr() tr

@@ -141,7 +141,7 @@ static bool inMenu = FALSE;
     QMenubar will be brought closer to conforming to accepted Mac OS X
     menubar layout. The merging functionality is based on string
     matching the title of a QPopupMenu entry, these strings are
-    translated (using QObject::tr()) in the "QMenuBar" scope. If an
+    translated (using QObject::tr()) in the "QMenuBar" context. If an
     entry is moved the regularly connected slots will still fire as if
     it was in the original place. The table below outlines the strings
     looked for and where the entry is placed if matched:
