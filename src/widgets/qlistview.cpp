@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#358 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#359 $
 **
 ** Implementation of QListView widget class
 **
@@ -2876,19 +2876,13 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     QPoint vp = contentsToViewport( e->pos() );
 
-// ##### Why???
-//     if ( e->button() != LeftButton )
-// 	return;
-
     d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( vp );
-    if ( !i ) {
-	emit pressed( i );
-	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
-	return;
-    }
+    QListViewItem *oldCurrent = currentItem();
+    if ( !i )
+	goto emit_signals;
 
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
@@ -2911,7 +2905,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
-		return;
+		goto emit_signals;
 	    }
 	}
     }
@@ -2920,7 +2914,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     i->activate();
 
-    QListViewItem *oldCurrent = currentItem();
     setCurrentItem( i );
 
     if ( i->isSelectable() && selectionMode() != NoSelection ) {
@@ -2943,7 +2936,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		    for ( ;; ++lit ) {
 			if ( !lit.current() ) {
 			    triggerUpdate();
-			    return;
+			    goto emit_signals;
 			}
 			if ( down && lit.current() == i ) {
 			    i->setSelected( d->select );
@@ -2963,6 +2956,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	}
     }
 
+ emit_signals:
+    
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 
@@ -2979,8 +2974,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
     }
-
-    return;
 }
 
 
