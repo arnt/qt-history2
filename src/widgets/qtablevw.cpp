@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#11 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#11 $")
 
 
 const int sbDim = 16;
@@ -1389,14 +1389,18 @@ void QTableView::setVerScrollBar( bool on, bool update )
 
 
 int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
-			       bool goOutsideView ) const
+			    bool goOutsideView ) const
 {
     int r = -1;
+    if ( nRows == 0 )
+	return r;
     if ( goOutsideView || yPos >= frameWidth() && yPos <= maxViewY() ) {
 	if ( yPos < frameWidth() ) {
+#if defined(CHECK_RANGE)
 	    warning( "QTableView::findRawRow: intermal error: "
 		     "yPos < frameWidth() && goOutsideView "
-		     "not supported. (%i,%i)\n", yPos, yOffs );
+		     "not supported. (%d,%d)", yPos, yOffs );
+#endif
 	    return -1;
 	}
 	if ( cellH ) {				     // uniform cell height
@@ -1430,14 +1434,18 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 }
 
 int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
-			       bool goOutsideView ) const
+			    bool goOutsideView ) const
 {
     int c = -1;
+    if ( nCols == 0 )
+	return c;
     if ( goOutsideView || xPos >= frameWidth() && xPos <= maxViewX() ) {
 	if ( xPos < frameWidth() ) {
+#if defined(CHECK_RANGE)
 	    warning( "QTableView::findRawCol: intermal error: "
 		     "xPos < frameWidth() && goOutsideView "
-		     "not supported. (%i,%i)\n", xPos, xOffs );
+		     "not supported. (%d,%d)", xPos, xOffs );
+#endif
 	    return -1;
 	}
 	if ( cellW ) {				// uniform cell width
