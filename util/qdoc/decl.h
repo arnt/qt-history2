@@ -284,6 +284,8 @@ public:
 
     EnumDecl( const Location& loc, const QString& name, Decl *context );
 
+    virtual QString uniqueName() const;
+
     void addItem( EnumItemDecl *item ) { il.append( item ); }
     // ### remove these two functions
     ItemIterator itemBegin() const { return il.begin(); }

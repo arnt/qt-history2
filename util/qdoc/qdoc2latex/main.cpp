@@ -34,6 +34,7 @@ static QMap<QString, int> yyUsedQdocFiles;
 
 static QString qdocOutputDir;
 static QString inputDir; // never set
+static QStringList fileNameList;
 
 static const char laTeXPrologue[] =
     "% %1\n"
@@ -129,13 +130,35 @@ static QString getWord()
     return t;
 }
 
-static void add( const QString& fileName )
+static QString fileContents( const QString& fileName )
+{
+    QFile f( fileName );
+    if ( !f.open(IO_ReadOnly) ) {
+	qWarning( "qdoc2latex error: Cannot open file '%s' for reading: %s",
+		  fileName.latin1(), strerror(errno) );
+	return QString::null;
+    }
+
+    QTextStream t( &f );
+    QString contents = t.read();
+    f.close();
+    if ( contents.isEmpty() )
+	qWarning( "qdoc2latex error: File '%s' is empty", fileName.latin1() );
+    return contents;
+}
+
+static void use( const QString& fileName )
 {
     int slash = fileName.findRev( QChar('/') );
-    (*yyCurrentBook).chapters.push_back( fileName );
     if ( yyUsedQdocFiles.contains(fileName.mid(slash + 1)) )
 	qWarning( "File '%s' used twice", fileName.mid(slash + 1).latin1() );
     yyUsedQdocFiles.insert( fileName.mid(slash + 1), 0 );
+}
+
+static void add( const QString& fileName )
+{
+    (*yyCurrentBook).chapters.push_back( fileName );
+    use( fileName );
 }
 
 static void stripComments()
@@ -188,6 +211,49 @@ static bool matchCommand()
     return TRUE;
 }
 
+static bool processQbook()
+{
+    QRegExp friendly( QString("<!-- friendly -->") );
+
+    QRegExp h1( QString("<h1[^>]*>(.*)</h1>") );
+    h1.setMinimal( TRUE );
+
+    QString base = (*yyCurrentBook).fileName;
+    int k = base.findRev( QChar('/') );
+    if ( k != -1 )
+	base = base.mid( k + 1 );
+    base.truncate( base.length() - 4 ); // chop '.tex'
+
+    QRegExp chapX( QString("^%1-([0-9]+).html$").arg(base) );
+
+    QMap<int, QString> chapters;
+    QStringList::ConstIterator f = fileNameList.begin();
+    while ( f != fileNameList.end() ) {
+	if ( (*f).find(chapX) != -1 )
+	    chapters.insert( chapX.cap(1).toInt(), *f );
+	++f;
+    }
+
+    QMap<int, QString>::ConstIterator c = chapters.begin();
+    while ( c != chapters.end() ) {
+	add( qdocOutputDir + *c );
+	++c;
+    }
+
+    QString fn = qdocOutputDir + QString( "%1.html" ).arg( base );
+    QString master = fileContents( fn );
+    use( fn );
+
+    if ( h1.search(master) != -1 )
+	(*yyCurrentBook).title = h1.cap( 1 ).simplifyWhiteSpace();
+    if ( friendly.search(master) == -1 ) {
+	qWarning( "qdoc2latex error: File '%s' must be regenerated with"
+		  " qdoc option '--friendly'", fn.latin1() );
+	return FALSE;
+    }
+    return TRUE;
+}
+
 QString yyOut;
 
 static void extendedReplace( QString& in, const QRegExp& rx,
@@ -223,23 +289,6 @@ static void extendedReplace( QString& in, const QRegExp& rx,
 	if ( tx.matchedLength() == 0 )
 	    index++;
     }
-}
-
-static QString fileContents( const QString& fileName )
-{
-    QFile f( fileName );
-    if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "qdoc2latex error: Cannot open file '%s' for reading: %s",
-		  fileName.latin1(), strerror(errno) );
-	return QString::null;
-    }
-
-    QTextStream t( &f );
-    QString contents = t.read();
-    f.close();
-    if ( contents.isEmpty() )
-	qWarning( "qdoc2latex error: File '%s' is empty", fileName.latin1() );
-    return contents;
 }
 
 static QRegExp aname( "<\\s*[aA]\\s+[nN][aA][mM][eE]\\s*=\\s*([^>]+)\\s*>" );
@@ -644,7 +693,7 @@ static void laTeXifyAHrefs( QString& html, const QString& chapterLabel )
     }
 }
 
-static bool laTeXifyImages( QString& html )
+static void laTeXifyImages( QString& html )
 {
     QRegExp img( QString(
 	"<\\s*[iI][mM][gG][^>]+[sS][rR][cC]\\s*=\\s*([^> \n\t]+)[^>]*>") );
@@ -656,7 +705,7 @@ static bool laTeXifyImages( QString& html )
 	    src = src.mid( 1, src.length() - 2 );
 	src.replace( QRegExp(QString("\\\\")), QString::null );
 	if ( fileContents(qdocOutputDir + src).isEmpty() )
-	    return FALSE;
+	    return;
 
 	if ( src.endsWith(QString(".png")) ) {
 	    src = src.left( src.length() - 4 );
@@ -671,11 +720,10 @@ static bool laTeXifyImages( QString& html )
 	    }
 	} else {
 	    qWarning( "Cannot handle non-PNG image '%s'", src.latin1() );
-	    return FALSE;
+	    return;
 	}
 	k++;
     }
-    return TRUE;
 }
 
 static void sloppify( QString& html )
@@ -817,8 +865,7 @@ static bool laTeXify( QString& html,
     laTeXifyTables( html );
     laTeXifyANames( html, chapterLabel );
     laTeXifyAHrefs( html, chapterLabel );
-    if ( !laTeXifyImages(html) )
-	return FALSE;
+    laTeXifyImages( html );
     sloppify( html );
 
     k = 0;
@@ -899,11 +946,6 @@ static bool emitBook( bool a4, bool letter, bool twoSided )
 	QString html = fileContents( *c );
 	if ( html.isEmpty() )
 	    return FALSE;
-	if ( html.find(QString("<!-- unfriendly -->")) != -1 ) {
-	    qWarning( "qdoc2latex error: File '%s' must be regenerated with"
-		      " qdoc option '--friendly'", (*c).latin1() );
-	    return FALSE;
-	}
 	if ( !emitChapter(html, (*c).mid(slash + 1)) )
 	    return FALSE;
 	++c;
@@ -956,18 +998,9 @@ static void checkUnusedQdocFiles()
       qdoc with --friendly=no.
     */
     QRegExp irrelevantFiles( QString(
-	".*-(?:members|h|[0-9]+(?:-[0-9]+)*)\\.html") );
-    QStringList fileNameList;
+	".*-(?:members|h|[0-9]+(?:-[0-9]+)+)\\.html") );
     QStringList::Iterator f;
 
-    QDir dir( qdocOutputDir );
-    if ( !dir.exists() )
-	return;
-    dir.setSorting( QDir::Name );
-
-    dir.setNameFilter( QString("*.html") );
-    dir.setFilter( QDir::Files );
-    fileNameList = dir.entryList();
     f = fileNameList.begin();
 
     FILE *logfile = fopen( "qdoc2latex.log", "w" );
@@ -1029,35 +1062,54 @@ int main( int argc, char **argv )
 	return 1;
     }
 
+    QDir dir( qdocOutputDir );
+    if ( dir.exists() ) {
+	dir.setSorting( QDir::Name );
+
+	dir.setNameFilter( QString("*.html") );
+	dir.setFilter( QDir::Files );
+	fileNameList = dir.entryList();
+    }
+
     while ( i < argc ) {
 	QString fn( argv[i++] );
 
-	yyIn = fileContents( fn );
-	if ( yyIn.isEmpty() )
-	    continue;
+	if ( fn.endsWith(QString(".q2l")) ) {
+	    yyIn = fileContents( fn );
+	    if ( yyIn.isEmpty() )
+		continue;
 
-	stripComments();
+	    stripComments();
 
-	QString outFileName( fn );
-	if ( outFileName.endsWith(QString(".q2l")) )
+	    QString outFileName( fn );
 	    outFileName.truncate( outFileName.length() - 4 );
-	outFileName += QString( ".tex" );
+	    outFileName += QString( ".tex" );
 
-	yyCurrentBook = yyBooks.append( Book(outFileName) );
-	yyPos = 0;
+	    yyCurrentBook = yyBooks.append( Book(outFileName) );
+	    yyPos = 0;
 
-	skipSpaces();
-	while ( !eoi() ) {
-	    if ( !matchCommand() ) {
-		qWarning( "%s:%d: Parse error", fn.latin1(),
-			  yyIn.left(yyPos).contains(QChar('\n')) + 1 );
-		return 1;
-	    }
 	    skipSpaces();
-	}
+	    while ( !eoi() ) {
+		if ( !matchCommand() ) {
+		    qWarning( "%s:%d: Parse error", fn.latin1(),
+			      yyIn.left(yyPos).contains(QChar('\n')) + 1 );
+		    return 1;
+		}
+		skipSpaces();
+	    }
 
-	if ( !findANames() )
-	    return 1;
+	    if ( !findANames() )
+		return 1;
+	} else if ( fn.endsWith(".book") ) {
+	    QString outFileName = fn;
+	    outFileName.truncate( outFileName.length() - 5 );
+	    outFileName += QString( ".tex" );
+	    yyCurrentBook = yyBooks.append( Book(outFileName) );
+	    if ( !processQbook() )
+		return 1;
+	} else {
+	    qWarning( "File '%s' has an unknown extension", fn.latin1() );
+	}
     }
 
     yyCurrentBook = yyBooks.begin();

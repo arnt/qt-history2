@@ -1494,6 +1494,11 @@ EnumDecl::EnumDecl( const Location& loc, const QString& name, Decl *context )
 {
 }
 
+QString EnumDecl::uniqueName() const
+{
+    return name() + QString( "-enum" );
+}
+
 void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 {
     out.putsMeta( "enum" );

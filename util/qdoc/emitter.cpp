@@ -618,20 +618,19 @@ static void lintHtmlFile( const QString& filePath )
     QString fileName = filePath.mid( filePath.findRev(QChar('/')) + 1 );
     anames.insert( fileName );
 
-// ###
-#if 0
-    if ( filePath.right(13) == QString("-members.html") )
-	return;
-#endif
-
     int k = 0;
     while ( (k = anchor.search(fullText, k)) != -1 ) {
 	QString link = anchor.cap( 2 );
 	if ( link[0] == QChar('"') )
 	    link = link.mid( 1, link.length() - 2 );
+	link = link.lower();
 
 	if ( anchor.cap(1) == QString("name") ) {
+	    int n = anames.count();
 	    anames.insert( fileName + QChar('#') + link );
+	    if ( n == (int) anames.count() )
+		message( 0, "Two '<a name=%s>' in file '%s' (case insensitive)",
+			 link.latin1(), fileName.latin1() );
 	} else {
 	    if ( link[0] == QChar('#') )
 		ahrefs.insert( fileName + link );
