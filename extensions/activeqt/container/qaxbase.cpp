@@ -64,7 +64,7 @@ struct QAxMetaObject : public QMetaObject
     int numParameter(const QByteArray &prototype);
     QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
 
-   QMap<QByteArray, QByteArray> realPrototype;
+    QMap<QByteArray, QByteArray> realPrototype;
 
 private:
     void parsePrototype(const QByteArray &prototype);
@@ -119,6 +119,7 @@ QByteArray QAxMetaObject::paramType(const QByteArray &prototype, int index, bool
 }
 
 static QHash<QString, QAxMetaObject*> mo_cache;
+static QHash<QUuid, QMap<QByteArray, QList<QPair<QByteArray, int> > > > enum_cache;
 static int mo_cache_ref = 0;
 static QMutex cache_mutex;
 
@@ -1681,7 +1682,21 @@ void MetaObjectGenerator::readEnumInfo()
 {
     if (!typelib)
         return;
-    
+
+    QUuid libUuid;
+
+    if (d->tryCache) {
+        TLIBATTR *libAttr = 0;
+        typelib->GetLibAttr(&libAttr);
+        if (libAttr) {
+            libUuid = QUuid(libAttr->guid);
+            typelib->ReleaseTLibAttr(libAttr);
+            enum_list = enum_cache.value(libUuid);
+            if (!enum_list.isEmpty())
+                return;
+        }
+    }
+
     int enum_serial = 0;
     UINT index = typelib->GetTypeInfoCount();
     for (UINT i = 0; i < index; ++i) {
@@ -1736,6 +1751,9 @@ void MetaObjectGenerator::readEnumInfo()
             enuminfo->Release();
         }
     }
+
+    if (!libUuid.isNull())
+        enum_cache.insert(libUuid, enum_list);
 }
 
 void MetaObjectGenerator::addChangedSignal(const QByteArray &function, const QByteArray &type, int memid)
