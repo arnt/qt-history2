@@ -702,7 +702,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	menu.insertSeparator();
-	menu.insertItem( tr( "&Export..." ), EXPORT_PACKAGE );
+	menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
 	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
 	menu.setItemChecked( TOGGLE_PACKAGE, wi->sourceFile->isPackage() );
 	break;
@@ -712,7 +712,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
 	menu.insertSeparator();
-	menu.insertItem( tr( "&Export..." ), EXPORT_PACKAGE );
+	menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
 	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
 	menu.setItemChecked( TOGGLE_PACKAGE, wi->formFile->isPackage() );
 	break;

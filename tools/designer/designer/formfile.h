@@ -82,7 +82,7 @@ public:
     bool isFake() const { return fake; }
 
     void setPackage( bool b ) { pkg = b; }
-    bool isPackage() const { return pkg; }
+    bool isPackage() const;
 
 signals:
     void somethingChanged( FormFile* );

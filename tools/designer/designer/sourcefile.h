@@ -39,8 +39,8 @@ public:
     void setText( const QString &s );
     void setModified( bool m );
 
-    bool save();
-    bool saveAs();
+    bool save( bool ignoreModified = FALSE );
+    bool saveAs( bool ignoreModified = FALSE );
     bool load();
     bool close();
     bool closeEvent();
@@ -60,7 +60,7 @@ public:
     static QString createUnnamedFileName( const QString &extension );
 
     void setPackage( bool b ) { pkg = b; }
-    bool isPackage() const { return pkg; }
+    bool isPackage() const;
 
 private:
     bool checkFileName( bool allowBreak );

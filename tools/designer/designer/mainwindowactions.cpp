@@ -633,14 +633,14 @@ void MainWindow::setupFileActions()
     	a = new QAction( this, 0 );
 	a->setText( tr( "Import" ) );
 	a->setToolTip( tr( "Import Dialog or File" ) );
-	a->setMenuText( tr( "&Import..." ) );
+	a->setMenuText( tr( "&Import package for editing..." ) );
 	connect( a, SIGNAL( activated() ), this, SLOT( fileImport() ) );
 	a->addTo( fileMenu );
 
         	a = new QAction( this, 0 );
 	a->setText( tr( "Export" ) );
 	a->setToolTip( tr( "Export Dialog or File" ) );
-	a->setMenuText( tr( "&Export..." ) );
+	a->setMenuText( tr( "&Export as package..." ) );
 	connect( a, SIGNAL( activated() ), this, SLOT( fileExport() ) );
 	a->addTo( fileMenu );
 	
@@ -1474,30 +1474,20 @@ void MainWindow::fileExport( QObject *o )
     statusBar()->message( tr( "Enter a filename..." ) );
     if ( o->inherits( "SourceFile" ) ) {
 	SourceFile *sf = (SourceFile*)o;
-	sf->setModified( TRUE );
-	sf->saveAs();
+	if ( !sf->saveAs( TRUE ) )
+	    return;
 	QString fn = sf->fileName();
-	QString dir = getenv( "QTSCRIPTDIR" );
-	qDebug( "%s %s", dir.latin1(), fn.latin1() );
-	if ( fn.left( dir.length() ) == dir ) {
-	    currentProject->setModified( TRUE );
-	    sf->setPackage( TRUE );
-	} else {
-	    currentProject->setModified( FALSE );
-	}
+	currentProject->setModified( TRUE );
+	sf->setPackage( TRUE );
     } else if ( o->inherits( "FormFile" ) ) {
 	FormFile *ff = (FormFile*)o;
-	ff->setModified( TRUE );
-	ff->saveAs();
+	if ( !ff->saveAs() )
+	    return;
 	QString fn = ff->fileName();
 	QString dir = getenv( "QTSCRIPTDIR" );
 	qDebug( "%s %s", dir.latin1(), fn.latin1() );
-	if ( fn.left( dir.length() ) == dir ) {
-	    currentProject->setModified( TRUE );
-	    ff->setPackage( TRUE );
-	} else {
-	    currentProject->setModified( FALSE );
-	}
+	currentProject->setModified( TRUE );
+	ff->setPackage( TRUE );
     }
 }
 

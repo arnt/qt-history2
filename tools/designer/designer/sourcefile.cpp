@@ -57,11 +57,11 @@ void SourceFile::setText( const QString &s )
     txt = s;
 }
 
-bool SourceFile::save()
+bool SourceFile::save( bool ignoreModified )
 {
     if ( fileNameTemp )
 	return saveAs();
-    if ( !isModified() )
+    if ( !ignoreModified && !isModified() )
 	return TRUE;
     if ( ed )
 	ed->save();
@@ -95,7 +95,7 @@ bool SourceFile::save()
     return TRUE;
 }
 
-bool SourceFile::saveAs()
+bool SourceFile::saveAs( bool ignoreModified )
 {
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     QString filter;
@@ -103,7 +103,14 @@ bool SourceFile::saveAs()
 	filter = iface->fileFilterList().join(";;");
 
     QString old = filename;
-    QString fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
+    QString initFn = pro->makeAbsolute( filename );
+    if ( ignoreModified ) {
+	QString dir = getenv( "QTSCRIPTDIR" );
+	initFn = QFileInfo( initFn ).fileName();
+	initFn.prepend( dir + "/" );
+	qDebug( initFn );
+    }
+    QString fn = QFileDialog::getSaveFileName( initFn, filter );
     if ( fn.isEmpty() )
 	return FALSE;
     fileNameTemp = FALSE;
@@ -117,7 +124,7 @@ bool SourceFile::saveAs()
     if ( ed )
 	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
     setModified( TRUE );
-    return save();
+    return save( ignoreModified );
 }
 
 bool SourceFile::load()
@@ -262,4 +269,11 @@ bool SourceFile::checkFileName( bool allowBreak )
 	sf = pro->findSourceFile( filename, this );
     }
     return TRUE;
+}
+
+bool SourceFile::isPackage() const
+{
+    if ( filename[0] == '/' )
+	return TRUE;
+    return pkg;
 }

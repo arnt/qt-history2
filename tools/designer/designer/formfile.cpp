@@ -705,3 +705,10 @@ bool FormFile::checkFileName( bool allowBreak )
      }
     return TRUE;
 }
+
+bool FormFile::isPackage() const
+{
+    if ( filename[0] == '/' )
+	return TRUE;
+    return pkg;
+}
