@@ -879,6 +879,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     return QObject::eventFilter( o, e );
 }
 
+/*! \reimp */
 void QLayout::childEvent( QChildEvent *e )
 {
     if ( !enabled )

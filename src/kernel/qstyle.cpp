@@ -1765,4 +1765,19 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
   \obsolete
 */
 
+/*!
+  \fn int QStyle::defaultFrameWidth() const
+  \obsolete
+*/
+
+/*!
+  \fn void QStyle::tabbarMetrics( const QWidget *, int &, int &, int & ) const
+  \obsolete
+*/
+
+/*!
+  \fn QSize QStyle::scrollBarExtent() const
+  \obsolete
+*/
+
 #endif // QT_NO_STYLE

@@ -837,6 +837,15 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     \fn void QMainWindow::toolBarPositionChanged( QToolBar * );
 */
 
+/*!
+    \obsolete
+    \fn bool QMainWindow::toolBarsMovable() const
+*/
+
+/*!
+    \obsolete
+    \fn void QMainWindow::setToolBarsMovable( bool )
+*/
 
 /*!  Constructs an empty main window. The \a parent, \a name and
     widget flags \a f, are passed to the QWidget constructor.

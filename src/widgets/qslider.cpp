@@ -698,7 +698,7 @@ QSizePolicy QSlider::sizePolicy() const
 }
 
 
-/*!
+/*
   Returns the number of pixels to use for the business part of the
   slider (i.e., the non-tickmark portion). The remaining space is shared
   equally between the tickmark regions. This function and  sizeHint()
