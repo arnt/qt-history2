@@ -18,6 +18,7 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include <qpixmap.h>
+#include <qregexp.h>
 
 class CheckListItem : public QCheckListItem
 {
@@ -129,6 +130,30 @@ void ChangeProperties::setValue()
 	    value = ( txt != "0" && txt != "false" );
 	}
 	break;
+    case QVariant::List:
+	{
+	    QStringList txtList = QStringList::split( QRegExp( "[,;]" ), editValue->text() );
+	    QValueList<QVariant> varList;
+	    for ( QStringList::Iterator it = txtList.begin(); it != txtList.end(); ++it ) {
+		QVariant svar = *it;
+		QString str = svar.toString();
+		str = str.stripWhiteSpace();
+		bool ok;
+		int i = str.toInt( &ok );
+		if ( ok ) {
+		    varList << i;
+		    continue;
+		}
+		double d = str.toDouble( &ok );
+		if ( ok ) {
+		    varList << d;
+		    continue;
+		}
+		varList << str;
+	    }
+	    value = varList;
+	}
+	break;
 
     default:
 	value = editValue->text();
@@ -199,6 +224,17 @@ void ChangeProperties::updateProperties()
 		{
 		    QPixmap pm = var.toPixmap();
 		    item->setPixmap( 2, pm );
+		}
+		break;
+	    case QVariant::List:
+		{
+		    QValueList<QVariant> varList = var.toList();
+		    QStringList strList;
+		    for ( QValueList<QVariant>::Iterator it = varList.begin(); it != varList.end(); ++it ) {
+			QVariant var = *it;
+			strList << var.toString();
+		    }
+		    item->setText( 2, strList.join( ", " ) );
 		}
 		break;
 	    case QVariant::Int:
