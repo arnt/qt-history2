@@ -357,7 +357,7 @@ public:
             
             const QMetaProperty metaProp = meta->property(meta->indexOfProperty(propname));
             void *argv[] = {0, var.data()};
-            if (!qstrcmp(metaProp.typeName(), "QVariant"))
+            if (metaProp.type() == -1)
                 argv[1] = &var;
             
             // emit the "changed" signal
@@ -2654,9 +2654,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     EXCEPINFO excepinfo;
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
-    
-    QByteArray proptype(prop.typeName());
 
+    QByteArray proptype(prop.typeName());
     switch (call) {
     case QMetaObject::ReadProperty:
         params.cArgs = 0;
@@ -2667,11 +2666,13 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0);
         
         // map result VARIANTARG to void*
-        QVariantToVoidStar(VARIANTToQVariant(arg, proptype), *v, proptype);
+        QVariantToVoidStar(VARIANTToQVariant(arg, proptype, prop.type()), *v, proptype);
         break;
         
     case QMetaObject::WriteProperty:
         {
+            QVariant::Type t = (QVariant::Type)prop.type();
+
             DISPID dispidNamed = DISPID_PROPERTYPUT;
             params.cArgs = 1;
             params.cNamedArgs = 1;
@@ -2687,12 +2688,10 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                 qvar = *(int*)v[0];
                 proptype = 0;
             } else {
-                QVariant::Type t = QVariant::nameToType(prop.typeName());
-                if (t == QVariant::Invalid) {
-                    if (proptype == "QVariant")
-                        qvar = *(QVariant*)v[0];
-                    else if (proptype.endsWith('*'))
-                        qVariantSet(qvar, *(void**)v[0], prop.typeName());
+                if (t == -1) {
+                    qvar = *(QVariant*)v[0];
+                } else if (t == QVariant::UserType) {
+                    qVariantSet(qvar, *(void**)v[0], prop.typeName());
                 } else {
                     proptype = 0;
                     qvar = QCoreVariant(t, v[0]);
