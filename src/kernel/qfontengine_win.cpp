@@ -156,7 +156,7 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
 {
-    //qDebug("regular windows font engine created!");
+    //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
 
     _name = name;
 
@@ -222,7 +222,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-    bool nat_xf = false;//( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
+    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
     if ( force_bitmap ) {

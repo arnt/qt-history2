@@ -19,9 +19,6 @@
 
 int main(int argc, char** argv)
 {
-    // Use an interesting font
-    QApplication::setFont(QFont("unifont",16));
-
     QApplication app(argc,argv);
 
     FontDisplayer m;

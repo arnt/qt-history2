@@ -102,6 +102,7 @@ int usp_latin_script = 0;
 
 
 const QFont::Script japanese_tryScripts[] = {
+    QFont::Latin,
     QFont::Han_Japanese,
     QFont::Hangul,
     QFont::Han_SimplifiedChinese,
@@ -109,6 +110,7 @@ const QFont::Script japanese_tryScripts[] = {
 };
 
 const QFont::Script korean_tryScripts[] = {
+    QFont::Latin,
     QFont::Hangul,
     QFont::Han_Japanese,
     QFont::Han_SimplifiedChinese,
@@ -116,6 +118,7 @@ const QFont::Script korean_tryScripts[] = {
 };
 
 const QFont::Script simplifiedChinese_tryScripts[] = {
+    QFont::Latin,
     QFont::Han_SimplifiedChinese,
     QFont::Han_TraditionalChinese,
     QFont::Han_Japanese,
@@ -123,6 +126,7 @@ const QFont::Script simplifiedChinese_tryScripts[] = {
 };
 
 const QFont::Script traditionalChinese_tryScripts[] = {
+    QFont::Latin,
     QFont::Han_TraditionalChinese,
     QFont::Han_SimplifiedChinese,
     QFont::Han_Japanese,
@@ -620,7 +624,7 @@ void QTextEngine::shape( int item ) const
 	    if ( script == QFont::Latin && script_prop->fAmbiguousCharSet ) {
 		// maybe some asian language
 		int i;
-		for( i = 0; i < 4; i++ ) {
+		for( i = 0; i < 5; i++ ) {
 		    QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
 		    if ( fe->type() == QFontEngine::Box )
 			continue;
