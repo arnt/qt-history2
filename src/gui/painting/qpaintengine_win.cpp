@@ -1441,8 +1441,7 @@ QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
 		   GCCaps(CoordTransform
 			  | PenWidthTransform
 			  | PatternTransform
-			  | PixmapTransform
-			  | CanRenderText ))
+			  | PixmapTransform))
 
 {
     d->pdev = dev;
@@ -1600,10 +1599,13 @@ void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
 void QGdiplusPaintEngine::drawRect(const QRect &r)
 {
-    if (d->brush)
-	d->graphics->FillRectangle(d->brush, r.x(), r.y(), r.width(), r.height());
+    if (d->brush) {
+	int subtract = d->usePen ? -1 : 0;
+	d->graphics->FillRectangle(d->brush, r.x(), r.y(),
+				   r.width() - subtract, r.height() - subtract);
+    }
     if (d->usePen)
-	d->graphics->DrawRectangle(d->pen, r.x(), r.y(), r.width(), r.height());
+	d->graphics->DrawRectangle(d->pen, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
 void QGdiplusPaintEngine::drawPoint(const QPoint &p)
@@ -1623,12 +1625,17 @@ void QGdiplusPaintEngine::drawWinFocusRect(const QRect &r, bool, const QColor &)
 {
     Pen pen(Color(0, 0, 0), 0);
     pen.SetDashStyle(DashStyleDot);
-    d->graphics->DrawRectangle(&pen, r.x(), r.y(), r.width(), r.height());
+    d->graphics->DrawRectangle(&pen, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
 void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     GraphicsPath path(FillModeAlternate);
+
+    int top = r.y();
+    int bottom = r.y() + r.height() - 1;
+    int left = r.x();
+    int right = r.x() + r.width() - 1;
 
     int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
     int horStart  = r.x() + r.width() / 2 - horLength / 2;
@@ -1641,14 +1648,13 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     int arcHeight = r.width() - horLength;
 
     path.AddLine(horStart, r.y(), horEnd, r.y());
-    path.AddArc(r.x() + r.width() - arcWidth, r.y(), arcWidth, arcHeight, 270, 90);
-    path.AddLine(r.x() + r.width(), verStart, r.x() + r.width(), verEnd);
-    path.AddArc(r.x() + r.width() - arcWidth, r.y() + r.height() - arcHeight,
-		arcWidth, arcHeight, 0, 90);
-    path.AddLine(horEnd, r.y() + r.height(), horStart, r.y() + r.height());
-    path.AddArc(r.x(), r.y() + r.height() - arcHeight, arcWidth, arcHeight, 90, 90);
-    path.AddLine(r.x(), verEnd, r.x(), verStart);
-    path.AddArc(r.x(), r.y(), arcWidth, arcHeight, 180, 90);
+    path.AddArc(right - arcWidth, top, arcWidth, arcHeight, 270, 90);
+    path.AddLine(right, verStart, right, verEnd);
+    path.AddArc(right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
+    path.AddLine(horEnd, bottom, horStart, bottom);
+    path.AddArc(left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
+    path.AddLine(left, verEnd, left, verStart);
+    path.AddArc(left, top, arcWidth, arcHeight, 180, 90);
     path.CloseFigure();
     if (d->brush)
 	d->graphics->FillPath(d->brush, &path);
@@ -1706,7 +1712,8 @@ void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npo
     if (d->usePen) {
 	GraphicsPath path;
 	for (int i=1; i<npoints; ++i)
-	    path.AddLine(pa.at(i-1).x(), pa.at(i-1).y(), pa.at(i).x(), pa.at(i).y());
+	    path.AddLine(pa.at(index+i-1).x(), pa.at(index+i-1).y(),
+			 pa.at(index+i).x(), pa.at(index+i).y());
 	d->graphics->DrawPath(d->pen, &path);
     }
 }
