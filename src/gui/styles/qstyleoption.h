@@ -106,7 +106,7 @@ struct Q4StyleOptionComplex : public Q4StyleOption
     enum { Type = Complex };
     QStyle::SCFlags parts;
     QStyle::SCFlags activeParts;
-    Q4StyleOptionComplex(int version, int type) : Q4StyleOption(version, type) {}
+    Q4StyleOptionComplex(int version, int type = Complex) : Q4StyleOption(version, type) {}
 };
 
 struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
