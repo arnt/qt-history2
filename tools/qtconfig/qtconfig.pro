@@ -1,17 +1,17 @@
 TEMPLATE = app
-CONFIG	+= qt warn_on
+CONFIG        += qt warn_on
 LANGUAGE = C++
+QT += compat
+SOURCES        += colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp
+HEADERS        += colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h
+FORMS        = mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui
+IMAGES        = images/appicon.png
 
-SOURCES	+= colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp
-HEADERS	+= colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h
-FORMS	= mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui
-IMAGES	= images/appicon.png
-
-PROJECTNAME	= Qt Configuration
-TARGET		= qtconfig
-DESTDIR		= ../../bin
+PROJECTNAME        = Qt Configuration
+TARGET                = qtconfig
+DESTDIR                = ../../bin
 
 target.path=$$bins.path
-INSTALLS	+= target
-INCLUDEPATH	+= .
-DBFILE		 = qtconfig.db
+INSTALLS        += target
+INCLUDEPATH        += .
+DBFILE                 = qtconfig.db

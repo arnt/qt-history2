@@ -13,10 +13,10 @@
 #ifndef COLORBUTTON_H
 #define COLORBUTTON_H
 
-#include <qbutton.h>
+#include <qabstractbutton.h>
 
 
-class ColorButton : public QButton
+class ColorButton : public QAbstractButton
 {
     Q_OBJECT
 
@@ -43,6 +43,7 @@ signals:
 
 
 protected:
+    void paintEvent(QPaintEvent *);
     void drawButton(QPainter *);
     void drawButtonLabel(QPainter *);
 
