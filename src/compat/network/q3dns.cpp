@@ -40,6 +40,8 @@
 #ifdef Q_OS_WIN32
 # include "qt_windows.h"
 #else
+# include <sys/types.h>
+# include <arpa/nameser.h>
 # include <resolv.h>
 #endif
 
