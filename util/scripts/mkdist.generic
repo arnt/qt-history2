@@ -131,17 +131,6 @@ ${QTDIR}/bin/syncqt
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
 rm -f ${QTDIR}/include/qt.h
 
-echo "Fixing copyright banner in .h and .cpp files.." >&2
-if [ "${disttype}" = "free" ]; then
-  fixcopyright=fixcopyright-free
-else
-  fixcopyright=fixcopyright-prof
-fi
-cd ${DISTDIR}/qt/src
-${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
-cd ${DISTDIR}/qt/extensions
-${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
-
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
