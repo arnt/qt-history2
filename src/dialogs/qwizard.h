@@ -43,7 +43,7 @@ Q_OBJECT
 
 class Q_EXPORT QWizard : public QDialog
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QWizard( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
