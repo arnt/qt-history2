@@ -71,6 +71,8 @@
 #include "qglobal.h"
 #endif // QT_H
 
+#ifndef QT_NO_CODECS
+
 class Q_EXPORT QJpUnicodeConv {
 public:
     enum Rules {
@@ -160,4 +162,5 @@ private:
     int rule;
 };
 
+#endif // QT_NO_CODECS
 #endif /* QJPUNICODE_H */
