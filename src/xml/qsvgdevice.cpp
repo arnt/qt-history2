@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#45 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#46 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -813,7 +813,7 @@ QColor QSvgDevice::parseColor( const QString &col )
 
 double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 {
-    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|\%|pt|pc|cm|mm|in|)$" );
+    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$" );
     if ( reg.search( str ) == -1 ) {
 	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
 	if ( ok )
