@@ -2550,7 +2550,7 @@ void QTextParag::format( int start, bool doMove )
 	    usedw = QMAX( usedw, (*it)->w );
 	r.setWidth( QMIN( usedw, r.width() ) );
     }
-    
+
     if ( y != r.height() )
 	r.setHeight( y );
 
@@ -3203,12 +3203,12 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 	    string->at( k ).x += toAdd;
 	}
     }	
-    
+
     if ( last >= 0 && last < string->length() )
 	line->w = string->at( last ).x + string->at( last ).format()->width( string->at( last ).c ); // #### Lars, I guess this breaks for Bidi
-    else 
+    else
 	line->w = 0;
-    
+
     return new QTextParag::LineStart();
 }
 
@@ -5194,7 +5194,7 @@ void QTextFlow::updateHeight( QTextCustomItem *i )
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p ), painter( 0 ), currCell( -1 )
 {
-    cells.setAutoDelete( TRUE );
+    cells.setAutoDelete( FALSE );
 #if defined(PARSER_DEBUG)
     debug_indent += "\t";
     qDebug( debug_indent + "new QTextTable (%p)", this );
