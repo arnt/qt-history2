@@ -97,6 +97,38 @@ Funksjonalitet:
 
     setFont og setPalette &Co. bør ha propagateToChildren argumenter
 
+    QMenuBar bør kunne ha Help lengst til høyre.
+
+Fra Andrew Pavlomanolakos <app@novanet.net.au>:
+> For menus I experimented with the following piece of code.
+> 
+> 	menubar = new QMenuBar(this);
+> 
+> 	QPopupMenu *file = new QPopupMenu;
+> 	menubar->insertItem("&File", file);
+> 	file->insertItem("&Open", this, SLOT(about()), Key_O + SHIFT);
+> 	file->insertItem("&Save", this, SLOT(about()), Key_S + CTRL);
+> 	file->insertItem("&Close", this, SLOT(about()), Key_C + ALT);
+> 	file->insertSeparator();
+> 	file->insertItem("&Quit", qApp, SLOT(quit()), Key_Q);
+> 
+> 	QPopupMenu *help = new QPopupMenu;
+> 	menubar->insertItem("&Help", help);
+> 	help->insertItem("&About", this, SLOT(about()));
+> 
+> With this 'Alt F' posts the File popup. The left and right cursor
+> keys to will then post the Help and File popups. Pressing ESC
+> removes the popup. Same for 'Alt H'.
+> 
+> Once the File popup is displayed I could not invoke the Open, Save,
+> Close or Quit menuitems without moving the cursor up/down keys and
+> pressing ENTER. (I would expect that I could invoke these menuitems by
+> just pressing either 'o', 's', 'c' or 'q').
+
+Ditto:
+> Note 2. Defining 'Key_Q + ASCII_ACCEL' displays rubbish on a popup.
+
+
 Bugs:
 -----
     Default plassering av barnewidgets
@@ -193,3 +225,4 @@ Gjort:
     Windows look & feel (spes. meny og combobox)
 
     QWidget::raise() og QWidget::lower maa stokke om i lista
+
